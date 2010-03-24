@@ -69,15 +69,6 @@
      name="auto_disengage_mic_check"
      top_pad="10"
      width="350" />
-    <check_box
-     control_name="CookiesEnabled"
-     height="16"
-     label="Accept cookies"
-     layout="topleft"
-     left="30"
-     name="cookies_enabled"
-     top_pad="10"
-     width="350" />
 	<text
       type="string"
     length="1"

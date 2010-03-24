@@ -36,8 +36,8 @@
 		<combo_box.item label="General" name="PG"/>
 	</combo_box>
 	<button label="Aplicar" name="apply_btn"/>
-	<button label="Teleportar a su Base a un usuario..." name="kick_btn"/>
-	<button label="Teleportar a sus Bases a todos los usuarios..." name="kick_all_btn"/>
+	<button label="Teleportar a su Base a un Residente..." name="kick_btn"/>
+	<button label="Teleportar a sus Bases a todos los Residentes..." name="kick_all_btn"/>
 	<button label="Enviar un mensaje a toda la región..." name="im_btn"/>
 	<button label="Administrar el Punto de Teleporte..." name="manage_telehub_btn"/>
 </panel>

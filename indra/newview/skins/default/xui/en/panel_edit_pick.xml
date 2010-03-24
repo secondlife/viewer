@@ -12,6 +12,10 @@
  help_topic="profile_edit_pick"
  top="0"
  width="333">
+ <panel.string
+  name="location_notice">
+    (will update after save)
+ </panel.string>
   <button
      follows="top|right"
      height="23"
@@ -179,7 +183,7 @@
         <button
          follows="bottom|left"
          height="23"
-         label="Save [WHAT]"
+         label="Save Pick"
          layout="topleft"
          name="save_changes_btn"
          left="0"

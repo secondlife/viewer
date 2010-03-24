@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Mensaje Instantáneo">
 	<string name="only_user_message">
-		Usted es el único usuario en esta sesión.
+		Eres el único Residente en esta sesión.
 	</string>
 	<string name="offline_message">
 		[FIRST] [LAST] no está conectado.
@@ -31,7 +31,7 @@
 		Un moderador del grupo le ha desactivado el chat de texto.
 	</string>
 	<string name="add_session_event">
-		No se ha podido añadir usuarios a la sesión de chat con [RECIPIENT].
+		No es posible añadir Residentes a la sesión de chat con [RECIPIENT].
 	</string>
 	<string name="message_session_event">
 		No se ha podido enviar su mensaje a la sesión de chat con [RECIPIENT].

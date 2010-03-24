@@ -22,4 +22,5 @@
 		[COUNT]lat
 	</string>
 	<text name="avatar_name" value="Nieznane"/>
+	<button name="profile_btn" tool_tip="Zobacz profil"/>
 </panel>

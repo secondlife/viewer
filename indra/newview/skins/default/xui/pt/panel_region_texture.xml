@@ -25,16 +25,16 @@
 		Escalas de Elevação de Terreno
 	</text>
 	<text name="height_text_lbl6">
-		Sudeste
+		Noroeste
 	</text>
 	<text name="height_text_lbl7">
-		Noroeste
+		Nordeste
 	</text>
 	<text name="height_text_lbl8">
 		Sudoeste
 	</text>
 	<text name="height_text_lbl9">
-		Noroeste
+		Sudeste
 	</text>
 	<spinner label="Baixo" name="height_start_spin_0"/>
 	<spinner label="Baixo" name="height_start_spin_1"/>

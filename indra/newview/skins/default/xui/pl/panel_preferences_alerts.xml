@@ -4,11 +4,11 @@
 		Powiadom mnie:
 	</text>
 	<check_box label="Kiedy wydaję lub otrzymuję L$" name="notify_money_change_checkbox"/>
-	<check_box label="Kiedy moi znajomi się logują lub wylogowują" name="friends_online_notify_checkbox"/>
+	<check_box label="Kiedy moi znajomi zalogowują się i wylogowują" name="friends_online_notify_checkbox"/>
 	<text name="show_label">
-		Zawsze pokazuj te powiadomienia:
+		Zawsze pokazuj:
 	</text>
 	<text name="dont_show_label">
-		Nigdy nie pokazuj tych powiadomień:
+		Nie pokazuj:
 	</text>
 </panel>

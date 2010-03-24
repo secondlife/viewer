@@ -9,6 +9,18 @@
 	<floater.string name="dont_notify">
 		Meddel ikke
 	</floater.string>
+	<floater.string name="moderate">
+		Moderat
+	</floater.string>
+	<floater.string name="adult">
+		Voksent
+	</floater.string>
+	<floater.string name="general">
+		Generelt
+	</floater.string>
+	<floater.string name="unknown">
+		Ukendt
+	</floater.string>
 	<layout_stack name="layout">
 		<layout_panel name="profile_stack">
 			<text name="event_name">
@@ -21,11 +33,20 @@
 				Afholdt af:
 			</text>
 			<text initial_value="(henter)" name="event_runby"/>
+			<text name="event_date_label">
+				Dato:
+			</text>
 			<text name="event_date">
 				10/10/2010
 			</text>
+			<text name="event_duration_label">
+				Varighed:
+			</text>
 			<text name="event_duration">
 				1 time
+			</text>
+			<text name="event_covercharge_label">
+				Pris:
 			</text>
 			<text name="event_cover">
 				Gratis
@@ -36,6 +57,9 @@
 			<text name="event_location" value="SampleParcel, Name Long (145, 228, 26)"/>
 			<text name="rating_label" value="Rating:"/>
 			<text name="rating_value" value="ukendt"/>
+			<expandable_text name="event_desc">
+				Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			</expandable_text>
 		</layout_panel>
 		<layout_panel name="button_panel">
 			<button name="create_event_btn" tool_tip="Opret event"/>

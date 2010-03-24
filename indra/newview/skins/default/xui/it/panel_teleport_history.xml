@@ -3,12 +3,16 @@
 	<accordion name="history_accordion">
 		<accordion_tab name="today" title="Oggi"/>
 		<accordion_tab name="yesterday" title="Ieri"/>
-		<accordion_tab name="2_days_ago" title="2 giorni fà"/>
-		<accordion_tab name="3_days_ago" title="3 giorni fà"/>
-		<accordion_tab name="4_days_ago" title="4 giorni fà"/>
-		<accordion_tab name="5_days_ago" title="5 giorni fà"/>
-		<accordion_tab name="6_days_and_older" title="6 giorni fà o più vecchio"/>
-		<accordion_tab name="1_month_and_older" title="1 mese o più vecchio"/>
-		<accordion_tab name="6_months_and_older" title="6 mesi o più vecchio"/>
+		<accordion_tab name="2_days_ago" title="2 giorni fa"/>
+		5
+		<accordion_tab name="3_days_ago" title="3 giorni fa"/>
+		<accordion_tab name="4_days_ago" title="4 giorni fa"/>
+		<accordion_tab name="5_days_ago" title="5 giorni fa"/>
+		<accordion_tab name="6_days_and_older" title="6 giorni o precedente"/>
+		<accordion_tab name="1_month_and_older" title="1 mese o precedente"/>
+		<accordion_tab name="6_months_and_older" title="6 mesi o precedente"/>
 	</accordion>
+	<panel name="bottom_panel">
+		<button name="gear_btn" tool_tip="Mostra ulteriori opzioni"/>
+	</panel>
 </panel>

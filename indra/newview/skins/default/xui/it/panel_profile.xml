@@ -21,28 +21,28 @@
 				<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
 			</panel>
 			<panel name="first_life_image_panel">
-				<text name="title_rw_descr_text" value="Mondo Reale:"/>
+				<text name="title_rw_descr_text" value="Mondo reale:"/>
 			</panel>
 			<text name="me_homepage_text">
-				Homepage:
+				Home page:
 			</text>
-			<text name="title_member_text" value="Membro dal:"/>
-			<text name="title_acc_status_text" value="Stato dell&apos;Account:"/>
-			<text name="acc_status_text" value="Resident. No payment info on file."/>
+			<text name="title_member_text" value="Iscritto dal:"/>
+			<text name="title_acc_status_text" value="Stato account:"/>
+			<text name="acc_status_text" value="Residente. Nessuna informazione di pagamento disponibile."/>
 			<text name="title_partner_text" value="Partner:"/>
 			<text name="title_groups_text" value="Gruppi:"/>
 		</panel>
 	</scroll_container>
 	<panel name="profile_buttons_panel">
-		<button label="Aggiungi Amico" name="add_friend" tool_tip="Offri amicizia ad un residente"/>
-		<button label="IM" name="im" tool_tip="Apri una sessione instant message"/>
+		<button label="Aggiungi amico" name="add_friend" tool_tip="Offri amicizia a questo residente"/>
+		<button label="IM" name="im" tool_tip="Apri una sessione messaggio istantaneo"/>
 		<button label="Chiama" name="call" tool_tip="Chiama questo residente"/>
 		<button label="Mappa" name="show_on_map_btn" tool_tip="Mostra il residente sulla mappa"/>
 		<button label="Teleport" name="teleport" tool_tip="Offri teleport"/>
 		<button label="▼" name="overflow_btn" tool_tip="Paga o condividi l&apos;inventario con il residente"/>
 	</panel>
 	<panel name="profile_me_buttons_panel">
-		<button label="Modifica Profilo" name="edit_profile_btn"/>
-		<button label="Modifica Aspetto" name="edit_appearance_btn"/>
+		<button label="Modifica profilo" name="edit_profile_btn"/>
+		<button label="Modifica aspetto fisico" name="edit_appearance_btn"/>
 	</panel>
 </panel>

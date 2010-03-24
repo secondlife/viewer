@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
 	<string halign="left" name="payee_group" width="100">
-		Paga Gruppo
+		Paga gruppo
 	</string>
 	<string halign="left" name="payee_resident" width="120">
-		Pags Residente
+		Paga residente
 	</string>
 	<icon name="icon_person" tool_tip="Persona"/>
 	<text left="120" name="payee_name">
@@ -15,14 +15,14 @@
 	</text>
 	<icon name="icon_object" tool_tip="Oggetti"/>
 	<text left="120" name="object_name_text">
-		...
+		Il mio oggetto con un nome veramente lungo
 	</text>
 	<button label="1 L$" label_selected="1 L$" left="125" name="fastpay 1" width="70"/>
 	<button label="5 L$" label_selected="5 L$" left="200" name="fastpay 5" width="70"/>
 	<button label="10 L$" label_selected="10 L$" left="125" name="fastpay 10" width="70"/>
 	<button label="20 L$" label_selected="20 L$" left="200" name="fastpay 20" width="70"/>
 	<text halign="left" left="5" name="amount text">
-		O, scegli importo:
+		Oppure, scegli importo:
 	</text>
 	<line_editor left="74" name="amount" width="50"/>
 	<button label="Paga" label_selected="Paga" name="pay btn"/>

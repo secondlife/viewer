@@ -72,12 +72,6 @@
 #define XML_BTN_ON_TXTR "edit_icon"
 #define XML_BTN_SAVE "save_changes_btn"
 
-#define SAVE_BTN_LABEL "[WHAT]"
-#define LABEL_PICK = "Pick"
-#define LABEL_CHANGES = "Changes"
-
-std::string SET_LOCATION_NOTICE("(will update after save)");
-
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -149,8 +143,6 @@ void LLPanelPickInfo::onOpen(const LLSD& key)
 BOOL LLPanelPickInfo::postBuild()
 {
 	mSnapshotCtrl = getChild<LLTextureCtrl>(XML_SNAPSHOT);
-
-	childSetLabelArg(XML_BTN_SAVE, SAVE_BTN_LABEL, std::string("Pick"));
 
 	childSetAction("teleport_btn", boost::bind(&LLPanelPickInfo::onClickTeleport, this));
 	childSetAction("show_on_map_btn", boost::bind(&LLPanelPickInfo::onClickMap, this));
@@ -410,7 +402,7 @@ void LLPanelPickEdit::onOpen(const LLSD& key)
 		childSetValue("pick_name", pick_name.empty() ? region_name : pick_name);
 		childSetValue("pick_desc", pick_desc);
 		setSnapshotId(snapshot_id);
-		setPickLocation(createLocationText(SET_LOCATION_NOTICE, pick_name, region_name, getPosGlobal()));
+		setPickLocation(createLocationText(getLocationNotice(), pick_name, region_name, getPosGlobal()));
 
 		enableSaveButton(true);
 	}
@@ -578,7 +570,7 @@ void LLPanelPickEdit::onClickSetLocation()
 		region_name = region->getName();
 	}
 
-	setPickLocation(createLocationText(SET_LOCATION_NOTICE, parcel_name, region_name, getPosGlobal()));
+	setPickLocation(createLocationText(getLocationNotice(), parcel_name, region_name, getPosGlobal()));
 
 	mLocationChanged = true;
 	enableSaveButton(TRUE);
@@ -593,6 +585,12 @@ void LLPanelPickEdit::onClickSave()
 	LLSD params;
 	params["action"] = "save_new_pick";
 	notifyParent(params);
+}
+
+std::string LLPanelPickEdit::getLocationNotice()
+{
+	static std::string notice = getString("location_notice");
+	return notice;
 }
 
 void LLPanelPickEdit::processProperties(void* data, EAvatarProcessorType type)

@@ -41,7 +41,7 @@
 			Cette parcelle propose du contenu audio
 		</tooltip>
 		<playtip name="audio_playtip">
-			Jouer le contenu audio qui se trouve ici
+			Lire le contenu audio qui se trouve ici
 		</playtip>
 	</widgetset>
 	<scheme name="rtsp">

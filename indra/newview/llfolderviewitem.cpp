@@ -121,7 +121,6 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mHasVisibleChildren(FALSE),
 	mIndentation(0),
 	mItemHeight(p.item_height),
-	mNumDescendantsSelected(0),
 	mPassedFilter(FALSE),
 	mLastFilterGeneration(-1),
 	mStringMatchOffset(std::string::npos),
@@ -256,11 +255,30 @@ void LLFolderViewItem::refreshFromListener()
 		// temporary attempt to display the inventory folder in the user locale.
 		// mantipov: *NOTE: be sure this code is synchronized with LLFriendCardsManager::findChildFolderUUID
 		//		it uses the same way to find localized string
-		if (LLFolderType::lookupIsProtectedType(preferred_type))
+
+		// HACK: EXT - 6028 ([HARD CODED]? Inventory > Library > "Accessories" folder)
+		// Translation of Accessories folder in Library inventory folder
+		bool accessories = false;
+		if(mLabel == std::string("Accessories"))
+		{
+			//To ensure that Accessories folder is in Library we have to check its parent folder.
+			//Due to parent LLFolderViewFloder is not set to this item yet we have to check its parent via Inventory Model
+			LLInventoryCategory* cat = gInventory.getCategory(mListener->getUUID());
+			if(cat)
+			{
+				const LLUUID& parent_folder_id = cat->getParentUUID();
+				accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
+			}
+		}
+
+		//"Accessories" inventory category has folder type FT_NONE. So, this folder
+		//can not be detected as protected with LLFolderType::lookupIsProtectedType
+		if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
 		{
 			LLTrans::findString(mLabel, "InvFolder " + mLabel);
 		};
 
+		setToolTip(mLabel);
 		setIcon(mListener->getIcon());
 		time_t creation_date = mListener->getCreationDate();
 		if (mCreationDate != creation_date)
@@ -495,22 +513,6 @@ BOOL LLFolderViewItem::changeSelection(LLFolderViewItem* selection, BOOL selecte
 		return TRUE;
 	}
 	return FALSE;
-}
-
-void LLFolderViewItem::recursiveDeselect(BOOL deselect_self)
-{
-	if (mIsSelected && deselect_self)
-	{
-		mIsSelected = FALSE;
-
-		// update ancestors' count of selected descendents
-		LLFolderViewFolder* parent_folder = getParentFolder();
-		while(parent_folder)
-		{
-			parent_folder->mNumDescendantsSelected--;
-			parent_folder = parent_folder->getParentFolder();
-		}
-	}
 }
 
 
@@ -1459,7 +1461,6 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem
 		{
 			rv = TRUE;
 			child_selected = TRUE;
-			mNumDescendantsSelected++;
 		}
 	}
 	for (items_t::iterator iter = mItems.begin();
@@ -1470,7 +1471,6 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL openitem
 		{
 			rv = TRUE;
 			child_selected = TRUE;
-			mNumDescendantsSelected++;
 		}
 	}
 	if(openitem && child_selected)
@@ -1503,14 +1503,6 @@ BOOL LLFolderViewFolder::changeSelection(LLFolderViewItem* selection,
 		folders_t::iterator fit = iter++;
 		if((*fit)->changeSelection(selection, selected))
 		{
-			if (selected)
-			{
-				mNumDescendantsSelected++;
-			}
-			else
-			{
-				mNumDescendantsSelected--;
-			}
 			rv = TRUE;
 		}
 	}
@@ -1520,14 +1512,6 @@ BOOL LLFolderViewFolder::changeSelection(LLFolderViewItem* selection,
 		items_t::iterator iit = iter++;
 		if((*iit)->changeSelection(selection, selected))
 		{
-			if (selected)
-			{
-				mNumDescendantsSelected++;
-			}
-			else
-			{
-				mNumDescendantsSelected--;
-			}
 			rv = TRUE;
 		}
 	}
@@ -1544,7 +1528,6 @@ S32 LLFolderViewFolder::extendSelection(LLFolderViewItem* selection, LLFolderVie
 	{
 		folders_t::iterator fit = iter++;
 		num_selected += (*fit)->extendSelection(selection, last_selected, selected_items);
-		mNumDescendantsSelected += num_selected;
 	}
 
 	// handle selection of our immediate children...
@@ -1637,7 +1620,6 @@ S32 LLFolderViewFolder::extendSelection(LLFolderViewItem* selection, LLFolderVie
 			if (item->changeSelection(item, TRUE))
 			{
 				selected_items.put(item);
-				mNumDescendantsSelected++;
 				num_selected++;
 			}
 		}
@@ -1648,53 +1630,11 @@ S32 LLFolderViewFolder::extendSelection(LLFolderViewItem* selection, LLFolderVie
 		if (selection->changeSelection(selection, TRUE))
 		{
 			selected_items.put(selection);
-			mNumDescendantsSelected++;
 			num_selected++;
 		}
 	}
 
 	return num_selected;
-}
-
-void LLFolderViewFolder::recursiveDeselect(BOOL deselect_self)
-{
-	// make sure we don't have negative values
-	llassert(mNumDescendantsSelected >= 0);
-
-	if (mIsSelected && deselect_self)
-	{
-		mIsSelected = FALSE;
-
-		// update ancestors' count of selected descendents
-		LLFolderViewFolder* parent_folder = getParentFolder();
-		while(parent_folder)
-		{
-			parent_folder->mNumDescendantsSelected--;
-			parent_folder = parent_folder->getParentFolder();
-		}
-	}
-
-	if (0 == mNumDescendantsSelected)
-	{
-		return;
-	}
-
-	for (items_t::iterator iter = mItems.begin();
-		iter != mItems.end();)
-	{
-		items_t::iterator iit = iter++;
-		LLFolderViewItem* item = (*iit);
-		item->recursiveDeselect(TRUE);
-	}
-
-	for (folders_t::iterator iter = mFolders.begin();
-		iter != mFolders.end();)
-	{
-		folders_t::iterator fit = iter++;
-		LLFolderViewFolder* folder = (*fit);
-		folder->recursiveDeselect(TRUE);
-	}
-
 }
 
 void LLFolderViewFolder::destroyView()
@@ -1730,8 +1670,6 @@ BOOL LLFolderViewFolder::removeItem(LLFolderViewItem* item)
 {
 	if(item->remove())
 	{
-		//RN: this seem unneccessary as remove() moves to trash
-		//removeView(item);
 		return TRUE;
 	}
 	return FALSE;
@@ -1746,7 +1684,6 @@ void LLFolderViewFolder::removeView(LLFolderViewItem* item)
 		return;
 	}
 	// deselect without traversing hierarchy
-	item->recursiveDeselect(TRUE);
 	getRoot()->removeFromSelectionList(item);
 	extractItem(item);
 	delete item;

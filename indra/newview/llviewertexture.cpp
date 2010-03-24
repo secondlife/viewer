@@ -82,7 +82,7 @@ LLTexturePipelineTester* LLViewerTextureManager::sTesterp = NULL ;
 S32 LLViewerTexture::sImageCount = 0;
 S32 LLViewerTexture::sRawCount = 0;
 S32 LLViewerTexture::sAuxCount = 0;
-LLTimer LLViewerTexture::sEvaluationTimer;
+LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
 S32 LLViewerTexture::sBoundTextureMemoryInBytes = 0;
@@ -102,7 +102,7 @@ F32 LLViewerTexture::sCurrentTime = 0.0f ;
 BOOL LLViewerTexture::sUseTextureAtlas        = FALSE ;
 
 const F32 desired_discard_bias_min = -2.0f; // -max number of levels to improve image quality by
-const F32 desired_discard_bias_max = 1.5f; // max number of levels to reduce image quality by
+const F32 desired_discard_bias_max = (F32)MAX_DISCARD_LEVEL; // max number of levels to reduce image quality by
 const F64 log_2 = log(2.0);
 
 //----------------------------------------------------------------------------------------------
@@ -369,7 +369,7 @@ S32 LLViewerTexture::getCategoryFromIndex(S32 index)
 }
 
 // tuning params
-const F32 discard_bias_delta = .05f;
+const F32 discard_bias_delta = .25f;
 const F32 discard_delta_time = 0.5f;
 const S32 min_non_tex_system_mem = (128<<20); // 128 MB
 // non-const (used externally
@@ -1546,8 +1546,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		}
 		else
 		{
-			// Leave the priority as-is
-			return mDecodePriority;
+			priority = -1.f; //stop fetching
 		}
 	}
 	else if (cur_discard < 0)
@@ -2262,11 +2261,14 @@ void LLViewerFetchedTexture::destroyRawImage()
 	{
 		sRawCount--;		
 
-		if(mForceToSaveRawImage)
+		if(mIsRawImageValid)
 		{
-			saveRawImage() ;
-		}		
-		setCachedRawImage() ;
+			if(mForceToSaveRawImage)
+			{
+				saveRawImage() ;
+			}		
+			setCachedRawImage() ;
+		}
 	}
 
 	mRawImage = NULL;
@@ -2741,7 +2743,7 @@ void LLViewerLODTexture::processTextureStats()
 				mCalculatedDiscardLevel = discard_level;
 			}
 		}
-		if (mBoostLevel < LLViewerTexture::BOOST_HIGH)
+		if (mBoostLevel < LLViewerTexture::BOOST_SCULPTED)
 		{
 			discard_level += sDesiredDiscardBias;
 			discard_level *= sDesiredDiscardScale; // scale
@@ -2767,8 +2769,7 @@ void LLViewerLODTexture::processTextureStats()
 		//
 
 		S32 current_discard = getDiscardLevel();
-		if ((sDesiredDiscardBias > 0.0f) &&
-			(current_discard >= 0 && mDesiredDiscardLevel >= current_discard))
+		if (sDesiredDiscardBias > 0.0f && mBoostLevel < LLViewerTexture::BOOST_SCULPTED && current_discard >= 0)
 		{
 			// Limit the amount of GL memory bound each frame
 			if ( BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) > sMaxBoundTextureMemInMegaBytes * texmem_middle_bound_scale &&

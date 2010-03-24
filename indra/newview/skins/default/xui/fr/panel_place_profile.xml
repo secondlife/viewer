@@ -18,16 +18,16 @@
 	<string name="all_residents_text" value="Tous les résidents"/>
 	<string name="group_text" value="Groupe"/>
 	<string name="can_resell">
-		Le terrain acheté dans cette région peut être revendu.
+		Le terrain acheté dans la région peut être revendu.
 	</string>
 	<string name="can_not_resell">
-		Le terrain acheté dans cette région ne peut pas être revendu.
+		Le terrain acheté dans la région ne peut pas être revendu.
 	</string>
 	<string name="can_change">
-		Le terrain acheté dans cette région peut être fusionné ou divisé.
+		Le terrain acheté dans la région peut être fusionné ou divisé.
 	</string>
 	<string name="can_not_change">
-		Le terrain acheté dans cette région ne peut pas être fusionné ou divisé.
+		Le terrain acheté dans la région ne peut être fusionné ou divisé.
 	</string>
 	<string name="server_update_text">
 		Les informations sur le lieu ne sont pas disponibles sans mise à jour du serveur.

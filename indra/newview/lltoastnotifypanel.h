@@ -53,10 +53,19 @@ class LLNotificationForm;
 class LLToastNotifyPanel: public LLToastPanel 
 {
 public:
-	LLToastNotifyPanel(LLNotificationPtr&);
+	/**
+	 * Constructor for LLToastNotifyPanel.
+	 * 
+	 * @param pNotification a shared pointer to LLNotification
+	 * @param rect an initial rectangle of the toast panel. 
+	 * If it is null then a loaded from xml rectangle will be used. 
+	 * @see LLNotification
+	 */
+	LLToastNotifyPanel(LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null);
 	virtual ~LLToastNotifyPanel();
 	LLPanel * getControlPanel() { return mControlPanel; }
 
+	void setCloseNotificationOnDestroy(bool close) { mCloseNotificationOnDestroy = close; }
 protected:
 	LLButton* createButton(const LLSD& form_element, BOOL is_option);
 
@@ -68,7 +77,7 @@ protected:
 	};
 	std::vector<InstanceAndS32*> mBtnCallbackData;
 
-private:
+	bool mCloseNotificationOnDestroy;
 
 	typedef std::pair<int,LLButton*> index_button_pair_t; 
 	void adjustPanelForScriptNotice(S32 max_width, S32 max_height);
@@ -77,10 +86,17 @@ private:
 	/*
 	 * It lays out buttons of the notification in  mControlPanel.
 	 * Buttons will be placed from BOTTOM to TOP.
-	 * @param  h_pad horizontal space between buttons. It is depent on number of buttons.
+	 * @param  h_pad horizontal space between buttons. It is depend on number of buttons.
 	 * @param buttons vector of button to be added. 
 	 */
 	void updateButtonsLayout(const std::vector<index_button_pair_t>& buttons, S32 h_pad);
+
+	/**
+	 * Disable specific button(s) based on notification name and clicked button
+	 */
+	void disableButtons(const std::string& notification_name, const std::string& selected_button);
+
+	std::vector<index_button_pair_t> mButtons;
 
 	// panel elements
 	LLTextBase*		mTextBox;
@@ -89,6 +105,21 @@ private:
 
 	// internal handler for button being clicked
 	static void onClickButton(void* data);
+
+	typedef boost::signals2::signal <void (const LLUUID& notification_id, const std::string btn_name)>
+		button_click_signal_t;
+	static button_click_signal_t sButtonClickSignal;
+	boost::signals2::connection mButtonClickConnection;
+
+	/**
+	 * handle sButtonClickSignal (to disable buttons) across all panels with given notification_id
+	 */
+	void onToastPanelButtonClicked(const LLUUID& notification_id, const std::string btn_name);
+
+	/**
+	 * Process response data. Will disable selected options
+	 */
+	void disableRespondedOptions(LLNotificationPtr& notification);
 
 	bool mIsTip;
 	bool mAddedDefaultBtn;
@@ -101,6 +132,15 @@ private:
 
 	static const LLFontGL* sFont;
 	static const LLFontGL* sFontSmall;
+};
+
+class LLIMToastNotifyPanel : public LLToastNotifyPanel
+{
+public:
+
+	LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null);
+
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 };
 
 #endif /* LLTOASTNOTIFYPANEL_H_ */

@@ -10,22 +10,22 @@
 		Muovi la telecamera su e giù e a sinistra e destra
 	</floater.string>
 	<panel name="controls">
-		<joystick_track name="cam_track_stick" tool_tip="Sposta la visuale sù e giù, sinistra e destra"/>
+		<joystick_track name="cam_track_stick" tool_tip="Sposta la visuale in su e in giù, a sinistra e a destra"/>
 		<panel name="zoom" tool_tip="Avvicina la telecamera nell&apos;inquadratura">
-			<slider_bar name="zoom_slider" tool_tip="Zoom verso il focus"/>
+			<slider_bar name="zoom_slider" tool_tip="Zoom verso il centro focale"/>
 		</panel>
-		<joystick_rotate name="cam_rotate_stick" tool_tip="Ruota la visuale intorno al focus"/>
+		<joystick_rotate name="cam_rotate_stick" tool_tip="Ruota la visuale intorno al punto focale"/>
 		<panel name="camera_presets">
 			<button name="rear_view" tool_tip="Visuale posteriore"/>
-			<button name="group_view" tool_tip="Visuale di Gruppo"/>
-			<button name="front_view" tool_tip="Visuale Frontale"/>
-			<button name="mouselook_view" tool_tip="Visuale Mouselook"/>
+			<button name="group_view" tool_tip="Visuale di gruppo"/>
+			<button name="front_view" tool_tip="Visuale frontale"/>
+			<button name="mouselook_view" tool_tip="Visuale soggettiva"/>
 		</panel>
 	</panel>
 	<panel name="buttons">
 		<button label="" name="orbit_btn" tool_tip="Ruota la visuale"/>
-		<button label="" name="pan_btn" tool_tip="Visuale Panoramica"/>
-		<button label="" name="avatarview_btn" tool_tip="Guardare un avatar"/>
+		<button label="" name="pan_btn" tool_tip="Visuale panoramica"/>
+		<button label="" name="avatarview_btn" tool_tip="Guardare dall&apos;avatar"/>
 		<button label="" name="freecamera_btn" tool_tip="Vedi oggetto"/>
 	</panel>
 </floater>

@@ -10,8 +10,8 @@
 			<menu_item_call label="Chaussettes" name="Socks"/>
 			<menu_item_call label="Veste" name="Jacket"/>
 			<menu_item_call label="Gants" name="Gloves"/>
-			<menu_item_call label="Sous-vêtements (homme)" name="Self Undershirt"/>
-			<menu_item_call label="Sous-vêtements (femme)" name="Self Underpants"/>
+			<menu_item_call label="Débardeur" name="Self Undershirt"/>
+			<menu_item_call label="Caleçon" name="Self Underpants"/>
 			<menu_item_call label="Tatouage" name="Self Tattoo"/>
 			<menu_item_call label="Alpha" name="Self Alpha"/>
 			<menu_item_call label="Tous les habits" name="All Clothes"/>

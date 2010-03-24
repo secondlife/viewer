@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Evento" name="Event" title="DETTAGLI DELL&apos;EVENTO">
+	<floater.string name="none">
+		nessuno
+	</floater.string>
+	<floater.string name="notify">
+		Avvisare
+	</floater.string>
+	<floater.string name="dont_notify">
+		Non avvisare
+	</floater.string>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<text name="event_name">
+				Evento senza nome...di Doom De doom! Doom doom.
+			</text>
+			<text name="event_category">
+				(nessuna categoria)
+			</text>
+			<text name="event_runby_label">
+				Organizzato da:
+			</text>
+			<text initial_value="(recupero)" name="event_runby"/>
+			<text name="event_date">
+				10/10/2010
+			</text>
+			<text name="event_duration">
+				1 ora
+			</text>
+			<text name="event_cover">
+				Gratis
+			</text>
+			<text name="event_location_label">
+				Luogo:
+			</text>
+			<text name="event_location" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<text name="rating_label" value="Categoria:"/>
+			<text name="rating_value" value="sconosciuto"/>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<button name="create_event_btn" tool_tip="Crea evento"/>
+			<button name="god_delete_event_btn" tool_tip="Elimina evento"/>
+			<button label="Avvisami" name="notify_btn"/>
+			<button label="Teleport" name="teleport_btn"/>
+			<button label="Mappa" name="map_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

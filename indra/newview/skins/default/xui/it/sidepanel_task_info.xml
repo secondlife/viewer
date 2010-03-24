@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="object properties" title="Caratteristiche dell&apos;oggetto">
+<panel name="object properties" title="Profilo dell&apos;oggetto">
 	<panel.string name="text deed continued">
 		Intesta
 	</panel.string>
@@ -36,84 +36,61 @@
 	<panel.string name="Sale Mixed">
 		Vendita assortita
 	</panel.string>
-	<panel name="properties_panel" label="">
-		<text name="Name:">
-			Nome:
+	<text name="title" value="Profilo dell&apos;oggetto"/>
+	<text name="where" value="(in Second Life)"/>
+	<panel label="">
+		<text name="CreatorNameLabel">
+			Ideatore:
 		</text>
-		<text name="Description:">
-			Descrizione:
+		<text name="Creator Name">
+			Erica Linden
 		</text>
-		<text name="Creator:">
-			Creatore:
-		</text>
-		<text name="Owner:">
-			Proprietario:
-		</text>
-		<text name="Group:">
+		<text name="Group_label">
 			Gruppo:
 		</text>
-		<button name="button set group" tool_tip="Scegli un gruppo per condividere i permessi di questo oggetto"/>
-		<name_box initial_value="Caricando..." name="Group Name Proxy"/>
-		<button label="Intesta" label_selected="Intesta" name="button deed" tool_tip="Intestando questo oggetto lo passa con i permessi del prossimo proprietario. Gli oggetti condivisi dal Gruppo possono essere intestati solo da un Officer del gruppo."/>
-		<check_box label="Condividi" name="checkbox share with group" tool_tip="Permetti a tutti i Membri del gruppo impostato di condividere la tua modifica ai permessi di questo oggetto. Tu devi Intestare per consentire le restrizioni al ruolo."/>
-		<text name="label click action">
-			Clicca per:
-		</text>
-		<combo_box name="clickaction">
-			<combo_box.item label="Tocca (default)" name="Touch/grab(default)"/>
-			<combo_box.item label="Siedi sull&apos;oggetto" name="Sitonobject"/>
-			<combo_box.item label="Compra l&apos;oggetto" name="Buyobject"/>
-			<combo_box.item label="Paga l&apos;ogggetto" name="Payobject"/>
-			<combo_box.item label="Apri" name="Open"/>
-		</combo_box>
-		<check_box label="In Vendita:" name="checkbox for sale"/>
-		<combo_box name="sale type">
-			<combo_box.item label="Copia" name="Copy"/>
-			<combo_box.item label="Contenuti" name="Contents"/>
-			<combo_box.item label="Originale" name="Original"/>
-		</combo_box>
-		<spinner label="Prezzo: L$" name="Edit Cost"/>
-		<check_box label="Mostra nella ricerca" name="search_check" tool_tip="Mostra questo oggetto nei risultati della ricerca"/>
 		<panel name="perms_inv">
 			<text name="perm_modify">
-				Puoi modificare questo oggetto
+				Tu puoi modificare questo oggetto
 			</text>
 			<text name="Anyone can:">
 				Chiunque:
 			</text>
-			<check_box label="Sposta" name="checkbox allow everyone move"/>
 			<check_box label="Copia" name="checkbox allow everyone copy"/>
-			<text name="Next owner can:">
-				Prossimo Proprietario:
+			<check_box label="Sposta" name="checkbox allow everyone move"/>
+			<text name="GroupLabel">
+				Gruppo:
+			</text>
+			<check_box label="Condividi" name="checkbox share with group" tool_tip="Consenti a tutti i membri del gruppo selezionato di condividere i tuoi diritti di modifica di questo oggetto. Per attivare le restrizioni per ruolo devi prima effettuare la cessione."/>
+			<text name="NextOwnerLabel">
+				Proprietario successivo:
 			</text>
 			<check_box label="Modifica" name="checkbox next owner can modify"/>
 			<check_box label="Copia" name="checkbox next owner can copy"/>
-			<check_box label="Transfer" name="checkbox next owner can transfer" tool_tip="Prossimo proprietario può regalare o rivendere questo oggetto"/>
-			<text name="B:">
-				B:
-			</text>
-			<text name="O:">
-				O:
-			</text>
-			<text name="G:">
-				G:
-			</text>
-			<text name="E:">
-				E:
-			</text>
-			<text name="N:">
-				N:
-			</text>
-			<text name="F:">
-				F:
-			</text>
+			<check_box label="Trasferisci" name="checkbox next owner can transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
 		</panel>
+		<check_box label="In vendita" name="checkbox for sale"/>
+		<text name="B:">
+			B:
+		</text>
+		<text name="O:">
+			O:
+		</text>
+		<text name="G:">
+			G:
+		</text>
+		<text name="E:">
+			E:
+		</text>
+		<text name="N:">
+			N:
+		</text>
+		<text name="F:">
+			F:
+		</text>
 	</panel>
 	<panel name="button_panel">
 		<button label="Apri" name="open_btn"/>
 		<button label="Paga" name="pay_btn"/>
 		<button label="Compra" name="buy_btn"/>
-		<button label="Cancella" name="cancel_btn"/>
-		<button label="Salva" name="save_btn"/>
 	</panel>
 </panel>

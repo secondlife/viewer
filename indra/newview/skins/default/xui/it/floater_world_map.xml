@@ -5,71 +5,30 @@
 			Legenda
 		</text>
 	</panel>
-	<panel
-	name="layout_panel_2">
-		<button font="SansSerifSmall" label="Mostra la mia posizione" label_selected="Mostra la mia posizione" left_delta="91" name="Show My Location" tool_tip="Centra la mappa sul luogo dove si trova il mio avatar" width="135"/>
-		<text name="person_label">
+	<panel>
+		<text name="me_label">
 			Io
 		</text>
-		<check_box label="Residenti" name="people_chk"/>
-		<check_box label="Punto informativo" name="infohub_chk"/>
-		<text name="infohub_label">
-			Infohub
+		<text name="person_label">
+			Persona
 		</text>
-		<check_box bottom="-170" label="Terra in vendita" name="land_for_sale_chk"/>
-		<icon bottom="-170" name="landforsale"/>
-		<text name="land_sale_label">
-			Vendita di terra
+		<text name="by_owner_label">
+			da parte del proprietario
 		</text>
 		<text name="auction_label">
-			per conto del proprietario
+			asta di terreni
 		</text>
-		<button label="Vai a Casa" label_selected="Vai a Casa" name="Go Home" tool_tip="Teleport a casa mia"/>
-		<text name="Home_label">
-			Casa
+		<text name="pg_label">
+			Generale
 		</text>
-		<text name="events_label">
-			Eventi:
-		</text>
-		<check_box label="PG" name="event_chk"/>
-		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
 		<text name="mature_label">
-			Mature
+			Moderato
 		</text>
-		<check_box label="Adult" name="event_adult_chk"/>
-	</panel>
-	<panel
-	name="layout_panel_3">
-		<text name="find_on_map_label">
-			Trova sulla Mappa
+		<text name="adult_label">
+			Adulto
 		</text>
 	</panel>
-	<panel
-	name="layout_panel_4">
-		<combo_box label="Amici Online" name="friend combo" tool_tip="Mostra amici sulla mappa">
-			<combo_box.item label="Miei Amici Online" name="item1"/>
-		</combo_box>
-		<combo_box label="Miei Landmarks" name="landmark combo" tool_tip="Landmark da mostrare sulla mappa">
-			<combo_box.item label="Miei Landmarks" name="item1"/>
-		</combo_box>
-		<search_editor label="Regione per nome" name="location" tool_tip="Scrivi il nome di una regione"/>
-		<button label="Trova" name="DoSearch" tool_tip="Cerca regione"/>
-		<scroll_list bottom_delta="-310" height="304" name="search_results">
-			<scroll_list.columns label="" name="icon"/>
-			<scroll_list.columns label="" name="sim_name"/>
-		</scroll_list>
-		<button font="SansSerifSmall" label="Teletrasporto" label_selected="Teletrasporto" name="Teleport" tool_tip="Teletrasporto al luogo prescelto"/>
-		<button font="SansSerifSmall" label="Copia SLurl" name="copy_slurl" tool_tip="Copia il luogo attuale come SLurl per essere usato nel web."/>
-		<button font="SansSerifSmall" label="Mostra Selezione" label_selected="Mostra destinazione" left_delta="91" name="Show Destination" tool_tip="Centra la mappa sul luogo prescelto" width="135"/>
-	</panel>
-	<panel
-	name="layout_panel_5">
-		<text name="zoom_label">
-			Zoom
-		</text>
-	</panel>
-	<panel
-	name="layout_panel_6">
-		<slider label="Zoom" name="zoom slider"/>
+	<panel>
+		<button name="Clear" tool_tip="Elimina le linee di monitoraggio e reimposta la mappa"/>
 	</panel>
 </floater>

@@ -3,6 +3,9 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
+	<panel.string name="middle_mouse">
+		Mittlere Maustaste
+	</panel.string>
 	<slider label="Sichtwinkel" name="camera_fov"/>
 	<slider label="Abstand" name="camera_offset_scale"/>
 	<text name="heading2">
@@ -16,7 +19,7 @@
 	<check_box label="Avatarlippen beim Sprechen bewegen" name="enable_lip_sync"/>
 	<check_box label="Blasen-Chat" name="bubble_text_chat"/>
 	<slider label="Deckkraft" label_width="66" name="bubble_chat_opacity"/>
-	<color_swatch name="background" tool_tip="Farbe für Blasen-Chat auswählen" left_pad="35"/>
+	<color_swatch left_pad="35" name="background" tool_tip="Farbe für Blasen-Chat auswählen"/>
 	<check_box label="Skript-Fehler anzeigen:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Chat in der Nähe" name="0"/>

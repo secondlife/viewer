@@ -6,6 +6,15 @@
  name="profile_overflow_menu"
  width="120">
     <menu_item_call
+     label="Map"
+     layout="topleft"
+     name="show_on_map">
+        <menu_item_call.on_click
+         function="Profile.ShowOnMap" />
+        <menu_item_call.on_enable
+         function="Profile.EnableShowOnMap" />
+    </menu_item_call>
+    <menu_item_call
      label="Pay"
      layout="topleft"
      name="pay">

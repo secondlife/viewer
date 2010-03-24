@@ -128,68 +128,26 @@ LLMute::LLMute(const LLUUID& id, const std::string& name, EType type, U32 flags)
 }
 
 
-std::string LLMute::getDisplayName() const
+std::string LLMute::getDisplayType() const
 {
-	std::string name_with_suffix = mName;
 	switch (mType)
 	{
 		case BY_NAME:
 		default:
-			name_with_suffix += " " + LLTrans::getString("MuteByName");
+			return LLTrans::getString("MuteByName");
 			break;
 		case AGENT:
-			name_with_suffix += " " + LLTrans::getString("MuteAgent");
+			return LLTrans::getString("MuteAgent");
 			break;
 		case OBJECT:
-			name_with_suffix += " " + LLTrans::getString("MuteObject");
+			return LLTrans::getString("MuteObject");
 			break;
 		case GROUP:
-			name_with_suffix += " " + LLTrans::getString("MuteGroup");
+			return LLTrans::getString("MuteGroup");
 			break;
 	}
-	return name_with_suffix;
 }
 
-void LLMute::setFromDisplayName(const std::string& display_name)
-{
-	size_t pos = 0;
-	mName = display_name;
-	
-	pos = mName.rfind(" " + LLTrans::getString("MuteGroup"));
-	if (pos != std::string::npos)
-	{
-		mName.erase(pos);
-		mType = GROUP;
-		return;
-	}
-	
-	pos = mName.rfind(" " + LLTrans::getString("MuteObject"));
-	if (pos != std::string::npos)
-	{
-		mName.erase(pos);
-		mType = OBJECT;
-		return;
-	}
-	
-	pos = mName.rfind(" " + LLTrans::getString("MuteAgent"));
-	if (pos != std::string::npos)
-	{
-		mName.erase(pos);
-		mType = AGENT;
-		return;
-	}
-	
-	pos = mName.rfind(" " + LLTrans::getString("MuteByName"));
-	if (pos != std::string::npos)
-	{
-		mName.erase(pos);
-		mType = BY_NAME;
-		return;
-	}
-	
-	llwarns << "Unable to set mute from display name " << display_name << llendl;
-	return;
-}
 
 /* static */
 LLMuteList* LLMuteList::getInstance()

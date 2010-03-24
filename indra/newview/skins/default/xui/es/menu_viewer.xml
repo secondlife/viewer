@@ -11,7 +11,7 @@
 		<menu_item_check label="Mi Inventario" name="Inventory"/>
 		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mis gestos" name="Gestures"/>
-		<menu label="Mi estatus" name="Status">
+		<menu label="Mi estado" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
 		</menu>

@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterland" title="OM LAND">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] minutter
 	</floater.string>
@@ -15,7 +24,7 @@
 	<tab_container name="landtab">
 		<panel label="GENERELT" name="land_general_panel">
 			<panel.string name="new users only">
-				Kun nye brugere
+				Kun nye beboere
 			</panel.string>
 			<panel.string name="anyone">
 				Alle
@@ -84,9 +93,9 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 			<text name="GroupText">
 				Leyla Linden
 			</text>
-			<button label="Vælg..." label_selected="Vælg..." name="Set..."/>
+			<button label="Vælg" name="Set..."/>
 			<check_box label="Tillad dedikering til gruppe" name="check deed" tool_tip="En gruppe administrator kan dedikere denne jord til gruppen, så det vil blive støttet af gruppen&apos;s jord tildeling."/>
-			<button label="Dedikér..." label_selected="Dedikér..." name="Deed..." tool_tip="Du kan kun dedikere jord, hvis du er en administrator i den valgte gruppe."/>
+			<button label="Dedikér" name="Deed..." tool_tip="Du kan kun dedikere jord, hvis du er en administrator i den valgte gruppe."/>
 			<check_box label="Ejer bidrager ved dedikering" name="check contrib" tool_tip="Når land dedikeres til gruppe, kan den tidligere bidrage med nok land til at dække krav."/>
 			<text name="For Sale:">
 				Til salg:
@@ -97,7 +106,7 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 			<text name="For Sale: Price L$[PRICE].">
 				Pris: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
 			</text>
-			<button label="Sælg land..." label_selected="Sælg land..." name="Sell Land..."/>
+			<button label="Sælg land" name="Sell Land..."/>
 			<text name="For sale to">
 				Til salg til: [BUYER]
 			</text>
@@ -126,13 +135,13 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 			<text name="DwellText">
 				0
 			</text>
-			<button label="Køb land..." label_selected="Køb land..." name="Buy Land..."/>
+			<button label="Køb land" name="Buy Land..."/>
 			<button label="Script Info" name="Scripts..."/>
-			<button label="Køb til gruppe..." label_selected="Køb til gruppe..." name="Buy For Group..."/>
-			<button label="Køb adgang..." label_selected="Køb adgang..." name="Buy Pass..." tool_tip="Giver adgang til midlertidig adgang til dette område."/>
-			<button label="Efterlad land..." label_selected="Efterlad land..." name="Abandon Land..."/>
-			<button label="Kræv tilbage..." label_selected="Kræv tilbage..." name="Reclaim Land..."/>
-			<button label="Linden salg..." label_selected="Linden salg..." name="Linden Sale..." tool_tip="Land skal være ejet, indholdsrating sat og ikke allerede på auktion."/>
+			<button label="Køb til gruppe" name="Buy For Group..."/>
+			<button label="Køb adgang" name="Buy Pass..." tool_tip="Giver adgang til midlertidig adgang til dette område."/>
+			<button label="Efterlad land" name="Abandon Land..."/>
+			<button label="Kræv tilbage" name="Reclaim Land..."/>
+			<button label="Linden salg" name="Linden Sale..." tool_tip="Land skal være ejet, indholdsrating sat og ikke allerede på auktion."/>
 		</panel>
 		<panel label="REGLER" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -231,7 +240,7 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 				[COUNT]
 			</text>
 			<button label="Vis" label_selected="Vis" name="ShowOwner"/>
-			<button label="Returnér..." label_selected="Returnér..." name="ReturnOwner..." tool_tip="Returnér objekter til deres ejere."/>
+			<button label="Returnér" name="ReturnOwner..." tool_tip="Returnér objekter til deres ejere."/>
 			<text name="Set to group:">
 				Sat til gruppe:
 			</text>
@@ -239,7 +248,7 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 				[COUNT]
 			</text>
 			<button label="Vis" label_selected="Vis" name="ShowGroup"/>
-			<button label="Returnér..." label_selected="Returnér..." name="ReturnGroup..." tool_tip="Returnér objekter til deres ejere."/>
+			<button label="Returnér" name="ReturnGroup..." tool_tip="Returnér objekter til deres ejere."/>
 			<text name="Owned by others:">
 				Ejet af andre:
 			</text>
@@ -247,7 +256,7 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 				[COUNT]
 			</text>
 			<button label="Vis" label_selected="Vis" name="ShowOther"/>
-			<button label="Returnér..." label_selected="Returnér..." name="ReturnOther..." tool_tip="Returnér objekter til deres ejere."/>
+			<button label="Returnér" name="ReturnOther..." tool_tip="Returnér objekter til deres ejere."/>
 			<text name="Selected / sat upon:">
 				Valgt/siddet på:
 			</text>
@@ -261,7 +270,7 @@ Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel 
 				Objekt ejere:
 			</text>
 			<button label="Gentegn liste" label_selected="Gentegn liste" name="Refresh List" tool_tip="Refresh Object List"/>
-			<button label="Returnér objekter..." label_selected="Returnér objekter..." name="Return objects..."/>
+			<button label="Returnér objekter" name="Return objects..."/>
 			<name_list name="owner list">
 				<name_list.columns label="Type" name="type"/>
 				<name_list.columns label="Navn" name="name"/>
@@ -420,6 +429,9 @@ Kun større parceller kan vises i søgning.
 		<panel label="ADGANG" name="land_access_panel">
 			<panel.string name="access_estate_defined">
 				(Defineret via estate)
+			</panel.string>
+			<panel.string name="allow_public_access">
+				Tillad adgang for alle ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
 				En eller flere af disse valg er indstillet på estate niveau

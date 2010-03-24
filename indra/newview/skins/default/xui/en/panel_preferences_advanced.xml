@@ -13,6 +13,10 @@
      name="aspect_ratio_text">
         [NUM]:[DEN]
     </panel.string>
+    <panel.string
+     name="middle_mouse">
+        Middle Mouse
+    </panel.string>
          <icon
 	 follows="left|top"
 	 height="18"
@@ -160,7 +164,7 @@ Automatic position for:
      label="Opacity"
      layout="topleft"
      left="80"
-     label_width="50"
+     label_width="60"
      name="bubble_chat_opacity"
      width="200" />
     <color_swatch

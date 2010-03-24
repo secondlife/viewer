@@ -5,6 +5,7 @@
 	<menu_item_call label="Byg" name="Build"/>
 	<menu_item_call label="Åben" name="Open"/>
 	<menu_item_call label="Sid her" name="Object Sit"/>
+	<menu_item_call label="Stå op" name="Object Stand Up"/>
 	<menu_item_call label="Objekt profil" name="Object Inspect"/>
 	<menu_item_call label="Zoom In" name="Zoom In"/>
 	<context_menu label="Tag på  ▶" name="Put On">

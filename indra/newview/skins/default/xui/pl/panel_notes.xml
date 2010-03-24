@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Notatki &amp; Prywatność" name="panel_notes">
+	<layout_stack name="layout">
+		<panel name="notes_stack">
+			<scroll_container name="profile_scroll">
+				<panel name="profile_scroll_panel">
+					<text name="status_message" value="Notatki:"/>
+					<text name="status_message2" value="Pozwól tej osobie na:"/>
+					<check_box label="Widzenie mojego statusu" name="status_check"/>
+					<check_box label="Lokalizowanie mnie na mapie" name="map_check"/>
+					<check_box label="Edytowanie, kasowanie lub zabieranie moich obiektów" name="objects_check"/>
+				</panel>
+			</scroll_container>
+		</panel>
+		<panel name="notes_buttons_panel">
+			<button label="Dodaj do znajomych" name="add_friend" tool_tip="Zaoferuj znajomość Rezydentowi"/>
+			<button label="IM" name="im" tool_tip="Otwórz wiadomości IM"/>
+			<button label="Dzwoń" name="call" tool_tip="Zadzwoń do Rezydenta"/>
+			<button label="Mapa" name="show_on_map_btn" tool_tip="Pokaż Rezydenta na mapie"/>
+			<button label="Teleportuj" name="teleport" tool_tip="Teleportuj"/>
+		</panel>
+	</layout_stack>
+</panel>

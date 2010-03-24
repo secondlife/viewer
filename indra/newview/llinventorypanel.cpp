@@ -118,6 +118,7 @@ BOOL LLInventoryPanel::postBuild()
 						   0);
 		LLFolderView::Params p;
 		p.name = getName();
+		p.title = getLabel();
 		p.rect = folder_rect;
 		p.parent_panel = this;
 		p.tool_tip = p.name;
@@ -292,9 +293,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 					bridge->clearDisplayName();
 
 					view_item->refresh();
-
-					// Set the new tooltip with the new display name.
-					view_item->setToolTip(bridge->getDisplayName());
 				}
 			}
 		}

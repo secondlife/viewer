@@ -480,10 +480,12 @@ bool LLAppViewerWin32::initHardwareTest()
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
 
 		// Disable so debugger can work
-		std::ostringstream splash_msg;
-		splash_msg << LLTrans::getString("StartupLoading") << " " << LLAppViewer::instance()->getSecondLifeTitle() << "...";
+		std::string splash_msg;
+		LLStringUtil::format_map_t args;
+		args["[APP_NAME]"] = LLAppViewer::instance()->getSecondLifeTitle();
+		splash_msg = LLTrans::getString("StartupLoading", args);
 
-		LLSplashScreen::update(splash_msg.str());
+		LLSplashScreen::update(splash_msg);
 	}
 
 	if (!restoreErrorTrap())
