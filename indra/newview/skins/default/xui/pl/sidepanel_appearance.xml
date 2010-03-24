@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Ubrania" name="appearance panel">
+	<string name="No Outfit" value="Bez Ubrania"/>
+	<panel name="panel_currentlook">
+		<text name="currentlook_title">
+			(niezapisane)
+		</text>
+	</panel>
+	<filter_editor label="Przeglądaj Ubrania" name="Filter"/>
+</panel>

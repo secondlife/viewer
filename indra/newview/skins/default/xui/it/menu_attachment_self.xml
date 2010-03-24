@@ -5,8 +5,8 @@
 	<menu_item_call label="Stacca" name="Detach"/>
 	<menu_item_call label="Lascia" name="Drop"/>
 	<menu_item_call label="Alzati" name="Stand Up"/>
-	<menu_item_call label="Il mio aspetto fisico" name="Appearance..."/>
-	<menu_item_call label="I miei amici" name="Friends..."/>
+	<menu_item_call label="Il mio aspetto" name="Appearance..."/>
+	<menu_item_call label="I miei amici..." name="Friends..."/>
 	<menu_item_call label="I miei gruppi" name="Groups..."/>
 	<menu_item_call label="Il mio profilo" name="Profile..."/>
 </context_menu>

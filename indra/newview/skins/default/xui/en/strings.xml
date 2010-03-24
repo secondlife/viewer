@@ -3064,7 +3064,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="giving">Giving L$ [AMOUNT]</string>
   <string name="uploading_costs">Uploading costs L$ [AMOUNT]</string>
   <string name="this_costs">This costs L$ [AMOUNT]</string>
-  <string name="buying_selected_land">Buying selected land L$ [AMOUNT]</string>
+  <string name="buying_selected_land">Buying selected land for L$ [AMOUNT]</string>
   <string name="this_object_costs">This object costs L$ [AMOUNT]</string>
   
   <string name="group_role_everyone">Everyone</string>

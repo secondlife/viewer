@@ -22,13 +22,13 @@
 	<line_editor name="target_avatar_name">
 		(brak)
 	</line_editor>
-	<button label="Wybierz..." name="choose_avatar_btn"/>
+	<button label="Wybierz" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
 		Opcje:
 	</text>
-	<check_box label="Odeślij wyłącznie obiekty ze skryptami" name="return_scripts" tool_tip="Odeślij wyłącznie obiekty ze skryptami."/>
+	<check_box label="Ze skryptami" name="return_scripts" tool_tip="Odeślij wyłącznie obiekty ze skryptami"/>
 	<check_box label="Odeślij wyłącznie obiekty które są na posiadłościach innych osób" name="return_other_land" tool_tip="Odeślij wyłącznie obiekty które są na posiadłościach innych osób"/>
-	<check_box label="Odeślij obiekty z wszystkich regionów w tym majątku" name="return_estate_wide" tool_tip="Odeślij obiekty z wszystkich regionów w tym majątku"/>
+	<check_box label="W każdym regionie tego majątku" name="return_estate_wide" tool_tip="Odeślij obiekty z wszystkich regionów w tym majątku"/>
 	<button label="Odeślij" name="return_btn"/>
 	<button label="Znajdź Główne Kolizje..." name="top_colliders_btn" tool_tip="Lista obiektów doświadczających najwięcej potencjalnych kolizji"/>
 	<button label="?" name="top_colliders_help"/>

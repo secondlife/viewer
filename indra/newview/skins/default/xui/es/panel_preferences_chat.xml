@@ -45,6 +45,12 @@
 	</text>
 	<check_box initial_value="true" label="Ejecutar la animación de escribir al hacerlo en el chat" name="play_typing_animation"/>
 	<check_box label="Cuando estoy desconectado, enviarme los MI al correo-e" name="send_im_to_email"/>
+	<text name="show_ims_in_label">
+		Mostrar los MI en:
+	</text>
+	<text name="requires_restart_label">
+		(requiere reiniciar)
+	</text>
 	<radio_group name="chat_window" tool_tip="Muestra tus mensajes instantáneos en varias ventanas flotantes o en una sola con varias pestañas (requiere que reinicies)">
 		<radio_item label="Varias ventanas" name="radio" value="0"/>
 		<radio_item label="Pestañas" name="radio2" value="1"/>

@@ -2,5 +2,5 @@
 <menu name="Teleport History Gear Context Menu">
 	<menu_item_call label="Apri tutte le cartelle" name="Expand all folders"/>
 	<menu_item_call label="Chiudi tutte le cartelle" name="Collapse all folders"/>
-	<menu_item_call label="Cancella la storia dei Teleport" name="Clear Teleport History"/>
+	<menu_item_call label="Cancella la cronologia Teleport" name="Clear Teleport History"/>
 </menu>
