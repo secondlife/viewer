@@ -769,7 +769,7 @@
 		Oferta teleportacji
 	</string>
 	<string name="StartUpNotifications">
-		[%d] nowe zawiadomienia zostały wysłane kiedy byłeś w trybie oddalenia...
+		Nowe zawiadomienia zostały wysłane kiedy byłeś w trybie oddalenia...
 	</string>
 	<string name="OverflowInfoChannelString">
 		Masz jeszcze [%d] powiadomień

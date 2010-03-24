@@ -847,7 +847,7 @@
 		Oferta de teletransporte
 	</string>
 	<string name="StartUpNotifications">
-		[%d] Novas notificações chegaram enquanto você estava fora...
+		Novas notificações chegaram enquanto você estava fora...
 	</string>
 	<string name="OverflowInfoChannelString">
 		Você tem mais [%d] notificações

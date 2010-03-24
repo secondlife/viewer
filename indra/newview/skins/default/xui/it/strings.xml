@@ -849,7 +849,7 @@
 		Offerta di Teleport
 	</string>
 	<string name="StartUpNotifications">
-		[%d]  nuove notifice sono arrivate mentre eri assente...
+		Nuove notifice sono arrivate mentre eri assente...
 	</string>
 	<string name="OverflowInfoChannelString">
 		Hai ancora [%d] notifiche

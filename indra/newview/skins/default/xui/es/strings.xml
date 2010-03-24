@@ -847,7 +847,7 @@
 		Ofrecimiento de teleporte
 	</string>
 	<string name="StartUpNotifications">
-		Llegaron [%d] avisos nuevos mientras estabas ausente...
+		Llegaron avisos nuevos mientras estabas ausente...
 	</string>
 	<string name="OverflowInfoChannelString">
 		Tienes [%d] aviso/s más
