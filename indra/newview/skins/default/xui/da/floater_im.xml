@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="Personlig samtale (IM)">
 	<string name="only_user_message">
-		Du er den eneste deltager i denne samtale
+		Du er den eneste beboer i denne session.
 	</string>
 	<string name="offline_message">
 		[FIRST] [LAST] er ikke logget på.
@@ -31,7 +31,7 @@
 		Du er blevet &quot;blokeret&quot;.
 	</string>
 	<string name="add_session_event">
-		Ikke muligt at tilføge brugere til samtale med [RECIPIENT].
+		Kunne ikke tilføje beboere til chat session med [RECIPIENT].
 	</string>
 	<string name="message_session_event">
 		Ikke muligt at sende din besked til samtalen med [RECIPIENT].

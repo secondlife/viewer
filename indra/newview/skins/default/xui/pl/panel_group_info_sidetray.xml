@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="O Grupie" name="GroupInfo">
+	<panel.string name="default_needs_apply_text">
+		Nie zapisałeś zmian
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Czy chcesz zachować te zmiany?
+	</panel.string>
+	<panel.string name="group_join_btn">
+		Dołącz (L$[AMOUNT])
+	</panel.string>
+	<panel.string name="group_join_free">
+		Darmowe
+	</panel.string>
+	<panel name="group_info_top">
+		<text name="group_name" value="(Ładowanie...)"/>
+		<line_editor label="Wpisz nazwę swojej nowej grupy tutaj" name="group_name_editor"/>
+	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="group_accordions">
+			<accordion name="groups_accordion">
+				<accordion_tab name="group_general_tab" title="Ogólne"/>
+				<accordion_tab name="group_roles_tab" title="Funkcja"/>
+				<accordion_tab name="group_notices_tab" title="Notki"/>
+				<accordion_tab name="group_land_tab" title="Posiadlość/Majątek"/>
+			</accordion>
+		</layout_panel>
+		<layout_panel name="button_row">
+			<button label="Czat" name="btn_chat"/>
+			<button label="Konferencja Głosowa" name="btn_call" tool_tip="Konferencja Głosowa"/>
+			<button label="Zapisz" label_selected="Zapisz" name="btn_apply"/>
+			<button label="Stwórz nową grupę" name="btn_create" tool_tip="Stwórz nową grupę"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

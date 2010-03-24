@@ -433,10 +433,9 @@ inline void LLTemplateMessageReader::getString(const char *block, const char *va
 
 inline void LLTemplateMessageReader::getString(const char *block, const char *var, std::string& outstr, S32 blocknum )
 {
-	char s[MTUBYTES];
-	s[0] = '\0';
+	char s[MTUBYTES + 1]= {0}; // every element is initialized with 0
 	getData(block, var, s, 0, blocknum, MTUBYTES);
-	s[MTUBYTES - 1] = '\0';
+	s[MTUBYTES] = '\0';
 	outstr = s;
 }
 

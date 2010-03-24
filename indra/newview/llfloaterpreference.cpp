@@ -110,6 +110,9 @@
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
 
+//control value for middle mouse as talk2push button
+const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";
+
 class LLVoiceSetKeyDialog : public LLModalDialog
 {
 public:
@@ -180,7 +183,6 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // a static member and update all our static callbacks
 
 void handleNameTagOptionChanged(const LLSD& newvalue);	
-viewer_media_t get_web_media();
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
 //bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
@@ -188,23 +190,14 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
-viewer_media_t get_web_media()
-{
-	viewer_media_t media_source = LLViewerMedia::newMediaImpl(LLUUID::null);
-	media_source->initializeMedia("text/html");
-	return media_source;
-}
-
-
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) // YES
 	{
 		// clean web
-		viewer_media_t media_source = get_web_media();
-		if (media_source && media_source->hasMedia())
-			media_source->getMediaPlugin()->clear_cache();
+		LLViewerMedia::clearAllCaches();
+		LLViewerMedia::clearAllCookies();
 		
 		// clean nav bar history
 		LLNavigationBar::getInstance()->clearHistoryCache();
@@ -426,17 +419,14 @@ void LLFloaterPreference::apply()
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	childSetText("cache_location", cache_location);		
 	
-	viewer_media_t media_source = get_web_media();
-	if (media_source && media_source->hasMedia())
+	LLViewerMedia::setCookiesEnabled(childGetValue("cookies_enabled"));
+	
+	if(hasChild("web_proxy_enabled") &&hasChild("web_proxy_editor") && hasChild("web_proxy_port"))
 	{
-		media_source->getMediaPlugin()->enable_cookies(childGetValue("cookies_enabled"));
-		if(hasChild("web_proxy_enabled") &&hasChild("web_proxy_editor") && hasChild("web_proxy_port"))
-		{
-			bool proxy_enable = childGetValue("web_proxy_enabled");
-			std::string proxy_address = childGetValue("web_proxy_editor");
-			int proxy_port = childGetValue("web_proxy_port");
-			media_source->getMediaPlugin()->proxy_setup(proxy_enable, proxy_address, proxy_port);
-		}
+		bool proxy_enable = childGetValue("web_proxy_enabled");
+		std::string proxy_address = childGetValue("web_proxy_editor");
+		int proxy_port = childGetValue("web_proxy_port");
+		LLViewerMedia::setProxyConfig(proxy_enable, proxy_address, proxy_port);
 	}
 	
 //	LLWString busy_response = utf8str_to_wstring(getChild<LLUICtrl>("busy_response")->getValue().asString());
@@ -1008,9 +998,17 @@ void LLFloaterPreference::setKey(KEY key)
 
 void LLFloaterPreference::onClickSetMiddleMouse()
 {
-	childSetValue("modifier_combo", "MiddleMouse");
+	LLUICtrl* p2t_line_editor = getChild<LLUICtrl>("modifier_combo");
+
 	// update the control right away since we no longer wait for apply
-	getChild<LLUICtrl>("modifier_combo")->onCommit();
+	p2t_line_editor->setControlValue(MIDDLE_MOUSE_CV);
+
+	//push2talk button "middle mouse" control value is in English, need to localize it for presentation
+	LLPanel* advanced_preferences = dynamic_cast<LLPanel*>(p2t_line_editor->getParent());
+	if (advanced_preferences)
+	{
+		p2t_line_editor->setValue(advanced_preferences->getString("middle_mouse"));
+	}
 }
 /*
 void LLFloaterPreference::onClickSkipDialogs()
@@ -1300,6 +1298,16 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("voice_call_friends_only_check"))
 	{
 		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+	}
+
+	// Panel Advanced
+	if (hasChild("modifier_combo"))
+	{
+		//localizing if push2talk button is set to middle mouse
+		if (MIDDLE_MOUSE_CV == childGetValue("modifier_combo").asString())
+		{
+			childSetValue("modifier_combo", getString("middle_mouse"));
+		}
 	}
 
 	apply();

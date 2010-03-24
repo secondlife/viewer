@@ -46,6 +46,12 @@
 	<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
 	<check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email"/>
 	<check_box label="チャット履歴に文字だけ表示する" name="plain_text_chat_history"/>
+	<text name="show_ims_in_label">
+		IM の表示方法：
+	</text>
+	<text name="requires_restart_label">
+		（再起動後に反映）
+	</text>
 	<radio_group name="chat_window" tool_tip="インスタントメッセージを別フローター、または1つのフローターに複数タブで表示します（要再起動）">
 		<radio_item label="別々のウィンドウ" name="radio" value="0"/>
 		<radio_item label="タブ" name="radio2" value="1"/>

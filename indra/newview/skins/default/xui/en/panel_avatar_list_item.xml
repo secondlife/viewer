@@ -69,7 +69,7 @@
      name="last_interaction"
      text_color="LtGray_50"
      value="0s"
-     width="24" />
+     width="35" />
     <button
      follows="right"
      height="16"

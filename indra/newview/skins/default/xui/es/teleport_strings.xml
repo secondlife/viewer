@@ -60,6 +60,9 @@ Vuelva a intentarlo en un momento.
 		<message name="completing">
 			Completando el teleporte.
 		</message>
+		<message name="completed_from">
+			Teleporte realizado desde [T_SLURL]
+		</message>
 		<message name="resolving">
 			Especificando el destino.
 		</message>

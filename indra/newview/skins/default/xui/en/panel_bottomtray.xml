@@ -59,9 +59,9 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="100"
+         width="105"
          top_delta="0"
-         min_width="100"
+         min_width="54"
          name="speak_panel"
          user_resize="false">
           <talk_button
@@ -73,11 +73,16 @@
            left="0"
            name="talk"
            top="5"
-          width="100">
+          width="105">
+            <!-- do not remove halign attribute with default value. otherwise it can't be overridden in other locales.
+             & pad_right is default value for long label which can be right aligned. See EXT-6318 -->
   <speak_button
+    halign="center"
     name="speak_btn"
     label="Speak"
     label_selected="Speak"
+    pad_right="22"
+    use_ellipses="true"
     />
               <show_button>
                   <show_button.init_callback

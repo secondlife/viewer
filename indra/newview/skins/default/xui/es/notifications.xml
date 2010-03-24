@@ -106,7 +106,7 @@ Asegúrate de que tu conexión a internet está funcionando adecuadamente.
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
 		Quienes no sean tus amigos no sabrán que has elegido ignorar sus llamadas y mensajes instantáneos.
-		<usetemplate name="okbutton" yestext="Sí"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GrantModifyRights">
 		Al conceder permisos de modificación a otro Residente, le estás permitiendo cambiar, borrar o tomar CUALQUIER objeto que tengas en el mundo. Sé MUY cuidadoso al conceder este permiso.
@@ -443,7 +443,6 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 	<notification name="UnsupportedHardware">
 		Debes saber que tu ordenador no cumple los requisitos mínimos para la utilización de [APP_NAME]. Puede que experimentes un rendimiento muy bajo. Desafortunadamente, [SUPPORT_SITE] no puede dar asistencia técnica a sistemas con una configuración no admitida.
 
-MINSPECS
 ¿Ir a [_URL] para más información?
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=es
@@ -1309,8 +1308,8 @@ Esta actualización no es obligatoria, pero te sugerimos instalarla para mejorar
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
-		¿DE VERDAD quiere expulsar a todos los usuarios de este grid?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Expulsar a todos los usuarios"/>
+		¿Quieres realmente expulsar a todos los Residentes de la cuadrícula?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Expulsar a todos los Residentes"/>
 	</notification>
 	<notification name="MuteLinden">
 		Lo sentimos, pero no puedes ignorar a un Linden.
@@ -1351,7 +1350,7 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="KickUser">
-		¿Con qué mensaje se expulsará a este usuario?
+		¿Con qué mensaje quieres expulsar a este Residente?
 		<form name="form">
 			<input name="message">
 				Un administrador le ha desconectado.
@@ -1371,7 +1370,7 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		¿Con qué mensaje se congelará a este usuario?
+		¿Con qué mensaje quieres congelar a este Residente?
 		<form name="form">
 			<input name="message">
 				Ha sido usted congelado. No puede moverse o escribir en el chat. Un administrador contactará con usted a través de un mensaje instantáneo (MI).
@@ -1381,7 +1380,7 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		¿Con qué mensaje se descongelará a este usuario?
+		¿Con qué mensaje quieres congelar a este Residente?
 		<form name="form">
 			<input name="message">
 				Ya no está usted congelado.
@@ -1401,7 +1400,7 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		¿Convocar a este usuario a su posición?
+		¿Obligar a este Residente a ir a tu localización?
 		<form name="form">
 			<input name="message">
 				Ven conmigo a [REGION]
@@ -1431,11 +1430,11 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		</form>
 	</notification>
 	<notification label="Cambiar un estado Linden" name="ChangeLindenEstate">
-		Va a hacer cambios en un estado propiedad de Linden (mainland, grid teen, orientación, etc.).
+		Estás a punto de cambiar un estado propiedad de Linden (continente, teen grid, orientación, etc.).
 
-Esto es EXTREMADAMENTE PELIGROSO, porque puede afectar radicalmente al funcionamiento de los usuarios. En mainland, se cambiarán miles de regiones, y se provocará un colapso en el espacio del servidor.
+Esto es EXTREMADAMENTE PELIGROSO porque puede afectar en gran manera la experiencia de los Residentes.  En el Continente, cambiará miles de regiones y hará que se trastorne el servidor. 
 
-¿Proceder?
+¿Continuar?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification label="Cambiar el acceso a un estado Linden" name="ChangeLindenAccess">
@@ -2424,14 +2423,6 @@ Si no confias en este objeto y en su creador, deberías rehusar esta petición.
 			<button name="Ignore" text="Ignorar"/>
 		</form>
 	</notification>
-	<notification name="ScriptToast">
-		El &apos;[TITLE]&apos; de [FIRST] [LAST] está esperando una respuesta del usuario.
-		<form name="form">
-			<button name="Open" text="Abrir el diálogo"/>
-			<button name="Ignore" text="Ignorar"/>
-			<button name="Block" text="Ignorar"/>
-		</form>
-	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		¡Gracias por tu pago!
 
@@ -2557,7 +2548,7 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		¿Seguro que quieres cerrar todos los MI?
-		<usetemplate name="okcancelignore" notext="Cancelar" yestext="OK"/>
+		<usetemplate ignoretext="Confirmar antes de cerrar todos los MIs" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		Se ha guardado el adjunto.

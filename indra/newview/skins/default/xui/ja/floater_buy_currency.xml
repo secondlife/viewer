@@ -37,7 +37,7 @@
 		見積もり中...
 	</text>
 	<text name="buy_action">
-		[NAME] L$ [PRICE]
+		[ACTION]
 	</text>
 	<text name="total_label">
 		購入後の残高

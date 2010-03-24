@@ -526,7 +526,9 @@ protected:
 public:
 	virtual void	invalidateComposite(LLTexLayerSet* layerset, BOOL upload_result);
 	virtual void	invalidateAll();
-	virtual void	setCompositeUpdatesEnabled(BOOL b);
+	virtual void	setCompositeUpdatesEnabled(bool b) {}
+	virtual void 	setCompositeUpdatesEnabled(U32 index, bool b) {}
+	virtual bool 	isCompositeUpdateEnabled(U32 index) { return false; }
 
 	//--------------------------------------------------------------------
 	// Static texture/mesh/baked dictionary

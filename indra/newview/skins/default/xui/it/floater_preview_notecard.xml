@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview notecard" title="NOTE:">
+<floater name="preview notecard" title="BIGLIETTO:">
 	<floater.string name="no_object">
-		Impossibile trovare l&apos;oggetto che contiene questa nota.
+		Impossibile trovare un oggetto contenente questo biglietto
 	</floater.string>
 	<floater.string name="not_allowed">
-		Non hai i permessi per leggere questa nota.
+		Non hai il permesso di leggere questo biglietto.
 	</floater.string>
 	<floater.string name="Title">
 		Notecard: [NAME]

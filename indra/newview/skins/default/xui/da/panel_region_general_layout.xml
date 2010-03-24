@@ -36,8 +36,8 @@
 		<combo_box.item label="Generel" name="PG"/>
 	</combo_box>
 	<button label="Gem" name="apply_btn"/>
-	<button label="Send en beboer hjem ..." name="kick_btn"/>
-	<button label="Send alle beboere hjem...&quot;" name="kick_all_btn"/>
+	<button label="Teleportér en beboer hjem..." name="kick_btn"/>
+	<button label="Teleportér alle beboere hjem..." name="kick_all_btn"/>
 	<button label="Send besked til region..." name="im_btn"/>
 	<button label="Vedligehold telehub..." name="manage_telehub_btn"/>
 </panel>

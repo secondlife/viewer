@@ -113,7 +113,8 @@ protected:
 	void setSortBy(const LLSD& userdata);
 	void saveTexture(const LLSD& userdata);
 	bool isSaveTextureEnabled(const LLSD& userdata);
-	
+	void updateItemcountText();
+
 private:
 	LLFloaterInventoryFinder* getFinder();
 

@@ -352,6 +352,13 @@ BOOL LLMultiFloater::handleKeyHere(KEY key, MASK mask)
 		if (floater && floater->canClose() && floater->isCloseable())
 		{
 			floater->closeFloater();
+
+			// EXT-5695 (Tabbed IM window loses focus if close any tabs by Ctrl+W)
+			// bring back focus on tab container if there are any tab left
+			if(mTabContainer->getTabCount() > 0)
+			{
+				mTabContainer->setFocus(TRUE);
+			}
 		}
 		return TRUE;
 	}

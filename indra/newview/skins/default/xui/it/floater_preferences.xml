@@ -6,7 +6,7 @@
 		<panel label="Generale" name="general"/>
 		<panel label="Grafica" name="display"/>
 		<panel label="Privacy" name="im"/>
-		<panel label="Suono" name="audio"/>
+		<panel label="Audio e media" name="audio"/>
 		<panel label="Chat" name="chat"/>
 		<panel label="Notifiche" name="msgs"/>
 		<panel label="Configurazione" name="input"/>

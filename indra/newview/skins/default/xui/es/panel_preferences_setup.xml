@@ -18,7 +18,7 @@
 		kbps
 	</text>
 	<check_box label="Personalizar el puerto" name="connection_port_enabled"/>
-	<spinner label="Número de puerto:" name="connection_port"/>
+	<spinner label="Nº del puerto:" name="connection_port"/>
 	<text name="cache_size_label_l">
 		Tamaño de la caché
 	</text>
@@ -34,13 +34,16 @@
 		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Usar el navegador incorporado" name="internal" tool_tip="Usa el navegador incorporado para ayuda, enlaces web, etc. Este navegador se abre en una nueva ventana dentro de [APP_NAME]." value="0"/>
 		<radio_item label="Usar mi navegador (IE, Firefox, Safari)" name="external" tool_tip="Usa tu navegador por defecto para ayuda, enlaces web, etc. No es aconsejable si estás a pantalla completa." value="1"/>
+		<radio_item label="Usar el navegador incorporado" name="internal" tool_tip="Usa el navegador incorporado para ayuda, enlaces web, etc. Este navegador se abre en una nueva ventana dentro de [APP_NAME]." value=""/>
 	</radio_group>
+	<check_box initial_value="verdadero" label="Activar plugins" name="browser_plugins_enabled"/>
+	<check_box initial_value="verdadero" label="Aceptar las &apos;cookies&apos;" name="cookies_enabled"/>
+	<check_box initial_value="verdadero" label="Activar Javascript" name="browser_javascript_enabled"/>
 	<check_box initial_value="false" label="Activar web proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Localización del proxy:
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="Nombre o dirección IP del proxy que quieres usar"/>
-	<spinner label="Número de puerto:" name="web_proxy_port"/>
+	<spinner label="Nº del puerto:" name="web_proxy_port"/>
 </panel>

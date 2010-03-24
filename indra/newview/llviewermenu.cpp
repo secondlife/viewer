@@ -86,6 +86,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
+#include "lltrans.h"
 #include "llviewergenericmessage.h"
 #include "llviewerhelp.h"
 #include "llviewermenufile.h"	// init_menu_file()
@@ -103,6 +104,7 @@
 #include "llfloatercamera.h"
 #include "lluilistener.h"
 #include "llappearancemgr.h"
+#include "lltrans.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -3274,7 +3276,9 @@ void handle_buy_object(LLSaleInfo sale_info)
 	
 	if (price > 0 && price > gStatusBar->getBalance())
 	{
-		LLFloaterBuyCurrency::buyCurrency("This object costs", price);
+		LLStringUtil::format_map_t args;
+		args["AMOUNT"] = llformat("%d", price);
+		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_object_costs", args), price);
 		return;
 	}
 
@@ -4404,8 +4408,10 @@ void handle_buy_or_take()
 		}
 		else
 		{
+			LLStringUtil::format_map_t args;
+			args["AMOUNT"] = llformat("%d", total_price);
 			LLFloaterBuyCurrency::buyCurrency(
-				"Buying this costs", total_price);
+					LLTrans::getString("BuyingCosts", args), total_price);
 		}
 	}
 	else
@@ -7048,7 +7054,7 @@ LLVOAvatar* find_avatar_from_object( const LLUUID& object_id )
 
 void handle_disconnect_viewer(void *)
 {
-	LLAppViewer::instance()->forceDisconnect("Testing viewer disconnect");
+	LLAppViewer::instance()->forceDisconnect(LLTrans::getString("TestingDisconnect"));
 }
 
 void force_error_breakpoint(void *)

@@ -115,14 +115,14 @@ La duración máxima de una animación es de [MAX_LENGTH] segundos.
 	<text name="description_label">
 		Descripción:
 	</text>
-	<spinner label="Prioridad:" label_width="72" name="priority" tool_tip="Controla qué otras animaciones pueden ser anuladas por ésta" width="110"/>
-	<check_box label="Bucle:" left="8" name="loop_check" tool_tip="Hace esta animación en bucle"/>
-	<spinner label="Empieza(%)" label_width="65" left="65" name="loop_in_point" tool_tip="Indica el punto en el que la animación vuelve a empezar" width="116"/>
-	<spinner label="Acaba(%)" label_width="50" left="185" name="loop_out_point" tool_tip="Indica el punto en el que la animación acaba el bucle"/>
+	<spinner label="Prioridad:" name="priority" tool_tip="Controla qué otras animaciones pueden ser anuladas por ésta"/>
+	<check_box label="Bucle:" name="loop_check" tool_tip="Hace esta animación en bucle"/>
+	<spinner label="Empieza(%)" name="loop_in_point" tool_tip="Indica el punto en el que la animación vuelve a empezar"/>
+	<spinner label="Acaba(%)" name="loop_out_point" tool_tip="Indica el punto en el que la animación acaba el bucle"/>
 	<text name="hand_label">
 		Posición de las manos
 	</text>
-	<combo_box left_delta="120" name="hand_pose_combo" tool_tip="Controla qué hacen las manos durante la animación" width="164">
+	<combo_box name="hand_pose_combo" tool_tip="Controla qué hacen las manos durante la animación">
 		<combo_box.item label="Extendidas" name="Spread"/>
 		<combo_box.item label="Relajadas" name="Relaxed"/>
 		<combo_box.item label="Ambas señalan" name="PointBoth"/>
@@ -140,7 +140,7 @@ La duración máxima de una animación es de [MAX_LENGTH] segundos.
 	<text name="emote_label">
 		Expresión
 	</text>
-	<combo_box left_delta="120" name="emote_combo" tool_tip="Controla qué hace la cara durante la animación" width="164">
+	<combo_box name="emote_combo" tool_tip="Controla qué hace la cara durante la animación">
 		<combo_box.item label="(ninguno)" name="[None]"/>
 		<combo_box.item label="Aaaaah" name="Aaaaah"/>
 		<combo_box.item label="Con miedo" name="Afraid"/>
@@ -162,17 +162,17 @@ La duración máxima de una animación es de [MAX_LENGTH] segundos.
 		<combo_box.item label="Guiño" name="Wink"/>
 		<combo_box.item label="Preocupación" name="Worry"/>
 	</combo_box>
-	<text name="preview_label" width="250">
+	<text name="preview_label">
 		Vista previa mientras
 	</text>
-	<combo_box left_delta="120" name="preview_base_anim" tool_tip="Compruebe cómo se comporta su animación a la vez que el avatar realiza acciones comunes." width="130">
+	<combo_box name="preview_base_anim" tool_tip="Compruebe cómo se comporta su animación a la vez que el avatar realiza acciones comunes.">
 		<combo_box.item label="De pie" name="Standing"/>
 		<combo_box.item label="Caminando" name="Walking"/>
 		<combo_box.item label="Sentado/a" name="Sitting"/>
 		<combo_box.item label="Volando" name="Flying"/>
 	</combo_box>
-	<spinner label="Combinar (sec)" label_width="125" name="ease_in_time" tool_tip="Tiempo (en segundos) en el que se combinan las animaciones" width="192"/>
-	<spinner bottom_delta="-20" label="Dejar de combinar (sec)" label_width="125" left="10" name="ease_out_time" tool_tip="Tiempo (en segundos) en el que dejan de combinarse las animaciones" width="192"/>
+	<spinner label="Combinar (sec)" name="ease_in_time" tool_tip="Tiempo (en segundos) en el que se combinan las animaciones"/>
+	<spinner label="Dejar de combinar (sec)" name="ease_out_time" tool_tip="Tiempo (en segundos) en el que dejan de combinarse las animaciones"/>
 	<button bottom_delta="-32" name="play_btn" tool_tip="Ejecutar tu animación"/>
 	<button name="pause_btn" tool_tip="Pausar tu animación"/>
 	<button label="" name="stop_btn" tool_tip="Parar la repetición de la animación"/>
@@ -180,8 +180,7 @@ La duración máxima de una animación es de [MAX_LENGTH] segundos.
 	<text name="bad_animation_text">
 		No se ha podido leer el archivo de la animación.
 
-Recomendamos usar archivos BVH exportados de
-Poser 4.
+Recomendamos usar archivos BVH exportados de Poser 4.
 	</text>
 	<button label="Subir ([AMOUNT] L$)" name="ok_btn"/>
 	<button label="Cancelar" name="cancel_btn"/>

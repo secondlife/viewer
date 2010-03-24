@@ -5,8 +5,7 @@
 			Legenda
 		</text>
 	</panel>
-	<panel
-	name="layout_panel_2">
+	<panel name="layout_panel_2">
 		<button font="SansSerifSmall" label="Mostra minha localização" label_selected="Mostra minha localização" left_delta="91" name="Show My Location" tool_tip="Centrar o mapa na localização do meu avatar" width="135"/>
 		<text name="me_label">
 			Eu
@@ -24,60 +23,56 @@
 			Venda de terreno
 		</text>
 		<text name="by_owner_label">
-			pelo dono
+			o proprietário
 		</text>
 		<text name="auction_label">
 			leilão de terrenos
 		</text>
-		<button label="Ir para Casa" label_selected="Ir para casa" name="Go Home" tool_tip="Teletransportar para minha casa"/>
+		<button label="Ir para Casa" label_selected="Ir para casa" name="Go Home" tool_tip="Teletransportar para meu início"/>
 		<text name="Home_label">
-			Casa
+			Início
 		</text>
 		<text name="events_label">
 			Eventos:
 		</text>
 		<check_box label="PG" name="event_chk"/>
 		<text name="pg_label">
-			Geral
+			Público geral
 		</text>
-		<check_box initial_value="true" label="Mature" name="event_mature_chk"/>
+		<check_box initial_value="verdadeiro" label="Mature" name="event_mature_chk"/>
 		<text name="mature_label">
 			Moderado
 		</text>
 		<check_box label="Adult" name="event_adult_chk"/>
 		<text name="adult_label">
-			Público adulto
+			Adulto
 		</text>
 	</panel>
-	<panel
-	name="layout_panel_3">
+	<panel name="layout_panel_3">
 		<text name="find_on_map_label">
 			Localizar no mapa
 		</text>
 	</panel>
-	<panel
-	name="layout_panel_4">
-		<combo_box label="Amigos Conectados" name="friend combo" tool_tip="Mostrar amigos no mapa">
+	<panel name="layout_panel_4">
+		<combo_box label="Amigos online" name="friend combo" tool_tip="Mostrar amigos no mapa">
 			<combo_box.item label="Amigos conectados" name="item1"/>
 		</combo_box>
 		<combo_box label="Meus marcos" name="landmark combo" tool_tip="Mostrar marco no mapa">
 			<combo_box.item label="Meus marcos" name="item1"/>
 		</combo_box>
-		<search_editor label="Regiões por nome" name="location" tool_tip="Digite o nome de uma Região"/>
-		<button label="Buscar" name="DoSearch" tool_tip="Procurar por região"/>
-		<button name="Clear" tool_tip="Limpara linhas e redefinir mapa"/>
-		<button font="SansSerifSmall" label="Teletransporte" label_selected="Teletransporte" name="Teleport" tool_tip="Teletransportar para a posição selecionada"/>
+		<search_editor label="Regiões por nome" name="location" tool_tip="Digite o nome da região"/>
+		<button label="Buscar" name="DoSearch" tool_tip="Buscar região"/>
+		<button name="Clear" tool_tip="Limpar linhas e redefinir mapa"/>
+		<button font="SansSerifSmall" label="Teletransportar" label_selected="Teletransporte" name="Teleport" tool_tip="Teletransportar para o lugar selecionado"/>
 		<button font="SansSerifSmall" label="Copiar SLurl" name="copy_slurl" tool_tip="Copia a localização atual como um SLurl para usar na web."/>
-		<button font="SansSerifSmall" label="Mostrar seleção" label_selected="Mostrar Destino" left_delta="91" name="Show Destination" tool_tip="Centralizar mapa na posição selecionada" width="135"/>
+		<button font="SansSerifSmall" label="Mostrar seleção" label_selected="Mostrar Destino" left_delta="91" name="Show Destination" tool_tip="Centrar mapa no local selecionado" width="135"/>
 	</panel>
-	<panel
-	name="layout_panel_5">
+	<panel name="layout_panel_5">
 		<text name="zoom_label">
 			Zoom
 		</text>
 	</panel>
-	<panel
-	name="layout_panel_6">
+	<panel name="layout_panel_6">
 		<slider label="Zoom" name="zoom slider"/>
 	</panel>
 </floater>

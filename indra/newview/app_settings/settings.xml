@@ -1563,6 +1563,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>BrowserJavascriptEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable Javascript in the built-in Web browser?</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BrowserPluginsEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable Web plugins in the built-in Web browser?</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>CreateToolCopyCenters</key>
     <map>
       <key>Comment</key>
@@ -10655,7 +10677,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>700</integer>
+      <integer>738</integer>
     </map>
     <key>WindowMaximized</key>
     <map>
@@ -10677,7 +10699,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>1000</integer>
+      <integer>1024</integer>
     </map>
     <key>WindowX</key>
     <map>

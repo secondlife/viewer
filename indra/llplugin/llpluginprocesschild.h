@@ -98,8 +98,6 @@ private:
 	
 	std::string mPluginFile;
 
-	std::string mUserDataPath;
-	
 	LLPluginInstance *mInstance;
 
 	typedef std::map<std::string, LLPluginSharedMemory*> sharedMemoryRegionsType;

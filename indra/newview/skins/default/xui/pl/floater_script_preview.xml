@@ -1,5 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview lsl text" title="SKRYPT: SKRYPT OBROTU">
+	<floater.string name="Title">
+		Skrypt: [NAME]
+	</floater.string>
 	<text name="desc txt">
 		Opis:
 	</text>

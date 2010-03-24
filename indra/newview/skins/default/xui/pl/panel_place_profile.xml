@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="place_profile">
+	<string name="on" value="Włącz"/>
+	<string name="off" value="Wyłącz"/>
+	<string name="anyone" value="Każdy"/>
+	<string name="available" value="dostępny"/>
+	<string name="allocated" value="przydzielony"/>
+	<string name="title_place" value="Profil Miejsca"/>
+	<string name="title_teleport_history" value="Historia teleportacji"/>
+	<string name="not_available" value="(brak)"/>
+	<string name="unknown" value="(nieznany)"/>
+	<string name="public" value="(publiczny)"/>
+	<string name="none_text" value="(żaden)"/>
+	<string name="sale_pending_text" value="(Sprzedaż w Toku Realizacji)"/>
+	<string name="group_owned_text" value="(Własność Grupy)"/>
+	<string name="price_text" value="L$"/>
+	<string name="area_text" value="m²"/>
+	<string name="all_residents_text" value="Każdemu"/>
+	<string name="group_text" value="Grupie"/>
+	<string name="can_resell">
+		Posiadłość zakupiona w tym regionie może być odsprzedana.
+	</string>
+	<string name="can_not_resell">
+		Posiadłość zakupiona w tym regionie nie może być odsprzedana.
+	</string>
+	<string name="can_change">
+		Posiadłość zakupiona w tym regionie może być łączona/dzielona.
+	</string>
+	<string name="can_not_change">
+		Posiadłość zakupiona w tym regionie nie może być łączona/dzielona.
+	</string>
+	<string name="server_update_text">
+		Informacje o tym miejscu nie będą dostępne bez aktualizacji serwera.
+	</string>
+	<string name="server_error_text">
+		Informacje o tym miejscu są obecnie niedostępne, spróbuj później.
+	</string>
+	<string name="server_forbidden_text">
+		Dostęp do informacji o tym miejscu jest ograniczony. Zweryfikuj swoje przywileje z właścicielem posiadłości.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</string>
+	<button name="back_btn" tool_tip="Cofnij"/>
+	<text name="title" value="Profil Miejsca"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="owner_label" value="Właściciel:"/>
+			<text name="maturity_value" value="nieznany"/>
+			<accordion name="advanced_info_accordion">
+				<accordion_tab name="parcel_characteristics_tab" title="Posiadłość">
+					<panel name="parcel_characteristics_panel">
+						<text name="rating_label" value="Rodzaj:"/>
+						<text name="rating_value" value="nieznane"/>
+						<text name="voice_label" value="Komunikacja Głosowa:"/>
+						<text name="voice_value" value="Włączone"/>
+						<text name="fly_label" value="Lataj:"/>
+						<text name="fly_value" value="Włączone"/>
+						<text name="push_label" value="Popchnięcia:"/>
+						<text name="push_value" value="Wyłączone"/>
+						<text name="build_label" value="Budowanie:"/>
+						<text name="build_value" value="Włączone"/>
+						<text name="scripts_label" value="Skrypty:"/>
+						<text name="scripts_value" value="Włączone"/>
+						<text name="damage_label" value="Zniszczenia:"/>
+						<text name="damage_value" value="Wyłączone"/>
+						<button label="O Posiadłości" name="about_land_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="region_information_tab" title="Region">
+					<panel name="region_information_panel">
+						<text name="region_name_label" value="Region:"/>
+						<text name="region_name" value="Mooseland"/>
+						<text name="region_type_label" value="Typ:"/>
+						<text name="region_type" value="Moose"/>
+						<text name="region_rating_label" value="Rodzaj:"/>
+						<text name="region_rating" value="Adult"/>
+						<text name="region_owner_label" value="Właściciel:"/>
+						<text name="region_owner" value="moose Van Moose"/>
+						<text name="region_group_label" value="Grupa:"/>
+						<text name="region_group">
+							The Mighty Moose of mooseville soundvillemoose
+						</text>
+						<button label="Region/Majątek" name="region_info_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="estate_information_tab" title="Majątek">
+					<panel name="estate_information_panel">
+						<text name="estate_name_label" value="Majątek:"/>
+						<text name="estate_rating_label" value="Rodzaj:"/>
+						<text name="estate_owner_label" value="Właściciel:"/>
+						<text name="covenant_label" value="Umowa:"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="sales_tab" title="Na Sprzedaż">
+					<panel name="sales_panel">
+						<text name="sales_price_label" value="Cena:"/>
+						<text name="area_label" value="Powierzchnia:"/>
+						<text name="traffic_label" value="Ruch:"/>
+						<text name="primitives_label" value="Primy:"/>
+						<text name="parcel_scripts_label" value="Skrypty:"/>
+						<text name="terraform_limits_label" value="Ograniczenia Terraformingu:"/>
+						<text name="subdivide_label" value="Podziel/Złącz:"/>
+						<text name="resale_label" value="Możliwość sprzedaży:"/>
+						<text name="sale_to_label" value="Na sprzedaż:"/>
+					</panel>
+				</accordion_tab>
+			</accordion>
+		</panel>
+	</scroll_container>
+</panel>

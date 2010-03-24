@@ -592,7 +592,7 @@ LLAudioBuffer * LLAudioEngine::getFreeBuffer()
 
 	if (buffer_id >= 0)
 	{
-		llinfos << "Taking over unused buffer " << buffer_id << llendl;
+		lldebugs << "Taking over unused buffer " << buffer_id << llendl;
 		//llinfos << "Flushing unused buffer!" << llendl;
 		mBuffers[buffer_id]->mAudioDatap->mBufferp = NULL;
 		delete mBuffers[buffer_id];

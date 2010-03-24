@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="block_list_panel">
 	<text name="title_text">
-		Lista bloccata
+		Blocca lista
 	</text>
-	<scroll_list name="blocked" tool_tip="Lista dei residenti bloccati"/>
-	<button label="Blocca il Residente..." label_selected="Blocca Residente..." name="Block resident..." tool_tip="Scegli un residente da bloccare"/>
+	<scroll_list name="blocked" tool_tip="Lista degli attuali residenti bloccati"/>
+	<button label="Blocca il residente..." label_selected="Blocca il residente..." name="Block resident..." tool_tip="Scegli un residente da bloccare"/>
 	<button label="Blocca l&apos;oggetto per nome..." label_selected="Blocca l&apos;oggetto per nome..." name="Block object by name..."/>
-	<button label="Sblocca" label_selected="Sblocca" name="Unblock" tool_tip="Rimuovi dalla lista il residente o l&apos;oggetto bloccato"/>
+	<button label="Sblocca" label_selected="Sblocca" name="Unblock" tool_tip="Rimuovi un residente o un oggetto dalla lista bloccati"/>
 </panel>

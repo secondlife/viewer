@@ -41,7 +41,7 @@ Prøv at vælge et mindre område.
 		Det valgte område har ingen offentlige arealer.
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		Jord, der ejes af en anden bruger er valgt. 
+		Land ejet af en anden beboer valgt.
 Prøv at vælge et mindre område.
 	</floater.string>
 	<floater.string name="processing">

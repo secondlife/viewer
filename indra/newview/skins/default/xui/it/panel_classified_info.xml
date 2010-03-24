@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_classified_info">
+	<panel.string name="l$_price">
+		L$ [PRICE]
+	</panel.string>
 	<text name="title" value="Info sugli Annunci"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="classified_name" value="[nome]"/>
-			<text name="classified_location" value="[caricando...]"/>
-			<text name="content_type" value="[tipo di contenuto]"/>
-			<text name="category" value="[categoria]"/>
+			<text_editor name="classified_name" value="[nome]"/>
+			<text_editor name="classified_location" value="[caricando...]"/>
+			<text_editor name="content_type" value="[tipo di contenuto]"/>
+			<text_editor name="category" value="[categoria]"/>
 			<check_box label="Auto rinnovo settimanale" name="auto_renew"/>
-			<text name="price_for_listing" tool_tip="Prezzo di listino.">
-				L$[PREZZO]
-			</text>
-			<text name="classified_desc" value="[descrizione]"/>
+			<text_editor name="price_for_listing" tool_tip="Prezzo di listino."/>
+			<text_editor name="classified_desc" value="[descrizione]"/>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">

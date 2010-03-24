@@ -210,25 +210,29 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 			// A new impl will be created below.
 		}
 	}
-
-	if(!sMediaImpl)
+	
+	// Don't ever try to play if the media type is set to "none/none"
+	if(stricmp(mime_type.c_str(), "none/none") != 0)
 	{
-		LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
+		if(!sMediaImpl)
+		{
+			LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
 
-		// There is no media impl, make a new one
-		sMediaImpl = LLViewerMedia::newMediaImpl(
-			placeholder_texture_id,
-			media_width, 
-			media_height, 
-			media_auto_scale,
-			media_loop);
-		sMediaImpl->setIsParcelMedia(true);
-		sMediaImpl->navigateTo(media_url, mime_type, true);
+			// There is no media impl, make a new one
+			sMediaImpl = LLViewerMedia::newMediaImpl(
+				placeholder_texture_id,
+				media_width, 
+				media_height, 
+				media_auto_scale,
+				media_loop);
+			sMediaImpl->setIsParcelMedia(true);
+			sMediaImpl->navigateTo(media_url, mime_type, true);
+		}
+
+		//LLFirstUse::useMedia();
+
+		LLViewerParcelMediaAutoPlay::playStarted();
 	}
-
-	//LLFirstUse::useMedia();
-
-	LLViewerParcelMediaAutoPlay::playStarted();
 }
 
 // static
@@ -312,11 +316,14 @@ std::string LLViewerParcelMedia::getURL()
 	if(sMediaImpl.notNull())
 		url = sMediaImpl->getMediaURL();
 	
-	if (url.empty())
-		url = LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaCurrentURL();
-	
-	if (url.empty())
-		url = LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaURL();
+	if(stricmp(LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaType().c_str(), "none/none") != 0)
+	{
+		if (url.empty())
+			url = LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaCurrentURL();
+		
+		if (url.empty())
+			url = LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaURL();
+	}
 	
 	return url;
 }

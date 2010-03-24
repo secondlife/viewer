@@ -3,12 +3,20 @@
 	<panel.string name="location_notice">
 		(se actualizará tras guardarlo)
 	</panel.string>
+	<string name="publish_label">
+		Publicar
+	</string>
+	<string name="save_label">
+		Guardar
+	</string>
 	<text name="title">
 		Editar el clasificado
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<icon label="" name="edit_icon" tool_tip="Pulsa para elegir una imagen"/>
+			<panel name="snapshot_panel">
+				<icon label="" name="edit_icon" tool_tip="Pulsa para elegir una imagen"/>
+			</panel>
 			<text name="Name:">
 				Título:
 			</text>
@@ -22,12 +30,19 @@
 				cargando...
 			</text>
 			<button label="Configurarlo en esta localización" name="set_to_curr_location_btn"/>
+			<text name="category_label" value="Categoría:"/>
+			<text name="content_type_label" value="Tipo de contenido:"/>
+			<icons_combo_box label="Contenido general" name="content_type">
+				<icons_combo_box.item label="Contenido moderado" name="mature_ci" value="Moderado"/>
+				<icons_combo_box.item label="Contenido general" name="pg_ci" value="General"/>
+			</icons_combo_box>
+			<text name="price_for_listing_label" value="Precio por publicarlo:"/>
 			<spinner label="L$" name="price_for_listing" tool_tip="Precio por publicarlo." value="50"/>
 			<check_box label="Renovar automáticamente cada semana" name="auto_renew"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="Guardar" name="save_changes_btn"/>
+		<button label="[LABEL]" name="save_changes_btn"/>
 		<button label="Cancelar" name="cancel_btn"/>
 	</panel>
 </panel>

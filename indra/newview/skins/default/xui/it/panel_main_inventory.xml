@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Cose" name="main inventory panel">
-	<panel.string name="Title">
-		Cose
+	<panel.string name="ItemcountFetching">
+		Recupero di [ITEM_COUNT] oggetti... [FILTER]
 	</panel.string>
-	<filter_editor label="Filtro" name="inventory search editor"/>
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Tutti gli elementi" name="All Items"/>
-		<inventory_panel label="Elementi recenti" name="Recent Items"/>
-	</tab_container>
-	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Mostra ulteriori opzioni"/>
-		<button name="add_btn" tool_tip="Aggiungi nuovo elemento"/>
-		<dnd_button name="trash_btn" tool_tip="Rimuovi l&apos;elemento selezionato"/>
-	</panel>
+	<panel.string name="ItemcountCompleted">
+		[ITEM_COUNT] oggetti [FILTER]
+	</panel.string>
+	<text name="ItemcountText">
+		Oggetti:
+	</text>
 	<menu_bar name="Inventory Menu">
 		<menu label="File" name="File">
 			<menu_item_call label="Apri" name="Open"/>
@@ -22,43 +18,53 @@
 				<menu_item_call label="Animazione ([COST]L$)..." name="Upload Animation"/>
 				<menu_item_call label="In blocco ([COST]L$ per file)..." name="Bulk Upload"/>
 			</menu>
-			<menu_item_call label="Nuova Finestra" name="New Window"/>
-			<menu_item_call label="Mostra Filtri" name="Show Filters"/>
-			<menu_item_call label="Cancella Filtri" name="Reset Current"/>
-			<menu_item_call label="Chiudi tutte le Cartelle" name="Close All Folders"/>
-			<menu_item_call label="Svuota Cestino" name="Empty Trash"/>
-			<menu_item_call label="Svuota Oggetti Smarriti" name="Empty Lost And Found"/>
+			<menu_item_call label="Nuova finestra" name="New Window"/>
+			<menu_item_call label="Mostra filtri" name="Show Filters"/>
+			<menu_item_call label="Ripristina filtri" name="Reset Current"/>
+			<menu_item_call label="Chiudi tutte le cartelle" name="Close All Folders"/>
+			<menu_item_call label="Svuota cestino" name="Empty Trash"/>
+			<menu_item_call label="Svuota oggetti smarriti" name="Empty Lost And Found"/>
 		</menu>
 		<menu label="Crea" name="Create">
-			<menu_item_call label="Nuova Cartella" name="New Folder"/>
-			<menu_item_call label="Nuovo Script" name="New Script"/>
-			<menu_item_call label="Nuova Notecard" name="New Note"/>
-			<menu_item_call label="Nuova Gesture" name="New Gesture"/>
-			<menu label="Nuovi Abiti" name="New Clothes">
-				<menu_item_call label="Nuova Camicia" name="New Shirt"/>
-				<menu_item_call label="Nuovi Pantaloni" name="New Pants"/>
-				<menu_item_call label="Nuove Scarpe" name="New Shoes"/>
-				<menu_item_call label="Nuove Calze" name="New Socks"/>
-				<menu_item_call label="Nuova Giacca" name="New Jacket"/>
-				<menu_item_call label="Nuova Gonna" name="New Skirt"/>
-				<menu_item_call label="Nuovi Guanti" name="New Gloves"/>
-				<menu_item_call label="Nuova Maglietta Intima" name="New Undershirt"/>
-				<menu_item_call label="Nuovi Slip" name="New Underpants"/>
-				<menu_item_call label="Nuovo Alfa (Trasparenza)" name="New Alpha"/>
-				<menu_item_call label="Nuovo Tatuaggio" name="New Tattoo"/>
+			<menu_item_call label="Nuova cartella" name="New Folder"/>
+			<menu_item_call label="Nuovo script" name="New Script"/>
+			<menu_item_call label="Nuovo biglietto" name="New Note"/>
+			<menu_item_call label="Nuova gesture" name="New Gesture"/>
+			<menu label="Maglietta intima" name="New Clothes">
+				<menu_item_call label="Nuova camicia" name="New Shirt"/>
+				<menu_item_call label="Nuovi pantaloni" name="New Pants"/>
+				<menu_item_call label="Nuove scarpe" name="New Shoes"/>
+				<menu_item_call label="Nuove calze" name="New Socks"/>
+				<menu_item_call label="Nuova giacca" name="New Jacket"/>
+				<menu_item_call label="Nuova gonna" name="New Skirt"/>
+				<menu_item_call label="Nuovi guanti" name="New Gloves"/>
+				<menu_item_call label="Nuova maglietta intima" name="New Undershirt"/>
+				<menu_item_call label="Nuovi slip" name="New Underpants"/>
+				<menu_item_call label="Nuovo Alfa (trasparenza)" name="New Alpha"/>
+				<menu_item_call label="Nuovo tatuaggio" name="New Tattoo"/>
 			</menu>
-			<menu label="Nuove Parti del Corpo" name="New Body Parts">
-				<menu_item_call label="Nuova Shape" name="New Shape"/>
-				<menu_item_call label="Nuova Pelle" name="New Skin"/>
-				<menu_item_call label="Nuovi Capelli" name="New Hair"/>
-				<menu_item_call label="Nuovi Occhi" name="New Eyes"/>
+			<menu label="Nuove parti del corpo" name="New Body Parts">
+				<menu_item_call label="Nuova figura corporea" name="New Shape"/>
+				<menu_item_call label="Nuova pelle" name="New Skin"/>
+				<menu_item_call label="Nuovi capelli" name="New Hair"/>
+				<menu_item_call label="Nuovi occhi" name="New Eyes"/>
 			</menu>
 		</menu>
 		<menu label="Ordina" name="Sort">
-			<menu_item_check label="Per Nome" name="By Name"/>
-			<menu_item_check label="Per Data" name="By Date"/>
-			<menu_item_check label="Cartelle sempre per Nome" name="Folders Always By Name"/>
+			<menu_item_check label="In base al nome" name="By Name"/>
+			<menu_item_check label="In base alla data" name="By Date"/>
+			<menu_item_check label="Cartelle sempre in base al nome" name="Folders Always By Name"/>
 			<menu_item_check label="Cartelle di sistema all&apos;inizio" name="System Folders To Top"/>
 		</menu>
 	</menu_bar>
+	<filter_editor label="Filtro" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="Tutti gli elementi" name="All Items"/>
+		<inventory_panel label="Elementi recenti" name="Recent Items"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Mostra opzioni addizionali"/>
+		<button name="add_btn" tool_tip="Aggiungi nuovo elemento"/>
+		<dnd_button name="trash_btn" tool_tip="Rimuovi l&apos;articolo selezionato"/>
+	</panel>
 </panel>
