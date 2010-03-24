@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Edytuj Ulubione" name="panel_edit_pick">
+	<panel.string name="location_notice">
+		(aktualizacja nastąpi po zapisaniu)
+	</panel.string>
 	<text name="title">
 		Edytuj Ulubione
 	</text>
@@ -22,7 +25,7 @@
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="Zapisz [WHAT]" name="save_changes_btn"/>
+		<button label="Zapisz obrazek" name="save_changes_btn"/>
 		<button label="Anuluj" name="cancel_btn"/>
 	</panel>
 </panel>
