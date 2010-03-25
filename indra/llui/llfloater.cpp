@@ -346,7 +346,7 @@ void LLFloater::layoutDragHandle()
 		rect = getLocalRect();
 	}
 	mDragHandle->setRect(rect);
-	updateButtons();
+	updateTitleButtons();
 	applyTitle();
 }
 
@@ -1061,11 +1061,10 @@ void LLFloater::setMinimized(BOOL minimize)
 		// Reshape *after* setting mMinimized
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
 	}
-	
-	applyTitle ();
 
 	make_ui_sound("UISndWindowClose");
-	updateButtons();
+	updateTitleButtons();
+	applyTitle ();
 }
 
 void LLFloater::setFocus( BOOL b )
@@ -1191,7 +1190,7 @@ void LLFloater::setHost(LLMultiFloater* host)
 		mButtonScale = 1.f;
 		//mButtonsEnabled[BUTTON_TEAR_OFF] = FALSE;
 	}
-	updateButtons();
+	updateTitleButtons();
 	if (host)
 	{
 		mHostHandle = host->getHandle();
@@ -1390,7 +1389,7 @@ void LLFloater::setCanDock(bool b)
 			mButtonsEnabled[BUTTON_DOCK] = FALSE;
 		}
 	}
-	updateButtons();
+	updateTitleButtons();
 }
 
 void LLFloater::setDocked(bool docked, bool pop_on_undock)
@@ -1399,7 +1398,7 @@ void LLFloater::setDocked(bool docked, bool pop_on_undock)
 	{
 		mDocked = docked;
 		mButtonsEnabled[BUTTON_DOCK] = !mDocked;
-		updateButtons();
+		updateTitleButtons();
 
 		storeDockStateControl();
 	}
@@ -1452,7 +1451,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		}
 		self->setTornOff(false);
 	}
-	self->updateButtons();
+	self->updateTitleButtons();
 }
 
 // static
@@ -1692,7 +1691,7 @@ void	LLFloater::setCanMinimize(BOOL can_minimize)
 	mButtonsEnabled[BUTTON_MINIMIZE] = can_minimize && !isMinimized();
 	mButtonsEnabled[BUTTON_RESTORE]  = can_minimize &&  isMinimized();
 
-	updateButtons();
+	updateTitleButtons();
 }
 
 void	LLFloater::setCanClose(BOOL can_close)
@@ -1700,7 +1699,7 @@ void	LLFloater::setCanClose(BOOL can_close)
 	mCanClose = can_close;
 	mButtonsEnabled[BUTTON_CLOSE] = can_close;
 
-	updateButtons();
+	updateTitleButtons();
 }
 
 void	LLFloater::setCanTearOff(BOOL can_tear_off)
@@ -1708,7 +1707,7 @@ void	LLFloater::setCanTearOff(BOOL can_tear_off)
 	mCanTearOff = can_tear_off;
 	mButtonsEnabled[BUTTON_TEAR_OFF] = mCanTearOff && !mHostHandle.isDead();
 
-	updateButtons();
+	updateTitleButtons();
 }
 
 
@@ -1732,10 +1731,11 @@ void LLFloater::setCanDrag(BOOL can_drag)
 	}
 }
 
-void LLFloater::updateButtons()
+void LLFloater::updateTitleButtons()
 {
 	static LLUICachedControl<S32> floater_close_box_size ("UIFloaterCloseBoxSize", 0);
 	static LLUICachedControl<S32> close_box_from_top ("UICloseBoxFromTop", 0);
+	LLRect buttons_rect;
 	S32 button_count = 0;
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
@@ -1786,6 +1786,15 @@ void LLFloater::updateButtons()
 					llround((F32)floater_close_box_size * mButtonScale));
 			}
 
+			if(!buttons_rect.isValid())
+			{
+				buttons_rect = btn_rect;
+			}
+			else
+			{
+				mDragOnLeft ? buttons_rect.mRight + btn_rect.mRight : 
+					buttons_rect.mLeft = btn_rect.mLeft;
+			}
 			mButtons[i]->setRect(btn_rect);
 			mButtons[i]->setVisible(TRUE);
 			// the restore button should have a tab stop so that it takes action when you Ctrl-Tab to a minimized floater
@@ -1797,7 +1806,10 @@ void LLFloater::updateButtons()
 		}
 	}
 	if (mDragHandle)
-		mDragHandle->setMaxTitleWidth(getRect().getWidth() - (button_count * (floater_close_box_size + 1)));
+	{
+		localRectToOtherView(buttons_rect, &buttons_rect, mDragHandle);
+		mDragHandle->setButtonsRect(buttons_rect);
+	}
 }
 
 void LLFloater::buildButtons(const Params& floater_params)
@@ -1854,7 +1866,7 @@ void LLFloater::buildButtons(const Params& floater_params)
 		mButtons[i] = buttonp;
 	}
 
-	updateButtons();
+	updateTitleButtons();
 }
 
 // static
