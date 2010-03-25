@@ -18,6 +18,15 @@
 	<string name="fly_back_tooltip">
 		Vola indietro (premi Freccia Giù o S)
 	</string>
+	<string name="walk_title">
+		Cammina
+	</string>
+	<string name="run_title">
+		Corri
+	</string>
+	<string name="fly_title">
+		Vola
+	</string>
 	<panel name="panel_actions">
 		<button label="" label_selected="" name="turn left btn" tool_tip="Gira a sinistra (premi Freccia Sinistra o A)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Gira a destra (premi Freccia Destra o D)"/>
@@ -30,6 +39,5 @@
 		<button label="" name="mode_walk_btn" tool_tip="Modalità per camminare"/>
 		<button label="" name="mode_run_btn" tool_tip="Modalità per correre"/>
 		<button label="" name="mode_fly_btn" tool_tip="Modalità di volo"/>
-		<button label="Ferma il volo" name="stop_fly_btn" tool_tip="Ferma il volo"/>
 	</panel>
 </floater>

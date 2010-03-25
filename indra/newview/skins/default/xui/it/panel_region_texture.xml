@@ -25,16 +25,16 @@
 		Range di elevazione della texture
 	</text>
 	<text name="height_text_lbl6">
-		Sud Ovest
+		Nordovest
 	</text>
 	<text name="height_text_lbl7">
-		Nord Ovest
+		Nordest
 	</text>
 	<text name="height_text_lbl8">
-		Sud Est
+		Sudovest
 	</text>
 	<text name="height_text_lbl9">
-		Nord Est
+		Sudest
 	</text>
 	<spinner label="Bassa" name="height_start_spin_0"/>
 	<spinner label="Bassa" name="height_start_spin_1"/>

@@ -1234,7 +1234,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="edit objects check"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1260,7 +1260,7 @@ Only large parcels can be listed in search.
              left_pad="2"
              name="all object entry check"
              top_delta="0"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1287,7 +1287,7 @@ Only large parcels can be listed in search.
              left_pad="2"
              name="check other scripts"
              top_delta="0"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1341,7 +1341,7 @@ Only large parcels can be listed in search.
              left="30"
              name="land category with adult"
              visible="false"
-             width="130">
+             width="140">
                 <combo_box.item
                  label="Any Category"
                  name="item0"
@@ -1402,7 +1402,7 @@ Only large parcels can be listed in search.
              left="30"
              name="land category"
              visible="false"
-             width="130">
+             width="140">
                 <combo_box.item
                  label="Any Category"
                  name="item0"

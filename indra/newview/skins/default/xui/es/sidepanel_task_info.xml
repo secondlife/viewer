@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="object properties" title="Perfil del objeto">
 	<panel.string name="text deed continued">
-		Transfeir
+		Transferir
 	</panel.string>
 	<panel.string name="text deed">
-		Transfeir
+		Transferir
 	</panel.string>
 	<panel.string name="text modify info 1">
 		Puedes modificar este objeto

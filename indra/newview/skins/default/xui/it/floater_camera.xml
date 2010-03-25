@@ -9,6 +9,18 @@
 	<floater.string name="move_tooltip">
 		Muovi la telecamera su e giù e a sinistra e destra
 	</floater.string>
+	<floater.string name="orbit_mode_title">
+		Ruota visuale
+	</floater.string>
+	<floater.string name="pan_mode_title">
+		Panoramica
+	</floater.string>
+	<floater.string name="avatar_view_mode_title">
+		Valori predefiniti
+	</floater.string>
+	<floater.string name="free_mode_title">
+		Vedi oggetto
+	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="Sposta la visuale in su e in giù, a sinistra e a destra"/>
 		<panel name="zoom" tool_tip="Avvicina la telecamera nell&apos;inquadratura">
@@ -25,7 +37,7 @@
 	<panel name="buttons">
 		<button label="" name="orbit_btn" tool_tip="Ruota la visuale"/>
 		<button label="" name="pan_btn" tool_tip="Visuale panoramica"/>
-		<button label="" name="avatarview_btn" tool_tip="Guardare dall&apos;avatar"/>
+		<button label="" name="avatarview_btn" tool_tip="Valori predefiniti"/>
 		<button label="" name="freecamera_btn" tool_tip="Vedi oggetto"/>
 	</panel>
 </floater>

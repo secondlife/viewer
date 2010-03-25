@@ -22,7 +22,7 @@
 		L$ [AMT]
 	</panel.string>
 	<button label="" label_selected="" name="buycurrency" tool_tip="Il mio saldo"/>
-	<button label="Compra L$" name="buyL" tool_tip="Clicca per comprare più L$"/>
+	<button label="Acquista" name="buyL" tool_tip="Clicca per comprare più L$"/>
 	<text name="TimeText" tool_tip="Ora attuale (Pacific)">
 		24:00, ora del Pacifico
 	</text>

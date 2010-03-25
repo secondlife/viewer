@@ -37,7 +37,7 @@
 		Kalkulowanie...
 	</text>
 	<text name="buy_action">
-		[NAME] [PRICE]L$
+		[ACTION]
 	</text>
 	<text name="total_label">
 		Twój nowy stan konta

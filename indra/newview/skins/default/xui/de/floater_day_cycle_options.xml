@@ -86,7 +86,7 @@
 			</text>
 			<button label="Start" label_selected="Start" name="WLAnimSky" />
 			<button label="Stopp" label_selected="Stopp" name="WLStopAnimSky" />
-			<button label="Grundstückszeit verw" label_selected="Zur Grundstückszeit"
+			<button label="Grundbesitzzeit verw" label_selected="Zur Grundbesitzzeit"
 			     name="WLUseLindenTime" />
 			<button label="Testtag speichern" label_selected="Testtag speichern"
 			     name="WLSaveDayCycle" />

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="godtools floater" title="GOD TOOLS">
 	<tab_container name="GodTools Tabs">
+		<panel label="Grid" name="grid">
+			<button label="Espelli tutti i residenti" label_selected="Espelli tutti i residenti" name="Kick all users"/>
+		</panel>
 		<panel label="Region" name="region">
 			<check_box label="Reset Home On Teleport" name="check reset home" tool_tip="Quando un residente esce con un teleport, reimposta la sua posizione di base sul luogo di destinazione."/>
 		</panel>
