@@ -442,6 +442,20 @@ void LLAvatarActions::toggleBlock(const LLUUID& id)
 		LLMuteList::getInstance()->add(mute);
 	}
 }
+// static
+bool LLAvatarActions::canOfferTeleport(const LLUUID& id)
+{
+	// First use LLAvatarTracker::isBuddy()
+	// If LLAvatarTracker::instance().isBuddyOnline function only is used
+	// then for avatars that are online and not a friend it will return false.
+	// But we should give an ability to offer a teleport for such avatars.
+	if(LLAvatarTracker::instance().isBuddy(id))
+	{
+		return LLAvatarTracker::instance().isBuddyOnline(id);
+	}
+
+	return true;
+}
 
 void LLAvatarActions::inviteToGroup(const LLUUID& id)
 {
