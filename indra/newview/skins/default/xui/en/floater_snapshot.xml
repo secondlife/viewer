@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- can_minimize="false"
- can_close="true"
+ can_minimize="true"
+ can_close="false"
  follows="left|top"
  height="340"
  layout="topleft"
@@ -23,7 +23,7 @@
   </floater.string>
   <view
     height="160"
-    width="225"
+    width="230"
     layout="topleft"
     name="thumbnail_placeholder"
     top_pad="30"
@@ -45,74 +45,74 @@
 	  follows="left|top"
 	  height="20"
 		layout="topleft"
-    left="15"
+    left="10"
 		max_length="500"
     name="description"
-	  top_pad="20"
-	  width="225"
+	  top_pad="15"
+	  width="230"
     label="Description"/>
   <button
-   label="Share to Web" 
+   label="Share Snapshot" 
    name="share" 
-   top_pad="15" 
-   left="15" 
+   top_pad="20" 
+   left="10" 
    width="130"/>
   <button
    label="Share to Web" 
    name="share_to_web" 
    top_delta="0" 
-   left="15" 
+   left="10" 
    width="130"/>
   <button
    label="Save to My Inventory" 
    name="save_to_inventory" 
    top_delta="0" 
-   left="15" 
+   left="10" 
    width="130"/>
   <button
    label="Save Snapshot" 
    name="save" 
    top_pad="7" 
-   left="15" 
+   left="10" 
    width="130"/>
   <button
    label="Email Snapshot" 
    name="share_to_email" 
    top_delta="0" 
-   left="15" 
+   left="10" 
    width="130"/>
   <button
    label="Save to My Computer" 
    name="save_to_computer" 
    top_delta="0" 
-   left="15" 
+   left="10" 
    width="130"/>
   <button
    label="Set As Profile Pic" 
    name="set_profile_pic" 
    top_pad="7" 
-   left="15" 
+   left="10" 
    width="130"/>
   <button
    label="Back" 
    name="cancel" 
    top_delta="0" 
-   left="15" 
+   left="10" 
    width="130"/>
   <button
-    follows="right"
-    height="22"
-    layout="topleft"
-    right="-12"
+     follows="left"
+     height="22"
+     layout="topleft"
+     left="210"
     name="show_advanced"
     image_overlay="TabIcon_Close_Off"
     top_delta="1"
     width="30"/>
   <button
-     follows="right"
+     follows="left"
      height="22"
      layout="topleft"
-     right="-12"
+     left="210"
      visible="false" 
      name="hide_advanced"
      image_overlay="TabIcon_Open_Off"
@@ -121,7 +121,7 @@
   <panel 
     visible="false" 
     left="250" 
-    top="35" 
+    top="17"    
     name="snapshot_advanced" 
     filename="panel_snapshot_advanced.xml"/>
 </floater>
