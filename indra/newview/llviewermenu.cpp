@@ -2691,7 +2691,7 @@ class LLSelfEnableRemoveAllAttachments : public view_listener_t
 		bool new_value = false;
 		if (gAgent.getAvatarObject())
 		{
-			LLVOAvatar* avatarp = gAgent.getAvatarObject();
+			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 			for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
 				 iter != avatarp->mAttachmentPoints.end(); )
 			{
@@ -6930,11 +6930,11 @@ void handle_debug_avatar_textures(void*)
 void handle_grab_texture(void* data)
 {
 	ETextureIndex tex_index = (ETextureIndex)((intptr_t)data);
-	const LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if ( avatar )
+	const LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (avatarp)
 	{
 		// MULTI-WEARABLE: change to support an index
-		const LLUUID& asset_id = avatar->grabLocalTexture(tex_index, 0);
+		const LLUUID& asset_id = avatarp->grabLocalTexture(tex_index, 0);
 		LL_INFOS("texture") << "Adding baked texture " << asset_id << " to inventory." << llendl;
 		LLAssetType::EType asset_type = LLAssetType::AT_TEXTURE;
 		LLInventoryType::EType inv_type = LLInventoryType::IT_TEXTURE;
@@ -7005,11 +7005,11 @@ void handle_grab_texture(void* data)
 BOOL enable_grab_texture(void* data)
 {
 	ETextureIndex index = (ETextureIndex)((intptr_t)data);
-	const LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if ( avatar )
+	const LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (avatarp)
 	{
 		// MULTI-WEARABLE:
-		return avatar->canGrabLocalTexture(index,0);
+		return avatarp->canGrabLocalTexture(index,0);
 	}
 	return FALSE;
 }
@@ -7220,12 +7220,12 @@ void handle_buy_currency_test(void*)
 
 void handle_rebake_textures(void*)
 {
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if (!avatar) return;
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (!avatarp) return;
 
 	// Slam pending upload count to "unstick" things
 	bool slam_for_debug = true;
-	avatar->forceBakeAllTextures(slam_for_debug);
+	avatarp->forceBakeAllTextures(slam_for_debug);
 }
 
 void toggle_visibility(void* user_data)

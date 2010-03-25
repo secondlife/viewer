@@ -1210,7 +1210,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 		}
 
 		// add all hud objects to pick list
-		LLVOAvatar* avatarp = gAgent.getAvatarObject();
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 		if (avatarp)
 		{
 			for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 

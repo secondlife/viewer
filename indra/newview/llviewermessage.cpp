@@ -3062,7 +3062,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	std::string version_channel;
 	msg->getString("SimData", "ChannelVersion", version_channel);
 
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	if (!avatarp)
 	{
 		// Could happen if you were immediately god-teleported away on login,

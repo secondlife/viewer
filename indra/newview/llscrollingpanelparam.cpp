@@ -344,8 +344,8 @@ void LLScrollingPanelParam::onHintMaxMouseUp( void* userdata )
 
 	F32 elapsed_time = self->mMouseDownTimer.getElapsedTimeF32();
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if (avatar)
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (avatarp)
 	{
 		LLVisualParamHint* hint = self->mHintMax;
 

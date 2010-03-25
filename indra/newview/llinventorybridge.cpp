@@ -1506,14 +1506,14 @@ BOOL LLFolderBridge::isItemRemovable() const
 		return FALSE;
 	}
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if( !avatar )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if(!avatarp)
 	{
 		return FALSE;
 	}
 
 	LLInventoryCategory* category = model->getCategory(mUUID);
-	if( !category )
+	if(!category)
 	{
 		return FALSE;
 	}
@@ -1661,8 +1661,8 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if(!avatar) return FALSE;
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if(!avatarp) return FALSE;
 
 	// cannot drag categories into library
 	if(!isAgentInventory())
@@ -3026,8 +3026,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		return FALSE;
 	}
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if(!avatar) return FALSE;
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if(!avatarp) return FALSE;
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
@@ -4153,8 +4153,8 @@ std::string LLObjectBridge::getLabelSuffix() const
 {
 	if (get_is_item_worn(mUUID))
 	{
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+		std::string attachment_point_name = avatarp->getAttachedPointName(mUUID);
 
 		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
@@ -4352,11 +4352,11 @@ BOOL LLObjectBridge::renameItem(const std::string& new_name)
 
 		model->notifyObservers();
 
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		if( avatar )
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+		if(avatarp)
 		{
-			LLViewerObject* obj = avatar->getWornAttachment( item->getUUID() );
-			if( obj )
+			LLViewerObject* obj = avatarp->getWornAttachment( item->getUUID() );
+			if(obj)
 			{
 				LLSelectMgr::getInstance()->deselectAll();
 				LLSelectMgr::getInstance()->addAsIndividual( obj, SELECT_ALL_TES, FALSE );

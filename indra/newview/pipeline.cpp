@@ -3856,7 +3856,7 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 	}
 
 	// pick HUD objects
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	if (avatarp && sShowHUDAttachments)
 	{
 		glh::matrix4f save_proj(glh_get_current_projection());
@@ -4708,7 +4708,7 @@ void LLPipeline::enableLightsDynamic()
 		glColor4f(0.f, 0.f, 0.f, 1.f); // no local lighting by default
 	}
 
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
 	if (avatarp && getLightingDetail() <= 0)
 	{
@@ -7101,15 +7101,15 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 		if (gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
 		{
-			avatar = NULL;
+			avatarp = NULL;
 		}
 
-		if (avatar)
+		if (avatarp)
 		{
-			avatar->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
+			avatarp->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
 		}
 		LLVertexBuffer::unbind();
 
@@ -7333,9 +7333,9 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLGLState::checkTextureChannels();
 		LLGLState::checkClientArrays();
 
-		if (avatar)
+		if (avatarp)
 		{
-			avatar->updateAttachmentVisibility(gAgentCamera.getCameraMode());
+			avatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
 		}
 	}
 }

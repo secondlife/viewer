@@ -951,8 +951,8 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	LLUUID agent_id;
 	gMessageSystem->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
 
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if (avatar && (agent_id == avatar->getID()))
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (avatarp && (agent_id == avatarp->getID()))
 	{
 		gMessageSystem->getU32Fast(_PREHASH_AgentData, _PREHASH_SerialNum, gAgentQueryManager.mUpdateSerialNum);
 		
@@ -1044,8 +1044,8 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 	const EWearableType type = wear_data->mType;
 	U32 index = 0;
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if (!avatar)
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (!avatarp)
 	{
 		return;
 	}
@@ -1058,9 +1058,9 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 		gAgentWearables.mItemsAwaitingWearableUpdate.erase(wear_data->mItemID);
 
 		// disable composites if initial textures are baked
-		avatar->setupComposites();
+		avatarp->setupComposites();
 
-		avatar->setCompositeUpdatesEnabled(TRUE);
+		avatarp->setCompositeUpdatesEnabled(TRUE);
 		gInventory.addChangedMask(LLInventoryObserver::LABEL, wearable->getItemID());
 	}
 	else
@@ -1089,7 +1089,7 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 		// If there are any, schedule them to be uploaded as soon as the layer textures they depend on arrive.
 		if (gAgentCamera.cameraCustomizeAvatar())
 		{
-			avatar->requestLayerSetUploads();
+			avatarp->requestLayerSetUploads();
 		}
 	}
 }
@@ -2693,11 +2693,11 @@ void LLInitialWearablesFetch::processWearablesMessage()
 		}
 
 		// Add all current attachments to the requested items as well.
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		if( avatar )
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+		if(avatarp)
 		{
-			for (LLVOAvatar::attachment_map_t::const_iterator iter = avatar->mAttachmentPoints.begin(); 
-				 iter != avatar->mAttachmentPoints.end(); ++iter)
+			for (LLVOAvatar::attachment_map_t::const_iterator iter = avatarp->mAttachmentPoints.begin(); 
+				 iter != avatarp->mAttachmentPoints.end(); ++iter)
 			{
 				LLViewerJointAttachment* attachment = iter->second;
 				if (!attachment) continue;

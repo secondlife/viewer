@@ -3260,7 +3260,7 @@ BOOL LLAgent::getHomePosGlobal( LLVector3d* pos_global )
 
 void LLAgent::clearVisualParams(void *data)
 {
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	if (avatarp)
 	{
 		avatarp->clearVisualParamWeights();
@@ -3288,7 +3288,7 @@ bool LLAgent::teleportCore(bool is_local)
 	// sync with other viewers. Discuss in DEV-14145/VWR-6744 before reenabling.
 
 	// Stop all animation before actual teleporting 
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
         if (avatarp)
 	{
 		for ( LLVOAvatar::AnimIterator anim_it= avatarp->mPlayingAnimations.begin();
@@ -3491,7 +3491,7 @@ void LLAgent::stopCurrentAnimations()
 	// This function stops all current overriding animations on this
 	// avatar, propagating this change back to the server.
 
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	if (avatarp)
 	{
 		for ( LLVOAvatar::AnimIterator anim_it =

@@ -409,12 +409,12 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 {
 	LLBakedUploadData* baked_upload_data = (LLBakedUploadData*)userdata;
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
 	if (0 == result &&
-		avatar &&
-		!avatar->isDead() &&
-		baked_upload_data->mAvatar == avatar && // Sanity check: only the user's avatar should be uploading textures.
+		avatarp &&
+		!avatarp->isDead() &&
+		baked_upload_data->mAvatar == avatarp && // Sanity check: only the user's avatar should be uploading textures.
 		baked_upload_data->mTexLayerSet->hasComposite()
 		)
 	{
@@ -439,11 +439,11 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 
 			if (result >= 0)
 			{
-				LLVOAvatarDefines::ETextureIndex baked_te = avatar->getBakedTE(layerset_buffer->mTexLayerSet);
+				LLVOAvatarDefines::ETextureIndex baked_te = avatarp->getBakedTE(layerset_buffer->mTexLayerSet);
 				// Update baked texture info with the new UUID
 				U64 now = LLFrameTimer::getTotalTime();		// Record starting time
 				llinfos << "Baked texture upload took " << (S32)((now - baked_upload_data->mStartTime) / 1000) << " ms" << llendl;
-				avatar->setNewBakedTexture(baked_te, uuid);
+				avatarp->setNewBakedTexture(baked_te, uuid);
 			}
 			else
 			{	
@@ -457,7 +457,7 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 			llinfos << "Received baked texture out of date, ignored." << llendl;
 		}
 
-		avatar->dirtyMesh();
+		avatarp->dirtyMesh();
 	}
 	else
 	{
