@@ -4,15 +4,15 @@
 		Cieli predefiniti:
 	</text>
 	<button label="Nuovo" label_selected="Nuovo" name="WLNewPreset"/>
-	<button label="Salva" label_selected="Salva" name="WLSavePreset" left_delta="72"/>
-	<button label="Elimina" label_selected="Elimina" name="WLDeletePreset" left_delta="72"/>
-	<button font="SansSerifSmall"  width="165" left_delta="85" label="Editor del ciclo giorno/notte" label_selected="Editor del ciclo giorno/notte" name="WLDayCycleMenuButton"/>
+	<button label="Salva" label_selected="Salva" left_delta="72" name="WLSavePreset"/>
+	<button label="Elimina" label_selected="Elimina" left_delta="72" name="WLDeletePreset"/>
+	<button font="SansSerifSmall" label="Editor del ciclo giorno/notte" label_selected="Editor del ciclo giorno/notte" left_delta="85" name="WLDayCycleMenuButton" width="165"/>
 	<tab_container name="WindLight Tabs">
-		<panel label="Atmosfera" name="Atmosphere">
+		<panel label="ATMOSFERA" name="Atmosphere">
 			<text name="BHText">
 				Blu dell&apos;Orizzonte
 			</text>
-			<button label="?" name="WLBlueHorizonHelp" left="189"/>
+			<button label="?" left="189" name="WLBlueHorizonHelp"/>
 			<text name="BHText2">
 				R
 			</text>
@@ -25,14 +25,14 @@
 			<text name="BHText5">
 				I
 			</text>
-			<text name="BDensText" font="SansSerifSmall">
+			<text font="SansSerifSmall" name="BDensText">
 				Altezza della Foschia all&apos;Orizzonte
 			</text>
-			<button label="?" name="WLHazeHorizonHelp" left="189" />
+			<button label="?" left="189" name="WLHazeHorizonHelp"/>
 			<text name="BDensText2">
 				Densità del Blu
 			</text>
-			<button label="?" name="WLBlueDensityHelp" />
+			<button label="?" name="WLBlueDensityHelp"/>
 			<text name="BHText6">
 				R
 			</text>
@@ -52,17 +52,17 @@
 			<text name="DensMultText">
 				Moltiplicatore di Densità
 			</text>
-			<button label="?" name="WLDensityMultHelp" left="645"/>
+			<button label="?" left="645" name="WLDensityMultHelp"/>
 			<text name="WLDistanceMultText">
 				Moltiplicatore della Distanza
 			</text>
-			<button label="?" name="WLDistanceMultHelp" left="645"/>
+			<button label="?" left="645" name="WLDistanceMultHelp"/>
 			<text name="MaxAltText">
 				Altitudine Massima
 			</text>
-			<button label="?" name="WLMaxAltitudeHelp" left="645"/>
+			<button label="?" left="645" name="WLMaxAltitudeHelp"/>
 		</panel>
-		<panel label="Illuminazione" name="Lighting">
+		<panel label="ILLUMINAZIONE" name="Lighting">
 			<text name="SLCText">
 				Colore Sole/Luna
 			</text>
@@ -118,7 +118,7 @@
 			</text>
 			<button label="?" name="WLStarBrightnessHelp"/>
 		</panel>
-		<panel label="Nuvole" name="Clouds">
+		<panel label="NUVOLE" name="Clouds">
 			<text name="WLCloudColorText">
 				Colore delle Nuvole
 			</text>
@@ -151,15 +151,15 @@
 			<text name="WLCloudCoverageText">
 				Copertura delle Nuvole
 			</text>
-			<button label="?" name="WLCloudCoverageHelp" left="415"/>
+			<button label="?" left="415" name="WLCloudCoverageHelp"/>
 			<text name="WLCloudScaleText">
 				Altitudine delle Nuvole
 			</text>
-			<button label="?" name="WLCloudScaleHelp" left="415"/>
+			<button label="?" left="415" name="WLCloudScaleHelp"/>
 			<text name="WLCloudDetailText">
 				Dettagli Nuvole (XY/ Densità)
 			</text>
-			<button label="?" name="WLCloudDetailHelp" left="415"/>
+			<button label="?" left="415" name="WLCloudDetailHelp"/>
 			<text name="BHText8">
 				X
 			</text>
@@ -180,7 +180,7 @@
 			<button label="?" name="WLCloudScrollYHelp"/>
 			<check_box label="Blocca" name="WLCloudLockY"/>
 			<check_box label="Mostra le Nuvole Classiche" name="DrawClassicClouds"/>
-			<button label="?" name="WLClassicCloudsHelp" left="645"/>
+			<button label="?" left="645" name="WLClassicCloudsHelp"/>
 		</panel>
 	</tab_container>
 	<string name="WLDefaultSkyNames">

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="Pubblicazione inserzione">
+	<text name="explanation_text">
+		La tua inserzione sarà visibile per una settimana dal giorno della sua pubblicazione.
+        
+Ricordiamo che i costi per gli annunci non possono essere rimborsati
+	</text>
+	<spinner label="Prezzo per inserzione:" name="price_for_listing" tool_tip="Prezzo per inserzione:" value="50"/>
+	<text name="l$_text" value="L$"/>
+	<text name="more_info_text">
+		Maggiori informazioni (link alla guida sugli annunci)
+	</text>
+	<button label="Pubblica" name="publish_btn"/>
+	<button label="Annulla" name="cancel_btn"/>
+</floater>

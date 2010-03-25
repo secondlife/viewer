@@ -35,9 +35,12 @@
 		Internet:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Używaj wbudowanej przeglądarki." name="internal" tool_tip="Używaj wbudowanej przeglądarki. Ta przeglądarka otworzy nowe okno w [APP_NAME]." value="0"/>
 		<radio_item label="Użyj zewnętrznej przeglądarki (IE, Firefox, Safari)" name="external" tool_tip="Używaj zewnętrznej przeglądarki. Nie jest to rekomendowane w trybie pełnoekranowym." value="1"/>
+		<radio_item label="Używaj wbudowanej przeglądarki." name="internal" tool_tip="Używaj wbudowanej przeglądarki. Ta przeglądarka otworzy nowe okno w [APP_NAME]." value=""/>
 	</radio_group>
+	<check_box initial_value="prawda" label="Zezwalaj na wtyczki" name="browser_plugins_enabled"/>
+	<check_box initial_value="prawda" label="Akceptuj ciasteczka z Internetu" name="cookies_enabled"/>
+	<check_box initial_value="prawda" label="Zezwalaj na Javascript" name="browser_javascript_enabled"/>
 	<check_box initial_value="false" label="Używaj Serwera Proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Lokalizacja Proxy:

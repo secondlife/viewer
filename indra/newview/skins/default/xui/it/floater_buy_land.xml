@@ -41,8 +41,8 @@ Prova a selezionare un&apos;area più piccola.
 		L&apos;area selezionata non è pubblica.
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		Hai selezionato una terra posseduta da un altro utente. 
-Prova a selezionare un&apos;area più piccola.
+		È selezionato terreno di proprietà di un altro residente. 
+Prova a scegliere una superficie più piccola.
 	</floater.string>
 	<floater.string name="processing">
 		Stiamo elaborando il tuo acquisto...

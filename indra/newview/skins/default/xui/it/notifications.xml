@@ -107,7 +107,7 @@ Scegli solo un oggetto e riprova.
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
 		Chi non è tuo amico non saprà che hai scelto di ignorare le loro chiamate e IM.
-		<usetemplate name="okbutton" yestext="Sì"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GrantModifyRights">
 		Quando concedi i diritti di modifica ad un altro residente, gli permetti di modificare, eliminare o prendere QUALSIASI oggetto che possiedi in Second Life. Pertanto ti consigliamo di essere ben sicuro quando concedi questo diritto.
@@ -445,7 +445,6 @@ L&apos;oggetto potrebbe essere troppo lontano oppure essere stato cancellato.
 	<notification name="UnsupportedHardware">
 		Ti informiamo che il tuo computer non dispone dei requisiti minimi di sistema per [APP_NAME]. Il funzionamento può pertanto risultare ridotto. Purtroppo la pagina [SUPPORT_SITE] non può fornire assistenza tecnica in caso di problemi dovuti a configurazioni di sistema non compatibili.
 
-MINSPECS
 Visitare [_URL] per ulteriori informazioni?
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=it
@@ -1301,8 +1300,8 @@ Vuoi lasciare il gruppo?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
-		Vuoi VERAMENTE espellere tutti gli utenti dalla griglia?
-		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Espelli tutti gli utenti"/>
+		Vuoi veramente espellere tutti i residenti dalla griglia?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Espelli tutti i residenti"/>
 	</notification>
 	<notification name="MuteLinden">
 		Mi dispiace, non puoi bloccare un Linden.
@@ -1343,7 +1342,7 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="KickUser">
-		Espelli questo utente con quale messaggio?
+		Espelli questo residente con quale messaggio?
 		<form name="form">
 			<input name="message">
 				Un amministratore ti ha disconnesso.
@@ -1363,7 +1362,7 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		Immobilizza questo utente con quale messaggio?
+		Congela questo residente con quale messaggio?
 		<form name="form">
 			<input name="message">
 				Sei stato immobilizzato. Non puoi muoverti o usare la chat. Un amministratore ti contatterà con un messaggio (IM).
@@ -1373,7 +1372,7 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		Smobilizza questo utente con quale messaggio?
+		Scongela questo residente con quale messaggio?
 		<form name="form">
 			<input name="message">
 				Non sei più immobilizzato.
@@ -1393,7 +1392,7 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		Vuoi trasportare divinamente l&apos;utente nel posto dove sei?
+		Chiedere, in qualità di Admin, al residente di raggiungerti?
 		<form name="form">
 			<input name="message">
 				Raggiungimi in [REGION]
@@ -1423,11 +1422,11 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		</form>
 	</notification>
 	<notification label="Cambia la tipologia della proprietà Linden" name="ChangeLindenEstate">
-		Stai per cambiare la tipologia della proprietà Linden (mainland, griglia minorenni, orientamento, ecc.).
+		Stai per apportare modifiche ad una proprietà che appartiene a Linden (continente, teen grid, orientamento e così via).
 
-Questo è ESTREMAMENTE PERICOLOSO perchè può cambiare radicalmente l&apos;esperienza degli utenti.  Sulla mainland cambierà migliaia di regioni e produrrà seri problemi ai vari server.
+Questa è un&apos;operazione da effettuare con molta cautela, in quanto può incidere profondamente sulla vita dei residenti in Second Life.  Sul continente, l&apos;azione modificherà migliaia di regioni e creerà un grosso carico sul server.
 
-Confermi?
+Vuoi procedere?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification label="Cambia la tipologia Linden di accesso alla proprietà" name="ChangeLindenAccess">
@@ -2418,14 +2417,6 @@ Consenti questa richiesta?
 			<button name="Ignore" text="Ignora"/>
 		</form>
 	</notification>
-	<notification name="ScriptToast">
-		[FIRST] [LAST]&apos;s &apos;[TITLE]&apos; richiede il contributo dell&apos;utente.
-		<form name="form">
-			<button name="Open" text="Apri il Dialog"/>
-			<button name="Ignore" text="Ignora"/>
-			<button name="Block" text="Blocca"/>
-		</form>
-	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		Grazie per il pagamento!
 
@@ -2552,7 +2543,7 @@ Per la tua sicurezza verranno bloccati per alcuni secondi.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		Sicuro di voler chiudere tutti gli IM?
-		<usetemplate name="okcancelignore" notext="Annulla" yestext="OK"/>
+		<usetemplate ignoretext="Conferma prima della chiusura di tutti gli IM" name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		L&apos;Allegato (Attachment) è stato salvato.
