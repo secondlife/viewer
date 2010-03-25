@@ -24,7 +24,7 @@
 	<tab_container name="landtab" tab_min_width="40" width="489">
 		<panel label="ALLGEMEIN" name="land_general_panel">
 			<panel.string name="new users only">
-				Nur neue Einwohner
+				Nur neue Benutzer
 			</panel.string>
 			<panel.string name="anyone">
 				Jeder
@@ -159,7 +159,7 @@ geteilt werden.
 und geteilt werden.
 			</panel.string>
 			<text name="estate_section_lbl">
-				Grundstück:
+				Grundbesitz:
 			</text>
 			<text name="estate_name_text">
 				Mainland
@@ -171,7 +171,7 @@ und geteilt werden.
 				(keiner)
 			</text>
 			<text_editor name="covenant_editor">
-				Für dieses Grundstück fehlt der Vertrag.
+				Für diesen Grundbesitz fehlt der Vertrag.
 			</text_editor>
 			<text name="covenant_timestamp_text">
 				Letzte Änderung am Mittwoch, den 31. Dez. 1969, 16:00:00
@@ -337,8 +337,8 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="land_options_label">
 				Landoptionen:
 			</text>
-			<check_box label="Sicher (kein Schaden)" name="check safe" tool_tip="Falls aktiviert, wird Land auf Option „Sicher“ eingestellt, Kampfschäden sind deaktiviert. Falls nicht aktiviert, sind Kampfschäden aktiviert."/>
-			<check_box label="Kein Stoßen" name="PushRestrictCheck" tool_tip="Verhindert Skripte am Stoßen. Durch Aktivieren dieser Option verhindern Sie störendes Verhalten auf Ihrem Land."/>
+			<check_box label="Sicher (kein Schaden)" name="check safe" tool_tip="Falls aktiviert, wird Land auf Option „Sicher“ eingestellt, Kampfschäden sind deaktiviert. Ansonsten sind Kampfschäden aktiviert."/>
+			<check_box label="Kein Stoßen" name="PushRestrictCheck" tool_tip="Verhindert Stoßen durch Skripte. Durch Aktivieren dieser Option verhindern Sie störendes Verhalten auf Ihrem Land."/>
 			<check_box label="Ort in Suche anzeigen (30 L$/Woche)" name="ShowDirectoryCheck" tool_tip="Diese Parzelle in Suchergebnissen anzeigen."/>
 			<combo_box name="land category with adult">
 				<combo_box.item label="Alle Kategorien" name="item0"/>
@@ -377,7 +377,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="landing_point">
 				Landepunkt: [LANDING]
 			</text>
-			<button label="Festlegen" label_selected="Festlegen" left="234" name="Set" right="-88" tool_tip="Legt den Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
+			<button label="Festlegen" label_selected="Festlegen" left="234" name="Set" right="-88" tool_tip="Legt Ihren Standort als Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
 			<button label="Löschen" label_selected="Löschen" left="312" name="Clear" tool_tip="Landepunkt löschen" width="70"/>
 			<text name="Teleport Routing: ">
 				Teleport-Route:
@@ -436,18 +436,18 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Voice:
 			</text>
 			<check_box label="Voice aktivieren" name="parcel_enable_voice_channel"/>
-			<check_box label="Voice aktivieren (vom Grundstück eingerichtet)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Voice aktivieren (vom Grundbesitz eingerichtet)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Voice auf diese Parzelle beschränken" name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="ZUGANG" name="land_access_panel">
 			<panel.string name="access_estate_defined">
-				(Durch Grundstück festgelegt)
+				(Durch Grundbesitz festgelegt)
 			</panel.string>
 			<panel.string name="allow_public_access">
 				Öffentlichen Zugang erlauben ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
-				Eine oder mehrere dieser Optionen gelten auf Grundstücksebene
+				Eine oder mehrere dieser Optionen gelten auf Grundbesitzebene
 			</panel.string>
 			<text name="Limit access to this parcel to:">
 				Zugang zu dieser Parzelle
@@ -456,8 +456,8 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="Only Allow" width="400">
 				Zugang auf Einwohner beschränken, die überprüft wurden von:
 			</text>
-			<check_box label="Zahlungsinformation gespeichert [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Nicht identifizierte Einwohner verbannen."/>
-			<check_box label="Altersüberprüfung [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Einwohner ohne Altersüberprüfung verbannen. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
+			<check_box label="Zahlungsinformation gespeichert [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Einwohner ohne Zahlungsinformation nicht zulassen."/>
+			<check_box label="Altersüberprüfung [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Einwohner ohne Altersüberprüfung nicht zulassen. Weitere Informationen finden Sie im [SUPPORT_SITE]."/>
 			<check_box label="Gruppenzugang erlauben: [GROUP]" name="GroupCheck" tool_tip="Gruppe im Register „Allgemein“ festlegen."/>
 			<check_box label="Pässe verkaufen an:" name="PassCheck" tool_tip="Ermöglicht befristeten Zugang zu dieser Parzelle"/>
 			<combo_box name="pass_combo">

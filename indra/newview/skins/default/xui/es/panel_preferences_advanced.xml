@@ -17,7 +17,7 @@
 	<check_box label="Las teclas del cursor siempre para moverme" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Correr siempre: atajo de teclado" name="tap_tap_hold_to_run"/>
 	<check_box label="Al hablar, mover los labios del avatar" name="enable_lip_sync"/>
-	<check_box label="Bocadillos del chat" name="bubble_text_chat"/>
+	<check_box label="Chat en bocadillos" name="bubble_text_chat"/>
 	<slider label="Opacidad" name="bubble_chat_opacity"/>
 	<color_swatch name="background" tool_tip="Elegir el color de los bocadillos del chat"/>
 	<check_box label="Mostrar los errores de los scripts en:" name="show_script_errors"/>
