@@ -3,12 +3,20 @@
 	<panel.string name="location_notice">
 		(sarà aggiornato dopo il salvataggio)
 	</panel.string>
+	<string name="publish_label">
+		Pubblica
+	</string>
+	<string name="save_label">
+		Salva
+	</string>
 	<text name="title">
 		Modifica gli Annunci
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<icon label="" name="edit_icon" tool_tip="Clicca per selezionare un&apos;immagine"/>
+			<panel name="snapshot_panel">
+				<icon label="" name="edit_icon" tool_tip="Clicca per selezionare un&apos;immagine"/>
+			</panel>
 			<text name="Name:">
 				Titolo:
 			</text>
@@ -22,12 +30,19 @@
 				caricando...
 			</text>
 			<button label="Imposta sul luogo attuale" name="set_to_curr_location_btn"/>
+			<text name="category_label" value="Categoria:"/>
+			<text name="content_type_label" value="Tipo di contenuto:"/>
+			<icons_combo_box label="Contenuto generale" name="content_type">
+				<icons_combo_box.item label="Contenuto moderato" name="mature_ci" value="Moderato"/>
+				<icons_combo_box.item label="Contenuto generale" name="pg_ci" value="Generale"/>
+			</icons_combo_box>
+			<text name="price_for_listing_label" value="Prezzo per inserzione:"/>
 			<spinner label="L$" name="price_for_listing" tool_tip="Fissare il Prezzo." value="50"/>
 			<check_box label="Auto-rinnovo settimanale" name="auto_renew"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="Salva" name="save_changes_btn"/>
+		<button label="[LABEL]" name="save_changes_btn"/>
 		<button label="Cancella" name="cancel_btn"/>
 	</panel>
 </panel>

@@ -14,7 +14,22 @@
 		Wykrywanie dysku twardego...
 	</string>
 	<string name="StartupLoading">
-		Ładowanie
+		Ładowanie [APP_NAME]...
+	</string>
+	<string name="StartupClearingCache">
+		Czyszczenie bufora danych...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		Inicjowanie bufora danych tekstur...
+	</string>
+	<string name="StartupInitializingVFS">
+		Inicjowanie VFS...
+	</string>
+	<string name="ProgressRestoring">
+		Przywracanie...
+	</string>
+	<string name="ProgressChangingResolution">
+		Zmiana rozdzielczości...
 	</string>
 	<string name="LoginInProgress">
 		Trwa logowanie. [APP_NAME] Proszę czekać.
@@ -76,11 +91,32 @@
 	<string name="LoginFailedNoNetwork">
 		Błąd sieci: Brak połączenia z siecią, sprawdź status swojego połączenia internetowego.
 	</string>
+	<string name="LoginFailed">
+		Logowanie nie powiodło się.
+	</string>
 	<string name="Quit">
 		Wyłącz Program
 	</string>
 	<string name="AgentLostConnection">
 		Ten region może mieć problemy. Sprawdź podłączenie do Internetu.
+	</string>
+	<string name="SavingSettings">
+		Zachowanie ustawień...
+	</string>
+	<string name="LoggingOut">
+		Trwa wylogowanie...
+	</string>
+	<string name="ShuttingDown">
+		Zamykanie...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		Nastąpiło rozłączenie z regionem.
+	</string>
+	<string name="SentToInvalidRegion">
+		Region jest niedostępny.
+	</string>
+	<string name="TestingDisconnect">
+		Nastąpiło rozłączenie testowania klienta
 	</string>
 	<string name="TooltipPerson">
 		Osoba
@@ -136,6 +172,24 @@
 	<string name="TooltipAgentUrl">
 		Kliknij aby zobaczyc profil Rezydenta
 	</string>
+	<string name="TooltipAgentMute">
+		Kliknij aby wyciszyc tego Rezydenta
+	</string>
+	<string name="TooltipAgentUnmute">
+		Kliknij aby cofnąć zablokowanie tego Rezydenta
+	</string>
+	<string name="TooltipAgentIM">
+		Kliknij aby wysłać wiadomość IM do tego Rezydenta
+	</string>
+	<string name="TooltipAgentPay">
+		Kliknij aby zapłacić temu Rezydentowi
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		Kliknij aby oferować teleport temu Rezydentowi
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		Kliknij aby wysłać temu Rezydentowi zaproszenie do Znajomych
+	</string>
 	<string name="TooltipGroupUrl">
 		Kliknij by zobaczyć opis tej grupy
 	</string>
@@ -167,6 +221,24 @@
 	</string>
 	<string name="SLurlLabelShowOnMap">
 		Pokaż na Mapie
+	</string>
+	<string name="SLappAgentMute">
+		Zablokuj
+	</string>
+	<string name="SLappAgentUnmute">
+		Cofnij zablokowanie
+	</string>
+	<string name="SLappAgentIM">
+		IM
+	</string>
+	<string name="SLappAgentPay">
+		Zapłać
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		Teleportuj do
+	</string>
+	<string name="SLappAgentRequestFriend">
+		Oferta znajomości
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Zamknij (⌘W)
@@ -317,6 +389,9 @@
 	</string>
 	<string name="symbolic link">
 		link
+	</string>
+	<string name="symbolic folder link">
+		link folderu
 	</string>
 	<string name="AvatarAway">
 		Śpi
@@ -826,6 +901,7 @@
 		Brak zawartości
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (założony na [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (aktywne)"/>
 	<string name="Chat" value=" Czat :"/>
 	<string name="Sound" value=" Dźwięk :"/>
 	<string name="Wait" value=" --- Zaczekaj :"/>
@@ -918,6 +994,9 @@
 	</string>
 	<string name="InvFolder My Outfits">
 		Moje Ubranie
+	</string>
+	<string name="InvFolder Accessories">
+		Akcesoria
 	</string>
 	<string name="InvFolder Friends">
 		Znajomi
@@ -1436,6 +1515,9 @@
 	<string name="PanelContentsNewScript">
 		Nowy Skrypt
 	</string>
+	<string name="PanelContentsTooltip">
+		Zawartość obiektu
+	</string>
 	<string name="BusyModeResponseDefault">
 		Rezydent, do którego wysłałeś wiadomość prywatną znajduje się w trybie pracy. Oznacza to, iż Twoja wiadomość zostanie zapisana do przeglądnięcia poźniej.
 	</string>
@@ -1553,7 +1635,10 @@
 		Anuluj
 	</string>
 	<string name="UploadingCosts">
-		Koszty załadowania [%s]
+		Załadowanie [NAME] kosztuje [AMOUNT]L$
+	</string>
+	<string name="BuyingCosts">
+		Cena zakupu tego wynosi L$ [AMOUNT]
 	</string>
 	<string name="UnknownFileExtension">
 		Nieznane rozszerzenie dla pliku [.%s]
@@ -3270,5 +3355,121 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
 	<string name="unread_chat_multiple">
 		[SOURCES] powiedział/a coś nowego
+	</string>
+	<string name="paid_you_ldollars">
+		[NAME] zapłacił Ci L$[AMOUNT]
+	</string>
+	<string name="you_paid_ldollars">
+		Zapłacono [NAME] [AMOUNT]L$ [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		Zapłacono [NAME] [AMOUNT]L$.
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		Zapłacono [AMOUNT]L$ [REASON].
+	</string>
+	<string name="for a parcel of land">
+		za posiadłość
+	</string>
+	<string name="for a land access pass">
+		za przepustkę na Posiadłość
+	</string>
+	<string name="for deeding land">
+		dla przypisania Posiadłości
+	</string>
+	<string name="to create a group">
+		aby stworzyć grupę
+	</string>
+	<string name="to join a group">
+		aby dołączyć do grupy
+	</string>
+	<string name="to upload">
+		aby pobrać
+	</string>
+	<string name="giving">
+		Dajesz L$ [AMOUNT]
+	</string>
+	<string name="uploading_costs">
+		Ładowanie kosztuje [AMOUNT]L$
+	</string>
+	<string name="this_costs">
+		To kosztuje [AMOUNT]L$
+	</string>
+	<string name="buying_selected_land">
+		Kupno wybranej Posiadłości [AMOUNT]L$
+	</string>
+	<string name="this_object_costs">
+		Ten obiekt kosztuje [AMOUNT]L$
+	</string>
+	<string name="group_role_everyone">
+		Każdy
+	</string>
+	<string name="group_role_officers">
+		Oficerowie
+	</string>
+	<string name="group_role_owners">
+		Właściciele
+	</string>
+	<string name="uploading_abuse_report">
+		Pobieranie...
+  
+Raport o Nadużyciu
+	</string>
+	<string name="New Shape">
+		Nowy ksztalt
+	</string>
+	<string name="New Skin">
+		Nowa skórka
+	</string>
+	<string name="New Hair">
+		Nowe włosy
+	</string>
+	<string name="New Eyes">
+		Nowe oczy
+	</string>
+	<string name="New Shirt">
+		Nowa koszula
+	</string>
+	<string name="New Pants">
+		Nowe spodnie
+	</string>
+	<string name="New Shoes">
+		Nowe buty
+	</string>
+	<string name="New Socks">
+		Nowe skarpetki
+	</string>
+	<string name="New Jacket">
+		Nowa kurtka
+	</string>
+	<string name="New Gloves">
+		Nowe rękawiczki
+	</string>
+	<string name="New Undershirt">
+		Nowy podkoszulek
+	</string>
+	<string name="New Underpants">
+		Nowa bielizna
+	</string>
+	<string name="New Skirt">
+		Nowa spódnica
+	</string>
+	<string name="New Alpha">
+		Nowa Alpha
+	</string>
+	<string name="New Tattoo">
+		Nowy tatuaż
+	</string>
+	<string name="Invalid Wearable">
+		Nieaktualne ubranie/część ciała
+	</string>
+	<string name="New Script">
+		Nowy skrypt
+	</string>
+	<string name="New Folder">
+		Nowy folder
+	</string>
+	<string name="Contents">
+		Zawartość
 	</string>
 </strings>

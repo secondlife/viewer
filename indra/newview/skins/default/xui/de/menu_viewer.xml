@@ -32,7 +32,7 @@
 		<menu_item_call label="Landmarke für diesen Ort setzen" name="Create Landmark Here"/>
 		<menu label="Ortsprofil" name="Land">
 			<menu_item_call label="Land-Info" name="About Land"/>
-			<menu_item_call label="Region/Grundstück" name="Region/Estate"/>
+			<menu_item_call label="Region/Grundbesitz" name="Region/Estate"/>
 		</menu>
 		<menu_item_call label="Dieses Land kaufen" name="Buy Land"/>
 		<menu_item_call label="Mein Land" name="My Land"/>
@@ -53,7 +53,7 @@
 			<menu_item_call label="Mittag" name="Noon"/>
 			<menu_item_call label="Sonnenuntergang" name="Sunset"/>
 			<menu_item_call label="Mitternacht" name="Midnight"/>
-			<menu_item_call label="Grundstückszeit" name="Revert to Region Default"/>
+			<menu_item_call label="Grundbesitzzeit" name="Revert to Region Default"/>
 			<menu_item_call label="Umwelt-Editor" name="Environment Editor"/>
 		</menu>
 	</menu>

@@ -318,17 +318,17 @@ Apenas lotes maiores podem ser listados na busca.
 			</text>
 			<check_box label="Editar Terreno" name="edit land check" tool_tip="Se ativado, qualquer um pode modificar a forma da sua terra. É melhor deixar esta opção desativada, uma vez que você sempre pode editar seu próprio terreno."/>
 			<check_box label="Voar" name="check fly" tool_tip="Se ativado, os Residentes podem voar na sua terra. Se desativado, eles podem voar apenas para dentro e por cima de sua terra."/>
-			<text left="172" name="allow_label2">
+			<text name="allow_label2">
 				Criar Objetos:
 			</text>
 			<check_box label="Residentes" name="edit objects check"/>
 			<check_box label="Grupo" name="edit group objects check"/>
-			<text left="172" name="allow_label3">
+			<text name="allow_label3">
 				Entrada do Objeto:
 			</text>
 			<check_box label="Residentes" name="all object entry check"/>
 			<check_box label="Grupo" name="group object entry check"/>
-			<text left="172" name="allow_label4">
+			<text name="allow_label4">
 				Executar Scripts:
 			</text>
 			<check_box label="Residentes" name="check other scripts"/>
