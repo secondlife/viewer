@@ -98,20 +98,6 @@
 		width="100">
 	  Nearby Media
 	</text>
-	<!-- nix for now
-		 <text
-		 bottom_delta="1"
-		 type="string"
-		 follows="top|left|right"
-		 font="SansSerif"
-		 font.style="ITALIC"
-		 font.size="Small"
-		 name="media_item_count"
-		 left="115"
-		 right="-10">
-		 (?? media items)
-		 </text>
-	-->
 	<text
 		type="string"
 		length="1"
