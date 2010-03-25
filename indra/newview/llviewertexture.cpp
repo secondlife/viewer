@@ -1578,12 +1578,12 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		}
 		else if (!isJustBound() && mCachedRawImageReady)
 		{
-			//if(mBoostLevel < BOOST_HIGH)
-			//{
-			//	// We haven't rendered this in a while, de-prioritize it
-			//	desired_discard += 2;
-			//}
-			//else
+			if(mBoostLevel < BOOST_HIGH)
+			{
+				// We haven't rendered this in a while, de-prioritize it
+				desired_discard += 2;
+			}
+			else
 			{
 				// We haven't rendered this in the last half second, and we have a cached raw image, leave the desired discard as-is
 				desired_discard = cur_discard;
@@ -1591,7 +1591,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		}
 
 		S32 ddiscard = cur_discard - desired_discard;
-		ddiscard = llclamp(ddiscard, 0, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
+		ddiscard = llclamp(ddiscard, -1, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
 		priority = (ddiscard + 1) * PRIORITY_DELTA_DISCARD_LEVEL_FACTOR;
 	}
 
