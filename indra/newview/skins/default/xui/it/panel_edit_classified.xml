@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Modifica gli Annunci" name="panel_edit_classified">
+<panel label="Modifica inserzione" name="panel_edit_classified">
 	<panel.string name="location_notice">
-		(sarà aggiornato dopo il salvataggio)
+		(si aggiornerà dopo il salvataggio)
 	</panel.string>
 	<string name="publish_label">
 		Pubblica
@@ -10,7 +10,7 @@
 		Salva
 	</string>
 	<text name="title">
-		Modifica gli Annunci
+		Modifica inserzione
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
@@ -27,9 +27,9 @@
 				Luogo:
 			</text>
 			<text name="classified_location">
-				caricando...
+				caricamento...
 			</text>
-			<button label="Imposta sul luogo attuale" name="set_to_curr_location_btn"/>
+			<button label="Imposta come luogo attuale" name="set_to_curr_location_btn"/>
 			<text name="category_label" value="Categoria:"/>
 			<text name="content_type_label" value="Tipo di contenuto:"/>
 			<icons_combo_box label="Contenuto generale" name="content_type">
@@ -37,12 +37,12 @@
 				<icons_combo_box.item label="Contenuto generale" name="pg_ci" value="Generale"/>
 			</icons_combo_box>
 			<text name="price_for_listing_label" value="Prezzo per inserzione:"/>
-			<spinner label="L$" name="price_for_listing" tool_tip="Fissare il Prezzo." value="50"/>
-			<check_box label="Auto-rinnovo settimanale" name="auto_renew"/>
+			<spinner label="L$" name="price_for_listing" tool_tip="Prezzo per inserzione:" value="50"/>
+			<check_box label="Rinnovo automatico ogni settimana" name="auto_renew"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
 		<button label="[LABEL]" name="save_changes_btn"/>
-		<button label="Cancella" name="cancel_btn"/>
+		<button label="Annulla" name="cancel_btn"/>
 	</panel>
 </panel>

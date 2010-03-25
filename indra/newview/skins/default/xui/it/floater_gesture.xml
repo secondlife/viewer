@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Posti" name="gestures" title="GESTURES">
+<floater label="Luoghi" name="gestures" title="GESTURE">
 	<floater.string name="loading">
-		Caricando...
+		Caricamento in corso...
 	</floater.string>
 	<floater.string name="playing">
-		(Riproducendo)
+		(Riproduzione in corso)
 	</floater.string>
 	<floater.string name="copy_name">
 		Copia di [COPY_NAME]
@@ -15,10 +15,10 @@
 		<scroll_list.columns label="Pulsante" name="shortcut" width="65"/>
 	</scroll_list>
 	<panel label="bottom_panel" name="bottom_panel">
-		<menu_button name="gear_btn" tool_tip="Più opzioni"/>
+		<menu_button name="gear_btn" tool_tip="Altre opzioni"/>
 		<button name="new_gesture_btn" tool_tip="Crea nuova gesture"/>
-		<button name="activate_btn" tool_tip="Attiva/Disattiva la gesture selezionata"/>
-		<button name="del_btn" tool_tip="Cancella questa gesture"/>
+		<button name="activate_btn" tool_tip="Attiva/Disattiva gesture selezionata"/>
+		<button name="del_btn" tool_tip="Elimina questa gesture"/>
 	</panel>
 	<button label="Modifica" name="edit_btn"/>
 	<button label="Play" name="play_btn"/>
