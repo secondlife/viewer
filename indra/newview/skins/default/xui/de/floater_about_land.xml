@@ -151,12 +151,10 @@
 				Gekauftes Land in dieser Region kann nicht wiederverkauft werden.
 			</panel.string>
 			<panel.string name="can_change">
-				Gekauftes Land in dieser Region kann zusammengelegt und
-geteilt werden.
+				Gekauftes Land in dieser Region kann zusammengelegt und geteilt werden.
 			</panel.string>
 			<panel.string name="can_not_change">
-				Gekauftes Land in dieser Region kann nicht zusammengelegt
-und geteilt werden.
+				Gekauftes Land in dieser Region kann nicht zusammengelegt und geteilt werden.
 			</panel.string>
 			<text name="estate_section_lbl">
 				Grundbesitz:

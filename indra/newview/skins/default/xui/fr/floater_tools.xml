@@ -339,8 +339,8 @@
 			<text name="text revolutions">
 				Révolutions
 			</text>
-			<texture_picker label="Texture du sculptie" name="sculpt texture control" tool_tip="Cliquez pour sélectionner une image"/>
-			<check_box label="Mirroir" name="sculpt mirror control" tool_tip="Inverse le sculptie le long de l&apos;axe X"/>
+			<texture_picker label="Texture de la sculptie" name="sculpt texture control" tool_tip="Cliquez pour sélectionner une image"/>
+			<check_box label="Mirroir" name="sculpt mirror control" tool_tip="Inverse la sculptie le long de l&apos;axe X"/>
 			<check_box label="A l&apos;envers" name="sculpt invert control" tool_tip="Inverse les normales des sculpties, qui apparaissent alors à l&apos;envers"/>
 			<text name="label sculpt type">
 				Type de raccord
