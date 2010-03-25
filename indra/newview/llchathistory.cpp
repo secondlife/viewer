@@ -447,7 +447,6 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 :	LLUICtrl(p),
 	mMessageHeaderFilename(p.message_header),
 	mMessageSeparatorFilename(p.message_separator),
-	mMessagePlaintextSeparatorFilename(p.message_plaintext_separator),
 	mLeftTextPad(p.left_text_pad),
 	mRightTextPad(p.right_text_pad),
 	mLeftWidgetPad(p.left_widget_pad),
@@ -532,12 +531,6 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 LLView* LLChatHistory::getSeparator()
 {
 	LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, NULL, LLPanel::child_registry_t::instance());
-	return separator;
-}
-
-LLView* LLChatHistory::getPlaintextSeparator()
-{
-	LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessagePlaintextSeparatorFilename, NULL, LLPanel::child_registry_t::instance());
 	return separator;
 }
 
@@ -639,15 +632,6 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 	if (use_plain_text_chat_history)
 	{
-		// append plaintext separator
-		LLView* separator = getPlaintextSeparator();
-		LLInlineViewSegment::Params p;
-		p.force_newline = true;
-		p.left_pad = mLeftWidgetPad;
-		p.right_pad = mRightWidgetPad;
-		p.view = separator;
-		mEditor->appendWidget(p, "\n", false);
-
 		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
 
 		if (utf8str_trim(chat.mFromName).size() != 0)
