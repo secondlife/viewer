@@ -396,7 +396,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="at URL:">
 				Homepage:
 			</text>
-			<button label="Festlegen" label_selected="Einstellen..." name="set_media_url"/>
+			<button label="Festlegen" name="set_media_url"/>
 			<check_box label="URL ausblenden" name="hide_media_url" tool_tip="Aktivieren Sie diese Option, wenn Sie nicht möchten, dass unautorisierte Personen die Medien-URL sehen können. Diese Option ist für HTML-Medien nicht verfügbar."/>
 			<text name="Description:">
 				Inhalt:

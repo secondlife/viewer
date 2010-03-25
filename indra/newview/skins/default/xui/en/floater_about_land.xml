@@ -1619,7 +1619,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="5"
              name="set_media_url"
-             width="50"
+             width="70"
              top_delta="0"/>
             <check_box
              follows="top|left"
