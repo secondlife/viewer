@@ -2721,6 +2721,8 @@ void LLStartUp::postStartupState()
 
 void reset_login()
 {
+	gAgentWearables.cleanup();
+	gAgentCamera.cleanup();
 	gAgent.cleanup();
 	LLWorld::getInstance()->destroyClass();
 

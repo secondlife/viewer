@@ -95,7 +95,6 @@ class LLAgent : public LLOldEvents::LLObservable
 
 public:
 	friend class LLAgentDropGroupViewerNode;
-	friend class LLAgentCamera;
 
 /********************************************************************************
  **                                                                            **
@@ -261,6 +260,10 @@ private:
 public:
 	S32				getRegionsVisited() const;
 	F64				getDistanceTraveled() const;	
+	void			setDistanceTraveled(F64 dist) { mDistanceTraveled = dist; }
+	
+	const LLVector3d &getLastPositionGlobal() const { return mLastPositionGlobal; }
+	void			setLastPositionGlobal(const LLVector3d &pos) { mLastPositionGlobal = pos; }
 private:
 	std::set<U64>	mRegionsVisited;		// Stat - what distinct regions has the avatar been to?
 	F64				mDistanceTraveled;		// Stat - how far has the avatar moved?
@@ -303,7 +306,6 @@ public:
 	//--------------------------------------------------------------------
 public:
 	void			heardChat(const LLUUID& id);
-	void			lookAtLastChat();
 	F32				getTypingTime() 		{ return mTypingTimer.getElapsedTimeF32(); }
 	LLUUID			getLastChatter() const 	{ return mLastChatterID; }
 	F32				getNearChatRadius() 	{ return mNearChatRadius; }
@@ -412,6 +414,8 @@ public:
 	// Send message to simulator to force grabbed controls to be
 	// released, in case of a poorly written script.
 	void			forceReleaseControls();
+	void			setFlagsDirty() { mbFlagsDirty = TRUE; }
+
 private:
 	S32				mControlsTakenCount[TOTAL_CONTROLS];
 	S32				mControlsTakenPassedOnCount[TOTAL_CONTROLS];
@@ -429,6 +433,10 @@ public:
 	void			sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request);
 	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);
 	void			endAnimationUpdateUI();
+	void			unpauseAnimation() { mPauseRequest = NULL; }
+	BOOL			getCustomAnim() const { return mCustomAnim; }
+	void			setCustomAnim(BOOL anim) { mCustomAnim = anim; }
+	
 private:
 	BOOL            mCustomAnim; 		// Current animation is ANIM_AGENT_CUSTOMIZE ?
 	LLAnimPauseRequest mPauseRequest;
@@ -656,6 +664,9 @@ public:
 	LLQuaternion	getHeadRotation();
 	BOOL			needsRenderAvatar(); // TRUE when camera mode is such that your own avatar should draw
 	BOOL			needsRenderHead();
+	void			setShowAvatar(BOOL show) { mShowAvatar = show; }
+	BOOL			getShowAvatar() const { return mShowAvatar; }
+	
 private:
 	BOOL			mShowAvatar; 		// Should we render the avatar?
 	U32				mAppearanceSerialNum;

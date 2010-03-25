@@ -94,11 +94,6 @@ class LLAgentCamera
 public:
 	friend class LLAgent;
 
-/********************************************************************************
- **                                                                            **
- **                    INITIALIZATION
- **/
-
 	//--------------------------------------------------------------------
 	// Constructors / Destructors
 	//--------------------------------------------------------------------
@@ -107,8 +102,10 @@ public:
 	virtual 		~LLAgentCamera();
 	void			init();
 	void			cleanup();
+	void		    setCameraAvatarObject(LLVOAvatarSelf* avatar);
 private:
 	BOOL			mInitialized;
+
 
 	//--------------------------------------------------------------------
 	// Mode
@@ -147,7 +144,6 @@ private:
 
 	/** Initial focus offsets */
 	std::map<ECameraPreset, LLVector3d> mFocusOffsetInitial;
-
 
 	//--------------------------------------------------------------------
 	// Position
@@ -291,6 +287,7 @@ public:
 	void			updateLookAt(const S32 mouse_x, const S32 mouse_y);
 	BOOL			setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
 	ELookAtType		getLookAtType();
+	void			lookAtLastChat();
 	void 			slamLookAt(const LLVector3 &look_at); // Set the physics data
 	BOOL			setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
 	EPointAtType	getPointAtType();

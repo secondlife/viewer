@@ -3751,7 +3751,7 @@ class LLViewLookAtLastChatter : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		gAgent.lookAtLastChat();
+		gAgentCamera.lookAtLastChat();
 		return true;
 	}
 };

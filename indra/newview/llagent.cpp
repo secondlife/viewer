@@ -296,7 +296,6 @@ void LLAgent::cleanup()
 {
 	mAvatarObject = NULL;
 	mRegionp = NULL;
-	gAgentCamera.cleanup();
 }
 
 //-----------------------------------------------------------------------------
@@ -1645,24 +1644,8 @@ void LLAgent::setAvatarObject(LLVOAvatarSelf *avatar)
 		llinfos << "Setting LLAgent::mAvatarObject to NULL" << llendl;
 		return;
 	}
-
-	if (!gAgentCamera.mLookAt)
-	{
-		gAgentCamera.mLookAt = (LLHUDEffectLookAt *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_LOOKAT);
-	}
-	if (!gAgentCamera.mPointAt)
-	{
-		gAgentCamera.mPointAt = (LLHUDEffectPointAt *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINTAT);
-	}
 	
-	if (!gAgentCamera.mLookAt.isNull())
-	{
-		gAgentCamera.mLookAt->setSourceObject(avatar);
-	}
-	if (!gAgentCamera.mPointAt.isNull())
-	{
-		gAgentCamera.mPointAt->setSourceObject(avatar);
-	}
+	gAgentCamera.setCameraAvatarObject(avatar);
 }
 
 // TRUE if your own avatar needs to be rendered.  Usually only
@@ -1863,8 +1846,7 @@ void LLAgent::endAnimationUpdateUI()
 			}
 		}
 	}
-	else
-	if(gAgentCamera.mLastCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR)
+	else if(gAgentCamera.mLastCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
 		// make sure we ask to save changes
 
@@ -2026,83 +2008,6 @@ void LLAgent::heardChat(const LLUUID& id)
 
 	mLastChatterID = id;
 	mChatTimer.reset();
-}
-
-//-----------------------------------------------------------------------------
-// lookAtLastChat()
-//-----------------------------------------------------------------------------
-void LLAgent::lookAtLastChat()
-{
-	// Block if camera is animating or not in normal third person camera mode
-	if (gAgentCamera.mCameraAnimating || !gAgentCamera.cameraThirdPerson())
-	{
-		return;
-	}
-
-	LLViewerObject *chatter = gObjectList.findObject(mLastChatterID);
-	if (chatter)
-	{
-		LLVector3 delta_pos;
-		if (chatter->isAvatar())
-		{
-			LLVOAvatar *chatter_av = (LLVOAvatar*)chatter;
-			if (mAvatarObject.notNull() && chatter_av->mHeadp)
-			{
-				delta_pos = chatter_av->mHeadp->getWorldPosition() - mAvatarObject->mHeadp->getWorldPosition();
-			}
-			else
-			{
-				delta_pos = chatter->getPositionAgent() - getPositionAgent();
-			}
-			delta_pos.normalize();
-
-			setControlFlags(AGENT_CONTROL_STOP);
-
-			gAgentCamera.changeCameraToThirdPerson();
-
-			LLVector3 new_camera_pos = mAvatarObject->mHeadp->getWorldPosition();
-			LLVector3 left = delta_pos % LLVector3::z_axis;
-			left.normalize();
-			LLVector3 up = left % delta_pos;
-			up.normalize();
-			new_camera_pos -= delta_pos * 0.4f;
-			new_camera_pos += left * 0.3f;
-			new_camera_pos += up * 0.2f;
-			if (chatter_av->mHeadp)
-			{
-				gAgentCamera.setFocusGlobal(getPosGlobalFromAgent(chatter_av->mHeadp->getWorldPosition()), mLastChatterID);
-				gAgentCamera.mCameraFocusOffsetTarget = getPosGlobalFromAgent(new_camera_pos) - gAgent.getPosGlobalFromAgent(chatter_av->mHeadp->getWorldPosition());
-			}
-			else
-			{
-				gAgentCamera.setFocusGlobal(chatter->getPositionGlobal(), mLastChatterID);
-				gAgentCamera.mCameraFocusOffsetTarget = getPosGlobalFromAgent(new_camera_pos) - chatter->getPositionGlobal();
-			}
-			gAgentCamera.setFocusOnAvatar(FALSE, TRUE);
-		}
-		else
-		{
-			delta_pos = chatter->getRenderPosition() - getPositionAgent();
-			delta_pos.normalize();
-
-			setControlFlags(AGENT_CONTROL_STOP);
-
-			gAgentCamera.changeCameraToThirdPerson();
-
-			LLVector3 new_camera_pos = mAvatarObject->mHeadp->getWorldPosition();
-			LLVector3 left = delta_pos % LLVector3::z_axis;
-			left.normalize();
-			LLVector3 up = left % delta_pos;
-			up.normalize();
-			new_camera_pos -= delta_pos * 0.4f;
-			new_camera_pos += left * 0.3f;
-			new_camera_pos += up * 0.2f;
-
-			gAgentCamera.setFocusGlobal(chatter->getPositionGlobal(), mLastChatterID);
-			gAgentCamera.mCameraFocusOffsetTarget = getPosGlobalFromAgent(new_camera_pos) - chatter->getPositionGlobal();
-			gAgentCamera.setFocusOnAvatar(FALSE, TRUE);
-		}
-	}
 }
 
 const F32 SIT_POINT_EXTENTS = 0.2f;
