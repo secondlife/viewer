@@ -324,18 +324,18 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			<text name="allow_label2">
 				Construire :
 			</text>
-			<check_box label="Tous" left="285" name="edit objects check"/>
-			<check_box label="Groupe" left="395" name="edit group objects check"/>
+			<check_box label="Tous" name="edit objects check"/>
+			<check_box label="Groupe" name="edit group objects check"/>
 			<text name="allow_label3">
 				Laisser entrer des objets :
 			</text>
-			<check_box label="Tous" left="285" name="all object entry check"/>
-			<check_box label="Groupe" left="395" name="group object entry check"/>
+			<check_box label="Tous" name="all object entry check"/>
+			<check_box label="Groupe" name="group object entry check"/>
 			<text name="allow_label4">
 				Exécuter des scripts :
 			</text>
-			<check_box label="Tous" left="285" name="check other scripts"/>
-			<check_box label="Groupe" left="395" name="check group scripts"/>
+			<check_box label="Tous" name="check other scripts"/>
+			<check_box label="Groupe" name="check group scripts"/>
 			<text name="land_options_label">
 				Options du terrain :
 			</text>

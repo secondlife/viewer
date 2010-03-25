@@ -101,7 +101,7 @@
 		http://join.secondlife.com/index.php?lang=es-ES
 	</string>
 	<string name="AgentLostConnection">
-		Esta región puede estar teniendo problemas. Por favor, compruebe su conexión a internet.
+		Esta región puede estar teniendo problemas. Por favor, comprueba tu conexión a internet.
 	</string>
 	<string name="SavingSettings">
 		Guardando tus configuraciones...

@@ -12,17 +12,17 @@
 	<button label="?" name="terrain_raise_help" />
 	<spinner label="Untere Terraingrenze" name="terrain_lower_spin" />
 	<button label="?" name="terrain_lower_help" />
-	<check_box label="Grundstücksonne verwenden" name="use_estate_sun_check" />
+	<check_box label="Grundbesitzsonne verwenden" name="use_estate_sun_check" />
 	<button label="?" name="use_estate_sun_help" />
 	<check_box label="Sonne fest" name="fixed_sun_check" />
 	<button label="?" name="fixed_sun_help" />
 	<slider label="Phase" name="sun_hour_slider" />
 	<button label="Übernehmen" name="apply_btn" />
 	<button label="RAW-Terrain herunterladen..." name="download_raw_btn"
-	     tool_tip="Nur für Grundstückseigentümer verfügbar, nicht für Verwalter" />
+	     tool_tip="Nur für Grundbesitzeigentümer verfügbar, nicht für Verwalter" />
 	<button label="?" name="download_raw_help" />
 	<button label="RAW-Terrain hochladen..." name="upload_raw_btn"
-	     tool_tip="Nur für Grundstückseigentümer verfügbar, nicht für Verwalter" />
+	     tool_tip="Nur für Grundbesitzeigentümer verfügbar, nicht für Verwalter" />
 	<button label="?" name="upload_raw_help" />
 	<button label="Terrain formen" name="bake_terrain_btn"
 	     tool_tip="Das aktuelle Terrain zum Mittelpunkt für die oberen/unteren Terraingrenzen machen" />
