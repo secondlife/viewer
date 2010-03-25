@@ -751,7 +751,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		if (notification != NULL)
 		{
 			LLIMToastNotifyPanel* notify_box = new LLIMToastNotifyPanel(
-					notification);
+					notification, chat.mSessionID);
 			//we can't set follows in xml since it broke toasts behavior
 			notify_box->setFollowsLeft();
 			notify_box->setFollowsRight();
