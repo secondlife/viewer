@@ -128,7 +128,8 @@ const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 						FRIEND_ONLINE("FriendOnline"), FRIEND_OFFLINE("FriendOffline"),
 						SERVER_OBJECT_MESSAGE("ServerObjectMessage"),
 						TELEPORT_OFFERED("TeleportOffered"),
-						TELEPORT_OFFER_SENT("TeleportOfferSent");
+						TELEPORT_OFFER_SENT("TeleportOfferSent"),
+						IM_SYSTEM_MESSAGE_TIP("IMSystemMessageTip");
 
 
 // static
@@ -147,7 +148,8 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 			|| INVENTORY_DECLINED == notification->getName()
 			|| USER_GIVE_ITEM == notification->getName()
 			|| TELEPORT_OFFERED == notification->getName()
-			|| TELEPORT_OFFER_SENT == notification->getName();
+			|| TELEPORT_OFFER_SENT == notification->getName()
+			|| IM_SYSTEM_MESSAGE_TIP == notification->getName();
 }
 
 // static
@@ -157,7 +159,8 @@ bool LLHandlerUtil::canLogToNearbyChat(const LLNotificationPtr& notification)
 			&&  FRIEND_ONLINE != notification->getName()
 			&& FRIEND_OFFLINE != notification->getName()
 			&& INVENTORY_ACCEPTED != notification->getName()
-			&& INVENTORY_DECLINED != notification->getName();
+			&& INVENTORY_DECLINED != notification->getName()
+			&& IM_SYSTEM_MESSAGE_TIP != notification->getName();
 }
 
 // static

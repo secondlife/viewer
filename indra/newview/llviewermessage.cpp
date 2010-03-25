@@ -1752,17 +1752,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	std::string separator_string(": ");
 
 	LLSD args;
+	LLSD payload;
 	switch(dialog)
 	{
 	case IM_CONSOLE_AND_CHAT_HISTORY:
-		// These are used for system messages, hence don't need the name,
-		// as it is always "Second Life".
 	  	// *TODO: Translate
 		args["MESSAGE"] = message;
-
-		// Note: don't put the message in the IM history, even though was sent
-		// via the IM mechanism.
-		LLNotificationsUtil::add("SystemMessageTip",args);
+		payload["SESSION_NAME"] = name;
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add("IMSystemMessageTip",args, payload);
 		break;
 
 	case IM_NOTHING_SPECIAL: 
@@ -1985,7 +1983,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// For requested notices, we don't want to send the popups.
 			if (dialog != IM_GROUP_NOTICE_REQUESTED)
 			{
-				LLSD payload;
 				payload["subject"] = subj;
 				payload["message"] = mes;
 				payload["sender_name"] = name;

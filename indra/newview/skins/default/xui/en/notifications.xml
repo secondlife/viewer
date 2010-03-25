@@ -4269,6 +4269,13 @@ The string [STRING_NAME] is missing from strings.xml
    type="notifytip">
 [MESSAGE]
   </notification>
+  
+  <notification
+   icon="notifytip.tga"
+   name="IMSystemMessageTip"
+   type="notifytip">
+[MESSAGE]
+  </notification>
 
   <notification
    icon="notifytip.tga"
