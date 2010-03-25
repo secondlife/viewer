@@ -278,8 +278,8 @@ werden.
 			<name_list name="owner list">
 				<name_list.columns label="Typ" name="type"/>
 				<name_list.columns label="Name" name="name"/>
-				<name_list.columns label="Zählen" name="count" width="80"/>
-				<name_list.columns label="Aktuellster" name="mostrecent"/>
+				<name_list.columns label="Anzahl" name="count" width="80"/>
+				<name_list.columns label="Aktuellstes" name="mostrecent"/>
 			</name_list>
 		</panel>
 		<panel label="OPTIONEN" name="land_options_panel">
