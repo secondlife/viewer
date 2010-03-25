@@ -20,7 +20,7 @@
 		Wasser-
 trübung
 	</text>
-	<button label="Grundstückszeit verw." name="EnvUseEstateTimeButton"/>
+	<button label="Grundbesitzzeit verw." name="EnvUseEstateTimeButton"/>
 	<button label="Himmel (erweitert)" name="EnvAdvancedSkyButton"/>
 	<button label="Wasser (erweitert)" name="EnvAdvancedWaterButton"/>
 </floater>

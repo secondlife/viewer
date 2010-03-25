@@ -39,7 +39,7 @@
 	</string>
 	<button label="?" name="abuse_email_address_help"/>
 	<button label="Applica" name="apply_btn"/>
-	<button font="SansSerifSmall" label="Espelli persona dalle proprietà..." name="kick_user_from_estate_btn"/>
+	<button font="SansSerifSmall" label="Espelli residente dalla proprietà..." name="kick_user_from_estate_btn"/>
 	<button font="SansSerifSmall" label="Manda un messaggio di le proprietà..." name="message_estate_btn"/>
 	<text name="estate_manager_label">
 		Manager delle proprietà:

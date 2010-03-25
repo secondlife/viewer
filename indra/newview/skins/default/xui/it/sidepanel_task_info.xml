@@ -38,16 +38,41 @@
 	</panel.string>
 	<text name="title" value="Profilo dell&apos;oggetto"/>
 	<text name="where" value="(in Second Life)"/>
-	<panel label="">
+	<panel label="" name="properties_panel">
+		<text name="Name:">
+			Nome:
+		</text>
+		<text name="Description:">
+			Descrizione:
+		</text>
 		<text name="CreatorNameLabel">
 			Ideatore:
 		</text>
 		<text name="Creator Name">
 			Erica Linden
 		</text>
+		<text name="Owner:">
+			Proprietario:
+		</text>
+		<text name="Owner Name">
+			Erica Linden
+		</text>
 		<text name="Group_label">
 			Gruppo:
 		</text>
+		<button name="button set group" tool_tip="Scegli un gruppo con cui condividere i diritti relativi all&apos;oggetto"/>
+		<name_box initial_value="Caricamento in corso..." name="Group Name Proxy"/>
+		<button label="Cessione" label_selected="Cessione" name="button deed" tool_tip="Con una cessione si trasferisce il bene con i diritti al proprietario successivo Gli oggetti in proprietà condivisa di gruppo possono essere ceduti soltanto da un funzionario del gruppo."/>
+		<text name="label click action">
+			Fai clic per:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Tocca (predefinito)" name="Touch/grab(default)"/>
+			<combo_box.item label="Siediti sull&apos;oggetto" name="Sitonobject"/>
+			<combo_box.item label="Acquista oggetto" name="Buyobject"/>
+			<combo_box.item label="Paga oggetto" name="Payobject"/>
+			<combo_box.item label="Apri" name="Open"/>
+		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">
 				Tu puoi modificare questo oggetto
@@ -69,6 +94,13 @@
 			<check_box label="Trasferisci" name="checkbox next owner can transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
 		</panel>
 		<check_box label="In vendita" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Copia" name="Copy"/>
+			<combo_box.item label="Contenuto" name="Contents"/>
+			<combo_box.item label="Originale" name="Original"/>
+		</combo_box>
+		<spinner label="Prezzo: L$" name="Edit Cost"/>
+		<check_box label="Mostra nella ricerca" name="search_check" tool_tip="Permetti alle persone di vedere questo oggetto nei risultati della ricerca"/>
 		<text name="B:">
 			B:
 		</text>
@@ -92,5 +124,6 @@
 		<button label="Apri" name="open_btn"/>
 		<button label="Paga" name="pay_btn"/>
 		<button label="Compra" name="buy_btn"/>
+		<button label="Dettagli" name="details_btn"/>
 	</panel>
 </panel>

@@ -5,6 +5,7 @@
 	<menu_item_call label="Costruisci" name="Build"/>
 	<menu_item_call label="Apri" name="Open"/>
 	<menu_item_call label="Siediti qui" name="Object Sit"/>
+	<menu_item_call label="Alzati" name="Object Stand Up"/>
 	<menu_item_call label="Profilo dell&apos;oggetto" name="Object Inspect"/>
 	<context_menu label="Metti &gt;" name="Put On">
 		<menu_item_call label="Indossa" name="Wear"/>
@@ -12,7 +13,6 @@
 		<context_menu label="Attacca HUD &gt;" name="Object Attach HUD"/>
 	</context_menu>
 	<context_menu label="Rimuovi &gt;" name="Remove">
-		<menu_item_call label="Prendi" name="Pie Object Take"/>
 		<menu_item_call label="Segnala abuso" name="Report Abuse..."/>
 		<menu_item_call label="Blocca" name="Object Mute"/>
 		<menu_item_call label="Restituisci" name="Return..."/>
