@@ -102,7 +102,7 @@ public:
 	virtual 		~LLAgentCamera();
 	void			init();
 	void			cleanup();
-	void		    setCameraAvatarObject(LLVOAvatarSelf* avatar);
+	void		    setAvatarObject(LLVOAvatarSelf* avatar);
 private:
 	BOOL			mInitialized;
 

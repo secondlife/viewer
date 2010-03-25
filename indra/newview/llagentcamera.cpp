@@ -256,7 +256,7 @@ void LLAgentCamera::cleanup()
 	setFocusObject(NULL);
 }
 
-void LLAgentCamera::setCameraAvatarObject(LLVOAvatarSelf* avatar)
+void LLAgentCamera::setAvatarObject(LLVOAvatarSelf* avatar)
 {
 	if (!mLookAt)
 	{

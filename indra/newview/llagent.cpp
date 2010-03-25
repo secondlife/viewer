@@ -1645,7 +1645,8 @@ void LLAgent::setAvatarObject(LLVOAvatarSelf *avatar)
 		return;
 	}
 	
-	gAgentCamera.setCameraAvatarObject(avatar);
+	gAgentCamera.setAvatarObject(avatar);
+	gAgentWearables.setAvatarObject(avatar);
 }
 
 // TRUE if your own avatar needs to be rendered.  Usually only
