@@ -1705,8 +1705,8 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 	U32 size = pick_width * pick_height;
 	size = (size + 7) / 8; // pixelcount-to-bits
 	mPickMask = new U8[size];
-	mPickMaskWidth = pick_width;
-	mPickMaskHeight = pick_height;
+	mPickMaskWidth = pick_width - 1;
+	mPickMaskHeight = pick_height - 1;
 
 	memset(mPickMask, 0, sizeof(U8) * size);
 
@@ -1749,20 +1749,20 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 			llassert(false);
 		}
 
-		llassert(mPickMaskWidth > 0 && mPickMaskHeight > 0);
+		llassert(mPickMaskWidth >= 0 && mPickMaskHeight >= 0);
 		
 		S32 x = llfloor(u * mPickMaskWidth);
 		S32 y = llfloor(v * mPickMaskHeight);
 
-		if (LL_UNLIKELY(x >= mPickMaskWidth))
+		if (LL_UNLIKELY(x > mPickMaskWidth))
 		{
 			LL_WARNS_ONCE("render") << "Ooh, width overrun on pick mask read, that coulda been bad." << LL_ENDL;
-			x = llmax(0, mPickMaskWidth-1);
+			x = llmax((U16)0, mPickMaskWidth);
 		}
-		if (LL_UNLIKELY(y >= mPickMaskHeight))
+		if (LL_UNLIKELY(y > mPickMaskHeight))
 		{
 			LL_WARNS_ONCE("render") << "Ooh, height overrun on pick mask read, that woulda been bad." << LL_ENDL;
-			y = llmax(0, mPickMaskHeight-1);
+			y = llmax((U16)0, mPickMaskHeight);
 		}
 
 		S32 idx = y*mPickMaskWidth+x;
