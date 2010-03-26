@@ -777,7 +777,8 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 //virtual
 void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 {
-	if (regionp->getHandle() != mLastRegionHandle)
+	setRegion(regionp);
+	if (!regionp || (regionp->getHandle() != mLastRegionHandle))
 	{
 		if (mLastRegionHandle != 0)
 		{
@@ -791,7 +792,10 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 			max = llmax(delta, max);
 			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CROSSING_MAX, max);
 		}
-		mLastRegionHandle = regionp->getHandle();
+		if (regionp)
+		{
+			mLastRegionHandle = regionp->getHandle();
+		}
 	}
 	mRegionCrossingTimer.reset();
 }

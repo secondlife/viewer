@@ -1537,6 +1537,11 @@ void LLAgentCamera::updateCamera()
 	}
 }
 
+void LLAgentCamera::updateLastCamera()
+{
+	mLastCameraMode = mCameraMode;
+}
+
 void LLAgentCamera::updateFocusOffset()
 {
 	validateFocusObject();
@@ -2161,7 +2166,7 @@ void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 	{
 		gFocusMgr.setKeyboardFocus(NULL);
 		
-		mLastCameraMode = mCameraMode;
+		updateLastCamera();
 		mCameraMode = CAMERA_MODE_MOUSELOOK;
 		const U32 old_flags = gAgent.getControlFlags();
 		gAgent.setControlFlags(AGENT_CONTROL_MOUSELOOK);
@@ -2223,7 +2228,7 @@ void LLAgentCamera::changeCameraToFollow(BOOL animate)
 		}
 		startCameraAnimation();
 
-		mLastCameraMode = mCameraMode;
+		updateLastCamera();
 		mCameraMode = CAMERA_MODE_FOLLOW;
 
 		// bang-in the current focus, position, and up vector of the follow cam
@@ -2308,7 +2313,7 @@ void LLAgentCamera::changeCameraToThirdPerson(BOOL animate)
 			mTargetCameraDistance = MIN_CAMERA_DISTANCE;
 			animate = FALSE;
 		}
-		mLastCameraMode = mCameraMode;
+		updateLastCamera();
 		mCameraMode = CAMERA_MODE_THIRD_PERSON;
 		const U32 old_flags = gAgent.getControlFlags();
 		gAgent.clearControlFlags(AGENT_CONTROL_MOUSELOOK);
@@ -2379,7 +2384,7 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 
 	if (mCameraMode != CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
-		mLastCameraMode = mCameraMode;
+		updateLastCamera();
 		mCameraMode = CAMERA_MODE_CUSTOMIZE_AVATAR;
 		const U32 old_flags = gAgent.getControlFlags();
 		gAgent.clearControlFlags(AGENT_CONTROL_MOUSELOOK);

@@ -180,7 +180,7 @@ void LLPreview::onCommit()
 			if( item->getType() == LLAssetType::AT_OBJECT )
 			{
 				LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-				if(avatarp)
+				if (avatarp)
 				{
 					LLViewerObject* obj = avatarp->getWornAttachment( item->getUUID() );
 					if( obj )

@@ -92,8 +92,6 @@ class LLAgentCamera
 	LOG_CLASS(LLAgentCamera);
 
 public:
-	friend class LLAgent;
-
 	//--------------------------------------------------------------------
 	// Constructors / Destructors
 	//--------------------------------------------------------------------
@@ -121,8 +119,11 @@ public:
 	BOOL			cameraCustomizeAvatar() const	{ return (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR /*&& !mCameraAnimating*/); }
 	BOOL			cameraFollow() const			{ return (mCameraMode == CAMERA_MODE_FOLLOW && mLastCameraMode == CAMERA_MODE_FOLLOW); }
 	ECameraMode		getCameraMode() const 			{ return mCameraMode; }
+	ECameraMode		getLastCameraMode() const 		{ return mLastCameraMode; }
 	void			updateCamera();					// Call once per frame to update camera location/orientation
 	void			resetCamera(); 					// Slam camera into its default position
+	void			updateLastCamera();				// Set last camera to current camera
+
 private:
 	ECameraMode		mCameraMode;					// Target mode after transition animation is done
 	ECameraMode		mLastCameraMode;
@@ -157,6 +158,7 @@ public:
 	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
 	F32				calcCustomizeAvatarUIOffset(const LLVector3d& camera_pos_global);
 	F32				getCurrentCameraBuildOffset() 	{ return (F32)mCameraFocusOffset.length(); }
+	void			clearCameraLag() { mCameraLag.clearVec(); }
 private:
 	F32				mCurrentCameraDistance;	 		// Current camera offset from avatar
 	F32				mTargetCameraDistance;			// Target camera offset from avatar

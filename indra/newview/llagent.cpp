@@ -315,7 +315,7 @@ LLAgent::~LLAgent()
 //-----------------------------------------------------------------------------
 void LLAgent::onAppFocusGained()
 {
-	if (CAMERA_MODE_MOUSELOOK == gAgentCamera.mCameraMode)
+	if (CAMERA_MODE_MOUSELOOK == gAgentCamera.getCameraMode())
 	{
 		gAgentCamera.changeCameraToDefault();
 		LLToolMgr::getInstance()->clearSavedTool();
@@ -952,7 +952,7 @@ LLVector3 LLAgent::getReferenceUpVector()
 		mAvatarObject->getParent() &&
 		mAvatarObject->mDrawable.notNull())
 	{
-		U32 camera_mode = gAgentCamera.mCameraAnimating ? gAgentCamera.mLastCameraMode : gAgentCamera.mCameraMode;
+		U32 camera_mode = gAgentCamera.getCameraAnimating() ? gAgentCamera.getLastCameraMode() : gAgentCamera.getCameraMode();
 		// and in third person...
 		if (camera_mode == CAMERA_MODE_THIRD_PERSON)
 		{
@@ -1076,17 +1076,6 @@ void LLAgent::setKey(const S32 direction, S32 &key)
 //-----------------------------------------------------------------------------
 U32 LLAgent::getControlFlags()
 {
-/*
-	// HACK -- avoids maintenance of control flags when camera mode is turned on or off,
-	// only worries about it when the flags are measured
-	if (mCameraMode == CAMERA_MODE_MOUSELOOK) 
-	{
-		if ( !(mControlFlags & AGENT_CONTROL_MOUSELOOK) )
-		{
-			mControlFlags |= AGENT_CONTROL_MOUSELOOK;
-		}
-	}
-*/
 	return mControlFlags;
 }
 
@@ -1768,14 +1757,14 @@ U8 LLAgent::getRenderState()
 //-----------------------------------------------------------------------------
 void LLAgent::endAnimationUpdateUI()
 {
-	if (gAgentCamera.mCameraMode == gAgentCamera.mLastCameraMode)
+	if (gAgentCamera.getCameraMode() == gAgentCamera.getLastCameraMode())
 	{
 		// We're already done endAnimationUpdateUI for this transition.
 		return;
 	}
 
 	// clean up UI from mode we're leaving
-	if (gAgentCamera.mLastCameraMode == CAMERA_MODE_MOUSELOOK )
+	if (gAgentCamera.getLastCameraMode() == CAMERA_MODE_MOUSELOOK )
 	{
 		// show mouse cursor
 		gViewerWindow->showCursor();
@@ -1847,7 +1836,7 @@ void LLAgent::endAnimationUpdateUI()
 			}
 		}
 	}
-	else if(gAgentCamera.mLastCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR)
+	else if (gAgentCamera.getLastCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
 		// make sure we ask to save changes
 
@@ -1875,7 +1864,7 @@ void LLAgent::endAnimationUpdateUI()
 	//---------------------------------------------------------------------
 	// Set up UI for mode we're entering
 	//---------------------------------------------------------------------
-	if (gAgentCamera.mCameraMode == CAMERA_MODE_MOUSELOOK)
+	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 	{
 		// hide menus
 		gMenuBarView->setVisible(FALSE);
@@ -1890,7 +1879,7 @@ void LLAgent::endAnimationUpdateUI()
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 
 		// clear out camera lag effect
-		gAgentCamera.mCameraLag.clearVec();
+		gAgentCamera.clearCameraLag();
 
 		// JC - Added for always chat in third person option
 		gFocusMgr.setKeyboardFocus(NULL);
@@ -1960,7 +1949,7 @@ void LLAgent::endAnimationUpdateUI()
 		}
 
 	}
-	else if (gAgentCamera.mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR)
+	else if (gAgentCamera.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
 		LLToolMgr::getInstance()->setCurrentToolset(gFaceEditToolset);
 
@@ -1978,15 +1967,14 @@ void LLAgent::endAnimationUpdateUI()
 
 	if (getAvatarObject())
 	{
-		getAvatarObject()->updateAttachmentVisibility(gAgentCamera.mCameraMode);
+		getAvatarObject()->updateAttachmentVisibility(gAgentCamera.getCameraMode());
 	}
 
 	gFloaterTools->dirty();
 
 	// Don't let this be called more than once if the camera
 	// mode hasn't changed.  --JC
-	gAgentCamera.mLastCameraMode = gAgentCamera.mCameraMode;
-
+	gAgentCamera.updateLastCamera();
 }
 
 //-----------------------------------------------------------------------------

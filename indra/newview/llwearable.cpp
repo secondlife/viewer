@@ -647,7 +647,7 @@ void LLWearable::writeToAvatar()
 {
 	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	llassert(avatarp);
-	if(!avatarp)
+	if (!avatarp)
 	{
 		llerrs << "could not get avatar object to write to for wearable " << this->getName() << llendl;
 		return;
@@ -709,7 +709,7 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
 {
 	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	llassert(avatarp);
-	if(!avatarp)
+	if (!avatarp)
 	{
 		return;
 	}
@@ -753,7 +753,7 @@ void LLWearable::copyDataFrom(const LLWearable* src)
 {
 	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	llassert(avatarp);
-	if(!avatarp)
+	if (!avatarp)
 	{
 		return;
 	}

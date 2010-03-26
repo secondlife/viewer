@@ -2714,7 +2714,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 
 		// Add all current attachments to the requested items as well.
 		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-		if(avatarp)
+		if (avatarp)
 		{
 			for (LLVOAvatar::attachment_map_t::const_iterator iter = avatarp->mAttachmentPoints.begin(); 
 				 iter != avatarp->mAttachmentPoints.end(); ++iter)

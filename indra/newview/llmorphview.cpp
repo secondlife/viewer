@@ -112,7 +112,7 @@ void	LLMorphView::shutdown()
 	LLVOAvatarSelf::onCustomizeEnd();
 
 	LLVOAvatar *avatarp = gAgent.getAvatarObject();
-	if(avatarp && !avatarp->isDead())
+	if (avatarp && !avatarp->isDead())
 	{
 		avatarp->startMotion( ANIM_AGENT_BODY_NOISE );
 		avatarp->mSpecialRenderMode = 0;

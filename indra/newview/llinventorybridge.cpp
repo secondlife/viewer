@@ -1507,7 +1507,7 @@ BOOL LLFolderBridge::isItemRemovable() const
 	}
 
 	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if(!avatarp)
+	if (!avatarp)
 	{
 		return FALSE;
 	}
@@ -1662,7 +1662,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	if(!model) return FALSE;
 
 	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if(!avatarp) return FALSE;
+	if (!avatarp) return FALSE;
 
 	// cannot drag categories into library
 	if(!isAgentInventory())
@@ -3027,7 +3027,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	}
 
 	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if(!avatarp) return FALSE;
+	if (!avatarp) return FALSE;
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
@@ -4269,7 +4269,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		if(item)
 		{
 			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-			if( !avatarp )
+			if (!avatarp)
 			{
 				return;
 			}
@@ -4355,7 +4355,7 @@ BOOL LLObjectBridge::renameItem(const std::string& new_name)
 		model->notifyObservers();
 
 		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-		if(avatarp)
+		if (avatarp)
 		{
 			LLViewerObject* obj = avatarp->getWornAttachment( item->getUUID() );
 			if(obj)
