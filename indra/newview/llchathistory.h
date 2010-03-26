@@ -47,8 +47,6 @@ class LLChatHistory : public LLUICtrl
 			Optional<std::string>	message_header;
 			//Message separator filename
 			Optional<std::string>	message_separator;
-			//Message plaintext  separator filename
-			Optional<std::string>	message_plaintext_separator;
 			//Text left padding from the scroll rect
 			Optional<S32>			left_text_pad;
 			//Text right padding from the scroll rect
@@ -71,7 +69,6 @@ class LLChatHistory : public LLUICtrl
 			Params()
 			:	message_header("message_header"),
 				message_separator("message_separator"),
-				message_plaintext_separator("message_plaintext_separator"),
 				left_text_pad("left_text_pad"),
 				right_text_pad("right_text_pad"),
 				left_widget_pad("left_widget_pad"),
@@ -99,11 +96,6 @@ class LLChatHistory : public LLUICtrl
 		 * @return pointer to LLView separator object.
 		 */
 		LLView* getSeparator();
-		/**
-		 * Builds a message plaintext  separator.
-		 * @return pointer to LLView separator object.
-		 */
-		LLView* getPlaintextSeparator();
 		/**
 		 * Builds a message header.
 		 * @return pointer to LLView header object.
@@ -141,7 +133,6 @@ class LLChatHistory : public LLUICtrl
 
 		std::string mMessageHeaderFilename;
 		std::string mMessageSeparatorFilename;
-		std::string mMessagePlaintextSeparatorFilename;
 
 		S32 mLeftTextPad;
 		S32 mRightTextPad;
