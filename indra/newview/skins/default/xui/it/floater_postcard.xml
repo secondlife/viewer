@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Postcard" title="ISTANTANEA IN EMAIL">
+<floater name="Postcard" title="INVIA FOTO VIA E-MAIL">
 	<text name="to_label" width="135">
 		Email del destinatario:
 	</text>
@@ -35,6 +35,6 @@
 		Vieni a vedere!
 	</string>
 	<string name="upload_message">
-		Spedendo...
+		Invio...
 	</string>
 </floater>

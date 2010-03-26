@@ -395,7 +395,7 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 			<text name="at URL:">
 				URL Mediów:
 			</text>
-			<button label="Ustaw..." label_selected="Ustaw..." name="set_media_url"/>
+			<button label="Ustaw" name="set_media_url"/>
 			<check_box label="Ukryj URL Mediów" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym użytkownikom. Nie dotyczy to jednak typów HTML."/>
 			<text name="Description:">
 				Opis:
