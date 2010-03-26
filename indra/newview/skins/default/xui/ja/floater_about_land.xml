@@ -395,7 +395,7 @@
 			<text name="at URL:">
 				ホームページ：
 			</text>
-			<button label="設定" label_selected="設定..." name="set_media_url"/>
+			<button label="設定" name="set_media_url"/>
 			<check_box label="URL を非表示" name="hide_media_url" tool_tip="このオプションをオンにすると、許可なしでこの区画情報にアクセスしているユーザーにはメディア URL が表示されません。 これは HTML タイプには使用できませんのでご注意ください。"/>
 			<text name="Description:">
 				説明：

@@ -9,7 +9,7 @@
 			<button label="Cuerpo" label_selected="Cuerpo" name="Body"/>
 			<button label="Cabeza" label_selected="Cabeza" name="Head"/>
 			<button label="Ojos" label_selected="Ojos" name="Eyes"/>
-			<button label="Ojos" label_selected="Orejas" name="Ears"/>
+			<button label="Orejas" label_selected="Orejas" name="Ears"/>
 			<button label="Nariz" label_selected="Nariz" name="Nose"/>
 			<button label="Boca" label_selected="Boca" name="Mouth"/>
 			<button label="Barbilla" label_selected="Barbilla" name="Chin"/>

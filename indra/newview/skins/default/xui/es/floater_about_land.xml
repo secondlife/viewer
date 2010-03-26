@@ -394,7 +394,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Página inicial:
 			</text>
 			<line_editor left="97" name="media_url"/>
-			<button label="Definir..." label_selected="Definir..." name="set_media_url"/>
+			<button label="Definir" name="set_media_url"/>
 			<check_box label="Ocultar la URL del media" left="97" name="hide_media_url" tool_tip="Marcando esta opción esconderá en la información de esta parcela -a quien no esté autorizado a verla- la URL del media. Note que esto no está disponible para HTML."/>
 			<text name="Description:">
 				Descripción:

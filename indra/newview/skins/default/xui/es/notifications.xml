@@ -914,7 +914,7 @@ no tienes el permiso de comprar terreno para el grupo que tienes activado actual
 	<notification label="Añadir como amigo" name="AddFriend">
 		Los amigos pueden darse permiso para localizarse en el mapa y para saber si el otro está conectado.
 
-¿Ofrecer a [NAME] que sea su amigo?
+¿Ofrecer a [NAME] que sea tu amigo?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification label="Añadir como amigo" name="AddFriendWithMessage">

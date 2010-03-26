@@ -15,20 +15,20 @@
 	<panel.string name="auto_renew_off">
 		Disattivato
 	</panel.string>
-	<text name="title" value="Info sugli Annunci"/>
+	<text name="title" value="Informazioni inserzione"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text_editor name="classified_name" value="[nome]"/>
+			<text_editor name="classified_name" value="[name]"/>
 			<text name="classified_location_label" value="Luogo:"/>
-			<text_editor name="classified_location" value="[caricando...]"/>
+			<text_editor name="classified_location" value="[loading...]"/>
 			<text name="content_type_label" value="Tipo di contenuto:"/>
-			<text_editor name="content_type" value="[tipo di contenuto]"/>
+			<text_editor name="content_type" value="[content type]"/>
 			<text name="category_label" value="Categoria:"/>
-			<text_editor name="category" value="[categoria]"/>
+			<text_editor name="category" value="[category]"/>
 			<text name="creation_date_label" value="Data di creazione:"/>
 			<text_editor name="creation_date" tool_tip="Data di creazione" value="[date]"/>
 			<text name="price_for_listing_label" value="Prezzo per inserzione:"/>
-			<text_editor name="price_for_listing" tool_tip="Prezzo di listino." value="[price]"/>
+			<text_editor name="price_for_listing" tool_tip="Prezzo per inserzione:" value="[price]"/>
 			<layout_stack name="descr_stack">
 				<layout_panel name="clickthrough_layout_panel">
 					<text name="click_through_label" value="Clic:"/>
