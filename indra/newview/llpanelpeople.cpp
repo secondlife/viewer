@@ -672,11 +672,6 @@ void LLPanelPeople::updateFriendList()
 		lldebugs << "Friends Cards were not found" << llendl;
 	}
 
-	// show special help text for just created account to help found friends. EXT-4836
-	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
-	no_friends_text->setVisible(all_friendsp.size() == 0);
-
-
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
 	for (; buddy_it != all_buddies.end(); ++buddy_it)
 	{
@@ -684,6 +679,14 @@ void LLPanelPeople::updateFriendList()
 		if (av_tracker.isBuddyOnline(buddy_id))
 			online_friendsp.push_back(buddy_id);
 	}
+
+	// show special help text for just created account to help found friends. EXT-4836
+	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
+
+	// Seems sometimes all_friends can be empty because of issue with Inventory loading (clear cache, slow connection...)
+	// So, lets check all lists to avoid overlapping the text with online list. See EXT-6448.
+	bool any_friend_exists = (all_friendsp.size() > 0) || (online_friendsp.size() > 0);
+	no_friends_text->setVisible(!any_friend_exists);
 
 	/*
 	 * Avatarlists  will be hidden by showFriendsAccordionsIfNeeded(), if they do not have items.
