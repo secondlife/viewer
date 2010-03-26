@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Lieux" name="places panel">
 	<string name="landmarks_tab_title" value="MES REPÈRES"/>
-	<string name="teleport_history_tab_title" value="HISTORIQUE DES TÉLÉPORTATIONS"/>
+	<string name="teleport_history_tab_title" value="HISTORIQUE DES TP"/>
 	<filter_editor label="Filtrer les endroits" name="Filter"/>
 	<panel name="button_panel">
 		<button label="Téléporter" name="teleport_btn" tool_tip="Me téléporter jusqu&apos;à la zone sélectionnée"/>
