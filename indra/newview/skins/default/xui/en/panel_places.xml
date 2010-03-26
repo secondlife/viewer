@@ -65,7 +65,7 @@ background_visible="true"
      visible="false"
      width="315" />
     <panel
-     height="19"
+     height="23"
      layout="topleft"
      left="4"
      name="button_panel"
