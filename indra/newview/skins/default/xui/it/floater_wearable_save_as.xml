@@ -3,7 +3,7 @@
 	<button label="Salva" label_selected="Salva" name="Save"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
 	<text name="Save item as:">
-		Salva oggetto come:
+		Salva oggetto nel mio inventario come:
 	</text>
 	<line_editor name="name ed">
 		Nuovo [DESC]

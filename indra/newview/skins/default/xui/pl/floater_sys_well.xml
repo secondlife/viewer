@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="sys_well_window" title="ZAWIADOMIENIA">
+	<string name="title_im_well_window">
+		ROZMOWY
+	</string>
+	<string name="title_notification_well_window">
+		ZAWIADOMIENIA
+	</string>
+</floater>

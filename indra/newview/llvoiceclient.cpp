@@ -4599,7 +4599,15 @@ void LLVoiceClient::participantUpdatedEvent(
 			{
 				participant->mPower = 0.0f;
 			}
-			participant->mVolume = volume;
+
+			// *HACK: Minimal hack to fix EXT-6508, ignore the incoming volume if it is zero.
+			// This happens because we send volume zero to Vivox when someone is muted,
+			// Vivox then send it back to us, overwriting the previous volume.
+			// Remove this hack once volume refactoring from EXT-6031 is applied.
+			if (volume != 0)
+			{
+				participant->mVolume = volume;
+			}
 
 			
 			// *HACK: mantipov: added while working on EXT-3544

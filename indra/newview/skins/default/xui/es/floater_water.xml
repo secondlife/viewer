@@ -7,7 +7,7 @@
 	<button label="Guardar" label_selected="Guardar" name="WaterSavePreset"/>
 	<button label="Borrar" label_selected="Borrar" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
-		<panel label="Configuraciones" name="Settings">
+		<panel label="CONFIGURACIÓN" name="Settings">
 			<text name="BHText">
 				Color del agua
 			</text>
@@ -55,7 +55,7 @@
 			</text>
 			<button label="?" left="640" name="WaterBlurMultiplierHelp"/>
 		</panel>
-		<panel label="Imagen" name="Waves">
+		<panel label="IMAGEN" name="Waves">
 			<text name="BHText">
 				Sentido de la onda grande
 			</text>

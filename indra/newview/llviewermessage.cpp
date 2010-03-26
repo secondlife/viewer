@@ -106,6 +106,7 @@
 #include "llpanelplaceprofile.h"
 
 #include <boost/algorithm/string/split.hpp> //
+#include <boost/regex.hpp>
 
 #if LL_WINDOWS // For Windows specific error handler
 #include "llwindebug.h"	// For the invalid message handler
@@ -273,7 +274,9 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 	}
 	else
 	{
-		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("giving"), amount);
+		LLStringUtil::format_map_t args;
+		args["AMOUNT"] = llformat("%d", amount);
+		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("giving", args), amount);
 	}
 }
 
@@ -1082,6 +1085,21 @@ LLOfferInfo::LLOfferInfo(const LLSD& sd)
 	mHost = LLHost(sd["sender"].asString());
 }
 
+LLOfferInfo::LLOfferInfo(const LLOfferInfo& info)
+{
+	mIM = info.mIM;
+	mFromID = info.mFromID;
+	mFromGroup = info.mFromGroup;
+	mFromObject = info.mFromObject;
+	mTransactionID = info.mTransactionID;
+	mFolderID = info.mFolderID;
+	mObjectID = info.mObjectID;
+	mType = info.mType;
+	mFromName = info.mFromName;
+	mDesc = info.mDesc;
+	mHost = info.mHost;
+}
+
 LLSD LLOfferInfo::asLLSD()
 {
 	LLSD sd;
@@ -1573,7 +1591,11 @@ void inventory_offer_handler(LLOfferInfo* info)
 	}
 	else // Agent -> Agent Inventory Offer
 	{
+		p.responder = info;
 		// Note: sets inventory_offer_callback as the callback
+		// *TODO fix memory leak
+		// inventory_offer_callback() is not invoked if user received notification and 
+		// closes viewer(without responding the notification)
 		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, info, _1, _2));
 		p.name = "UserGiveItem";
 		
@@ -3084,7 +3106,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 			<< x << ":" << y 
 			<< " current pos " << gAgent.getPositionGlobal()
 			<< LL_ENDL;
-		LLAppViewer::instance()->forceDisconnect("You were sent to an invalid region.");
+		LLAppViewer::instance()->forceDisconnect(LLTrans::getString("SentToInvalidRegion"));
 		return;
 
 	}
@@ -4502,8 +4524,64 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 			payload["from_id"] = from_id;
 			LLNotificationsUtil::add("PaymentRecived", args, payload);
 		}
+		//AD *HACK: Parsing incoming string to localize messages that come from server! EXT-5986
+		// It's only a temporarily and ineffective measure. It doesn't affect performance much
+		// because we get here only for specific type of messages, but anyway it is not right to do it!
+		// *TODO: Server-side changes should be made and this code removed.
 		else
 		{
+			if(desc.find("You paid")==0)
+			{
+				// Regular expression for message parsing- change it in case of server-side changes.
+				// Each set of parenthesis will later be used to find arguments of message we generate
+				// in the end of this if- (.*) gives us name of money receiver, (\\d+)-amount of money we pay
+				// and ([^$]*)- reason of payment
+				boost::regex expr("You paid (?:.{0}|(.*) )L\\$(\\d+)\\s?([^$]*)\\.");
+				boost::match_results <std::string::const_iterator> matches;
+				if(boost::regex_match(desc, matches, expr))
+				{
+					// Name of full localizable notification string
+					// there are three types of this string- with name of receiver and reason of payment,
+					// without name and without reason (but not simultaneously)
+					// example of string without name - You paid L$100 to create a group.
+					// example of string without reason - You paid Smdby Linden L$100.
+					// example of string with reason and name - You paid Smbdy Linden L$100 for a land access pass.
+					std::string line = "you_paid_ldollars_no_name";
+
+					// arguments of string which will be in notification
+					LLStringUtil::format_map_t str_args;
+
+					// extracting amount of money paid (without L$ symbols). It is always present.
+					str_args["[AMOUNT]"] = std::string(matches[2]);
+
+					// extracting name of person/group you are paying (it may be absent)
+					std::string name = std::string(matches[1]);
+					if(!name.empty())
+					{
+						str_args["[NAME]"] = name;
+						line = "you_paid_ldollars";
+					}
+
+					// extracting reason of payment (it may be absent)
+					std::string reason = std::string(matches[3]);
+					if (reason.empty())
+					{
+						line = "you_paid_ldollars_no_reason";
+					}
+					else
+					{
+						std::string localized_reason;
+						// if we haven't found localized string for reason of payment leave it as it was
+						str_args["[REASON]"] =  LLTrans::findString(localized_reason, reason) ? localized_reason : reason;
+					}
+
+					// forming final message string by retrieving localized version from xml
+					// and applying previously found arguments
+					line = LLTrans::getString(line, str_args);
+					args["MESSAGE"] = line;
+				}
+			}
+
 			LLNotificationsUtil::add("SystemMessage", args);
 		}
 
@@ -5490,6 +5568,8 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 				args["TO_NAME"] = target_name;
 	
 				LLSD payload;
+				
+				//*TODO please rewrite all keys to the same case, lower or upper
 				payload["from_id"] = target_id;
 				payload["SESSION_NAME"] = target_name;
 				payload["SUPPRESS_TOAST"] = true;

@@ -18,8 +18,8 @@
 		<menu_item_call label="Nouvelle veste" name="New Jacket"/>
 		<menu_item_call label="Nouvelle jupe" name="New Skirt"/>
 		<menu_item_call label="Nouveaux gants" name="New Gloves"/>
-		<menu_item_call label="Nouveaux sous-vêtements (homme)" name="New Undershirt"/>
-		<menu_item_call label="Nouveaux sous-vêtements (femme)" name="New Underpants"/>
+		<menu_item_call label="Nouveau débardeur" name="New Undershirt"/>
+		<menu_item_call label="Nouveau caleçon" name="New Underpants"/>
 		<menu_item_call label="Nouvel alpha" name="New Alpha"/>
 		<menu_item_call label="Nouveau tatouage" name="New Tattoo"/>
 	</menu>

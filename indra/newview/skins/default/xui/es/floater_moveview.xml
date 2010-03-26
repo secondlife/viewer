@@ -18,6 +18,15 @@
 	<string name="fly_back_tooltip">
 		Volar hacia atrás (cursor abajo o S)
 	</string>
+	<string name="walk_title">
+		Caminar
+	</string>
+	<string name="run_title">
+		Correr
+	</string>
+	<string name="fly_title">
+		Volar
+	</string>
 	<panel name="panel_actions">
 		<button label="" label_selected="" name="turn left btn" tool_tip="Girar a la izq. (cursor izq. o A)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Girar a la der. (cursor der. o D)"/>
@@ -30,6 +39,5 @@
 		<button label="" name="mode_walk_btn" tool_tip="Modo de caminar"/>
 		<button label="" name="mode_run_btn" tool_tip="Modo de correr"/>
 		<button label="" name="mode_fly_btn" tool_tip="Modo de volar"/>
-		<button label="Dejar de volar" name="stop_fly_btn" tool_tip="Dejar de volar"/>
 	</panel>
 </floater>

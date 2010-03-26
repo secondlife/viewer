@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_tattoo_panel">
 	<panel name="avatar_tattoo_color_panel">
-		<texture_picker label="Tatuaggio sulla testa" name="Head Tattoo" tool_tip="Clicca per scegliere una foto"/>
-		<texture_picker label="Tatuaggio superiore" name="Upper Tattoo" tool_tip="Clicca per scegliere una foto"/>
-		<texture_picker label="Tatuaggio inferiore" name="Lower Tattoo" tool_tip="Clicca per scegliere una foto"/>
+		<texture_picker label="Tatuaggio della testa" name="Head Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
+		<texture_picker label="Tatuaggio superiore" name="Upper Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
+		<texture_picker label="Tattuaggio inferiore" name="Lower Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
 	</panel>
 </panel>

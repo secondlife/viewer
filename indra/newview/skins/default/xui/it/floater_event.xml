@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Evento" name="Event" title="DETTAGLI DELL&apos;EVENTO">
+	<floater.string name="none">
+		nessuno
+	</floater.string>
+	<floater.string name="notify">
+		Avvisare
+	</floater.string>
+	<floater.string name="dont_notify">
+		Non avvisare
+	</floater.string>
+	<floater.string name="moderate">
+		Moderato
+	</floater.string>
+	<floater.string name="adult">
+		Adulto
+	</floater.string>
+	<floater.string name="general">
+		Generale
+	</floater.string>
+	<floater.string name="unknown">
+		Sconosciuto
+	</floater.string>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<text name="event_name">
+				Evento senza nome...di Doom De doom! Doom doom.
+			</text>
+			<text name="event_category">
+				(nessuna categoria)
+			</text>
+			<text name="event_runby_label">
+				Organizzato da:
+			</text>
+			<text initial_value="(recupero)" name="event_runby"/>
+			<text name="event_date_label">
+				Data:
+			</text>
+			<text name="event_date">
+				10/10/2010
+			</text>
+			<text name="event_duration_label">
+				Durata:
+			</text>
+			<text name="event_duration">
+				1 ora
+			</text>
+			<text name="event_covercharge_label">
+				Costo:
+			</text>
+			<text name="event_cover">
+				Gratis
+			</text>
+			<text name="event_location_label">
+				Luogo:
+			</text>
+			<text name="event_location" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<text name="rating_label" value="Categoria:"/>
+			<text name="rating_value" value="sconosciuto"/>
+			<expandable_text name="event_desc">
+				Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			</expandable_text>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<button name="create_event_btn" tool_tip="Crea evento"/>
+			<button name="god_delete_event_btn" tool_tip="Elimina evento"/>
+			<button label="Avvisami" name="notify_btn"/>
+			<button label="Teleport" name="teleport_btn"/>
+			<button label="Mappa" name="map_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

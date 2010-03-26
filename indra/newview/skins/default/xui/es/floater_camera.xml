@@ -9,6 +9,18 @@
 	<floater.string name="move_tooltip">
 		Mover la cámara arriba y abajo, izquierda y derecha
 	</floater.string>
+	<floater.string name="orbit_mode_title">
+		Orbital
+	</floater.string>
+	<floater.string name="pan_mode_title">
+		Panorámica
+	</floater.string>
+	<floater.string name="avatar_view_mode_title">
+		Posición de tu cámara
+	</floater.string>
+	<floater.string name="free_mode_title">
+		Centrar el objeto
+	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="Mueve la cámara arriba y abajo, a izquierda y derecha"/>
 		<panel name="zoom" tool_tip="Hacer zoom con la cámara en lo enfocado">

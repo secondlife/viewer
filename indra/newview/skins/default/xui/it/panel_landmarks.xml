@@ -2,7 +2,7 @@
 <panel name="Landmarks">
 	<accordion name="landmarks_accordion">
 		<accordion_tab name="tab_favorites" title="Barra dei Preferiti"/>
-		<accordion_tab name="tab_landmarks" title="Landmarks"/>
+		<accordion_tab name="tab_landmarks" title="I miei punti di riferimento"/>
 		<accordion_tab name="tab_inventory" title="Mio Inventario"/>
 		<accordion_tab name="tab_library" title="Libreria"/>
 	</accordion>

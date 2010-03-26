@@ -13,7 +13,7 @@
  can_minimize="true"
  can_close="true"
  visible="false"
- width="360"
+ width="385"
  can_resize="true"
  min_width="250"
  min_height="190">
@@ -22,7 +22,7 @@
    default_tab_group="2"
   follows="all"
   height="320"
-  width="360"
+  width="385"
   layout="topleft"
   orientation="horizontal"
   name="im_panels"

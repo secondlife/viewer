@@ -25,16 +25,16 @@
 		Range di elevazione della texture
 	</text>
 	<text name="height_text_lbl6">
-		Sud Ovest
+		Nordovest
 	</text>
 	<text name="height_text_lbl7">
-		Nord Ovest
+		Nordest
 	</text>
 	<text name="height_text_lbl8">
-		Sud Est
+		Sudovest
 	</text>
 	<text name="height_text_lbl9">
-		Nord Est
+		Sudest
 	</text>
 	<spinner label="Bassa" name="height_start_spin_0"/>
 	<spinner label="Bassa" name="height_start_spin_1"/>
@@ -45,10 +45,10 @@
 	<spinner label="Alta" name="height_range_spin_2"/>
 	<spinner label="Alta" name="height_range_spin_3"/>
 	<text name="height_text_lbl10">
-		Questi valori riproducono l&apos;insieme della gamma delle textures superiori.
+		Questi valori indicano la gamma di miscele per le texture di cui sopra.
 	</text>
 	<text name="height_text_lbl11">
-		Misurato in metri, il valore MINIMO è l&apos;altezza MASSIMA della Texture n°1, e il valore MASSIMO è l&apos;altezza MINIMA della Texture n°4.
+		Misurato in metri, il valore BASSO è la MASSIMA altezza della texture n. 1, e il valore ALTO è l&apos;altezza MINIMA della texture n. 4.
 	</text>
 	<text name="height_text_lbl12">
 		Texture #1, e il valore più ALTO all&apos;altezza MINIMA della Texture #4.

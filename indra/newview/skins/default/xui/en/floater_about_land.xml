@@ -275,7 +275,7 @@ Leyla Linden               </text>
              left_pad="4"
              right="-10"
              name="Set..."
-             width="50"
+             width="90"
              top_delta="-2"/>
             <check_box
              enabled="false"
@@ -407,7 +407,7 @@ Leyla Linden               </text>
              name="Cancel Land Sale"
              left_pad="5"
              top_pad="-25"
-             width="155" />
+             width="180" />
             <text
              type="string"
              length="1"
@@ -486,10 +486,10 @@ Leyla Linden               </text>
              height="23"
              label="Buy Land"
              layout="topleft"
-             left_delta="82"
+             left_delta="52"
              name="Buy Land..."
              top_pad="7"
-             width="100" />
+             width="130" />
             <button
              enabled="true"
              follows="left|top"
@@ -499,7 +499,7 @@ Leyla Linden               </text>
              left="10"
              name="Scripts..."
              top_pad="1"
-             width="100" />
+             width="150" />
             <button
              enabled="false"
              follows="left|top"
@@ -516,11 +516,11 @@ Leyla Linden               </text>
              height="23"
              label="Buy Pass"
              layout="topleft"
-             left_delta="-105"
+             left_delta="-135"
              name="Buy Pass..."
              tool_tip="A pass gives you temporary access to this land."
              top_delta="0"
-             width="100" />
+             width="130" />
             <button
              follows="left|top"
              height="23"
@@ -1056,7 +1056,7 @@ Leyla Linden               </text>
              left="10"
              name="Autoreturn"
              top_pad="0"
-             width="294">
+             width="310">
                 Auto return other Residents&apos; objects (minutes, 0 for off):
             </text>
             <line_editor
@@ -1234,7 +1234,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="edit objects check"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1260,7 +1260,7 @@ Only large parcels can be listed in search.
              left_pad="2"
              name="all object entry check"
              top_delta="0"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1287,7 +1287,7 @@ Only large parcels can be listed in search.
              left_pad="2"
              name="check other scripts"
              top_delta="0"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1341,7 +1341,7 @@ Only large parcels can be listed in search.
              left="30"
              name="land category with adult"
              visible="false"
-             width="130">
+             width="140">
                 <combo_box.item
                  label="Any Category"
                  name="item0"
@@ -1402,7 +1402,7 @@ Only large parcels can be listed in search.
              left="30"
              name="land category"
              visible="false"
-             width="130">
+             width="140">
                 <combo_box.item
                  label="Any Category"
                  name="item0"

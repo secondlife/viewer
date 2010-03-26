@@ -2,6 +2,6 @@
 <floater name="modal container" title="">
 	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
 	<text name="Save item as:">
-		Naciśnij by uruchomić przycisk mówienia.
+		Naciśnij klawisz aby ustawić przełącznik Mówić.
 	</text>
 </floater>

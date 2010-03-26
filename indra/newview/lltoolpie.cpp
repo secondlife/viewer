@@ -413,24 +413,24 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	case CLICK_ACTION_SIT:
 		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // not already sitting?
 		{
-			cursor = UI_CURSOR_HAND;
+			cursor = UI_CURSOR_TOOLSIT;
 		}
 		break;
 	case CLICK_ACTION_BUY:
-		cursor = UI_CURSOR_HAND;
+		cursor = UI_CURSOR_TOOLBUY;
 		break;
 	case CLICK_ACTION_OPEN:
 		// Open always opens the parent.
 		if (parent && parent->allowOpen())
 		{
-			cursor = UI_CURSOR_HAND;
+			cursor = UI_CURSOR_TOOLOPEN;
 		}
 		break;
 	case CLICK_ACTION_PAY:	
 		if ((object && object->flagTakesMoney())
 			|| (parent && parent->flagTakesMoney()))
 		{
-			cursor = UI_CURSOR_HAND;
+			cursor = UI_CURSOR_TOOLBUY;
 		}
 		break;
 	case CLICK_ACTION_ZOOM:
@@ -965,7 +965,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 					}
 				}
 			}
-
+			
 
 			// Avoid showing tip over media that's displaying unless it's for sale
 			// also check the primary node since sometimes it can have an action even though
@@ -973,9 +973,9 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			
 			bool needs_tip = (!is_media_displaying || 
 				              for_sale) &&
-							 (has_media || 
-							  needs_tooltip(nodep) || 
-							  needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode()));
+				(has_media || 
+				 needs_tooltip(nodep) || 
+				 needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode()));
 			
 			if (show_all_object_tips || needs_tip)
 			{

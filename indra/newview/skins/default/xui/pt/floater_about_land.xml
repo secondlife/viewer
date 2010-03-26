@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterland" title="SOBRE O TERRENO">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] minutos
 	</floater.string>
@@ -15,7 +24,7 @@
 	<tab_container name="landtab">
 		<panel label="GERAL" name="land_general_panel">
 			<panel.string name="new users only">
-				Somente novos usuários
+				Somente novos residentes
 			</panel.string>
 			<panel.string name="anyone">
 				Qualquer um
@@ -84,9 +93,9 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 			<text name="GroupText">
 				Leyla Linden
 			</text>
-			<button label="Ajustar..." label_selected="Ajustar..." name="Set..."/>
+			<button label="Ajustar" name="Set..."/>
 			<check_box label="Permitir posse para o grupo" name="check deed" tool_tip="O gerente do grupo pode acionar essa terra ao grupo, então esta será mantida pelo gestor da ilha"/>
-			<button label="Passar..." label_selected="Passar..." name="Deed..." tool_tip="Você só pode delegar esta terra se você for um gerente selecionado pelo grupo."/>
+			<button label="Passar" name="Deed..." tool_tip="Você só pode delegar esta terra se você for um gerente selecionado pelo grupo."/>
 			<check_box label="Proprietário faz contribuição com delegação" name="check contrib" tool_tip="Quando a terra é delegada ao grupo, o proprietário anterior contribui alocando terra suficiente para mantê-la."/>
 			<text name="For Sale:">
 				À Venda:
@@ -97,7 +106,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 			<text name="For Sale: Price L$[PRICE].">
 				Preço: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
 			</text>
-			<button label="Vender Terra..." label_selected="Vender Terra..." name="Sell Land..."/>
+			<button label="Vender Terra" name="Sell Land..."/>
 			<text name="For sale to">
 				À venda para: [BUYER]
 			</text>
@@ -128,11 +137,11 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 			</text>
 			<button label="Comprar Terra..." label_selected="Comprar Terra..." left="130" name="Buy Land..." width="125"/>
 			<button label="Dados do script" name="Scripts..."/>
-			<button label="Comprar para o Grupo..." label_selected="Comprar para o Grupo..." name="Buy For Group..."/>
+			<button label="Comprar para o Grupo" name="Buy For Group..."/>
 			<button label="Comprar Passe..." label_selected="Comprar Passe..." left="130" name="Buy Pass..." tool_tip="Um passe concede a você acesso temporário a esta terra." width="125"/>
 			<button label="Abandonar Terra.." label_selected="Abandonar Terra.." name="Abandon Land..."/>
-			<button label="Reclamar Terra..." label_selected="Reclamar Terra..." name="Reclaim Land..."/>
-			<button label="Venda Linden..." label_selected="Venda Linden..." name="Linden Sale..." tool_tip="A terra precisa ser possuída, estar com o conteúdo configurado e não estar pronta para leilão."/>
+			<button label="Reclamar Terra" name="Reclaim Land..."/>
+			<button label="Venda Linden" name="Linden Sale..." tool_tip="A terra precisa ser possuída, estar com o conteúdo configurado e não estar pronta para leilão."/>
 		</panel>
 		<panel label="CONTRATO" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -233,7 +242,7 @@ ou sub-dividida.
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
-			<button label="Retornar..." label_selected="Retornar..." name="ReturnOwner..." right="-10" tool_tip="Retornar os objetos aos seus donos." width="119"/>
+			<button label="Retornar" name="ReturnOwner..." right="-10" tool_tip="Retornar os objetos aos seus donos." width="119"/>
 			<text left="14" name="Set to group:" width="180">
 				Configurados ao grupo:
 			</text>
@@ -241,7 +250,7 @@ ou sub-dividida.
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
-			<button label="Retornar..." label_selected="Retornar..." name="ReturnGroup..." right="-10" tool_tip="Retornar os objetos para seus donos." width="119"/>
+			<button label="Retornar" name="ReturnGroup..." right="-10" tool_tip="Retornar os objetos para seus donos." width="119"/>
 			<text left="14" name="Owned by others:" width="128">
 				Propriedade de Outros:
 			</text>
@@ -249,7 +258,7 @@ ou sub-dividida.
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
-			<button label="Retornar..." label_selected="Retornar..." name="ReturnOther..." right="-10" tool_tip="Retornar os objetos aos seus donos." width="119"/>
+			<button label="Retornar" name="ReturnOther..." right="-10" tool_tip="Retornar os objetos aos seus donos." width="119"/>
 			<text left="14" name="Selected / sat upon:" width="193">
 				Selecionado/Sentado:
 			</text>
@@ -309,17 +318,17 @@ Apenas lotes maiores podem ser listados na busca.
 			</text>
 			<check_box label="Editar Terreno" name="edit land check" tool_tip="Se ativado, qualquer um pode modificar a forma da sua terra. É melhor deixar esta opção desativada, uma vez que você sempre pode editar seu próprio terreno."/>
 			<check_box label="Voar" name="check fly" tool_tip="Se ativado, os Residentes podem voar na sua terra. Se desativado, eles podem voar apenas para dentro e por cima de sua terra."/>
-			<text left="172" name="allow_label2">
+			<text name="allow_label2">
 				Criar Objetos:
 			</text>
 			<check_box label="Residentes" name="edit objects check"/>
 			<check_box label="Grupo" name="edit group objects check"/>
-			<text left="172" name="allow_label3">
+			<text name="allow_label3">
 				Entrada do Objeto:
 			</text>
 			<check_box label="Residentes" name="all object entry check"/>
 			<check_box label="Grupo" name="group object entry check"/>
-			<text left="172" name="allow_label4">
+			<text name="allow_label4">
 				Executar Scripts:
 			</text>
 			<check_box label="Residentes" name="check other scripts"/>
@@ -425,6 +434,9 @@ Mídia:
 		<panel label="ACESSO" name="land_access_panel">
 			<panel.string name="access_estate_defined">
 				(Definições do terreno)
+			</panel.string>
+			<panel.string name="allow_public_access">
+				Acesso para público: [MATURITY]
 			</panel.string>
 			<panel.string name="estate_override">
 				Uma ou mais destas opções está definida no nível de propriedade.

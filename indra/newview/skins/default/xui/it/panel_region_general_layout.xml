@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Regione" name="General">
+	<text name="region_text_lbl">
+		Regione:
+	</text>
+	<text name="region_text">
+		sconosciuto
+	</text>
+	<text name="version_channel_text_lbl">
+		Versione:
+	</text>
+	<text name="version_channel_text">
+		sconosciuto
+	</text>
+	<text name="region_type_lbl">
+		Tipo:
+	</text>
+	<text name="region_type">
+		sconosciuto
+	</text>
+	<check_box label="Impedisci Terraform" name="block_terraform_check"/>
+	<check_box label="Impedisci volo" name="block_fly_check"/>
+	<check_box label="Permetti danni" name="allow_damage_check"/>
+	<check_box label="Limita spinte" name="restrict_pushobject"/>
+	<check_box label="Permetti la rivendita dei terreni" name="allow_land_resell_check"/>
+	<check_box label="Permetti l&apos;unione/divisione del terreno" name="allow_parcel_changes_check"/>
+	<check_box label="Impedisci la visualizzazione del terreno nelle ricerche" name="block_parcel_search_check" tool_tip="Permetti alla gente di vedere questa regione e i suoi lotti nei risultati dellla ricerca"/>
+	<spinner label="N. massimo di avatar" name="agent_limit_spin"/>
+	<spinner label="Bonus oggetto" name="object_bonus_spin"/>
+	<text label="Categoria di accesso" name="access_text">
+		Categoria:
+	</text>
+	<combo_box label="Moderato" name="access_combo">
+		<combo_box.item label="Adulto" name="Adult"/>
+		<combo_box.item label="Moderato" name="Mature"/>
+		<combo_box.item label="Generale" name="PG"/>
+	</combo_box>
+	<button label="Applica" name="apply_btn"/>
+	<button label="Teleport a casa un residente..." name="kick_btn"/>
+	<button label="Teleport a casa tutti i residenti..." name="kick_all_btn"/>
+	<button label="Invia messaggio alla regione..." name="im_btn"/>
+	<button label="Gestisci telehub..." name="manage_telehub_btn"/>
+</panel>

@@ -34,11 +34,11 @@
 			<text name="creation_date_label" value="Date de création :"/>
 			<text_editor name="creation_date" tool_tip="Date de création" value="[date]"/>
 			<text name="price_for_listing_label" value="Coût de l&apos;annonce :"/>
-			<text_editor name="price_for_listing" tool_tip="Coût de l&apos;annonce." value="[prix]"/>
+			<text_editor name="price_for_listing" tool_tip="Coût de l&apos;annonce." value="[price]"/>
 			<layout_stack name="descr_stack">
 				<layout_panel name="clickthrough_layout_panel">
 					<text name="click_through_label" value="Clics :"/>
-					<text_editor name="click_through_text" tool_tip="Parcourir les données en cliquant" value="[clics]"/>
+					<text_editor name="click_through_text" tool_tip="Parcourir les données en cliquant" value="[clicks]"/>
 				</layout_panel>
 				<layout_panel name="price_layout_panel">
 					<text name="auto_renew_label" value="Renouv. auto :"/>

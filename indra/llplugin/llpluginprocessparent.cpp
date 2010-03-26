@@ -98,15 +98,12 @@ void LLPluginProcessParent::errorState(void)
 		setState(STATE_ERROR);
 }
 
-void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug, const std::string &user_data_path, const std::string &language_code)
+void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_filename, bool debug)
 {	
 	mProcess.setExecutable(launcher_filename);
 	mPluginFile = plugin_filename;
 	mCPUUsage = 0.0f;
-	mDebug = debug;
-	mUserDataPath = user_data_path;
-	mLanguageCode = language_code;
-	
+	mDebug = debug;	
 	setState(STATE_INITIALIZED);
 }
 
@@ -363,8 +360,6 @@ void LLPluginProcessParent::idle(void)
 				{
 					LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_INTERNAL, "load_plugin");
 					message.setValue("file", mPluginFile);
-					message.setValue("user_data_path", mUserDataPath);
-					message.setValue("language_code", mLanguageCode);
 					sendMessage(message);
 				}
 

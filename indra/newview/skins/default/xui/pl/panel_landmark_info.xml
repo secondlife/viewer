@@ -18,6 +18,7 @@
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
+	<button name="back_btn" tool_tip="Cofnij"/>
 	<text name="title" value="Profil Miejsca"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">

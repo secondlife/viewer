@@ -2,9 +2,9 @@
 <floater name="modal container" title="">
 	<button label="Continua" label_selected="Continua" name="Continue"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
-	<check_box label="Accetto i Termini di Servizio" name="agree_chk"/>
+	<check_box label="Accetto i Termini del servizio e le Regole sulla privacy" name="agree_chk"/>
 	<text name="tos_heading">
-		Sei pregato di leggere attentamente i seguenti Termini del servizio. Per continuare l&apos;accesso a [SECOND_LIFE], devi accettare le condizioni.
+		Sei pregato di leggere attentamente i Termini del servizio e le Regole sulla privacy di seguito. Per continuare l&apos;accesso a [SECOND_LIFE], devi accettare le condizioni.
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

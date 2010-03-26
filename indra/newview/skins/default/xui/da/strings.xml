@@ -161,6 +161,7 @@
 		Klik for at starte secondlife:// kommando
 	</string>
 	<string name="CurrentURL" value=" Nuværende URL: [CurrentURL]"/>
+	<string name="TooltipPrice" value="L$[PRICE]-"/>
 	<string name="SLurlLabelTeleport">
 		Teleportér til
 	</string>
@@ -734,6 +735,9 @@
 	<string name="invalid">
 		ugyldig
 	</string>
+	<string name="NewWearable">
+		Ny [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		Næste
 	</string>
@@ -765,7 +769,7 @@
 		Teleport tilbud
 	</string>
 	<string name="StartUpNotifications">
-		%d nye beskeder modtaget mens du var væk......
+		Nye beskeder modtaget mens du var væk......
 	</string>
 	<string name="OverflowInfoChannelString">
 		Du har %d mere besked(er)
@@ -1431,6 +1435,9 @@
 	</string>
 	<string name="PanelContentsNewScript">
 		Nyt script
+	</string>
+	<string name="BusyModeResponseDefault">
+		Beboeren du sendte en besked er &apos;optaget&apos;, hvilket betyder at han/hun ikke vil forstyrres. Din besked vil blive vis i hans/hendes IM panel til senere visning.
 	</string>
 	<string name="MuteByName">
 		(efter navn)

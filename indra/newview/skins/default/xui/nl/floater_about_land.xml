@@ -26,14 +26,14 @@
 			<text name="OwnerText" left="102" width="242">
 				Leyla Linden
 			</text>
-			<button label="Profiel..." label_selected="Profiel..." name="Profile..."/>
+			<button label="Profiel" name="Profile..."/>
 			<text name="Group:">
 				Groep:
 			</text>
 			<text left="102" name="GroupText" width="242"/>
-			<button label="Instellen..." label_selected="Instellen..." name="Set..."/>
+			<button label="Instellen" name="Set..."/>
 			<check_box label="Overdracht aan groep toestaan" name="check deed" tool_tip="Een groepofficier kan dit land aan de groep overdragen, zodat het ondersteund wordt door de landallocatie van de groep."/>
-			<button label="Overdragen..." label_selected="Overdragen..." name="Deed..." tool_tip="U mag alleen land overdragen indien u een officier bent in de geselecteerde groep."/>
+			<button label="Overdragen" name="Deed..." tool_tip="U mag alleen land overdragen indien u een officier bent in de geselecteerde groep."/>
 			<check_box label="Eigenaar maakt bijdrage met overdracht" name="check contrib" tool_tip="Wanneer het land is overgedragen aan de groep, draagt de voormalig eigenaar voldoende landtoewijzing bij om het te ondersteunen."/>
 			<text name="For Sale:">
 				Te koop:
@@ -44,7 +44,7 @@
 			<text name="For Sale: Price L$[PRICE].">
 				Prijs: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
 			</text>
-			<button label="Verkoop land..." label_selected="Verkoop land..." name="Sell Land..."/>
+			<button label="Verkoop land" name="Sell Land..."/>
 			<text name="For sale to">
 				Te koop voor: [BUYER]
 			</text>
@@ -74,11 +74,11 @@
 				0
 			</text>
 			<button left="130" width="125" label="Koop land..." label_selected="Koop land..." name="Buy Land..."/>
-			<button label="Koop voor groep..." label_selected="Koop voor groep..." name="Buy For Group..."/>
+			<button label="Koop voor groep" name="Buy For Group..."/>
 			<button left="130" width="125" label="Koop toegangspas..." label_selected="Koop toegangspas..." name="Buy Pass..." tool_tip="Een toegangspas geeft u tijdelijk toegang tot dit land."/>
-			<button label="Land Afstaan..." label_selected="Land Afstaan..." name="Abandon Land..."/>
-			<button label="Land terugvorderen..." label_selected="Land terugvorderen..." name="Reclaim Land..."/>
-			<button label="Lindenverkoop..." label_selected="Lindenverkoop..." name="Linden Sale..." tool_tip="Land moet in bezit zijn, de inhoud moet ingesteld zijn en niet al ter veiling zijn aangeboden."/>
+			<button label="Land Afstaan" name="Abandon Land..."/>
+			<button label="Land terugvorderen" name="Reclaim Land..."/>
+			<button label="Lindenverkoop" name="Linden Sale..." tool_tip="Land moet in bezit zijn, de inhoud moet ingesteld zijn en niet al ter veiling zijn aangeboden."/>
 			<panel.string name="new users only">
 				Alleen nieuwe gebruikers
 			</panel.string>
@@ -224,7 +224,7 @@ of opgedeeld.
 				[COUNT]
 			</text>
 			<button label="Toon" label_selected="Toon" name="ShowOwner" right="-135" width="60"/>
-			<button label="Retourneren..." label_selected="Retourneren..." name="ReturnOwner..." tool_tip="Retourneer objecten naar hun eigenaren." right="-10" width="119"/>
+			<button label="Retourneren" name="ReturnOwner..." tool_tip="Retourneer objecten naar hun eigenaren." right="-10" width="119"/>
 			<text name="Set to group:" left="14"  width="180">
 				Groep toewijzen:
 			</text>
@@ -232,7 +232,7 @@ of opgedeeld.
 				[COUNT]
 			</text>
 			<button label="Toon" label_selected="Toon" name="ShowGroup" right="-135" width="60"/>
-			<button label="Retourneren..." label_selected="Retourneren..." name="ReturnGroup..." tool_tip="Retourneer objecten naar hun eigenaren." right="-10" width="119"/>
+			<button label="Retourneren" name="ReturnGroup..." tool_tip="Retourneer objecten naar hun eigenaren." right="-10" width="119"/>
 			<text name="Owned by others:" left="14" width="128">
 				Eigendom van anderen:
 			</text>
@@ -240,7 +240,7 @@ of opgedeeld.
 				[COUNT]
 			</text>
 			<button label="Toon" label_selected="Toon" name="ShowOther" right="-135" width="60"/>
-			<button label="Retourneren..." label_selected="Retourneren..." name="ReturnOther..." tool_tip="Retourneer objecten naar hun eigenaren." right="-10" width="119"/>
+			<button label="Retourneren" name="ReturnOther..." tool_tip="Retourneer objecten naar hun eigenaren." right="-10" width="119"/>
 			<text name="Selected / sat upon:" left="14" width="193">
 				Geselecteerd/Er op gezeten
 			</text>
@@ -256,7 +256,7 @@ of opgedeeld.
 				Objecteigenaren:
 			</text>
 			<button label="Ververs lijst" label_selected="Ververs lijst" name="Refresh List" bottom="-213"/>
-			<button label="Retourneer objecten..." label_selected="Retourneer objecten..." name="Return objects..." width="164" bottom="-213"/>
+			<button label="Retourneer objecten" name="Return objects..." width="164" bottom="-213"/>
 			<name_list name="owner list" height="104">
 				<column label="Type" name="type"/>
 				<column label="Naam" name="name"/>

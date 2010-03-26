@@ -4030,7 +4030,8 @@ LLBBox LLViewerObject::getBoundingBoxAgent() const
 		avatar_parent = (LLViewerObject*)root_edit->getParent();
 	}
 	
-	if (avatar_parent && avatar_parent->isAvatar() && root_edit && root_edit->mDrawable.notNull())
+	if (avatar_parent && avatar_parent->isAvatar() &&
+		root_edit && root_edit->mDrawable.notNull() && root_edit->mDrawable->getXform()->getParent())
 	{
 		LLXform* parent_xform = root_edit->mDrawable->getXform()->getParent();
 		position_agent = (getPositionEdit() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
