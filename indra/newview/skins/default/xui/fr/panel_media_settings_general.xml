@@ -8,7 +8,7 @@
 	</text>
 	<line_editor name="home_url" tool_tip="La page d&apos;accueil pour cette source média"/>
 	<text name="preview_label">
-		Prévisualiser
+		Aperçu
 	</text>
 	<text name="current_url_label">
 		Page actuelle :
@@ -20,7 +20,7 @@
 	<check_box initial_value="false" label="Zoom auto" name="auto_zoom"/>
 	<check_box initial_value="false" label="Lecture auto du média" name="auto_play"/>
 	<text name="media_setting_note">
-		Remarque : kes résidents peuvent ignorer ce paramètre
+		Remarque : les résidents peuvent ignorer ce paramètre
 	</text>
 	<check_box initial_value="false" label="Mise à l&apos;échelle auto du média sur la face de l&apos;objet" name="auto_scale"/>
 	<text name="size_label">

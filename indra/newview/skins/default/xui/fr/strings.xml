@@ -3492,7 +3492,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		pour charger
 	</string>
 	<string name="giving">
-		Donne [AMOUNT] L$
+		Donner [AMOUNT] L$
 	</string>
 	<string name="uploading_costs">
 		Le chargement coûte [AMOUNT] L$
