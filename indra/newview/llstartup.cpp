@@ -938,6 +938,9 @@ bool idle_startup()
 
 		// Load Avatars icons cache
 		LLAvatarIconIDCache::getInstance()->load();
+		
+		// Load media plugin cookies
+		LLViewerMedia::loadCookieFile();
 
 		//-------------------------------------------------
 		// Handle startup progress screen

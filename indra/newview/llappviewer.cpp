@@ -1526,6 +1526,8 @@ bool LLAppViewer::cleanup()
 	LLLocationHistory::getInstance()->save();
 
 	LLAvatarIconIDCache::getInstance()->save();
+	
+	LLViewerMedia::saveCookieFile();
 
 	llinfos << "Shutting down Threads" << llendflush;
 
