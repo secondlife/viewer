@@ -41,8 +41,8 @@ Verkleinern Sie Ihre Auswahl.
 		Das ausgewählte Land beinhaltet kein öffentliches Land.
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		Sie haben Land ausgewählt, das einem anderen Einwohner gehört. 
-Wählen Sie ein kleineres Gebiet aus.
+		Sie haben Land ausgewählt, das einer anderen Person gehört. 
+Verkleinern Sie Ihre Auswahl.
 	</floater.string>
 	<floater.string name="processing">
 		Kauf wird abgewickelt...
@@ -140,13 +140,13 @@ unterstützt [AMOUNT2] Objekte
 		(unbekannt)
 	</text>
 	<text name="estate_name_label">
-		Grundstück:
+		Grundbesitz:
 	</text>
 	<text left="680" left_delta="140" name="estate_name_text">
 		(unbekannt)
 	</text>
 	<text name="estate_owner_label" right="600" width="200">
-		Grundstückseigentümer:
+		Grundbesitzer:
 	</text>
 	<text left="680" left_delta="140" name="estate_owner_text">
 		(unbekannt)
@@ -161,7 +161,7 @@ unterstützt [AMOUNT2] Objekte
 		Darft oder darf nicht zusammengelegt/unterteilt werden.
 	</text>
 	<text left="410" name="covenant_text">
-		Sie müssen dem Grundstücksvertrag zustimmen:
+		Sie müssen dem Grundbesitzvertrag zustimmen:
 	</text>
 	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor left="470" name="covenant_editor">

@@ -1,22 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Give Money" title="">
-	<button label="L$1" label_selected="L$1" name="fastpay 1" />
-	<button label="L$5" label_selected="L$5" name="fastpay 5" />
-	<button label="L$10" label_selected="L$10" name="fastpay 10" />
-	<button label="L$20" label_selected="L$20" name="fastpay 20" />
-	<button label="Zapłać" label_selected="Zapłać" name="pay btn" />
-	<button label="Anuluj" label_selected="Anuluj" name="cancel btn" />
+	<string name="payee_group">
+		Zapłać Grupie
+	</string>
+	<string name="payee_resident">
+		Zapłać Rezydentowi
+	</string>
 	<text name="payee_label">
-		Zapłata dla:
+		Zapłać:
 	</text>
+	<icon name="icon_person" tool_tip="Osoba"/>
 	<text name="payee_name">
 		[FIRST] [LAST]
 	</text>
-	<text name="fastpay text" halign="left" left="12">
-		Szybka Zapłata:
-	</text>
+	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
+	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
+	<button label="L$10" label_selected="L$10" name="fastpay 10"/>
+	<button label="L$20" label_selected="L$20" name="fastpay 20"/>
 	<text name="amount text">
-		Suma:
+		lub wybierz kwotę:
 	</text>
-	<line_editor left="52" name="amount" />
+	<line_editor left="52" name="amount"/>
+	<button label="Zapłać" label_selected="Zapłać" name="pay btn"/>
+	<button label="Anuluj" label_selected="Anuluj" name="cancel btn"/>
 </floater>

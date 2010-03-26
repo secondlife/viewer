@@ -227,6 +227,10 @@ protected:
 											LLInventoryCategory* cat,
 											const LLUUID &im_session_id = LLUUID::null);
 
+	// log "Inventory item offered" to IM
+	static void logInventoryOffer(const LLUUID& to_agent, 
+									const LLUUID &im_session_id = LLUUID::null);
+
 public:
 	// helper functions
 	static BOOL isInventoryDropAcceptable(LLViewerObject* obj, LLInventoryItem* item) { return (ACCEPT_YES_COPY_SINGLE <= willObjectAcceptInventory(obj, item)); }

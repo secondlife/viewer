@@ -142,11 +142,12 @@ void LLNameListCtrl::showInspector(const LLUUID& avatar_id, bool is_group)
 
 void	LLNameListCtrl::mouseOverHighlightNthItem( S32 target_index )
 {
-	if (getHighlightedItemInx()!= target_index)
+	S32 cur_index = getHighlightedItemInx();
+	if (cur_index != target_index)
 	{
-		if(getHighlightedItemInx()!=-1)
+		if(0 <= cur_index && cur_index < (S32)getItemList().size())
 		{
-			LLScrollListItem* item = getItemList()[getHighlightedItemInx()];
+			LLScrollListItem* item = getItemList()[cur_index];
 			LLScrollListText* cell = dynamic_cast<LLScrollListText*>(item->getColumn(mNameColumnIndex));
 			if(cell)
 				cell->setTextWidth(cell->getTextWidth() + info_icon_size);

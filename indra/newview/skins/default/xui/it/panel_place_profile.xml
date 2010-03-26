@@ -6,7 +6,7 @@
 	<string name="available" value="disponibile"/>
 	<string name="allocated" value="assegnato"/>
 	<string name="title_place" value="Profilo del luogo"/>
-	<string name="title_teleport_history" value="Cronologia dei Teleport"/>
+	<string name="title_teleport_history" value="Cronologia Teleport"/>
 	<string name="not_available" value="(N\D)"/>
 	<string name="unknown" value="(sconosciuto)"/>
 	<string name="public" value="(publico)"/>
@@ -41,6 +41,7 @@
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
+	<button name="back_btn" tool_tip="Indietro"/>
 	<text name="title" value="Profilo del luogo"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
@@ -49,51 +50,58 @@
 			<accordion name="advanced_info_accordion">
 				<accordion_tab name="parcel_characteristics_tab" title="Parcel">
 					<panel name="parcel_characteristics_panel">
-						<text name="rating_label" value="Valutazione:"/>
+						<text name="rating_label" value="Categoria:"/>
 						<text name="rating_value" value="sconosciuto"/>
-						<text name="voice_label" value="Voice:"/>
-						<text name="voice_value" value="On"/>
+						<text name="voice_label" value="Voce:"/>
+						<text name="voice_value" value="Attivo"/>
 						<text name="fly_label" value="Vola:"/>
-						<text name="fly_value" value="On"/>
+						<text name="fly_value" value="Attivo"/>
 						<text name="push_label" value="Spingi:"/>
-						<text name="push_value" value="Off"/>
+						<text name="push_value" value="Disattivato"/>
 						<text name="build_label" value="Costruisci:"/>
-						<text name="build_value" value="On"/>
-						<text name="scripts_label" value="Scripts:"/>
-						<text name="scripts_value" value="On"/>
-						<text name="damage_label" value="Danno:"/>
-						<text name="damage_value" value="Off"/>
-						<button label="Info sul terreno" name="about_land_btn"/>
+						<text name="build_value" value="Attivo"/>
+						<text name="scripts_label" value="Script:"/>
+						<text name="scripts_value" value="Attivo"/>
+						<text name="damage_label" value="Danni:"/>
+						<text name="damage_value" value="Disattivato"/>
+						<button label="Informazioni sui terreni" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="Regione">
 					<panel name="region_information_panel">
 						<text name="region_name_label" value="Regione:"/>
-						<text name="region_type_label" value="Scrivi:"/>
-						<text name="region_rating_label" value="Valutazione:"/>
+						<text name="region_name" value="Mooseland"/>
+						<text name="region_type_label" value="Tipo:"/>
+						<text name="region_type" value="Moose"/>
+						<text name="region_rating_label" value="Categoria:"/>
+						<text name="region_rating" value="Adulti"/>
 						<text name="region_owner_label" value="Proprietario:"/>
+						<text name="region_owner" value="moose Van Moose"/>
 						<text name="region_group_label" value="Gruppo:"/>
-						<button label="Regione/Proprietà immobiliare" name="region_info_btn"/>
+						<text name="region_group">
+							The Mighty Moose of mooseville soundvillemoose
+						</text>
+						<button label="Regione/proprietà immobiliare" name="region_info_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="Proprietà immobiliare">
 					<panel name="estate_information_panel">
 						<text name="estate_name_label" value="Proprietà immobiliare:"/>
-						<text name="estate_rating_label" value="Valutazione:"/>
-						<text name="estate_owner_label" value="Proprietà:"/>
+						<text name="estate_rating_label" value="Categoria:"/>
+						<text name="estate_owner_label" value="Proprietario:"/>
 						<text name="covenant_label" value="Regolamento:"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="sales_tab" title="In vendita">
 					<panel name="sales_panel">
 						<text name="sales_price_label" value="Prezzo:"/>
-						<text name="area_label" value="Area:"/>
+						<text name="area_label" value="Zona:"/>
 						<text name="traffic_label" value="Traffico:"/>
 						<text name="primitives_label" value="Primitive:"/>
-						<text name="parcel_scripts_label" value="Scripts:"/>
-						<text name="terraform_limits_label" value="Limiti per Terraform:"/>
+						<text name="parcel_scripts_label" value="Script:"/>
+						<text name="terraform_limits_label" value="Limiti terraform:"/>
 						<text name="subdivide_label" value="Suddividi/Unisci abilità:"/>
-						<text name="resale_label" value="Rivendi abilità:"/>
+						<text name="resale_label" value="Abilità rivendita:"/>
 						<text name="sale_to_label" value="In vendita a:"/>
 					</panel>
 				</accordion_tab>

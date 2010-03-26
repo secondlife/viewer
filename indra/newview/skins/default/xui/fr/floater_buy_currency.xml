@@ -38,7 +38,7 @@ le Lindex...
 		Estimation en cours...
 	</text>
 	<text name="buy_action">
-		[NAME] L$ [PRICE]
+		[ACTION]
 	</text>
 	<text name="total_label">
 		Mon nouveau solde sera de
@@ -60,7 +60,7 @@ le Lindex...
 	</text>
 	<button label="Acheter" name="buy_btn"/>
 	<button label="Annuler" name="cancel_btn"/>
-	<text left="5" name="info_cannot_buy" width="200" right="-5">
+	<text left="5" name="info_cannot_buy" right="-5" width="200">
 		Achat impossible
 	</text>
 	<button label="Accéder au Web" name="error_web"/>

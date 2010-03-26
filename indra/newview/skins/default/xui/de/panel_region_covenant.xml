@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Vertrag" name="Covenant">
 	<text name="estate_section_lbl">
-		Grundstück
+		Grundbesitz
 	</text>
 	<text name="estate_name_lbl">
 		Name:
@@ -23,15 +23,15 @@
 	</text>
 	<button label="?" name="covenant_help"/>
 	<text_editor bottom="-247" height="162" name="covenant_editor">
-		Für dieses Grundstück fehlt der Vertrag.
+		Für diesen Grundbesitz fehlt der Vertrag.
 	</text_editor>
 	<button label="Zurücksetzen" name="reset_covenant"/>
 	<text name="covenant_help_text">
 		Änderungen am Vertrag werden für alle Parzellen auf dem 
-Grundstück übernommen.
+Grundbesitz übernommen.
 	</text>
 	<text bottom_delta="-36" name="covenant_instructions">
-		Ziehen Sie eine Notizkarte an diese Stelle, um den Vertrag für dieses Grundstück zu ändern.
+		Ziehen Sie eine Notizkarte an diese Stelle, um den Vertrag für diesen Grundbesitz zu ändern.
 	</text>
 	<text bottom_delta="-36" name="region_section_lbl">
 		Region

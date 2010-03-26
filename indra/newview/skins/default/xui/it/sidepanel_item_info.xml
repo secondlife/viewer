@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="Caratteristiche dell&apos;articolo nell&apos;Inventario">
+<panel name="item properties" title="Caratteristiche dell&apos;articolo in inventario">
 	<panel.string name="unknown">
-		(Sconosciuto)
+		(sconosciuto)
 	</panel.string>
 	<panel.string name="public">
 		(pubblico)
@@ -10,7 +10,7 @@
 		Tu puoi:
 	</panel.string>
 	<panel.string name="owner_can">
-		Il Proprietario può:
+		Il proprietario può:
 	</panel.string>
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
@@ -24,7 +24,7 @@
 			Descrizione:
 		</text>
 		<text name="LabelCreatorTitle">
-			Creatore:
+			Ideatore:
 		</text>
 		<button label="Profilo..." name="BtnCreator"/>
 		<text name="LabelOwnerTitle">
@@ -35,7 +35,7 @@
 			Acquisito:
 		</text>
 		<text name="LabelAcquiredDate">
-			Wed May 24 12:50:46 2006
+			mer 24 maggio 12:50:46 2006
 		</text>
 		<text name="OwnerLabel">
 			Tu:
@@ -52,7 +52,7 @@
 		</text>
 		<check_box label="Condividi" name="CheckShareWithGroup"/>
 		<text name="NextOwnerLabel">
-			Prossimo Proprietario:
+			Proprietario successivo:
 		</text>
 		<check_box label="Modifica" name="CheckNextOwnerModify"/>
 		<check_box label="Copia" name="CheckNextOwnerCopy"/>

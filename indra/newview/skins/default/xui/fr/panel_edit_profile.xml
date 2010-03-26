@@ -40,7 +40,7 @@
 					Page d&apos;accueil :
 				</text>
 				<line_editor name="homepage_edit" value="http://"/>
-				<check_box label="Afficher dans les résultats de recherche" name="show_in_search_checkbox"/>
+				<check_box label="Afficher avec la recherche" name="show_in_search_checkbox"/>
 				<text name="title_acc_status_text" value="Mon compte :"/>
 				<text_editor name="acc_status_text" value="Résident. Aucune info de paiement enregistrée."/>
 				<text name="my_account_link" value="[[URL] Accéder à ma Page d&apos;accueil]"/>

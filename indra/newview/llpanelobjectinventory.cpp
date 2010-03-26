@@ -609,7 +609,9 @@ void LLTaskInvFVBridge::performAction(LLFolderView* folder, LLInventoryModel* mo
 		{
 			if (price > 0 && price > gStatusBar->getBalance())
 			{
-				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_costs"), price);
+				LLStringUtil::format_map_t args;
+				args["AMOUNT"] = llformat("%d", price);
+				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_costs", args), price);
 			}
 			else
 			{
@@ -1188,7 +1190,8 @@ public:
 	LLTaskObjectBridge(
 		LLPanelObjectInventory* panel,
 		const LLUUID& uuid,
-		const std::string& name);
+		const std::string& name,
+		U32 flags = 0);
 
 	virtual LLUIImagePtr getIcon() const;
 };
@@ -1196,8 +1199,9 @@ public:
 LLTaskObjectBridge::LLTaskObjectBridge(
 	LLPanelObjectInventory* panel,
 	const LLUUID& uuid,
-	const std::string& name) :
-	LLTaskInvFVBridge(panel, uuid, name)
+	const std::string& name,
+	U32 flags) :
+	LLTaskInvFVBridge(panel, uuid, name, flags)
 {
 }
 
@@ -1442,9 +1446,15 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 		//									   object->getName());
 		break;
 	case LLAssetType::AT_OBJECT:
+		{
+		item = dynamic_cast<LLInventoryItem*>(object);
+		U32 flags = ( NULL == item ? 0 : item->getFlags() );
+
 		new_bridge = new LLTaskObjectBridge(panel,
 											object->getUUID(),
-											object->getName());
+											object->getName(),
+											flags);
+		}
 		break;
 	case LLAssetType::AT_NOTECARD:
 		new_bridge = new LLTaskNotecardBridge(panel,
@@ -1578,7 +1588,7 @@ void LLPanelObjectInventory::reset()
 	p.title = "task inventory";
 	p.task_id = getTaskUUID();
 	p.parent_panel = this;
-	p.tool_tip= p.name;
+	p.tool_tip= LLTrans::getString("PanelContentsTooltip");
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
 	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);

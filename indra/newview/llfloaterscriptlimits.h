@@ -153,10 +153,7 @@ public:
 		mParcelMemoryMax(0),
 		mParcelMemoryUsed(0) {};
 
-	~LLPanelScriptLimitsRegionMemory()
-	{
-		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
-	};
+	~LLPanelScriptLimitsRegionMemory();
 	
 	// LLPanel
 	virtual BOOL postBuild();

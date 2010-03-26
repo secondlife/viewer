@@ -171,6 +171,12 @@ public:
 	 */	
 	static void csr(const LLUUID& id, std::string name);
 
+	/**
+	 * Checks whether can offer teleport to the avatar
+	 * Can't offer only for offline friends
+	 */
+	static bool canOfferTeleport(const LLUUID& id);
+
 	
 private:
 	static bool callbackAddFriend(const LLSD& notification, const LLSD& response);

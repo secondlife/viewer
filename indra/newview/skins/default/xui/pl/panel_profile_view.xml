@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_target_profile">
+	<string name="status_online">
+		Obecnie w SL
+	</string>
+	<string name="status_offline">
+		Nieaktywny
+	</string>
+	<text_editor name="user_name" value="(Ładowanie...)"/>
+	<text name="status" value="Obecnie w SL"/>
+	<tab_container name="tabs">
+		<panel label="PROFIL" name="panel_profile"/>
+		<panel label="ULUBIONE" name="panel_picks"/>
+		<panel label="NOTATKI &amp; PRYWATNOŚĆ" name="panel_notes"/>
+	</tab_container>
+</panel>

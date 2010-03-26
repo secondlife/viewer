@@ -117,6 +117,7 @@
                layout="topleft"
                left="107"
                textbox.max_length="512"
+               textbox.show_context_menu="true"
                name="sl_description_edit"
                top_pad="-3"
                translate="false"
@@ -171,6 +172,7 @@
                layout="topleft"
                left="107"
                textbox.max_length="512"
+               textbox.show_context_menu="true"
                name="fl_description_edit"
                top_pad="-3"
                translate="false"
@@ -311,6 +313,7 @@
             name="sl_groups"
           top_pad="0"
             translate="false"
+            textbox.show_context_menu="true"
             width="298"
             expanded_bg_visible="true"
             expanded_bg_color="DkGray">

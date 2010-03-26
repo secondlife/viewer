@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="ASPETTO" width="551">
 	<tab_container name="customize tab container" tab_min_width="120" width="549">
-		<placeholder label="Parti del corpo" name="body_parts_placeholder"/>
+		<text label="Parti del corpo" name="body_parts_placeholder">
+			Parti del corpo
+		</text>
 		<panel label="Forma del corpo" left="124" name="Shape" width="389">
 			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 			<button label="Corpo" label_selected="Corpo" name="Body"/>
@@ -14,8 +16,8 @@
 			<button label="Torso" label_selected="Torso" name="Torso"/>
 			<button label="Gambe" label_selected="Gambe" name="Legs"/>
 			<radio_group name="sex radio">
-				<radio_item label="Femmina" name="radio"/>
-				<radio_item label="Maschio" name="radio2"/>
+				<radio_item label="Femmina" name="radio" value="0"/>
+				<radio_item label="Maschio" name="radio2" value="1"/>
 			</radio_group>
 			<text name="title">
 				[DESC]
@@ -33,8 +35,7 @@
 				Ubicato in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa una nuova Forma del Corpo trascinandone una dall&apos;inventario
-sul tuo avatar. In alternativa, puoi crearne una nuova ed indossarla.
+				Metti una nuova figura corporea trascinandola dal tuo inventario sul tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
@@ -67,8 +68,7 @@ sul tuo avatar. In alternativa, puoi crearne una nuova ed indossarla.
 				Ubicata in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa una nuova pelle trascinandola dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne una nuova da zero ed indossarla.
+				Per mettere una nuova pelle, trascinala dal tuo inventario sul tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
@@ -105,8 +105,7 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 				Ubicati in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa dei nuovi capelli trascinandoli dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne di nuovi da zero ed indossarli.
+				Per cambiare capelli, trascinali dal tuo inventario sul tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
 			<text name="no modify instructions">
 				Non hai il permesso per modificare questo indumento.
@@ -137,8 +136,7 @@ In alternativa, puoi crearne di nuovi da zero ed indossarli.
 				Ubicati in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa dei nuovi occhi trascinandoli dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne di nuovi da zero ed indossarli.
+				Puoi cambiare gli occhi trascinandoli dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
@@ -152,12 +150,14 @@ In alternativa, puoi crearne di nuovi da zero ed indossarli.
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
 			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
 		</panel>
-		<placeholder label="Vestiti" name="clothes_placeholder"/>
+		<text label="Vestiti" name="clothes_placeholder">
+			Abiti
+		</text>
 		<panel label="Camicia" name="Shirt">
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<button label="Crea una nuova camicia" label_selected="Crea una nuova camicia" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
+			<button label="Crea una nuova camicia" label_selected="Crea una nuova camicia" name="Create New"/>
 			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
 			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
@@ -177,8 +177,7 @@ In alternativa, puoi crearne di nuovi da zero ed indossarli.
 				Ubicata in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa una nuova maglietta trascinandola dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne una nuova da zero ed indossarla.
+				Metti una nuova camicia trascinandola dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
@@ -190,8 +189,8 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 		<panel label="Pantaloni" name="Pants">
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<button label="Crea nuovi pantaloni" label_selected="Crea nuovi pantaloni" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
+			<button label="Crea nuovi pantaloni" label_selected="Crea nuovi pantaloni" name="Create New"/>
 			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
 			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
@@ -211,8 +210,7 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 				Ubicati in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa dei nuovi pantaloni trascinandoli dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
+				Metti dei nuovi pantaloni trascinandoli dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
@@ -238,9 +236,9 @@ In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
 				Ubicate in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa delle nuove scarpe trascinandole dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
+				Metti delle nuove scarpe trascinandole dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
+			<button label="Crea nuove scarpe" label_selected="Crea nuove scarpe" name="Create New"/>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
 			</text>
@@ -249,7 +247,6 @@ In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<button label="Crea nuove scarpe" label_selected="Crea nuove scarpe" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
 			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
@@ -272,9 +269,9 @@ In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
 				Ubicato in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa delle nuove calze trascinandole dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
+				Metti delle nuove calze trascinandole dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
+			<button label="Crea nuove calze" label_selected="Crea nuove calze" name="Create New"/>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
 			</text>
@@ -283,7 +280,6 @@ In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<button label="Crea nuove calze" label_selected="Crea nuove calze" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
 			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
@@ -306,9 +302,9 @@ In alternativa, puoi crearne uno paio nuovo da zero ed indossarlo.
 				Ubicata in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa una nuova giacca trascinandola dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne una nuova da zero ed indossarla.
+				Metti una nuova giacca trascinandola dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
+			<button label="Crea una nuova giacca" label_selected="Crea una nuova giacca" name="Create New"/>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
 			</text>
@@ -318,7 +314,6 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 			<texture_picker label="Tessuto: superiore" name="Upper Fabric" tool_tip="Clicca per scegliere un&apos;immagine" width="96"/>
 			<texture_picker label="Tessuto: inferiore" name="Lower Fabric" tool_tip="Clicca per scegliere un&apos;immagine" width="96"/>
 			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<button label="Crea una nuova giacca" label_selected="Crea una nuova giacca" name="Create New"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
 			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
@@ -341,9 +336,9 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 				Ubicati in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa dei nuovi guanti trascinandoli dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne un paio nuovo da zero ed indossarlo.
+				Metti dei nuovi guanti trascinandoli dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
+			<button label="Crea nuovi guanti" label_selected="Crea nuovi guanti" name="Create New"/>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
 			</text>
@@ -352,7 +347,6 @@ In alternativa, puoi crearne un paio nuovo da zero ed indossarlo.
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<button label="Crea nuovi guanti" label_selected="Crea nuovi guanti" name="Create New"/>
 			<button font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off" width="115"/>
 			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
@@ -375,9 +369,9 @@ In alternativa, puoi crearne un paio nuovo da zero ed indossarlo.
 				Ubicata in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa una nuova canottiera trascinandola dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne una nuovo da zero ed indossarla.
+				Metti una nuova maglietta intima trascinandola dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
+			<button label="Crea una nuova canottiera" label_selected="Crea una nuova canottiera" name="Create New"/>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
 			</text>
@@ -386,7 +380,6 @@ In alternativa, puoi crearne una nuovo da zero ed indossarla.
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<button label="Crea una nuova canottiera" label_selected="Crea una nuova canottiera" name="Create New"/>
 			<button font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off" width="115"/>
 			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
@@ -409,9 +402,9 @@ In alternativa, puoi crearne una nuovo da zero ed indossarla.
 				Ubicato in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa delle nuove mutande trascinandole dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne una paio nuovo da zero ed indossarlo.
+				Metti dei nuovi slip trascinandoli dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
+			<button label="Crea nuove mutande" label_selected="Crea nuove mutande" name="Create New"/>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
 			</text>
@@ -420,7 +413,6 @@ In alternativa, puoi crearne una paio nuovo da zero ed indossarlo.
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<button label="Crea nuove mutande" label_selected="Crea nuove mutande" name="Create New"/>
 			<button font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off" width="115"/>
 			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
@@ -443,9 +435,9 @@ In alternativa, puoi crearne una paio nuovo da zero ed indossarlo.
 				Ubicata in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Indossa una nuova gonna trascinandola dall&apos;inventario al tuo avatar.
-In alternativa, puoi crearne una nuova da zero ed indossarla.
+				Metti una nuova gonna trascinandola dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
+			<button label="Crea una nuova gonna" label_selected="Crea una nuova gonna" name="Create New"/>
 			<text name="no modify instructions">
 				Non hai il permesso di modificare questo indumento.
 			</text>
@@ -454,48 +446,10 @@ In alternativa, puoi crearne una nuova da zero ed indossarla.
 			</text>
 			<texture_picker label="Tessuto" name="Fabric" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<color_swatch label="Colore/Tinta" name="Color/Tint" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<button label="Crea una nuova gonna" label_selected="Crea una nuova gonna" name="Create New"/>
 			<button font="SansSerifSmall" label="Rimuovi l&apos;indumento" label_selected="Rimuovi l&apos;indumento" name="Take Off" width="115"/>
 			<button label="Salva" label_selected="Salva" left="95" name="Save" width="72"/>
 			<button label="Salva come..." label_selected="Salva come..." left="171" name="Save As"/>
 			<button font="SansSerifSmall" label="Annulla le modifiche" label_selected="Annulla le modifiche" left="267" name="Revert" width="120"/>
-		</panel>
-		<panel label="Alpha" name="Alpha">
-			<text name="title">
-				[DESC]
-			</text>
-			<text name="title_no_modify">
-				[DESC]: non può essere modificato
-			</text>
-			<text name="title_loading">
-				[DESC]: caricando...
-			</text>
-			<text name="title_not_worn">
-				[DESC]: non indossato
-			</text>
-			<text name="path">
-				Collocato in [PATH]
-			</text>
-			<text name="not worn instructions">
-				Metti una nuova alpha mask trascinandone una dall&apos;inventario del tuo avatar.
-In alternativa, creane una nuova partendo da zero e indossala.
-			</text>
-			<text name="no modify instructions">
-				Non hai i permessi per modificare questa vestibilità.
-			</text>
-			<text name="Item Action Label">
-				Alpha:
-			</text>
-			<texture_picker label="Alpha inferiore" name="Lower Alpha" tool_tip="Clicca per scegliere una fotografia"/>
-			<texture_picker label="Alpha superiore" name="Upper Alpha" tool_tip="Clicca per scegliere una foto"/>
-			<texture_picker label="Alpha della testa" name="Head Alpha" tool_tip="Clicca per scegliere una fotografia"/>
-			<texture_picker label="Alpha dell&apos;occhio" name="Eye Alpha" tool_tip="Clicca per scegliere una fotografia"/>
-			<texture_picker label="Alpha dei capelli" name="Hair Alpha" tool_tip="Clicca per scegiere una fotografia"/>
-			<button label="Crea nuova alpha" label_selected="Crea nuova alpha" name="Create New"/>
-			<button label="Togli" label_selected="Togli" name="Take Off"/>
-			<button label="Salva" label_selected="Salva" name="Save"/>
-			<button label="Salva con nome..." label_selected="Salva con nome..." name="Save As"/>
-			<button label="Ripristina" label_selected="Ripristina" name="Revert"/>
 		</panel>
 		<panel label="Tatuaggio" name="Tattoo">
 			<text name="title">
@@ -514,9 +468,9 @@ In alternativa, creane una nuova partendo da zero e indossala.
 				Collocato in [PATH]
 			</text>
 			<text name="not worn instructions">
-				Metti un nuovo tatuaggio trascinandone uno dall&apos;inventario del tuo avatar.
-In alternativa, creane uno nuovo partendo da zero e indossalo.
+				Metti un nuovo tatuaggio trascinandolo dal tuo inventario al avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
+			<button label="Crea Nuovo tatuaggio" label_selected="Crea un nuovo tatuaggio" name="Create New"/>
 			<text name="no modify instructions">
 				Non hai i permessi per moficare questa vestibilità.
 			</text>
@@ -526,7 +480,42 @@ In alternativa, creane uno nuovo partendo da zero e indossalo.
 			<texture_picker label="Tatuaggio della testa" name="Head Tattoo" tool_tip="Clicca per scegliere una foto"/>
 			<texture_picker label="Tatuaggio superiore" name="Upper Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
 			<texture_picker label="Tatuaggio inferiore" name="Lower Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
-			<button label="Crea Nuovo tatuaggio" label_selected="Crea un nuovo tatuaggio" name="Create New"/>
+			<button label="Togli" label_selected="Togli" name="Take Off"/>
+			<button label="Salva" label_selected="Salva" name="Save"/>
+			<button label="Salva con nome..." label_selected="Salva con nome..." name="Save As"/>
+			<button label="Ripristina" label_selected="Ripristina" name="Revert"/>
+		</panel>
+		<panel label="Alpha" name="Alpha">
+			<text name="title">
+				[DESC]
+			</text>
+			<text name="title_no_modify">
+				[DESC]: non può essere modificato
+			</text>
+			<text name="title_loading">
+				[DESC]: caricando...
+			</text>
+			<text name="title_not_worn">
+				[DESC]: non indossato
+			</text>
+			<text name="path">
+				Collocato in [PATH]
+			</text>
+			<text name="not worn instructions">
+				Metti una nuova alpha mask trascinandola dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
+			</text>
+			<button label="Crea nuova alpha" label_selected="Crea nuova alpha" name="Create New"/>
+			<text name="no modify instructions">
+				Non hai i permessi per modificare questa vestibilità.
+			</text>
+			<text name="Item Action Label">
+				Alpha:
+			</text>
+			<texture_picker label="Alpha inferiore" name="Lower Alpha" tool_tip="Clicca per scegliere una fotografia"/>
+			<texture_picker label="Alpha superiore" name="Upper Alpha" tool_tip="Clicca per scegliere una foto"/>
+			<texture_picker label="Alpha della testa" name="Head Alpha" tool_tip="Clicca per scegliere una fotografia"/>
+			<texture_picker label="Alpha dell&apos;occhio" name="Eye Alpha" tool_tip="Clicca per scegliere una fotografia"/>
+			<texture_picker label="Alpha dei capelli" name="Hair Alpha" tool_tip="Clicca per scegiere una fotografia"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
 			<button label="Salva" label_selected="Salva" name="Save"/>
 			<button label="Salva con nome..." label_selected="Salva con nome..." name="Save As"/>
@@ -534,6 +523,7 @@ In alternativa, creane uno nuovo partendo da zero e indossalo.
 		</panel>
 	</tab_container>
 	<scroll_container left="254" name="panel_container"/>
+	<button label="Informazioni script" label_selected="Informazioni script" name="script_info" tool_tip="Mostra gli script collegati al tuo avatar"/>
 	<button label="Crea vestiario" label_selected="Crea vestiario" name="make_outfit_btn"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

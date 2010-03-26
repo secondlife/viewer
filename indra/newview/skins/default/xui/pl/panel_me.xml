@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Mój Profil" name="panel_me">
+	<tab_container name="tabs">
+		<panel label="PROFIL" name="panel_profile"/>
+		<panel label="ULUBIONE" name="panel_picks"/>
+	</tab_container>
+</panel>

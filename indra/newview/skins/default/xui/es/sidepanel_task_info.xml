@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="object properties" title="Perfil del objeto">
 	<panel.string name="text deed continued">
-		Transfeir
+		Transferir
 	</panel.string>
 	<panel.string name="text deed">
-		Transfeir
+		Transferir
 	</panel.string>
 	<panel.string name="text modify info 1">
 		Puedes modificar este objeto
@@ -38,16 +38,41 @@
 	</panel.string>
 	<text name="title" value="Perfil del objeto"/>
 	<text name="where" value="(en el mundo)"/>
-	<panel label="">
+	<panel label="" name="properties_panel">
+		<text name="Name:">
+			Nombre:
+		</text>
+		<text name="Description:">
+			Descripción:
+		</text>
 		<text name="CreatorNameLabel">
 			Creador:
 		</text>
 		<text name="Creator Name">
 			Erica Linden
 		</text>
+		<text name="Owner:">
+			Propietario:
+		</text>
+		<text name="Owner Name">
+			Erica Linden
+		</text>
 		<text name="Group_label">
 			Grupo:
 		</text>
+		<button name="button set group" tool_tip="Elige un grupo con el que compartir los permisos de este objeto"/>
+		<name_box initial_value="Cargando..." name="Group Name Proxy"/>
+		<button label="Transferir" label_selected="Transferir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
+		<text name="label click action">
+			Pulsa para:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Tocarlo (por defecto)" name="Touch/grab(default)"/>
+			<combo_box.item label="Sentarme en el objeto" name="Sitonobject"/>
+			<combo_box.item label="Comprar el objeto" name="Buyobject"/>
+			<combo_box.item label="Pagar el objeto" name="Payobject"/>
+			<combo_box.item label="Abrir" name="Open"/>
+		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">
 				Puedes modificar este objeto
@@ -55,20 +80,27 @@
 			<text name="Anyone can:">
 				Cualquiera:
 			</text>
-			<check_box label="Copiarlo" name="checkbox allow everyone copy"/>
-			<check_box label="Moverlo" name="checkbox allow everyone move"/>
+			<check_box label="Copiar" name="checkbox allow everyone copy"/>
+			<check_box label="Mover" name="checkbox allow everyone move"/>
 			<text name="GroupLabel">
 				Grupo:
 			</text>
-			<check_box label="Compartir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
+			<check_box label="Compartir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación de este objeto. Debes transferirlo para activar las restricciones según los roles."/>
 			<text name="NextOwnerLabel">
 				Próximo propietario:
 			</text>
-			<check_box label="Modificarlo" name="checkbox next owner can modify"/>
-			<check_box label="Copiarlo" name="checkbox next owner can copy"/>
-			<check_box label="Transferirlo" name="checkbox next owner can transfer" tool_tip="El próximo propietario puede dar o revender este objeto"/>
+			<check_box label="Modificar" name="checkbox next owner can modify"/>
+			<check_box label="Copiar" name="checkbox next owner can copy"/>
+			<check_box label="Transferir" name="checkbox next owner can transfer" tool_tip="El próximo propietario puede dar o revender este objeto"/>
 		</panel>
 		<check_box label="En venta" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Copiar" name="Copy"/>
+			<combo_box.item label="Contenidos" name="Contents"/>
+			<combo_box.item label="Original" name="Original"/>
+		</combo_box>
+		<spinner label="Precio: L$" name="Edit Cost"/>
+		<check_box label="Mostrar en la búsqueda" name="search_check" tool_tip="Permitir que la gente vea este objeto en los resultados de la búsqueda"/>
 		<text name="B:">
 			B:
 		</text>
@@ -92,5 +124,6 @@
 		<button label="Abrir" name="open_btn"/>
 		<button label="Pagar" name="pay_btn"/>
 		<button label="Comprar" name="buy_btn"/>
+		<button label="Detalles" name="details_btn"/>
 	</panel>
 </panel>

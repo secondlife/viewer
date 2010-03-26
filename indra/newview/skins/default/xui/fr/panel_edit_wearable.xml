@@ -34,10 +34,10 @@
 		Modification des gants
 	</string>
 	<string name="edit_undershirt_title">
-		Modification des sous-vêtements (homme)
+		Modification du débardeur
 	</string>
 	<string name="edit_underpants_title">
-		Modification des sous-vêtements (femme)
+		Modification du caleçon
 	</string>
 	<string name="edit_alpha_title">
 		Modification du masque alpha
@@ -79,10 +79,10 @@
 		Gants :
 	</string>
 	<string name="undershirt_desc_text">
-		Sous-vêtements (homme) :
+		Débardeur :
 	</string>
 	<string name="underpants_desc_text">
-		Sous-vêtements (femme) :
+		Caleçon :
 	</string>
 	<string name="alpha_desc_text">
 		Masque alpha :

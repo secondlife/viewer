@@ -247,6 +247,7 @@ with the same filename but different name
   <texture name="Inv_Landmark" file_name="icons/Inv_Landmark.png" preload="false" />
   <texture name="Inv_Notecard" file_name="icons/Inv_Notecard.png" preload="false" />
   <texture name="Inv_Object" file_name="icons/Inv_Object.png" preload="false" />
+  <texture name="Inv_Object_Multi" file_name="icons/Inv_Object_Multi.png" preload="false" />
   <texture name="Inv_Pants" file_name="icons/Inv_Pants.png" preload="false" />
   <texture name="Inv_Script" file_name="icons/Inv_Script.png" preload="false" />
   <texture name="Inv_Shirt" file_name="icons/Inv_Shirt.png" preload="false" />

@@ -11,18 +11,29 @@
 	</global>
 	<template name="okbutton">
 		<form>
-			<button name="OK" text="$yestext"/>
+			<button name="OK_okbutton" text="$yestext"/>
 		</form>
 	</template>
-	<template name="okignore"/>
+	<template name="okignore">
+		<form>
+			<button name="OK_okignore" text="$yestext"/>
+		</form>
+	</template>
 	<template name="okcancelbuttons">
 		<form>
-			<button name="Cancel" text="$notext"/>
+			<button name="OK_okcancelbuttons" text="$yestext"/>
+			<button name="Cancel_okcancelbuttons" text="$notext"/>
 		</form>
 	</template>
-	<template name="okcancelignore"/>
+	<template name="okcancelignore">
+		<form>
+			<button name="OK_okcancelignore" text="$yestext"/>
+			<button name="Cancel_okcancelignore" text="$notext"/>
+		</form>
+	</template>
 	<template name="okhelpbuttons">
 		<form>
+			<button name="OK_okhelpbuttons" text="$yestext"/>
 			<button name="Help" text="$helptext"/>
 		</form>
 	</template>
@@ -30,6 +41,7 @@
 		<form>
 			<button name="Yes" text="$yestext"/>
 			<button name="No" text="$notext"/>
+			<button name="Cancel_yesnocancelbuttons" text="$canceltext"/>
 		</form>
 	</template>
 	<notification functor="GenericAcknowledge" label="Messaggio di Notifica Sconosciuto" name="MissingAlert">
@@ -93,14 +105,18 @@ Scegli solo un oggetto e riprova.
 		Salva tutte le modifiche alle parti del corpo/abiti?
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Non Salvare" yestext="Salva Tutto"/>
 	</notification>
+	<notification name="FriendsAndGroupsOnly">
+		Chi non è tuo amico non saprà che hai scelto di ignorare le loro chiamate e IM.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
-		Dare i diritti di modifica ad un altro residente gli consente di cambiare, cancellare o prendere QUALUNQUE oggetto che hai in [SECOND_LIFE]. Fai MOLTA attenzione quando concedi questo permesso.
-Vuoi davvero dare i diritti di modifica a [FIRST_NAME] [LAST_NAME]?
+		Quando concedi i diritti di modifica ad un altro residente, gli permetti di modificare, eliminare o prendere QUALSIASI oggetto che possiedi in Second Life. Pertanto ti consigliamo di essere ben sicuro quando concedi questo diritto.
+Vuoi concedere i diritti di modifica a [FIRST_NAME] [LAST_NAME]?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="GrantModifyRightsMultiple">
-		Dare i diritti di modifica ad un altro residente gli consente di cambiare QUALUNQUE oggetto che hai in [SECOND_LIFE]. Fai MOLTA attenzione quando concedi questo permesso.
-Vuoi davvero dare i diritti di modifica ai residenti selezionati?
+		Quando concedi i diritti di modifica ad un altro residente, gli permetti di modificare QUALSIASI oggetto che possiedi in Second Life. Pertanto ti consigliamo di essere ben sicuro quando concedi questo diritto.
+Vuoi concedere i diritti di modifica ai residenti selezionati?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="RevokeModifyRights">
@@ -150,12 +166,19 @@ Aggiungi questo potere a &apos;[ROLE_NAME]&apos;?
 Aggiungi questo potere a &apos;[ROLE_NAME]&apos;?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
 	</notification>
-	<notification name="ClickUnimplemented">
-		Mi dispiace, non è ancora stato implementato.
+	<notification name="AttachmentDrop">
+		Stai per abbandonare il tuo accessorio.
+    Vuoi continuare?
+		<usetemplate ignoretext="Conferma prima di distaccare gli accessori" name="okcancelignore" notext="No" yestext="Sì"/>
 	</notification>
 	<notification name="JoinGroupCanAfford">
 		Iscriversi a questo gruppo costa [COST]L$.
 Vuoi proseguire?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Iscriviti"/>
+	</notification>
+	<notification name="JoinGroupNoCost">
+		Aderisci al gruppo [NAME].
+Continuare?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Iscriviti"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
@@ -324,6 +347,10 @@ Sei sicuro di voler continuare?
 		Salva le modifiche all&apos;annuncio [NAME]?
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Non salvare" yestext="Salva"/>
 	</notification>
+	<notification name="ClassifiedInsufficientFunds">
+		Denaro insufficiente per creare un&apos;inserzione.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="DeleteAvatarPick">
 		Cancella il favorito [PICK]?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
@@ -340,14 +367,6 @@ Sei sicuro di voler continuare?
 	</notification>
 	<notification name="SelectHistoryItemToView">
 		Scegli un item storico da vedere.
-	</notification>
-	<notification name="ResetShowNextTimeDialogs">
-		Vuoi riabilitare tutti le finestre di popup, che precedentemente hai indicato che &apos;Non vuoi vedere più&apos;?
-		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
-	</notification>
-	<notification name="SkipShowNextTimeDialogs">
-		Vuoi disabilitare tutti i popup che possono essere ignorati?
-		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
 		La Cache verrà cancellata dopo la ripartenza di  [APP_NAME].
@@ -424,18 +443,17 @@ L&apos;oggetto potrebbe essere troppo lontano oppure essere stato cancellato.
 		Non è stato possibile scrivere il file [[FILE]]
 	</notification>
 	<notification name="UnsupportedHardware">
-		Attenzione: Il tuo sistema non soddisfa i requisiti minimi per il funzionamento [APP_NAME]. Se continui ad usare [APP_NAME], potresti osservare una lentezza eccessiva. Sfortunatamente non possiamo fornire supporto tecnico per configurazioni di sistema non supportate.
+		Ti informiamo che il tuo computer non dispone dei requisiti minimi di sistema per [APP_NAME]. Il funzionamento può pertanto risultare ridotto. Purtroppo la pagina [SUPPORT_SITE] non può fornire assistenza tecnica in caso di problemi dovuti a configurazioni di sistema non compatibili.
 
-MINSPECS
-Vuoi visitare [_URL] per maggiori informazioni?
+Visitare [_URL] per ulteriori informazioni?
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=it
 		</url>
 		<usetemplate ignoretext="L&apos;hardware di questo computer non è supportato" name="okcancelignore" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="UnknownGPU">
-		Il tuo sistema contiene una scheda grafica ancora sconosciuta a [APP_NAME].
-Questo succede spesso con nuovo hardware che non è ancora stato verificato con [APP_NAME].  Probabilmente [APP_NAME] funzionerà correttamente, ma forse devi regolare le impostazioni grafiche a qualcosa di più appropriato.
+		Il tuo sistema utilizza una scheda grafica che [APP_NAME] non riconosce.
+Questo succede spesso con un nuovo hardware che non è stato ancora testato con [APP_NAME].  Probabilmente tutto andrà bene, ma devi riconfigurare le tue impostazioni grafiche.
 (Io &gt; Preferenze &gt; Grafica).
 		<form name="form">
 			<ignore name="ignore" text="La mia scheda grafica non è stata identificata"/>
@@ -609,6 +627,10 @@ Riprova più tardi.
 	<notification name="LandmarkCreated">
 		Hai aggiunto &quot;[LANDMARK_NAME]&quot; alla tua [FOLDER_NAME] cartella.
 	</notification>
+	<notification name="LandmarkAlreadyExists">
+		Hai già il punto di riferimento di questo luogo.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="CannotCreateLandmarkNotOwner">
 		Non puoi creare qui un landmark perchè il proprietario di questo terreno non lo consente.
 	</notification>
@@ -657,7 +679,7 @@ Ho cercato: [FINALQUERY]
 		Le parole che hai usato per la ricerca sono troppo corte e non è stato possibile iniziare la ricerca.
 	</notification>
 	<notification name="CouldNotTeleportReason">
-		Impossibile eseguire il teleport.
+		Teleport non riuscito.
 [REASON]
 	</notification>
 	<notification name="invalid_tport">
@@ -706,8 +728,8 @@ Nessun terreno selezionato.
 		Impossibile forzare la proprietà del terreno perchè la selezione si estende su diverse regioni. Seleziona una area più piccola e riprova.
 	</notification>
 	<notification name="ForceOwnerAuctionWarning">
-		Questo terreno è venduta all&apos;asta. Forzare la proprietà cancellerà l&apos;asta e potrebbe disturbare residenti che abbiano già fatto offerte.
-Vuoi forzare la proprietà?
+		Questo lotto è all&apos;asta. La designazione di un proprietario determinerà l&apos;annullamento automatico dell&apos;asta e probabilmente può scontentare qualche residente se l&apos;asta è già iniziata.
+Vuoi designare un proprietario?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="CannotContentifyNothingSelected">
@@ -754,13 +776,6 @@ Non riesco a trovare la regione in cui si trova.
 Hai selezionato più di un terreno.
 
 Prova a selezionare un solo terreno.
-	</notification>
-	<notification name="ParcelCanPlayMedia">
-		Questo posto può mostrare contenuto multimediale in streaming. Questo richiede una connessione Internet veloce.
-
-Mostra contenuto multimediale quando disponibile?
-(Puoi cambiare questa opzione anche successivamente su Preferenze &gt; Privacy.)
-		<usetemplate name="okcancelbuttons" notext="Disabilita" yestext="Abilita MultiMedia"/>
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
 		Impossibile cedere il terreno:
@@ -883,9 +898,8 @@ Unisci il terreno?
 Questo normalmente è un problema temporaneo. Riadatta e salva i vestiti e riprova fra qualche minuto.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Sei stato sconnesso da [SECOND_LIFE]:
+		Accidenti. Sei stato scollegato da [SECOND_LIFE]
             [MESSAGE]
-Puoi ancora vedere gli  IM e la chat cliccando &apos;Vedi IM &amp; Chat&apos;. Altrimenti clicca &apos;Esci&apos; per uscire immediatamente da[APP_NAME].
 		<usetemplate name="okcancelbuttons" notext="Esci" yestext="Vedi IM &amp; Chat"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
@@ -1043,6 +1057,7 @@ Cedi questo terreno di [AREA] m² al gruppo &apos;[GROUP_NAME]&apos;?
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarMovedDesired">
 		L&apos;ubicazione desiderata non è attualmente disponibile. Sei stato trasportato in una regione vicina.
@@ -1285,8 +1300,8 @@ Vuoi lasciare il gruppo?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
-		Vuoi VERAMENTE espellere tutti gli utenti dalla griglia?
-		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Espelli tutti gli utenti"/>
+		Vuoi veramente espellere tutti i residenti dalla griglia?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Espelli tutti i residenti"/>
 	</notification>
 	<notification name="MuteLinden">
 		Mi dispiace, non puoi bloccare un Linden.
@@ -1318,13 +1333,16 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		<usetemplate ignoretext="Cambio il mio stato in Non Disponibile" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
-		Hai raggiunto il limite massimo di gruppi. Devi lasciare un gruppo prima di poterti unire a questo, oppure puoi declinare questa offerta.
-[NAME] ti ha invitato ad unirti al gruppo come membro.
-[INVITE]
+		Hai raggiunto il numero massimo di gruppi. Per favore abbandona almeno un gruppo prima di aderire a questo, oppure declina l&apos;offerta.
+[NAME] ti invita ad aderire ad un gruppo.
 		<usetemplate name="okcancelbuttons" notext="Declino" yestext="Unisciti"/>
 	</notification>
+	<notification name="JoinedTooManyGroups">
+		Hai raggiunto il numero massimo di gruppi. Per favore abbandona almeno un gruppo prima di aderire o crearne uno nuovo.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="KickUser">
-		Espelli questo utente con quale messaggio?
+		Espelli questo residente con quale messaggio?
 		<form name="form">
 			<input name="message">
 				Un amministratore ti ha disconnesso.
@@ -1344,7 +1362,7 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		Immobilizza questo utente con quale messaggio?
+		Congela questo residente con quale messaggio?
 		<form name="form">
 			<input name="message">
 				Sei stato immobilizzato. Non puoi muoverti o usare la chat. Un amministratore ti contatterà con un messaggio (IM).
@@ -1354,7 +1372,7 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		Smobilizza questo utente con quale messaggio?
+		Scongela questo residente con quale messaggio?
 		<form name="form">
 			<input name="message">
 				Non sei più immobilizzato.
@@ -1374,7 +1392,7 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		Vuoi trasportare divinamente l&apos;utente nel posto dove sei?
+		Chiedere, in qualità di Admin, al residente di raggiungerti?
 		<form name="form">
 			<input name="message">
 				Raggiungimi in [REGION]
@@ -1384,7 +1402,7 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		</form>
 	</notification>
 	<notification name="TeleportFromLandmark">
-		Confermi di volerti teleportare?
+		Sei sicuro di volere il teleport a &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
 		<usetemplate ignoretext="Conferma il teleport verso un Landmark" name="okcancelignore" notext="Annulla" yestext="Teleportati"/>
 	</notification>
 	<notification name="TeleportToPick">
@@ -1404,11 +1422,11 @@ La Chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non Di
 		</form>
 	</notification>
 	<notification label="Cambia la tipologia della proprietà Linden" name="ChangeLindenEstate">
-		Stai per cambiare la tipologia della proprietà Linden (mainland, griglia minorenni, orientamento, ecc.).
+		Stai per apportare modifiche ad una proprietà che appartiene a Linden (continente, teen grid, orientamento e così via).
 
-Questo è ESTREMAMENTE PERICOLOSO perchè può cambiare radicalmente l&apos;esperienza degli utenti.  Sulla mainland cambierà migliaia di regioni e produrrà seri problemi ai vari server.
+Questa è un&apos;operazione da effettuare con molta cautela, in quanto può incidere profondamente sulla vita dei residenti in Second Life.  Sul continente, l&apos;azione modificherà migliaia di regioni e creerà un grosso carico sul server.
 
-Confermi?
+Vuoi procedere?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification label="Cambia la tipologia Linden di accesso alla proprietà" name="ChangeLindenAccess">
@@ -1587,8 +1605,10 @@ Pubblica questo annuncio adesso per [AMOUNT]L$?
 		</form>
 	</notification>
 	<notification label="Cambiato il contenuto Mature" name="RegionMaturityChange">
-		La classificazione del contenuto Mature di questa regione è stata aggiornata.
-Può essere necessario un po&apos; di tempo prima che questo cambiamento sia visibile sulle mappe.
+		La classificazione di questa regione è stata aggiornata.
+Un periodo di tempo è necessario prima che la modifica venga integrata nella mappa.
+
+Per accedere a regioni per adulti, i residenti devono avere un Account verificato, mediante verifica dell&apos;età oppure mediante verifica della modalità di pagamento.
 	</notification>
 	<notification label="Versione voice non compatibile" name="VoiceVersionMismatch">
 		Questa versione di [APP_NAME] non è compatibile con le capacità di Chat Voice in questa regione. Per poter far funzionare correttamente la Chat Voice devi aggiornare [APP_NAME].
@@ -1707,9 +1727,9 @@ Trasferisci gli elementi nell&apos;inventario?
 		<usetemplate ignoretext="Conferma Uscita" name="okcancelignore" notext="Non Uscire" yestext="Esci"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Usa questo strumento per segnalare violazioni del [http://secondlife.com/corporate/tos.php Terms of Service] e  [http://secondlife.com/corporate/cs.php Community Standards].
+		Usa questo strumento per segnalare violazioni a [http://secondlife.com/corporate/tos.php Terms of Service] e [http://secondlife.com/corporate/cs.php Community Standards].
 
-Tutti gli abusi segnalati verranno investigati e risolti. Puoi verificare lo stato delle segnalazione leggendo [http://secondlife.com/support/incidentreport.php Incident Report].
+Ogni abuso segnalato verrà esaminato e risolto.
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
 		Scegli una categoria per questa segnalazione di abuso.
@@ -1945,7 +1965,6 @@ Inseriscilo in una pagina web per dare ad altri un accesso facile a questa ubica
 	</notification>
 	<notification name="UnableToLoadGesture">
 		Impossibile caricare la gesture [NAME].
-Riprova.
 	</notification>
 	<notification name="LandmarkMissing">
 		Landmark non trovato nel database.
@@ -2035,9 +2054,9 @@ Clicca su un landmark per selezionarlo e quindi clicca  &apos;Teleport&apos; sul
 (Puoi anche fare doppio-click sul landmark oppure cliccarlo con il tasto destro e scegliere &apos;Teleport&apos;.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Puoi contattare residenti come  &apos;[NAME]&apos; aprendo il pannello Persone sul lato destro dello schermo.
-Seleziona il residente dalla lista, e clica &apos;IM&apos; in fondo al pannello.
-(Puoi anche fare doppio click sul loro nome nella lista, oppure cliccare con il tasto destro e scegliere &apos;IM&apos;).
+		Puoi contattare il residente &apos;[NAME]&apos; aprendo il pannello Persone nel lato destro del tuo schermo.
+Seleziona il residente dall&apos;elenco, clicca su &apos;IM&apos; in basso nel pannello.
+(Puoi anche fare doppio clic sul nome nell&apos;elenco oppure fare clic con il pulsante destro del mouse e selezionare &apos;IM&apos;).
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Non è possibile selezionare il terreno attraverso i confini del server.
@@ -2109,7 +2128,7 @@ Per favore re-installa il plugin o contatta il venditore se continui ad avere qu
 		Gli oggetti selezionati sul terreno che è di proprietà di [FIRST] [LAST] sono stati restituiti nel suo inventario.
 	</notification>
 	<notification name="OtherObjectsReturned2">
-		Gli oggetti selezionati sul terreno di proprietà del residente &apos;[NAME]&apos; sono stati restituiti al loro proprietario.
+		Sono stati restituiti al proprietario gli oggetti selezionati sul lotto nella terra di proprietà del residente &apos;[NAME]&apos;.
 	</notification>
 	<notification name="GroupObjectsReturned">
 		Gli oggetti selezionati sul terreno e condivisi con il gruppo [GROUPNAME] sono stati restituiti nell&apos;inventario dei propietari.
@@ -2121,7 +2140,7 @@ Gli oggetti non trasferibili che erano stati ceduti al gruppo sono stati cancell
 	</notification>
 	<notification name="ServerObjectMessage">
 		Messaggio da [NAME]:
-[MSG]
+&lt;nolink&gt;[MSG]&lt;/nolink&gt;
 	</notification>
 	<notification name="NotSafe">
 		Questo terreno è abilitato ai Danni da combattimento.
@@ -2230,7 +2249,7 @@ Riprova tra qualche istante.
 		Non è stato trovato nessun territorio valido.
 	</notification>
 	<notification name="ObjectGiveItem">
-		L&apos;oggetto [OBJECTFROMNAME] posseduto da [NAME_SLURL] ti ha dato [OBJECTTYPE]:
+		Un oggetto denominato [OBJECTFROMNAME] di proprietà di [NAME_SLURL] ti ha dato questo [OBJECTTYPE]:
 [ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Prendi"/>
@@ -2239,7 +2258,7 @@ Riprova tra qualche istante.
 		</form>
 	</notification>
 	<notification name="ObjectGiveItemUnknownUser">
-		Un oggetto di nome [OBJECTFROMNAME] posseduto da un residente sconosciuto ti ha dato [OBJECTTYPE]:
+		Un oggetto chiamato [OBJECTFROMNAME] di proprietà di (residente sconosciuto) ti ha dato questo [OBJECTTYPE]:
 [ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Prendi"/>
@@ -2248,12 +2267,12 @@ Riprova tra qualche istante.
 		</form>
 	</notification>
 	<notification name="UserGiveItem">
-		[NAME_SLURL] ti ha dato [OBJECTTYPE]:
+		[NAME_SLURL] ti ha dato questo [OBJECTTYPE]:
 [ITEM_SLURL]
 		<form name="form">
-			<button name="Keep" text="Prendi"/>
 			<button name="Show" text="Mostra"/>
 			<button name="Discard" text="Rifiuta"/>
+			<button name="Mute" text="Blocca"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
@@ -2277,6 +2296,9 @@ Riprova tra qualche istante.
 			<button name="Teleport" text="Teleport"/>
 			<button name="Cancel" text="Cancella"/>
 		</form>
+	</notification>
+	<notification name="TeleportOfferSent">
+		Offerta di Teleport inviata a [TO_NAME]
 	</notification>
 	<notification name="GotoURL">
 		[MESSAGE]
@@ -2315,10 +2337,15 @@ Riprova tra qualche istante.
 	<notification name="FriendshipDeclined">
 		[NAME] ha rifiutato la tua offerta di amicizia.
 	</notification>
+	<notification name="FriendshipAcceptedByMe">
+		Offerta di amicizia accettata.
+	</notification>
+	<notification name="FriendshipDeclinedByMe">
+		Offerta di amicizia rifiutata.
+	</notification>
 	<notification name="OfferCallingCard">
-		[FIRST] [LAST] ti ha offerto il suo biglietto da visita.
-Questo aggiungerà un segnalibro nel tuo inventario.
-in modo da poter rapidamente inviargli un IM al residente.
+		[FIRST] [LAST] ti offre il suo biglietto da visita.
+Questo sarà aggiunto nel tuo inventario come segnalibro per consentirti di inviare rapidamente messaggi IM a questo residente.
 		<form name="form">
 			<button name="Accept" text="Accetta"/>
 			<button name="Decline" text="Rifiuta"/>
@@ -2390,22 +2417,6 @@ Consenti questa richiesta?
 			<button name="Ignore" text="Ignora"/>
 		</form>
 	</notification>
-	<notification name="ScriptToast">
-		[FIRST] [LAST]&apos;s &apos;[TITLE]&apos; richiede il contributo dell&apos;utente.
-		<form name="form">
-			<button name="Open" text="Apri il Dialog"/>
-			<button name="Ignore" text="Ignora"/>
-			<button name="Block" text="Blocca"/>
-		</form>
-	</notification>
-	<notification name="FirstBalanceIncrease">
-		Hai appena ricevuto [AMOUNT]L$.
-Il tuo saldo in L$ è mostrato in alto a destra.
-	</notification>
-	<notification name="FirstBalanceDecrease">
-		Hai appena pagato [AMOUNT]L$.
-Il tuo saldo in L$ è mostrato in alto a destra.
-	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		Grazie per il pagamento!
 
@@ -2413,57 +2424,16 @@ Il tuo saldo in L$ sarà aggiornato al termine dell&apos;elaborazione. Se l&apos
 
 Lo stato del tuo pagamento potrà essere controllato nella pagina della Storia delle tue Transazioni su  [http://secondlife.com/account/ Pannello di Controllo]
 	</notification>
-	<notification name="FirstSit">
-		Sei seduto.
-Usa le frecce (oppure AWSD) per guardarti intorno.
-Clicca il bottone &apos;Alzati&apos; per alzarti.
-	</notification>
-	<notification name="FirstMap">
-		Clicca e trascina la mappa per guardare attorno.
-Fai doppio click per teleportarti.
-Usa i controlli sulla destra per trovare cose e visualizzare sfondi differenti.
-	</notification>
-	<notification name="FirstBuild">
-		Hai aperto gli Strumenti di Build. Ogni oggetto attorno a te è stato costruito con questi strumenti.
-	</notification>
-	<notification name="FirstTeleport">
-		Puoi teleportarti solo in certe aree di questa regione. La freccia indica la tua destinazione. Clicca sulla freccia per farla sparire.
-	</notification>
 	<notification name="FirstOverrideKeys">
 		I tuoi movimenti della tastiera vengono ora gestiti da un oggetto.
 Prova i tasti freccia o AWSD per vedere quello che fanno.
 Alcuni oggetti (come pistole) richiedono di andare in mouselook per il loro utilizzo.
 Premi &apos;M&apos; per farlo.
 	</notification>
-	<notification name="FirstAppearance">
-		Stai modificando il tuo aspetto.
-Usa le frecce per guardarti attorno.
-Quando hai finito premi &apos;Salva Tutto&apos;.
-	</notification>
-	<notification name="FirstInventory">
-		Questo è il tuo Inventory, che contiene gli elementi che possiedi.
-
-* Per indossare qualcosa, trascinala su di te.
-* Per rezzare qualcosa inworld, trascinala sul suolo.
-* Per leggere una notecard, fai doppio click.
-	</notification>
 	<notification name="FirstSandbox">
 		Questa è una Sandbox, serve per aiutare i Residenti ad imparare a costruire.
 
 Gli oggetti che costruisci qui saranno cancellati dopo che te ne sei andato, perciò non dimenticare di cliccare sulle tue creazioni col tasto destro e scegliere &apos;Prendi&apos; per trasferirle nel tuo Inventory.
-	</notification>
-	<notification name="FirstFlexible">
-		Questo oggetto è flessibile. Gli oggetti Flexy devono essere fantasma e non fisici.
-	</notification>
-	<notification name="FirstDebugMenus">
-		Hai abilitato il menu Avanzato.
-
-Per abilitarlo/disabilitarlo,
-  Windows: Ctrl+Alt+D
-  Mac: &#8997;&#8984;D
-	</notification>
-	<notification name="FirstSculptedPrim">
-		Stai modificando un prim Sculpted. Gli oggetti Sculpted hanno bisogno di una texture speciale per definire la loro forma.
 	</notification>
 	<notification name="MaxListSelectMessage">
 		È possibile selezionare solo fino a [MAX_SELECT] oggetti da questa lista.
@@ -2570,6 +2540,10 @@ Per la tua sicurezza verranno bloccati per alcuni secondi.
 		<form name="form">
 			<button name="respondbutton" text="Rispondi"/>
 		</form>
+	</notification>
+	<notification name="ConfirmCloseAll">
+		Sicuro di voler chiudere tutti gli IM?
+		<usetemplate ignoretext="Conferma prima della chiusura di tutti gli IM" name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		L&apos;Allegato (Attachment) è stato salvato.

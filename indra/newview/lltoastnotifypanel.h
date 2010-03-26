@@ -65,6 +65,7 @@ public:
 	virtual ~LLToastNotifyPanel();
 	LLPanel * getControlPanel() { return mControlPanel; }
 
+	void setCloseNotificationOnDestroy(bool close) { mCloseNotificationOnDestroy = close; }
 protected:
 	LLButton* createButton(const LLSD& form_element, BOOL is_option);
 
@@ -76,7 +77,7 @@ protected:
 	};
 	std::vector<InstanceAndS32*> mBtnCallbackData;
 
-private:
+	bool mCloseNotificationOnDestroy;
 
 	typedef std::pair<int,LLButton*> index_button_pair_t; 
 	void adjustPanelForScriptNotice(S32 max_width, S32 max_height);
@@ -90,6 +91,13 @@ private:
 	 */
 	void updateButtonsLayout(const std::vector<index_button_pair_t>& buttons, S32 h_pad);
 
+	/**
+	 * Disable specific button(s) based on notification name and clicked button
+	 */
+	void disableButtons(const std::string& notification_name, const std::string& selected_button);
+
+	std::vector<index_button_pair_t> mButtons;
+
 	// panel elements
 	LLTextBase*		mTextBox;
 	LLPanel*		mInfoPanel;		// a panel, that contains an information
@@ -97,6 +105,21 @@ private:
 
 	// internal handler for button being clicked
 	static void onClickButton(void* data);
+
+	typedef boost::signals2::signal <void (const LLUUID& notification_id, const std::string btn_name)>
+		button_click_signal_t;
+	static button_click_signal_t sButtonClickSignal;
+	boost::signals2::connection mButtonClickConnection;
+
+	/**
+	 * handle sButtonClickSignal (to disable buttons) across all panels with given notification_id
+	 */
+	void onToastPanelButtonClicked(const LLUUID& notification_id, const std::string btn_name);
+
+	/**
+	 * Process response data. Will disable selected options
+	 */
+	void disableRespondedOptions(LLNotificationPtr& notification);
 
 	bool mIsTip;
 	bool mAddedDefaultBtn;
@@ -109,6 +132,20 @@ private:
 
 	static const LLFontGL* sFont;
 	static const LLFontGL* sFontSmall;
+};
+
+class LLIMToastNotifyPanel : public LLToastNotifyPanel
+{
+public:
+
+	LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect = LLRect::null);
+
+	~LLIMToastNotifyPanel();
+
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
+protected:
+	LLUUID	mSessionID;
 };
 
 #endif /* LLTOASTNOTIFYPANEL_H_ */

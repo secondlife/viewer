@@ -106,7 +106,7 @@ Asegúrate de que tu conexión a internet está funcionando adecuadamente.
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
 		Quienes no sean tus amigos no sabrán que has elegido ignorar sus llamadas y mensajes instantáneos.
-		<usetemplate name="okbutton" yestext="Sí"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GrantModifyRights">
 		Al conceder permisos de modificación a otro Residente, le estás permitiendo cambiar, borrar o tomar CUALQUIER objeto que tengas en el mundo. Sé MUY cuidadoso al conceder este permiso.
@@ -137,25 +137,25 @@ Asegúrate de que tu conexión a internet está funcionando adecuadamente.
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Ignorar los cambios" yestext="Aplicar los cambios"/>
 	</notification>
 	<notification name="MustSpecifyGroupNoticeSubject">
-		Para enviar un aviso de grupo debe especificar un asunto.
+		Para enviar un aviso de grupo debes especificar un asunto.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AddGroupOwnerWarning">
-		Va a añadir miembros al rol de [ROLE_NAME].
-No podrá removérseles de ese rol, sino que deberán renunciar a él por sí mismos.
-¿Está seguro de que quiere seguir?
+		Vas a añadir miembros al rol de [ROLE_NAME].
+No podrás removérseles de ese rol, sino que deberán renunciar a él por sí mismos.
+¿Estás seguro de que quieres seguir?
 		<usetemplate ignoretext="Confirmar que vas a añadir un nuevo propietario al grupo" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="AssignDangerousActionWarning">
-		Va a añadir la capacidad &apos;[ACTION_NAME]&apos; al rol &apos;[ROLE_NAME]&apos;.
+		Vas a añadir la capacidad &apos;[ACTION_NAME]&apos; al rol &apos;[ROLE_NAME]&apos;.
 
  *ATENCIÓN*
- Todos los miembros con esta capacidad podrán asignarse a sí mismos -y a otros miembros- roles con mayores poderes de los que actualmente tienen. Potencialmente, podrían elevarse hasta poderes cercanos a los del propietario. Asegúrese de lo que está haciendo antes de otorgar esta capacidad.
+ Todos los miembros con esta capacidad podrán asignarse a sí mismos -y a otros miembros- roles con mayores poderes de los que actualmente tienen. Potencialmente, podrían elevarse hasta poderes cercanos a los del propietario. Asegúrate de lo que estás haciendo antes de otorgar esta capacidad.
 ¿Añadir esta capacidad a &apos;[ROLE_NAME]&apos;?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="AssignDangerousAbilityWarning">
-		Va a añadir la capacidad &apos;[ACTION_NAME]&apos; al rol &apos;[ROLE_NAME]&apos;.
+		Vas a añadir la capacidad &apos;[ACTION_NAME]&apos; al rol &apos;[ROLE_NAME]&apos;.
 
  *ATENCIÓN*
  Todos los miembros con esta capacidad podrán asignarse a sí mismos -y a otros miembros- todas las capacidades, elevándose hasta poderes cercanos a los del propietario.
@@ -169,7 +169,7 @@ No podrá removérseles de ese rol, sino que deberán renunciar a él por sí mi
 	</notification>
 	<notification name="JoinGroupCanAfford">
 		Entrar a este grupo cuesta [COST] L$.
-¿Quiere hacerlo??
+¿Quieres hacerlo??
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Entrar"/>
 	</notification>
 	<notification name="JoinGroupNoCost">
@@ -179,7 +179,7 @@ No podrá removérseles de ese rol, sino que deberán renunciar a él por sí mi
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Entrar a este grupo cuesta [COST] L$.
-No tiene dinero suficiente para entrar.
+No tienes dinero suficiente para entrar.
 	</notification>
 	<notification name="CreateGroupCost">
 		Crear este grupo te costará 100 L$.
@@ -193,11 +193,11 @@ Por favor, invita a miembros en las próximas 48 horas.
 	</notification>
 	<notification name="SalePriceRestriction">
 		El precio de venta tiene que ser mayor de 0 L$ si la venta es a cualquiera.
-Por favor, elija a alguien concreto como comprador si la venta es por 0 L$.
+Por favor, elige a alguien concreto como comprador si la venta es por 0 L$.
 	</notification>
 	<notification name="ConfirmLandSaleChange">
 		Los [LAND_SIZE] m² de terreno seleccionados se van a poner a la venta.
-Su precio de venta será de [SALE_PRICE] L$, y se autorizará la compra sólo a [NAME].
+El precio de venta será de [SALE_PRICE] L$, y se autorizará la compra sólo a [NAME].
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
@@ -208,7 +208,7 @@ El precio de venta será de [SALE_PRICE] L$ y se autoriza la compra a [NAME].
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
-		¿Está seguro de que quiere devolver todos los objetos de esta parcela que estén compartidos con el grupo &apos;[NAME]&apos; al inventario de su propietario anterior?
+		¿Estás seguros de que quieres devolver todos los objetos de esta parcela que estén compartidos con el grupo &apos;[NAME]&apos; al inventario de su propietario anterior?
 
 *ATENCIÓN* ¡Esto borrará los objetos no transferibles que se hayan cedido al grupo!
 
@@ -216,19 +216,19 @@ Objetos: [N]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsOwnedByUser">
-		¿Está seguro de que quiere devolver al inventario de &apos;[NAME]&apos; todos los objetos que sean de su propiedad en esta parcela?
+		¿Estás seguro de que quieres devolver al inventario de &apos;[NAME]&apos; todos los objetos que sean de su propiedad en esta parcela?
 
 Objetos: [N]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsOwnedBySelf">
-		¿Está seguro de que quiere devolver a su inventario todos los objetos de los que usted es propietario en esta parcela?
+		¿Estás seguro de que quieres devolver a su inventario todos los objetos de los que eres propietario en esta parcela?
 
 Objetos: [N]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedBySelf">
-		¿Está seguro de que quiere devolver todos los objetos de los que usted NO es propietario en esta parcela al inventario de sus propietarios?
+		¿Estás seguro de que quieres devolver todos los objetos de los que NO eres propietario en esta parcela al inventario de sus propietarios?
 Los objetos transferibles que se hayan transferido al grupo se devolverán a sus propietarios previos.
 
 *ATENCIÓN* ¡Esto borrará los objetos no transferibles que se hayan cedido al grupo!
@@ -237,7 +237,7 @@ Objetos: [N]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByUser">
-		¿Está seguro de que quiere devolver todos los objetos de esta parcela que NO sean propiedad de [NAME] al inventario de su propietario?
+		¿Estás seguro de que quieres devolver todos los objetos de esta parcela que NO sean propiedad de [NAME] al inventario de su propietario?
 Los objetos transferibles que se hayan transferido al grupo se devolverán a sus propietarios previos.
 
 *ATENCIÓN* ¡Esto borrará los objetos no transferibles que se hayan cedido al grupo!
@@ -246,11 +246,11 @@ Objetos: [N]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnAllTopObjects">
-		¿Está seguro de que quiere devolver al inventario de su propietario todos los objetos de la lista?
+		¿Estás seguro de que quieres devolver al inventario de su propietario todos los objetos de la lista?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
-		¿Está seguro de que quiere desactivar todos los objetos de esta región?
+		¿Estás seguro de que quieres desactivar todos los objetos de esta región?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByGroup">
@@ -272,13 +272,13 @@ Para colocar los media en una sola cara, marca la opción Elegir la cara y pulsa
 	</notification>
 	<notification name="MustBeInParcel">
 		Para configurar el Punto de llegada de la parcela,
-debe estar usted dentro de ella.
+debes estar dentro de ella.
 	</notification>
 	<notification name="PromptRecipientEmail">
-		Por favor, escriba una dirección de correo electrónica válida para el/los receptor/es.
+		Por favor, escribe una dirección de correo electrónica válida para el/los receptor/es.
 	</notification>
 	<notification name="PromptSelfEmail">
-		Por favor, escriba su dirección de correo electrónico.
+		Por favor, escribe tu dirección de correo electrónico.
 	</notification>
 	<notification name="PromptMissingSubjMsg">
 		¿Foto por correo electrónico con el asunto o el mensaje por defecto?
@@ -297,27 +297,27 @@ debe estar usted dentro de ella.
 		Hubo un problema al subir la captura de pantalla del informe por la siguiente razón: [REASON]
 	</notification>
 	<notification name="MustAgreeToLogIn">
-		Debe estar de acuerdo con las Condiciones del Servicio para continuar el inicio de sesión en [SECOND_LIFE].
+		Debes estar de acuerdo con las Condiciones del Servicio para continuar el inicio de sesión en [SECOND_LIFE].
 	</notification>
 	<notification name="CouldNotPutOnOutfit">
-		No se ha podido ponerle el vestuario.
+		No se ha podido poner el vestuario.
 La carpeta del vestuario contiene partes del cuerpo, u objetos a anexar o que no son ropa.
 	</notification>
 	<notification name="CannotWearTrash">
-		No puede vestirse ropas o partes del cuerpo que están en la Papelera
+		No puede vestirte ropas o partes del cuerpo que estén en la Papelera
 	</notification>
 	<notification name="MaxAttachmentsOnOutfit">
 		No se puede anexar el objeto.
 Se ha superado el límite máximo de [MAX_ATTACHMENTS] objetos. Por favor, quítate alguno.
 	</notification>
 	<notification name="CannotWearInfoNotComplete">
-		No puede vestirse este ítem porque aún no se ha cargado. Por favor, reinténtelo en un minuto.
+		No puedes vestirte este ítem porque aún no se ha cargado. Por favor, inténtalo de nuevo en un minuto.
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		¡Vaya! Algo se quedó en blanco.
-Debe escribir tanto el nombre como el apellido de su avatar, los dos.
+Debes escribir tanto el nombre como el apellido de tu avatar, los dos.
 
-Necesita una cuenta para entrar en [SECOND_LIFE]. ¿Quiere crear una ahora?
+Necesitas una cuenta para entrar en [SECOND_LIFE]. ¿Quieres crear una ahora?
 		<url name="url">
 			https://join.secondlife.com/index.php?lang=es-ES
 		</url>
@@ -360,10 +360,10 @@ No se reembolsan las cuotas pagadas.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="SelectProposalToView">
-		Por favor, seleccione qué propuesta quiere ver.
+		Por favor, selecciona qué propuesta quieres ver.
 	</notification>
 	<notification name="SelectHistoryItemToView">
-		Por favor, seleccione un ítem del historial para verlo.
+		Por favor, selecciona un ítem del historial para verlo.
 	</notification>
 	<notification name="CacheWillClear">
 		La caché se limpiará cuando reinices [APP_NAME].
@@ -376,7 +376,7 @@ Nota: esto vaciará la caché.
 		La configuración del puerto tendrá efecto cuando reinicies [APP_NAME].
 	</notification>
 	<notification name="ChangeSkin">
-		La nueva apariencia la verás cuando reinicies [APP_NAME].
+		Verás la nueva apariencia cuando reinicies [APP_NAME].
 	</notification>
 	<notification name="GoToAuctionPage">
 		¿Ir a la página web de [SECOND_LIFE] para ver los detalles de la subasta
@@ -390,40 +390,40 @@ o hacer una puja?
 	<notification name="GestureSaveFailedTooManySteps">
 		Fallo al guardar el gesto.
 Este gesto tiene demasiados pasos.
-Intente quitarle algunos, y vuelva a guardarlo.
+Intenta quitarle algunos, y vuelve a guardarlo.
 	</notification>
 	<notification name="GestureSaveFailedTryAgain">
-		Fallo al guardar el gesto. Por favor, reinténtelo en un minuto.
+		Fallo al guardar el gesto. Por favor, vuelve a intentarlo en un minuto.
 	</notification>
 	<notification name="GestureSaveFailedObjectNotFound">
 		No se ha podido guardar el gesto porque no se pudo encontrar el objeto o el objeto asociado.
 El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&apos;).
 	</notification>
 	<notification name="GestureSaveFailedReason">
-		Al guardar un gesto, hubo un problema por: [REASON]. Por favor, reintente guardarlo más tarde.
+		Al guardar un gesto, hubo un problema por: [REASON]. Por favor, vuelve a intentar guardarlo más tarde.
 	</notification>
 	<notification name="SaveNotecardFailObjectNotFound">
 		No se ha podido guardar la nota porque no se pudo encontrar el objeto o el objeto asociado del inventario.
 El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&apos;).
 	</notification>
 	<notification name="SaveNotecardFailReason">
-		Al guardar una nota, hubo un problema por: [REASON]. Por favor, reintente guardarla más tarde.
+		Al guardar una nota, hubo un problema por: [REASON]. Por favor, vuelve a intentar guardarla más tarde.
 	</notification>
 	<notification name="ScriptCannotUndo">
-		No se han podido deshacer todos los cambios en su versión del script.
-¿Quiere cargar la última versión guardada en el servidor?
-(**Cuidado** No podrá deshacer esta operación).
+		No se han podido deshacer todos los cambios en tu versión del script.
+¿Quieres cargar la última versión guardada en el servidor?
+(**Cuidado** No podrás deshacer esta operación).
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="SaveScriptFailReason">
-		Al guardar un script, hubo un problema por: [REASON]. Por favor, reintente guardarlo más tarde.
+		Al guardar un script, hubo un problema por: [REASON]. Por favor, vuelve a intentar guardarlo más tarde.
 	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		No se ha podido guardar el script porque no se pudo encontrar el objeto que incluye.
 El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&apos;)..
 	</notification>
 	<notification name="SaveBytecodeFailReason">
-		Al guardar un script compilado, hubo un problema por: [REASON]. Por favor, reintente guardarlo más tarde..
+		Al guardar un script compilado, hubo un problema por: [REASON]. Por favor, vuelve a intentar guardarlo más tarde..
 	</notification>
 	<notification name="StartRegionEmpty">
 		Perdon, no está definida tu Posición inicial.
@@ -443,7 +443,6 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 	<notification name="UnsupportedHardware">
 		Debes saber que tu ordenador no cumple los requisitos mínimos para la utilización de [APP_NAME]. Puede que experimentes un rendimiento muy bajo. Desafortunadamente, [SUPPORT_SITE] no puede dar asistencia técnica a sistemas con una configuración no admitida.
 
-MINSPECS
 ¿Ir a [_URL] para más información?
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=es
@@ -468,9 +467,9 @@ La calidad gráfica puede ajustarse en Preferencias &gt; Gráficos.
 		En la región [REGION] no se permite modificar el terreno.
 	</notification>
 	<notification name="CannotCopyWarning">
-		No tiene permiso para copiar este ítem.
-Si lo da, lo perderá de su inventario.
-¿Realmente quiere darlo?
+		No tienes permiso para copiar este ítem.
+Si lo das, lo perderás de tu inventario.
+¿Realmente quieres darlo?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -480,19 +479,19 @@ Si lo da, lo perderá de su inventario.
 		Transacción cancelada.
 	</notification>
 	<notification name="TooManyItems">
-		En una única transferencia del inventario, no puede dar más de 42 ítems.
+		No puedes dar más de 42 ítems en una única transferencia del inventario.
 	</notification>
 	<notification name="NoItems">
-		No tiene permiso para transferir el ítem seleccionado.
+		No tienes permiso para transferir el ítem seleccionado.
 	</notification>
 	<notification name="CannotCopyCountItems">
-		No tiene permiso para copiar [COUNT] de los
-ítems seleccionados. Si los da, los perderá de su inventario.
-¿Realmente quiere darlos?
+		No tienes permiso para copiar [COUNT] de los
+ítems seleccionados. Si los das, los perderás de tu inventario.
+¿Realmente quieres darlos?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="CannotGiveCategory">
-		No tiene permiso para transferir
+		No tienes permiso para transferir
 la carpeta seleccionada.
 	</notification>
 	<notification name="FreezeAvatar">
@@ -506,15 +505,15 @@ Temporalmente, será incapaz de moverse, usar el chat, o interactuar con el mund
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Descongelarle" yestext="Congelarle"/>
 	</notification>
 	<notification name="EjectAvatarFullname">
-		¿Expulsar a [AVATAR_NAME] de su terreno?
+		¿Expulsar a [AVATAR_NAME] de tu terreno?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Expulsar y Prohibir el acceso" yestext="Expulsar"/>
 	</notification>
 	<notification name="EjectAvatarNoBan">
-		¿Expulsar a este avatar de su terreno?
+		¿Expulsar a este avatar de tu terreno?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Expulsar"/>
 	</notification>
 	<notification name="EjectAvatarFullnameNoBan">
-		¿Expulsar a [AVATAR_NAME] de su terreno?
+		¿Expulsar a [AVATAR_NAME] de tu terreno?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Expulsar"/>
 	</notification>
 	<notification name="EjectAvatarFromGroup">
@@ -525,7 +524,7 @@ Temporalmente, será incapaz de moverse, usar el chat, o interactuar con el mund
 	</notification>
 	<notification name="AcquireErrorObjectSpan">
 		ERROR &apos;ACQUIRE&apos;: Los objetos están en más de una región.
-Por favor, mueva todos los objetos a adquirir a la
+Por favor, mueve todos los objetos a adquirir a la
 misma región.
 	</notification>
 	<notification name="PromptGoToCurrencyPage">
@@ -539,27 +538,27 @@ misma región.
 	</notification>
 	<notification name="UnableToLinkObjects">
 		No se pudo enlazar estos [COUNT] objetos.
-Puede enlazar [MAX] objetos como máximo.
+Puedes enlazar [MAX] objetos como máximo.
 	</notification>
 	<notification name="CannotLinkIncompleteSet">
-		Sólo puede enlazar objetos completos (no sus partes), y debe
+		Sólo puedes enlazar objetos completos (no sus partes), y debes
 seleccionar más de uno.
 	</notification>
 	<notification name="CannotLinkModify">
-		Imposible enlazarlos, porque no tiene permiso para modificar
+		Imposible enlazarlos, porque no tienes permiso para modificar
 todos los objetos.
 
-Por favor, asegúrese de que no hay ninguno bloqueado, y de que es el propietario de todos.
+Por favor, asegúrate de que no hay ninguno bloqueado, y de que eres el propietario de todos.
 	</notification>
 	<notification name="CannotLinkDifferentOwners">
 		Imposible enlazarlos, porque hay objetos de distintos propietarios.
 
-Por favor, asegúrese de que es propietario de todos los objetos seleccionados.
+Por favor, asegúrate de que eres el propietario de todos los objetos seleccionados.
 	</notification>
 	<notification name="NoFileExtension">
 		No hay extensión de archivo en: &apos;[FILE]&apos;
 
-Por favor, asegúrese de que la extensión del archivo es correcta.
+Por favor, asegúrate de que la extensión del archivo es correcta.
 	</notification>
 	<notification name="InvalidFileExtension">
 		Extensión inválida de archivo: [EXTENSION]
@@ -567,7 +566,7 @@ Podría ser [VALIDS]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CannotUploadSoundFile">
-		Ni se pudo abrir el archivo de sonido que se ha subido para leer:
+		No se pudo abrir el archivo de sonido que has subido para leer:
 [FILE]
 	</notification>
 	<notification name="SoundFileNotRIFF">
@@ -626,7 +625,7 @@ Podría ser [VALIDS]
 	</notification>
 	<notification name="CannotUploadReason">
 		No se ha podido subir [FILE] por la siguiente razón: [REASON]
-Por favor, inténtelo más tarde.
+Por favor, inténtalo más tarde.
 	</notification>
 	<notification name="LandmarkCreated">
 		Se ha añadido &quot;[LANDMARK_NAME]&quot; a tu carpeta [FOLDER_NAME].
@@ -636,7 +635,7 @@ Por favor, inténtelo más tarde.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CannotCreateLandmarkNotOwner">
-		No puede crear un hito aquí porque el propietario del terreno no lo permite.
+		No puedes crear un hito aquí porque el propietario del terreno no lo permite.
 	</notification>
 	<notification name="CannotRecompileSelectObjectsNoScripts">
 		No se pudo &apos;recompilar&apos;.
@@ -668,19 +667,19 @@ Seleccione objetos con scripts.
 	<notification name="CannotSetRunningNotSelectObjectsNoScripts">
 		No se puede configurar ningún script como &apos;no ejecutándose&apos;.
 
-Seleccione objetos con scripts.
+Selecciona objetos con scripts.
 	</notification>
 	<notification name="NoFrontmostFloater">
-		No hay nada a guardar.
+		No hay nada que guardar.
 	</notification>
 	<notification name="SeachFilteredOnShortWords">
-		Se ha modificado su búsqueda,
+		Se ha modificado tu búsqueda,
 eliminando las palabras demasiado cortas.
 
 Buscando: [FINALQUERY]
 	</notification>
 	<notification name="SeachFilteredOnShortWordsEmpty">
-		Los términos de su búsqueda son muy cortos,
+		Los términos de tu búsqueda son muy cortos,
 por lo que no se ha hecho la búsqueda.
 	</notification>
 	<notification name="CouldNotTeleportReason">
@@ -696,32 +695,32 @@ Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
 Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
 	</notification>
 	<notification name="blocked_tport">
-		Lo sentimos, en estos momentos los teleportes están bloqueados. Vuelva a intentarlo en un momento. Si sigue sin poder teleportarse, desconéctese y vuelva a iniciar sesión para solucionar el problema.
+		Lo sentimos, en estos momentos los teleportes están bloqueados. Vuelve a intentarlo en un momento. Si sigues sin poder teleportarte, desconéctate y vuelve a iniciar sesión para solucionar el problema.
 	</notification>
 	<notification name="nolandmark_tport">
 		Lo sentimos, pero el sistema no ha podido localizar el destino de este hito.
 	</notification>
 	<notification name="timeout_tport">
 		Lo sentimos, pero el sistema no ha podido completar el teleporte.
-Vuelva a intentarlo en un momento.
+Vuelve a intentarlo en un momento.
 	</notification>
 	<notification name="noaccess_tport">
-		Lo sentimos, pero usted no tiene acceso al destino de este teleporte.
+		Lo sentimos, pero no tienes acceso al destino de este teleporte.
 	</notification>
 	<notification name="missing_attach_tport">
-		Aún no han llegado sus objetos anexados. Espere unos segundos más o desconéctese y vuelva a iniciar sesión antes de teleportarse.
+		Aún no han llegado tus objetos anexados. Espera unos segundos más o desconéctate y vuelve a iniciar sesión antes de teleportarte.
 	</notification>
 	<notification name="too_many_uploads_tport">
-		La cola de espera en esta región está actualmente obstruida, por lo que su petición de teleporte no se atenderá en un tiempo prudencial. Por favor, vuelva a intentarlo en unos minutos o vaya a una zona menos ocupada.
+		La cola de espera en esta región está actualmente obstruida, por lo que tu petición de teleporte no se atenderá en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos o ve a una zona menos ocupada.
 	</notification>
 	<notification name="expired_tport">
-		Lo sentimos, pero el sistema no ha podido atender a su petición de teleporte en un tiempo prudencial. Por favor, vuelva a intentarlo en unos pocos minutos.
+		Lo sentimos, pero el sistema no ha podido atender a tu petición de teleporte en un tiempo prudencial. Por favor, vuelve a intentarlo en unos pocos minutos.
 	</notification>
 	<notification name="expired_region_handoff">
-		Lo sentimos, pero el sistema no ha podido completar su paso a otra región en un tiempo prudencial. Por favor, vuelva a intentarlo en unos pocos minutos.
+		Lo sentimos, pero el sistema no ha podido completar tu paso a otra región en un tiempo prudencial. Por favor, vuelve a intentarlo en unos pocos minutos.
 	</notification>
 	<notification name="no_host">
-		Ha sido imposible encontrar el destino del teleporte: o está desactivado temporalmente o ya no existe. Por favor, vuelva a intentarlo en unos pocos minutos.
+		Ha sido imposible encontrar el destino del teleporte: o está desactivado temporalmente o ya no existe. Por favor, vuelve a intentarlo en unos pocos minutos.
 	</notification>
 	<notification name="no_inventory_host">
 		En estos momentos no está disponible el sistema del inventario.
@@ -731,7 +730,7 @@ Vuelva a intentarlo en un momento.
 no se ha seleccionado una parcela.
 	</notification>
 	<notification name="CannotSetLandOwnerMultipleRegions">
-		No se ha podido obtener la propiedad del terreno porque la selección se extiende por varias regiones. Por favor, seleccione un área más pequeña y reinténtelo.
+		No se ha podido obtener la propiedad del terreno porque la selección se extiende por varias regiones. Por favor, selecciona un área más pequeña y vuelve a intentarlo.
 	</notification>
 	<notification name="ForceOwnerAuctionWarning">
 		Esta parcela está subastándose. Forzar su propiedad cancelará la subasta y, potencialmente, puede disgustar a algunos residentes si la puja ya ha empezado.
@@ -779,15 +778,15 @@ Ha sido imposible encontrar en qué región está.
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
 		No se ha podido transferir el terreno:
-ha seleccionado varias parcelas.
+has seleccionado varias parcelas.
 
-Inténtelo seleccionando sólo una.
+Inténtalo seleccionando sólo una.
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
 		No se ha podido transferir el terreno:
 esperando que el servidor informe acerca de la propiedad.
 
-Por favor, vuelva a intentarlo.
+Por favor, vuelve a intentarlo.
 	</notification>
 	<notification name="CannotDeedLandNoTransfer">
 		No se ha podido transferir el terreno:
@@ -797,18 +796,18 @@ En la región [REGION] no se permite transferir terrenos.
 		No se ha podido abandonar el terreno:
 esperando que el servidor actualice la información de la parcela.
 
-Vuelva a intentarlo en unos segundos.
+Vuelve a intentarlo en unos segundos.
 	</notification>
 	<notification name="CannotReleaseLandSelected">
 		No se ha podido abandonar el terreno:
 no es propietario de todas las parcelas seleccionadas.
 
-Por favor, seleccione una sola parcela.
+Por favor, selecciona una sola parcela.
 	</notification>
 	<notification name="CannotReleaseLandDontOwn">
 		No se ha podido abandonar el terreno:
-no tiene permisos sobre esta parcela.
-Las parcelas de su propiedad se muestran en verde.
+no tienes permisos sobre esta parcela.
+Las parcelas de tu propiedad se muestran en verde.
 	</notification>
 	<notification name="CannotReleaseLandRegionNotFound">
 		No se ha podido abandonar el terreno:
@@ -820,13 +819,13 @@ En la región [REGION] no se permite transferir terrenos.
 	</notification>
 	<notification name="CannotReleaseLandPartialSelection">
 		No se ha podido abandonar el terreno:
-debe seleccionar toda la parcela.
+debes seleccionar toda la parcela.
 
-Seleccione una parcela completa, o divídala primero.
+Selecciona una parcela completa, o divídela primero.
 	</notification>
 	<notification name="ReleaseLandWarning">
-		Va a abandonar [AREA] m² de terreno.
-Al hacerlo, la quitará de entre sus posesiones de terreno, pero no recibirá ningún L$.
+		Vas a abandonar [AREA] m² de terreno.
+Al hacerlo, la quitarás de entre tus posesiones de terreno, pero no recibirás ningún L$.
 
 ¿Abandonar este terreno?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
@@ -834,13 +833,13 @@ Al hacerlo, la quitará de entre sus posesiones de terreno, pero no recibirá ni
 	<notification name="CannotDivideLandNothingSelected">
 		No se ha podido dividir el terreno:
 
-No ha seleccionado ninguna parcela.
+No has seleccionado ninguna parcela.
 	</notification>
 	<notification name="CannotDivideLandPartialSelection">
 		No se ha podido dividir el terreno:
 
-Ha seleccionado una parcela entera.
-Inténtelo seleccionando una parte.
+Has seleccionado una parcela entera.
+Inténtalo seleccionando una parte.
 	</notification>
 	<notification name="LandDivideWarning">
 		Dividir este terreno lo separará en dos parcelas, cada una de las cuales tendrá su propia configuración. Tras esta operación, algunas configuraciones volverán a las existentes por defecto.
@@ -862,29 +861,29 @@ No hay parcelas seleccionadas.
 	</notification>
 	<notification name="CannotJoinLandEntireParcelSelected">
 		No se ha podido unir el terreno:
-Sólo ha seleccionado una parcela.
+Sólo has seleccionado una parcela.
 
-Seleccione terreno que incluya algo de ambas parcelas.
+Selecciona terreno que incluya algo de ambas parcelas.
 	</notification>
 	<notification name="CannotJoinLandSelection">
 		No se ha podido unir el terreno:
-Debe seleccionar más de una parcela.
+Debes seleccionar más de una parcela.
 
-Seleccione terreno que incluya algo de ambas parcelas.
+Selecciona terreno que incluya algo de ambas parcelas.
 	</notification>
 	<notification name="JoinLandWarning">
-		Al unir este terreno creará una parcela más grande formada por todas aquellas que tengan parte en el rectángulo seleccionado.
-Deberá reconfigurar el nombre y las opciones de la nueva parcela.
+		Al unir este terreno crearás una parcela más grande formada por todas aquellas que tengan parte en el rectángulo seleccionado.
+Deberás reconfigurar el nombre y las opciones de la nueva parcela.
 
 ¿Unir el terreno?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmNotecardSave">
-		Esta nota debe guardarse antes de que se la pueda copiar o ver. ¿Guardar la nota?
+		Esta nota debe guardarse antes de que puedas copiarla o verla. ¿Guardar la nota?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmItemCopy">
-		¿Copiar este ítem a su inventario?
+		¿Copiar este ítem a tu inventario?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Copiar"/>
 	</notification>
 	<notification name="ResolutionSwitchFail">
@@ -897,20 +896,20 @@ Deberá reconfigurar el nombre y las opciones de la nueva parcela.
 		Error, árboles no definidos: [SPECIES]
 	</notification>
 	<notification name="CannotSaveWearableOutOfSpace">
-		No se ha podido guardar el archivo &apos;[NAME]&apos;. Tendrá que liberar algo de espacio en su ordenador y guardarlo de nuevo.
+		No se ha podido guardar el archivo &apos;[NAME]&apos;. Tendrás que liberar algo de espacio en tu ordenador y guardarlo de nuevo.
 	</notification>
 	<notification name="CannotSaveToAssetStore">
 		No se ha podido guardar [NAME] en la base central de almacenamiento.
 Generalmente, esto es un fallo pasajero. Por favor, personaliza y guarda el ítem de aquí a unos minutos.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Vaya,   se te ha cerrado la sesión en [SECOND_LIFE]
+		Vaya, se ha cerrado tu sesión en [SECOND_LIFE]
             [MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Salir" yestext="Ver MI y Chat"/>
 	</notification>
 	<notification name="OnlyOfficerCanBuyLand">
 		No se ha podido comprar terreno para el grupo:
-usted no tiene el permiso de comprar terreno para el grupo que tiene activado actualmente.
+no tienes el permiso de comprar terreno para el grupo que tienes activado actualmente.
 	</notification>
 	<notification label="Añadir como amigo" name="AddFriend">
 		Los amigos pueden darse permiso para localizarse en el mapa y para saber si el otro está conectado.
@@ -921,7 +920,7 @@ usted no tiene el permiso de comprar terreno para el grupo que tiene activado ac
 	<notification label="Añadir como amigo" name="AddFriendWithMessage">
 		Los amigos pueden darse permiso para localizarse en el mapa y para saber si el otro está conectado.
 
-¿Ofrecer a [NAME] que sea su amigo?
+¿Ofrecer a [NAME] que sea tu amigo?
 		<form name="form">
 			<input name="message">
 				¿Quieres formar parte de mis amigos?
@@ -931,112 +930,112 @@ usted no tiene el permiso de comprar terreno para el grupo que tiene activado ac
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		¿Quiere quitar a [FIRST_NAME] [LAST_NAME] de su lista de amigos?
+		¿Quieres quitar a [FIRST_NAME] [LAST_NAME] de tu lista de amigos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
-		¿Quiere quitar a varios amigos de su lista de amigos?
+		¿Quieres quitar a varios amigos de tu lista de amigos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="GodDeleteAllScriptedPublicObjectsByUser">
-		¿Está seguro de que quiere borrar todos los objetos con script que sean propiedad de
+		¿Estás seguro de que quieres borrar todos los objetos con script que sean propiedad de
 ** [AVATAR_NAME] **
 en todos los otros terrenos de este sim?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="GodDeleteAllScriptedObjectsByUser">
-		¿Está seguro de que quiere BORRAR TODOS los objetos con script que sean propiedad de
+		¿Estás seguro de que quieres BORRAR TODOS los objetos con script que sean propiedad de
 ** [AVATAR_NAME] **
 en TODO EL TERRENO de este sim?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="GodDeleteAllObjectsByUser">
-		¿Está seguro de que quiere BORRAR TODOS los objetos (con script o no) que sean propiedad de
+		¿Estás seguro de que quieres BORRAR TODOS los objetos (con script o no) que sean propiedad de
 ** [AVATAR_NAME] **
 en TODO EL TERRENO de este sim?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="BlankClassifiedName">
-		Debe especificar un nombre para su clasificado.
+		Debes especificar un nombre para tu clasificado.
 	</notification>
 	<notification name="MinClassifiedPrice">
 		El pago para aparecer en la lista debe ser de, al menos, [MIN_PRICE] L$.
 
-Por favor, elija un pago mayor.
+Por favor, elige un pago mayor.
 	</notification>
 	<notification name="ConfirmObjectDeleteLock">
-		Al menos uno de los ítems que ha seleccionado está bloqueado.
+		Al menos uno de los ítems que has seleccionado está bloqueado.
 
-¿Está seguro de que quiere borrar estos ítems?
+¿Estás seguro de que quieres borrar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoCopy">
-		Al menos uno de los ítems que ha seleccionado no es copiable.
+		Al menos uno de los ítems que has seleccionado no es copiable.
 
-¿Está seguro de que quiere borrar estos ítems?
+¿Estás seguro de que quieres borrar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoOwn">
-		No es el propietario de, al menos, uno de los ítems que ha seleccionado.
+		No eres el propietario de, al menos, uno de los ítems que has seleccionado.
 
-¿Está seguro de que quiere borrar estos ítems?
+¿Estás seguro de que quieres borrar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopy">
 		Al menos un objeto está bloqueado.
 Al menos un objeto no es copiable.
 
-¿Está seguro de que quiere borrar estos ítems?
+¿Estás seguro de que quieres borrar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoOwn">
 		Al menos un objeto está bloqueado.
-No es propietario de, al menos, un objeto.
+No eres propietario de, al menos, un objeto.
 
-¿Está seguro de que quiere borrar estos ítems?
+¿Estás seguro de que quieres borrar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteNoCopyNoOwn">
 		Al menos un objeto no es copiable.
-No es propietario de, al menos, un objeto.
+No eres propietario de, al menos, un objeto.
 
-¿Está seguro de que quiere borrar estos ítems?
+¿Estás seguro de que quieres borrar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLockNoCopyNoOwn">
 		Al menos un objeto está bloqueado.
 Al menos un objeto no es copiable.
-No es propietario de, al menos, un objeto.
+No eres propietario de, al menos, un objeto.
 
-¿Está seguro de que quiere borrar estos ítems?
+¿Estás seguro de que quieres borrar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectTakeLock">
 		Al menos un objeto está bloqueado.
 
-¿Está seguro de que quiere tomar estos ítems?
+¿Estás seguro de que quieres tomar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectTakeNoOwn">
-		No es el propietario de todos los objetos que está tomando.
-Si sigue, se aplicarán los permisos marcados para el próximo propietario, y es posible que se restrinja su posibilidad de hacer modificaciones o copias.
+		No eres el propietario de todos los objetos que estás tomando.
+Si sigues, se aplicarán los permisos marcados para el próximo propietario, y es posible que se restrinja tu posibilidad de hacer modificaciones o copias.
 
-¿Está seguro de que quiere tomar estos ítems?
+¿Estás seguro de que quieres tomar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectTakeLockNoOwn">
 		Al menos un objeto está bloqueado.
-No es el propietario de todos los objetos que está tomando.
-Si sigue, se aplicarán los permisos marcados para el próximo propietario, y es posible que se restrinja su posibilidad de hacer modificaciones o copias
-Con todo, puede tomar lo actualmente seleccionado.
+No eres el propietario de todos los objetos que estás tomando.
+Si sigues, se aplicarán los permisos marcados para el próximo propietario, y es posible que se restrinja tu posibilidad de hacer modificaciones o copias.
+Con todo, puedes tomar lo actualmente seleccionado.
 
-¿Está seguro de que quiere tomar estos ítems?
+¿Estás seguro de que quieres tomar estos ítems?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="CantBuyLandAcrossMultipleRegions">
 		No se ha podido hacer la compra porque el terreno seleccionado se extiende por varias regiones.
 
-Por favor, seleccione un área más pequeña y reinténtelo.
+Por favor, selecciona un área más pequeña y vuelve a intentarlo.
 	</notification>
 	<notification name="DeedLandToGroup">
 		Al transferir esta parcela, se requerirá al grupo que tenga y mantenga el crédito suficiente para uso de terreno.
@@ -1057,10 +1056,10 @@ Si se vende una parcela transferida, el precio de venta se dividirá a partes ig
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DisplaySetToSafe">
-		Las configuraciones que se muestran se han fijado en los niveles guardados, pues usted especificó la opción de guardarlos.
+		Las configuraciones que se muestran se han fijado en los niveles guardados, pues especificaste la opción de guardarlos.
 	</notification>
 	<notification name="DisplaySetToRecommended">
-		Las configuraciones que se muestran se han fijado en los niveles recomendados para la configuración de su sistema.
+		Las configuraciones que se muestran se han fijado en los niveles recomendados para la configuración de tu sistema.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1107,16 +1106,16 @@ Puedes revisar tu conexión a internet y volver a intentarlo en unos minutos, pu
 		</form>
 	</notification>
 	<notification name="WelcomeChooseSex">
-		Su personaje aparecerá en un momento.
+		Tu personaje aparecerá en un momento.
 
-Para caminar, use las teclas del cursor.
-En cualquier momento, puede pulsar la tecla F1 para conseguir ayuda o para aprender más acerca de [SECOND_LIFE].
-Por favor, elija el avatar masculino o femenino.
-Puede cambiar más adelante su elección.
+Para caminar, usa las teclas del cursor.
+En cualquier momento, puedes pulsar la tecla F1 para conseguir ayuda o para aprender más acerca de [SECOND_LIFE].
+Por favor, elige el avatar masculino o femenino.
+Puedes cambiar más adelante tu elección.
 		<usetemplate name="okcancelbuttons" notext="Mujer" yestext="Varón"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
-		[NAME] cuesta [PRICE] L$. No tiene suficientes L$ para hacer eso.
+		[NAME] cuesta [PRICE] L$. No tienes suficientes L$ para hacer eso.
 	</notification>
 	<notification name="GrantedModifyRights">
 		[NAME] te ha dado permiso para modificar sus objetos.
@@ -1125,25 +1124,25 @@ Puede cambiar más adelante su elección.
 		Ha sido revocado tu privilegio de modificar los objetos de [NAME]
 	</notification>
 	<notification name="FlushMapVisibilityCaches">
-		Esto limpiará las caches del mapa en esta región.
+		Esto limpiará las cachés del mapa en esta región.
 Esto sólo es realmente útil para cuestiones de depuración (&apos;debugging&apos;).
-(A efectos prácticos, espere 5 minutos, y el mapa de cualquiera se actualizará después de que reinicie sesión).
+(A efectos prácticos, espera 5 minutos, y el mapa de cualquiera se actualizará después de que reinicies sesión).
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="BuyOneObjectOnly">
-		No se puede comprar más de un objeto a la vez. Por favor, seleccione sólo un objeto y vuelva a intentarlo.
+		No se puede comprar más de un objeto a la vez. Por favor, selecciona sólo un objeto y vuelve a intentarlo.
 	</notification>
 	<notification name="OnlyCopyContentsOfSingleItem">
 		No se puede copiar a la vez los contenidos de más de un objeto.
-Por favor, selección sólo uno y reinténtelo.
+Por favor, selecciona sólo uno y vuelve a intentarlo.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="KickUsersFromRegion">
-		¿Teleportar a su base a todos los residentes en esta región?
+		¿Teleportar a tu base a todos los residentes en esta región?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="EstateObjectReturn">
-		¿Está seguro de que quiere devolver los objetos propiedad de
+		¿Estás seguro de que quieres devolver los objetos propiedad de
 [USER_NAME] ?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
@@ -1151,50 +1150,50 @@ Por favor, selección sólo uno y reinténtelo.
 		No se han podido configurar las texturas de la región:
 La textura del terreno [TEXTURE_NUM] tiene una profundidad de bites inválida: [TEXTURE_BIT_DEPTH].
 
-Cambie la textura [TEXTURE_NUM] por una imagen de 24-bit y 512x512 o menor, y pulse de nuevo &apos;Aplicar&apos; .
+Cambia la textura [TEXTURE_NUM] por una imagen de 24-bit y 512x512 o menor, y pulsa de nuevo &apos;Aplicar&apos; .
 	</notification>
 	<notification name="InvalidTerrainSize">
 		No se han podido configurar las texturas de la región:
 La textura del terreno [TEXTURE_NUM] es demasiado grande: [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
-Cambie la textura [TEXTURE_NUM] por una imagen de 24-bit y 512x512 o menor, y pulse de nuevo &apos;Aplicar&apos; .
+Cambia la textura [TEXTURE_NUM] por una imagen de 24-bit y 512x512 o menor, y pulsa de nuevo &apos;Aplicar&apos; .
 	</notification>
 	<notification name="RawUploadStarted">
-		Ha empezado la subida. Dependiendo de la velocidad de su conexión, llevará unos dos minutos.
+		Ha empezado la subida. Dependiendo de la velocidad de tu conexión, llevará unos dos minutos.
 	</notification>
 	<notification name="ConfirmBakeTerrain">
-		¿Realmente quiere predeterminar el terreno actual, haciéndolo el centro de los limites para elevarlo y rebajarlo, y el terreno por defecto para la herramienta &apos;Revertir&apos;?
+		¿Realmente quieres predeterminar el terreno actual, haciéndolo el centro de los limites para elevarlo y rebajarlo, y el terreno por defecto para la herramienta &apos;Revertir&apos;?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="MaxAllowedAgentOnRegion">
-		Sólo puede tener [MAX_AGENTS] residentes autorizados.
+		Sólo puedes tener [MAX_AGENTS] residentes autorizados.
 	</notification>
 	<notification name="MaxBannedAgentsOnRegion">
-		Sólo puede tener [MAX_BANNED] residentes no admitidos.
+		Sólo puedes tener [MAX_BANNED] residentes no admitidos.
 	</notification>
 	<notification name="MaxAgentOnRegionBatch">
 		Fallo al intentar añadir [NUM_ADDED] agentes:
 Se superan en [NUM_EXCESS] los [MAX_AGENTS] permitidos en [LIST_TYPE].
 	</notification>
 	<notification name="MaxAllowedGroupsOnRegion">
-		Sólo puede tener [MAX_GROUPS] grupos permitidos.
+		Sólo puedes tener [MAX_GROUPS] grupos permitidos.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Predeterminar"/>
 	</notification>
 	<notification name="MaxManagersOnRegion">
-		Sólo puede tener [MAX_MANAGER] administradores del estado.
+		Sólo puedes tener [MAX_MANAGER] administradores del estado.
 	</notification>
 	<notification name="OwnerCanNotBeDenied">
 		No se puede añadir a la lista de residentes no admitidos al propietario del estado.
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
-		No puede cambiar la apariencia hasta que no se carguen la ropa y la forma.
+		No puedes cambiar la apariencia hasta que no se carguen la ropa y la forma.
 	</notification>
 	<notification name="ClassifiedMustBeAlphanumeric">
-		El nombre de su anuncio clasificado debe empezar o con un número o con una letra de la A a la Z. No se permiten signos de puntuación.
+		El nombre de tu anuncio clasificado debe empezar o con un número o con una letra de la A a la Z. No se permiten signos de puntuación.
 	</notification>
 	<notification name="CantSetBuyObject">
 		No puede configurar el Comprar el objeto, porque éste no está en venta.
-Por favor, ponga en venta el objeto y reinténtelo.
+Por favor, pon en venta el objeto y vuelve a intentarlo.
 	</notification>
 	<notification name="FinishedRawDownload">
 		Acabada la descarga del archivo raw de terreno en:
@@ -1274,15 +1273,15 @@ Esta actualización no es obligatoria, pero te sugerimos instalarla para mejorar
 		<usetemplate ignoretext="Abrir mi navegador para administrar mi cuenta" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
-		Visite el wiki de [SECOND_LIFE] para más detalles sobre cómo informar de una cuestión de seguridad.
+		Visita el wiki de [SECOND_LIFE] para más detalles sobre cómo informar de una cuestión de seguridad.
 		<usetemplate ignoretext="Abrir mi navegador para informar de un fallo de seguridad" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchQAWiki">
-		Visite el wiki QA de [SECOND_LIFE].
+		Visita el wiki QA de [SECOND_LIFE].
 		<usetemplate ignoretext="Abrir mi navegador para el ver el wiki de &apos;QA&apos; (Control de Calidad)" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchPublicIssue">
-		Visite el Public Issue Tracker (sistema público de seguimiento de incidencias) de [SECOND_LIFE], donde podrá informar de errores y otros asuntos.
+		Visita el Public Issue Tracker (sistema público de seguimiento de incidencias) de [SECOND_LIFE], donde podrás informar de errores y otros asuntos.
 		<usetemplate ignoretext="Abrir mi navegador para usar el &apos;Public Issue Tracker&apos;" name="okcancelignore" notext="Cancelar" yestext="Ir a la página"/>
 	</notification>
 	<notification name="WebLaunchSupportWiki">
@@ -1298,26 +1297,26 @@ Esta actualización no es obligatoria, pero te sugerimos instalarla para mejorar
 		<usetemplate ignoretext="Abrir mi navegador para ver el portal de LSL" name="okcancelignore" notext="Cancelar" yestext="Ir a la página"/>
 	</notification>
 	<notification name="ReturnToOwner">
-		¿Está seguro de que quiere devolver los objetos seleccionados a sus propietarios? Los objetos transferibles que se hayan cedido volverán a sus propietarios anteriores.
+		¿Estás seguro de que quieres devolver los objetos seleccionados a sus propietarios? Los objetos transferibles que se hayan cedido volverán a sus propietarios anteriores.
 
 *ATENCIÓN* ¡Serán borrados los objetos no transferibles que estén cedidos!
 		<usetemplate ignoretext="Confirmar antes de devolver objetos a sus propietarios." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Actualmente, usted es miembro del grupo [GROUP].
+		Actualmente, eres miembro del grupo [GROUP].
 ¿Dejar el grupo?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
-		¿DE VERDAD quiere expulsar a todos los usuarios de este grid?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Expulsar a todos los usuarios"/>
+		¿Quieres realmente expulsar a todos los residentes de la cuadrícula?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Expulsar a todos los Residentes"/>
 	</notification>
 	<notification name="MuteLinden">
 		Lo sentimos, pero no puedes ignorar a un Linden.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CannotStartAuctionAlreadyForSale">
-		No puede empezar una subasta en una parcela que ya está en venta. Desactive la venta de terreno si está seguro de querer iniciar una subasta.
+		No puedes empezar una subasta en una parcela que ya está en venta. Desactiva la venta de terreno si estás seguro de querer iniciar una subasta.
 	</notification>
 	<notification label="Falló ignorar el objeto según su nombre." name="MuteByNameFailed">
 		Ya has ignorado este nombre.
@@ -1325,20 +1324,20 @@ Esta actualización no es obligatoria, pero te sugerimos instalarla para mejorar
 	</notification>
 	<notification name="RemoveItemWarn">
 		Aunque esté permitido, borrar contenidos puede dañar el objeto.
-¿Quiere borrar ese ítem?
+¿Quieres borrar ese ítem?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="CantOfferCallingCard">
-		En este momento, no se puede ofrecer una tarjeta de visita. Por favor, reinténtelo en un momento.
+		En este momento, no se puede ofrecer una tarjeta de visita. Por favor, vuelve a intentarlo en un momento.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CantOfferFriendship">
-		En este momento, no se puede ofrecer el ser amigo. Por favor, reinténtelo en un momento.
+		En este momento, no se puede ofrecer el ser amigo. Por favor, vuelve a intentarlo en un momento.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="BusyModeSet">
 		Pasar al modo ocupado.
-Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respuesta en el modo ocupado). Se rehusarán todos los ofrecimientos de teleporte. Todas las ofertas de inventario irán a tu Papelera.
+Se ocultará el chat y los mensajes instantáneos (éstos recibirán tu Respuesta en el modo ocupado). Se rehusarán todos los ofrecimientos de teleporte. Todas las ofertas de inventario irán a tu Papelera.
 		<usetemplate ignoretext="Cambio mi estado al modo ocupado" name="okignore" yestext="OK"/>
 	</notification>
 	<notification name="JoinedTooManyGroupsMember">
@@ -1351,10 +1350,10 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="KickUser">
-		¿Con qué mensaje se expulsará a este usuario?
+		¿Con qué mensaje quieres expulsar a este Residente?
 		<form name="form">
 			<input name="message">
-				Un administrador le ha desconectado.
+				Un administrador te ha desconectado.
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
@@ -1364,34 +1363,34 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		¿Con qué mensaje se expulsará a cualquiera que esté actualmente en el grid?
 		<form name="form">
 			<input name="message">
-				Un administrador le ha desconectado.
+				Un administrador te ha desconectado.
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		¿Con qué mensaje se congelará a este usuario?
+		¿Con qué mensaje quieres congelar a este residente?
 		<form name="form">
 			<input name="message">
-				Ha sido usted congelado. No puede moverse o escribir en el chat. Un administrador contactará con usted a través de un mensaje instantáneo (MI).
+				Has sido congelado. No puedes moverte o escribir en el chat. Un administrador se pondrá en contacto contigo a través de un mensaje instantáneo (MI).
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		¿Con qué mensaje se descongelará a este usuario?
+		¿Con qué mensaje quieres congelar a este residente?
 		<form name="form">
 			<input name="message">
-				Ya no está usted congelado.
+				Ya no estás congelado.
 			</input>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
 	<notification name="OfferTeleport">
-		¿Ofrecer teleporte a su posición con este mensaje?
+		¿Ofrecer teleporte a tu posición con este mensaje?
 		<form name="form">
 			<input name="message">
 				Ven conmigo a [REGION]
@@ -1401,7 +1400,7 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		¿Convocar a este usuario a su posición?
+		¿Obligar a este Residente a ir a tu localización?
 		<form name="form">
 			<input name="message">
 				Ven conmigo a [REGION]
@@ -1419,11 +1418,11 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		<usetemplate ignoretext="Confirmar el teleporte a una localización de los Destacados" name="okcancelignore" notext="Cancelar" yestext="Teleportar"/>
 	</notification>
 	<notification name="TeleportToClassified">
-		¿Teleportarse a [CLASSIFIED]?
+		¿Teleportarte a [CLASSIFIED]?
 		<usetemplate ignoretext="Confirmar el teleporte a una localización de los Clasificados" name="okcancelignore" notext="Cancelar" yestext="Teleportar"/>
 	</notification>
 	<notification label="Mensaje a todo el estado" name="MessageEstate">
-		Escriba un anuncio breve que se enviará a todo el que esté en su estado.
+		Escribe un anuncio breve que se enviará a todo el que esté en tu estado.
 		<form name="form">
 			<input name="message"/>
 			<button name="OK" text="OK"/>
@@ -1431,15 +1430,15 @@ Se ocultará el chat y los mensajes instantáneos   (éstos recibirán tu Respue
 		</form>
 	</notification>
 	<notification label="Cambiar un estado Linden" name="ChangeLindenEstate">
-		Va a hacer cambios en un estado propiedad de Linden (mainland, grid teen, orientación, etc.).
+		Estás a punto de cambiar un estado propiedad de Linden (continente, teen grid, orientación, etc.).
 
-Esto es EXTREMADAMENTE PELIGROSO, porque puede afectar radicalmente al funcionamiento de los usuarios. En mainland, se cambiarán miles de regiones, y se provocará un colapso en el espacio del servidor.
+Esto es EXTREMADAMENTE PELIGROSO porque puede afectar en gran manera la experiencia de los Residentes.  En el Continente, cambiará miles de regiones y y se provocará un colapso en el espacio del servidor. 
 
-¿Proceder?
+¿Continuar?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification label="Cambiar el acceso a un estado Linden" name="ChangeLindenAccess">
-		Va a cambiar la lista de acceso de un estado propiedad de Linden (mainland, grid teen, orientación, etc.).
+		Vas a cambiar la lista de acceso de un estado propiedad de Linden (mainland, grid teen, orientación, etc.).
 
 Esto es PELIGROSO, y sólo debe hacerse para deshacerse de ataques que permitan sacar o meter en el grid objetos o L$.
 Se cambiarán miles de regiones, y se provocará un colapso en el espacio del servidor.
@@ -1482,26 +1481,26 @@ Se cambiarán miles de regiones, y se provocará un colapso en el espacio del se
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="EstateChangeCovenant">
-		¿Está seguro de que quiere cambiar el contrato del estado?
+		¿Estás seguro de que quieres cambiar el contrato del estado?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
-		Usted no está autorizado en esa región por su nivel de calificación. Puede deberse a que no hay información validada de su edad.
+		No estás autorizado en esa región por su nivel de calificación. Puede deberse a que no hay información validada de tu edad.
 
-Por favor, compruebe que tiene instalado el último visor, y vaya a la Base de Conocimientos para más detalles sobre el acceso a zonas con este nivel de calificación.
+Por favor, comprueba que tienes instalado el último visor, y dirígete a la Base de Conocimientos para más detalles sobre el acceso a zonas con este nivel de calificación.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_KB">
-		Usted no está autorizado en esa región por su nivel de calificación. 
+		No estás autorizado en esa región por su nivel de calificación. 
 
-¿Quiere ir a la Base de Conocimientos para aprender más sobre el nivel de calificación?
+¿Quieres ir a la Base de Conocimientos para aprender más sobre el nivel de calificación?
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/es
 		</url>
 		<usetemplate ignoretext="No puedo entrar a esta región dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Notify">
-		Usted no está autorizado en esa región por su nivel de calificación.
+		No estás autorizado en esa región por su nivel de calificación.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
 		No estás autorizado en esta región por tus preferencias sobre el nivel de calificación.
@@ -1514,22 +1513,22 @@ Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferen
 		</form>
 	</notification>
 	<notification name="LandClaimAccessBlocked">
-		Usted no puede reclamar este terreno por su nivel de calificación. Puede deberse a que no hay información validada de su edad.
+		No puedes reclamar este terreno por su nivel de calificación. Puede deberse a que no hay información validada de tu edad.
 
-Por favor, compruebe que tiene instalado el último visor, y vaya a la Base de Conocimientos para más detalles sobre el acceso a zonas con este nivel de calificación.
+Por favor, comprueba que tienes instalado el último visor, y dirígete a la Base de Conocimientos para más detalles sobre el acceso a zonas con este nivel de calificación.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_KB">
-		No puede reclamar este terreno por sus nivel de calificación. 
+		No puedes reclamar este terreno por su nivel de calificación. 
 
-¿Quiere ir a la Base de Conocimientos para más información sobre el nivel de calificación?
+¿Quieres ir a la Base de Conocimientos para más información sobre el nivel de calificación?
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/es
 		</url>
 		<usetemplate ignoretext="No puedo reclamar este terreno dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
 	</notification>
 	<notification name="LandClaimAccessBlocked_Notify">
-		Por su nivel de calificación, usted no puede reclamar este terreno.
+		No puedes reclamar este terreno debido a su nivel de calificación.
 	</notification>
 	<notification name="LandClaimAccessBlocked_Change">
 		No puedes reclamar este terreno por tus preferencias sobre el nivel de calificación.
@@ -1538,22 +1537,22 @@ Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferen
 		<usetemplate ignoretext="Mis preferencias sobre el nivel de calificación me impiden reclamar este terreno" name="okcancelignore" notext="Cerrar" yestext="Cambiar preferencia"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked">
-		Usted no puede comprar este terreno por su nivel de calificación. Puede deberse a que no hay información validada de su edad.
+		No puedes comprar este terreno por su nivel de calificación. Puede deberse a que no hay información validada de tu edad.
 
-Por favor, compruebe que tiene instalado el último visor, y vaya a la Base de Conocimientos para más detalles sobre el acceso a zonas con este nivel de calificación.
+Por favor, comprueba que tienes instalado el último visor, y dirígete a la Base de Conocimientos para más detalles sobre el acceso a zonas con este nivel de calificación.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_KB">
-		No puede comprar este terreno por sus preferencias de nivel de calificación. 
+		No puedes comprar este terreno por tus preferencias de nivel de calificación. 
 
-¿Quiere ir a la Base de Conocimientos para más información sobre el nivel de calificación?
+¿Quieres ir a la Base de Conocimientos para más información sobre el nivel de calificación?
 		<url name="url">
 			http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview/es
 		</url>
 		<usetemplate ignoretext="No puedo comprar este terreno dado el nivel de calificación" name="okcancelignore" notext="Cerrar" yestext="Ir a la Base de Conocimientos"/>
 	</notification>
 	<notification name="LandBuyAccessBlocked_Notify">
-		No puede comprar este terreno por su nivel de calificación.
+		No puedes comprar este terreno por su nivel de calificación.
 	</notification>
 	<notification name="LandBuyAccessBlocked_Change">
 		No puedes comprar este terreno por tus preferencias sobre el nivel de calificación.
@@ -1573,7 +1572,7 @@ Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferen
 		Hay problemas al añadir un administrador nuevo del estado. Uno o más estados deben de tener llena la lista de administradores.
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
-		Hay problemas en este añadir a la lista del estado. Uno o más estados deben de tener llena la lista.
+		Hay problemas al añadir a la lista del estado. Uno o más estados deben de tener llena la lista.
 	</notification>
 	<notification name="UnableToLoadNotecardAsset">
 		En este momento, no se pueden cargar los datos de la&apos;s nota&apos;s.
@@ -1588,25 +1587,25 @@ Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferen
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PublishClassified">
-		Recuerde: las cuotas que se pagan por los clasificados no son reembolsables.
+		Recuerda: las cuotas que se pagan por los clasificados no son reembolsables.
 
 ¿Publicar ahora este anuncio por [AMOUNT] L$?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="SetClassifiedMature">
-		¿Este anuncio tiene contenido &apos;Mature&apos;?
+		¿Este anuncio tiene contenido &apos;Moderado&apos;?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="SetGroupMature">
-		¿Este grupo tiene contenido &apos;Mature&apos;?
+		¿Este grupo tiene contenido &apos;Moderado&apos;?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification label="Confirmar el reinicio" name="ConfirmRestart">
-		¿Verdaderamente quiere reiniciar la región de aquí a 2 minutos?
+		¿Verdaderamente quieres reiniciar la región de aquí a 2 minutos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification label="Mensaje a toda la región" name="MessageRegion">
-		Escriba un anuncio breve que se enviará a todo el que esté en esta región.
+		Escribe un anuncio breve que se enviará a todo el que esté en esta región.
 		<form name="form">
 			<input name="message"/>
 			<button name="OK" text="OK"/>
@@ -1624,20 +1623,20 @@ Para entrar a regiones Adultas, los Residentes deben haber verificado su cuenta,
 	</notification>
 	<notification label="No se pudo comprar los objetos" name="BuyObjectOneOwner">
 		No se pueden comprar a la vez objetos de propietarios diferentes.
-Por favor, seleccione sólo un objeto y vuelva a intentarlo.
+Por favor, selecciona sólo un objeto y vuelve a intentarlo.
 	</notification>
 	<notification label="No se pudo comprar el contenido" name="BuyContentsOneOnly">
 		No se puede comprar a la vez los contenidos de más de un objeto.
-Por favor, seleccione sólo un objeto y vuelva a intentarlo.
+Por favor, selecciona sólo un objeto y vuelve a intentarlo.
 	</notification>
 	<notification label="No se pudo comprar el contenido" name="BuyContentsOneOwner">
 		No se pueden comprar a la vez objetos de propietarios diferentes.
-Por favor, seleccione sólo un objeto y vuelva a intentarlo.
+Por favor, selecciona sólo un objeto y vuelve a intentarlo.
 	</notification>
 	<notification name="BuyOriginal">
 		¿Comprar el objeto original de [OWNER] por [PRICE] L$?
-Usted pasará a ser el propietario de este objeto.
-Podrá:
+Pasarás a ser el propietario de este objeto.
+Podrás:
  Modificarlo: [MODIFYPERM]
  Copiarlo: [COPYPERM]
  Revenderlo o darlo: [RESELLPERM]
@@ -1645,8 +1644,8 @@ Podrá:
 	</notification>
 	<notification name="BuyOriginalNoOwner">
 		¿Comprar el objeto original por [PRICE] L$?
-Usted pasará a ser el propietario de este objeto.
-Podrá:
+Pasarás a ser el propietario de este objeto.
+Podrás:
  Modificarlo: [MODIFYPERM]
  Copiarlo: [COPYPERM]
  Revenderlo o darlo: [RESELLPERM]
@@ -1654,8 +1653,8 @@ Podrá:
 	</notification>
 	<notification name="BuyCopy">
 		¿Comprar una copia de [OWNER] por [PRICE] L$?
-El objeto se copiará a su inventario.
-Podrá:
+El objeto se copiará a tu inventario.
+Podrás:
  Modificarlo: [MODIFYPERM]
  Copiarlo: [COPYPERM]
  Revenderlo o darlo: [RESELLPERM]
@@ -1663,8 +1662,8 @@ Podrá:
 	</notification>
 	<notification name="BuyCopyNoOwner">
 		¿Comprar una copia por [PRICE] L$?
-El objeto se copiará a su inventario.
-Podrá:
+El objeto se copiará a tu inventario.
+Podrás:
  Modificarlo: [MODIFYPERM]
  Copiarlo: [COPYPERM]
  Revenderlo o darlo: [RESELLPERM]
@@ -1672,27 +1671,27 @@ Podrá:
 	</notification>
 	<notification name="BuyContents">
 		¿Comprar los contenidos de [OWNER] por [PRICE] L$?
-Serán copiados a su inventario.
+Serán copiados a tu inventario.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="BuyContentsNoOwner">
 		¿Comprar los contenidos por [PRICE] L$?
-Serán copiados a su inventario.
+Serán copiados a tu inventario.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmPurchase">
-		Esta transacción hará que:
+		Esta transacción consiste en:
 [ACTION]
 
-¿Está seguro de querer hacer esta compra?
+¿Estás seguro de querer hacer esta compra?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmPurchasePassword">
-		Esta transacción hará que:
+		Esta transacción consiste en:
 [ACTION]
 
-¿Está seguro de querer hacer esta compra?
-Por favor, vuelva a escribir su contraseña y pulse OK.
+¿Estás seguro de querer hacer esta compra?
+Por favor, vuelva a escribir tu contraseña y pulsa OK.
 		<form name="form">
 			<input name="message"/>
 			<button name="ConfirmPurchase" text="OK"/>
@@ -1701,18 +1700,18 @@ Por favor, vuelva a escribir su contraseña y pulse OK.
 	</notification>
 	<notification name="SetPickLocation">
 		Nota:
-Ha actualizado la posición de este Destacado, pero los otros detalles permanecen con sus valores originales.
+Has actualizado la posición de este Destacado, pero los otros detalles permanecen con sus valores originales.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MoveInventoryFromObject">
-		Ha elegido ítems &apos;no copiables&apos; de su inventario. Esos ítems se quitarán de su inventario, no se copiarán.
+		Has elegido ítems &apos;no copiables&apos; de tu inventario. Esos ítems se quitarán de tu inventario, no se copiarán.
 
 ¿Mover el/los ítem/s del inventario?
 		<usetemplate ignoretext="Avisarme antes de que mueva ítems &apos;no copiables&apos; desde un objeto" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="MoveInventoryFromScriptedObject">
-		Ha elegido ítems &apos;no copiables&apos; de su inventario. Esos ítems se moverán a su inventario, no se copiarán.
-Dado que estos objetos tienen scripts, moverlos a su inventario puede provocar un mal funcionamiento del script.
+		Has elegido ítems &apos;no copiables&apos; de tu inventario. Esos ítems se moverán a tu inventario, no se copiarán.
+Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar un mal funcionamiento del script.
 
 ¿Mover el/los ítem/s del inventario?
 		<usetemplate ignoretext="Avisarme antes de que mueva ítems &apos;no copiables&apos; que puedan estropear un objeto con script" name="okcancelignore" notext="Cancelar" yestext="OK"/>
@@ -1724,7 +1723,7 @@ Dado que estos objetos tienen scripts, moverlos a su inventario puede provocar u
 		</form>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
-		En este objeto, no hay ítems que esté autorizado a copiar.
+		En este objeto, no hay ítems que estés autorizado a copiar.
 	</notification>
 	<notification name="WebLaunchAccountHistory">
 		¿Ir a tu [http://secondlife.com/account/ Panel de Control] para ver el historial de tu cuenta?
@@ -1740,24 +1739,24 @@ Dado que estos objetos tienen scripts, moverlos a su inventario puede provocar u
 Se investigan y resuelven todas las infracciones denunciadas.
 	</notification>
 	<notification name="HelpReportAbuseSelectCategory">
-		Por favor, elija una categoría para esta denuncia de infracción.
+		Por favor, elige una categoría para esta denuncia de infracción.
 Seleccionar una categoría nos ayuda a clasificar y procesar las denuncias de infracciones.
 	</notification>
 	<notification name="HelpReportAbuseAbuserNameEmpty">
-		Por favor, escriba el nombre del infractor.
+		Por favor, escribe el nombre del infractor.
 Aportar el dato preciso nos ayuda a clasificar y procesar las denuncias de infracciones.
 	</notification>
 	<notification name="HelpReportAbuseAbuserLocationEmpty">
-		Por favor, escriba la localización donde tuvo lugar la infracción.
+		Por favor, escribe la localización donde tuvo lugar la infracción.
 Aportar el dato preciso nos ayuda a clasificar y procesar las denuncias de infracciones.
 	</notification>
 	<notification name="HelpReportAbuseSummaryEmpty">
-		Por favor, escriba un resumen de la infracción que ha habido.
+		Por favor, escribe un resumen de la infracción que ha habido.
 Aportar un resumen preciso nos ayuda a clasificar y procesar las denuncias de infracciones.
 	</notification>
 	<notification name="HelpReportAbuseDetailsEmpty">
-		Por favor, escriba una descripción minuciosa de la infracción que ha habido.
-Sea tan específico como pueda, incluyendo los nombres y los detalles implicados en el incidente que denuncia.
+		Por favor, escribe una descripción minuciosa de la infracción que ha habido.
+Sé tan específico como puedas, incluyendo los nombres y los detalles implicados en el incidente que denuncias.
 Aportar una descripción precisa nos ayuda a clasificar y procesar las denuncias de infracciones.
 	</notification>
 	<notification name="HelpReportAbuseContainsCopyright">
@@ -1780,7 +1779,7 @@ Linden Lab
 [COMPONENTS]
 	</notification>
 	<notification label="Reemplazar el anexado actual" name="ReplaceAttachment">
-		En ese punto de su cuerpo ya hay un objeto anexado. ¿Quiere reemplazarlo por el objeto que ha elegido?
+		En ese punto de tu cuerpo ya hay un objeto anexado. ¿Quieres reemplazarlo por el objeto que has elegido?
 		<form name="form">
 			<ignore name="ignore" save_option="true" text="Reemplazar un añadido actual con el ítem seleccionado"/>
 			<button ignore="Reemplazar automaticamente" name="Yes" text="OK"/>
@@ -1788,9 +1787,9 @@ Linden Lab
 		</form>
 	</notification>
 	<notification label="¡Aviso! Modo Ocupado" name="BusyModePay">
-		Usted está en el modo Ocupado. Por tanto, no recibirá ningún ítem a cambio de esta pago.
+		Estás en el modo Ocupado. Por tanto, no recibirás ningún ítem a cambio de este pago.
 
-¿Quiere salir del modo Ocupado ante de completar esta transacción?
+¿Quieres salir del modo Ocupado antes de completar esta transacción?
 		<form name="form">
 			<ignore name="ignore" save_option="true" text="Voy a pagar a una persona u objeto mientras estoy en el modo ocupado"/>
 			<button ignore="Siempre salir del modo Ocupado" name="Yes" text="OK"/>
@@ -1798,7 +1797,7 @@ Linden Lab
 		</form>
 	</notification>
 	<notification name="ConfirmDeleteProtectedCategory">
-		La carpeta &apos;[FOLDERNAME]&apos; pertenece al sistema,   y borrar carpetas del sistema puede provocar inestabilidad.  ¿Estás seguro de que quieres borrarla?
+		La carpeta &apos;[FOLDERNAME]&apos; pertenece al sistema, y borrar carpetas del sistema puede provocar inestabilidad.  ¿Estás seguro de que quieres borrarla?
 		<usetemplate ignoretext="Confirmar antes de borrar una carpeta del sistema" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmEmptyTrash">
@@ -1810,11 +1809,11 @@ Linden Lab
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearCookies">
-		¿Está seguro de que quiere limpiar sus cookies?
+		¿Estás seguro de que quieres limpiar tus cookies?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sí"/>
 	</notification>
 	<notification name="ConfirmClearMediaUrlList">
-		¿Está seguro de que quiere vaciar su lista de URL guardadas?
+		¿Estás seguro de que quieres vaciar tu lista de URL guardadas?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sí"/>
 	</notification>
 	<notification name="ConfirmEmptyLostAndFound">
@@ -1831,21 +1830,21 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 		</form>
 	</notification>
 	<notification name="WLSavePresetAlert">
-		¿Quiere sobrescribir la preselección guardada?
+		¿Quieres sobrescribir la preselección guardada?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="WLDeletePresetAlert">
-		¿Quiere borrar [SKY]?
+		¿Quieres borrar [SKY]?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="WLNoEditDefault">
-		No puede editar ni borrar una preselección por defecto.
+		No puedes editar ni borrar una preselección por defecto.
 	</notification>
 	<notification name="WLMissingSky">
 		Este archivo del ciclo de un día se refiere a un archivo perdido de cielo: [SKY].
 	</notification>
 	<notification name="PPSaveEffectAlert">
-		Ya existe un efecto de procesamiento. ¿Desea sobreescribirlo?
+		Ya existe un efecto de procesamiento. ¿Quieres sobreescribirlo?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="NewSkyPreset">
@@ -1875,7 +1874,7 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 		¡Esa preselección ya existe!
 	</notification>
 	<notification name="WaterNoEditDefault">
-		No puede editar o borrar una preselección por defecto.
+		No puedes editar o borrar una preselección por defecto.
 	</notification>
 	<notification name="ChatterBoxSessionStartError">
 		No se puede empezar una nueva sesión de chat con [RECIPIENT].
@@ -1888,7 +1887,7 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ForceCloseChatterBoxSession">
-		Debe cerrarse su sesión de chat con [NAME].
+		Debe cerrarse tu sesión de chat con [NAME].
 [REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -1896,7 +1895,7 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 		No puedes comprar un objeto mientras esté anexado.
 	</notification>
 	<notification label="Acerca de las solicitudes de autorización de débito" name="DebitPermissionDetails">
-		Al admitir esta petición, le da permiso a un script para que coja dólares Linden (L$) de su cuenta. Para revocar este permiso, el propietario del objeto debe eliminarlo o reiniciar ese script del objeto.
+		Al admitir esta petición, le das permiso a un script para que coja dólares Linden (L$) de tu cuenta. Para revocar este permiso, el propietario del objeto debe eliminarlo o reiniciar ese script del objeto.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AutoWearNewClothing">
@@ -1931,10 +1930,10 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 		Cancelado
 	</notification>
 	<notification name="CancelledSit">
-		Cancelado el sentarse
+		Cancelado el sentarte
 	</notification>
 	<notification name="CancelledAttach">
-		Candelado el anexar
+		Cancelado el anexar
 	</notification>
 	<notification name="ReplacedMissingWearable">
 		Reemplazadas las ropas o partes del cuerpo perdidas con sus equivalentes por defecto.
@@ -1956,7 +1955,7 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 (tardará unos 5 minutos).
 	</notification>
 	<notification name="UploadPayment">
-		Ha pagado [AMOUNT] LS por la subida.
+		Has pagado [AMOUNT] LS por la subida.
 	</notification>
 	<notification name="UploadWebSnapshotDone">
 		Completada la subida de la foto del sitio web.
@@ -1977,7 +1976,7 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 		El hito ha desaparecido de la base de datos.
 	</notification>
 	<notification name="UnableToLoadLandmark">
-		No se ha podido cargar el hito. Por favor, vuelva a intentarlo.
+		No se ha podido cargar el hito. Por favor, vuelve a intentarlo.
 	</notification>
 	<notification name="CapsKeyOn">
 		Tienes pulsada la tecla de mayúsculas.
@@ -1990,7 +1989,7 @@ Esto puede influir en tu contraseña.
 		No tienes permiso para ver esta nota.
 	</notification>
 	<notification name="RezItemNoPermissions">
-		No tiene permisos suficientes para renderizar el objeto.
+		No tienes permisos suficientes para renderizar el objeto.
 	</notification>
 	<notification name="UnableToLoadNotecard">
 		En este momento no se puede cargar la nota.
@@ -1999,30 +1998,30 @@ Esto puede influir en tu contraseña.
 		El script ha desaparecido de la base de datos.
 	</notification>
 	<notification name="ScriptNoPermissions">
-		No tiene permisos suficientes para ver el script.
+		No tienes permisos suficientes para ver el script.
 	</notification>
 	<notification name="UnableToLoadScript">
-		No se ha podido cargar el script. Por favor, vuelva a intentarlo.
+		No se ha podido cargar el script. Por favor, vuelve a intentarlo.
 	</notification>
 	<notification name="IncompleteInventory">
-		Los contenidos que está usted ofreciendo aún no están disponibles. Por favor, vuelva a ofrecerlos en un minuto.
+		Los contenidos que estás ofreciendo aún no están disponibles. Por favor, vuelve a ofrecerlos en un minuto.
 	</notification>
 	<notification name="CannotModifyProtectedCategories">
-		No puede modificar categorías que están protegidas.
+		No puedes modificar categorías que están protegidas.
 	</notification>
 	<notification name="CannotRemoveProtectedCategories">
-		No puede quitar categorías que están protegidas.
+		No puedes quitar categorías que están protegidas.
 	</notification>
 	<notification name="OfferedCard">
-		Ha ofrecido una tarjeta de visita a [FIRST] [LAST]
+		Has ofrecido una tarjeta de visita a [FIRST] [LAST]
 	</notification>
 	<notification name="UnableToBuyWhileDownloading">
-		No se puede comprar un objeto mientras se descargan sus datos.
-Por favor, vuelva a intentarlo.
+		No se puede comprar un objeto mientras se descargan los datos.
+Por favor, vuelve a intentarlo.
 	</notification>
 	<notification name="UnableToLinkWhileDownloading">
-		No se puede enlazar un objeto mientras se descargan sus datos.
-Por favor, vuelva a intentarlo.
+		No se puede enlazar un objeto mientras se descargan los datos.
+Por favor, vuelve a intentarlo.
 	</notification>
 	<notification name="CannotBuyObjectsFromDifferentOwners">
 		No puedes comprar más de un objeto a la vez.
@@ -2044,16 +2043,16 @@ Por favor, selecciona un sólo objeto.
 		[NAME] ha recibido tu oferta de inventario.
 	</notification>
 	<notification name="InventoryDeclined">
-		[NAME] ha rehusado su oferta del inventario.
+		[NAME] ha rehusado tu oferta del inventario.
 	</notification>
 	<notification name="ObjectMessage">
 		[NAME]: [MESSAGE]
 	</notification>
 	<notification name="CallingCardAccepted">
-		Se ha aceptado su tarjeta de visita.
+		Se ha aceptado tu tarjeta de visita.
 	</notification>
 	<notification name="CallingCardDeclined">
-		Se ha rehusado su tarjeta de visita.
+		Se ha rehusado tu tarjeta de visita.
 	</notification>
 	<notification name="TeleportToLandmark">
 		Puedes teleportarte a lugares como &apos;[NAME]&apos; abriendo el panel Lugares -a la derecha de tu pantalla- y seleccionando la sección Hitos.
@@ -2066,14 +2065,14 @@ Elige al Residente de la lista y pulsa &apos;MI&apos; en la parte inferior del p
 (También puedes pulsar dos veces en su nombre o pulsarlo con el botón derecho y elegir &apos;MI&apos;).
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
-		No puede seleccionar un terreno que cruce las fronteras entre servidores.
-Inténtelo seleccionando un trozo más pequeño de terreno.
+		No puedes seleccionar un terreno que cruce las fronteras entre servidores.
+Inténtalo seleccionando un trozo más pequeño de terreno.
 	</notification>
 	<notification name="SearchWordBanned">
-		Se han excluido algunos términos de su búsqueda debido a restricciones en el contenido, según se especifica en las Normas de la Comunidad.
+		Se han excluido algunos términos de tu búsqueda debido a restricciones en el contenido, según se especifica en las Normas de la Comunidad.
 	</notification>
 	<notification name="NoContentToSearch">
-		Por favor, elija al menos un tipo de contenido a buscar (&apos;PG&apos;, &apos;Mature&apos;, o &apos;Adult&apos;).
+		Por favor, elige al menos un tipo de contenido a buscar (&apos;PG&apos;, &apos;Mature&apos;, o &apos;Adult&apos;).
 	</notification>
 	<notification name="GroupVote">
 		[NAME] ha propuesto votar:
@@ -2129,10 +2128,10 @@ Por favor, reinstala el plugin o contacta con el vendedor si sigues teniendo pro
 		</form>
 	</notification>
 	<notification name="OwnedObjectsReturned">
-		Se han devuelto a su inventario los objetos de los que usted era propietario en la parcela seleccionada.
+		Se han devuelto a tu inventario los objetos de los que eras propietario en la parcela seleccionada.
 	</notification>
 	<notification name="OtherObjectsReturned">
-		Se han devuelto a su inventario los objetos de los que usted era propietario en la parcela propiedad de [FIRST] [LAST].
+		Se han devuelto a tu inventario los objetos de los que eras propietario en la parcela propiedad de [FIRST] [LAST].
 	</notification>
 	<notification name="OtherObjectsReturned2">
 		Se han devuelto a su propietario los objetos seleccionados en la parcela de terreno propiedad de &apos;[NAME]&apos;.
@@ -2143,7 +2142,7 @@ Los objetos transferibles que se transfirieron al grupo se han devuelto a sus pr
 Los objetos no transferibles que se transfirieron al grupo han sido borrados.
 	</notification>
 	<notification name="UnOwnedObjectsReturned">
-		Se han devuelto a sus propietarios los objetos de los que usted NO era propietario en la parcela seleccionada.
+		Se han devuelto a sus propietarios los objetos de los que NO eras propietario en la parcela seleccionada.
 	</notification>
 	<notification name="ServerObjectMessage">
 		Mensaje de [NAME]:
@@ -2181,33 +2180,33 @@ Los scripts no funcionan aquí, excepto los pertenecientes al propietario del te
 		Sólo puedes reclamar terreno público de la región en que estás.
 	</notification>
 	<notification name="RegionTPAccessBlocked">
-		No está autorizado en esa región por su nivel de calificación. Debe validar su edad y/o instalar el último visor.
+		No estás autorizado en esa región por su nivel de calificación. Debes validar tu edad y/o instalar el último visor.
 
-Por favor, vaya a la Base de Conocimientos para más detalles sobre el acceso a zonas con este nivel de calificación.
+Por favor, dirígete a la Base de Conocimientos para más detalles sobre el acceso a zonas con este nivel de calificación.
 	</notification>
 	<notification name="URBannedFromRegion">
-		Se le ha prohibido el acceso a la región.
+		Se te ha prohibido el acceso a la región.
 	</notification>
 	<notification name="NoTeenGridAccess">
-		Su cuenta no puede conectarse a esta región del grid teen.
+		Tu cuenta no puede conectarse a esta región del grid teen.
 	</notification>
 	<notification name="ImproperPaymentStatus">
-		No tiene el estado de pago adecuado para entrar a esta región.
+		No tienes el estado de pago adecuado para entrar a esta región.
 	</notification>
 	<notification name="MustGetAgeParcel">
-		Debe haber verificado su edad para entrar a esta parcela.
+		Debes haber verificado tu edad para entrar a esta parcela.
 	</notification>
 	<notification name="NoDestRegion">
 		No se ha encontrada la región de destino.
 	</notification>
 	<notification name="NotAllowedInDest">
-		No está autorizado en el destino.
+		No estás autorizado en el destino.
 	</notification>
 	<notification name="RegionParcelBan">
-		No puede cruzar la región por una parcela con el acceso prohibido. Intente otro camino.
+		No puedes cruzar la región por una parcela con el acceso prohibido. Intenta otro camino.
 	</notification>
 	<notification name="TelehubRedirect">
-		Ha sido redirigido a un punto de teleporte.
+		Has sido redirigido a un punto de teleporte.
 	</notification>
 	<notification name="CouldntTPCloser">
 		No se puede teleportar a un destino tan cercano.
@@ -2216,17 +2215,17 @@ Por favor, vaya a la Base de Conocimientos para más detalles sobre el acceso a 
 		Teleporte cancelado.
 	</notification>
 	<notification name="FullRegionTryAgain">
-		En estos momentos, está llena la región a la que intenta entrar.
-Por favor, reinténtelo en unos momentos.
+		En estos momentos, está llena la región a la que estás intentando entrar.
+Por favor, vuelve a intentarlo en unos momentos.
 	</notification>
 	<notification name="GeneralFailure">
 		Fallo general.
 	</notification>
 	<notification name="RoutedWrongRegion">
-		Mal dirigido a la región. Por favor, reinténtelo.
+		Mal dirigido a la región. Por favor, vuelve a intentarlo.
 	</notification>
 	<notification name="NoValidAgentID">
-		ID de agente inválida.
+		ID de agente inválido.
 	</notification>
 	<notification name="NoValidSession">
 		ID de sesión inválido.
@@ -2241,13 +2240,13 @@ Por favor, reinténtelo en unos momentos.
 		No se puede crear la conexión.
 	</notification>
 	<notification name="InternalUsherError">
-		Se ha producido un error interno al intentar acceder al destino de su teleporte. Puede que, en este momento, el servicio de [SECOND_LIFE] tenga problemas.
+		Se ha producido un error interno al intentar acceder al destino de tu teleporte. Puede que, en este momento, el servicio de [SECOND_LIFE] tenga problemas.
 	</notification>
 	<notification name="NoGoodTPDestination">
 		No se puede encontrar en esta región un buen destino para el teleporte.
 	</notification>
 	<notification name="InternalErrorRegionResolver">
-		Ha sucedido un error interno al manejar las coordenadas globales de su petición de teleporte. Puede que, en este momento, el servicio de [SECOND_LIFE] tenga problemas.
+		Se ha producido un error interno al manejar las coordenadas globales de tu petición de teleporte. Puede que, en este momento, el servicio de [SECOND_LIFE] tenga problemas.
 	</notification>
 	<notification name="NoValidLanding">
 		No se ha podido encontrar un punto de aterrizaje válido.
@@ -2316,11 +2315,11 @@ Por favor, reinténtelo en unos momentos.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME] le está ofreciendo amistad.
+		[NAME] te está ofreciendo amistad.
 
 [MESSAGE]
 
-(Por defecto, usted podrá ver si están conectados los demás).
+(Por defecto, podrás ver si están conectados los demás).
 		<form name="form">
 			<button name="Accept" text="Aceptar"/>
 			<button name="Decline" text="Rehusar"/>
@@ -2330,19 +2329,19 @@ Por favor, reinténtelo en unos momentos.
 		Has ofrecido amistad a [TO_NAME]
 	</notification>
 	<notification name="OfferFriendshipNoMessage">
-		[NAME] le está ofreciendo amistad.
+		[NAME] te está ofreciendo amistad.
 
-(Por defecto, usted podrá ver si están conectados los demás).
+(Por defecto, podrás ver si están conectados los demás).
 		<form name="form">
 			<button name="Accept" text="Aceptar"/>
 			<button name="Decline" text="Rehusar"/>
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] ha aceptado su oferta de amistad.
+		[NAME] ha aceptado tu oferta de amistad.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] ha rehusado su oferta de amistad.
+		[NAME] ha rehusado tu oferta de amistad.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Aceptado el ofrecimiento de amistad.
@@ -2363,7 +2362,7 @@ Esto añadirá un marcador en tu inventario para que puedas enviarle rápidament
 Si permaneces en esta región serás desconectado.
 	</notification>
 	<notification name="RegionRestartSeconds">
-		Esta región se reiniciará en  [SECONDS] segundos.
+		Esta región se reiniciará en [SECONDS] segundos.
 Si permaneces en esta región serás desconectado.
 	</notification>
 	<notification name="LoadWebPage">
@@ -2390,7 +2389,7 @@ Del objeto: [OBJECTNAME]; propiedad de: [NAME]?
 		&apos;[OBJECTNAME]&apos;, un objeto propiedad de &apos;[NAME]&apos;, querría:
 
 [QUESTIONS]
-¿Está de acuerdo?
+¿Estás de acuerdo?
 		<form name="form">
 			<button name="Yes" text="Sí"/>
 			<button name="No" text="No"/>
@@ -2424,25 +2423,17 @@ Si no confias en este objeto y en su creador, deberías rehusar esta petición.
 			<button name="Ignore" text="Ignorar"/>
 		</form>
 	</notification>
-	<notification name="ScriptToast">
-		El &apos;[TITLE]&apos; de [FIRST] [LAST] está esperando una respuesta del usuario.
-		<form name="form">
-			<button name="Open" text="Abrir el diálogo"/>
-			<button name="Ignore" text="Ignorar"/>
-			<button name="Block" text="Ignorar"/>
-		</form>
-	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		¡Gracias por tu pago!
 
-Tu saldo de L$ se actualizará cuando se complete el proceso. Si el proceso tarda más de 20 minutos, se cancelará tu transacción,    y la cantidad se cargará en tu saldo de US$.
+Tu saldo de L$ se actualizará cuando se complete el proceso. Si el proceso tarda más de 20 minutos, se cancelará tu transacción, y la cantidad se cargará en tu saldo de US$.
 
 Puedes revisar el estado de tu pago en el Historial de transacciones de tu [http://secondlife.com/account/ Panel de Control]
 	</notification>
 	<notification name="FirstOverrideKeys">
-		A partir de ahora, sus teclas de movimiento las gestiona un objeto.
-Pruebe las teclas del cursor o AWSD para ver qué hacen.
-Algunos objetos (las pistolas, por ejemplo) le pedirán que, para usarlos, entre usted en vista subjetiva. Pulse &apos;M&apos; para hacerlo.
+		A partir de ahora, tus teclas de movimiento las gestiona un objeto.
+Prueba las teclas del cursor o AWSD para ver qué hacen.
+Algunos objetos (las pistolas, por ejemplo) te pedirán que, para usarlos, entres en vista subjetiva. Pulsa &apos;M&apos; para hacerlo.
 	</notification>
 	<notification name="FirstSandbox">
 		Esta es una región &apos;sandbox&apos; (zona de pruebas) donde los Residentes pueden aprender a construir.
@@ -2450,7 +2441,7 @@ Algunos objetos (las pistolas, por ejemplo) le pedirán que, para usarlos, entre
 Los objetos que construyas aquí serán eliminados cuando la abandones; por tanto, no olvides pulsarlos con el botón derecho y elegir &apos;Tomar&apos; para que tu creación vaya a tu inventario.
 	</notification>
 	<notification name="MaxListSelectMessage">
-		Puede seleccionar un máximo de [MAX_SELECT] ítems de esta lista.
+		Puedes seleccionar un máximo de [MAX_SELECT] ítems de esta lista.
 	</notification>
 	<notification name="VoiceInviteP2P">
 		[NAME] te está invitando a un chat de voz.
@@ -2498,10 +2489,10 @@ Pulsa Aceptar o Rehusar para coger o no la llamada. Pulsa Ignorar para ignorar a
 		</form>
 	</notification>
 	<notification name="VoiceChannelFull">
-		El chat de voz al que está intentando entrar, [VOICE_CHANNEL_NAME], ha llegado a su capacidad máxima. Por favor, inténtelo más tarde.
+		El chat de voz al que estás intentando entrar, [VOICE_CHANNEL_NAME], ha llegado a su capacidad máxima. Por favor, vuelve a intentarlo más tarde.
 	</notification>
 	<notification name="ProximalVoiceChannelFull">
-		Lo sentimos. Este área ha llegado a su capacidad máxima de conversaciones por voz. Por favor, intente usar la voz en otra zona.
+		Lo sentimos. Este área ha llegado a su capacidad máxima de conversaciones por voz. Por favor, intenta usar la voz en otra zona.
 	</notification>
 	<notification name="VoiceChannelDisconnected">
 		Has sido desconectado de [VOICE_CHANNEL_NAME].  Vas a ser reconectado al chat de voz.
@@ -2519,22 +2510,22 @@ Pulsa Aceptar o Rehusar para coger o no la llamada. Pulsa Ignorar para ignorar a
 		Fallo al conectar a [VOICE_CHANNEL_NAME]; por favor, inténtalo más tarde.  Vas a ser reconectado al chat de voz.
 	</notification>
 	<notification name="VoiceLoginRetry">
-		Estamos creando un canal de voz para usted. Se puede tardar hasta un minuto.
+		Estamos creando un canal de voz para ti. Se puede tardar hasta un minuto.
 	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		Sólo los miembros de un grupo determinado pueden visitar esta zona.
 	</notification>
 	<notification name="Cannot enter parcel: banned">
-		No puede entrar en esta parcela, se le ha prohibido el acceso.
+		No puedes entrar en esta parcela, se te ha prohibido el acceso.
 	</notification>
 	<notification name="Cannot enter parcel: not on access list">
-		No puede entrar en esta parcela, no está en la lista de acceso.
+		No puedes entrar en esta parcela, no estás en la lista de acceso.
 	</notification>
 	<notification name="VoiceNotAllowed">
-		No tiene permiso para conectarse al chat de voz de [VOICE_CHANNEL_NAME].
+		No tienes permiso para conectarte al chat de voz de [VOICE_CHANNEL_NAME].
 	</notification>
 	<notification name="VoiceCallGenericError">
-		Ha ocurrido un error intentando conectarle al [VOICE_CHANNEL_NAME]. Por favor, inténtelo más tarde.
+		Se ha producido un error al intentar conectarte al [VOICE_CHANNEL_NAME]. Por favor, inténtalo más tarde.
 	</notification>
 	<notification name="ServerVersionChanged">
 		Acabas de entrar en una región que usa un servidor con una versión distinta, y esto puede influir en el funcionamiento. [[URL] Ver las notas de desarrollo].
@@ -2557,7 +2548,7 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		¿Seguro que quieres cerrar todos los MI?
-		<usetemplate name="okcancelignore" notext="Cancelar" yestext="OK"/>
+		<usetemplate ignoretext="Confirmar antes de cerrar todos los MIs" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		Se ha guardado el adjunto.
@@ -2584,10 +2575,10 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 	</notification>
 	<notification name="BottomTrayButtonCanNotBeShown">
 		El botón elegido no se puede mostrar correctamente.
-Se mostrará cuando tenga suficiente espacio.
+Se mostrará cuando haya suficiente espacio.
 	</notification>
 	<global name="UnsupportedCPU">
-		- La velocidad de su CPU no cumple los requerimientos mínimos.
+		- La velocidad de tu CPU no cumple los requerimientos mínimos.
 	</global>
 	<global name="UnsupportedGLRequirements">
 		Parece que no tienes el hardware apropiado para [APP_NAME]. [APP_NAME] requiere una tarjeta gráfica OpenGL que admita texturas múltiples (&apos;multitexture support&apos;). Si la tienes, comprueba que tienes los últimos &apos;drivers&apos; para tu tarjeta gráfica, así como los últimos parches y &apos;service packs&apos; para tu sistema operativo.
@@ -2601,10 +2592,10 @@ Si los problemas persisten, por favor, acude a [SUPPORT_SITE].
 		510
 	</global>
 	<global name="UnsupportedGPU">
-		- Su tarjeta gráfica no cumple los requerimientos mínimos.
+		- Tu tarjeta gráfica no cumple los requerimientos mínimos.
 	</global>
 	<global name="UnsupportedRAM">
-		- La memoria de su sistema no cumple los requerimientos mínimos.
+		- La memoria de tu sistema no cumple los requerimientos mínimos.
 	</global>
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Si posees un terreno, puedes hacerlo tu Base.

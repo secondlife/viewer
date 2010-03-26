@@ -9,6 +9,6 @@
 	<text name="note">
 		* Zablokuj jedynie tekst obiektu, bez dźwięku
 	</text>
-	<button label="Ok" name="OK"/>
+	<button label="OK" name="OK"/>
 	<button label="Anuluj" name="Cancel"/>
 </floater>

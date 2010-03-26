@@ -110,7 +110,7 @@ BOOL LLFloaterScriptLimits::postBuild()
 	
 	if(!mTab)
 	{
-		llinfos << "Error! couldn't get scriptlimits_panels, aborting Script Information setup" << llendl;
+		llwarns << "Error! couldn't get scriptlimits_panels, aborting Script Information setup" << llendl;
 		return FALSE;
 	}
 
@@ -214,7 +214,7 @@ void fetchScriptLimitsRegionInfoResponder::result(const LLSD& content)
 		LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 		if(!instance)
 		{
-			llinfos << "Failed to get llfloaterscriptlimits instance" << llendl;
+			llwarns << "Failed to get llfloaterscriptlimits instance" << llendl;
 		}
 	}
 
@@ -227,7 +227,7 @@ void fetchScriptLimitsRegionInfoResponder::result(const LLSD& content)
 
 void fetchScriptLimitsRegionInfoResponder::error(U32 status, const std::string& reason)
 {
-	llinfos << "Error from responder " << reason << llendl;
+	llwarns << "Error from responder " << reason << llendl;
 }
 
 void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
@@ -281,26 +281,40 @@ void fetchScriptLimitsRegionSummaryResponder::result(const LLSD& content_ref)
 
 	OSMessageBox(nice_llsd.str(), "summary response:", 0);
 
-	llinfos << "summary response:" << *content << llendl;
+	llwarns << "summary response:" << *content << llendl;
 
 #endif
 
 	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 	if(!instance)
 	{
-		llinfos << "Failed to get llfloaterscriptlimits instance" << llendl;
+		llwarns << "Failed to get llfloaterscriptlimits instance" << llendl;
 	}
 	else
 	{
 		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
-		LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
-		panel_memory->setRegionSummary(content);
+		if(tab)
+		{
+			LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
+			if(panel_memory)
+			{
+				panel_memory->childSetValue("loading_text", LLSD(std::string("")));
+
+				LLButton* btn = panel_memory->getChild<LLButton>("refresh_list_btn");
+				if(btn)
+				{
+					btn->setEnabled(true);
+				}
+				
+				panel_memory->setRegionSummary(content);
+			}
+		}
 	}
 }
 
 void fetchScriptLimitsRegionSummaryResponder::error(U32 status, const std::string& reason)
 {
-	llinfos << "Error from responder " << reason << llendl;
+	llwarns << "Error from responder " << reason << llendl;
 }
 
 void fetchScriptLimitsRegionDetailsResponder::result(const LLSD& content_ref)
@@ -383,7 +397,7 @@ result (map)
 
 	if(!instance)
 	{
-		llinfos << "Failed to get llfloaterscriptlimits instance" << llendl;
+		llwarns << "Failed to get llfloaterscriptlimits instance" << llendl;
 	}
 	else
 	{
@@ -397,19 +411,19 @@ result (map)
 			}
 			else
 			{
-				llinfos << "Failed to get scriptlimits memory panel" << llendl;
+				llwarns << "Failed to get scriptlimits memory panel" << llendl;
 			}
 		}
 		else
 		{
-			llinfos << "Failed to get scriptlimits_panels" << llendl;
+			llwarns << "Failed to get scriptlimits_panels" << llendl;
 		}
 	}
 }
 
 void fetchScriptLimitsRegionDetailsResponder::error(U32 status, const std::string& reason)
 {
-	llinfos << "Error from responder " << reason << llendl;
+	llwarns << "Error from responder " << reason << llendl;
 }
 
 void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
@@ -471,7 +485,7 @@ void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
 
 	if(!instance)
 	{
-		llinfos << "Failed to get llfloaterscriptlimits instance" << llendl;
+		llwarns << "Failed to get llfloaterscriptlimits instance" << llendl;
 	}
 	else
 	{
@@ -481,28 +495,45 @@ void fetchScriptLimitsAttachmentInfoResponder::result(const LLSD& content_ref)
 			LLPanelScriptLimitsAttachment* panel = (LLPanelScriptLimitsAttachment*)tab->getChild<LLPanel>("script_limits_my_avatar_panel");
 			if(panel)
 			{
+				panel->childSetValue("loading_text", LLSD(std::string("")));
+
+				LLButton* btn = panel->getChild<LLButton>("refresh_list_btn");
+				if(btn)
+				{
+					btn->setEnabled(true);
+				}
+			
 				panel->setAttachmentDetails(content);
 			}
 			else
 			{
-				llinfos << "Failed to get script_limits_my_avatar_panel" << llendl;
+				llwarns << "Failed to get script_limits_my_avatar_panel" << llendl;
 			}
 		}
 		else
 		{
-			llinfos << "Failed to get scriptlimits_panels" << llendl;
+			llwarns << "Failed to get scriptlimits_panels" << llendl;
 		}
 	}
 }
 
 void fetchScriptLimitsAttachmentInfoResponder::error(U32 status, const std::string& reason)
 {
-	llinfos << "Error from responder " << reason << llendl;
+	llwarns << "Error from responder " << reason << llendl;
 }
 
 ///----------------------------------------------------------------------------
 // Memory Panel
 ///----------------------------------------------------------------------------
+
+LLPanelScriptLimitsRegionMemory::~LLPanelScriptLimitsRegionMemory()
+{
+	if(!mParcelId.isNull())
+	{
+		LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
+		mParcelId.setNull();
+	}
+};
 
 BOOL LLPanelScriptLimitsRegionMemory::getLandScriptResources()
 {
@@ -544,6 +575,11 @@ void LLPanelScriptLimitsRegionMemory::setParcelID(const LLUUID& parcel_id)
 {
 	if (!parcel_id.isNull())
 	{
+		if(!mParcelId.isNull())
+		{
+			LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
+			mParcelId.setNull();
+		}
 		LLRemoteParcelInfoProcessor::getInstance()->addObserver(parcel_id, this);
 		LLRemoteParcelInfoProcessor::getInstance()->sendParcelInfoRequest(parcel_id);
 	}
@@ -597,7 +633,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 	
 	if(!list)
 	{
-		llinfos << "Error getting the scripts_list control" << llendl;
+		llwarns << "Error getting the scripts_list control" << llendl;
 		return;
 	}
 
@@ -734,8 +770,6 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 	
 	// save the structure to make object return easier
 	mContent = content;
-
-	childSetValue("loading_text", LLSD(std::string("")));
 }
 
 void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
@@ -754,7 +788,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 	}
 	else
 	{
-		llinfos << "summary doesn't contain memory info" << llendl;
+		llwarns << "summary doesn't contain memory info" << llendl;
 		return;
 	}
 	
@@ -772,7 +806,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionSummary(LLSD content)
 	}
 	else
 	{
-		llinfos << "summary doesn't contain urls info" << llendl;
+		llwarns << "summary doesn't contain urls info" << llendl;
 		return;
 	}
 
@@ -919,8 +953,6 @@ void LLPanelScriptLimitsRegionMemory::clearList()
 // static
 void LLPanelScriptLimitsRegionMemory::onClickRefresh(void* userdata)
 {
-	llinfos << "LLPanelRegionGeneralInfo::onClickRefresh" << llendl;
-	
 	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 	if(instance)
 	{
@@ -930,6 +962,13 @@ void LLPanelScriptLimitsRegionMemory::onClickRefresh(void* userdata)
 			LLPanelScriptLimitsRegionMemory* panel_memory = (LLPanelScriptLimitsRegionMemory*)tab->getChild<LLPanel>("script_limits_region_memory_panel");
 			if(panel_memory)
 			{
+				//To stop people from hammering the refesh button and accidentally dosing themselves - enough requests can crash the viewer!
+				//turn the button off, then turn it on when we get a response
+				LLButton* btn = panel_memory->getChild<LLButton>("refresh_list_btn");
+				if(btn)
+				{
+					btn->setEnabled(false);
+				}
 				panel_memory->clearList();
 		
 				panel_memory->StartRequestChain();
@@ -969,7 +1008,6 @@ void LLPanelScriptLimitsRegionMemory::showBeacon()
 // static
 void LLPanelScriptLimitsRegionMemory::onClickHighlight(void* userdata)
 {
-	llinfos << "LLPanelRegionGeneralInfo::onClickHighlight" << llendl;
 	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 	if(instance)
 	{
@@ -1075,7 +1113,6 @@ void LLPanelScriptLimitsRegionMemory::returnObjects()
 // static
 void LLPanelScriptLimitsRegionMemory::onClickReturn(void* userdata)
 {
-	llinfos << "LLPanelRegionGeneralInfo::onClickReturn" << llendl;
 	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 	if(instance)
 	{
@@ -1178,6 +1215,12 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 	setAttachmentSummary(content);
 
 	childSetValue("loading_text", LLSD(std::string("")));
+
+	LLButton* btn = getChild<LLButton>("refresh_list_btn");
+	if(btn)
+	{
+		btn->setEnabled(true);
+	}
 }
 
 BOOL LLPanelScriptLimitsAttachment::postBuild()
@@ -1218,7 +1261,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 	}
 	else
 	{
-		llinfos << "attachment details don't contain memory summary info" << llendl;
+		llwarns << "attachment details don't contain memory summary info" << llendl;
 		return;
 	}
 	
@@ -1236,7 +1279,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 	}
 	else
 	{
-		llinfos << "attachment details don't contain urls summary info" << llendl;
+		llwarns << "attachment details don't contain urls summary info" << llendl;
 		return;
 	}
 
@@ -1267,16 +1310,23 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 
 // static
 void LLPanelScriptLimitsAttachment::onClickRefresh(void* userdata)
-{
-	llinfos << "Refresh clicked" << llendl;
-	
+{	
 	LLFloaterScriptLimits* instance = LLFloaterReg::getTypedInstance<LLFloaterScriptLimits>("script_limits");
 	if(instance)
 	{
 		LLTabContainer* tab = instance->getChild<LLTabContainer>("scriptlimits_panels");
 		LLPanelScriptLimitsAttachment* panel_attachments = (LLPanelScriptLimitsAttachment*)tab->getChild<LLPanel>("script_limits_my_avatar_panel");
+		LLButton* btn = panel_attachments->getChild<LLButton>("refresh_list_btn");
+		
+		//To stop people from hammering the refesh button and accidentally dosing themselves - enough requests can crash the viewer!
+		//turn the button off, then turn it on when we get a response
+		if(btn)
+		{
+			btn->setEnabled(false);
+		}
 		panel_attachments->clearList();
 		panel_attachments->requestAttachmentDetails();
+		
 		return;
 	}
 	else

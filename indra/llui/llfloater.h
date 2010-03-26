@@ -311,11 +311,12 @@ protected:
 
 	virtual	void	onClickCloseBtn();
 
+	virtual void	updateTitleButtons();
+
 private:
 	void			setForeground(BOOL b);	// called only by floaterview
 	void			cleanupHandles(); // remove handles to dead floaters
 	void			createMinimizeButton();
-	void			updateButtons();
 	void			buildButtons(const Params& p);
 	
 	// Images and tooltips are named in the XML, but we want to look them

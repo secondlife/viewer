@@ -1546,8 +1546,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		}
 		else
 		{
-			// Leave the priority as-is
-			return mDecodePriority;
+			priority = -1.f; //stop fetching
 		}
 	}
 	else if (cur_discard < 0)
@@ -2262,11 +2261,14 @@ void LLViewerFetchedTexture::destroyRawImage()
 	{
 		sRawCount--;		
 
-		if(mForceToSaveRawImage)
+		if(mIsRawImageValid)
 		{
-			saveRawImage() ;
-		}		
-		setCachedRawImage() ;
+			if(mForceToSaveRawImage)
+			{
+				saveRawImage() ;
+			}		
+			setCachedRawImage() ;
+		}
 	}
 
 	mRawImage = NULL;

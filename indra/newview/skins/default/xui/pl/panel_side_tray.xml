@@ -2,25 +2,28 @@
 <!-- Side tray cannot show background because it is always
 	partially on screen to hold tab buttons. -->
 <side_tray name="sidebar">
+	<sidetray_tab description="Przełącz Panel Boczny" name="sidebar_openclose" tab_title="Przełącz Panel Boczny"/>
 	<sidetray_tab description="Miejsce Startu." name="sidebar_home" tab_title="Home">
 		<panel label="miejsce startu" name="panel_home"/>
 	</sidetray_tab>
+	<sidetray_tab description="Edytuj swój publiczny profil oraz ulubione zakładki." name="sidebar_me" tab_title="My Profile">
+		<panel_container name="panel_container">
+			<panel label="Ja" name="panel_me"/>
+		</panel_container>
+	</sidetray_tab>
 	<sidetray_tab description="Znajdź swoich znajomych, kontakty oraz Rezydentów w pobliżu Ciebie." name="sidebar_people" tab_title="People">
 		<panel_container name="panel_container">
-			<panel label="Info o Grupie" name="panel_group_info_sidetray"/>
+			<panel label="Grupa" name="panel_group_info_sidetray"/>
 			<panel label="Zablokowani Rezydenci &amp; Obiekty" name="panel_block_list_sidetray"/>
 		</panel_container>
 	</sidetray_tab>
 	<sidetray_tab description="Znajdź i odwiedź miejsca, w których byłeś wcześniej." label="Miejsca" name="sidebar_places" tab_title="Places">
 		<panel label="Miejsca" name="panel_places"/>
 	</sidetray_tab>
-	<sidetray_tab description="Edytuj swój publiczny profil oraz ulubione zakładki." name="sidebar_me" tab_title="My Profile">
-		<panel label="Ja" name="panel_me"/>
+	<sidetray_tab description="Przeglądaj Szafę." name="sidebar_inventory" tab_title="My Inventory">
+		<panel label="Edytuj Szafę" name="sidepanel_inventory"/>
 	</sidetray_tab>
 	<sidetray_tab description="Zmień swój obecny wygląd i ubranie." name="sidebar_appearance" tab_title="My Appearance">
 		<panel label="Edytuj Wygląd" name="sidepanel_appearance"/>
-	</sidetray_tab>
-	<sidetray_tab description="Przeglądaj Szafę." name="sidebar_inventory" tab_title="My Inventory">
-		<panel label="Edytuj Szafę" name="sidepanel_inventory"/>
 	</sidetray_tab>
 </side_tray>

@@ -9,7 +9,7 @@
 	<layout_stack name="toolbar_stack">
 		<layout_panel name="speak_panel">
 			<talk_button name="talk">
-				<speak_button label="Sprechen" label_selected="Sprechen" name="speak_btn"/>
+				<speak_button label="Sprechen" label_selected="Sprechen" name="speak_btn" halign="right" />
 			</talk_button>
 		</layout_panel>
 		<layout_panel name="gesture_panel">

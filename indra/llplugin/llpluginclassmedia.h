@@ -51,9 +51,7 @@ public:
 	// local initialization, called by the media manager when creating a source
 	virtual bool init(const std::string &launcher_filename, 
 					  const std::string &plugin_filename, 
-					  bool debug, 
-					  const std::string &user_data_path,
-					  const std::string &language_code);
+					  bool debug);
 
 	// undoes everything init() didm called by the media manager when destroying a source
 	virtual void reset();
@@ -177,6 +175,12 @@ public:
 
 	void	paste();
 	bool	canPaste() const { return mCanPaste; };
+	
+	// These can be called before init(), and they will be queued and sent before the media init message.
+	void	setUserDataPath(const std::string &user_data_path);
+	void	setLanguageCode(const std::string &language_code);
+	void	setPluginsEnabled(const bool enabled);
+	void	setJavascriptEnabled(const bool enabled);
 		
 	///////////////////////////////////
 	// media browser class functions

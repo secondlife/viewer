@@ -152,7 +152,7 @@ LLView::~LLView()
 	//llinfos << "Deleting view " << mName << ":" << (void*) this << llendl;
 	if (LLView::sIsDrawing)
 	{
-		llwarns << "Deleting view " << mName << " during UI draw() phase" << llendl;
+		lldebugs << "Deleting view " << mName << " during UI draw() phase" << llendl;
 	}
 // 	llassert(LLView::sIsDrawing == FALSE);
 	
@@ -1325,7 +1325,6 @@ void LLView::drawChildren()
 				localRectToScreen(viewp->getRect(),&screenRect);
 				if ( rootRect.overlaps(screenRect)  && LLUI::sDirtyRect.overlaps(screenRect))
 				{
-					glMatrixMode(GL_MODELVIEW);
 					LLUI::pushMatrix();
 					{
 						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
@@ -1349,8 +1348,6 @@ void LLView::drawChildren()
 		}
 		--sDepth;
 	}
-
-	gGL.getTexUnit(0)->disable();
 }
 
 void LLView::dirtyRect()

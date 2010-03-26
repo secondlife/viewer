@@ -524,7 +524,10 @@ LLUIImagePtr LLEmbeddedItems::getItemImage(llwchar ext_char) const
 				break;
 			case LLAssetType::AT_SOUND:			img_name = "Inv_Sound";		break;
 			case LLAssetType::AT_CLOTHING:		img_name = "Inv_Clothing";	break;
-			case LLAssetType::AT_OBJECT:		img_name = "Inv_Object"; 	break;
+			case LLAssetType::AT_OBJECT:
+				img_name = LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & item->getFlags() ?
+					"Inv_Object_Multi" : "Inv_Object";
+				break;
 			case LLAssetType::AT_CALLINGCARD:	img_name = "Inv_CallingCard"; break;
 			case LLAssetType::AT_LANDMARK:		img_name = "Inv_Landmark"; 	break;
 			case LLAssetType::AT_NOTECARD:		img_name = "Inv_Notecard";	break;

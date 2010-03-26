@@ -5,19 +5,22 @@
 	<menu_item_call label="Buduj" name="Build"/>
 	<menu_item_call label="Otwórz" name="Open"/>
 	<menu_item_call label="Usiądź Tutaj" name="Object Sit"/>
+	<menu_item_call label="Wstań" name="Object Stand Up"/>
 	<menu_item_call label="Sprawdź" name="Object Inspect"/>
-	<context_menu label="Połóż &gt;" name="Put On">
+	<menu_item_call label="Przybliż" name="Zoom In"/>
+	<context_menu label="Załóż na  ▶" name="Put On">
 		<menu_item_call label="Załóż" name="Wear"/>
-		<context_menu label="Dołącz do &gt;" name="Object Attach"/>
-		<context_menu label="Dołącz do HUD &gt;" name="Object Attach HUD"/>
+		<context_menu label="Dołącz  ▶" name="Object Attach"/>
+		<context_menu label="Dołącz HUD  ▶" name="Object Attach HUD"/>
 	</context_menu>
-	<context_menu label="Usuń &gt;" name="Remove">
-		<menu_item_call label="Weź" name="Pie Object Take"/>
+	<context_menu label="Usuń  ▶" name="Remove">
 		<menu_item_call label="Raport" name="Report Abuse..."/>
 		<menu_item_call label="Zablokuj" name="Object Mute"/>
 		<menu_item_call label="Zwróć" name="Return..."/>
 		<menu_item_call label="Usuń" name="Delete"/>
 	</context_menu>
+	<menu_item_call label="Kup" name="Pie Object Bye"/>
+	<menu_item_call label="Weź" name="Pie Object Take"/>
 	<menu_item_call label="Weź Kopię" name="Take Copy"/>
 	<menu_item_call label="Zapłać" name="Pay..."/>
 	<menu_item_call label="Kup" name="Buy..."/>

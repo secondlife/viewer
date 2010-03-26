@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Rzeczy" name="main inventory panel">
-	<panel.string name="Title">
-		Rzeczy
+	<panel.string name="ItemcountFetching">
+		Dostarczanie [ITEM_COUNT] obiektów... [FILTER]
 	</panel.string>
-	<filter_editor label="Filtr" name="inventory search editor"/>
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Wszystkie Obiekty" name="All Items"/>
-		<inventory_panel label="Ostatnio Dodane Obiekty" name="Recent Items"/>
-	</tab_container>
-	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Pokaż dodatkowe opcje"/>
-		<button name="add_btn" tool_tip="Dodaj nowy obiekt"/>
-		<dnd_button name="trash_btn" tool_tip="Usuń wybrany obiekt"/>
-	</panel>
+	<panel.string name="ItemcountCompleted">
+		[ITEM_COUNT] obiekty [FILTER]
+	</panel.string>
+	<text name="ItemcountText">
+		Obiekty:
+	</text>
 	<menu_bar name="Inventory Menu">
 		<menu label="Plik" name="File">
 			<menu_item_call label="Otwórz" name="Open"/>
@@ -32,7 +28,7 @@
 		<menu label="Stwórz" name="Create">
 			<menu_item_call label="Nowy Folder" name="New Folder"/>
 			<menu_item_call label="Nowy Skrypt" name="New Script"/>
-			<menu_item_call label="Nową Notę" name="New Note"/>
+			<menu_item_call label="Nowa Nota" name="New Note"/>
 			<menu_item_call label="Nową Gesturkę" name="New Gesture"/>
 			<menu label="Nowe Ubranie" name="New Clothes">
 				<menu_item_call label="Nową Koszulkę" name="New Shirt"/>
@@ -61,4 +57,14 @@
 			<menu_item_check label="Foldery Systemowe od Góry" name="System Folders To Top"/>
 		</menu>
 	</menu_bar>
+	<filter_editor label="Filtr" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="Wszystkie Obiekty" name="All Items"/>
+		<inventory_panel label="Ostatnio Dodane Obiekty" name="Recent Items"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Pokaż dodatkowe opcje"/>
+		<button name="add_btn" tool_tip="Dodaj nowy obiekt"/>
+		<dnd_button name="trash_btn" tool_tip="Usuń wybrany obiekt"/>
+	</panel>
 </panel>

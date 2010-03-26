@@ -14,7 +14,22 @@
 		Identificando el hardware...
 	</string>
 	<string name="StartupLoading">
-		Cargando
+		Instalando [APP_NAME]...
+	</string>
+	<string name="StartupClearingCache">
+		Limpiando la caché...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		Iniciando la caché de las texturas...
+	</string>
+	<string name="StartupInitializingVFS">
+		Iniciando VFS...
+	</string>
+	<string name="ProgressRestoring">
+		Restaurando...
+	</string>
+	<string name="ProgressChangingResolution">
+		Cambiando la resolución...
 	</string>
 	<string name="LoginInProgress">
 		Iniciando la sesión. [APP_NAME] debe de aparecer congelado. Por favor, espere.
@@ -76,6 +91,9 @@
 	<string name="LoginFailedNoNetwork">
 		Error de red: no se ha podido conectar; por favor, revisa tu conexión a internet.
 	</string>
+	<string name="LoginFailed">
+		Error en el inicio de sesión.
+	</string>
 	<string name="Quit">
 		Salir
 	</string>
@@ -83,7 +101,25 @@
 		http://join.secondlife.com/index.php?lang=es-ES
 	</string>
 	<string name="AgentLostConnection">
-		Esta región puede estar teniendo problemas. Por favor, compruebe su conexión a internet.
+		Esta región puede estar teniendo problemas. Por favor, comprueba tu conexión a internet.
+	</string>
+	<string name="SavingSettings">
+		Guardando tus configuraciones...
+	</string>
+	<string name="LoggingOut">
+		Cerrando sesión...
+	</string>
+	<string name="ShuttingDown">
+		Cerrando...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		Has sido desconectado de la región en la que estabas.
+	</string>
+	<string name="SentToInvalidRegion">
+		Has sido enviado a una región no válida.
+	</string>
+	<string name="TestingDisconnect">
+		Probando la desconexión del visor
 	</string>
 	<string name="TooltipPerson">
 		Persona
@@ -139,6 +175,24 @@
 	<string name="TooltipAgentUrl">
 		Pulsa para ver el perfil del Residente
 	</string>
+	<string name="TooltipAgentMute">
+		Pulsa para silenciar a este Residente
+	</string>
+	<string name="TooltipAgentUnmute">
+		Pulsa para quitar el silencio a este Residente
+	</string>
+	<string name="TooltipAgentIM">
+		Pulsa para enviar un MI a este Residente
+	</string>
+	<string name="TooltipAgentPay">
+		Pulsa para pagar a este Residente
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		Pulsa para enviar una petición de teleporte a este Residente
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		Pulsa para enviar una petición de amistad a este Residente
+	</string>
 	<string name="TooltipGroupUrl">
 		Pulsa para ver la descripción de este grupo
 	</string>
@@ -164,11 +218,30 @@
 		Pulsa para ejecutar el comando secondlife://
 	</string>
 	<string name="CurrentURL" value="URL actual: [CurrentURL]"/>
+	<string name="TooltipPrice" value="[PRICE] L$"/>
 	<string name="SLurlLabelTeleport">
 		Teleportarse a
 	</string>
 	<string name="SLurlLabelShowOnMap">
 		Mostrarla en el mapa
+	</string>
+	<string name="SLappAgentMute">
+		Silenciar
+	</string>
+	<string name="SLappAgentUnmute">
+		Quitar el silencio
+	</string>
+	<string name="SLappAgentIM">
+		MI
+	</string>
+	<string name="SLappAgentPay">
+		Pagar
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		Ofrecer teleporte a
+	</string>
+	<string name="SLappAgentRequestFriend">
+		Petición de amistad
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Cerrar (⌘W)
@@ -319,6 +392,9 @@
 	</string>
 	<string name="symbolic link">
 		el enlace
+	</string>
+	<string name="symbolic folder link">
+		enlace de la carpeta
 	</string>
 	<string name="AvatarAway">
 		Ausente
@@ -737,6 +813,9 @@
 	<string name="invalid">
 		inválido/a
 	</string>
+	<string name="NewWearable">
+		Nuevo [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		Siguiente
 	</string>
@@ -768,7 +847,7 @@
 		Ofrecimiento de teleporte
 	</string>
 	<string name="StartUpNotifications">
-		Llegaron [%d] avisos nuevos mientras estabas ausente...
+		Llegaron avisos nuevos mientras estabas ausente...
 	</string>
 	<string name="OverflowInfoChannelString">
 		Tienes [%d] aviso/s más
@@ -825,6 +904,7 @@
 		No hay contenido
 	</string>
 	<string name="WornOnAttachmentPoint" value="(lo llevas en: [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (activo)"/>
 	<string name="Chat" value="Chat :"/>
 	<string name="Sound" value="Sonido :"/>
 	<string name="Wait" value="--- Espera :"/>
@@ -917,6 +997,9 @@
 	</string>
 	<string name="InvFolder My Outfits">
 		Mis vestuarios
+	</string>
+	<string name="InvFolder Accessories">
+		Accesorios
 	</string>
 	<string name="InvFolder Friends">
 		Amigos
@@ -1435,6 +1518,12 @@
 	<string name="PanelContentsNewScript">
 		Script nuevo
 	</string>
+	<string name="PanelContentsTooltip">
+		Contenido del objeto
+	</string>
+	<string name="BusyModeResponseDefault">
+		El Residente al que has enviado un mensaje ha solicitado que no se le moleste porque está en modo ocupado.    Podrá ver tu mensaje más adelante, ya que éste aparecerá en su panel de MI.
+	</string>
 	<string name="MuteByName">
 		(por el nombre)
 	</string>
@@ -1549,7 +1638,10 @@
 		Cancelar
 	</string>
 	<string name="UploadingCosts">
-		Subir este/a [%s] cuesta
+		Subir [NAME] cuesta [AMOUNT] L$
+	</string>
+	<string name="BuyingCosts">
+		Comprar esto cuesta [AMOUNT] L$
 	</string>
 	<string name="UnknownFileExtension">
 		Extensión de archivo desconocida [.%s]
@@ -3266,5 +3358,121 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="unread_chat_multiple">
 		[SOURCES] ha dicho algo nuevo
+	</string>
+	<string name="paid_you_ldollars">
+		[NAME] te ha pagado [AMOUNT] L$
+	</string>
+	<string name="you_paid_ldollars">
+		Has pagado [AMOUNT] L$ a [NAME] por [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		Has pagado [AMOUNT] L$ a [NAME].
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		Has pagado [AMOUNT] L$ por [REASON].
+	</string>
+	<string name="for a parcel of land">
+		para una parcela de terreno
+	</string>
+	<string name="for a land access pass">
+		para un pase de acceso a terrenos
+	</string>
+	<string name="for deeding land">
+		for deeding land
+	</string>
+	<string name="to create a group">
+		para crear un grupo
+	</string>
+	<string name="to join a group">
+		para entrar a un grupo
+	</string>
+	<string name="to upload">
+		to upload
+	</string>
+	<string name="giving">
+		Dando [AMOUNT] L$
+	</string>
+	<string name="uploading_costs">
+		Subir esto cuesta [AMOUNT] L$
+	</string>
+	<string name="this_costs">
+		Esto cuesta [AMOUNT] L$
+	</string>
+	<string name="buying_selected_land">
+		Compra del terreno seleccionado por [AMOUNT] L$
+	</string>
+	<string name="this_object_costs">
+		Este objeto cuesta [AMOUNT] L$
+	</string>
+	<string name="group_role_everyone">
+		Todos
+	</string>
+	<string name="group_role_officers">
+		Oficiales
+	</string>
+	<string name="group_role_owners">
+		Propietarios
+	</string>
+	<string name="uploading_abuse_report">
+		Subiendo...
+  
+Denuncia de infracción
+	</string>
+	<string name="New Shape">
+		Anatomía nueva
+	</string>
+	<string name="New Skin">
+		Piel nueva
+	</string>
+	<string name="New Hair">
+		Pelo nuevo
+	</string>
+	<string name="New Eyes">
+		Ojos nuevos
+	</string>
+	<string name="New Shirt">
+		Camisa nueva
+	</string>
+	<string name="New Pants">
+		Pantalón nuevo
+	</string>
+	<string name="New Shoes">
+		Zapatos nuevos
+	</string>
+	<string name="New Socks">
+		Calcetines nuevos
+	</string>
+	<string name="New Jacket">
+		Chaqueta nueva
+	</string>
+	<string name="New Gloves">
+		Guantes nuevos
+	</string>
+	<string name="New Undershirt">
+		Camiseta nueva
+	</string>
+	<string name="New Underpants">
+		Ropa interior nueva
+	</string>
+	<string name="New Skirt">
+		Falda nueva
+	</string>
+	<string name="New Alpha">
+		Nueva Alfa
+	</string>
+	<string name="New Tattoo">
+		Tatuaje nuevo
+	</string>
+	<string name="Invalid Wearable">
+		No se puede poner
+	</string>
+	<string name="New Script">
+		Script nuevo
+	</string>
+	<string name="New Folder">
+		Carpeta nueva
+	</string>
+	<string name="Contents">
+		Contenidos
 	</string>
 </strings>

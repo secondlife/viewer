@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="Publicerer annoncer">
+	<text name="explanation_text">
+		Din annonce vil blive vist i en uge fra den dato den publiceres.
+
+Husk, annonceomkostninger kan ikke refunderes.
+	</text>
+	<spinner label="Pris for annonce:" name="price_for_listing" tool_tip="Pris for optagelse af annonce." value="50"/>
+	<text name="l$_text" value="L$"/>
+	<text name="more_info_text">
+		Mere info (link til hjælp om annoncer)
+	</text>
+	<button label="Publicér" name="publish_btn"/>
+	<button label="Annullér" name="cancel_btn"/>
+</floater>
