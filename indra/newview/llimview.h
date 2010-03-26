@@ -495,7 +495,7 @@ class LLCallDialog : public LLDockableFloater
 {
 public:
 	LLCallDialog(const LLSD& payload);
-	~LLCallDialog() {}
+	~LLCallDialog();
 
 	virtual BOOL postBuild();
 
