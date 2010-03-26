@@ -911,6 +911,20 @@ bool LLStringUtil::simpleReplacement(std::string &replacement, std::string token
 	return false;
 }
 
+//static
+template<>
+void LLStringUtil::setLocale(std::string inLocale)
+{
+	sLocale = inLocale;
+};
+
+//static
+template<>
+std::string LLStringUtil::getLocale(void)
+{
+	return sLocale;
+};
+
 // static
 template<> 
 void LLStringUtil::formatNumber(std::string& numStr, std::string decimals)
