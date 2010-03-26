@@ -1749,8 +1749,6 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 			llassert(false);
 		}
 
-		llassert(mPickMaskWidth >= 0 && mPickMaskHeight >= 0);
-		
 		S32 x = llfloor(u * mPickMaskWidth);
 		S32 y = llfloor(v * mPickMaskHeight);
 
