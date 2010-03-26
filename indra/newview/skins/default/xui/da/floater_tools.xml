@@ -63,7 +63,7 @@
 		<radio_item label="Stræk (Ctrl+Shift)" name="radio stretch"/>
 		<radio_item label="Vælg overflade" name="radio select face"/>
 	</radio_group>
-	<check_box label="Redigér sammenlænkede dele" name="checkbox edit linked parts"/>
+	<check_box label="Redigér lænkede" name="checkbox edit linked parts"/>
 	<text name="RenderingCost" tool_tip="Hvis beregnede rendering omkostninger for dette objekt">
 		þ: [COUNT]
 	</text>
@@ -184,12 +184,12 @@
 				Klik for at:
 			</text>
 			<combo_box name="clickaction">
-				<combo_box.item label="Rør (Standard)" name="Touch/grab(default)"/>
-				<combo_box.item label="Sid på objekt" name="Sitonobject"/>
-				<combo_box.item label="Køb objekt" name="Buyobject"/>
-				<combo_box.item label="Betal objekt" name="Payobject"/>
-				<combo_box.item label="Åben" name="Open"/>
-				<combo_box.item label="Zoom" name="Zoom"/>
+				<combo_box.item label="Røre (Standard)" name="Touch/grab(default)"/>
+				<combo_box.item label="Sidde på objekt" name="Sitonobject"/>
+				<combo_box.item label="Købe objekt" name="Buyobject"/>
+				<combo_box.item label="Betale objekt" name="Payobject"/>
+				<combo_box.item label="Åbne" name="Open"/>
+				<combo_box.item label="Zoome" name="Zoom"/>
 			</combo_box>
 			<check_box label="Til salg:" name="checkbox for sale"/>
 			<combo_box name="sale type">
@@ -206,8 +206,8 @@
 				<text name="Anyone can:">
 					Enhver:
 				</text>
-				<check_box label="Flyt" name="checkbox allow everyone move"/>
-				<check_box label="Kopi" name="checkbox allow everyone copy"/>
+				<check_box label="Flytte" name="checkbox allow everyone move"/>
+				<check_box label="Kopiere" name="checkbox allow everyone copy"/>
 				<text name="Next owner can:">
 					Næste ejer:
 				</text>
@@ -417,21 +417,21 @@
 				<combo_box.item label="Ingen" name="None"/>
 				<combo_box.item label="Lysintensitet" name="Brightness"/>
 				<combo_box.item label="Mørke" name="Darkness"/>
-				<combo_box.item label="træårer" name="woodgrain"/>
-				<combo_box.item label="bark" name="bark"/>
-				<combo_box.item label="mursten" name="bricks"/>
-				<combo_box.item label="tern" name="checker"/>
-				<combo_box.item label="beton" name="concrete"/>
-				<combo_box.item label="rustik flise" name="crustytile"/>
+				<combo_box.item label="Træårer" name="woodgrain"/>
+				<combo_box.item label="Bark" name="bark"/>
+				<combo_box.item label="Mursten" name="bricks"/>
+				<combo_box.item label="Tern" name="checker"/>
+				<combo_box.item label="Beton" name="concrete"/>
+				<combo_box.item label="Rustik flise" name="crustytile"/>
 				<combo_box.item label="Skåret sten" name="cutstone"/>
-				<combo_box.item label="plader" name="discs"/>
-				<combo_box.item label="grus" name="gravel"/>
-				<combo_box.item label="petriskål" name="petridish"/>
-				<combo_box.item label="udvendig beklædning" name="siding"/>
-				<combo_box.item label="stenflise" name="stonetile"/>
-				<combo_box.item label="puds" name="stucco"/>
-				<combo_box.item label="rør" name="suction"/>
-				<combo_box.item label="væv" name="weave"/>
+				<combo_box.item label="Plader" name="discs"/>
+				<combo_box.item label="Grus" name="gravel"/>
+				<combo_box.item label="Petriskål" name="petridish"/>
+				<combo_box.item label="Udvendig beklædning" name="siding"/>
+				<combo_box.item label="Stenflise" name="stonetile"/>
+				<combo_box.item label="Puds" name="stucco"/>
+				<combo_box.item label="Rør" name="suction"/>
+				<combo_box.item label="Væv" name="weave"/>
 			</combo_box>
 			<text name="tex scale">
 				Gentagelser på overflade
@@ -440,8 +440,8 @@
 			<check_box label="Vend" name="checkbox flip s"/>
 			<spinner label="Lodret (V)" name="TexScaleV"/>
 			<check_box label="Vend" name="checkbox flip t"/>
-			<spinner label="Rotation˚" left="125" name="TexRot" width="55"/>
-			<spinner label="Gentagelser pr. meter" left="125" name="rptctrl" width="55"/>
+			<spinner label="Rotation˚"/>
+			<spinner label="Gentagelser pr. m."/>
 			<button label="Gem" label_selected="Gem" left_delta="62" name="button apply"/>
 			<text name="tex offset">
 				Tekstur offset
@@ -488,7 +488,7 @@ Grå = Offentligt ejet"/>
 		<button label="Opdel" label_selected="Opdel" name="button subdivide land"/>
 		<button label="Saml" label_selected="Saml" name="button join land"/>
 		<text name="label_parcel_trans">
-			Transaktioner for land
+			Transaktioner - land
 		</text>
 		<button label="Køb land" label_selected="Køb land" name="button buy land"/>
 		<button label="Efterlad land" label_selected="Efterlad land" name="button abandon land"/>

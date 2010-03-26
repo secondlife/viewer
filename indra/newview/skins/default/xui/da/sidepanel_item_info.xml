@@ -42,27 +42,27 @@
 			<text name="perm_modify">
 				Du kan:
 			</text>
-			<check_box label="Redigér" name="CheckOwnerModify"/>
-			<check_box label="Kopi" name="CheckOwnerCopy"/>
-			<check_box label="Giv væk" name="CheckOwnerTransfer"/>
+			<check_box label="Redigere" name="CheckOwnerModify"/>
+			<check_box label="Kopiere" name="CheckOwnerCopy"/>
+			<check_box label="Give væk" name="CheckOwnerTransfer"/>
 			<text name="AnyoneLabel">
 				Enhver:
 			</text>
-			<check_box label="Kopi" name="CheckEveryoneCopy"/>
+			<check_box label="Kopiere" name="CheckEveryoneCopy"/>
 			<text name="GroupLabel">
 				Gruppe:
 			</text>
-			<check_box label="Del" name="CheckShareWithGroup" tool_tip="Tillad alle medlemmer i den aktive gruppe at dele dine &apos;redigere&apos; rettigheder for dette objekt. Du skal dedikere for at åbne for rolle begrænsninger."/>
+			<check_box label="Dele" name="CheckShareWithGroup" tool_tip="Tillad alle medlemmer i den aktive gruppe at dele dine &apos;redigere&apos; rettigheder for dette objekt. Du skal dedikere for at åbne for rolle begrænsninger."/>
 			<text name="NextOwnerLabel">
 				Næste ejer:
 			</text>
 			<check_box label="Redigere" name="CheckNextOwnerModify"/>
-			<check_box label="Kopi" name="CheckNextOwnerCopy"/>
-			<check_box label="Giv væk" name="CheckNextOwnerTransfer" tool_tip="Næste ejer kan give væk eller sælge dette objekt"/>
+			<check_box label="Kopiere" name="CheckNextOwnerCopy"/>
+			<check_box label="Give væk" name="CheckNextOwnerTransfer" tool_tip="Næste ejer kan give væk eller sælge dette objekt"/>
 		</panel>
 		<check_box label="Til salg" name="CheckPurchase"/>
 		<combo_box name="combobox sale copy">
-			<combo_box.item label="Kopiér" name="Copy"/>
+			<combo_box.item label="Kopi" name="Copy"/>
 			<combo_box.item label="Original" name="Original"/>
 		</combo_box>
 		<spinner label="Pris: L$" name="Edit Cost"/>

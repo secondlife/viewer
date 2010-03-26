@@ -41,25 +41,25 @@
 		<panel name="media_controls_panel">
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
-					<button name="stop_btn" tool_tip="Stop valgte media"/>
+					<button name="stop_btn" tool_tip="Stop valgte medie"/>
 				</layout_panel>
 				<layout_panel name="play">
-					<button name="play_btn" tool_tip="Afspil valgte media"/>
+					<button name="play_btn" tool_tip="Afspil valgte medie"/>
 				</layout_panel>
 				<layout_panel name="pause">
-					<button name="pause_btn" tool_tip="Pause valgte media"/>
+					<button name="pause_btn" tool_tip="Pause valgte medie"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
-					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Lydstyrke for valgte media"/>
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Volumen for valgte medie"/>
 				</layout_panel>
 				<layout_panel name="mute">
-					<button name="mute_btn" tool_tip="Sluk for lyd på valgte media"/>
+					<button name="mute_btn" tool_tip="Sluk for lyd for valgte medie"/>
 				</layout_panel>
 				<layout_panel name="zoom">
-					<button name="zoom_btn" tool_tip="Zoom ind til valgte media"/>
+					<button name="zoom_btn" tool_tip="Zoom ind til valgte medie"/>
 				</layout_panel>
 				<layout_panel name="unzoom">
-					<button name="unzoom_btn" tool_tip="Zoom tilbage fra valgte media"/>
+					<button name="unzoom_btn" tool_tip="Zoom tilbage fra valgte medie"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>
