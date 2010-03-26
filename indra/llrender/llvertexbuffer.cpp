@@ -62,6 +62,7 @@ BOOL LLVertexBuffer::sIBOActive = FALSE;
 U32 LLVertexBuffer::sAllocatedBytes = 0;
 BOOL LLVertexBuffer::sMapped = FALSE;
 BOOL LLVertexBuffer::sUseStreamDraw = TRUE;
+S32	LLVertexBuffer::sWeight4Loc = -1;
 
 std::vector<U32> LLVertexBuffer::sDeleteList;
 
@@ -76,6 +77,7 @@ S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLColor4U), // TYPE_COLOR,
 	sizeof(LLVector3), // TYPE_BINORMAL,
 	sizeof(F32),	   // TYPE_WEIGHT,
+	sizeof(LLVector4), // TYPE_WEIGHT4,
 	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
 };
 
@@ -1015,6 +1017,12 @@ bool LLVertexBuffer::getWeightStrider(LLStrider<F32>& strider, S32 index)
 {
 	return VertexBufferStrider<F32,TYPE_WEIGHT>::get(*this, strider, index);
 }
+
+bool LLVertexBuffer::getWeight4Strider(LLStrider<LLVector4>& strider, S32 index)
+{
+	return VertexBufferStrider<LLVector4,TYPE_WEIGHT4>::get(*this, strider, index);
+}
+
 bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index)
 {
 	return VertexBufferStrider<LLVector4,TYPE_CLOTHWEIGHT>::get(*this, strider, index);
@@ -1284,6 +1292,12 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 	{
 		glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, stride, (void*)(base + mOffsets[TYPE_WEIGHT]));
 	}
+
+	if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
+	{
+		glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, stride, (void*)(base+mOffsets[TYPE_WEIGHT4]));
+	}
+
 	if (data_mask & MAP_CLOTHWEIGHT)
 	{
 		glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  stride, (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
