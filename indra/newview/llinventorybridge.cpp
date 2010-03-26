@@ -4177,8 +4177,9 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 	S32 attach_pt = 0;
 	if (gAgent.getAvatarObject() && attachment)
 	{
-		for (LLVOAvatar::attachment_map_t::iterator iter = gAgent.getAvatarObject()->mAttachmentPoints.begin();
-			 iter != gAgent.getAvatarObject()->mAttachmentPoints.end(); ++iter)
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+		for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
+			 iter != avatarp->mAttachmentPoints.end(); ++iter)
 		{
 			if (iter->second == attachment)
 			{
@@ -4204,7 +4205,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 
 bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response)
 {
-	LLVOAvatar *avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 
 	if (!avatarp->canAttachMoreObjects())
 	{
@@ -4296,7 +4297,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				}
 				LLMenuGL* attach_menu = menu.findChildMenuByName("Attach To", TRUE);
 				LLMenuGL* attach_hud_menu = menu.findChildMenuByName("Attach To HUD", TRUE);
-				LLVOAvatar *avatarp = gAgent.getAvatarObject();
+				LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 				if (attach_menu
 					&& (attach_menu->getChildCount() == 0)
 					&& attach_hud_menu

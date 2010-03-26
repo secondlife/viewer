@@ -205,15 +205,16 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// touch behavior down below...
 			break;
 		case CLICK_ACTION_SIT:
-
-			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
-				handle_object_sit_or_stand();
-				// put focus in world when sitting on an object
-				gFocusMgr.setKeyboardFocus(NULL);
-				return TRUE;
-			} // else nothing (fall through to touch)
-			
+				LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+				if (avatarp && !avatarp->isSitting()) // agent not already sitting
+				{
+					handle_object_sit_or_stand();
+					// put focus in world when sitting on an object
+					gFocusMgr.setKeyboardFocus(NULL);
+					return TRUE;
+				} // else nothing (fall through to touch)
+			}
 		case CLICK_ACTION_PAY:
 			if ((object && object->flagTakesMoney())
 				|| (parent && parent->flagTakesMoney()))
@@ -411,9 +412,12 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	switch(click_action)
 	{
 	case CLICK_ACTION_SIT:
-		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // not already sitting?
 		{
-			cursor = UI_CURSOR_TOOLSIT;
+			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+			if (avatarp && !avatarp->isSitting()) // not already sitting?
+			{
+				cursor = UI_CURSOR_TOOLSIT;
+			}
 		}
 		break;
 	case CLICK_ACTION_BUY:

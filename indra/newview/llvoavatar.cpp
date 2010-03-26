@@ -965,15 +965,15 @@ void LLVOAvatar::dumpBakedStatus()
 //static
 void LLVOAvatar::restoreGL()
 {
-	LLVOAvatar* self = gAgent.getAvatarObject();
-	if (!self)
-		return;
-	self->setCompositeUpdatesEnabled(TRUE);
-	for (U32 i = 0; i < self->mBakedTextureDatas.size(); i++)
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (!avatarp) return;
+
+	avatarp->setCompositeUpdatesEnabled(TRUE);
+	for (U32 i = 0; i < avatarp->mBakedTextureDatas.size(); i++)
 	{
-		self->invalidateComposite(self->mBakedTextureDatas[i].mTexLayerSet, FALSE);
+		avatarp->invalidateComposite(avatarp->mBakedTextureDatas[i].mTexLayerSet, FALSE);
 	}
-	self->updateMeshTextures();
+	avatarp->updateMeshTextures();
 }
 
 //static
@@ -6859,8 +6859,8 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 // static
 void LLVOAvatar::dumpArchetypeXML( void* )
 {
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	LLAPRFile outfile ;
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	LLAPRFile outfile;
 	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"new archetype.xml"), LL_APR_WB );
 	apr_file_t* file = outfile.getFileHandle() ;
 	if (!file)
@@ -6878,7 +6878,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 		const std::string& wearable_name = LLWearableDictionary::getTypeName((EWearableType)type);
 		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
-		for (LLVisualParam* param = avatar->getFirstVisualParam(); param; param = avatar->getNextVisualParam())
+		for (LLVisualParam* param = avatarp->getFirstVisualParam(); param; param = avatarp->getNextVisualParam())
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 			if( (viewer_param->getWearableType() == type) && 
@@ -6894,7 +6894,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 			if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te) == type)
 			{
 				// MULTIPLE_WEARABLES: extend to multiple wearables?
-				LLViewerTexture* te_image = avatar->getImage((ETextureIndex)te, 0);
+				LLViewerTexture* te_image = ((LLVOAvatar*)avatarp)->getImage((ETextureIndex)te, 0);
 				if( te_image )
 				{
 					std::string uuid_str;

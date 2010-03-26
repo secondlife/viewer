@@ -871,7 +871,7 @@ bool LLInventoryPanel::attachObject(const LLSD& userdata)
 	mFolders->getSelectionList(selected_items);
 
 	std::string joint_name = userdata.asString();
-	LLVOAvatar *avatarp = static_cast<LLVOAvatar*>(gAgent.getAvatarObject());
+	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 	LLViewerJointAttachment* attachmentp = NULL;
 	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
 		 iter != avatarp->mAttachmentPoints.end(); )

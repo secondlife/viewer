@@ -4911,10 +4911,10 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	LLGLEnable blend(GL_BLEND);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if (for_hud && avatar)
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (avatarp && for_hud)
 	{
-		LLBBox hud_bbox = avatar->getHUDBBox();
+		LLBBox hud_bbox = avatarp->getHUDBBox();
 
 		F32 cur_zoom = gAgentCamera.mHUDCurZoom;
 
@@ -5023,7 +5023,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		}
 	}
 
-	if (for_hud && avatar)
+	if (avatarp && for_hud)
 	{
 		glMatrixMode(GL_PROJECTION);
 		gGL.popMatrix();
@@ -5399,7 +5399,8 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 	if (volume)
 	{
 		F32 silhouette_thickness;
-		if (is_hud_object && gAgent.getAvatarObject())
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+		if (avatarp && is_hud_object)
 		{
 			silhouette_thickness = LLSelectMgr::sHighlightThickness / gAgentCamera.mHUDCurZoom;
 		}
@@ -5641,10 +5642,10 @@ void LLSelectMgr::updateSelectionCenter()
 			LLViewerObject* object = node->getObject();
 			if (!object)
 				continue;
-			LLViewerObject *myAvatar = gAgent.getAvatarObject();
+			LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 			LLViewerObject *root = object->getRootEdit();
 			if (mSelectedObjects->mSelectType == SELECT_TYPE_WORLD && // not an attachment
-				!root->isChild(myAvatar) && // not the object you're sitting on
+				!root->isChild(avatarp) && // not the object you're sitting on
 				!object->isAvatar()) // not another avatar
 			{
 				mShowSelection = TRUE;

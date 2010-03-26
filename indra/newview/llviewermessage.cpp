@@ -4165,9 +4165,9 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	BOOL force_mouselook;
 	mesgsys->getBOOLFast(_PREHASH_SitTransform, _PREHASH_ForceMouselook, force_mouselook);
 
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
-	if (avatar && dist_vec_squared(camera_eye, camera_at) > 0.0001f)
+	if (avatarp && dist_vec_squared(camera_eye, camera_at) > 0.0001f)
 	{
 		gAgentCamera.setSitCamera(sitObjectID, camera_eye, camera_at);
 	}
@@ -4178,7 +4178,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	if (object)
 	{
 		LLVector3 sit_spot = object->getPositionAgent() + (sitPosition * object->getRotation());
-		if (!use_autopilot || (avatar && avatar->isSitting() && avatar->getRoot() == object->getRoot()))
+		if (!use_autopilot || (avatarp && avatarp->isSitting() && avatarp->getRoot() == object->getRoot()))
 		{
 			//we're already sitting on this object, so don't autopilot
 		}

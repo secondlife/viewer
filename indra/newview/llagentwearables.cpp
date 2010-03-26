@@ -485,7 +485,8 @@ void LLAgentWearables::saveWearable(const EWearableType type, const U32 index, B
 			return;
 		}
 
-		gAgent.getAvatarObject()->wearableUpdated( type, TRUE );
+		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
+		avatarp->wearableUpdated( type, TRUE );
 
 		if (send_update)
 		{

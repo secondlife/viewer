@@ -869,6 +869,7 @@ S32 LLViewerKeyboard::loadBindings(const std::string& filename)
 
 EKeyboardMode LLViewerKeyboard::getMode()
 {
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	if ( gAgentCamera.cameraMouselook() )
 	{
 		return MODE_FIRST_PERSON;
@@ -877,7 +878,7 @@ EKeyboardMode LLViewerKeyboard::getMode()
 	{
 		return MODE_EDIT_AVATAR;
 	}
-	else if (gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting())
+	else if (avatarp && avatarp->isSitting())
 	{
 		return MODE_SITTING;
 	}

@@ -89,7 +89,7 @@ void	LLMorphView::initialize()
 	mCameraYaw = 0.f;
 	mCameraDist = -1.f;
 
-	LLVOAvatar *avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 	if (!avatarp || avatarp->isDead())
 	{
 		gAgentCamera.changeCameraToDefault();
@@ -111,7 +111,7 @@ void	LLMorphView::shutdown()
 {
 	LLVOAvatarSelf::onCustomizeEnd();
 
-	LLVOAvatar *avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 	if (avatarp && !avatarp->isDead())
 	{
 		avatarp->startMotion( ANIM_AGENT_BODY_NOISE );
@@ -167,12 +167,12 @@ void LLMorphView::updateCamera()
 		setCameraTargetJoint(gAgent.getAvatarObject()->getJoint("mHead"));
 	}
 	
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if( !avatar )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (!avatarp)
 	{
 		return;
 	}
-	LLJoint* root_joint = avatar->getRootJoint();
+	LLJoint* root_joint = avatarp->getRootJoint();
 	if( !root_joint )
 	{
 		return;

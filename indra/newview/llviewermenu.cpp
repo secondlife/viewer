@@ -4587,13 +4587,13 @@ BOOL sitting_on_selection()
 	}
 
 	// Need to determine if avatar is sitting on this object
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if (!avatar)
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (!avatarp)
 	{
 		return FALSE;
 	}
 
-	return (avatar->isSitting() && avatar->getRoot() == root_object);
+	return (avatarp->isSitting() && avatarp->getRoot() == root_object);
 }
 
 class LLToolsSaveToInventory : public view_listener_t
@@ -6489,15 +6489,15 @@ void handle_toggle_pg(void*)
 
 void handle_dump_attachments(void*)
 {
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if( !avatar )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if(!avatarp)
 	{
 		llinfos << "NO AVATAR" << llendl;
 		return;
 	}
 
-	for (LLVOAvatar::attachment_map_t::iterator iter = avatar->mAttachmentPoints.begin(); 
-		 iter != avatar->mAttachmentPoints.end(); )
+	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
+		 iter != avatarp->mAttachmentPoints.end(); )
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;

@@ -1032,11 +1032,11 @@ LLRect get_whole_screen_region()
 
 bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::matrix4f &model)
 {
-	LLVOAvatar* my_avatarp = gAgent.getAvatarObject();
-	if (my_avatarp && my_avatarp->hasHUDAttachment())
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (avatarp && avatarp->hasHUDAttachment())
 	{
 		F32 zoom_level = gAgentCamera.mHUDCurZoom;
-		LLBBox hud_bbox = my_avatarp->getHUDBBox();
+		LLBBox hud_bbox = avatarp->getHUDBBox();
 		
 		F32 hud_depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
 		proj = gl_ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, hud_depth);

@@ -1930,8 +1930,8 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 	LLUUID texture_id;
 	msg->getUUID("TextureData", "TextureID", texture_id);
 
-	LLVOAvatarSelf* self = gAgent.getAvatarObject();
-	if (!self) return;
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (!avatarp) return;
 
 	// If this is a texture corresponding to one of our baked entries, 
 	// just rebake that layer set.
@@ -1948,13 +1948,13 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
 		if (texture_dict->mIsBakedTexture)
 		{
-			if (texture_id == self->getTEImage(index)->getID())
+			if (texture_id == avatarp->getTEImage(index)->getID())
 			{
-				LLTexLayerSet* layer_set = self->getLayerSet(index);
+				LLTexLayerSet* layer_set = avatarp->getLayerSet(index);
 				if (layer_set)
 				{
 					llinfos << "TAT: rebake - matched entry " << (S32)index << llendl;
-					self->invalidateComposite(layer_set, TRUE);
+					avatarp->invalidateComposite(layer_set, TRUE);
 					found = TRUE;
 					LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
 				}
@@ -1965,12 +1965,12 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 	// If texture not found, rebake all entries.
 	if (!found)
 	{
-		self->forceBakeAllTextures();
+		avatarp->forceBakeAllTextures();
 	}
 	else
 	{
 		// Not sure if this is necessary, but forceBakeAllTextures() does it.
-		self->updateMeshTextures();
+		avatarp->updateMeshTextures();
 	}
 }
 

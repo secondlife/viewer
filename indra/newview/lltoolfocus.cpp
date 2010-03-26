@@ -173,14 +173,13 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
 		BOOL good_customize_avatar_hit = FALSE;
 		if( hit_obj )
 		{
-			LLVOAvatar* avatar = gAgent.getAvatarObject();
-			if( hit_obj == avatar) 
+			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+			if (avatarp &&(hit_obj == avatarp))
 			{
 				// It's you
 				good_customize_avatar_hit = TRUE;
 			}
-			else
-			if( hit_obj->isAttachment() && hit_obj->permYouOwner() )
+			else if (hit_obj->isAttachment() && hit_obj->permYouOwner())
 			{
 				// It's an attachment that you're wearing
 				good_customize_avatar_hit = TRUE;

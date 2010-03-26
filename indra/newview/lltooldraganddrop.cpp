@@ -1547,7 +1547,7 @@ void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
 	llinfos << "LLToolDragAndDrop::giveInventoryCategory() - "
 			<< cat->getUUID() << llendl;
 
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	if (!avatarp)
 	{
 		return;

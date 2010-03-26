@@ -73,7 +73,8 @@ void LLAgentUI::buildName(std::string& name)
 //static
 void LLAgentUI::buildFullname(std::string& name)
 {
-	if (gAgent.getAvatarObject()) name = gAgent.getAvatarObject()->getFullname();
+	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
+	if (avatarp) name = avatarp->getFullname();
 }
 
 //static
