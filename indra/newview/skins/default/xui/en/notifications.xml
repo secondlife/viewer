@@ -5110,7 +5110,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
    icon="notify.tga"
    name="TeleportOffered"
    type="offer">
-[NAME] has offered to teleport you to their location:
+[NAME_SLURL] has offered to teleport you to their location:
 
 [MESSAGE]
     <form name="form">
