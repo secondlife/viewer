@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="WindLight floater" title="ÉDITEUR DE CIEL AVANCÉ" width="706">
 	<text name="KeyFramePresetsText">
-		Préréglages ciel :
+		Préréglages :
 	</text>
 	<button label="Nouveau" label_selected="Nouveau" name="WLNewPreset"/>
 	<button label="Enregistrer" label_selected="Enregistrer" left_delta="75" name="WLSavePreset" width="75"/>

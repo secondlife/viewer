@@ -397,7 +397,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Home Page:
 			</text>
 			<line_editor left="97" name="media_url"/>
-			<button label="Imposta..." label_selected="Imposta..." name="set_media_url" width="63"/>
+			<button label="Imposta" name="set_media_url"/>
 			<check_box label="Nascondi indirizzo URL Media" left="94" name="hide_media_url" tool_tip="Abilitando questa opzione nasconderai l&apos;indirizzo url dei media a tutte le persone non autorizzate a vedere le informazioni del terreno. Nota che questo non è disponibile per contenuto di tipo HTML."/>
 			<text name="Description:">
 				Descrizione:

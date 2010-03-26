@@ -11,7 +11,7 @@
 	<string name="no_groups_msg" value="[secondlife:///app/search/groups Intenta encontrar grupos a los que unirte.]"/>
 	<filter_editor label="Filtrar" name="filter_input"/>
 	<tab_container name="tabs">
-		<panel label="CERCANÍA" name="nearby_panel">
+		<panel label="CERCANA" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="nearby_view_sort_btn" tool_tip="Opciones"/>
 				<button name="add_friend_btn" tool_tip="Añadir al Residente seleccionado a la lista de tus amigos"/>
@@ -20,7 +20,7 @@
 		<panel label="MIS AMIGOS" name="friends_panel">
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Conectado"/>
-				<accordion_tab name="tab_all" title="Todas"/>
+				<accordion_tab name="tab_all" title="Todos"/>
 			</accordion>
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="friends_viewsort_btn" tool_tip="Opciones"/>

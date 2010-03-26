@@ -9,8 +9,8 @@
 		<menu_item_call label="Il mio profilo" name="Profile"/>
 		<menu_item_call label="Il mio aspetto" name="Appearance"/>
 		<menu_item_check label="Il mio inventario" name="Inventory"/>
-		<menu_item_call label="Mostra inventario su barra laterale" name="ShowSidetrayInventory"/>
-		<menu_item_call label="Le mie gesture" name="Gestures"/>
+		<menu_item_check label="Il mio inventario" name="ShowSidetrayInventory"/>
+		<menu_item_check label="Le mie gesture" name="Gestures"/>
 		<menu label="Il mio stato" name="Status">
 			<menu_item_call label="Assente" name="Set Away"/>
 			<menu_item_call label="Non disponibile" name="Set Busy"/>
@@ -24,35 +24,36 @@
 		<menu_item_call label="I miei gruppi" name="My Groups"/>
 		<menu_item_check label="Chat nei dintorni" name="Nearby Chat"/>
 		<menu_item_call label="Persone vicine" name="Active Speakers"/>
-		<menu_item_check label="Multimedia vicini" name="Nearby Media"/>
 	</menu>
 	<menu label="Mondo" name="World">
-		<menu_item_check label="Sposta" name="Movement Controls"/>
-		<menu_item_check label="Visualizza" name="Camera Controls"/>
-		<menu_item_call label="Informazioni sui terreni" name="About Land"/>
-		<menu_item_call label="Regione/proprietà immobiliare" name="Region/Estate"/>
-		<menu_item_call label="Acquista terreno" name="Buy Land"/>
+		<menu_item_check label="Mini mappa" name="Mini-Map"/>
+		<menu_item_check label="Mappa del mondo" name="World Map"/>
+		<menu_item_call label="Istantanea" name="Take Snapshot"/>
+		<menu_item_call label="Crea punto di riferimento per questo luogo" name="Create Landmark Here"/>
+		<menu label="Profilo del posto" name="Land">
+			<menu_item_call label="Informazioni sui terreni" name="About Land"/>
+			<menu_item_call label="Regione/proprietà immobiliare" name="Region/Estate"/>
+		</menu>
+		<menu_item_call label="Acquista questo terreno" name="Buy Land"/>
 		<menu_item_call label="Il mio terreno" name="My Land"/>
-		<menu label="Mostra" name="Land">
+		<menu label="Mostra" name="LandShow">
+			<menu_item_check label="Comandi del movimento" name="Movement Controls"/>
+			<menu_item_check label="Comandi visualizzazione" name="Camera Controls"/>
 			<menu_item_check label="Linee di divieto" name="Ban Lines"/>
 			<menu_item_check label="Marcatori" name="beacons"/>
 			<menu_item_check label="Linee di confine" name="Property Lines"/>
 			<menu_item_check label="Proprietari di terreno" name="Land Owners"/>
+			<menu_item_check label="Coordinate" name="Coordinates"/>
+			<menu_item_check label="Proprietà del lotto" name="Parcel Properties"/>
 		</menu>
-		<menu label="Punti di riferimento" name="Landmarks">
-			<menu_item_call label="Crea punto di riferimento qui" name="Create Landmark Here"/>
-			<menu_item_call label="Imposta come Casa mia" name="Set Home to Here"/>
-		</menu>
-		<menu_item_call label="Home" name="Teleport Home"/>
-		<menu_item_check label="Mini mappa" name="Mini-Map"/>
-		<menu_item_check label="Mappa del mondo" name="World Map"/>
-		<menu_item_call label="Istantanea" name="Take Snapshot"/>
+		<menu_item_call label="Teleport a Casa" name="Teleport Home"/>
+		<menu_item_call label="Imposta come Casa mia" name="Set Home to Here"/>
 		<menu label="Sole" name="Environment Settings">
 			<menu_item_call label="Alba" name="Sunrise"/>
 			<menu_item_call label="Mezzogiorno" name="Noon"/>
 			<menu_item_call label="Tramonto" name="Sunset"/>
 			<menu_item_call label="Mezzanotte" name="Midnight"/>
-			<menu_item_call label="Usa l&apos;ora della proprietà" name="Revert to Region Default"/>
+			<menu_item_call label="Orario della proprietà" name="Revert to Region Default"/>
 			<menu_item_call label="Editor dell&apos;ambiente" name="Environment Editor"/>
 		</menu>
 	</menu>
@@ -78,10 +79,12 @@
 		</menu>
 		<menu_item_call label="Collegamento" name="Link"/>
 		<menu_item_call label="Scollega" name="Unlink"/>
+		<menu_item_check label="Modifica le parti collegate" name="Edit Linked Parts"/>
 		<menu_item_call label="Ingrandisci selezione" name="Focus on Selection"/>
 		<menu_item_call label="Zoom sulla selezione" name="Zoom to Selection"/>
 		<menu label="Oggetto" name="Object">
-			<menu_item_call label="Acquista" name="Menu Object Take"/>
+			<menu_item_call label="Acquista" name="Menu Object Buy"/>
+			<menu_item_call label="Prendi" name="Menu Object Take"/>
 			<menu_item_call label="Prendi copia" name="Take Copy"/>
 			<menu_item_call label="Salva nell&apos;inventario" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="Salva nei contenuti oggetto" name="Save Object Back to Object Contents"/>
@@ -94,25 +97,18 @@
 			<menu_item_call label="Imposta script come non in esecuzione" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Opzioni" name="Options">
-			<menu_item_check label="Modifica le parti collegate" name="Edit Linked Parts"/>
 			<menu_item_call label="Definisci diritti di caricamento predefiniti" name="perm prefs"/>
 			<menu_item_check label="Mostra autorizzazioni avanzate" name="DebugPermissions"/>
-			<menu label="Selezione" name="Selection">
-				<menu_item_check label="Seleziona solo i miei oggetti" name="Select Only My Objects"/>
-				<menu_item_check label="Seleziona solo gli oggetti spostabili" name="Select Only Movable Objects"/>
-				<menu_item_check label="Seleziona cerchiando" name="Select By Surrounding"/>
-			</menu>
-			<menu label="Mostra" name="Show">
-				<menu_item_check label="Seleziona mostra nascosti" name="Show Hidden Selection"/>
-				<menu_item_check label="Seleziona mostra il raggio luminoso per la selezione" name="Show Light Radius for Selection"/>
-				<menu_item_check label="Mostra il raggio indicatore" name="Show Selection Beam"/>
-			</menu>
-			<menu label="Griglia" name="Grid">
-				<menu_item_check label="Posiziona nella griglia" name="Snap to Grid"/>
-				<menu_item_call label="Posiziona coordinate XY dell&apos;oggetto sulla griglia" name="Snap Object XY to Grid"/>
-				<menu_item_call label="Usa la selezione per la griglia" name="Use Selection for Grid"/>
-				<menu_item_call label="Opzioni della griglia" name="Grid Options"/>
-			</menu>
+			<menu_item_check label="Seleziona solo i miei oggetti" name="Select Only My Objects"/>
+			<menu_item_check label="Seleziona solo gli oggetti spostabili" name="Select Only Movable Objects"/>
+			<menu_item_check label="Seleziona circostante" name="Select By Surrounding"/>
+			<menu_item_check label="Seleziona mostra nascosti" name="Show Hidden Selection"/>
+			<menu_item_check label="Seleziona mostra il raggio luminoso per la selezione" name="Show Light Radius for Selection"/>
+			<menu_item_check label="Mostra il raggio indicatore" name="Show Selection Beam"/>
+			<menu_item_check label="Posiziona nella griglia" name="Snap to Grid"/>
+			<menu_item_call label="Posiziona coordinate XY dell&apos;oggetto sulla griglia" name="Snap Object XY to Grid"/>
+			<menu_item_call label="Usa la selezione per la griglia" name="Use Selection for Grid"/>
+			<menu_item_call label="Opzioni della griglia" name="Grid Options"/>
 		</menu>
 		<menu label="Seleziona parti collegate" name="Select Linked Parts">
 			<menu_item_call label="Seleziona parte successiva" name="Select Next Part"/>
@@ -127,10 +123,10 @@
 		<menu_item_call label="Segnala bug" name="Report Bug"/>
 	</menu>
 	<menu label="Avanzate" name="Advanced">
-		<menu_item_check label="Imposta ncome assente dopo 30 minuti" name="Go Away/AFK When Idle"/>
 		<menu_item_call label="Ferma animazione" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Ridisegna le texture" name="Rebake Texture"/>
 		<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
+		<menu_item_call label="Imposta dimensioni della finestra..." name="Set Window Size..."/>
 		<menu_item_check label="Limita distanza di selezione" name="Limit Select Distance"/>
 		<menu_item_check label="Disabilita vincoli fotocamera" name="Disable Camera Distance"/>
 		<menu_item_check label="Foto ad alta risoluzione" name="HighResSnapshot"/>
@@ -177,8 +173,8 @@
 		<menu_item_check label="Esegui thread multipli" name="Run Multiple Threads"/>
 		<menu_item_call label="Pulisci cache di gruppo" name="ClearGroupCache"/>
 		<menu_item_check label="Fluidità mouse" name="Mouse Smoothing"/>
-		<menu_item_check label="Mostra IM nella Chat nei dintorni" name="IMInChat"/>
 		<menu label="Scorciatoie" name="Shortcuts">
+			<menu_item_call label="Immagine ([COST]L$)..." name="Upload Image"/>
 			<menu_item_check label="Cerca" name="Search"/>
 			<menu_item_call label="Rilascia tasti" name="Release Keys"/>
 			<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
@@ -218,6 +214,7 @@
 			<menu_item_call label="Informazioni regione sulla console di debug" name="Region Info to Debug Console"/>
 			<menu_item_check label="Fotocamera" name="Camera"/>
 			<menu_item_check label="Vento" name="Wind"/>
+			<menu_item_check label="Badge" name="Badge"/>
 		</menu>
 		<menu label="Mostra informazioni" name="Display Info">
 			<menu_item_check label="Mostra orario" name="Show Time"/>

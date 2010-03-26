@@ -392,7 +392,7 @@ Kun større parceller kan vises i søgning.
 			<text left="4" name="at URL:">
 				Hjemmeside:
 			</text>
-			<button label="Vælg..." label_selected="Vælg..." name="set_media_url"/>
+			<button label="Vælg" name="set_media_url"/>
 			<check_box label="Skjul medie URL" name="hide_media_url" tool_tip="Klik her for at skjule medie adressen så det kun er dig og evt. parcel gruppens ejer/administratorer der kan se den."/>
 			<text left="4" name="Description:">
 				Beskrivelse:

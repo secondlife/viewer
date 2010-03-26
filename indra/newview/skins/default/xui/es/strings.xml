@@ -972,7 +972,7 @@
 		Partes del cuerpo
 	</string>
 	<string name="InvFolder Trash">
-		la Papelera
+		Papelera
 	</string>
 	<string name="InvFolder Photo Album">
 		Álbum de fotos
@@ -1920,7 +1920,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Cortos
 	</string>
 	<string name="Attached Earlobes">
-		Lóbulos cortos
+		Lóbulos
 	</string>
 	<string name="Back Fringe">
 		Nuca: largo
@@ -3090,7 +3090,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Sweep Forward
 	</string>
 	<string name="Tall">
-		Alta
+		Más
 	</string>
 	<string name="Taper Back">
 		Cubierta trasera
@@ -3192,7 +3192,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Pelo blanco
 	</string>
 	<string name="Wide">
-		Ancho
+		Aumentar
 	</string>
 	<string name="Wide Back">
 		Completa

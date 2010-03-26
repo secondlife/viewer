@@ -17,7 +17,7 @@
 				<button name="add_friend_btn" tool_tip="Aggiungi il residente selezionato alla tua lista degli amici"/>
 			</panel>
 		</panel>
-		<panel label="AMICI" name="friends_panel">
+		<panel label="I MIEI AMICI" name="friends_panel">
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Online"/>
 				<accordion_tab name="tab_all" title="Tutto"/>
@@ -32,7 +32,7 @@
 Se stai cercando qualcuno da frequentare, [secondlife:///app/worldmap try the Map].
 			</text>
 		</panel>
-		<panel label="GRUPPI" name="groups_panel">
+		<panel label="I MIEI GRUPPI" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="groups_viewsort_btn" tool_tip="Opzioni"/>
 				<button name="plus_btn" tool_tip="Aderisci al gruppo/Crea nuovo gruppo"/>
@@ -47,12 +47,13 @@ Se stai cercando qualcuno da frequentare, [secondlife:///app/worldmap try the Ma
 		</panel>
 	</tab_container>
 	<panel name="button_bar">
-		<button label="Profilo" name="view_profile_btn" tool_tip="Mostra foto, gruppi, e informazioni di altri residenti"/>
+		<button label="Profilo" name="view_profile_btn" tool_tip="Mostra immagine, gruppi e altre informazioni del residente"/>
 		<button label="IM" name="im_btn" tool_tip="Apri una sessione messaggio istantaneo"/>
 		<button label="Chiama" name="call_btn" tool_tip="Chiama questo residente"/>
 		<button label="Condividi" name="share_btn"/>
 		<button label="Teleport" name="teleport_btn" tool_tip="Offri teleport"/>
 		<button label="Profilo del gruppo" name="group_info_btn" tool_tip="Mostra informazioni gruppo"/>
 		<button label="Chat di gruppo" name="chat_btn" tool_tip="Apri sessione chat"/>
+		<button label="Chiamata al gruppo" name="group_call_btn" tool_tip="Chiama questo gruppo"/>
 	</panel>
 </panel>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="Caratteristiche dell&apos;articolo in inventario">
+<panel name="item properties" title="Profilo dell&apos;oggetto">
 	<panel.string name="unknown">
 		(sconosciuto)
 	</panel.string>
@@ -15,7 +15,8 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
-	<text name="title" value="Caratteristiche dell&apos;articolo"/>
+	<text name="title" value="Profilo dell&apos;oggetto"/>
+	<text name="where" value="(Inventario)"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
 			Nome:
@@ -37,34 +38,36 @@
 		<text name="LabelAcquiredDate">
 			mer 24 maggio 12:50:46 2006
 		</text>
-		<text name="OwnerLabel">
-			Tu:
-		</text>
-		<check_box label="Modifica" name="CheckOwnerModify"/>
-		<check_box label="Copia" name="CheckOwnerCopy"/>
-		<check_box label="Rivendi" name="CheckOwnerTransfer"/>
-		<text name="AnyoneLabel">
-			Chiunque:
-		</text>
-		<check_box label="Copia" name="CheckEveryoneCopy"/>
-		<text name="GroupLabel">
-			Gruppo:
-		</text>
-		<check_box label="Condividi" name="CheckShareWithGroup"/>
-		<text name="NextOwnerLabel">
-			Proprietario successivo:
-		</text>
-		<check_box label="Modifica" name="CheckNextOwnerModify"/>
-		<check_box label="Copia" name="CheckNextOwnerCopy"/>
-		<check_box label="Rivendi" name="CheckNextOwnerTransfer"/>
+		<panel name="perms_inv">
+			<text name="perm_modify">
+				Tu puoi:
+			</text>
+			<check_box label="Modifica" name="CheckOwnerModify"/>
+			<check_box label="Copia" name="CheckOwnerCopy"/>
+			<check_box label="Trasferisci" name="CheckOwnerTransfer"/>
+			<text name="AnyoneLabel">
+				Chiunque:
+			</text>
+			<check_box label="Copia" name="CheckEveryoneCopy"/>
+			<text name="GroupLabel">
+				Gruppo:
+			</text>
+			<check_box label="Condividi" name="CheckShareWithGroup" tool_tip="Consenti a tutti i membri del gruppo selezionato di condividere i tuoi diritti di modifica di questo oggetto. Per attivare le restrizioni per ruolo devi prima effettuare la cessione."/>
+			<text name="NextOwnerLabel">
+				Proprietario successivo:
+			</text>
+			<check_box label="Modifica" name="CheckNextOwnerModify"/>
+			<check_box label="Copia" name="CheckNextOwnerCopy"/>
+			<check_box label="Trasferisci" name="CheckNextOwnerTransfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
+		</panel>
 		<check_box label="In vendita" name="CheckPurchase"/>
 		<combo_box name="combobox sale copy">
 			<combo_box.item label="Copia" name="Copy"/>
 			<combo_box.item label="Originale" name="Original"/>
 		</combo_box>
-		<spinner label="Prezzo:" name="Edit Cost"/>
-		<text name="CurrencySymbol">
-			L$
-		</text>
+		<spinner label="Prezzo: L$" name="Edit Cost"/>
+	</panel>
+	<panel name="button_panel">
+		<button label="Annulla" name="cancel_btn"/>
 	</panel>
 </panel>
