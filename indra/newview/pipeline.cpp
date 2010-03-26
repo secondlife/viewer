@@ -3404,26 +3404,14 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 	gGLLastMatrix = NULL;
 	glLoadMatrixd(gGLModelView);
 
-	renderHighlights();
-	mHighlightFaces.clear();
-
-	renderDebug();
-
-	LLVertexBuffer::unbind();
-
-	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
-	{
-		// Render debugging beacons.
-		gObjectList.renderObjectBeacons();
-		gObjectList.resetObjectBeacons();
-	}
-
 	if (occlude)
 	{
 		occlude = FALSE;
 		gGLLastMatrix = NULL;
 		glLoadMatrixd(gGLModelView);
 		doOcclusion(camera);
+		gGLLastMatrix = NULL;
+		glLoadMatrix(gGLModelView);
 	}
 }
 
@@ -6891,6 +6879,24 @@ void LLPipeline::renderDeferredLighting()
 		
 		renderGeomPostDeferred(*LLViewerCamera::getInstance());
 		mRenderTypeMask = render_mask;
+	}
+
+	{
+		//render highlights, etc.
+		renderHighlights();
+		mHighlightFaces.clear();
+
+		renderDebug();
+
+		LLVertexBuffer::unbind();
+
+		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+		{
+			// Render debugging beacons.
+			gObjectList.renderObjectBeacons();
+			LLHUDObject::renderAll();
+			gObjectList.resetObjectBeacons();
+		}
 	}
 
 	mScreen.flush();

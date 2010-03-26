@@ -1688,7 +1688,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	mGenerateSingleFace = generate_single_face;
 
 	generate();
-	if (mParams.getSculptID().isNull())
+	if (mParams.getSculptID().isNull() && params.getSculptType() == LL_SCULPT_TYPE_NONE)
 	{
 		createVolumeFaces();
 	}
@@ -1864,6 +1864,11 @@ void LLVolume::createVolumeFaces()
 			LLProfile::Face& face = mProfilep->mFaces[i];
 			vf.mBeginS = face.mIndex;
 			vf.mNumS = face.mCount;
+			if (vf.mNumS < 0)
+			{
+				llerrs << "Volume face corruption detected." << llendl;
+			}
+
 			vf.mBeginT = 0;
 			vf.mNumT= getPath().mPath.size();
 			vf.mID = i;
@@ -1907,6 +1912,10 @@ void LLVolume::createVolumeFaces()
 					if (face.mFlat && vf.mNumS > 2)
 					{ //flat inner faces have to copy vert normals
 						vf.mNumS = vf.mNumS*2;
+						if (vf.mNumS < 0)
+						{
+							llerrs << "Volume face corruption detected." << llendl;
+						}
 					}
 				}
 				else
