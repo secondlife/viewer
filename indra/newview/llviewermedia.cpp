@@ -1018,6 +1018,7 @@ void LLViewerMedia::clearAllCookies()
 	// Places that cookie files can be:
 	// <getOSUserAppDir>/browser_profile/cookies
 	// <getOSUserAppDir>/first_last/browser_profile/cookies  (note that there may be any number of these!)
+	// <getOSUserAppDir>/first_last/plugin_cookies.txt  (note that there may be any number of these!)
 	
 	std::string base_dir = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter();
 	std::string target;
@@ -1045,6 +1046,16 @@ void LLViewerMedia::clearAllCookies()
 		target += "browser_profile";
 		target += gDirUtilp->getDirDelimiter();
 		target += "cookies";
+		lldebugs << "target = " << target << llendl;
+		if(LLFile::isfile(target))
+		{	
+			LLFile::remove(target);
+		}
+
+		target = base_dir;
+		target += filename;
+		target += gDirUtilp->getDirDelimiter();
+		target += PLUGIN_COOKIE_FILE_NAME;
 		lldebugs << "target = " << target << llendl;
 		if(LLFile::isfile(target))
 		{	
@@ -1142,7 +1153,18 @@ void LLViewerMedia::loadCookieFile()
 
 	file.close();
 	
-	// TODO: send the clear_cookies message to all loaded plugins
+	// send the clear_cookies message to all loaded plugins
+	impl_list::iterator iter = sViewerMediaImplList.begin();
+	impl_list::iterator end = sViewerMediaImplList.end();
+	for (; iter != end; iter++)
+	{
+		LLViewerMediaImpl* pimpl = *iter;
+		if(pimpl->mMediaSource)
+		{
+			pimpl->mMediaSource->clear_cookies();
+		}
+	}
+
 }
 
 
