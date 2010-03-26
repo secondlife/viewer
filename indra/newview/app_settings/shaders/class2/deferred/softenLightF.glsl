@@ -287,6 +287,7 @@ void main()
 
 		// screen-space cheap fakey reflection map
 		//
+		depth -= 0.5; // unbias depth
 		// first figure out where we'll make our 2D guess from
 		vec2 ref2d = tc.xy + (0.5 * screen_res.y) * (refnorm.xy) * abs(refnorm.z) / depth;
 		// get attributes from the 2D guess point
@@ -301,7 +302,7 @@ void main()
 		//refapprop *= step(dot(refnorm, refn), 0.0);
 		refapprop = min(refapprop, max(0.0, -dot(refnorm, refn))); // more conservative variant
 		// get appropriate light strength for guess-point
-		float reflit = min(max(dot(refn, vary_light.xyz), 0.0), refshad);
+		float reflit = min(max(dot(refn, lightnorm.xyz), 0.0), refshad);
 		// apply sun color to guess-point, dampen according to inappropriateness of guess
 		vec3 refprod = (vary_SunlitColor*reflit) * refcol.rgb * refapprop;
 		vec3 ssshiny = (refprod * spec.a);
