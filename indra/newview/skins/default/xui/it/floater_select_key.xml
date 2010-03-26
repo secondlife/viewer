@@ -2,6 +2,6 @@
 <floater name="modal container" title="">
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
 	<text name="Save item as:">
-		Premi un tasto per definirlo come comando di attivazione della funzione Parla.
+		Premi una chiave per configurarla come pulsante da premere per parlare.
 	</text>
 </floater>

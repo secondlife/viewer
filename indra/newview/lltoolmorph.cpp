@@ -165,7 +165,7 @@ void LLVisualParamHint::preRender(BOOL clear_depth)
 BOOL LLVisualParamHint::render()
 {
 	LLVisualParamReset::sDirty = TRUE;
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
 	gGL.pushUIMatrix();
 	gGL.loadUIIdentity();

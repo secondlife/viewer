@@ -56,6 +56,7 @@
 
 // newview includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "lldrawable.h"
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
@@ -3855,7 +3856,7 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 	}
 
 	// pick HUD objects
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	if (avatarp && sShowHUDAttachments)
 	{
 		glh::matrix4f save_proj(glh_get_current_projection());
@@ -4361,7 +4362,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		// mNearbyLight (and all light_set_t's) are sorted such that
 		// begin() == the closest light and rbegin() == the farthest light
 		const S32 MAX_LOCAL_LIGHTS = 6;
-// 		LLVector3 cam_pos = gAgent.getCameraPositionAgent();
+// 		LLVector3 cam_pos = gAgentCamera.getCameraPositionAgent();
 		LLVector3 cam_pos = LLViewerJoystick::getInstance()->getOverrideCamera() ?
 						camera.getOrigin() : 
 						gAgent.getPositionAgent();
@@ -4707,7 +4708,7 @@ void LLPipeline::enableLightsDynamic()
 		glColor4f(0.f, 0.f, 0.f, 1.f); // no local lighting by default
 	}
 
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
 	if (avatarp && getLightingDetail() <= 0)
 	{
@@ -7100,15 +7101,15 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		if (gAgent.getCameraAnimating() || gAgent.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+		if (gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
 		{
-			avatar = NULL;
+			avatarp = NULL;
 		}
 
-		if (avatar)
+		if (avatarp)
 		{
-			avatar->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
+			avatarp->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
 		}
 		LLVertexBuffer::unbind();
 
@@ -7332,9 +7333,9 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLGLState::checkTextureChannels();
 		LLGLState::checkClientArrays();
 
-		if (avatar)
+		if (avatarp)
 		{
-			avatar->updateAttachmentVisibility(gAgent.getCameraMode());
+			avatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
 		}
 	}
 }

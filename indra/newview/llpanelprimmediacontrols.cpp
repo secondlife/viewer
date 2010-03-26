@@ -32,7 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 //LLPanelPrimMediaControls
-#include "llagent.h"
+#include "llagentcamera.h"
 #include "llparcel.h"
 #include "llpanel.h"
 #include "llselectmgr.h"
@@ -1010,7 +1010,7 @@ void LLPanelPrimMediaControls::updateZoom()
 	{
 	case ZOOM_NONE:
 		{
-			gAgent.setFocusOnAvatar(TRUE, ANIMATE);
+			gAgentCamera.setFocusOnAvatar(TRUE, ANIMATE);
 			break;
 		}
 	case ZOOM_FAR:
@@ -1030,7 +1030,7 @@ void LLPanelPrimMediaControls::updateZoom()
 		}
 	default:
 		{
-			gAgent.setFocusOnAvatar(TRUE, ANIMATE);
+			gAgentCamera.setFocusOnAvatar(TRUE, ANIMATE);
 			break;
 		}
 	}

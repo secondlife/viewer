@@ -37,6 +37,7 @@
 #include "llnotificationsutil.h"
 // project headers
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentui.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
@@ -959,7 +960,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 	gViewerWindow->getWindow()->setCursor( cursor );
 
 	mLastHitPos = pick_info.mPosGlobal;
-	mLastCameraPos = gAgent.getCameraPositionGlobal();
+	mLastCameraPos = gAgentCamera.getCameraPositionGlobal();
 }
 
 // static
@@ -2012,8 +2013,8 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 	}
 
 	// must not be already wearing it
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if( !avatar || avatar->isWearingAttachment(item->getUUID()) )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if(!avatarp || avatarp->isWearingAttachment(item->getUUID()) )
 	{
 		return ACCEPT_NO;
 	}
@@ -2626,13 +2627,13 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryObject(
 		// cannot give away no-transfer objects
 		return ACCEPT_NO;
 	}
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if(avatar && avatar->isWearingAttachment( item->getUUID() ) )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if(avatarp && avatarp->isWearingAttachment( item->getUUID() ) )
 	{
 		// You can't give objects that are attached to you
 		return ACCEPT_NO;
 	}
-	if( obj && avatar )
+	if(obj && avatarp)
 	{
 		if(drop)
 		{

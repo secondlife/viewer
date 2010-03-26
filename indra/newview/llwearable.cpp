@@ -645,18 +645,18 @@ void LLWearable::setTexturesToDefaults()
 // Updates the user's avatar's appearance
 void LLWearable::writeToAvatar()
 {
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	llassert( avatar );
-	if( !avatar )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	llassert(avatarp);
+	if(!avatarp)
 	{
 		llerrs << "could not get avatar object to write to for wearable " << this->getName() << llendl;
 		return;
 	}
 
-	ESex old_sex = avatar->getSex();
+	ESex old_sex = avatarp->getSex();
 
 	// Pull params
-	for( LLVisualParam* param = avatar->getFirstVisualParam(); param; param = avatar->getNextVisualParam() )
+	for( LLVisualParam* param = avatarp->getFirstVisualParam(); param; param = avatarp->getNextVisualParam() )
 	{
 		// cross-wearable parameters are not authoritative, as they are driven by a different wearable. So don't copy the values to the
 		// avatar object if cross wearable. Cross wearable params get their values from the avatar, they shouldn't write the other way.
@@ -665,7 +665,7 @@ void LLWearable::writeToAvatar()
 			S32 param_id = param->getID();
 			F32 weight = getVisualParamWeight(param_id);
 
-			avatar->setVisualParamWeight( param_id, weight, FALSE );
+			avatarp->setVisualParamWeight( param_id, weight, FALSE );
 		}
 	}
 
@@ -686,14 +686,14 @@ void LLWearable::writeToAvatar()
 			}
 			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
 			// MULTI-WEARABLE: replace hard-coded 0
-			avatar->setLocalTextureTE(te, image, 0);
+			avatarp->setLocalTextureTE(te, image, 0);
 		}
 	}
 
-	ESex new_sex = avatar->getSex();
+	ESex new_sex = avatarp->getSex();
 	if( old_sex != new_sex )
 	{
-		avatar->updateSexDependentLayerSets( FALSE );
+		avatarp->updateSexDependentLayerSets( FALSE );
 	}	
 	
 //	if( upload_bake )
@@ -707,9 +707,9 @@ void LLWearable::writeToAvatar()
 // static 
 void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
 {
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	llassert( avatar );
-	if( !avatar )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	llassert(avatarp);
+	if(!avatarp)
 	{
 		return;
 	}
@@ -724,12 +724,12 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
 	}
 
 	// Pull params
-	for( LLVisualParam* param = avatar->getFirstVisualParam(); param; param = avatar->getNextVisualParam() )
+	for( LLVisualParam* param = avatarp->getFirstVisualParam(); param; param = avatarp->getNextVisualParam() )
 	{
 		if( (((LLViewerVisualParam*)param)->getWearableType() == type) && (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) )
 		{
 			S32 param_id = param->getID();
-			avatar->setVisualParamWeight( param_id, param->getDefaultWeight(), upload_bake );
+			avatarp->setVisualParamWeight( param_id, param->getDefaultWeight(), upload_bake );
 		}
 	}
 
@@ -738,8 +738,8 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
 		gFloaterCustomize->setWearable(type, NULL, PERM_ALL, TRUE);
 	}
 
-	avatar->updateVisualParams();
-	avatar->wearableUpdated(type, TRUE);
+	avatarp->updateVisualParams();
+	avatarp->wearableUpdated(type, TRUE);
 
 //	if( upload_bake )
 //	{
@@ -751,9 +751,9 @@ void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
 // Definition version is current: removes obsolete enties and creates default values for new ones.
 void LLWearable::copyDataFrom(const LLWearable* src)
 {
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	llassert( avatar );
-	if( !avatar )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	llassert(avatarp);
+	if(!avatarp)
 	{
 		return;
 	}
@@ -769,9 +769,9 @@ void LLWearable::copyDataFrom(const LLWearable* src)
 
 	mSavedVisualParamMap.clear();
 	// Deep copy of mVisualParamMap (copies only those params that are current, filling in defaults where needed)
-	for( LLViewerVisualParam* param = (LLViewerVisualParam*) avatar->getFirstVisualParam(); 
+	for (LLViewerVisualParam* param = (LLViewerVisualParam*) avatarp->getFirstVisualParam(); 
 		param;
-		param = (LLViewerVisualParam*) avatar->getNextVisualParam() )
+		param = (LLViewerVisualParam*) avatarp->getNextVisualParam() )
 	{
 		if( (param->getWearableType() == mType) )
 		{
@@ -783,7 +783,7 @@ void LLWearable::copyDataFrom(const LLWearable* src)
 
 	destroyTextures();
 	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
-	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
+	for (S32 te = 0; te < TEX_NUM_INDICES; te++)
 	{
 		if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
@@ -876,14 +876,14 @@ void LLWearable::addVisualParam(LLVisualParam *param)
 
 void LLWearable::setVisualParams()
 {
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
 	for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); iter++)
 	{
 		S32 id = iter->first;
 		LLVisualParam *wearable_param = iter->second;
 		F32 value = wearable_param->getWeight();
-		avatar->setVisualParamWeight(id, value, FALSE);
+		avatarp->setVisualParamWeight(id, value, FALSE);
 	}
 }
 
@@ -1024,9 +1024,9 @@ BOOL LLWearable::isOnTop() const
 
 void LLWearable::createLayers(S32 te)
 {
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	LLTexLayerSet *layer_set = avatar->getLayerSet((ETextureIndex)te);
-	if( layer_set )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	LLTexLayerSet *layer_set = avatarp->getLayerSet((ETextureIndex)te);
+	if (layer_set)
 	{
 		layer_set->cloneTemplates(mTEMap[te], (ETextureIndex)te, this);
 	}

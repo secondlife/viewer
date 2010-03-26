@@ -218,7 +218,6 @@ private:
 	static BOOL		mInitialWearablesUpdateReceived;
 	BOOL			mWearablesLoaded;
 	std::set<LLUUID>	mItemsAwaitingWearableUpdate;
-	LLPointer<LLVOAvatarSelf> mAvatarObject; // NULL until avatar object sent down from simulator
 	
 	//--------------------------------------------------------------------------------
 	// Support classes

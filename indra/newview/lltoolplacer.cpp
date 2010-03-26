@@ -56,6 +56,7 @@
 #include "llvolumemessage.h"
 #include "llhudmanager.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llaudioengine.h"
 #include "llhudeffecttrail.h"
 #include "llviewerobjectlist.h"
@@ -120,7 +121,7 @@ BOOL LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 	}
 
 	// Make sure the surface isn't too far away.
-	LLVector3d ray_start_global = gAgent.getCameraPositionGlobal();
+	LLVector3d ray_start_global = gAgentCamera.getCameraPositionGlobal();
 	F32 dist_to_surface_sq = (F32)((surface_pos_global - ray_start_global).magVecSquared());
 	if( dist_to_surface_sq > (max_dist_from_camera * max_dist_from_camera) )
 	{

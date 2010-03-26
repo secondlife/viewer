@@ -19,10 +19,17 @@
 		<button label="Mere &gt;&gt;" label_selected="Mindre &lt;&lt;" name="more_less_btn" tool_tip="Avanceret opsætning"/>
 	</panel>
 	<panel name="nearby_media_panel">
+		<text name="nearby_media">
+			Media i nærheden
+		</text>
+		<text name="show">
+			Vis:
+		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Overalt" name="All"/>
 			<combo_box.item label="På dette sted" name="WithinParcel"/>
 			<combo_box.item label="Udenfor dette sted" name="OutsideParcel"/>
+			<combo_box.item label="På andre avatarer" name="OnOthers"/>
 		</combo_box>
 		<scroll_list name="media_list">
 			<scroll_list.columns label="I nærheden" name="media_proximity"/>
@@ -31,28 +38,28 @@
 			<scroll_list.columns label="Navn" name="media_name"/>
 			<scroll_list.columns label="Debug" name="media_debug"/>
 		</scroll_list>
-		<panel>
+		<panel name="media_controls_panel">
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
-					<button name="stop_btn" tool_tip="Stop valgte medie"/>
+					<button name="stop_btn" tool_tip="Stop valgte media"/>
 				</layout_panel>
 				<layout_panel name="play">
-					<button name="play_btn" tool_tip="Afspil valgte medie"/>
+					<button name="play_btn" tool_tip="Afspil valgte media"/>
 				</layout_panel>
 				<layout_panel name="pause">
-					<button name="pause_btn" tool_tip="Pause valgte medie"/>
+					<button name="pause_btn" tool_tip="Pause valgte media"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
-					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Volumen for valgte medie"/>
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Lydstyrke for valgte media"/>
 				</layout_panel>
 				<layout_panel name="mute">
-					<button name="mute_btn" tool_tip="Sluk for lyd for valgte medie"/>
+					<button name="mute_btn" tool_tip="Sluk for lyd på valgte media"/>
 				</layout_panel>
 				<layout_panel name="zoom">
-					<button name="zoom_btn" tool_tip="Zoom ind til valgte medie"/>
+					<button name="zoom_btn" tool_tip="Zoom ind til valgte media"/>
 				</layout_panel>
 				<layout_panel name="unzoom">
-					<button name="unzoom_btn" tool_tip="Zoom tilbage fra valgte medie"/>
+					<button name="unzoom_btn" tool_tip="Zoom tilbage fra valgte media"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>

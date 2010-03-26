@@ -41,6 +41,7 @@
 #include "llfloaterworldmap.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcallingcard.h"
 #include "llcombobox.h"
@@ -1220,12 +1221,12 @@ void LLFloaterWorldMap::centerOnTarget(BOOL animate)
 		{
 			// We've got the position finally, so we're no longer busy. JC
 //			getWindow()->decBusyCount();
-			pos_global = LLTracker::getTrackedPositionGlobal() - gAgent.getCameraPositionGlobal();
+			pos_global = LLTracker::getTrackedPositionGlobal() - gAgentCamera.getCameraPositionGlobal();
 		}
 	}
 	else if(LLWorldMap::getInstance()->isTracking())
 	{
-		pos_global = LLWorldMap::getInstance()->getTrackedPositionGlobal() - gAgent.getCameraPositionGlobal();;
+		pos_global = LLWorldMap::getInstance()->getTrackedPositionGlobal() - gAgentCamera.getCameraPositionGlobal();;
 	}
 	else
 	{

@@ -60,6 +60,7 @@
 #include "llappviewer.h"	// for gDisconnected, gDisableVoice
 #include "llmutelist.h"  // to check for muted avatars
 #include "llagent.h"
+#include "llvoavatarself.h"
 #include "llcachename.h"
 #include "llimview.h" // for LLIMMgr
 #include "llparcel.h"
@@ -5874,9 +5875,9 @@ void LLVoiceClient::updatePosition(void)
 	
 	if(gVoiceClient)
 	{
-		LLVOAvatar *agent = gAgent.getAvatarObject();
+		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 		LLViewerRegion *region = gAgent.getRegion();
-		if(region && agent)
+		if(region && avatarp)
 		{
 			LLMatrix3 rot;
 			LLVector3d pos;
@@ -5894,9 +5895,9 @@ void LLVoiceClient::updatePosition(void)
 					rot);				// rotation matrix
 					
 			// Send the current avatar position to the voice code
-			rot = agent->getRootJoint()->getWorldRotation().getMatrix3();
+			rot = avatarp->getRootJoint()->getWorldRotation().getMatrix3();
 	
-			pos = agent->getPositionGlobal();
+			pos = avatarp->getPositionGlobal();
 			// TODO: Can we get the head offset from outside the LLVOAvatar?
 //			pos += LLVector3d(mHeadOffset);
 			pos += LLVector3d(0.f, 0.f, 1.f);

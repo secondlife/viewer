@@ -50,11 +50,11 @@ void LLAgentUI::buildName(std::string& name)
 {
 	name.clear();
 
-	LLVOAvatarSelf* avatar_object = gAgent.getAvatarObject();
-	if (avatar_object)
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (avatarp)
 	{
-		LLNameValue *first_nv = avatar_object->getNVPair("FirstName");
-		LLNameValue *last_nv = avatar_object->getNVPair("LastName");
+		LLNameValue *first_nv = avatarp->getNVPair("FirstName");
+		LLNameValue *last_nv = avatarp->getNVPair("LastName");
 		if (first_nv && last_nv)
 		{
 			name = first_nv->printData() + " " + last_nv->printData();

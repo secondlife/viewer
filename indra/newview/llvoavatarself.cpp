@@ -44,6 +44,7 @@
 #include "pipeline.h"
 
 #include "llagent.h" //  Get state values from here
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
@@ -819,10 +820,10 @@ void LLVOAvatarSelf::idleUpdateTractorBeam()
 	{
 		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 
-		if (gAgent.mPointAt.notNull())
+		if (gAgentCamera.mPointAt.notNull())
 		{
 			// get point from pointat effect
-			mBeam->setPositionGlobal(gAgent.mPointAt->getPointAtPosGlobal());
+			mBeam->setPositionGlobal(gAgentCamera.mPointAt->getPointAtPosGlobal());
 			mBeam->triggerLocal();
 		}
 		else if (selection->getFirstRootObject() && 
@@ -873,7 +874,7 @@ void LLVOAvatarSelf::restoreMeshData()
 	//llinfos << "Restoring" << llendl;
 	mMeshValid = TRUE;
 	updateJointLODs();
-	updateAttachmentVisibility(gAgent.getCameraMode());
+	updateAttachmentVisibility(gAgentCamera.getCameraMode());
 
 	// force mesh update as LOD might not have changed to trigger this
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
@@ -938,7 +939,7 @@ void LLVOAvatarSelf::wearableUpdated( EWearableType type, BOOL upload_result )
 
 		// if we're editing our appearance, ensure that we're not using baked textures
 		// The baked texture for alpha masks is set explicitly when you hit "save"
-		if (gAgent.cameraCustomizeAvatar())
+		if (gAgentCamera.cameraCustomizeAvatar())
 		{
 			setNewBakedTexture(index,IMG_DEFAULT_AVATAR);
 		}
@@ -1027,7 +1028,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 		return 0;
 	}
 
-	updateAttachmentVisibility(gAgent.getCameraMode());
+	updateAttachmentVisibility(gAgentCamera.getCameraMode());
 	
 	// Then make sure the inventory is in sync with the avatar.
 
@@ -1115,11 +1116,11 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 			discard_level < local_tex_obj->getDiscard())
 		{
 			local_tex_obj->setDiscard(discard_level);
-			if (!gAgent.cameraCustomizeAvatar())
+			if (!gAgentCamera.cameraCustomizeAvatar())
 			{
 				requestLayerSetUpdate(index);
 			}
-			else if (gAgent.cameraCustomizeAvatar())
+			else if (gAgentCamera.cameraCustomizeAvatar())
 			{
 				LLVisualParamHint::requestHintUpdates();
 			}
@@ -1523,11 +1524,11 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 				if (tex_discard >= 0 && tex_discard <= desired_discard)
 				{
 					local_tex_obj->setDiscard(tex_discard);
-					if (isSelf() && !gAgent.cameraCustomizeAvatar())
+					if (isSelf() && !gAgentCamera.cameraCustomizeAvatar())
 					{
 						requestLayerSetUpdate(type);
 					}
-					else if (isSelf() && gAgent.cameraCustomizeAvatar())
+					else if (isSelf() && gAgentCamera.cameraCustomizeAvatar())
 					{
 						LLVisualParamHint::requestHintUpdates();
 					}

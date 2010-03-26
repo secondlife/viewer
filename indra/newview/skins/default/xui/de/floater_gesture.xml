@@ -9,7 +9,7 @@
 	<floater.string name="copy_name">
 		Kopie von [COPY_NAME]
 	</floater.string>
-	<scroll_list bottom_delta="-385" height="360" name="gesture_list">
+	<scroll_list name="gesture_list">
 		<scroll_list.columns label="Name" name="name"/>
 		<scroll_list.columns label="Chat" name="trigger"/>
 		<scroll_list.columns label="" name="key"/>

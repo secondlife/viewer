@@ -44,6 +44,8 @@
 #include <fstream>
 #include <algorithm>
 
+#include "llagent.h"
+#include "llagentcamera.h"
 #include "llfloaterreg.h"
 #include "llpanellogin.h"
 #include "llviewerkeyboard.h"
@@ -383,7 +385,7 @@ public:
 			agent_left_text = llformat("AgentLeftAxis  %f %f %f",
 									   (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
 
-			tvector = gAgent.getCameraPositionGlobal();
+			tvector = gAgentCamera.getCameraPositionGlobal();
 			camera_center_text = llformat("CameraCenter %f %f %f",
 										  (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
 
@@ -776,7 +778,7 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 
 	// *HACK: this should be rolled into the composite tool logic, not
 	// hardcoded at the top level.
-	if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgent.getCameraMode() && LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance())
+	if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance())
 	{
 		// If the current tool didn't process the click, we should show
 		// the pie menu.  This can be done by passing the event to the pie
@@ -1151,9 +1153,9 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 		}
 		
 		// SL-53351: Make sure we're not in mouselook when minimised, to prevent control issues
-		if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+		if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 		{
-			gAgent.changeCameraToDefault();
+			gAgentCamera.changeCameraToDefault();
 		}
 		
 		send_agent_pause();
@@ -1171,7 +1173,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 
 BOOL LLViewerWindow::handleActivateApp(LLWindow *window, BOOL activating)
 {
-	//if (!activating) gAgent.changeCameraToDefault();
+	//if (!activating) gAgentCamera.changeCameraToDefault();
 
 	LLViewerJoystick::getInstance()->setNeedsReset(true);
 	return FALSE;
@@ -2088,7 +2090,7 @@ void LLViewerWindow::draw()
 		// Draw tool specific overlay on world
 		LLToolMgr::getInstance()->getCurrentTool()->draw();
 
-		if( gAgent.cameraMouselook() || LLFloaterCamera::inFreeCameraMode() )
+		if( gAgentCamera.cameraMouselook() || LLFloaterCamera::inFreeCameraMode() )
 		{
 			drawMouselookInstructions();
 			stop_glerror();
@@ -2424,7 +2426,7 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 	// Zoom the camera in and out behavior
 
 	if(top_ctrl == 0 && getWorldViewRectScaled().pointInRect(mCurrentMousePoint.mX, mCurrentMousePoint.mY) )
-		gAgent.handleScrollWheel(clicks);
+		gAgentCamera.handleScrollWheel(clicks);
 
 	return;
 }
@@ -3175,7 +3177,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			glPushMatrix();
 			if (selection->getSelectType() == SELECT_TYPE_HUD)
 			{
-				F32 zoom = gAgent.mHUDCurZoom;
+				F32 zoom = gAgentCamera.mHUDCurZoom;
 				glScalef(zoom, zoom, zoom);
 			}
 
@@ -3294,7 +3296,7 @@ LLVector3d LLViewerWindow::clickPointInWorldGlobal(S32 x, S32 y_from_bot, LLView
 	// world at the location of the mouse click
 	LLVector3 mouse_direction_global = mouseDirectionGlobal( x, y_from_bot );
 
-	LLVector3d relative_object = clicked_object->getPositionGlobal() - gAgent.getCameraPositionGlobal();
+	LLVector3d relative_object = clicked_object->getPositionGlobal() - gAgentCamera.getCameraPositionGlobal();
 
 	// make mouse vector as long as object vector, so it touchs a point near
 	// where the user clicked on the object
@@ -3303,7 +3305,7 @@ LLVector3d LLViewerWindow::clickPointInWorldGlobal(S32 x, S32 y_from_bot, LLView
 	LLVector3d new_pos;
 	new_pos.setVec(mouse_direction_global);
 	// transform mouse vector back to world coords
-	new_pos += gAgent.getCameraPositionGlobal();
+	new_pos += gAgentCamera.getCameraPositionGlobal();
 
 	return new_pos;
 }
@@ -3570,7 +3572,7 @@ LLVector3 LLViewerWindow::mousePointHUD(const S32 x, const S32 y) const
 	F32 hud_x = -((F32)x - center_x)  / height;
 	F32 hud_y = ((F32)y - center_y) / height;
 
-	return LLVector3(0.f, hud_x/gAgent.mHUDCurZoom, hud_y/gAgent.mHUDCurZoom);
+	return LLVector3(0.f, hud_x/gAgentCamera.mHUDCurZoom, hud_y/gAgentCamera.mHUDCurZoom);
 }
 
 // Returns unit vector relative to camera in camera space
@@ -3617,7 +3619,7 @@ BOOL LLViewerWindow::mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, con
 	LLVector3d	plane_normal_global_d;
 	plane_normal_global_d.setVec(plane_normal_global);
 	F64 plane_mouse_dot = (plane_normal_global_d * mouse_direction_global_d);
-	LLVector3d plane_origin_camera_rel = plane_point_global - gAgent.getCameraPositionGlobal();
+	LLVector3d plane_origin_camera_rel = plane_point_global - gAgentCamera.getCameraPositionGlobal();
 	F64	mouse_look_at_scale = (plane_normal_global_d * plane_origin_camera_rel)
 								/ plane_mouse_dot;
 	if (llabs(plane_mouse_dot) < 0.00001)
@@ -3631,7 +3633,7 @@ BOOL LLViewerWindow::mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, con
 		mouse_look_at_scale = plane_origin_camera_rel.magVec() / (plane_origin_dir * mouse_direction_global_d);
 	}
 
-	point = gAgent.getCameraPositionGlobal() + mouse_look_at_scale * mouse_direction_global_d;
+	point = gAgentCamera.getCameraPositionGlobal() + mouse_look_at_scale * mouse_direction_global_d;
 
 	return mouse_look_at_scale > 0.0;
 }
@@ -3649,12 +3651,12 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 	const F32	SECOND_PASS_STEP = 0.1f;	// meters
 	LLVector3d	camera_pos_global;
 
-	camera_pos_global = gAgent.getCameraPositionGlobal();
+	camera_pos_global = gAgentCamera.getCameraPositionGlobal();
 	LLVector3d		probe_point_global;
 	LLVector3		probe_point_region;
 
 	// walk forwards to find the point
-	for (mouse_dir_scale = FIRST_PASS_STEP; mouse_dir_scale < gAgent.mDrawDistance; mouse_dir_scale += FIRST_PASS_STEP)
+	for (mouse_dir_scale = FIRST_PASS_STEP; mouse_dir_scale < gAgentCamera.mDrawDistance; mouse_dir_scale += FIRST_PASS_STEP)
 	{
 		LLVector3d mouse_direction_global_d;
 		mouse_direction_global_d.setVec(mouse_direction_global * mouse_dir_scale);
@@ -5039,9 +5041,9 @@ bool LLViewerWindow::onAlert(const LLSD& notify)
 
 	// If we're in mouselook, the mouse is hidden and so the user can't click 
 	// the dialog buttons.  In that case, change to First Person instead.
-	if( gAgent.cameraMouselook() )
+	if( gAgentCamera.cameraMouselook() )
 	{
-		gAgent.changeCameraToDefault();
+		gAgentCamera.changeCameraToDefault();
 	}
 	return false;
 }
@@ -5153,7 +5155,7 @@ void LLPickInfo::fetchResults()
 			{
 				mPickType = PICK_OBJECT;
 			}
-			mObjectOffset = gAgent.calcFocusOffset(objectp, intersection, mPickPt.mX, mPickPt.mY);
+			mObjectOffset = gAgentCamera.calcFocusOffset(objectp, intersection, mPickPt.mX, mPickPt.mY);
 			mObjectID = objectp->mID;
 			mObjectFace = (te_offset == NO_FACE) ? -1 : (S32)te_offset;
 

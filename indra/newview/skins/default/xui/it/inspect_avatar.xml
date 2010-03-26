@@ -13,7 +13,7 @@
 	<slider name="volume_slider" tool_tip="Volume voce" value="0.5"/>
 	<button label="Aggiungi amico" name="add_friend_btn"/>
 	<button label="IM" name="im_btn"/>
-	<button label="Altro" name="view_profile_btn"/>
+	<button label="Profilo" name="view_profile_btn"/>
 	<panel name="moderator_panel">
 		<button label="Disattiva voce" name="disable_voice"/>
 		<button label="Attiva voce" name="enable_voice"/>

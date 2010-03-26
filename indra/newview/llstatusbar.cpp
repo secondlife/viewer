@@ -36,6 +36,7 @@
 
 // viewer includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcommandhandler.h"
 #include "llviewercontrol.h"
@@ -313,7 +314,7 @@ void LLStatusBar::refresh()
 		childSetVisible("scriptout", false);
 	}
 
-	if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK &&
+	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK &&
 		((region && region->getAllowDamage()) || (parcel && parcel->getAllowDamage())))
 	{
 		// set visibility based on flashing
