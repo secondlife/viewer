@@ -46,7 +46,7 @@ Para obter mais ajuda, passe o mouse sobre as opções.
 		<check_box label="Qualquer um pode entrar" name="open_enrollement" tool_tip="Controla a entrada de novos membros, com ou sem convite."/>
 		<check_box label="Taxa de inscrição" name="check_enrollment_fee" tool_tip="Controla a cobrança de uma taxa de associação ao grupo."/>
 		<spinner label="L$" left_delta="120" name="spin_enrollment_fee" tool_tip="Se a opção &apos;Taxa de associação&apos; estiver marcada, novos membros precisam pagar o valor definido para entrar no grupo." width="60"/>
-		<combo_box name="group_mature_check" tool_tip="Define se a informação do seu grupo é considerada mature." width="170">
+		<combo_box name="group_mature_check" tool_tip="Define se os dados do seu grupo são conteúdo moderado." width="170">
 			<combo_box.item label="Conteúdo PG" name="pg"/>
 			<combo_box.item label="Conteúdo Mature" name="mature"/>
 		</combo_box>
