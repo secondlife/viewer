@@ -459,6 +459,8 @@ public:
 	inline BOOL		flagCameraDecoupled() const		{ return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
 	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 
+	inline U8       getPhysicsRep() const           { return mPhysicsRep; }
+	
 	bool getIncludeInSearch() const;
 	void setIncludeInSearch(bool include_in_search);
 
@@ -474,6 +476,7 @@ public:
 
 	void updateFlags();
 	BOOL setFlags(U32 flag, BOOL state);
+	void setPhysicsRep(U8 rep);
 	
 	virtual void dump() const;
 	static U32		getNumZombieObjects()			{ return sNumZombieObjects; }
@@ -552,6 +555,9 @@ public:
 
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
+
+	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
+	U8              mPhysicsRep;
 
 	// Pipeline classes
 	LLPointer<LLDrawable> mDrawable;

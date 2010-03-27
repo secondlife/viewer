@@ -2,25 +2,31 @@
  * @file llpanelobject.cpp
  * @brief Object editing (position, scale, etc.) in the tools floater
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -131,6 +137,10 @@ BOOL	LLPanelObject::postBuild()
 	// Phantom checkbox
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
+
+	// PhysicsRep combobox
+	mComboPhysicsRep = getChild<LLComboBox>("Physics Rep Combo Ctrl");
+	childSetCommitCallback("Physics Rep Combo Ctrl", onCommitPhysicsRep,this);
 	
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
@@ -166,6 +176,7 @@ BOOL	LLPanelObject::postBuild()
 	//--------------------------------------------------------
 		
 	// material type popup
+	mLabelMaterial = getChild<LLTextBox>("label material");
 	mComboMaterial = getChild<LLComboBox>("material");
 	childSetCommitCallback("material",onCommitMaterial,this);
 	mComboMaterial->removeall();
@@ -182,6 +193,7 @@ BOOL	LLPanelObject::postBuild()
 	mComboMaterialItemCount = mComboMaterial->getItemCount();
 
 	// Base Type
+	mLabelBaseType = getChild<LLTextBox>("label basetype");
 	mComboBaseType = getChild<LLComboBox>("comboBaseType");
 	childSetCommitCallback("comboBaseType",onCommitParametric,this);
 
@@ -312,6 +324,7 @@ LLPanelObject::LLPanelObject()
 	mIsPhysical(FALSE),
 	mIsTemporary(FALSE),
 	mIsPhantom(FALSE),
+	mPhysicsRep(0),
 	mCastShadows(TRUE),
 	mSelectedType(MI_BOX),
 	mSculptTextureRevert(LLUUID::null),
@@ -519,6 +532,10 @@ void LLPanelObject::getState( )
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
 
+	mPhysicsRep = objectp->getPhysicsRep();
+	mComboPhysicsRep->setCurrentByIndex(mPhysicsRep);
+	mComboPhysicsRep->setEnabled(editable);
+
 #if 0 // 1.9.2
 	mCastShadows = root_objectp->flagCastShadows();
 	mCheckCastShadows->set( mCastShadows );
@@ -540,6 +557,7 @@ void LLPanelObject::getState( )
 	if (editable && single_volume && material_same)
 	{
 		mComboMaterial->setEnabled( TRUE );
+		mLabelMaterial->setEnabled( TRUE );
 		if (material_code == LL_MCODE_LIGHT)
 		{
 			if (mComboMaterial->getItemCount() == mComboMaterialItemCount)
@@ -561,6 +579,7 @@ void LLPanelObject::getState( )
 	else
 	{
 		mComboMaterial->setEnabled( FALSE );
+		mLabelMaterial->setEnabled( FALSE );	
 	}
 	//----------------------------------------------------------------------------
 
@@ -969,6 +988,7 @@ void LLPanelObject::getState( )
 	}
 
 	// Update field enablement
+	mLabelBaseType	->setEnabled( enabled );
 	mComboBaseType	->setEnabled( enabled );
 
 	mLabelCut		->setEnabled( enabled );
@@ -1218,6 +1238,22 @@ void LLPanelObject::sendIsPhantom()
 	else
 	{
 		llinfos << "update phantom not changed" << llendl;
+	}
+}
+
+void LLPanelObject::sendPhysicsRep()
+{
+	U8 value = (U8)mComboPhysicsRep->getCurrentIndex();
+	if (mPhysicsRep != value)
+	{
+		LLSelectMgr::getInstance()->selectionUpdatePhysicsRep(value);
+		mPhysicsRep = value;
+		
+		llinfos << "update physicsrep sent" << llendl;
+	}
+	else
+	{
+		llinfos << "update physicstep not changed" << llendl;
 	}
 }
 
@@ -1894,15 +1930,19 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
+	mComboPhysicsRep->setCurrentByIndex(0);
+	mComboPhysicsRep->setEnabled(FALSE);
 #if 0 // 1.9.2
 	mCheckCastShadows->set(FALSE);
 	mCheckCastShadows->setEnabled( FALSE );
 #endif
 	mComboMaterial	->setEnabled( FALSE );
+	mLabelMaterial	->setEnabled( FALSE );
 	// Disable text labels
 	mLabelPosition	->setEnabled( FALSE );
 	mLabelSize		->setEnabled( FALSE );
 	mLabelRotation	->setEnabled( FALSE );
+	mLabelBaseType	->setEnabled( FALSE );
 	mLabelCut		->setEnabled( FALSE );
 	mLabelHollow	->setEnabled( FALSE );
 	mLabelHoleType	->setEnabled( FALSE );
@@ -1984,6 +2024,13 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
 	self->sendIsPhantom();
+}
+
+// static
+void LLPanelObject::onCommitPhysicsRep(LLUICtrl* ctrl, void* userdata )
+{
+	LLPanelObject* self = (LLPanelObject*) userdata;
+	self->sendPhysicsRep();
 }
 
 // static
