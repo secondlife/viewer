@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Gesture" title="TASTO RAPIDO PER GESTURE">
+<floater name="Gesture" title="SCORCIATOIA GESTURE">
 	<text name="trigger_label">
 		Chat:
 	</text>
@@ -8,8 +8,8 @@
 	</text>
 	<combo_box label="Nessuno" name="modifier_combo"/>
 	<combo_box label="Nessuno" name="key_combo"/>
-	<text name="replace_text" tool_tip="Sostituisci la parola chiave con queste parole. Per esempio, parola chiave &apos;ciao&apos; sostituendo con &apos;buongiorno&apos; cambierà la chat da &apos;Io dico ciao&apos; in &apos;Io dico buongiorno&apos; non appena attiverete la gesture!">
+	<text name="replace_text" tool_tip="Sostituisci la parola chiave con queste parole. Per esempio, se si sceglie di sostituire la parola chiave &apos;ciao&apos; con &apos;buongiorno&apos;, nella chat il testo &apos;Volevo dire ciao&apos; diventerà &apos;Volevo dire buongiorno&apos; e verrà attivata la gesture.">
 		Sostituisci:
 	</text>
-	<line_editor name="replace_editor" tool_tip="Sostituisci la parola chiave con queste parole. Per esempio, parola chiave &apos;ciao&apos; sostituendo con &apos;buongiorno&apos; cambierà la chat da &apos;Io dico ciao&apos; in &apos;Io dico buongiorno&apos; non appena attiverete la gesture"/>
+	<line_editor name="replace_editor" tool_tip="Sostituisci la parola chiave con queste parole. Per esempio, se si sceglie di sostituire la parola chiave &apos;ciao&apos; con &apos;buongiorno&apos;, nella chat il testo &apos;Volevo dire ciao&apos; diventerà &apos;Volevo dire buongiorno&apos; e verrà attivata la gesture"/>
 </floater>

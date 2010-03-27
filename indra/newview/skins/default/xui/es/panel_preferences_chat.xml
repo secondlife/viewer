@@ -46,7 +46,7 @@
 	<check_box initial_value="true" label="Ejecutar la animación de escribir al hacerlo en el chat" name="play_typing_animation"/>
 	<check_box label="Cuando estoy desconectado, enviarme los MI al correo-e" name="send_im_to_email"/>
 	<text name="show_ims_in_label">
-		Mostrar los MI en:
+		Mostrar los MI en: 
 	</text>
 	<text name="requires_restart_label">
 		(requiere reiniciar)
