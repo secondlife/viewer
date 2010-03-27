@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="chat_bar">
+	<string name="min_width">
+		192
+	</string>
+	<string name="max_width">
+		320
+	</string>
 	<line_editor label="Clicca qui per la chat." name="chat_box" tool_tip="Premi Invio per parlare, Ctrl+Invio per gridare"/>
 	<button name="show_nearby_chat" tool_tip="Mostra/Nasconde il registro della chat nei dintorni"/>
 </panel>

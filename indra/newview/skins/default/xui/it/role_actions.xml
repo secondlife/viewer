@@ -3,7 +3,7 @@
 	<action_set description="Queste abilità permettono di aggiungere e rimuovere Membri dal gruppo, e permettono ai nuovi membri di aderire al gruppo senza invito." name="Membership">
 		<action description="Invitare persone in questo Gruppo" longdescription="Invita persone in questo gruppo usando il pulsante Invita nella sezione Ruoli &gt; scheda membri." name="member invite"/>
 		<action description="Espellere Membri da questo Gruppo" longdescription="Espelli membri dal gruppo usando il pulsante Espelli nella sezione Ruoli &gt; scheda membri. Un proprietario può espellere chiunque tranne un altro proprietario. Se non sei un proprietario, un membro può essere espulso da un gruppo soltanto qualora abbia soltanto il ruolo Tutti, e nessun altro ruolo. Per rimuovere membri dai ruoli, devi avere l&apos;Abilità corrispondente." name="member eject"/>
-		<action description="Seleziona Iscrizione libera e modifica da Quota d&apos;iscrizione" longdescription="Seleziona Iscrizione libera per permettere ai nuovi membri di aderire senza invito e modifica la quota d&apos;iscrizione nella scheda Generale." name="member options"/>
+		<action description="Seleziona Iscrizione libera e modifica la Quota d&apos;iscrizione" longdescription="Seleziona Iscrizione libera per permettere ai nuovi membri di aderire senza invito e modifica la quota d&apos;iscrizione nella scheda Generale." name="member options"/>
 	</action_set>
 	<action_set description="Queste Abilità permettono di aggiungere, rimuovere, cambiare i Ruoli del Gruppo, aggiungere e rimuovere Membri dai Ruoli, e assegnare Abilità ai Ruoli." name="Roles">
 		<action description="Creare nuovi Ruoli" longdescription="Crea nuovi ruoli nella sezione Ruoli &gt; scheda ruoli." name="role create"/>
