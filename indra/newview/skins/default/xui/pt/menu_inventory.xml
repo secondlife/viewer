@@ -7,7 +7,7 @@
 	<menu_item_call label="Renomear" name="Task Rename"/>
 	<menu_item_call label="Apagar" name="Task Remove"/>
 	<menu_item_call label="Limpar lixeira" name="Empty Trash"/>
-	<menu_item_call label="Limpar Achados & perdidos" name="Empty Lost And Found"/>
+	<menu_item_call label="Limpar Achados &amp; perdidos" name="Empty Lost And Found"/>
 	<menu_item_call label="Nova pasta" name="New Folder"/>
 	<menu_item_call label="Novo script" name="New Script"/>
 	<menu_item_call label="Nova anotação" name="New Note"/>
