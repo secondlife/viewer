@@ -18,7 +18,7 @@
 	<check_box label="Guardar en mi ordenador registros de los MI" name="log_instant_messages"/>
 	<check_box label="Añadir fecha y hora" name="show_timestamps_check_im"/>
 	<text name="log_path_desc">
-		Localización de los registros:
+		Ruta de los registros:
 	</text>
 	<line_editor left="278" name="log_path_string" right="-20"/>
 	<button label="Elegir" label_selected="Elegir" name="log_path_button" width="120"/>

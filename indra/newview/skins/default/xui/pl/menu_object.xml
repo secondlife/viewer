@@ -4,7 +4,7 @@
 	<menu_item_call label="Edytuj" name="Edit..."/>
 	<menu_item_call label="Buduj" name="Build"/>
 	<menu_item_call label="Otwórz" name="Open"/>
-	<menu_item_call label="Usiądź Tutaj" name="Object Sit"/>
+	<menu_item_call label="Usiądź tutaj" name="Object Sit"/>
 	<menu_item_call label="Wstań" name="Object Stand Up"/>
 	<menu_item_call label="Sprawdź" name="Object Inspect"/>
 	<menu_item_call label="Przybliż" name="Zoom In"/>
@@ -21,7 +21,7 @@
 	</context_menu>
 	<menu_item_call label="Kup" name="Pie Object Bye"/>
 	<menu_item_call label="Weź" name="Pie Object Take"/>
-	<menu_item_call label="Weź Kopię" name="Take Copy"/>
+	<menu_item_call label="Weź kopię" name="Take Copy"/>
 	<menu_item_call label="Zapłać" name="Pay..."/>
 	<menu_item_call label="Kup" name="Buy..."/>
 </context_menu>

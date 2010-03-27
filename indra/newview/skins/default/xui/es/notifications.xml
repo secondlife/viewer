@@ -1734,7 +1734,7 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 		<usetemplate ignoretext="Confirmar antes de salir" name="okcancelignore" notext="No salir" yestext="Salir"/>
 	</notification>
 	<notification name="HelpReportAbuseEmailLL">
-		Usa esta herramienta para denunciar violaciones de las [http://secondlife.com/corporate/tos.php Condiciones de Servicio] o las [http://secondlife.com/corporate/cs.php Normas de la Comunidad].
+		Usa esta herramienta para denunciar violaciones de las [http://secondlife.com/corporate/tos.php Condiciones del Servicio] o las [http://secondlife.com/corporate/cs.php Normas de la Comunidad].
 
 Se investigan y resuelven todas las infracciones denunciadas.
 	</notification>

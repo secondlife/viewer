@@ -28,7 +28,7 @@
 	<text name="Cache location">
 		Localização do cache:
 	</text>
-	<button label="Navegar" label_selected="Navegar" name="set_cache"/>
+	<button label="Procurar" label_selected="Procurar" name="set_cache"/>
 	<button label="Redefinir" label_selected="Redefinir" name="reset_cache"/>
 	<text name="Web:">
 		Web:
@@ -45,5 +45,5 @@
 		Localização do proxy:
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="O nome ou endereço IP do proxy da sua preferência"/>
-	<spinner label="Número da porta:" name="web_proxy_port"/>
+	<spinner label="Porta:" name="web_proxy_port"/>
 </panel>

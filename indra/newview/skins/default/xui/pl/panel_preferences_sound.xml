@@ -4,8 +4,8 @@
 	<check_box initial_value="true" label="Wycisz dzwięk podczas minimalizacji okna" name="mute_when_minimized"/>
 	<slider label="Interfejs" name="UI Volume"/>
 	<slider label="Otoczenie" name="Wind Volume"/>
-	<slider label="Efekty Dźwiękowe" name="SFX Volume"/>
-	<slider label="Muzyka Strumieniowa" name="Music Volume"/>
+	<slider label="Efekty dźwiękowe" name="SFX Volume"/>
+	<slider label="Muzyka strumieniowa" name="Music Volume"/>
 	<check_box label="Odtwarzaj media audio" name="music_enabled"/>
 	<slider label="Media" name="Media Volume"/>
 	<check_box label="Odtwarzaj media" name="enable_media"/>

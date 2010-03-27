@@ -12,7 +12,7 @@
 	<menu_item_call label="Unieruchom" name="freeze"/>
 	<menu_item_call label="Wyrzuć" name="eject"/>
 	<menu_item_call label="Debug" name="debug"/>
-	<menu_item_call label="Znajdź na Mapie" name="find_on_map"/>
+	<menu_item_call label="Znajdź na mapie" name="find_on_map"/>
 	<menu_item_call label="Przybliż" name="zoom_in"/>
 	<menu_item_call label="Zapłać" name="pay"/>
 	<menu_item_call label="Udostępnij" name="share"/>

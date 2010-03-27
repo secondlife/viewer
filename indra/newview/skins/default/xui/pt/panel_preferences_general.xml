@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Geral" name="general_panel">
 	<text name="language_textbox">
-		Linguagem:
+		Idioma:
 	</text>
 	<combo_box name="language_combobox">
 		<combo_box.item label="Padrão" name="System Default Language"/>
@@ -20,20 +20,20 @@
 		(Reinicie para mostrar o novo idioma)
 	</text>
 	<text name="maturity_desired_prompt">
-		Eu quero acessar conteúdo classificado:
+		Quero acessar conteúdo:
 	</text>
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="PG, Mature e Adult" name="Desired_Adult"/>
-		<combo_box.item label="PG e Mature" name="Desired_Mature"/>
-		<combo_box.item label="PG" name="Desired_PG"/>
+		<combo_box.item label="Geral, Moderado e Adulto" name="Desired_Adult"/>
+		<combo_box.item label="Geral e Moderado" name="Desired_Mature"/>
+		<combo_box.item label="Geral" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">
-		Ponto de partida:
+		Posição inicial:
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_box.item label="Minha Última Localidade" name="MyLastLocation" tool_tip="Por padrão, registrar na minha última localidade."/>
-		<combo_box.item label="Minha Casa" name="MyHome" tool_tip="Como padrão, registrar na minha casa."/>
+		<combo_box.item label="Última localização" name="MyLastLocation" tool_tip="Voltar ao lugar onde estava antes."/>
+		<combo_box.item label="Meu início" name="MyHome" tool_tip="Voltar ao meu início."/>
 	</combo_box>
 	<check_box initial_value="true" label="Mostrar ao entrar" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
@@ -45,7 +45,7 @@
 		<radio_item label="Brevemente" name="radio3" value="2"/>
 	</radio_group>
 	<check_box label="Mostrar meu nome" name="show_my_name_checkbox1"/>
-	<check_box initial_value="true" label="Nomes pequenos" name="small_avatar_names_checkbox"/>
+	<check_box initial_value="true" label="Nome curto" name="small_avatar_names_checkbox"/>
 	<check_box label="Mostrar cargo" name="show_all_title_checkbox1"/>
 	<text name="effects_color_textbox">
 		Meus efeitos:

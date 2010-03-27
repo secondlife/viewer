@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Covenant" name="Covenant">
+<panel label="Regler" name="Covenant">
 	<text name="estate_section_lbl">
 		Estate
 	</text>

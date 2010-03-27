@@ -1282,8 +1282,8 @@ Salvar na pasta Aplicativos?
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
 		Você é atualmente um membro do grupo [GROUP].
-Deixar este grupo?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Deixar"/>
+Sair do grupo?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sair"/>
 	</notification>
 	<notification name="ConfirmKick">
 		Tem CERTEZA de que deseja expulsar todos os residentes do grid?
@@ -1294,7 +1294,7 @@ Deixar este grupo?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CannotStartAuctionAlreadyForSale">
-		Você não pode começar um leilão com um lote que já foi colocado à venda.  Desabilite a venda da terra se você tem certeza que deseja iniciar um leilão.
+		Você não pode começar um leilão com um lote que já foi colocado à venda. Desabilite a venda se você tem certeza que deseja fazer um leilão.
 	</notification>
 	<notification label="Falha ao bloquear objeto por nome" name="MuteByNameFailed">
 		Você já bloqueou este residente.
