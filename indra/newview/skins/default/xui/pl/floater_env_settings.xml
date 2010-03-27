@@ -15,14 +15,14 @@
 	</text>
 	<slider label="" name="EnvCloudSlider"/>
 	<text name="EnvWaterColorText">
-		Kolor Wody
+		Kolor wody
 	</text>
 	<color_swatch label="" name="EnvWaterColor" tool_tip="Kliknij aby wybrać kolor"/>
 	<text name="EnvWaterFogText">
 		Zamglenie:
 	</text>
 	<slider label="" name="EnvWaterFogSlider"/>
-	<button label="Używaj Czasu Regionu" name="EnvUseEstateTimeButton"/>
-	<button label="Zaawansowane Niebo" name="EnvAdvancedSkyButton"/>
-	<button label="Zaawansowana Woda" name="EnvAdvancedWaterButton"/>
+	<button label="Używaj czasu regionu" name="EnvUseEstateTimeButton"/>
+	<button label="Zaawansowane niebo" name="EnvAdvancedSkyButton"/>
+	<button label="Zaawansowana woda" name="EnvAdvancedWaterButton"/>
 </floater>

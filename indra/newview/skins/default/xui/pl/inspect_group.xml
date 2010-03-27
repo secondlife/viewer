@@ -5,10 +5,10 @@
 -->
 <floater name="inspect_group">
 	<string name="PrivateGroup">
-		Grupa Prywatna
+		Grupa prywatna
 	</string>
 	<string name="FreeToJoin">
-		Wstęp Wolny
+		Wstęp wolny
 	</string>
 	<string name="CostToJoin">
 		L$[AMOUNT] by dołączyć
