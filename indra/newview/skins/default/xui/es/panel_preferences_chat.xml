@@ -5,7 +5,7 @@
 	</text>
 	<radio_group name="chat_font_size">
 		<radio_item label="Disminuir" name="radio" value="0"/>
-		<radio_item label="Media" name="radio2" value="1"/>
+		<radio_item label="Medio" name="radio2" value="1"/>
 		<radio_item label="Aumentar" name="radio3" value="2"/>
 	</radio_group>
 	<text name="font_colors">

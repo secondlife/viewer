@@ -13,8 +13,8 @@
 		(wird abgespielt)
 	</string>
 	<panel name="minimized_controls">
-		<button label="Alle stoppen" name="all_nearby_media_disable_btn" tool_tip="Alle Medien in der Nähe ausschalten"/>
-		<button label="Alle starten" name="all_nearby_media_enable_btn" tool_tip="Alle Medien in der Nähe einschalten"/>
+		<button label="Stoppen" name="all_nearby_media_disable_btn" tool_tip="Alle Medien in der Nähe ausschalten"/>
+		<button label="Starten" name="all_nearby_media_enable_btn" tool_tip="Alle Medien in der Nähe einschalten"/>
 		<button name="open_prefs_btn" tool_tip="Medien-Einstellungen öffnen"/>
 		<button label="Mehr &gt;&gt;" label_selected="Weniger &lt;&lt;" name="more_less_btn" tool_tip="Erweiterte Steuerung"/>
 	</panel>
