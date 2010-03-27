@@ -1008,6 +1008,9 @@ void LLViewerMedia::clearAllCookies()
 		}
 	}
 	
+	// Clear all cookies from the cookie store
+	getCookieStore()->setAllCookies("");
+
 	// FIXME: this may not be sufficient, since the on-disk cookie file won't get written until some browser instance exits cleanly.
 	// It also won't clear cookies for other accounts, or for any account if we're not logged in, and won't do anything at all if there are no webkit plugins loaded.
 	// Until such time as we can centralize cookie storage, the following hack should cover these cases:
@@ -1051,7 +1054,8 @@ void LLViewerMedia::clearAllCookies()
 		{	
 			LLFile::remove(target);
 		}
-
+		
+		// Other accounts may have new-style cookie files too -- delete them as well
 		target = base_dir;
 		target += filename;
 		target += gDirUtilp->getDirDelimiter();
