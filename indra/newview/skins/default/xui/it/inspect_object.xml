@@ -9,10 +9,10 @@
 	</string>
 	<string name="CreatorAndOwner">
 		Di [CREATOR]
-owner [OWNER]
+proprietario [OWNER]
 	</string>
 	<string name="Price">
-		L$[AMOUNT]
+		L$ [AMOUNT]
 	</string>
 	<string name="PriceFree">
 		Gratis!
@@ -21,14 +21,14 @@ owner [OWNER]
 		Tocca
 	</string>
 	<string name="Sit">
-		Siedi
+		Siediti
 	</string>
-	<button label="Compra" name="buy_btn"/>
+	<button label="Acquista" name="buy_btn"/>
 	<button label="Paga" name="pay_btn"/>
-	<button label="Fai una Copia" name="take_free_copy_btn"/>
+	<button label="Prendi copia" name="take_free_copy_btn"/>
 	<button label="Tocca" name="touch_btn"/>
-	<button label="Siedi" name="sit_btn"/>
+	<button label="Siediti" name="sit_btn"/>
 	<button label="Apri" name="open_btn"/>
-	<icon name="secure_browsing" tool_tip="Secure Browsing"/>
-	<button label="Ulteriore" name="more_info_btn"/>
+	<icon name="secure_browsing" tool_tip="Browsing sicuro"/>
+	<button label="Altro" name="more_info_btn"/>
 </floater>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Miejsca" name="gestures" title="GESTURY">
+<floater label="Miejsca" name="gestures" title="GESTY">
 	<floater.string name="loading">
 		Ładowanie...
 	</floater.string>
@@ -18,8 +18,8 @@
 	<panel label="bottom_panel" name="bottom_panel">
 		<menu_button name="gear_btn" tool_tip="Więcej opcji"/>
 		<button name="new_gesture_btn" tool_tip="Stwórz nową gesturę"/>
-		<button name="activate_btn" tool_tip="Aktywuj/Dezaktywuj wybraną gesturę"/>
-		<button name="del_btn" tool_tip="Usuń gesturę"/>
+		<button name="activate_btn" tool_tip="Aktywuj/Dezaktywuj wybrany gest"/>
+		<button name="del_btn" tool_tip="Usuń gest"/>
 	</panel>
 	<button label="Edytuj" name="edit_btn"/>
 	<button label="Odtwarzaj" name="play_btn"/>

@@ -15,10 +15,10 @@
 	<button label="Połącz z teleporterem" name="connect_btn" width="132"/>
 	<button label="Rozłącz" left="152" name="disconnect_btn" width="88"/>
 	<text name="spawn_points_text" width="250">
-		Punkty Składowe (pozycje - nie obiekty!):
+		Punkty składowe (pozycje - nie obiekty!):
 	</text>
-	<button label="Dodaj Punkt" name="add_spawn_point_btn"/>
-	<button label="Usuń Punkt" name="remove_spawn_point_btn"/>
+	<button label="Dodaj punkt" name="add_spawn_point_btn"/>
+	<button label="Usuń punkt" name="remove_spawn_point_btn"/>
 	<text name="spawn_point_help">
 		Wybierz obiekt i wybierz &quot;Dodaj&quot; by sprecyzować pozycję.
 Możesz przesunąć lub usunąć obiekt.

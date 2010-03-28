@@ -29,7 +29,7 @@
 			<button label="Czat" name="btn_chat"/>
 			<button label="Konferencja Głosowa" name="btn_call" tool_tip="Konferencja Głosowa"/>
 			<button label="Zapisz" label_selected="Zapisz" name="btn_apply"/>
-			<button label="Stwórz nową grupę" name="btn_create" tool_tip="Stwórz nową grupę"/>
+			<button label="Stwórz nową Grupę" name="btn_create" tool_tip="Stwórz nową Grupę"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

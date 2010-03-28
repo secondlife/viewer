@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_lagmeter" title="POMIAR LAGÓW">
 	<floater.string name="max_title_msg">
-		Pomiar Lagów
+		Pomiar lagów
 	</floater.string>
 	<floater.string name="max_width_px">
 		360
@@ -34,16 +34,16 @@
 		W normie
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
-		Przyczyna: Dystans rysowania jest za wysoki
+		Przyczyna: dystans rysowania jest za wysoki
 	</floater.string>
 	<floater.string name="client_texture_loading_cause_msg">
-		Przyczyna: Ładowanie obrazu
+		Przyczyna: ładowanie obrazu
 	</floater.string>
 	<floater.string name="client_texture_memory_cause_msg">
-		Przyczyna: Za dużo obrazów w pamięci
+		Przyczyna: za dużo obrazów w pamięci
 	</floater.string>
 	<floater.string name="client_complex_objects_cause_msg">
-		Przyczyna: Za dużo złożonych obiektów
+		Przyczyna: za dużo złożonych obiektów
 	</floater.string>
 	<floater.string name="network_text_msg">
 		Sieć
@@ -103,22 +103,22 @@
 		W normie
 	</floater.string>
 	<floater.string name="server_physics_cause_msg">
-		Przyczyna: Za dużo obiektów fizycznych
+		Przyczyna: za dużo obiektów fizycznych
 	</floater.string>
 	<floater.string name="server_scripts_cause_msg">
-		Przyczyna: Za dużo obieków skryptowanych
+		Przyczyna: za dużo obieków skryptowanych
 	</floater.string>
 	<floater.string name="server_net_cause_msg">
-		Przyczyna: Za duży ruch w sieci
+		Przyczyna: za duży ruch w sieci
 	</floater.string>
 	<floater.string name="server_agent_cause_msg">
-		Przyczyna: Za dużo poruszających się awatarów w regionie
+		Przyczyna: za dużo poruszających się awatarów w regionie
 	</floater.string>
 	<floater.string name="server_images_cause_msg">
-		Przyczyna: Za dużo kalkulacji obrazu
+		Przyczyna: za dużo kalkulacji obrazu
 	</floater.string>
 	<floater.string name="server_generic_cause_msg">
-		Przyczyna: Symulator ładuje się zbyt powoli
+		Przyczyna: symulator ładuje się zbyt powoli
 	</floater.string>
 	<floater.string name="smaller_label">
 		&gt;&gt;

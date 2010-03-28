@@ -4,7 +4,7 @@
 	<check_box label="Wizytówki" name="check_calling_card" />
 	<check_box label="Ubrania" name="check_clothing" />
 	<check_box label="Gesty" name="check_gesture" />
-	<check_box label="Zakładki Miejsc" name="check_landmark" />
+	<check_box label="Landmarki" name="check_landmark" />
 	<check_box label="Noty" name="check_notecard" />
 	<check_box label="Obiekty" name="check_object" />
 	<check_box label="Skrypty" name="check_script" />

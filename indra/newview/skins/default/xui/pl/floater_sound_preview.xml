@@ -7,5 +7,5 @@
 		Opis:
 	</text>
 	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
-	<button label="Załaduj (L$[AMOUNT])" label_selected="Załaduj (L$[AMOUNT])" name="ok_btn"/>
+	<button label="Załaduj ([AMOUNT]L$)" label_selected="Załaduj ([AMOUNT]L$)" name="ok_btn"/>
 </floater>

@@ -2,7 +2,7 @@
 <menu_bar name="Login Menu">
 	<menu label="Ja" name="File">
 		<menu_item_call label="Ustawienia" name="Preferences..."/>
-		<menu_item_call label="Wyłącz Program" name="Quit"/>
+		<menu_item_call label="Wyłącz program" name="Quit"/>
 	</menu>
 	<menu label="Pomoc" name="Help">
 		<menu_item_call label="[SECOND_LIFE]: Pomoc" name="Second Life Help"/>
@@ -16,15 +16,15 @@
 			<menu_item_call label="Wklej" name="Paste"/>
 			<menu_item_call label="Usuń" name="Delete"/>
 			<menu_item_call label="Powiel" name="Duplicate"/>
-			<menu_item_call label="Zaznacz Wszystko" name="Select All"/>
+			<menu_item_call label="Zaznacz wszystko" name="Select All"/>
 			<menu_item_call label="Odznacz" name="Deselect"/>
 		</menu>
-		<menu_item_call label="Ustawienia Debugowania" name="Debug Settings"/>
-		<menu_item_call label="Ustawienia UI/Kolor" name="UI/Color Settings"/>
+		<menu_item_call label="Ustawienia debugowania" name="Debug Settings"/>
+		<menu_item_call label="Ustawienia UI/kolor" name="UI/Color Settings"/>
 		<menu label="UI Testy" name="UI Tests"/>
-		<menu_item_call label="Ustaw Rozmiar Interfejsu..." name="Set Window Size..."/>
+		<menu_item_call label="Ustaw rozmiar interfejsu..." name="Set Window Size..."/>
 		<menu_item_call label="Wyświetl TOS" name="TOS"/>
-		<menu_item_call label="Wyświetl Wiadomość Krytyczną" name="Critical"/>
-		<menu_item_call label="Test Przeglądarki Internetowej" name="Web Browser Test"/>
+		<menu_item_call label="Wyświetl wiadomość krytyczną" name="Critical"/>
+		<menu_item_call label="Test przeglądarki internetowej" name="Web Browser Test"/>
 	</menu>
 </menu_bar>

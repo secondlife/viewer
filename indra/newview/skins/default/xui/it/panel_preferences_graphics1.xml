@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Grafica" name="Display panel">
 	<text name="UI Size:">
-		misura UI:
+		Dimensioni UI:
 	</text>
 	<text name="QualitySpeed">
 		Qualità e velocità:
@@ -99,7 +99,7 @@
 		</radio_group>
 	</panel>
 	<button label="Applica" label_selected="Applica" name="Apply"/>
-	<button label="Resetta" left="110" name="Defaults" width="190"/>
-	<button label="Avanzato" name="Advanced"/>
+	<button label="Reimposta" left="110" name="Defaults" width="190"/>
+	<button label="Avanzate" name="Advanced"/>
 	<button label="Hardware" label_selected="Hardware" name="GraphicsHardwareButton"/>
 </panel>

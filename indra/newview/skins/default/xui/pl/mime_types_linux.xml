@@ -2,13 +2,13 @@
 <mimetypes name="default">
 	<widgetset name="web">
 		<label name="web_label">
-			Zawartość Strony Internetowej
+			Zawartość przeglądarki internetowej
 		</label>
 		<tooltip name="web_tooltip">
-			W tym miejscu można zobaczyć zawartość strony internetowej
+			W tym miejscu można zobaczyć zawartość przeglądarki internetowej
 		</tooltip>
 		<playtip name="web_playtip">
-			Pokaż zawartość strony internetowej
+			Pokaż zawartość przeglądarki internetowej
 		</playtip>
 	</widgetset>
 	<widgetset name="movie">
