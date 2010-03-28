@@ -290,7 +290,7 @@ void main()
 		//
 		depth -= 0.5; // unbias depth
 		// first figure out where we'll make our 2D guess from
-		vec2 ref2d = tc.xy + (0.5 * screen_res.y) * (refnorm.xy) * abs(refnorm.z) / depth;
+		vec2 ref2d = tc.xy + (0.25 * screen_res.y) * (refnorm.xy) * abs(refnorm.z) / depth;
 		// get attributes from the 2D guess point
 		float refdepth = texture2DRect(depthMap, ref2d).a;
 		vec3 refpos = getPosition_d(ref2d, refdepth).xyz;
