@@ -13,27 +13,27 @@
 		Conclusa richiesta di modifica dei permessi.
 	</floater.string>
 	<check_box label="Animazioni" name="check_animation"/>
-	<icon name="icon_animation" tool_tip="Animazioni"/>
+	<icon name="icon_animation" tool_tip="Animazione"/>
 	<check_box label="Parti del corpo" name="check_bodypart"/>
-	<icon name="icon_bodypart" tool_tip="Parti del Corpo"/>
+	<icon name="icon_bodypart" tool_tip="Parti del corpo"/>
 	<check_box label="Abiti" name="check_clothing"/>
 	<icon name="icon_clothing" tool_tip="Vestiario"/>
 	<check_box label="Gesture" name="check_gesture"/>
-	<icon name="icon_gesture" tool_tip="Gestures"/>
+	<icon name="icon_gesture" tool_tip="Gesture"/>
 	<check_box label="Notecard" name="check_notecard"/>
-	<icon name="icon_notecard" tool_tip="Notecards"/>
+	<icon name="icon_notecard" tool_tip="Biglietti"/>
 	<check_box label="Oggetti" name="check_object"/>
 	<icon name="icon_object" tool_tip="Oggetti"/>
 	<check_box label="Script" name="check_script"/>
-	<icon name="icon_script" tool_tip="Scripts"/>
+	<icon name="icon_script" tool_tip="Script"/>
 	<check_box label="Suoni" name="check_sound"/>
 	<icon name="icon_sound" tool_tip="Suoni"/>
 	<check_box label="Texture" name="check_texture"/>
-	<icon name="icon_texture" tool_tip="Textures"/>
-	<button label="√ Tutto" label_selected="Tutti" name="check_all"/>
-	<button label="Pulisci" label_selected="Nessuno" name="check_none"/>
+	<icon name="icon_texture" tool_tip="Texture"/>
+	<button label="√ Tutti" label_selected="Tutti" name="check_all"/>
+	<button label="Cancella" label_selected="Nessuno" name="check_none"/>
 	<text name="newperms">
-		Nuovo Permessi del Contenuto
+		Nuovi permessi del contenuto
 	</text>
 	<text name="GroupLabel">
 		Gruppo:
@@ -44,11 +44,11 @@
 	</text>
 	<check_box label="Copia" name="everyone_copy"/>
 	<text name="NextOwnerLabel">
-		Prossimo proprietario:
+		Proprietario successivo:
 	</text>
 	<check_box label="Modificare" name="next_owner_modify"/>
 	<check_box label="Copiare" name="next_owner_copy"/>
-	<check_box initial_value="true" label="Transfer" name="next_owner_transfer" tool_tip="Prossimo proprietario può donare o rivendere questo oggetto"/>
-	<button label="Ok" name="apply"/>
-	<button label="Cancella" name="close"/>
+	<check_box initial_value="true" label="Trasferisci" name="next_owner_transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
+	<button label="OK" name="apply"/>
+	<button label="Annulla" name="close"/>
 </floater>

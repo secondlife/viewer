@@ -6,15 +6,15 @@
 	<text name="region_text">
 		brak danych
 	</text>
-	<check_box label="Zablokuj Skrypty" name="disable_scripts_check" tool_tip="Zablokuj wszystkie skrypty w tym Regionie"/>
+	<check_box label="Zablokuj skrypty" name="disable_scripts_check" tool_tip="Zablokuj wszystkie skrypty w tym Regionie"/>
 	<button label="?" name="disable_scripts_help"/>
-	<check_box label="Zablokuj Kolizje" name="disable_collisions_check" tool_tip="Zablokuj kolizje obiektów (nie Awatarów) w tym Regionie"/>
+	<check_box label="Zablokuj kolizje" name="disable_collisions_check" tool_tip="Zablokuj kolizje obiektów (nie awatarów) w tym Regionie"/>
 	<button label="?" name="disable_collisions_help"/>
-	<check_box label="Zablokuj Fizykę" name="disable_physics_check" tool_tip="Zablokuj wpływ fizyki w tym Regionie"/>
+	<check_box label="Zablokuj fizykę" name="disable_physics_check" tool_tip="Zablokuj wpływ fizyki w tym Regionie"/>
 	<button label="?" name="disable_physics_help"/>
 	<button label="Zastosuj" name="apply_btn"/>
 	<text name="objret_text_lbl">
-		Zwrot Obiektu
+		Zwrot obiektu
 	</text>
 	<text name="resident_text_lbl">
 		Rezydent:
@@ -22,19 +22,19 @@
 	<line_editor name="target_avatar_name">
 		(brak)
 	</line_editor>
-	<button label="Wybierz..." name="choose_avatar_btn"/>
+	<button label="Wybierz" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
 		Opcje:
 	</text>
-	<check_box label="Odeślij wyłącznie obiekty ze skryptami" name="return_scripts" tool_tip="Odeślij wyłącznie obiekty ze skryptami."/>
+	<check_box label="Ze skryptami" name="return_scripts" tool_tip="Odeślij wyłącznie obiekty ze skryptami"/>
 	<check_box label="Odeślij wyłącznie obiekty które są na posiadłościach innych osób" name="return_other_land" tool_tip="Odeślij wyłącznie obiekty które są na posiadłościach innych osób"/>
-	<check_box label="Odeślij obiekty z wszystkich regionów w tym majątku" name="return_estate_wide" tool_tip="Odeślij obiekty z wszystkich regionów w tym majątku"/>
+	<check_box label="W każdym regionie tego majątku" name="return_estate_wide" tool_tip="Odeślij obiekty z wszystkich regionów w tym majątku"/>
 	<button label="Odeślij" name="return_btn"/>
-	<button label="Znajdź Główne Kolizje..." name="top_colliders_btn" tool_tip="Lista obiektów doświadczających najwięcej potencjalnych kolizji"/>
+	<button label="Znajdź główne kolizje..." name="top_colliders_btn" tool_tip="Lista obiektów doświadczających najwięcej potencjalnych kolizji"/>
 	<button label="?" name="top_colliders_help"/>
-	<button label="Główne Skrypty..." name="top_scripts_btn" tool_tip="Lista obiektów najdłużej wykonujących skrypty"/>
+	<button label="Główne skrypty..." name="top_scripts_btn" tool_tip="Lista obiektów najdłużej wykonujących skrypty"/>
 	<button label="?" name="top_scripts_help"/>
 	<button label="Restart Regionu" name="restart_btn" tool_tip="Odliczanie i restart Regionu za dwie minuty"/>
 	<button label="?" name="restart_help"/>
-	<button label="Opóźnij Restart" name="cancel_restart_btn" tool_tip="Opóźnij restart Regionu o godzinę"/>
+	<button label="Opóźnij restart" name="cancel_restart_btn" tool_tip="Opóźnij restart Regionu o godzinę"/>
 </panel>

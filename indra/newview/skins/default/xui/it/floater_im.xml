@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater name="im_floater" title="">
 	<string name="only_user_message">
-		Sei l&apos;unico utente di questa sessione.
+		Sei il solo residente presente nella sessione.
 	</string>
 	<string name="offline_message">
 		[FIRST] [LAST] è offline.
@@ -10,7 +10,7 @@
 		Clicca il tasto [BUTTON NAME] per accettare/connetterti a questa voice chat.
 	</string>
 	<string name="muted_message">
-		Hai bloccato questo residente. Spedendo un messaggio sarà automaticamente sbloccati.
+		Hai bloccato questo residente. Quando gli invii un messaggio, verrà automaticamente sbloccato.
 	</string>
 	<string name="generic_request_error">
 		Errore durante la richiesta, riprova più tardi.
@@ -31,7 +31,7 @@
 		Un moderatore di gruppo ti ha disabilitato dalla chat di testo.
 	</string>
 	<string name="add_session_event">
-		Impossibile aggiungere utenti alla chat con [RECIPIENT].
+		Impossibile aggiungere residenti alla sessione chat con [RECIPIENT].
 	</string>
 	<string name="message_session_event">
 		Impossibile inviare il messaggio nella chat con [RECIPIENT].

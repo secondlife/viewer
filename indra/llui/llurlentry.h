@@ -172,7 +172,7 @@ public:
 	LLUrlEntryAgent();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getIcon(const std::string &url) const;
-
+	/*virtual*/ std::string getTooltip(const std::string &string) const;
 private:
 	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);

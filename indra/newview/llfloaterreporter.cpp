@@ -85,6 +85,8 @@
 #include "llassetuploadresponders.h"
 #include "llagentui.h"
 
+#include "lltrans.h"
+
 const U32 INCLUDE_SCREENSHOT  = 0x01 << 0;
 
 //-----------------------------------------------------------------------------
@@ -372,8 +374,7 @@ void LLFloaterReporter::onClickSend(void *userdata)
 				return;
 			}
 
-
-		LLUploadDialog::modalUploadDialog("Uploading...\n\nReport");
+		LLUploadDialog::modalUploadDialog(LLTrans::getString("uploading_abuse_report"));
 		// *TODO don't upload image if checkbox isn't checked
 		std::string url = gAgent.getRegion()->getCapability("SendUserReport");
 		std::string sshot_url = gAgent.getRegion()->getCapability("SendUserReportWithScreenshot");

@@ -5,5 +5,5 @@
 	<menu_item_call label="Dieses Land kaufen" name="Land Buy"/>
 	<menu_item_call label="Pass kaufen" name="Land Buy Pass"/>
 	<menu_item_call label="Bauen" name="Create"/>
-	<menu_item_call label="Terrain bearbeiten" name="Edit Terrain"/>
+	<menu_item_call label="Land bearbeiten" name="Edit Terrain"/>
 </context_menu>

@@ -3,16 +3,46 @@
 	<panel.string name="l$_price">
 		L$[PRICE]
 	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] teleport, [MAP] kort, [PROFILE] profil
+	</panel.string>
+	<panel.string name="date_fmt">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Aktiv
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Ikke aktiv
+	</panel.string>
 	<text name="title" value="Annonce info"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text_editor name="classified_name" value="[name]"/>
+			<text name="classified_location_label" value="Sted:"/>
 			<text_editor name="classified_location" value="[loading...]"/>
+			<text name="content_type_label" value="Indholdsype:"/>
 			<text_editor name="content_type" value="[content type]"/>
+			<text name="category_label" value="Kategori:"/>
 			<text_editor name="category" value="[category]"/>
-			<check_box label="Forny automatisk hver uge" name="auto_renew"/>
-			<text_editor name="price_for_listing" tool_tip="Pris for optagelse."/>
+			<text name="creation_date_label" value="Oprettet d.:"/>
+			<text_editor name="creation_date" tool_tip="Oprettet d." value="[date]"/>
+			<text name="price_for_listing_label" value="Pris for optagelse i lister:"/>
+			<text_editor name="price_for_listing" tool_tip="Pris for optagelse." value="[price]"/>
+			<layout_stack name="descr_stack">
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Klik:"/>
+					<text_editor name="click_through_text" tool_tip="Klik gennem data" value="[clicks]"/>
+				</layout_panel>
+				<layout_panel name="price_layout_panel">
+					<text name="auto_renew_label" value="Forny automatisk:"/>
+					<text name="auto_renew" value="Aktiv"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Beskrivelse:"/>
 			<text_editor name="classified_desc" value="[description]"/>
+				</layout_panel>
+			</layout_stack>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">

@@ -13,6 +13,6 @@
 		<accordion_tab name="6_months_and_older" title="6 måneder eller ældre"/>
 	</accordion>
 	<panel name="bottom_panel">
-		<button name="gear_btn" tool_tip="Vi flere valgmuligheder"/>
+		<button name="gear_btn" tool_tip="Vis flere valgmuligheder"/>
 	</panel>
 </panel>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="settings_debug" title="DEBUG SETTINGS">
-	<combo_box name="boolean_combo">
-		<combo_box.item label="VERO" name="TRUE"/>
-		<combo_box.item label="FALSO" name="FALSE"/>
-	</combo_box>
+<floater name="settings_debug" title="PARAMETRI DI DEBUG">
+	<radio_group name="boolean_combo">
+		<radio_item label="VERO" name="TRUE" value="vero"/>
+		<radio_item label="FALSO" name="FALSE" value=""/>
+	</radio_group>
 	<color_swatch label="Colore" name="val_color_swatch"/>
 	<spinner label="x" name="val_spinner_1"/>
 	<spinner label="x" name="val_spinner_2"/>

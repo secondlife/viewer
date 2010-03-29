@@ -147,7 +147,7 @@ public:
 	// Get name of current item. Returns an empty string if not found.
 	const std::string	getSimple() const;
 	// Get contents of column x of selected row
-	const std::string getSelectedItemLabel(S32 column = 0) const;
+	virtual const std::string getSelectedItemLabel(S32 column = 0) const;
 
 	// Sets the label, which doesn't have to exist in the label.
 	// This is probably a UI abuse.
@@ -230,4 +230,35 @@ private:
 	boost::signals2::connection mTopLostSignalConnection;
 	S32                 mLastSelectedIndex;
 };
+
+// A combo box with icons for the list of items.
+class LLIconsComboBox
+:	public LLComboBox
+{
+public:
+	struct Params
+	:	public LLInitParam::Block<Params, LLComboBox::Params>
+	{
+		Optional<S32>		icon_column,
+							label_column;
+		Params();
+	};
+
+	/*virtual*/ const std::string getSelectedItemLabel(S32 column = 0) const;
+
+private:
+	enum EColumnIndex
+	{
+		ICON_COLUMN = 0,
+		LABEL_COLUMN
+	};
+
+	friend class LLUICtrlFactory;
+	LLIconsComboBox(const Params&);
+	virtual ~LLIconsComboBox() {};
+
+	S32			mIconColumnIndex;
+	S32			mLabelColumnIndex;
+};
+
 #endif

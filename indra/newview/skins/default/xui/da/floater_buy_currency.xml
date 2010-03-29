@@ -37,7 +37,7 @@
 		Estimerer...
 	</text>
 	<text name="buy_action">
-		[NAME] L$ [PRICE]
+		[ACTION]
 	</text>
 	<text name="total_label">
 		Min nye beholdning vil være

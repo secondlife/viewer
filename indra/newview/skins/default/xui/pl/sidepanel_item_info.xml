@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="Właściwości Obiektu w Szafie">
+<panel name="item properties" title="Profil Obiektu">
 	<panel.string name="unknown">
 		(nieznany)
 	</panel.string>
@@ -15,7 +15,8 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
-	<text name="title" value="Właściwości Obiektu"/>
+	<text name="title" value="Profil Obiektu"/>
+	<text name="where" value="(Szafa)"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
 			Nazwa:
@@ -37,34 +38,36 @@
 		<text name="LabelAcquiredDate">
 			Wed May 24 12:50:46 2006
 		</text>
-		<text name="OwnerLabel">
-			Ty:
-		</text>
-		<check_box label="Edytuj" name="CheckOwnerModify"/>
-		<check_box label="Kopiuj" name="CheckOwnerCopy"/>
-		<check_box label="Oddawaj" name="CheckOwnerTransfer"/>
-		<text name="AnyoneLabel">
-			Każdemu:
-		</text>
-		<check_box label="Kopiuj" name="CheckEveryoneCopy"/>
-		<text name="GroupLabel">
-			Groupa:
-		</text>
-		<check_box label="Podziel się" name="CheckShareWithGroup"/>
-		<text name="NextOwnerLabel">
-			Następny właściciel:
-		</text>
-		<check_box label="Edytuje" name="CheckNextOwnerModify"/>
-		<check_box label="Kopiuje" name="CheckNextOwnerCopy"/>
-		<check_box label="Oddaje" name="CheckNextOwnerTransfer"/>
+		<panel name="perms_inv">
+			<text name="perm_modify">
+				Ty możesz:
+			</text>
+			<check_box label="Zmienia" name="CheckOwnerModify"/>
+			<check_box label="Kopiuje" name="CheckOwnerCopy"/>
+			<check_box label="Sprzedaje/Oddaje" name="CheckOwnerTransfer"/>
+			<text name="AnyoneLabel">
+				Każdy:
+			</text>
+			<check_box label="Kopiuje" name="CheckEveryoneCopy"/>
+			<text name="GroupLabel">
+				Grupa:
+			</text>
+			<check_box label="Udostępnij" name="CheckShareWithGroup" tool_tip="Pozwól wszystkim członkom ustawionej grupy na dzielenie prawa do modyfikacji dla tego obiektu. Musisz Przypisać aby aktywować ograniczenia wynikające z roli."/>
+			<text name="NextOwnerLabel">
+				Następny Właściciel:
+			</text>
+			<check_box label="Modyfikuje" name="CheckNextOwnerModify"/>
+			<check_box label="Kopiuje" name="CheckNextOwnerCopy"/>
+			<check_box label="Sprzedaje/Oddaje" name="CheckNextOwnerTransfer" tool_tip="Następny właściciel może oddać lub sprzedać ten obiekt"/>
+		</panel>
 		<check_box label="Na Sprzedaż" name="CheckPurchase"/>
 		<combo_box name="combobox sale copy">
 			<combo_box.item label="Kopia" name="Copy"/>
 			<combo_box.item label="Originał" name="Original"/>
 		</combo_box>
-		<spinner label="Cena:" name="Edit Cost"/>
-		<text name="CurrencySymbol">
-			L$
-		</text>
+		<spinner label="Cena: L$" name="Edit Cost"/>
+	</panel>
+	<panel name="button_panel">
+		<button label="Anuluj" name="cancel_btn"/>
 	</panel>
 </panel>

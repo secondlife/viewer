@@ -13,16 +13,23 @@
 		(wird abgespielt)
 	</string>
 	<panel name="minimized_controls">
-		<button label="Alle stoppen" name="all_nearby_media_disable_btn" tool_tip="Alle Medien in der Nähe ausschalten"/>
-		<button label="Alle starten" name="all_nearby_media_enable_btn" tool_tip="Alle Medien in der Nähe einschalten"/>
+		<button label="Stoppen" name="all_nearby_media_disable_btn" tool_tip="Alle Medien in der Nähe ausschalten"/>
+		<button label="Starten" name="all_nearby_media_enable_btn" tool_tip="Alle Medien in der Nähe einschalten"/>
 		<button name="open_prefs_btn" tool_tip="Medien-Einstellungen öffnen"/>
 		<button label="Mehr &gt;&gt;" label_selected="Weniger &lt;&lt;" name="more_less_btn" tool_tip="Erweiterte Steuerung"/>
 	</panel>
 	<panel name="nearby_media_panel">
+		<text name="nearby_media">
+			Medien in der Nähe
+		</text>
+		<text name="show">
+			Anzeigen:
+		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Alle" name="All"/>
 			<combo_box.item label="Auf dieser Parzelle" name="WithinParcel"/>
 			<combo_box.item label="Außerhalb dieser Parzelle" name="OutsideParcel"/>
+			<combo_box.item label="An anderen Avataren" name="OnOthers"/>
 		</combo_box>
 		<scroll_list name="media_list">
 			<scroll_list.columns label="Umgebung" name="media_proximity"/>
@@ -31,7 +38,7 @@
 			<scroll_list.columns label="Name" name="media_name"/>
 			<scroll_list.columns label="Fehler beseitigen" name="media_debug"/>
 		</scroll_list>
-		<panel>
+		<panel name="media_controls_panel">
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
 					<button name="stop_btn" tool_tip="Ausgewählte Medien stoppen"/>

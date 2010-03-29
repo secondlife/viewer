@@ -105,7 +105,7 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 	"Inv_Script",
 	"Inv_Clothing",
 	"Inv_Object",
-	"Inv_Object",
+	"Inv_Object_Multi",
 	"Inv_Notecard",
 	"Inv_Skin",
 	"Inv_Snapshot",
@@ -685,13 +685,14 @@ void LLInvFVBridge::addTrashContextMenuOptions(menuentry_vec_t &items,
 void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 												menuentry_vec_t &disabled_items)
 {
+
+	const LLInventoryObject *obj = getInventoryObject();
+
 	// Don't allow delete as a direct option from COF folder.
-	if (isCOFFolder())
+	if (obj && obj->getIsLinkType() && isCOFFolder())
 	{
 		return;
 	}
-
-	const LLInventoryObject *obj = getInventoryObject();
 
 	// "Remove link" and "Delete" are the same operation.
 	if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
@@ -2691,8 +2692,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLViewerInventoryCategory *cat =  getCategory();
 		// BAP removed protected check to re-enable standard ops in untyped folders.
 		// Not sure what the right thing is to do here.
-		if (!isCOFFolder() && cat && cat->getPreferredType()!=LLFolderType::FT_OUTFIT /*&&
-			LLAssetType::lookupIsProtectedCategoryType(cat->getPreferredType())*/)
+		if (!isCOFFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
 		{
 			// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
 			if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
@@ -3817,7 +3817,9 @@ std::string LLGestureBridge::getLabelSuffix() const
 {
 	if( LLGestureManager::instance().isGestureActive(mUUID) )
 	{
-		return LLItemBridge::getLabelSuffix() + " (active)";
+		LLStringUtil::format_map_t args;
+		args["[GESLABEL]"] =  LLItemBridge::getLabelSuffix();
+		return  LLTrans::getString("ActiveGesture", args);
 	}
 	else
 	{
@@ -4166,7 +4168,7 @@ std::string LLObjectBridge::getLabelSuffix() const
 
 		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
-		args["[ATTACHMENT_POINT]"] =  attachment_point_name.c_str();
+		args["[ATTACHMENT_POINT]"] =  LLTrans::getString(attachment_point_name);
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("WornOnAttachmentPoint", args);
 	}
 	else
@@ -4285,7 +4287,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Detach From Yourself"));
 			}
-			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing())
+			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder())
 			{
 				items.push_back(std::string("Attach Separator"));
 				items.push_back(std::string("Object Wear"));
@@ -4711,7 +4713,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}
 		// Don't allow items to be worn if their baseobj is in the trash.
-		if (isLinkedObjectInTrash() || isLinkedObjectMissing())
+		if (isLinkedObjectInTrash() || isLinkedObjectMissing() || isCOFFolder())
 		{
 			disabled_items.push_back(std::string("Wearable Wear"));
 			disabled_items.push_back(std::string("Wearable Add"));
@@ -5365,7 +5367,10 @@ LLUIImagePtr LLLinkItemBridge::getIcon() const
 {
 	if (LLViewerInventoryItem *item = getItem())
 	{
-		return get_item_icon(item->getActualType(), item->getInventoryType(), 0, FALSE);
+		U32 attachment_point = (item->getFlags() & 0xff); // low byte of inventory flags
+		bool is_multi =  LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & item->getFlags();
+
+		return get_item_icon(item->getActualType(), item->getInventoryType(), attachment_point, is_multi);
 	}
 	return get_item_icon(LLAssetType::AT_LINK, LLInventoryType::IT_NONE, 0, FALSE);
 }

@@ -1,14 +1,32 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gesture_preview">
-	<string name="stop_txt">
+	<floater.string name="step_anim">
+		Animacja
+	</floater.string>
+	<floater.string name="step_sound">
+		Dźwięk:
+	</floater.string>
+	<floater.string name="step_chat">
+		Czat:
+	</floater.string>
+	<floater.string name="step_wait">
+		Wstrzymaj:
+	</floater.string>
+	<floater.string name="stop_txt">
 		Stop
-	</string>
-	<string name="preview_txt">
+	</floater.string>
+	<floater.string name="preview_txt">
 		Pokaż
-	</string>
-	<string name="none_text">
+	</floater.string>
+	<floater.string name="none_text">
 		-- Brak --
-	</string>
+	</floater.string>
+	<floater.string name="Title">
+		Gest: [NAME]
+	</floater.string>
+	<text name="name_text">
+		Nazwa:
+	</text>
 	<text name="desc_label">
 		Opis:
 	</text>
@@ -27,29 +45,23 @@
 	<text name="library_label">
 		Zbiór:
 	</text>
+	<scroll_list name="library_list"/>
+	<button label="Dodaj &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Etapy:
 	</text>
-	<scroll_list name="library_list">
-		Animacja
-Dźwięk
-Czat
-Wstrzymaj
-	</scroll_list>
-	<button label="Dodaj &gt;&gt;" name="add_btn"/>
-	<button label="W Górę" name="up_btn"/>
-	<button label="W Dół" name="down_btn"/>
+	<button label="W górę" name="up_btn"/>
+	<button label="W dół" name="down_btn"/>
 	<button label="Usuń" name="delete_btn"/>
-	<text name="help_label">
-		Wszystkie etapy nastąpią razem, 
-chyba, że dodasz pauzy.
-	</text>
 	<radio_group name="animation_trigger_type">
-		<radio_item name="start" label="Start" />
-		<radio_item name="stop" label="Stop" />
+		<radio_item label="Start" name="start"/>
+		<radio_item label="Stop" name="stop"/>
 	</radio_group>
 	<check_box label="do końca animacji" name="wait_anim_check"/>
 	<check_box label="czas w sekundach" name="wait_time_check"/>
+	<text name="help_label">
+		Wszystkie etapy nastąpią razem, chyba, że dodasz pauzy.
+	</text>
 	<check_box label="Aktywny" name="active_check" tool_tip="Aktywne gesty można włączać używając przypisanej frazy w czacie albo używając przypisanego klawisza skrótowego. W przypaku konfliktu przypisań gesty zazwyczaj nie będą działać."/>
 	<button label="Pokaż" name="preview_btn"/>
 	<button label="Zapisz" name="save_btn"/>

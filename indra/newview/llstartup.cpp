@@ -1041,7 +1041,7 @@ bool idle_startup()
 	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState()) 
 	{
 		std::ostringstream emsg;
-		emsg << "Login failed.\n";
+		emsg << LLTrans::getString("LoginFailed") << "\n";
 		if(LLLoginInstance::getInstance()->authFailure())
 		{
 			LL_INFOS("LLStartup") << "Login failed, LLLoginInstance::getResponse(): "

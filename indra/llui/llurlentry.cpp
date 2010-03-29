@@ -319,7 +319,6 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_agent.xml";
 	mIcon = "Generic_Person";
-	mTooltip = LLTrans::getString("TooltipAgentUrl");
 	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
@@ -341,6 +340,38 @@ void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 	callObservers(id.asString(), label, icon);
 }
 
+std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
+{
+	// return a tooltip corresponding to the URL type instead of the generic one
+	std::string url = getUrl(string);
+
+	if (LLStringUtil::endsWith(url, "/mute"))
+	{
+		return LLTrans::getString("TooltipAgentMute");
+	}
+	if (LLStringUtil::endsWith(url, "/unmute"))
+	{
+		return LLTrans::getString("TooltipAgentUnmute");
+	}
+	if (LLStringUtil::endsWith(url, "/im"))
+	{
+		return LLTrans::getString("TooltipAgentIM");
+	}
+	if (LLStringUtil::endsWith(url, "/pay"))
+	{
+		return LLTrans::getString("TooltipAgentPay");
+	}
+	if (LLStringUtil::endsWith(url, "/offerteleport"))
+	{
+		return LLTrans::getString("TooltipAgentOfferTeleport");
+	}
+	if (LLStringUtil::endsWith(url, "/requestfriend"))
+	{
+		return LLTrans::getString("TooltipAgentRequestFriend");
+	}
+	return LLTrans::getString("TooltipAgentUrl");
+}
+
 std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
 	if (!gCacheName)
@@ -348,14 +379,14 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 		// probably at the login screen, use short string for layout
 		return LLTrans::getString("LoadingData");
 	}
-	
+
 	std::string agent_id_string = getIDStringFromUrl(url);
 	if (agent_id_string.empty())
 	{
 		// something went wrong, just give raw url
 		return unescapeUrl(url);
 	}
-	
+
 	LLUUID agent_id(agent_id_string);
 	if (agent_id.isNull())
 	{
@@ -383,18 +414,43 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 		// ...no display names
 		std::string full_name;
 		if (gCacheName->getFullName(agent_id, full_name))
+	{
+		// customize label string based on agent SLapp suffix
+		if (LLStringUtil::endsWith(url, "/mute"))
 		{
-			return full_name;
+			return LLTrans::getString("SLappAgentMute") + " " + full_name;
 		}
-		else
+		if (LLStringUtil::endsWith(url, "/unmute"))
 		{
+			return LLTrans::getString("SLappAgentUnmute") + " " + full_name;
+		}
+		if (LLStringUtil::endsWith(url, "/im"))
+		{
+			return LLTrans::getString("SLappAgentIM") + " " + full_name;
+		}
+		if (LLStringUtil::endsWith(url, "/pay"))
+		{
+			return LLTrans::getString("SLappAgentPay") + " " + full_name;
+		}
+		if (LLStringUtil::endsWith(url, "/offerteleport"))
+		{
+			return LLTrans::getString("SLappAgentOfferTeleport") + " " + full_name;
+		}
+		if (LLStringUtil::endsWith(url, "/requestfriend"))
+		{
+			return LLTrans::getString("SLappAgentRequestFriend") + " " + full_name;
+		}
+		return full_name;
+	}
+	else
+	{
 			gCacheName->get(agent_id, false,
 				boost::bind(&LLUrlEntryAgent::onNameCache,
 					this, _1, _2, _3));
-			addObserver(agent_id_string, url, cb);
-			return LLTrans::getString("LoadingData");
-		}
+		addObserver(agent_id_string, url, cb);
+		return LLTrans::getString("LoadingData");
 	}
+}
 }
 
 

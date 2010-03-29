@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_inventory_add">
-	<menu label="Carica sul server" name="upload">
+	<menu label="Carica nel server" name="upload">
 		<menu_item_call label="Immagine ([COST]L$)..." name="Upload Image"/>
 		<menu_item_call label="Suono ([COST]L$)..." name="Upload Sound"/>
 		<menu_item_call label="Animazione ([COST]L$)..." name="Upload Animation"/>
 		<menu_item_call label="In blocco ([COST]L$ per file)..." name="Bulk Upload"/>
 	</menu>
-	<menu_item_call label="Nuova Cartella" name="New Folder"/>
-	<menu_item_call label="Nuovo Script" name="New Script"/>
-	<menu_item_call label="Nuova Notecard" name="New Note"/>
-	<menu_item_call label="Nuova Gesture" name="New Gesture"/>
-	<menu label="Nuovi Abiti" name="New Clothes">
-		<menu_item_call label="Nuova Camicia" name="New Shirt"/>
-		<menu_item_call label="Nuovi Pantaloni" name="New Pants"/>
-		<menu_item_call label="Nuove Scarpe" name="New Shoes"/>
-		<menu_item_call label="Nuove Calze" name="New Socks"/>
-		<menu_item_call label="Nuova Giacca" name="New Jacket"/>
-		<menu_item_call label="Nuova Gonna" name="New Skirt"/>
-		<menu_item_call label="Nuovi Guanti" name="New Gloves"/>
-		<menu_item_call label="Nuova Maglietta Intima" name="New Undershirt"/>
-		<menu_item_call label="Nuovi Slip" name="New Underpants"/>
-		<menu_item_call label="Nuovo Alfa (Trasparenza)" name="New Alpha"/>
-		<menu_item_call label="Nuovo Tatuaggio" name="New Tattoo"/>
+	<menu_item_call label="Nuova cartella" name="New Folder"/>
+	<menu_item_call label="Nuovo script" name="New Script"/>
+	<menu_item_call label="Nuovo biglietto" name="New Note"/>
+	<menu_item_call label="Nuova gesture" name="New Gesture"/>
+	<menu label="Maglietta intima" name="New Clothes">
+		<menu_item_call label="Nuova camicia" name="New Shirt"/>
+		<menu_item_call label="Nuovi pantaloni" name="New Pants"/>
+		<menu_item_call label="Nuove scarpe" name="New Shoes"/>
+		<menu_item_call label="Nuove calze" name="New Socks"/>
+		<menu_item_call label="Nuova giacca" name="New Jacket"/>
+		<menu_item_call label="Nuova gonna" name="New Skirt"/>
+		<menu_item_call label="Nuovi guanti" name="New Gloves"/>
+		<menu_item_call label="Nuova maglietta intima" name="New Undershirt"/>
+		<menu_item_call label="Nuovi slip" name="New Underpants"/>
+		<menu_item_call label="Nuovo Alfa (trasparenza)" name="New Alpha"/>
+		<menu_item_call label="Nuovo tatuaggio" name="New Tattoo"/>
 	</menu>
-	<menu label="Nuove Parti del Corpo" name="New Body Parts">
-		<menu_item_call label="Nuova Shape" name="New Shape"/>
-		<menu_item_call label="Nuova Pelle" name="New Skin"/>
-		<menu_item_call label="Nuovi Capelli" name="New Hair"/>
-		<menu_item_call label="Nuovi Occhi" name="New Eyes"/>
+	<menu label="Nuove parti del corpo" name="New Body Parts">
+		<menu_item_call label="Nuova figura corporea" name="New Shape"/>
+		<menu_item_call label="Nuova pelle" name="New Skin"/>
+		<menu_item_call label="Nuovi capelli" name="New Hair"/>
+		<menu_item_call label="Nuovi occhi" name="New Eyes"/>
 	</menu>
 </menu>

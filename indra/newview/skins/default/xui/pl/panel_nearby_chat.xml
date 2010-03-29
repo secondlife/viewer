@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- All our XML is utf-8 encoded. -->
+<panel name="nearby_chat">
+	<panel name="chat_caption">
+		<text name="sender_name">
+			CZAT LOKALNY
+		</text>
+	</panel>
+</panel>

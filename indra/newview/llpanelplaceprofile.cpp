@@ -572,9 +572,13 @@ void LLPanelPlaceProfile::onForSaleBannerClick()
 		if(parcel->getLocalID() == mSelectedParcelID &&
 				mLastSelectedRegionID ==selected_region->getRegionID())
 		{
-			if(parcel->getSalePrice() - gStatusBar->getBalance() > 0)
+			S32 price = parcel->getSalePrice();
+
+			if(price - gStatusBar->getBalance() > 0)
 			{
-				LLFloaterBuyCurrency::buyCurrency("Buying selected land ", parcel->getSalePrice());
+				LLStringUtil::format_map_t args;
+				args["AMOUNT"] = llformat("%d", price);
+				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("buying_selected_land", args), price);
 			}
 			else
 			{

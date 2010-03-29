@@ -2,9 +2,9 @@
 <floater name="modal container" title="">
 	<button label="Fortsæt" label_selected="Fortsæt" name="Continue"/>
 	<button label="Annullér" label_selected="Annullér" name="Cancel"/>
-	<check_box label="Jeg accepterer vilkårene for brug af tjenesten" name="agree_chk"/>
+	<check_box label="Jeg er enig med &quot;Terms of Service and Privacy Policy&quot;" name="agree_chk"/>
 	<text name="tos_heading">
-		Læs venligst følgende servicebetingelser grundigt. For at kunne logge på [SECOND_LIFE], skal du acceptere aftalen.
+		Læs venligst følgende &quot;Terms of Service and Privacy Policy&quot; grundigt. For at fortsætte med at logge på [SECOND_LIFE], skal du acceptere aftale.
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

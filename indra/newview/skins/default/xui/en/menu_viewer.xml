@@ -186,7 +186,8 @@
          label="Nearby Chat"
          layout="topleft"
          name="Nearby Chat"
-         shortcut="control|H">
+         shortcut="control|H"
+         use_mac_ctrl="true">
             <menu_item_check.on_check
              function="Floater.Visible"
              parameter="nearby_chat" />

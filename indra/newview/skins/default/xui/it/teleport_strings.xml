@@ -2,12 +2,12 @@
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
-			C&apos;è stato un problema nell&apos;elaborare la tua richiesta di teleport. Potresti aver bisogno di ricollegarti prima di poter usare il teleport. Se continui ad avere problemi, controlla per favore le FAQ del Supporto Tecnico a:
-www.secondlife.com/support.
+			C&apos;è stato un problema nell&apos;elaborare la tua richiesta di teleport. Potresti dover effettuare nuovamente l&apos;accesso prima di poter usare il teleport.
+Se si continua a visualizzare questo messaggio, consulta la pagina [SUPPORT_SITE].
 		</message>
 		<message name="invalid_region_handoff">
-			C&apos;è stato un problema nell&apos;elaborare il cambio di regione. Potresti aver bisogno di ricollegarti prima di poterlo effetuare. Se continui ad avere problemi, controlla per favore le FAQ del Supporto Tecnico a:
-www.secondlife.com/support.
+			Si è verificato un problema nel tentativo di attraversare regioni. È possibile che per potere attraversare le regioni, tu debba effettuare nuovamente l&apos;accesso.
+Se si continua a visualizzare questo messaggio, consulta la pagina [SUPPORT_SITE].
 		</message>
 		<message name="blocked_tport">
 			Spiacenti, il teletrasporto è bloccato al momento. Prova di nuovo tra pochi istanti. Se ancora non potrai teletrasportarti, per favore scollegati e ricollegati per risolvere il problema.
@@ -58,6 +58,9 @@ www.secondlife.com/support.
 		</message>
 		<message name="completing">
 			Teletrasporto completato
+		</message>
+		<message name="completed_from">
+			Teleport completato da [T_SLURL]
 		</message>
 		<message name="resolving">
 			Elaborazione della destinazione in corso...

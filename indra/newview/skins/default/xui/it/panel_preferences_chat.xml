@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Text Chat" name="chat">
+	<text name="font_size">
+		Dimensioni caratteri:
+	</text>
 	<radio_group name="chat_font_size">
-		<radio_item label="Piccolo" name="radio"/>
-		<radio_item label="Medio" name="radio2"/>
-		<radio_item label="Grande" name="radio3"/>
+		<radio_item label="Piccola" name="radio" value="0"/>
+		<radio_item label="Media" name="radio2" value="1"/>
+		<radio_item label="Grande" name="radio3" value="2"/>
 	</radio_group>
+	<text name="font_colors">
+		Colori caratteri:
+	</text>
 	<color_swatch label="Tuo" name="user"/>
 	<text name="text_box1">
 		Io
@@ -38,9 +44,15 @@
 		URLs
 	</text>
 	<check_box initial_value="true" label="Simula la battitura tasti quando scrivi" name="play_typing_animation"/>
-	<check_box label="Spediscimi nella email gli IM quando sono OFF-LINE" name="send_im_to_email"/>
-	<radio_group name="chat_window" tool_tip="Mostra i tuoi Instant Messages in finestre separate, o in una finestra con diverse tabelle (Requires restart)">
-		<radio_item label="Finestre multiple" name="radio"/>
-		<radio_item label="Una finestra" name="radio2"/>
+	<check_box label="Quando sono OFF-LINE, spediscimi gli IM in una e-mail" name="send_im_to_email"/>
+	<text name="show_ims_in_label">
+		Mostra gli IM in:
+	</text>
+	<text name="requires_restart_label">
+		(richiede il riavvio)
+	</text>
+	<radio_group name="chat_window" tool_tip="Mostra i tuoi messaggi istantanei in diverse finestre, o in una finestra con più schede (richiede il riavvio)">
+		<radio_item label="Finestre separate" name="radio" value="0"/>
+		<radio_item label="Schede" name="radio2" value="1"/>
 	</radio_group>
 </panel>

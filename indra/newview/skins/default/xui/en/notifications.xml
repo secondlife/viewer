@@ -392,9 +392,9 @@ Add this Ability to &apos;[ROLE_NAME]&apos;?
      yestext="Yes"/>
   </notification>
   <notification
-    icon="alertmodal.tga"
+   icon="alertmodal.tga"
    name="JoinGroupCanAfford"
-    type="alertmodal">
+   type="alertmodal">
 Joining this group costs L$[COST].
 Do you wish to proceed?
     <usetemplate
@@ -614,7 +614,7 @@ To place the media on only one face, choose Select Face and click on the desired
       notext="Cancel"
       yestext="OK"/>
   </notification>
-  
+
   <notification
    icon="alertmodal.tga"
    name="MustBeInParcel"
@@ -785,7 +785,7 @@ Save changes to classified [NAME]?
      notext="Don&apos;t Save"
      yestext="Save"/>
   </notification>
-  
+
   <notification
    icon="alertmodal.tga"
    name="ClassifiedInsufficientFunds"
@@ -836,7 +836,7 @@ Please select a proposal to view.
 Please select a history item to view.
   </notification>
 
-<!--   
+<!--
   <notification
    icon="alertmodal.tga"
    name="ResetShowNextTimeDialogs"
@@ -5191,7 +5191,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
        text="Decline"/>
     </form>
   </notification>
-  
+
   <notification
    icon="notify.tga"
    name="FriendshipOffered"
@@ -5406,27 +5406,6 @@ Grant this request?
     </form>
   </notification>
 
-  <notification
-   icon="notify.tga"
-   name="ScriptToast"
-   type="notify">
-    [FIRST] [LAST]&apos;s &apos;[TITLE]&apos; is requesting Resident input.
-    <form name="form">
-      <button
-       index="0"
-       name="Open"
-       text="Open Dialog"/>
-      <button
-       index="1"
-       name="Ignore"
-       text="Ignore"/>
-      <button
-       index="2"
-       name="Block"
-       text="Block"/>
-    </form>
-  </notification>
-
 <!--
   <notification
    icon="notify.tga"
@@ -5455,8 +5434,8 @@ Your L$ balance will be updated when processing completes. If processing takes m
 
 The status of your payment can be checked on your Transaction History page on your [http://secondlife.com/account/ Dashboard]
   </notification>
-  
-<!-- 
+
+<!--
   <notification
    icon="notify.tga"
    name="FirstSit"
@@ -5483,7 +5462,7 @@ You have opened the Build Tools. Every object you see around you was created usi
   </notification>
 -->
 
-<!--  
+<!--
   <notification
    icon="notify.tga"
    name="FirstLeftClickNoHit"
@@ -5569,7 +5548,7 @@ To toggle this menu,
    type="notify">
 You are editing a Sculpted prim. Sculpties require a special texture to define their shape.
   </notification>
--->  
+-->
 
   <!--
   <notification
@@ -5858,7 +5837,7 @@ A SLurl was received from an untrusted browser and has been blocked for your sec
    priority="high"
    type="notifytip">
 Multiple SLurls were received from an untrusted browser within a short period.
-They will be blocked for a few seconds for your security. 
+They will be blocked for a few seconds for your security.
   </notification>
 
   <notification name="IMToast" type="notifytoast">

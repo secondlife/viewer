@@ -494,6 +494,7 @@ BOOL LLPanelAvatarProfile::postBuild()
 			&LLPanelAvatarProfile::onMapButtonClick, this)), NULL);
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+	registrar.add("Profile.ShowOnMap",  boost::bind(&LLPanelAvatarProfile::onMapButtonClick, this));
 	registrar.add("Profile.Pay",  boost::bind(&LLPanelAvatarProfile::pay, this));
 	registrar.add("Profile.Share", boost::bind(&LLPanelAvatarProfile::share, this));
 	registrar.add("Profile.BlockUnblock", boost::bind(&LLPanelAvatarProfile::toggleBlock, this));
@@ -503,6 +504,7 @@ BOOL LLPanelAvatarProfile::postBuild()
 	registrar.add("Profile.CSR", boost::bind(&LLPanelAvatarProfile::csr, this));
 
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
+	enable.add("Profile.EnableShowOnMap", boost::bind(&LLPanelAvatarProfile::enableShowOnMap, this));
 	enable.add("Profile.EnableGod", boost::bind(&enable_god));
 	enable.add("Profile.EnableBlock", boost::bind(&LLPanelAvatarProfile::enableBlock, this));
 	enable.add("Profile.EnableUnblock", boost::bind(&LLPanelAvatarProfile::enableUnblock, this));
@@ -695,6 +697,15 @@ void LLPanelAvatarProfile::share()
 void LLPanelAvatarProfile::toggleBlock()
 {
 	LLAvatarActions::toggleBlock(getAvatarId());
+}
+
+bool LLPanelAvatarProfile::enableShowOnMap()
+{
+	bool is_buddy_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
+
+	bool enable_map_btn = (is_buddy_online && is_agent_mappable(getAvatarId()))
+		|| gAgent.isGodlike();
+	return enable_map_btn;
 }
 
 bool LLPanelAvatarProfile::enableBlock()

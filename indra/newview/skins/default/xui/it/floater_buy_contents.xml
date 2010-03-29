@@ -8,8 +8,7 @@
 	</text>
 	<button label="Annulla" label_selected="Annulla" name="cancel_btn" width="73"/>
 	<button label="Compra" label_selected="Compra" left_delta="-77" name="buy_btn" width="73"/>
-	<check_box bottom="-234" label="Indossa adesso 
-l&apos;indumento" left_delta="-125" name="wear_check"/>
+	<check_box bottom="-234" label="Indossa adesso  l&apos;indumento" left_delta="-125" name="wear_check"/>
 	<string name="no_copy_text">
 		(non copiabile)
 	</string>

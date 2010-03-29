@@ -19,10 +19,17 @@
 		<button label="詳細 &gt;&gt;" label_selected="簡易 &lt;&lt;" name="more_less_btn" tool_tip="アドバンスコントロール"/>
 	</panel>
 	<panel name="nearby_media_panel">
+		<text name="nearby_media">
+			近くのメディア
+		</text>
+		<text name="show">
+			表示：
+		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="すべて" name="All"/>
 			<combo_box.item label="この区画内" name="WithinParcel"/>
 			<combo_box.item label="この区画外" name="OutsideParcel"/>
+			<combo_box.item label="他のアバター" name="OnOthers"/>
 		</combo_box>
 		<scroll_list name="media_list">
 			<scroll_list.columns label="近接" name="media_proximity"/>
@@ -31,7 +38,7 @@
 			<scroll_list.columns label="名前" name="media_name"/>
 			<scroll_list.columns label="デバッグ" name="media_debug"/>
 		</scroll_list>
-		<panel>
+		<panel name="media_controls_panel">
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
 					<button name="stop_btn" tool_tip="選択したメディアを停止"/>
@@ -49,7 +56,7 @@
 					<button name="mute_btn" tool_tip="選択したメディアの音をミュート"/>
 				</layout_panel>
 				<layout_panel name="zoom">
-					<button name="zoom_btn" tool_tip="選択したメディアに近づく"/>
+					<button name="zoom_btn" tool_tip="選択したメディアにズーム"/>
 				</layout_panel>
 				<layout_panel name="unzoom">
 					<button name="unzoom_btn" tool_tip="選択したメディアから遠ざかる"/>

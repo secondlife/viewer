@@ -9,6 +9,18 @@
  title="ABOUT LAND"
  width="490">
     <floater.string
+      name="maturity_icon_general">
+      "Parcel_PG_Dark"
+    </floater.string>
+    <floater.string
+      name="maturity_icon_moderate">
+      "Parcel_M_Dark"
+    </floater.string>
+    <floater.string
+      name="maturity_icon_adult">
+      "Parcel_R_Dark"
+    </floater.string>
+    <floater.string
      name="Minutes">
         [MINUTES] minutes
     </floater.string>
@@ -263,7 +275,7 @@ Leyla Linden               </text>
              left_pad="4"
              right="-10"
              name="Set..."
-             width="50"
+             width="90"
              top_delta="-2"/>
             <check_box
              enabled="false"
@@ -395,7 +407,7 @@ Leyla Linden               </text>
              name="Cancel Land Sale"
              left_pad="5"
              top_pad="-25"
-             width="155" />
+             width="180" />
             <text
              type="string"
              length="1"
@@ -474,10 +486,10 @@ Leyla Linden               </text>
              height="23"
              label="Buy Land"
              layout="topleft"
-             left_delta="82"
+             left_delta="52"
              name="Buy Land..."
              top_pad="7"
-             width="100" />
+             width="130" />
             <button
              enabled="true"
              follows="left|top"
@@ -487,7 +499,7 @@ Leyla Linden               </text>
              left="10"
              name="Scripts..."
              top_pad="1"
-             width="100" />
+             width="150" />
             <button
              enabled="false"
              follows="left|top"
@@ -504,11 +516,11 @@ Leyla Linden               </text>
              height="23"
              label="Buy Pass"
              layout="topleft"
-             left_delta="-105"
+             left_delta="-135"
              name="Buy Pass..."
              tool_tip="A pass gives you temporary access to this land."
              top_delta="0"
-             width="100" />
+             width="130" />
             <button
              follows="left|top"
              height="23"
@@ -547,21 +559,26 @@ Leyla Linden               </text>
          left="0"
          top="0"
          help_topic="land_covenant_tab"
-         name="land_covenant_panel">
+         name="land_covenant_panel"
+         word_wrap="true">
             <panel.string
-             name="can_resell">
+             name="can_resell"
+             word_wrap="true">
                 Purchased land in this region may be resold.
             </panel.string>
             <panel.string
-             name="can_not_resell">
+             name="can_not_resell"
+             word_wrap="true">
                 Purchased land in this region may not be resold.
             </panel.string>
             <panel.string
-             name="can_change">
+             name="can_change"
+             word_wrap="true">
                 Purchased land in this region may be joined or subdivided.
             </panel.string>
             <panel.string
-             name="can_not_change">
+             name="can_not_change"
+             word_wrap="true">
                 Purchased land in this region may not be joined or subdivided.
             </panel.string>
             <text
@@ -736,6 +753,7 @@ Leyla Linden               </text>
              left_pad="10"
              mouse_opaque="false"
              name="resellable_clause"
+             word_wrap="true"
              width="330">
                 Land in this region may not be resold.
             </text>
@@ -1044,7 +1062,7 @@ Leyla Linden               </text>
              left="10"
              name="Autoreturn"
              top_pad="0"
-             width="294">
+             width="310">
                 Auto return other Residents&apos; objects (minutes, 0 for off):
             </text>
             <line_editor
@@ -1107,7 +1125,7 @@ Leyla Linden               </text>
                  label="Type"
                  name="type"
                  sort_column="online_status"
-                 width="24" />
+                 width="50" />
                 <name_list.columns
                  name="online_status"
                  width="-1" />
@@ -1222,7 +1240,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="edit objects check"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1248,7 +1266,7 @@ Only large parcels can be listed in search.
              left_pad="2"
              name="all object entry check"
              top_delta="0"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1275,7 +1293,7 @@ Only large parcels can be listed in search.
              left_pad="2"
              name="check other scripts"
              top_delta="0"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1329,7 +1347,7 @@ Only large parcels can be listed in search.
              left="30"
              name="land category with adult"
              visible="false"
-             width="130">
+             width="140">
                 <combo_box.item
                  label="Any Category"
                  name="item0"
@@ -1390,7 +1408,7 @@ Only large parcels can be listed in search.
              left="30"
              name="land category"
              visible="false"
-             width="130">
+             width="140">
                 <combo_box.item
                  label="Any Category"
                  name="item0"
@@ -1607,7 +1625,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="5"
              name="set_media_url"
-             width="50"
+             width="70"
              top_delta="0"/>
             <check_box
              follows="top|left"
@@ -1875,6 +1893,10 @@ Only large parcels can be listed in search.
 				(Defined by the Estate)
 			</panel.string>
             <panel.string
+       name="allow_public_access">
+        Allow Public Access ([MATURITY])
+      </panel.string>
+            <panel.string
              name="estate_override">
                 One or more of these options is set at the estate level
             </panel.string>
@@ -1894,7 +1916,6 @@ Only large parcels can be listed in search.
             <check_box
              follows="top|left"
              height="16"
-             label="Allow Public Access [MATURITY]"
              layout="topleft"
              left_delta="0"
              name="public_access"

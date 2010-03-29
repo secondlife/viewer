@@ -8,7 +8,7 @@
 	<button label="Slet" label_selected="Slet" name="WLDeletePreset" />
 	<button label="Dags cyklus" label_selected="Dags cyklus" name="WLDayCycleMenuButton" />
 	<tab_container name="WindLight Tabs">
-		<panel label="Atmosfære" name="Atmosphere">
+		<panel label="ATMOSFÆRE" name="Atmosphere">
 			<text name="BHText">
 				Blå - horisont
 			</text>
@@ -75,7 +75,7 @@
 			<button label="?" name="WLMaxAltitudeHelp" />
 			<slider label="" name="WLMaxAltitude" />
 		</panel>
-		<panel label="Lys" name="Lighting">
+		<panel label="LYS" name="Lighting">
 			<text name="SLCText">
 				Sol/Måne farve
 			</text>
@@ -143,7 +143,7 @@
 			<button label="?" name="WLStarBrightnessHelp" />
 			<slider label="" name="WLStarAlpha" />
 		</panel>
-		<panel label="Skyer" name="Clouds">
+		<panel label="SKYER" name="Clouds">
 			<text name="WLCloudColorText">
 				Farve på skyer
 			</text>

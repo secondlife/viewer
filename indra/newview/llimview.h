@@ -178,6 +178,17 @@ public:
 	bool clearSession(const LLUUID& session_id);
 
 	/**
+	 * Populate supplied std::list with messages starting from index specified by start_index without
+	 * emitting no unread messages signal.
+	 */
+	void getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& messages, int start_index = 0);
+
+	/**
+	 * Sends no unread messages signal.
+	 */
+	void sendNoUnreadMessages(const LLUUID& session_id);
+
+	/**
 	 * Populate supplied std::list with messages starting from index specified by start_index
 	 */
 	void getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index = 0);

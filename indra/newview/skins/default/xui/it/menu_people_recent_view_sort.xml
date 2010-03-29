@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_group_plus">
 	<menu_item_check label="Mostra prima i più recenti" name="sort_most"/>
-	<menu_item_check label="Ordina per nome" name="sort_name"/>
-	<menu_item_check label="Vedi le icone delle persone" name="view_icons"/>
-	<menu_item_call label="Mostra gli &amp; oggetti dei residenti bloccati" name="show_blocked_list"/>
+	<menu_item_check label="Ordina in base al nome" name="sort_name"/>
+	<menu_item_check label="Icone persone" name="view_icons"/>
+	<menu_item_call label="Mostra oggetti e residenti bloccati" name="show_blocked_list"/>
 </menu>

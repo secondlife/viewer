@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterbulkperms" title="MODIFIER LES DROITS RELATIFS AU CONTENU">
+<floater name="floaterbulkperms" title="MODIFIER LES DROITS">
 	<floater.string name="nothing_to_modify_text">
-		La sélection contient des contenus non modifiables.
+		Certains contenus sont non modifiables.
 	</floater.string>
 	<floater.string name="status_text">
 		Droits paramétrés sur [NAME]

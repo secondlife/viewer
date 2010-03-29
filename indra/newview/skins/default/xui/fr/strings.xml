@@ -23,7 +23,22 @@
 		Détection du matériel...
 	</string>
 	<string name="StartupLoading">
-		Chargement
+		Chargement de [APP_NAME]...
+	</string>
+	<string name="StartupClearingCache">
+		Vidage du cache...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		Initialisation du cache des textures...
+	</string>
+	<string name="StartupInitializingVFS">
+		Initialisation VFS…
+	</string>
+	<string name="ProgressRestoring">
+		Restauration...
+	</string>
+	<string name="ProgressChangingResolution">
+		Changement de la résolution...
 	</string>
 	<string name="Fullbright">
 		Fullbright (Legacy)
@@ -88,6 +103,9 @@
 	<string name="LoginFailedNoNetwork">
 		Erreur réseau : impossible d&apos;établir la connexion. Veuillez vérifier votre connexion réseau.
 	</string>
+	<string name="LoginFailed">
+		Échec de la connexion.
+	</string>
 	<string name="Quit">
 		Quitter
 	</string>
@@ -96,6 +114,24 @@
 	</string>
 	<string name="AgentLostConnection">
 		Il y a peut-être des problèmes techniques dans cette région.  Veuillez vérifier votre connexion Internet.
+	</string>
+	<string name="SavingSettings">
+		Enregistrement des paramètres...
+	</string>
+	<string name="LoggingOut">
+		Déconnexion...
+	</string>
+	<string name="ShuttingDown">
+		Arrêt en cours...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		Vous avez été déconnecté de la région où vous étiez.
+	</string>
+	<string name="SentToInvalidRegion">
+		Vous avez été transféré vers une région non valide.
+	</string>
+	<string name="TestingDisconnect">
+		Test de déconnexion du client
 	</string>
 	<string name="TooltipPerson">
 		Personne
@@ -151,6 +187,24 @@
 	<string name="TooltipAgentUrl">
 		Cliquez pour afficher le profil de ce résident
 	</string>
+	<string name="TooltipAgentMute">
+		Cliquer pour ignorer ce résident
+	</string>
+	<string name="TooltipAgentUnmute">
+		Cliquer pour ne plus ignorer ce résident
+	</string>
+	<string name="TooltipAgentIM">
+		Cliquer pour envoyer un IM à ce résident
+	</string>
+	<string name="TooltipAgentPay">
+		Cliquer pour payer ce résident
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		Cliquer pour proposer une téléportation à ce résident
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		Cliquer pour demander à ce résident d&apos;être votre ami
+	</string>
 	<string name="TooltipGroupUrl">
 		Cliquez pour afficher la description de ce groupe
 	</string>
@@ -176,11 +230,30 @@
 		Cliquez pour exécuter la commande secondlife:// command
 	</string>
 	<string name="CurrentURL" value=" URL actuelle : [CurrentURL]"/>
+	<string name="TooltipPrice" value="[PRICE] L$-"/>
 	<string name="SLurlLabelTeleport">
 		Me téléporter vers
 	</string>
 	<string name="SLurlLabelShowOnMap">
 		Afficher la carte pour
+	</string>
+	<string name="SLappAgentMute">
+		Ignorer
+	</string>
+	<string name="SLappAgentUnmute">
+		Ne plus ignorer
+	</string>
+	<string name="SLappAgentIM">
+		IM
+	</string>
+	<string name="SLappAgentPay">
+		Payer
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		Proposer une téléportation à
+	</string>
+	<string name="SLappAgentRequestFriend">
+		Demande d&apos;amitié
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Fermer (⌘W)
@@ -334,6 +407,9 @@
 	</string>
 	<string name="symbolic link">
 		lien
+	</string>
+	<string name="symbolic folder link">
+		lien du dossier
 	</string>
 	<string name="AvatarEditingAppearance">
 		(Apparence en cours de modification)
@@ -828,7 +904,7 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Aucun objet correspondant dans l&apos;inventaire.  Essayer la [secondlife:///app/search/groups &quot;Recherche&quot;].
+		Objet inexistant dans l&apos;inventaire. Voir [secondlife:///app/search/groups &quot;Rechercher&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -849,6 +925,7 @@
 		Aucun contenu
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (porté sur [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (actif)"/>
 	<string name="PermYes">
 		Oui
 	</string>
@@ -947,6 +1024,9 @@
 	</string>
 	<string name="InvFolder My Outfits">
 		Mes tenues
+	</string>
+	<string name="InvFolder Accessories">
+		Accessoires
 	</string>
 	<string name="InvFolder Friends">
 		Amis
@@ -1471,6 +1551,9 @@
 	<string name="PanelContentsNewScript">
 		Nouveau script
 	</string>
+	<string name="PanelContentsTooltip">
+		Contenu de l&apos;objet
+	</string>
 	<string name="BusyModeResponseDefault">
 		Le résident auquel vous avez envoyé un message est en mode Occupé, ce qui signifie qu&apos;il a demandé à ne pas être dérangé.  Votre message restera affiché dans son panneau IM afin qu&apos;il puisse le lire ultérieurement.
 	</string>
@@ -1588,7 +1671,10 @@
 		Annuler
 	</string>
 	<string name="UploadingCosts">
-		Charger %s coûte
+		Le chargement de [NAME] coûte [AMOUNT] L$
+	</string>
+	<string name="BuyingCosts">
+		Cet achat coûte [AMOUNT] L$
 	</string>
 	<string name="UnknownFileExtension">
 		Extension de fichier inconnue .%s
@@ -2272,7 +2358,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Brillant
 	</string>
 	<string name="Glove Fingers">
-		Doigts avec gants
+		Gants avec doigts
 	</string>
 	<string name="Glove Length">
 		Longueur des gants
@@ -3034,7 +3120,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Cheveux lisses
 	</string>
 	<string name="Socks Length">
-		Longueur des chaussettes
+		Longueur
 	</string>
 	<string name="Soulpatch">
 		Barbichette
@@ -3374,5 +3460,121 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="unread_chat_multiple">
 		[SOURCES] ont dit quelque chose de nouveau
+	</string>
+	<string name="paid_you_ldollars">
+		[NAME] vous a payé [AMOUNT] L$
+	</string>
+	<string name="you_paid_ldollars">
+		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		Vous avez payé à [NAME] [AMOUNT] L$.
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="for a parcel of land">
+		pour une parcelle de terrain
+	</string>
+	<string name="for a land access pass">
+		pour un pass d&apos;accès au terrain
+	</string>
+	<string name="for deeding land">
+		pour une cession de terrain
+	</string>
+	<string name="to create a group">
+		pour créer un groupe
+	</string>
+	<string name="to join a group">
+		pour rejoindre un groupe
+	</string>
+	<string name="to upload">
+		pour charger
+	</string>
+	<string name="giving">
+		Donner [AMOUNT] L$
+	</string>
+	<string name="uploading_costs">
+		Le chargement coûte [AMOUNT] L$
+	</string>
+	<string name="this_costs">
+		Cela coûte [AMOUNT] L$
+	</string>
+	<string name="buying_selected_land">
+		Achat du terrain sélectionné pour [AMOUNT] L$
+	</string>
+	<string name="this_object_costs">
+		Cet objet coûte [AMOUNT] L$
+	</string>
+	<string name="group_role_everyone">
+		Tous
+	</string>
+	<string name="group_role_officers">
+		Officiers
+	</string>
+	<string name="group_role_owners">
+		Propriétaires
+	</string>
+	<string name="uploading_abuse_report">
+		Chargement en cours... 
+
+de l&apos;infraction signalée
+	</string>
+	<string name="New Shape">
+		Nouvelle silhouette
+	</string>
+	<string name="New Skin">
+		Nouvelle peau
+	</string>
+	<string name="New Hair">
+		Nouveaux cheveux
+	</string>
+	<string name="New Eyes">
+		Nouveaux yeux
+	</string>
+	<string name="New Shirt">
+		Nouvelle chemise
+	</string>
+	<string name="New Pants">
+		Nouveau pantalon
+	</string>
+	<string name="New Shoes">
+		Nouvelles chaussures
+	</string>
+	<string name="New Socks">
+		Nouvelles chaussettes
+	</string>
+	<string name="New Jacket">
+		Nouvelle veste
+	</string>
+	<string name="New Gloves">
+		Nouveaux gants
+	</string>
+	<string name="New Undershirt">
+		Nouveau débardeur
+	</string>
+	<string name="New Underpants">
+		Nouveau caleçon
+	</string>
+	<string name="New Skirt">
+		Nouvelle jupe
+	</string>
+	<string name="New Alpha">
+		Nouvel alpha
+	</string>
+	<string name="New Tattoo">
+		Nouveau tatouage
+	</string>
+	<string name="Invalid Wearable">
+		Objet à porter non valide
+	</string>
+	<string name="New Script">
+		Nouveau script
+	</string>
+	<string name="New Folder">
+		Nouveau dossier
+	</string>
+	<string name="Contents">
+		Contenus
 	</string>
 </strings>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="friends">
 	<string name="Multiple">
-		Amici multipli
+		Più amici
 	</string>
 	<scroll_list name="friend_list" tool_tip="Tieni premuto shift o control mentre clicchi per selezionare più di un amico">
 		<column name="icon_online_status" tool_tip="Stato Online"/>
@@ -16,5 +16,5 @@
 	<button label="Teleport" name="offer_teleport_btn" tool_tip="Offri a questo amico un teleport per dove sei tu ora"/>
 	<button label="Paga" name="pay_btn" tool_tip="Dai Linden dollar (L$) a questo amico"/>
 	<button label="Rimuovi" name="remove_btn" tool_tip="Rimuovi questa persona dalla tua lista amici"/>
-	<button label="Aggiungi" name="add_btn" tool_tip="Offri amicizia ad un residente"/>
+	<button label="Aggiungi" name="add_btn" tool_tip="Offri amicizia a un residente"/>
 </panel>

@@ -710,9 +710,7 @@ void LLScreenChannel::hideToast(const LLUUID& notification_id)
 	if(mToastList.end() != it)
 	{
 		ToastElem te = *it;
-		te.toast->setVisible(FALSE);
-		te.toast->stopTimer();
-		mToastList.erase(it);
+		te.toast->hide();
 	}
 }
 

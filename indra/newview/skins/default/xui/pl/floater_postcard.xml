@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Postcard" title="WYŚLIJ POCZTÓWKĘ">
+<floater name="Postcard" title="WYŚLIJ POCZTÓWKĘ (EMAIL)">
 	<text name="to_label">
 		Email Odbiorcy:
 	</text>
@@ -20,12 +20,12 @@
 		Wpisz treść swojej wiadomości tutaj
 	</text_editor>
 	<text name="fine_print">
-		Jeżeli odbiorca tej pocztówki dołączy do [SECOND_LIFE], otrzymasz bonusa.
+		Jeżeli Odbiorca tej pocztówki dołączy do [SECOND_LIFE], otrzymasz bonus.
 	</text>
 	<button label="Anuluj" name="cancel_btn"/>
 	<button label="Wyślij" name="send_btn"/>
 	<string name="default_subject">
-		Pocztówki z [SECOND_LIFE]
+		Pocztówka z  [SECOND_LIFE].
 	</string>
 	<string name="default_message">
 		Sprawdź i przekonaj się sam!

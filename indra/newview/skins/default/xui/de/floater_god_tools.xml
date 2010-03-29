@@ -2,7 +2,7 @@
 <floater name="godtools floater" title="GOTT-WERKZEUGE">
 	<tab_container name="GodTools Tabs">
 		<panel label="Raster" name="grid">
-			<button label="Alle Einwohner hinauswerfen" label_selected="Alle Einwohner hinauswerfen" name="Kick all users" width="175"/>
+			<button label="Alle Benutzer hinauswerfen" label_selected="Alle Benutzer hinauswerfen" name="Kick all users" width="175"/>
 			<button label="Sichtbarkeits-Cache dieser Regionskarte leeren" label_selected="Sichtbarkeits-Cache dieser Regionskarte leeren" name="Flush This Region&apos;s Map Visibility Caches" width="285"/>
 		</panel>
 		<panel label="Region" name="region">
@@ -10,7 +10,7 @@
 				Sim:
 			</text>
 			<check_box label="Startbereich Einleitung" name="check prelude" tool_tip="Diese Region zu einem Startbereich machen."/>
-			<check_box label="Sonne fest" name="check fixed sun" tool_tip="Fixiert den Sonnenstand (wie in „Region/Grundstück“ &gt; „Terrain“."/>
+			<check_box label="Sonne fest" name="check fixed sun" tool_tip="Fixiert den Sonnenstand (wie in „Region/Grundbesitz“ &gt; „Terrain“."/>
 			<check_box label="Zuhause auf Teleport zurücksetzen" name="check reset home" tool_tip="Wenn Einwohner weg teleportieren, ihr Zuhause auf Zielposition setzen."/>
 			<check_box label="Sichtbar" name="check visible" tool_tip="Diese Region für Nicht-Götter sichtbar machen."/>
 			<check_box label="Schaden" name="check damage" tool_tip="Schaden in dieser Region aktivieren."/>
@@ -21,12 +21,12 @@
 			<button label="Terrain zurücksetzen" label_selected="Terrain zurücksetzen" name="Revert Terrain" tool_tip="Das aktuelle Terrain mit dem Standard ersetzen." width="120"/>
 			<button label="Terrain tauschen" label_selected="Terrain tauschen" name="Swap Terrain" tool_tip="Aktuelles Terrain gegen Standard austauschen." width="120"/>
 			<text name="estate id">
-				Grundstücks-ID:
+				Grundbesitz-ID:
 			</text>
 			<text name="parent id">
 				Parent ID:
 			</text>
-			<line_editor name="parentestate" tool_tip="Das übergeordnete Grundstück dieser Region"/>
+			<line_editor name="parentestate" tool_tip="Der übergeordnete Grundbesitz dieser Region"/>
 			<text name="Grid Pos: ">
 				Raster-Pos.:
 			</text>
@@ -35,7 +35,7 @@
 			<text name="Redirect to Grid: " width="110">
 				Auf Raster umleiten:
 			</text>
-			<line_editor left_delta="110" left_pad="0" name="redirectx" width="35"/>
+			<line_editor left_delta="110" name="redirectx" width="35" left_pad="0"/>
 			<line_editor left_delta="45" name="redirecty" width="35"/>
 			<text font="SansSerifSmall" name="billable factor text">
 				Abrechnungsfaktor:

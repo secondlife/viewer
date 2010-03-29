@@ -1,8 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="build options floater" title="OPCJE SIATKI">
-	<spinner label="Jednostka Siatki (metry)" name="GridResolution" />
-	<spinner label="Rozmiary Siatki (metry)" name="GridDrawSize" />
-	<check_box label="Udostępnij Podjednostkowe Dopasowywanie" name="GridSubUnit" />
-	<check_box label="Pokaż Sekcje Skośne" name="GridCrossSection" />
-	<slider label="Nieprzezroczystość Siatki" name="GridOpacity" />
+	<spinner label="Jednostki siatki (metery)" name="GridResolution"/>
+	<spinner label="Rozmiary siatki (metry)" name="GridDrawSize"/>
+	<check_box label="Pokaż podjednostki" name="GridSubUnit"/>
+	<check_box label="Pokaż przekroje" name="GridCrossSection"/>
+	<text name="grid_opacity_label" tool_tip="Nieprzeźroczystość siatki:">
+		Nieprzeźroczystość:
+	</text>
+	<slider label="Nieprzezroczystość siatki" name="GridOpacity"/>
 </floater>

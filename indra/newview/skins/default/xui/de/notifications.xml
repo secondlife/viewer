@@ -107,10 +107,10 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
 		Leute, die nicht auf Ihrer Freundesliste stehen, werden nicht wissen, dass Sie deren Anrufe oder Sofortnachrichten ignoriert haben.
-		<usetemplate name="okbutton" yestext="OK"/>
+		<usetemplate name="okbutton" yestext="Ja"/>
 	</notification>
 	<notification name="GrantModifyRights">
-		Wenn Sie einem anderen Einwohner, das die Erlaubnis zum Bearbeiten erteilen, dann kann dieser JEDES Objekt, das Sie inworld besitzen, verändern, löschen oder nehmen. Seien Sie SEHR vorsichtig, wenn Sie diese Erlaubnis gewähren!
+		Wenn Sie einem anderen Einwohner die Erlaubnis zum Bearbeiten erteilen, dann kann dieser JEDES Objekt, das Sie inworld besitzen, verändern, löschen oder nehmen. Seien Sie SEHR vorsichtig, wenn Sie diese Erlaubnis gewähren!
 Möchten Sie [FIRST_NAME] [LAST_NAME] die Erlaubnis zum Bearbeiten gewähren?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
@@ -1189,7 +1189,7 @@ Ersetzen Sie die Textur [TEXTURE_NUM] mit einer Bilddatei von maximal 512x512 un
 		Es sind maximal [MAX_MANAGER]  verbannte Einwohner erlaub.
 	</notification>
 	<notification name="OwnerCanNotBeDenied">
-		Der Eigentümer des Grundstücks kann nicht zur Liste der „Verbannten Einwohner“ hinzugefügt werden.
+		Der Eigentümer des Grundbesitzes kann nicht zur Liste der „Verbannten Einwohner“ hinzugefügt werden.
 	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Das Aussehen lässt sich erst ändern, wenn Kleider und Form/Gestalt geladen sind.
@@ -1314,8 +1314,8 @@ Diese Gruppe verlassen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
-		Möchten Sie WIRKLICH alle Einwohner aus dem Grid werfen?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Alle Einwohner hinauswerfen"/>
+		Möchten Sie WIRKLICH alle Benutzer aus dem Grid werfen?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Alle Benutzer hinauswerfen"/>
 	</notification>
 	<notification name="MuteLinden">
 		Lindens können nicht ignoriert werden.
@@ -1355,7 +1355,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="KickUser">
-		Beim Hinauswerfen dieses Einwohners welche Meldung anzeigen?
+		Beim Hinauswerfen dieses Benutzers welche Meldung anzeigen?
 		<form name="form">
 			<input name="message">
 				Sie wurden von einem Administrator abgemeldet.
@@ -1375,7 +1375,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		Beim Einfrieren dieses Einwohners welche Meldung anzeigen?
+		Beim Einfrieren dieses Benutzers welche Meldung anzeigen?
 		<form name="form">
 			<input name="message">
 				Sie wurden eingefroren. Bewegen oder Chatten ist nicht mehr möglich. Ein Administrator wird sich über IM an Sie wenden
@@ -1385,7 +1385,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		Beim Auftauen dieses Einwohners welche Meldung anzeigen?
+		Beim Auftauen dieses Benutzers welche Meldung anzeigen?
 		<form name="form">
 			<input name="message">
 				Sie sind nicht mehr eingefroren.
@@ -1405,7 +1405,7 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		Einwohner an Ihrem Standort herbeirufen?
+		Einwohner zu Ihrem Standort einladen?
 		<form name="form">
 			<input name="message">
 				Triff mich in [REGION]
@@ -1426,67 +1426,67 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		Zu [CLASSIFIED] teleportieren?
 		<usetemplate ignoretext="Bestätigen, dass ich zu einer Position in Anzeigen teleportieren möchte." name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
 	</notification>
-	<notification label="Nachricht an alle auf diesem Grundstück" name="MessageEstate">
-		Geben Sie eine kurze Nachricht ein, die an jede Person auf Ihrem Grundstück gesendet wird.
+	<notification label="Nachricht an alle auf diesem Grundbesitz" name="MessageEstate">
+		Geben Sie eine kurze Nachricht ein, die an jede Person auf Ihrem Grundbesitz gesendet wird.
 		<form name="form">
 			<input name="message"/>
 			<button name="OK" text="OK"/>
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
-	<notification label="Linden-Grundstück ändern" name="ChangeLindenEstate">
-		Sie sind im Begriff, ein Grundstück in Linden-Besitz (Mainland, Teen-Grid, Orientation, usw.) zu verändern.
+	<notification label="Linden-Grundbesitz ändern" name="ChangeLindenEstate">
+		Sie sind im Begriff, einen Grundbesitz in Linden-Besitz (Mainland, Teen-Raster, Orientierung usw.) zu verändern.
 
-Dies hat EXTREME KONSEQUENZEN und wirkt sich auf die Einwohner aus!  Auf dem Mainland kann dies zu Veränderungen in Tausenden von Regionen und zu Problemen mit dem Spaceserver führen!
+Dies ist ÄUSSERST GEFÄHRLICH, da es grundlegende Auswirkungen auf das Benutzererlebnis hat.  Auf dem Mainland werden tausende Regionen geändert, was den Spaceserver stark belastet.
 
 Fortfahren?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
-	<notification label="Zugang zu Linden-Grundstück ändern" name="ChangeLindenAccess">
-		Sie sind im Begriff, die Zugangsliste für ein Grundstück in Linden-Besitz (Mainland, Teen-Raster, Orientierung usw.) zu verändern.
+	<notification label="Zugang zu Linden-Grundbesitz ändern" name="ChangeLindenAccess">
+		Sie sind im Begriff, die Zugangsliste für einen Grundbesitz in Linden-Besitz (Mainland, Teen-Raster, Orientierung usw.) zu verändern.
 
 Dies ist GEFÄHRLICH und sollte nur erfolgen, um Objekte/L$ per Hack in und aus dem Raster zu entfernen.
 Tausende Regionen werden verändert und der Spaceserver wird dadurch stark belastet.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
-	<notification label="Grundstück wählen" name="EstateAllowedAgentAdd">
-		Nur für dieses Grundstück oder für alle [ALL_ESTATES] zur Erlaubnisliste hinzufügen?
-		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundstücke" yestext="Dieses Grundstück"/>
+	<notification label="Grundbesitz wählen" name="EstateAllowedAgentAdd">
+		Nur für diesen Grundbesitz oder für alle [ALL_ESTATES] zur Erlaubnisliste hinzufügen?
+		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Dieser Grundbesitz"/>
 	</notification>
-	<notification label="Grundstück wählen" name="EstateAllowedAgentRemove">
-		Nur für dieses Grundstück oder für alle [ALL_ESTATES] von Erlaubnisliste entfernen?
-		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundstücke" yestext="Dieses Grundstück"/>
+	<notification label="Grundbesitz wählen" name="EstateAllowedAgentRemove">
+		Nur für diesen Grundbesitz oder für alle [ALL_ESTATES] von Erlaubnisliste entfernen?
+		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
-	<notification label="Grundstück wählen" name="EstateAllowedGroupAdd">
-		Nur für dieses Grundstück oder für alle [ALL_ESTATES] zur Gruppen-Erlaubnisliste hinzufügen?
-		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundstücke" yestext="Dieses Grundstück"/>
+	<notification label="Grundbesitz wählen" name="EstateAllowedGroupAdd">
+		Nur für diesen Grundbesitz oder für alle [ALL_ESTATES] zur Gruppen-Erlaubnisliste hinzufügen?
+		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
-	<notification label="Grundstück wählen" name="EstateAllowedGroupRemove">
-		Nur für dieses Grundstück oder für alle [ALL_ESTATES] von Gruppen-Erlaubnisliste entfernen?
-		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundstücke" yestext="Dieses Grundstück"/>
+	<notification label="Grundbesitz wählen" name="EstateAllowedGroupRemove">
+		Nur für diesen Grundbesitz oder für alle [ALL_ESTATES] von Gruppen-Erlaubnisliste entfernen?
+		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
-	<notification label="Grundstück wählen" name="EstateBannedAgentAdd">
-		Zugang nur für dieses Grundstück oder für [ALL_ESTATES] verweigern?
-		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundstücke" yestext="Dieses Grundstück"/>
+	<notification label="Grundbesitz wählen" name="EstateBannedAgentAdd">
+		Zugang nur für diesen Grundbesitz oder für [ALL_ESTATES] verweigern?
+		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
-	<notification label="Grundstück wählen" name="EstateBannedAgentRemove">
-		Einwohner nur für dieses Grundstück oder für alle [ALL_ESTATES] von der Bannliste entfernen?
-		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundstücke" yestext="Dieses Grundstück"/>
+	<notification label="Grundbesitz wählen" name="EstateBannedAgentRemove">
+		Einwohner nur für diesen Grundbesitz oder für alle [ALL_ESTATES] von der Bannliste entfernen?
+		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
-	<notification label="Grundstück wählen" name="EstateManagerAdd">
-		Verwalter nur für dieses Grundstück oder für [ALL_ESTATES] festlegen?
-		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundstücke" yestext="Dieses Grundstück"/>
+	<notification label="Grundbesitz wählen" name="EstateManagerAdd">
+		Verwalter nur für diesen Grundbesitz oder für [ALL_ESTATES] festlegen?
+		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
-	<notification label="Grundstück wählen" name="EstateManagerRemove">
-		Verwalter nur für dieses Grundstück oder für [ALL_ESTATES] entfernen?
-		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundstücke" yestext="Dieses Grundstück"/>
+	<notification label="Grundbesitz wählen" name="EstateManagerRemove">
+		Verwalter nur für diesen Grundbesitz oder für [ALL_ESTATES] entfernen?
+		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
 	<notification label="Rauswurf bestätigen" name="EstateKickUser">
-		Benutzer [EVIL_USER] von diesem Grundstück werfen?
+		Benutzer [EVIL_USER] von diesem Grundbesitz werfen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="EstateChangeCovenant">
-		Möchten Sie den Grundstücksvertrag wirklich ändern?
+		Möchten Sie den Grundbesitzvertrag wirklich ändern?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
@@ -1570,14 +1570,14 @@ Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstuf
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ProblemImportingEstateCovenant">
-		Problem beim Import des Grundstückvertrags.
+		Problem beim Import des Grundbesitzvertrags.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="ProblemAddingEstateManager">
-		Es gibt Probleme beim Hinzufügen eines neuen Grundstücksverwalters.  Bei mindestens einem Grundstück ist die Verwalterliste voll.
+		Es gibt Probleme beim Hinzufügen eines neuen Grundbesitzverwalters.  Bei mindestens einem Grundbesitz ist die Verwalterliste voll.
 	</notification>
 	<notification name="ProblemAddingEstateGeneric">
-		Problem beim Hinzufügen zu dieser Grundstücksliste.  Bei mindestens einem Grundstück ist die Liste voll.
+		Problem beim Hinzufügen zu dieser Grundbesitzliste.  Bei mindestens einem Grundbesitz ist die Liste voll.
 	</notification>
 	<notification name="UnableToLoadNotecardAsset">
 		Notizkarten-Asset konnte nicht geladen werden.
@@ -2287,7 +2287,7 @@ Versuchen Sie es in einigen Minuten erneut.
 		<form name="form">
 			<button name="Show" text="Anzeigen"/>
 			<button name="Discard" text="Verwerfen"/>
-			<button name="Mute" text="Ignorieren"/>
+			<button name="Mute" text="Blockieren"/>
 		</form>
 	</notification>
 	<notification name="GodMessage">
@@ -2433,7 +2433,7 @@ Anfrage gestatten?
 		</form>
 	</notification>
 	<notification name="ScriptToast">
-		[FIRST] [LAST]s &apos;[TITLE]&apos; fordert Eingaben vom Einwohner an.
+		[FIRST] [LAST]s &apos;[TITLE]&apos; fordert Eingaben vom Benutzer an.
 		<form name="form">
 			<button name="Open" text="Dialog öffnen"/>
 			<button name="Ignore" text="Ignorieren"/>

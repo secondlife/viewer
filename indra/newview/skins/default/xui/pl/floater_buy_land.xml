@@ -1,5 +1,133 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy land" title="BUY LAND">
+<floater name="buy land" title="KUP POSIADŁOŚĆ">
+	<floater.string name="can_resell">
+		Może być odsprzedana.
+	</floater.string>
+	<floater.string name="can_not_resell">
+		Nie może być odsprzedana.
+	</floater.string>
+	<floater.string name="can_change">
+		Mogą być łączone i dzielone.
+	</floater.string>
+	<floater.string name="can_not_change">
+		Nie mogą być łączone ani dzielone.
+	</floater.string>
+	<floater.string name="cant_buy_for_group">
+		Nie masz pozwolenia na zakup Posiadłości dla Twojej aktywnej Grupy.
+	</floater.string>
+	<floater.string name="no_land_selected">
+		Obszar nie jest wybrany.
+	</floater.string>
+	<floater.string name="multiple_parcels_selected">
+		Wybrałeś wiele różnych Posiadłości.
+Spróbuj wybrać mniejszy obszar.
+	</floater.string>
+	<floater.string name="no_permission">
+		Nie masz pozwolenia na zakup Posiadłości dla Twojej aktywnej Grupy.
+	</floater.string>
+	<floater.string name="parcel_not_for_sale">
+		Wybrana Posiadłość nie jest na sprzedaż.
+	</floater.string>
+	<floater.string name="group_already_owns">
+		Ta Posiadłość już należy do Grupy.
+	</floater.string>
+	<floater.string name="you_already_own">
+		Ta Posiadłość już należy do Ciebie.
+	</floater.string>
+	<floater.string name="set_to_sell_to_other">
+		Wybrana Posiadłość będzie sprzedana komuś innemu.
+	</floater.string>
+	<floater.string name="no_public_land">
+		Wybrany obszar nie ma publicznych Posiadłości.
+	</floater.string>
+	<floater.string name="not_owned_by_you">
+		Wybrałeś Posiadłość, której Właścicielem jest inny Rezydent.
+Spróbuj wybrać ponownie mniejszą powierzchnię Posiadłości.
+	</floater.string>
+	<floater.string name="processing">
+		Przetwarzanie Twojego zakupu...
+ 
+(Może zająć kilka minut)
+	</floater.string>
+	<floater.string name="fetching_error">
+		Błąd podczas wczytywania informacji zakupu Posiadłości.
+	</floater.string>
+	<floater.string name="buying_will">
+		Zakup tej Posiadłości spowoduje:
+	</floater.string>
+	<floater.string name="buying_for_group">
+		Zakup ziemi dla Grupy:
+	</floater.string>
+	<floater.string name="cannot_buy_now">
+		Nie możesz teraz kupić:
+	</floater.string>
+	<floater.string name="not_for_sale">
+		Nie jest na sprzedaż:
+	</floater.string>
+	<floater.string name="none_needed">
+		Poprawność danych.
+	</floater.string>
+	<floater.string name="must_upgrade">
+		Musisz mieć konto Premium żebyś mógł mieć Posiadłości.
+	</floater.string>
+	<floater.string name="cant_own_land">
+		Twoje konto pozwala Ci mieć Posiadłości.
+	</floater.string>
+	<floater.string name="land_holdings">
+		Jesteś właścicielem [BUYER] m² ziemi.
+	</floater.string>
+	<floater.string name="pay_to_for_land">
+		Zapłać [SELLER] [AMOUNT]L$ za Posiadłość
+	</floater.string>
+	<floater.string name="buy_for_US">
+		Kup L$ [AMOUNT] za [LOCAL_AMOUNT],
+	</floater.string>
+	<floater.string name="parcel_meters">
+		Podana posiadłość to [AMOUNT] m² ziemi.
+	</floater.string>
+	<floater.string name="premium_land">
+		Podana posiadłość jest w cenie premium adekwatnie jak za [AMOUNT] m².
+	</floater.string>
+	<floater.string name="discounted_land">
+		Wybrana posiadłość jest w cenie zniżkowej adekwatnie jak za [AMOUNT] m².
+	</floater.string>
+	<floater.string name="meters_supports_object">
+		[AMOUNT] m²
+wspiera [AMOUNT2] obiektów
+	</floater.string>
+	<floater.string name="sold_with_objects">
+		sprzedane z obiektami
+	</floater.string>
+	<floater.string name="sold_without_objects">
+		obiekty nie są zawarte w sprzedaży
+	</floater.string>
+	<floater.string name="info_price_string">
+		L$ [PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
+	</floater.string>
+	<floater.string name="insufficient_land_credits">
+		Grupa [GROUP] musi mieć wystarczający kredyt na
+używanie Posiadłości żeby sfinalizować ten zakup.
+	</floater.string>
+	<floater.string name="have_enough_lindens">
+		Masz [AMOUNT]L$ co wystarcza na zakup tej Posiadłości.
+	</floater.string>
+	<floater.string name="not_enough_lindens">
+		Masz tylko [AMOUNT]L$ i potrzebujesz [AMOUNT2]L$ dodatkowo.
+	</floater.string>
+	<floater.string name="balance_left">
+		Po zakupie zostanie Ci [AMOUNT]L$.
+	</floater.string>
+	<floater.string name="balance_needed">
+		Musisz dokupić [AMOUNT]L$ żeby kupić tą Posiadłość.
+	</floater.string>
+	<floater.string name="no_parcel_selected">
+		(Posiadłość nie została wybrana)
+	</floater.string>
+	<floater.string name="icon_PG" value="Parcel_PG_Dark"/>
+	<floater.string name="icon_M" value="Parcel_M_Dark"/>
+	<floater.string name="icon_R" value="Parcel_R_Dark"/>
 	<text name="region_name_label">
 		Region:
 	</text>
@@ -74,9 +202,9 @@ sprzedaż z obiektami
 		Tylko członkowie z kontem Premium mogą mieć Posiadłosci.
 	</text>
 	<combo_box name="account_level">
-		<combo_box.item name="US$9.95/month,billedmonthly" label="9.95US$/miesiąc, płatne miesięcznie" />
-		<combo_box.item name="US$7.50/month,billedquarterly" label="7.50US$/miesiąc, płatne kwartalnie" />
-		<combo_box.item name="US$6.00/month,billedannually" label="6.00US$/miesiąc, płatne rocznie" />
+		<combo_box.item label="US$9.95/miesięcznie, naliczane miesięcznie" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="US$7.50/miesięcznie, naliczane kwartalnie" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="US$6.00/miesięcznie, naliczane rocznie" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
 		Zwiększ opłatę za używanie Posiadłości do 40US$/miesiąc.
@@ -98,140 +226,12 @@ Posiadłość ta zawiera 512 m² ziemi.
 		1000
 	</line_editor>
 	<text name="currency_est">
-		za około [AMOUNT2]US$
+		za [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
 		Masz 2,100L$.
 	</text>
-	<check_box label="Zabierz [AMOUNT] metrów donacji z Grupy." name="remove_contribution"/>
+	<check_box label="Usuń [AMOUNT] m² z kontrybucji w grupie." name="remove_contribution"/>
 	<button label="Zakup" name="buy_btn"/>
 	<button label="Anuluj" name="cancel_btn"/>
-	<string name="can_resell">
-		Może być odsprzedana.
-	</string>
-	<string name="can_not_resell">
-		Nie może być odsprzedana.
-	</string>
-	<string name="can_change">
-		Mogą być łączone i dzielone.
-	</string>
-	<string name="can_not_change">
-		Nie mogą być łączone ani dzielone.
-	</string>
-	<string name="cant_buy_for_group">
-		Nie masz pozwolenia na zakup Posiadłości dla Twojej aktywnej Grupy.
-	</string>
-	<string name="no_land_selected">
-		Obszar nie jest wybrany.
-	</string>
-	<string name="multiple_parcels_selected">
-		Wybrałeś wiele różnych Posiadłości.
-Spróbuj wybrać mniejszy obszar.
-	</string>
-	<string name="no_permission">
-		Nie masz pozwolenia na zakup Posiadłości dla Twojej aktywnej Grupy.
-	</string>
-	<string name="parcel_not_for_sale">
-		Wybrana Posiadłość nie jest na sprzedaż.
-	</string>
-	<string name="group_already_owns">
-		Ta Posiadłość już należy do Grupy.
-	</string>
-	<string name="you_already_own">
-		Ta Posiadłość już należy do Ciebie.
-	</string>
-	<string name="set_to_sell_to_other">
-		Wybrana Posiadłość będzie sprzedana komu innemu.
-	</string>
-	<string name="no_public_land">
-		Wybrany obszar nie ma publicznych Posiadłości.
-	</string>
-	<string name="not_owned_by_you">
-		Wybrana Posiadłość należy do kogoś innego. 
-Spróbuj wybrać inny obszar.
-	</string>
-	<string name="processing">
-		Przetwarzanie Twojego zakupu...
- 
-(Może zająć kilka minut)
-	</string>
-	<string name="fetching_error">
-		Błąd podczas wczytywania informacji zakupu Posiadłości.
-	</string>
-	<string name="buying_will">
-		Zakup tej Posiadłości spowoduje:
-	</string>
-	<string name="buying_for_group">
-		Zakup ziemi dla grupy:
-	</string>
-	<string name="cannot_buy_now">
-		Nie możesz teraz kupić:
-	</string>
-	<string name="not_for_sale">
-		Nie jest na sprzedaż:
-	</string>
-	<string name="none_needed">
-		Poprawność danych.
-	</string>
-	<string name="must_upgrade">
-		Musisz mieć konto Premium żebyś mógł mieć Posiadłości.
-	</string>
-	<string name="cant_own_land">
-		Twoje konto pozwala Ci mieć Posiadłości.
-	</string>
-	<string name="land_holdings">
-		Jesteś właścicielem [BUYER] m² ziemi.
-	</string>
-	<string name="pay_to_for_land">
-		Zapłać [SELLER] [AMOUNT]L$ za Posiadłość
-	</string>
-	<string name="buy_for_US">
-		Kup L$ [AMOUNT] za US$ [AMOUNT2],
-	</string>
-	<string name="parcel_meters">
-		Podana posiadłość to [AMOUNT] m² ziemi.
-	</string>
-	<string name="premium_land">
-		Podana posiadłość jest w cenie premium adekwatnie jak za [AMOUNT] m².
-	</string>
-	<string name="discounted_land">
-		Wybrana posiadłość jest w cenie zniżkowej adekwatnie jak za [AMOUNT] m².
-	</string>
-	<string name="meters_supports_object">
-		[AMOUNT] m²
-wspiera [AMOUNT2] obiektów
-	</string>
-	<string name="sold_with_objects">
-		sprzedane z obiektami
-	</string>
-	<string name="sold_without_objects">
-		obiekty nie są zawarte w sprzedaży
-	</string>
-	<string name="info_price_string">
-		L$ [PRICE]
-(L$ [PRICE_PER_SQM]/m²)
-[SOLD_WITH_OBJECTS]
-	</string>
-	<string name="insufficient_land_credits">
-		Grupa [GROUP] musi mieć wystarczający kredyt na
-używanie Posiadłości żeby sfinalizować ten zakup.
-	</string>
-	<string name="have_enough_lindens">
-		Masz [AMOUNT]L$ co wystarcza na zakup tej Posiadłości.
-	</string>
-	<string name="not_enough_lindens">
-		Masz tylko [AMOUNT]L$ i potrzebujesz [AMOUNT2]L$ dodatkowo.
-	</string>
-	<string name="balance_left">
-		Po zakupie zostanie Ci [AMOUNT]L$.
-	</string>
-	<string name="balance_needed">
-		Musisz dokupić [AMOUNT]L$ żeby kupić tą Posiadłość.
-	</string>
-	<string name="no_parcel_selected">
-		(Posiadłość nie wybrana)
-	</string>
-	<string name="buy_currency">
-		Kup [LINDENS]L$ za około [USD]US$
-	</string>
 </floater>

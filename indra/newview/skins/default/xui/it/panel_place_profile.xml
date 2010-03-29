@@ -1,99 +1,107 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="place_profile">
-	<string name="on" value="On"/>
-	<string name="off" value="Off"/>
+	<string name="on" value="Attivo"/>
+	<string name="off" value="Disattivato"/>
 	<string name="anyone" value="Chiunque"/>
 	<string name="available" value="disponibile"/>
 	<string name="allocated" value="assegnato"/>
-	<string name="title_place" value="Profilo del luogo"/>
-	<string name="title_teleport_history" value="Cronologia dei Teleport"/>
-	<string name="not_available" value="(N\D)"/>
+	<string name="title_place" value="Profilo del posto"/>
+	<string name="title_teleport_history" value="Cronologia Teleport"/>
+	<string name="not_available" value="(non pert.)"/>
 	<string name="unknown" value="(sconosciuto)"/>
-	<string name="public" value="(publico)"/>
+	<string name="public" value="(pubblico)"/>
 	<string name="none_text" value="(nessuno)"/>
-	<string name="sale_pending_text" value="(Vendita in attesa di)"/>
-	<string name="group_owned_text" value="(Gruppo posseduto)"/>
+	<string name="sale_pending_text" value="(In corso di vendita)"/>
+	<string name="group_owned_text" value="(Di proprietà di un gruppo)"/>
 	<string name="price_text" value="L$"/>
 	<string name="area_text" value="m²"/>
-	<string name="all_residents_text" value="Tutti i Residenti"/>
+	<string name="all_residents_text" value="Tutti i residenti"/>
 	<string name="group_text" value="Gruppo"/>
 	<string name="can_resell">
-		La terra acquistata in questa regione può essere rivenduta.
+		Il terreno acquistato in questa regione può essere rivenduto.
 	</string>
 	<string name="can_not_resell">
-		La terra acquistata in questa regione non può essere rivenduta.
+		Il terreno acquistato in questa regione non può essere rivenduto.
 	</string>
 	<string name="can_change">
-		La terra acquistata in questa regione può essere unita o suddivisa.
+		Il terreno acquistato in questa regione può essere unito o suddiviso.
 	</string>
 	<string name="can_not_change">
-		La terra acquistata in questa regione non può essere unita o suddivisa.
+		Il terreno acquistato in questa regione non può essere unito o suddiviso.
 	</string>
 	<string name="server_update_text">
-		Informazioni su questo luogo non disponibili senza l&apos;aggiornamento del server.
+		Informazioni sul luogo non disponibili senza l&apos;aggiornamento del server.
 	</string>
 	<string name="server_error_text">
-		Informazioni su questo luogo non sono disponibili ora, per favore riprova più tardi.
+		Informazioni su questo luogo non disponibili al momento, riprova più tardi.
 	</string>
 	<string name="server_forbidden_text">
-		Informazioni su questo luogo non sono disponibili a cause delle restrizioni sull&apos;accesso.  Per favore verifica i tuoi permessi con il proprietario del parcel.
+		Informazioni su questo luogo non disponibili a causa delle limitazioni di accesso.  Controlla i tuoi permessi con il proprietario del terreno.
 	</string>
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
+	<button name="back_btn" tool_tip="Indietro"/>
 	<text name="title" value="Profilo del luogo"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
 			<text name="owner_label" value="Proprietario:"/>
 			<text name="maturity_value" value="sconosciuto"/>
 			<accordion name="advanced_info_accordion">
-				<accordion_tab name="parcel_characteristics_tab" title="Parcel">
+				<accordion_tab name="parcel_characteristics_tab" title="Lotto">
 					<panel name="parcel_characteristics_panel">
-						<text name="rating_label" value="Valutazione:"/>
+						<text name="rating_label" value="Categoria:"/>
 						<text name="rating_value" value="sconosciuto"/>
-						<text name="voice_label" value="Voice:"/>
-						<text name="voice_value" value="On"/>
+						<text name="voice_label" value="Voce:"/>
+						<text name="voice_value" value="Attivo"/>
 						<text name="fly_label" value="Vola:"/>
-						<text name="fly_value" value="On"/>
+						<text name="fly_value" value="Attivo"/>
 						<text name="push_label" value="Spingi:"/>
-						<text name="push_value" value="Off"/>
+						<text name="push_value" value="Disattivato"/>
 						<text name="build_label" value="Costruisci:"/>
-						<text name="build_value" value="On"/>
-						<text name="scripts_label" value="Scripts:"/>
-						<text name="scripts_value" value="On"/>
-						<text name="damage_label" value="Danno:"/>
-						<text name="damage_value" value="Off"/>
-						<button label="Info sul terreno" name="about_land_btn"/>
+						<text name="build_value" value="Attivo"/>
+						<text name="scripts_label" value="Script:"/>
+						<text name="scripts_value" value="Attivo"/>
+						<text name="damage_label" value="Danni:"/>
+						<text name="damage_value" value="Disattivato"/>
+						<button label="Informazioni sui terreni" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="Regione">
 					<panel name="region_information_panel">
 						<text name="region_name_label" value="Regione:"/>
-						<text name="region_type_label" value="Scrivi:"/>
-						<text name="region_rating_label" value="Valutazione:"/>
+						<text name="region_name" value="Mooseland"/>
+						<text name="region_type_label" value="Tipo:"/>
+						<text name="region_type" value="Moose"/>
+						<text name="region_rating_label" value="Categoria:"/>
+						<text name="region_rating" value="Adulti"/>
 						<text name="region_owner_label" value="Proprietario:"/>
+						<text name="region_owner" value="moose Van Moose"/>
 						<text name="region_group_label" value="Gruppo:"/>
-						<button label="Regione/Proprietà immobiliare" name="region_info_btn"/>
+						<text name="region_group">
+							The Mighty Moose of mooseville soundvillemoose
+						</text>
+						<button label="Regione/proprietà immobiliare" name="region_info_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="estate_information_tab" title="Proprietà immobiliare">
 					<panel name="estate_information_panel">
 						<text name="estate_name_label" value="Proprietà immobiliare:"/>
-						<text name="estate_rating_label" value="Valutazione:"/>
-						<text name="estate_owner_label" value="Proprietà:"/>
+						<text name="estate_rating_label" value="Categoria:"/>
+						<text name="estate_owner_label" value="Proprietario:"/>
 						<text name="covenant_label" value="Regolamento:"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="sales_tab" title="In vendita">
 					<panel name="sales_panel">
 						<text name="sales_price_label" value="Prezzo:"/>
-						<text name="area_label" value="Area:"/>
+						<text name="area_label" value="Zona:"/>
 						<text name="traffic_label" value="Traffico:"/>
 						<text name="primitives_label" value="Primitive:"/>
-						<text name="parcel_scripts_label" value="Scripts:"/>
-						<text name="terraform_limits_label" value="Limiti per Terraform:"/>
+						<text name="parcel_scripts_label" value="Script:"/>
+						<text name="terraform_limits_label" value="Limiti terraform:"/>
 						<text name="subdivide_label" value="Suddividi/Unisci abilità:"/>
-						<text name="resale_label" value="Rivendi abilità:"/>
+						<text name="resale_label" value="Abilità rivendita:"/>
 						<text name="sale_to_label" value="In vendita a:"/>
 					</panel>
 				</accordion_tab>

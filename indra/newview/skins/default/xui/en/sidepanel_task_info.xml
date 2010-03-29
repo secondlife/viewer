@@ -303,7 +303,7 @@
              follows="left|top|right"
              layout="topleft"
              name="perm_modify"
-             width="200">
+             width="310">
                 You can modify this object
             </text>
 	  	    <text

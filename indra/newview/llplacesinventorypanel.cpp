@@ -92,6 +92,7 @@ BOOL LLPlacesInventoryPanel::postBuild()
 			0);
 		LLPlacesFolderView::Params p;
 		p.name = getName();
+		p.title = getLabel();
 		p.rect = folder_rect;
 		p.parent_panel = this;
 		mFolders = (LLFolderView*)LLUICtrlFactory::create<LLPlacesFolderView>(p);

@@ -1,13 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="inspect" title="INSPEKCJA OBIEKTÓW">
+	<floater.string name="timeStamp">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
 	<scroll_list name="object_list" tool_tip="">
-		<column label="Nazwa" name="object_name" />
-		<column label="Właściciel" name="owner_name" />
-		<column label="Twórca" name="creator_name" />
-		<column label="Data Kreacji" name="creation_date" />
+		<scroll_list.columns label="Nazwa" name="object_name"/>
+		<scroll_list.columns label="Właściciel" name="owner_name"/>
+		<scroll_list.columns label="Twórca" name="creator_name"/>
+		<scroll_list.columns label="Data kreacji" name="creation_date"/>
 	</scroll_list>
-	<button label="Profil Właściciela..." label_selected="" name="button owner"
-	     tool_tip="" />
-	<button label="Profil Twórcy..." label_selected="" name="button creator"
-	     tool_tip="" />
+	<button label="Profil Właściciela..." label_selected="" name="button owner" tool_tip=""/>
+	<button label="Profil Twórcy..." label_selected="" name="button creator" tool_tip=""/>
 </floater>

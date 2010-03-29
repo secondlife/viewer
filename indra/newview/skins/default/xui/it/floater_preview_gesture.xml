@@ -24,6 +24,9 @@
 	<floater.string name="Title">
 		Gesture: [NAME]
 	</floater.string>
+	<text name="name_text">
+		Nome:
+	</text>
 	<text name="desc_label">
 		Descrizione:
 	</text>
@@ -47,18 +50,18 @@
 	<text name="steps_label">
 		Fasi:
 	</text>
-	<button label="Sù" name="up_btn"/>
+	<button label="Su" name="up_btn"/>
 	<button label="Giù" name="down_btn"/>
 	<button label="Elimina" name="delete_btn"/>
 	<radio_group name="animation_trigger_type">
-		<radio_item label="Inizia" name="start"/>
-		<radio_item label="Stop" name="stop"/>
+		<radio_item label="Attiva" name="start"/>
+		<radio_item label="Ferma" name="stop"/>
 	</radio_group>
 	<check_box label="finché le animazioni sono eseguite" left="226" name="wait_anim_check"/>
 	<check_box label="tempo in secondi" name="wait_time_check"/>
 	<line_editor left_delta="114" name="wait_time_editor"/>
 	<text name="help_label">
-		Tutte le fasi avvengono simultaneamente, a meno che non aggiungi una fase attendi.
+		Tutte le fasi avvengono contemporaneamente, a meno che non aggiungi fasi di attesa.
 	</text>
 	<check_box label="Attiva" name="active_check" tool_tip="Le gesture attivate possono essere eseguite scrivendo in chat la parola chiave o premendo i tasti chiave. Le gesture generalmente si disattivano quando c&apos;è un conflitto nei relativi tasti."/>
 	<button label="Anteprima" name="preview_btn"/>

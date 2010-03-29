@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_buy_contents" title="KUP ZAWARTOŚĆ">
 	<text name="contains_text">
 		[NAME] zawiera:
 	</text>
 	<text name="buy_text">
-		Kupić za L$[AMOUNT] od [NAME]?
+		Kupić za [AMOUNT]L$ od [NAME]?
 	</text>
-	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn" />
-	<button label="Kup" label_selected="Kup" name="buy_btn" />
-	<check_box label="Załóż ubrania teraz" name="wear_check" />
+	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
+	<button label="Kup" label_selected="Kup" name="buy_btn"/>
+	<check_box label="Załóż ubrania teraz" name="wear_check"/>
 	<string name="no_copy_text">
 		(bez prawa kopiowania)
 	</string>

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Inventory" title="INVENTARIO">
+<floater name="Inventory" title="IL MIO INVENTARIO">
 	<floater.string name="Title">
-		Inventario
+		IL MIO INVENTARIO
 	</floater.string>
 	<floater.string name="TitleFetching">
-		Inventario (Fetching [ITEM_COUNT] Items...) [FILTER]
+		IL MIO INVENTARIO (recupero di [ITEM_COUNT] articoli...) [FILTER]
 	</floater.string>
 	<floater.string name="TitleCompleted">
-		Inventario ([ITEM_COUNT] Items) [FILTER]
+		IL MIO INVENTARIO ([ITEM_COUNT] articoli) [FILTER]
 	</floater.string>
 	<floater.string name="Fetched">
-		Raggiunto ??????????
+		Completato
 	</floater.string>
 	<panel label="Pannello dell&apos;Inventario" name="Inventory Panel"/>
 </floater>

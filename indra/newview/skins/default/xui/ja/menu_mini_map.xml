@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="popup">
+<menu name="Popup">
 	<menu_item_call label="ズーム（近）" name="Zoom Close"/>
 	<menu_item_call label="ズーム（中）" name="Zoom Medium"/>
 	<menu_item_call label="ズーム（遠）" name="Zoom Far"/>

@@ -1,48 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<panel name="advanced">
-	<panel.string name="resolution_format">
-		[RES_X] x [RES_Y]
-	</panel.string>
+<panel label="Avanzata" name="advanced">
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
-	<check_box label="Chat a Bolle" name="bubble_text_chat"/>
-	<color_swatch name="background" tool_tip="Scegli il colore delle vignette della Chat"/>
-	<slider label="Opacità" name="bubble_chat_opacity"/>
-	<text name="AspectRatioLabel1" tool_tip="larghezza/altezza">
-		Rapporto di visualizzazione
-	</text>
-	<combo_box name="aspect_ratio" tool_tip="larghezza/altezza">
-		<combo_box.item label="4:3 (Monitor Standard)" name="item1"/>
-		<combo_box.item label="5:4 (1280x1024 LCD)" name="item2"/>
-		<combo_box.item label="8:5 (Widescreen)" name="item3"/>
-		<combo_box.item label="16:9 (Widescreen)" name="item4"/>
-	</combo_box>
-	<check_box label="Rilevamento automatico" name="aspect_auto_detect"/>
-	<text name="heading1">
-		Camera:
-	</text>
-	<slider label="Angolazione della visuale" name="camera_fov"/>
+	<panel.string name="middle_mouse">
+		Pulsante centrale del mouse
+	</panel.string>
+	<slider label="Angolo di visuale" name="camera_fov"/>
 	<slider label="Distanza" name="camera_offset_scale"/>
 	<text name="heading2">
-		Posizionamento Automatico per:
+		Posizione automatica per:
 	</text>
-	<check_box label="Costruire/Modificare" name="edit_camera_movement" tool_tip="Utilizza il posizionamento automatico della camera entrando e uscendo dalla modalità modifica"/>
-	<check_box label="Aspetto Fisico" name="appearance_camera_movement" tool_tip="Utilizza il posizionamento automatico della camera in modalità modifica"/>
-	<text name="heading3">
-		Avatar:
-	</text>
+	<check_box label="Costruire/Modificare" name="edit_camera_movement" tool_tip="Utilizza il posizionamento automatico della fotocamera entrando o uscendo dalla modalità modifica"/>
+	<check_box label="Aspetto fisico" name="appearance_camera_movement" tool_tip="Utilizza il posizionamento automatico della camera in modalità modifica"/>
 	<check_box label="Mostra in modalità Mouselook" name="first_person_avatar_visible"/>
-	<check_box label="Cammino sempre con le frecce di movimento" name="arrow_keys_move_avatar_check"/>
-	<check_box label="Doppio Click-Tieni Premuto per correre" name="tap_tap_hold_to_run"/>
-	<check_box label="Consente il movimento delle labbra dell&apos;Avatar quando parla" name="enable_lip_sync"/>
-	<check_box label="Mostra errori degli script" name="show_script_errors"/>
+	<check_box label="Le frecce di direzione mi fanno sempre spostare" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Doppio click e tieni premuto per correre" name="tap_tap_hold_to_run"/>
+	<check_box label="Consente il movimento delle labbra dell&apos;avatar quando parla" name="enable_lip_sync"/>
+	<check_box label="Chat a bolla" name="bubble_text_chat"/>
+	<slider label="Opacità" name="bubble_chat_opacity"/>
+	<color_swatch name="background" tool_tip="Scegli il colore delle vignette della chat"/>
+	<check_box label="Mostra errori dello script in:" name="show_script_errors"/>
 	<radio_group name="show_location">
-		<radio_item label="In chat" name="0"/>
-		<radio_item label="In una finestra" name="1"/>
+		<radio_item label="Chat nei dintorni" name="0"/>
+		<radio_item label="Finestra separata" name="1"/>
 	</radio_group>
-	<check_box label="Modalità del microfono &quot;interruttore ON/OFF&quot; quando premo l&apos;interruttore PARLA:" name="push_to_talk_toggle_check" tool_tip="In modalità &quot;interruttore ON/OFF&quot; premi il tasto per attivare o disattivare il microfono. Quando non usi questa modalità, il microfono è attivo solo se tieni premuto il tasto."/>
-	<line_editor label="Premi il pulsante per parlare" name="modifier_combo"/>
-	<button label="Imposta" name="set_voice_hotkey_button"/>
-	<button label="Pulsante centrale del Mouse" name="set_voice_middlemouse_button"/>
+	<check_box label="Attiva/disattiva la funzione parla quando premo:" name="push_to_talk_toggle_check" tool_tip="In modalità &quot;interruttore ON/OFF&quot; premi il tasto una volta per attivare o disattivare il microfono. Quando non usi questa modalità, il microfono è attivo solo se tieni premuto il tasto di comando."/>
+	<line_editor label="Pulsante di comando della funzione Premi per parlare" name="modifier_combo"/>
+	<button label="Imposta tasto" name="set_voice_hotkey_button"/>
+	<button label="Pulsante centrale del mouse" name="set_voice_middlemouse_button" tool_tip="Reimposta sul pulsante centrale del mouse"/>
 </panel>

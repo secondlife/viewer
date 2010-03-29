@@ -2,7 +2,7 @@
 <panel label="場所" name="places panel">
 	<string name="landmarks_tab_title" value="マイ ランドマーク"/>
 	<string name="teleport_history_tab_title" value="テレポートの履歴"/>
-	<filter_editor label="私の場所をフィルターする" name="Filter"/>
+	<filter_editor label="場所をフィルター" name="Filter"/>
 	<panel name="button_panel">
 		<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートします"/>
 		<button label="地図" name="map_btn"/>

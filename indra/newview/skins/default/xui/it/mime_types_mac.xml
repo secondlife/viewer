@@ -2,13 +2,13 @@
 <mimetypes name="default">
 	<widgetset name="web">
 		<label name="web_label">
-			Argomento nel Web
+			Contenuti Web
 		</label>
 		<tooltip name="web_tooltip">
-			Questo luogo ha un argomento nel Web
+			Questo luogo presenta contenuti Web
 		</tooltip>
 		<playtip name="web_playtip">
-			Mostra l&apos;argomento del Web
+			Mostra contenuti Web
 		</playtip>
 	</widgetset>
 	<widgetset name="movie">
@@ -30,7 +30,7 @@
 			C&apos;è un&apos;immagine in questo luogo
 		</tooltip>
 		<playtip name="image_playtip">
-			Vedere l&apos;immagine di questo luogo
+			Vedi l&apos;immagine di questo luogo
 		</playtip>
 	</widgetset>
 	<widgetset name="audio">
@@ -46,7 +46,7 @@
 	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
-			Real Time Streaming
+			Streaming in tempo reale
 		</label>
 	</scheme>
 	<mimetype name="blank">
@@ -86,17 +86,17 @@
 	</mimetype>
 	<mimetype name="application/ogg">
 		<label name="application/ogg_label">
-			Ogg Audio/Video
+			Audio/Video Ogg
 		</label>
 	</mimetype>
 	<mimetype name="application/pdf">
 		<label name="application/pdf_label">
-			PDF Document
+			Documento PDF
 		</label>
 	</mimetype>
 	<mimetype name="application/postscript">
 		<label name="application/postscript_label">
-			Postscript Document
+			Documento Postscript
 		</label>
 	</mimetype>
 	<mimetype name="application/rtf">

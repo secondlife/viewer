@@ -56,7 +56,7 @@
 	</text>
 	<check_box label="Condividi" name="CheckShareWithGroup"/>
 	<text name="NextOwnerLabel" width="230">
-		Prossimo Proprietario:
+		Proprietario successivo:
 	</text>
 	<check_box label="Modifica" name="CheckNextOwnerModify"/>
 	<check_box label="Copiare" left_delta="88" name="CheckNextOwnerCopy"/>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container" title="Salva vestiario">
+	<button label="Salva" label_selected="Salva" name="Save"/>
+	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
+	<text name="Save item as:">
+		Salva quello che indosso
+come nuovo vestiario:
+	</text>
+	<line_editor name="name ed">
+		[DESC] (nuovo)
+	</line_editor>
+</floater>

@@ -38,7 +38,7 @@
 	</panel.string>
 	<text name="title" value="Perfil do objeto"/>
 	<text name="where" value="(inworld)"/>
-	<panel label="">
+	<panel label="" name="properties_panel">
 		<text name="Name:">
 			Nome:
 		</text>
@@ -54,12 +54,15 @@
 		<text name="Owner:">
 			Proprietário:
 		</text>
+		<text name="Owner Name">
+			Erica Linden
+		</text>
 		<text name="Group_label">
 			Grupo:
 		</text>
 		<button name="button set group" tool_tip="Selecione o grupo que terá acesso à autorização do objeto"/>
 		<name_box initial_value="Carregando..." name="Group Name Proxy"/>
-		<button label="Doar" label_selected="Doar" name="button deed" tool_tip="Ao doar este item, o próximo dono terá permissões de próximo dono.  Objetos de grupos podem ser doados por um oficial do grupo."/>
+		<button label="Doar" label_selected="Doar" name="button deed" tool_tip="Ao doar este item, o próximo dono terá permissões de próximo dono. Objetos de grupos podem ser doados por um oficial do grupo."/>
 		<text name="label click action">
 			Clique para:
 		</text>
@@ -121,5 +124,6 @@
 		<button label="Abrir" name="open_btn"/>
 		<button label="Pagar" name="pay_btn"/>
 		<button label="Comprar" name="buy_btn"/>
+		<button label="Detalhes" name="details_btn"/>
 	</panel>
 </panel>

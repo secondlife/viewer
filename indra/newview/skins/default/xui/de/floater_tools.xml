@@ -7,7 +7,7 @@
 		Klicken und ziehen, um die ausgewählte Seite zu dehnen
 	</floater.string>
 	<floater.string name="status_move">
-		Maus verschiebt, Umschalt-Taste und Maus kopiert
+		Maus verschiebt, Umschalt + Maus kopiert
 	</floater.string>
 	<floater.string name="status_modifyland">
 		Klicken und halten, um das Land zu bearbeiten
@@ -70,7 +70,7 @@
 	<check_box label="Beide Seiten dehnen" name="checkbox uniform"/>
 	<check_box initial_value="true" label="Texturen dehnen" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="An Raster ausrichten" name="checkbox snap to grid" top_pad="10"/>
-	<combo_box name="combobox grid mode" tool_tip="Wählen Sie das Rasterlineal aus, um das Objekt zu positionieren.">
+	<combo_box name="combobox grid mode" tool_tip="Wählen Sie ein Rasterlineal zum Positionieren des Objekts aus.">
 		<combo_box.item label="Globales Raster" name="World"/>
 		<combo_box.item label="Lokales Raster" name="Local"/>
 		<combo_box.item label="Referenzraster" name="Reference"/>
@@ -238,10 +238,10 @@
 			</panel>
 		</panel>
 		<panel label="Objekt" name="Object">
-			<check_box label="Gesperrt" name="checkbox locked" tool_tip="Verhindert, dass Objekt verschoben oder gelöscht wird. Oft beim Bauen nützlich, um unbeabsichtigte Bearbeitungen zu vermeiden."/>
-			<check_box label="Physisch" name="Physical Checkbox Ctrl" tool_tip="Gestattet, das Objekt geschoben und von Schwerkraft beeinflusst wird"/>
+			<check_box label="Gesperrt" name="checkbox locked" tool_tip="Verhindert, dass das Objekt verschoben oder gelöscht wird. Oft beim Bauen nützlich, um unbeabsichtigte Bearbeitungen zu vermeiden."/>
+			<check_box label="Physisch" name="Physical Checkbox Ctrl" tool_tip="Gestattet, dass das Objekt geschoben und von Schwerkraft beeinflusst wird"/>
 			<check_box label="Temporär" name="Temporary Checkbox Ctrl" tool_tip="Bewirkt, dass das Objekt 1 Minute nach seiner Erstellung gelöscht wird."/>
-			<check_box label="Phantom" name="Phantom Checkbox Ctrl" tool_tip="Verursacht, dass Objekt nicht mit anderen Objekten oder Avataren kollidiert"/>
+			<check_box label="Phantom" name="Phantom Checkbox Ctrl" tool_tip="Verhindert, dass das Objekt mit anderen Objekten oder Avataren kollidiert"/>
 			<text name="label position">
 				Position (Meter)
 			</text>
@@ -477,7 +477,7 @@
 		<text name="label_area">
 			Gebiet: [AREA] m².
 		</text>
-		<button label="Über Land" label_selected="Über Land" name="button about land"/>
+		<button label="Land-Info" label_selected="Land-Info" name="button about land"/>
 		<check_box label="Eigentümer anzeigen" name="checkbox show owners" tool_tip="Die Parzellen farblich nach Eigentümtertyp anzeigen   Grün = Ihr Land  Blau = Das Land Ihrer Gruppe  Rot = Im Eigentum anderer  Geld = Zum Verkauf  Lila = Zur Auktion  Grau = Öffentlich"/>
 		<text name="label_parcel_modify">
 			Parzelle ändern

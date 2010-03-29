@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterland" title="INFO SUL TERRENO">
+<floater name="floaterland" title="INFORMAZIONI SUL TERRENO">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] minuti
 	</floater.string>
@@ -10,12 +19,12 @@
 		[SECONDS] secondi
 	</floater.string>
 	<floater.string name="Remaining">
-		restante
+		rimanenti
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="GENERALE" name="land_general_panel">
 			<panel.string name="new users only">
-				Solo ai nuovi residenti
+				Soltanto nuovi residenti
 			</panel.string>
 			<panel.string name="anyone">
 				A chiunque
@@ -81,10 +90,12 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 			<text name="Group:">
 				Gruppo:
 			</text>
-			<text left="119" name="GroupText" width="227"/>
-			<button label="Imposta..." label_selected="Imposta..." name="Set..."/>
+			<text left="119" name="GroupText" width="227">
+				Leyla Linden
+			</text>
+			<button label="Imposta" name="Set..."/>
 			<check_box label="Permetti cessione al gruppo" left="119" name="check deed" tool_tip="Un funzionario del gruppo può cedere questa terra al gruppo stesso cosicchè essa sarà  supportata  dalle terre del gruppo."/>
-			<button label="Cedi..." label_selected="Cedi..." name="Deed..." tool_tip="Puoi solo offrire terra se sei un funzionario del gruppo selezionato."/>
+			<button label="Cedi" name="Deed..." tool_tip="Puoi solo offrire terra se sei un funzionario del gruppo selezionato."/>
 			<check_box label="Il proprietario fa un contributo con la cessione" left="119" name="check contrib" tool_tip="Quando la terra è ceduta al gruppo, il proprietario precedente contribuisce con abbastanza allocazione di terra per supportarlo."/>
 			<text name="For Sale:">
 				In vendita:
@@ -126,13 +137,14 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 				0
 			</text>
 			<button label="Acquista il terreno..." label_selected="Acquista il terreno..." left="130" name="Buy Land..." width="125"/>
-			<button label="Acquista per il gruppo..." label_selected="Acquista per il gruppo..." name="Buy For Group..."/>
+			<button label="Informazioni script" name="Scripts..."/>
+			<button label="Acquista per il gruppo" name="Buy For Group..."/>
 			<button label="Compra pass..." label_selected="Compra pass..." left="130" name="Buy Pass..." tool_tip="Un pass ti da un accesso temporaneo in questo territorio." width="125"/>
-			<button label="Abbandona la terra..." label_selected="Abbandona la terra..." name="Abandon Land..."/>
-			<button label="Reclama la terra..." label_selected="Reclama la terra..." name="Reclaim Land..."/>
-			<button label="Vendita Linden..." label_selected="Vendita Linden..." name="Linden Sale..." tool_tip="La terra deve essere posseduta, con contenuto impostato, e non già messa in asta."/>
+			<button label="Abbandona la terra" name="Abandon Land..."/>
+			<button label="Reclama la terra" name="Reclaim Land..."/>
+			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere posseduta, con contenuto impostato, e non già messa in asta."/>
 		</panel>
-		<panel label="COVENANT" name="land_covenant_panel">
+		<panel label="REGOLAMENTO" name="land_covenant_panel">
 			<panel.string name="can_resell">
 				La terra acquistata in questa regione può essere rivenduta.
 			</panel.string>
@@ -196,7 +208,7 @@ o suddivisa.
 				La terra in questa regione non può essere unita/suddivisa.
 			</text>
 		</panel>
-		<panel label="OBJECTS" name="land_objects_panel">
+		<panel label="OGGETTI" name="land_objects_panel">
 			<panel.string name="objects_available_text">
 				[COUNT] dei [MAX] ([AVAILABLE] disponibili)
 			</panel.string>
@@ -207,7 +219,7 @@ o suddivisa.
 				Fattore bonus degli oggetti della regione: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Uso dei Primative :
+				Uso dei Prim:
 			</text>
 			<text left="214" name="objects_available" width="230">
 				[COUNT] dei [MAX] ([AVAILABLE] dsponibili)
@@ -231,7 +243,7 @@ o suddivisa.
 				[COUNT]
 			</text>
 			<button label="Mostra" label_selected="Mostra" name="ShowOwner" right="-135" width="60"/>
-			<button label="Restituisci..." label_selected="Restituisci..." name="ReturnOwner..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
+			<button label="Restituisci" name="ReturnOwner..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
 			<text left="14" name="Set to group:" width="180">
 				Imposta al gruppo:
 			</text>
@@ -239,7 +251,7 @@ o suddivisa.
 				[COUNT]
 			</text>
 			<button label="Mostra" label_selected="Mostra" name="ShowGroup" right="-135" width="60"/>
-			<button label="Restituisci..." label_selected="Restituisci..." name="ReturnGroup..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
+			<button label="Restituisci" name="ReturnGroup..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
 			<text left="14" name="Owned by others:" width="180">
 				Posseduti da altri:
 			</text>
@@ -247,7 +259,7 @@ o suddivisa.
 				[COUNT]
 			</text>
 			<button label="Mostra" label_selected="Mostra" name="ShowOther" right="-135" width="60"/>
-			<button label="Restituisci..." label_selected="Restituisci..." name="ReturnOther..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
+			<button label="Restituisci" name="ReturnOther..." right="-10" tool_tip="Restituisci gli oggetti ai loro proprietari." width="119"/>
 			<text left="14" name="Selected / sat upon:" width="193">
 				Selezionati / sui quali sei sopra:
 			</text>
@@ -255,7 +267,7 @@ o suddivisa.
 				[COUNT]
 			</text>
 			<text left="4" name="Autoreturn" width="412">
-				Autorestituisci gli oggetti degli altri residenti (minuti, 0 per disabilitata):
+				Restituzione automatica degli oggetti di altri residenti (minuti, 0 per disattivarla):
 			</text>
 			<line_editor name="clean other time" right="-20"/>
 			<text name="Object Owners:" width="150">
@@ -303,7 +315,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Nessuna spinta (Impostazione regionale)
 			</panel.string>
 			<text name="allow_label">
-				Permetti agli altri residenti di:
+				Permetti ad altri residenti di:
 			</text>
 			<check_box label="Modificare il terreno" name="edit land check" tool_tip="Se spuntato, chiunque può terraformare il tuo terreno. E&apos; preferibile lasciare questo quadrato non spuntato, dato che sarai sempre in grado di modificare il tuo terreno."/>
 			<check_box label="Permetti il volo" name="check fly" tool_tip="Se spuntato, gli altri residenti potranno volare sul tuo terreno. Se non spuntato, potranno solamente arrivare in volo o sorvolare il terreno."/>
@@ -327,7 +339,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			</text>
 			<check_box label="Sicuro (senza danno)" name="check safe" tool_tip="Se spuntato, imposta il terreno su &apos;sicuro&apos;, disabilitando i danni da combattimento. Se non spuntato, viene abilitato il combattimento a morte."/>
 			<check_box label="Nessuna spinta" name="PushRestrictCheck" tool_tip="Previeni i colpi. Selezionare questa opzione può essere utile per prevenire comportamenti dannosi sul tuo terreno."/>
-			<check_box label="Mostra luogo nel Cerca (L$30/settimana)" name="ShowDirectoryCheck" tool_tip="Lascia che questa terra sia vista dagli altri nei risultati di ricerca"/>
+			<check_box label="Mostra luogo nella ricerca (30 L$/settimana)" name="ShowDirectoryCheck" tool_tip="Lascia che questa terra sia vista dagli altri nei risultati di ricerca"/>
 			<combo_box left="282" name="land category with adult" width="140">
 				<combo_box.item label="Tutte le categorie" name="item0"/>
 				<combo_box.item label="Luogo dei Linden" name="item1"/>
@@ -385,10 +397,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Home Page:
 			</text>
 			<line_editor left="97" name="media_url"/>
-			<button label="Imposta..." label_selected="Imposta..." name="set_media_url" width="63"/>
-			<text name="CurrentURL:">
-				Pagina attuale:
-			</text>
+			<button label="Imposta" name="set_media_url"/>
 			<check_box label="Nascondi indirizzo URL Media" left="94" name="hide_media_url" tool_tip="Abilitando questa opzione nasconderai l&apos;indirizzo url dei media a tutte le persone non autorizzate a vedere le informazioni del terreno. Nota che questo non è disponibile per contenuto di tipo HTML."/>
 			<text name="Description:">
 				Descrizione:
@@ -400,9 +409,7 @@ Texture:
 			</text>
 			<texture_picker label="" left="97" name="media texture" tool_tip="Clicca per scegliere un&apos;immagine"/>
 			<text name="replace_texture_help" width="285">
-				(Gli oggetti che hanno questa texture applicata
-mostreranno il video o la pagina web dopo che avrai
-cliccato sulla freccia play.)
+				Gli oggetti che utilizzano questa texture mostreranno il video o la pagina web dopo aver cliccato sulla freccia di riproduzione.  Seleziona la miniatura per scegliere una texture diversa.
 			</text>
 			<check_box label="Auto ridimensiona" left="94" name="media_auto_scale" tool_tip="Spuntando questa opzione, nell&apos;appezzamento il contenuto media si ridimensionerà automaticamente. Potrebbe darsi che appaia un po&apos; più lento e che diminuisca la qualità visiva ma nessun altro riadattamento o allineamento della texture sarà necessario."/>
 			<text left="99" name="media_size" tool_tip="Aumenta grandezza per far vedere meglio i media web, lascia a 0 per impostare il default." width="120">
@@ -420,12 +427,17 @@ Media:
 			<check_box label="Fai ripetere il video" left="265" name="media_loop" tool_tip="Fai ripetere il video continuamente. Quando il video è finito, reinizierà dal principio."/>
 		</panel>
 		<panel label="SUONO" name="land_audio_panel">
-			<check_box label="Attiva Voice" name="parcel_enable_voice_channel"/>
-			<check_box label="Attiva Voice (stabilito dalla Proprietà)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Nascondi URL" name="hide_music_url" tool_tip="Questa opzione consente di nascondere l&apos;url della musica a chi non è autorizzato a visionare le informazioni di questo parcel."/>
+			<check_box label="Attiva voce" name="parcel_enable_voice_channel"/>
+			<check_box label="Attiva voce (stabilito dalla proprietà)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Limita il chat vocale a questo lotto" name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="ACCESSO" name="land_access_panel">
 			<panel.string name="access_estate_defined">
-				(Definito dalla Proprietà)
+				(Definito dalla proprietà)
+			</panel.string>
+			<panel.string name="allow_public_access">
+				Consenti accesso pubblico ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
 				Una o più di queste impostazioni sono già impostate a livello regionale
@@ -433,12 +445,12 @@ Media:
 			<text name="Limit access to this parcel to:">
 				Accesso a questo terreno
 			</text>
-			<check_box label="Permetti Accesso Pubblico [MATURITY]" name="public_access"/>
+			<check_box label="Consenti l&apos;accesso pubblico [MATURITY]" name="public_access"/>
 			<text name="Only Allow">
-				Accesso ristretto ai Residenti verificati con:
+				Consenti l&apos;accesso soltanto ai residenti verificati tramite:
 			</text>
-			<check_box label="Informazioni di pagamento on File [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Manda via residenti non identificati."/>
-			<check_box label="Verifica dell&apos;età [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Espelli residenti che non hanno verificato l&apos;età. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+			<check_box label="Informazioni di pagamento in archivio [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Espelli i residenti non identificati."/>
+			<check_box label="Verifica dell&apos;età [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Espelli i residenti che non hanno la loro età verificata. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 			<check_box label="Permetti accesso al gruppo: [GROUP]" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>
 			<check_box label="Vendi pass a:" name="PassCheck" tool_tip="Permetti in questo terreno l&apos;accesso temporaneo"/>
 			<combo_box name="pass_combo">

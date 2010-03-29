@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="bottom_tray">
+	<string name="SpeakBtnToolTip">
+		Włącza/Wyłącza mikrofon
+	</string>
+	<string name="VoiceControlBtnToolTip">
+		Pokazuje/Ukrywa panel kontroli głosu
+	</string>
+	<layout_stack name="toolbar_stack">
+		<layout_panel name="speak_panel">
+			<talk_button name="talk">
+				<speak_button label="Mów" label_selected="Mów" name="speak_btn"/>
+			</talk_button>
+		</layout_panel>
+		<layout_panel name="gesture_panel">
+			<gesture_combo_list label="Gestury" name="Gesture" tool_tip="Pokazuje/Ukrywa gestury"/>
+		</layout_panel>
+		<layout_panel name="movement_panel">
+			<button label="Ruch" name="movement_btn" tool_tip="Pokaż/Ukryj Ustawienia Ruchu"/>
+		</layout_panel>
+		<layout_panel name="cam_panel">
+			<button label="Widok" name="camera_btn" tool_tip="Pokaż/Ukryj Ustawienia Kamery"/>
+		</layout_panel>
+		<layout_panel name="snapshot_panel">
+			<button label="" name="snapshots" tool_tip="Zrób Zdjęcie"/>
+		</layout_panel>
+		<layout_panel name="im_well_panel">
+			<chiclet_im_well name="im_well">
+				<button name="Unread IM messages" tool_tip="Rozmowy"/>
+			</chiclet_im_well>
+		</layout_panel>
+		<layout_panel name="notification_well_panel">
+			<chiclet_notification name="notification_well">
+				<button name="Unread" tool_tip="Ogłoszenia"/>
+			</chiclet_notification>
+		</layout_panel>
+	</layout_stack>
+</panel>

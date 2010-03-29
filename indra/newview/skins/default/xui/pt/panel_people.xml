@@ -7,6 +7,8 @@
 	<string name="no_friends" value="Nenhum amigo"/>
 	<string name="people_filter_label" value="Filtro de pessoas"/>
 	<string name="groups_filter_label" value="Filtro de grupos"/>
+	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups Tente encontrar o grupo na Busca]"/>
+	<string name="no_groups_msg" value="[secondlife:///app/search/groups Tente procurar grupos que lhe interessam]"/>
 	<filter_editor label="Filtro" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="PROXIMIDADE" name="nearby_panel">
@@ -26,7 +28,7 @@
 				<button name="del_btn" tool_tip="Remover a pessoa selecionada da sua lista de amigos"/>
 			</panel>
 			<text name="no_friends_msg">
-				Para adicionar amigos, use a [secondlife:///app/search/people busca de pessoas] ou clique em um usuário para adicioná-lo.
+				Para adicionar amigos, use a [secondlife:///app/search/people busca de pessoas] ou clique em um residente para adicioná-lo.
 Para conhecer mais gente, use [secondlife:///app/worldmap o Mapa].
 			</text>
 		</panel>
@@ -46,12 +48,12 @@ Para conhecer mais gente, use [secondlife:///app/worldmap o Mapa].
 	</tab_container>
 	<panel name="button_bar">
 		<button label="Perfil" name="view_profile_btn" tool_tip="Exibir fotografia, grupos e outras informações dos residentes"/>
-		<button label="MI" name="im_btn" tool_tip="Abrir sessão de mensagem instantânea"/>
+		<button label="MI" name="im_btn" tool_tip="Iniciar MI"/>
 		<button label="Chamada" name="call_btn" tool_tip="Ligar para este residente"/>
 		<button label="Compartilhar" name="share_btn"/>
 		<button label="Teletransporte" name="teleport_btn" tool_tip="Oferecer teletransporte"/>
 		<button label="Perfil do grupo" name="group_info_btn" tool_tip="Exibir informação de grupo"/>
-		<button label="Bate- papo de grupo" name="chat_btn" tool_tip="abrir sessão de bate- papo"/>
+		<button label="Bate-papo de grupo" name="chat_btn" tool_tip="Iniciar bate-papo"/>
 		<button label="Ligar para o grupo" name="group_call_btn" tool_tip="Ligar para este grupo"/>
 	</panel>
 </panel>

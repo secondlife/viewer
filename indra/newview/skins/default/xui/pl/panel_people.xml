@@ -3,17 +3,18 @@
 <panel label="Ludzie" name="people_panel">
 	<string name="no_people" value="Brak ludzi"/>
 	<string name="no_one_near" value="Nikogo w pobliżu"/>
-	<string name="no_friends_online" value="Brak dostępnych przyjaciół"/>
-	<string name="no_friends" value="Brak przyjaciół"/>
-	<string name="no_groups" value="Brak grup"/>
+	<string name="no_friends_online" value="Brak dostępnych Znajomych"/>
+	<string name="no_friends" value="Brak Znajomych"/>
 	<string name="people_filter_label" value="Filtruj Ludzi"/>
 	<string name="groups_filter_label" value="Filtruj Grupy"/>
+	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups Może spróbuj odnaleźć Grupę korzystając z Szukaj?]"/>
+	<string name="no_groups_msg" value="[secondlife:///app/search/groups Spróbuj wyszukać grupy aby do nich dołączyć.]"/>
 	<filter_editor label="Filtr" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="W POBLIŻU" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="nearby_view_sort_btn" tool_tip="Opcje"/>
-				<button name="add_friend_btn" tool_tip="Dodaj wybranych Rezydentów do swojej listy znajomych"/>
+				<button name="add_friend_btn" tool_tip="Dodaj wybranego Rezydenta do Znajomych"/>
 			</panel>
 		</panel>
 		<panel label="ZNAJOMI" name="friends_panel">
@@ -26,6 +27,10 @@
 				<button name="add_btn" tool_tip="Zaproponuj znajomość"/>
 				<button name="del_btn" tool_tip="Usuń wybraną osobę ze swojej listy znajomych"/>
 			</panel>
+			<text name="no_friends_msg">
+				By dodać nową znajomość skorzystaj ze strony [secondlife:///app/search/people ogólne wyszukiwanie] lub kliknij prawym przyciskiem myszki na Rezydenta by wysłać mu zaproszenie.
+Jeżeli szukasz ludzi, z którymi można się spotkać, kliknij tutaj [secondlife:///app/worldmap skorzystaj z mapy].
+			</text>
 		</panel>
 		<panel label="GRUPY" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">
@@ -37,17 +42,18 @@
 		<panel label="OSTATNIE" name="recent_panel">
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="recent_viewsort_btn" tool_tip="Opcje"/>
-				<button name="add_friend_btn" tool_tip="Zaproponuj znajomość"/>
+				<button name="add_friend_btn" tool_tip="Dodaj wybranego Rezydenta do Znajomych"/>
 			</panel>
 		</panel>
 	</tab_container>
 	<panel name="button_bar">
-		<button label="Profil" name="view_profile_btn" tool_tip="Pokaż grafiki, grupy oraz inne informacje dostępne o Rezydentach"/>
+		<button label="Profil" name="view_profile_btn" tool_tip="Pokaż zdjęcie, grupy i inne informacje o Rezydencie"/>
 		<button label="IM" name="im_btn" tool_tip="Rozpocznij rozmowę prywatną (IM)"/>
 		<button label="Zadzwoń" name="call_btn" tool_tip="Zadzwoń do tego Rezydenta"/>
 		<button label="Podziel się" name="share_btn"/>
 		<button label="Teleportuj" name="teleport_btn" tool_tip="Zaproponuj teleportację"/>
 		<button label="Profil grupy" name="group_info_btn" tool_tip="Pokaż informacje o grupie"/>
 		<button label="Konferencja Grupowa" name="chat_btn" tool_tip="Rozpocznij konferencę"/>
+		<button label="Rozmowa Głosowa" name="group_call_btn" tool_tip="Rozmowa Głosowa w tej Grupie"/>
 	</panel>
 </panel>

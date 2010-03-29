@@ -1,58 +1,59 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="Oggetti principali">
+	<floater.string name="top_scripts_title">
+		Script pesanti
+	</floater.string>
+	<floater.string name="top_scripts_text">
+		[COUNT] script richiedono un totale di [TIME] ms
+	</floater.string>
+	<floater.string name="scripts_score_label">
+		Ora
+	</floater.string>
+	<floater.string name="scripts_mono_time_label">
+		Ora &apos;Mono&apos;
+	</floater.string>
+	<floater.string name="top_colliders_title">
+		Oggetti con maggiori collisioni
+	</floater.string>
+	<floater.string name="top_colliders_text">
+		I [COUNT] oggetti che sperimentano il maggior numero di collisioni
+	</floater.string>
+	<floater.string name="colliders_score_label">
+		Punteggio
+	</floater.string>
+	<floater.string name="none_descriptor">
+		Nulla di rilevato.
+	</floater.string>
 	<text name="title_text">
 		In caricamento...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Punteggio" name="score" width="84"/>
-		<column label="Nome" name="name" width="84"/>
-		<column label="Proprietario" name="owner" width="84"/>
-		<column label="Ubicazione" name="location" width="84"/>
-		<column label="Ora" name="time" width="84"/>
-		<column label="Ora (Mono)" name="mono_time" width="84"/>
+		<scroll_list.columns label="Punteggio" name="score" width="84"/>
+		<scroll_list.columns label="Nome" name="name" width="84"/>
+		<scroll_list.columns label="Proprietario" name="owner" width="84"/>
+		<scroll_list.columns label="Ubicazione" name="location" width="84"/>
+		<scroll_list.columns label="Ora" name="time" width="84"/>
+		<scroll_list.columns label="Ora (Mono)" name="mono_time" width="84"/>
+		<scroll_list.columns label="URL" name="URLs"/>
 	</scroll_list>
-	<line_editor font="SansSerifSmall" left="90" name="id_editor" width="280"/>
-	<line_editor font="SansSerifSmall" left="90" name="object_name_editor" width="280"/>
-	<line_editor font="SansSerifSmall" left="90" name="owner_name_editor" width="280"/>
 	<text name="id_text">
 		ID oggetto:
 	</text>
+	<line_editor font="SansSerifSmall" left="90" name="id_editor" width="280"/>
 	<button label="Mostra segnali luminosi" name="show_beacon_btn" width="150"/>
 	<text name="obj_name_text">
 		Nome dell&apos;oggetto:
 	</text>
+	<line_editor font="SansSerifSmall" left="90" name="object_name_editor" width="280"/>
 	<button label="Filtro" name="filter_object_btn" width="150"/>
 	<text name="owner_name_text">
 		Proprietario:
 	</text>
+	<line_editor font="SansSerifSmall" left="90" name="owner_name_editor" width="280"/>
 	<button label="Filtro" name="filter_owner_btn" width="150"/>
+	<button label="Aggiorna" name="refresh_btn" width="150"/>
 	<button label="Restituisci selezionato" name="return_selected_btn" width="150"/>
 	<button label="Restituisci tutti" left="170" name="return_all_btn"/>
 	<button label="Disabilita selezionato" name="disable_selected_btn" width="150"/>
 	<button label="Disabilita per tutti" left="170" name="disable_all_btn"/>
-	<button label="Aggiorna" name="refresh_btn" width="150"/>
-	<string name="top_scripts_title">
-		Script pesanti
-	</string>
-	<string name="top_scripts_text">
-		[COUNT] script richiedono un totale di [TIME] ms
-	</string>
-	<string name="scripts_score_label">
-		Ora
-	</string>
-	<string name="scripts_mono_time_label">
-		Ora &apos;Mono&apos;
-	</string>
-	<string name="top_colliders_title">
-		Oggetti con maggiori collisioni
-	</string>
-	<string name="top_colliders_text">
-		I [COUNT] oggetti che sperimentano il maggior numero di collisioni
-	</string>
-	<string name="colliders_score_label">
-		Punteggio
-	</string>
-	<string name="none_descriptor">
-		Nulla di rilevato.
-	</string>
 </floater>

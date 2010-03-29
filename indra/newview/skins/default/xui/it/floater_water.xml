@@ -8,7 +8,7 @@
 	<button label="Salva" label_selected="Salva" name="WaterSavePreset"/>
 	<button label="Cancella" label_selected="Cancella" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
-		<panel label="Impostazioni" name="Settings">
+		<panel label="IMPOSTAZIONI" name="Settings">
 			<text name="BHText">
 				Colore della nebbiosità dell&apos;acqua
 			</text>
@@ -62,7 +62,7 @@
 			</text>
 			<button label="?" left="650" name="WaterBlurMultiplierHelp"/>
 		</panel>
-		<panel label="Immagine" name="Waves">
+		<panel label="IMMAGINE" name="Waves">
 			<text name="BHText">
 				Direzione della grande onda
 			</text>

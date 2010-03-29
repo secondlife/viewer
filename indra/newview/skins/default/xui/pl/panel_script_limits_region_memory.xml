@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="PAMIĘĆ REGIONU" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Pamięć Skryptu Parceli
+	</text>
+	<text name="loading_text">
+		Ładowanie...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Rozmiar (kb)" name="size"/>
+		<scroll_list.columns label="URL" name="urls"/>
+		<scroll_list.columns label="Nazwa Obiektu" name="name"/>
+		<scroll_list.columns label="Właściciel" name="owner"/>
+		<scroll_list.columns label="Parcela" name="parcel"/>
+		<scroll_list.columns label="Lokalizacja" name="location"/>
+	</scroll_list>
+	<button label="Odśwież listę" name="refresh_list_btn"/>
+	<button label="Pokaż" name="highlight_btn"/>
+	<button label="Zwróć" name="return_btn"/>
+</panel>

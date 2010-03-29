@@ -11,7 +11,7 @@
 		<menu_item_check label="Mi Inventario" name="Inventory"/>
 		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mis gestos" name="Gestures"/>
-		<menu label="Mi estatus" name="Status">
+		<menu label="Mi estado" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
 		</menu>
@@ -200,7 +200,7 @@
 			<menu_item_call label="Pantalla completa" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="Mostrar las configuraciones del depurador" name="Debug Settings"/>
-		<menu_item_check label="Mostrar el menú Desarrollar" name="Debug Mode"/>
+		<menu_item_check label="Mostrar el menú 'Develop'" name="Debug Mode"/>
 	</menu>
 	<menu label="Develop" name="Develop">
 		<menu label="Consoles" name="Consoles">
@@ -238,7 +238,7 @@
 			<menu_item_check label="Frame Test" name="Frame Test"/>
 		</menu>
 		<menu label="Rendering" name="Rendering">
-			<menu_item_check label="Ejes" name="Axes"/>
+			<menu_item_check label="Axes" name="Axes"/>
 			<menu_item_check label="Wireframe" name="Wireframe"/>
 			<menu_item_check label="Global Illumination" name="Global Illumination"/>
 			<menu_item_check label="Animation Textures" name="Animation Textures"/>
@@ -254,7 +254,7 @@
 		<menu_item_call label="Bumps, Pushes &amp; Hits" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu label="World" name="World">
 			<menu_item_check label="Region Sun Override" name="Sim Sun Override"/>
-			<menu_item_check label="Baliza con destellos" name="Cheesy Beacon"/>
+			<menu_item_check label="Beacon flashing effect" name="Cheesy Beacon"/>
 			<menu_item_check label="Fixed Weather" name="Fixed Weather"/>
 			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
 		</menu>
@@ -277,10 +277,10 @@
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
 				<menu_item_call label="Iris" name="Iris"/>
-				<menu_item_call label="Cabeza" name="Head"/>
+				<menu_item_call label="Head" name="Head"/>
 				<menu_item_call label="Upper Body" name="Upper Body"/>
 				<menu_item_call label="Lower Body" name="Lower Body"/>
-				<menu_item_call label="Falda" name="Skirt"/>
+				<menu_item_call label="Skirt" name="Skirt"/>
 			</menu>
 			<menu label="Character Tests" name="Character Tests">
 				<menu_item_call label="Toggle Character Geometry" name="Toggle Character Geometry"/>
@@ -297,8 +297,8 @@
 		<menu_item_check label="HTTP Textures" name="HTTP Textures"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
 		<menu_item_check label="Show Admin Menu" name="View Admin Options"/>
-		<menu_item_call label="Solicitar estatus de Administrador" name="Request Admin Options"/>
-		<menu_item_call label="Dejar el estatus de Administrador" name="Leave Admin Options"/>
+		<menu_item_call label="Request Admin Status" name="Request Admin Options"/>
+		<menu_item_call label="Leave Admin Status" name="Leave Admin Options"/>
 	</menu>
 	<menu label="Admin" name="Admin">
 		<menu label="Object">
