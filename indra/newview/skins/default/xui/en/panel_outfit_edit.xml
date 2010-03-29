@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+  background_visible="true"
+  border="false"
+	height="570"
+	follows="all"
+	label="Look Info"
+	layout="topleft"
+	name="look_info"
+	width="320">
+	<panel.string
+		name="not_available">
+		(N\A)
+	</panel.string>
+	<panel.string
+		name="unknown">
+		(unknown)
+	</panel.string>
+	<panel
+		background_visible="true"
+		bevel_style="none"
+		follows="left|top|right|bottom"
+		height="530"
+		label="Outfit"
+		layout="topleft"
+		name="look_management_panel"
+		width="320">
+        <panel
+          follows="left|right|top"
+            header_visible="false"
+            layout="topleft"
+            min_height="300"
+            name="look_group"
+            title="Outfit Group"
+          top="0">
+            <panel
+                follows="left|right|top"
+                height="210"
+                layout="topleft"
+                top_pad="0"
+                name="look_info_group_bar"
+                width="295">
+                <text
+                    type="string"
+                    length="1"
+                    follows="left|top"
+                    height="20"
+                    layout="topleft"
+                    mouse_opaque="false"
+                    name="curr_look_name"
+                    width="175">
+                    Look: [LOOK]
+                </text>
+                <button
+                    follows="left|top"
+                    height="20"
+                    label="Wear"
+                    layout="topleft"
+                    name="wear_look_btn"
+                    left_pad="5"
+                    top_pad="-24"
+                    width="65" />
+                <button
+                    follows="left|top"
+                    height="20"
+                    layout="topleft"
+                    left_pad="5"
+                    name="back_btn"
+                    width="20" />
+            </panel>
+        </panel>
+
+        <panel
+            follows="left|right|top"
+          height="200"
+          layout="topleft"
+          name="outfit_display"
+          top_pad="10"
+          width="320">
+          
+              <scroll_list
+                  width="285"
+                  column_padding="0"
+                  draw_heading="false"
+                  draw_stripes="false"
+                  follows="left|top|bottom|right"
+                  layout="topleft"
+                  name="look_items_list"
+                  search_column="1"
+                  sort_column="2"
+                  left="0"
+                  height="200"
+                  top_pad="0">
+                  <scroll_list.columns
+                      label="Look Item"
+                      name="look_item"
+                      width="285" />
+                  <scroll_list.columns
+                      label="Outfit Item Sort"
+                      width="0"
+                      sort_column="look_item_sort"
+                      name="look_item_sort" />
+              </scroll_list>
+              <button
+                  follows="left|top|right"
+                  height="20"
+                  label="-"
+                  left_pad="0"
+                  layout="topleft"
+                  name="edit_wearable_btn"
+                  width="20" />
+        </panel>
+        <panel
+          follows="all"
+            header_visible="false"
+            min_height="100"
+          left="0"
+            name="inventory_group"
+            title="My Inventory"
+          top_pad="10"
+          width="230">
+            <panel
+                follows="left|right|top"
+                height="270"
+                name="lower_look_accordion"
+                width="295">
+                <panel
+                    follows="left|right|top"
+                    height="20"
+                    layout="topleft"
+                    name="inventory_bar"
+                    width="295">
+                    <text
+                        type="string"
+                        length="1"
+                        follows="left|top"
+                        height="20"
+                        layout="topleft"
+                        mouse_opaque="false"
+                        name="inventory_info_text"
+                        width="100">
+                        My Inventory
+                    </text>
+                    <combo_box
+                        follows="left"
+                        height="20"
+                        layout="topleft"
+                        left_pad="0"
+                        top_pad="-24"
+                        name="inventory_filter"
+                        tool_tip="Only show the selected inventory types"
+                        width="185" />
+                </panel>
+                <panel
+                    follows="left|right|top"
+                    height="20"
+                    layout="topleft"
+                    name="look_item_filter_bar"
+                    width="295">
+                    <filter_editor
+                        background_image="TextField_Search_Off"
+                        follows="left|top|right"
+                        font="SansSerif"
+                        label="Outfit Item Filter"
+                        layout="topleft"
+                        left="0"
+                        top_pad="0"
+                        width="270"
+                        height="20"
+                        name="look_item_filter"
+                        text_color="black"
+                        text_pad_left="25" />
+                </panel>
+                <panel
+                    follows="all"
+                    height="230"
+                    layout="topleft"
+                    name="inventory_panel"
+                    width="285">
+                    <inventory_panel
+                        allow_multi_select="true"
+                        border="true"
+                        follows="left|top|right|bottom"
+                        height="230"
+                        mouse_opaque="false"
+                        name="inventory_items"
+                        width="285"/>
+                </panel>
+            </panel>
+        </panel>
+	</panel>
+	<panel
+		follows="left|right|bottom"
+		height="30"
+		layout="topleft"
+		left="5"
+		top_pad="0"
+		name="button_bar"
+		width="295">
+		<button
+			follows="top|left|right"
+			height="25"
+			label="Add"
+			left="0"
+			layout="topleft"
+			name="add_item_btn"
+			width="90" />
+		<button
+			follows="left|right"
+			height="25"
+			left_pad="0"
+			label="Remove"
+			layout="topleft"
+			name="remove_item_btn"
+			width="90" />
+		<button
+			follows="top|left|right"
+			height="25"
+			label="UP"
+			left_pad="0"
+			layout="topleft"
+			name="up_btn"
+			width="55" />
+		<button
+			follows="left|top|right"
+			height="25"
+			label="DOWN"
+			left_pad="0"
+			layout="topleft"
+			name="down_btn"
+			width="60" />
+	</panel>
+</panel>

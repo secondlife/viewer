@@ -317,7 +317,6 @@ set(viewer_SOURCE_FILES
     llpanellandmedia.cpp
     llpanellogin.cpp
     llpanelloginlistener.cpp
-    llpanellookinfo.cpp
     llpanelmaininventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
@@ -326,6 +325,7 @@ set(viewer_SOURCE_FILES
     llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
+    llpaneloutfitedit.cpp
     llpaneloutfitsinventory.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
@@ -814,7 +814,6 @@ set(viewer_HEADER_FILES
     llpanellandmedia.h
     llpanellogin.h
     llpanelloginlistener.h
-    llpanellookinfo.h
     llpanelmaininventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
@@ -823,6 +822,7 @@ set(viewer_HEADER_FILES
     llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h
+    llpaneloutfitedit.h
     llpaneloutfitsinventory.h
     llpanelpeople.h
     llpanelpeoplemenus.h
