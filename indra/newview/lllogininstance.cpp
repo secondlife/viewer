@@ -148,6 +148,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("adult_compliant"); 
 	//requested_options.append("inventory-targets");
 	requested_options.append("buddy-list");
+	requested_options.append("newuser-config");
 	requested_options.append("ui-config");
 #endif
 	requested_options.append("voice-config");

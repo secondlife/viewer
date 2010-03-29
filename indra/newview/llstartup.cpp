@@ -2360,8 +2360,6 @@ void asset_callback_nothing(LLVFS*, const LLUUID&, LLAssetType::EType, void*, S3
 const std::string COMMON_GESTURES_FOLDER = "Common Gestures";
 const std::string MALE_GESTURES_FOLDER = "Male Gestures";
 const std::string FEMALE_GESTURES_FOLDER = "Female Gestures";
-const std::string MALE_OUTFIT_FOLDER = "Male Shape & Outfit";
-const std::string FEMALE_OUTFIT_FOLDER = "Female Shape & Outfit";
 const S32 OPT_CLOSED_WINDOW = -1;
 const S32 OPT_MALE = 0;
 const S32 OPT_FEMALE = 1;
@@ -2369,22 +2367,27 @@ const S32 OPT_TRUST_CERT = 0;
 const S32 OPT_CANCEL_TRUST = 1;
 	
 bool callback_choose_gender(const LLSD& notification, const LLSD& response)
-{	
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+{
+	
+    // These defaults are returned from the server on login.  They are set in login.xml.                  
+    // If no default is returned from the server, they are retrieved from settings.xml.                   
+	
+	S32 option = LLNotification::getSelectedOption(notification, response);
 	switch(option)
 	{
-	case OPT_MALE:
-		LLStartUp::loadInitialOutfit( MALE_OUTFIT_FOLDER, "male" );
-		break;
-
-	case OPT_FEMALE:
-	case OPT_CLOSED_WINDOW:
-	default:
-		LLStartUp::loadInitialOutfit( FEMALE_OUTFIT_FOLDER, "female" );
-		break;
+		case OPT_MALE:
+			LLStartUp::loadInitialOutfit( gSavedSettings.getString("DefaultMaleAvatar"), "male" );
+			break;
+			
+        case OPT_FEMALE:
+        case OPT_CLOSED_WINDOW:
+        default:
+			LLStartUp::loadInitialOutfit( gSavedSettings.getString("DefaultFemaleAvatar"), "female" );
+			break;
 	}
 	return false;
 }
+
 
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
@@ -3011,7 +3014,7 @@ bool process_login_success_response()
 		LLStringOps::setupDatetimeInfo(pacific_daylight_time);
 	}
 	
-	static const char* CONFIG_OPTIONS[] = {"voice-config"};
+	static const char* CONFIG_OPTIONS[] = {"voice-config", "newuser-config"};
 	for (int i = 0; i < sizeof(CONFIG_OPTIONS)/sizeof(CONFIG_OPTIONS[0]); i++)
 	{
 		LLSD options = response[CONFIG_OPTIONS[i]];

@@ -2388,6 +2388,29 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>DefaultFemaleAvatar</key>
+	<map>
+	  <key>Comment</key>
+	  <string>Default Female Avatar</string>
+	  <key>Persist</key>
+	  <integer>1</integer>
+	  <key>Type</key>
+	  <string>String</string>
+	  <key>Value</key>
+	  <string>Female Shape &amp; Outfit</string>
+	</map>
+	<key>DefaultMaleAvatar</key>
+	<map>
+	  <key>Comment</key>
+	  <string>Default Male Avatar</string>
+	  <key>Persist</key>
+	  <integer>1</integer>
+	  <key>Type</key>
+	  <string>String</string>
+	  <key>Value</key>
+	  <string>Male Shape &amp; Outfit</string>
+	</map>
+
     <key>DefaultObjectTexture</key>
     <map>
       <key>Comment</key>
