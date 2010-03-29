@@ -289,7 +289,7 @@ void LLAgentWearables::addWearableToAgentInventoryCallback::fire(const LLUUID& i
 	}
 	if (mTodo & CALL_RECOVERDONE)
 	{
-		LLAppearanceManager::instance().addCOFItemLink(inv_item,false);
+		LLAppearanceMgr::instance().addCOFItemLink(inv_item,false);
 		gAgentWearables.recoverMissingWearableDone();
 	}
 	/*
@@ -297,7 +297,7 @@ void LLAgentWearables::addWearableToAgentInventoryCallback::fire(const LLUUID& i
 	 */
 	if (mTodo & CALL_CREATESTANDARDDONE)
 	{
-		LLAppearanceManager::instance().addCOFItemLink(inv_item,false);
+		LLAppearanceMgr::instance().addCOFItemLink(inv_item,false);
 		gAgentWearables.createStandardWearablesDone(mType, mIndex);
 	}
 	if (mTodo & CALL_MAKENEWOUTFITDONE)
@@ -306,7 +306,7 @@ void LLAgentWearables::addWearableToAgentInventoryCallback::fire(const LLUUID& i
 	}
 	if (mTodo & CALL_WEARITEM)
 	{
-		LLAppearanceManager::instance().addCOFItemLink(inv_item, true);
+		LLAppearanceMgr::instance().addCOFItemLink(inv_item, true);
 	}
 }
 
@@ -1119,7 +1119,7 @@ public:
 	{
 		llinfos << "All items created" << llendl;
 		LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
-		LLAppearanceManager::instance().linkAll(LLAppearanceManager::instance().getCOF(),
+		LLAppearanceMgr::instance().linkAll(LLAppearanceMgr::instance().getCOF(),
 												mItemsToLink,
 												link_waiter);
 	}
@@ -1438,8 +1438,8 @@ public:
 			tab_outfits->changeOpenClose(tab_outfits->getDisplayChildren());
 		}
 
-		LLAppearanceManager::instance().updateIsDirty();
-		LLAppearanceManager::instance().updatePanelOutfitName("");
+		LLAppearanceMgr::instance().updateIsDirty();
+		LLAppearanceMgr::instance().updatePanelOutfitName("");
 	}
 	
 	virtual void fire(const LLUUID&)
@@ -1466,8 +1466,8 @@ LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 		new_folder_name);
 
 	LLPointer<LLInventoryCallback> cb = new LLShowCreatedOutfit(folder_id);
-	LLAppearanceManager::instance().shallowCopyCategoryContents(LLAppearanceManager::instance().getCOF(),folder_id, cb);
-	LLAppearanceManager::instance().createBaseOutfitLink(folder_id, cb);
+	LLAppearanceMgr::instance().shallowCopyCategoryContents(LLAppearanceMgr::instance().getCOF(),folder_id, cb);
+	LLAppearanceMgr::instance().createBaseOutfitLink(folder_id, cb);
 
 	return folder_id;
 }
@@ -2421,7 +2421,7 @@ void LLLibraryOutfitsFetch::libraryDone(void)
 			continue;
 		}
 		
-		if (!LLAppearanceManager::getInstance()->getCanMakeFolderIntoOutfit(src_folder_id))
+		if (!LLAppearanceMgr::getInstance()->getCanMakeFolderIntoOutfit(src_folder_id))
 		{
 			llinfos << "Skipping non-outfit folder name:" << cat->getName() << llendl;
 			continue;
@@ -2443,7 +2443,7 @@ void LLLibraryOutfitsFetch::libraryDone(void)
 		LLUUID dst_folder_id = gInventory.createNewCategory(mImportedClothingID,
 															LLFolderType::FT_NONE,
 															cat->getName());
-		LLAppearanceManager::getInstance()->shallowCopyCategoryContents(src_folder_id, dst_folder_id, copy_waiter);
+		LLAppearanceMgr::getInstance()->shallowCopyCategoryContents(src_folder_id, dst_folder_id, copy_waiter);
 	}
 }
 
@@ -2565,15 +2565,15 @@ void LLInitialWearablesFetch::processContents()
 	gInventory.collectDescendentsIf(mCompleteFolders.front(), cat_array, wearable_array, 
 									LLInventoryModel::EXCLUDE_TRASH, is_wearable);
 
-	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
+	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	if (wearable_array.count() > 0)
 	{
-		LLAppearanceManager::instance().updateAppearanceFromCOF();
+		LLAppearanceMgr::instance().updateAppearanceFromCOF();
 	}
 	else
 	{
 		// if we're constructing the COF from the wearables message, we don't have a proper outfit link
-		LLAppearanceManager::instance().setOutfitDirty(true);
+		LLAppearanceMgr::instance().setOutfitDirty(true);
 		processWearablesMessage();
 	}
 	delete this;
@@ -2610,7 +2610,7 @@ public:
 
 			link_inventory_item(gAgent.getID(),
 								item->getLinkedUUID(),
-								LLAppearanceManager::instance().getCOF(),
+								LLAppearanceMgr::instance().getCOF(),
 								item->getName(),
 								LLAssetType::AT_LINK,
 								link_waiter);
@@ -2624,7 +2624,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 {
 	if (!mAgentInitialWearables.empty()) // We have an empty current outfit folder, use the message data instead.
 	{
-		const LLUUID current_outfit_id = LLAppearanceManager::instance().getCOF();
+		const LLUUID current_outfit_id = LLAppearanceMgr::instance().getCOF();
 		LLInventoryFetchObserver::item_ref_t ids;
 		for (U8 i = 0; i < mAgentInitialWearables.size(); ++i)
 		{

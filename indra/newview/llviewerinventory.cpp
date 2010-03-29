@@ -791,7 +791,7 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 
 void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 {
-	LLAppearanceManager::instance().updateAppearanceFromCOF();
+	LLAppearanceMgr::instance().updateAppearanceFromCOF();
 	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed

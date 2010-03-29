@@ -2536,7 +2536,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	llinfos << "starting" << llendl;
 
 	// Not going through the processAgentInitialWearables path, so need to set this here.
-	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
+	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	// Initiate creation of COF, since we're also bypassing that.
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 	
@@ -2567,13 +2567,13 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		bool do_copy = true;
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
-		LLAppearanceManager::instance().wearInventoryCategory(cat, do_copy, do_append);
+		LLAppearanceMgr::instance().wearInventoryCategory(cat, do_copy, do_append);
 	}
 
 	// Copy gestures
 	LLUUID dst_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
 	LLPointer<LLInventoryCallback> cb(NULL);
-	LLAppearanceManager *app_mgr = &(LLAppearanceManager::instance());
+	LLAppearanceMgr *app_mgr = &(LLAppearanceMgr::instance());
 
 	// - Copy gender-specific gestures.
 	LLUUID gestures_cat_id = findDescendentCategoryIDByName( 
@@ -2582,7 +2582,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	if (gestures_cat_id.notNull())
 	{
 		callAfterCategoryFetch(gestures_cat_id,
-							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+							   boost::bind(&LLAppearanceMgr::shallowCopyCategory,
 										   app_mgr,
 										   gestures_cat_id,
 										   dst_id,
@@ -2596,7 +2596,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	if (common_gestures_cat_id.notNull())
 	{
 		callAfterCategoryFetch(common_gestures_cat_id,
-							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+							   boost::bind(&LLAppearanceMgr::shallowCopyCategory,
 										   app_mgr,
 										   common_gestures_cat_id,
 										   dst_id,

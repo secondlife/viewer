@@ -1036,7 +1036,7 @@ const LLViewerJointAttachment *LLVOAvatarSelf::attachObject(LLViewerObject *view
 	if (attachment->isObjectAttached(viewer_object))
 	{
 		const LLUUID& attachment_id = viewer_object->getItemID();
-		LLAppearanceManager::instance().registerAttachment(attachment_id);
+		LLAppearanceMgr::instance().registerAttachment(attachment_id);
 	}
 
 	return attachment;
@@ -1075,7 +1075,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		}
 		else
 		{
-			LLAppearanceManager::instance().unregisterAttachment(attachment_id);
+			LLAppearanceMgr::instance().unregisterAttachment(attachment_id);
 		}
 		
 		return TRUE;

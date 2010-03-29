@@ -338,7 +338,7 @@ void LLGestureManager::deactivateGesture(const LLUUID& item_id)
 
 	gAgent.sendReliableMessage();
 
-	LLAppearanceManager::instance().removeCOFItemLinks(base_item_id, false);
+	LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id, false);
 
 	notifyObservers();
 }

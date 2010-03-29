@@ -723,7 +723,7 @@ void LLInventoryPanel::setSelection(const LLUUID& obj_id, BOOL take_keyboard_foc
 {
 	// Don't select objects in COF (e.g. to prevent refocus when items are worn).
 	const LLInventoryObject *obj = gInventory.getObject(obj_id);
-	if (obj && obj->getParentUUID() == LLAppearanceManager::instance().getCOF())
+	if (obj && obj->getParentUUID() == LLAppearanceMgr::instance().getCOF())
 	{
 		return;
 	}

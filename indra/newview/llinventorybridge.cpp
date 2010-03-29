@@ -193,7 +193,7 @@ BOOL LLInvFVBridge::isItemRemovable() const
 	}
 
 	// Disable delete from COF folder; have users explicitly choose "detach/take off".
-	if (LLAppearanceManager::instance().getIsProtectedCOFItem(mUUID))
+	if (LLAppearanceMgr::instance().getIsProtectedCOFItem(mUUID))
 	{
 		return FALSE;
 	}
@@ -802,7 +802,7 @@ BOOL LLInvFVBridge::isAgentInventory() const
 
 BOOL LLInvFVBridge::isCOFFolder() const
 {
-	return LLAppearanceManager::instance().getIsInCOF(mUUID);
+	return LLAppearanceMgr::instance().getIsInCOF(mUUID);
 }
 
 BOOL LLInvFVBridge::isItemPermissive() const
@@ -1763,7 +1763,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					{
 						// traverse category and add all contents to currently worn.
 						BOOL append = true;
-						LLAppearanceManager::instance().wearInventoryCategory(inv_cat, false, append);
+						LLAppearanceMgr::instance().wearInventoryCategory(inv_cat, false, append);
 					}
 					else
 					{
@@ -1771,7 +1771,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 						LLInventoryModel::cat_array_t cats;
 						LLInventoryModel::item_array_t items;
 						gInventory.collectDescendents(inv_cat->getUUID(), cats, items, LLInventoryModel::EXCLUDE_TRASH);
-						LLAppearanceManager::instance().linkAll(mUUID,items,NULL);
+						LLAppearanceMgr::instance().linkAll(mUUID,items,NULL);
 					}
 				}
 				else
@@ -1780,7 +1780,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().addEnsembleLink(inv_cat);
+					LLAppearanceMgr::instance().addEnsembleLink(inv_cat);
 				}
 				else
 				{
@@ -2138,7 +2138,7 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 				    mContentsCount)
 				{
 					gInventory.removeObserver(this);
-					LLAppearanceManager::instance().wearInventoryCategory(category, FALSE, TRUE);
+					LLAppearanceMgr::instance().wearInventoryCategory(category, FALSE, TRUE);
 					delete this;
 				}
 			}
@@ -2188,7 +2188,7 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		if(!model) return;
 		LLViewerInventoryCategory* cat = getCategory();
 		if(!cat) return;
-		LLAppearanceManager::instance().addEnsembleLink(cat,true);
+		LLAppearanceMgr::instance().addEnsembleLink(cat,true);
 		return;
 	}
 #endif
@@ -2723,7 +2723,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 				addDeleteContextMenuOptions(mItems, mDisabledItems);
 				// EXT-4030: disallow deletion of currently worn outfit
-				const LLViewerInventoryItem *base_outfit_link = LLAppearanceManager::instance().getBaseOutfitLink();
+				const LLViewerInventoryItem *base_outfit_link = LLAppearanceMgr::instance().getBaseOutfitLink();
 				if (base_outfit_link && (cat == base_outfit_link->getLinkedCategory()))
 				{
 					mDisabledItems.push_back(std::string("Delete"));
@@ -2971,7 +2971,7 @@ void LLFolderBridge::modifyOutfit(BOOL append)
 	LLViewerInventoryCategory* cat = getCategory();
 	if(!cat) return;
 
-	LLAppearanceManager::instance().wearInventoryCategory( cat, FALSE, append );
+	LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, append );
 }
 
 // helper stuff
@@ -3049,7 +3049,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		const LLUUID current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
-		const BOOL move_is_outof_current_outfit = LLAppearanceManager::instance().getIsInCOF(inv_item->getUUID());
+		const BOOL move_is_outof_current_outfit = LLAppearanceMgr::instance().getIsInCOF(inv_item->getUUID());
 
 		// Can't explicitly drag things out of the COF.
 		if (move_is_outof_current_outfit)
@@ -3136,7 +3136,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().addCOFItemLink(inv_item);
+					LLAppearanceMgr::instance().addCOFItemLink(inv_item);
 				}
 				else
 				{
@@ -4410,7 +4410,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceManager::instance().addCOFItemLink(item);
+		LLAppearanceMgr::instance().addCOFItemLink(item);
 	}
 }
 
@@ -4969,7 +4969,7 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	}
 
 	// Find and remove this item from the COF.
-	LLAppearanceManager::instance().removeCOFItemLinks(item_id,false);
+	LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
 	gInventory.notifyObservers();
 
 	delete on_remove_struct;
@@ -4995,7 +4995,7 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 			continue;
 
 		// Find and remove this item from the COF.
-		LLAppearanceManager::instance().removeCOFItemLinks(item_id,false);
+		LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
 	}
 	gInventory.notifyObservers();
 

@@ -612,7 +612,7 @@ void LLFloaterGesture::addToCurrentOutFit()
 {
 	std::vector<LLUUID> ids;
 	getSelectedIds(ids);
-	LLAppearanceManager* am = LLAppearanceManager::getInstance();
+	LLAppearanceMgr* am = LLAppearanceMgr::getInstance();
 	for(std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); it++)
 	{
 		am->addCOFItemLink(*it);
