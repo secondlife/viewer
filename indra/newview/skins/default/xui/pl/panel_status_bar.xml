@@ -1,39 +1,31 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<text name="ParcelNameText" tool_tip="Nazwa posiadłości w której się znajdujesz. Po więcej informacji kliknij O Posiadłości.">
-		Nazwa Posiadłości
-	</text>
-	<text name="BalanceText" tool_tip="Stan Konta">
-		Ładowanie...
-	</text>
-	<button label="" label_selected="" name="buycurrency" tool_tip="Kup $L" />
-	<text name="TimeText" tool_tip="Obecny Czas (Pacyficzny)">
-		12:00 AM
-	</text>
-	<string name="StatBarDaysOfWeek">
+	<panel.string name="StatBarDaysOfWeek">
 		Niedziela:Poniedziałek:Wtorek:Środa:Czwartek:Piątek:Sobota
-	</string>
-	<string name="StatBarMonthsOfYear">
+	</panel.string>
+	<panel.string name="StatBarMonthsOfYear">
 		Styczeń:Luty:Marzec:Kwiecień:Maj:Czerwiec:Lipiec:Styczeń:Wrzesień:Październik:Listopad:Grudzień
-	</string>
-	<button label="" label_selected="" name="scriptout" tool_tip="Błędy i Ostrzeżenia Skryptów" />
-	<button label="" label_selected="" name="health" tool_tip="Stan" />
-	<text name="HealthText" tool_tip="Stan">
-		100%
-	</text>
-	<button label="" label_selected="" name="no_fly" tool_tip="Latanie jest niedozwolone" />
-	<button label="" label_selected="" name="no_build" tool_tip="Budowanie/rezzowanie jest niedozwolone" />
-	<button label="" label_selected="" name="no_scripts" tool_tip="Używanie skryptów jest niedozwolone" />
-	<button label="" label_selected="" name="restrictpush" tool_tip="Pochnięcia są niedozwolone" />
-	<button label="" label_selected="" name="status_no_voice" tool_tip="Używanie komunikacji głosowej jest niedozwolone" />
-	<button label="" label_selected="" name="buyland" tool_tip="Kup tą posiadłość" />
-	<button label="" name="menubar_search_bevel_bg" />
-	<line_editor label="Szukaj" name="search_editor" tool_tip="Szukaj w [SECOND_LIFE]" />
-	<button label="" label_selected="" name="search_btn" tool_tip="Szukaj w [SECOND_LIFE]" />
-	<string name="packet_loss_tooltip">
-		Utracone Pakiety
-	</string>
-	<string name="bandwidth_tooltip">
+	</panel.string>
+	<panel.string name="packet_loss_tooltip">
+		Utracone pakiety
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
 		Przepustowość
-	</string>
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		L$ [AMT]
+	</panel.string>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Bilans"/>
+	<button label="Kup" name="buyL" tool_tip="Kliknij aby kupić L$"/>
+	<text name="TimeText" tool_tip="Obecny Czas (Pacyficzny)">
+		24:00 AM PST
+	</text>
+	<button name="media_toggle_btn" tool_tip="Start/Stop Wszystkie Media (Muzyka, Video, WWW)"/>
+	<button name="volume_btn" tool_tip="Regulacja Głośności"/>
 </panel>

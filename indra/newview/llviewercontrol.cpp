@@ -41,6 +41,7 @@
 // For Listeners
 #include "llaudioengine.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llconsole.h"
 #include "lldrawpoolterrain.h"
 #include "llflexibleobject.h"
@@ -102,7 +103,7 @@ static bool handleRenderAvatarMouselookChanged(const LLSD& newvalue)
 static bool handleRenderFarClipChanged(const LLSD& newvalue)
 {
 	F32 draw_distance = (F32) newvalue.asReal();
-	gAgent.mDrawDistance = draw_distance;
+	gAgentCamera.mDrawDistance = draw_distance;
 	LLWorld::getInstance()->setLandFarClip(draw_distance);
 	return true;
 }

@@ -70,10 +70,17 @@
 				<accordion_tab name="region_information_tab" title="Región">
 					<panel name="region_information_panel">
 						<text name="region_name_label" value="Región:"/>
+						<text name="region_name" value="Mooseland"/>
 						<text name="region_type_label" value="Tipo:"/>
+						<text name="region_type" value="Moose"/>
 						<text name="region_rating_label" value="Calificación:"/>
+						<text name="region_rating" value="Adulto"/>
 						<text name="region_owner_label" value="Propietario:"/>
+						<text name="region_owner" value="moose Van Moose"/>
 						<text name="region_group_label" value="Grupo:"/>
+						<text name="region_group">
+							The Mighty Moose of mooseville soundvillemoose
+						</text>
 						<button label="Región/Estado" name="region_info_btn"/>
 					</panel>
 				</accordion_tab>

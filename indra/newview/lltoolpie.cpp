@@ -39,6 +39,7 @@
 #include "llparcel.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
 //#include "llfirstuse.h"
@@ -263,7 +264,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 				
 				if (object)
 				{
-					gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+					gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
 					
 					LLBBox bbox = object->getBoundingBoxAgent() ;
 					F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
@@ -273,7 +274,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 					obj_to_cam.normVec();
 					
 					LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
-					gAgent.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance), 
+					gAgentCamera.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance), 
 													  object_center_global, 
 													  mPick.mObjectID );
 				}
@@ -336,7 +337,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			gViewerWindow->hideCursor();
 			LLToolCamera::getInstance()->setMouseCapture(TRUE);
 			LLToolCamera::getInstance()->pickCallback(mPick);
-			gAgent.setFocusOnAvatar(TRUE, TRUE);
+			gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
 
 			return TRUE;
 		}
@@ -412,24 +413,24 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	case CLICK_ACTION_SIT:
 		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // not already sitting?
 		{
-			cursor = UI_CURSOR_HAND;
+			cursor = UI_CURSOR_TOOLSIT;
 		}
 		break;
 	case CLICK_ACTION_BUY:
-		cursor = UI_CURSOR_HAND;
+		cursor = UI_CURSOR_TOOLBUY;
 		break;
 	case CLICK_ACTION_OPEN:
 		// Open always opens the parent.
 		if (parent && parent->allowOpen())
 		{
-			cursor = UI_CURSOR_HAND;
+			cursor = UI_CURSOR_TOOLOPEN;
 		}
 		break;
 	case CLICK_ACTION_PAY:	
 		if ((object && object->flagTakesMoney())
 			|| (parent && parent->flagTakesMoney()))
 		{
-			cursor = UI_CURSOR_HAND;
+			cursor = UI_CURSOR_TOOLBUY;
 		}
 		break;
 	case CLICK_ACTION_ZOOM:
@@ -496,6 +497,8 @@ void LLToolPie::selectionPropertiesReceived()
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
 	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
+	// perform a separate pick that detects transparent objects since they respond to 1-click actions
+	LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE);
 
 	// Show screen-space highlight glow effect
 	bool show_highlight = false;
@@ -507,10 +510,11 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		parent = object->getRootEdit();
 	}
 
-	if (object && useClickAction(mask, object, parent))
+	LLViewerObject* click_action_object = click_action_pick.getObject();
+	if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
 	{
 		show_highlight = true;
-		ECursorType cursor = cursor_from_object(object);
+		ECursorType cursor = cursor_from_object(click_action_object);
 		gViewerWindow->setCursor(cursor);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
@@ -592,7 +596,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	mGrabMouseButtonDown = FALSE;
 	LLToolMgr::getInstance()->clearTransientTool();
-	gAgent.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
+	gAgentCamera.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
 	return LLTool::handleMouseUp(x, y, mask);
 }
 
@@ -964,7 +968,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 					}
 				}
 			}
-
+			
 
 			// Avoid showing tip over media that's displaying unless it's for sale
 			// also check the primary node since sometimes it can have an action even though
@@ -972,9 +976,9 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			
 			bool needs_tip = (!is_media_displaying || 
 				              for_sale) &&
-							 (has_media || 
-							  needs_tooltip(nodep) || 
-							  needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode()));
+				(has_media || 
+				 needs_tooltip(nodep) || 
+				 needs_tooltip(LLSelectMgr::getInstance()->getPrimaryHoverNode()));
 			
 			if (show_all_object_tips || needs_tip)
 			{

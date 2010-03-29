@@ -1,17 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_classified_info">
-	<text name="title" value="Info sugli Annunci"/>
+	<panel.string name="l$_price">
+		L$ [PRICE]
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] teleport, [MAP] mappa, [PROFILE] profilo
+	</panel.string>
+	<panel.string name="date_fmt">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Abilitato
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Disattivato
+	</panel.string>
+	<text name="title" value="Informazioni inserzione"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="classified_name" value="[nome]"/>
-			<text name="classified_location" value="[caricando...]"/>
-			<text name="content_type" value="[tipo di contenuto]"/>
-			<text name="category" value="[categoria]"/>
-			<check_box label="Auto rinnovo settimanale" name="auto_renew"/>
-			<text name="price_for_listing" tool_tip="Prezzo di listino.">
-				L$[PREZZO]
-			</text>
-			<text name="classified_desc" value="[descrizione]"/>
+			<text_editor name="classified_name" value="[name]"/>
+			<text name="classified_location_label" value="Luogo:"/>
+			<text_editor name="classified_location" value="[loading...]"/>
+			<text name="content_type_label" value="Tipo di contenuto:"/>
+			<text_editor name="content_type" value="[content type]"/>
+			<text name="category_label" value="Categoria:"/>
+			<text_editor name="category" value="[category]"/>
+			<text name="creation_date_label" value="Data di creazione:"/>
+			<text_editor name="creation_date" tool_tip="Data di creazione" value="[date]"/>
+			<text name="price_for_listing_label" value="Prezzo per inserzione:"/>
+			<text_editor name="price_for_listing" tool_tip="Prezzo per inserzione:" value="[price]"/>
+			<layout_stack name="descr_stack">
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Clic:"/>
+					<text_editor name="click_through_text" tool_tip="Dati di click through" value="[clicks]"/>
+				</layout_panel>
+				<layout_panel name="price_layout_panel">
+					<text name="auto_renew_label" value="Rinnovo automatico:"/>
+					<text name="auto_renew" value="Abilitato"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Descrizione:"/>
+					<text_editor name="classified_desc" value="[descrizione]"/>
+				</layout_panel>
+			</layout_stack>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">

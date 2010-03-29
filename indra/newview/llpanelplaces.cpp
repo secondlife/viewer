@@ -278,6 +278,11 @@ BOOL LLPanelPlaces::postBuild()
 	mFilterEditor = getChild<LLFilterEditor>("Filter");
 	if (mFilterEditor)
 	{
+		//when list item is being clicked the filter editor looses focus
+		//committing on focus lost leads to detaching list items
+		//BUT a detached list item cannot be made selected and must not be clicked onto
+		mFilterEditor->setCommitOnFocusLost(false);
+
 		mFilterEditor->setCommitCallback(boost::bind(&LLPanelPlaces::onFilterEdit, this, _2, false));
 	}
 

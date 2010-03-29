@@ -1,45 +1,51 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="edit_profile_panel">
-   <string name="CaptionTextAcctInfo">
-       [ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
-   </string>
-   <string name="AcctTypeResident"
-    value="Rezydent" />
-   <string name="AcctTypeTrial"
-    value="Próbne" />
-   <string name="AcctTypeCharterMember"
-    value="Członek-zalożyciel" />
-   <string name="AcctTypeEmployee"
-    value="Pracownik Linden Lab" />
-   <string name="PaymentInfoUsed"
-    value="Dane Konta Używane" />
-   <string name="PaymentInfoOnFile"
-    value="Dane Konta Dostępne" />
-   <string name="NoPaymentInfoOnFile"
-    value="Brak Danych Konta" />
-   <string name="AgeVerified"
-    value="Wiek Zweryfikowany" />
-   <string name="NotAgeVerified"
-    value="Brak Weryfikacji Wieku" />
-   <string name="partner_edit_link_url">
-       http://www.secondlife.com/account/partners.php?lang=pl
-   </string>
-    <panel name="scroll_content_panel">
-    <panel name="data_panel" >
-     <panel name="lifes_images_panel">
-          <panel name="second_life_image_panel">
-              <text name="second_life_photo_title_text">
-			[SECOND_LIFE]:
-              </text>
-          </panel>
-      </panel>
-        <text name="title_partner_text" value="Partner:"/>
-        <panel name="partner_data_panel">
-            <text name="partner_text" value="[FIRST] [LAST]"/>
-         </panel>
-      <text name="text_box3">
-	Pracuś Mówi:
-      </text>
-    </panel>
-    </panel>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Edycja profilu" name="edit_profile_panel">
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE] [PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
+	<string name="AcctTypeResident" value="Rezydent"/>
+	<string name="AcctTypeTrial" value="Próbne"/>
+	<string name="AcctTypeCharterMember" value="Członek-zalożyciel"/>
+	<string name="AcctTypeEmployee" value="Pracownik Linden Lab"/>
+	<string name="PaymentInfoUsed" value="Dane konta używane"/>
+	<string name="PaymentInfoOnFile" value="Dane konta dostępne"/>
+	<string name="NoPaymentInfoOnFile" value="Brak danych konta"/>
+	<string name="AgeVerified" value="Wiek zweryfikowany"/>
+	<string name="NotAgeVerified" value="Brak weryfikacji wieku"/>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=pl
+	</string>
+	<string name="no_partner_text" value="Żadne"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="data_panel">
+				<panel name="lifes_images_panel">
+					<icon label="" name="2nd_life_edit_icon" tool_tip="Kliknij aby wybrać teksturę"/>
+				</panel>
+				<panel name="first_life_image_panel">
+					<text name="real_world_photo_title_text" value="Życie#1:"/>
+				</panel>
+				<icon label="" name="real_world_edit_icon" tool_tip="Kliknij aby wybrać teksturę"/>
+				<text name="title_homepage_text">
+					WWW:
+				</text>
+				<check_box label="Pokaż w wyszukiwarce" name="show_in_search_checkbox"/>
+				<text name="title_acc_status_text" value="Moje Konto:"/>
+				<text name="my_account_link" value="[[URL] idź do Dashboard]"/>
+				<text name="acc_status_text" value="Rezydent. Brak danych konta."/>
+				<text name="title_partner_text" value="Partner:"/>
+				<text name="partner_edit_link" value="[[URL] Edytuj]"/>
+				<panel name="partner_data_panel">
+					<text initial_value="(wyszukiwanie)" name="partner_text" value="[FIRST] [LAST]"/>
+				</panel>
+			</panel>
+		</panel>
+	</scroll_container>
+	<panel name="profile_me_buttons_panel">
+		<button label="Zapisz zmiany" name="save_btn"/>
+		<button label="Anuluj" name="cancel_btn"/>
+	</panel>
 </panel>

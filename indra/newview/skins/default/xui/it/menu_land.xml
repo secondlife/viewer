@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Land Pie">
-	<menu_item_call label="Info sul terreno" name="Place Information..."/>
-	<menu_item_call label="Siedi qui" name="Sit Here"/>
-	<menu_item_call label="Compra questo terreno" name="Land Buy"/>
-	<menu_item_call label="Compra permesso" name="Land Buy Pass"/>
+	<menu_item_call label="Informazioni sui terreni" name="Place Information..."/>
+	<menu_item_call label="Siediti qui" name="Sit Here"/>
+	<menu_item_call label="Acquista questo terreno" name="Land Buy"/>
+	<menu_item_call label="Acquista Permesso" name="Land Buy Pass"/>
 	<menu_item_call label="Costruisci" name="Create"/>
 	<menu_item_call label="Modifica terreno" name="Edit Terrain"/>
 </context_menu>

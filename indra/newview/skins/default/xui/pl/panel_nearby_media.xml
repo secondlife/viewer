@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="nearby_media">
+	<string name="empty_item_text">
+		&lt;empty&gt;
+	</string>
+	<string name="parcel_media_name">
+		Strumień Mediów Posiadłości
+	</string>
+	<string name="parcel_audio_name">
+		Strumień Audio Posiadłości
+	</string>
+	<string name="playing_suffix">
+		(odtwarzanie)
+	</string>
+	<panel name="minimized_controls">
+		<button label="Zatrzymaj" name="all_nearby_media_disable_btn" tool_tip="Wyłącz wszystkie media w pobliżu"/>
+		<button label="Włącz" name="all_nearby_media_enable_btn" tool_tip="Włącz wszystkie media w pobliżu"/>
+		<button name="open_prefs_btn" tool_tip="Uruchom preferencje medialne"/>
+		<button label="Więcej &gt;&gt;" label_selected="Mniej &lt;&lt;" name="more_less_btn" tool_tip="Zaawansowane"/>
+	</panel>
+	<panel name="nearby_media_panel">
+		<text name="nearby_media">
+			Media w pobliżu
+		</text>
+		<text name="show">
+			Pokaż:
+		</text>
+		<combo_box name="show_combo">
+			<combo_box.item label="Wszystkie" name="All"/>
+			<combo_box.item label="Na obecnej Parceli" name="WithinParcel"/>
+			<combo_box.item label="Poza Posiadłością" name="OutsideParcel"/>
+			<combo_box.item label="Na innych awatarach" name="OnOthers"/>
+		</combo_box>
+		<scroll_list name="media_list">
+			<scroll_list.columns label="Dokładność" name="media_proximity"/>
+			<scroll_list.columns label="Widoczność" name="media_visibility"/>
+			<scroll_list.columns label="Klasa" name="media_class"/>
+			<scroll_list.columns label="Nazwa" name="media_name"/>
+			<scroll_list.columns label="Debugowanie" name="media_debug"/>
+		</scroll_list>
+		<panel name="media_controls_panel">
+			<layout_stack name="media_controls">
+				<layout_panel name="stop">
+					<button name="stop_btn" tool_tip="Zatrzymaj wybrane media"/>
+				</layout_panel>
+				<layout_panel name="play">
+					<button name="play_btn" tool_tip="Odtwarzaj wybrane media"/>
+				</layout_panel>
+				<layout_panel name="pause">
+					<button name="pause_btn" tool_tip="Zatrzymaj wybrane media"/>
+				</layout_panel>
+				<layout_panel name="volume_slider_ctrl">
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Regulacja audio dla wybranych mediów"/>
+				</layout_panel>
+				<layout_panel name="mute">
+					<button name="mute_btn" tool_tip="Wycisz audio wybranych mediów"/>
+				</layout_panel>
+				<layout_panel name="zoom">
+					<button name="zoom_btn" tool_tip="Przybliż do wybranych mediów"/>
+				</layout_panel>
+				<layout_panel name="unzoom">
+					<button name="unzoom_btn" tool_tip="Oddal od wybranych mediów"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</panel>
+</panel>

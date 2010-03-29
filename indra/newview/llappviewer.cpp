@@ -44,6 +44,7 @@
 #include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
@@ -304,10 +305,7 @@ static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
 const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
-static const S32 FIRST_RUN_WINDOW_WIDTH = 1024;
 
-//should account for Windows task bar
-static const S32 FIRST_RUN_WINDOW_HIGHT = 738;
 //----------------------------------------------------------------------------
 
 // List of entries from strings.xml to always replace
@@ -1110,12 +1108,15 @@ bool LLAppViewer::mainLoop()
 					ms_sleep(500);
 				}
 
-
+				static const F64 FRAME_SLOW_THRESHOLD = 0.5; //2 frames per seconds				
 				const F64 min_frame_time = 0.0; //(.0333 - .0010); // max video frame rate = 30 fps
 				const F64 min_idle_time = 0.0; //(.0010); // min idle time = 1 ms
 				const F64 max_idle_time = run_multiple_threads ? min_idle_time : llmin(.005*10.0*gFrameTimeSeconds, 0.005); // 5 ms a second
 				idleTimer.reset();
-				while(1)
+				bool is_slow = (frameTimer.getElapsedTimeF64() > FRAME_SLOW_THRESHOLD) ;
+				S32 total_work_pending = 0;
+				S32 total_io_pending = 0;				
+				while(!is_slow)//do not unpause threads if the frame rates are very low.
 				{
 					S32 work_pending = 0;
 					S32 io_pending = 0;
@@ -1146,6 +1147,8 @@ bool LLAppViewer::mainLoop()
 						ms_sleep(llmin(io_pending/100,100)); // give the vfs some time to catch up
 					}
 
+					total_work_pending += work_pending ;
+					total_io_pending += io_pending ;
 					F64 frame_time = frameTimer.getElapsedTimeF64();
 					F64 idle_time = idleTimer.getElapsedTimeF64();
 					if (frame_time >= min_frame_time &&
@@ -1155,25 +1158,32 @@ bool LLAppViewer::mainLoop()
 						break;
 					}
 				}
+
+				 // Prevent the worker threads from running while rendering.
+				// if (LLThread::processorCount()==1) //pause() should only be required when on a single processor client...
+				if (run_multiple_threads == FALSE)
+				{
+					//LLFastTimer ftm(FTM_PAUSE_THREADS); //not necessary.
+	 				
+					if(!total_work_pending) //pause texture fetching threads if nothing to process.
+					{
+						LLAppViewer::getTextureCache()->pause();
+						LLAppViewer::getImageDecodeThread()->pause();
+						LLAppViewer::getTextureFetch()->pause(); 
+					}
+					if(!total_io_pending) //pause file threads if nothing to process.
+					{
+						LLVFSThread::sLocal->pause(); 
+						LLLFSThread::sLocal->pause(); 
+					}
+				}					
+
 				if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
 					(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))
 				{
 					gFrameStalls++;
 				}
 				frameTimer.reset();
-
-				 // Prevent the worker threads from running while rendering.
-				// if (LLThread::processorCount()==1) //pause() should only be required when on a single processor client...
-				if (run_multiple_threads == FALSE)
-				{
-					LLFastTimer ftm(FTM_PAUSE_THREADS);
-	 					
-					LLAppViewer::getTextureCache()->pause();
-					LLAppViewer::getImageDecodeThread()->pause();
-					// LLAppViewer::getTextureFetch()->pause(); // Don't pause the fetch (IO) thread
-				}
-				//LLVFSThread::sLocal->pause(); // Prevent the VFS thread from running while rendering.
-				//LLLFSThread::sLocal->pause(); // Prevent the LFS thread from running while rendering.
 
 				resumeMainloopTimeout();
 	
@@ -1516,6 +1526,8 @@ bool LLAppViewer::cleanup()
 	LLLocationHistory::getInstance()->save();
 
 	LLAvatarIconIDCache::getInstance()->save();
+	
+	LLViewerMedia::saveCookieFile();
 
 	llinfos << "Shutting down Threads" << llendflush;
 
@@ -2374,35 +2386,12 @@ bool LLAppViewer::initWindow()
 	// store setting in a global for easy access and modification
 	gNoRender = gSavedSettings.getBOOL("DisableRendering");
 
-	S32 window_x = gSavedSettings.getS32("WindowX");
-	S32 window_y = gSavedSettings.getS32("WindowY");
-	S32 window_width = gSavedSettings.getS32("WindowWidth");
-	S32 window_height = gSavedSettings.getS32("WindowHeight");
-
-	bool show_maximized = gSavedSettings.getBOOL("WindowMaximized");
-
-	bool first_run = gSavedSettings.getBOOL("FirstLoginThisInstall");
-
-	if (first_run)//for first login 
-	{
-		window_width = FIRST_RUN_WINDOW_WIDTH;//yep hardcoded
-		window_height = FIRST_RUN_WINDOW_HIGHT;
-		
-		//if screen resolution is lower then first run width/height then show maximized
-		LLDisplayInfo display_info;
-		if(display_info.getDisplayWidth() <= FIRST_RUN_WINDOW_WIDTH
-			|| display_info.getDisplayHeight()<=FIRST_RUN_WINDOW_HIGHT)
-		{
-			show_maximized = true;
-		}
-	}
-
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
 	gViewerWindow = new LLViewerWindow(gWindowTitle, 
 		VIEWER_WINDOW_CLASSNAME,
-		window_x, window_y,
-		window_width, window_height,
+		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
+		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
@@ -2413,7 +2402,7 @@ bool LLAppViewer::initWindow()
 		gViewerWindow->toggleFullscreen(FALSE);
 	}
 	
-	if (show_maximized)
+	if (gSavedSettings.getBOOL("WindowMaximized"))
 	{
 		gViewerWindow->mWindow->maximize();
 		gViewerWindow->getWindow()->setNativeAspectRatio(gSavedSettings.getF32("FullScreenAspectRatio"));
@@ -2508,9 +2497,9 @@ void LLAppViewer::cleanupSavedSettings()
 	gSavedSettings.setF32("MapScale", LLWorldMapView::sMapScale );
 
 	// Some things are cached in LLAgent.
-	if (gAgent.mInitialized)
+	if (gAgent.isInitialized())
 	{
-		gSavedSettings.setF32("RenderFarClip", gAgent.mDrawDistance);
+		gSavedSettings.setF32("RenderFarClip", gAgentCamera.mDrawDistance);
 	}
 }
 
@@ -3345,10 +3334,10 @@ void LLAppViewer::saveFinalSnapshot()
 {
 	if (!mSavedFinalSnapshot && !gNoRender)
 	{
-		gSavedSettings.setVector3d("FocusPosOnLogout", gAgent.calcFocusPositionTargetGlobal());
-		gSavedSettings.setVector3d("CameraPosOnLogout", gAgent.calcCameraPositionTargetGlobal());
+		gSavedSettings.setVector3d("FocusPosOnLogout", gAgentCamera.calcFocusPositionTargetGlobal());
+		gSavedSettings.setVector3d("CameraPosOnLogout", gAgentCamera.calcCameraPositionTargetGlobal());
 		gViewerWindow->setCursor(UI_CURSOR_WAIT);
-		gAgent.changeCameraToThirdPerson( FALSE );	// don't animate, need immediate switch
+		gAgentCamera.changeCameraToThirdPerson( FALSE );	// don't animate, need immediate switch
 		gSavedSettings.setBOOL("ShowParcelOwners", FALSE);
 		idle();
 
@@ -3758,7 +3747,7 @@ void LLAppViewer::idle()
 			LLViewerJoystick::getInstance()->moveObjects();
 		}
 
-		gAgent.updateCamera();
+		gAgentCamera.updateCamera();
 	}
 
 	// update media focus
@@ -4092,7 +4081,7 @@ void LLAppViewer::disconnectViewer()
 	LLFloaterInventory::cleanup();
 
 	gAgentWearables.cleanup();
-
+	gAgentCamera.cleanup();
 	// Also writes cached agent settings to gSavedSettings
 	gAgent.cleanup();
 

@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="incoming call" title="UNA PERSONA SCONOSCIUTA STA&apos; CHIAMANDO">
+<floater name="incoming call" title="UNA PERSONA SCONOSCIUTA STA CHIAMANDO">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
 	<floater.string name="localchat">
-		Voice Chat nei dintorni
+		Chat vocale nei dintorni
 	</floater.string>
 	<floater.string name="anonymous">
 		anonimo
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
-		stà chiamando.
+		sta chiamando.
 	</floater.string>
 	<floater.string name="VoiceInviteAdHoc">
-		ha aggiunto una chiamata in Voice Chat ad una conferenza in chat.
+		ha aderito ad una chiamata in chat vocale in conferenza.
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		ha accettato una chiamata in Chat vocale con il gruppo [GROUP].
 	</floater.string>
 	<text name="question">
 		Vuoi abbandonare [CURRENT_CHAT] e aderire a questa voice chat?

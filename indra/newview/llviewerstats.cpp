@@ -52,6 +52,7 @@
 #include "llsurface.h"
 #include "llvlmanager.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "llfloatertools.h"
 #include "lldebugview.h"
@@ -577,11 +578,11 @@ void update_statistics(U32 frame_count)
 	// make sure we have a valid time delta for this frame
 	if (gFrameIntervalSeconds > 0.f)
 	{
-		if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+		if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 		{
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_MOUSELOOK_SECONDS, gFrameIntervalSeconds);
 		}
-		else if (gAgent.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
+		else if (gAgentCamera.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
 		{
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_AVATAR_EDIT_SECONDS, gFrameIntervalSeconds);
 		}
@@ -827,7 +828,11 @@ void send_stats()
 	S32 window_height = gViewerWindow->getWindowHeightRaw();
 	S32 window_size = (window_width * window_height) / 1024;
 	misc["string_1"] = llformat("%d", window_size);
-	// misc["string_2"] = 
+	if (gDebugTimers.find(0) != gDebugTimers.end() && gFrameTimeSeconds > 0)
+	{
+		misc["string_2"] = llformat("Texture Time: %.2f, Total Time: %.2f", gDebugTimers[0].getElapsedTimeF32(), gFrameTimeSeconds);
+	}
+
 // 	misc["int_1"] = LLSD::Integer(gSavedSettings.getU32("RenderQualityPerformance")); // Steve: 1.21
 // 	misc["int_2"] = LLSD::Integer(gFrameStalls); // Steve: 1.21
 

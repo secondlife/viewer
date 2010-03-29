@@ -3,7 +3,7 @@
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
 	<tab_container name="pref core" tab_width="128" width="628">
-		<panel label="Público geral" name="general"/>
+		<panel label="Geral" name="general"/>
 		<panel label="Vídeo" name="display"/>
 		<panel label="Privacidade" name="im"/>
 		<panel label="Som e mídia" name="audio"/>

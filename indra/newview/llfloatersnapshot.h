@@ -64,6 +64,8 @@ public:
 	
 	static void update();
 	
+	void setAsProfilePic(const LLUUID& image_id);
+	
 	bool updateButtons(ESnapshotMode mode);
 	
 	static S32  getUIWinHeightLong()  {return sUIWinHeightLong ;}

@@ -12,7 +12,7 @@
  short_title="BUILD TOOLS"
  single_instance="true"
  sound_flags="0"
- width="280">
+ width="295">
     <floater.string
      name="status_rotate">
         Drag colored bands to rotate object
@@ -152,7 +152,7 @@
      left="8"
      name="text status"
      top_pad="3"
-     width="275">
+     width="285">
         Drag to move, shift-drag to copy
     </text>
    <radio_group
@@ -249,10 +249,10 @@
     <check_box
      left="10"
      follows="left|top"
-     height="16"
+     height="28"
 	 control_name="EditLinkedParts"
      label="Edit linked"
-     layout="topleft"
+     layout="topleft"     
      name="checkbox edit linked parts" >
 		  <check_box.commit_callback
 			function="BuildTool.selectComponent"/>
@@ -265,7 +265,7 @@
    left="13"
    name="RenderingCost"
    tool_tip="Shows the rendering cost calculated for this object"
-   top_pad="9"
+   top_pad="2"
    type="string"
    width="100">
    þ: [COUNT]
@@ -330,7 +330,7 @@
      top_delta="0"
      right="-10"
      width="18"
-     height="19" >
+     height="23" >
 	 <button.commit_callback
 	     function="BuildTool.gridOptions"/>
 	</button>
@@ -342,7 +342,7 @@
      image_selected="Object_Cube_Selected"
      image_unselected="Object_Cube"
      layout="topleft"
-     left="4"
+     left="10"
      name="ToolCube"
      tool_tip="Cube"
      top="51"
@@ -355,7 +355,7 @@
      image_selected="Object_Prism_Selected"
      image_unselected="Object_Prism"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolPrism"
      tool_tip="Prism"
      top_delta="0"
@@ -368,7 +368,7 @@
      image_selected="Object_Pyramid_Selected"
      image_unselected="Object_Pyramid"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolPyramid"
      tool_tip="Pyramid"
      top_delta="0"
@@ -381,7 +381,7 @@
      image_selected="Object_Tetrahedron_Selected"
      image_unselected="Object_Tetrahedron"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolTetrahedron"
      tool_tip="Tetrahedron"
      top_delta="0"
@@ -394,7 +394,7 @@
      image_selected="Object_Cylinder_Selected"
      image_unselected="Object_Cylinder"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolCylinder"
      tool_tip="Cylinder"
      top_delta="0"
@@ -407,7 +407,7 @@
      image_selected="Object_Hemi_Cylinder_Selected"
      image_unselected="Object_Hemi_Cylinder"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolHemiCylinder"
      tool_tip="Hemicylinder"
      top_delta="0"
@@ -420,7 +420,7 @@
      image_selected="Object_Cone_Selected"
      image_unselected="Object_Cone"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolCone"
      tool_tip="Cone"
      top_delta="0"
@@ -433,7 +433,7 @@
      image_selected="Object_Hemi_Cone_Selected"
      image_unselected="Object_Hemi_Cone"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolHemiCone"
      tool_tip="Hemicone"
      top_delta="0"
@@ -446,7 +446,7 @@
      image_selected="Object_Sphere_Selected"
      image_unselected="Object_Sphere"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolSphere"
      tool_tip="Sphere"
      top_delta="0"
@@ -459,7 +459,7 @@
      image_selected="Object_Hemi_Sphere_Selected"
      image_unselected="Object_Hemi_Sphere"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolHemiSphere"
      tool_tip="Hemisphere"
      top_delta="0"
@@ -472,7 +472,7 @@
      image_selected="Object_Torus_Selected"
      image_unselected="Object_Torus"
      layout="topleft"
-     left="4"
+     left="10"
      name="ToolTorus"
      tool_tip="Torus"
      top="77"
@@ -485,7 +485,7 @@
      image_selected="Object_Tube_Selected"
      image_unselected="Object_Tube"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolTube"
      tool_tip="Tube"
      top_delta="0"
@@ -498,7 +498,7 @@
      image_selected="Object_Ring_Selected"
      image_unselected="Object_Ring"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolRing"
      tool_tip="Ring"
      top_delta="0"
@@ -511,7 +511,7 @@
      image_selected="Object_Tree_Selected"
      image_unselected="Object_Tree"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolTree"
      tool_tip="Tree"
      top_delta="0"
@@ -525,7 +525,7 @@
      image_unselected="Object_Grass"
      image_overlay_color="Red"
      layout="topleft"
-     left_delta="26"
+     left_delta="29"
      name="ToolGrass"
      tool_tip="Grass"
      top_delta="0"
@@ -639,7 +639,7 @@
      follows="left|top"
      height="12"
      layout="topleft"
-     left="150"
+     left="135"
      name="Bulldozer:"
      top="57"
      width="100">
@@ -697,7 +697,7 @@
     </slider_bar>
     <button
      follows="left|top"
-     height="19"
+     height="23"
      label="Apply"
      label_selected="Apply"
      top_pad="5"
@@ -705,7 +705,7 @@
      left="135"
      name="button apply to selection"
      tool_tip="Modify selected land"
-     width="78">
+     width="82">
 	  <button.commit_callback
 	     function="BuildTool.applyToSelection"/>
     </button>
@@ -713,13 +713,13 @@
     text_color="LtGray_50"
      type="string"
      length="1"
-     height="12"
+     height="10"
      follows="left|top"
      halign="right"
      layout="topleft"
      right="-10"
      name="obj_count"
-     top_pad="6"
+     top_pad="5"
      width="143">
         Objects: [COUNT]
     </text>
@@ -741,12 +741,12 @@
      halign="center"
      left="0"
      name="Object Info Tabs"
-     tab_max_width="54"
+     tab_max_width="100"
      tab_min_width="40"
      tab_position="top"
      tab_height="25"
      top="170"
-     width="280">
+     width="295">
 	<panel
 	 border="false"
 	 follows="all"
@@ -756,8 +756,8 @@
 	 help_topic="toolbox_general_tab"
 	 name="General"
 	 top="16"
-	 width="280">
-	 <panel.string
+	 width="295">
+<panel.string
 	  name="text deed continued">
 		Deed
 	 </panel.string>
@@ -922,13 +922,13 @@
              width="150" />
             <button
              follows="top|left"
-             height="20"
+             height="23"
              label="Deed"
              label_selected="Deed"
              layout="topleft"
              name="button deed"
              top_pad="0"
-             left="100"
+             left="108"
              tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
              width="80" />
             <check_box
@@ -949,12 +949,12 @@
              top_pad="15"
              left="10"
              name="label click action"
-             width="90">
+             width="98">
                 Click to:
             </text>
             <combo_box
              follows="left|top"
-             height="20"
+             height="23"
              layout="topleft"
              name="clickaction"
              width="168"
@@ -985,25 +985,24 @@
                  value="Zoom" />
             </combo_box>
             <check_box
-             height="16"
-             top_pad="15"
+             height="23"
              label="For Sale:"
              layout="topleft"
              name="checkbox for sale"
              left="7"
-             width="93" />
+             width="100" />
 <!-- NEW SALE TYPE COMBO BOX -->
       <combo_box
-            left_pad="3"
+            left_pad="0"
             layout="topleft"
             follows="left|top"
             allow_text_entry="false"
-            height="20"
+            height="23"
             intial_value="2"
             max_chars="20"
             mouse_opaque="true"
             name="sale type"
-            width="158">
+            width="168">
         <combo_box.item
            name="Copy"
            label="Copy"
@@ -1026,12 +1025,12 @@ even though the user gets a free copy.
         decimal_digits="0"
         increment="1"
         top_pad="8"
-        left="100"
+        left="108"
         control_name="Edit Cost"
         name="Edit Cost"
         label="Price: L$"
         label_width="65"
-        width="150"
+        width="165"
         min_val="0"
         height="20"
         max_val="999999999" />
@@ -1055,7 +1054,7 @@ even though the user gets a free copy.
          left="0"
          top="241"
          height="130"
-         width="278">
+         width="290">
             <text
              type="string"
              length="1"
@@ -1082,7 +1081,7 @@ even though the user gets a free copy.
              label="Move"
              layout="topleft"
              name="checkbox allow everyone move"
-             left="15"
+             left="10"
              width="85" />
             <check_box
              height="19"
@@ -1104,9 +1103,9 @@ even though the user gets a free copy.
              follows="left|top|right"
              label="Modify"
              layout="topleft"
-             left="5"
+             left="10"
              name="checkbox next owner can modify"
-             width="80" />
+             width="85" />
             <check_box
              follows="left|top|right"
              height="19"
@@ -1212,7 +1211,7 @@ even though the user gets a free copy.
          help_topic="toolbox_object_tab"
          name="Object"
          top="16"
-         width="280">
+         width="295">
             <check_box
              height="19"
              label="Locked"
@@ -1553,7 +1552,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="text hollow"
-             top_pad="5"
+             top_pad="6"
              width="68">
                 Hollow
             </text>
@@ -1601,16 +1600,16 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="Hollow Shape"
-             top_pad="0"
+             top_pad="4"
              width="150">
                 Hollow Shape
             </text>
             <combo_box
-             height="19"
+             height="23"
              layout="topleft"
              left_delta="0"
              name="hole"
-             top_pad="3"
+             top_pad="-2"
              width="150">
                 <combo_box.item
                  label="Default"
@@ -1882,7 +1881,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="text radius delta"
-             top_pad="0"
+             top_pad="2"
              width="78">
                 Radius
             </text>
@@ -1999,7 +1998,6 @@ even though the user gets a free copy.
                  value="Cylinder" />
             </combo_box>
         </panel>
-
         <panel
          border="false"
          follows="all"
@@ -2011,7 +2009,7 @@ even though the user gets a free copy.
          help_topic="toolbox_features_tab"
          name="Features"
          top_delta="0"
-         width="280">
+         width="295">
             <text
              type="string"
              length="1"
@@ -2249,7 +2247,7 @@ even though the user gets a free copy.
          help_topic="toolbox_texture_tab"
          name="Texture"
          top_delta="0"
-         width="280">
+         width="295">
             <panel.string
              name="string repeats per meter">
                 Repeats Per Meter
@@ -2313,7 +2311,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_delta="0"
              name="glow label"
-             top_pad="2"
+             top_pad="8"
              width="80">
                 Glow
             </text>
@@ -2344,7 +2342,7 @@ even though the user gets a free copy.
              left="10"
              name="tex gen"
              top_pad="5"
-             width="85">
+             width="90">
                 Mapping
             </text>
             <combo_box
@@ -2353,7 +2351,7 @@ even though the user gets a free copy.
              left_delta="0"
              name="combobox texgen"
              top_pad="4"
-             width="85">
+             width="90">
                 <combo_box.item
                  label="Default"
                  name="Default"
@@ -2372,7 +2370,7 @@ even though the user gets a free copy.
              name="label shininess"
              left_pad="4"
              top_pad="-36"
-             width="85">
+             width="90">
                 Shininess
             </text>
             <combo_box
@@ -2381,7 +2379,7 @@ even though the user gets a free copy.
              left_delta="0"
              name="combobox shininess"
              top_pad="4"
-             width="85">
+             width="90">
                 <combo_box.item
                  label="None"
                  name="None"
@@ -2408,7 +2406,7 @@ even though the user gets a free copy.
              left_pad="4"
              name="label bumpiness"
              top_pad="-36"
-             width="85">
+             width="90">
                 Bumpiness
             </text>
             <combo_box
@@ -2417,7 +2415,7 @@ even though the user gets a free copy.
              left_delta="0"
              name="combobox bumpiness"
              top_pad="4"
-             width="85">
+             width="90">
                 <combo_box.item
                  label="None"
                  name="None"
@@ -2533,7 +2531,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="10"
              name="tex scale"
-             top_pad="5"
+             top_pad="4"
              width="200">
                 Repeats / Face
             </text>
@@ -2567,7 +2565,6 @@ even though the user gets a free copy.
              left="20"
              max_val="100"
              name="TexScaleV"
-             top_pad="0"
              width="160" />
             <check_box
              height="19"
@@ -2577,7 +2574,6 @@ even though the user gets a free copy.
              name="checkbox flip t"
              top_delta="0"
              width="70" />
-
             <spinner
              decimal_digits="2"
              follows="left|top"
@@ -2591,13 +2587,12 @@ even though the user gets a free copy.
              max_val="9999"
              min_val="-9999"
              name="TexRot"
-             top_delta="25"
              width="170" />
 
             <spinner
              decimal_digits="1"
              follows="left|top"
-             height="19"
+             height="23"
              initial_value="1"
 			 label="Repeats / Meter"
              layout="topleft"
@@ -2606,7 +2601,6 @@ even though the user gets a free copy.
              max_val="10"
              min_val="0.1"
              name="rptctrl"
-             top_delta="20"
              width="170" />
             <button
              follows="left|top"
@@ -2625,7 +2619,6 @@ even though the user gets a free copy.
              layout="topleft"
              left="10"
              name="tex offset"
-             top_delta="20"
              width="200">
                 Texture Offset
             </text>
@@ -2639,7 +2632,6 @@ even though the user gets a free copy.
              left="20"
              min_val="-1"
              name="TexOffsetU"
-             top_pad="6"
              width="160" />
             <spinner
              follows="left|top"
@@ -2662,30 +2654,20 @@ even though the user gets a free copy.
          bg_alpha_color="DkGray"
          name="Add_Media"
          left="0"
-         top_pad="0"
-         height="75"
-         width="278">
+         height="63"
+         width="290">
             <text
              type="string"
              length="1"
              follows="left|top"
-             height="12"
+             height="18"
              layout="topleft"
              left="10"
-             top_pad="5"
+             top_pad="3"
              name="media_tex"
-             width="260">
+             width="190">
               Media
 			</text>
-			<text
-			 follows="left|top|right"
-			 height="18"
-			 layout="topleft"
-			 left="10"
-                         use_ellipses="true"
-			 read_only="true"
-			 name="media_info"
-			 width="180" />
 			<button
 			 follows="top|left"
 			 height="18"
@@ -2731,6 +2713,15 @@ even though the user gets a free copy.
 				<button.commit_callback
 				function="BuildTool.EditMedia"/>
 			</button>
+      <text
+			 follows="left|top|right"
+			 height="9"
+			 layout="topleft"
+			 left="10"
+                         use_ellipses="true"
+			 read_only="true"
+			 name="media_info"
+			 width="280" />
       <web_browser
         visible="false"
         enabled="false"
@@ -2744,16 +2735,15 @@ even though the user gets a free copy.
         start_url="about:blank"
         decouple_texture_size="true" />
      <button
-			 follows="left|top"
-			 height="23"
+			 follows="right|top"
+			 height="22"
 			 label="Align"
 			 label_selected="Align Media"
 			 layout="topleft"
-			 left="10"
+			 right="-10"
 			 name="button align"
-			 top_pad="5"
 			 tool_tip="Align media texture (must load first)"
-			 width="100" />
+			 width="80" />
 		</panel>
 	   </panel>
        <panel
@@ -2766,36 +2756,36 @@ even though the user gets a free copy.
          help_topic="toolbox_contents_tab"
          name="Contents"
          top_delta="0"
-         width="280">
+         width="295">
             <button
              follows="left|top"
-             height="19"
+             height="23"
              label="New Script"
              label_selected="New Script"
              layout="topleft"
              left="10"
              name="button new script"
              top="10"
-             width="120" />
+             width="134" />
             <button
              follows="left|top"
-             height="19"
+             height="23"
              label="Permissions"
              layout="topleft"
              left_pad="8"
              name="button permissions"
-             width="130" />
+             width="134" />
             <panel_inventory_object
              border="true"
              border_visible="true"
              bevel_style="in"
-             follows="left|top"
+             follows="left|top|right"
              height="325"
              layout="topleft"
              left="10"
              name="contents_inventory"
              top="50"
-             width="260" />
+             width="275" />
 		</panel>
         </tab_container>
 	<panel
@@ -2805,7 +2795,7 @@ even though the user gets a free copy.
      left_delta="0"
      name="land info panel"
      top_delta="0"
-     width="280">
+     width="295">
     <text
          type="string"
          length="1"
@@ -2845,7 +2835,7 @@ even though the user gets a free copy.
         </text>
         <button
          follows="left|top"
-         height="20"
+         height="23"
          label="About Land"
          label_selected="About Land"
          layout="topleft"
@@ -2878,7 +2868,7 @@ even though the user gets a free copy.
         </text>
         <button
          follows="left|top"
-         height="20"
+         height="23"
          label="Subdivide"
          label_selected="Subdivide"
          layout="topleft"
@@ -2888,7 +2878,7 @@ even though the user gets a free copy.
          width="112" />
         <button
          follows="left|top"
-         height="20"
+         height="23"
          label="Join"
          label_selected="Join"
          layout="topleft"
@@ -2911,7 +2901,7 @@ even though the user gets a free copy.
         </text>
         <button
          follows="left|top"
-         height="20"
+         height="23"
          label="Buy Land"
          label_selected="Buy Land"
          layout="topleft"
@@ -2921,7 +2911,7 @@ even though the user gets a free copy.
          width="112" />
         <button
          follows="left|top"
-         height="20"
+         height="23"
          label="Abandon Land"
          label_selected="Abandon Land"
          layout="topleft"

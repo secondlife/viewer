@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="IMPREZA" name="Event" title="IMPREZA">
+	<floater.string name="none">
+		żadne
+	</floater.string>
+	<floater.string name="notify">
+		Zawiadom
+	</floater.string>
+	<floater.string name="dont_notify">
+		Nie zawiadamiaj
+	</floater.string>
+	<floater.string name="moderate">
+		Mature
+	</floater.string>
+	<floater.string name="adult">
+		Adult
+	</floater.string>
+	<floater.string name="general">
+		PG
+	</floater.string>
+	<floater.string name="unknown">
+		Nieznana
+	</floater.string>
+	<layout_stack name="layout">
+		<layout_panel name="profile_stack">
+			<text name="event_name">
+				Brak nazwy dla wydarzenia.
+			</text>
+			<text name="event_category">
+				(bez kategorii)
+			</text>
+			<text name="event_runby_label">
+				Prowadzona przez:
+			</text>
+			<text initial_value="(przetwarzanie)" name="event_runby"/>
+			<text name="event_date_label">
+				Data:
+			</text>
+			<text name="event_date">
+				10/10/2010
+			</text>
+			<text name="event_duration_label">
+				Długość:
+			</text>
+			<text name="event_duration">
+				1 godzina
+			</text>
+			<text name="event_covercharge_label">
+				Opłata:
+			</text>
+			<text name="event_cover">
+				Bez opłaty
+			</text>
+			<text name="event_location_label">
+				Lokalizacja:
+			</text>
+			<text name="event_location" value="SampleParcel, Name Long (145, 228, 26)"/>
+			<text name="rating_label" value="Rodzaj:"/>
+			<text name="rating_value" value="nieznane"/>
+			<expandable_text name="event_desc">
+				Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			</expandable_text>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<button name="create_event_btn" tool_tip="Stwórz Imprezę"/>
+			<button name="god_delete_event_btn" tool_tip="Skasuj Imprezę"/>
+			<button label="Zawiadom mnie" name="notify_btn"/>
+			<button label="Teleportuj" name="teleport_btn"/>
+			<button label="Mapa" name="map_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

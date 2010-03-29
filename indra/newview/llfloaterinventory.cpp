@@ -34,7 +34,7 @@
 
 #include "llfloaterinventory.h"
 
-#include "llagent.h"
+#include "llagentcamera.h"
 //#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llinventorymodel.h"
@@ -64,42 +64,6 @@ BOOL LLFloaterInventory::postBuild()
 	return TRUE;
 }
 
-
-void LLFloaterInventory::draw()
-{
-	updateTitle();
-	LLFloater::draw();
-}
-
-void LLFloaterInventory::updateTitle()
-{
-	LLLocale locale(LLLocale::USER_LOCALE);
-	std::string item_count_string;
-	LLResMgr::getInstance()->getIntegerString(item_count_string, gInventory.getItemCount());
-
-	LLStringUtil::format_map_t string_args;
-	string_args["[ITEM_COUNT]"] = item_count_string;
-	string_args["[FILTER]"] = mPanelMainInventory->getFilterText();
-
-	if (LLInventoryModel::backgroundFetchActive())
-	{
-		setTitle(getString("TitleFetching", string_args));
-	}
-	else if (LLInventoryModel::isEverythingFetched())
-	{
-		setTitle(getString("TitleCompleted", string_args));
-	}
-	else
-	{
-		setTitle(getString("Title"));
-	}
-}
-
-void LLFloaterInventory::changed(U32 mask)
-{
-	updateTitle();
-}
-
 LLInventoryPanel* LLFloaterInventory::getPanel()
 {
 	if (mPanelMainInventory)
@@ -115,7 +79,7 @@ LLFloaterInventory* LLFloaterInventory::showAgentInventory()
 	instance_num = (instance_num + 1) % S32_MAX;
 
 	LLFloaterInventory* iv = NULL;
-	if (!gAgent.cameraMouselook())
+	if (!gAgentCamera.cameraMouselook())
 	{
 		iv = LLFloaterReg::showTypedInstance<LLFloaterInventory>("inventory", LLSD(instance_num));
 	}

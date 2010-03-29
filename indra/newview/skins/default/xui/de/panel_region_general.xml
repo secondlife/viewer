@@ -33,7 +33,7 @@
 	<icons_combo_box label="Moderat" name="access_combo">
 		<icons_combo_box.item label="Adult" name="Adult" value="42"/>
 		<icons_combo_box.item label="Moderat" name="Mature" value="21"/>
-		<icons_combo_box.item label="Allgemein" name="PG" value="13"/>
+		<icons_combo_box.item label="Generell" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="Übernehmen" name="apply_btn"/>
 	<button label="Einen Einwohner nach Hause teleportieren..." name="kick_btn"/>

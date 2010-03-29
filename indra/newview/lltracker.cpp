@@ -50,6 +50,7 @@
 #include "llappviewer.h"
 #include "lltracker.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llfloaterworldmap.h"
 #include "llhudtext.h"
@@ -480,14 +481,14 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 							 const std::string& label )
 {
 	sCheesyBeacon = gSavedSettings.getBOOL("CheesyBeacon");
-	LLVector3d to_vec = pos_global - gAgent.getCameraPositionGlobal();
+	LLVector3d to_vec = pos_global - gAgentCamera.getCameraPositionGlobal();
 
 	F32 dist = (F32)to_vec.magVec();
 	F32 color_frac = 1.f;
 	if (dist > 0.99f * LLViewerCamera::getInstance()->getFar())
 	{
 		color_frac = 0.4f;
-	//	pos_global = gAgent.getCameraPositionGlobal() + 0.99f*(LLViewerCamera::getInstance()->getFar()/dist)*to_vec;
+	//	pos_global = gAgentCamera.getCameraPositionGlobal() + 0.99f*(LLViewerCamera::getInstance()->getFar()/dist)*to_vec;
 	}
 	else
 	{

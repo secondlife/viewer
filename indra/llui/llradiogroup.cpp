@@ -106,7 +106,6 @@ LLRadioGroup::LLRadioGroup(const LLRadioGroup::Params& p)
 
 void LLRadioGroup::initFromParams(const Params& p)
 {
-	LLUICtrl::initFromParams(p);
 	for (LLInitParam::ParamIterator<ItemParams>::const_iterator it = p.items().begin();
 		it != p.items().end();
 		++it)
@@ -124,6 +123,9 @@ void LLRadioGroup::initFromParams(const Params& p)
 		LLRadioCtrl* item = LLUICtrlFactory::create<LLRadioCtrl>(item_params, this);
 		mRadioButtons.push_back(item);
 	}
+
+	// call this *after* setting up mRadioButtons so we can handle setValue() calls
+	LLUICtrl::initFromParams(p);
 }
 
 
@@ -137,10 +139,6 @@ BOOL LLRadioGroup::postBuild()
 	if (!mRadioButtons.empty())
 	{
 		mRadioButtons[0]->setTabStop(true);
-	}
-	if (mControlVariable)
-	{
-		setSelectedIndex(mControlVariable->getValue().asInteger());
 	}
 	return TRUE;
 }

@@ -215,6 +215,8 @@ struct LLOfferInfo
 		mIM(IM_NOTHING_SPECIAL), mType(LLAssetType::AT_NONE) {};
 	LLOfferInfo(const LLSD& sd);
 
+	LLOfferInfo(const LLOfferInfo& info);
+
 	void forceResponse(InventoryOfferResponse response);
 
 	EInstantMessage mIM;

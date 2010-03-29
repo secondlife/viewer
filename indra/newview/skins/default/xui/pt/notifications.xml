@@ -106,7 +106,7 @@ Por favor, selecione apenas um objeto e tente novamente.
 	</notification>
 	<notification name="FriendsAndGroupsOnly">
 		Residentes que não são amigos não veem que você decidiu ignorar ligações e MIs deles.
-		<usetemplate name="okbutton" yestext="Sim"/>
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GrantModifyRights">
 		Conceder direitos de modificação a outros residentes vai autorizá-los a mudar, apagar ou pegar TODOS os seus objetos. Seja MUITO cuidadoso ao conceder esta autorização. 
@@ -442,7 +442,6 @@ O objeto pode estar fora de alcance ou ter sido deletado.
 	<notification name="UnsupportedHardware">
 		Sabe de uma coisa? Seu computador não tem os requisitos mínimos do [APP_NAME].  Talvez o desempenho seja um pouco sofrível.  O suporte não pode atender pedidos de assistência técnicas em sistemas não suportados. 
 
-MINSPECS
 Consultar [_URL] para mais informações?
 		<url name="url" option="0">
 			http://secondlife.com/support/sysreqs.php?lang=pt
@@ -1283,19 +1282,19 @@ Salvar na pasta Aplicativos?
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
 		Você é atualmente um membro do grupo [GROUP].
-Deixar este grupo?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Deixar"/>
+Sair do grupo?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sair"/>
 	</notification>
 	<notification name="ConfirmKick">
-		Você quer REALMENTE expulsar todos os usuários deste grid?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Expulsar todos os usuários"/>
+		Tem CERTEZA de que deseja expulsar todos os residentes do grid?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Chutar todos"/>
 	</notification>
 	<notification name="MuteLinden">
 		Desculpe, nenhum Linden pode ser bloqueado.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CannotStartAuctionAlreadyForSale">
-		Você não pode começar um leilão com um lote que já foi colocado à venda.  Desabilite a venda da terra se você tem certeza que deseja iniciar um leilão.
+		Você não pode começar um leilão com um lote que já foi colocado à venda. Desabilite a venda se você tem certeza que deseja fazer um leilão.
 	</notification>
 	<notification label="Falha ao bloquear objeto por nome" name="MuteByNameFailed">
 		Você já bloqueou este residente.
@@ -1328,7 +1327,7 @@ O bate-papo e MIs não serão exibidos.  MIs enviadas para você receberão sua 
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="KickUser">
-		Expulsar este usuário com qual mensagem?
+		Chutar este residente com qual mensagem?
 		<form name="form">
 			<input name="message">
 				Um administrador desligou você.
@@ -1348,7 +1347,7 @@ O bate-papo e MIs não serão exibidos.  MIs enviadas para você receberão sua 
 		</form>
 	</notification>
 	<notification name="FreezeUser">
-		Paralise este usuário com qual mensagem?
+		Congelar este residente com qual mensagem?
 		<form name="form">
 			<input name="message">
 				Você foi congelado. Você não pode se mover ou conversar. Um administrador irá contatá-lo via mensagem instantânea (MI).
@@ -1358,7 +1357,7 @@ O bate-papo e MIs não serão exibidos.  MIs enviadas para você receberão sua 
 		</form>
 	</notification>
 	<notification name="UnFreezeUser">
-		Liberar este usuário com qual mensagem?
+		Descongelar este residente com qual mensagem?
 		<form name="form">
 			<input name="message">
 				Você não está mais congelado.
@@ -1378,7 +1377,7 @@ O bate-papo e MIs não serão exibidos.  MIs enviadas para você receberão sua 
 		</form>
 	</notification>
 	<notification name="OfferTeleportFromGod">
-		God user convocou para a sua localização?
+		Convocar residente à sua localização com poderes de deus?
 		<form name="form">
 			<input name="message">
 				Junte-se a mim em [REGION]
@@ -1408,11 +1407,11 @@ O bate-papo e MIs não serão exibidos.  MIs enviadas para você receberão sua 
 		</form>
 	</notification>
 	<notification label="Mudar propriedade Linden" name="ChangeLindenEstate">
-		Você está prestes a mudar uma propriedade pertencente a Linden (continente, teen grid, orientação, etc.)
+		Você está prestes a modificar uma propriedade da Linden (continente, teen, grid, orientação, etc)
 
-Isto é EXTREMAMENTE PERIGOSO porque pode fundamentalmente afetar a experiência do usuário. No continente, vai mudar milhares de regiões e fazer o spaceserver soluçar.
+Esta ação é EXTREMAMENTE PERIGOSA -- ela pode afetar a experiência dos residentes.  No continente, isso vai mudar milhares de regiões e deixar o spaceserver sobrecarregado.
 
-Proceder?
+Deseja prosseguir?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Mudar Propriedade"/>
 	</notification>
 	<notification label="Mudar o acesso à propriedade Linden" name="ChangeLindenAccess">
@@ -2399,14 +2398,6 @@ Deixar?
 			<button name="Ignore" text="Ignorar"/>
 		</form>
 	</notification>
-	<notification name="ScriptToast">
-		[FIRST] [LAST], &apos;[TITLE]&apos; está pedindo dados de usuário.
-		<form name="form">
-			<button name="Open" text="Abrir diálogo"/>
-			<button name="Ignore" text="Ignorar"/>
-			<button name="Block" text="Bloquear"/>
-		</form>
-	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		Obrigado e volte sempre! 
 
@@ -2533,7 +2524,7 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		Tem certeza de que quer fechar todas as MIs?
-		<usetemplate name="okcancelignore" notext="Cancelar" yestext="OK"/>
+		<usetemplate ignoretext="Confirmar antes de fechar todas as MIs" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		Anexo salvo.

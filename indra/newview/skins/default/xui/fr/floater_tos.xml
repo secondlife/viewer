@@ -9,9 +9,9 @@
 	<text name="tos_title">
 		Acceptation des Conditions Générales d&apos;Utilisation
 	</text>
-	<check_box label="J&apos;accepte les Conditions d&apos;utilisation" name="agree_chk"/>
+	<check_box label="J&apos;accepte les Conditions d&apos;utilisation et le Règlement sur le respect de la vie privée" name="agree_chk"/>
 	<text name="tos_heading">
-		Veuillez lire attentivement les Conditions d&apos;utilisation suivantes. Pour vous connecter à [SECOND_LIFE], vous devez accepter l&apos;accord.
+		Veuillez lire attentivement les Conditions d&apos;utilisation et le Règlement sur le respect de la vie privée suivants. Vous devez les accepter pour pouvoir vous connecter à [SECOND_LIFE].
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

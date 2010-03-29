@@ -403,7 +403,7 @@ top_pad="10"
 		 layout="topleft"
 		 name="button_panel"
 		 left="5"
-		 bottom="2"
+		 top_pad="0"
 		 width="313">
 	    <button
 		     height="23"

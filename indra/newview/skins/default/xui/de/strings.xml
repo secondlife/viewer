@@ -23,7 +23,22 @@
 		Hardware wird erfasst...
 	</string>
 	<string name="StartupLoading">
-		Wird geladen
+		[APP_NAME] wird geladen...
+	</string>
+	<string name="StartupClearingCache">
+		Cache wird gelöscht...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		Textur-Cache wird initialisiert...
+	</string>
+	<string name="StartupInitializingVFS">
+		VFS wird initialisiert...
+	</string>
+	<string name="ProgressRestoring">
+		Wird wiederhergestellt...
+	</string>
+	<string name="ProgressChangingResolution">
+		Auflösung wird geändert...
 	</string>
 	<string name="Fullbright">
 		Fullbright (Legacy)
@@ -88,6 +103,9 @@
 	<string name="LoginFailedNoNetwork">
 		Netzwerk Fehler: Eine Verbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.
 	</string>
+	<string name="LoginFailed">
+		Anmeldung fehlgeschlagen
+	</string>
 	<string name="Quit">
 		Beenden
 	</string>
@@ -96,6 +114,24 @@
 	</string>
 	<string name="AgentLostConnection">
 		In dieser Region kann es zu Problemen kommen.  Bitte überprüfen Sie Ihre Internetverbindung.
+	</string>
+	<string name="SavingSettings">
+		Ihr Einstellungen werden gespeichert...
+	</string>
+	<string name="LoggingOut">
+		Abmeldung erfolgt...
+	</string>
+	<string name="ShuttingDown">
+		Programm wird beendet...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		Die Verbindung zu der Region ist abgebrochen.
+	</string>
+	<string name="SentToInvalidRegion">
+		Sie wurden in eine ungültige Region geschickt.
+	</string>
+	<string name="TestingDisconnect">
+		Verbindungsabbruch wird getestet
 	</string>
 	<string name="TooltipPerson">
 		Person
@@ -151,6 +187,24 @@
 	<string name="TooltipAgentUrl">
 		Anklicken, um das Profil dieses Einwohners anzuzeigen
 	</string>
+	<string name="TooltipAgentMute">
+		Klicken, um diesen Einwohner stummzuschalten
+	</string>
+	<string name="TooltipAgentUnmute">
+		Klicken, um diesen Einwohner freizuschalten
+	</string>
+	<string name="TooltipAgentIM">
+		Klicken, um diesem Einwohner eine IM zu schicken.
+	</string>
+	<string name="TooltipAgentPay">
+		Klicken, um diesen Einwohner zu bezahlen
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		Klicken, um diesem Einwohner einen Teleport anzubieten.
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		Klicken, um diesem Einwohner ein Freundschaftsangebot zu schicken.
+	</string>
 	<string name="TooltipGroupUrl">
 		Anklicken, um Beschreibung der Gruppe anzuzeigen
 	</string>
@@ -176,11 +230,30 @@
 		Anklicken, um Befehl secondlife:// auszuführen
 	</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]"/>
+	<string name="TooltipPrice" value="[PRICE] L$"/>
 	<string name="SLurlLabelTeleport">
 		Teleportieren nach
 	</string>
 	<string name="SLurlLabelShowOnMap">
 		Karte anzeigen für
+	</string>
+	<string name="SLappAgentMute">
+		Stummschalten
+	</string>
+	<string name="SLappAgentUnmute">
+		Stummschaltung aufheben
+	</string>
+	<string name="SLappAgentIM">
+		IM
+	</string>
+	<string name="SLappAgentPay">
+		Bezahlen
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		Teleportangebot an
+	</string>
+	<string name="SLappAgentRequestFriend">
+		Freundschaftsangebot
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Schließen (⌘W)
@@ -334,6 +407,9 @@
 	</string>
 	<string name="symbolic link">
 		Link
+	</string>
+	<string name="symbolic folder link">
+		Link zu Ordner
 	</string>
 	<string name="AvatarEditingAppearance">
 		(Aussehen wird bearbeitet)
@@ -849,6 +925,7 @@
 		Keine Inhalte
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (getragen am [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (aktiviert)"/>
 	<string name="PermYes">
 		Ja
 	</string>
@@ -947,6 +1024,9 @@
 	</string>
 	<string name="InvFolder My Outfits">
 		Meine Outfits
+	</string>
+	<string name="InvFolder Accessories">
+		Zubehör
 	</string>
 	<string name="InvFolder Friends">
 		Freunde
@@ -1183,7 +1263,7 @@
 		Oben links
 	</string>
 	<string name="Center">
-		Zentrieren
+		Mitte
 	</string>
 	<string name="Bottom Left">
 		Unten links
@@ -1289,13 +1369,13 @@
 		Fehler
 	</string>
 	<string name="RegionInfoAllEstatesOwnedBy">
-		alle Grundstücke gehören [OWNER]
+		alle Grundbesitze gehören [OWNER]
 	</string>
 	<string name="RegionInfoAllEstatesYouOwn">
-		alle Grundstücke, die Sie besitzen
+		alle Grundbesitze, die Sie besitzen
 	</string>
 	<string name="RegionInfoAllEstatesYouManage">
-		alle Grundstücke, die Sie für [OWNER] verwalten
+		alle Grundbesitze, die Sie für [OWNER] verwalten
 	</string>
 	<string name="RegionInfoAllowedResidents">
 		Zulässige Einwohner: ([ALLOWEDAGENTS], max [MAXACCESS])
@@ -1471,6 +1551,9 @@
 	<string name="PanelContentsNewScript">
 		Neues Skript
 	</string>
+	<string name="PanelContentsTooltip">
+		Objektinhalt
+	</string>
 	<string name="BusyModeResponseDefault">
 		Der Einwohner/Die Einwohnerin ist „beschäftigt&quot;, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
 	</string>
@@ -1487,10 +1570,10 @@
 		(Gruppe)
 	</string>
 	<string name="RegionNoCovenant">
-		Für dieses Grundstück liegt kein Vertrag vor.
+		Für diesen Grundbesitz liegt kein Vertrag vor.
 	</string>
 	<string name="RegionNoCovenantOtherOwner">
-		Für dieses Grundstück liegt kein Vertrag vor. Das Land auf diesem Grundstück wird vom Grundstückseigentümer und nicht von Linden Lab verkauft.  Für Informationen zum Verkauf setzen Sie sich bitte mit dem Grundstückseigentümer in Verbindung.
+		Für diesen Grundbesitz liegt kein Vertrag vor. Das Land auf diesem Grundbesitz wird vom Grundbesitzer und nicht von Linden Lab verkauft.  Für Informationen zum Verkauf setzen Sie sich bitte mit dem Grundbesitzer in Verbindung.
 	</string>
 	<string name="covenant_last_modified">
 		Zuletzt geändert:
@@ -1588,7 +1671,10 @@
 		Abbrechen
 	</string>
 	<string name="UploadingCosts">
-		Hochladen von %s kostet
+		Das Hochladen von [NAME] kostet [AMOUNT] L$
+	</string>
+	<string name="BuyingCosts">
+		Die Kosten betragen: [AMOUNT] L$
 	</string>
 	<string name="UnknownFileExtension">
 		Unbekanntes Dateiformat .%s
@@ -3374,5 +3460,121 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="unread_chat_multiple">
 		[SOURCES] haben etwas Neues gesagt
+	</string>
+	<string name="paid_you_ldollars">
+		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
+	</string>
+	<string name="you_paid_ldollars">
+		Sie haben [REASON] [AMOUNT] L$ an [NAME] bezahlt.
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		Sie haben [AMOUNT] L$ an [NAME] bezahlt.
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		Sie haben [REASON] [AMOUNT] L$ bezahlt.
+	</string>
+	<string name="for a parcel of land">
+		für eine Landparzelle
+	</string>
+	<string name="for a land access pass">
+		für einen Pass
+	</string>
+	<string name="for deeding land">
+		für die Landübertragung
+	</string>
+	<string name="to create a group">
+		für die Gründung einer Gruppe
+	</string>
+	<string name="to join a group">
+		für den Beitritt zur Gruppe
+	</string>
+	<string name="to upload">
+		fürs Hochladen
+	</string>
+	<string name="giving">
+		[AMOUNT] L$ werden bezahlt
+	</string>
+	<string name="uploading_costs">
+		Kosten für Hochladen [AMOUNT] L$
+	</string>
+	<string name="this_costs">
+		Kosten: [AMOUNT] L$
+	</string>
+	<string name="buying_selected_land">
+		Ausgewähltes Land wird für [AMOUNT] L$ gekauft.
+	</string>
+	<string name="this_object_costs">
+		Dieses Objekt kostet  [AMOUNT] L$
+	</string>
+	<string name="group_role_everyone">
+		Jeder
+	</string>
+	<string name="group_role_officers">
+		Offiziere
+	</string>
+	<string name="group_role_owners">
+		Eigentümer
+	</string>
+	<string name="uploading_abuse_report">
+		Bericht wird hochgeladen...
+  
+Missbrauchsbericht
+	</string>
+	<string name="New Shape">
+		Neue Form/Gestalt
+	</string>
+	<string name="New Skin">
+		Neue Haut
+	</string>
+	<string name="New Hair">
+		Neues Haar
+	</string>
+	<string name="New Eyes">
+		Neue Augen
+	</string>
+	<string name="New Shirt">
+		Neues Hemd
+	</string>
+	<string name="New Pants">
+		Neue Hose
+	</string>
+	<string name="New Shoes">
+		Neue Schuhe
+	</string>
+	<string name="New Socks">
+		Neue Socken
+	</string>
+	<string name="New Jacket">
+		Neue Jacke
+	</string>
+	<string name="New Gloves">
+		Neue Handschuhe
+	</string>
+	<string name="New Undershirt">
+		Neues Unterhemd
+	</string>
+	<string name="New Underpants">
+		Neue Unterhose
+	</string>
+	<string name="New Skirt">
+		Neuer Rock
+	</string>
+	<string name="New Alpha">
+		Neues Alpha
+	</string>
+	<string name="New Tattoo">
+		Neue Tätowierung
+	</string>
+	<string name="Invalid Wearable">
+		Ungültiges Objekt
+	</string>
+	<string name="New Script">
+		Neues Skript
+	</string>
+	<string name="New Folder">
+		Neuer Ordner
+	</string>
+	<string name="Contents">
+		Inhalt
 	</string>
 </strings>

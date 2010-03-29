@@ -37,6 +37,7 @@
 
 // Viewer includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
@@ -354,7 +355,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 		}
 		else
 		{
-			z_far = gAgent.mDrawDistance;
+			z_far = gAgentCamera.mDrawDistance;
 		}
 	}
 	else

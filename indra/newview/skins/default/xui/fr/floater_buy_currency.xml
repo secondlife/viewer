@@ -4,7 +4,7 @@
 		Achetez [LINDENS] L$ pour environ [LOCALAMOUNT]
 	</floater.string>
 	<text left="5" name="info_need_more" right="-5">
-		Vous avez besoin de plus de L$
+		Plus de L$ sont requis
 	</text>
 	<text name="contacting">
 		En train de contacter 
@@ -38,7 +38,7 @@ le Lindex...
 		Estimation en cours...
 	</text>
 	<text name="buy_action">
-		[NAME] L$ [PRICE]
+		[ACTION]
 	</text>
 	<text name="total_label">
 		Mon nouveau solde sera de
@@ -53,14 +53,14 @@ le Lindex...
 		Saisissez à nouveau le montant pour voir le taux de change actuel.
 	</text>
 	<text name="purchase_warning_repurchase">
-		La confirmation de cet achat n&apos;achète que des L$, pas l&apos;objet.
+		Confirmer cet achat n'achète que des L$, pas l'objet.
 	</text>
 	<text bottom_delta="16" name="purchase_warning_notenough">
 		Vous n&apos;achetez pas assez de L$. Veuillez augmenter le montant.
 	</text>
 	<button label="Acheter" name="buy_btn"/>
 	<button label="Annuler" name="cancel_btn"/>
-	<text left="5" name="info_cannot_buy" width="200" right="-5">
+	<text left="5" name="info_cannot_buy" right="-5" width="200">
 		Achat impossible
 	</text>
 	<button label="Accéder au Web" name="error_web"/>

@@ -2,9 +2,9 @@
 <floater name="modal container" title=" ">
 	<button label="Continuar" label_selected="Continuar" name="Continue"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
-	<check_box label="Eu concordo com os Termos do Serviço" name="agree_chk"/>
+	<check_box label="Concordo com os Termos de Serviço e com a Política de Privacidade" name="agree_chk"/>
 	<text name="tos_heading">
-		Leia com atenção os Termos do Serviço. Para continuar a entrar no [SECOND_LIFE], é preciso aceitar o contrato.
+		Leia com atenção os Termos do Serviço e a Política de Privacidade. Para continuar a entrar no [SECOND_LIFE], é preciso aceitar esses termos.
 	</text>
 	<text_editor name="tos_text">
 		TOS_TEXT

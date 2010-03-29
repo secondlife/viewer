@@ -37,6 +37,7 @@
 #include "llinventorybridge.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llavataractions.h"
@@ -103,7 +104,7 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 	"Inv_Script",
 	"Inv_Clothing",
 	"Inv_Object",
-	"Inv_Object",
+	"Inv_Object_Multi",
 	"Inv_Notecard",
 	"Inv_Skin",
 	"Inv_Snapshot",
@@ -1505,14 +1506,14 @@ BOOL LLFolderBridge::isItemRemovable() const
 		return FALSE;
 	}
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if( !avatar )
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if(!avatarp)
 	{
 		return FALSE;
 	}
 
 	LLInventoryCategory* category = model->getCategory(mUUID);
-	if( !category )
+	if(!category)
 	{
 		return FALSE;
 	}
@@ -1660,8 +1661,8 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if(!avatar) return FALSE;
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if(!avatarp) return FALSE;
 
 	// cannot drag categories into library
 	if(!isAgentInventory())
@@ -3025,8 +3026,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		return FALSE;
 	}
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if(!avatar) return FALSE;
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if(!avatarp) return FALSE;
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
@@ -3808,7 +3809,9 @@ std::string LLGestureBridge::getLabelSuffix() const
 {
 	if( LLGestureManager::instance().isGestureActive(mUUID) )
 	{
-		return LLItemBridge::getLabelSuffix() + " (active)";
+		LLStringUtil::format_map_t args;
+		args["[GESLABEL]"] =  LLItemBridge::getLabelSuffix();
+		return  LLTrans::getString("ActiveGesture", args);
 	}
 	else
 	{
@@ -4152,12 +4155,12 @@ std::string LLObjectBridge::getLabelSuffix() const
 {
 	if (get_is_item_worn(mUUID))
 	{
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+		std::string attachment_point_name = avatarp->getAttachedPointName(mUUID);
 
 		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
-		args["[ATTACHMENT_POINT]"] =  attachment_point_name.c_str();
+		args["[ATTACHMENT_POINT]"] =  LLTrans::getString(attachment_point_name);
 		return LLItemBridge::getLabelSuffix() + LLTrans::getString("WornOnAttachmentPoint", args);
 	}
 	else
@@ -4351,11 +4354,11 @@ BOOL LLObjectBridge::renameItem(const std::string& new_name)
 
 		model->notifyObservers();
 
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		if( avatar )
+		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+		if(avatarp)
 		{
-			LLViewerObject* obj = avatar->getWornAttachment( item->getUUID() );
-			if( obj )
+			LLViewerObject* obj = avatarp->getWornAttachment( item->getUUID() );
+			if(obj)
 			{
 				LLSelectMgr::getInstance()->deselectAll();
 				LLSelectMgr::getInstance()->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
@@ -4904,10 +4907,10 @@ void LLWearableBridge::editOnAvatar()
 		if (gFloaterCustomize)
 			gFloaterCustomize->setCurrentWearableType( wearable->getType() );
 
-		if( CAMERA_MODE_CUSTOMIZE_AVATAR != gAgent.getCameraMode() )
+		if( CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() )
 		{
 			// Start Avatar Customization
-			gAgent.changeCameraToCustomizeAvatar();
+			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
 	}
 }
@@ -5330,7 +5333,10 @@ LLUIImagePtr LLLinkItemBridge::getIcon() const
 {
 	if (LLViewerInventoryItem *item = getItem())
 	{
-		return get_item_icon(item->getActualType(), item->getInventoryType(), 0, FALSE);
+		U32 attachment_point = (item->getFlags() & 0xff); // low byte of inventory flags
+		bool is_multi =  LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & item->getFlags();
+
+		return get_item_icon(item->getActualType(), item->getInventoryType(), attachment_point, is_multi);
 	}
 	return get_item_icon(LLAssetType::AT_LINK, LLInventoryType::IT_NONE, 0, FALSE);
 }

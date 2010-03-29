@@ -202,6 +202,7 @@ protected:
 	void unfreeze();
 	void csr();
 	
+	bool enableShowOnMap();
 	bool enableBlock();
 	bool enableUnblock();
 	bool enableGod();

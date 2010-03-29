@@ -15,7 +15,7 @@
 	</text>
 	<icon name="icon_object" tool_tip="Oggetti"/>
 	<text left="120" name="object_name_text">
-		...
+		Il mio oggetto con un nome veramente lungo
 	</text>
 	<button label="1 L$" label_selected="1 L$" left="125" name="fastpay 1" width="70"/>
 	<button label="5 L$" label_selected="5 L$" left="200" name="fastpay 5" width="70"/>

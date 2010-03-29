@@ -60,6 +60,7 @@
 
 #include "llaudiosourcevo.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llbbox.h"
 #include "llbox.h"
 #include "llcylinder.h"
@@ -376,7 +377,7 @@ void LLViewerObject::markDead()
 
 		if (flagAnimSource())
 		{
-			LLVOAvatar* avatarp = gAgent.getAvatarObject();
+			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 			if (avatarp && !avatarp->isDead())
 			{
 				// stop motions associated with this object
@@ -2757,7 +2758,7 @@ void LLViewerObject::setPixelAreaAndAngle(LLAgent &agent)
 		return;
 	}
 	
-	LLVector3 viewer_pos_agent = agent.getCameraPositionAgent();
+	LLVector3 viewer_pos_agent = gAgentCamera.getCameraPositionAgent();
 	LLVector3 pos_agent = getRenderPosition();
 
 	F32 dx = viewer_pos_agent.mV[VX] - pos_agent.mV[VX];
@@ -4029,7 +4030,8 @@ LLBBox LLViewerObject::getBoundingBoxAgent() const
 		avatar_parent = (LLViewerObject*)root_edit->getParent();
 	}
 	
-	if (avatar_parent && avatar_parent->isAvatar() && root_edit && root_edit->mDrawable.notNull())
+	if (avatar_parent && avatar_parent->isAvatar() &&
+		root_edit && root_edit->mDrawable.notNull() && root_edit->mDrawable->getXform()->getParent())
 	{
 		LLXform* parent_xform = root_edit->mDrawable->getXform()->getParent();
 		position_agent = (getPositionEdit() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();

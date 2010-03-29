@@ -38,16 +38,41 @@
 	</panel.string>
 	<text name="title" value="Objekt profil"/>
 	<text name="where" value="(verden)"/>
-	<panel label="">
+	<panel label="" name="properties_panel">
+		<text name="Name:">
+			Navn:
+		</text>
+		<text name="Description:">
+			Beskrivelse:
+		</text>
 		<text name="CreatorNameLabel">
-			Skaber
+			Skaber:
 		</text>
 		<text name="Creator Name">
+			Erica Linden
+		</text>
+		<text name="Owner:">
+			Ejer:
+		</text>
+		<text name="Owner Name">
 			Erica Linden
 		</text>
 		<text name="Group_label">
 			Gruppe:
 		</text>
+		<button name="button set group" tool_tip="Vælg en gruppe for at dele dette objekts rettigheder"/>
+		<name_box initial_value="Henter..." name="Group Name Proxy"/>
+		<button label="Dedikér" label_selected="Dedikér" name="button deed" tool_tip="Dedikering giver denne genstand væk med den næste ejers rettigheder. Gruppe delte objekter kan dedikeres af en gruppe administrator."/>
+		<text name="label click action">
+			Klik for at:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Berøre (standard)" name="Touch/grab(default)"/>
+			<combo_box.item label="Sidde på objekt" name="Sitonobject"/>
+			<combo_box.item label="Købe objekt" name="Buyobject"/>
+			<combo_box.item label="Betale objekt" name="Payobject"/>
+			<combo_box.item label="Åbne" name="Open"/>
+		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">
 				Du kan redigere dette objekt
@@ -55,31 +80,38 @@
 			<text name="Anyone can:">
 				Enhver:
 			</text>
-			<check_box label="Kopi" name="checkbox allow everyone copy"/>
-			<check_box label="Flyt" name="checkbox allow everyone move"/>
+			<check_box label="Kopiere" name="checkbox allow everyone copy"/>
+			<check_box label="Flytte" name="checkbox allow everyone move"/>
 			<text name="GroupLabel">
 				Gruppe:
 			</text>
-			<check_box label="Del" name="checkbox share with group" tool_tip="Tillad alle medlemmer i den aktive gruppe at dele dine &apos;rediger&apos; rettigheder for dette objekt. Du skal dedikere for at åbne for rolle begrænsninger."/>
+			<check_box label="Dele" name="checkbox share with group" tool_tip="Tillad alle gruppemedlemmer i den valgte gruppe at dele dine redigeringsrettigheder for dette objekt. Du skal dedikere for at aktivere rollebegrænsninger"/>
 			<text name="NextOwnerLabel">
 				Næste ejer:
 			</text>
 			<check_box label="Redigere" name="checkbox next owner can modify"/>
-			<check_box label="Kopi" name="checkbox next owner can copy"/>
-			<check_box label="Give væk" name="checkbox next owner can transfer" tool_tip="Næste ejer kan give væk eller sælge objekt"/>
+			<check_box label="Kopiere" name="checkbox next owner can copy"/>
+			<check_box label="Overføre" name="checkbox next owner can transfer" tool_tip="Næste ejer kan give væk eller sælge dette objekt"/>
 		</panel>
 		<check_box label="Til salg" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Kopi" name="Copy"/>
+			<combo_box.item label="Indhold" name="Contents"/>
+			<combo_box.item label="Original" name="Original"/>
+		</combo_box>
+		<spinner label="Pris: L$" name="Edit Cost"/>
+		<check_box label="Vis i søgning" name="search_check" tool_tip="Lad personer se dette objekt i søgeresultater"/>
 		<text name="B:">
-			B:
+			S:
 		</text>
 		<text name="O:">
-			O:
+			E:
 		</text>
 		<text name="G:">
 			G:
 		</text>
 		<text name="E:">
-			E:
+			A:
 		</text>
 		<text name="N:">
 			N:
@@ -92,5 +124,6 @@
 		<button label="Åben" name="open_btn"/>
 		<button label="Betal" name="pay_btn"/>
 		<button label="Køb" name="buy_btn"/>
+		<button label="Detaljer" name="details_btn"/>
 	</panel>
 </panel>

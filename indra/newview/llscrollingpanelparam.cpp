@@ -168,25 +168,25 @@ void LLScrollingPanelParam::draw()
 	LLPanel::draw();
 
 	// Draw the hints over the "less" and "more" buttons.
-	glPushMatrix();
+	gGL.pushUIMatrix();
 	{
 		const LLRect& r = mHintMin->getRect();
 		F32 left = (F32)(r.mLeft + BTN_BORDER);
 		F32 bot  = (F32)(r.mBottom + BTN_BORDER);
-		glTranslatef(left, bot, 0.f);
+		gGL.translateUI(left, bot, 0.f);
 		mHintMin->draw();
 	}
-	glPopMatrix();
+	gGL.popUIMatrix();
 
-	glPushMatrix();
+	gGL.pushUIMatrix();
 	{
 		const LLRect& r = mHintMax->getRect();
 		F32 left = (F32)(r.mLeft + BTN_BORDER);
 		F32 bot  = (F32)(r.mBottom + BTN_BORDER);
-		glTranslatef(left, bot, 0.f);
+		gGL.translateUI(left, bot, 0.f);
 		mHintMax->draw();
 	}
-	glPopMatrix();
+	gGL.popUIMatrix();
 
 
 	// Draw labels on top of the buttons
@@ -344,8 +344,8 @@ void LLScrollingPanelParam::onHintMaxMouseUp( void* userdata )
 
 	F32 elapsed_time = self->mMouseDownTimer.getElapsedTimeF32();
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if (avatar)
+	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
+	if (avatarp)
 	{
 		LLVisualParamHint* hint = self->mHintMax;
 

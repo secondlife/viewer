@@ -38,7 +38,9 @@
 
 // Viewer includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentui.h"
+#include "llavatarpropertiesprocessor.h"
 #include "llbottomtray.h"
 #include "llbutton.h"
 #include "llcallbacklist.h"
@@ -166,7 +168,7 @@ public:
 	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
 	LLFloaterPostcard* savePostcard();
-	void saveTexture();
+	void saveTexture(bool set_as_profile_pic = false);
 	BOOL saveLocal();
 	void saveWeb(std::string url);
 
@@ -912,7 +914,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			previewp->mSnapshotUpToDate = TRUE;
 			previewp->generateThumbnailImage(TRUE) ;
 
-			previewp->mPosTakenGlobal = gAgent.getCameraPositionGlobal();
+			previewp->mPosTakenGlobal = gAgentCamera.getCameraPositionGlobal();
 			previewp->mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
 		}
 	}
@@ -974,13 +976,21 @@ LLFloaterPostcard* LLSnapshotLivePreview::savePostcard()
 	return floater;
 }
 
-void LLSnapshotLivePreview::saveTexture()
+// Callback for asset upload
+void profile_pic_upload_callback(const LLUUID& uuid)
+{
+	LLFloaterSnapshot* floater =  LLFloaterReg::getTypedInstance<LLFloaterSnapshot>("snapshot");
+	floater->setAsProfilePic(uuid);
+}
+
+
+void LLSnapshotLivePreview::saveTexture(bool set_as_profile_pic)
 {
 	// gen a new uuid for this asset
 	LLTransactionID tid;
 	tid.generate();
 	LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-		
+
 	LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
 	LLPointer<LLImageRaw> scaled = new LLImageRaw(mPreviewImage->getData(),
 												  mPreviewImage->getWidth(),
@@ -991,26 +1001,30 @@ void LLSnapshotLivePreview::saveTexture()
 			
 	if (formatted->encode(scaled, 0.0f))
 	{
+		boost::function<void(const LLUUID& uuid)> callback = NULL;
+
+		if (set_as_profile_pic)
+		{
+			callback = profile_pic_upload_callback;
+		}
+
 		LLVFile::writeFile(formatted->getData(), formatted->getDataSize(), gVFS, new_asset_id, LLAssetType::AT_TEXTURE);
 		std::string pos_string;
 		LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
 		std::string who_took_it;
 		LLAgentUI::buildFullname(who_took_it);
-		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-		void *userdata = NULL;
 		upload_new_resource(tid,	// tid
 				    LLAssetType::AT_TEXTURE,
 				    "Snapshot : " + pos_string,
 				    "Taken by " + who_took_it + " at " + pos_string,
-				    0,
 				    LLFolderType::FT_SNAPSHOT_CATEGORY,
 				    LLInventoryType::IT_SNAPSHOT,
 				    PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
 				    PERM_NONE, // that ignores the user's premissions preferences and continues to
 				    PERM_NONE, // always use these fairly permissive hard-coded initial perms. - MG
 				    "Snapshot : " + pos_string,
-				    callback, expected_upload_cost, userdata);
+				    callback, expected_upload_cost);
 		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	else
@@ -1100,7 +1114,7 @@ void LLSnapshotLivePreview::saveWeb(std::string url)
 
 	body["avatar_name"] = name;
 	
-	LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(gAgent.getCameraPositionGlobal(),
+	LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(gAgentCamera.getCameraPositionGlobal(),
 		boost::bind(&LLSnapshotLivePreview::regionNameCallback, this, url, body, _1, _2, _3, _4));
 	
 	gViewerWindow->playSnapshotAnimAndSound();
@@ -1151,6 +1165,7 @@ public:
 	static void onCommitSnapshotFormat(LLUICtrl* ctrl, void* data);
 	static void onCommitCustomResolution(LLUICtrl *ctrl, void* data);
 	static void onCommitSnapshot(LLFloaterSnapshot* view, LLSnapshotLivePreview::ESnapshotType type);
+	static void onCommitProfilePic(LLFloaterSnapshot* view);
 	static void onToggleAdvanced(LLUICtrl *ctrl, void* data);
 	static void resetSnapshotSizeOnUI(LLFloaterSnapshot *view, S32 width, S32 height) ;
 	static BOOL checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL isWidthChanged, S32 max_value);
@@ -1661,6 +1676,60 @@ void LLFloaterSnapshot::Impl::onToggleAdvanced(LLUICtrl* ctrl, void* data)
 	}
 }
 
+// This object represents a pending request for avatar properties information
+class LLAvatarDataRequest : public LLAvatarPropertiesObserver
+{
+public:
+	LLAvatarDataRequest(const LLUUID& avatar_id, const LLUUID& image_id, LLFloaterSnapshot* floater)
+	:	mAvatarID(avatar_id),
+		mImageID(image_id),
+		mSnapshotFloater(floater)
+
+	{
+	}
+	
+	~LLAvatarDataRequest()
+	{
+		// remove ourselves as an observer
+		LLAvatarPropertiesProcessor::getInstance()->
+		removeObserver(mAvatarID, this);
+	}
+	
+	void processProperties(void* data, EAvatarProcessorType type)
+	{
+		// route the data to the inspector
+		if (data
+			&& type == APT_PROPERTIES)
+		{
+
+			LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
+
+			LLAvatarData new_data(*avatar_data);
+			new_data.image_id = mImageID;
+
+			LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate(&new_data);
+
+			delete this;
+		}
+	}
+	
+	// Store avatar ID so we can un-register the observer on destruction
+	LLUUID mAvatarID;
+	LLUUID mImageID;
+	LLFloaterSnapshot* mSnapshotFloater;
+};
+
+void LLFloaterSnapshot::Impl::onCommitProfilePic(LLFloaterSnapshot* view)
+{
+	//first save to harddrive
+	LLSnapshotLivePreview* previewp = getPreviewView(view);
+	
+	if(previewp)
+	{
+		previewp->saveTexture(true);
+	}
+}
+
 void LLFloaterSnapshot::Impl::onCommitSnapshot(LLFloaterSnapshot* view, LLSnapshotLivePreview::ESnapshotType type)
 {
 	LLSnapshotLivePreview* previewp = getPreviewView(view);
@@ -1717,8 +1786,6 @@ void LLFloaterSnapshot::Impl::onCommitSnapshotFormat(LLUICtrl* ctrl, void* data)
 	}
 }
 
-
-
 // Sets the named size combo to "custom" mode.
 // static
 void LLFloaterSnapshot::Impl::comboSetCustom(LLFloaterSnapshot* floater, const std::string& comboname)
@@ -1731,8 +1798,6 @@ void LLFloaterSnapshot::Impl::comboSetCustom(LLFloaterSnapshot* floater, const s
 
 	checkAspectRatio(floater, -1); // -1 means custom
 }
-
-
 
 //static
 BOOL LLFloaterSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL isWidthChanged, S32 max_value)
@@ -1925,7 +1990,8 @@ BOOL LLFloaterSnapshot::postBuild()
 	getChild<LLButton>("share_to_email")->setCommitCallback(boost::bind(&Impl::onCommitSnapshot, this, LLSnapshotLivePreview::SNAPSHOT_POSTCARD));
 	getChild<LLButton>("save_to_inventory")->setCommitCallback(boost::bind(&Impl::onCommitSnapshot, this, LLSnapshotLivePreview::SNAPSHOT_TEXTURE));
 	getChild<LLButton>("save_to_computer")->setCommitCallback(boost::bind(&Impl::onCommitSnapshot, this, LLSnapshotLivePreview::SNAPSHOT_LOCAL));
-	
+	getChild<LLButton>("set_profile_pic")->setCommitCallback(boost::bind(&Impl::onCommitProfilePic, this));
+
 	childSetCommitCallback("show_advanced", Impl::onToggleAdvanced, this);
 	childSetCommitCallback("hide_advanced", Impl::onToggleAdvanced, this);
 
@@ -2082,7 +2148,6 @@ void LLFloaterSnapshot::update()
 	}
 }
 
-
 bool LLFloaterSnapshot::updateButtons(ESnapshotMode mode)
 {
 	childSetVisible("share", mode == SNAPSHOT_MAIN);
@@ -2099,6 +2164,18 @@ bool LLFloaterSnapshot::updateButtons(ESnapshotMode mode)
 
 	return true;
 }
+
+void LLFloaterSnapshot::setAsProfilePic(const LLUUID& image_id)
+{
+	LLAvatarDataRequest* avatar_data_request = new LLAvatarDataRequest(gAgent.getID(), image_id, this);
+	
+	LLAvatarPropertiesProcessor* processor = 
+		LLAvatarPropertiesProcessor::getInstance();
+	
+	processor->addObserver(gAgent.getID(), avatar_data_request);
+	processor->sendAvatarPropertiesRequest(gAgent.getID());
+}
+
 ///----------------------------------------------------------------------------
 /// Class LLSnapshotFloaterView
 ///----------------------------------------------------------------------------

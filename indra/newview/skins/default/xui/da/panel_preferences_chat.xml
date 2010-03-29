@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Tekst chat" name="chat">
+	<text name="font_size">
+		Skriftstørrelse:
+	</text>
 	<radio_group name="chat_font_size">
 		<radio_item label="Lille" name="radio" value="0"/>
 		<radio_item label="Mellem" name="radio2" value="1"/>
 		<radio_item label="Stor" name="radio3" value="2"/>
 	</radio_group>
+	<text name="font_colors">
+		Skriftfarve:
+	</text>
 	<color_swatch label="Dig" name="user"/>
 	<text name="text_box1">
 		Dig
@@ -39,6 +45,12 @@
 	</text>
 	<check_box initial_value="true" label="Afspil skrive animation ved chat" name="play_typing_animation"/>
 	<check_box label="Send e-mail til mig når jeg modtager IM og er offline" name="send_im_to_email"/>
+	<text name="show_ims_in_label">
+		Vis IM&apos;er i:
+	</text>
+	<text name="requires_restart_label">
+		(kræver genstart)
+	</text>
 	<radio_group name="chat_window" tool_tip="Vise dine personlige beskeder i separate vinduer, eller i ét vindue med flere faner (Kræver genstart)">
 		<radio_item label="Separate vinduer" name="radio" value="0"/>
 		<radio_item label="Faner" name="radio2" value="1"/>

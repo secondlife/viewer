@@ -4,7 +4,7 @@
 		<panel label="Cycle du jour" name="Day Cycle">
 			<button label="?" name="WLDayCycleHelp" />
 			<text name="WL12am">
-				Minuit
+				Min.
 			</text>
 			<text name="WL3am">
 				3h
@@ -28,7 +28,7 @@
 				21h
 			</text>
 			<text name="WL12am2">
-				Minuit
+				Min.
 			</text>
 			<text name="WL12amHash">
 				|
@@ -84,7 +84,7 @@
 			<text name="DayCycleText3" left="280" width="200">
 				Prévisualiser :
 			</text>
-			<button label="Jouer" label_selected="Jouer" name="WLAnimSky" left_delta="90"/>
+			<button label="Lire" label_selected="Lire" name="WLAnimSky" left_delta="90"/>
 			<button label="Stop !" label_selected="Stop" name="WLStopAnimSky" />
 			<button label="Utiliser heure domaine" label_selected="Aller heure domaine"
 			     name="WLUseLindenTime" />

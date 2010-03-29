@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Url Popup">
-	<menu_item_call label="Pokaż Szczegóły o Grupie" name="show_group"/>
-	<menu_item_call label="Kopiuj Grupę do Schowka" name="url_copy_label"/>
+	<menu_item_call label="Pokaż szczegóły o Grupie" name="show_group"/>
+	<menu_item_call label="Kopiuj Grupę do schowka" name="url_copy_label"/>
 	<menu_item_call label="Kopiuj SLurl do schowka" name="url_copy"/>
 </context_menu>

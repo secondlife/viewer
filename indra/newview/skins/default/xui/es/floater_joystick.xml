@@ -63,7 +63,7 @@
 	<text name="ZoomDeadZone">
 		Zona muerta zoom
 	</text>
-	<button font="SansSerifSmall" label="Predeterminados del SpaceNavigator" left="330" name="SpaceNavigatorDefaults" width="210"/>
+	<button font="SansSerifSmall" label="Por defecto del SpaceNavigator" left="330" name="SpaceNavigatorDefaults" width="210"/>
 	<button label="OK" label_selected="OK" left="330" name="ok_btn"/>
 	<button label="Cancelar" label_selected="Cancelar" left_delta="120" name="cancel_btn"/>
 	<stat_view label="Monitor del joystick" name="axis_view">

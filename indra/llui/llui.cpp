@@ -207,7 +207,7 @@ void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 
 	// Counterclockwise quad will face the viewer
 	if( filled )
-	{
+	{ 
 		gGL.begin( LLRender::QUADS );
 			gGL.vertex2i(left, top);
 			gGL.vertex2i(left, bottom);

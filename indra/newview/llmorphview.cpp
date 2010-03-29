@@ -37,6 +37,7 @@
 #include "lljoint.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
 #include "llface.h"
@@ -91,7 +92,7 @@ void	LLMorphView::initialize()
 	LLVOAvatar *avatarp = gAgent.getAvatarObject();
 	if (!avatarp || avatarp->isDead())
 	{
-		gAgent.changeCameraToDefault();
+		gAgentCamera.changeCameraToDefault();
 		return;
 	}
 
@@ -187,7 +188,7 @@ void LLMorphView::updateCamera()
 
 	LLVector3d camera_pos = joint_pos + mCameraOffset * camera_rot_pitch * camera_rot_yaw * avatar_rot;
 
-	gAgent.setCameraPosAndFocusGlobal( camera_pos, target_pos, gAgent.getID() );
+	gAgentCamera.setCameraPosAndFocusGlobal( camera_pos, target_pos, gAgent.getID() );
 }
 
 void LLMorphView::setCameraDrivenByKeys(BOOL b)

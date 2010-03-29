@@ -67,7 +67,7 @@
 			<button name="close_btn" tool_tip="Zoom Back"/>
 		</layout_panel>
 		<layout_panel name="new_window">
-			<button name="new_window_btn" tool_tip="URLをブラウザで開く"/>
+			<button name="new_window_btn" tool_tip="URL をブラウザで開く"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

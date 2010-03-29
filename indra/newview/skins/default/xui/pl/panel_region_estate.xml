@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Majątek" name="Estate">
 	<text name="estate_help_text">
-		Zmiany ustawień na tej zakładce odnoszą się
-do wszystkich Regionów w tym Majątku.
+		Zmiany w tej zakładce będą odczuwalne w całym Regionie.
 	</text>
 	<text name="estate_text">
 		Majątek:
@@ -11,24 +10,24 @@ do wszystkich Regionów w tym Majątku.
 		(brak danych)
 	</text>
 	<text name="owner_text">
-		Właściciel:
+		Właściciel Majątku:
 	</text>
 	<text name="estate_owner">
 		(brak danych)
 	</text>
-	<check_box label="Używaj Czasu Światowego" name="use_global_time_check"/>
+	<check_box label="Używaj czasu światowego" name="use_global_time_check"/>
 	<button label="?" name="use_global_time_help"/>
 	<check_box label="Stałe Słońce" name="fixed_sun_check"/>
 	<button label="?" name="fixed_sun_help"/>
-	<slider label="Pora Doby" name="sun_hour_slider"/>
-	<check_box label="Dostęp Publiczny" name="externally_visible_check"/>
+	<slider label="Pora doby" name="sun_hour_slider"/>
+	<check_box label="Dostęp publiczny" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<text name="Only Allow">
-		Dostęp Ograniczony do:
+		Ogranicz dostęp dla kont zweryfikowanych przez:
 	</text>
-	<check_box label="Rezydenci z danymi o koncie" name="limit_payment" tool_tip="Zablokuj niepożądanych Rezydentów."/>
-	<check_box label="Dorośli ze sprawdzonym wiekiem" name="limit_age_verified" tool_tip="Zablokuj Rezydentów którzy nie zweryfikowali swojego wieku. Dodatkowe informacje pod support.secondlife.com."/>
-	<check_box label="Rozmowy Dozwolone" name="voice_chat_check"/>
+	<check_box label="Rezydenci z danymi o koncie" name="limit_payment" tool_tip="Zbanuj niezidentyfikowanych Rezydentów"/>
+	<check_box label="Rezydenci, którzy dokonali weryfikacji wieku" name="limit_age_verified" tool_tip="Zbanuj Rezydentów, którzy nie zweryfikowali swojego wieku. Odwiedź stronę [SUPPORT_SITE] po więcej informacji."/>
+	<check_box label="Rozmowy dozwolone" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Teleportacja Dozwolona" name="allow_direct_teleport"/>
 	<button label="?" name="allow_direct_teleport_help"/>
@@ -41,7 +40,7 @@ do wszystkich Regionów w tym Majątku.
 	</string>
 	<button label="?" name="abuse_email_address_help"/>
 	<button label="Zastosuj" name="apply_btn"/>
-	<button label="Wyrzuć Awatara z Majątku..." name="kick_user_from_estate_btn"/>
+	<button label="Wyrzuć Rezydenta z Majątku..." name="kick_user_from_estate_btn"/>
 	<button label="Wyślij Wiadomość do Majątku..." name="message_estate_btn"/>
 	<text name="estate_manager_label">
 		Zarządcy Majątku:

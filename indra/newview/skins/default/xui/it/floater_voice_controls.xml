@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_controls" title="Controlli del Voice">
+<floater name="floater_voice_controls" title="Regolazione voce">
 	<string name="title_nearby">
-		VOICE NEI DINTORNI
+		VOCE NEI DINTORNI
 	</string>
 	<string name="title_group">
-		Chiamata di Gruppo con [GROUP]
+		Chiamata di gruppo con [GROUP]
 	</string>
 	<string name="title_adhoc">
-		Conference Call
+		Chiamata in conferenza
 	</string>
 	<string name="title_peer_2_peer">
-		Chiama con [NAME]
+		Chiamata con [NAME]
 	</string>
 	<string name="no_one_near">
-		Nessuno vicino
+		Nessuno nei dintorni ha attivato la funzione voce
 	</string>
-	<panel name="control_panel">
-		<layout_stack>
-			<layout_panel name="leave_btn_panel">
-				<button label="Chiudi Chiamata" name="leave_call_btn"/>
-			</layout_panel>
-		</layout_stack>
-	</panel>
+	<layout_stack name="my_call_stack">
+		<layout_panel name="my_panel">
+			<text name="user_text" value="Il mio avatar:"/>
+		</layout_panel>
+		<layout_panel name="leave_call_btn_panel">
+			<button label="Abbandona chiamata" name="leave_call_btn"/>
+		</layout_panel>
+	</layout_stack>
 </floater>

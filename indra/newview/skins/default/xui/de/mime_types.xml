@@ -22,14 +22,6 @@
 			Video wiedergeben
 		</playtip>
 	</widgetset>
-	<widgetset name="none">
-		<label name="none_label">
-			Keine Inhalte
-		</label>
-		<tooltip name="none_tooltip">
-			Keine Medien gefunden
-		</tooltip>
-	</widgetset>
 	<widgetset name="image">
 		<label name="image_label">
 			Bild

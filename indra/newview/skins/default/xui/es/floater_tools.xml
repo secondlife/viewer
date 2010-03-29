@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="HERRAMIENTAS DE CONSTRUCCIÓN" title="" width="288">
 	<floater.string name="status_rotate">
-		Arrastre las bandas de color para girar el objeto
+		Arrastra las bandas de color para girar el objeto.
 	</floater.string>
 	<floater.string name="status_scale">
-		Pulse y arrastre para estirar el lado seleccionado
+		Pulsa y arrastra para estirar el lado seleccionado.
 	</floater.string>
 	<floater.string name="status_move">
-		Arrastrar para mover, Mayús.+arrastrar para copiar
+		Arrastrar para mover, Mayús.+arrastrar para copiar.
 	</floater.string>
 	<floater.string name="status_modifyland">
-		Mantenga pulsado para modificar el terreno
+		Mantén pulsado para modificar el terreno.
 	</floater.string>
 	<floater.string name="status_camera">
-		Pulsa y arrastra para mover la cámara
+		Pulsa y arrastra para mover la cámara.
 	</floater.string>
 	<floater.string name="status_grab">
-		Arrastra para mover: Ctrl, verticalmente; Ctrl-Mayús., girando
+		Arrastrar para mover: Ctrl, verticalmente; Ctrl-Mayús., girando.
 	</floater.string>
 	<floater.string name="status_place">
-		Pulse en el mundo para construir
+		Pulsa en el mundo para construir.
 	</floater.string>
 	<floater.string name="status_selectland">
-		Pulse y arrastre para seleccionar el terreno
+		Pulsa y arrastra para seleccionar el terreno.
 	</floater.string>
 	<floater.string name="grid_screen_text">
 		Pantalla
@@ -45,7 +45,7 @@
 	<button label="" label_selected="" name="button create" tool_tip="Crear"/>
 	<button label="" label_selected="" name="button land" tool_tip="Terreno"/>
 	<text name="text status" width="280">
-		Arrastrar para mover, Mayús.+arrastrar para copiar
+		Arrastrar para mover, Mayús.+arrastrar para copiar.
 	</text>
 	<radio_group name="focus_radio_group">
 		<radio_item label="Zoom" name="radio zoom"/>
@@ -96,7 +96,7 @@
 	<check_box initial_value="true" label="Copia centrada" name="checkbox copy centers"/>
 	<check_box label="Copia girada" name="checkbox copy rotates"/>
 	<radio_group name="land_radio_group">
-		<radio_item label="Seleccionar el terreno" name="radio select land"/>
+		<radio_item label="Seleccionar terreno" name="radio select land"/>
 		<radio_item label="Nivelar" name="radio flatten"/>
 		<radio_item label="Elevar" name="radio raise"/>
 		<radio_item label="Bajar" name="radio lower"/>
@@ -123,7 +123,7 @@
 	<tab_container name="Object Info Tabs" tab_max_width="62" tab_min_width="30" width="288">
 		<panel label="General" name="General">
 			<panel.string name="text deed continued">
-				Transfeir
+				Transferir
 			</panel.string>
 			<panel.string name="text deed">
 				Transferir
@@ -181,8 +181,8 @@
 			</text>
 			<button label="Configurar..." label_selected="Configurar..." name="button set group" tool_tip="Elige un grupo con el que compartir los permisos de este objeto"/>
 			<name_box initial_value="Cargando..." name="Group Name Proxy"/>
-			<button label="Transfeir" label_selected="Transfeir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
-			<check_box label="Compartir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
+			<button label="Transferir" label_selected="Transferir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
+			<check_box label="Comprtir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
 			<text name="label click action" width="180">
 				Al tocarlo:
 			</text>
@@ -210,7 +210,7 @@
 					Cualquiera:
 				</text>
 				<check_box label="Moverlo" name="checkbox allow everyone move"/>
-				<check_box label="Copiar" name="checkbox allow everyone copy"/>
+				<check_box label="Copiarlo" name="checkbox allow everyone copy"/>
 				<text name="Next owner can:">
 					Próximo propietario:
 				</text>
@@ -355,7 +355,7 @@
 		</panel>
 		<panel label="Caracter." name="Features">
 			<text name="select_single">
-				Seleccione un sólo prim para editarlo.
+				Selecciona un sólo prim para editarlo.
 			</text>
 			<text name="edit_object">
 				Editar las características del objeto:

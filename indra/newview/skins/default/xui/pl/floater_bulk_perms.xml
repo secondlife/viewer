@@ -1,44 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterbulkperms" title="HURTOWA ZMIANA PRAW ZAWARTOŚCI">
-	<text name="applyto">
-		Rodzaj Zawartości
-	</text>
+	<floater.string name="nothing_to_modify_text">
+		Selekcja zawiera zawartość niemodfyfikowalną
+	</floater.string>
+	<floater.string name="status_text">
+		Ustawienie praw na [NAME]
+	</floater.string>
+	<floater.string name="start_text">
+		Rozpoczęcie prośby o zmianę praw...
+	</floater.string>
+	<floater.string name="done_text">
+		Zakończenie prośby o zmianę praw.
+	</floater.string>
 	<check_box label="Animacje" name="check_animation"/>
-	<check_box label="Części Ciała" name="check_bodypart"/>
+	<icon name="icon_animation" tool_tip="Animacja"/>
+	<check_box label="Części ciała" name="check_bodypart"/>
+	<icon name="icon_bodypart" tool_tip="Części Ciała"/>
 	<check_box label="Ubranie" name="check_clothing"/>
+	<icon name="icon_clothing" tool_tip="Ubranie"/>
 	<check_box label="Gestury" name="check_gesture"/>
-	<check_box label="Zapamiętane Miejsca" name="check_landmark"/>
+	<icon name="icon_gesture" tool_tip="Gestury"/>
 	<check_box label="Noty" name="check_notecard"/>
+	<icon name="icon_notecard" tool_tip="Noty"/>
 	<check_box label="Obiekty" name="check_object"/>
+	<icon name="icon_object" tool_tip="Obiekty"/>
 	<check_box label="Skrypty" name="check_script"/>
+	<icon name="icon_script" tool_tip="Skrypty"/>
 	<check_box label="Dźwięki" name="check_sound"/>
+	<icon name="icon_sound" tool_tip="Dźwięki"/>
 	<check_box label="Tekstury" name="check_texture"/>
-	<button width="115" font="SansSerifSmall" label="Wybierz Wszystkie" label_selected="Wszystkie" name="check_all"/>
-	<button width="115" font="SansSerifSmall" label="Odznacz Wszystkie" label_selected="Żadne" name="check_none"/>
+	<icon name="icon_texture" tool_tip="Tekstury"/>
+	<button font="SansSerifSmall" label="√ Wszystkie" label_selected="Wszystkie" name="check_all" width="115"/>
+	<button font="SansSerifSmall" label="Żadne" label_selected="Żadne" name="check_none" width="115"/>
 	<text name="newperms">
-		Nowe Prawa
+		Nowe prawa zawartości
 	</text>
-	<check_box label="Udostępnij Grupie" name="share_with_group"/>
-	<check_box label="Pozwól kopiować każdemu" name="everyone_copy"/>
+	<text name="GroupLabel">
+		Grupa:
+	</text>
+	<check_box label="Udostępnij" name="share_with_group"/>
+	<text name="AnyoneLabel">
+		Każdy:
+	</text>
+	<check_box label="Kopiuj" name="everyone_copy"/>
 	<text name="NextOwnerLabel">
 		Następny Właściciel:
 	</text>
 	<check_box label="Modyfikuje" name="next_owner_modify"/>
 	<check_box label="Kopiuje" name="next_owner_copy"/>
-	<check_box label="Oddaje/Sprzedaje" name="next_owner_transfer"/>
-	<button label="Pomoc" name="help"/>
-	<button label="Zastosuj" name="apply"/>
-	<button label="Zamknij" name="close"/>
-	<string name="nothing_to_modify_text">
-		Selekcja zawiera zawartość niemodfyfikowalną
-	</string>
-	<string name="status_text">
-		Ustawienie praw na [NAME]
-	</string>
-	<string name="start_text">
-		Rozpoczęcie prośby o zmianę praw...
-	</string>
-	<string name="done_text">
-		Zakończenie prośby o zmianę praw.
-	</string>
+	<check_box initial_value="true" label="Oddaj/Sprzedaj" name="next_owner_transfer" tool_tip="Następny właściciel może oddać lub sprzedać ten obiekt."/>
+	<button label="OK" name="apply"/>
+	<button label="Anuluj" name="close"/>
 </floater>

@@ -9,6 +9,18 @@
 	<floater.string name="move_tooltip">
 		Poruszaj kamerą w dół/górę oraz w prawo/lewo
 	</floater.string>
+	<floater.string name="orbit_mode_title">
+		Obracaj
+	</floater.string>
+	<floater.string name="pan_mode_title">
+		W prawo lub w lewo
+	</floater.string>
+	<floater.string name="avatar_view_mode_title">
+		Ustawienia
+	</floater.string>
+	<floater.string name="free_mode_title">
+		Zobacz obiekt
+	</floater.string>
 	<panel name="controls">
 		<joystick_track name="cam_track_stick" tool_tip="Poruszaj kamerą w górę, w dół, w lewo i w prawo"/>
 		<panel name="zoom" tool_tip="Najedź kamerą w kierunku obiektu">
@@ -16,16 +28,16 @@
 		</panel>
 		<joystick_rotate name="cam_rotate_stick" tool_tip="Obracaj kamerę wokoł osi"/>
 		<panel name="camera_presets">
-			<button name="rear_view" tool_tip="Widok z Tyłu"/>
+			<button name="rear_view" tool_tip="Widok z tyłu"/>
 			<button name="group_view" tool_tip="Podgląd Grupy"/>
-			<button name="front_view" tool_tip="Widok z Przodu"/>
-			<button name="mouselook_view" tool_tip="Widok Panoramiczny"/>
+			<button name="front_view" tool_tip="Widok z przodu"/>
+			<button name="mouselook_view" tool_tip="Widok panoramiczny"/>
 		</panel>
 	</panel>
 	<panel name="buttons">
-		<button label="" name="orbit_btn" tool_tip="Obracaj Kamerę"/>
-		<button label="" name="pan_btn" tool_tip="Kamera Horyzontalna"/>
-		<button label="" name="avatarview_btn" tool_tip="Widok Awatara"/>
-		<button label="" name="freecamera_btn" tool_tip="Podgląd Obiektu"/>
+		<button label="" name="orbit_btn" tool_tip="Obracaj kamerę"/>
+		<button label="" name="pan_btn" tool_tip="Kamera horyzontalna"/>
+		<button label="" name="avatarview_btn" tool_tip="Ustawienia"/>
+		<button label="" name="freecamera_btn" tool_tip="Podgląd obiektu"/>
 	</panel>
 </floater>

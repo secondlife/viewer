@@ -276,7 +276,7 @@
 			<menu_item_check label="Atlas des textures" name="Texture Atlas"/>
 			<menu_item_check label="Rendu des lumières jointes" name="Render Attached Lights"/>
 			<menu_item_check label="Rendu des particules jointes" name="Render Attached Particles"/>
-			<menu_item_check label="Hover Glow Objects" name="Hover Glow Objects"/>
+			<menu_item_check label="Objets en surbrillance avec le pointeur" name="Hover Glow Objects"/>
 		</menu>
 		<menu label="Réseau" name="Network">
 			<menu_item_check label="Pauser l&apos;avatar" name="AgentPause"/>
@@ -296,7 +296,7 @@
 			<menu_item_call label="Arrêter l&apos;enregistrement" name="Stop Record"/>
 		</menu>
 		<menu label="Monde" name="World">
-			<menu_item_check label="Sim Sun Override" name="Sim Sun Override"/>
+			<menu_item_check label="Ignorer les paramètres du soleil de la sim" name="Sim Sun Override"/>
 			<menu_item_check label="Balise animée" name="Cheesy Beacon"/>
 			<menu_item_check label="Météo fixe" name="Fixed Weather"/>
 			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
@@ -369,14 +369,14 @@
 	<menu label="Admin" name="Admin">
 		<menu label="Object">
 			<menu_item_call label="Prendre une copie" name="Take Copy"/>
-			<menu_item_call label="Forcer le propriétaire sur moi" name="Force Owner To Me"/>
+			<menu_item_call label="Téléporter le propriétaire" name="Force Owner To Me"/>
 			<menu_item_call label="Forcer la permission du propriétaire" name="Force Owner Permissive"/>
 			<menu_item_call label="Supprimer" name="Delete"/>
 			<menu_item_call label="Verrouiller" name="Lock"/>
 			<menu_item_call label="Obtenir les ID d&apos;actifs" name="Get Assets IDs"/>
 		</menu>
 		<menu label="Parcelle" name="Parcel">
-			<menu_item_call label="Forcer le propriétaire sur moi" name="Owner To Me"/>
+			<menu_item_call label="Téléporter le propriétaire" name="Owner To Me"/>
 			<menu_item_call label="Définir sur le contenu Linden" name="Set to Linden Content"/>
 			<menu_item_call label="Réclamer un terrain public" name="Claim Public Land"/>
 		</menu>
@@ -396,8 +396,8 @@
 			<menu_item_call label="Chaussettes" name="Socks"/>
 			<menu_item_call label="Veste" name="Jacket"/>
 			<menu_item_call label="Gants" name="Gloves"/>
-			<menu_item_call label="Sous-vêtements (homme)" name="Menu Undershirt"/>
-			<menu_item_call label="Sous-vêtements (femme)" name="Menu Underpants"/>
+			<menu_item_call label="Débardeur" name="Menu Undershirt"/>
+			<menu_item_call label="Caleçon" name="Menu Underpants"/>
 			<menu_item_call label="Jupe" name="Skirt"/>
 			<menu_item_call label="Alpha" name="Alpha"/>
 			<menu_item_call label="Tatouage" name="Tattoo"/>

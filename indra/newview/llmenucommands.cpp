@@ -42,7 +42,7 @@
 #include "llstring.h"
 #include "message.h"
 
-#include "llagent.h"
+#include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llviewercontrol.h"
 //#include "llfirstuse.h"
@@ -66,7 +66,7 @@
 
 void handle_mouselook(void*)
 {
-	gAgent.changeCameraToMouselook();
+	gAgentCamera.changeCameraToMouselook();
 }
 
 

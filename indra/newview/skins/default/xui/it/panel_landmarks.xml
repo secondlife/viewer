@@ -2,13 +2,13 @@
 <panel name="Landmarks">
 	<accordion name="landmarks_accordion">
 		<accordion_tab name="tab_favorites" title="Barra dei Preferiti"/>
-		<accordion_tab name="tab_landmarks" title="Landmarks"/>
-		<accordion_tab name="tab_inventory" title="Mio Inventario"/>
+		<accordion_tab name="tab_landmarks" title="I miei punti di riferimento"/>
+		<accordion_tab name="tab_inventory" title="Il mio inventario"/>
 		<accordion_tab name="tab_library" title="Libreria"/>
 	</accordion>
 	<panel name="bottom_panel">
 		<button name="options_gear_btn" tool_tip="Mostra opzioni addizionali"/>
-		<button name="add_btn" tool_tip="Aggiungi nuovo landmark"/>
-		<dnd_button name="trash_btn" tool_tip="Rimuovi landmark selezionato"/>
+		<button name="add_btn" tool_tip="Aggiungi un nuovo punto di riferimento"/>
+		<dnd_button name="trash_btn" tool_tip="Rimuovi il punto di riferimento selezionato"/>
 	</panel>
 </panel>

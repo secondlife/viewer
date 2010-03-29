@@ -35,7 +35,7 @@
 #define LLBOTTOMTRAY_CPP
 #include "llbottomtray.h"
 
-#include "llagent.h"
+#include "llagentcamera.h"
 #include "llchiclet.h"
 #include "llfloaterreg.h"
 #include "llflyoutbutton.h"
@@ -125,7 +125,7 @@ public:
 
 	void onFocusLost()
 	{
-		if (gAgent.cameraMouselook())
+		if (gAgentCamera.cameraMouselook())
 		{
 			LLBottomTray::getInstance()->setVisible(FALSE);
 		}

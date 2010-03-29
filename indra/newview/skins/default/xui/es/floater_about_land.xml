@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterland" title="ACERCA DEL TERRENO">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] minutos
 	</floater.string>
@@ -15,7 +24,7 @@
 	<tab_container name="landtab">
 		<panel label="GENERAL" name="land_general_panel">
 			<panel.string name="new users only">
-				Sólo usuarios nuevos
+				Sólo nuevos Residentes
 			</panel.string>
 			<panel.string name="anyone">
 				Cualquiera
@@ -84,9 +93,9 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="GroupText">
 				Leyla Linden
 			</text>
-			<button label="Configurar..." label_selected="Configurar..." name="Set..."/>
+			<button label="Configurar" name="Set..."/>
 			<check_box label="Permitir transferir al grupo" name="check deed" tool_tip="Un oficial del grupo puede transferir este terreno al grupo. El terreno será apoyado por el grupo en sus asignaciones de terreno."/>
-			<button label="Transferir..." label_selected="Transferir..." name="Deed..." tool_tip="Sólo si es usted un oficial del grupo seleccionado puede transferir terreno."/>
+			<button label="Transferir" name="Deed..." tool_tip="Sólo si es usted un oficial del grupo seleccionado puede transferir terreno."/>
 			<check_box label="El propietario hace una contribución transfiriendo" name="check contrib" tool_tip="Cuando el terreno se transfiere al grupo, el antiguo propietario contribuye con una asignación suficiente de terreno."/>
 			<text name="For Sale:">
 				En venta:
@@ -97,7 +106,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="For Sale: Price L$[PRICE].">
 				Precio: [PRICE] L$ ([PRICE_PER_SQM] L$/m²).
 			</text>
-			<button label="Vender el terreno..." label_selected="Vender el terreno..." name="Sell Land..."/>
+			<button label="Vender el terreno" name="Sell Land..."/>
 			<text name="For sale to">
 				En venta a: [BUYER]
 			</text>
@@ -107,7 +116,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="Selling with no objects in parcel." width="216">
 				Los objetos no se incluyen en la venta.
 			</text>
-			<button bottom="-245" font="SansSerifSmall" label="Cancelar la venta del terreno" label_selected="Cancelar la venta del terreno" left="275" name="Cancel Land Sale" width="165"/>
+			<button bottom="-245" font="SansSerifSmall" label="Cancelar la venta del terreno" label_selected="Cancelar la venta del terreno" left="275" name="Cancel Land Sale"/>
 			<text name="Claimed:">
 				Reclamada:
 			</text>
@@ -126,13 +135,13 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text name="DwellText">
 				0
 			</text>
-			<button label="Comprar terreno..." label_selected="Comprar terreno..." left="130" name="Buy Land..." width="125"/>
+			<button label="Comprar terreno" left="130" name="Buy Land..." width="125"/>
 			<button label="Información del script" name="Scripts..."/>
-			<button label="Comprar para el grupo..." label_selected="Comprar para el grupo..." name="Buy For Group..."/>
-			<button label="Comprar un pase..." label_selected="Comprar un pase..." left="130" name="Buy Pass..." tool_tip="Un pase le da acceso temporal a este terreno." width="125"/>
-			<button label="Abandonar el terreno..." label_selected="Abandonar el terreno..." name="Abandon Land..."/>
-			<button label="Reclamar el terreno..." label_selected="Reclamar el terreno..." name="Reclaim Land..."/>
-			<button label="Venta Linden..." label_selected="Venta Linden..." name="Linden Sale..." tool_tip="El terreno debe estar en propiedad, con contenido, y no estar en subasta."/>
+			<button label="Comprar para el grupo" name="Buy For Group..."/>
+			<button label="Comprar un pase" left="130" name="Buy Pass..." tool_tip="Un pase le da acceso temporal a este terreno." width="125"/>
+			<button label="Abandonar el terreno" name="Abandon Land..."/>
+			<button label="Reclamar el terreno" name="Reclaim Land..."/>
+			<button label="Venta Linden" name="Linden Sale..." tool_tip="El terreno debe estar en propiedad, con contenido, y no estar en subasta."/>
 		</panel>
 		<panel label="CONTRATO" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -198,10 +207,10 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 		</panel>
 		<panel label="OBJETOS" name="land_objects_panel">
 			<panel.string name="objects_available_text">
-				[COUNT] de un máximo de [MAX] ([AVAILABLE] disponibles)
+				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</panel.string>
 			<panel.string name="objects_deleted_text">
-				[COUNT] de un máximo de [MAX] ([DELETED] se borrarán)
+				[COUNT] de un máx. de [MAX] ([DELETED] se borrarán)
 			</panel.string>
 			<text name="parcel_object_bonus">
 				Plus de objetos en la región: [BONUS]
@@ -210,7 +219,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Uso de primitivas:
 			</text>
 			<text left="204" name="objects_available" width="250">
-				[COUNT] de un máximo de [MAX] ([AVAILABLE] disponibles)
+				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</text>
 			<text name="Primitives parcel supports:" width="200">
 				Prims que admite la parcela:
@@ -231,7 +240,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
-			<button label="Devolver..." label_selected="Devolver..." name="ReturnOwner..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
+			<button label="Devolver" name="ReturnOwner..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
 			<text left="14" name="Set to group:" width="180">
 				Del grupo:
 			</text>
@@ -239,7 +248,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
-			<button label="Devolver..." label_selected="Devolver..." name="ReturnGroup..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
+			<button label="Devolver" name="ReturnGroup..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
 			<text left="14" name="Owned by others:" width="128">
 				Propiedad de otros:
 			</text>
@@ -247,7 +256,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
-			<button label="Devolver..." label_selected="Devolver..." name="ReturnOther..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
+			<button label="Devolver" name="ReturnOther..." right="-10" tool_tip="Devolver los objetos a sus propietarios." width="119"/>
 			<text left="14" name="Selected / sat upon:" width="193">
 				Seleccionados / con gente sentada:
 			</text>
@@ -262,7 +271,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Propietarios de los objetos:
 			</text>
 			<button label="Actualizar la lista" label_selected="Actualizar la lista" left="158" name="Refresh List" tool_tip="Refresh Object List"/>
-			<button label="Devolver los objetos..." label_selected="Devolver los objetos..." left="270" name="Return objects..." width="164"/>
+			<button label="Devolver los objetos" left="270" name="Return objects..." width="164"/>
 			<name_list name="owner list">
 				<name_list.columns label="Tipo" name="type"/>
 				<name_list.columns label="Nombre" name="name"/>
@@ -307,28 +316,28 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			</text>
 			<check_box label="Editar el terreno" name="edit land check" tool_tip="Si se marca, cualquiera podrá modificar su terreno. Mejor dejarlo desmarcado, pues usted siempre puede modificar su terreno."/>
 			<check_box label="Volar" name="check fly" tool_tip="Si se marca, los residentes podrán volar en su terreno. Si no, sólo podrán volar al cruzarlo o hasta que aterricen en él."/>
-			<text left="162" name="allow_label2">
+			<text name="allow_label2">
 				Crear objetos:
 			</text>
-			<check_box label="Todos los residentes" left="255" name="edit objects check"/>
-			<check_box label="El grupo" left="385" name="edit group objects check"/>
-			<text left="162" name="allow_label3">
+			<check_box label="Todos los residentes" name="edit objects check"/>
+			<check_box label="El grupo" name="edit group objects check"/>
+			<text name="allow_label3">
 				Dejar objetos:
 			</text>
-			<check_box label="Todos los residentes" left="255" name="all object entry check"/>
-			<check_box label="El grupo" left="385" name="group object entry check"/>
-			<text left="162" name="allow_label4">
+			<check_box label="Todos los residentes" name="all object entry check"/>
+			<check_box label="El grupo" name="group object entry check"/>
+			<text name="allow_label4">
 				Ejecutar scripts:
 			</text>
-			<check_box label="Todos los residentes" left="255" name="check other scripts"/>
-			<check_box label="El grupo" left="385" name="check group scripts"/>
+			<check_box label="Todos los residentes" name="check other scripts"/>
+			<check_box label="El grupo" name="check group scripts"/>
 			<text name="land_options_label">
 				Opciones del terreno:
 			</text>
 			<check_box label="Seguro (sin daño)" name="check safe" tool_tip="Si se marca, convierte el terreno en &apos;seguro&apos;, desactivando el daño en combate. Si no, se activa el daño en combate."/>
 			<check_box label="Sin &apos;empujones&apos;" name="PushRestrictCheck" tool_tip="Previene scripts que empujen. Marcando esta opción prevendrá que en su terreno haya comportamientos destructivos."/>
 			<check_box label="Mostrar el sitio en la búsqueda (30 L$/semana)" name="ShowDirectoryCheck" tool_tip="Let people see this parcel in search results"/>
-			<combo_box left="282" name="land category with adult" width="140">
+			<combo_box name="land category with adult">
 				<combo_box.item label="Cualquier categoría" name="item0"/>
 				<combo_box.item label="Localización Linden" name="item1"/>
 				<combo_box.item label="&apos;Adult&apos;" name="item2"/>
@@ -343,7 +352,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				<combo_box.item label="Compras" name="item11"/>
 				<combo_box.item label="Otra" name="item12"/>
 			</combo_box>
-			<combo_box left="282" name="land category" width="140">
+			<combo_box name="land category">
 				<combo_box.item label="Cualquier categoría" name="item0"/>
 				<combo_box.item label="Localización Linden" name="item1"/>
 				<combo_box.item label="Arte y Cultura" name="item3"/>
@@ -385,7 +394,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Página inicial:
 			</text>
 			<line_editor left="97" name="media_url"/>
-			<button label="Definir..." label_selected="Definir..." name="set_media_url"/>
+			<button label="Definir" name="set_media_url"/>
 			<check_box label="Ocultar la URL del media" left="97" name="hide_media_url" tool_tip="Marcando esta opción esconderá en la información de esta parcela -a quien no esté autorizado a verla- la URL del media. Note que esto no está disponible para HTML."/>
 			<text name="Description:">
 				Descripción:
@@ -423,6 +432,9 @@ los media:
 		<panel label="ACCESO" name="land_access_panel">
 			<panel.string name="access_estate_defined">
 				(Definido por el Estado)
+			</panel.string>
+			<panel.string name="allow_public_access">
+				Permitir el acceso público ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
 				Una o más de esta opciones está configurada a nivel del estado

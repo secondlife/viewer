@@ -7,7 +7,7 @@
 	<button label="Gem" label_selected="Gem" name="WaterSavePreset"/>
 	<button label="Slet" label_selected="Slet" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
-		<panel label="Opsætning" name="Settings">
+		<panel label="INDSTILLINGER" name="Settings">
 			<text name="BHText">
 				Vandtåge farve
 			</text>
@@ -65,7 +65,7 @@
 			<button label="?" name="WaterBlurMultiplierHelp"/>
 			<slider label="" name="WaterBlurMult"/>
 		</panel>
-		<panel label="Billede" name="Waves">
+		<panel label="BILLEDE" name="Waves">
 			<text name="BHText">
 				Retning for store bølger
 			</text>

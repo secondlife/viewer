@@ -21,18 +21,18 @@
 	<tab_container name="ResidentChooserTabs">
 		<panel label="Cerca" name="SearchPanel">
 			<text name="InstructSearchResidentName">
-				Scrivi parte del nome di una persona:
+				Comincia a digitare il nome della persona:
 			</text>
 			<button label="Vai" label_selected="Vai" name="Find"/>
 		</panel>
 		<panel label="Amici" name="FriendsPanel">
 			<text name="InstructSelectFriend">
-				Seleziona una persona:
+				Scegli una persona:
 			</text>
 		</panel>
 		<panel label="Vicino a me" name="NearMePanel">
 			<text name="InstructSelectResident">
-				Seleziona una persona nei dintorni:
+				Scegli una persona nei dintorni
 			</text>
 			<slider bottom_delta="-36" label="Range" name="near_me_range"/>
 			<text name="meters">
@@ -43,5 +43,5 @@
 		</panel>
 	</tab_container>
 	<button label="OK" label_selected="OK" name="ok_btn"/>
-	<button label="Cancella" label_selected="Cancella" name="cancel_btn"/>
+	<button label="Annulla" label_selected="Annulla" name="cancel_btn"/>
 </floater>
