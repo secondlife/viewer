@@ -852,8 +852,8 @@ bool LLTextureCache::updateTextureEntryList(const LLUUID& id, S32 bodysize)
 			}			
 			else if (oldbodysize != entry.mBodySize)
 			{
-				// TODO: change to llwarns
-				llerrs << "Entry mismatch in mTextureSizeMap / mHeaderIDMap"
+				// only happens to 64 bits systems, do not know why.
+				llwarns << "Entry mismatch in mTextureSizeMap / mHeaderIDMap"
 					   << " idx=" << idx << " oldsize=" << oldbodysize << " entrysize=" << entry.mBodySize << llendl;
 			}
 			updateEntry(idx, entry, entry.mImageSize, bodysize);			
