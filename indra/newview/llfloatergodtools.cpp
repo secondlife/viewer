@@ -1191,7 +1191,7 @@ void LLPanelObjectTools::onClickSetBySelection(void* data)
 	panelp->childSetValue("target_avatar_name", name);
 }
 
-void LLPanelObjectTools::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
+void LLPanelObjectTools::callbackAvatarID(const std::vector<std::string>& names, const uuid_vec_t& ids)
 {
 	if (ids.empty() || names.empty()) return;
 	mTargetAvatar = ids[0];

@@ -870,9 +870,9 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 	}
 }
  
-void open_inventory_offer(const std::vector<LLUUID>& items, const std::string& from_name)
+void open_inventory_offer(const uuid_vec_t& items, const std::string& from_name)
 {
-	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
+	for (uuid_vec_t::const_iterator item_iter = items.begin();
 		 item_iter != items.end();
 		 ++item_iter)
 	{
@@ -1263,8 +1263,8 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			// Disabled logging to old chat floater to fix crash in group notices - EXT-4149
 			// LLFloaterChat::addChatHistory(chat);
 			
-			LLInventoryFetchComboObserver::folder_ref_t folders;
-			LLInventoryFetchComboObserver::item_ref_t items;
+			uuid_vec_t folders;
+			uuid_vec_t items;
 			items.push_back(mObjectID);
 			LLDiscardAgentOffer* discard_agent_offer;
 			discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
@@ -2844,8 +2844,8 @@ public:
 		LLInventoryModel::cat_array_t	land_cats;
 		LLInventoryModel::item_array_t	land_items;
 
-		folder_ref_t::iterator it = mCompleteFolders.begin();
-		folder_ref_t::iterator end = mCompleteFolders.end();
+		uuid_vec_t::iterator it = mCompleteFolders.begin();
+		uuid_vec_t::iterator end = mCompleteFolders.end();
 		for(; it != end; ++it)
 		{
 			gInventory.collectDescendentsIf(
@@ -2906,7 +2906,7 @@ BOOL LLPostTeleportNotifiers::tick()
 	if ( gAgent.getTeleportState() == LLAgent::TELEPORT_NONE )
 	{
 		// get callingcards and landmarks available to the user arriving.
-		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+		uuid_vec_t folders;
 		const LLUUID callingcard_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
 		if(callingcard_id.notNull()) 
 			folders.push_back(callingcard_id);
@@ -5587,7 +5587,7 @@ void handle_lure(const LLUUID& invitee)
 }
 
 // Prompt for a message to the invited user.
-void handle_lure(const std::vector<LLUUID>& ids)
+void handle_lure(const uuid_vec_t& ids)
 {
 	LLSD edit_args;
 	edit_args["REGION"] = gAgent.getRegion()->getName();

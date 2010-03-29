@@ -123,7 +123,7 @@ private:
 	void setPosBox(const LLVector3d &pos);
 	void enableControls(BOOL own_avatar);
 	void getObjectInfo(const LLUUID& object_id);
-	void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
+	void callbackAvatarID(const std::vector<std::string>& names, const uuid_vec_t& ids);
 	void setFromAvatar(const LLUUID& avatar_id, const std::string& avatar_name = LLStringUtil::null);
 
 private:

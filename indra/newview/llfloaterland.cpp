@@ -2774,7 +2774,7 @@ void LLPanelLandAccess::onClickAddAccess()
 	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1,_2)) );
 }
 
-void LLPanelLandAccess::callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
+void LLPanelLandAccess::callbackAvatarCBAccess(const std::vector<std::string>& names, const uuid_vec_t& ids)
 {
 	if (!names.empty() && !ids.empty())
 	{
@@ -2819,7 +2819,7 @@ void LLPanelLandAccess::onClickAddBanned()
 }
 
 // static
-void LLPanelLandAccess::callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
+void LLPanelLandAccess::callbackAvatarCBBanned(const std::vector<std::string>& names, const uuid_vec_t& ids)
 {
 	if (!names.empty() && !ids.empty())
 	{

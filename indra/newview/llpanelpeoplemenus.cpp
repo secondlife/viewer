@@ -72,7 +72,7 @@ ContextMenu::~ContextMenu()
 	}
 }
 
-void ContextMenu::show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y)
+void ContextMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y)
 {
 	if (mMenu)
 	{
@@ -177,7 +177,7 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 
 		bool result = (mUUIDs.size() > 0);
 
-		std::vector<LLUUID>::const_iterator
+		uuid_vec_t::const_iterator
 			id = mUUIDs.begin(),
 			uuids_end = mUUIDs.end();
 
@@ -200,7 +200,7 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 
 		bool result = (mUUIDs.size() > 0);
 
-		std::vector<LLUUID>::const_iterator
+		uuid_vec_t::const_iterator
 			id = mUUIDs.begin(),
 			uuids_end = mUUIDs.end();
 

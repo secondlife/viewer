@@ -146,7 +146,7 @@ public:
 	BOOL matchPrefix(const std::string& in_str, std::string* out_str);
 
 	// Copy item ids into the vector
-	void getItemIDs(std::vector<LLUUID>* ids);
+	void getItemIDs(uuid_vec_t* ids);
 
 protected:
 	// Handle the processing of a single gesture

@@ -125,7 +125,7 @@ void LLFloaterGesture::done()
 		// we load only gesture folder without childred.
 		LLInventoryModel::cat_array_t* categories;
 		LLInventoryModel::item_array_t* items;
-		LLInventoryFetchDescendentsObserver::folder_ref_t unloaded_folders;
+		uuid_vec_t unloaded_folders;
 		LL_DEBUGS("Gesture")<< "Get subdirs of Gesture Folder...." << LL_ENDL;
 		gInventory.getDirectDescendentsOf(mGestureFolderID, categories, items);
 		if (categories->empty())
@@ -197,7 +197,7 @@ BOOL LLFloaterGesture::postBuild()
 	setDefaultBtn("play_btn");
 	mGestureFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE, false);
 
-	folder_ref_t folders;
+	uuid_vec_t folders;
 	folders.push_back(mGestureFolderID);
 	//perform loading Gesture directory anyway to make sure that all subdirectory are loaded too. See method done() for details.
 	gInventory.addObserver(this);
@@ -246,7 +246,7 @@ void LLFloaterGesture::refreshAll()
 void LLFloaterGesture::buildGestureList()
 {
 	S32 scroll_pos = mGestureList->getScrollPos();
-	std::vector<LLUUID> selected_items;
+	uuid_vec_t selected_items;
 	getSelectedIds(selected_items);
 	LL_DEBUGS("Gesture")<< "Rebuilding gesture list "<< LL_ENDL;
 	mGestureList->deleteAllItems();
@@ -278,7 +278,7 @@ void LLFloaterGesture::buildGestureList()
 
 	// attempt to preserve scroll position through re-builds
 	// since we do re-build whenever something gets dirty
-	for(std::vector<LLUUID>::iterator it = selected_items.begin(); it != selected_items.end(); it++)
+	for(uuid_vec_t::iterator it = selected_items.begin(); it != selected_items.end(); it++)
 	{
 		mGestureList->selectByID(*it);
 	}
@@ -377,7 +377,7 @@ void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gestur
 	}
 }
 
-void LLFloaterGesture::getSelectedIds(std::vector<LLUUID>& ids)
+void LLFloaterGesture::getSelectedIds(uuid_vec_t& ids)
 {
 	std::vector<LLScrollListItem*> items = mGestureList->getAllSelected();
 	for(std::vector<LLScrollListItem*>::const_iterator it = items.begin(); it != items.end(); it++)
@@ -451,13 +451,13 @@ void LLFloaterGesture::onClickNew()
 
 void LLFloaterGesture::onActivateBtnClick()
 {
-	std::vector<LLUUID> ids;
+	uuid_vec_t ids;
 	getSelectedIds(ids);
 	if(ids.empty())
 		return;
 
 	LLGestureMgr* gm = LLGestureMgr::getInstance();
-	std::vector<LLUUID>::const_iterator it = ids.begin();
+	uuid_vec_t::const_iterator it = ids.begin();
 	BOOL first_gesture_state = gm->isGestureActive(*it);
 	BOOL is_mixed = FALSE;
 	while( ++it != ids.end() )
@@ -468,7 +468,7 @@ void LLFloaterGesture::onActivateBtnClick()
 			break;
 		}
 	}
-	for(std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); it++)
+	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); it++)
 	{
 		if(is_mixed)
 		{
@@ -494,11 +494,11 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 	// since we select this comman inventory item had  already arrived .
 	if("copy_gesture" == command_name)
 	{
-		std::vector<LLUUID> ids;
+		uuid_vec_t ids;
 		getSelectedIds(ids);
 		// make sure that clopboard is empty
 		LLInventoryClipboard::instance().reset();
-		for(std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
+		for(uuid_vec_t::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(item  && item->getInventoryType() == LLInventoryType::IT_GESTURE)
@@ -572,14 +572,14 @@ void LLFloaterGesture::onCommitList()
 
 void LLFloaterGesture::onDeleteSelected()
 {
-	std::vector<LLUUID> ids;
+	uuid_vec_t ids;
 	getSelectedIds(ids);
 	if(ids.empty())
 		return;
 
 	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLGestureMgr* gm = LLGestureMgr::getInstance();
-	for(std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); it++)
+	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); it++)
 	{
 		const LLUUID& selected_item = *it;
 		LLInventoryItem* inv_item = gInventory.getItem(selected_item);
@@ -610,10 +610,10 @@ void LLFloaterGesture::onDeleteSelected()
 
 void LLFloaterGesture::addToCurrentOutFit()
 {
-	std::vector<LLUUID> ids;
+	uuid_vec_t ids;
 	getSelectedIds(ids);
 	LLAppearanceMgr* am = LLAppearanceMgr::getInstance();
-	for(std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); it++)
+	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); it++)
 	{
 		am->addCOFItemLink(*it);
 	}

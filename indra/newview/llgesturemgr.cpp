@@ -347,7 +347,7 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& in_item_id)
 {
 	const LLUUID& base_in_item_id = get_linked_uuid(in_item_id);
-	std::vector<LLUUID> gest_item_ids;
+	uuid_vec_t gest_item_ids;
 
 	// Deactivate all gestures that match
 	item_map_t::iterator it;
@@ -386,7 +386,7 @@ void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& i
 	// Inform database of the change
 	LLMessageSystem* msg = gMessageSystem;
 	BOOL start_message = TRUE;
-	std::vector<LLUUID>::const_iterator vit = gest_item_ids.begin();
+	uuid_vec_t::const_iterator vit = gest_item_ids.begin();
 	while (vit != gest_item_ids.end())
 	{
 		if (start_message)
@@ -1215,7 +1215,7 @@ BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 }
 
 
-void LLGestureMgr::getItemIDs(std::vector<LLUUID>* ids)
+void LLGestureMgr::getItemIDs(uuid_vec_t* ids)
 {
 	item_map_t::const_iterator it;
 	for (it = mActive.begin(); it != mActive.end(); ++it)

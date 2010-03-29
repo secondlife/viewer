@@ -118,9 +118,8 @@ protected:
 	void importedFolderDone(void);
 	void contentsDone(void);
 	enum ELibraryOutfitFetchStep mCurrFetchStep;
-	typedef std::vector<LLUUID> clothing_folder_vec_t;
-	clothing_folder_vec_t mLibraryClothingFolders;
-	clothing_folder_vec_t mImportedClothingFolders;
+	uuid_vec_t mLibraryClothingFolders;
+	uuid_vec_t mImportedClothingFolders;
 	bool mOutfitsPopulated;
 	LLUUID mClothingID;
 	LLUUID mLibraryClothingID;
@@ -1023,7 +1022,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 		
 		// Get the complete information on the items in the inventory and set up an observer
 		// that will trigger when the complete information is fetched.
-		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+		uuid_vec_t folders;
 		folders.push_back(current_outfit_id);
 		outfit->fetchDescendents(folders);
 		if(outfit->isEverythingComplete())
@@ -2179,7 +2178,7 @@ void LLAgentWearables::populateMyOutfitsFolder(void)
 	
 	// Get the complete information on the items in the inventory and 
 	// setup an observer that will wait for that to happen.
-	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	uuid_vec_t folders;
 	outfits->mMyOutfitsID = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
 	folders.push_back(outfits->mMyOutfitsID);
@@ -2270,7 +2269,7 @@ void LLLibraryOutfitsFetch::folderDone(void)
 	mCompleteFolders.clear();
 	
 	// Get the complete information on the items in the inventory.
-	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	uuid_vec_t folders;
 	folders.push_back(mClothingID);
 	folders.push_back(mLibraryClothingID);
 	fetchDescendents(folders);
@@ -2284,7 +2283,7 @@ void LLLibraryOutfitsFetch::outfitsDone(void)
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
-	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	uuid_vec_t folders;
 	
 	// Collect the contents of the Library's Clothing folder
 	gInventory.collectDescendents(mLibraryClothingID, cat_array, wearable_array, 
@@ -2374,7 +2373,7 @@ void LLLibraryOutfitsFetch::libraryDone(void)
 													   LLFolderType::FT_NONE,
 													   mImportedClothingName);
 	// Copy each folder from library into clothing unless it already exists.
-	for (clothing_folder_vec_t::const_iterator iter = mLibraryClothingFolders.begin();
+	for (uuid_vec_t::const_iterator iter = mLibraryClothingFolders.begin();
 		 iter != mLibraryClothingFolders.end();
 		 ++iter)
 	{
@@ -2415,7 +2414,7 @@ void LLLibraryOutfitsFetch::libraryDone(void)
 void LLLibraryOutfitsFetch::importedFolderFetch(void)
 {
 	// Fetch the contents of the Imported Clothing Folder
-	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	uuid_vec_t folders;
 	folders.push_back(mImportedClothingID);
 	
 	mCompleteFolders.clear();
@@ -2431,7 +2430,7 @@ void LLLibraryOutfitsFetch::importedFolderDone(void)
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
-	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	uuid_vec_t folders;
 	
 	// Collect the contents of the Imported Clothing folder
 	gInventory.collectDescendents(mImportedClothingID, cat_array, wearable_array, 
@@ -2461,7 +2460,7 @@ void LLLibraryOutfitsFetch::contentsDone(void)
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
 	
-	for (clothing_folder_vec_t::const_iterator folder_iter = mImportedClothingFolders.begin();
+	for (uuid_vec_t::const_iterator folder_iter = mImportedClothingFolders.begin();
 		 folder_iter != mImportedClothingFolders.end();
 		 ++folder_iter)
 	{

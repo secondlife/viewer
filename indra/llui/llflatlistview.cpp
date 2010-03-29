@@ -243,7 +243,7 @@ LLUUID LLFlatListView::getSelectedUUID() const
 	}
 }
 
-void LLFlatListView::getSelectedUUIDs(std::vector<LLUUID>& selected_uuids) const
+void LLFlatListView::getSelectedUUIDs(uuid_vec_t& selected_uuids) const
 {
 	if (mSelectedItemPairs.empty()) return;
 

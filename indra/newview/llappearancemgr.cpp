@@ -1313,7 +1313,7 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	// the inventory, and set up an observer that will wait for that to
 	// happen.
 	LLOutfitFetch* outfit_fetcher = new LLOutfitFetch(copy, append);
-	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	uuid_vec_t folders;
 	folders.push_back(category->getUUID());
 	outfit_fetcher->fetchDescendents(folders);
 	//inc_busy_count();

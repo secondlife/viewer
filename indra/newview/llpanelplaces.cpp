@@ -1006,9 +1006,9 @@ void LLPanelPlaces::changedGlobalPos(const LLVector3d &global_pos)
 	updateVerbs();
 }
 
-void LLPanelPlaces::showAddedLandmarkInfo(const std::vector<LLUUID>& items)
+void LLPanelPlaces::showAddedLandmarkInfo(const uuid_vec_t& items)
 {
-	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
+	for (uuid_vec_t::const_iterator item_iter = items.begin();
 		 item_iter != items.end();
 		 ++item_iter)
 	{

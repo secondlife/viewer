@@ -4392,7 +4392,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_SitName, sit_name, i);
 
 		//unpack TE IDs
-		std::vector<LLUUID> texture_ids;
+		uuid_vec_t texture_ids;
 		S32 size = msg->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_TextureID);
 		if (size > 0)
 		{
@@ -5207,13 +5207,13 @@ void LLSelectNode::saveColors()
 	}
 }
 
-void LLSelectNode::saveTextures(const std::vector<LLUUID>& textures)
+void LLSelectNode::saveTextures(const uuid_vec_t& textures)
 {
 	if (mObject.notNull())
 	{
 		mSavedTextures.clear();
 
-		for (std::vector<LLUUID>::const_iterator texture_it = textures.begin();
+		for (uuid_vec_t::const_iterator texture_it = textures.begin();
 			 texture_it != textures.end(); ++texture_it)
 		{
 			mSavedTextures.push_back(*texture_it);

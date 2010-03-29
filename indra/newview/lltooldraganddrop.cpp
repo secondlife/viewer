@@ -304,8 +304,8 @@ void LLCategoryDropDescendentsObserver::done()
 {
 
 	gInventory.removeObserver(this);
-	folder_ref_t::iterator it = mCompleteFolders.begin();
-	folder_ref_t::iterator end = mCompleteFolders.end();
+	uuid_vec_t::iterator it = mCompleteFolders.begin();
+	uuid_vec_t::iterator end = mCompleteFolders.end();
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
 	for(; it != end; ++it)
@@ -449,8 +449,8 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 			LLViewerInventoryCategory::cat_array_t cats;
 			LLViewerInventoryItem::item_array_t items;
 			LLNoPreferredTypeOrItem is_not_preferred;
-			LLInventoryFetchComboObserver::folder_ref_t folder_ids;
-			LLInventoryFetchComboObserver::item_ref_t item_ids;
+			uuid_vec_t folder_ids;
+			uuid_vec_t item_ids;
 			if (is_not_preferred(cat, NULL))
 			{
 				folder_ids.push_back(cargo_id);
@@ -483,7 +483,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 
 void LLToolDragAndDrop::beginMultiDrag(
 	const std::vector<EDragAndDropType> types,
-	const std::vector<LLUUID>& cargo_ids,
+	const uuid_vec_t& cargo_ids,
 	ESource source,
 	const LLUUID& source_id)
 {
@@ -540,9 +540,9 @@ void LLToolDragAndDrop::beginMultiDrag(
 		}
 		if (!cat_ids.empty())
 		{
-			LLInventoryFetchComboObserver::folder_ref_t folder_ids;
-			LLInventoryFetchComboObserver::item_ref_t item_ids;
-			std::back_insert_iterator<LLInventoryFetchDescendentsObserver::folder_ref_t> copier(folder_ids);
+			uuid_vec_t folder_ids;
+			uuid_vec_t item_ids;
+			std::back_insert_iterator<uuid_vec_t> copier(folder_ids);
 			std::copy(cat_ids.begin(), cat_ids.end(), copier);
 			LLCategoryFireAndForget fetcher;
 			fetcher.fetch(folder_ids, item_ids);

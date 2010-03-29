@@ -1746,7 +1746,7 @@ bool idle_startup()
 			{
 				LL_DEBUGS("AppInit") << "Gesture Manager loading " << gesture_options.size()
 					<< LL_ENDL;
-				std::vector<LLUUID> item_ids;
+				uuid_vec_t item_ids;
 				for(LLSD::array_const_iterator resp_it = gesture_options.beginArray(),
 					end = gesture_options.endArray(); resp_it != end; ++resp_it)
 				{

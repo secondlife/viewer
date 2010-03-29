@@ -97,7 +97,7 @@ protected:
 
 void LLInventoryGestureAvailable::done()
 {
-	for(item_ref_t::iterator it = mComplete.begin(); it != mComplete.end(); ++it)
+	for(uuid_vec_t::iterator it = mComplete.begin(); it != mComplete.end(); ++it)
 	{
 		LLPreviewGesture* preview = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", *it);
 		if(preview)

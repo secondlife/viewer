@@ -297,7 +297,7 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	LLMessageSystem* msg = gMessageSystem;
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLViewerInventoryItem* item = NULL;
-	std::vector<LLUUID> move_ids;
+	uuid_vec_t move_ids;
 	LLInventoryModel::update_map_t update;
 	bool start_new_message = true;
 	S32 count = batch.count();
@@ -398,8 +398,8 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	}
 
 	// move everything.
-	std::vector<LLUUID>::iterator it = move_ids.begin();
-	std::vector<LLUUID>::iterator end = move_ids.end();
+	uuid_vec_t::iterator it = move_ids.begin();
+	uuid_vec_t::iterator end = move_ids.end();
 	for(; it != end; ++it)
 	{
 		gInventory.moveObject((*it), trash_id);
@@ -2750,7 +2750,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		sSelf = this;
 		LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(FALSE);
 
-		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+		uuid_vec_t folders;
 		LLViewerInventoryCategory* category = (LLViewerInventoryCategory*)model->getCategory(mUUID);
 		if (category)
 		{
