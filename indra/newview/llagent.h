@@ -201,7 +201,7 @@ public:
 	// Coordinate System
 	//--------------------------------------------------------------------
 public:
-	LLCoordFrame	getFrameAgent()	const	{ return mFrameAgent; }
+	const LLCoordFrame&	getFrameAgent()	const	{ return mFrameAgent; }
 	void 			initOriginGlobal(const LLVector3d &origin_global); // Only to be used in ONE place
 	void			resetAxes();
 	void			resetAxes(const LLVector3 &look_at); // Makes reasonable left and up

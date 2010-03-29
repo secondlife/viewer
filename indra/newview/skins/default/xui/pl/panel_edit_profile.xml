@@ -10,11 +10,11 @@
 	<string name="AcctTypeTrial" value="Próbne"/>
 	<string name="AcctTypeCharterMember" value="Członek-zalożyciel"/>
 	<string name="AcctTypeEmployee" value="Pracownik Linden Lab"/>
-	<string name="PaymentInfoUsed" value="Dane Konta Używane"/>
-	<string name="PaymentInfoOnFile" value="Dane Konta Dostępne"/>
-	<string name="NoPaymentInfoOnFile" value="Brak Danych Konta"/>
-	<string name="AgeVerified" value="Wiek Zweryfikowany"/>
-	<string name="NotAgeVerified" value="Brak Weryfikacji Wieku"/>
+	<string name="PaymentInfoUsed" value="Dane konta używane"/>
+	<string name="PaymentInfoOnFile" value="Dane konta dostępne"/>
+	<string name="NoPaymentInfoOnFile" value="Brak danych konta"/>
+	<string name="AgeVerified" value="Wiek zweryfikowany"/>
+	<string name="NotAgeVerified" value="Brak weryfikacji wieku"/>
 	<string name="partner_edit_link_url">
 		http://www.secondlife.com/account/partners.php?lang=pl
 	</string>

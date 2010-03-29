@@ -271,7 +271,7 @@ void LLPanelOutfitsInventory::onSave()
 {
 	std::string outfit_name;
 
-	if (!LLAppearanceManager::getInstance()->getBaseOutfitName(outfit_name))
+	if (!LLAppearanceMgr::getInstance()->getBaseOutfitName(outfit_name))
 	{
 		outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
 	}

@@ -12,12 +12,12 @@
 	<combo_box label="Rodzaj Ubrania" name="clothing_type_combo">
 		<combo_box.item label="Obraz" name="Image"/>
 		<combo_box.item label="Włosy" name="Hair"/>
-		<combo_box.item label="Damska Głowa" name="FemaleHead"/>
-		<combo_box.item label="Damska Górna Część Ciała" name="FemaleUpperBody"/>
-		<combo_box.item label="Damska Górna Część Ciała" name="FemaleLowerBody"/>
-		<combo_box.item label="Męska Głowa" name="MaleHead"/>
-		<combo_box.item label="Męska Górna Część Ciała" name="MaleUpperBody"/>
-		<combo_box.item label="Męska Dolna Część Ciała" name="MaleLowerBody"/>
+		<combo_box.item label="Damska głowa" name="FemaleHead"/>
+		<combo_box.item label="Damska górna część ciała" name="FemaleUpperBody"/>
+		<combo_box.item label="Damska górna część ciała" name="FemaleLowerBody"/>
+		<combo_box.item label="Męska głowa" name="MaleHead"/>
+		<combo_box.item label="Męska górna część ciała" name="MaleUpperBody"/>
+		<combo_box.item label="Męska dolna część ciała" name="MaleLowerBody"/>
 		<combo_box.item label="Spódnica" name="Skirt"/>
 		<combo_box.item label="Prim sculptowy" name="SculptedPrim"/>
 	</combo_box>

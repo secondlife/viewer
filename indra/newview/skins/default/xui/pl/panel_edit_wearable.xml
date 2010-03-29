@@ -4,46 +4,46 @@
 		Edycja kształtu
 	</string>
 	<string name="edit_skin_title">
-		Edycja Skórki
+		Edycja skórki
 	</string>
 	<string name="edit_hair_title">
-		Edycja Włosów
+		Edycja włosów
 	</string>
 	<string name="edit_eyes_title">
-		Edycja Oczu
+		Edycja oczu
 	</string>
 	<string name="edit_shirt_title">
-		Edycja Spódnicy
+		Edycja spódnicy
 	</string>
 	<string name="edit_pants_title">
-		Edycja Spodni
+		Edycja spodni
 	</string>
 	<string name="edit_shoes_title">
-		Edycja Butów
+		Edycja butów
 	</string>
 	<string name="edit_socks_title">
-		Edycja Skarpetek
+		Edycja skarpetek
 	</string>
 	<string name="edit_jacket_title">
-		Edycja Kurtki
+		Edycja kurtki
 	</string>
 	<string name="edit_skirt_title">
-		Edycja Spódnicy
+		Edycja spódnicy
 	</string>
 	<string name="edit_gloves_title">
-		Edycja Rękawiczek
+		Edycja rękawiczek
 	</string>
 	<string name="edit_undershirt_title">
-		Edycja Podkoszulki
+		Edycja podkoszulki
 	</string>
 	<string name="edit_underpants_title">
-		Edycja Bielizny
+		Edycja bielizny
 	</string>
 	<string name="edit_alpha_title">
-		Edycja Maski Alpha
+		Edycja maski Alpha
 	</string>
 	<string name="edit_tattoo_title">
-		Edycja Tatuażu
+		Edycja tatuażu
 	</string>
 	<string name="shape_desc_text">
 		Kształt:

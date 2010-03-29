@@ -11,7 +11,7 @@
 	<text name="file_size_label">
 		[SIZE] KB
 	</text>
-	<button label="Odśwież Zdjęcie" name="new_snapshot_btn"/>
+	<button label="Odśwież zdjęcie" name="new_snapshot_btn"/>
 	<button label="Wyślij" name="send_btn"/>
 	<button label="Załaduj (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Zapisz" name="save_btn" tool_tip="Zapisz zdjęcie na dysk">
@@ -66,7 +66,7 @@
 	<combo_box label="Warstwy Obrazu" name="layer_types">
 		<combo_box.item label="Kolory" name="Colors"/>
 		<combo_box.item label="Głębokość" name="Depth"/>
-		<combo_box.item label="Obiekty Ślepe" name="ObjectMattes"/>
+		<combo_box.item label="Obiekty ślepe" name="ObjectMattes"/>
 	</combo_box>
 	<check_box label="Pokaż interfejs na zdjęciu" name="ui_check"/>
 	<check_box label="Pokaż obiekty HUD na zdjęciu" name="hud_check"/>

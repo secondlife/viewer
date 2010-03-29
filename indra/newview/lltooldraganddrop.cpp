@@ -2366,7 +2366,7 @@ EAcceptance LLToolDragAndDrop::dad3dActivateGesture(
 			}
 			else
 			{
-				LLGestureManager::instance().activateGesture(item->getUUID());
+				LLGestureMgr::instance().activateGesture(item->getUUID());
 				gInventory.updateItem(item);
 				gInventory.notifyObservers();
 			}
@@ -2410,7 +2410,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 		if (drop)
 		{
 		    BOOL append = ( (mask & MASK_SHIFT) ? TRUE : FALSE );
-			LLAppearanceManager::instance().wearInventoryCategory(category, false, append);
+			LLAppearanceMgr::instance().wearInventoryCategory(category, false, append);
 		}
 		return ACCEPT_YES_MULTI;
 	}
@@ -2418,7 +2418,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 	{
 		if (drop)
 		{
-			LLAppearanceManager::instance().wearInventoryCategory(category, true, false);
+			LLAppearanceMgr::instance().wearInventoryCategory(category, true, false);
 		}
 		return ACCEPT_YES_MULTI;
 	}

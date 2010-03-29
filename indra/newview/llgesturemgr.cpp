@@ -67,7 +67,7 @@ static const LLUUID& get_linked_uuid(const LLUUID& item_id);
 
 // Lightweight constructor.
 // init() does the heavy lifting.
-LLGestureManager::LLGestureManager()
+LLGestureMgr::LLGestureMgr()
 :	mValid(FALSE),
 	mPlaying(),
 	mActive(),
@@ -79,7 +79,7 @@ LLGestureManager::LLGestureManager()
 
 
 // We own the data for gestures, so clean them up.
-LLGestureManager::~LLGestureManager()
+LLGestureMgr::~LLGestureMgr()
 {
 	item_map_t::iterator it;
 	for (it = mActive.begin(); it != mActive.end(); ++it)
@@ -93,12 +93,12 @@ LLGestureManager::~LLGestureManager()
 }
 
 
-void LLGestureManager::init()
+void LLGestureMgr::init()
 {
 	// TODO
 }
 
-void LLGestureManager::changed(U32 mask) 
+void LLGestureMgr::changed(U32 mask) 
 { 
 	LLInventoryFetchObserver::changed(mask);
 
@@ -136,7 +136,7 @@ void LLGestureManager::changed(U32 mask)
 
 // Use this version when you have the item_id but not the asset_id,
 // and you KNOW the inventory is loaded.
-void LLGestureManager::activateGesture(const LLUUID& item_id)
+void LLGestureMgr::activateGesture(const LLUUID& item_id)
 {
 	LLViewerInventoryItem* item = gInventory.getItem(item_id);
 	if (!item) return;
@@ -152,7 +152,7 @@ void LLGestureManager::activateGesture(const LLUUID& item_id)
 }
 
 
-void LLGestureManager::activateGestures(LLViewerInventoryItem::item_array_t& items)
+void LLGestureMgr::activateGestures(LLViewerInventoryItem::item_array_t& items)
 {
 	// Load up the assets
 	S32 count = 0;
@@ -248,7 +248,7 @@ struct LLLoadInfo
 /**
  * It will load a gesture from remote storage
  */
-void LLGestureManager::activateGestureWithAsset(const LLUUID& item_id,
+void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 												const LLUUID& asset_id,
 												BOOL inform_server,
 												BOOL deactivate_similar)
@@ -257,7 +257,7 @@ void LLGestureManager::activateGestureWithAsset(const LLUUID& item_id,
 
 	if( !gAssetStorage )
 	{
-		llwarns << "LLGestureManager::activateGestureWithAsset without valid gAssetStorage" << llendl;
+		llwarns << "LLGestureMgr::activateGestureWithAsset without valid gAssetStorage" << llendl;
 		return;
 	}
 	// If gesture is already active, nothing to do.
@@ -299,7 +299,7 @@ void LLGestureManager::activateGestureWithAsset(const LLUUID& item_id,
 }
 
 
-void LLGestureManager::deactivateGesture(const LLUUID& item_id)
+void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
@@ -338,13 +338,13 @@ void LLGestureManager::deactivateGesture(const LLUUID& item_id)
 
 	gAgent.sendReliableMessage();
 
-	LLAppearanceManager::instance().removeCOFItemLinks(base_item_id, false);
+	LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id, false);
 
 	notifyObservers();
 }
 
 
-void LLGestureManager::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& in_item_id)
+void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& in_item_id)
 {
 	const LLUUID& base_in_item_id = get_linked_uuid(in_item_id);
 	std::vector<LLUUID> gest_item_ids;
@@ -431,7 +431,7 @@ void LLGestureManager::deactivateSimilarGestures(LLMultiGesture* in, const LLUUI
 }
 
 
-BOOL LLGestureManager::isGestureActive(const LLUUID& item_id)
+BOOL LLGestureMgr::isGestureActive(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
@@ -439,7 +439,7 @@ BOOL LLGestureManager::isGestureActive(const LLUUID& item_id)
 }
 
 
-BOOL LLGestureManager::isGesturePlaying(const LLUUID& item_id)
+BOOL LLGestureMgr::isGesturePlaying(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);
 
@@ -452,7 +452,7 @@ BOOL LLGestureManager::isGesturePlaying(const LLUUID& item_id)
 	return gesture->mPlaying;
 }
 
-BOOL LLGestureManager::isGesturePlaying(LLMultiGesture* gesture)
+BOOL LLGestureMgr::isGesturePlaying(LLMultiGesture* gesture)
 {
 	if(!gesture)
 	{
@@ -462,7 +462,7 @@ BOOL LLGestureManager::isGesturePlaying(LLMultiGesture* gesture)
 	return gesture->mPlaying;
 }
 
-void LLGestureManager::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_gesture, const LLUUID& asset_id)
+void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_gesture, const LLUUID& asset_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);
 
@@ -504,11 +504,11 @@ void LLGestureManager::replaceGesture(const LLUUID& item_id, LLMultiGesture* new
 	notifyObservers();
 }
 
-void LLGestureManager::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
+void LLGestureMgr::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);
 
-	item_map_t::iterator it = LLGestureManager::instance().mActive.find(base_item_id);
+	item_map_t::iterator it = LLGestureMgr::instance().mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
 		llwarns << "replaceGesture for inactive gesture " << base_item_id << llendl;
@@ -517,10 +517,10 @@ void LLGestureManager::replaceGesture(const LLUUID& item_id, const LLUUID& new_a
 
 	// mActive owns this gesture pointer, so clean up memory.
 	LLMultiGesture* gesture = (*it).second;
-	LLGestureManager::instance().replaceGesture(base_item_id, gesture, new_asset_id);
+	LLGestureMgr::instance().replaceGesture(base_item_id, gesture, new_asset_id);
 }
 
-void LLGestureManager::playGesture(LLMultiGesture* gesture)
+void LLGestureMgr::playGesture(LLMultiGesture* gesture)
 {
 	if (!gesture) return;
 
@@ -539,7 +539,7 @@ void LLGestureManager::playGesture(LLMultiGesture* gesture)
 
 
 // Convenience function that looks up the item_id for you.
-void LLGestureManager::playGesture(const LLUUID& item_id)
+void LLGestureMgr::playGesture(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);
 
@@ -556,7 +556,7 @@ void LLGestureManager::playGesture(const LLUUID& item_id)
 // Iterates through space delimited tokens in string, triggering any gestures found.
 // Generates a revised string that has the found tokens replaced by their replacement strings
 // and (as a minor side effect) has multiple spaces in a row replaced by single spaces.
-BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::string* revised_string)
+BOOL LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::string* revised_string)
 {
 	std::string tokenized = utf8str;
 
@@ -649,7 +649,7 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 }
 
 
-BOOL LLGestureManager::triggerGesture(KEY key, MASK mask)
+BOOL LLGestureMgr::triggerGesture(KEY key, MASK mask)
 {
 	std::vector <LLMultiGesture *> matching;
 	item_map_t::iterator it;
@@ -683,7 +683,7 @@ BOOL LLGestureManager::triggerGesture(KEY key, MASK mask)
 }
 
 
-S32 LLGestureManager::getPlayingCount() const
+S32 LLGestureMgr::getPlayingCount() const
 {
 	return mPlaying.size();
 }
@@ -697,7 +697,7 @@ struct IsGesturePlaying : public std::unary_function<LLMultiGesture*, bool>
 	}
 };
 
-void LLGestureManager::update()
+void LLGestureMgr::update()
 {
 	S32 i;
 	for (i = 0; i < (S32)mPlaying.size(); ++i)
@@ -740,7 +740,7 @@ void LLGestureManager::update()
 
 
 // Run all steps until you're either done or hit a wait.
-void LLGestureManager::stepGesture(LLMultiGesture* gesture)
+void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 {
 	if (!gesture)
 	{
@@ -887,7 +887,7 @@ void LLGestureManager::stepGesture(LLMultiGesture* gesture)
 }
 
 
-void LLGestureManager::runStep(LLMultiGesture* gesture, LLGestureStep* step)
+void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 {
 	switch(step->getType())
 	{
@@ -974,7 +974,7 @@ void LLGestureManager::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 
 
 // static
-void LLGestureManager::onLoadComplete(LLVFS *vfs,
+void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 									   const LLUUID& asset_uuid,
 									   LLAssetType::EType type,
 									   void* user_data, S32 status, LLExtStat ext_status)
@@ -987,7 +987,7 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 
 	delete info;
 	info = NULL;
-	LLGestureManager& self = LLGestureManager::instance();
+	LLGestureMgr& self = LLGestureMgr::instance();
 	self.mLoadingCount--;
 
 	if (0 == status)
@@ -1093,12 +1093,12 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 
 		llwarns << "Problem loading gesture: " << status << llendl;
 		
-		LLGestureManager::instance().mActive.erase(item_id);			
+		LLGestureMgr::instance().mActive.erase(item_id);			
 	}
 }
 
 
-void LLGestureManager::stopGesture(LLMultiGesture* gesture)
+void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 {
 	if (!gesture) return;
 
@@ -1138,7 +1138,7 @@ void LLGestureManager::stopGesture(LLMultiGesture* gesture)
 }
 
 
-void LLGestureManager::stopGesture(const LLUUID& item_id)
+void LLGestureMgr::stopGesture(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = get_linked_uuid(item_id);
 
@@ -1152,12 +1152,12 @@ void LLGestureManager::stopGesture(const LLUUID& item_id)
 }
 
 
-void LLGestureManager::addObserver(LLGestureManagerObserver* observer)
+void LLGestureMgr::addObserver(LLGestureManagerObserver* observer)
 {
 	mObservers.push_back(observer);
 }
 
-void LLGestureManager::removeObserver(LLGestureManagerObserver* observer)
+void LLGestureMgr::removeObserver(LLGestureManagerObserver* observer)
 {
 	std::vector<LLGestureManagerObserver*>::iterator it;
 	it = std::find(mObservers.begin(), mObservers.end(), observer);
@@ -1170,9 +1170,9 @@ void LLGestureManager::removeObserver(LLGestureManagerObserver* observer)
 // Call this method when it's time to update everyone on a new state.
 // Copy the list because an observer could respond by removing itself
 // from the list.
-void LLGestureManager::notifyObservers()
+void LLGestureMgr::notifyObservers()
 {
-	lldebugs << "LLGestureManager::notifyObservers" << llendl;
+	lldebugs << "LLGestureMgr::notifyObservers" << llendl;
 
 	std::vector<LLGestureManagerObserver*> observers = mObservers;
 
@@ -1184,7 +1184,7 @@ void LLGestureManager::notifyObservers()
 	}
 }
 
-BOOL LLGestureManager::matchPrefix(const std::string& in_str, std::string* out_str)
+BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 {
 	S32 in_len = in_str.length();
 
@@ -1215,7 +1215,7 @@ BOOL LLGestureManager::matchPrefix(const std::string& in_str, std::string* out_s
 }
 
 
-void LLGestureManager::getItemIDs(std::vector<LLUUID>* ids)
+void LLGestureMgr::getItemIDs(std::vector<LLUUID>* ids)
 {
 	item_map_t::const_iterator it;
 	for (it = mActive.begin(); it != mActive.end(); ++it)
@@ -1224,7 +1224,7 @@ void LLGestureManager::getItemIDs(std::vector<LLUUID>* ids)
 	}
 }
 
-void LLGestureManager::done()
+void LLGestureMgr::done()
 {
 	bool notify = false;
 	for(item_map_t::iterator it = mActive.begin(); it != mActive.end(); ++it)

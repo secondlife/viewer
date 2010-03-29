@@ -20,7 +20,7 @@
 		Wpisz treść swojej wiadomości tutaj
 	</text_editor>
 	<text name="fine_print">
-		Jeżeli odbiorca tej pocztówki dołączy do [SECOND_LIFE], otrzymasz bonusa.
+		Jeżeli Odbiorca tej pocztówki dołączy do [SECOND_LIFE], otrzymasz bonus.
 	</text>
 	<button label="Anuluj" name="cancel_btn"/>
 	<button label="Wyślij" name="send_btn"/>

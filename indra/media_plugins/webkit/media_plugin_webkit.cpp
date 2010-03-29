@@ -507,6 +507,19 @@ private:
 		sendMessage(message);
 	}
 	
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	void onCookieChanged(const EventType& event)
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "cookie_set");
+		message.setValue("cookie", event.getStringValue());
+		// These could be passed through as well, but aren't really needed.
+//		message.setValue("uri", event.getEventUri());
+//		message.setValueBoolean("dead", (event.getIntValue() != 0))
+		sendMessage(message);
+	}
+	
 	LLQtWebKit::EKeyboardModifier decodeModifiers(std::string &modifiers)
 	{
 		int result = 0;
@@ -1050,6 +1063,10 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			{
 				mJavascriptEnabled = message_in.getValueBoolean("enable");
 				//LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
+			}
+			else if(message_name == "set_cookies")
+			{
+				LLQtWebKit::getInstance()->setCookies(message_in.getValue("cookies"));
 			}
 			else if(message_name == "proxy_setup")
 			{

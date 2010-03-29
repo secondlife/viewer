@@ -7,7 +7,7 @@
 		<scroll_list.columns label="Nazwa" name="object_name"/>
 		<scroll_list.columns label="Właściciel" name="owner_name"/>
 		<scroll_list.columns label="Twórca" name="creator_name"/>
-		<scroll_list.columns label="Data Kreacji" name="creation_date"/>
+		<scroll_list.columns label="Data kreacji" name="creation_date"/>
 	</scroll_list>
 	<button label="Profil Właściciela..." label_selected="" name="button owner" tool_tip=""/>
 	<button label="Profil Twórcy..." label_selected="" name="button creator" tool_tip=""/>

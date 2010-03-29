@@ -43,9 +43,9 @@ class LLWearable;
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
 
-class LLAppearanceManager: public LLSingleton<LLAppearanceManager>
+class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 {
-	friend class LLSingleton<LLAppearanceManager>;
+	friend class LLSingleton<LLAppearanceMgr>;
 	
 public:
 	void updateAppearanceFromCOF();
@@ -120,8 +120,8 @@ public:
 	void onFirstFullyVisible();
 	
 protected:
-	LLAppearanceManager();
-	~LLAppearanceManager();
+	LLAppearanceMgr();
+	~LLAppearanceMgr();
 
 private:
 
