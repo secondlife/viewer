@@ -3002,9 +3002,9 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	gAgent.setRegion(regionp);
 	gObjectList.shiftObjects(shift_vector);
 
-	if (gAgent.getAvatarObject())
+	if (isAgentAvatarValid())
 	{
-		gAgent.getAvatarObject()->clearChatText();
+		gAgentAvatar->clearChatText();
 		gAgentCamera.slamLookAt(look_at);
 	}
 	gAgent.setPositionAgent(pos);
@@ -3084,8 +3084,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	std::string version_channel;
 	msg->getString("SimData", "ChannelVersion", version_channel);
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
+	if (!isAgentAvatarValid())
 	{
 		// Could happen if you were immediately god-teleported away on login,
 		// maybe other cases.  Continue, but warn.
@@ -3139,7 +3138,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		// know what you look like.
 		gAgent.sendAgentSetAppearance();
 
-		if (avatarp)
+		if (isAgentAvatarValid())
 		{
 			// Chat the "back" SLURL. (DEV-4907)
 
@@ -3152,9 +3151,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 			LLNotificationsUtil::add("SystemMessageTip", args);
 
 			// Set the new position
-			avatarp->setPositionAgent(agent_pos);
-			avatarp->clearChat();
-			avatarp->slamPosition();
+			gAgentAvatar->setPositionAgent(agent_pos);
+			gAgentAvatar->clearChat();
+			gAgentAvatar->slamPosition();
 		}
 	}
 	else
@@ -3214,9 +3213,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		gAgent.clearBusy();
 	}
 
-	if (avatarp)
+	if (isAgentAvatarValid())
 	{
-		avatarp->mFootPlane.clearVec();
+		gAgentAvatar->mFootPlane.clearVec();
 	}
 	
 	// send walk-vs-run status
@@ -4031,7 +4030,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	//clear animation flags
 	avatarp = (LLVOAvatar *)gObjectList.findObject(uuid);
 
-	if (!avatarp)
+	if (!isAgentAvatarValid())
 	{
 		// no agent by this ID...error?
 		LL_WARNS("Messaging") << "Received animation state for unknown avatar" << uuid << LL_ENDL;
@@ -4165,9 +4164,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	BOOL force_mouselook;
 	mesgsys->getBOOLFast(_PREHASH_SitTransform, _PREHASH_ForceMouselook, force_mouselook);
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-
-	if (avatarp && dist_vec_squared(camera_eye, camera_at) > 0.0001f)
+	if (isAgentAvatarValid() && dist_vec_squared(camera_eye, camera_at) > 0.0001f)
 	{
 		gAgentCamera.setSitCamera(sitObjectID, camera_eye, camera_at);
 	}
@@ -4178,7 +4175,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	if (object)
 	{
 		LLVector3 sit_spot = object->getPositionAgent() + (sitPosition * object->getRotation());
-		if (!use_autopilot || (avatarp && avatarp->isSitting() && avatarp->getRoot() == object->getRoot()))
+		if (!use_autopilot || isAgentAvatarValid() && gAgentAvatar->isSitting() && gAgentAvatar->getRoot() == object->getRoot())
 		{
 			//we're already sitting on this object, so don't autopilot
 		}

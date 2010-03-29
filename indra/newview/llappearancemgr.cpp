@@ -469,8 +469,7 @@ void LLWearableHoldingPattern::onAllComplete()
 	LLAppearanceManager::instance().updateAgentWearables(this, false);
 	
 	// Update attachments to match those requested.
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if( avatar )
+	if (isAgentAvatarValid())
 	{
 		llinfos << "Updating " << mObjItems.count() << " attachments" << llendl;
 		LLAgentWearables::userUpdateAttachments(mObjItems);

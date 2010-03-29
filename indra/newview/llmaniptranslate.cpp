@@ -714,7 +714,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				// in position changes even when the mouse moves
 				object->setPosition(new_position_local);
 				rebuild(object);
-				gAgent.getAvatarObject()->clampAttachmentPositions();
+				gAgentAvatar->clampAttachmentPositions();
 				new_position_local = object->getPosition();
 
 				if (selectNode->mIndividualSelection)

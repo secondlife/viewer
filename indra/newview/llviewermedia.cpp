@@ -3025,7 +3025,7 @@ bool LLViewerMediaImpl::isObjectAttachedToAnotherAvatar(LLVOVolume *obj)
 		if (NULL != object)
 		{
 			LLVOAvatar *avatar = object->asAvatar();
-			if (NULL != avatar && avatar != gAgent.getAvatarObject())
+			if ((NULL != avatar) && (avatar != gAgentAvatar))
 			{
 				result = true;
 				break;

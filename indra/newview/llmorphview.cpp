@@ -89,15 +89,14 @@ void	LLMorphView::initialize()
 	mCameraYaw = 0.f;
 	mCameraDist = -1.f;
 
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-	if (!avatarp || avatarp->isDead())
+	if (!isAgentAvatarValid() || gAgentAvatar->isDead())
 	{
 		gAgentCamera.changeCameraToDefault();
 		return;
 	}
 
-	avatarp->stopMotion( ANIM_AGENT_BODY_NOISE );
-	avatarp->mSpecialRenderMode = 3;
+	gAgentAvatar->stopMotion( ANIM_AGENT_BODY_NOISE );
+	gAgentAvatar->mSpecialRenderMode = 3;
 	
 	// set up camera for close look at avatar
 	mOldCameraNearClip = LLViewerCamera::getInstance()->getNear();
@@ -111,11 +110,10 @@ void	LLMorphView::shutdown()
 {
 	LLVOAvatarSelf::onCustomizeEnd();
 
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-	if (avatarp && !avatarp->isDead())
+	if (isAgentAvatarValid())
 	{
-		avatarp->startMotion( ANIM_AGENT_BODY_NOISE );
-		avatarp->mSpecialRenderMode = 0;
+		gAgentAvatar->startMotion( ANIM_AGENT_BODY_NOISE );
+		gAgentAvatar->mSpecialRenderMode = 0;
 		// reset camera
 		LLViewerCamera::getInstance()->setNear(mOldCameraNearClip);
 	}
@@ -164,15 +162,11 @@ void LLMorphView::updateCamera()
 {
 	if (!mCameraTargetJoint)
 	{
-		setCameraTargetJoint(gAgent.getAvatarObject()->getJoint("mHead"));
-	}
-	
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
-	{
-		return;
-	}
-	LLJoint* root_joint = avatarp->getRootJoint();
+		setCameraTargetJoint(gAgentAvatar->getJoint("mHead"));
+	}	
+	if (!isAgentAvatarValid()) return;
+
+	LLJoint* root_joint = gAgentAvatar->getRootJoint();
 	if( !root_joint )
 	{
 		return;

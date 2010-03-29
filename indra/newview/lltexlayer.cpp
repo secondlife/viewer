@@ -284,8 +284,6 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 	llinfos << "Baked " << mTexLayerSet->getBodyRegion() << llendl;
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_BAKES);
 
-	llassert( gAgent.getAvatarObject() == mTexLayerSet->getAvatar() );
-
 	// We won't need our caches since we're baked now.  (Techically, we won't 
 	// really be baked until this image is sent to the server and the Avatar
 	// Appearance message is received.)
@@ -352,7 +350,7 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 			{
 				// baked_upload_data is owned by the responder and deleted after the request completes
 				LLBakedUploadData* baked_upload_data =
-					new LLBakedUploadData(gAgent.getAvatarObject(), this->mTexLayerSet, asset_id);
+					new LLBakedUploadData(gAgentAvatar, this->mTexLayerSet, asset_id);
 				mUploadID = asset_id;
 				
 				// upload the image
@@ -409,12 +407,10 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 {
 	LLBakedUploadData* baked_upload_data = (LLBakedUploadData*)userdata;
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-
 	if (0 == result &&
-		avatarp &&
-		!avatarp->isDead() &&
-		baked_upload_data->mAvatar == avatarp && // Sanity check: only the user's avatar should be uploading textures.
+		isAgentAvatarValid() &&
+		!gAgentAvatar->isDead() &&
+		baked_upload_data->mAvatar == gAgentAvatar && // Sanity check: only the user's avatar should be uploading textures.
 		baked_upload_data->mTexLayerSet->hasComposite()
 		)
 	{
@@ -439,11 +435,11 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 
 			if (result >= 0)
 			{
-				LLVOAvatarDefines::ETextureIndex baked_te = avatarp->getBakedTE(layerset_buffer->mTexLayerSet);
+				LLVOAvatarDefines::ETextureIndex baked_te = gAgentAvatar->getBakedTE(layerset_buffer->mTexLayerSet);
 				// Update baked texture info with the new UUID
 				U64 now = LLFrameTimer::getTotalTime();		// Record starting time
 				llinfos << "Baked texture upload took " << (S32)((now - baked_upload_data->mStartTime) / 1000) << " ms" << llendl;
-				avatarp->setNewBakedTexture(baked_te, uuid);
+				gAgentAvatar->setNewBakedTexture(baked_te, uuid);
 			}
 			else
 			{	
@@ -457,7 +453,7 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 			llinfos << "Received baked texture out of date, ignored." << llendl;
 		}
 
-		avatarp->dirtyMesh();
+		gAgentAvatar->dirtyMesh();
 	}
 	else
 	{

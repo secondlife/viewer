@@ -474,7 +474,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			
 			if (objectp->getRegion() != regionp)
 			{    // Object changed region, so update it
-				objectp->setRegion(regionp);
 				objectp->updateRegion(regionp); // for LLVOAvatar
 			}
 		}
@@ -895,6 +894,13 @@ void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 
 BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 {
+	// Don't ever kill gAgentAvatar, just mark it as null region instead.
+	if (objectp == gAgentAvatar)
+	{
+		objectp->setRegion(NULL);
+		return FALSE;
+	}
+
 	// When we're killing objects, all we do is mark them as dead.
 	// We clean up the dead objects later.
 
@@ -1210,11 +1216,10 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 		}
 
 		// add all hud objects to pick list
-		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-		if (avatarp)
+		if (isAgentAvatarValid())
 		{
-			for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
-				 iter != avatarp->mAttachmentPoints.end(); )
+			for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatar->mAttachmentPoints.begin(); 
+				 iter != gAgentAvatar->mAttachmentPoints.end(); )
 			{
 				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 				LLViewerJointAttachment* attachment = curiter->second;

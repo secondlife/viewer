@@ -485,8 +485,7 @@ void LLAgentWearables::saveWearable(const EWearableType type, const U32 index, B
 			return;
 		}
 
-		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-		avatarp->wearableUpdated( type, TRUE );
+		gAgentAvatar->wearableUpdated( type, TRUE );
 
 		if (send_update)
 		{
@@ -784,8 +783,7 @@ U32 LLAgentWearables::pushWearable(const EWearableType type, LLWearable *wearabl
 
 void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 {
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	avatarp->wearableUpdated(wearable->getType(), TRUE);
+	gAgentAvatar->wearableUpdated(wearable->getType(), TRUE);
 	wearable->refreshName();
 	wearable->setLabelUpdated();
 
@@ -826,11 +824,10 @@ void LLAgentWearables::popWearable(LLWearable *wearable)
 void LLAgentWearables::popWearable(const EWearableType type, U32 index)
 {
 	LLWearable *wearable = getWearable(type, index);
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
-		avatarp->wearableUpdated(wearable->getType(), TRUE);
+		gAgentAvatar->wearableUpdated(wearable->getType(), TRUE);
 		wearable->setLabelUpdated();
 	}
 }
@@ -962,8 +959,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	LLUUID agent_id;
 	gMessageSystem->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (avatarp && (agent_id == avatarp->getID()))
+	if (isAgentAvatarValid() && (agent_id == gAgentAvatar->getID()))
 	{
 		gMessageSystem->getU32Fast(_PREHASH_AgentData, _PREHASH_SerialNum, gAgentQueryManager.mUpdateSerialNum);
 		
@@ -1055,11 +1051,7 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 	const EWearableType type = wear_data->mType;
 	U32 index = 0;
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
-	{
-		return;
-	}
+	if (!isAgentAvatarValid()) return;
 		
 	if (wearable)
 	{
@@ -1069,9 +1061,9 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 		gAgentWearables.mItemsAwaitingWearableUpdate.erase(wear_data->mItemID);
 
 		// disable composites if initial textures are baked
-		avatarp->setupComposites();
+		gAgentAvatar->setupComposites();
 
-		avatarp->setCompositeUpdatesEnabled(TRUE);
+		gAgentAvatar->setCompositeUpdatesEnabled(TRUE);
 		gInventory.addChangedMask(LLInventoryObserver::LABEL, wearable->getItemID());
 	}
 	else
@@ -1100,7 +1092,7 @@ void LLAgentWearables::onInitialWearableAssetArrived(LLWearable* wearable, void*
 		// If there are any, schedule them to be uploaded as soon as the layer textures they depend on arrive.
 		if (gAgentCamera.cameraCustomizeAvatar())
 		{
-			avatarp->requestLayerSetUploads();
+			gAgentAvatar->requestLayerSetUploads();
 		}
 	}
 }
@@ -1240,13 +1232,9 @@ void LLAgentWearables::createStandardWearables(BOOL female)
 	llwarns << "Creating Standard " << (female ? "female" : "male")
 			<< " Wearables" << llendl;
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
-	{
-		return;
-	}
+	if (!isAgentAvatarValid()) return;
 
-	avatarp->setSex(female ? SEX_FEMALE : SEX_MALE);
+	gAgentAvatar->setSex(female ? SEX_FEMALE : SEX_MALE);
 
 	const BOOL create[WT_COUNT] = 
 		{
@@ -1294,11 +1282,8 @@ void LLAgentWearables::createStandardWearablesDone(S32 type, U32 index)
 {
 	llinfos << "type " << type << " index " << index << llendl;
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (avatarp)
-	{
-		avatarp->updateVisualParams();
-	}
+	if (!isAgentAvatarValid()) return;
+	gAgentAvatar->updateVisualParams();
 }
 
 void LLAgentWearables::createStandardWearablesAllDone()
@@ -1313,8 +1298,7 @@ void LLAgentWearables::createStandardWearablesAllDone()
 	updateServer();
 
 	// Treat this as the first texture entry message, if none received yet
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	avatarp->onFirstTEMessageReceived();
+	gAgentAvatar->onFirstTEMessageReceived();
 }
 
 // MULTI-WEARABLE: Properly handle multiwearables later.
@@ -1336,11 +1320,7 @@ void LLAgentWearables::makeNewOutfit(const std::string& new_folder_name,
 									 const LLDynamicArray<S32>& attachments_to_include,
 									 BOOL rename_clothing)
 {
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
-	{
-		return;
-	}
+	if (!isAgentAvatarValid()) return;
 
 	// First, make a folder in the Clothes directory.
 	LLUUID folder_id = gInventory.createNewCategory(
@@ -1438,7 +1418,7 @@ void LLAgentWearables::makeNewOutfit(const std::string& new_folder_name,
 		for (S32 i = 0; i < attachments_to_include.count(); i++)
 		{
 			S32 attachment_pt = attachments_to_include[i];
-			LLViewerJointAttachment* attachment = get_if_there(avatarp->mAttachmentPoints, attachment_pt, (LLViewerJointAttachment*)NULL);
+			LLViewerJointAttachment* attachment = get_if_there(gAgentAvatar->mAttachmentPoints, attachment_pt, (LLViewerJointAttachment*)NULL);
 			if (!attachment) continue;
 			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
 				 attachment_iter != attachment->mAttachedObjects.end();
@@ -1513,11 +1493,7 @@ private:
 
 LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
 {
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
-	{
-		return LLUUID::null;
-	}
+	if (!isAgentAvatarValid()) return LLUUID::null;
 
 	// First, make a folder in the My Outfits directory.
 	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
@@ -1681,7 +1657,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 										 BOOL remove)
 {
 	llinfos << "setWearableOutfit() start" << llendl;
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
 	BOOL wearables_to_remove[WT_COUNT];
 	wearables_to_remove[WT_SHAPE]		= FALSE;
@@ -1785,11 +1760,11 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		}
 	}
 
-	if (avatarp)
+	if (isAgentAvatarValid())
 	{
-		avatarp->setCompositeUpdatesEnabled(TRUE);
-		avatarp->updateVisualParams();
-		avatarp->invalidateAll();
+		gAgentAvatar->setCompositeUpdatesEnabled(TRUE);
+		gAgentAvatar->updateVisualParams();
+		gAgentAvatar->invalidateAll();
 	}
 
 	// Start rendering & update the server
@@ -2039,12 +2014,7 @@ void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj
 	// already wearing and in request set -> leave alone.
 	// not wearing and in request set -> put on.
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
-	{
-		llwarns << "No avatar found." << llendl;
-		return;
-	}
+	if (!isAgentAvatarValid()) return;
 
 	std::set<LLUUID> requested_item_ids;
 	std::set<LLUUID> current_item_ids;
@@ -2053,8 +2023,8 @@ void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj
 
 	// Build up list of objects to be removed and items currently attached.
 	llvo_vec_t objects_to_remove;
-	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
-		 iter != avatarp->mAttachmentPoints.end();)
+	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatar->mAttachmentPoints.begin(); 
+		 iter != gAgentAvatar->mAttachmentPoints.end();)
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;
@@ -2110,12 +2080,7 @@ void LLAgentWearables::userUpdateAttachments(LLInventoryModel::item_array_t& obj
 
 void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remove)
 {
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
-	{
-		llwarns << "No avatar found." << llendl;
-		return;
-	}
+	if (!isAgentAvatarValid()) return;
 
 	if (objects_to_remove.empty())
 		return;
@@ -2138,17 +2103,12 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 
 void LLAgentWearables::userRemoveAllAttachments()
 {
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
-	{
-		llwarns << "No avatar found." << llendl;
-		return;
-	}
+	if (!isAgentAvatarValid()) return;
 
 	llvo_vec_t objects_to_remove;
 	
-	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
-		 iter != avatarp->mAttachmentPoints.end();)
+	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatar->mAttachmentPoints.begin(); 
+		 iter != gAgentAvatar->mAttachmentPoints.end();)
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;
@@ -2714,11 +2674,10 @@ void LLInitialWearablesFetch::processWearablesMessage()
 		}
 
 		// Add all current attachments to the requested items as well.
-		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-		if (avatarp)
+		if (isAgentAvatarValid())
 		{
-			for (LLVOAvatar::attachment_map_t::const_iterator iter = avatarp->mAttachmentPoints.begin(); 
-				 iter != avatarp->mAttachmentPoints.end(); ++iter)
+			for (LLVOAvatar::attachment_map_t::const_iterator iter = gAgentAvatar->mAttachmentPoints.begin(); 
+				 iter != gAgentAvatar->mAttachmentPoints.end(); ++iter)
 			{
 				LLViewerJointAttachment* attachment = iter->second;
 				if (!attachment) continue;

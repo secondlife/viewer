@@ -755,11 +755,6 @@ LLVOAvatar::~LLVOAvatar()
 {
 	lldebugs << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << llendl;
 
-	if (isSelf())
-	{
-		gAgent.setAvatarObject(NULL);
-	}
-
 	mRoot.removeAllChildren();
 
 	deleteAndClearArray(mSkeleton);
@@ -965,15 +960,14 @@ void LLVOAvatar::dumpBakedStatus()
 //static
 void LLVOAvatar::restoreGL()
 {
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp) return;
+	if (!isAgentAvatarValid()) return;
 
-	avatarp->setCompositeUpdatesEnabled(TRUE);
-	for (U32 i = 0; i < avatarp->mBakedTextureDatas.size(); i++)
+	gAgentAvatar->setCompositeUpdatesEnabled(TRUE);
+	for (U32 i = 0; i < gAgentAvatar->mBakedTextureDatas.size(); i++)
 	{
-		avatarp->invalidateComposite(avatarp->mBakedTextureDatas[i].mTexLayerSet, FALSE);
+		gAgentAvatar->invalidateComposite(gAgentAvatar->mBakedTextureDatas[i].mTexLayerSet, FALSE);
 	}
-	avatarp->updateMeshTextures();
+	gAgentAvatar->updateMeshTextures();
 }
 
 //static
@@ -2085,7 +2079,7 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	if(retval & LLViewerObject::INVALID_UPDATE)
 	{
-		if(this == gAgent.getAvatarObject())
+		if (isSelf())
 		{
 			//tell sim to cancel this update
 			gAgent.teleportViaLocation(gAgent.getPositionGlobal());
@@ -6859,7 +6853,6 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 // static
 void LLVOAvatar::dumpArchetypeXML( void* )
 {
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 	LLAPRFile outfile;
 	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"new archetype.xml"), LL_APR_WB );
 	apr_file_t* file = outfile.getFileHandle() ;
@@ -6878,7 +6871,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 		const std::string& wearable_name = LLWearableDictionary::getTypeName((EWearableType)type);
 		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
-		for (LLVisualParam* param = avatarp->getFirstVisualParam(); param; param = avatarp->getNextVisualParam())
+		for (LLVisualParam* param = gAgentAvatar->getFirstVisualParam(); param; param = gAgentAvatar->getNextVisualParam())
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 			if( (viewer_param->getWearableType() == type) && 
@@ -6894,7 +6887,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 			if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te) == type)
 			{
 				// MULTIPLE_WEARABLES: extend to multiple wearables?
-				LLViewerTexture* te_image = ((LLVOAvatar*)avatarp)->getImage((ETextureIndex)te, 0);
+				LLViewerTexture* te_image = ((LLVOAvatar *)(gAgentAvatar))->getImage((ETextureIndex)te, 0);
 				if( te_image )
 				{
 					std::string uuid_str;

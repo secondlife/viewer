@@ -366,11 +366,10 @@ void LLSidepanelAppearance::fetchInventory()
 		}
 	}
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (avatarp)
+	if (isAgentAvatarValid())
 	{
-		for (LLVOAvatar::attachment_map_t::const_iterator iter = avatarp->mAttachmentPoints.begin(); 
-			 iter != avatarp->mAttachmentPoints.end(); ++iter)
+		for (LLVOAvatar::attachment_map_t::const_iterator iter = gAgentAvatar->mAttachmentPoints.begin(); 
+			 iter != gAgentAvatar->mAttachmentPoints.end(); ++iter)
 		{
 			LLViewerJointAttachment* attachment = iter->second;
 			if (!attachment) continue;

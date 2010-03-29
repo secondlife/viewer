@@ -173,8 +173,7 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
 		BOOL good_customize_avatar_hit = FALSE;
 		if( hit_obj )
 		{
-			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-			if (avatarp &&(hit_obj == avatarp))
+			if (isAgentAvatarValid() && (hit_obj == gAgentAvatar))
 			{
 				// It's you
 				good_customize_avatar_hit = TRUE;
@@ -222,8 +221,8 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
 			gAgentCamera.cameraThirdPerson() &&
 			gViewerWindow->getLeftMouseDown() && 
 			!gSavedSettings.getBOOL("FreezeTime") &&
-			(hit_obj == gAgent.getAvatarObject() || 
-				(hit_obj && hit_obj->isAttachment() && LLVOAvatar::findAvatarFromAttachment(hit_obj)->isSelf())))
+			(hit_obj == gAgentAvatar || 
+			 (hit_obj && hit_obj->isAttachment() && LLVOAvatar::findAvatarFromAttachment(hit_obj)->isSelf())))
 		{
 			LLToolCamera::getInstance()->mMouseSteering = TRUE;
 		}

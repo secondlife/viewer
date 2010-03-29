@@ -3774,7 +3774,6 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* ite
 		return false;
 
 	bool allowed = false;
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 
 	switch(item->getType())
 	{
@@ -3783,7 +3782,7 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* ite
 		break;
 		
 	case LLAssetType::AT_OBJECT:
-		if(avatarp && !avatarp->isWearingAttachment(item->getUUID()))
+		if (isAgentAvatarValid() && !gAgentAvatar->isWearingAttachment(item->getUUID()))
 		{
 			allowed = true;
 		}

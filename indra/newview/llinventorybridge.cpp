@@ -1506,11 +1506,7 @@ BOOL LLFolderBridge::isItemRemovable() const
 		return FALSE;
 	}
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp)
-	{
-		return FALSE;
-	}
+	if (!isAgentAvatarValid()) return FALSE;
 
 	LLInventoryCategory* category = model->getCategory(mUUID);
 	if(!category)
@@ -1661,8 +1657,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp) return FALSE;
+	if (!isAgentAvatarValid()) return FALSE;
 
 	// cannot drag categories into library
 	if(!isAgentInventory())
@@ -3026,8 +3021,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		return FALSE;
 	}
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp) return FALSE;
+	if (!isAgentAvatarValid()) return FALSE;
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
@@ -4155,8 +4149,7 @@ std::string LLObjectBridge::getLabelSuffix() const
 {
 	if (get_is_item_worn(mUUID))
 	{
-		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-		std::string attachment_point_name = avatarp->getAttachedPointName(mUUID);
+		std::string attachment_point_name = gAgentAvatar->getAttachedPointName(mUUID);
 
 		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
@@ -4175,11 +4168,10 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 	payload["item_id"] = item->getLinkedUUID(); // Wear the base object in case this is a link.
 
 	S32 attach_pt = 0;
-	if (gAgent.getAvatarObject() && attachment)
+	if (isAgentAvatarValid() && attachment)
 	{
-		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-		for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
-			 iter != avatarp->mAttachmentPoints.end(); ++iter)
+		for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatar->mAttachmentPoints.begin();
+			 iter != gAgentAvatar->mAttachmentPoints.end(); ++iter)
 		{
 			if (iter->second == attachment)
 			{
@@ -4205,9 +4197,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 
 bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response)
 {
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-
-	if (!avatarp->canAttachMoreObjects())
+	if (!gAgentAvatar->canAttachMoreObjects())
 	{
 		LLSD args;
 		args["MAX_ATTACHMENTS"] = llformat("%d", MAX_AGENT_ATTACHMENTS);
@@ -4269,11 +4259,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLInventoryItem *item = getItem();
 		if(item)
 		{
-			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-			if (!avatarp)
-			{
-				return;
-			}
+			if (!isAgentAvatarValid()) return;
 
 			if( get_is_item_worn( mUUID ) )
 			{
@@ -4289,7 +4275,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				// commented out for DEV-32347
 				//items.push_back(std::string("Restore to Last Position"));
 
-				if (!avatarp->canAttachMoreObjects())
+				if (!gAgentAvatar->canAttachMoreObjects())
 				{
 					disabled_items.push_back(std::string("Object Wear"));
 					disabled_items.push_back(std::string("Attach To"));
@@ -4297,15 +4283,14 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				}
 				LLMenuGL* attach_menu = menu.findChildMenuByName("Attach To", TRUE);
 				LLMenuGL* attach_hud_menu = menu.findChildMenuByName("Attach To HUD", TRUE);
-				LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
 				if (attach_menu
 					&& (attach_menu->getChildCount() == 0)
 					&& attach_hud_menu
 					&& (attach_hud_menu->getChildCount() == 0)
-					&& avatarp)
+					&& isAgentAvatarValid())
 				{
-					for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
-						 iter != avatarp->mAttachmentPoints.end(); )
+					for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatar->mAttachmentPoints.begin();
+						 iter != gAgentAvatar->mAttachmentPoints.end(); )
 					{
 						LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 						LLViewerJointAttachment* attachment = curiter->second;
@@ -4355,10 +4340,9 @@ BOOL LLObjectBridge::renameItem(const std::string& new_name)
 
 		model->notifyObservers();
 
-		LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-		if (avatarp)
+		if (isAgentAvatarValid())
 		{
-			LLViewerObject* obj = avatarp->getWornAttachment( item->getUUID() );
+			LLViewerObject* obj = gAgentAvatar->getWornAttachment( item->getUUID() );
 			if(obj)
 			{
 				LLSelectMgr::getInstance()->deselectAll();
