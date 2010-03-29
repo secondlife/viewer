@@ -56,6 +56,7 @@ public:
 	virtual 				~LLVOAvatarSelf();
 	virtual void			markDead();
 	virtual void 			initInstance(); // Called after construction to initialize the class.
+	void					cleanup();
 protected:
 	/*virtual*/ BOOL		loadAvatar();
 	BOOL					loadAvatarSelf();

@@ -4085,6 +4085,7 @@ void LLAppViewer::disconnectViewer()
 	gAgentCamera.cleanup();
 	// Also writes cached agent settings to gSavedSettings
 	gAgent.cleanup();
+	delete gAgentAvatarp;
 
 	// This is where we used to call gObjectList.destroy() and then delete gWorldp.
 	// Now we just ask the LLWorld singleton to cleanly shut down.

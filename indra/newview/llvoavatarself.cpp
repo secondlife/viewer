@@ -518,10 +518,17 @@ BOOL LLVOAvatarSelf::buildMenus()
 	return TRUE;
 }
 
+LLVOAvatarSelf::cleanup()
+{
+	markDead();
+ 	delete mScreenp;
+ 	mScreenp = NULL;
+	mRegionp = NULL;
+}
+
 LLVOAvatarSelf::~LLVOAvatarSelf()
 {
-	delete mScreenp;
-	mScreenp = NULL;
+	cleanup();
 }
 
 /**
