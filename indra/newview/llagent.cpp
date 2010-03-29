@@ -159,11 +159,11 @@ bool handleSlowMotionAnimation(const LLSD& newvalue)
 {
 	if (newvalue.asBoolean())
 	{
-		gAgentAvatar->setAnimTimeFactor(0.2f);
+		gAgentAvatarp->setAnimTimeFactor(0.2f);
 	}
 	else
 	{
-		gAgentAvatar->setAnimTimeFactor(1.0f);
+		gAgentAvatarp->setAnimTimeFactor(1.0f);
 	}
 	return true;
 }
@@ -325,9 +325,9 @@ void LLAgent::ageChat()
 	if (isAgentAvatarValid())
 	{
 		// get amount of time since I last chatted
-		F64 elapsed_time = (F64)gAgentAvatar->mChatTimer.getElapsedTimeF32();
+		F64 elapsed_time = (F64)gAgentAvatarp->mChatTimer.getElapsedTimeF32();
 		// add in frame time * 3 (so it ages 4x)
-		gAgentAvatar->mChatTimer.setAge(elapsed_time + (F64)gFrameDTClamped * (CHAT_AGE_FAST_RATE - 1.0));
+		gAgentAvatarp->mChatTimer.setAge(elapsed_time + (F64)gFrameDTClamped * (CHAT_AGE_FAST_RATE - 1.0));
 	}
 }
 
@@ -521,13 +521,13 @@ void LLAgent::setFlying(BOOL fly)
 		// it will be walking with flying mode "ON" indication. However we allow to switch
 		// the flying mode off if we get ANIM_AGENT_STANDUP signal. See process_avatar_animation().
 		// See EXT-2781.
-		if(fly && gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_STANDUP) != gAgentAvatar->mSignaledAnimations.end())
+		if(fly && gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_STANDUP) != gAgentAvatarp->mSignaledAnimations.end())
 		{
 			return;
 		}
 
 		// don't allow taking off while sitting
-		if (fly && gAgentAvatar->isSitting())
+		if (fly && gAgentAvatarp->isSitting())
 		{
 			return;
 		}
@@ -582,7 +582,7 @@ bool LLAgent::enableFlying()
 	BOOL sitting = FALSE;
 	if (isAgentAvatarValid())
 	{
-		sitting = gAgentAvatar->isSitting();
+		sitting = gAgentAvatarp->isSitting();
 	}
 	return !sitting;
 }
@@ -754,7 +754,7 @@ LLVector3 LLAgent::getVelocity() const
 {
 	if (isAgentAvatarValid())
 	{
-		return gAgentAvatar->getVelocity();
+		return gAgentAvatarp->getVelocity();
 	}
 	else
 	{
@@ -773,13 +773,13 @@ void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
 		llerrs << "setPositionAgent is not a number" << llendl;
 	}
 
-	if (isAgentAvatarValid() && gAgentAvatar->getParent())
+	if (isAgentAvatarValid() && gAgentAvatarp->getParent())
 	{
 		LLVector3 pos_agent_sitting;
 		LLVector3d pos_agent_d;
-		LLViewerObject *parent = (LLViewerObject*)gAgentAvatar->getParent();
+		LLViewerObject *parent = (LLViewerObject*)gAgentAvatarp->getParent();
 
-		pos_agent_sitting = gAgentAvatar->getPosition() * parent->getRotation() + parent->getPositionAgent();
+		pos_agent_sitting = gAgentAvatarp->getPosition() * parent->getRotation() + parent->getPositionAgent();
 		pos_agent_d.setVec(pos_agent_sitting);
 
 		mFrameAgent.setOrigin(pos_agent_sitting);
@@ -800,9 +800,9 @@ void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
 //-----------------------------------------------------------------------------
 const LLVector3d &LLAgent::getPositionGlobal() const
 {
-	if (isAgentAvatarValid() && !gAgentAvatar->mDrawable.isNull())
+	if (isAgentAvatarValid() && !gAgentAvatarp->mDrawable.isNull())
 	{
-		mPositionGlobal = getPosGlobalFromAgent(gAgentAvatar->getRenderPosition());
+		mPositionGlobal = getPosGlobalFromAgent(gAgentAvatarp->getRenderPosition());
 	}
 	else
 	{
@@ -817,9 +817,9 @@ const LLVector3d &LLAgent::getPositionGlobal() const
 //-----------------------------------------------------------------------------
 const LLVector3 &LLAgent::getPositionAgent()
 {
-	if (isAgentAvatarValid() && !gAgentAvatar->mDrawable.isNull())
+	if (isAgentAvatarValid() && !gAgentAvatarp->mDrawable.isNull())
 	{
-		mFrameAgent.setOrigin(gAgentAvatar->getRenderPosition());	
+		mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());	
 	}
 
 	return mFrameAgent.getOrigin();
@@ -946,20 +946,20 @@ LLVector3 LLAgent::getReferenceUpVector()
 	// this vector is in the coordinate frame of the avatar's parent object, or the world if none
 	LLVector3 up_vector = LLVector3::z_axis;
 	if (isAgentAvatarValid() && 
-		gAgentAvatar->getParent() &&
-		gAgentAvatar->mDrawable.notNull())
+		gAgentAvatarp->getParent() &&
+		gAgentAvatarp->mDrawable.notNull())
 	{
 		U32 camera_mode = gAgentCamera.getCameraAnimating() ? gAgentCamera.getLastCameraMode() : gAgentCamera.getCameraMode();
 		// and in third person...
 		if (camera_mode == CAMERA_MODE_THIRD_PERSON)
 		{
 			// make the up vector point to the absolute +z axis
-			up_vector = up_vector * ~((LLViewerObject*)gAgentAvatar->getParent())->getRenderRotation();
+			up_vector = up_vector * ~((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation();
 		}
 		else if (camera_mode == CAMERA_MODE_MOUSELOOK)
 		{
 			// make the up vector point to the avatar's +z axis
-			up_vector = up_vector * gAgentAvatar->mDrawable->getRotation();
+			up_vector = up_vector * gAgentAvatarp->mDrawable->getRotation();
 		}
 	}
 
@@ -995,7 +995,7 @@ F32 LLAgent::clampPitchToLimits(F32 angle)
 
 	F32 angle_from_skyward = acos( mFrameAgent.getAtAxis() * skyward );
 
-	if (isAgentAvatarValid() && gAgentAvatar->isSitting())
+	if (isAgentAvatarValid() && gAgentAvatarp->isSitting())
 	{
 		look_down_limit = 130.f * DEG_TO_RAD;
 	}
@@ -1170,7 +1170,7 @@ void LLAgent::clearAFK()
 	// without setting the appropriate control flag. JC
 	if (mControlFlags & AGENT_CONTROL_AWAY
 		|| (isAgentAvatarValid()
-			&& (gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_AWAY) != gAgentAvatar->mSignaledAnimations.end())))
+			&& (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_AWAY) != gAgentAvatarp->mSignaledAnimations.end())))
 	{
 		sendAnimationRequest(ANIM_AGENT_AWAY, ANIM_REQUEST_STOP);
 		clearControlFlags(AGENT_CONTROL_AWAY);
@@ -1292,7 +1292,7 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 	LLViewerObject *obj;
 
 	LLWorld::getInstance()->resolveStepHeightGlobal(NULL, target_global, traceEndPt, targetOnGround, groundNorm, &obj);
-	F64 target_height = llmax((F64)gAgentAvatar->getPelvisToFoot(), target_global.mdV[VZ] - targetOnGround.mdV[VZ]);
+	F64 target_height = llmax((F64)gAgentAvatarp->getPelvisToFoot(), target_global.mdV[VZ] - targetOnGround.mdV[VZ]);
 
 	// clamp z value of target to minimum height above ground
 	mAutoPilotTargetGlobal.mdV[VZ] = targetOnGround.mdV[VZ] + target_height;
@@ -1394,7 +1394,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		
 		if (!isAgentAvatarValid()) return;
 
-		if (gAgentAvatar->mInAir)
+		if (gAgentAvatarp->mInAir)
 		{
 			setFlying(TRUE);
 		}
@@ -1472,7 +1472,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		{
 			if (isAgentAvatarValid())
 			{
-				F64 current_height = gAgentAvatar->getPositionGlobal().mdV[VZ];
+				F64 current_height = gAgentAvatarp->getPositionGlobal().mdV[VZ];
 				F32 delta_z = (F32)(mAutoPilotTargetGlobal.mdV[VZ] - current_height);
 				F32 slope = delta_z / xy_distance;
 				if (slope > 0.45f && delta_z > 6.f)
@@ -1555,7 +1555,7 @@ void LLAgent::propagate(const F32 dt)
 	// handle auto-land behavior
 	if (isAgentAvatarValid())
 	{
-		BOOL in_air = gAgentAvatar->mInAir;
+		BOOL in_air = gAgentAvatarp->mInAir;
 		LLVector3 land_vel = getVelocity();
 		land_vel.mV[VZ] = 0.f;
 
@@ -1781,24 +1781,24 @@ void LLAgent::endAnimationUpdateUI()
 		// Disable mouselook-specific animations
 		if (isAgentAvatarValid())
 		{
-			if( gAgentAvatar->isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
+			if( gAgentAvatarp->isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
 			{
-				if (gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_AIM_RIFLE_R) != gAgentAvatar->mSignaledAnimations.end())
+				if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_AIM_RIFLE_R) != gAgentAvatarp->mSignaledAnimations.end())
 				{
 					sendAnimationRequest(ANIM_AGENT_AIM_RIFLE_R, ANIM_REQUEST_STOP);
 					sendAnimationRequest(ANIM_AGENT_HOLD_RIFLE_R, ANIM_REQUEST_START);
 				}
-				if (gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_AIM_HANDGUN_R) != gAgentAvatar->mSignaledAnimations.end())
+				if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_AIM_HANDGUN_R) != gAgentAvatarp->mSignaledAnimations.end())
 				{
 					sendAnimationRequest(ANIM_AGENT_AIM_HANDGUN_R, ANIM_REQUEST_STOP);
 					sendAnimationRequest(ANIM_AGENT_HOLD_HANDGUN_R, ANIM_REQUEST_START);
 				}
-				if (gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_AIM_BAZOOKA_R) != gAgentAvatar->mSignaledAnimations.end())
+				if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_AIM_BAZOOKA_R) != gAgentAvatarp->mSignaledAnimations.end())
 				{
 					sendAnimationRequest(ANIM_AGENT_AIM_BAZOOKA_R, ANIM_REQUEST_STOP);
 					sendAnimationRequest(ANIM_AGENT_HOLD_BAZOOKA_R, ANIM_REQUEST_START);
 				}
-				if (gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_AIM_BOW_L) != gAgentAvatar->mSignaledAnimations.end())
+				if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_AIM_BOW_L) != gAgentAvatarp->mSignaledAnimations.end())
 				{
 					sendAnimationRequest(ANIM_AGENT_AIM_BOW_L, ANIM_REQUEST_STOP);
 					sendAnimationRequest(ANIM_AGENT_HOLD_BOW_L, ANIM_REQUEST_START);
@@ -1880,40 +1880,40 @@ void LLAgent::endAnimationUpdateUI()
 		if (isAgentAvatarValid())
 		{
 			// Trigger mouselook-specific animations
-			if( gAgentAvatar->isAnyAnimationSignaled(AGENT_GUN_HOLD_ANIMS, NUM_AGENT_GUN_HOLD_ANIMS) )
+			if( gAgentAvatarp->isAnyAnimationSignaled(AGENT_GUN_HOLD_ANIMS, NUM_AGENT_GUN_HOLD_ANIMS) )
 			{
-				if (gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_HOLD_RIFLE_R) != gAgentAvatar->mSignaledAnimations.end())
+				if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_HOLD_RIFLE_R) != gAgentAvatarp->mSignaledAnimations.end())
 				{
 					sendAnimationRequest(ANIM_AGENT_HOLD_RIFLE_R, ANIM_REQUEST_STOP);
 					sendAnimationRequest(ANIM_AGENT_AIM_RIFLE_R, ANIM_REQUEST_START);
 				}
-				if (gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_HOLD_HANDGUN_R) != gAgentAvatar->mSignaledAnimations.end())
+				if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_HOLD_HANDGUN_R) != gAgentAvatarp->mSignaledAnimations.end())
 				{
 					sendAnimationRequest(ANIM_AGENT_HOLD_HANDGUN_R, ANIM_REQUEST_STOP);
 					sendAnimationRequest(ANIM_AGENT_AIM_HANDGUN_R, ANIM_REQUEST_START);
 				}
-				if (gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_HOLD_BAZOOKA_R) != gAgentAvatar->mSignaledAnimations.end())
+				if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_HOLD_BAZOOKA_R) != gAgentAvatarp->mSignaledAnimations.end())
 				{
 					sendAnimationRequest(ANIM_AGENT_HOLD_BAZOOKA_R, ANIM_REQUEST_STOP);
 					sendAnimationRequest(ANIM_AGENT_AIM_BAZOOKA_R, ANIM_REQUEST_START);
 				}
-				if (gAgentAvatar->mSignaledAnimations.find(ANIM_AGENT_HOLD_BOW_L) != gAgentAvatar->mSignaledAnimations.end())
+				if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_HOLD_BOW_L) != gAgentAvatarp->mSignaledAnimations.end())
 				{
 					sendAnimationRequest(ANIM_AGENT_HOLD_BOW_L, ANIM_REQUEST_STOP);
 					sendAnimationRequest(ANIM_AGENT_AIM_BOW_L, ANIM_REQUEST_START);
 				}
 			}
-			if (gAgentAvatar->getParent())
+			if (gAgentAvatarp->getParent())
 			{
 				LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
-				LLViewerObject* root_object = (LLViewerObject*)gAgentAvatar->getRoot();
+				LLViewerObject* root_object = (LLViewerObject*)gAgentAvatarp->getRoot();
 				if (root_object->flagCameraDecoupled())
 				{
 					resetAxes(at_axis);
 				}
 				else
 				{
-					resetAxes(at_axis * ~((LLViewerObject*)gAgentAvatar->getParent())->getRenderRotation());
+					resetAxes(at_axis * ~((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation());
 				}
 			}
 		}
@@ -1931,13 +1931,13 @@ void LLAgent::endAnimationUpdateUI()
 		// freeze avatar
 		if (isAgentAvatarValid())
 		{
-			mPauseRequest = gAgentAvatar->requestPause();
+			mPauseRequest = gAgentAvatarp->requestPause();
 		}
 	}
 
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatar->updateAttachmentVisibility(gAgentCamera.getCameraMode());
+		gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
 	}
 
 	gFloaterTools->dirty();
@@ -2016,7 +2016,7 @@ void LLAgent::setStartPosition( U32 location_id )
     if (isAgentAvatarValid())
     {
         // the z height is at the agent's feet
-        agent_pos.mV[VZ] -= 0.5f * gAgentAvatar->mBodySize.mV[VZ];
+        agent_pos.mV[VZ] -= 0.5f * gAgentAvatarp->mBodySize.mV[VZ];
     }
 
     agent_pos.mV[VX] = llclamp( agent_pos.mV[VX], INSET, REGION_WIDTH - INSET );
@@ -2123,7 +2123,7 @@ void LLAgent::onAnimStop(const LLUUID& id)
 		setControlFlags(AGENT_CONTROL_FINISH_ANIM);
 
 		// now trigger dusting self off animation
-		if (isAgentAvatarValid() && !gAgentAvatar->mBelowWater && rand() % 3 == 0)
+		if (isAgentAvatarValid() && !gAgentAvatarp->mBelowWater && rand() % 3 == 0)
 			sendAnimationRequest( ANIM_AGENT_BRUSH, ANIM_REQUEST_START );
 	}
 	else if (id == ANIM_AGENT_PRE_JUMP || id == ANIM_AGENT_LAND || id == ANIM_AGENT_MEDIUM_LAND)
@@ -2324,7 +2324,7 @@ void LLAgent::buildFullnameAndTitle(std::string& name) const
 
 	if (isAgentAvatarValid())
 	{
-		name += gAgentAvatar->getFullname();
+		name += gAgentAvatarp->getFullname();
 	}
 }
 
@@ -2470,14 +2470,14 @@ BOOL LLAgent::canJoinGroups() const
 
 LLQuaternion LLAgent::getHeadRotation()
 {
-	if (!isAgentAvatarValid() || !gAgentAvatar->mPelvisp || !gAgentAvatar->mHeadp)
+	if (!isAgentAvatarValid() || !gAgentAvatarp->mPelvisp || !gAgentAvatarp->mHeadp)
 	{
 		return LLQuaternion::DEFAULT;
 	}
 
 	if (!gAgentCamera.cameraMouselook())
 	{
-		return gAgentAvatar->getRotation();
+		return gAgentAvatarp->getRotation();
 	}
 
 	// We must be in mouselook
@@ -2486,9 +2486,9 @@ LLQuaternion LLAgent::getHeadRotation()
 	LLVector3 left = up % look_dir;
 
 	LLQuaternion rot(look_dir, left, up);
-	if (gAgentAvatar->getParent())
+	if (gAgentAvatarp->getParent())
 	{
-		rot = rot * ~gAgentAvatar->getParent()->getRotation();
+		rot = rot * ~gAgentAvatarp->getParent()->getRotation();
 	}
 
 	return rot;
@@ -3111,7 +3111,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 {
 	gAgentQueryManager.mNumPendingQueries--;
 
-	if (!isAgentAvatarValid() || gAgentAvatar->isDead())
+	if (!isAgentAvatarValid() || gAgentAvatarp->isDead())
 	{
 		llwarns << "No avatar for user in cached texture update!" << llendl;
 		return;
@@ -3144,27 +3144,27 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 			if (texture_id.notNull())
 			{
 				//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
-				gAgentAvatar->setCachedBakedTexture(LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)texture_index), texture_id);
-				//gAgentAvatar->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
+				gAgentAvatarp->setCachedBakedTexture(LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)texture_index), texture_id);
+				//gAgentAvatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
 				gAgentQueryManager.mActiveCacheQueries[texture_index] = 0;
 				num_results++;
 			}
 			else
 			{
 				// no cache of this bake. request upload.
-				gAgentAvatar->requestLayerSetUpload((EBakedTextureIndex)texture_index);
+				gAgentAvatarp->requestLayerSetUpload((EBakedTextureIndex)texture_index);
 			}
 		}
 	}
 
 	llinfos << "Received cached texture response for " << num_results << " textures." << llendl;
 
-	gAgentAvatar->updateMeshTextures();
+	gAgentAvatarp->updateMeshTextures();
 
 	if (gAgentQueryManager.mNumPendingQueries == 0)
 	{
 		// RN: not sure why composites are disabled at this point
-		gAgentAvatar->setCompositeUpdatesEnabled(TRUE);
+		gAgentAvatarp->setCompositeUpdatesEnabled(TRUE);
 		gAgent.sendAgentSetAppearance();
 	}
 }
@@ -3219,8 +3219,8 @@ void LLAgent::clearVisualParams(void *data)
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatar->clearVisualParamWeights();
-		gAgentAvatar->updateVisualParams();
+		gAgentAvatarp->clearVisualParamWeights();
+		gAgentAvatarp->updateVisualParams();
 	}
 }
 
@@ -3246,13 +3246,13 @@ bool LLAgent::teleportCore(bool is_local)
 	// Stop all animation before actual teleporting 
         if (isAgentAvatarValid())
 	{
-		for ( LLVOAvatar::AnimIterator anim_it= gAgentAvatar->mPlayingAnimations.begin();
-		      anim_it != gAgentAvatar->mPlayingAnimations.end();
+		for ( LLVOAvatar::AnimIterator anim_it= gAgentAvatarp->mPlayingAnimations.begin();
+		      anim_it != gAgentAvatarp->mPlayingAnimations.end();
 		      ++anim_it)
                {
-                       gAgentAvatar->stopMotion(anim_it->first);
+                       gAgentAvatarp->stopMotion(anim_it->first);
                }
-               gAgentAvatar->processAnimationStateChanges();
+               gAgentAvatarp->processAnimationStateChanges();
        }
 #endif
 
@@ -3448,8 +3448,8 @@ void LLAgent::stopCurrentAnimations()
 	if (isAgentAvatarValid())
 	{
 		for ( LLVOAvatar::AnimIterator anim_it =
-			      gAgentAvatar->mPlayingAnimations.begin();
-		      anim_it != gAgentAvatar->mPlayingAnimations.end();
+			      gAgentAvatarp->mPlayingAnimations.begin();
+		      anim_it != gAgentAvatarp->mPlayingAnimations.end();
 		      anim_it++)
 		{
 			if (anim_it->first ==
@@ -3462,7 +3462,7 @@ void LLAgent::stopCurrentAnimations()
 			else
 			{
 				// stop this animation locally
-				gAgentAvatar->stopMotion(anim_it->first, TRUE);
+				gAgentAvatarp->stopMotion(anim_it->first, TRUE);
 				// ...and tell the server to tell everyone.
 				sendAnimationRequest(anim_it->first, ANIM_REQUEST_STOP);
 			}
@@ -3577,7 +3577,7 @@ void LLAgent::sendAgentSetAppearance()
 	}
 
 
-	llinfos << "TAT: Sent AgentSetAppearance: " << gAgentAvatar->getBakedStatusForPrintout() << llendl;
+	llinfos << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << llendl;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -3591,7 +3591,7 @@ void LLAgent::sendAgentSetAppearance()
 	// NOTE -- when we start correcting all of the other Havok geometry 
 	// to compensate for the COLLISION_TOLERANCE ugliness we will have 
 	// to tweak this number again
-	const LLVector3 body_size = gAgentAvatar->mBodySize;
+	const LLVector3 body_size = gAgentAvatarp->mBodySize;
 	msg->addVector3Fast(_PREHASH_Size, body_size);	
 
 	// To guard against out of order packets
@@ -3601,20 +3601,20 @@ void LLAgent::sendAgentSetAppearance()
 
 	// is texture data current relative to wearables?
 	// KLW - TAT this will probably need to check the local queue.
-	BOOL textures_current = gAgentAvatar->areTexturesCurrent();
+	BOOL textures_current = gAgentAvatarp->areTexturesCurrent();
 
 	for(U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++ )
 	{
 		const ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
 
 		// if we're not wearing a skirt, we don't need the texture to be baked
-		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatar->isWearingWearableType(WT_SKIRT))
+		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(WT_SKIRT))
 		{
 			continue;
 		}
 
 		// IMG_DEFAULT_AVATAR means not baked. 0 index should be ignored for baked textures
-		if (!gAgentAvatar->isTextureDefined(texture_index, 0))
+		if (!gAgentAvatarp->isTextureDefined(texture_index, 0))
 		{
 			textures_current = FALSE;
 			break;
@@ -3652,7 +3652,7 @@ void LLAgent::sendAgentSetAppearance()
 			msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);
 		}
 		msg->nextBlockFast(_PREHASH_ObjectData);
-		gAgentAvatar->sendAppearanceMessage( gMessageSystem );
+		gAgentAvatarp->sendAppearanceMessage( gMessageSystem );
 	}
 	else
 	{
@@ -3665,9 +3665,9 @@ void LLAgent::sendAgentSetAppearance()
 
 
 	S32 transmitted_params = 0;
-	for (LLViewerVisualParam* param = (LLViewerVisualParam*)gAgentAvatar->getFirstVisualParam();
+	for (LLViewerVisualParam* param = (LLViewerVisualParam*)gAgentAvatarp->getFirstVisualParam();
 		 param;
-		 param = (LLViewerVisualParam*)gAgentAvatar->getNextVisualParam())
+		 param = (LLViewerVisualParam*)gAgentAvatarp->getNextVisualParam())
 	{
 		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
 		{

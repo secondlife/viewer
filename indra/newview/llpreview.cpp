@@ -181,7 +181,7 @@ void LLPreview::onCommit()
 			{
 				if (isAgentAvatarValid())
 				{
-					LLViewerObject* obj = gAgentAvatar->getWornAttachment( item->getUUID() );
+					LLViewerObject* obj = gAgentAvatarp->getWornAttachment( item->getUUID() );
 					if( obj )
 					{
 						LLSelectMgr::getInstance()->deselectAll();

@@ -962,12 +962,12 @@ void LLVOAvatar::restoreGL()
 {
 	if (!isAgentAvatarValid()) return;
 
-	gAgentAvatar->setCompositeUpdatesEnabled(TRUE);
-	for (U32 i = 0; i < gAgentAvatar->mBakedTextureDatas.size(); i++)
+	gAgentAvatarp->setCompositeUpdatesEnabled(TRUE);
+	for (U32 i = 0; i < gAgentAvatarp->mBakedTextureDatas.size(); i++)
 	{
-		gAgentAvatar->invalidateComposite(gAgentAvatar->mBakedTextureDatas[i].mTexLayerSet, FALSE);
+		gAgentAvatarp->invalidateComposite(gAgentAvatarp->mBakedTextureDatas[i].mTexLayerSet, FALSE);
 	}
-	gAgentAvatar->updateMeshTextures();
+	gAgentAvatarp->updateMeshTextures();
 }
 
 //static
@@ -6871,7 +6871,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 		const std::string& wearable_name = LLWearableDictionary::getTypeName((EWearableType)type);
 		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
-		for (LLVisualParam* param = gAgentAvatar->getFirstVisualParam(); param; param = gAgentAvatar->getNextVisualParam())
+		for (LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam())
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 			if( (viewer_param->getWearableType() == type) && 
@@ -6887,7 +6887,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 			if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te) == type)
 			{
 				// MULTIPLE_WEARABLES: extend to multiple wearables?
-				LLViewerTexture* te_image = ((LLVOAvatar *)(gAgentAvatar))->getImage((ETextureIndex)te, 0);
+				LLViewerTexture* te_image = ((LLVOAvatar *)(gAgentAvatarp))->getImage((ETextureIndex)te, 0);
 				if( te_image )
 				{
 					std::string uuid_str;

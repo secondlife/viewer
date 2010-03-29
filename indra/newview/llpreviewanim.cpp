@@ -71,7 +71,7 @@ BOOL LLPreviewAnim::postBuild()
 	const LLInventoryItem* item = getItem();
 	if(item)
 	{
-		gAgentAvatar->createMotion(item->getAssetUUID()); // preload the animation
+		gAgentAvatarp->createMotion(item->getAssetUUID()); // preload the animation
 		childSetText("desc", item->getDescription());
 	}
 
@@ -125,7 +125,7 @@ void LLPreviewAnim::playAnim( void *userdata )
 		{
 			self->mPauseRequest = NULL;
 			gAgent.sendAnimationRequest(itemID, ANIM_REQUEST_START);
-			LLMotion* motion = gAgentAvatar->findMotion(itemID);
+			LLMotion* motion = gAgentAvatarp->findMotion(itemID);
 			if (motion)
 			{
 				motion->setDeactivateCallback(&endAnimCallback, (void *)(new LLHandle<LLFloater>(self->getHandle())));
@@ -133,7 +133,7 @@ void LLPreviewAnim::playAnim( void *userdata )
 		}
 		else
 		{
-			gAgentAvatar->stopMotion(itemID);
+			gAgentAvatarp->stopMotion(itemID);
 			gAgent.sendAnimationRequest(itemID, ANIM_REQUEST_STOP);
 		}
 	}
@@ -158,8 +158,8 @@ void LLPreviewAnim::auditionAnim( void *userdata )
 		if (self->childGetValue("Anim audition btn").asBoolean() ) 
 		{
 			self->mPauseRequest = NULL;
-			gAgentAvatar->startMotion(item->getAssetUUID());
-			LLMotion* motion = gAgentAvatar->findMotion(itemID);
+			gAgentAvatarp->startMotion(item->getAssetUUID());
+			LLMotion* motion = gAgentAvatarp->findMotion(itemID);
 			
 			if (motion)
 			{
@@ -168,7 +168,7 @@ void LLPreviewAnim::auditionAnim( void *userdata )
 		}
 		else
 		{
-			gAgentAvatar->stopMotion(itemID);
+			gAgentAvatarp->stopMotion(itemID);
 			gAgent.sendAnimationRequest(itemID, ANIM_REQUEST_STOP);
 		}
 	}
@@ -181,9 +181,9 @@ void LLPreviewAnim::onClose(bool app_quitting)
 
 	if(item)
 	{
-		gAgentAvatar->stopMotion(item->getAssetUUID());
+		gAgentAvatarp->stopMotion(item->getAssetUUID());
 		gAgent.sendAnimationRequest(item->getAssetUUID(), ANIM_REQUEST_STOP);
-		LLMotion* motion = gAgentAvatar->findMotion(item->getAssetUUID());
+		LLMotion* motion = gAgentAvatarp->findMotion(item->getAssetUUID());
 		
 		if (motion)
 		{

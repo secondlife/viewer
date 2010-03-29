@@ -42,7 +42,7 @@
 
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llvoavatarself.h" // to check gAgentAvatar->isSitting()
+#include "llvoavatarself.h" // to check gAgentAvatarp->isSitting()
 #include "llbottomtray.h"
 #include "llbutton.h"
 #include "llfloaterreg.h"
@@ -332,7 +332,7 @@ void LLFloaterMove::setMovementMode(const EMovementMode mode)
 	updateButtonsWithMovementMode(mode);
 
 	bool bHideModeButtons = MM_FLY == mode
-		|| (isAgentAvatarValid() && gAgentAvatar->isSitting());
+		|| (isAgentAvatarValid() && gAgentAvatarp->isSitting());
 
 	showModeButtons(!bHideModeButtons);
 
@@ -390,7 +390,7 @@ void LLFloaterMove::initMovementMode()
 
 	if (isAgentAvatarValid())
 	{
-		setEnabled(!gAgentAvatar->isSitting());
+		setEnabled(!gAgentAvatarp->isSitting());
 	}
 }
 
@@ -491,7 +491,7 @@ void LLFloaterMove::onOpen(const LLSD& key)
 		showModeButtons(FALSE);
 	}
 
-	if (isAgentAvatarValid() && gAgentAvatar->isSitting())
+	if (isAgentAvatarValid() && gAgentAvatarp->isSitting())
 	{
 		setSittingMode(TRUE);
 		showModeButtons(FALSE);

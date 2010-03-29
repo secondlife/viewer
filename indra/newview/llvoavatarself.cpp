@@ -67,12 +67,12 @@
 
 #include <boost/lexical_cast.hpp>
 
-LLVOAvatarSelf *gAgentAvatar = NULL;
+LLVOAvatarSelf *gAgentAvatarp = NULL;
 BOOL isAgentAvatarValid()
 {
-	return (gAgentAvatar &&
-			(gAgentAvatar->getRegion() != NULL) &&
-			(!gAgentAvatar->isDead()));
+	return (gAgentAvatarp &&
+			(gAgentAvatarp->getRegion() != NULL) &&
+			(!gAgentAvatarp->isDead()));
 }
 
 using namespace LLVOAvatarDefines;
@@ -1687,7 +1687,7 @@ void LLVOAvatarSelf::onLocalTextureLoaded(BOOL success, LLViewerFetchedTexture *
 void LLVOAvatarSelf::dumpTotalLocalTextureByteCount()
 {
 	S32 gl_bytes = 0;
-	gAgentAvatar->getLocalTextureByteCount(&gl_bytes);
+	gAgentAvatarp->getLocalTextureByteCount(&gl_bytes);
 	llinfos << "Total Avatar LocTex GL:" << (gl_bytes/1024) << "KB" << llendl;
 }
 
@@ -1961,13 +1961,13 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
 		if (texture_dict->mIsBakedTexture)
 		{
-			if (texture_id == gAgentAvatar->getTEImage(index)->getID())
+			if (texture_id == gAgentAvatarp->getTEImage(index)->getID())
 			{
-				LLTexLayerSet* layer_set = gAgentAvatar->getLayerSet(index);
+				LLTexLayerSet* layer_set = gAgentAvatarp->getLayerSet(index);
 				if (layer_set)
 				{
 					llinfos << "TAT: rebake - matched entry " << (S32)index << llendl;
-					gAgentAvatar->invalidateComposite(layer_set, TRUE);
+					gAgentAvatarp->invalidateComposite(layer_set, TRUE);
 					found = TRUE;
 					LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_REBAKES);
 				}
@@ -1978,12 +1978,12 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 	// If texture not found, rebake all entries.
 	if (!found)
 	{
-		gAgentAvatar->forceBakeAllTextures();
+		gAgentAvatarp->forceBakeAllTextures();
 	}
 	else
 	{
 		// Not sure if this is necessary, but forceBakeAllTextures() does it.
-		gAgentAvatar->updateMeshTextures();
+		gAgentAvatarp->updateMeshTextures();
 	}
 }
 
@@ -2065,7 +2065,7 @@ void LLVOAvatarSelf::onCustomizeEnd()
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatar->invalidateAll();
+		gAgentAvatarp->invalidateAll();
 	}
 }
 

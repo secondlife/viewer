@@ -3862,8 +3862,8 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 		glh::matrix4f save_model(glh_get_current_modelview());
 
 		setup_hud_matrices(screen_rect);
-		for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatar->mAttachmentPoints.begin(); 
-			 iter != gAgentAvatar->mAttachmentPoints.end(); )
+		for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+			 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 		{
 			LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 			LLViewerJointAttachment* attachment = curiter->second;
@@ -3965,7 +3965,7 @@ void LLPipeline::rebuildPools()
 
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatar->rebuildHUD();
+		gAgentAvatarp->rebuildHUD();
 	}
 }
 
@@ -4598,7 +4598,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	}
 
 	if (isAgentAvatarValid() &&
-		gAgentAvatar->mSpecialRenderMode == 3)
+		gAgentAvatarp->mSpecialRenderMode == 3)
 	{
 		LLColor4  light_color = LLColor4::white;
 		light_color.mV[3] = 0.0f;
@@ -4709,11 +4709,11 @@ void LLPipeline::enableLightsDynamic()
 
 	if (isAgentAvatarValid() && getLightingDetail() <= 0)
 	{
-		if (gAgentAvatar->mSpecialRenderMode == 0) // normal
+		if (gAgentAvatarp->mSpecialRenderMode == 0) // normal
 		{
 			gPipeline.enableLightsAvatar();
 		}
-		else if (gAgentAvatar->mSpecialRenderMode >= 1)  // anim preview
+		else if (gAgentAvatarp->mSpecialRenderMode >= 1)  // anim preview
 		{
 			gPipeline.enableLightsAvatarEdit(LLColor4(0.7f, 0.6f, 0.3f, 1.f));
 		}
@@ -7106,7 +7106,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 		if (!skip_avatar_update)
 		{
-			gAgentAvatar->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
+			gAgentAvatarp->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
 		}
 		LLVertexBuffer::unbind();
 
@@ -7332,7 +7332,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 		if (!skip_avatar_update)
 		{
-			gAgentAvatar->updateAttachmentVisibility(gAgentCamera.getCameraMode());
+			gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
 		}
 	}
 }

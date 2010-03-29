@@ -877,7 +877,7 @@ EKeyboardMode LLViewerKeyboard::getMode()
 	{
 		return MODE_EDIT_AVATAR;
 	}
-	else if (isAgentAvatarValid() && gAgentAvatar->isSitting())
+	else if (isAgentAvatarValid() && gAgentAvatarp->isSitting())
 	{
 		return MODE_SITTING;
 	}

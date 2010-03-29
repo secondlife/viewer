@@ -3004,7 +3004,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatar->clearChatText();
+		gAgentAvatarp->clearChatText();
 		gAgentCamera.slamLookAt(look_at);
 	}
 	gAgent.setPositionAgent(pos);
@@ -3151,9 +3151,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 			LLNotificationsUtil::add("SystemMessageTip", args);
 
 			// Set the new position
-			gAgentAvatar->setPositionAgent(agent_pos);
-			gAgentAvatar->clearChat();
-			gAgentAvatar->slamPosition();
+			gAgentAvatarp->setPositionAgent(agent_pos);
+			gAgentAvatarp->clearChat();
+			gAgentAvatarp->slamPosition();
 		}
 	}
 	else
@@ -3215,7 +3215,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatar->mFootPlane.clearVec();
+		gAgentAvatarp->mFootPlane.clearVec();
 	}
 	
 	// send walk-vs-run status
@@ -4175,7 +4175,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	if (object)
 	{
 		LLVector3 sit_spot = object->getPositionAgent() + (sitPosition * object->getRotation());
-		if (!use_autopilot || isAgentAvatarValid() && gAgentAvatar->isSitting() && gAgentAvatar->getRoot() == object->getRoot())
+		if (!use_autopilot || isAgentAvatarValid() && gAgentAvatarp->isSitting() && gAgentAvatarp->getRoot() == object->getRoot())
 		{
 			//we're already sitting on this object, so don't autopilot
 		}

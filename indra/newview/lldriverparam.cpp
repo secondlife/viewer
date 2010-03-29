@@ -123,7 +123,7 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 		for (entry_info_list_t::iterator iter = mDrivenInfoList.begin(); iter != mDrivenInfoList.end(); iter++)
 		{
 			LLDrivenEntryInfo driven = *iter;
-			LLViewerVisualParam *param = (LLViewerVisualParam*)gAgentAvatar->getVisualParam(driven.mDrivenID);
+			LLViewerVisualParam *param = (LLViewerVisualParam*)gAgentAvatarp->getVisualParam(driven.mDrivenID);
 			if (param)
 			{
 				param->getInfo()->toStream(out);
@@ -145,7 +145,7 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 			}
 			else
 			{
-				llwarns << "could not get parameter " << driven.mDrivenID << " from avatar " << gAgentAvatar << " for driver parameter " << getID() << llendl;
+				llwarns << "could not get parameter " << driven.mDrivenID << " from avatar " << gAgentAvatarp << " for driver parameter " << getID() << llendl;
 			}
 			out << std::endl;
 		}
@@ -631,7 +631,7 @@ void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bo
 	   mWearablep->isOnTop())
 	{
 		// call setWeight through LLVOAvatarSelf so other wearables can be updated with the correct values
-		gAgentAvatar->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, upload_bake );
+		gAgentAvatarp->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, upload_bake );
 	}
 	else
 	{

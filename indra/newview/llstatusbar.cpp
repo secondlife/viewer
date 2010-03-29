@@ -447,7 +447,7 @@ void LLStatusBar::setHealth(S32 health)
 		{
 			if (isAgentAvatarValid())
 			{
-				if (gAgentAvatar->getSex() == SEX_FEMALE)
+				if (gAgentAvatarp->getSex() == SEX_FEMALE)
 				{
 					make_ui_sound("UISndHealthReductionF");
 				}

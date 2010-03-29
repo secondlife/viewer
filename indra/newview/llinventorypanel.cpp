@@ -872,8 +872,8 @@ bool LLInventoryPanel::attachObject(const LLSD& userdata)
 
 	std::string joint_name = userdata.asString();
 	LLViewerJointAttachment* attachmentp = NULL;
-	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatar->mAttachmentPoints.begin(); 
-		 iter != gAgentAvatar->mAttachmentPoints.end(); )
+	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+		 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;

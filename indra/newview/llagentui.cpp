@@ -51,8 +51,8 @@ void LLAgentUI::buildName(std::string& name)
 	name.clear();
 	if (isAgentAvatarValid())
 	{
-		LLNameValue *first_nv = gAgentAvatar->getNVPair("FirstName");
-		LLNameValue *last_nv = gAgentAvatar->getNVPair("LastName");
+		LLNameValue *first_nv = gAgentAvatarp->getNVPair("FirstName");
+		LLNameValue *last_nv = gAgentAvatarp->getNVPair("LastName");
 		if (first_nv && last_nv)
 		{
 			name = first_nv->printData() + " " + last_nv->printData();
@@ -72,7 +72,7 @@ void LLAgentUI::buildName(std::string& name)
 void LLAgentUI::buildFullname(std::string& name)
 {
 	if (isAgentAvatarValid())
-		name = gAgentAvatar->getFullname();
+		name = gAgentAvatarp->getFullname();
 }
 
 //static

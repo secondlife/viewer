@@ -1475,7 +1475,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 				object->sendTEUpdate();
 				// 1 particle effect per object				
 				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-				effectp->setSourceObject(gAgentAvatar);
+				effectp->setSourceObject(gAgentAvatarp);
 				effectp->setTargetObject(object);
 				effectp->setDuration(LL_HUD_DUR_SHORT);
 				effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -3630,7 +3630,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 	BOOL build_mode = LLToolMgr::getInstance()->inEdit();
 	// Special case: Attach to default location for this object.
 	if (0 == attachment_point ||
-		get_if_there(gAgentAvatar->mAttachmentPoints, (S32)attachment_point, (LLViewerJointAttachment*)NULL))
+		get_if_there(gAgentAvatarp->mAttachmentPoints, (S32)attachment_point, (LLViewerJointAttachment*)NULL))
 	{
 		sendListToRegions(
 			"ObjectAttach",
@@ -4913,7 +4913,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 
 	if (isAgentAvatarValid() && for_hud)
 	{
-		LLBBox hud_bbox = gAgentAvatar->getHUDBBox();
+		LLBBox hud_bbox = gAgentAvatarp->getHUDBBox();
 
 		F32 cur_zoom = gAgentCamera.mHUDCurZoom;
 
@@ -5610,7 +5610,7 @@ void LLSelectMgr::updateSelectionCenter()
 
 		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
 		{
-			mPauseRequest = gAgentAvatar->requestPause();
+			mPauseRequest = gAgentAvatarp->requestPause();
 		}
 		else
 		{
@@ -5643,7 +5643,7 @@ void LLSelectMgr::updateSelectionCenter()
 			
 			LLViewerObject *root = object->getRootEdit();
 			if (mSelectedObjects->mSelectType == SELECT_TYPE_WORLD && // not an attachment
-				!root->isChild(gAgentAvatar) && // not the object you're sitting on
+				!root->isChild(gAgentAvatarp) && // not the object you're sitting on
 				!object->isAvatar()) // not another avatar
 			{
 				mShowSelection = TRUE;

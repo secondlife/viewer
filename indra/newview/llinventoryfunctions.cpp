@@ -352,7 +352,7 @@ BOOL get_is_item_worn(const LLUUID& id)
 	{
 		case LLAssetType::AT_OBJECT:
 		{
-			if (isAgentAvatarValid() && gAgentAvatar->isWearingAttachment(item->getLinkedUUID()))
+			if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getLinkedUUID()))
 				return TRUE;
 			break;
 		}

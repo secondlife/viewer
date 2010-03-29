@@ -134,15 +134,15 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	{
 		if (id == gAgentID)
 		{
-			if (!gAgentAvatar)
+			if (!gAgentAvatarp)
 			{
-				gAgentAvatar = new LLVOAvatarSelf(id, pcode, regionp);
+				gAgentAvatarp = new LLVOAvatarSelf(id, pcode, regionp);
 			}
 			else 
 			{
-				gAgentAvatar->updateRegion(regionp);
+				gAgentAvatarp->updateRegion(regionp);
 			}
-			res = gAgentAvatar;
+			res = gAgentAvatarp;
 		}
 		else
 		{
@@ -388,7 +388,7 @@ void LLViewerObject::markDead()
 			if (isAgentAvatarValid())
 			{
 				// stop motions associated with this object
-				gAgentAvatar->stopMotionFromSource(mID);
+				gAgentAvatarp->stopMotionFromSource(mID);
 			}
 		}
 

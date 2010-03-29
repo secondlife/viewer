@@ -3782,7 +3782,7 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* ite
 		break;
 		
 	case LLAssetType::AT_OBJECT:
-		if (isAgentAvatarValid() && !gAgentAvatar->isWearingAttachment(item->getUUID()))
+		if (isAgentAvatarValid() && !gAgentAvatarp->isWearingAttachment(item->getUUID()))
 		{
 			allowed = true;
 		}

@@ -334,7 +334,7 @@ public:
 
 };
 
-extern LLVOAvatarSelf *gAgentAvatar;
+extern LLVOAvatarSelf *gAgentAvatarp;
 
 BOOL isAgentAvatarValid();
 

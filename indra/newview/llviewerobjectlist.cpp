@@ -894,8 +894,8 @@ void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 
 BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 {
-	// Don't ever kill gAgentAvatar, just mark it as null region instead.
-	if (objectp == gAgentAvatar)
+	// Don't ever kill gAgentAvatarp, just mark it as null region instead.
+	if (objectp == gAgentAvatarp)
 	{
 		objectp->setRegion(NULL);
 		return FALSE;
@@ -1218,8 +1218,8 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 		// add all hud objects to pick list
 		if (isAgentAvatarValid())
 		{
-			for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatar->mAttachmentPoints.begin(); 
-				 iter != gAgentAvatar->mAttachmentPoints.end(); )
+			for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+				 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 			{
 				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 				LLViewerJointAttachment* attachment = curiter->second;

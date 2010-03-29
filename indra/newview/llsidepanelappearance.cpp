@@ -368,8 +368,8 @@ void LLSidepanelAppearance::fetchInventory()
 
 	if (isAgentAvatarValid())
 	{
-		for (LLVOAvatar::attachment_map_t::const_iterator iter = gAgentAvatar->mAttachmentPoints.begin(); 
-			 iter != gAgentAvatar->mAttachmentPoints.end(); ++iter)
+		for (LLVOAvatar::attachment_map_t::const_iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+			 iter != gAgentAvatarp->mAttachmentPoints.end(); ++iter)
 		{
 			LLViewerJointAttachment* attachment = iter->second;
 			if (!attachment) continue;

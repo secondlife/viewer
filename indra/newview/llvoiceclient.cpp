@@ -5893,9 +5893,9 @@ void LLVoiceClient::updatePosition(void)
 					rot);				// rotation matrix
 					
 			// Send the current avatar position to the voice code
-			rot = gAgentAvatar->getRootJoint()->getWorldRotation().getMatrix3();
+			rot = gAgentAvatarp->getRootJoint()->getWorldRotation().getMatrix3();
 	
-			pos = gAgentAvatar->getPositionGlobal();
+			pos = gAgentAvatarp->getPositionGlobal();
 			// TODO: Can we get the head offset from outside the LLVOAvatar?
 //			pos += LLVector3d(mHeadOffset);
 			pos += LLVector3d(0.f, 0.f, 1.f);

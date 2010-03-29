@@ -1926,7 +1926,7 @@ bool idle_startup()
 		{
 			// wait for avatar to be completely loaded
 			if (isAgentAvatarValid()
-				&& gAgentAvatar->isFullyLoaded())
+				&& gAgentAvatarp->isFullyLoaded())
 			{
 				//llinfos << "avatar fully loaded" << llendl;
 				LLStartUp::setStartupState( STATE_CLEANUP );
