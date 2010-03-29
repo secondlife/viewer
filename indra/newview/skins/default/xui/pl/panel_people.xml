@@ -3,12 +3,12 @@
 <panel label="Ludzie" name="people_panel">
 	<string name="no_people" value="Brak ludzi"/>
 	<string name="no_one_near" value="Nikogo w pobliżu"/>
-	<string name="no_friends_online" value="Brak dostępnych przyjaciół"/>
-	<string name="no_friends" value="Brak przyjaciół"/>
+	<string name="no_friends_online" value="Brak dostępnych Znajomych"/>
+	<string name="no_friends" value="Brak Znajomych"/>
 	<string name="people_filter_label" value="Filtruj Ludzi"/>
 	<string name="groups_filter_label" value="Filtruj Grupy"/>
-	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups Try finding the group in search?]"/>
-	<string name="no_groups_msg" value="[secondlife:///app/search/groups Try searching for some groups to join.]"/>
+	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups Może spróbuj odnaleźć Grupę korzystając z Szukaj?]"/>
+	<string name="no_groups_msg" value="[secondlife:///app/search/groups Spróbuj wyszukać grupy aby do nich dołączyć.]"/>
 	<filter_editor label="Filtr" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="W POBLIŻU" name="nearby_panel">
@@ -28,8 +28,8 @@
 				<button name="del_btn" tool_tip="Usuń wybraną osobę ze swojej listy znajomych"/>
 			</panel>
 			<text name="no_friends_msg">
-				By dodać nową znajomość skorzystaj ze strony [secondlife:///app/search/people global search] lub kliknij prawym przyciskiem myszki na Rezydenta by wysłać mu zaproszenie.
-Jeżeli szukasz ludzi, z którymi można się spotkać, kliknij tutaj [secondlife:///app/worldmap try the Map].
+				By dodać nową znajomość skorzystaj ze strony [secondlife:///app/search/people ogólne wyszukiwanie] lub kliknij prawym przyciskiem myszki na Rezydenta by wysłać mu zaproszenie.
+Jeżeli szukasz ludzi, z którymi można się spotkać, kliknij tutaj [secondlife:///app/worldmap skorzystaj z mapy].
 			</text>
 		</panel>
 		<panel label="GRUPY" name="groups_panel">

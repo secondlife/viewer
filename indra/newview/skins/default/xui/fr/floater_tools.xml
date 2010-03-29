@@ -355,7 +355,7 @@
 		</panel>
 		<panel label="Attributs" name="Features">
 			<text name="select_single">
-				Choisissez une prim pour changer les attributs.
+				Choisir une prim pour changer les attributs.
 			</text>
 			<text name="edit_object">
 				Modifier les attributs de l&apos;objet :

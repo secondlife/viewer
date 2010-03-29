@@ -62,7 +62,7 @@
 			<button label="Dodaj" label_selected="Dodaj" name="WLAddKey" />
 			<button label="Usuń" label_selected="Usuń" name="WLDeleteKey" />
 			<text name="WLCurKeyFrameText">
-				Preferencje Czasu:
+				Preferencje czasu:
 			</text>
 			<text name="WLCurKeyTimeText">
 				Czas:
@@ -78,7 +78,7 @@
 			</text>
 			<combo_box label="5 min" name="WLSnapOptions" />
 			<text name="DayCycleText2">
-				Długość Cyklu:
+				Długość cyklu:
 			</text>
 			<spinner label="Godz" name="WLLengthOfDayHour" />
 			<spinner label="Min" name="WLLengthOfDayMin" />
@@ -88,11 +88,11 @@
 			</text>
 			<button label="Start" label_selected="Start" name="WLAnimSky" />
 			<button label="Stop" label_selected="Stop" name="WLStopAnimSky" />
-			<button label="Używaj Czasu Regionu" label_selected="Używaj Czasu Regionu"
+			<button label="Używaj czasu regionu" label_selected="Używaj czasu regionu"
 			     name="WLUseLindenTime" />
-			<button label="Zapisz Test Dnia" label_selected="Zapisz Test Dnia"
+			<button label="Zapisz test dnia" label_selected="Zapisz test dnia"
 			     name="WLSaveDayCycle" />
-			<button label="Załaduj Test Dnia" label_selected="Załaduj Test Dnia"
+			<button label="Załaduj test dnia" label_selected="Załaduj test dnia"
 			     name="WLLoadDayCycle" />
 		</panel>
 	</tab_container>

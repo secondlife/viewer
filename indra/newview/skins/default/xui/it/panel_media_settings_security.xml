@@ -5,7 +5,7 @@
 		Le mancate aperture di home page sono segnalate:
 	</text>
 	<button label="Aggiungi" name="whitelist_add"/>
-	<button label="Cancella" name="whitelist_del"/>
+	<button label="Elimina" name="whitelist_del"/>
 	<text name="home_url_fails_whitelist">
 		Avvertenza: la home page specificata nella scheda Generale non ha superato la lista bianca. Viene disabilitata fino a che non venga inserita una voce valida.
 	</text>

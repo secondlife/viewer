@@ -679,6 +679,9 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 		show_start = gSavedSettings.getBOOL("ShowStartLocation");
 	}
 
+	// Update the value of the location combo.
+	updateLocationUI();
+	
 	sInstance->childSetVisible("start_location_combo", show_start);
 	sInstance->childSetVisible("start_location_text", show_start);
 

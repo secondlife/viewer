@@ -16,7 +16,7 @@
 			<gesture_combo_list label="Gestury" name="Gesture" tool_tip="Pokazuje/Ukrywa gestury"/>
 		</layout_panel>
 		<layout_panel name="movement_panel">
-			<button label="Move" name="movement_btn" tool_tip="Pokaż/Ukryj Ustawienia Ruchu"/>
+			<button label="Ruch" name="movement_btn" tool_tip="Pokaż/Ukryj Ustawienia Ruchu"/>
 		</layout_panel>
 		<layout_panel name="cam_panel">
 			<button label="Widok" name="camera_btn" tool_tip="Pokaż/Ukryj Ustawienia Kamery"/>

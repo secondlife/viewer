@@ -44,7 +44,7 @@
 				<menu_item_call label="Nova tatuagem" name="New Tattoo"/>
 			</menu>
 			<menu label="Nova parte do corpo" name="New Body Parts">
-				<menu_item_call label="Nova silhueta" name="New Shape"/>
+				<menu_item_call label="Nova forma" name="New Shape"/>
 				<menu_item_call label="Nova pele" name="New Skin"/>
 				<menu_item_call label="Novo cabelo" name="New Hair"/>
 				<menu_item_call label="Novos olhos" name="New Eyes"/>

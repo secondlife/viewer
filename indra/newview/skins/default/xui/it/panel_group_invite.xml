@@ -18,10 +18,10 @@
 	<text name="role_text">
 		Scegli che ruolo assegnare loro:
 	</text>
-	<combo_box name="role_name" tool_tip="Choose from the list of Roles you are allowed to assign members to"/>
+	<combo_box name="role_name" tool_tip="Scegli dall&apos;elenco dei ruoli ai quali ti è consentito assegnare i membri"/>
 	<button label="Manda gli inviti" name="ok_button"/>
 	<button label="Annulla" name="cancel_button"/>
 	<string name="GroupInvitation">
-		Invito del Gruppo
+		Invito di gruppo
 	</string>
 </panel>

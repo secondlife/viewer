@@ -4,38 +4,38 @@
 		NIEWŁAŚCIWY AWATAR
 	</floater.string>
 	<text name="composite_label">
-		Tekstury Kompozytowe
+		Tekstury kompozytowe
 	</text>
 	<button label="Zrzuć" label_selected="Zrzuć" name="Dump"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<texture_picker label="Włosy" name="hair-baked"/>
 			<texture_picker label="Włosy" name="hair_grain"/>
-			<texture_picker label="Alpha Włosów" name="hair_alpha"/>
+			<texture_picker label="Alpha włosów" name="hair_alpha"/>
 			<texture_picker label="Głowa" name="head-baked"/>
 			<texture_picker label="Makijaż" name="head_bodypaint"/>
-			<texture_picker label="Alpha Głowy" name="head_alpha"/>
-			<texture_picker label="Tatuaż Głowy" name="head_tattoo"/>
+			<texture_picker label="Alpha głowy" name="head_alpha"/>
+			<texture_picker label="Tatuaż głowy" name="head_tattoo"/>
 			<texture_picker label="Oczy" name="eyes-baked"/>
 			<texture_picker label="Oko" name="eyes_iris"/>
-			<texture_picker label="Alpha Oczu" name="eyes_alpha"/>
-			<texture_picker label="Górna Część Ciała" name="upper-baked"/>
-			<texture_picker label="Górny Wzór na Ciele" name="upper_bodypaint"/>
+			<texture_picker label="Alpha oczu" name="eyes_alpha"/>
+			<texture_picker label="Górna część ciała" name="upper-baked"/>
+			<texture_picker label="Górny wzór na ciele" name="upper_bodypaint"/>
 			<texture_picker label="Podkoszulek" name="upper_undershirt"/>
 			<texture_picker label="Rękawiczki" name="upper_gloves"/>
 			<texture_picker label="Koszula" name="upper_shirt"/>
-			<texture_picker label="Kurtka Górna" name="upper_jacket"/>
-			<texture_picker label="Alpha Górna" name="upper_alpha"/>
-			<texture_picker label="Tatuaż Górny" name="upper_tattoo"/>
-			<texture_picker label="Dolna Część Ciała" name="lower-baked"/>
-			<texture_picker label="Dolny Wzór na Ciele" name="lower_bodypaint"/>
+			<texture_picker label="Kurtka górna" name="upper_jacket"/>
+			<texture_picker label="Alpha górna" name="upper_alpha"/>
+			<texture_picker label="Tatuaż górny" name="upper_tattoo"/>
+			<texture_picker label="Dolna część ciała" name="lower-baked"/>
+			<texture_picker label="Dolny wzór na ciele" name="lower_bodypaint"/>
 			<texture_picker label="Bielizna" name="lower_underpants"/>
 			<texture_picker label="Skarpetki" name="lower_socks"/>
 			<texture_picker label="Buty" name="lower_shoes"/>
 			<texture_picker label="Spodnie" name="lower_pants"/>
 			<texture_picker label="Kurtka" name="lower_jacket"/>
-			<texture_picker label="Alpha Dolna" name="lower_alpha"/>
-			<texture_picker label="Tatuaż Dolny" name="lower_tattoo"/>
+			<texture_picker label="Alpha dolna" name="lower_alpha"/>
+			<texture_picker label="Tatuaż dolny" name="lower_tattoo"/>
 			<texture_picker label="Spódnica" name="skirt-baked"/>
 			<texture_picker label="Spódnica" name="skirt"/>
 		</panel>

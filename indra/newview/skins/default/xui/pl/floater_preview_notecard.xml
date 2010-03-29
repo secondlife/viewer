@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="preview notecard" title="NOTA:">
 	<floater.string name="no_object">
-		Nie można znaleść obiektu zawierającego tą notkę.
+		Nie można znaleźć obiektu zawierającego tą notkę.
 	</floater.string>
 	<floater.string name="not_allowed">
 		Nie masz pozwolenia na zobaczenie tej notki.

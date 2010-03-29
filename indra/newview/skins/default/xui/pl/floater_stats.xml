@@ -3,17 +3,17 @@
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
 			<stat_view label="Podstawowe" name="basic">
-				<stat_bar label="Ilość Obrazów/Sec (FPS)" name="fps"/>
+				<stat_bar label="Ilość obrazów/sek (FPS)" name="fps"/>
 				<stat_bar label="Przepustowość" name="bandwidth"/>
-				<stat_bar label="Stracone Pakiety" name="packet_loss"/>
-				<stat_bar label="Ping Sim" name="ping"/>
+				<stat_bar label="Stracone pakiety" name="packet_loss"/>
+				<stat_bar label="Ping sim" name="ping"/>
 			</stat_view>
 			<stat_view label="Zaawansowane" name="advanced">
 				<stat_view label="Renderuj" name="render">
 					<stat_bar label="KTris Drawn" name="ktrisframe"/>
 					<stat_bar label="KTris Drawn" name="ktrissec"/>
-					<stat_bar label="Wszystkie Obiekty" name="objs"/>
-					<stat_bar label="Nowe Obiekty" name="newobjs"/>
+					<stat_bar label="Wszystkie obiekty" name="objs"/>
+					<stat_bar label="Nowe obiekty" name="newobjs"/>
 				</stat_view>
 				<stat_view label="Tekstura" name="texture">
 					<stat_bar label="Suma" name="numimagesstat"/>
@@ -24,8 +24,8 @@
 					<stat_bar label="Bound Mem" name="glboundmemstat"/>
 				</stat_view>
 				<stat_view label="Sieć" name="network">
-					<stat_bar label="Pakiety Wewnętrzne" name="packetsinstat"/>
-					<stat_bar label="Pakiety Zewnętrzne" name="packetsoutstat"/>
+					<stat_bar label="Pakiety wewnętrzne" name="packetsinstat"/>
+					<stat_bar label="Pakiety zewnętrzne" name="packetsoutstat"/>
 					<stat_bar label="Obiekty" name="objectkbitstat"/>
 					<stat_bar label="Tesktura" name="texturekbitstat"/>
 					<stat_bar label="Asset" name="assetkbitstat"/>
@@ -40,30 +40,30 @@
 				<stat_bar label="Ilość Obrazów/Sec na Symulatorze (Sim FPS)" name="simfps"/>
 				<stat_bar label="Fizyka Obrazów/Sec" name="simphysicsfps"/>
 				<stat_view label="Szczegóły Fizyki" name="physicsdetail">
-					<stat_bar label="Pinned Objects" name="physicspinnedtasks"/>
+					<stat_bar label="Pinned objects" name="physicspinnedtasks"/>
 					<stat_bar label="Niskie LOD Obiektów" name="physicslodtasks"/>
-					<stat_bar label="Alokacja Pamięci" name="physicsmemoryallocated"/>
-					<stat_bar label="Aktualizacja Agentów/Sec" name="simagentups"/>
-					<stat_bar label="Główni Agenci" name="simmainagents"/>
-					<stat_bar label="Child Agents" name="simchildagents"/>
+					<stat_bar label="Alokacja pamięci" name="physicsmemoryallocated"/>
+					<stat_bar label="Aktualizacja agentów/Sek" name="simagentups"/>
+					<stat_bar label="Główni agenci" name="simmainagents"/>
+					<stat_bar label="Child agents" name="simchildagents"/>
 					<stat_bar label="Obiekty" name="simobjects"/>
-					<stat_bar label="Aktywne Obiekty" name="simactiveobjects"/>
-					<stat_bar label="Aktywne Skrypty" name="simactivescripts"/>
-					<stat_bar label="Wydarzenie Skryptowe" name="simscripteps"/>
-					<stat_bar label="Pakiety Wewnętrzne" name="siminpps"/>
-					<stat_bar label="Pakiety Zewnętrzne" name="simoutpps"/>
-					<stat_bar label="Oczekiwane na Pobranie" name="simpendingdownloads"/>
-					<stat_bar label="Oczekiwane na Załadowanie" name="simpendinguploads"/>
-					<stat_bar label="Wszystkie Niepotwierdzone Bity" name="simtotalunackedbytes"/>
+					<stat_bar label="Aktywne obiekty" name="simactiveobjects"/>
+					<stat_bar label="Aktywne skrypty" name="simactivescripts"/>
+					<stat_bar label="Wydarzenie skryptowe" name="simscripteps"/>
+					<stat_bar label="Pakiety wewnętrzne" name="siminpps"/>
+					<stat_bar label="Pakiety zewnętrzne" name="simoutpps"/>
+					<stat_bar label="Oczekiwane na pobranie" name="simpendingdownloads"/>
+					<stat_bar label="Oczekiwane na załadowanie" name="simpendinguploads"/>
+					<stat_bar label="Wszystkie niepotwierdzone bity" name="simtotalunackedbytes"/>
 				</stat_view>
 				<stat_view label="Czas (ms)" name="simperf">
-					<stat_bar label="Całkowity Czas Obrazu" name="simframemsec"/>
-					<stat_bar label="Czas Sieciowy" name="simnetmsec"/>
-					<stat_bar label="Czas Fizyki" name="simsimphysicsmsec"/>
-					<stat_bar label="Czas Symulatora" name="simsimothermsec"/>
-					<stat_bar label="Czas Agenta" name="simagentmsec"/>
-					<stat_bar label="Czas Obrazu" name="simimagesmsec"/>
-					<stat_bar label="Czas Skryptu" name="simscriptmsec"/>
+					<stat_bar label="Całkowity czas obrazu" name="simframemsec"/>
+					<stat_bar label="Czas sieciowy" name="simnetmsec"/>
+					<stat_bar label="Czas fizyki" name="simsimphysicsmsec"/>
+					<stat_bar label="Czas symulatora" name="simsimothermsec"/>
+					<stat_bar label="Czas agenta" name="simagentmsec"/>
+					<stat_bar label="Czas obrazu" name="simimagesmsec"/>
+					<stat_bar label="Czas skryptu" name="simscriptmsec"/>
 				</stat_view>
 			</stat_view>
 		</container_view>

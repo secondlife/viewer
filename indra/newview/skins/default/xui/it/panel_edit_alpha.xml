@@ -2,7 +2,7 @@
 <panel name="edit_alpha_panel">
 	<panel name="avatar_alpha_color_panel">
 		<texture_picker label="Alpha inferiore" name="Lower Alpha" tool_tip="Clicca per scegliere una fotografia"/>
-		<texture_picker label="Alpha superiore" name="Upper Alpha" tool_tip="Click to choose a picture"/>
+		<texture_picker label="Alpha superiore" name="Upper Alpha" tool_tip="Clicca per scegliere una fotografia"/>
 		<texture_picker label="Alpha della testa" name="Head Alpha" tool_tip="Clicca per scegliere una fotografia"/>
 		<texture_picker label="Alpha dell&apos;occhio" name="Eye Alpha" tool_tip="Clicca per scegliere una fotografia"/>
 		<texture_picker label="Alpha dei capelli" name="Hair Alpha" tool_tip="Clicca per scegliere una fotografia"/>

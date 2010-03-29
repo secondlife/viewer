@@ -852,7 +852,7 @@ void LLAgentCamera::cameraOrbitAround(const F32 radians)
 	}
 	else if (mFocusOnAvatar && (mCameraMode == CAMERA_MODE_THIRD_PERSON || mCameraMode == CAMERA_MODE_FOLLOW))
 	{
-		gAgent.getFrameAgent().rotate(radians, gAgent.getReferenceUpVector());
+		gAgent.yaw(radians);
 	}
 	else
 	{
