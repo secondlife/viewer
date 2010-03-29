@@ -487,8 +487,8 @@ Gris = Público"/>
 		<text name="label_parcel_modify">
 			Modificar la parcela
 		</text>
-		<button label="Dividir" label_selected="Dividir" name="button subdivide land" width="140"/>
-		<button label="Inscribirse" label_selected="Inscribirse" name="button join land" width="140"/>
+		<button label="Dividir" label_selected="Dividir" name="button subdivide land"/>
+		<button label="Inscribirse" label_selected="Inscribirse" name="button join land"/>
 		<text name="label_parcel_trans">
 			Transacciones de terreno
 		</text>
