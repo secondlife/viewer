@@ -5,8 +5,8 @@
 			Sesso:
 		</text>
 		<radio_group name="sex_radio">
-			<radio_item label="Femminile" name="radio"/>
-			<radio_item label="Maschile" name="radio2"/>
+			<radio_item label="Femmina" name="radio"/>
+			<radio_item label="Maschio" name="radio2"/>
 		</radio_group>
 	</panel>
 	<accordion name="wearable_accordion">
@@ -17,7 +17,7 @@
 		<accordion_tab name="shape_nose_tab" title="Naso"/>
 		<accordion_tab name="shape_mouth_tab" title="Bocca"/>
 		<accordion_tab name="shape_chin_tab" title="Mento"/>
-		<accordion_tab name="shape_torso_tab" title="Busto"/>
+		<accordion_tab name="shape_torso_tab" title="Torace"/>
 		<accordion_tab name="shape_legs_tab" title="Gambe"/>
 	</accordion>
 </panel>

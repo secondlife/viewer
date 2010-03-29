@@ -13,7 +13,7 @@
 		Poziom Wejścia
 	</text>
 	<text_editor name="voice_intro_text1">
-		Użyj suwaka by dostosować jak głośno Cię słychać dla innych Rezydentów. By przetestować poziom wejścia, zacznij mówić do mikrofonu.
+		Użyj suwaka by dostosować jak głośno Cię słychać dla innych Rezydentów. W celu przetestowania poziomu wejścia, zacznij mówić do mikrofonu.
 	</text_editor>
 	<volume_slider name="mic_volume_slider"
 	     tool_tip="By zmienić poziom głośności użyj suwaka" />

@@ -3,6 +3,9 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
+	<panel.string name="middle_mouse">
+		Botão do meio do mouse
+	</panel.string>
 	<slider label="Ângulo de visão" name="camera_fov"/>
 	<slider label="Distância" name="camera_offset_scale"/>
 	<text name="heading2">
@@ -13,17 +16,17 @@
 	<check_box label="Mostre-me em visão de mouse" name="first_person_avatar_visible"/>
 	<check_box label="Teclas de seta sempre me movem" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Dê dois toques e pressione para correr" name="tap_tap_hold_to_run"/>
-	<check_box label="Mover os lábios do avatar quando estiver falando" name="enable_lip_sync"/>
+	<check_box label="Mover os lábios do avatar ao falar" name="enable_lip_sync"/>
 	<check_box label="Balão de bate-papo" name="bubble_text_chat"/>
 	<slider label="Opacidade" name="bubble_chat_opacity"/>
-	<color_swatch name="background" tool_tip="Escolha a cor do balão de bate-papo"/>
+	<color_swatch name="background" tool_tip="Cor do balão de bate-papo"/>
 	<check_box label="Mostrar erros de script" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Bate-papo local" name="0"/>
 		<radio_item label="Janelas separadas" name="1"/>
 	</radio_group>
-	<check_box label="Tecla liga/desliga da minha voz:" name="push_to_talk_toggle_check" tool_tip="Quando em modo de alternância, pressione e solte o botão UMA vez para ligar e desligar o microfone. Quando em modo de alternância, o microfone só transmite sua enquanto o botão estiver pressionado."/>
-	<line_editor label="Botao apertar e falar" name="modifier_combo"/>
-	<button label="Definir chave" name="set_voice_hotkey_button"/>
+	<check_box label="Tecla liga/desliga da minha voz:" name="push_to_talk_toggle_check" tool_tip="Quando em modo de alternância, pressione e solte o botão UMA vez para ligar e desligar o microfone. Quando em modo de alternância, o microfone só transmite sua voz quando o botão estiver pressionado."/>
+	<line_editor label="Botão apertar e falar" name="modifier_combo"/>
+	<button label="Definir tecla" name="set_voice_hotkey_button"/>
 	<button label="Botão do meio do mouse" name="set_voice_middlemouse_button" tool_tip="Redefinir como botão do meio do mouse"/>
 </panel>

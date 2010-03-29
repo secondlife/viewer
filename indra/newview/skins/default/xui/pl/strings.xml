@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
-     For example, the strings used in avatar chat bubbles, and strings 
+     For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
+	<string name="CAPITALIZED_APP_NAME">
+		SECOND LIFE
+	</string>
 	<string name="SUPPORT_SITE">
 		Portal Pomocy Second Life
 	</string>
@@ -11,7 +14,22 @@
 		Wykrywanie dysku twardego...
 	</string>
 	<string name="StartupLoading">
-		Ładowanie
+		Ładowanie [APP_NAME]...
+	</string>
+	<string name="StartupClearingCache">
+		Czyszczenie bufora danych...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		Inicjowanie bufora danych tekstur...
+	</string>
+	<string name="StartupInitializingVFS">
+		Inicjowanie VFS...
+	</string>
+	<string name="ProgressRestoring">
+		Przywracanie...
+	</string>
+	<string name="ProgressChangingResolution">
+		Zmiana rozdzielczości...
 	</string>
 	<string name="LoginInProgress">
 		Trwa logowanie. [APP_NAME] Proszę czekać.
@@ -73,11 +91,32 @@
 	<string name="LoginFailedNoNetwork">
 		Błąd sieci: Brak połączenia z siecią, sprawdź status swojego połączenia internetowego.
 	</string>
+	<string name="LoginFailed">
+		Logowanie nie powiodło się.
+	</string>
 	<string name="Quit">
 		Wyłącz Program
 	</string>
 	<string name="AgentLostConnection">
 		Ten region może mieć problemy. Sprawdź podłączenie do Internetu.
+	</string>
+	<string name="SavingSettings">
+		Zachowanie ustawień...
+	</string>
+	<string name="LoggingOut">
+		Trwa wylogowanie...
+	</string>
+	<string name="ShuttingDown">
+		Zamykanie...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		Nastąpiło rozłączenie z regionem.
+	</string>
+	<string name="SentToInvalidRegion">
+		Region jest niedostępny.
+	</string>
+	<string name="TestingDisconnect">
+		Nastąpiło rozłączenie testowania klienta
 	</string>
 	<string name="TooltipPerson">
 		Osoba
@@ -131,7 +170,25 @@
 		Kliknij by zobaczyć szczegóły tego miejsca
 	</string>
 	<string name="TooltipAgentUrl">
-		Kliknij by zobaczyć profil tego rezydenta
+		Kliknij aby zobaczyc profil Rezydenta
+	</string>
+	<string name="TooltipAgentMute">
+		Kliknij aby wyciszyc tego Rezydenta
+	</string>
+	<string name="TooltipAgentUnmute">
+		Kliknij aby cofnąć zablokowanie tego Rezydenta
+	</string>
+	<string name="TooltipAgentIM">
+		Kliknij aby wysłać wiadomość IM do tego Rezydenta
+	</string>
+	<string name="TooltipAgentPay">
+		Kliknij aby zapłacić temu Rezydentowi
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		Kliknij aby oferować teleport temu Rezydentowi
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		Kliknij aby wysłać temu Rezydentowi zaproszenie do Znajomych
 	</string>
 	<string name="TooltipGroupUrl">
 		Kliknij by zobaczyć opis tej grupy
@@ -158,14 +215,33 @@
 		Kliknij by uruchomić secondlife:// command
 	</string>
 	<string name="CurrentURL" value=" Obecny Adres: [CurrentURL]"/>
+	<string name="TooltipPrice" value="L$[PRICE]-"/>
 	<string name="SLurlLabelTeleport">
 		Teleportuj do
 	</string>
 	<string name="SLurlLabelShowOnMap">
 		Pokaż na Mapie
 	</string>
+	<string name="SLappAgentMute">
+		Zablokuj
+	</string>
+	<string name="SLappAgentUnmute">
+		Cofnij zablokowanie
+	</string>
+	<string name="SLappAgentIM">
+		IM
+	</string>
+	<string name="SLappAgentPay">
+		Zapłać
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		Teleportuj do
+	</string>
+	<string name="SLappAgentRequestFriend">
+		Oferta znajomości
+	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
-		Zamknij (&#8984;W)
+		Zamknij (⌘W)
 	</string>
 	<string name="BUTTON_CLOSE_WIN">
 		Zamknij (Ctrl+W)
@@ -181,9 +257,6 @@
 	</string>
 	<string name="BUTTON_DOCK">
 		Przyłącz
-	</string>
-	<string name="BUTTON_UNDOCK">
-		Odłącz
 	</string>
 	<string name="BUTTON_HELP">
 		Pokaż Pomoc
@@ -208,9 +281,6 @@
 	</string>
 	<string name="AvatarNameWaiting">
 		(ładowanie)
-	</string>
-	<string name="AvatarNameHippos">
-		(hippos)
 	</string>
 	<string name="GroupNameNone">
 		(brak danych)
@@ -319,6 +389,9 @@
 	</string>
 	<string name="symbolic link">
 		link
+	</string>
+	<string name="symbolic folder link">
+		link folderu
 	</string>
 	<string name="AvatarAway">
 		Śpi
@@ -572,6 +645,9 @@
 	<string name="hang_up">
 		Połączenie rozmowy utracone.
 	</string>
+	<string name="reconnect_nearby">
+		Przełączanie do pobliskich rozmów głosowych
+	</string>
 	<string name="ScriptQuestionCautionChatGranted">
 		&apos;[OBJECTNAME]&apos;, właściciel: &apos;[OWNERNAME]&apos;, położenie: [REGIONNAME] [REGIONPOS], pozwala Ci na: [PERMISSIONS].
 	</string>
@@ -734,6 +810,9 @@
 	<string name="invalid">
 		niewłaściwa funkcja
 	</string>
+	<string name="NewWearable">
+		Nowa [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		Następne
 	</string>
@@ -764,11 +843,8 @@
 	<string name="TeleportOffer">
 		Oferta teleportacji
 	</string>
-	<string name="StartUpNotification">
-		[%d] nowe zawiadomienie zostało wysłane kiedy byłeś w trybie oddalenia...
-	</string>
 	<string name="StartUpNotifications">
-		[%d] nowe zawiadomienia zostały wysłane kiedy byłeś w trybie oddalenia...
+		Nowe zawiadomienia zostały wysłane kiedy byłeś w trybie oddalenia...
 	</string>
 	<string name="OverflowInfoChannelString">
 		Masz jeszcze [%d] powiadomień
@@ -804,11 +880,13 @@
 		Wybierz ESC by powrócić do trybu widoku normalne
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Brak wyników w szafie dla wpisanego słowa.
+		Obiektu nie znaleziono w Szafie.  Spróbuj [secondlife:///app/search/groups &quot;Search&quot;].
+	</string>
+	<string name="FavoritesNoMatchingItems">
+		Przeciągnij landmark tutaj aby dodać go do swoich ulubionych.
 	</string>
 	<string name="InventoryNoTexture">
-		Nie posiadasz kopi
-tej tekstury w swojej szafie
+		Nie posiadasz kopii tej tekstury w Twojej Szafie.
 	</string>
 	<string name="no_transfer" value=" (brak oddawania)"/>
 	<string name="no_modify" value=" (brak modyfikowania)"/>
@@ -823,6 +901,7 @@ tej tekstury w swojej szafie
 		Brak zawartości
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (założony na [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (aktywne)"/>
 	<string name="Chat" value=" Czat :"/>
 	<string name="Sound" value=" Dźwięk :"/>
 	<string name="Wait" value=" --- Zaczekaj :"/>
@@ -915,6 +994,9 @@ tej tekstury w swojej szafie
 	</string>
 	<string name="InvFolder My Outfits">
 		Moje Ubranie
+	</string>
+	<string name="InvFolder Accessories">
+		Akcesoria
 	</string>
 	<string name="InvFolder Friends">
 		Znajomi
@@ -1266,10 +1348,163 @@ tej tekstury w swojej szafie
 		wszystkie majątki, które nadzorujesz dla [OWNER]
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		Rezydenci mający dostęp: ([ALLOWEDAGENTS], max [MAXACCESS])
+		Dozwoleni Rezydenci: ([ALLOWEDAGENTS], maks. [MAXACCESS])
 	</string>
 	<string name="RegionInfoAllowedGroups">
 		Grupy mające dostęp: ([ALLOWEDGROUPS], max [MAXACCESS])
+	</string>
+	<string name="ScriptLimitsParcelScriptMemory">
+		Pamięć Skryptów Parceli
+	</string>
+	<string name="ScriptLimitsParcelsOwned">
+		Parcele: [PARCELS]
+	</string>
+	<string name="ScriptLimitsMemoryUsed">
+		Pamięć wykorzystana: [COUNT] kb z [MAX] kb; [AVAILABLE] kb pozostało
+	</string>
+	<string name="ScriptLimitsMemoryUsedSimple">
+		Pamięć wykorzystana: [COUNT] kb
+	</string>
+	<string name="ScriptLimitsParcelScriptURLs">
+		Skrypty URL Parceli
+	</string>
+	<string name="ScriptLimitsURLsUsed">
+		URL: [COUNT] z [MAX]; [AVAILABLE] dostępne
+	</string>
+	<string name="ScriptLimitsURLsUsedSimple">
+		URL: [COUNT]
+	</string>
+	<string name="ScriptLimitsRequestError">
+		Błąd wyszukiwania informacji
+	</string>
+	<string name="ScriptLimitsRequestNoParcelSelected">
+		Posiadłość nie została wybrana
+	</string>
+	<string name="ScriptLimitsRequestWrongRegion">
+		Błąd: informacja o skrypcie jest dostępna tylko w obecnym regionie.
+	</string>
+	<string name="ScriptLimitsRequestWaiting">
+		Wyszukiwanie informacji...
+	</string>
+	<string name="ScriptLimitsRequestDontOwnParcel">
+		Nie masz pozwolenia na sprawdzenie parceli.
+	</string>
+	<string name="SITTING_ON">
+		Usiądź na
+	</string>
+	<string name="ATTACH_CHEST">
+		Klatka piersiowa
+	</string>
+	<string name="ATTACH_HEAD">
+		Głowa
+	</string>
+	<string name="ATTACH_LSHOULDER">
+		Lewe Ramię
+	</string>
+	<string name="ATTACH_RSHOULDER">
+		Ramię Prawe
+	</string>
+	<string name="ATTACH_LHAND">
+		Ręka Lewa
+	</string>
+	<string name="ATTACH_RHAND">
+		Prawa Ręka
+	</string>
+	<string name="ATTACH_LFOOT">
+		Lewa Stopa
+	</string>
+	<string name="ATTACH_RFOOT">
+		Stopa Prawa
+	</string>
+	<string name="ATTACH_BACK">
+		Plecy
+	</string>
+	<string name="ATTACH_PELVIS">
+		Miednica
+	</string>
+	<string name="ATTACH_MOUTH">
+		Usta
+	</string>
+	<string name="ATTACH_CHIN">
+		Podbródek
+	</string>
+	<string name="ATTACH_LEAR">
+		Ucho Lewe
+	</string>
+	<string name="ATTACH_REAR">
+		Prawe Ucho
+	</string>
+	<string name="ATTACH_LEYE">
+		Lewe Oko
+	</string>
+	<string name="ATTACH_REYE">
+		Prawe Oko
+	</string>
+	<string name="ATTACH_NOSE">
+		Nos
+	</string>
+	<string name="ATTACH_RUARM">
+		Ramię P Górne
+	</string>
+	<string name="ATTACH_RLARM">
+		Prawe dolne ramię
+	</string>
+	<string name="ATTACH_LUARM">
+		Ramię L Górne
+	</string>
+	<string name="ATTACH_LLARM">
+		Lewe dolne ramię
+	</string>
+	<string name="ATTACH_RHIP">
+		Biodro prawe
+	</string>
+	<string name="ATTACH_RULEG">
+		P Górna Noga
+	</string>
+	<string name="ATTACH_RLLEG">
+		Noga P Dolna
+	</string>
+	<string name="ATTACH_LHIP">
+		Biodro Lewe
+	</string>
+	<string name="ATTACH_LULEG">
+		L Górna Noga
+	</string>
+	<string name="ATTACH_LLLEG">
+		Noga L Dolna
+	</string>
+	<string name="ATTACH_BELLY">
+		Brzuch
+	</string>
+	<string name="ATTACH_RPEC">
+		Prawa klatka
+	</string>
+	<string name="ATTACH_LPEC">
+		Lewa klatka
+	</string>
+	<string name="ATTACH_HUD_CENTER_2">
+		HUD Środek 2
+	</string>
+	<string name="ATTACH_HUD_TOP_RIGHT">
+		HUD P Górny
+	</string>
+	<string name="ATTACH_HUD_TOP_CENTER">
+		HUD Środek Górny
+	</string>
+	<string name="ATTACH_HUD_TOP_LEFT">
+		HUD L Góra
+	</string>
+	<string name="ATTACH_HUD_CENTER_1">
+		HUD Środek 1
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_LEFT">
+		HUD Dolna L Strona
+	</string>
+	<string name="ATTACH_HUD_BOTTOM">
+		HUD Dolny
+	</string>
+	<string name="ATTACH_HUD_BOTTOM_RIGHT">
+		HUD Dolna P Strona
 	</string>
 	<string name="CursorPos">
 		Linia [LINE], Kolumna [COLUMN]
@@ -1280,11 +1515,17 @@ tej tekstury w swojej szafie
 	<string name="PanelContentsNewScript">
 		Nowy Skrypt
 	</string>
+	<string name="PanelContentsTooltip">
+		Zawartość obiektu
+	</string>
+	<string name="BusyModeResponseDefault">
+		Rezydent, do którego wysłałeś wiadomość prywatną znajduje się w trybie pracy. Oznacza to, iż Twoja wiadomość zostanie zapisana do przeglądnięcia poźniej.
+	</string>
 	<string name="MuteByName">
 		(według nazwy)
 	</string>
 	<string name="MuteAgent">
-		(rezydenta)
+		(Rezydent)
 	</string>
 	<string name="MuteObject">
 		(obiekt)
@@ -1314,6 +1555,15 @@ tej tekstury w swojej szafie
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
 		(zostanie zaktualizowane po publikacji)
+	</string>
+	<string name="NoPicksClassifiedsText">
+		Nie dodałeś nic do Ulubionych i Reklam. Kliknij na poniższy przycisk Dodaj aby dodać miejsce do Ulubionych lub Reklamy.
+	</string>
+	<string name="NoAvatarPicksClassifiedsText">
+		Użytkownik nie posiada Ulubionych lub Reklam
+	</string>
+	<string name="PicksClassifiedsLoadingText">
+		Ładowanie...
 	</string>
 	<string name="MultiPreviewTitle">
 		Podgląd
@@ -1385,11 +1635,17 @@ tej tekstury w swojej szafie
 		Anuluj
 	</string>
 	<string name="UploadingCosts">
-		Koszty załadowania [%s]
+		Załadowanie [NAME] kosztuje [AMOUNT]L$
+	</string>
+	<string name="BuyingCosts">
+		Cena zakupu tego wynosi L$ [AMOUNT]
 	</string>
 	<string name="UnknownFileExtension">
 		Nieznane rozszerzenie dla pliku [.%s]
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
+	</string>
+	<string name="MuteObject2">
+		Zablokuj
 	</string>
 	<string name="AddLandmarkNavBarMenu">
 		Dodaj Ulubione Miejsce...
@@ -1397,10 +1653,18 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<string name="EditLandmarkNavBarMenu">
 		Edytuj Ulubione Miejce...
 	</string>
-	<string name="accel-mac-control">&#8963;</string>
-	<string name="accel-mac-command">&#8984;</string>
-	<string name="accel-mac-option">&#8997;</string>
-	<string name="accel-mac-shift">&#8679;</string>
+	<string name="accel-mac-control">
+		⌃
+	</string>
+	<string name="accel-mac-command">
+		⌘
+	</string>
+	<string name="accel-mac-option">
+		⌥
+	</string>
+	<string name="accel-mac-shift">
+		⇧
+	</string>
 	<string name="accel-win-control">
 		Ctrl+
 	</string>
@@ -1638,55 +1902,31 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Cień o godzinie 5
 	</string>
 	<string name="All White">
-		Wszystko Białe
+		Wszystko białe
 	</string>
 	<string name="Anime Eyes">
-		Animuj Oczy
+		Animuj oczy
 	</string>
 	<string name="Arced">
 		Obrócony
 	</string>
 	<string name="Arm Length">
-		Długość Ramienia
+		Długość ramienia
 	</string>
 	<string name="Attached">
 		Dołączone
 	</string>
 	<string name="Attached Earlobes">
-		Płatki Uszu Dołączone
-	</string>
-	<string name="Back Bangs">
-		Tylnie Pasemka
-	</string>
-	<string name="Back Bangs Down">
-		Tylnie Pasemka w Dół
-	</string>
-	<string name="Back Bangs Up">
-		Tylnie Pasemka do Góry
+		Płatki uszu dołączone
 	</string>
 	<string name="Back Fringe">
-		Tylnia Grzywka
-	</string>
-	<string name="Back Hair">
-		Back Hair
-	</string>
-	<string name="Back Hair Down">
-		Back Hair Down
-	</string>
-	<string name="Back Hair Up">
-		Back Hair Up
+		Tylnia grzywka
 	</string>
 	<string name="Baggy">
 		Wypchane
 	</string>
 	<string name="Bangs">
 		Pasemka
-	</string>
-	<string name="Bangs Down">
-		Pasemka w Dół
-	</string>
-	<string name="Bangs Up">
-		Pasemka do Góry
 	</string>
 	<string name="Beady Eyes">
 		Oczy Załzawione
@@ -1700,17 +1940,14 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="Big Butt">
 		Duży Pośladek
 	</string>
-	<string name="Big Eyeball">
-		Duża Gałka Oczna
-	</string>
 	<string name="Big Hair Back">
-		Duże Włosy: z Tyłu
+		Duże Włosy: z tyłu
 	</string>
 	<string name="Big Hair Front">
-		Duże Włosy: z Przodu
+		Duże Włosy: z przodu
 	</string>
 	<string name="Big Hair Top">
-		Duże Włosy: z Góry
+		Duże Włosy: z góry
 	</string>
 	<string name="Big Head">
 		Duża Głowa
@@ -1728,22 +1965,22 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Blond
 	</string>
 	<string name="Blonde Hair">
-		Włosy Koloru Blond
+		Włosy Blond
 	</string>
 	<string name="Blush">
 		Rumieniec
 	</string>
 	<string name="Blush Color">
-		Kolor Rumieńca
+		Kolor rumieńca
 	</string>
 	<string name="Blush Opacity">
-		Intensywność Rumieńca
+		Intensywność rumieńca
 	</string>
 	<string name="Body Definition">
-		Detale Ciała
+		Detale ciała
 	</string>
 	<string name="Body Fat">
-		Zawartość Tkanki Tłuszczowej
+		Zawartość tkanki tłuszczowej
 	</string>
 	<string name="Body Freckles">
 		Piegi
@@ -1761,13 +1998,13 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Bow Legged
 	</string>
 	<string name="Breast Buoyancy">
-		Jędrność Piersi
+		Jędrność piersi
 	</string>
 	<string name="Breast Cleavage">
-		Odstęp Między Piersiami
+		Odstęp między piersiami
 	</string>
 	<string name="Breast Size">
-		Rozmiar Piersi
+		Rozmiar piersi
 	</string>
 	<string name="Bridge Width">
 		Szerokość
@@ -1776,7 +2013,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Szerokie
 	</string>
 	<string name="Brow Size">
-		Rozmiar Czoła
+		Rozmiar czoła
 	</string>
 	<string name="Bug Eyes">
 		Bug Eyes
@@ -1812,34 +2049,34 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Chaplin
 	</string>
 	<string name="Cheek Bones">
-		Kości Policzkowe
+		Kości policzkowe
 	</string>
 	<string name="Chest Size">
-		Rozmiar Klatki Piersiowej
+		Rozmiar klatki piersiowej
 	</string>
 	<string name="Chin Angle">
-		Kąt Podbródka
+		Kąt podbródka
 	</string>
 	<string name="Chin Cleft">
-		Dołek w Podbródku
+		Dołek w podbródku
 	</string>
 	<string name="Chin Curtains">
-		Zasłonięcie Podbródka
+		Zasłonięcie podbródka
 	</string>
 	<string name="Chin Depth">
-		Długość Podbródka
+		Długość podbródka
 	</string>
 	<string name="Chin Heavy">
-		Ciężar Podbródka
+		Ciężar podbródka
 	</string>
 	<string name="Chin In">
-		Podbródek Wewnątrz
+		Podbródek wewnątrz
 	</string>
 	<string name="Chin Out">
-		Podbródek Zewnętrzny
+		Podbródek zewnętrzny
 	</string>
 	<string name="Chin-Neck">
-		Podwójny Podbródek
+		Podwójny podbródek
 	</string>
 	<string name="Clear">
 		Wyczyść
@@ -1854,31 +2091,28 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Zamknięte
 	</string>
 	<string name="Closed Back">
-		Zamknięte z Tyłu
+		Zamknięte z tyłu
 	</string>
 	<string name="Closed Front">
-		Zamknięte z Przodu
+		Zamknięte z przodu
 	</string>
 	<string name="Closed Left">
-		Lewe Oko Zamknięte
+		Lewe Oko zamknięte
 	</string>
 	<string name="Closed Right">
-		Prawe Oko Zamknięte
+		Prawe Oko zamknięte
 	</string>
 	<string name="Coin Purse">
 		Coin Purse
 	</string>
 	<string name="Collar Back">
-		Kołnierz z Tyłu
+		Kołnierz z tyłu
 	</string>
 	<string name="Collar Front">
-		Kołnierz z Przodu
+		Kołnierz z przodu
 	</string>
 	<string name="Corner Down">
 		Corner Down
-	</string>
-	<string name="Corner Normal">
-		Corner Normal
 	</string>
 	<string name="Corner Up">
 		Corner Up
@@ -1887,10 +2121,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Pognieciony
 	</string>
 	<string name="Crooked Nose">
-		Skrzywienie Nosa
-	</string>
-	<string name="Cropped Hair">
-		Przycięte Włosy
+		Skrzywienie nosa
 	</string>
 	<string name="Cuff Flare">
 		Cuff Flare
@@ -1899,7 +2130,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Ciemne
 	</string>
 	<string name="Dark Green">
-		Ciemne Zielone
+		Ciemne zielone
 	</string>
 	<string name="Darker">
 		Ciemniejsze
@@ -1910,17 +2141,11 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="Default Heels">
 		Domyślne Buty na Obcasie
 	</string>
-	<string name="Default Toe">
-		Domyślny Palec
-	</string>
 	<string name="Dense">
 		Gęstość
 	</string>
-	<string name="Dense hair">
-		Gęste Włosy
-	</string>
 	<string name="Double Chin">
-		Podwójny Podbródek
+		Podwójny podbródek
 	</string>
 	<string name="Downturned">
 		Downturned
@@ -1929,61 +2154,58 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Duffle Bag
 	</string>
 	<string name="Ear Angle">
-		Odstawanie Uszu
+		Odstawanie uszu
 	</string>
 	<string name="Ear Size">
-		Rozmiar Uszu
+		Rozmiar uszu
 	</string>
 	<string name="Ear Tips">
-		Wierzchołki Uszu
+		Wierzchołki uszu
 	</string>
 	<string name="Egg Head">
-		Jajowata Głowa
+		Jajowata głowa
 	</string>
 	<string name="Eye Bags">
-		Woreczek Łzowy
+		Woreczek łzowy
 	</string>
 	<string name="Eye Color">
-		Kolor Oczu
+		Kolor oczu
 	</string>
 	<string name="Eye Depth">
-		Głębokość Osadzenia Oczu
+		Głębokość osadzenia oczu
 	</string>
 	<string name="Eye Lightness">
-		Ustawienie Jasności Oczu
+		Ustawienie jasności oczu
 	</string>
 	<string name="Eye Opening">
-		Oczy Otwarte
+		Oczy otwarte
 	</string>
 	<string name="Eye Pop">
-		Różnica w Wielkości Oczu
+		Różnica w wielkości oczu
 	</string>
 	<string name="Eye Size">
-		Rozmiar Oczu
+		Rozmiar oczu
 	</string>
 	<string name="Eye Spacing">
-		Rozstaw Oczu
-	</string>
-	<string name="Eyeball Size">
-		Wielkość Gałki Ocznej
+		Rozstaw oczu
 	</string>
 	<string name="Eyebrow Arc">
-		Łuk Brwiowy
+		Łuk brwiowy
 	</string>
 	<string name="Eyebrow Density">
-		Gęstość Brwi
+		Gęstość brwi
 	</string>
 	<string name="Eyebrow Height">
-		Wysokość Brwi
+		Wysokość brwi
 	</string>
 	<string name="Eyebrow Points">
-		Kształt Brwi
+		Kształt brwi
 	</string>
 	<string name="Eyebrow Size">
-		Rozmiar Brwi
+		Rozmiar brwi
 	</string>
 	<string name="Eyelash Length">
-		Długość Rzęs
+		Długość rzęs
 	</string>
 	<string name="Eyeliner">
 		Eyeliner
@@ -1991,68 +2213,20 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="Eyeliner Color">
 		Kolor Eyeliner&apos;a
 	</string>
-	<string name="Eyes Back">
-		Eyes Back
-	</string>
 	<string name="Eyes Bugged">
 		Eyes Bugged
 	</string>
-	<string name="Eyes Forward">
-		Eyes Forward
-	</string>
-	<string name="Eyes Long Head">
-		Eyes Long Head
-	</string>
-	<string name="Eyes Shear Left Up">
-		Eyes Shear Left Up
-	</string>
-	<string name="Eyes Shear Right Up">
-		Eyes Shear Right Up
-	</string>
-	<string name="Eyes Short Head">
-		Eyes Short Head
-	</string>
-	<string name="Eyes Spread">
-		Rozmieszczenie Oczu
-	</string>
-	<string name="Eyes Sunken">
-		Eyes Sunken
-	</string>
-	<string name="Eyes Together">
-		Oczy Razem
-	</string>
 	<string name="Face Shear">
-		Usunięcie Twarzy
+		Usunięcie twarzy
 	</string>
 	<string name="Facial Definition">
-		Detale Twarzy
+		Detale twarzy
 	</string>
 	<string name="Far Set Eyes">
 		Far Set Eyes
 	</string>
-	<string name="Fat">
-		Grubość
-	</string>
-	<string name="Fat Head">
-		Gruba Głowa
-	</string>
 	<string name="Fat Lips">
-		Grube Usta
-	</string>
-	<string name="Fat Lower">
-		Fat Lower
-	</string>
-	<string name="Fat Lower Lip">
-		Fat Lower Lip
-	</string>
-	<string name="Fat Torso">
-		Gruby Tułów
-	</string>
-	<string name="Fat Upper">
-		Fat Upper
-	</string>
-	<string name="Fat Upper Lip">
-		Fat Upper Lip
+		Grube usta
 	</string>
 	<string name="Female">
 		Kobieta
@@ -2064,64 +2238,49 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Palce
 	</string>
 	<string name="Flared Cuffs">
-		Flared Cuffs
+		Rozszerzane rękawy
 	</string>
 	<string name="Flat">
 		Płaskość
 	</string>
 	<string name="Flat Butt">
-		Płaskie Pośladki
+		Płaskie pośladki
 	</string>
 	<string name="Flat Head">
-		Płaska Głowa
+		Płaska głowa
 	</string>
 	<string name="Flat Toe">
-		Płaski Palec
+		Płaski palec
 	</string>
 	<string name="Foot Size">
-		Rozmiar Stopy
+		Rozmiar stopy
 	</string>
 	<string name="Forehead Angle">
-		Kształt Czoła
+		Kształt czoła
 	</string>
 	<string name="Forehead Heavy">
-		Ciężar Czoła
+		Ciężar czoła
 	</string>
 	<string name="Freckles">
 		Piegi
 	</string>
-	<string name="Front Bangs Down">
-		Przednie Pasemka w Dół
-	</string>
-	<string name="Front Bangs Up">
-		Przednie Pasemka do Góry
-	</string>
 	<string name="Front Fringe">
 		Przednia Grzywka
 	</string>
-	<string name="Front Hair">
-		Front Hair
-	</string>
-	<string name="Front Hair Down">
-		Front Hair Down
-	</string>
-	<string name="Front Hair Up">
-		Przednie Włosy do Góry
-	</string>
 	<string name="Full Back">
-		Gęstość Włosów po Bokach
+		Gęstość włosów po bokach
 	</string>
 	<string name="Full Eyeliner">
-		Gęsty Eyeliner
+		Gęsta kredka do oczu
 	</string>
 	<string name="Full Front">
-		Gęsty Przód
+		Gęsty przód
 	</string>
 	<string name="Full Hair Sides">
-		Gęste Włosy po Bokach
+		Gęste włosy po bokach
 	</string>
 	<string name="Full Sides">
-		Gęste Boki
+		Gęste boki
 	</string>
 	<string name="Glossy">
 		Błyszczące
@@ -2130,64 +2289,64 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Rękawiczki
 	</string>
 	<string name="Glove Length">
-		Długość Rękawiczek
+		Długość rękawiczek
 	</string>
 	<string name="Hair">
 		Włosy
 	</string>
 	<string name="Hair Back">
-		Włosy: z Tyłu
+		Włosy: z tyłu
 	</string>
 	<string name="Hair Front">
-		Włosy: z Przodu
+		Włosy: z przodu
 	</string>
 	<string name="Hair Sides">
-		Hair: Boki
+		Włosy: boki
 	</string>
 	<string name="Hair Sweep">
-		Kierunek Zaczesania
+		Kierunek zaczesania
 	</string>
 	<string name="Hair Thickess">
-		Grubość Włosów
+		Grubość włosów
 	</string>
 	<string name="Hair Thickness">
-		Grubość Włosów
+		Grubość włosów
 	</string>
 	<string name="Hair Tilt">
-		Przesunięcie Fryzury
+		Przes. fryzury
 	</string>
 	<string name="Hair Tilted Left">
-		Przesunięcie Fryzury w Lewo
+		Przes. fryzury L
 	</string>
 	<string name="Hair Tilted Right">
-		Przesunięcie Fryzury w Prawo
+		Przes. fryzury P
 	</string>
 	<string name="Hair Volume">
-		Włosy: Objętość
+		Włosy: objętość
 	</string>
 	<string name="Hand Size">
-		Rozmiar Dłoni
+		Rozmiar dłoni
 	</string>
 	<string name="Handlebars">
 		Handlebars
 	</string>
 	<string name="Head Length">
-		Długość Głowy
+		Długość głowy
 	</string>
 	<string name="Head Shape">
-		Kształt Głowy
+		Kształt głowy
 	</string>
 	<string name="Head Size">
-		Rozmiar Głowy
+		Rozmiar głowy
 	</string>
 	<string name="Head Stretch">
-		Rozciągnięcie Głowy
+		Rozciągnięcie głowy
 	</string>
 	<string name="Heel Height">
-		Wysokość Obcasa
+		Wysokość obcasa
 	</string>
 	<string name="Heel Shape">
-		Ksztalt Obcasa
+		Ksztalt obcasa
 	</string>
 	<string name="Height">
 		Wysokość
@@ -2196,7 +2355,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Wysoka
 	</string>
 	<string name="High Heels">
-		Wysokie Obcasy
+		Wysokie obcasy
 	</string>
 	<string name="High Jaw">
 		High Jaw
@@ -2211,34 +2370,34 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Wyżej
 	</string>
 	<string name="Hip Length">
-		Długość Bioder
+		Długość bioder
 	</string>
 	<string name="Hip Width">
-		Szerokość Bioder
+		Szerokość bioder
 	</string>
 	<string name="In">
 		W
 	</string>
 	<string name="In Shdw Color">
-		Wewnętrzny Kolor Cienia
+		Wewnętrzny kolor cienia
 	</string>
 	<string name="In Shdw Opacity">
-		Wewnętrzna Intensywność Cienia
+		Wewnętrzna intensywność cienia
 	</string>
 	<string name="Inner Eye Corner">
-		Wenwętrzny Bok Oka
+		Wenwętrzny bok oka
 	</string>
 	<string name="Inner Eye Shadow">
-		Wewnętrzny Cień Oka
+		Wewnętrzny cień oka
 	</string>
 	<string name="Inner Shadow">
-		Wewnętrzny Cień
+		Wewnętrzny cień
 	</string>
 	<string name="Jacket Length">
-		Długość Kurtki
+		Długość kurtki
 	</string>
 	<string name="Jacket Wrinkles">
-		Zmarszczki na Kurtce
+		Zmarszczki na kurtce
 	</string>
 	<string name="Jaw Angle">
 		Jaw Angle
@@ -2256,7 +2415,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Jowls
 	</string>
 	<string name="Knee Angle">
-		Kąt Kolana
+		Kąt kolana
 	</string>
 	<string name="Knock Kneed">
 		Knock Kneed
@@ -2265,22 +2424,22 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Duże
 	</string>
 	<string name="Large Hands">
-		Duże Dłonie
+		Duże dłonie
 	</string>
 	<string name="Left Part">
 		Left Part
 	</string>
 	<string name="Leg Length">
-		Długość Nogi
+		Długość nogi
 	</string>
 	<string name="Leg Muscles">
-		Umięśnione Nogi
+		Umięśnione nogi
 	</string>
 	<string name="Less">
 		Mniej
 	</string>
 	<string name="Less Body Fat">
-		Mniejsza Zawartości Tkanki Tłuszczowej
+		Mniejsza zawartości tkanki tłuszczowej
 	</string>
 	<string name="Less Curtains">
 		Less Curtains
@@ -2289,7 +2448,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Mniej Piegów
 	</string>
 	<string name="Less Full">
-		Less Full
+		Mniej Pełne
 	</string>
 	<string name="Less Gravity">
 		Mniej Ciężaru
@@ -2298,25 +2457,25 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Less Love
 	</string>
 	<string name="Less Muscles">
-		Mniej Mięśni
+		Mniej mięśni
 	</string>
 	<string name="Less Muscular">
-		Mniej Umięśnienia
+		Mniej umięśnienia
 	</string>
 	<string name="Less Rosy">
 		Less Rosy
 	</string>
 	<string name="Less Round">
-		Mniej Zaaokrąglone
+		Mniej zaaokrąglone
 	</string>
 	<string name="Less Saddle">
 		Less Saddle
 	</string>
 	<string name="Less Square">
-		Mniej Kwadratowe
+		Mniej kwadratowe
 	</string>
 	<string name="Less Volume">
-		Mniej Objętości
+		Mniej objętości
 	</string>
 	<string name="Less soul">
 		Less soul
@@ -2325,25 +2484,25 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Lżejsze
 	</string>
 	<string name="Lip Cleft">
-		Szerokość Rozszczepienia Górnej Wargi
+		Szerokość Rozszczepienia górnej wargi
 	</string>
 	<string name="Lip Cleft Depth">
-		Głębokość Rozszczepienia Górnej Wargi
+		Głębokość rozszczepienia górnej wargi
 	</string>
 	<string name="Lip Fullness">
-		Pełność Ust
+		Pełne usta
 	</string>
 	<string name="Lip Pinkness">
-		Róż Ust
+		Róż ust
 	</string>
 	<string name="Lip Ratio">
-		Proporcje Ust
+		Proporcje ust
 	</string>
 	<string name="Lip Thickness">
-		Grubość Ust
+		Grubość ust
 	</string>
 	<string name="Lip Width">
-		Szerokość Ust
+		Szerokość ust
 	</string>
 	<string name="Lipgloss">
 		Połysk
@@ -2352,46 +2511,43 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Szminka
 	</string>
 	<string name="Lipstick Color">
-		Kolor Szminki
+		Kolor szminki
 	</string>
 	<string name="Long">
 		Dlugość
 	</string>
 	<string name="Long Head">
-		Długa Głowa
+		Długa głowa
 	</string>
 	<string name="Long Hips">
-		Długie Biodra
+		Długie biodra
 	</string>
 	<string name="Long Legs">
-		Długie Nogi
+		Długie nogi
 	</string>
 	<string name="Long Neck">
-		Długi Kark
+		Długi kark
 	</string>
 	<string name="Long Pigtails">
-		Długi Warkocz
+		Długi warkocz
 	</string>
 	<string name="Long Ponytail">
-		Długi Kucyk
+		Długi kucyk
 	</string>
 	<string name="Long Torso">
-		Długi Tułów
+		Długi tułów
 	</string>
 	<string name="Long arms">
-		Dlugie Ramiona
-	</string>
-	<string name="Longcuffs">
-		Długie Rękawy
+		Dlugie ramiona
 	</string>
 	<string name="Loose Pants">
-		Luźne Spodnie
+		Luźne spodnie
 	</string>
 	<string name="Loose Shirt">
-		Luźna Koszulka
+		Luźna koszulka
 	</string>
 	<string name="Loose Sleeves">
-		Luźne Rękawy
+		Luźne rękawy
 	</string>
 	<string name="Love Handles">
 		Love Handles
@@ -2400,16 +2556,16 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Nisko
 	</string>
 	<string name="Low Heels">
-		Niskie Obcasy
+		Niskie obcasy
 	</string>
 	<string name="Low Jaw">
-		Niska Szczęka
+		Niska szczęka
 	</string>
 	<string name="Low Platforms">
 		Low Platforms
 	</string>
 	<string name="Low and Loose">
-		Niskie i Luźne
+		Niskie i luźne
 	</string>
 	<string name="Lower">
 		Niżej
@@ -2424,7 +2580,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Mężczyzna
 	</string>
 	<string name="Middle Part">
-		Część Środkowa
+		Część środkowa
 	</string>
 	<string name="More">
 		Więcej
@@ -2433,7 +2589,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		More Blush
 	</string>
 	<string name="More Body Fat">
-		Więcej Zawartości Tkanki Tłuszczowej
+		Więcej zawartości tkanki tłuszczowej
 	</string>
 	<string name="More Curtains">
 		More Curtains
@@ -2442,34 +2598,34 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		More Eyeshadow
 	</string>
 	<string name="More Freckles">
-		Więcej Piegów
+		Więcej piegów
 	</string>
 	<string name="More Full">
 		More Full
 	</string>
 	<string name="More Gravity">
-		Więcej Ciężaru
+		Więcej ciężaru
 	</string>
 	<string name="More Lipstick">
-		Więcej Szminki
+		Więcej szminki
 	</string>
 	<string name="More Love">
 		More Love
 	</string>
 	<string name="More Lower Lip">
-		Więcej Dolnej Wargi
+		Więcej dolnej wargi
 	</string>
 	<string name="More Muscles">
-		Więcej Mięśni
+		Więcej mięśni
 	</string>
 	<string name="More Muscular">
-		Więcej Umięśnienia
+		Więcej umięśnienia
 	</string>
 	<string name="More Rosy">
 		More Rosy
 	</string>
 	<string name="More Round">
-		Więcej Zaokrąglenia
+		Więcej zaokrąglenia
 	</string>
 	<string name="More Saddle">
 		More Saddle
@@ -2478,16 +2634,16 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		More Sloped
 	</string>
 	<string name="More Square">
-		Więcej Kwadratowy
+		Więcej kwadratowy
 	</string>
 	<string name="More Upper Lip">
-		Więcej Górnej Wargi
+		Więcej górnej wargi
 	</string>
 	<string name="More Vertical">
 		More Vertical
 	</string>
 	<string name="More Volume">
-		Więcej Objętości
+		Więcej objętości
 	</string>
 	<string name="More soul">
 		More soul
@@ -2511,10 +2667,10 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Mutton Chops
 	</string>
 	<string name="Nail Polish">
-		Lakier na Paznokciach
+		Lakier na paznokciach
 	</string>
 	<string name="Nail Polish Color">
-		Kolor Lakieru na Paznokciach
+		Kolor lakieru na paznokciach
 	</string>
 	<string name="Narrow">
 		Wąskie
@@ -2532,10 +2688,10 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Naturalne
 	</string>
 	<string name="Neck Length">
-		Długość Karku
+		Długość karku
 	</string>
 	<string name="Neck Thickness">
-		Grubość Karku
+		Grubość karku
 	</string>
 	<string name="No Blush">
 		No Blush
@@ -2544,70 +2700,64 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Brak Eyeliner&apos;s
 	</string>
 	<string name="No Eyeshadow">
-		Brak Cienia pod Powieką
-	</string>
-	<string name="No Heels">
-		Brak Obcasów
+		Brak cienia pod powieką
 	</string>
 	<string name="No Lipgloss">
-		Brak Połysku
+		Brak połysku
 	</string>
 	<string name="No Lipstick">
-		Brak Szminki
+		Brak szminki
 	</string>
 	<string name="No Part">
 		No Part
 	</string>
 	<string name="No Polish">
-		Brak Lakieru
+		Brak lakieru
 	</string>
 	<string name="No Red">
-		Brak Czerwieni
+		Brak czerwieni
 	</string>
 	<string name="No Spikes">
-		Brak Szpiców
+		Brak szpiców
 	</string>
 	<string name="No White">
-		Brak Białego
+		Brak białego
 	</string>
 	<string name="No Wrinkles">
-		Brak Zmarszczek
+		Brak zmarszczek
 	</string>
 	<string name="Normal Lower">
-		Dół Normalny
+		Dół normalny
 	</string>
 	<string name="Normal Upper">
-		Góra Normalna
+		Góra normalna
 	</string>
 	<string name="Nose Left">
-		Nos w Stronę Lewą
+		Nos w stronę lewą
 	</string>
 	<string name="Nose Right">
-		Nos w Stronę Prawą
+		Nos w stronę prawą
 	</string>
 	<string name="Nose Size">
-		Rozmiar Nosa
+		Rozmiar nosa
 	</string>
 	<string name="Nose Thickness">
-		Grubość Nosa
+		Grubość nosa
 	</string>
 	<string name="Nose Tip Angle">
-		Kąt Czubka Nosa
+		Kąt czubka nosa
 	</string>
 	<string name="Nose Tip Shape">
-		Kształt Czubka Nosa
+		Kształt czubka nosa
 	</string>
 	<string name="Nose Width">
-		Szerokość Nosa
+		Szerokość nosa
 	</string>
 	<string name="Nostril Division">
-		Przegroda Nosa
+		Przegroda nosa
 	</string>
 	<string name="Nostril Width">
-		Wielkość Dziurek w Nosie
-	</string>
-	<string name="Old">
-		Stare
+		Wielkość dziurek w nosie
 	</string>
 	<string name="Opaque">
 		Intensywność
@@ -2616,16 +2766,16 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Otwarte
 	</string>
 	<string name="Open Back">
-		Otwarte z Tyłu
+		Otwarte z tyłu
 	</string>
 	<string name="Open Front">
-		Otwarte z Przodu
+		Otwarte z przodu
 	</string>
 	<string name="Open Left">
-		Otwarte z Lewej
+		Otwarte z lewej
 	</string>
 	<string name="Open Right">
-		Otwarte z Prawej
+		Otwarte z prawej
 	</string>
 	<string name="Orange">
 		Pomarańczowe
@@ -2634,19 +2784,19 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Zewnętrznie
 	</string>
 	<string name="Out Shdw Color">
-		Zewnętrzny Kolor Cienia
+		Zewnętrzny kolor cienia
 	</string>
 	<string name="Out Shdw Opacity">
-		Zewnętrzna Grubość Cienia
+		Zewnętrzna grubość cienia
 	</string>
 	<string name="Outer Eye Corner">
-		Zewnętrzny Bok Oka
+		Zewnętrzny bok oka
 	</string>
 	<string name="Outer Eye Shadow">
-		Zewnętrzny Cień Oka
+		Zewnętrzny cień oka
 	</string>
 	<string name="Outer Shadow">
-		Zewnętrzny Cień
+		Zewnętrzny cień
 	</string>
 	<string name="Overbite">
 		Overbite
@@ -2655,25 +2805,25 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Package
 	</string>
 	<string name="Painted Nails">
-		Pomalowane Paznokcie
+		Pomalowane paznokcie
 	</string>
 	<string name="Pale">
 		Pale
 	</string>
 	<string name="Pants Crotch">
-		Krocze Spodni
+		Krocze spodni
 	</string>
 	<string name="Pants Fit">
 		Pants Fit
 	</string>
 	<string name="Pants Length">
-		Długość Spodni
+		Długość spodni
 	</string>
 	<string name="Pants Waist">
-		Talia Spodni
+		Talia spodni
 	</string>
 	<string name="Pants Wrinkles">
-		Zmarszczki Spodni
+		Zmarszczki spodni
 	</string>
 	<string name="Part">
 		Część
@@ -2682,7 +2832,7 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Part Bangs
 	</string>
 	<string name="Pectorals">
-		Mięśnie Klatki Piersiowej
+		Mięśnie klatki piersiowej
 	</string>
 	<string name="Pigment">
 		Pigment
@@ -2708,9 +2858,6 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="Pointy Heels">
 		Pointy Heels
 	</string>
-	<string name="Pointy Toe">
-		Pointy Toe
-	</string>
 	<string name="Ponytail">
 		Kucyk
 	</string>
@@ -2735,26 +2882,17 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="Red Hair">
 		Czerwone Włosy
 	</string>
-	<string name="Red Skin">
-		Czerwona Skóra
-	</string>
 	<string name="Regular">
 		Regularne
 	</string>
-	<string name="Regular Muscles">
-		Regularne Mięśnie
-	</string>
 	<string name="Right Part">
-		Prawa Cześć
+		Prawa część
 	</string>
 	<string name="Rosy Complexion">
-		Kompleksowość Różu
+		Kompleksowość różu
 	</string>
 	<string name="Round">
 		Zaokrąglenie
-	</string>
-	<string name="Round Forehead">
-		Zaokrąglenie na Czole
 	</string>
 	<string name="Ruddiness">
 		Rudowatość
@@ -2768,62 +2906,44 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="Saddle Bags">
 		Saddle Bags
 	</string>
-	<string name="Saddlebags">
-		Saddlebags
-	</string>
-	<string name="Scrawny">
-		Scrawny
-	</string>
 	<string name="Scrawny Leg">
 		Scrawny Leg
 	</string>
 	<string name="Separate">
 		Odzielne
 	</string>
-	<string name="Shading">
-		Cieniowanie
-	</string>
-	<string name="Shadow hair">
-		Cieniowane Włosy
-	</string>
 	<string name="Shallow">
 		Płytkie
 	</string>
 	<string name="Shear Back">
-		Tylne Usunięcie Włosów
+		Tylne usunięcie włosów
 	</string>
 	<string name="Shear Face">
-		Usunięcie Twarzy
+		Usunięcie twarzy
 	</string>
 	<string name="Shear Front">
-		Przednie Usunięcie Włosów
-	</string>
-	<string name="Shear Left">
-		Usunięcie z Lewej Strony
+		Przednie usunięcie włosów
 	</string>
 	<string name="Shear Left Up">
-		Usunięcie od Lewej Strony do Góry
-	</string>
-	<string name="Shear Right">
-		Usunięcie z Prawej Strony
+		Usunięcie od lewej strony do góry
 	</string>
 	<string name="Shear Right Up">
-		Usunięcie od Prawej Strony do Góry
+		Usunięcie od prawej strony do góry
 	</string>
 	<string name="Sheared Back">
-		Tylnie Usunięcie Włosów
+		Tylnie usunięcie włosów
 	</string>
 	<string name="Sheared Front">
-		Przednie Usunięcie Włosów
+		Przednie usunięcie włosów
 	</string>
 	<string name="Shift Left">
-		Przesuń w Lewo
+		Przesuń w lewo
 	</string>
 	<string name="Shift Mouth">
-		Przesuń Usta
+		Przesuń usta
 	</string>
 	<string name="Shift Right">
-		Przesuń w Prawo
+		Przesuń w prawo
 	</string>
 	<string name="Shirt Bottom">
 		Dolna Część Koszulki
@@ -2832,22 +2952,22 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Shirt Fit
 	</string>
 	<string name="Shirt Wrinkles">
-		Zmarszczki na Koszulce
+		Zmarszczki na koszulce
 	</string>
 	<string name="Shoe Height">
-		Wysokość Buta
+		Wysokość buta
 	</string>
 	<string name="Short">
 		Krótkie
 	</string>
 	<string name="Short Arms">
-		Krótkie Ramiona
+		Krótkie ramiona
 	</string>
 	<string name="Short Legs">
-		Krótkie Nogi
+		Krótkie nogi
 	</string>
 	<string name="Short Neck">
-		Krótki Kark
+		Krótki kark
 	</string>
 	<string name="Short Pigtails">
 		Short Pigtails
@@ -2859,25 +2979,16 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Krótkie Baczki
 	</string>
 	<string name="Short Torso">
-		Krótki Tułów
+		Krótki tułów
 	</string>
 	<string name="Short hips">
-		Krótkie Biodra
+		Krótkie biodra
 	</string>
 	<string name="Shoulders">
 		Ramiona
 	</string>
-	<string name="Side Bangs">
-		Boczne Pasemka
-	</string>
-	<string name="Side Bangs Down">
-		Boczne Pasemka w Dół
-	</string>
-	<string name="Side Bangs Up">
-		Boczne Pasemka do Góry
-	</string>
 	<string name="Side Fringe">
-		Boczna Grzywka
+		Boczna grzywka
 	</string>
 	<string name="Sideburns">
 		Baczki
@@ -2891,9 +3002,6 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="Sides Hair Up">
 		Boczne Włosy do Góry
 	</string>
-	<string name="Skinny">
-		Smukłość
-	</string>
 	<string name="Skinny Neck">
 		Smukły Kark
 	</string>
@@ -2901,16 +3009,16 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Skirt Fit
 	</string>
 	<string name="Skirt Length">
-		Długość Spódnicy
+		Długość spódnicy
 	</string>
 	<string name="Slanted Forehead">
-		Ukośne Czoło
+		Ukośne czoło
 	</string>
 	<string name="Sleeve Length">
-		Długość Rękawów
+		Długość rękawów
 	</string>
 	<string name="Sleeve Looseness">
-		Luźność Rękawów
+		Luźność rękawów
 	</string>
 	<string name="Slit Back">
 		Slit: Back
@@ -2928,22 +3036,19 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Małe
 	</string>
 	<string name="Small Hands">
-		Małe Dłonie
+		Małe dłonie
 	</string>
 	<string name="Small Head">
-		Mała Głowa
+		Mała głowa
 	</string>
 	<string name="Smooth">
 		Gładkie
 	</string>
 	<string name="Smooth Hair">
-		Gładkie Włosy
+		Gładkie włosy
 	</string>
 	<string name="Socks Length">
-		Długość Skarpetek
-	</string>
-	<string name="Some">
-		Some
+		Długość skarpetek
 	</string>
 	<string name="Soulpatch">
 		Soulpatch
@@ -2958,16 +3063,13 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Kwadratowe
 	</string>
 	<string name="Square Toe">
-		Kwadratowy Palec
+		Kwadratowy palec
 	</string>
 	<string name="Squash Head">
-		Ściśnięta Głowa
-	</string>
-	<string name="Squash/Stretch Head">
-		Ściśnięta/Rozciągnięta Głowa
+		Ściśnięta głowa
 	</string>
 	<string name="Stretch Head">
-		Rozciągnięta Głowa
+		Rozciągnięta głowa
 	</string>
 	<string name="Sunken">
 		Sunken
@@ -2984,18 +3086,6 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="Sweep Forward">
 		Sweep Forward
 	</string>
-	<string name="Swept Back">
-		Swept Back
-	</string>
-	<string name="Swept Back Hair">
-		Swept Back Hair
-	</string>
-	<string name="Swept Forward">
-		Swept Forward
-	</string>
-	<string name="Swept Forward Hair">
-		Swept Forward Hair
-	</string>
 	<string name="Tall">
 		Wysokość
 	</string>
@@ -3006,67 +3096,58 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Taper Front
 	</string>
 	<string name="Thick Heels">
-		Grube Obcasy
+		Grube obcasy
 	</string>
 	<string name="Thick Neck">
-		Gruby Kark
+		Gruby kark
 	</string>
 	<string name="Thick Toe">
-		Gruby Palec
-	</string>
-	<string name="Thickness">
-		Grubość
+		Gruby palec
 	</string>
 	<string name="Thin">
 		Wąski
 	</string>
 	<string name="Thin Eyebrows">
-		Wąskie Brwi
+		Wąskie brwi
 	</string>
 	<string name="Thin Lips">
-		Wąskie Usta
+		Wąskie usta
 	</string>
 	<string name="Thin Nose">
-		Wąski Nos
+		Wąski nos
 	</string>
 	<string name="Tight Chin">
-		Obcisły Podbródek
+		Obcisły podbródek
 	</string>
 	<string name="Tight Cuffs">
-		Obcisłe Rękawy
+		Obcisłe rękawy
 	</string>
 	<string name="Tight Pants">
-		Obciesłe Spodnie
+		Obciesłe spodnie
 	</string>
 	<string name="Tight Shirt">
-		Obcisły Podkoszulek
+		Obcisły podkoszulek
 	</string>
 	<string name="Tight Skirt">
-		Tight Skirt
+		Wąska spódnica
 	</string>
 	<string name="Tight Sleeves">
-		Obcisłe Rękawy
-	</string>
-	<string name="Tilt Left">
-		Przesuń w Lewo
-	</string>
-	<string name="Tilt Right">
-		Przesuń w Prawo
+		Obcisłe rękawy
 	</string>
 	<string name="Toe Shape">
-		Kształt Palca
+		Kształt palca
 	</string>
 	<string name="Toe Thickness">
-		Grubość Palca
+		Grubość palca
 	</string>
 	<string name="Torso Length">
-		Długość Tułowia
+		Długość tułowia
 	</string>
 	<string name="Torso Muscles">
-		Mięśnie Tułowia
+		Mięśnie tułowia
 	</string>
 	<string name="Torso Scrawny">
-		Wychudzony Tułów
+		Wychudzony tułów
 	</string>
 	<string name="Unattached">
 		Nieprzyłączone
@@ -3081,43 +3162,43 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 		Nienaturalne
 	</string>
 	<string name="Upper Bridge">
-		Górny Mostek
+		Górny mostek
 	</string>
 	<string name="Upper Cheeks">
-		Górne Policzki
+		Górne policzki
 	</string>
 	<string name="Upper Chin Cleft">
-		Roszczepienie Górnego Podbródka
+		Roszczepienie górnego podbródka
 	</string>
 	<string name="Upper Eyelid Fold">
-		Górna Powieka
+		Górna powieka
 	</string>
 	<string name="Upturned">
 		Zadarta
 	</string>
 	<string name="Very Red">
-		Bardzo Czerwona
+		Bardzo czerwona
 	</string>
 	<string name="Waist Height">
-		Wysokość Tali
+		Wysokość talii
 	</string>
 	<string name="Well-Fed">
 		Well-Fed
 	</string>
 	<string name="White Hair">
-		Białe Włosy
+		Białe włosy
 	</string>
 	<string name="Wide">
 		Szerokie
 	</string>
 	<string name="Wide Back">
-		Szeroki Tył
+		Szeroki tył
 	</string>
 	<string name="Wide Front">
-		Szeroki Przód
+		Szeroki przód
 	</string>
 	<string name="Wide Lips">
-		Szerokie Usta
+		Szerokie usta
 	</string>
 	<string name="Wild">
 		Dzikość
@@ -3194,6 +3275,21 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
+	<string name="started_call">
+		Rozpoczęta rozmowa głosowa
+	</string>
+	<string name="joined_call">
+		Dołączył do rozmowy głosowej
+	</string>
+	<string name="ringing-im">
+		Rozmowa głosowa...
+	</string>
+	<string name="connected-im">
+		Połączono, kliknij Zakończ Rozmowe aby się rozłączyć
+	</string>
+	<string name="hang_up-im">
+		Rozmowa głosowa zakończona
+	</string>
 	<string name="only_user_message">
 		Jesteś jedyną osobą w tej konferencji.
 	</string>
@@ -3202,6 +3298,12 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
 	<string name="invite_message">
 		Kliknij na [BUTTON NAME] przycisk by zaakceptować/dołączyć do tej rozmowy.
+	</string>
+	<string name="muted_message">
+		Zablokowałeś tego Rezydenta. Wysłanie wiadomości automatycznie odblokuje go.
+	</string>
+	<string name="generic">
+		Błąd zapytania, proszę spróbować później
 	</string>
 	<string name="generic_request_error">
 		Błąd. Spróbuj ponownie za kilka minut.
@@ -3221,19 +3323,153 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="not_a_mod_error">
 		Nie jesteś moderatorem konferencji.
 	</string>
+	<string name="muted">
+		Moderator grupy wyłączył czat.
+	</string>
 	<string name="muted_error">
 		Moderator wyciszył Cię.
 	</string>
 	<string name="add_session_event">
 		Nie można dodać nikogo do czatu z [RECIPIENT].
 	</string>
+	<string name="message">
+		Nie można wysłać Twojej wiadomości do sesji czatu z [RECIPIENT].
+	</string>
 	<string name="message_session_event">
 		Nie można wysłać Twojej wiadomości do sesji czatu z [RECIPIENT].
+	</string>
+	<string name="mute">
+		Błąd poczas moderacji.
+	</string>
+	<string name="removed">
+		Zostałeś usunięty z grupy
 	</string>
 	<string name="removed_from_group">
 		Usunięto Cię z grupy.
 	</string>
 	<string name="close_on_no_ability">
 		Nie posiadasz praw by uczestniczyć w tej konferencji.
+	</string>
+	<string name="unread_chat_single">
+		[SOURCES] powiedział/a coś nowego
+	</string>
+	<string name="unread_chat_multiple">
+		[SOURCES] powiedział/a coś nowego
+	</string>
+	<string name="paid_you_ldollars">
+		[NAME] zapłacił Ci L$[AMOUNT]
+	</string>
+	<string name="you_paid_ldollars">
+		Zapłacono [NAME] [AMOUNT]L$ [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		Zapłacono [NAME] [AMOUNT]L$.
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		Zapłacono [AMOUNT]L$ [REASON].
+	</string>
+	<string name="for a parcel of land">
+		za posiadłość
+	</string>
+	<string name="for a land access pass">
+		za przepustkę na Posiadłość
+	</string>
+	<string name="for deeding land">
+		dla przypisania Posiadłości
+	</string>
+	<string name="to create a group">
+		aby stworzyć grupę
+	</string>
+	<string name="to join a group">
+		aby dołączyć do grupy
+	</string>
+	<string name="to upload">
+		aby pobrać
+	</string>
+	<string name="giving">
+		Dajesz L$ [AMOUNT]
+	</string>
+	<string name="uploading_costs">
+		Ładowanie kosztuje [AMOUNT]L$
+	</string>
+	<string name="this_costs">
+		To kosztuje [AMOUNT]L$
+	</string>
+	<string name="buying_selected_land">
+		Kupno wybranej Posiadłości [AMOUNT]L$
+	</string>
+	<string name="this_object_costs">
+		Ten obiekt kosztuje [AMOUNT]L$
+	</string>
+	<string name="group_role_everyone">
+		Każdy
+	</string>
+	<string name="group_role_officers">
+		Oficerowie
+	</string>
+	<string name="group_role_owners">
+		Właściciele
+	</string>
+	<string name="uploading_abuse_report">
+		Pobieranie...
+  
+Raport o Nadużyciu
+	</string>
+	<string name="New Shape">
+		Nowy ksztalt
+	</string>
+	<string name="New Skin">
+		Nowa skórka
+	</string>
+	<string name="New Hair">
+		Nowe włosy
+	</string>
+	<string name="New Eyes">
+		Nowe oczy
+	</string>
+	<string name="New Shirt">
+		Nowa koszula
+	</string>
+	<string name="New Pants">
+		Nowe spodnie
+	</string>
+	<string name="New Shoes">
+		Nowe buty
+	</string>
+	<string name="New Socks">
+		Nowe skarpetki
+	</string>
+	<string name="New Jacket">
+		Nowa kurtka
+	</string>
+	<string name="New Gloves">
+		Nowe rękawiczki
+	</string>
+	<string name="New Undershirt">
+		Nowy podkoszulek
+	</string>
+	<string name="New Underpants">
+		Nowa bielizna
+	</string>
+	<string name="New Skirt">
+		Nowa spódnica
+	</string>
+	<string name="New Alpha">
+		Nowa Alpha
+	</string>
+	<string name="New Tattoo">
+		Nowy tatuaż
+	</string>
+	<string name="Invalid Wearable">
+		Nieaktualne ubranie/część ciała
+	</string>
+	<string name="New Script">
+		Nowy skrypt
+	</string>
+	<string name="New Folder">
+		Nowy folder
+	</string>
+	<string name="Contents">
+		Zawartość
 	</string>
 </strings>

@@ -1,32 +1,32 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Water Floater" title="ZAAWANSOWANY EDYTOR WODY">
 	<text name="KeyFramePresetsText">
-		Ustawienia Wody:
+		Ustawienia wody:
 	</text>
-	<button label="Nowe" label_selected="Nowe" name="WaterNewPreset" />
-	<button label="Zapisz" label_selected="Zapisz" name="WaterSavePreset" />
-	<button label="Usuń" label_selected="Usuń" name="WaterDeletePreset" />
+	<button label="Nowe" label_selected="Nowe" name="WaterNewPreset"/>
+	<button label="Zapisz" label_selected="Zapisz" name="WaterSavePreset"/>
+	<button label="Usuń" label_selected="Usuń" name="WaterDeletePreset"/>
 	<tab_container name="Water Tabs">
-		<panel label="Ustawienia" name="Settings">
+		<panel label="USTAWIENIA" name="Settings">
 			<text name="BHText">
-				Kolor Podwodnej Mgły
+				Kolor podwodnej mgły
 			</text>
-			<button label="?" name="WaterFogColorHelp" />
-			<color_swatch label="" name="WaterFogColor" tool_tip="Kliknij by wybrać kolor" />
+			<button label="?" name="WaterFogColorHelp"/>
+			<color_swatch label="" name="WaterFogColor" tool_tip="Kliknij aby wybrać kolor"/>
 			<text name="WaterFogDensText">
-				Wykładnik Gęstości Mgły
+				Wykładnik gęstości mgły
 			</text>
-			<button label="?" name="WaterFogDensityHelp" />
-			<slider label="" name="WaterFogDensity" />
+			<button label="?" name="WaterFogDensityHelp"/>
+			<slider label="" name="WaterFogDensity"/>
 			<text name="WaterUnderWaterFogModText">
-				Modyfikator Mgły
+				Modyfikator mgły
 			</text>
-			<button label="?" name="WaterUnderWaterFogModHelp" />
-			<slider label="" name="WaterUnderWaterFogMod" />
+			<button label="?" name="WaterUnderWaterFogModHelp"/>
+			<slider label="" name="WaterUnderWaterFogMod"/>
 			<text name="BDensText">
-				Skala Zmarszczeń
+				Skala zmarszczeń
 			</text>
-			<button label="?" name="WaterNormalScaleHelp" />
+			<button label="?" name="WaterNormalScaleHelp"/>
 			<text name="BHText2">
 				1
 			</text>
@@ -36,65 +36,65 @@
 			<text name="BHText4">
 				3
 			</text>
-			<slider label="" name="WaterNormalScaleX" />
-			<slider label="" name="WaterNormalScaleY" />
-			<slider label="" name="WaterNormalScaleZ" />
+			<slider label="" name="WaterNormalScaleX"/>
+			<slider label="" name="WaterNormalScaleY"/>
+			<slider label="" name="WaterNormalScaleZ"/>
 			<text name="HDText">
 				Skala Fresnela
 			</text>
-			<button label="?" name="WaterFresnelScaleHelp" />
-			<slider label="" name="WaterFresnelScale" />
+			<button label="?" name="WaterFresnelScaleHelp"/>
+			<slider label="" name="WaterFresnelScale"/>
 			<text name="FresnelOffsetText">
 				Przesunięcie Fresnela
 			</text>
-			<button label="?" name="WaterFresnelOffsetHelp" />
-			<slider label="" name="WaterFresnelOffset" />
+			<button label="?" name="WaterFresnelOffsetHelp"/>
+			<slider label="" name="WaterFresnelOffset"/>
 			<text name="DensMultText">
-				Górna Refrakcja
+				Górna refrakcja
 			</text>
-			<button label="?" name="WaterScaleAboveHelp" />
-			<slider label="" name="WaterScaleAbove" />
+			<button label="?" name="WaterScaleAboveHelp"/>
+			<slider label="" name="WaterScaleAbove"/>
 			<text name="WaterScaleBelowText">
-				Dolna Refrakcja
+				Dolna refrakcja
 			</text>
-			<button label="?" name="WaterScaleBelowHelp" />
-			<slider label="" name="WaterScaleBelow" />
+			<button label="?" name="WaterScaleBelowHelp"/>
+			<slider label="" name="WaterScaleBelow"/>
 			<text name="MaxAltText">
-				Mnożnik Rozmycia
+				Mnożnik rozmycia
 			</text>
-			<button label="?" name="WaterBlurMultiplierHelp" />
-			<slider label="" name="WaterBlurMult" />
+			<button label="?" name="WaterBlurMultiplierHelp"/>
+			<slider label="" name="WaterBlurMult"/>
 		</panel>
-		<panel label="Rysowanie" name="Waves">
+		<panel label="OBRAZ" name="Waves">
 			<text name="BHText">
-				Kierunek Dużych Fal
+				Kierunek dużych fal
 			</text>
-			<button label="?" name="WaterWave1Help" />
+			<button label="?" name="WaterWave1Help"/>
 			<text name="WaterWave1DirXText">
 				X
 			</text>
 			<text name="WaterWave1DirYText">
 				Y
 			</text>
-			<slider label="" name="WaterWave1DirX" />
-			<slider label="" name="WaterWave1DirY" />
+			<slider label="" name="WaterWave1DirX"/>
+			<slider label="" name="WaterWave1DirY"/>
 			<text name="BHText2">
-				Kierunek Małych Fal
+				Kierunek małych fal
 			</text>
-			<button label="?" name="WaterWave2Help" />
+			<button label="?" name="WaterWave2Help"/>
 			<text name="WaterWave2DirXText">
 				X
 			</text>
 			<text name="WaterWave2DirYText">
 				Y
 			</text>
-			<slider label="" name="WaterWave2DirX" />
-			<slider label="" name="WaterWave2DirY" />
+			<slider label="" name="WaterWave2DirX"/>
+			<slider label="" name="WaterWave2DirY"/>
 			<text name="BHText3">
-				Mapa Normalnych
+				Mapa normalnych
 			</text>
-			<button label="?" name="WaterNormalMapHelp" />
-			<texture_picker label="" name="WaterNormalMap" />
+			<button label="?" name="WaterNormalMapHelp"/>
+			<texture_picker label="" name="WaterNormalMap"/>
 		</panel>
 	</tab_container>
 	<string name="WLDefaultWaterNames">

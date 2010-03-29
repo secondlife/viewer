@@ -28,19 +28,22 @@
 	<text name="Cache location">
 		Localização do cache:
 	</text>
-	<button label="Navegar" label_selected="Navegar" name="set_cache"/>
+	<button label="Procurar" label_selected="Procurar" name="set_cache"/>
 	<button label="Redefinir" label_selected="Redefinir" name="reset_cache"/>
 	<text name="Web:">
 		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Usar navegador incluso" name="internal" tool_tip="Use este navegador para consultar a ajuda, abrir links da web, etc. As janelas abrem dentro do [APP_NAME]." value="0"/>
 		<radio_item label="Usar meu navegador (IE, Firefox, Safari)" name="external" tool_tip="Use o navegador incluso para consultar a ajuda, abrir links da web, etc. Uso em tela inteira não recomendado." value="1"/>
+		<radio_item label="Usar navegador incluso" name="internal" tool_tip="Use este navegador para consultar a ajuda, abrir links da web, etc. As janelas abrem dentro do [APP_NAME]." value=""/>
 	</radio_group>
+	<check_box initial_value="verdadeiro" label="Habilitar plugins" name="browser_plugins_enabled"/>
+	<check_box initial_value="verdadeiro" label="Aceitar cookies" name="cookies_enabled"/>
+	<check_box initial_value="verdadeiro" label="Habilitar Javascript" name="browser_javascript_enabled"/>
 	<check_box initial_value="false" label="Ativar web proxy" name="web_proxy_enabled"/>
 	<text name="Proxy location">
 		Localização do proxy:
 	</text>
 	<line_editor name="web_proxy_editor" tool_tip="O nome ou endereço IP do proxy da sua preferência"/>
-	<spinner label="Número da porta:" name="web_proxy_port"/>
+	<spinner label="Porta:" name="web_proxy_port"/>
 </panel>

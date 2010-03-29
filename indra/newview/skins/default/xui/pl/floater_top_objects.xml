@@ -1,55 +1,56 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="Główne Obiekty">
+	<floater.string name="top_scripts_title">
+		Główne skrypty
+	</floater.string>
+	<floater.string name="top_scripts_text">
+		[COUNT] skryptów działa w czasie [TIME] ms
+	</floater.string>
+	<floater.string name="scripts_score_label">
+		Czas
+	</floater.string>
+	<floater.string name="scripts_mono_time_label">
+		Mono Time
+	</floater.string>
+	<floater.string name="top_colliders_title">
+		Główne kolizje
+	</floater.string>
+	<floater.string name="top_colliders_text">
+		[COUNT] obiektów odczuwa działanie wielu potencjalnych kolizji
+	</floater.string>
+	<floater.string name="colliders_score_label">
+		Wynik
+	</floater.string>
+	<floater.string name="none_descriptor">
+		Nieodnalezione
+	</floater.string>
 	<text name="title_text">
 		Ładowanie...
 	</text>
 	<scroll_list name="objects_list">
-		<column label="Wynik" name="score"/>
-		<column label="Nazwa" name="name"/>
-		<column label="Właściciel" name="owner"/>
-		<column label="Miejsce" name="location"/>
-		<column label="Czas" name="time"/>
-		<column label="Mono Time" name="mono_time"/>
+		<scroll_list.columns label="Wynik" name="score"/>
+		<scroll_list.columns label="Nazwa" name="name"/>
+		<scroll_list.columns label="Właściciel" name="owner"/>
+		<scroll_list.columns label="Miejsce" name="location"/>
+		<scroll_list.columns label="Czas" name="time"/>
+		<scroll_list.columns label="Mono Time" name="mono_time"/>
+		<scroll_list.columns label="URL" name="URLs"/>
 	</scroll_list>
 	<text name="id_text">
-		ID Obiektu:
+		ID obiektu:
 	</text>
-	<button label="Pokaż Emitery" name="show_beacon_btn"/>
+	<button label="Pokaż emitery" name="show_beacon_btn"/>
 	<text name="obj_name_text">
-		Nazwa Obiektu:
+		Nazwa obiektu:
 	</text>
 	<button label="Filtr" name="filter_object_btn"/>
 	<text name="owner_name_text">
 		Właściciel:
 	</text>
 	<button label="Filter" name="filter_owner_btn"/>
-	<button label="Zwróć Wybrane" name="return_selected_btn"/>
-	<button label="Zwróć Wszystko" name="return_all_btn"/>
-	<button label="Deaktywuj Wybrane" name="disable_selected_btn"/>
-	<button label="Deaktywuj Wszystko" name="disable_all_btn"/>
 	<button label="Odśwież" name="refresh_btn"/>
-	<string name="top_scripts_title">
-		Główne Skrypty
-	</string>
-	<string name="top_scripts_text">
-		[COUNT] skryptów działa w czasie [TIME] ms
-	</string>
-	<string name="scripts_score_label">
-		Czas
-	</string>
-	<string name="scripts_mono_time_label">
-		Mono Time
-	</string>
-	<string name="top_colliders_title">
-		Główne Kolizje
-	</string>
-	<string name="top_colliders_text">
-		[COUNT] obiektów odczuwa działanie wielu potencjalnych kolizji
-	</string>
-	<string name="colliders_score_label">
-		Wynik
-	</string>
-	<string name="none_descriptor">
-		Nie odnalezione
-	</string>
+	<button label="Zwróć wybrane" name="return_selected_btn"/>
+	<button label="Zwróć wszystko" name="return_all_btn"/>
+	<button label="Deaktywuj wybrane" name="disable_selected_btn"/>
+	<button label="Deaktywuj wszystko" name="disable_all_btn"/>
 </floater>

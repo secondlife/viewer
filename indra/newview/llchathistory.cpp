@@ -646,7 +646,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		p.left_pad = mLeftWidgetPad;
 		p.right_pad = mRightWidgetPad;
 		p.view = separator;
-		mEditor->appendWidget(p, "\n", false);
+		//mEditor->appendWidget(p, "\n", false);  // TODO: this is absolute minimal fix for EXT-3818 because it's late for 2.0
+		mEditor->appendWidget(p, "", false);      // This should be properly fixed in 2.1
 
 		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
 
@@ -834,7 +835,6 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			message = chat.mFromName + message;
 		}
 		
-
 		mEditor->appendText(message, FALSE, style_params);
 	}
 	mEditor->blockUndo();

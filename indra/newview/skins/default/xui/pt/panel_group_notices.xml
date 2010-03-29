@@ -19,10 +19,10 @@ Cada grupo pode enviar no máximo 200 avisos/dia
 		Nenhum resultado foi encontrado.
 	</text>
 	<button label="Criar um novo aviso" label_selected="Criar nova notícia" name="create_new_notice" tool_tip="Criar um novo aviso"/>
-	<button label="Atualizar" label_selected="Atualizar Lista" name="refresh_notices" tool_tip="Atualizar lista de avisos"/>
+	<button label="Atualizar" label_selected="Atualizar lista" name="refresh_notices" tool_tip="Atualizar lista de avisos"/>
 	<panel label="Criar nova notícia" name="panel_create_new_notice">
 		<text name="lbl">
-			Criar uma notícia
+			Criar  notícia
 		</text>
 		<text left="20" name="lbl3">
 			Assunto:
@@ -43,7 +43,7 @@ Cada grupo pode enviar no máximo 200 avisos/dia
 		<button label="Enviar" label_selected="Enviar" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="Arrastar um item do inventário para a caixa para enviá-lo com o aviso. É preciso ter autorização de cópia e transferência do item para anexá-lo ao aviso."/>
 	</panel>
-	<panel label="Visualizar Notícia Anterior" name="panel_view_past_notice">
+	<panel label="Visualizar notícia anterior" name="panel_view_past_notice">
 		<text name="lbl">
 			Notícia arquivada
 		</text>

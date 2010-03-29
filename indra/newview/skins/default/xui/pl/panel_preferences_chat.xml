@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Czat/IM" name="chat">
+	<text name="font_size">
+		Rozmiar czcionki:
+	</text>
 	<radio_group name="chat_font_size">
-		<radio_item label="Mała" name="radio"/>
-		<radio_item label="Średnia" name="radio2"/>
-		<radio_item label="Duża" name="radio3"/>
+		<radio_item label="Mała" name="radio" value="0"/>
+		<radio_item label="Średnia" name="radio2" value="1"/>
+		<radio_item label="Duża" name="radio3" value="2"/>
 	</radio_group>
+	<text name="font_colors">
+		Kolor czcionki:
+	</text>
 	<color_swatch label="Ty" name="user"/>
 	<text name="text_box1">
 		Ja
@@ -39,4 +45,14 @@
 	</text>
 	<check_box initial_value="true" label="Używaj animacji podczas pisania" name="play_typing_animation"/>
 	<check_box label="Wysyłaj wszystkie wiadomości (IM) na moją skrzynkę pocztową kiedy jestem niedostępny" name="send_im_to_email"/>
+	<text name="show_ims_in_label">
+		Pokaż wiadomości (IM) w:
+	</text>
+	<text name="requires_restart_label">
+		(restart wymagany)
+	</text>
+	<radio_group name="chat_window" tool_tip="Pokaż wiadomości IM osobno lub razem (restart wymagany)">
+		<radio_item label="Osobne okna" name="radio" value="0"/>
+		<radio_item label="Etykiety" name="radio2" value="1"/>
+	</radio_group>
 </panel>

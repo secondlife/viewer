@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_gesture_gear">
-	<menu_item_call label="Aggiungi/Cancella dai favoriti" name="activate"/>
+	<menu_item_call label="Aggiungi/Rimuovi dai preferiti" name="activate"/>
 	<menu_item_call label="Copia" name="copy_gesture"/>
 	<menu_item_call label="Incolla" name="paste"/>
 	<menu_item_call label="Copia UUID" name="copy_uuid"/>

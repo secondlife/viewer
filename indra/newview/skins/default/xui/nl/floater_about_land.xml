@@ -407,7 +407,7 @@ of opgedeeld.
 			<text name="at URL:">
 				Media URL:
 			</text>
-			<button label="Instellen..." label_selected="Instellen..." name="set_media_url" width="66"/>
+			<button label="Instellen" name="set_media_url"/>
 			<text name="Description:">
 				Omschrijving:
 			</text>

@@ -559,21 +559,26 @@ Leyla Linden               </text>
          left="0"
          top="0"
          help_topic="land_covenant_tab"
-         name="land_covenant_panel">
+         name="land_covenant_panel"
+         word_wrap="true">
             <panel.string
-             name="can_resell">
+             name="can_resell"
+             word_wrap="true">
                 Purchased land in this region may be resold.
             </panel.string>
             <panel.string
-             name="can_not_resell">
+             name="can_not_resell"
+             word_wrap="true">
                 Purchased land in this region may not be resold.
             </panel.string>
             <panel.string
-             name="can_change">
+             name="can_change"
+             word_wrap="true">
                 Purchased land in this region may be joined or subdivided.
             </panel.string>
             <panel.string
-             name="can_not_change">
+             name="can_not_change"
+             word_wrap="true">
                 Purchased land in this region may not be joined or subdivided.
             </panel.string>
             <text
@@ -748,6 +753,7 @@ Leyla Linden               </text>
              left_pad="10"
              mouse_opaque="false"
              name="resellable_clause"
+             word_wrap="true"
              width="330">
                 Land in this region may not be resold.
             </text>
@@ -1234,7 +1240,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="edit objects check"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1260,7 +1266,7 @@ Only large parcels can be listed in search.
              left_pad="2"
              name="all object entry check"
              top_delta="0"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1287,7 +1293,7 @@ Only large parcels can be listed in search.
              left_pad="2"
              name="check other scripts"
              top_delta="0"
-             width="120" />
+             width="130" />
             <check_box
              height="16"
              label="Group"
@@ -1341,7 +1347,7 @@ Only large parcels can be listed in search.
              left="30"
              name="land category with adult"
              visible="false"
-             width="130">
+             width="140">
                 <combo_box.item
                  label="Any Category"
                  name="item0"
@@ -1402,7 +1408,7 @@ Only large parcels can be listed in search.
              left="30"
              name="land category"
              visible="false"
-             width="130">
+             width="140">
                 <combo_box.item
                  label="Any Category"
                  name="item0"
@@ -1619,7 +1625,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="5"
              name="set_media_url"
-             width="50"
+             width="70"
              top_delta="0"/>
             <check_box
              follows="top|left"

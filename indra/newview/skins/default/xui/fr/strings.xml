@@ -1671,7 +1671,10 @@
 		Annuler
 	</string>
 	<string name="UploadingCosts">
-		Charger %s coûte
+		Le chargement de [NAME] coûte [AMOUNT] L$
+	</string>
+	<string name="BuyingCosts">
+		Cet achat coûte [AMOUNT] L$
 	</string>
 	<string name="UnknownFileExtension">
 		Extension de fichier inconnue .%s
@@ -3461,20 +3464,47 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="paid_you_ldollars">
 		[NAME] vous a payé [AMOUNT] L$
 	</string>
+	<string name="you_paid_ldollars">
+		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		Vous avez payé à [NAME] [AMOUNT] L$.
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="for a parcel of land">
+		pour une parcelle de terrain
+	</string>
+	<string name="for a land access pass">
+		pour un pass d&apos;accès au terrain
+	</string>
+	<string name="for deeding land">
+		pour une cession de terrain
+	</string>
+	<string name="to create a group">
+		pour créer un groupe
+	</string>
+	<string name="to join a group">
+		pour rejoindre un groupe
+	</string>
+	<string name="to upload">
+		pour charger
+	</string>
 	<string name="giving">
-		Giving
+		Donner [AMOUNT] L$
 	</string>
 	<string name="uploading_costs">
-		Chargement des coûts
+		Le chargement coûte [AMOUNT] L$
 	</string>
 	<string name="this_costs">
-		This costs
+		Cela coûte [AMOUNT] L$
 	</string>
 	<string name="buying_selected_land">
-		Achat du terrain sélectionné
+		Achat du terrain sélectionné pour [AMOUNT] L$
 	</string>
 	<string name="this_object_costs">
-		This object costs&quot;
+		Cet objet coûte [AMOUNT] L$
 	</string>
 	<string name="group_role_everyone">
 		Tous
@@ -3484,5 +3514,67 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="group_role_owners">
 		Propriétaires
+	</string>
+	<string name="uploading_abuse_report">
+		Chargement en cours... 
+
+de l&apos;infraction signalée
+	</string>
+	<string name="New Shape">
+		Nouvelle silhouette
+	</string>
+	<string name="New Skin">
+		Nouvelle peau
+	</string>
+	<string name="New Hair">
+		Nouveaux cheveux
+	</string>
+	<string name="New Eyes">
+		Nouveaux yeux
+	</string>
+	<string name="New Shirt">
+		Nouvelle chemise
+	</string>
+	<string name="New Pants">
+		Nouveau pantalon
+	</string>
+	<string name="New Shoes">
+		Nouvelles chaussures
+	</string>
+	<string name="New Socks">
+		Nouvelles chaussettes
+	</string>
+	<string name="New Jacket">
+		Nouvelle veste
+	</string>
+	<string name="New Gloves">
+		Nouveaux gants
+	</string>
+	<string name="New Undershirt">
+		Nouveau débardeur
+	</string>
+	<string name="New Underpants">
+		Nouveau caleçon
+	</string>
+	<string name="New Skirt">
+		Nouvelle jupe
+	</string>
+	<string name="New Alpha">
+		Nouvel alpha
+	</string>
+	<string name="New Tattoo">
+		Nouveau tatouage
+	</string>
+	<string name="Invalid Wearable">
+		Objet à porter non valide
+	</string>
+	<string name="New Script">
+		Nouveau script
+	</string>
+	<string name="New Folder">
+		Nouveau dossier
+	</string>
+	<string name="Contents">
+		Contenus
 	</string>
 </strings>

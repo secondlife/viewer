@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="MÓJ AWATAR" name="script_limits_my_avatar_panel">
+	<text name="script_memory">
+		Zużycie Skryptów przez Awatara
+	</text>
+	<text name="loading_text">
+		Ładowanie...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Rozmiar (kb)" name="size"/>
+		<scroll_list.columns label="URL" name="urls"/>
+		<scroll_list.columns label="Nazwa Obiektu" name="name"/>
+		<scroll_list.columns label="Lokalizacja" name="location"/>
+	</scroll_list>
+	<button label="Odśwież listę" name="refresh_list_btn"/>
+</panel>

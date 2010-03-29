@@ -3,7 +3,7 @@
 	<menu_item_call label="Alzati" name="Stand Up"/>
 	<context_menu label="Togli  ▶" name="Take Off &gt;">
 		<context_menu label="Abiti  ▶" name="Clothes &gt;">
-			<menu_item_call label="Gonna" name="Shirt"/>
+			<menu_item_call label="Camicia" name="Shirt"/>
 			<menu_item_call label="Pantaloni" name="Pants"/>
 			<menu_item_call label="Gonna" name="Skirt"/>
 			<menu_item_call label="Scarpe" name="Shoes"/>
@@ -13,15 +13,15 @@
 			<menu_item_call label="Maglietta intima" name="Self Undershirt"/>
 			<menu_item_call label="Slip" name="Self Underpants"/>
 			<menu_item_call label="Tatuaggio" name="Self Tattoo"/>
-			<menu_item_call label="Alfa (trasparenza)" name="Self Alpha"/>
+			<menu_item_call label="Alpha (Trasparenza)" name="Self Alpha"/>
 			<menu_item_call label="Tutti gli abiti" name="All Clothes"/>
 		</context_menu>
 		<context_menu label="HUD  ▶" name="Object Detach HUD"/>
 		<context_menu label="Stacca  ▶" name="Object Detach"/>
 		<menu_item_call label="Stacca tutto" name="Detach All"/>
 	</context_menu>
-	<menu_item_call label="Il mio aspetto fisico" name="Appearance..."/>
-	<menu_item_call label="I miei amici" name="Friends..."/>
+	<menu_item_call label="Il mio aspetto" name="Appearance..."/>
+	<menu_item_call label="I miei amici..." name="Friends..."/>
 	<menu_item_call label="I miei gruppi" name="Groups..."/>
 	<menu_item_call label="Il mio profilo" name="Profile..."/>
 </context_menu>

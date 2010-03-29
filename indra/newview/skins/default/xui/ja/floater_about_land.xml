@@ -318,21 +318,21 @@
 			</text>
 			<check_box label="地形を編集" name="edit land check" tool_tip="チェックを入れると、他人があなたの土地の地形編集を行うことが可能となります。このオプションのチェックを外しておくことをおすすめします。外した状態であなたの土地の地形編集が可能です。"/>
 			<check_box label="飛行" name="check fly" tool_tip="チェックを入れるとこの土地での飛行が可能となります。チェックを外すと土地に入る際と通り過ぎるときのみ飛行可能となります。"/>
-			<text left="138" name="allow_label2" width="144">
+			<text name="allow_label2">
 				制作：
 			</text>
-			<check_box label="全員" left="280" name="edit objects check"/>
-			<check_box label="グループ" left="380" name="edit group objects check"/>
-			<text left="138" name="allow_label3" width="144">
+			<check_box label="全員" name="edit objects check"/>
+			<check_box label="グループ" name="edit group objects check"/>
+			<text name="allow_label3">
 				オブジェクトの進入：
 			</text>
-			<check_box label="全員" left="280" name="all object entry check"/>
-			<check_box label="グループ" left="380" name="group object entry check"/>
-			<text left="138" name="allow_label4" width="144">
+			<check_box label="全員" name="all object entry check"/>
+			<check_box label="グループ" name="group object entry check"/>
+			<text name="allow_label4">
 				スクリプトの実行：
 			</text>
-			<check_box label="全員" left="280" name="check other scripts"/>
-			<check_box label="グループ" left="380" name="check group scripts"/>
+			<check_box label="全員" name="check other scripts"/>
+			<check_box label="グループ" name="check group scripts"/>
 			<text name="land_options_label">
 				土地オプション：
 			</text>
@@ -395,7 +395,7 @@
 			<text name="at URL:">
 				ホームページ：
 			</text>
-			<button label="設定" label_selected="設定..." name="set_media_url"/>
+			<button label="設定" name="set_media_url"/>
 			<check_box label="URL を非表示" name="hide_media_url" tool_tip="このオプションをオンにすると、許可なしでこの区画情報にアクセスしているユーザーにはメディア URL が表示されません。 これは HTML タイプには使用できませんのでご注意ください。"/>
 			<text name="Description:">
 				説明：

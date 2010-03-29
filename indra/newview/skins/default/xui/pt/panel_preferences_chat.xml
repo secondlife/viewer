@@ -5,7 +5,7 @@
 	</text>
 	<radio_group name="chat_font_size">
 		<radio_item label="Pequeno" name="radio" value="0"/>
-		<radio_item label="Média" name="radio2" value="1"/>
+		<radio_item label="Médio" name="radio2" value="1"/>
 		<radio_item label="Grande" name="radio3" value="2"/>
 	</radio_group>
 	<text name="font_colors">
@@ -44,8 +44,14 @@
 		URLs
 	</text>
 	<check_box initial_value="true" label="Executar animação digitada quando estiver conversando" name="play_typing_animation"/>
-	<check_box label="Envie MIs por email quando eu estiver desconectado" name="send_im_to_email"/>
-	<radio_group name="chat_window" tool_tip="Exibir cada bate-papo em uma janela separada, ou exibir todos em uma única janela com uma aba para cada pessoa (requer reinício)">
+	<check_box label="Enviar MIs por email se estiver desconectado" name="send_im_to_email"/>
+	<text name="show_ims_in_label">
+		Mostrar MIs em:
+	</text>
+	<text name="requires_restart_label">
+		(Reinicie para ativar)
+	</text>
+	<radio_group name="chat_window" tool_tip="Exibir cada bate-papo em uma janela separada ou exibir todos em uma única janela com uma aba para cada pessoa (requer reinício)">
 		<radio_item label="Janelas separadas" name="radio" value="0"/>
 		<radio_item label="Guias" name="radio2" value="1"/>
 	</radio_group>

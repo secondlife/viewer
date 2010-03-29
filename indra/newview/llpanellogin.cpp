@@ -797,7 +797,6 @@ void LLPanelLogin::setLocation(const LLSLURL& slurl)
 {
 	LLStartUp::setStartSLURL(slurl);
 	updateServer();
-	
 }
 
 // static

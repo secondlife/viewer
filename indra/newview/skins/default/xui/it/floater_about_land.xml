@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterland" title="INFO SUL TERRENO">
+<floater name="floaterland" title="INFORMAZIONI SUL TERRENO">
+	<floater.string name="maturity_icon_general">
+		&quot;Parcel_PG_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_moderate">
+		&quot;Parcel_M_Dark&quot;
+	</floater.string>
+	<floater.string name="maturity_icon_adult">
+		&quot;Parcel_R_Dark&quot;
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] minuti
 	</floater.string>
@@ -10,12 +19,12 @@
 		[SECONDS] secondi
 	</floater.string>
 	<floater.string name="Remaining">
-		restante
+		rimanenti
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="GENERALE" name="land_general_panel">
 			<panel.string name="new users only">
-				Solo ai nuovi residenti
+				Soltanto nuovi residenti
 			</panel.string>
 			<panel.string name="anyone">
 				A chiunque
@@ -135,7 +144,7 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 			<button label="Reclama la terra" name="Reclaim Land..."/>
 			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere posseduta, con contenuto impostato, e non già messa in asta."/>
 		</panel>
-		<panel label="COVENANT" name="land_covenant_panel">
+		<panel label="REGOLAMENTO" name="land_covenant_panel">
 			<panel.string name="can_resell">
 				La terra acquistata in questa regione può essere rivenduta.
 			</panel.string>
@@ -199,7 +208,7 @@ o suddivisa.
 				La terra in questa regione non può essere unita/suddivisa.
 			</text>
 		</panel>
-		<panel label="OBJECTS" name="land_objects_panel">
+		<panel label="OGGETTI" name="land_objects_panel">
 			<panel.string name="objects_available_text">
 				[COUNT] dei [MAX] ([AVAILABLE] disponibili)
 			</panel.string>
@@ -210,7 +219,7 @@ o suddivisa.
 				Fattore bonus degli oggetti della regione: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Uso dei Primative :
+				Uso dei Prim:
 			</text>
 			<text left="214" name="objects_available" width="230">
 				[COUNT] dei [MAX] ([AVAILABLE] dsponibili)
@@ -330,7 +339,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			</text>
 			<check_box label="Sicuro (senza danno)" name="check safe" tool_tip="Se spuntato, imposta il terreno su &apos;sicuro&apos;, disabilitando i danni da combattimento. Se non spuntato, viene abilitato il combattimento a morte."/>
 			<check_box label="Nessuna spinta" name="PushRestrictCheck" tool_tip="Previeni i colpi. Selezionare questa opzione può essere utile per prevenire comportamenti dannosi sul tuo terreno."/>
-			<check_box label="Mostra luogo nel Cerca (L$30/settimana)" name="ShowDirectoryCheck" tool_tip="Lascia che questa terra sia vista dagli altri nei risultati di ricerca"/>
+			<check_box label="Mostra luogo nella ricerca (30 L$/settimana)" name="ShowDirectoryCheck" tool_tip="Lascia che questa terra sia vista dagli altri nei risultati di ricerca"/>
 			<combo_box left="282" name="land category with adult" width="140">
 				<combo_box.item label="Tutte le categorie" name="item0"/>
 				<combo_box.item label="Luogo dei Linden" name="item1"/>
@@ -388,7 +397,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Home Page:
 			</text>
 			<line_editor left="97" name="media_url"/>
-			<button label="Imposta..." label_selected="Imposta..." name="set_media_url" width="63"/>
+			<button label="Imposta" name="set_media_url"/>
 			<check_box label="Nascondi indirizzo URL Media" left="94" name="hide_media_url" tool_tip="Abilitando questa opzione nasconderai l&apos;indirizzo url dei media a tutte le persone non autorizzate a vedere le informazioni del terreno. Nota che questo non è disponibile per contenuto di tipo HTML."/>
 			<text name="Description:">
 				Descrizione:
@@ -419,13 +428,16 @@ Media:
 		</panel>
 		<panel label="SUONO" name="land_audio_panel">
 			<check_box label="Nascondi URL" name="hide_music_url" tool_tip="Questa opzione consente di nascondere l&apos;url della musica a chi non è autorizzato a visionare le informazioni di questo parcel."/>
-			<check_box label="Attiva Voice" name="parcel_enable_voice_channel"/>
-			<check_box label="Attiva Voice (stabilito dalla Proprietà)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Attiva voce" name="parcel_enable_voice_channel"/>
+			<check_box label="Attiva voce (stabilito dalla proprietà)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Limita il chat vocale a questo lotto" name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="ACCESSO" name="land_access_panel">
 			<panel.string name="access_estate_defined">
-				(Definito dalla Proprietà)
+				(Definito dalla proprietà)
+			</panel.string>
+			<panel.string name="allow_public_access">
+				Consenti accesso pubblico ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
 				Una o più di queste impostazioni sono già impostate a livello regionale
@@ -433,11 +445,11 @@ Media:
 			<text name="Limit access to this parcel to:">
 				Accesso a questo terreno
 			</text>
-			<check_box label="Permetti Accesso Pubblico [MATURITY]" name="public_access"/>
+			<check_box label="Consenti l&apos;accesso pubblico [MATURITY]" name="public_access"/>
 			<text name="Only Allow">
-				Accesso ristretto ai Residenti verificati con:
+				Consenti l&apos;accesso soltanto ai residenti verificati tramite:
 			</text>
-			<check_box label="Informazioni di pagamento on File [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Espelli i residenti non identificati."/>
+			<check_box label="Informazioni di pagamento in archivio [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Espelli i residenti non identificati."/>
 			<check_box label="Verifica dell&apos;età [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Espelli i residenti che non hanno la loro età verificata. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 			<check_box label="Permetti accesso al gruppo: [GROUP]" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>
 			<check_box label="Vendi pass a:" name="PassCheck" tool_tip="Permetti in questo terreno l&apos;accesso temporaneo"/>

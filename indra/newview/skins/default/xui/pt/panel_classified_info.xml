@@ -18,9 +18,9 @@
 	<text name="title" value="Dados do anúncio"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text_editor name="classified_name" value="[nome]"/>
+			<text_editor name="classified_name" value="[name]"/>
 			<text name="classified_location_label" value="Localização:"/>
-			<text_editor name="classified_location" value="[carregando...]"/>
+			<text_editor name="classified_location" value="[loading...]"/>
 			<text name="content_type_label" value="Tipo de conteúdo:"/>
 			<text_editor name="content_type" value="[content type]"/>
 			<text name="category_label" value="Categoria:"/>
@@ -32,7 +32,7 @@
 			<layout_stack name="descr_stack">
 				<layout_panel name="clickthrough_layout_panel">
 					<text name="click_through_label" value="Cliques:"/>
-					<text_editor name="click_through_text" tool_tip="Dados de click-through" value="[cliques]"/>
+					<text_editor name="click_through_text" tool_tip="Dados de click-through" value="[clicks]"/>
 				</layout_panel>
 				<layout_panel name="price_layout_panel">
 					<text name="auto_renew_label" value="Renovação automática:"/>
@@ -40,7 +40,7 @@
 				</layout_panel>
 				<layout_panel name="descr_layout_panel">
 					<text name="classified_desc_label" value="Descrição:"/>
-					<text_editor name="classified_desc" value="[descrição]"/>
+					<text_editor name="classified_desc" value="[description]"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>

@@ -62,6 +62,9 @@ Spróbuj jeszcze raz za kilka minut.
 		<message name="completing">
 			Finalizowanie teleportacji.
 		</message>
+		<message name="completed_from">
+			Teleportacja zakończona z [T_SLURL]
+		</message>
 		<message name="resolving">
 			Namierzanie celu.
 		</message>

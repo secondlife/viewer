@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="ColorPicker" title="SELETTORE di COLORE">
+<floater name="ColorPicker" title="SELETTORE DI COLORE">
 	<text name="r_val_text">
 		Rosso:
 	</text>
@@ -24,7 +24,7 @@
 		Luminosità:
 	</text>
 	<spinner left="84" name="lspin" width="47"/>
-	<check_box label="Applica ora" name="apply_immediate"/>
+	<check_box label="Applica adesso" name="apply_immediate"/>
 	<button left_delta="150" name="color_pipette"/>
 	<button label="Annulla" label_selected="Annulla" left_delta="55" name="cancel_btn"/>
 	<button label="OK" label_selected="OK" name="select_btn"/>

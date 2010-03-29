@@ -5,11 +5,11 @@
 	<tab_container name="pref core" tab_width="146" width="646">
 		<panel label="Generale" name="general"/>
 		<panel label="Grafica" name="display"/>
-		<panel label="Privacy" name="im"/>
+		<panel label="Riservatezza" name="im"/>
 		<panel label="Audio e media" name="audio"/>
 		<panel label="Chat" name="chat"/>
 		<panel label="Notifiche" name="msgs"/>
-		<panel label="Configurazione" name="input"/>
-		<panel label="Avanzato" name="advanced1"/>
+		<panel label="Impostazione" name="input"/>
+		<panel label="Avanzate" name="advanced1"/>
 	</tab_container>
 </floater>

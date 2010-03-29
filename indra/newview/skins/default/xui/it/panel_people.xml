@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray panel -->
-<panel label="Persona" name="people_panel">
+<panel label="Persone" name="people_panel">
 	<string name="no_people" value="Nessuna persona"/>
 	<string name="no_one_near" value="Nessuno vicino"/>
 	<string name="no_friends_online" value="Nessun amico online"/>
 	<string name="no_friends" value="Nessun amico"/>
-	<string name="people_filter_label" value="Filtro Persone"/>
-	<string name="groups_filter_label" value="Filtro Gruppi"/>
+	<string name="people_filter_label" value="Filtro persone"/>
+	<string name="groups_filter_label" value="Filtro gruppi"/>
+	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups Try finding the group in search?]"/>
+	<string name="no_groups_msg" value="[secondlife:///app/search/groups Try searching for some groups to join.]"/>
 	<filter_editor label="Filtro" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="NELLE VICINANZE" name="nearby_panel">
@@ -18,15 +20,15 @@
 		<panel label="I MIEI AMICI" name="friends_panel">
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Online"/>
-				<accordion_tab name="tab_all" title="Tutti"/>
+				<accordion_tab name="tab_all" title="Tutto"/>
 			</accordion>
 			<panel label="bottom_panel" name="bottom_panel">
 				<button name="friends_viewsort_btn" tool_tip="Opzioni"/>
 				<button name="add_btn" tool_tip="Offri amicizia a un residente"/>
-				<button name="del_btn" tool_tip="Rimuovi la persona selezionata dalla tua lista di amici"/>
+				<button name="del_btn" tool_tip="Rimuovi la persona selezionata dalla lista degli amici"/>
 			</panel>
 			<text name="no_friends_msg">
-				Per aggiungere amici prova [secondlife:///app/search/people global search] o clicca su un utente per aggiungerlo come amico.
+				Per aggiungere amici, prova [secondlife:///app/search/people global search] oppure fai clic col pulsante destro del mouse su un residente per aggiungerlo come amico.
 Se stai cercando qualcuno da frequentare, [secondlife:///app/worldmap try the Map].
 			</text>
 		</panel>
@@ -46,11 +48,11 @@ Se stai cercando qualcuno da frequentare, [secondlife:///app/worldmap try the Ma
 	</tab_container>
 	<panel name="button_bar">
 		<button label="Profilo" name="view_profile_btn" tool_tip="Mostra immagine, gruppi e altre informazioni del residente"/>
-		<button label="IM" name="im_btn" tool_tip="Apri sessione instant message"/>
+		<button label="IM" name="im_btn" tool_tip="Apri una sessione messaggio istantaneo"/>
 		<button label="Chiama" name="call_btn" tool_tip="Chiama questo residente"/>
 		<button label="Condividi" name="share_btn"/>
 		<button label="Teleport" name="teleport_btn" tool_tip="Offri teleport"/>
-		<button label="Profilo del Gruppo" name="group_info_btn" tool_tip="Mostra info del gruppo"/>
+		<button label="Profilo del gruppo" name="group_info_btn" tool_tip="Mostra informazioni gruppo"/>
 		<button label="Chat di gruppo" name="chat_btn" tool_tip="Apri sessione chat"/>
 		<button label="Chiamata al gruppo" name="group_call_btn" tool_tip="Chiama questo gruppo"/>
 	</panel>

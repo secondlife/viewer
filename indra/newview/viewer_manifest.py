@@ -488,8 +488,8 @@ class WindowsManifest(ViewerManifest):
                 grid_vars_template = """
                 OutFile "%(installer_file)s"
                 !define INSTFLAGS "%(flags)s"
-                !define INSTNAME   "SecondLife"
-                !define SHORTCUT   "Second Life"
+                !define INSTNAME   "SecondLifeViewer2"
+                !define SHORTCUT   "Second Life Viewer 2"
                 !define URLNAME   "secondlife"
                 Caption "Second Life ${VERSION}"
                 """
@@ -698,7 +698,7 @@ class DarwinManifest(ViewerManifest):
 
 
     def package_finish(self):
-        channel_standin = 'Second Life'  # hah, our default channel is not usable on its own
+        channel_standin = 'Second Life Viewer 2'  # hah, our default channel is not usable on its own
         if not self.default_channel():
             channel_standin = self.channel()
 

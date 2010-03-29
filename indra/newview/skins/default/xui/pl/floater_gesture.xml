@@ -1,16 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="gestures" title="AKTYWNE GESTY">
-	<text name="help_label">
-		Kliknij podwójnie by aktywować głos i animację gestu.
-	</text>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Miejsca" name="gestures" title="GESTY">
+	<floater.string name="loading">
+		Ładowanie...
+	</floater.string>
+	<floater.string name="playing">
+		(Odtwarzanie)
+	</floater.string>
+	<floater.string name="copy_name">
+		Kopia [COPY_NAME]
+	</floater.string>
 	<scroll_list name="gesture_list">
-		<column label="Aktywuj" name="trigger" />
-		<column label="Klucz" name="shortcut" />
-		<column label="" name="key" />
-		<column label="Nazwa" name="name" />
+		<scroll_list.columns label="Nazwa" name="name"/>
+		<scroll_list.columns label="Czat" name="trigger"/>
+		<scroll_list.columns label="" name="key"/>
+		<scroll_list.columns label="Klucz" name="shortcut"/>
 	</scroll_list>
-	<button label="Nowy" name="new_gesture_btn" />
-	<button label="Edytuj" name="edit_btn" />
-	<button label="Odtwarzaj" name="play_btn" />
-	<button label="Zatrzymaj" name="stop_btn" />
+	<panel label="bottom_panel" name="bottom_panel">
+		<menu_button name="gear_btn" tool_tip="Więcej opcji"/>
+		<button name="new_gesture_btn" tool_tip="Stwórz nową gesturę"/>
+		<button name="activate_btn" tool_tip="Aktywuj/Dezaktywuj wybrany gest"/>
+		<button name="del_btn" tool_tip="Usuń gest"/>
+	</panel>
+	<button label="Edytuj" name="edit_btn"/>
+	<button label="Odtwarzaj" name="play_btn"/>
+	<button label="Zatrzymaj" name="stop_btn"/>
 </floater>

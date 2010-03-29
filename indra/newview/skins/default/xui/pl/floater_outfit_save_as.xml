@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container" title="Stwórz ubranie">
+	<button label="Zapisz" label_selected="Zapisz" name="Save"/>
+	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
+	<text name="Save item as:">
+		Zapisz to co mam w tej chwili założone
+jako nowy komplet ubrania:
+	</text>
+	<line_editor name="name ed">
+		[DESC] (nowy)
+	</line_editor>
+</floater>

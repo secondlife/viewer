@@ -31,7 +31,7 @@
 wszystkich posiadłościach majątku.
 	</text>
 	<text bottom_delta="-36" name="covenant_instructions">
-		Przeciągnij oraz wrzuć notkę by zmienić umowę dla tego majątku.
+		Przeciągnij oraz wrzuć notę by zmienić umowę dla tego majątku.
 	</text>
 	<text name="region_section_lbl">
 		Region
@@ -58,13 +58,13 @@ wszystkich posiadłościach majątku.
 		Odsprzedaj:
 	</text>
 	<text left="115" name="resellable_clause" width="350">
-		Posiadłość zakupiona w tym regionie nie może być odsprzedana.
+		Posiadłość kupiona w tym Regionie nie może być odsprzedana.
 	</text>
 	<text name="changeable_lbl">
 		Podziel:
 	</text>
 	<text left="115" name="changeable_clause" width="350">
-		Posiadłość zakupiona w tym regionie nie może być
+		Posiadłość kupiona w tym Regionie nie może być
 łączona/dzielona.
 	</text>
 	<string name="can_resell">

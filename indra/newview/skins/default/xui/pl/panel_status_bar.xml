@@ -7,7 +7,7 @@
 		Styczeń:Luty:Marzec:Kwiecień:Maj:Czerwiec:Lipiec:Styczeń:Wrzesień:Październik:Listopad:Grudzień
 	</panel.string>
 	<panel.string name="packet_loss_tooltip">
-		Utracone Pakiety
+		Utracone pakiety
 	</panel.string>
 	<panel.string name="bandwidth_tooltip">
 		Przepustowość
@@ -21,9 +21,11 @@
 	<panel.string name="buycurrencylabel">
 		L$ [AMT]
 	</panel.string>
-	<button label="" label_selected="" name="buycurrency" tool_tip="Stan Konta: Kliknij aby kupić więcej L$"/>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Bilans"/>
+	<button label="Kup" name="buyL" tool_tip="Kliknij aby kupić L$"/>
 	<text name="TimeText" tool_tip="Obecny Czas (Pacyficzny)">
-		12:00 AM
+		24:00 AM PST
 	</text>
+	<button name="media_toggle_btn" tool_tip="Start/Stop Wszystkie Media (Muzyka, Video, WWW)"/>
 	<button name="volume_btn" tool_tip="Regulacja Głośności"/>
 </panel>

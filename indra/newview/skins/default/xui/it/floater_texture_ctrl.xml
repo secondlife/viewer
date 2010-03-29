@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="texture picker" title="Foto: TEXTURE">
+<floater name="texture picker" title="PREFERITO: TEXTURE">
 	<string name="choose_picture">
 		Clicca per scegliere l&apos;immagine
 	</string>
 	<text name="Multiple">
-		Textures multiple
+		Texture multiple
 	</text>
 	<text name="unknown">
-		Misura: [Dimensions]
+		Dimensioni: [DIMENSIONS]
 	</text>
 	<button label="Default" label_selected="Default" name="Default"/>
 	<button label="Niente" label_selected="Niente" name="None"/>
 	<button label="Vuoto" label_selected="Vuoto" name="Blank"/>
 	<check_box label="Mostra cartelle" name="show_folders_check"/>
-	<search_editor label="Filtro Textures" name="inventory search editor"/>
-	<check_box label="Applica ora" name="apply_immediate_check"/>
+	<search_editor label="Filtro texture" name="inventory search editor"/>
+	<check_box label="Applica adesso" name="apply_immediate_check"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Select"/>
 	<string name="pick title">

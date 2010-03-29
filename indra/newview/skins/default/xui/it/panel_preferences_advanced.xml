@@ -3,6 +3,9 @@
 	<panel.string name="aspect_ratio_text">
 		[NUM]:[DEN]
 	</panel.string>
+	<panel.string name="middle_mouse">
+		Pulsante centrale del mouse
+	</panel.string>
 	<slider label="Angolo di visuale" name="camera_fov"/>
 	<slider label="Distanza" name="camera_offset_scale"/>
 	<text name="heading2">

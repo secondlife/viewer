@@ -16,40 +16,40 @@
 			</text>
 			<slider label="" name="wmiColorFilterContrast" />
 			<text name="wmiColorFilterBaseText">
-				Kontrast Koloru Podstawowego
+				Kontrast koloru podstawowego
 			</text>
 			<slider label="R" name="wmiColorFilterBaseR" />
 			<slider label="G" name="wmiColorFilterBaseG" />
 			<slider label="B" name="wmiColorFilterBaseB" />
 			<slider label="I" name="wmiColorFilterBaseI" />
 		</panel>
-		<panel label="Wizja Nocna" name="wmiNightVisionPanel">
+		<panel label="Wizja nocna" name="wmiNightVisionPanel">
 			<check_box label="Udostępnij" name="wmiNightVisionToggle" />
 			<text name="wmiNightVisionBrightMultText">
-				Wielokrotne Wzmocnienie Światła
+				Wielokrotne wzmocnienie światła
 			</text>
 			<slider label="" name="wmiNightVisionBrightMult" />
 			<text name="wmiNightVisionNoiseSizeText">
-				Rozmiar Szumu
+				Rozmiar szumu
 			</text>
 			<slider label="" name="wmiNightVisionNoiseSize" />
 			<text name="wmiNightVisionNoiseStrengthText">
-				Moc Szumu
+				Moc szumu
 			</text>
 			<slider label="" name="wmiNightVisionNoiseStrength" />
 		</panel>
 		<panel label="Bloom" name="wmiBloomPanel">
 			<check_box label="Udostępnij" name="wmiBloomToggle" />
 			<text name="wmiBloomExtractText">
-				Ekstracja Luminacji
+				Ekstracja luminacji
 			</text>
 			<slider label="" name="wmiBloomExtract" />
 			<text name="wmiBloomSizeText">
-				Rozmiar Rozmazania Obrazu
+				Rozmiar rozmazania obrazu
 			</text>
 			<slider label="" name="wmiBloomSize" />
 			<text name="wmiBloomStrengthText">
-				Moc Rozmazania Obrazu
+				Moc rozmazania obrazu
 			</text>
 			<slider label="" name="wmiBloomStrength" />
 		</panel>
