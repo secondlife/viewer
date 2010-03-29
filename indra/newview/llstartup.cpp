@@ -1760,7 +1760,7 @@ bool idle_startup()
 						// Could schedule and delay these for later.
 						const BOOL no_inform_server = FALSE;
 						const BOOL no_deactivate_similar = FALSE;
-						LLGestureManager::instance().activateGestureWithAsset(item_id, asset_id,
+						LLGestureMgr::instance().activateGestureWithAsset(item_id, asset_id,
 											 no_inform_server,
 											 no_deactivate_similar);
 						// We need to fetch the inventory items for these gestures
@@ -1769,7 +1769,7 @@ bool idle_startup()
 					}
 				}
 				// no need to add gesture to inventory observer, it's already made in constructor 
-				LLGestureManager::instance().fetchItems(item_ids);
+				LLGestureMgr::instance().fetchItems(item_ids);
 			}
 		}
 		gDisplaySwapBuffers = TRUE;

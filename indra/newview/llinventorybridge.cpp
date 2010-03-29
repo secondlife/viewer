@@ -260,7 +260,7 @@ void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batc
 		{
 			if(LLAssetType::AT_GESTURE == item->getType())
 			{
-				LLGestureManager::instance().deactivateGesture(item->getUUID());
+				LLGestureMgr::instance().deactivateGesture(item->getUUID());
 			}
 		}
 	}
@@ -276,7 +276,7 @@ void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batc
 			{
 				if(LLAssetType::AT_GESTURE == descendent_items[j]->getType())
 				{
-					LLGestureManager::instance().deactivateGesture(descendent_items[j]->getUUID());
+					LLGestureMgr::instance().deactivateGesture(descendent_items[j]->getUUID());
 				}
 			}
 		}
@@ -1748,9 +1748,9 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				{
 					LLInventoryItem* item = descendent_items[i];
 					if (item->getType() == LLAssetType::AT_GESTURE
-						&& LLGestureManager::instance().isGestureActive(item->getUUID()))
+						&& LLGestureMgr::instance().isGestureActive(item->getUUID()))
 					{
-						LLGestureManager::instance().deactivateGesture(item->getUUID());
+						LLGestureMgr::instance().deactivateGesture(item->getUUID());
 					}
 				}
 			}
@@ -2418,9 +2418,9 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 			const LLViewerInventoryItem* item = (*iter);
 			const LLUUID& item_id = item->getUUID();
 			if (item->getType() == LLAssetType::AT_GESTURE
-				&& LLGestureManager::instance().isGestureActive(item_id))
+				&& LLGestureMgr::instance().isGestureActive(item_id))
 			{
-				LLGestureManager::instance().deactivateGesture(item_id);
+				LLGestureMgr::instance().deactivateGesture(item_id);
 			}
 		}
 		
@@ -3081,9 +3081,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		if(accept && drop)
 		{
 			if (inv_item->getType() == LLAssetType::AT_GESTURE
-				&& LLGestureManager::instance().isGestureActive(inv_item->getUUID()) && move_is_into_trash)
+				&& LLGestureMgr::instance().isGestureActive(inv_item->getUUID()) && move_is_into_trash)
 			{
-				LLGestureManager::instance().deactivateGesture(inv_item->getUUID());
+				LLGestureMgr::instance().deactivateGesture(inv_item->getUUID());
 			}
 			// If an item is being dragged between windows, unselect
 			// everything in the active window so that we don't follow
@@ -3795,7 +3795,7 @@ LLUIImagePtr LLGestureBridge::getIcon() const
 
 LLFontGL::StyleFlags LLGestureBridge::getLabelStyle() const
 {
-	if( LLGestureManager::instance().isGestureActive(mUUID) )
+	if( LLGestureMgr::instance().isGestureActive(mUUID) )
 	{
 		return LLFontGL::BOLD;
 	}
@@ -3807,7 +3807,7 @@ LLFontGL::StyleFlags LLGestureBridge::getLabelStyle() const
 
 std::string LLGestureBridge::getLabelSuffix() const
 {
-	if( LLGestureManager::instance().isGestureActive(mUUID) )
+	if( LLGestureMgr::instance().isGestureActive(mUUID) )
 	{
 		LLStringUtil::format_map_t args;
 		args["[GESLABEL]"] =  LLItemBridge::getLabelSuffix();
@@ -3824,7 +3824,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 {
 	if (isAddAction(action))
 	{
-		LLGestureManager::instance().activateGesture(mUUID);
+		LLGestureMgr::instance().activateGesture(mUUID);
 
 		LLViewerInventoryItem* item = gInventory.getItem(mUUID);
 		if (!item) return;
@@ -3836,7 +3836,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 	}
 	else if (isRemoveAction(action))
 	{
-		LLGestureManager::instance().deactivateGesture(mUUID);
+		LLGestureMgr::instance().deactivateGesture(mUUID);
 
 		LLViewerInventoryItem* item = gInventory.getItem(mUUID);
 		if (!item) return;
@@ -3848,17 +3848,17 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 	}
 	else if("play" == action)
 	{
-		if(!LLGestureManager::instance().isGestureActive(mUUID))
+		if(!LLGestureMgr::instance().isGestureActive(mUUID))
 		{
 			// we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
 			BOOL inform_server = TRUE;
 			BOOL deactivate_similar = FALSE;
-			LLGestureManager::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
+			LLGestureMgr::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
 			LLViewerInventoryItem* item = gInventory.getItem(mUUID);
 			llassert(item);
 			if (item)
 			{
-				LLGestureManager::instance().activateGestureWithAsset(mUUID, item->getAssetUUID(), inform_server, deactivate_similar);
+				LLGestureMgr::instance().activateGestureWithAsset(mUUID, item->getAssetUUID(), inform_server, deactivate_similar);
 			}
 		}
 		else
@@ -3900,7 +3900,7 @@ BOOL LLGestureBridge::removeItem()
 	
 	// This will also force close the preview window, if it exists.
 	// This may actually delete *this, if mUUID is in the COF.
-	LLGestureManager::instance().deactivateGesture(item_id);
+	LLGestureMgr::instance().deactivateGesture(item_id);
 	
 	// If deactivateGesture deleted *this, then return out immediately.
 	if (!model->getObject(item_id))
@@ -3933,7 +3933,7 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Gesture Separator"));
-		if (LLGestureManager::instance().isGestureActive(getUUID()))
+		if (LLGestureMgr::instance().isGestureActive(getUUID()))
 		{
 			items.push_back(std::string("Deactivate"));
 		}
@@ -3948,13 +3948,13 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 // static
 void LLGestureBridge::playGesture(const LLUUID& item_id)
 {
-	if (LLGestureManager::instance().isGesturePlaying(item_id))
+	if (LLGestureMgr::instance().isGesturePlaying(item_id))
 	{
-		LLGestureManager::instance().stopGesture(item_id);
+		LLGestureMgr::instance().stopGesture(item_id);
 	}
 	else
 	{
-		LLGestureManager::instance().playGesture(item_id);
+		LLGestureMgr::instance().playGesture(item_id);
 	}
 }
 
@@ -4547,7 +4547,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 				LLViewerInventoryItem *gest_item = gest_item_array.get(i);
 				if (get_is_item_worn(gest_item->getUUID()))
 				{
-					LLGestureManager::instance().deactivateGesture( gest_item->getLinkedUUID() );
+					LLGestureMgr::instance().deactivateGesture( gest_item->getLinkedUUID() );
 					gInventory.updateItem( gest_item );
 					gInventory.notifyObservers();
 				}

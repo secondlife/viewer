@@ -3619,7 +3619,7 @@ void LLAppViewer::idle()
 		// Handle pending gesture processing
 		static LLFastTimer::DeclareTimer ftm("Agent Position");
 		LLFastTimer t(ftm);
-		LLGestureManager::instance().update();
+		LLGestureMgr::instance().update();
 
 		gAgent.updateAgentPosition(gFrameDTClamped, yaw, current_mouse.mX, current_mouse.mY);
 	}

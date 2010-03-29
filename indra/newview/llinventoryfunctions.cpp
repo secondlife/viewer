@@ -363,7 +363,7 @@ BOOL get_is_item_worn(const LLUUID& id)
 				return TRUE;
 			break;
 		case LLAssetType::AT_GESTURE:
-			if (LLGestureManager::instance().isGestureActive(item->getLinkedUUID()))
+			if (LLGestureMgr::instance().isGestureActive(item->getLinkedUUID()))
 				return TRUE;
 			break;
 		default:

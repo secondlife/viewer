@@ -2383,7 +2383,7 @@ EAcceptance LLToolDragAndDrop::dad3dActivateGesture(
 			}
 			else
 			{
-				LLGestureManager::instance().activateGesture(item->getUUID());
+				LLGestureMgr::instance().activateGesture(item->getUUID());
 				gInventory.updateItem(item);
 				gInventory.notifyObservers();
 			}

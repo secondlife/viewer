@@ -451,7 +451,7 @@ void LLWearableHoldingPattern::onAllComplete()
 	{
 		llinfos << "Activating " << mGestItems.count() << " gestures" << llendl;
 		
-		LLGestureManager::instance().activateGestures(mGestItems);
+		LLGestureMgr::instance().activateGestures(mGestItems);
 		
 		// Update the inventory item labels to reflect the fact
 		// they are active.
@@ -1008,9 +1008,9 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 		for(S32 i = 0; i  < gest_items.count(); ++i)
 		{
 			LLViewerInventoryItem *gest_item = gest_items.get(i);
-			if ( LLGestureManager::instance().isGestureActive( gest_item->getLinkedUUID()) )
+			if ( LLGestureMgr::instance().isGestureActive( gest_item->getLinkedUUID()) )
 			{
-				LLGestureManager::instance().deactivateGesture( gest_item->getLinkedUUID() );
+				LLGestureMgr::instance().deactivateGesture( gest_item->getLinkedUUID() );
 			}
 		}
 	}

@@ -54,7 +54,7 @@ public:
 	virtual void changed() = 0;
 };
 
-class LLGestureManager : public LLSingleton<LLGestureManager>, public LLInventoryFetchObserver
+class LLGestureMgr : public LLSingleton<LLGestureMgr>, public LLInventoryFetchObserver
 {
 public:
 
@@ -63,8 +63,8 @@ public:
 	typedef std::map<LLUUID, LLMultiGesture*> item_map_t;
 	typedef std::map<LLUUID, gesture_loaded_callback_t> callback_map_t;
 
-	LLGestureManager();
-	~LLGestureManager();
+	LLGestureMgr();
+	~LLGestureMgr();
 
 	void init();
 
