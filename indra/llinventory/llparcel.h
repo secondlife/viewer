@@ -258,7 +258,7 @@ public:
 	void setMediaURLResetTimer(F32 time);
 	virtual void	setLocalID(S32 local_id);
 
-	// blow away all the extra crap lurking in parcels, including urls, access lists, etc
+	// blow away all the extra stuff lurking in parcels, including urls, access lists, etc
 	void clearParcel();
 
 	// This value is not persisted out to the parcel file, it is only

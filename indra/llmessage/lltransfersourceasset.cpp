@@ -131,7 +131,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
 	*data_handle = tmpp;
 	if (!vf.read(tmpp, max_bytes))		/* Flawfinder: Ignore */
 	{
-		// Crap, read failure, need to deal with it.
+		// Read failure, need to deal with it.
 		delete[] tmpp;
 		*data_handle = NULL;
 		returned_bytes = 0;
