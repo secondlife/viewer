@@ -79,6 +79,7 @@
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
 #include "llvoicechannel.h"
+#include "llvoavatarself.h"
 #include "llsidetray.h"
 
 
@@ -356,7 +357,7 @@ void request_initial_instant_messages()
 	if (!requested
 		&& gMessageSystem
 		&& LLMuteList::getInstance()->isLoaded()
-		&& gAgent.getAvatarObject())
+		&& isAgentAvatarValid())
 	{
 		// Auto-accepted inventory items may require the avatar object
 		// to build a correct name.  Likewise, inventory offers from
@@ -3619,7 +3620,7 @@ void LLAppViewer::idle()
 		// Handle pending gesture processing
 		static LLFastTimer::DeclareTimer ftm("Agent Position");
 		LLFastTimer t(ftm);
-		LLGestureManager::instance().update();
+		LLGestureMgr::instance().update();
 
 		gAgent.updateAgentPosition(gFrameDTClamped, yaw, current_mouse.mX, current_mouse.mY);
 	}

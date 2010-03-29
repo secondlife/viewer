@@ -2692,11 +2692,10 @@ class LLSelfEnableRemoveAllAttachments : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		bool new_value = false;
-		if (gAgent.getAvatarObject())
+		if (isAgentAvatarValid())
 		{
-			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-			for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
-				 iter != avatarp->mAttachmentPoints.end(); )
+			for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+				 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 			{
 				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 				LLViewerJointAttachment* attachment = curiter->second;
@@ -2824,9 +2823,9 @@ bool handle_go_to()
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
 
-	if (gAgent.getAvatarObject() && !gSavedSettings.getBOOL("AutoPilotLocksCamera"))
+	if (isAgentAvatarValid() && !gSavedSettings.getBOOL("AutoPilotLocksCamera"))
 	{
-		gAgentCamera.setFocusGlobal(gAgentCamera.getFocusTargetGlobal(), gAgent.getAvatarObject()->getID());
+		gAgentCamera.setFocusGlobal(gAgentCamera.getFocusTargetGlobal(), gAgentAvatarp->getID());
 	}
 	else 
 	{
@@ -3365,7 +3364,7 @@ class LLSelfStandUp : public view_listener_t
 
 bool enable_standup_self()
 {
-	bool new_value = gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting();
+	bool new_value = isAgentAvatarValid() && gAgentAvatarp->isSitting();
 	return new_value;
 }
 
@@ -3694,9 +3693,9 @@ class LLLandSit : public view_listener_t
 		LLVector3d posGlobal = LLToolPie::getInstance()->getPick().mPosGlobal;
 		
 		LLQuaternion target_rot;
-		if (gAgent.getAvatarObject())
+		if (isAgentAvatarValid())
 		{
-			target_rot = gAgent.getAvatarObject()->getRotation();
+			target_rot = gAgentAvatarp->getRotation();
 		}
 		else
 		{
@@ -4587,13 +4586,9 @@ BOOL sitting_on_selection()
 	}
 
 	// Need to determine if avatar is sitting on this object
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if (!avatar)
-	{
-		return FALSE;
-	}
+	if (!isAgentAvatarValid()) return FALSE;
 
-	return (avatar->isSitting() && avatar->getRoot() == root_object);
+	return (gAgentAvatarp->isSitting() && gAgentAvatarp->getRoot() == root_object);
 }
 
 class LLToolsSaveToInventory : public view_listener_t
@@ -5846,7 +5841,7 @@ private:
 			S32 index = userdata.asInteger();
 			LLViewerJointAttachment* attachment_point = NULL;
 			if (index > 0)
-				attachment_point = get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, index, (LLViewerJointAttachment*)NULL);
+				attachment_point = get_if_there(gAgentAvatarp->mAttachmentPoints, index, (LLViewerJointAttachment*)NULL);
 			confirm_replace_attachment(0, attachment_point);
 		}
 		return true;
@@ -5867,8 +5862,8 @@ void near_attach_object(BOOL success, void *user_data)
 		U8 attachment_id = 0;
 		if (attachment)
 		{
-			for (LLVOAvatar::attachment_map_t::const_iterator iter = gAgent.getAvatarObject()->mAttachmentPoints.begin();
-				 iter != gAgent.getAvatarObject()->mAttachmentPoints.end(); ++iter)
+			for (LLVOAvatar::attachment_map_t::const_iterator iter = gAgentAvatarp->mAttachmentPoints.begin();
+				 iter != gAgentAvatarp->mAttachmentPoints.end(); ++iter)
 			{
 				if (iter->second == attachment)
 				{
@@ -5993,7 +5988,7 @@ class LLAttachmentDetachFromPoint : public view_listener_t
 {
 	bool handleEvent(const LLSD& user_data)
 	{
-		const LLViewerJointAttachment *attachment = get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, user_data.asInteger(), (LLViewerJointAttachment*)NULL);
+		const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, user_data.asInteger(), (LLViewerJointAttachment*)NULL);
 		if (attachment->getNumObjects() > 0)
 		{
 			gMessageSystem->newMessage("ObjectDetach");
@@ -6021,7 +6016,7 @@ static bool onEnableAttachmentLabel(LLUICtrl* ctrl, const LLSD& data)
 	LLMenuItemGL* menu = dynamic_cast<LLMenuItemGL*>(ctrl);
 	if (menu)
 	{
-		const LLViewerJointAttachment *attachment = get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, data["index"].asInteger(), (LLViewerJointAttachment*)NULL);
+		const LLViewerJointAttachment *attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, data["index"].asInteger(), (LLViewerJointAttachment*)NULL);
 		if (attachment)
 		{
 			label = data["label"].asString();
@@ -6139,7 +6134,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 		if (object && LLSelectMgr::getInstance()->getSelection()->contains(object,SELECT_ALL_TES ))
 		{
     		S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getState());
-			attachment = get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
+			attachment = get_if_there(gAgentAvatarp->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
 
 			if (attachment)
 			{
@@ -6271,8 +6266,8 @@ class LLAttachmentPointFilled : public view_listener_t
 	bool handleEvent(const LLSD& user_data)
 	{
 		bool enable = false;
-		LLVOAvatar::attachment_map_t::iterator found_it = gAgent.getAvatarObject()->mAttachmentPoints.find(user_data.asInteger());
-		if (found_it != gAgent.getAvatarObject()->mAttachmentPoints.end())
+		LLVOAvatar::attachment_map_t::iterator found_it = gAgentAvatarp->mAttachmentPoints.find(user_data.asInteger());
+		if (found_it != gAgentAvatarp->mAttachmentPoints.end())
 		{
 			enable = found_it->second->getNumObjects() > 0;
 		}
@@ -6468,13 +6463,13 @@ void handle_selected_texture_info(void*)
 
 void handle_test_male(void*)
 {
-	LLAppearanceManager::instance().wearOutfitByName("Male Shape & Outfit");
+	LLAppearanceMgr::instance().wearOutfitByName("Male Shape & Outfit");
 	//gGestureList.requestResetFromServer( TRUE );
 }
 
 void handle_test_female(void*)
 {
-	LLAppearanceManager::instance().wearOutfitByName("Female Shape & Outfit");
+	LLAppearanceMgr::instance().wearOutfitByName("Female Shape & Outfit");
 	//gGestureList.requestResetFromServer( FALSE );
 }
 
@@ -6489,15 +6484,10 @@ void handle_toggle_pg(void*)
 
 void handle_dump_attachments(void*)
 {
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if( !avatar )
-	{
-		llinfos << "NO AVATAR" << llendl;
-		return;
-	}
+	if(!isAgentAvatarValid()) return;
 
-	for (LLVOAvatar::attachment_map_t::iterator iter = avatar->mAttachmentPoints.begin(); 
-		 iter != avatar->mAttachmentPoints.end(); )
+	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+		 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;
@@ -6917,7 +6907,7 @@ void reload_vertex_shader(void *)
 
 void handle_dump_avatar_local_textures(void*)
 {
-	gAgent.getAvatarObject()->dumpLocalTextures();
+	gAgentAvatarp->dumpLocalTextures();
 }
 
 void handle_dump_timers()
@@ -6937,86 +6927,83 @@ void handle_debug_avatar_textures(void*)
 void handle_grab_texture(void* data)
 {
 	ETextureIndex tex_index = (ETextureIndex)((intptr_t)data);
-	const LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (avatarp)
+	if (!isAgentAvatarValid()) return;
+
+	// MULTI-WEARABLE: change to support an index
+	const LLUUID& asset_id = gAgentAvatarp->grabLocalTexture(tex_index, 0);
+	LL_INFOS("texture") << "Adding baked texture " << asset_id << " to inventory." << llendl;
+	LLAssetType::EType asset_type = LLAssetType::AT_TEXTURE;
+	LLInventoryType::EType inv_type = LLInventoryType::IT_TEXTURE;
+	const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(asset_type));
+	if(folder_id.notNull())
 	{
-		// MULTI-WEARABLE: change to support an index
-		const LLUUID& asset_id = avatarp->grabLocalTexture(tex_index, 0);
-		LL_INFOS("texture") << "Adding baked texture " << asset_id << " to inventory." << llendl;
-		LLAssetType::EType asset_type = LLAssetType::AT_TEXTURE;
-		LLInventoryType::EType inv_type = LLInventoryType::IT_TEXTURE;
-		const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(asset_type));
-		if(folder_id.notNull())
+		std::string name = "Unknown";
+		const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(tex_index);
+		if (texture_dict->mIsBakedTexture)
 		{
-			std::string name = "Unknown";
-			const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(tex_index);
-			if (texture_dict->mIsBakedTexture)
-			{
-				EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
-				name = "Baked " + LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_index)->mNameCapitalized;
-			}
-			name += " Texture";
-
-			LLUUID item_id;
-			item_id.generate();
-			LLPermissions perm;
-			perm.init(gAgentID,
-					  gAgentID,
-					  LLUUID::null,
-					  LLUUID::null);
-			U32 next_owner_perm = PERM_MOVE | PERM_TRANSFER;
-			perm.initMasks(PERM_ALL,
-						   PERM_ALL,
-						   PERM_NONE,
-						   PERM_NONE,
-						   next_owner_perm);
-			time_t creation_date_now = time_corrected();
-			LLPointer<LLViewerInventoryItem> item
-				= new LLViewerInventoryItem(item_id,
-											folder_id,
-											perm,
-											asset_id,
-											asset_type,
-											inv_type,
-											name,
-											LLStringUtil::null,
-											LLSaleInfo::DEFAULT,
-											LLInventoryItem::II_FLAGS_NONE,
-											creation_date_now);
-
-			item->updateServer(TRUE);
-			gInventory.updateItem(item);
-			gInventory.notifyObservers();
-
-			// Show the preview panel for textures to let
-			// user know that the image is now in inventory.
-			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
-			if(active_panel)
-			{
-				LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
-
-				active_panel->setSelection(item_id, TAKE_FOCUS_NO);
-				active_panel->openSelected();
-				//LLFloaterInventory::dumpSelectionInformation((void*)view);
-				// restore keyboard focus
-				gFocusMgr.setKeyboardFocus(focus_ctrl);
-			}
+			EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
+			name = "Baked " + LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_index)->mNameCapitalized;
 		}
-		else
+		name += " Texture";
+
+		LLUUID item_id;
+		item_id.generate();
+		LLPermissions perm;
+		perm.init(gAgentID,
+				  gAgentID,
+				  LLUUID::null,
+				  LLUUID::null);
+		U32 next_owner_perm = PERM_MOVE | PERM_TRANSFER;
+		perm.initMasks(PERM_ALL,
+					   PERM_ALL,
+					   PERM_NONE,
+					   PERM_NONE,
+					   next_owner_perm);
+		time_t creation_date_now = time_corrected();
+		LLPointer<LLViewerInventoryItem> item
+			= new LLViewerInventoryItem(item_id,
+										folder_id,
+										perm,
+										asset_id,
+										asset_type,
+										inv_type,
+										name,
+										LLStringUtil::null,
+										LLSaleInfo::DEFAULT,
+										LLInventoryItem::II_FLAGS_NONE,
+										creation_date_now);
+
+		item->updateServer(TRUE);
+		gInventory.updateItem(item);
+		gInventory.notifyObservers();
+
+		// Show the preview panel for textures to let
+		// user know that the image is now in inventory.
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+		if(active_panel)
 		{
-			llwarns << "Can't find a folder to put it in" << llendl;
+			LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
+
+			active_panel->setSelection(item_id, TAKE_FOCUS_NO);
+			active_panel->openSelected();
+			//LLFloaterInventory::dumpSelectionInformation((void*)view);
+			// restore keyboard focus
+			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}
+	}
+	else
+	{
+		llwarns << "Can't find a folder to put it in" << llendl;
 	}
 }
 
 BOOL enable_grab_texture(void* data)
 {
 	ETextureIndex index = (ETextureIndex)((intptr_t)data);
-	const LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (avatarp)
+	if (isAgentAvatarValid())
 	{
 		// MULTI-WEARABLE:
-		return avatarp->canGrabLocalTexture(index,0);
+		return gAgentAvatarp->canGrabLocalTexture(index,0);
 	}
 	return FALSE;
 }
@@ -7227,12 +7214,11 @@ void handle_buy_currency_test(void*)
 
 void handle_rebake_textures(void*)
 {
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if (!avatarp) return;
+	if (!isAgentAvatarValid()) return;
 
 	// Slam pending upload count to "unstick" things
 	bool slam_for_debug = true;
-	avatarp->forceBakeAllTextures(slam_for_debug);
+	gAgentAvatarp->forceBakeAllTextures(slam_for_debug);
 }
 
 void toggle_visibility(void* user_data)

@@ -55,7 +55,7 @@ public:
 	LLVOAvatarSelf(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual 				~LLVOAvatarSelf();
 	virtual void			markDead();
-	virtual void 		initInstance(); // Called after construction to initialize the class.
+	virtual void 			initInstance(); // Called after construction to initialize the class.
 protected:
 	/*virtual*/ BOOL		loadAvatar();
 	BOOL					loadAvatarSelf();
@@ -77,6 +77,7 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	/*virtual*/ void 		updateRegion(LLViewerRegion *regionp);
+	/*virtual*/ BOOL   	 	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
 	//--------------------------------------------------------------------
 	// LLCharacter interface and related
@@ -332,5 +333,9 @@ public:
  *******************************************************************************/
 
 };
+
+extern LLVOAvatarSelf *gAgentAvatarp;
+
+BOOL isAgentAvatarValid();
 
 #endif // LL_VO_AVATARSELF_H

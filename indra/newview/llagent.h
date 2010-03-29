@@ -51,7 +51,6 @@ extern const U8 	AGENT_STATE_TYPING;  // Typing indication
 extern const U8 	AGENT_STATE_EDITING; // Set when agent has objects selected
 
 class LLChat;
-class LLVOAvatarSelf;
 class LLViewerRegion;
 class LLMotion;
 class LLToolset;
@@ -109,7 +108,6 @@ public:
 	virtual 		~LLAgent();
 	void			init();
 	void			cleanup();
-	void			setAvatarObject(LLVOAvatarSelf *avatar);
 
 	//--------------------------------------------------------------------
 	// Login
@@ -168,20 +166,6 @@ private:
 	BOOL			mGenderChosen;
 
 /**                    Identity
- **                                                                            **
- *******************************************************************************/
-
-/********************************************************************************
- **                                                                            **
- **                    GENERAL ACCESSORS
- **/
-
-public:
- 	LLVOAvatarSelf* getAvatarObject() const		{ return mAvatarObject; }
-private:
-	LLPointer<LLVOAvatarSelf> mAvatarObject; 	// NULL until avatar object sent down from simulator
-
-/**                    General Accessors
  **                                                                            **
  *******************************************************************************/
 
