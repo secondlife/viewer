@@ -708,7 +708,7 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 	{
 		if (!gAgentCamera.cameraMouselook() && 
 			!objectp->isHUDAttachment() && 
-			objectp->getRoot() == gAgent.getAvatarObject()->getRoot())
+			objectp->getRoot() == gAgentAvatarp->getRoot())
 		{
 			// force focus to point in space where we were looking previously
 			gAgentCamera.setFocusGlobal(gAgentCamera.calcFocusPositionTargetGlobal(), LLUUID::null);

@@ -80,7 +80,7 @@ public:
 	virtual bool operator()(LLInventoryCategory* cat,
 							LLInventoryItem* item)
 	{
-		if(cat && (cat->getPreferredType() == LLFolderType::FT_NONE))
+		if (cat && (cat->getPreferredType() == LLFolderType::FT_NONE))
 		{
 			return true;
 		}
@@ -96,8 +96,8 @@ public:
 	virtual bool operator()(LLInventoryCategory* cat,
 							LLInventoryItem* item)
 	{
-		if(item) return true;
-		if(cat && (cat->getPreferredType() == LLFolderType::FT_NONE))
+		if (item) return true;
+		if (cat && (cat->getPreferredType() == LLFolderType::FT_NONE))
 		{
 			return true;
 		}
@@ -124,18 +124,18 @@ bool LLDroppableItem::operator()(LLInventoryCategory* cat,
 				 LLInventoryItem* item)
 {
 	bool allowed = false;
-	if(item)
+	if (item)
 	{
 		allowed = itemTransferCommonlyAllowed(item);
 
-		if(allowed
+		if (allowed
 		   && mIsTransfer
 		   && !item->getPermissions().allowOperationBy(PERM_TRANSFER,
 							       gAgent.getID()))
 		{
 			allowed = false;
 		}
-		if(allowed && !item->getPermissions().allowCopyBy(gAgent.getID()))
+		if (allowed && !item->getPermissions().allowCopyBy(gAgent.getID()))
 		{
 			++mCountLosing;
 		}
@@ -155,7 +155,7 @@ bool LLUncopyableItems::operator()(LLInventoryCategory* cat,
 				   LLInventoryItem* item)
 {
 	bool uncopyable = false;
-	if(item)
+	if (item)
 	{
 		if (itemTransferCommonlyAllowed(item) &&
 		   !item->getPermissions().allowCopyBy(gAgent.getID()))
@@ -180,10 +180,10 @@ bool LLDropCopyableItems::operator()(
 	LLInventoryItem* item)
 {
 	bool allowed = false;
-	if(item)
+	if (item)
 	{
 		allowed = itemTransferCommonlyAllowed(item);
-		if(allowed &&
+		if (allowed &&
 		   !item->getPermissions().allowCopyBy(gAgent.getID()))
 		{
 			// whoops, can't copy it - don't allow it.
@@ -212,16 +212,16 @@ bool LLGiveable::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 		return true;
 
 	bool allowed = false;
-	if(item)
+	if (item)
 	{
 		allowed = itemTransferCommonlyAllowed(item);
-		if(allowed &&
+		if (allowed &&
 		   !item->getPermissions().allowOperationBy(PERM_TRANSFER,
 							    gAgent.getID()))
 		{
 			allowed = FALSE;
 		}
-		if(allowed &&
+		if (allowed &&
 		   !item->getPermissions().allowCopyBy(gAgent.getID()))
 		{
 			++mCountLosing;
@@ -262,7 +262,7 @@ void LLCategoryDropObserver::done()
 {
 	gInventory.removeObserver(this);
 	LLViewerObject* dst_obj = gObjectList.findObject(mObjectID);
-	if(dst_obj)
+	if (dst_obj)
 	{
 		// *FIX: coalesce these...
  		LLInventoryItem* item = NULL;
@@ -271,7 +271,7 @@ void LLCategoryDropObserver::done()
   		for(; it < end; ++it)
   		{
  			item = gInventory.getItem(*it);
- 			if(item)
+ 			if (item)
  			{
  				LLToolDragAndDrop::dropInventory(
  					dst_obj,
@@ -318,7 +318,7 @@ void LLCategoryDropDescendentsObserver::done()
 	}
 
 	S32 count = items.count();
-	if(count)
+	if (count)
 	{
 		std::set<LLUUID> unique_ids;
 		for(S32 i = 0; i < count; ++i)
@@ -331,7 +331,7 @@ void LLCategoryDropDescendentsObserver::done()
 		LLCategoryDropObserver* dropper;
 		dropper = new LLCategoryDropObserver(mObjectID, mSource);
 		dropper->fetchItems(ids);
-		if(dropper->isEverythingComplete())
+		if (dropper->isEverythingComplete())
 		{
 			dropper->done();
 		}
@@ -422,7 +422,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 								  const LLUUID& source_id,
 								  const LLUUID& object_id)
 {
-	if(type == DAD_NONE)
+	if (type == DAD_NONE)
 	{
 		llwarns << "Attempted to start drag without a cargo type" << llendl;
 		return;
@@ -438,24 +438,24 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 	setMouseCapture( TRUE );
 	LLToolMgr::getInstance()->setTransientTool( this );
 	mCursor = UI_CURSOR_NO;
-	if((mCargoTypes[0] == DAD_CATEGORY)
+	if ((mCargoTypes[0] == DAD_CATEGORY)
 	   && ((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY)))
 	{
 		LLInventoryCategory* cat = gInventory.getCategory(cargo_id);
 		// go ahead and fire & forget the descendents if we are not
 		// dragging a protected folder.
-		if(cat)
+		if (cat)
 		{
 			LLViewerInventoryCategory::cat_array_t cats;
 			LLViewerInventoryItem::item_array_t items;
 			LLNoPreferredTypeOrItem is_not_preferred;
 			LLInventoryFetchComboObserver::folder_ref_t folder_ids;
 			LLInventoryFetchComboObserver::item_ref_t item_ids;
-			if(is_not_preferred(cat, NULL))
+			if (is_not_preferred(cat, NULL))
 			{
 				folder_ids.push_back(cargo_id);
 			}
-			gInventory.collectDescendentsIf(
+			gInventory.collectDescendentsIf (
 				cargo_id,
 				cats,
 				items,
@@ -472,7 +472,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 			{
 				item_ids.push_back(items.get(i)->getUUID());
 			}
-			if(!folder_ids.empty() || !item_ids.empty())
+			if (!folder_ids.empty() || !item_ids.empty())
 			{
 				LLCategoryFireAndForget fetcher;
 				fetcher.fetch(folder_ids, item_ids);
@@ -493,7 +493,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 	std::vector<EDragAndDropType>::const_iterator types_it;
 	for (types_it = types.begin(); types_it != types.end(); ++types_it)
 	{
-		if(DAD_NONE == *types_it)
+		if (DAD_NONE == *types_it)
 		{
 			llwarns << "Attempted to start drag without a cargo type" << llendl;
 			return;
@@ -507,7 +507,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 	setMouseCapture( TRUE );
 	LLToolMgr::getInstance()->setTransientTool( this );
 	mCursor = UI_CURSOR_NO;
-	if((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
+	if ((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
 	{
 		// find categories (i.e. inventory folders) in the cargo.
 		LLInventoryCategory* cat = NULL;
@@ -516,16 +516,16 @@ void LLToolDragAndDrop::beginMultiDrag(
 		for(S32 i = 0; i < count; ++i)
 		{
 			cat = gInventory.getCategory(cargo_ids[i]);
-			if(cat)
+			if (cat)
 			{
 				LLViewerInventoryCategory::cat_array_t cats;
 				LLViewerInventoryItem::item_array_t items;
 				LLNoPreferredType is_not_preferred;
-				if(is_not_preferred(cat, NULL))
+				if (is_not_preferred(cat, NULL))
 				{
 					cat_ids.insert(cat->getUUID());
 				}
-				gInventory.collectDescendentsIf(
+				gInventory.collectDescendentsIf (
 					cat->getUUID(),
 					cats,
 					items,
@@ -538,7 +538,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 				}
 			}
 		}
-		if(!cat_ids.empty())
+		if (!cat_ids.empty())
 		{
 			LLInventoryFetchComboObserver::folder_ref_t folder_ids;
 			LLInventoryFetchComboObserver::item_ref_t item_ids;
@@ -570,7 +570,7 @@ void LLToolDragAndDrop::onMouseCaptureLost()
 
 BOOL LLToolDragAndDrop::handleMouseUp( S32 x, S32 y, MASK mask )
 {
-	if( hasMouseCapture() )
+	if (hasMouseCapture())
 	{
 		EAcceptance acceptance = ACCEPT_NO;
 		dragOrDrop( x, y, mask, TRUE, &acceptance );
@@ -581,7 +581,7 @@ BOOL LLToolDragAndDrop::handleMouseUp( S32 x, S32 y, MASK mask )
 
 ECursorType LLToolDragAndDrop::acceptanceToCursor( EAcceptance acceptance )
 {
-	switch( acceptance )
+	switch (acceptance)
 	{
 	case ACCEPT_YES_MULTI:
 		if (mCargoIDs.size() > 1)
@@ -698,7 +698,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 	mToolTipMsg.clear();
 
-	if(top_view)
+	if (top_view)
 	{
 		handled = TRUE;
 
@@ -763,7 +763,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 		}
 	}
 
-	if(!handled)
+	if (!handled)
 	{
 		handled = TRUE;
 
@@ -821,7 +821,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 		}
 	}
 
-	if ( !handled )
+	if (!handled)
 	{
 		dragOrDrop3D( x, y, mask, drop, acceptance );
 	}
@@ -874,7 +874,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 		if (hit_obj->isAttachment() && !hit_obj->isHUDAttachment())
 		{
 			LLVOAvatar* avatar = LLVOAvatar::findAvatarFromAttachment( hit_obj );
-			if( !avatar )
+			if (!avatar)
 			{
 				mLastAccept = ACCEPT_NO;
 				mCursor = UI_CURSOR_NO;
@@ -886,7 +886,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 
 		if (hit_obj->isAvatar())
 		{
-			if(((LLVOAvatar*) hit_obj)->isSelf())
+			if (((LLVOAvatar*) hit_obj)->isSelf())
 			{
 				target = DT_SELF;
 				hit_face = -1;
@@ -972,7 +972,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 	// Always succeed if....
 	// texture is from the library 
 	// or already in the contents of the object
-	if(SOURCE_LIBRARY == source)
+	if (SOURCE_LIBRARY == source)
 	{
 		// dropping a texture from the library always just works.
 		return TRUE;
@@ -1000,7 +1000,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 	if (!item) return FALSE;
 	
 	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-	if(!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+	if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
 	{
 		// Check that we can add the texture as inventory to the object
 		if (willObjectAcceptInventory(hit_obj,item) < ACCEPT_YES_COPY_SINGLE )
@@ -1008,20 +1008,20 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 			return FALSE;
 		}
 		// make sure the object has the texture in it's inventory.
-		if(SOURCE_AGENT == source)
+		if (SOURCE_AGENT == source)
 		{
 			// Remove the texture from local inventory. The server
 			// will actually remove the item from agent inventory.
 			gInventory.deleteObject(item->getUUID());
 			gInventory.notifyObservers();
 		}
-		else if(SOURCE_WORLD == source)
+		else if (SOURCE_WORLD == source)
 		{
 			// *FIX: if the objects are in different regions, and the
 			// source region has crashed, you can bypass these
 			// permissions.
 			LLViewerObject* src_obj = gObjectList.findObject(src_id);
-			if(src_obj)
+			if (src_obj)
 			{
 				src_obj->removeInventory(item->getUUID());
 			}
@@ -1036,7 +1036,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
  		// TODO: Check to see if adding the item was successful; if not, then
 		// we should return false here.
 	}
-	else if(!item->getPermissions().allowOperationBy(PERM_TRANSFER,
+	else if (!item->getPermissions().allowOperationBy(PERM_TRANSFER,
 													 gAgent.getID()))
 	{
 		// Check that we can add the texture as inventory to the object
@@ -1068,7 +1068,7 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	}
 	LLUUID asset_id = item->getAssetUUID();
 	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
-	if(!success)
+	if (!success)
 	{
 		return;
 	}
@@ -1110,7 +1110,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 	}
 	LLUUID asset_id = item->getAssetUUID();
 	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
-	if(!success)
+	if (!success)
 	{
 		return;
 	}
@@ -1133,32 +1133,32 @@ void LLToolDragAndDrop::dropScript(LLViewerObject* hit_obj,
 {
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
+	if ((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
 	   || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
 	{
 		llwarns << "Call to LLToolDragAndDrop::dropScript() from world"
 			<< " or notecard." << llendl;
 		return;
 	}
-	if(hit_obj && item)
+	if (hit_obj && item)
 	{
 		LLPointer<LLViewerInventoryItem> new_script = new LLViewerInventoryItem(item);
-		if(!item->getPermissions().allowCopyBy(gAgent.getID()))
+		if (!item->getPermissions().allowCopyBy(gAgent.getID()))
 		{
-			if(SOURCE_AGENT == source)
+			if (SOURCE_AGENT == source)
 			{
 				// Remove the script from local inventory. The server
 				// will actually remove the item from agent inventory.
 				gInventory.deleteObject(item->getUUID());
 				gInventory.notifyObservers();
 			}
-			else if(SOURCE_WORLD == source)
+			else if (SOURCE_WORLD == source)
 			{
 				// *FIX: if the objects are in different regions, and
 				// the source region has crashed, you can bypass
 				// these permissions.
 				LLViewerObject* src_obj = gObjectList.findObject(src_id);
-				if(src_obj)
+				if (src_obj)
 				{
 					src_obj->removeInventory(item->getUUID());
 				}
@@ -1174,7 +1174,7 @@ void LLToolDragAndDrop::dropScript(LLViewerObject* hit_obj,
 
 		// VEFFECT: SetScript
 		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-		effectp->setSourceObject(gAgent.getAvatarObject());
+		effectp->setSourceObject(gAgentAvatarp);
 		effectp->setTargetObject(hit_obj);
 		effectp->setDuration(LL_HUD_DUR_SHORT);
 		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -1198,7 +1198,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return;
+	if (!item || !item->isComplete()) return;
 	
 	//if (regionp
 	//	&& (regionp->getRegionFlags() & REGION_FLAGS_SANDBOX))
@@ -1209,7 +1209,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	// this will remove the object from inventory after rez. Only
 	// bother with this check if we would not normally remove from
 	// inventory.
-	if(!remove_from_inventory
+	if (!remove_from_inventory
 		&& !item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
 		remove_from_inventory = TRUE;
@@ -1220,7 +1220,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	// hitting objects that were clipped by the near plane or culled
 	// on the viewer.
 	LLUUID ray_target_id;
-	if( raycast_target )
+	if (raycast_target)
 	{
 		ray_target_id = raycast_target->getID();
 	}
@@ -1232,7 +1232,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	// Check if it's in the trash.
 	bool is_in_trash = false;
 	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
+	if (gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
 	{
 		is_in_trash = true;
 		remove_from_inventory = TRUE;
@@ -1290,7 +1290,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
 
 	LLUUID folder_id = item->getParentUUID();
-	if((SOURCE_LIBRARY == mSource) || (is_in_trash))
+	if ((SOURCE_LIBRARY == mSource) || (is_in_trash))
 	{
 		// since it's coming from the library or trash, we want to not
 		// 'take' it back to the same place.
@@ -1324,7 +1324,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 		gViewerWindow->getWindow()->incBusyCount();
 	}
 
-	if(remove_from_inventory)
+	if (remove_from_inventory)
 	{
 		// Delete it from inventory immediately so that users cannot
 		// easily bypass copy protection in laggy situations. If the
@@ -1335,7 +1335,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 
 	// VEFFECT: DropObject
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-	effectp->setSourceObject(gAgent.getAvatarObject());
+	effectp->setSourceObject(gAgentAvatarp);
 	effectp->setPositionGlobal(mLastHitPos);
 	effectp->setDuration(LL_HUD_DUR_SHORT);
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -1350,7 +1350,7 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 {
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
+	if ((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
 	   || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
 	{
 		llwarns << "Call to LLToolDragAndDrop::dropInventory() from world"
@@ -1362,9 +1362,9 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 	time_t creation_date = time_corrected();
 	new_item->setCreationDate(creation_date);
 
-	if(!item->getPermissions().allowCopyBy(gAgent.getID()))
+	if (!item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
-		if(SOURCE_AGENT == source)
+		if (SOURCE_AGENT == source)
 		{
 			// Remove the inventory item from local inventory. The
 			// server will actually remove the item from agent
@@ -1372,13 +1372,13 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 			gInventory.deleteObject(item->getUUID());
 			gInventory.notifyObservers();
 		}
-		else if(SOURCE_WORLD == source)
+		else if (SOURCE_WORLD == source)
 		{
 			// *FIX: if the objects are in different regions, and the
 			// source region has crashed, you can bypass these
 			// permissions.
 			LLViewerObject* src_obj = gObjectList.findObject(src_id);
-			if(src_obj)
+			if (src_obj)
 			{
 				src_obj->removeInventory(item->getUUID());
 			}
@@ -1398,7 +1398,7 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 
 	// VEFFECT: AddToInventory
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-	effectp->setSourceObject(gAgent.getAvatarObject());
+	effectp->setSourceObject(gAgentAvatarp);
 	effectp->setTargetObject(hit_obj);
 	effectp->setDuration(LL_HUD_DUR_SHORT);
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -1411,11 +1411,11 @@ void LLToolDragAndDrop::giveInventory(const LLUUID& to_agent,
 									  
 {
 	llinfos << "LLToolDragAndDrop::giveInventory()" << llendl;
-	if(!isInventoryGiveAcceptable(item))
+	if (!isInventoryGiveAcceptable(item))
 	{
 		return;
 	}
-	if(item->getPermissions().allowCopyBy(gAgent.getID()))
+	if (item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
 		// just give it away.
 		LLToolDragAndDrop::commitGiveInventoryItem(to_agent, item, im_session_id);
@@ -1439,7 +1439,7 @@ bool LLToolDragAndDrop::handleCopyProtectedItem(const LLSD& notification, const 
 	{
 	case 0:  // "Yes"
 		item = gInventory.getItem(notification["payload"]["item_id"].asUUID());
-		if(item)
+		if (item)
 		{
 			LLToolDragAndDrop::commitGiveInventoryItem(notification["payload"]["agent_id"].asUUID(),
 													   item);
@@ -1466,7 +1466,7 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 												LLInventoryItem* item,
 												const LLUUID& im_session_id)
 {
-	if(!item) return;
+	if (!item) return;
 	std::string name;
 	LLAgentUI::buildFullname(name);
 	LLUUID transaction_id;
@@ -1496,7 +1496,7 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 
 	// VEFFECT: giveInventory
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-	effectp->setSourceObject(gAgent.getAvatarObject());
+	effectp->setSourceObject(gAgentAvatarp);
 	effectp->setTargetObject(gObjectList.findObject(to_agent));
 	effectp->setDuration(LL_HUD_DUR_SHORT);
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -1543,21 +1543,17 @@ void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
 											  const LLUUID& im_session_id)
 
 {
-	if(!cat) return;
+	if (!cat) return;
 	llinfos << "LLToolDragAndDrop::giveInventoryCategory() - "
 			<< cat->getUUID() << llendl;
 
-	LLVOAvatar* my_avatar = gAgent.getAvatarObject();
-	if( !my_avatar )
-	{
-		return;
-	}
+	if (!isAgentAvatarValid()) return;
 
 	// Test out how many items are being given.
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
 	LLGiveable giveable;
-	gInventory.collectDescendentsIf(cat->getUUID(),
+	gInventory.collectDescendentsIf (cat->getUUID(),
 									cats,
 									items,
 									LLInventoryModel::EXCLUDE_TRASH,
@@ -1566,31 +1562,31 @@ void LLToolDragAndDrop::giveInventoryCategory(const LLUUID& to_agent,
 	bool complete = true;
 	for(S32 i = 0; i < count; ++i)
 	{
-		if(!gInventory.isCategoryComplete(cats.get(i)->getUUID()))
+		if (!gInventory.isCategoryComplete(cats.get(i)->getUUID()))
 		{
 			complete = false;
 			break;
 		}
 	}
-	if(!complete)
+	if (!complete)
 	{
 		LLNotificationsUtil::add("IncompleteInventory");
 		return;
 	}
  	count = items.count() + cats.count();
- 	if(count > MAX_ITEMS)
+ 	if (count > MAX_ITEMS)
   	{
 		LLNotificationsUtil::add("TooManyItems");
   		return;
   	}
- 	else if(count == 0)
+ 	else if (count == 0)
   	{
 		LLNotificationsUtil::add("NoItems");
   		return;
   	}
 	else
 	{
-		if(0 == giveable.countNoCopy())
+		if (0 == giveable.countNoCopy())
 		{
 			LLToolDragAndDrop::commitGiveInventoryCategory(to_agent, cat, im_session_id);
 		}
@@ -1616,14 +1612,14 @@ bool LLToolDragAndDrop::handleCopyProtectedCategory(const LLSD& notification, co
 	{
 	case 0:  // "Yes"
 		cat = gInventory.getCategory(notification["payload"]["folder_id"].asUUID());
-		if(cat)
+		if (cat)
 		{
 			LLToolDragAndDrop::commitGiveInventoryCategory(notification["payload"]["agent_id"].asUUID(),
 														   cat);
 			LLViewerInventoryCategory::cat_array_t cats;
 			LLViewerInventoryItem::item_array_t items;
 			LLUncopyableItems remove;
-			gInventory.collectDescendentsIf(cat->getUUID(),
+			gInventory.collectDescendentsIf (cat->getUUID(),
 											cats,
 											items,
 											LLInventoryModel::EXCLUDE_TRASH,
@@ -1654,7 +1650,7 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 													const LLUUID& im_session_id)
 
 {
-	if(!cat) return;
+	if (!cat) return;
 	llinfos << "LLToolDragAndDrop::commitGiveInventoryCategory() - "
 			<< cat->getUUID() << llendl;
 
@@ -1665,7 +1661,7 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
 	LLGiveable giveable;
-	gInventory.collectDescendentsIf(cat->getUUID(),
+	gInventory.collectDescendentsIf (cat->getUUID(),
 									cats,
 									items,
 									LLInventoryModel::EXCLUDE_TRASH,
@@ -1675,12 +1671,12 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 	// MTUBYTES or 18 * count < 1200 => count < 1200/18 =>
 	// 66. I've cut it down a bit from there to give some pad.
  	S32 count = items.count() + cats.count();
- 	if(count > MAX_ITEMS)
+ 	if (count > MAX_ITEMS)
   	{
 		LLNotificationsUtil::add("TooManyItems");
   		return;
   	}
- 	else if(count == 0)
+ 	else if (count == 0)
   	{
 		LLNotificationsUtil::add("NoItems");
   		return;
@@ -1739,7 +1735,7 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 
 		// VEFFECT: giveInventoryCategory
 		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-		effectp->setSourceObject(gAgent.getAvatarObject());
+		effectp->setSourceObject(gAgentAvatarp);
 		effectp->setTargetObject(gObjectList.findObject(to_agent));
 		effectp->setDuration(LL_HUD_DUR_SHORT);
 		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -1754,35 +1750,31 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 // static
 BOOL LLToolDragAndDrop::isInventoryGiveAcceptable(LLInventoryItem* item)
 {
-	if(!item)
+	if (!item)
 	{
 		return FALSE;
 	}
-	if(!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+	if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
 	{
 		return FALSE;
 	}
 	BOOL copyable = FALSE;
-	if(item->getPermissions().allowCopyBy(gAgent.getID())) copyable = TRUE;
+	if (item->getPermissions().allowCopyBy(gAgent.getID())) copyable = TRUE;
 
-	LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
-	if(!my_avatar)
-	{
-		return FALSE;
-	}
+	if (!isAgentAvatarValid()) return FALSE;
 
 	BOOL acceptable = TRUE;
 	switch(item->getType())
 	{
 	case LLAssetType::AT_OBJECT:
-		if(my_avatar->isWearingAttachment(item->getUUID()))
+		if (gAgentAvatarp->isWearingAttachment(item->getUUID()))
 		{
 			acceptable = FALSE;
 		}
 		break;
 	case LLAssetType::AT_BODYPART:
 	case LLAssetType::AT_CLOTHING:
-		if(!copyable && gAgentWearables.isWearingItem(item->getUUID()))
+		if (!copyable && gAgentWearables.isWearingItem(item->getUUID()))
 		{
 			acceptable = FALSE;
 		}
@@ -1796,33 +1788,29 @@ BOOL LLToolDragAndDrop::isInventoryGiveAcceptable(LLInventoryItem* item)
 // Static
 BOOL LLToolDragAndDrop::isInventoryGroupGiveAcceptable(LLInventoryItem* item)
 {
-	if(!item)
+	if (!item)
 	{
 		return FALSE;
 	}
 
 	// These permissions are double checked in the simulator in
 	// LLGroupNoticeInventoryItemFetch::result().
-	if(!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+	if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
 	{
 		return FALSE;
 	}
-	if(!item->getPermissions().allowCopyBy(gAgent.getID()))
+	if (!item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
 		return FALSE;
 	}
 
-	LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
-	if(!my_avatar)
-	{
-		return FALSE;
-	}
+	if (!isAgentAvatarValid()) return FALSE;
 
 	BOOL acceptable = TRUE;
 	switch(item->getType())
 	{
 	case LLAssetType::AT_OBJECT:
-		if(my_avatar->isWearingAttachment(item->getUUID()))
+		if (gAgentAvatarp->isWearingAttachment(item->getUUID()))
 		{
 			acceptable = FALSE;
 		}
@@ -1848,7 +1836,7 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	// help make sure that drops that are from an object to an object
 	// don't have to worry about order of evaluation. Think of this
 	// like check for self in assignment.
-	if(obj->getID() == item->getParentUUID())
+	if (obj->getID() == item->getParentUUID())
 	{
 		return ACCEPT_NO;
 	}
@@ -1857,19 +1845,17 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	//							  gAgent.getGroupID())
 	//			 && (obj->mPermModify || obj->mFlagAllowInventoryAdd));
 	BOOL worn = FALSE;
-	LLVOAvatarSelf* my_avatar = NULL;
 	switch(item->getType())
 	{
 	case LLAssetType::AT_OBJECT:
-		my_avatar = gAgent.getAvatarObject();
-		if(my_avatar && my_avatar->isWearingAttachment(item->getUUID()))
+		if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getUUID()))
 		{
 				worn = TRUE;
 		}
 		break;
 	case LLAssetType::AT_BODYPART:
 	case LLAssetType::AT_CLOTHING:
-		if(gAgentWearables.isWearingItem(item->getUUID()))
+		if (gAgentWearables.isWearingItem(item->getUUID()))
 		{
 			worn = TRUE;
 		}
@@ -1880,7 +1866,7 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	const LLPermissions& perm = item->getPermissions();
 	BOOL modify = (obj->permModify() || obj->flagAllowInventoryAdd());
 	BOOL transfer = FALSE;
-	if((obj->permYouOwner() && (perm.getOwner() == gAgent.getID()))
+	if ((obj->permYouOwner() && (perm.getOwner() == gAgent.getID()))
 	   || perm.allowOperationBy(PERM_TRANSFER, gAgent.getID()))
 	{
 		transfer = TRUE;
@@ -1888,15 +1874,15 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	BOOL volume = (LL_PCODE_VOLUME == obj->getPCode());
 	BOOL attached = obj->isAttachment();
 	BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
-	if(attached && !unrestricted)
+	if (attached && !unrestricted)
 	{
 		return ACCEPT_NO_LOCKED;
 	}
-	else if(modify && transfer && volume && !worn)
+	else if (modify && transfer && volume && !worn)
 	{
 		return ACCEPT_YES_MULTI;
 	}
-	else if(!modify)
+	else if (!modify)
 	{
 		return ACCEPT_NO_LOCKED;
 	}
@@ -1927,12 +1913,12 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 	case DAD_CALLINGCARD:
 	{
 		LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
-		if(gInventory.getItem(inv_item->getUUID())
+		if (gInventory.getItem(inv_item->getUUID())
 		   && LLToolDragAndDrop::isInventoryGiveAcceptable(inv_item))
 		{
 			// *TODO: get multiple object transfers working
 			*accept = ACCEPT_YES_COPY_SINGLE;
-			if(drop)
+			if (drop)
 			{
 				LLToolDragAndDrop::giveInventory(dest_agent, inv_item, session_id);
 			}
@@ -1950,11 +1936,11 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 	case DAD_CATEGORY:
 	{
 		LLViewerInventoryCategory* inv_cat = (LLViewerInventoryCategory*)cargo_data;
-		if( gInventory.getCategory( inv_cat->getUUID() ) )
+		if (gInventory.getCategory(inv_cat->getUUID()))
 		{
 			// *TODO: get multiple object transfers working
 			*accept = ACCEPT_YES_COPY_SINGLE;
-			if(drop)
+			if (drop)
 			{
 				LLToolDragAndDrop::giveInventoryCategory(dest_agent, inv_cat, session_id);
 			}
@@ -1995,7 +1981,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 {
 	lldebugs << "LLToolDragAndDrop::dad3dRezAttachmentFromInv()" << llendl;
 	// must be in the user's inventory
-	if(mSource != SOURCE_AGENT && mSource != SOURCE_LIBRARY)
+	if (mSource != SOURCE_AGENT && mSource != SOURCE_LIBRARY)
 	{
 		return ACCEPT_NO;
 	}
@@ -2003,25 +1989,24 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
+	if (!item || !item->isComplete()) return ACCEPT_NO;
 
 	// must not be in the trash
 	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if( gInventory.isObjectDescendentOf( item->getUUID(), trash_id ) )
+	if (gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
 	{
 		return ACCEPT_NO;
 	}
 
 	// must not be already wearing it
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if(!avatarp || avatarp->isWearingAttachment(item->getUUID()) )
+	if (!isAgentAvatarValid() || gAgentAvatarp->isWearingAttachment(item->getUUID()))
 	{
 		return ACCEPT_NO;
 	}
 
-	if( drop )
+	if (drop)
 	{
-		if(mSource == SOURCE_LIBRARY)
+		if (mSource == SOURCE_LIBRARY)
 		{
 			LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(0);
 			copy_inventory_item(
@@ -2053,10 +2038,9 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnLand(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
+	if (!item || !item->isComplete()) return ACCEPT_NO;
 
-	LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
-	if( !my_avatar || my_avatar->isWearingAttachment( item->getUUID() ) )
+	if (!isAgentAvatarValid() || gAgentAvatarp->isWearingAttachment(item->getUUID()))
 	{
 		return ACCEPT_NO;
 	}
@@ -2081,7 +2065,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnLand(
 
 	// check if the item can be copied. If not, send that to the sim
 	// which will remove the inventory item.
-	if(!item->getPermissions().allowCopyBy(gAgent.getID()))
+	if (!item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
 		accept = ACCEPT_YES_SINGLE;
 		remove_inventory = TRUE;
@@ -2089,13 +2073,13 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnLand(
 
 	// Check if it's in the trash.
 	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
+	if (gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
 	{
 		accept = ACCEPT_YES_SINGLE;
 		remove_inventory = TRUE;
 	}
 
-	if(drop)
+	if (drop)
 	{
 		dropObject(obj, TRUE, FALSE, remove_inventory);
 	}
@@ -2116,24 +2100,23 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnObject(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
-	LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
-	if( !my_avatar || my_avatar->isWearingAttachment( item->getUUID() ) )
+	if (!item || !item->isComplete()) return ACCEPT_NO;
+	if (!isAgentAvatarValid() || gAgentAvatarp->isWearingAttachment(item->getUUID()))
 	{
 		return ACCEPT_NO;
 	}
 
-	if((mask & MASK_CONTROL))
+	if ((mask & MASK_CONTROL))
 	{
 		// *HACK: In order to resolve SL-22177, we need to block drags
 		// from notecards and objects onto other objects.
-		if(mSource == SOURCE_NOTECARD)
+		if (mSource == SOURCE_NOTECARD)
 		{
 			return ACCEPT_NO;
 		}
 
 		EAcceptance rv = willObjectAcceptInventory(obj, item);
-		if(drop && (ACCEPT_YES_SINGLE <= rv))
+		if (drop && (ACCEPT_YES_SINGLE <= rv))
 		{
 			dropInventory(obj, item, mSource, mSourceID);
 		}
@@ -2159,7 +2142,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnObject(
 	
 	// check if the item can be copied. If not, send that to the sim
 	// which will remove the inventory item.
-	if(!item->getPermissions().allowCopyBy(gAgent.getID()))
+	if (!item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
 		accept = ACCEPT_YES_SINGLE;
 		remove_inventory = TRUE;
@@ -2167,13 +2150,13 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnObject(
 
 	// Check if it's in the trash.
 	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
+	if (gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
 	{
 		accept = ACCEPT_YES_SINGLE;
 		remove_inventory = TRUE;
 	}
 
-	if(drop)
+	if (drop)
 	{
 		dropObject(obj, FALSE, FALSE, remove_inventory);
 	}
@@ -2188,7 +2171,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezScript(
 
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
+	if ((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
 	{
 		return ACCEPT_NO;
 	}
@@ -2196,9 +2179,9 @@ EAcceptance LLToolDragAndDrop::dad3dRezScript(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
+	if (!item || !item->isComplete()) return ACCEPT_NO;
 	EAcceptance rv = willObjectAcceptInventory(obj, item);
-	if(drop && (ACCEPT_YES_SINGLE <= rv))
+	if (drop && (ACCEPT_YES_SINGLE <= rv))
 	{
 		// rez in the script active by default, rez in inactive if the
 		// control key is being held down.
@@ -2226,7 +2209,7 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
+	if ((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
 	{
 		return ACCEPT_NO;
 	}
@@ -2234,29 +2217,29 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
+	if (!item || !item->isComplete()) return ACCEPT_NO;
 	EAcceptance rv = willObjectAcceptInventory(obj, item);
-	if((mask & MASK_CONTROL))
+	if ((mask & MASK_CONTROL))
 	{
-		if((ACCEPT_YES_SINGLE <= rv) && drop)
+		if ((ACCEPT_YES_SINGLE <= rv) && drop)
 		{
 			dropInventory(obj, item, mSource, mSourceID);
 		}
 		return rv;
 	}
-	if(!obj->permModify())
+	if (!obj->permModify())
 	{
 		return ACCEPT_NO_LOCKED;
 	}
 	//If texture !copyable don't texture or you'll never get it back.
-	if(!item->getPermissions().allowCopyBy(gAgent.getID()))
+	if (!item->getPermissions().allowCopyBy(gAgent.getID()))
 	{
 		return ACCEPT_NO;
 	}
 
-	if(drop && (ACCEPT_YES_SINGLE <= rv))
+	if (drop && (ACCEPT_YES_SINGLE <= rv))
 	{
-		if((mask & MASK_SHIFT))
+		if ((mask & MASK_SHIFT))
 		{
 			dropTextureAllFaces(obj, item, mSource, mSourceID);
 		}
@@ -2267,7 +2250,7 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 		
 		// VEFFECT: SetTexture
 		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-		effectp->setSourceObject(gAgent.getAvatarObject());
+		effectp->setSourceObject(gAgentAvatarp);
 		effectp->setTargetObject(obj);
 		effectp->setDuration(LL_HUD_DUR_SHORT);
 		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -2281,9 +2264,9 @@ EAcceptance LLToolDragAndDrop::dad3dTextureSelf(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
 	lldebugs << "LLToolDragAndDrop::dad3dTextureAvatar()" << llendl;
-	if(drop)
+	if (drop)
 	{
-		if( !(mask & MASK_SHIFT) )
+		if (!(mask & MASK_SHIFT))
 		{
 			dropTextureOneFaceAvatar( (LLVOAvatar*)obj, face, (LLInventoryItem*)mCargoData);
 		}
@@ -2299,18 +2282,18 @@ EAcceptance LLToolDragAndDrop::dad3dWearItem(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
+	if (!item || !item->isComplete()) return ACCEPT_NO;
 
-	if(mSource == SOURCE_AGENT || mSource == SOURCE_LIBRARY)
+	if (mSource == SOURCE_AGENT || mSource == SOURCE_LIBRARY)
 	{
 		// it's in the agent inventory
 		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		if( gInventory.isObjectDescendentOf( item->getUUID(), trash_id ) )
+		if (gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
 		{
 			return ACCEPT_NO;
 		}
 
-		if( drop )
+		if (drop)
 		{
 			// Don't wear anything until initial wearables are loaded, can
 			// destroy clothing items.
@@ -2320,7 +2303,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearItem(
 				return ACCEPT_NO;
 			}
 
-			if(mSource == SOURCE_LIBRARY)
+			if (mSource == SOURCE_LIBRARY)
 			{
 				// create item based on that one, and put it on if that
 				// was a success.
@@ -2354,21 +2337,21 @@ EAcceptance LLToolDragAndDrop::dad3dActivateGesture(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
+	if (!item || !item->isComplete()) return ACCEPT_NO;
 
-	if(mSource == SOURCE_AGENT || mSource == SOURCE_LIBRARY)
+	if (mSource == SOURCE_AGENT || mSource == SOURCE_LIBRARY)
 	{
 		// it's in the agent inventory
 		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		if( gInventory.isObjectDescendentOf( item->getUUID(), trash_id ) )
+		if (gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
 		{
 			return ACCEPT_NO;
 		}
 
-		if( drop )
+		if (drop)
 		{
 			LLUUID item_id;
-			if(mSource == SOURCE_LIBRARY)
+			if (mSource == SOURCE_LIBRARY)
 			{
 				// create item based on that one, and put it on if that
 				// was a success.
@@ -2383,7 +2366,7 @@ EAcceptance LLToolDragAndDrop::dad3dActivateGesture(
 			}
 			else
 			{
-				LLGestureManager::instance().activateGesture(item->getUUID());
+				LLGestureMgr::instance().activateGesture(item->getUUID());
 				gInventory.updateItem(item);
 				gInventory.notifyObservers();
 			}
@@ -2403,7 +2386,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* category;
 	locateInventory(item, category);
-	if(!category) return ACCEPT_NO;
+	if (!category) return ACCEPT_NO;
 
 	if (drop)
 	{
@@ -2416,26 +2399,26 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 		}
 	}
 
-	if(mSource == SOURCE_AGENT)
+	if (mSource == SOURCE_AGENT)
 	{
 		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		if( gInventory.isObjectDescendentOf( category->getUUID(), trash_id ) )
+		if (gInventory.isObjectDescendentOf(category->getUUID(), trash_id))
 		{
 			return ACCEPT_NO;
 		}
 
-		if(drop)
+		if (drop)
 		{
 		    BOOL append = ( (mask & MASK_SHIFT) ? TRUE : FALSE );
-			LLAppearanceManager::instance().wearInventoryCategory(category, false, append);
+			LLAppearanceMgr::instance().wearInventoryCategory(category, false, append);
 		}
 		return ACCEPT_YES_MULTI;
 	}
-	else if(mSource == SOURCE_LIBRARY)
+	else if (mSource == SOURCE_LIBRARY)
 	{
-		if(drop)
+		if (drop)
 		{
-			LLAppearanceManager::instance().wearInventoryCategory(category, true, false);
+			LLAppearanceMgr::instance().wearInventoryCategory(category, true, false);
 		}
 		return ACCEPT_YES_MULTI;
 	}
@@ -2454,7 +2437,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventory(
 
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
+	if ((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
 	{
 		return ACCEPT_NO;
 	}
@@ -2462,7 +2445,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventory(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
+	if (!item || !item->isComplete()) return ACCEPT_NO;
 	LLViewerObject* root_object = obj;
 	if (obj && obj->getParent())
 	{
@@ -2474,7 +2457,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventory(
 	}
 
 	EAcceptance rv = willObjectAcceptInventory(root_object, item);
-	if(root_object && drop && (ACCEPT_YES_COPY_SINGLE <= rv))
+	if (root_object && drop && (ACCEPT_YES_COPY_SINGLE <= rv))
 	{
 		dropInventory(root_object, item, mSource, mSourceID);
 	}
@@ -2518,7 +2501,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 	LLDroppableItem droppable(!obj->permYouOwner());
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	gInventory.collectDescendentsIf(cat->getUUID(),
+	gInventory.collectDescendentsIf (cat->getUUID(),
 					cats,
 					items,
 					LLInventoryModel::EXCLUDE_TRASH,
@@ -2547,7 +2530,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 	{
 		const LLViewerInventoryCategory *cat = (*cat_iter);
 		rv = gInventory.isCategoryComplete(cat->getUUID()) ? ACCEPT_YES_MULTI : ACCEPT_NO;
-		if(rv < ACCEPT_YES_SINGLE)
+		if (rv < ACCEPT_YES_SINGLE)
 		{
 			lldebugs << "Category " << cat->getUUID() << "is not complete." << llendl;
 			break;
@@ -2590,7 +2573,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 		}
 		LLCategoryDropObserver* dropper = new LLCategoryDropObserver(obj->getID(), mSource);
 		dropper->fetchItems(ids);
-		if(dropper->isEverythingComplete())
+		if (dropper->isEverythingComplete())
 		{
 			dropper->done();
 		}
@@ -2615,27 +2598,26 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryObject(
 	lldebugs << "LLToolDragAndDrop::dad3dGiveInventoryObject()" << llendl;
 
 	// item has to be in agent inventory.
-	if(mSource != SOURCE_AGENT) return ACCEPT_NO;
+	if (mSource != SOURCE_AGENT) return ACCEPT_NO;
 
 	// find the item now.
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
-	if(!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+	if (!item || !item->isComplete()) return ACCEPT_NO;
+	if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
 	{
 		// cannot give away no-transfer objects
 		return ACCEPT_NO;
 	}
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if(avatarp && avatarp->isWearingAttachment( item->getUUID() ) )
+	if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getUUID()))
 	{
 		// You can't give objects that are attached to you
 		return ACCEPT_NO;
 	}
-	if(obj && avatarp)
+	if (obj && isAgentAvatarValid())
 	{
-		if(drop)
+		if (drop)
 		{
 			giveInventory(obj->getID(), item );
 		}
@@ -2652,16 +2634,16 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventory(
 {
 	lldebugs << "LLToolDragAndDrop::dad3dGiveInventory()" << llendl;
 	// item has to be in agent inventory.
-	if(mSource != SOURCE_AGENT) return ACCEPT_NO;
+	if (mSource != SOURCE_AGENT) return ACCEPT_NO;
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
-	if(!isInventoryGiveAcceptable(item))
+	if (!item || !item->isComplete()) return ACCEPT_NO;
+	if (!isInventoryGiveAcceptable(item))
 	{
 		return ACCEPT_NO;
 	}
-	if(drop && obj)
+	if (drop && obj)
 	{
 		giveInventory(obj->getID(), item);
 	}
@@ -2674,12 +2656,12 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryCategory(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
 	lldebugs << "LLToolDragAndDrop::dad3dGiveInventoryCategory()" << llendl;
-	if(drop && obj)
+	if (drop && obj)
 	{
 		LLViewerInventoryItem* item;
 		LLViewerInventoryCategory* cat;
 		locateInventory(item, cat);
-		if(!cat) return ACCEPT_NO;
+		if (!cat) return ACCEPT_NO;
 		giveInventoryCategory(obj->getID(), cat);
 	}
 	// *TODO: deal with all the issues surrounding multi-object
@@ -2695,14 +2677,14 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnLand(
 	LLViewerInventoryItem* item = NULL;
 	LLViewerInventoryCategory* cat = NULL;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
+	if (!item || !item->isComplete()) return ACCEPT_NO;
 
-	if(!gAgent.allowOperation(PERM_COPY, item->getPermissions())
+	if (!gAgent.allowOperation(PERM_COPY, item->getPermissions())
 		|| !item->getPermissions().allowTransferTo(LLUUID::null))
 	{
 		return ACCEPT_NO_LOCKED;
 	}
-	if(drop)
+	if (drop)
 	{
 		dropObject(obj, TRUE, TRUE, FALSE);
 	}
@@ -2716,8 +2698,8 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnObject(
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!item || !item->isComplete()) return ACCEPT_NO;
-	if((mask & MASK_CONTROL))
+	if (!item || !item->isComplete()) return ACCEPT_NO;
+	if ((mask & MASK_CONTROL))
 	{
 		// *HACK: In order to resolve SL-22177, we need to block drags
 		// from notecards and objects onto other objects.
@@ -2725,19 +2707,19 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnObject(
 
 		// *HACK: uncomment this when appropriate
 		//EAcceptance rv = willObjectAcceptInventory(obj, item);
-		//if(drop && (ACCEPT_YES_SINGLE <= rv))
+		//if (drop && (ACCEPT_YES_SINGLE <= rv))
 		//{
 		//	dropInventory(obj, item, mSource, mSourceID);
 		//}
 		//return rv;
 	}
-	if(!item->getPermissions().allowCopyBy(gAgent.getID(),
+	if (!item->getPermissions().allowCopyBy(gAgent.getID(),
 										   gAgent.getGroupID())
 	   || !item->getPermissions().allowTransferTo(LLUUID::null))
 	{
 		return ACCEPT_NO_LOCKED;
 	}
-	if(drop)
+	if (drop)
 	{
 		dropObject(obj, FALSE, TRUE, FALSE);
 	}
@@ -2753,23 +2735,23 @@ EAcceptance LLToolDragAndDrop::dad3dCategoryOnLand(
 	LLInventoryItem* item;
 	LLInventoryCategory* cat;
 	locateInventory(item, cat);
-	if(!cat) return ACCEPT_NO;
+	if (!cat) return ACCEPT_NO;
 	EAcceptance rv = ACCEPT_NO;
 
 	// find all the items in the category
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
 	LLDropCopyableItems droppable;
-	gInventory.collectDescendentsIf(cat->getUUID(),
+	gInventory.collectDescendentsIf (cat->getUUID(),
 									cats,
 									items,
 									LLInventoryModel::EXCLUDE_TRASH,
 									droppable);
-	if(items.count() > 0)
+	if (items.count() > 0)
 	{
 		rv = ACCEPT_YES_SINGLE;
 	}
-	if((rv >= ACCEPT_YES_COPY_SINGLE) && drop)
+	if ((rv >= ACCEPT_YES_COPY_SINGLE) && drop)
 	{
 		createContainer(items, cat->getName());
 		return ACCEPT_NO;
@@ -2792,19 +2774,19 @@ EAcceptance LLToolDragAndDrop::dad3dAssetOnLand(
 	LLViewerInventoryItem::item_array_t items;
 	LLViewerInventoryItem::item_array_t copyable_items;
 	locateMultipleInventory(items, cats);
-	if(!items.count()) return ACCEPT_NO;
+	if (!items.count()) return ACCEPT_NO;
 	EAcceptance rv = ACCEPT_NO;
 	for (S32 i = 0; i < items.count(); i++)
 	{
 		LLInventoryItem* item = items[i];
-		if(item->getPermissions().allowCopyBy(gAgent.getID()))
+		if (item->getPermissions().allowCopyBy(gAgent.getID()))
 		{
 			copyable_items.put(item);
 			rv = ACCEPT_YES_SINGLE;
 		}
 	}
 
-	if((rv >= ACCEPT_YES_COPY_SINGLE) && drop)
+	if ((rv >= ACCEPT_YES_COPY_SINGLE) && drop)
 	{
 		createContainer(copyable_items, NULL);
 	}
@@ -2819,20 +2801,20 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 {
 	item = NULL;
 	cat = NULL;
-	if(mCargoIDs.empty()) return NULL;
-	if((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
+	if (mCargoIDs.empty()) return NULL;
+	if ((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
 	{
 		// The object should be in user inventory.
 		item = (LLViewerInventoryItem*)gInventory.getItem(mCargoIDs[mCurItemIndex]);
 		cat = (LLViewerInventoryCategory*)gInventory.getCategory(mCargoIDs[mCurItemIndex]);
 	}
-	else if(mSource == SOURCE_WORLD)
+	else if (mSource == SOURCE_WORLD)
 	{
 		// This object is in some task inventory somewhere.
 		LLViewerObject* obj = gObjectList.findObject(mSourceID);
-		if(obj)
+		if (obj)
 		{
-			if((mCargoTypes[mCurItemIndex] == DAD_CATEGORY)
+			if ((mCargoTypes[mCurItemIndex] == DAD_CATEGORY)
 			   || (mCargoTypes[mCurItemIndex] == DAD_ROOT_CATEGORY))
 			{
 				cat = (LLViewerInventoryCategory*)obj->getInventoryObject(mCargoIDs[mCurItemIndex]);
@@ -2843,16 +2825,16 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 			}
 		}
 	}
-	else if(mSource == SOURCE_NOTECARD)
+	else if (mSource == SOURCE_NOTECARD)
 	{
 		LLPreviewNotecard* preview = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", mSourceID);
-		if(preview)
+		if (preview)
 		{
 			item = (LLViewerInventoryItem*)preview->getDragItem();
 		}
 	}
-	if(item) return item;
-	if(cat) return cat;
+	if (item) return item;
+	if (cat) return cat;
 	return NULL;
 }
 
@@ -2860,8 +2842,8 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 LLInventoryObject* LLToolDragAndDrop::locateMultipleInventory(LLViewerInventoryCategory::cat_array_t& cats,
 															  LLViewerInventoryItem::item_array_t& items)
 {
-	if(mCargoIDs.count() == 0) return NULL;
-	if((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
+	if (mCargoIDs.count() == 0) return NULL;
+	if ((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
 	{
 		// The object should be in user inventory.
 		for (S32 i = 0; i < mCargoIDs.count(); i++)
@@ -2878,13 +2860,13 @@ LLInventoryObject* LLToolDragAndDrop::locateMultipleInventory(LLViewerInventoryC
 			}
 		}
 	}
-	else if(mSource == SOURCE_WORLD)
+	else if (mSource == SOURCE_WORLD)
 	{
 		// This object is in some task inventory somewhere.
 		LLViewerObject* obj = gObjectList.findObject(mSourceID);
-		if(obj)
+		if (obj)
 		{
-			if((mCargoType == DAD_CATEGORY)
+			if ((mCargoType == DAD_CATEGORY)
 			   || (mCargoType == DAD_ROOT_CATEGORY))
 			{
 				// The object should be in user inventory.
@@ -2910,17 +2892,17 @@ LLInventoryObject* LLToolDragAndDrop::locateMultipleInventory(LLViewerInventoryC
 			}
 		}
 	}
-	else if(mSource == SOURCE_NOTECARD)
+	else if (mSource == SOURCE_NOTECARD)
 	{
 		LLPreviewNotecard* card;
 		card = (LLPreviewNotecard*)LLPreview::find(mSourceID);
-		if(card)
+		if (card)
 		{
 			items.put((LLInventoryItem*)card->getDragItem());
 		}
 	}
-	if(items.count()) return items[0];
-	if(cats.count()) return cats[0];
+	if (items.count()) return items[0];
+	if (cats.count()) return cats[0];
 	return NULL;
 }
 */

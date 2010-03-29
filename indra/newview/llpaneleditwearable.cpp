@@ -602,7 +602,7 @@ LLPanel* LLPanelEditWearable::getPanel(EWearableType type)
 void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std::string &edit_group)
 {
 	LLWearable::visual_param_vec_t param_list;
-	ESex avatar_sex = gAgent.getAvatarObject()->getSex();
+	ESex avatar_sex = gAgentAvatarp->getSex();
 
 	mWearablePtr->getVisualParams(param_list);
 

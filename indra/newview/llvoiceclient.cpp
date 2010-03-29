@@ -5948,12 +5948,10 @@ void LLVoiceClient::enforceTether(void)
 
 void LLVoiceClient::updatePosition(void)
 {
-	
 	if(gVoiceClient)
 	{
-		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 		LLViewerRegion *region = gAgent.getRegion();
-		if(region && avatarp)
+		if(region && isAgentAvatarValid())
 		{
 			LLMatrix3 rot;
 			LLVector3d pos;
@@ -5971,9 +5969,9 @@ void LLVoiceClient::updatePosition(void)
 					rot);				// rotation matrix
 					
 			// Send the current avatar position to the voice code
-			rot = avatarp->getRootJoint()->getWorldRotation().getMatrix3();
+			rot = gAgentAvatarp->getRootJoint()->getWorldRotation().getMatrix3();
 	
-			pos = avatarp->getPositionGlobal();
+			pos = gAgentAvatarp->getPositionGlobal();
 			// TODO: Can we get the head offset from outside the LLVOAvatar?
 //			pos += LLVector3d(mHeadOffset);
 			pos += LLVector3d(0.f, 0.f, 1.f);

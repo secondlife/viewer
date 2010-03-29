@@ -134,7 +134,15 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	{
 		if (id == gAgentID)
 		{
-			res = new LLVOAvatarSelf(id, pcode, regionp);
+			if (!gAgentAvatarp)
+			{
+				gAgentAvatarp = new LLVOAvatarSelf(id, pcode, regionp);
+			}
+			else 
+			{
+				gAgentAvatarp->updateRegion(regionp);
+			}
+			res = gAgentAvatarp;
 		}
 		else
 		{
@@ -223,7 +231,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mClickAction(0),
 	mAttachmentItemID(LLUUID::null)
 {
-	if(!is_global)
+	if (!is_global)
 	{
 		llassert(mRegionp);
 	}
@@ -235,7 +243,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 
 	mPositionRegion = LLVector3(0.f, 0.f, 0.f);
 
-	if(!is_global)
+	if (!is_global && mRegionp)
 	{
 		mPositionAgent = mRegionp->getOriginAgent();
 	}
@@ -377,11 +385,10 @@ void LLViewerObject::markDead()
 
 		if (flagAnimSource())
 		{
-			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-			if (avatarp && !avatarp->isDead())
+			if (isAgentAvatarValid())
 			{
 				// stop motions associated with this object
-				avatarp->stopMotionFromSource(mID);
+				gAgentAvatarp->stopMotionFromSource(mID);
 			}
 		}
 
@@ -4920,7 +4927,6 @@ void LLViewerObject::setIncludeInSearch(bool include_in_search)
 
 void LLViewerObject::setRegion(LLViewerRegion *regionp)
 {
-	llassert(regionp);
 	mLatestRecvPacketID = 0;
 	mRegionp = regionp;
 
