@@ -518,7 +518,7 @@ BOOL LLVOAvatarSelf::buildMenus()
 	return TRUE;
 }
 
-LLVOAvatarSelf::cleanup()
+void LLVOAvatarSelf::cleanup()
 {
 	markDead();
  	delete mScreenp;
