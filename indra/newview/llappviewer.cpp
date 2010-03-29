@@ -1648,7 +1648,7 @@ bool LLAppViewer::cleanup()
 		// HACK: Attempt to wait until the screen res. switch is complete.
 		ms_sleep(1000);
 
-		LLWeb::loadURLExternal( gLaunchFileOnQuit );
+		LLWeb::loadURLExternal( gLaunchFileOnQuit, false );
 		llinfos << "File launched." << llendflush;
 	}
 
