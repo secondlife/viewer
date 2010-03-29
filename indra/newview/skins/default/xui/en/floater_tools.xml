@@ -249,10 +249,10 @@
     <check_box
      left="10"
      follows="left|top"
-     height="16"
+     height="28"
 	 control_name="EditLinkedParts"
      label="Edit linked"
-     layout="topleft"
+     layout="topleft"     
      name="checkbox edit linked parts" >
 		  <check_box.commit_callback
 			function="BuildTool.selectComponent"/>
@@ -265,7 +265,7 @@
    left="13"
    name="RenderingCost"
    tool_tip="Shows the rendering cost calculated for this object"
-   top_pad="9"
+   top_pad="2"
    type="string"
    width="100">
    þ: [COUNT]

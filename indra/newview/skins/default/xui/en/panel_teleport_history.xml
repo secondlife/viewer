@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<panel name="Teleport History" bottom="0" height="400" left="0" width="380"
+<panel name="Teleport History" bottom="0" height="400" left="0" width="313"
      help_topic="panel_teleport_history"
-     border="false" follows="left|top|right|bottom">     
+     border="false" follows="left|top|right|bottom"
+     background_visible="true"
+     bg_alpha_color="DkGray">     
     <accordion
      follows="left|top|right|bottom"
-     height="368"
+     height="369"
      layout="topleft"
-     left="0"
+     left="3"
      top="0"
      name="history_accordion"
    background_visible="true"
    bg_alpha_color="DkGray2"
-     width="380">
+     width="307">
 	    <accordion_tab
          layout="topleft"
          name="today"
@@ -23,7 +25,7 @@
              left="0"
              name="today_items"
              top="0"
-             width="380">
+             width="307">
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
@@ -37,7 +39,7 @@
              left="0"
              name="yesterday_items"
              top="0"
-             width="380">
+             width="307">
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
@@ -51,7 +53,7 @@
              left="0"
              name="2_days_ago"
              top="0"
-             width="380">
+             width="307">
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
@@ -65,7 +67,7 @@
              left="0"
              name="3_days_ago"
              top="0"
-             width="380">
+             width="307">
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
@@ -79,7 +81,7 @@
              left="0"
              name="4_days_ago"
              top="0"
-             width="380">
+             width="307">
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
@@ -93,7 +95,7 @@
              left="0"
              name="5_days_ago_items"
              top="0"
-             width="380">
+             width="307">
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
@@ -107,7 +109,7 @@
              left="0"
              name="6_days_and_older_items"
              top="0"
-             width="380">
+             width="307">
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
@@ -121,7 +123,7 @@
              left="0"
              name="1_month_and_older_items"
              top="0"
-             width="380">
+             width="307">
 	        </flat_list_view>
 	    </accordion_tab>
         <accordion_tab
@@ -135,34 +137,41 @@
              left="0"
              name="6_months_and_older_items"
              top="0"
-             width="380">
+             width="307">
 	        </flat_list_view>
 	    </accordion_tab>
     </accordion>
     <panel
-            bg_opaque_color="DkGray2"
-       bg_alpha_color="DkGray2"
-       background_visible="true"
-       background_opaque="true"
+     background_visible="true"
      bevel_style="none"
      bottom="0"
      follows="left|right|bottom"
-     height="38"
+     height="27"
      layout="bottomleft"
-     left="0"
+     left="3"
      name="bottom_panel"
-     width="380">
+     width="313">
         <button
          follows="bottom|left"
          tool_tip="Show additional options"
-         height="18"
-         image_disabled="OptionsMenu_Disabled"
-         image_selected="OptionsMenu_Press"
-         image_unselected="OptionsMenu_Off"
+         height="25"
+         image_hover_unselected="Toolbar_Left_Over"
+         image_overlay="OptionsMenu_Off"
+         image_selected="Toolbar_Left_Selected"
+         image_unselected="Toolbar_Left_Off"
          layout="topleft"
-         left="10"
+         left="0"
          name="gear_btn"
-         top="14"
-         width="18" />
+         top="1"
+         width="31" />
+        <icon
+         follows="bottom|left"
+         height="25"
+         image_name="Toolbar_Right_Off"
+         layout="topleft"
+         left_pad="1"
+         name="dummy_icon"
+         width="273"
+        />
     </panel>
 </panel>

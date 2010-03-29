@@ -13,6 +13,6 @@
 		<accordion_tab name="6_months_and_older" title="6 mesi o precedente"/>
 	</accordion>
 	<panel name="bottom_panel">
-		<button name="gear_btn" tool_tip="Mostra ulteriori opzioni"/>
+		<button name="gear_btn" tool_tip="Mostra opzioni addizionali"/>
 	</panel>
 </panel>

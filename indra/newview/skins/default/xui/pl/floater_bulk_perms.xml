@@ -14,7 +14,7 @@
 	</floater.string>
 	<check_box label="Animacje" name="check_animation"/>
 	<icon name="icon_animation" tool_tip="Animacja"/>
-	<check_box label="Części Ciała" name="check_bodypart"/>
+	<check_box label="Części ciała" name="check_bodypart"/>
 	<icon name="icon_bodypart" tool_tip="Części Ciała"/>
 	<check_box label="Ubranie" name="check_clothing"/>
 	<icon name="icon_clothing" tool_tip="Ubranie"/>
@@ -44,7 +44,7 @@
 	</text>
 	<check_box label="Kopiuj" name="everyone_copy"/>
 	<text name="NextOwnerLabel">
-		Następny właściciel:
+		Następny Właściciel:
 	</text>
 	<check_box label="Modyfikuje" name="next_owner_modify"/>
 	<check_box label="Kopiuje" name="next_owner_copy"/>

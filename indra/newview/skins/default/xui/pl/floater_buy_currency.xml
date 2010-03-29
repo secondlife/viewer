@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy currency" title="KUP L$">
 	<floater.string name="buy_currency">
-		Kup L$ [LINDENS] za [LOCALAMOUNT]
+		Kup [LINDENS] L$ za [LOCALAMOUNT]
 	</floater.string>
 	<text name="info_need_more">
 		Potrzebujesz więcej L$
@@ -10,7 +10,7 @@
 		Kontaktowanie z LindeX...
 	</text>
 	<text name="info_buying">
-		kup L$
+		Kup L$
 	</text>
 	<text name="balance_label">
 		Obecnie posiadasz
@@ -37,7 +37,7 @@
 		Kalkulowanie...
 	</text>
 	<text name="buy_action">
-		[NAME] [PRICE]L$
+		[ACTION]
 	</text>
 	<text name="total_label">
 		Twój nowy stan konta
@@ -46,7 +46,7 @@
 		[AMT]L$
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php payment method] | [http://www.secondlife.com/my/account/currency.php currency] | [http://www.secondlife.com/my/account/exchange_rates.php exchange rate]
+		[http://www.secondlife.com/my/account/payment_method_management.php metoda płatności] | [http://www.secondlife.com/my/account/currency.php waluta] | [http://www.secondlife.com/my/account/exchange_rates.php kurs wymiany]
 	</text>
 	<text name="exchange_rate_note">
 		Wpisz ponownie kwotę aby zobaczyć ostatni kurs wymiany.

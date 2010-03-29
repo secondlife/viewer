@@ -14,20 +14,20 @@
 	</string>
 	<panel name="minimized_controls">
 		<button label="Arrêter" name="all_nearby_media_disable_btn" tool_tip="Désactiver tous les médias près de vous"/>
-		<button label="Jouer" name="all_nearby_media_enable_btn" tool_tip="Activer tous les médias près de vous"/>
+		<button label="Lire" name="all_nearby_media_enable_btn" tool_tip="Activer tous les médias près de vous"/>
 		<button name="open_prefs_btn" tool_tip="Ouvrir les préférences de média"/>
 		<button label="Plus &gt;&gt;" label_selected="Moins &lt;&lt;" name="more_less_btn" tool_tip="Options avancées"/>
 	</panel>
 	<panel name="nearby_media_panel">
 		<text name="nearby_media">
-			Média près de vous
+			Médias proches
 		</text>
 		<text name="show">
-			Afficher :
+			Voir :
 		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Tout" name="All"/>
-			<combo_box.item label="Dans cette parcelle" name="WithinParcel"/>
+			<combo_box.item label="Sur cette parcelle" name="WithinParcel"/>
 			<combo_box.item label="En dehors de la parcelle" name="OutsideParcel"/>
 			<combo_box.item label="Sur les autres avatars" name="OnOthers"/>
 		</combo_box>

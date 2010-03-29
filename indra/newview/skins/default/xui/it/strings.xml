@@ -224,6 +224,7 @@
 		Clicca per avviare il comando secondlife://
 	</string>
 	<string name="CurrentURL" value="URL attuale: [CurrentURL]"/>
+	<string name="TooltipPrice" value="L$ [PRICE]-"/>
 	<string name="SLurlLabelTeleport">
 		Teleportati a
 	</string>
@@ -818,6 +819,9 @@
 	<string name="invalid">
 		non valido
 	</string>
+	<string name="NewWearable">
+		Nuovo [WEARABLE_ITEM]
+	</string>
 	<string name="next">
 		Avanti
 	</string>
@@ -995,7 +999,7 @@
 		Preferiti
 	</string>
 	<string name="InvFolder Current Outfit">
-		Vestiario attuale
+		Abbigliamento attuale
 	</string>
 	<string name="InvFolder My Outfits">
 		Il mio vestiario
@@ -1522,6 +1526,9 @@
 	</string>
 	<string name="PanelContentsTooltip">
 		Contenuto dell&apos;oggetto
+	</string>
+	<string name="BusyModeResponseDefault">
+		Il residente al quale hai inviato un messaggio è in modalità &apos;occupato&apos;, ovvero ha chiesto di non essere disturbato.  Il tuo messaggio comparirà nel suo pannello IM, dove potrà essere letto in un secondo momento.
 	</string>
 	<string name="MuteByName">
 		(in base al nome)

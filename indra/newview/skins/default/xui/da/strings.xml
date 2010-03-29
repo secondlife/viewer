@@ -14,7 +14,22 @@
 		Detekterer hardware...
 	</string>
 	<string name="StartupLoading">
-		Indlæser
+		Henter [APP_NAME]...
+	</string>
+	<string name="StartupClearingCache">
+		Tømmer cache...
+	</string>
+	<string name="StartupInitializingTextureCache">
+		Initialiserer tekstur cache...
+	</string>
+	<string name="StartupInitializingVFS">
+		Initialiserer VFS...
+	</string>
+	<string name="ProgressRestoring">
+		Gendanner...
+	</string>
+	<string name="ProgressChangingResolution">
+		Ændrer opløsning...
 	</string>
 	<string name="LoginInProgress">
 		Logger p. [APP_NAME] kan virke laast.  Vent venligst.
@@ -41,7 +56,7 @@
 		Klargør multimedia...
 	</string>
 	<string name="LoginInitializingFonts">
-		Indlæser fonts...
+		Indlæser skriftstyper...
 	</string>
 	<string name="LoginVerifyingCache">
 		Checker cache filer (kan tage 60-90 sekunder)...
@@ -76,11 +91,32 @@
 	<string name="LoginFailedNoNetwork">
 		Netværksfejl: Kunne ikke etablere forbindelse, check venligst din netværksforbindelse.
 	</string>
+	<string name="LoginFailed">
+		Login fejlede.
+	</string>
 	<string name="Quit">
 		Afslut
 	</string>
 	<string name="AgentLostConnection">
 		Denne region kan have problemer. Tjek venligst din forbindelse til internettet.
+	</string>
+	<string name="SavingSettings">
+		Gemmer indstillinger...
+	</string>
+	<string name="LoggingOut">
+		Logger ud...
+	</string>
+	<string name="ShuttingDown">
+		Lukker ned...
+	</string>
+	<string name="YouHaveBeenDisconnected">
+		Du er blevet frakoblet den region du var i.
+	</string>
+	<string name="SentToInvalidRegion">
+		Du blev sendt til en ugyldig region.
+	</string>
+	<string name="TestingDisconnect">
+		Tester frakobling af klient
 	</string>
 	<string name="TooltipPerson">
 		Person
@@ -136,6 +172,24 @@
 	<string name="TooltipAgentUrl">
 		Klik for at se beboers profil
 	</string>
+	<string name="TooltipAgentMute">
+		Klik for at slukke for denne beboer
+	</string>
+	<string name="TooltipAgentUnmute">
+		Klik for at fjern slukning for denne beboer
+	</string>
+	<string name="TooltipAgentIM">
+		Klik for at sende IM til denne beboer
+	</string>
+	<string name="TooltipAgentPay">
+		Klik for at betale denne beboer
+	</string>
+	<string name="TooltipAgentOfferTeleport">
+		Klik for at tilbyde teleport til denne beboer
+	</string>
+	<string name="TooltipAgentRequestFriend">
+		Klik for at sende venneforespørgsel
+	</string>
 	<string name="TooltipGroupUrl">
 		Klik for at se denne gruppes beskrivelse
 	</string>
@@ -167,6 +221,24 @@
 	</string>
 	<string name="SLurlLabelShowOnMap">
 		Vis kort for
+	</string>
+	<string name="SLappAgentMute">
+		Sluk
+	</string>
+	<string name="SLappAgentUnmute">
+		Fjern sluk
+	</string>
+	<string name="SLappAgentIM">
+		IM
+	</string>
+	<string name="SLappAgentPay">
+		Betal
+	</string>
+	<string name="SLappAgentOfferTeleport">
+		Tilbyd teleport til
+	</string>
+	<string name="SLappAgentRequestFriend">
+		Venneforespørgsel
 	</string>
 	<string name="BUTTON_CLOSE_DARWIN">
 		Luk (⌘W)
@@ -317,6 +389,9 @@
 	</string>
 	<string name="symbolic link">
 		link
+	</string>
+	<string name="symbolic folder link">
+		link til mappe
 	</string>
 	<string name="AvatarAway">
 		Væk
@@ -817,8 +892,8 @@
 	<string name="no_modify" value=" (ikke redigere)"/>
 	<string name="no_copy" value=" (ikke kopiere)"/>
 	<string name="worn" value=" (båret)"/>
-	<string name="link" value=" (sammenkæde)"/>
-	<string name="broken_link" value=" (brudt_kæde)"/>
+	<string name="link" value=" (link)"/>
+	<string name="broken_link" value=" (brudt link)"/>
 	<string name="LoadingContents">
 		Henter indhold...
 	</string>
@@ -826,6 +901,7 @@
 		Intet indhold
 	</string>
 	<string name="WornOnAttachmentPoint" value=" (båret på [ATTACHMENT_POINT])"/>
+	<string name="ActiveGesture" value="[GESLABEL] (aktiv)"/>
 	<string name="Chat" value=" Chat : "/>
 	<string name="Sound" value=" Lyd : "/>
 	<string name="Wait" value=" --- Vent : "/>
@@ -918,6 +994,9 @@
 	</string>
 	<string name="InvFolder My Outfits">
 		Mine sæt
+	</string>
+	<string name="InvFolder Accessories">
+		Tilbehør
 	</string>
 	<string name="InvFolder Friends">
 		Venner
@@ -1436,6 +1515,9 @@
 	<string name="PanelContentsNewScript">
 		Nyt script
 	</string>
+	<string name="PanelContentsTooltip">
+		Indhold i objekt
+	</string>
 	<string name="BusyModeResponseDefault">
 		Beboeren du sendte en besked er &apos;optaget&apos;, hvilket betyder at han/hun ikke vil forstyrres. Din besked vil blive vis i hans/hendes IM panel til senere visning.
 	</string>
@@ -1553,7 +1635,10 @@
 		Annullér
 	</string>
 	<string name="UploadingCosts">
-		Uploader [%s] omkostninger
+		Uploader [NAME] pris L$ [AMOUNT]
+	</string>
+	<string name="BuyingCosts">
+		At købe dette koster L$ [AMOUNT]
 	</string>
 	<string name="UnknownFileExtension">
 		Ukendt fil efternavn [.%s]
@@ -1710,7 +1795,7 @@ Forventet .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 		Enhver
 	</string>
 	<string name="You">
-		Dig
+		Du
 	</string>
 	<string name="Multiple Media">
 		Flere medietyper
@@ -2519,7 +2604,7 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		Mere
 	</string>
 	<string name="More Gravity">
-		More
+		Mere
 	</string>
 	<string name="More Lipstick">
 		Mere læbestift
@@ -3191,10 +3276,10 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 		(Moderator)
 	</string>
 	<string name="started_call">
-		Startet et stemme opkald
+		startede et stemme opkald
 	</string>
 	<string name="joined_call">
-		Tilsluttet stemme opkaldet
+		tilsluttede stemme opkald
 	</string>
 	<string name="ringing-im">
 		Tilslutter stemme opkald...
@@ -3270,5 +3355,121 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="unread_chat_multiple">
 		[SOURCES] har sagt noget nyt
+	</string>
+	<string name="paid_you_ldollars">
+		[NAME] betalte dig L$[AMOUNT]
+	</string>
+	<string name="you_paid_ldollars">
+		Du betalte [NAME] L$[AMOUNT] [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_reason">
+		Du betalte [NAME] L$[AMOUNT].
+	</string>
+	<string name="you_paid_ldollars_no_name">
+		Du betalte L$[AMOUNT] [REASON].
+	</string>
+	<string name="for a parcel of land">
+		for en parcel land
+	</string>
+	<string name="for a land access pass">
+		for en billet til land
+	</string>
+	<string name="for deeding land">
+		for dedikering af land
+	</string>
+	<string name="to create a group">
+		for at oprette gruppe
+	</string>
+	<string name="to join a group">
+		for at blive medlem i gruppe
+	</string>
+	<string name="to upload">
+		for at uploade
+	</string>
+	<string name="giving">
+		Giver L$ [AMOUNT]
+	</string>
+	<string name="uploading_costs">
+		Pris for upload er L$ [AMOUNT]
+	</string>
+	<string name="this_costs">
+		Prisen er L$ [AMOUNT]
+	</string>
+	<string name="buying_selected_land">
+		Køber valgte land L$ [AMOUNT]
+	</string>
+	<string name="this_object_costs">
+		Dette objekt koster L$ [AMOUNT]
+	</string>
+	<string name="group_role_everyone">
+		Enhver
+	</string>
+	<string name="group_role_officers">
+		Administratorer
+	</string>
+	<string name="group_role_owners">
+		Ejere
+	</string>
+	<string name="uploading_abuse_report">
+		Uploader...
+  
+Krænkelsesanmeldelse
+	</string>
+	<string name="New Shape">
+		Ny kropsbygning
+	</string>
+	<string name="New Skin">
+		Ny hud
+	</string>
+	<string name="New Hair">
+		Nyt hår
+	</string>
+	<string name="New Eyes">
+		Nye øjne
+	</string>
+	<string name="New Shirt">
+		Ny trøje
+	</string>
+	<string name="New Pants">
+		Nye bukser
+	</string>
+	<string name="New Shoes">
+		Nye sko
+	</string>
+	<string name="New Socks">
+		Nye strømper
+	</string>
+	<string name="New Jacket">
+		Ny jakke
+	</string>
+	<string name="New Gloves">
+		Nye handsker
+	</string>
+	<string name="New Undershirt">
+		Ny undertrøje
+	</string>
+	<string name="New Underpants">
+		Nye underbukser
+	</string>
+	<string name="New Skirt">
+		Ny nederdel
+	</string>
+	<string name="New Alpha">
+		Ny alpha
+	</string>
+	<string name="New Tattoo">
+		Ny tatovering
+	</string>
+	<string name="Invalid Wearable">
+		Kan ikke tages på
+	</string>
+	<string name="New Script">
+		Nyt script
+	</string>
+	<string name="New Folder">
+		Ny folder
+	</string>
+	<string name="Contents">
+		Indhold
 	</string>
 </strings>

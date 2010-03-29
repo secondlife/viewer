@@ -22,7 +22,7 @@
 		-- Brak --
 	</floater.string>
 	<floater.string name="Title">
-		Gestura: [NAME]
+		Gest: [NAME]
 	</floater.string>
 	<text name="name_text">
 		Nazwa:
@@ -50,8 +50,8 @@
 	<text name="steps_label">
 		Etapy:
 	</text>
-	<button label="W Górę" name="up_btn"/>
-	<button label="W Dół" name="down_btn"/>
+	<button label="W górę" name="up_btn"/>
+	<button label="W dół" name="down_btn"/>
 	<button label="Usuń" name="delete_btn"/>
 	<radio_group name="animation_trigger_type">
 		<radio_item label="Start" name="start"/>

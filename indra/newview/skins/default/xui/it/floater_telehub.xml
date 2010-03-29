@@ -21,9 +21,9 @@
 	<button label="Aggiungi punti rigenerazione" name="add_spawn_point_btn" width="165"/>
 	<button label="Rimuovi punti" left="175" name="remove_spawn_point_btn" width="105"/>
 	<text name="spawn_point_help">
-		Seleziona un oggetto e click &quot;Aggiungi Spawn&quot; per specificare la posizione.
+		Seleziona un oggetto e fai clic su Aggiungi per specificare la posizione.
 Ora puoi spostare o cancellare l&apos;oggetto.
-Le Posizioni sono relative al centro del telehub.
+Le posizioni sono relative al centro del telehub.
 Seleziona un oggetto nella lista per evidenziarlo nel mondo.
 	</text>
 </floater>

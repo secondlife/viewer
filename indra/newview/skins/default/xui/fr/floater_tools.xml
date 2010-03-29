@@ -61,7 +61,7 @@
 		<radio_item label="Bouger" name="radio position"/>
 		<radio_item label="Pivoter (Ctrl)" name="radio rotate"/>
 		<radio_item label="Étirer (Ctrl+Maj)" name="radio stretch"/>
-		<radio_item label="Sélectionner une face" name="radio select face"/>
+		<radio_item label="Choisir une face" name="radio select face"/>
 	</radio_group>
 	<check_box label="Modification liée" name="checkbox edit linked parts"/>
 	<text name="RenderingCost" tool_tip="Affiche le coût du rendu calculé pour cet objet">
@@ -96,7 +96,7 @@
 	<check_box initial_value="true" label="Centrer" name="checkbox copy centers"/>
 	<check_box label="Pivoter" name="checkbox copy rotates"/>
 	<radio_group name="land_radio_group">
-		<radio_item label="Sélectionner le terrain" name="radio select land"/>
+		<radio_item label="Choisir le terrain" name="radio select land"/>
 		<radio_item label="Aplatir" name="radio flatten"/>
 		<radio_item label="Élever" name="radio raise"/>
 		<radio_item label="Abaisser" name="radio lower"/>
@@ -280,7 +280,7 @@
 				<combo_box.item label="Caoutchouc" name="Rubber"/>
 			</combo_box>
 			<text name="text cut">
-				Découpe du tracé (début/fin)
+				Découpe du tracé (déb./fin)
 			</text>
 			<spinner label="D" name="cut begin"/>
 			<spinner label="F" name="cut end"/>
@@ -339,8 +339,8 @@
 			<text name="text revolutions">
 				Révolutions
 			</text>
-			<texture_picker label="Texture du sculptie" name="sculpt texture control" tool_tip="Cliquez pour sélectionner une image"/>
-			<check_box label="Mirroir" name="sculpt mirror control" tool_tip="Inverse le sculptie le long de l&apos;axe X"/>
+			<texture_picker label="Texture de la sculptie" name="sculpt texture control" tool_tip="Cliquez pour sélectionner une image"/>
+			<check_box label="Mirroir" name="sculpt mirror control" tool_tip="Inverse la sculptie le long de l&apos;axe X"/>
 			<check_box label="A l&apos;envers" name="sculpt invert control" tool_tip="Inverse les normales des sculpties, qui apparaissent alors à l&apos;envers"/>
 			<text name="label sculpt type">
 				Type de raccord
@@ -355,7 +355,7 @@
 		</panel>
 		<panel label="Attributs" name="Features">
 			<text name="select_single">
-				Sélectionnez un prim pour modifier les attributs.
+				Choisir une prim pour changer les attributs.
 			</text>
 			<text name="edit_object">
 				Modifier les attributs de l&apos;objet :

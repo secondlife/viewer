@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Impostazione" name="Input panel">
-	<button bottom_delta="-40" label="Altri Dispositivi" name="joystick_setup_button" width="165"/>
+	<button bottom_delta="-40" label="Altri dispositivi" name="joystick_setup_button" width="165"/>
 	<text name="Mouselook:">
-		Mouselook:
+		Soggettiva:
 	</text>
 	<text name=" Mouse Sensitivity">
-		Sensibilità del Mouse
+		Sensibilità mouse
 	</text>
 	<check_box label="Inverti" name="invert_mouse"/>
 	<text name="Network:">
-		Network:
+		Rete:
 	</text>
 	<text name="Maximum bandwidth">
-		Banda Massima
+		Capacità massima di banda
 	</text>
 	<text name="text_box2">
 		kbps
 	</text>
-	<check_box label="Custom port" name="connection_port_enabled"/>
+	<check_box label="Porta personalizzata" name="connection_port_enabled"/>
 	<spinner label="Numero porta:" name="connection_port"/>
 	<text name="cache_size_label_l">
-		Cache size
+		Dimensioni cache
 	</text>
 	<text name="text_box5">
 		MB
@@ -28,14 +28,14 @@
 	<text name="Cache location">
 		Ubicazione della cache:
 	</text>
-	<button label="Browse" label_selected="Browse" name="set_cache"/>
-	<button label="Resetta" label_selected="Reimposta" name="reset_cache"/>
+	<button label="Sfoglia" label_selected="Sfoglia" name="set_cache"/>
+	<button label="Reimposta" label_selected="Reimposta" name="reset_cache"/>
 	<text name="Web:">
 		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Usa il mio browser (IE, Firefox, Safari)" name="external" tool_tip="Usa il default system web browser per aiuto, web links, etc. Non raccomandato se utilizzi lo schermo pieno(full screen)." value="1"/>
-		<radio_item label="Usa il built-in browser" name="internal" tool_tip="Usa il built-in web browser per aiuto, web links, etc. Questo browser apre come una nuova finestra all&apos;interno [APP_NAME]." value=""/>
+		<radio_item label="Usa il mio browser (IE, Firefox, Safari)" name="external" tool_tip="Utilizza il browser Web predefinito di sistema per l&apos;aiuto, per i link Web e così via. Sconsigliato durante l&apos;esecuzione a tutto schermo." value="1"/>
+		<radio_item label="Utilizza il browser Web integrato" name="internal" tool_tip="Utilizza il browser Web integrato per l&apos;aiuto, per i link Web e così via. Questo browser si apre in una nuova finestra in [APP_NAME]." value=""/>
 	</radio_group>
 	<check_box initial_value="vero" label="Abilita plugin" name="browser_plugins_enabled"/>
 	<check_box initial_value="vero" label="Accetta cookie" name="cookies_enabled"/>
@@ -44,6 +44,6 @@
 	<text name="Proxy location">
 		Ubicazione proxy:
 	</text>
-	<line_editor name="web_proxy_editor" tool_tip="Nome o indirizzo IP del proxy che vorresti usare"/>
-	<spinner label="Port number:" name="web_proxy_port"/>
+	<line_editor name="web_proxy_editor" tool_tip="Il nome o l&apos;indirizzo IP del proxy che preferisci usare"/>
+	<spinner label="Numero porta:" name="web_proxy_port"/>
 </panel>

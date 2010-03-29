@@ -18,13 +18,13 @@
 	<text name="title" value="Reklama"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text_editor name="classified_name" value="[nazwa]"/>
+			<text_editor name="classified_name" value="[name]"/>
 			<text name="classified_location_label" value="Miejsce:"/>
-			<text_editor name="classified_location" value="[ładowanie...]"/>
+			<text_editor name="classified_location" value="[loading...]"/>
 			<text name="content_type_label" value="Rodzaj Zawartości:"/>
-			<text_editor name="content_type" value="[treść]"/>
+			<text_editor name="content_type" value="[content type]"/>
 			<text name="category_label" value="Kategoria:"/>
-			<text_editor name="category" value="[kategoria]"/>
+			<text_editor name="category" value="[category]"/>
 			<text name="creation_date_label" value="Data stworzenia:"/>
 			<text_editor name="creation_date" tool_tip="Data stworzenia" value="[date]"/>
 			<text name="price_for_listing_label" value="Cena za wyświetlenie:"/>

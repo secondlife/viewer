@@ -18,13 +18,13 @@
 	<text name="title" value="Información del clasificado"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text_editor name="classified_name" value="[nombre]"/>
+			<text_editor name="classified_name" value="[name]"/>
 			<text name="classified_location_label" value="Localización:"/>
-			<text_editor name="classified_location" value="[cargando...]"/>
+			<text_editor name="classified_location" value="[loading...]"/>
 			<text name="content_type_label" value="Tipo de contenido:"/>
-			<text_editor name="content_type" value="[tipo de contenido]"/>
+			<text_editor name="content_type" value="[content type]"/>
 			<text name="category_label" value="Categoría:"/>
-			<text_editor name="category" value="[categoría]"/>
+			<text_editor name="category" value="[category]"/>
 			<text name="creation_date_label" value="Fecha de creación:"/>
 			<text_editor name="creation_date" tool_tip="Fecha de creación" value="[date]"/>
 			<text name="price_for_listing_label" value="Precio por publicarlo:"/>

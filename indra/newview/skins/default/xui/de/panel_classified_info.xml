@@ -26,7 +26,7 @@
 		<panel name="scroll_content_panel">
 			<text_editor name="classified_name" value="[name]"/>
 			<text name="classified_location_label" value="Standort:"/>
-			<text_editor name="classified_location" value="[wird geladen...]"/>
+			<text_editor name="classified_location" value="[loading...]"/>
 			<text name="content_type_label" value="Inhaltsart:"/>
 			<text_editor name="content_type" value="[Inhalts-Art]"/>
 			<text name="category_label" value="Kategorie:"/>

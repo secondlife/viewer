@@ -24,7 +24,7 @@
 	<tab_container name="landtab">
 		<panel label="OGÓLNE" name="land_general_panel">
 			<panel.string name="new users only">
-				Tylko Nowi Rezydenci
+				Tylko nowi Rezydenci
 			</panel.string>
 			<panel.string name="anyone">
 				Każdy
@@ -39,7 +39,7 @@
 				Numer aukcji: [ID]
 			</panel.string>
 			<panel.string name="need_tier_to_modify">
-				Musisz zaakceptować zakup by móc modyfikować posiadłość.
+				Musisz zaakceptować zakup by móc modyfikować Posiadłość.
 			</panel.string>
 			<panel.string name="group_owned_text">
 				(Własność Grupy)
@@ -57,7 +57,7 @@
 				(brak)
 			</panel.string>
 			<panel.string name="sale_pending_text">
-				(Sprzedaż w Toku Realizacji)
+				(Sprzedaż w toku realizacji)
 			</panel.string>
 			<panel.string name="no_selection_text">
 				Posiadłość nie wybrana.
@@ -94,9 +94,9 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				Leyla Linden
 			</text>
 			<button label="Ustaw" name="Set..."/>
-			<check_box label="Udostępnij przypisywanie na grupę" name="check deed" tool_tip="Oficer grupy ma prawo przepisać prawo własności posiadłości na grupę. Posiadłość wspierana jest przez przydziały pochodzące od członków grupy."/>
-			<button label="Przypisz" name="Deed..." tool_tip="Prawo przypisania posiadłości na grupę może dokonać jedynie oficer grupy."/>
-			<check_box label="Właścicel dokonuje wpłat związanych z posiadłością" name="check contrib" tool_tip="Kiedy posiadłość zostaje przypisana na grupę, poprzedni właściciel realizuje wpłaty z nią związane w celu jej utrzymania."/>
+			<check_box label="Udostępnij przypisywanie na Grupę" name="check deed" tool_tip="Oficer Grupy ma prawo przepisać prawo własności Posiadłości na Grupę. Posiadłość wspierana jest przez przydziały pochodzące od członków Grupy."/>
+			<button label="Przypisz" name="Deed..." tool_tip="Prawo przypisania Posiadłości na Grupę może dokonać jedynie oficer Grupy."/>
+			<check_box label="Właścicel dokonuje wpłat związanych z Posiadłością" name="check contrib" tool_tip="Kiedy Posiadłość zostaje przypisana na Grupę, poprzedni Właściciel realizuje wpłaty z nią związane w celu jej utrzymania."/>
 			<text name="For Sale:">
 				Na Sprzedaż:
 			</text>
@@ -104,9 +104,9 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				Nie
 			</text>
 			<text name="For Sale: Price L$[PRICE].">
-				Cena: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
+				Cena: [PRICE]L$ ([PRICE_PER_SQM]L$/m²).
 			</text>
-			<button label="Sprzedaj Posiadłość" name="Sell Land..."/>
+			<button label="Sprzedaj posiadłość" name="Sell Land..."/>
 			<text name="For sale to">
 				Na sprzedaż dla: [BUYER]
 			</text>
@@ -116,7 +116,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text name="Selling with no objects in parcel.">
 				Obiekty nie są zawarte w sprzedaży.
 			</text>
-			<button label="Anuluj Sprzedaż" label_selected="Anuluj Sprzedaż" name="Cancel Land Sale"/>
+			<button label="Anuluj sprzedaż" label_selected="Anuluj sprzedaż" name="Cancel Land Sale"/>
 			<text name="Claimed:">
 				Data:
 			</text>
@@ -139,22 +139,22 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<button label="Skrypt" name="Scripts..."/>
 			<button label="Kup dla Grupy" name="Buy For Group..."/>
 			<button label="Kup Przepustkę..." label_selected="Kup Przeputkę..." left="130" name="Buy Pass..." tool_tip="Przepustka udostępnia tymczasowy wstęp na posiadłość." width="125"/>
-			<button label="Porzuć z Posiadłości" name="Abandon Land..."/>
+			<button label="Porzuć Posiadłość" name="Abandon Land..."/>
 			<button label="Odzyskaj Posiadłość" name="Reclaim Land..."/>
-			<button label="Sprzedaż przez Lindenów" name="Linden Sale..." tool_tip="Posiadłość musi mieć właściciela, zawartość oraz nie może być wystawiona na aukcę."/>
+			<button label="Sprzedaż przez Lindenów" name="Linden Sale..." tool_tip="Posiadłość musi mieć Właściciela, zawartość oraz nie może być wystawiona na Aukcję."/>
 		</panel>
 		<panel label="UMOWA" name="land_covenant_panel">
 			<panel.string name="can_resell">
-				Posiadłość zakupiona w tym regionie może być odsprzedana.
+				Posiadłość zakupiona w tym Regionie może być odsprzedana.
 			</panel.string>
 			<panel.string name="can_not_resell">
-				Posiadłość zakupiona w tym regionie nie może być odsprzedana.
+				Posiadłość zakupiona w tym Regionie nie może być odsprzedana.
 			</panel.string>
 			<panel.string name="can_change">
-				Posiadłość zakupiona w tym regionie może być łączona/dzielona.
+				Posiadłość zakupiona w tym Regionie może być łączona/dzielona.
 			</panel.string>
 			<panel.string name="can_not_change">
-				Posiadłość zakupiona w tym regionie nie może być
+				Posiadłość zakupiona w tym Regionie nie może być
 łączona/dzielona.
 			</panel.string>
 			<text name="estate_section_lbl">
@@ -197,13 +197,13 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				Odsprzedaj:
 			</text>
 			<text left="115" name="resellable_clause" width="338">
-				Posiadłość zakupiona w tym regionie nie może być odsprzedana.
+				Posiadłość zakupiona w tym Regionie nie może być odsprzedana.
 			</text>
 			<text name="changeable_lbl">
 				Podziel:
 			</text>
 			<text left="115" name="changeable_clause" width="338">
-				Posiadłość zakupiona w tym regionie nie może być
+				Posiadłość zakupiona w tym Regionie nie może być
 łączona/dzielona.
 			</text>
 		</panel>
@@ -215,7 +215,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				[COUNT] z [MAX] ([DELETED] zostanie usunięte)
 			</panel.string>
 			<text name="parcel_object_bonus">
-				Ilość Ekstra Obiektów: [BONUS]
+				Ilość ekstra obiektów: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
 				Ilość używanych primów:
@@ -230,19 +230,19 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Primy na posiadłości:
+				Primy na Posiadłości:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]
 			</text>
 			<text name="Owned by parcel owner:">
-				Właściciela posiadłości:
+				Właściciela Posiadłości:
 			</text>
 			<text name="owner_objects_text">
 				[COUNT]
 			</text>
 			<button label="Pokaż" label_selected="Pokaż" name="ShowOwner"/>
-			<button label="Zwróć" name="ReturnOwner..." tool_tip="Zwróć obiekty do ich właścicieli."/>
+			<button label="Zwróć" name="ReturnOwner..." tool_tip="Zwróć obiekty do ich Właścicieli."/>
 			<text name="Set to group:">
 				Grupy:
 			</text>
@@ -250,7 +250,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				[COUNT]
 			</text>
 			<button label="Pokaż" label_selected="Pokaż" name="ShowGroup"/>
-			<button label="Zwróć" name="ReturnGroup..." tool_tip="Zwróć obiekty do ich właścicieli.."/>
+			<button label="Zwróć" name="ReturnGroup..." tool_tip="Zwróć obiekty do ich Właścicieli.."/>
 			<text name="Owned by others:">
 				Innych Rezydentów:
 			</text>
@@ -258,7 +258,7 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				[COUNT]
 			</text>
 			<button label="Pokaż" label_selected="Pokaż" name="ShowOther"/>
-			<button label="Zwróć" name="ReturnOther..." tool_tip="Zwróć obiekty do ich właścicieli."/>
+			<button label="Zwróć" name="ReturnOther..." tool_tip="Zwróć obiekty do ich Właścicieli."/>
 			<text name="Selected / sat upon:">
 				Wybranych:
 			</text>
@@ -269,9 +269,9 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 				Zwracaj obiekty innych Rezydentów (minut, 0 = wyłącz):
 			</text>
 			<text name="Object Owners:" width="108">
-				Właściciel Obiektów:
+				Właściciel obiektów:
 			</text>
-			<button label="Odśwież Listę" label_selected="Odśwież Listę" left="112" name="Refresh List" tool_tip="Refresh Object List"/>
+			<button label="Odśwież listę" label_selected="Odśwież listę" left="112" name="Refresh List" tool_tip="Refresh Object List"/>
 			<button label="Zwróć obiekty..." label_selected="Zwróć obiekty..." left="224" name="Return objects..."/>
 			<name_list name="owner list">
 				<name_list.columns label="Typ" name="type"/>
@@ -283,14 +283,14 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 		</panel>
 		<panel label="OPCJE" name="land_options_panel">
 			<panel.string name="search_enabled_tooltip">
-				Udostępnij wyświetlanie tej posiadłości w wyszukiwarce
+				Udostępnij wyświetlanie tej Posiadłości w wyszukiwarce
 			</panel.string>
 			<panel.string name="search_disabled_small_tooltip">
-				Wybrana opcja jest wyłączona ze względu iż wielkość posiadłości wynosi 128 m² bądź mniej.
+				Wybrana opcja jest wyłączona, ponieważ wielkość Posiadłości wynosi 128 m² bądź mniej.
 Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 			</panel.string>
 			<panel.string name="search_disabled_permissions_tooltip">
-				Wybrana opcja jest wyłączona ponieważ nie posiadasz prawa do modyfikacji posiadłości.
+				Wybrana opcja jest wyłączona ponieważ nie posiadasz prawa do modyfikacji Posiadłości.
 			</panel.string>
 			<panel.string name="mature_check_mature">
 				Treść &apos;Mature&apos;
@@ -299,10 +299,10 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				Treść &apos;Adult&apos;
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
-				Twoja posiadłość bądź treść jaką zawiera klasyfikowana jest jako &apos;Mature&apos;.
+				Twoja Posiadłość bądź treść jaką zawiera klasyfikowana jest jako &apos;Mature&apos;.
 			</panel.string>
 			<panel.string name="mature_check_adult_tooltip">
-				Informacje o Twojej posiadłości i treści jaką zawiera klasyfikowane są jako &apos;Adult&apos;.
+				Informacje o Twojej Posiadłości i treści jaką zawiera klasyfikowane są jako &apos;Adult&apos;.
 			</panel.string>
 			<panel.string name="landing_point_none">
 				(brak)
@@ -316,8 +316,8 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 			<text name="allow_label">
 				Udostępnij innym Rezydentom:
 			</text>
-			<check_box label="Edytowanie Terenu" name="edit land check" tool_tip="Wybrana - każdy może kształtować Twój teren. Najlepiej jest zostawić tą opcję nie wybraną, Ty zawsze możesz kształtowć Twój teren."/>
-			<check_box label="Latanie" name="check fly" tool_tip="Wybrana - Rezydenci mogą latać na Twojej posiadłości. Nie wybrana - mogą tylko wlatywać do lub latać ponad Twoją posiadłością."/>
+			<check_box label="Edytowanie Terenu" name="edit land check" tool_tip="Wybrana - każdy może kształtować Twój teren. Najlepiej jest zostawić tą opcję nie wybraną, Ty zawsze możesz kształtować Twój teren."/>
+			<check_box label="Latanie" name="check fly" tool_tip="Wybrana - Rezydenci mogą latać na Twojej Posiadłości. Nie jest wybrana - mogą tylko wlatywać do lub latać ponad Twoją Posiadłością."/>
 			<text name="allow_label2">
 				Budowanie:
 			</text>
@@ -336,34 +336,34 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 			<text name="land_options_label">
 				Opcje Posiadłości:
 			</text>
-			<check_box label="Bezpieczna (brak zniszczeń)" name="check safe" tool_tip="Wybrana - posiadłość jest bezpieczna - zniszczenia w walce są zablokowane. Nie wybrana - zniszczenia w walce są włączone."/>
-			<check_box label="Popychanie niedozwolone" name="PushRestrictCheck" tool_tip="Nie pozwalaj skryptom na popychanie. Wybranie tej opcji może być przydatne do ograniczenia zakłóceń spokoju w Twojej posiadłości."/>
-			<check_box label="Wyświetlaj w wyszukiwarce (30L$/tyg.)" name="ShowDirectoryCheck" tool_tip="Udostępnij ukazywanie się nazwy posiadłości w wyszukiwarce"/>
+			<check_box label="Bezpieczna (brak zniszczeń)" name="check safe" tool_tip="Wybrana - Posiadłość jest bezpieczna - zniszczenia w walce są zablokowane. Nie jest wybrana - zniszczenia w walce są włączone."/>
+			<check_box label="Popychanie niedozwolone" name="PushRestrictCheck" tool_tip="Nie pozwalaj skryptom na popychanie. Wybranie tej opcji może być przydatne do ograniczenia zakłóceń spokoju w Twojej Posiadłości."/>
+			<check_box label="Wyświetlaj w wyszukiwarce (30L$/tyg.)" name="ShowDirectoryCheck" tool_tip="Udostępnij ukazywanie się nazwy Posiadłości w wyszukiwarce"/>
 			<combo_box name="land category with adult">
-				<combo_box.item label="Każda Kategoria" name="item0"/>
-				<combo_box.item label="Linden Lokacja" name="item1"/>
+				<combo_box.item label="Każda kategoria" name="item0"/>
+				<combo_box.item label="Linden Lokalizacja" name="item1"/>
 				<combo_box.item label="&apos;Adult&apos;" name="item2"/>
-				<combo_box.item label="Sztuka i Kultura" name="item3"/>
+				<combo_box.item label="Sztuka i kultura" name="item3"/>
 				<combo_box.item label="Biznes" name="item4"/>
 				<combo_box.item label="Edukacyjna" name="item5"/>
 				<combo_box.item label="Gra" name="item6"/>
 				<combo_box.item label="Poznawanie ludzi" name="item7"/>
 				<combo_box.item label="Przyjazne dla nowych" name="item8"/>
-				<combo_box.item label="Park i Natura" name="item9"/>
+				<combo_box.item label="Park i natura" name="item9"/>
 				<combo_box.item label="Mieszkalna" name="item10"/>
 				<combo_box.item label="Zakupy" name="item11"/>
 				<combo_box.item label="Inna" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
-				<combo_box.item label="Każda Kategoria" name="item0"/>
-				<combo_box.item label="Linden Lokacja" name="item1"/>
-				<combo_box.item label="Sztuka i Kultura" name="item3"/>
+				<combo_box.item label="Każda kategoria" name="item0"/>
+				<combo_box.item label="Linden Lokalizacja" name="item1"/>
+				<combo_box.item label="Sztuka i kultura" name="item3"/>
 				<combo_box.item label="Biznes" name="item4"/>
 				<combo_box.item label="Edukacyjna" name="item5"/>
 				<combo_box.item label="Gra" name="item6"/>
 				<combo_box.item label="Poznawanie ludzi" name="item7"/>
 				<combo_box.item label="Przyjazna dla nowych" name="item8"/>
-				<combo_box.item label="Parki i Natura" name="item9"/>
+				<combo_box.item label="Parki i natura" name="item9"/>
 				<combo_box.item label="Mieszkalna" name="item10"/>
 				<combo_box.item label="Zakupy" name="item11"/>
 				<combo_box.item label="Inna" name="item12"/>
@@ -379,9 +379,9 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 			<button label="Ustaw" label_selected="Ustaw" name="Set" tool_tip="Ustal miejsce lądowania dla przybywających gości. Używa położenia Twojego awatara na tej posiadłości."/>
 			<button label="Nowy" label_selected="Nowy" name="Clear" tool_tip="Clear the landing point."/>
 			<text name="Teleport Routing: ">
-				Trasa Teleportacji:
+				Trasa teleportacji:
 			</text>
-			<combo_box name="landing type" tool_tip="Trasa Teleportacj-ustaw w jaki sposób będzie sę odbywać proces telportacji w posiadłości.">
+			<combo_box name="landing type" tool_tip="Trasa teleportacj-ustaw w jaki sposób będzie sę odbywać proces telportacji w Posiadłości.">
 				<combo_box.item label="Zablokowana" name="Blocked"/>
 				<combo_box.item label="Punkt Lądowania" name="LandingPoint"/>
 				<combo_box.item label="Gdziekolwiek" name="Anywhere"/>
@@ -389,14 +389,14 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 		</panel>
 		<panel label="MEDIA" name="land_media_panel">
 			<text name="with media:">
-				Typ Mediów:
+				Typ mediów:
 			</text>
 			<combo_box name="media type" tool_tip=""/>
 			<text name="at URL:">
-				URL Mediów:
+				URL mediów:
 			</text>
-			<button label="Ustaw..." label_selected="Ustaw..." name="set_media_url"/>
-			<check_box label="Ukryj URL Mediów" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym użytkownikom. Nie dotyczy to jednak typów HTML."/>
+			<button label="Ustaw" name="set_media_url"/>
+			<check_box label="Ukryj URL mediów" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym Użytkownikom. Nie dotyczy to jednak typów HTML."/>
 			<text name="Description:">
 				Opis:
 			</text>
@@ -425,9 +425,9 @@ Mediów:
 			<check_box label="Powtórka Odtwarzania" name="media_loop" tool_tip="Odtwarzaj media z powtórką. Po wyświetleniu materialu, rozpocznie się odtwarzanie od początku."/>
 		</panel>
 		<panel label="DŹWIĘK" name="land_audio_panel">
-			<check_box label="Ukryj URL Muzyki" name="hide_music_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów muzycznych w posiadłości wszystkim nieautoryzowanym użytkownikom"/>
-			<check_box label="Rozmowy Dozwolone" name="parcel_enable_voice_channel"/>
-			<check_box label="Rozmowy Dozwolone (ustawione przez Majątek)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Ukryj URL muzyki" name="hide_music_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów muzycznych w posiadłości wszystkim nieautoryzowanym Użytkownikom"/>
+			<check_box label="Rozmowy dozwolone" name="parcel_enable_voice_channel"/>
+			<check_box label="Rozmowy dozwolone (ustawione przez Majątek)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Ogranicz komunikację głosową w tej posiadłości." name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="DOSTĘP" name="land_access_panel">
@@ -438,19 +438,19 @@ Mediów:
 				Udostępnij dostęp publiczny ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
-				Jedna lub więcej z tych opcji ustawiona jest z poziomu posiadłości
+				Jedna lub więcej z tych opcji ustawiona jest z poziomu Posiadłości
 			</panel.string>
 			<text name="Limit access to this parcel to:">
-				Dostęp do tej posiadłości:
+				Dostęp do tej Posiadłości:
 			</text>
 			<check_box label="Publiczny [MATURITY]" name="public_access"/>
 			<text name="Only Allow">
 				Zablokuj dostęp dla:
 			</text>
 			<check_box label="Rezydentów zarejestrowanych w systemie płatniczym Linden Lab [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Zbanuj Rezydentów niezarejestrowanych w systemie płatniczym z Linden Lab."/>
-			<check_box label="Weryfikacja Wieku: [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Zbanuj Rezydetów bez weryfikacji wieku. Odwiedź support.secondlife.com po więcej informacji."/>
-			<check_box label="Udostępnij wejście grupie: [GROUP]" name="GroupCheck" tool_tip="Ustaw grupę w głównej zakładce"/>
-			<check_box label="Sprzedaj wejściówki:" name="PassCheck" tool_tip="Otwórz tymczasowy dostęp do tej posiadłości"/>
+			<check_box label="Weryfikacja Wieku: [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Zbanuj Rezydetów bez Weryfikacji Wieku. Odwiedź support.secondlife.com po więcej informacji."/>
+			<check_box label="Udostępnij wejście Grupie: [GROUP]" name="GroupCheck" tool_tip="Ustaw Grupę w głównej zakładce"/>
+			<check_box label="Sprzedaj przepustki:" name="PassCheck" tool_tip="Otwórz tymczasowy dostęp do tej Posiadłości"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Każdemu" name="Anyone"/>
 				<combo_box.item label="Grupie" name="Group"/>
