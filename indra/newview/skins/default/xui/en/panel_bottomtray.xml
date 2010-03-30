@@ -263,7 +263,7 @@
          top="0"
          name="chiclet_list_panel"
          width="189"
-         min_width="60"
+         min_width="95"
          user_resize="false"
          auto_resize="true">
 <!--*NOTE: min_width of the chiclet_panel (chiclet_list) must be the same
@@ -274,7 +274,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
              height="24"
              layout="topleft"
              left="1"
-             min_width="60"
+             min_width="95"
              name="chiclet_list"
              top="7"
              chiclet_padding="4"
@@ -330,7 +330,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          min_width="4"
          name="DUMMY"
          top="0"
-         width="5"/>
+         width="4"/>
         <layout_panel
          auto_resize="false"
          follows="right"
