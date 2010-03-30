@@ -40,6 +40,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
+#include "llmd5.h"
 #include "llnotificationsutil.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
@@ -1578,6 +1579,7 @@ void LLAgentWearables::removeWearable(const EWearableType type, bool do_remove_a
 			{
 				LLSD payload;
 				payload["wearable_type"] = (S32)type;
+				payload["wearable_index"] = (S32)index;
 				// Bring up view-modal dialog: Save changes? Yes, No, Cancel
 				LLNotificationsUtil::add("WearableSave", LLSD(), payload, &LLAgentWearables::onRemoveWearableDialog);
 				return;
@@ -1591,22 +1593,21 @@ void LLAgentWearables::removeWearable(const EWearableType type, bool do_remove_a
 }
 
 
-// MULTI_WEARABLE: assuming one wearable per type.
-// MULTI_WEARABLE: hardwiring 0th elt for now - notification needs to change.
 // static 
 bool LLAgentWearables::onRemoveWearableDialog(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	EWearableType type = (EWearableType)notification["payload"]["wearable_type"].asInteger();
+	S32 index = (S32)notification["payload"]["wearable_index"].asInteger();
 	switch(option)
 	{
 		case 0:  // "Save"
-			gAgentWearables.saveWearable(type, 0);
-			gAgentWearables.removeWearableFinal(type, false, 0);
+			gAgentWearables.saveWearable(type, index);
+			gAgentWearables.removeWearableFinal(type, false, index);
 			break;
 
 		case 1:  // "Don't Save"
-			gAgentWearables.removeWearableFinal(type, false, 0);
+			gAgentWearables.removeWearableFinal(type, false, index);
 			break;
 
 		case 2: // "Cancel"
@@ -1665,23 +1666,19 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 {
 	llinfos << "setWearableOutfit() start" << llendl;
 
-	BOOL wearables_to_remove[WT_COUNT];
-	wearables_to_remove[WT_SHAPE]		= FALSE;
-	wearables_to_remove[WT_SKIN]		= FALSE;
-	wearables_to_remove[WT_HAIR]		= FALSE;
-	wearables_to_remove[WT_EYES]		= FALSE;
-	wearables_to_remove[WT_SHIRT]		= remove;
-	wearables_to_remove[WT_PANTS]		= remove;
-	wearables_to_remove[WT_SHOES]		= remove;
-	wearables_to_remove[WT_SOCKS]		= remove;
-	wearables_to_remove[WT_JACKET]		= remove;
-	wearables_to_remove[WT_GLOVES]		= remove;
-	wearables_to_remove[WT_UNDERSHIRT]	= (!gAgent.isTeen()) & remove;
-	wearables_to_remove[WT_UNDERPANTS]	= (!gAgent.isTeen()) & remove;
-	wearables_to_remove[WT_SKIRT]		= remove;
-	wearables_to_remove[WT_ALPHA]		= remove;
-	wearables_to_remove[WT_TATTOO]		= remove;
-
+	// TODO: Removed check for ensuring that teens don't remove undershirt and underwear. Handle later
+	if (remove)
+	{
+		// note: shirt is the first non-body part wearable item. Update if wearable order changes.
+		// This loop should remove all clothing, but not any body parts
+		for (S32 type = 0; type < (S32)WT_COUNT; type++)
+		{
+			if (LLWearableDictionary::getAssetType((EWearableType)type) == LLAssetType::AT_CLOTHING)
+			{
+				removeWearable((EWearableType)type, true, 0);
+			}
+		}
+	}
 
 	S32 count = wearables.count();
 	llassert(items.count() == count);
@@ -1696,66 +1693,22 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		if (new_wearable)
 		{
 			const EWearableType type = new_wearable->getType();
-			wearables_to_remove[type] = FALSE;
-
-			// MULTI_WEARABLE: using 0th
-			LLWearable* old_wearable = getWearable(type, 0);
-			if (old_wearable)
-			{
-				const LLUUID& old_item_id = getWearableItemID(type, 0);
-				if ((old_wearable->getAssetID() == new_wearable->getAssetID()) &&
-				    (old_item_id == new_item->getUUID()))
-				{
-					lldebugs << "No change to wearable asset and item: " << LLWearableDictionary::getInstance()->getWearableEntry(type) << llendl;
-					continue;
-				}
-				
-				// Assumes existing wearables are not dirty.
-				if (old_wearable->isDirty())
-				{
-					llassert(0);
-					continue;
-				}
-			}
-
 			new_wearable->setItemID(new_item->getUUID());
-			setWearable(type,0,new_wearable);
-		}
-	}
-
-	std::vector<LLWearable*> wearables_being_removed;
-
-	for (i = 0; i < WT_COUNT; i++)
-	{
-		if (wearables_to_remove[i])
-		{
-			// MULTI_WEARABLE: assuming 0th
-			LLWearable* wearable = getWearable((EWearableType)i, 0);
-			const LLUUID &item_id = getWearableItemID((EWearableType)i,0);
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-			if (wearable)
+			if (LLWearableDictionary::getAssetType(type) == LLAssetType::AT_BODYPART)
 			{
-				wearables_being_removed.push_back(wearable);
+				// exactly one wearable per body part
+				setWearable(type,0,new_wearable);
 			}
-			removeWearable((EWearableType)i,true,0);
+			else
+			{
+				pushWearable(type,new_wearable);
+			}
+			wearableUpdated(new_wearable);
+			checkWearableAgainstInventory(new_wearable);
 		}
 	}
 
 	gInventory.notifyObservers();
-
-
-	std::vector<LLWearable*>::iterator wearable_iter;
-
-	for (wearable_iter = wearables_being_removed.begin(); 
-		 wearable_iter != wearables_being_removed.end();
-		 ++wearable_iter)
-	{
-		LLWearable* wearablep = *wearable_iter;
-		if (wearablep)
-		{
-			wearablep->removeFromAvatar(TRUE);
-		}
-	}
 
 	if (mAvatarObject)
 	{
@@ -1820,6 +1773,7 @@ bool LLAgentWearables::onSetWearableDialog(const LLSD& notification, const LLSD&
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLInventoryItem* new_item = gInventory.getItem(notification["payload"]["item_id"].asUUID());
+	U32 index = gAgentWearables.getWearableIndex(wearable);
 	if (!new_item)
 	{
 		delete wearable;
@@ -1829,8 +1783,7 @@ bool LLAgentWearables::onSetWearableDialog(const LLSD& notification, const LLSD&
 	switch(option)
 	{
 		case 0:  // "Save"
-// MULTI_WEARABLE: assuming 0th
-			gAgentWearables.saveWearable(wearable->getType(),0);
+			gAgentWearables.saveWearable(wearable->getType(),index);
 			gAgentWearables.setWearableFinal(new_item, wearable);
 			break;
 
@@ -1920,30 +1873,35 @@ void LLAgentWearables::queryWearableCache()
 	for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 	{
 		const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
-		LLUUID hash;
+		LLMD5 hash;
+		bool hash_computed = false;
 		for (U8 i=0; i < baked_dict->mWearables.size(); i++)
 		{
 			const EWearableType baked_type = baked_dict->mWearables[i];
-			// MULTI_WEARABLE: not order-dependent
 			const U32 num_wearables = getWearableCount(baked_type);
 			for (U32 index = 0; index < num_wearables; ++index)
 			{
 				const LLWearable* wearable = getWearable(baked_type,index);
 				if (wearable)
 				{
-					hash ^= wearable->getAssetID();
+					LLUUID asset_id = wearable->getAssetID();
+					hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
+					hash_computed = true;
 				}
 			}
 		}
-		if (hash.notNull())
+		hash.finalize();
+		if (hash_computed)
 		{
-			hash ^= baked_dict->mWearablesHashID;
+			LLUUID hash_id;
+			hash.raw_digest(hash_id.mData);
+			hash_id ^= baked_dict->mWearablesHashID;
 			num_queries++;
 			// *NOTE: make sure at least one request gets packed
 
 			//llinfos << "Requesting texture for hash " << hash << " in baked texture slot " << baked_index << llendl;
 			gMessageSystem->nextBlockFast(_PREHASH_WearableData);
-			gMessageSystem->addUUIDFast(_PREHASH_ID, hash);
+			gMessageSystem->addUUIDFast(_PREHASH_ID, hash_id);
 			gMessageSystem->addU8Fast(_PREHASH_TextureIndex, (U8)baked_index);
 		}
 

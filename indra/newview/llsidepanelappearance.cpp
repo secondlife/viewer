@@ -357,11 +357,13 @@ void LLSidepanelAppearance::fetchInventory()
 	LLUUID item_id;
 	for(S32 type = (S32)WT_SHAPE; type < (S32)WT_COUNT; ++type)
 	{
-		// MULTI_WEARABLE:
-		item_id = gAgentWearables.getWearableItemID((EWearableType)type,0);
-		if(item_id.notNull())
+		for (U32 index = 0; index < gAgentWearables.getWearableCount((EWearableType)type); ++index)
 		{
-			ids.push_back(item_id);
+			item_id = gAgentWearables.getWearableItemID((EWearableType)type, index);
+			if(item_id.notNull())
+			{
+				ids.push_back(item_id);
+			}
 		}
 	}
 

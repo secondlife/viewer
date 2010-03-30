@@ -4958,9 +4958,9 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 			if( !(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR || type==WT_EYES ) ) //&&
 				//!((!gAgent.isTeen()) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
 			{
-				// MULTI_WEARABLE: FIXME HACK - always remove all
 				bool do_remove_all = false;
-				gAgentWearables.removeWearable( type, do_remove_all, 0 );
+				U32 index = gAgentWearables.getWearableIndex(wearable);
+				gAgentWearables.removeWearable( type, do_remove_all, index );
 			}
 		}
 	}
