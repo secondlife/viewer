@@ -313,14 +313,14 @@ public:
 	S32				getAtKey() const		{ return mAtKey; }
 	S32				getWalkKey() const		{ return mWalkKey; }
 	S32				getLeftKey() const		{ return mLeftKey; }
-	F32				getUpKey() const		{ return mUpKey; }
+	S32				getUpKey() const		{ return mUpKey; }
 	F32				getYawKey() const		{ return mYawKey; }
 	F32				getPitchKey() const		{ return mPitchKey; }
 
 	void			setAtKey(S32 mag)		{ mAtKey = mag; }
 	void			setWalkKey(S32 mag)		{ mWalkKey = mag; }
 	void			setLeftKey(S32 mag)		{ mLeftKey = mag; }
-	void			setUpKey(F32 mag)		{ mUpKey = mag; }
+	void			setUpKey(S32 mag)		{ mUpKey = mag; }
 	void			setYawKey(F32 mag)		{ mYawKey = mag; }
 	void			setPitchKey(F32 mag)	{ mPitchKey = mag; }
 
