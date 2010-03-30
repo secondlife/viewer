@@ -33,32 +33,12 @@
 #ifndef LL_LLAGENTCAMERA_H
 #define LL_LLAGENTCAMERA_H
 
-#include "indra_constants.h"
-#include "llevent.h" 				// LLObservable base class
-#include "llagent.h"
-#include "llagentaccess.h"
-#include "llagentconstants.h"
-#include "llagentdata.h" 			// gAgentID, gAgentSessionID
-#include "llcharacter.h" 			// LLAnimPauseRequest
 #include "llfollowcam.h" 			// Ventrella
 #include "llhudeffectlookat.h" 		// EPointAtType
 #include "llhudeffectpointat.h" 	// ELookAtType
-#include "llpointer.h"
-#include "lluicolor.h"
-#include "llvoavatardefines.h"
 
-class LLChat;
-class LLVOAvatarSelf;
-class LLViewerRegion;
-class LLMotion;
-class LLToolset;
-class LLMessageSystem;
-class LLPermissions;
-class LLHost;
-class LLFriendObserver;
 class LLPickInfo;
-class LLViewerObject;
-class LLAgentDropGroupViewerNode;
+class LLVOAvatarSelf;
 
 //--------------------------------------------------------------------
 // Types
