@@ -1032,7 +1032,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	getDescendentsOfAssetType(category, wear_items, LLAssetType::AT_CLOTHING, false);
 	// Reduce wearables to max of one per type.
 	removeDuplicateItems(wear_items);
-	filterWearableItems(wear_items, 1);
+	filterWearableItems(wear_items, 5);
 
 	// - Attachments: include COF contents only if appending.
 	LLInventoryModel::item_array_t obj_items;
@@ -1122,7 +1122,6 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 					items.put(item);
 					wearables.put(wearable);
 				}
-				break;
 			}
 		}
 	}
