@@ -74,6 +74,7 @@ set(viewer_SOURCE_FILES
     llagentpilot.cpp
     llagentui.cpp
     llagentwearables.cpp
+    llagentwearablesfetch.cpp
     llanimstatelabels.cpp
     llappearancemgr.cpp
     llappviewer.cpp
@@ -574,6 +575,7 @@ set(viewer_HEADER_FILES
     llagentpilot.h
     llagentui.h
     llagentwearables.h
+    llagentwearablesfetch.h
     llanimstatelabels.h
     llappearance.h
     llappearancemgr.h
