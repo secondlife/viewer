@@ -551,7 +551,9 @@ void LLPanelPlaces::onTeleportButtonClicked()
 		{
 			LLSD payload;
 			payload["asset_id"] = mItem->getAssetUUID();
-			LLNotificationsUtil::add("TeleportFromLandmark", LLSD(), payload);
+			LLSD args; 
+			args["LOCATION"] = mItem->getName(); 
+			LLNotificationsUtil::add("TeleportFromLandmark", args, payload);
 		}
 		else if (mPlaceInfoType == AGENT_INFO_TYPE ||
 				 mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
