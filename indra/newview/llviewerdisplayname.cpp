@@ -69,12 +69,16 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
 	std::string cap_url = region->getCapability("SetDisplayName");
 	if (cap_url.empty())
 	{
-		// this server does not support display names, report error
-		slot(false, "unsupported", LLSD());
+		// JAMESDEBUG HACK for demos, fall back to prototype name service
+		LLAvatarNameCache::setDisplayName(gAgent.getID(), display_name, slot);
 		return;
+
+		// this server does not support display names, report error
+		//slot(false, "unsupported", LLSD());
+		//return;
 	}
 
-	llinfos << "JAMESDEBUG POST to " << cap_url << llendl;
+	llinfos << "Set name POST to " << cap_url << llendl;
 
 	// Record our caller for when the server sends back a reply
 	sSetDisplayNameSignal.connect(slot);
