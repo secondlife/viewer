@@ -218,13 +218,6 @@ LLAgent::LLAgent() :
 
 	mIsBusy(FALSE),
 
-	mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
-	mWalkKey(0), // like AtKey, but causes less forward thrust
-	mLeftKey(0),
-	mUpKey(0),
-	mYawKey(0.f),
-	mPitchKey(0.f),
-
 	mControlFlags(0x00000000),
 	mbFlagsDirty(FALSE),
 	mbFlagsNeedReset(FALSE),
@@ -339,7 +332,7 @@ void LLAgent::moveAt(S32 direction, bool reset)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mAtKey);
+	gAgentCamera.setAtKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -364,7 +357,7 @@ void LLAgent::moveAtNudge(S32 direction)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mWalkKey);
+	gAgentCamera.setWalkKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -386,7 +379,7 @@ void LLAgent::moveLeft(S32 direction)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mLeftKey);
+	gAgentCamera.setLeftKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -408,7 +401,7 @@ void LLAgent::moveLeftNudge(S32 direction)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mLeftKey);
+	gAgentCamera.setLeftKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -430,7 +423,7 @@ void LLAgent::moveUp(S32 direction)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mUpKey);
+	gAgentCamera.setUpKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -449,7 +442,7 @@ void LLAgent::moveUp(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveYaw(F32 mag, bool reset_view)
 {
-	mYawKey = mag;
+	gAgentCamera.setYawKey(mag);
 
 	if (mag > 0)
 	{
@@ -471,7 +464,7 @@ void LLAgent::moveYaw(F32 mag, bool reset_view)
 //-----------------------------------------------------------------------------
 void LLAgent::movePitch(F32 mag)
 {
-	mPitchKey = mag;
+	gAgentCamera.setPitchKey(mag);
 
 	if (mag > 0)
 	{
@@ -1049,26 +1042,6 @@ LLQuaternion LLAgent::getQuat() const
 }
 
 //-----------------------------------------------------------------------------
-// setKey()
-//-----------------------------------------------------------------------------
-void LLAgent::setKey(const S32 direction, S32 &key)
-{
-	if (direction > 0)
-	{
-		key = 1;
-	}
-	else if (direction < 0)
-	{
-		key = -1;
-	}
-	else
-	{
-		key = 0;
-	}
-}
-
-
-//-----------------------------------------------------------------------------
 // getControlFlags()
 //-----------------------------------------------------------------------------
 U32 LLAgent::getControlFlags()
@@ -1537,20 +1510,20 @@ void LLAgent::propagate(const F32 dt)
 	LLFloaterMove *floater_move = LLFloaterReg::findTypedInstance<LLFloaterMove>("moveview");
 	if (floater_move)
 	{
-		floater_move->mForwardButton   ->setToggleState( mAtKey > 0 || mWalkKey > 0 );
-		floater_move->mBackwardButton  ->setToggleState( mAtKey < 0 || mWalkKey < 0 );
-		floater_move->mTurnLeftButton  ->setToggleState( mYawKey > 0.f );
-		floater_move->mTurnRightButton ->setToggleState( mYawKey < 0.f );
-		floater_move->mMoveUpButton    ->setToggleState( mUpKey > 0 );
-		floater_move->mMoveDownButton  ->setToggleState( mUpKey < 0 );
+		floater_move->mForwardButton   ->setToggleState( gAgentCamera.getAtKey() > 0 || gAgentCamera.getWalkKey() > 0 );
+		floater_move->mBackwardButton  ->setToggleState( gAgentCamera.getAtKey() < 0 || gAgentCamera.getWalkKey() < 0 );
+		floater_move->mTurnLeftButton  ->setToggleState( gAgentCamera.getYawKey() > 0.f );
+		floater_move->mTurnRightButton ->setToggleState( gAgentCamera.getYawKey() < 0.f );
+		floater_move->mMoveUpButton    ->setToggleState( gAgentCamera.getUpKey() > 0 );
+		floater_move->mMoveDownButton  ->setToggleState( gAgentCamera.getUpKey() < 0 );
 	}
 
 	// handle rotation based on keyboard levels
 	const F32 YAW_RATE = 90.f * DEG_TO_RAD;				// radians per second
-	yaw(YAW_RATE * mYawKey * dt);
+	yaw(YAW_RATE * gAgentCamera.getYawKey() * dt);
 
 	const F32 PITCH_RATE = 90.f * DEG_TO_RAD;			// radians per second
-	pitch(PITCH_RATE * mPitchKey * dt);
+	pitch(PITCH_RATE * gAgentCamera.getPitchKey() * dt);
 	
 	// handle auto-land behavior
 	if (isAgentAvatarValid())
@@ -1560,7 +1533,7 @@ void LLAgent::propagate(const F32 dt)
 		land_vel.mV[VZ] = 0.f;
 
 		if (!in_air 
-			&& mUpKey < 0 
+			&& gAgentCamera.getUpKey() < 0 
 			&& land_vel.magVecSquared() < MAX_VELOCITY_AUTO_LAND_SQUARED
 			&& gSavedSettings.getBOOL("AutomaticFly"))
 		{
@@ -1569,13 +1542,7 @@ void LLAgent::propagate(const F32 dt)
 		}
 	}
 
-	// clear keys
-	mAtKey = 0;
-	mWalkKey = 0;
-	mLeftKey = 0;
-	mUpKey = 0;
-	mYawKey = 0.f;
-	mPitchKey = 0.f;
+	gAgentCamera.clearGeneralKeys();
 }
 
 //-----------------------------------------------------------------------------
