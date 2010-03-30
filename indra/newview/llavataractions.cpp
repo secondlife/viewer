@@ -113,13 +113,13 @@ void LLAvatarActions::removeFriendDialog(const LLUUID& id)
 	if (id.isNull())
 		return;
 
-	std::vector<LLUUID> ids;
+	uuid_vec_t ids;
 	ids.push_back(id);
 	removeFriendsDialog(ids);
 }
 
 // static
-void LLAvatarActions::removeFriendsDialog(const std::vector<LLUUID>& ids)
+void LLAvatarActions::removeFriendsDialog(const uuid_vec_t& ids)
 {
 	if(ids.size() == 0)
 		return;
@@ -144,7 +144,7 @@ void LLAvatarActions::removeFriendsDialog(const std::vector<LLUUID>& ids)
 	}
 
 	LLSD payload;
-	for (std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		payload["ids"].append(*it);
 	}
@@ -167,7 +167,7 @@ void LLAvatarActions::offerTeleport(const LLUUID& invitee)
 }
 
 // static
-void LLAvatarActions::offerTeleport(const std::vector<LLUUID>& ids) 
+void LLAvatarActions::offerTeleport(const uuid_vec_t& ids) 
 {
 	if (ids.size() == 0)
 		return;
@@ -228,7 +228,7 @@ void LLAvatarActions::startCall(const LLUUID& id)
 }
 
 // static
-void LLAvatarActions::startAdhocCall(const std::vector<LLUUID>& ids)
+void LLAvatarActions::startAdhocCall(const uuid_vec_t& ids)
 {
 	if (ids.size() == 0)
 	{
@@ -237,7 +237,7 @@ void LLAvatarActions::startAdhocCall(const std::vector<LLUUID>& ids)
 
 	// convert vector into LLDynamicArray for addSession
 	LLDynamicArray<LLUUID> id_array;
-	for (std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		id_array.push_back(*it);
 	}
@@ -278,11 +278,11 @@ bool LLAvatarActions::canCall()
 }
 
 // static
-void LLAvatarActions::startConference(const std::vector<LLUUID>& ids)
+void LLAvatarActions::startConference(const uuid_vec_t& ids)
 {
 	// *HACK: Copy into dynamic array
 	LLDynamicArray<LLUUID> id_array;
-	for (std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		id_array.push_back(*it);
 	}
@@ -499,7 +499,7 @@ bool LLAvatarActions::handlePay(const LLSD& notification, const LLSD& response, 
 // static
 void LLAvatarActions::callback_invite_to_group(LLUUID group_id, LLUUID id)
 {
-	std::vector<LLUUID> agent_ids;
+	uuid_vec_t agent_ids;
 	agent_ids.push_back(id);
 	
 	LLFloaterGroupInvite::showForGroup(group_id, &agent_ids);

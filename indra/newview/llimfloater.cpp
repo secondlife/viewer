@@ -922,7 +922,7 @@ BOOL LLIMFloater::dropCallingCard(LLInventoryItem* item, BOOL drop)
 	{
 		if(drop)
 		{
-			std::vector<LLUUID> ids;
+			uuid_vec_t ids;
 			ids.push_back(item->getCreatorUUID());
 			inviteToSession(ids);
 		}
@@ -955,7 +955,7 @@ BOOL LLIMFloater::dropCategory(LLInventoryCategory* category, BOOL drop)
 		}
 		else if(drop)
 		{
-			std::vector<LLUUID> ids;
+			uuid_vec_t ids;
 			ids.reserve(count);
 			for(S32 i = 0; i < count; ++i)
 			{
@@ -992,7 +992,7 @@ private:
 	LLUUID mSessionID;
 };
 
-BOOL LLIMFloater::inviteToSession(const std::vector<LLUUID>& ids)
+BOOL LLIMFloater::inviteToSession(const uuid_vec_t& ids)
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	if (!region)

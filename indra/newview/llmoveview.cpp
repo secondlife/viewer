@@ -41,7 +41,8 @@
 // Viewer includes
 
 #include "llagent.h"
-#include "llvoavatarself.h" // to check gAgent.getAvatarObject()->isSitting()
+#include "llagentcamera.h"
+#include "llvoavatarself.h" // to check gAgentAvatarp->isSitting()
 #include "llbottomtray.h"
 #include "llbutton.h"
 #include "llfloaterreg.h"
@@ -331,7 +332,7 @@ void LLFloaterMove::setMovementMode(const EMovementMode mode)
 	updateButtonsWithMovementMode(mode);
 
 	bool bHideModeButtons = MM_FLY == mode
-		|| (gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting());
+		|| (isAgentAvatarValid() && gAgentAvatarp->isSitting());
 
 	showModeButtons(!bHideModeButtons);
 
@@ -387,9 +388,9 @@ void LLFloaterMove::initMovementMode()
 	}
 	setMovementMode(initMovementMode);
 
-	if (gAgent.getAvatarObject())
+	if (isAgentAvatarValid())
 	{
-		setEnabled(!gAgent.getAvatarObject()->isSitting());
+		setEnabled(!gAgentAvatarp->isSitting());
 	}
 }
 
@@ -490,7 +491,7 @@ void LLFloaterMove::onOpen(const LLSD& key)
 		showModeButtons(FALSE);
 	}
 
-	if (gAgent.getAvatarObject() && gAgent.getAvatarObject()->isSitting())
+	if (isAgentAvatarValid() && gAgentAvatarp->isSitting())
 	{
 		setSittingMode(TRUE);
 		showModeButtons(FALSE);
@@ -593,7 +594,7 @@ BOOL LLPanelStandStopFlying::postBuild()
 void LLPanelStandStopFlying::setVisible(BOOL visible)
 {
 	//we dont need to show the panel if these buttons are not activated
-	if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;
+	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;
 
 	if (visible)
 	{

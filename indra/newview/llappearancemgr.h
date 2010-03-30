@@ -43,9 +43,9 @@ class LLWearable;
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
 
-class LLAppearanceManager: public LLSingleton<LLAppearanceManager>
+class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 {
-	friend class LLSingleton<LLAppearanceManager>;
+	friend class LLSingleton<LLAppearanceMgr>;
 	
 public:
 	void updateAppearanceFromCOF();
@@ -120,8 +120,8 @@ public:
 	void onFirstFullyVisible();
 	
 protected:
-	LLAppearanceManager();
-	~LLAppearanceManager();
+	LLAppearanceMgr();
+	~LLAppearanceMgr();
 
 private:
 
@@ -324,7 +324,7 @@ template <class T>
 void callAfterCategoryFetch(const LLUUID& cat_id, T callable)
 {
 	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(callable);
-	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	uuid_vec_t folders;
 	folders.push_back(cat_id);
 	stage1->fetchDescendents(folders);
 	if (stage1->isEverythingComplete())

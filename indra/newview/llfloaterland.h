@@ -167,7 +167,7 @@ public:
 	static void onClickSet(void* data);
 	static void onClickClear(void* data);
 	static void onClickShow(void* data);
-	static void callbackAvatarPick(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
+	static void callbackAvatarPick(const std::vector<std::string>& names, const uuid_vec_t& ids, void* data);
 	static void finalizeAvatarPick(void* data);
 	static void callbackHighlightTransferable(S32 option, void* userdata);
 	static void onClickStartAuction(void*);
@@ -374,8 +374,8 @@ public:
 	
 	void onClickAddAccess();
 	void onClickAddBanned();
-	void callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
-	void callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
+	void callbackAvatarCBBanned(const std::vector<std::string>& names, const uuid_vec_t& ids);
+	void callbackAvatarCBAccess(const std::vector<std::string>& names, const uuid_vec_t& ids);
 
 protected:
 	LLNameListCtrl*		mListAccess;

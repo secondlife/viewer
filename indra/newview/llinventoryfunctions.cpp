@@ -355,8 +355,7 @@ BOOL get_is_item_worn(const LLUUID& id)
 	{
 		case LLAssetType::AT_OBJECT:
 		{
-			const LLVOAvatarSelf* my_avatar = gAgent.getAvatarObject();
-			if(my_avatar && my_avatar->isWearingAttachment(item->getLinkedUUID()))
+			if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getLinkedUUID()))
 				return TRUE;
 			break;
 		}
@@ -366,7 +365,7 @@ BOOL get_is_item_worn(const LLUUID& id)
 				return TRUE;
 			break;
 		case LLAssetType::AT_GESTURE:
-			if (LLGestureManager::instance().isGestureActive(item->getLinkedUUID()))
+			if (LLGestureMgr::instance().isGestureActive(item->getLinkedUUID()))
 				return TRUE;
 			break;
 		default:

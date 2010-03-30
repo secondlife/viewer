@@ -70,6 +70,7 @@ include_directories(
 set(viewer_SOURCE_FILES
     llagent.cpp
     llagentaccess.cpp
+    llagentcamera.cpp
     llagentdata.cpp
     llagentlanguage.cpp
     llagentlistener.cpp
@@ -572,6 +573,7 @@ set(viewer_HEADER_FILES
     ViewerInstall.cmake
     llagent.h
     llagentaccess.h
+    llagentcamera.h
     llagentdata.h
     llagentlanguage.h
     llagentlistener.h

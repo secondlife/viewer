@@ -89,7 +89,7 @@ public:
 	const LLUUID		getWearableItemID(EWearableType type, U32 index /*= 0*/) const;
 	const LLUUID		getWearableAssetID(EWearableType type, U32 index /*= 0*/) const;
 	const LLWearable*	getWearableFromItemID(const LLUUID& item_id) const;
-	const LLWearable*	getWearableFromAssetID(const LLUUID& asset_id) const;
+	LLWearable*	getWearableFromAssetID(const LLUUID& asset_id);
 	LLInventoryItem*	getWearableInventoryItem(EWearableType type, U32 index /*= 0*/);
 	// MULTI-WEARABLE: assuming one per type.
 	static BOOL			selfHasWearable(EWearableType type);
@@ -218,7 +218,6 @@ private:
 	static BOOL		mInitialWearablesUpdateReceived;
 	BOOL			mWearablesLoaded;
 	std::set<LLUUID>	mItemsAwaitingWearableUpdate;
-	LLPointer<LLVOAvatarSelf> mAvatarObject; // NULL until avatar object sent down from simulator
 	
 	//--------------------------------------------------------------------------------
 	// Support classes

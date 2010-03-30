@@ -865,7 +865,7 @@ BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection) const
 BOOL LLFolderView::startDrag(LLToolDragAndDrop::ESource source)
 {
 	std::vector<EDragAndDropType> types;
-	std::vector<LLUUID> cargo_ids;
+	uuid_vec_t cargo_ids;
 	selected_items_t::iterator item_it;
 	BOOL can_drag = TRUE;
 	if (!mSelectedItems.empty())

@@ -152,7 +152,7 @@ class LLParticipantList
 		public:
 			LLParticipantListMenu(LLParticipantList& parent):mParent(parent){};
 			/*virtual*/ LLContextMenu* createMenu();
-			/*virtual*/ void show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y);
+			/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
 		protected:
 			LLParticipantList& mParent;
 		private:

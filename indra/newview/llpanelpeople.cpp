@@ -134,13 +134,13 @@ public:
 	typedef std::map < LLUUID, LLVector3d > id_to_pos_map_t;
 	LLAvatarItemDistanceComparator() {};
 
-	void updateAvatarsPositions(std::vector<LLVector3d>& positions, std::vector<LLUUID>& uuids)
+	void updateAvatarsPositions(std::vector<LLVector3d>& positions, uuid_vec_t& uuids)
 	{
 		std::vector<LLVector3d>::const_iterator
 			pos_it = positions.begin(),
 			pos_end = positions.end();
 
-		std::vector<LLUUID>::const_iterator
+		uuid_vec_t::const_iterator
 			id_it = uuids.begin(),
 			id_end = uuids.end();
 
@@ -756,7 +756,7 @@ void LLPanelPeople::updateButtons()
 	//bool recent_tab_active	= (cur_tab == RECENT_TAB_NAME);
 	LLUUID selected_id;
 
-	std::vector<LLUUID> selected_uuids;
+	uuid_vec_t selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 	bool item_selected = (selected_uuids.size() == 1);
 	bool multiple_selected = (selected_uuids.size() >= 1);
@@ -852,7 +852,7 @@ LLUUID LLPanelPeople::getCurrentItemID() const
 	return LLUUID::null;
 }
 
-void LLPanelPeople::getCurrentItemIDs(std::vector<LLUUID>& selected_uuids) const
+void LLPanelPeople::getCurrentItemIDs(uuid_vec_t& selected_uuids) const
 {
 	std::string cur_tab = getActiveTabName();
 
@@ -1063,10 +1063,10 @@ void LLPanelPeople::onAddFriendButtonClicked()
 	}
 }
 
-bool LLPanelPeople::isItemsFreeOfFriends(const std::vector<LLUUID>& uuids)
+bool LLPanelPeople::isItemsFreeOfFriends(const uuid_vec_t& uuids)
 {
 	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
-	for ( std::vector<LLUUID>::const_iterator
+	for ( uuid_vec_t::const_iterator
 			  id = uuids.begin(),
 			  id_end = uuids.end();
 		  id != id_end; ++id )
@@ -1094,7 +1094,7 @@ void LLPanelPeople::onAddFriendWizButtonClicked()
 
 void LLPanelPeople::onDeleteFriendButtonClicked()
 {
-	std::vector<LLUUID> selected_uuids;
+	uuid_vec_t selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 
 	if (selected_uuids.size() == 1)
@@ -1121,7 +1121,7 @@ void LLPanelPeople::onChatButtonClicked()
 
 void LLPanelPeople::onImButtonClicked()
 {
-	std::vector<LLUUID> selected_uuids;
+	uuid_vec_t selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 	if ( selected_uuids.size() == 1 )
 	{
@@ -1143,7 +1143,7 @@ void LLPanelPeople::onActivateButtonClicked()
 // static
 void LLPanelPeople::onAvatarPicked(
 		const std::vector<std::string>& names,
-		const std::vector<LLUUID>& ids)
+		const uuid_vec_t& ids)
 {
 	if (!names.empty() && !ids.empty())
 		LLAvatarActions::requestFriendshipDialog(ids[0], names[0]);
@@ -1293,7 +1293,7 @@ bool LLPanelPeople::onRecentViewSortMenuItemCheck(const LLSD& userdata)
 
 void LLPanelPeople::onCallButtonClicked()
 {
-	std::vector<LLUUID> selected_uuids;
+	uuid_vec_t selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 
 	if (selected_uuids.size() == 1)

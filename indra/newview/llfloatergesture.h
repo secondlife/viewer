@@ -85,7 +85,7 @@ private:
 	 * Therefore we have to copy these items to avoid viewer crash.
 	 * @see LLFloaterGesture::onActivateBtnClick
 	 */
-	void getSelectedIds(std::vector<LLUUID>& ids);
+	void getSelectedIds(uuid_vec_t& ids);
 	bool isActionEnabled(const LLSD& command);
 	/**
 	 * @brief Activation rules:

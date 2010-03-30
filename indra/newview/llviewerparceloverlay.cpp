@@ -43,11 +43,11 @@
 #include "v2math.h"
 
 // newview includes
+#include "llagentcamera.h"
 #include "llviewertexture.h"
 #include "llviewercontrol.h"
 #include "llsurface.h"
 #include "llviewerregion.h"
-#include "llagent.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
 #include "llselectmgr.h"
@@ -760,7 +760,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	LLGLDepthTest mDepthTest(GL_TRUE);
 
 	// Find camera height off the ground (not from zero)
-	F32 ground_height_at_camera = land.resolveHeightGlobal( gAgent.getCameraPositionGlobal() );
+	F32 ground_height_at_camera = land.resolveHeightGlobal( gAgentCamera.getCameraPositionGlobal() );
 	F32 camera_z = LLViewerCamera::getInstance()->getOrigin().mV[VZ];
 	F32 camera_height = camera_z - ground_height_at_camera;
 
@@ -791,7 +791,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	const S32 vertex_per_edge = 3 + 2 * (GRID_STEP-1) + 3;
 
 	// Stomp the camera into two dimensions
-	LLVector3 camera_region = mRegion->getPosRegionFromGlobal( gAgent.getCameraPositionGlobal() );
+	LLVector3 camera_region = mRegion->getPosRegionFromGlobal( gAgentCamera.getCameraPositionGlobal() );
 
 	// Set up a cull plane 2 * PARCEL_GRID_STEP_METERS behind
 	// the camera.  The cull plane normal is the camera's at axis.
