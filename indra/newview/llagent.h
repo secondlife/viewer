@@ -39,9 +39,6 @@
 #include "llagentconstants.h"
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h" 			// LLAnimPauseRequest
-#include "llfollowcam.h" 			// Ventrella
-#include "llhudeffectlookat.h" 		// EPointAtType
-#include "llhudeffectpointat.h" 	// ELookAtType
 #include "llpointer.h"
 #include "lluicolor.h"
 #include "llvoavatardefines.h"

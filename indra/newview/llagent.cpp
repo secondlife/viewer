@@ -44,7 +44,6 @@
 #include "llcallingcard.h"
 #include "llchannelmanager.h"
 #include "llconsole.h"
-//#include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 #include "llfloaterreg.h"
@@ -90,41 +89,18 @@ const BOOL ANIMATE = TRUE;
 const U8 AGENT_STATE_TYPING =	0x04;
 const U8 AGENT_STATE_EDITING =  0x10;
 
-//drone wandering constants
-const F32 MAX_WANDER_TIME = 20.f;						// seconds
-const F32 MAX_HEADING_HALF_ERROR = 0.2f;				// radians
-const F32 WANDER_MAX_SLEW_RATE = 2.f * DEG_TO_RAD;		// radians / frame
-const F32 WANDER_TARGET_MIN_DISTANCE = 10.f;			// meters
-
 // Autopilot constants
-const F32 AUTOPILOT_HEADING_HALF_ERROR = 10.f * DEG_TO_RAD;	// radians
-const F32 AUTOPILOT_MAX_SLEW_RATE = 1.f * DEG_TO_RAD;		// radians / frame
-const F32 AUTOPILOT_STOP_DISTANCE = 2.f;					// meters
 const F32 AUTOPILOT_HEIGHT_ADJUST_DISTANCE = 8.f;			// meters
 const F32 AUTOPILOT_MIN_TARGET_HEIGHT_OFF_GROUND = 1.f;	// meters
 const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS = 1.5f;		// seconds
 
-// face editing constants
-const LLVector3d FACE_EDIT_CAMERA_OFFSET(0.4f, -0.05f, 0.07f);
-const LLVector3d FACE_EDIT_TARGET_OFFSET(0.f, 0.f, 0.05f);
-
-const F32 METERS_PER_WHEEL_CLICK = 1.f;
-
-const F32 MAX_TIME_DELTA = 1.f;
+const F32 MAX_VELOCITY_AUTO_LAND_SQUARED = 4.f * 4.f;
+const F64 CHAT_AGE_FAST_RATE = 3.0;
 
 // fidget constants
 const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
-const S32 MAX_NUM_CHAT_POSITIONS = 10;
-
-const F32 MAX_VELOCITY_AUTO_LAND_SQUARED = 4.f * 4.f;
-
-const F32 MAX_FOCUS_OFFSET = 20.f;
-
-const F32 MIN_RADIUS_ALPHA_SIZZLE = 0.5f;
-
-const F64 CHAT_AGE_FAST_RATE = 3.0;
 
 // The agent instance.
 LLAgent gAgent;
