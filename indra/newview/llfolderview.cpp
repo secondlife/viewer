@@ -979,7 +979,6 @@ void LLFolderView::finishRenamingItem( void )
 	if( mRenameItem )
 	{
 		setSelectionFromRoot( mRenameItem, TRUE );
-		mRenameItem = NULL;
 	}
 
 	// List is re-sorted alphabeticly, so scroll to make sure the selected item is visible.
