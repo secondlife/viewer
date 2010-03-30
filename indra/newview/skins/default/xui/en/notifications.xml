@@ -3111,6 +3111,18 @@ Teleport to [PICK]?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="TeleportToHistoryEntry"
+   type="alertmodal">
+Teleport to [HISTORY_ENTRY]?
+    <usetemplate
+     ignoretext="Confirm that I want to teleport to a history location"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Teleport"/>
+  </notification>
+
+  <notification
    icon="alert.tga"
    label="Message everyone in your Estate"
    name="MessageEstate"
