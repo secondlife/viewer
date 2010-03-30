@@ -52,6 +52,7 @@
 #include "llfloaterreg.h"		// getTypedInstance()
 #include "llfocusmgr.h"
 #include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "lllandmarklist.h"
 #include "lllineeditor.h"
@@ -322,7 +323,7 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
 
 		// Start speculative download of landmarks
 		const LLUUID landmark_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
-		gInventory.startBackgroundFetch(landmark_folder_id);
+		LLInventoryModelBackgroundFetch::instance().start(landmark_folder_id);
 
 		childSetFocus("location", TRUE);
 		gFocusMgr.triggerFocusFlash();

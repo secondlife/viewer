@@ -43,6 +43,7 @@
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
 #include "llscrollcontainer.h"
@@ -643,7 +644,7 @@ BOOL LLInventoryPanel::handleHover(S32 x, S32 y, MASK mask)
 	if(handled)
 	{
 		ECursorType cursor = getWindow()->getCursor();
-		if (LLInventoryModel::backgroundFetchActive() && cursor == UI_CURSOR_ARROW)
+		if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() && cursor == UI_CURSOR_ARROW)
 		{
 			// replace arrow cursor with arrow and hourglass cursor
 			getWindow()->setCursor(UI_CURSOR_WORKING);

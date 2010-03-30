@@ -62,6 +62,7 @@
 #include "llimfloater.h"
 #include "lllocationhistory.h"
 #include "llimageworker.h"
+
 #include "llloginflags.h"
 #include "llmd5.h"
 #include "llmemorystream.h"
@@ -116,6 +117,7 @@
 #include "llimagebmp.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llfriendcard.h"
 #include "llkeyboard.h"
 #include "llloginhandler.h"			// gLoginHandler, SLURL support
@@ -1846,7 +1848,7 @@ bool idle_startup()
 		}
 
         //DEV-17797.  get null folder.  Any items found here moved to Lost and Found
-        LLInventoryModel::findLostItems();
+        LLInventoryModelBackgroundFetch::instance().findLostItems();
 
 		LLStartUp::setStartupState( STATE_PRECACHE );
 		timeout.reset();

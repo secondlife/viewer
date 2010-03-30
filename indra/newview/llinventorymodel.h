@@ -81,7 +81,6 @@ public:
 		CHILDREN_MAYBE
 	};
 
-	// These are used a lot...
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryCategory> > cat_array_t;
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array_t;
 	typedef std::set<LLUUID> changed_items_t;
@@ -368,8 +367,6 @@ public:
 	// Utility Functions
 	void removeItem(const LLUUID& item_id);
 	
-    static void findLostItems();
-
 	// Data about the agent's root folder and root library folder
 	// are stored here, rather than in LLAgent where it used to be, because
 	// gInventory is a singleton and represents the agent's inventory.
@@ -501,12 +498,6 @@ private:
 	LLUUID mLibraryRootFolderID;
 	LLUUID mLibraryOwnerID;
 
-	static BOOL sTimelyFetchPending;
-	static S32  sNumFetchRetries;
-	static LLFrameTimer sFetchTimer;
-	static F32 sMinTimeBetweenFetches;
-	static F32 sMaxTimeBetweenFetches;
-
 	// Expected inventory cache version
 	const static S32 sCurrentInvCacheVersion;
 	
@@ -531,41 +522,6 @@ private:
 public:
 	// *NOTE: DEBUG functionality
 	void dumpInventory() const;
-
-
-	////////////////////////////////////////////////////////////////////////////////
-	// Bulk fetch
-public:
-	// Start and stop background breadth-first fetching of inventory contents.
-	// This gets triggered when performing a filter-search
-	void startBackgroundFetch(const LLUUID& cat_id = LLUUID::null);
-	static BOOL backgroundFetchActive();
-	static bool isEverythingFetched();
-	static void backgroundFetch(void*); // background fetch idle function
-	static void incrBulkFetch(S16 fetching) {  sBulkFetchCount+=fetching; if (sBulkFetchCount<0) sBulkFetchCount=0; }
-	static void stopBackgroundFetch(); // stop fetch process
-	static bool isBulkFetchProcessingComplete();
-
-	// Add categories to a list to be fetched in bulk.
-	static void bulkFetch(std::string url);
-
-	static bool libraryFetchStarted();
-	static bool libraryFetchCompleted();
-	static bool libraryFetchInProgress();
-	
-	static bool myInventoryFetchStarted();
-	static bool myInventoryFetchCompleted();
-	static bool myInventoryFetchInProgress();
-	
-private:
- 	static BOOL sMyInventoryFetchStarted;
-	static BOOL sLibraryFetchStarted;
-	static BOOL sAllFoldersFetched; 
-	static void setAllFoldersFetched();
-
-	// completing the fetch once per session should be sufficient
-	static BOOL sBackgroundFetchActive;
-	static S16 sBulkFetchCount;
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Login status

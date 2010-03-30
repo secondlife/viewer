@@ -52,6 +52,7 @@
 #include "llinventoryclipboard.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -729,7 +730,7 @@ BOOL LLInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
 
 		if (*type == DAD_CATEGORY)
 		{
-			gInventory.startBackgroundFetch(obj->getUUID());
+			LLInventoryModelBackgroundFetch::instance().start(obj->getUUID());
 		}
 
 		rv = TRUE;

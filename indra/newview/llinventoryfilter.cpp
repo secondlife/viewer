@@ -37,7 +37,8 @@
 // viewer includes
 #include "llfoldervieweventlistener.h"
 #include "llfolderviewitem.h"
-#include "llinventorymodel.h"	// gInventory.backgroundFetchActive()
+#include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llviewercontrol.h"
 #include "llfolderview.h"
 
@@ -713,7 +714,7 @@ const std::string& LLInventoryFilter::getFilterText()
 		filtered_by_all_types = FALSE;
 	}
 
-	if (!gInventory.backgroundFetchActive()
+	if (!LLInventoryModelBackgroundFetch::instance().backgroundFetchActive()
 		&& filtered_by_type
 		&& !filtered_by_all_types)
 	{

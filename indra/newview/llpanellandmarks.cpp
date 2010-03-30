@@ -49,6 +49,7 @@
 #include "lldndbutton.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "lllandmarkactions.h"
 #include "llplacesinventorybridge.h"
@@ -556,7 +557,7 @@ void LLLandmarksPanel::initLibraryInventoryPanel()
 	const LLUUID &landmarks_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false, true);
 	if (landmarks_cat.notNull())
 	{
-		gInventory.startBackgroundFetch(landmarks_cat);
+		LLInventoryModelBackgroundFetch::instance().start(landmarks_cat);
 	}
 
 	// Expanding "Library" tab for new users who have no landmarks in "My Inventory".
@@ -620,7 +621,7 @@ void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLPlacesI
 		  if (!gInventory.isCategoryComplete(cat_id))
 		*/
 		{
-			gInventory.startBackgroundFetch(cat_id);
+			LLInventoryModelBackgroundFetch::instance().start(cat_id);
 		}
 
 		// Apply filter substring because it might have been changed
