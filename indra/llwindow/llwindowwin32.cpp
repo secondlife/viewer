@@ -2959,7 +2959,7 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
 }
 
 
-void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url )
+void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
 {
 	bool found = false;
 	S32 i;
@@ -2989,7 +2989,12 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url )
 
 	// let the OS decide what to use to open the URL
 	SHELLEXECUTEINFO sei = { sizeof( sei ) };
-	sei.fMask = SEE_MASK_FLAG_DDEWAIT;
+	// NOTE: this assumes that SL will stick around long enough to complete the DDE message exchange
+	// necessary for ShellExecuteEx to complete
+	if (async)
+	{
+		sei.fMask = SEE_MASK_ASYNCOK;
+	}
 	sei.nShow = SW_SHOWNORMAL;
 	sei.lpVerb = L"open";
 	sei.lpFile = url_utf16.c_str();

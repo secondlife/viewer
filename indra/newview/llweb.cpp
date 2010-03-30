@@ -103,8 +103,18 @@ void LLWeb::loadURLInternal(const std::string &url)
 // static
 void LLWeb::loadURLExternal(const std::string& url)
 {
+	loadURLExternal(url, true);
+}
+
+
+// static
+void LLWeb::loadURLExternal(const std::string& url, bool async)
+{
 	std::string escaped_url = escapeURL(url);
-	gViewerWindow->getWindow()->spawnWebBrowser(escaped_url);
+	if (gViewerWindow)
+	{
+		gViewerWindow->getWindow()->spawnWebBrowser(escaped_url, async);
+	}
 }
 
 
