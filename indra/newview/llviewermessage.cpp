@@ -4530,68 +4530,71 @@ void process_time_dilation(LLMessageSystem *msg, void **user_data)
 }
 */
 
-
-static void show_money_balance_notification(const std::string& desc)
-{
-	// Intercept some messages constructed in lltransactionflags.cpp
-	// to fix avatar names and allow localization.
-	LLSD args;
-	LLSD payload;
-	std::string name;
-	boost::smatch match;
-	const char* notification_name = NULL;
-
-	// <name> paid you L$<amount> for <reason>.
-	static const boost::regex paid_you_for("(.+) paid you L\\$(\\d+) for (.*)\\.");
-	// <name> paid you L$<amount>.
-	static const boost::regex paid_you("(.+) paid you L\\$(\\d+)\\.");
-	// You paid <name> L$<amount> [for <reason>].
-	static const boost::regex you_paid("You paid (.*) L\\$(\\d+)(.*)\\.");
-
-	if (boost::regex_match(desc, match, paid_you_for))
-	{
-		name = match[1].str();
-		// IDEVO strip legacy "Resident" name
-		name = LLCacheName::cleanFullName(name);
-		args["NAME"] = name;
-		args["AMOUNT"] = match[2].str();
-		args["REASON"] = match[3].str();
-		notification_name = "PaymentReceivedFor";
-	}
-	else if (boost::regex_match(desc, match, paid_you))
-	{
-		name = match[1].str();
-		// IDEVO strip legacy "Resident" name
-		name = LLCacheName::cleanFullName(name);
-		args["NAME"] = name;
-		args["AMOUNT"] = match[2].str();
-		notification_name = "PaymentReceived";
-	}
-	else if (boost::regex_match(desc, match, you_paid))
-	{
-		name = match[1].str();
-		// IDEVO strip legacy "Resident" name
-		name = LLCacheName::cleanFullName(name);
-		args["NAME"] = name;
-		args["AMOUNT"] = match[2].str();
-		args["REASON"] = match[3].str();
-		notification_name = "PaymentSent";
-	}
-
-	// if name extracted and name cache contains avatar id send loggable notification
-	LLUUID from_id;
-	if (notification_name != NULL
-		&& gCacheName->getUUID(name, from_id))
-	{
-		payload["from_id"] = from_id;
-		LLNotificationsUtil::add(notification_name, args, payload);
-	}
-	else
-	{
-		args["MESSAGE"] = desc;
-		LLNotificationsUtil::add("SystemMessage", args);
-	}
-}
+// Both Product Engine and I wrote solutions to non-localized payment messages.
+// Their code probably has more localized strings against it.
+// James Cook, 2010-03-27
+//
+//static void show_money_balance_notification(const std::string& desc)
+//{
+//	// Intercept some messages constructed in lltransactionflags.cpp
+//	// to fix avatar names and allow localization.
+//	LLSD args;
+//	LLSD payload;
+//	std::string name;
+//	boost::smatch match;
+//	const char* notification_name = NULL;
+//
+//	// <name> paid you L$<amount> for <reason>.
+//	static const boost::regex paid_you_for("(.+) paid you L\\$(\\d+) for (.*)\\.");
+//	// <name> paid you L$<amount>.
+//	static const boost::regex paid_you("(.+) paid you L\\$(\\d+)\\.");
+//	// You paid <name> L$<amount> [for <reason>].
+//	static const boost::regex you_paid("You paid (.*) L\\$(\\d+)(.*)\\.");
+//
+//	if (boost::regex_match(desc, match, paid_you_for))
+//	{
+//		name = match[1].str();
+//		// IDEVO strip legacy "Resident" name
+//		name = LLCacheName::cleanFullName(name);
+//		args["NAME"] = name;
+//		args["AMOUNT"] = match[2].str();
+//		args["REASON"] = match[3].str();
+//		notification_name = "PaymentReceivedFor";
+//	}
+//	else if (boost::regex_match(desc, match, paid_you))
+//	{
+//		name = match[1].str();
+//		// IDEVO strip legacy "Resident" name
+//		name = LLCacheName::cleanFullName(name);
+//		args["NAME"] = name;
+//		args["AMOUNT"] = match[2].str();
+//		notification_name = "PaymentReceived";
+//	}
+//	else if (boost::regex_match(desc, match, you_paid))
+//	{
+//		name = match[1].str();
+//		// IDEVO strip legacy "Resident" name
+//		name = LLCacheName::cleanFullName(name);
+//		args["NAME"] = name;
+//		args["AMOUNT"] = match[2].str();
+//		args["REASON"] = match[3].str();
+//		notification_name = "PaymentSent";
+//	}
+//
+//	// if name extracted and name cache contains avatar id send loggable notification
+//	LLUUID from_id;
+//	if (notification_name != NULL
+//		&& gCacheName->getUUID(name, from_id))
+//	{
+//		payload["from_id"] = from_id;
+//		LLNotificationsUtil::add(notification_name, args, payload);
+//	}
+//	else
+//	{
+//		args["MESSAGE"] = desc;
+//		LLNotificationsUtil::add("SystemMessage", args);
+//	}
+//}
 
 void process_money_balance_reply( LLMessageSystem* msg, void** )
 {
@@ -4667,13 +4670,13 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	
 			//reform description
 			LLStringUtil::format_map_t str_args;
-			str_args["NAME"] = base_name;
+			str_args["NAME"] = LLCacheName::cleanFullName(name);
 			str_args["AMOUNT"] = ammount;
 			std::string new_description = LLTrans::getString("paid_you_ldollars", str_args);
 
 
 			args["MESSAGE"] = new_description;
-			args["NAME"] = name;
+			args["NAME"] = LLCacheName::cleanFullName(name);
 			LLSD payload;
 			payload["from_id"] = from_id;
 			LLNotificationsUtil::add("PaymentReceived", args, payload);
@@ -4712,7 +4715,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 					std::string name = std::string(matches[1]);
 					if(!name.empty())
 					{
-						str_args["[NAME]"] = name;
+						str_args["[NAME]"] = LLCacheName::cleanFullName(name);
 						line = "you_paid_ldollars";
 					}
 
