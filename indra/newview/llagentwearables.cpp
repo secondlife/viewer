@@ -1629,18 +1629,10 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 		if (new_wearable)
 		{
 			const EWearableType type = new_wearable->getType();
-				// Special case where you're putting on a wearable that has the same assetID
-				// as the previous (e.g. wear a shirt then wear a copy of that shirt) since in this
-				// case old_wearable == new_wearable.
-				if (old_wearable == new_wearable)
-				{
-					old_wearable->setLabelUpdated();
-					new_wearable->setName(new_item->getName());
-					new_wearable->setItemID(new_item->getUUID());
-				}
-
-			
+		
+			new_wearable->setName(new_item->getName());
 			new_wearable->setItemID(new_item->getUUID());
+
 			if (LLWearableDictionary::getAssetType(type) == LLAssetType::AT_BODYPART)
 			{
 				// exactly one wearable per body part
