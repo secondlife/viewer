@@ -89,6 +89,7 @@ private:
 
 	std::string mProfileDir;
 	std::string mHostLanguage;
+	std::string mUserAgent;
 	bool mCookiesEnabled;
 	bool mJavascriptEnabled;
 	bool mPluginsEnabled;
@@ -300,7 +301,7 @@ private:
 		LLQtWebKit::getInstance()->addObserver( mBrowserWindowId, this );
 
 		// append details to agent string
-		LLQtWebKit::getInstance()->setBrowserAgentId( "LLPluginMedia Web Browser" );
+		LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 
 #if !LL_QTWEBKIT_USES_PIXMAPS
 		// don't flip bitmap
@@ -675,6 +676,7 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 	mHostLanguage = "en";		// default to english
 	mJavascriptEnabled = true;	// default to on
 	mPluginsEnabled = true;		// default to on
+	mUserAgent = "LLPluginMedia Web Browser";
 }
 
 MediaPluginWebKit::~MediaPluginWebKit()
@@ -1086,8 +1088,8 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			}
 			else if(message_name == "set_user_agent")
 			{
-				std::string user_agent = message_in.getValue("user_agent");
-				LLQtWebKit::getInstance()->setBrowserAgentId( user_agent );
+				mUserAgent = message_in.getValue("user_agent");
+				LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 			}
 			else if(message_name == "init_history")
 			{
