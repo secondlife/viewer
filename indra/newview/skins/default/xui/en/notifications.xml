@@ -4667,9 +4667,10 @@ Please select at least one type of content to search (General, Moderate, or Adul
    icon="notify.tga"
    name="PaymentReceived"
    type="notify">
-[NAME] paid you L$[AMOUNT].
+[MESSAGE]
   </notification>
 
+  <!--
   <notification
    icon="notify.tga"
    name="PaymentReceivedFor"
@@ -4683,6 +4684,7 @@ Please select at least one type of content to search (General, Moderate, or Adul
    type="notify">
 You paid [NAME] L$[AMOUNT][REASON].
   </notification>
+  -->
 
   <notification
    icon="notify.tga"

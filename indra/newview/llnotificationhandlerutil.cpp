@@ -116,8 +116,8 @@ const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 		REVOKED_MODIFY_RIGHTS("RevokedModifyRights"), OBJECT_GIVE_ITEM(
 				"ObjectGiveItem"),
 						PAYMENT_RECEIVED("PaymentReceived"),
-						PAYMENT_RECEIVED_FOR("PaymentReceivedFor"),
-						PAYMENT_SENT("PaymentSent"),
+//						PAYMENT_RECEIVED_FOR("PaymentReceivedFor"),
+//						PAYMENT_SENT("PaymentSent"),
 						ADD_FRIEND_WITH_MESSAGE("AddFriendWithMessage"),
 						USER_GIVE_ITEM("UserGiveItem"),
 						INVENTORY_ACCEPTED("InventoryAccepted"),
@@ -139,8 +139,8 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 	return GRANTED_MODIFY_RIGHTS == notification->getName()
 			|| REVOKED_MODIFY_RIGHTS == notification->getName()
 			|| PAYMENT_RECEIVED == notification->getName()
-			|| PAYMENT_RECEIVED_FOR == notification->getName()
-			|| PAYMENT_SENT == notification->getName()
+//			|| PAYMENT_RECEIVED_FOR == notification->getName()
+//			|| PAYMENT_SENT == notification->getName()
 			|| OFFER_FRIENDSHIP == notification->getName()
 			|| FRIENDSHIP_OFFERED == notification->getName()
 			|| FRIENDSHIP_ACCEPTED == notification->getName()
