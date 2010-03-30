@@ -51,6 +51,7 @@
 //#include "llfirstuse.h"
 #include "llfloaterreg.h"		// getTypedInstance()
 #include "llfocusmgr.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"

@@ -31,28 +31,28 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
-#include "llagent.h"
-#include "llagentcamera.h"
 #include "llagentwearables.h"
 
+#include "llaccordionctrltab.h"
+#include "llagent.h"
+#include "llagentcamera.h"
+#include "llappearancemgr.h"
 #include "llcallbacklist.h"
 #include "llfloatercustomize.h"
+#include "llfolderview.h"
+#include "llgesturemgr.h"
 #include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llnotificationsutil.h"
+#include "llpaneloutfitsinventory.h"
+#include "llsidetray.h"
+#include "lltexlayer.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llwearable.h"
 #include "llwearablelist.h"
-#include "llgesturemgr.h"
-#include "llappearancemgr.h"
-#include "lltexlayer.h"
-#include "llsidetray.h"
-#include "llpaneloutfitsinventory.h"
-#include "llfolderview.h"
-#include "llaccordionctrltab.h"
 
 #include <boost/scoped_ptr.hpp>
 

@@ -86,6 +86,177 @@
 BOOL LLInventoryState::sWearNewClothing = FALSE;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
 
+
+///----------------------------------------------------------------------------
+/// LLInventoryCollectFunctor implementations
+///----------------------------------------------------------------------------
+
+// static
+bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* item)
+{
+	if (!item)
+		return false;
+
+	bool allowed = false;
+
+	switch(item->getType())
+	{
+	case LLAssetType::AT_CALLINGCARD:
+		// not allowed
+		break;
+		
+	case LLAssetType::AT_OBJECT:
+		if (isAgentAvatarValid() && !gAgentAvatarp->isWearingAttachment(item->getUUID()))
+		{
+			allowed = true;
+		}
+		break;
+		
+	case LLAssetType::AT_BODYPART:
+	case LLAssetType::AT_CLOTHING:
+		if(!gAgentWearables.isWearingItem(item->getUUID()))
+		{
+			allowed = true;
+		}
+		break;
+		
+	default:
+		allowed = true;
+		break;
+	}
+
+	return allowed;
+}
+
+bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if(mType == LLAssetType::AT_CATEGORY)
+	{
+		if(cat) return TRUE;
+	}
+	if(item)
+	{
+		if(item->getType() == mType) return TRUE;
+	}
+	return FALSE;
+}
+
+bool LLIsNotType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if(mType == LLAssetType::AT_CATEGORY)
+	{
+		if(cat) return FALSE;
+	}
+	if(item)
+	{
+		if(item->getType() == mType) return FALSE;
+		else return TRUE;
+	}
+	return TRUE;
+}
+
+bool LLIsTypeWithPermissions::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if(mType == LLAssetType::AT_CATEGORY)
+	{
+		if(cat) 
+		{
+			return TRUE;
+		}
+	}
+	if(item)
+	{
+		if(item->getType() == mType)
+		{
+			LLPermissions perm = item->getPermissions();
+			if ((perm.getMaskBase() & mPerm) == mPerm)
+			{
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+bool LLBuddyCollector::operator()(LLInventoryCategory* cat,
+								  LLInventoryItem* item)
+{
+	if(item)
+	{
+		if((LLAssetType::AT_CALLINGCARD == item->getType())
+		   && (!item->getCreatorUUID().isNull())
+		   && (item->getCreatorUUID() != gAgent.getID()))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+bool LLUniqueBuddyCollector::operator()(LLInventoryCategory* cat,
+										LLInventoryItem* item)
+{
+	if(item)
+	{
+		if((LLAssetType::AT_CALLINGCARD == item->getType())
+ 		   && (item->getCreatorUUID().notNull())
+ 		   && (item->getCreatorUUID() != gAgent.getID()))
+		{
+			mSeen.insert(item->getCreatorUUID());
+			return true;
+		}
+	}
+	return false;
+}
+
+
+bool LLParticularBuddyCollector::operator()(LLInventoryCategory* cat,
+											LLInventoryItem* item)
+{
+	if(item)
+	{
+		if((LLAssetType::AT_CALLINGCARD == item->getType())
+		   && (item->getCreatorUUID() == mBuddyID))
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+
+bool LLNameCategoryCollector::operator()(
+	LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if(cat)
+	{
+		if (!LLStringUtil::compareInsensitive(mName, cat->getName()))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+///----------------------------------------------------------------------------
+/// LLAssetIDMatches 
+///----------------------------------------------------------------------------
+bool LLAssetIDMatches::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	return (item && item->getAssetUUID() == mAssetID);
+}
+
+///----------------------------------------------------------------------------
+/// LLLinkedItemIDMatches 
+///----------------------------------------------------------------------------
+bool LLLinkedItemIDMatches::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	return (item && 
+			(item->getIsLinkType()) &&
+			(item->getLinkedUUID() == mBaseItemID)); // A linked item's assetID will be the compared-to item's itemID.
+}
+
 void LLSaveFolderState::setApply(BOOL apply)
 {
 	mApply = apply; 

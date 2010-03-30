@@ -44,6 +44,7 @@
 #include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llgesturemgr.h"

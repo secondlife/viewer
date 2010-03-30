@@ -43,6 +43,7 @@
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
