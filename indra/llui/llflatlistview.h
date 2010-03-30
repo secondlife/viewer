@@ -224,7 +224,7 @@ public:
 	 * Get LLUUIDs associated with selected items
 	 * @param selected_uuids An std::vector being populated with LLUUIDs associated with selected items
 	 */
-	virtual void getSelectedUUIDs(std::vector<LLUUID>& selected_uuids) const;
+	virtual void getSelectedUUIDs(uuid_vec_t& selected_uuids) const;
 
 	/** Get the top selected item */
 	virtual LLPanel* getSelectedItem() const;

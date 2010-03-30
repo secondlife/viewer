@@ -206,7 +206,7 @@ void LLSidepanelAppearance::onFilterEdit(const std::string& search_string)
 
 void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 {
-	const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getBaseOutfitLink();
+	const LLViewerInventoryItem *outfit_link = LLAppearanceMgr::getInstance()->getBaseOutfitLink();
 	if (!outfit_link)
 		return;
 	if (!outfit_link->getIsLinkType())
@@ -320,11 +320,11 @@ void LLSidepanelAppearance::updateVerbs()
 
 void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
-	mOutfitDirtyTag->setVisible(LLAppearanceManager::getInstance()->isOutfitDirty());
+	mOutfitDirtyTag->setVisible(LLAppearanceMgr::getInstance()->isOutfitDirty());
 	if (name == "")
 	{
 		std::string outfit_name;
-		if (LLAppearanceManager::getInstance()->getBaseOutfitName(outfit_name))
+		if (LLAppearanceMgr::getInstance()->getBaseOutfitName(outfit_name))
 		{
 				mCurrentLookName->setText(outfit_name);
 				return;
@@ -366,11 +366,10 @@ void LLSidepanelAppearance::fetchInventory()
 		}
 	}
 
-	LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-	if(avatarp)
+	if (isAgentAvatarValid())
 	{
-		for (LLVOAvatar::attachment_map_t::const_iterator iter = avatarp->mAttachmentPoints.begin(); 
-			 iter != avatarp->mAttachmentPoints.end(); ++iter)
+		for (LLVOAvatar::attachment_map_t::const_iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+			 iter != gAgentAvatarp->mAttachmentPoints.end(); ++iter)
 		{
 			LLViewerJointAttachment* attachment = iter->second;
 			if (!attachment) continue;

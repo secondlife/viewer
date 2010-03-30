@@ -173,7 +173,7 @@ public:
 
 	static void onEjectMembers(void*);
 	void handleEjectMembers();
-	void sendEjectNotifications(const LLUUID& group_id, const std::vector<LLUUID>& selected_members);
+	void sendEjectNotifications(const LLUUID& group_id, const uuid_vec_t& selected_members);
 
 	static void onRoleCheck(LLUICtrl* check, void* user_data);
 	void handleRoleCheck(const LLUUID& role_id,

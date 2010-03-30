@@ -162,7 +162,7 @@ LLIMModel::LLIMModel()
 	addNewMsgCallback(toast_callback);
 }
 
-LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids, bool voice)
+LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice)
 :	mSessionID(session_id),
 	mName(name),
 	mType(type),
@@ -444,7 +444,7 @@ LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
 }
 
 //*TODO consider switching to using std::set instead of std::list for holding LLUUIDs across the whole code
-LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const std::vector<LLUUID>& ids)
+LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
 {
 	S32 num = ids.size();
 	if (!num) return NULL;
@@ -461,7 +461,7 @@ LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const std::vector<LLUUID>&
 
 		std::list<LLUUID> tmp_list(session->mInitialTargetIDs.begin(), session->mInitialTargetIDs.end());
 
-		std::vector<LLUUID>::const_iterator iter = ids.begin();
+		uuid_vec_t::const_iterator iter = ids.begin();
 		while (iter != ids.end())
 		{
 			tmp_list.remove(*iter);
@@ -592,7 +592,7 @@ void LLIMModel::testMessages()
 
 //session name should not be empty
 bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, 
-						   const LLUUID& other_participant_id, const std::vector<LLUUID>& ids, bool voice)
+						   const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice)
 {
 	if (name.empty())
 	{
@@ -617,7 +617,7 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 
 bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, bool voice)
 {
-	std::vector<LLUUID> no_ids;
+	uuid_vec_t no_ids;
 	return newSession(session_id, name, type, other_participant_id, no_ids, voice);
 }
 
@@ -1023,7 +1023,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		}
 		else
 		{
-			for(std::vector<LLUUID>::iterator it = session->mInitialTargetIDs.begin();
+			for(uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();
 				it!=session->mInitialTargetIDs.end();++it)
 			{
 				const LLUUID id = *it;
@@ -1155,7 +1155,7 @@ private:
 bool LLIMModel::sendStartSession(
 	const LLUUID& temp_session_id,
 	const LLUUID& other_participant_id,
-	const std::vector<LLUUID>& ids,
+	const uuid_vec_t& ids,
 	EInstantMessage dialog)
 {
 	if ( dialog == IM_SESSION_GROUP_START )

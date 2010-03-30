@@ -53,7 +53,7 @@ class LLAvatarList : public LLFlatListView
 {
 	LOG_CLASS(LLAvatarList);
 public:
-	typedef std::vector<LLUUID> uuid_vector_t;
+	typedef uuid_vec_t uuid_vector_t;
 
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
@@ -103,9 +103,9 @@ protected:
 
 	void addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos = ADD_BOTTOM);
 	void computeDifference(
-		const std::vector<LLUUID>& vnew,
-		std::vector<LLUUID>& vadded,
-		std::vector<LLUUID>& vremoved);
+		const uuid_vec_t& vnew,
+		uuid_vec_t& vadded,
+		uuid_vec_t& vremoved);
 	void updateLastInteractionTimes();
 	void onItemDoucleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
 

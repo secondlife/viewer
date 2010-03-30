@@ -118,13 +118,12 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 
 	out << std::endl;
 
-	LLVOAvatarSelf *avatar = gAgent.getAvatarObject();
-	if(avatar)
+	if(isAgentAvatarValid())
 	{
 		for (entry_info_list_t::iterator iter = mDrivenInfoList.begin(); iter != mDrivenInfoList.end(); iter++)
 		{
 			LLDrivenEntryInfo driven = *iter;
-			LLViewerVisualParam *param = (LLViewerVisualParam*)avatar->getVisualParam(driven.mDrivenID);
+			LLViewerVisualParam *param = (LLViewerVisualParam*)gAgentAvatarp->getVisualParam(driven.mDrivenID);
 			if (param)
 			{
 				param->getInfo()->toStream(out);
@@ -146,7 +145,7 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 			}
 			else
 			{
-				llwarns << "could not get parameter " << driven.mDrivenID << " from avatar " << avatar << " for driver parameter " << getID() << llendl;
+				llwarns << "could not get parameter " << driven.mDrivenID << " from avatar " << gAgentAvatarp << " for driver parameter " << getID() << llendl;
 			}
 			out << std::endl;
 		}
@@ -626,13 +625,13 @@ F32 LLDriverParam::getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight
 
 void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake)
 {
-	LLVOAvatarSelf *avatar_self = gAgent.getAvatarObject();
-	if(mWearablep && 
+	if(isAgentAvatarValid() &&
+	   mWearablep && 
 	   driven->mParam->getCrossWearable() &&
 	   mWearablep->isOnTop())
 	{
 		// call setWeight through LLVOAvatarSelf so other wearables can be updated with the correct values
-		avatar_self->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, upload_bake );
+		gAgentAvatarp->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, upload_bake );
 	}
 	else
 	{

@@ -1746,7 +1746,7 @@ bool idle_startup()
 			{
 				LL_DEBUGS("AppInit") << "Gesture Manager loading " << gesture_options.size()
 					<< LL_ENDL;
-				std::vector<LLUUID> item_ids;
+				uuid_vec_t item_ids;
 				for(LLSD::array_const_iterator resp_it = gesture_options.beginArray(),
 					end = gesture_options.endArray(); resp_it != end; ++resp_it)
 				{
@@ -1760,7 +1760,7 @@ bool idle_startup()
 						// Could schedule and delay these for later.
 						const BOOL no_inform_server = FALSE;
 						const BOOL no_deactivate_similar = FALSE;
-						LLGestureManager::instance().activateGestureWithAsset(item_id, asset_id,
+						LLGestureMgr::instance().activateGestureWithAsset(item_id, asset_id,
 											 no_inform_server,
 											 no_deactivate_similar);
 						// We need to fetch the inventory items for these gestures
@@ -1769,7 +1769,7 @@ bool idle_startup()
 					}
 				}
 				// no need to add gesture to inventory observer, it's already made in constructor 
-				LLGestureManager::instance().fetchItems(item_ids);
+				LLGestureMgr::instance().fetchItems(item_ids);
 			}
 		}
 		gDisplaySwapBuffers = TRUE;
@@ -1864,7 +1864,7 @@ bool idle_startup()
 		if (gAgent.isFirstLogin()
 			&& !sInitialOutfit.empty()    // registration set up an outfit
 			&& !sInitialOutfitGender.empty() // and a gender
-			&& gAgent.getAvatarObject()	  // can't wear clothes without object
+			&& isAgentAvatarValid()	  // can't wear clothes without object
 			&& !gAgent.isGenderChosen() ) // nothing already loading
 		{
 			// Start loading the wearables, textures, gestures
@@ -1872,7 +1872,7 @@ bool idle_startup()
 		}
 
 		// wait precache-delay and for agent's avatar or a lot longer.
-		if(((timeout_frac > 1.f) && gAgent.getAvatarObject())
+		if(((timeout_frac > 1.f) && isAgentAvatarValid())
 		   || (timeout_frac > 3.f))
 		{
 			LLStartUp::setStartupState( STATE_WEARABLES_WAIT );
@@ -1928,8 +1928,8 @@ bool idle_startup()
 		if (gAgent.isFirstLogin())
 		{
 			// wait for avatar to be completely loaded
-			if (gAgent.getAvatarObject()
-				&& gAgent.getAvatarObject()->isFullyLoaded())
+			if (isAgentAvatarValid()
+				&& gAgentAvatarp->isFullyLoaded())
 			{
 				//llinfos << "avatar fully loaded" << llendl;
 				LLStartUp::setStartupState( STATE_CLEANUP );
@@ -2536,7 +2536,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	llinfos << "starting" << llendl;
 
 	// Not going through the processAgentInitialWearables path, so need to set this here.
-	LLAppearanceManager::instance().setAttachmentInvLinkEnable(true);
+	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	// Initiate creation of COF, since we're also bypassing that.
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 	
@@ -2567,13 +2567,13 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		bool do_copy = true;
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
-		LLAppearanceManager::instance().wearInventoryCategory(cat, do_copy, do_append);
+		LLAppearanceMgr::instance().wearInventoryCategory(cat, do_copy, do_append);
 	}
 
 	// Copy gestures
 	LLUUID dst_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
 	LLPointer<LLInventoryCallback> cb(NULL);
-	LLAppearanceManager *app_mgr = &(LLAppearanceManager::instance());
+	LLAppearanceMgr *app_mgr = &(LLAppearanceMgr::instance());
 
 	// - Copy gender-specific gestures.
 	LLUUID gestures_cat_id = findDescendentCategoryIDByName( 
@@ -2582,7 +2582,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	if (gestures_cat_id.notNull())
 	{
 		callAfterCategoryFetch(gestures_cat_id,
-							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+							   boost::bind(&LLAppearanceMgr::shallowCopyCategory,
 										   app_mgr,
 										   gestures_cat_id,
 										   dst_id,
@@ -2596,7 +2596,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	if (common_gestures_cat_id.notNull())
 	{
 		callAfterCategoryFetch(common_gestures_cat_id,
-							   boost::bind(&LLAppearanceManager::shallowCopyCategory,
+							   boost::bind(&LLAppearanceMgr::shallowCopyCategory,
 										   app_mgr,
 										   common_gestures_cat_id,
 										   dst_id,

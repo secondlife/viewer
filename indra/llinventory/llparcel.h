@@ -258,7 +258,7 @@ public:
 	void setMediaURLResetTimer(F32 time);
 	virtual void	setLocalID(S32 local_id);
 
-	// blow away all the extra crap lurking in parcels, including urls, access lists, etc
+	// blow away all the extra stuff lurking in parcels, including urls, access lists, etc
 	void clearParcel();
 
 	// This value is not persisted out to the parcel file, it is only
@@ -538,7 +538,7 @@ public:
 
 	static bool isAgentBlockedFromParcel(LLParcel* parcelp, 
 									const LLUUID& agent_id,
-									const std::vector<LLUUID>& group_ids,
+									const uuid_vec_t& group_ids,
 									const BOOL is_agent_identified,
 									const BOOL is_agent_transacted,
 									const BOOL is_agent_ageverified);

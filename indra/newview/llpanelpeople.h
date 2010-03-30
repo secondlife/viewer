@@ -78,12 +78,12 @@ private:
 	void					updateRecentList();
 
 	bool					isFriendOnline(const LLUUID& id);
-	bool					isItemsFreeOfFriends(const std::vector<LLUUID>& uuids);
+	bool					isItemsFreeOfFriends(const uuid_vec_t& uuids);
 
 	void					updateButtons();
 	std::string				getActiveTabName() const;
 	LLUUID					getCurrentItemID() const;
-	void					getCurrentItemIDs(std::vector<LLUUID>& selected_uuids) const;
+	void					getCurrentItemIDs(uuid_vec_t& selected_uuids) const;
 	void					buttonSetVisible(std::string btn_name, BOOL visible);
 	void					buttonSetEnabled(const std::string& btn_name, bool enabled);
 	void					buttonSetAction(const std::string& btn_name, const commit_signal_t::slot_type& cb);
@@ -134,7 +134,7 @@ private:
 	// misc callbacks
 	static void				onAvatarPicked(
 								const std::vector<std::string>& names,
-								const std::vector<LLUUID>& ids);
+								const uuid_vec_t& ids);
 
 	void					onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list);
 

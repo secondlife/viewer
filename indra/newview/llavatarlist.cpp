@@ -204,17 +204,17 @@ void LLAvatarList::refresh()
 	bool have_filter		= !mNameFilter.empty();
 
 	// Save selection.	
-	std::vector<LLUUID> selected_ids;
+	uuid_vec_t selected_ids;
 	getSelectedUUIDs(selected_ids);
 	LLUUID current_id = getSelectedUUID();
 
 	// Determine what to add and what to remove.
-	std::vector<LLUUID> added, removed;
+	uuid_vec_t added, removed;
 	LLAvatarList::computeDifference(getIDs(), added, removed);
 
 	// Handle added items.
 	unsigned nadded = 0;
-	for (std::vector<LLUUID>::const_iterator it=added.begin(); it != added.end(); it++)
+	for (uuid_vec_t::const_iterator it=added.begin(); it != added.end(); it++)
 	{
 		std::string name;
 		const LLUUID& buddy_id = *it;
@@ -236,7 +236,7 @@ void LLAvatarList::refresh()
 	}
 
 	// Handle removed items.
-	for (std::vector<LLUUID>::const_iterator it=removed.begin(); it != removed.end(); it++)
+	for (uuid_vec_t::const_iterator it=removed.begin(); it != removed.end(); it++)
 	{
 		removeItemByUUID(*it);
 		modified = true;
@@ -369,7 +369,7 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 	if ( mContextMenu )
 	{
-		std::vector<LLUUID> selected_uuids;
+		uuid_vec_t selected_uuids;
 		getSelectedUUIDs(selected_uuids);
 		mContextMenu->show(this, selected_uuids, x, y);
 	}
@@ -377,12 +377,12 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 
 void LLAvatarList::computeDifference(
-	const std::vector<LLUUID>& vnew_unsorted,
-	std::vector<LLUUID>& vadded,
-	std::vector<LLUUID>& vremoved)
+	const uuid_vec_t& vnew_unsorted,
+	uuid_vec_t& vadded,
+	uuid_vec_t& vremoved)
 {
-	std::vector<LLUUID> vcur;
-	std::vector<LLUUID> vnew = vnew_unsorted;
+	uuid_vec_t vcur;
+	uuid_vec_t vnew = vnew_unsorted;
 
 	// Convert LLSDs to LLUUIDs.
 	{
@@ -396,7 +396,7 @@ void LLAvatarList::computeDifference(
 	std::sort(vcur.begin(), vcur.end());
 	std::sort(vnew.begin(), vnew.end());
 
-	std::vector<LLUUID>::iterator it;
+	uuid_vec_t::iterator it;
 	size_t maxsize = llmax(vcur.size(), vnew.size());
 	vadded.resize(maxsize);
 	vremoved.resize(maxsize);

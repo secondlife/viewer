@@ -460,7 +460,7 @@ void LLPanelOutfitEdit::lookFetched(void)
 	if (mLookContents->getItemCount() != mNumItemsInLook)
 	{
 		mNumItemsInLook = mLookContents->getItemCount();
-		LLAppearanceManager::instance().updateCOF(mLookID);
+		LLAppearanceMgr::instance().updateCOF(mLookID);
 	}
 }
 
@@ -470,7 +470,7 @@ void LLPanelOutfitEdit::updateLookInfo()
 	{
 		mLookContents->clearRows();
 		
-		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+		uuid_vec_t folders;
 		folders.push_back(mLookID);
 		mFetchLook->fetchDescendents(folders);
 		if (mFetchLook->isEverythingComplete())

@@ -365,9 +365,9 @@ public:
 			agent_center_text = llformat("AgentCenter  %f %f %f",
 										 (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
 
-			if (gAgent.getAvatarObject())
+			if (isAgentAvatarValid())
 			{
-				tvector = gAgent.getPosGlobalFromAgent(gAgent.getAvatarObject()->mRoot.getWorldPosition());
+				tvector = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot.getWorldPosition());
 				agent_root_center_text = llformat("AgentRootCenter %f %f %f",
 												  (F32)(tvector.mdV[VX]), (F32)(tvector.mdV[VY]), (F32)(tvector.mdV[VZ]));
 			}
@@ -2272,7 +2272,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// Try for a new-format gesture
-	if (LLGestureManager::instance().triggerGesture(key, mask))
+	if (LLGestureMgr::instance().triggerGesture(key, mask))
 	{
 		return TRUE;
 	}
@@ -3150,7 +3150,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 		// setup HUD render
 		if (selection->getSelectType() == SELECT_TYPE_HUD && LLSelectMgr::getInstance()->getSelection()->getObjectCount())
 		{
-			LLBBox hud_bbox = gAgent.getAvatarObject()->getHUDBBox();
+			LLBBox hud_bbox = gAgentAvatarp->getHUDBBox();
 
 			// set up transform to encompass bounding box of HUD
 			glMatrixMode(GL_PROJECTION);

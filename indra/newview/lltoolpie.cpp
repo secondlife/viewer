@@ -205,15 +205,15 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// touch behavior down below...
 			break;
 		case CLICK_ACTION_SIT:
-
-			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
-				handle_object_sit_or_stand();
-				// put focus in world when sitting on an object
-				gFocusMgr.setKeyboardFocus(NULL);
-				return TRUE;
-			} // else nothing (fall through to touch)
-			
+				if (isAgentAvatarValid() && !gAgentAvatarp->isSitting()) // agent not already sitting
+				{
+					handle_object_sit_or_stand();
+					// put focus in world when sitting on an object
+					gFocusMgr.setKeyboardFocus(NULL);
+					return TRUE;
+				} // else nothing (fall through to touch)
+			}
 		case CLICK_ACTION_PAY:
 			if ((object && object->flagTakesMoney())
 				|| (parent && parent->flagTakesMoney()))
@@ -330,7 +330,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			}
 			object = (LLViewerObject*)object->getParent();
 		}
-		if (object && object == gAgent.getAvatarObject())
+		if (object && object == gAgentAvatarp)
 		{
 			// we left clicked on avatar, switch to focus mode
 			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
@@ -411,9 +411,11 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	switch(click_action)
 	{
 	case CLICK_ACTION_SIT:
-		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // not already sitting?
 		{
-			cursor = UI_CURSOR_TOOLSIT;
+			if (isAgentAvatarValid() && !gAgentAvatarp->isSitting()) // not already sitting?
+			{
+				cursor = UI_CURSOR_TOOLSIT;
+			}
 		}
 		break;
 	case CLICK_ACTION_BUY:

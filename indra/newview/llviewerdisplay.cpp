@@ -345,9 +345,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		const F32 TELEPORT_ARRIVAL_DELAY = 2.f; // Time to preload the world before raising the curtain after we've actually already arrived.
 
 		S32 attach_count = 0;
-		if (gAgent.getAvatarObject())
+		if (isAgentAvatarValid())
 		{
-			attach_count = gAgent.getAvatarObject()->getAttachmentCount();
+			attach_count = gAgentAvatarp->getAttachmentCount();
 		}
 		F32 teleport_save_time = TELEPORT_EXPIRY + TELEPORT_EXPIRY_PER_ATTACHMENT * attach_count;
 		F32 teleport_elapsed = gTeleportDisplayTimer.getElapsedTimeF32();
@@ -1032,11 +1032,10 @@ LLRect get_whole_screen_region()
 
 bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::matrix4f &model)
 {
-	LLVOAvatar* my_avatarp = gAgent.getAvatarObject();
-	if (my_avatarp && my_avatarp->hasHUDAttachment())
+	if (isAgentAvatarValid() && gAgentAvatarp->hasHUDAttachment())
 	{
 		F32 zoom_level = gAgentCamera.mHUDCurZoom;
-		LLBBox hud_bbox = my_avatarp->getHUDBBox();
+		LLBBox hud_bbox = gAgentAvatarp->getHUDBBox();
 		
 		F32 hud_depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
 		proj = gl_ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, hud_depth);
@@ -1300,7 +1299,7 @@ void render_ui_2d()
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	// render outline for HUD
-	if (gAgent.getAvatarObject() && gAgentCamera.mHUDCurZoom < 0.98f)
+	if (isAgentAvatarValid() && gAgentCamera.mHUDCurZoom < 0.98f)
 	{
 		glPushMatrix();
 		S32 half_width = (gViewerWindow->getWorldViewWidthScaled() / 2);

@@ -147,7 +147,7 @@ public:
 	void setObject(LLViewerObject* object);
 	// *NOTE: invalidate stored textures and colors when # faces change
 	void saveColors();
-	void saveTextures(const std::vector<LLUUID>& textures);
+	void saveTextures(const uuid_vec_t& textures);
 	void saveTextureScaleRatios();
 
 	BOOL allowOperationOnNode(PermissionBit op, U64 group_proxy_power) const;
@@ -183,7 +183,7 @@ public:
 	std::string		mSitName;
 	U64				mCreationDate;
 	std::vector<LLColor4>	mSavedColors;
-	std::vector<LLUUID>		mSavedTextures;
+	uuid_vec_t		mSavedTextures;
 	std::vector<LLVector3>  mTextureScaleRatios;
 	std::vector<LLVector3>	mSilhouetteVertices;	// array of vertices to render silhouette of object
 	std::vector<LLVector3>	mSilhouetteNormals;	// array of normals to render silhouette of object

@@ -852,8 +852,8 @@ bool LLTextureCache::updateTextureEntryList(const LLUUID& id, S32 bodysize)
 			}			
 			else if (oldbodysize != entry.mBodySize)
 			{
-				// TODO: change to llwarns
-				llerrs << "Entry mismatch in mTextureSizeMap / mHeaderIDMap"
+				// only happens to 64 bits systems, do not know why.
+				llwarns << "Entry mismatch in mTextureSizeMap / mHeaderIDMap"
 					   << " idx=" << idx << " oldsize=" << oldbodysize << " entrysize=" << entry.mBodySize << llendl;
 			}
 			updateEntry(idx, entry, entry.mImageSize, bodysize);			
@@ -1221,9 +1221,17 @@ U32 LLTextureCache::openAndReadEntries(std::vector<Entry>& entries)
 	mFreeList.clear();
 	mTexturesSizeTotal = 0;
 
-	LLAPRFile* aprfile = openHeaderEntriesFile(true, 0);
-	updatedHeaderEntriesFile() ;
-	aprfile->seek(APR_SET, (S32)sizeof(EntriesInfo));
+	LLAPRFile* aprfile = NULL; 
+	if(mUpdatedEntryMap.empty())
+	{
+		aprfile = openHeaderEntriesFile(true, (S32)sizeof(EntriesInfo));
+	}
+	else //update the header file first.
+	{
+		aprfile = openHeaderEntriesFile(false, 0);
+		updatedHeaderEntriesFile() ;
+		aprfile->seek(APR_SET, (S32)sizeof(EntriesInfo));
+	}
 	for (U32 idx=0; idx<num_entries; idx++)
 	{
 		Entry entry;

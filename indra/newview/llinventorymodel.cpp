@@ -2595,7 +2595,7 @@ void LLInventoryModel::buildParentChildMap()
 	}
 	count = items.count();
 	lost = 0;
-	std::vector<LLUUID> lost_item_ids;
+	uuid_vec_t lost_item_ids;
 	for(i = 0; i < count; ++i)
 	{
 		LLPointer<LLViewerInventoryItem> item;
@@ -2634,7 +2634,7 @@ void LLInventoryModel::buildParentChildMap()
 		LLMessageSystem* msg = gMessageSystem;
 		BOOL start_new_message = TRUE;
 		const LLUUID lnf = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-		for(std::vector<LLUUID>::iterator it = lost_item_ids.begin() ; it < lost_item_ids.end(); ++it)
+		for(uuid_vec_t::iterator it = lost_item_ids.begin() ; it < lost_item_ids.end(); ++it)
 		{
 			if(start_new_message)
 			{
@@ -3094,7 +3094,7 @@ void LLInventoryModel::processRemoveInventoryItem(LLMessageSystem* msg, void**)
 		return;
 	}
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	std::vector<LLUUID> item_ids;
+	uuid_vec_t item_ids;
 	update_map_t update;
 	for(S32 i = 0; i < count; ++i)
 	{
@@ -3110,7 +3110,7 @@ void LLInventoryModel::processRemoveInventoryItem(LLMessageSystem* msg, void**)
 		}
 	}
 	gInventory.accountForUpdate(update);
-	for(std::vector<LLUUID>::iterator it = item_ids.begin(); it != item_ids.end(); ++it)
+	for(uuid_vec_t::iterator it = item_ids.begin(); it != item_ids.end(); ++it)
 	{
 		gInventory.deleteObject(*it);
 	}
@@ -3190,7 +3190,7 @@ void LLInventoryModel::processRemoveInventoryFolder(LLMessageSystem* msg,
 				<< llendl;
 		return;
 	}
-	std::vector<LLUUID> folder_ids;
+	uuid_vec_t folder_ids;
 	update_map_t update;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_FolderData);
 	for(S32 i = 0; i < count; ++i)
@@ -3204,7 +3204,7 @@ void LLInventoryModel::processRemoveInventoryFolder(LLMessageSystem* msg,
 		}
 	}
 	gInventory.accountForUpdate(update);
-	for(std::vector<LLUUID>::iterator it = folder_ids.begin(); it != folder_ids.end(); ++it)
+	for(uuid_vec_t::iterator it = folder_ids.begin(); it != folder_ids.end(); ++it)
 	{
 		gInventory.deleteObject(*it);
 	}
@@ -3317,7 +3317,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 
 
 	count = msg->getNumberOfBlocksFast(_PREHASH_ItemData);
-	std::vector<LLUUID> wearable_ids;
+	uuid_vec_t wearable_ids;
 	item_array_t items;
 	std::list<InventoryCallbackInfo> cblist;
 	for(i = 0; i < count; ++i)
@@ -3774,7 +3774,6 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* ite
 		return false;
 
 	bool allowed = false;
-	LLVOAvatarSelf* my_avatar = NULL;
 
 	switch(item->getType())
 	{
@@ -3783,8 +3782,7 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* ite
 		break;
 		
 	case LLAssetType::AT_OBJECT:
-		my_avatar = gAgent.getAvatarObject();
-		if(my_avatar && !my_avatar->isWearingAttachment(item->getUUID()))
+		if (isAgentAvatarValid() && !gAgentAvatarp->isWearingAttachment(item->getUUID()))
 		{
 			allowed = true;
 		}

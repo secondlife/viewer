@@ -62,6 +62,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewercamera.h"
 #include "llviewerstats.h"
+#include "llvoavatarself.h"
 
 // linden library headers
 #include "llprimitive.h"
@@ -433,7 +434,7 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 
 	// VEFFECT: AddObject
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-	effectp->setSourceObject((LLViewerObject*)gAgent.getAvatarObject());
+	effectp->setSourceObject((LLViewerObject*)gAgentAvatarp);
 	effectp->setPositionGlobal(regionp->getPosGlobalFromRegion(ray_end_region));
 	effectp->setDuration(LL_HUD_DUR_SHORT);
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
