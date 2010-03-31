@@ -32,6 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 //LLPanelPrimMediaControls
+#include "llagent.h"
 #include "llagentcamera.h"
 #include "llparcel.h"
 #include "llpanel.h"

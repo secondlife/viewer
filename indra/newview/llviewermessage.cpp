@@ -63,6 +63,7 @@
 #include "llfloaterpreference.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llnearbychat.h"
@@ -4030,7 +4031,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	//clear animation flags
 	avatarp = (LLVOAvatar *)gObjectList.findObject(uuid);
 
-	if (!isAgentAvatarValid())
+	if (!avatarp)
 	{
 		// no agent by this ID...error?
 		LL_WARNS("Messaging") << "Received animation state for unknown avatar" << uuid << LL_ENDL;

@@ -73,6 +73,7 @@
 #include "llhudmanager.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
 #include "llmenucommands.h"
