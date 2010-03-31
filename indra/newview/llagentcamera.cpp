@@ -35,50 +35,25 @@
 
 #include "pipeline.h"
 
-#include "llagentlistener.h"
-#include "llagentwearables.h"
-#include "llagentui.h"
+#include "llagent.h"
 #include "llanimationstates.h"
-#include "llbottomtray.h"
-#include "llcallingcard.h"
-#include "llchannelmanager.h"
-#include "llconsole.h"
-//#include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 #include "llfloaterreg.h"
-#include "llfloatertools.h"
-#include "llgroupactions.h"
-#include "llgroupmgr.h"
-#include "llhomelocationresponder.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
-#include "llmorphview.h"
-#include "llmoveview.h"
-#include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
-#include "llnearbychatbar.h"
-#include "llnotificationsutil.h"
-#include "llparcel.h"
-#include "llsdutil.h"
-#include "llsidetray.h"
-#include "llsky.h"
+#include "llselectmgr.h"
 #include "llsmoothstep.h"
-#include "llstatusbar.h"
-#include "llteleportflags.h"
-#include "lltool.h"
 #include "lltoolmgr.h"
-#include "lltrans.h"
+#include "llviewercamera.h"
 #include "llviewercontrol.h"
-#include "llviewerdisplay.h"
 #include "llviewerjoystick.h"
-#include "llviewermediafocus.h"
 #include "llviewerobjectlist.h"
-#include "llviewerparcelmgr.h"
-#include "llviewerstats.h"
+#include "llviewerregion.h"
+#include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwindow.h"
 #include "llworld.h"
-#include "llworldmap.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -181,6 +156,13 @@ LLAgentCamera::LLAgentCamera() :
 	mTrackFocusObject(TRUE),
 	mUIOffset(0.f),
 
+	mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
+	mWalkKey(0), // like AtKey, but causes less forward thrust
+	mLeftKey(0),
+	mUpKey(0),
+	mYawKey(0.f),
+	mPitchKey(0.f),
+
 	mOrbitLeftKey(0.f),
 	mOrbitRightKey(0.f),
 	mOrbitUpKey(0.f),
@@ -196,6 +178,10 @@ LLAgentCamera::LLAgentCamera() :
 	mPanOutKey(0.f)
 {
 	mFollowCam.setMaxCameraDistantFromSubject( MAX_CAMERA_DISTANCE_FROM_AGENT );
+
+	clearGeneralKeys();
+	clearOrbitKeys();
+	clearPanKeys();
 }
 
 // Requires gSavedSettings to be initialized.
@@ -1204,17 +1190,15 @@ void LLAgentCamera::updateCamera()
 	LLFloaterCamera* camera_floater = LLFloaterReg::findTypedInstance<LLFloaterCamera>("camera");
 	if (camera_floater)
 	{
-		camera_floater->mRotate->setToggleState(
-		mOrbitRightKey > 0.f,	// left
-		mOrbitUpKey > 0.f,		// top
-		mOrbitLeftKey > 0.f,	// right
-		mOrbitDownKey > 0.f);	// bottom
-
-		camera_floater->mTrack->setToggleState(
-		mPanLeftKey > 0.f,		// left
-		mPanUpKey > 0.f,		// top
-		mPanRightKey > 0.f,		// right
-		mPanDownKey > 0.f);		// bottom
+		camera_floater->mRotate->setToggleState(gAgentCamera.getOrbitRightKey() > 0.f,	// left
+												gAgentCamera.getOrbitUpKey() > 0.f,		// top
+												gAgentCamera.getOrbitLeftKey() > 0.f,	// right
+												gAgentCamera.getOrbitDownKey() > 0.f);	// bottom
+		
+		camera_floater->mTrack->setToggleState(gAgentCamera.getPanLeftKey() > 0.f,		// left
+											   gAgentCamera.getPanUpKey() > 0.f,			// top
+											   gAgentCamera.getPanRightKey() > 0.f,		// right
+											   gAgentCamera.getPanDownKey() > 0.f);		// bottom
 	}
 
 	// Handle camera movement based on keyboard.
@@ -1222,21 +1206,21 @@ void LLAgentCamera::updateCamera()
 	const F32 ORBIT_AROUND_RATE = 90.f * DEG_TO_RAD;		// radians per second
 	const F32 PAN_RATE = 5.f;								// meters per second
 
-	if( mOrbitUpKey || mOrbitDownKey )
+	if (gAgentCamera.getOrbitUpKey() || gAgentCamera.getOrbitDownKey())
 	{
-		F32 input_rate = mOrbitUpKey - mOrbitDownKey;
+		F32 input_rate = gAgentCamera.getOrbitUpKey() - gAgentCamera.getOrbitDownKey();
 		cameraOrbitOver( input_rate * ORBIT_OVER_RATE / gFPSClamped );
 	}
 
-	if( mOrbitLeftKey || mOrbitRightKey)
+	if (gAgentCamera.getOrbitLeftKey() || gAgentCamera.getOrbitRightKey())
 	{
-		F32 input_rate = mOrbitLeftKey - mOrbitRightKey;
-		cameraOrbitAround( input_rate * ORBIT_AROUND_RATE / gFPSClamped );
+		F32 input_rate = gAgentCamera.getOrbitLeftKey() - gAgentCamera.getOrbitRightKey();
+		cameraOrbitAround(input_rate * ORBIT_AROUND_RATE / gFPSClamped);
 	}
 
-	if( mOrbitInKey || mOrbitOutKey )
+	if (gAgentCamera.getOrbitInKey() || gAgentCamera.getOrbitOutKey())
 	{
-		F32 input_rate = mOrbitInKey - mOrbitOutKey;
+		F32 input_rate = gAgentCamera.getOrbitInKey() - gAgentCamera.getOrbitOutKey();
 		
 		LLVector3d to_focus = gAgent.getPosGlobalFromAgent(LLViewerCamera::getInstance()->getOrigin()) - calcFocusPositionTargetGlobal();
 		F32 distance_to_focus = (F32)to_focus.magVec();
@@ -1244,38 +1228,27 @@ void LLAgentCamera::updateCamera()
 		cameraOrbitIn( input_rate * distance_to_focus / gFPSClamped );
 	}
 
-	if( mPanInKey || mPanOutKey )
+	if (gAgentCamera.getPanInKey() || gAgentCamera.getPanOutKey())
 	{
-		F32 input_rate = mPanInKey - mPanOutKey;
-		cameraPanIn( input_rate * PAN_RATE / gFPSClamped );
+		F32 input_rate = gAgentCamera.getPanInKey() - gAgentCamera.getPanOutKey();
+		cameraPanIn(input_rate * PAN_RATE / gFPSClamped);
 	}
 
-	if( mPanRightKey || mPanLeftKey )
+	if (gAgentCamera.getPanRightKey() || gAgentCamera.getPanLeftKey())
 	{
-		F32 input_rate = mPanRightKey - mPanLeftKey;
-		cameraPanLeft( input_rate * -PAN_RATE / gFPSClamped );
+		F32 input_rate = gAgentCamera.getPanRightKey() - gAgentCamera.getPanLeftKey();
+		cameraPanLeft(input_rate * -PAN_RATE / gFPSClamped );
 	}
 
-	if( mPanUpKey || mPanDownKey )
+	if (gAgentCamera.getPanUpKey() || gAgentCamera.getPanDownKey())
 	{
-		F32 input_rate = mPanUpKey - mPanDownKey;
-		cameraPanUp( input_rate * PAN_RATE / gFPSClamped );
+		F32 input_rate = gAgentCamera.getPanUpKey() - gAgentCamera.getPanDownKey();
+		cameraPanUp(input_rate * PAN_RATE / gFPSClamped );
 	}
 
 	// Clear camera keyboard keys.
-	mOrbitLeftKey		= 0.f;
-	mOrbitRightKey		= 0.f;
-	mOrbitUpKey			= 0.f;
-	mOrbitDownKey		= 0.f;
-	mOrbitInKey			= 0.f;
-	mOrbitOutKey		= 0.f;
-
-	mPanRightKey		= 0.f;
-	mPanLeftKey			= 0.f;
-	mPanUpKey			= 0.f;
-	mPanDownKey			= 0.f;
-	mPanInKey			= 0.f;
-	mPanOutKey			= 0.f;
+	gAgentCamera.clearOrbitKeys();
+	gAgentCamera.clearPanKeys();
 
 	// lerp camera focus offset
 	mCameraFocusOffset = lerp(mCameraFocusOffset, mCameraFocusOffsetTarget, LLCriticalDamp::getInterpolant(CAMERA_FOCUS_HALF_LIFE));
@@ -2849,6 +2822,45 @@ EPointAtType LLAgentCamera::getPointAtType()
 	}
 	return POINTAT_TARGET_NONE;
 }
+
+void LLAgentCamera::clearGeneralKeys()
+{
+	mAtKey 				= 0;
+	mWalkKey 			= 0;
+	mLeftKey 			= 0;
+	mUpKey 				= 0;
+	mYawKey 			= 0.f;
+	mPitchKey 			= 0.f;
+}
+
+void LLAgentCamera::clearOrbitKeys()
+{
+	mOrbitLeftKey		= 0.f;
+	mOrbitRightKey		= 0.f;
+	mOrbitUpKey			= 0.f;
+	mOrbitDownKey		= 0.f;
+	mOrbitInKey			= 0.f;
+	mOrbitOutKey		= 0.f;
+}
+
+void LLAgentCamera::clearPanKeys()
+{
+	mPanRightKey		= 0.f;
+	mPanLeftKey			= 0.f;
+	mPanUpKey			= 0.f;
+	mPanDownKey			= 0.f;
+	mPanInKey			= 0.f;
+	mPanOutKey			= 0.f;
+}
+
+// static
+S32 LLAgentCamera::directionToKey(S32 direction)
+{
+	if (direction > 0) return 1;
+	if (direction < 0) return -1;
+	return 0;
+}
+
 
 // EOF
 

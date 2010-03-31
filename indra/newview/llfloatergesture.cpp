@@ -36,6 +36,7 @@
 
 #include "llinventory.h"
 #include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventoryclipboard.h"
 
