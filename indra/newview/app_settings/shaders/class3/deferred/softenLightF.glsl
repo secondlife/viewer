@@ -292,7 +292,7 @@ void main()
 		//
 		depth -= 0.5; // unbias depth
 		// first figure out where we'll make our 2D guess from
-		vec2 ref2d = tc.xy + (0.25 * screen_res.y) * (refnorm.xy) * abs(refnorm.z) / depth;
+		vec2 ref2d = (0.25 * screen_res.y) * (refnorm.xy) * abs(refnorm.z) / depth;
 		// Offset the guess source a little according to a trivial
 		// checkerboard dither function and spec.a.
 		// This is meant to be similar to sampling a blurred version
@@ -301,6 +301,7 @@ void main()
 		// with low shinyness, and also to disguise our lameness.
 		float checkerboard = floor(mod(tc.x+tc.y, 2.0)); // 0.0, 1.0
 		ref2d += normalize(ref2d)*14.0*(1.0-spec.a)*(checkerboard-0.5);
+		ref2d += tc.xy; // use as offset from destination
 		// get attributes from the 2D guess point
 		float refdepth = texture2DRect(depthMap, ref2d).a;
 		vec3 refpos = getPosition_d(ref2d, refdepth).xyz;
