@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llinventory.h"
+#include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "lltrans.h"
 

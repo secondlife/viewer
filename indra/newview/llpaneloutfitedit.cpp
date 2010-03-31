@@ -53,6 +53,7 @@
 #include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "lluiconstants.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
@@ -245,7 +246,7 @@ void LLPanelOutfitEdit::onTypeFilterChanged(LLUICtrl* ctrl)
 	mInventoryItemsPanel->getRootFolder()->applyFunctorRecursively(opener);
 	mInventoryItemsPanel->getRootFolder()->scrollToShowSelection();
 	
-	gInventory.startBackgroundFetch();
+	LLInventoryModelBackgroundFetch::instance().start();
 }
 
 void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
@@ -271,7 +272,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 		mInventoryItemsPanel->getRootFolder()->scrollToShowSelection();
 	}
 	
-	gInventory.startBackgroundFetch();
+	LLInventoryModelBackgroundFetch::instance().start();
 	
 	if (mInventoryItemsPanel->getFilterSubString().empty() && mSearchString.empty())
 	{
