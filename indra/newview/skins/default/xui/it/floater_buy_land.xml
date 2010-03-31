@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="buy land" title="ACQUISTA TERRENO">
 	<floater.string name="can_resell">
-		Può essere rivenduta.
+		Può essere rivenduto.
 	</floater.string>
 	<floater.string name="can_not_resell">
-		Può non essere rivenduta.
+		Può non essere rivenduto.
 	</floater.string>
 	<floater.string name="can_change">
-		Può essere unita o suddivisa.
+		Può essere unito o suddiviso.
 	</floater.string>
 	<floater.string name="can_not_change">
-		Non può essere unita o suddivisa.
+		Non può essere unito o suddiviso.
 	</floater.string>
 	<floater.string name="cant_buy_for_group">
-		Non hai il permesso di comprare terra per il tuo gruppo attivo.
+		Non sei autorizzato ad acquistare terreno per il tuo gruppo attivo.
 	</floater.string>
 	<floater.string name="no_land_selected">
-		Nessuna terra selezionata.
+		Nessun terreno selezionato.
 	</floater.string>
 	<floater.string name="multiple_parcels_selected">
-		Hai selezionato appezzamenti diversi. 
+		Hai selezionato lotti diversi. 
 Prova a selezionare un&apos;area più piccola.
 	</floater.string>
 	<floater.string name="no_permission">
-		Non hai il permesso di comprare terra per il tuo gruppo attivo.
+		Non sei autorizzato ad acquistare terreno per il tuo gruppo attivo.
 	</floater.string>
 	<floater.string name="parcel_not_for_sale">
 		Il terreno selezionato non è in vendita.
@@ -32,7 +32,7 @@ Prova a selezionare un&apos;area più piccola.
 		Il gruppo possiede già il terreno.
 	</floater.string>
 	<floater.string name="you_already_own">
-		Possiedi già il terreno.
+		Sei già proprietario del terreno.
 	</floater.string>
 	<floater.string name="set_to_sell_to_other">
 		Il terreno selezionato è già impostato per la vendita ad un altro gruppo.
@@ -41,7 +41,7 @@ Prova a selezionare un&apos;area più piccola.
 		L&apos;area selezionata non è pubblica.
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		È selezionato terreno di proprietà di un altro residente. 
+		Hai selezionato terreno di proprietà di un altro residente. 
 Prova a scegliere una superficie più piccola.
 	</floater.string>
 	<floater.string name="processing">
@@ -50,13 +50,13 @@ Prova a scegliere una superficie più piccola.
 (Potrebbe volerci un minuto o due.)
 	</floater.string>
 	<floater.string name="fetching_error">
-		C&apos;e stato un errore mentre si stavano ottenendo le informazioni sull&apos;acquisto della terra.
+		Si &apos;e verificato un errore mentre si stavano ottenendo le informazioni sull&apos;acquisto del terreno.
 	</floater.string>
 	<floater.string name="buying_will">
-		Comprando questa terra:
+		Acuistando il terreno:
 	</floater.string>
 	<floater.string name="buying_for_group">
-		Comprare la terra per il gruppo farà:
+		Acuistando il terreno per il gruppo:
 	</floater.string>
 	<floater.string name="cannot_buy_now">
 		Non puoi comprare ora:
@@ -68,7 +68,7 @@ Prova a scegliere una superficie più piccola.
 		nessuno necessario
 	</floater.string>
 	<floater.string name="must_upgrade">
-		Il tuo tipo di account ha bisogno di un upgrade per possedere terra.
+		Per acquistare terreno devi passare a un livello di abbonamento superiore.
 	</floater.string>
 	<floater.string name="cant_own_land">
 		Il tuo account può possedere terra.
