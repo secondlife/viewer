@@ -1802,9 +1802,10 @@ class LLAdvancedDebugAvatarTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-		handle_debug_avatar_textures(NULL);
-#endif
+		if (gAgent.isGodlike())
+		{
+			handle_debug_avatar_textures(NULL);
+		}
 		return true;
 	}
 };
