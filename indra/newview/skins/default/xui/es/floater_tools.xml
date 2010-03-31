@@ -399,7 +399,7 @@ máximo" name="checkbox fullbright"/>
 			<text name="tex gen">
 				Detallado
 			</text>
-			<combo_box name="combobox texgen" width="86">
+			<combo_box name="combobox texgen">
 				<combo_box.item label="Por defecto" name="Default"/>
 				<combo_box.item label="Plano" name="Planar"/>
 			</combo_box>
@@ -442,9 +442,9 @@ máximo" name="checkbox fullbright"/>
 			<check_box label="Voltear" name="checkbox flip s"/>
 			<spinner label="Vertical (V)" name="TexScaleV"/>
 			<check_box label="Voltear" name="checkbox flip t"/>
-			<spinner label="Rotación" left="118" name="TexRot" width="62"/>
-			<spinner label="Repeticiones / Metro" left="118" name="rptctrl" width="62"/>
-			<button label="Aplicar" label_selected="Aplicar" left_delta="72" name="button apply"/>
+			<spinner label="Rotación" name="TexRot"/>
+			<spinner label="Repeticiones / Metro" name="rptctrl"/>
+			<button label="Aplicar" label_selected="Aplicar" name="button apply"/>
 			<text name="tex offset">
 				Desplazar
 			</text>
@@ -487,8 +487,8 @@ Gris = Público"/>
 		<text name="label_parcel_modify">
 			Modificar la parcela
 		</text>
-		<button label="Dividir" label_selected="Dividir" name="button subdivide land" width="140"/>
-		<button label="Inscribirse" label_selected="Inscribirse" name="button join land" width="140"/>
+		<button label="Dividir" label_selected="Dividir" name="button subdivide land"/>
+		<button label="Inscribirse" label_selected="Inscribirse" name="button join land"/>
 		<text name="label_parcel_trans">
 			Transacciones de terreno
 		</text>
