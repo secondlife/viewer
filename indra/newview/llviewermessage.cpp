@@ -1717,54 +1717,21 @@ static std::string clean_name_from_im(const std::string& name, EInstantMessage t
 	}
 }
 
-//static std::string clean_name_from_task_im(const std::string& msg)
-//{
-//	boost::smatch match;
-//	static const boost::regex returned_exp(
-//		"(.*been returned to your inventory lost and found folder by )(.+)( (from|near).*)");
-//	if (boost::regex_match(msg, match, returned_exp))
-//	{
-//		// match objects are 1-based for groups
-//		std::string final = match[1].str();
-//		std::string name = match[2].str();
-//		final += LLCacheName::cleanFullName(name);
-//		final += match[3].str();
-//		return final;
-//	}
-//	return msg;
-//}
-
-static void parse_bucket_im_from_task(const std::string& bucket,
-									  const LLUUID& from_id,
-									  BOOL from_group,
-									  const LLUUID& to_id,
-									  const LLVector3& position,
-									  const std::string& message,
-									  std::string *object_slurl,
-									  std::string *final_message)
+static std::string clean_name_from_task_im(const std::string& msg)
 {
-	static const std::string DEREZ_TO_OWNER = "|derezToOwner";
-	if (bucket.compare(0, DEREZ_TO_OWNER.length(), DEREZ_TO_OWNER))
+	boost::smatch match;
+	static const boost::regex returned_exp(
+		"(.*been returned to your inventory lost and found folder by )(.+)( (from|near).*)");
+	if (boost::regex_match(msg, match, returned_exp))
 	{
-		// ...starts with special tag
-		// See simulator LLRoundRobin::derezObjectsBackToOwner() for details
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		boost::char_separator<char> sep("|");
-		tokenizer tokens(bucket, sep);
-		tokenizer::iterator token_it = tokens.begin();
-		//S32 destination_type;
-		//S32 object_count;
-
-		// JAMESDEBUG TODO: HERE
-		*object_slurl = "JAMESDEBUG";
-		*final_message = "JAMESDEBUG";
+		// match objects are 1-based for groups
+		std::string final = match[1].str();
+		std::string name = match[2].str();
+		final += LLCacheName::cleanFullName(name);
+		final += match[3].str();
+		return final;
 	}
-	else
-	{
-		// ...normal IM from task
-		*object_slurl = bucket;
-		*final_message = message;
-	}
+	return msg;
 }
 
 void process_improved_im(LLMessageSystem *msg, void **user_data)
@@ -2296,6 +2263,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				return;
 			}
 
+			// Build a link to open the object IM info window.
+			std::string location = ll_safe_string((char*)binary_bucket, binary_bucket_size-1);
+
 			if (session_id.notNull())
 			{
 				chat.mFromID = session_id;
@@ -2310,31 +2280,18 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				chat.mFromID = from_id ^ gAgent.getSessionID();
 			}
 
-			// Build a link to open the object IM info window.
-			// Also handle localization for certain system messages
-			// sent as IM_FROM_TASK.
-			std::string object_slurl;
-			std::string final_message;
-			std::string bucket_im_from_task =
-				ll_safe_string((char*)binary_bucket, binary_bucket_size-1);
-			parse_bucket_im_from_task(
-				bucket_im_from_task,
-				from_id, from_group, to_id, position, message,
-				&object_slurl, &final_message);
-
 			if(SYSTEM_FROM == name)
 			{
 				// System's UUID is NULL (fixes EXT-4766)
-				chat.mFromID = LLUUID::null;
-				from_id = LLUUID::null;
+				chat.mFromID = from_id = LLUUID::null;
 			}
 
 			// IDEVO Some messages have embedded resident names
-			//message = clean_name_from_task_im(message);
+			message = clean_name_from_task_im(message);
 
 			LLSD query_string;
 			query_string["owner"] = from_id;
-			query_string["slurl"] = object_slurl;
+			query_string["slurl"] = location;
 			query_string["name"] = name;
 			if (from_group)
 			{
@@ -2355,7 +2312,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				LLSD args;
 				args["owner_id"] = from_id;
-				args["slurl"] = object_slurl;
+				args["slurl"] = location;
 				args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
 				LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 			}
@@ -2366,13 +2323,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			
 			LLSD substitutions;
 			substitutions["NAME"] = name;
-			substitutions["MSG"] = final_message;
+			substitutions["MSG"] = message;
 
 			LLSD payload;
 			payload["object_id"] = session_id;
 			payload["owner_id"] = from_id;
 			payload["from_id"] = from_id;
-			payload["slurl"] = object_slurl;
+			payload["slurl"] = location;
 			payload["name"] = name;
 			std::string session_name;
 			gCacheName->getFullName(from_id, session_name);
