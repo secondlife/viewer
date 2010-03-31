@@ -596,7 +596,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
 				if (inv_item)
 				{
-					is_asset_knowable = is_asset_id_knowable(inv_item->getType());
+					is_asset_knowable = LLAssetType::lookupIsAssetIDKnowable(inv_item->getType());
 				}
 				if ( !is_asset_knowable // disable menu item for Inventory items with unknown asset. EXT-5308
 					 || (! ( isItemPermissive() || gAgent.isGodlike() ) )
