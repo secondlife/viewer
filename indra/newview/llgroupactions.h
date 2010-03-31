@@ -68,7 +68,7 @@ public:
 	/**
 	 * Show group inspector floater.
 	 */
-	static void LLGroupActions::inspect(const LLUUID& group_id);
+	static void inspect(const LLUUID& group_id);
 
 	/**
 	 * Refresh group information panel.
