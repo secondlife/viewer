@@ -44,6 +44,8 @@
 #include "llpluginclassmedia.h"
 #include "v4color.h"
 
+#include "llurl.h"
+
 class LLViewerMediaImpl;
 class LLUUID;
 class LLViewerMediaTexture;
@@ -152,11 +154,17 @@ public:
 	static void addCookie(const std::string &name, const std::string &value, const std::string &domain, const LLDate &expires, const std::string &path = std::string("/"), bool secure = false );
 	static void addSessionCookie(const std::string &name, const std::string &value, const std::string &domain, const std::string &path = std::string("/"), bool secure = false );
 	static void removeCookie(const std::string &name, const std::string &domain, const std::string &path = std::string("/") );
+
+	static void openIDSetup(const std::string &openid_url, const std::string &openid_token);
+	static void openIDCookieResponse(const std::string &cookie);
 	
 private:
+	static void setOpenIDCookie();
 	static void onTeleportFinished();
 	
 	static LLPluginCookieStore *sCookieStore;
+	static LLURL sOpenIDURL;
+	static std::string sOpenIDCookie;
 };
 
 // Implementation functions not exported into header file

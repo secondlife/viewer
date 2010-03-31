@@ -66,18 +66,21 @@ public:
 	void setCookies(const std::string &cookies, bool mark_changed = true);
 	void readCookies(std::istream& s, bool mark_changed = true);
 
+	// sets one or more cookies (without reinitializing anything), supplying a hostname the cookies came from -- use when setting a cookie manually
+	void setCookiesFromHost(const std::string &cookies, const std::string &host, bool mark_changed = true);
+
 	// quote or unquote a string as per the definition of 'quoted-string' in rfc2616
 	static std::string quoteString(const std::string &s);
 	static std::string unquoteString(const std::string &s);
 	
 private:
 
-	void setOneCookie(const std::string &s, std::string::size_type cookie_start, std::string::size_type cookie_end, bool mark_changed);
+	void setOneCookie(const std::string &s, std::string::size_type cookie_start, std::string::size_type cookie_end, bool mark_changed, const std::string &host = LLStringUtil::null);
 
 	class Cookie
 	{
 	public:
-		static Cookie *createFromString(const std::string &s, std::string::size_type cookie_start = 0, std::string::size_type cookie_end = std::string::npos);
+		static Cookie *createFromString(const std::string &s, std::string::size_type cookie_start = 0, std::string::size_type cookie_end = std::string::npos, const std::string &host = LLStringUtil::null);
 		
 		// Construct a string from the cookie that uniquely represents it, to be used as a key in a std::map.
 		std::string getKey() const;
@@ -95,7 +98,7 @@ private:
 		
 	private:
 		Cookie(const std::string &s, std::string::size_type cookie_start = 0, std::string::size_type cookie_end = std::string::npos);
-		bool parse();
+		bool parse(const std::string &host);
 		std::string::size_type findFieldEnd(std::string::size_type start = 0, std::string::size_type end = std::string::npos);
 		bool matchName(std::string::size_type start, std::string::size_type end, const char *name);
 		

@@ -62,11 +62,11 @@ LLPluginCookieStore::Cookie::Cookie(const std::string &s, std::string::size_type
 {
 }
 
-LLPluginCookieStore::Cookie *LLPluginCookieStore::Cookie::createFromString(const std::string &s, std::string::size_type cookie_start, std::string::size_type cookie_end)
+LLPluginCookieStore::Cookie *LLPluginCookieStore::Cookie::createFromString(const std::string &s, std::string::size_type cookie_start, std::string::size_type cookie_end, const std::string &host)
 {
 	Cookie *result = new Cookie(s, cookie_start, cookie_end);
 
-	if(!result->parse())
+	if(!result->parse(host))
 	{
 		delete result;
 		result = NULL;
@@ -92,7 +92,7 @@ std::string LLPluginCookieStore::Cookie::getKey() const
 	return result;
 }
 
-bool LLPluginCookieStore::Cookie::parse()
+bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 {
 	bool first_field = true;
 
@@ -248,7 +248,50 @@ bool LLPluginCookieStore::Cookie::parse()
 	// The cookie MUST have a name
 	if(mNameEnd <= mNameStart)
 		return false;
+	
+	// If the cookie doesn't have a domain, add the current host as the domain.
+	if(mDomainEnd <= mDomainStart)
+	{
+		if(host.empty())
+		{
+			// no domain and no current host -- this is a parse failure.
+			return false;
+		}
 		
+		// Figure out whether this cookie ended with a ";" or not...
+		std::string::size_type last_char = mCookie.find_last_not_of(" ");
+		if((last_char != std::string::npos) && (mCookie[last_char] != ';'))
+		{
+			mCookie += ";";
+		}
+		
+		mCookie += " domain=";
+		mDomainStart = mCookie.size();
+		mCookie += host;
+		mDomainEnd = mCookie.size();
+		
+		lldebugs << "added domain (" << mDomainStart << " to " << mDomainEnd << "), new cookie is: " << mCookie << llendl;
+	}
+
+	// If the cookie doesn't have a path, add "/".
+	if(mPathEnd <= mPathStart)
+	{
+		// Figure out whether this cookie ended with a ";" or not...
+		std::string::size_type last_char = mCookie.find_last_not_of(" ");
+		if((last_char != std::string::npos) && (mCookie[last_char] != ';'))
+		{
+			mCookie += ";";
+		}
+		
+		mCookie += " path=";
+		mPathStart = mCookie.size();
+		mCookie += "/";
+		mPathEnd = mCookie.size();
+		
+		lldebugs << "added path (" << mPathStart << " to " << mPathEnd << "), new cookie is: " << mCookie << llendl;
+	}
+	
+	
 	return true;
 }
 
@@ -409,13 +452,29 @@ void LLPluginCookieStore::setCookies(const std::string &cookies, bool mark_chang
 
 	while(start != std::string::npos)
 	{
-		std::string::size_type end = cookies.find('\n', start);
+		std::string::size_type end = cookies.find_first_of("\r\n", start);
 		if(end > start)
 		{
 			// The line is non-empty.  Try to create a cookie from it.
 			setOneCookie(cookies, start, end, mark_changed);
 		}
-		start = cookies.find_first_not_of("\n ", end);
+		start = cookies.find_first_not_of("\r\n ", end);
+	}
+}
+
+void LLPluginCookieStore::setCookiesFromHost(const std::string &cookies, const std::string &host, bool mark_changed)
+{
+	std::string::size_type start = 0;
+
+	while(start != std::string::npos)
+	{
+		std::string::size_type end = cookies.find_first_of("\r\n", start);
+		if(end > start)
+		{
+			// The line is non-empty.  Try to create a cookie from it.
+			setOneCookie(cookies, start, end, mark_changed, host);
+		}
+		start = cookies.find_first_not_of("\r\n ", end);
 	}
 }
 			
@@ -502,9 +561,9 @@ std::string LLPluginCookieStore::unquoteString(const std::string &s)
 // When deleting with mark_changed set to true, this replaces the existing cookie in the list with an entry that's marked both dead and changed.
 // Some time later when writeChangedCookies() is called with clear_changed set to true, the dead cookie is deleted from the list after being returned, so that the
 // delete operation (in the form of the expired cookie) is passed along.
-void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_type cookie_start, std::string::size_type cookie_end, bool mark_changed)
+void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_type cookie_start, std::string::size_type cookie_end, bool mark_changed, const std::string &host)
 {
-	Cookie *cookie = Cookie::createFromString(s, cookie_start, cookie_end);
+	Cookie *cookie = Cookie::createFromString(s, cookie_start, cookie_end, host);
 	if(cookie)
 	{
 		lldebugs << "setting cookie: " << cookie->getCookie() << llendl;
