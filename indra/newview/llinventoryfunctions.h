@@ -38,14 +38,220 @@
 #include "llfolderview.h"
 #include "llfolderviewitem.h"
 
+/********************************************************************************
+ **                                                                            **
+ **                    INVENTORY COLLECTOR FUNCTIONS
+ **/
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryCollectFunctor
 //
-// This is a collection of miscellaneous functions and classes
-// that don't fit cleanly into any other class header.  Eventually,
-// we should figure out where to put these functions so that we can
-// get rid of this generic file.
-//
+// Base class for LLInventoryModel::collectDescendentsIf() method
+// which accepts an instance of one of these objects to use as the
+// function to determine if it should be added. Derive from this class
+// and override the () operator to return TRUE if you want to collect
+// the category or item passed in.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLInventoryCollectFunctor
+{
+public:
+	virtual ~LLInventoryCollectFunctor(){};
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item) = 0;
+
+	static bool itemTransferCommonlyAllowed(LLInventoryItem* item);
+};
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLAssetIDMatches
+//
+// This functor finds inventory items pointing to the specified asset
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLViewerInventoryItem;
+
+class LLAssetIDMatches : public LLInventoryCollectFunctor
+{
+public:
+	LLAssetIDMatches(const LLUUID& asset_id) : mAssetID(asset_id) {}
+	virtual ~LLAssetIDMatches() {}
+	bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	
+protected:
+	LLUUID mAssetID;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLLinkedItemIDMatches
+//
+// This functor finds inventory items linked to the specific inventory id.
+// Assumes the inventory id is itself not a linked item.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLLinkedItemIDMatches : public LLInventoryCollectFunctor
+{
+public:
+	LLLinkedItemIDMatches(const LLUUID& item_id) : mBaseItemID(item_id) {}
+	virtual ~LLLinkedItemIDMatches() {}
+	bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	
+protected:
+	LLUUID mBaseItemID;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLIsType
+//
+// Implementation of a LLInventoryCollectFunctor which returns TRUE if
+// the type is the type passed in during construction.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLIsType : public LLInventoryCollectFunctor
+{
+public:
+	LLIsType(LLAssetType::EType type) : mType(type) {}
+	virtual ~LLIsType() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+protected:
+	LLAssetType::EType mType;
+};
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLIsNotType
+//
+// Implementation of a LLInventoryCollectFunctor which returns FALSE if the
+// type is the type passed in during construction, otherwise false.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLIsNotType : public LLInventoryCollectFunctor
+{
+public:
+	LLIsNotType(LLAssetType::EType type) : mType(type) {}
+	virtual ~LLIsNotType() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+protected:
+	LLAssetType::EType mType;
+};
+
+class LLIsTypeWithPermissions : public LLInventoryCollectFunctor
+{
+public:
+	LLIsTypeWithPermissions(LLAssetType::EType type, const PermissionBit perms, const LLUUID &agent_id, const LLUUID &group_id) 
+		: mType(type), mPerm(perms), mAgentID(agent_id), mGroupID(group_id) {}
+	virtual ~LLIsTypeWithPermissions() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+protected:
+	LLAssetType::EType mType;
+	PermissionBit mPerm;
+	LLUUID			mAgentID;
+	LLUUID			mGroupID;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLBuddyCollector
+//
+// Simple class that collects calling cards that are not null, and not
+// the agent. Duplicates are possible.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLBuddyCollector : public LLInventoryCollectFunctor
+{
+public:
+	LLBuddyCollector() {}
+	virtual ~LLBuddyCollector() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLUniqueBuddyCollector
+//
+// Simple class that collects calling cards that are not null, and not
+// the agent. Duplicates are discarded.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLUniqueBuddyCollector : public LLInventoryCollectFunctor
+{
+public:
+	LLUniqueBuddyCollector() {}
+	virtual ~LLUniqueBuddyCollector() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+
+protected:
+	std::set<LLUUID> mSeen;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLParticularBuddyCollector
+//
+// Simple class that collects calling cards that match a particular uuid
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLParticularBuddyCollector : public LLInventoryCollectFunctor
+{
+public:
+	LLParticularBuddyCollector(const LLUUID& id) : mBuddyID(id) {}
+	virtual ~LLParticularBuddyCollector() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+protected:
+	LLUUID mBuddyID;
+};
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLNameCategoryCollector
+//
+// Collects categories based on case-insensitive match of prefix
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLNameCategoryCollector : public LLInventoryCollectFunctor
+{
+public:
+	LLNameCategoryCollector(const std::string& name) : mName(name) {}
+	virtual ~LLNameCategoryCollector() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+protected:
+	std::string mName;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindCOFValidItems
+//
+// Collects items that can be legitimately linked to in the COF.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindCOFValidItems : public LLInventoryCollectFunctor
+{
+public:
+	LLFindCOFValidItems() {}
+	virtual ~LLFindCOFValidItems() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+	
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindWearables
+//
+// Collects wearables based on item type.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindWearables : public LLInventoryCollectFunctor
+{
+public:
+	LLFindWearables() {}
+	virtual ~LLFindWearables() {}
+	virtual bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item);
+};
+
+/**                    Inventory Collector Functions
+ **                                                                            **
+ *******************************************************************************/
 
 class LLInventoryState
 {

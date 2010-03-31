@@ -38,6 +38,7 @@
 #include "llfoldervieweventlistener.h"
 #include "llinventorybridge.h"	// for LLItemBridge in LLInventorySort::operator()
 #include "llinventoryfilter.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llpanel.h"
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewerwindow.h"		// Argh, only for setCursor()
@@ -992,16 +993,16 @@ void LLFolderViewItem::draw()
 		if (getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(),gInventory.getRootFolderID()))
 		{
 			// Descendent of my inventory.
-			root_is_loading = gInventory.myInventoryFetchInProgress();
+			root_is_loading = LLInventoryModelBackgroundFetch::instance().inventoryFetchInProgress();
 		}
 		if (getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(),gInventory.getLibraryRootFolderID()))
 		{
 			// Descendent of library
-			root_is_loading = gInventory.libraryFetchInProgress();
+			root_is_loading = LLInventoryModelBackgroundFetch::instance().libraryFetchInProgress();
 		}
 			
 		if ( (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
-			|| (LLInventoryModel::backgroundFetchActive() && root_is_loading && mShowLoadStatus) )
+			|| (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() && root_is_loading && mShowLoadStatus) )
 		{
 			std::string load_string = " ( " + LLTrans::getString("LoadingData") + " ) ";
 			font->renderUTF8(load_string, 0, right_x, y, sSearchStatusColor,
@@ -1317,7 +1318,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 	// when applying a filter, matching folders get their contents downloaded first
 	if (filter.isNotDefault() && getFiltered(filter.getMinRequiredGeneration()) && (mListener && !gInventory.isCategoryComplete(mListener->getUUID())))
 	{
-		gInventory.startBackgroundFetch(mListener->getUUID());
+		LLInventoryModelBackgroundFetch::instance().start(mListener->getUUID());
 	}
 
 	// now query children

@@ -39,9 +39,6 @@
 #include "llagentconstants.h"
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h" 			// LLAnimPauseRequest
-#include "llfollowcam.h" 			// Ventrella
-#include "llhudeffectlookat.h" 		// EPointAtType
-#include "llhudeffectpointat.h" 	// ELookAtType
 #include "llpointer.h"
 #include "lluicolor.h"
 #include "llvoavatardefines.h"
@@ -434,19 +431,6 @@ private:
  **                                                                            **
  **                    MOVEMENT
  **/
-	
-	//--------------------------------------------------------------------
-	// Keys
-	//--------------------------------------------------------------------
-public:
-	void			setKey(const S32 direction, S32 &key); // Sets key to +1 for +direction, -1 for -direction
-private:
-	S32 			mAtKey;				// Either 1, 0, or -1. Indicates that movement key is pressed
-	S32				mWalkKey; 			// Like AtKey, but causes less forward thrust
-	S32 			mLeftKey;
-	S32				mUpKey;
-	F32				mYawKey;
-	F32				mPitchKey;
 
 	//--------------------------------------------------------------------
 	// Movement from user input

@@ -36,6 +36,7 @@
 
 #include "llcombobox.h"
 #include "lliconctrl.h"
+#include "llinventoryfunctions.h"
 #include "lllineeditor.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"

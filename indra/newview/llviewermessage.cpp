@@ -63,6 +63,7 @@
 #include "llfloaterpreference.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llnearbychat.h"

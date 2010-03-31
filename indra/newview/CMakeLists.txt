@@ -78,6 +78,7 @@ set(viewer_SOURCE_FILES
     llagentpilot.cpp
     llagentui.cpp
     llagentwearables.cpp
+    llagentwearablesfetch.cpp
     llanimstatelabels.cpp
     llappearancemgr.cpp
     llappviewer.cpp
@@ -259,6 +260,7 @@ set(viewer_SOURCE_FILES
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventorymodel.cpp
+    llinventorymodelbackgroundfetch.cpp
     llinventoryobserver.cpp
     llinventorypanel.cpp
     lljoystickbutton.cpp
@@ -581,6 +583,7 @@ set(viewer_HEADER_FILES
     llagentpilot.h
     llagentui.h
     llagentwearables.h
+    llagentwearablesfetch.h
     llanimstatelabels.h
     llappearance.h
     llappearancemgr.h
@@ -764,6 +767,7 @@ set(viewer_HEADER_FILES
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventorymodel.h
+    llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
     llinventorypanel.h
     lljoystickbutton.h

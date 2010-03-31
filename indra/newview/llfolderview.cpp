@@ -39,6 +39,7 @@
 #include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "llfoldertype.h"
 #include "llfloaterinventory.h"// hacked in for the bonus context menu items.
@@ -943,7 +944,7 @@ void LLFolderView::draw()
 	}
 	else
 	{
-		if (gInventory.backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
+		if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
 		{
 			mStatusText = LLTrans::getString("Searching");
 			//font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
