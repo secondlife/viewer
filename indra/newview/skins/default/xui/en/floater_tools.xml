@@ -1428,7 +1428,7 @@ even though the user gets a free copy.
              name="label physicsshapetype"
              top_pad="10"
              width="121">
-                Physics Rep:
+                Physics Shape Type:
             </text>
 			<combo_box
 			   height="23"
