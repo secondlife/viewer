@@ -119,6 +119,9 @@ public:
 
 	// Called when self avatar is first fully visible.
 	void onFirstFullyVisible();
+
+	// Create initial outfits from library.
+	void autopopulateOutfits();
 	
 protected:
 	LLAppearanceMgr();

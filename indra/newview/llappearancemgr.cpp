@@ -1311,6 +1311,8 @@ private:
 };
 
 
+// BAP - note that this runs asynchronously if the item is not already loaded from inventory.
+// Dangerous if caller assumes link will exist after calling the function.
 void LLAppearanceMgr::addCOFItemLink(const LLUUID &item_id, bool do_update )
 {
 	const LLInventoryItem *item = gInventory.getItem(item_id);
@@ -1491,7 +1493,7 @@ void LLAppearanceMgr::updateIsDirty()
 	}
 }
 
-void LLAppearanceMgr::onFirstFullyVisible()
+void LLAppearanceMgr::autopopulateOutfits()
 {
 	// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
 	// then auto-populate outfits from the library into the My Outfits folder.
@@ -1506,6 +1508,12 @@ void LLAppearanceMgr::onFirstFullyVisible()
 		gAgentWearables.populateMyOutfitsFolder();
 	}
 	check_populate_my_outfits = false;
+}
+
+// Handler for anything that's deferred until avatar de-clouds.
+void LLAppearanceMgr::onFirstFullyVisible()
+{
+	autopopulateOutfits();
 }
 
 //#define DUMP_CAT_VERBOSE
@@ -1559,6 +1567,7 @@ void LLAppearanceMgr::setAttachmentInvLinkEnable(bool val)
 	mAttachmentInvLinkEnabled = val;
 }
 
+// BAP TODO - mRegisteredAttachments is currently maintained but not used for anything.  Consider yanking.
 void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 {
        llinfos << msg << llendl;
@@ -1580,7 +1589,6 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 {
        mRegisteredAttachments.insert(item_id);
 	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
-       //dumpAttachmentSet(mRegisteredAttachments,"after register:");
 
 	   if (mAttachmentInvLinkEnabled)
 	   {
@@ -1597,11 +1605,8 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
        mRegisteredAttachments.erase(item_id);
 	   gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
-       //dumpAttachmentSet(mRegisteredAttachments,"after unregister:");
-
 	   if (mAttachmentInvLinkEnabled)
 	   {
-		   //LLAppearanceMgr::dumpCat(LLAppearanceMgr::getCOF(),"Removing attachment link:");
 		   LLAppearanceMgr::removeCOFItemLinks(item_id, false);
 	   }
 	   else
