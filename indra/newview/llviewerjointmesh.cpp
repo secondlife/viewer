@@ -561,12 +561,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		}
 		else
 		{
-			// This warning will always trigger if you've hacked the avatar to show as incomplete.
-			// Ignore the warning if that's the case.
-			if (!gSavedSettings.getBOOL("RenderUnloadedAvatar"))
-			{
-				//llwarns << "Layerset without composite" << llendl;
-			}
 			gGL.getTexUnit(0)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 		}
 	}

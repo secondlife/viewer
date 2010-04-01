@@ -286,6 +286,7 @@ public:
 
 	void setLightTexture(const LLUUID& id) { mLightTexture = id; }
 	LLUUID getLightTexture() const         { return mLightTexture; }
+	bool isLightSpotlight() const         { return mLightTexture.notNull(); }
 	void setParams(const LLVector3& params) { mParams = params; }
 	LLVector3 getParams() const			   { return mParams; }
 	
@@ -328,7 +329,7 @@ public:
 	const LLVolume *getVolumeConst() const { return mVolumep; }		// HACK for Windoze confusion about ostream operator in LLVolume
 	LLVolume *getVolume() const { return mVolumep; }
 	virtual BOOL setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
-
+	
 	// Modify texture entry properties
 	inline BOOL validTE(const U8 te_num) const;
 	LLTextureEntry* getTE(const U8 te_num) const;

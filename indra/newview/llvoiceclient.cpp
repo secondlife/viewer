@@ -1176,7 +1176,7 @@ void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, F32 vo
 	{
 		mSpeakersData[speaker_id] = volume;
 
-		// Enable this when debugging voice slider issues.  It's way to spammy even for debug-level logging.
+		// Enable this when debugging voice slider issues.  It's way too spammy even for debug-level logging.
 		// LL_DEBUGS("Voice") << "Stored volume = " << volume <<  " for " << id << LL_ENDL;
 	}
 	else
