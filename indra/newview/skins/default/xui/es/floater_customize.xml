@@ -45,7 +45,7 @@
 			</text>
 			<button label="Crear una forma nueva" label_selected="Crear una forma nueva" name="Create New"/>
 			<button label="Guardar" label_selected="Guardar" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." name="Save As">
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 		</panel>
 		<panel label="Piel" name="Skin">
 			<button label="Color de piel" label_selected="Color de piel" name="Skin Color" width="115"/>

@@ -71,7 +71,7 @@ Prova a scegliere una superficie più piccola.
 		Per acquistare terreno devi passare a un livello di abbonamento superiore.
 	</floater.string>
 	<floater.string name="cant_own_land">
-		Il tuo account può possedere terra.
+		Con questo account puoi essere proprietario di terreno.
 	</floater.string>
 	<floater.string name="land_holdings">
 		Sei proprietario di [BUYER] m² di terreno.
@@ -107,12 +107,10 @@ consente [AMOUNT2] oggetti
 [VENDUTO_CON_OGGETTI]
 	</floater.string>
 	<floater.string name="insufficient_land_credits">
-		Il gruppo [GROUP] avrà bisogno di contribuzioni anticipate, mediante crediti d&apos;uso terriero,
-sufficienti a coprire l&apos;area del terreno prima che l&apos;acquisto
-sia completato.
+		Il gruppo [GROUP] avrà bisogno di contributi di crediti di utilizzo terreno sufficienti a coprire il terreno prima che l&apos;acquisto sia completato.
 	</floater.string>
 	<floater.string name="have_enough_lindens">
-		Hai [AMOUNT] L$, che sono sufficienti per comprare questa terra.
+		Hai [AMOUNT] L$, che sono sufficienti per comprare questo terreno.
 	</floater.string>
 	<floater.string name="not_enough_lindens">
 		Hai solo [AMOUNT] L$, ed hai bisogno di altri [AMOUNT2] L$.
@@ -209,7 +207,7 @@ venduto con oggetti
 		<combo_box.item label="US$ 6.00 al mese, addebitato annualmente" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
-		Aumenta il tasso di pagamento mensile delle tasse d&apos;uso della terra a 40 US$/mese.
+		Aumenta le tariffe mensili di utilizzo del terreno a 40 US$/mese.
 	</text>
 	<text name="land_use_reason">
 		Tu occupi 1309 m² di terreno.
