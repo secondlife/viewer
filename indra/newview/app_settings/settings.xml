@@ -2564,6 +2564,17 @@
       <key>Value</key>
       <real>0.10000000149</real>
     </map>
+    <key>DragAndDropDistanceThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of pixels that mouse should move before triggering drag and drop mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
+    </map>
     <key>DropShadowButton</key>
     <map>
       <key>Comment</key>
