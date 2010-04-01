@@ -114,8 +114,6 @@ public:
 		Params();
 	};
 	
-	virtual ~LLFlatListView();
-
 	/**
 	 * Connects callback to signal called when Return key is pressed.
 	 */
