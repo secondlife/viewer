@@ -190,12 +190,8 @@ LLLineEditor::~LLLineEditor()
 {
 	mCommitOnFocusLost = FALSE;
 
+	// calls onCommit() while LLLineEditor still valid
 	gFocusMgr.releaseFocusIfNeeded( this );
-
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
 }
 
 

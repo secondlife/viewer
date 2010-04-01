@@ -303,12 +303,6 @@ LLTextEditor::~LLTextEditor()
 {
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit() while LLTextEditor still valid
 
-	// Route menu back to the default
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
-
 	// Scrollbar is deleted by LLView
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
 
@@ -1267,7 +1261,7 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 			break;
 		}
 	}
-
+	
 	if (handled)
 	{
 		deselect();
@@ -1527,7 +1521,7 @@ BOOL LLTextEditor::handleControlKey(const KEY key, const MASK mask)
 
 
 BOOL LLTextEditor::handleSpecialKey(const KEY key, const MASK mask)	
-{
+	{
 	BOOL handled = TRUE;
 
 	if (mReadOnly) return FALSE;
@@ -1637,15 +1631,15 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 	{
 		return FALSE;
 	}
-
+		
 	if (mReadOnly && mScroller)
 	{
 		handled = (mScroller && mScroller->handleKeyHere( key, mask ))
 				|| handleSelectionKey(key, mask)
 				|| handleControlKey(key, mask);
-	}
-	else
-	{
+		}
+		else 
+		{
 		handled = handleNavigationKey( key, mask )
 				|| handleSelectionKey(key, mask)
 				|| handleControlKey(key, mask)
@@ -2155,7 +2149,7 @@ void LLTextEditor::getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wo
 void LLTextEditor::autoIndent()
 {
 	// Count the number of spaces in the current line
-	S32 line = getLineNumFromDocIndex(mCursorPos);
+	S32 line = getLineNumFromDocIndex(mCursorPos, false);
 	S32 line_start = getLineStart(line);
 	S32 space_count = 0;
 	S32 i;
