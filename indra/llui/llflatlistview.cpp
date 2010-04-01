@@ -562,8 +562,7 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 		{
 			if(MASK_CONTROL & mask)
 			{
-				selectAll();
-				handled = TRUE;
+				handled = (BOOL)selectAll();
 			}
 			break;
 		}
@@ -793,7 +792,7 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 
 bool LLFlatListView::selectAll()
 {
-	if (!mAllowSelection)
+	if (!mAllowSelection || !mMultipleSelection)
 		return false;
 
 	mSelectedItemPairs.clear();

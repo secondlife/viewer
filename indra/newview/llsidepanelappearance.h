@@ -36,7 +36,7 @@
 #include "llinventoryobserver.h"
 
 #include "llinventory.h"
-#include "llpanellookinfo.h"
+#include "llpaneloutfitedit.h"
 
 class LLFilterEditor;
 class LLCurrentlyWornFetchObserver;
@@ -71,12 +71,12 @@ private:
 	void onEditButtonClicked();
 	void onBackButtonClicked();
 	void onEditWearBackClicked();
-	void toggleLookInfoPanel(BOOL visible);
+	void toggleOutfitEditPanel(BOOL visible);
 	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable);
 
 	LLFilterEditor*			mFilterEditor;
 	LLPanelOutfitsInventory* mPanelOutfitsInventory;
-	LLPanelLookInfo*		mLookInfo;
+	LLPanelOutfitEdit*		mOutfitEdit;
 	LLPanelEditWearable*	mEditWearable;
 
 	LLButton*					mOpenOutfitBtn;

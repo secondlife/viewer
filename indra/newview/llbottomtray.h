@@ -83,6 +83,8 @@ public:
 
 	virtual void setVisible(BOOL visible);
 
+	/*virtual*/ S32 notifyParent(const LLSD& info);
+
 	// Implements LLVoiceClientStatusObserver::onChange() to enable the speak
 	// button when voice is available
 	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
@@ -116,6 +118,8 @@ private:
 		, RS_BUTTON_MOVEMENT	= 0x0010
 		, RS_BUTTON_GESTURES	= 0x0020
 		, RS_BUTTON_SPEAK		= 0x0040
+		, RS_IM_WELL			= 0x0080
+		, RS_NOTIFICATION_WELL	= 0x0100
 
 		/**
 		 * Specifies buttons which can be hidden when bottom tray is shrunk.
@@ -183,6 +187,15 @@ private:
 	 * Returns true if visibility of required button was set.
 	 */
 	bool setVisibleAndFitWidths(EResizeState object_type, bool visible);
+
+	/**
+	 * Shows/hides panel with specified well button (IM or Notification)
+	 *
+	 * @param[in] object_type - type of well button to be processed.
+	 *		Must be one of RS_IM_WELL or RS_NOTIFICATION_WELL.
+	 * @param[in] visible - flag specified whether button should be shown or hidden.
+	 */
+	void showWellButton(EResizeState object_type, bool visible);
 
 	MASK mResizeState;
 

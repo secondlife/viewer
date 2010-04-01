@@ -2701,15 +2701,15 @@ even though the user gets a free copy.
 			<button
 			 follows="top|left"
 			 tool_tip="Edit this Media"
-			 height="18"
-			 image_disabled="OptionsMenu_Disabled"
-			 image_selected="OptionsMenu_Press"
-			 image_unselected="OptionsMenu_Off"
+			 height="12"
+			 image_disabled="Icon_Gear_Foreground"
+			 image_selected="Icon_Gear_Background"
+			 image_unselected="Icon_Gear_Press"
 			 layout="topleft"
 			 left_pad="10"
 			 name="edit_media"
-			 top_delta="0"
-			 width="18">
+			 top_delta="3"
+			 width="12">
 				<button.commit_callback
 				function="BuildTool.EditMedia"/>
 			</button>

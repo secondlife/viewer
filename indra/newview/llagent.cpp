@@ -3203,9 +3203,9 @@ bool LLAgent::teleportCore(bool is_local)
 	// yet if the teleport will succeed.  Look in 
 	// process_teleport_location_reply
 
-	// close the map and find panels so we can see our destination
+	// close the map panel so we can see our destination.
+	// we don't close search floater, see EXT-5840.
 	LLFloaterReg::hideInstance("world_map");
-	LLFloaterReg::hideInstance("search");
 
 	// hide land floater too - it'll be out of date
 	LLFloaterReg::hideInstance("about_land");

@@ -275,6 +275,7 @@
              layout="topleft"
              left="5"
              name="description"
+             textbox.label="More"
              top_pad="10"
              value="Du waltz die spritz"
              width="300" />

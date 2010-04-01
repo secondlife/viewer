@@ -524,7 +524,7 @@
      reference="Unused?" />
     <color
      name="NetMapBackgroundColor"
-     value="0 0 0 0.3" />
+     value="0 0 0 0" />
     <color
      name="NetMapGroupOwnAboveWater"
      reference="Purple" />
