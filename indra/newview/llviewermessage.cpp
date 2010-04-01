@@ -2381,7 +2381,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				args["[NAME]"] = name;
+				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
 				if(message.empty())
 				{
 					//support for frienship offers from clients before July 2008
