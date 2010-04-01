@@ -107,6 +107,8 @@ LLAgentCamera gAgentCamera;
 // LLAgentCamera()
 //-----------------------------------------------------------------------------
 LLAgentCamera::LLAgentCamera() :
+	mInitialized(false),
+
 	mDrawDistance( DEFAULT_FAR_PLANE ),
 
 	mLookAt(NULL),
@@ -219,7 +221,7 @@ void LLAgentCamera::init()
 	mCameraZoomFraction = 1.f;
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
 
-	mInitialized = TRUE;
+	mInitialized = true;
 }
 
 //-----------------------------------------------------------------------------

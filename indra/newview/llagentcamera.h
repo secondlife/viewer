@@ -82,7 +82,7 @@ public:
 	void			cleanup();
 	void		    setAvatarObject(LLVOAvatarSelf* avatar);
 private:
-	BOOL			mInitialized;
+	bool			mInitialized;
 
 
 	//--------------------------------------------------------------------
