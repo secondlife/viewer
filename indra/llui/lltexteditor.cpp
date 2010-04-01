@@ -2334,7 +2334,7 @@ void LLTextEditor::getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wo
 void LLTextEditor::autoIndent()
 {
 	// Count the number of spaces in the current line
-	S32 line = getLineNumFromDocIndex(mCursorPos);
+	S32 line = getLineNumFromDocIndex(mCursorPos, false);
 	S32 line_start = getLineStart(line);
 	S32 space_count = 0;
 	S32 i;
