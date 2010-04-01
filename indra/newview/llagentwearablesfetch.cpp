@@ -54,7 +54,7 @@ void LLInitialWearablesFetch::done()
 	// gInventory.notifyObservers.  The results will be handled in the next
 	// idle tick instead.
 	gInventory.removeObserver(this);
-	doOnIdle(boost::bind(&LLInitialWearablesFetch::processContents,this));
+	doOnIdleOneTime(boost::bind(&LLInitialWearablesFetch::processContents,this));
 }
 
 void LLInitialWearablesFetch::add(InitialWearableData &data)
@@ -210,8 +210,8 @@ void LLLibraryOutfitsFetch::done()
 {
 	// Delay this until idle() routine, since it's a heavy operation and
 	// we also can't have it run within notifyObservers.
-	doOnIdle(boost::bind(&LLLibraryOutfitsFetch::doneIdle,this));
-	gInventory.removeObserver(this); // Prevent doOnIdle from being added twice.
+	doOnIdleOneTime(boost::bind(&LLLibraryOutfitsFetch::doneIdle,this));
+	gInventory.removeObserver(this); // Prevent doOnIdleOneTime from being added twice.
 }
 
 void LLLibraryOutfitsFetch::doneIdle()

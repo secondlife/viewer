@@ -74,23 +74,6 @@ LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string&
 	}
 }
 
-// support for secondlife:///app/appearance SLapps
-class LLAppearanceHandler : public LLCommandHandler
-{
-public:
-	// requests will be throttled from a non-trusted browser
-	LLAppearanceHandler() : LLCommandHandler("appearance", UNTRUSTED_THROTTLE) {}
-
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
-	{
-		// support secondlife:///app/appearance/show, but for now we just
-		// make all secondlife:///app/appearance SLapps behave this way
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD());
-		return true;
-	}
-};
-LLAppearanceHandler gAppearanceHandler;
-
 class LLWearInventoryCategoryCallback : public LLInventoryCallback
 {
 public:
@@ -133,40 +116,18 @@ private:
 	bool mAppend;
 };
 
-class LLOutfitObserver : public LLInventoryFetchObserver
-{
-public:
-	LLOutfitObserver(const LLUUID& cat_id, bool copy_items, bool append) :
-		mCatID(cat_id),
-		mCopyItems(copy_items),
-		mAppend(append)
-	{}
-	~LLOutfitObserver() {}
-	virtual void done();
-	void doWearCategory();
-
-protected:
-	LLUUID mCatID;
-	bool mCopyItems;
-	bool mAppend;
-};
-
-void LLOutfitObserver::done()
-{
-	llinfos << "done 2nd stage fetch" << llendl;
-	gInventory.removeObserver(this);
-	doOnIdle(boost::bind(&LLOutfitObserver::doWearCategory,this));
-}
-
-void LLOutfitObserver::doWearCategory()
+void newDoWearCategory(LLUUID& cat_id, bool copy_items, bool append)
 {
 	llinfos << "starting" << llendl;
 	
 	// We now have an outfit ready to be copied to agent inventory. Do
 	// it, and wear that outfit normally.
-	if(mCopyItems)
+	LLInventoryCategory* cat = gInventory.getCategory(cat_id);
+	if(copy_items)
 	{
-		LLInventoryCategory* cat = gInventory.getCategory(mCatID);
+		LLInventoryModel::cat_array_t* cats;
+		LLInventoryModel::item_array_t* items;
+		gInventory.getDirectDescendentsOf(cat_id, cats, items);
 		std::string name;
 		if(!cat)
 		{
@@ -178,12 +139,12 @@ void LLOutfitObserver::doWearCategory()
 			name = cat->getName();
 		}
 		LLViewerInventoryItem* item = NULL;
-		item_ref_t::iterator it = mComplete.begin();
-		item_ref_t::iterator end = mComplete.end();
+		LLInventoryModel::item_array_t::const_iterator it = items->begin();
+		LLInventoryModel::item_array_t::const_iterator end = items->end();
 		LLUUID pid;
 		for(; it < end; ++it)
 		{
-			item = (LLViewerInventoryItem*)gInventory.getItem(*it);
+			item = *it;
 			if(item)
 			{
 				if(LLInventoryType::IT_GESTURE == item->getInventoryType())
@@ -202,23 +163,22 @@ void LLOutfitObserver::doWearCategory()
 			pid = gInventory.getRootFolderID();
 		}
 		
-		LLUUID cat_id = gInventory.createNewCategory(
+		LLUUID new_cat_id = gInventory.createNewCategory(
 			pid,
 			LLFolderType::FT_NONE,
 			name);
-		mCatID = cat_id;
-		LLPointer<LLInventoryCallback> cb = new LLWearInventoryCategoryCallback(mCatID, mAppend);
-		it = mComplete.begin();
+		LLPointer<LLInventoryCallback> cb = new LLWearInventoryCategoryCallback(new_cat_id, append);
+		it = items->begin();
 		for(; it < end; ++it)
 		{
-			item = (LLViewerInventoryItem*)gInventory.getItem(*it);
+			item = *it;
 			if(item)
 			{
 				copy_inventory_item(
 					gAgent.getID(),
 					item->getPermissions().getOwner(),
 					item->getUUID(),
-					cat_id,
+					new_cat_id,
 					std::string(),
 					cb);
 			}
@@ -229,77 +189,8 @@ void LLOutfitObserver::doWearCategory()
 	else
 	{
 		// Wear the inventory category.
-		LLAppearanceMgr::instance().wearInventoryCategoryOnAvatar(gInventory.getCategory(mCatID), mAppend);
+		LLAppearanceMgr::instance().wearInventoryCategoryOnAvatar(cat, append);
 	}
-	delete this;
-}
-
-class LLOutfitFetch : public LLInventoryFetchDescendentsObserver
-{
-public:
-	LLOutfitFetch(bool copy_items, bool append) : mCopyItems(copy_items), mAppend(append) {}
-	~LLOutfitFetch() {}
-	virtual void done();
-protected:
-	bool mCopyItems;
-	bool mAppend;
-};
-
-void LLOutfitFetch::done()
-{
-	// What we do here is get the complete information on the items in
-	// the library, and set up an observer that will wait for that to
-	// happen.
-	llinfos << "done first stage fetch" << llendl;
-	
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	gInventory.collectDescendents(mCompleteFolders.front(),
-								  cat_array,
-								  item_array,
-								  LLInventoryModel::EXCLUDE_TRASH);
-	S32 count = item_array.count();
-	if(!count)
-	{
-		llwarns << "Nothing fetched in category " << mCompleteFolders.front()
-				<< llendl;
-		//dec_busy_count();
-		gInventory.removeObserver(this);
-		delete this;
-		return;
-	}
-
-	LLOutfitObserver* outfit_observer = new LLOutfitObserver(mCompleteFolders.front(), mCopyItems, mAppend);
-	LLInventoryFetchObserver::item_ref_t ids;
-	for(S32 i = 0; i < count; ++i)
-	{
-		ids.push_back(item_array.get(i)->getUUID());
-	}
-
-	// clean up, and remove this as an observer since the call to the
-	// outfit could notify observers and throw us into an infinite
-	// loop.
-	//dec_busy_count();
-	gInventory.removeObserver(this);
-
-	// increment busy count and either tell the inventory to check &
-	// call done, or add this object to the inventory for observation.
-	//inc_busy_count();
-
-	// do the fetch
-	outfit_observer->fetchItems(ids);
-	if(outfit_observer->isEverythingComplete())
-	{
-		// everything is already here - call done.
-		outfit_observer->done();
-	}
-	else
-	{
-		// it's all on it's way - add an observer, and the inventory
-		// will call done for us when everything is here.
-		gInventory.addObserver(outfit_observer);
-	}
-	delete this;
 }
 
 LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy():
@@ -1309,25 +1200,7 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
 
-	// What we do here is get the complete information on the items in
-	// the inventory, and set up an observer that will wait for that to
-	// happen.
-	LLOutfitFetch* outfit_fetcher = new LLOutfitFetch(copy, append);
-	uuid_vec_t folders;
-	folders.push_back(category->getUUID());
-	outfit_fetcher->fetchDescendents(folders);
-	//inc_busy_count();
-	if(outfit_fetcher->isEverythingComplete())
-	{
-		// everything is already here - call done.
-		outfit_fetcher->done();
-	}
-	else
-	{
-		// it's all on it's way - add an observer, and the inventory
-		// will call done for us when everything is here.
-		gInventory.addObserver(outfit_fetcher);
-	}
+	callAfterCategoryFetch(category->getUUID(),boost::bind(newDoWearCategory,category->getUUID(), copy, append));
 }
 
 // *NOTE: hack to get from avatar inventory to avatar
