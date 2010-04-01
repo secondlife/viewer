@@ -65,14 +65,14 @@ public:
 	static bool		precommitValidate(const LLSD& data);
 	
 	static void		onCommitLock(LLUICtrl *ctrl, void *data);
-	static void 	onCommitPosition(		LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitScale(			LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitRotation(		LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitPhysics(		LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitTemporary(		LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitPhantom(		LLUICtrl* ctrl, void* userdata);
-	static void     onCommitPhysicsRep(     LLUICtrl* ctrl, void* userdata);
-	static void 	onCommitCastShadows(	LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitPosition(			LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitScale(				LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitRotation(			LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitPhysics(			LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitTemporary(			LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitPhantom(			LLUICtrl* ctrl, void* userdata);
+	static void     onCommitPhysicsShapeType(   LLUICtrl* ctrl, void* userdata);
+	static void 	onCommitCastShadows(		LLUICtrl* ctrl, void* userdata);
 
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
 
@@ -94,7 +94,7 @@ protected:
 	void			sendIsPhysical();
 	void			sendIsTemporary();
 	void			sendIsPhantom();
-	void            sendPhysicsRep();
+	void            sendPhysicsShapeType();
 	void			sendCastShadows();
 	void            sendSculpt();
 	
@@ -167,7 +167,7 @@ protected:
 	LLCheckBoxCtrl	*mCheckPhysics;
 	LLCheckBoxCtrl	*mCheckTemporary;
 	LLCheckBoxCtrl	*mCheckPhantom;
-	LLComboBox      *mComboPhysicsRep;
+	LLComboBox      *mComboPhysicsShapeType;
 	LLCheckBoxCtrl	*mCheckCastShadows;
 	
 	LLTextureCtrl   *mCtrlSculptTexture;
@@ -180,7 +180,7 @@ protected:
 	BOOL			mIsPhysical;			// to avoid sending "physical" when not changed
 	BOOL			mIsTemporary;			// to avoid sending "temporary" when not changed
 	BOOL			mIsPhantom;				// to avoid sending "phantom" when not changed
-	U8              mPhysicsRep;			// to avoid sending "physics rep spec" when not changed
+	U8              mPhysicsShapeType;		// to avoid sending "physics shape type" when not changed
 	BOOL			mCastShadows;			// to avoid sending "cast shadows" when not changed
 	S32				mSelectedType;			// So we know what selected type we last were
 
