@@ -116,83 +116,6 @@ private:
 	bool mAppend;
 };
 
-void newDoWearCategory(LLUUID& cat_id, bool copy_items, bool append)
-{
-	llinfos << "starting" << llendl;
-	
-	// We now have an outfit ready to be copied to agent inventory. Do
-	// it, and wear that outfit normally.
-	LLInventoryCategory* cat = gInventory.getCategory(cat_id);
-	if(copy_items)
-	{
-		LLInventoryModel::cat_array_t* cats;
-		LLInventoryModel::item_array_t* items;
-		gInventory.getDirectDescendentsOf(cat_id, cats, items);
-		std::string name;
-		if(!cat)
-		{
-			// should never happen.
-			name = "New Outfit";
-		}
-		else
-		{
-			name = cat->getName();
-		}
-		LLViewerInventoryItem* item = NULL;
-		LLInventoryModel::item_array_t::const_iterator it = items->begin();
-		LLInventoryModel::item_array_t::const_iterator end = items->end();
-		LLUUID pid;
-		for(; it < end; ++it)
-		{
-			item = *it;
-			if(item)
-			{
-				if(LLInventoryType::IT_GESTURE == item->getInventoryType())
-				{
-					pid = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
-				}
-				else
-				{
-					pid = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
-				}
-				break;
-			}
-		}
-		if(pid.isNull())
-		{
-			pid = gInventory.getRootFolderID();
-		}
-		
-		LLUUID new_cat_id = gInventory.createNewCategory(
-			pid,
-			LLFolderType::FT_NONE,
-			name);
-		LLPointer<LLInventoryCallback> cb = new LLWearInventoryCategoryCallback(new_cat_id, append);
-		it = items->begin();
-		for(; it < end; ++it)
-		{
-			item = *it;
-			if(item)
-			{
-				copy_inventory_item(
-					gAgent.getID(),
-					item->getPermissions().getOwner(),
-					item->getUUID(),
-					new_cat_id,
-					std::string(),
-					cb);
-			}
-		}
-		// BAP fixes a lag in display of created dir.
-		gInventory.notifyObservers();
-	}
-	else
-	{
-		// Wear the inventory category.
-		LLAppearanceMgr::instance().wearInventoryCategoryOnAvatar(cat, append);
-	}
-}
-
 LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy():
 	mFireCount(0)
 {
@@ -1200,7 +1123,86 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
 
-	callAfterCategoryFetch(category->getUUID(),boost::bind(newDoWearCategory,category->getUUID(), copy, append));
+	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
+														   &LLAppearanceMgr::instance(),
+														   category->getUUID(), copy, append));
+}
+
+void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)
+{
+	llinfos << "starting" << llendl;
+	
+	// We now have an outfit ready to be copied to agent inventory. Do
+	// it, and wear that outfit normally.
+	LLInventoryCategory* cat = gInventory.getCategory(cat_id);
+	if(copy_items)
+	{
+		LLInventoryModel::cat_array_t* cats;
+		LLInventoryModel::item_array_t* items;
+		gInventory.getDirectDescendentsOf(cat_id, cats, items);
+		std::string name;
+		if(!cat)
+		{
+			// should never happen.
+			name = "New Outfit";
+		}
+		else
+		{
+			name = cat->getName();
+		}
+		LLViewerInventoryItem* item = NULL;
+		LLInventoryModel::item_array_t::const_iterator it = items->begin();
+		LLInventoryModel::item_array_t::const_iterator end = items->end();
+		LLUUID pid;
+		for(; it < end; ++it)
+		{
+			item = *it;
+			if(item)
+			{
+				if(LLInventoryType::IT_GESTURE == item->getInventoryType())
+				{
+					pid = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
+				}
+				else
+				{
+					pid = gInventory.findCategoryUUIDForType(LLFolderType::FT_CLOTHING);
+				}
+				break;
+			}
+		}
+		if(pid.isNull())
+		{
+			pid = gInventory.getRootFolderID();
+		}
+		
+		LLUUID new_cat_id = gInventory.createNewCategory(
+			pid,
+			LLFolderType::FT_NONE,
+			name);
+		LLPointer<LLInventoryCallback> cb = new LLWearInventoryCategoryCallback(new_cat_id, append);
+		it = items->begin();
+		for(; it < end; ++it)
+		{
+			item = *it;
+			if(item)
+			{
+				copy_inventory_item(
+					gAgent.getID(),
+					item->getPermissions().getOwner(),
+					item->getUUID(),
+					new_cat_id,
+					std::string(),
+					cb);
+			}
+		}
+		// BAP fixes a lag in display of created dir.
+		gInventory.notifyObservers();
+	}
+	else
+	{
+		// Wear the inventory category.
+		LLAppearanceMgr::instance().wearInventoryCategoryOnAvatar(cat, append);
+	}
 }
 
 // *NOTE: hack to get from avatar inventory to avatar
