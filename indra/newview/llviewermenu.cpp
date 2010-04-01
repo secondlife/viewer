@@ -136,6 +136,7 @@ extern BOOL gDebugWindowProc;
 LLMenuBarGL		*gMenuBarView = NULL;
 LLViewerMenuHolderGL	*gMenuHolder = NULL;
 LLMenuGL		*gPopupMenuView = NULL;
+LLMenuGL		*gEditMenu = NULL;
 LLMenuBarGL		*gLoginMenuBarView = NULL;
 
 // Pie menus
@@ -383,8 +384,10 @@ void init_menus()
 	///
 	/// Context menus
 	///
+
 	const widget_registry_t& registry =
 		LLViewerMenuHolderGL::child_registry_t::instance();
+	gEditMenu = LLUICtrlFactory::createFromFile<LLMenuGL>("menu_edit.xml", gMenuHolder, registry);
 	gMenuAvatarSelf = LLUICtrlFactory::createFromFile<LLContextMenu>(
 		"menu_avatar_self.xml", gMenuHolder, registry);
 	gMenuAvatarOther = LLUICtrlFactory::createFromFile<LLContextMenu>(
@@ -5183,10 +5186,6 @@ void toggle_debug_menus(void*)
 {
 	BOOL visible = ! gSavedSettings.getBOOL("UseDebugMenus");
 	gSavedSettings.setBOOL("UseDebugMenus", visible);
-	if(visible)
-	{
-		//LLFirstUse::useDebugMenus();
-	}
 	show_debug_menus();
 }
 

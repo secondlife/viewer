@@ -227,7 +227,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	params.default_text(LLStringUtil::null);
 	params.max_length_bytes(p.max_chars);
 	params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
-	params.handle_edit_keys_directly(true);
 	params.commit_on_focus_lost(false);
 	params.follows.flags(FOLLOWS_ALL);
 	mTextEntry = LLUICtrlFactory::create<LLURLLineEditor>(params);
