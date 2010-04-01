@@ -62,7 +62,7 @@
 #include "llsidepanelappearance.h"
 #include "llwearablelist.h"
 
-static LLRegisterPanelClassWrapper<LLPanelOutfitEdit> t_look("panel_outfit_edit");
+static LLRegisterPanelClassWrapper<LLPanelOutfitEdit> t_outfit_edit("panel_outfit_edit");
 
 const U64 WEARABLE_MASK = (1LL << LLInventoryType::IT_WEARABLE);
 const U64 ATTACHMENT_MASK = (1LL << LLInventoryType::IT_ATTACHMENT) | (1LL << LLInventoryType::IT_OBJECT);
@@ -158,7 +158,9 @@ BOOL LLPanelOutfitEdit::postBuild()
 	// gInventory.isInventoryUsable() no longer needs to be tested per Richard's fix for race conditions between inventory and panels
 		
 	mLookName = getChild<LLTextBox>("curr_look_name"); 
-	
+
+	childSetCommitCallback("add_btn", boost::bind(&LLPanelOutfitEdit::showAddWearablesPanel, this), NULL);
+
 	/*
 	mLookContents->setDoubleClickCallback(onDoubleClickSpeaker, this);
 	mLookContents->setCommitOnSelectionChange(TRUE);
@@ -227,6 +229,11 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetAction("remove_item_btn", boost::bind(&LLPanelOutfitEdit::onRemoveFromLookClicked, this), this);
 	
 	return TRUE;
+}
+
+void LLPanelOutfitEdit::showAddWearablesPanel()
+{
+	childSetVisible("add_wearables_panel", childGetValue("add_btn"));
 }
 
 void LLPanelOutfitEdit::onTypeFilterChanged(LLUICtrl* ctrl)
@@ -500,7 +507,7 @@ void LLPanelOutfitEdit::displayLookInfo(const LLInventoryCategory* pLook)
 	if (mLookID != pLook->getUUID())
 	{
 		mLookID = pLook->getUUID();
-		mLookName->setText("Look: " + pLook->getName());
+		mLookName->setText(pLook->getName());
 		updateLookInfo();
 	}
 }

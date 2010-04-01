@@ -119,13 +119,13 @@
 	 <button
 	  follows="bottom|left"
 		height="23" 
-		label="M" 
+		label="Edit Outfit" 
 		layout="topleft"
         right="-140"
 		name="look_edit_btn"
         top="26"
         visible="false" 
-		width="20" />
+		width="50" />
 	 </panel>
        
 </panel>

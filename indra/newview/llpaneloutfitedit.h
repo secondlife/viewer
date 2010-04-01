@@ -88,7 +88,9 @@ public:
 	/*virtual*/ void setParcelID(const LLUUID& parcel_id);
 		// Sends a request for data about the given parcel, which will
 		// only update the location if there is none already available.
-	
+
+	void showAddWearablesPanel();
+
 	void onTypeFilterChanged(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
 	void onInventorySelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
