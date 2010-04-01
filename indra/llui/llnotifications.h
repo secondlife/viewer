@@ -104,6 +104,7 @@
 #include "llinitparam.h"
 #include "llnotificationslistener.h"
 #include "llnotificationptr.h"
+#include "llcachename.h"
 
 	
 typedef enum e_notification_priority
@@ -949,6 +950,62 @@ private:
     boost::scoped_ptr<LLNotificationsListener> mListener;
 };
 
+/**
+ * Abstract class for postponed notifications.
+ * Provides possibility to add notification after specified by id avatar or group will be
+ * received from cache name. The object of this type automatically well be deleted
+ * by cleanup method after respond will be received from cache name.
+ *
+ * To add custom postponed notification to the notification system client should:
+ *  1 create class derived from LLPostponedNotification;
+ *  2 call LLPostponedNotification::add method;
+ */
+class LLPostponedNotification
+{
+public:
+	/**
+	 * Performs hooking cache name callback which will add notification to notifications system.
+	 * Type of added notification should be specified by template parameter T
+	 * and non-private derived from LLPostponedNotification class,
+	 * otherwise compilation error will occur.
+	 */
+	template<class T>
+	static void add(const LLNotification::Params& params,
+			const LLUUID& id, bool is_group)
+	{
+		// upcast T to the base type to restrict T derivation from LLPostponedNotification
+		LLPostponedNotification* thiz = new T();
+
+		thiz->mParams = params;
+
+		gCacheName->get(id, is_group, boost::bind(
+				&LLPostponedNotification::onCachedNameReceived, thiz, _1, _2,
+				_3, _4));
+	}
+
+private:
+	void onCachedNameReceived(const LLUUID& id, const std::string& first,
+			const std::string& last, bool is_group);
+
+	void cleanup()
+	{
+		delete this;
+	}
+
+protected:
+	LLPostponedNotification() {}
+	~LLPostponedNotification() {}
+
+	/**
+	 * Abstract method provides possibility to modify notification parameters and
+	 * will be called after cache name retrieve information about avatar or group
+	 * and before notification will be added to the notification system.
+	 */
+	virtual void modifyNotificationParams() = 0;
+
+	LLNotification::Params mParams;
+	std::string mName;
+};
 
 #endif//LL_LLNOTIFICATIONS_H
 

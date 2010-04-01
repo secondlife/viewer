@@ -1685,6 +1685,18 @@ bool inspect_remote_object_callback(const LLSD& notification, const LLSD& respon
 }
 static LLNotificationFunctorRegistration inspect_remote_object_callback_reg("ServerObjectMessage", inspect_remote_object_callback);
 
+class LLPostponedServerObjectNotification: public LLPostponedNotification
+{
+protected:
+	/* virtual */
+	void modifyNotificationParams()
+	{
+		LLSD payload = mParams.payload;
+		payload["SESSION_NAME"] = mName;
+		mParams.payload = payload;
+	}
+};
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -2220,7 +2232,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			if(SYSTEM_FROM == name)
 			{
 				// System's UUID is NULL (fixes EXT-4766)
-				chat.mFromID = from_id = LLUUID::null;
+				chat.mFromID = LLUUID::null;
 			}
 
 			LLSD query_string;
@@ -2266,13 +2278,16 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["slurl"] = location;
 			payload["name"] = name;
 			std::string session_name;
-			gCacheName->getFullName(from_id, session_name);
-			payload["SESSION_NAME"] = session_name;
 			if (from_group)
 			{
 				payload["group_owned"] = "true";
 			}
-			LLNotificationsUtil::add("ServerObjectMessage", substitutions, payload);
+
+			LLNotification::Params params("ServerObjectMessage");
+			params.substitutions = substitutions;
+			params.payload = payload;
+
+			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, false);
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:

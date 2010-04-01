@@ -323,7 +323,7 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 {
 	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
-	std::string session_name = notification->getPayload().has(
+	const std::string& session_name = notification->getPayload().has(
 			"SESSION_NAME") ? notification->getPayload()["SESSION_NAME"].asString() : name;
 
 	// don't create IM p2p session with objects, it's necessary condition to log
@@ -331,12 +331,6 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 			!= OBJECT_GIVE_ITEM_UNKNOWN_USER)
 	{
 		LLUUID from_id = notification->getPayload()["from_id"];
-
-		//*HACK for ServerObjectMessage the sesson name is really weird, see EXT-4779
-		if (SERVER_OBJECT_MESSAGE == notification->getName())
-		{
-			session_name = "chat";
-		}
 
 		//there still appears a log history file with weird name " .txt"
 		if (" " == session_name || "{waiting}" == session_name || "{nobody}" == session_name)
@@ -392,6 +386,7 @@ void LLHandlerUtil::logToNearbyChat(const LLNotificationPtr& notification, EChat
 		LLChat chat_msg(notification->getMessage());
 		chat_msg.mSourceType = type;
 		chat_msg.mFromName = SYSTEM_FROM;
+		chat_msg.mFromID = LLUUID::null;
 		nearby_chat->addMessage(chat_msg);
 	}
 }
