@@ -102,14 +102,17 @@ width="333">
 		name="newlook_btn"
 		 width="100" />-->
    <panel
-   class="panel_look_info"
-   filename="panel_look_info.xml"
+   class="panel_outfit_edit"
+   filename="panel_outfit_edit.xml"
+   height="550"
    follows="all"
    layout="topleft"
-   left="0"
-   name="panel_look_info"
-   top="35"
-   visible="false" />
+   left="5"
+   min_height="410"
+   name="panel_outfit_edit"
+   top="5"
+   visible="false" 
+   width="320"/>
    <panel
    class="panel_edit_wearable"
    filename="panel_edit_wearable.xml"

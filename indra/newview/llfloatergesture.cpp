@@ -355,10 +355,10 @@ void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gestur
 		element["columns"][0]["value"] = "";
 		element["columns"][0]["font"]["name"] = "SANSSERIF";
 		element["columns"][0]["font"]["style"] = font_style;
-		element["columns"][0]["column"] = "trigger";
-		element["columns"][0]["value"] = "---";
-		element["columns"][0]["font"]["name"] = "SANSSERIF";
-		element["columns"][0]["font"]["style"] = font_style;
+		element["columns"][1]["column"] = "shortcut";
+		element["columns"][1]["value"] = "---";
+		element["columns"][1]["font"]["name"] = "SANSSERIF";
+		element["columns"][1]["font"]["style"] = font_style;
 		element["columns"][2]["column"] = "key";
 		element["columns"][2]["value"] = "~~~";
 		element["columns"][2]["font"]["name"] = "SANSSERIF";

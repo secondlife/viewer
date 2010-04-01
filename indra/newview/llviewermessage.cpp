@@ -1685,6 +1685,18 @@ bool inspect_remote_object_callback(const LLSD& notification, const LLSD& respon
 }
 static LLNotificationFunctorRegistration inspect_remote_object_callback_reg("ServerObjectMessage", inspect_remote_object_callback);
 
+class LLPostponedServerObjectNotification: public LLPostponedNotification
+{
+protected:
+	/* virtual */
+	void modifyNotificationParams()
+	{
+		LLSD payload = mParams.payload;
+		payload["SESSION_NAME"] = mName;
+		mParams.payload = payload;
+	}
+};
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -1754,17 +1766,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	std::string separator_string(": ");
 
 	LLSD args;
+	LLSD payload;
 	switch(dialog)
 	{
 	case IM_CONSOLE_AND_CHAT_HISTORY:
-		// These are used for system messages, hence don't need the name,
-		// as it is always "Second Life".
 	  	// *TODO: Translate
 		args["MESSAGE"] = message;
-
-		// Note: don't put the message in the IM history, even though was sent
-		// via the IM mechanism.
-		LLNotificationsUtil::add("SystemMessageTip",args);
+		payload["SESSION_NAME"] = name;
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add("IMSystemMessageTip",args, payload);
 		break;
 
 	case IM_NOTHING_SPECIAL: 
@@ -1987,7 +1997,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// For requested notices, we don't want to send the popups.
 			if (dialog != IM_GROUP_NOTICE_REQUESTED)
 			{
-				LLSD payload;
 				payload["subject"] = subj;
 				payload["message"] = mes;
 				payload["sender_name"] = name;
@@ -2223,7 +2232,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			if(SYSTEM_FROM == name)
 			{
 				// System's UUID is NULL (fixes EXT-4766)
-				chat.mFromID = from_id = LLUUID::null;
+				chat.mFromID = LLUUID::null;
 			}
 
 			LLSD query_string;
@@ -2269,13 +2278,16 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["slurl"] = location;
 			payload["name"] = name;
 			std::string session_name;
-			gCacheName->getFullName(from_id, session_name);
-			payload["SESSION_NAME"] = session_name;
 			if (from_group)
 			{
 				payload["group_owned"] = "true";
 			}
-			LLNotificationsUtil::add("ServerObjectMessage", substitutions, payload);
+
+			LLNotification::Params params("ServerObjectMessage");
+			params.substitutions = substitutions;
+			params.payload = payload;
+
+			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, false);
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:
@@ -2318,7 +2330,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				LLSD args;
 				// *TODO: Translate -> [FIRST] [LAST] (maybe)
-				args["NAME"] = name;
+				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
 				args["MESSAGE"] = message;
 				LLSD payload;
 				payload["from_id"] = from_id;
@@ -2384,7 +2396,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				args["[NAME]"] = name;
+				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
 				if(message.empty())
 				{
 					//support for frienship offers from clients before July 2008
@@ -4031,7 +4043,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	//clear animation flags
 	avatarp = (LLVOAvatar *)gObjectList.findObject(uuid);
 
-	if (!isAgentAvatarValid())
+	if (!avatarp)
 	{
 		// no agent by this ID...error?
 		LL_WARNS("Messaging") << "Received animation state for unknown avatar" << uuid << LL_ENDL;
@@ -5590,6 +5602,10 @@ void handle_lure(const LLUUID& invitee)
 // Prompt for a message to the invited user.
 void handle_lure(const uuid_vec_t& ids)
 {
+	if (ids.empty()) return;
+
+	if (!gAgent.getRegion()) return;
+
 	LLSD edit_args;
 	edit_args["REGION"] = gAgent.getRegion()->getName();
 

@@ -31,15 +31,14 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llfloateravatartextures.h"
 
+#include "llagent.h"
+#include "llagentwearables.h"
 #include "lltexturectrl.h"
-
 #include "lluictrlfactory.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
-#include "llagentwearables.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -75,7 +74,6 @@ void LLFloaterAvatarTextures::draw()
 	LLFloater::draw();
 }
 
-#if !LL_RELEASE_FOR_DOWNLOAD
 static void update_texture_ctrl(LLVOAvatar* avatarp,
 								 LLTextureCtrl* ctrl,
 								 ETextureIndex te)
@@ -132,72 +130,68 @@ static LLVOAvatar* find_avatar(const LLUUID& id)
 
 void LLFloaterAvatarTextures::refresh()
 {
-	LLVOAvatar *avatarp = find_avatar(mID);
-	if (avatarp)
+	if (gAgent.isGodlike())
 	{
-		std::string fullname;
-		if (gCacheName->getFullName(avatarp->getID(), fullname))
+		LLVOAvatar *avatarp = find_avatar(mID);
+		if (avatarp)
 		{
-			setTitle(mTitle + ": " + fullname);
-		}
-		for (U32 i=0; i < TEX_NUM_INDICES; i++)
-		{
-			update_texture_ctrl(avatarp, mTextures[i], ETextureIndex(i));
-		}
-	}
-	else
-	{
-		setTitle(mTitle + ": " + getString("InvalidAvatar") + " (" + mID.asString() + ")");
-	}
-}
-
-#else
-
-void LLFloaterAvatarTextures::refresh()
-{
-}
-
-#endif
-
-// static
-void LLFloaterAvatarTextures::onClickDump(void* data)
-{
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLFloaterAvatarTextures* self = (LLFloaterAvatarTextures*)data;
-	LLVOAvatar* avatarp = find_avatar(self->mID);
-	if (!avatarp) return;
-
-	for (S32 i = 0; i < avatarp->getNumTEs(); i++)
-	{
-		const LLTextureEntry* te = avatarp->getTE(i);
-		if (!te) continue;
-
-		if (LLVOAvatar::isIndexLocalTexture((ETextureIndex)i))
-		{
-			LLUUID id = IMG_DEFAULT_AVATAR;
-			EWearableType wearable_type = LLVOAvatarDictionary::getInstance()->getTEWearableType((ETextureIndex)i);
-			LLWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
-			if (wearable)
+			std::string fullname;
+			if (gCacheName->getFullName(avatarp->getID(), fullname))
 			{
-				LLLocalTextureObject *lto = wearable->getLocalTextureObject(i);
-				if (lto)
-				{
-					id = lto->getID();
-				}
+				setTitle(mTitle + ": " + fullname);
 			}
-			if (id != IMG_DEFAULT_AVATAR)
+			for (U32 i=0; i < TEX_NUM_INDICES; i++)
 			{
-				llinfos << "Avatar TE " << i << " id " << id << llendl;
-			}
-			else
-			{
-				llinfos << "Avatar TE " << i << " id " << "<DEFAULT>" << llendl;
+				update_texture_ctrl(avatarp, mTextures[i], ETextureIndex(i));
 			}
 		}
 		else
 		{
-			llinfos << "Avatar TE " << i << " id " << te->getID() << llendl;
+			setTitle(mTitle + ": " + getString("InvalidAvatar") + " (" + mID.asString() + ")");
 		}
 	}
-#endif
+}
+
+// static
+void LLFloaterAvatarTextures::onClickDump(void* data)
+{
+	if (gAgent.isGodlike())
+	{
+		LLFloaterAvatarTextures* self = (LLFloaterAvatarTextures*)data;
+		LLVOAvatar* avatarp = find_avatar(self->mID);
+		if (!avatarp) return;
+
+		for (S32 i = 0; i < avatarp->getNumTEs(); i++)
+		{
+			const LLTextureEntry* te = avatarp->getTE(i);
+			if (!te) continue;
+
+			if (LLVOAvatar::isIndexLocalTexture((ETextureIndex)i))
+			{
+				LLUUID id = IMG_DEFAULT_AVATAR;
+				EWearableType wearable_type = LLVOAvatarDictionary::getInstance()->getTEWearableType((ETextureIndex)i);
+				LLWearable *wearable = gAgentWearables.getWearable(wearable_type, 0);
+				if (wearable)
+				{
+					LLLocalTextureObject *lto = wearable->getLocalTextureObject(i);
+					if (lto)
+					{
+						id = lto->getID();
+					}
+				}
+				if (id != IMG_DEFAULT_AVATAR)
+				{
+					llinfos << "Avatar TE " << i << " id " << id << llendl;
+				}
+				else
+				{
+					llinfos << "Avatar TE " << i << " id " << "<DEFAULT>" << llendl;
+				}
+			}
+			else
+			{
+				llinfos << "Avatar TE " << i << " id " << te->getID() << llendl;
+			}
+		}
+	}
 }

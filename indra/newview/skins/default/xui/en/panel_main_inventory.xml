@@ -9,22 +9,22 @@
  min_width="240"
  name="main inventory panel"
  width="330">
-    <panel.string
-     name="Itemcount">
-    </panel.string>
-    <panel.string
-     name="ItemcountFetching">
-        Fetching [ITEM_COUNT] Items... [FILTER]
-    </panel.string>
-    <panel.string
-     name="ItemcountCompleted">
-        [ITEM_COUNT] Items [FILTER]
-    </panel.string>
-    <panel.string
-     name="ItemcountUnknown">
+  <panel.string
+   name="Itemcount">
+  </panel.string>
+  <panel.string
+   name="ItemcountFetching">
+    Fetching [ITEM_COUNT] Items... [FILTER]
+  </panel.string>
+  <panel.string
+   name="ItemcountCompleted">
+    [ITEM_COUNT] Items [FILTER]
+  </panel.string>
+  <panel.string
+   name="ItemcountUnknown">
 
-    </panel.string>
-	<text
+  </panel.string>
+  <text
 		     type="string"
 		     length="1"
 		     follows="left|top"
@@ -36,126 +36,124 @@
 		     text_color="EmphasisColor"
 		     top_pad="0"
 		     width="300">
-	        Items:
-    </text>
-    <filter_editor
-     text_pad_left="10"
-     follows="left|top|right"
-	 height="23"
-     label="Filter Inventory"
+    Items:
+  </text>
+  <filter_editor
+   text_pad_left="10"
+   follows="left|top|right"
+ height="23"
+   label="Filter Inventory"
+   layout="topleft"
+   left="10"
+   max_length="300"
+   name="inventory search editor"
+   top="3"
+   width="303" />
+  <tab_container
+     bg_alpha_color="DkGray"
+     bg_opaque_color="DkGray"
+     background_visible="true"
+     background_opaque="true"
+     follows="all"
+     halign="center"
+     height="339"
      layout="topleft"
-     left="10"
-     max_length="300"
-     name="inventory search editor"
-     top="3"
-     width="303" />
-    <tab_container
-       bg_opaque_color="DkGray2"
-       bg_alpha_color="DkGray2"
-       background_visible="true"
-       background_opaque="true"
-       follows="all"
-       halign="center"
-       height="334"
-       layout="topleft"
-       left="7"
-       name="inventory filter tabs"
-       tab_height="30"
-       tab_position="top"
-       tab_min_width="100"
-       top_pad="10"
-       width="312">
-        <inventory_panel
-            bg_opaque_color="DkGray2"
-       bg_alpha_color="DkGray2"
-       background_visible="true"
-       background_opaque="true"
-	       border="false"
-	       bevel_style="none"
-         follows="all"
-         height="322"
-         label="MY INVENTORY"
-         help_topic="my_inventory_tab"
-         layout="topleft"
-         left="0"
-         name="All Items"
-         sort_order_setting="InventorySortOrder"
-         top="16"
-         width="288" />
-        <inventory_panel
-            bg_opaque_color="DkGray2"
-       bg_alpha_color="DkGray2"
-       background_visible="true"
-       background_opaque="true"
-	       border="false"
-	       bevel_style="none"
-         follows="all"
-         height="320"
-         label="RECENT"
-         help_topic="recent_inventory_tab"
-         layout="topleft"
-         left_delta="0"
-         name="Recent Items"
-         width="290" />
-    </tab_container>
-
-    <panel
-       background_visible="true"
+     left="7"
+     name="inventory filter tabs"
+     tab_height="30"
+     tab_position="top"
+     tab_min_width="100"
+     top_pad="10"
+     width="312">
+    <inventory_panel
+        bg_opaque_color="DkGray2"
+   bg_alpha_color="DkGray2"
+   background_visible="true"
+   background_opaque="true"
+     border="false"
      bevel_style="none"
-     follows="left|right|bottom"
-     height="27"
+     follows="all"
+     height="338"
+     label="MY INVENTORY"
+     help_topic="my_inventory_tab"
      layout="topleft"
-     top_pad="4"
-     left="10"
-     name="bottom_panel"
-     width="310">
-        <button
-         follows="bottom|left"
-         tool_tip="Show additional options"
-         height="25"
-         image_hover_unselected="Toolbar_Left_Over"
-         image_overlay="OptionsMenu_Off"
-         image_selected="Toolbar_Left_Selected"
-         image_unselected="Toolbar_Left_Off"
-         layout="topleft"
-         left="0"
-         name="options_gear_btn"
-         top="1"
-         width="31" />
-        <button
-         follows="bottom|left"
-         height="25"
-         image_hover_unselected="Toolbar_Middle_Over"
-         image_overlay="AddItem_Off"
-         image_selected="Toolbar_Middle_Selected"
-         image_unselected="Toolbar_Middle_Off"
-         layout="topleft"
-         left_pad="1"
-         name="add_btn"
-         tool_tip="Add new item"
-         width="31" />
-       <icon
-        follows="bottom|left"
-        height="25"
-        image_name="Toolbar_Middle_Off"
-        layout="topleft"
-        left_pad="1"
-        name="dummy_icon"
-        width="209"
-       />
-        <dnd_button
-         follows="bottom|left"
-         height="25"
-         image_hover_unselected="Toolbar_Right_Over"
-         image_overlay="TrashItem_Off"
-         image_selected="Toolbar_Right_Selected"
-         image_unselected="Toolbar_Right_Off"
-         left_pad="1" 
-         layout="topleft"
-         name="trash_btn"
-         tool_tip="Remove selected item"
-         width="31"/>
-    </panel>
+     left="0"
+     name="All Items"
+     sort_order_setting="InventorySortOrder"
+     top="16"
+     width="288" />
+    <inventory_panel
+        bg_opaque_color="DkGray2"
+   bg_alpha_color="DkGray2"
+   background_visible="true"
+   background_opaque="true"
+     border="false"
+     bevel_style="none"
+     follows="all"
+     height="338"
+     label="RECENT"
+     help_topic="recent_inventory_tab"
+     layout="topleft"
+     left_delta="0"
+     name="Recent Items"
+     width="290" />
+  </tab_container>
 
-    
+  <panel
+     background_visible="true"
+   bevel_style="none"
+   follows="left|right|bottom"
+   height="27"
+   layout="topleft"
+   top_pad="-1"
+   left="10"
+   name="bottom_panel"
+   width="310">
+    <button
+     follows="bottom|left"
+     tool_tip="Show additional options"
+     height="25"
+     image_hover_unselected="Toolbar_Left_Over"
+     image_overlay="OptionsMenu_Off"
+     image_selected="Toolbar_Left_Selected"
+     image_unselected="Toolbar_Left_Off"
+     layout="topleft"
+     left="0"
+     name="options_gear_btn"
+     top="1"
+     width="31" />
+    <button
+     follows="bottom|left"
+     height="25"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_overlay="AddItem_Off"
+     image_selected="Toolbar_Middle_Selected"
+     image_unselected="Toolbar_Middle_Off"
+     layout="topleft"
+     left_pad="1"
+     name="add_btn"
+     tool_tip="Add new item"
+     width="31" />
+    <icon
+     follows="bottom|left"
+     height="25"
+     image_name="Toolbar_Middle_Off"
+     layout="topleft"
+     left_pad="1"
+     name="dummy_icon"
+     width="209"
+       />
+    <dnd_button
+     follows="bottom|left"
+     height="25"
+     image_hover_unselected="Toolbar_Right_Over"
+     image_overlay="TrashItem_Off"
+     image_selected="Toolbar_Right_Selected"
+     image_unselected="Toolbar_Right_Off"
+     left_pad="1"
+     layout="topleft"
+     name="trash_btn"
+     tool_tip="Remove selected item"
+     width="31"/>
+  </panel>
 </panel>

@@ -807,8 +807,11 @@ public:
 	{
 		if (tokens.size() < 2) return false;
 		S32 channel = tokens[0].asInteger();
-		std::string mesg = tokens[1].asString();
-		send_chat_from_viewer(mesg, CHAT_TYPE_NORMAL, channel);
+
+		// Send unescaped message, see EXT-6353.
+		std::string unescaped_mesg (LLURI::unescape(tokens[1].asString()));
+
+		send_chat_from_viewer(unescaped_mesg, CHAT_TYPE_NORMAL, channel);
 		return true;
 	}
 };

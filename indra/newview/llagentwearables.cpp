@@ -1524,7 +1524,6 @@ void LLAgentWearables::removeWearableFinal(const EWearableType type, bool do_rem
 }
 
 // Assumes existing wearables are not dirty.
-// MULTI_WEARABLE: assumes one wearable per type.
 void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& items,
 										 const LLDynamicArray< LLWearable* >& wearables,
 										 BOOL remove)
@@ -1782,16 +1781,24 @@ void LLAgentWearables::queryWearableCache()
 	gAgentQueryManager.mWearablesCacheQueryID++;
 }
 
-// MULTI_WEARABLE: need a way to specify by wearable rather than by type.
 // User has picked "remove from avatar" from a menu.
 // static
-void LLAgentWearables::userRemoveWearable(EWearableType& type)
+void LLAgentWearables::userRemoveWearable(const EWearableType &type, const U32 &index)
 {
-	if (!(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR)) //&&
+	if (!(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR || type==WT_EYES)) //&&
 		//!((!gAgent.isTeen()) && (type==WT_UNDERPANTS || type==WT_UNDERSHIRT)))
 	{
-		// MULTI_WEARABLE: fixed to 0th for now.
-		gAgentWearables.removeWearable(type,false,0);
+		gAgentWearables.removeWearable(type,false,index);
+	}
+}
+
+//static 
+void LLAgentWearables::userRemoveWearablesOfType(const EWearableType &type)
+{
+	if (!(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR || type==WT_EYES)) //&&
+		//!((!gAgent.isTeen()) && (type==WT_UNDERPANTS || type==WT_UNDERSHIRT)))
+	{
+		gAgentWearables.removeWearable(type,true,0);
 	}
 }
 

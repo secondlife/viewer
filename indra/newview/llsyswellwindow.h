@@ -70,6 +70,7 @@ public:
 	/*virtual*/ void	setDocked(bool docked, bool pop_on_undock = true);
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void	setMinimized(BOOL minimize);
+	/*virtual*/ void	handleReshape(const LLRect& rect, bool by_user);
 
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
@@ -121,7 +122,7 @@ protected:
 
 	typedef std::map<EItemType, S32> typed_items_count_t;
 	typed_items_count_t mTypedItemsCount;
-
+	bool mIsReshapedByUser;
 };
 
 /**

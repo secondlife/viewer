@@ -76,7 +76,7 @@ Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number
         allow_html="true" 
        follows="top|left"
        font="SansSerif"
-       height="350"
+       height="343"
        bg_readonly_color="Transparent"
        left="5"
        max_length="65536"

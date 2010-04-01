@@ -198,9 +198,6 @@ public:
 
 	void refresh();
 
-	void onClickKickAll();
-	static bool confirmKick(const LLSD& notification, const LLSD& response);
-	static bool finishKick(const LLSD& notification, const LLSD& response);
 	static void onDragSunPhase(LLUICtrl *ctrl, void *userdata);
 	void onClickFlushMapVisibilityCaches();
 	static bool flushMapVisibilityCachesConfirm(const LLSD& notification, const LLSD& response);
