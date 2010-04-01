@@ -53,6 +53,7 @@
 #include "llprimitive.h"
 #include "llquantize.h"
 #include "llregionhandle.h"
+#include "llsdserialize.h"
 #include "lltree_common.h"
 #include "llxfermanager.h"
 #include "message.h"
@@ -199,7 +200,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mGLName(0),
 	mbCanSelect(TRUE),
 	mFlags(0),
-	mPhysicsRep(0),
+	mPhysicsShapeType(0),
 	mDrawable(),
 	mCreateSelected(FALSE),
 	mRenderMedia(FALSE),
@@ -4963,10 +4964,10 @@ void LLViewerObject::updateFlags()
 	gMessageSystem->addBOOL("IsPhantom", flagPhantom() );
 	gMessageSystem->addBOOL("CastsShadows", flagCastShadows() );
 	gMessageSystem->nextBlock("ExtraPhysics");
-	gMessageSystem->addU8("PhysicsRep", getPhysicsRep() );
+	gMessageSystem->addU8("PhysicsShapeType", getPhysicsShapeType() );
 	gMessageSystem->sendReliable( regionp->getHost() );
 
-	if (getPhysicsRep() != 0)
+	if (getPhysicsShapeType() != 0)
 	{
 		llwarns << "sent non default physics rep" << llendl;
 	}
@@ -5001,9 +5002,9 @@ BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
 	return setit;
 }
 
-void LLViewerObject::setPhysicsRep(U8 rep)
+void LLViewerObject::setPhysicsShapeType(U8 type)
 {
-	mPhysicsRep = rep;
+	mPhysicsShapeType = type;
 	updateFlags();
 }
 
@@ -5217,7 +5218,7 @@ void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplif
 
 	return ;
 }
-#include "../llcommon/llsdserialize.h"
+
 class ObjectPhysicsProperties : public LLHTTPNode
 {
 public:
@@ -5231,11 +5232,8 @@ public:
 		
 		for ( S32 i = 0; i < numEntries; i++ )
 		{
-			U32 localID = objectData[i]["LocalID"].asInteger();
-
-			std::ostringstream string;
-			LLSDSerialize::serialize( input, string, LLSDSerialize::LLSD_XML, LLSDFormatter::OPTIONS_PRETTY);
-			llinfos << string.str() << llendl;
+			LLSD& currObjectData = objectData[i];
+			U32 localID = currObjectData["LocalID"].asInteger();
 
 			// Iterate through nodes at end, since it can be on both the regular AND hover list
 			struct f : public LLSelectedNodeFunctor
@@ -5250,11 +5248,12 @@ public:
 
 			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(&func);
 
-			U8 physicsRepSpec = (U8)objectData[i]["PhysicsRepSpec"].asInteger();
-
 			if (node)
 			{
-				node->getObject()->setPhysicsRep(physicsRepSpec);
+				// The LLSD message builder doesn't know how to handle U8, so we need to send as S8 and cast
+				U8 physicsShapeType = (U8)currObjectData["PhysicsShapeType"].asInteger();
+
+				node->getObject()->setPhysicsShapeType(physicsShapeType);
 			}	
 		}
 		

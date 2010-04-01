@@ -138,9 +138,9 @@ BOOL	LLPanelObject::postBuild()
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
 
-	// PhysicsRep combobox
-	mComboPhysicsRep = getChild<LLComboBox>("Physics Rep Combo Ctrl");
-	childSetCommitCallback("Physics Rep Combo Ctrl", onCommitPhysicsRep,this);
+	// PhysicsShapeType combobox
+	mComboPhysicsShapeType = getChild<LLComboBox>("Physics Shape Type Combo Ctrl");
+	childSetCommitCallback("Physics Shape Type Combo Ctrl", onCommitPhysicsShapeType,this);
 	
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
@@ -324,7 +324,7 @@ LLPanelObject::LLPanelObject()
 	mIsPhysical(FALSE),
 	mIsTemporary(FALSE),
 	mIsPhantom(FALSE),
-	mPhysicsRep(0),
+	mPhysicsShapeType(0),
 	mCastShadows(TRUE),
 	mSelectedType(MI_BOX),
 	mSculptTextureRevert(LLUUID::null),
@@ -532,9 +532,9 @@ void LLPanelObject::getState( )
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
 
-	mPhysicsRep = objectp->getPhysicsRep();
-	mComboPhysicsRep->setCurrentByIndex(mPhysicsRep);
-	mComboPhysicsRep->setEnabled(editable);
+	mPhysicsShapeType = objectp->getPhysicsShapeType();
+	mComboPhysicsShapeType->setCurrentByIndex(mPhysicsShapeType);
+	mComboPhysicsShapeType->setEnabled(editable);
 
 #if 0 // 1.9.2
 	mCastShadows = root_objectp->flagCastShadows();
@@ -1241,19 +1241,19 @@ void LLPanelObject::sendIsPhantom()
 	}
 }
 
-void LLPanelObject::sendPhysicsRep()
+void LLPanelObject::sendPhysicsShapeType()
 {
-	U8 value = (U8)mComboPhysicsRep->getCurrentIndex();
-	if (mPhysicsRep != value)
+	U8 value = (U8)mComboPhysicsShapeType->getCurrentIndex();
+	if (mPhysicsShapeType != value)
 	{
-		LLSelectMgr::getInstance()->selectionUpdatePhysicsRep(value);
-		mPhysicsRep = value;
+		LLSelectMgr::getInstance()->selectionUpdatePhysicsShapeType(value);
+		mPhysicsShapeType = value;
 		
-		llinfos << "update physicsrep sent" << llendl;
+		llinfos << "update physics shape type sent" << llendl;
 	}
 	else
 	{
-		llinfos << "update physicstep not changed" << llendl;
+		llinfos << "update physics shape type not changed" << llendl;
 	}
 }
 
@@ -1930,8 +1930,8 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
-	mComboPhysicsRep->setCurrentByIndex(0);
-	mComboPhysicsRep->setEnabled(FALSE);
+	mComboPhysicsShapeType->setCurrentByIndex(0);
+	mComboPhysicsShapeType->setEnabled(FALSE);
 #if 0 // 1.9.2
 	mCheckCastShadows->set(FALSE);
 	mCheckCastShadows->setEnabled( FALSE );
@@ -2027,10 +2027,10 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 }
 
 // static
-void LLPanelObject::onCommitPhysicsRep(LLUICtrl* ctrl, void* userdata )
+void LLPanelObject::onCommitPhysicsShapeType(LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
-	self->sendPhysicsRep();
+	self->sendPhysicsShapeType();
 }
 
 // static
