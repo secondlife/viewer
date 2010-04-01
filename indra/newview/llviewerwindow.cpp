@@ -1168,7 +1168,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 				{
 					// if we're in world, show a progress bar to hide reloading of textures
 					llinfos << "Restoring GL during activate" << llendl;
-					restoreGL("Restoring...");
+					restoreGL(LLTrans::getString("ProgressRestoring"));
 				}
 				else
 				{
@@ -1395,7 +1395,8 @@ LLViewerWindow::LLViewerWindow(
 	mStatesDirty(false),
 	mIsFullscreenChecked(false),
 	mCurrResolutionIndex(0),
-    mViewerWindowListener(new LLViewerWindowListener(this))
+    mViewerWindowListener(new LLViewerWindowListener(this)),
+	mProgressView(NULL)
 {
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
@@ -1428,7 +1429,7 @@ LLViewerWindow::LLViewerWindow(
 
 	if (NULL == mWindow)
 	{
-		LLSplashScreen::update("Shutting down...");
+		LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
 #if LL_LINUX || LL_SOLARIS
 		llwarns << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt or README-solaris.txt for further information."
 				<< llendl;
@@ -1632,8 +1633,7 @@ void LLViewerWindow::initBase()
 	gToolTipView = getRootView()->getChild<LLToolTipView>("tooltip view");
 
 	// Add the progress bar view (startup view), which overrides everything
-	mProgressView = new LLProgressView(full_window);
-	getRootView()->addChild(mProgressView);
+	mProgressView = getRootView()->getChild<LLProgressView>("progress_view");
 	setShowProgress(FALSE);
 	setProgressCancelButtonVisible(FALSE);
 
@@ -1652,8 +1652,8 @@ void LLViewerWindow::initWorldUI()
 
 	gIMMgr = LLIMMgr::getInstance();
 
-	getRootView()->sendChildToFront(gFloaterView);
-	getRootView()->sendChildToFront(gSnapshotFloaterView);
+	//getRootView()->sendChildToFront(gFloaterView);
+	//getRootView()->sendChildToFront(gSnapshotFloaterView);
 
 	// new bottom panel
 	LLPanel* bottom_tray_container = getRootView()->getChild<LLPanel>("bottom_tray_container");
@@ -4668,7 +4668,7 @@ void LLViewerWindow::restartDisplay(BOOL show_progress_bar)
 	stopGL();
 	if (show_progress_bar)
 	{
-		restoreGL("Changing Resolution...");
+		restoreGL(LLTrans::getString("ProgressChangingResolution"));
 	}
 	else
 	{
@@ -4756,7 +4756,7 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	llinfos << "Restoring GL during resolution change" << llendl;
 	if (show_progress_bar)
 	{
-		restoreGL("Changing Resolution...");
+		restoreGL(LLTrans::getString("ProgressChangingResolution"));
 	}
 	else
 	{

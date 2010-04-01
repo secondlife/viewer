@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="MEMORIA DELLA REGIONE" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Memoria dello script del lotto
+	</text>
+	<text name="loading_text">
+		Caricamento in corso...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Dimensione (kb)" name="size"/>
+		<scroll_list.columns label="URL" name="urls"/>
+		<scroll_list.columns label="Nome dell&apos;oggetto" name="name"/>
+		<scroll_list.columns label="Proprietario dell&apos;oggetto" name="owner"/>
+		<scroll_list.columns label="Lotto" name="parcel"/>
+		<scroll_list.columns label="Posizione" name="location"/>
+	</scroll_list>
+	<button label="Aggiorna lista" name="refresh_list_btn"/>
+	<button label="In evidenza" name="highlight_btn"/>
+	<button label="Restituisci" name="return_btn"/>
+</panel>

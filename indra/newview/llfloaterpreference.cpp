@@ -110,6 +110,9 @@
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
 
+//control value for middle mouse as talk2push button
+const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";
+
 class LLVoiceSetKeyDialog : public LLModalDialog
 {
 public:
@@ -180,7 +183,6 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // a static member and update all our static callbacks
 
 void handleNameTagOptionChanged(const LLSD& newvalue);	
-viewer_media_t get_web_media();
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
 //bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
@@ -188,23 +190,14 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator);
 
-viewer_media_t get_web_media()
-{
-	viewer_media_t media_source = LLViewerMedia::newMediaImpl(LLUUID::null);
-	media_source->initializeMedia("text/html");
-	return media_source;
-}
-
-
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if ( option == 0 ) // YES
 	{
 		// clean web
-		viewer_media_t media_source = get_web_media();
-		if (media_source && media_source->hasMedia())
-			media_source->getMediaPlugin()->clear_cache();
+		LLViewerMedia::clearAllCaches();
+		LLViewerMedia::clearAllCookies();
 		
 		// clean nav bar history
 		LLNavigationBar::getInstance()->clearHistoryCache();
@@ -426,17 +419,14 @@ void LLFloaterPreference::apply()
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	childSetText("cache_location", cache_location);		
 	
-	viewer_media_t media_source = get_web_media();
-	if (media_source && media_source->hasMedia())
+	LLViewerMedia::setCookiesEnabled(childGetValue("cookies_enabled"));
+	
+	if(hasChild("web_proxy_enabled") &&hasChild("web_proxy_editor") && hasChild("web_proxy_port"))
 	{
-		media_source->getMediaPlugin()->enable_cookies(childGetValue("cookies_enabled"));
-		if(hasChild("web_proxy_enabled") &&hasChild("web_proxy_editor") && hasChild("web_proxy_port"))
-		{
-			bool proxy_enable = childGetValue("web_proxy_enabled");
-			std::string proxy_address = childGetValue("web_proxy_editor");
-			int proxy_port = childGetValue("web_proxy_port");
-			media_source->getMediaPlugin()->proxy_setup(proxy_enable, proxy_address, proxy_port);
-		}
+		bool proxy_enable = childGetValue("web_proxy_enabled");
+		std::string proxy_address = childGetValue("web_proxy_editor");
+		int proxy_port = childGetValue("web_proxy_port");
+		LLViewerMedia::setProxyConfig(proxy_enable, proxy_address, proxy_port);
 	}
 	
 //	LLWString busy_response = utf8str_to_wstring(getChild<LLUICtrl>("busy_response")->getValue().asString());
@@ -819,7 +809,7 @@ void LLFloaterPreference::buildPopupLists()
 
 void LLFloaterPreference::refreshEnabledState()
 {	
-	LLCheckBoxCtrl* ctrl_reflections = getChild<LLCheckBoxCtrl>("Reflections");
+	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
 	LLRadioGroup* radio_reflection_detail = getChild<LLRadioGroup>("ReflectionDetailRadio");
 	
 	// Reflections
@@ -832,7 +822,7 @@ void LLFloaterPreference::refreshEnabledState()
 	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
 	getChild<LLCheckBoxCtrl>("BumpShiny")->setEnabled(bumpshiny ? TRUE : FALSE);
 	
-	radio_reflection_detail->setEnabled(ctrl_reflections->get() && reflections);
+	radio_reflection_detail->setEnabled(reflections);
 	
 	// Avatar Mode
 	// Enable Avatar Shaders
@@ -878,18 +868,41 @@ void LLFloaterPreference::refreshEnabledState()
 	// *HACK just checks to see if we can use shaders... 
 	// maybe some cards that use shaders, but don't support windlight
 	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
+
+	//Deferred/SSAO/Shadows
+	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
+	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseFBO") &&
+		shaders)
+	{
+		BOOL enabled = ctrl_wind_light->get() ? TRUE : FALSE;
+
+		ctrl_deferred->setEnabled(enabled);
+	
+		LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
+		LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
+
+		enabled = enabled && (ctrl_deferred->get() ? TRUE : FALSE);
+		
+		ctrl_ssao->setEnabled(enabled);
+		ctrl_shadow->setEnabled(enabled);
+	}
+
+
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
 }
 
 void LLFloaterPreference::disableUnavailableSettings()
 {	
-	LLCheckBoxCtrl* ctrl_reflections   = getChild<LLCheckBoxCtrl>("Reflections");
+	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
 	LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
 	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
 	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
 	LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
 	LLCheckBoxCtrl* ctrl_avatar_impostors = getChild<LLCheckBoxCtrl>("AvatarImpostors");
+	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
+	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
+	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 
 	// if vertex shaders off, disable all shader related products
 	if(!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
@@ -901,13 +914,22 @@ void LLFloaterPreference::disableUnavailableSettings()
 		ctrl_wind_light->setValue(FALSE);
 		
 		ctrl_reflections->setEnabled(FALSE);
-		ctrl_reflections->setValue(FALSE);
+		ctrl_reflections->setValue(0);
 		
 		ctrl_avatar_vp->setEnabled(FALSE);
 		ctrl_avatar_vp->setValue(FALSE);
 		
 		ctrl_avatar_cloth->setEnabled(FALSE);
 		ctrl_avatar_cloth->setValue(FALSE);
+
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
 	}
 	
 	// disabled windlight
@@ -915,10 +937,20 @@ void LLFloaterPreference::disableUnavailableSettings()
 	{
 		ctrl_wind_light->setEnabled(FALSE);
 		ctrl_wind_light->setValue(FALSE);
+
+		//deferred needs windlight, disable deferred
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
 	}
 	
 	// disabled reflections
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderWaterReflections"))
+	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
 	{
 		ctrl_reflections->setEnabled(FALSE);
 		ctrl_reflections->setValue(FALSE);
@@ -932,13 +964,25 @@ void LLFloaterPreference::disableUnavailableSettings()
 		
 		ctrl_avatar_cloth->setEnabled(FALSE);
 		ctrl_avatar_cloth->setValue(FALSE);
+
+		//deferred needs AvatarVP, disable deferred
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
 	}
+
 	// disabled cloth
 	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarCloth"))
 	{
 		ctrl_avatar_cloth->setEnabled(FALSE);
 		ctrl_avatar_cloth->setValue(FALSE);
 	}
+
 	// disabled impostors
 	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseImpostors"))
 	{
@@ -1008,9 +1052,17 @@ void LLFloaterPreference::setKey(KEY key)
 
 void LLFloaterPreference::onClickSetMiddleMouse()
 {
-	childSetValue("modifier_combo", "MiddleMouse");
+	LLUICtrl* p2t_line_editor = getChild<LLUICtrl>("modifier_combo");
+
 	// update the control right away since we no longer wait for apply
-	getChild<LLUICtrl>("modifier_combo")->onCommit();
+	p2t_line_editor->setControlValue(MIDDLE_MOUSE_CV);
+
+	//push2talk button "middle mouse" control value is in English, need to localize it for presentation
+	LLPanel* advanced_preferences = dynamic_cast<LLPanel*>(p2t_line_editor->getParent());
+	if (advanced_preferences)
+	{
+		p2t_line_editor->setValue(advanced_preferences->getString("middle_mouse"));
+	}
 }
 /*
 void LLFloaterPreference::onClickSkipDialogs()
@@ -1300,6 +1352,16 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("voice_call_friends_only_check"))
 	{
 		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
+	}
+
+	// Panel Advanced
+	if (hasChild("modifier_combo"))
+	{
+		//localizing if push2talk button is set to middle mouse
+		if (MIDDLE_MOUSE_CV == childGetValue("modifier_combo").asString())
+		{
+			childSetValue("modifier_combo", getString("middle_mouse"));
+		}
 	}
 
 	apply();

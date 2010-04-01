@@ -951,10 +951,10 @@ void upload_done_callback(
 				
 				if(!(can_afford_transaction(expected_upload_cost)))
 				{
-					LLFloaterBuyCurrency::buyCurrency(
-									  llformat(LLTrans::getString("UploadingCosts").c_str(),
-										   data->mAssetInfo.getName().c_str()),
-									  expected_upload_cost);
+					LLStringUtil::format_map_t args;
+					args["NAME"] = data->mAssetInfo.getName();
+					args["AMOUNT"] = llformat("%d", expected_upload_cost);
+					LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("UploadingCosts", args), expected_upload_cost);
 					is_balance_sufficient = FALSE;
 				}
 				else if(region)
@@ -1174,7 +1174,9 @@ void upload_new_resource(
 			if (balance < expected_upload_cost)
 			{
 				// insufficient funds, bail on this upload
-				LLFloaterBuyCurrency::buyCurrency("Uploading costs", expected_upload_cost);
+				LLStringUtil::format_map_t args;
+				args["AMOUNT"] = llformat("%d", expected_upload_cost);
+				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("uploading_costs", args), expected_upload_cost);
 				return;
 			}
 		}

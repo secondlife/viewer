@@ -42,8 +42,8 @@
 		</layout_panel>
 		<layout_panel name="profile_buttons_panel">
 			<button label="Devenir amis" name="add_friend" tool_tip="Proposer à un résident de devenir votre ami"/>
-			<button label="IM" name="im" tool_tip="Ouvrir une session IM" width="30"/>
-			<button label="Appeler" name="call" tool_tip="Appeler ce résident" width="60"/>
+			<button label="IM" name="im" tool_tip="Ouvrir une session IM"/>
+			<button label="Appeler" name="call" tool_tip="Appeler ce résident"/>
 			<button label="Carte" name="show_on_map_btn" tool_tip="Afficher le résident sur la carte"/>
 			<button label="Téléporter" name="teleport" tool_tip="Proposez une téléportation"/>
 			<button label="▼" name="overflow_btn" tool_tip="Payer ou partager l&apos;inventaire avec le résident"/>

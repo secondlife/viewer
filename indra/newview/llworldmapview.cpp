@@ -45,6 +45,7 @@
 
 #include "llagent.h"
 #include "llcallingcard.h"
+#include "llcommandhandler.h"
 #include "llviewercontrol.h"
 #include "llfloatermap.h"
 #include "llfloaterworldmap.h"
@@ -1726,7 +1727,10 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 				id.toString(uuid_str);
 				uuid_str = uuid_str.substr(28);
 				sscanf(uuid_str.c_str(), "%X", &event_id);
-				LLFloaterReg::showInstance("search", LLSD().with("category", "events").with("id", event_id));
+				// Invoke the event details floater if someone is clicking on an event.
+				LLSD params(LLSD::emptyArray());
+				params.append(event_id);
+				LLCommandDispatcher::dispatch("event", params, LLSD(), NULL, true);
 				break;
 			}
 		case MAP_ITEM_LAND_FOR_SALE:

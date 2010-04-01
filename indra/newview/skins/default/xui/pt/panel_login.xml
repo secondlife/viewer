@@ -12,12 +12,19 @@
 				Primeiro nome:
 			</text>
 			<line_editor label="Nome" name="first_name_edit" tool_tip="[SECOND_LIFE] First Name"/>
+			<text name="last_name_text">
+				Sobrenome:
+			</text>
 			<line_editor label="Sobrenome" name="last_name_edit" tool_tip="[SECOND_LIFE] Last Name"/>
+			<text name="password_text">
+				Senha:
+			</text>
 			<check_box label="Lembrar senha" name="remember_check"/>
 			<text name="start_location_text">
 				Começar em:
 			</text>
 			<combo_box name="start_location_combo">
+				<combo_box.item label="Última posição" name="MyLastLocation"/>
 				<combo_box.item label="Minha casa" name="MyHome"/>
 			</combo_box>
 			<button label="conectar" name="connect_btn"/>
@@ -25,6 +32,9 @@
 		<layout_panel name="links">
 			<text name="create_new_account_text">
 				Cadastre-se
+			</text>
+			<text name="forgot_password_text">
+				Esqueceu seu nome ou senha?
 			</text>
 			<text name="login_help">
 				Precisa de ajuda ao conectar?

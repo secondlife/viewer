@@ -324,18 +324,18 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			<text name="allow_label2">
 				Construire :
 			</text>
-			<check_box label="Tous" left="285" name="edit objects check"/>
-			<check_box label="Groupe" left="395" name="edit group objects check"/>
+			<check_box label="Tous" name="edit objects check"/>
+			<check_box label="Groupe" name="edit group objects check"/>
 			<text name="allow_label3">
 				Laisser entrer des objets :
 			</text>
-			<check_box label="Tous" left="285" name="all object entry check"/>
-			<check_box label="Groupe" left="395" name="group object entry check"/>
+			<check_box label="Tous" name="all object entry check"/>
+			<check_box label="Groupe" name="group object entry check"/>
 			<text name="allow_label4">
 				Exécuter des scripts :
 			</text>
-			<check_box label="Tous" left="285" name="check other scripts"/>
-			<check_box label="Groupe" left="395" name="check group scripts"/>
+			<check_box label="Tous" name="check other scripts"/>
+			<check_box label="Groupe" name="check group scripts"/>
 			<text name="land_options_label">
 				Options du terrain :
 			</text>
@@ -400,7 +400,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				Page d&apos;accueil :
 			</text>
 			<line_editor left="97" name="media_url"/>
-			<button label="Choisir" label_selected="Définir..." name="set_media_url"/>
+			<button label="Choisir" name="set_media_url"/>
 			<check_box label="Masquer l&apos;URL" left="97" name="hide_media_url" tool_tip="Si vous cochez cette option, les personnes non autorisées à accéder aux infos de cette parcelle ne verront pas l&apos;URL du média. Cette option n&apos;est pas disponible pour les fichiers HTML."/>
 			<text name="Description:">
 				Description :
@@ -448,6 +448,9 @@ musique :
 		<panel label="ACCÈS" name="land_access_panel">
 			<panel.string name="access_estate_defined">
 				(défini par le domaine
+			</panel.string>
+			<panel.string name="allow_public_access">
+				Autoriser l&apos;accès public ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
 				Au moins une de ces options est définie au niveau du domaine.

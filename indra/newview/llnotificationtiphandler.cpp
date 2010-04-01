@@ -150,6 +150,12 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 			LLHandlerUtil::spawnIMSession(name, from_id);
 		}
 
+		// don't spawn toast for inventory accepted/declined offers if respective IM window is open (EXT-5909)
+		if (!LLHandlerUtil::canSpawnToast(notification))
+		{
+			return true;
+		}
+
 		LLToastPanel* notify_box = NULL;
 		if("FriendOffline" == notification->getName() || "FriendOnline" == notification->getName())
 		{

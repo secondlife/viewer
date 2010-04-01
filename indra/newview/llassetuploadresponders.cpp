@@ -56,6 +56,7 @@
 #include "llviewermenufile.h"
 #include "llviewerwindow.h"
 #include "lltexlayer.h"
+#include "lltrans.h"
 
 // library includes
 #include "lldir.h"
@@ -285,7 +286,10 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 	// deal with L$ errors
 	if (reason == "insufficient funds")
 	{
-		LLFloaterBuyCurrency::buyCurrency("Uploading costs", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+		S32 price = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		LLStringUtil::format_map_t args;
+		args["AMOUNT"] = llformat("%d", price);
+		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("uploading_costs", args), price);
 	}
 	else
 	{

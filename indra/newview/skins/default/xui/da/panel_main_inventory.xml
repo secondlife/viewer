@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ting" name="main inventory panel">
-	<panel.string name="Title">
-		Ting
+	<panel.string name="ItemcountFetching">
+		Henter [ITEM_COUNT] Genstande... [FILTER]
 	</panel.string>
-	<filter_editor label="Filter" name="inventory search editor"/>
-	<tab_container name="inventory filter tabs">
-		<inventory_panel label="Alle ting" name="All Items"/>
-		<inventory_panel label="Nye ting" name="Recent Items"/>
-	</tab_container>
-	<panel name="bottom_panel">
-		<button name="options_gear_btn" tool_tip="Vis flere valgmuligheder"/>
-		<button name="add_btn" tool_tip="Opret ny genstand"/>
-		<dnd_button name="trash_btn" tool_tip="Fjern valgt genstand"/>
-	</panel>
+	<panel.string name="ItemcountCompleted">
+		[ITEM_COUNT] Genstande [FILTER]
+	</panel.string>
+	<text name="ItemcountText">
+		Genstande:
+	</text>
 	<menu_bar name="Inventory Menu">
 		<menu label="Filer" name="File">
 			<menu_item_call label="Åben" name="Open"/>
@@ -61,4 +57,14 @@
 			<menu_item_check label="System-mapper i toppen" name="System Folders To Top"/>
 		</menu>
 	</menu_bar>
+	<filter_editor label="Filter" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="Alle ting" name="All Items"/>
+		<inventory_panel label="Nye ting" name="Recent Items"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<button name="options_gear_btn" tool_tip="Vis flere valgmuligheder"/>
+		<button name="add_btn" tool_tip="Opret ny genstand"/>
+		<dnd_button name="trash_btn" tool_tip="Fjern valgt genstand"/>
+	</panel>
 </panel>

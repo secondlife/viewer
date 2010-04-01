@@ -12,6 +12,9 @@
 	<text name="dimensions">
 		[WIDTH]px x [HEIGHT]px
 	</text>
+	<text name="aspect_ratio">
+		Antreprima rapporto di visualizzazione
+	</text>
 	<combo_box name="combo_aspect_ratio" tool_tip="Anteprima del rapporto d&apos;aspetto impostato">
 		<combo_item name="Unconstrained">
 			Libero
@@ -38,7 +41,7 @@
 			2:1
 		</combo_item>
 	</combo_box>
-	<button label="OK" name="keep"/>
-	<button label="Cancella" name="discard"/>
+	<button label="OK" name="Keep"/>
+	<button label="Elimina" name="Discard"/>
 	<button label="Salva come:" name="save_tex_btn"/>
 </floater>

@@ -10,7 +10,7 @@
  help_topic="preferences"
  single_instance="true"
  title="PREFERENCES"
- width="620">
+ width="658">
     <button
      follows="right|bottom"
      height="23"
@@ -39,6 +39,7 @@
     </button>
     <tab_container
      follows="all"
+     halign="left"
      height="410"
      layout="topleft"
      left="0"
@@ -48,7 +49,7 @@
      tab_width="115"
      tab_padding_right="5"
      top="21"
-     width="620">
+     width="658">
         <panel
 	 class="panel_preference"
          filename="panel_preferences_general.xml"

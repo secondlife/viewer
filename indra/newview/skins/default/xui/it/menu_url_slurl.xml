@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Url Popup">
-	<menu_item_call label="Mostra info del luogo" name="show_place"/>
+	<menu_item_call label="Mostra informazioni del luogo" name="show_place"/>
 	<menu_item_call label="Mostra sulla mappa" name="show_on_map"/>
-	<menu_item_call label="Teleporta nel luogo" name="teleport_to_location"/>
-	<menu_item_call label="Copia SLurl negli appunti" name="url_copy"/>
+	<menu_item_call label="Teleport al luogo" name="teleport_to_location"/>
+	<menu_item_call label="Copia SLurl negli Appunti" name="url_copy"/>
 </context_menu>

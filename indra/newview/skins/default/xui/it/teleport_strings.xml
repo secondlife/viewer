@@ -59,6 +59,9 @@ Se si continua a visualizzare questo messaggio, consulta la pagina [SUPPORT_SITE
 		<message name="completing">
 			Teletrasporto completato
 		</message>
+		<message name="completed_from">
+			Teleport completato da [T_SLURL]
+		</message>
 		<message name="resolving">
 			Elaborazione della destinazione in corso...
 		</message>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="queue" title="RESETTA IL PROGRESSO">
+<floater name="queue" title="AZZERA AVANZAMENTO">
 	<floater.string name="Starting">
-		Conteggio [START] degli [COUNT] articoli.
+		Avvio di [START] di [COUNT] oggetti.
 	</floater.string>
 	<floater.string name="Done">
-		Eseguito.
+		Fine.
 	</floater.string>
 	<floater.string name="Resetting">
-		Resettando
+		Ripristino in corso
 	</floater.string>
 	<floater.string name="Running">
 		In esecuzione

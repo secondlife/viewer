@@ -21,7 +21,7 @@
 			</text>
 			<check_box label="Enregistrer" name="remember_check"/>
 			<text name="start_location_text">
-				Commencer à :
+				Lieu de départ :
 			</text>
 			<combo_box name="start_location_combo" width="152">
 				<combo_box.item label="Dernier emplacement" name="MyLastLocation"/>

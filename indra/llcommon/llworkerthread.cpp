@@ -347,12 +347,12 @@ bool LLWorkerClass::checkWork(bool aborting)
 			{
 				mRequestHandle = LLWorkerThread::nullHandle();
 				clearFlags(WCF_HAVE_WORK);
-				return true ;
 			}
 			else
 			{
 				llassert_always(workreq);
 			}
+			return true ;
 		}
 
 		LLQueuedThread::status_t status = workreq->getStatus();

@@ -122,6 +122,7 @@ public:
 	U32 getPhysicalMemoryClamped() const; ///< Memory size in clamped bytes
 };
 
+
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLOSInfo& info);
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLCPUInfo& info);
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLMemoryInfo& info);

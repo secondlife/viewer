@@ -48,10 +48,63 @@
 			<text name="owner_label" value="Ejer:"/>
 			<text name="maturity_value" value="ukendt"/>
 			<accordion name="advanced_info_accordion">
-				<accordion_tab name="parcel_characteristics_tab" title="Parcel"/>
-				<accordion_tab name="region_information_tab" title="Region"/>
-				<accordion_tab name="estate_information_tab" title="Estate"/>
-				<accordion_tab name="sales_tab" title="Til salg"/>
+				<accordion_tab name="parcel_characteristics_tab" title="Parcel">
+					<panel name="parcel_characteristics_panel">
+						<text name="rating_label" value="Rating:"/>
+						<text name="rating_value" value="ukendt"/>
+						<text name="voice_label" value="Stemme:"/>
+						<text name="voice_value" value="Til"/>
+						<text name="fly_label" value="Flyv:"/>
+						<text name="fly_value" value="Til"/>
+						<text name="push_label" value="Skub:"/>
+						<text name="push_value" value="Fra"/>
+						<text name="build_label" value="Bygge:"/>
+						<text name="build_value" value="Til"/>
+						<text name="scripts_label" value="Scripts:"/>
+						<text name="scripts_value" value="Til"/>
+						<text name="damage_label" value="Skade:"/>
+						<text name="damage_value" value="Fra"/>
+						<button label="Om land" name="about_land_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="region_information_tab" title="Region">
+					<panel name="region_information_panel">
+						<text name="region_name_label" value="Region:"/>
+						<text name="region_name" value="Mooseland"/>
+						<text name="region_type_label" value="Type:"/>
+						<text name="region_type" value="Moose"/>
+						<text name="region_rating_label" value="Rating:"/>
+						<text name="region_rating" value="Voksent"/>
+						<text name="region_owner_label" value="Ejer:"/>
+						<text name="region_owner" value="moose Van Moose"/>
+						<text name="region_group_label" value="Gruppe:"/>
+						<text name="region_group">
+							The Mighty Moose of mooseville soundvillemoose
+						</text>
+						<button label="Region/Estate" name="region_info_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="estate_information_tab" title="Estate">
+					<panel name="estate_information_panel">
+						<text name="estate_name_label" value="Estate:"/>
+						<text name="estate_rating_label" value="Rating:"/>
+						<text name="estate_owner_label" value="Ejer:"/>
+						<text name="covenant_label" value="Regler:"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="sales_tab" title="Til salg">
+					<panel name="sales_panel">
+						<text name="sales_price_label" value="Pris:"/>
+						<text name="area_label" value="Areal:"/>
+						<text name="traffic_label" value="Trafik:"/>
+						<text name="primitives_label" value="Prims:"/>
+						<text name="parcel_scripts_label" value="Scripts:"/>
+						<text name="terraform_limits_label" value="Begræns terrænredigering:"/>
+						<text name="subdivide_label" value="Opdel/saml mulighed:"/>
+						<text name="resale_label" value="Mulighed for videresalg:"/>
+						<text name="sale_to_label" value="Til salg til:"/>
+					</panel>
+				</accordion_tab>
 			</accordion>
 		</panel>
 	</scroll_container>

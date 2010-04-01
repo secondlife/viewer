@@ -246,7 +246,7 @@ LLTextBase::~LLTextBase()
 {
 	// Menu, like any other LLUICtrl, is deleted by its parent - gMenuHolder
 
-	clearSegments();
+	mSegments.clear();
 }
 
 void LLTextBase::initFromParams(const LLTextBase::Params& p)
@@ -350,6 +350,8 @@ void LLTextBase::drawSelectionBackground()
 					S32 segment_line_start = segmentp->getStart() + segment_offset;
 					S32 segment_line_end = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd);
 
+					if (segment_line_start > segment_line_end) break;
+
 					S32 segment_width = 0;
 					S32 segment_height = 0;
 
@@ -361,8 +363,11 @@ void LLTextBase::drawSelectionBackground()
 						selection_rect.mLeft += segment_width;
 					}
 
-					// if selection spans end of current segment...
-					if (selection_right > segment_line_end)
+					// if selection_right == segment_line_end then that means we are the first character of the next segment
+					// or first character of the next line, in either case we want to add the length of the current segment
+					// to the selection rectangle and continue.
+					// if selection right > segment_line_end then selection spans end of current segment...
+					if (selection_right >= segment_line_end)
 					{
 						// extend selection slightly beyond end of line
 						// to indicate selection of newline character (use "n" character to determine width)
@@ -1813,11 +1818,18 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 		const LLTextSegmentPtr segmentp = *line_seg_iter;
 
 		S32 segment_line_start = segmentp->getStart() + line_seg_offset;
-		S32 segment_line_length = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd - 1) - segment_line_start;
+		S32 segment_line_length = llmin(segmentp->getEnd(), line_iter->mDocIndexEnd) - segment_line_start;
 		S32 text_width, text_height;
-		segmentp->getDimensions(line_seg_offset, segment_line_length, text_width, text_height);
-		if (local_x < start_x + text_width						// cursor to left of right edge of text
-			|| (hit_past_end_of_line && (segmentp->getEnd() >= line_iter->mDocIndexEnd - 1)))	// or this segment wraps to next line
+		bool newline = segmentp->getDimensions(line_seg_offset, segment_line_length, text_width, text_height);
+
+		// if we've reached a line of text *below* the mouse cursor, doc index is first character on that line
+		if (hit_past_end_of_line && local_y - mVisibleTextRect.mBottom + visible_region.mBottom > line_iter->mRect.mTop)
+		{
+			pos = segment_line_start;
+			break;
+		}
+		if (local_x < start_x + text_width			// cursor to left of right edge of text
+			|| newline)								// or this line ends with a newline, set doc pos to newline char
 		{
 			// Figure out which character we're nearest to.
 			S32 offset;
@@ -1841,6 +1853,13 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 			pos = segment_line_start + offset;
 			break;
 		}
+		else if (hit_past_end_of_line && segmentp->getEnd() >= line_iter->mDocIndexEnd - 1)	
+		{
+			// segment wraps to next line, so just set doc pos to start of next line (represented by mDocIndexEnd)
+			pos = llmin(getLength(), line_iter->mDocIndexEnd);
+			break;
+		}
+
 		start_x += text_width;
 	}
 

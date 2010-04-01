@@ -291,11 +291,28 @@ public:
 	static bool canAddNotifPanelToIM(const LLNotificationPtr& notification);
 
 	/**
+	 * Checks whether notification can be used multiple times or not.
+	 */
+	static bool isNotificationReusable(const LLNotificationPtr& notification);
+
+	/**
 	 * Checks if passed notification can create IM session and be written into it.
 	 *
 	 * This method uses canLogToIM() & canSpawnIMSession().
 	 */
 	static bool canSpawnSessionAndLogToIM(const LLNotificationPtr& notification);
+
+	/**
+	 * Checks if passed notification can create toast.
+	 *
+	 * It returns false only for inventory accepted/declined notifications if respective IM window is open (EXT-5909)
+	 */
+	static bool canSpawnToast(const LLNotificationPtr& notification);
+
+	/**
+	 * Determines whether IM floater is opened.
+	 */
+	static bool isIMFloaterOpened(const LLNotificationPtr& notification);
 
 	/**
 	 * Writes notification message to IM session.
@@ -343,6 +360,21 @@ public:
 	 * Adds notification panel to the IM floater.
 	 */
 	static void addNotifPanelToIM(const LLNotificationPtr& notification);
+
+	/**
+	 * Updates messages of IM floater.
+	 */
+	static void updateIMFLoaterMesages(const LLUUID& session_id);
+
+	/**
+	 * Updates messages of visible IM floater.
+	 */
+	static void updateVisibleIMFLoaterMesages(const LLNotificationPtr& notification);
+
+	/**
+	 * Decrements counter of IM messages.
+	 */
+	static void decIMMesageCounter(const LLNotificationPtr& notification);
 };
 
 }

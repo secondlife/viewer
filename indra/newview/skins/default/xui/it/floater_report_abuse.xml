@@ -41,8 +41,8 @@
 	<combo_box name="category_combo" tool_tip="Categoria -- scegli la categoria che descrive meglio questa segnalazione">
 		<combo_box.item label="Scegli la categoria" name="Select_category"/>
 		<combo_box.item label="Età &gt; Far finta di essere minore" name="Age__Age_play"/>
-		<combo_box.item label="Età &gt; Residente adulto nella Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
-		<combo_box.item label="Età &gt; Residente minorenne al di fuori della &apos;Second Life per Teenager&apos;" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
+		<combo_box.item label="Età &gt; Residente adulto in Teen Second Life" name="Age__Adult_resident_on_Teen_Second_Life"/>
+		<combo_box.item label="Età &gt; Residente minorenne fuori da Teen Second Life" name="Age__Underage_resident_outside_of_Teen_Second_Life"/>
 		<combo_box.item label="Assalto &gt; sandbox da combattimento / area pericolosa" name="Assault__Combat_sandbox___unsafe_area"/>
 		<combo_box.item label="Assalto &gt; Area sicura" name="Assault__Safe_area"/>
 		<combo_box.item label="Assalto &gt; Test di armi in sandbox" name="Assault__Weapons_testing_sandbox"/>
