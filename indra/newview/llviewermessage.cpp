@@ -4610,6 +4610,24 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	LL_INFOS("Messaging") << "L$, credit, committed: " << balance << " " << credit << " "
 			<< committed << LL_ENDL;
 
+    // Added in server 1.40 and viewer 2.1, support for localization
+    // and agent ids for name lookup.
+    S32 transaction_type = 0;
+    U32 transaction_flags = 0;
+    LLUUID source_id;
+    LLUUID dest_id;
+    S32 amount = 0;
+    std::string item_description;
+    if (msg->has("TransactionInfo"))
+    {
+        msg->getS32("TransactionInfo", "TransactionType", transaction_type);
+        msg->getU32("TransactionInfo", "TransactionFlags", transaction_flags);
+        msg->getUUID("TransactionInfo", "SourceID", source_id);
+        msg->getUUID("TransactionInfo", "DestID", dest_id);
+        msg->getS32("TransactionInfo", "Amount", amount);
+        msg->getString("TransactionInfo", "ItemDescription", item_description);
+    }
+    
 	if (gStatusBar)
 	{
 	//	S32 old_balance = gStatusBar->getBalance();
@@ -4649,7 +4667,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 		// "<avatar name> paid you L$"
 		const std::string marker = "paid you L$";
 
-		args["MESSAGE"] = desc;
+		args["MESSAGE"] = desc + item_description; // JAMESDEBUG
 
 		// extract avatar name from system message
 		S32 marker_pos = desc.find(marker, 0);

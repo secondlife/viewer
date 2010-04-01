@@ -6812,6 +6812,18 @@ version 2.0
 		{	SquareMetersCommitted	S32	}
 		{	Description			Variable 1	}	// string
 	}
+	// For replies that are part of a transaction (buying something) provide
+	// metadata for localization.  If TransactionType is 0, the message is
+	// purely a balance update.  Added for server 1.40 and viewer 2.1.  JC
+	{
+		TransactionInfo		Single
+		{	TransactionType			S32			}	// lltransactiontype.h
+		{	TransactionFlags		U32			}	// lltransactionflags.h
+		{	SourceID				LLUUID		}
+		{	DestID					LLUUID		}
+		{	Amount					S32			}
+		{	ItemDescription			Variable 1	}	// string
+	}
 }
 
 
@@ -6837,6 +6849,16 @@ version 2.0
 		{	SquareMetersCredit	S32	}
 		{	SquareMetersCommitted	S32	}
 		{	Description			Variable 1	}	// string
+	}
+	// See MoneyBalanceReply above.
+	{
+		TransactionInfo		Single
+		{	TransactionType			S32			}	// lltransactiontype.h
+		{	TransactionFlags		U32			}	// lltransactionflags.h
+		{	SourceID				LLUUID		}
+		{	DestID					LLUUID		}
+		{	Amount					S32			}
+		{	ItemDescription			Variable 1	}	// string
 	}
 }
 
@@ -8972,5 +8994,7 @@ version 2.0
 		{	InvType			S8	}
 		{	Name			Variable	1	}
 		{	Description		Variable	1	}
+
 	}
 }
+
