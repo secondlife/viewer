@@ -53,7 +53,7 @@ LLPluginCookieStore::~LLPluginCookieStore()
 
 
 LLPluginCookieStore::Cookie::Cookie(const std::string &s, std::string::size_type cookie_start, std::string::size_type cookie_end):
-	mCookie(s, cookie_start, cookie_end),
+	mCookie(s, cookie_start, cookie_end - cookie_start),
 	mNameStart(0), mNameEnd(0),
 	mValueStart(0), mValueEnd(0),
 	mDomainStart(0), mDomainEnd(0),
