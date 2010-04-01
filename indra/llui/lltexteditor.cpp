@@ -304,13 +304,7 @@ void LLTextEditor::initFromParams( const LLTextEditor::Params& p)
 LLTextEditor::~LLTextEditor()
 {
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit() while LLTextEditor still valid
-
-	// Route menu back to the default
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
-
+	
 	// Scrollbar is deleted by LLView
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
 
