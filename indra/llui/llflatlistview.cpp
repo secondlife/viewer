@@ -790,7 +790,7 @@ BOOL LLFlatListView::canSelectAll() const
 void LLFlatListView::selectAll()
 {
 	if (!mAllowSelection || !mMultipleSelection)
-		return false;
+		return;
 
 	mSelectedItemPairs.clear();
 
