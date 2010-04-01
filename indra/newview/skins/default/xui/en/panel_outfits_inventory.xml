@@ -14,7 +14,7 @@
  border="false">
    <tab_container
      follows="all"
-     height="497"
+     height="501"
      layout="topleft"
      left="7"
      name="appearance_tabs"
@@ -58,7 +58,7 @@
 	  height="73"
 	  layout="topleft"
 	  left="9"
-	  top_pad="3"
+	  top_pad="-1"
 	  visible="true"
 	  name="bottom_panel"
 	  width="310">
