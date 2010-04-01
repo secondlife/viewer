@@ -1057,20 +1057,21 @@ void LLFolderViewItem::draw()
 ///----------------------------------------------------------------------------
 
 LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ): 
-LLFolderViewItem( p ),	// 0 = no create time
-mIsOpen(FALSE),
-mExpanderHighlighted(FALSE),
-mCurHeight(0.f),
-mTargetHeight(0.f),
-mAutoOpenCountdown(0.f),
-mSubtreeCreationDate(0),
-mAmTrash(LLFolderViewFolder::UNKNOWN),
-mLastArrangeGeneration( -1 ),
-mLastCalculatedWidth(0),
-mCompletedFilterGeneration(-1),
-mMostFilteredDescendantGeneration(-1),
-mNeedsSort(false)
-{}
+	LLFolderViewItem( p ),	// 0 = no create time
+	mIsOpen(FALSE),
+	mExpanderHighlighted(FALSE),
+	mCurHeight(0.f),
+	mTargetHeight(0.f),
+	mAutoOpenCountdown(0.f),
+	mSubtreeCreationDate(0),
+	mAmTrash(LLFolderViewFolder::UNKNOWN),
+	mLastArrangeGeneration( -1 ),
+	mLastCalculatedWidth(0),
+	mCompletedFilterGeneration(-1),
+	mMostFilteredDescendantGeneration(-1),
+	mNeedsSort(false)
+{
+}
 
 // Destroys the object
 LLFolderViewFolder::~LLFolderViewFolder( void )

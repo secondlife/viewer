@@ -128,7 +128,7 @@ public:
 	virtual void pasteFromClipboard();
 	virtual void pasteLinkFromClipboard();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 	virtual BOOL isUpToDate() const { return TRUE; }
 	virtual BOOL hasChildren() const { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return LLInventoryType::IT_NONE; }
@@ -595,7 +595,7 @@ BOOL LLTaskInvFVBridge::dragOrDrop(MASK mask, BOOL drop,
 }
 
 // virtual
-void LLTaskInvFVBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLTaskInvFVBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if (action == "task_buy")
 	{
@@ -917,7 +917,7 @@ public:
 
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	static void openSoundPreview(void* data);
 };
@@ -954,7 +954,7 @@ void LLTaskSoundBridge::openSoundPreview(void* data)
 }
 
 // virtual
-void LLTaskSoundBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLTaskSoundBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if (action == "task_play")
 	{
@@ -964,7 +964,7 @@ void LLTaskSoundBridge::performAction(LLFolderView* folder, LLInventoryModel* mo
 			send_sound_trigger(item->getAssetUUID(), 1.0);
 		}
 	}
-	LLTaskInvFVBridge::performAction(folder, model, action);
+	LLTaskInvFVBridge::performAction(root, model, action);
 }
 
 void LLTaskSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)

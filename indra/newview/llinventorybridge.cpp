@@ -1047,11 +1047,11 @@ LLInvFVBridge* LLInventoryFVBridgeBuilder::createBridge(LLAssetType::EType asset
 // |        LLItemBridge                             |
 // +=================================================+
 
-void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLItemBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if ("goto" == action)
 	{
-		gotoItem(folder);
+		gotoItem(root);
 	}
 
 	if ("open" == action)
@@ -1102,7 +1102,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 		LLInventoryItem* itemp = model->getItem(mUUID);
 		if (!itemp) return;
 
-		LLFolderViewItem* folder_view_itemp = folder->getItemByID(itemp->getParentUUID());
+		LLFolderViewItem* folder_view_itemp = root->getItemByID(itemp->getParentUUID());
 		if (!folder_view_itemp) return;
 
 		folder_view_itemp->getListener()->pasteFromClipboard();
@@ -1114,7 +1114,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 		LLInventoryItem* itemp = model->getItem(mUUID);
 		if (!itemp) return;
 
-		LLFolderViewItem* folder_view_itemp = folder->getItemByID(itemp->getParentUUID());
+		LLFolderViewItem* folder_view_itemp = root->getItemByID(itemp->getParentUUID());
 		if (!folder_view_itemp) return;
 
 		folder_view_itemp->getListener()->pasteLinkFromClipboard();
@@ -1183,7 +1183,7 @@ void LLItemBridge::restoreToWorld()
 	}
 }
 
-void LLItemBridge::gotoItem(LLFolderView *folder)
+void LLItemBridge::gotoItem(LLFolderView* root)
 {
 	LLInventoryObject *obj = getInventoryObject();
 	if (obj && obj->getIsLinkType())
@@ -2103,11 +2103,11 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 
 
 
-void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLFolderBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if ("open" == action)
 	{
-		LLFolderViewFolder *f = dynamic_cast<LLFolderViewFolder *>(folder->getItemByID(mUUID));
+		LLFolderViewFolder *f = dynamic_cast<LLFolderViewFolder *>(root->getItemByID(mUUID));
 		if (f)
 		{
 			f->setOpen(TRUE);
@@ -3271,7 +3271,7 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 }
 
 // virtual
-void LLTextureBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLTextureBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if ("save_as" == action)
 	{
@@ -3282,7 +3282,7 @@ void LLTextureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 			preview_texture->openToSave();
 		}
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(root, model, action);
 }
 
 // +=================================================+
@@ -3421,7 +3421,7 @@ void teleport_via_landmark(const LLUUID& asset_id)
 }
 
 // virtual
-void LLLandmarkBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLLandmarkBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if ("teleport" == action)
 	{
@@ -3445,7 +3445,7 @@ void LLLandmarkBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 	}
 	else
 	{
-		LLItemBridge::performAction(folder, model, action);
+		LLItemBridge::performAction(root, model, action);
 	}
 }
 
@@ -3523,7 +3523,7 @@ void LLCallingCardBridge::refreshFolderViewItem()
 }
 
 // virtual
-void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLCallingCardBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if ("begin_im" == action)
 	{
@@ -3549,7 +3549,7 @@ void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* 
 			LLAvatarActions::offerTeleport(item->getCreatorUUID());
 		}
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(root, model, action);
 }
 
 LLUIImagePtr LLCallingCardBridge::getIcon() const
@@ -3773,7 +3773,7 @@ std::string LLGestureBridge::getLabelSuffix() const
 }
 
 // virtual
-void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLGestureBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if (isAddAction(action))
 	{
@@ -3819,7 +3819,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 			playGesture(mUUID);
 		}
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(root, model, action);
 }
 
 void LLGestureBridge::openItem()
@@ -3948,7 +3948,7 @@ void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 }
 
 // virtual
-void LLAnimationBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLAnimationBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if ((action == "playworld") || (action == "playlocal"))
 	{
@@ -3967,7 +3967,7 @@ void LLAnimationBridge::performAction(LLFolderView* folder, LLInventoryModel* mo
 	}
 	else
 	{
-		LLItemBridge::performAction(folder, model, action);
+		LLItemBridge::performAction(root, model, action);
 	}
 }
 
@@ -4020,7 +4020,7 @@ LLInventoryObject* LLObjectBridge::getObject() const
 }
 
 // virtual
-void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLObjectBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if (isAddAction(action))
 	{
@@ -4064,7 +4064,7 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 			}
 		}
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(root, model, action);
 }
 
 void LLObjectBridge::openItem()
@@ -4529,7 +4529,7 @@ LLUIImagePtr LLWearableBridge::getIcon() const
 }
 
 // virtual
-void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLWearableBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if (isAddAction(action))
 	{
@@ -4549,7 +4549,7 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 		removeFromAvatar();
 		return;
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(root, model, action);
 }
 
 void LLWearableBridge::openItem()
@@ -5348,30 +5348,30 @@ void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
-void LLLinkFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLLinkFolderBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if ("goto" == action)
 	{
-		gotoItem(folder);
+		gotoItem(root);
 		return;
 	}
-	LLItemBridge::performAction(folder,model,action);
+	LLItemBridge::performAction(root,model,action);
 }
 
-void LLLinkFolderBridge::gotoItem(LLFolderView *folder)
+void LLLinkFolderBridge::gotoItem(LLFolderView* root)
 {
 	const LLUUID &cat_uuid = getFolderID();
 	if (!cat_uuid.isNull())
 	{
-		if (LLFolderViewItem *base_folder = folder->getItemByID(cat_uuid))
+		if (LLFolderViewItem *base_folder = root->getItemByID(cat_uuid))
 		{
 			if (LLInventoryModel* model = getInventoryModel())
 			{
 				model->fetchDescendentsOf(cat_uuid);
 			}
 			base_folder->setOpen(TRUE);
-			folder->setSelectionFromRoot(base_folder,TRUE);
-			folder->scrollToShowSelection();
+			root->setSelectionFromRoot(base_folder,TRUE);
+			root->scrollToShowSelection();
 		}
 	}
 }

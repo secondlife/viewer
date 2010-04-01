@@ -61,7 +61,7 @@ class LLPlacesFolderBridge : public LLFolderBridge
 
 public:
 	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
-	/*virtual*/ void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	/*virtual*/ void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 
 protected:
 	LLPlacesFolderBridge(LLInventoryType::EType type, LLInventoryPanel* inventory, const LLUUID& uuid)

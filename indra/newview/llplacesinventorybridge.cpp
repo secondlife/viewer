@@ -122,7 +122,7 @@ void LLPlacesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 }
 
 //virtual
-void LLPlacesFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLPlacesFolderBridge::performAction(LLFolderView* root, LLInventoryModel* model, std::string action)
 {
 	if ("expand" == action)
 	{
@@ -136,7 +136,7 @@ void LLPlacesFolderBridge::performAction(LLFolderView* folder, LLInventoryModel*
 	}
 	else
 	{
-		LLFolderBridge::performAction(folder, model, action);
+		LLFolderBridge::performAction(root, model, action);
 	}
 }
 

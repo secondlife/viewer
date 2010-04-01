@@ -249,12 +249,12 @@ public:
 	LLItemBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
 		LLInvFVBridge(inventory, uuid) {}
 
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 
 	virtual void selectItem();
 	virtual void restoreItem();
 	virtual void restoreToWorld();
-	virtual void gotoItem(LLFolderView *folder);
+	virtual void gotoItem(LLFolderView* root);
 	virtual LLUIImagePtr getIcon() const;
 	virtual const std::string& getDisplayName() const;
 	virtual std::string getLabelSuffix() const;
@@ -292,7 +292,7 @@ public:
 							BOOL drop);
 	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category,
 								BOOL drop);
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 	virtual void openItem();
 	virtual void closeItem();
 	virtual BOOL isItemRenameable() const;
@@ -395,7 +395,7 @@ public:
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 
 protected:
 	LLTextureBridge(LLInventoryPanel* inventory, const LLUUID& uuid, LLInventoryType::EType type) :
@@ -423,7 +423,7 @@ class LLLandmarkBridge : public LLItemBridge
 {
 	friend class LLInvFVBridge;
 public:
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
@@ -455,7 +455,7 @@ public:
 	virtual std::string getLabelSuffix() const;
 	//virtual const std::string& getDisplayName() const;
 	virtual LLUIImagePtr getIcon() const;
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 	virtual void openItem();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	//virtual void renameItem(const std::string& new_name);
@@ -497,7 +497,7 @@ public:
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual std::string getLabelSuffix() const;
 
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 	virtual void openItem();
 	virtual BOOL removeItem();
 
@@ -515,7 +515,7 @@ class LLAnimationBridge : public LLItemBridge
 {
 	friend class LLInvFVBridge;
 public:
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 
 	virtual LLUIImagePtr getIcon() const;
@@ -532,7 +532,7 @@ class LLObjectBridge : public LLItemBridge
 	friend class LLInvFVBridge;
 public:
 	virtual LLUIImagePtr	getIcon() const;
-	virtual void			performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void			performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 	virtual void			openItem();
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual std::string getLabelSuffix() const;
@@ -570,7 +570,7 @@ class LLWearableBridge : public LLItemBridge
 	friend class LLInvFVBridge;
 public:
 	virtual LLUIImagePtr getIcon() const;
-	virtual void	performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void	performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
 	virtual void	openItem();
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual std::string getLabelSuffix() const;
@@ -635,8 +635,8 @@ public:
 
 	virtual LLUIImagePtr getIcon() const;
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
-	virtual void gotoItem(LLFolderView *folder);
+	virtual void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
+	virtual void gotoItem(LLFolderView* root);
 
 protected:
 	LLLinkFolderBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
