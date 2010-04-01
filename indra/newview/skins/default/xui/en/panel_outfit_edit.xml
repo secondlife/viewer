@@ -224,7 +224,8 @@
          name="add_wearables_panel"
          width="300"
          tab_group="2"
-         user_resize="true">
+         user_resize="true"
+         visible="false">
 
             <text
              follows="top|left|right"
