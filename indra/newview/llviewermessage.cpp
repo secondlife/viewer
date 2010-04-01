@@ -4626,6 +4626,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
         msg->getUUID("TransactionInfo", "DestID", dest_id);
         msg->getS32("TransactionInfo", "Amount", amount);
         msg->getString("TransactionInfo", "ItemDescription", item_description);
+        llinfos << "JAMESDEBUG ItemDescription " << item_description << llendl;
     }
     
 	if (gStatusBar)
