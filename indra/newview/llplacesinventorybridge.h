@@ -48,8 +48,15 @@ public:
 	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
 
 protected:
-	LLPlacesLandmarkBridge(LLInventoryType::EType type, LLInventoryPanel* inventory, const LLUUID& uuid, U32 flags = 0x00)
-		: LLLandmarkBridge(inventory, uuid, flags) {mInvType = type;}
+	LLPlacesLandmarkBridge(LLInventoryType::EType type, 
+						   LLInventoryPanel* inventory,
+						   LLFolderView* root,
+						   const LLUUID& uuid, 
+						   U32 flags = 0x00) :
+		LLLandmarkBridge(inventory, root, uuid, flags)
+	{
+		mInvType = type;
+	}
 };
 
 /**
@@ -61,12 +68,17 @@ class LLPlacesFolderBridge : public LLFolderBridge
 
 public:
 	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
-	/*virtual*/ void performAction(LLFolderView* root, LLInventoryModel* model, std::string action);
+	/*virtual*/ void performAction(LLInventoryModel* model, std::string action);
 
 protected:
-	LLPlacesFolderBridge(LLInventoryType::EType type, LLInventoryPanel* inventory, const LLUUID& uuid)
-		: LLFolderBridge(inventory, uuid) {mInvType = type;}
-
+	LLPlacesFolderBridge(LLInventoryType::EType type, 
+						 LLInventoryPanel* inventory,
+						 LLFolderView* root,						 
+						 const LLUUID& uuid) :
+		LLFolderBridge(inventory, root, uuid)
+	{
+		mInvType = type;
+	}
 	LLFolderViewFolder* getFolder();
 };
 
@@ -79,13 +91,13 @@ protected:
 class LLPlacesInventoryBridgeBuilder : public LLInventoryFVBridgeBuilder
 {
 public:
-	/*virtual*/ LLInvFVBridge* createBridge(
-		LLAssetType::EType asset_type,
-		LLAssetType::EType actual_asset_type,
-		LLInventoryType::EType inv_type,
-		LLInventoryPanel* inventory,
-		const LLUUID& uuid,
-		U32 flags = 0x00) const;
+	/*virtual*/ LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
+											LLAssetType::EType actual_asset_type,
+											LLInventoryType::EType inv_type,
+											LLInventoryPanel* inventory,
+											LLFolderView* root,
+											const LLUUID& uuid,
+											U32 flags = 0x00) const;
 };
 
 #endif // LL_LLPLACESINVENTORYBRIDGE_H

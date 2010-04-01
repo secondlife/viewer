@@ -1044,7 +1044,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		{
 			return;
 		}
-		current_item->getListener()->performAction(getActivePanel()->getRootFolder(), getActivePanel()->getModel(), "goto");
+		current_item->getListener()->performAction(getActivePanel()->getModel(), "goto");
 	}
 
 	if (command_name == "find_links")

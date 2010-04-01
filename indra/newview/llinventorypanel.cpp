@@ -506,8 +506,8 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 																			objectp->getType(),
 																			LLInventoryType::IT_CATEGORY,
 																			this,
+																			mFolderRoot,
 																			objectp->getUUID());
-			
 			if (new_listener)
 			{
 				LLFolderViewFolder::Params params;
@@ -542,6 +542,7 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 																			item->getActualType(),
 																			item->getInventoryType(),
 																			this,
+																			mFolderRoot,
 																			item->getUUID(),
 																			item->getFlags());
 

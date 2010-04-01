@@ -242,7 +242,7 @@ void LLPanelOutfitsInventory::onWearButtonClick()
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
 	{
-		listenerp->performAction(NULL, NULL,"replaceoutfit");
+		listenerp->performAction(NULL, "replaceoutfit");
 	}
 }
 
@@ -251,7 +251,7 @@ void LLPanelOutfitsInventory::onAdd()
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
 	{
-		listenerp->performAction(NULL, NULL,"addtooutfit");
+		listenerp->performAction(NULL, "addtooutfit");
 	}
 }
 
@@ -260,7 +260,7 @@ void LLPanelOutfitsInventory::onRemove()
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
 	{
-		listenerp->performAction(NULL, NULL,"removefromoutfit");
+		listenerp->performAction(NULL, "removefromoutfit");
 	}
 }
 

@@ -989,7 +989,7 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	std::string command_name = userdata.asString();
 	if("more_info" == command_name)
 	{
-		cur_item->getListener()->performAction(mCurrentSelectedList->getRootFolder(),mCurrentSelectedList->getModel(),"about");
+		cur_item->getListener()->performAction(mCurrentSelectedList->getModel(),"about");
 	}
 	else if ("teleport" == command_name)
 	{
