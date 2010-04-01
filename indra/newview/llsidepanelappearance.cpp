@@ -297,6 +297,8 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 		return;
 	}
 
+	mCurrOutfitPanel->setVisible(!visible);
+
 	mEditWearable->setVisible(visible);
 	mEditWearable->setWearable(wearable);
 	mFilterEditor->setVisible(!visible);
