@@ -3087,6 +3087,13 @@ bool process_login_success_response()
 		}
 	}
 
+	// Start the process of fetching the OpenID session cookie for this user login
+	std::string openid_url = response["openid_url"];
+	if(!openid_url.empty())
+	{
+		std::string openid_token = response["openid_token"];
+		LLViewerMedia::openIDSetup(openid_url, openid_token);
+	}
 
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
