@@ -43,6 +43,8 @@
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
 #include "llscrollcontainer.h"
@@ -643,7 +645,7 @@ BOOL LLInventoryPanel::handleHover(S32 x, S32 y, MASK mask)
 	if(handled)
 	{
 		ECursorType cursor = getWindow()->getCursor();
-		if (LLInventoryModel::backgroundFetchActive() && cursor == UI_CURSOR_ARROW)
+		if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() && cursor == UI_CURSOR_ARROW)
 		{
 			// replace arrow cursor with arrow and hourglass cursor
 			getWindow()->setCursor(UI_CURSOR_WORKING);
@@ -723,7 +725,7 @@ void LLInventoryPanel::setSelection(const LLUUID& obj_id, BOOL take_keyboard_foc
 {
 	// Don't select objects in COF (e.g. to prevent refocus when items are worn).
 	const LLInventoryObject *obj = gInventory.getObject(obj_id);
-	if (obj && obj->getParentUUID() == LLAppearanceManager::instance().getCOF())
+	if (obj && obj->getParentUUID() == LLAppearanceMgr::instance().getCOF())
 	{
 		return;
 	}
@@ -871,10 +873,9 @@ bool LLInventoryPanel::attachObject(const LLSD& userdata)
 	mFolders->getSelectionList(selected_items);
 
 	std::string joint_name = userdata.asString();
-	LLVOAvatar *avatarp = static_cast<LLVOAvatar*>(gAgent.getAvatarObject());
 	LLViewerJointAttachment* attachmentp = NULL;
-	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
-		 iter != avatarp->mAttachmentPoints.end(); )
+	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+		 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;

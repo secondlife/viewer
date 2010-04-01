@@ -89,6 +89,7 @@ private:
 
 	std::string mProfileDir;
 	std::string mHostLanguage;
+	std::string mUserAgent;
 	bool mCookiesEnabled;
 	bool mJavascriptEnabled;
 	bool mPluginsEnabled;
@@ -300,7 +301,7 @@ private:
 		LLQtWebKit::getInstance()->addObserver( mBrowserWindowId, this );
 
 		// append details to agent string
-		LLQtWebKit::getInstance()->setBrowserAgentId( "LLPluginMedia Web Browser" );
+		LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 
 #if !LL_QTWEBKIT_USES_PIXMAPS
 		// don't flip bitmap
@@ -507,6 +508,19 @@ private:
 		sendMessage(message);
 	}
 	
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	void onCookieChanged(const EventType& event)
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "cookie_set");
+		message.setValue("cookie", event.getStringValue());
+		// These could be passed through as well, but aren't really needed.
+//		message.setValue("uri", event.getEventUri());
+//		message.setValueBoolean("dead", (event.getIntValue() != 0))
+		sendMessage(message);
+	}
+	
 	LLQtWebKit::EKeyboardModifier decodeModifiers(std::string &modifiers)
 	{
 		int result = 0;
@@ -675,6 +689,7 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 	mHostLanguage = "en";		// default to english
 	mJavascriptEnabled = true;	// default to on
 	mPluginsEnabled = true;		// default to on
+	mUserAgent = "LLPluginMedia Web Browser";
 }
 
 MediaPluginWebKit::~MediaPluginWebKit()
@@ -1051,6 +1066,10 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				mJavascriptEnabled = message_in.getValueBoolean("enable");
 				//LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
 			}
+			else if(message_name == "set_cookies")
+			{
+				LLQtWebKit::getInstance()->setCookies(message_in.getValue("cookies"));
+			}
 			else if(message_name == "proxy_setup")
 			{
 				bool val = message_in.getValueBoolean("enable");
@@ -1086,8 +1105,8 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			}
 			else if(message_name == "set_user_agent")
 			{
-				std::string user_agent = message_in.getValue("user_agent");
-				LLQtWebKit::getInstance()->setBrowserAgentId( user_agent );
+				mUserAgent = message_in.getValue("user_agent");
+				LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 			}
 			else if(message_name == "init_history")
 			{

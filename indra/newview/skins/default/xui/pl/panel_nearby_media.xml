@@ -4,10 +4,10 @@
 		&lt;empty&gt;
 	</string>
 	<string name="parcel_media_name">
-		Strumień Mediów Parceli
+		Strumień Mediów Posiadłości
 	</string>
 	<string name="parcel_audio_name">
-		Strumień Audio Parceli
+		Strumień Audio Posiadłości
 	</string>
 	<string name="playing_suffix">
 		(odtwarzanie)
@@ -28,7 +28,7 @@
 		<combo_box name="show_combo">
 			<combo_box.item label="Wszystkie" name="All"/>
 			<combo_box.item label="Na obecnej Parceli" name="WithinParcel"/>
-			<combo_box.item label="Poza Parcelą" name="OutsideParcel"/>
+			<combo_box.item label="Poza Posiadłością" name="OutsideParcel"/>
 			<combo_box.item label="Na innych awatarach" name="OnOthers"/>
 		</combo_box>
 		<scroll_list name="media_list">

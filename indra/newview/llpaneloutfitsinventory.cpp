@@ -43,6 +43,7 @@
 #include "llfloaterinventory.h"
 #include "llfoldervieweventlistener.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "lllandmark.h"
 #include "lllineeditor.h"
@@ -217,7 +218,7 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 		getRootFolder()->scrollToShowSelection();
 	}
 
-	gInventory.startBackgroundFetch();
+	LLInventoryModelBackgroundFetch::instance().start();
 
 	if (mActivePanel->getFilterSubString().empty() && string.empty())
 	{
@@ -271,7 +272,7 @@ void LLPanelOutfitsInventory::onSave()
 {
 	std::string outfit_name;
 
-	if (!LLAppearanceManager::getInstance()->getBaseOutfitName(outfit_name))
+	if (!LLAppearanceMgr::getInstance()->getBaseOutfitName(outfit_name))
 	{
 		outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
 	}

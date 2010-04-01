@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Público geral" name="Media Settings General">
+<panel label="Geral" name="Media Settings General">
 	<text name="home_label">
 		Página web:
 	</text>

@@ -9,8 +9,8 @@
 			<combo_editor label="Szukaj [SECOND_LIFE]" name="search_combo_editor"/>
 		</search_combo_box>
 	</panel>
-	<favorites_bar name="favorite" tool_tip="Przeciągnij swoje zapisane miejsca tutaj by szybko dostać się do swoich ulubionych miejsc w Second Life!">
-		<label name="favorites_bar_label" tool_tip="Przeciągnij swoje zapisane miejsca tutaj by szybko dostać się do swoich ulubionych miejsc w Second Life!">
+	<favorites_bar name="favorite" tool_tip="Przeciągnij swoje landmarki tutaj by szybko dostać się do swoich ulubionych miejsc w Second Life!">
+		<label name="favorites_bar_label" tool_tip="Przeciągnij swoje landmarki tutaj by szybko dostać się do swoich ulubionych miejsc w Second Life!">
 			Pasek Ulubionych
 		</label>
 		<chevron_button name="&gt;&gt;" tool_tip="Pokaż więcej Moich Ulubionych"/>

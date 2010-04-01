@@ -44,6 +44,7 @@
 #include "llviewerobjectlist.h"
 #include "llregionhandle.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llappviewer.h"
 #include "llworld.h"
 #include "llviewercontrol.h"
@@ -606,7 +607,7 @@ void LLSurface::moveZ(const S32 x, const S32 y, const F32 delta)
 
 void LLSurface::updatePatchVisibilities(LLAgent &agent) 
 {
-	LLVector3 pos_region = mRegionp->getPosRegionFromGlobal(gAgent.getCameraPositionGlobal());
+	LLVector3 pos_region = mRegionp->getPosRegionFromGlobal(gAgentCamera.getCameraPositionGlobal());
 
 	LLSurfacePatch *patchp;
 	

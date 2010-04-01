@@ -93,9 +93,8 @@ public:
 protected:
 	virtual void done() = 0;
 
-	typedef std::vector<LLUUID> item_ref_t;
-	item_ref_t mComplete;
-	item_ref_t mIncomplete;
+	uuid_vec_t mComplete;
+	uuid_vec_t mIncomplete;
 };
 
 
@@ -113,7 +112,7 @@ public:
 	LLInventoryFetchObserver(bool retry_if_missing = false): mRetryIfMissing(retry_if_missing) {}
 	virtual void changed(U32 mask);
 
-	typedef std::vector<LLUUID> item_ref_t;
+	typedef uuid_vec_t item_ref_t;
 
 	bool isEverythingComplete() const;
 	void fetchItems(const item_ref_t& ids);
@@ -138,15 +137,14 @@ public:
 	LLInventoryFetchDescendentsObserver() {}
 	virtual void changed(U32 mask);
 
-	typedef std::vector<LLUUID> folder_ref_t;
-	void fetchDescendents(const folder_ref_t& ids);
+	void fetchDescendents(const uuid_vec_t& ids);
 	bool isEverythingComplete() const;
 	virtual void done() = 0;
 
 protected:
 	bool isComplete(LLViewerInventoryCategory* cat);
-	folder_ref_t mIncompleteFolders;
-	folder_ref_t mCompleteFolders;
+	uuid_vec_t mIncompleteFolders;
+	uuid_vec_t mCompleteFolders;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -163,18 +161,16 @@ public:
 	LLInventoryFetchComboObserver() : mDone(false) {}
 	virtual void changed(U32 mask);
 
-	typedef std::vector<LLUUID> folder_ref_t;
-	typedef std::vector<LLUUID> item_ref_t;
-	void fetch(const folder_ref_t& folder_ids, const item_ref_t& item_ids);
+	void fetch(const uuid_vec_t& folder_ids, const uuid_vec_t& item_ids);
 
 	virtual void done() = 0;
 
 protected:
 	bool mDone;
-	folder_ref_t mCompleteFolders;
-	folder_ref_t mIncompleteFolders;
-	item_ref_t mCompleteItems;
-	item_ref_t mIncompleteItems;
+	uuid_vec_t mCompleteFolders;
+	uuid_vec_t mIncompleteFolders;
+	uuid_vec_t mCompleteItems;
+	uuid_vec_t mIncompleteItems;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -197,7 +193,7 @@ public:
 protected:
 	virtual void done() = 0;
 
-	typedef std::vector<LLUUID> item_ref_t;
+	typedef uuid_vec_t item_ref_t;
 	item_ref_t mExist;
 	item_ref_t mMIA;
 };
@@ -221,8 +217,7 @@ public:
 protected:
 	virtual void done() = 0;
 
-	typedef std::vector<LLUUID> item_ref_t;
-	item_ref_t mAdded;
+	uuid_vec_t mAdded;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -242,9 +237,7 @@ public:
 	virtual void changed(U32 mask);
 
 protected:
-	typedef std::vector<LLUUID> folder_ref_t;
-	typedef std::vector<LLUUID> item_ref_t;
-	virtual void done(const folder_ref_t& folders, const item_ref_t& items) = 0;
+	virtual void done(const uuid_vec_t& folders, const uuid_vec_t& items) = 0;
 
 	LLTransactionID mTransactionID;
 };

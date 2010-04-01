@@ -31,12 +31,15 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+#include "llinventorybridge.h"
+
 // external projects
 #include "lltransfersourceasset.h"
 
-#include "llinventorybridge.h"
+
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llavataractions.h"
@@ -51,6 +54,7 @@
 #include "llinventoryclipboard.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -194,7 +198,7 @@ BOOL LLInvFVBridge::isItemRemovable() const
 	}
 
 	// Disable delete from COF folder; have users explicitly choose "detach/take off".
-	if (LLAppearanceManager::instance().getIsProtectedCOFItem(mUUID))
+	if (LLAppearanceMgr::instance().getIsProtectedCOFItem(mUUID))
 	{
 		return FALSE;
 	}
@@ -261,7 +265,7 @@ void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batc
 		{
 			if(LLAssetType::AT_GESTURE == item->getType())
 			{
-				LLGestureManager::instance().deactivateGesture(item->getUUID());
+				LLGestureMgr::instance().deactivateGesture(item->getUUID());
 			}
 		}
 	}
@@ -277,7 +281,7 @@ void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batc
 			{
 				if(LLAssetType::AT_GESTURE == descendent_items[j]->getType())
 				{
-					LLGestureManager::instance().deactivateGesture(descendent_items[j]->getUUID());
+					LLGestureMgr::instance().deactivateGesture(descendent_items[j]->getUUID());
 				}
 			}
 		}
@@ -298,7 +302,7 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	LLMessageSystem* msg = gMessageSystem;
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLViewerInventoryItem* item = NULL;
-	std::vector<LLUUID> move_ids;
+	uuid_vec_t move_ids;
 	LLInventoryModel::update_map_t update;
 	bool start_new_message = true;
 	S32 count = batch.count();
@@ -399,8 +403,8 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	}
 
 	// move everything.
-	std::vector<LLUUID>::iterator it = move_ids.begin();
-	std::vector<LLUUID>::iterator end = move_ids.end();
+	uuid_vec_t::iterator it = move_ids.begin();
+	uuid_vec_t::iterator end = move_ids.end();
 	for(; it != end; ++it)
 	{
 		gInventory.moveObject((*it), trash_id);
@@ -594,7 +598,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
 				if (inv_item)
 				{
-					is_asset_knowable = is_asset_id_knowable(inv_item->getType());
+					is_asset_knowable = LLAssetType::lookupIsAssetIDKnowable(inv_item->getType());
 				}
 				if ( !is_asset_knowable // disable menu item for Inventory items with unknown asset. EXT-5308
 					 || (! ( isItemPermissive() || gAgent.isGodlike() ) )
@@ -730,7 +734,7 @@ BOOL LLInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
 
 		if (*type == DAD_CATEGORY)
 		{
-			gInventory.startBackgroundFetch(obj->getUUID());
+			LLInventoryModelBackgroundFetch::instance().start(obj->getUUID());
 		}
 
 		rv = TRUE;
@@ -803,7 +807,7 @@ BOOL LLInvFVBridge::isAgentInventory() const
 
 BOOL LLInvFVBridge::isCOFFolder() const
 {
-	return LLAppearanceManager::instance().getIsInCOF(mUUID);
+	return LLAppearanceMgr::instance().getIsInCOF(mUUID);
 }
 
 BOOL LLInvFVBridge::isItemPermissive() const
@@ -1515,14 +1519,10 @@ BOOL LLFolderBridge::isItemRemovable() const
 		return FALSE;
 	}
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if( !avatar )
-	{
-		return FALSE;
-	}
+	if (!isAgentAvatarValid()) return FALSE;
 
 	LLInventoryCategory* category = model->getCategory(mUUID);
-	if( !category )
+	if(!category)
 	{
 		return FALSE;
 	}
@@ -1670,8 +1670,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if(!avatar) return FALSE;
+	if (!isAgentAvatarValid()) return FALSE;
 
 	// cannot drag categories into library
 	if(!isAgentInventory())
@@ -1757,9 +1756,9 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				{
 					LLInventoryItem* item = descendent_items[i];
 					if (item->getType() == LLAssetType::AT_GESTURE
-						&& LLGestureManager::instance().isGestureActive(item->getUUID()))
+						&& LLGestureMgr::instance().isGestureActive(item->getUUID()))
 					{
-						LLGestureManager::instance().deactivateGesture(item->getUUID());
+						LLGestureMgr::instance().deactivateGesture(item->getUUID());
 					}
 				}
 			}
@@ -1772,7 +1771,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					{
 						// traverse category and add all contents to currently worn.
 						BOOL append = true;
-						LLAppearanceManager::instance().wearInventoryCategory(inv_cat, false, append);
+						LLAppearanceMgr::instance().wearInventoryCategory(inv_cat, false, append);
 					}
 					else
 					{
@@ -1780,7 +1779,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 						LLInventoryModel::cat_array_t cats;
 						LLInventoryModel::item_array_t items;
 						gInventory.collectDescendents(inv_cat->getUUID(), cats, items, LLInventoryModel::EXCLUDE_TRASH);
-						LLAppearanceManager::instance().linkAll(mUUID,items,NULL);
+						LLAppearanceMgr::instance().linkAll(mUUID,items,NULL);
 					}
 				}
 				else
@@ -1789,7 +1788,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().addEnsembleLink(inv_cat);
+					LLAppearanceMgr::instance().addEnsembleLink(inv_cat);
 				}
 				else
 				{
@@ -1935,50 +1934,6 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	}
 	return accept;
 }
-
-bool LLFindCOFValidItems::operator()(LLInventoryCategory* cat,
-									 LLInventoryItem* item)
-{
-	// Valid COF items are:
-	// - links to wearables (body parts or clothing)
-	// - links to attachments
-	// - links to gestures
-	// - links to ensemble folders
-	LLViewerInventoryItem *linked_item = ((LLViewerInventoryItem*)item)->getLinkedItem();
-	if (linked_item)
-	{
-		LLAssetType::EType type = linked_item->getType();
-		return (type == LLAssetType::AT_CLOTHING ||
-				type == LLAssetType::AT_BODYPART ||
-				type == LLAssetType::AT_GESTURE ||
-				type == LLAssetType::AT_OBJECT);
-	}
-	else
-	{
-		LLViewerInventoryCategory *linked_category = ((LLViewerInventoryItem*)item)->getLinkedCategory();
-		// BAP remove AT_NONE support after ensembles are fully working?
-		return (linked_category &&
-				((linked_category->getPreferredType() == LLFolderType::FT_NONE) ||
-				 (LLFolderType::lookupIsEnsembleType(linked_category->getPreferredType()))));
-	}
-}
-
-
-bool LLFindWearables::operator()(LLInventoryCategory* cat,
-								 LLInventoryItem* item)
-{
-	if(item)
-	{
-		if((item->getType() == LLAssetType::AT_CLOTHING)
-		   || (item->getType() == LLAssetType::AT_BODYPART))
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-
 
 //Used by LLFolderBridge as callback for directory recursion.
 class LLRightClickInventoryFetchObserver : public LLInventoryFetchObserver
@@ -2147,7 +2102,7 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 				    mContentsCount)
 				{
 					gInventory.removeObserver(this);
-					LLAppearanceManager::instance().wearInventoryCategory(category, FALSE, TRUE);
+					LLAppearanceMgr::instance().wearInventoryCategory(category, FALSE, TRUE);
 					delete this;
 				}
 			}
@@ -2197,7 +2152,7 @@ void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 		if(!model) return;
 		LLViewerInventoryCategory* cat = getCategory();
 		if(!cat) return;
-		LLAppearanceManager::instance().addEnsembleLink(cat,true);
+		LLAppearanceMgr::instance().addEnsembleLink(cat,true);
 		return;
 	}
 #endif
@@ -2430,9 +2385,9 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 			const LLViewerInventoryItem* item = (*iter);
 			const LLUUID& item_id = item->getUUID();
 			if (item->getType() == LLAssetType::AT_GESTURE
-				&& LLGestureManager::instance().isGestureActive(item_id))
+				&& LLGestureMgr::instance().isGestureActive(item_id))
 			{
-				LLGestureManager::instance().deactivateGesture(item_id);
+				LLGestureMgr::instance().deactivateGesture(item_id);
 			}
 		}
 		
@@ -2735,7 +2690,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 				addDeleteContextMenuOptions(mItems, mDisabledItems);
 				// EXT-4030: disallow deletion of currently worn outfit
-				const LLViewerInventoryItem *base_outfit_link = LLAppearanceManager::instance().getBaseOutfitLink();
+				const LLViewerInventoryItem *base_outfit_link = LLAppearanceMgr::instance().getBaseOutfitLink();
 				if (base_outfit_link && (cat == base_outfit_link->getLinkedCategory()))
 				{
 					mDisabledItems.push_back(std::string("Delete"));
@@ -2767,7 +2722,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		sSelf = this;
 		LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(FALSE);
 
-		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+		uuid_vec_t folders;
 		LLViewerInventoryCategory* category = (LLViewerInventoryCategory*)model->getCategory(mUUID);
 		if (category)
 		{
@@ -2984,7 +2939,7 @@ void LLFolderBridge::modifyOutfit(BOOL append)
 	LLViewerInventoryCategory* cat = getCategory();
 	if(!cat) return;
 
-	LLAppearanceManager::instance().wearInventoryCategory( cat, FALSE, append );
+	LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, append );
 }
 
 // helper stuff
@@ -3039,8 +2994,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		return FALSE;
 	}
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if(!avatar) return FALSE;
+	if (!isAgentAvatarValid()) return FALSE;
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
@@ -3062,7 +3016,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		const LLUUID current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
-		const BOOL move_is_outof_current_outfit = LLAppearanceManager::instance().getIsInCOF(inv_item->getUUID());
+		const BOOL move_is_outof_current_outfit = LLAppearanceMgr::instance().getIsInCOF(inv_item->getUUID());
 
 		// Can't explicitly drag things out of the COF.
 		if (move_is_outof_current_outfit)
@@ -3094,9 +3048,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		if(accept && drop)
 		{
 			if (inv_item->getType() == LLAssetType::AT_GESTURE
-				&& LLGestureManager::instance().isGestureActive(inv_item->getUUID()) && move_is_into_trash)
+				&& LLGestureMgr::instance().isGestureActive(inv_item->getUUID()) && move_is_into_trash)
 			{
-				LLGestureManager::instance().deactivateGesture(inv_item->getUUID());
+				LLGestureMgr::instance().deactivateGesture(inv_item->getUUID());
 			}
 			// If an item is being dragged between windows, unselect
 			// everything in the active window so that we don't follow
@@ -3149,7 +3103,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				// BAP - should skip if dup.
 				if (move_is_into_current_outfit)
 				{
-					LLAppearanceManager::instance().addCOFItemLink(inv_item);
+					LLAppearanceMgr::instance().addCOFItemLink(inv_item);
 				}
 				else
 				{
@@ -3809,7 +3763,7 @@ LLUIImagePtr LLGestureBridge::getIcon() const
 
 LLFontGL::StyleFlags LLGestureBridge::getLabelStyle() const
 {
-	if( LLGestureManager::instance().isGestureActive(mUUID) )
+	if( LLGestureMgr::instance().isGestureActive(mUUID) )
 	{
 		return LLFontGL::BOLD;
 	}
@@ -3821,7 +3775,7 @@ LLFontGL::StyleFlags LLGestureBridge::getLabelStyle() const
 
 std::string LLGestureBridge::getLabelSuffix() const
 {
-	if( LLGestureManager::instance().isGestureActive(mUUID) )
+	if( LLGestureMgr::instance().isGestureActive(mUUID) )
 	{
 		LLStringUtil::format_map_t args;
 		args["[GESLABEL]"] =  LLItemBridge::getLabelSuffix();
@@ -3838,7 +3792,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 {
 	if (isAddAction(action))
 	{
-		LLGestureManager::instance().activateGesture(mUUID);
+		LLGestureMgr::instance().activateGesture(mUUID);
 
 		LLViewerInventoryItem* item = gInventory.getItem(mUUID);
 		if (!item) return;
@@ -3850,7 +3804,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 	}
 	else if (isRemoveAction(action))
 	{
-		LLGestureManager::instance().deactivateGesture(mUUID);
+		LLGestureMgr::instance().deactivateGesture(mUUID);
 
 		LLViewerInventoryItem* item = gInventory.getItem(mUUID);
 		if (!item) return;
@@ -3862,17 +3816,17 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 	}
 	else if("play" == action)
 	{
-		if(!LLGestureManager::instance().isGestureActive(mUUID))
+		if(!LLGestureMgr::instance().isGestureActive(mUUID))
 		{
 			// we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
 			BOOL inform_server = TRUE;
 			BOOL deactivate_similar = FALSE;
-			LLGestureManager::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
+			LLGestureMgr::instance().setGestureLoadedCallback(mUUID, boost::bind(&LLGestureBridge::playGesture, mUUID));
 			LLViewerInventoryItem* item = gInventory.getItem(mUUID);
 			llassert(item);
 			if (item)
 			{
-				LLGestureManager::instance().activateGestureWithAsset(mUUID, item->getAssetUUID(), inform_server, deactivate_similar);
+				LLGestureMgr::instance().activateGestureWithAsset(mUUID, item->getAssetUUID(), inform_server, deactivate_similar);
 			}
 		}
 		else
@@ -3914,7 +3868,7 @@ BOOL LLGestureBridge::removeItem()
 	
 	// This will also force close the preview window, if it exists.
 	// This may actually delete *this, if mUUID is in the COF.
-	LLGestureManager::instance().deactivateGesture(item_id);
+	LLGestureMgr::instance().deactivateGesture(item_id);
 	
 	// If deactivateGesture deleted *this, then return out immediately.
 	if (!model->getObject(item_id))
@@ -3947,7 +3901,7 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Gesture Separator"));
-		if (LLGestureManager::instance().isGestureActive(getUUID()))
+		if (LLGestureMgr::instance().isGestureActive(getUUID()))
 		{
 			items.push_back(std::string("Deactivate"));
 		}
@@ -3962,13 +3916,13 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 // static
 void LLGestureBridge::playGesture(const LLUUID& item_id)
 {
-	if (LLGestureManager::instance().isGesturePlaying(item_id))
+	if (LLGestureMgr::instance().isGesturePlaying(item_id))
 	{
-		LLGestureManager::instance().stopGesture(item_id);
+		LLGestureMgr::instance().stopGesture(item_id);
 	}
 	else
 	{
-		LLGestureManager::instance().playGesture(item_id);
+		LLGestureMgr::instance().playGesture(item_id);
 	}
 }
 
@@ -4169,8 +4123,7 @@ std::string LLObjectBridge::getLabelSuffix() const
 {
 	if (get_is_item_worn(mUUID))
 	{
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		std::string attachment_point_name = avatar->getAttachedPointName(mUUID);
+		std::string attachment_point_name = gAgentAvatarp->getAttachedPointName(mUUID);
 
 		// e.g. "(worn on ...)" / "(attached to ...)"
 		LLStringUtil::format_map_t args;
@@ -4189,10 +4142,10 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 	payload["item_id"] = item->getLinkedUUID(); // Wear the base object in case this is a link.
 
 	S32 attach_pt = 0;
-	if (gAgent.getAvatarObject() && attachment)
+	if (isAgentAvatarValid() && attachment)
 	{
-		for (LLVOAvatar::attachment_map_t::iterator iter = gAgent.getAvatarObject()->mAttachmentPoints.begin();
-			 iter != gAgent.getAvatarObject()->mAttachmentPoints.end(); ++iter)
+		for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin();
+			 iter != gAgentAvatarp->mAttachmentPoints.end(); ++iter)
 		{
 			if (iter->second == attachment)
 			{
@@ -4218,9 +4171,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 
 bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response)
 {
-	LLVOAvatar *avatarp = gAgent.getAvatarObject();
-
-	if (!avatarp->canAttachMoreObjects())
+	if (!gAgentAvatarp->canAttachMoreObjects())
 	{
 		LLSD args;
 		args["MAX_ATTACHMENTS"] = llformat("%d", MAX_AGENT_ATTACHMENTS);
@@ -4282,11 +4233,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLInventoryItem *item = getItem();
 		if(item)
 		{
-			LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-			if( !avatarp )
-			{
-				return;
-			}
+			if (!isAgentAvatarValid()) return;
 
 			if( get_is_item_worn( mUUID ) )
 			{
@@ -4302,7 +4249,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				// commented out for DEV-32347
 				//items.push_back(std::string("Restore to Last Position"));
 
-				if (!avatarp->canAttachMoreObjects())
+				if (!gAgentAvatarp->canAttachMoreObjects())
 				{
 					disabled_items.push_back(std::string("Object Wear"));
 					disabled_items.push_back(std::string("Attach To"));
@@ -4310,15 +4257,14 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				}
 				LLMenuGL* attach_menu = menu.findChildMenuByName("Attach To", TRUE);
 				LLMenuGL* attach_hud_menu = menu.findChildMenuByName("Attach To HUD", TRUE);
-				LLVOAvatar *avatarp = gAgent.getAvatarObject();
 				if (attach_menu
 					&& (attach_menu->getChildCount() == 0)
 					&& attach_hud_menu
 					&& (attach_hud_menu->getChildCount() == 0)
-					&& avatarp)
+					&& isAgentAvatarValid())
 				{
-					for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
-						 iter != avatarp->mAttachmentPoints.end(); )
+					for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin();
+						 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 					{
 						LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 						LLViewerJointAttachment* attachment = curiter->second;
@@ -4368,11 +4314,10 @@ BOOL LLObjectBridge::renameItem(const std::string& new_name)
 
 		model->notifyObservers();
 
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		if( avatar )
+		if (isAgentAvatarValid())
 		{
-			LLViewerObject* obj = avatar->getWornAttachment( item->getUUID() );
-			if( obj )
+			LLViewerObject* obj = gAgentAvatarp->getWornAttachment( item->getUUID() );
+			if(obj)
 			{
 				LLSelectMgr::getInstance()->deselectAll();
 				LLSelectMgr::getInstance()->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
@@ -4424,7 +4369,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceManager::instance().addCOFItemLink(item);
+		LLAppearanceMgr::instance().addCOFItemLink(item);
 	}
 }
 
@@ -4561,7 +4506,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 				LLViewerInventoryItem *gest_item = gest_item_array.get(i);
 				if (get_is_item_worn(gest_item->getUUID()))
 				{
-					LLGestureManager::instance().deactivateGesture( gest_item->getLinkedUUID() );
+					LLGestureMgr::instance().deactivateGesture( gest_item->getLinkedUUID() );
 					gInventory.updateItem( gest_item );
 					gInventory.notifyObservers();
 				}
@@ -4921,10 +4866,10 @@ void LLWearableBridge::editOnAvatar()
 		if (gFloaterCustomize)
 			gFloaterCustomize->setCurrentWearableType( wearable->getType() );
 
-		if( CAMERA_MODE_CUSTOMIZE_AVATAR != gAgent.getCameraMode() )
+		if( CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() )
 		{
 			// Start Avatar Customization
-			gAgent.changeCameraToCustomizeAvatar();
+			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
 	}
 }
@@ -4975,28 +4920,15 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 			if( !(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR || type==WT_EYES ) ) //&&
 				//!((!gAgent.isTeen()) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
 			{
-				// MULTI_WEARABLE: FIXME HACK - always remove all
 				bool do_remove_all = false;
-				gAgentWearables.removeWearable( type, do_remove_all, 0 );
+				U32 index = gAgentWearables.getWearableIndex(wearable);
+				gAgentWearables.removeWearable( type, do_remove_all, index );
 			}
 		}
 	}
 
 	// Find and remove this item from the COF.
-	// FIXME 2.1 - call removeCOFItemLinks in llappearancemgr instead.
-	LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(item_id, LLAppearanceManager::instance().getCOF());
-	if (items.size() != 1)
-	{
-		llwarns << "Found " << items.size() << " COF links to " << item_id.asString() << ", expected 1" << llendl;
-	}
-	for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
-		 iter != items.end();
-		 ++iter)
-	{
-		const LLViewerInventoryItem *linked_item = (*iter);
-		const LLUUID &item_id = linked_item->getUUID();
-		gInventory.purgeObject(item_id);
-	}
+	LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
 	gInventory.notifyObservers();
 
 	delete on_remove_struct;
@@ -5022,20 +4954,7 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 			continue;
 
 		// Find and remove this item from the COF.
-		LLInventoryModel::item_array_t items = gInventory.collectLinkedItems(
-			item_id, LLAppearanceManager::instance().getCOF());
-		if (items.size() != 1)
-		{
-			llwarns << "Found " << items.size() << " COF links to " << item_id.asString() << ", expected 1" << llendl;
-		}
-		for (LLInventoryModel::item_array_t::const_iterator iter = items.begin();
-			 iter != items.end();
-			 ++iter)
-		{
-			const LLViewerInventoryItem *linked_item = (*iter);
-			const LLUUID &item_id = linked_item->getUUID();
-			gInventory.purgeObject(item_id);
-		}
+		LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
 	}
 	gInventory.notifyObservers();
 

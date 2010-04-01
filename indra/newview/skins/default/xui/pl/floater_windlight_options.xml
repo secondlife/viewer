@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="WindLight floater" title="ZAAWANSOWANY EDYTOR NIEBA">
 	<text name="KeyFramePresetsText">
-		Ustawienia Nieba:
+		Ustawienia nieba:
 	</text>
 	<button label="Nowe" label_selected="Nowe" name="WLNewPreset"/>
 	<button label="Zapisz" label_selected="Zapisz" name="WLSavePreset"/>
 	<button label="Usuń" label_selected="Usuń" name="WLDeletePreset"/>
-	<button label="Edytor Cyklu Dnia" label_selected="Edytor Cyklu Dnia" name="WLDayCycleMenuButton"/>
+	<button label="Edytor cyklu dnia" label_selected="Edytor cyklu dnia" name="WLDayCycleMenuButton"/>
 	<tab_container name="WindLight Tabs">
 		<panel label="ATMOSFERA" name="Atmosphere">
 			<text name="BHText">
-				Horyzont Błękitu
+				Horyzont błękitu
 			</text>
 			<button label="?" name="WLBlueHorizonHelp"/>
 			<text name="BHText2">
@@ -30,12 +30,12 @@
 			<slider label="" name="WLBlueHorizonB"/>
 			<slider label="" name="WLBlueHorizonI"/>
 			<text name="BDensText">
-				Horyzont Zamglenia
+				Horyzont zamglenia
 			</text>
 			<button label="?" name="WLHazeHorizonHelp"/>
 			<slider label="" name="WLHazeHorizon"/>
 			<text name="BDensText2">
-				Gęstość Błękitu
+				Gęstość błękitu
 			</text>
 			<button label="?" name="WLBlueDensityHelp"/>
 			<text name="BHText6">
@@ -55,29 +55,29 @@
 			<slider label="" name="WLBlueDensityB"/>
 			<slider label="" name="WLBlueDensityI"/>
 			<text name="HDText">
-				Gęstość Zamglenia
+				Gęstość zamglenia
 			</text>
 			<button label="?" name="WLHazeDensityHelp"/>
 			<slider label="" name="WLHazeDensity"/>
 			<text name="DensMultText">
-				Mnożnik Gęsości
+				Mnożnik gęsości
 			</text>
 			<button label="?" name="WLDensityMultHelp"/>
 			<slider label="" name="WLDensityMult"/>
 			<text name="WLDistanceMultText">
-				Mnożnik Dystansu
+				Mnożnik dystansu
 			</text>
 			<button label="?" name="WLDistanceMultHelp"/>
 			<slider label="" name="WLDistanceMult"/>
 			<text name="MaxAltText">
-				Max Wysokość
+				Max wysokość
 			</text>
 			<button label="?" name="WLMaxAltitudeHelp"/>
 			<slider label="" name="WLMaxAltitude"/>
 		</panel>
 		<panel label="ŚWIATŁO" name="Lighting">
 			<text name="SLCText">
-				Kolor Słońca/Księżyca
+				Kolor słońca/księżyca
 			</text>
 			<button label="?" name="WLSunlightColorHelp"/>
 			<text name="BHText">
@@ -97,7 +97,7 @@
 			<slider label="" name="WLSunlightB"/>
 			<slider label="" name="WLSunlightI"/>
 			<text name="TODText">
-				Pozycja Słońca/Księżyca
+				Pozycja słońca/księżyca
 			</text>
 			<button label="?" name="WLTimeOfDayHelp"/>
 			<slider label="" name="WLSunAngle"/>
@@ -122,30 +122,30 @@
 			<slider label="" name="WLAmbientB"/>
 			<slider label="" name="WLAmbientI"/>
 			<text name="WLEastAngleText">
-				Pozycja Wschodu
+				Pozycja wschodu
 			</text>
 			<button label="?" name="WLEastAngleHelp"/>
 			<slider label="" name="WLEastAngle"/>
 			<text name="SunGlowText">
-				Blask Słońca
+				Blask słońca
 			</text>
 			<button label="?" name="WLSunGlowHelp"/>
 			<slider label="Ostrość" name="WLGlowB"/>
 			<slider label="Rozmiar" name="WLGlowR"/>
 			<text name="SceneGammaText">
-				Jasność Obrazu
+				Jasność obrazu
 			</text>
 			<button label="?" name="WLSceneGammaHelp"/>
 			<slider label="" name="WLGamma"/>
 			<text name="WLStarText">
-				Blask Gwiazd
+				Blask gwiazd
 			</text>
 			<button label="?" name="WLStarBrightnessHelp"/>
 			<slider label="" name="WLStarAlpha"/>
 		</panel>
 		<panel label="CHMURY" name="Clouds">
 			<text name="WLCloudColorText">
-				Kolor Chmur
+				Kolor chmur
 			</text>
 			<button label="?" name="WLCloudColorHelp"/>
 			<text name="BHText">
@@ -181,17 +181,17 @@
 			<slider label="" name="WLCloudY"/>
 			<slider label="" name="WLCloudDensity"/>
 			<text name="WLCloudCoverageText">
-				Pokrycie Chmur
+				Pokrycie chmur
 			</text>
 			<button label="?" name="WLCloudCoverageHelp"/>
 			<slider label="" name="WLCloudCoverage"/>
 			<text name="WLCloudScaleText">
-				Skala Chmur
+				Skala chmur
 			</text>
 			<button label="?" name="WLCloudScaleHelp"/>
 			<slider label="" name="WLCloudScale"/>
 			<text name="WLCloudDetailText">
-				Szczegóły (XY/Gęstość)
+				Szczegóły (XY/gęstość)
 			</text>
 			<button label="?" name="WLCloudDetailHelp"/>
 			<text name="BHText8">
@@ -207,18 +207,18 @@
 			<slider label="" name="WLCloudDetailY"/>
 			<slider label="" name="WLCloudDetailDensity"/>
 			<text name="WLCloudScrollXText">
-				Przewijanie Chmur X
+				Przewijanie chmur X
 			</text>
 			<button label="?" name="WLCloudScrollXHelp"/>
 			<check_box label="Zablokuj" name="WLCloudLockX"/>
 			<slider label="" name="WLCloudScrollX"/>
 			<text name="WLCloudScrollYText">
-				Przewijanie Chmur Y
+				Przewijanie chmur Y
 			</text>
 			<button label="?" name="WLCloudScrollYHelp"/>
 			<check_box label="Zablokuj" name="WLCloudLockY"/>
 			<slider label="" name="WLCloudScrollY"/>
-			<check_box label="Klasyczne Chmury" name="DrawClassicClouds"/>
+			<check_box label="Klasyczne chmury" name="DrawClassicClouds"/>
 			<button label="?" name="WLClassicCloudsHelp"/>
 		</panel>
 	</tab_container>

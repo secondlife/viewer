@@ -1955,7 +1955,7 @@ void LLMediaPluginTest::updateStatusBar()
 		 cached_distance == mDistanceCameraToSelectedGeometry
 	   )
 	{
-		// nothing changed so don't spend time in this shitty function
+		// nothing changed so don't spend time here
 		return;
 	};
 

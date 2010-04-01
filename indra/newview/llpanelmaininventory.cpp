@@ -40,6 +40,7 @@
 #include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"
@@ -419,7 +420,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 		return;
 	}
 
-	gInventory.startBackgroundFetch();
+	LLInventoryModelBackgroundFetch::instance().start();
 
 	mFilterSubString = search_string;
 	if (mActivePanel->getFilterSubString().empty() && mFilterSubString.empty())
@@ -499,7 +500,7 @@ void LLPanelMainInventory::onFilterSelected()
 	if (filter->isActive())
 	{
 		// If our filter is active we may be the first thing requiring a fetch so we better start it here.
-		gInventory.startBackgroundFetch();
+		LLInventoryModelBackgroundFetch::instance().start();
 	}
 	setFilterTextFromFilter();
 }
@@ -566,11 +567,11 @@ void LLPanelMainInventory::updateItemcountText()
 
 	std::string text = "";
 
-	if (LLInventoryModel::backgroundFetchActive())
+	if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive())
 	{
 		text = getString("ItemcountFetching", string_args);
 	}
-	else if (LLInventoryModel::isEverythingFetched())
+	else if (LLInventoryModelBackgroundFetch::instance().isEverythingFetched())
 	{
 		text = getString("ItemcountCompleted", string_args);
 	}
@@ -600,7 +601,7 @@ void LLPanelMainInventory::toggleFindOptions()
 		if (parent_floater) // Seraph: Fix this, shouldn't be null even for sidepanel
 			parent_floater->addDependentFloater(mFinderHandle);
 		// start background fetch of folders
-		gInventory.startBackgroundFetch();
+		LLInventoryModelBackgroundFetch::instance().start();
 	}
 	else
 	{

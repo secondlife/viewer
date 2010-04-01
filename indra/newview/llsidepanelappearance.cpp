@@ -34,6 +34,7 @@
 
 #include "llaccordionctrltab.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llinventorypanel.h"
@@ -205,7 +206,7 @@ void LLSidepanelAppearance::onFilterEdit(const std::string& search_string)
 
 void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 {
-	const LLViewerInventoryItem *outfit_link = LLAppearanceManager::getInstance()->getBaseOutfitLink();
+	const LLViewerInventoryItem *outfit_link = LLAppearanceMgr::getInstance()->getBaseOutfitLink();
 	if (!outfit_link)
 		return;
 	if (!outfit_link->getIsLinkType())
@@ -234,7 +235,7 @@ void LLSidepanelAppearance::onEditAppearanceButtonClicked()
 {
 	if (gAgentWearables.areWearablesLoaded())
 	{
-		gAgent.changeCameraToCustomizeAvatar();
+		gAgentCamera.changeCameraToCustomizeAvatar();
 	}
 }
 
@@ -297,6 +298,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 	}
 
 	mEditWearable->setVisible(visible);
+	mEditWearable->setWearable(wearable);
 	mFilterEditor->setVisible(!visible);
 	mPanelOutfitsInventory->setVisible(!visible);
 }
@@ -318,11 +320,11 @@ void LLSidepanelAppearance::updateVerbs()
 
 void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
-	mOutfitDirtyTag->setVisible(LLAppearanceManager::getInstance()->isOutfitDirty());
+	mOutfitDirtyTag->setVisible(LLAppearanceMgr::getInstance()->isOutfitDirty());
 	if (name == "")
 	{
 		std::string outfit_name;
-		if (LLAppearanceManager::getInstance()->getBaseOutfitName(outfit_name))
+		if (LLAppearanceMgr::getInstance()->getBaseOutfitName(outfit_name))
 		{
 				mCurrentLookName->setText(outfit_name);
 				return;
@@ -356,19 +358,20 @@ void LLSidepanelAppearance::fetchInventory()
 	LLUUID item_id;
 	for(S32 type = (S32)WT_SHAPE; type < (S32)WT_COUNT; ++type)
 	{
-		// MULTI_WEARABLE:
-		item_id = gAgentWearables.getWearableItemID((EWearableType)type,0);
-		if(item_id.notNull())
+		for (U32 index = 0; index < gAgentWearables.getWearableCount((EWearableType)type); ++index)
 		{
-			ids.push_back(item_id);
+			item_id = gAgentWearables.getWearableItemID((EWearableType)type, index);
+			if(item_id.notNull())
+			{
+				ids.push_back(item_id);
+			}
 		}
 	}
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-	if( avatar )
+	if (isAgentAvatarValid())
 	{
-		for (LLVOAvatar::attachment_map_t::const_iterator iter = avatar->mAttachmentPoints.begin(); 
-			 iter != avatar->mAttachmentPoints.end(); ++iter)
+		for (LLVOAvatar::attachment_map_t::const_iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+			 iter != gAgentAvatarp->mAttachmentPoints.end(); ++iter)
 		{
 			LLViewerJointAttachment* attachment = iter->second;
 			if (!attachment) continue;

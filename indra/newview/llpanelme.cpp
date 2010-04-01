@@ -36,6 +36,7 @@
 #include "llavatarconstants.h"
 #include "llpanelme.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "lliconctrl.h"
 #include "llsidetray.h"
@@ -144,7 +145,7 @@ void LLPanelMe::onEditAppearanceClicked()
 {
 	if (gAgentWearables.areWearablesLoaded())
 	{
-		gAgent.changeCameraToCustomizeAvatar();
+		gAgentCamera.changeCameraToCustomizeAvatar();
 	}
 }
 

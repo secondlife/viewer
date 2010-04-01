@@ -39,11 +39,14 @@
 #include "indra_constants.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewerfoldertype.h"
 #include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llgesturemgr.h"
 #include "llsidetray.h"
 
@@ -101,7 +104,7 @@ public:
 		const std::string verb = params[1].asString();
 		if (verb == "select")
 		{
-			std::vector<LLUUID> items_to_open;
+			uuid_vec_t items_to_open;
 			items_to_open.push_back(inventory_id);
 			//inventory_handler is just a stub, because we don't know from who this offer
 			open_inventory_offer(items_to_open, "inventory_handler");
@@ -537,7 +540,7 @@ bool LLViewerInventoryCategory::fetchDescendents()
 		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
-			gInventory.startBackgroundFetch(mUUID);			
+			LLInventoryModelBackgroundFetch::instance().start(mUUID);			
 		}
 		else
 		{	//Deprecated, but if we don't have a capability, use the old system.
@@ -790,8 +793,8 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 
 void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 {
-	LLAppearanceManager::instance().updateAppearanceFromCOF();
-	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgent.getCameraMode() )
+	LLAppearanceMgr::instance().updateAppearanceFromCOF();
+	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
 		if (gFloaterCustomize)
@@ -826,7 +829,7 @@ void ActivateGestureCallback::fire(const LLUUID& inv_item)
 	if (inv_item.isNull())
 		return;
 
-	LLGestureManager::instance().activateGesture(inv_item);
+	LLGestureMgr::instance().activateGesture(inv_item);
 }
 
 void CreateGestureCallback::fire(const LLUUID& inv_item)
@@ -834,7 +837,7 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	if (inv_item.isNull())
 		return;
 
-	LLGestureManager::instance().activateGesture(inv_item);
+	LLGestureMgr::instance().activateGesture(inv_item);
 	
 	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 	if (!item) return;

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Terra &amp; L$" name="land_money_tab">
 	<panel.string name="help_text">
-		Appare un avviso fino a quando la Terra Totale in Uso è meno o = alla Contribuzione Totale.
+		Viene visualizzata un&apos;avvertenza fino a quando il terreno totale in uso è inferiore o uguale al contributo totale.
 	</panel.string>
 	<panel.string name="cant_view_group_land_text">
-		Non hai i permessi per vedere la terra posseduta dal gruppo
+		Non sei autorizzato a vedere quali terreni appartengono al gruppo.
 	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
-		Non hai i permessi per vedere le informazioni sulla contabilità del gruppo.
+		Non sei autorizzato a visionare le informazioni finanziarie del gruppo.
 	</panel.string>
 	<panel.string name="loading_txt">
 		Attendi...
 	</panel.string>
 	<panel.string name="land_contrib_error">
-		Incapace di impostare la tua contribuzione di terreno
+		Impossibile definire il tuo contributo di terreno
 	</panel.string>
 	<panel name="layout_panel_landmoney">
 		<scroll_list name="group_parcel_list">
@@ -60,22 +60,22 @@
 	<tab_container name="group_money_tab_container">
 		<panel label="PIANIFICAZIONE" name="group_money_planning_tab">
 			<text_editor name="group_money_planning_text">
-				Caricando...
+				Caricamento in corso...
 			</text_editor>
 		</panel>
 		<panel label="DETTAGLI" name="group_money_details_tab">
 			<text_editor name="group_money_details_text">
-				Caricando...
+				Caricamento in corso...
 			</text_editor>
 			<button label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_details_button" tool_tip="Indietro" width="90"/>
-			<button label="Successivo &gt;" label_selected="Successivo &gt;" left_delta="260" name="later_details_button" tool_tip="Prossimo" width="90"/>
+			<button label="Successivo &gt;" label_selected="Successivo &gt;" left_delta="260" name="later_details_button" tool_tip="Avanti" width="90"/>
 		</panel>
 		<panel label="VENDITE" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
-				Caricando...
+				Caricamento in corso...
 			</text_editor>
 			<button label="&lt; Precedente" label_selected="&lt; Precedente" name="earlier_sales_button" tool_tip="Indietro" width="90"/>
-			<button label="Successivo &gt;" label_selected="Successivo &gt;" left_delta="260" name="later_sales_button" tool_tip="Prossimo" width="90"/>
+			<button label="Successivo &gt;" label_selected="Successivo &gt;" left_delta="260" name="later_sales_button" tool_tip="Avanti" width="90"/>
 		</panel>
 	</tab_container>
 </panel>

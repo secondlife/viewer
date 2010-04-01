@@ -108,7 +108,7 @@ public:
 private:
 	/*virtual*/ void done()
 	{
-		std::vector<LLUUID>::const_iterator it = mAdded.begin(), end = mAdded.end();
+		uuid_vec_t::const_iterator it = mAdded.begin(), end = mAdded.end();
 		for(; it != end; ++it)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);

@@ -2878,7 +2878,7 @@ even though the user gets a free copy.
          left_delta="0"
          name="button about land"
          top_pad="4"
-         width="112" />
+         width="125" />
         <check_box
          control_name="ShowParcelOwners"
          height="19"
@@ -2899,7 +2899,7 @@ even though the user gets a free copy.
          left="20"
          name="label_parcel_modify"
          top="152"
-         width="150">
+         width="240">
             Modify Parcel
         </text>
         <button
@@ -2911,7 +2911,7 @@ even though the user gets a free copy.
          left="30"
          name="button subdivide land"
          top="172"
-         width="112" />
+         width="125" />
         <button
          follows="left|top"
          height="23"
@@ -2921,7 +2921,7 @@ even though the user gets a free copy.
          left_delta="0"
          name="button join land"
          top_pad="4"
-         width="112" />
+         width="125" />
         <text
          type="string"
          length="1"
@@ -2932,7 +2932,7 @@ even though the user gets a free copy.
          left="20"
          name="label_parcel_trans"
          top="256"
-         width="150">
+         width="240">
             Land Transactions
         </text>
         <button
@@ -2944,7 +2944,7 @@ even though the user gets a free copy.
          left="30"
          name="button buy land"
          top="276"
-         width="112" />
+         width="125" />
         <button
          follows="left|top"
          height="23"
@@ -2954,6 +2954,6 @@ even though the user gets a free copy.
          left_delta="0"
          name="button abandon land"
          top_pad="4"
-         width="112" />
+         width="125" />
  </panel>
 </floater>

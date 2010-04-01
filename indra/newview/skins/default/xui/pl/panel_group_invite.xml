@@ -4,7 +4,7 @@
 		Jesteś pewny, że chcesz wybrać nowych właścieli grupy? Ta decyzja jest ostateczna!
 	</panel.string>
 	<panel.string name="loading">
-		(loading...)
+		(ładowanie...)
 	</panel.string>
 	<panel.string name="already_in_group">
 		Niektórzy Rezydenci, których wybrałeś już należą do grupy i nie otrzymali zaproszenia.

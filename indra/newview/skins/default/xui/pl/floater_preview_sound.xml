@@ -7,5 +7,5 @@
 		Opis:
 	</text>
 	<button label="Odtwarzaj" label_selected="Odtwarzaj" left_delta="-136" name="Sound play btn" tool_tip="Dźwięk będzie słyszalny przez wszystkich." width="130"/>
-	<button label="Odtwarzaj Lokalnie" label_selected="Odtwarzaj Lokalnie" name="Sound audition btn" tool_tip="Dźwięk będzie słyszalny tylko dla Ciebie."/>
+	<button label="Odtwarzaj Lokalnie" label_selected="Odtwarzaj lokalnie" name="Sound audition btn" tool_tip="Dźwięk będzie słyszalny tylko dla Ciebie."/>
 </floater>
