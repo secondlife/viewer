@@ -64,7 +64,6 @@ First name:
 </text>
 <line_editor
 follows="left|bottom"
-handle_edit_keys_directly="true"
 height="22"
 label="First"
 left_delta="0"
@@ -85,7 +84,6 @@ top_pad="0"
     Last name:   </text>
 <line_editor
 follows="left|bottom"
-handle_edit_keys_directly="true"
 height="22"
 label="Last"
 max_length="31"
@@ -106,7 +104,6 @@ top="20"
 </text>
 <line_editor
 follows="left|bottom"
-handle_edit_keys_directly="true"
   height="22"
   max_length="16"
 name="password_edit"

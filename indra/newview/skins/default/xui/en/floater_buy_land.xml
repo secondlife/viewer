@@ -356,7 +356,6 @@ supports [AMOUNT2] objects
      length="1"
      enabled="false"
      follows="top|right"
-     handle_edit_keys_directly="false" 
      height="237"
      layout="topleft"
      left="444"

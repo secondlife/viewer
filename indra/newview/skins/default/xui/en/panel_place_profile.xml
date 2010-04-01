@@ -742,7 +742,6 @@
                          bg_focus_color="DkGray2"
                          bg_readonly_color="DkGray2"
                          follows="left|top|right"
-                         handle_edit_keys_directly="true"
                          height="90"
                          layout="topleft"
                          left="10"
