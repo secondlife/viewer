@@ -334,6 +334,17 @@ boost::signals2::connection LLAvatarList::setItemDoubleClickCallback(const mouse
 	return mItemDoubleClickSignal.connect(cb);
 }
 
+//virtual
+S32 LLAvatarList::notifyParent(const LLSD& info)
+{
+	if (info.has("sort") && &NAME_COMPARATOR == mItemComparator)
+	{
+		sort();
+		return 1;
+	}
+	return LLFlatListView::notifyParent(info);
+}
+
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();

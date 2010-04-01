@@ -3111,6 +3111,18 @@ Teleport to [PICK]?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="TeleportToHistoryEntry"
+   type="alertmodal">
+Teleport to [HISTORY_ENTRY]?
+    <usetemplate
+     ignoretext="Confirm that I want to teleport to a history location"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Teleport"/>
+  </notification>
+
+  <notification
    icon="alert.tga"
    label="Message everyone in your Estate"
    name="MessageEstate"
@@ -4269,6 +4281,13 @@ The string [STRING_NAME] is missing from strings.xml
    type="notifytip">
 [MESSAGE]
   </notification>
+  
+  <notification
+   icon="notifytip.tga"
+   name="IMSystemMessageTip"
+   type="notifytip">
+[MESSAGE]
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -5103,7 +5122,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
    icon="notify.tga"
    name="TeleportOffered"
    type="offer">
-[NAME] has offered to teleport you to their location:
+[NAME_SLURL] has offered to teleport you to their location:
 
 [MESSAGE]
     <form name="form">
@@ -5148,7 +5167,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
    icon="notify.tga"
    name="OfferFriendship"
    type="offer">
-[NAME] is offering friendship.
+[NAME_SLURL] is offering friendship.
 
 [MESSAGE]
 

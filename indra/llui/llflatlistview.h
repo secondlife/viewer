@@ -379,10 +379,13 @@ private:
 
 	void setNoItemsCommentVisible(bool visible) const;
 
-private:
+protected:
 
 	/** Comparator to use when sorting the list. */
 	const ItemComparator* mItemComparator;
+
+
+private:
 
 	LLPanel* mItemsPanel;
 

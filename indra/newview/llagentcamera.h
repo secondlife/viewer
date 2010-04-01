@@ -82,7 +82,7 @@ public:
 	void			cleanup();
 	void		    setAvatarObject(LLVOAvatarSelf* avatar);
 private:
-	BOOL			mInitialized;
+	bool			mInitialized;
 
 
 	//--------------------------------------------------------------------
@@ -151,7 +151,7 @@ private:
 	LLVector3		mCameraVirtualPositionAgent;	// Camera virtual position (target) before performing FOV zoom
 	LLVector3d      mCameraSmoothingLastPositionGlobal;    
 	LLVector3d      mCameraSmoothingLastPositionAgent;
-	BOOL            mCameraSmoothingStop;
+	bool            mCameraSmoothingStop;
 	LLVector3		mCameraLag;						// Third person camera lag
 	LLVector3		mCameraUpVector;				// Camera's up direction in world coordinates (determines the 'roll' of the view)
 

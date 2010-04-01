@@ -962,7 +962,18 @@ void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight())
 	{
+		//EXT-4288
+		//to keep consistance scrolling behaviour 
+		//when scrolling from top and from bottom...
+		bool is_scrolled_to_end = (mScroller!=NULL) && scrolledToEnd();
+		
 		LLUICtrl::reshape( width, height, called_from_parent );
+	
+		if (is_scrolled_to_end)
+		{
+			deselect();
+			endOfDoc();
+		}		
 
 		// do this first after reshape, because other things depend on
 		// up-to-date mVisibleTextRect

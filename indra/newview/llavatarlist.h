@@ -96,6 +96,8 @@ public:
 
 	boost::signals2::connection setItemDoubleClickCallback(const mouse_signal_t::slot_type& cb);
 
+	virtual S32 notifyParent(const LLSD& info);
+
 protected:
 	void refresh();
 
