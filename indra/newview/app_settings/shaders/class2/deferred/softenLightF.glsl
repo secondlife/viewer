@@ -281,12 +281,13 @@ void main()
 	{
 		// the old infinite-sky shiny reflection
 		//
-		vec3 refnorm = normalize(reflect(pos.xyz, norm.xyz));
-		float sa = dot(refnorm, vary_light.xyz);
+		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+		float sa = dot(refnormpersp, vary_light.xyz);
 		vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*texture2D(lightFunc, vec2(sa, spec.a)).a;
 
 		// screen-space cheap fakey reflection map
 		//
+		vec3 refnorm = normalize(reflect(vec3(0,0,-1), norm.xyz));
 		depth -= 0.5; // unbias depth
 		// first figure out where we'll make our 2D guess from
 		vec2 ref2d = (0.25 * screen_res.y) * (refnorm.xy) * abs(refnorm.z) / depth;
@@ -311,9 +312,13 @@ void main()
 		//refapprop *= step(dot(refnorm, refn), 0.0);
 		refapprop = min(refapprop, max(0.0, -dot(refnorm, refn))); // more conservative variant
 		// get appropriate light strength for guess-point
-		float reflit = min(max(dot(refn, lightnorm.xyz), 0.0), refshad);
+		// reflect light direction to increase the illusion that
+		// these are reflections.
+		vec3 reflight = reflect(lightnorm.xyz, norm.xyz);
+		float reflit = max(dot(refn, reflight.xyz), 0.0);
 		// apply sun color to guess-point, dampen according to inappropriateness of guess
-		vec3 refprod = (vary_SunlitColor*reflit) * refcol.rgb * refapprop;
+		float refmod = min(refapprop, reflit);
+		vec3 refprod = vary_SunlitColor * refcol.rgb * refmod;
 		vec3 ssshiny = (refprod * spec.a);
 
 		// add the two types of shiny together
