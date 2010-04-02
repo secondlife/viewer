@@ -24,13 +24,13 @@
    <text
      type="string"
      length="1"
-     follows="top|left"
+     follows="top|left|right"
      font="SansSerifHuge"
      layout="topleft"
      left="20"
      height="30"
      top="25"
-     width="300"
+     width="340"
      name="info_need_more">
         You need more L$
     </text>
@@ -55,7 +55,7 @@
      left="20"
      height="30"
      top="25"
-     width="200"
+     width="300"
      name="info_buying">
         Buy L$
     </text>
@@ -178,8 +178,8 @@
      follows="top|left"
      height="16"
      halign="right"
-     left="140"
-     width="180"
+     left="20"
+     width="300"
      layout="topleft"
      name="buy_action">
         [ACTION]

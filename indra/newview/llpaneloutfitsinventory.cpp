@@ -48,6 +48,7 @@
 #include "lllandmark.h"
 #include "lllineeditor.h"
 #include "llmodaldialog.h"
+#include "llnotificationsutil.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltabcontainer.h"
@@ -68,75 +69,13 @@ static const std::string COF_TAB_NAME = "cof_tab";
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 bool LLPanelOutfitsInventory::sShowDebugEditor = false;
 
-class LLOutfitSaveAsDialog : public LLModalDialog
-{
-private:
-	std::string	mItemName;
-	std::string mTempItemName;
-	
-	boost::signals2::signal<void (const std::string&)> mSaveAsSignal;
 
-public:
-	LLOutfitSaveAsDialog( const LLSD& key )
-		: LLModalDialog( key ),
-		  mTempItemName(key.asString())
-	{
-	}
-		
-	BOOL postBuild()
-	{
-		getChild<LLUICtrl>("Save")->setCommitCallback(boost::bind(&LLOutfitSaveAsDialog::onSave, this ));
-		getChild<LLUICtrl>("Cancel")->setCommitCallback(boost::bind(&LLOutfitSaveAsDialog::onCancel, this ));
-		
-		childSetTextArg("name ed", "[DESC]", mTempItemName);
-		return TRUE;
-	}
-
-	void setSaveAsCommit( const boost::signals2::signal<void (const std::string&)>::slot_type& cb )
-	{
-		mSaveAsSignal.connect(cb);
-	}
-
-	virtual void onOpen(const LLSD& key)
-	{
-		LLLineEditor* edit = getChild<LLLineEditor>("name ed");
-		if (edit)
-		{
-			edit->setFocus(TRUE);
-			edit->selectAll();
-		}
-	}
-
-	void onSave()
-	{
-		mItemName = childGetValue("name ed").asString();
-		LLStringUtil::trim(mItemName);
-		if( !mItemName.empty() )
-		{
-			mSaveAsSignal(mItemName);
-			closeFloater(); // destroys this object
-		}
-	}
-
-	void onCancel()
-	{
-		closeFloater(); // destroys this object
-	}
-};
-	
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mActivePanel(NULL),
 	mParent(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
-
-	static bool registered_dialog = false;
-	if (!registered_dialog)
-	{
-		LLFloaterReg::add("outfit_save_as", "floater_outfit_save_as.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLOutfitSaveAsDialog>);
-		registered_dialog = true;
-	}
 }
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
@@ -242,7 +181,7 @@ void LLPanelOutfitsInventory::onWearButtonClick()
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
 	{
-		listenerp->performAction(NULL, NULL,"replaceoutfit");
+		listenerp->performAction(NULL, "replaceoutfit");
 	}
 }
 
@@ -251,7 +190,7 @@ void LLPanelOutfitsInventory::onAdd()
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
 	{
-		listenerp->performAction(NULL, NULL,"addtooutfit");
+		listenerp->performAction(NULL, "addtooutfit");
 	}
 }
 
@@ -260,13 +199,38 @@ void LLPanelOutfitsInventory::onRemove()
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
 	{
-		listenerp->performAction(NULL, NULL,"removefromoutfit");
+		listenerp->performAction(NULL, "removefromoutfit");
 	}
 }
 
 void LLPanelOutfitsInventory::onEdit()
 {
 }
+
+bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option)
+	{
+		std::string outfit_name = response["message"].asString();
+		LLStringUtil::trim(outfit_name);
+		if( !outfit_name.empty() )
+		{
+			LLUUID outfit_folder = gAgentWearables.makeNewOutfitLinks(outfit_name);
+			LLSD key;
+			LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
+
+			if (mAppearanceTabs)
+			{
+				mAppearanceTabs->selectTabByName(OUTFITS_TAB_NAME);
+			}	
+		}
+	}
+
+	return false;
+}
+
+
 
 void LLPanelOutfitsInventory::onSave()
 {
@@ -277,23 +241,22 @@ void LLPanelOutfitsInventory::onSave()
 		outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
 	}
 
+	LLSD args;
+	args["DESC"] = outfit_name;
+
+	LLSD payload;
+	//payload["ids"].append(*it);
+	
+	LLNotificationsUtil::add("SaveOutfitAs", args, payload, boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1, _2));
+
+	//)
+	
+/*
 	LLOutfitSaveAsDialog* save_as_dialog = LLFloaterReg::showTypedInstance<LLOutfitSaveAsDialog>("outfit_save_as", LLSD(outfit_name), TRUE);
 	if (save_as_dialog)
 	{
 		save_as_dialog->setSaveAsCommit(boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1 ));
-	}
-}
-
-void LLPanelOutfitsInventory::onSaveCommit(const std::string& outfit_name)
-{
-	LLUUID outfit_folder = gAgentWearables.makeNewOutfitLinks(outfit_name);
-	LLSD key;
-	LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
-
-	if (mAppearanceTabs)
-	{
-		mAppearanceTabs->selectTabByName(OUTFITS_TAB_NAME);
-	}
+	}*/
 }
 
 void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
@@ -480,18 +443,18 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	if (command_name == "delete" || command_name == "remove")
 	{
 		BOOL can_delete = FALSE;
-		LLFolderView *folder = getActivePanel()->getRootFolder();
-		if (folder)
+		LLFolderView* root = getActivePanel()->getRootFolder();
+		if (root)
 		{
 			std::set<LLUUID> selection_set;
-			folder->getSelectionList(selection_set);
+			root->getSelectionList(selection_set);
 			can_delete = (selection_set.size() > 0);
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
 				 ++iter)
 			{
 				const LLUUID &item_id = (*iter);
-				LLFolderViewItem *item = folder->getItemByID(item_id);
+				LLFolderViewItem *item = root->getItemByID(item_id);
 				can_delete &= item->getListener()->isItemRemovable();
 			}
 			return can_delete;
@@ -501,11 +464,11 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	if (command_name == "remove_link")
 	{
 		BOOL can_delete = FALSE;
-		LLFolderView *folder = getActivePanel()->getRootFolder();
-		if (folder)
+		LLFolderView* root = getActivePanel()->getRootFolder();
+		if (root)
 		{
 			std::set<LLUUID> selection_set;
-			folder->getSelectionList(selection_set);
+			root->getSelectionList(selection_set);
 			can_delete = (selection_set.size() > 0);
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
@@ -550,11 +513,11 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 bool LLPanelOutfitsInventory::hasItemsSelected()
 {
 	bool has_items_selected = false;
-	LLFolderView *folder = getActivePanel()->getRootFolder();
-	if (folder)
+	LLFolderView* root = getActivePanel()->getRootFolder();
+	if (root)
 	{
 		std::set<LLUUID> selection_set;
-		folder->getSelectionList(selection_set);
+		root->getSelectionList(selection_set);
 		has_items_selected = (selection_set.size() > 0);
 	}
 	return has_items_selected;

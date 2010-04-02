@@ -178,8 +178,8 @@ public:
 protected:
 	virtual bool doCompare(const LLAvatarListItem* item1, const LLAvatarListItem* item2) const
 	{
-		LLPointer<LLSpeaker> lhs = LLLocalSpeakerMgr::instance().findSpeaker(item1->getAvatarId());
-		LLPointer<LLSpeaker> rhs = LLLocalSpeakerMgr::instance().findSpeaker(item2->getAvatarId());
+		LLPointer<LLSpeaker> lhs = LLActiveSpeakerMgr::instance().findSpeaker(item1->getAvatarId());
+		LLPointer<LLSpeaker> rhs = LLActiveSpeakerMgr::instance().findSpeaker(item2->getAvatarId());
 		if ( lhs.notNull() && rhs.notNull() )
 		{
 			// Compare by last speaking time
@@ -619,7 +619,7 @@ BOOL LLPanelPeople::postBuild()
 	if(recent_view_sort)
 		mRecentViewSortMenuHandle  = recent_view_sort->getHandle();
 
-	gVoiceClient->addObserver(this);
+	LLVoiceClient::getInstance()->addObserver(this);
 
 	// call this method in case some list is empty and buttons can be in inconsistent state
 	updateButtons();
@@ -672,11 +672,6 @@ void LLPanelPeople::updateFriendList()
 		lldebugs << "Friends Cards were not found" << llendl;
 	}
 
-	// show special help text for just created account to help found friends. EXT-4836
-	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
-	no_friends_text->setVisible(all_friendsp.size() == 0);
-
-
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
 	for (; buddy_it != all_buddies.end(); ++buddy_it)
 	{
@@ -684,6 +679,14 @@ void LLPanelPeople::updateFriendList()
 		if (av_tracker.isBuddyOnline(buddy_id))
 			online_friendsp.push_back(buddy_id);
 	}
+
+	// show special help text for just created account to help found friends. EXT-4836
+	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
+
+	// Seems sometimes all_friends can be empty because of issue with Inventory loading (clear cache, slow connection...)
+	// So, lets check all lists to avoid overlapping the text with online list. See EXT-6448.
+	bool any_friend_exists = (all_friendsp.size() > 0) || (online_friendsp.size() > 0);
+	no_friends_text->setVisible(!any_friend_exists);
 
 	/*
 	 * Avatarlists  will be hidden by showFriendsAccordionsIfNeeded(), if they do not have items.
@@ -708,7 +711,7 @@ void LLPanelPeople::updateNearbyList()
 	mNearbyList->setDirty();
 
 	DISTANCE_COMPARATOR.updateAvatarsPositions(positions, mNearbyList->getIDs());
-	LLLocalSpeakerMgr::instance().update(TRUE);
+	LLActiveSpeakerMgr::instance().update(TRUE);
 }
 
 void LLPanelPeople::updateRecentList()
@@ -806,7 +809,7 @@ void LLPanelPeople::updateButtons()
 		}
 	}
 
-	bool enable_calls = gVoiceClient->voiceWorking() && gVoiceClient->voiceEnabled();
+	bool enable_calls = LLVoiceClient::getInstance()->isVoiceWorking() && LLVoiceClient::getInstance()->voiceEnabled();
 
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);

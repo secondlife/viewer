@@ -46,6 +46,15 @@
 	<string name="LoginWaitingForRegionHandshake">Waiting for region handshake...</string>
 	<string name="LoginConnectingToRegion">Connecting to region...</string>
 	<string name="LoginDownloadingClothing">Downloading clothing...</string>
+        <string name="InvalidCertificate">The server returned an invalid or corrupt certificate. Please contact the Grid administrator.</string>
+        <string name="CertInvalidHostname">An invalid hostname was used to access the server, please check your SLURL or Grid hostname.</string>
+        <string name="CertExpired">The certificate returned by the Grid appears to be expired.  Please check your system clock, or contact your Grid administr\
+ator.</string>
+        <string name="CertKeyUsage">The certificate returned by the server could not be used for SSL.  Please contact your Grid administrator.</string>
+        <string name="CertBasicConstraints">Too many certificates were in the servers Certificate chain.  Please contact your Grid administrator.</string>
+        <string name="CertInvalidSignature">The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrat
+or.</string>
+
 	<string name="LoginFailedNoNetwork">Network Error: Could not establish connection, please check your network connection.</string>
 	<string name="LoginFailed">Login failed.</string>
 	<string name="Quit">Quit</string>
@@ -114,6 +123,7 @@
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
 	<string name="BUTTON_CLOSE_WIN">Close (Ctrl+W)</string>
+	<string name="BUTTON_CLOSE_CHROME">Close</string>>
 	<string name="BUTTON_RESTORE">Restore</string>
 	<string name="BUTTON_MINIMIZE">Minimize</string>
 	<string name="BUTTON_TEAR_OFF">Tear Off</string>
@@ -3048,6 +3058,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="unread_chat_multiple">
     [SOURCES] have said something new
   </string>"
+	<string name="session_initialization_timed_out_error">
+		The session initialization is timed out
+	</string>
   
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>

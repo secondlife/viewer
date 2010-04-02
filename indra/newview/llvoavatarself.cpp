@@ -48,6 +48,7 @@
 #include "llagentwearables.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
+#include "llinventoryfunctions.h"
 #include "llselectmgr.h"
 #include "lltoolgrab.h"	// for needsRenderBeam
 #include "lltoolmgr.h" // for needsRenderBeam
@@ -86,14 +87,14 @@ using namespace LLVOAvatarDefines;
 struct LocalTextureData
 {
 	LocalTextureData() : 
-		mIsBakedReady(FALSE), 
+		mIsBakedReady(false), 
 		mDiscard(MAX_DISCARD_LEVEL+1), 
 		mImage(NULL), 
 		mWearableID(IMG_DEFAULT_AVATAR),
 		mTexEntry(NULL)
 	{}
 	LLPointer<LLViewerFetchedTexture> mImage;
-	BOOL mIsBakedReady;
+	bool mIsBakedReady;
 	S32 mDiscard;
 	LLUUID mWearableID;	// UUID of the wearable that this texture belongs to, not of the image itself
 	LLTextureEntry *mTexEntry;

@@ -42,6 +42,7 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llfloaterreg.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llmultigesture.h"
 #include "llnotificationsutil.h"

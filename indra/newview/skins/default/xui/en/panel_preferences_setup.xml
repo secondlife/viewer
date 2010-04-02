@@ -9,18 +9,6 @@
  name="Input panel"
  top="1"
  width="517">
-  <button
-   height="23"
-   label="Other Devices"
-   layout="topleft"
-   left="30"
-   name="joystick_setup_button"
-   top="10"
-   width="155">
-    <button.commit_callback
-     function="Floater.Show"
-     parameter="pref_joystick" />
-  </button>
   <text
    type="string"
    length="1"
@@ -29,7 +17,7 @@
    layout="topleft"
    left="30"
    name="Mouselook:"
-   top_pad="10"
+   top="10"
    width="300">
     Mouselook:
   </text>
@@ -210,7 +198,6 @@
    enabled="false"
    follows="left|top"
    font="SansSerif"
-   handle_edit_keys_directly="true"
    height="23"
    layout="topleft"
    left="80"

@@ -1384,6 +1384,18 @@ Unable to encode file: [FILE]
 
   <notification
    icon="alertmodal.tga"
+   name="CorruptedProtectedDataStore"
+   type="alertmodal">
+  We are unable to read your protected data so it is being reset.
+   This may happen when you change network setup.
+
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
    name="CorruptResourceFile"
    type="alertmodal">
 Corrupt resource file: [FILE]
@@ -2024,6 +2036,28 @@ Would you be my friend?
   </notification>
 
   <notification
+ icon="alertmodal.tga"
+ label="Save Outfit"
+ name="SaveOutfitAs"
+ type="alertmodal">
+    Save what I'm wearing as a new Outfit:
+    <form name="form">
+      <input name="message" type="text">
+        [DESC] (new)
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="Offer"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
@@ -2394,6 +2428,57 @@ Please choose the male or female avatar. You can change your mind later.
      name="okcancelbuttons"
      notext="Female"
      yestext="Male"/>
+  </notification>
+  <notification icon="alertmodal.tga"
+		name="CantTeleportToGrid"
+		type="alertmodal">
+Could not teleport to [SLURL] as it's on a different grid ([GRID]) than the current grid ([CURRENT_GRID]).  Please close your viewer and try again.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification icon="alertmodal.tga"
+		name="GeneralCertificateError"
+		type="alertmodal">
+Could not connect to the server.
+[REASON]
+
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Valid From: [VALID_FROM]
+Valid To: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+   </notification>
+
+  <notification icon="alertmodal.tga"
+		name="TrustCertificateError"
+		type="alertmodal">
+The certification authority for this server is not known.
+
+Certificate Information:
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Valid From: [VALID_FROM]
+Valid To: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+
+Would you like to trust this authority?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Trust"/>
   </notification>
 
   <notification
@@ -3105,6 +3190,18 @@ Teleport to [PICK]?
     Teleport to [CLASSIFIED]?
     <usetemplate
      ignoretext="Confirm that I want to teleport to a location in Classifieds"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Teleport"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="TeleportToHistoryEntry"
+   type="alertmodal">
+Teleport to [HISTORY_ENTRY]?
+    <usetemplate
+     ignoretext="Confirm that I want to teleport to a history location"
      name="okcancelignore"
      notext="Cancel"
      yestext="Teleport"/>
@@ -4269,6 +4366,13 @@ The string [STRING_NAME] is missing from strings.xml
    type="notifytip">
 [MESSAGE]
   </notification>
+  
+  <notification
+   icon="notifytip.tga"
+   name="IMSystemMessageTip"
+   type="notifytip">
+[MESSAGE]
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -5103,7 +5207,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
    icon="notify.tga"
    name="TeleportOffered"
    type="offer">
-[NAME] has offered to teleport you to their location:
+[NAME_SLURL] has offered to teleport you to their location:
 
 [MESSAGE]
     <form name="form">
@@ -5148,7 +5252,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
    icon="notify.tga"
    name="OfferFriendship"
    type="offer">
-[NAME] is offering friendship.
+[NAME_SLURL] is offering friendship.
 
 [MESSAGE]
 

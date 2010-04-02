@@ -93,7 +93,7 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	LLPanel(),
 	mFilterSubString(LLStringUtil::null),
 	mFilterEditor(NULL),
-	mLookInfo(NULL),
+	mOutfitEdit(NULL),
 	mCurrOutfitPanel(NULL)
 {
 }
@@ -129,10 +129,10 @@ BOOL LLSidepanelAppearance::postBuild()
 	mPanelOutfitsInventory = dynamic_cast<LLPanelOutfitsInventory *>(getChild<LLPanel>("panel_outfits_inventory"));
 	mPanelOutfitsInventory->setParent(this);
 
-	mLookInfo = dynamic_cast<LLPanelLookInfo*>(getChild<LLPanel>("panel_look_info"));
-	if (mLookInfo)
+	mOutfitEdit = dynamic_cast<LLPanelOutfitEdit*>(getChild<LLPanel>("panel_outfit_edit"));
+	if (mOutfitEdit)
 	{
-		LLButton* back_btn = mLookInfo->getChild<LLButton>("back_btn");
+		LLButton* back_btn = mOutfitEdit->getChild<LLButton>("back_btn");
 		if (back_btn)
 		{
 			back_btn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onBackButtonClicked, this));
@@ -177,7 +177,7 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	if(key.size() == 0)
 		return;
 
-	toggleLookInfoPanel(TRUE);
+	toggleOutfitEditPanel(TRUE);
 	updateVerbs();
 	
 	mLookInfoType = key["type"].asString();
@@ -186,7 +186,7 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	{
 		LLInventoryCategory *pLook = gInventory.getCategory(key["id"].asUUID());
 		if (pLook)
-			mLookInfo->displayLookInfo(pLook);
+			mOutfitEdit->displayLookInfo(pLook);
 	}
 }
 
@@ -219,13 +219,13 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_tab");
 		if (inventory_panel)
 		{
-			LLFolderView *folder = inventory_panel->getRootFolder();
-			LLFolderViewItem *outfit_folder = folder->getItemByID(outfit_link->getLinkedUUID());
+			LLFolderView* root = inventory_panel->getRootFolder();
+			LLFolderViewItem *outfit_folder = root->getItemByID(outfit_link->getLinkedUUID());
 			if (outfit_folder)
 			{
 				outfit_folder->setOpen(!outfit_folder->isOpen());
-				folder->setSelectionFromRoot(outfit_folder,TRUE);
-				folder->scrollToShowSelection();
+				root->setSelectionFromRoot(outfit_folder,TRUE);
+				root->scrollToShowSelection();
 			}
 		}
 	}
@@ -241,9 +241,9 @@ void LLSidepanelAppearance::onEditAppearanceButtonClicked()
 
 void LLSidepanelAppearance::onEditButtonClicked()
 {
-	toggleLookInfoPanel(FALSE);
+	toggleOutfitEditPanel(FALSE);
 	toggleWearableEditPanel(TRUE, NULL);
-	/*if (mLookInfo->getVisible())
+	/*if (mOutfitEdit->getVisible())
 	  {
 	  }
 	  else
@@ -254,7 +254,7 @@ void LLSidepanelAppearance::onEditButtonClicked()
 
 void LLSidepanelAppearance::onNewOutfitButtonClicked()
 {
-	if (!mLookInfo->getVisible())
+	if (!mOutfitEdit->getVisible())
 	{
 		mPanelOutfitsInventory->onSave();
 	}
@@ -263,22 +263,22 @@ void LLSidepanelAppearance::onNewOutfitButtonClicked()
 
 void LLSidepanelAppearance::onBackButtonClicked()
 {
-	toggleLookInfoPanel(FALSE);
+	toggleOutfitEditPanel(FALSE);
 }
 
 void LLSidepanelAppearance::onEditWearBackClicked()
 {
 	mEditWearable->saveChanges();
 	toggleWearableEditPanel(FALSE, NULL);
-	toggleLookInfoPanel(TRUE);
+	toggleOutfitEditPanel(TRUE);
 }
 
-void LLSidepanelAppearance::toggleLookInfoPanel(BOOL visible)
+void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible)
 {
-	if (!mLookInfo)
+	if (!mOutfitEdit)
 		return;
 
-	mLookInfo->setVisible(visible);
+	mOutfitEdit->setVisible(visible);
 	if (mPanelOutfitsInventory) mPanelOutfitsInventory->setVisible(!visible);
 	mFilterEditor->setVisible(!visible);
 	mEditBtn->setVisible(!visible);
@@ -305,7 +305,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 
 void LLSidepanelAppearance::updateVerbs()
 {
-	bool is_look_info_visible = mLookInfo->getVisible();
+	bool is_look_info_visible = mOutfitEdit->getVisible();
 
 	if (mPanelOutfitsInventory && !is_look_info_visible)
 	{
@@ -344,7 +344,7 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 void LLSidepanelAppearance::editWearable(LLWearable *wearable, void *data)
 {
 	LLSidepanelAppearance *panel = (LLSidepanelAppearance*) data;
-	panel->toggleLookInfoPanel(FALSE);
+	panel->toggleOutfitEditPanel(FALSE);
 	panel->toggleWearableEditPanel(TRUE, wearable);
 }
 
@@ -358,11 +358,13 @@ void LLSidepanelAppearance::fetchInventory()
 	LLUUID item_id;
 	for(S32 type = (S32)WT_SHAPE; type < (S32)WT_COUNT; ++type)
 	{
-		// MULTI_WEARABLE:
-		item_id = gAgentWearables.getWearableItemID((EWearableType)type,0);
-		if(item_id.notNull())
+		for (U32 index = 0; index < gAgentWearables.getWearableCount((EWearableType)type); ++index)
 		{
-			ids.push_back(item_id);
+			item_id = gAgentWearables.getWearableItemID((EWearableType)type, index);
+			if(item_id.notNull())
+			{
+				ids.push_back(item_id);
+			}
 		}
 	}
 

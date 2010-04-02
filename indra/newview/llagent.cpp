@@ -44,7 +44,6 @@
 #include "llcallingcard.h"
 #include "llchannelmanager.h"
 #include "llconsole.h"
-//#include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 #include "llfloaterreg.h"
@@ -90,41 +89,18 @@ const BOOL ANIMATE = TRUE;
 const U8 AGENT_STATE_TYPING =	0x04;
 const U8 AGENT_STATE_EDITING =  0x10;
 
-//drone wandering constants
-const F32 MAX_WANDER_TIME = 20.f;						// seconds
-const F32 MAX_HEADING_HALF_ERROR = 0.2f;				// radians
-const F32 WANDER_MAX_SLEW_RATE = 2.f * DEG_TO_RAD;		// radians / frame
-const F32 WANDER_TARGET_MIN_DISTANCE = 10.f;			// meters
-
 // Autopilot constants
-const F32 AUTOPILOT_HEADING_HALF_ERROR = 10.f * DEG_TO_RAD;	// radians
-const F32 AUTOPILOT_MAX_SLEW_RATE = 1.f * DEG_TO_RAD;		// radians / frame
-const F32 AUTOPILOT_STOP_DISTANCE = 2.f;					// meters
 const F32 AUTOPILOT_HEIGHT_ADJUST_DISTANCE = 8.f;			// meters
 const F32 AUTOPILOT_MIN_TARGET_HEIGHT_OFF_GROUND = 1.f;	// meters
 const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS = 1.5f;		// seconds
 
-// face editing constants
-const LLVector3d FACE_EDIT_CAMERA_OFFSET(0.4f, -0.05f, 0.07f);
-const LLVector3d FACE_EDIT_TARGET_OFFSET(0.f, 0.f, 0.05f);
-
-const F32 METERS_PER_WHEEL_CLICK = 1.f;
-
-const F32 MAX_TIME_DELTA = 1.f;
+const F32 MAX_VELOCITY_AUTO_LAND_SQUARED = 4.f * 4.f;
+const F64 CHAT_AGE_FAST_RATE = 3.0;
 
 // fidget constants
 const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
-const S32 MAX_NUM_CHAT_POSITIONS = 10;
-
-const F32 MAX_VELOCITY_AUTO_LAND_SQUARED = 4.f * 4.f;
-
-const F32 MAX_FOCUS_OFFSET = 20.f;
-
-const F32 MIN_RADIUS_ALPHA_SIZZLE = 0.5f;
-
-const F64 CHAT_AGE_FAST_RATE = 3.0;
 
 // The agent instance.
 LLAgent gAgent;
@@ -217,13 +193,6 @@ LLAgent::LLAgent() :
 	mFrameAgent(),
 
 	mIsBusy(FALSE),
-
-	mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
-	mWalkKey(0), // like AtKey, but causes less forward thrust
-	mLeftKey(0),
-	mUpKey(0),
-	mYawKey(0.f),
-	mPitchKey(0.f),
 
 	mControlFlags(0x00000000),
 	mbFlagsDirty(FALSE),
@@ -339,7 +308,7 @@ void LLAgent::moveAt(S32 direction, bool reset)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mAtKey);
+	gAgentCamera.setAtKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -364,7 +333,7 @@ void LLAgent::moveAtNudge(S32 direction)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mWalkKey);
+	gAgentCamera.setWalkKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -386,7 +355,7 @@ void LLAgent::moveLeft(S32 direction)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mLeftKey);
+	gAgentCamera.setLeftKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -408,7 +377,7 @@ void LLAgent::moveLeftNudge(S32 direction)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mLeftKey);
+	gAgentCamera.setLeftKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -430,7 +399,7 @@ void LLAgent::moveUp(S32 direction)
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
 
-	setKey(direction, mUpKey);
+	gAgentCamera.setUpKey(LLAgentCamera::directionToKey(direction));
 
 	if (direction > 0)
 	{
@@ -449,7 +418,7 @@ void LLAgent::moveUp(S32 direction)
 //-----------------------------------------------------------------------------
 void LLAgent::moveYaw(F32 mag, bool reset_view)
 {
-	mYawKey = mag;
+	gAgentCamera.setYawKey(mag);
 
 	if (mag > 0)
 	{
@@ -471,7 +440,7 @@ void LLAgent::moveYaw(F32 mag, bool reset_view)
 //-----------------------------------------------------------------------------
 void LLAgent::movePitch(F32 mag)
 {
-	mPitchKey = mag;
+	gAgentCamera.setPitchKey(mag);
 
 	if (mag > 0)
 	{
@@ -1049,26 +1018,6 @@ LLQuaternion LLAgent::getQuat() const
 }
 
 //-----------------------------------------------------------------------------
-// setKey()
-//-----------------------------------------------------------------------------
-void LLAgent::setKey(const S32 direction, S32 &key)
-{
-	if (direction > 0)
-	{
-		key = 1;
-	}
-	else if (direction < 0)
-	{
-		key = -1;
-	}
-	else
-	{
-		key = 0;
-	}
-}
-
-
-//-----------------------------------------------------------------------------
 // getControlFlags()
 //-----------------------------------------------------------------------------
 U32 LLAgent::getControlFlags()
@@ -1537,20 +1486,20 @@ void LLAgent::propagate(const F32 dt)
 	LLFloaterMove *floater_move = LLFloaterReg::findTypedInstance<LLFloaterMove>("moveview");
 	if (floater_move)
 	{
-		floater_move->mForwardButton   ->setToggleState( mAtKey > 0 || mWalkKey > 0 );
-		floater_move->mBackwardButton  ->setToggleState( mAtKey < 0 || mWalkKey < 0 );
-		floater_move->mTurnLeftButton  ->setToggleState( mYawKey > 0.f );
-		floater_move->mTurnRightButton ->setToggleState( mYawKey < 0.f );
-		floater_move->mMoveUpButton    ->setToggleState( mUpKey > 0 );
-		floater_move->mMoveDownButton  ->setToggleState( mUpKey < 0 );
+		floater_move->mForwardButton   ->setToggleState( gAgentCamera.getAtKey() > 0 || gAgentCamera.getWalkKey() > 0 );
+		floater_move->mBackwardButton  ->setToggleState( gAgentCamera.getAtKey() < 0 || gAgentCamera.getWalkKey() < 0 );
+		floater_move->mTurnLeftButton  ->setToggleState( gAgentCamera.getYawKey() > 0.f );
+		floater_move->mTurnRightButton ->setToggleState( gAgentCamera.getYawKey() < 0.f );
+		floater_move->mMoveUpButton    ->setToggleState( gAgentCamera.getUpKey() > 0 );
+		floater_move->mMoveDownButton  ->setToggleState( gAgentCamera.getUpKey() < 0 );
 	}
 
 	// handle rotation based on keyboard levels
 	const F32 YAW_RATE = 90.f * DEG_TO_RAD;				// radians per second
-	yaw(YAW_RATE * mYawKey * dt);
+	yaw(YAW_RATE * gAgentCamera.getYawKey() * dt);
 
 	const F32 PITCH_RATE = 90.f * DEG_TO_RAD;			// radians per second
-	pitch(PITCH_RATE * mPitchKey * dt);
+	pitch(PITCH_RATE * gAgentCamera.getPitchKey() * dt);
 	
 	// handle auto-land behavior
 	if (isAgentAvatarValid())
@@ -1560,7 +1509,7 @@ void LLAgent::propagate(const F32 dt)
 		land_vel.mV[VZ] = 0.f;
 
 		if (!in_air 
-			&& mUpKey < 0 
+			&& gAgentCamera.getUpKey() < 0 
 			&& land_vel.magVecSquared() < MAX_VELOCITY_AUTO_LAND_SQUARED
 			&& gSavedSettings.getBOOL("AutomaticFly"))
 		{
@@ -1569,13 +1518,7 @@ void LLAgent::propagate(const F32 dt)
 		}
 	}
 
-	// clear keys
-	mAtKey = 0;
-	mWalkKey = 0;
-	mLeftKey = 0;
-	mUpKey = 0;
-	mYawKey = 0.f;
-	mPitchKey = 0.f;
+	gAgentCamera.clearGeneralKeys();
 }
 
 //-----------------------------------------------------------------------------
@@ -3260,9 +3203,9 @@ bool LLAgent::teleportCore(bool is_local)
 	// yet if the teleport will succeed.  Look in 
 	// process_teleport_location_reply
 
-	// close the map and find panels so we can see our destination
+	// close the map panel so we can see our destination.
+	// we don't close search floater, see EXT-5840.
 	LLFloaterReg::hideInstance("world_map");
-	LLFloaterReg::hideInstance("search");
 
 	// hide land floater too - it'll be out of date
 	LLFloaterReg::hideInstance("about_land");
@@ -3288,7 +3231,7 @@ bool LLAgent::teleportCore(bool is_local)
 	
 	// MBW -- Let the voice client know a teleport has begun so it can leave the existing channel.
 	// This was breaking the case of teleporting within a single sim.  Backing it out for now.
-//	gVoiceClient->leaveChannel();
+//	LLVoiceClient::getInstance()->leaveChannel();
 	
 	return true;
 }
@@ -3432,7 +3375,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 	if (mTeleportState == TELEPORT_MOVING)
 	{
 		// We're outa here. Save "back" slurl.
-		mTeleportSourceSLURL = LLAgentUI::buildSLURL();
+		LLAgentUI::buildSLURL(mTeleportSourceSLURL);
 	}
 	else if(mTeleportState == TELEPORT_ARRIVING)
 	{

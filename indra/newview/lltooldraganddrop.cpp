@@ -50,6 +50,7 @@
 #include "llhudeffecttrail.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
 #include "llmutelist.h"
 #include "llpreviewnotecard.h"
 #include "llrecentpeople.h"
@@ -411,9 +412,12 @@ void LLToolDragAndDrop::setDragStart(S32 x, S32 y)
 
 BOOL LLToolDragAndDrop::isOverThreshold(S32 x,S32 y)
 {
-	const S32 MIN_MANHATTAN_DIST = 3;
-	S32 manhattan_dist = llabs( x - mDragStartX ) + llabs( y - mDragStartY );
-	return manhattan_dist >= MIN_MANHATTAN_DIST;
+	static LLCachedControl<S32> drag_and_drop_threshold(gSavedSettings,"DragAndDropDistanceThreshold");
+	
+	S32 mouse_delta_x = x - mDragStartX;
+	S32 mouse_delta_y = y - mDragStartY;
+	
+	return (mouse_delta_x * mouse_delta_x) + (mouse_delta_y * mouse_delta_y) > drag_and_drop_threshold * drag_and_drop_threshold;
 }
 
 void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
