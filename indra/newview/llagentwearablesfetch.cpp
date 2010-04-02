@@ -54,7 +54,7 @@ void LLInitialWearablesFetch::done()
 	// gInventory.notifyObservers.  The results will be handled in the next
 	// idle tick instead.
 	gInventory.removeObserver(this);
-	doOnIdle(boost::bind(&LLInitialWearablesFetch::processContents,this));
+	doOnIdleOneTime(boost::bind(&LLInitialWearablesFetch::processContents,this));
 }
 
 void LLInitialWearablesFetch::add(InitialWearableData &data)
@@ -210,8 +210,8 @@ void LLLibraryOutfitsFetch::done()
 {
 	// Delay this until idle() routine, since it's a heavy operation and
 	// we also can't have it run within notifyObservers.
-	doOnIdle(boost::bind(&LLLibraryOutfitsFetch::doneIdle,this));
-	gInventory.removeObserver(this); // Prevent doOnIdle from being added twice.
+	doOnIdleOneTime(boost::bind(&LLLibraryOutfitsFetch::doneIdle,this));
+	gInventory.removeObserver(this); // Prevent doOnIdleOneTime from being added twice.
 }
 
 void LLLibraryOutfitsFetch::doneIdle()
@@ -254,7 +254,7 @@ void LLLibraryOutfitsFetch::doneIdle()
 	}
 }
 
-void LLLibraryOutfitsFetch::folderDone(void)
+void LLLibraryOutfitsFetch::folderDone()
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -295,7 +295,7 @@ void LLLibraryOutfitsFetch::folderDone(void)
 	}
 }
 
-void LLLibraryOutfitsFetch::outfitsDone(void)
+void LLLibraryOutfitsFetch::outfitsDone()
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -372,7 +372,7 @@ private:
 };
 
 // Copy the clothing folders from the library into the imported clothing folder
-void LLLibraryOutfitsFetch::libraryDone(void)
+void LLLibraryOutfitsFetch::libraryDone()
 {
 	if (mImportedClothingID != LLUUID::null)
 	{
@@ -427,7 +427,7 @@ void LLLibraryOutfitsFetch::libraryDone(void)
 	}
 }
 
-void LLLibraryOutfitsFetch::importedFolderFetch(void)
+void LLLibraryOutfitsFetch::importedFolderFetch()
 {
 	// Fetch the contents of the Imported Clothing Folder
 	uuid_vec_t folders;
@@ -442,7 +442,7 @@ void LLLibraryOutfitsFetch::importedFolderFetch(void)
 	}
 }
 
-void LLLibraryOutfitsFetch::importedFolderDone(void)
+void LLLibraryOutfitsFetch::importedFolderDone()
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -471,7 +471,7 @@ void LLLibraryOutfitsFetch::importedFolderDone(void)
 	}
 }
 
-void LLLibraryOutfitsFetch::contentsDone(void)
+void LLLibraryOutfitsFetch::contentsDone()
 {		
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
