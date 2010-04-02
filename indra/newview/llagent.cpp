@@ -3203,9 +3203,9 @@ bool LLAgent::teleportCore(bool is_local)
 	// yet if the teleport will succeed.  Look in 
 	// process_teleport_location_reply
 
-	// close the map and find panels so we can see our destination
+	// close the map panel so we can see our destination.
+	// we don't close search floater, see EXT-5840.
 	LLFloaterReg::hideInstance("world_map");
-	LLFloaterReg::hideInstance("search");
 
 	// hide land floater too - it'll be out of date
 	LLFloaterReg::hideInstance("about_land");
@@ -3231,7 +3231,7 @@ bool LLAgent::teleportCore(bool is_local)
 	
 	// MBW -- Let the voice client know a teleport has begun so it can leave the existing channel.
 	// This was breaking the case of teleporting within a single sim.  Backing it out for now.
-//	gVoiceClient->leaveChannel();
+//	LLVoiceClient::getInstance()->leaveChannel();
 	
 	return true;
 }
@@ -3375,7 +3375,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 	if (mTeleportState == TELEPORT_MOVING)
 	{
 		// We're outa here. Save "back" slurl.
-		mTeleportSourceSLURL = LLAgentUI::buildSLURL();
+		LLAgentUI::buildSLURL(mTeleportSourceSLURL);
 	}
 	else if(mTeleportState == TELEPORT_ARRIVING)
 	{

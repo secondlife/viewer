@@ -193,8 +193,8 @@ public:
 	// Static UI hooks
 	//--------------------------------------------------------------------
 public:
-	// MULTI-WEARABLE: assuming one wearable per type.  Need upstream changes.
-	static void		userRemoveWearable(EWearableType& type);
+	static void		userRemoveWearable(const EWearableType &type, const U32 &index);
+	static void		userRemoveWearablesOfType(const EWearableType &type);
 	static void		userRemoveAllClothes();	
 	
 	typedef std::vector<LLViewerObject*> llvo_vec_t;

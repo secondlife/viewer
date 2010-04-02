@@ -85,7 +85,6 @@
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
-#include "llurlsimstring.h"
 
 // newview includes
 #include "llagent.h"
@@ -799,7 +798,7 @@ BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK m
 BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = TRUE;
-	gVoiceClient->middleMouseState(true);
+	LLVoiceClient::getInstance()->middleMouseState(true);
  	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
@@ -826,20 +825,15 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 					
 				if (slurl_dnd_enabled)
 				{
-					
-					// special case SLURLs
-					// isValidSLURL() call was added here to make sure that dragged SLURL is valid (EXT-4964)
-					if ( LLSLURL::isSLURL( data ) && LLSLURL::isValidSLURL( data ) )
+					LLSLURL dropped_slurl(data);
+					if(dropped_slurl.isSpatial())
 					{
 						if (drop)
 						{
-							LLURLDispatcher::dispatch( data, NULL, true );
-							LLURLSimString::setStringRaw( LLSLURL::stripProtocol( data ) );
-							LLPanelLogin::refreshLocation( true );
-							LLPanelLogin::updateLocationUI();
+							LLURLDispatcher::dispatch( dropped_slurl.getSLURLString(), NULL, true );
+							return LLWindowCallbacks::DND_MOVE;
 						}
-						return LLWindowCallbacks::DND_MOVE;
-					};
+					}
 				}
 
 				if (prim_media_dnd_enabled)
@@ -957,7 +951,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
-	gVoiceClient->middleMouseState(false);
+	LLVoiceClient::getInstance()->middleMouseState(false);
  	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
@@ -1074,7 +1068,7 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 {
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
-	gVoiceClient->keyDown(key, mask);
+	LLVoiceClient::getInstance()->keyDown(key, mask);
 	
 	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
 	{
@@ -1096,7 +1090,7 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 {
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
-	gVoiceClient->keyUp(key, mask);
+	LLVoiceClient::getInstance()->keyUp(key, mask);
 
 	return FALSE;
 }
@@ -1955,7 +1949,7 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 
 		// ...and set the menu color appropriately.
 		setMenuBackgroundColor(gAgent.getGodLevel() > GOD_NOT, 
-			LLViewerLogin::getInstance()->isInProductionGrid());
+			LLGridManager::getInstance()->isInProductionGrid());
 	}
         
 	if ( gStatusBar )
@@ -1976,15 +1970,15 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
     LLSD args;
     LLColor4 new_bg_color;
 
-    if(god_mode && LLViewerLogin::getInstance()->isInProductionGrid())
+    if(god_mode && LLGridManager::getInstance()->isInProductionGrid())
     {
         new_bg_color = LLUIColorTable::instance().getColor( "MenuBarGodBgColor" );
     }
-    else if(god_mode && !LLViewerLogin::getInstance()->isInProductionGrid())
+    else if(god_mode && !LLGridManager::getInstance()->isInProductionGrid())
     {
         new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionGodBgColor" );
     }
-    else if(!god_mode && !LLViewerLogin::getInstance()->isInProductionGrid())
+    else if(!god_mode && !LLGridManager::getInstance()->isInProductionGrid())
     {
         new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
     }
@@ -2090,7 +2084,7 @@ void LLViewerWindow::draw()
 		// Draw tool specific overlay on world
 		LLToolMgr::getInstance()->getCurrentTool()->draw();
 
-		if( gAgentCamera.cameraMouselook() )
+		if( gAgentCamera.cameraMouselook() || LLFloaterCamera::inFreeCameraMode() )
 		{
 			drawMouselookInstructions();
 			stop_glerror();
@@ -2145,12 +2139,14 @@ void LLViewerWindow::draw()
 // Takes a single keydown event, usually when UI is visible
 BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 {
+	// hide tooltips on keypress
+	LLToolTipMgr::instance().blockToolTips();
+
 	if (gFocusMgr.getKeyboardFocus() 
 		&& !(mask & (MASK_CONTROL | MASK_ALT))
 		&& !gFocusMgr.getKeystrokesOnly())
 	{
 		// We have keyboard focus, and it's not an accelerator
-
 		if (key < 0x80)
 		{
 			// Not a special key, so likely (we hope) to generate a character.  Let it fall through to character handler first.
@@ -2158,68 +2154,48 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		}
 	}
 
-	// hide tooltips on keypress
-	LLToolTipMgr::instance().blockToolTips();
-	
-	// Explicit hack for debug menu.
-	if ((MASK_ALT & mask) &&
-		(MASK_CONTROL & mask) &&
-		('D' == key || 'd' == key))
+	// let menus handle navigation keys for navigation
+	if ((gMenuBarView && gMenuBarView->handleKey(key, mask, TRUE))
+		||(gLoginMenuBarView && gLoginMenuBarView->handleKey(key, mask, TRUE))
+		||(gMenuHolder && gMenuHolder->handleKey(key, mask, TRUE)))
 	{
-		toggle_debug_menus(NULL);
+		return TRUE;
 	}
 
-		// Explicit hack for debug menu.
-	if ((mask == (MASK_SHIFT | MASK_CONTROL)) &&
-		('G' == key || 'g' == key))
+	// give menus a chance to handle modified (Ctrl, Alt) shortcut keys before current focus 
+	// as long as focus isn't locked
+	if (mask & (MASK_CONTROL | MASK_ALT) && !gFocusMgr.focusLocked())
 	{
-		if  (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)  //on splash page
+		if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
+			||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
 		{
-			BOOL visible = ! gSavedSettings.getBOOL("ForceShowGrid");
-			gSavedSettings.setBOOL("ForceShowGrid", visible);
-
-			// Initialize visibility (and don't force visibility - use prefs)
-			LLPanelLogin::refreshLocation( false );
+			return TRUE;
 		}
 	}
 
-	// Debugging view for unified notifications: CTRL-SHIFT-5
-	// *FIXME: Having this special-cased right here (just so this can be invoked from the login screen) sucks.
-	if ((MASK_SHIFT & mask) 
-	    && (!(MASK_ALT & mask))
-	    && (MASK_CONTROL & mask)
-	    && ('5' == key))
+	// give floaters first chance to handle TAB key
+	// so frontmost floater gets focus
+	// if nothing has focus, go to first or last UI element as appropriate
+	if (key == KEY_TAB && (mask & MASK_CONTROL || gFocusMgr.getKeyboardFocus() == NULL))
 	{
-		//LLFloaterNotificationConsole::showInstance();
-		LLFloaterReg::showInstance("notifications_console");
+		if (gMenuHolder) gMenuHolder->hideMenus();
+
+		// if CTRL-tabbing (and not just TAB with no focus), go into window cycle mode
+		gFloaterView->setCycleMode((mask & MASK_CONTROL) != 0);
+
+		// do CTRL-TAB and CTRL-SHIFT-TAB logic
+		if (mask & MASK_SHIFT)
+		{
+			mRootView->focusPrevRoot();
+		}
+		else
+		{
+			mRootView->focusNextRoot();
+		}
 		return TRUE;
 	}
-
-	// handle escape key
-	//if (key == KEY_ESCAPE && mask == MASK_NONE)
-	//{
-
-		// *TODO: get this to play well with mouselook and hidden
-		// cursor modes, etc, and re-enable.
-		//if (gFocusMgr.getMouseCapture())
-		//{
-		//	gFocusMgr.setMouseCapture(NULL);
-		//	return TRUE;
-		//}
-	//}
-
-	// let menus handle navigation keys
-	if (gMenuBarView && gMenuBarView->handleKey(key, mask, TRUE))
-	{
-		return TRUE;
-	}
-	// let menus handle navigation keys
-	if (gLoginMenuBarView && gLoginMenuBarView->handleKey(key, mask, TRUE))
-	{
-		return TRUE;
-	}
-	//some of context menus use this container, let context menu handle navigation keys
-	if(gMenuHolder && gMenuHolder->handleKey(key, mask, TRUE))
+	// hidden edit menu for cut/copy/paste
+	if (gEditMenu && gEditMenu->handleAcceleratorKey(key, mask))
 	{
 		return TRUE;
 	}
@@ -2284,50 +2260,10 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		return TRUE;
 	}
 
-	// Topmost view gets a chance before the hierarchy
-	// *FIX: get rid of this?
-	//LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
-	//if (top_ctrl)
-	//{
-	//	if( top_ctrl->handleKey( key, mask, TRUE ) )
-	//	{
-	//		return TRUE;
-	//	}
-	//}
 
-	// give floaters first chance to handle TAB key
-	// so frontmost floater gets focus
-	if (key == KEY_TAB)
-	{
-		// if nothing has focus, go to first or last UI element as appropriate
-		if (mask & MASK_CONTROL || gFocusMgr.getKeyboardFocus() == NULL)
-		{
-			if (gMenuHolder) gMenuHolder->hideMenus();
-
-			// if CTRL-tabbing (and not just TAB with no focus), go into window cycle mode
-			gFloaterView->setCycleMode((mask & MASK_CONTROL) != 0);
-
-			// do CTRL-TAB and CTRL-SHIFT-TAB logic
-			if (mask & MASK_SHIFT)
-			{
-				mRootView->focusPrevRoot();
-			}
-			else
-			{
-				mRootView->focusNextRoot();
-			}
-			return TRUE;
-		}
-	}
-	
-	// give menus a chance to handle keys
-	if (gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
-	{
-		return TRUE;
-	}
-	
-	// give menus a chance to handle keys
-	if (gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask))
+	// give menus a chance to handle unmodified accelerator keys
+	if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
+		||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
 	{
 		return TRUE;
 	}

@@ -161,6 +161,14 @@ void LLAvatarActions::offerTeleport(const LLUUID& invitee)
 	if (invitee.isNull())
 		return;
 
+	//waiting until Name Cache gets updated with corresponding avatar name
+	std::string just_to_request_name;
+	if (!gCacheName->getFullName(invitee, just_to_request_name))
+	{
+		gCacheName->get(invitee, FALSE, boost::bind((void (*)(const LLUUID&)) &LLAvatarActions::offerTeleport, invitee));
+		return;
+	}
+
 	LLDynamicArray<LLUUID> ids;
 	ids.push_back(invitee);
 	offerTeleport(ids);
@@ -274,7 +282,7 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
 //static
 bool LLAvatarActions::canCall()
 {
-		return LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
+		return LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 }
 
 // static
@@ -433,6 +441,20 @@ void LLAvatarActions::toggleBlock(const LLUUID& id)
 	{
 		LLMuteList::getInstance()->add(mute);
 	}
+}
+// static
+bool LLAvatarActions::canOfferTeleport(const LLUUID& id)
+{
+	// First use LLAvatarTracker::isBuddy()
+	// If LLAvatarTracker::instance().isBuddyOnline function only is used
+	// then for avatars that are online and not a friend it will return false.
+	// But we should give an ability to offer a teleport for such avatars.
+	if(LLAvatarTracker::instance().isBuddy(id))
+	{
+		return LLAvatarTracker::instance().isBuddyOnline(id);
+	}
+
+	return true;
 }
 
 void LLAvatarActions::inviteToGroup(const LLUUID& id)

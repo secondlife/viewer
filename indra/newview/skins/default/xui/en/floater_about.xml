@@ -49,7 +49,7 @@ libcurl Version: [LIBCURL_VERSION]
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
 Qt Webkit Version: [QT_WEBKIT_VERSION]
-Vivox Version: [VIVOX_VERSION]
+Voice Server Version: [VOICE_VERSION]
 </floater.string>
   <floater.string
      name="none">
@@ -76,7 +76,7 @@ Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number
         allow_html="true" 
        follows="top|left"
        font="SansSerif"
-       height="350"
+       height="343"
        bg_readonly_color="Transparent"
        left="5"
        max_length="65536"

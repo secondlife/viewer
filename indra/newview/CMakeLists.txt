@@ -7,6 +7,7 @@ include(Boost)
 include(BuildVersion)
 include(DBusGlib)
 include(DirectX)
+include(OpenSSL)
 include(DragDrop)
 include(ELFIO)
 include(FMOD)
@@ -319,7 +320,6 @@ set(viewer_SOURCE_FILES
     llpanellandmedia.cpp
     llpanellogin.cpp
     llpanelloginlistener.cpp
-    llpanellookinfo.cpp
     llpanelmaininventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
@@ -328,6 +328,7 @@ set(viewer_SOURCE_FILES
     llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
+    llpaneloutfitedit.cpp
     llpaneloutfitsinventory.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
@@ -371,6 +372,8 @@ set(viewer_SOURCE_FILES
     llscrollingpanelparam.cpp
     llsearchcombobox.cpp
     llsearchhistory.cpp
+    llsecapi.cpp
+    llsechandler_basic.cpp
     llselectmgr.cpp
     llsidepanelappearance.cpp
     llsidepanelinventory.cpp
@@ -445,7 +448,6 @@ set(viewer_SOURCE_FILES
     llurldispatcherlistener.cpp
     llurlhistory.cpp
     llurllineeditorctrl.cpp
-    llurlsimstring.cpp
     llurlwhitelist.cpp
     llvectorperfoptions.cpp
     llversioninfo.cpp
@@ -512,7 +514,9 @@ set(viewer_SOURCE_FILES
     llvoground.cpp
     llvoicechannel.cpp
     llvoiceclient.cpp
+    llvoicedw.cpp
     llvoicevisualizer.cpp
+    llvoicevivox.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -818,7 +822,6 @@ set(viewer_HEADER_FILES
     llpanellandmedia.h
     llpanellogin.h
     llpanelloginlistener.h
-    llpanellookinfo.h
     llpanelmaininventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
@@ -827,6 +830,7 @@ set(viewer_HEADER_FILES
     llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h
+    llpaneloutfitedit.h
     llpaneloutfitsinventory.h
     llpanelpeople.h
     llpanelpeoplemenus.h
@@ -872,6 +876,8 @@ set(viewer_HEADER_FILES
     llscrollingpanelparam.h
     llsearchcombobox.h
     llsearchhistory.h
+    llsecapi.h
+    llsechandler_basic.h
     llselectmgr.h
     llsidepanelappearance.h
     llsidepanelinventory.h
@@ -948,7 +954,6 @@ set(viewer_HEADER_FILES
     llurldispatcherlistener.h
     llurlhistory.h
     llurllineeditorctrl.h
-    llurlsimstring.h
     llurlwhitelist.h
     llvectorperfoptions.h
     llversioninfo.h
@@ -1012,7 +1017,9 @@ set(viewer_HEADER_FILES
     llvoground.h
     llvoicechannel.h
     llvoiceclient.h
+    llvoicedw.h
     llvoicevisualizer.h
+    llvoicevivox.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -1403,8 +1410,8 @@ if (WINDOWS)
         ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
         ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
         )
-    endif(USE_GOOGLE_PERFTOOLS)
-  
+     endif(USE_GOOGLE_PERFTOOLS)
+ 
 
     set(COPY_INPUT_DEPENDECIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
@@ -1621,6 +1628,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${WINDOWS_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
     ${ELFIO_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
@@ -1797,6 +1806,43 @@ if (LL_TESTS)
     "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
     )
 
+  set(test_libs 
+    ${LLMESSAGE_LIBRARIES} 
+    ${WINDOWS_LIBRARIES} 
+    ${LLVFS_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLCOMMON_LIBRARIES} 
+    ${GOOGLEMOCK_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
+  )
+
+    LL_ADD_INTEGRATION_TEST(llsechandler_basic
+     llsechandler_basic.cpp
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llsecapi
+     llsecapi.cpp
+    "${test_libs}"
+    )
+
+  set(llslurl_test_sources
+      llslurl.cpp
+      llviewernetwork.cpp
+  )
+
+
+  LL_ADD_INTEGRATION_TEST(llslurl
+     "${llslurl_test_sources}"
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llviewernetwork
+     llviewernetwork.cpp
+    "${test_libs}"
+    )
+
   #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
   #ADD_VIEWER_BUILD_TEST(llworldmap viewer)
@@ -1804,6 +1850,7 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
   #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
+
 endif (LL_TESTS)
 
 

@@ -1573,9 +1573,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 	payload["give_inventory_notification"] = FALSE;
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
-	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	args["NAME_SLURL"] = LLSLURL("agent", info->mFromID, "about").getSLURLString();
 	std::string verb = "select?name=" + LLURI::escape(msg);
-	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
+	args["ITEM_SLURL"] = LLSLURL("inventory", info->mObjectID, verb.c_str()).getSLURLString();
 
 	LLNotification::Params p("ObjectGiveItem");
 
@@ -1685,6 +1685,18 @@ bool inspect_remote_object_callback(const LLSD& notification, const LLSD& respon
 }
 static LLNotificationFunctorRegistration inspect_remote_object_callback_reg("ServerObjectMessage", inspect_remote_object_callback);
 
+class LLPostponedServerObjectNotification: public LLPostponedNotification
+{
+protected:
+	/* virtual */
+	void modifyNotificationParams()
+	{
+		LLSD payload = mParams.payload;
+		payload["SESSION_NAME"] = mName;
+		mParams.payload = payload;
+	}
+};
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -1754,17 +1766,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	std::string separator_string(": ");
 
 	LLSD args;
+	LLSD payload;
 	switch(dialog)
 	{
 	case IM_CONSOLE_AND_CHAT_HISTORY:
-		// These are used for system messages, hence don't need the name,
-		// as it is always "Second Life".
 	  	// *TODO: Translate
 		args["MESSAGE"] = message;
-
-		// Note: don't put the message in the IM history, even though was sent
-		// via the IM mechanism.
-		LLNotificationsUtil::add("SystemMessageTip",args);
+		payload["SESSION_NAME"] = name;
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add("IMSystemMessageTip",args, payload);
 		break;
 
 	case IM_NOTHING_SPECIAL: 
@@ -1987,7 +1997,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// For requested notices, we don't want to send the popups.
 			if (dialog != IM_GROUP_NOTICE_REQUESTED)
 			{
-				LLSD payload;
 				payload["subject"] = subj;
 				payload["message"] = mes;
 				payload["sender_name"] = name;
@@ -2223,7 +2232,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			if(SYSTEM_FROM == name)
 			{
 				// System's UUID is NULL (fixes EXT-4766)
-				chat.mFromID = from_id = LLUUID::null;
+				chat.mFromID = LLUUID::null;
 			}
 
 			LLSD query_string;
@@ -2235,10 +2244,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				query_string["groupowned"] = "true";
 			}	
 
-			std::ostringstream link;
-			link << "secondlife:///app/objectim/" << session_id << LLURI::mapToQueryString(query_string);
-
-			chat.mURL = link.str();
+			chat.mURL = LLSLURL("objectim", session_id, "").getSLURLString();
 			chat.mText = message;
 			chat.mSourceType = CHAT_SOURCE_OBJECT;
 
@@ -2269,13 +2275,16 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			payload["slurl"] = location;
 			payload["name"] = name;
 			std::string session_name;
-			gCacheName->getFullName(from_id, session_name);
-			payload["SESSION_NAME"] = session_name;
 			if (from_group)
 			{
 				payload["group_owned"] = "true";
 			}
-			LLNotificationsUtil::add("ServerObjectMessage", substitutions, payload);
+
+			LLNotification::Params params("ServerObjectMessage");
+			params.substitutions = substitutions;
+			params.payload = payload;
+
+			LLPostponedNotification::add<LLPostponedServerObjectNotification>(params, from_id, false);
 		}
 		break;
 	case IM_FROM_TASK_AS_ALERT:
@@ -2318,7 +2327,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				LLSD args;
 				// *TODO: Translate -> [FIRST] [LAST] (maybe)
-				args["NAME"] = name;
+				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
 				args["MESSAGE"] = message;
 				LLSD payload;
 				payload["from_id"] = from_id;
@@ -2384,7 +2393,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				args["[NAME]"] = name;
+				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
 				if(message.empty())
 				{
 					//support for frienship offers from clients before July 2008
@@ -3143,7 +3152,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			// Chat the "back" SLURL. (DEV-4907)
 
-			LLSD substitution = LLSD().with("[T_SLURL]", gAgent.getTeleportSourceSLURL());
+			LLSLURL slurl;
+			gAgent.getTeleportSourceSLURL(slurl);
+			LLSD substitution = LLSD().with("[T_SLURL]", slurl.getSLURLString());
 			std::string completed_from = LLAgent::sTeleportProgressMessages["completed_from"];
 			LLStringUtil::format(completed_from, substitution);
 
@@ -5536,7 +5547,9 @@ void send_group_notice(const LLUUID& group_id,
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string text = response["message"].asString();
-	text.append("\r\n").append(LLAgentUI::buildSLURL());
+	LLSLURL slurl;
+	LLAgentUI::buildSLURL(slurl);
+	text.append("\r\n").append(slurl.getSLURLString());
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(0 == option)
@@ -5590,6 +5603,10 @@ void handle_lure(const LLUUID& invitee)
 // Prompt for a message to the invited user.
 void handle_lure(const uuid_vec_t& ids)
 {
+	if (ids.empty()) return;
+
+	if (!gAgent.getRegion()) return;
+
 	LLSD edit_args;
 	edit_args["REGION"] = gAgent.getRegion()->getName();
 
@@ -5975,7 +5992,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	std::string owner_name =
-		LLSLURL::buildCommand("agent", estate_owner_id, "inspect");
+		LLSLURL("agent", estate_owner_id, "inspect").getSLURLString();
 	LLPanelEstateCovenant::updateEstateOwnerName(owner_name);
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);

@@ -48,52 +48,31 @@ auto_resize="false"
 follows="left|bottom"
 name="login"
 layout="topleft"
-width="695"
-min_width="695"
+width="850"
+min_width="850"
 user_resize="false"
 height="80">
 <text
 follows="left|bottom"
 font="SansSerifSmall"
 height="16"
-name="first_name_text"
+name="username_text"
 top="20"
 left="20"
 width="150">
-First name:
+Username:
 </text>
 <line_editor
 follows="left|bottom"
-handle_edit_keys_directly="true"
 height="22"
-label="First"
+label="Username"
 left_delta="0"
 max_length="31"
-name="first_name_edit"
+name="username_edit"
 select_on_focus="true"
-tool_tip="[SECOND_LIFE] First Name"
+tool_tip="[SECOND_LIFE] Username"
 top_pad="0"
-   width="135" />
-  <text
-   follows="left|bottom"
-   font="SansSerifSmall"
-   height="16"
-   left_pad="8"
-   name="last_name_text"
-   top="20"
-   width="150">
-    Last name:   </text>
-<line_editor
-follows="left|bottom"
-handle_edit_keys_directly="true"
-height="22"
-label="Last"
-max_length="31"
-name="last_name_edit"
-select_on_focus="true"
-tool_tip="[SECOND_LIFE] Last Name"
-  top_pad="0"
-  width="135" />
+width="150" />
 <text
 follows="left|bottom"
 font="SansSerifSmall"
@@ -101,12 +80,11 @@ height="15"
 left_pad="8"
 name="password_text"
 top="20"
-    width="150">
+    width="135">
        Password:
 </text>
 <line_editor
 follows="left|bottom"
-handle_edit_keys_directly="true"
   height="22"
   max_length="16"
 name="password_edit"
@@ -122,8 +100,38 @@ label="Remember password"
   top_pad="3"
   name="remember_check"
  width="135" />
-<button
+  <text
   follows="left|bottom"
+  font="SansSerifSmall"
+  height="15"
+  left_pad="10"
+  name="start_location_text"
+top="20"
+  width="250">
+       Start at:
+ </text>
+<combo_box
+allow_text_entry="true"
+control_name="LoginLocation"
+  follows="left|bottom"
+  height="23"
+max_chars="128"
+top_pad="0"
+name="start_location_combo"
+     width="250">
+<combo_box.item
+label="My last location"
+name="MyLastLocation"
+         value="last" />
+<combo_box.item
+label="My home"
+name="MyHome"
+         value="home" />
+<combo_box.item
+label="&lt;Type region name&gt;"
+name="Typeregionname"   value="" />
+</combo_box>
+<button
   height="23"
   image_unselected="PushButton_On"
   image_selected="PushButton_On_Selected"
@@ -138,43 +146,22 @@ label="Remember password"
   follows="left|bottom"
   font="SansSerifSmall"
   height="15"
-  left_pad="18"
+  left_pad="10"
   name="start_location_text"
 top="20"
-  width="130">
-       Start at:
+  width="150">
+       Grid Name:
  </text>
 <combo_box
-allow_text_entry="true"
-control_name="LoginLocation"
-  follows="left|bottom"
-  height="23"
-max_chars="128"
-top_pad="0"
-name="start_location_combo"
-     width="135">
-<combo_box.item
-label="My last location"
-name="MyLastLocation"
-         value="last" />
-<combo_box.item
-label="My home"
-name="MyHome"
-         value="home" />
-<combo_box.item
-label="&lt;Type region name&gt;"
-name="Typeregionname"   value="" />
-</combo_box>
-<combo_box
+follows="left|bottom"
 allow_text_entry="true"
 font="SansSerifSmall"
-   follows="left|right|bottom"
-   height="23"
-layout="topleft"
-top_pad="2"
+height="23"
 name="server_combo"
-width="135"
-  visible="false" />
+top_pad="0"
+width="150"
+max_chars="255"
+visible="false" />
 </layout_panel>
 <layout_panel
 follows="right|bottom"

@@ -66,6 +66,11 @@ public:
 	static void show(const LLUUID& group_id);
 
 	/**
+	 * Show group inspector floater.
+	 */
+	static void inspect(const LLUUID& group_id);
+
+	/**
 	 * Refresh group information panel.
 	 */
 	static void refresh(const LLUUID& group_id);

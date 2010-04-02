@@ -226,6 +226,11 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 		return (LLAvatarTracker::instance().isBuddyOnline(id) && is_agent_mappable(id))
 					|| gAgent.isGodlike();
 	}
+	else if(item == std::string("can_offer_teleport"))
+	{
+		const LLUUID& id = mUUIDs.front();
+		return LLAvatarActions::canOfferTeleport(id);
+	}
 	return false;
 }
 

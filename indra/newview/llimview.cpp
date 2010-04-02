@@ -81,6 +81,9 @@ const static std::string ADHOC_NAME_SUFFIX(" Conference");
 const static std::string NEARBY_P2P_BY_OTHER("nearby_P2P_by_other");
 const static std::string NEARBY_P2P_BY_AGENT("nearby_P2P_by_agent");
 
+/** Timeout of outgoing session initialization (in seconds) */
+const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
+
 std::string LLCallDialogManager::sPreviousSessionlName = "";
 LLIMModel::LLIMSession::SType LLCallDialogManager::sPreviousSessionType = LLIMModel::LLIMSession::P2P_SESSION;
 std::string LLCallDialogManager::sCurrentSessionlName = "";
@@ -91,6 +94,19 @@ const LLUUID LLOutgoingCallDialog::OCD_KEY = LLUUID("7CF78E11-0CFE-498D-ADB9-141
 // Globals
 //
 LLIMMgr* gIMMgr = NULL;
+
+
+BOOL LLSessionTimeoutTimer::tick()
+{
+	if (mSessionId.isNull()) return TRUE;
+
+	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionId);
+	if (session && !session->mSessionInitialized)
+	{
+		gIMMgr->showSessionStartError("session_initialization_timed_out_error", mSessionId);
+	}
+	return TRUE;
+}
 
 void toast_callback(const LLSD& msg){
 	// do not show toast in busy mode or it goes from agent
@@ -215,6 +231,11 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		//so we're already initialized
 		mSessionInitialized = true;
 	}
+	else
+	{
+		//tick returns TRUE - timer will be deleted after the tick
+		new LLSessionTimeoutTimer(mSessionID, SESSION_INITIALIZATION_TIMEOUT);
+	}
 
 	if (IM_NOTHING_SPECIAL == type)
 	{
@@ -323,13 +344,13 @@ LLIMModel::LLIMSession::~LLIMSession()
 	mSpeakers = NULL;
 
 	// End the text IM session if necessary
-	if(gVoiceClient && mOtherParticipantID.notNull())
+	if(LLVoiceClient::getInstance() && mOtherParticipantID.notNull())
 	{
 		switch(mType)
 		{
 		case IM_NOTHING_SPECIAL:
 		case IM_SESSION_P2P_INVITE:
-			gVoiceClient->endUserIMSession(mOtherParticipantID);
+			LLVoiceClient::getInstance()->endUserIMSession(mOtherParticipantID);
 			break;
 
 		default:
@@ -904,7 +925,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 	if((offline == IM_OFFLINE) && (LLVoiceClient::getInstance()->isOnlineSIP(other_participant_id)))
 	{
 		// User is online through the OOW connector, but not with a regular viewer.  Try to send the message via SLVoice.
-		sent = gVoiceClient->sendTextMessage(other_participant_id, utf8_text);
+		sent = LLVoiceClient::getInstance()->sendTextMessage(other_participant_id, utf8_text);
 	}
 	
 	if(!sent)
@@ -1539,6 +1560,11 @@ LLCallDialog::LLCallDialog(const LLSD& payload)
 	setDocked(true);
 }
 
+LLCallDialog::~LLCallDialog()
+{
+	LLUI::removePopup(this);
+}
+
 void LLCallDialog::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRectScaled();
@@ -1592,7 +1618,7 @@ void LLCallDialog::onOpen(const LLSD& key)
 	LLDockableFloater::onOpen(key);
 
 	// it should be over the all floaters. EXT-5116
-	gFloaterView->bringToFront(this, FALSE);
+	LLUI::addPopup(this);
 }
 
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
@@ -1691,7 +1717,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 
 		// skipping "You will now be reconnected to nearby" in notification when call is ended by disabling voice,
 		// so no reconnection to nearby chat happens (EXT-4397)
-		bool voice_works = LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
+		bool voice_works = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 		std::string reconnect_nearby = voice_works ? LLTrans::getString("reconnect_nearby") : std::string();
 		childSetTextArg("nearby", "[RECONNECT_NEARBY]", reconnect_nearby);
 
@@ -1817,7 +1843,11 @@ LLCallDialog(payload)
 void LLIncomingCallDialog::onLifetimeExpired()
 {
 	// check whether a call is valid or not
-	if (LLVoiceClient::getInstance()->findSession(mPayload["caller_id"].asUUID()))
+	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mPayload["session_id"].asUUID());
+	if(channelp &&
+	   (channelp->getState() != LLVoiceChannel::STATE_NO_CHANNEL_INFO) &&
+	   (channelp->getState() != LLVoiceChannel::STATE_ERROR) &&
+	   (channelp->getState() != LLVoiceChannel::STATE_HUNG_UP))
 	{
 		// restart notification's timer if call is still valid
 		mLifetimeTimer.start();
@@ -2051,10 +2081,10 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 	{
 		if (type == IM_SESSION_P2P_INVITE)
 		{
-			if(gVoiceClient)
+			if(LLVoiceClient::getInstance())
 			{
 				std::string s = mPayload["session_handle"].asString();
-				gVoiceClient->declineInvite(s);
+				LLVoiceClient::getInstance()->declineInvite(s);
 			}
 		}
 		else
@@ -2142,11 +2172,8 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 	{
 		if (type == IM_SESSION_P2P_INVITE)
 		{
-			if(gVoiceClient)
-			{
-				std::string s = payload["session_handle"].asString();
-				gVoiceClient->declineInvite(s);
-			}
+		  std::string s = payload["session_handle"].asString();
+		  LLVoiceClient::getInstance()->declineInvite(s);
 		}
 		else
 		{
@@ -3052,7 +3079,7 @@ public:
 				return;
 			}
 			
-			if(!LLVoiceClient::voiceEnabled())
+			if(!LLVoiceClient::getInstance()->voiceEnabled())
 			{
 				// Don't display voice invites unless the user has voice enabled.
 				return;

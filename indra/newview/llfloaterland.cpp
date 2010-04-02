@@ -42,7 +42,6 @@
 #include "llnotificationsutil.h"
 #include "llparcel.h"
 #include "message.h"
-#include "lluserauth.h"
 
 #include "llagent.h"
 #include "llbutton.h"
@@ -804,7 +803,7 @@ void LLPanelLandGeneral::refreshNames()
 	else
 	{
 		// Figure out the owner's name
-		owner = LLSLURL::buildCommand("agent", parcel->getOwnerID(), "inspect");
+		owner = LLSLURL("agent", parcel->getOwnerID(), "inspect").getSLURLString();
 	}
 
 	if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
@@ -816,7 +815,7 @@ void LLPanelLandGeneral::refreshNames()
 	std::string group;
 	if (!parcel->getGroupID().isNull())
 	{
-		group = LLSLURL::buildCommand("group", parcel->getGroupID(), "inspect");
+		group = LLSLURL("group", parcel->getGroupID(), "inspect").getSLURLString();
 	}
 	mTextGroup->setText(group);
 
@@ -825,9 +824,9 @@ void LLPanelLandGeneral::refreshNames()
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
 		if(auth_buyer_id.notNull())
 		{
-			std::string name;
-			name = LLSLURL::buildCommand("agent", auth_buyer_id, "inspect");
-			mSaleInfoForSale2->setTextArg("[BUYER]", name);
+		  std::string name;
+		  name = LLSLURL("agent", auth_buyer_id, "inspect").getSLURLString();
+		  mSaleInfoForSale2->setTextArg("[BUYER]", name);
 		}
 		else
 		{
@@ -1612,7 +1611,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		item_params.columns.add().value(object_count_str).font(FONT).column("count");
 		item_params.columns.add().value(LLDate((time_t)most_recent_time)).font(FONT).column("mostrecent").type("date");
 
-		self->mOwnerList->addRow(item_params);
+		self->mOwnerList->addNameItemRow(item_params);
 
 		lldebugs << "object owner " << owner_id << " (" << (is_group_owned ? "group" : "agent")
 				<< ") owns " << object_count << " objects." << llendl;

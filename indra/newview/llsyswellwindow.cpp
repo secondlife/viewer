@@ -58,7 +58,8 @@ LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(N
 													mSysWellChiclet(NULL),
 													mSeparator(NULL),
 													NOTIFICATION_WELL_ANCHOR_NAME("notification_well_panel"),
-													IM_WELL_ANCHOR_NAME("im_well_panel")
+													IM_WELL_ANCHOR_NAME("im_well_panel"),
+													mIsReshapedByUser(false)
 
 {
 	mTypedItemsCount[IT_NOTIFICATION] = 0;
@@ -97,6 +98,13 @@ BOOL LLSysWellWindow::postBuild()
 void LLSysWellWindow::setMinimized(BOOL minimize)
 {
 	LLTransientDockableFloater::setMinimized(minimize);
+}
+
+//---------------------------------------------------------------------------------
+void LLSysWellWindow::handleReshape(const LLRect& rect, bool by_user)
+{
+	mIsReshapedByUser |= by_user; // mark floater that it is reshaped by user
+	LLTransientDockableFloater::handleReshape(rect, by_user);
 }
 
 //---------------------------------------------------------------------------------
@@ -211,7 +219,7 @@ void LLSysWellWindow::reshapeWindow()
 	// it includes height from floater top to list top and from floater bottom and list bottom
 	static S32 parent_list_delta_height = getRect().getHeight() - mMessageList->getRect().getHeight();
 
-	if (isDocked()) // Don't reshape undocked Well window. See EXT-5715.
+	if (!mIsReshapedByUser) // Don't reshape Well window, if it ever was reshaped by user. See EXT-5715.
 	{
 		S32 notif_list_height = mMessageList->getItemsRect().getHeight() + 2 * mMessageList->getBorderWidth();
 
