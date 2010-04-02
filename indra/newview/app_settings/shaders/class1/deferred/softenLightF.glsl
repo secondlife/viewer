@@ -282,7 +282,8 @@ void main()
 	{
 		// the old infinite-sky shiny reflection
 		//
-		vec3 refnorm = normalize(reflect(pos.xyz, norm.xyz));
+		vec3 refnorm = normalize(reflect(vec3(0,0,-1), norm.xyz));
+		//vec3 refnorm = normalize(reflect(pos.xyz, norm.xyz));
 		float sa = dot(refnorm, vary_light.xyz);
 		vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*texture2D(lightFunc, vec2(sa, spec.a)).a;
 
