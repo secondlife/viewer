@@ -122,7 +122,7 @@
 		label="Edit Outfit" 
 		layout="topleft"
         right="-140"
-		name="look_edit_btn"
+		name="edit_current_outfit_btn"
         top="26"
         visible="false" 
 		width="50" />
