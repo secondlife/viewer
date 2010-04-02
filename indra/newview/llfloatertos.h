@@ -66,9 +66,14 @@ public:
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
 private:
+
+	void			loadIfNeeded();
+	
 	std::string		mMessage;
 	int				mWebBrowserWindowId;
-	int				mLoadCompleteCount;
+	bool			mLoadingScreenLoaded;
+	bool			mSiteAlive;
+	bool			mRealNavigateBegun;
 	std::string		mReplyPumpName;
 };
 
