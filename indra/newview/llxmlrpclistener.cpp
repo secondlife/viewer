@@ -28,6 +28,7 @@
 #include "llerror.h"
 #include "stringize.h"
 #include "llxmlrpctransaction.h"
+#include "llsecapi.h"
 
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
@@ -356,7 +357,22 @@ public:
                                      << data["errorcode"].asString()
                                      << " (" << data["error"].asString() << ")"
                                      << LL_ENDL;
-        // In addition to CURLE_OK, LLUserAuth distinguishes different error
+		
+		switch (curlcode)
+		{
+			case CURLE_SSL_PEER_CERTIFICATE:
+			case CURLE_SSL_CACERT:
+			{
+				LLPointer<LLCertificate> error_cert(mTransaction->getErrorCert());
+				if(error_cert)
+				{
+					data["certificate"] = error_cert->getPem();
+				}
+				break;
+			}
+			default:
+				break;
+		}
         // values of 'curlcode':
         // CURLE_COULDNT_RESOLVE_HOST,
         // CURLE_SSL_PEER_CERTIFICATE,

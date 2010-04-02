@@ -1914,7 +1914,12 @@ void LLUI::clearPopups()
 	}
 }
 
-
+//static
+void LLUI::reportBadKeystroke()
+{
+	make_ui_sound("UISndBadKeystroke");
+}
+	
 //static
 // spawn_x and spawn_y are top left corner of view in screen GL coordinates
 void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)

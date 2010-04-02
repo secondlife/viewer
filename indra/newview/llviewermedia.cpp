@@ -1473,11 +1473,6 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 //////////////////////////////////////////////////////////////////////////////////////////
 LLViewerMediaImpl::~LLViewerMediaImpl()
 {
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
-	
 	destroyMediaSource();
 	
 	LLViewerMediaTexture::removeMediaImplFromTexture(mTextureId) ;

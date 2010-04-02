@@ -276,11 +276,6 @@ LLFolderView::~LLFolderView( void )
 	mRenamer = NULL;
 	mStatusTextBox = NULL;
 
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
-
 	mAutoOpenItems.removeAllNodes();
 	gIdleCallbacks.deleteFunction(idle, this);
 
