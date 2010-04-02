@@ -317,6 +317,8 @@ void main()
 		float reflit = max(dot(refn, reflight.xyz), 0.0);
 		// apply sun color to guess-point, dampen according to inappropriateness of guess
 		vec3 refprod = (vary_SunlitColor*reflit) * refcol.rgb * refapprop;
+		float refmod = min(refapprop, reflit);
+		vec3 refprod = vary_SunlitColor * refcol.rgb * refmod;
 		vec3 ssshiny = (refprod * spec.a);
 
 		// add the two types of shiny together
