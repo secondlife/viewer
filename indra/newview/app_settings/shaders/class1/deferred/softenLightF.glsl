@@ -310,8 +310,11 @@ void main()
 		// darken reflections from points which face away from the reflected ray - our guess was a back-face
 		//refapprop *= step(dot(refnorm, refn), 0.0);
 		refapprop = min(refapprop, max(0.0, -dot(refnorm, refn))); // more conservative variant
-		// get appropriate light strength for guess-point
-		float reflit = max(dot(refn, lightnorm.xyz), 0.0);
+		// get appropriate light strength for guess-point.
+		// reflect light direction to increase the illusion that
+		// these are reflections.
+		vec3 reflight = reflect(lightnorm.xyz, norm.xyz);
+		float reflit = max(dot(refn, reflight.xyz), 0.0);
 		// apply sun color to guess-point, dampen according to inappropriateness of guess
 		vec3 refprod = (vary_SunlitColor*reflit) * refcol.rgb * refapprop;
 		vec3 ssshiny = (refprod * spec.a);
