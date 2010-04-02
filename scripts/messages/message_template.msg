@@ -6818,9 +6818,10 @@ version 2.0
 	{
 		TransactionInfo		Single
 		{	TransactionType			S32			}	// lltransactiontype.h
-		{	TransactionFlags		U32			}	// lltransactionflags.h
 		{	SourceID				LLUUID		}
+		{	IsSourceGroup			BOOL		}
 		{	DestID					LLUUID		}
+		{	IsDestGroup				BOOL		}
 		{	Amount					S32			}
 		{	ItemDescription			Variable 1	}	// string
 	}
@@ -6854,9 +6855,10 @@ version 2.0
 	{
 		TransactionInfo		Single
 		{	TransactionType			S32			}	// lltransactiontype.h
-		{	TransactionFlags		U32			}	// lltransactionflags.h
 		{	SourceID				LLUUID		}
+		{	IsSourceGroup			BOOL		}
 		{	DestID					LLUUID		}
+		{	IsDestGroup				BOOL		}
 		{	Amount					S32			}
 		{	ItemDescription			Variable 1	}	// string
 	}

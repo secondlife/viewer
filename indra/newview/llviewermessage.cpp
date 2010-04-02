@@ -4613,20 +4613,23 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
     // Added in server 1.40 and viewer 2.1, support for localization
     // and agent ids for name lookup.
     S32 transaction_type = 0;
-    U32 transaction_flags = 0;
     LLUUID source_id;
+	BOOL is_source_group = FALSE;
     LLUUID dest_id;
+	BOOL is_dest_group = FALSE;
     S32 amount = 0;
     std::string item_description;
     if (msg->has("TransactionInfo"))
     {
         msg->getS32("TransactionInfo", "TransactionType", transaction_type);
-        msg->getU32("TransactionInfo", "TransactionFlags", transaction_flags);
         msg->getUUID("TransactionInfo", "SourceID", source_id);
+		msg->getBOOL("TransactionInfo", "IsSourceGroup", is_source_group);
         msg->getUUID("TransactionInfo", "DestID", dest_id);
+		msg->getBOOL("TransactionInfo", "IsDestGroup", is_dest_group);
         msg->getS32("TransactionInfo", "Amount", amount);
         msg->getString("TransactionInfo", "ItemDescription", item_description);
-        llinfos << "JAMESDEBUG ItemDescription " << item_description << llendl;
+        llinfos << "JAMESDEBUG money_balance_reply source " << source_id 
+			<< " item " << item_description << llendl;
     }
     
 	if (gStatusBar)
