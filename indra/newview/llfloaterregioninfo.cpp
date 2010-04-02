@@ -2922,8 +2922,7 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	LLUUID owner_id(strings[1]);
 	regionp->setOwner(owner_id);
 	// Update estate owner name in UI
-	std::string owner_name =
-		LLSLURL::buildCommand("agent", owner_id, "inspect");
+	std::string owner_name = LLSLURL("agent", owner_id, "inspect").getSLURLString();
 	panel->setOwnerName(owner_name);
 
 	U32 estate_id = strtoul(strings[2].c_str(), NULL, 10);
