@@ -745,7 +745,7 @@ std::string LLUrlEntryWorldMap::getLabel(const std::string &url, const LLUrlLabe
 	}
 
 	const std::string label = LLTrans::getString("SLurlLabelShowOnMap");
-	std::string location = path_array[2];
+	std::string location = unescapeUrl(path_array[2]);
 	std::string x = (path_parts > 3) ? path_array[3] : "128";
 	std::string y = (path_parts > 4) ? path_array[4] : "128";
 	std::string z = (path_parts > 5) ? path_array[5] : "0";
