@@ -325,10 +325,10 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 //	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
 	mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
 	mCurlRequest->setWriteCallback(&curlDownloadCallback, (void*)this);
-	BOOL vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
+	BOOL verifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
 	mCertStore = gSavedSettings.getString("CertStore");
-	mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, vefifySSLCert);
-	mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, vefifySSLCert ? 2 : 0);
+	mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, verifySSLCert);
+	mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, verifySSLCert ? 2 : 0);
 	// Be a little impatient about establishing connections.
 	mCurlRequest->setopt(CURLOPT_CONNECTTIMEOUT, 40L);
 	mCurlRequest->setSSLCtxCallback(_sslCtxFunction, (void *)this);
