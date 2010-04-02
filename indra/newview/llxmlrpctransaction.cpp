@@ -31,6 +31,9 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+#include <openssl/x509_vfy.h>
+#include <openssl/ssl.h>
+#include "llsecapi.h"
 
 #include "llxmlrpctransaction.h"
 #include "llxmlrpclistener.h"
@@ -176,6 +179,8 @@ public:
 
 	std::string			mResponseText;
 	XMLRPC_REQUEST		mResponse;
+	std::string         mCertStore;
+	LLPointer<LLCertificate> mErrorCert;
 	
 	Impl(const std::string& uri, XMLRPC_REQUEST request, bool useGzip);
 	Impl(const std::string& uri,
@@ -190,7 +195,8 @@ public:
 
 private:
 	void init(XMLRPC_REQUEST request, bool useGzip);
-
+	static int _sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param);
+	static CURLcode _sslCtxFunction(CURL * curl, void *sslctx, void *param);
 	static size_t curlDownloadCallback(
 		char* data, size_t size, size_t nmemb, void* user_data);
 };
@@ -228,8 +234,74 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
     XMLRPC_RequestFree(request, 1);
 }
 
+// _sslCertVerifyCallback
+// callback called when a cert verification is requested.
+// calls SECAPI to validate the context
+int LLXMLRPCTransaction::Impl::_sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
+{
+	LLXMLRPCTransaction::Impl *transaction = (LLXMLRPCTransaction::Impl *)param;
+	LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore(transaction->mCertStore);
+	LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
+	LLSD validation_params = LLSD::emptyMap();
+	LLURI uri(transaction->mURI);
+	validation_params[CERT_HOSTNAME] = uri.hostName();
+	try
+	{
+		chain->validate(VALIDATION_POLICY_SSL, store, validation_params);
+	}
+	catch (LLCertValidationTrustException& cert_exception)
+	{
+		// this exception is is handled differently than the general cert
+		// exceptions, as we allow the user to actually add the certificate
+		// for trust.
+		// therefore we pass back a different error code
+		// NOTE: We're currently 'wired' to pass around CURL error codes.  This is
+		// somewhat clumsy, as we may run into errors that do not map directly to curl
+		// error codes.  Should be refactored with login refactoring, perhaps.
+		transaction->mCurlCode = CURLE_SSL_CACERT;
+		// set the status directly.  set curl status generates error messages and we want
+		// to use the fixed ones from the exceptions
+		transaction->setStatus(StatusCURLError, cert_exception.getMessage(), std::string());
+		// We should probably have a more generic way of passing information
+		// back to the error handlers.
+		transaction->mErrorCert = cert_exception.getCert();
+		return 0;		
+	}
+	catch (LLCertException& cert_exception)
+	{
+		transaction->mCurlCode = CURLE_SSL_PEER_CERTIFICATE;
+		// set the status directly.  set curl status generates error messages and we want
+		// to use the fixed ones from the exceptions
+		transaction->setStatus(StatusCURLError, cert_exception.getMessage(), std::string());
+		transaction->mErrorCert = cert_exception.getCert();
+		return 0;
+	}
+	catch (...)
+	{
+		// any other odd error, we just handle as a connect error.
+		transaction->mCurlCode = CURLE_SSL_CONNECT_ERROR;
+		transaction->setCurlStatus(CURLE_SSL_CONNECT_ERROR);
+		return 0;
+	}
+	return 1;
+}
 
+// _sslCtxFunction
+// Callback function called when an SSL Context is created via CURL
+// used to configure the context for custom cert validate(<, <#const & xs#>, <#T * #>, <#long #>)tion
+// based on SECAPI
 
+CURLcode LLXMLRPCTransaction::Impl::_sslCtxFunction(CURL * curl, void *sslctx, void *param)
+{
+	SSL_CTX * ctx = (SSL_CTX *) sslctx;
+	// disable any default verification for server certs
+	SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+	// set the verification callback.
+	SSL_CTX_set_cert_verify_callback(ctx, _sslCertVerifyCallback, param);
+	// the calls are void
+	return CURLE_OK;
+	
+}
 
 void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 {
@@ -237,6 +309,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	{
 		mCurlRequest = new LLCurlEasyRequest();
 	}
+	mErrorCert = NULL;
 	
 	if (gSavedSettings.getBOOL("BrowserProxyEnabled"))
 	{
@@ -252,10 +325,13 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 //	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
 	mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
 	mCurlRequest->setWriteCallback(&curlDownloadCallback, (void*)this);
-	mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, LLCurl::getSSLVerify());
-	mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, LLCurl::getSSLVerify() ? 2 : 0);
+	BOOL vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
+	mCertStore = gSavedSettings.getString("CertStore");
+	mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, vefifySSLCert);
+	mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, vefifySSLCert ? 2 : 0);
 	// Be a little impatient about establishing connections.
 	mCurlRequest->setopt(CURLOPT_CONNECTTIMEOUT, 40L);
+	mCurlRequest->setSSLCtxCallback(_sslCtxFunction, (void *)this);
 
 	/* Setting the DNS cache timeout to -1 disables it completely.
 	   This might help with bug #503 */
@@ -341,11 +417,19 @@ bool LLXMLRPCTransaction::Impl::process()
 		{
 			if (result != CURLE_OK)
 			{
-				setCurlStatus(result);
-				llwarns << "LLXMLRPCTransaction CURL error "
-						<< mCurlCode << ": " << mCurlRequest->getErrorString() << llendl;
-				llwarns << "LLXMLRPCTransaction request URI: "
-						<< mURI << llendl;
+				if ((result != CURLE_SSL_PEER_CERTIFICATE) &&
+					(result != CURLE_SSL_CACERT))
+				{
+					// if we have a curl error that's not already been handled
+					// (a non cert error), then generate the error message as
+					// appropriate
+					setCurlStatus(result);
+				
+					llwarns << "LLXMLRPCTransaction CURL error "
+					<< mCurlCode << ": " << mCurlRequest->getErrorString() << llendl;
+					llwarns << "LLXMLRPCTransaction request URI: "
+					<< mURI << llendl;
+				}
 					
 				return true;
 			}
@@ -423,7 +507,6 @@ void LLXMLRPCTransaction::Impl::setStatus(EStatus status,
 			case StatusComplete:
 				mStatusMessage = "(done)";
 				break;
-				
 			default:
 				// Usually this means that there's a problem with the login server,
 				// not with the client.  Direct user to status page.
@@ -537,6 +620,11 @@ LLXMLRPCTransaction::EStatus LLXMLRPCTransaction::status(int* curlCode)
 std::string LLXMLRPCTransaction::statusMessage()
 {
 	return impl.mStatusMessage;
+}
+
+LLPointer<LLCertificate> LLXMLRPCTransaction::getErrorCert()
+{
+	return impl.mErrorCert;
 }
 
 std::string LLXMLRPCTransaction::statusURI()
