@@ -38,16 +38,6 @@
 		     width="300">
     Items:
   </text>
-                 label="Model..."
-                 layout="topleft"
-                 name="Upload Model">
-                    <menu_item_call.on_click
-                     function="File.UploadModel"
-                     parameter="" />
-                    <menu_item_call.on_enable
-                     function="File.EnableUploadModel" />
-                </menu_item_call>
-                <menu_item_call
   <filter_editor
    text_pad_left="10"
    follows="left|top|right"
