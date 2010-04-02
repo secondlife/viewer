@@ -315,7 +315,7 @@ void main()
 		// reflect light direction to increase the illusion that
 		// these are reflections.
 		vec3 reflight = reflect(lightnorm.xyz, norm.xyz);
-		float reflit = max(dot(refn, reflight.xyz), 0.0);
+		float reflit = min(max(dot(refn, reflight.xyz), 0.0), refshad);
 		// apply sun color to guess-point, dampen according to inappropriateness of guess
 		float refmod = min(refapprop, reflit);
 		vec3 refprod = vary_SunlitColor * refcol.rgb * refmod;
