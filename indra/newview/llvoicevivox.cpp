@@ -1,5 +1,5 @@
  /** 
- * @file LLVivoxVoiceClient.cpp
+ * @file llvoicevivox.cpp
  * @brief Implementation of LLVivoxVoiceClient class which is the interface to the voice client process.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$

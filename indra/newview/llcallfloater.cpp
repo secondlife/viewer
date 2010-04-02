@@ -131,9 +131,7 @@ LLCallFloater::~LLCallFloater()
 	mAvatarListRefreshConnection.disconnect();
 	mVoiceChannelStateChangeConnection.disconnect();
 
-	// Don't use LLVoiceClient::getInstance() here 
-	// singleton MAY have already been destroyed.
-	if(LLVoiceClient::getInstance())
+	if(LLVoiceClient::instanceExists())
 	{
 		LLVoiceClient::getInstance()->removeObserver(this);
 	}
