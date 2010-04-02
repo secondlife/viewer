@@ -421,6 +421,9 @@
      name="InventoryItemSuffixColor"
      reference="White_25" />
     <color
+     name="InventoryItemLibraryColor"
+     reference="EmphasisColor" />
+    <color
      name="InventorySearchStatusColor"
      reference="EmphasisColor" />
     <color
