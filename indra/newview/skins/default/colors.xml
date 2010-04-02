@@ -731,7 +731,10 @@
     <color
      name="ChatToastAgentNameColor"
      reference="EmphasisColor" />
-  <color
+    <color
     name="ColorSwatchBorderColor"
     value="0.45098 0.517647 0.607843 1"/>
+    <color
+     name="ChatTimestampColor"
+     reference="White" />
 </colors>

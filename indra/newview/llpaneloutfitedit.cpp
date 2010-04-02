@@ -413,7 +413,11 @@ void LLPanelOutfitEdit::onLookItemSelectionChange(void)
 {	
 	S32 left_offset = -4;
 	S32 top_offset = -10;
-	LLRect rect = mLookContents->getLastSelectedItem()->getRect();
+	LLScrollListItem* item = mLookContents->getLastSelectedItem();
+	if (!item)
+		return;
+
+	LLRect rect = item->getRect();
 	LLRect btn_rect(
 					left_offset + rect.mRight - 50,
 					top_offset  + rect.mTop,
