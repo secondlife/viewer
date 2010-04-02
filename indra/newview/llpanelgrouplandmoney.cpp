@@ -1600,6 +1600,8 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 		mImplementationp->mMoneySalesTabEHp->setGroupID(mGroupID);
 	}
 
+	mImplementationp->mBeenActivated = true;
+
 	activate();
 }
 

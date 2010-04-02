@@ -124,12 +124,10 @@ public:
 public:
 	/*virtual*/ BOOL    updateIsFullyLoaded();
 private:
-	BOOL                mIsBaked; // are the stored baked textures up to date?
 
 	//--------------------------------------------------------------------
 	// Region state
 	//--------------------------------------------------------------------
-private:
 	U64				mLastRegionHandle;
 	LLFrameTimer	mRegionCrossingTimer;
 	S32				mRegionCrossingCount;

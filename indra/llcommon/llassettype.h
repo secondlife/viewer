@@ -147,10 +147,10 @@ public:
 	static const std::string&	getDesc(EType asset_type);
 
 	static bool 				lookupCanLink(EType asset_type);
-	static BOOL 				lookupIsLinkType(EType asset_type);
+	static bool 				lookupIsLinkType(EType asset_type);
 
-	static BOOL 				lookupIsAssetFetchByIDAllowed(EType asset_type); // the asset allows direct download
-	static BOOL 				lookupIsAssetIDKnowable(EType asset_type); // asset data can be known by the viewer
+	static bool 				lookupIsAssetFetchByIDAllowed(EType asset_type); // the asset allows direct download
+	static bool 				lookupIsAssetIDKnowable(EType asset_type); // asset data can be known by the viewer
 	
 	static const std::string&	badLookup(); // error string when a lookup fails
 

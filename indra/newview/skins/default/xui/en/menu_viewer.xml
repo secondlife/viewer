@@ -159,7 +159,8 @@
         <menu_item_call
          label="My Groups"
          layout="topleft"
-         name="My Groups">
+         name="My Groups"
+         shortcut="control|shift|G">
             <menu_item_call.on_click
              function="SideTray.PanelPeopleTab"
              parameter="groups_panel" />

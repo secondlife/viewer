@@ -105,7 +105,7 @@ public:
 		{
 			if (group_id.isNull())
 				return true;
-			LLGroupActions::show(group_id);
+			LLGroupActions::inspect(group_id);
 			return true;
 		}
 		return false;
@@ -244,6 +244,12 @@ static bool isGroupUIVisible()
 	if(!panel)
 		return false;
 	return panel->isInVisibleChain();
+}
+
+// static 
+void LLGroupActions::inspect(const LLUUID& group_id)
+{
+	LLFloaterReg::showInstance("inspect_group", LLSD().with("group_id", group_id));
 }
 
 // static
