@@ -254,7 +254,7 @@ void LLLibraryOutfitsFetch::doneIdle()
 	}
 }
 
-void LLLibraryOutfitsFetch::folderDone(void)
+void LLLibraryOutfitsFetch::folderDone()
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -295,7 +295,7 @@ void LLLibraryOutfitsFetch::folderDone(void)
 	}
 }
 
-void LLLibraryOutfitsFetch::outfitsDone(void)
+void LLLibraryOutfitsFetch::outfitsDone()
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -372,7 +372,7 @@ private:
 };
 
 // Copy the clothing folders from the library into the imported clothing folder
-void LLLibraryOutfitsFetch::libraryDone(void)
+void LLLibraryOutfitsFetch::libraryDone()
 {
 	if (mImportedClothingID != LLUUID::null)
 	{
@@ -427,7 +427,7 @@ void LLLibraryOutfitsFetch::libraryDone(void)
 	}
 }
 
-void LLLibraryOutfitsFetch::importedFolderFetch(void)
+void LLLibraryOutfitsFetch::importedFolderFetch()
 {
 	// Fetch the contents of the Imported Clothing Folder
 	uuid_vec_t folders;
@@ -442,7 +442,7 @@ void LLLibraryOutfitsFetch::importedFolderFetch(void)
 	}
 }
 
-void LLLibraryOutfitsFetch::importedFolderDone(void)
+void LLLibraryOutfitsFetch::importedFolderDone()
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
@@ -471,7 +471,7 @@ void LLLibraryOutfitsFetch::importedFolderDone(void)
 	}
 }
 
-void LLLibraryOutfitsFetch::contentsDone(void)
+void LLLibraryOutfitsFetch::contentsDone()
 {		
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
