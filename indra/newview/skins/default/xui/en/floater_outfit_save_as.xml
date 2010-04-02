@@ -45,7 +45,6 @@ as a new Outfit:
      border_style="line"
      border_thickness="1"
      follows="left|top"
-     handle_edit_keys_directly="true"
      height="23"
      layout="topleft"
      left_delta="0"

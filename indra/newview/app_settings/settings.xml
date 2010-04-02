@@ -2575,6 +2575,17 @@
       <key>Value</key>
       <real>0.10000000149</real>
     </map>
+    <key>DragAndDropDistanceThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of pixels that mouse should move before triggering drag and drop mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
+    </map>
     <key>DropShadowButton</key>
     <map>
       <key>Comment</key>
@@ -8692,17 +8703,6 @@
     <map>
       <key>Comment</key>
       <string>Whether to use the old Second Life particle clouds or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>SmallAvatarNames</key>
-    <map>
-      <key>Comment</key>
-      <string>Display avatar name text in smaller font</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

@@ -61,7 +61,7 @@ public:
 	void onEdit();
 	void onSave();
 	
-	void onSaveCommit(const std::string& item_name);
+	bool onSaveCommit(const LLSD& notification, const LLSD& response);
 
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();

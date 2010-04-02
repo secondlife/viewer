@@ -994,7 +994,7 @@ private:
 
 protected:
 	LLPostponedNotification() {}
-	~LLPostponedNotification() {}
+	virtual ~LLPostponedNotification() {}
 
 	/**
 	 * Abstract method provides possibility to modify notification parameters and

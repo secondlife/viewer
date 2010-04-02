@@ -2024,6 +2024,28 @@ Would you be my friend?
   </notification>
 
   <notification
+ icon="alertmodal.tga"
+ label="Save Outfit"
+ name="SaveOutfitAs"
+ type="alertmodal">
+    Save what I'm wearing as a new Outfit:
+    <form name="form">
+      <input name="message" type="text">
+        [DESC] (new)
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="Offer"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
