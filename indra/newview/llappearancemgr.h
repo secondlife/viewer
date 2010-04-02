@@ -53,6 +53,7 @@ public:
 	void updateCOF(const LLUUID& category, bool append = false);
 	void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
 	void wearInventoryCategoryOnAvatar(LLInventoryCategory* category, bool append);
+	void wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append);
 	void wearOutfitByName(const std::string& name);
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
 
@@ -118,6 +119,9 @@ public:
 
 	// Called when self avatar is first fully visible.
 	void onFirstFullyVisible();
+
+	// Create initial outfits from library.
+	void autopopulateOutfits();
 	
 protected:
 	LLAppearanceMgr();
@@ -173,17 +177,17 @@ LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string&
 // Shim class and template function to allow arbitrary boost::bind
 // expressions to be run as one-time idle callbacks.
 template <typename T>
-class OnIdleCallback
+class OnIdleCallbackOneTime
 {
 public:
-	OnIdleCallback(T callable):
+	OnIdleCallbackOneTime(T callable):
 		mCallable(callable)
 	{
 	}
 	static void onIdle(void *data)
 	{
 		gIdleCallbacks.deleteFunction(onIdle, data);
-		OnIdleCallback<T>* self = reinterpret_cast<OnIdleCallback<T>*>(data);
+		OnIdleCallbackOneTime<T>* self = reinterpret_cast<OnIdleCallbackOneTime<T>*>(data);
 		self->call();
 		delete self;
 	}
@@ -196,14 +200,15 @@ private:
 };
 
 template <typename T>
-void doOnIdle(T callable)
+void doOnIdleOneTime(T callable)
 {
-	OnIdleCallback<T>* cb_functor = new OnIdleCallback<T>(callable);
-	gIdleCallbacks.addFunction(&OnIdleCallback<T>::onIdle,cb_functor);
+	OnIdleCallbackOneTime<T>* cb_functor = new OnIdleCallbackOneTime<T>(callable);
+	gIdleCallbacks.addFunction(&OnIdleCallbackOneTime<T>::onIdle,cb_functor);
 }
 
 // Shim class and template function to allow arbitrary boost::bind
 // expressions to be run as recurring idle callbacks.
+// Callable should return true when done, false to continue getting called.
 template <typename T>
 class OnIdleCallbackRepeating
 {
@@ -212,7 +217,7 @@ public:
 		mCallable(callable)
 	{
 	}
-	// Will keep getting called until the callable returns false.
+	// Will keep getting called until the callable returns true.
 	static void onIdle(void *data)
 	{
 		OnIdleCallbackRepeating<T>* self = reinterpret_cast<OnIdleCallbackRepeating<T>*>(data);
@@ -252,7 +257,7 @@ public:
 	virtual void done()
 	{
 		gInventory.removeObserver(this);
-		doOnIdle(mCallable);
+		doOnIdleOneTime(mCallable);
 		delete this;
 	}
 protected:
