@@ -248,8 +248,8 @@ bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, co
 
 bool LLParticipantList::onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
-	LLAvatarList::uuid_vector_t::iterator pos = std::find(group_members.begin(), group_members.end(), event->getValue().asUUID());
+	uuid_vec_t& group_members = mAvatarList->getIDs();
+	uuid_vec_t::iterator pos = std::find(group_members.begin(), group_members.end(), event->getValue().asUUID());
 	if(pos != group_members.end())
 	{
 		group_members.erase(pos);
@@ -260,7 +260,7 @@ bool LLParticipantList::onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event,
 
 bool LLParticipantList::onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
+	uuid_vec_t& group_members = mAvatarList->getIDs();
 	group_members.clear();
 	mAvatarList->setDirty();
 	return true;

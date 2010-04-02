@@ -1031,7 +1031,7 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 			else
 			{
 				// Watch this item and set gesture name when item exists in inventory
-				item_ref_t ids;
+				uuid_vec_t ids;
 				ids.push_back(item_id);
 				self.fetchItems(ids);
 			}

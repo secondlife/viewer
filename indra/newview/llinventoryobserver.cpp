@@ -108,6 +108,10 @@ void LLInventoryCompletionObserver::watchItem(const LLUUID& id)
 	}
 }
 
+LLInventoryFetchObserver::LLInventoryFetchObserver(bool retry_if_missing) :
+	mRetryIfMissing(retry_if_missing)
+{
+}
 
 void LLInventoryFetchObserver::changed(U32 mask)
 {
@@ -115,7 +119,7 @@ void LLInventoryFetchObserver::changed(U32 mask)
 	// appropriate.
 	if(!mIncomplete.empty())
 	{
-		for(item_ref_t::iterator it = mIncomplete.begin(); it < mIncomplete.end(); )
+		for(uuid_vec_t::iterator it = mIncomplete.begin(); it < mIncomplete.end(); )
 		{
 			LLViewerInventoryItem* item = gInventory.getItem(*it);
 			if(!item)
@@ -220,11 +224,11 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 }
 
 void LLInventoryFetchObserver::fetchItems(
-	const LLInventoryFetchObserver::item_ref_t& ids)
+	const uuid_vec_t& ids)
 {
 	LLUUID owner_id;
 	LLSD items_llsd;
-	for(item_ref_t::const_iterator it = ids.begin(); it < ids.end(); ++it)
+	for(uuid_vec_t::const_iterator it = ids.begin(); it < ids.end(); ++it)
 	{
 		LLViewerInventoryItem* item = gInventory.getItem(*it);
 		if(item)
@@ -475,7 +479,7 @@ void LLInventoryExistenceObserver::changed(U32 mask)
 	// appropriate.
 	if(!mMIA.empty())
 	{
-		for(item_ref_t::iterator it = mMIA.begin(); it < mMIA.end(); )
+		for(uuid_vec_t::iterator it = mMIA.begin(); it < mMIA.end(); )
 		{
 			LLViewerInventoryItem* item = gInventory.getItem(*it);
 			if(!item)

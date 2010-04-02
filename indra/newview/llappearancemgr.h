@@ -298,7 +298,7 @@ public:
 		}
 
 		CallAfterCategoryFetchStage2<T> *stage2 = new CallAfterCategoryFetchStage2<T>(mCallable);
-		LLInventoryFetchObserver::item_ref_t ids;
+		uuid_vec_t ids;
 		for(S32 i = 0; i < count; ++i)
 		{
 			ids.push_back(item_array.get(i)->getUUID());

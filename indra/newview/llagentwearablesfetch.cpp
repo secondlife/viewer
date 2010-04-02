@@ -89,7 +89,7 @@ void LLInitialWearablesFetch::processContents()
 class LLFetchAndLinkObserver: public LLInventoryFetchObserver
 {
 public:
-	LLFetchAndLinkObserver(LLInventoryFetchObserver::item_ref_t& ids):
+	LLFetchAndLinkObserver(uuid_vec_t& ids):
 		m_ids(ids),
 		LLInventoryFetchObserver(true) // retry for missing items
 	{
@@ -103,7 +103,7 @@ public:
 
 		// Link to all fetched items in COF.
 		LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
-		for (LLInventoryFetchObserver::item_ref_t::iterator it = m_ids.begin();
+		for (uuid_vec_t::iterator it = m_ids.begin();
 			 it != m_ids.end();
 			 ++it)
 		{
@@ -124,7 +124,7 @@ public:
 		}
 	}
 private:
-	LLInventoryFetchObserver::item_ref_t m_ids;
+	uuid_vec_t m_ids;
 };
 
 void LLInitialWearablesFetch::processWearablesMessage()
@@ -132,7 +132,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 	if (!mAgentInitialWearables.empty()) // We have an empty current outfit folder, use the message data instead.
 	{
 		const LLUUID current_outfit_id = LLAppearanceMgr::instance().getCOF();
-		LLInventoryFetchObserver::item_ref_t ids;
+		uuid_vec_t ids;
 		for (U8 i = 0; i < mAgentInitialWearables.size(); ++i)
 		{
 			// Populate the current outfit folder with links to the wearables passed in the message
