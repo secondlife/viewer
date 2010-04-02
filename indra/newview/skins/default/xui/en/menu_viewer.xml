@@ -252,6 +252,13 @@
            name="Land"
            tear_off="true">
         <menu_item_call
+         label="Place Profile"
+         layout="topleft"
+         name="Place Profile">
+            <menu_item_call.on_click
+             function="World.PlaceProfile" />
+        </menu_item_call>
+        <menu_item_call
          label="About Land"
          layout="topleft"
          name="About Land">

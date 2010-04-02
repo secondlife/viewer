@@ -93,7 +93,7 @@ public:
 		payload["object_id"] = object_id;
 		payload["owner_id"] = query_map["owner"];
 		payload["name"] = query_map["name"];
-		payload["slurl"] = query_map["slurl"];
+		payload["slurl"] = LLWeb::escapeURL(query_map["slurl"]);
 		payload["group_owned"] = query_map["groupowned"];
 		LLFloaterReg::showInstance("inspect_remote_object", payload);
 		return true;
