@@ -39,6 +39,7 @@
 
 #include <iostream>
 #include "apr_base64.h"
+#include "zlib/zlib.h"  // for davep's dirty little zip functions
 
 #if !LL_WINDOWS
 #include <netinet/in.h> // htonl & ntohl
@@ -1988,4 +1989,140 @@ std::ostream& operator<<(std::ostream& s, const LLSD& llsd)
 	s << LLSDNotationStreamer(llsd);
 	return s;
 }
+
+
+//dirty little zippers -- yell at davep if these are horrid
+
+//return a string containing gzipped bytes of binary serialized LLSD
+// VERY inefficient -- creates several copies of LLSD block in memory
+std::string zip_llsd(LLSD& data)
+{ 
+	std::stringstream llsd_strm;
+
+	LLSDSerialize::serialize(data, llsd_strm, LLSDSerialize::LLSD_BINARY);
+
+	z_stream strm;
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+
+	S32 ret = deflateInit(&strm, Z_BEST_COMPRESSION);
+	if (ret != Z_OK)
+	{
+		llwarns << "Failed to compress LLSD block." << llendl;
+		return std::string();
+	}
+
+	std::string source = llsd_strm.str();
+
+	strm.avail_in = source.size();
+	strm.next_in = (U8*) source.data();
+	U8* output = new U8[strm.avail_in];
+	strm.avail_out = strm.avail_in;
+	strm.next_out = output;
+	ret = deflate(&strm, Z_FINISH);
+	if (ret != Z_STREAM_END)
+	{
+		delete [] output;
+		llwarns << "Failed to compress LLSD block." << llendl;
+	}
+
+	std::string::size_type size = source.size()-strm.avail_out;
+
+	std::string result((char*) output, size);
+	deflateEnd(&strm);
+	delete [] output;
+
+	return result;
+}
+
+//decompress a block of LLSD from provided istream
+// not very efficient -- creats a copy of decompressed LLSD block in memory
+// and deserializes from that copy using LLSDSerialize
+bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
+{
+	U8* result = NULL;
+	U32 cur_size = 0;
+	z_stream strm;
+		
+	const U32 CHUNK = 65536;
+
+	U8 *in = new U8[size];
+	is.read((char*) in, size); 
+
+	U8 out[CHUNK];
+		
+	strm.zalloc = Z_NULL;
+	strm.zfree = Z_NULL;
+	strm.opaque = Z_NULL;
+	strm.avail_in = size;
+	strm.next_in = in;
+
+	S32 ret = inflateInit(&strm);
+
+	if (ret != Z_OK)
+	{
+		llerrs << "WTF?" << llendl;
+	}
+	
+	do
+	{
+		strm.avail_out = CHUNK;
+		strm.next_out = out;
+		ret = inflate(&strm, Z_NO_FLUSH);
+		if (ret == Z_STREAM_ERROR)
+		{
+			inflateEnd(&strm);
+			free(result);
+			delete [] in;
+			return false;
+		}
+		
+		switch (ret)
+		{
+		case Z_NEED_DICT:
+			ret = Z_DATA_ERROR;
+		case Z_DATA_ERROR:
+		case Z_MEM_ERROR:
+			inflateEnd(&strm);
+			free(result);
+			delete [] in;
+			return false;
+			break;
+		}
+
+		U32 have = CHUNK-strm.avail_out;
+
+		result = (U8*) realloc(result, cur_size + have);
+		memcpy(result+cur_size, out, have);
+		cur_size += have;
+
+	} while (strm.avail_out == 0);
+
+	inflateEnd(&strm);
+	delete [] in;
+
+	if (ret != Z_STREAM_END)
+	{
+		free(result);
+		return false;
+	}
+
+	//result now points to the decompressed LLSD block
+	{
+		std::string res_str((char*) result, cur_size);
+		std::istringstream istr(res_str);
+
+		if (!LLSDSerialize::deserialize(data, istr, cur_size))
+		{
+			llwarns << "Failed to unzip LLSD block" << llendl;
+			return false;
+		}
+	}
+
+	free(result);
+	return true;
+}
+
+
 

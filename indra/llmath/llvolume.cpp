@@ -47,8 +47,6 @@
 #include "llvolume.h"
 #include "llstl.h"
 #include "llsdserialize.h"
-#include "zlib/zlib.h"
-
 
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
@@ -1964,97 +1962,15 @@ BOOL LLVolume::createVolumeFacesFromStream(std::istream& is)
 
 bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 {
-	U8* result = NULL;
-	U32 cur_size = 0;
-
-	{
-		//input stream is now pointing at a zlib compressed block of LLSD
-		//decompress block
-		z_stream strm;
-		
-		const U32 CHUNK = 65536;
-
-		U8 *in = new U8[size];
-		is.read((char*) in, size); 
-
-		U8 out[CHUNK];
-			
-		strm.zalloc = Z_NULL;
-		strm.zfree = Z_NULL;
-		strm.opaque = Z_NULL;
-		strm.avail_in = size;
-		strm.next_in = in;
-
-		S32 ret = inflateInit(&strm);
-
-		if (ret != Z_OK)
-		{
-			llerrs << "WTF?" << llendl;
-		}
-		
-		do
-		{
-			strm.avail_out = CHUNK;
-			strm.next_out = out;
-			ret = inflate(&strm, Z_NO_FLUSH);
-			if (ret == Z_STREAM_ERROR)
-			{
-				inflateEnd(&strm);
-				free(result);
-				delete [] in;
-				return false;
-			}
-			
-			switch (ret)
-			{
-			case Z_NEED_DICT:
-				ret = Z_DATA_ERROR;
-			case Z_DATA_ERROR:
-			case Z_MEM_ERROR:
-				inflateEnd(&strm);
-				free(result);
-				delete [] in;
-				return false;
-				break;
-			}
-
-			U32 have = CHUNK-strm.avail_out;
-
-			result = (U8*) realloc(result, cur_size + have);
-			memcpy(result+cur_size, out, have);
-			cur_size += have;
-
-		} while (strm.avail_out == 0);
-
-		inflateEnd(&strm);
-		delete [] in;
-
-		if (ret != Z_STREAM_END)
-		{
-			free(result);
-			return false;
-		}
-	}
-
-	//result now points to the decompressed LLSD block
-
+	//input stream is now pointing at a zlib compressed block of LLSD
+	//decompress block
 	LLSD mdl;
-
+	if (!unzip_llsd(mdl, is, size))
 	{
-		std::string res_str((char*) result, cur_size);
-		std::istringstream istr(res_str);
-
-		if (!LLSDSerialize::deserialize(mdl, istr, cur_size))
-		{
-			llwarns << "not a valid mesh asset!" << llendl;
-			return false;
-		}
+		llwarns << "not a valid mesh asset!" << llendl;
+		return false;
 	}
-
-
-	free(result);
-
-
+	
 	{
 		U32 face_count = mdl.size();
 
@@ -2094,11 +2010,50 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			U32 num_verts = pos.size()/(3*2);
 			face.mVertices.resize(num_verts);
 
+			if (mdl[i].has("Weights"))
+			{
+				face.mWeights.resize(num_verts);
+				LLSD::Binary weights = mdl[i]["Weights"];
+
+				LLSD::Binary::iterator iter = weights.begin();
+
+				U32 cur_vertex = 0;
+				while (iter != weights.end())
+				{
+					const S32 END_INFLUENCES = 0xFF;
+					U8 joint = *(iter++);
+
+					U32 cur_influence = 0;
+					while (joint != END_INFLUENCES)
+					{
+						U16 influence = *(iter++);
+						influence = influence << 8;
+						influence |= *(iter++);
+
+						F32 w = llmin((F32) influence / 65535.f, 0.99999f);
+						face.mWeights[cur_vertex].mV[cur_influence++] = (F32) joint + w;
+
+						if (cur_influence >= 4)
+						{
+							joint = END_INFLUENCES;
+						}
+						else
+						{
+							joint = *(iter++);
+						}
+					}
+
+					cur_vertex++;
+					iter++;
+				}
+			}
+
 			LLVector3 min_pos;
 			LLVector3 max_pos;
 			LLVector2 min_tc; 
 			LLVector2 max_tc; 
 
+		
 			min_pos.setValue(mdl[i]["PositionDomain"]["Min"]);
 			max_pos.setValue(mdl[i]["PositionDomain"]["Max"]);
 			min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
