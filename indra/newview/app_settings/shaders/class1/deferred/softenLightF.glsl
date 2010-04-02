@@ -282,13 +282,13 @@ void main()
 	{
 		// the old infinite-sky shiny reflection
 		//
-		vec3 refnorm = normalize(reflect(vec3(0,0,-1), norm.xyz));
-		//vec3 refnorm = normalize(reflect(pos.xyz, norm.xyz));
-		float sa = dot(refnorm, vary_light.xyz);
+		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+		float sa = dot(refnormpersp, vary_light.xyz);
 		vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*texture2D(lightFunc, vec2(sa, spec.a)).a;
 
 		// screen-space cheap fakey reflection map
 		//
+		vec3 refnorm = normalize(reflect(vec3(0,0,-1), norm.xyz));
 		depth -= 0.5; // unbias depth
 		// first figure out where we'll make our 2D guess from
 		vec2 ref2d = (0.25 * screen_res.y) * (refnorm.xy) * abs(refnorm.z) / depth;
