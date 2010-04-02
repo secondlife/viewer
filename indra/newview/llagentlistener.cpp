@@ -53,7 +53,10 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
 	}
 	else
 	{
-		std::string url = LLSLURL::buildSLURL(event_data["regionname"], event_data["x"], event_data["y"], event_data["z"]);
+		std::string url = LLSLURL(event_data["regionname"], 
+								  LLVector3(event_data["x"].asReal(), 
+											event_data["y"].asReal(), 
+											event_data["z"].asReal())).getSLURLString();
 		LLURLDispatcher::dispatch(url, NULL, false);
 	}
 }
