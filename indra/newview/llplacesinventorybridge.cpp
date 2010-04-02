@@ -168,7 +168,7 @@ LLInvFVBridge* LLPlacesInventoryBridgeBuilder::createBridge(
 	case LLAssetType::AT_LANDMARK:
 		if(!(inv_type == LLInventoryType::IT_LANDMARK))
 		{
-			llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+			llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 		}
 		new_listener = new LLPlacesLandmarkBridge(inv_type, inventory, root, uuid, flags);
 		break;

@@ -52,7 +52,6 @@
 // and override the () operator to return TRUE if you want to collect
 // the category or item passed in.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 class LLInventoryCollectFunctor
 {
 public:
@@ -61,7 +60,6 @@ public:
 
 	static bool itemTransferCommonlyAllowed(LLInventoryItem* item);
 };
-
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLAssetIDMatches
@@ -116,14 +114,12 @@ protected:
 	LLAssetType::EType mType;
 };
 
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIsNotType
 //
 // Implementation of a LLInventoryCollectFunctor which returns FALSE if the
 // type is the type passed in during construction, otherwise false.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 class LLIsNotType : public LLInventoryCollectFunctor
 {
 public:
@@ -156,7 +152,6 @@ protected:
 // Simple class that collects calling cards that are not null, and not
 // the agent. Duplicates are possible.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 class LLBuddyCollector : public LLInventoryCollectFunctor
 {
 public:
@@ -172,7 +167,6 @@ public:
 // Simple class that collects calling cards that are not null, and not
 // the agent. Duplicates are discarded.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 class LLUniqueBuddyCollector : public LLInventoryCollectFunctor
 {
 public:
@@ -202,13 +196,11 @@ protected:
 	LLUUID mBuddyID;
 };
 
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLNameCategoryCollector
 //
 // Collects categories based on case-insensitive match of prefix
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 class LLNameCategoryCollector : public LLInventoryCollectFunctor
 {
 public:
@@ -270,7 +262,7 @@ public:
 	virtual void doItem(LLFolderViewItem* item);
 	BOOL wasItemSelected() { return mItemSelected; }
 protected:
-	BOOL	mItemSelected;
+	BOOL mItemSelected;
 };
 
 class LLOpenFilteredFolders : public LLFolderViewFunctor
