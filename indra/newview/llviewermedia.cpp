@@ -1473,11 +1473,6 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 //////////////////////////////////////////////////////////////////////////////////////////
 LLViewerMediaImpl::~LLViewerMediaImpl()
 {
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
-	
 	destroyMediaSource();
 	
 	LLViewerMediaTexture::removeMediaImplFromTexture(mTextureId) ;
@@ -1537,7 +1532,10 @@ void LLViewerMediaImpl::createMediaSource()
 	}
 	else if(! mMimeType.empty())
 	{
-		initializeMedia(mMimeType);
+		if (!initializeMedia(mMimeType))
+		{
+			LL_WARNS("Media") << "Failed to initialize media for mime type " << mMimeType << LL_ENDL;
+		}
 	}
 }
 

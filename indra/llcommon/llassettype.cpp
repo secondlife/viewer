@@ -45,9 +45,9 @@ struct AssetEntry : public LLDictionaryEntry
 	AssetEntry(const char *desc_name,
 			   const char *type_name, 	// 8 character limit!
 			   const char *human_name, 	// for decoding to human readable form; put any and as many printable characters you want in each one
-			   BOOL can_link, 			// can you create a link to this type?
-			   BOOL can_fetch, 			// can you fetch this asset by ID?
-			   BOOL can_know) 			// can you see this asset's ID?
+			   bool can_link, 			// can you create a link to this type?
+			   bool can_fetch, 			// can you fetch this asset by ID?
+			   bool can_know) 			// can you see this asset's ID?
 		:
 		LLDictionaryEntry(desc_name),
 		mTypeName(type_name),
@@ -61,9 +61,9 @@ struct AssetEntry : public LLDictionaryEntry
 
 	const char *mTypeName;
 	const char *mHumanName;
-	BOOL mCanLink;
-	BOOL mCanFetch;
-	BOOL mCanKnow;
+	bool mCanLink;
+	bool mCanFetch;
+	bool mCanKnow;
 };
 
 class LLAssetDictionary : public LLSingleton<LLAssetDictionary>,
@@ -77,30 +77,30 @@ LLAssetDictionary::LLAssetDictionary()
 {
 	//       												   DESCRIPTION			TYPE NAME	HUMAN NAME			CAN LINK?   CAN FETCH?  CAN KNOW?	
 	//      												  |--------------------|-----------|-------------------|-----------|-----------|---------|
-	addEntry(LLAssetType::AT_TEXTURE, 			new AssetEntry("TEXTURE",			"texture",	"texture",			FALSE,		FALSE,		TRUE));
-	addEntry(LLAssetType::AT_SOUND, 			new AssetEntry("SOUND",				"sound",	"sound",			FALSE,		TRUE,		TRUE));
-	addEntry(LLAssetType::AT_CALLINGCARD, 		new AssetEntry("CALLINGCARD",		"callcard",	"calling card",		FALSE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_LANDMARK, 			new AssetEntry("LANDMARK",			"landmark",	"landmark",			FALSE,		TRUE,		TRUE));
-	addEntry(LLAssetType::AT_SCRIPT, 			new AssetEntry("SCRIPT",			"script",	"legacy script",	FALSE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_CLOTHING, 			new AssetEntry("CLOTHING",			"clothing",	"clothing",			TRUE,		TRUE,		TRUE));
-	addEntry(LLAssetType::AT_OBJECT, 			new AssetEntry("OBJECT",			"object",	"object",			TRUE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_NOTECARD, 			new AssetEntry("NOTECARD",			"notecard",	"note card",		FALSE,		FALSE,		TRUE));
-	addEntry(LLAssetType::AT_CATEGORY, 			new AssetEntry("CATEGORY",			"category",	"folder",			TRUE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_LSL_TEXT, 			new AssetEntry("LSL_TEXT",			"lsltext",	"lsl2 script",		FALSE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_LSL_BYTECODE, 		new AssetEntry("LSL_BYTECODE",		"lslbyte",	"lsl bytecode",		FALSE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_TEXTURE_TGA, 		new AssetEntry("TEXTURE_TGA",		"txtr_tga",	"tga texture",		FALSE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_BODYPART, 			new AssetEntry("BODYPART",			"bodypart",	"body part",		TRUE,		TRUE,		TRUE));
-	addEntry(LLAssetType::AT_SOUND_WAV, 		new AssetEntry("SOUND_WAV",			"snd_wav",	"sound",			FALSE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_IMAGE_TGA, 		new AssetEntry("IMAGE_TGA",			"img_tga",	"targa image",		FALSE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_IMAGE_JPEG, 		new AssetEntry("IMAGE_JPEG",		"jpeg",		"jpeg image",		FALSE,		FALSE,		FALSE));
-	addEntry(LLAssetType::AT_ANIMATION, 		new AssetEntry("ANIMATION",			"animatn",	"animation",		FALSE,		TRUE,		TRUE));
-	addEntry(LLAssetType::AT_GESTURE, 			new AssetEntry("GESTURE",			"gesture",	"gesture",			TRUE,		TRUE,		TRUE));
-	addEntry(LLAssetType::AT_SIMSTATE, 			new AssetEntry("SIMSTATE",			"simstate",	"simstate",			FALSE,		FALSE,		FALSE));
+	addEntry(LLAssetType::AT_TEXTURE, 			new AssetEntry("TEXTURE",			"texture",	"texture",			false,		false,		true));
+	addEntry(LLAssetType::AT_SOUND, 			new AssetEntry("SOUND",				"sound",	"sound",			false,		true,		true));
+	addEntry(LLAssetType::AT_CALLINGCARD, 		new AssetEntry("CALLINGCARD",		"callcard",	"calling card",		false,		false,		false));
+	addEntry(LLAssetType::AT_LANDMARK, 			new AssetEntry("LANDMARK",			"landmark",	"landmark",			false,		true,		true));
+	addEntry(LLAssetType::AT_SCRIPT, 			new AssetEntry("SCRIPT",			"script",	"legacy script",	false,		false,		false));
+	addEntry(LLAssetType::AT_CLOTHING, 			new AssetEntry("CLOTHING",			"clothing",	"clothing",			true,		true,		true));
+	addEntry(LLAssetType::AT_OBJECT, 			new AssetEntry("OBJECT",			"object",	"object",			true,		false,		false));
+	addEntry(LLAssetType::AT_NOTECARD, 			new AssetEntry("NOTECARD",			"notecard",	"note card",		false,		false,		true));
+	addEntry(LLAssetType::AT_CATEGORY, 			new AssetEntry("CATEGORY",			"category",	"folder",			true,		false,		false));
+	addEntry(LLAssetType::AT_LSL_TEXT, 			new AssetEntry("LSL_TEXT",			"lsltext",	"lsl2 script",		false,		false,		false));
+	addEntry(LLAssetType::AT_LSL_BYTECODE, 		new AssetEntry("LSL_BYTECODE",		"lslbyte",	"lsl bytecode",		false,		false,		false));
+	addEntry(LLAssetType::AT_TEXTURE_TGA, 		new AssetEntry("TEXTURE_TGA",		"txtr_tga",	"tga texture",		false,		false,		false));
+	addEntry(LLAssetType::AT_BODYPART, 			new AssetEntry("BODYPART",			"bodypart",	"body part",		true,		true,		true));
+	addEntry(LLAssetType::AT_SOUND_WAV, 		new AssetEntry("SOUND_WAV",			"snd_wav",	"sound",			false,		false,		false));
+	addEntry(LLAssetType::AT_IMAGE_TGA, 		new AssetEntry("IMAGE_TGA",			"img_tga",	"targa image",		false,		false,		false));
+	addEntry(LLAssetType::AT_IMAGE_JPEG, 		new AssetEntry("IMAGE_JPEG",		"jpeg",		"jpeg image",		false,		false,		false));
+	addEntry(LLAssetType::AT_ANIMATION, 		new AssetEntry("ANIMATION",			"animatn",	"animation",		false,		true,		true));
+	addEntry(LLAssetType::AT_GESTURE, 			new AssetEntry("GESTURE",			"gesture",	"gesture",			true,		true,		true));
+	addEntry(LLAssetType::AT_SIMSTATE, 			new AssetEntry("SIMSTATE",			"simstate",	"simstate",			false,		false,		false));
 
-	addEntry(LLAssetType::AT_LINK, 				new AssetEntry("LINK",				"link",		"sym link",			FALSE,		FALSE,		TRUE));
-	addEntry(LLAssetType::AT_LINK_FOLDER, 		new AssetEntry("FOLDER_LINK",		"link_f", 	"sym folder link",	FALSE,		FALSE,		TRUE));
+	addEntry(LLAssetType::AT_LINK, 				new AssetEntry("LINK",				"link",		"sym link",			false,		false,		true));
+	addEntry(LLAssetType::AT_LINK_FOLDER, 		new AssetEntry("FOLDER_LINK",		"link_f", 	"sym folder link",	false,		false,		true));
 
-	addEntry(LLAssetType::AT_NONE, 				new AssetEntry("NONE",				"-1",		NULL,		  		FALSE,		FALSE,		FALSE));
+	addEntry(LLAssetType::AT_NONE, 				new AssetEntry("NONE",				"-1",		NULL,		  		false,		false,		false));
 };
 
 // static
@@ -202,7 +202,7 @@ LLAssetType::EType LLAssetType::lookupHumanReadable(const std::string& readable_
 }
 
 // static
-BOOL LLAssetType::lookupCanLink(EType asset_type)
+bool LLAssetType::lookupCanLink(EType asset_type)
 {
 	const LLAssetDictionary *dict = LLAssetDictionary::getInstance();
 	const AssetEntry *entry = dict->lookup(asset_type);
@@ -210,18 +210,18 @@ BOOL LLAssetType::lookupCanLink(EType asset_type)
 	{
 		return entry->mCanLink;
 	}
-	return FALSE;
+	return false;
 }
 
 // static
 // Not adding this to dictionary since we probably will only have these two types
-BOOL LLAssetType::lookupIsLinkType(EType asset_type)
+bool LLAssetType::lookupIsLinkType(EType asset_type)
 {
 	if (asset_type == AT_LINK || asset_type == AT_LINK_FOLDER)
 	{
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 // static
@@ -233,7 +233,7 @@ const std::string &LLAssetType::badLookup()
 }
 
 // static
-BOOL LLAssetType::lookupIsAssetFetchByIDAllowed(EType asset_type)
+bool LLAssetType::lookupIsAssetFetchByIDAllowed(EType asset_type)
 {
 	const LLAssetDictionary *dict = LLAssetDictionary::getInstance();
 	const AssetEntry *entry = dict->lookup(asset_type);
@@ -241,11 +241,11 @@ BOOL LLAssetType::lookupIsAssetFetchByIDAllowed(EType asset_type)
 	{
 		return entry->mCanFetch;
 	}
-	return FALSE;
+	return false;
 }
 
 // static
-BOOL LLAssetType::lookupIsAssetIDKnowable(EType asset_type)
+bool LLAssetType::lookupIsAssetIDKnowable(EType asset_type)
 {
 	const LLAssetDictionary *dict = LLAssetDictionary::getInstance();
 	const AssetEntry *entry = dict->lookup(asset_type);
@@ -253,5 +253,5 @@ BOOL LLAssetType::lookupIsAssetIDKnowable(EType asset_type)
 	{
 		return entry->mCanKnow;
 	}
-	return FALSE;
+	return false;
 }

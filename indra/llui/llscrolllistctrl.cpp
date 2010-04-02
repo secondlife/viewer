@@ -324,11 +324,6 @@ LLScrollListCtrl::~LLScrollListCtrl()
 	delete mSortCallback;
 
 	std::for_each(mItemList.begin(), mItemList.end(), DeletePointer());
-
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
 }
 
 
