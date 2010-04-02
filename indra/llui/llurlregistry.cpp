@@ -53,9 +53,9 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryParcel());
 	registerUrl(new LLUrlEntryTeleport());
 	registerUrl(new LLUrlEntryWorldMap());
+	registerUrl(new LLUrlEntryObjectIM());
 	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntryInventory());
-	registerUrl(new LLUrlEntryObjectIM());
 	//LLUrlEntrySL and LLUrlEntrySLLabel have more common pattern, 
 	//so it should be registered in the end of list
 	registerUrl(new LLUrlEntrySL());
