@@ -76,11 +76,10 @@ const LLUUID MAGIC_ID("3c115e51-04f4-523c-9fa6-98aff1034730");
 /// Class LLInventoryObject
 ///----------------------------------------------------------------------------
 
-LLInventoryObject::LLInventoryObject(
-	const LLUUID& uuid,
-	const LLUUID& parent_uuid,
-	LLAssetType::EType type,
-	const std::string& name) :
+LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
+									 const LLUUID& parent_uuid,
+									 LLAssetType::EType type,
+									 const std::string& name) :
 	mUUID(uuid),
 	mParentUUID(parent_uuid),
 	mType(type),
@@ -290,18 +289,17 @@ void LLInventoryObject::updateServer(BOOL) const
 /// Class LLInventoryItem
 ///----------------------------------------------------------------------------
 
-LLInventoryItem::LLInventoryItem(
-	const LLUUID& uuid,
-	const LLUUID& parent_uuid,
-	const LLPermissions& permissions,
-	const LLUUID& asset_uuid,
-	LLAssetType::EType type,
-	LLInventoryType::EType inv_type,
-	const std::string& name, 
-	const std::string& desc,
-	const LLSaleInfo& sale_info,
-	U32 flags,
-	S32 creation_date_utc) :
+LLInventoryItem::LLInventoryItem(const LLUUID& uuid,
+								 const LLUUID& parent_uuid,
+								 const LLPermissions& permissions,
+								 const LLUUID& asset_uuid,
+								 LLAssetType::EType type,
+								 LLInventoryType::EType inv_type,
+								 const std::string& name, 
+								 const std::string& desc,
+								 const LLSaleInfo& sale_info,
+								 U32 flags,
+								 S32 creation_date_utc) :
 	LLInventoryObject(uuid, parent_uuid, type, name),
 	mPermissions(permissions),
 	mAssetUUID(asset_uuid),
@@ -1313,11 +1311,10 @@ void LLInventoryItem::unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size)
 /// Class LLInventoryCategory
 ///----------------------------------------------------------------------------
 
-LLInventoryCategory::LLInventoryCategory(
-	const LLUUID& uuid,
-	const LLUUID& parent_uuid,
-	LLFolderType::EType preferred_type,
-	const std::string& name) :
+LLInventoryCategory::LLInventoryCategory(const LLUUID& uuid,
+										 const LLUUID& parent_uuid,
+										 LLFolderType::EType preferred_type,
+										 const std::string& name) :
 	LLInventoryObject(uuid, parent_uuid, LLAssetType::AT_CATEGORY, name),
 	mPreferredType(preferred_type)
 {
