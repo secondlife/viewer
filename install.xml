@@ -948,9 +948,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>ada82d41467cdb7f8e25a442f58b6963</string>
+            <string>38a31c64cbb021320c6f8c0296933f2b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6-darwin-20100318.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6-darwin-20100402.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -962,9 +962,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>93b49cfea365fe082eda3e466a9beec3</string>
+            <string>b6ec5fe296b8ad9097b182b5c09a9589</string>
             <key>url</key>
-            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.6-20100318.tar.bz2</uri>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.6-20100402.tar.bz2</uri>
           </map>
         </map>
       </map>
