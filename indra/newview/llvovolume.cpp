@@ -3839,7 +3839,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 				else
 				{
-					if (LLPipeline::sRenderDeferred && te->getBumpmap())
+					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && te->getBumpmap())
 					{
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
