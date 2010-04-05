@@ -198,7 +198,6 @@
    enabled="false"
    follows="left|top"
    font="SansSerif"
-   handle_edit_keys_directly="true"
    height="23"
    layout="topleft"
    left="80"

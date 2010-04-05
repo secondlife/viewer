@@ -68,9 +68,9 @@ BOOL LLPlacesInventoryPanel::postBuild()
 
 	// clear Contents();
 	{
-		mFolders->destroyView();
-		mFolders->getParent()->removeChild(mFolders);
-		mFolders->die();
+		mFolderRoot->destroyView();
+		mFolderRoot->getParent()->removeChild(mFolderRoot);
+		mFolderRoot->die();
 
 		if( mScroller )
 		{
@@ -78,7 +78,7 @@ BOOL LLPlacesInventoryPanel::postBuild()
 			mScroller->die();
 			mScroller = NULL;
 		}
-		mFolders = NULL;
+		mFolderRoot = NULL;
 	}
 
 
@@ -95,13 +95,13 @@ BOOL LLPlacesInventoryPanel::postBuild()
 		p.title = getLabel();
 		p.rect = folder_rect;
 		p.parent_panel = this;
-		mFolders = (LLFolderView*)LLUICtrlFactory::create<LLPlacesFolderView>(p);
-		mFolders->setAllowMultiSelect(mAllowMultiSelect);
+		mFolderRoot = (LLFolderView*)LLUICtrlFactory::create<LLPlacesFolderView>(p);
+		mFolderRoot->setAllowMultiSelect(mAllowMultiSelect);
 	}
 
 	mCommitCallbackRegistrar.popScope();
 
-	mFolders->setCallbackRegistrar(&mCommitCallbackRegistrar);
+	mFolderRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
 
 	// scroller
 	{
@@ -116,14 +116,14 @@ BOOL LLPlacesInventoryPanel::postBuild()
 		mScroller = LLUICtrlFactory::create<LLScrollContainer>(p);
 	}
 	addChild(mScroller);
-	mScroller->addChild(mFolders);
+	mScroller->addChild(mFolderRoot);
 
-	mFolders->setScrollContainer(mScroller);
-	mFolders->addChild(mFolders->mStatusTextBox);
+	mFolderRoot->setScrollContainer(mScroller);
+	mFolderRoot->addChild(mFolderRoot->mStatusTextBox);
 
 
 	// cut subitems
-	mFolders->setUseEllipses(true);
+	mFolderRoot->setUseEllipses(true);
 
 	return TRUE;
 }
@@ -132,17 +132,17 @@ BOOL LLPlacesInventoryPanel::postBuild()
 void LLPlacesInventoryPanel::saveFolderState()
 {
 	mSavedFolderState->setApply(FALSE);
-	getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
+	mFolderRoot->applyFunctorRecursively(*mSavedFolderState);
 }
 
 // re-open folders which state was saved
 void LLPlacesInventoryPanel::restoreFolderState()
 {
 	mSavedFolderState->setApply(TRUE);
-	getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
+	mFolderRoot->applyFunctorRecursively(*mSavedFolderState);
 	LLOpenFoldersWithSelection opener;
-	getRootFolder()->applyFunctorRecursively(opener);
-	getRootFolder()->scrollToShowSelection();
+	mFolderRoot->applyFunctorRecursively(opener);
+	mFolderRoot->scrollToShowSelection();
 }
 
 S32	LLPlacesInventoryPanel::notify(const LLSD& info) 
@@ -152,11 +152,11 @@ S32	LLPlacesInventoryPanel::notify(const LLSD& info)
 		std::string str_action = info["action"];
 		if(str_action == "select_first")
 		{
-			return getRootFolder()->notify(info);
+			return mFolderRoot->notify(info);
 		}
 		else if(str_action == "select_last")
 		{
-			return getRootFolder()->notify(info);
+			return mFolderRoot->notify(info);
 		}
 	}
 	return 0;
