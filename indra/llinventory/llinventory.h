@@ -46,11 +46,10 @@
 class LLMessageSystem;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// LLInventoryObject
-//   Base class for inventory objects that handles the common code between items 
-//   and categories. The 'mParentUUID' member means the parent category since all 
-//   inventory objects except each user's root category are in some category. Each 
-//   user's root category will have mParentUUID==LLUUID::null.
+// Class LLInventoryObject
+//
+//   Base class for anything in the user's inventory.   Handles the common code 
+//   between items and categories. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInventoryObject : public LLRefCount
 {
@@ -113,15 +112,15 @@ public:
 	//--------------------------------------------------------------------
 protected:
 	LLUUID mUUID;
-	LLUUID mParentUUID;
+	LLUUID mParentUUID; // Parent category.  Root categories have LLUUID::NULL.
 	LLAssetType::EType mType;
 	std::string mName;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// LLInventoryItem
-//   An inventory item represents something that the current user has in
-//   his inventory.
+// Class LLInventoryItem
+//
+//   An item in the current user's inventory.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInventoryItem : public LLInventoryObject
 {
@@ -232,9 +231,9 @@ protected:
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryCategory
-//   An instance of this class represents a category/folder of inventory
-//   items. Users come with a set of default categories, and can create
-//   new ones as needed.
+//
+//   A category/folder of inventory items. Users come with a set of default 
+//   categories, and can create new ones as needed.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInventoryCategory : public LLInventoryObject
 {
@@ -290,6 +289,7 @@ protected:
 
 //-----------------------------------------------------------------------------
 // Convertors
+//
 //   These functions convert between structured data and an inventory
 //   item, appropriate for serialization.
 //-----------------------------------------------------------------------------
