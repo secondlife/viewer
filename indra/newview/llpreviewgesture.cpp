@@ -42,7 +42,9 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llfloaterreg.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llmultigesture.h"
 #include "llnotificationsutil.h"
@@ -58,7 +60,6 @@
 #include "lldelayedgestureerror.h"
 #include "llfloatergesture.h" // for some label constants
 #include "llgesturemgr.h"
-#include "llinventorymodel.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llradiogroup.h"

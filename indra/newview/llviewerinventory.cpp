@@ -43,6 +43,7 @@
 #include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -1481,7 +1482,7 @@ EWearableType LLViewerInventoryItem::getWearableType() const
 		llwarns << "item is not a wearable" << llendl;
 		return WT_INVALID;
 	}
-	return EWearableType(getFlags() & LLInventoryItem::II_FLAGS_WEARABLES_MASK);
+	return EWearableType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
 }
 
 

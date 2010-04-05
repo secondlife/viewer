@@ -129,7 +129,7 @@ void process_frozen_message(LLMessageSystem* msg, void**);
 
 void process_derez_container(LLMessageSystem *msg, void**);
 void container_inventory_arrived(LLViewerObject* object,
-								 std::list<LLPointer<LLInventoryObject> >* inventory, //InventoryObjectList
+								 std::list<LLPointer<LLInventoryObject> >* inventory, //LLInventoryObject::object_list_t
 								 S32 serial_num,
 								 void* data);
 

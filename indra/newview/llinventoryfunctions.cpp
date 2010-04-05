@@ -41,6 +41,7 @@
 #include "llagentwearables.h"
 #include "llcallingcard.h"
 #include "llfloaterreg.h"
+#include "llinventorydefines.h"
 #include "llsdserialize.h"
 #include "llfiltereditor.h"
 #include "llspinctrl.h"
@@ -409,7 +410,7 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 
 static void assign_clothing_bodypart_icon(EInventoryIcon &idx, U32 attachment_point)
 {
-	const EWearableType wearable_type = EWearableType(LLInventoryItem::II_FLAGS_WEARABLES_MASK & attachment_point);
+	const EWearableType wearable_type = EWearableType(LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK & attachment_point);
 	switch(wearable_type)
 	{
 		case WT_SHAPE:

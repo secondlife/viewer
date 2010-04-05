@@ -50,6 +50,7 @@
 #include "llhudeffecttrail.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llmutelist.h"
 #include "llpreviewnotecard.h"
