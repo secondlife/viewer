@@ -2007,7 +2007,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 
 	LLRightClickInventoryFetchObserver* outfit;
 	outfit = new LLRightClickInventoryFetchObserver(mCompleteFolders.front(), mCopyItems);
-	LLInventoryFetchObserver::item_ref_t ids;
+	uuid_vec_t ids;
 	for(S32 i = 0; i < count; ++i)
 	{
 		ids.push_back(item_array.get(i)->getUUID());

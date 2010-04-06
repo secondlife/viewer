@@ -267,8 +267,8 @@ void LLCategoryDropObserver::done()
 	{
 		// *FIX: coalesce these...
  		LLInventoryItem* item = NULL;
-  		item_ref_t::iterator it = mComplete.begin();
-  		item_ref_t::iterator end = mComplete.end();
+  		uuid_vec_t::iterator it = mComplete.begin();
+  		uuid_vec_t::iterator end = mComplete.end();
   		for(; it < end; ++it)
   		{
  			item = gInventory.getItem(*it);
@@ -326,8 +326,8 @@ void LLCategoryDropDescendentsObserver::done()
 		{
 			unique_ids.insert(items.get(i)->getUUID());
 		}
-		LLInventoryFetchObserver::item_ref_t ids;
-		std::back_insert_iterator<LLInventoryFetchObserver::item_ref_t> copier(ids);
+		uuid_vec_t ids;
+		std::back_insert_iterator<uuid_vec_t> copier(ids);
 		std::copy(unique_ids.begin(), unique_ids.end(), copier);
 		LLCategoryDropObserver* dropper;
 		dropper = new LLCategoryDropObserver(mObjectID, mSource);
@@ -2567,7 +2567,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 	// If every item is accepted, send it on
 	if (drop && (ACCEPT_YES_COPY_SINGLE <= rv))
 	{
-		LLInventoryFetchObserver::item_ref_t ids;
+		uuid_vec_t ids;
 		for (LLInventoryModel::item_array_t::const_iterator item_iter = items.begin();
 			 item_iter != items.end();
 			 ++item_iter)
