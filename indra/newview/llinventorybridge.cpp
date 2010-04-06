@@ -995,7 +995,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 	        case LLAssetType::AT_MESH:
 			if(!(inv_type == LLInventoryType::IT_MESH))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
 			new_listener = new LLMeshBridge(inventory, root, uuid);
 			break;
