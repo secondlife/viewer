@@ -109,19 +109,17 @@ protected:
 class LLInventoryFetchObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryFetchObserver(bool retry_if_missing = false): mRetryIfMissing(retry_if_missing) {}
+	LLInventoryFetchObserver(bool retry_if_missing = false);
 	virtual void changed(U32 mask);
 
-	typedef uuid_vec_t item_ref_t;
-
 	bool isEverythingComplete() const;
-	void fetchItems(const item_ref_t& ids);
+	void fetchItems(const uuid_vec_t& ids);
 	virtual void done() {};
 
 protected:
 	bool mRetryIfMissing;
-	item_ref_t mComplete;
-	item_ref_t mIncomplete;
+	uuid_vec_t mComplete;
+	uuid_vec_t mIncomplete;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -192,10 +190,8 @@ public:
 
 protected:
 	virtual void done() = 0;
-
-	typedef uuid_vec_t item_ref_t;
-	item_ref_t mExist;
-	item_ref_t mMIA;
+	uuid_vec_t mExist;
+	uuid_vec_t mMIA;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

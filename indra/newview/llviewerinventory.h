@@ -356,7 +356,7 @@ void copy_inventory_from_notecard(const LLUUID& object_id,
 								  U32 callback_id = 0);
 
 
-void menu_create_inventory_item(LLFolderView* folder,
+void menu_create_inventory_item(LLFolderView* root,
 								LLFolderBridge* bridge,
 								const LLSD& userdata,
 								const LLUUID& default_parent_uuid = LLUUID::null);
