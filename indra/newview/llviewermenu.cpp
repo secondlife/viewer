@@ -6158,7 +6158,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 						
 						items.push_back((*attachment_iter)->getItemID());
 						
-						wornItemFetched->fetchItems(items);
+						wornItemFetched->fetch(items);
 						gInventory.addObserver(wornItemFetched);
 					}
 				}

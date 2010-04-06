@@ -112,7 +112,7 @@ public:
 	virtual void changed(U32 mask);
 
 	bool isEverythingComplete() const;
-	void fetchItems(const uuid_vec_t& ids);
+	void fetch(const uuid_vec_t& ids);
 	virtual void done() {};
 
 protected:
@@ -134,14 +134,14 @@ public:
 	LLInventoryFetchDescendentsObserver() {}
 	virtual void changed(U32 mask);
 
-	void fetchDescendents(const uuid_vec_t& ids);
+	void fetch(const uuid_vec_t& ids);
 	bool isEverythingComplete() const;
 	virtual void done() = 0;
 
 protected:
 	bool isComplete(LLViewerInventoryCategory* cat);
-	uuid_vec_t mIncompleteFolders;
-	uuid_vec_t mCompleteFolders;
+	uuid_vec_t mIncomplete;
+	uuid_vec_t mComplete;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

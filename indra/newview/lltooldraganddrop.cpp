@@ -306,8 +306,8 @@ void LLCategoryDropDescendentsObserver::done()
 {
 
 	gInventory.removeObserver(this);
-	uuid_vec_t::iterator it = mCompleteFolders.begin();
-	uuid_vec_t::iterator end = mCompleteFolders.end();
+	uuid_vec_t::iterator it = mComplete.begin();
+	uuid_vec_t::iterator end = mComplete.end();
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
 	for(; it != end; ++it)
@@ -332,7 +332,7 @@ void LLCategoryDropDescendentsObserver::done()
 		std::copy(unique_ids.begin(), unique_ids.end(), copier);
 		LLCategoryDropObserver* dropper;
 		dropper = new LLCategoryDropObserver(mObjectID, mSource);
-		dropper->fetchItems(ids);
+		dropper->fetch(ids);
 		if (dropper->isEverythingComplete())
 		{
 			dropper->done();
@@ -2577,7 +2577,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 			ids.push_back(item->getUUID());
 		}
 		LLCategoryDropObserver* dropper = new LLCategoryDropObserver(obj->getID(), mSource);
-		dropper->fetchItems(ids);
+		dropper->fetch(ids);
 		if (dropper->isEverythingComplete())
 		{
 			dropper->done();

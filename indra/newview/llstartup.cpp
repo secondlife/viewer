@@ -1771,7 +1771,7 @@ bool idle_startup()
 					}
 				}
 				// no need to add gesture to inventory observer, it's already made in constructor 
-				LLGestureMgr::instance().fetchItems(item_ids);
+				LLGestureMgr::instance().fetch(item_ids);
 			}
 		}
 		gDisplaySwapBuffers = TRUE;

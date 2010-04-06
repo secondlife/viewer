@@ -1974,7 +1974,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 {
 	// Avoid passing a NULL-ref as mCompleteFolders.front() down to
 	// gInventory.collectDescendents()
-	if( mCompleteFolders.empty() )
+	if( mComplete.empty() )
 	{
 		llwarns << "LLRightClickInventoryFetchDescendentsObserver::done with empty mCompleteFolders" << llendl;
 		dec_busy_count();
@@ -1988,7 +1988,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 	// happen.
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
-	gInventory.collectDescendents(mCompleteFolders.front(),
+	gInventory.collectDescendents(mComplete.front(),
 								  cat_array,
 								  item_array,
 								  LLInventoryModel::EXCLUDE_TRASH);
@@ -2007,7 +2007,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 #endif
 
 	LLRightClickInventoryFetchObserver* outfit;
-	outfit = new LLRightClickInventoryFetchObserver(mCompleteFolders.front(), mCopyItems);
+	outfit = new LLRightClickInventoryFetchObserver(mComplete.front(), mCopyItems);
 	uuid_vec_t ids;
 	for(S32 i = 0; i < count; ++i)
 	{
@@ -2026,7 +2026,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 	inc_busy_count();
 
 	// do the fetch
-	outfit->fetchItems(ids);
+	outfit->fetch(ids);
 	outfit->done();				//Not interested in waiting and this will be right 99% of the time.
 //Uncomment the following code for laggy Inventory UI.
 /*	if(outfit->isEverythingComplete())
@@ -2723,7 +2723,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			folders.push_back(category->getUUID());
 		}
-		fetch->fetchDescendents(folders);
+		fetch->fetch(folders);
 		inc_busy_count();
 		if(fetch->isEverythingComplete())
 		{

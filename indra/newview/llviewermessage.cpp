@@ -1207,7 +1207,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				uuid_vec_t items;
 				items.push_back(mObjectID);
 				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(from_string);
-				open_agent_offer->fetchItems(items);
+				open_agent_offer->fetch(items);
 				if(catp || (itemp && itemp->isComplete()))
 				{
 					open_agent_offer->done();
@@ -1605,7 +1605,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		uuid_vec_t items;
 		items.push_back(info->mObjectID);
 		LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-		fetch_item->fetchItems(items);
+		fetch_item->fetch(items);
 		if(fetch_item->isEverythingComplete())
 		{
 			fetch_item->done();
@@ -2124,7 +2124,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				uuid_vec_t items;
 				items.push_back(info->mObjectID);
 				LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-				fetch_item->fetchItems(items);
+				fetch_item->fetch(items);
 				delete fetch_item;
 
 				// Same as closing window
@@ -2855,8 +2855,8 @@ public:
 		LLInventoryModel::cat_array_t	land_cats;
 		LLInventoryModel::item_array_t	land_items;
 
-		uuid_vec_t::iterator it = mCompleteFolders.begin();
-		uuid_vec_t::iterator end = mCompleteFolders.end();
+		uuid_vec_t::iterator it = mComplete.begin();
+		uuid_vec_t::iterator end = mComplete.end();
 		for(; it != end; ++it)
 		{
 			gInventory.collectDescendentsIf(
@@ -2927,7 +2927,7 @@ BOOL LLPostTeleportNotifiers::tick()
 		if(!folders.empty())
 		{
 			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea;
-			fetcher->fetchDescendents(folders);
+			fetcher->fetch(folders);
 			if(fetcher->isEverythingComplete())
 			{
 				fetcher->done();
