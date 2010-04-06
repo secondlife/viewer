@@ -182,7 +182,6 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // if creating/destroying these is too slow, we'll need to create
 // a static member and update all our static callbacks
 
-void handleNameTagOptionChanged(const LLSD& newvalue);	
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
 //bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
@@ -216,15 +215,6 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	}
 	
 	return false;
-}
-
-void handleNameTagOptionChanged(const LLSD& newvalue)
-{
-	S32 name_tag_option = S32(newvalue);
-	if(name_tag_option==2)
-	{
-		gSavedSettings.setBOOL("SmallAvatarNames", TRUE);
-	}
 }
 
 /*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
@@ -319,8 +309,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.MaturitySettings",		boost::bind(&LLFloaterPreference::onChangeMaturity, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
-	
-	gSavedSettings.getControl("AvatarNameTagMode")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
 }
 
 BOOL LLFloaterPreference::postBuild()
@@ -336,8 +324,6 @@ BOOL LLFloaterPreference::postBuild()
 	LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
-	S32 show_avatar_nametag_options = gSavedSettings.getS32("AvatarNameTagMode");
-	handleNameTagOptionChanged(LLSD(show_avatar_nametag_options));
 
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	childSetText("cache_location", cache_location);
@@ -515,13 +501,15 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
 		if (!gAgent.isAdult() && !gAgent.isGodlike())
 		{
-			// we're going to remove the adult entry from the combo. This obviously depends
-			// on the order of items in the XML file, but there doesn't seem to be a reasonable
-			// way to depend on the field in XML called 'name'.
-			maturity_combo->remove(0);
+			// we're going to remove the adult entry from the combo
+			LLScrollListCtrl* maturity_list = maturity_combo->findChild<LLScrollListCtrl>("ComboBox");
+			if (maturity_list)
+			{
+				maturity_list->deleteItems(LLSD(SIM_ACCESS_ADULT));
+			}
 		}
 		childSetVisible("maturity_desired_combobox", true);
-		childSetVisible("maturity_desired_textbox", false);		
+		childSetVisible("maturity_desired_textbox", false);
 	}
 	else
 	{
@@ -609,7 +597,7 @@ void LLFloaterPreference::onBtnOK()
 		llinfos << "Can't close preferences!" << llendl;
 	}
 
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateLocationCombo( false );
 }
 
 // static 
@@ -626,7 +614,7 @@ void LLFloaterPreference::onBtnApply( )
 	apply();
 	saveSettings();
 
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateLocationCombo( false );
 }
 
 // static 

@@ -125,7 +125,7 @@ public:
 		}
 
 		// support the secondlife:///app/worldmap/{LOCATION}/{COORDS} SLapp
-		const std::string region_name = params[0].asString();
+		const std::string region_name = LLURI::unescape(params[0].asString());
 		S32 x = (params.size() > 1) ? params[1].asInteger() : 128;
 		S32 y = (params.size() > 2) ? params[2].asInteger() : 128;
 		S32 z = (params.size() > 3) ? params[3].asInteger() : 0;
@@ -461,7 +461,7 @@ void LLFloaterWorldMap::draw()
 	childSetEnabled("Teleport", (BOOL)tracking_status);
 //	childSetEnabled("Clear", (BOOL)tracking_status);
 	childSetEnabled("Show Destination", (BOOL)tracking_status || LLWorldMap::getInstance()->isTracking());
-	childSetEnabled("copy_slurl", (mSLURL.size() > 0) );
+	childSetEnabled("copy_slurl", (mSLURL.isValid()) );
 
 	setMouseOpaque(TRUE);
 	getDragHandle()->setMouseOpaque(TRUE);
@@ -660,14 +660,8 @@ void LLFloaterWorldMap::updateLocation()
 				childSetValue("location", agent_sim_name);
 
 				// Figure out where user is
-				LLVector3d agentPos = gAgent.getPositionGlobal();
-
-				S32 agent_x = llround( (F32)fmod( agentPos.mdV[VX], (F64)REGION_WIDTH_METERS ) );
-				S32 agent_y = llround( (F32)fmod( agentPos.mdV[VY], (F64)REGION_WIDTH_METERS ) );
-				S32 agent_z = llround( (F32)agentPos.mdV[VZ] );
-
 				// Set the current SLURL
-				mSLURL = LLSLURL::buildSLURL(agent_sim_name, agent_x, agent_y, agent_z);
+				mSLURL = LLSLURL(agent_sim_name, gAgent.getPositionGlobal());
 			}
 		}
 
@@ -694,18 +688,15 @@ void LLFloaterWorldMap::updateLocation()
 		}
 
 		childSetValue("location", sim_name);
-		
-		F32 region_x = (F32)fmod( pos_global.mdV[VX], (F64)REGION_WIDTH_METERS );
-		F32 region_y = (F32)fmod( pos_global.mdV[VY], (F64)REGION_WIDTH_METERS );
 
 		// simNameFromPosGlobal can fail, so don't give the user an invalid SLURL
 		if ( gotSimName )
 		{
-			mSLURL = LLSLURL::buildSLURL(sim_name, llround(region_x), llround(region_y), llround((F32)pos_global.mdV[VZ]));
+		  mSLURL = LLSLURL(sim_name, pos_global);
 		}
 		else
 		{	// Empty SLURL will disable the "Copy SLURL to clipboard" button
-			mSLURL = "";
+			mSLURL = LLSLURL();
 		}
 	}
 }
@@ -1174,7 +1165,7 @@ void LLFloaterWorldMap::onClearBtn()
 	mTrackedStatus = LLTracker::TRACKING_NOTHING;
 	LLTracker::stopTracking((void *)(intptr_t)TRUE);
 	LLWorldMap::getInstance()->cancelTracking();
-	mSLURL = "";					// Clear the SLURL since it's invalid
+	mSLURL = LLSLURL();					// Clear the SLURL since it's invalid
 	mSetToUserPosition = TRUE;	// Revert back to the current user position
 }
 
@@ -1197,10 +1188,10 @@ void LLFloaterWorldMap::onClickTeleportBtn()
 
 void LLFloaterWorldMap::onCopySLURL()
 {
-	getWindow()->copyTextToClipboard(utf8str_to_wstring(mSLURL));
+	getWindow()->copyTextToClipboard(utf8str_to_wstring(mSLURL.getSLURLString()));
 	
 	LLSD args;
-	args["SLURL"] = mSLURL;
+	args["SLURL"] = mSLURL.getSLURLString();
 
 	LLNotificationsUtil::add("CopySLURL", args);
 }

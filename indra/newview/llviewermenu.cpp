@@ -136,6 +136,7 @@ extern BOOL gDebugWindowProc;
 LLMenuBarGL		*gMenuBarView = NULL;
 LLViewerMenuHolderGL	*gMenuHolder = NULL;
 LLMenuGL		*gPopupMenuView = NULL;
+LLMenuGL		*gEditMenu = NULL;
 LLMenuBarGL		*gLoginMenuBarView = NULL;
 
 // Pie menus
@@ -383,8 +384,10 @@ void init_menus()
 	///
 	/// Context menus
 	///
+
 	const widget_registry_t& registry =
 		LLViewerMenuHolderGL::child_registry_t::instance();
+	gEditMenu = LLUICtrlFactory::createFromFile<LLMenuGL>("menu_edit.xml", gMenuHolder, registry);
 	gMenuAvatarSelf = LLUICtrlFactory::createFromFile<LLContextMenu>(
 		"menu_avatar_self.xml", gMenuHolder, registry);
 	gMenuAvatarOther = LLUICtrlFactory::createFromFile<LLContextMenu>(
@@ -426,7 +429,7 @@ void init_menus()
 	gPopupMenuView->setBackgroundColor( color );
 
 	// If we are not in production, use a different color to make it apparent.
-	if (LLViewerLogin::getInstance()->isInProductionGrid())
+	if (LLGridManager::getInstance()->isInProductionGrid())
 	{
 		color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
 	}
@@ -442,7 +445,7 @@ void init_menus()
 	menu_bar_holder->addChild(gMenuBarView);
   
     gViewerWindow->setMenuBackgroundColor(false, 
-        LLViewerLogin::getInstance()->isInProductionGrid());
+        LLGridManager::getInstance()->isInProductionGrid());
 
 	// Assume L$10 for now, the server will tell us the real cost at login
 	// *TODO:Also fix cost in llfolderview.cpp for Inventory menus
@@ -1802,9 +1805,10 @@ class LLAdvancedDebugAvatarTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-		handle_debug_avatar_textures(NULL);
-#endif
+		if (gAgent.isGodlike())
+		{
+			handle_debug_avatar_textures(NULL);
+		}
 		return true;
 	}
 };
@@ -3463,7 +3467,7 @@ void set_god_level(U8 god_level)
         if(gViewerWindow)
         {
             gViewerWindow->setMenuBackgroundColor(god_level > GOD_NOT,
-            LLViewerLogin::getInstance()->isInProductionGrid());
+            LLGridManager::getInstance()->isInProductionGrid());
         }
     
         LLSD args;
@@ -3503,7 +3507,7 @@ BOOL check_toggle_hacked_godmode(void*)
 
 bool enable_toggle_hacked_godmode(void*)
 {
-  return !LLViewerLogin::getInstance()->isInProductionGrid();
+  return !LLGridManager::getInstance()->isInProductionGrid();
 }
 #endif
 
@@ -4374,7 +4378,7 @@ BOOL enable_take()
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLViewerLogin::getInstance()->isInProductionGrid() 
+		if (!LLGridManager::getInstance()->isInProductionGrid() 
             && gAgent.isGodlike())
 		{
 			return TRUE;
@@ -4987,7 +4991,7 @@ bool enable_object_delete()
 	TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	(!LLViewerLogin::getInstance()->isInProductionGrid()
+	(!LLGridManager::getInstance()->isInProductionGrid()
      && gAgent.isGodlike()) ||
 # endif
 	LLSelectMgr::getInstance()->canDoDelete();
@@ -5182,10 +5186,6 @@ void toggle_debug_menus(void*)
 {
 	BOOL visible = ! gSavedSettings.getBOOL("UseDebugMenus");
 	gSavedSettings.setBOOL("UseDebugMenus", visible);
-	if(visible)
-	{
-		//LLFirstUse::useDebugMenus();
-	}
 	show_debug_menus();
 }
 
@@ -5325,6 +5325,16 @@ class LLWorldCreateLandmark : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
+
+		return true;
+	}
+};
+
+class LLWorldPlaceProfile : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "agent"));
 
 		return true;
 	}
@@ -6627,7 +6637,7 @@ bool enable_object_take_copy()
 		all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (LLViewerLogin::getInstance()->isInProductionGrid()
+		if (LLGridManager::getInstance()->isInProductionGrid()
             || !gAgent.isGodlike())
 # endif
 		{
@@ -6689,7 +6699,7 @@ BOOL enable_save_into_inventory(void*)
 	return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLViewerLogin::getInstance()->isInProductionGrid()
+	if (!LLGridManager::getInstance()->isInProductionGrid()
         && gAgent.isGodlike())
 	{
 		return TRUE;
@@ -7739,6 +7749,7 @@ void initialize_menus()
 	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
+	view_listener_t::addMenu(new LLWorldPlaceProfile(), "World.PlaceProfile");
 	view_listener_t::addMenu(new LLWorldSetHomeLocation(), "World.SetHomeLocation");
 	view_listener_t::addMenu(new LLWorldTeleportHome(), "World.TeleportHome");
 	view_listener_t::addMenu(new LLWorldSetAway(), "World.SetAway");

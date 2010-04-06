@@ -93,7 +93,7 @@ public:
 		payload["object_id"] = object_id;
 		payload["owner_id"] = query_map["owner"];
 		payload["name"] = query_map["name"];
-		payload["slurl"] = query_map["slurl"];
+		payload["slurl"] = LLWeb::escapeURL(query_map["slurl"]);
 		payload["group_owned"] = query_map["groupowned"];
 		LLFloaterReg::showInstance("inspect_remote_object", payload);
 		return true;
@@ -632,7 +632,14 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 	if (use_plain_text_chat_history)
 	{
-		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
+		LLStyle::Params timestamp_style(style_params);
+		if (!message_from_log)
+		{
+			LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
+			timestamp_style.color(timestamp_color);
+			timestamp_style.readonly_color(timestamp_color);
+		}
+		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, timestamp_style);
 
 		if (utf8str_trim(chat.mFromName).size() != 0)
 		{
@@ -640,20 +647,19 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			if ( chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
 			{
 				// for object IMs, create a secondlife:///app/objectim SLapp
-				std::string url = LLSLURL::buildCommand("objectim", chat.mFromID, "");
+				std::string url = LLSLURL("objectim", chat.mFromID, "").getSLURLString();
 				url += "?name=" + chat.mFromName;
 				url += "&owner=" + args["owner_id"].asString();
 
 				std::string slurl = args["slurl"].asString();
 				if (slurl.empty())
 				{
-					LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
-					if (region)
-					{
-						S32 x, y, z;
-						LLSLURL::globalPosToXYZ(LLVector3d(chat.mPosAgent), x, y, z);
-						slurl = region->getName() + llformat("/%d/%d/%d", x, y, z);
-					}
+				    LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
+				    if(region)
+				      {
+					LLSLURL region_slurl(region->getName(), chat.mPosAgent);
+					slurl = region_slurl.getLocationString();
+				      }
 				}
 				url += "&slurl=" + slurl;
 

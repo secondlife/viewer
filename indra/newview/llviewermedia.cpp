@@ -257,7 +257,43 @@ public:
 		LLViewerMediaImpl *mMediaImpl;
 		bool mInitialized;
 };
+
+class LLViewerMediaOpenIDResponder : public LLHTTPClient::Responder
+{
+LOG_CLASS(LLViewerMediaOpenIDResponder);
+public:
+	LLViewerMediaOpenIDResponder( )
+	{
+	}
+
+	~LLViewerMediaOpenIDResponder()
+	{
+	}
+
+	/* virtual */ void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	{
+		LL_DEBUGS("MediaAuth") << "status = " << status << ", reason = " << reason << LL_ENDL;
+		LL_DEBUGS("MediaAuth") << content << LL_ENDL;
+		std::string cookie = content["set-cookie"].asString();
+		
+		LLViewerMedia::openIDCookieResponse(cookie);
+	}
+
+	/* virtual */ void completedRaw(
+		U32 status,
+		const std::string& reason,
+		const LLChannelDescriptors& channels,
+		const LLIOPipe::buffer_ptr_t& buffer)
+	{
+		// This is just here to disable the default behavior (attempting to parse the response as llsd).
+		// We don't care about the content of the response, only the set-cookie header.
+	}
+
+};
+
 LLPluginCookieStore *LLViewerMedia::sCookieStore = NULL;
+LLURL LLViewerMedia::sOpenIDURL;
+std::string LLViewerMedia::sOpenIDCookie;
 static LLViewerMedia::impl_list sViewerMediaImplList;
 static LLViewerMedia::impl_id_map sViewerMediaTextureIDMap;
 static LLTimer sMediaCreateTimer;
@@ -1067,7 +1103,8 @@ void LLViewerMedia::clearAllCookies()
 		}
 	}
 	
-	
+	// If we have an OpenID cookie, re-add it to the cookie store.
+	setOpenIDCookie();
 }
 	
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1168,7 +1205,9 @@ void LLViewerMedia::loadCookieFile()
 			pimpl->mMediaSource->clear_cookies();
 		}
 	}
-
+	
+	// If we have an OpenID cookie, re-add it to the cookie store.
+	setOpenIDCookie();
 }
 
 
@@ -1240,6 +1279,62 @@ void LLViewerMedia::removeCookie(const std::string &name, const std::string &dom
 	addCookie(name, "", domain, LLDate(LLDate::now().secondsSinceEpoch() - 1.0), path);
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::setOpenIDCookie()
+{
+	if(!sOpenIDCookie.empty())
+	{
+		getCookieStore()->setCookiesFromHost(sOpenIDCookie, sOpenIDURL.mAuthority);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::openIDSetup(const std::string &openid_url, const std::string &openid_token)
+{
+	LL_DEBUGS("MediaAuth") << "url = \"" << openid_url << "\", token = \"" << openid_token << "\"" << LL_ENDL;
+
+	// post the token to the url 
+	// the responder will need to extract the cookie(s).
+
+	// Save the OpenID URL for later -- we may need the host when adding the cookie.
+	sOpenIDURL.init(openid_url.c_str());
+	
+	// We shouldn't ever do this twice, but just in case this code gets repurposed later, clear existing cookies.
+	sOpenIDCookie.clear();
+
+	LLSD headers = LLSD::emptyMap();
+	// Keep LLHTTPClient from adding an "Accept: application/llsd+xml" header
+	headers["Accept"] = "*/*";
+	// and use the expected content-type for a post, instead of the LLHTTPClient::postRaw() default of "application/octet-stream"
+	headers["Content-Type"] = "application/x-www-form-urlencoded";
+
+	// postRaw() takes ownership of the buffer and releases it later, so we need to allocate a new buffer here.
+	size_t size = openid_token.size();
+	U8 *data = new U8[size];
+	memcpy(data, openid_token.data(), size);
+
+	LLHTTPClient::postRaw( 
+		openid_url, 
+		data, 
+		size, 
+		new LLViewerMediaOpenIDResponder(),
+		headers);
+			
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// static
+void LLViewerMedia::openIDCookieResponse(const std::string &cookie)
+{
+	LL_DEBUGS("MediaAuth") << "Cookie received: \"" << cookie << "\"" << LL_ENDL;
+	
+	sOpenIDCookie += cookie;
+
+	setOpenIDCookie();
+}
 
 bool LLViewerMedia::hasInWorldMedia()
 {
@@ -1378,11 +1473,6 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 //////////////////////////////////////////////////////////////////////////////////////////
 LLViewerMediaImpl::~LLViewerMediaImpl()
 {
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
-	
 	destroyMediaSource();
 	
 	LLViewerMediaTexture::removeMediaImplFromTexture(mTextureId) ;
@@ -1442,7 +1532,10 @@ void LLViewerMediaImpl::createMediaSource()
 	}
 	else if(! mMimeType.empty())
 	{
-		initializeMedia(mMimeType);
+		if (!initializeMedia(mMimeType))
+		{
+			LL_WARNS("Media") << "Failed to initialize media for mime type " << mMimeType << LL_ENDL;
+		}
 	}
 }
 

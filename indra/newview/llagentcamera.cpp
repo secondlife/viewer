@@ -107,6 +107,8 @@ LLAgentCamera gAgentCamera;
 // LLAgentCamera()
 //-----------------------------------------------------------------------------
 LLAgentCamera::LLAgentCamera() :
+	mInitialized(false),
+
 	mDrawDistance( DEFAULT_FAR_PLANE ),
 
 	mLookAt(NULL),
@@ -142,7 +144,7 @@ LLAgentCamera::LLAgentCamera() :
 	mSitCameraEnabled(FALSE),
 	mCameraSmoothingLastPositionGlobal(),
 	mCameraSmoothingLastPositionAgent(),
-	mCameraSmoothingStop(FALSE),
+	mCameraSmoothingStop(false),
 
 	mCameraUpVector(LLVector3::z_axis), // default is straight up
 
@@ -219,7 +221,7 @@ void LLAgentCamera::init()
 	mCameraZoomFraction = 1.f;
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
 
-	mInitialized = TRUE;
+	mInitialized = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1042,7 +1044,7 @@ void LLAgentCamera::cameraPanLeft(F32 meters)
 	mFocusGlobal = mFocusTargetGlobal;
 
 	// disable smoothing for camera pan, which causes some residents unhappiness
-	mCameraSmoothingStop = TRUE;
+	mCameraSmoothingStop = true;
 	
 	cameraZoomIn(1.f);
 	updateFocusOffset();
@@ -1062,7 +1064,7 @@ void LLAgentCamera::cameraPanUp(F32 meters)
 	mFocusGlobal = mFocusTargetGlobal;
 
 	// disable smoothing for camera pan, which causes some residents unhappiness
-	mCameraSmoothingStop = TRUE;
+	mCameraSmoothingStop = true;
 
 	cameraZoomIn(1.f);
 	updateFocusOffset();
@@ -1122,9 +1124,9 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		{
 			// range from -.5 to .5
 			F32 x_from_center = 
-				((F32) mouse_x / (F32) gViewerWindow->getWindowWidthScaled() ) - 0.5f;
+				((F32) mouse_x / (F32) gViewerWindow->getWorldViewWidthScaled() ) - 0.5f;
 			F32 y_from_center = 
-				((F32) mouse_y / (F32) gViewerWindow->getWindowHeightScaled() ) - 0.5f;
+				((F32) mouse_y / (F32) gViewerWindow->getWorldViewHeightScaled() ) - 0.5f;
 
 			frameCamera.yaw( - x_from_center * gSavedSettings.getF32("YawFromMousePosition") * DEG_TO_RAD);
 			frameCamera.pitch( - y_from_center * gSavedSettings.getF32("PitchFromMousePosition") * DEG_TO_RAD);
@@ -1364,7 +1366,8 @@ void LLAgentCamera::updateCamera()
 		LLVector3d camera_pos_agent = camera_pos_global - agent_pos;
 		// Sitting on what you're manipulating can cause camera jitter with smoothing. 
 		// This turns off smoothing while editing. -MG
-		mCameraSmoothingStop |= (BOOL)LLToolMgr::getInstance()->inBuildMode();
+		bool in_build_mode = LLToolMgr::getInstance()->inBuildMode();
+		mCameraSmoothingStop = mCameraSmoothingStop || in_build_mode;
 		
 		if (cameraThirdPerson() && !mCameraSmoothingStop)
 		{
@@ -1396,7 +1399,7 @@ void LLAgentCamera::updateCamera()
 								 
 		mCameraSmoothingLastPositionGlobal = camera_pos_global;
 		mCameraSmoothingLastPositionAgent = camera_pos_agent;
-		mCameraSmoothingStop = FALSE;
+		mCameraSmoothingStop = false;
 	}
 
 	

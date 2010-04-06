@@ -558,15 +558,6 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 			}
 			break;
 		}
-		case 'A':
-		{
-			if(MASK_CONTROL & mask)
-			{
-				selectAll();
-				handled = TRUE;
-			}
-			break;
-		}
 		default:
 			break;
 	}
@@ -791,10 +782,15 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 	return false;
 }
 
-bool LLFlatListView::selectAll()
+BOOL LLFlatListView::canSelectAll() const
 {
-	if (!mAllowSelection)
-		return false;
+	return !mItemPairs.empty() && mAllowSelection && mMultipleSelection;
+}
+
+void LLFlatListView::selectAll()
+{
+	if (!mAllowSelection || !mMultipleSelection)
+		return;
 
 	mSelectedItemPairs.clear();
 
@@ -814,8 +810,6 @@ bool LLFlatListView::selectAll()
 
 	// Stretch selected item rect to ensure it won't be clipped
 	mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
-
-	return true;
 }
 
 bool LLFlatListView::isSelected(item_pair_t* item_pair) const
@@ -953,11 +947,17 @@ void LLFlatListView::getValues(std::vector<LLSD>& values) const
 void LLFlatListView::onFocusReceived()
 {
 	mSelectedItemsBorder->setVisible(TRUE);
+	gEditMenuHandler = this;
 }
 // virtual
 void LLFlatListView::onFocusLost()
 {
 	mSelectedItemsBorder->setVisible(FALSE);
+	// Route menu back to the default
+ 	if( gEditMenuHandler == this )
+	{
+		gEditMenuHandler = NULL;
+	}
 }
 
 //virtual 

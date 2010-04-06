@@ -182,11 +182,9 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	
 	mLookInfoType = key["type"].asString();
 
-	if (mLookInfoType == "look")
+	if (mLookInfoType == "edit_outfit")
 	{
-		LLInventoryCategory *pLook = gInventory.getCategory(key["id"].asUUID());
-		if (pLook)
-			mOutfitEdit->displayLookInfo(pLook);
+		mOutfitEdit->displayCurrentOutfit();
 	}
 }
 
@@ -296,6 +294,8 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 	{
 		return;
 	}
+
+	mCurrOutfitPanel->setVisible(!visible);
 
 	mEditWearable->setVisible(visible);
 	mEditWearable->setWearable(wearable);

@@ -1264,6 +1264,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CertStore</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies the Certificate Store for certificate trust verification</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>default</string>
+    </map>
     <key>ChatBarStealsFocus</key>
     <map>
       <key>Comment</key>
@@ -1639,6 +1650,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>CurrentGrid</key>
+    <map>
+      <key>Comment</key>
+      <string>Currently Selected Grid</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
     </map>
     <key>CustomServer</key>
     <map>
@@ -2366,6 +2388,29 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>DefaultFemaleAvatar</key>
+	<map>
+	  <key>Comment</key>
+	  <string>Default Female Avatar</string>
+	  <key>Persist</key>
+	  <integer>1</integer>
+	  <key>Type</key>
+	  <string>String</string>
+	  <key>Value</key>
+	  <string>Female Shape &amp; Outfit</string>
+	</map>
+	<key>DefaultMaleAvatar</key>
+	<map>
+	  <key>Comment</key>
+	  <string>Default Male Avatar</string>
+	  <key>Persist</key>
+	  <integer>1</integer>
+	  <key>Type</key>
+	  <string>String</string>
+	  <key>Value</key>
+	  <string>Male Shape &amp; Outfit</string>
+	</map>
+
     <key>DefaultObjectTexture</key>
     <map>
       <key>Comment</key>
@@ -2563,6 +2608,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.10000000149</real>
+    </map>
+    <key>DragAndDropDistanceThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of pixels that mouse should move before triggering drag and drop mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
     </map>
     <key>DropShadowButton</key>
     <map>
@@ -3431,7 +3487,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ForceMandatoryUpdate</key>
     <map>
@@ -4609,7 +4665,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
   <key>MediaShowOutsideParcel</key>
   <map>
@@ -7685,6 +7741,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SecondLifeEnterprise</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables Second Life Enterprise features</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>	
     <key>SelectMovableOnly</key>
     <map>
       <key>Comment</key>
@@ -8117,13 +8184,13 @@
     <key>NearbyPeopleSortOrder</key>
     <map>
       <key>Comment</key>
-      <string>Specifies sort order for nearby people (0 = by name, 2 = by most recent)</string>
+      <string>Specifies sort order for nearby people (0 = by name, 3 = by distance, 4 = by most recent)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>4</integer>
     </map>
     <key>RecentPeopleSortOrder</key>
     <map>
@@ -8489,7 +8556,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ShowTangentBasis</key>
     <map>
@@ -8646,17 +8713,6 @@
     <map>
       <key>Comment</key>
       <string>Whether to use the old Second Life particle clouds or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>SmallAvatarNames</key>
-    <map>
-      <key>Comment</key>
-      <string>Display avatar name text in smaller font</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10393,6 +10449,17 @@
       <key>Value</key>
       <string></string>
     </map>
+    <key>VivoxDebugSIPURIHostName</key>
+    <map>
+      <key>Comment</key>
+      <string>Hostname portion of vivox SIP URIs (empty string for the default).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
     <key>VivoxDebugVoiceAccountServerURI</key>
     <map>
       <key>Comment</key>
@@ -10403,6 +10470,28 @@
       <string>String</string>
       <key>Value</key>
       <string></string>
+    </map>
+    <key>VivoxVoiceHost</key>
+    <map>
+      <key>Comment</key>
+      <string>Client SLVoice host to connect to</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>127.0.0.1</string>
+    </map>
+    <key>VivoxVoicePort</key>
+    <map>
+      <key>Comment</key>
+      <string>Client SLVoice port to connect to</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>44125</integer>
     </map>
     <key>VoiceCallsFriendsOnly</key>
     <map>
@@ -10536,6 +10625,17 @@
       <key>Value</key>
       <string>Default</string>
     </map>
+    <key>VoiceLogFile</key>
+    <map>
+      <key>Comment</key>
+      <string>Log file to use when launching the voice daemon</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
     <key>VoiceOutputAudioDevice</key>
     <map>
       <key>Comment</key>
@@ -10579,6 +10679,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>VoiceServerType</key>
+    <map>
+      <key>Comment</key>
+      <string>The type of voice server to connect to.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>vivox</string>
     </map>
     <key>WLSkyDetail</key>
     <map>

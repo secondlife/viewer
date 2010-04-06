@@ -61,7 +61,6 @@ public:
 		Params()
 		{
 			name = "scrolling_panel_list";
-			follows.flags = FOLLOWS_LEFT | FOLLOWS_BOTTOM;
 		}
 	};
 	LLScrollingPanelList(const Params& p)
@@ -85,6 +84,11 @@ public:
 
 private:
 	void				updatePanelVisiblilty();
+
+	/**
+	 * Notify parent about size change, makes sense when used inside accordion
+	 */
+	void				notifySizeChanged(S32 height);
 
 	panel_list_t		mPanelList;
 };
