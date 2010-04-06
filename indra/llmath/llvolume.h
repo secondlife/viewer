@@ -49,6 +49,7 @@ class LLVolume;
 //#include "vmath.h"
 #include "v2math.h"
 #include "v3math.h"
+#include "v4math.h"
 #include "llquaternion.h"
 #include "llstrider.h"
 #include "v4coloru.h"
@@ -886,6 +887,11 @@ public:
 	std::vector<U16>	mIndices;
 	std::vector<U16>	mTriStrip;
 	std::vector<S32>	mEdge;
+
+	//list of skin weights for rigged volumes
+	// format is mWeights[vertex_index].mV[influence] = <joint_index>.<weight>
+	// mWeights.size() should be empty or match mVertices.size()  
+	std::vector<LLVector4> mWeights;
 
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);

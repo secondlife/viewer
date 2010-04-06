@@ -615,6 +615,13 @@ public:
 class LLVolumeGeometryManager: public LLGeometryManager
 {
  public:
+	typedef enum
+	{
+		NONE = 0,
+		BATCH_SORT,
+		DISTANCE_SORT
+	} eSortType;
+
 	virtual ~LLVolumeGeometryManager() { }
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);

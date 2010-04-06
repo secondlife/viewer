@@ -77,6 +77,9 @@ LLGLSLShader		gObjectFullbrightShinyProgram;
 LLGLSLShader		gObjectShinyProgram;
 LLGLSLShader		gObjectShinyWaterProgram;
 
+//object hardware skinning shaders
+LLGLSLShader		gSkinnedObjectSimpleProgram;
+
 //environment shaders
 LLGLSLShader		gTerrainProgram;
 LLGLSLShader		gTerrainWaterProgram;
@@ -148,6 +151,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gObjectSimpleProgram);
 	mShaderList.push_back(&gObjectFullbrightProgram);
 	mShaderList.push_back(&gObjectFullbrightShinyProgram);
+	mShaderList.push_back(&gSkinnedObjectSimpleProgram);
 	mShaderList.push_back(&gTerrainProgram);
 	mShaderList.push_back(&gTerrainWaterProgram);
 	mShaderList.push_back(&gObjectSimpleWaterProgram);
@@ -195,6 +199,7 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 		mReservedAttribs.push_back("materialColor");
 		mReservedAttribs.push_back("specularColor");
 		mReservedAttribs.push_back("binormal");
+		mReservedAttribs.push_back("object_weight");
 
 		mAvatarAttribs.reserve(5);
 		mAvatarAttribs.push_back("weight");
@@ -548,6 +553,9 @@ void LLViewerShaderMgr::unloadShaders()
 	gObjectShinyProgram.unload();
 	gObjectFullbrightShinyProgram.unload();
 	gObjectShinyWaterProgram.unload();
+
+	gSkinnedObjectSimpleProgram.unload();
+
 	gWaterProgram.unload();
 	gUnderWaterProgram.unload();
 	gTerrainProgram.unload();
@@ -625,6 +633,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	shaders.push_back( make_pair( "lighting/lightSpecularV.glsl",			mVertexShaderLevel[SHADER_LIGHTING] ) );
 	shaders.push_back( make_pair( "windlight/atmosphericsV.glsl",			mVertexShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "avatar/avatarSkinV.glsl",				1 ) );
+	shaders.push_back( make_pair( "avatar/objectSkinV.glsl",				1 ) );
 
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
 	for (U32 i = 0; i < shaders.size(); i++)
@@ -1214,6 +1223,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectSimpleWaterProgram.unload();
 		gObjectFullbrightProgram.unload();
 		gObjectFullbrightWaterProgram.unload();
+		gSkinnedObjectSimpleProgram.unload();
 		return FALSE;
 	}
 
@@ -1323,6 +1333,21 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		success = gObjectFullbrightShinyProgram.createShader(NULL, &mShinyUniforms);
 	}
 
+	if (success)
+	{
+		gSkinnedObjectSimpleProgram.mName = "Skinned Simple Shader";
+		gSkinnedObjectSimpleProgram.mFeatures.calculatesLighting = true;
+		gSkinnedObjectSimpleProgram.mFeatures.calculatesAtmospherics = true;
+		gSkinnedObjectSimpleProgram.mFeatures.hasGamma = true;
+		gSkinnedObjectSimpleProgram.mFeatures.hasAtmospherics = true;
+		gSkinnedObjectSimpleProgram.mFeatures.hasLighting = true;
+		gSkinnedObjectSimpleProgram.mFeatures.hasObjectSkinning = true;
+		gSkinnedObjectSimpleProgram.mShaderFiles.clear();
+		gSkinnedObjectSimpleProgram.mShaderFiles.push_back(make_pair("objects/simpleSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
+		gSkinnedObjectSimpleProgram.mShaderFiles.push_back(make_pair("objects/simpleF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gSkinnedObjectSimpleProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		success = gSkinnedObjectSimpleProgram.createShader(NULL, NULL);
+	}
 
 	if( !success )
 	{
