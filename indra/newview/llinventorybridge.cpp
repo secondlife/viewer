@@ -5107,7 +5107,6 @@ void LLLinkFolderBridge::performAction(LLInventoryModel* model, std::string acti
 		return;
 	}
 	LLItemBridge::performAction(model,action);
-		items.push_back(std::string("Restore Item"));
 }
 void LLLinkFolderBridge::gotoItem()
 {
@@ -5125,9 +5124,6 @@ void LLLinkFolderBridge::gotoItem()
 			mRoot->scrollToShowSelection();
 		}
 	}
-
-
-	hide_context_entries(menu, items, disabled_items);
 }
 const LLUUID &LLLinkFolderBridge::getFolderID() const
 {
@@ -5138,12 +5134,6 @@ const LLUUID &LLLinkFolderBridge::getFolderID() const
 			const LLUUID& cat_uuid = cat->getUUID();
 			return cat_uuid;
 		}
-	case LLAssetType::AT_MESH:
-		action = new LLMeshBridgeAction(uuid,model);
-		break;
-
-
-		
 	}
 	return LLUUID::null;
 }
