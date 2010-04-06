@@ -39,8 +39,8 @@
 #include "llinventoryfunctions.h"
 #include "llvoavatarself.h"
 
-LLInitialWearablesFetch::LLInitialWearablesFetch(const uuid_vec_t& ids) :
-	LLInventoryFetchDescendentsObserver(ids)
+LLInitialWearablesFetch::LLInitialWearablesFetch(const LLUUID& cof_id) :
+	LLInventoryFetchDescendentsObserver(cof_id)
 {
 }
 
@@ -189,8 +189,8 @@ void LLInitialWearablesFetch::processWearablesMessage()
 	}
 }
 
-LLLibraryOutfitsFetch::LLLibraryOutfitsFetch(const uuid_vec_t& ids) : 
-	LLInventoryFetchDescendentsObserver(ids),
+LLLibraryOutfitsFetch::LLLibraryOutfitsFetch(const LLUUID& my_outfits_id) : 
+	LLInventoryFetchDescendentsObserver(my_outfits_id),
 	mCurrFetchStep(LOFS_FOLDER), 
 	mOutfitsPopulated(false) 
 {

@@ -703,9 +703,9 @@ static LLNotificationFunctorRegistration jgr_3("JoinGroupCanAfford", join_group_
 class LLOpenAgentOffer : public LLInventoryFetchItemsObserver
 {
 public:
-	LLOpenAgentOffer(const uuid_vec_t& ids,
+	LLOpenAgentOffer(const LLUUID& object_id,
 					 const std::string& from_name) : 
-		LLInventoryFetchItemsObserver(ids),
+		LLInventoryFetchItemsObserver(object_id),
 		mFromName(from_name) {}
 	/*virtual*/ void done()
 	{
@@ -1207,9 +1207,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				// This is an offer from an agent. In this case, the back
 				// end has already copied the items into your inventory,
 				// so we can fetch it out of our inventory.
-				uuid_vec_t items;
-				items.push_back(mObjectID);
-				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(items, from_string);
+				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(mObjectID, from_string);
 				open_agent_offer->startFetch();
 				if(catp || (itemp && itemp->isComplete()))
 				{
@@ -1605,9 +1603,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		p.name = "UserGiveItem";
 		
 		// Prefetch the item into your local inventory.
-		uuid_vec_t items;
-		items.push_back(info->mObjectID);
-		LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(items);
+		LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
 		fetch_item->startFetch();
 		if(fetch_item->isEverythingComplete())
 		{
@@ -2124,9 +2120,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			if (is_muted)
 			{
 				// Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
-				uuid_vec_t items;
-				items.push_back(info->mObjectID);
-				LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(items);
+				LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
 				fetch_item->startFetch();
 				delete fetch_item;
 

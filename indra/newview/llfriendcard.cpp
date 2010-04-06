@@ -111,9 +111,9 @@ class LLInitialFriendCardsFetch : public LLInventoryFetchDescendentsObserver
 public:
 	typedef boost::function<void()> callback_t;
 
-	LLInitialFriendCardsFetch(const uuid_vec_t& ids,
+	LLInitialFriendCardsFetch(const LLUUID& folder_id,
 							  callback_t cb) :
-		LLInventoryFetchDescendentsObserver(ids),
+		LLInventoryFetchDescendentsObserver(folder_id),
 		mCheckFolderCallback(cb)	
 	{}
 
@@ -410,10 +410,8 @@ void LLFriendCardsManager::findMatchedFriendCards(const LLUUID& avatarID, LLInve
 
 void LLFriendCardsManager::fetchAndCheckFolderDescendents(const LLUUID& folder_id,  callback_t cb)
 {
-	uuid_vec_t folders;
-	folders.push_back(folder_id);
 	// This instance will be deleted in LLInitialFriendCardsFetch::done().
-	LLInitialFriendCardsFetch* fetch = new LLInitialFriendCardsFetch(folders, cb);
+	LLInitialFriendCardsFetch* fetch = new LLInitialFriendCardsFetch(folder_id, cb);
 	fetch->startFetch();
 	if(fetch->isEverythingComplete())
 	{

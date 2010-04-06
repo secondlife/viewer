@@ -113,9 +113,17 @@ LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(bool retry_if_missi
 {
 }
 
-LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& ids,
+LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_id,
 															 bool retry_if_missing) :
-	mIDs(ids),
+	mRetryIfMissing(retry_if_missing)
+{
+	mIDs.clear();
+	mIDs.push_back(item_id);
+}
+
+LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids,
+															 bool retry_if_missing) :
+	mIDs(item_ids),
 	mRetryIfMissing(retry_if_missing)
 {
 }
@@ -273,8 +281,14 @@ LLInventoryFetchDescendentsObserver::LLInventoryFetchDescendentsObserver()
 {
 }
 
-LLInventoryFetchDescendentsObserver::LLInventoryFetchDescendentsObserver(const uuid_vec_t& ids) :
-	mIDs(ids)
+LLInventoryFetchDescendentsObserver::LLInventoryFetchDescendentsObserver(const LLUUID& cat_id)
+{
+	mIDs.clear();
+	mIDs.push_back(cat_id);
+}
+
+LLInventoryFetchDescendentsObserver::LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids) :
+	mIDs(cat_ids)
 {
 }
 // virtual

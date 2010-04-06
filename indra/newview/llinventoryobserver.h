@@ -81,8 +81,9 @@ public:
 class LLInventoryFetchItemsObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryFetchItemsObserver(bool retry_if_missing = false);
-	LLInventoryFetchItemsObserver(const uuid_vec_t& ids, bool retry_if_missing = false);
+	LLInventoryFetchItemsObserver(bool retry_if_missing = false); // deprecated
+	LLInventoryFetchItemsObserver(const LLUUID& item_id, bool retry_if_missing = false); // single item
+	LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids, bool retry_if_missing = false); // multiple items
 	virtual void changed(U32 mask);
 
 	bool isEverythingComplete() const;
@@ -108,10 +109,12 @@ class LLInventoryFetchDescendentsObserver : public LLInventoryObserver
 {
 public:
 	LLInventoryFetchDescendentsObserver();
-	LLInventoryFetchDescendentsObserver(const uuid_vec_t& ids);
+	LLInventoryFetchDescendentsObserver(const LLUUID& cat_id);
+	LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids);
 	virtual void changed(U32 mask);
 
-	void setFolders(const uuid_vec_t& ids) { mIDs = ids; }
+	void setFolders(const uuid_vec_t& cat_ids) { mIDs = cat_ids; }
+	void setFolders(const LLUUID& cat_id) { mIDs.clear(); mIDs.push_back(cat_id); }
 	void startFetch();
 	bool isEverythingComplete() const;
 	virtual void done() = 0;

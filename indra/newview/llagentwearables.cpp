@@ -905,9 +905,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 
 		// Get the UUID of the current outfit folder (will be created if it doesn't exist)
 		const LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-		uuid_vec_t folders;
-		folders.push_back(current_outfit_id);
-		LLInitialWearablesFetch* outfit = new LLInitialWearablesFetch(folders);
+		LLInitialWearablesFetch* outfit = new LLInitialWearablesFetch(current_outfit_id);
 		
 		//lldebugs << "processAgentInitialWearablesUpdate()" << llendl;
 		// Add wearables
@@ -2061,9 +2059,7 @@ void LLAgentWearables::populateMyOutfitsFolder(void)
 	llinfos << "starting outfit population" << llendl;
 
 	const LLUUID& my_outfits_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	uuid_vec_t folders;
-	folders.push_back(my_outfits_id);
-	LLLibraryOutfitsFetch* outfits = new LLLibraryOutfitsFetch(folders);
+	LLLibraryOutfitsFetch* outfits = new LLLibraryOutfitsFetch(my_outfits_id);
 	outfits->mMyOutfitsID = my_outfits_id;
 	
 	// Get the complete information on the items in the inventory and 

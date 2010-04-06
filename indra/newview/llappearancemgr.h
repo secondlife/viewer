@@ -270,8 +270,8 @@ template <class T>
 class CallAfterCategoryFetchStage1: public LLInventoryFetchDescendentsObserver
 {
 public:
-	CallAfterCategoryFetchStage1(const uuid_vec_t& ids, T callable) :
-		LLInventoryFetchDescendentsObserver(ids),
+	CallAfterCategoryFetchStage1(const LLUUID& cat_id, T callable) :
+		LLInventoryFetchDescendentsObserver(cat_id),
 		mCallable(callable)
 	{
 	}
@@ -331,9 +331,7 @@ protected:
 template <class T> 
 void callAfterCategoryFetch(const LLUUID& cat_id, T callable)
 {
-	uuid_vec_t folders;
-	folders.push_back(cat_id);
-	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(folders, callable);
+	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(cat_id, callable);
 	stage1->startFetch();
 	if (stage1->isEverythingComplete())
 	{

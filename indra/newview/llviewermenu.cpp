@@ -6099,8 +6099,8 @@ class LLAttachmentDetach : public view_listener_t
 class LLWornItemFetchedObserver : public LLInventoryFetchItemsObserver
 {
 public:
-	LLWornItemFetchedObserver(const uuid_vec_t& ids) :
-		LLInventoryFetchItemsObserver(ids)
+	LLWornItemFetchedObserver(const LLUUID& worn_item_id) :
+		LLInventoryFetchItemsObserver(worn_item_id)
 	{}
 	virtual ~LLWornItemFetchedObserver() {}
 
@@ -6155,10 +6155,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 						// when the item finishes fetching worst case scenario 
 						// if a fetch is already out there (being sent from a slow sim)
 						// we refetch and there are 2 fetches
-
-						uuid_vec_t items; //add item to the inventory item to be fetched
-						items.push_back((*attachment_iter)->getItemID());
-						LLWornItemFetchedObserver* worn_item_fetched = new LLWornItemFetchedObserver(items);		
+						LLWornItemFetchedObserver* worn_item_fetched = new LLWornItemFetchedObserver((*attachment_iter)->getItemID());		
 						worn_item_fetched->startFetch();
 						gInventory.addObserver(worn_item_fetched);
 					}
