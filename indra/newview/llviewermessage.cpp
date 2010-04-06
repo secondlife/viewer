@@ -1209,7 +1209,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				// so we can fetch it out of our inventory.
 				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(mObjectID, from_string);
 				open_agent_offer->startFetch();
-				if(catp || (itemp && itemp->isComplete()))
+				if(catp || (itemp && itemp->isFinished()))
 				{
 					open_agent_offer->done();
 				}
@@ -1272,7 +1272,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			LLDiscardAgentOffer* discard_agent_offer;
 			discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
 			discard_agent_offer->startFetch(folders, items);
-			if(catp || (itemp && itemp->isComplete()))
+			if(catp || (itemp && itemp->isFinished()))
 			{
 				discard_agent_offer->done();
 			}
@@ -1605,7 +1605,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Prefetch the item into your local inventory.
 		LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
 		fetch_item->startFetch();
-		if(fetch_item->isEverythingComplete())
+		if(fetch_item->isFinished())
 		{
 			fetch_item->done();
 		}
@@ -2927,7 +2927,7 @@ BOOL LLPostTeleportNotifiers::tick()
 		{
 			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea(folders);
 			fetcher->startFetch();
-			if(fetcher->isEverythingComplete())
+			if(fetcher->isFinished())
 			{
 				fetcher->done();
 			}

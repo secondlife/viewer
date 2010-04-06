@@ -396,7 +396,7 @@ void LLSidepanelAppearance::fetchInventory()
 	fetch_worn->startFetch();
 	// If no items to be fetched, done will never be triggered.
 	// TODO: Change LLInventoryFetchItemsObserver::fetchItems to trigger done() on this condition.
-	if (fetch_worn->isEverythingComplete())
+	if (fetch_worn->isFinished())
 	{
 		fetch_worn->done();
 	}

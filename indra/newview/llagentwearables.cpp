@@ -952,7 +952,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 		// Get the complete information on the items in the inventory and set up an observer
 		// that will trigger when the complete information is fetched.
 		outfit->startFetch();
-		if(outfit->isEverythingComplete())
+		if(outfit->isFinished())
 		{
 			// everything is already here - call done.
 			outfit->done();
@@ -2066,7 +2066,7 @@ void LLAgentWearables::populateMyOutfitsFolder(void)
 	// setup an observer that will wait for that to happen.
 	gInventory.addObserver(outfits);
 	outfits->startFetch();
-	if (outfits->isEverythingComplete())
+	if (outfits->isFinished())
 	{
 		outfits->done();
 	}

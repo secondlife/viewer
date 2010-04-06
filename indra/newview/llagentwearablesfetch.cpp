@@ -174,7 +174,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 		fetcher->startFetch();
 		// If no items to be fetched, done will never be triggered.
 		// TODO: Change LLInventoryFetchItemsObserver::fetchItems to trigger done() on this condition.
-		if (fetcher->isEverythingComplete())
+		if (fetcher->isFinished())
 		{
 			fetcher->done();
 		}
@@ -287,9 +287,9 @@ void LLLibraryOutfitsFetch::folderDone()
 	uuid_vec_t folders;
 	folders.push_back(mClothingID);
 	folders.push_back(mLibraryClothingID);
-	setFolders(folders);
+	setFetchIDs(folders);
 	startFetch();
-	if (isEverythingComplete())
+	if (isFinished())
 	{
 		done();
 	}
@@ -337,9 +337,9 @@ void LLLibraryOutfitsFetch::outfitsDone()
 	}
 	
 	mComplete.clear();
-	setFolders(folders);
+	setFetchIDs(folders);
 	startFetch();
-	if (isEverythingComplete())
+	if (isFinished())
 	{
 		done();
 	}
@@ -434,9 +434,9 @@ void LLLibraryOutfitsFetch::importedFolderFetch()
 	folders.push_back(mImportedClothingID);
 	
 	mComplete.clear();
-	setFolders(folders);
+	setFetchIDs(folders);
 	startFetch();
-	if (isEverythingComplete())
+	if (isFinished())
 	{
 		done();
 	}
@@ -464,9 +464,9 @@ void LLLibraryOutfitsFetch::importedFolderDone()
 	}
 	
 	mComplete.clear();
-	setFolders(folders);
+	setFetchIDs(folders);
 	startFetch();
-	if (isEverythingComplete())
+	if (isFinished())
 	{
 		done();
 	}

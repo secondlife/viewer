@@ -482,9 +482,9 @@ void LLPanelOutfitEdit::updateLookInfo()
 	{
 		mLookContents->clearRows();
 
-		mFetchLook->setFolders(mLookID);
+		mFetchLook->setFetchID(mLookID);
 		mFetchLook->startFetch();
-		if (mFetchLook->isEverythingComplete())
+		if (mFetchLook->isFinished())
 		{
 			mFetchLook->done();
 		}

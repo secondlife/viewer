@@ -413,7 +413,7 @@ void LLFriendCardsManager::fetchAndCheckFolderDescendents(const LLUUID& folder_i
 	// This instance will be deleted in LLInitialFriendCardsFetch::done().
 	LLInitialFriendCardsFetch* fetch = new LLInitialFriendCardsFetch(folder_id, cb);
 	fetch->startFetch();
-	if(fetch->isEverythingComplete())
+	if(fetch->isFinished())
 	{
 		// everything is already here - call done.
 		fetch->done();

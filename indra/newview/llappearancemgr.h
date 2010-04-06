@@ -311,7 +311,7 @@ public:
 		// do the fetch
 		CallAfterCategoryFetchStage2<T> *stage2 = new CallAfterCategoryFetchStage2<T>(ids, mCallable);
 		stage2->startFetch();
-		if(stage2->isEverythingComplete())
+		if(stage2->isFinished())
 		{
 			// everything is already here - call done.
 			stage2->done();
@@ -333,7 +333,7 @@ void callAfterCategoryFetch(const LLUUID& cat_id, T callable)
 {
 	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(cat_id, callable);
 	stage1->startFetch();
-	if (stage1->isEverythingComplete())
+	if (stage1->isFinished())
 	{
 		stage1->done();
 	}

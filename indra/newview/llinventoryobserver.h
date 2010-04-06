@@ -73,30 +73,51 @@ public:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryFetchObserver
+//
+//   Abstract class to handle fetching items, folders, etc.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLInventoryFetchObserver : public LLInventoryObserver
+{
+public:
+	LLInventoryFetchObserver(const LLUUID& id = LLUUID::null); // single item
+	LLInventoryFetchObserver(const uuid_vec_t& ids); // multiple items
+	void setFetchID(const LLUUID& id);
+	void setFetchIDs(const uuid_vec_t& ids);
+
+	BOOL isFinished() const;
+
+	virtual void startFetch() = 0;
+	virtual void done() = 0;
+	virtual void changed(U32 mask) = 0;
+
+protected:
+	uuid_vec_t mComplete;
+	uuid_vec_t mIncomplete;
+	uuid_vec_t mIDs;
+};
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryFetchItemsObserver
 //
 //   Fetches inventory items, calls done() when all inventory has arrived. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLInventoryFetchItemsObserver : public LLInventoryObserver
+class LLInventoryFetchItemsObserver : public LLInventoryFetchObserver
 {
 public:
-	LLInventoryFetchItemsObserver(bool retry_if_missing = false); // deprecated
-	LLInventoryFetchItemsObserver(const LLUUID& item_id, bool retry_if_missing = false); // single item
-	LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids, bool retry_if_missing = false); // multiple items
-	virtual void changed(U32 mask);
+	// LLInventoryFetchItemsObserver(BOOL retry_if_missing = FALSE);
+	LLInventoryFetchItemsObserver(const LLUUID& item_id = LLUUID::null, 
+								  BOOL retry_if_missing = FALSE); 
+	LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids, 
+								  BOOL retry_if_missing = FALSE); 
 
-	bool isEverythingComplete() const;
-	void setItems(const uuid_vec_t& ids) { mIDs = ids; }
-	void startFetch();
-
-	virtual void done() {};
+	/*virtual*/ void startFetch();
+	/*virtual*/ void changed(U32 mask);
+	/*virtual*/ void done();
 
 protected:
-	bool mRetryIfMissing;
-	uuid_vec_t mComplete;
-	uuid_vec_t mIncomplete;
-	uuid_vec_t mIDs;
+	BOOL mRetryIfMissing;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -105,25 +126,17 @@ protected:
 //   Fetches children of a category/folder, calls done() when all 
 //   inventory has arrived. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLInventoryFetchDescendentsObserver : public LLInventoryObserver
+class LLInventoryFetchDescendentsObserver : public LLInventoryFetchObserver
 {
 public:
-	LLInventoryFetchDescendentsObserver();
-	LLInventoryFetchDescendentsObserver(const LLUUID& cat_id);
+	// LLInventoryFetchDescendentsObserver();
+	LLInventoryFetchDescendentsObserver(const LLUUID& cat_id = LLUUID::null);
 	LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids);
-	virtual void changed(U32 mask);
 
-	void setFolders(const uuid_vec_t& cat_ids) { mIDs = cat_ids; }
-	void setFolders(const LLUUID& cat_id) { mIDs.clear(); mIDs.push_back(cat_id); }
-	void startFetch();
-	bool isEverythingComplete() const;
-	virtual void done() = 0;
-
+	/*virtual*/ void startFetch();
+	/*virtual*/ void changed(U32 mask);
 protected:
-	bool isComplete(LLViewerInventoryCategory* cat);
-	uuid_vec_t mIncomplete;
-	uuid_vec_t mComplete;
-	uuid_vec_t mIDs;
+	BOOL isCategoryComplete(const LLViewerInventoryCategory* cat) const;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -137,7 +150,7 @@ protected:
 class LLInventoryFetchComboObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryFetchComboObserver() : mDone(false) {}
+	LLInventoryFetchComboObserver() : mDone(FALSE) {}
 	virtual void changed(U32 mask);
 
 	void startFetch(const uuid_vec_t& folder_ids, const uuid_vec_t& item_ids);
