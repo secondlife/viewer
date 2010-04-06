@@ -46,7 +46,6 @@ class LLInventoryModel;
 class LLMenuGL;
 class LLCallingCardObserver;
 class LLViewerJointAttachment;
-	MESH_ICON_NAME,
 
 
 typedef std::vector<std::string> menuentry_vec_t;
@@ -219,6 +218,7 @@ enum EInventoryIcon
 	
 	ANIMATION_ICON_NAME,
 	GESTURE_ICON_NAME,
+	MESH_ICON_NAME,
 
 	LINKITEM_ICON_NAME,
 	LINKFOLDER_ICON_NAME,
