@@ -3496,12 +3496,32 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 		drawablep->clearState(LLDrawable::HAS_ALPHA);
 
+		bool rigged = vobj->isAttachment() && 
+					vobj->isMesh() && 
+					gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID());
+
 		//for each face
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
 			//sum up face verts and indices
 			drawablep->updateFaceSize(i);
 			LLFace* facep = drawablep->getFace(i);
+
+			if (rigged) 
+			{
+				if (!facep->isState(LLFace::RIGGED))
+				{
+					facep->mVertexBuffer = NULL;
+					facep->mLastVertexBuffer = NULL;
+					facep->setState(LLFace::RIGGED);
+				}
+
+				continue;
+			}
+			else
+			{
+				facep->clearState(LLFace::RIGGED);
+			}
 
 			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
 			{

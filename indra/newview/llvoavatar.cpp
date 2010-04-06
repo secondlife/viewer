@@ -64,6 +64,7 @@
 #include "llkeyframefallmotion.h"
 #include "llkeyframestandmotion.h"
 #include "llkeyframewalkmotion.h"
+#include "llmeshrepository.h"
 #include "llmutelist.h"
 #include "llmoveview.h"
 #include "llquantize.h"
@@ -79,6 +80,7 @@
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
+#include "llviewershadermgr.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
 #include "llvovolume.h"
@@ -3642,6 +3644,113 @@ bool LLVOAvatar::shouldAlphaMask()
 
 	return should_alpha_mask;
 
+}
+
+U32 LLVOAvatar::renderSkinnedAttachments()
+{
+	U32 num_indices = 0;
+	
+	const U32 data_mask =	LLVertexBuffer::MAP_VERTEX | 
+							LLVertexBuffer::MAP_NORMAL | 
+							LLVertexBuffer::MAP_TEXCOORD0 | 
+							LLVertexBuffer::MAP_WEIGHT4;
+
+	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end();
+		 ++iter)
+	{
+		LLViewerJointAttachment* attachment = iter->second;
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
+		{
+			const LLViewerObject* attached_object = (*attachment_iter);
+			if (attached_object && !attached_object->isHUDAttachment())
+			{
+				const LLDrawable* drawable = attached_object->mDrawable;
+				if (drawable)
+				{
+					for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+					{
+						LLFace* face = drawable->getFace(i);
+						if (face->isState(LLFace::RIGGED))
+						{
+							LLVolume* volume = attached_object->getVolume();
+							const LLVolumeFace& vol_face = volume->getVolumeFace(i);
+
+							const LLMeshSkinInfo* skin = NULL;
+							LLVertexBuffer* buff = face->mVertexBuffer;
+
+							if (!buff || 
+								!buff->hasDataType(LLVertexBuffer::TYPE_WEIGHT4) ||
+								buff->getRequestedVerts() != vol_face.mVertices.size())
+							{
+								face->mVertexBuffer = NULL;
+								face->mLastVertexBuffer = NULL;
+								buff = NULL;
+
+								LLUUID mesh_id = volume->getParams().getSculptID();
+								if (mesh_id.notNull())
+								{
+									skin = gMeshRepo.getSkinInfo(mesh_id);
+									if (skin)
+									{
+										face->mVertexBuffer = new LLVertexBuffer(data_mask, 0);
+										face->mVertexBuffer->allocateBuffer(vol_face.mVertices.size(), vol_face.mIndices.size(), true);
+
+										face->setGeomIndex(0);
+										face->setIndicesIndex(0);
+										
+										U16 offset = 0;
+										
+										LLMatrix4 mat_vert = skin->mBindShapeMatrix;
+										LLMatrix3 mat_normal;
+
+										face->getGeometryVolume(*volume, i, mat_vert, mat_normal, offset, true);
+										buff = face->mVertexBuffer;
+									}
+								}
+							}								
+							
+							if (buff)
+							{
+								if (skin)
+								{
+									LLMatrix4 mat[64];
+
+									for (U32 i = 0; i < skin->mJointNames.size(); ++i)
+									{
+										LLJoint* joint = getJoint(skin->mJointNames[i]);
+										if (joint)
+										{
+											mat[i] = skin->mInvBindMatrix[i];
+											mat[i] *= joint->getWorldMatrix();
+										}
+									}
+									
+									gSkinnedObjectSimpleProgram.uniformMatrix4fv("matrixPalette", 
+										skin->mJointNames.size(),
+										FALSE,
+										(GLfloat*) mat[0].mMatrix);
+
+									buff->setBuffer(data_mask);
+
+									U16 start = face->getGeomStart();
+									U16 end = start + face->getGeomCount();
+									S32 offset = face->getIndicesStart();
+									U32 count = face->getIndicesCount();
+
+									buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return num_indices;
 }
 
 //-----------------------------------------------------------------------------

@@ -2013,22 +2013,23 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			if (mdl[i].has("Weights"))
 			{
 				face.mWeights.resize(num_verts);
+
 				LLSD::Binary weights = mdl[i]["Weights"];
 
-				LLSD::Binary::iterator iter = weights.begin();
+				U32 idx = 0;
 
 				U32 cur_vertex = 0;
-				while (iter != weights.end())
+				while (idx < weights.size() && cur_vertex < num_verts)
 				{
-					const S32 END_INFLUENCES = 0xFF;
-					U8 joint = *(iter++);
+					const U8 END_INFLUENCES = 0xFF;
+					U8 joint = weights[idx++];
 
 					U32 cur_influence = 0;
 					while (joint != END_INFLUENCES)
 					{
-						U16 influence = *(iter++);
+						U16 influence = weights[idx++];
 						influence = influence << 8;
-						influence |= *(iter++);
+						influence |= weights[idx++];
 
 						F32 w = llmin((F32) influence / 65535.f, 0.99999f);
 						face.mWeights[cur_vertex].mV[cur_influence++] = (F32) joint + w;
@@ -2039,13 +2040,18 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 						}
 						else
 						{
-							joint = *(iter++);
+							joint = weights[idx++];
 						}
 					}
 
 					cur_vertex++;
-					iter++;
 				}
+
+				if (cur_vertex != num_verts || idx != weights.size())
+				{
+					llwarns << "Vertex weight count does not match vertex count!" << llendl;
+				}
+					
 			}
 
 			LLVector3 min_pos;
