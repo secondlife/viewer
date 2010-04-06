@@ -428,8 +428,8 @@ static	void updatePosition(void);
 
 		struct voiceFontEntry
 		{
-			voiceFontEntry(const std::string &id);
-			std::string mID;
+			voiceFontEntry(S32 id);
+			S32			mID;
 			std::string mName;
 			std::string mDescription;
 			std::string mExpirationDate;
@@ -438,9 +438,16 @@ static	void updatePosition(void);
 			std::string mFontStatus;
 		};
 
-		typedef std::map<const std::string*, voiceFontEntry*, stringMapComparitor> voiceFontMap;
+		typedef S32 voice_font_id_t;
+		typedef std::map<voice_font_id_t, std::string*> voice_font_list_t;
+		typedef std::map<voice_font_id_t, voiceFontEntry*> voice_font_map_t;
 
-		voiceFontEntry *addSessionFont(const std::string &id,
+		bool getVoiceFontsAvailable() const { return mSessionFontsReceived; };
+		bool setVoiceFont(voice_font_id_t id);
+		const voice_font_id_t getVoiceFont() const;
+		const voice_font_list_t &getVoiceFontList() const { return mSessionFontList; };
+
+		voiceFontEntry *addSessionFont(const voice_font_id_t &id,
 									   const std::string &name,
 									   const std::string &description,
 									   const std::string &expirationDate,
@@ -478,7 +485,7 @@ static	void updatePosition(void);
 		void sessionGroupAddSessionSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
 		void sessionMediaConnectSendMessage(sessionState *session);		// just joins the audio session
 		void sessionTextConnectSendMessage(sessionState *session);		// just joins the text session
-		void sessionSetVoiceFontSendMessage(sessionState *session, const std::string &fontId);
+		void sessionSetVoiceFontSendMessage(sessionState *session);
 		void sessionTerminateSendMessage(sessionState *session);
 		void sessionGroupTerminateSendMessage(sessionState *session);
 		void sessionMediaDisconnectSendMessage(sessionState *session);
@@ -510,7 +517,7 @@ static	void updatePosition(void);
 
 		deviceList *getCaptureDevices();
 		deviceList *getRenderDevices();
-		
+
 		void setNonSpatialChannel(
 			const std::string &uri,
 			const std::string &credentials);
@@ -682,7 +689,9 @@ static	void updatePosition(void);
 		buddyListMap mBuddyListMap;
 
 		bool mSessionFontsReceived;
-		voiceFontMap mSessionFontMap;
+		S32 mFontID;
+		voice_font_list_t mSessionFontList;
+		voice_font_map_t mSessionFontMap; // *TODO: make private
 
 		deviceList mCaptureDevices;
 		deviceList mRenderDevices;
