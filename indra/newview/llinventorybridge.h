@@ -640,8 +640,10 @@ public:
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 
 protected:
-	LLMeshBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
-		LLItemBridge(inventory, uuid) {}
+	LLMeshBridge(LLInventoryPanel* inventory, 
+		     LLFolderView* root,
+		     const LLUUID& uuid) :
+                       LLItemBridge(inventory, root, uuid) {}
 };
 
 
