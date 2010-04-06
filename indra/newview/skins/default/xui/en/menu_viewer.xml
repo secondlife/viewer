@@ -2875,6 +2875,16 @@
             <menu_item_call.on_click
              function="Advanced.LeaveAdminStatus" />
         </menu_item_call>
+		<menu_item_call
+           label="HACK Upload Model..."
+           layout="topleft"
+           name="Upload Model">
+          <menu_item_call.on_click
+             function="File.UploadModel"
+             parameter="" />
+          <menu_item_call.on_enable
+             function="File.EnableUploadModel" />
+        </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
