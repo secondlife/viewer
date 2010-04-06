@@ -660,8 +660,8 @@ void LLCallFloater::setVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 
 bool LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
 {
-	LLAvatarList::uuid_vector_t& speaker_uuids = mAvatarList->getIDs();
-	LLAvatarList::uuid_vector_t::iterator pos = std::find(speaker_uuids.begin(), speaker_uuids.end(), voice_speaker_id);
+	uuid_vec_t& speaker_uuids = mAvatarList->getIDs();
+	uuid_vec_t::iterator pos = std::find(speaker_uuids.begin(), speaker_uuids.end(), voice_speaker_id);
 	if(pos != speaker_uuids.end())
 	{
 		speaker_uuids.erase(pos);

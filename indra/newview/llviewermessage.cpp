@@ -1203,7 +1203,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				// This is an offer from an agent. In this case, the back
 				// end has already copied the items into your inventory,
 				// so we can fetch it out of our inventory.
-				LLInventoryFetchObserver::item_ref_t items;
+				uuid_vec_t items;
 				items.push_back(mObjectID);
 				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(from_string);
 				open_agent_offer->fetchItems(items);
@@ -1601,7 +1601,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		p.name = "UserGiveItem";
 		
 		// Prefetch the item into your local inventory.
-		LLInventoryFetchObserver::item_ref_t items;
+		uuid_vec_t items;
 		items.push_back(info->mObjectID);
 		LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
 		fetch_item->fetchItems(items);
@@ -2120,7 +2120,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			if (is_muted)
 			{
 				// Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
-				LLInventoryFetchObserver::item_ref_t items;
+				uuid_vec_t items;
 				items.push_back(info->mObjectID);
 				LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
 				fetch_item->fetchItems(items);
