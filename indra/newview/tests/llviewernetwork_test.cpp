@@ -216,10 +216,10 @@ namespace tut
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 		ensure_equals("Agni grid label was not modified by grid file", 
 					  grid[GRID_LABEL_VALUE].asString(), std::string("Agni"));
-#else \\ LL_RELEASE_FOR_DOWNLOAD
+#else // LL_RELEASE_FOR_DOWNLOAD
 		ensure_equals("Agni grid label was not modified by grid file", 
 					  grid[GRID_LABEL_VALUE].asString(), std::string("Secondlife.com"));
-#endif \\ LL_RELEASE_FOR_DOWNLOAD
+#endif // LL_RELEASE_FOR_DOWNLOAD
 		
 		ensure_equals("Agni name wasn't modified by grid file",
 					  grid[GRID_VALUE].asString(), std::string("util.agni.lindenlab.com"));
