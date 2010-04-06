@@ -1418,7 +1418,7 @@ public:
 
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
-	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, std::string action);
+	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 };
 
@@ -1442,7 +1442,7 @@ void LLTaskMeshBridge::openItem()
 
 
 // virtual
-void LLTaskMeshBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLTaskMeshBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if (action == "mesh action")
 	{
@@ -1452,7 +1452,7 @@ void LLTaskMeshBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 			// do action
 		}
 	}
-	LLTaskInvFVBridge::performAction(folder, model, action);
+	LLTaskInvFVBridge::performAction(model, action);
 }
 
 void LLTaskMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)

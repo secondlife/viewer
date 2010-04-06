@@ -5389,20 +5389,9 @@ public:
 				LLNotificationsUtil::add("CannotWearInfoNotComplete");
 			}
 		}
-	LLInvFVBridgeAction::doIt();
-}
-
-//virtual
-void	LLMeshBridgeAction::doIt() 
-{
-	LLViewerInventoryItem* item = getItem();
-	if(item)
-	{
-		// do it
-	}
-	
 		LLInvFVBridgeAction::doIt();
 	}
+
 	virtual ~LLWearableBridgeAction(){}
 protected:
 	LLWearableBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
