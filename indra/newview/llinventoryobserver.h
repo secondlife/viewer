@@ -42,8 +42,8 @@ class LLViewerInventoryCategory;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryObserver
 //
-// This class is designed to be a simple abstract base class which can
-// relay messages when the inventory changes.
+//   A simple abstract base class that can relay messages when the inventory 
+//   changes.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLInventoryObserver
@@ -54,17 +54,17 @@ public:
 	// chaged() to see if the observer is interested in the change.
 	enum 
 	{
-		NONE = 0,
-		LABEL = 1,			// name changed
-		INTERNAL = 2,		// internal change (e.g. asset uuid different)
-		ADD = 4,			// something added
-		REMOVE = 8,			// something deleted
-		STRUCTURE = 16,		// structural change (eg item or folder moved)
-		CALLING_CARD = 32,	// (eg online, grant status, cancel)
-		GESTURE = 64,
-		REBUILD = 128, 		// item UI changed (eg item type different)
-		SORT = 256, 		// folder needs to be resorted.
-		ALL = 0xffffffff
+		NONE 			= 0,
+		LABEL 			= 1,	// Name changed
+		INTERNAL 		= 2,	// Internal change (e.g. asset uuid different)
+		ADD 			= 4,	// Something added
+		REMOVE 			= 8,	// Something deleted
+		STRUCTURE 		= 16,	// Structural change (e.g. item or folder moved)
+		CALLING_CARD 	= 32,	// Calling card change (e.g. online, grant status, cancel)
+		GESTURE 		= 64,
+		REBUILD 		= 128, 	// Item UI changed (e.g. item type different)
+		SORT 			= 256, 	// Folder needs to be resorted.
+		ALL 			= 0xffffffff
 	};
 	LLInventoryObserver();
 	virtual ~LLInventoryObserver();
@@ -75,11 +75,10 @@ public:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryCompletionObserver
 //
-// Class which can be used as a base class for doing something when
-// when all observed items are locally complete. This class implements
-// the changed() method of LLInventoryObserver and declares a new
-// method named done() which is called when all watched items have
-// complete information in the inventory model.
+//   Base class for doing something when when all observed items are locally 
+//   complete.  Implements the changed() method of LLInventoryObserver 
+//   and declares a new method named done() which is called when all watched items 
+//   have complete information in the inventory model.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLInventoryCompletionObserver : public LLInventoryObserver
@@ -113,7 +112,7 @@ public:
 	virtual void changed(U32 mask);
 
 	bool isEverythingComplete() const;
-	void fetchItems(const uuid_vec_t& ids);
+	void fetch(const uuid_vec_t& ids);
 	virtual void done() {};
 
 protected:
@@ -135,14 +134,14 @@ public:
 	LLInventoryFetchDescendentsObserver() {}
 	virtual void changed(U32 mask);
 
-	void fetchDescendents(const uuid_vec_t& ids);
+	void fetch(const uuid_vec_t& ids);
 	bool isEverythingComplete() const;
 	virtual void done() = 0;
 
 protected:
 	bool isComplete(LLViewerInventoryCategory* cat);
-	uuid_vec_t mIncompleteFolders;
-	uuid_vec_t mCompleteFolders;
+	uuid_vec_t mIncomplete;
+	uuid_vec_t mComplete;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

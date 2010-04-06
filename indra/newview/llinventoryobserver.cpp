@@ -223,8 +223,7 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 	}
 }
 
-void LLInventoryFetchObserver::fetchItems(
-	const uuid_vec_t& ids)
+void LLInventoryFetchObserver::fetch(const uuid_vec_t& ids)
 {
 	LLUUID owner_id;
 	LLSD items_llsd;
@@ -266,30 +265,29 @@ void LLInventoryFetchObserver::fetchItems(
 // virtual
 void LLInventoryFetchDescendentsObserver::changed(U32 mask)
 {
-	for(uuid_vec_t::iterator it = mIncompleteFolders.begin(); it < mIncompleteFolders.end();)
+	for(uuid_vec_t::iterator it = mIncomplete.begin(); it < mIncomplete.end();)
 	{
 		LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
 		if(!cat)
 		{
-			it = mIncompleteFolders.erase(it);
+			it = mIncomplete.erase(it);
 			continue;
 		}
 		if(isComplete(cat))
 		{
-			mCompleteFolders.push_back(*it);
-			it = mIncompleteFolders.erase(it);
+			mComplete.push_back(*it);
+			it = mIncomplete.erase(it);
 			continue;
 		}
 		++it;
 	}
-	if(mIncompleteFolders.empty())
+	if(mIncomplete.empty())
 	{
 		done();
 	}
 }
 
-void LLInventoryFetchDescendentsObserver::fetchDescendents(
-	const uuid_vec_t& ids)
+void LLInventoryFetchDescendentsObserver::fetch(const uuid_vec_t& ids)
 {
 	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
@@ -297,19 +295,19 @@ void LLInventoryFetchDescendentsObserver::fetchDescendents(
 		if(!cat) continue;
 		if(!isComplete(cat))
 		{
-			cat->fetchDescendents();		//blindly fetch it without seeing if anything else is fetching it.
-			mIncompleteFolders.push_back(*it);	//Add to list of things being downloaded for this observer.
+			cat->fetch();		//blindly fetch it without seeing if anything else is fetching it.
+			mIncomplete.push_back(*it);	//Add to list of things being downloaded for this observer.
 		}
 		else
 		{
-			mCompleteFolders.push_back(*it);
+			mComplete.push_back(*it);
 		}
 	}
 }
 
 bool LLInventoryFetchDescendentsObserver::isEverythingComplete() const
 {
-	return mIncompleteFolders.empty();
+	return mIncomplete.empty();
 }
 
 bool LLInventoryFetchDescendentsObserver::isComplete(LLViewerInventoryCategory* cat)
@@ -413,7 +411,7 @@ void LLInventoryFetchComboObserver::fetch(
 		if(!cat) continue;
 		if(!gInventory.isCategoryComplete(*fit))
 		{
-			cat->fetchDescendents();
+			cat->fetch();
 			lldebugs << "fetching folder " << *fit <<llendl;
 			mIncompleteFolders.push_back(*fit);
 		}

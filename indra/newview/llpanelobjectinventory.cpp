@@ -50,6 +50,7 @@
 #include "llfloaterbuycurrency.h"
 #include "llfloaterreg.h"
 #include "llinventorybridge.h"
+#include "llinventorydefines.h"
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
 #include "llpreviewanim.h"
@@ -344,7 +345,7 @@ time_t LLTaskInvFVBridge::getCreationDate() const
 LLUIImagePtr LLTaskInvFVBridge::getIcon() const
 {
 	BOOL item_is_multi = FALSE;
-	if ( mFlags & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS )
+	if ( mFlags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS )
 	{
 		item_is_multi = TRUE;
 	}
@@ -1209,7 +1210,7 @@ LLTaskObjectBridge::LLTaskObjectBridge(
 LLUIImagePtr LLTaskObjectBridge::getIcon() const
 {
 	BOOL item_is_multi = FALSE;
-	if ( mFlags & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS )
+	if ( mFlags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS )
 	{
 		item_is_multi = TRUE;
 	}
@@ -1732,7 +1733,7 @@ void LLPanelObjectInventory::reset()
 }
 
 void LLPanelObjectInventory::inventoryChanged(LLViewerObject* object,
-										InventoryObjectList* inventory,
+										LLInventoryObject::object_list_t* inventory,
 										S32 serial_num,
 										void* data)
 {
@@ -1749,7 +1750,7 @@ void LLPanelObjectInventory::inventoryChanged(LLViewerObject* object,
 	// refresh any properties floaters that are hanging around.
 	if(inventory)
 	{
-		for (InventoryObjectList::const_iterator iter = inventory->begin();
+		for (LLInventoryObject::object_list_t::const_iterator iter = inventory->begin();
 			 iter != inventory->end(); )
 		{
 			LLInventoryObject* item = *iter++;
@@ -1782,7 +1783,7 @@ void LLPanelObjectInventory::updateInventory()
 	if (objectp)
 	{
 		LLInventoryObject* inventory_root = objectp->getInventoryRoot();
-		InventoryObjectList contents;
+		LLInventoryObject::object_list_t contents;
 		objectp->getInventoryContents(contents);
 		if (inventory_root)
 		{
@@ -1836,7 +1837,7 @@ void LLPanelObjectInventory::updateInventory()
 // leads to an N^2 based on the category count. This could be greatly
 // speeded with an efficient multimap implementation, but we don't
 // have that in our current arsenal.
-void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root, InventoryObjectList& contents)
+void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root, LLInventoryObject::object_list_t& contents)
 {
 	if (!inventory_root)
 	{
@@ -1865,7 +1866,7 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
 
 typedef std::pair<LLInventoryObject*, LLFolderViewFolder*> obj_folder_pair;
 
-void LLPanelObjectInventory::createViewsForCategory(InventoryObjectList* inventory, 
+void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_list_t* inventory, 
 											  LLInventoryObject* parent,
 											  LLFolderViewFolder* folder)
 {
@@ -1874,8 +1875,8 @@ void LLPanelObjectInventory::createViewsForCategory(InventoryObjectList* invento
 	LLTaskInvFVBridge* bridge;
 	LLFolderViewItem* view;
 
-	InventoryObjectList::iterator it = inventory->begin();
-	InventoryObjectList::iterator end = inventory->end();
+	LLInventoryObject::object_list_t::iterator it = inventory->begin();
+	LLInventoryObject::object_list_t::iterator end = inventory->end();
 	for( ; it != end; ++it)
 	{
 		LLInventoryObject* obj = *it;
