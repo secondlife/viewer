@@ -52,10 +52,12 @@
 
 static LLRegisterPanelClassWrapper<LLSidepanelAppearance> t_appearance("sidepanel_appearance");
 
-class LLCurrentlyWornFetchObserver : public LLInventoryFetchObserver
+class LLCurrentlyWornFetchObserver : public LLInventoryFetchItemsObserver
 {
 public:
-	LLCurrentlyWornFetchObserver(LLSidepanelAppearance *panel) :
+	LLCurrentlyWornFetchObserver(const uuid_vec_t &ids,
+								 LLSidepanelAppearance *panel) :
+		LLInventoryFetchItemsObserver(ids),
 		mPanel(panel)
 	{}
 	~LLCurrentlyWornFetchObserver() {}
@@ -390,10 +392,10 @@ void LLSidepanelAppearance::fetchInventory()
 		}
 	}
 
-	LLCurrentlyWornFetchObserver *fetch_worn = new LLCurrentlyWornFetchObserver(this);
-	fetch_worn->fetch(ids);
+	LLCurrentlyWornFetchObserver *fetch_worn = new LLCurrentlyWornFetchObserver(ids, this);
+	fetch_worn->startFetch();
 	// If no items to be fetched, done will never be triggered.
-	// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
+	// TODO: Change LLInventoryFetchItemsObserver::fetchItems to trigger done() on this condition.
 	if (fetch_worn->isEverythingComplete())
 	{
 		fetch_worn->done();

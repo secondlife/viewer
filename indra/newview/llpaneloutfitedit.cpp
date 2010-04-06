@@ -484,7 +484,8 @@ void LLPanelOutfitEdit::updateLookInfo()
 		
 		uuid_vec_t folders;
 		folders.push_back(mLookID);
-		mFetchLook->fetch(folders);
+		mFetchLook->setFolders(folders);
+		mFetchLook->startFetch();
 		if (mFetchLook->isEverythingComplete())
 		{
 			mFetchLook->done();

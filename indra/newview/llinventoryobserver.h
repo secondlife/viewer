@@ -73,68 +73,46 @@ public:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryCompletionObserver
+// Class LLInventoryFetchItemsObserver
 //
-//   Base class for doing something when when all observed items are locally 
-//   complete.  Implements the changed() method of LLInventoryObserver 
-//   and declares a new method named done() which is called when all watched items 
-//   have complete information in the inventory model.
+//   Fetches inventory items, calls done() when all inventory has arrived. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLInventoryCompletionObserver : public LLInventoryObserver
+class LLInventoryFetchItemsObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryCompletionObserver() {}
-	virtual void changed(U32 mask);
-
-	void watchItem(const LLUUID& id);
-
-protected:
-	virtual void done() = 0;
-
-	uuid_vec_t mComplete;
-	uuid_vec_t mIncomplete;
-};
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryFetchObserver
-//
-// This class is much like the LLInventoryCompletionObserver, except
-// that it handles all the the fetching necessary. Override the done()
-// method to do the thing you want.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLInventoryFetchObserver : public LLInventoryObserver
-{
-public:
-	LLInventoryFetchObserver(bool retry_if_missing = false);
+	LLInventoryFetchItemsObserver(bool retry_if_missing = false);
+	LLInventoryFetchItemsObserver(const uuid_vec_t& ids, bool retry_if_missing = false);
 	virtual void changed(U32 mask);
 
 	bool isEverythingComplete() const;
-	void fetch(const uuid_vec_t& ids);
+	void setItems(const uuid_vec_t& ids) { mIDs = ids; }
+	void startFetch();
+
 	virtual void done() {};
 
 protected:
 	bool mRetryIfMissing;
 	uuid_vec_t mComplete;
 	uuid_vec_t mIncomplete;
+	uuid_vec_t mIDs;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryFetchDescendentsObserver
 //
-// This class is much like the LLInventoryCompletionObserver, except
-// that it handles fetching based on category. Override the done()
-// method to do the thing you want.
+//   Fetches children of a category/folder, calls done() when all 
+//   inventory has arrived. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInventoryFetchDescendentsObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryFetchDescendentsObserver() {}
+	LLInventoryFetchDescendentsObserver();
+	LLInventoryFetchDescendentsObserver(const uuid_vec_t& ids);
 	virtual void changed(U32 mask);
 
-	void fetch(const uuid_vec_t& ids);
+	void setFolders(const uuid_vec_t& ids) { mIDs = ids; }
+	void startFetch();
 	bool isEverythingComplete() const;
 	virtual void done() = 0;
 
@@ -142,6 +120,7 @@ protected:
 	bool isComplete(LLViewerInventoryCategory* cat);
 	uuid_vec_t mIncomplete;
 	uuid_vec_t mComplete;
+	uuid_vec_t mIDs;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -158,7 +137,7 @@ public:
 	LLInventoryFetchComboObserver() : mDone(false) {}
 	virtual void changed(U32 mask);
 
-	void fetch(const uuid_vec_t& folder_ids, const uuid_vec_t& item_ids);
+	void startFetch(const uuid_vec_t& folder_ids, const uuid_vec_t& item_ids);
 
 	virtual void done() = 0;
 
@@ -237,6 +216,29 @@ protected:
 	LLTransactionID mTransactionID;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryCompletionObserver
+//
+//   Base class for doing something when when all observed items are locally 
+//   complete.  Implements the changed() method of LLInventoryObserver 
+//   and declares a new method named done() which is called when all watched items 
+//   have complete information in the inventory model.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLInventoryCompletionObserver : public LLInventoryObserver
+{
+public:
+	LLInventoryCompletionObserver() {}
+	virtual void changed(U32 mask);
+
+	void watchItem(const LLUUID& id);
+
+protected:
+	virtual void done() = 0;
+
+	uuid_vec_t mComplete;
+	uuid_vec_t mIncomplete;
+};
 
 #endif // LL_LLINVENTORYOBSERVERS_H
 

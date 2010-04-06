@@ -244,10 +244,12 @@ void doOnIdleRepeating(T callable)
 }
 
 template <class T>
-class CallAfterCategoryFetchStage2: public LLInventoryFetchObserver
+class CallAfterCategoryFetchStage2: public LLInventoryFetchItemsObserver
 {
 public:
-	CallAfterCategoryFetchStage2(T callable):
+	CallAfterCategoryFetchStage2(const uuid_vec_t& ids,
+								 T callable) :
+		LLInventoryFetchItemsObserver(ids),
 		mCallable(callable)
 	{
 	}
@@ -268,7 +270,8 @@ template <class T>
 class CallAfterCategoryFetchStage1: public LLInventoryFetchDescendentsObserver
 {
 public:
-	CallAfterCategoryFetchStage1(T callable):
+	CallAfterCategoryFetchStage1(const uuid_vec_t& ids, T callable) :
+		LLInventoryFetchDescendentsObserver(ids),
 		mCallable(callable)
 	{
 	}
@@ -297,7 +300,6 @@ public:
 			return;
 		}
 
-		CallAfterCategoryFetchStage2<T> *stage2 = new CallAfterCategoryFetchStage2<T>(mCallable);
 		uuid_vec_t ids;
 		for(S32 i = 0; i < count; ++i)
 		{
@@ -307,7 +309,8 @@ public:
 		gInventory.removeObserver(this);
 		
 		// do the fetch
-		stage2->fetch(ids);
+		CallAfterCategoryFetchStage2<T> *stage2 = new CallAfterCategoryFetchStage2<T>(ids, mCallable);
+		stage2->startFetch();
 		if(stage2->isEverythingComplete())
 		{
 			// everything is already here - call done.
@@ -328,10 +331,10 @@ protected:
 template <class T> 
 void callAfterCategoryFetch(const LLUUID& cat_id, T callable)
 {
-	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(callable);
 	uuid_vec_t folders;
 	folders.push_back(cat_id);
-	stage1->fetch(folders);
+	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(folders, callable);
+	stage1->startFetch();
 	if (stage1->isEverythingComplete())
 	{
 		stage1->done();

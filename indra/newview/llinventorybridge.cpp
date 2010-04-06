@@ -1933,13 +1933,17 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 }
 
 //Used by LLFolderBridge as callback for directory recursion.
-class LLRightClickInventoryFetchObserver : public LLInventoryFetchObserver
+class LLRightClickInventoryFetchObserver : public LLInventoryFetchItemsObserver
 {
 public:
-	LLRightClickInventoryFetchObserver() :
+	LLRightClickInventoryFetchObserver(const uuid_vec_t& ids) :
+		LLInventoryFetchItemsObserver(ids),
 		mCopyItems(false)
 	{ };
-	LLRightClickInventoryFetchObserver(const LLUUID& cat_id, bool copy_items) :
+	LLRightClickInventoryFetchObserver(const uuid_vec_t& ids,
+									   const LLUUID& cat_id, 
+									   bool copy_items) :
+		LLInventoryFetchItemsObserver(ids),
 		mCatID(cat_id),
 		mCopyItems(copy_items)
 	{ };
@@ -1963,7 +1967,11 @@ protected:
 class LLRightClickInventoryFetchDescendentsObserver : public LLInventoryFetchDescendentsObserver
 {
 public:
-	LLRightClickInventoryFetchDescendentsObserver(bool copy_items) : mCopyItems(copy_items) {}
+	LLRightClickInventoryFetchDescendentsObserver(const uuid_vec_t& ids,
+												  bool copy_items) : 
+		LLInventoryFetchDescendentsObserver(ids),
+		mCopyItems(copy_items) 
+	{}
 	~LLRightClickInventoryFetchDescendentsObserver() {}
 	virtual void done();
 protected:
@@ -2006,13 +2014,13 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 	}
 #endif
 
-	LLRightClickInventoryFetchObserver* outfit;
-	outfit = new LLRightClickInventoryFetchObserver(mComplete.front(), mCopyItems);
 	uuid_vec_t ids;
 	for(S32 i = 0; i < count; ++i)
 	{
 		ids.push_back(item_array.get(i)->getUUID());
 	}
+
+	LLRightClickInventoryFetchObserver* outfit = new LLRightClickInventoryFetchObserver(ids, mComplete.front(), mCopyItems);
 
 	// clean up, and remove this as an observer since the call to the
 	// outfit could notify observers and throw us into an infinite
@@ -2026,7 +2034,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 	inc_busy_count();
 
 	// do the fetch
-	outfit->fetch(ids);
+	outfit->startFetch();
 	outfit->done();				//Not interested in waiting and this will be right 99% of the time.
 //Uncomment the following code for laggy Inventory UI.
 /*	if(outfit->isEverythingComplete())
@@ -2715,7 +2723,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		mMenu = &menu;
 		sSelf = this;
-		LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(FALSE);
+
 
 		uuid_vec_t folders;
 		LLViewerInventoryCategory* category = (LLViewerInventoryCategory*)model->getCategory(mUUID);
@@ -2723,7 +2731,8 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			folders.push_back(category->getUUID());
 		}
-		fetch->fetch(folders);
+		LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(folders, FALSE);
+		fetch->startFetch();
 		inc_busy_count();
 		if(fetch->isEverythingComplete())
 		{

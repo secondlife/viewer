@@ -244,11 +244,13 @@ public:
 	}
 };
 
-class LLCategoryDropObserver : public LLInventoryFetchObserver
+class LLCategoryDropObserver : public LLInventoryFetchItemsObserver
 {
 public:
 	LLCategoryDropObserver(
+		const uuid_vec_t& ids,
 		const LLUUID& obj_id, LLToolDragAndDrop::ESource src) :
+		LLInventoryFetchItemsObserver(ids),
 		mObjectID(obj_id),
 		mSource(src)
 	{}
@@ -331,8 +333,8 @@ void LLCategoryDropDescendentsObserver::done()
 		std::back_insert_iterator<uuid_vec_t> copier(ids);
 		std::copy(unique_ids.begin(), unique_ids.end(), copier);
 		LLCategoryDropObserver* dropper;
-		dropper = new LLCategoryDropObserver(mObjectID, mSource);
-		dropper->fetch(ids);
+		dropper = new LLCategoryDropObserver(ids, mObjectID, mSource);
+		dropper->startFetch();
 		if (dropper->isEverythingComplete())
 		{
 			dropper->done();
@@ -480,7 +482,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 			if (!folder_ids.empty() || !item_ids.empty())
 			{
 				LLCategoryFireAndForget fetcher;
-				fetcher.fetch(folder_ids, item_ids);
+				fetcher.startFetch(folder_ids, item_ids);
 			}
 		}
 	}
@@ -550,7 +552,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 			std::back_insert_iterator<uuid_vec_t> copier(folder_ids);
 			std::copy(cat_ids.begin(), cat_ids.end(), copier);
 			LLCategoryFireAndForget fetcher;
-			fetcher.fetch(folder_ids, item_ids);
+			fetcher.startFetch(folder_ids, item_ids);
 		}
 	}
 }
@@ -2576,8 +2578,8 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 			const LLViewerInventoryItem *item = (*item_iter);
 			ids.push_back(item->getUUID());
 		}
-		LLCategoryDropObserver* dropper = new LLCategoryDropObserver(obj->getID(), mSource);
-		dropper->fetch(ids);
+		LLCategoryDropObserver* dropper = new LLCategoryDropObserver(ids, obj->getID(), mSource);
+		dropper->startFetch();
 		if (dropper->isEverythingComplete())
 		{
 			dropper->done();

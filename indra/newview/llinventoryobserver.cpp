@@ -108,12 +108,19 @@ void LLInventoryCompletionObserver::watchItem(const LLUUID& id)
 	}
 }
 
-LLInventoryFetchObserver::LLInventoryFetchObserver(bool retry_if_missing) :
+LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(bool retry_if_missing) :
 	mRetryIfMissing(retry_if_missing)
 {
 }
 
-void LLInventoryFetchObserver::changed(U32 mask)
+LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& ids,
+															 bool retry_if_missing) :
+	mIDs(ids),
+	mRetryIfMissing(retry_if_missing)
+{
+}
+
+void LLInventoryFetchItemsObserver::changed(U32 mask)
 {
 	// scan through the incomplete items and move or erase them as
 	// appropriate.
@@ -153,11 +160,11 @@ void LLInventoryFetchObserver::changed(U32 mask)
 			done();
 		}
 	}
-	//llinfos << "LLInventoryFetchObserver::changed() mComplete size " << mComplete.size() << llendl;
-	//llinfos << "LLInventoryFetchObserver::changed() mIncomplete size " << mIncomplete.size() << llendl;
+	//llinfos << "LLInventoryFetchItemsObserver::changed() mComplete size " << mComplete.size() << llendl;
+	//llinfos << "LLInventoryFetchItemsObserver::changed() mIncomplete size " << mIncomplete.size() << llendl;
 }
 
-bool LLInventoryFetchObserver::isEverythingComplete() const
+bool LLInventoryFetchItemsObserver::isEverythingComplete() const
 {
 	return mIncomplete.empty();
 }
@@ -223,11 +230,11 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 	}
 }
 
-void LLInventoryFetchObserver::fetch(const uuid_vec_t& ids)
+void LLInventoryFetchItemsObserver::startFetch()
 {
 	LLUUID owner_id;
 	LLSD items_llsd;
-	for(uuid_vec_t::const_iterator it = ids.begin(); it < ids.end(); ++it)
+	for(uuid_vec_t::const_iterator it = mIDs.begin(); it < mIDs.end(); ++it)
 	{
 		LLViewerInventoryItem* item = gInventory.getItem(*it);
 		if(item)
@@ -262,6 +269,14 @@ void LLInventoryFetchObserver::fetch(const uuid_vec_t& ids)
 	fetch_items_from_llsd(items_llsd);
 }
 
+LLInventoryFetchDescendentsObserver::LLInventoryFetchDescendentsObserver()
+{
+}
+
+LLInventoryFetchDescendentsObserver::LLInventoryFetchDescendentsObserver(const uuid_vec_t& ids) :
+	mIDs(ids)
+{
+}
 // virtual
 void LLInventoryFetchDescendentsObserver::changed(U32 mask)
 {
@@ -287,9 +302,9 @@ void LLInventoryFetchDescendentsObserver::changed(U32 mask)
 	}
 }
 
-void LLInventoryFetchDescendentsObserver::fetch(const uuid_vec_t& ids)
+void LLInventoryFetchDescendentsObserver::startFetch()
 {
-	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	for(uuid_vec_t::const_iterator it = mIDs.begin(); it != mIDs.end(); ++it)
 	{
 		LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
 		if(!cat) continue;
@@ -400,11 +415,10 @@ void LLInventoryFetchComboObserver::changed(U32 mask)
 	}
 }
 
-void LLInventoryFetchComboObserver::fetch(
-	const uuid_vec_t& folder_ids,
-	const uuid_vec_t& item_ids)
+void LLInventoryFetchComboObserver::startFetch(const uuid_vec_t& folder_ids,
+											   const uuid_vec_t& item_ids)
 {
-	lldebugs << "LLInventoryFetchComboObserver::fetch()" << llendl;
+	lldebugs << "LLInventoryFetchComboObserver::startFetch()" << llendl;
 	for(uuid_vec_t::const_iterator fit = folder_ids.begin(); fit != folder_ids.end(); ++fit)
 	{
 		LLViewerInventoryCategory* cat = gInventory.getCategory(*fit);
@@ -544,8 +558,7 @@ void LLInventoryAddedObserver::changed(U32 mask)
 	}
 }
 
-LLInventoryTransactionObserver::LLInventoryTransactionObserver(
-	const LLTransactionID& transaction_id) :
+LLInventoryTransactionObserver::LLInventoryTransactionObserver(const LLTransactionID& transaction_id) :
 	mTransactionID(transaction_id)
 {
 }

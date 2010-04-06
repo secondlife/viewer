@@ -47,7 +47,7 @@
 class LLInitialWearablesFetch : public LLInventoryFetchDescendentsObserver
 {
 public:
-	LLInitialWearablesFetch();
+	LLInitialWearablesFetch(const uuid_vec_t& ids);
 	~LLInitialWearablesFetch();
 	virtual void done();
 
@@ -92,7 +92,7 @@ public:
 		LOFS_CONTENTS
 	};
 
-	LLLibraryOutfitsFetch();
+	LLLibraryOutfitsFetch(const uuid_vec_t& ids);
 	~LLLibraryOutfitsFetch();
 
 	virtual void done();
