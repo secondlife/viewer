@@ -23,7 +23,7 @@ version 21
 // NOTE: All settings are set to the MIN of applied values, including 'all'!
 //
 list all
-RenderAnisotropic			1	0
+RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
 RenderAvatarVP				1	1
@@ -35,18 +35,16 @@ RenderFogRatio				1	4.0
 RenderGamma					1	0
 RenderGlowResolutionPow		1	9
 RenderGround				1	1
-RenderLightingDetail		1	1
 RenderMaxPartCount			1	8192
 RenderNightBrightness		1	1.0
 RenderObjectBump			1	1
-RenderReflectionDetail		1	3
+RenderReflectionDetail		1	4
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTreeLODFactor			1	1.0
 RenderUseImpostors			1	1
 RenderVBOEnable				1	1
 RenderVolumeLODFactor		1	2.0
-RenderWaterReflections		1	1
 UseStartScreen				1	1
 UseOcclusion				1	1
 VertexShaderEnable			1	1
@@ -56,6 +54,9 @@ Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
 RenderShaderLightingMaxLevel	1	3
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
+RenderShadowDetail			1	2
 
 
 //
@@ -69,7 +70,6 @@ RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0.5
 RenderGlowResolutionPow		1	8
-RenderLightingDetail		1	0
 RenderMaxPartCount			1	1024
 RenderObjectBump			1	0
 RenderReflectionDetail		1	0
@@ -78,10 +78,13 @@ RenderTerrainLODFactor		1	1
 RenderTreeLODFactor			1	0.5
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
-RenderWaterReflections		1	0
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
+RenderShadowDetail			1	0
+
 
 //
 // Mid Graphics Settings
@@ -94,7 +97,6 @@ RenderAvatarVP				1	1
 RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	8
-RenderLightingDetail		1	1
 RenderMaxPartCount			1	2048
 RenderObjectBump			1	1
 RenderReflectionDetail		1	0
@@ -103,10 +105,13 @@ RenderTerrainLODFactor		1	1.0
 RenderTreeLODFactor			1	0.5
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
-RenderWaterReflections		1	0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
+RenderShadowDetail			1	0
+
 
 //
 // High Graphics Settings (purty)
@@ -119,7 +124,6 @@ RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
-RenderLightingDetail		1	1
 RenderMaxPartCount			1	4096
 RenderObjectBump			1	1
 RenderReflectionDetail		1	2
@@ -128,10 +132,13 @@ RenderTerrainLODFactor		1	2.0
 RenderTreeLODFactor			1	0.5
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	1.125
-RenderWaterReflections		1	0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	48
+RenderDeferred				1	1
+RenderDeferredSSAO			1	0
+RenderShadowDetail			1	1
+
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -144,19 +151,21 @@ RenderAvatarVP				1	1
 RenderFarClip				1	256
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
-RenderLightingDetail		1	1
 RenderMaxPartCount			1	8192
 RenderObjectBump			1	1
-RenderReflectionDetail		1	3
+RenderReflectionDetail		1	4
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTreeLODFactor			1	1.0
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	2.0
-RenderWaterReflections		1	1
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
+RenderDeferred				1	1
+RenderDeferredSSAO			1	1
+RenderShadowDetail			1	2
+
 
 //
 // Class Unknown Hardware (unknown)
@@ -194,9 +203,12 @@ RenderVBOEnable				1	1
 list NoPixelShaders
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
-RenderWaterReflections		0	0
+RenderReflectionDetail		0	0
 VertexShaderEnable			0	0
 WindLightUseAtmosShaders	0	0
+RenderDeferred				0	0
+RenderDeferredSSAO			0	0
+RenderShadowDetail			0	0
 
 //
 // No Vertex Shaders available
@@ -204,9 +216,13 @@ WindLightUseAtmosShaders	0	0
 list NoVertexShaders
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
-RenderWaterReflections		0	0
+RenderReflectionDetail		0	0
 VertexShaderEnable			0	0
 WindLightUseAtmosShaders	0	0
+RenderDeferred				0	0
+RenderDeferredSSAO			0	0
+RenderShadowDetail			0	0
+
 
 // "Default" setups for safe, low, medium, high
 //
@@ -214,14 +230,17 @@ list safe
 RenderAnisotropic			1	0
 RenderAvatarCloth			0	0
 RenderAvatarVP				0	0
-RenderLightingDetail		1	0
 RenderObjectBump			0	0
 RenderMaxPartCount			1	1024
 RenderTerrainDetail 		1	0
 RenderUseImpostors			0	0
 RenderVBOEnable				1	0
-RenderWaterReflections		0	0
+RenderReflectionDetail		0	0
 WindLightUseAtmosShaders	0	0
+RenderDeferred				0	0
+RenderDeferredSSAO			0	0
+RenderShadowDetail			0	0
+
 
 //
 // CPU based feature masks
@@ -245,11 +264,9 @@ RenderVBOEnable				1	0
 
 list Intel
 RenderAnisotropic			1	0
-RenderLightingDetail		1	0
 
 list GeForce2
 RenderAnisotropic			1	0
-RenderLightingDetail		1	0
 RenderMaxPartCount			1	2048
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	1

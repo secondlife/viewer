@@ -62,6 +62,12 @@
 // 
 //----------------------------------------------------------------------------
 
+#if !LL_DARWIN
+U32 ll_thread_local sThreadID = 0;
+#endif 
+
+U32 LLThread::sIDIter = 0;
+
 //
 // Handed to the APR thread creation function
 //
@@ -72,10 +78,14 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
 	// Set thread state to running
 	threadp->mStatus = RUNNING;
 
+#if !LL_DARWIN
+	sThreadID = threadp->mID;
+#endif
+
 	// Run the user supplied function
 	threadp->run();
 
-	llinfos << "LLThread::staticRun() Exiting: " << threadp->mName << llendl;
+	//llinfos << "LLThread::staticRun() Exiting: " << threadp->mName << llendl;
 	
 	// We're done with the run function, this thread is done executing now.
 	threadp->mStatus = STOPPED;
@@ -90,6 +100,8 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
 	mAPRThreadp(NULL),
 	mStatus(STOPPED)
 {
+	mID = ++sIDIter;
+
 	// Thread creation probably CAN be paranoid about APR being initialized, if necessary
 	if (poolp)
 	{
@@ -273,7 +285,7 @@ void LLThread::wakeLocked()
 //============================================================================
 
 LLMutex::LLMutex(apr_pool_t *poolp) :
-	mAPRMutexp(NULL)
+	mAPRMutexp(NULL), mCount(0), mLockingThread(NO_THREAD)
 {
 	//if (poolp)
 	//{
@@ -305,7 +317,18 @@ LLMutex::~LLMutex()
 
 void LLMutex::lock()
 {
+#if LL_DARWIN
+	if (mLockingThread == LLThread::currentID())
+#else
+	if (mLockingThread == sThreadID)
+#endif
+	{ //redundant lock
+		mCount++;
+		return;
+	}
+	
 	apr_thread_mutex_lock(mAPRMutexp);
+	
 #if MUTEX_DEBUG
 	// Have to have the lock before we can access the debug info
 	U32 id = LLThread::currentID();
@@ -313,10 +336,22 @@ void LLMutex::lock()
 		llerrs << "Already locked in Thread: " << id << llendl;
 	mIsLocked[id] = TRUE;
 #endif
+
+#if LL_DARWIN
+	mLockingThread = LLThread::currentID();
+#else
+	mLockingThread = sThreadID;
+#endif
 }
 
 void LLMutex::unlock()
 {
+	if (mCount > 0)
+	{ //not the root unlock
+		mCount--;
+		return;
+	}
+	
 #if MUTEX_DEBUG
 	// Access the debug info while we have the lock
 	U32 id = LLThread::currentID();
@@ -324,6 +359,8 @@ void LLMutex::unlock()
 		llerrs << "Not locked in Thread: " << id << llendl;	
 	mIsLocked[id] = FALSE;
 #endif
+
+	mLockingThread = NO_THREAD;
 	apr_thread_mutex_unlock(mAPRMutexp);
 }
 
@@ -339,6 +376,11 @@ bool LLMutex::isLocked()
 		apr_thread_mutex_unlock(mAPRMutexp);
 		return false;
 	}
+}
+
+U32 LLMutex::lockingThread() const
+{
+	return mLockingThread;
 }
 
 //============================================================================

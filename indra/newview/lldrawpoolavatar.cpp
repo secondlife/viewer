@@ -157,6 +157,8 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_CHARACTERS);
 	
+	sSkipTransparent = TRUE;
+
 	if (LLPipeline::sImpostorRender)
 	{
 		beginDeferredSkinned();
@@ -180,6 +182,8 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_CHARACTERS);
+
+	sSkipTransparent = FALSE;
 
 	if (LLPipeline::sImpostorRender)
 	{
@@ -564,7 +568,6 @@ void LLDrawPoolAvatar::endSkinned()
 
 void LLDrawPoolAvatar::beginDeferredSkinned()
 {
-	sSkipTransparent = TRUE;
 	sShaderLevel = mVertexShaderLevel;
 	sVertexProgram = &gDeferredAvatarProgram;
 
@@ -579,7 +582,6 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 
 void LLDrawPoolAvatar::endDeferredSkinned()
 {
-	sSkipTransparent = FALSE;
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	sRenderingSkinned = FALSE;
 	disable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);

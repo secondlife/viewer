@@ -1418,6 +1418,39 @@ even though the user gets a free copy.
              text_enabled_color="1 1 1 1"
              top_pad="3"
              width="87" />
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             left_delta="0"
+             name="label physicsshapetype"
+             top_pad="10"
+             width="121">
+                Physics Shape Type:
+            </text>
+			<combo_box
+			   height="23"
+			   layout="topleft"
+			   follows="left|top"
+			   name="Physics Shape Type Combo Ctrl"
+			   tool_tip="Choose the physics shape type"
+			   left_pad="0"
+			   width="108">
+			  <combo_box.item
+				 label="Prim"
+				 name="Prim"
+				 value="Prim" />
+			  <combo_box.item
+				 label="None"
+				 name="None"
+				 value="None" />
+			  <combo_box.item
+				 label="Convex Hull"
+				 name="Convex Hull"
+				 value="Convex Hull" />
+			</combo_box>
 
  <!--           <text
              type="string"
@@ -1996,6 +2029,9 @@ even though the user gets a free copy.
                  label="Cylinder"
                  name="Cylinder"
                  value="Cylinder" />
+                <combo_box.item
+                 label="Mesh"
+                 value="Mesh" />
             </combo_box>
         </panel>
         <panel

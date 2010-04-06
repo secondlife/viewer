@@ -59,6 +59,7 @@ class LLTextureAtlasSlot;
 
 S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &rad);
 S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &radius_squared);
+void pushVerts(LLFace* face, U32 mask);
 
 // get index buffer for binary encoded axis vertex buffer given a box at center being viewed by given camera
 U8* get_box_fan_indices(LLCamera* camera, const LLVector3& center);
@@ -346,11 +347,11 @@ public:
 	F32 mBuilt;
 	OctreeNode* mOctreeNode;
 	LLSpatialPartition* mSpatialPartition;
-	LLVector3 mBounds[2];
-	LLVector3 mExtents[2];
+	LLVector3 mBounds[2]; // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LLVector3 mExtents[2]; // extents (min, max) of this node and all its children
 	
-	LLVector3 mObjectExtents[2];
-	LLVector3 mObjectBounds[2];
+	LLVector3 mObjectExtents[2]; // extents (min, max) of objects in this node
+	LLVector3 mObjectBounds[2]; // bounding box (center, size) of objects in this node
 
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	F32*					mOcclusionVerts;
@@ -534,12 +535,19 @@ private:
 	U32					mRenderMapSize[LLRenderPass::NUM_RENDER_TYPES];
 
 	sg_list_t			mVisibleGroups;
+	sg_list_t::iterator mVisibleGroupsEnd;
 	sg_list_t			mAlphaGroups;
+	sg_list_t::iterator mAlphaGroupsEnd;
 	sg_list_t			mOcclusionGroups;
+	sg_list_t::iterator	mOcclusionGroupsEnd;
 	sg_list_t			mDrawableGroups;
+	sg_list_t::iterator mDrawableGroupsEnd;
 	drawable_list_t		mVisibleList;
+	drawable_list_t::iterator mVisibleListEnd;
 	bridge_list_t		mVisibleBridge;
+	bridge_list_t::iterator mVisibleBridgeEnd;
 	drawinfo_list_t		mRenderMap[LLRenderPass::NUM_RENDER_TYPES];
+	drawinfo_list_t::iterator mRenderMapEnd[LLRenderPass::NUM_RENDER_TYPES];
 };
 
 
@@ -606,14 +614,15 @@ public:
 //class for wrangling geometry out of volumes (implemented in LLVOVolume.cpp)
 class LLVolumeGeometryManager: public LLGeometryManager
 {
-public:
+ public:
 	virtual ~LLVolumeGeometryManager() { }
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
 	void genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
-
+ private:
+	bool canRenderAsMask(LLFace* facep); // logic helper
 };
 
 //spatial partition that uses volume geometry manager (implemented in LLVOVolume.cpp)

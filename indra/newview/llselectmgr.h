@@ -140,6 +140,7 @@ public:
 	BOOL isTESelected(S32 te_index);
 	S32 getLastSelectedTE();
 	S32 getTESelectMask() { return mTESelectMask; }
+	void renderOneWireframe(const LLColor4& color);
 	void renderOneSilhouette(const LLColor4 &color);
 	void setTransient(BOOL transient) { mTransient = transient; }
 	BOOL isTransient() { return mTransient; }
@@ -290,7 +291,7 @@ public:
 	LLSelectNode* findNode(LLViewerObject* objectp);
 
 	// count members
-	S32 getObjectCount();
+	S32 getObjectCount(BOOL mesh_adjust = FALSE);
 	S32 getTECount();
 	S32 getRootObjectCount();
 
@@ -483,6 +484,7 @@ public:
 	void selectionUpdatePhysics(BOOL use_physics);
 	void selectionUpdateTemporary(BOOL is_temporary);
 	void selectionUpdatePhantom(BOOL is_ghost);
+	void selectionUpdatePhysicsShapeType(U8 type);
 	void selectionUpdateCastShadows(BOOL cast_shadows);
 	void selectionDump();
 

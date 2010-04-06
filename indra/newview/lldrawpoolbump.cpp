@@ -701,6 +701,18 @@ void LLDrawPoolBump::endBump()
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
 
+S32 LLDrawPoolBump::getNumDeferredPasses()
+{ 
+	if (gSavedSettings.getBOOL("RenderObjectBump"))
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 void LLDrawPoolBump::beginDeferredPass(S32 pass)
 {
 	if (!gPipeline.hasRenderBatches(LLRenderPass::PASS_BUMP))
@@ -825,7 +837,6 @@ void LLBumpImageList::addTextureStats(U8 bump, const LLUUID& base_image_id, F32 
 
 void LLBumpImageList::updateImages()
 {	
-	llpushcallstacks ;
 	for (bump_image_map_t::iterator iter = mBrightnessEntries.begin(); iter != mBrightnessEntries.end(); )
 	{
 		bump_image_map_t::iterator curiter = iter++;
@@ -852,7 +863,7 @@ void LLBumpImageList::updateImages()
 			}
 		}
 	}
-	llpushcallstacks ;
+	
 	for (bump_image_map_t::iterator iter = mDarknessEntries.begin(); iter != mDarknessEntries.end(); )
 	{
 		bump_image_map_t::iterator curiter = iter++;
@@ -879,7 +890,6 @@ void LLBumpImageList::updateImages()
 			}
 		}
 	}
-	llpushcallstacks ;
 }
 
 
