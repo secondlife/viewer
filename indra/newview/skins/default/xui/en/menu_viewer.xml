@@ -376,7 +376,7 @@
              function="CheckControl"
              parameter="ShowNavbarFavoritesPanel" />
         </menu_item_check>
-        <menu_item_separator/>
+        <menu_item_separator/>-->
         <menu_item_separator/>
     <menu
          create_jump_keys="true"
