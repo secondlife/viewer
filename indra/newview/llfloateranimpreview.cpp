@@ -1006,13 +1006,15 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 						    LLAssetType::AT_ANIMATION,
 						    name,
 						    desc,
+						    0,
 						    LLFolderType::FT_NONE,
 						    LLInventoryType::IT_ANIMATION,
 						    LLFloaterPerms::getNextOwnerPerms(), 
-							LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
+						    LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
 						    name,
 						    NULL, 
-							expected_upload_cost);
+						    expected_upload_cost,
+						    NULL);
 			}
 			else
 			{

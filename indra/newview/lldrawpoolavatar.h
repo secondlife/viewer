@@ -90,10 +90,12 @@ public:
 	void beginRigid();
 	void beginFootShadow();
 	void beginSkinned();
+	void beginRigged();
 		
 	void endRigid();
 	void endFootShadow();
 	void endSkinned();
+	void endRigged();
 
 	void beginDeferredImpostor();
 	void beginDeferredRigid();

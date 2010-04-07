@@ -157,6 +157,8 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_CHARACTERS);
 	
+	sSkipTransparent = TRUE;
+
 	if (LLPipeline::sImpostorRender)
 	{
 		beginDeferredSkinned();
@@ -180,6 +182,8 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_CHARACTERS);
+
+	sSkipTransparent = FALSE;
 
 	if (LLPipeline::sImpostorRender)
 	{
@@ -316,7 +320,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 
 S32 LLDrawPoolAvatar::getNumPasses()
 {
-	return LLPipeline::sImpostorRender ? 1 : 3;
+	return LLPipeline::sImpostorRender ? 1 : 4;
 }
 
 void LLDrawPoolAvatar::render(S32 pass)
@@ -353,6 +357,8 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 		break;
 	case 2:
 		beginSkinned();
+	case 3:
+		beginRigged();
 		break;
 	}
 }
@@ -377,6 +383,10 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 		break;
 	case 2:
 		endSkinned();
+		break;
+	case 3:
+		endRigged();
+		break;
 	}
 }
 
@@ -562,9 +572,20 @@ void LLDrawPoolAvatar::endSkinned()
 	gGL.getTexUnit(0)->activate();
 }
 
+void LLDrawPoolAvatar::beginRigged()
+{
+	gSkinnedObjectSimpleProgram.bind();
+	LLVertexBuffer::sWeight4Loc = gSkinnedObjectSimpleProgram.getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
+}
+
+void LLDrawPoolAvatar::endRigged()
+{
+	gSkinnedObjectSimpleProgram.unbind();
+	LLVertexBuffer::sWeight4Loc = -1;
+}
+
 void LLDrawPoolAvatar::beginDeferredSkinned()
 {
-	sSkipTransparent = TRUE;
 	sShaderLevel = mVertexShaderLevel;
 	sVertexProgram = &gDeferredAvatarProgram;
 
@@ -579,7 +600,6 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 
 void LLDrawPoolAvatar::endDeferredSkinned()
 {
-	sSkipTransparent = FALSE;
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	sRenderingSkinned = FALSE;
 	disable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
@@ -707,6 +727,12 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	{
 		// render rigid meshes (eyeballs) first
 		avatarp->renderRigid();
+		return;
+	}
+
+	if (pass == 3)
+	{
+		avatarp->renderSkinnedAttachments();
 		return;
 	}
 	

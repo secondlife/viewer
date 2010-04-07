@@ -152,6 +152,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			return FALSE;
 		}
 	}
+
+	if (features->hasObjectSkinning)
+	{
+		if (!shader->attachObject("avatar/objectSkinV.glsl"))
+		{
+			return FALSE;
+		}
+	}
 	
 	///////////////////////////////////////
 	// Attach Fragment Shader Features Next

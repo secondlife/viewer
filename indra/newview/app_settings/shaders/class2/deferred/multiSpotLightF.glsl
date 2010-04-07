@@ -43,6 +43,52 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
+vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
+{
+	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	
+	vec2 dist = tc-vec2(0.5);
+	
+	float det = max(1.0-lod/(proj_lod*0.5), 0.0);
+	
+	float d = dot(dist,dist);
+		
+	ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0)+det, 1.0);
+	
+	return ret;
+}
+
+vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
+{
+	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	
+	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
+	
+	float det = min(lod/(proj_lod*0.5), 1.0);
+	
+	float d = min(dist.x, dist.y);
+	
+	float edge = 0.25*det;
+		
+	ret *= clamp(d/edge, 0.0, 1.0);
+	
+	return ret;
+}
+
+vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
+{
+	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	
+	vec2 dist = tc-vec2(0.5);
+	
+	float d = dot(dist,dist);
+		
+	ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0), 1.0);
+	
+	return ret;
+}
+
+
 vec4 getPosition(vec2 pos_screen)
 {
 	float depth = texture2DRect(depthMap, pos_screen.xy).a;
@@ -126,7 +172,7 @@ void main()
 			float diff = clamp((l_dist-proj_focus)/proj_range, 0.0, 1.0);
 			float lod = diff * proj_lod;
 			
-			vec4 plcol = texture2DLod(projectionMap, proj_tc.xy, lod);
+			vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
 		
 			vec3 lcol = gl_Color.rgb * plcol.rgb * plcol.a;
 			
@@ -137,7 +183,7 @@ void main()
 		}
 		
 		//float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
-		vec4 amb_plcol = texture2DLod(projectionMap, proj_tc.xy, proj_ambient_lod);
+		vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
 							
 		amb_da += (da*da*0.5+0.5)*proj_ambiance;
 				
@@ -167,21 +213,22 @@ void main()
 			if (stc.z > 0.0)
 			{
 				stc.xy /= stc.w;
-					
+
+				float fatten = clamp(spec.a*spec.a+spec.a*0.5, 0.25, 1.0);
+				
+				stc.xy = (stc.xy - vec2(0.5)) * fatten + vec2(0.5);
+								
 				if (stc.x < 1.0 &&
 					stc.y < 1.0 &&
 					stc.x > 0.0 &&
 					stc.y > 0.0)
 				{
-					vec4 scol = texture2DLod(projectionMap, stc.xy, proj_lod-spec.a*proj_lod);
+					vec4 scol = texture2DLodSpecular(projectionMap, stc.xy, proj_lod-spec.a*proj_lod);
 					col += dist_atten*scol.rgb*gl_Color.rgb*scol.a*spec.rgb*shadow;
 				}
 			}
 		}
 	}
-	
-	//attenuate point light contribution by SSAO component
-	col *= texture2DRect(lightMap, frag.xy).g;
 	
 	gl_FragColor.rgb = col;	
 	gl_FragColor.a = 0.0;

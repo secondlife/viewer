@@ -159,6 +159,7 @@ public:
 	const LLMatrix4& initRotTrans(const F32 roll, const F32 pitch, const F32 yaw, const LLVector4 &pos); // Rotation from Euler + translation
 	const LLMatrix4& initRotTrans(const LLQuaternion &q, const LLVector4 &pos);	// Set with Quaternion and position
 
+	const LLMatrix4& initScale(const LLVector3 &scale);
 
 	// Set all
 	const LLMatrix4& initAll(const LLVector3 &scale, const LLQuaternion &q, const LLVector3 &pos);	
@@ -225,10 +226,7 @@ public:
 	// Operators
 	//
 
-// Not implemented to enforce code that agrees with symbolic syntax
-//		friend LLVector4 operator*(const LLMatrix4 &a, const LLVector4 &b);		// Apply rotation a to vector b
-
-//	friend inline LLMatrix4 operator*(const LLMatrix4 &a, const LLMatrix4 &b);		// Return a * b
+	//	friend inline LLMatrix4 operator*(const LLMatrix4 &a, const LLMatrix4 &b);		// Return a * b
 	friend LLVector4 operator*(const LLVector4 &a, const LLMatrix4 &b);		// Return transform of vector a by matrix b
 	friend const LLVector3 operator*(const LLVector3 &a, const LLMatrix4 &b);		// Return full transform of a by matrix b
 	friend LLVector4 rotate_vector(const LLVector4 &a, const LLMatrix4 &b);	// Rotates a but does not translate
@@ -236,6 +234,7 @@ public:
 
 	friend bool operator==(const LLMatrix4 &a, const LLMatrix4 &b);			// Return a == b
 	friend bool operator!=(const LLMatrix4 &a, const LLMatrix4 &b);			// Return a != b
+	friend bool operator<(const LLMatrix4 &a, const LLMatrix4& b);			// Return a < b
 
 	friend const LLMatrix4& operator+=(LLMatrix4 &a, const LLMatrix4 &b);	// Return a + b
 	friend const LLMatrix4& operator-=(LLMatrix4 &a, const LLMatrix4 &b);	// Return a - b
