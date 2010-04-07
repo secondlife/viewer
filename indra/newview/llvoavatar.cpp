@@ -2696,18 +2696,18 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		return;
 	}
 
-		BOOL new_name = FALSE;
-		if (visible_chat != mVisibleChat)
-		{
-			mVisibleChat = visible_chat;
-			new_name = TRUE;
-		}
-		
-		if (sRenderGroupTitles != mRenderGroupTitles)
-		{
-			mRenderGroupTitles = sRenderGroupTitles;
-			new_name = TRUE;
-		}
+	BOOL new_name = FALSE;
+	if (visible_chat != mVisibleChat)
+	{
+		mVisibleChat = visible_chat;
+		new_name = TRUE;
+	}
+	
+	if (sRenderGroupTitles != mRenderGroupTitles)
+	{
+		mRenderGroupTitles = sRenderGroupTitles;
+		new_name = TRUE;
+	}
 
 	// IDEVO HACK to force refresh
 	if (LLAvatarNameCache::useDisplayNames() != mUseDisplayNames)
@@ -2716,30 +2716,30 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		new_name = TRUE;
 	}
 
-		// First Calculate Alpha
-		// If alpha > 0, create mNameText if necessary, otherwise delete it
-			F32 alpha = 0.f;
-			if (mAppAngle > 5.f)
-			{
-				const F32 START_FADE_TIME = NAME_SHOW_TIME - FADE_DURATION;
-				if (!visible_chat && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
-				{
-					alpha = 1.f - (time_visible - START_FADE_TIME) / FADE_DURATION;
-				}
-				else
-				{
-					// ...not fading, full alpha
-					alpha = 1.f;
-				}
-			}
-			else if (mAppAngle > 2.f)
-			{
-				// far away is faded out also
-				alpha = (mAppAngle-2.f)/3.f;
-			}
+	// First Calculate Alpha
+	// If alpha > 0, create mNameText if necessary, otherwise delete it
+	F32 alpha = 0.f;
+	if (mAppAngle > 5.f)
+	{
+		const F32 START_FADE_TIME = NAME_SHOW_TIME - FADE_DURATION;
+		if (!visible_chat && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
+		{
+			alpha = 1.f - (time_visible - START_FADE_TIME) / FADE_DURATION;
+		}
+		else
+		{
+			// ...not fading, full alpha
+			alpha = 1.f;
+		}
+	}
+	else if (mAppAngle > 2.f)
+	{
+		// far away is faded out also
+		alpha = (mAppAngle-2.f)/3.f;
+	}
 
 	if (alpha <= 0.f)
-			{
+	{
 		if (mNameText)
 		{
 			mNameText->markDead();
@@ -2749,19 +2749,19 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		return;
 	}
 
-				if (!mNameText)
-				{
+	if (!mNameText)
+	{
 		mNameText = static_cast<LLHUDNameTag*>( LLHUDObject::addHUDObject(
 			LLHUDObject::LL_HUD_NAME_TAG) );
 		//mNameText->setMass(10.f);
-					mNameText->setSourceObject(this);
+		mNameText->setSourceObject(this);
 		mNameText->setVertAlignment(LLHUDNameTag::ALIGN_VERT_TOP);
-					mNameText->setVisibleOffScreen(TRUE);
-					mNameText->setMaxLines(11);
-					mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
-					sNumVisibleChatBubbles++;
-					new_name = TRUE;
-				}
+		mNameText->setVisibleOffScreen(TRUE);
+		mNameText->setMaxLines(11);
+		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
+		sNumVisibleChatBubbles++;
+		new_name = TRUE;
+	}
 				
 	LLVector3 name_position = idleUpdateNameTagPosition(root_pos_last);
 	mNameText->setPositionAgent(name_position);
@@ -2772,10 +2772,10 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 }
 
 void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
-			{
-		LLNameValue *title = getNVPair("Title");
-		LLNameValue* firstname = getNVPair("FirstName");
-		LLNameValue* lastname = getNVPair("LastName");
+{
+	LLNameValue *title = getNVPair("Title");
+	LLNameValue* firstname = getNVPair("FirstName");
+	LLNameValue* lastname = getNVPair("LastName");
 
 	// Avatars must have a first and last name
 	if (!firstname || !lastname) return;
@@ -2784,14 +2784,14 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	bool is_busy = mSignaledAnimations.find(ANIM_AGENT_BUSY) != mSignaledAnimations.end();
 	bool is_appearance = mSignaledAnimations.find(ANIM_AGENT_CUSTOMIZE) != mSignaledAnimations.end();
 	bool is_muted;
-			if (isSelf())
-			{
+	if (isSelf())
+	{
 		is_muted = false;
-			}
-			else
-			{
-				is_muted = LLMuteList::getInstance()->isMuted(getID());
-			}
+	}
+	else
+	{
+		is_muted = LLMuteList::getInstance()->isMuted(getID());
+	}
 	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 
 	// Rebuild name tag if state change detected
@@ -2804,21 +2804,21 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| is_muted != mNameMute
 		|| is_appearance != mNameAppearance
 		|| is_friend != mNameFriend)
-				{
+	{
 		LLColor4 name_tag_color = getNameTagColor(is_friend);
 
 		clearNameTag();
 
 		if (is_away || is_muted || is_busy || is_appearance)
-				{
+		{
 			std::string line;
-					if (is_away)
-					{
-						line += LLTrans::getString("AvatarAway");
+			if (is_away)
+			{
+				line += LLTrans::getString("AvatarAway");
 				line += ", ";
-					}
-					if (is_busy)
-					{
+			}
+			if (is_busy)
+			{
 				line += LLTrans::getString("AvatarBusy");
 				line += ", ";
 			}
@@ -2828,10 +2828,10 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				line += ", ";
 			}
 			if (is_appearance)
-						{
+			{
 				line += LLTrans::getString("AvatarEditingAppearance");
-							line += ", ";
-						}
+				line += ", ";
+			}
 			// trim last ", "
 			line.resize( line.length() - 2 );
 			LLColor4 status_color =
@@ -2849,7 +2849,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
 			addNameTagLine(title_str, group_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
-					}
+		}
 
 		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
 		static LLUICachedControl<bool> show_slids("NameTagShowSLIDs");
@@ -2858,7 +2858,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		{
 			LLAvatarName av_name;
 			if (!LLAvatarNameCache::get(getID(), &av_name))
-					{
+			{
 				// ...call this function back when the name arrives
 				// and force a rebuild
 				LLAvatarNameCache::get(getID(),
@@ -2867,48 +2867,48 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 			// Might be blank if name not available yet, that's OK
 			if (show_slids)
-						{
+			{
 				// JAMESDEBUG HACK
 				LLColor4 slid_color = name_tag_color * 0.8f;
 				addNameTagLine(av_name.mSLID, slid_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerifSmall());
-						}
+			}
 			if (show_display_names)
 			{
 				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerif());
-					}
-				}
+			}
+		}
 		else
-				{
+		{
 			static LLUICachedControl<bool> small_avatar_names("SmallAvatarNames");
 			const LLFontGL* font =
 				(small_avatar_names ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifBig() );
 			std::string full_name =
 				LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
 			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
-				}
+		}
 
-				mNameAway = is_away;
-				mNameBusy = is_busy;
-				mNameMute = is_muted;
-				mNameAppearance = is_appearance;
+		mNameAway = is_away;
+		mNameBusy = is_busy;
+		mNameMute = is_muted;
+		mNameAppearance = is_appearance;
 		mNameFriend = is_friend;
-				mTitle = title ? title->getString() : "";
-				LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
-				new_name = TRUE;
-			}
+		mTitle = title ? title->getString() : "";
+		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
+		new_name = TRUE;
+	}
 
 	if (mVisibleChat)
-			{
-				mNameText->setFont(LLFontGL::getFontSansSerif());
+	{
+		mNameText->setFont(LLFontGL::getFontSansSerif());
 		mNameText->setTextAlignment(LLHUDNameTag::ALIGN_TEXT_LEFT);
-				mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
+		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
 			
-				char line[MAX_STRING];		/* Flawfinder: ignore */
-				line[0] = '\0';
-				std::deque<LLChat>::iterator chat_iter = mChats.begin();
-				mNameText->clearString();
+			char line[MAX_STRING];		/* Flawfinder: ignore */
+			line[0] = '\0';
+			std::deque<LLChat>::iterator chat_iter = mChats.begin();
+			mNameText->clearString();
 
 		LLColor4 new_chat = LLUIColorTable::instance().getColor( "NameTagChat" );
 				LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
@@ -2980,16 +2980,16 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 }
 
 void LLVOAvatar::addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font)
-				{
+{
 	llassert(mNameText);
 	if (mVisibleChat)
 	{
 		mNameText->addLabel(line);
-				}
-				else
-				{
+	}
+	else
+	{
 		mNameText->addLine(line, color, (LLFontGL::StyleFlags)style, font);
-				}
+	}
 	mNameString += line;
 	mNameString += '\n';
 }
@@ -2998,8 +2998,8 @@ void LLVOAvatar::clearNameTag()
 {
 	mNameString.clear();
 	if (mNameText)
-				{
-					mNameText->setLabel("");
+	{
+		mNameText->setLabel("");
 		mNameText->setString( "" );
 	}
 }
@@ -3049,8 +3049,8 @@ void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 	{
 		mNameText->setAlpha(alpha);
 		mNameAlpha = alpha;
-			}
-		}
+	}
+}
 
 LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 {
