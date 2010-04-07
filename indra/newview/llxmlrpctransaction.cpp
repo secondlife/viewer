@@ -31,9 +31,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include <openssl/x509_vfy.h>
-#include <openssl/ssl.h>
-#include "llsecapi.h"
 
 #include "llxmlrpctransaction.h"
 #include "llxmlrpclistener.h"
