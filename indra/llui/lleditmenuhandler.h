@@ -38,7 +38,7 @@ class LLEditMenuHandler
 {
 public:
 	// this is needed even though this is just an interface class.
-	virtual ~LLEditMenuHandler() {};
+	virtual ~LLEditMenuHandler();
 	
 	virtual void	undo() {};
 	virtual BOOL	canUndo() const { return FALSE; }

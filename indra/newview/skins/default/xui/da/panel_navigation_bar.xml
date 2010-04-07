@@ -11,7 +11,7 @@
 	</panel>
 	<favorites_bar name="favorite" tool_tip="Træk landemærker hertil for at få hurtig adgang til dine favoritsteder i Second Life!">
 		<label name="favorites_bar_label" tool_tip="Træk landemærker hertil for at få hurtig adgang til dine favoritsteder i Second Life!">
-			Favorit bar
+			Favoritter
 		</label>
 		<chevron_button name="&gt;&gt;" tool_tip="Søg mere af mine favoritter"/>
 	</favorites_bar>

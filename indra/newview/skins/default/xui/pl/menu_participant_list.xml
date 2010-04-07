@@ -8,8 +8,8 @@
 	<menu_item_call label="Zadzwoń" name="Call"/>
 	<menu_item_call label="Udostępnij" name="Share"/>
 	<menu_item_call label="Zapłać" name="Pay"/>
-	<menu_item_check label="Zablokuj Głos" name="Block/Unblock"/>
-	<menu_item_check label="Zablokuj Tekst" name="MuteText"/>
+	<menu_item_check label="Zablokuj głos" name="Block/Unblock"/>
+	<menu_item_check label="Zablokuj tekst" name="MuteText"/>
 	<context_menu label="Opcje Moderatora &gt;" name="Moderator Options">
 		<menu_item_check label="Czat/IM dozwolony" name="AllowTextChat"/>
 		<menu_item_call label="Wycisz tego uczestnika" name="ModerateVoiceMuteSelected"/>

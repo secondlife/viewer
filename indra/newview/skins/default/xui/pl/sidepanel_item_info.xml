@@ -54,7 +54,7 @@
 			</text>
 			<check_box label="Udostępnij" name="CheckShareWithGroup" tool_tip="Pozwól wszystkim członkom ustawionej grupy na dzielenie prawa do modyfikacji dla tego obiektu. Musisz Przypisać aby aktywować ograniczenia wynikające z roli."/>
 			<text name="NextOwnerLabel">
-				Następny właściciel:
+				Następny Właściciel:
 			</text>
 			<check_box label="Modyfikuje" name="CheckNextOwnerModify"/>
 			<check_box label="Kopiuje" name="CheckNextOwnerCopy"/>

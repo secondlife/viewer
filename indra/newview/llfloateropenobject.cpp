@@ -121,12 +121,12 @@ void LLFloaterOpenObject::refresh()
 		{
 			// this folder is coming from an object, as there is only one folder in an object, the root,
 			// we need to collect the entire contents and handle them as a group
-			InventoryObjectList inventory_objects;
+			LLInventoryObject::object_list_t inventory_objects;
 			object->getInventoryContents(inventory_objects);
 			
 			if (!inventory_objects.empty())
 			{
-				for (InventoryObjectList::iterator it = inventory_objects.begin(); 
+				for (LLInventoryObject::object_list_t::iterator it = inventory_objects.begin(); 
 					 it != inventory_objects.end(); 
 					 ++it)
 				{

@@ -10,11 +10,11 @@
 			<scroll_container name="profile_scroll">
 				<panel name="scroll_content_panel">
 					<panel name="second_life_image_panel">
-						<icon label="" name="2nd_life_edit_icon" tool_tip="Kliknij przycisk Edytuj Profil by zmienić zdjecie"/>
+						<icon label="" name="2nd_life_edit_icon" tool_tip="Kliknij przycisk Edytuj Profil by zmienić zdjęcie"/>
 						<text name="title_sl_descr_text" value="[SECOND_LIFE]:"/>
 					</panel>
 					<panel name="first_life_image_panel">
-						<icon label="" name="real_world_edit_icon" tool_tip="Kliknij przycisk Edytuj Profil by zmienić zdjecie"/>
+						<icon label="" name="real_world_edit_icon" tool_tip="Kliknij przycisk Edytuj Profil by zmienić zdjęcie"/>
 						<text name="title_rw_descr_text" value="Życie#1:"/>
 					</panel>
 					<text name="title_member_text" value="Urodziny:"/>

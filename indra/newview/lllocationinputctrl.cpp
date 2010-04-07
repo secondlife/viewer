@@ -108,7 +108,7 @@ public:
 private:
 	/*virtual*/ void done()
 	{
-		std::vector<LLUUID>::const_iterator it = mAdded.begin(), end = mAdded.end();
+		uuid_vec_t::const_iterator it = mAdded.begin(), end = mAdded.end();
 		for(; it != end; ++it)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
@@ -227,7 +227,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	params.default_text(LLStringUtil::null);
 	params.max_length_bytes(p.max_chars);
 	params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
-	params.handle_edit_keys_directly(true);
 	params.commit_on_focus_lost(false);
 	params.follows.flags(FOLLOWS_ALL);
 	mTextEntry = LLUICtrlFactory::create<LLURLLineEditor>(params);
@@ -391,8 +390,8 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 
 	mAddLandmarkTooltip = LLTrans::getString("LocationCtrlAddLandmarkTooltip");
 	mEditLandmarkTooltip = LLTrans::getString("LocationCtrlEditLandmarkTooltip");
-	getChild<LLView>("Location History")->setToolTip(LLTrans::getString("LocationCtrlComboBtnTooltip"));
-	getChild<LLView>("Place Information")->setToolTip(LLTrans::getString("LocationCtrlInfoBtnTooltip"));
+	mButton->setToolTip(LLTrans::getString("LocationCtrlComboBtnTooltip"));
+	mInfoBtn->setToolTip(LLTrans::getString("LocationCtrlInfoBtnTooltip"));
 }
 
 LLLocationInputCtrl::~LLLocationInputCtrl()

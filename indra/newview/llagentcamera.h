@@ -33,32 +33,12 @@
 #ifndef LL_LLAGENTCAMERA_H
 #define LL_LLAGENTCAMERA_H
 
-#include "indra_constants.h"
-#include "llevent.h" 				// LLObservable base class
-#include "llagent.h"
-#include "llagentaccess.h"
-#include "llagentconstants.h"
-#include "llagentdata.h" 			// gAgentID, gAgentSessionID
-#include "llcharacter.h" 			// LLAnimPauseRequest
 #include "llfollowcam.h" 			// Ventrella
 #include "llhudeffectlookat.h" 		// EPointAtType
 #include "llhudeffectpointat.h" 	// ELookAtType
-#include "llpointer.h"
-#include "lluicolor.h"
-#include "llvoavatardefines.h"
 
-class LLChat;
-class LLVOAvatarSelf;
-class LLViewerRegion;
-class LLMotion;
-class LLToolset;
-class LLMessageSystem;
-class LLPermissions;
-class LLHost;
-class LLFriendObserver;
 class LLPickInfo;
-class LLViewerObject;
-class LLAgentDropGroupViewerNode;
+class LLVOAvatarSelf;
 
 //--------------------------------------------------------------------
 // Types
@@ -92,8 +72,6 @@ class LLAgentCamera
 	LOG_CLASS(LLAgentCamera);
 
 public:
-	friend class LLAgent;
-
 	//--------------------------------------------------------------------
 	// Constructors / Destructors
 	//--------------------------------------------------------------------
@@ -104,7 +82,7 @@ public:
 	void			cleanup();
 	void		    setAvatarObject(LLVOAvatarSelf* avatar);
 private:
-	BOOL			mInitialized;
+	bool			mInitialized;
 
 
 	//--------------------------------------------------------------------
@@ -121,8 +99,11 @@ public:
 	BOOL			cameraCustomizeAvatar() const	{ return (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR /*&& !mCameraAnimating*/); }
 	BOOL			cameraFollow() const			{ return (mCameraMode == CAMERA_MODE_FOLLOW && mLastCameraMode == CAMERA_MODE_FOLLOW); }
 	ECameraMode		getCameraMode() const 			{ return mCameraMode; }
+	ECameraMode		getLastCameraMode() const 		{ return mLastCameraMode; }
 	void			updateCamera();					// Call once per frame to update camera location/orientation
 	void			resetCamera(); 					// Slam camera into its default position
+	void			updateLastCamera();				// Set last camera to current camera
+
 private:
 	ECameraMode		mCameraMode;					// Target mode after transition animation is done
 	ECameraMode		mLastCameraMode;
@@ -157,6 +138,7 @@ public:
 	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
 	F32				calcCustomizeAvatarUIOffset(const LLVector3d& camera_pos_global);
 	F32				getCurrentCameraBuildOffset() 	{ return (F32)mCameraFocusOffset.length(); }
+	void			clearCameraLag() { mCameraLag.clearVec(); }
 private:
 	F32				mCurrentCameraDistance;	 		// Current camera offset from avatar
 	F32				mTargetCameraDistance;			// Target camera offset from avatar
@@ -169,46 +151,10 @@ private:
 	LLVector3		mCameraVirtualPositionAgent;	// Camera virtual position (target) before performing FOV zoom
 	LLVector3d      mCameraSmoothingLastPositionGlobal;    
 	LLVector3d      mCameraSmoothingLastPositionAgent;
-	BOOL            mCameraSmoothingStop;
+	bool            mCameraSmoothingStop;
 	LLVector3		mCameraLag;						// Third person camera lag
 	LLVector3		mCameraUpVector;				// Camera's up direction in world coordinates (determines the 'roll' of the view)
 
-	//--------------------------------------------------------------------
-	// Orbit
-	//--------------------------------------------------------------------
-public:
-	void			setOrbitLeftKey(F32 mag)	{ mOrbitLeftKey = mag; }
-	void			setOrbitRightKey(F32 mag)	{ mOrbitRightKey = mag; }
-	void			setOrbitUpKey(F32 mag)		{ mOrbitUpKey = mag; }
-	void			setOrbitDownKey(F32 mag)	{ mOrbitDownKey = mag; }
-	void			setOrbitInKey(F32 mag)		{ mOrbitInKey = mag; }
-	void			setOrbitOutKey(F32 mag)		{ mOrbitOutKey = mag; }
-private:
-	F32				mOrbitLeftKey;
-	F32				mOrbitRightKey;
-	F32				mOrbitUpKey;
-	F32				mOrbitDownKey;
-	F32				mOrbitInKey;
-	F32				mOrbitOutKey;
-
-	//--------------------------------------------------------------------
-	// Pan
-	//--------------------------------------------------------------------
-public:
-	void			setPanLeftKey(F32 mag)		{ mPanLeftKey = mag; }
-	void			setPanRightKey(F32 mag)		{ mPanRightKey = mag; }
-	void			setPanUpKey(F32 mag)		{ mPanUpKey = mag; }
-	void			setPanDownKey(F32 mag)		{ mPanDownKey = mag; }
-	void			setPanInKey(F32 mag)		{ mPanInKey = mag; }
-	void			setPanOutKey(F32 mag)		{ mPanOutKey = mag; }
-private:
-	F32				mPanUpKey;						
-	F32				mPanDownKey;					
-	F32				mPanLeftKey;					
-	F32				mPanRightKey;					
-	F32				mPanInKey;
-	F32				mPanOutKey;	
-	
 	//--------------------------------------------------------------------
 	// Follow
 	//--------------------------------------------------------------------
@@ -356,6 +302,97 @@ private:
 public:
 	F32				mHUDTargetZoom;	// Target zoom level for HUD objects (used when editing)
 	F32				mHUDCurZoom; 	// Current animated zoom level for HUD objects
+
+
+/********************************************************************************
+ **                                                                            **
+ **                    KEYS
+ **/
+
+public:
+	S32				getAtKey() const		{ return mAtKey; }
+	S32				getWalkKey() const		{ return mWalkKey; }
+	S32				getLeftKey() const		{ return mLeftKey; }
+	S32				getUpKey() const		{ return mUpKey; }
+	F32				getYawKey() const		{ return mYawKey; }
+	F32				getPitchKey() const		{ return mPitchKey; }
+
+	void			setAtKey(S32 mag)		{ mAtKey = mag; }
+	void			setWalkKey(S32 mag)		{ mWalkKey = mag; }
+	void			setLeftKey(S32 mag)		{ mLeftKey = mag; }
+	void			setUpKey(S32 mag)		{ mUpKey = mag; }
+	void			setYawKey(F32 mag)		{ mYawKey = mag; }
+	void			setPitchKey(F32 mag)	{ mPitchKey = mag; }
+
+	void			clearGeneralKeys();
+	static S32		directionToKey(S32 direction); // Changes direction to -1/0/1
+
+private:
+	S32 			mAtKey;				// Either 1, 0, or -1. Indicates that movement key is pressed
+	S32				mWalkKey; 			// Like AtKey, but causes less forward thrust
+	S32 			mLeftKey;
+	S32				mUpKey;
+	F32				mYawKey;
+	F32				mPitchKey;
+
+	//--------------------------------------------------------------------
+	// Orbit
+	//--------------------------------------------------------------------
+public:
+	F32				getOrbitLeftKey() const		{ return mOrbitLeftKey; }
+	F32				getOrbitRightKey() const	{ return mOrbitRightKey; }
+	F32				getOrbitUpKey() const		{ return mOrbitUpKey; }
+	F32				getOrbitDownKey() const		{ return mOrbitDownKey; }
+	F32				getOrbitInKey() const		{ return mOrbitInKey; }
+	F32				getOrbitOutKey() const		{ return mOrbitOutKey; }
+
+	void			setOrbitLeftKey(F32 mag)	{ mOrbitLeftKey = mag; }
+	void			setOrbitRightKey(F32 mag)	{ mOrbitRightKey = mag; }
+	void			setOrbitUpKey(F32 mag)		{ mOrbitUpKey = mag; }
+	void			setOrbitDownKey(F32 mag)	{ mOrbitDownKey = mag; }
+	void			setOrbitInKey(F32 mag)		{ mOrbitInKey = mag; }
+	void			setOrbitOutKey(F32 mag)		{ mOrbitOutKey = mag; }
+
+	void			clearOrbitKeys();
+private:
+	F32				mOrbitLeftKey;
+	F32				mOrbitRightKey;
+	F32				mOrbitUpKey;
+	F32				mOrbitDownKey;
+	F32				mOrbitInKey;
+	F32				mOrbitOutKey;
+
+	//--------------------------------------------------------------------
+	// Pan
+	//--------------------------------------------------------------------
+public:
+	F32				getPanLeftKey() const		{ return mPanLeftKey; }
+	F32				getPanRightKey() const	{ return mPanRightKey; }
+	F32				getPanUpKey() const		{ return mPanUpKey; }
+	F32				getPanDownKey() const		{ return mPanDownKey; }
+	F32				getPanInKey() const		{ return mPanInKey; }
+	F32				getPanOutKey() const		{ return mPanOutKey; }
+
+	void			setPanLeftKey(F32 mag)		{ mPanLeftKey = mag; }
+	void			setPanRightKey(F32 mag)		{ mPanRightKey = mag; }
+	void			setPanUpKey(F32 mag)		{ mPanUpKey = mag; }
+	void			setPanDownKey(F32 mag)		{ mPanDownKey = mag; }
+	void			setPanInKey(F32 mag)		{ mPanInKey = mag; }
+	void			setPanOutKey(F32 mag)		{ mPanOutKey = mag; }
+
+	void			clearPanKeys();
+private:
+	F32				mPanUpKey;						
+	F32				mPanDownKey;					
+	F32				mPanLeftKey;					
+	F32				mPanRightKey;					
+	F32				mPanInKey;
+	F32				mPanOutKey;
+
+/**                    Keys
+ **                                                                            **
+ *******************************************************************************/
+
 };
 
 extern LLAgentCamera gAgentCamera;

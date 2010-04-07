@@ -1475,7 +1475,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 				object->sendTEUpdate();
 				// 1 particle effect per object				
 				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-				effectp->setSourceObject(gAgent.getAvatarObject());
+				effectp->setSourceObject(gAgentAvatarp);
 				effectp->setTargetObject(object);
 				effectp->setDuration(LL_HUD_DUR_SHORT);
 				effectp->setColor(LLColor4U(gAgent.getEffectColor()));
@@ -3619,7 +3619,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 {
 	LLViewerObject* attach_object = mSelectedObjects->getFirstRootObject();
 
-	if (!attach_object || !gAgent.getAvatarObject() || mSelectedObjects->mSelectType != SELECT_TYPE_WORLD)
+	if (!attach_object || !isAgentAvatarValid() || mSelectedObjects->mSelectType != SELECT_TYPE_WORLD)
 	{
 		return;
 	}
@@ -3630,7 +3630,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 	BOOL build_mode = LLToolMgr::getInstance()->inEdit();
 	// Special case: Attach to default location for this object.
 	if (0 == attachment_point ||
-		get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, (S32)attachment_point, (LLViewerJointAttachment*)NULL))
+		get_if_there(gAgentAvatarp->mAttachmentPoints, (S32)attachment_point, (LLViewerJointAttachment*)NULL))
 	{
 		sendListToRegions(
 			"ObjectAttach",
@@ -4392,7 +4392,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_SitName, sit_name, i);
 
 		//unpack TE IDs
-		std::vector<LLUUID> texture_ids;
+		uuid_vec_t texture_ids;
 		S32 size = msg->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_TextureID);
 		if (size > 0)
 		{
@@ -4911,10 +4911,9 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	LLGLEnable blend(GL_BLEND);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	if (for_hud && avatar)
+	if (isAgentAvatarValid() && for_hud)
 	{
-		LLBBox hud_bbox = avatar->getHUDBBox();
+		LLBBox hud_bbox = gAgentAvatarp->getHUDBBox();
 
 		F32 cur_zoom = gAgentCamera.mHUDCurZoom;
 
@@ -5023,7 +5022,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		}
 	}
 
-	if (for_hud && avatar)
+	if (isAgentAvatarValid() && for_hud)
 	{
 		glMatrixMode(GL_PROJECTION);
 		gGL.popMatrix();
@@ -5208,13 +5207,13 @@ void LLSelectNode::saveColors()
 	}
 }
 
-void LLSelectNode::saveTextures(const std::vector<LLUUID>& textures)
+void LLSelectNode::saveTextures(const uuid_vec_t& textures)
 {
 	if (mObject.notNull())
 	{
 		mSavedTextures.clear();
 
-		for (std::vector<LLUUID>::const_iterator texture_it = textures.begin();
+		for (uuid_vec_t::const_iterator texture_it = textures.begin();
 			 texture_it != textures.end(); ++texture_it)
 		{
 			mSavedTextures.push_back(*texture_it);
@@ -5399,7 +5398,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 	if (volume)
 	{
 		F32 silhouette_thickness;
-		if (is_hud_object && gAgent.getAvatarObject())
+		if (isAgentAvatarValid() && is_hud_object)
 		{
 			silhouette_thickness = LLSelectMgr::sHighlightThickness / gAgentCamera.mHUDCurZoom;
 		}
@@ -5609,16 +5608,16 @@ void LLSelectMgr::updateSelectionCenter()
 	{
 		mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
-		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && gAgent.getAvatarObject())
+		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
 		{
-			mPauseRequest = gAgent.getAvatarObject()->requestPause();
+			mPauseRequest = gAgentAvatarp->requestPause();
 		}
 		else
 		{
 			mPauseRequest = NULL;
 		}
 
-		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && gAgent.getAvatarObject())
+		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && isAgentAvatarValid())
 		{
 			// reset hud ZOOM
 			gAgentCamera.mHUDTargetZoom = 1.f;
@@ -5641,10 +5640,10 @@ void LLSelectMgr::updateSelectionCenter()
 			LLViewerObject* object = node->getObject();
 			if (!object)
 				continue;
-			LLViewerObject *myAvatar = gAgent.getAvatarObject();
+			
 			LLViewerObject *root = object->getRootEdit();
 			if (mSelectedObjects->mSelectType == SELECT_TYPE_WORLD && // not an attachment
-				!root->isChild(myAvatar) && // not the object you're sitting on
+				!root->isChild(gAgentAvatarp) && // not the object you're sitting on
 				!object->isAvatar()) // not another avatar
 			{
 				mShowSelection = TRUE;

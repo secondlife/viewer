@@ -28,16 +28,16 @@
 		</panel>
 		<joystick_rotate name="cam_rotate_stick" tool_tip="Obracaj kamerę wokoł osi"/>
 		<panel name="camera_presets">
-			<button name="rear_view" tool_tip="Widok z Tyłu"/>
+			<button name="rear_view" tool_tip="Widok z tyłu"/>
 			<button name="group_view" tool_tip="Podgląd Grupy"/>
-			<button name="front_view" tool_tip="Widok z Przodu"/>
-			<button name="mouselook_view" tool_tip="Widok Panoramiczny"/>
+			<button name="front_view" tool_tip="Widok z przodu"/>
+			<button name="mouselook_view" tool_tip="Widok panoramiczny"/>
 		</panel>
 	</panel>
 	<panel name="buttons">
-		<button label="" name="orbit_btn" tool_tip="Obracaj Kamerę"/>
-		<button label="" name="pan_btn" tool_tip="Kamera Horyzontalna"/>
+		<button label="" name="orbit_btn" tool_tip="Obracaj kamerę"/>
+		<button label="" name="pan_btn" tool_tip="Kamera horyzontalna"/>
 		<button label="" name="avatarview_btn" tool_tip="Ustawienia"/>
-		<button label="" name="freecamera_btn" tool_tip="Podgląd Obiektu"/>
+		<button label="" name="freecamera_btn" tool_tip="Podgląd obiektu"/>
 	</panel>
 </floater>

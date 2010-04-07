@@ -452,7 +452,7 @@ BOOL LLParcel::allowTerraformBy(const LLUUID &agent_id) const
 
 bool LLParcel::isAgentBlockedFromParcel(LLParcel* parcelp,
                                         const LLUUID& agent_id,
-                                        const std::vector<LLUUID>& group_ids,
+                                        const uuid_vec_t& group_ids,
                                         const BOOL is_agent_identified,
                                         const BOOL is_agent_transacted,
                                         const BOOL is_agent_ageverified)

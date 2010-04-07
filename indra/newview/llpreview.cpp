@@ -36,7 +36,7 @@
 #include "llpreview.h"
 
 #include "lllineeditor.h"
-#include "llinventory.h"
+#include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "llresmgr.h"
 #include "lltextbox.h"
@@ -179,10 +179,9 @@ void LLPreview::onCommit()
 			// update the object itself.
 			if( item->getType() == LLAssetType::AT_OBJECT )
 			{
-				LLVOAvatarSelf* avatarp = gAgent.getAvatarObject();
-				if(avatarp)
+				if (isAgentAvatarValid())
 				{
-					LLViewerObject* obj = avatarp->getWornAttachment( item->getUUID() );
+					LLViewerObject* obj = gAgentAvatarp->getWornAttachment( item->getUUID() );
 					if( obj )
 					{
 						LLSelectMgr::getInstance()->deselectAll();

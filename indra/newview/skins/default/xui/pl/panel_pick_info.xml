@@ -3,9 +3,9 @@
 	<text name="title" value="Info o Ulubionych"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="pick_name" value="[nazwa]"/>
-			<text name="pick_location" value="[ładowanie...]"/>
-			<text name="pick_desc" value="[opis]"/>
+			<text name="pick_name" value="[name]"/>
+			<text name="pick_location" value="[loading...]"/>
+			<text name="pick_desc" value="[description]"/>
 		</panel>
 	</scroll_container>
 	<panel name="buttons">

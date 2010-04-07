@@ -23,9 +23,9 @@
 	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
 	<button label="OK" label_selected="OK" name="select_btn"/>
 	<text name="Current color:">
-		Obecny Kolor:
+		Obecny kolor:
 	</text>
 	<text name="(Drag below to save.)">
-		(Przeciągnij tutaj by zapisać)
+		(Przeciągnij tutaj aby zapisać)
 	</text>
 </floater>

@@ -215,6 +215,20 @@ void LLFloaterMap::draw()
 	LLFloater::draw();
 }
 
+// virtual
+void LLFloaterMap::onFocusReceived()
+{
+	setBackgroundOpaque(true);
+	LLPanel::onFocusReceived();
+}
+
+// virtual
+void LLFloaterMap::onFocusLost()
+{
+	setBackgroundOpaque(false);
+	LLPanel::onFocusLost();
+}
+
 void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLFloater::reshape(width, height, called_from_parent);

@@ -35,8 +35,9 @@
 
 #include <string>
 #include "llrect.h"
+#include "lluictrl.h"
+#include "lluicolor.h"
 
-class LLUICtrl;
 class LLUICtrlFactory;
 class LLUIImage;
 class LLButton;

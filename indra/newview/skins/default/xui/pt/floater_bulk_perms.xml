@@ -7,20 +7,20 @@
 		Definindo permissões em [NAME]
 	</floater.string>
 	<floater.string name="start_text">
-		Iniciando solicitação de mudança de permissão...
+		Solicitando mudança de permissão...
 	</floater.string>
 	<floater.string name="done_text">
 		Solicitação de mudança de permissão concluída.
 	</floater.string>
 	<check_box label="Animação" name="check_animation"/>
 	<icon name="icon_animation" tool_tip="Animação"/>
-	<check_box label="Partes do Corpo" name="check_bodypart"/>
+	<check_box label="Partes do corpo" name="check_bodypart"/>
 	<icon name="icon_bodypart" tool_tip="Partes do corpo"/>
 	<check_box label="Roupas" name="check_clothing"/>
 	<icon name="icon_clothing" tool_tip="Vestuário"/>
 	<check_box label="Gestos" name="check_gesture"/>
 	<icon name="icon_gesture" tool_tip="Gestos"/>
-	<check_box label="Notecards" name="check_notecard"/>
+	<check_box label="Anotações" name="check_notecard"/>
 	<icon name="icon_notecard" tool_tip="Anotações"/>
 	<check_box label="Objetos" name="check_object"/>
 	<icon name="icon_object" tool_tip="Objects"/>
@@ -30,7 +30,7 @@
 	<icon name="icon_sound" tool_tip="Sons"/>
 	<check_box label="Texturas" name="check_texture"/>
 	<icon name="icon_texture" tool_tip="Texturas"/>
-	<button label="√ Tudo" label_selected="Todas" name="check_all"/>
+	<button label="Tudo" label_selected="Todas" name="check_all"/>
 	<button label="Limpar" label_selected="Nenhuma" name="check_none"/>
 	<text name="newperms">
 		Novas autorizações de conteúdo

@@ -372,6 +372,8 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mTextTime->setVisible(visible);
 	getChild<LLUICtrl>("buycurrency")->setVisible(visible);
 	getChild<LLUICtrl>("buyL")->setVisible(visible);
+	mBtnVolume->setVisible(visible);
+	mMediaToggle->setVisible(visible);
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);
@@ -445,11 +447,9 @@ void LLStatusBar::setHealth(S32 health)
 	{
 		if (mHealth > (health + gSavedSettings.getF32("UISndHealthReductionThreshold")))
 		{
-			LLVOAvatar *me;
-
-			if ((me = gAgent.getAvatarObject()))
+			if (isAgentAvatarValid())
 			{
-				if (me->getSex() == SEX_FEMALE)
+				if (gAgentAvatarp->getSex() == SEX_FEMALE)
 				{
 					make_ui_sound("UISndHealthReductionF");
 				}

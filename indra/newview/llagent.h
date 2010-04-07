@@ -39,9 +39,6 @@
 #include "llagentconstants.h"
 #include "llagentdata.h" 			// gAgentID, gAgentSessionID
 #include "llcharacter.h" 			// LLAnimPauseRequest
-#include "llfollowcam.h" 			// Ventrella
-#include "llhudeffectlookat.h" 		// EPointAtType
-#include "llhudeffectpointat.h" 	// ELookAtType
 #include "llpointer.h"
 #include "lluicolor.h"
 #include "llvoavatardefines.h"
@@ -51,7 +48,6 @@ extern const U8 	AGENT_STATE_TYPING;  // Typing indication
 extern const U8 	AGENT_STATE_EDITING; // Set when agent has objects selected
 
 class LLChat;
-class LLVOAvatarSelf;
 class LLViewerRegion;
 class LLMotion;
 class LLToolset;
@@ -109,7 +105,6 @@ public:
 	virtual 		~LLAgent();
 	void			init();
 	void			cleanup();
-	void			setAvatarObject(LLVOAvatarSelf *avatar);
 
 	//--------------------------------------------------------------------
 	// Login
@@ -173,20 +168,6 @@ private:
 
 /********************************************************************************
  **                                                                            **
- **                    GENERAL ACCESSORS
- **/
-
-public:
- 	LLVOAvatarSelf* getAvatarObject() const		{ return mAvatarObject; }
-private:
-	LLPointer<LLVOAvatarSelf> mAvatarObject; 	// NULL until avatar object sent down from simulator
-
-/**                    General Accessors
- **                                                                            **
- *******************************************************************************/
-
-/********************************************************************************
- **                                                                            **
  **                    POSITION
  **/
 
@@ -217,7 +198,7 @@ public:
 	// Coordinate System
 	//--------------------------------------------------------------------
 public:
-	LLCoordFrame	getFrameAgent()	const	{ return mFrameAgent; }
+	const LLCoordFrame&	getFrameAgent()	const	{ return mFrameAgent; }
 	void 			initOriginGlobal(const LLVector3d &origin_global); // Only to be used in ONE place
 	void			resetAxes();
 	void			resetAxes(const LLVector3 &look_at); // Makes reasonable left and up
@@ -450,19 +431,6 @@ private:
  **                                                                            **
  **                    MOVEMENT
  **/
-	
-	//--------------------------------------------------------------------
-	// Keys
-	//--------------------------------------------------------------------
-public:
-	void			setKey(const S32 direction, S32 &key); // Sets key to +1 for +direction, -1 for -direction
-private:
-	S32 			mAtKey;				// Either 1, 0, or -1. Indicates that movement key is pressed
-	S32				mWalkKey; 			// Like AtKey, but causes less forward thrust
-	S32 			mLeftKey;
-	S32				mUpKey;
-	F32				mYawKey;
-	F32				mPitchKey;
 
 	//--------------------------------------------------------------------
 	// Movement from user input

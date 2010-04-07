@@ -114,7 +114,7 @@ BOOL LLFloaterScriptQueue::postBuild()
 // worked on.
 // NOT static, virtual!
 void LLFloaterScriptQueue::inventoryChanged(LLViewerObject* viewer_object,
-											 InventoryObjectList* inv,
+											 LLInventoryObject::object_list_t* inv,
 											 S32,
 											 void* q_id)
 {
@@ -305,7 +305,7 @@ LLFloaterCompileQueue::~LLFloaterCompileQueue()
 }
 
 void LLFloaterCompileQueue::handleInventory(LLViewerObject *viewer_object,
-											InventoryObjectList* inv)
+											LLInventoryObject::object_list_t* inv)
 {
 	// find all of the lsl, leaving off duplicates. We'll remove
 	// all matching asset uuids on compilation success.
@@ -313,8 +313,8 @@ void LLFloaterCompileQueue::handleInventory(LLViewerObject *viewer_object,
 	typedef std::multimap<LLUUID, LLPointer<LLInventoryItem> > uuid_item_map;
 	uuid_item_map asset_item_map;
 
-	InventoryObjectList::const_iterator it = inv->begin();
-	InventoryObjectList::const_iterator end = inv->end();
+	LLInventoryObject::object_list_t::const_iterator it = inv->begin();
+	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it)
 	{
 		if((*it)->getType() == LLAssetType::AT_LSL_TEXT)
@@ -625,14 +625,14 @@ LLFloaterResetQueue::~LLFloaterResetQueue()
 }
 
 void LLFloaterResetQueue::handleInventory(LLViewerObject* viewer_obj,
-										  InventoryObjectList* inv)
+										  LLInventoryObject::object_list_t* inv)
 {
 	// find all of the lsl, leaving off duplicates. We'll remove
 	// all matching asset uuids on compilation success.
 	LLDynamicArray<const char*> names;
 	
-	InventoryObjectList::const_iterator it = inv->begin();
-	InventoryObjectList::const_iterator end = inv->end();
+	LLInventoryObject::object_list_t::const_iterator it = inv->begin();
+	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it)
 	{
 		if((*it)->getType() == LLAssetType::AT_LSL_TEXT)
@@ -677,14 +677,14 @@ LLFloaterRunQueue::~LLFloaterRunQueue()
 }
 
 void LLFloaterRunQueue::handleInventory(LLViewerObject* viewer_obj,
-										  InventoryObjectList* inv)
+										  LLInventoryObject::object_list_t* inv)
 {
 	// find all of the lsl, leaving off duplicates. We'll remove
 	// all matching asset uuids on compilation success.
 	LLDynamicArray<const char*> names;
 	
-	InventoryObjectList::const_iterator it = inv->begin();
-	InventoryObjectList::const_iterator end = inv->end();
+	LLInventoryObject::object_list_t::const_iterator it = inv->begin();
+	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it)
 	{
 		if((*it)->getType() == LLAssetType::AT_LSL_TEXT)
@@ -732,14 +732,14 @@ LLFloaterNotRunQueue::~LLFloaterNotRunQueue()
 }
 
 void LLFloaterNotRunQueue::handleInventory(LLViewerObject* viewer_obj,
-										  InventoryObjectList* inv)
+										  LLInventoryObject::object_list_t* inv)
 {
 	// find all of the lsl, leaving off duplicates. We'll remove
 	// all matching asset uuids on compilation success.
 	LLDynamicArray<const char*> names;
 	
-	InventoryObjectList::const_iterator it = inv->begin();
-	InventoryObjectList::const_iterator end = inv->end();
+	LLInventoryObject::object_list_t::const_iterator it = inv->begin();
+	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it)
 	{
 		if((*it)->getType() == LLAssetType::AT_LSL_TEXT)

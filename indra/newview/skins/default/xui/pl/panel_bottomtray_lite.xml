@@ -2,7 +2,7 @@
 <panel name="bottom_tray_lite">
 	<layout_stack name="toolbar_stack_lite">
 		<layout_panel name="gesture_panel">
-			<gesture_combo_list label="Gestura" name="Gesture" tool_tip="Pokaż/ukryj gestury"/>
+			<gesture_combo_list label="Gest" name="Gest" tool_tip="Pokaż/ukryj gestury"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

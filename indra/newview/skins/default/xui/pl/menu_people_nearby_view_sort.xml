@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="menu_group_plus">
-	<menu_item_check label="Porządkuj Według Ostatnich Rozmówców" name="sort_by_recent_speakers"/>
-	<menu_item_check label="Porządkuj Według Nazwy" name="sort_name"/>
-	<menu_item_check label="Porządkuj Według Odległości" name="sort_distance"/>
-	<menu_item_check label="Wyświetlaj Ikonki" name="view_icons"/>
-	<menu_item_call label="Pokaż Zablokowanych Rezydentów &amp; Obiekty" name="show_blocked_list"/>
+	<menu_item_check label="Porządkuj według ostatnich rozmówców" name="sort_by_recent_speakers"/>
+	<menu_item_check label="Porządkuj według nazwy" name="sort_name"/>
+	<menu_item_check label="Porządkuj według odległości" name="sort_distance"/>
+	<menu_item_check label="Wyświetlaj ikonki" name="view_icons"/>
+	<menu_item_call label="Pokaż zablokowanych Rezydentów &amp; obiekty" name="show_blocked_list"/>
 </menu>

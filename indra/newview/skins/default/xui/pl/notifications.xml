@@ -89,7 +89,7 @@ Sprawdź stan swojego połączenia sieciowego.
 		W trakcie ładwania tekstu dla skryptu pojawił się problem z następującego powodu: [REASON]. Spróbuj ponownie za kilka minut.
 	</notification>
 	<notification name="CompileQueueSaveBytecode">
-		W trakcie ładwania skompilowanego skryptu pojawił się problem z następującego powodu: [REASON]. Spróbuj ponownie za kilka minut.
+		W trakcie ładowania skompilowanego skryptu pojawił się problem z następującego powodu: [REASON]. Spróbuj ponownie za kilka minut.
 	</notification>
 	<notification name="WriteAnimationFail">
 		Problem w zapisywaniu danych animacji. Spróbuj ponownie za kilka minut.
@@ -255,7 +255,7 @@ Obiekty: [N]
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
-		Czy na pewno chcesz deaktywować wszystkie obiekty w tym regionie?
+		Czy na pewno chcesz deaktywować wszystkie obiekty w tym Regionie?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByGroup">
@@ -325,7 +325,7 @@ Czy chcesz przejść na stronę www.secondlife.com by założyć konto?
 	<notification name="AddClassified">
 		Ogłoszenia reklamowe ukazują się w zakładce Reklama w wyszukiwarce (Szukaj) oraz na [http://secondlife.com/community/classifieds secondlife.com] przez tydzień.
 Napisz treść swojej reklamy, kliknij Zamieść by dodać katalogu ogłoszeń.
-Po zamieszczeniu reklamy zostaniesz poproszony o sprecyzowanie opłaty za reklamę.
+Po zamieszczeniu reklamy zostaniesz poproszony o sprecyzowanie opłaty za Reklamę.
 Im wyższa opłata tym wyżej Twoja reklama wyświetla się w katalogu i wyszukiwarce po wpisaniu słów kluczowych.
 		<usetemplate ignoretext="Jak stworzyć nową reklamę?" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
@@ -340,7 +340,7 @@ Czy na pewno chcesz kontynuować?
 		<usetemplate ignoretext="Potwierdź przed usunięciem mediów z obiektu" name="okcancelignore" notext="Nie" yestext="Tak"/>
 	</notification>
 	<notification name="ClassifiedSave">
-		Zapisać zmiany w reklamie [NAME]?
+		Zapisać zmiany w Reklamie [NAME]?
 		<usetemplate canceltext="Anuluj" name="yesnocancelbuttons" notext="Nie Zapisuj" yestext="Zapisz"/>
 	</notification>
 	<notification name="ClassifiedInsufficientFunds">
@@ -352,7 +352,7 @@ Czy na pewno chcesz kontynuować?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
-		Odwiedzić internetową stronę imprez [SECOND_LIFE]?
+		Odwiedzić internetową stronę Imprez [SECOND_LIFE]?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="SelectProposalToView">
@@ -392,17 +392,17 @@ Usuń kilka etapów i zapisz jeszcze raz.
 	</notification>
 	<notification name="GestureSaveFailedObjectNotFound">
 		Nie można zapisać gestu ponieważ obiekt lub szafa powiązanego obiektu nie został znaleziony.
-Obiekt może znajdować się zbyt daleko albo został usuniety.
+Obiekt może znajdować się zbyt daleko albo został usunięty.
 	</notification>
 	<notification name="GestureSaveFailedReason">
-		Nie można zapisać gestu z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz póżniej.
+		Nie można zapisać gestu z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz później.
 	</notification>
 	<notification name="SaveNotecardFailObjectNotFound">
 		Nie można zapisać notki ponieważ obiekt lub szafa powiązanego obiektu nie został znaleziony.
 Obiekt może znajdować się zbyt daleko albo został usuniety.
 	</notification>
 	<notification name="SaveNotecardFailReason">
-		Nie można zapisać notki z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz póżniej.
+		Nie można zapisać notki z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz później.
 	</notification>
 	<notification name="ScriptCannotUndo">
 		Nie można cofnąć wszystkich zmian w Twojej wersji skryptu.
@@ -411,7 +411,7 @@ Czy chcesz załadować ostatnią wersję zapisaną na serwerze?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="SaveScriptFailReason">
-		Nie można zapisać skryptu z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz póżniej.
+		Nie można zapisać skryptu z następującego powodu: [REASON]. Spróbuj zapisać jeszcze raz później.
 	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Nie można zapisać skryptu ponieważ obiekt w którym się zawiera nie został znaleziony.
@@ -517,7 +517,7 @@ Odwiedź stronę [_URL] po więcej informacji na temat zakupu L$?
 	</notification>
 	<notification name="UnableToLinkObjects">
 		Nie można połączyć [COUNT] obiektów.
-Maksimalnie można połączyć [MAX] obiektów.
+Maksymalnie można połączyć [MAX] obiektów.
 	</notification>
 	<notification name="CannotLinkIncompleteSet">
 		Możesz łączyć tylko kompletne zbiory obiektów i musisz wybrać więcej niż jeden obiekt.
@@ -682,7 +682,7 @@ Jeśli nadal nie możesz się teleportować wyloguj się i ponownie zaloguj.
 		Czekamy na Twoje akcesoria. Możesz poczekać kilka minut lub zrobić relog przed następną próbą teleportacji.
 	</notification>
 	<notification name="too_many_uploads_tport">
-		Obecnie ten region ma problemy z ładowaniem obiektów w związku z czym teleportacja bardzo sie opóznia.
+		Obecnie ten region ma problemy z ładowaniem obiektów w związku z czym teleportacja bardzo sie opóźnia.
 Spróbuj jeszcze raz za kilka minut albo teleportuj się do mniej zatłoczonego miejsca.
 	</notification>
 	<notification name="expired_tport">
@@ -864,10 +864,10 @@ Połączyć posiadłości?
 		Zmiana rozdzielczości do [RESX] x [RESY] nie powidła się
 	</notification>
 	<notification name="ErrorUndefinedGrasses">
-		Błąd: Niezdefiniowane trawy: [SPECIES]
+		Błąd: niezdefiniowane trawy: [SPECIES]
 	</notification>
 	<notification name="ErrorUndefinedTrees">
-		Bład: Niezdefiniowane drzewa: [SPECIES]
+		Bład: niezdefiniowane drzewa: [SPECIES]
 	</notification>
 	<notification name="CannotSaveWearableOutOfSpace">
 		Nie można zapisać &apos;[NAME]&apos; do pliku stroju. Musisz zwolnić trochę miejsca na Twoim komputerze i zapisać strój jeszcze raz.
@@ -930,7 +930,7 @@ ze wszystkich posiadłości w tym symulatorze?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="BlankClassifiedName">
-		Musisz nadać tytuł Twojej reklamie.
+		Musisz nadać tytuł Twojej Reklamie.
 	</notification>
 	<notification name="MinClassifiedPrice">
 		Minimalna cena za publikację wynosi [MIN_PRICE]L$.
@@ -1132,10 +1132,10 @@ Zamień teksturę [TEXTURE_NUM] na 24-o bitową teksturę o wymiarze 512x512 lub
 		Maksymalna liczba gości wynosi [MAX_AGENTS].
 	</notification>
 	<notification name="MaxBannedAgentsOnRegion">
-		Maksymalna liczba nieporządanych Rezydentów (banów) wynosi [MAX_BANNED].
+		Maksymalna liczba niepożądanych Rezydentów (banów) wynosi [MAX_BANNED].
 	</notification>
 	<notification name="MaxAgentOnRegionBatch">
-		Próba dodania [NUM_ADDED] osób nie powidła się:
+		Próba dodania [NUM_ADDED] osób nie powiodła się:
 [MAX_AGENTS] [LIST_TYPE] limit przekroczony o [NUM_EXCESS].
 	</notification>
 	<notification name="MaxAllowedGroupsOnRegion">
@@ -1223,7 +1223,7 @@ Pobrać i zapisać w folderze Aplikacji?
 		<usetemplate name="okcancelbuttons" notext="Kontynuuj" yestext="Załaduj"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
-		Przekazanie tego obiektu spowoduje, że grupa:
+		Przekazanie tego obiektu spowoduje, że Grupa:
 * Otrzyma L$ zapłacone temu obiektowi
 		<usetemplate ignoretext="Proszę potwierdzić decyzję przed przepisaniem obiektu do grupy" name="okcancelignore" notext="Anuluj" yestext="Przekaż"/>
 	</notification>
@@ -1583,7 +1583,7 @@ Zazwyczaj musi upłynąć nieco czasu zanim ta zmiana zostanie odzwierciedlona n
 Aby wejść do regionu Adult, Rezydenci muszą posiadać zweryfikowane konto, albo w wyniku weryfikacji wieku albo płatości.
 	</notification>
 	<notification label="Wersja Niezgodna z Systemem Rozmów" name="VoiceVersionMismatch">
-		Ta wersja [APP_NAME] nie jest kompatybilna z systemem Rozmów w tym regionie. Musisz zainstalować aktualną wersję [APP_NAME] komunikacja głosowa działała poprawnie.
+		Ta wersja [APP_NAME] nie jest kompatybilna z systemem rozmów w tym Regionie. Musisz zainstalować aktualną wersję [APP_NAME] aby komunikacja głosowa działała poprawnie.
 	</notification>
 	<notification label="Nie Można Kupić Obiektów" name="BuyObjectOneOwner">
 		Jednorazowo możesz kupować tylko od jednego właściciela.
@@ -1660,20 +1660,20 @@ Wpisz hasło ponownie i kliknij OK.
 	</notification>
 	<notification name="SetPickLocation">
 		Uwaga:
-Lokacja tego wyboru została zaktualizowana ale pozostałe szczegóły zachowają oryginalne wartości.
+Lokalizacja tego wyboru została zaktualizowana ale pozostałe szczegóły zachowają oryginalne wartości.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MoveInventoryFromObject">
-		Wybrane obiekty szafy nie mają praw kopiowania.
-Obiekty zostaną przeniesione do Twojej szafy, nie zostaną skopiowane.
+		Wybrane obiekty Szafy nie mają praw kopiowania.
+Obiekty zostaną przeniesione do Twojej Szafy, nie zostaną skopiowane.
 
-Przenieść obiekty szafy?
+Przenieść obiekty Szafy?
 		<usetemplate ignoretext="Uprzedź przed przeniesieniem zawartości niekopiowalnej z obiektu" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="MoveInventoryFromScriptedObject">
-		Wybrane obiekty szafy nie mają praw kopiowania.
+		Wybrane obiekty Szafy nie mają praw kopiowania.
 Obiekty zostaną przeniesione do Twojej Szafy, nie zostaną skopiowane.
-Ponieważ obiekty zawierają skrypty, przeniesienie obiektów do Twojej szafy może spowodować niepoprawne działanie skryptów.
+Ponieważ obiekty zawierają skrypty, przeniesienie obiektów do Twojej Szafy może spowodować niepoprawne działanie skryptów.
 
 Przenieść obiekty szafy?
 		<usetemplate ignoretext="Uprzedź przed przeniesieniem zawartości niekopiowalnej z obiektu, która może uszkodzić skrypty obiektu" name="okcancelignore" notext="Anuluj" yestext="OK"/>
@@ -1837,7 +1837,7 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 		Ustawienie już istnieje!
 	</notification>
 	<notification name="WaterNoEditDefault">
-		Domyśle ustawienie nie może być zmienione ani usunięte.
+		Domyślne ustawienie nie może być zmienione ani usunięte.
 	</notification>
 	<notification name="ChatterBoxSessionStartError">
 		Błąd podczas rozpoczynania czatu/IM z [RECIPIENT].
@@ -2025,7 +2025,7 @@ i wybierając folder Zapisane Miejsca (LM).
 (Kliknij dwa razy na miejsce (LM) i wybierz &apos;Teleport&apos; żeby tam się przenieść.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Możesz skontaktować się z Rezydentem &apos;[NAME]&apos; poprzez otworzenie panelu Ludzie po prawej stronei ekranu.
+		Możesz skontaktować się z Rezydentem &apos;[NAME]&apos; poprzez otworzenie panelu Ludzie po prawej stronie ekranu.
 Wybierz Rezydenta z listy, następnie kliknij &apos;IM&apos; na dole panelu.
 (Możesz także kliknąć podwójnie na ich imię na liście, lub prawym przyciskiem i wybrać &apos;IM&apos;).
 	</notification>

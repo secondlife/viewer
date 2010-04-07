@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="avatar_texture_debug" title="AVATAR TEXTURES">
+<floater name="avatar_texture_debug" title="TEXTURE DI AVATAR">
 	<floater.string name="InvalidAvatar">
 		AVATAR NON VALIDO
 	</floater.string>

@@ -103,7 +103,7 @@ LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
 	setCommitCallback(boost::bind(&LLGestureComboList::onCommitGesture, this));
 
 	// now register us as observer since we have a place to put the results
-	LLGestureManager::instance().addObserver(this);
+	LLGestureMgr::instance().addObserver(this);
 
 	// refresh list from current active gestures
 	refreshGestures();
@@ -244,8 +244,8 @@ void LLGestureComboList::refreshGestures()
 	mList->clearRows();
 	mGestures.clear();
 
-	LLGestureManager::item_map_t::const_iterator it;
-	const LLGestureManager::item_map_t& active_gestures = LLGestureManager::instance().getActiveGestures();
+	LLGestureMgr::item_map_t::const_iterator it;
+	const LLGestureMgr::item_map_t& active_gestures = LLGestureMgr::instance().getActiveGestures();
 	LLSD::Integer idx(0);
 	for (it = active_gestures.begin(); it != active_gestures.end(); ++it)
 	{
@@ -289,7 +289,7 @@ void LLGestureComboList::refreshGestures()
 			gesture = mGestures.at(index);
 	}
 	
-	if(gesture && LLGestureManager::instance().isGesturePlaying(gesture))
+	if(gesture && LLGestureMgr::instance().isGesturePlaying(gesture))
 	{
 		return;
 	}
@@ -321,7 +321,7 @@ void LLGestureComboList::onCommitGesture()
 		LLMultiGesture* gesture = mGestures.at(index);
 		if(gesture)
 		{
-			LLGestureManager::instance().playGesture(gesture);
+			LLGestureMgr::instance().playGesture(gesture);
 			if(!gesture->mReplaceText.empty())
 			{
 				LLNearbyChatBar::sendChatFromViewer(gesture->mReplaceText, CHAT_TYPE_NORMAL, FALSE);
@@ -332,7 +332,7 @@ void LLGestureComboList::onCommitGesture()
 
 LLGestureComboList::~LLGestureComboList()
 {
-	LLGestureManager::instance().removeObserver(this);
+	LLGestureMgr::instance().removeObserver(this);
 }
 
 LLNearbyChatBar::LLNearbyChatBar() 
@@ -476,7 +476,7 @@ void LLNearbyChatBar::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
 		std::string utf8_trigger = wstring_to_utf8str(raw_text);
 		std::string utf8_out_str(utf8_trigger);
 
-		if (LLGestureManager::instance().matchPrefix(utf8_trigger, &utf8_out_str))
+		if (LLGestureMgr::instance().matchPrefix(utf8_trigger, &utf8_out_str))
 		{
 			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
 			self->mChatBox->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
@@ -558,7 +558,7 @@ void LLNearbyChatBar::sendChat( EChatType type )
 			if (0 == channel)
 			{
 				// discard returned "found" boolean
-				LLGestureManager::instance().triggerAndReviseString(utf8text, &utf8_revised_text);
+				LLGestureMgr::instance().triggerAndReviseString(utf8text, &utf8_revised_text);
 			}
 			else
 			{
@@ -807,8 +807,11 @@ public:
 	{
 		if (tokens.size() < 2) return false;
 		S32 channel = tokens[0].asInteger();
-		std::string mesg = tokens[1].asString();
-		send_chat_from_viewer(mesg, CHAT_TYPE_NORMAL, channel);
+
+		// Send unescaped message, see EXT-6353.
+		std::string unescaped_mesg (LLURI::unescape(tokens[1].asString()));
+
+		send_chat_from_viewer(unescaped_mesg, CHAT_TYPE_NORMAL, channel);
 		return true;
 	}
 };

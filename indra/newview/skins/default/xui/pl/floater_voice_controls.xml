@@ -17,7 +17,7 @@
 	</string>
 	<layout_stack name="my_call_stack">
 		<layout_panel name="my_panel">
-			<text name="user_text" value="Mój Awatar:"/>
+			<text name="user_text" value="Mój awatar:"/>
 		</layout_panel>
 		<layout_panel name="leave_call_btn_panel">
 			<button label="Zakończ" name="leave_call_btn"/>

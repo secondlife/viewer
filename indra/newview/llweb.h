@@ -54,8 +54,10 @@ public:
 	static void loadURL(const char* url) { loadURL( ll_safe_string(url) ); }
 	/// Load the given url in the Second Life internal web browser
 	static void loadURLInternal(const std::string &url);
-	/// Load the given url in the operating system's web browser
+	/// Load the given url in the operating system's web browser, async if we want to return immediately
+	/// before browser has spawned
 	static void loadURLExternal(const std::string& url);
+	static void loadURLExternal(const std::string& url, bool async);
 
 	/// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
 	static std::string escapeURL(const std::string& url);

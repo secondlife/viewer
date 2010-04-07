@@ -155,7 +155,7 @@
 		</text>
 		<panel label="Chemise" name="Shirt">
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Créer une chemise" label_selected="Créer une chemise" name="Create New"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
@@ -188,7 +188,7 @@
 		</panel>
 		<panel label="Pantalon" name="Pants">
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Créer un pantalon" label_selected="Créer un pantalon" name="Create New"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
@@ -246,7 +246,7 @@
 				Chaussures :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
@@ -279,7 +279,7 @@
 				Chaussettes :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
@@ -313,7 +313,7 @@
 			</text>
 			<texture_picker label="Tissu (dessus)" name="Upper Fabric" tool_tip="Cliquez pour sélectionner une image" width="81"/>
 			<texture_picker label="Tissu (dessous)" name="Lower Fabric" tool_tip="Cliquez pour sélectionner une image" width="81"/>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="81"/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="81"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
@@ -346,7 +346,7 @@
 				Gants :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
@@ -379,7 +379,7 @@
 				Débardeur :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
@@ -412,7 +412,7 @@
 				Caleçon :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
@@ -445,7 +445,7 @@
 				Jupe :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
-			<color_swatch label="Couleur/Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
 			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>

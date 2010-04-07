@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
  <panel
+     background_visible="true"
 	 follows="all"
 	 height="400"
 	 layout="topleft"
-	 left="10"
+	 left="0"
 	 name="edit_skin_panel"
 	 top_pad="10"
-	 width="313" >
+	 width="333" >
 	 <panel
-	  border="true"
-	  follows="left|top|right" 
-	  height="100" 
+	  border="false"
+      bg_alpha_color="DkGray2"
+      bg_opaque_color="DkGray2"
+      background_visible="true"
+      background_opaque="true"
+	  follows="top|left|right"
+	  height="90" 
 	  left="10" 
 	  layout="topleft" 
 	  name="avatar_skin_color_panel"
 	  top="0"
-	  width="293" >
+	  width="313" >
        <texture_picker
         allow_no_texture="true"
         can_apply_immediately="true"
@@ -24,7 +29,7 @@
         height="80"
         label="Head Tattoos"
         layout="topleft"
-        left="10"
+        left="25"
         name="Head Tattoos"
         tool_tip="Click to choose a picture"
         top="10"
@@ -37,7 +42,7 @@
         height="80"
         label="Upper Tattoos"
         layout="topleft"
-        left_pad="10"
+        left_pad="20"
         name="Upper Tattoos"
         tool_tip="Click to choose a picture"
         top="10"
@@ -50,26 +55,43 @@
         height="80"
         label="Lower Tattoos"
         layout="topleft"
-        left_pad="10"
+        left_pad="20"
         name="Lower Tattoos"
         tool_tip="Click to choose a picture"
         top="10"
         width="74" />
 	 </panel>
+     <panel
+         border="false"
+         bg_alpha_color="DkGray2"
+         bg_opaque_color="DkGray2"
+         background_visible="true"
+         background_opaque="true"
+         follows="all"
+         height="300"
+         layout="topleft"
+         left="10"
+         name="accordion_panel"
+         top_pad="10"
+         width="313">    
 	 <accordion
-		follows="left|top|right|bottom"
-		height ="340"
-		left="10"
+        layout="topleft"
+		follows="all"
+		height ="300"
+		left="0"
 		name="wearable_accordion"
-		top_pad="10"
-		width="303">
+		top="0"
+        single_expansion="true"
+		width="313">
 		<accordion_tab
 			layout="topleft"
+            fit_panel="false"
 			min_height="150"
 			name="skin_color_tab"
 			title="Skin Color">
 			<scrolling_panel_list
 				follows="all"
+                layout="topleft"
 				left="0"
 				name="skin_color_param_list"
 				top="0"
@@ -77,11 +99,13 @@
 		</accordion_tab>
 		<accordion_tab
 			layout="topleft"
+            fit_panel="false"
 			min_height="150"
 			name="skin_face_tab"
 			title="Face Detail">
 			<scrolling_panel_list
 				follows="all"
+                layout="topleft"
 				left="0"
 				name="skin_face_param_list"
 				top="0"
@@ -89,11 +113,13 @@
 		</accordion_tab>
 		<accordion_tab
 			layout="topleft"
+            fit_panel="false"
 			min_height="150"
 			name="skin_makeup_tab"
 			title="Makeup">
 			<scrolling_panel_list
 				follows="all"
+                layout="topleft"
 				left="0"
 				name="skin_makeup_param_list"
 				top="0"
@@ -101,16 +127,19 @@
 		</accordion_tab>
 		<accordion_tab
 			layout="topleft"
+            fit_panel="false"
 			min_height="150"
 			name="skin_body_tab"
 			title="Body Detail">
 			<scrolling_panel_list
 				follows="all"
+                layout="topleft"
 				left="0"
 				name="skin_body_param_list"
 				top="0"
 				width="303" />
 		</accordion_tab>
 	</accordion>
+    </panel>
 </panel>
 

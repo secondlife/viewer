@@ -157,7 +157,7 @@ void LLFloaterAvatarPicker::onBtnFind()
 	find();
 }
 
-static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std::string>& avatar_names, std::vector<LLUUID>& avatar_ids)
+static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std::string>& avatar_names, uuid_vec_t& avatar_ids)
 {
 	std::vector<LLScrollListItem*> items = from->getAllSelected();
 	for (std::vector<LLScrollListItem*>::iterator iter = items.begin(); iter != items.end(); ++iter)
@@ -203,7 +203,7 @@ void LLFloaterAvatarPicker::onBtnSelect()
 		if(list)
 		{
 			std::vector<std::string>	avatar_names;
-			std::vector<LLUUID>			avatar_ids;
+			uuid_vec_t			avatar_ids;
 			getSelectedAvatarData(list, avatar_names, avatar_ids);
 			mSelectionCallback(avatar_names, avatar_ids);
 		}
@@ -247,7 +247,7 @@ void LLFloaterAvatarPicker::populateNearMe()
 	LLScrollListCtrl* near_me_scroller = getChild<LLScrollListCtrl>("NearMe");
 	near_me_scroller->deleteAllItems();
 
-	std::vector<LLUUID> avatar_ids;
+	uuid_vec_t avatar_ids;
 	LLWorld::getInstance()->getAvatars(&avatar_ids, NULL, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
 	for(U32 i=0; i<avatar_ids.size(); i++)
 	{
@@ -499,7 +499,7 @@ bool LLFloaterAvatarPicker::isSelectBtnEnabled()
 
 		if(list)
 		{
-			std::vector<LLUUID> avatar_ids;
+			uuid_vec_t avatar_ids;
 			std::vector<std::string> avatar_names;
 			getSelectedAvatarData(list, avatar_names, avatar_ids);
 			return mOkButtonValidateSignal(avatar_ids);

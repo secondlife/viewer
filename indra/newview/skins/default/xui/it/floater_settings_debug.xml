@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="settings_debug" title="DEBUG SETTINGS">
+<floater name="settings_debug" title="PARAMETRI DI DEBUG">
 	<radio_group name="boolean_combo">
 		<radio_item label="VERO" name="TRUE" value="vero"/>
 		<radio_item label="FALSO" name="FALSE" value=""/>

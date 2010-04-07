@@ -119,8 +119,9 @@ S32 LLAvatarListItem::notifyParent(const LLSD& info)
 	if (info.has("visibility_changed"))
 	{
 		updateChildren();
+		return 1;
 	}
-	return 0;
+	return LLPanel::notifyParent(info);
 }
 
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
@@ -334,6 +335,9 @@ void LLAvatarListItem::onNameCache(const std::string& first_name, const std::str
 {
 	std::string name = first_name + " " + last_name;
 	setName(name);
+
+	//requesting the list to resort
+	notifyParent(LLSD().with("sort", LLSD()));
 }
 
 // Convert given number of seconds to a string like "23 minutes", "15 hours" or "3 years",

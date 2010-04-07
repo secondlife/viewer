@@ -114,6 +114,7 @@
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
 	<string name="BUTTON_CLOSE_WIN">Close (Ctrl+W)</string>
+	<string name="BUTTON_CLOSE_CHROME">Close</string>>
 	<string name="BUTTON_RESTORE">Restore</string>
 	<string name="BUTTON_MINIMIZE">Minimize</string>
 	<string name="BUTTON_TEAR_OFF">Tear Off</string>
@@ -3048,6 +3049,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="unread_chat_multiple">
     [SOURCES] have said something new
   </string>"
+	<string name="session_initialization_timed_out_error">
+		The session initialization is timed out
+	</string>
   
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>

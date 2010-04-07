@@ -2,24 +2,24 @@
 <mimetypes name="default">
 	<widgetset name="web">
 		<label name="web_label">
-			Contenuto del Web
+			Contenuti Web
 		</label>
 		<tooltip name="web_tooltip">
-			Questo luogo ha un contenuto Web
+			Questo luogo presenta contenuti Web
 		</tooltip>
 		<playtip name="web_playtip">
-			Mostra il contenuto Web
+			Mostra contenuti Web
 		</playtip>
 	</widgetset>
 	<widgetset name="movie">
 		<label name="movie_label">
-			Video
+			Filmato
 		</label>
 		<tooltip name="movie_tooltip">
-			Qui c&apos;è un video da riprodurre
+			C&apos;è un filmato da vedere qui
 		</tooltip>
 		<playtip name="movie_playtip">
-			Riproduci video
+			Riproduci il filmato
 		</playtip>
 	</widgetset>
 	<widgetset name="image">
@@ -27,10 +27,10 @@
 			Immagine
 		</label>
 		<tooltip name="image_tooltip">
-			C&apos;è un immagine in questo luogo
+			C&apos;è un&apos;immagine in questo luogo
 		</tooltip>
 		<playtip name="image_playtip">
-			Guarda l&apos;immagine di questo luogo
+			Vedi l&apos;immagine di questo luogo
 		</playtip>
 	</widgetset>
 	<widgetset name="audio">
@@ -38,25 +38,25 @@
 			Audio
 		</label>
 		<tooltip name="audio_tooltip">
-			In questo luogo c&apos;è l&apos;audio
+			C&apos;è un audio in questo luogo
 		</tooltip>
 		<playtip name="audio_playtip">
-			Riproduci l&apos;audio in questo luogo
+			Riproduci l&apos;audio di questo luogo
 		</playtip>
 	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
-			Real Time Streaming
+			Streaming in tempo reale
 		</label>
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
-			- Vuoto -
+			- Nessuno -
 		</label>
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">
-			- Vuoto -
+			- Nessuno -
 		</label>
 	</mimetype>
 	<mimetype name="audio/*">
@@ -76,7 +76,7 @@
 	</mimetype>
 	<mimetype name="video/vnd.secondlife.qt.legacy">
 		<label name="vnd.secondlife.qt.legacy_label">
-			Video (QuickTime)
+			Filmato (QuickTime)
 		</label>
 	</mimetype>
 	<mimetype name="application/javascript">
@@ -116,7 +116,7 @@
 	</mimetype>
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
-			Direttore Macromedia
+			Macromedia Director
 		</label>
 	</mimetype>
 	<mimetype name="audio/mid">
@@ -186,32 +186,32 @@
 	</mimetype>
 	<mimetype name="video/mpeg">
 		<label name="video/mpeg_label">
-			Video (MPEG)
+			Filmato (MPEG)
 		</label>
 	</mimetype>
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
-			Video (MP4)
+			Filmato (MP4)
 		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">
 		<label name="video/quicktime_label">
-			Video (QuickTime)
+			Filmato (QuickTime)
 		</label>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
 		<label name="video/x-ms-asf_label">
-			Video (Windows Media ASF)
+			Filmato (Windows Media ASF)
 		</label>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
 		<label name="video/x-ms-wmv_label">
-			Video (Windows Media WMV)
+			Filmato (Windows Media WMV)
 		</label>
 	</mimetype>
 	<mimetype name="video/x-msvideo">
 		<label name="video/x-msvideo_label">
-			Video (AVI)
+			Filmato (AVI)
 		</label>
 	</mimetype>
 </mimetypes>

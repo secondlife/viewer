@@ -20,7 +20,7 @@
 	</panel>
 	<panel name="nearby_media_panel">
 		<text name="nearby_media">
-			Médias locaux
+			Médias proches
 		</text>
 		<text name="show">
 			Voir :

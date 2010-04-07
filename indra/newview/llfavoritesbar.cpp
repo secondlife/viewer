@@ -31,7 +31,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llfavoritesbar.h"
 
 #include "llfloaterreg.h"
@@ -47,6 +46,7 @@
 #include "llclipboard.h"
 #include "llinventoryclipboard.h"
 #include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
 #include "llfloaterworldmap.h"
 #include "lllandmarkactions.h"
 #include "llnotificationsutil.h"

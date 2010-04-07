@@ -143,7 +143,6 @@
      name="Script Editor"
      width="487"
      show_line_numbers="true" 
-     handle_edit_keys_directly="true" 
      word_wrap="true">
         Loading...
     </text_editor>

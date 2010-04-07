@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llinventory.h"
+#include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "lltrans.h"
 
@@ -322,7 +323,7 @@ void LLFriendCardsManager::collectFriendsLists(folderid_buddies_map_t& folderBud
 		if (NULL == items)
 			continue;
 
-		std::vector<LLUUID> buddyUUIDs;
+		uuid_vec_t buddyUUIDs;
 		for (itBuddy = items->begin(); itBuddy != items->end(); ++itBuddy)
 		{
 			buddyUUIDs.push_back((*itBuddy)->getCreatorUUID());
@@ -409,10 +410,10 @@ void LLFriendCardsManager::fetchAndCheckFolderDescendents(const LLUUID& folder_i
 	// This instance will be deleted in LLInitialFriendCardsFetch::done().
 	LLInitialFriendCardsFetch* fetch = new LLInitialFriendCardsFetch(cb);
 
-	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+	uuid_vec_t folders;
 	folders.push_back(folder_id);
 
-	fetch->fetchDescendents(folders);
+	fetch->fetch(folders);
 	if(fetch->isEverythingComplete())
 	{
 		// everything is already here - call done.

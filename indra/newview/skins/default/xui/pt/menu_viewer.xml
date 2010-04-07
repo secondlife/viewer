@@ -80,7 +80,7 @@
 		<menu_item_call label="Link" name="Link"/>
 		<menu_item_call label="Desconectar links" name="Unlink"/>
 		<menu_item_check label="Edit Linked Parts" name="Edit Linked Parts"/>
-		<menu_item_call label="Focus on Selection" name="Focus on Selection"/>
+		<menu_item_call label="Enfocar seleção" name="Focus on Selection"/>
 		<menu_item_call label="Ampliar seleção" name="Zoom to Selection"/>
 		<menu label="Objeto:" name="Object">
 			<menu_item_call label="Comprar" name="Menu Object Buy"/>
@@ -92,29 +92,29 @@
 		<menu label="Scripts" name="Scripts">
 			<menu_item_call label="Recompilar scripts (LSL)" name="Mono"/>
 			<menu_item_call label="Recompilar scripts (LSL)" name="LSL"/>
-			<menu_item_call label="Reset Scripts" name="Reset Scripts"/>
+			<menu_item_call label="Resetar scripts" name="Reset Scripts"/>
 			<menu_item_call label="Scripts em modo execução" name="Set Scripts to Running"/>
 			<menu_item_call label="Scripts em modo não execução" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Opções" name="Options">
-			<menu_item_call label="Set Default Upload Permissions" name="perm prefs"/>
+			<menu_item_call label="Definir permissões padrão de upload" name="perm prefs"/>
 			<menu_item_check label="Mostrar permissões avançadas" name="DebugPermissions"/>
 			<menu_item_check label="Só selecionar meus objetos" name="Select Only My Objects"/>
-			<menu_item_check label="Só selecionar meus objetos" name="Select Only Movable Objects"/>
+			<menu_item_check label="Só selecionar objetos móveis" name="Select Only Movable Objects"/>
 			<menu_item_check label="Selecionar contornando" name="Select By Surrounding"/>
 			<menu_item_check label="Mostrar seleção oculta" name="Show Hidden Selection"/>
-			<menu_item_check label="Show Light Radius for Selection" name="Show Light Radius for Selection"/>
-			<menu_item_check label="Show Selection Beam" name="Show Selection Beam"/>
-			<menu_item_check label="Mostrar na grade" name="Snap to Grid"/>
-			<menu_item_call label="Snap Object XY to Grid" name="Snap Object XY to Grid"/>
+			<menu_item_check label="Mostrar alcance de luz da seleção" name="Show Light Radius for Selection"/>
+			<menu_item_check label="Mostrar raio de seleção" name="Show Selection Beam"/>
+			<menu_item_check label="Encaixar em grade" name="Snap to Grid"/>
+			<menu_item_call label="Encaixar objeto XY em grade" name="Snap Object XY to Grid"/>
 			<menu_item_call label="Usar seleção em grade" name="Use Selection for Grid"/>
 			<menu_item_call label="Opções de grade" name="Grid Options"/>
 		</menu>
 		<menu label="Selecionar partes conectadas" name="Select Linked Parts">
-			<menu_item_call label="Select Next Part" name="Select Next Part"/>
-			<menu_item_call label="Select Previous Part" name="Select Previous Part"/>
-			<menu_item_call label="Include Next Part" name="Include Next Part"/>
-			<menu_item_call label="Include Previous Part" name="Include Previous Part"/>
+			<menu_item_call label="Selecionar próxima parte" name="Select Next Part"/>
+			<menu_item_call label="Selecionar parte anterior" name="Select Previous Part"/>
+			<menu_item_call label="Incluir próxima parte" name="Include Next Part"/>
+			<menu_item_call label="Incluir parte anterior" name="Include Previous Part"/>
 		</menu>
 	</menu>
 	<menu label="Ajuda" name="Help">
@@ -133,9 +133,9 @@
 		<menu_item_check label="Compactar fotos para HD" name="QuietSnapshotsToDisk"/>
 		<menu_item_check label="Compactar fotos para HD" name="CompressSnapshotsToDisk"/>
 		<menu label="Ferramentas de desempenho" name="Performance Tools">
-			<menu_item_call label="Lag Meter" name="Lag Meter"/>
+			<menu_item_call label="Medidor de lag" name="Lag Meter"/>
 			<menu_item_check label="Barra de estatísticas" name="Statistics Bar"/>
-			<menu_item_check label="Show Avatar Rendering Cost" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Carga de renderização de avatar" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Realces e visibilidade" name="Highlighting and Visibility">
 			<menu_item_check label="Efeito baliza piscando" name="Cheesy Beacon"/>
@@ -166,13 +166,13 @@
 			<menu_item_check label="Selecionado" name="Selected"/>
 			<menu_item_check label="Realçado" name="Highlighted"/>
 			<menu_item_check label="Texturas dinâmicas" name="Dynamic Textures"/>
-			<menu_item_check label="Foot Shadows" name="Foot Shadows"/>
-			<menu_item_check label="Fog" name="Fog"/>
-			<menu_item_check label="Flexible Objects" name="Flexible Objects"/>
+			<menu_item_check label="Sombras nos pés" name="Foot Shadows"/>
+			<menu_item_check label="Neblina" name="Fog"/>
+			<menu_item_check label="Objetos flexíveis" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="Executar diversas instâncias" name="Run Multiple Threads"/>
 		<menu_item_call label="Limpar cache de grupo" name="ClearGroupCache"/>
-		<menu_item_check label="Mouse Smoothing" name="Mouse Smoothing"/>
+		<menu_item_check label="Smoothing de mouse" name="Mouse Smoothing"/>
 		<menu label="Atalhos" name="Shortcuts">
 			<menu_item_call label="Imagem (L$[COST])..." name="Upload Image"/>
 			<menu_item_check label="Busca" name="Search"/>
@@ -205,7 +205,7 @@
 	<menu label="Desenvolver" name="Develop">
 		<menu label="Painéis" name="Consoles">
 			<menu_item_check label="Painel de textura" name="Texture Console"/>
-			<menu_item_check label="Debug Console" name="Debug Console"/>
+			<menu_item_check label="Console de depuração" name="Debug Console"/>
 			<menu_item_call label="Painel de avisos" name="Notifications"/>
 			<menu_item_check label="Painel de tamanho de textura" name="Texture Size"/>
 			<menu_item_check label="Painel de texturas" name="Texture Category"/>
@@ -218,7 +218,7 @@
 		</menu>
 		<menu label="Show Info" name="Display Info">
 			<menu_item_check label="Mostrar hora" name="Show Time"/>
-			<menu_item_check label="Show Render Info" name="Show Render Info"/>
+			<menu_item_check label="Dados de renderização" name="Show Render Info"/>
 			<menu_item_check label="Mostrar cor sob o cursor" name="Show Color Under Cursor"/>
 			<menu_item_check label="Mostrar mudanças a objetos" name="Show Updates"/>
 		</menu>
@@ -239,7 +239,7 @@
 		</menu>
 		<menu label="Rendering" name="Rendering">
 			<menu_item_check label="Axes" name="Axes"/>
-			<menu_item_check label="Contornos" name="Wireframe"/>
+			<menu_item_check label="Wireframe" name="Wireframe"/>
 			<menu_item_check label="Global Illumination" name="Global Illumination"/>
 			<menu_item_check label="Texturas de animação" name="Animation Textures"/>
 			<menu_item_check label="Desativar texturas" name="Disable Textures"/>
@@ -247,11 +247,11 @@
 			<menu_item_check label="Render Attached Particles" name="Render Attached Particles"/>
 			<menu_item_check label="Objetos iridescentes" name="Hover Glow Objects"/>
 		</menu>
-		<menu label="Network" name="Network">
+		<menu label="Rede" name="Network">
 			<menu_item_check label="Pausar avatar" name="AgentPause"/>
 			<menu_item_call label="Drop a Packet" name="Drop a Packet"/>
 		</menu>
-		<menu_item_call label="Bumps, Pushes &amp; Hits" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu_item_call label="Empurrões, trombadas e tapas" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu label="Mundo" name="World">
 			<menu_item_check label="Impor sobre sol regional" name="Sim Sun Override"/>
 			<menu_item_check label="Efeito baliza piscando" name="Cheesy Beacon"/>
@@ -261,15 +261,15 @@
 		<menu label="Interface" name="UI">
 			<menu_item_call label="Teste de navegador web" name="Web Browser Test"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
-			<menu_item_call label="Memory Stats" name="Memory Stats"/>
+			<menu_item_call label="Dados de memória" name="Memory Stats"/>
 			<menu_item_check label="Double-Click Auto-Pilot" name="Double-ClickAuto-Pilot"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
 			<menu_item_check label="Debug Mouse Events" name="Debug Mouse Events"/>
 		</menu>
 		<menu label="XUI" name="XUI">
 			<menu_item_call label="Recarregar cores" name="Reload Color Settings"/>
-			<menu_item_call label="Show Font Test" name="Show Font Test"/>
-			<menu_item_call label="Load from XML" name="Load from XML"/>
+			<menu_item_call label="Teste de fonte" name="Show Font Test"/>
+			<menu_item_call label="Carregar de XML" name="Load from XML"/>
 			<menu_item_call label="Salvar para XML" name="Save to XML"/>
 			<menu_item_check label="Mostrar nomes XUI" name="Show XUI Names"/>
 			<menu_item_call label="Enviar MIs de teste" name="Send Test IMs"/>

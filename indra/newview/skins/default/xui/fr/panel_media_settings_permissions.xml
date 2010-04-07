@@ -11,10 +11,10 @@
 			Mini
 		</combo_item>
 	</combo_box>
-	<check_box initial_value="false" label="Désactiver la navigation et l&apos;interactivité" name="perms_owner_interact"/>
+	<check_box initial_value="false" label="Activer la navigation et l&apos;interactivité" name="perms_owner_interact"/>
 	<check_box initial_value="false" label="Afficher la barre de contrôles" name="perms_owner_control"/>
-	<check_box initial_value="false" label="Désactiver la navigation et l&apos;interactivité" name="perms_group_interact"/>
+	<check_box initial_value="false" label="Activer la navigation et l&apos;interactivité" name="perms_group_interact"/>
 	<check_box initial_value="false" label="Afficher la barre de contrôles" name="perms_group_control"/>
-	<check_box initial_value="false" label="Désactiver la navigation et l&apos;interactivité" name="perms_anyone_interact"/>
+	<check_box initial_value="false" label="Activer la navigation et l&apos;interactivité" name="perms_anyone_interact"/>
 	<check_box initial_value="false" label="Afficher la barre de contrôles" name="perms_anyone_control"/>
 </panel>

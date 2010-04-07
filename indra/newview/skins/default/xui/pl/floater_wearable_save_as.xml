@@ -3,7 +3,7 @@
 	<button label="Zapisz" label_selected="Zapisz" name="Save"/>
 	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
 	<text name="Save item as:">
-		Zapisz obiekt w mojej szafie jako:
+		Zapisz obiekt w mojej Szafie jako:
 	</text>
 	<line_editor name="name ed">
 		Nowe [DESC]

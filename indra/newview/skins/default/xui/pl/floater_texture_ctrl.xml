@@ -4,7 +4,7 @@
 		Kliknij by wybrać obraz
 	</string>
 	<text name="Multiple">
-		Wiele Tekstur
+		Wiele tekstur
 	</text>
 	<text name="unknown">
 		Rozmiar: [DIMENSIONS]
@@ -12,8 +12,8 @@
 	<button label="Domyślna" label_selected="Domyślna" name="Default"/>
 	<button label="Żadna" label_selected="Żadna" name="None"/>
 	<button label="Pusta" label_selected="Pusta" name="Blank"/>
-	<check_box label="Pokaż Foldery" name="show_folders_check"/>
-	<search_editor label="Filtruj Tektury" name="inventory search editor"/>
+	<check_box label="Pokaż foldery" name="show_folders_check"/>
+	<search_editor label="Filtruj tektury" name="inventory search editor"/>
 	<check_box label="Zastosuj teraz" name="apply_immediate_check"/>
 	<button label="" label_selected="" name="Pipette"/>
 	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>

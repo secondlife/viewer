@@ -28,8 +28,8 @@
 		Lataj
 	</string>
 	<panel name="panel_actions">
-		<button label="" label_selected="" name="turn left btn" tool_tip="Obróć w Lewo (naciśnij Lewą Strzałkę lub A)"/>
-		<button label="" label_selected="" name="turn right btn" tool_tip="Obróć w Prawo (naciśnij Prawą Strzałkę lub D)"/>
+		<button label="" label_selected="" name="turn left btn" tool_tip="Obróć w lewo (naciśnij Lewą Strzałkę lub A)"/>
+		<button label="" label_selected="" name="turn right btn" tool_tip="Obróć w prawo (naciśnij Prawą Strzałkę lub D)"/>
 		<button label="" label_selected="" name="move up btn" tool_tip="Leć do góry, naciśnij E"/>
 		<button label="" label_selected="" name="move down btn" tool_tip="Leć w dół, naciśnij C"/>
 		<joystick_turn name="forward btn" tool_tip="Idź (naciśnij Strzałkę w Górę lub W)"/>
@@ -38,6 +38,6 @@
 	<panel name="panel_modes">
 		<button label="" name="mode_walk_btn" tool_tip="Tryb chodzenia"/>
 		<button label="" name="mode_run_btn" tool_tip="Tryb biegu"/>
-		<button label="" name="mode_fly_btn" tool_tip="Tryb Latania"/>
+		<button label="" name="mode_fly_btn" tool_tip="Tryb latania"/>
 	</panel>
 </floater>

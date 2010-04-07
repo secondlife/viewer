@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater min_width="350" name="Preferences" title="PREFERENZE" width="646">
+<floater name="Preferences" title="PREFERENZE">
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
-	<tab_container name="pref core" tab_width="146" width="646">
+	<tab_container name="pref core" tab_width="100">
 		<panel label="Generale" name="general"/>
 		<panel label="Grafica" name="display"/>
 		<panel label="Riservatezza" name="im"/>

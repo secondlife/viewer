@@ -3,7 +3,7 @@
 	<tab_container name="GodTools Tabs">
 		<panel label="Grid" name="grid">
 			<button label="Wyrzuć wszystkich Rezydentów" label_selected="Wyrzuć wszystkich Rezydentów" name="Kick all users" width="205"/>
-			<button label="Wyrównaj Widoczność Buforu Mapy Regionu" label_selected="Wyrównaj Widoczność Buforu Mapy Regionu" name="Flush This Region&apos;s Map Visibility Caches" width="285"/>
+			<button label="Wyrównaj widoczność buforu mapy Regionu" label_selected="Wyrównaj widoczność buforu mapy Regionu" name="Flush This Region&apos;s Map Visibility Caches" width="285"/>
 		</panel>
 		<panel label="Region" name="region">
 			<text name="Sim Name:" width="100">
@@ -12,15 +12,15 @@
 			<line_editor left="115" name="region name" width="178"/>
 			<check_box label="Wstęp" name="check prelude" tool_tip="Set this to make the region a prelude"/>
 			<check_box label="Korekta Słońca" name="check fixed sun" tool_tip="Skorektuj ustawienia pozycji słońca."/>
-			<check_box height="32" label="Zresetuj Pozycję  Miejsca Startowego" name="check reset home" tool_tip="Zresetuj miejsce startu Rezydentów po teleportacji"/>
-			<check_box bottom_delta="-32" label="Widoczny" name="check visible" tool_tip="Wybierz tę opcję by ustawić region widocznym dla wszystkich."/>
+			<check_box height="32" label="Zresetuj pozycję  Miejsca Startowego" name="check reset home" tool_tip="Zresetuj miejsce startu Rezydentów po teleportacji"/>
+			<check_box bottom_delta="-32" label="Widoczny" name="check visible" tool_tip="Wybierz tą opcję by ustawić region widocznym dla wszystkich."/>
 			<check_box label="Zniszczenia" name="check damage" tool_tip="Wybierz tę opcję by uruchomić opcję zniszczeń w regionie."/>
-			<check_box label="Zablokuj Monitorowanie Trafficu" name="block dwell" tool_tip="Wybierz tę opcję by zablokować monitorowanie trafficu w regionie."/>
-			<check_box label="Zablokuj Terraformowanie" name="block terraform" tool_tip="Wybierz tę opcję by zablokować terraforming w regionie"/>
+			<check_box label="Zablokuj Monitorowanie Trafficu" name="block dwell" tool_tip="Wybierz tą opcję by zablokować monitorowanie trafficu w regionie."/>
+			<check_box label="Zablokuj Terraformowanie" name="block terraform" tool_tip="Wybierz tą opcję by zablokować terraforming w regionie"/>
 			<check_box label="Piaskownica" name="is sandbox" tool_tip="Toggle whether this is a sandbox region"/>
-			<button label="Ustal Teren" label_selected="Ustal Teren" name="Bake Terrain" tool_tip="Zapamiętaj obecny teren jako początkowy dla cofnięcia modyfikacji terenu." width="138"/>
-			<button label="Cofnięcie Modyfikacji" label_selected="Cofnięcie Modyfikacji" name="Revert Terrain" tool_tip="Przywróć Ustawienia Domyślne Regionu." width="138"/>
-			<button label="Zamień Teren" label_selected="Zamień Teren" name="Swap Terrain" tool_tip="Swap current terrain with default" width="138"/>
+			<button label="Ustal teren" label_selected="Ustal teren" name="Bake Terrain" tool_tip="Zapamiętaj obecny teren jako początkowy dla cofnięcia modyfikacji terenu." width="138"/>
+			<button label="Cofnięcie modyfikacji" label_selected="Cofnięcie modyfikacji" name="Revert Terrain" tool_tip="Przywróć ustawienia domyślne Regionu." width="138"/>
+			<button label="Zamień teren" label_selected="Zamień teren" name="Swap Terrain" tool_tip="Swap current terrain with default" width="138"/>
 			<text name="estate id">
 				ID Regionu:
 			</text>
@@ -40,7 +40,7 @@
 			<line_editor left_delta="110" name="redirectx" width="35"/>
 			<line_editor left_delta="45" name="redirecty" width="35"/>
 			<text name="billable factor text">
-				Czynnik Płatności:
+				Czynnik płatności:
 			</text>
 			<spinner name="billable factor"/>
 			<text name="land cost text">
@@ -49,8 +49,8 @@
 			<spinner name="land cost"/>
 			<button label="Odśwież" label_selected="Odśwież" name="Refresh" tool_tip="Click here to refresh the above information"/>
 			<button label="Zastosuj" label_selected="Zastosuj" name="Apply" tool_tip="Click here to apply any changes from above"/>
-			<button label="Wybierz Region" label_selected="Wybierz Region" left="156" name="Select Region" tool_tip="Wybierz cały region za pomocą narzędzi edycji terenu" width="150"/>
-			<button label="Automatyczne Zapisanie" label_selected="Automatyczne Zapisanie" left="156" name="Autosave now" tool_tip="Save gzipped state to autosave directory" width="150"/>
+			<button label="Wybierz Region" label_selected="Wybierz Region" left="156" name="Select Region" tool_tip="Wybierz cały Region za pomocą narzędzi edycji terenu" width="150"/>
+			<button label="Automatyczne zapisanie" label_selected="Automatyczne zapisanie" left="156" name="Autosave now" tool_tip="Save gzipped state to autosave directory" width="150"/>
 		</panel>
 		<panel label="Obiekty" name="objects">
 			<text name="Sim Name:" width="105">
@@ -59,9 +59,9 @@
 			<text left_delta="110" name="region name">
 				Welsh
 			</text>
-			<check_box label="Wyłącz Skrypty" name="disable scripts" tool_tip="Set this to disable all scripts in this region"/>
-			<check_box label="Deaktywuj Kolizje" name="disable collisions" tool_tip="Set this to disable non-agent collisions in this region"/>
-			<check_box label="Wylącz Fizykę" name="disable physics" tool_tip="Set this to disable all physics in this region"/>
+			<check_box label="Wyłącz skrypty" name="disable scripts" tool_tip="Set this to disable all scripts in this region"/>
+			<check_box label="Deaktywuj kolizje" name="disable collisions" tool_tip="Set this to disable non-agent collisions in this region"/>
+			<check_box label="Wylącz fizykę" name="disable physics" tool_tip="Set this to disable all physics in this region"/>
 			<button label="Zastosuj" label_selected="Zastosuj" name="Apply" tool_tip="Click here to apply any changes from above"/>
 			<button label="Ustaw Cel" label_selected="Set Target" name="Set Target" tool_tip="Set the target avatar for object deletion"/>
 			<text name="target_avatar_name">
@@ -70,8 +70,8 @@
 			<button label="Usuń cel z oskryptowanych obiektów na innych posiadłościach" label_selected="Usuń cel &apos;s skryptowane obiekty na innych posiadłościach" name="Delete Target&apos;s Scripted Objects On Others Land" tool_tip="Delete all scripted objects owned by the target on land not owned by the target. (no copy) objects will be returned."/>
 			<button label="Usuń cel z oskryptowanych obiektów na jakichkolwiek posiadłościach" label_selected="Usuń cel &apos;s skryptowane obiekty na jakichkolwiek posiadłościach" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="Delete all scripted objects owned by the target in this region. (no copy) objects will be returned."/>
 			<button label="Usuń wszystkie cele i obiekty" label_selected="Usuń wszystkie cele i obiekty" name="Delete *ALL* Of Target&apos;s Objects" tool_tip="Delete all objects owned by the target in this region. (no copy) objects will be returned."/>
-			<button label="Główne Kolizje" label_selected="Główne Kolizje" name="Get Top Colliders" tool_tip="Gets list of objects experiencing the most narrowphase callbacks"/>
-			<button label="Główne Skrypty" label_selected="Główne Skrypty" name="Get Top Scripts" tool_tip="Gets list of objects spending the most time running scripts"/>
+			<button label="Główne kolizje" label_selected="Główne kolizje" name="Get Top Colliders" tool_tip="Gets list of objects experiencing the most narrowphase callbacks"/>
+			<button label="Główne skrypty" label_selected="Główne skrypty" name="Get Top Scripts" tool_tip="Gets list of objects spending the most time running scripts"/>
 			<button label="Treść skryptów" label_selected="Treść skryptów" name="Scripts digest" tool_tip="Wyświetla listę wszystkich skryptów i liczbę ich zastosowań."/>
 		</panel>
 		<panel label="Zażądaj" name="request">

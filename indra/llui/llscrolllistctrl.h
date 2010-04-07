@@ -379,7 +379,7 @@ public:
 	BOOL			getSortAscending() { return mSortColumns.empty() ? TRUE : mSortColumns.back().second; }
 	BOOL			hasSortOrder() const;
 
-	S32		selectMultiple( std::vector<LLUUID> ids );
+	S32		selectMultiple( uuid_vec_t ids );
 	// conceptually const, but mutates mItemList
 	void			updateSort() const;
 	// sorts a list without affecting the permanent sort order (so further list insertions can be unsorted, for example)

@@ -42,8 +42,8 @@ class LLViewerInventoryCategory;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryObserver
 //
-// This class is designed to be a simple abstract base class which can
-// relay messages when the inventory changes.
+//   A simple abstract base class that can relay messages when the inventory 
+//   changes.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLInventoryObserver
@@ -54,17 +54,17 @@ public:
 	// chaged() to see if the observer is interested in the change.
 	enum 
 	{
-		NONE = 0,
-		LABEL = 1,			// name changed
-		INTERNAL = 2,		// internal change (e.g. asset uuid different)
-		ADD = 4,			// something added
-		REMOVE = 8,			// something deleted
-		STRUCTURE = 16,		// structural change (eg item or folder moved)
-		CALLING_CARD = 32,	// (eg online, grant status, cancel)
-		GESTURE = 64,
-		REBUILD = 128, 		// item UI changed (eg item type different)
-		SORT = 256, 		// folder needs to be resorted.
-		ALL = 0xffffffff
+		NONE 			= 0,
+		LABEL 			= 1,	// Name changed
+		INTERNAL 		= 2,	// Internal change (e.g. asset uuid different)
+		ADD 			= 4,	// Something added
+		REMOVE 			= 8,	// Something deleted
+		STRUCTURE 		= 16,	// Structural change (e.g. item or folder moved)
+		CALLING_CARD 	= 32,	// Calling card change (e.g. online, grant status, cancel)
+		GESTURE 		= 64,
+		REBUILD 		= 128, 	// Item UI changed (e.g. item type different)
+		SORT 			= 256, 	// Folder needs to be resorted.
+		ALL 			= 0xffffffff
 	};
 	LLInventoryObserver();
 	virtual ~LLInventoryObserver();
@@ -75,11 +75,10 @@ public:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryCompletionObserver
 //
-// Class which can be used as a base class for doing something when
-// when all observed items are locally complete. This class implements
-// the changed() method of LLInventoryObserver and declares a new
-// method named done() which is called when all watched items have
-// complete information in the inventory model.
+//   Base class for doing something when when all observed items are locally 
+//   complete.  Implements the changed() method of LLInventoryObserver 
+//   and declares a new method named done() which is called when all watched items 
+//   have complete information in the inventory model.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLInventoryCompletionObserver : public LLInventoryObserver
@@ -93,9 +92,8 @@ public:
 protected:
 	virtual void done() = 0;
 
-	typedef std::vector<LLUUID> item_ref_t;
-	item_ref_t mComplete;
-	item_ref_t mIncomplete;
+	uuid_vec_t mComplete;
+	uuid_vec_t mIncomplete;
 };
 
 
@@ -110,19 +108,17 @@ protected:
 class LLInventoryFetchObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryFetchObserver(bool retry_if_missing = false): mRetryIfMissing(retry_if_missing) {}
+	LLInventoryFetchObserver(bool retry_if_missing = false);
 	virtual void changed(U32 mask);
 
-	typedef std::vector<LLUUID> item_ref_t;
-
 	bool isEverythingComplete() const;
-	void fetchItems(const item_ref_t& ids);
+	void fetch(const uuid_vec_t& ids);
 	virtual void done() {};
 
 protected:
 	bool mRetryIfMissing;
-	item_ref_t mComplete;
-	item_ref_t mIncomplete;
+	uuid_vec_t mComplete;
+	uuid_vec_t mIncomplete;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -138,15 +134,14 @@ public:
 	LLInventoryFetchDescendentsObserver() {}
 	virtual void changed(U32 mask);
 
-	typedef std::vector<LLUUID> folder_ref_t;
-	void fetchDescendents(const folder_ref_t& ids);
+	void fetch(const uuid_vec_t& ids);
 	bool isEverythingComplete() const;
 	virtual void done() = 0;
 
 protected:
 	bool isComplete(LLViewerInventoryCategory* cat);
-	folder_ref_t mIncompleteFolders;
-	folder_ref_t mCompleteFolders;
+	uuid_vec_t mIncomplete;
+	uuid_vec_t mComplete;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -163,18 +158,16 @@ public:
 	LLInventoryFetchComboObserver() : mDone(false) {}
 	virtual void changed(U32 mask);
 
-	typedef std::vector<LLUUID> folder_ref_t;
-	typedef std::vector<LLUUID> item_ref_t;
-	void fetch(const folder_ref_t& folder_ids, const item_ref_t& item_ids);
+	void fetch(const uuid_vec_t& folder_ids, const uuid_vec_t& item_ids);
 
 	virtual void done() = 0;
 
 protected:
 	bool mDone;
-	folder_ref_t mCompleteFolders;
-	folder_ref_t mIncompleteFolders;
-	item_ref_t mCompleteItems;
-	item_ref_t mIncompleteItems;
+	uuid_vec_t mCompleteFolders;
+	uuid_vec_t mIncompleteFolders;
+	uuid_vec_t mCompleteItems;
+	uuid_vec_t mIncompleteItems;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -196,10 +189,8 @@ public:
 
 protected:
 	virtual void done() = 0;
-
-	typedef std::vector<LLUUID> item_ref_t;
-	item_ref_t mExist;
-	item_ref_t mMIA;
+	uuid_vec_t mExist;
+	uuid_vec_t mMIA;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -221,8 +212,7 @@ public:
 protected:
 	virtual void done() = 0;
 
-	typedef std::vector<LLUUID> item_ref_t;
-	item_ref_t mAdded;
+	uuid_vec_t mAdded;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -242,9 +232,7 @@ public:
 	virtual void changed(U32 mask);
 
 protected:
-	typedef std::vector<LLUUID> folder_ref_t;
-	typedef std::vector<LLUUID> item_ref_t;
-	virtual void done(const folder_ref_t& folders, const item_ref_t& items) = 0;
+	virtual void done(const uuid_vec_t& folders, const uuid_vec_t& items) = 0;
 
 	LLTransactionID mTransactionID;
 };

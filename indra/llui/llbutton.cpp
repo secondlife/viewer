@@ -824,7 +824,7 @@ void LLButton::draw()
 			x = text_right;
 			break;
 		case LLFontGL::HCENTER:
-			x = getRect().getWidth() / 2;
+			x = text_left + (text_width / 2);
 			break;
 		case LLFontGL::LEFT:
 		default:

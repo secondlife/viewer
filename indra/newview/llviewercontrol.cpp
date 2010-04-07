@@ -74,6 +74,7 @@
 #include "llnavigationbar.h"
 #include "llfloatertools.h"
 #include "llpaneloutfitsinventory.h"
+#include "llpanellogin.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -412,10 +413,8 @@ bool handleHighResSnapshotChanged(const LLSD& newvalue)
 
 bool handleVoiceClientPrefsChanged(const LLSD& newvalue)
 {
-	if(gVoiceClient)
-	{
-		gVoiceClient->updateSettings();
-	}
+	if(LLVoiceClient::getInstance())
+	LLVoiceClient::getInstance()->updateSettings();
 	return true;
 }
 
@@ -440,6 +439,12 @@ bool handleVelocityInterpolate(const LLSD& newvalue)
 		gAgent.sendReliableMessage();
 		llinfos << "Velocity Interpolation Off" << llendl;
 	}
+	return true;
+}
+
+bool handleForceShowGrid(const LLSD& newvalue)
+{
+	LLPanelLogin::refreshLocation( false );
 	return true;
 }
 
@@ -648,6 +653,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 	gSavedSettings.getControl("ShowDebugAppearanceEditor")->getSignal()->connect(boost::bind(&toggle_show_appearance_editor, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
+	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
 }
 
 #if TEST_CACHED_CONTROL

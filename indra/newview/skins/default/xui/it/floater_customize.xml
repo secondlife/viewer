@@ -459,7 +459,7 @@
 				[DESC]: non può essere modificato
 			</text>
 			<text name="title_loading">
-				[DESC]: caricando...
+				[DESC]: caricamento in corso...
 			</text>
 			<text name="title_not_worn">
 				[DESC]: non indossato
@@ -470,22 +470,22 @@
 			<text name="not worn instructions">
 				Metti un nuovo tatuaggio trascinandolo dal tuo inventario al avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
-			<button label="Crea Nuovo tatuaggio" label_selected="Crea un nuovo tatuaggio" name="Create New"/>
+			<button label="Crea un nuovo tatuaggio" label_selected="Crea un nuovo tatuaggio" name="Create New"/>
 			<text name="no modify instructions">
-				Non hai i permessi per moficare questa vestibilità.
+				Non hai i permessi per modificare questo capo.
 			</text>
 			<text name="Item Action Label">
 				Tatuaggio:
 			</text>
-			<texture_picker label="Tatuaggio della testa" name="Head Tattoo" tool_tip="Clicca per scegliere una foto"/>
+			<texture_picker label="Tatuaggio della testa" name="Head Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
 			<texture_picker label="Tatuaggio superiore" name="Upper Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
-			<texture_picker label="Tatuaggio inferiore" name="Lower Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
+			<texture_picker label="Tattuaggio inferiore" name="Lower Tattoo" tool_tip="Clicca per scegliere una fotografia"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
 			<button label="Salva" label_selected="Salva" name="Save"/>
 			<button label="Salva con nome..." label_selected="Salva con nome..." name="Save As"/>
 			<button label="Ripristina" label_selected="Ripristina" name="Revert"/>
 		</panel>
-		<panel label="Alpha" name="Alpha">
+		<panel label="Alpha (Trasparenza)" name="Alpha">
 			<text name="title">
 				[DESC]
 			</text>
@@ -493,7 +493,7 @@
 				[DESC]: non può essere modificato
 			</text>
 			<text name="title_loading">
-				[DESC]: caricando...
+				[DESC]: caricamento in corso...
 			</text>
 			<text name="title_not_worn">
 				[DESC]: non indossato
@@ -504,18 +504,18 @@
 			<text name="not worn instructions">
 				Metti una nuova alpha mask trascinandola dal tuo inventario al tuo avatar. Oppure, crea un nuovo tatuaggio e indossalo.
 			</text>
-			<button label="Crea nuova alpha" label_selected="Crea nuova alpha" name="Create New"/>
+			<button label="Crea nuovo Alpha" label_selected="Crea nuovo Alpha" name="Create New"/>
 			<text name="no modify instructions">
-				Non hai i permessi per modificare questa vestibilità.
+				Non hai i permessi per modificare questo capo.
 			</text>
 			<text name="Item Action Label">
 				Alpha:
 			</text>
 			<texture_picker label="Alpha inferiore" name="Lower Alpha" tool_tip="Clicca per scegliere una fotografia"/>
-			<texture_picker label="Alpha superiore" name="Upper Alpha" tool_tip="Clicca per scegliere una foto"/>
+			<texture_picker label="Alpha superiore" name="Upper Alpha" tool_tip="Clicca per scegliere una fotografia"/>
 			<texture_picker label="Alpha della testa" name="Head Alpha" tool_tip="Clicca per scegliere una fotografia"/>
 			<texture_picker label="Alpha dell&apos;occhio" name="Eye Alpha" tool_tip="Clicca per scegliere una fotografia"/>
-			<texture_picker label="Alpha dei capelli" name="Hair Alpha" tool_tip="Clicca per scegiere una fotografia"/>
+			<texture_picker label="Alpha dei capelli" name="Hair Alpha" tool_tip="Clicca per scegliere una fotografia"/>
 			<button label="Togli" label_selected="Togli" name="Take Off"/>
 			<button label="Salva" label_selected="Salva" name="Save"/>
 			<button label="Salva con nome..." label_selected="Salva con nome..." name="Save As"/>

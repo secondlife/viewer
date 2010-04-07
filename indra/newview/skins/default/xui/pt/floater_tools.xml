@@ -63,7 +63,7 @@
 		<radio_item label="Stretch (Ctrl+Shift)" name="radio stretch"/>
 		<radio_item label="Face selecionada" name="radio select face"/>
 	</radio_group>
-	<check_box label="Editar item linkado" name="checkbox edit linked parts"/>
+	<check_box label="Editar partes linkadas" name="checkbox edit linked parts"/>
 	<text name="RenderingCost" tool_tip="Mostra o cálculo do custo de renderização do objeto">
 		þ: [COUNT]
 	</text>
@@ -91,7 +91,7 @@
 	<button label="" label_selected="" name="ToolRing" tool_tip="Anel"/>
 	<button label="" label_selected="" name="ToolTree" tool_tip="Árvore"/>
 	<button label="" label_selected="" name="ToolGrass" tool_tip="Grama"/>
-	<check_box label="Ficar com ferramenta selecionado" name="checkbox sticky"/>
+	<check_box label="Ficar com ferramenta selecionada" name="checkbox sticky"/>
 	<check_box label="Copiar seleção" name="checkbox copy selection"/>
 	<check_box initial_value="true" label="Copiar parte central" name="checkbox copy centers"/>
 	<check_box label="Girar cópia" name="checkbox copy rotates"/>

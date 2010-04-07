@@ -58,7 +58,7 @@
 			<text name="nag_message_label">
 				PAMIĘTAJ: Sprzedaż jest nieodwracalna.
 			</text>
-			<button label="Wystaw Ziemię na Sprzedaż" name="sell_btn"/>
+			<button label="Wystaw ziemię na sprzedaż" name="sell_btn"/>
 			<button label="Anuluj" name="cancel_btn"/>
 		</panel>
 	</scroll_container>

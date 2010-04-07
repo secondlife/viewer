@@ -3,9 +3,9 @@
 	<text name="Filtering:">
 		Filtrowanie:
 	</text>
-	<check_box label="Filtrowanie Anizotropowe" name="ani"/>
+	<check_box label="Filtr anizotropowy" name="ani"/>
 	<text name="Antialiasing:">
-		Antialiasing:
+		Antyaliasing:
 	</text>
 	<combo_box label="Antialiasing" name="fsaa" width="84">
 		<combo_box.item label="Wyłączone" name="FSAADisabled"/>
@@ -21,8 +21,8 @@
 	<text name="Enable VBO:">
 		Włącz VBO:
 	</text>
-	<check_box initial_value="true" label="Włącz Bufor Vertexów OpenGL" name="vbo" tool_tip=""/>
-	<slider label="Pamięć Tekstur (MB):" name="GraphicsCardTextureMemory" tool_tip="Ilość alokacji pamięci dla tekstur. Domyślne dla karty pamięci video. Obniżenie poziomu tych funkcji może polepszyć wydajność systemową jednak spowoduje zmniejszenie jakości i wyrazistości tekstur."/>
-	<spinner label="Stosunek Dystansu Mgły:" name="fog"/>
+	<check_box initial_value="true" label="Włącz rozszerzenie OpenGL" name="vbo" tool_tip=""/>
+	<slider label="Pamięć na tekstury (MB):" name="GraphicsCardTextureMemory" tool_tip="Ilość alokacji pamięci dla tekstur. Domyślne dla karty pamięci video. Obniżenie poziomu tych funkcji może polepszyć wydajność systemową jednak spowoduje zmniejszenie jakości i wyrazistości tekstur."/>
+	<spinner label="Stosunek dystansu mgły:" name="fog"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 </floater>

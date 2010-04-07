@@ -7,7 +7,7 @@
 		Styczeń:Luty:Marzec:Kwiecień:Maj:Czerwiec:Lipiec:Styczeń:Wrzesień:Październik:Listopad:Grudzień
 	</panel.string>
 	<panel.string name="packet_loss_tooltip">
-		Utracone Pakiety
+		Utracone pakiety
 	</panel.string>
 	<panel.string name="bandwidth_tooltip">
 		Przepustowość

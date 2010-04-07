@@ -49,7 +49,7 @@ class LLFriendCardsManager
 	friend class CreateFriendCardCallback;
 
 public:
-	typedef std::map<LLUUID, std::vector<LLUUID> > folderid_buddies_map_t;
+	typedef std::map<LLUUID, uuid_vec_t > folderid_buddies_map_t;
 
 	// LLFriendObserver implementation
 	void changed(U32 mask)

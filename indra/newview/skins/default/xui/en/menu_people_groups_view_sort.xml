@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <menu name="menu_group_plus"
      left="0" bottom="0" visible="false"
-     mouse_opaque="false" opaque="true" color="MenuDefaultBgColor" drop_shadow="false">
+     mouse_opaque="false">
   <menu_item_check
    label="Display Group Icons"
    layout="topleft"

@@ -6,22 +6,22 @@
 	<text name="region_text">
 		brak danych
 	</text>
-	<spinner label="Poziom Wody" name="water_height_spin" />
+	<spinner label="Poziom wody" name="water_height_spin" />
 	<button label="?" name="water_height_help" />
-	<spinner label="Górny Limit Terenu" name="terrain_raise_spin" />
+	<spinner label="Górny limit terenu" name="terrain_raise_spin" />
 	<button label="?" name="terrain_raise_help" />
-	<spinner label="Dolny Limit Terenu" name="terrain_lower_spin" />
+	<spinner label="Dolny limit terenu" name="terrain_lower_spin" />
 	<button label="?" name="terrain_lower_help" />
 	<check_box label="Używaj Słońca Majątku" name="use_estate_sun_check" />
 	<button label="?" name="use_estate_sun_help" />
 	<check_box label="Stałe Słońce" name="fixed_sun_check" />
 	<button label="?" name="fixed_sun_help" />
-	<slider label="Pora Doby" name="sun_hour_slider" />
+	<slider label="Pora doby" name="sun_hour_slider" />
 	<button label="Zastosuj" name="apply_btn" />
-	<button label="Zapisz Surowy Teren..." name="download_raw_btn"
+	<button label="Zapisz surowy teren..." name="download_raw_btn"
 	     tool_tip="Dostępne tylko dla Właścicieli Majątku, nie dla Zarządców" />
 	<button label="?" name="download_raw_help" />
-	<button label="Załaduj Surowy Teren..." name="upload_raw_btn"
+	<button label="Załaduj surowy teren..." name="upload_raw_btn"
 	     tool_tip="Dostępne tylko dla Właścicieli Majątku, nie dla Zarządców" />
 	<button label="?" name="upload_raw_help" />
 	<button label="Ustal Teren" name="bake_terrain_btn"

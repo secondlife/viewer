@@ -3465,13 +3465,13 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		[NAME] vous a payé [AMOUNT] L$
 	</string>
 	<string name="you_paid_ldollars">
-		Vous avez payé [NAME] [AMOUNT] L$ [REASON].
+		Vous avez payé à [AMOUNT] L$ [REASON].
 	</string>
 	<string name="you_paid_ldollars_no_reason">
-		Vous avez payé [NAME] [AMOUNT] L$.
+		Vous avez payé à [NAME] [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars_no_name">
-		Vous avez payé [AMOUNT] L$ [REASON].
+		Vous avez payé à [AMOUNT] L$ [REASON].
 	</string>
 	<string name="for a parcel of land">
 		pour une parcelle de terrain
@@ -3492,7 +3492,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		pour charger
 	</string>
 	<string name="giving">
-		Donne [AMOUNT] L$
+		Donner [AMOUNT] L$
 	</string>
 	<string name="uploading_costs">
 		Le chargement coûte [AMOUNT] L$

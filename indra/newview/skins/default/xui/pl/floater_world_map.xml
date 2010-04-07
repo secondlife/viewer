@@ -20,10 +20,10 @@
 			Sprzedaż Posiadłości
 		</text>
 		<text name="by_owner_label">
-			przez właściciela
+			przez Właściciela
 		</text>
 		<text name="auction_label">
-			aukcja posiadłości
+			aukcja Posiadłości
 		</text>
 		<button name="Go Home" tool_tip="Teleportuj do mojego Miejsca Startowego"/>
 		<text name="Home_label">

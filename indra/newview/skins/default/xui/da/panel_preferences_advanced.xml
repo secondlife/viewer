@@ -18,7 +18,7 @@
 	<check_box label="Tast-tast-hold for at løbe" name="tap_tap_hold_to_run"/>
 	<check_box label="Bevæg avatarlæber når der tales" name="enable_lip_sync"/>
 	<check_box label="Talebobler" name="bubble_text_chat"/>
-	<slider label="Gennemsigtighed" name="bubble_chat_opacity"/>
+	<slider label="Synlighed" name="bubble_chat_opacity"/>
 	<color_swatch name="background" tool_tip="Vælg farve for talebobler"/>
 	<check_box label="Vis script fejl i:" name="show_script_errors"/>
 	<radio_group name="show_location">

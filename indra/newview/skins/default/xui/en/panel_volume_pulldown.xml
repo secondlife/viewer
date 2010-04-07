@@ -32,9 +32,9 @@
    parameter="MuteAudio" />
   </slider>
   <button
-    left="7"
+    left="10"
     top_pad="9"
-    width="18"
+    width="12"
     height="12"
     follows="top|left"
     name="prefs_btn"

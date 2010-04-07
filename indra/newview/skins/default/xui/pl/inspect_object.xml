@@ -21,13 +21,13 @@ właściciel [OWNER]
 		Dotknij
 	</string>
 	<string name="Sit">
-		Usiądź tu
+		Usiądź tutaj
 	</string>
 	<button label="Kup" name="buy_btn"/>
 	<button label="Zapłać" name="pay_btn"/>
 	<button label="Weź kopię" name="take_free_copy_btn"/>
 	<button label="Dotknij" name="touch_btn"/>
-	<button label="Usiądź tu" name="sit_btn"/>
+	<button label="Usiądź tutaj" name="sit_btn"/>
 	<button label="Otwórz" name="open_btn"/>
 	<icon name="secure_browsing" tool_tip="Zabezpiecz przeglądanie"/>
 	<button label="Więcej" name="more_info_btn"/>

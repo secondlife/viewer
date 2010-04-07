@@ -853,7 +853,7 @@
 		Offerta di Teleport
 	</string>
 	<string name="StartUpNotifications">
-		Nuove notifice sono arrivate mentre eri assente...
+		Mentre eri assente sono arrivate nuove notifiche...
 	</string>
 	<string name="OverflowInfoChannelString">
 		Hai ancora [%d] notifiche
@@ -999,7 +999,7 @@
 		Preferiti
 	</string>
 	<string name="InvFolder Current Outfit">
-		Vestiario attuale
+		Abbigliamento attuale
 	</string>
 	<string name="InvFolder My Outfits">
 		Il mio vestiario

@@ -6,11 +6,11 @@
 	<string name="status_offline">
 		Offline
 	</string>
-	<text_editor name="user_name" value="(Caricando...)"/>
+	<text_editor name="user_name" value="(Caricamento in corso...)"/>
 	<text name="status" value="Online"/>
 	<tab_container name="tabs">
 		<panel label="PROFILO" name="panel_profile"/>
-		<panel label="PREFERITI" name="panel_picks"/>
-		<panel label="NOTE &amp; PRIVACY" name="panel_notes"/>
+		<panel label="LUOGHI CONSIGLIATI" name="panel_picks"/>
+		<panel label="NOTE E PRIVACY" name="panel_notes"/>
 	</tab_container>
 </panel>

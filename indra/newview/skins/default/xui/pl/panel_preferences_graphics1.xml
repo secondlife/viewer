@@ -27,14 +27,14 @@
 	</text>
 	<panel label="CustomGraphics" name="CustomGraphics Panel">
 		<text name="ShadersText">
-			Shadery:
+			Cieniowanie pixeli (shadery):
 		</text>
 		<check_box initial_value="true" label="Mapowanie Wypukłości i Połysk" name="BumpShiny"/>
 		<check_box initial_value="true" label="Podstawowe Shadery" name="BasicShaders" tool_tip="Wyłączenie tej opcji może naprawić błędy niektórych sterowników graficznych."/>
 		<check_box initial_value="true" label="Shadery Atmosfery" name="WindLightUseAtmosShaders"/>
-		<check_box initial_value="true" label="Odbicia w Wodzie" name="Reflections"/>
+		<check_box initial_value="true" label="Refleksy w wodzie" name="Reflections"/>
 		<text name="ReflectionDetailText">
-			Ustawienia Odbić:
+			Ustawienia refleksów:
 		</text>
 		<radio_group name="ReflectionDetailRadio">
 			<radio_item label="Teren i drzewa" name="0"/>
@@ -43,22 +43,22 @@
 			<radio_item label="Wszystko" name="3"/>
 		</radio_group>
 		<text name="AvatarRenderingText">
-			Prezentacja Awatarów:
+			Rendering awatarów
 		</text>
 		<check_box initial_value="true" label="Impostoryzacja Awatarowa" name="AvatarImpostors"/>
-		<check_box initial_value="true" label="Skinning" name="AvatarVertexProgram"/>
-		<check_box initial_value="true" label="Ubranie Awatarów" name="AvatarCloth"/>
-		<slider label="Głębia Rysowania:" name="DrawDistance"/>
+		<check_box initial_value="true" label="Rendering awatara przez GPU" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Oddzielne warstwy ubrań" name="AvatarCloth"/>
+		<slider label="Pole widzenia:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
 		</text>
-		<slider label="Liczba Cząsteczek:" name="MaxParticleCount"/>
+		<slider label="Liczba cząsteczek:" name="MaxParticleCount"/>
 		<slider label="Jakość Post-Procesu:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
-			Szczegóły Meszu:
+			Szczególy obiektów:
 		</text>
-		<slider label="  Obiekty:" name="ObjectMeshDetail"/>
-		<slider label="  Elastyczne:" name="FlexibleMeshDetail"/>
+		<slider label="  Przedmioty:" name="ObjectMeshDetail"/>
+		<slider label="  Obiekty elastyczne:" name="FlexibleMeshDetail"/>
 		<slider label="  Drzewa:" name="TreeMeshDetail"/>
 		<slider label="  Awatary:" name="AvatarMeshDetail"/>
 		<slider label="  Teren:" name="TerrainMeshDetail"/>
@@ -85,14 +85,14 @@
 			Mało
 		</text>
 		<text name="LightingDetailText">
-			Ustawienia Światła:
+			Ustawienia świateł:
 		</text>
 		<radio_group name="LightingDetailRadio">
 			<radio_item label="Tylko Słońce i Księżyc" name="SunMoon" value="0"/>
 			<radio_item label="Tylko Bliskie Światła" name="LocalLights" value="1"/>
 		</radio_group>
 		<text name="TerrainDetailText">
-			Szczgóły Terenu:
+			Szczegóły terenu:
 		</text>
 		<radio_group name="TerrainDetailRadio">
 			<radio_item label="Niska" name="0"/>
@@ -100,7 +100,7 @@
 		</radio_group>
 	</panel>
 	<button label="Zastosuj" label_selected="Zastosuj" name="Apply"/>
-	<button label="Zresetu" name="Defaults"/>
+	<button label="Zresetuj" name="Defaults"/>
 	<button label="Zaawansowane" name="Advanced"/>
 	<button label="Sprzęt" label_selected="Sprzęt" name="GraphicsHardwareButton"/>
 </panel>

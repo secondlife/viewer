@@ -76,13 +76,13 @@ protected:
 	// This is the callback method for the viewer object currently
 	// being worked on.
 	/*virtual*/ void inventoryChanged(LLViewerObject* obj,
-								 InventoryObjectList* inv,
+								 LLInventoryObject::object_list_t* inv,
 								 S32 serial_num,
 								 void* queue);
 	
 	// This is called by inventoryChanged
 	virtual void handleInventory(LLViewerObject* viewer_obj,
-								InventoryObjectList* inv) = 0;
+								LLInventoryObject::object_list_t* inv) = 0;
 
 	static void onCloseBtn(void* user_data);
 
@@ -145,7 +145,7 @@ protected:
 	
 	// This is called by inventoryChanged
 	virtual void handleInventory(LLViewerObject* viewer_obj,
-								InventoryObjectList* inv);
+								LLInventoryObject::object_list_t* inv);
 
 	// This is the callback for when each script arrives
 	static void scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
@@ -192,7 +192,7 @@ protected:
 	
 	// This is called by inventoryChanged
 	virtual void handleInventory(LLViewerObject* viewer_obj,
-								InventoryObjectList* inv);
+								LLInventoryObject::object_list_t* inv);
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -210,7 +210,7 @@ protected:
 	
 	// This is called by inventoryChanged
 	virtual void handleInventory(LLViewerObject* viewer_obj,
-								InventoryObjectList* inv);
+								LLInventoryObject::object_list_t* inv);
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -228,7 +228,7 @@ protected:
 	
 	// This is called by inventoryChanged
 	virtual void handleInventory(LLViewerObject* viewer_obj,
-								InventoryObjectList* inv);
+								LLInventoryObject::object_list_t* inv);
 };
 
 #endif // LL_LLCOMPILEQUEUE_H

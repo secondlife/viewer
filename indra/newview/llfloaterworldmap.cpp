@@ -51,7 +51,9 @@
 //#include "llfirstuse.h"
 #include "llfloaterreg.h"		// getTypedInstance()
 #include "llfocusmgr.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "lllandmarklist.h"
 #include "lllineeditor.h"
@@ -123,7 +125,7 @@ public:
 		}
 
 		// support the secondlife:///app/worldmap/{LOCATION}/{COORDS} SLapp
-		const std::string region_name = params[0].asString();
+		const std::string region_name = LLURI::unescape(params[0].asString());
 		S32 x = (params.size() > 1) ? params[1].asInteger() : 128;
 		S32 y = (params.size() > 2) ? params[2].asInteger() : 128;
 		S32 z = (params.size() > 3) ? params[3].asInteger() : 0;
@@ -322,7 +324,7 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
 
 		// Start speculative download of landmarks
 		const LLUUID landmark_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
-		gInventory.startBackgroundFetch(landmark_folder_id);
+		LLInventoryModelBackgroundFetch::instance().start(landmark_folder_id);
 
 		childSetFocus("location", TRUE);
 		gFocusMgr.triggerFocusFlash();

@@ -229,6 +229,11 @@ void LLSysWellChiclet::setNewMessagesState(bool new_messages)
 void LLSysWellChiclet::updateWidget(bool is_window_empty)
 {
 	mButton->setEnabled(!is_window_empty);
+
+	LLSD params;
+	params["well_empty"] = is_window_empty;
+	params["well_name"] = getName();
+	notifyParent(params);
 }
 // virtual
 BOOL LLSysWellChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)

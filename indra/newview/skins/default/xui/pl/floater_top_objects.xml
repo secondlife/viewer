@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="top_objects" title="Główne Obiekty">
 	<floater.string name="top_scripts_title">
-		Główne Skrypty
+		Główne skrypty
 	</floater.string>
 	<floater.string name="top_scripts_text">
 		[COUNT] skryptów działa w czasie [TIME] ms
@@ -13,7 +13,7 @@
 		Mono Time
 	</floater.string>
 	<floater.string name="top_colliders_title">
-		Główne Kolizje
+		Główne kolizje
 	</floater.string>
 	<floater.string name="top_colliders_text">
 		[COUNT] obiektów odczuwa działanie wielu potencjalnych kolizji
@@ -22,7 +22,7 @@
 		Wynik
 	</floater.string>
 	<floater.string name="none_descriptor">
-		Nie odnalezione
+		Nieodnalezione
 	</floater.string>
 	<text name="title_text">
 		Ładowanie...
@@ -37,11 +37,11 @@
 		<scroll_list.columns label="URL" name="URLs"/>
 	</scroll_list>
 	<text name="id_text">
-		ID Obiektu:
+		ID obiektu:
 	</text>
-	<button label="Pokaż Emitery" name="show_beacon_btn"/>
+	<button label="Pokaż emitery" name="show_beacon_btn"/>
 	<text name="obj_name_text">
-		Nazwa Obiektu:
+		Nazwa obiektu:
 	</text>
 	<button label="Filtr" name="filter_object_btn"/>
 	<text name="owner_name_text">
@@ -49,8 +49,8 @@
 	</text>
 	<button label="Filter" name="filter_owner_btn"/>
 	<button label="Odśwież" name="refresh_btn"/>
-	<button label="Zwróć Wybrane" name="return_selected_btn"/>
-	<button label="Zwróć Wszystko" name="return_all_btn"/>
-	<button label="Deaktywuj Wybrane" name="disable_selected_btn"/>
-	<button label="Deaktywuj Wszystko" name="disable_all_btn"/>
+	<button label="Zwróć wybrane" name="return_selected_btn"/>
+	<button label="Zwróć wszystko" name="return_all_btn"/>
+	<button label="Deaktywuj wybrane" name="disable_selected_btn"/>
+	<button label="Deaktywuj wszystko" name="disable_all_btn"/>
 </floater>

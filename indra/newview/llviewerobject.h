@@ -88,7 +88,7 @@ typedef enum e_object_update_type
 
 // callback typedef for inventory
 typedef void (*inventory_callback)(LLViewerObject*,
-								   InventoryObjectList*,
+								   LLInventoryObject::object_list_t*,
 								   S32 serial_num,
 								   void*);
 
@@ -409,7 +409,7 @@ public:
 	void updateInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	void updateInventoryLocal(LLInventoryItem* item, U8 key); // Update without messaging.
 	LLInventoryObject* getInventoryObject(const LLUUID& item_id);
-	void getInventoryContents(InventoryObjectList& objects);
+	void getInventoryContents(LLInventoryObject::object_list_t& objects);
 	LLInventoryObject* getInventoryRoot();
 	LLViewerInventoryItem* getInventoryItemByAsset(const LLUUID& asset_id);
 	S16 getInventorySerial() const { return mInventorySerialNum; }
@@ -629,7 +629,7 @@ protected:
 	F32				mPixelArea; // Apparent area in pixels
 
 	// This is the object's inventory from the viewer's perspective.
-	InventoryObjectList* mInventory;
+	LLInventoryObject::object_list_t* mInventory;
 	class LLInventoryCallbackInfo
 	{
 	public:

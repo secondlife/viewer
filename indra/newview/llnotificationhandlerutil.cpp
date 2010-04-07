@@ -128,7 +128,8 @@ const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
 						FRIEND_ONLINE("FriendOnline"), FRIEND_OFFLINE("FriendOffline"),
 						SERVER_OBJECT_MESSAGE("ServerObjectMessage"),
 						TELEPORT_OFFERED("TeleportOffered"),
-						TELEPORT_OFFER_SENT("TeleportOfferSent");
+						TELEPORT_OFFER_SENT("TeleportOfferSent"),
+						IM_SYSTEM_MESSAGE_TIP("IMSystemMessageTip");
 
 
 // static
@@ -147,7 +148,8 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 			|| INVENTORY_DECLINED == notification->getName()
 			|| USER_GIVE_ITEM == notification->getName()
 			|| TELEPORT_OFFERED == notification->getName()
-			|| TELEPORT_OFFER_SENT == notification->getName();
+			|| TELEPORT_OFFER_SENT == notification->getName()
+			|| IM_SYSTEM_MESSAGE_TIP == notification->getName();
 }
 
 // static
@@ -157,7 +159,8 @@ bool LLHandlerUtil::canLogToNearbyChat(const LLNotificationPtr& notification)
 			&&  FRIEND_ONLINE != notification->getName()
 			&& FRIEND_OFFLINE != notification->getName()
 			&& INVENTORY_ACCEPTED != notification->getName()
-			&& INVENTORY_DECLINED != notification->getName();
+			&& INVENTORY_DECLINED != notification->getName()
+			&& IM_SYSTEM_MESSAGE_TIP != notification->getName();
 }
 
 // static
@@ -193,10 +196,36 @@ bool LLHandlerUtil::canSpawnSessionAndLogToIM(const LLNotificationPtr& notificat
 // static
 bool LLHandlerUtil::canSpawnToast(const LLNotificationPtr& notification)
 {
-	bool cannot_spawn = isIMFloaterOpened(notification) && (INVENTORY_DECLINED == notification->getName()
-			|| INVENTORY_ACCEPTED == notification->getName());
-	
-	return !cannot_spawn;
+	if(INVENTORY_DECLINED == notification->getName() 
+		|| INVENTORY_ACCEPTED == notification->getName())
+	{
+		// return false for inventory accepted/declined notifications if respective IM window is open (EXT-5909)
+		return ! isIMFloaterOpened(notification);
+	}
+
+	if(FRIENDSHIP_ACCEPTED == notification->getName())
+	{
+		// don't show FRIENDSHIP_ACCEPTED if IM window is opened and focused - EXT-6441
+		return ! isIMFloaterFocused(notification);
+	}
+
+	if(OFFER_FRIENDSHIP == notification->getName()
+		|| USER_GIVE_ITEM == notification->getName()
+		|| TELEPORT_OFFERED == notification->getName())
+	{
+		// When ANY offer arrives, show toast, unless IM window is already open - EXT-5904
+		return ! isIMFloaterOpened(notification);
+	}
+
+	return true;
+}
+
+// static
+LLIMFloater* LLHandlerUtil::findIMFloater(const LLNotificationPtr& notification)
+{
+	LLUUID from_id = notification->getPayload()["from_id"];
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
+	return LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
 }
 
 // static
@@ -204,15 +233,23 @@ bool LLHandlerUtil::isIMFloaterOpened(const LLNotificationPtr& notification)
 {
 	bool res = false;
 
-	LLUUID from_id = notification->getPayload()["from_id"];
-	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL,
-			from_id);
-
-	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>(
-					"impanel", session_id);
+	LLIMFloater* im_floater = findIMFloater(notification);
 	if (im_floater != NULL)
 	{
 		res = im_floater->getVisible() == TRUE;
+	}
+
+	return res;
+}
+
+bool LLHandlerUtil::isIMFloaterFocused(const LLNotificationPtr& notification)
+{
+	bool res = false;
+
+	LLIMFloater* im_floater = findIMFloater(notification);
+	if (im_floater != NULL)
+	{
+		res = im_floater->hasFocus() == TRUE;
 	}
 
 	return res;
@@ -286,7 +323,7 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 {
 	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
-	std::string session_name = notification->getPayload().has(
+	const std::string& session_name = notification->getPayload().has(
 			"SESSION_NAME") ? notification->getPayload()["SESSION_NAME"].asString() : name;
 
 	// don't create IM p2p session with objects, it's necessary condition to log
@@ -294,12 +331,6 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 			!= OBJECT_GIVE_ITEM_UNKNOWN_USER)
 	{
 		LLUUID from_id = notification->getPayload()["from_id"];
-
-		//*HACK for ServerObjectMessage the sesson name is really weird, see EXT-4779
-		if (SERVER_OBJECT_MESSAGE == notification->getName())
-		{
-			session_name = "chat";
-		}
 
 		//there still appears a log history file with weird name " .txt"
 		if (" " == session_name || "{waiting}" == session_name || "{nobody}" == session_name)
@@ -355,6 +386,7 @@ void LLHandlerUtil::logToNearbyChat(const LLNotificationPtr& notification, EChat
 		LLChat chat_msg(notification->getMessage());
 		chat_msg.mSourceType = type;
 		chat_msg.mFromName = SYSTEM_FROM;
+		chat_msg.mFromID = LLUUID::null;
 		nearby_chat->addMessage(chat_msg);
 	}
 }

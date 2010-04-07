@@ -37,6 +37,7 @@
 #include "llfloaterperms.h" // for utilities
 #include "llagent.h"
 #include "llchat.h"
+#include "llinventorydefines.h"
 #include "llviewerwindow.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -116,7 +117,7 @@ void LLFloaterBulkPermission::doApply()
 // worked on.
 // NOT static, virtual!
 void LLFloaterBulkPermission::inventoryChanged(LLViewerObject* viewer_object,
-											 InventoryObjectList* inv,
+											 LLInventoryObject::object_list_t* inv,
 											 S32,
 											 void* q_id)
 {
@@ -250,12 +251,12 @@ void LLFloaterBulkPermission::doCheckUncheckAll(BOOL check)
 }
 
 
-void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, InventoryObjectList* inv)
+void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, LLInventoryObject::object_list_t* inv)
 {
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 
-	InventoryObjectList::const_iterator it = inv->begin();
-	InventoryObjectList::const_iterator end = inv->end();
+	LLInventoryObject::object_list_t::const_iterator it = inv->begin();
+	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it)
 	{
 		LLAssetType::EType asstype = (*it)->getType();

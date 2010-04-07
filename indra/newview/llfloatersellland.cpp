@@ -96,7 +96,7 @@ private:
 	static void doShowObjects(void *userdata);
 	static bool callbackHighlightTransferable(const LLSD& notification, const LLSD& response);
 
-	void callbackAvatarPick(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
+	void callbackAvatarPick(const std::vector<std::string>& names, const uuid_vec_t& ids);
 
 public:
 	virtual BOOL postBuild();
@@ -391,7 +391,7 @@ void LLFloaterSellLandUI::doSelectAgent()
 	addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), FALSE, TRUE));
 }
 
-void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
+void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& names, const uuid_vec_t& ids)
 {	
 	LLParcel* parcel = mParcelSelection->getParcel();
 

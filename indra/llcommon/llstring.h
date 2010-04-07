@@ -241,8 +241,8 @@ public:
 	LL_COMMON_API static S32 format(std::basic_string<T>& s, const LLSD& substitutions);
 	LL_COMMON_API static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const format_map_t& substitutions);
 	LL_COMMON_API static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const LLSD& substitutions);
-	static void setLocale (std::string inLocale) {sLocale = inLocale;};
-	static std::string getLocale (void) {return sLocale;};
+	LL_COMMON_API static void setLocale (std::string inLocale);
+	LL_COMMON_API static std::string getLocale (void);
 	
 	static bool isValidIndex(const std::basic_string<T>& string, size_type i)
 	{

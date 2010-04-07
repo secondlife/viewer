@@ -49,6 +49,7 @@
 #include "lldndbutton.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "lllandmarkactions.h"
 #include "llplacesinventorybridge.h"
@@ -434,9 +435,9 @@ LLFolderViewItem* LLLandmarksPanel::selectItemInAccordionTab(LLPlacesInventoryPa
 	if (!inventory_list)
 		return NULL;
 
-	LLFolderView* folder_view = inventory_list->getRootFolder();
+	LLFolderView* root = inventory_list->getRootFolder();
 
-	LLFolderViewItem* item = folder_view->getItemByID(obj_id);
+	LLFolderViewItem* item = root->getItemByID(obj_id);
 	if (!item)
 		return NULL;
 
@@ -446,7 +447,7 @@ LLFolderViewItem* LLLandmarksPanel::selectItemInAccordionTab(LLPlacesInventoryPa
 		tab->changeOpenClose(false);
 	}
 
-	folder_view->setSelection(item, FALSE, take_keyboard_focus);
+	root->setSelection(item, FALSE, take_keyboard_focus);
 
 	LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
 	LLRect screen_rc;
@@ -556,7 +557,7 @@ void LLLandmarksPanel::initLibraryInventoryPanel()
 	const LLUUID &landmarks_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false, true);
 	if (landmarks_cat.notNull())
 	{
-		gInventory.startBackgroundFetch(landmarks_cat);
+		LLInventoryModelBackgroundFetch::instance().start(landmarks_cat);
 	}
 
 	// Expanding "Library" tab for new users who have no landmarks in "My Inventory".
@@ -620,7 +621,7 @@ void LLLandmarksPanel::onAccordionExpandedCollapsed(const LLSD& param, LLPlacesI
 		  if (!gInventory.isCategoryComplete(cat_id))
 		*/
 		{
-			gInventory.startBackgroundFetch(cat_id);
+			LLInventoryModelBackgroundFetch::instance().start(cat_id);
 		}
 
 		// Apply filter substring because it might have been changed
@@ -923,12 +924,7 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			return false;
 		}
 	}
-	else if (!root_folder_view && "category" != command_name)
-	{
-		return false;
-	}
 	else if (  "paste"		== command_name
-			|| "rename"		== command_name
 			|| "cut"		== command_name
 			|| "copy"		== command_name
 			|| "delete"		== command_name
@@ -940,17 +936,16 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	}
 	else if (  "teleport"		== command_name
 			|| "more_info"		== command_name
-			|| "rename"			== command_name
 			|| "show_on_map"	== command_name
 			|| "copy_slurl"		== command_name
 			)
 	{
 		// disable some commands for multi-selection. EXT-1757
-		if (root_folder_view &&
-		    root_folder_view->getSelectedCount() > 1)
-		{
-			return false;
-		}
+		return root_folder_view && root_folder_view->getSelectedCount() == 1;
+	}
+	else if ("rename" == command_name)
+	{
+		return root_folder_view && root_folder_view->getSelectedCount() == 1 && canSelectedBeModified(command_name);
 	}
 	else if("category" == command_name)
 	{
@@ -988,7 +983,7 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	std::string command_name = userdata.asString();
 	if("more_info" == command_name)
 	{
-		cur_item->getListener()->performAction(mCurrentSelectedList->getRootFolder(),mCurrentSelectedList->getModel(),"about");
+		cur_item->getListener()->performAction(mCurrentSelectedList->getModel(),"about");
 	}
 	else if ("teleport" == command_name)
 	{
@@ -1079,7 +1074,7 @@ bool LLLandmarksPanel::canSelectedBeModified(const std::string& command_name) co
 		}
 		else if ("delete" == command_name)
 		{
-			can_be_modified = listenerp ? listenerp->isItemRemovable() : false;
+			can_be_modified = listenerp ? listenerp->isItemRemovable() && !listenerp->isItemInTrash() : false;
 		}
 		else if("paste" == command_name)
 		{

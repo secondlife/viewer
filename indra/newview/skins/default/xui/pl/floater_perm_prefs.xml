@@ -5,7 +5,7 @@
 		<check_box label="Udostępnij grupie" name="share_with_group"/>
 		<check_box label="Pozwól kopiować każdemu" name="everyone_copy"/>
 		<text name="NextOwnerLabel">
-			Następny właściciel:
+			Następny Właściciel:
 		</text>
 		<check_box label="Modyfikuje" name="next_owner_modify"/>
 		<check_box label="Kopiuje" name="next_owner_copy"/>

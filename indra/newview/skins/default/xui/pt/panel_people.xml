@@ -48,12 +48,12 @@ Para conhecer mais gente, use [secondlife:///app/worldmap o Mapa].
 	</tab_container>
 	<panel name="button_bar">
 		<button label="Perfil" name="view_profile_btn" tool_tip="Exibir fotografia, grupos e outras informações dos residentes"/>
-		<button label="MI" name="im_btn" tool_tip="Abrir sessão de mensagem instantânea"/>
+		<button label="MI" name="im_btn" tool_tip="Iniciar MI"/>
 		<button label="Chamada" name="call_btn" tool_tip="Ligar para este residente"/>
 		<button label="Compartilhar" name="share_btn"/>
 		<button label="Teletransporte" name="teleport_btn" tool_tip="Oferecer teletransporte"/>
 		<button label="Perfil do grupo" name="group_info_btn" tool_tip="Exibir informação de grupo"/>
-		<button label="Bate- papo de grupo" name="chat_btn" tool_tip="abrir sessão de bate- papo"/>
+		<button label="Bate-papo de grupo" name="chat_btn" tool_tip="Iniciar bate-papo"/>
 		<button label="Ligar para o grupo" name="group_call_btn" tool_tip="Ligar para este grupo"/>
 	</panel>
 </panel>

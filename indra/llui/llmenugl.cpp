@@ -3345,7 +3345,7 @@ void LLMenuHolderGL::draw()
 	LLView::draw();
 	// now draw last selected item as overlay
 	LLMenuItemGL* selecteditem = (LLMenuItemGL*)sItemLastSelectedHandle.get();
-	if (selecteditem && sItemActivationTimer.getStarted() && sItemActivationTimer.getElapsedTimeF32() < ACTIVATE_HIGHLIGHT_TIME)
+	if (selecteditem && selecteditem->getVisible() && sItemActivationTimer.getStarted() && sItemActivationTimer.getElapsedTimeF32() < ACTIVATE_HIGHLIGHT_TIME)
 	{
 		// make sure toggle items, for example, show the proper state when fading out
 		selecteditem->buildDrawLabel();

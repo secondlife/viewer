@@ -154,10 +154,10 @@
 				Cena za: L$
 			</panel.string>
 			<panel.string name="Cost Mixed">
-				Cena Mieszana
+				Cena mieszana
 			</panel.string>
 			<panel.string name="Sale Mixed">
-				Sprzedaż Mieszana
+				Sprzedaż mieszana
 			</panel.string>
 			<text name="Name:">
 				Nazwa:
@@ -190,10 +190,10 @@
 				Kliknij:
 			</text>
 			<combo_box name="clickaction">
-				<combo_box.item label="Dotknij  (domyślne)" name="Touch/grab(default)"/>
-				<combo_box.item label="Usiądź na Obiekcie" name="Sitonobject"/>
-				<combo_box.item label="Kup Obiekt" name="Buyobject"/>
-				<combo_box.item label="Zapłać Obiektowi" name="Payobject"/>
+				<combo_box.item label="Dotknij (domyślne)" name="Touch/grab(default)"/>
+				<combo_box.item label="Usiądź na obiekcie" name="Sitonobject"/>
+				<combo_box.item label="Kup obiekt" name="Buyobject"/>
+				<combo_box.item label="Zapłać obiektowi" name="Payobject"/>
 				<combo_box.item label="Otwórz" name="Open"/>
 				<combo_box.item label="Przybliż" name="Zoom"/>
 			</combo_box>
@@ -215,11 +215,11 @@
 				<check_box label="Przesuń" name="checkbox allow everyone move"/>
 				<check_box label="Kopiuj" name="checkbox allow everyone copy"/>
 				<text name="Next owner can:">
-					Następny właściciel:
+					Następny Właściciel:
 				</text>
 				<check_box label="Zmienia" name="checkbox next owner can modify"/>
 				<check_box label="Kopiuje" name="checkbox next owner can copy"/>
-				<check_box label="Oddaje/Sprzedaje" name="checkbox next owner can transfer" tool_tip="Następny właściciel może oddawać lub sprzedawać ten obiekt"/>
+				<check_box label="Oddaje/Sprzedaje" name="checkbox next owner can transfer" tool_tip="Następny Właściciel może oddawać lub sprzedawać ten obiekt"/>
 				<text name="B:">
 					B:
 				</text>
@@ -313,20 +313,20 @@
 				Zwężenie
 			</text>
 			<text name="scale_hole">
-				Rozmiar Wgłębienia
+				Rozmiar wgłębienia
 			</text>
 			<spinner label="X" name="Taper Scale X"/>
 			<spinner label="Y" name="Taper Scale Y"/>
 			<text name="text topshear">
-				Przesunięcie Górne
+				Przesunięcie górne
 			</text>
 			<spinner label="X" name="Shear X"/>
 			<spinner label="Y" name="Shear Y"/>
 			<text name="advanced_cut">
-				Wykrojenie Przekroju (początek/koniec)
+				Wykrojenie przekroju (początek/koniec)
 			</text>
 			<text name="advanced_dimple">
-				Przesunięcie Promienia (początek/koniec)
+				Przesunięcie promienia (początek/koniec)
 			</text>
 			<text name="advanced_slice">
 				Przetnij(początek/koniec)
@@ -346,17 +346,17 @@
 			</text>
 			<spinner name="Radius Offset"/>
 			<spinner name="Revolutions"/>
-			<texture_picker label="Tekstura Skulptowa" name="sculpt texture control" tool_tip="Click to choose a picture"/>
+			<texture_picker label="Tekstura skulptowa" name="sculpt texture control" tool_tip="Click to choose a picture"/>
 			<check_box label="Odbicie" name="sculpt mirror control" tool_tip="Odwraca skulpt wzdłuż osi X."/>
 			<check_box label="Środek na zewnątrz" name="sculpt invert control" tool_tip="Odwraca normalne skulptu."/>
 			<text name="label sculpt type">
-				Typ Ścięgna
+				Typ ścięgna
 			</text>
 			<combo_box name="sculpt type control">
 				<combo_box.item label="(żadne)" name="None"/>
 				<combo_box.item label="Kula" name="Sphere"/>
 				<combo_box.item label="Torus" name="Torus"/>
-				<combo_box.item label="Płaczyzna" name="Plane"/>
+				<combo_box.item label="Płaszczyzna" name="Plane"/>
 				<combo_box.item label="Walec" name="Cylinder"/>
 			</combo_box>
 		</panel>
@@ -454,7 +454,7 @@
 			<spinner label="Powtórzenia / metr" name="rptctrl"/>
 			<button label="Zastosuj" label_selected="Zastosuj" name="button apply"/>
 			<text name="tex offset">
-				Wyrównanie Tekstury
+				Wyrównanie tekstury
 			</text>
 			<spinner label="Poziome (U)" name="TexOffsetU"/>
 			<spinner label="Pionowe (V)" name="TexOffsetV"/>
@@ -469,7 +469,7 @@
 			</panel>
 		</panel>
 		<panel label="Treść" name="Contents">
-			<button label="Nowy Skrypt" label_selected="Nowy Skrypt" name="button new script"/>
+			<button label="Nowy skrypt" label_selected="Nowy skrypt" name="button new script"/>
 			<button label="Prawa" name="button permissions"/>
 		</panel>
 	</tab_container>
@@ -484,13 +484,13 @@
 			Obszar: [AREA] m²
 		</text>
 		<button label="O Posiadłości" label_selected="O Posiadłości" name="button about land"/>
-		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj posiadłości zgodnie z przynależnością do właściciela: 
+		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj Posiadłości zgodnie z przynależnością do Właściciela: 
 
 Zielony = Twoja Posiadłość 
 Morski = Posiadłość Twojej Grupy 
-Czerwony = Posiadłości Innych 
-Żółty = Na Sprzedaż 
-Fioletowy = Na Aukcję 
+Czerwony = Posiadłości innych 
+Żółty = Na sprzedaż 
+Fioletowy = Na aukcję 
 Szary = Publiczna"/>
 		<text name="label_parcel_modify">
 			Modyfikuj Posiadłość
@@ -498,7 +498,7 @@ Szary = Publiczna"/>
 		<button label="Podziel" label_selected="Podziel" name="button subdivide land"/>
 		<button label="Złącz" label_selected="Złącz" name="button join land"/>
 		<text name="label_parcel_trans">
-			Transakcje na posiadłości
+			Transakcje na Posiadłości
 		</text>
 		<button label="Kup Posiadłość" label_selected="Kup Posiadłość" name="button buy land"/>
 		<button label="Porzuć Posiadłość" label_selected="Porzuć Posiadłość" name="button abandon land"/>

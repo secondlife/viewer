@@ -3,7 +3,7 @@
 	<text name="type_label">
 		Destino da foto
 	</text>
-	<radio_group label="Tipo de Foto" name="snapshot_type_radio">
+	<radio_group label="Tipo de foto" name="snapshot_type_radio">
 		<radio_item label="Email" name="postcard"/>
 		<radio_item label="Meu inventário (L$[AMOUNT])" name="texture"/>
 		<radio_item label="Salvar no meu PC" name="local"/>
@@ -28,21 +28,21 @@
 		Formato
 	</text>
 	<combo_box label="Resolução" name="postcard_size_combo">
-		<combo_box.item label="Janela Atual" name="CurrentWindow"/>
+		<combo_box.item label="Janela atual" name="CurrentWindow"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>
 		<combo_box.item label="1024x768" name="1024x768"/>
 		<combo_box.item label="Customizado" name="Custom"/>
 	</combo_box>
 	<combo_box label="Resolução" name="texture_size_combo">
-		<combo_box.item label="Janela Atual" name="CurrentWindow"/>
+		<combo_box.item label="Janela atual" name="CurrentWindow"/>
 		<combo_box.item label="Pequeno (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Médio (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Grande (512x512)" name="Large(512x512)"/>
 		<combo_box.item label="Customizado" name="Custom"/>
 	</combo_box>
 	<combo_box label="Resolução" name="local_size_combo">
-		<combo_box.item label="Janela Atual" name="CurrentWindow"/>
+		<combo_box.item label="Janela atual" name="CurrentWindow"/>
 		<combo_box.item label="320x240" name="320x240"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>
@@ -63,10 +63,10 @@
 	<text name="layer_type_label">
 		Capturar:
 	</text>
-	<combo_box label="Camadas da Imagem" name="layer_types">
+	<combo_box label="Camadas da imagem" name="layer_types">
 		<combo_box.item label="Cores" name="Colors"/>
 		<combo_box.item label="Formato" name="Depth"/>
-		<combo_box.item label="Decoração do Objeto" name="ObjectMattes"/>
+		<combo_box.item label="Decoração do objeto" name="ObjectMattes"/>
 	</combo_box>
 	<check_box label="Interface" name="ui_check"/>
 	<check_box bottom_delta="-17" label="HUDs" name="hud_check"/>

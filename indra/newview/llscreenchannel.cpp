@@ -480,7 +480,9 @@ void LLScreenChannel::showToastsBottom()
 		}
 
 		toast_rect = (*it).toast->getRect();
-		toast_rect.setOriginAndSize(getRect().mLeft, bottom + toast_margin, toast_rect.getWidth() ,toast_rect.getHeight());
+		toast_rect.setOriginAndSize(getRect().mRight - toast_rect.getWidth(),
+				bottom + toast_margin, toast_rect.getWidth(),
+				toast_rect.getHeight());
 		(*it).toast->setRect(toast_rect);
 
 		if(floater && floater->overlapsScreenChannel())

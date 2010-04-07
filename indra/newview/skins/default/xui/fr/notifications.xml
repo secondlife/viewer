@@ -178,7 +178,7 @@ Voulez-vous continuer ?
 	<notification name="JoinGroupNoCost">
 		Vous vous apprêtez à rejoindre le groupe [NAME].
 Voulez-vous continuer ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Fusionner"/>
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Rejoindre"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
 		Rejoindre ce groupe coûte [COST] L$.

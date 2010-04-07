@@ -21,7 +21,7 @@
 			<text name="pick_location">
 				ładowanie...
 			</text>
-			<button label="Ustaw na Bieżąca Lokalizacje" name="set_to_curr_location_btn"/>
+			<button label="Ustaw na bieżąca lokalizację" name="set_to_curr_location_btn"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">

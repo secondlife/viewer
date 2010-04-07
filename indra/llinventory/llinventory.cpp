@@ -31,10 +31,10 @@
  */
 
 #include "linden_common.h"
-
 #include "llinventory.h"
 
 #include "lldbstrings.h"
+#include "llinventorydefines.h"
 #include "llxorcipher.h"
 #include "llsd.h"
 #include "message.h"
@@ -43,9 +43,8 @@
 #include "llsdutil.h"
 
 ///----------------------------------------------------------------------------
-/// exported functions
+/// Exported functions
 ///----------------------------------------------------------------------------
-
 static const std::string INV_ITEM_ID_LABEL("item_id");
 static const std::string INV_FOLDER_ID_LABEL("folder_id");
 static const std::string INV_PARENT_ID_LABEL("parent_id");
@@ -64,25 +63,23 @@ static const std::string INV_CREATION_DATE_LABEL("created_at");
 // key used by agent-inventory-service
 static const std::string INV_ASSET_TYPE_LABEL_WS("type_default");
 static const std::string INV_FOLDER_ID_LABEL_WS("category_id");
+
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
-
 const U8 TASK_INVENTORY_ITEM_KEY = 0;
 const U8 TASK_INVENTORY_ASSET_KEY = 1;
 
 const LLUUID MAGIC_ID("3c115e51-04f4-523c-9fa6-98aff1034730");	
-	
 
 ///----------------------------------------------------------------------------
 /// Class LLInventoryObject
 ///----------------------------------------------------------------------------
 
-LLInventoryObject::LLInventoryObject(
-	const LLUUID& uuid,
-	const LLUUID& parent_uuid,
-	LLAssetType::EType type,
-	const std::string& name) :
+LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
+									 const LLUUID& parent_uuid,
+									 LLAssetType::EType type,
+									 const std::string& name) :
 	mUUID(uuid),
 	mParentUUID(parent_uuid),
 	mType(type),
@@ -99,7 +96,7 @@ LLInventoryObject::LLInventoryObject() :
 {
 }
 
-LLInventoryObject::~LLInventoryObject( void )
+LLInventoryObject::~LLInventoryObject()
 {
 }
 
@@ -292,18 +289,17 @@ void LLInventoryObject::updateServer(BOOL) const
 /// Class LLInventoryItem
 ///----------------------------------------------------------------------------
 
-LLInventoryItem::LLInventoryItem(
-	const LLUUID& uuid,
-	const LLUUID& parent_uuid,
-	const LLPermissions& permissions,
-	const LLUUID& asset_uuid,
-	LLAssetType::EType type,
-	LLInventoryType::EType inv_type,
-	const std::string& name, 
-	const std::string& desc,
-	const LLSaleInfo& sale_info,
-	U32 flags,
-	S32 creation_date_utc) :
+LLInventoryItem::LLInventoryItem(const LLUUID& uuid,
+								 const LLUUID& parent_uuid,
+								 const LLPermissions& permissions,
+								 const LLUUID& asset_uuid,
+								 LLAssetType::EType type,
+								 LLInventoryType::EType inv_type,
+								 const std::string& name, 
+								 const std::string& desc,
+								 const LLSaleInfo& sale_info,
+								 U32 flags,
+								 S32 creation_date_utc) :
 	LLInventoryObject(uuid, parent_uuid, type, name),
 	mPermissions(permissions),
 	mAssetUUID(asset_uuid),
@@ -458,11 +454,18 @@ void LLInventoryItem::setCreationDate(time_t creation_date_utc)
 	mCreationDate = creation_date_utc;
 }
 
+// Currently only used in the Viewer to handle calling cards
+// where the creator is actually used to store the target.
+void LLInventoryItem::setCreator(const LLUUID& creator)
+{ 
+	mPermissions.setCreator(creator); 
+}
+
 void LLInventoryItem::accumulatePermissionSlamBits(const LLInventoryItem& old_item)
 {
 	// Remove any pre-existing II_FLAGS_PERM_OVERWRITE_MASK flags 
 	// because we now detect when they should be set.
-	setFlags( old_item.getFlags() | (getFlags() & ~(LLInventoryItem::II_FLAGS_PERM_OVERWRITE_MASK)) );
+	setFlags( old_item.getFlags() | (getFlags() & ~(LLInventoryItemFlags::II_FLAGS_PERM_OVERWRITE_MASK)) );
 
 	// Enforce the PERM_OVERWRITE flags for any masks that are different
 	// but only for AT_OBJECT's since that is the only asset type that can 
@@ -473,20 +476,20 @@ void LLInventoryItem::accumulatePermissionSlamBits(const LLInventoryItem& old_it
 		U32 flags_to_be_set = 0;
 		if(old_permissions.getMaskNextOwner() != getPermissions().getMaskNextOwner())
 		{
-			flags_to_be_set |= LLInventoryItem::II_FLAGS_OBJECT_SLAM_PERM;
+			flags_to_be_set |= LLInventoryItemFlags::II_FLAGS_OBJECT_SLAM_PERM;
 		}
 		if(old_permissions.getMaskEveryone() != getPermissions().getMaskEveryone())
 		{
-			flags_to_be_set |= LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE;
+			flags_to_be_set |= LLInventoryItemFlags::II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE;
 		}
 		if(old_permissions.getMaskGroup() != getPermissions().getMaskGroup())
 		{
-			flags_to_be_set |= LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
+			flags_to_be_set |= LLInventoryItemFlags::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
 		}
 		LLSaleInfo old_sale_info = old_item.getSaleInfo();
 		if(old_sale_info != getSaleInfo())
 		{
-			flags_to_be_set |= LLInventoryItem::II_FLAGS_OBJECT_SLAM_SALE;
+			flags_to_be_set |= LLInventoryItemFlags::II_FLAGS_OBJECT_SLAM_SALE;
 		}
 		setFlags(getFlags() | flags_to_be_set);
 	}
@@ -1304,28 +1307,14 @@ void LLInventoryItem::unpackBinaryBucket(U8* bin_bucket, S32 bin_bucket_size)
 	setCreationDate(now);
 }
 
-// returns TRUE if a should appear before b
-BOOL item_dictionary_sort( LLInventoryItem* a, LLInventoryItem* b )
-{
-	return (LLStringUtil::compareDict( a->getName().c_str(), b->getName().c_str() ) < 0);
-}
-
-// returns TRUE if a should appear before b
-BOOL item_date_sort( LLInventoryItem* a, LLInventoryItem* b )
-{
-	return a->getCreationDate() < b->getCreationDate();
-}
-
-
 ///----------------------------------------------------------------------------
 /// Class LLInventoryCategory
 ///----------------------------------------------------------------------------
 
-LLInventoryCategory::LLInventoryCategory(
-	const LLUUID& uuid,
-	const LLUUID& parent_uuid,
-	LLFolderType::EType preferred_type,
-	const std::string& name) :
+LLInventoryCategory::LLInventoryCategory(const LLUUID& uuid,
+										 const LLUUID& parent_uuid,
+										 LLFolderType::EType preferred_type,
+										 const std::string& name) :
 	LLInventoryObject(uuid, parent_uuid, LLAssetType::AT_CATEGORY, name),
 	mPreferredType(preferred_type)
 {

@@ -5,5 +5,5 @@
 	</text>
 	<line_editor name="whitelist_entry" tool_tip="Inserisci un URL o una configurazione URL alla lista bianca"/>
 	<button label="OK" name="ok_btn"/>
-	<button label="Cancella" name="cancel_btn"/>
+	<button label="Annulla" name="cancel_btn"/>
 </floater>

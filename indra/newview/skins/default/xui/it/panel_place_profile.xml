@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="place_profile">
-	<string name="on" value="On"/>
-	<string name="off" value="Off"/>
+	<string name="on" value="Attivo"/>
+	<string name="off" value="Disattivato"/>
 	<string name="anyone" value="Chiunque"/>
 	<string name="available" value="disponibile"/>
 	<string name="allocated" value="assegnato"/>
-	<string name="title_place" value="Profilo del luogo"/>
+	<string name="title_place" value="Profilo del posto"/>
 	<string name="title_teleport_history" value="Cronologia Teleport"/>
-	<string name="not_available" value="(N\D)"/>
+	<string name="not_available" value="(non pert.)"/>
 	<string name="unknown" value="(sconosciuto)"/>
-	<string name="public" value="(publico)"/>
+	<string name="public" value="(pubblico)"/>
 	<string name="none_text" value="(nessuno)"/>
-	<string name="sale_pending_text" value="(Vendita in attesa di)"/>
-	<string name="group_owned_text" value="(Gruppo posseduto)"/>
+	<string name="sale_pending_text" value="(In corso di vendita)"/>
+	<string name="group_owned_text" value="(Di proprietà di un gruppo)"/>
 	<string name="price_text" value="L$"/>
 	<string name="area_text" value="m²"/>
-	<string name="all_residents_text" value="Tutti i Residenti"/>
+	<string name="all_residents_text" value="Tutti i residenti"/>
 	<string name="group_text" value="Gruppo"/>
 	<string name="can_resell">
-		La terra acquistata in questa regione può essere rivenduta.
+		Il terreno acquistato in questa regione può essere rivenduto.
 	</string>
 	<string name="can_not_resell">
-		La terra acquistata in questa regione non può essere rivenduta.
+		Il terreno acquistato in questa regione non può essere rivenduto.
 	</string>
 	<string name="can_change">
-		La terra acquistata in questa regione può essere unita o suddivisa.
+		Il terreno acquistato in questa regione può essere unito o suddiviso.
 	</string>
 	<string name="can_not_change">
-		La terra acquistata in questa regione non può essere unita o suddivisa.
+		Il terreno acquistato in questa regione non può essere unito o suddiviso.
 	</string>
 	<string name="server_update_text">
-		Informazioni su questo luogo non disponibili senza l&apos;aggiornamento del server.
+		Informazioni sul luogo non disponibili senza l&apos;aggiornamento del server.
 	</string>
 	<string name="server_error_text">
-		Informazioni su questo luogo non sono disponibili ora, per favore riprova più tardi.
+		Informazioni su questo luogo non disponibili al momento, riprova più tardi.
 	</string>
 	<string name="server_forbidden_text">
-		Informazioni su questo luogo non sono disponibili a cause delle restrizioni sull&apos;accesso.  Per favore verifica i tuoi permessi con il proprietario del parcel.
+		Informazioni su questo luogo non disponibili a causa delle limitazioni di accesso.  Controlla i tuoi permessi con il proprietario del terreno.
 	</string>
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
@@ -48,7 +48,7 @@
 			<text name="owner_label" value="Proprietario:"/>
 			<text name="maturity_value" value="sconosciuto"/>
 			<accordion name="advanced_info_accordion">
-				<accordion_tab name="parcel_characteristics_tab" title="Parcel">
+				<accordion_tab name="parcel_characteristics_tab" title="Lotto">
 					<panel name="parcel_characteristics_panel">
 						<text name="rating_label" value="Categoria:"/>
 						<text name="rating_value" value="sconosciuto"/>

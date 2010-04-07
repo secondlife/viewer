@@ -54,7 +54,6 @@ protected:
 	public:
 		struct Params :	public LLInitParam::Block<Params, LLTextEditor::Params>
 		{
-			Mandatory<std::string> more_label;
 			Params();
 		};
 

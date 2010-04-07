@@ -99,7 +99,7 @@
 						<text name="traffic_label" value="Ruch:"/>
 						<text name="primitives_label" value="Primy:"/>
 						<text name="parcel_scripts_label" value="Skrypty:"/>
-						<text name="terraform_limits_label" value="Ograniczenia Terraformingu:"/>
+						<text name="terraform_limits_label" value="Ograniczenia terraformingu:"/>
 						<text name="subdivide_label" value="Podziel/Złącz:"/>
 						<text name="resale_label" value="Możliwość sprzedaży:"/>
 						<text name="sale_to_label" value="Na sprzedaż:"/>

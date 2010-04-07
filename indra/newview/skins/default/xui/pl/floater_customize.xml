@@ -43,15 +43,15 @@
 			<text name="Item Action Label">
 				Kształt:
 			</text>
-			<button label="Nowy Kształt" label_selected="Nowy Kształt" name="Create New"/>
+			<button label="Nowy kształt" label_selected="Nowy kształt" name="Create New"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 		</panel>
 		<panel label="Skórka" name="Skin">
-			<button label="Kolor Skórki" label_selected="Kolor Skórki" name="Skin Color"/>
-			<button label="Detale Twarzy" label_selected="Detale Twarzy" name="Face Detail"/>
+			<button label="Kolor skórki" label_selected="Kolor skórki" name="Skin Color"/>
+			<button label="Detale twarzy" label_selected="Detale twarzy" name="Face Detail"/>
 			<button label="Makijaż" label_selected="Makijaż" name="Makeup"/>
-			<button label="Detale Ciała" label_selected="Detale Ciała" name="Body Detail"/>
+			<button label="Detale ciała" label_selected="Detale ciała" name="Body Detail"/>
 			<text name="title">
 				[DESC]
 			</text>
@@ -76,12 +76,12 @@
 			<text name="Item Action Label">
 				Skórka:
 			</text>
-			<texture_picker label="Tatuaże Głowy" name="Head Tattoos" tool_tip="Kliknij by wybrać teksturę"/>
-			<texture_picker label="Tatuaże Górne" name="Upper Tattoos" tool_tip="Kliknij by wybrać teksturę"/>
-			<texture_picker label="Tatuaże Dolne" name="Lower Tattoos" tool_tip="Kliknij by wybrać teksturę"/>
-			<button label="Nowa Skórka" label_selected="Nowa Skórka" name="Create New"/>
+			<texture_picker label="Tatuaże głowy" name="Head Tattoos" tool_tip="Kliknij by wybrać teksturę"/>
+			<texture_picker label="Tatuaże górne" name="Upper Tattoos" tool_tip="Kliknij by wybrać teksturę"/>
+			<texture_picker label="Tatuaże dolne" name="Lower Tattoos" tool_tip="Kliknij by wybrać teksturę"/>
+			<button label="Nowa skórka" label_selected="Nowa skórka" name="Create New"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Włosy" name="Hair">
@@ -114,9 +114,9 @@
 				Włosy:
 			</text>
 			<texture_picker label="Tekstura" name="Texture" tool_tip="Kliknij by wybrać teksturę"/>
-			<button label="Nowe Włosy" label_selected="Nowe Włosy" name="Create New"/>
+			<button label="Nowe włosy" label_selected="Nowe włosy" name="Create New"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Oczy" name="Eyes">
@@ -145,9 +145,9 @@
 				Oczy:
 			</text>
 			<texture_picker label="Tęczówka" name="Iris" tool_tip="Kliknij by wybrać teksturę"/>
-			<button label="Nowe Oczy" label_selected="Nowe Oczy" name="Create New"/>
+			<button label="Nowe oczy" label_selected="Nowe oczy" name="Create New"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<text label="Ubrania" name="clothes_placeholder">
@@ -159,7 +159,7 @@
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Nowa Koszula" label_selected="Nowa Koszula" name="Create New"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 			<text name="title">
 				[DESC]
@@ -190,9 +190,9 @@
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij tutaj by wybrać teksturę"/>
 			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
-			<button label="Nowe Spodnie" label_selected="Nowe Spodnie" name="Create New"/>
+			<button label="Nowe spodnie" label_selected="Nowe spodnie" name="Create New"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 			<text name="title">
 				[DESC]
@@ -249,7 +249,7 @@
 			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Skarpety" name="Socks">
@@ -282,7 +282,7 @@
 			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Kurtka" name="Jacket">
@@ -311,12 +311,12 @@
 			<text name="Item Action Label">
 				Kurtka:
 			</text>
-			<texture_picker label="Górny Materiał" name="Upper Fabric" tool_tip="Kliknij by wybrać teksturę" width="76"/>
-			<texture_picker label="Dolny Materiał" name="Lower Fabric" tool_tip="Kliknij by wybrać kolor" width="76"/>
+			<texture_picker label="Górny materiał" name="Upper Fabric" tool_tip="Kliknij by wybrać teksturę" width="76"/>
+			<texture_picker label="Dolny materiał" name="Lower Fabric" tool_tip="Kliknij by wybrać kolor" width="76"/>
 			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor" width="76"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Rękawiczki" name="Gloves">
@@ -349,7 +349,7 @@
 			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Podkoszulek" name="Undershirt">
@@ -382,7 +382,7 @@
 			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Bielizna" name="Underpants">
@@ -415,7 +415,7 @@
 			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Spódnica" name="Skirt">
@@ -448,7 +448,7 @@
 			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
-			<button label="Zapisz Jako..." label_selected="Zapisz Jako..." name="Save As"/>
+			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 		<panel label="Tatuaż" name="Tattoo">
@@ -477,9 +477,9 @@
 			<text name="Item Action Label">
 				Tatuaż:
 			</text>
-			<texture_picker label="Tatuaż Głowy" name="Head Tattoo" tool_tip="Kliknij aby wybrać teksturę"/>
-			<texture_picker label="Górny Tatuaż" name="Upper Tattoo" tool_tip="Kliknij aby wybrać teksturę"/>
-			<texture_picker label="Tatuaż Dolnej Części Ciała" name="Lower Tattoo" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Tatuaż głowy" name="Head Tattoo" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Górny tatuaż" name="Upper Tattoo" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Tatuaż dolnej części ciała" name="Lower Tattoo" tool_tip="Kliknij aby wybrać teksturę"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
 			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
@@ -512,18 +512,18 @@
 				Alpha:
 			</text>
 			<texture_picker label="Dolna Alpha" name="Lower Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
-			<texture_picker label="Alpha Górnej Części Ciała" name="Upper Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
-			<texture_picker label="Alpha Głowy" name="Head Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
-			<texture_picker label="Alpha Oka" name="Eye Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
-			<texture_picker label="Alpha Włosów" name="Hair Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Alpha górnej części ciała" name="Upper Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Alpha głowy" name="Head Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Alpha oka" name="Eye Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
+			<texture_picker label="Alpha włosów" name="Hair Alpha" tool_tip="Kliknij aby wybrać teksturę"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
 			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
 		</panel>
 	</tab_container>
-	<button label="Info o Skrypcie" label_selected="Info o Skrypcie" name="script_info" tool_tip="Pokaż skrypty przyłączone do Twojego awatara"/>
-	<button label="Stwórz Ubranie" label_selected="Stwórz Ubranie" name="make_outfit_btn"/>
+	<button label="Info o skrypcie" label_selected="Info o skrypcie" name="script_info" tool_tip="Pokaż skrypty przyłączone do Twojego awatara"/>
+	<button label="Stwórz ubranie" label_selected="Stwórz Ubranie" name="make_outfit_btn"/>
 	<button label="Anuluj" label_selected="Anuluj" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>
 </floater>

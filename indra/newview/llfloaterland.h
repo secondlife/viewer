@@ -167,7 +167,7 @@ public:
 	static void onClickSet(void* data);
 	static void onClickClear(void* data);
 	static void onClickShow(void* data);
-	static void callbackAvatarPick(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data);
+	static void callbackAvatarPick(const std::vector<std::string>& names, const uuid_vec_t& ids, void* data);
 	static void finalizeAvatarPick(void* data);
 	static void callbackHighlightTransferable(S32 option, void* userdata);
 	static void onClickStartAuction(void*);
@@ -233,6 +233,11 @@ protected:
 	LLButton* mBtnStartAuction;
 
 	LLSafeHandle<LLParcelSelection>&	mParcel;
+
+	// This pointer is needed to avoid parcel deselection until buying pass is completed or canceled.
+	// Deselection happened because of zero references to parcel selection, which took place when 
+	// "Buy Pass" was called from popup menu(EXT-6464)
+	static LLPointer<LLParcelSelection>	sSelectionForBuyPass;
 
 	static LLHandle<LLFloater> sBuyPassDialogHandle;
 };
@@ -374,8 +379,8 @@ public:
 	
 	void onClickAddAccess();
 	void onClickAddBanned();
-	void callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
-	void callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids);
+	void callbackAvatarCBBanned(const std::vector<std::string>& names, const uuid_vec_t& ids);
+	void callbackAvatarCBAccess(const std::vector<std::string>& names, const uuid_vec_t& ids);
 
 protected:
 	LLNameListCtrl*		mListAccess;

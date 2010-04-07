@@ -212,7 +212,7 @@ public:
 	void setVersion(S32 version) { mVersion = version; }
 
 	// Returns true if a fetch was issued.
-	bool fetchDescendents();
+	bool fetch();
 
 	// used to help make cacheing more robust - for example, if
 	// someone is getting 4 packets but logs out after 3. the viewer
@@ -356,7 +356,7 @@ void copy_inventory_from_notecard(const LLUUID& object_id,
 								  U32 callback_id = 0);
 
 
-void menu_create_inventory_item(LLFolderView* folder,
+void menu_create_inventory_item(LLFolderView* root,
 								LLFolderBridge* bridge,
 								const LLSD& userdata,
 								const LLUUID& default_parent_uuid = LLUUID::null);

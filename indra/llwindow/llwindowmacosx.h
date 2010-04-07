@@ -116,7 +116,7 @@ public:
 	
 	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
 	/*virtual*/ void interruptLanguageTextInput();
-	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url);
+	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 

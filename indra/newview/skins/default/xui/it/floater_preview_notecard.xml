@@ -7,7 +7,7 @@
 		Non hai il permesso di leggere questo biglietto.
 	</floater.string>
 	<floater.string name="Title">
-		Notecard: [NAME]
+		Biglietto: [NAME]
 	</floater.string>
 	<floater.string label="Salva" label_selected="Salva" name="Save">
 		Salva

@@ -137,6 +137,7 @@ private:
 	void onVolumeChange(const LLSD& data);
 	bool enableMute();
 	bool enableUnmute();
+	bool enableTeleportOffer();
 
 	// Is used to determine if "Add friend" option should be enabled in gear menu
 	bool isNotFriend();
@@ -235,6 +236,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.Enable", boost::bind(&LLInspectAvatar::isNotFriend, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.EnableCall", boost::bind(&LLAvatarActions::canCall));
+	mEnableCallbackRegistrar.add("InspectAvatar.Gear.EnableTeleportOffer", boost::bind(&LLInspectAvatar::enableTeleportOffer, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.EnableMute", boost::bind(&LLInspectAvatar::enableMute, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.EnableUnmute", boost::bind(&LLInspectAvatar::enableUnmute, this));
 
@@ -762,6 +764,11 @@ bool LLInspectAvatar::enableUnmute()
 		{
 			return false;
 		}
+}
+
+bool LLInspectAvatar::enableTeleportOffer()
+{
+	return LLAvatarActions::canOfferTeleport(mAvatarID);
 }
 
 //////////////////////////////////////////////////////////////////////////////

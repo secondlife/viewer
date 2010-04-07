@@ -36,7 +36,7 @@
 		<menu_item_call label="Mit land" name="My Land"/>
 		<menu label="Vis" name="LandShow">
 			<menu_item_check label="Bevægelses kontrol" name="Movement Controls"/>
-			<menu_item_check label="Vis kontroller" name="Camera Controls"/>
+			<menu_item_check label="Kontroller" name="Camera Controls"/>
 			<menu_item_check label="&apos;Ingen adgang&apos; markering" name="Ban Lines"/>
 			<menu_item_check label="Pejlelys" name="beacons"/>
 			<menu_item_check label="Parcel skel" name="Property Lines"/>
@@ -75,7 +75,7 @@
 			<menu_item_call label="Vælg alt" name="Select All"/>
 			<menu_item_call label="Fravælg" name="Deselect"/>
 		</menu>
-		<menu_item_call label="Sammenkæde" name="Link"/>
+		<menu_item_call label="Sammenkæd" name="Link"/>
 		<menu_item_call label="Adskil" name="Unlink"/>
 		<menu_item_check label="Redigér sammekædede objekter" name="Edit Linked Parts"/>
 		<menu_item_call label="Fokusér på valgte" name="Focus on Selection"/>
@@ -88,10 +88,10 @@
 			<menu_item_call label="Opdater ændringer i indhold til objekt" name="Save Object Back to Object Contents"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
-			<menu_item_call label="Rekompilér scripts (Mono)" name="Mono"/>
+			<menu_item_call label="Genoversæt scripts (Mono)" name="Mono"/>
 			<menu_item_call label="Genoversæt scripts (LSL)" name="LSL"/>
 			<menu_item_call label="Genstart scripts" name="Reset Scripts"/>
-			<menu_item_call label="sæt scripts til &quot;Running&quot;" name="Set Scripts to Running"/>
+			<menu_item_call label="Sæt scripts til &quot;Running&quot;" name="Set Scripts to Running"/>
 			<menu_item_call label="Sæt scripts til &quot;Not Running&quot;" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Valg" name="Options">
@@ -111,7 +111,7 @@
 		<menu label="Vis lænkede dele" name="Select Linked Parts">
 			<menu_item_call label="Vælg næste del" name="Select Next Part"/>
 			<menu_item_call label="Vælg forrige del" name="Select Previous Part"/>
-			<menu_item_call label="Inkludér næste valg" name="Include Next Part"/>
+			<menu_item_call label="Inkludér næste del" name="Include Next Part"/>
 			<menu_item_call label="Inkludér forrige del" name="Include Previous Part"/>
 		</menu>
 	</menu>
@@ -128,7 +128,7 @@
 		<menu_item_check label="Begræns valg afstand" name="Limit Select Distance"/>
 		<menu_item_check label="Fjern kamerabegrænsninger" name="Disable Camera Distance"/>
 		<menu_item_check label="Højopløsningsfoto" name="HighResSnapshot"/>
-		<menu_item_check label="Lydløse foto&apos;s til disk" name="QuietSnapshotsToDisk"/>
+		<menu_item_check label="Lydløse fotos til disk" name="QuietSnapshotsToDisk"/>
 		<menu_item_check label="Komprimér fotos til disk" name="CompressSnapshotsToDisk"/>
 		<menu label="Værktøjer til ydelse" name="Performance Tools">
 			<menu_item_call label="Lag meter" name="Lag Meter"/>
@@ -149,7 +149,7 @@
 			<menu_item_check label="Alpha" name="Alpha"/>
 			<menu_item_check label="Træer" name="Tree"/>
 			<menu_item_check label="Avatarer" name="Character"/>
-			<menu_item_check label="SurfacePath" name="SurfacePath"/>
+			<menu_item_check label="Overflade" name="SurfacePath"/>
 			<menu_item_check label="Himmel" name="Sky"/>
 			<menu_item_check label="Vand" name="Water"/>
 			<menu_item_check label="Jord" name="Ground"/>
@@ -168,7 +168,7 @@
 			<menu_item_check label="Tåge" name="Fog"/>
 			<menu_item_check label="Fleksible objekter" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="Kør flere tråde" name="Run Multiple Threads"/>
+		<menu_item_check label="Kør flere 'threats'" name="Run Multiple Threads"/>
 		<menu_item_call label="Tøm gruppe cache" name="ClearGroupCache"/>
 		<menu_item_check label="Muse udjævning" name="Mouse Smoothing"/>
 		<menu label="Shortcuts" name="Shortcuts">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_lagmeter" title="LAG METER">
+<floater name="floater_lagmeter" title="MISURATORE LAG">
 	<floater.string name="max_title_msg">
 		Misuratore del lag
 	</floater.string>
@@ -136,7 +136,7 @@
 	<text left="30" name="client_lag_cause" right="-10"/>
 	<button label="" label_selected="" name="network_lagmeter" tool_tip="Stato del lag del network"/>
 	<text name="network">
-		Network
+		Rete
 	</text>
 	<text font="SansSerifSmall" name="network_text">
 		Normale
@@ -150,5 +150,5 @@
 		Normale
 	</text>
 	<text left="30" name="server_lag_cause" right="-32"/>
-	<button label="&gt;&gt;" name="minimize" tool_tip="Pulsante per minimizzare"/>
+	<button label="&gt;&gt;" name="minimize" tool_tip="Cambia dimensioni floater"/>
 </floater>

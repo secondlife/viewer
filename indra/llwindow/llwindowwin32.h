@@ -114,7 +114,7 @@ public:
 	/*virtual*/ void setLanguageTextInput( const LLCoordGL & pos );
 	/*virtual*/ void updateLanguageTextInputArea();
 	/*virtual*/ void interruptLanguageTextInput();
-	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url);
+	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
 
 	LLWindowCallbacks::DragNDropResult completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url );
 

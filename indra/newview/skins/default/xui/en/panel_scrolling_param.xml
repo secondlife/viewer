@@ -5,7 +5,7 @@
  left="0"
  name="LLScrollingPanelParam"
  top="152"
- width="270">
+ width="290">
     <text
      follows="left|top"
      height="16"
@@ -46,6 +46,36 @@
      width="128">
         Loading...
     </text>
+    <view_border 
+     layout="topleft"
+     follows="left|top"
+     left="2"
+     top="0"
+     width="132"
+     height="132"
+     thickness="2"
+     shadow_light_color="LtGray_50"
+     highlight_light_color="LtGray_50"
+     highlight_dark_color="LtGray_50"
+     shadow_dark_color="LtGray_50"
+     bevel_style="in"
+     name="left_border"
+    />
+    <view_border 
+     layout="topleft"
+     follows="left|top"
+     left_pad="2"
+     top_delta="0"
+     width="132"
+     height="132"
+     thickness="2"
+     shadow_light_color="LtGray_50"
+     highlight_light_color="LtGray_50"
+     highlight_dark_color="LtGray_50"
+     shadow_dark_color="LtGray_50"
+     bevel_style="in"
+     name="right_border"
+    />
     <button
      enabled="false"
      height="132"

@@ -39,11 +39,11 @@ Limit dzienny ogłoszeń dla grupy wynosi 200.
 		</text>
 		<button label="Usuń załącznik" label_selected="Usuń Załącznik" name="remove_attachment" tool_tip="Usuń załącznik z noty"/>
 		<button label="Wyślij" label_selected="Wyślij" name="send_notice"/>
-		<group_drop_target name="drop_target" tool_tip="Przeciągnij załącznik ze swojej Szafy na pole docelowe aby wysłać go z ogłoszeniem. Musisz posiadać prawo do kopiowania i transferu załącznika aby go dodać do ogłoszenia."/>
+		<group_drop_target name="drop_target" tool_tip="Przeciągnij załącznik ze swojej Szafy na pole docelowe aby wysłać go z Ogłoszeniem. Musisz posiadać prawo do kopiowania i transferu załącznika aby go dodać do ogłoszenia."/>
 	</panel>
-	<panel label="Zobacz Przeszłe Ogłoszenia" name="panel_view_past_notice">
+	<panel label="Zobacz przeszłe Ogłoszenia" name="panel_view_past_notice">
 		<text name="lbl">
-			Ogłoszenia Zachowane
+			Ogłoszenia zachowane
 		</text>
 		<text name="lbl2">
 			W celu wysłania nowego ogłoszenia kliknij przycisk +

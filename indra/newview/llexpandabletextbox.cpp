@@ -112,13 +112,12 @@ private:
 };
 
 LLExpandableTextBox::LLTextBoxEx::Params::Params()
-:	more_label("more_label")
 {
 }
 
 LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
 :	LLTextEditor(p),
-	mExpanderLabel(p.more_label),
+	mExpanderLabel(p.label),
 	mExpanderVisible(false)
 {
 	setIsChrome(TRUE);

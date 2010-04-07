@@ -40,6 +40,7 @@
 #include "llfloaterinventory.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"
@@ -419,7 +420,7 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
 		return;
 	}
 
-	gInventory.startBackgroundFetch();
+	LLInventoryModelBackgroundFetch::instance().start();
 
 	mFilterSubString = search_string;
 	if (mActivePanel->getFilterSubString().empty() && mFilterSubString.empty())
@@ -499,7 +500,7 @@ void LLPanelMainInventory::onFilterSelected()
 	if (filter->isActive())
 	{
 		// If our filter is active we may be the first thing requiring a fetch so we better start it here.
-		gInventory.startBackgroundFetch();
+		LLInventoryModelBackgroundFetch::instance().start();
 	}
 	setFilterTextFromFilter();
 }
@@ -566,11 +567,11 @@ void LLPanelMainInventory::updateItemcountText()
 
 	std::string text = "";
 
-	if (LLInventoryModel::backgroundFetchActive())
+	if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive())
 	{
 		text = getString("ItemcountFetching", string_args);
 	}
-	else if (LLInventoryModel::isEverythingFetched())
+	else if (LLInventoryModelBackgroundFetch::instance().isEverythingFetched())
 	{
 		text = getString("ItemcountCompleted", string_args);
 	}
@@ -600,7 +601,7 @@ void LLPanelMainInventory::toggleFindOptions()
 		if (parent_floater) // Seraph: Fix this, shouldn't be null even for sidepanel
 			parent_floater->addDependentFloater(mFinderHandle);
 		// start background fetch of folders
-		gInventory.startBackgroundFetch();
+		LLInventoryModelBackgroundFetch::instance().start();
 	}
 	else
 	{
@@ -1043,7 +1044,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		{
 			return;
 		}
-		current_item->getListener()->performAction(getActivePanel()->getRootFolder(), getActivePanel()->getModel(), "goto");
+		current_item->getListener()->performAction(getActivePanel()->getModel(), "goto");
 	}
 
 	if (command_name == "find_links")
@@ -1088,19 +1089,19 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	if (command_name == "delete")
 	{
 		BOOL can_delete = FALSE;
-		LLFolderView *folder = getActivePanel()->getRootFolder();
-		if (folder)
+		LLFolderView* root = getActivePanel()->getRootFolder();
+		if (root)
 		{
 			can_delete = TRUE;
 			std::set<LLUUID> selection_set;
-			folder->getSelectionList(selection_set);
+			root->getSelectionList(selection_set);
 			if (selection_set.empty()) return FALSE;
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
 				 ++iter)
 			{
 				const LLUUID &item_id = (*iter);
-				LLFolderViewItem *item = folder->getItemByID(item_id);
+				LLFolderViewItem *item = root->getItemByID(item_id);
 				const LLFolderViewEventListener *listener = item->getListener();
 				llassert(listener);
 				if (!listener) return FALSE;

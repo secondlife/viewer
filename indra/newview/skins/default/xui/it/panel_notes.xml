@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Note &amp; Privacy" name="panel_notes">
+<panel label="Note e Privacy" name="panel_notes">
 	<layout_stack name="layout">
 		<panel name="notes_stack">
 			<scroll_container name="profile_scroll">
 				<panel name="profile_scroll_panel">
 					<text name="status_message" value="Le mie note private:"/>
-					<text name="status_message2" value="Permetti a questa persona di:"/>
-					<check_box label="Vedermi On-line" name="status_check"/>
-					<check_box label="Vedermi sull mappa" name="map_check"/>
-					<check_box label="Modificare, cancellare o prendere i miei oggetti" name="objects_check"/>
+					<text name="status_message2" value="Consenti a questa persona di:"/>
+					<check_box label="Vedere se sono online" name="status_check"/>
+					<check_box label="Vedermi sulla mappa" name="map_check"/>
+					<check_box label="Modificare, eliminare o prendere i miei oggetti" name="objects_check"/>
 				</panel>
 			</scroll_container>
 		</panel>
 		<panel name="notes_buttons_panel">
 			<button label="Aggiungi amico" name="add_friend" tool_tip="Offri amicizia a questo residente"/>
-			<button label="IM" name="im" tool_tip="Apri una sessione di messaggio istantaneo"/>
+			<button label="IM" name="im" tool_tip="Apri una sessione messaggio istantaneo"/>
 			<button label="Chiama" name="call" tool_tip="Chiama questo residente"/>
 			<button label="Mappa" name="show_on_map_btn" tool_tip="Mostra il residente sulla mappa"/>
 			<button label="Teleport" name="teleport" tool_tip="Offri teleport"/>

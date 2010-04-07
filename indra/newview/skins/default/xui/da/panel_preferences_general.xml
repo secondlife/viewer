@@ -23,7 +23,7 @@
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
 		<combo_box.item label="PG, Mature og Adult" name="Desired_Adult"/>
-		<combo_box.item label="PG and Mature" name="Desired_Mature"/>
+		<combo_box.item label="PG og Mature" name="Desired_Mature"/>
 		<combo_box.item label="PG" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">

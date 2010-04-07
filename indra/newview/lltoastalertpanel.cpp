@@ -281,9 +281,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->setText(edit_text_contents);
 			mLineEditor->setMaxTextLength(STD_STRING_STR_LEN - 1);
 
-			// make sure all edit keys get handled properly (DEV-22396)
-			mLineEditor->setHandleEditKeysDirectly(TRUE);
-
 			LLToastPanel::addChild(mLineEditor);
 
 			mLineEditor->setDrawAsterixes(is_password);

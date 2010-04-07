@@ -112,7 +112,7 @@ LLFloaterGroupInvite::~LLFloaterGroupInvite()
 }
 
 // static
-void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, std::vector<LLUUID> *agent_ids)
+void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, uuid_vec_t *agent_ids)
 {
 	const LLFloater::Params& floater_params = LLFloater::getDefaultParams();
 	S32 floater_header_size = floater_params.header_height;

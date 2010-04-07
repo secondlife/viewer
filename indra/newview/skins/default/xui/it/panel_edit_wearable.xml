@@ -1,55 +1,55 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Indossabile" name="panel_edit_wearable">
 	<string name="edit_shape_title">
-		Modifica la Shape
+		Modifica della figura corporea
 	</string>
 	<string name="edit_skin_title">
-		Modifica la Skin
+		Modifica della pelle
 	</string>
 	<string name="edit_hair_title">
-		Modifica capelli
+		Modifica dei capelli
 	</string>
 	<string name="edit_eyes_title">
-		Modifica occhi
+		Modifica degli occhi
 	</string>
 	<string name="edit_shirt_title">
-		Modifica camicia
+		Modifica della camicia
 	</string>
 	<string name="edit_pants_title">
-		Modifica pantaloni
+		Modifica dei pantaloni
 	</string>
 	<string name="edit_shoes_title">
-		Modifica scarpe
+		Modifica delle scarpe
 	</string>
 	<string name="edit_socks_title">
-		Modifica calze
+		Modifica delle calze
 	</string>
 	<string name="edit_jacket_title">
-		Modifica Giacca
+		Modifica della giacca
 	</string>
 	<string name="edit_skirt_title">
-		Modifica gonna
+		Modifica della gonna
 	</string>
 	<string name="edit_gloves_title">
-		Modifica guanti
+		Modifica dei guanti
 	</string>
 	<string name="edit_undershirt_title">
-		Modifica maglietta intima
+		Modifica della maglietta intima
 	</string>
 	<string name="edit_underpants_title">
-		Modifica slip
+		Modifica dello slip
 	</string>
 	<string name="edit_alpha_title">
-		Modifica Alpha Mask
+		Modifica di Alpha Mask
 	</string>
 	<string name="edit_tattoo_title">
-		Modifica tatuaggio
+		Modifica del tatuaggio
 	</string>
 	<string name="shape_desc_text">
-		Shape:
+		Figura corporea:
 	</string>
 	<string name="skin_desc_text">
-		Skin:
+		Pelle:
 	</string>
 	<string name="hair_desc_text">
 		Capelli:
@@ -90,9 +90,9 @@
 	<string name="tattoo_desc_text">
 		Tatuaggio:
 	</string>
-	<text name="edit_wearable_title" value="Modifica Shape"/>
+	<text name="edit_wearable_title" value="Modifica della figura corporea"/>
 	<panel label="Camicia" name="wearable_type_panel">
-		<text name="description_text" value="Shape:"/>
+		<text name="description_text" value="Figura corporea:"/>
 	</panel>
 	<panel name="button_panel">
 		<button label="Salva con nome" name="save_as_button"/>

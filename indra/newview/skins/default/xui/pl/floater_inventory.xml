@@ -4,7 +4,7 @@
 		MOJA SZAFA
 	</floater.string>
 	<floater.string name="TitleFetching">
-		MOJA SZAFA (Fetching [ITEM_COUNT] Obiekty...) [FILTER]
+		MOJA SZAFA (Dostarczanie [ITEM_COUNT] obiektów...) [FILTER]
 	</floater.string>
 	<floater.string name="TitleCompleted">
 		MOJA SZAFA ([ITEM_COUNT] Obiektów) [FILTER]

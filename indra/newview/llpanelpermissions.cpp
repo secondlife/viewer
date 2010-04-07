@@ -195,8 +195,8 @@ void LLPanelPermissions::disableAll()
 	childSetEnabled("Owner Name",						FALSE);
 
 	childSetEnabled("Group:",							FALSE);
-	childSetText("Group Name",							LLStringUtil::null);
-	childSetEnabled("Group Name",						FALSE);
+	childSetText("Group Name Proxy",					LLStringUtil::null);
+	childSetEnabled("Group Name Proxy",					FALSE);
 	childSetEnabled("button set group",					FALSE);
 
 	childSetText("Object Name",							LLStringUtil::null);

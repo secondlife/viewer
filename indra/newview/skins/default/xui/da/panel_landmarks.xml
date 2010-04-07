@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Landmarks">
 	<accordion name="landmarks_accordion">
-		<accordion_tab name="tab_favorites" title="Favorites bjælke"/>
+		<accordion_tab name="tab_favorites" title="Favoritter"/>
 		<accordion_tab name="tab_landmarks" title="Mine landmærker"/>
 		<accordion_tab name="tab_inventory" title="Min beholdning"/>
 		<accordion_tab name="tab_library" title="Bibliotek"/>

@@ -886,28 +886,36 @@ void LLWorldMapView::drawFrustum()
 	F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2 );
 	F32 half_width_pixels = half_width_meters * meters_to_pixels;
 	
-	F32 ctr_x = getRect().getWidth() * 0.5f + sPanX;
-	F32 ctr_y = getRect().getHeight() * 0.5f + sPanY;
+	F32 ctr_x = getLocalRect().getWidth() * 0.5f + sPanX;
+	F32 ctr_y = getLocalRect().getHeight() * 0.5f + sPanY;
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Since we don't rotate the map, we have to rotate the frustum.
 	gGL.pushMatrix();
+	{
 		gGL.translatef( ctr_x, ctr_y, 0 );
-		glRotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
 
 		// Draw triangle with more alpha in far pixels to make it 
 		// fade out in distance.
 		gGL.begin( LLRender::TRIANGLES  );
+		{
+			LLVector2 cam_lookat(LLViewerCamera::instance().getAtAxis().mV[VX], LLViewerCamera::instance().getAtAxis().mV[VY]);
+			LLVector2 cam_left(LLViewerCamera::instance().getLeftAxis().mV[VX], LLViewerCamera::instance().getLeftAxis().mV[VY]);
+
 			gGL.color4f(1.f, 1.f, 1.f, 0.25f);
 			gGL.vertex2f( 0, 0 );
 
 			gGL.color4f(1.f, 1.f, 1.f, 0.02f);
-			gGL.vertex2f( -half_width_pixels, far_clip_pixels );
+			
+			LLVector2 vert = cam_lookat * far_clip_pixels + cam_left * half_width_pixels;
+			gGL.vertex2f(vert.mV[VX], vert.mV[VY]);
 
-			gGL.color4f(1.f, 1.f, 1.f, 0.02f);
-			gGL.vertex2f(  half_width_pixels, far_clip_pixels );
+			vert = cam_lookat * far_clip_pixels - cam_left * half_width_pixels;
+			gGL.vertex2f(vert.mV[VX], vert.mV[VY]);
+		}
 		gGL.end();
+	}
 	gGL.popMatrix();
 }
 

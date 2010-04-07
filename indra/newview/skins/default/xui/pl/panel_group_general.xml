@@ -18,7 +18,7 @@ By otrzymać pomoc i dodatkowe wskazówki przesuń kursor na przyciski.
 		</text>
 		<name_box initial_value="(przetwarzanie)" name="founder_name"/>
 		<text name="join_cost_text">
-			Wstęp Wolny
+			Wstęp wolny
 		</text>
 		<button label="DOŁĄCZ TERAZ!" name="btn_join"/>
 	</panel>
@@ -43,8 +43,8 @@ By otrzymać pomoc i dodatkowe wskazówki przesuń kursor na przyciski.
 		<text name="group_settngs_label">
 			Grupa
 		</text>
-		<check_box label="Wolny Wstęp" name="open_enrollement" tool_tip="Sprawdź czy grupa oferuje wolny wstęp i nie wymaga zaproszenia."/>
-		<check_box label="Opłata Wstępu" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
+		<check_box label="Wolny wstęp" name="open_enrollement" tool_tip="Sprawdź czy grupa oferuje wolny wstęp i nie wymaga zaproszenia."/>
+		<check_box label="Opłata wstępu" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Nowi członkowie grupy muszą zapłacić wymaganą opłatę by dołączyć do grupy."/>
 		<combo_box name="group_mature_check" tool_tip="Wybierz jeżeli uważasz, iż Twoja grupa klasyfikowana jest jako &apos;Mature&apos;.">
 			<combo_box.item label="Treść &apos;PG&apos;" name="pg"/>

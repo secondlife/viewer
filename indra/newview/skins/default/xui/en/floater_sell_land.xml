@@ -203,13 +203,13 @@
          name="none"
          visible="false" />
         <radio_item
-         bottom="20"
+         top_pad="10"
          height="16"
          label="No, keep ownership of objects"
          left="10"
          name="no" />
         <radio_item
-         bottom="40"
+         top_pad="10"
          height="16"
          label="Yes, sell objects with land"
          left="10"

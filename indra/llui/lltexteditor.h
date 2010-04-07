@@ -68,7 +68,6 @@ public:
 
 		Optional<bool>			embedded_items,
 								ignore_tab,
-								handle_edit_keys_directly,
 								show_line_numbers,
 								commit_on_focus_lost,
 								show_context_menu;
@@ -146,8 +145,6 @@ public:
 	virtual BOOL	canDoDelete() const;
 	virtual void	selectAll();
 	virtual BOOL	canSelectAll()	const;
-	virtual void	deselect();
-	virtual BOOL	canDeselect() const;
 
 	void			selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE);
 	BOOL			replaceText(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive, BOOL wrap = TRUE);
@@ -218,13 +215,10 @@ protected:
 	S32				indentLine( S32 pos, S32 spaces );
 	void			unindentLineBeforeCloseBrace();
 
-	void			reportBadKeystroke() { make_ui_sound("UISndBadKeystroke"); }
-
 	BOOL			handleNavigationKey(const KEY key, const MASK mask);
-	BOOL			handleSpecialKey(const KEY key, const MASK mask, BOOL* return_key_hit);
+	BOOL			handleSpecialKey(const KEY key, const MASK mask);
 	BOOL			handleSelectionKey(const KEY key, const MASK mask);
 	BOOL			handleControlKey(const KEY key, const MASK mask);
-	BOOL			handleEditKey(const KEY key, const MASK mask);
 
 	BOOL			selectionContainsLineBreaks();
 	void			deleteSelection(BOOL transient_operation);
@@ -328,10 +322,6 @@ private:
 	bool			mShowContextMenu;
 
 	LLUUID			mSourceID;
-
-	// If true, the standard edit keys (Ctrl-X, Delete, etc,) are handled here 
-	//instead of routed by the menu system
-	BOOL			mHandleEditKeysDirectly;  
 
 	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
 

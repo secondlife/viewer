@@ -16,18 +16,18 @@
 		Procesor: [CPU]
 Pamięć: [MEMORY_MB] MB
 Wersja OS: [OS_VERSION]
-Graphics Card Vendor: [GRAPHICS_CARD_VENDOR]
-Karta Graficzna: [GRAPHICS_CARD]
+Sprzedawca karty graficznej: [GRAPHICS_CARD_VENDOR]
+Karta graficzna: [GRAPHICS_CARD]
 	</floater.string>
 	<floater.string name="AboutDriver">
-		Windows Sterownik Karty Graficznej: [GRAPHICS_DRIVER_VERSION]
+		Windows Sterownik karty graficznej: [GRAPHICS_DRIVER_VERSION]
 	</floater.string>
 	<floater.string name="AboutLibs">
 		Wersja OpenGL: [OPENGL_VERSION]
 
 Wersja libcurl: [LIBCURL_VERSION]
-Wersja Dekodera J2C: [J2C_VERSION]
-Wersja Sterownika Audio: [AUDIO_DRIVER_VERSION]
+Wersja dekodera J2C: [J2C_VERSION]
+Wersja sterownika audio: [AUDIO_DRIVER_VERSION]
 Wersja Qt Webkit: [QT_WEBKIT_VERSION]
 Wersja Vivox: [VIVOX_VERSION]
 	</floater.string>
@@ -35,11 +35,11 @@ Wersja Vivox: [VIVOX_VERSION]
 		(żadne)
 	</floater.string>
 	<floater.string name="AboutTraffic">
-		Stracone Pakiety: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+		Stracone pakiety: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
 	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="Info" name="support_panel">
-			<button label="Kopiuj do Schowka" name="copy_btn"/>
+			<button label="Kopiuj do schowka" name="copy_btn"/>
 		</panel>
 		<panel label="Podziękowania" name="credits_panel">
 			<text_editor name="credits_editor">

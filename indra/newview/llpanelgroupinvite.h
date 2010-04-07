@@ -42,7 +42,7 @@ public:
 	LLPanelGroupInvite(const LLUUID& group_id);
 	~LLPanelGroupInvite();
 	
-	void addUsers(std::vector<LLUUID>& agent_ids);
+	void addUsers(uuid_vec_t& agent_ids);
 	/**
 	 * this callback is being used to add a user whose fullname isn't been loaded before invoking of addUsers().
 	 */  

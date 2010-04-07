@@ -115,15 +115,11 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 				session_id = LLHandlerUtil::spawnIMSession(name, from_id);
 			}
 
-			bool show_toast = true;
+			bool show_toast = LLHandlerUtil::canSpawnToast(notification);
 			bool add_notid_to_im = LLHandlerUtil::canAddNotifPanelToIM(notification);
 			if (add_notid_to_im)
 			{
 				LLHandlerUtil::addNotifPanelToIM(notification);
-				if (LLHandlerUtil::isIMFloaterOpened(notification))
-				{
-					show_toast = false;
-				}
 			}
 
 			if (notification->getPayload().has("SUPPRESS_TOAST")

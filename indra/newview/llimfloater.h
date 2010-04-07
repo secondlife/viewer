@@ -129,7 +129,7 @@ private:
 	BOOL dropCategory(LLInventoryCategory* category, BOOL drop);
 
 	BOOL isInviteAllowed() const;
-	BOOL inviteToSession(const std::vector<LLUUID>& agent_ids);
+	BOOL inviteToSession(const uuid_vec_t& agent_ids);
 	
 	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
 	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);

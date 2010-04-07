@@ -38,7 +38,7 @@ Versão Vivox: [VIVOX_VERSION]
 	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="Info" name="support_panel">
-			<button label="Copiar para área de transferência" name="copy_btn"/>
+			<button label="Copiar" name="copy_btn"/>
 		</panel>
 		<panel label="Créditos" name="credits_panel">
 			<text_editor name="credits_editor">

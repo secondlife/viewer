@@ -16,7 +16,7 @@
      border_size="0"
      clip="false"
      follows="all"
-     height="168"
+     height="183"
      layout="topleft"
      left="5"
      name="button_stack"
@@ -150,7 +150,7 @@
             <button
              follows="left|top|right"
              height="23"
-             label="Leave Call"
+             label="End Call"
              name="end_call_btn"
              width="100" />
         </layout_panel>

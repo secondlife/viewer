@@ -138,9 +138,14 @@ class LLIMToastNotifyPanel : public LLToastNotifyPanel
 {
 public:
 
-	LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null);
+	LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect = LLRect::null);
+
+	~LLIMToastNotifyPanel();
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
+protected:
+	LLUUID	mSessionID;
 };
 
 #endif /* LLTOASTNOTIFYPANEL_H_ */

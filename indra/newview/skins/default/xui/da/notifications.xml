@@ -228,7 +228,7 @@ Er du sikker på at du vil fortsætte?
 		Cache vil blive tømt ved næste genstart af [APP_NAME].
 	</notification>
 	<notification name="CacheWillBeMoved">
-		Cache vil blive flyttet ved næste genstart af [APP_NAME].
+		Cache vil blive fjernet ved næste genstart af [APP_NAME].
 Note: This will clear the cache.
 	</notification>
 	<notification name="ChangeConnectionPort">

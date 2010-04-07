@@ -3178,7 +3178,7 @@ S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 
 
 // Open a URL with the user's default web browser.
 // Must begin with protocol identifier.
-void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url)
+void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
 {
 	bool found = false;
 	S32 i;

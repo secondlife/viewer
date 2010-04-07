@@ -54,7 +54,7 @@
 #include "llvoicechannel.h"
 #include "llviewerparcelmgr.h"
 
-static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
+static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids);
 void reshape_floater(LLCallFloater* floater, S32 delta_height);
 
 class LLNonAvatarCaller : public LLAvatarListItem
@@ -131,9 +131,7 @@ LLCallFloater::~LLCallFloater()
 	mAvatarListRefreshConnection.disconnect();
 	mVoiceChannelStateChangeConnection.disconnect();
 
-	// Don't use LLVoiceClient::getInstance() here 
-	// singleton MAY have already been destroyed.
-	if(gVoiceClient)
+	if(LLVoiceClient::instanceExists())
 	{
 		gVoiceClient->removeObserver(this);
 	}
@@ -213,9 +211,9 @@ void LLCallFloater::onChange()
 	updateParticipantsVoiceState();
 
 	// Add newly joined participants.
-	std::vector<LLUUID> speakers_uuids;
+	uuid_vec_t speakers_uuids;
 	get_voice_participants_uuids(speakers_uuids);
-	for (std::vector<LLUUID>::const_iterator it = speakers_uuids.begin(); it != speakers_uuids.end(); it++)
+	for (uuid_vec_t::const_iterator it = speakers_uuids.begin(); it != speakers_uuids.end(); it++)
 	{
 		mParticipants->addAvatarIDExceptAgent(*it);
 	}
@@ -469,7 +467,7 @@ void LLCallFloater::updateAgentModeratorState()
 	mAgentPanel->childSetValue("user_text", name);
 }
 
-static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids)
+static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)
 {
 	// Get a list of participants from VoiceClient
 	LLVoiceClient::participantMap *voice_map = gVoiceClient->getParticipantList();
@@ -494,7 +492,7 @@ void LLCallFloater::initParticipantsVoiceState()
 		it_end = items.end();
 
 
-	std::vector<LLUUID> speakers_uuids;
+	uuid_vec_t speakers_uuids;
 	get_voice_participants_uuids(speakers_uuids);
 
 	for(; it != it_end; ++it)
@@ -505,7 +503,7 @@ void LLCallFloater::initParticipantsVoiceState()
 		
 		LLUUID speaker_id = item->getAvatarId();
 
-		std::vector<LLUUID>::const_iterator speaker_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), speaker_id);
+		uuid_vec_t::const_iterator speaker_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), speaker_id);
 
 		// If an avatarID assigned to a panel is found in a speakers list
 		// obtained from VoiceClient we assign the JOINED status to the owner
@@ -534,10 +532,10 @@ void LLCallFloater::initParticipantsVoiceState()
 
 void LLCallFloater::updateParticipantsVoiceState()
 {
-	std::vector<LLUUID> speakers_list;
+	uuid_vec_t speakers_list;
 
 	// Get a list of participants from VoiceClient
-	std::vector<LLUUID> speakers_uuids;
+	uuid_vec_t speakers_uuids;
 	get_voice_participants_uuids(speakers_uuids);
 
 	// Updating the status for each participant already in list.
@@ -555,7 +553,7 @@ void LLCallFloater::updateParticipantsVoiceState()
 		const LLUUID participant_id = item->getAvatarId();
 		bool found = false;
 
-		std::vector<LLUUID>::iterator speakers_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), participant_id);
+		uuid_vec_t::iterator speakers_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), participant_id);
 
 		lldebugs << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << llendl;
 
@@ -665,8 +663,8 @@ void LLCallFloater::setVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 
 bool LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
 {
-	LLAvatarList::uuid_vector_t& speaker_uuids = mAvatarList->getIDs();
-	LLAvatarList::uuid_vector_t::iterator pos = std::find(speaker_uuids.begin(), speaker_uuids.end(), voice_speaker_id);
+	uuid_vec_t& speaker_uuids = mAvatarList->getIDs();
+	uuid_vec_t::iterator pos = std::find(speaker_uuids.begin(), speaker_uuids.end(), voice_speaker_id);
 	if(pos != speaker_uuids.end())
 	{
 		speaker_uuids.erase(pos);
@@ -695,7 +693,7 @@ bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
 	case  VC_LOCAL_CHAT:
 		{
 			// A nearby chat speaker is considered valid it it's known to LLVoiceClient (i.e. has enabled voice).
-			std::vector<LLUUID> speakers;
+			uuid_vec_t speakers;
 			get_voice_participants_uuids(speakers);
 			is_valid = std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
 		}

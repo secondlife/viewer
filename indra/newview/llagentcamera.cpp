@@ -35,50 +35,25 @@
 
 #include "pipeline.h"
 
-#include "llagentlistener.h"
-#include "llagentwearables.h"
-#include "llagentui.h"
+#include "llagent.h"
 #include "llanimationstates.h"
-#include "llbottomtray.h"
-#include "llcallingcard.h"
-#include "llchannelmanager.h"
-#include "llconsole.h"
-//#include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloatercustomize.h"
 #include "llfloaterreg.h"
-#include "llfloatertools.h"
-#include "llgroupactions.h"
-#include "llgroupmgr.h"
-#include "llhomelocationresponder.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
-#include "llmorphview.h"
-#include "llmoveview.h"
-#include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
-#include "llnearbychatbar.h"
-#include "llnotificationsutil.h"
-#include "llparcel.h"
-#include "llsdutil.h"
-#include "llsidetray.h"
-#include "llsky.h"
+#include "llselectmgr.h"
 #include "llsmoothstep.h"
-#include "llstatusbar.h"
-#include "llteleportflags.h"
-#include "lltool.h"
 #include "lltoolmgr.h"
-#include "lltrans.h"
+#include "llviewercamera.h"
 #include "llviewercontrol.h"
-#include "llviewerdisplay.h"
 #include "llviewerjoystick.h"
-#include "llviewermediafocus.h"
 #include "llviewerobjectlist.h"
-#include "llviewerparcelmgr.h"
-#include "llviewerstats.h"
+#include "llviewerregion.h"
+#include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwindow.h"
 #include "llworld.h"
-#include "llworldmap.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -132,6 +107,8 @@ LLAgentCamera gAgentCamera;
 // LLAgentCamera()
 //-----------------------------------------------------------------------------
 LLAgentCamera::LLAgentCamera() :
+	mInitialized(false),
+
 	mDrawDistance( DEFAULT_FAR_PLANE ),
 
 	mLookAt(NULL),
@@ -167,7 +144,7 @@ LLAgentCamera::LLAgentCamera() :
 	mSitCameraEnabled(FALSE),
 	mCameraSmoothingLastPositionGlobal(),
 	mCameraSmoothingLastPositionAgent(),
-	mCameraSmoothingStop(FALSE),
+	mCameraSmoothingStop(false),
 
 	mCameraUpVector(LLVector3::z_axis), // default is straight up
 
@@ -180,6 +157,13 @@ LLAgentCamera::LLAgentCamera() :
 	mFocusDotRadius( 0.1f ),			// meters
 	mTrackFocusObject(TRUE),
 	mUIOffset(0.f),
+
+	mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
+	mWalkKey(0), // like AtKey, but causes less forward thrust
+	mLeftKey(0),
+	mUpKey(0),
+	mYawKey(0.f),
+	mPitchKey(0.f),
 
 	mOrbitLeftKey(0.f),
 	mOrbitRightKey(0.f),
@@ -196,6 +180,10 @@ LLAgentCamera::LLAgentCamera() :
 	mPanOutKey(0.f)
 {
 	mFollowCam.setMaxCameraDistantFromSubject( MAX_CAMERA_DISTANCE_FROM_AGENT );
+
+	clearGeneralKeys();
+	clearOrbitKeys();
+	clearPanKeys();
 }
 
 // Requires gSavedSettings to be initialized.
@@ -233,7 +221,7 @@ void LLAgentCamera::init()
 	mCameraZoomFraction = 1.f;
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
 
-	mInitialized = TRUE;
+	mInitialized = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -372,10 +360,9 @@ void LLAgentCamera::unlockView()
 {
 	if (getFocusOnAvatar())
 	{
-		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-		if (avatarp)
+		if (isAgentAvatarValid())
 		{
-			setFocusGlobal(LLVector3d::zero, avatarp->mID);
+			setFocusGlobal(LLVector3d::zero, gAgentAvatarp->mID);
 		}
 		setFocusOnAvatar(FALSE, FALSE);	// no animation
 	}
@@ -852,7 +839,7 @@ void LLAgentCamera::cameraOrbitAround(const F32 radians)
 	}
 	else if (mFocusOnAvatar && (mCameraMode == CAMERA_MODE_THIRD_PERSON || mCameraMode == CAMERA_MODE_FOLLOW))
 	{
-		gAgent.getFrameAgent().rotate(radians, gAgent.getReferenceUpVector());
+		gAgent.yaw(radians);
 	}
 	else
 	{
@@ -1057,7 +1044,7 @@ void LLAgentCamera::cameraPanLeft(F32 meters)
 	mFocusGlobal = mFocusTargetGlobal;
 
 	// disable smoothing for camera pan, which causes some residents unhappiness
-	mCameraSmoothingStop = TRUE;
+	mCameraSmoothingStop = true;
 	
 	cameraZoomIn(1.f);
 	updateFocusOffset();
@@ -1077,7 +1064,7 @@ void LLAgentCamera::cameraPanUp(F32 meters)
 	mFocusGlobal = mFocusTargetGlobal;
 
 	// disable smoothing for camera pan, which causes some residents unhappiness
-	mCameraSmoothingStop = TRUE;
+	mCameraSmoothingStop = true;
 
 	cameraZoomIn(1.f);
 	updateFocusOffset();
@@ -1092,30 +1079,25 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 {
 	static LLVector3 last_at_axis;
 
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
+	if (!isAgentAvatarValid()) return;
 
-	if (!avatarp)
-	{
-		return;
-	}
-
-	LLQuaternion av_inv_rot = ~avatarp->mRoot.getWorldRotation();
-	LLVector3 root_at = LLVector3::x_axis * avatarp->mRoot.getWorldRotation();
+	LLQuaternion av_inv_rot = ~gAgentAvatarp->mRoot.getWorldRotation();
+	LLVector3 root_at = LLVector3::x_axis * gAgentAvatarp->mRoot.getWorldRotation();
 
 	if 	((gViewerWindow->getMouseVelocityStat()->getCurrent() < 0.01f) &&
 		 (root_at * last_at_axis > 0.95f))
 	{
-		LLVector3 vel = avatarp->getVelocity();
+		LLVector3 vel = gAgentAvatarp->getVelocity();
 		if (vel.magVecSquared() > 4.f)
 		{
-			setLookAt(LOOKAT_TARGET_IDLE, avatarp, vel * av_inv_rot);
+			setLookAt(LOOKAT_TARGET_IDLE, gAgentAvatarp, vel * av_inv_rot);
 		}
 		else
 		{
 			// *FIX: rotate mframeagent by sit object's rotation?
-			LLQuaternion look_rotation = avatarp->isSitting() ? avatarp->getRenderRotation() : gAgent.getFrameAgent().getQuaternion(); // use camera's current rotation
+			LLQuaternion look_rotation = gAgentAvatarp->isSitting() ? gAgentAvatarp->getRenderRotation() : gAgent.getFrameAgent().getQuaternion(); // use camera's current rotation
 			LLVector3 look_offset = LLVector3(2.f, 0.f, 0.f) * look_rotation * av_inv_rot;
-			setLookAt(LOOKAT_TARGET_IDLE, avatarp, look_offset);
+			setLookAt(LOOKAT_TARGET_IDLE, gAgentAvatarp, look_offset);
 		}
 		last_at_axis = root_at;
 		return;
@@ -1125,7 +1107,7 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 	
 	if (CAMERA_MODE_CUSTOMIZE_AVATAR == getCameraMode())
 	{
-		setLookAt(LOOKAT_TARGET_NONE, avatarp, LLVector3(-2.f, 0.f, 0.f));	
+		setLookAt(LOOKAT_TARGET_NONE, gAgentAvatarp, LLVector3(-2.f, 0.f, 0.f));	
 	}
 	else
 	{
@@ -1142,9 +1124,9 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		{
 			// range from -.5 to .5
 			F32 x_from_center = 
-				((F32) mouse_x / (F32) gViewerWindow->getWindowWidthScaled() ) - 0.5f;
+				((F32) mouse_x / (F32) gViewerWindow->getWorldViewWidthScaled() ) - 0.5f;
 			F32 y_from_center = 
-				((F32) mouse_y / (F32) gViewerWindow->getWindowHeightScaled() ) - 0.5f;
+				((F32) mouse_y / (F32) gViewerWindow->getWorldViewHeightScaled() ) - 0.5f;
 
 			frameCamera.yaw( - x_from_center * gSavedSettings.getF32("YawFromMousePosition") * DEG_TO_RAD);
 			frameCamera.pitch( - y_from_center * gSavedSettings.getF32("PitchFromMousePosition") * DEG_TO_RAD);
@@ -1154,7 +1136,7 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		headLookAxis = frameCamera.getAtAxis();
 		// RN: we use world-space offset for mouselook and freelook
 		//headLookAxis = headLookAxis * av_inv_rot;
-		setLookAt(lookAtType, avatarp, headLookAxis);
+		setLookAt(lookAtType, gAgentAvatarp, headLookAxis);
 	}
 }
 
@@ -1175,15 +1157,13 @@ void LLAgentCamera::updateCamera()
 
 	validateFocusObject();
 
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-
-	if (avatarp && 
-		avatarp->isSitting() &&
+	if (isAgentAvatarValid() && 
+		gAgentAvatarp->isSitting() &&
 		camera_mode == CAMERA_MODE_MOUSELOOK)
 	{
 		//Ventrella
 		//changed camera_skyward to the new global "mCameraUpVector"
-		mCameraUpVector = mCameraUpVector * avatarp->getRenderRotation();
+		mCameraUpVector = mCameraUpVector * gAgentAvatarp->getRenderRotation();
 		//end Ventrella
 	}
 
@@ -1212,17 +1192,15 @@ void LLAgentCamera::updateCamera()
 	LLFloaterCamera* camera_floater = LLFloaterReg::findTypedInstance<LLFloaterCamera>("camera");
 	if (camera_floater)
 	{
-		camera_floater->mRotate->setToggleState(
-		mOrbitRightKey > 0.f,	// left
-		mOrbitUpKey > 0.f,		// top
-		mOrbitLeftKey > 0.f,	// right
-		mOrbitDownKey > 0.f);	// bottom
-
-		camera_floater->mTrack->setToggleState(
-		mPanLeftKey > 0.f,		// left
-		mPanUpKey > 0.f,		// top
-		mPanRightKey > 0.f,		// right
-		mPanDownKey > 0.f);		// bottom
+		camera_floater->mRotate->setToggleState(gAgentCamera.getOrbitRightKey() > 0.f,	// left
+												gAgentCamera.getOrbitUpKey() > 0.f,		// top
+												gAgentCamera.getOrbitLeftKey() > 0.f,	// right
+												gAgentCamera.getOrbitDownKey() > 0.f);	// bottom
+		
+		camera_floater->mTrack->setToggleState(gAgentCamera.getPanLeftKey() > 0.f,		// left
+											   gAgentCamera.getPanUpKey() > 0.f,			// top
+											   gAgentCamera.getPanRightKey() > 0.f,		// right
+											   gAgentCamera.getPanDownKey() > 0.f);		// bottom
 	}
 
 	// Handle camera movement based on keyboard.
@@ -1230,21 +1208,21 @@ void LLAgentCamera::updateCamera()
 	const F32 ORBIT_AROUND_RATE = 90.f * DEG_TO_RAD;		// radians per second
 	const F32 PAN_RATE = 5.f;								// meters per second
 
-	if( mOrbitUpKey || mOrbitDownKey )
+	if (gAgentCamera.getOrbitUpKey() || gAgentCamera.getOrbitDownKey())
 	{
-		F32 input_rate = mOrbitUpKey - mOrbitDownKey;
+		F32 input_rate = gAgentCamera.getOrbitUpKey() - gAgentCamera.getOrbitDownKey();
 		cameraOrbitOver( input_rate * ORBIT_OVER_RATE / gFPSClamped );
 	}
 
-	if( mOrbitLeftKey || mOrbitRightKey)
+	if (gAgentCamera.getOrbitLeftKey() || gAgentCamera.getOrbitRightKey())
 	{
-		F32 input_rate = mOrbitLeftKey - mOrbitRightKey;
-		cameraOrbitAround( input_rate * ORBIT_AROUND_RATE / gFPSClamped );
+		F32 input_rate = gAgentCamera.getOrbitLeftKey() - gAgentCamera.getOrbitRightKey();
+		cameraOrbitAround(input_rate * ORBIT_AROUND_RATE / gFPSClamped);
 	}
 
-	if( mOrbitInKey || mOrbitOutKey )
+	if (gAgentCamera.getOrbitInKey() || gAgentCamera.getOrbitOutKey())
 	{
-		F32 input_rate = mOrbitInKey - mOrbitOutKey;
+		F32 input_rate = gAgentCamera.getOrbitInKey() - gAgentCamera.getOrbitOutKey();
 		
 		LLVector3d to_focus = gAgent.getPosGlobalFromAgent(LLViewerCamera::getInstance()->getOrigin()) - calcFocusPositionTargetGlobal();
 		F32 distance_to_focus = (F32)to_focus.magVec();
@@ -1252,38 +1230,27 @@ void LLAgentCamera::updateCamera()
 		cameraOrbitIn( input_rate * distance_to_focus / gFPSClamped );
 	}
 
-	if( mPanInKey || mPanOutKey )
+	if (gAgentCamera.getPanInKey() || gAgentCamera.getPanOutKey())
 	{
-		F32 input_rate = mPanInKey - mPanOutKey;
-		cameraPanIn( input_rate * PAN_RATE / gFPSClamped );
+		F32 input_rate = gAgentCamera.getPanInKey() - gAgentCamera.getPanOutKey();
+		cameraPanIn(input_rate * PAN_RATE / gFPSClamped);
 	}
 
-	if( mPanRightKey || mPanLeftKey )
+	if (gAgentCamera.getPanRightKey() || gAgentCamera.getPanLeftKey())
 	{
-		F32 input_rate = mPanRightKey - mPanLeftKey;
-		cameraPanLeft( input_rate * -PAN_RATE / gFPSClamped );
+		F32 input_rate = gAgentCamera.getPanRightKey() - gAgentCamera.getPanLeftKey();
+		cameraPanLeft(input_rate * -PAN_RATE / gFPSClamped );
 	}
 
-	if( mPanUpKey || mPanDownKey )
+	if (gAgentCamera.getPanUpKey() || gAgentCamera.getPanDownKey())
 	{
-		F32 input_rate = mPanUpKey - mPanDownKey;
-		cameraPanUp( input_rate * PAN_RATE / gFPSClamped );
+		F32 input_rate = gAgentCamera.getPanUpKey() - gAgentCamera.getPanDownKey();
+		cameraPanUp(input_rate * PAN_RATE / gFPSClamped );
 	}
 
 	// Clear camera keyboard keys.
-	mOrbitLeftKey		= 0.f;
-	mOrbitRightKey		= 0.f;
-	mOrbitUpKey			= 0.f;
-	mOrbitDownKey		= 0.f;
-	mOrbitInKey			= 0.f;
-	mOrbitOutKey		= 0.f;
-
-	mPanRightKey		= 0.f;
-	mPanLeftKey			= 0.f;
-	mPanUpKey			= 0.f;
-	mPanDownKey			= 0.f;
-	mPanInKey			= 0.f;
-	mPanOutKey			= 0.f;
+	gAgentCamera.clearOrbitKeys();
+	gAgentCamera.clearPanKeys();
 
 	// lerp camera focus offset
 	mCameraFocusOffset = lerp(mCameraFocusOffset, mCameraFocusOffsetTarget, LLCriticalDamp::getInterpolant(CAMERA_FOCUS_HALF_LIFE));
@@ -1291,7 +1258,7 @@ void LLAgentCamera::updateCamera()
 	//Ventrella
 	if ( mCameraMode == CAMERA_MODE_FOLLOW )
 	{
-		if (avatarp)
+		if (isAgentAvatarValid())
 		{
 			//--------------------------------------------------------------------------------
 			// this is where the avatar's position and rotation are given to followCam, and 
@@ -1299,13 +1266,13 @@ void LLAgentCamera::updateCamera()
 			// (2) focus, and (3) upvector. They can then be queried elsewhere in llAgent.
 			//--------------------------------------------------------------------------------
 			// *TODO: use combined rotation of frameagent and sit object
-			LLQuaternion avatarRotationForFollowCam = avatarp->isSitting() ? avatarp->getRenderRotation() : gAgent.getFrameAgent().getQuaternion();
+			LLQuaternion avatarRotationForFollowCam = gAgentAvatarp->isSitting() ? gAgentAvatarp->getRenderRotation() : gAgent.getFrameAgent().getQuaternion();
 
 			LLFollowCamParams* current_cam = LLFollowCamMgr::getActiveFollowCamParams();
 			if (current_cam)
 			{
 				mFollowCam.copyParams(*current_cam);
-				mFollowCam.setSubjectPositionAndRotation( avatarp->getRenderPosition(), avatarRotationForFollowCam );
+				mFollowCam.setSubjectPositionAndRotation( gAgentAvatarp->getRenderPosition(), avatarRotationForFollowCam );
 				mFollowCam.update();
 				LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
 			}
@@ -1380,9 +1347,9 @@ void LLAgentCamera::updateCamera()
 			gAgent.setShowAvatar(TRUE);
 		}
 
-		if (avatarp && (mCameraMode != CAMERA_MODE_MOUSELOOK))
+		if (isAgentAvatarValid() && (mCameraMode != CAMERA_MODE_MOUSELOOK))
 		{
-			avatarp->updateAttachmentVisibility(mCameraMode);
+			gAgentAvatarp->updateAttachmentVisibility(mCameraMode);
 		}
 	}
 	else 
@@ -1399,7 +1366,8 @@ void LLAgentCamera::updateCamera()
 		LLVector3d camera_pos_agent = camera_pos_global - agent_pos;
 		// Sitting on what you're manipulating can cause camera jitter with smoothing. 
 		// This turns off smoothing while editing. -MG
-		mCameraSmoothingStop |= (BOOL)LLToolMgr::getInstance()->inBuildMode();
+		bool in_build_mode = LLToolMgr::getInstance()->inBuildMode();
+		mCameraSmoothingStop = mCameraSmoothingStop || in_build_mode;
 		
 		if (cameraThirdPerson() && !mCameraSmoothingStop)
 		{
@@ -1431,7 +1399,7 @@ void LLAgentCamera::updateCamera()
 								 
 		mCameraSmoothingLastPositionGlobal = camera_pos_global;
 		mCameraSmoothingLastPositionAgent = camera_pos_agent;
-		mCameraSmoothingStop = FALSE;
+		mCameraSmoothingStop = false;
 	}
 
 	
@@ -1480,40 +1448,40 @@ void LLAgentCamera::updateCamera()
 	}
 	gAgent.setLastPositionGlobal(global_pos);
 	
-	if (LLVOAvatar::sVisibleInFirstPerson && avatarp && !avatarp->isSitting() && cameraMouselook())
+	if (LLVOAvatar::sVisibleInFirstPerson && isAgentAvatarValid() && !gAgentAvatarp->isSitting() && cameraMouselook())
 	{
-		LLVector3 head_pos = avatarp->mHeadp->getWorldPosition() + 
-			LLVector3(0.08f, 0.f, 0.05f) * avatarp->mHeadp->getWorldRotation() + 
-			LLVector3(0.1f, 0.f, 0.f) * avatarp->mPelvisp->getWorldRotation();
+		LLVector3 head_pos = gAgentAvatarp->mHeadp->getWorldPosition() + 
+			LLVector3(0.08f, 0.f, 0.05f) * gAgentAvatarp->mHeadp->getWorldRotation() + 
+			LLVector3(0.1f, 0.f, 0.f) * gAgentAvatarp->mPelvisp->getWorldRotation();
 		LLVector3 diff = mCameraPositionAgent - head_pos;
-		diff = diff * ~avatarp->mRoot.getWorldRotation();
+		diff = diff * ~gAgentAvatarp->mRoot.getWorldRotation();
 
-		LLJoint* torso_joint = avatarp->mTorsop;
-		LLJoint* chest_joint = avatarp->mChestp;
+		LLJoint* torso_joint = gAgentAvatarp->mTorsop;
+		LLJoint* chest_joint = gAgentAvatarp->mChestp;
 		LLVector3 torso_scale = torso_joint->getScale();
 		LLVector3 chest_scale = chest_joint->getScale();
 
 		// shorten avatar skeleton to avoid foot interpenetration
-		if (!avatarp->mInAir)
+		if (!gAgentAvatarp->mInAir)
 		{
 			LLVector3 chest_offset = LLVector3(0.f, 0.f, chest_joint->getPosition().mV[VZ]) * torso_joint->getWorldRotation();
 			F32 z_compensate = llclamp(-diff.mV[VZ], -0.2f, 1.f);
 			F32 scale_factor = llclamp(1.f - ((z_compensate * 0.5f) / chest_offset.mV[VZ]), 0.5f, 1.2f);
 			torso_joint->setScale(LLVector3(1.f, 1.f, scale_factor));
 
-			LLJoint* neck_joint = avatarp->mNeckp;
+			LLJoint* neck_joint = gAgentAvatarp->mNeckp;
 			LLVector3 neck_offset = LLVector3(0.f, 0.f, neck_joint->getPosition().mV[VZ]) * chest_joint->getWorldRotation();
 			scale_factor = llclamp(1.f - ((z_compensate * 0.5f) / neck_offset.mV[VZ]), 0.5f, 1.2f);
 			chest_joint->setScale(LLVector3(1.f, 1.f, scale_factor));
 			diff.mV[VZ] = 0.f;
 		}
 
-		avatarp->mPelvisp->setPosition(avatarp->mPelvisp->getPosition() + diff);
+		gAgentAvatarp->mPelvisp->setPosition(gAgentAvatarp->mPelvisp->getPosition() + diff);
 
-		avatarp->mRoot.updateWorldMatrixChildren();
+		gAgentAvatarp->mRoot.updateWorldMatrixChildren();
 
-		for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
-			 iter != avatarp->mAttachmentPoints.end(); )
+		for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+			 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 		{
 			LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 			LLViewerJointAttachment* attachment = curiter->second;
@@ -1535,6 +1503,11 @@ void LLAgentCamera::updateCamera()
 		torso_joint->setScale(torso_scale);
 		chest_joint->setScale(chest_scale);
 	}
+}
+
+void LLAgentCamera::updateLastCamera()
+{
+	mLastCameraMode = mCameraMode;
 }
 
 void LLAgentCamera::updateFocusOffset()
@@ -1600,8 +1573,6 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
 		clearFocusObject();
 	}
 
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-
 	// Ventrella
 	if (mCameraMode == CAMERA_MODE_FOLLOW && mFocusOnAvatar)
 	{
@@ -1612,12 +1583,12 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
 	{
 		LLVector3d at_axis(1.0, 0.0, 0.0);
 		LLQuaternion agent_rot = gAgent.getFrameAgent().getQuaternion();
-		if (avatarp && avatarp->getParent())
+		if (isAgentAvatarValid() && gAgentAvatarp->getParent())
 		{
-			LLViewerObject* root_object = (LLViewerObject*)avatarp->getRoot();
+			LLViewerObject* root_object = (LLViewerObject*)gAgentAvatarp->getRoot();
 			if (!root_object->flagCameraDecoupled())
 			{
-				agent_rot *= ((LLViewerObject*)(avatarp->getParent()))->getRenderRotation();
+				agent_rot *= ((LLViewerObject*)(gAgentAvatarp->getParent()))->getRenderRotation();
 			}
 		}
 		at_axis = at_axis * agent_rot;
@@ -1667,7 +1638,7 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
 		}
 		return mFocusTargetGlobal;
 	}
-	else if (mSitCameraEnabled && avatarp && avatarp->isSitting() && mSitCameraReferenceObject.notNull())
+	else if (mSitCameraEnabled && isAgentAvatarValid() && gAgentAvatarp->isSitting() && mSitCameraReferenceObject.notNull())
 	{
 		// sit camera
 		LLVector3 object_pos = mSitCameraReferenceObject->getRenderPosition();
@@ -1686,12 +1657,10 @@ LLVector3d LLAgentCamera::calcThirdPersonFocusOffset()
 {
 	// ...offset from avatar
 	LLVector3d focus_offset;
-
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 	LLQuaternion agent_rot = gAgent.getFrameAgent().getQuaternion();
-	if (avatarp && avatarp->getParent())
+	if (isAgentAvatarValid() && gAgentAvatarp->getParent())
 	{
-		agent_rot *= ((LLViewerObject*)(avatarp->getParent()))->getRenderRotation();
+		agent_rot *= ((LLViewerObject*)(gAgentAvatarp->getParent()))->getRenderRotation();
 	}
 
 	focus_offset = mFocusOffsetInitial[mCameraPreset] * agent_rot;
@@ -1700,12 +1669,10 @@ LLVector3d LLAgentCamera::calcThirdPersonFocusOffset()
 
 void LLAgentCamera::setupSitCamera()
 {
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-
 	// agent frame entering this function is in world coordinates
-	if (avatarp && avatarp->getParent())
+	if (isAgentAvatarValid() && gAgentAvatarp->getParent())
 	{
-		LLQuaternion parent_rot = ((LLViewerObject*)avatarp->getParent())->getRenderRotation();
+		LLQuaternion parent_rot = ((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation();
 		// slam agent coordinate frame to proper parent local version
 		LLVector3 at_axis = gAgent.getFrameAgent().getAtAxis();
 		at_axis.mV[VZ] = 0.f;
@@ -1768,13 +1735,11 @@ F32	LLAgentCamera::calcCameraFOVZoomFactor()
 //-----------------------------------------------------------------------------
 LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 {
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-
 	// Compute base camera position and look-at points.
 	F32			camera_land_height;
-	LLVector3d	frame_center_global = !avatarp ? 
+	LLVector3d	frame_center_global = !isAgentAvatarValid() ? 
 		gAgent.getPositionGlobal() :
-		gAgent.getPosGlobalFromAgent(avatarp->mRoot.getWorldPosition());
+		gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot.getWorldPosition());
 	
 	BOOL		isConstrained = FALSE;
 	LLVector3d	head_offset;
@@ -1789,32 +1754,32 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 	}// End Ventrella
 	else if (mCameraMode == CAMERA_MODE_MOUSELOOK)
 	{
-		if (!avatarp || avatarp->mDrawable.isNull())
+		if (!isAgentAvatarValid() || gAgentAvatarp->mDrawable.isNull())
 		{
 			llwarns << "Null avatar drawable!" << llendl;
 			return LLVector3d::zero;
 		}
 		head_offset.clearVec();
-		if (avatarp->isSitting() && avatarp->getParent())
+		if (gAgentAvatarp->isSitting() && gAgentAvatarp->getParent())
 		{
-			avatarp->updateHeadOffset();
-			head_offset.mdV[VX] = avatarp->mHeadOffset.mV[VX];
-			head_offset.mdV[VY] = avatarp->mHeadOffset.mV[VY];
-			head_offset.mdV[VZ] = avatarp->mHeadOffset.mV[VZ] + 0.1f;
-			const LLMatrix4& mat = ((LLViewerObject*) avatarp->getParent())->getRenderMatrix();
+			gAgentAvatarp->updateHeadOffset();
+			head_offset.mdV[VX] = gAgentAvatarp->mHeadOffset.mV[VX];
+			head_offset.mdV[VY] = gAgentAvatarp->mHeadOffset.mV[VY];
+			head_offset.mdV[VZ] = gAgentAvatarp->mHeadOffset.mV[VZ] + 0.1f;
+			const LLMatrix4& mat = ((LLViewerObject*) gAgentAvatarp->getParent())->getRenderMatrix();
 			camera_position_global = gAgent.getPosGlobalFromAgent
-								((avatarp->getPosition()+
-								 LLVector3(head_offset)*avatarp->getRotation()) * mat);
+								((gAgentAvatarp->getPosition()+
+								 LLVector3(head_offset)*gAgentAvatarp->getRotation()) * mat);
 		}
 		else
 		{
-			head_offset.mdV[VZ] = avatarp->mHeadOffset.mV[VZ];
-			if (avatarp->isSitting())
+			head_offset.mdV[VZ] = gAgentAvatarp->mHeadOffset.mV[VZ];
+			if (gAgentAvatarp->isSitting())
 			{
 				head_offset.mdV[VZ] += 0.1;
 			}
-			camera_position_global = gAgent.getPosGlobalFromAgent(avatarp->getRenderPosition());//frame_center_global;
-			head_offset = head_offset * avatarp->getRenderRotation();
+			camera_position_global = gAgent.getPosGlobalFromAgent(gAgentAvatarp->getRenderPosition());//frame_center_global;
+			head_offset = head_offset * gAgentAvatarp->getRenderRotation();
 			camera_position_global = camera_position_global + head_offset;
 		}
 	}
@@ -1824,8 +1789,8 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		F32 camera_distance = 0.f;
 
 		if (mSitCameraEnabled 
-			&& avatarp 
-			&& avatarp->isSitting() 
+			&& isAgentAvatarValid() 
+			&& gAgentAvatarp->isSitting() 
 			&& mSitCameraReferenceObject.notNull())
 		{
 			// sit camera
@@ -1841,9 +1806,9 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			local_camera_offset = mCameraZoomFraction * getCameraOffsetInitial() * gSavedSettings.getF32("CameraOffsetScale");
 			
 			// are we sitting down?
-			if (avatarp && avatarp->getParent())
+			if (isAgentAvatarValid() && gAgentAvatarp->getParent())
 			{
-				LLQuaternion parent_rot = ((LLViewerObject*)avatarp->getParent())->getRenderRotation();
+				LLQuaternion parent_rot = ((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation();
 				// slam agent coordinate frame to proper parent local version
 				LLVector3 at_axis = gAgent.getFrameAgent().getAtAxis() * parent_rot;
 				at_axis.mV[VZ] = 0.f;
@@ -1857,7 +1822,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				local_camera_offset = gAgent.getFrameAgent().rotateToAbsolute( local_camera_offset );
 			}
 
-			if (!mCameraCollidePlane.isExactlyZero() && (!avatarp || !avatarp->isSitting()))
+			if (!mCameraCollidePlane.isExactlyZero() && (!isAgentAvatarValid() || !gAgentAvatarp->isSitting()))
 			{
 				LLVector3 plane_normal;
 				plane_normal.setVec(mCameraCollidePlane.mV);
@@ -1910,11 +1875,11 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 			// set the global camera position
 			LLVector3d camera_offset;
 			
-			LLVector3 av_pos = !avatarp ? LLVector3::zero : avatarp->getRenderPosition();
+			LLVector3 av_pos = !isAgentAvatarValid() ? LLVector3::zero : gAgentAvatarp->getRenderPosition();
 			camera_offset.setVec( local_camera_offset );
 			camera_position_global = frame_center_global + head_offset + camera_offset;
 
-			if (avatarp)
+			if (isAgentAvatarValid())
 			{
 				LLVector3d camera_lag_d;
 				F32 lag_interp = LLCriticalDamp::getInterpolant(CAMERA_LAG_HALF_LIFE);
@@ -1922,8 +1887,8 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				LLVector3 vel = gAgent.getVelocity();
 
 				// lag by appropriate amount for flying
-				F32 time_in_air = avatarp->mTimeInAir.getElapsedTimeF32();
-				if(!mCameraAnimating && avatarp->mInAir && time_in_air > GROUND_TO_AIR_CAMERA_TRANSITION_START_TIME)
+				F32 time_in_air = gAgentAvatarp->mTimeInAir.getElapsedTimeF32();
+				if(!mCameraAnimating && gAgentAvatarp->mInAir && time_in_air > GROUND_TO_AIR_CAMERA_TRANSITION_START_TIME)
 				{
 					LLVector3 frame_at_axis = gAgent.getFrameAgent().getAtAxis();
 					frame_at_axis -= projected_vec(frame_at_axis, gAgent.getReferenceUpVector());
@@ -1935,7 +1900,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 					lag_interp *= u;
 
-					if (gViewerWindow->getLeftMouseDown() && gViewerWindow->getLastPick().mObjectID == avatarp->getID())
+					if (gViewerWindow->getLeftMouseDown() && gViewerWindow->getLastPick().mObjectID == gAgentAvatarp->getID())
 					{
 						// disable camera lag when using mouse-directed steering
 						target_lag.clearVec();
@@ -2136,8 +2101,6 @@ void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 		return;
 	}
 
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-
 	// visibility changes at end of animation
 	gViewerWindow->getWindow()->resetBusyCount();
 
@@ -2146,10 +2109,10 @@ void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 
 	LLToolMgr::getInstance()->setCurrentToolset(gMouselookToolset);
 
-	if (avatarp)
+	if (isAgentAvatarValid())
 	{
-		avatarp->stopMotion(ANIM_AGENT_BODY_NOISE);
-		avatarp->stopMotion(ANIM_AGENT_BREATHE_ROT);
+		gAgentAvatarp->stopMotion(ANIM_AGENT_BODY_NOISE);
+		gAgentAvatarp->stopMotion(ANIM_AGENT_BREATHE_ROT);
 	}
 
 	//gViewerWindow->stopGrab();
@@ -2161,7 +2124,7 @@ void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 	{
 		gFocusMgr.setKeyboardFocus(NULL);
 		
-		mLastCameraMode = mCameraMode;
+		updateLastCamera();
 		mCameraMode = CAMERA_MODE_MOUSELOOK;
 		const U32 old_flags = gAgent.getControlFlags();
 		gAgent.setControlFlags(AGENT_CONTROL_MOUSELOOK);
@@ -2223,7 +2186,7 @@ void LLAgentCamera::changeCameraToFollow(BOOL animate)
 		}
 		startCameraAnimation();
 
-		mLastCameraMode = mCameraMode;
+		updateLastCamera();
 		mCameraMode = CAMERA_MODE_FOLLOW;
 
 		// bang-in the current focus, position, and up vector of the follow cam
@@ -2234,12 +2197,11 @@ void LLAgentCamera::changeCameraToFollow(BOOL animate)
 			LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 		}
 
-		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-		if (avatarp)
+		if (isAgentAvatarValid())
 		{
-			avatarp->mPelvisp->setPosition(LLVector3::zero);
-			avatarp->startMotion( ANIM_AGENT_BODY_NOISE );
-			avatarp->startMotion( ANIM_AGENT_BREATHE_ROT );
+			gAgentAvatarp->mPelvisp->setPosition(LLVector3::zero);
+			gAgentAvatarp->startMotion( ANIM_AGENT_BODY_NOISE );
+			gAgentAvatarp->startMotion( ANIM_AGENT_BREATHE_ROT );
 		}
 
 		// unpause avatar animation
@@ -2278,15 +2240,14 @@ void LLAgentCamera::changeCameraToThirdPerson(BOOL animate)
 
 	mCameraZoomFraction = INITIAL_ZOOM_FRACTION;
 
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-	if (avatarp)
+	if (isAgentAvatarValid())
 	{
-		if (!avatarp->isSitting())
+		if (!gAgentAvatarp->isSitting())
 		{
-			avatarp->mPelvisp->setPosition(LLVector3::zero);
+			gAgentAvatarp->mPelvisp->setPosition(LLVector3::zero);
 		}
-		avatarp->startMotion(ANIM_AGENT_BODY_NOISE);
-		avatarp->startMotion(ANIM_AGENT_BREATHE_ROT);
+		gAgentAvatarp->startMotion(ANIM_AGENT_BODY_NOISE);
+		gAgentAvatarp->startMotion(ANIM_AGENT_BREATHE_ROT);
 	}
 
 	LLVector3 at_axis;
@@ -2308,7 +2269,7 @@ void LLAgentCamera::changeCameraToThirdPerson(BOOL animate)
 			mTargetCameraDistance = MIN_CAMERA_DISTANCE;
 			animate = FALSE;
 		}
-		mLastCameraMode = mCameraMode;
+		updateLastCamera();
 		mCameraMode = CAMERA_MODE_THIRD_PERSON;
 		const U32 old_flags = gAgent.getControlFlags();
 		gAgent.clearControlFlags(AGENT_CONTROL_MOUSELOOK);
@@ -2320,9 +2281,9 @@ void LLAgentCamera::changeCameraToThirdPerson(BOOL animate)
 	}
 
 	// Remove any pitch from the avatar
-	if (avatarp && avatarp->getParent())
+	if (isAgentAvatarValid() && gAgentAvatarp->getParent())
 	{
-		LLQuaternion obj_rot = ((LLViewerObject*)avatarp->getParent())->getRenderRotation();
+		LLQuaternion obj_rot = ((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation();
 		at_axis = LLViewerCamera::getInstance()->getAtAxis();
 		at_axis.mV[VZ] = 0.f;
 		at_axis.normalize();
@@ -2379,7 +2340,7 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 
 	if (mCameraMode != CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
-		mLastCameraMode = mCameraMode;
+		updateLastCamera();
 		mCameraMode = CAMERA_MODE_CUSTOMIZE_AVATAR;
 		const U32 old_flags = gAgent.getControlFlags();
 		gAgent.clearControlFlags(AGENT_CONTROL_MOUSELOOK);
@@ -2394,8 +2355,7 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 		LLVOAvatarSelf::onCustomizeStart();
 	}
 
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-	if (avatarp)
+	if (isAgentAvatarValid())
 	{
 		if(avatar_animate)
 		{
@@ -2407,8 +2367,8 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 
 			gAgent.sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
 			gAgent.setCustomAnim(TRUE);
-			avatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
-			LLMotion* turn_motion = avatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
+			gAgentAvatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
+			LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
 
 			if (turn_motion)
 			{
@@ -2511,16 +2471,15 @@ void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object
 	setFocusObject(gObjectList.findObject(object_id));
 	LLVector3d old_focus = mFocusTargetGlobal;
 	LLViewerObject *focus_obj = mFocusObject;
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 
 	// if focus has changed
 	if (old_focus != focus)
 	{
 		if (focus.isExactlyZero())
 		{
-			if (avatarp)
+			if (isAgentAvatarValid())
 			{
-				mFocusTargetGlobal = gAgent.getPosGlobalFromAgent(avatarp->mHeadp->getWorldPosition());
+				mFocusTargetGlobal = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mHeadp->getWorldPosition());
 			}
 			else
 			{
@@ -2563,9 +2522,9 @@ void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object
 	{
 		if (focus.isExactlyZero())
 		{
-			if (avatarp)
+			if (isAgentAvatarValid())
 			{
-				mFocusTargetGlobal = gAgent.getPosGlobalFromAgent(avatarp->mHeadp->getWorldPosition());
+				mFocusTargetGlobal = gAgent.getPosGlobalFromAgent(gAgentAvatarp->mHeadp->getWorldPosition());
 			}
 			else
 			{
@@ -2702,10 +2661,9 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 		if (mCameraMode == CAMERA_MODE_THIRD_PERSON)
 		{
 			LLVector3 at_axis;
-			LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-			if (avatarp && avatarp->getParent())
+			if (isAgentAvatarValid() && gAgentAvatarp->getParent())
 			{
-				LLQuaternion obj_rot = ((LLViewerObject*)avatarp->getParent())->getRenderRotation();
+				LLQuaternion obj_rot = ((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation();
 				at_axis = LLViewerCamera::getInstance()->getAtAxis();
 				at_axis.mV[VZ] = 0.f;
 				at_axis.normalize();
@@ -2733,16 +2691,15 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 
 BOOL LLAgentCamera::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position)
 {
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 	if(object && object->isAttachment())
 	{
 		LLViewerObject* parent = object;
 		while(parent)
 		{
-			if (parent == avatarp)
+			if (parent == gAgentAvatarp)
 			{
 				// looking at an attachment on ourselves, which we don't want to do
-				object = avatarp;
+				object = gAgentAvatarp;
 				position.clearVec();
 			}
 			parent = (LLViewerObject*)parent->getParent();
@@ -2751,7 +2708,7 @@ BOOL LLAgentCamera::setLookAt(ELookAtType target_type, LLViewerObject *object, L
 	if(!mLookAt || mLookAt->isDead())
 	{
 		mLookAt = (LLHUDEffectLookAt *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_LOOKAT);
-		mLookAt->setSourceObject(avatarp);
+		mLookAt->setSourceObject(gAgentAvatarp);
 	}
 
 	return mLookAt->setLookAt(target_type, object, position);
@@ -2774,14 +2731,13 @@ void LLAgentCamera::lookAtLastChat()
 		return;
 	}
 
-	LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
 	LLVector3 delta_pos;
 	if (chatter->isAvatar())
 	{
 		LLVOAvatar *chatter_av = (LLVOAvatar*)chatter;
-		if (avatarp && chatter_av->mHeadp)
+		if (isAgentAvatarValid() && chatter_av->mHeadp)
 		{
-			delta_pos = chatter_av->mHeadp->getWorldPosition() - avatarp->mHeadp->getWorldPosition();
+			delta_pos = chatter_av->mHeadp->getWorldPosition() - gAgentAvatarp->mHeadp->getWorldPosition();
 		}
 		else
 		{
@@ -2793,7 +2749,7 @@ void LLAgentCamera::lookAtLastChat()
 
 		changeCameraToThirdPerson();
 
-		LLVector3 new_camera_pos = avatarp->mHeadp->getWorldPosition();
+		LLVector3 new_camera_pos = gAgentAvatarp->mHeadp->getWorldPosition();
 		LLVector3 left = delta_pos % LLVector3::z_axis;
 		left.normalize();
 		LLVector3 up = left % delta_pos;
@@ -2822,7 +2778,7 @@ void LLAgentCamera::lookAtLastChat()
 
 		changeCameraToThirdPerson();
 
-		LLVector3 new_camera_pos = avatarp->mHeadp->getWorldPosition();
+		LLVector3 new_camera_pos = gAgentAvatarp->mHeadp->getWorldPosition();
 		LLVector3 left = delta_pos % LLVector3::z_axis;
 		left.normalize();
 		LLVector3 up = left % delta_pos;
@@ -2847,8 +2803,7 @@ BOOL LLAgentCamera::setPointAt(EPointAtType target_type, LLViewerObject *object,
 	if (!mPointAt || mPointAt->isDead())
 	{
 		mPointAt = (LLHUDEffectPointAt *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINTAT);
-		LLVOAvatarSelf *avatarp = gAgent.getAvatarObject();
-		mPointAt->setSourceObject(avatarp);
+		mPointAt->setSourceObject(gAgentAvatarp);
 	}
 	return mPointAt->setPointAt(target_type, object, position);
 }
@@ -2870,6 +2825,45 @@ EPointAtType LLAgentCamera::getPointAtType()
 	}
 	return POINTAT_TARGET_NONE;
 }
+
+void LLAgentCamera::clearGeneralKeys()
+{
+	mAtKey 				= 0;
+	mWalkKey 			= 0;
+	mLeftKey 			= 0;
+	mUpKey 				= 0;
+	mYawKey 			= 0.f;
+	mPitchKey 			= 0.f;
+}
+
+void LLAgentCamera::clearOrbitKeys()
+{
+	mOrbitLeftKey		= 0.f;
+	mOrbitRightKey		= 0.f;
+	mOrbitUpKey			= 0.f;
+	mOrbitDownKey		= 0.f;
+	mOrbitInKey			= 0.f;
+	mOrbitOutKey		= 0.f;
+}
+
+void LLAgentCamera::clearPanKeys()
+{
+	mPanRightKey		= 0.f;
+	mPanLeftKey			= 0.f;
+	mPanUpKey			= 0.f;
+	mPanDownKey			= 0.f;
+	mPanInKey			= 0.f;
+	mPanOutKey			= 0.f;
+}
+
+// static
+S32 LLAgentCamera::directionToKey(S32 direction)
+{
+	if (direction > 0) return 1;
+	if (direction < 0) return -1;
+	return 0;
+}
+
 
 // EOF
 

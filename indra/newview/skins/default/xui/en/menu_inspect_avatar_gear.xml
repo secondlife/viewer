@@ -40,6 +40,8 @@
    name="teleport">
     <menu_item_call.on_click
      function="InspectAvatar.Teleport"/>
+    <menu_item_call.on_enable
+     function="InspectAvatar.Gear.EnableTeleportOffer"/>
   </menu_item_call>
   <menu_item_call
    label="Invite to Group"

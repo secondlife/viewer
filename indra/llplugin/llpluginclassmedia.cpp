@@ -993,6 +993,13 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mClickTargetType = TARGET_NONE;
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_CLICK_LINK_NOFOLLOW);
 		}
+		else if(message_name == "cookie_set")
+		{
+			if(mOwner)
+			{
+				mOwner->handleCookieSet(this, message.getValue("cookie"));
+			}
+		}
 		else
 		{
 			LL_WARNS("Plugin") << "Unknown " << message_name << " class message: " << message_name << LL_ENDL;
@@ -1073,6 +1080,13 @@ void LLPluginClassMedia::clear_cache()
 void LLPluginClassMedia::clear_cookies()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "clear_cookies");
+	sendMessage(message);
+}
+
+void LLPluginClassMedia::set_cookies(const std::string &cookies)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "set_cookies");
+	message.setValue("cookies", cookies);	
 	sendMessage(message);
 }
 

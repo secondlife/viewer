@@ -2,7 +2,7 @@
 <panel name="edit_shoes_panel">
 	<panel name="avatar_shoes_color_panel">
 		<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image"/>
-		<color_swatch label="Couleur/Teinte" name="Color/Tint" width="80" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs"/>
+		<color_swatch label="Coul./Teinte" name="Color/Tint" width="80" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs"/>
 	</panel>
 	<accordion name="wearable_accordion">
 		<accordion_tab name="shoes_main_tab" title="Chaussures"/>

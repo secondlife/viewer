@@ -408,6 +408,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, vo
 {
 	lldebugs << "LLAssetStorage::getAssetData() - " << uuid << "," << LLAssetType::lookup(type) << llendl;
 
+	llinfos << "ASSET_TRACE requesting " << uuid << " type " << LLAssetType::lookup(type) << llendl;
+
 	if (mShutDown)
 	{
 		return; // don't get the asset or do any callbacks, we are shutting down
@@ -471,6 +473,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, vo
 		// we've already got the file
 		// theoretically, partial files w/o a pending request shouldn't happen
 		// unless there's a weird error
+		llinfos << "ASSET_TRACE asset " << uuid << " found in VFS" << llendl;
+
 		if (callback)
 		{
 			callback(mVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
@@ -528,6 +532,8 @@ void LLAssetStorage::downloadCompleteCallback(
 	LLAssetType::EType file_type,
 	void* user_data, LLExtStat ext_status)
 {
+	llinfos << "ASSET_TRACE asset " << file_id << " downloadCompleteCallback" << llendl;
+
 	lldebugs << "LLAssetStorage::downloadCompleteCallback() for " << file_id
 		 << "," << LLAssetType::lookup(file_type) << llendl;
 	LLAssetRequest* req = (LLAssetRequest*)user_data;

@@ -4,7 +4,7 @@
 		<panel label="Cycle du jour" name="Day Cycle">
 			<button label="?" name="WLDayCycleHelp" />
 			<text name="WL12am">
-				Minuit
+				Min.
 			</text>
 			<text name="WL3am">
 				3h
@@ -28,7 +28,7 @@
 				21h
 			</text>
 			<text name="WL12am2">
-				Minuit
+				Min.
 			</text>
 			<text name="WL12amHash">
 				|

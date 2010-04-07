@@ -45,6 +45,7 @@
 #include "lltrans.h"
 #include "llnotificationsutil.h"
 #include "llviewermessage.h"
+#include "llimfloater.h"
 
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
@@ -531,10 +532,24 @@ void LLToastNotifyPanel::disableRespondedOptions(LLNotificationPtr& notification
 
 //////////////////////////////////////////////////////////////////////////
 
-LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLRect& rect /* = LLRect::null */)
- : LLToastNotifyPanel(pNotification, rect)
+LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect /* = LLRect::null */)
+ : mSessionID(session_id), LLToastNotifyPanel(pNotification, rect)
 {
 	mTextBox->setFollowsAll();
+}
+
+LLIMToastNotifyPanel::~LLIMToastNotifyPanel()
+{
+	// We shouldn't delete notification when IM floater exists
+	// since that notification will be reused by IM floater.
+	// This may happened when IM floater reloads messages, exactly when user
+	// changes layout of IM chat log(disable/enable plaintext mode).
+	// See EXT-6500
+	LLIMFloater* im_floater = LLIMFloater::findInstance(mSessionID);
+	if (im_floater != NULL && !im_floater->isDead())
+	{
+		mCloseNotificationOnDestroy = false;
+	}
 }
 
 void LLIMToastNotifyPanel::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)

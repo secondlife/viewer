@@ -35,14 +35,14 @@ Spróbuj wybrać mniejszy obszar.
 		Ta Posiadłość już należy do Ciebie.
 	</floater.string>
 	<floater.string name="set_to_sell_to_other">
-		Wybrana Posiadłość będzie sprzedana komu innemu.
+		Wybrana Posiadłość będzie sprzedana komuś innemu.
 	</floater.string>
 	<floater.string name="no_public_land">
 		Wybrany obszar nie ma publicznych Posiadłości.
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		Wybrałeś posiadłość, której właścicielem jest inny Rezydent.
-Spróbuj wybrać ponownie mniejszą powierzchnię posiadłości.
+		Wybrałeś Posiadłość, której Właścicielem jest inny Rezydent.
+Spróbuj wybrać ponownie mniejszą powierzchnię Posiadłości.
 	</floater.string>
 	<floater.string name="processing">
 		Przetwarzanie Twojego zakupu...
@@ -56,7 +56,7 @@ Spróbuj wybrać ponownie mniejszą powierzchnię posiadłości.
 		Zakup tej Posiadłości spowoduje:
 	</floater.string>
 	<floater.string name="buying_for_group">
-		Zakup ziemi dla grupy:
+		Zakup ziemi dla Grupy:
 	</floater.string>
 	<floater.string name="cannot_buy_now">
 		Nie możesz teraz kupić:
@@ -123,7 +123,7 @@ używanie Posiadłości żeby sfinalizować ten zakup.
 		Musisz dokupić [AMOUNT]L$ żeby kupić tą Posiadłość.
 	</floater.string>
 	<floater.string name="no_parcel_selected">
-		(Posiadłość nie wybrana)
+		(Posiadłość nie została wybrana)
 	</floater.string>
 	<floater.string name="icon_PG" value="Parcel_PG_Dark"/>
 	<floater.string name="icon_M" value="Parcel_M_Dark"/>

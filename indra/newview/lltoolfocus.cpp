@@ -173,14 +173,12 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
 		BOOL good_customize_avatar_hit = FALSE;
 		if( hit_obj )
 		{
-			LLVOAvatar* avatar = gAgent.getAvatarObject();
-			if( hit_obj == avatar) 
+			if (isAgentAvatarValid() && (hit_obj == gAgentAvatarp))
 			{
 				// It's you
 				good_customize_avatar_hit = TRUE;
 			}
-			else
-			if( hit_obj->isAttachment() && hit_obj->permYouOwner() )
+			else if (hit_obj->isAttachment() && hit_obj->permYouOwner())
 			{
 				// It's an attachment that you're wearing
 				good_customize_avatar_hit = TRUE;
@@ -223,8 +221,8 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
 			gAgentCamera.cameraThirdPerson() &&
 			gViewerWindow->getLeftMouseDown() && 
 			!gSavedSettings.getBOOL("FreezeTime") &&
-			(hit_obj == gAgent.getAvatarObject() || 
-				(hit_obj && hit_obj->isAttachment() && LLVOAvatar::findAvatarFromAttachment(hit_obj)->isSelf())))
+			(hit_obj == gAgentAvatarp || 
+			 (hit_obj && hit_obj->isAttachment() && LLVOAvatar::findAvatarFromAttachment(hit_obj)->isSelf())))
 		{
 			LLToolCamera::getInstance()->mMouseSteering = TRUE;
 		}

@@ -7,6 +7,6 @@
 	<button label="Dodaj" name="whitelist_add"/>
 	<button label="Usuń" name="whitelist_del"/>
 	<text name="home_url_fails_whitelist">
-		UWAGA: WWW  wyszczególnione w Ogólne nie przeszły białej listy. Została ona wyłączona dopóki poprawny zapis nie zostanie dodany.
+		UWAGA: WWW  wyszczególnione w Ogólne nie przeszły Białej Listy. Została ona wyłączona dopóki poprawny zapis nie zostanie dodany.
 	</text>
 </panel>

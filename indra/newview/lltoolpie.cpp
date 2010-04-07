@@ -205,15 +205,15 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// touch behavior down below...
 			break;
 		case CLICK_ACTION_SIT:
-
-			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
-				handle_object_sit_or_stand();
-				// put focus in world when sitting on an object
-				gFocusMgr.setKeyboardFocus(NULL);
-				return TRUE;
-			} // else nothing (fall through to touch)
-			
+				if (isAgentAvatarValid() && !gAgentAvatarp->isSitting()) // agent not already sitting
+				{
+					handle_object_sit_or_stand();
+					// put focus in world when sitting on an object
+					gFocusMgr.setKeyboardFocus(NULL);
+					return TRUE;
+				} // else nothing (fall through to touch)
+			}
 		case CLICK_ACTION_PAY:
 			if ((object && object->flagTakesMoney())
 				|| (parent && parent->flagTakesMoney()))
@@ -330,7 +330,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			}
 			object = (LLViewerObject*)object->getParent();
 		}
-		if (object && object == gAgent.getAvatarObject())
+		if (object && object == gAgentAvatarp)
 		{
 			// we left clicked on avatar, switch to focus mode
 			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
@@ -411,9 +411,11 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	switch(click_action)
 	{
 	case CLICK_ACTION_SIT:
-		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // not already sitting?
 		{
-			cursor = UI_CURSOR_TOOLSIT;
+			if (isAgentAvatarValid() && !gAgentAvatarp->isSitting()) // not already sitting?
+			{
+				cursor = UI_CURSOR_TOOLSIT;
+			}
 		}
 		break;
 	case CLICK_ACTION_BUY:
@@ -497,6 +499,8 @@ void LLToolPie::selectionPropertiesReceived()
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
 	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE);
+	// perform a separate pick that detects transparent objects since they respond to 1-click actions
+	LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE);
 
 	// Show screen-space highlight glow effect
 	bool show_highlight = false;
@@ -508,10 +512,11 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		parent = object->getRootEdit();
 	}
 
-	if (object && useClickAction(mask, object, parent))
+	LLViewerObject* click_action_object = click_action_pick.getObject();
+	if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
 	{
 		show_highlight = true;
-		ECursorType cursor = cursor_from_object(object);
+		ECursorType cursor = cursor_from_object(click_action_object);
 		gViewerWindow->setCursor(cursor);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}

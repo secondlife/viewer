@@ -18,16 +18,16 @@
 	<text name="region_type">
 		nieznany
 	</text>
-	<check_box label="Zablokuj Zmiany Terenu" name="block_terraform_check"/>
-	<check_box label="Zablokuj Latanie" name="block_fly_check"/>
-	<check_box label="Uszkodzenia Dozwolone" name="allow_damage_check"/>
-	<check_box label="Zablokuj Popychanie" name="restrict_pushobject"/>
-	<check_box label="Odsprzedaż Dozwolona" name="allow_land_resell_check"/>
-	<check_box label="Łączenie/Dzielenie Dozwolone" name="allow_parcel_changes_check"/>
-	<check_box label="Zablokuj Wyszukiwanie" name="block_parcel_search_check" tool_tip="Pozwól na wyświetlanie nazwy regionu i posiadłości w wynikach wyszukiwania"/>
+	<check_box label="Zablokuj zmiany terenu" name="block_terraform_check"/>
+	<check_box label="Zablokuj latanie" name="block_fly_check"/>
+	<check_box label="Uszkodzenia dozwolone" name="allow_damage_check"/>
+	<check_box label="Zablokuj popychanie" name="restrict_pushobject"/>
+	<check_box label="Odsprzedaż dozwolona" name="allow_land_resell_check"/>
+	<check_box label="Łączenie/Dzielenie dozwolone" name="allow_parcel_changes_check"/>
+	<check_box label="Zablokuj wyszukiwanie" name="block_parcel_search_check" tool_tip="Pozwól na wyświetlanie nazwy regionu i posiadłości w wynikach wyszukiwania"/>
 	<spinner label="Limit Gości" name="agent_limit_spin"/>
-	<spinner label="Ekstra Obiekty" name="object_bonus_spin"/>
-	<text label="Ograniczenia Wieku" name="access_text">
+	<spinner label="Ekstra obiekty" name="object_bonus_spin"/>
+	<text label="Ograniczenia wieku" name="access_text">
 		Rodzaj:
 	</text>
 	<icons_combo_box label="&apos;Mature&apos;" name="access_combo">
@@ -36,8 +36,8 @@
 		<icons_combo_box.item label="&apos;PG&apos;" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="Zastosuj" name="apply_btn"/>
-	<button label="Teleportuj do Miejsca Startu Jednego Rezydenta..." name="kick_btn"/>
-	<button label="Teleportuj do Miejsca Startu Wszystkich Rezydentów..." name="kick_all_btn"/>
-	<button label="Wyślij Wiadomość do Regionu..." name="im_btn"/>
-	<button label="Obsługa Teleportera..." name="manage_telehub_btn"/>
+	<button label="Teleportuj do Miejsca Startu jednego Rezydenta..." name="kick_btn"/>
+	<button label="Teleportuj do Miejsca Startu wszystkich Rezydentów..." name="kick_all_btn"/>
+	<button label="Wyślij wiadomość do Regionu..." name="im_btn"/>
+	<button label="Obsługa teleportera..." name="manage_telehub_btn"/>
 </panel>

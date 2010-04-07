@@ -186,7 +186,7 @@ void LLPanelBlockedList::onBlockByNameClick()
 	LLFloaterGetBlockedObjectName::show(&LLPanelBlockedList::callbackBlockByName);
 }
 
-void LLPanelBlockedList::callbackBlockPicked(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
+void LLPanelBlockedList::callbackBlockPicked(const std::vector<std::string>& names, const uuid_vec_t& ids)
 {
 	if (names.empty() || ids.empty()) return;
 	LLMute mute(ids[0], names[0], LLMute::AGENT);

@@ -8,7 +8,7 @@
 		<menu_item_call label="Mój Wygląd" name="Appearance"/>
 		<menu_item_check label="Moja Szafa" name="Inventory"/>
 		<menu_item_check label="Moja Szafa" name="ShowSidetrayInventory"/>
-		<menu_item_check label="Moje Gesturki" name="Gestures"/>
+		<menu_item_check label="Moje Gesty" name="Gestures"/>
 		<menu label="Mój Status" name="Status">
 			<menu_item_call label="Tryb Oddalenia" name="Set Away"/>
 			<menu_item_call label="Tryb Pracy" name="Set Busy"/>
@@ -75,7 +75,7 @@
 			<menu_item_call label="Zaznacz Wszystko" name="Select All"/>
 			<menu_item_call label="Cofnij Zaznaczenie" name="Deselect"/>
 		</menu>
-		<menu_item_call label="Grupuj" name="Link"/>
+		<menu_item_call label="Linkuj" name="Link"/>
 		<menu_item_call label="Rozlinkuj" name="Unlink"/>
 		<menu_item_check label="Edytuj Zgrupowane Obiekty" name="Edit Linked Parts"/>
 		<menu_item_call label="Ogniskowa Selekcji" name="Focus on Selection"/>

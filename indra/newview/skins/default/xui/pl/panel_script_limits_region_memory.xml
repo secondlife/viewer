@@ -14,7 +14,7 @@
 		<scroll_list.columns label="Parcela" name="parcel"/>
 		<scroll_list.columns label="Lokalizacja" name="location"/>
 	</scroll_list>
-	<button label="Odśwież Listę" name="refresh_list_btn"/>
+	<button label="Odśwież listę" name="refresh_list_btn"/>
 	<button label="Pokaż" name="highlight_btn"/>
 	<button label="Zwróć" name="return_btn"/>
 </panel>

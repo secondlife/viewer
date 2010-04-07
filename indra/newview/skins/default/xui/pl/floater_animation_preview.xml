@@ -9,7 +9,7 @@
 Maksymalna długość pliku animacji wynosi [MAX_LENGTH] sekund.
 	</floater.string>
 	<floater.string name="failed_file_read">
-		Niemożliwość odczytania pliku animacji do wyświetlenia.
+		Brak możliwości odczytania plików animacji do wyświetlenia.
 
 [STATUS]
 	</floater.string>
@@ -62,25 +62,25 @@ Maksymalna długość pliku animacji wynosi [MAX_LENGTH] sekund.
 		Nie można odczytać wartości obrotu.
 	</floater.string>
 	<floater.string name="E_ST_NO_XLT_FILE">
-		Niemożliwość otworzenia pliku tłumaczenia.
+		Nie można otworzyć pliku tłumaczenia.
 	</floater.string>
 	<floater.string name="E_ST_NO_XLT_HEADER">
-		Niemożliwość przeczytania tłumaczenia nagłówka.
+		Nie można przeczytać tłumaczenia nagłówka.
 	</floater.string>
 	<floater.string name="E_ST_NO_XLT_NAME">
-		Niemożliwość przeczytania nazw tłumaczenia.
+		Nie można przetłumaczyć nazw.
 	</floater.string>
 	<floater.string name="E_ST_NO_XLT_IGNORE">
-		Niemożliwość przeczytania tłumaczenia dla wartości ignorowania.
+		Nie można przeczytać tłumaczenia dla wartości ignorowania.
 	</floater.string>
 	<floater.string name="E_ST_NO_XLT_RELATIVE">
-		Niemożliwość przeczytania tłumaczenia wartości relatywnej.
+		Nie można przeczytać tłumaczenia wartości relatywnej.
 	</floater.string>
 	<floater.string name="E_ST_NO_XLT_OUTNAME">
-		Niemożliwość przeczytania nazw wartości tłumaczenia.
+		Nie można przeczytać nazw wartości tłumaczenia.
 	</floater.string>
 	<floater.string name="E_ST_NO_XLT_MATRIX">
-		Niemożliwość przeczytania tłumaczenia pola.
+		Nie można przeczytać tłumaczenia pola.
 	</floater.string>
 	<floater.string name="E_ST_NO_XLT_MERGECHILD">
 		Brak otrzymania nazwy dla mergechild.
@@ -115,7 +115,7 @@ Maksymalna długość pliku animacji wynosi [MAX_LENGTH] sekund.
 	<text name="description_label">
 		Opis:
 	</text>
-	<spinner label="Pierwszeństwo" name="priority" tool_tip="Kontroluj,animacje,które mogą zostać zdominowane przez tą animację"/>
+	<spinner label="Pierwszeństwo" name="priority" tool_tip="Kontroluj animacje,które mogą zostać zdominowane przez tą animację"/>
 	<check_box label="Powtarzaj" name="loop_check" tool_tip="Powtarzaj tą animację"/>
 	<spinner label="Od(%)" name="loop_in_point" tool_tip="Wybierz punkt, od którego chcesz zacząć powtarzać animację"/>
 	<spinner label="Do(%)" name="loop_out_point" tool_tip="Wybierz punkt, od którego chcesz zakończyć powtarzanie animacji"/>
@@ -182,6 +182,6 @@ Maksymalna długość pliku animacji wynosi [MAX_LENGTH] sekund.
 
 Doradzamy eksport plików BVH z Poser 4.
 	</text>
-	<button label="Załaduj (L$[AMOUNT])" name="ok_btn"/>
+	<button label="Załaduj ([AMOUNT]L$)" name="ok_btn"/>
 	<button label="Anuluj" name="cancel_btn"/>
 </floater>

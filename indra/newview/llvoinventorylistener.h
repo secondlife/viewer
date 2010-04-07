@@ -42,7 +42,7 @@ class LLVOInventoryListener
 {
 public:
 	virtual void inventoryChanged(LLViewerObject* object,
-								 InventoryObjectList* inventory,
+								 LLInventoryObject::object_list_t* inventory,
 								 S32 serial_num,
 								 void* user_data) = 0;
 
