@@ -74,7 +74,7 @@ Detalles del error: la notificación de nombre &apos;[_NAME]&apos; no se ha enco
 	<notification name="LoginFailedNoNetwork">
 		No se puede conectar con [SECOND_LIFE_GRID].
 &apos;[DIAGNOSTIC]&apos;
-Asegúrate de que tu conexión a internet está funcionando adecuadamente.
+Asegúrate de que tu conexión a Internet está funcionando adecuadamente.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MessageTemplateNotFound">
@@ -903,7 +903,7 @@ Deberás reconfigurar el nombre y las opciones de la nueva parcela.
 Generalmente, esto es un fallo pasajero. Por favor, personaliza y guarda el ítem de aquí a unos minutos.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Vaya, se ha cerrado tu sesión en [SECOND_LIFE]
+		Vaya, se ha cerrado tu sesión en [SECOND_LIFE].
             [MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Salir" yestext="Ver MI y Chat"/>
 	</notification>
@@ -1093,9 +1093,9 @@ Si es la primera vez que usas [SECOND_LIFE], debes crear una cuenta antes de pod
 		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Cuenta nueva..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
-		Tenemos problemas de conexión. Puede deberse a un problema de tu conexión a internet o de [SECOND_LIFE_GRID].
+		Tenemos problemas de conexión. Puede deberse a un problema de tu conexión a Internet o de [SECOND_LIFE_GRID].
 
-Puedes revisar tu conexión a internet y volver a intentarlo en unos minutos, pulsar Ayuda para conectarte a [SUPPORT_SITE], o pulsar Teleporte para intentar teleportarte a tu Base.
+Puedes revisar tu conexión a Internet y volver a intentarlo en unos minutos, pulsar Ayuda para conectarte a [SUPPORT_SITE], o pulsar Teleporte para intentar teleportarte a tu Base.
 		<url name="url">
 			http://es.secondlife.com/support/
 		</url>

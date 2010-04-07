@@ -133,7 +133,7 @@ LLCallFloater::~LLCallFloater()
 
 	if(LLVoiceClient::instanceExists())
 	{
-		LLVoiceClient::getInstance()->removeObserver(this);
+		gVoiceClient->removeObserver(this);
 	}
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
@@ -189,7 +189,7 @@ void LLCallFloater::draw()
 	// Seems this is a problem somewhere in Voice Client (LLVoiceClient::participantAddedEvent)
 //	onChange();
 
-	bool is_moderator_muted = LLVoiceClient::getInstance()->getIsModeratorMuted(gAgentID);
+	bool is_moderator_muted = gVoiceClient->getIsModeratorMuted(gAgentID);
 
 	if (mIsModeratorMutedVoice != is_moderator_muted)
 	{
@@ -207,6 +207,7 @@ void LLCallFloater::draw()
 void LLCallFloater::onChange()
 {
 	if (NULL == mParticipants) return;
+
 	updateParticipantsVoiceState();
 
 	// Add newly joined participants.
@@ -236,11 +237,11 @@ void LLCallFloater::updateSession()
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
 	if (voice_channel)
 	{
-		LL_DEBUGS("Voice") << "Current voice channel: " << voice_channel->getSessionID() << LL_ENDL;
+		lldebugs << "Current voice channel: " << voice_channel->getSessionID() << llendl;
 
 		if (mSpeakerManager && voice_channel->getSessionID() == mSpeakerManager->getSessionID())
 		{
-			LL_DEBUGS("Voice") << "Speaker manager is already set for session: " << voice_channel->getSessionID() << LL_ENDL;
+			lldebugs << "Speaker manager is already set for session: " << voice_channel->getSessionID() << llendl;
 			return;
 		}
 		else
@@ -250,6 +251,7 @@ void LLCallFloater::updateSession()
 	}
 
 	const LLUUID& session_id = voice_channel ? voice_channel->getSessionID() : LLUUID::null;
+	lldebugs << "Set speaker manager for session: " << session_id << llendl;
 
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (im_session)
@@ -289,7 +291,7 @@ void LLCallFloater::updateSession()
 	{
 		// by default let show nearby chat participants
 		mSpeakerManager = LLLocalSpeakerMgr::getInstance();
-		LL_DEBUGS("Voice") << "Set DEFAULT speaker manager" << LL_ENDL;
+		lldebugs << "Set DEFAULT speaker manager" << llendl;
 		mVoiceType = VC_LOCAL_CHAT;
 	}
 
@@ -468,15 +470,16 @@ void LLCallFloater::updateAgentModeratorState()
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)
 {
 	// Get a list of participants from VoiceClient
-       std::set<LLUUID> participants;
-       LLVoiceClient::getInstance()->getParticipantList(participants);
-	
-	for (std::set<LLUUID>::const_iterator iter = participants.begin();
-		 iter != participants.end(); ++iter)
+	LLVoiceClient::participantMap *voice_map = gVoiceClient->getParticipantList();
+	if (voice_map)
 	{
-		speakers_uuids.push_back(*iter);
+		for (LLVoiceClient::participantMap::const_iterator iter = voice_map->begin();
+			iter != voice_map->end(); ++iter)
+		{
+			LLUUID id = (*iter).second->mAvatarID;
+			speakers_uuids.push_back(id);
+		}
 	}
-
 }
 
 void LLCallFloater::initParticipantsVoiceState()
@@ -552,7 +555,7 @@ void LLCallFloater::updateParticipantsVoiceState()
 
 		uuid_vec_t::iterator speakers_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), participant_id);
 
-		LL_DEBUGS("Voice") << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << LL_ENDL;
+		lldebugs << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << llendl;
 
 		// If an avatarID assigned to a panel is found in a speakers list
 		// obtained from VoiceClient we assign the JOINED status to the owner
@@ -722,7 +725,7 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
 	// check is voice operational and if it doesn't work hide VCP (EXT-4397)
-	if(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking())
+	if(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking())
 	{
 		updateState(new_state);
 	}

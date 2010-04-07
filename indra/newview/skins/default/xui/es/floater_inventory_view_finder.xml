@@ -11,12 +11,12 @@
 	<check_box label="Sonidos" name="check_sound"/>
 	<check_box label="Texturas" name="check_texture"/>
 	<check_box label="Fotos" name="check_snapshot"/>
-	<button label="Todo" label_selected="Todo" name="All" width="70"/>
-	<button label="Nada" label_selected="Nada" name="None" width="70" bottom_delta="0" left="83"/>
+	<button label="Todos" label_selected="Todo" name="All" width="70"/>
+	<button label="Ninguno" label_selected="Nada" name="None" width="70" bottom_delta="0" left="83"/>
 	<check_box label="Mostrar siempre las&#10;carpetas" name="check_show_empty"/>
 	<check_box label="Desde el fin de sesión" name="check_since_logoff" bottom_delta="-36"/>
 	<text name="- OR -">
-		- O -
+		- o -
 	</text>
 	<spinner label="horas atrás" name="spin_hours_ago"/>
 	<spinner label="días atrás" name="spin_days_ago"/>

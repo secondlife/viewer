@@ -282,7 +282,7 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
 //static
 bool LLAvatarActions::canCall()
 {
-		return LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+		return LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
 }
 
 // static

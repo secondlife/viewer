@@ -19,7 +19,7 @@
 		<menu_item_call label="Dejar el estatus de Administrador" name="Leave Admin Options"/>
 		<menu_item_call label="Salir de [APP_NAME]" name="Quit"/>
 	</menu>
-	<menu label="Comunicarse" name="Communicate">
+	<menu label="Comunicarme" name="Communicate">
 		<menu_item_call label="Mis amigos" name="My Friends"/>
 		<menu_item_call label="Mis grupos" name="My Groups"/>
 		<menu_item_check label="Chat" name="Nearby Chat"/>

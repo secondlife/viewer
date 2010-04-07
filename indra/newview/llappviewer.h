@@ -102,6 +102,8 @@ public:
 	static LLImageDecodeThread* getImageDecodeThread() { return sImageDecodeThread; }
 	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
 
+	static S32 getCacheVersion() ;
+
 	const std::string& getSerialNumber() { return mSerialNumber; }
 	
 	bool getPurgeCache() const { return mPurgeCache; }
@@ -191,6 +193,7 @@ private:
 
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
+	void initGridChoice();
 
 	bool initCache(); // Initialize local client cache.
 

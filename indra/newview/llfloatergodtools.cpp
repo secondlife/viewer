@@ -922,6 +922,7 @@ LLPanelObjectTools::~LLPanelObjectTools()
 
 BOOL LLPanelObjectTools::postBuild()
 {
+	refresh();
 	return TRUE;
 }
 

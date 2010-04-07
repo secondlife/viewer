@@ -258,7 +258,7 @@ void LLOverlayBar::refresh()
 	{
 		// update "remotes"
 		childSetVisible("media_remote_container", TRUE);
-		childSetVisible("voice_remote_container", LLVoiceClient::getInstance()->voiceEnabled());
+		childSetVisible("voice_remote_container", LLVoiceClient::voiceEnabled());
 		childSetVisible("state_buttons", TRUE);
 	}
 

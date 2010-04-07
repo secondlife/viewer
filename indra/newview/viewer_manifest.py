@@ -397,15 +397,6 @@ class WindowsManifest(ViewerManifest):
 
         self.disable_manifest_check()
 
-        # Diamondware Runtimes
-        if self.prefix(src="diamondware-runtime/i686-win32", dst=""):
-            self.path("SLVoice_dwTVC.exe")
-            self.path("libcurl.dll")
-            self.path("libeay32.dll")
-            self.path("ssleay32.dll")
-            self.path("zlib1.dll")
-            self.end_prefix()
-
         # pull in the crash logger and updater from other projects
         # tag:"crash-logger" here as a cue to the exporter
         self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
@@ -615,9 +606,6 @@ class DarwinManifest(ViewerManifest):
                 self.path("vivox-runtime/universal-darwin/libvivoxsdk.dylib", "libvivoxsdk.dylib")
                 self.path("vivox-runtime/universal-darwin/libvivoxplatform.dylib", "libvivoxplatform.dylib")
                 self.path("vivox-runtime/universal-darwin/SLVoice", "SLVoice")
-                # DiamondWare runtime                                           
-                self.path("diamondware-runtime/universal-darwin/SLVoice_dwTVC","SLVoice_dwTVC")
-                self.path("diamondware-runtime/universal-darwin/libfmodex.dylib", "libfmodex.dylib")
 
                 libdir = "../../libraries/universal-darwin/lib_release"
                 dylibs = {}
@@ -912,11 +900,6 @@ class Linux_i686Manifest(LinuxManifest):
                     print "Skipping libkdu_v42R.so - not found"
                     pass
             self.end_prefix("lib")
-
-            # Diamondware runtimes
-            if self.prefix(src="diamondware-runtime/i686-linux", dst="bin"):
-                    self.path("SLVoice_dwTVC")
-                    self.end_prefix()
 
             # Vivox runtimes
             if self.prefix(src="vivox-runtime/i686-linux", dst="bin"):
