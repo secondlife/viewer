@@ -276,8 +276,12 @@ class WindowsManifest(ViewerManifest):
             self.disable_manifest_check()
 
             # Mesh 3rd party libs needed for auto LOD and collada reading
-            self.path("libcollada14dom21.dll")
-            self.path("glod.dll")
+            try:
+                self.path("libcollada14dom21.dll")
+                self.path("glod.dll")
+            except RuntimeError, err:
+                print err.message
+                print "Skipping COLLADA and GLOD libraries (assumming linked statically)"
 
             # For textures
             if self.args['configuration'].lower() == 'debug':
