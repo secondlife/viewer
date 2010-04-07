@@ -2866,17 +2866,17 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 
 			// Might be blank if name not available yet, that's OK
+			if (show_display_names)
+			{
+				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
+					LLFontGL::getFontSansSerif());
+			}
 			if (show_slids)
 			{
 				// JAMESDEBUG HACK
 				LLColor4 slid_color = name_tag_color * 0.8f;
 				addNameTagLine(av_name.mSLID, slid_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerifSmall());
-			}
-			if (show_display_names)
-			{
-				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
-					LLFontGL::getFontSansSerif());
 			}
 		}
 		else
