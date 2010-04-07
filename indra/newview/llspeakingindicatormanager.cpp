@@ -158,7 +158,7 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
 	mSpeakingIndicators.insert(value_type);
 
 	speaker_ids_t speakers_uuids;
-	BOOL is_in_same_voice = LLVoiceClient::getInstance()->isParticipant(speaker_id);
+	BOOL is_in_same_voice = LLVoiceClient::getInstance()->findParticipantByID(speaker_id) != NULL;
 
 	speakers_uuids.insert(speaker_id);
 	switchSpeakerIndicators(speakers_uuids, is_in_same_voice);
@@ -210,7 +210,7 @@ void SpeakingIndicatorManager::onChange()
 	LL_DEBUGS("SpeakingIndicator") << "Voice participant list was changed, updating indicators" << LL_ENDL;
 
 	speaker_ids_t speakers_uuids;
-	LLVoiceClient::getInstance()->getParticipantList(speakers_uuids);
+	LLVoiceClient::getInstance()->getParticipantsUUIDSet(speakers_uuids);
 
 	LL_DEBUGS("SpeakingIndicator") << "Switching all OFF, count: " << mSwitchedIndicatorsOn.size() << LL_ENDL;
 	// switch all indicators off

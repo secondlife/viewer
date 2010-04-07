@@ -1329,6 +1329,7 @@ bool LLInventoryModel::fetchDescendentsOf(const LLUUID& folder_id)
 	return cat->fetchDescendents();
 }
 
+
 void LLInventoryModel::cache(
 	const LLUUID& parent_folder_id,
 	const LLUUID& agent_id)

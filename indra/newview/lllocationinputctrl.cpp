@@ -668,8 +668,9 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
 				value["item_type"] = TELEPORT_HISTORY;
 				value["global_pos"] = result->mGlobalPos.getValue();
 				std::string region_name = result->mTitle.substr(0, result->mTitle.find(','));
-				//TODO*: add Surl to teleportitem or parse region name from title
-				value["tooltip"] = LLSLURL(region_name, result->mGlobalPos).getSLURLString();
+				//TODO*: add slurl to teleportitem or parse region name from title
+				value["tooltip"] = LLSLURL::buildSLURLfromPosGlobal(region_name,
+						result->mGlobalPos,	false);
 				add(result->getTitle(), value); 
 			}
 			result = std::find_if(result + 1, th_items.end(), boost::bind(
@@ -1010,9 +1011,7 @@ void LLLocationInputCtrl::changeLocationPresentation()
 	if(!mTextEntry->hasSelection() && text == mHumanReadableLocation)
 	{
 		//needs unescaped one
-		LLSLURL slurl;
-		LLAgentUI::buildSLURL(slurl, false);
-		mTextEntry->setText(slurl.getSLURLString());
+		mTextEntry->setText(LLAgentUI::buildSLURL(false));
 		mTextEntry->selectAll();
 
 		mMaturityIcon->setVisible(FALSE);

@@ -142,7 +142,7 @@ void LLOutputMonitorCtrl::draw()
 
 	// Copied from llmediaremotectrl.cpp
 	// *TODO: Give the LLOutputMonitorCtrl an agent-id to monitor, then
-	// call directly into LLVoiceClient::getInstance() to ask if that agent-id is muted, is
+	// call directly into gVoiceClient to ask if that agent-id is muted, is
 	// speaking, and what power.  This avoids duplicating data, which can get
 	// out of sync.
 	const F32 LEVEL_0 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL / 3.f;
@@ -151,14 +151,14 @@ void LLOutputMonitorCtrl::draw()
 
 	if (getVisible() && mAutoUpdate && !mIsMuted && mSpeakerId.notNull())
 	{
-		setPower(LLVoiceClient::getInstance()->getCurrentPower(mSpeakerId));
+		setPower(gVoiceClient->getCurrentPower(mSpeakerId));
 		if(mIsAgentControl)
 		{
-			setIsTalking(LLVoiceClient::getInstance()->getUserPTTState());
+			setIsTalking(gVoiceClient->getUserPTTState());
 		}
 		else
 		{
-			setIsTalking(LLVoiceClient::getInstance()->getIsSpeaking(mSpeakerId));
+			setIsTalking(gVoiceClient->getIsSpeaking(mSpeakerId));
 		}
 	}
 

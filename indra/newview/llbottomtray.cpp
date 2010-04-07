@@ -319,7 +319,7 @@ void LLBottomTray::onChange(EStatusType status, const std::string &channelURI, b
 	// skipped to avoid button blinking
 	if (status != STATUS_JOINING && status!= STATUS_LEFT_CHANNEL)
 	{
-		mSpeakBtn->setFlyoutBtnEnabled(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking());
+		mSpeakBtn->setFlyoutBtnEnabled(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
 	}
 }
 
@@ -489,7 +489,7 @@ BOOL LLBottomTray::postBuild()
 	mSpeakBtn->setShowToolTip( getString("VoiceControlBtnToolTip") );
 
 	// Registering Chat Bar to receive Voice client status change notifications.
-	LLVoiceClient::getInstance()->addObserver(this);
+	gVoiceClient->addObserver(this);
 
 	mObjectDefaultWidthMap[RS_BUTTON_GESTURES] = mGesturePanel->getRect().getWidth();
 	mObjectDefaultWidthMap[RS_BUTTON_MOVEMENT] = mMovementPanel->getRect().getWidth();

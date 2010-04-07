@@ -619,7 +619,7 @@ BOOL LLPanelPeople::postBuild()
 	if(recent_view_sort)
 		mRecentViewSortMenuHandle  = recent_view_sort->getHandle();
 
-	LLVoiceClient::getInstance()->addObserver(this);
+	gVoiceClient->addObserver(this);
 
 	// call this method in case some list is empty and buttons can be in inconsistent state
 	updateButtons();
@@ -809,7 +809,7 @@ void LLPanelPeople::updateButtons()
 		}
 	}
 
-	bool enable_calls = LLVoiceClient::getInstance()->isVoiceWorking() && LLVoiceClient::getInstance()->voiceEnabled();
+	bool enable_calls = gVoiceClient->voiceWorking() && gVoiceClient->voiceEnabled();
 
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);
