@@ -6469,6 +6469,54 @@
     <real>0.01</real>
   </map>
 
+  <key>RenderShadowBiasError</key>
+  <map>
+    <key>Comment</key>
+    <string>Error scale for shadow bias (based on altitude).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  <key>RenderShadowOffsetError</key>
+  <map>
+    <key>Comment</key>
+    <string>Error scale for shadow offset (based on altitude).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  
+  <key>RenderSpotShadowBias</key>
+  <map>
+    <key>Comment</key>
+    <string>Bias value for shadows (prevent shadow acne).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>-0.008</real>
+  </map>
+  <key>RenderSpotShadowOffset</key>
+  <map>
+    <key>Comment</key>
+    <string>Offset value for shadows (prevent shadow acne).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.01</real>
+  </map>
+
+  
+  
   <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
