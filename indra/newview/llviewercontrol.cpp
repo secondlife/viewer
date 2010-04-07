@@ -413,9 +413,9 @@ bool handleHighResSnapshotChanged(const LLSD& newvalue)
 
 bool handleVoiceClientPrefsChanged(const LLSD& newvalue)
 {
-	if(LLVoiceClient::getInstance())
+	if(gVoiceClient)
 	{
-		LLVoiceClient::getInstance()->updateSettings();
+		gVoiceClient->updateSettings();
 	}
 	return true;
 }
@@ -446,7 +446,7 @@ bool handleVelocityInterpolate(const LLSD& newvalue)
 
 bool handleForceShowGrid(const LLSD& newvalue)
 {
-	LLPanelLogin::updateServer( );
+	LLPanelLogin::refreshLocation( false );
 	return true;
 }
 

@@ -429,7 +429,7 @@ void init_menus()
 	gPopupMenuView->setBackgroundColor( color );
 
 	// If we are not in production, use a different color to make it apparent.
-	if (LLGridManager::getInstance()->isInProductionGrid())
+	if (LLViewerLogin::getInstance()->isInProductionGrid())
 	{
 		color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
 	}
@@ -445,7 +445,7 @@ void init_menus()
 	menu_bar_holder->addChild(gMenuBarView);
   
     gViewerWindow->setMenuBackgroundColor(false, 
-        LLGridManager::getInstance()->isInProductionGrid());
+        LLViewerLogin::getInstance()->isInProductionGrid());
 
 	// Assume L$10 for now, the server will tell us the real cost at login
 	// *TODO:Also fix cost in llfolderview.cpp for Inventory menus
@@ -3467,7 +3467,7 @@ void set_god_level(U8 god_level)
         if(gViewerWindow)
         {
             gViewerWindow->setMenuBackgroundColor(god_level > GOD_NOT,
-            LLGridManager::getInstance()->isInProductionGrid());
+            LLViewerLogin::getInstance()->isInProductionGrid());
         }
     
         LLSD args;
@@ -3507,7 +3507,7 @@ BOOL check_toggle_hacked_godmode(void*)
 
 bool enable_toggle_hacked_godmode(void*)
 {
-  return !LLGridManager::getInstance()->isInProductionGrid();
+  return !LLViewerLogin::getInstance()->isInProductionGrid();
 }
 #endif
 
@@ -4378,7 +4378,7 @@ BOOL enable_take()
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLGridManager::getInstance()->isInProductionGrid() 
+		if (!LLViewerLogin::getInstance()->isInProductionGrid() 
             && gAgent.isGodlike())
 		{
 			return TRUE;
@@ -4991,7 +4991,7 @@ bool enable_object_delete()
 	TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	(!LLGridManager::getInstance()->isInProductionGrid()
+	(!LLViewerLogin::getInstance()->isInProductionGrid()
      && gAgent.isGodlike()) ||
 # endif
 	LLSelectMgr::getInstance()->canDoDelete();
@@ -6627,7 +6627,7 @@ bool enable_object_take_copy()
 		all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (LLGridManager::getInstance()->isInProductionGrid()
+		if (LLViewerLogin::getInstance()->isInProductionGrid()
             || !gAgent.isGodlike())
 # endif
 		{
@@ -6689,7 +6689,7 @@ BOOL enable_save_into_inventory(void*)
 	return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLGridManager::getInstance()->isInProductionGrid()
+	if (!LLViewerLogin::getInstance()->isInProductionGrid()
         && gAgent.isGodlike())
 	{
 		return TRUE;
