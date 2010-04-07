@@ -367,19 +367,32 @@ void LLPanelOutfitEdit::onUpClicked(void)
 void LLPanelOutfitEdit::onEditWearableClicked(void)
 {
 	LLUUID id_to_edit = mLookContents->getSelectionInterface()->getCurrentID();
-
 	LLViewerInventoryItem * item_to_edit = gInventory.getItem(id_to_edit);
 
 	if (item_to_edit)
 	{
 		// returns null if not a wearable (attachment, etc).
 		LLWearable* wearable_to_edit = gAgentWearables.getWearableFromAssetID(item_to_edit->getAssetUUID());
-		if (!wearable_to_edit || !wearable_to_edit->getPermissions().allowModifyBy(gAgent.getID()) )
-		{											 
-			LLSidepanelAppearance::editWearable(wearable_to_edit, getParent());
-			if (mEditWearableBtn->getVisible())
+		if(wearable_to_edit)
+		{
+			bool can_modify = false;
+			bool is_complete = item_to_edit->isComplete();
+			// if item_to_edit is a link, its properties are not appropriate, 
+			// lets get original item with actual properties
+			LLViewerInventoryItem* original_item = gInventory.getItem(wearable_to_edit->getItemID());
+			if(original_item)
 			{
-				mEditWearableBtn->setVisible(FALSE);
+				can_modify = original_item->getPermissions().allowModifyBy(gAgentID);
+				is_complete = original_item->isComplete();
+			}
+
+			if (can_modify && is_complete)
+			{											 
+				LLSidepanelAppearance::editWearable(wearable_to_edit, getParent());
+				if (mEditWearableBtn->getVisible())
+				{
+					mEditWearableBtn->setVisible(FALSE);
+				}
 			}
 		}
 	}

@@ -4,7 +4,7 @@
 	 follows="all"
 	 height="400"
 	 layout="topleft"
-	 left="10"
+	 left="0"
 	 name="edit_shape_panel"
 	 top_pad="10"
 	 width="333" >
@@ -14,7 +14,7 @@
          bg_opaque_color="DkGray2"
          background_visible="true"
          background_opaque="true"
-		 follows="top|left"
+		 follows="top|left|right"
 		 height="50"
 		 left="10"
 		 layout="topleft"
