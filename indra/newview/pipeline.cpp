@@ -5839,8 +5839,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 }
 
+static LLFastTimer::DeclareTimer FTM_BIND_DEFERRED("Bind Deferred");
+
 void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, LLRenderTarget* gi_source, LLRenderTarget* last_gi_post, U32 noise_map)
 {
+	LLFastTimer t(FTM_BIND_DEFERRED);
+
 	if (noise_map == 0xFFFFFFFF)
 	{
 		noise_map = mNoiseMap;
@@ -6178,10 +6182,16 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, LLRen
 								matrix_nondiag, matrix_nondiag, matrix_diag};
 	shader.uniformMatrix3fv("ssao_effect_mat", 1, GL_FALSE, ssao_effect_mat);
 
+	F32 shadow_offset_error = 1.f + gSavedSettings.getF32("RenderShadowOffsetError") * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
+	F32 shadow_bias_error = 1.f + gSavedSettings.getF32("RenderShadowBiasError") * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
+
 	shader.uniform2f("screen_res", mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
 	shader.uniform1f("near_clip", LLViewerCamera::getInstance()->getNear()*2.f);
-	shader.uniform1f ("shadow_offset", gSavedSettings.getF32("RenderShadowOffset"));
-	shader.uniform1f("shadow_bias", gSavedSettings.getF32("RenderShadowBias"));
+	shader.uniform1f ("shadow_offset", gSavedSettings.getF32("RenderShadowOffset")*shadow_offset_error);
+	shader.uniform1f("shadow_bias", gSavedSettings.getF32("RenderShadowBias")*shadow_bias_error);
+	shader.uniform1f ("spot_shadow_offset", gSavedSettings.getF32("RenderSpotShadowOffset"));
+	shader.uniform1f("spot_shadow_bias", gSavedSettings.getF32("RenderSpotShadowBias"));	
+
 	shader.uniform1f("lum_scale", gSavedSettings.getF32("RenderLuminanceScale"));
 	shader.uniform1f("sun_lum_scale", gSavedSettings.getF32("RenderSunLuminanceScale"));
 	shader.uniform1f("sun_lum_offset", gSavedSettings.getF32("RenderSunLuminanceOffset"));
