@@ -785,11 +785,20 @@ void LLPanelLogin::getLocation(LLSLURL& slurl)
 	switch(combo->getCurrentIndex())
 	{
 		case 0:
+		  {
 			slurl = LLSLURL(LLSLURL::SIM_LOCATION_HOME);
+			break;
+		  }
 		case 1:
+		  {
 			slurl =  LLSLURL(LLSLURL::SIM_LOCATION_LAST);
+			break;
+		  }
 		default:
+		  {
 			slurl = LLSLURL(combo->getValue().asString());
+			break;
+		  }
 	}
 }
 
