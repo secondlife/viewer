@@ -3420,7 +3420,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 		glLoadMatrixd(gGLModelView);
 		doOcclusion(camera);
 		gGLLastMatrix = NULL;
-		glLoadMatrix(gGLModelView);
+		glLoadMatrixd(gGLModelView);
 	}
 }
 
