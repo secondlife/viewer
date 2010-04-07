@@ -2540,18 +2540,18 @@ even though the user gets a free copy.
              height="19"
              initial_value="0"
              label="Horizontal (U)"
-             label_width="90"
+             label_width="125"
              layout="topleft"
              left="20"
              max_val="100"
              name="TexScaleU"
              top_pad="6"
-             width="160" />
+             width="185" />
             <check_box
              height="19"
              label="Flip"
              layout="topleft"
-             left_pad="10"
+             left_pad="5"
              name="checkbox flip s"
              top_delta="0"
              width="70" />
@@ -2560,17 +2560,17 @@ even though the user gets a free copy.
              height="19"
              initial_value="0"
              label="Vertical (V)"
-             label_width="90"
+             label_width="125"
              layout="topleft"
              left="20"
              max_val="100"
              name="TexScaleV"
-             width="160" />
+             width="185" />
             <check_box
              height="19"
              label="Flip"
              layout="topleft"
-             left_pad="10"
+             left_pad="5"
              name="checkbox flip t"
              top_delta="0"
              width="70" />
@@ -2582,12 +2582,12 @@ even though the user gets a free copy.
              initial_value="0"
 			 label="Rotation˚"
              layout="topleft"
-			 label_width="100"
+			 label_width="135"
              left="10"
              max_val="9999"
              min_val="-9999"
              name="TexRot"
-             width="170" />
+             width="195" />
 
             <spinner
              decimal_digits="1"
@@ -2596,19 +2596,19 @@ even though the user gets a free copy.
              initial_value="1"
 			 label="Repeats / Meter"
              layout="topleft"
-			 label_width="100"
+			 label_width="135"
              left="10"
              max_val="10"
              min_val="0.1"
              name="rptctrl"
-             width="170" />
+             width="195" />
             <button
              follows="left|top"
              height="23"
              label="Apply"
              label_selected="Apply"
              layout="topleft"
-             left_pad="10"
+             left_pad="5"
              name="button apply"
              width="75" />
             <text
@@ -2627,24 +2627,24 @@ even though the user gets a free copy.
              height="19"
              initial_value="0"
              label="Horizontal (U)"
-             label_width="90"
+             label_width="125"
              layout="topleft"
              left="20"
              min_val="-1"
              name="TexOffsetU"
-             width="160" />
+             width="185" />
             <spinner
              follows="left|top"
              height="19"
              initial_value="0"
              label="Vertical (V)"
-             label_width="90"
+             label_width="125"
              layout="topleft"
              left_delta="0"
              min_val="-1"
              name="TexOffsetV"
              top_pad="1"
-             width="160" />
+             width="185" />
         <panel
          border="false"
          follows="left|top"

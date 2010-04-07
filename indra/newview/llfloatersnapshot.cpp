@@ -1319,7 +1319,27 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 // static
 void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 {
+	LLSnapshotLivePreview* previewp = getPreviewView(floater);
+	if (NULL == previewp)
+	{
+		return;
+	}
 
+	// Disable buttons until Snapshot is ready. EXT-6534
+	BOOL got_snap = previewp->getSnapshotUpToDate();
+
+	// process Main buttons
+	floater->childSetEnabled("share", got_snap);
+	floater->childSetEnabled("save", got_snap);
+	floater->childSetEnabled("set_profile_pic", got_snap);
+
+	// process Share actions buttons
+	floater->childSetEnabled("share_to_web", got_snap);
+	floater->childSetEnabled("share_to_email", got_snap);
+
+	// process Save actions buttons
+	floater->childSetEnabled("save_to_inventory", got_snap);
+	floater->childSetEnabled("save_to_computer", got_snap);
 }
 
 // static

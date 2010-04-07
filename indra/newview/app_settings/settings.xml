@@ -8128,13 +8128,13 @@
     <key>NearbyPeopleSortOrder</key>
     <map>
       <key>Comment</key>
-      <string>Specifies sort order for nearby people (0 = by name, 2 = by most recent)</string>
+      <string>Specifies sort order for nearby people (0 = by name, 3 = by distance, 4 = by most recent)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>4</integer>
     </map>
     <key>RecentPeopleSortOrder</key>
     <map>
