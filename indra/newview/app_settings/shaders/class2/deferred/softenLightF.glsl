@@ -298,12 +298,19 @@ void main()
 		// The goal of the blur is to soften reflections in surfaces
 		// with low shinyness, and also to disguise our lameness.
 		float checkerboard = floor(mod(tc.x+tc.y, 2.0)); // 0.0, 1.0
-		ref2d += normalize(ref2d)*14.0*(1.0-spec.a)*(checkerboard-0.5);
+		vec2 checkoffset = normalize(ref2d)*5.0*(1.0-spec.a)*(checkerboard-0.5);
+		ref2d += checkoffset;
 		ref2d += tc.xy; // use as offset from destination
-		// get attributes from the 2D guess point
+		// Get attributes from the 2D guess point.
+		// We average two samples of diffuse (not of anything else) per
+		// pixel to try to reduce aliasing some more.
+		// ---------------------
+		//     ^   ^ ^ ^   ^
+		//     a . b o c . d    check=0:avg(a,b) check=1:avg(c,d)
+		vec3 refcol = 0.5 * (texture2DRect(diffuseRect, ref2d).rgb +
+				     texture2DRect(diffuseRect, ref2d + checkoffset*2.0).rgb);
 		float refdepth = texture2DRect(depthMap, ref2d).a;
 		vec3 refpos = getPosition_d(ref2d, refdepth).xyz;
-		vec3 refcol = texture2DRect(diffuseRect, ref2d).rgb;
 		float refshad = texture2DRect(lightMap, ref2d).r;
 		vec3 refn = normalize(texture2DRect(normalMap, ref2d).rgb * 2.0 - 1.0);
 		// figure out how appropriate our guess actually was
