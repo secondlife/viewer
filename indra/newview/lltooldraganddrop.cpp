@@ -232,6 +232,9 @@ bool LLGiveable::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	return allowed;
 }
 
+// Starts a fetch on folders and items.  This is really not used 
+// as an observer in the traditional sense; we're just using it to
+// request a fetch and we don't care about when/if the response arrives.
 class LLCategoryFireAndForget : public LLInventoryFetchComboObserver
 {
 public:
@@ -485,8 +488,9 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 			}
 			if (!folder_ids.empty() || !item_ids.empty())
 			{
-				LLCategoryFireAndForget fetcher(folder_ids, item_ids);
-				fetcher.startFetch();
+				LLCategoryFireAndForget *fetcher = new LLCategoryFireAndForget(folder_ids, item_ids);
+				fetcher->startFetch();
+				delete fetcher;
 			}
 		}
 	}

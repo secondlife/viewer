@@ -205,10 +205,6 @@ void LLInventoryFetchItemsObserver::changed(U32 mask)
 	//llinfos << "LLInventoryFetchItemsObserver::changed() mIncomplete size " << mIncomplete.size() << llendl;
 }
 
-void LLInventoryFetchItemsObserver::done()
-{
-}
-
 void fetch_items_from_llsd(const LLSD& items_llsd)
 {
 	if (!items_llsd.size()) return;
@@ -406,119 +402,50 @@ BOOL LLInventoryFetchDescendentsObserver::isCategoryComplete(const LLViewerInven
 }
 
 LLInventoryFetchComboObserver::LLInventoryFetchComboObserver(const uuid_vec_t& folder_ids,
-															 const uuid_vec_t& item_ids) : 
-	mFolderIDs(folder_ids),
-	mItemIDs(item_ids),
-	mDone(FALSE)
+															 const uuid_vec_t& item_ids)
 {
+	mFetchDescendents = new LLInventoryFetchDescendentsObserver(folder_ids);
+
+	uuid_vec_t pruned_item_ids;
+	for (uuid_vec_t::const_iterator item_iter = item_ids.begin();
+		 item_iter != item_ids.end();
+		 ++item_iter)
+	{
+		const LLUUID& item_id = (*item_iter);
+		const LLViewerInventoryItem* item = gInventory.getItem(item_id);
+		if (item && std::find(folder_ids.begin(), folder_ids.end(), item->getParentUUID()) == folder_ids.end())
+		{
+			continue;
+		}
+		pruned_item_ids.push_back(item_id);
+	}
+
+	mFetchItems = new LLInventoryFetchItemsObserver(pruned_item_ids);
+	mFetchDescendents = new LLInventoryFetchDescendentsObserver(folder_ids);
+}
+
+LLInventoryFetchComboObserver::~LLInventoryFetchComboObserver()
+{
+	mFetchItems->done();
+	mFetchDescendents->done();
+	delete mFetchItems;
+	delete mFetchDescendents;
 }
 
 void LLInventoryFetchComboObserver::changed(U32 mask)
 {
-	if (!mIncompleteItems.empty())
+	mFetchItems->changed(mask);
+	mFetchDescendents->changed(mask);
+	if (mFetchItems->isFinished() && mFetchDescendents->isFinished())
 	{
-		for (uuid_vec_t::iterator it = mIncompleteItems.begin(); it < mIncompleteItems.end(); )
-		{
-			LLViewerInventoryItem* item = gInventory.getItem(*it);
-			if (!item)
-			{
-				it = mIncompleteItems.erase(it);
-				continue;
-			}
-			if (item->isFinished())
-			{	
-				mCompleteItems.push_back(*it);
-				it = mIncompleteItems.erase(it);
-				continue;
-			}
-			++it;
-		}
-	}
-	if (!mIncompleteFolders.empty())
-	{
-		for (uuid_vec_t::iterator it = mIncompleteFolders.begin(); it < mIncompleteFolders.end();)
-		{
-			LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
-			if (!cat)
-			{
-				it = mIncompleteFolders.erase(it);
-				continue;
-			}
-			if (gInventory.isCategoryComplete(*it))
-			{
-				mCompleteFolders.push_back(*it);
-				it = mIncompleteFolders.erase(it);
-				continue;
-			}
-			++it;
-		}
-	}
-	if (!mDone && mIncompleteItems.empty() && mIncompleteFolders.empty())
-	{
-		mDone = TRUE;
 		done();
 	}
 }
 
 void LLInventoryFetchComboObserver::startFetch()
 {
-	lldebugs << "LLInventoryFetchComboObserver::startFetch()" << llendl;
-	for (uuid_vec_t::const_iterator fit = mFolderIDs.begin(); fit != mFolderIDs.end(); ++fit)
-	{
-		LLViewerInventoryCategory* cat = gInventory.getCategory(*fit);
-		if (!cat) continue;
-		if (!gInventory.isCategoryComplete(*fit))
-		{
-			cat->fetch();
-			lldebugs << "fetching folder " << *fit <<llendl;
-			mIncompleteFolders.push_back(*fit);
-		}
-		else
-		{
-			mCompleteFolders.push_back(*fit);
-			lldebugs << "completing folder " << *fit <<llendl;
-		}
-	}
-
-	// Now for the items - we fetch everything which is not a direct
-	// descendent of an incomplete folder because the item will show
-	// up in an inventory descendents message soon enough so we do not
-	// have to fetch it individually.
-	LLSD items_llsd;
-	LLUUID owner_id;
-	for (uuid_vec_t::const_iterator iit = mItemIDs.begin(); iit != mItemIDs.end(); ++iit)
-	{
-		const LLViewerInventoryItem* item = gInventory.getItem(*iit);
-		if (!item)
-		{
-			lldebugs << "uanble to find item " << *iit << llendl;
-			continue;
-		}
-		if (item->isFinished())
-		{
-			// It's complete, so put it on the complete container.
-			mCompleteItems.push_back(*iit);
-			lldebugs << "completing item " << *iit << llendl;
-			continue;
-		}
-		else
-		{
-			mIncompleteItems.push_back(*iit);
-			owner_id = item->getPermissions().getOwner();
-		}
-		if (std::find(mIncompleteFolders.begin(), mIncompleteFolders.end(), item->getParentUUID()) == mIncompleteFolders.end())
-		{
-			LLSD item_entry;
-			item_entry["owner_id"] = owner_id;
-			item_entry["item_id"] = (*iit);
-			items_llsd.append(item_entry);
-		}
-		else
-		{
-			lldebugs << "not worrying about " << *iit << llendl;
-		}
-	}
-	fetch_items_from_llsd(items_llsd);
+	mFetchItems->startFetch();
+	mFetchDescendents->startFetch();
 }
 
 void LLInventoryExistenceObserver::watchItem(const LLUUID& id)

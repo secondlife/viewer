@@ -45,7 +45,6 @@ class LLViewerInventoryCategory;
 //   A simple abstract base class that can relay messages when the inventory 
 //   changes.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 class LLInventoryObserver
 {
 public:
@@ -60,7 +59,7 @@ public:
 		ADD 			= 4,	// Something added
 		REMOVE 			= 8,	// Something deleted
 		STRUCTURE 		= 16,	// Structural change (e.g. item or folder moved)
-		CALLING_CARD 	= 32,	// Calling card change (e.g. online, grant status, cancel)
+		CALLING_CARD	= 32,	// Calling card change (e.g. online, grant status, cancel)
 		GESTURE 		= 64,
 		REBUILD 		= 128, 	// Item UI changed (e.g. item type different)
 		SORT 			= 256, 	// Folder needs to be resorted.
@@ -88,9 +87,8 @@ public:
 	BOOL isFinished() const;
 
 	virtual void startFetch() = 0;
-	virtual void done() = 0;
 	virtual void changed(U32 mask) = 0;
-
+	virtual void done() {};
 protected:
 	uuid_vec_t mComplete;
 	uuid_vec_t mIncomplete;
@@ -112,8 +110,6 @@ public:
 
 	/*virtual*/ void startFetch();
 	/*virtual*/ void changed(U32 mask);
-	/*virtual*/ void done();
-
 protected:
 	BOOL mRetryIfMissing;
 };
@@ -140,28 +136,23 @@ protected:
 // Class LLInventoryFetchComboObserver
 //
 //   Does an appropriate combination of fetch descendents and
-//   item fetches based on completion of categories and items. Much like
-//   the fetch and fetch descendents, this will call done() when everything
-//   has arrived.
+//   item fetches based on completion of categories and items. This is optimized
+//   to not fetch item_ids that are descendents of any of the folder_ids.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInventoryFetchComboObserver : public LLInventoryObserver
 {
 public:
 	LLInventoryFetchComboObserver(const uuid_vec_t& folder_ids,
 								  const uuid_vec_t& item_ids);
+	~LLInventoryFetchComboObserver();
 	/*virtual*/ void changed(U32 mask);
 	void startFetch();
 
 	virtual void done() = 0;
 protected:
 	BOOL mDone;
-	uuid_vec_t mCompleteFolders;
-	uuid_vec_t mIncompleteFolders;
-	uuid_vec_t mCompleteItems;
-	uuid_vec_t mIncompleteItems;
-
-	uuid_vec_t mItemIDs;
-	uuid_vec_t mFolderIDs;
+	LLInventoryFetchItemsObserver *mFetchItems;
+	LLInventoryFetchDescendentsObserver *mFetchDescendents;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
