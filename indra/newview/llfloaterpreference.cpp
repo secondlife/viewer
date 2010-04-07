@@ -107,6 +107,8 @@
 #include "llpluginclassmedia.h"
 #include "llteleporthistorystorage.h"
 
+#include "lllogininstance.h"        // to check if logged in yet
+
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
 
@@ -597,7 +599,7 @@ void LLFloaterPreference::onBtnOK()
 		llinfos << "Can't close preferences!" << llendl;
 	}
 
-	LLPanelLogin::updateLocationCombo( false );
+	LLPanelLogin::refreshLocation( false );
 }
 
 // static 
@@ -614,7 +616,7 @@ void LLFloaterPreference::onBtnApply( )
 	apply();
 	saveSettings();
 
-	LLPanelLogin::updateLocationCombo( false );
+	LLPanelLogin::refreshLocation( false );
 }
 
 // static 
@@ -878,6 +880,8 @@ void LLFloaterPreference::refreshEnabledState()
 
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
+
+	childSetEnabled ("block_list", LLLoginInstance::getInstance()->authSuccess());
 }
 
 void LLFloaterPreference::disableUnavailableSettings()

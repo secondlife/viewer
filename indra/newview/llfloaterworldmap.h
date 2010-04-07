@@ -43,7 +43,6 @@
 #include "llhudtext.h"
 #include "llmapimagetype.h"
 #include "lltracker.h"
-#include "llslurl.h"
 
 class LLEventInfo;
 class LLFriendObserver;
@@ -184,7 +183,7 @@ private:
 	LLTracker::ETrackingStatus mTrackedStatus;
 	std::string				mTrackedSimName;
 	std::string				mTrackedAvatarName;
-	LLSLURL  				mSLURL;
+	std::string				mSLURL;
 };
 
 extern LLFloaterWorldMap* gFloaterWorldMap;

@@ -143,7 +143,7 @@ private:
 	LLPointer<LLUIImage> mImageLevel2;
 	LLPointer<LLUIImage> mImageLevel3;
 
-	/** whether to deal with LLVoiceClient::getInstance() directly */
+	/** whether to deal with gVoiceClient directly */
 	bool			mAutoUpdate;
 
 	/** uuid of a speaker being monitored */

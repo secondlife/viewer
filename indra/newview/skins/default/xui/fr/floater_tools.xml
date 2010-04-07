@@ -441,9 +441,9 @@
 			<check_box label="Inverser" name="checkbox flip s"/>
 			<spinner label="Vertical (V)" name="TexScaleV"/>
 			<check_box label="Inverser" name="checkbox flip t"/>
-			<spinner label="Rotation˚" left="122" name="TexRot" width="58"/>
-			<spinner label="Répétitions / Mètre" left="122" name="rptctrl" width="58"/>
-			<button label="Appliquer" label_selected="Appliquer" left_delta="68" name="button apply" width="75"/>
+			<spinner label="Rotation˚" name="TexRot" />
+			<spinner label="Répétitions / Mètre" name="rptctrl"/>
+			<button label="Appliquer" label_selected="Appliquer" name="button apply"/>
 			<text name="tex offset">
 				Décalage de la texture
 			</text>

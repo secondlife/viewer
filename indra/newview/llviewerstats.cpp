@@ -768,11 +768,9 @@ void send_stats()
 	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB();
 	system["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
-	unsigned char MACAddress[MAC_ADDRESS_BYTES];
-	LLUUID::getNodeID(MACAddress);
 	std::string macAddressString = llformat("%02x-%02x-%02x-%02x-%02x-%02x",
-											MACAddress[0],MACAddress[1],MACAddress[2],
-											MACAddress[3],MACAddress[4],MACAddress[5]);
+											gMACAddress[0],gMACAddress[1],gMACAddress[2],
+											gMACAddress[3],gMACAddress[4],gMACAddress[5]);
 	system["mac_address"] = macAddressString;
 	system["serial_number"] = LLAppViewer::instance()->getSerialNumber();
 	std::string gpu_desc = llformat(

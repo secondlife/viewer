@@ -85,6 +85,7 @@
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
+#include "llurlsimstring.h"
 
 // newview includes
 #include "llagent.h"
@@ -842,7 +843,7 @@ BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK m
 BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = TRUE;
-	LLVoiceClient::getInstance()->middleMouseState(true);
+	gVoiceClient->middleMouseState(true);
  	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
@@ -869,15 +870,20 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 					
 				if (slurl_dnd_enabled)
 				{
-					LLSLURL dropped_slurl(data);
-					if(dropped_slurl.isSpatial())
+					
+					// special case SLURLs
+					// isValidSLURL() call was added here to make sure that dragged SLURL is valid (EXT-4964)
+					if ( LLSLURL::isSLURL( data ) && LLSLURL::isValidSLURL( data ) )
 					{
 						if (drop)
 						{
-							LLURLDispatcher::dispatch( dropped_slurl.getSLURLString(), NULL, true );
-							return LLWindowCallbacks::DND_MOVE;
+							LLURLDispatcher::dispatch( data, NULL, true );
+							LLURLSimString::setStringRaw( LLSLURL::stripProtocol( data ) );
+							LLPanelLogin::refreshLocation( true );
+							LLPanelLogin::updateLocationUI();
 						}
-					}
+						return LLWindowCallbacks::DND_MOVE;
+					};
 				}
 
 				if (prim_media_dnd_enabled)
@@ -995,7 +1001,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
-	LLVoiceClient::getInstance()->middleMouseState(false);
+	gVoiceClient->middleMouseState(false);
  	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
@@ -1112,7 +1118,7 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 {
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
-	LLVoiceClient::getInstance()->keyDown(key, mask);
+	gVoiceClient->keyDown(key, mask);
 	
 	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
 	{
@@ -1134,7 +1140,7 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 {
 	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
-	LLVoiceClient::getInstance()->keyUp(key, mask);
+	gVoiceClient->keyUp(key, mask);
 
 	return FALSE;
 }
@@ -1993,7 +1999,7 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 
 		// ...and set the menu color appropriately.
 		setMenuBackgroundColor(gAgent.getGodLevel() > GOD_NOT, 
-			LLGridManager::getInstance()->isInProductionGrid());
+			LLViewerLogin::getInstance()->isInProductionGrid());
 	}
         
 	if ( gStatusBar )
@@ -2014,15 +2020,15 @@ void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
     LLSD args;
     LLColor4 new_bg_color;
 
-    if(god_mode && LLGridManager::getInstance()->isInProductionGrid())
+    if(god_mode && LLViewerLogin::getInstance()->isInProductionGrid())
     {
         new_bg_color = LLUIColorTable::instance().getColor( "MenuBarGodBgColor" );
     }
-    else if(god_mode && !LLGridManager::getInstance()->isInProductionGrid())
+    else if(god_mode && !LLViewerLogin::getInstance()->isInProductionGrid())
     {
         new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionGodBgColor" );
     }
-    else if(!god_mode && !LLGridManager::getInstance()->isInProductionGrid())
+    else if(!god_mode && !LLViewerLogin::getInstance()->isInProductionGrid())
     {
         new_bg_color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
     }
@@ -2238,6 +2244,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		}
 		return TRUE;
 	}
+
 	// hidden edit menu for cut/copy/paste
 	if (gEditMenu && gEditMenu->handleAcceleratorKey(key, mask))
 	{
