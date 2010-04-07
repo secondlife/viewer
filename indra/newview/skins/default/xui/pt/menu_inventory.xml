@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
-	<menu_item_call label="Compartilhar" name="Share"/>
 	<menu_item_call label="Comprar" name="Task Buy"/>
 	<menu_item_call label="Abrir" name="Task Open"/>
 	<menu_item_call label="Executar" name="Task Play"/>
@@ -16,7 +15,7 @@
 	<menu label="Novas roupas" name="New Clothes">
 		<menu_item_call label="Nova camisa" name="New Shirt"/>
 		<menu_item_call label="Nova calça" name="New Pants"/>
-		<menu_item_call label="Novos sapatos" name="New Shoes"/>
+		<menu_item_call label="Novos calçados" name="New Shoes"/>
 		<menu_item_call label="Novas meias" name="New Socks"/>
 		<menu_item_call label="Nova jaqueta" name="New Jacket"/>
 		<menu_item_call label="Nova saia" name="New Skirt"/>
@@ -47,21 +46,17 @@
 	<menu_item_call label="Teletransporte" name="Landmark Open"/>
 	<menu_item_call label="Abrir" name="Animation Open"/>
 	<menu_item_call label="Abrir" name="Sound Open"/>
-	<menu_item_call label="Substituir look" name="Replace Outfit"/>
-	<menu_item_call label="Adicionar a look" name="Add To Outfit"/>
-	<menu_item_call label="Tirar do look atual" name="Remove From Outfit"/>
-	<menu_item_call label="Encontrar original" name="Find Original"/>
+	<menu_item_call label="Substituir equipamento" name="Replace Outfit"/>
+	<menu_item_call label="Adicionar ao equipamento" name="Add To Outfit"/>
 	<menu_item_call label="Remover item" name="Purge Item"/>
 	<menu_item_call label="Restaurar item" name="Restore Item"/>
 	<menu_item_call label="Abrir" name="Open"/>
-	<menu_item_call label="Abrir original" name="Open Original"/>
 	<menu_item_call label="Propriedades" name="Properties"/>
 	<menu_item_call label="Renomear" name="Rename"/>
 	<menu_item_call label="Copiar item UUID" name="Copy Asset UUID"/>
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Colar" name="Paste"/>
 	<menu_item_call label="Colar como link" name="Paste As Link"/>
-	<menu_item_call label="Excluir" name="Remove Link"/>
 	<menu_item_call label="Apagar" name="Delete"/>
 	<menu_item_call label="Excluir pasta do sistema" name="Delete System Folder"/>
 	<menu_item_call label="Pasta conversa em conferência" name="Conference Chat Folder"/>
@@ -75,12 +70,12 @@
 	<menu_item_call label="Ativar" name="Activate"/>
 	<menu_item_call label="Desativar" name="Deactivate"/>
 	<menu_item_call label="Salvar como" name="Save As"/>
-	<menu_item_call label="Tirar de si mesmo" name="Detach From Yourself"/>
-	<menu_item_call label="Vestir" name="Wearable And Object Wear"/>
+	<menu_item_call label="Retirar de si mesmo" name="Detach From Yourself"/>
+	<menu_item_call label="Vestir objeto" name="Object Wear"/>
 	<menu label="Anexar a" name="Attach To"/>
 	<menu label="Anexar ao HUD" name="Attach To HUD"/>
 	<menu_item_call label="Editar" name="Wearable Edit"/>
-	<menu_item_call label="Adicionar" name="Wearable Add"/>
+	<menu_item_call label="Vestir" name="Wearable Wear"/>
 	<menu_item_call label="Tirar" name="Take Off"/>
 	<menu_item_call label="--Sem opções--" name="--no options--"/>
 </menu>

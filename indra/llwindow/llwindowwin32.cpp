@@ -2,25 +2,31 @@
  * @file llwindowwin32.cpp
  * @brief Platform-dependent implementation of llwindow
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -1538,14 +1544,16 @@ void LLWindowWin32::initCursors()
 	mCursor[ UI_CURSOR_TOOLZOOMIN ] = LoadCursor(module, TEXT("TOOLZOOMIN"));
 	mCursor[ UI_CURSOR_TOOLPICKOBJECT3 ] = LoadCursor(module, TEXT("TOOLPICKOBJECT3"));
 	mCursor[ UI_CURSOR_PIPETTE ] = LoadCursor(module, TEXT("TOOLPIPETTE"));
-	mCursor[ UI_CURSOR_TOOLSIT ]	= LoadCursor(module, TEXT("TOOLSIT"));
-	mCursor[ UI_CURSOR_TOOLBUY ]	= LoadCursor(module, TEXT("TOOLBUY"));
-	mCursor[ UI_CURSOR_TOOLOPEN ]	= LoadCursor(module, TEXT("TOOLOPEN"));
 
 	// Color cursors
-	mCursor[ UI_CURSOR_TOOLPLAY ]		= loadColorCursor(TEXT("TOOLPLAY"));
-	mCursor[ UI_CURSOR_TOOLPAUSE ]		= loadColorCursor(TEXT("TOOLPAUSE"));
-	mCursor[ UI_CURSOR_TOOLMEDIAOPEN ]	= loadColorCursor(TEXT("TOOLMEDIAOPEN"));
+	gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "res", "toolbuy.cur");
+
+	mCursor[UI_CURSOR_TOOLSIT] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + "res" + gDirUtilp->getDirDelimiter() + "toolsit.cur").c_str());
+	mCursor[UI_CURSOR_TOOLBUY] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + "res" + gDirUtilp->getDirDelimiter() + "toolbuy.cur").c_str());
+	mCursor[UI_CURSOR_TOOLOPEN] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + "res" + gDirUtilp->getDirDelimiter() + "toolopen.cur").c_str());
+	mCursor[UI_CURSOR_TOOLPLAY] = loadColorCursor(TEXT("TOOLPLAY"));
+	mCursor[UI_CURSOR_TOOLPAUSE] = loadColorCursor(TEXT("TOOLPAUSE"));
+	mCursor[UI_CURSOR_TOOLMEDIAOPEN] = loadColorCursor(TEXT("TOOLMEDIAOPEN"));
 
 	// Note: custom cursors that are not found make LoadCursor() return NULL.
 	for( S32 i = 0; i < UI_CURSOR_COUNT; i++ )
@@ -2871,16 +2879,8 @@ void LLSplashScreenWin32::updateImpl(const std::string& mesg)
 {
 	if (!mWindow) return;
 
-	int output_str_len = MultiByteToWideChar(CP_UTF8, 0, mesg.c_str(), mesg.length(), NULL, 0);
-	if( output_str_len>1024 )
-		return;
-
-	WCHAR w_mesg[1025];//big enought to keep null terminatos
-
-	MultiByteToWideChar (CP_UTF8, 0, mesg.c_str(), mesg.length(), w_mesg, output_str_len);
-
-	//looks like MultiByteToWideChar didn't add null terminator to converted string, see EXT-4858
-	w_mesg[output_str_len] = 0;
+	WCHAR w_mesg[1024];
+	mbstowcs(w_mesg, mesg.c_str(), 1024);
 
 	SendDlgItemMessage(mWindow,
 		666,		// HACK: text id

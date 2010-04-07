@@ -2,25 +2,31 @@
 * @file llnotifications.cpp
 * @brief Non-UI queue manager for keeping a prioritized list of notifications
 *
-* $LicenseInfo:firstyear=2008&license=viewerlgpl$
+* $LicenseInfo:firstyear=2008&license=viewergpl$
+* 
+* Copyright (c) 2008-2009, Linden Research, Inc.
+* 
 * Second Life Viewer Source Code
-* Copyright (C) 2010, Linden Research, Inc.
+* The source code in this file ("Source Code") is provided by Linden Lab
+* to you under the terms of the GNU General Public License, version 2.0
+* ("GPL"), unless you have obtained a separate licensing agreement
+* ("Other License"), formally executed by you and Linden Lab.  Terms of
+* the GPL can be found in doc/GPL-license.txt in this distribution, or
+* online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
 * 
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation;
-* version 2.1 of the License only.
+* There are special exceptions to the terms and conditions of the GPL as
+* it is applied to this Source Code. View the full text of the exception
+* in the file doc/FLOSS-exception.txt in this software distribution, or
+* online at
+* http://secondlifegrid.net/programs/open_source/licensing/flossexception
 * 
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-* Lesser General Public License for more details.
+* By copying, modifying or distributing this software, you acknowledge
+* that you have read and understood your obligations described above,
+* and agree to abide by those obligations.
 * 
-* You should have received a copy of the GNU Lesser General Public
-* License along with this library; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-* 
-* Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+* ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+* WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+* COMPLETENESS OR PERFORMANCE.
 * $/LicenseInfo$
 */
 
@@ -28,7 +34,6 @@
 
 #include "llnotifications.h"
 
-#include "llinstantmessage.h"
 #include "llxmlnode.h"
 #include "lluictrl.h"
 #include "lluictrlfactory.h"
@@ -36,7 +41,6 @@
 #include "llsdserialize.h"
 #include "lltrans.h"
 #include "llnotificationslistener.h"
-#include "llstring.h"
 
 #include <algorithm>
 #include <boost/regex.hpp>
@@ -44,38 +48,122 @@
 
 const std::string NOTIFICATION_PERSIST_VERSION = "0.93";
 
-// Local channel for persistent notifications
-// Stores only persistent notifications.
-// Class users can use connectChanged() to process persistent notifications
-// (see LLNotificationStorage for example).
-class LLPersistentNotificationChannel : public LLNotificationChannel
+// local channel for notification history
+class LLNotificationHistoryChannel : public LLNotificationChannel
 {
-	LOG_CLASS(LLPersistentNotificationChannel);
+	LOG_CLASS(LLNotificationHistoryChannel);
 public:
-	LLPersistentNotificationChannel() :
-		LLNotificationChannel("Persistent", "Visible", &notificationFilter, LLNotificationComparators::orderByUUID())
+	LLNotificationHistoryChannel(const std::string& filename) : 
+		LLNotificationChannel("History", "Visible", &historyFilter, LLNotificationComparators::orderByUUID()),
+		mFileName(filename)
 	{
+		connectChanged(boost::bind(&LLNotificationHistoryChannel::historyHandler, this, _1));
+		loadPersistentNotifications();
 	}
 
 private:
-
-	// The channel gets all persistent notifications except those that have been canceled
-	static bool notificationFilter(LLNotificationPtr pNotification)
+	bool historyHandler(const LLSD& payload)
 	{
-		bool handle_notification = false;
-
-		handle_notification = pNotification->isPersistent()
-			&& !pNotification->isCancelled();
-
-		return handle_notification;
+		// we ignore "load" messages, but rewrite the persistence file on any other
+		std::string sigtype = payload["sigtype"];
+		if (sigtype != "load")
+		{
+			savePersistentNotifications();
+		}
+		return false;
 	}
 
+	// The history channel gets all notifications except those that have been cancelled
+	static bool historyFilter(LLNotificationPtr pNotification)
+	{
+		return !pNotification->isCancelled();
+	}
+
+	void savePersistentNotifications()
+	{
+		/* NOTE: As of 2009-11-09 the reload of notifications on startup does not
+		work, and has not worked for months.  Skip saving notifications until the
+		read can be fixed, because this hits the disk once per notification and
+		causes log spam.  James
+
+		llinfos << "Saving open notifications to " << mFileName << llendl;
+
+		llofstream notify_file(mFileName.c_str());
+		if (!notify_file.is_open()) 
+		{
+			llwarns << "Failed to open " << mFileName << llendl;
+			return;
+		}
+
+		LLSD output;
+		output["version"] = NOTIFICATION_PERSIST_VERSION;
+		LLSD& data = output["data"];
+
+		for (LLNotificationSet::iterator it = mItems.begin(); it != mItems.end(); ++it)
+		{
+			if (!LLNotifications::instance().templateExists((*it)->getName())) continue;
+
+			// only store notifications flagged as persisting
+			LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate((*it)->getName());
+			if (!templatep->mPersist) continue;
+
+			data.append((*it)->asLLSD());
+		}
+
+		LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
+		formatter->format(output, notify_file, LLSDFormatter::OPTIONS_PRETTY);
+		*/
+	}
+
+	void loadPersistentNotifications()
+	{
+		llinfos << "Loading open notifications from " << mFileName << llendl;
+
+		llifstream notify_file(mFileName.c_str());
+		if (!notify_file.is_open()) 
+		{
+			llwarns << "Failed to open " << mFileName << llendl;
+			return;
+		}
+
+		LLSD input;
+		LLPointer<LLSDParser> parser = new LLSDXMLParser();
+		if (parser->parse(notify_file, input, LLSDSerialize::SIZE_UNLIMITED) < 0)
+		{
+			llwarns << "Failed to parse open notifications" << llendl;
+			return;
+		}
+
+		if (input.isUndefined()) return;
+		std::string version = input["version"];
+		if (version != NOTIFICATION_PERSIST_VERSION)
+		{
+			llwarns << "Bad open notifications version: " << version << llendl;
+			return;
+		}
+		LLSD& data = input["data"];
+		if (data.isUndefined()) return;
+
+		LLNotifications& instance = LLNotifications::instance();
+		for (LLSD::array_const_iterator notification_it = data.beginArray();
+			notification_it != data.endArray();
+			++notification_it)
+		{
+			instance.add(LLNotificationPtr(new LLNotification(*notification_it)));
+		}
+	}
+
+	//virtual
 	void onDelete(LLNotificationPtr pNotification)
 	{
-		// we want to keep deleted notifications in our log, otherwise some 
-		// notifications will be lost on exit.
+		// we want to keep deleted notifications in our log
 		mItems.insert(pNotification);
+		
+		return;
 	}
+	
+private:
+	std::string mFileName;
 };
 
 bool filterIgnoredNotifications(LLNotificationPtr notification)
@@ -329,10 +417,6 @@ LLNotification::LLNotification(const LLNotification::Params& p) :
 
 		mTemporaryResponder = true;
 	}
-	else if(p.functor.responder.isChosen())
-	{
-		mResponder = p.functor.responder;
-	}
 
 	if(p.responder.isProvided())
 	{
@@ -369,7 +453,6 @@ LLNotification::LLNotification(const LLSD& sd) :
 LLSD LLNotification::asLLSD()
 {
 	LLSD output;
-	output["id"] = mId;
 	output["name"] = mTemplatep->mName;
 	output["form"] = getForm()->asLLSD();
 	output["substitutions"] = mSubstitutions;
@@ -379,12 +462,6 @@ LLSD LLNotification::asLLSD()
 	output["priority"] = (S32)mPriority;
 	output["responseFunctor"] = mResponseFunctorName;
 	output["reusable"] = mIsReusable;
-
-	if(mResponder)
-	{
-		output["responder"] = mResponder->asLLSD();
-	}
-
 	return output;
 }
 
@@ -494,20 +571,12 @@ void LLNotification::respond(const LLSD& response)
 	// *TODO may remove mRespondedTo and use mResponce.isDefined() in isRespondedTo()
 	mRespondedTo = true;
 	mResponse = response;
-
-	if(mResponder)
-	{
-		mResponder->handleRespond(asLLSD(), response);
-	}
-	else
-	{
-		// look up the functor
-		LLNotificationFunctorRegistry::ResponseFunctor functor =
-			LLNotificationFunctorRegistry::instance().getFunctor(mResponseFunctorName);
-		// and then call it
-		functor(asLLSD(), response);
-	}
-
+	// look up the functor
+	LLNotificationFunctorRegistry::ResponseFunctor functor = 
+		LLNotificationFunctorRegistry::instance().getFunctor(mResponseFunctorName);
+	// and then call it
+	functor(asLLSD(), response);
+	
 	if (mTemporaryResponder && !isReusable())
 	{
 		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
@@ -552,9 +621,19 @@ void LLNotification::setResponseFunctor(const LLNotificationFunctorRegistry::Res
 	LLNotificationFunctorRegistry::instance().registerFunctor(mResponseFunctorName, cb);
 }
 
-void LLNotification::setResponseFunctor(const LLNotificationResponderPtr& responder)
+bool LLNotification::payloadContainsAll(const std::vector<std::string>& required_fields) const
 {
-	mResponder = responder;
+	for(std::vector<std::string>::const_iterator required_fields_it = required_fields.begin(); 
+		required_fields_it != required_fields.end();
+		required_fields_it++)
+	{
+		std::string required_field_name = *required_fields_it;
+		if( ! getPayload().has(required_field_name))
+		{
+			return false; // a required field was not found
+		}
+	}
+	return true; // all required fields were found
 }
 
 bool LLNotification::isEquivalentTo(LLNotificationPtr that) const
@@ -565,22 +644,11 @@ bool LLNotification::isEquivalentTo(LLNotificationPtr that) const
 	}
 	if (this->mTemplatep->mUnique)
 	{
-		const LLSD& these_substitutions = this->getSubstitutions();
-		const LLSD& those_substitutions = that->getSubstitutions();
-
 		// highlander bit sez there can only be one of these
-		for (std::vector<std::string>::const_iterator it = mTemplatep->mUniqueContext.begin(), end_it = mTemplatep->mUniqueContext.end();
-			it != end_it;
-			++it)
-		{
-			if (these_substitutions.get(*it).asString() != those_substitutions.get(*it).asString())
-			{
-				return false;
-			}
-		}
-		return true;
+		return
+			this->payloadContainsAll(that->mTemplatep->mUniqueContext) &&
+			that->payloadContainsAll(this->mTemplatep->mUniqueContext);
 	}
-
 	return false; 
 }
 
@@ -1048,9 +1116,12 @@ void LLNotifications::createDefaultChannels()
 	LLNotificationChannel::buildChannel("Visible", "Ignore",
 		&LLNotificationFilters::includeEverything);
 
-	// create special persistent notification channel
+	// create special history channel
+	//std::string notifications_log_file = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml" );
+	// use ^^^ when done debugging notifications serialization
+	std::string notifications_log_file = gDirUtilp->getExpandedFilename ( LL_PATH_USER_SETTINGS, "open_notifications.xml" );
 	// this isn't a leak, don't worry about the empty "new"
-	new LLPersistentNotificationChannel();
+	new LLNotificationHistoryChannel(notifications_log_file);
 
 	// connect action methods to these channels
 	LLNotifications::instance().getChannel("Expiration")->
@@ -1484,14 +1555,7 @@ std::ostream& operator<<(std::ostream& s, const LLNotification& notification)
 void LLPostponedNotification::onCachedNameReceived(const LLUUID& id, const std::string& first,
 		const std::string& last, bool is_group)
 {
-	mName = first + " " + last;
-
-	LLStringUtil::trim(mName);
-	if (mName.empty())
-	{
-		llwarns << "Empty name received for Id: " << id << llendl;
-		mName = SYSTEM_FROM;
-	}
+	gCacheName->getFullName(id, mName);
 	modifyNotificationParams();
 	LLNotifications::instance().add(mParams);
 	cleanup();

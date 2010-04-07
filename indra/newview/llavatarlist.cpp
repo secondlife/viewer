@@ -2,45 +2,42 @@
  * @file llavatarlist.h
  * @brief Generic avatar list
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
 #include "llviewerprecompiledheaders.h"
 
 #include "llavatarlist.h"
-
-// common
-#include "lltrans.h"
-#include "llcommonutils.h"
-
-// llui
-#include "lltextutil.h"
+#include "llagentdata.h" // for comparator
 
 // newview
-#include "llagentdata.h" // for comparator
-#include "llavatariconctrl.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
-#include "lllistcontextmenu.h"
 #include "llrecentpeople.h"
 #include "lluuid.h"
 #include "llvoiceclient.h"
@@ -111,7 +108,7 @@ LLAvatarList::Params::Params()
 }
 
 LLAvatarList::LLAvatarList(const Params& p)
-:	LLFlatListViewEx(p)
+:	LLFlatListView(p)
 , mIgnoreOnlineStatus(p.ignore_online_status)
 , mShowLastInteractionTime(p.show_last_interaction_time)
 , mContextMenu(NULL)
@@ -152,7 +149,7 @@ void LLAvatarList::draw()
 	// *NOTE dzaporozhan
 	// Call refresh() after draw() to avoid flickering of avatar list items.
 
-	LLFlatListViewEx::draw();
+	LLFlatListView::draw();
 
 	if (mDirty)
 		refresh();
@@ -169,20 +166,14 @@ void LLAvatarList::clear()
 {
 	getIDs().clear();
 	setDirty(true);
-	LLFlatListViewEx::clear();
+	LLFlatListView::clear();
 }
 
 void LLAvatarList::setNameFilter(const std::string& filter)
 {
-	std::string filter_upper = filter;
-	LLStringUtil::toUpper(filter_upper);
-	if (mNameFilter != filter_upper)
+	if (mNameFilter != filter)
 	{
-		mNameFilter = filter_upper;
-
-		// update message for empty state here instead of refresh() to avoid blinking when switch
-		// between tabs.
-		updateNoItemsMessage(filter);
+		mNameFilter = filter;
 		setDirty();
 	}
 }
@@ -200,18 +191,6 @@ void LLAvatarList::setDirty(bool val /*= true*/, bool force_refresh /*= false*/)
 	{
 		refresh();
 	}
-}
-
-void LLAvatarList::addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name)
-{
-	LL_DEBUGS("Avaline") << "Adding avaline item into the list: " << item_name << "|" << item_id << ", session: " << session_id << LL_ENDL;
-	LLAvalineListItem* item = new LLAvalineListItem(/*hide_number=*/false);
-	item->setAvatarId(item_id, session_id, true, false);
-	item->setName(item_name);
-
-	addItem(item, item_id);
-	mIDs.push_back(item_id);
-	sort();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -313,7 +292,9 @@ void LLAvatarList::refresh()
 		}
 
 		// Send refresh_complete signal.
-		mRefreshCompleteSignal(this, LLSD((S32)size(false)));
+		std::vector<LLSD> cur_values;
+		getValues(cur_values);
+		mRefreshCompleteSignal(this, LLSD((S32)cur_values.size()));
 	}
 
 	// Commit if we've added/removed items.
@@ -362,7 +343,7 @@ S32 LLAvatarList::notifyParent(const LLSD& info)
 		sort();
 		return 1;
 	}
-	return LLFlatListViewEx::notifyParent(info);
+	return LLFlatListView::notifyParent(info);
 }
 
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
@@ -396,21 +377,13 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-void LLAvatarList::setVisible(BOOL visible)
-{
-	if ( visible == FALSE && mContextMenu )
-	{
-		mContextMenu->hide();
-	}
-	LLFlatListViewEx::setVisible(visible);
-}
-
 void LLAvatarList::computeDifference(
 	const uuid_vec_t& vnew_unsorted,
 	uuid_vec_t& vadded,
 	uuid_vec_t& vremoved)
 {
 	uuid_vec_t vcur;
+	uuid_vec_t vnew = vnew_unsorted;
 
 	// Convert LLSDs to LLUUIDs.
 	{
@@ -421,7 +394,21 @@ void LLAvatarList::computeDifference(
 			vcur.push_back(vcur_values[i].asUUID());
 	}
 
-	LLCommonUtils::computeDifference(vnew_unsorted, vcur, vadded, vremoved);
+	std::sort(vcur.begin(), vcur.end());
+	std::sort(vnew.begin(), vnew.end());
+
+	uuid_vec_t::iterator it;
+	size_t maxsize = llmax(vcur.size(), vnew.size());
+	vadded.resize(maxsize);
+	vremoved.resize(maxsize);
+
+	// what to remove
+	it = set_difference(vcur.begin(), vcur.end(), vnew.begin(), vnew.end(), vremoved.begin());
+	vremoved.erase(it, vremoved.end());
+
+	// what to add
+	it = set_difference(vnew.begin(), vnew.end(), vcur.begin(), vcur.end(), vadded.begin());
+	vadded.erase(it, vadded.end());
 }
 
 // Refresh shown time of our last interaction with all listed avatars.
@@ -483,62 +470,4 @@ bool LLAvatarItemAgentOnTopComparator::doCompare(const LLAvatarListItem* avatar_
 		return false;
 	}
 	return LLAvatarItemNameComparator::doCompare(avatar_item1,avatar_item2);
-}
-
-/************************************************************************/
-/*             class LLAvalineListItem                                  */
-/************************************************************************/
-LLAvalineListItem::LLAvalineListItem(bool hide_number/* = true*/) : LLAvatarListItem(false)
-, mIsHideNumber(hide_number)
-{
-	// should not use buildPanel from the base class to ensure LLAvalineListItem::postBuild is called.
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
-}
-
-BOOL LLAvalineListItem::postBuild()
-{
-	BOOL rv = LLAvatarListItem::postBuild();
-
-	if (rv)
-	{
-		setOnline(true);
-		showLastInteractionTime(false);
-		setShowProfileBtn(false);
-		setShowInfoBtn(false);
-		mAvatarIcon->setValue("Avaline_Icon");
-		mAvatarIcon->setToolTip(std::string(""));
-	}
-	return rv;
-}
-
-// to work correctly this method should be called AFTER setAvatarId for avaline callers with hidden phone number
-void LLAvalineListItem::setName(const std::string& name)
-{
-	if (mIsHideNumber)
-	{
-		static U32 order = 0;
-		typedef std::map<LLUUID, U32> avaline_callers_nums_t;
-		static avaline_callers_nums_t mAvalineCallersNums;
-
-		llassert(getAvatarId() != LLUUID::null);
-
-		const LLUUID &uuid = getAvatarId();
-
-		if (mAvalineCallersNums.find(uuid) == mAvalineCallersNums.end())
-		{
-			mAvalineCallersNums[uuid] = ++order;
-			LL_DEBUGS("Avaline") << "Set name for new avaline caller: " << uuid << ", order: " << order << LL_ENDL;
-		}
-		LLStringUtil::format_map_t args;
-		args["[ORDER]"] = llformat("%u", mAvalineCallersNums[uuid]);
-		std::string hidden_name = LLTrans::getString("AvalineCaller", args);
-
-		LL_DEBUGS("Avaline") << "Avaline caller: " << uuid << ", name: " << hidden_name << LL_ENDL;
-		LLAvatarListItem::setName(hidden_name);
-	}
-	else
-	{
-		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
-		LLAvatarListItem::setName(formatted_phone);
-	}
 }

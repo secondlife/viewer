@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="PODGLĄD ZDJĘCIA">
-	<floater.string name="unknown">
-		nieznany
-	</floater.string>
-	<radio_group label="Rodzaj zdjęcia" name="snapshot_type_radio">
+<floater name="Snapshot" title="WYGLĄD ZDJĘCIA">
+	<text name="type_label">
+		Lokacja zapisu
+	</text>
+	<radio_group label="Rodzaje zdjęć" name="snapshot_type_radio">
 		<radio_item label="Email" name="postcard"/>
 		<radio_item label="Załaduj do Szafy (L$[AMOUNT])" name="texture"/>
-		<radio_item label="Zapisz na dysku" name="local"/>
+		<radio_item label="Zapisz na dysk" name="local"/>
 	</radio_group>
 	<text name="file_size_label">
 		[SIZE] KB
@@ -14,13 +14,13 @@
 	<button label="Odśwież zdjęcie" name="new_snapshot_btn"/>
 	<button label="Wyślij" name="send_btn"/>
 	<button label="Załaduj (L$[AMOUNT])" name="upload_btn"/>
-	<flyout_button label="Zapisz" name="save_btn" tool_tip="Zapisz zdjęcie w pliku">
+	<flyout_button label="Zapisz" name="save_btn" tool_tip="Zapisz zdjęcie na dysk">
 		<flyout_button.item label="Zapisz" name="save_item"/>
 		<flyout_button.item label="Zapisz jako..." name="saveas_item"/>
 	</flyout_button>
+	<button label="Anuluj" name="discard_btn"/>
 	<button label="Więcej" name="more_btn" tool_tip="Zaawansowane"/>
 	<button label="Mniej" name="less_btn" tool_tip="Zaawansowane"/>
-	<button label="Anuluj" name="discard_btn"/>
 	<text name="type_label2">
 		Wymiar
 	</text>
@@ -28,28 +28,28 @@
 		Format
 	</text>
 	<combo_box label="Rozdzielczość" name="postcard_size_combo">
-		<combo_box.item label="Obecne okno" name="CurrentWindow"/>
+		<combo_box.item label="Obecne Okno" name="CurrentWindow"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>
 		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="Niestandardowy" name="Custom"/>
+		<combo_box.item label="Wybierz" name="Custom"/>
 	</combo_box>
 	<combo_box label="Rozdzielczość" name="texture_size_combo">
-		<combo_box.item label="Obecne okno" name="CurrentWindow"/>
+		<combo_box.item label="Obecne Okno" name="CurrentWindow"/>
 		<combo_box.item label="Mały (128x128)" name="Small(128x128)"/>
 		<combo_box.item label="Średni (256x256)" name="Medium(256x256)"/>
 		<combo_box.item label="Duży (512x512)" name="Large(512x512)"/>
-		<combo_box.item label="Niestandardowy" name="Custom"/>
+		<combo_box.item label="Wybierz" name="Custom"/>
 	</combo_box>
 	<combo_box label="Rozdzielczość" name="local_size_combo">
-		<combo_box.item label="Obecne okno" name="CurrentWindow"/>
+		<combo_box.item label="Obecne Okno" name="CurrentWindow"/>
 		<combo_box.item label="320x240" name="320x240"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>
 		<combo_box.item label="1024x768" name="1024x768"/>
 		<combo_box.item label="1280x1024" name="1280x1024"/>
 		<combo_box.item label="1600x1200" name="1600x1200"/>
-		<combo_box.item label="Niestandardowy" name="Custom"/>
+		<combo_box.item label="Wybierz" name="Custom"/>
 	</combo_box>
 	<combo_box label="Format" name="local_format_combo">
 		<combo_box.item label="PNG" name="PNG"/>
@@ -61,15 +61,19 @@
 	<check_box label="Ograniczone proporcje" name="keep_aspect_check"/>
 	<slider label="Jakość zdjęcia" name="image_quality_slider"/>
 	<text name="layer_type_label">
-		Warstwy obrazu:
+		Zapisz:
 	</text>
-	<combo_box label="Warstwy obrazu" name="layer_types">
+	<combo_box label="Warstwy Obrazu" name="layer_types">
 		<combo_box.item label="Kolory" name="Colors"/>
 		<combo_box.item label="Głębokość" name="Depth"/>
+		<combo_box.item label="Obiekty ślepe" name="ObjectMattes"/>
 	</combo_box>
 	<check_box label="Pokaż interfejs na zdjęciu" name="ui_check"/>
-	<check_box label="Pokaż obiekty Hud na zdjęciu" name="hud_check"/>
-	<check_box label="Pozostaw otwarty po zapisaniu" name="keep_open_check"/>
-	<check_box label="Widok pełnego okna" name="freeze_frame_check"/>
-	<check_box label="Automatyczne odswieżanie" name="auto_snapshot_check"/>
+	<check_box label="Pokaż obiekty HUD na zdjęciu" name="hud_check"/>
+	<check_box label="Pozostaw otwarte po zapisaniu" name="keep_open_check"/>
+	<check_box label="Widok pełnego ekranu" name="freeze_frame_check"/>
+	<check_box label="Automatyczne odświeżenie" name="auto_snapshot_check"/>
+	<string name="unknown">
+		nieznany
+	</string>
 </floater>

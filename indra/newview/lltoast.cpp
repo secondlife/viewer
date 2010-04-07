@@ -2,25 +2,31 @@
  * @file lltoast.cpp
  * @brief This class implements a placeholder for any notification panel.
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2000&license=viewergpl$
+ * 
+ * Copyright (c) 2000-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -61,7 +67,6 @@ LLToast::Params::Params()
 LLToast::LLToast(const LLToast::Params& p) 
 :	LLModalDialog(LLSD(), p.is_modal),
 	mPanel(p.panel), 
-	mToastLifetime(p.lifetime_secs),
 	mToastFadingTime(p.fading_time_secs),
 	mNotificationID(p.notif_id),  
 	mSessionID(p.session_id),
@@ -106,14 +111,6 @@ LLToast::LLToast(const LLToast::Params& p)
 		mOnMouseEnterSignal.connect(p.on_mouse_enter());
 }
 
-void LLToast::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-	// We shouldn't  use reshape from LLModalDialog since it changes toasts position.
-	// Toasts position should be controlled only by toast screen channel, see LLScreenChannelBase.
-	// see EXT-8044
-	LLFloater::reshape(width, height, called_from_parent);
-}
-
 //--------------------------------------------------------------------------
 BOOL LLToast::postBuild()
 {
@@ -122,7 +119,27 @@ BOOL LLToast::postBuild()
 		mTimer->stop();
 	}
 
+	if (mIsTip)
+	{
+		mTextEditor = mPanel->getChild<LLTextEditor>("text_editor_box");
+
+		if (mTextEditor)
+		{
+			mTextEditor->setMouseUpCallback(boost::bind(&LLToast::hide,this));
+			mPanel->setMouseUpCallback(boost::bind(&LLToast::handleTipToastClick, this, _2, _3, _4));
+		}
+	}
+
 	return TRUE;
+}
+
+//--------------------------------------------------------------------------
+void LLToast::handleTipToastClick(S32 x, S32 y, MASK mask)
+{
+	if (!mTextEditor->getRect().pointInRect(x, y))
+	{
+		hide();
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -244,13 +261,6 @@ void LLToast::draw()
 			drawChild(mHideBtn);
 		}
 	}
-
-	// if timer started and remaining time <= fading time
-	if (mTimer->getStarted() && (mToastLifetime
-			- mTimer->getEventTimer().getElapsedTimeF32()) <= mToastFadingTime)
-	{
-		setBackgroundOpaque(FALSE);
-	}
 }
 
 //--------------------------------------------------------------------------
@@ -273,16 +283,7 @@ void LLToast::setVisible(BOOL show)
 		{
 			mTimer->start();
 		}
-		if (!getVisible())
-		{
-			LLModalDialog::setFrontmost(FALSE);
-		}
-	}
-	else
-	{
-		//hide "hide" button in case toast was hidden without mouse_leave
-		if(mHideBtn)
-			mHideBtn->setVisible(show);
+		LLModalDialog::setFrontmost(FALSE);
 	}
 	LLFloater::setVisible(show);
 	if(mPanel)
@@ -414,13 +415,4 @@ bool LLToast::isNotificationValid()
 
 //--------------------------------------------------------------------------
 
-S32	LLToast::notifyParent(const LLSD& info)
-{
-	if (info.has("action") && "hide_toast" == info["action"].asString())
-	{
-		hide();
-		return 1;
-	}
 
-	return LLModalDialog::notifyParent(info);
-}

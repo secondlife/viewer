@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="bottom_tray">
-	<string name="SpeakBtnToolTip" value="Accende o spegne il microfono"/>
-	<string name="VoiceControlBtnToolTip" value="Mostra o nasconde il pannello di regolazione voce"/>
+	<string name="SpeakBtnToolTip">
+		Accende o spegne il microfono
+	</string>
+	<string name="VoiceControlBtnToolTip">
+		Mostra o nasconde il pannello di regolazione voce
+	</string>
 	<layout_stack name="toolbar_stack">
 		<layout_panel name="speak_panel">
 			<talk_button name="talk">
@@ -19,21 +23,6 @@
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
 			<button label="" name="snapshots" tool_tip="Scatta una foto"/>
-		</layout_panel>
-		<layout_panel name="sidebar_btn_panel">
-			<button label="Barra laterale" name="sidebar_btn" tool_tip="Mostra o nasconde la barra laterale"/>
-		</layout_panel>
-		<layout_panel name="build_btn_panel">
-			<button label="Costruisci" name="build_btn" tool_tip="Mostra o nasconde gli strumenti di costruzione"/>
-		</layout_panel>
-		<layout_panel name="search_btn_panel">
-			<button label="Cerca" name="search_btn" tool_tip="Mostra o nasconde la ricerca"/>
-		</layout_panel>
-		<layout_panel name="world_map_btn_panel">
-			<button label="Mappa" name="world_map_btn" tool_tip="Mostra o nasconde la mappa del mondo"/>
-		</layout_panel>
-		<layout_panel name="mini_map_btn_panel">
-			<button label="Mini mappa" name="mini_map_btn" tool_tip="Mostra o nasconde la mini mappa"/>
 		</layout_panel>
 		<layout_panel name="im_well_panel">
 			<chiclet_im_well name="im_well">

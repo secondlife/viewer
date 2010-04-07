@@ -174,15 +174,12 @@ supports [AMOUNT2] objects
     </floater.string>
     <floater.string
      name="icon_PG"
-     translate="false"
      value="Parcel_PG_Dark"/>
     <floater.string
      name="icon_M"
-     translate="false"
      value="Parcel_M_Dark"/>
     <floater.string
      name="icon_R"
-     translate="false"
      value="Parcel_R_Dark"/>
     <text
      type="string"
@@ -380,7 +377,6 @@ supports [AMOUNT2] objects
      width="275" />
     <texture_picker
      enabled="false"
-     fallback_image="default_land_picture.j2c"
      follows="top|left"
      height="135"
      layout="topleft"
@@ -529,14 +525,13 @@ sold with objects
      length="1"
      follows="top|left"
      font="SansSerifBig"
-     height="32"
+     height="16"
      layout="topleft"
      left="72"
      name="account_action"
      right="438"
      top="200"
-     width="218"
-     wrap="true">
+     width="218">
         Upgrade you to premium membership.
     </text>
     <text
@@ -578,21 +573,19 @@ sold with objects
      layout="topleft"
      left="0"
      name="step_2"
-     top_pad="-10"
      width="64" />
     <text
      type="string"
      length="1"
      follows="top|left"
      font="SansSerifBig"
-     height="32"
+     height="16"
      layout="topleft"
      left="72"
      name="land_use_action"
      right="438"
      top="284"
-     width="218"
-     wrap="true">
+     width="218">
         Increase your monthly land use fees to US$ 40/month.
     </text>
     <text
@@ -623,15 +616,14 @@ This parcel is 512 m² of land.
     <text
      type="string"
      length="1"
-     bottom_delta="-22"
+     bottom_delta="-38"
      follows="top|left"
      font="SansSerifBig"
-     height="32"
+     height="16"
      layout="topleft"
      left="72"
      name="purchase_action"
-     right="438"
-     wrap="true">
+     right="438">
         Pay Joe Resident L$ 4000 for the land
     </text>
     <text
@@ -669,7 +661,7 @@ This parcel is 512 m² of land.
      layout="topleft"
      left="170"
      name="currency_amt"
-     top="424"
+     top="408"
      width="80">
         1000
     </line_editor>
@@ -685,7 +677,7 @@ This parcel is 512 m² of land.
      layout="topleft"
      left="260"
      name="currency_est"
-     top="425"
+     top="409"
      width="178">
         for approx. [LOCAL_AMOUNT]
     </text>
@@ -717,7 +709,7 @@ This parcel is 512 m² of land.
      layout="topleft"
      left="70"
      name="buy_btn"
-     top="460"
+     top="448"
      width="100" />
     <button
      follows="bottom|right"

@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="VISUALIZAR FOTO">
-	<floater.string name="unknown">
-		desconhecido
-	</floater.string>
+<floater name="Snapshot" title="VER FOTO">
+	<text name="type_label">
+		Destino da foto
+	</text>
 	<radio_group label="Tipo de foto" name="snapshot_type_radio">
 		<radio_item label="Email" name="postcard"/>
 		<radio_item label="Meu inventário (L$[AMOUNT])" name="texture"/>
 		<radio_item label="Salvar no meu PC" name="local"/>
 	</radio_group>
 	<text name="file_size_label">
-		[TAMANHO] KB
+		[SIZE] KB
 	</text>
 	<button label="Atualizar a foto" name="new_snapshot_btn"/>
 	<button label="Enviar" name="send_btn"/>
-	<button label="Economize (L$[AMOUNT])" name="upload_btn"/>
+	<button label="Salvar (L$[AMOUNT])" name="upload_btn"/>
 	<flyout_button label="Salvar" name="save_btn" tool_tip="Salvar imagem em um arquivo">
 		<flyout_button.item label="Salvar" name="save_item"/>
 		<flyout_button.item label="Salvar como..." name="saveas_item"/>
 	</flyout_button>
+	<button label="Cancelar" name="discard_btn"/>
 	<button label="Mais" name="more_btn" tool_tip="Opções avançadas"/>
 	<button label="Menos" name="less_btn" tool_tip="Opções avançadas"/>
-	<button label="Cancelar" name="discard_btn"/>
 	<text name="type_label2">
 		Tamanho
 	</text>
@@ -56,8 +56,8 @@
 		<combo_box.item label="JPEG" name="JPEG"/>
 		<combo_box.item label="BMP" name="BMP"/>
 	</combo_box>
-	<spinner label="Largura" name="snapshot_width"/>
-	<spinner label="Altura" name="snapshot_height"/>
+	<spinner label="Largura" label_width="41" name="snapshot_width" width="101"/>
+	<spinner label="Altura" label_width="31" left="119" name="snapshot_height" width="91"/>
 	<check_box label="Limitar proproções" name="keep_aspect_check"/>
 	<slider label="Qualidade da imagem" name="image_quality_slider"/>
 	<text name="layer_type_label">
@@ -65,11 +65,15 @@
 	</text>
 	<combo_box label="Camadas da imagem" name="layer_types">
 		<combo_box.item label="Cores" name="Colors"/>
-		<combo_box.item label="Profundidade" name="Depth"/>
+		<combo_box.item label="Formato" name="Depth"/>
+		<combo_box.item label="Decoração do objeto" name="ObjectMattes"/>
 	</combo_box>
 	<check_box label="Interface" name="ui_check"/>
-	<check_box label="HUDs" name="hud_check"/>
-	<check_box label="Deixar aberto depois de salvo" name="keep_open_check"/>
-	<check_box label="Gerar quadro (tela inteira)" name="freeze_frame_check"/>
-	<check_box label="Atualizar" name="auto_snapshot_check"/>
+	<check_box bottom_delta="-17" label="HUDs" name="hud_check"/>
+	<check_box bottom_delta="-17" label="Manter aberto após salvar" name="keep_open_check"/>
+	<check_box bottom_delta="-17" label="Gerar quadro (tela inteira)" name="freeze_frame_check"/>
+	<check_box bottom_delta="-29" label="Auto-atualizar" name="auto_snapshot_check"/>
+	<string name="unknown">
+		desconhecido
+	</string>
 </floater>

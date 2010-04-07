@@ -5,11 +5,10 @@
 		<menu_item_call label="Moja Tablica" name="Manage My Account"/>
 		<menu_item_call label="Kup L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Mój Profil" name="Profile"/>
-		<menu_item_call label="Zmień strój" name="ChangeOutfit"/>
+		<menu_item_call label="Mój Wygląd" name="Appearance"/>
 		<menu_item_check label="Moja Szafa" name="Inventory"/>
 		<menu_item_check label="Moja Szafa" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Moje Gesty" name="Gestures"/>
-		<menu_item_check label="Mój głos" name="ShowVoice"/>
 		<menu label="Mój Status" name="Status">
 			<menu_item_call label="Tryb Oddalenia" name="Set Away"/>
 			<menu_item_call label="Tryb Pracy" name="Set Busy"/>
@@ -30,7 +29,6 @@
 		<menu_item_call label="Zrób Zdjęcie" name="Take Snapshot"/>
 		<menu_item_call label="Zapamiętaj to Miejsce" name="Create Landmark Here"/>
 		<menu label="Miejsce" name="Land">
-			<menu_item_call label="Profil miejsca" name="Place Profile"/>
 			<menu_item_call label="O Posiadłości" name="About Land"/>
 			<menu_item_call label="Region/Majątek" name="Region/Estate"/>
 		</menu>
@@ -66,15 +64,20 @@
 			<menu_item_call label="Stwórz Narzędzie" name="Create"/>
 			<menu_item_call label="Narzędzie Posiadłości" name="Land"/>
 		</menu>
+		<menu label="Edytuj" name="Edit">
+			<menu_item_call label="Cofnij" name="Undo"/>
+			<menu_item_call label="Cofnij" name="Redo"/>
+			<menu_item_call label="Wytnij" name="Cut"/>
+			<menu_item_call label="Kopiuj" name="Copy"/>
+			<menu_item_call label="Wklej" name="Paste"/>
+			<menu_item_call label="Usuń" name="Delete"/>
+			<menu_item_call label="Zduplikuj" name="Duplicate"/>
+			<menu_item_call label="Zaznacz Wszystko" name="Select All"/>
+			<menu_item_call label="Cofnij Zaznaczenie" name="Deselect"/>
+		</menu>
 		<menu_item_call label="Linkuj" name="Link"/>
 		<menu_item_call label="Rozlinkuj" name="Unlink"/>
 		<menu_item_check label="Edytuj Zgrupowane Obiekty" name="Edit Linked Parts"/>
-		<menu label="Wybierz Zlinkowane Części" name="Select Linked Parts">
-			<menu_item_call label="Wybierz Następną Część" name="Select Next Part"/>
-			<menu_item_call label="Zaznacz Poprzednią Część" name="Select Previous Part"/>
-			<menu_item_call label="Uwzględnij Następną Część" name="Include Next Part"/>
-			<menu_item_call label="Uwzględnij Poprzednią Część" name="Include Previous Part"/>
-		</menu>
 		<menu_item_call label="Ogniskowa Selekcji" name="Focus on Selection"/>
 		<menu_item_call label="Przybliż do Selekcji" name="Zoom to Selection"/>
 		<menu label="Obiekt" name="Object">
@@ -92,7 +95,7 @@
 			<menu_item_call label="Wstrzymaj Działanie Skryptów w Selekcji" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Opcje" name="Options">
-			<menu_item_call label="Ustaw domyślne pozwolenia ładowania" name="perm prefs"/>
+			<menu_item_call label="Ustaw Domyślne Pozwolenia Ładowania" name="perm prefs"/>
 			<menu_item_check label="Pokaż Zaawansowane Pozwolenia" name="DebugPermissions"/>
 			<menu_item_check label="Wybierz Tylko Moje Obiekty" name="Select Only My Objects"/>
 			<menu_item_check label="Wybierz Tylko Obiekty Przesuwalne" name="Select Only Movable Objects"/>
@@ -105,21 +108,19 @@
 			<menu_item_call label="Wybierz Zaznaczenie Siatki" name="Use Selection for Grid"/>
 			<menu_item_call label="Opcje Siatki" name="Grid Options"/>
 		</menu>
-		<menu label="Załaduj" name="Upload">
-			<menu_item_call label="teksturę (L$[COST])..." name="Upload Image"/>
-			<menu_item_call label="dźwięk (L$[COST])..." name="Upload Sound"/>
-			<menu_item_call label="animację (L$[COST])..." name="Upload Animation"/>
-			<menu_item_call label="zbiór plików (L$[COST] za jeden plik)..." name="Bulk Upload"/>
+		<menu label="Wybierz Zlinkowane Części" name="Select Linked Parts">
+			<menu_item_call label="Wybierz Następną Część" name="Select Next Part"/>
+			<menu_item_call label="Zaznacz Poprzednią Część" name="Select Previous Part"/>
+			<menu_item_call label="Uwzględnij Następną Część" name="Include Next Part"/>
+			<menu_item_call label="Uwzględnij Poprzednią Część" name="Include Previous Part"/>
 		</menu>
 	</menu>
 	<menu label="Pomoc" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Portal Pomocy" name="Second Life Help"/>
 		<menu_item_call label="Złóż Raport o Nadużyciu" name="Report Abuse"/>
 		<menu_item_call label="Zgłoś Błędy Klienta" name="Report Bug"/>
-		<menu_item_call label="O [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Zaawansowane" name="Advanced">
-		<menu_item_check label="Pokaż menu Zaawansowane" name="Show Advanced Menu"/>
 		<menu_item_call label="Zatrzymaj Wszystkie Animacje" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Odswież Wyświetlanie Tekstur" name="Rebake Texture"/>
 		<menu_item_call label="Domyślne Ustawienia Rozmiaru Interfejsu" name="Set UI Size to Default"/>
@@ -141,6 +142,7 @@
 			<menu_item_check label="Pokaż Przeźroczyste Obiekty" name="Highlight Transparent"/>
 			<menu_item_check label="Pokaż Załączniki HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Pokaż Celownik Myszki" name="ShowCrosshairs"/>
+			<menu_item_check label="Pokaż Podpowiedzi Posiadłości" name="Land Tips"/>
 		</menu>
 		<menu label="Rodzaje Renderowania" name="Rendering Types">
 			<menu_item_check label="Podstawowe" name="Simple"/>
@@ -167,7 +169,6 @@
 			<menu_item_check label="Obiekty Elastyczne" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="Uruchom Wiele Wątków" name="Run Multiple Threads"/>
-		<menu_item_check label="Use Plugin Read Thread" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Wyczyść Bufor Danych Grupy" name="ClearGroupCache"/>
 		<menu_item_check label="Wygładzanie Ruchu Myszki" name="Mouse Smoothing"/>
 		<menu label="Skróty" name="Shortcuts">
@@ -175,7 +176,6 @@
 			<menu_item_check label="Szukaj" name="Search"/>
 			<menu_item_call label="Zwolnij Klawisze" name="Release Keys"/>
 			<menu_item_call label="Domyślne Ustawienia Rozmiaru Interfejsu" name="Set UI Size to Default"/>
-			<menu_item_check label="Pokaż menu Zaawansowane" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Biegnij" name="Always Run"/>
 			<menu_item_check label="Zacznij Latać" name="Fly"/>
 			<menu_item_call label="Zamknij Okno" name="Close Window"/>
@@ -195,6 +195,7 @@
 			<menu_item_call label="Przybliż" name="Zoom In"/>
 			<menu_item_call label="Domyślne Przybliżenie" name="Zoom Default"/>
 			<menu_item_call label="Oddal" name="Zoom Out"/>
+			<menu_item_call label="Rozwiń Widok Pełnoekranowy" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="Pokaż Ustawienia Debugowania" name="Debug Settings"/>
 		<menu_item_check label="Pokaż Menu Progresu" name="Debug Mode"/>

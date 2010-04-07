@@ -2,25 +2,31 @@
  * @file lldir.cpp
  * @brief implementation of directory utilities base class
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -85,16 +91,15 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	S32 result;
 	while (getNextFileInDir(dirname, mask, filename, FALSE))
 	{
-		fullpath = dirname;
-		fullpath += getDirDelimiter();
-		fullpath += filename;
-
-		if(LLFile::isdir(fullpath))
+		if ((filename == ".") || (filename == ".."))
 		{
 			// skipping directory traversal filenames
 			count++;
 			continue;
 		}
+		fullpath = dirname;
+		fullpath += getDirDelimiter();
+		fullpath += filename;
 
 		S32 retry_count = 0;
 		while (retry_count < 5)
@@ -454,6 +459,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 	}
 
 	//llinfos << "*** EXPANDED FILENAME: <" << expanded_filename << ">" << llendl;
+
 	return expanded_filename;
 }
 
@@ -559,23 +565,27 @@ std::string LLDir::getForbiddenFileChars()
 	return "\\/:*?\"<>|";
 }
 
-void LLDir::setLindenUserDir(const std::string &username)
+void LLDir::setLindenUserDir(const std::string &first, const std::string &last)
 {
-	// if the username isn't set, that's bad
-	if (!username.empty())
+	// if both first and last aren't set, that's bad.
+	if (!first.empty() && !last.empty())
 	{
 		// some platforms have case-sensitive filesystems, so be
 		// utterly consistent with our firstname/lastname case.
-		std::string userlower(username);
-		LLStringUtil::toLower(userlower);
-		LLStringUtil::replaceChar(userlower, ' ', '_');
+		std::string firstlower(first);
+		LLStringUtil::toLower(firstlower);
+		std::string lastlower(last);
+		LLStringUtil::toLower(lastlower);
 		mLindenUserDir = getOSUserAppDir();
 		mLindenUserDir += mDirDelimiter;
-		mLindenUserDir += userlower;
+		mLindenUserDir += firstlower;
+		mLindenUserDir += "_";
+		mLindenUserDir += lastlower;
+		llinfos << "Got name for LLDir::setLindenUserDir(first='" << first << "', last='" << last << "')" << llendl;
 	}
 	else
 	{
-		llerrs << "NULL name for LLDir::setLindenUserDir" << llendl;
+		llerrs << "Invalid name for LLDir::setLindenUserDir(first='" << first << "', last='" << last << "')" << llendl;
 	}
 
 	dumpCurrentDirectories();	
@@ -593,25 +603,27 @@ void LLDir::setChatLogsDir(const std::string &path)
 	}
 }
 
-void LLDir::setPerAccountChatLogsDir(const std::string &username)
+void LLDir::setPerAccountChatLogsDir(const std::string &first, const std::string &last)
 {
 	// if both first and last aren't set, assume we're grabbing the cached dir
-	if (!username.empty())
+	if (!first.empty() && !last.empty())
 	{
 		// some platforms have case-sensitive filesystems, so be
 		// utterly consistent with our firstname/lastname case.
-		std::string userlower(username);
-		LLStringUtil::toLower(userlower);
-		LLStringUtil::replaceChar(userlower, ' ', '_');
+		std::string firstlower(first);
+		LLStringUtil::toLower(firstlower);
+		std::string lastlower(last);
+		LLStringUtil::toLower(lastlower);
 		mPerAccountChatLogsDir = getChatLogsDir();
 		mPerAccountChatLogsDir += mDirDelimiter;
-		mPerAccountChatLogsDir += userlower;
+		mPerAccountChatLogsDir += firstlower;
+		mPerAccountChatLogsDir += "_";
+		mPerAccountChatLogsDir += lastlower;
 	}
 	else
 	{
-		llerrs << "NULL name for LLDir::setPerAccountChatLogsDir" << llendl;
+		llwarns << "Invalid name for LLDir::setPerAccountChatLogsDir" << llendl;
 	}
-	
 }
 
 void LLDir::setSkinFolder(const std::string &skin_folder)

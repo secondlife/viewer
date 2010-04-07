@@ -28,7 +28,6 @@ Hover your mouse over the options for more help.
       width="304"
       layout="topleft">
     <texture_picker
-     default_image_name="Generic_Group_Large"
      follows="left|top"
      height="110"
      label=""
@@ -243,7 +242,7 @@ Hover your mouse over the options for more help.
          top_pad="4"
          width="190">
 			<combo_item name="select_mature" value="Select">
-			- Select maturity rating -
+			- Select Mature -
 			</combo_item>
             <combo_box.item
              label="Moderate Content"

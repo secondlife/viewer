@@ -4,25 +4,31 @@
  * @date 2005-04-28
  * @brief Implementation of the URLRequest class and related classes.
  *
- * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2005&license=viewergpl$
+ * 
+ * Copyright (c) 2005-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -30,8 +36,7 @@
 #include "llurlrequest.h"
 
 #include <algorithm>
-#include <openssl/x509_vfy.h>
-#include <openssl/ssl.h>
+
 #include "llcurl.h"
 #include "llioutil.h"
 #include "llmemtype.h"
@@ -51,8 +56,6 @@ const std::string CONTEXT_TRANSFERED_BYTES("transfered_bytes");
 
 static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user);
 
-
-
 /**
  * class LLURLRequestDetail
  */
@@ -69,7 +72,6 @@ public:
 	U32 mBodyLimit;
 	S32 mByteAccumulator;
 	bool mIsBodyLimitSet;
-	LLURLRequest::SSLCertVerifyCallback mSSLVerifyCallback;
 };
 
 LLURLRequestDetail::LLURLRequestDetail() :
@@ -78,8 +80,7 @@ LLURLRequestDetail::LLURLRequestDetail() :
 	mLastRead(NULL),
 	mBodyLimit(0),
 	mByteAccumulator(0),
-	mIsBodyLimitSet(false),
-    mSSLVerifyCallback(NULL)
+	mIsBodyLimitSet(false)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mCurlRequest = new LLCurlEasyRequest();
@@ -93,36 +94,6 @@ LLURLRequestDetail::~LLURLRequestDetail()
 	mLastRead = NULL;
 }
 
-void LLURLRequest::setSSLVerifyCallback(SSLCertVerifyCallback callback, void *param)
-{
-	mDetail->mSSLVerifyCallback = callback;
-	mDetail->mCurlRequest->setSSLCtxCallback(LLURLRequest::_sslCtxCallback, (void *)this);
-	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, true);
-	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, 2);	
-}
-
-
-// _sslCtxFunction
-// Callback function called when an SSL Context is created via CURL
-// used to configure the context for custom cert validation
-
-CURLcode LLURLRequest::_sslCtxCallback(CURL * curl, void *sslctx, void *param)
-{	
-	LLURLRequest *req = (LLURLRequest *)param;
-	if(req == NULL || req->mDetail->mSSLVerifyCallback == NULL)
-	{
-		SSL_CTX_set_cert_verify_callback((SSL_CTX *)sslctx, NULL, NULL);
-		return CURLE_OK;
-	}
-	SSL_CTX * ctx = (SSL_CTX *) sslctx;
-	// disable any default verification for server certs
-	SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
-	// set the verification callback.
-	SSL_CTX_set_cert_verify_callback(ctx, req->mDetail->mSSLVerifyCallback, (void *)req);
-	// the calls are void
-	return CURLE_OK;
-	
-}
 
 /**
  * class LLURLRequest
@@ -177,11 +148,6 @@ void LLURLRequest::setURL(const std::string& url)
 	mDetail->mURL = url;
 }
 
-std::string LLURLRequest::getURL() const
-{
-	return mDetail->mURL;
-}
-
 void LLURLRequest::addHeader(const char* header)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
@@ -192,6 +158,13 @@ void LLURLRequest::setBodyLimit(U32 size)
 {
 	mDetail->mBodyLimit = size;
 	mDetail->mIsBodyLimitSet = true;
+}
+
+void LLURLRequest::checkRootCertificate(bool check)
+{
+	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, (check? TRUE : FALSE));
+	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, (check? 2 : 0));
+	mDetail->mCurlRequest->setoptString(CURLOPT_ENCODING, "");
 }
 
 void LLURLRequest::setCallback(LLURLRequestComplete* callback)

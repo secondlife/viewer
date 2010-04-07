@@ -3,25 +3,31 @@
  * @author Martin Reddy
  * @brief The base class of text box/editor, providing Url handling support
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -34,7 +40,6 @@
 #include "llscrollcontainer.h"
 #include "llstl.h"
 #include "lltextparser.h"
-#include "lltextutil.h"
 #include "lltooltip.h"
 #include "lluictrl.h"
 #include "llurlaction.h"
@@ -60,10 +65,7 @@ bool LLTextBase::compare_segment_end::operator()(const LLTextSegmentPtr& a, cons
 	{
 		return a->getStart() < b->getStart();
 	}
-	else
-	{
-		return a->getEnd() < b->getEnd();
-	}
+	return a->getEnd() < b->getEnd();
 }
 
 
@@ -150,7 +152,6 @@ LLTextBase::Params::Params()
 	bg_writeable_color("bg_writeable_color"),
 	bg_focus_color("bg_focus_color"),
 	allow_scroll("allow_scroll", true),
-	plain_text("plain_text",false),
 	track_end("track_end", false),
 	read_only("read_only", false),
 	v_pad("v_pad", 0),
@@ -171,7 +172,7 @@ LLTextBase::Params::Params()
 
 LLTextBase::LLTextBase(const LLTextBase::Params &p) 
 :	LLUICtrl(p, LLTextViewModelPtr(new LLTextViewModel)),
-	mURLClickSignal(NULL),
+	mURLClickSignal(),
 	mMaxTextByteLength( p.max_text_length ),
 	mDefaultFont(p.font),
 	mFontShadow(p.font_shadow),
@@ -191,7 +192,6 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mHPad(p.h_pad),
 	mVPad(p.v_pad),
 	mHAlign(p.font_halign),
-	mVAlign(p.font_valign),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
 	mClipPartial(p.clip_partial && !p.allow_scroll),
@@ -200,14 +200,12 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mSelectionStart( 0 ),
 	mSelectionEnd( 0 ),
 	mIsSelecting( FALSE ),
-	mPlainText ( p.plain_text ),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
 	mParseHTML(p.allow_html),
 	mParseHighlights(p.parse_highlights),
 	mBGVisible(p.bg_visible),
-	mScroller(NULL),
-	mStyleDirty(true)
+	mScroller(NULL)
 {
 	if(p.allow_scroll)
 	{
@@ -246,8 +244,9 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 
 LLTextBase::~LLTextBase()
 {
+	// Menu, like any other LLUICtrl, is deleted by its parent - gMenuHolder
+
 	mSegments.clear();
-	delete mURLClickSignal;
 }
 
 void LLTextBase::initFromParams(const LLTextBase::Params& p)
@@ -293,18 +292,13 @@ bool LLTextBase::truncate()
 	return did_truncate;
 }
 
-const LLStyle::Params& LLTextBase::getDefaultStyleParams()
+LLStyle::Params LLTextBase::getDefaultStyleParams()
 {
-	if (mStyleDirty)
-	{
-		  mDefaultStyle
-				  .color(LLUIColor(&mFgColor))
-				  .readonly_color(LLUIColor(&mReadOnlyFgColor))
-				  .font(mDefaultFont)
-				  .drop_shadow(mFontShadow);
-		  mStyleDirty = false;
-	}
-	return mDefaultStyle;
+	return LLStyle::Params()
+		.color(LLUIColor(&mFgColor))
+		.readonly_color(LLUIColor(&mReadOnlyFgColor))
+		.font(mDefaultFont)
+		.drop_shadow(mFontShadow);
 }
 
 void LLTextBase::onValueChange(S32 start, S32 end)
@@ -486,9 +480,9 @@ void LLTextBase::drawCursor()
 					text_color = mFgColor.get();
 					fontp = mDefaultFont;
 				}
-				fontp->render(text, mCursorPos, cursor_rect, 
+				fontp->render(text, mCursorPos, cursor_rect.mLeft, cursor_rect.mTop, 
 					LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
-					LLFontGL::LEFT, mVAlign,
+					LLFontGL::LEFT, LLFontGL::TOP,
 					LLFontGL::NORMAL,
 					LLFontGL::NO_SHADOW,
 					1);
@@ -863,12 +857,11 @@ BOOL LLTextBase::handleMouseUp(S32 x, S32 y, MASK mask)
 	if (cur_segment && cur_segment->handleMouseUp(x, y, mask))
 	{
 		// Did we just click on a link?
-		if (mURLClickSignal
-			&& cur_segment->getStyle()
+		if (cur_segment->getStyle()
 		    && cur_segment->getStyle()->isLink())
 		{
 			// *TODO: send URL here?
-			(*mURLClickSignal)(this, LLSD() );
+			mURLClickSignal(this, LLSD() );
 		}
 		return TRUE;
 	}
@@ -969,19 +962,18 @@ void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight())
 	{
-		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
-
+		//EXT-4288
+		//to keep consistance scrolling behaviour 
+		//when scrolling from top and from bottom...
+		bool is_scrolled_to_end = (mScroller!=NULL) && scrolledToEnd();
+		
 		LLUICtrl::reshape( width, height, called_from_parent );
-
-		if (mScroller && scrolled_to_bottom && mTrackEnd)
+	
+		if (is_scrolled_to_end)
 		{
-			// keep bottom of text buffer visible
-			// do this here as well as in reflow to handle case
-			// where shrinking from top, which causes buffer to temporarily 
-			// not be scrolled to the bottom, since the scroll index
-			// specified the _top_ of the visible document region
-			mScroller->goToBottom();
-		}
+			deselect();
+			endOfDoc();
+		}		
 
 		// do this first after reshape, because other things depend on
 		// up-to-date mVisibleTextRect
@@ -1042,14 +1034,12 @@ void LLTextBase::draw()
 void LLTextBase::setColor( const LLColor4& c )
 {
 	mFgColor = c;
-	mStyleDirty = true;
 }
 
 //virtual 
 void LLTextBase::setReadOnlyColor(const LLColor4 &c)
 {
 	mReadOnlyFgColor = c;
-	mStyleDirty = true;
 }
 
 //virtual
@@ -1110,7 +1100,7 @@ S32 LLTextBase::getLeftOffset(S32 width)
 	case LLFontGL::LEFT:
 		return mHPad;
 	case LLFontGL::HCENTER:
-		return mHPad + llmax(0, (mVisibleTextRect.getWidth() - width - mHPad) / 2);
+		return mHPad + (mVisibleTextRect.getWidth() - width - mHPad) / 2;
 	case LLFontGL::RIGHT:
 		return mVisibleTextRect.getWidth() - width;
 	default:
@@ -1126,54 +1116,33 @@ void LLTextBase::reflow()
 
 	updateSegments();
 
-	if (mReflowIndex == S32_MAX)
-	{
-		return;
-	}
-
-	bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
-
-	LLRect cursor_rect = getLocalRectFromDocIndex(mCursorPos);
-	bool follow_selection = getLocalRect().overlaps(cursor_rect); // cursor is (potentially) visible
-
-	// store in top-left relative coordinates to avoid issues with horizontal scrollbar appearing and disappearing
-	cursor_rect.mTop = mVisibleTextRect.mTop - cursor_rect.mTop;
-	cursor_rect.mBottom = mVisibleTextRect.mTop - cursor_rect.mBottom;
-
-	S32 first_line = getFirstVisibleLine();
-
-	// if scroll anchor not on first line, update it to first character of first line
-	if (!mLineInfoList.empty()
-		&&	(mScrollIndex <  mLineInfoList[first_line].mDocIndexStart
-			||	mScrollIndex >= mLineInfoList[first_line].mDocIndexEnd))
-	{
-		mScrollIndex = mLineInfoList[first_line].mDocIndexStart;
-	}
-	LLRect first_char_rect = getLocalRectFromDocIndex(mScrollIndex);
-	// store in top-left relative coordinates to avoid issues with horizontal scrollbar appearing and disappearing
-	first_char_rect.mTop = mVisibleTextRect.mTop - first_char_rect.mTop;
-	first_char_rect.mBottom = mVisibleTextRect.mTop - first_char_rect.mBottom;
-
-	S32 reflow_count = 0;
 	while(mReflowIndex < S32_MAX)
 	{
-		// we can get into an infinite loop if the document height does not monotonically increase
-		// with decreasing width (embedded ui elements with alternate layouts).  In that case, 
-		// we want to stop reflowing after 2 iterations.  We use 2, since we need to handle the case
-		// of introducing a vertical scrollbar causing a reflow with less width.  We should also always
-		// use an even number of iterations to avoid user visible oscillation of the layout
-		if(++reflow_count > 2)
-		{
-			lldebugs << "Breaking out of reflow due to possible infinite loop in " << getName() << llendl;
-			break;
-		}
-	
 		S32 start_index = mReflowIndex;
 		mReflowIndex = S32_MAX;
 
 		// shrink document to minimum size (visible portion of text widget)
 		// to force inlined widgets with follows set to shrink
 		mDocumentView->reshape(mVisibleTextRect.getWidth(), mDocumentView->getRect().getHeight());
+
+		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
+
+		LLRect old_cursor_rect = getLocalRectFromDocIndex(mCursorPos);
+		bool follow_selection = mVisibleTextRect.overlaps(old_cursor_rect); // cursor is visible
+		old_cursor_rect.translate(-mVisibleTextRect.mLeft, -mVisibleTextRect.mBottom);
+
+		S32 first_line = getFirstVisibleLine();
+
+		// if scroll anchor not on first line, update it to first character of first line
+		if (!mLineInfoList.empty()
+			&&	(mScrollIndex <  mLineInfoList[first_line].mDocIndexStart
+				||	mScrollIndex >= mLineInfoList[first_line].mDocIndexEnd))
+		{
+			mScrollIndex = mLineInfoList[first_line].mDocIndexStart;
+		}
+		LLRect first_char_rect = getLocalRectFromDocIndex(mScrollIndex);
+		// subtract off effect of horizontal scrollbar from local position of first char
+		first_char_rect.translate(-mVisibleTextRect.mLeft, -mVisibleTextRect.mBottom);
 
 		S32 cur_top = 0;
 
@@ -1216,6 +1185,11 @@ void LLTextBase::reflow()
 			// grow line height as necessary based on reported height of this segment
 			line_height = llmax(line_height, segment_height);
 			remaining_pixels -= segment_width;
+			if (remaining_pixels < 0)
+			{
+				// getNumChars() and getDimensions() should return consistent results
+				remaining_pixels = 0;
+			}
 
 			seg_offset += character_count;
 
@@ -1290,42 +1264,32 @@ void LLTextBase::reflow()
 			segmentp->updateLayout(*this);
 
 		}
+
+		// apply scroll constraints after reflowing text
+		if (!hasMouseCapture() && mScroller)
+		{
+			if (scrolled_to_bottom && mTrackEnd)
+			{
+				// keep bottom of text buffer visible
+				endOfDoc();
+			}
+			else if (hasSelection() && follow_selection)
+			{
+				// keep cursor in same vertical position on screen when selecting text
+				LLRect new_cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
+				mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect);
+			}
+			else
+			{
+				// keep first line of text visible
+				LLRect new_first_char_rect = getDocRectFromDocIndex(mScrollIndex);
+				mScroller->scrollToShowRect(new_first_char_rect, first_char_rect);
+			}
+		}
+
+		// reset desired x cursor position
+		updateCursorXPos();
 	}
-
-	// apply scroll constraints after reflowing text
-	if (!hasMouseCapture() && mScroller)
-	{
-		if (scrolled_to_bottom && mTrackEnd)
-		{
-			// keep bottom of text buffer visible
-			endOfDoc();
-		}
-		else if (hasSelection() && follow_selection)
-		{
-			// keep cursor in same vertical position on screen when selecting text
-			LLRect new_cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
-			LLRect old_cursor_rect = cursor_rect;
-			old_cursor_rect.mTop = mVisibleTextRect.mTop - cursor_rect.mTop;
-			old_cursor_rect.mBottom = mVisibleTextRect.mTop - cursor_rect.mBottom;
-
-			mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect);
-		}
-		else
-		{
-			// keep first line of text visible
-			LLRect new_first_char_rect = getDocRectFromDocIndex(mScrollIndex);
-
-			// pass in desired rect in the coordinate frame of the document viewport
-			LLRect old_first_char_rect = first_char_rect;
-			old_first_char_rect.mTop = mVisibleTextRect.mTop - first_char_rect.mTop;
-			old_first_char_rect.mBottom = mVisibleTextRect.mTop - first_char_rect.mBottom;
-
-			mScroller->scrollToShowRect(new_first_char_rect, old_first_char_rect);
-		}
-	}
-
-	// reset desired x cursor position
-	updateCursorXPos();
 }
 
 LLRect LLTextBase::getTextBoundingRect()
@@ -1493,22 +1457,12 @@ void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg
 
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 {
-	if (index > getLength()) { return mSegments.end(); }
-
-	// when there are no segments, we return the end iterator, which must be checked by caller
-	if (mSegments.size() <= 1) { return mSegments.begin(); }
-
 	segment_set_t::iterator it = mSegments.upper_bound(new LLIndexSegment(index));
 	return it;
 }
 
 LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 index) const
 {
-	if (index > getLength()) { return mSegments.end(); }
-
-	// when there are no segments, we return the end iterator, which must be checked by caller
-	if (mSegments.size() <= 1) { return mSegments.begin(); }
-
 	LLTextBase::segment_set_t::const_iterator it =  mSegments.upper_bound(new LLIndexSegment(index));
 	return it;
 }
@@ -1553,7 +1507,6 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
 	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
-	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
 	registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));
@@ -1597,7 +1550,7 @@ std::string LLTextBase::getText() const
 	return getViewModel()->getValue().asString();
 }
 
-void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
+void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
 {
 	LLStyle::Params style_params(input_params);
 	style_params.fillFrom(getDefaultStyleParams());
@@ -1633,20 +1586,34 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 					part = (S32)LLTextParser::MIDDLE;
 				}
 				std::string subtext=text.substr(0,start);
-				appendAndHighlightText(subtext, part, style_params); 
+				appendAndHighlightText(subtext, prepend_newline, part, style_params); 
+				prepend_newline = false;
 			}
 
-			// inserts an avatar icon preceding the Url if appropriate
-			LLTextUtil::processUrlMatch(&match,this);
+			// output an optional icon before the Url
+			if (! match.getIcon().empty())
+			{
+				LLUIImagePtr image = LLUI::getUIImage(match.getIcon());
+				if (image)
+				{
+					LLStyle::Params icon;
+					icon.image = image;
+					// Text will be replaced during rendering with the icon,
+					// but string cannot be empty or the segment won't be
+					// added (or drawn).
+					appendAndHighlightText(" ", prepend_newline, part, icon);
+					prepend_newline = false;
+				}
+			}
 
 			// output the styled Url (unless we've been asked to suppress hyperlinking)
 			if (match.isLinkDisabled())
 			{
-				appendAndHighlightText(match.getLabel(), part, style_params);
+				appendAndHighlightText(match.getLabel(), prepend_newline, part, style_params);
 			}
 			else
 			{
-				appendAndHighlightText(match.getLabel(), part, link_params);
+				appendAndHighlightText(match.getLabel(), prepend_newline, part, link_params);
 
 				// set the tooltip for the Url label
 				if (! match.getTooltip().empty())
@@ -1659,6 +1626,8 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 						}
 				}
 			}
+			prepend_newline = false;
+
 			// move on to the rest of the text after the Url
 			if (end < (S32)text.length()) 
 			{
@@ -1671,25 +1640,13 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 				break;
 			}
 		}
-		if (part != (S32)LLTextParser::WHOLE) 
-			part=(S32)LLTextParser::END;
-		if (end < (S32)text.length()) 
-			appendAndHighlightText(text, part, style_params);		
+		if (part != (S32)LLTextParser::WHOLE) part=(S32)LLTextParser::END;
+		if (end < (S32)text.length()) appendAndHighlightText(text, prepend_newline, part, style_params);		
 	}
 	else
 	{
-		appendAndHighlightText(new_text, part, style_params);
+		appendAndHighlightText(new_text, prepend_newline, part, style_params);
 	}
-}
-
-void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
-{
-	if (new_text.empty()) 
-		return;
-
-	if(prepend_newline)
-		appendLineBreakSegment(input_params);
-	appendTextImpl(new_text,input_params);
 }
 
 void LLTextBase::needsReflow(S32 index)
@@ -1698,39 +1655,10 @@ void LLTextBase::needsReflow(S32 index)
 	mReflowIndex = llmin(mReflowIndex, index);
 }
 
-void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
+void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepend_newline, S32 highlight_part, const LLStyle::Params& style_params)
 {
-	segment_vec_t segments;
-	LLStyleConstSP sp(new LLStyle(style_params));
-	segments.push_back(new LLLineBreakTextSegment(sp, getLength()));
+	if (new_text.empty()) return;                                                                                 
 
-	insertStringNoUndo(getLength(), utf8str_to_wstring("\n"), &segments);
-}
-
-void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
-{
-	if(getPlainText())
-	{
-		return;
-	}
-	segment_vec_t segments;
-	LLStyleConstSP sp(new LLStyle(style_params));
-	segments.push_back(new LLImageTextSegment(sp, getLength(),*this));
-
-	insertStringNoUndo(getLength(), utf8str_to_wstring(" "), &segments);
-}
-
-void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo)
-{
-	segment_vec_t segments;
-	LLWString widget_wide_text = utf8str_to_wstring(text);
-	segments.push_back(new LLInlineViewSegment(params, getLength(), getLength() + widget_wide_text.size()));
-
-	insertStringNoUndo(getLength(), widget_wide_text, &segments);
-}
-
-void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params)
-{
 	// Save old state
 	S32 selection_start = mSelectionStart;
 	S32 selection_end = mSelectionEnd;
@@ -1743,11 +1671,13 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 
 	setCursorPos(old_length);
 
-	if (mParseHighlights)
+	LLTextParser* highlight = LLTextParser::getInstance();
+	
+	if (mParseHighlights && highlight)
 	{
 		LLStyle::Params highlight_params(style_params);
 
-		LLSD pieces = LLTextParser::instance().parsePartialLineHighlights(new_text, highlight_params.color(), (LLTextParser::EHighlightPosition)highlight_part);
+		LLSD pieces = highlight->parsePartialLineHighlights(new_text, highlight_params.color(), (LLTextParser::EHighlightPosition)highlight_part);
 		for (S32 i = 0; i < pieces.size(); i++)
 		{
 			LLSD color_llsd = pieces[i]["color"];
@@ -1756,8 +1686,14 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 			highlight_params.color = lcolor;
 
 			LLWString wide_text;
-			wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
-
+			if (prepend_newline && (i == 0 || pieces.size() <= 1 )) 
+			{
+				wide_text = utf8str_to_wstring(std::string("\n") + pieces[i]["text"].asString());
+			}
+			else
+			{
+				wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
+			}
 			S32 cur_length = getLength();
 			LLStyleConstSP sp(new LLStyle(highlight_params));
 			LLTextSegmentPtr segmentp = new LLNormalTextSegment(sp, cur_length, cur_length + wide_text.size(), *this);
@@ -1769,7 +1705,17 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 	else
 	{
 		LLWString wide_text;
-		wide_text = utf8str_to_wstring(new_text);
+
+		// Add carriage return if not first line
+		if (getLength() != 0
+			&& prepend_newline)
+		{
+			wide_text = utf8str_to_wstring(std::string("\n") + new_text);
+		}
+		else
+		{
+			wide_text = utf8str_to_wstring(new_text);
+		}
 
 		segment_vec_t segments;
 		S32 segment_start = old_length;
@@ -1797,29 +1743,11 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 	{
 		setCursorPos(cursor_pos);
 	}
-}
 
-void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params)
-{
-	if (new_text.empty()) return; 
-
-	std::string::size_type start = 0;
-	std::string::size_type pos = new_text.find("\n",start);
-	
-	while(pos!=-1)
-	{
-		if(pos!=start)
-		{
-			std::string str = std::string(new_text,start,pos-start);
-			appendAndHighlightTextImpl(str,highlight_part, style_params);
-		}
-		appendLineBreakSegment(style_params);
-		start = pos+1;
-		pos = new_text.find("\n",start);
-	}
-
-	std::string str = std::string(new_text,start,new_text.length()-start);
-	appendAndHighlightTextImpl(str,highlight_part, style_params);
+	//if( !allow_undo )
+	//{
+	//	blockUndo();
+	//}
 }
 
 
@@ -1887,7 +1815,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 {
 	// Figure out which line we're nearest to.
 	LLRect visible_region = getVisibleDocumentRect();
-	
+
 	// binary search for line that starts before local_y
 	line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), local_y - mVisibleTextRect.mBottom + visible_region.mBottom, compare_bottom());
 
@@ -1897,7 +1825,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 	}
 	
 	S32 pos = getLength();
-	S32 start_x = mVisibleTextRect.mLeft + line_iter->mRect.mLeft - visible_region.mLeft;
+	S32 start_x = mVisibleTextRect.mLeft + line_iter->mRect.mLeft;
 
 	segment_set_t::iterator line_seg_iter;
 	S32 line_seg_offset;
@@ -1912,19 +1840,14 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 		S32 text_width, text_height;
 		bool newline = segmentp->getDimensions(line_seg_offset, segment_line_length, text_width, text_height);
 
-		if(newline)
-		{
-			pos = segment_line_start + segmentp->getOffset(local_x - start_x, line_seg_offset, segment_line_length, round);
-			break;
-		}
-
 		// if we've reached a line of text *below* the mouse cursor, doc index is first character on that line
 		if (hit_past_end_of_line && local_y - mVisibleTextRect.mBottom + visible_region.mBottom > line_iter->mRect.mTop)
 		{
 			pos = segment_line_start;
 			break;
 		}
-		if (local_x < start_x + text_width)			// cursor to left of right edge of text
+		if (local_x < start_x + text_width			// cursor to left of right edge of text
+			|| newline)								// or this line ends with a newline, set doc pos to newline char
 		{
 			// Figure out which character we're nearest to.
 			S32 offset;
@@ -1948,13 +1871,13 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 			pos = segment_line_start + offset;
 			break;
 		}
-		else if (hit_past_end_of_line && segmentp->getEnd() > line_iter->mDocIndexEnd - 1)	
+		else if (hit_past_end_of_line && segmentp->getEnd() >= line_iter->mDocIndexEnd - 1)	
 		{
-			// segment wraps to next line, so just set doc pos to the end of the line
- 			// segment wraps to next line, so just set doc pos to start of next line (represented by mDocIndexEnd)
- 			pos = llmin(getLength(), line_iter->mDocIndexEnd);
+			// segment wraps to next line, so just set doc pos to start of next line (represented by mDocIndexEnd)
+			pos = llmin(getLength(), line_iter->mDocIndexEnd);
 			break;
 		}
+
 		start_x += text_width;
 	}
 
@@ -2023,18 +1946,11 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
 
 LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 {
-	LLRect content_window_rect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
-	if (mBorderVisible)
-	{
-		content_window_rect.stretch(-1);
-	}
-
 	LLRect local_rect;
-
 	if (mLineInfoList.empty()) 
 	{ 
 		// return default height rect in upper left
-		local_rect = content_window_rect;
+		local_rect = mVisibleTextRect;
 		local_rect.mBottom = local_rect.mTop - (S32)(mDefaultFont->getLineHeight());
 		return local_rect;
 	}
@@ -2045,8 +1961,8 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 	// compensate for scrolled, inset view of doc
 	LLRect scrolled_view_rect = getVisibleDocumentRect();
 	local_rect = doc_rect;
-	local_rect.translate(content_window_rect.mLeft - scrolled_view_rect.mLeft, 
-						content_window_rect.mBottom - scrolled_view_rect.mBottom);
+	local_rect.translate(mVisibleTextRect.mLeft - scrolled_view_rect.mLeft, 
+						mVisibleTextRect.mBottom - scrolled_view_rect.mBottom);
 
 	return local_rect;
 }
@@ -2277,12 +2193,6 @@ void LLTextBase::updateRects()
 		? llmax(mVisibleTextRect.getWidth(), mTextBoundingRect.mRight)
 		: mVisibleTextRect.getWidth();
 
-	if (!mScroller)
-	{
-		// push doc rect to top of text widget
-		doc_rect.translate(0, mVisibleTextRect.getHeight() - doc_rect.mTop);
-	}
-
 	mDocumentView->setShape(doc_rect);
 
 	//update mVisibleTextRect *after* mDocumentView has been resized
@@ -2344,15 +2254,6 @@ LLRect LLTextBase::getVisibleDocumentRect() const
 		doc_rect.mBottom = doc_rect.getHeight() - mVisibleTextRect.getHeight();
 		return doc_rect;
 	}
-}
-
-boost::signals2::connection LLTextBase::setURLClickedCallback(const commit_signal_t::slot_type& cb)
-{
-	if (!mURLClickSignal)
-	{
-		mURLClickSignal = new commit_signal_t();
-	}
-	return mURLClickSignal->connect(cb);
 }
 
 //
@@ -2433,6 +2334,25 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 {
 	if( end - start > 0 )
 	{
+		if ( mStyle->isImage() && (start >= 0) && (end <= mEnd - mStart))
+		{
+			// ...for images, only render the image, not the underlying text,
+			// which is only a placeholder space
+			LLColor4 color = LLColor4::white % mEditor.getDrawContext().mAlpha;
+			LLUIImagePtr image = mStyle->getImage();
+			S32 style_image_height = image->getHeight();
+			S32 style_image_width = image->getWidth();
+			// Text is drawn from the top of the draw_rect downward
+			S32 text_center = draw_rect.mTop - (mFontHeight / 2);
+			// Align image to center of text
+			S32 image_bottom = text_center - (style_image_height / 2);
+			image->draw(draw_rect.mLeft, image_bottom, 
+				style_image_width, style_image_height, color);
+			
+			const S32 IMAGE_HPAD = 3;
+			return draw_rect.mLeft + style_image_width + IMAGE_HPAD;
+		}
+
 		return drawClippedSegment( getStart() + start, getStart() + end, selection_start, selection_end, draw_rect);
 	}
 	return draw_rect.mLeft;
@@ -2444,6 +2364,11 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 	F32 alpha = LLViewDrawContext::getCurrentContext().mAlpha;
 
 	const LLWString &text = mEditor.getWText();
+
+	if ( text[seg_end-1] == '\n' )
+	{
+		--seg_end;
+	}
 
 	F32 right_x = rect.mLeft;
 	if (!mStyle->isVisible())
@@ -2462,12 +2387,12 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = llmin( selection_start, seg_end );
 		S32 length =  end - start;
 		font->render(text, start, 
-			     rect, 
+			     rect.mLeft, rect.mTop, 
 			     color, 
-			     LLFontGL::LEFT, mEditor.mVAlign, 
+			     LLFontGL::LEFT, LLFontGL::TOP, 
 			     LLFontGL::NORMAL, 
 			     mStyle->getShadowType(), 
-			     length,
+			     length, rect.getWidth(), 
 			     &right_x, 
 			     mEditor.getUseEllipses());
 	}
@@ -2481,12 +2406,12 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 length = end - start;
 
 		font->render(text, start, 
-			     rect,
+			     rect.mLeft, rect.mTop,
 			     LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
-			     LLFontGL::LEFT, mEditor.mVAlign, 
+			     LLFontGL::LEFT, LLFontGL::TOP, 
 			     LLFontGL::NORMAL, 
 			     LLFontGL::NO_SHADOW, 
-			     length,
+			     length, rect.getWidth(), 
 			     &right_x, 
 			     mEditor.getUseEllipses());
 	}
@@ -2498,12 +2423,12 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = seg_end;
 		S32 length = end - start;
 		font->render(text, start, 
-			     rect, 
+			     rect.mLeft, rect.mTop, 
 			     color, 
-			     LLFontGL::LEFT, mEditor.mVAlign, 
+			     LLFontGL::LEFT, LLFontGL::TOP, 
 			     LLFontGL::NORMAL, 
 			     mStyle->getShadowType(), 
-			     length,
+			     length, rect.getWidth(), 
 			     &right_x, 
 			     mEditor.getUseEllipses());
 	}
@@ -2603,14 +2528,33 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 {
 	height = 0;
 	width = 0;
+	bool force_newline = false;
 	if (num_chars > 0)
 	{
 		height = mFontHeight;
 		const LLWString &text = mEditor.getWText();
 		// if last character is a newline, then return true, forcing line break
-		width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
+		llwchar last_char = text[mStart + first_char + num_chars - 1];
+		if (last_char == '\n')
+		{
+			force_newline = true;
+			// don't count newline in font width
+			width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars - 1);
+		}
+		else
+		{
+			width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
+		}
 	}
-	return false;
+
+	LLUIImagePtr image = mStyle->getImage();
+	if( image.notNull())
+	{
+		width += image->getWidth();
+		height = llmax(height, image->getHeight());
+	}
+
+	return force_newline;
 }
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
@@ -2633,7 +2577,15 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 		num_pixels = llmax(0, num_pixels - image->getWidth());
 	}
 
-	S32 last_char = mEnd;
+	// search for newline and if found, truncate there
+	S32 last_char = mStart + segment_offset;
+	for (; last_char != mEnd; ++last_char)
+	{
+		if (text[last_char] == '\n') 
+		{
+			break;
+		}
+	}
 
 	// set max characters to length of segment, or to first newline
 	max_chars = llmin(max_chars, last_char - (mStart + segment_offset));
@@ -2661,7 +2613,8 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	S32 last_char_in_run = mStart + segment_offset + num_chars;
 	// check length first to avoid indexing off end of string
 	if (last_char_in_run < mEnd 
-		&& (last_char_in_run >= mEditor.getLength() ))
+		&& (last_char_in_run >= mEditor.getLength() 
+			|| text[last_char_in_run] == '\n'))
 	{
 		num_chars++;
 	}
@@ -2756,93 +2709,3 @@ void LLInlineViewSegment::linkToDocument(LLTextBase* editor)
 {
 	editor->addDocumentChild(mView);
 }
-
-LLLineBreakTextSegment::LLLineBreakTextSegment(S32 pos):LLTextSegment(pos,pos+1)
-{
-	LLStyleSP s( new LLStyle(LLStyle::Params().visible(true)));
-
-	mFontHeight = llceil(s->getFont()->getLineHeight());
-}
-LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLTextSegment(pos,pos+1)
-{
-	mFontHeight = llceil(style->getFont()->getLineHeight());
-}
-LLLineBreakTextSegment::~LLLineBreakTextSegment()
-{
-}
-bool LLLineBreakTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
-{
-	width = 0;
-	height = mFontHeight;
-
-	return true;
-}
-S32	LLLineBreakTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
-{
-	return 1;
-}
-F32	LLLineBreakTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
-{
-	return  draw_rect.mLeft;
-}
-
-LLImageTextSegment::LLImageTextSegment(LLStyleConstSP style,S32 pos,class LLTextBase& editor)
-:	LLTextSegment(pos,pos+1),
-	mStyle( style ),
-	mEditor(editor)
-{
-}
-
-LLImageTextSegment::~LLImageTextSegment()
-{
-}
-
-static const S32 IMAGE_HPAD = 3;
-
-bool LLImageTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
-{
-	width = 0;
-	height = llceil(mStyle->getFont()->getLineHeight());;
-
-	LLUIImagePtr image = mStyle->getImage();
-	if( num_chars>0 && image.notNull())
-	{
-		width += image->getWidth() + IMAGE_HPAD;
-		height = llmax(height, image->getHeight() + IMAGE_HPAD );
-	}
-	return false;
-}
-
-S32	 LLImageTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
-{
-	LLUIImagePtr image = mStyle->getImage();
-	S32 image_width = image->getWidth();
-	if(line_offset == 0 || num_pixels>image_width + IMAGE_HPAD)
-	{
-		return 1;
-	}
-	return 0;
-}
-
-F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
-{
-	if ( (start >= 0) && (end <= mEnd - mStart))
-	{
-		LLColor4 color = LLColor4::white % mEditor.getDrawContext().mAlpha;
-		LLUIImagePtr image = mStyle->getImage();
-		S32 style_image_height = image->getHeight();
-		S32 style_image_width = image->getWidth();
-		// Text is drawn from the top of the draw_rect downward
-		
-		S32 text_center = draw_rect.mTop - (draw_rect.getHeight() / 2);
-		// Align image to center of draw rect
-		S32 image_bottom = text_center - (style_image_height / 2);
-		image->draw(draw_rect.mLeft, image_bottom, 
-			style_image_width, style_image_height, color);
-		
-		const S32 IMAGE_HPAD = 3;
-		return draw_rect.mLeft + style_image_width + IMAGE_HPAD;
-	}
-	return 0.0;
-}
-

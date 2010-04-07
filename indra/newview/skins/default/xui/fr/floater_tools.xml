@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="OUTILS POUR LA CONSTRUCTION" title="">
 	<floater.string name="status_rotate">
-		Pour faire tourner l&apos;objet, faites glisser les bandes de couleur.
+		Pour faire tourner l&apos;objet, faîtes glisser les bandes de couleur.
 	</floater.string>
 	<floater.string name="status_scale">
 		Pour étirer le côté sélectionné, cliquez et faites glisser.
@@ -37,7 +37,7 @@
 		Référence
 	</floater.string>
 	<floater.string name="grid_attachment_text">
-		Pièce jointe
+		Pièce-jointe
 	</floater.string>
 	<button label="" label_selected="" name="button focus" tool_tip="Mise au point"/>
 	<button label="" label_selected="" name="button move" tool_tip="Déplacer"/>
@@ -54,7 +54,7 @@
 	</radio_group>
 	<radio_group name="move_radio_group">
 		<radio_item label="Déplacer" name="radio move"/>
-		<radio_item label="Soulever (Ctrl)" name="radio lift"/>
+		<radio_item label="Orbite (Ctrl)" name="radio lift"/>
 		<radio_item label="Faire tourner (Ctrl+Maj)" name="radio spin"/>
 	</radio_group>
 	<radio_group name="edit_radio_group">
@@ -67,10 +67,7 @@
 	<text name="RenderingCost" tool_tip="Affiche le coût du rendu calculé pour cet objet">
 		þ : [COUNT]
 	</text>
-	<check_box label="" name="checkbox uniform"/>
-	<text label="Étirer les deux côtés" name="checkbox uniform label">
-		Étirer les deux côtés
-	</text>
+	<check_box label="Étirer les deux côtés" name="checkbox uniform"/>
 	<check_box initial_value="true" label="Étirer les textures" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Fixer sur la grille" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Choisissez le type d&apos;axe de grille pour le positionnement de l&apos;objet">
@@ -190,7 +187,7 @@
 				Cliquer pour :
 			</text>
 			<combo_box name="clickaction" width="178">
-				<combo_box.item label="Toucher (par défaut)" name="Touch/grab(default)"/>
+				<combo_box.item label="Toucher (défaut)" name="Touch/grab(default)"/>
 				<combo_box.item label="S&apos;asseoir sur l&apos;objet" name="Sitonobject"/>
 				<combo_box.item label="Acheter l&apos;objet" name="Buyobject"/>
 				<combo_box.item label="Payer l&apos;objet" name="Payobject"/>
@@ -402,8 +399,8 @@
 				Application
 			</text>
 			<combo_box name="combobox texgen">
-				<combo_box.item label="Par défaut" name="Default"/>
-				<combo_box.item label="Plan" name="Planar"/>
+				<combo_box.item label="Défaut" name="Default"/>
+				<combo_box.item label="Planar" name="Planar"/>
 			</combo_box>
 			<text name="label shininess">
 				Brillance
@@ -444,7 +441,7 @@
 			<check_box label="Inverser" name="checkbox flip s"/>
 			<spinner label="Vertical (V)" name="TexScaleV"/>
 			<check_box label="Inverser" name="checkbox flip t"/>
-			<spinner label="Rotation˚" name="TexRot"/>
+			<spinner label="Rotation˚" name="TexRot" />
 			<spinner label="Répétitions / Mètre" name="rptctrl"/>
 			<button label="Appliquer" label_selected="Appliquer" name="button apply"/>
 			<text name="tex offset">

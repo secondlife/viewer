@@ -88,24 +88,6 @@
 	<string name="LoginDownloadingClothing">
 		Henter tøj...
 	</string>
-	<string name="InvalidCertificate">
-		Serveren returnerede et ugyldigt eller ødelagt certifikat. Kontakt venligst administrator af dette net.
-	</string>
-	<string name="CertInvalidHostname">
-		Et ugyldig hostnavn blev brugt for at få adgang til serveren. Check venligst din SLURL eller navnet på hosten.
-	</string>
-	<string name="CertExpired">
-		Det certifikat der blev returneret ser ud til at være udløbet. Check venligst din systemtid på computeren.
-	</string>
-	<string name="CertKeyUsage">
-		Det certifikat der blev returneret af serveren kan ikke benyttes til SSL.  Kontakt venligst administrator af dette net.
-	</string>
-	<string name="CertBasicConstraints">
-		For mange certifikater i serverens certifikat streng.  Kontakt venligst administrator af dette net.
-	</string>
-	<string name="CertInvalidSignature">
-		Signaturen på certifkat der blev returneret af Second Life serveren kunne ikke bekræftes.
-	</string>
 	<string name="LoginFailedNoNetwork">
 		Netværksfejl: Kunne ikke etablere forbindelse, check venligst din netværksforbindelse.
 	</string>
@@ -181,7 +163,6 @@
 	<string name="TooltipMustSingleDrop">
 		Kun et enkelt element kan trækkes ind her
 	</string>
-	<string name="TooltipPrice" value="L$[BELØB]:"/>
 	<string name="TooltipHttpUrl">
 		Klik for at se denne hjemmeside
 	</string>
@@ -234,6 +215,7 @@
 		Klik for at starte secondlife:// kommando
 	</string>
 	<string name="CurrentURL" value=" Nuværende URL: [CurrentURL]"/>
+	<string name="TooltipPrice" value="L$[PRICE]-"/>
 	<string name="SLurlLabelTeleport">
 		Teleportér til
 	</string>
@@ -264,9 +246,6 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Luk (Ctrl+W)
 	</string>
-	<string name="BUTTON_CLOSE_CHROME">
-		Luk
-	</string>
 	<string name="BUTTON_RESTORE">
 		Gendan
 	</string>
@@ -294,9 +273,6 @@
 	<string name="ReleaseNotes">
 		Noter om version
 	</string>
-	<string name="RELEASE_NOTES_BASE_URL">
-		http://wiki.secondlife.com/wiki/Release_Notes/
-	</string>
 	<string name="LoadingData">
 		Henter...
 	</string>
@@ -308,9 +284,6 @@
 	</string>
 	<string name="GroupNameNone">
 		(ingen)
-	</string>
-	<string name="AvalineCaller">
-		Avaline opkalder [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Ingen fejl
@@ -642,9 +615,6 @@
 	<string name="worldmap_offline">
 		Offline
 	</string>
-	<string name="worldmap_item_tooltip_format">
-		[AREA] m² L$[PRICE]
-	</string>
 	<string name="worldmap_results_none_found">
 		Ingen fundet.
 	</string>
@@ -734,12 +704,6 @@
 	</string>
 	<string name="land_type_unknown">
 		(ukendt)
-	</string>
-	<string name="Estate / Full Region">
-		Estate / Hel region
-	</string>
-	<string name="Mainland / Full Region">
-		Mainland / Hel region
 	</string>
 	<string name="all_files">
 		Alle filer
@@ -846,93 +810,6 @@
 	<string name="invalid">
 		ugyldig
 	</string>
-	<string name="none">
-		ingen
-	</string>
-	<string name="shirt_not_worn">
-		Trøje - ikke på
-	</string>
-	<string name="pants_not_worn">
-		Bukser - ikke på
-	</string>
-	<string name="shoes_not_worn">
-		Sko - ikke på
-	</string>
-	<string name="socks_not_worn">
-		Strømper - ikke på
-	</string>
-	<string name="jacket_not_worn">
-		Jakke - ikke på
-	</string>
-	<string name="gloves_not_worn">
-		Handsker - ikke på
-	</string>
-	<string name="undershirt_not_worn">
-		Undertrøje - ikke på
-	</string>
-	<string name="underpants_not_worn">
-		Underbukser - ikke på
-	</string>
-	<string name="skirt_not_worn">
-		Nederdel - ikke på
-	</string>
-	<string name="alpha_not_worn">
-		Alpha ikke benyttet
-	</string>
-	<string name="tattoo_not_worn">
-		Tatovering ikke benyttet
-	</string>
-	<string name="invalid_not_worn">
-		ugyldig
-	</string>
-	<string name="create_new_shape">
-		Opret ny figur
-	</string>
-	<string name="create_new_skin">
-		Opret nyt hud
-	</string>
-	<string name="create_new_hair">
-		Opret nyt hår
-	</string>
-	<string name="create_new_eyes">
-		Opret nye øjne
-	</string>
-	<string name="create_new_shirt">
-		Opret ny trøje
-	</string>
-	<string name="create_new_pants">
-		Opret nye bukser
-	</string>
-	<string name="create_new_shoes">
-		Opret nye sko
-	</string>
-	<string name="create_new_socks">
-		Opret nye strømper
-	</string>
-	<string name="create_new_jacket">
-		Opret ny jakke
-	</string>
-	<string name="create_new_gloves">
-		Opret nye handsker
-	</string>
-	<string name="create_new_undershirt">
-		Opret ny undertrøje
-	</string>
-	<string name="create_new_underpants">
-		Opret nye underbukser
-	</string>
-	<string name="create_new_skirt">
-		Opret ny nederdel
-	</string>
-	<string name="create_new_alpha">
-		Opret ny alpha
-	</string>
-	<string name="create_new_tattoo">
-		Opret ny tatovering
-	</string>
-	<string name="create_new_invalid">
-		ugyldig
-	</string>
 	<string name="NewWearable">
 		Ny [WEARABLE_ITEM]
 	</string>
@@ -1003,10 +880,7 @@
 		Tryk ESC for at skift til normalt udsyn
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Fandt du ikke hvad du søgte? Prøv [secondlife:///app/search/all/[SEARCH_TERM] Search].
-	</string>
-	<string name="PlacesNoMatchingItems">
-		Fandt du ikke hvad du søgte? Prøv [secondlife:///app/search/places/[SEARCH_TERM] Search].
+		Ingen matchende genstande fundet i beholdning.  Prøv evt. [secondlife:///app/search/groups &quot;Search&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Træk et landemærke hertil for at tilføje den som favorit.
@@ -1034,10 +908,8 @@
 	<string name="AnimFlagStop" value=" Stop Animation :   "/>
 	<string name="AnimFlagStart" value=" Start Animation :   "/>
 	<string name="Wave" value=" Vink "/>
-	<string name="GestureActionNone" value="Ingen"/>
 	<string name="HelloAvatar" value=" Hej, avatar! "/>
 	<string name="ViewAllGestures" value=" Se alle &gt;&gt;"/>
-	<string name="GetMoreGestures" value="Få mere &gt;&gt;"/>
 	<string name="Animations" value=" Animationer,"/>
 	<string name="Calling Cards" value=" Visitkort,"/>
 	<string name="Clothing" value=" Tøj,"/>
@@ -1114,14 +986,11 @@
 	<string name="InvFolder Gestures">
 		Bevægelser
 	</string>
-	<string name="InvFolder Favorite">
+	<string name="InvFolder favorite">
 		Favoritter
 	</string>
 	<string name="InvFolder Current Outfit">
 		Nuværende sæt
-	</string>
-	<string name="InvFolder Initial Outfits">
-		Start sæt
 	</string>
 	<string name="InvFolder My Outfits">
 		Mine sæt
@@ -1442,7 +1311,6 @@
 	<string name="SummaryForTheWeek" value="Opsummering for denne uge, begyndende med "/>
 	<string name="NextStipendDay" value="Næste stipendie dag er "/>
 	<string name="GroupIndividualShare" value="                      Gruppe     Individuel Delt"/>
-	<string name="GroupColumn" value="Gruppe"/>
 	<string name="Balance">
 		Balance
 	</string>
@@ -1638,44 +1506,32 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD Nederst til højre
 	</string>
-	<string name="Bad attachment point">
-		Ugyldig fæste-punkt
-	</string>
 	<string name="CursorPos">
 		Linie [LINE], Kolonne [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
 		[COUNT] fundet
 	</string>
-	<string name="PanelContentsTooltip">
-		Indhold i objekt
-	</string>
 	<string name="PanelContentsNewScript">
 		Nyt script
+	</string>
+	<string name="PanelContentsTooltip">
+		Indhold i objekt
 	</string>
 	<string name="BusyModeResponseDefault">
 		Beboeren du sendte en besked er &apos;optaget&apos;, hvilket betyder at han/hun ikke vil forstyrres. Din besked vil blive vis i hans/hendes IM panel til senere visning.
 	</string>
-	<string name="NoOutfits">
-		You don&apos;t have any outfits yet. Try [secondlife:///app/search/all/ Search]
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Fandt du ikke hvad du søgte? Prøv [secondlife:///app/search/all/[SEARCH_TERM] Search].
-	</string>
 	<string name="MuteByName">
-		(Efter navn)
+		(efter navn)
 	</string>
 	<string name="MuteAgent">
 		(beboer)
 	</string>
 	<string name="MuteObject">
-		(Objekt)
+		(objekt)
 	</string>
 	<string name="MuteGroup">
-		(Gruppe)
-	</string>
-	<string name="MuteExternal">
-		(Ekstern)
+		(gruppe)
 	</string>
 	<string name="RegionNoCovenant">
 		Der er ingen regler for dette estate.
@@ -1683,7 +1539,9 @@
 	<string name="RegionNoCovenantOtherOwner">
 		Der er ingen regler for dette estate. Land på dette estate sælges af estate ejeren, ikke af Linden Lab.  Kontakt venligst estate ejeren for detaljer om salg.
 	</string>
-	<string name="covenant_last_modified" value="Sidst rettet:"/>
+	<string name="covenant_last_modified">
+		Sidst ændret:
+	</string>
 	<string name="none_text" value=" (ingen) "/>
 	<string name="never_text" value=" (aldrig) "/>
 	<string name="GroupOwned">
@@ -3360,15 +3218,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="LocationCtrlComboBtnTooltip">
 		Min lokationshistorik
 	</string>
-	<string name="LocationCtrlAdultIconTooltip">
-		Adult region
-	</string>
-	<string name="LocationCtrlModerateIconTooltip">
-		Moderate region
-	</string>
-	<string name="LocationCtrlGeneralIconTooltip">
-		Generel region
-	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Opdatér
 	</string>
@@ -3399,12 +3248,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 		Opstart af klient fejlede
 	</string>
-	<string name="ItemsComingInTooFastFrom">
-		[APP_NAME]: Genstande modtages for hurtigt fra [FROM_NAME], automatisk visning er slået fra i [TIME] sekunder
-	</string>
-	<string name="ItemsComingInTooFast">
-		[APP_NAME]: Genstande modtages for hurtigt, automatisk visning er slået fra i [TIME] sekunder
-	</string>
 	<string name="IM_logging_string">
 		-- Logning af IM aktiveret --
 	</string>
@@ -3432,17 +3275,11 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
-	<string name="answered_call">
-		Dit opkald er blevet besvaret
+	<string name="started_call">
+		startede et stemme opkald
 	</string>
-	<string name="you_started_call">
-		Du startede dette stemme kald
-	</string>
-	<string name="you_joined_call">
-		Du er nu med i stemme opkald
-	</string>
-	<string name="name_started_call">
-		[NAME] startede et stemmekald
+	<string name="joined_call">
+		tilsluttede stemme opkald
 	</string>
 	<string name="ringing-im">
 		Tilslutter stemme opkald...
@@ -3519,20 +3356,11 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="unread_chat_multiple">
 		[SOURCES] har sagt noget nyt
 	</string>
-	<string name="session_initialization_timed_out_error">
-		Initialisering af session er &quot;timed out&quot;
-	</string>
-	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
-	</string>
 	<string name="paid_you_ldollars">
 		[NAME] betalte dig L$[AMOUNT]
 	</string>
 	<string name="you_paid_ldollars">
 		Du betalte [NAME] L$[AMOUNT] [REASON].
-	</string>
-	<string name="you_paid_ldollars_no_info">
-		Du betalte L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		Du betalte [NAME] L$[AMOUNT].
@@ -3581,9 +3409,6 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="group_role_owners">
 		Ejere
-	</string>
-	<string name="group_member_status_online">
-		Online
 	</string>
 	<string name="uploading_abuse_report">
 		Uploader...
@@ -3638,203 +3463,13 @@ Krænkelsesanmeldelse
 	<string name="Invalid Wearable">
 		Kan ikke tages på
 	</string>
-	<string name="New Gesture">
-		Ny bevægelse
-	</string>
 	<string name="New Script">
 		Nyt script
-	</string>
-	<string name="New Note">
-		Ny note
 	</string>
 	<string name="New Folder">
 		Ny folder
 	</string>
 	<string name="Contents">
 		Indhold
-	</string>
-	<string name="Gesture">
-		Bevægelse
-	</string>
-	<string name="Male Gestures">
-		Mandlige bevægelser
-	</string>
-	<string name="Female Gestures">
-		Kvindelige bevægelser
-	</string>
-	<string name="Other Gestures">
-		Andre bevægelser
-	</string>
-	<string name="Speech Gestures">
-		Tale bevægelser
-	</string>
-	<string name="Common Gestures">
-		Almindelige bevægelser
-	</string>
-	<string name="Male - Excuse me">
-		Mand - Undskyld mig
-	</string>
-	<string name="Male - Get lost">
-		Mand - Skrid!
-	</string>
-	<string name="Male - Blow kiss">
-		Mand - Pust et kys
-	</string>
-	<string name="Male - Boo">
-		Mand - Boo
-	</string>
-	<string name="Male - Bored">
-		Mand - Keder sig
-	</string>
-	<string name="Male - Hey">
-		Mand - Hey
-	</string>
-	<string name="Male - Laugh">
-		Mand - Latter
-	</string>
-	<string name="Male - Repulsed">
-		Mand - Frastødt
-	</string>
-	<string name="Male - Shrug">
-		Mand - Skuldertræk
-	</string>
-	<string name="Male - Stick tougue out">
-		Mand - Stik tunge ud
-	</string>
-	<string name="Male - Wow">
-		Mand - Wow
-	</string>
-	<string name="Female - Chuckle">
-		Kvinde - Kluklatter
-	</string>
-	<string name="Female - Cry">
-		Kvinde - gråd
-	</string>
-	<string name="Female - Embarrassed">
-		Kvinde - Flov
-	</string>
-	<string name="Female - Excuse me">
-		Kvinde - Undskyld mig
-	</string>
-	<string name="Female - Get lost">
-		Kvinde - Skrid!
-	</string>
-	<string name="Female - Blow kiss">
-		Kvinde - Pust et kys
-	</string>
-	<string name="Female - Boo">
-		Kvinde - Boo
-	</string>
-	<string name="Female - Bored">
-		Kvinde - Keder sig
-	</string>
-	<string name="Female - Hey">
-		Kvinde - Hey
-	</string>
-	<string name="Female - Hey baby">
-		Kvinde - Hey baby
-	</string>
-	<string name="Female - Laugh">
-		Kvinde - Latter
-	</string>
-	<string name="Female - Looking good">
-		Kvinde - &quot;Ser godt ud&quot;
-	</string>
-	<string name="Female - Over here">
-		Kvinde - Herovre
-	</string>
-	<string name="Female - Please">
-		Kvinde - Be´ om
-	</string>
-	<string name="Female - Repulsed">
-		Kvinde - Frastødt
-	</string>
-	<string name="Female - Shrug">
-		Kvinde - Skuldertræk
-	</string>
-	<string name="Female - Stick tougue out">
-		Kvinde - Stik tungen ud
-	</string>
-	<string name="Female - Wow">
-		Kvinde - Wow
-	</string>
-	<string name="AvatarBirthDateFormat">
-		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
-	</string>
-	<string name="DefaultMimeType">
-		ingen/ingen
-	</string>
-	<string name="texture_load_dimensions_error">
-		Kan ikke hente billeder større end  [WIDTH]*[HEIGHT]
-	</string>
-	<string name="words_separator" value=","/>
-	<string name="server_is_down">
-		Desværre er noget gået galt.
-
-	Check venligst status.secondlifegrid.net for at se om der skulle være driftsproblemer.
-	Hvis du bliver ved med at have problemer, check venligst din firewall- og netværksopsætning.
-	</string>
-	<string name="dateTimeWeekdaysNames">
-		Søndag:Mandag:Tirsdag:Onsdag:Torsdag:Fredag:Lørdag
-	</string>
-	<string name="dateTimeWeekdaysShortNames">
-		Søn:Man:Tir:Ons:Tor:Fre:Lør
-	</string>
-	<string name="dateTimeMonthNames">
-		Januar:Februar:Marts:April:Maj:Juni:Juli:August:September:Oktober:November:December
-	</string>
-	<string name="dateTimeMonthShortNames">
-		Jan:Feb:Mar:Apr:Maj:Jun:Jul:Aug:Sep:Okt:Nov:Dec
-	</string>
-	<string name="dateTimeDayFormat">
-		[MDAY]
-	</string>
-	<string name="dateTimeAM">
-		AM
-	</string>
-	<string name="dateTimePM">
-		PM
-	</string>
-	<string name="LocalEstimateUSD">
-		US$ [AMOUNT]
-	</string>
-	<string name="Membership">
-		Medlemsskab
-	</string>
-	<string name="Roles">
-		Roller
-	</string>
-	<string name="Group Identity">
-		Gruppe identitet
-	</string>
-	<string name="Parcel Management">
-		Parcel håndtering
-	</string>
-	<string name="Parcel Identity">
-		Parcel identitet
-	</string>
-	<string name="Parcel Settings">
-		Parcel opsætning
-	</string>
-	<string name="Parcel Powers">
-		Parcel beføjelser
-	</string>
-	<string name="Parcel Access">
-		Parcel adgang
-	</string>
-	<string name="Parcel Content">
-		Parcel indhold
-	</string>
-	<string name="Object Management">
-		Objekt håndtering
-	</string>
-	<string name="Accounting">
-		Regnskab
-	</string>
-	<string name="Notices">
-		Beskeder
-	</string>
-	<string name="Chat">
-		Chat
 	</string>
 </strings>

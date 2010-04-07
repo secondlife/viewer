@@ -3,25 +3,31 @@
  * @author Richard Nelson, James Cook
  * @brief LLTextureCtrl class implementation including related functions
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -94,7 +100,7 @@ public:
 		PermissionMask immediate_filter_perm_mask,
 		PermissionMask non_immediate_filter_perm_mask,
 		BOOL can_apply_immediately,
-		LLUIImagePtr fallback_image_name);
+		const std::string& fallback_image_name);
 
 	virtual ~LLFloaterTexturePicker();
 
@@ -147,7 +153,7 @@ protected:
 	LLTextureCtrl*		mOwner;
 
 	LLUUID				mImageAssetID; // Currently selected texture
-	LLUIImagePtr		mFallbackImage; // What to show if currently selected texture is null.
+	std::string			mFallbackImageName; // What to show if currently selected texture is null.
 
 	LLUUID				mWhiteImageAssetID;
 	LLUUID				mSpecialCurrentImageAssetID;  // Used when the asset id has no corresponding texture in the user's inventory.
@@ -169,8 +175,6 @@ protected:
 	BOOL				mNoCopyTextureSelected;
 	F32					mContextConeOpacity;
 	LLSaveFolderState	mSavedFolderState;
-
-	BOOL				mSelectedItemPinned;
 };
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
@@ -179,11 +183,11 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	PermissionMask immediate_filter_perm_mask,
 	PermissionMask non_immediate_filter_perm_mask,
 	BOOL can_apply_immediately,
-	LLUIImagePtr fallback_image)
+	const std::string& fallback_image_name)
 :	LLFloater(LLSD()),
 	mOwner( owner ),
 	mImageAssetID( owner->getImageAssetID() ),
-	mFallbackImage( fallback_image ),
+	mFallbackImageName( fallback_image_name ),
 	mWhiteImageAssetID( gSavedSettings.getString( "UIImgWhiteUUID" ) ),
 	mOriginalImageAssetID(owner->getImageAssetID()),
 	mLabel(label),
@@ -193,8 +197,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mFilterEdit(NULL),
 	mImmediateFilterPermMask(immediate_filter_perm_mask),
 	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
-	mContextConeOpacity(0.f),
-	mSelectedItemPinned( FALSE )
+	mContextConeOpacity(0.f)
 {
 	mCanApplyImmediately = can_apply_immediately;
 	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_texture_ctrl.xml",NULL);
@@ -420,13 +423,8 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		mInventoryPanel->setAllowMultiSelect(FALSE);
 
-		// Disable auto selecting first filtered item because it takes away
-		// selection from the item set by LLTextureCtrl owning this floater.
-		mInventoryPanel->getRootFolder()->setAutoSelectOverride(TRUE);
-
-		// Commented out to scroll to currently selected texture. See EXT-5403.
-		// // store this filter as the default one
-		// mInventoryPanel->getRootFolder()->getFilter()->markDefault();
+		// store this filter as the default one
+		mInventoryPanel->getRootFolder()->getFilter()->markDefault();
 
 		// Commented out to stop opening all folders with textures
 		// mInventoryPanel->openDefaultFolderForType(LLFolderType::FT_TEXTURE);
@@ -535,6 +533,11 @@ void LLFloaterTexturePicker::draw()
 			mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, MIPMAP_YES);
 			mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
 		}
+		else if (!mFallbackImageName.empty())
+		{
+			mTexturep = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName);
+			mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+		}
 
 		if (mTentativeLabel)
 		{
@@ -575,10 +578,13 @@ void LLFloaterTexturePicker::draw()
 
 			// Pump the priority
 			mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
-		}
-		else if (!mFallbackImage.isNull())
-		{
-			mFallbackImage->draw(interior);
+
+			// Draw Tentative Label over the image
+			if( mOwner->getTentative() && !mViewModel->isDirty() )
+			{
+				mTentativeLabel->setVisible( TRUE );
+				drawChild(mTentativeLabel);
+			}
 		}
 		else
 		{
@@ -586,38 +592,6 @@ void LLFloaterTexturePicker::draw()
 
 			// Draw X
 			gl_draw_x(interior, LLColor4::black );
-		}
-
-		// Draw Tentative Label over the image
-		if( mOwner->getTentative() && !mViewModel->isDirty() )
-		{
-			mTentativeLabel->setVisible( TRUE );
-			drawChild(mTentativeLabel);
-		}
-
-		if (mSelectedItemPinned) return;
-
-		LLFolderView* folder_view = mInventoryPanel->getRootFolder();
-		if (!folder_view) return;
-
-		LLInventoryFilter* filter = folder_view->getFilter();
-		if (!filter) return;
-
-		bool is_filter_active = folder_view->getCompletedFilterGeneration() < filter->getCurrentGeneration() &&
-				filter->isNotDefault();
-
-		// After inventory panel filter is applied we have to update
-		// constraint rect for the selected item because of folder view
-		// AutoSelectOverride set to TRUE. We force PinningSelectedItem
-		// flag to FALSE state and setting filter "dirty" to update
-		// scroll container to show selected item (see LLFolderView::doIdle()).
-		if (!is_filter_active && !mSelectedItemPinned)
-		{
-			folder_view->setPinningSelectedItem(mSelectedItemPinned);
-			folder_view->dirtyFilter();
-			folder_view->arrangeFromRoot();
-
-			mSelectedItemPinned = TRUE;
 		}
 	}
 }
@@ -852,7 +826,7 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 		}
 	}
 
-	mInventoryPanel->setFilterSubString(search_string);
+	mInventoryPanel->setFilterSubString(upper_case_search_string);
 }
 
 void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
@@ -901,8 +875,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mShowLoadingPlaceholder( TRUE ),
 	mImageAssetID(p.image_id),
 	mDefaultImageAssetID(p.default_image_id),
-	mDefaultImageName(p.default_image_name),
-	mFallbackImage(p.fallback_image)
+	mDefaultImageName(p.default_image_name)
 {
 	setAllowNoTexture(p.allow_no_texture);
 	setCanApplyImmediately(p.can_apply_immediately);
@@ -1046,7 +1019,7 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 			mImmediateFilterPermMask,
 			mNonImmediateFilterPermMask,
 			mCanApplyImmediately,
-			mFallbackImage);
+			mFallbackImageName);
 
 		mFloaterHandle = floaterp->getHandle();
 
@@ -1164,20 +1137,6 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op)
 	}
 }
 
-void	LLTextureCtrl::setImageAssetName(const std::string& name)
-{
-	LLPointer<LLUIImage> imagep = LLUI::getUIImage(name);
-	if(imagep)
-	{
-		LLViewerFetchedTexture* pTexture = dynamic_cast<LLViewerFetchedTexture*>(imagep->getImage().get());
-		if(pTexture)
-		{
-			LLUUID id = pTexture->getID();
-			setImageAssetID(id);
-		}
-	}
-}
-
 void LLTextureCtrl::setImageAssetID( const LLUUID& asset_id )
 {
 	if( mImageAssetID != asset_id )
@@ -1250,6 +1209,12 @@ void LLTextureCtrl::draw()
 
 		mTexturep = texture;
 	}
+	else if (!mFallbackImageName.empty())
+	{
+		// Show fallback image.
+		mTexturep = LLViewerTextureManager::getFetchedTextureFromFile(mFallbackImageName);
+		mTexturep->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+	}
 	else//mImageAssetID == LLUUID::null
 	{
 		mTexturep = NULL;
@@ -1273,10 +1238,6 @@ void LLTextureCtrl::draw()
 		gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep);
 		mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 	}
-	else if (!mFallbackImage.isNull())
-	{
-		mFallbackImage->draw(interior);
-	}
 	else
 	{
 		gl_rect_2d( interior, LLColor4::grey, TRUE );
@@ -1287,52 +1248,25 @@ void LLTextureCtrl::draw()
 
 	mTentativeLabel->setVisible( !mTexturep.isNull() && getTentative() );
 	
+	
 	// Show "Loading..." string on the top left corner while this texture is loading.
 	// Using the discard level, do not show the string if the texture is almost but not 
 	// fully loaded.
-	if (mTexturep.notNull() &&
-		(!mTexturep->isFullyLoaded()) &&
-		(mShowLoadingPlaceholder == TRUE))
+	if ( mTexturep.notNull() &&
+		 (!mTexturep->isFullyLoaded()) &&
+		 (mShowLoadingPlaceholder == TRUE) && 
+		 (mTexturep->getDiscardLevel() != 1) &&
+		 (mTexturep->getDiscardLevel() != 0))
 	{
-		U32 v_offset = 25;
 		LLFontGL* font = LLFontGL::getFontSansSerif();
-
-		// Don't show as loaded if the texture is almost fully loaded (i.e. discard1) unless god
-		if ((mTexturep->getDiscardLevel() > 1) || gAgent.isGodlike())
-		{
-			font->renderUTF8(
-				mLoadingPlaceholderString, 
-				0,
-				llfloor(interior.mLeft+3), 
-				llfloor(interior.mTop-v_offset),
-				LLColor4::white,
-				LLFontGL::LEFT,
-				LLFontGL::BASELINE,
-				LLFontGL::DROP_SHADOW);
-		}
-
-		// Optionally show more detailed information.
-		if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
-		{
-			LLFontGL* font = LLFontGL::getFontSansSerif();
-			std::string tdesc;
-			// Show what % the texture has loaded (0 to 100%, 100 is highest), and what level of detail (5 to 0, 0 is best).
-
-			v_offset += 12;
-			tdesc = llformat("  PK  : %d%%", U32(mTexturep->getDownloadProgress()*100.0));
-			font->renderUTF8(tdesc, 0, llfloor(interior.mLeft+3), llfloor(interior.mTop-v_offset),
-							 LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
-
-			v_offset += 12;
-			tdesc = llformat("  LVL: %d", mTexturep->getDiscardLevel());
-			font->renderUTF8(tdesc, 0, llfloor(interior.mLeft+3), llfloor(interior.mTop-v_offset),
-							 LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
-
-			v_offset += 12;
-			tdesc = llformat("  ID  : %s...", (mImageAssetID.asString().substr(0,7)).c_str());
-			font->renderUTF8(tdesc, 0, llfloor(interior.mLeft+3), llfloor(interior.mTop-v_offset),
-							 LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
-		}
+		font->renderUTF8(
+			mLoadingPlaceholderString, 0,
+			llfloor(interior.mLeft+3), 
+			llfloor(interior.mTop-25),
+			LLColor4::white,
+			LLFontGL::LEFT,
+			LLFontGL::BASELINE,
+			LLFontGL::DROP_SHADOW);
 	}
 
 	LLUICtrl::draw();

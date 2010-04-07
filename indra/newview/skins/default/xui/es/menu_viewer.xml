@@ -7,11 +7,10 @@
 		</menu_item_call>
 		<menu_item_call label="Comprar L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Mi perfil" name="Profile"/>
-		<menu_item_call label="Cambiar vestuario" name="ChangeOutfit"/>
+		<menu_item_call label="Mi apariencia" name="Appearance"/>
 		<menu_item_check label="Mi Inventario" name="Inventory"/>
 		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mis gestos" name="Gestures"/>
-		<menu_item_check label="Mi voz" name="ShowVoice"/>
 		<menu label="Mi estado" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
@@ -20,7 +19,7 @@
 		<menu_item_call label="Dejar el estatus de Administrador" name="Leave Admin Options"/>
 		<menu_item_call label="Salir de [APP_NAME]" name="Quit"/>
 	</menu>
-	<menu label="Comunicarme" name="Communicate">
+	<menu label="Comunicarse" name="Communicate">
 		<menu_item_call label="Mis amigos" name="My Friends"/>
 		<menu_item_call label="Mis grupos" name="My Groups"/>
 		<menu_item_check label="Chat" name="Nearby Chat"/>
@@ -32,7 +31,6 @@
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Crear un hito de este sitio" name="Create Landmark Here"/>
 		<menu label="Perfil del lugar" name="Land">
-			<menu_item_call label="Perfil del lugar" name="Place Profile"/>
 			<menu_item_call label="Acerca del terreno" name="About Land"/>
 			<menu_item_call label="Región/Estado" name="Region/Estate"/>
 		</menu>
@@ -68,15 +66,20 @@
 			<menu_item_call label="Herramienta Crear" name="Create"/>
 			<menu_item_call label="Herramienta Terreno" name="Land"/>
 		</menu>
+		<menu label="Editar" name="Edit">
+			<menu_item_call label="Deshacer" name="Undo"/>
+			<menu_item_call label="Rehacer" name="Redo"/>
+			<menu_item_call label="Cortar" name="Cut"/>
+			<menu_item_call label="Copiar" name="Copy"/>
+			<menu_item_call label="Pegar" name="Paste"/>
+			<menu_item_call label="Eliminar" name="Delete"/>
+			<menu_item_call label="Duplicar" name="Duplicate"/>
+			<menu_item_call label="Seleccionar todo" name="Select All"/>
+			<menu_item_call label="Deseleccionar" name="Deselect"/>
+		</menu>
 		<menu_item_call label="Enlazar" name="Link"/>
 		<menu_item_call label="Desenlazar" name="Unlink"/>
 		<menu_item_check label="Editar las partes enlazadas" name="Edit Linked Parts"/>
-		<menu label="Seleccionar las partes enlazadas" name="Select Linked Parts">
-			<menu_item_call label="Seleccionar la parte siguiente" name="Select Next Part"/>
-			<menu_item_call label="Seleccionar la parte previa" name="Select Previous Part"/>
-			<menu_item_call label="Incluir la parte siguiente" name="Include Next Part"/>
-			<menu_item_call label="Incluir la parte previa" name="Include Previous Part"/>
-		</menu>
 		<menu_item_call label="Visión en lo seleccionado" name="Focus on Selection"/>
 		<menu_item_call label="Zoom en lo seleccionado" name="Zoom to Selection"/>
 		<menu label="Objeto" name="Object">
@@ -107,21 +110,19 @@
 			<menu_item_call label="Usar lo seleccionado como cuadrícula" name="Use Selection for Grid"/>
 			<menu_item_call label="Opciones de la cuadrícula" name="Grid Options"/>
 		</menu>
-		<menu label="Subir" name="Upload">
-			<menu_item_call label="Imagen ([COST] L$)..." name="Upload Image"/>
-			<menu_item_call label="Sonido ([COST] L$)..." name="Upload Sound"/>
-			<menu_item_call label="Animación ([COST] L$)..." name="Upload Animation"/>
-			<menu_item_call label="Masivo ([COST] L$ por archivo)..." name="Bulk Upload"/>
+		<menu label="Seleccionar las partes enlazadas" name="Select Linked Parts">
+			<menu_item_call label="Seleccionar la parte siguiente" name="Select Next Part"/>
+			<menu_item_call label="Seleccionar la parte previa" name="Select Previous Part"/>
+			<menu_item_call label="Incluir la parte siguiente" name="Include Next Part"/>
+			<menu_item_call label="Incluir la parte previa" name="Include Previous Part"/>
 		</menu>
 	</menu>
 	<menu label="Ayuda" name="Help">
 		<menu_item_call label="Ayuda de [SECOND_LIFE]" name="Second Life Help"/>
 		<menu_item_call label="Denunciar una infracción" name="Report Abuse"/>
 		<menu_item_call label="Informar de un fallo" name="Report Bug"/>
-		<menu_item_call label="Acerca de [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanzado" name="Advanced">
-		<menu_item_check label="Mostrar el menú Avanzado" name="Show Advanced Menu"/>
 		<menu_item_call label="Parar mis animaciones" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Recargar las texturas" name="Rebake Texture"/>
 		<menu_item_call label="Interfaz en el tamaño predeterminado" name="Set UI Size to Default"/>
@@ -143,6 +144,7 @@
 			<menu_item_check label="Realzar las transparencias" name="Highlight Transparent"/>
 			<menu_item_check label="Mostrar los HUD anexados" name="Show HUD Attachments"/>
 			<menu_item_check label="Mostrar el Punto de Mira en la vista subjetiva" name="ShowCrosshairs"/>
+			<menu_item_check label="Mostrar información complementaria del terreno" name="Land Tips"/>
 		</menu>
 		<menu label="Objetos representados" name="Rendering Types">
 			<menu_item_check label="Simple" name="Simple"/>
@@ -169,7 +171,6 @@
 			<menu_item_check label="Objetos flexibles" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="Ejecutar múltiples temas" name="Run Multiple Threads"/>
-		<menu_item_check label="Usar Plugin Read Thread" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Vaciar la caché de grupo" name="ClearGroupCache"/>
 		<menu_item_check label="Vista subjetiva suavizada" name="Mouse Smoothing"/>
 		<menu label="Atajos de teclado" name="Shortcuts">
@@ -177,7 +178,6 @@
 			<menu_item_check label="Buscar" name="Search"/>
 			<menu_item_call label="Recuperar las teclas" name="Release Keys"/>
 			<menu_item_call label="Interfaz en el tamaño predeterminado" name="Set UI Size to Default"/>
-			<menu_item_check label="Mostrar el menú Avanzado - acceso directo antiguo" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Correr siempre" name="Always Run"/>
 			<menu_item_check label="Volar" name="Fly"/>
 			<menu_item_call label="Cerrar la ventana" name="Close Window"/>
@@ -197,9 +197,10 @@
 			<menu_item_call label="Acercar el zoom" name="Zoom In"/>
 			<menu_item_call label="Zoom por defecto" name="Zoom Default"/>
 			<menu_item_call label="Alejar el zoom" name="Zoom Out"/>
+			<menu_item_call label="Pantalla completa" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="Mostrar las configuraciones del depurador" name="Debug Settings"/>
-		<menu_item_check label="Mostrar el menú &apos;Develop&apos;" name="Debug Mode"/>
+		<menu_item_check label="Mostrar el menú 'Develop'" name="Debug Mode"/>
 	</menu>
 	<menu label="Develop" name="Develop">
 		<menu label="Consoles" name="Consoles">

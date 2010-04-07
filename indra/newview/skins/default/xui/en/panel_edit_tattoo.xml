@@ -25,61 +25,38 @@
         can_apply_immediately="true"
         default_image_name="Default"
         follows="left|top"
-        height="115"
+        height="100"
         label="Head Tattoo"
         layout="topleft"
-        left="20"
+        left="30"
         name="Head Tattoo"
         tool_tip="Click to choose a picture"
         top="10"
-        width="115" >
-         <texture_picker.commit_callback
-             function="TexturePicker.Commit" />
-       </texture_picker>
+        width="94" />
        <texture_picker
         can_apply_immediately="true"
         default_image_name="Default"
         follows="left|top"
-        height="115"
+        height="100"
         label="Upper Tattoo"
         layout="topleft"
         left_pad="30"
         name="Upper Tattoo"
         tool_tip="Click to choose a picture"
         top="10"
-        width="115" >
-         <texture_picker.commit_callback
-             function="TexturePicker.Commit" />
-       </texture_picker>
+        width="94" />
        <texture_picker
         can_apply_immediately="true"
         default_image_name="Default"
         follows="left|top"
-        height="115"
+        height="100"
         label="Lower Tattoo"
         layout="topleft"
-        left="20"
+        left="30"
         name="Lower Tattoo"
         tool_tip="Click to choose a picture"
         top_pad="10"
-        width="115" >
-         <texture_picker.commit_callback
-             function="TexturePicker.Commit" />
-       </texture_picker>
-       <color_swatch
-        can_apply_immediately="true"
-        follows="left|top"
-        height="115"
-        label="Color/Tint"
-        layout="topleft"
-        left_pad="30"
-        name="Color/Tint"
-        tool_tip="Click to open color picker"
-        top_delta="0"
-        width="115" >
-         <color_swatch.commit_callback
-             function="ColorSwatch.Commit" />
-       </color_swatch>
+        width="94" />
 	 </panel>
 </panel>
 

@@ -2,25 +2,31 @@
  * @file llassetuploadresponders.cpp
  * @brief Processes responses received for asset upload requests.
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * 
+ * Copyright (c) 2007-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */ 
 
@@ -31,7 +37,7 @@
 // viewer includes
 #include "llagent.h"
 #include "llcompilequeue.h"
-#include "llbuycurrencyhtml.h"
+#include "llfloaterbuycurrency.h"
 #include "llfilepicker.h"
 #include "llinventorydefines.h"
 #include "llinventoryobserver.h"
@@ -180,7 +186,7 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 		S32 price = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 		LLStringUtil::format_map_t args;
 		args["AMOUNT"] = llformat("%d", price);
-		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("uploading_costs", args), price );
+		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("uploading_costs", args), price);
 	}
 	else
 	{
@@ -197,13 +203,19 @@ void LLAssetUploadResponder::uploadComplete(const LLSD& content)
 
 LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data,
 														   const LLUUID& vfile_id,
-														   LLAssetType::EType asset_type)
-: LLAssetUploadResponder(post_data, vfile_id, asset_type)
+														   LLAssetType::EType asset_type,
+														   boost::function<void(const LLUUID& uuid)> callback)
+: LLAssetUploadResponder(post_data, vfile_id, asset_type),
+  mCallback(callback)
 {
 }
 
-LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data, const std::string& file_name, LLAssetType::EType asset_type)
-: LLAssetUploadResponder(post_data, file_name, asset_type)
+LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data, 
+														   const std::string& file_name, 
+														   LLAssetType::EType asset_type, 
+														   boost::function<void(const LLUUID& uuid)> callback)
+: LLAssetUploadResponder(post_data, file_name, asset_type),
+  mCallback(callback)
 {
 }
 
@@ -281,6 +293,12 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 										creation_date_now);
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
+		
+		if (mCallback)
+		{
+			// call the callback with the new Asset UUID
+			mCallback(item->getAssetUUID());
+		}
 
 		// Show the preview panel for textures and sounds to let
 		// user know that the image (or snapshot) arrived intact.
@@ -328,13 +346,11 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		U32 group_perms      = mPostData.has("group_mask")      ? mPostData.get("group_mask"     ).asInteger() : PERM_NONE;
 		U32 next_owner_perms = mPostData.has("next_owner_mask") ? mPostData.get("next_owner_mask").asInteger() : PERM_NONE;
 		std::string display_name = LLStringUtil::null;
-		LLAssetStorage::LLStoreAssetCallback callback = NULL;
-		void *userdata = NULL;
 		upload_new_resource(next_file, asset_name, asset_name,
-				    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+				    LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
 				    next_owner_perms, group_perms,
 				    everyone_perms, display_name,
-				    callback, expected_upload_cost, userdata);
+				    NULL, expected_upload_cost);
 	}
 }
 

@@ -2,25 +2,31 @@
  * @file llfloater.cpp
  * @brief LLFloater base class
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -163,7 +169,6 @@ LLFloater::Params::Params()
 	save_rect("save_rect", false),
 	save_visibility("save_visibility", false),
 	can_dock("can_dock", false),
-	open_centered("open_centered", false),
 	header_height("header_height", 0),
 	legacy_header_height("legacy_header_height", 0),
 	close_image("close_image"),
@@ -324,7 +329,6 @@ void LLFloater::addDragHandle()
 		addChild(mDragHandle);
 	}
 	layoutDragHandle();
-	applyTitle();
 }
 
 void LLFloater::layoutDragHandle()
@@ -341,8 +345,9 @@ void LLFloater::layoutDragHandle()
 	{
 		rect = getLocalRect();
 	}
-	mDragHandle->setShape(rect);
+	mDragHandle->setRect(rect);
 	updateTitleButtons();
+	applyTitle();
 }
 
 void LLFloater::addResizeCtrls()
@@ -443,14 +448,6 @@ void LLFloater::enableResizeCtrls(bool enable)
 		mResizeHandle[i]->setVisible(enable);
 		mResizeHandle[i]->setEnabled(enable);
 	}
-}
-
-void LLFloater::destroy()
-{
-	// LLFloaterReg should be synchronized with "dead" floater to avoid returning dead instance before
-	// it was deleted via LLMortician::updateClass(). See EXT-8458.
-	LLFloaterReg::removeInstance(mInstanceName, mKey);
-	die();
 }
 
 // virtual
@@ -566,7 +563,6 @@ void LLFloater::handleVisibilityChange ( BOOL new_visibility )
 
 void LLFloater::openFloater(const LLSD& key)
 {
-	llinfos << "Opening floater " << getName() << llendl;
 	mKey = key; // in case we need to open ourselves again
 	
 	if (getSoundFlags() != SILENT 
@@ -607,7 +603,6 @@ void LLFloater::openFloater(const LLSD& key)
 
 void LLFloater::closeFloater(bool app_quitting)
 {
-	llinfos << "Closing floater " << getName() << llendl;
 	if (app_quitting)
 	{
 		LLFloater::sQuitting = true;
@@ -766,13 +761,6 @@ void    LLFloater::applySavedVariables()
 
 void LLFloater::applyRectControl()
 {
-	// first, center on screen if requested	
-	if (mOpenCentered)
-	{
-		center();
-	}
-
-	// override center if we have saved rect control
 	if (mRectControl.size() > 1)
 	{
 		const LLRect& rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
@@ -811,11 +799,6 @@ void LLFloater::applyTitle()
 	else
 	{
 		mDragHandle->setTitle ( mTitle );
-	}
-
-	if (getHost())
-	{
-		getHost()->updateFloaterTitle(this);	
 	}
 }
 
@@ -1803,16 +1786,13 @@ void LLFloater::updateTitleButtons()
 					llround((F32)floater_close_box_size * mButtonScale));
 			}
 
-			// first time here, init 'buttons_rect'
-			if(1 == button_count)
+			if(!buttons_rect.isValid())
 			{
 				buttons_rect = btn_rect;
 			}
 			else
 			{
-				// if mDragOnLeft=true then buttons are on top-left side vertically aligned
-				// title is not displayed in this case, calculating 'buttons_rect' for future use
-				mDragOnLeft ? buttons_rect.mBottom -= btn_rect.mBottom : 
+				mDragOnLeft ? buttons_rect.mRight + btn_rect.mRight : 
 					buttons_rect.mLeft = btn_rect.mLeft;
 			}
 			mButtons[i]->setRect(btn_rect);
@@ -2526,7 +2506,7 @@ LLFloater *LLFloaterView::getBackmost() const
 
 void LLFloaterView::syncFloaterTabOrder()
 {
-	// look for a visible modal dialog, starting from first
+	// look for a visible modal dialog, starting from first (should be only one)
 	LLModalDialog* modal_dialog = NULL;
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
@@ -2726,7 +2706,6 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;
 	mAutoTile = p.auto_tile;
-	mOpenCentered = p.open_centered;
 
 	if (p.save_rect)
 	{
@@ -2756,10 +2735,10 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
 
-bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
+bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
-	LLXUIParser::instance().readXUI(node, params, filename); // *TODO: Error checking
+	LLXUIParser::instance().readXUI(node, params); // *TODO: Error checking
 
 	if (output_node)
 	{

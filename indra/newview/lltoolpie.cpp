@@ -2,25 +2,31 @@
  * @file lltoolpie.cpp
  * @brief LLToolPie class implementation
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -47,7 +53,6 @@
 #include "llmediaentry.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
-#include "llresmgr.h"  // getMonetaryString
 #include "llselectmgr.h"
 #include "lltoolfocus.h"
 #include "lltoolgrab.h"
@@ -176,10 +181,10 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 		parent = object->getRootEdit();
 	}
 
-	if (handleMediaClick(mPick))
-	{
-		return TRUE;
-	}
+
+	BOOL touchable = (object && object->flagHandleTouch()) 
+					 || (parent && parent->flagHandleTouch());
+
 
 	// If it's a left-click, and we have a special action, do it.
 	if (useClickAction(mask, object, parent))
@@ -281,11 +286,13 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 		}
 	}
 
+	if (handleMediaClick(mPick))
+	{
+		return TRUE;
+	}
+
 	// put focus back "in world"
 	gFocusMgr.setKeyboardFocus(NULL);
-
-	BOOL touchable = (object && object->flagHandleTouch()) 
-					 || (parent && parent->flagHandleTouch());
 
 	// Switch to grab tool if physical or triggerable
 	if (object && 
@@ -506,7 +513,14 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	LLViewerObject* click_action_object = click_action_pick.getObject();
-	if (handleMediaHover(mHoverPick))
+	if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
+	{
+		show_highlight = true;
+		ECursorType cursor = cursor_from_object(click_action_object);
+		gViewerWindow->setCursor(cursor);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+	}
+	else if (handleMediaHover(mHoverPick))
 	{
 		// *NOTE: If you think the hover glow conflicts with the media outline, you
 		// could disable it here.
@@ -514,14 +528,6 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		// cursor set by media object
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
-	else if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
-	{
-		show_highlight = true;
-		ECursorType cursor = cursor_from_object(click_action_object);
-		gViewerWindow->setCursor(cursor);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
-	}
-	
 	else if ((object && !object->isAvatar() && object->usePhysics()) 
 			 || (parent && !parent->isAvatar() && parent->usePhysics()))
 	{
@@ -803,8 +809,7 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 	if (hover_parcel && hover_parcel->getParcelFlag(PF_FOR_SALE))
 	{
 		LLStringUtil::format_map_t args;
-		S32 price = hover_parcel->getSalePrice();
-		args["[AMOUNT]"] = LLResMgr::getInstance()->getMonetaryString(price);
+		args["[AMOUNT]"] = llformat("%d", hover_parcel->getSalePrice());
 		line = LLTrans::getString("TooltipForSaleL$", args);
 		tooltip_msg.append(line);
 		tooltip_msg.push_back('\n');
@@ -902,14 +907,13 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			 || !existing_inspector->getVisible()
 			 || existing_inspector->getKey()["object_id"].asUUID() != hover_object->getID()))
 		{
-
+						
 			// Add price to tooltip for items on sale
 			bool for_sale = for_sale_selection(nodep);
 			if(for_sale)
 			{
 				LLStringUtil::format_map_t args;
-				S32 price = nodep->mSaleInfo.getSalePrice();
-				args["[AMOUNT]"] = LLResMgr::getInstance()->getMonetaryString(price);
+				args["[PRICE]"] = llformat ("%d", nodep->mSaleInfo.getSalePrice());
 				tooltip_msg.append(LLTrans::getString("TooltipPrice", args) );
 			}
 

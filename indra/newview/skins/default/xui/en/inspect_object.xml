@@ -18,8 +18,8 @@
  width="228">
   <string name="Creator">By [CREATOR]</string>
   <string name="CreatorAndOwner">
-By [CREATOR]
-Owner [OWNER]
+by [CREATOR]
+owner [OWNER]
   </string>
   <string name="Price">L$[AMOUNT]</string>
   <string name="PriceFree">Free!</string>
@@ -29,50 +29,61 @@ Owner [OWNER]
      allow_html="false"
      follows="all"
      font="SansSerifLarge"
-     height="30"
+     height="16"
      left="8"
      name="object_name"
      text_color="White"
-     top="6"
+     top="10"
      use_ellipses="true"
-     word_wrap="true"
+     value="Test Object Name That Is Really Long"
      width="220" />
   <text
    follows="all"
-   height="50"
+   height="33"
    left="8"
    name="object_creator"
-   top_pad="6"
+   top_pad="0"
    use_ellipses="true"
    width="220">
     by secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
   </text>
+  <!-- *TODO: Replace this icon -->
+  <icon
+  name="price_icon"
+  image_name="Icon_For_Sale"
+  right="-5"
+  width="16"
+  height="16"
+  top="56"
+  follows="left|top"
+  />
   <text
    follows="all"
    font="SansSerifSmall"
    font.style="BOLD"
-   height="14"
+   height="16"
    halign="right"
-   right="-5"
+   left="5"
    name="price_text"
    text_color="white"
-   top="60"
+   top="58"
    font_shadow="none"
-   width="60">
-L$30,000
+   width="196">
+L$300,000
   </text>
   <text
-   clip_partial="true"
+   clip_partial="true" 
    follows="all"
    font="SansSerifSmall"
-   height="25"
+   height="37"
    left="8"
    name="object_description"
-   top="76"
-   use_ellipses="true"
+   top_pad="0"
+   use_ellipses="true" 
    width="220"
    word_wrap="true">
+This is a really long description for an object being as how it is at least 80 characters in length and maybe more like 120 at this point. Who knows, really?
   </text>
   <!-- Overlapping buttons for all default actions.  Show "Buy" if
   for sale, "Sit" if can sit, etc. -->
@@ -80,9 +91,10 @@ L$30,000
    follows="all"
    font="SansSerifSmall"
    height="13"
+   left_delta="0"
    name="object_media_url"
-   width="220"
-   top_pad="0"
+   bottom_pad="2"
+   width="200"
    max_length = "50"
    use_ellipses="true">
    http://www.superdupertest.com

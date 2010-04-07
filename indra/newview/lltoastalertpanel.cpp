@@ -2,25 +2,31 @@
  * @file lltoastalertpanel.cpp
  * @brief Panel for alert toasts.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ *
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ *
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ *
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ *
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -44,8 +50,6 @@
 #include "llnotifications.h"
 #include "llfunctorregistry.h"
 #include "llrootview.h"
-#include "lltransientfloatermgr.h"
-#include "llviewercontrol.h" // for gSavedSettings
 
 const S32 MAX_ALLOWED_MSG_WIDTH = 400;
 const F32 DEFAULT_BUTTON_DELAY = 0.5f;
@@ -166,7 +170,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	params.tab_stop(false);
 	params.wrap(true);
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
-	params.allow_scroll(true);
 
 	LLTextBox * msg_box = LLUICtrlFactory::create<LLTextBox> (params);
 	// Compute max allowable height for the dialog text, so we can allocate
@@ -175,16 +178,9 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			gFloaterView->getRect().getHeight()
 			- LINE_HEIGHT			// title bar
 			- 3*VPAD - BTN_HEIGHT;
-	// reshape to calculate real text width and height
 	msg_box->reshape( MAX_ALLOWED_MSG_WIDTH, max_allowed_msg_height );
 	msg_box->setValue(msg);
-
-	S32 pixel_width = msg_box->getTextPixelWidth();
-	S32 pixel_height = msg_box->getTextPixelHeight();
-
-	// We should use some space to prevent set textbox's scroller visible when it is unnecessary.
-	msg_box->reshape( llmin(MAX_ALLOWED_MSG_WIDTH,pixel_width + 2 * msg_box->getHPad() + HPAD),
-		llmin(max_allowed_msg_height,pixel_height + 2 * msg_box->getVPad())  ) ;
+	msg_box->reshapeToFitText();
 
 	const LLRect& text_rect = msg_box->getRect();
 	S32 dialog_width = llmax( btn_total_width, text_rect.getWidth() ) + 2 * HPAD;
@@ -241,6 +237,35 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	msg_box->setRect( rect );
 	LLToastPanel::addChild(msg_box);
 
+	// Buttons	
+	S32 button_left = (LLToastPanel::getRect().getWidth() - btn_total_width) / 2;
+	
+	for( S32 i = 0; i < num_options; i++ )
+	{
+		LLRect button_rect;
+		
+		LLButton* btn = LLUICtrlFactory::getInstance()->createFromFile<LLButton>("alert_button.xml", this, LLPanel::child_registry_t::instance());
+		if(btn)
+		{
+			btn->setName(options[i].first);
+			btn->setRect(button_rect.setOriginAndSize( button_left, VPAD, button_width, BTN_HEIGHT ));
+			btn->setLabel(options[i].second);
+			btn->setFont(font);
+			
+			btn->setClickedCallback(boost::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
+
+			mButtonData[i].mButton = btn;
+
+			LLToastPanel::addChild(btn);
+
+			if( i == mDefaultOption )
+			{
+				btn->setFocus(TRUE);
+			}
+		}
+		button_left += button_width + BTN_HPAD;
+	}
+
 	// (Optional) Edit Box	
 	if (!edit_text_name.empty())
 	{
@@ -254,79 +279,14 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->reshape(leditor_rect.getWidth(), leditor_rect.getHeight());
 			mLineEditor->setRect(leditor_rect);
 			mLineEditor->setText(edit_text_contents);
-
-			// decrease limit of line editor of teleport offer dialog to avoid truncation of
-			// location URL in invitation message, see EXT-6891
-			if ("OfferTeleport" == mNotification->getName())
-			{
-				mLineEditor->setMaxTextLength(gSavedSettings.getS32(
-						"teleport_offer_invitation_max_length"));
-			}
-			else
-			{
-				mLineEditor->setMaxTextLength(STD_STRING_STR_LEN - 1);
-			}
+			mLineEditor->setMaxTextLength(STD_STRING_STR_LEN - 1);
 
 			LLToastPanel::addChild(mLineEditor);
 
 			mLineEditor->setDrawAsterixes(is_password);
 
 			setEditTextArgs(notification->getSubstitutions());
-
-			mLineEditor->setFollowsLeft();
-			mLineEditor->setFollowsRight();
-
-			// find form text input field
-			LLSD form_text;
-			for (LLSD::array_const_iterator it = form_sd.beginArray(); it != form_sd.endArray(); ++it)
-			{
-				std::string type = (*it)["type"].asString();
-				if (type == "text")
-				{
-					form_text = (*it);
-				}
-			}
-
-			// if form text input field has width attribute
-			if (form_text.has("width"))
-			{
-				// adjust floater width to fit line editor
-				S32 editor_width = form_text["width"];
-				LLRect editor_rect =  mLineEditor->getRect();
-				U32 width_delta = editor_width  - editor_rect.getWidth();
-				LLRect toast_rect = getRect();
-				reshape(toast_rect.getWidth() +  width_delta, toast_rect.getHeight());
-			}
 		}
-	}
-
-	// Buttons
-	S32 button_left = (LLToastPanel::getRect().getWidth() - btn_total_width) / 2;
-
-	for( S32 i = 0; i < num_options; i++ )
-	{
-		LLRect button_rect;
-
-		LLButton* btn = LLUICtrlFactory::getInstance()->createFromFile<LLButton>("alert_button.xml", this, LLPanel::child_registry_t::instance());
-		if(btn)
-		{
-			btn->setName(options[i].first);
-			btn->setRect(button_rect.setOriginAndSize( button_left, VPAD, button_width, BTN_HEIGHT ));
-			btn->setLabel(options[i].second);
-			btn->setFont(font);
-
-			btn->setClickedCallback(boost::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
-
-			mButtonData[i].mButton = btn;
-
-			LLToastPanel::addChild(btn);
-
-			if( i == mDefaultOption )
-			{
-				btn->setFocus(TRUE);
-			}
-		}
-		button_left += button_width + BTN_HPAD;
 	}
 
 	std::string ignore_label;
@@ -352,9 +312,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		mDefaultBtnTimer.start();
 		mDefaultBtnTimer.setTimerExpirySec(DEFAULT_BUTTON_DELAY);
 	}
-
-	LLTransientFloaterMgr::instance().addControlView(
-			LLTransientFloaterMgr::GLOBAL, this);
 }
 
 bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::string& check_control )
@@ -408,8 +365,6 @@ void LLToastAlertPanel::setVisible( BOOL visible )
 
 LLToastAlertPanel::~LLToastAlertPanel()
 {
-	LLTransientFloaterMgr::instance().removeControlView(
-			LLTransientFloaterMgr::GLOBAL, this);
 }
 
 BOOL LLToastAlertPanel::hasTitleBar() const

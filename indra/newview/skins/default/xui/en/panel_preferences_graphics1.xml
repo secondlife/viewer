@@ -160,7 +160,7 @@
      layout="topleft"
      left="5"
      name="CustomGraphics Panel"
-     top="76"
+     top="124"
      width="485">
 		<text
 		type="string"
@@ -287,7 +287,7 @@
 		left_delta="2"
 		name="AvatarRenderingText"
 		top_pad="5"
-		width="158">
+		width="128">
 			Avatar rendering:
 		</text>
 		<check_box
@@ -332,26 +332,26 @@
 		increment="8"
 		initial_value="160"
 		label="Draw distance:"
-		label_width="185"
+		label_width="140"
 		layout="topleft"
-		left="200"
+		left="216"
 		max_val="512"
 		min_val="64"
 		name="DrawDistance"
 		top="3"
-		width="296" />
+		width="255" />
 		<text
 		type="string"
 		length="1"
 		follows="left|top"
 		height="12"
 		layout="topleft"
-		left_delta="291"
+		left_delta="250"
 		name="DrawDistanceMeterText2"
 		top_delta="0"
 		width="128">
 			m
-		</text>    
+		</text>
 		<slider
 		control_name="RenderMaxPartCount"
 		decimal_digits="0"
@@ -360,29 +360,13 @@
 		increment="256"
 		initial_value="4096"
 		label="Max. particle count:"
-		label_width="185"
+		label_width="140"
 		layout="topleft"
-		left="200"
+		left="216"
 		max_val="8192"
 		name="MaxParticleCount"
 		top_pad="7"
-		width="303" />
-    <slider
-    control_name="RenderAvatarMaxVisible"
-    decimal_digits="0"
-    follows="left|top"
-    height="16"
-    increment="1"
-    initial_value="12"
-    label="Max. # of non-impostor avatars:"
-    label_width="185"
-    layout="topleft"
-    left_delta="0"
-    max_val="65"
-    min_val="1"
-    name="MaxNumberAvatarDrawn"
-    top_pad="4"
-    width="290" />
+		width="262" />
 		<slider
 		control_name="RenderGlowResolutionPow"
 		decimal_digits="0"
@@ -391,15 +375,15 @@
 		increment="1"
 		initial_value="8"
 		label="Post process quality:"
-		label_width="185"
+		label_width="140"
 		layout="topleft"
-		left="200"
+		left_delta="0"
 		max_val="9"
 		min_val="8"
 		name="RenderPostProcess"
 		show_text="false"
 		top_pad="4"
-		width="264">
+		width="223">
 			<slider.commit_callback
 			function="Pref.UpdateSliderText"
 			parameter="PostProcessText" />
@@ -423,14 +407,14 @@
 		increment="0.125"
 		initial_value="160"
 		label="  Objects:"
-		label_width="185"
+		label_width="140"
 		layout="topleft"
 		left_delta="0"
 		max_val="2"
 		name="ObjectMeshDetail"
 		show_text="false"
 		top_pad="6"
-		width="264">
+		width="223">
 			<slider.commit_callback
 			function="Pref.UpdateSliderText"
 			parameter="ObjectMeshDetailText" />
@@ -441,13 +425,13 @@
 		height="16"
 		initial_value="160"
 		label="  Flexiprims:"
-		label_width="185"
+		label_width="140"
 		layout="topleft"
 		left_delta="0"
 		name="FlexibleMeshDetail"
 		show_text="false"
 		top_pad="4"
-		width="264">
+		width="223">
 			<slider.commit_callback
 			function="Pref.UpdateSliderText"
 			parameter="FlexibleMeshDetailText" />
@@ -459,13 +443,13 @@
         increment="0.125"
         initial_value="160"
         label="  Trees:"
-        label_width="185"
+        label_width="140"
         layout="topleft"
         left_delta="0"
         name="TreeMeshDetail"
         show_text="false"
         top_pad="4"
-        width="264">
+        width="223">
            <slider.commit_callback
             function="Pref.UpdateSliderText"
             parameter="TreeMeshDetailText" />
@@ -477,13 +461,13 @@
         increment="0.125"
         initial_value="160"
         label="  Avatars:"
-        label_width="185"
+        label_width="140"
         layout="topleft"
         left_delta="0"
         name="AvatarMeshDetail"
         show_text="false"
         top_pad="4"
-        width="264">
+        width="223">
            <slider.commit_callback
             function="Pref.UpdateSliderText"
             parameter="AvatarMeshDetailText" />
@@ -495,7 +479,7 @@
         increment="0.125"
         initial_value="160"
         label="  Terrain:"
-        label_width="185"
+        label_width="140"
         layout="topleft"
         left_delta="0"
         max_val="2"
@@ -503,7 +487,7 @@
         name="TerrainMeshDetail"
         show_text="false"
         top_pad="4"
-        width="264">
+        width="223">
            <slider.commit_callback
             function="Pref.UpdateSliderText"
             parameter="TerrainMeshDetailText" />
@@ -517,7 +501,7 @@
         increment="8"
         initial_value="160"
         label="  Sky:"
-        label_width="185"
+        label_width="140"
         layout="topleft"
         left_delta="0"
         max_val="128"
@@ -525,7 +509,7 @@
         name="SkyMeshDetail"
         show_text="false"
         top_pad="4"
-        width="264">
+        width="223">
            <slider.commit_callback
             function="Pref.UpdateSliderText"
             parameter="SkyMeshDetailText" />
@@ -536,9 +520,9 @@
         follows="left|top"
         height="12"
         layout="topleft"
-        left="469"
+        left="444"
         name="PostProcessText"
-        top="60"
+        top="305"
         width="128">
            Low
         </text>
@@ -621,9 +605,9 @@
         follows="left|top"
         height="12"
         layout="topleft"
-        left="200"
+        left_delta="-230"
         name="LightingDetailText"
-        top_pad="18"
+        top_pad="8"
         width="140">
            Lighting detail:
         </text>
@@ -632,13 +616,15 @@
         draw_border="false"
         height="38"
         layout="topleft"
+        left_delta="0"
         name="LightingDetailRadio"
         top_pad="5"
-        width="200">
+        width="321">
            <radio_item
             height="16"
             label="Sun and moon only"
             layout="topleft"
+            left="3"
             name="SunMoon"
             value="0"
             top="3"
@@ -647,6 +633,7 @@
             height="16"
             label="Nearby local lights"
             layout="topleft"
+            left_delta="0"
             name="LocalLights"
             value="1"
             top_delta="16"
@@ -658,9 +645,9 @@
         follows="left|top"
         height="12"
         layout="topleft"
-        left_pad="-30"
+        left="358"
         name="TerrainDetailText"
-        top="226"
+        top="465"
         width="155">
            Terrain detail:
         </text>
@@ -672,21 +659,23 @@
         left_delta="0"
         name="TerrainDetailRadio"
         top_pad="5"
-        width="70">
+        width="321">
            <radio_item
             height="16"
             label="Low"
             layout="topleft"
+            left="3"
             name="0"
             top="3"
-            width="50" />
+            width="315" />
            <radio_item
             height="16"
             label="High"
             layout="topleft"
+            left_delta="0"
             name="2"
             top_delta="16"
-            width="50" />
+            width="315" />
         </radio_group>
 	</panel>
 	

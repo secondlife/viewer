@@ -2,25 +2,31 @@
  * @file llviewermessage.h
  * @brief Message system callbacks for viewer.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -34,7 +40,6 @@
 #include "lluuid.h"
 #include "message.h"
 #include "stdenums.h"
-#include "llnotifications.h"
 
 //
 // Forward declarations
@@ -201,14 +206,13 @@ void open_inventory_offer(const uuid_vec_t& items, const std::string& from_name)
 // Returns true if item is not in certain "quiet" folder which don't need UI
 // notification (e.g. trash, cof, lost-and-found) and agent is not AFK, false otherwise.
 // Returns false if item is not found.
-bool highlight_offered_object(const LLUUID& obj_id);
+bool highlight_offered_item(const LLUUID& item_id);
 
-void set_dad_inventory_item(LLInventoryItem* inv_item, const LLUUID& into_folder_uuid);
-
-class LLOfferInfo : public LLNotificationResponderInterface
+struct LLOfferInfo
 {
-public:
-	LLOfferInfo();
+        LLOfferInfo()
+	:	mFromGroup(FALSE), mFromObject(FALSE),
+		mIM(IM_NOTHING_SPECIAL), mType(LLAssetType::AT_NONE) {};
 	LLOfferInfo(const LLSD& sd);
 
 	LLOfferInfo(const LLOfferInfo& info);
@@ -226,27 +230,12 @@ public:
 	std::string mFromName;
 	std::string mDesc;
 	LLHost mHost;
-	bool mPersist;
 
-	// LLNotificationResponderInterface implementation
-	/*virtual*/ LLSD asLLSD();
-	/*virtual*/ void fromLLSD(const LLSD& params);
-	/*virtual*/ void handleRespond(const LLSD& notification, const LLSD& response);
-
+	LLSD asLLSD();
 	void send_auto_receive_response(void);
-
-	// TODO - replace all references with handleRespond()
 	bool inventory_offer_callback(const LLSD& notification, const LLSD& response);
 	bool inventory_task_offer_callback(const LLSD& notification, const LLSD& response);
 
-private:
-
-	void initRespondFunctionMap();
-
-	typedef boost::function<bool (const LLSD&, const LLSD&)> respond_function_t;
-	typedef std::map<std::string, respond_function_t> respond_function_map_t;
-
-	respond_function_map_t mRespondFunctions;
 };
 
 void process_feature_disabled_message(LLMessageSystem* msg, void**);

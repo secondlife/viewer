@@ -11,7 +11,6 @@
   read_only="true"
   use_ellipses="true"
   word_wrap="true"
-  show_context_menu="true"
   tab_stop="true"
   v_pad="3"
   h_pad="4" >

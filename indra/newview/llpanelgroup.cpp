@@ -1,25 +1,31 @@
 /** 
  * @file llpanelgroup.cpp
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2006&license=viewergpl$
+ * 
+ * Copyright (c) 2006-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -86,7 +92,8 @@ LLPanelGroup::LLPanelGroup()
 :	LLPanel(),
 	LLGroupMgrObserver( LLUUID() ),
 	mSkipRefresh(FALSE),
-	mButtonJoin(NULL)
+	mButtonJoin(NULL),
+	mShowingNotifyDialog(false)
 {
 	// Set up the factory callbacks.
 	// Roles sub tabs
@@ -176,11 +183,6 @@ BOOL LLPanelGroup::postBuild()
 	LLPanelGroupTab* panel_notices = findChild<LLPanelGroupTab>("group_notices_tab_panel");
 	LLPanelGroupTab* panel_land = findChild<LLPanelGroupTab>("group_land_tab_panel");
 
-	if (LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("groups_accordion"))
-	{
-		setVisibleCallback(boost::bind(&LLPanelGroup::onVisibilityChange, this, _2, accordion_ctrl));
-	}
-
 	if(panel_general)	mTabs.push_back(panel_general);
 	if(panel_roles)		mTabs.push_back(panel_roles);
 	if(panel_notices)	mTabs.push_back(panel_notices);
@@ -199,7 +201,7 @@ BOOL LLPanelGroup::postBuild()
 		mJoinText = panel_general->getChild<LLUICtrl>("join_cost_text");
 	}
 
-	LLVoiceClient::getInstance()->addObserver(this);
+	gVoiceClient->addObserver(this);
 	
 	return TRUE;
 }
@@ -304,13 +306,6 @@ void LLPanelGroup::onBtnCancel()
 	onBackBtnClick();
 }
 
-void LLPanelGroup::onVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl)
-{
-	if (in_visible_chain.asBoolean() && accordion_ctrl != NULL)
-	{
-		accordion_ctrl->expandDefaultTab();
-	}
-}
 
 void LLPanelGroup::changed(LLGroupChange gc)
 {
@@ -327,7 +322,7 @@ void LLPanelGroup::onChange(EStatusType status, const std::string &channelURI, b
 		return;
 	}
 
-	childSetEnabled("btn_call", LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking());
+	childSetEnabled("btn_call", LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
 }
 
 void LLPanelGroup::notifyObservers()
@@ -634,4 +629,69 @@ void LLPanelGroup::showNotice(const std::string& subject,
 
 }
 
+bool	LLPanelGroup::canClose()
+{
+	if(getVisible() == false)
+		return true;
+
+	bool need_save = false;
+	std::string mesg;
+	for(std::vector<LLPanelGroupTab* >::iterator it = mTabs.begin();it!=mTabs.end();++it)
+		if(need_save|=(*it)->needsApply(mesg))
+			break;
+	if(!need_save)
+		return false;
+	// If no message was provided, give a generic one.
+	if (mesg.empty())
+	{
+		mesg = mDefaultNeedsApplyMesg;
+	}
+	// Create a notify box, telling the user about the unapplied tab.
+	LLSD args;
+	args["NEEDS_APPLY_MESSAGE"] = mesg;
+	args["WANT_APPLY_MESSAGE"] = mWantApplyMesg;
+
+	LLNotificationsUtil::add("SaveChanges", args, LLSD(), boost::bind(&LLPanelGroup::handleNotifyCallback,this, _1, _2));
+
+	mShowingNotifyDialog = true;
+
+	return false;
+}
+
+bool	LLPanelGroup::notifyChildren(const LLSD& info)
+{
+	if(info.has("request") && mID.isNull() )
+	{
+		std::string str_action = info["request"];
+
+		if (str_action == "quit" )
+		{
+			canClose();
+			return true;
+		}
+		if(str_action == "wait_quit")
+			return mShowingNotifyDialog;
+	}
+	return false;
+}
+bool LLPanelGroup::handleNotifyCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	mShowingNotifyDialog = false;
+	switch (option)
+	{
+	case 0: // "Apply Changes"
+		apply();
+		break;
+	case 1: // "Ignore Changes"
+		break;
+	case 2: // "Cancel"
+	default:
+		// Do nothing.  The user is canceling the action.
+		// If we were quitting, we didn't really mean it.
+		LLAppViewer::instance()->abortQuit();
+		break;
+	}
+	return false;
+}
 

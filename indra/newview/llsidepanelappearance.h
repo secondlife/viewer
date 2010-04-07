@@ -2,25 +2,30 @@
  * @file llsidepanelappearance.h
  * @brief Side Bar "Appearance" panel
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2004-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -35,13 +40,13 @@
 
 class LLFilterEditor;
 class LLCurrentlyWornFetchObserver;
+class LLWatchForOutfitRenameObserver;
 class LLPanelEditWearable;
 class LLWearable;
 class LLPanelOutfitsInventory;
 
 class LLSidepanelAppearance : public LLPanel
 {
-	LOG_CLASS(LLSidepanelAppearance);
 public:
 	LLSidepanelAppearance();
 	virtual ~LLSidepanelAppearance();
@@ -51,29 +56,23 @@ public:
 
 	void refreshCurrentOutfitName(const std::string& name = "");
 
-	static void editWearable(LLWearable *wearable, LLView *data);
+	static void editWearable(LLWearable *wearable, void *data);
 
 	void fetchInventory();
 	void inventoryFetched();
+	void updateVerbs();
 	void onNewOutfitButtonClicked();
-
-	void showOutfitsInventoryPanel();
-	void showOutfitEditPanel();
-	void showWearableEditPanel(LLWearable *wearable = NULL);
-	void setWearablesLoading(bool val);
-	void showDefaultSubpart();
-	void updateScrollingPanelList();
 
 private:
 	void onFilterEdit(const std::string& search_string);
-	void onVisibilityChange ( const LLSD& new_visibility );
 
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
-
-	void togglMyOutfitsPanel(BOOL visible);
-	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
-	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
+	void onEditButtonClicked();
+	void onBackButtonClicked();
+	void onEditWearBackClicked();
+	void toggleOutfitEditPanel(BOOL visible);
+	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable);
 
 	LLFilterEditor*			mFilterEditor;
 	LLPanelOutfitsInventory* mPanelOutfitsInventory;
@@ -82,21 +81,26 @@ private:
 
 	LLButton*					mOpenOutfitBtn;
 	LLButton*					mEditAppearanceBtn;
+	LLButton*					mEditBtn;
 	LLButton*					mNewOutfitBtn;
 	LLPanel*					mCurrOutfitPanel;
 
 	LLTextBox*					mCurrentLookName;
-	LLTextBox*					mOutfitStatus;
+	LLTextBox*					mOutfitDirtyTag;
 
 	// Used to make sure the user's inventory is in memory.
 	LLCurrentlyWornFetchObserver* mFetchWorn;
+
+	// Used to update title when currently worn outfit gets renamed.
+	LLWatchForOutfitRenameObserver* mOutfitRenameWatcher;
 
 	// Search string for filtering landmarks and teleport
 	// history locations
 	std::string					mFilterSubString;
 
-	// Gets set to true when we're opened for the first time.
-	bool mOpened;
+	// Information type currently shown in Look Information panel
+	std::string					mLookInfoType;
+
 };
 
 #endif //LL_LLSIDEPANELAPPEARANCE_H

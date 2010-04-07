@@ -72,8 +72,8 @@
 	<string name="jacket_desc_text">
 		Giacca:
 	</string>
-	<string name="skirt_desc_text">
-		Gonna:
+	<string name="skirt_skirt_desc_text">
+		Giacca:
 	</string>
 	<string name="gloves_desc_text">
 		Guanti:
@@ -90,19 +90,12 @@
 	<string name="tattoo_desc_text">
 		Tatuaggio:
 	</string>
-	<labeled_back_button label="Salva" name="back_btn" tool_tip="Torna alla modifica del vestiario"/>
 	<text name="edit_wearable_title" value="Modifica della figura corporea"/>
 	<panel label="Camicia" name="wearable_type_panel">
 		<text name="description_text" value="Figura corporea:"/>
-		<radio_group name="sex_radio">
-			<radio_item label="" name="sex_male" tool_tip="Maschio" value="1"/>
-			<radio_item label="" name="sex_female" tool_tip="Femmina" value="0"/>
-		</radio_group>
-		<icon name="male_icon" tool_tip="Maschio"/>
-		<icon name="female_icon" tool_tip="Femmina"/>
 	</panel>
 	<panel name="button_panel">
 		<button label="Salva con nome" name="save_as_button"/>
-		<button label="Annulla modifiche" name="revert_button"/>
+		<button label="Ripristina" name="revert_button"/>
 	</panel>
 </panel>

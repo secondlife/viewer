@@ -2,25 +2,30 @@
  * @file llpanelplaces.cpp
  * @brief Side Bar "Places" panel
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ *
+ * Copyright (c) 2009, Linden Research, Inc.
+ *
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ *
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ *
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -246,9 +251,6 @@ BOOL LLPanelPlaces::postBuild()
 
 	mOverflowBtn = getChild<LLButton>("overflow_btn");
 	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
-
-	mPlaceInfoBtn = getChild<LLButton>("profile_btn");
-	mPlaceInfoBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onProfileButtonClicked, this));
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Places.OverflowMenu.Action",  boost::bind(&LLPanelPlaces::onOverflowMenuItemClicked, this, _2));
@@ -523,7 +525,8 @@ void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_fi
 		std::string string = search_string;
 
 		// Searches are case-insensitive
-		// but we don't convert the typed string to upper-case so that it can be fed to the web search as-is.
+		LLStringUtil::toUpper(string);
+		LLStringUtil::trimHead(string);
 
 		mActivePanel->onSearchEdit(string);
 	}
@@ -610,21 +613,8 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 	}
 	else
 	{
-		if (mActivePanel && mActivePanel->isSingleItemSelected())
-		{
+		if (mActivePanel)
 			mActivePanel->onShowOnMap();
-		}
-		else
-		{
-			LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
-			LLVector3d global_pos = gAgent.getPositionGlobal();
-
-			if (!global_pos.isExactlyZero() && worldmap_instance)
-			{
-				worldmap_instance->trackLocation(global_pos);
-				LLFloaterReg::showInstance("world_map", "center");
-			}
-		}
 	}
 }
 
@@ -713,8 +703,8 @@ void LLPanelPlaces::onOverflowButtonClicked()
 	bool is_agent_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE;
 
 	if ((is_agent_place_info_visible ||
-		 mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
-		 mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE) && mPlaceMenu != NULL)
+		 mPlaceInfoType == "remote_place" ||
+		 mPlaceInfoType == "teleport_history") && mPlaceMenu != NULL)
 	{
 		menu = mPlaceMenu;
 
@@ -753,14 +743,6 @@ void LLPanelPlaces::onOverflowButtonClicked()
 	menu->updateParent(LLMenuGL::sMenuContainer);
 	LLRect rect = mOverflowBtn->getRect();
 	LLMenuGL::showPopup(this, menu, rect.mRight, rect.mTop);
-}
-
-void LLPanelPlaces::onProfileButtonClicked()
-{
-	if (!mActivePanel)
-		return;
-
-	mActivePanel->onShowProfile();
 }
 
 bool LLPanelPlaces::onOverflowMenuItemEnable(const LLSD& param)
@@ -1033,7 +1015,7 @@ void LLPanelPlaces::showAddedLandmarkInfo(const uuid_vec_t& items)
 		 ++item_iter)
 	{
 		const LLUUID& item_id = (*item_iter);
-		if(!highlight_offered_object(item_id))
+		if(!highlight_offered_item(item_id))
 		{
 			continue;
 		}
@@ -1078,14 +1060,11 @@ void LLPanelPlaces::updateVerbs()
 	mSaveBtn->setVisible(isLandmarkEditModeOn);
 	mCancelBtn->setVisible(isLandmarkEditModeOn);
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
-	mPlaceInfoBtn->setVisible(!is_place_info_visible && !is_create_landmark_visible && !isLandmarkEditModeOn);
 
-	mPlaceInfoBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
+	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
 
 	if (is_place_info_visible)
 	{
-		mShowOnMapBtn->setEnabled(have_3d_pos);
-
 		if (is_agent_place_info_visible)
 		{
 			// We don't need to teleport to the current location

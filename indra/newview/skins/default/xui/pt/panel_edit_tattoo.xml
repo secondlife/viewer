@@ -4,6 +4,5 @@
 		<texture_picker label="Tatuagem de cabeça" name="Head Tattoo" tool_tip="Clique para escolher uma foto"/>
 		<texture_picker label="Tatuagem superior" name="Upper Tattoo" tool_tip="Selecione uma foto"/>
 		<texture_picker label="Tatuagem inferior" name="Lower Tattoo" tool_tip="Selecione uma foto"/>
-		<color_swatch label="Cor/Tonalidade" name="Color/Tint" tool_tip="Selecionar a cor"/>
 	</panel>
 </panel>

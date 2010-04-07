@@ -2,25 +2,31 @@
  * @file llviewerinventory.h
  * @brief Declaration of the inventory bits that only used on the viewer.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -30,7 +36,6 @@
 #include "llinventory.h"
 #include "llframetimer.h"
 #include "llwearable.h"
-#include "llui.h" //for LLDestroyClass
 
 #include <boost/signals2.hpp>	// boost::signals2::trackable
 
@@ -69,7 +74,7 @@ public:
 	virtual const LLSaleInfo& getSaleInfo() const;
 	virtual LLInventoryType::EType getInventoryType() const;
 	virtual bool isWearableType() const;
-	virtual LLWearableType::EType getWearableType() const;
+	virtual EWearableType getWearableType() const;
 	virtual U32 getFlags() const;
 	virtual time_t getCreationDate() const;
 	virtual U32 getCRC32() const; // really more of a checksum.
@@ -133,7 +138,7 @@ public:
 	bool importFileLocal(LLFILE* fp);
 
 	// new methods
-	BOOL isFinished() const { return mIsComplete; }
+	BOOL isComplete() const { return mIsComplete; }
 	void setComplete(BOOL complete) { mIsComplete = complete; }
 	//void updateAssetOnServer() const;
 
@@ -154,7 +159,6 @@ public:
 	
 	// Checks the items permissions (for owner, group, or everyone) and returns true if all mask bits are set.
 	bool checkPermissionsSet(PermissionMask mask) const;
-	PermissionMask getPermissionMask() const;
 
 	// callback
 	void onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name);
@@ -223,11 +227,6 @@ public:
 	bool importFileLocal(LLFILE* fp);
 	void determineFolderType();
 	void changeType(LLFolderType::EType new_folder_type);
-
-private:
-	friend class LLInventoryModel;
-	void localizeName(); // intended to be called from the LLInventoryModel
-
 protected:
 	LLUUID mOwnerID;
 	S32 mVersion;
@@ -243,13 +242,7 @@ public:
 
 class WearOnAvatarCallback : public LLInventoryCallback
 {
-public:
-	WearOnAvatarCallback(bool do_replace = false) : mReplace(do_replace) {}
-	
 	void fire(const LLUUID& inv_item);
-
-protected:
-	bool mReplace;
 };
 
 class ModifiedCOFCallback : public LLInventoryCallback
@@ -299,9 +292,8 @@ private:
 // misc functions
 //void inventory_reliable_callback(void**, S32 status);
 
-class LLInventoryCallbackManager : public LLDestroyClass<LLInventoryCallbackManager>
+class LLInventoryCallbackManager
 {
-	friend class LLDestroyClass<LLInventoryCallbackManager>;
 public:
 	LLInventoryCallbackManager();
 	~LLInventoryCallbackManager();
@@ -309,26 +301,23 @@ public:
 	void fire(U32 callback_id, const LLUUID& item_id);
 	U32 registerCB(LLPointer<LLInventoryCallback> cb);
 private:
-	typedef std::map<U32, LLPointer<LLInventoryCallback> > callback_map_t;
-	callback_map_t mMap;
+	std::map<U32, LLPointer<LLInventoryCallback> > mMap;
 	U32 mLastCallback;
 	static LLInventoryCallbackManager *sInstance;
-	static void destroyClass();
-
 public:
 	static bool is_instantiated() { return sInstance != NULL; }
 };
 extern LLInventoryCallbackManager gInventoryCallbacks;
 
 
-#define NOT_WEARABLE (LLWearableType::EType)0
+#define NOT_WEARABLE (EWearableType)0
 
 // *TODO: Find a home for these
 void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   const LLUUID& parent, const LLTransactionID& transaction_id,
 						   const std::string& name,
 						   const std::string& desc, LLAssetType::EType asset_type,
-						   LLInventoryType::EType inv_type, LLWearableType::EType wtype,
+						   LLInventoryType::EType inv_type, EWearableType wtype,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb);
 
@@ -350,7 +339,6 @@ void link_inventory_item(
 	const LLUUID& item_id,
 	const LLUUID& parent_id,
 	const std::string& new_name,
-	const std::string& new_description,
 	const LLAssetType::EType asset_type,
 	LLPointer<LLInventoryCallback> cb);
 

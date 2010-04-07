@@ -2,32 +2,35 @@
  * @file llxmlrpctransaction.cpp
  * @brief LLXMLRPCTransaction and related class implementations 
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2006&license=viewergpl$
+ * 
+ * Copyright (c) 2006-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
 #include "llviewerprecompiledheaders.h"
-#include <openssl/x509_vfy.h>
-#include <openssl/ssl.h>
-#include "llsecapi.h"
 
 #include "llxmlrpctransaction.h"
 #include "llxmlrpclistener.h"
@@ -39,7 +42,6 @@
 #include <xmlrpc-epi/xmlrpc.h>
 
 #include "llappviewer.h"
-#include "lltrans.h"
 
 // Static instance of LLXMLRPCListener declared here so that every time we
 // bring in this code, we instantiate a listener. If we put the static
@@ -174,8 +176,6 @@ public:
 
 	std::string			mResponseText;
 	XMLRPC_REQUEST		mResponse;
-	std::string         mCertStore;
-	LLPointer<LLCertificate> mErrorCert;
 	
 	Impl(const std::string& uri, XMLRPC_REQUEST request, bool useGzip);
 	Impl(const std::string& uri,
@@ -190,8 +190,7 @@ public:
 
 private:
 	void init(XMLRPC_REQUEST request, bool useGzip);
-	static int _sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param);
-	static CURLcode _sslCtxFunction(CURL * curl, void *sslctx, void *param);
+
 	static size_t curlDownloadCallback(
 		char* data, size_t size, size_t nmemb, void* user_data);
 };
@@ -229,75 +228,8 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
     XMLRPC_RequestFree(request, 1);
 }
 
-// _sslCertVerifyCallback
-// callback called when a cert verification is requested.
-// calls SECAPI to validate the context
-int LLXMLRPCTransaction::Impl::_sslCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
-{
-	LLXMLRPCTransaction::Impl *transaction = (LLXMLRPCTransaction::Impl *)param;
-	LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore(transaction->mCertStore);
-	LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
-	LLSD validation_params = LLSD::emptyMap();
-	LLURI uri(transaction->mURI);
-	validation_params[CERT_HOSTNAME] = uri.hostName();
-	try
-	{
-		// don't validate hostname.  Let libcurl do it instead.  That way, it'll handle redirects
-		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
-	}
-	catch (LLCertValidationTrustException& cert_exception)
-	{
-		// this exception is is handled differently than the general cert
-		// exceptions, as we allow the user to actually add the certificate
-		// for trust.
-		// therefore we pass back a different error code
-		// NOTE: We're currently 'wired' to pass around CURL error codes.  This is
-		// somewhat clumsy, as we may run into errors that do not map directly to curl
-		// error codes.  Should be refactored with login refactoring, perhaps.
-		transaction->mCurlCode = CURLE_SSL_CACERT;
-		// set the status directly.  set curl status generates error messages and we want
-		// to use the fixed ones from the exceptions
-		transaction->setStatus(StatusCURLError, cert_exception.getMessage(), std::string());
-		// We should probably have a more generic way of passing information
-		// back to the error handlers.
-		transaction->mErrorCert = cert_exception.getCert();
-		return 0;		
-	}
-	catch (LLCertException& cert_exception)
-	{
-		transaction->mCurlCode = CURLE_SSL_PEER_CERTIFICATE;
-		// set the status directly.  set curl status generates error messages and we want
-		// to use the fixed ones from the exceptions
-		transaction->setStatus(StatusCURLError, cert_exception.getMessage(), std::string());
-		transaction->mErrorCert = cert_exception.getCert();
-		return 0;
-	}
-	catch (...)
-	{
-		// any other odd error, we just handle as a connect error.
-		transaction->mCurlCode = CURLE_SSL_CONNECT_ERROR;
-		transaction->setCurlStatus(CURLE_SSL_CONNECT_ERROR);
-		return 0;
-	}
-	return 1;
-}
 
-// _sslCtxFunction
-// Callback function called when an SSL Context is created via CURL
-// used to configure the context for custom cert validate(<, <#const & xs#>, <#T * #>, <#long #>)tion
-// based on SECAPI
 
-CURLcode LLXMLRPCTransaction::Impl::_sslCtxFunction(CURL * curl, void *sslctx, void *param)
-{
-	SSL_CTX * ctx = (SSL_CTX *) sslctx;
-	// disable any default verification for server certs
-	SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
-	// set the verification callback.
-	SSL_CTX_set_cert_verify_callback(ctx, _sslCertVerifyCallback, param);
-	// the calls are void
-	return CURLE_OK;
-	
-}
 
 void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 {
@@ -305,7 +237,6 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	{
 		mCurlRequest = new LLCurlEasyRequest();
 	}
-	mErrorCert = NULL;
 	
 	if (gSavedSettings.getBOOL("BrowserProxyEnabled"))
 	{
@@ -321,13 +252,12 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 //	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
 	mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
 	mCurlRequest->setWriteCallback(&curlDownloadCallback, (void*)this);
-	BOOL vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
-	mCertStore = gSavedSettings.getString("CertStore");
-	mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, vefifySSLCert);
-	mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, vefifySSLCert ? 2 : 0);
+	BOOL verifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
+	mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, LLCurl::getSSLVerify() ? 2 : 0);
+	mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, verifySSLCert);
+	mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, verifySSLCert ? 2 : 0);
 	// Be a little impatient about establishing connections.
 	mCurlRequest->setopt(CURLOPT_CONNECTTIMEOUT, 40L);
-	mCurlRequest->setSSLCtxCallback(_sslCtxFunction, (void *)this);
 
 	/* Setting the DNS cache timeout to -1 disables it completely.
 	   This might help with bug #503 */
@@ -413,19 +343,11 @@ bool LLXMLRPCTransaction::Impl::process()
 		{
 			if (result != CURLE_OK)
 			{
-				if ((result != CURLE_SSL_PEER_CERTIFICATE) &&
-					(result != CURLE_SSL_CACERT))
-				{
-					// if we have a curl error that's not already been handled
-					// (a non cert error), then generate the error message as
-					// appropriate
-					setCurlStatus(result);
-				
-					llwarns << "LLXMLRPCTransaction CURL error "
-					<< mCurlCode << ": " << mCurlRequest->getErrorString() << llendl;
-					llwarns << "LLXMLRPCTransaction request URI: "
-					<< mURI << llendl;
-				}
+				setCurlStatus(result);
+				llwarns << "LLXMLRPCTransaction CURL error "
+						<< mCurlCode << ": " << mCurlRequest->getErrorString() << llendl;
+				llwarns << "LLXMLRPCTransaction request URI: "
+						<< mURI << llendl;
 					
 				return true;
 			}
@@ -503,11 +425,17 @@ void LLXMLRPCTransaction::Impl::setStatus(EStatus status,
 			case StatusComplete:
 				mStatusMessage = "(done)";
 				break;
+				
 			default:
 				// Usually this means that there's a problem with the login server,
 				// not with the client.  Direct user to status page.
-				mStatusMessage = LLTrans::getString("server_is_down");
-				mStatusURI = "http://status.secondlifegrid.net/";
+				mStatusMessage =
+					"Despite our best efforts, something unexpected has gone wrong. \n"
+					" \n"
+					"Please check secondlife.com/status \n"
+					"to see if there is a known problem with the service.";
+
+				mStatusURI = "http://secondlife.com/status/";
 		}
 	}
 }
@@ -541,7 +469,7 @@ void LLXMLRPCTransaction::Impl::setCurlStatus(CURLcode code)
 				"Often this means that your computer\'s clock is set incorrectly.\n"
 				"Please go to Control Panels and make sure the time and date\n"
 				"are set correctly.\n"
-				"Also check that your network and firewall are set up correctly.\n"
+				"\n"
 				"If you continue to receive this error, please go\n"
 				"to the Support section of the SecondLife.com web site\n"
 				"and report the problem.";
@@ -611,11 +539,6 @@ LLXMLRPCTransaction::EStatus LLXMLRPCTransaction::status(int* curlCode)
 std::string LLXMLRPCTransaction::statusMessage()
 {
 	return impl.mStatusMessage;
-}
-
-LLPointer<LLCertificate> LLXMLRPCTransaction::getErrorCert()
-{
-	return impl.mErrorCert;
 }
 
 std::string LLXMLRPCTransaction::statusURI()

@@ -1,27 +1,32 @@
-
 /** 
  * @file llbutton.cpp
  * @brief LLButton base class
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -123,7 +128,6 @@ LLButton::LLButton(const LLButton::Params& p)
 	mImageSelected(p.image_selected),
 	mImageDisabled(p.image_disabled),
 	mImageDisabledSelected(p.image_disabled_selected),
-	mImageFlash(p.image_flash),
 	mImagePressed(p.image_pressed),
 	mImagePressedSelected(p.image_pressed_selected),
 	mImageHoverSelected(p.image_hover_selected),
@@ -631,24 +635,14 @@ void LLButton::draw()
 
 	if (mFlashing)
 	{
-		// if button should flash and we have icon for flashing, use it as image for button
-		if(flash && mImageFlash)
-		{
-			// setting flash to false to avoid its further influence on glow
-			flash = false;
-			imagep = mImageFlash;
-		}
-		// else use usual flashing via flash_color
+		LLColor4 flash_color = mFlashBgColor.get();
+		use_glow_effect = TRUE;
+		glow_type = LLRender::BT_ALPHA; // blend the glow
+
+		if (mNeedsHighlight) // highlighted AND flashing
+			glow_color = (glow_color*0.5f + flash_color*0.5f) % 2.0f; // average between flash and highlight colour, with sum of the opacity
 		else
-		{
-			LLColor4 flash_color = mFlashBgColor.get();
-			use_glow_effect = TRUE;
-			glow_type = LLRender::BT_ALPHA; // blend the glow
-			if (mNeedsHighlight) // highlighted AND flashing
-				glow_color = (glow_color*0.5f + flash_color*0.5f) % 2.0f; // average between flash and highlight colour, with sum of the opacity
-			else
-				glow_color = flash_color;
-		}
+			glow_color = flash_color;
 	}
 
 	if (mNeedsHighlight && !imagep)
@@ -1009,11 +1003,6 @@ void LLButton::setImageDisabledSelected(LLPointer<LLUIImage> image)
 	mFadeWhenDisabled = TRUE;
 }
 
-void LLButton::setImagePressed(LLPointer<LLUIImage> image)
-{
-	mImagePressed = image;
-}
-
 void LLButton::setImageHoverSelected(LLPointer<LLUIImage> image)
 {
 	mImageHoverSelected = image;
@@ -1022,11 +1011,6 @@ void LLButton::setImageHoverSelected(LLPointer<LLUIImage> image)
 void LLButton::setImageHoverUnselected(LLPointer<LLUIImage> image)
 {
 	mImageHoverUnselected = image;
-}
-
-void LLButton::setImageFlash(LLPointer<LLUIImage> image)
-{
-	mImageFlash = image;
 }
 
 void LLButton::setImageOverlay(const std::string& image_name, LLFontGL::HAlign alignment, const LLColor4& color)
@@ -1156,11 +1140,4 @@ void LLButton::resetMouseDownTimer()
 {
 	mMouseDownTimer.stop();
 	mMouseDownTimer.reset();
-}
-
-
-BOOL LLButton::handleDoubleClick(S32 x, S32 y, MASK mask)
-{
-	// just treat a double click as a second click
-	return handleMouseDown(x, y, mask);
 }

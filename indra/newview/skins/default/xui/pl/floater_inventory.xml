@@ -7,7 +7,7 @@
 		MOJA SZAFA (Dostarczanie [ITEM_COUNT] obiektów...) [FILTER]
 	</floater.string>
 	<floater.string name="TitleCompleted">
-		MOJA SZAFA ([ITEM_COUNT] obiektów) [FILTER]
+		MOJA SZAFA ([ITEM_COUNT] Obiektów) [FILTER]
 	</floater.string>
 	<floater.string name="Fetched">
 		Dostarczono

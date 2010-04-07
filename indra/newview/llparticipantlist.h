@@ -2,37 +2,42 @@
  * @file llparticipantlist.h
  * @brief LLParticipantList intended to update view(LLAvatarList) according to incoming messages
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
 #include "llviewerprecompiledheaders.h"
 #include "llevent.h"
+#include "llpanelpeoplemenus.h"
 #include "llavatarlist.h" // for LLAvatarItemRecentSpeakerComparator
-#include "lllistcontextmenu.h"
 
 class LLSpeakerMgr;
 class LLAvatarList;
 class LLUICtrl;
-class LLAvalineUpdater;
 
 class LLParticipantList
 {
@@ -41,7 +46,7 @@ class LLParticipantList
 
 		typedef boost::function<bool (const LLUUID& speaker_id)> validate_speaker_callback_t;
 
-		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true, bool exclude_agent = true, bool can_toggle_icons = true);
+		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true, bool exclude_agent = true);
 		~LLParticipantList();
 		void setSpeakingIndicatorsVisible(BOOL visible);
 
@@ -142,7 +147,7 @@ class LLParticipantList
 		/**
 		 * Menu used in the participant list.
 		 */
-		class LLParticipantListMenu : public LLListContextMenu
+		class LLParticipantListMenu : public LLPanelPeopleMenus::ContextMenu
 		{
 		public:
 			LLParticipantListMenu(LLParticipantList& parent):mParent(parent){};
@@ -152,7 +157,6 @@ class LLParticipantList
 			LLParticipantList& mParent;
 		private:
 			bool enableContextMenuItem(const LLSD& userdata);
-			bool enableModerateContextMenuItem(const LLSD& userdata);
 			bool checkContextMenuItem(const LLSD& userdata);
 
 			void sortParticipantList(const LLSD& userdata);
@@ -181,7 +185,7 @@ class LLParticipantList
 			 * @param userdata can be "selected" or "others".
 			 *
 			 * @see moderateVoiceParticipant()
-			 * @see moderateVoiceAllParticipants()
+			 * @see moderateVoiceOtherParticipants()
 			 */
 			void moderateVoice(const LLSD& userdata);
 
@@ -194,22 +198,22 @@ class LLParticipantList
 			 * @param[in] avatar_id UUID of avatar to be processed
 			 * @param[in] unmute if true - specified avatar will be muted, otherwise - unmuted.
 			 *
-			 * @see moderateVoiceAllParticipants()
+			 * @see moderateVoiceOtherParticipants()
 			 */
 			void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
 
 			/**
-			 * Mutes/Unmutes all avatars for current group voice chat.
+			 * Mutes/Unmutes all avatars except specified for current group voice chat.
 			 *
 			 * It only marks avatars as muted for session and does not use local Agent's Block list.
+			 * It based call moderateVoiceParticipant() for each avatar should be muted/unmuted.
 			 *
+			 * @param[in] excluded_avatar_id UUID of avatar NOT to be processed
 			 * @param[in] unmute if true - avatars will be muted, otherwise - unmuted.
 			 *
 			 * @see moderateVoiceParticipant()
 			 */
-			void moderateVoiceAllParticipants(bool unmute);
-
-			static void confirmMuteAllCallback(const LLSD& notification, const LLSD& response);
+			void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute);
 		};
 
 		/**
@@ -230,9 +234,6 @@ class LLParticipantList
 	private:
 		void onAvatarListDoubleClicked(LLUICtrl* ctrl);
 		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
-
-		void onAvalineCallerFound(const LLUUID& participant_id);
-		void onAvalineCallerRemoved(const LLUUID& participant_id);
 
 		/**
 		 * Adjusts passed participant to work properly.
@@ -267,9 +268,7 @@ class LLParticipantList
 		boost::signals2::connection mAvatarListDoubleClickConnection;
 		boost::signals2::connection mAvatarListRefreshConnection;
 		boost::signals2::connection mAvatarListReturnConnection;
-		boost::signals2::connection mAvatarListToggleIconsConnection;
 
 		LLPointer<LLAvatarItemRecentSpeakerComparator> mSortByRecentSpeakers;
 		validate_speaker_callback_t mValidateSpeakerCallback;
-		LLAvalineUpdater* mAvalineUpdater;
 };

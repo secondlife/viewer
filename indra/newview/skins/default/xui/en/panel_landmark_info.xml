@@ -46,38 +46,33 @@
     <!-- Texture names for rating icons -->
     <string
      name="icon_PG"
-     translate="false"
      value="Parcel_PG_Dark" />
     <string
      name="icon_M"
-     translate="false"
      value="Parcel_M_Dark" />
     <string
      name="icon_R"
-     translate="false"
      value="Parcel_R_Dark" />
     <button
      follows="top|right"
-     height="24"
-     image_hover_unselected="BackButton_Over"
-     image_pressed="BackButton_Press"
-     image_unselected="BackButton_Off"
+     height="23"
+     image_overlay="BackArrow_Off"
      layout="topleft"
-     left="9"
+     left="11"
      name="back_btn"
      tool_tip="Back"
      tab_stop="false"
      top="4"
-     width="30" />
+     width="23" />
     <text
      follows="top|left|right"
      font="SansSerifHugeBold"
      height="26"
      layout="topleft"
-     left_pad="7"
+     left_pad="10"
      name="title"
      text_color="LtGray"
-     top="3"
+     top="2"
      use_ellipses="true"
      value="Place Profile"
      width="280" />
@@ -103,8 +98,7 @@
          width="310">
             <texture_picker
              enabled="false"
-             fallback_image="default_land_picture.j2c"
-             follows="left|top|right"
+         follows="left|top|right"
              height="197"
              layout="topleft"
              left="11"

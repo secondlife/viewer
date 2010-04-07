@@ -16,13 +16,7 @@
 		ha aderito ad una chiamata in chat vocale in conferenza.
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		ha appena aderito al canale voce &apos;[GROUP]&apos;.
-	</floater.string>
-	<floater.string name="VoiceInviteQuestionGroup">
-		Vuoi abbandonare [CURRENT_CHAT] e aderire alla chiamata con &apos;[GROUP]&apos;?
-	</floater.string>
-	<floater.string name="VoiceInviteQuestionDefault">
-		Vuoi abbandonare [CURRENT_CHAT] e aderire a questa voice chat?
+		ha accettato una chiamata in Chat vocale con il gruppo [GROUP].
 	</floater.string>
 	<text name="question">
 		Vuoi abbandonare [CURRENT_CHAT] e aderire a questa voice chat?

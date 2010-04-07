@@ -45,7 +45,6 @@
 	</text>
 	<check_box initial_value="true" label="Executar animação digitada quando estiver conversando" name="play_typing_animation"/>
 	<check_box label="Enviar MIs por email se estiver desconectado" name="send_im_to_email"/>
-	<check_box label="Ativar MIs e bate-papos de texto simples" name="plain_text_chat_history"/>
 	<text name="show_ims_in_label">
 		Mostrar MIs em:
 	</text>

@@ -52,7 +52,6 @@
   <menu_item_call
    label="Delete"
    name="Delete"
-   allow_key_repeat="true" 
    shortcut="Del">
     <menu_item_call.on_click
      function="Edit.Delete" />

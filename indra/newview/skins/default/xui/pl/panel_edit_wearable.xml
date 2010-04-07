@@ -72,8 +72,8 @@
 	<string name="jacket_desc_text">
 		Kurtka:
 	</string>
-	<string name="skirt_desc_text">
-		spódnica:
+	<string name="skirt_skirt_desc_text">
+		Spódnica:
 	</string>
 	<string name="gloves_desc_text">
 		Rękawiczki:
@@ -90,19 +90,12 @@
 	<string name="tattoo_desc_text">
 		Tatuaż:
 	</string>
-	<labeled_back_button label="Zapisz" name="back_btn" tool_tip="Powrót do edycji stroju"/>
 	<text name="edit_wearable_title" value="Edycja Kształtu"/>
 	<panel label="Koszula" name="wearable_type_panel">
 		<text name="description_text" value="Kształt:"/>
-		<radio_group name="sex_radio">
-			<radio_item label="" name="sex_male" tool_tip="Mężczyzna" value="1"/>
-			<radio_item label="" name="sex_female" tool_tip="Kobieta" value="0"/>
-		</radio_group>
-		<icon name="male_icon" tool_tip="Mężczyzna"/>
-		<icon name="female_icon" tool_tip="Kobieta"/>
 	</panel>
 	<panel name="button_panel">
 		<button label="Zapisz" name="save_as_button"/>
-		<button label="Cofnij zmiany" name="revert_button"/>
+		<button label="Wróć" name="revert_button"/>
 	</panel>
 </panel>

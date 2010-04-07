@@ -124,6 +124,9 @@ consente [AMOUNT2] oggetti
 	<floater.string name="no_parcel_selected">
 		(nessun terreno selezionato)
 	</floater.string>
+	<floater.string name="icon_PG" value="Parcel_PG_Dark"/>
+	<floater.string name="icon_M" value="Parcel_M_Dark"/>
+	<floater.string name="icon_R" value="Parcel_R_Dark"/>
 	<text name="region_name_label">
 		Regione:
 	</text>

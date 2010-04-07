@@ -2,25 +2,31 @@
  * @file llviewerinventory.cpp
  * @brief Implementation of the viewer side inventory objects.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -30,10 +36,10 @@
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "message.h"
+#include "indra_constants.h"
 
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llagentwearables.h"
 #include "llviewerfoldertype.h"
 #include "llfolderview.h"
 #include "llviewercontrol.h"
@@ -56,109 +62,9 @@
 #include "llviewerwindow.h"
 #include "lltrans.h"
 #include "llappearancemgr.h"
+#include "llfloatercustomize.h"
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
-#include "llsidepanelappearance.h"
-
-///----------------------------------------------------------------------------
-/// Helper class to store special inventory item names and their localized values.
-///----------------------------------------------------------------------------
-class LLLocalizedInventoryItemsDictionary : public LLSingleton<LLLocalizedInventoryItemsDictionary>
-{
-public:
-	std::map<std::string, std::string> mInventoryItemsDict;
-
-	LLLocalizedInventoryItemsDictionary()
-	{
-		mInventoryItemsDict["New Shape"]		= LLTrans::getString("New Shape");
-		mInventoryItemsDict["New Skin"]			= LLTrans::getString("New Skin");
-		mInventoryItemsDict["New Hair"]			= LLTrans::getString("New Hair");
-		mInventoryItemsDict["New Eyes"]			= LLTrans::getString("New Eyes");
-		mInventoryItemsDict["New Shirt"]		= LLTrans::getString("New Shirt");
-		mInventoryItemsDict["New Pants"]		= LLTrans::getString("New Pants");
-		mInventoryItemsDict["New Shoes"]		= LLTrans::getString("New Shoes");
-		mInventoryItemsDict["New Socks"]		= LLTrans::getString("New Socks");
-		mInventoryItemsDict["New Jacket"]		= LLTrans::getString("New Jacket");
-		mInventoryItemsDict["New Gloves"]		= LLTrans::getString("New Gloves");
-		mInventoryItemsDict["New Undershirt"]	= LLTrans::getString("New Undershirt");
-		mInventoryItemsDict["New Underpants"]	= LLTrans::getString("New Underpants");
-		mInventoryItemsDict["New Skirt"]		= LLTrans::getString("New Skirt");
-		mInventoryItemsDict["New Alpha"]		= LLTrans::getString("New Alpha");
-		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
-		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
-
-		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
-		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
-		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
-		mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
-		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
-
-		mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
-		mInventoryItemsDict["Male Gestures"]	= LLTrans::getString("Male Gestures");
-		mInventoryItemsDict["Female Gestures"]	= LLTrans::getString("Female Gestures");
-		mInventoryItemsDict["Other Gestures"]	= LLTrans::getString("Other Gestures");
-		mInventoryItemsDict["Speech Gestures"]	= LLTrans::getString("Speech Gestures");
-		mInventoryItemsDict["Common Gestures"]	= LLTrans::getString("Common Gestures");
-
-		//predefined gestures
-
-		//male
-		mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
-		mInventoryItemsDict["Male  - Get lost"]			= LLTrans::getString("Male - Get lost"); // double space after Male. EXT-8319
-		mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
-		mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
-		mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
-		mInventoryItemsDict["Male - Hey"]				= LLTrans::getString("Male - Hey");
-		mInventoryItemsDict["Male - Laugh"]				= LLTrans::getString("Male - Laugh");
-		mInventoryItemsDict["Male - Repulsed"]			= LLTrans::getString("Male - Repulsed");
-		mInventoryItemsDict["Male - Shrug"]				= LLTrans::getString("Male - Shrug");
-		mInventoryItemsDict["Male - Stick tougue out"]	= LLTrans::getString("Male - Stick tougue out");
-		mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
-
-		//female
-		mInventoryItemsDict["Female - Chuckle"]			= LLTrans::getString("Female - Chuckle");
-		mInventoryItemsDict["Female - Cry"]				= LLTrans::getString("Female - Cry");
-		mInventoryItemsDict["Female - Embarrassed"]		= LLTrans::getString("Female - Embarrassed");
-		mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
-		mInventoryItemsDict["Female  - Get lost"]		= LLTrans::getString("Female - Get lost"); // double space after Female. EXT-8319
-		mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
-		mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
-		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
-		mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
-		mInventoryItemsDict["Female - Hey baby"]		= LLTrans::getString("Female - Hey baby");
-		mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
-		mInventoryItemsDict["Female - Looking good"]	= LLTrans::getString("Female - Looking good");
-		mInventoryItemsDict["Female - Over here"]		= LLTrans::getString("Female - Over here");
-		mInventoryItemsDict["Female - Please"]			= LLTrans::getString("Female - Please");
-		mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
-		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
-		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
-		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
-		
-	}
-
-	/**
-	 * Finds passed name in dictionary and replaces it with found localized value.
-	 *
-	 * @param object_name - string to be localized.
-	 * @return true if passed name was found and localized, false otherwise.
-	 */
-	bool localizeInventoryObjectName(std::string& object_name)
-	{
-		LL_DEBUGS("InventoryLocalize") << "Searching for localization: " << object_name << LL_ENDL;
-
-		std::map<std::string, std::string>::const_iterator dictionary_iter = mInventoryItemsDict.find(object_name);
-
-		bool found = dictionary_iter != mInventoryItemsDict.end();
-		if(found)
-		{
-			object_name = dictionary_iter->second;
-			LL_DEBUGS("InventoryLocalize") << "Found, new name is: " << object_name << LL_ENDL;
-		}
-		return found;
-	}
-};
-
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -359,14 +265,10 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 		// we have to check region. It can be null after region was destroyed. See EXT-245
 		if (region)
 		{
-		  if(gAgent.getID() != mPermissions.getOwner())
-		    {
-		      url = region->getCapability("FetchLib");
-		    }
-		  else
-		    {	
-		      url = region->getCapability("FetchInventory");
-		    }
+			if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
+				url = region->getCapability("FetchLib");
+			else	
+				url = region->getCapability("FetchInventory");
 		}
 		else
 		{
@@ -414,9 +316,6 @@ BOOL LLViewerInventoryItem::unpackMessage(LLSD item)
 BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
-
-	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
-
 	mIsComplete = TRUE;
 	return rv;
 }
@@ -622,7 +521,6 @@ bool LLViewerInventoryCategory::fetch()
 	if((VERSION_UNKNOWN == mVersion)
 	   && mDescendentsRequested.hasExpired())	//Expired check prevents multiple downloads.
 	{
-		LL_DEBUGS("InventoryFetch") << "Fetching category children: " << mName << ", UUID: " << mUUID << LL_ENDL;
 		const F32 FETCH_TIMER_EXPIRY = 10.0f;
 		mDescendentsRequested.reset();
 		mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
@@ -640,18 +538,10 @@ bool LLViewerInventoryCategory::fetch()
 		// AIS folks are aware of the issue and have a fix in process.
 		// see ticket for details.
 
-		std::string url;
-		if (gAgent.getRegion())
-		{
-			url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
-		}
-		else
-		{
-			llwarns << "agent region is null" << llendl;
-		}
+		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
-			LLInventoryModelBackgroundFetch::instance().start(mUUID, false);			
+			LLInventoryModelBackgroundFetch::instance().start(mUUID);			
 		}
 		else
 		{	//Deprecated, but if we don't have a capability, use the old system.
@@ -788,8 +678,8 @@ void LLViewerInventoryCategory::determineFolderType()
 				return;
 			if (item->isWearableType())
 			{
-				const LLWearableType::EType wearable_type = item->getWearableType();
-				const std::string& wearable_name = LLWearableType::getTypeName(wearable_type);
+				const EWearableType wearable_type = item->getWearableType();
+				const std::string& wearable_name = LLWearableDictionary::getTypeName(wearable_type);
 				U64 valid_folder_types = LLViewerFolderType::lookupValidFolderTypes(wearable_name);
 				folder_valid |= valid_folder_types;
 				folder_invalid |= ~valid_folder_types;
@@ -835,11 +725,6 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
 }
 
-void LLViewerInventoryCategory::localizeName()
-{
-	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
-}
-
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------
@@ -866,21 +751,6 @@ LLInventoryCallbackManager::~LLInventoryCallbackManager()
 	}
 	sInstance = NULL;
 }
-
-//static 
-void LLInventoryCallbackManager::destroyClass()
-{
-	if (sInstance)
-	{
-		for (callback_map_t::iterator it = sInstance->mMap.begin(), end_it = sInstance->mMap.end(); it != end_it; ++it)
-		{
-			// drop LLPointer reference to callback
-			it->second = NULL;
-		}
-		sInstance->mMap.clear();
-	}
-}
-
 
 U32 LLInventoryCallbackManager::registerCB(LLPointer<LLInventoryCallback> cb)
 {
@@ -918,25 +788,19 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 	LLViewerInventoryItem *item = gInventory.getItem(inv_item);
 	if (item)
 	{
-		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item, true, mReplace);
+		wear_inventory_item_on_avatar(item);
 	}
 }
 
 void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 {
 	LLAppearanceMgr::instance().updateAppearanceFromCOF();
-
-	// Start editing the item if previously requested.
-	gAgentWearables.editWearableIfRequested(inv_item);
-
-	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if(gAgentCamera.cameraCustomizeAvatar())
+	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
-		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
-		if (panel)
+		if (gFloaterCustomize)
 		{
-			panel->showDefaultSubpart();
+			gFloaterCustomize->switchToDefaultSubpart();
 		}
 	}
 }
@@ -964,11 +828,6 @@ void RezAttachmentCallback::fire(const LLUUID& inv_item)
 void ActivateGestureCallback::fire(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
-		return;
-	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-	if (!item)
-		return;
-	if (item->getType() != LLAssetType::AT_GESTURE)
 		return;
 
 	LLGestureMgr::instance().activateGesture(inv_item);
@@ -1004,29 +863,10 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   const LLUUID& parent, const LLTransactionID& transaction_id,
 						   const std::string& name,
 						   const std::string& desc, LLAssetType::EType asset_type,
-						   LLInventoryType::EType inv_type, LLWearableType::EType wtype,
+						   LLInventoryType::EType inv_type, EWearableType wtype,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb)
 {
-	//check if name is equal to one of special inventory items names
-	//EXT-5839
-	std::string server_name = name;
-
-	{
-		std::map<std::string, std::string>::const_iterator dictionary_iter;
-
-		for (dictionary_iter = LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.begin();
-			 dictionary_iter != LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.end();
-			 dictionary_iter++)
-		{
-			const std::string& localized_name = dictionary_iter->second;
-			if(localized_name == name)
-			{
-				server_name = dictionary_iter->first;
-			}
-		}
-	}
-
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_CreateInventoryItem);
 	msg->nextBlock(_PREHASH_AgentData);
@@ -1040,7 +880,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
 	msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
 	msg->addU8Fast(_PREHASH_WearableType, (U8)wtype);
-	msg->addStringFast(_PREHASH_Name, server_name);
+	msg->addStringFast(_PREHASH_Name, name);
 	msg->addStringFast(_PREHASH_Description, desc);
 	
 	gAgent.sendReliableMessage();
@@ -1083,7 +923,6 @@ void link_inventory_item(
 	const LLUUID& item_id,
 	const LLUUID& parent_id,
 	const std::string& new_name,
-	const std::string& new_description,
 	const LLAssetType::EType asset_type,
 	LLPointer<LLInventoryCallback> cb)
 {
@@ -1109,6 +948,7 @@ void link_inventory_item(
 	}
 	
 	LLUUID transaction_id;
+	std::string desc = "Broken link"; // This should only show if the object can't find its baseobj.
 	LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
 	if (dynamic_cast<const LLInventoryCategory *>(baseobj))
 	{
@@ -1139,7 +979,7 @@ void link_inventory_item(
 		msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
 		msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
 		msg->addStringFast(_PREHASH_Name, new_name);
-		msg->addStringFast(_PREHASH_Description, new_description);
+		msg->addStringFast(_PREHASH_Description, desc);
 	}
 	gAgent.sendReliableMessage();
 }
@@ -1167,14 +1007,6 @@ void move_inventory_item(
 
 void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src, U32 callback_id)
 {
-	if (NULL == src)
-	{
-		LL_WARNS("copy_inventory_from_notecard") << "Null pointer to item was passed for object_id "
-												 << object_id << " and notecard_inv_id "
-												 << notecard_inv_id << LL_ENDL;
-		return;
-	}
-
 	LLViewerRegion* viewer_region = NULL;
     LLViewerObject* vo = NULL;
 	if (object_id.notNull() && (vo = gObjectList.findObject(object_id)) != NULL)
@@ -1196,16 +1028,6 @@ void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecar
                                                  << LL_ENDL;
         return;
     }
-
-	// check capability to prevent a crash while LL_ERRS in LLCapabilityListener::capListener. See EXT-8459.
-	std::string url = viewer_region->getCapability("CopyInventoryFromNotecard");
-	if (url.empty())
-	{
-        LL_WARNS("copy_inventory_from_notecard") << "There is no 'CopyInventoryFromNotecard' capability"
-												 << " for region: " << viewer_region->getName()
-                                                 << LL_ENDL;
-		return;
-	}
 
     LLSD request, body;
     body["notecard-id"] = notecard_inv_id;
@@ -1309,11 +1131,13 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 	else
 	{
 		// Use for all clothing and body parts.  Adding new wearable types requires updating LLWearableDictionary.
-		LLWearableType::EType wearable_type = LLWearableType::typeNameToType(type_name);
-		if (wearable_type >= LLWearableType::WT_SHAPE && wearable_type < LLWearableType::WT_COUNT)
+		EWearableType wearable_type = LLWearableDictionary::typeNameToType(type_name);
+		if (wearable_type >= WT_SHAPE && wearable_type < WT_COUNT)
 		{
-			const LLUUID parent_id = bridge ? bridge->getUUID() : LLUUID::null;
-			LLAgentWearables::createWearable(wearable_type, false, parent_id);
+			LLAssetType::EType asset_type = LLWearableDictionary::getAssetType(wearable_type);
+			LLFolderType::EType folder_type = LLFolderType::assetTypeToFolderType(asset_type);
+			const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(folder_type);
+			LLFolderBridge::createWearable(parent_id, wearable_type);
 		}
 		else
 		{
@@ -1648,13 +1472,14 @@ bool LLViewerInventoryItem::isWearableType() const
 	return (getInventoryType() == LLInventoryType::IT_WEARABLE);
 }
 
-LLWearableType::EType LLViewerInventoryItem::getWearableType() const
+EWearableType LLViewerInventoryItem::getWearableType() const
 {
 	if (!isWearableType())
 	{
-		return LLWearableType::WT_INVALID;
+		llwarns << "item is not a wearable" << llendl;
+		return WT_INVALID;
 	}
-	return LLWearableType::EType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
+	return EWearableType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
 }
 
 
@@ -1758,20 +1583,6 @@ bool LLViewerInventoryItem::checkPermissionsSet(PermissionMask mask) const
 		curr_mask = perm.getMaskEveryone();
 	}
 	return ((curr_mask & mask) == mask);
-}
-
-PermissionMask LLViewerInventoryItem::getPermissionMask() const
-{
-	const LLPermissions& permissions = getPermissions();
-
-	BOOL copy = permissions.allowCopyBy(gAgent.getID());
-	BOOL mod = permissions.allowModifyBy(gAgent.getID());
-	BOOL xfer = permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID());
-	PermissionMask perm_mask = 0;
-	if (copy) perm_mask |= PERM_COPY;
-	if (mod)  perm_mask |= PERM_MODIFY;
-	if (xfer) perm_mask |= PERM_TRANSFER;
-	return perm_mask;
 }
 
 //----------

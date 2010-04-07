@@ -74,24 +74,23 @@ Maximum 200 per group daily
     </text>
       <button
        follows="top|left"
-       height="23"
-       image_overlay="AddItem_Off"
-       image_overlay_alignment="left"
-       imgoverlay_label_space="-10"
-       label="New Notice"
+       height="18"
+       image_selected="AddItem_Press"
+       image_unselected="AddItem_Off"
+       image_disabled="AddItem_Disabled"
        layout="topleft"
        left="5"
        name="create_new_notice"
        tool_tip="Create a new notice"
-       top_delta="0"
-       width="93" />
+     top_delta="-3"
+       width="18" />
      <button
      follows="top|left"
      height="23"
      image_overlay="Refresh_Off"
      layout="topleft"
      name="refresh_notices"
-     left="260"
+     left_pad="230"
      tool_tip="Refresh list of notices"
      top_delta="0"
      width="23" />
@@ -116,7 +115,7 @@ Maximum 200 per group daily
          mouse_opaque="false"
          name="lbl"
          text_color="EmphasisColor"
-         top="5"
+         top="0"
          width="200">
             Create a Notice
         </text>
@@ -211,23 +210,9 @@ Maximum 200 per group daily
         <button
          follows="left|top"
          layout="topleft"
-         left="20"
-         top_delta="50"
-         height="23"
-         width="100"
-         name="open_inventory"
-         label="Inventory"
-         tool_tip="Open Inventory">
-			<button.init_callback
-				 function="Button.SetFloaterToggle"
-				 parameter="inventory"/>
-		</button>
-        <button
-         follows="left|top"
-         layout="topleft"
          left="140"
          name="remove_attachment"
-         top_delta="0"
+         top_delta="50"
                  height="18"
                  image_selected="TrashItem_Press"
                  image_unselected="TrashItem_Off"
@@ -245,7 +230,7 @@ Maximum 200 per group daily
          name="send_notice"
          width="100" />
       <group_drop_target
-         height="75"
+         height="95"
          top="160"
          left="10"
          layout="topleft"
@@ -273,7 +258,7 @@ Maximum 200 per group daily
          mouse_opaque="false"
          name="lbl"
          text_color="EmphasisColor"
-         top_pad="5"
+         top_pad="0"
          width="265">
             Archived Notice
         </text>

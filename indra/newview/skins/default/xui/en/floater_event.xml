@@ -266,6 +266,7 @@
            layout="topleft"
            left="6"
        name="create_event_btn"
+           picture_style="true"
            tool_tip="Create Event"
            width="18" />
       <button
@@ -279,6 +280,7 @@
            left="6"
            top_pad="-7" 
           name="god_delete_event_btn"
+           picture_style="true"
            tool_tip="Delete Event"
            width="18" />
       <button

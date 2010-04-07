@@ -2,25 +2,31 @@
  * @file llappviewerwin32.cpp
  * @brief The LLAppViewerWin32 class definitions
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * 
+ * Copyright (c) 2007-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */ 
 
@@ -51,16 +57,14 @@
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 
+#include "llwindebug.h"
+
 #include "llviewernetwork.h"
 #include "llmd5.h"
 #include "llfindlocale.h"
 
 #include "llcommandlineparser.h"
 #include "lltrans.h"
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-#include "llwindebug.h"
-#endif
 
 // *FIX:Mani - This hack is to fix a linker issue with libndofdev.lib
 // The lib was compiled under VS2005 - in VS2003 we need to remap assert
@@ -76,6 +80,51 @@ extern "C" {
 #endif
 
 const std::string LLAppViewerWin32::sWindowClass = "Second Life";
+
+LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop)
+{
+    // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
+	//OSMessageBox("Attach Debugger Now", "Error", OSMB_OK);
+    // *TODO: Translate the signals/exceptions into cross-platform stuff
+	// Windows implementation
+    _tprintf( _T("Entering Windows Exception Handler...\n") );
+	llinfos << "Entering Windows Exception Handler..." << llendl;
+
+	// Make sure the user sees something to indicate that the app crashed.
+	LONG retval;
+
+	if (LLApp::isError())
+	{
+	    _tprintf( _T("Got another fatal signal while in the error handler, die now!\n") );
+		llwarns << "Got another fatal signal while in the error handler, die now!" << llendl;
+
+		retval = EXCEPTION_EXECUTE_HANDLER;
+		return retval;
+	}
+
+	// Generate a minidump if we can.
+	// Before we wake the error thread...
+	// Which will start the crash reporting.
+	LLWinDebug::generateCrashStacks(exception_infop);
+	
+	// Flag status to error, so thread_error starts its work
+	LLApp::setError();
+
+	// Block in the exception handler until the app has stopped
+	// This is pretty sketchy, but appears to work just fine
+	while (!LLApp::isStopped())
+	{
+		ms_sleep(10);
+	}
+
+	//
+	// At this point, we always want to exit the app.  There's no graceful
+	// recovery for an unhandled exception.
+	// 
+	// Just kill the process.
+	retval = EXCEPTION_EXECUTE_HANDLER;	
+	return retval;
+}
 
 // Create app mutex creates a unique global windows object. 
 // If the object can be created it returns true, otherwise
@@ -142,6 +191,8 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
 
 	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(lpCmdLine);
+
+	LLWinDebug::initExceptionHandler(viewer_windows_exception_handler); 
 	
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
 
@@ -340,10 +391,6 @@ bool LLAppViewerWin32::init()
 	llinfos << "Turning off Windows error reporting." << llendl;
 	disableWinErrorReporting();
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LLWinDebug::instance().init();
-#endif
-
 	return LLAppViewer::init();
 }
 
@@ -358,6 +405,12 @@ bool LLAppViewerWin32::cleanup()
 
 bool LLAppViewerWin32::initLogging()
 {
+	// Remove the crash stack log from previous executions.
+	// Since we've started logging a new instance of the app, we can assume 
+	// *NOTE: This should happen before the we send a 'previous instance froze'
+	// crash report, but it must happen after we initialize the DirUtil.
+	LLWinDebug::clearCrashStacks();
+
 	return LLAppViewer::initLogging();
 }
 
@@ -476,9 +529,13 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 }
 
 bool LLAppViewerWin32::restoreErrorTrap()
-{	
-	return true;
-	//return LLWinDebug::checkExceptionHandler();
+{
+	return LLWinDebug::checkExceptionHandler();
+}
+
+void LLAppViewerWin32::handleSyncCrashTrace()
+{
+	// do nothing
 }
 
 void LLAppViewerWin32::handleCrashReporting(bool reportFreeze)

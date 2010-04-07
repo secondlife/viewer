@@ -7,7 +7,7 @@
 	<string name="allocated" value="alocados"/>
 	<string name="title_place" value="Perfil da região"/>
 	<string name="title_teleport_history" value="Teletransportes"/>
-	<string name="not_available" value="(N/A)"/>
+	<string name="not_available" value="(N\A)"/>
 	<string name="unknown" value="(Desconhecido)"/>
 	<string name="public" value="(público)"/>
 	<string name="none_text" value="(nenhum)"/>
@@ -36,7 +36,7 @@
 		Dados sobre o local não disponíveis no momento. Favor tentar mais tarde.
 	</string>
 	<string name="server_forbidden_text">
-		Dados sobre o local controlados por lista de acesso. Verifique se você está autorizado a acessá-los com o dono do lote.
+		Dados sobre o local controlados por lista de acesso.   Verifique se você está autorizado a acessá-los com o dono do lote.
 	</string>
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
@@ -53,18 +53,18 @@
 						<text name="rating_label" value="Classificação:"/>
 						<text name="rating_value" value="desconhecido"/>
 						<text name="voice_label" value="Voz:"/>
-						<text name="voice_value" value="Ligado"/>
+						<text name="voice_value" value="Ligar"/>
 						<text name="fly_label" value="Voar:"/>
-						<text name="fly_value" value="Ligado"/>
-						<text name="push_label" value="Empurrões:"/>
-						<text name="push_value" value="Desligado"/>
+						<text name="fly_value" value="Ligar"/>
+						<text name="push_label" value="Empurrar:"/>
+						<text name="push_value" value="Desligar"/>
 						<text name="build_label" value="Construir:"/>
-						<text name="build_value" value="Ligado"/>
+						<text name="build_value" value="Ligar"/>
 						<text name="scripts_label" value="Scripts:"/>
-						<text name="scripts_value" value="Ligado"/>
+						<text name="scripts_value" value="Ligar"/>
 						<text name="damage_label" value="Dano:"/>
-						<text name="damage_value" value="Desligado"/>
-						<button label="Sobre o terreno" name="about_land_btn"/>
+						<text name="damage_value" value="Desligar"/>
+						<button label="Sobre terrenos" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
 				<accordion_tab name="region_information_tab" title="Região">

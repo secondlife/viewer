@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater customize" title="WYGLĄD">
 	<tab_container name="customize tab container">
-		<text label="Części ciała" name="body_parts_placeholder">
+		<text label="Części Ciała" name="body_parts_placeholder">
 			Części ciała
 		</text>
 		<panel label="Kształt" name="Shape">
@@ -157,7 +157,7 @@
 			<texture_picker label="Materiał" name="Fabric" tool_tip="Kliknij by wybrać teksturę"/>
 			<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 			<button label="Zdejmij" label_selected="Zdejmij" name="Take Off"/>
-			<button label="Nowa koszula" label_selected="Nowa Koszula" name="Create New"/>
+			<button label="Nowa Koszula" label_selected="Nowa Koszula" name="Create New"/>
 			<button label="Zapisz" label_selected="Zapisz" name="Save"/>
 			<button label="Zapisz jako..." label_selected="Zapisz jako..." name="Save As"/>
 			<button label="Wróć" label_selected="Wróć" name="Revert"/>
@@ -183,7 +183,7 @@
 				Nie posiadasz prawa do modyfikowania tej koszuli.
 			</text>
 			<text name="Item Action Label">
-				Koszula:
+				Koszulka:
 			</text>
 		</panel>
 		<panel label="Spodnie" name="Pants">
@@ -504,7 +504,7 @@
 			<text name="not worn instructions">
 				Załóż nową maskę alpha poprzez przeciągnięcie jej ze swojej szafy na awatara. Alternatywnie, możesz także stworzyć własną z plików roboczych.
 			</text>
-			<button label="Stwórz nową Alpha" label_selected="Utwórz nową Alpha" name="Create New"/>
+			<button label="Stwórz nową Alpha" label_selected="Utwórz Nową Alpha" name="Create New"/>
 			<text name="no modify instructions">
 				Nie posiadasz uprawnień do modyfikowania tych ubrań/części ciała.
 			</text>

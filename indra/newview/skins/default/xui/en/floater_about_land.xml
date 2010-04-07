@@ -108,9 +108,6 @@
              name="no_selection_text">
                 No parcel selected.
             </panel.string>
-            <panel.string name="time_stamp_template">
-				[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
-			</panel.string>
             <text
              type="string"
              length="1"
@@ -191,10 +188,9 @@
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="16"
              layout="topleft"
              left_pad="2"
-             valign="center" 
              name="ContentRatingText"
              top_delta="0"
              width="250">
@@ -208,7 +204,7 @@
              layout="topleft"
              left="10"
              name="Owner:"
-             top_pad="1"
+             top_pad="5"
              width="100">
                 Owner:
             </text>
@@ -730,10 +726,8 @@ Leyla Linden               </text>
              height="16"
              layout="topleft"
              left_pad="10"
-             top_delta="-3" 
              mouse_opaque="false"
              name="region_maturity_text"
-             valign="center" 
              width="150">
                 Adult
             </text>
@@ -746,7 +740,6 @@ Leyla Linden               </text>
              left="10"
              mouse_opaque="false"
              name="resellable_lbl"
-             top_pad="9" 
              width="100">
                 Resale:
             </text>
@@ -760,7 +753,7 @@ Leyla Linden               </text>
              mouse_opaque="false"
              name="resellable_clause"
              word_wrap="true"
-             width="360">
+             width="330">
                 Land in this region may not be resold.
             </text>
             <text
@@ -829,7 +822,7 @@ Leyla Linden               </text>
              name="Simulator primitive usage:"
              top_pad="4"
              width="364">
-               Primitive usage:
+               Primative usage:
             </text>
             <text
              type="string"
@@ -1068,8 +1061,7 @@ Leyla Linden               </text>
              left="10"
              name="Autoreturn"
              top_pad="0"
-             width="412"
-             wrap="true">
+             width="310">
                 Auto return other Residents&apos; objects (minutes, 0 for off):
             </text>
             <line_editor
@@ -1081,9 +1073,9 @@ Leyla Linden               </text>
              layout="topleft"
              max_length="6"
              name="clean other time"
-             left_pad="0"
-             width="46"
-             top_delta="-2"/>
+             right="-72"
+             width="56"
+             top_delta="-6"/>
             <text
              type="string"
              length="1"
@@ -1472,10 +1464,8 @@ Only large parcels can be listed in search.
              left="14"
              name="MatureCheck"
              top="177"
-             label_text.valign="center" 
-             label_text.v_pad="-5" 
              tool_tip=" "
-             width="200" />
+             width="107" />
             <text
              type="string"
              length="1"
@@ -1495,7 +1485,6 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="14"
              name="snapshot_ctrl"
-             fallback_image="default_land_picture.j2c" 
              tool_tip="Click to choose a picture"
              width="195" />
             <text
@@ -1930,8 +1919,6 @@ Only large parcels can be listed in search.
              left_delta="0"
              name="public_access"
              top_pad="5"
-             label_text.valign="center"
-             label_text.v_pad="-7" 
              width="278" />
             <text
              type="string"
@@ -1942,7 +1929,7 @@ Only large parcels can be listed in search.
              left_delta="20"
              name="Only Allow"
              top="49"
-             width="325">
+             width="278">
                 Restrict Access to Residents verified by:
             </text>
             <check_box

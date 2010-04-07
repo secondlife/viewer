@@ -2,25 +2,31 @@
  * @file lllogininstance.cpp
  * @brief Viewer's host for a login connection.
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -42,17 +48,13 @@
 // newview
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
-#include "llslurl.h"
-#include "llstartup.h"
+#include "llurlsimstring.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
 #include "llwindow.h"
 #if LL_LINUX || LL_SOLARIS
 #include "lltrans.h"
 #endif
-#include "llsecapi.h"
-#include "llstartup.h"
-#include "llmachineid.h"
 
 static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
 static const char * const TOS_LISTENER_NAME = "lllogininstance_tos";
@@ -81,14 +83,14 @@ LLLoginInstance::~LLLoginInstance()
 {
 }
 
-void LLLoginInstance::connect(LLPointer<LLCredential> credentials)
+void LLLoginInstance::connect(const LLSD& credentials)
 {
 	std::vector<std::string> uris;
-	LLGridManager::getInstance()->getLoginURIs(uris);
+	LLViewerLogin::getInstance()->getLoginURIs(uris);
 	connect(uris.front(), credentials);
 }
 
-void LLLoginInstance::connect(const std::string& uri, LLPointer<LLCredential> credentials)
+void LLLoginInstance::connect(const std::string& uri, const LLSD& credentials)
 {
 	mAttemptComplete = false; // Reset attempt complete at this point!
 	constructAuthParams(credentials);
@@ -100,7 +102,7 @@ void LLLoginInstance::reconnect()
 	// Sort of like connect, only using the pre-existing
 	// request params.
 	std::vector<std::string> uris;
-	LLGridManager::getInstance()->getLoginURIs(uris);
+	LLViewerLogin::getInstance()->getLoginURIs(uris);
 	mLoginModule->connect(uris.front(), mRequestData);
 }
 
@@ -116,7 +118,7 @@ LLSD LLLoginInstance::getResponse()
 	return mResponseData; 
 }
 
-void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credential)
+void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 {
 	// Set up auth request options.
 //#define LL_MINIMIAL_REQUESTED_OPTIONS
@@ -143,11 +145,8 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("adult_compliant"); 
 	//requested_options.append("inventory-targets");
 	requested_options.append("buddy-list");
-	requested_options.append("newuser-config");
 	requested_options.append("ui-config");
 #endif
-	requested_options.append("map-server-url");	
-	requested_options.append("voice-config");
 	requested_options.append("tutorial_setting");
 	requested_options.append("login-flags");
 	requested_options.append("global-textures");
@@ -156,28 +155,26 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 		gSavedSettings.setBOOL("UseDebugMenus", TRUE);
 		requested_options.append("god-connect");
 	}
-	
-	// (re)initialize the request params with creds.
-	LLSD request_params = user_credential->getLoginParams();
 
-	char hashed_unique_id_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
-	LLMD5 hashed_unique_id;
-	unsigned char unique_id[MAC_ADDRESS_BYTES];
-	if(LLUUID::getNodeID(unique_id) == 0) {
-		if(LLMachineID::getUniqueID(unique_id, sizeof(unique_id)) == 0) {
-			llerrs << "Failed to get an id; cannot uniquely identify this machine." << llendl;
-		}
-	}
-	hashed_unique_id.update(unique_id, MAC_ADDRESS_BYTES);
-	hashed_unique_id.finalize();
-	hashed_unique_id.hex_digest(hashed_unique_id_string);
-	
+	char hashed_mac_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
+	LLMD5 hashed_mac;
+	hashed_mac.update( gMACAddress, MAC_ADDRESS_BYTES );
+	hashed_mac.finalize();
+	hashed_mac.hex_digest(hashed_mac_string);
+
+	// prepend "$1$" to the password to indicate its the md5'd version.
+	std::string dpasswd("$1$");
+	dpasswd.append(credentials["passwd"].asString());
+
+	// (re)initialize the request params with creds.
+	LLSD request_params(credentials);
+	request_params["passwd"] = dpasswd;
 	request_params["start"] = construct_start_string();
 	request_params["skipoptional"] = mSkipOptionalUpdate;
 	request_params["agree_to_tos"] = false; // Always false here. Set true in 
 	request_params["read_critical"] = false; // handleTOSResponse
 	request_params["last_exec_event"] = mLastExecEvent;
-	request_params["mac"] = hashed_unique_id_string;
+	request_params["mac"] = hashed_mac_string;
 	request_params["version"] = gCurrentVersion; // Includes channel name
 	request_params["channel"] = gSavedSettings.getString("VersionChannelName");
 	request_params["id0"] = mSerialNumber;
@@ -250,15 +247,6 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 			LLSD data(LLSD::emptyMap());
 			data["message"] = message_response;
 			data["reply_pump"] = TOS_REPLY_PUMP;
-			if(response.has("error_code"))
-			{
-				data["error_code"] = response["error_code"];
-			}
-			if(response.has("certificate"))
-			{
-				data["certificate"] = response["certificate"];
-			}
-			
 			LLFloaterReg::showInstance("message_critical", data);
 			LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
 				.listen(TOS_LISTENER_NAME,
@@ -364,18 +352,20 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	payload["mandatory"] = mandatory;
 
 /*
- We're constructing one of the following 9 strings here:
+ We're constructing one of the following 6 strings here:
 	 "DownloadWindowsMandatory"
 	 "DownloadWindowsReleaseForDownload"
 	 "DownloadWindows"
 	 "DownloadMacMandatory"
 	 "DownloadMacReleaseForDownload"
 	 "DownloadMac"
-	 "DownloadLinuxMandatory"
-	 "DownloadLinuxReleaseForDownload"
-	 "DownloadLinux"
  
  I've called them out explicitly in this comment so that they can be grepped for.
+ 
+ Also, we assume that if we're not Windows we're Mac. If we ever intend to support 
+ Linux with autoupdate, this should be an explicit #elif LL_DARWIN, but 
+ we'd rather deliver the wrong message than no message, so until Linux is supported
+ we'll leave it alone.
  */
 	std::string notification_name = "Download";
 	
@@ -464,31 +454,20 @@ bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD&
 std::string construct_start_string()
 {
 	std::string start;
-	LLSLURL start_slurl = LLStartUp::getStartSLURL();
-	switch(start_slurl.getType())
+	if (LLURLSimString::parse())
 	{
-		case LLSLURL::LOCATION:
-		{
-			// a startup URL was specified
-			LLVector3 position = start_slurl.getPosition();
-			std::string unescaped_start = 
+		// a startup URL was specified
+		std::string unescaped_start = 
 			STRINGIZE(  "uri:" 
-					  << start_slurl.getRegion() << "&" 
-						<< position[VX] << "&" 
-						<< position[VY] << "&" 
-						<< position[VZ]);
-			start = xml_escape_string(unescaped_start);
-			break;
-		}
-		case LLSLURL::HOME_LOCATION:
-		{
-			start = "home";
-			break;
-		}
-		default:
-		{
-			start = "last";
-		}
+						<< LLURLSimString::sInstance.mSimName << "&" 
+						<< LLURLSimString::sInstance.mX << "&" 
+						<< LLURLSimString::sInstance.mY << "&" 
+						<< LLURLSimString::sInstance.mZ);
+		start = xml_escape_string(unescaped_start);
+	}
+	else
+	{
+		start = gSavedSettings.getString("LoginLocation");
 	}
 	return start;
 }

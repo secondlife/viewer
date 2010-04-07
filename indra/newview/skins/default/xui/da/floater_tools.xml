@@ -67,10 +67,7 @@
 	<text name="RenderingCost" tool_tip="Hvis beregnede rendering omkostninger for dette objekt">
 		þ: [COUNT]
 	</text>
-	<check_box label="" name="checkbox uniform"/>
-	<text label="Stræk begge sider" name="checkbox uniform label">
-		Stræk begge sider
-	</text>
+	<check_box label="Stræk begge sider" name="checkbox uniform"/>
 	<check_box initial_value="true" label="Stræk teksturer" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Benyt gitter" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Vælg hvilken type lineal der skal bruges til positionering af objekt">
@@ -443,6 +440,8 @@
 			<check_box label="Vend" name="checkbox flip s"/>
 			<spinner label="Lodret (V)" name="TexScaleV"/>
 			<check_box label="Vend" name="checkbox flip t"/>
+			<spinner label="Rotation˚"/>
+			<spinner label="Gentagelser pr. m."/>
 			<button label="Gem" label_selected="Gem" left_delta="62" name="button apply"/>
 			<text name="tex offset">
 				Tekstur offset
@@ -475,7 +474,14 @@
 			Areal: [AREA] m²
 		</text>
 		<button label="Om land" label_selected="Om land" name="button about land"/>
-		<check_box label="Vis ejere" name="checkbox show owners" tool_tip="Farver grunde afhængigt af ejerskab:   Grøn = Dit land  Turkis = Din gruppes land  Rød = Ejet af andre  Gul = Til salg  Lilla = På auktion  Grå = Offentligt ejet"/>
+		<check_box label="Vis ejere" name="checkbox show owners" tool_tip="Farver grunde afhængigt af ejerskab: 
+
+Grøn = Dit land 
+Turkis = Din gruppes land 
+Rød = Ejet af andre 
+Gul = Til salg 
+Lilla = På auktion 
+Grå = Offentligt ejet"/>
 		<text name="label_parcel_modify">
 			Redigere grund
 		</text>

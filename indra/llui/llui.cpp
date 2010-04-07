@@ -2,25 +2,31 @@
  * @file llui.cpp
  * @brief UI implementation
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -50,7 +56,6 @@
 #include "llfloaterreg.h"
 #include "llmenugl.h"
 #include "llmenubutton.h"
-#include "llloadingindicator.h"
 #include "llwindow.h"
 
 // for registration
@@ -89,9 +94,7 @@ std::list<std::string> gUntranslated;
 static LLDefaultChildRegistry::Register<LLFilterEditor> register_filter_editor("filter_editor");
 static LLDefaultChildRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
 static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
-
-// register other widgets which otherwise may not be linked in
-static LLDefaultChildRegistry::Register<LLLoadingIndicator> register_loading_indicator("loading_indicator");
+static LLDefaultChildRegistry::Register<LLMenuButton> register_menu_button("menu_button");
 
 
 //
@@ -1745,33 +1748,6 @@ std::string LLUI::getLanguage()
 	return language;
 }
 
-struct SubDir : public LLInitParam::Block<SubDir>
-{
-	Mandatory<std::string> value;
-
-	SubDir()
-	:	value("value")
-	{}
-};
-
-struct Directory : public LLInitParam::Block<Directory>
-{
-	Multiple<SubDir, AtLeast<1> > subdirs;
-
-	Directory()
-	:	subdirs("subdir")
-	{}
-};
-
-struct Paths : public LLInitParam::Block<Paths>
-{
-	Multiple<Directory, AtLeast<1> > directories;
-
-	Paths()
-	:	directories("directory")
-	{}
-};
-
 //static
 void LLUI::setupPaths()
 {
@@ -1779,36 +1755,21 @@ void LLUI::setupPaths()
 
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
-	Paths paths;
-	LLXUIParser::instance().readXUI(root, paths, filename);
-
 	sXUIPaths.clear();
 	
-	if (success && paths.validateBlock())
+	if (success)
 	{
 		LLStringUtil::format_map_t path_args;
 		path_args["[LANGUAGE]"] = LLUI::getLanguage();
 		
-		for (LLInitParam::ParamIterator<Directory>::const_iterator it = paths.directories().begin(), 
-				end_it = paths.directories().end();
-			it != end_it;
-			++it)
+		for (LLXMLNodePtr path = root->getFirstChild(); path.notNull(); path = path->getNextSibling())
 		{
-			std::string path_val_ui;
-			for (LLInitParam::ParamIterator<SubDir>::const_iterator subdir_it = it->subdirs().begin(),
-					subdir_end_it = it->subdirs().end();
-				subdir_it != subdir_end_it;)
-			{
-				path_val_ui += subdir_it->value();
-				if (++subdir_it != subdir_end_it)
-					path_val_ui += gDirUtilp->getDirDelimiter();
-			}
+			std::string path_val_ui(path->getValue());
 			LLStringUtil::format(path_val_ui, path_args);
 			if (std::find(sXUIPaths.begin(), sXUIPaths.end(), path_val_ui) == sXUIPaths.end())
 			{
 				sXUIPaths.push_back(path_val_ui);
 			}
-
 		}
 	}
 	else // parsing failed

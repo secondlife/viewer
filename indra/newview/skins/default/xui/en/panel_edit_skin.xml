@@ -33,10 +33,7 @@
         name="Head Tattoos"
         tool_tip="Click to choose a picture"
         top="10"
-        width="74" >
-         <texture_picker.commit_callback
-             function="TexturePicker.Commit" />
-       </texture_picker>
+        width="74" />
        <texture_picker
         allow_no_texture="true"
         can_apply_immediately="true"
@@ -49,10 +46,7 @@
         name="Upper Tattoos"
         tool_tip="Click to choose a picture"
         top="10"
-        width="74" >
-         <texture_picker.commit_callback
-             function="TexturePicker.Commit" />
-       </texture_picker>
+        width="74" />
        <texture_picker
         allow_no_texture="true"
         can_apply_immediately="true"
@@ -65,11 +59,8 @@
         name="Lower Tattoos"
         tool_tip="Click to choose a picture"
         top="10"
-        width="74" >
-         <texture_picker.commit_callback
-             function="TexturePicker.Commit" />
-       </texture_picker>
-     </panel>
+        width="74" />
+	 </panel>
      <panel
          border="false"
          bg_alpha_color="DkGray2"
@@ -85,7 +76,6 @@
          width="313">    
 	 <accordion
         layout="topleft"
-		fit_parent="true"
 		follows="all"
 		height ="300"
 		left="0"

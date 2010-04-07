@@ -2,25 +2,31 @@
  * @file llavatarlist.h
  * @brief Generic avatar list
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -32,7 +38,6 @@
 #include "llavatarlistitem.h"
 
 class LLTimer;
-class LLListContextMenu;
 
 /**
  * Generic list of avatars.
@@ -44,11 +49,11 @@ class LLListContextMenu;
  * @see setDirty()
  * @see setNameFilter()
  */
-class LLAvatarList : public LLFlatListViewEx
+class LLAvatarList : public LLFlatListView
 {
 	LOG_CLASS(LLAvatarList);
 public:
-	struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
+	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
 		Optional<bool>	ignore_online_status, // show all items as online
 						show_last_interaction_time, // show most recent interaction time. *HACK: move this to a derived class
@@ -65,14 +70,12 @@ public:
 
 	virtual void clear();
 
-	virtual void setVisible(BOOL visible);
-
 	void setNameFilter(const std::string& filter);
 	void setDirty(bool val = true, bool force_refresh = false);
 	uuid_vec_t& getIDs() 							{ return mIDs; }
 	bool contains(const LLUUID& id);
 
-	void setContextMenu(LLListContextMenu* menu) { mContextMenu = menu; }
+	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
 	void setSessionID(const LLUUID& session_id) { mSessionID = session_id; }
 	const LLUUID& getSessionID() { return mSessionID; }
 
@@ -92,8 +95,6 @@ public:
 	boost::signals2::connection setItemDoubleClickCallback(const mouse_signal_t::slot_type& cb);
 
 	virtual S32 notifyParent(const LLSD& info);
-
-	void addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name);
 
 protected:
 	void refresh();
@@ -122,7 +123,7 @@ private:
 	uuid_vec_t				mIDs;
 	LLUUID					mSessionID;
 
-	LLListContextMenu*	mContextMenu;
+	LLAvatarListItem::ContextMenu* mContextMenu;
 
 	commit_signal_t mRefreshCompleteSignal;
 	mouse_signal_t mItemDoubleClickSignal;
@@ -172,29 +173,6 @@ public:
 
 protected:
 	virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
-};
-
-/**
- * Represents Avaline caller in Avatar list in Voice Control Panel and group chats.
- */
-class LLAvalineListItem : public LLAvatarListItem
-{
-public:
-
-	/**
-	 * Constructor
-	 *
-	 * @param hide_number - flag indicating if number should be hidden.
-	 *		In this case It will be shown as "Avaline Caller 1", "Avaline Caller 1", etc.
-	 */
-	LLAvalineListItem(bool hide_number = true);
-
-	/*virtual*/ BOOL postBuild();
-
-	/*virtual*/ void setName(const std::string& name);
-
-private:
-	bool mIsHideNumber;
 };
 
 #endif // LL_LLAVATARLIST_H

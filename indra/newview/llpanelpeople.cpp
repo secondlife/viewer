@@ -2,25 +2,31 @@
  * @file llpanelpeople.cpp
  * @brief Side tray "People" panel
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -437,7 +443,6 @@ public:
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
 		mFilterSubString(LLStringUtil::null),
-		mFilterSubStringOrig(LLStringUtil::null),
 		mFilterEditor(NULL),
 		mTabContainer(NULL),
 		mOnlineFriendList(NULL),
@@ -507,19 +512,15 @@ BOOL LLPanelPeople::postBuild()
 
 	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mNearbyList->setNoItemsCommentText(getString("no_one_near"));
-	mNearbyList->setNoItemsMsg(getString("no_one_near"));
-	mNearbyList->setNoFilteredItemsMsg(getString("no_one_filtered_near"));
 	mNearbyList->setShowIcons("NearbyListShowIcons");
 
 	mRecentList = getChild<LLPanel>(RECENT_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
-	mRecentList->setNoItemsCommentText(getString("no_recent_people"));
-	mRecentList->setNoItemsMsg(getString("no_recent_people"));
-	mRecentList->setNoFilteredItemsMsg(getString("no_filtered_recent_people"));
+	mRecentList->setNoItemsCommentText(getString("no_people"));
 	mRecentList->setShowIcons("RecentListShowIcons");
 
 	mGroupList = getChild<LLGroupList>("group_list");
-	mGroupList->setNoItemsMsg(getString("no_groups_msg"));
-	mGroupList->setNoFilteredItemsMsg(getString("no_filtered_groups_msg"));
+	mGroupList->setNoGroupsMsg(getString("no_groups_msg"));
+	mGroupList->setNoFilteredGroupsMsg(getString("no_filtered_groups_msg"));
 
 	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
@@ -618,7 +619,7 @@ BOOL LLPanelPeople::postBuild()
 	if(recent_view_sort)
 		mRecentViewSortMenuHandle  = recent_view_sort->getHandle();
 
-	LLVoiceClient::getInstance()->addObserver(this);
+	gVoiceClient->addObserver(this);
 
 	// call this method in case some list is empty and buttons can be in inconsistent state
 	updateButtons();
@@ -638,25 +639,6 @@ void LLPanelPeople::onChange(EStatusType status, const std::string &channelURI, 
 	}
 	
 	updateButtons();
-}
-
-void LLPanelPeople::updateFriendListHelpText()
-{
-	// show special help text for just created account to help finding friends. EXT-4836
-	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_help_text");
-
-	// Seems sometimes all_friends can be empty because of issue with Inventory loading (clear cache, slow connection...)
-	// So, lets check all lists to avoid overlapping the text with online list. See EXT-6448.
-	bool any_friend_exists = mAllFriendList->filterHasMatches() || mOnlineFriendList->filterHasMatches();
-	no_friends_text->setVisible(!any_friend_exists);
-	if (no_friends_text->getVisible())
-	{
-		//update help text for empty lists
-		std::string message_name = mFilterSubString.empty() ? "no_friends_msg" : "no_filtered_friends_msg";
-		LLStringUtil::format_map_t args;
-		args["[SEARCH_TERM]"] = LLURI::escape(mFilterSubStringOrig);
-		no_friends_text->setText(getString(message_name, args));
-	}
 }
 
 void LLPanelPeople::updateFriendList()
@@ -697,6 +679,14 @@ void LLPanelPeople::updateFriendList()
 		if (av_tracker.isBuddyOnline(buddy_id))
 			online_friendsp.push_back(buddy_id);
 	}
+
+	// show special help text for just created account to help found friends. EXT-4836
+	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
+
+	// Seems sometimes all_friends can be empty because of issue with Inventory loading (clear cache, slow connection...)
+	// So, lets check all lists to avoid overlapping the text with online list. See EXT-6448.
+	bool any_friend_exists = (all_friendsp.size() > 0) || (online_friendsp.size() > 0);
+	no_friends_text->setVisible(!any_friend_exists);
 
 	/*
 	 * Avatarlists  will be hidden by showFriendsAccordionsIfNeeded(), if they do not have items.
@@ -819,7 +809,7 @@ void LLPanelPeople::updateButtons()
 		}
 	}
 
-	bool enable_calls = LLVoiceClient::getInstance()->isVoiceWorking() && LLVoiceClient::getInstance()->voiceEnabled();
+	bool enable_calls = gVoiceClient->voiceWorking() && gVoiceClient->voiceEnabled();
 
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);
@@ -978,11 +968,10 @@ bool LLPanelPeople::isRealGroup()
 
 void LLPanelPeople::onFilterEdit(const std::string& search_string)
 {
-	mFilterSubStringOrig = search_string;
-	LLStringUtil::trimHead(mFilterSubStringOrig);
+	std::string search_upper = search_string;
 	// Searches are case-insensitive
-	std::string search_upper = mFilterSubStringOrig;
 	LLStringUtil::toUpper(search_upper);
+	LLStringUtil::trimHead(search_upper);
 
 	if (mFilterSubString == search_upper)
 		return;
@@ -997,11 +986,11 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 
 
 	// Apply new filter.
-	mNearbyList->setNameFilter(mFilterSubStringOrig);
-	mOnlineFriendList->setNameFilter(mFilterSubStringOrig);
-	mAllFriendList->setNameFilter(mFilterSubStringOrig);
-	mRecentList->setNameFilter(mFilterSubStringOrig);
-	mGroupList->setNameFilter(mFilterSubStringOrig);
+	mNearbyList->setNameFilter(mFilterSubString);
+	mOnlineFriendList->setNameFilter(mFilterSubString);
+	mAllFriendList->setNameFilter(mFilterSubString);
+	mRecentList->setNameFilter(mFilterSubString);
+	mGroupList->setNameFilter(mFilterSubString);
 
 	setAccordionCollapsedByUser("tab_online", false);
 	setAccordionCollapsedByUser("tab_all", false);
@@ -1443,11 +1432,6 @@ void LLPanelPeople::showFriendsAccordionsIfNeeded()
 		// Rearrange accordions
 		LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
 		accordion->arrange();
-
-		// *TODO: new no_matched_tabs_text attribute was implemented in accordion (EXT-7368).
-		// this code should be refactored to use it
-		// keep help text in a synchronization with accordions visibility.
-		updateFriendListHelpText();
 	}
 }
 

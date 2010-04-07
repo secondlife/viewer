@@ -4,25 +4,31 @@
  * @brief Implementation of SpeackerIndicatorManager class to process registered LLSpeackerIndicator
  * depend on avatars are in the same voice channel.
  *
- * $LicenseInfo:firstyear=2010&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
+ * 
+ * Copyright (c) 2010, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -101,7 +107,7 @@ private:
 	 * So, method does not calculate difference between these list it only switches off already 
 	 * switched on indicators and switches on indicators of voice channel participants
 	 */
-	void onParticipantsChanged();
+	void onChange();
 
 	/**
 	 * Changes state of indicators specified by LLUUIDs
@@ -152,7 +158,7 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
 	mSpeakingIndicators.insert(value_type);
 
 	speaker_ids_t speakers_uuids;
-	BOOL is_in_same_voice = LLVoiceClient::getInstance()->isParticipant(speaker_id);
+	BOOL is_in_same_voice = LLVoiceClient::getInstance()->findParticipantByID(speaker_id) != NULL;
 
 	speakers_uuids.insert(speaker_id);
 	switchSpeakerIndicators(speakers_uuids, is_in_same_voice);
@@ -199,12 +205,12 @@ void SpeakingIndicatorManager::sOnCurrentChannelChanged(const LLUUID& /*session_
 	mSwitchedIndicatorsOn.clear();
 }
 
-void SpeakingIndicatorManager::onParticipantsChanged()
+void SpeakingIndicatorManager::onChange()
 {
 	LL_DEBUGS("SpeakingIndicator") << "Voice participant list was changed, updating indicators" << LL_ENDL;
 
 	speaker_ids_t speakers_uuids;
-	LLVoiceClient::getInstance()->getParticipantList(speakers_uuids);
+	LLVoiceClient::getInstance()->getParticipantsUUIDSet(speakers_uuids);
 
 	LL_DEBUGS("SpeakingIndicator") << "Switching all OFF, count: " << mSwitchedIndicatorsOn.size() << LL_ENDL;
 	// switch all indicators off

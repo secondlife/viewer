@@ -208,9 +208,6 @@ Du skal skrive både fornavn og efternavn på din figur.
 Du har brug for en konto for at logge ind i [SECOND_LIFE]. Vil du oprette en nu?
 		<usetemplate name="okcancelbuttons" notext="Prøv igen" yestext="Lav ny konto"/>
 	</notification>
-	<notification name="InvalidCredentialFormat">
-		Du skal indtaste både fornavn og efternavn i din avatars brugernavn felt og derefter logge på igen.
-	</notification>
 	<notification name="AddClassified">
 		Annoncer vil vises i &apos;Annoncer&apos; sektionen i søge biblioteket og på [http://secondlife.com/community/classifieds secondlife.com] i en uge.
 Udfyld din annonce og klik på &apos;Udgiv...&apos; for at tilf&apos;je den til biblioteket.				
@@ -226,13 +223,6 @@ Er du sikker på at du vil fortsætte?
 	<notification name="ClassifiedInsufficientFunds">
 		Ikke nok penge til at oprette annonce.
 		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="DeleteAvatarPick">
-		Slet favorit &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
-	</notification>
-	<notification name="DeleteOutfits">
-		Slet valgte sæt?
-		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
 	</notification>
 	<notification name="CacheWillClear">
 		Cache vil blive tømt ved næste genstart af [APP_NAME].
@@ -272,11 +262,6 @@ Grafik kvaliteten sættes til &apos;lav&apos; for at undgå typiske problemer me
 Vi anbefaler at opdatere driverne til dit grafikkort.
 Grafik kvaliteten kan forbedres i indstillinger &gt; Grafik.
 	</notification>
-	<notification name="CannotCopyWarning">
-		Du har ikke rettigheder til at kopiere følgende genstande:
-[ITEMS]
-og du vil miste dem fra din beholdning hvis du forærer dem væk. Er du sikker på at du vil tilbyde disse genstande?
-	</notification>
 	<notification name="CannotGiveCategory">
 		Du har ikke tilladelse til at videreføre den valgte mappe.
 	</notification>
@@ -290,10 +275,6 @@ Gå til [_URL] for information om køb af L$?
 	</notification>
 	<notification name="CannotEncodeFile">
 		Kunne ikke &apos;forstå&apos; filen: [FILE]
-	</notification>
-	<notification name="CorruptedProtectedDataStore">
-		Vi kan ikke udfylde dit brugernavn og password.  Dette kan ske hvis du ændrer netværksopsætning
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
 		[APP_NAME] understøtter p.t. ikke at send flere animationsfiler ad gangen.
@@ -410,42 +391,6 @@ Tilbyd venskab til [NAME]?
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
-	<notification label="Gem sæt" name="SaveOutfitAs">
-		Gem det som jeg har på som nyt sæt:
-		<form name="form">
-			<input name="message">
-				[DESC] (ny)
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="Annullér"/>
-		</form>
-	</notification>
-	<notification label="Gem" name="SaveWearableAs">
-		Gem genstand til beholdning som:
-		<form name="form">
-			<input name="message">
-				[DESC] (ny)
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="Annullér"/>
-		</form>
-	</notification>
-	<notification label="Omdøb sæt" name="RenameOutfit">
-		Nyt navn til sæt:
-		<form name="form">
-			<input name="new_name">
-				[NAME]
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="Annullér"/>
-		</form>
-	</notification>
-	<notification name="ConfirmItemDeleteHasLinks">
-		Mindst en af genstandene har lænkede genstande der peger på den. Hvis du sletter denne genstand, vil lænkninger ikke virke mere.  Det anbefales kraftigt at fjerne lænkninger først.
-
-Er du sikker på at du vil slette disse genstande?
-		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
-	</notification>
 	<notification name="ErrorMessage">
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -479,42 +424,6 @@ Vend tilbage til [http://join.secondlife.com secondlife.com] for at oprette en n
 		Der er problemer med at koble på.  Der kan være et problem med din Internet forbindelse eller [SECOND_LIFE_GRID].
 
 Du kan enten checke din Internet forbindelse og prøve igen om lidt, klikke på Hjælp for at se [SUPPORT_SITE] siden, eller klikke på Teleport for at forsøge at teleportere hjem.
-	</notification>
-	<notification name="CantTeleportToGrid">
-		Kunne ikke teleportere til [SLURL] da den er på et andet net ([GRID]) end det nuværende net ([CURRENT_GRID]).  Luk venligst din klient og prøv igen.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GeneralCertificateError">
-		Kunne ikke opnå forbindelse til server.
-[REASON]
-
-Vedrørende: [SUBJECT_NAME_STRING]
-Fra: [ISSUER_NAME_STRING]
-Valid fra: [VALID_FROM]
-Valid til: [VALID_TO]
-MD5 Fingerprint: [SHA1_DIGEST]
-SHA1 Fingerprint: [MD5_DIGEST]
-Key Usage: [KEYUSAGE]
-Extended Key Usage: [EXTENDEDKEYUSAGE]
-Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="TrustCertificateError">
-		Certifikationsmyndighed for denne server er ikke kendt.
-
-Certifikat information:
-Vedrørende: [SUBJECT_NAME_STRING]
-Fra: [ISSUER_NAME_STRING]
-Valid fra: [VALID_FROM]
-Valid til: [VALID_TO]
-MD5 Fingerprint: [SHA1_DIGEST]
-SHA1 Fingerprint: [MD5_DIGEST]
-Key Usage: [KEYUSAGE]
-Extended Key Usage: [EXTENDEDKEYUSAGE]
-Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
-
-Ønsker du at stole på denne myndighed?
-		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Stol på"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] L$ [PRICE] Du har ikke nok L$ til dette.
@@ -675,10 +584,6 @@ Chat og personlige beskeder vil blive skjult. Personlige beskeder vil få din &a
 		Teleport til [CLASSIFIED]?
 		<usetemplate ignoretext="Bekræft at du ønsker at teleportere til lokation in annoncer" name="okcancelignore" notext="Annullér" yestext="Teleport"/>
 	</notification>
-	<notification name="TeleportToHistoryEntry">
-		Teleport til [HISTORY_ENTRY]?
-		<usetemplate ignoretext="Bekræft at du ønsker at teleportere til en lokation i din historik" name="okcancelignore" notext="Annullér" yestext="Teleport"/>
-	</notification>
 	<notification label="Change Linden Estate" name="ChangeLindenEstate">
 		Du er i færd med at ændre et Linden ejet estate (mainland, teeen grid, orientation etc.).
 
@@ -705,17 +610,14 @@ Gå til &apos;Knowledge Base&apos; for mere information om indholdsratings.
 		Du har ikke adgang til denne region på grund af din valgte indholdsrating.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		Du har ikke adgang til denne region på grund af din opsætning af indholdsrating.
+		Du har ikke adgang til denne region på grund af din indholdsrating præferencer.
 
-For at få adgang til den ønskede region skal du ændre din indholdsrating. Dette vil give dig ret til at søge og får tilgang til indhold af typen [REGIONMATURITY]. For at omgøre ændringer gå til Mig &gt; Indstillinger &gt; Generelt.
+Du kan klikke på &apos;Ændre præference&apos; for at ændre din indholdsrating nu og dermed opnå adgang. Du vil så få mulighed for at søge og tilgå [REGIONMATURITY] fra da af. Hvis du senere ønsker at ændre denne opsætning tilbage, gå til Mig &gt; Indstillinger &gt; Generelt.
 		<form name="form">
 			<button name="OK" text="Ændre indstillinger"/>
 			<button name="Cancel" text="Luk"/>
 			<ignore name="ignore" text="Din valgte indholdsrating forhindrer dig i at kommer til en region"/>
 		</form>
-	</notification>
-	<notification name="PreferredMaturityChanged">
-		Din indholdsrating er nu [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		Du kan ikke kræve dette land på grund af din nuværende indholdsrating indstillinge . Dette kan skyldes manglende validering af din alder.
@@ -909,9 +811,6 @@ Henvis til dette fra en hjemmeside for at give andre nem adgang til denne lokati
 		<usetemplate ignoretext="Du mangler at være betalende medlem" name="okcancelignore" notext="No" yestext="Yes"/>
 	</notification>
 	<notification name="SystemMessageTip">
-		[MESSAGE]
-	</notification>
-	<notification name="IMSystemMessageTip">
 		[MESSAGE]
 	</notification>
 	<notification name="Cancelled">
@@ -1249,6 +1148,15 @@ Prøv igen om lidt.
 			<button name="Mute" text="Blokér"/>
 		</form>
 	</notification>
+	<notification name="ObjectGiveItemUnknownUser">
+		Et objekt med navnet [OBJECTFROMNAME] ejet af (en ukendt beboer) har givet dig denne/dette [OBJECTTYPE]:
+[ITEM_SLURL]
+		<form name="form">
+			<button name="Keep" text="Behold"/>
+			<button name="Discard" text="Smid væk"/>
+			<button name="Mute" text="Blokér"/>
+		</form>
+	</notification>
 	<notification name="UserGiveItem">
 		[NAME_SLURL] har givet dig denne/dette [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -1272,9 +1180,9 @@ Prøv igen om lidt.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME_SLURL] har tilbudt en teleport til deres lokation:
+		[NAME] har tilbudt dig en teleport til lokationen:
 
-[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+[MESSAGE]
 		<form name="form">
 			<button name="Teleport" text="Teleportér"/>
 			<button name="Cancel" text="Annullér"/>
@@ -1292,11 +1200,9 @@ Prøv igen om lidt.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME_SLURL] tilbyder venskab.
+		[NAME] tilbyder venskab.
 
-[MESSAGE]
-
-(Som udgangspunkt vil I være i stand til at se hinandens online status.)
+Som standard vil du kunne se andres onlinestatus.
 		<form name="form">
 			<button name="Accept" text="Acceptér"/>
 			<button name="Decline" text="Afvis"/>
@@ -1480,21 +1386,6 @@ Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik p
 	<notification name="VoiceLoginRetry">
 		Vi laver en stemmekanal til dig. Det kan tage op til et minut.
 	</notification>
-	<notification name="VoiceEffectsExpired">
-		En eller flere af dine stemme &quot;morphs&quot; er udløbet.
-[[URL] Click here] for at forny dit abbonnement.
-	</notification>
-	<notification name="VoiceEffectsExpiredInUse">
-		Den aktive stemme &quot;morph&quot; er udløbet og din normale stemme opsætning er genaktiveret.
-[[URL] Click here] for at forny dit abbonnement.
-	</notification>
-	<notification name="VoiceEffectsWillExpire">
-		En eller flere af dine stemme &quot;morphs&quot; vil udløbe om mindre end [INTERVAL] dage.
-[[URL] Click here] for at forny dit abbonnement.
-	</notification>
-	<notification name="VoiceEffectsNew">
-		Nye stemme &quot;morphs&quot; er tilgængelige!
-	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		Kun medlemmer af en bestemt gruppe kan besøge dette område.
 	</notification>
@@ -1560,97 +1451,6 @@ De vil blive blokeret nogle få sekunder af sikkerhedsmæssige årsager.
 		Den valgte knap kan ikke vises lige nu.
 Knappen vil blive vist når der er nok plads til den.
 	</notification>
-	<notification name="ShareNotification">
-		Vælg beboere at dele med.
-	</notification>
-	<notification name="ShareItemsConfirmation">
-		Er du sikker på at du vil dele følgende genstande:
-
-[ITEMS]
-
-Med følgende beboere:
-
-[RESIDENTS]
-		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Ok"/>
-	</notification>
-	<notification name="ItemsShared">
-		Genstande er nu delt.
-	</notification>
-	<notification name="DeedToGroupFail">
-		Dedikering til gruppe fejlede.
-	</notification>
-	<notification name="AvatarRezNotification">
-		( [EXISTENCE] sekunder i live )
-Avatar &apos;[NAME]&apos; var ikke sky mere, efter [TIME] sekunder.
-	</notification>
-	<notification name="AvatarRezSelfBakedDoneNotification">
-		( [EXISTENCE] seconds alive )
-Du blev færdig med at fremvise dit sæt efter [TIME] sekunder.
-	</notification>
-	<notification name="AvatarRezSelfBakedUpdateNotification">
-		( [EXISTENCE] seconds alive )
-Du sendte en opdatering af dit udseende efter [TIME] sekunder.
-[STATUS]
-	</notification>
-	<notification name="AvatarRezCloudNotification">
-		( [EXISTENCE] sekunder i live )
-Avatar &apos;[NAME]&apos; blev til &quot;sky&quot;.
-	</notification>
-	<notification name="AvatarRezArrivedNotification">
-		( [EXISTENCE] sekunder i live )
-Avatar &apos;[NAME]&apos; appeared.
-	</notification>
-	<notification name="AvatarRezLeftCloudNotification">
-		( [EXISTENCE] sekunder i live )
-Avatar &apos;[NAME]&apos; forsvandt efter [TIME] sekunder som &quot;sky&quot;.
-	</notification>
-	<notification name="AvatarRezEnteredAppearanceNotification">
-		( [EXISTENCE] sekunder i live )
-Avatar &apos;[NAME]&apos; skiftede til udseende modus.
-	</notification>
-	<notification name="AvatarRezLeftAppearanceNotification">
-		( [EXISTENCE] sekunder i live )
-Avatar &apos;[NAME]&apos; har forladt udseende modus.
-	</notification>
-	<notification name="NoConnect">
-		Vi har problemer med at oprette forbindelse via [PROTOCOL] [HOSTID].
-Check venligst din netværks- og firewallsetup.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
-	</notification>
-	<notification name="NoVoiceConnect">
-		Vi har problemer med at oprette forbindelse til din stemme server:
-
-[HOSTID]
-
-Stemme kommunikation vil ikke være tilgængelig.
-Check venligst din netværks- og firewall setup.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
-	</notification>
-	<notification name="AvatarRezLeftNotification">
-		( [EXISTENCE] sekunder i live )
-Avatar &apos;[NAME]&apos; forsvandt helt &quot;uploaded&quot;.
-	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
-		( [EXISTENCE] sekunder i live )
-You [ACTION] a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TIME] seconds.
-	</notification>
-	<notification name="ConfirmLeaveCall">
-		Er du sikker på at du vil forlade dette opkald?
-		<usetemplate ignoretext="Bekræft før jeg forlader opkald" name="okcancelignore" notext="Nej" yestext="Ja"/>
-	</notification>
-	<notification name="ConfirmMuteAll">
-		Du har valgt at slukke for lyden for alle deltagere i gruppeopkaldet.
-Dette vil også betyde, at alle beboere der slutter sig til opkaldet
-vil have lyden slukket - selv efter de har forladt kaldet.
-
-
-Sluk for alles lyd?
-		<usetemplate ignoretext="Bekræft før jeg slukker for alle deltageres lyd i gruppe-kald" name="okcancelignore" notext="Annullér" yestext="Ok"/>
-	</notification>
 	<global name="UnsupportedGLRequirements">
 		Det ser ikke ud til at din hardware opfylder minimumskravene til [APP_NAME]. [APP_NAME] kræver et OpenGL grafikkort som understøter &apos;multitexture&apos;. Check eventuelt om du har de nyeste drivere for grafikkortet, og de nyeste service-packs og patches til dit operativsystem.
 
@@ -1659,8 +1459,5 @@ Hvis du bliver ved med at have problemer, besøg venligst [SUPPORT_SITE].
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Hvis du selv ejer land, kan du benytte det til hjemme lokation.
 Ellers kan du se på verdenskortet og finde steder markeret med &quot;Infohub&quot;.
-	</global>
-	<global name="You died and have been teleported to your home location">
-		Du døde og er blevet teleporteret til din hjemmelokation.
 	</global>
 </notifications>

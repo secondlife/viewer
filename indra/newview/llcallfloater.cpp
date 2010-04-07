@@ -3,25 +3,31 @@
  * @author Mike Antipov
  * @brief Voice Control Panel in a Voice Chats (P2P, Group, Nearby...).
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -89,7 +95,7 @@ static void* create_non_avatar_caller(void*)
 	return new LLNonAvatarCaller;
 }
 
-LLVoiceChannel* LLCallFloater::sCurrentVoiceChannel = NULL;
+LLVoiceChannel* LLCallFloater::sCurrentVoiceCanel = NULL;
 
 LLCallFloater::LLCallFloater(const LLSD& key)
 : LLTransientDockableFloater(NULL, false, key)
@@ -107,7 +113,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLCallFloater::removeVoiceLeftParticipant, this, _1), voice_left_remove_delay);
 
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
-	LLVoiceClient::instance().addObserver(this);
+	LLVoiceClient::getInstance()->addObserver(this);
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
 
 	// force docked state since this floater doesn't save it between recreations
@@ -127,7 +133,7 @@ LLCallFloater::~LLCallFloater()
 
 	if(LLVoiceClient::instanceExists())
 	{
-		LLVoiceClient::getInstance()->removeObserver(this);
+		gVoiceClient->removeObserver(this);
 	}
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
@@ -151,6 +157,7 @@ BOOL LLCallFloater::postBuild()
 		getDockTongue(), LLDockControl::TOP));
 
 	initAgentData();
+
 
 	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
 
@@ -182,7 +189,7 @@ void LLCallFloater::draw()
 	// Seems this is a problem somewhere in Voice Client (LLVoiceClient::participantAddedEvent)
 //	onChange();
 
-	bool is_moderator_muted = LLVoiceClient::getInstance()->getIsModeratorMuted(gAgentID);
+	bool is_moderator_muted = gVoiceClient->getIsModeratorMuted(gAgentID);
 
 	if (mIsModeratorMutedVoice != is_moderator_muted)
 	{
@@ -197,9 +204,10 @@ void LLCallFloater::draw()
 }
 
 // virtual
-void LLCallFloater::onParticipantsChanged()
+void LLCallFloater::onChange()
 {
 	if (NULL == mParticipants) return;
+
 	updateParticipantsVoiceState();
 
 	// Add newly joined participants.
@@ -220,7 +228,7 @@ void LLCallFloater::leaveCall()
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
 	if (voice_channel)
 	{
-		gIMMgr->endCall(voice_channel->getSessionID());
+		voice_channel->deactivate();
 	}
 }
 
@@ -229,11 +237,11 @@ void LLCallFloater::updateSession()
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
 	if (voice_channel)
 	{
-		LL_DEBUGS("Voice") << "Current voice channel: " << voice_channel->getSessionID() << LL_ENDL;
+		lldebugs << "Current voice channel: " << voice_channel->getSessionID() << llendl;
 
 		if (mSpeakerManager && voice_channel->getSessionID() == mSpeakerManager->getSessionID())
 		{
-			LL_DEBUGS("Voice") << "Speaker manager is already set for session: " << voice_channel->getSessionID() << LL_ENDL;
+			lldebugs << "Speaker manager is already set for session: " << voice_channel->getSessionID() << llendl;
 			return;
 		}
 		else
@@ -243,6 +251,7 @@ void LLCallFloater::updateSession()
 	}
 
 	const LLUUID& session_id = voice_channel ? voice_channel->getSessionID() : LLUUID::null;
+	lldebugs << "Set speaker manager for session: " << session_id << llendl;
 
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (im_session)
@@ -280,22 +289,22 @@ void LLCallFloater::updateSession()
 
 	if (NULL == mSpeakerManager)
 	{
-		// By default show nearby chat participants
+		// by default let show nearby chat participants
 		mSpeakerManager = LLLocalSpeakerMgr::getInstance();
-		LL_DEBUGS("Voice") << "Set DEFAULT speaker manager" << LL_ENDL;
+		lldebugs << "Set DEFAULT speaker manager" << llendl;
 		mVoiceType = VC_LOCAL_CHAT;
 	}
 
 	updateTitle();
-
-	// Hide "Leave Call" button for nearby chat
+	
+	//hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
 	childSetVisible("leave_call_btn_panel", !is_local_chat);
 
 	refreshParticipantList();
 	updateAgentModeratorState();
 
-	// Show floater for voice calls & only in CONNECTED to voice channel state
+	//show floater for voice calls & only in CONNECTED to voice channel state
 	if (!is_local_chat &&
 	    voice_channel &&
 	    LLVoiceChannel::STATE_CONNECTED == voice_channel->getState())
@@ -325,7 +334,7 @@ void LLCallFloater::refreshParticipantList()
 
 	if (!non_avatar_caller)
 	{
-		mParticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT, false);
+		mParticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT);
 		mParticipants->setValidateSpeakerCallback(boost::bind(&LLCallFloater::validateSpeaker, this, _1));
 		mParticipants->setSortOrder(LLParticipantList::E_SORT_BY_RECENT_SPEAKERS);
 
@@ -361,7 +370,7 @@ void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 	// *NOTE: if signal was sent for voice channel with LLVoiceChannel::STATE_NO_CHANNEL_INFO
 	// it sill be sent for the same channel again (when state is changed).
 	// So, lets ignore this call.
-	if (channel == sCurrentVoiceChannel) return;
+	if (channel == sCurrentVoiceCanel) return;
 
 	LLCallFloater* call_floater = LLFloaterReg::getTypedInstance<LLCallFloater>("voice_controls");
 
@@ -443,7 +452,7 @@ void LLCallFloater::updateAgentModeratorState()
 	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
 	{
 		// This method can be called when LLVoiceChannel.mState == STATE_NO_CHANNEL_INFO
-		// in this case there are not any speakers yet.
+		// in this case there are no any speakers yet.
 		if (mSpeakerManager->findSpeaker(gAgentID))
 		{
 			// Agent is Moderator
@@ -461,15 +470,16 @@ void LLCallFloater::updateAgentModeratorState()
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)
 {
 	// Get a list of participants from VoiceClient
-       std::set<LLUUID> participants;
-       LLVoiceClient::getInstance()->getParticipantList(participants);
-	
-	for (std::set<LLUUID>::const_iterator iter = participants.begin();
-		 iter != participants.end(); ++iter)
+	LLVoiceClient::participantMap *voice_map = gVoiceClient->getParticipantList();
+	if (voice_map)
 	{
-		speakers_uuids.push_back(*iter);
+		for (LLVoiceClient::participantMap::const_iterator iter = voice_map->begin();
+			iter != voice_map->end(); ++iter)
+		{
+			LLUUID id = (*iter).second->mAvatarID;
+			speakers_uuids.push_back(id);
+		}
 	}
-
 }
 
 void LLCallFloater::initParticipantsVoiceState()
@@ -545,7 +555,7 @@ void LLCallFloater::updateParticipantsVoiceState()
 
 		uuid_vec_t::iterator speakers_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), participant_id);
 
-		LL_DEBUGS("Voice") << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << LL_ENDL;
+		lldebugs << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << llendl;
 
 		// If an avatarID assigned to a panel is found in a speakers list
 		// obtained from VoiceClient we assign the JOINED status to the owner
@@ -591,13 +601,10 @@ void LLCallFloater::updateNotInVoiceParticipantState(LLAvatarListItem* item)
 			}
 		}
 		break;
+	case STATE_INVITED:
 	case STATE_LEFT:
 		// nothing to do. These states should not be changed.
 		break;
-	case STATE_INVITED:
-		// If avatar was invited into group chat and went offline it is still exists in mSpeakerStateMap
-		// If it goes online it will be rendered as JOINED via LAvatarListItem.
-		// Lets update its visual representation. See EXT-6660
 	case STATE_UNKNOWN:
 		// If an avatarID is not found in a speakers list from VoiceClient and
 		// a panel with this ID has an UNKNOWN status this means that this person
@@ -708,9 +715,9 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 {
 	mVoiceChannelStateChangeConnection.disconnect();
 
-	sCurrentVoiceChannel = channel;
+	sCurrentVoiceCanel = channel;
 
-	mVoiceChannelStateChangeConnection = sCurrentVoiceChannel->setStateChangedCallback(boost::bind(&LLCallFloater::onVoiceChannelStateChanged, this, _1, _2));
+	mVoiceChannelStateChangeConnection = sCurrentVoiceCanel->setStateChangedCallback(boost::bind(&LLCallFloater::onVoiceChannelStateChanged, this, _1, _2));
 
 	updateState(channel->getState());
 }
@@ -718,7 +725,7 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
 	// check is voice operational and if it doesn't work hide VCP (EXT-4397)
-	if(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking())
+	if(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking())
 	{
 		updateState(new_state);
 	}
@@ -730,7 +737,7 @@ void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old
 
 void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
 {
-	LL_DEBUGS("Voice") << "Updating state: " << new_state << ", session name: " << sCurrentVoiceChannel->getSessionName() << LL_ENDL;
+	LL_DEBUGS("Voice") << "Updating state: " << new_state << ", session name: " << sCurrentVoiceCanel->getSessionName() << LL_ENDL;
 	if (LLVoiceChannel::STATE_CONNECTED == new_state)
 	{
 		updateSession();

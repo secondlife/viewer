@@ -47,11 +47,8 @@ By otrzymać pomoc i dodatkowe wskazówki przesuń kursor na przyciski.
 		<check_box label="Opłata wstępu" name="check_enrollment_fee" tool_tip="Ustaw opłatę za przyłączenie się do grupy."/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Nowi członkowie grupy muszą zapłacić wymaganą opłatę by dołączyć do grupy."/>
 		<combo_box name="group_mature_check" tool_tip="Wybierz jeżeli uważasz, iż Twoja grupa klasyfikowana jest jako &apos;Mature&apos;.">
-			<combo_item name="select_mature">
-				- Wybierz klasyfikację wieku -
-			</combo_item>
-			<combo_box.item label="Treść &apos;Mature&apos;" name="mature"/>
 			<combo_box.item label="Treść &apos;PG&apos;" name="pg"/>
+			<combo_box.item label="Treść &apos;Mature&apos;" name="mature"/>
 		</combo_box>
 		<check_box initial_value="true" label="Wyświetlaj w wyszukiwarce" name="show_in_group_list" tool_tip="Udostępnij info o grupie w wyszukiwarce"/>
 	</panel>

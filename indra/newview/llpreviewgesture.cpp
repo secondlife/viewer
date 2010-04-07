@@ -2,54 +2,84 @@
  * @file llpreviewgesture.cpp
  * @brief Editing UI for inventory-based gestures.
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * 
+ * Copyright (c) 2004-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
 #include "llviewerprecompiledheaders.h"
+
 #include "llpreviewgesture.h"
 
-#include "llagent.h"
-#include "llanimstatelabels.h"
-#include "llanimationstates.h"
-#include "llappviewer.h"			// gVFS
-#include "llassetuploadresponders.h"
-#include "llcheckboxctrl.h"
-#include "llcombobox.h"
-#include "lldelayedgestureerror.h"
+#include <algorithm>
+
+// libraries
+#include "lldatapacker.h"
+#include "lldarray.h"
+#include "llstring.h"
+#include "lldir.h"
 #include "llfloaterreg.h"
-#include "llgesturemgr.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llmultigesture.h"
 #include "llnotificationsutil.h"
-#include "llradiogroup.h"
-#include "llresmgr.h"
-#include "lltrans.h"
 #include "llvfile.h"
+
+// newview
+#include "llagent.h"		// todo: remove
+#include "llanimationstates.h"
+#include "llassetuploadresponders.h"
+#include "llbutton.h"
+#include "llcheckboxctrl.h"
+#include "llcombobox.h"
+#include "lldelayedgestureerror.h"
+#include "llfloatergesture.h" // for some label constants
+#include "llgesturemgr.h"
+#include "llkeyboard.h"
+#include "lllineeditor.h"
+#include "llradiogroup.h"
+#include "llscrolllistctrl.h"
+#include "llscrolllistitem.h"
+#include "llscrolllistcell.h"
+#include "lltextbox.h"
+#include "lluictrlfactory.h"
+#include "llviewerinventory.h"
+#include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llviewerwindow.h"		// busycount
+#include "llvoavatarself.h"
+#include "llappviewer.h"			// gVFS
+#include "llanimstatelabels.h"
+#include "llresmgr.h"
+#include "lltrans.h"
+
 
 std::string NONE_LABEL;
 std::string SHIFT_LABEL;
@@ -111,7 +141,7 @@ LLPreviewGesture* LLPreviewGesture::show(const LLUUID& item_id, const LLUUID& ob
 
 	// this will call refresh when we have everything.
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)preview->getItem();
-	if (item && !item->isFinished())
+	if (item && !item->isComplete())
 	{
 		LLInventoryGestureAvailable* observer;
 		observer = new LLInventoryGestureAvailable();
@@ -618,7 +648,7 @@ void LLPreviewGesture::refresh()
 	LLPreview::refresh();
 	// If previewing or item is incomplete, all controls are disabled
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
-	bool is_complete = (item && item->isFinished()) ? true : false;
+	bool is_complete = (item && item->isComplete()) ? true : false;
 	if (mPreviewGesture || !is_complete)
 	{
 		
@@ -802,9 +832,7 @@ void LLPreviewGesture::loadAsset()
 	const LLInventoryItem* item = getItem();
 	if (!item) 
 	{
-		// Don't set asset status here; we may not have set the item id yet
-		// (e.g. when this gets called initially)
-		//mAssetStatus = PREVIEW_ASSET_ERROR;
+		mAssetStatus = PREVIEW_ASSET_ERROR;
 		return;
 	}
 
@@ -870,7 +898,6 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 
 				self->mDirty = FALSE;
 				self->refresh();
-				self->refreshFromItem(); // to update description and title
 			}
 			else
 			{
@@ -1619,17 +1646,7 @@ std::string LLPreviewGesture::getLabel(std::vector<std::string> labels)
 		result=LLTrans::getString("AnimFlagStart");
 	}
 
-	// lets localize action value
-	std::string action = v_labels[1];
-	if ("None" == action)
-	{
-		action = LLTrans::getString("GestureActionNone");
-	}
-	else if ("until animations are done" == action)
-	{
-		action = LLFloaterReg::getInstance("preview_gesture")->getChild<LLCheckBoxCtrl>("wait_anim_check")->getLabel();
-	}
-	result.append(action);
+	result.append(v_labels[1]);
 	return result;
 	
 }

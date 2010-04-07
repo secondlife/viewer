@@ -168,7 +168,7 @@ Ajouter ce pouvoir à « [ROLE_NAME] » ?
 	<notification name="AttachmentDrop">
 		Vous êtes sur le point d&apos;abandonner l&apos;élément joint.
 Voulez-vous vraiment continuer ?
-		<usetemplate ignoretext="Confirmer avant d&apos;abandonner les éléments joints" name="okcancelignore" notext="Non" yestext="Oui"/>
+		<usetemplate ignoretext="Confirmez avant d&apos;abandonner les éléments joints." name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="JoinGroupCanAfford">
 		Rejoindre ce groupe coûte [COST] L$.
@@ -283,7 +283,7 @@ Pour ne placer le média que sur une seule face, choisissez Sélectionner une fa
 		Veuillez saisir votre adresse e-mail.
 	</notification>
 	<notification name="PromptMissingSubjMsg">
-		Envoyer la photo avec l&apos;objet ou le message par défaut ?
+		Envoyer la photo avec le sujet ou le message par défaut ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ErrorProcessingSnapshot">
@@ -325,9 +325,6 @@ Pour entrer dans [SECOND_LIFE], vous devez avoir un compte. Voulez-vous en crée
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Réessayer" yestext="Créer un compte"/>
 	</notification>
-	<notification name="InvalidCredentialFormat">
-		Saisissez à la fois le prénom et le nom de votre avatar dans le champ Nom d&apos;utilisateur, puis connectez-vous.
-	</notification>
 	<notification name="AddClassified">
 		Les petites annonces sont publiées à l&apos;onglet Petites annonces de la section Recherche et sur [http://secondlife.com/community/classifieds secondlife.com] pendant une semaine.
 Rédigez votre annonce, puis cliquez sur Publier pour l&apos;ajouter à la liste des annonces.
@@ -354,11 +351,7 @@ Voulez-vous vraiment continuer ?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		Supprimer la sélection &lt;nolink&gt;[PICK]&lt;/nolink&gt; ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
-	</notification>
-	<notification name="DeleteOutfits">
-		Supprimer la ou les tenues sélectionnées ?
+		Supprimer le favori [PICK] ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -478,9 +471,7 @@ La qualité des graphiques peut être augmentée à la section Préférences &gt
 		Le terraformage est interdit dans la région [REGION].
 	</notification>
 	<notification name="CannotCopyWarning">
-		Vous n&apos;êtes pas autorisé à copier les articles suivants :
-[ITEMS].
-Ceux-ci disparaîtront donc de votre inventaire si vous les donnez. Voulez-vous vraiment offrir ces articles ?
+		Vous n&apos;êtes pas autorisé à copier cet objet et il disparaîtra de votre inventaire si vous le donnez. Souhaitez-vous vraiment offrir cet objet ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -616,10 +607,6 @@ Assurez-vous que le fichier a l&apos;extension correcte.
 	</notification>
 	<notification name="CannotEncodeFile">
 		Impossible d&apos;encoder le fichier : [FILE]
-	</notification>
-	<notification name="CorruptedProtectedDataStore">
-		Impossible de renseigner votre nom d&apos;utilisateur et mot de passe.  Cette situation peut se produire lorsque vous changez la configuration du réseau.
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
 		Fichier ressource corrompu : [FILE]
@@ -938,36 +925,6 @@ Proposer à [NAME] de devenir votre ami(e) ?
 			<button name="Cancel" text="Annuler"/>
 		</form>
 	</notification>
-	<notification label="Enregistrer la tenue" name="SaveOutfitAs">
-		Enregistrer ce que je porte comme nouvelle tenue :
-		<form name="form">
-			<input name="message">
-				[DESC] (nouv.)
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="Annuler"/>
-		</form>
-	</notification>
-	<notification label="Enregistrer l&apos;article à porter" name="SaveWearableAs">
-		Enregistrer l&apos;article dans mon inventaire comme :
-		<form name="form">
-			<input name="message">
-				[DESC] (nouv.)
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="Annuler"/>
-		</form>
-	</notification>
-	<notification label="Renommer la tenue" name="RenameOutfit">
-		Nouveau nom de la tenue :
-		<form name="form">
-			<input name="new_name">
-				[NAME]
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="Annuler"/>
-		</form>
-	</notification>
 	<notification name="RemoveFromFriends">
 		Voulez-vous supprimer [FIRST_NAME] [LAST_NAME] de votre liste d&apos;amis ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
@@ -995,12 +952,6 @@ Proposer à [NAME] de devenir votre ami(e) ?
 		Le coût de l&apos;annonce doit être de [MIN_PRICE] L$ minimum.
 
 Veuillez saisir un montant plus élevé.
-	</notification>
-	<notification name="ConfirmItemDeleteHasLinks">
-		Des articles liés pointent vers au moins un article sélectionné. Les liens arrêteront définitivement de fonctionner si vous supprimez cet article. Il est vivement conseillé de supprimer d&apos;abord ces liens.
-
-Voulez-vous vraiment supprimer ces articles ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLock">
 		Au moins un des objets que vous avez sélectionnés est verrouillé.
@@ -1149,42 +1100,6 @@ Appuyez sur F1 pour obtenir de l&apos;aide ou en savoir plus sur [SECOND_LIFE].
 Choisissez un avatar homme ou femme.
 Vous pourrez revenir sur votre décision plus tard.
 		<usetemplate name="okcancelbuttons" notext="Femme" yestext="Homme"/>
-	</notification>
-	<notification name="CantTeleportToGrid">
-		Téléportation vers [SLURL] impossible car cet endroit existe sur une grille ([GRID]) différente de la grille actuelle ([CURRENT_GRID]). Veuillez fermer votre client et réessayer.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GeneralCertificateError">
-		Connexion au serveur impossible.
-[REASON]
-
-Nom du sujet : [SUBJECT_NAME_STRING]
-Émetteur : [ISSUER_NAME_STRING]
-Début de validité : [VALID_FROM]
-Fin de validité : [VALID_TO]
-Empreinte MD5 : [SHA1_DIGEST]
-Empreinte SHA1 : [MD5_DIGEST]
-Utilisation de la clé : [KEYUSAGE]
-Utilisation étendue de la clé : [EXTENDEDKEYUSAGE]
-Identifiant de la clé du sujet : [SUBJECTKEYIDENTIFIER]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="TrustCertificateError">
-		Autorité de certification de ce serveur inconnue.
-
-Informations sur le certificat :
-Nom du sujet : [SUBJECT_NAME_STRING]
-Émetteur : [ISSUER_NAME_STRING]
-Début de validité : [VALID_FROM]
-Fin de validité : [VALID_TO]
-Empreinte MD5 : [SHA1_DIGEST]
-Empreinte SHA1 : [MD5_DIGEST]
-Utilisation de la clé : [KEYUSAGE]
-Utilisation étendue de la clé : [EXTENDEDKEYUSAGE]
-Identifiant de la clé du sujet : [SUBJECTKEYIDENTIFIER]
-
-Approuver cette autorité ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Approuver"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] [PRICE] L$ Vous n&apos;avez pas suffisamment de L$ pour faire cela.
@@ -1350,7 +1265,7 @@ Télécharger vers le dossier Applications ?
 	</notification>
 	<notification name="WebLaunchQAWiki">
 		Consultez le Wiki sur l&apos;Assurance Qualité de [SECOND_LIFE].
-		<usetemplate ignoretext="Lancer mon navigateur web pour consulter la page Wiki sur l&apos;Assurance Qualité" name="okcancelignore" notext="Annuler" yestext="OK"/>
+		<usetemplate ignoretext="Lancer mon navigateur web pour consulter la page Wiki sur l&apos;Assurance Qualité." name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchPublicIssue">
 		Pour signaler des bugs et autres problèmes, utilisez le JIRA de [SECOND_LIFE].
@@ -1492,10 +1407,6 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 		Vous téléporter vers [CLASSIFIED] ?
 		<usetemplate ignoretext="Confirmer que je veux me téléporter à un endroit dans les Petites annonces" name="okcancelignore" notext="Annuler" yestext="Téléporter"/>
 	</notification>
-	<notification name="TeleportToHistoryEntry">
-		Vous téléporter vers [HISTORY_ENTRY] ?
-		<usetemplate ignoretext="Confirmer que je veux me téléporter à un endroit de l&apos;historique" name="okcancelignore" notext="Annuler" yestext="Téléporter"/>
-	</notification>
 	<notification label="Envoyer un message à tout le monde dans votre domaine" name="MessageEstate">
 		Saisissez un message court qui sera envoyé à tous les résidents se trouvant actuellement sur votre domaine.
 		<form name="form">
@@ -1578,17 +1489,14 @@ Souhaitez-vous en savoir plus sur les différentes catégories d&apos;accès ?
 		Votre catégorie d&apos;accès ne vous permet pas de pénétrer dans cette région.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		La catégorie de contenu définie dans vos préférences ne vous permet pas de pénétrer dans cette région.
+		Votre catégorie d&apos;accès ne vous permet pas de pénétrer dans cette région.
 
-Pour cela, vous devez modifier votre paramètre de catégorie de contenu. Vous pourrez alors rechercher du contenu [REGIONMATURITY] et y accéder. Pour annuler vos modifications, accédez à Moi &gt; Préférences &gt; Général.
+En cliquant sur Modifier les préférences, vous pourrez changer votre catégorie d&apos;accès et pénétrer dans la région. À partir de maintenant, vous pouvez rechercher et accéder au contenu [REGIONMATURITY]. Vous pouvez modifier ce paramètre à partir du menu Moi &gt; Préférences &gt; Général.
 		<form name="form">
 			<button name="OK" text="Modifier les préférences"/>
 			<button default="true" name="Cancel" text="Fermer"/>
 			<ignore name="ignore" text="La catégorie de contenu que j&apos;ai choisie m&apos;empêche de pénétrer dans une région"/>
 		</form>
-	</notification>
-	<notification name="PreferredMaturityChanged">
-		Votre préférence de catégorie de contenu est désormais [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		Votre catégorie d&apos;accès ne vous permet pas de réclamer cette région. Cela vient peut-être du fait qu&apos;il manquait des informations pour valider votre âge.
@@ -1683,7 +1591,7 @@ Publier cette petite annonce maintenant pour [AMOUNT] L$ ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification label="Envoyer un message à la région" name="MessageRegion">
-		Saisissez un message qui sera envoyé à tous les résidents présents dans cette région.
+		Saisissez une message qui sera envoyé à tous les résidents présents dans cette région.
 		<form name="form">
 			<input name="message"/>
 			<button name="OK" text="OK"/>
@@ -1856,7 +1764,7 @@ Linden Lab
 		Les composantes requises suivantes ne se trouvent pas dans [FLOATER]:
 [COMPONENTS]
 	</notification>
-	<notification label="Remplacer la pièce jointe existante" name="ReplaceAttachment">
+	<notification label="Remplacer la pièce-jointe existante" name="ReplaceAttachment">
 		Vous avez déjà un objet sur cette partie du corps.
 Voulez-vous le remplacer par l&apos;objet sélectionné ?
 		<form name="form">
@@ -2003,9 +1911,6 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 		The string [STRING_NAME] is missing from strings.xml
 	</notification>
 	<notification name="SystemMessageTip">
-		[MESSAGE]
-	</notification>
-	<notification name="IMSystemMessageTip">
 		[MESSAGE]
 	</notification>
 	<notification name="Cancelled">
@@ -2349,6 +2254,15 @@ Veuillez réessayer dans quelques minutes.
 			<button name="Mute" text="Ignorer"/>
 		</form>
 	</notification>
+	<notification name="ObjectGiveItemUnknownUser">
+		Un objet appelé [OBJECTFROMNAME] appartenant à (un résident inconnu) vous a donné un [OBJECTTYPE] :
+[ITEM_SLURL]
+		<form name="form">
+			<button name="Keep" text="Garder"/>
+			<button name="Discard" text="Jeter"/>
+			<button name="Mute" text="Ignorer"/>
+		</form>
+	</notification>
 	<notification name="UserGiveItem">
 		[NAME_SLURL] vous a donné un [OBJECTTYPE] :
 [ITEM_SLURL]
@@ -2372,9 +2286,9 @@ Veuillez réessayer dans quelques minutes.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME_SLURL] propose de vous téléporter à son emplacement :
+		[NAME] vous propose d&apos;être téléporté jusqu&apos;à son emplacement :
 
-[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+[MESSAGE]
 		<form name="form">
 			<button name="Teleport" text="Téléporter"/>
 			<button name="Cancel" text="Annuler"/>
@@ -2392,11 +2306,11 @@ Veuillez réessayer dans quelques minutes.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME_SLURL] vous demande de devenir son ami(e).
+		[NAME] vous demande de devenir son ami(e).
 
 [MESSAGE]
 
-(Par défaut, chacun pourra voir si l&apos;autre est connecté.)
+(Par défaut, vous pourrez voir lorsque vous êtes tous deux connectés.)
 		<form name="form">
 			<button name="Accept" text="Accepter"/>
 			<button name="Decline" text="Refuser"/>
@@ -2500,6 +2414,14 @@ Accepter cette requête ?
 			<button name="Ignore" text="Ignorer"/>
 		</form>
 	</notification>
+	<notification name="ScriptToast">
+		Le/La [TITLE] de [FIRST] [LAST] demande la participation du résident.
+		<form name="form">
+			<button name="Open" text="Ouvrir la boîte de dialogue"/>
+			<button name="Ignore" text="Ignorer"/>
+			<button name="Block" text="Ignorer"/>
+		</form>
+	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		Nous vous remercions de votre paiement.
 
@@ -2590,21 +2512,6 @@ Pour y participer, cliquez sur Accepter. Sinon, cliquez sur Refuser. Pour ignore
 	<notification name="VoiceLoginRetry">
 		Nous sommes en train de créer un canal vocal pour vous. Veuillez patienter quelques instants.
 	</notification>
-	<notification name="VoiceEffectsExpired">
-		Au moins l&apos;un des effets de voix auxquels vous êtes abonné a expiré.
-[[URL] Cliquez ici] pour renouveler votre abonnement.
-	</notification>
-	<notification name="VoiceEffectsExpiredInUse">
-		L&apos;effet de voix actif a expiré. Vos paramètres de voix normaux ont été rétablis.
-[[URL] Cliquez ici] pour renouveler votre abonnement.
-	</notification>
-	<notification name="VoiceEffectsWillExpire">
-		Au moins l&apos;un de vos effets de voix expirera dans moins de [INTERVAL] jours.
-[[URL] Cliquez ici] pour renouveler votre abonnement.
-	</notification>
-	<notification name="VoiceEffectsNew">
-		De nouveaux effets de voix sont disponibles !
-	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		Seuls les membres d&apos;un certain groupe peuvent visiter cette zone.
 	</notification>
@@ -2641,7 +2548,7 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		Êtes-vous certain de vouloir fermer tous les IM ?
-		<usetemplate ignoretext="Confirmer avant de fermer tous les IM" name="okcancelignore" notext="Annuler" yestext="OK"/>
+		<usetemplate ignoretext="Confirmer avant de fermer tous les IM." name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		L&apos;élément joint a été sauvegardé.
@@ -2670,96 +2577,6 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 		Le bouton sélectionné ne peut pas être affiché actuellement.
 Le bouton sera affiché quand il y aura suffisamment de place.
 	</notification>
-	<notification name="ShareNotification">
-		Sélectionnez les résidents avec lesquels partager l&apos;élément.
-	</notification>
-	<notification name="ShareItemsConfirmation">
-		Voulez-vous vraiment partager les articles suivants :
-
-[ITEMS]
-
-avec les résidents suivants :
-
-[RESIDENTS] ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Ok"/>
-	</notification>
-	<notification name="ItemsShared">
-		Articles partagés.
-	</notification>
-	<notification name="DeedToGroupFail">
-		Échec de cession au groupe.
-	</notification>
-	<notification name="AvatarRezNotification">
-		([EXISTENCE] secondes d&apos;existence)
-Nuage de l&apos;avatar [NAME] disparu au bout de [TIME] secondes.
-	</notification>
-	<notification name="AvatarRezSelfBakedDoneNotification">
-		([EXISTENCE] secondes d&apos;existence)
-Tenue figée au bout de [TIME] secondes.
-	</notification>
-	<notification name="AvatarRezSelfBakedUpdateNotification">
-		([EXISTENCE] secondes d&apos;existence)
-Mise à jour de votre apparence transmise au bout de [TIME] secondes.
-[STATUS]
-	</notification>
-	<notification name="AvatarRezCloudNotification">
-		([EXISTENCE] secondes d&apos;existence)
-Transformation de l&apos;avatar [NAME] en nuage.
-	</notification>
-	<notification name="AvatarRezArrivedNotification">
-		([EXISTENCE] secondes d&apos;existence)
-L&apos;avatar [NAME] est apparu.
-	</notification>
-	<notification name="AvatarRezLeftCloudNotification">
-		([EXISTENCE] secondes d&apos;existence)
-Départ de l&apos;avatar [NAME] après [TIME] secondes sous forme de nuage.
-	</notification>
-	<notification name="AvatarRezEnteredAppearanceNotification">
-		([EXISTENCE] secondes d&apos;existence)
-L&apos;avatar [NAME] est entré en mode Apparence.
-	</notification>
-	<notification name="AvatarRezLeftAppearanceNotification">
-		([EXISTENCE] secondes d&apos;existence)
-L&apos;avatar [NAME] a quitté le mode Apparence.
-	</notification>
-	<notification name="NoConnect">
-		Problèmes de connexion via [PROTOCOL] [HOSTID].
-Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
-	</notification>
-	<notification name="NoVoiceConnect">
-		Problèmes de connexion à votre serveur vocal :
-
-[HOSTID]
-
-Aucune communication vocale n&apos;est disponible.
-Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
-	</notification>
-	<notification name="AvatarRezLeftNotification">
-		([EXISTENCE] secondes d&apos;existence)
-Départ de l&apos;avatar [NAME] entièrement chargé.
-	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
-		([EXISTENCE] secondes d&apos;existence)
-Vous avez [ACTION] une texture figée de [RESOLUTION] pour [BODYREGION] au bout de [TIME] secondes.
-	</notification>
-	<notification name="ConfirmLeaveCall">
-		Voulez-vous vraiment quitter cet appel ?
-		<usetemplate ignoretext="Confirmer avant de quitter l&apos;appel" name="okcancelignore" notext="Non" yestext="Oui"/>
-	</notification>
-	<notification name="ConfirmMuteAll">
-		Vous avez choisi d&apos;ignorer l&apos;ensemble des participants de l&apos;appel du groupe.
-Les résidents rejoignant l&apos;appel ultérieurement seront également
-ignorés, même si vous quittez l&apos;appel.
-
-Ignorer les autres ?
-		<usetemplate ignoretext="Confirmer avant d&apos;ignorer les autres lors d&apos;un appel de groupe" name="okcancelignore" notext="Annuler" yestext="Ok"/>
-	</notification>
 	<global name="UnsupportedCPU">
 		- Votre processeur ne remplit pas les conditions minimum requises.
 	</global>
@@ -2783,8 +2600,5 @@ Si vous avez toujours des problèmes, veuillez consulter la page [SUPPORT_SITE].
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Si vous possédez un terrain, vous pouvez le définir comme domicile.
 Sinon, consultez la carte et trouvez les &quot; infohubs &quot;.
-	</global>
-	<global name="You died and have been teleported to your home location">
-		Vous êtes mort et avez été téléporté à votre domicile.
 	</global>
 </notifications>

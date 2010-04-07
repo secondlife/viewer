@@ -16,7 +16,7 @@
 		Adult
 	</floater.string>
 	<floater.string name="general">
-		General
+		PG
 	</floater.string>
 	<floater.string name="unknown">
 		Nieznana
@@ -62,8 +62,8 @@
 			</expandable_text>
 		</layout_panel>
 		<layout_panel name="button_panel">
-			<button name="create_event_btn" tool_tip="Stwórz imprezę"/>
-			<button name="god_delete_event_btn" tool_tip="Skasuj imprezę"/>
+			<button name="create_event_btn" tool_tip="Stwórz Imprezę"/>
+			<button name="god_delete_event_btn" tool_tip="Skasuj Imprezę"/>
 			<button label="Zawiadom mnie" name="notify_btn"/>
 			<button label="Teleportuj" name="teleport_btn"/>
 			<button label="Mapa" name="map_btn"/>

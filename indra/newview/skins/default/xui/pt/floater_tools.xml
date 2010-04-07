@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="BUILD TOOLS" title="" width="288">
 	<floater.string name="status_rotate">
-		Arrastar as faixas coloridas para girar o objeto
+		Arrastar as bandas coloridas para girar o objeto
 	</floater.string>
 	<floater.string name="status_scale">
 		Clicar e arrastar para esticar o lado selecionado
@@ -13,13 +13,13 @@
 		Clicar e reter para modificar a terra
 	</floater.string>
 	<floater.string name="status_camera">
-		Clicar e arrastar para mover a câmera
+		Clique e arraste para mexer a câmera
 	</floater.string>
 	<floater.string name="status_grab">
-		Arrastar para mexer, Ctrl para levantar, Ctrl+Shift para girar
+		Arraste para mexer, Ctrl para levantar, Ctrl+Shift para girar
 	</floater.string>
 	<floater.string name="status_place">
-		Clicar em um lugar para construir
+		Clique no mundo para construir
 	</floater.string>
 	<floater.string name="status_selectland">
 		Clicar e arrastar para selecionar a terra
@@ -45,7 +45,7 @@
 	<button label="" label_selected="" name="button create" tool_tip="Criar"/>
 	<button label="" label_selected="" name="button land" tool_tip="Terra"/>
 	<text name="text status" width="280">
-		Arrastar para mover, shift+Arrastar para copiar
+		Arraste para mover, shift+Arrastar para Copiar
 	</text>
 	<radio_group name="focus_radio_group">
 		<radio_item label="Zoom" name="radio zoom"/>
@@ -58,25 +58,22 @@
 		<radio_item label="Spin (Ctrl+Shift)" name="radio spin"/>
 	</radio_group>
 	<radio_group name="edit_radio_group">
-		<radio_item label="Mover" name="radio position"/>
+		<radio_item label="Movimentar" name="radio position"/>
 		<radio_item label="Rotacionar (Ctrl)" name="radio rotate"/>
-		<radio_item label="Esticar (Ctrl+Shift)" name="radio stretch"/>
-		<radio_item label="Selecionar face" name="radio select face"/>
+		<radio_item label="Stretch (Ctrl+Shift)" name="radio stretch"/>
+		<radio_item label="Face selecionada" name="radio select face"/>
 	</radio_group>
 	<check_box label="Editar partes linkadas" name="checkbox edit linked parts"/>
 	<text name="RenderingCost" tool_tip="Mostra o cálculo do custo de renderização do objeto">
 		þ: [COUNT]
 	</text>
-	<check_box label="" name="checkbox uniform"/>
-	<text label="Esticar ambos lados" name="checkbox uniform label">
-		Esticar ambos lados
-	</text>
-	<check_box initial_value="true" label="Esticar texturas" name="checkbox stretch textures"/>
+	<check_box label="Esticar ambos os lados" name="checkbox uniform"/>
+	<check_box initial_value="true" label="Esticar Texturas" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Mostrar na grade" name="checkbox snap to grid"/>
-	<combo_box name="combobox grid mode" tool_tip="Selecione a régua da grade onde o objeto será colocado">
-		<combo_box.item label="Grade SL" name="World"/>
-		<combo_box.item label="Local" name="Local"/>
-		<combo_box.item label="Referência" name="Reference"/>
+	<combo_box name="combobox grid mode" tool_tip="Selecione o tipo de régua da grade onde o objeto será colocado">
+		<combo_box.item label="Grid SL" name="World"/>
+		<combo_box.item label="Grid local" name="Local"/>
+		<combo_box.item label="Grid de referência" name="Reference"/>
 	</combo_box>
 	<button label="Opções..." label_selected="Opções..." name="Options..." tool_tip="Mais opções de grade"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Cubo"/>
@@ -99,12 +96,12 @@
 	<check_box initial_value="true" label="Copiar parte central" name="checkbox copy centers"/>
 	<check_box label="Girar cópia" name="checkbox copy rotates"/>
 	<radio_group name="land_radio_group">
-		<radio_item label="Selecionar terra" name="radio select land"/>
+		<radio_item label="Selecionar Terra" name="radio select land"/>
 		<radio_item label="Aplainar" name="radio flatten"/>
-		<radio_item label="Elevar" name="radio raise"/>
+		<radio_item label="Subir" name="radio raise"/>
 		<radio_item label="Abaixar" name="radio lower"/>
-		<radio_item label="Alisar" name="radio smooth"/>
-		<radio_item label="Irregularizar" name="radio noise"/>
+		<radio_item label="Suavizar" name="radio smooth"/>
+		<radio_item label="Endurecer" name="radio noise"/>
 		<radio_item label="Reverter" name="radio revert"/>
 	</radio_group>
 	<text name="Bulldozer:">
@@ -118,7 +115,7 @@
 	</text>
 	<button label="Aplicar" label_selected="Aplicar" name="button apply to selection" tool_tip="Modificar a terra selecionada"/>
 	<text left="134" name="obj_count">
-		Objetos: [COUNT]
+		Objects: [COUNT]
 	</text>
 	<text left="134" name="prim_count">
 		Prims: [COUNT]
@@ -144,7 +141,7 @@
 				Você não pode modificar estes objetos
 			</panel.string>
 			<panel.string name="text modify warning">
-				Selecione o objeto inteiro para configurar as autorizações
+				Selecione o objeto intereiro para configurar as autorizações
 			</panel.string>
 			<panel.string name="Cost Default">
 				Preço: L$
@@ -156,10 +153,10 @@
 				Preço unitário: L$
 			</panel.string>
 			<panel.string name="Cost Mixed">
-				Preço misto
+				Preço Misturado
 			</panel.string>
 			<panel.string name="Sale Mixed">
-				Venda mista
+				Venda Misturada
 			</panel.string>
 			<text name="Name:">
 				Nome:
@@ -186,14 +183,14 @@
 			<name_box initial_value="Carregando..." name="Group Name Proxy"/>
 			<button label="Doar" label_selected="Doar" name="button deed" tool_tip="Ao doar este item, o próximo dono terá permissões de próximo dono.  Objetos de grupos podem ser doados por um oficial do grupo."/>
 			<check_box label="Compartilhar" name="checkbox share with group" tool_tip="Permitir que todos os membros do grupo tenhas suas permissões de modificação para este objeto.  Faça uma doação para ativar restrições de função."/>
-			<text name="label click action">
+			<text name="label click action" width="220">
 				Clique para:
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" width="192">
 				<combo_box.item label="Tocar (padrão)" name="Touch/grab(default)"/>
 				<combo_box.item label="Sentar no objeto" name="Sitonobject"/>
 				<combo_box.item label="Comprar objeto" name="Buyobject"/>
-				<combo_box.item label="Pagar objeto" name="Payobject"/>
+				<combo_box.item label="Pagar Objeto" name="Payobject"/>
 				<combo_box.item label="Abrir" name="Open"/>
 				<combo_box.item label="Zoom" name="Zoom"/>
 			</combo_box>
@@ -342,9 +339,9 @@
 			<text name="text revolutions">
 				Revoluções
 			</text>
-			<texture_picker label="Textura de escultura" name="sculpt texture control" tool_tip="Selecionar imagem"/>
-			<check_box label="Espelho" name="sculpt mirror control" tool_tip="Inverte o prim esculpido no eixo X"/>
-			<check_box label="De dentro para fora" name="sculpt invert control" tool_tip="Inverte o prim esculpido normals, making it appear inside-out"/>
+			<texture_picker label="Texture de Escultura" name="sculpt texture control" tool_tip="Click to choose a picture"/>
+			<check_box label="Espelho" name="sculpt mirror control" tool_tip="Flips sculpted prim along the X axis"/>
+			<check_box label="De dentro para fora" name="sculpt invert control" tool_tip="Inverts the sculpted prims normals, making it appear inside-out"/>
 			<text name="label sculpt type">
 				Tipo costura
 			</text>
@@ -358,12 +355,12 @@
 		</panel>
 		<panel label="Recursos" name="Features">
 			<text name="select_single" width="272">
-				Selecione apenas um prim para editar suas características.
+				Selecione apenas uma primitiva para editar suas características.
 			</text>
 			<text name="edit_object">
-				Editar características do objeto:
+				Editar características do Objeto:
 			</text>
-			<check_box label="Flexibilidade" name="Flexible1D Checkbox Ctrl" tool_tip="Allows object to flex about the Z axis (Client-side only)"/>
+			<check_box label="Flexíbilidade" name="Flexible1D Checkbox Ctrl" tool_tip="Allows object to flex about the Z axis (Client-side only)"/>
 			<spinner label="Suavidade" name="FlexNumSections"/>
 			<spinner label="Gravidade" name="FlexGravity"/>
 			<spinner label="Arrastar" name="FlexFriction"/>
@@ -438,17 +435,17 @@
 				<combo_box.item label="Weave" name="weave"/>
 			</combo_box>
 			<text name="tex scale">
-				Repetições/Face
+				Repeats / Face
 			</text>
 			<spinner label="Horizontal (U)" name="TexScaleU"/>
-			<check_box label="Inverter" name="checkbox flip s"/>
+			<check_box label="Flip" name="checkbox flip s"/>
 			<spinner label="Vertical (V)" name="TexScaleV"/>
-			<check_box label="Inverter" name="checkbox flip t"/>
-			<spinner label="Rotação˚" name="TexRot"/>
-			<spinner label="Repetições/Metro" name="rptctrl"/>
+			<check_box label="Flip" name="checkbox flip t"/>
+			<spinner label="Rotation˚" name="TexRot"/>
+			<spinner label="Repeats / Meter" name="rptctrl"/>
 			<button label="Aplicar" label_selected="Aplicar" name="button apply"/>
 			<text name="tex offset">
-				Offset de textura
+				Texture Offset
 			</text>
 			<spinner label="Horizontal (U)" name="TexOffsetU"/>
 			<spinner label="Vertical (V)" name="TexOffsetV"/>
@@ -463,13 +460,13 @@
 			</panel>
 		</panel>
 		<panel label="Conteúdo" name="Contents">
-			<button label="Novo script" label_selected="Novo script" name="button new script"/>
+			<button label="Novo Script" label_selected="Novo script" name="button new script"/>
 			<button label="Autorizações" name="button permissions"/>
 		</panel>
 	</tab_container>
 	<panel name="land info panel">
 		<text name="label_parcel_info">
-			Informações do lote
+			Informações do Lote
 		</text>
 		<text name="label_area_price">
 			Preço: L$[PRICE] por [AREA] m²
@@ -480,7 +477,7 @@
 		<button label="Sobre terrenos" label_selected="Sobre terrenos" name="button about land"/>
 		<check_box label="Mostrar donos" name="checkbox show owners" tool_tip="Colorir lotes de acordo com seus donos:    Green = Sua terra  Aqua = Terra do seu grupo  Red = Possuída por outros  Yellow = À venda  Purple = A leilão  Grey = Pública"/>
 		<text name="label_parcel_modify">
-			Modificar lote
+			Modificar Lote
 		</text>
 		<button label="Subdividir" label_selected="Subdividir" name="button subdivide land"/>
 		<button label="Juntar" label_selected="Juntar" name="button join land"/>

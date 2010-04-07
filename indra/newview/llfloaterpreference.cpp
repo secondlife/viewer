@@ -2,25 +2,31 @@
  * @file llfloaterpreference.cpp
  * @brief Global preferences with and without persistence.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -64,7 +70,6 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llsliderctrl.h"
-#include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -304,7 +309,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.applyUIColor",			boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.getUIColor",				boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.MaturitySettings",		boost::bind(&LLFloaterPreference::onChangeMaturity, this));
-	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
 }
@@ -326,26 +330,7 @@ BOOL LLFloaterPreference::postBuild()
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	childSetText("cache_location", cache_location);
 
-	// if floater is opened before login set default localized busy message
-	if (LLStartUp::getStartupState() < STATE_STARTED)
-	{
-		gSavedPerAccountSettings.setString("BusyModeResponse", LLTrans::getString("BusyModeResponseDefault"));
-	}
-
 	return TRUE;
-}
-
-void LLFloaterPreference::onBusyResponseChanged()
-{
-	// set "BusyResponseChanged" TRUE if user edited message differs from default, FALSE otherwise
-	if(LLTrans::getString("BusyModeResponseDefault") != getChild<LLUICtrl>("busy_response")->getValue().asString())
-	{
-		gSavedPerAccountSettings.setBOOL("BusyResponseChanged", TRUE );
-	}
-	else
-	{
-		gSavedPerAccountSettings.setBOOL("BusyResponseChanged", FALSE );
-	}
 }
 
 LLFloaterPreference::~LLFloaterPreference()
@@ -461,6 +446,8 @@ void LLFloaterPreference::apply()
 			gAgent.sendAgentUpdateUserInfo(new_im_via_email,mDirectoryVisibility);
 		}
 	}
+
+	applyResolution();
 }
 
 void LLFloaterPreference::cancel()
@@ -500,22 +487,6 @@ void LLFloaterPreference::cancel()
 
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
-	// this variable and if that follows it are used to properly handle busy mode response message
-	static bool initialized = FALSE;
-	// if user is logged in and we haven't initialized busy_response yet, do it
-	if (!initialized && LLStartUp::getStartupState() == STATE_STARTED)
-	{
-		// Special approach is used for busy response localization, because "BusyModeResponse" is
-		// in non-localizable xml, and also because it may be changed by user and in this case it shouldn't be localized.
-		// To keep track of whether busy response is default or changed by user additional setting BusyResponseChanged
-		// was added into per account settings.
-
-		// initialization should happen once,so setting variable to TRUE
-		initialized = TRUE;
-		// this connection is needed to properly set "BusyResponseChanged" setting when user makes changes in
-		// busy response message.
-		gSavedPerAccountSettings.getControl("BusyModeResponse")->getSignal()->connect(boost::bind(&LLFloaterPreference::onBusyResponseChanged, this));
-	}
 	gAgent.sendAgentUserInfoRequest();
 
 	/////////////////////////// From LLPanelGeneral //////////////////////////
@@ -530,7 +501,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	if (can_choose_maturity)
 	{		
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
-		if (!gAgent.isAdult() && !gAgent.isGodlikeWithoutAdminMenuFakery())
+		if (!gAgent.isAdult() && !gAgent.isGodlike())
 		{
 			// we're going to remove the adult entry from the combo
 			LLScrollListCtrl* maturity_list = maturity_combo->findChild<LLScrollListCtrl>("ComboBox");
@@ -568,16 +539,6 @@ void LLFloaterPreference::onVertexShaderEnable()
 {
 	refreshEnabledGraphics();
 }
-
-//static
-void LLFloaterPreference::initBusyResponse()
-	{
-		if (!gSavedPerAccountSettings.getBOOL("BusyResponseChanged"))
-		{
-			//LLTrans::getString("BusyModeResponseDefault") is used here for localization (EXT-5885)
-			gSavedPerAccountSettings.setString("BusyModeResponse", LLTrans::getString("BusyModeResponseDefault"));
-		}
-	}
 
 void LLFloaterPreference::setHardwareDefaults()
 {
@@ -638,7 +599,7 @@ void LLFloaterPreference::onBtnOK()
 		llinfos << "Can't close preferences!" << llendl;
 	}
 
-	LLPanelLogin::updateLocationCombo( false );
+	LLPanelLogin::refreshLocation( false );
 }
 
 // static 
@@ -655,7 +616,7 @@ void LLFloaterPreference::onBtnApply( )
 	apply();
 	saveSettings();
 
-	LLPanelLogin::updateLocationCombo( false );
+	LLPanelLogin::refreshLocation( false );
 }
 
 // static 
@@ -999,6 +960,18 @@ void LLFloaterPreference::onChangeQuality(const LLSD& data)
 	refresh();
 }
 
+// static
+// DEV-24146 -  needs to be removed at a later date. jan-2009
+void LLFloaterPreference::cleanupBadSetting()
+{
+	if (gSavedPerAccountSettings.getString("BusyModeResponse2") == "|TOKEN COPY BusyModeResponse|")
+	{
+		llwarns << "cleaning old BusyModeResponse" << llendl;
+		//LLTrans::getString("BusyModeResponseDefault") is used here for localization (EXT-5885)
+		gSavedPerAccountSettings.setString("BusyModeResponse2", LLTrans::getString("BusyModeResponseDefault"));
+	}
+}
+
 void LLFloaterPreference::onClickSetKey()
 {
 	LLVoiceSetKeyDialog* dialog = LLFloaterReg::showTypedInstance<LLVoiceSetKeyDialog>("voice_set_key", LLSD(), TRUE);
@@ -1110,8 +1083,10 @@ void LLFloaterPreference::onClickLogPath()
 	{
 		return; //Canceled!
 	}
-
-	gSavedPerAccountSettings.setString("InstantMessageLogPath", picker.getDirName());
+	std::string chat_log_dir = picker.getDirName();
+	std::string chat_log_top_folder= gDirUtilp->getBaseFileName(chat_log_dir);
+	gSavedPerAccountSettings.setString("InstantMessageLogPath",chat_log_dir);
+	gSavedPerAccountSettings.setString("InstantMessageLogFolder",chat_log_top_folder);
 }
 
 void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im_via_email, const std::string& email)
@@ -1207,6 +1182,31 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 	}
 }
 
+void LLFloaterPreference::applyResolution()
+{
+	gGL.flush();
+	
+	// Screen resolution
+	S32 num_resolutions;
+	LLWindow::LLWindowResolution* supported_resolutions = 
+	gViewerWindow->getWindow()->getSupportedResolutions(num_resolutions);
+	S32 resIndex = getChild<LLComboBox>("fullscreen combo")->getCurrentIndex();
+	if (resIndex == -1)
+	{
+		// use highest resolution if nothing selected
+		resIndex = num_resolutions - 1;
+	}
+	gSavedSettings.setS32("FullScreenWidth", supported_resolutions[resIndex].mWidth);
+	gSavedSettings.setS32("FullScreenHeight", supported_resolutions[resIndex].mHeight);
+	
+	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("WindowFullScreen"));
+	
+	send_agent_update(TRUE);
+	
+	// Update enable/disable
+	refresh();
+}
+
 void LLFloaterPreference::onChangeMaturity()
 {
 	U8 sim_access = gSavedSettings.getU32("PreferredMaturity");
@@ -1219,17 +1219,6 @@ void LLFloaterPreference::onChangeMaturity()
 															|| sim_access == SIM_ACCESS_ADULT);
 
 	getChild<LLIconCtrl>("rating_icon_adult")->setVisible(sim_access == SIM_ACCESS_ADULT);
-}
-
-// FIXME: this will stop you from spawning the sidetray from preferences dialog on login screen
-// but the UI for this will still be enabled
-void LLFloaterPreference::onClickBlockList()
-{
-	// don't create side tray on demand
-	if (LLSideTray::instanceCreated())
-	{
-		LLSideTray::getInstance()->showPanel("panel_block_list_sidetray");
-	}
 }
 
 

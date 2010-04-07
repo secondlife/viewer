@@ -24,6 +24,9 @@
 	<floater.string name="Title">
 		Gest: [NAME]
 	</floater.string>
+	<text name="name_text">
+		Nazwa:
+	</text>
 	<text name="desc_label">
 		Opis:
 	</text>
@@ -42,12 +45,7 @@
 	<text name="library_label">
 		Zbiór:
 	</text>
-	<scroll_list name="library_list">
-		<scroll_list.rows name="action_animation" value="Animacja"/>
-		<scroll_list.rows name="action_sound" value="Dźwięk"/>
-		<scroll_list.rows name="action_chat" value="Czat"/>
-		<scroll_list.rows name="action_wait" value="Wstrzymaj"/>
-	</scroll_list>
+	<scroll_list name="library_list"/>
 	<button label="Dodaj &gt;&gt;" name="add_btn"/>
 	<text name="steps_label">
 		Etapy:
@@ -55,15 +53,12 @@
 	<button label="W górę" name="up_btn"/>
 	<button label="W dół" name="down_btn"/>
 	<button label="Usuń" name="delete_btn"/>
-	<text name="options_text">
-		(opcje)
-	</text>
 	<radio_group name="animation_trigger_type">
 		<radio_item label="Start" name="start"/>
 		<radio_item label="Stop" name="stop"/>
 	</radio_group>
 	<check_box label="do końca animacji" name="wait_anim_check"/>
-	<check_box label="czas w sekundach:" name="wait_time_check"/>
+	<check_box label="czas w sekundach" name="wait_time_check"/>
 	<text name="help_label">
 		Wszystkie etapy nastąpią razem, chyba, że dodasz pauzy.
 	</text>

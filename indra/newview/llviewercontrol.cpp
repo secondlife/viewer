@@ -3,25 +3,31 @@
  * @brief Viewer configuration
  * @author Richard Nelson
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -64,11 +70,11 @@
 #include "llvosurfacepatch.h"
 #include "llvowlsky.h"
 #include "llrender.h"
+#include "llbottomtray.h"
 #include "llnavigationbar.h"
 #include "llfloatertools.h"
 #include "llpaneloutfitsinventory.h"
 #include "llpanellogin.h"
-#include "llpaneltopinfobar.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -407,6 +413,7 @@ bool handleHighResSnapshotChanged(const LLSD& newvalue)
 
 bool handleVoiceClientPrefsChanged(const LLSD& newvalue)
 {
+	if(LLVoiceClient::getInstance())
 	LLVoiceClient::getInstance()->updateSettings();
 	return true;
 }
@@ -437,7 +444,7 @@ bool handleVelocityInterpolate(const LLSD& newvalue)
 
 bool handleForceShowGrid(const LLSD& newvalue)
 {
-	LLPanelLogin::updateServer( );
+	LLPanelLogin::refreshLocation( false );
 	return true;
 }
 
@@ -454,13 +461,33 @@ bool toggle_agent_pause(const LLSD& newvalue)
 	return true;
 }
 
+bool toggle_show_gesture_button(const LLSD& newvalue)
+{
+	LLBottomTray::getInstance()->showGestureButton(newvalue.asBoolean());
+	return true;
+}
+
+bool toggle_show_move_button(const LLSD& newvalue)
+{
+	LLBottomTray::getInstance()->showMoveButton(newvalue.asBoolean());
+	return true;
+}
+
+bool toggle_show_camera_button(const LLSD& newvalue)
+{
+	LLBottomTray::getInstance()->showCameraButton(newvalue.asBoolean());
+	return true;
+}
+
+bool toggle_show_snapshot_button(const LLSD& newvalue)
+{
+	LLBottomTray::getInstance()->showSnapshotButton(newvalue.asBoolean());
+	return true;
+}
+
 bool toggle_show_navigation_panel(const LLSD& newvalue)
 {
-	bool value = newvalue.asBoolean();
-
-	LLNavigationBar::getInstance()->showNavigationPanel(value);
-	gSavedSettings.setBOOL("ShowMiniLocationPanel", !value);
-
+	LLNavigationBar::getInstance()->showNavigationPanel(newvalue.asBoolean());
 	return true;
 }
 
@@ -470,13 +497,9 @@ bool toggle_show_favorites_panel(const LLSD& newvalue)
 	return true;
 }
 
-bool toggle_show_mini_location_panel(const LLSD& newvalue)
+bool toggle_show_appearance_editor(const LLSD& newvalue)
 {
-	bool value = newvalue.asBoolean();
-
-	LLPanelTopInfoBar::getInstance()->setVisible(value);
-	gSavedSettings.setBOOL("ShowNavbarNavigationPanel", !value);
-
+	LLPanelOutfitsInventory::sShowDebugEditor = newvalue.asBoolean();
 	return true;
 }
 
@@ -553,7 +576,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("MuteAmbient")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteUI")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("RenderVBOEnable")->getSignal()->connect(boost::bind(&handleRenderUseVBOChanged, _2));
-	gSavedSettings.getControl("RenderUseStreamVBO")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("WLSkyDetail")->getSignal()->connect(boost::bind(&handleWLSkyDetailChanged, _2));
 	gSavedSettings.getControl("RenderLightingDetail")->getSignal()->connect(boost::bind(&handleRenderLightingDetailChanged, _2));
 	gSavedSettings.getControl("NumpadControl")->getSignal()->connect(boost::bind(&handleNumpadControlChanged, _2));
@@ -623,9 +645,13 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("QAMode")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("UseDebugMenus")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("AgentPause")->getSignal()->connect(boost::bind(&toggle_agent_pause, _2));
+	gSavedSettings.getControl("ShowGestureButton")->getSignal()->connect(boost::bind(&toggle_show_gesture_button, _2));
+	gSavedSettings.getControl("ShowMoveButton")->getSignal()->connect(boost::bind(&toggle_show_move_button, _2));
+	gSavedSettings.getControl("ShowCameraButton")->getSignal()->connect(boost::bind(&toggle_show_camera_button, _2));
+	gSavedSettings.getControl("ShowSnapshotButton")->getSignal()->connect(boost::bind(&toggle_show_snapshot_button, _2));
 	gSavedSettings.getControl("ShowNavbarNavigationPanel")->getSignal()->connect(boost::bind(&toggle_show_navigation_panel, _2));
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
-	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
+	gSavedSettings.getControl("ShowDebugAppearanceEditor")->getSignal()->connect(boost::bind(&toggle_show_appearance_editor, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
 }

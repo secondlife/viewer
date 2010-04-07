@@ -3,25 +3,31 @@
  * @author Martin Reddy
  * @brief Describes the Url types that can be registered in LLUrlRegistry
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -34,9 +40,6 @@
 #include "llcachename.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
-
-#define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
-
 
 LLUrlEntryBase::LLUrlEntryBase() :
 	mColor(LLUIColorTable::instance().getColor("HTMLLinkColor")),
@@ -300,11 +303,10 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 //
 // LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 //
 LLUrlEntryAgent::LLUrlEntryAgent()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/\\w+",
+	mPattern = boost::regex("secondlife:///app/agent/[\\da-f-]+/\\w+",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_agent.xml";
 	mIcon = "Generic_Person";
@@ -318,11 +320,6 @@ void LLUrlEntryAgent::onAgentNameReceived(const LLUUID& id,
 {
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), first + " " + last);
-}
-
-LLUUID	LLUrlEntryAgent::getID(const std::string &string) const
-{
-	return LLUUID(getIDStringFromUrl(string));
 }
 
 std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
@@ -421,19 +418,16 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 // LLUrlEntryGroup Describes a Second Life group Url, e.g.,
 // secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about
 // secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect
-// x-grid-location-info://lincoln.lindenlab.com/app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect
 //
 LLUrlEntryGroup::LLUrlEntryGroup()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/group/[\\da-f-]+/\\w+",
+	mPattern = boost::regex("secondlife:///app/group/[\\da-f-]+/\\w+",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_group.xml";
 	mIcon = "Generic_Group";
 	mTooltip = LLTrans::getString("TooltipGroupUrl");
 	mColor = LLUIColorTable::instance().getColor("GroupLinkColor");
 }
-
-
 
 void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
 										  const std::string& first,
@@ -443,12 +437,6 @@ void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
 	// received the group name from the server - tell our observers
 	callObservers(id.asString(), first);
 }
-
-LLUUID	LLUrlEntryGroup::getID(const std::string &string) const
-{
-	return LLUUID(getIDStringFromUrl(string));
-}
-
 
 std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
@@ -494,8 +482,7 @@ LLUrlEntryInventory::LLUrlEntryInventory()
 	//*TODO: add supporting of inventory item names with whitespaces
 	//this pattern cann't parse for example 
 	//secondlife:///app/inventory/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select?name=name with spaces&param2=value
-	//x-grid-location-info://lincoln.lindenlab.com/app/inventory/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select?name=name with spaces&param2=value
-	mPattern = boost::regex(APP_HEADER_REGEX "/inventory/[\\da-f-]+/\\w+\\S*",
+	mPattern = boost::regex("secondlife:///app/inventory/[\\da-f-]+/\\w+\\S*",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_inventory.xml";
 }
@@ -538,11 +525,10 @@ std::string LLUrlEntryObjectIM::getLocation(const std::string &url) const
 ///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
-/// x-grid-location-info://lincoln.lindenlab.com/app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
 ///
 LLUrlEntryParcel::LLUrlEntryParcel()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/parcel/[\\da-f-]+/about",
+	mPattern = boost::regex("secondlife:///app/parcel/[\\da-f-]+/about",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_parcel.xml";
 	mTooltip = LLTrans::getString("TooltipParcelUrl");
@@ -558,7 +544,7 @@ std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelC
 //
 LLUrlEntryPlace::LLUrlEntryPlace()
 {
-	mPattern = boost::regex("((x-grid-location-info://[-\\w\\.]+/region/)|(secondlife://))\\S+/?(\\d+/\\d+/\\d+|\\d+/\\d+)/?",
+	mPattern = boost::regex("secondlife://\\S+/?(\\d+/\\d+/\\d+|\\d+/\\d+)/?",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_slurl.xml";
 	mTooltip = LLTrans::getString("TooltipSLURL");
@@ -603,11 +589,10 @@ std::string LLUrlEntryPlace::getLocation(const std::string &url) const
 //
 // LLUrlEntryTeleport Describes a Second Life teleport Url, e.g.,
 // secondlife:///app/teleport/Ahern/50/50/50/
-// x-grid-location-info://lincoln.lindenlab.com/app/teleport/Ahern/50/50/50/
 //
 LLUrlEntryTeleport::LLUrlEntryTeleport()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/teleport/\\S+(/\\d+)?(/\\d+)?(/\\d+)?/?\\S*",
+	mPattern = boost::regex("secondlife:///app/teleport/\\S+(/\\d+)?(/\\d+)?(/\\d+)?/?\\S*",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_teleport.xml";
 	mTooltip = LLTrans::getString("TooltipTeleportUrl");
@@ -625,12 +610,7 @@ std::string LLUrlEntryTeleport::getLabel(const std::string &url, const LLUrlLabe
 	LLURI uri(url);
 	LLSD path_array = uri.pathArray();
 	S32 path_parts = path_array.size();
-	std::string host = uri.hostName();
-	std::string label = LLTrans::getString("SLurlLabelTeleport");
-	if (!host.empty())
-	{
-		label += " " + host;
-	}
+	const std::string label = LLTrans::getString("SLurlLabelTeleport");
 	if (path_parts == 6)
 	{
 		// handle teleport url with (X,Y,Z) coordinates
@@ -729,7 +709,7 @@ std::string LLUrlEntrySLLabel::getTooltip(const std::string &string) const
 //
 LLUrlEntryWorldMap::LLUrlEntryWorldMap()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/worldmap/\\S+/?(\\d+)?/?(\\d+)?/?(\\d+)?/?\\S*",
+	mPattern = boost::regex("secondlife:///app/worldmap/\\S+/?(\\d+)?/?(\\d+)?/?(\\d+)?/?\\S*",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_map.xml";
 	mTooltip = LLTrans::getString("TooltipMapUrl");
@@ -784,36 +764,4 @@ std::string LLUrlEntryNoLink::getUrl(const std::string &url) const
 std::string LLUrlEntryNoLink::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
 	return getUrl(url);
-}
-
-//
-// LLUrlEntryIcon describes an icon with <icon>...</icon> tags
-//
-LLUrlEntryIcon::LLUrlEntryIcon()
-{
-	mPattern = boost::regex("<icon\\s*>\\s*([^<]*)?\\s*</icon\\s*>",
-							boost::regex::perl|boost::regex::icase);
-	mDisabledLink = true;
-}
-
-std::string LLUrlEntryIcon::getUrl(const std::string &url) const
-{
-	return LLStringUtil::null;
-}
-
-std::string LLUrlEntryIcon::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
-{
-	return LLStringUtil::null;
-}
-
-std::string LLUrlEntryIcon::getIcon(const std::string &url)
-{
-	// Grep icon info between <icon>...</icon> tags
-	// matches[1] contains the icon name/path
-	boost::match_results<std::string::const_iterator> matches;
-	mIcon = (boost::regex_match(url, matches, mPattern) && matches[1].matched)
-		? matches[1]
-		: LLStringUtil::null;
-	LLStringUtil::trim(mIcon);
-	return mIcon;
 }

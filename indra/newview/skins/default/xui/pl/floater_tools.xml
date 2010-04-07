@@ -67,10 +67,7 @@
 	<text name="RenderingCost" tool_tip="Pokazuje koszt renderowania tego obiektu">
 		þ: [COUNT]
 	</text>
-	<check_box label="" name="checkbox uniform"/>
-	<text label="Rozciągnij 2 strony" name="checkbox uniform label">
-		Rozciągnij 2 strony
-	</text>
+	<check_box label="Rozciągnij 2 Strony" name="checkbox uniform"/>
 	<check_box initial_value="true" label="Rozciągnij Teksturę" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Użyj siatki" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Wybierz rodzaj linijki siatki dla pozycjonowania obiektu">
@@ -487,7 +484,14 @@
 			Obszar: [AREA] m²
 		</text>
 		<button label="O Posiadłości" label_selected="O Posiadłości" name="button about land"/>
-		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj Posiadłości zgodnie z przynależnością do Właściciela:   Zielony = Twoja Posiadłość  Morski = Posiadłość Twojej Grupy  Czerwony = Posiadłości innych  Żółty = Na sprzedaż  Fioletowy = Na aukcję  Szary = Publiczna"/>
+		<check_box label="Pokaż Właścicieli" name="checkbox show owners" tool_tip="Pokoloruj Posiadłości zgodnie z przynależnością do Właściciela: 
+
+Zielony = Twoja Posiadłość 
+Morski = Posiadłość Twojej Grupy 
+Czerwony = Posiadłości innych 
+Żółty = Na sprzedaż 
+Fioletowy = Na aukcję 
+Szary = Publiczna"/>
 		<text name="label_parcel_modify">
 			Modyfikuj Posiadłość
 		</text>

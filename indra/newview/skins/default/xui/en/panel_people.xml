@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!-- Side tray panel -->
 <panel
- default_tab_group="1"
  follows="all"
  height="449"
  label="People"
@@ -12,17 +11,11 @@
  top="0"
  width="333">
     <string
-     name="no_recent_people"
-     value="No recent people. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]." />
-    <string
-     name="no_filtered_recent_people"
-     value="Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]." />
+     name="no_people"
+     value="No people" />
     <string
      name="no_one_near"
-     value="No one nearby. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]." />
-    <string
-     name="no_one_filtered_near"
-     value="Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]." />
+     value="No one near" />
     <string
      name="no_friends_online"
      value="No friends online" />
@@ -30,30 +23,21 @@
      name="no_friends"
      value="No friends" />
     <string
-     name="no_friends_msg">
-         Find friends using [secondlife:///app/search/people Search] or right-click on a Resident to add them as a friend.
-Looking for people to hang out with? Try the [secondlife:///app/worldmap World Map].
-    </string>
-    <string
-     name="no_filtered_friends_msg">
-         Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search].
-    </string>
-    <string
      name="people_filter_label"
      value="Filter People" />
     <string
      name="groups_filter_label"
      value="Filter Groups" />
      <!--
-     *WORKAROUND: for group_list.no_items_msg & group_list.no_filtered_items_msg attributes.
+     *WORKAROUND: for group_list.no_groups_msg & group_list.no_filtered_groups_msg attributes.
      They are not defined as translatable in VLT. See EXT-5931
      -->
     <string
      name="no_filtered_groups_msg"
-     value="Didn't find what you're looking for? Try [secondlife:///app/search/groups/[SEARCH_TERM] Search]." />
+     value="[secondlife:///app/search/groups Try finding the group in search?]" />
     <string
      name="no_groups_msg"
-     value="Looking for Groups to join? Try [secondlife:///app/search/groups Search]." />
+     value="[secondlife:///app/search/groups Try searching for some groups to join.]" />
     <filter_editor
      follows="left|top|right"
      height="23"
@@ -72,7 +56,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      layout="topleft"
      left="5"
      name="tabs"
-     tab_group="1"
      tab_min_width="70"
      tab_height="30"
      tab_position="top"
@@ -95,6 +78,8 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          width="313">
             <avatar_list
              allow_select="true"
+       		 bg_alpha_color="DkGray2"
+             bg_opaque_color="DkGray2"
              follows="all"
              height="356"
              ignore_online_status="true"
@@ -272,11 +257,14 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
             <text
              follows="all"
              height="450"
-             left="13"
-             name="no_friends_help_text"
+             left="10"
+             name="no_friends_msg"
              top="10"
              width="293"
-             wrap="true" />
+             wrap="true">
+                To add friends try [secondlife:///app/search/people global search] or use right-click on a Resident to add them as a friend.
+If you're looking for people to hang out with, [secondlife:///app/worldmap try the Map].
+             </text>
         </panel>
         <panel
          background_opaque="true"
@@ -297,12 +285,16 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      Values are set from appropriate strings at the top of file via LLPeoplePanel::postBuild()
     -->
             <group_list
-             allow_select="true" 
+             background_visible="true"
+             bg_alpha_color="DkGray2"
+             bg_opaque_color="DkGray2"
              follows="all"
              height="356"
              layout="topleft"
              left="3"
              name="group_list"
+             no_filtered_groups_msg="[secondlife:///app/search/groups Try finding the group in search?]"
+             no_groups_msg="[secondlife:///app/search/groups Try searching for some groups to join.]"
              top="0"
              width="307" />
             <panel
@@ -379,6 +371,9 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          width="313">
             <avatar_list
              allow_select="true"
+       		 background_visible="true"
+       		 bg_alpha_color="DkGray2"
+             bg_opaque_color="DkGray2"
              follows="all"
              height="356"
              layout="topleft"
@@ -454,7 +449,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          name="view_profile_btn"
          tool_tip="Show picture, groups, and other Residents information"
          top="0"
-         width="67" />
+         width="70" />
         <button
          follows="bottom|left"
          left_pad="3"
@@ -463,7 +458,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          layout="topleft"
          name="im_btn"
          tool_tip="Open instant message session"
-         width="40" />
+         width="43" />
         <button
          follows="bottom|left"
          left_pad="3"
@@ -480,8 +475,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          label="Share"
          layout="topleft"
          name="share_btn"
-         tool_tip="Share an inventory item"
-         width="65" />
+         width="62" />
         <button
          follows="bottom|left"
          left_pad="3"

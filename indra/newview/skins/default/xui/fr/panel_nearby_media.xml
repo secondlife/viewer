@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="nearby_media">
-	<string name="media_item_count_format">
-		(%ld articles de média)
-	</string>
 	<string name="empty_item_text">
 		&lt;vide&gt;
 	</string>
@@ -19,14 +16,13 @@
 		<button label="Arrêter" name="all_nearby_media_disable_btn" tool_tip="Désactiver tous les médias près de vous"/>
 		<button label="Lire" name="all_nearby_media_enable_btn" tool_tip="Activer tous les médias près de vous"/>
 		<button name="open_prefs_btn" tool_tip="Ouvrir les préférences de média"/>
-		<button label="Plus &gt;&gt;" label_selected="Moins &lt;&lt;" name="more_btn" tool_tip="Options avancées"/>
-		<button label="Plus &gt;&gt;" label_selected="Moins &lt;&lt;" name="less_btn" tool_tip="Options avancées"/>
+		<button label="Plus &gt;&gt;" label_selected="Moins &lt;&lt;" name="more_less_btn" tool_tip="Options avancées"/>
 	</panel>
 	<panel name="nearby_media_panel">
-		<text name="nearby_media_title">
+		<text name="nearby_media">
 			Médias proches
 		</text>
-		<text name="show_text">
+		<text name="show">
 			Voir :
 		</text>
 		<combo_box name="show_combo">
@@ -51,7 +47,7 @@
 					<button name="play_btn" tool_tip="Lire le média sélectionné"/>
 				</layout_panel>
 				<layout_panel name="pause">
-					<button name="pause_btn" tool_tip="Pause du média sélectionné"/>
+					<button name="pause_btn" tool_tip="Suspendre la lecture du média sélectionné"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
 					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Volume audio du média sélectionné"/>

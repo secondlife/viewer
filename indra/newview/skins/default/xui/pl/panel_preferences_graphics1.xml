@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Grafika" name="Display panel">
+	<text name="UI Size:">
+		UI rozmiar:
+	</text>
 	<text name="QualitySpeed">
 		Jakość i prędkość:
 	</text>
@@ -50,7 +53,6 @@
 			m
 		</text>
 		<slider label="Liczba cząsteczek:" name="MaxParticleCount"/>
-		<slider label="Max. # awatarów bez impostoryzacji:" name="MaxNumberAvatarDrawn"/>
 		<slider label="Jakość Post-Procesu:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Szczególy obiektów:

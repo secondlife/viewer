@@ -2,25 +2,31 @@
  * @file llagent.cpp
  * @brief LLAgent class implementation
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -39,6 +45,7 @@
 #include "llchannelmanager.h"
 #include "llconsole.h"
 #include "llfloatercamera.h"
+#include "llfloatercustomize.h"
 #include "llfloaterreg.h"
 #include "llfloatertools.h"
 #include "llgroupactions.h"
@@ -51,7 +58,6 @@
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
 #include "llnearbychatbar.h"
 #include "llnotificationsutil.h"
-#include "llpaneltopinfobar.h"
 #include "llparcel.h"
 #include "llrendersphere.h"
 #include "llsdutil.h"
@@ -67,7 +73,6 @@
 #include "llviewerdisplay.h"
 #include "llviewerjoystick.h"
 #include "llviewermediafocus.h"
-#include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerstats.h"
@@ -1221,10 +1226,7 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 	if ( distance > 1.f && heightDelta > (sqrtf(mAutoPilotStopDistance) + 1.f))
 	{
 		setFlying(TRUE);
-		// Do not force flying for "Sit" behavior to prevent flying after pressing "Stand"
-		// from an object. See EXT-1655.
-		if ("Sit" != mAutoPilotBehaviorName)
-			mAutoPilotFlyOnStop = TRUE;
+		mAutoPilotFlyOnStop = TRUE;
 	}
 
 	mAutoPilot = TRUE;
@@ -1293,8 +1295,6 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		{
 			resetAxes(mAutoPilotTargetFacing);
 		}
-		// Restore previous flying state before invoking mAutoPilotFinishedCallback to allow
-		// callback function to change the flying state (like in near_sit_down_point()).
 		// If the user cancelled, don't change the fly state
 		if (!user_cancel)
 		{
@@ -1490,8 +1490,6 @@ void LLAgent::propagate(const F32 dt)
 		floater_move->mBackwardButton  ->setToggleState( gAgentCamera.getAtKey() < 0 || gAgentCamera.getWalkKey() < 0 );
 		floater_move->mTurnLeftButton  ->setToggleState( gAgentCamera.getYawKey() > 0.f );
 		floater_move->mTurnRightButton ->setToggleState( gAgentCamera.getYawKey() < 0.f );
-		floater_move->mSlideLeftButton  ->setToggleState( gAgentCamera.getLeftKey() > 0.f );
-		floater_move->mSlideRightButton ->setToggleState( gAgentCamera.getLeftKey() < 0.f );
 		floater_move->mMoveUpButton    ->setToggleState( gAgentCamera.getUpKey() > 0 );
 		floater_move->mMoveDownButton  ->setToggleState( gAgentCamera.getUpKey() < 0 );
 	}
@@ -1688,11 +1686,6 @@ void LLAgent::endAnimationUpdateUI()
 		LLNavigationBar::getInstance()->setVisible(TRUE);
 		gStatusBar->setVisibleForMouselook(true);
 
-		if (gSavedSettings.getBOOL("ShowMiniLocationPanel"))
-		{
-			LLPanelTopInfoBar::getInstance()->setVisible(TRUE);
-		}
-
 		LLBottomTray::getInstance()->onMouselookModeOut();
 
 		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
@@ -1790,8 +1783,6 @@ void LLAgent::endAnimationUpdateUI()
 		gMenuBarView->setVisible(FALSE);
 		LLNavigationBar::getInstance()->setVisible(FALSE);
 		gStatusBar->setVisibleForMouselook(false);
-
-		LLPanelTopInfoBar::getInstance()->setVisible(FALSE);
 
 		LLBottomTray::getInstance()->onMouselookModeIn();
 
@@ -3069,7 +3060,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 		return;
 	}
 
-	if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures())
+	if (gAgentCamera.cameraCustomizeAvatar())
 	{
 		// ignore baked textures when in customize mode
 		return;
@@ -3090,30 +3081,21 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 		mesgsys->getUUIDFast(_PREHASH_WearableData, _PREHASH_TextureID, texture_id, texture_block);
 		mesgsys->getU8Fast(_PREHASH_WearableData, _PREHASH_TextureIndex, texture_index, texture_block);
 
-
-		if ((S32)texture_index < TEX_NUM_INDICES )
-		{	
-			const LLVOAvatarDictionary::TextureEntry *texture_entry = LLVOAvatarDictionary::instance().getTexture((ETextureIndex)texture_index);
-			if (texture_entry)
+		if ((S32)texture_index < BAKED_NUM_INDICES 
+			&& gAgentQueryManager.mActiveCacheQueries[texture_index] == query_id)
+		{
+			if (texture_id.notNull())
 			{
-				EBakedTextureIndex baked_index = texture_entry->mBakedTextureIndex;
-
-				if (gAgentQueryManager.mActiveCacheQueries[baked_index] == query_id)
-				{
-					if (texture_id.notNull())
-					{
-						//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
-						gAgentAvatarp->setCachedBakedTexture((ETextureIndex)texture_index, texture_id);
-						//gAgentAvatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
-						gAgentQueryManager.mActiveCacheQueries[baked_index] = 0;
-						num_results++;
-					}
-					else
-					{
-						// no cache of this bake. request upload.
-						gAgentAvatarp->requestLayerSetUpload(baked_index);
-					}
-				}
+				//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
+				gAgentAvatarp->setCachedBakedTexture(LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)texture_index), texture_id);
+				//gAgentAvatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
+				gAgentQueryManager.mActiveCacheQueries[texture_index] = 0;
+				num_results++;
+			}
+			else
+			{
+				// no cache of this bake. request upload.
+				gAgentAvatarp->requestLayerSetUpload((EBakedTextureIndex)texture_index);
 			}
 		}
 	}
@@ -3228,9 +3210,6 @@ bool LLAgent::teleportCore(bool is_local)
 	// hide land floater too - it'll be out of date
 	LLFloaterReg::hideInstance("about_land");
 
-	// hide the search floater (EXT-8276)
-	LLFloaterReg::hideInstance("search");
-
 	LLViewerParcelMgr::getInstance()->deselectLand();
 	LLViewerMediaFocus::getInstance()->clearFocus();
 
@@ -3252,7 +3231,7 @@ bool LLAgent::teleportCore(bool is_local)
 	
 	// MBW -- Let the voice client know a teleport has begun so it can leave the existing channel.
 	// This was breaking the case of teleporting within a single sim.  Backing it out for now.
-//	LLVoiceClient::getInstance()->leaveChannel();
+//	gVoiceClient->leaveChannel();
 	
 	return true;
 }
@@ -3396,13 +3375,10 @@ void LLAgent::setTeleportState(ETeleportState state)
 	if (mTeleportState == TELEPORT_MOVING)
 	{
 		// We're outa here. Save "back" slurl.
-		LLAgentUI::buildSLURL(mTeleportSourceSLURL);
+		mTeleportSourceSLURL = LLAgentUI::buildSLURL();
 	}
 	else if(mTeleportState == TELEPORT_ARRIVING)
 	{
-		// First two position updates after a teleport tend to be weird
-		LLViewerStats::getInstance()->mAgentPositionSnaps.mCountOfNextUpdatesToIgnore = 2;
-
 		// Let the interested parties know we've teleported.
 		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
 	}
@@ -3538,10 +3514,11 @@ void LLAgent::sendAgentSetAppearance()
 {
 	if (!isAgentAvatarValid()) return;
 
-	if (gAgentQueryManager.mNumPendingQueries > 0 && (isAgentAvatarValid() && gAgentAvatarp->isUsingBakedTextures())) 
+	if (gAgentQueryManager.mNumPendingQueries > 0 && !gAgentCamera.cameraCustomizeAvatar()) 
 	{
 		return;
 	}
+
 
 	llinfos << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << llendl;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
@@ -3574,7 +3551,7 @@ void LLAgent::sendAgentSetAppearance()
 		const ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
 
 		// if we're not wearing a skirt, we don't need the texture to be baked
-		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(LLWearableType::WT_SKIRT))
+		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(WT_SKIRT))
 		{
 			continue;
 		}
@@ -3593,21 +3570,29 @@ void LLAgent::sendAgentSetAppearance()
 		llinfos << "TAT: Sending cached texture data" << llendl;
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
-			BOOL generate_valid_hash = TRUE;
-			if (isAgentAvatarValid() && !gAgentAvatarp->isBakedTextureFinal((LLVOAvatarDefines::EBakedTextureIndex)baked_index))
+			const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
+			LLUUID hash;
+			for (U8 i=0; i < baked_dict->mWearables.size(); i++)
 			{
-				generate_valid_hash = FALSE;
-				llinfos << "Not caching baked texture upload for " << (U32)baked_index << " due to being uploaded at low resolution." << llendl;
+				// EWearableType wearable_type = gBakedWearableMap[baked_index][wearable_num];
+				const EWearableType wearable_type = baked_dict->mWearables[i];
+				// MULTI-WEARABLE: fixed to 0th - extend to everything once messaging works.
+				const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,0);
+				if (wearable)
+				{
+					hash ^= wearable->getAssetID();
+				}
 			}
-
-			const LLUUID hash = gAgentWearables.computeBakedTextureHash((EBakedTextureIndex) baked_index, generate_valid_hash);
 			if (hash.notNull())
 			{
-				ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex) baked_index);
-				msg->nextBlockFast(_PREHASH_WearableData);
-				msg->addUUIDFast(_PREHASH_CacheID, hash);
-				msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);
+				hash ^= baked_dict->mWearablesHashID;
 			}
+
+			const ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
+
+			msg->nextBlockFast(_PREHASH_WearableData);
+			msg->addUUIDFast(_PREHASH_CacheID, hash);
+			msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);
 		}
 		msg->nextBlockFast(_PREHASH_ObjectData);
 		gAgentAvatarp->sendAppearanceMessage( gMessageSystem );
@@ -3627,7 +3612,7 @@ void LLAgent::sendAgentSetAppearance()
 		 param;
 		 param = (LLViewerVisualParam*)gAgentAvatarp->getNextVisualParam())
 	{
-		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE) // do not transmit params of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
 		{
 			msg->nextBlockFast(_PREHASH_VisualParam );
 			

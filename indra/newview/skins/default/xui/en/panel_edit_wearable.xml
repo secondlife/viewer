@@ -1,437 +1,414 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  background_visible="true"
- bevel_style="in"
+	bevel_style="in"
  follows="all"
  height="570"
- help_topic="edit_wearable"
  label="Wearable"
  layout="topleft"
- left="0"
+left="0"
  name="panel_edit_wearable"
- top="0"
+	top="0"
  width="333">
-    <string
-     name="edit_shape_title">
-        Editing Shape
-    </string>
-    <string
-     name="edit_skin_title">
-        Editing Skin
-    </string>
-    <string
-     name="edit_hair_title">
-        Editing Hair
-    </string>
-    <string
-     name="edit_eyes_title">
-        Editing Eyes
-    </string>
-    <string
-     name="edit_shirt_title">
-        Editing Shirt
-    </string>
-    <string
-     name="edit_pants_title">
-        Editing Pants
-    </string>
-    <string
-     name="edit_shoes_title">
-        Editing Shoes
-    </string>
-    <string
-     name="edit_socks_title">
-        Editing Socks
-    </string>
-    <string
-     name="edit_jacket_title">
-        Editing Jacket
-    </string>
-    <string
-     name="edit_skirt_title">
-        Editing Skirt
-    </string>
-    <string
-     name="edit_gloves_title">
-        Editing Gloves
-    </string>
-    <string
-     name="edit_undershirt_title">
-        Editing Undershirt
-    </string>
-    <string
-     name="edit_underpants_title">
-        Editing Underpants
-    </string>
-    <string
-     name="edit_alpha_title">
-        Editing Alpha Mask
-    </string>
-    <string
-     name="edit_tattoo_title">
-        Editing Tattoo
-    </string>
-    <string
-     name="shape_desc_text">
-        Shape:
-    </string>
-    <string
-     name="skin_desc_text">
-        Skin:
-    </string>
-    <string
-     name="hair_desc_text">
-        Hair:
-    </string>
-    <string
-     name="eyes_desc_text">
-        Eyes:
-    </string>
-    <string
-     name="shirt_desc_text">
-        Shirt:
-    </string>
-    <string
-     name="pants_desc_text">
-        Pants:
-    </string>
-    <string
-     name="shoes_desc_text">
-        Shoes:
-    </string>
-    <string
-    name="socks_desc_text">
-        Socks:
-    </string>
-    <string
-     name="jacket_desc_text">
-        Jacket:
-    </string>
-    <string
-     name="skirt_desc_text">
-        Skirt:
-    </string>
-    <string
-    name="gloves_desc_text">
-        Gloves:
-    </string>
-    <string
-     name="undershirt_desc_text">
-        Undershirt:
-    </string>
-    <string
-     name="underpants_desc_text">
-        Underpants:
-    </string>
-    <string
-     name="alpha_desc_text">
-        Alpha Mask:
-    </string>
-    <string
-     name="tattoo_desc_text">
-        Tattoo:
-    </string>
-    <!-- Default width of the button should be to show it without label.
-     Button will be extedned in code to show whole label when wearable is being changed.
-    -->
-    <labeled_back_button
+	<string
+		name="edit_shape_title">
+		Editing Shape
+	</string>
+	<string
+		name="edit_skin_title">
+		Editing Skin
+	</string>
+	<string
+		name="edit_hair_title">
+		Editing Hair
+	</string>
+	<string
+		name="edit_eyes_title">
+		Editing Eyes
+	</string>
+	<string
+		name="edit_shirt_title">
+		Editing Shirt
+	</string>
+	<string
+		name="edit_pants_title">
+		Editing Pants
+	</string>
+	<string
+		name="edit_shoes_title">
+		Editing Shoes
+	</string>
+	<string
+		name="edit_socks_title">
+		Editing Socks
+	</string>
+	<string
+		name="edit_jacket_title">
+		Editing Jacket
+	</string>
+	<string
+		name="edit_skirt_title">
+		Editing Skirt
+	</string>
+	<string
+		name="edit_gloves_title">
+		Editing Gloves
+	</string>
+	<string
+		name="edit_undershirt_title">
+		Editing Undershirt
+	</string>
+	<string
+		name="edit_underpants_title">
+		Editing Underpants
+	</string>
+	<string
+		name="edit_alpha_title">
+		Editing Alpha Mask
+	</string>
+	<string
+		name="edit_tattoo_title">
+		Editing Tattoo
+	</string>
+	<string
+		name="shape_desc_text">
+		Shape:
+	</string>
+	<string
+		name="skin_desc_text">
+		Skin:
+	</string>
+	<string
+		name="hair_desc_text">
+		Hair:
+	</string>
+	<string
+		name="eyes_desc_text">
+		Eyes:
+	</string>
+	<string
+		name="shirt_desc_text">
+		Shirt:
+	</string>
+	<string
+		name="pants_desc_text">
+		Pants:
+	</string>
+	<string
+		name="shoes_desc_text">
+		Shoes:
+	</string>
+	<string
+		name="socks_desc_text">
+		Socks:
+	</string>
+	<string
+		name="jacket_desc_text">
+		Jacket:
+	</string>
+	<string
+		name="skirt_skirt_desc_text">
+		Skirt:
+	</string>
+	<string
+		name="gloves_desc_text">
+		Gloves:
+	</string>
+	<string
+		name="undershirt_desc_text">
+		Undershirt:
+	</string>
+	<string
+		name="underpants_desc_text">
+		Underpants:
+	</string>
+	<string
+		name="alpha_desc_text">
+		Alpha Mask:
+	</string>
+	<string
+		name="tattoo_desc_text">
+		Tattoo:
+	</string>
+    <button
      follows="top|left"
-     height="24"
-     image_hover_unselected="BackButton_Over"
-     image_pressed="BackButton_Press"
-     image_unselected="BackButton_Off"
+     height="25"
+     width="25"
+     image_overlay="BackArrow_Off"
      layout="topleft"
-     label="Save"
-     left="11"
      name="back_btn"
-     pad_left="24"
-     tool_tip="Return to Edit Outfit"
-     top="3"
-     width="30" />
-    <text
-     follows="top|left|right"
-     font="SansSerifHugeBold"
-     height="22"
-     layout="topleft"
-     left_pad="8"
-     name="edit_wearable_title"
-     text_color="white"
-     top="3"
-     value="Editing Shape"
-     use_ellipses="true"
-     width="274" />
-    <panel
-     background_opaque="true"
-     background_visible="true"
-     bg_alpha_color="DkGray2"
-     bg_opaque_color="DkGray2"
-     border="false"
-     follows="top|left|right"
-     height="60"
-     label="Shirt"
-     layout="topleft"
      left="10"
-     name="wearable_type_panel"
-     top_pad="10"
-     width="313">
-        <text
+     top="7" />
+	<text
+	 follows="top|left"
+	 font="SansSerifHugeBold"
+	 height="22"
+	 layout="topleft"
+	 left_pad="15"
+	 name="edit_wearable_title"
+	 text_color="white"
+	 value="Editing Shape"
+	 width="270" />
+     <panel
+         border="false"
+         bg_alpha_color="DkGray2"
+         bg_opaque_color="DkGray2"
+         background_visible="true"
+         background_opaque="true"
          follows="top|left|right"
-         font="SansSerifSmallBold"
-         height="16"
+         height="60"
+         label="Shirt"
          layout="topleft"
-         left="10"
-         name="description_text"
-         text_color="white"
-         top="10"
-         value="Shape:"
-         width="150" />
-        <radio_group
-         control_name="AvatarSex"
-         follows="left|top|right"
-         height="20"
-         layout="topleft"
-         left="210"
-         name="sex_radio"
-         top="5"
-         width="110">
-            <radio_item
-             follows="all"
-             height="16"
-             label=""
-             layout="topleft"
-             left="0"
-             name="sex_male"
-             tool_tip="Male"
-             value="1"
-             width="40" />
-            <radio_item
-             follows="all"
-             height="16"
-             label=""
-             layout="topleft"
-             left_pad="10"
-             name="sex_female"
-             tool_tip="Female"
-             value="0"
-             width="40"/>
-        </radio_group>
-        <!--  graphical labels for the radio buttons above -->
-        <icon
-         height="16"
-         image_name="icons/Male.png"
-         layout="topleft"
-         left="230"
-         name="male_icon"
-         tool_tip="Male"
-         top="7"
-         width="16" />
-        <icon
-         height="16"
-         image_name="icons/Female.png"
-         layout="topleft"
-         left="280"
-         name="female_icon"
-         tool_tip="Female"
-         top="7"
-         width="16" />
-        <line_editor
-         follows="all"
-         height="23"
-         layout="topleft"
-         left="10"
-         max_length="63"
-         name="description"
-         prevalidate_callback="ascii"
-         select_on_focus="true"
-         text_color="black"
-         top_pad="3"
-         width="290" />
-    </panel>
-    <panel
-     follows="all"
-     height="433"
-     layout="topleft"
-     left="0"
-     name="edit_subpanel_container"
-     top_pad="2"
-     width="333">
-    <!-- the shape editing panel is taller than the others
-		      because it also displays avatar height -->
-        <panel
-         filename="panel_edit_shape.xml"
-         follows="all"
-         height="433"
-         layout="topleft"
-         left="0"
-         name="edit_shape_panel"
-         top="0"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_skin.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_skin_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_hair.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_hair_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_eyes.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_eyes_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_shirt.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_shirt_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_pants.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_pants_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_shoes.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_shoes_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_socks.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_socks_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_jacket.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_jacket_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_skirt.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_skirt_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_gloves.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_gloves_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_undershirt.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_undershirt_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_underpants.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_underpants_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_alpha.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_alpha_panel"
-         top="8"
-         visible="false"
-         width="333" />
-        <panel
-         filename="panel_edit_tattoo.xml"
-         follows="all"
-         height="425"
-         layout="topleft"
-         left="0"
-         name="edit_tattoo_panel"
-         top="8"
-         visible="false"
-         width="333" />
-    </panel>
-    <panel
-     follows="bottom|left|right"
-     height="23"
-     layout="topleft"
-     left="2"
-     name="button_panel"
-     top_pad="6"
-     width="333">
+		 left="10"
+         name="wearable_type_panel"
+		 top_pad="10"
+         width="313">
+		 <text
+		 follows="top|left|right"
+		 height="16"
+		 layout="topleft"
+		 left="10"
+		 name="description_text"
+		 value="Shape:"
+		 width="303" />
+		 <text_editor
+			 follows="all"
+			 height="23"
+			 left="10"
+			 layout="topleft"
+			 max_length="300"
+			 name="description"
+			 width="290" />
+	 </panel>
+	 <panel
+		 follows="all"
+		 height="400"
+		 layout="topleft"
+		 left="0"
+		 name="edit_subpanel_container"
+		 top_pad="10"
+		 width="333">
+		 <panel
+			 filename="panel_edit_shape.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_shape_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_skin.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_skin_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_hair.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_hair_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_eyes.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_eyes_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_shirt.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_shirt_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_pants.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_pants_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_shoes.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_shoes_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_socks.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_socks_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_jacket.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_jacket_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_skirt.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_skirt_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_gloves.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_gloves_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_undershirt.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_undershirt_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_underpants.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_underpants_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_alpha.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_alpha_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+		 <panel
+			 filename="panel_edit_tattoo.xml"
+			 follows="all"
+			 height="400"
+			 layout="topleft"
+			 left="0"
+			 name="edit_tattoo_panel"
+			 top="0"
+			 visible="false"
+			 width="333" />
+	 </panel>
+     <panel
+        follows="left|right|bottom"
+        height="38"
+        label="gear_buttom_panel"
+        layout="bottom|left|right"
+        left="0"
+        bottom="25"
+        name="gear_buttom_panel"
+        width="333">
         <button
-         follows="bottomleft"
-         height="23"
-         label="Save As"
-         layout="topleft"
-         left="8"
-         name="save_as_button"
-         top="0"
-         width="153" />
+            follows="bottom|left"
+            tool_tip="Options"
+            height="18"
+            image_disabled="OptionsMenu_Disabled"
+            image_selected="OptionsMenu_Press"
+            image_unselected="OptionsMenu_Off"
+            layout="topleft"
+            left="10"
+            name="friends_viewsort_btn"
+            top="10"
+            width="18" />
         <button
-         follows="bottomleft"
-         height="23"
-         label="Undo Changes"
-         layout="topleft"
-         left_pad="7"
-         name="revert_button"
-         width="152" />
-    </panel>
+            follows="bottom|left"
+            height="18"
+            image_selected="AddItem_Press"
+            image_unselected="AddItem_Off"
+            image_disabled="AddItem_Disabled"
+            layout="topleft"
+            left_pad="10"
+            name="add_btn"
+            tool_tip="TODO"
+            width="18" />
+        <button
+            follows="bottom|left"
+            height="18"
+            image_selected="TrashItem_Press"
+            image_unselected="TrashItem_Off"
+            image_disabled="TrashItem_Disabled"
+            layout="topleft"
+            left_pad="10"
+            right="-10"
+            name="del_btn"
+            tool_tip="TODO"
+            top_delta="0"
+            width="18" />
+     </panel>
+	 <panel
+		 follows="bottom|left|right"
+		 height="25"
+		 layout="bottom|left|right"
+		 left="0"
+		 name="button_panel"
+		 bottom="5"
+		 width="333" >
+		 <button
+			 follows="bottomleft"
+			 layout="topleft"
+			 height="23"
+			 label="Save As"
+			 left="8"
+			 name="save_as_button"
+			 top="0"
+			 width="153" />
+		 <button
+			 follows="bottomleft"
+			 layout="topleft"
+			 height="23"
+			 label="Revert"
+			 left_pad="7"
+			 name="revert_button"
+			 width="153" />
+	 </panel>
 </panel>

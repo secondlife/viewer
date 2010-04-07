@@ -2,25 +2,31 @@
  * @file llpanelgroupnotices.cpp
  * @brief A panel to display group notices.
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2006&license=viewergpl$
+ * 
+ * Copyright (c) 2006-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -38,6 +44,7 @@
 #include "llfloaterinventory.h"
 #include "llagent.h"
 #include "llagentui.h"
+#include "lltooldraganddrop.h"
 
 #include "lllineeditor.h"
 #include "lltexteditor.h"
@@ -53,7 +60,6 @@
 #include "llviewerwindow.h"
 #include "llviewermessage.h"
 #include "llnotificationsutil.h"
-#include "llgiveinventory.h"
 
 static LLRegisterPanelClassWrapper<LLPanelGroupNotices> t_panel_group_notices("panel_group_notices");
 
@@ -156,7 +162,7 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		{
 			LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
 			if(gInventory.getItem(inv_item->getUUID())
-				&& LLGiveInventory::isInventoryGroupGiveAcceptable(inv_item))
+				&& LLToolDragAndDrop::isInventoryGroupGiveAcceptable(inv_item))
 			{
 				// *TODO: get multiple object transfers working
 				*accept = ACCEPT_YES_COPY_SINGLE;
@@ -329,7 +335,7 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 		item_is_multi = TRUE;
 	};
 
-	std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(),
+	std::string icon_name = get_item_icon_name(inv_item->getType(),
 										inv_item->getInventoryType(),
 										inv_item->getFlags(),
 										item_is_multi );
@@ -511,11 +517,6 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 
 	mNoticesList->setEnabled(TRUE);
 
-	//save sort state and set unsorted state to prevent unnecessary 
-	//sorting while adding notices
-	bool save_sort = mNoticesList->isSorted();
-	mNoticesList->setNeedsSort(false);
-
 	for (;i<count;++i)
 	{
 		msg->getUUID("Data","NoticeID",id,i);
@@ -526,13 +527,6 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 			mNoticesList->setEnabled(FALSE);
 			return;
 		}
-
-		//with some network delays we can receive notice list more then once...
-		//so add only unique notices
-		S32 pos = mNoticesList->getItemIndex(id);
-
-		if(pos!=-1)//if items with this ID already in the list - skip it
-			continue;
 			
 		msg->getString("Data","Subject",subj,i);
 		msg->getString("Data","FromName",name,i);
@@ -546,9 +540,9 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][0]["column"] = "icon";
 		if (has_attachment)
 		{
-			std::string icon_name = LLInventoryIcon::getIconName(
+			std::string icon_name = get_item_icon_name(
 									(LLAssetType::EType)asset_type,
-									LLInventoryType::IT_NONE);
+									LLInventoryType::IT_NONE,FALSE, FALSE);
 			row["columns"][0]["type"] = "icon";
 			row["columns"][0]["value"] = icon_name;
 		}
@@ -568,7 +562,6 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		mNoticesList->addElement(row, ADD_BOTTOM);
 	}
 
-	mNoticesList->setNeedsSort(save_sort);
 	mNoticesList->updateSort();
 }
 
@@ -614,8 +607,9 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 	{
 		mInventoryOffer = inventory_offer;
 
-		std::string icon_name = LLInventoryIcon::getIconName(mInventoryOffer->mType,
-												LLInventoryType::IT_TEXTURE);
+		std::string icon_name = get_item_icon_name(mInventoryOffer->mType,
+												LLInventoryType::IT_TEXTURE,
+												0, FALSE);
 
 		mViewInventoryIcon->setValue(icon_name);
 		mViewInventoryIcon->setVisible(TRUE);
@@ -662,9 +656,6 @@ void LLPanelGroupNotices::setGroupID(const LLUUID& id)
 
 	if(mViewMessage) 
 		mViewMessage->clear();
-
-	if(mViewInventoryName)
-		mViewInventoryName->clear();
 	
 	activate();
 }

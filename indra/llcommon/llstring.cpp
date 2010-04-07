@@ -2,25 +2,31 @@
  * @file llstring.cpp
  * @brief String utility functions and the std::string class.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -627,14 +633,14 @@ namespace snprintf_hack
 	}
 }
 
-std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
+std::string ll_convert_wide_to_string(const wchar_t* in)
 {
 	std::string out;
 	if(in)
 	{
 		int len_in = wcslen(in);
 		int len_out = WideCharToMultiByte(
-			code_page,
+			CP_ACP,
 			0,
 			in,
 			len_in,
@@ -649,7 +655,7 @@ std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 		if(pout)
 		{
 			WideCharToMultiByte(
-				code_page,
+				CP_ACP,
 				0,
 				in,
 				len_in,
@@ -663,55 +669,12 @@ std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 	}
 	return out;
 }
-
-wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page)
-{
-	// From review:
-	// We can preallocate a wide char buffer that is the same length (in wchar_t elements) as the utf8 input,
-	// plus one for a null terminator, and be guaranteed to not overflow.
-
-	//	Normally, I'd call that sort of thing premature optimization,
-	// but we *are* seeing string operations taking a bunch of time, especially when constructing widgets.
-//	int output_str_len = MultiByteToWideChar(code_page, 0, in.c_str(), in.length(), NULL, 0);
-
-	// reserve place to NULL terminator
-	int output_str_len = in.length();
-	wchar_t* w_out = new wchar_t[output_str_len + 1];
-
-	memset(w_out, 0, output_str_len + 1);
-	int real_output_str_len = MultiByteToWideChar (code_page, 0, in.c_str(), in.length(), w_out, output_str_len);
-
-	//looks like MultiByteToWideChar didn't add null terminator to converted string, see EXT-4858.
-	w_out[real_output_str_len] = 0;
-
-	return w_out;
-}
-
-std::string ll_convert_string_to_utf8_string(const std::string& in)
-{
-	wchar_t* w_mesg = ll_convert_string_to_wide(in, CP_ACP);
-	std::string out_utf8(ll_convert_wide_to_string(w_mesg, CP_UTF8));
-	delete[] w_mesg;
-
-	return out_utf8;
-}
 #endif // LL_WINDOWS
 
 long LLStringOps::sPacificTimeOffset = 0;
 long LLStringOps::sLocalTimeOffset = 0;
 bool LLStringOps::sPacificDaylightTime = 0;
 std::map<std::string, std::string> LLStringOps::datetimeToCodes;
-
-std::vector<std::string> LLStringOps::sWeekDayList;
-std::vector<std::string> LLStringOps::sWeekDayShortList;
-std::vector<std::string> LLStringOps::sMonthList;
-std::vector<std::string> LLStringOps::sMonthShortList;
-
-
-std::string LLStringOps::sDayFormat;
-std::string LLStringOps::sAM;
-std::string LLStringOps::sPM;
-
 
 S32	LLStringOps::collate(const llwchar* a, const llwchar* b)
 { 
@@ -752,7 +715,6 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
 	datetimeToCodes["month"]	= "%B";		// August
 	datetimeToCodes["mthnum"]	= "%m";		// 08
 	datetimeToCodes["day"]		= "%d";		// 31
-	datetimeToCodes["sday"]		= "%-d";	// 9
 	datetimeToCodes["hour24"]	= "%H";		// 14
 	datetimeToCodes["hour"]		= "%H";		// 14
 	datetimeToCodes["hour12"]	= "%I";		// 02
@@ -761,50 +723,6 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
 	datetimeToCodes["second"]	= "%S";		// 59
 	datetimeToCodes["timezone"]	= "%Z";		// PST
 }
-
-void tokenizeStringToArray(const std::string& data, std::vector<std::string>& output)
-{
-	output.clear();
-	size_t length = data.size();
-	
-	// tokenize it and put it in the array
-	std::string cur_word;
-	for(size_t i = 0; i < length; ++i)
-	{
-		if(data[i] == ':')
-		{
-			output.push_back(cur_word);
-			cur_word.clear();
-		}
-		else
-		{
-			cur_word.append(1, data[i]);
-		}
-	}
-	output.push_back(cur_word);
-}
-
-void LLStringOps::setupWeekDaysNames(const std::string& data)
-{
-	tokenizeStringToArray(data,sWeekDayList);
-}
-void LLStringOps::setupWeekDaysShortNames(const std::string& data)
-{
-	tokenizeStringToArray(data,sWeekDayShortList);
-}
-void LLStringOps::setupMonthNames(const std::string& data)
-{
-	tokenizeStringToArray(data,sMonthList);
-}
-void LLStringOps::setupMonthShortNames(const std::string& data)
-{
-	tokenizeStringToArray(data,sMonthShortList);
-}
-void LLStringOps::setupDayFormat(const std::string& data)
-{
-	sDayFormat = data;
-}
-
 
 std::string LLStringOps::getDatetimeCode (std::string key)
 {
@@ -900,10 +818,6 @@ namespace LLStringFn
 }
 
 ////////////////////////////////////////////////////////////
-
-// Forward specialization of LLStringUtil::format before use in LLStringUtil::formatDatetime.
-template<>
-S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions);
 
 //static
 template<> 
@@ -1021,14 +935,7 @@ void LLStringUtil::formatNumber(std::string& numStr, std::string decimals)
 	convertToS32 (decimals, intDecimals);
 	if (!sLocale.empty())
 	{
-		// std::locale() throws if the locale is unknown! (EXT-7926)
-		try
-		{
-			strStream.imbue(std::locale(sLocale.c_str()));
-		} catch (const std::exception &)
-		{
-			LL_WARNS_ONCE("Locale") << "Cannot set locale to " << sLocale << LL_ENDL;
-		}
+		strStream.imbue (std::locale(sLocale.c_str()));
 	}
 
 	if (!intDecimals)
@@ -1091,58 +998,7 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 		}
 		return true;
 	}
-
-	//EXT-7013
-	//few codes are not suppotred by strtime function (example - weekdays for Japanise)
-	//so use predefined ones
-	
-	//if sWeekDayList is not empty than current locale doesn't support
-        //weekday name.
-	time_t loc_seconds = (time_t) secFromEpoch;
-	if(LLStringOps::sWeekDayList.size() == 7 && code == "%A")
-	{
-		struct tm * gmt = gmtime (&loc_seconds);
-		replacement = LLStringOps::sWeekDayList[gmt->tm_wday];
-	}
-	else if(LLStringOps::sWeekDayShortList.size() == 7 && code == "%a")
-	{
-		struct tm * gmt = gmtime (&loc_seconds);
-		replacement = LLStringOps::sWeekDayShortList[gmt->tm_wday];
-	}
-	else if(LLStringOps::sMonthList.size() == 12 && code == "%B")
-	{
-		struct tm * gmt = gmtime (&loc_seconds);
-		replacement = LLStringOps::sWeekDayList[gmt->tm_mon];
-	}
-	else if( !LLStringOps::sDayFormat.empty() && code == "%d" )
-	{
-		struct tm * gmt = gmtime (&loc_seconds);
-		LLStringUtil::format_map_t args;
-		args["[MDAY]"] = llformat ("%d", gmt->tm_mday);
-		replacement = LLStringOps::sDayFormat;
-		LLStringUtil::format(replacement, args);
-	}
-	else if (code == "%-d")
-	{
-		struct tm * gmt = gmtime (&loc_seconds);
-		replacement = llformat ("%d", gmt->tm_mday); // day of the month without leading zero
-	}
-	else if( !LLStringOps::sAM.empty() && !LLStringOps::sPM.empty() && code == "%p" )
-	{
-		struct tm * gmt = gmtime (&loc_seconds);
-		if(gmt->tm_hour<12)
-		{
-			replacement = LLStringOps::sAM;
-		}
-		else
-		{
-			replacement = LLStringOps::sPM;
-		}
-	}
-	else
-	{
-		replacement = datetime.toHTTPDateString(code);
-	}
+	replacement = datetime.toHTTPDateString(code);
 
 	// *HACK: delete leading zero from hour string in case 'hour12' (code = %I) time format
 	// to show time without leading zero, e.g. 08:16 -> 8:16 (EXT-2738).

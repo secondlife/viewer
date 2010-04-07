@@ -2,25 +2,31 @@
  * @file llmenugl.cpp
  * @brief LLMenuItemGL base class
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+  *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -133,7 +139,6 @@ LLMenuItemGL::Params::Params()
 :	shortcut("shortcut"),
 	jump_key("jump_key", KEY_NONE),
 	use_mac_ctrl("use_mac_ctrl", false),
-	allow_key_repeat("allow_key_repeat", false),
 	rect("rect"),
 	left("left"),
 	top("top"),
@@ -155,7 +160,7 @@ LLMenuItemGL::Params::Params()
 LLMenuItemGL::LLMenuItemGL(const LLMenuItemGL::Params& p)
 :	LLUICtrl(p),
 	mJumpKey(p.jump_key),
-	mAllowKeyRepeat(p.allow_key_repeat),
+	mAllowKeyRepeat(FALSE),
 	mHighlight( FALSE ),
 	mGotHover( FALSE ),
 	mBriefItem( FALSE ),
@@ -209,12 +214,6 @@ LLMenuItemGL::LLMenuItemGL(const LLMenuItemGL::Params& p)
 void LLMenuItemGL::setValue(const LLSD& value)
 {
 	setLabel(value.asString());
-}
-
-//virtual
-LLSD LLMenuItemGL::getValue() const
-{
-	return getLabel();
 }
 
 //virtual
@@ -920,15 +919,6 @@ void LLMenuItemCheckGL::setValue(const LLSD& value)
 	{
 		mDrawBoolLabel.clear();
 	}
-}
-
-//virtual
-LLSD LLMenuItemCheckGL::getValue() const
-{
-	// Get our boolean value from the view model.
-	// If we don't override this method then the implementation from
-	// LLMenuItemGL will return a string. (EXT-8501)
-	return LLUICtrl::getValue();
 }
 
 // called to rebuild the draw label
@@ -3430,12 +3420,6 @@ BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			
 	if (pMenu)
 	{
-		//eat TAB key - EXT-7000
-		if (key == KEY_TAB && mask == MASK_NONE)
-		{
-			return TRUE;
-		}
-
 		//handle ESCAPE and RETURN key
 		handled = LLPanel::handleKey(key, mask, called_from_parent);
 		if (!handled)
@@ -3742,14 +3726,10 @@ void LLContextMenuBranch::buildDrawLabel( void )
 
 void	LLContextMenuBranch::showSubMenu()
 {
-	LLMenuItemGL* menu_item = mBranch->getParentMenuItem();
-	if (menu_item != NULL && menu_item->getVisible())
-	{
-		S32 center_x;
-		S32 center_y;
-		localPointToScreen(getRect().getWidth(), getRect().getHeight() , &center_x, &center_y);
-		mBranch->show(center_x, center_y);
-	}
+	S32 center_x;
+	S32 center_y;
+	localPointToScreen(getRect().getWidth(), getRect().getHeight() , &center_x, &center_y);
+	mBranch->show(	center_x, center_y);
 }
 
 // onCommit() - do the primary funcationality of the menu item.

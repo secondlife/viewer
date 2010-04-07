@@ -9,6 +9,9 @@
 	<floater.string name="Title">
 		Biglietto: [NAME]
 	</floater.string>
+	<floater.string label="Salva" label_selected="Salva" name="Save">
+		Salva
+	</floater.string>
 	<text name="desc txt">
 		Descrizione:
 	</text>
@@ -16,5 +19,4 @@
 		In caricamento...
 	</text_editor>
 	<button label="Salva" label_selected="Salva" name="Save"/>
-	<button label="Elimina" label_selected="Elimina" name="Delete"/>
 </floater>

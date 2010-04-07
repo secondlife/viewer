@@ -1,28 +1,16 @@
 <?xml version="1.0" ?>
 <llsd>
 <map>
-	<key>CrashHostUrl</key>
-    <map>
-      <key>Comment</key>
-      <string>A URL pointing to a crash report handler; overrides cluster negotiation to locate crash handler.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string />
-    </map>
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
-      <string>Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never). 
-        Valid values are: 0, 120, 300, 600, 1800</string>
+      <string>Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>300</real>
+      <real>0</real>
     </map>
     <key>AdvanceSnapshot</key>
     <map>
@@ -585,29 +573,6 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>AvatarBakedTextureUploadTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifes the maximum time in seconds to wait before sending your baked textures for avatar appearance.  Set to 0 to disable and wait until all baked textures are at highest resolution.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>60</integer>
-    </map>
-    <key>AvatarBakedLocalTextureUpdateTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifes the maximum time in seconds to wait before updating your appearance during appearance mode.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>10</integer>
-    </map>
-
     <key>AvatarSex</key>
     <map>
       <key>Comment</key>
@@ -655,18 +620,7 @@
     <key>BlockAvatarAppearanceMessages</key>
         <map>
         <key>Comment</key>
-            <string>Ignores appearance messages (for simulating Ruth)</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>0</integer>
-        </map>
-    <key>BlockSomeAvatarAppearanceVisualParams</key>
-        <map>
-        <key>Comment</key>
-            <string>Drop around 50% of VisualParam occurances in appearance messages (for simulating Ruth)</string>
+            <string>Ignore's appearance messages (for simulating Ruth)</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
@@ -1310,17 +1264,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>CertStore</key>
-    <map>
-      <key>Comment</key>
-      <string>Specifies the Certificate Store for certificate trust verification</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>default</string>
-    </map>
     <key>ChatBarStealsFocus</key>
     <map>
       <key>Comment</key>
@@ -1642,17 +1585,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ChatBarCustomWidth</key>
-    <map>
-      <key>Comment</key>
-      <string>Stores customized width of chat bar.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>CreateToolCopyCenters</key>
     <map>
       <key>Comment</key>
@@ -1708,17 +1640,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>CurrentGrid</key>
-    <map>
-      <key>Comment</key>
-      <string>Currently Selected Grid</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
     <key>CustomServer</key>
     <map>
       <key>Comment</key>
@@ -1730,17 +1651,6 @@
       <key>Value</key>
       <string />
     </map>
-	<key>DebugAvatarRezTime</key>
-	<map>
-		<key>Comment</key>
-		<string>Display times for avatars to resolve.</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
     <key>DebugBeaconLineWidth</key>
     <map>
       <key>Comment</key>
@@ -2456,29 +2366,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-	<key>DefaultFemaleAvatar</key>
-	<map>
-	  <key>Comment</key>
-	  <string>Default Female Avatar</string>
-	  <key>Persist</key>
-	  <integer>1</integer>
-	  <key>Type</key>
-	  <string>String</string>
-	  <key>Value</key>
-	  <string>Female Shape &amp; Outfit</string>
-	</map>
-	<key>DefaultMaleAvatar</key>
-	<map>
-	  <key>Comment</key>
-	  <string>Default Male Avatar</string>
-	  <key>Persist</key>
-	  <integer>1</integer>
-	  <key>Type</key>
-	  <string>String</string>
-	  <key>Value</key>
-	  <string>Male Shape &amp; Outfit</string>
-	</map>
-
     <key>DefaultObjectTexture</key>
     <map>
       <key>Comment</key>
@@ -2732,17 +2619,6 @@
       <key>Value</key>
       <integer>4</integer>
     </map>
-    <key>DumpVFSCaches</key>
-    <map>
-      <key>Comment</key>
-      <string>Dump VFS caches on startup.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>DynamicCameraStrength</key>
     <map>
       <key>Comment</key>
@@ -2852,17 +2728,6 @@
         <string>Boolean</string>
         <key>Value</key>
         <integer>0</integer>
-    </map>
-	<key>FeatureManagerHTTPTable</key>
-      <map>
-        <key>Comment</key>
-        <string>Base directory for HTTP feature/gpu table fetches</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>String</string>
-        <key>Value</key>
-        <string>http://viewer-settings.secondlife.com</string>
     </map>
     <key>FPSLogFrequency</key>
     <map>
@@ -3321,17 +3186,6 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>FlycamBuildModeScale</key>
-    <map>
-      <key>Comment</key>
-      <string>Scale factor to apply to flycam movements when in build mode.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>
     <key>FlycamFeathering</key>
     <map>
       <key>Comment</key>
@@ -3579,17 +3433,6 @@
       <key>Value</key>
       <real>9.0</real>
     </map>
-    <key>ForceAssetFail</key>
-    <map>
-      <key>Comment</key>
-      <string>Force wearable fetches to fail for this asset type.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>255</integer>
-    </map>
     <key>ForceShowGrid</key>
     <map>
       <key>Comment</key>
@@ -3632,7 +3475,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>3</real>
+      <real>1.33329999447</real>
     </map>
     <key>FullScreenAutoDetectAspectRatio</key>
     <map>
@@ -3643,18 +3486,29 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
-    <key>GesturesMarketplaceURL</key>
+    <key>FullScreenHeight</key>
     <map>
       <key>Comment</key>
-      <string>URL to the Gestures Marketplace</string>
+      <string>Fullscreen resolution in height</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>S32</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace&amp;CategoryID=233</string>
+      <integer>768</integer>
+    </map>
+    <key>FullScreenWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Fullscreen resolution in width</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1024</integer>
     </map>
     <key>GridCrossSections</key>
     <map>
@@ -3885,7 +3739,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>InBandwidth</key>
     <map>
@@ -3942,17 +3796,6 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-	<key>InventoryLinking</key>
-	<map>
-		<key>Comment</key>
-		<string>Enable ability to create links to folders and items via "Paste as link".</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
     <key>InventorySortOrder</key>
     <map>
       <key>Comment</key>
@@ -4217,17 +4060,6 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
-    <key>LastGPUClass</key>
-    <map>
-      <key>Comment</key>
-      <string>[DO NOT MODIFY] previous GPU class for tracking hardware changes</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
     <key>LastFeatureVersion</key>
     <map>
       <key>Comment</key>
@@ -4592,17 +4424,6 @@
       <key>Value</key>
       <real>128.0</real>
     </map>
-    <key>MapServerURL</key>
-    <map>
-      <key>Comment</key>
-      <string>World map URL template for locating map tiles</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://map.secondlife.com.s3.amazonaws.com/</string>
-    </map>
     <key>MapShowEvents</key>
     <map>
       <key>Comment</key>
@@ -4669,391 +4490,6 @@
       <key>Value</key>
       <string />
     </map>
-    <key>MarketplaceURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/</string>
-    </map>
-    <key>MarketplaceURL_objectFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Attachments Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/attachments</string>
-    </map>
-    <key>MarketplaceURL_objectMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Attachments Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/attachments</string>
-    </map>
-    <key>MarketplaceURL_clothingFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Clothing Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/clothing_female_avatar</string>
-    </map>
-    <key>MarketplaceURL_clothingMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Clothing Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/clothing_male_avatar</string>
-    </map>
-    <key>MarketplaceURL_bodypartFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Bodyparts Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com</string>
-    </map>
-    <key>MarketplaceURL_bodypartMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Bodyparts Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/</string>
-    </map>
-    <key>MarketplaceURL_glovesMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Gloves Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/gloves_both_women_and_men</string>
-    </map>
-    <key>MarketplaceURL_glovesFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Gloves Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/gloves_both_women_and_men</string>
-    </map>
-    <key>MarketplaceURL_jacketFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Jacket Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/jacket_womens</string>
-    </map>
-    <key>MarketplaceURL_jacketMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Jacket Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/jacket_mens</string>
-    </map>
-    <key>MarketplaceURL_shirtFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Shirt Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/shirt_womens</string>
-    </map>
-    <key>MarketplaceURL_shirtMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Shirt Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/shirt_mens</string>
-    </map>
-    <key>MarketplaceURL_undershirtFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Undershirt Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/undershirt_womens</string>
-    </map>
-    <key>MarketplaceURL_undershirtMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Undershirt Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/undershirt_mens</string>
-    </map>
-    <key>MarketplaceURL_skirtFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Skirt Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/skirts_women</string>
-    </map>
-    <key>MarketplaceURL_skirtMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Skirt Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/skirts_women</string>
-    </map>
-    <key>MarketplaceURL_pantsFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Pants Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/pants_women</string>
-    </map>
-    <key>MarketplaceURL_pantsMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Pants Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/pants_men</string>
-    </map>
-    <key>MarketplaceURL_underpantsFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Underwear Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/underwear_women</string>
-    </map>
-    <key>MarketplaceURL_underpantsMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Underwear Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/underwear_men</string>
-    </map>
-    <key>MarketplaceURL_shoesFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Shoes Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/shoes_women</string>
-    </map>
-    <key>MarketplaceURL_shoesMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Shoes Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/shoes_men</string>
-    </map>
-    <key>MarketplaceURL_socksFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Socks Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/socks_women</string>
-    </map>
-    <key>MarketplaceURL_socksMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Socks Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/socks_women</string>
-    </map>
-    <key>MarketplaceURL_tattooMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Tattoo Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/tattoo_both_women_and_men</string>
-    </map>
-    <key>MarketplaceURL_tattooFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Tattoo Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/tattoo_both_women_and_men</string>
-    </map>
-    <key>MarketplaceURL_hairFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Hair Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/womens_hair</string>
-    </map>
-    <key>MarketplaceURL_hairMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Hair Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/mens_hair</string>
-    </map>
-    <key>MarketplaceURL_eyesFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Eyes Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/womens_eyes</string>
-    </map>
-    <key>MarketplaceURL_eyesMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Eyes Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/mens_eyes</string>
-    </map>
-    <key>MarketplaceURL_shapeFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Shape Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/womens_shape</string>
-    </map>
-    <key>MarketplaceURL_shapeMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Shape Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/mens_shape</string>
-    </map>
-    <key>MarketplaceURL_skinFemale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Skin Female</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/womens_skin</string>
-    </map>
-    <key>MarketplaceURL_skinMale</key>
-    <map>
-      <key>Comment</key>
-      <string>URL to the Marketplace Skins Male</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://marketplace.secondlife.com/trampoline/viewer21/mens_skin</string>
-    </map>
     <key>MaxDragDistance</key>
     <map>
       <key>Comment</key>
@@ -5075,17 +4511,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>64.0</real>
-    </map>
-    <key>MaxWearableWaitTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Max seconds to wait for wearable assets to fetch.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>60.0</real>
     </map>
     <key>MeanCollisionBump</key>
     <map>
@@ -5361,7 +4786,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map> 
+    </map>
     <key>MouseSun</key>
     <map>
       <key>Comment</key>
@@ -5373,18 +4798,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>MultipleAttachments</key>
-    <map>
-      <key>Comment</key>
-      <string>Allow multiple objects to be attached to a single attachment point.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-   <key>MuteAmbient</key>
+    <key>MuteAmbient</key>
     <map>
       <key>Comment</key>
       <string>Ambient sound effects, such as wind noise, play at 0 volume</string>
@@ -5981,17 +5395,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ParticipantListShowIcons</key>
-    <map>
-      <key>Comment</key>
-      <string>Show/hide people icons in participant list</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>PerAccountSettingsFile</key>
     <map>
       <key>Comment</key>
@@ -6170,19 +5573,6 @@
       <key>Value</key>
       <integer>8</integer>
     </map>
-
-   <key>PluginUseReadThread</key>
-    <map>
-      <key>Comment</key>
-      <string>Use a separate thread to read incoming messages from plugins</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-
     <key>PrecachingDelay</key>
     <map>
       <key>Comment</key>
@@ -6436,40 +5826,7 @@
         <key>Value</key>
             <real>1.0</real>
         </map>
-  <key>MediaRollOffRate</key>
-  <map>
-    <key>Comment</key>
-    <string>Multiplier to change rate of media attenuation</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.125</real>
-  </map>
-  <key>MediaRollOffMin</key>
-  <map>
-    <key>Comment</key>
-    <string>Adjusts the distance at which media attentuation starts</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>5.0</real>
-  </map>
-  <key>MediaRollOffMax</key>
-  <map>
-    <key>Comment</key>
-    <string>Distance at which media volume is set to 0</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>30.0</real>
-  </map>
-  <key>RecentItemsSortOrder</key>
+    <key>RecentItemsSortOrder</key>
     <map>
       <key>Comment</key>
       <string>Specifies sort key for recent inventory items (+0 = name, +1 = date, +2 = folders always by name, +4 = system folders to top)</string>
@@ -6495,17 +5852,6 @@
     <map>
       <key>Comment</key>
       <string>Experimental: Embed registration in login screen</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>QuickBuyCurrency</key>
-    <map>
-      <key>Comment</key>
-      <string>Toggle between HTML based currency purchase floater and legacy XUI version</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6621,7 +5967,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>12</integer>
+      <integer>35</integer>
     </map>
     <key>RenderAvatarVP</key>
     <map>
@@ -8196,17 +7542,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  <key>RenderUseStreamVBO</key>
-  <map>
-    <key>Comment</key>
-    <string>Use VBO's for stream buffers</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
     <key>RenderVolumeLODFactor</key>
     <map>
       <key>Comment</key>
@@ -8361,17 +7696,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SecondLifeEnterprise</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables Second Life Enterprise features</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>	
     <key>SelectMovableOnly</key>
     <map>
       <key>Comment</key>
@@ -8548,28 +7872,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowBuildButton</key>
-    <map>
-      <key>Comment</key>
-      <string>Shows/Hides Build button in the bottom tray.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowCameraButton</key>
-    <map>
-      <key>Comment</key>
-      <string>Show/Hide View button in the bottom tray.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>ShowConsoleWindow</key>
     <map>
       <key>Comment</key>
@@ -8603,17 +7905,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowBetaGrids</key>
-    <map>
-      <key>Comment</key>
-      <string>Display the beta grids in the grid selection control.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>	
     <key>ShowCrosshairs</key>
     <map>
       <key>Comment</key>
@@ -8636,6 +7927,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowDebugAppearanceEditor</key>
+    <map>
+      <key>Comment</key>
+      <string>Show debugging appearance editor</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowEmptyFoldersWhenSearching</key>
     <map>
       <key>Comment</key>
@@ -8646,17 +7948,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>ShowGestureButton</key>
-    <map>
-      <key>Comment</key>
-      <string>Shows/Hides Gesture button in the bottom tray.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>ShowHoverTips</key>
     <map>
@@ -8680,27 +7971,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>    
-    <key>ShowMiniMapButton</key>
+    <key>ShowCameraButton</key>                
     <map>
       <key>Comment</key>
-      <string>Shows/Hides Mini-Map button in the bottom tray.</string>
+      <string>Show/Hide Camera button in the bottom tray</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowMoveButton</key>
-    <map>
-      <key>Comment</key>
-      <string>Shows/Hides Move button in the bottom tray.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
+      <integer>1</integer>   
     </map>
 	<key>ShowScriptErrors</key>
     <map>
@@ -8722,29 +8002,40 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>ShowSearchButton</key>
-    <map>
-      <key>Comment</key>
-      <string>Shows/Hides Search button in the bottom tray.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowSnapshotButton</key>
+    <key>ShowSnapshotButton</key>                
     <map>
       <key>Comment</key>
-      <string>Shows/Hides Snapshot button button in the bottom tray.</string>
+      <string>Show/Hide Snapshot button button in the bottom tray</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
+      <integer>1</integer>   
+    </map>
+    <key>ShowMoveButton</key>                
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Move button in the bottom tray</string>
+      <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>   
+    </map>    
+    <key>ShowGestureButton</key>                
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Gesture button in the bottom tray</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>   
     </map>
     <key>ShowObjectRenderingCost</key>                
     <map>
@@ -8778,39 +8069,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>   
-    </map>
-    <key>ShowWorldMapButton</key>
-    <map>
-      <key>Comment</key>
-      <string>Shows/Hides Map button in the bottom tray.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowMiniLocationPanel</key>
-    <map>
-      <key>Comment</key>
-      <string>Show/Hide Mini-Location Panel</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>SidebarCameraMovement</key>
-    <map>
-      <key>Comment</key>
-      <string>Reflects world rect changing while changing sidebar visibility.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>GroupListShowIcons</key>
     <map>
@@ -9277,10 +8535,32 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
+	<key>ShowVoiceChannelPopup</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls visibility of the current voice channel popup above the voice tab</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowVoiceVisualizersInCalls</key>
     <map>
       <key>Comment</key>
       <string>Enables in-world voice visualizers, voice gestures and lip-sync while in group or P2P calls.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowVolumeSettingsPopup</key>
+    <map>
+      <key>Comment</key>
+      <string>Show individual volume slider for voice, sound effects, etc</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9623,17 +8903,6 @@
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>TextureDiscardLevel</key>
-    <map>
-      <key>Comment</key>
-      <string>Specify texture resolution (0 = highest, 5 = lowest)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -10924,17 +10193,7 @@
       <key>Value</key>
       <real>10.0</real>
     </map>
-    <key>UseNewWalkRun</key>
-    <map>
-      <key>Comment</key>
-      <string>Replace standard walk/run animations with new ones.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
+
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>
@@ -11134,17 +10393,6 @@
       <key>Value</key>
       <string></string>
     </map>
-    <key>VivoxDebugSIPURIHostName</key>
-    <map>
-      <key>Comment</key>
-      <string>Hostname portion of vivox SIP URIs (empty string for the default).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
     <key>VivoxDebugVoiceAccountServerURI</key>
     <map>
       <key>Comment</key>
@@ -11156,28 +10404,6 @@
       <key>Value</key>
       <string></string>
     </map>
-    <key>VivoxVoiceHost</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice host to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>127.0.0.1</string>
-    </map>
-    <key>VivoxVoicePort</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice port to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>44125</integer>
-    </map>
     <key>VoiceCallsFriendsOnly</key>
     <map>
       <key>Comment</key>
@@ -11188,28 +10414,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>VoiceEffectExpiryWarningTime</key>
-    <map>
-      <key>Comment</key>
-      <string>How much notice to give of Voice Morph subscriptions expiry, in seconds.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>259200</integer>
-    </map>
-    <key>VoiceMorphingEnabled</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether or not to enable Voice Morphs and show the UI.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>AutoDisengageMic</key>
     <map>
@@ -11332,17 +10536,6 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    <key>VoiceLogFile</key>
-    <map>
-      <key>Comment</key>
-      <string>Log file to use when launching the voice daemon</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
     <key>VoiceOutputAudioDevice</key>
     <map>
       <key>Comment</key>
@@ -11387,17 +10580,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>VoiceServerType</key>
-    <map>
-      <key>Comment</key>
-      <string>The type of voice server to connect to.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>vivox</string>
-    </map>
     <key>WLSkyDetail</key>
     <map>
       <key>Comment</key>
@@ -11416,9 +10598,9 @@
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>Boolean</string>
       <key>Value</key>
-      <integer>-1</integer>
+      <integer>0</integer>
     </map>
     <key>WaterEditPresets</key>
     <map>
@@ -11464,28 +10646,6 @@
       <key>Value</key>
       <real>50.0</real>
     </map>
-    <key>WellIconFlashCount</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of flashes of IM Well and Notification Well icons after which flashing buttons stay lit up. Requires restart.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>3</integer>
-    </map>
-    <key>WellIconFlashPeriod</key>
-    <map>
-      <key>Comment</key>
-      <string>Period at which IM Well and Notification Well icons flash (seconds). Requires restart.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.25</real>
-    </map>
     <key>WindLightUseAtmosShaders</key>
     <map>
       <key>Comment</key>
@@ -11496,6 +10656,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>WindowFullScreen</key>
+    <map>
+      <key>Comment</key>
+      <string>Run SL in fullscreen mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>WindowHeight</key>
     <map>
@@ -11760,125 +10931,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-
-    <!-- Settings below are for back compatibility only.
-    They are not used in current viewer anymore. But they can't be removed to avoid
-    influence on previous versions of the viewer in case of settings are not used or default value
-    should be changed. See also EXT-6661. -->
-    <!-- 1.23 settings -->
-    <key>ShowVoiceChannelPopup</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls visibility of the current voice channel popup above the voice tab</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowVolumeSettingsPopup</key>
-    <map>
-      <key>Comment</key>
-      <string>Show individual volume slider for voice, sound effects, etc</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>max_texture_dimension_X</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum texture width for user uploaded textures</string>
-      <key>Persist</key>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2048</integer>
-    </map>
-    <key>max_texture_dimension_Y</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum texture height for user uploaded textures</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2048</integer>
-    </map>
-    <!-- End of back compatibility settings -->
-    <key>teleport_offer_invitation_max_length</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum length of teleport offer invitation line editor. 254 - max_location_url_length(76) = 178</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>178</integer>
-    </map>
-    <key>always_showable_floaters</key>
-    <map>
-      <key>Comment</key>
-      <string>Floaters that can be shown despite mouselook mode</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>LLSD</string>
-      <key>Value</key>
-      <array>
-	      <string>snapshot</string>
-	      <string>mini_map</string>
-      </array>
-    </map>
-    <key>LandmarksSortedByDate</key>
-    <map>
-      <key>Comment</key>
-      <string>Reflects landmarks panel sorting order.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>OutfitOperationsTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Timeout for outfit related operations.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>180</integer>
-    </map>
-    <key>HeightUnits</key>
-    <map>
-      <key>Comment</key>
-      <string>Determines which metric units are used: 1(TRUE) for meter and 0(FALSE) for foot.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>TipToastMessageLineCount</key>
-    <map>
-      <key>Comment</key>
-      <string>Max line count of text message on tip toast.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>10</integer>
     </map>
 </map>
 </llsd>

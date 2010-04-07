@@ -19,7 +19,7 @@ Massimo 200 per gruppo al giorno
 	<text name="notice_list_none_found">
 		Nessuno trovato
 	</text>
-	<button label="Nuovo avviso" label_selected="Crea una nuova notice" name="create_new_notice" tool_tip="Crea un nuovo avviso"/>
+	<button label="Crea un nuovo avviso" label_selected="Crea una nuova notice" name="create_new_notice" tool_tip="Crea un nuovo avviso"/>
 	<button label="Aggiorna" label_selected="Aggiorna l&apos;elenco" name="refresh_notices" tool_tip="Aggiorna la lista degli avvisi"/>
 	<panel label="Crea una nuova notice" name="panel_create_new_notice">
 		<text name="lbl">
@@ -40,7 +40,6 @@ Massimo 200 per gruppo al giorno
 		<text name="string">
 			Trascina e rilascia qui l&apos;oggetto da allegare:
 		</text>
-		<button label="Inventario" name="open_inventory" tool_tip="Apri l&apos;inventario"/>
 		<button label="Rimuovi" label_selected="Rimuovi allegato" name="remove_attachment" tool_tip="Rimuovi allegato dal tuo avviso"/>
 		<button label="Invia" label_selected="Invia" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="Trascina un oggetto dall&apos;inventario ín questa casella per spedirlo con questo avviso. Devi avere i diritti per la copia e il trasferimento per poter allegare l&apos;oggetto."/>

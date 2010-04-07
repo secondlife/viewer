@@ -38,8 +38,8 @@
              parameter="agent" />
         </menu_item_call>
         <menu_item_call
-         label="Change Outfit"
-         name="ChangeOutfit">
+         label="My Appearance"
+         name="Appearance">
             <menu_item_call.on_click
              function="CustomizeAvatar" />
             <menu_item_call.on_enable
@@ -80,17 +80,6 @@
              function="Floater.Toggle"
              parameter="gestures" />
         </menu_item_check>
-        <menu_item_check
-         label="My Voice"
-         name="ShowVoice"
-         visibility_control="VoiceMorphingEnabled">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="voice_effect" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="voice_effect" />
-        </menu_item_check>
         <menu
          label="My Status"
          name="Status"
@@ -101,6 +90,7 @@
                 <menu_item_call.on_click
                  function="World.SetAway" />
             </menu_item_call>
+          <menu_item_separator/>
             <menu_item_call
              label="Busy"
              name="Set Busy">
@@ -126,7 +116,7 @@
         </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
-         label="Exit [APP_NAME]"
+         label="Quit [APP_NAME]"
          name="Quit"
          shortcut="control|Q">
             <menu_item_call.on_click
@@ -532,52 +522,6 @@
                 <menu_item_check.on_enable
                  function="Tools.EnableToolNotPie" />
             </menu_item_check>
-        <menu
-         create_jump_keys="true"
-         label="Select Linked Parts"
-         name="Select Linked Parts"
-         tear_off="true">
-            <menu_item_call
-             label="Select Next Part"
-             name="Select Next Part"
-	     shortcut="control|.">
-                <menu_item_call.on_click
-                 function="Tools.SelectNextPart"
-                 parameter="next" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableSelectNextPart" />
-            </menu_item_call>
-            <menu_item_call
-             label="Select Previous Part"
-             name="Select Previous Part"
-	     shortcut="control|,">
-                <menu_item_call.on_click
-                 function="Tools.SelectNextPart"
-                 parameter="previous" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableSelectNextPart" />
-            </menu_item_call>
-            <menu_item_call
-             label="Include Next Part"
-             name="Include Next Part"
-	     shortcut="control|shift|.">
-                <menu_item_call.on_click
-                 function="Tools.SelectNextPart"
-                 parameter="includenext" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableSelectNextPart" />
-            </menu_item_call>
-            <menu_item_call
-             label="Include Previous Part"
-             name="Include Previous Part"
-	     shortcut="control|shift|,">
-                <menu_item_call.on_click
-                 function="Tools.SelectNextPart"
-                 parameter="includeprevious" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableSelectNextPart" />
-            </menu_item_call>
-        </menu>
         <menu_item_separator/>
         <menu_item_call
            label="Focus on Selection"
@@ -707,6 +651,13 @@
          label="Options"
          name="Options"
          tear_off="true">
+            <menu_item_call
+             label="Set Default Upload Permissions"
+             name="perm prefs">
+                <menu_item_call.on_click
+                 function="Floater.Toggle"
+                 parameter="perm_prefs" />
+            </menu_item_call>
 	   <menu_item_check
 	       label="Show Advanced Permissions"
 	       name="DebugPermissions">
@@ -814,64 +765,48 @@
         </menu>
         <menu
          create_jump_keys="true"
-         label="Upload"
-         layout="topleft"
-         name="Upload"
+         label="Select Linked Parts"
+         name="Select Linked Parts"
          tear_off="true">
             <menu_item_call
-             label="Image (L$[COST])..."
-             layout="topleft"
-             name="Upload Image"
-             shortcut="control|U">
+             label="Select Next Part"
+             name="Select Next Part"
+	     shortcut="control|.">
                 <menu_item_call.on_click
-                 function="File.UploadImage"
-                 parameter="" />
+                 function="Tools.SelectNextPart"
+                 parameter="next" />
                 <menu_item_call.on_enable
-                 function="File.EnableUpload" />
-                <menu_item_call.on_visible
-                 function="Upload.CalculateCosts"
-                 parameter="Upload Image" />
+                 function="Tools.EnableSelectNextPart" />
             </menu_item_call>
             <menu_item_call
-             label="Sound (L$[COST])..."
-             layout="topleft"
-             name="Upload Sound">
+             label="Select Previous Part"
+             name="Select Previous Part"
+	     shortcut="control|,">
                 <menu_item_call.on_click
-                 function="File.UploadSound"
-                 parameter="" />
+                 function="Tools.SelectNextPart"
+                 parameter="previous" />
                 <menu_item_call.on_enable
-                 function="File.EnableUpload" />
-                <menu_item_call.on_visible
-                 function="Upload.CalculateCosts"
-                 parameter="Upload Sound" />
+                 function="Tools.EnableSelectNextPart" />
             </menu_item_call>
             <menu_item_call
-             label="Animation (L$[COST])..."
-             layout="topleft"
-             name="Upload Animation">
+             label="Include Next Part"
+             name="Include Next Part"
+	     shortcut="control|shift|.">
                 <menu_item_call.on_click
-                 function="File.UploadAnim"
-                 parameter="" />
+                 function="Tools.SelectNextPart"
+                 parameter="includenext" />
                 <menu_item_call.on_enable
-                 function="File.EnableUpload" />
-                <menu_item_call.on_visible
-                 function="Upload.CalculateCosts"
-                 parameter="Upload Animation" />
+                 function="Tools.EnableSelectNextPart" />
             </menu_item_call>
             <menu_item_call
-             label="Bulk (L$[COST] per file)..."
-             layout="topleft"
-             name="Bulk Upload">
+             label="Include Previous Part"
+             name="Include Previous Part"
+	     shortcut="control|shift|,">
                 <menu_item_call.on_click
-                 function="File.UploadBulk"
-                 parameter="" />
-            </menu_item_call>
-            <menu_item_call
-             label="Set Default Upload Permissions"
-             name="perm prefs">
-                <menu_item_call.on_click
-                 function="Floater.Toggle"
-                 parameter="perm_prefs" />
+                 function="Tools.SelectNextPart"
+                 parameter="includeprevious" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableSelectNextPart" />
             </menu_item_call>
         </menu>
     </menu>
@@ -925,7 +860,7 @@
         <menu_item_check
          label="Show Advanced Menu"
          name="Show Advanced Menu"
-         shortcut="control|alt|shift|D">
+         shortcut="control|alt|D">
           <on_check
            function="CheckControl"
            parameter="UseDebugMenus" />
@@ -1404,16 +1339,6 @@
              function="ToggleControl"
              parameter="RunMultipleThreads" />
         </menu_item_check>
-        <menu_item_check
-         label="Use Plugin Read Thread"
-         name="Use Plugin Read Thread">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="PluginUseReadThread" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="PluginUseReadThread" />
-        </menu_item_check>
         <menu_item_call
          label="Clear Group Cache"
          name="ClearGroupCache">
@@ -1475,18 +1400,6 @@
                 <menu_item_call.on_click
                  function="View.DefaultUISize" />
             </menu_item_call>
-            <!-- This second, alternative shortcut for Show Advanced Menu is for backward compatibility.  The main shortcut has been changed so it's Linux-friendly, where the old shortcut is typically eaten by the window manager. -->
-            <menu_item_check
-               label="Show Advanced Menu - legacy shortcut"
-               name="Show Advanced Menu - legacy shortcut"
-               shortcut="control|alt|D">
-              <on_check
-		 function="CheckControl"
-		 parameter="UseDebugMenus" />
-              <on_click
-		 function="ToggleControl"
-		 parameter="UseDebugMenus" />
-            </menu_item_check>
             <menu_item_separator/>
             <menu_item_check
              label="Always Run"
@@ -1642,6 +1555,15 @@
                 <menu_item_call.on_click
                  function="View.ZoomOut" />
             </menu_item_call>
+            <menu_item_separator/>
+            <menu_item_call
+             label="Toggle Fullscreen"
+             name="Toggle Fullscreen"
+             >
+               <!-- Note: shortcut="alt|Enter" was deleted from the preceding node-->
+                <menu_item_call.on_click
+                 function="View.Fullscreen" />
+            </menu_item_call>
         </menu>
         <menu_item_separator/>
         <menu_item_call
@@ -1662,6 +1584,7 @@
              function="ToggleControl"
              parameter="QAMode" />
         </menu_item_check>
+    
     </menu>
     <menu
      create_jump_keys="true"

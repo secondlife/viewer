@@ -32,10 +32,7 @@
         name="Upper Fabric"
         tool_tip="Click to choose a picture"
         top="10"
-        width="74" >
-         <texture_picker.commit_callback
-             function="TexturePicker.Commit" />
-       </texture_picker>
+        width="74" />
        <texture_picker
         can_apply_immediately="true"
         default_image_name="Default"
@@ -47,10 +44,7 @@
         name="Lower Fabric"
         tool_tip="Click to choose a picture"
         top="10"
-        width="74" >
-         <texture_picker.commit_callback
-             function="TexturePicker.Commit" />
-       </texture_picker>
+        width="74" />
        <color_swatch
         can_apply_immediately="true"
         follows="left|top"
@@ -61,10 +55,7 @@
         name="Color/Tint"
         tool_tip="Click to open color picker"
         top="10"
-        width="74" >
-         <color_swatch.commit_callback
-             function="ColorSwatch.Commit" />
-       </color_swatch>
+        width="74" />
 	 </panel>
 	 <panel
          border="false"
@@ -80,7 +71,6 @@
          top_pad="10"
          width="313">
      <accordion
-        fit_parent="true"
         follows="all"
         height ="300"
         layout="topleft"

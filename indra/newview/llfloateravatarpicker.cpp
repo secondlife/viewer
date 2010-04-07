@@ -1,25 +1,31 @@
 /** 
  * @file llfloateravatarpicker.cpp
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * 
+ * Copyright (c) 2003-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -32,8 +38,6 @@
 #include "llcallingcard.h"
 #include "llfocusmgr.h"
 #include "llfloaterreg.h"
-#include "llimview.h"			// for gIMMgr
-#include "lltooldraganddrop.h"	// for LLToolDragAndDrop
 #include "llviewercontrol.h"
 #include "llworld.h"
 
@@ -308,18 +312,6 @@ void LLFloaterAvatarPicker::populateFriend()
 
 void LLFloaterAvatarPicker::draw()
 {
-	// sometimes it is hard to determine when Select/Ok button should be disabled (see LLAvatarActions::shareWithAvatars).
-	// lets check this via mOkButtonValidateSignal callback periodically.
-	static LLFrameTimer timer;
-	if (timer.hasExpired())
-	{
-		timer.setTimerExpirySec(0.33f); // three times per second should be enough.
-
-		// simulate list changes.
-		onList();
-		timer.start();
-	}
-
 	LLFloater::draw();
 	if (!mNearMeListComplete && childGetVisibleTab("ResidentChooserTabs") == getChild<LLPanel>("NearMePanel"))
 	{
@@ -378,81 +370,6 @@ void LLFloaterAvatarPicker::setAllowMultiple(BOOL allow_multiple)
 	getChild<LLScrollListCtrl>("Friends")->setAllowMultipleSelection(allow_multiple);
 }
 
-LLScrollListCtrl* LLFloaterAvatarPicker::getActiveList()
-{
-	std::string acvtive_panel_name;
-	LLScrollListCtrl* list = NULL;
-	LLPanel* active_panel = childGetVisibleTab("ResidentChooserTabs");
-	if(active_panel)
-	{
-		acvtive_panel_name = active_panel->getName();
-	}
-	if(acvtive_panel_name == "SearchPanel")
-	{
-		list = getChild<LLScrollListCtrl>("SearchResults");
-	}
-	else if(acvtive_panel_name == "NearMePanel")
-	{
-		list = getChild<LLScrollListCtrl>("NearMe");
-	}
-	else if (acvtive_panel_name == "FriendsPanel")
-	{
-		list = getChild<LLScrollListCtrl>("Friends");
-	}
-	return list;
-}
-
-BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
-											  BOOL drop, EDragAndDropType cargo_type,
-											  void *cargo_data, EAcceptance *accept,
-											  std::string& tooltip_msg)
-{
-	LLScrollListCtrl* list = getActiveList();
-	if(list)
-	{
-		LLRect rc_list;
-		LLRect rc_point(x,y,x,y);
-		if (localRectToOtherView(rc_point, &rc_list, list))
-		{
-			// Keep selected only one item
-			list->deselectAllItems(TRUE);
-			list->selectItemAt(rc_list.mLeft, rc_list.mBottom, mask);
-			LLScrollListItem* selection = list->getFirstSelected();
-			if (selection)
-			{
-				LLUUID session_id = LLUUID::null;
-				LLUUID dest_agent_id = selection->getUUID();
-				std::string avatar_name = selection->getColumn(0)->getValue().asString();
-				if (dest_agent_id.notNull() && dest_agent_id != gAgentID)
-				{
-					if (drop)
-					{
-						// Start up IM before give the item
-						session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, dest_agent_id);
-					}
-					return LLToolDragAndDrop::handleGiveDragAndDrop(dest_agent_id, session_id, drop,
-																	cargo_type, cargo_data, accept, getName());
-				}
-			}
-		}
-	}
-	*accept = ACCEPT_NO;
-	return TRUE;
-}
-
-
-void LLFloaterAvatarPicker::openFriendsTab()
-{
-	LLTabContainer* tab_container = getChild<LLTabContainer>("ResidentChooserTabs");
-	if (tab_container == NULL)
-	{
-		llassert(tab_container != NULL);
-		return;
-	}
-
-	tab_container->selectTabByName("FriendsPanel");
-}
-
 // static 
 void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void**)
 {
@@ -470,8 +387,8 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	
 	LLFloaterAvatarPicker* floater = LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
 
-	// floater is closed or these are not results from our last request
-	if (NULL == floater || query_id != floater->mQueryID)
+	// these are not results from our last request
+	if (query_id != floater->mQueryID)
 	{
 		return;
 	}

@@ -32,11 +32,8 @@
              name="Texture"
              tool_tip="Click to choose a picture"
              top="10"
-             width="64" >
-              <texture_picker.commit_callback
-                  function="TexturePicker.Commit" />
-            </texture_picker>
-     </panel>
+             width="64" />
+	 </panel>
    <panel
          border="false"
          bg_alpha_color="DkGray2"
@@ -51,7 +48,6 @@
          top_pad="10"
          width="313">
    <accordion 
-        fit_parent="true"
         follows="all"
         height ="300"
         layout="topleft"

@@ -2,25 +2,31 @@
  * @file llstartup.h
  * @brief startup routines and logic declaration
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * 
+ * Copyright (c) 2004-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -32,7 +38,6 @@
 class LLViewerTexture ;
 class LLEventPump;
 class LLStartupListener;
-class LLSLURL;
 
 // functions
 bool idle_startup();
@@ -75,6 +80,9 @@ extern LLPointer<LLViewerTexture> gStartTexture;
 class LLStartUp
 {
 public:
+	static bool canGoFullscreen();
+		// returns true if we are far enough along in startup to allow
+		// going full screen
 
 	// Always use this to set gStartupState so changes are logged
 	static void setStartupState( EStartupState state );
@@ -87,30 +95,32 @@ public:
 	// Load default fonts not already loaded at start screen
 	static void fontInit();
 
-	static void copyLibraryGestures(const std::string& same_gender_gestures);
-
 	// outfit_folder_name can be a folder anywhere in your inventory, 
 	// but the name must be a case-sensitive exact match.
 	// gender_name is either "male" or "female"
 	static void loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name );
 
-	//save loaded initial outfit into My Outfits category
-	static void saveInitialOutfit();
-
-	static std::string& getInitialOutfitName();
+	// Load MD5 of user's password from local disk file.
+	static std::string loadPasswordFromDisk();
+	
+	// Record MD5 of user's password for subsequent login.
+	static void savePasswordToDisk(const std::string& hashed_password);
+	
+	// Delete the saved password local disk file.
+	static void deletePasswordFromDisk();
 	
 	static bool dispatchURL();
 		// if we have a SLURL or sim string ("Ahern/123/45") that started
 		// the viewer, dispatch it
 
+	static std::string sSLURLCommand;
+		// *HACK: On startup, if we were passed a secondlife://app/do/foo
+		// command URL, store it for later processing.
+
 	static void postStartupState();
-	static void setStartSLURL(const LLSLURL& slurl); 
-	static LLSLURL& getStartSLURL() { return sStartSLURL; } 
 
 private:
-	static LLSLURL sStartSLURL;
-
 	static std::string startupStateToString(EStartupState state);
 	static EStartupState gStartupState; // Do not set directly, use LLStartup::setStartupState
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;

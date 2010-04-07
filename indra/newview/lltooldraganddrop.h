@@ -2,25 +2,31 @@
  * @file lltooldraganddrop.h
  * @brief LLToolDragAndDrop class header file
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -208,9 +214,31 @@ protected:
 						 LLToolDragAndDrop::ESource source,
 						 const LLUUID& src_id);
 
+
+	// give inventory item functionality
+	static bool handleCopyProtectedItem(const LLSD& notification, const LLSD& response);
+	static void commitGiveInventoryItem(const LLUUID& to_agent,
+										LLInventoryItem* item,
+										const LLUUID &im_session_id = LLUUID::null);
+
+	// give inventory category functionality
+	static bool handleCopyProtectedCategory(const LLSD& notification, const LLSD& response);
+	static void commitGiveInventoryCategory(const LLUUID& to_agent,
+											LLInventoryCategory* cat,
+											const LLUUID &im_session_id = LLUUID::null);
+
+	// log "Inventory item offered" to IM
+	static void logInventoryOffer(const LLUUID& to_agent, 
+									const LLUUID &im_session_id = LLUUID::null);
+
 public:
 	// helper functions
 	static BOOL isInventoryDropAcceptable(LLViewerObject* obj, LLInventoryItem* item) { return (ACCEPT_YES_COPY_SINGLE <= willObjectAcceptInventory(obj, item)); }
+
+	// This simple helper function assumes you are attempting to
+	// transfer item. returns true if you can give, otherwise false.
+	static BOOL isInventoryGiveAcceptable(LLInventoryItem* item);
+	static BOOL isInventoryGroupGiveAcceptable(LLInventoryItem* item);
 
 	BOOL dadUpdateInventory(LLViewerObject* obj, BOOL drop);
 	BOOL dadUpdateInventoryCategory(LLViewerObject* obj, BOOL drop);
@@ -237,11 +265,17 @@ public:
 							  ESource source,
 							  const LLUUID& src_id);
 
+	static void giveInventory(const LLUUID& to_agent, 
+							  LLInventoryItem* item,
+							  const LLUUID &session_id = LLUUID::null);
+	static void giveInventoryCategory(const LLUUID& to_agent,
+									  LLInventoryCategory* item,
+									  const LLUUID &session_id = LLUUID::null);
+
 	static bool handleGiveDragAndDrop(LLUUID agent, LLUUID session, BOOL drop,
 									  EDragAndDropType cargo_type,
 									  void* cargo_data,
-									  EAcceptance* accept,
-									  const LLSD& dest = LLSD());
+									  EAcceptance* accept);
 
 	// Classes used for determining 3d drag and drop types.
 private:

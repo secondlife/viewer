@@ -2,25 +2,31 @@
  * @file llworldmapview.cpp
  * @brief LLWorldMapView class implementation
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -894,32 +900,14 @@ void LLWorldMapView::drawFrustum()
 		// fade out in distance.
 		gGL.begin( LLRender::TRIANGLES  );
 		{
-			// get camera look at and left axes
-			LLVector3 at_axis = LLViewerCamera::instance().getAtAxis();
-			LLVector3 left_axis = LLViewerCamera::instance().getLeftAxis();
-
-			// grab components along XY plane
-			LLVector2 cam_lookat(at_axis.mV[VX], at_axis.mV[VY]);
-			LLVector2 cam_left(left_axis.mV[VX], left_axis.mV[VY]);
-
-			// but, when looking near straight up or down...
-			if (is_approx_zero(cam_lookat.magVecSquared()))
-			{
-				//...just fall back to looking down the x axis
-				cam_lookat = LLVector2(1.f, 0.f); // x axis
-				cam_left = LLVector2(0.f, 1.f); // y axis
-			}
-
-			// normalize to unit length
-			cam_lookat.normVec();
-			cam_left.normVec();
+			LLVector2 cam_lookat(LLViewerCamera::instance().getAtAxis().mV[VX], LLViewerCamera::instance().getAtAxis().mV[VY]);
+			LLVector2 cam_left(LLViewerCamera::instance().getLeftAxis().mV[VX], LLViewerCamera::instance().getLeftAxis().mV[VY]);
 
 			gGL.color4f(1.f, 1.f, 1.f, 0.25f);
 			gGL.vertex2f( 0, 0 );
 
 			gGL.color4f(1.f, 1.f, 1.f, 0.02f);
 			
-			// use 2d camera vectors to render frustum triangle
 			LLVector2 vert = cam_lookat * far_clip_pixels + cam_left * half_width_pixels;
 			gGL.vertex2f(vert.mV[VX], vert.mV[VY]);
 
@@ -1066,10 +1054,18 @@ BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, MASK mask )
 			// zoomed out, so don't display anything about the count. JC
 			if (agent_count > 0)
 			{
-				LLStringUtil::format_map_t string_args;
-				string_args["[NUMBER]"] = llformat("%d", agent_count);
-				message += '\n';
-				message += getString((agent_count == 1 ? "world_map_person" : "world_map_people") , string_args);
+				// Merov: i18n horror!!! Even using gettext(), concatenating strings is not localizable. 
+				// The singular/plural switch form here under might make no sense in some languages. Don't do that.
+				message += llformat("\n%d ", agent_count);
+
+				if (agent_count == 1)
+				{
+					message += "person";
+				}
+				else
+				{
+					message += "people";
+				}
 			}
 		}
 		tooltip_msg.assign( message );

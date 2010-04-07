@@ -2,25 +2,31 @@
  * @file llpanelpeoplemenus.h
  * @brief Menus used by the side tray "People" panel
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -36,13 +42,70 @@
 #include "llagent.h"
 #include "llagentdata.h"			// for gAgentID
 #include "llavataractions.h"
-#include "llcallingcard.h"			// for LLAvatarTracker
 #include "llviewermenu.h"			// for gMenuHolder
 
 namespace LLPanelPeopleMenus
 {
 
 NearbyMenu gNearbyMenu;
+
+//== ContextMenu ==============================================================
+
+ContextMenu::ContextMenu()
+:	mMenu(NULL)
+{
+}
+
+ContextMenu::~ContextMenu()
+{
+	// do not forget delete LLContextMenu* mMenu.
+	// It can have registered Enable callbacks which are called from the LLMenuHolderGL::draw()
+	// via selected item (menu_item_call) by calling LLMenuItemCallGL::buildDrawLabel.
+	// we can have a crash via using callbacks of deleted instance of ContextMenu. EXT-4725
+
+	// menu holder deletes its menus on viewer exit, so we have no way to determine if instance 
+	// of mMenu has already been deleted except of using LLHandle. EXT-4762.
+	if (!mMenuHandle.isDead())
+	{
+		mMenu->die();
+		mMenu = NULL;
+	}
+}
+
+void ContextMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y)
+{
+	if (mMenu)
+	{
+		//preventing parent (menu holder) from deleting already "dead" context menus on exit
+		LLView* parent = mMenu->getParent();
+		if (parent)
+		{
+			parent->removeChild(mMenu);
+		}
+		delete mMenu;
+		mMenu = NULL;
+		mUUIDs.clear();
+	}
+
+	if ( uuids.empty() )
+		return;
+
+	mUUIDs.resize(uuids.size());
+	std::copy(uuids.begin(), uuids.end(), mUUIDs.begin());
+
+	mMenu = createMenu();
+	mMenuHandle = mMenu->getHandle();
+	mMenu->show(x, y);
+	LLMenuGL::showPopup(spawning_view, mMenu, x, y);
+}
+
+void ContextMenu::hide()
+{
+	if(mMenu)
+	{
+		mMenu->hide();
+	}
+}
 
 //== NearbyMenu ===============================================================
 
@@ -72,7 +135,8 @@ LLContextMenu* NearbyMenu::createMenu()
 		enable_registrar.add("Avatar.CheckItem",  boost::bind(&NearbyMenu::checkContextMenuItem,	this, _2));
 
 		// create the context menu from the XUI
-		return createFromFile("menu_people_nearby.xml");
+		return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+			"menu_people_nearby.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 	}
 	else
 	{
@@ -87,7 +151,9 @@ LLContextMenu* NearbyMenu::createMenu()
 		enable_registrar.add("Avatar.EnableItem",	boost::bind(&NearbyMenu::enableContextMenuItem,	this, _2));
 
 		// create the context menu from the XUI
-		return createFromFile("menu_people_nearby_multiselect.xml");
+		return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>
+			("menu_people_nearby_multiselect.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+
 	}
 }
 
@@ -108,12 +174,6 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 		// We can add friends if:
 		// - there are selected people
 		// - and there are no friends among selection yet.
-
-		//EXT-7389 - disable for more than 1
-		if(mUUIDs.size() > 1)
-		{
-			return false;
-		}
 
 		bool result = (mUUIDs.size() > 0);
 

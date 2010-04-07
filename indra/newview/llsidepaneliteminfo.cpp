@@ -2,25 +2,31 @@
  * @file llsidepaneliteminfo.cpp
  * @brief A floater which shows an inventory item's properties.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -125,6 +131,7 @@ BOOL LLSidepanelItemInfo::postBuild()
 	getChild<LLUICtrl>("CheckNextOwnerTransfer")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
 	// Mark for sale or not, and sale info
 	getChild<LLUICtrl>("CheckPurchase")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
+	getChild<LLUICtrl>("RadioSaleType")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleType, this));
 	// "Price" label for edit
 	getChild<LLUICtrl>("Edit Cost")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
 	refresh();
@@ -182,6 +189,7 @@ void LLSidepanelItemInfo::refresh()
 			"CheckNextOwnerCopy",
 			"CheckNextOwnerTransfer",
 			"CheckPurchase",
+			"RadioSaleType",
 			"Edit Cost"
 		};
 
@@ -228,7 +236,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	if (!item) return;
 
 	// do not enable the UI for incomplete items.
-	BOOL is_complete = item->isFinished();
+	BOOL is_complete = item->isComplete();
 	const BOOL cannot_restrict_permissions = LLInventoryType::cannotRestrictPermissions(item->getInventoryType());
 	const BOOL is_calling_card = (item->getInventoryType() == LLInventoryType::IT_CALLINGCARD);
 	const LLPermissions& perm = item->getPermissions();
@@ -317,19 +325,6 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetText("LabelOwnerName",getString("public"));
 	}
 	
-	////////////
-	// ORIGIN //
-	////////////
-
-	if (object)
-	{
-		childSetText("origin",getString("origin_inworld"));
-	}
-	else
-	{
-		childSetText("origin",getString("origin_inventory"));
-	}
-
 	//////////////////
 	// ACQUIRE DATE //
 	//////////////////
@@ -348,9 +343,9 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetText ("LabelAcquiredDate", timeStr);
 	}
 	
-	//////////////////////////////////////
-	// PERMISSIONS AND SALE ITEM HIDING //
-	//////////////////////////////////////
+	/////////////////////////////////////
+	// PERMISSIONS AND SALE ITEM HIDING
+	/////////////////////////////////////
 	
 	const std::string perm_and_sale_items[]={
 		"perms_inv",
@@ -369,6 +364,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		"CheckNextOwnerTransfer",
 		"CheckPurchase",
 		"SaleLabel",
+		"RadioSaleType",
 		"combobox sale copy",
 		"Edit Cost",
 		"TextPrice"
@@ -563,6 +559,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetEnabled("CheckNextOwnerCopy",(base_mask & PERM_COPY) && !cannot_restrict_permissions);
 		childSetEnabled("CheckNextOwnerTransfer",(next_owner_mask & PERM_COPY) && !cannot_restrict_permissions);
 
+		childSetEnabled("RadioSaleType",is_complete && is_for_sale);
 		childSetEnabled("TextPrice",is_complete && is_for_sale);
 		childSetEnabled("Edit Cost",is_complete && is_for_sale);
 	}
@@ -576,6 +573,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetEnabled("CheckNextOwnerCopy",FALSE);
 		childSetEnabled("CheckNextOwnerTransfer",FALSE);
 
+		childSetEnabled("RadioSaleType",FALSE);
 		childSetEnabled("TextPrice",FALSE);
 		childSetEnabled("Edit Cost",FALSE);
 	}
@@ -588,14 +586,17 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	childSetValue("CheckNextOwnerCopy",LLSD(BOOL(next_owner_mask & PERM_COPY)));
 	childSetValue("CheckNextOwnerTransfer",LLSD(BOOL(next_owner_mask & PERM_TRANSFER)));
 
+	LLRadioGroup* radioSaleType = getChild<LLRadioGroup>("RadioSaleType");
 	if (is_for_sale)
 	{
+		radioSaleType->setSelectedIndex((S32)sale_info.getSaleType() - 1);
 		S32 numerical_price;
 		numerical_price = sale_info.getSalePrice();
 		childSetText("Edit Cost",llformat("%d",numerical_price));
 	}
 	else
 	{
+		radioSaleType->setSelectedIndex(-1);
 		childSetText("Edit Cost",llformat("%d",0));
 	}
 }
@@ -742,7 +743,7 @@ void LLSidepanelItemInfo::onCommitPermissions()
 							CheckNextOwnerTransfer->get(), PERM_TRANSFER);
 	}
 	if(perm != item->getPermissions()
-		&& item->isFinished())
+		&& item->isComplete())
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		new_item->setPermissions(perm);
@@ -872,7 +873,7 @@ void LLSidepanelItemInfo::updateSaleInfo()
 		sale_info.setSaleType(LLSaleInfo::FS_NOT);
 	}
 	if(sale_info != item->getSaleInfo()
-		&& item->isFinished())
+		&& item->isComplete())
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 

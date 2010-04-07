@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="nearby_media">
-	<string name="media_item_count_format">
-		(%ld media items)
-	</string>
 	<string name="empty_item_text">
 		&lt;empty&gt;
 	</string>
@@ -19,14 +16,13 @@
 		<button label="Zatrzymaj" name="all_nearby_media_disable_btn" tool_tip="Wyłącz wszystkie media w pobliżu"/>
 		<button label="Włącz" name="all_nearby_media_enable_btn" tool_tip="Włącz wszystkie media w pobliżu"/>
 		<button name="open_prefs_btn" tool_tip="Uruchom preferencje medialne"/>
-		<button label="Więcej &gt;&gt;" label_selected="Mniej &lt;&lt;" name="more_btn" tool_tip="Zaawansowane"/>
-		<button label="Więcej &gt;&gt;" label_selected="Mniej &lt;&lt;" name="less_btn" tool_tip="Zaawansowane"/>
+		<button label="Więcej &gt;&gt;" label_selected="Mniej &lt;&lt;" name="more_less_btn" tool_tip="Zaawansowane"/>
 	</panel>
 	<panel name="nearby_media_panel">
-		<text name="nearby_media_title">
+		<text name="nearby_media">
 			Media w pobliżu
 		</text>
-		<text name="show_text">
+		<text name="show">
 			Pokaż:
 		</text>
 		<combo_box name="show_combo">
@@ -48,19 +44,19 @@
 					<button name="stop_btn" tool_tip="Zatrzymaj wybrane media"/>
 				</layout_panel>
 				<layout_panel name="play">
-					<button name="play_btn" tool_tip="Włącz wybrane media"/>
+					<button name="play_btn" tool_tip="Odtwarzaj wybrane media"/>
 				</layout_panel>
 				<layout_panel name="pause">
 					<button name="pause_btn" tool_tip="Zatrzymaj wybrane media"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
-					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Głośność audio dla wybranych mediów"/>
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Regulacja audio dla wybranych mediów"/>
 				</layout_panel>
 				<layout_panel name="mute">
 					<button name="mute_btn" tool_tip="Wycisz audio wybranych mediów"/>
 				</layout_panel>
 				<layout_panel name="zoom">
-					<button name="zoom_btn" tool_tip="Przybliż wybrane media"/>
+					<button name="zoom_btn" tool_tip="Przybliż do wybranych mediów"/>
 				</layout_panel>
 				<layout_panel name="unzoom">
 					<button name="unzoom_btn" tool_tip="Oddal od wybranych mediów"/>

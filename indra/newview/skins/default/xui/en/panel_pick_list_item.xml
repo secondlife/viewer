@@ -33,7 +33,7 @@
     <texture_picker
      allow_no_texture="true"
      border_enabled="true"
-     fallback_image="default_land_picture.j2c"
+     default_image_name="TabIcon_Places_Large"
      enabled="false"
      follows="left|top"
      height="80"

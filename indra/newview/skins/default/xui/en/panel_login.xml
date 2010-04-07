@@ -56,23 +56,42 @@ height="80">
 follows="left|bottom"
 font="SansSerifSmall"
 height="16"
-name="username_text"
+name="first_name_text"
 top="20"
 left="20"
 width="150">
-Username:
+First name:
 </text>
 <line_editor
 follows="left|bottom"
 height="22"
-label="Username"
+label="First"
 left_delta="0"
 max_length="31"
-name="username_edit"
+name="first_name_edit"
 select_on_focus="true"
-tool_tip="[SECOND_LIFE] Username"
+tool_tip="[SECOND_LIFE] First Name"
 top_pad="0"
-width="150" />
+   width="135" />
+  <text
+   follows="left|bottom"
+   font="SansSerifSmall"
+   height="16"
+   left_pad="8"
+   name="last_name_text"
+   top="20"
+   width="150">
+    Last name:   </text>
+<line_editor
+follows="left|bottom"
+height="22"
+label="Last"
+max_length="31"
+name="last_name_edit"
+select_on_focus="true"
+tool_tip="[SECOND_LIFE] Last Name"
+  top_pad="0"
+  width="135" />
 <text
 follows="left|bottom"
 font="SansSerifSmall"
@@ -148,7 +167,6 @@ allow_text_entry="true"
 font="SansSerifSmall"
    follows="left|right|bottom"
    height="23"
-   max_chars="256"
 layout="topleft"
 top_pad="2"
 name="server_combo"
@@ -156,7 +174,6 @@ width="135"
   visible="false" />
 </layout_panel>
 <layout_panel
-tab_stop="false"
 follows="right|bottom"
 name="links"
 width="200"
@@ -184,7 +201,7 @@ height="16"
 name="forgot_password_text"
 top_pad="12"
 right="-10"
-  width="180">
+  width="210">
        Forgot your name or password?
 </text>
 <text
@@ -196,7 +213,7 @@ height="16"
 name="login_help"
 top_pad="2"
 right="-10"
-    width="180">
+    width="190">
        Need help logging in?   </text>
 <!--  <text
     follows="right|bottom"

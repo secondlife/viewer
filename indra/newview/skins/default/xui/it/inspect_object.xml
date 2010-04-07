@@ -9,7 +9,7 @@
 	</string>
 	<string name="CreatorAndOwner">
 		Di [CREATOR]
-Proprietario [OWNER]
+proprietario [OWNER]
 	</string>
 	<string name="Price">
 		L$ [AMOUNT]
@@ -23,13 +23,6 @@ Proprietario [OWNER]
 	<string name="Sit">
 		Siediti
 	</string>
-	<text name="object_name" value="Nome oggetto di prova che si trova su due righe ed è molto lungo"/>
-	<text name="price_text">
-		L$ 30.000
-	</text>
-	<text name="object_description">
-		Questa è una descrizione di un oggetto che è molto lunga ed è di almeno 80 caratteri, ma potrebbe essere di 120 caratteri a questo punto. Chi lo sa veramente?
-	</text>
 	<button label="Acquista" name="buy_btn"/>
 	<button label="Paga" name="pay_btn"/>
 	<button label="Prendi copia" name="take_free_copy_btn"/>

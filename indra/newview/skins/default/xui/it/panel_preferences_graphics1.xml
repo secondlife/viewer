@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Grafica" name="Display panel">
+	<text name="UI Size:">
+		Dimensioni UI:
+	</text>
 	<text name="QualitySpeed">
 		Qualità e velocità:
 	</text>
@@ -44,13 +47,12 @@
 		<check_box initial_value="true" label="Avatar bidimensionali (Impostor)" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Hardware Skinning" name="AvatarVertexProgram"/>
 		<check_box initial_value="true" label="Abiti dell&apos;avatar" name="AvatarCloth"/>
-		<slider label="Distanza di disegno:" name="DrawDistance"/>
+		<slider label="Distanza di disegno:" label_width="158" name="DrawDistance" width="255"/>
 		<text name="DrawDistanceMeterText2">
 			m
 		</text>
-		<slider label="Conteggio massimo particelle:" name="MaxParticleCount"/>
-		<slider label="N. max di avatar non impostori:" name="MaxNumberAvatarDrawn"/>
-		<slider label="Qualità in post-produzione:" name="RenderPostProcess"/>
+		<slider label="Conteggio massimo particelle:" label_width="158" name="MaxParticleCount" width="262"/>
+		<slider label="Qualità in post-produzione:" label_width="158" name="RenderPostProcess" width="223"/>
 		<text name="MeshDetailText">
 			Dettagli reticolo:
 		</text>
@@ -97,7 +99,7 @@
 		</radio_group>
 	</panel>
 	<button label="Applica" label_selected="Applica" name="Apply"/>
-	<button label="Reimposta" name="Defaults"/>
+	<button label="Reimposta" left="110" name="Defaults" width="190"/>
 	<button label="Avanzate" name="Advanced"/>
 	<button label="Hardware" label_selected="Hardware" name="GraphicsHardwareButton"/>
 </panel>

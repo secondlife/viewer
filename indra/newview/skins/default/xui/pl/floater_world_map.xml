@@ -19,11 +19,11 @@
 		<text name="land_sale_label">
 			Sprzedaż Posiadłości
 		</text>
-		<text name="auction_label">
-			aukcja Posiadłości
-		</text>
 		<text name="by_owner_label">
 			przez Właściciela
+		</text>
+		<text name="auction_label">
+			aukcja Posiadłości
 		</text>
 		<button name="Go Home" tool_tip="Teleportuj do mojego Miejsca Startowego"/>
 		<text name="Home_label">
@@ -35,11 +35,11 @@
 		<text name="pg_label">
 			Ogólne
 		</text>
-		<check_box initial_value="true" name="events_mature_chk"/>
-		<text name="events_mature_label">
+		<check_box initial_value="prawda" name="event_mature_chk"/>
+		<text name="mature_label">
 			Moderuj
 		</text>
-		<text name="events_adult_label">
+		<text name="adult_label">
 			Adult
 		</text>
 	</panel>
@@ -58,9 +58,6 @@
 		<search_editor label="Regiony Według Nazwy" name="location" tool_tip="Wpisz nazwę regionu"/>
 		<button label="Znajdź" name="DoSearch" tool_tip="Szukaj regionu"/>
 		<button name="Clear" tool_tip="Wyczyść zapamiętane linie oraz zresetuj mapę"/>
-		<text name="events_label">
-			Lokalizacja:
-		</text>
 		<button label="Teleportuj" name="Teleport" tool_tip="Teleportuj do wybranego miejsca"/>
 		<button label="Kopiuj SLurl" name="copy_slurl" tool_tip="Kopie obecnego miejsca jako SLurl mogą zostać użyte na stronie internetowej."/>
 		<button label="Pokaż wybrane" name="Show Destination" tool_tip="Wyśrodkuj mapę w wybranym miejscu"/>

@@ -2,50 +2,54 @@
  * @file llwearable.cpp
  * @brief LLWearable class implementation
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
-#include "llagentcamera.h"
 #include "llagentwearables.h"
-#include "lldictionary.h"
+#include "llfloatercustomize.h"
 #include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
 #include "llviewertexturelist.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
-#include "llsidepanelappearance.h"
-#include "llsidetray.h"
-#include "lltexlayer.h"
-#include "lltexglobalcolor.h"
-#include "lltrans.h"
 #include "llviewerregion.h"
-#include "llvisualparam.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llvoavatardefines.h"
 #include "llwearable.h"
+#include "lldictionary.h"
+#include "lltrans.h"
+#include "lltexlayer.h"
+#include "llvisualparam.h"
+#include "lltexglobalcolor.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -84,7 +88,7 @@ static std::string asset_id_to_filename(const LLUUID &asset_id);
 
 LLWearable::LLWearable(const LLTransactionID& transaction_id) :
 	mDefinitionVersion(LLWearable::sCurrentDefinitionVersion),
-	mType(LLWearableType::WT_INVALID)
+	mType(WT_INVALID)
 {
 	mTransactionID = transaction_id;
 	mAssetID = mTransactionID.makeAssetID(gAgent.getSecureSessionID());
@@ -92,7 +96,7 @@ LLWearable::LLWearable(const LLTransactionID& transaction_id) :
 
 LLWearable::LLWearable(const LLAssetID& asset_id) :
 	mDefinitionVersion( LLWearable::sCurrentDefinitionVersion ),
-	mType(LLWearableType::WT_INVALID)
+	mType(WT_INVALID)
 {
 	mAssetID = asset_id;
 	mTransactionID.setNull();
@@ -104,17 +108,17 @@ LLWearable::~LLWearable()
 
 const std::string& LLWearable::getTypeLabel() const
 {
-	return LLWearableType::getTypeLabel(mType);
+	return LLWearableDictionary::getTypeLabel(mType);
 }
 
 const std::string& LLWearable::getTypeName() const
 {
-	return LLWearableType::getTypeName(mType);
+	return LLWearableDictionary::getTypeName(mType);
 }
 
 LLAssetType::EType LLWearable::getAssetType() const
 {
-	return LLWearableType::getAssetType(mType);
+	return LLWearableDictionary::getAssetType(mType);
 }
 
 BOOL LLWearable::exportFile(LLFILE* file) const
@@ -359,13 +363,13 @@ BOOL LLWearable::importFile( LLFILE* file )
 		llwarns << "Bad Wearable asset: bad type" << llendl;
 		return FALSE;
 	}
-	if( 0 <= type && type < LLWearableType::WT_COUNT )
+	if( 0 <= type && type < WT_COUNT )
 	{
-		setType((LLWearableType::EType)type);
+		setType((EWearableType)type);
 	}
 	else
 	{
-		mType = LLWearableType::WT_COUNT;
+		mType = WT_COUNT;
 		llwarns << "Bad Wearable asset: bad type #" << type <<  llendl;
 		return FALSE;
 	}
@@ -438,8 +442,6 @@ BOOL LLWearable::importFile( LLFILE* file )
 			delete mSavedTEMap[te];
 		}
 
-		image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te), NULL);
-
 		LLUUID textureid(text_buffer);
 		mTEMap[te] = new LLLocalTextureObject(image, textureid);
 		mSavedTEMap[te] = new LLLocalTextureObject(image, textureid);
@@ -476,7 +478,7 @@ BOOL LLWearable::isOldVersion() const
 		param;
 		param = (LLViewerVisualParam*) gAgentAvatarp->getNextVisualParam() )
 	{
-		if( (param->getWearableType() == mType) && (param->isTweakable() ) )
+		if( (param->getWearableType() == mType) && (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) )
 		{
 			param_count++;
 			if( !is_in_map(mVisualParamIndexMap, param->getID() ) )
@@ -527,7 +529,7 @@ BOOL LLWearable::isDirty() const
 		param = (LLViewerVisualParam*) gAgentAvatarp->getNextVisualParam() )
 	{
 		if( (param->getWearableType() == mType) 
-			&& (param->isTweakable() ) 
+			&& (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) 
 			&& !param->getCrossWearable())
 		{
 			F32 current_weight = getVisualParamWeight(param->getID());
@@ -571,6 +573,14 @@ BOOL LLWearable::isDirty() const
 		}
 	}
 
+	//if( gFloaterCustomize )
+	//{
+	//	if( mDescription != gFloaterCustomize->getWearableDescription( mType ) )
+	//	{
+	//		return TRUE;
+	//	}
+	//}
+
 	return FALSE;
 }
 
@@ -581,7 +591,7 @@ void LLWearable::setParamsToDefaults()
 
 	for( LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam() )
 	{
-		if( (((LLViewerVisualParam*)param)->getWearableType() == mType ) && (param->isTweakable() ) )
+		if( (((LLViewerVisualParam*)param)->getWearableType() == mType ) && (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) )
 		{
 			setVisualParamWeight(param->getID(),param->getDefaultWeight(), FALSE);
 		}
@@ -649,7 +659,7 @@ void LLWearable::writeToAvatar()
 				image_id = LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te);
 			}
 			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
-			// MULTI-WEARABLE: assume index 0 will be used when writing to avatar. TODO: eliminate the need for this.
+			// MULTI-WEARABLE: replace hard-coded 0
 			gAgentAvatarp->setLocalTextureTE(te, image, 0);
 		}
 	}
@@ -669,15 +679,15 @@ void LLWearable::writeToAvatar()
 
 // Updates the user's avatar's appearance, replacing this wearables' parameters and textures with default values.
 // static 
-void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake )
+void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
 {
 	if (!isAgentAvatarValid()) return;
 
 	// You can't just remove body parts.
-	if( (type == LLWearableType::WT_SHAPE) ||
-		(type == LLWearableType::WT_SKIN) ||
-		(type == LLWearableType::WT_HAIR) ||
-		(type == LLWearableType::WT_EYES) )
+	if( (type == WT_SHAPE) ||
+		(type == WT_SKIN) ||
+		(type == WT_HAIR) ||
+		(type == WT_EYES) )
 	{
 		return;
 	}
@@ -685,20 +695,20 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 	// Pull params
 	for( LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam() )
 	{
-		if( (((LLViewerVisualParam*)param)->getWearableType() == type) && (param->isTweakable() ) )
+		if( (((LLViewerVisualParam*)param)->getWearableType() == type) && (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) )
 		{
 			S32 param_id = param->getID();
 			gAgentAvatarp->setVisualParamWeight( param_id, param->getDefaultWeight(), upload_bake );
 		}
 	}
 
-	if(gAgentCamera.cameraCustomizeAvatar())
+	if( gFloaterCustomize )
 	{
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+		gFloaterCustomize->setWearable(type, NULL, PERM_ALL, TRUE);
 	}
 
 	gAgentAvatarp->updateVisualParams();
-	gAgentAvatarp->wearableUpdated(type, FALSE);
+	gAgentAvatarp->wearableUpdated(type, TRUE);
 
 //	if( upload_bake )
 //	{
@@ -746,12 +756,12 @@ void LLWearable::copyDataFrom(const LLWearable* src)
 			LLViewerFetchedTexture *image = NULL;
 			if(iter != src->mTEMap.end())
 			{
-				image = src->getLocalTextureObject(te)->getImage();
-				image_id = src->getLocalTextureObject(te)->getID();
+				image = src->getConstLocalTextureObject(te)->getImage();
+				image_id = src->getConstLocalTextureObject(te)->getID();
 				mTEMap[te] = new LLLocalTextureObject(image, image_id);
 				mSavedTEMap[te] = new LLLocalTextureObject(image, image_id);
-				mTEMap[te]->setBakedReady(src->getLocalTextureObject(te)->getBakedReady());
-				mTEMap[te]->setDiscard(src->getLocalTextureObject(te)->getDiscard());
+				mTEMap[te]->setBakedReady(src->getConstLocalTextureObject(te)->getBakedReady());
+				mTEMap[te]->setDiscard(src->getConstLocalTextureObject(te)->getDiscard());
 			}
 			else
 			{
@@ -779,7 +789,7 @@ const LLUUID& LLWearable::getItemID() const
 	return mItemID;
 }
 
-void LLWearable::setType(LLWearableType::EType type) 
+void LLWearable::setType(EWearableType type) 
 { 
 	mType = type; 
 	createVisualParams();
@@ -796,7 +806,7 @@ LLLocalTextureObject* LLWearable::getLocalTextureObject(S32 index)
 	return NULL;
 }
 
-const LLLocalTextureObject* LLWearable::getLocalTextureObject(S32 index) const
+const LLLocalTextureObject* LLWearable::getConstLocalTextureObject(S32 index) const
 {
 	te_map_t::const_iterator iter = mTEMap.find(index);
 	if( iter != mTEMap.end() )
@@ -963,11 +973,9 @@ void LLWearable::revertValues()
 
 	syncImages(mSavedTEMap, mTEMap);
 
-
-	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
-	if( panel )
+	if( gFloaterCustomize )
 	{
-		panel->updateScrollingPanelList();
+		gFloaterCustomize->updateScrollingPanelList(TRUE);
 	}
 }
 
@@ -1004,11 +1012,9 @@ void LLWearable::saveValues()
 	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
 	syncImages(mTEMap, mSavedTEMap);
 
-
-	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
-	if( panel )
+	if( gFloaterCustomize )
 	{
-		panel->updateScrollingPanelList();
+		gFloaterCustomize->updateScrollingPanelList(TRUE);
 	}
 }
 
@@ -1112,7 +1118,7 @@ void LLWearable::refreshName()
 
 struct LLWearableSaveData
 {
-	LLWearableType::EType mType;
+	EWearableType mType;
 };
 
 void LLWearable::saveNewAsset() const
@@ -1175,7 +1181,7 @@ void LLWearable::saveNewAsset() const
 void LLWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userdata, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLWearableSaveData* data = (LLWearableSaveData*)userdata;
-	const std::string& type_name = LLWearableType::getTypeName(data->mType);
+	const std::string& type_name = LLWearableDictionary::getTypeName(data->mType);
 	if(0 == status)
 	{
 		// Success
@@ -1201,7 +1207,7 @@ void LLWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userda
 
 std::ostream& operator<<(std::ostream &s, const LLWearable &w)
 {
-	s << "wearable " << LLWearableType::getTypeName(w.mType) << "\n";
+	s << "wearable " << LLWearableDictionary::getTypeName(w.mType) << "\n";
 	s << "    Name: " << w.mName << "\n";
 	s << "    Desc: " << w.mDescription << "\n";
 	//w.mPermissions

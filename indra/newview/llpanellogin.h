@@ -2,25 +2,31 @@
  * @file llpanellogin.h
  * @brief Login username entry fields.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -35,8 +41,6 @@
 class LLLineEditor;
 class LLUIImage;
 class LLPanelLoginListener;
-class LLSLURL;
-class LLCredential;
 
 class LLPanelLogin:	
 	public LLPanel,
@@ -61,15 +65,20 @@ public:
 		void (*callback)(S32 option, void* user_data), 
 		void* callback_data);
 
-	static void setFields(LLPointer<LLCredential> credential, BOOL remember);
+	// Remember password checkbox is set via gSavedSettings "RememberPassword"
+	static void setFields(const std::string& firstname, const std::string& lastname, 
+		const std::string& password);
 
-	static void getFields(LLPointer<LLCredential>& credential, BOOL& remember);
+	static void addServer(const std::string& server, S32 domain_name);
+	static void refreshLocation( bool force_visible );
+	static void updateLocationUI();
+
+	static void getFields(std::string *firstname, std::string *lastname,
+						  std::string *password);
 
 	static BOOL isGridComboDirty();
-	static BOOL areCredentialFieldsDirty();
-	static void setLocation(const LLSLURL& slurl);
-	
-	static void updateLocationCombo(bool force_visible);  // simply update the combo box
+	static void getLocation(std::string &location);
+
 	static void closePanel();
 
 	void setSiteIsAlive( bool alive );
@@ -77,10 +86,10 @@ public:
 	static void loadLoginPage();	
 	static void giveFocus();
 	static void setAlwaysRefresh(bool refresh); 
+	static void mungePassword(LLUICtrl* caller, void* user_data);
 	
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
-	static void updateServer();  // update the combo box, change the login page to the new server, clear the combo
 
 private:
 	friend class LLPanelLoginListener;
@@ -94,10 +103,6 @@ private:
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void onSelectServer(LLUICtrl*, void*);
 	static void onServerComboLostFocus(LLFocusableElement*);
-	static void updateServerCombo();
-	static void updateStartSLURL();
-	
-	static void updateLoginPanelLinks();
 
 private:
 	LLPointer<LLUIImage> mLogoImage;
@@ -106,7 +111,8 @@ private:
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;
 
-	BOOL            mPasswordModified;
+	std::string mIncomingPassword;
+	std::string mMungedPassword;
 
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;

@@ -17,7 +17,6 @@
 	datetimeToCodes["month"]	= "%B";		// August
 	datetimeToCodes["mthnum"]	= "%m";		// 08
 	datetimeToCodes["day"]		= "%d";		// 31
-	datetimeToCodes["sday"]		= "%-d";	// 9
 	datetimeToCodes["hour24"]	= "%H";		// 14
 	datetimeToCodes["hour"]		= "%H";		// 14
 	datetimeToCodes["hour12"]	= "%I";		// 02

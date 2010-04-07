@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+	 auto_tile="true"
 	 height="570"
 	 layout="topleft"
 	 name="item properties"
 	 help_topic="item_properties"
-	 title="Item Profile"
+	 save_rect="true"
+	 title="Object Profile"
 	 width="333">
 	<panel.string
 		 name="unknown">
@@ -26,14 +28,6 @@
     	 name="acquiredDate">
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
-	<panel.string
-		 name="origin_inventory">
-        (Inventory)
-	</panel.string>
-	<panel.string
-		 name="origin_inworld">
-        (Inworld)
-	</panel.string>
 	<icon
      	 follows="top|right"
      	 height="18"
@@ -46,45 +40,42 @@
 	     width="18" />
     <button
      follows="top|right"
-     height="24"
-     image_hover_unselected="BackButton_Over"
-     image_pressed="BackButton_Press"
-     image_unselected="BackButton_Off"
+     height="23"
+     image_overlay="BackArrow_Off"
      layout="topleft"
-     left="12"
+     left="14"
      name="back_btn"
      tab_stop="false"
      top="2"
-     width="30" />
+     width="23" />
     <text
      follows="top|left|right"
      font="SansSerifHugeBold"
      height="26"
      layout="topleft"
-     left_pad="3"
+     left_pad="10"
      name="title"
      text_color="LtGray"
-     top="2"
+     top="0"
      use_ellipses="true"
-     value="Item Profile"
+     value="Object Profile"
      width="275" />
     	    <text
      follows="top|left"
      height="13"
      layout="topleft"
      left="45"
-     name="origin"
+     name="where"
      text_color="LtGray_50"
      value="(Inventory)"
      width="150" />
 	<panel
          follows="all"
          height="493"
-         help_topic=""
          label=""
          layout="topleft"
          left="9"
-         name="item_profile"
+         help_topic=""
          top="45"
          width="313"
    background_visible="true"
@@ -166,49 +157,51 @@
 		     name="LabelCreatorName"
 		     top_delta="6"
 		     width="140">
-      </text>
-      <button
-      follows="top|right"
-      height="16"
-    image_selected="Inspector_I"
-    image_unselected="Inspector_I"
-      layout="topleft"
-      right="-5"
-      name="BtnCreator"
-      top_delta="-6"
-      width="16" />
-      <text
-      type="string"
-      length="1"
-      follows="left|top"
-      height="23"
-      layout="topleft"
-        left="5"
-      name="LabelOwnerTitle"
-        top_pad="10"
-      width="78">
-        Owner:
-      </text>
-      <avatar_icon
-        follows="top|left"
-        height="20"
-        default_icon_name="Generic_Person"
-        layout="topleft"
-        left_pad="0"
-        top_delta="-6"
-        mouse_opaque="true"
-        width="20" />
-      <text
-      type="string"
-        follows="left|right|top"
-        font="SansSerifSmall"
-        height="15"
-        layout="topleft"
-        left_pad="5"
-      name="LabelOwnerName"
-      top_delta="6"
-      width="140">
-      </text>
+	        Nicole Linden
+	     </text>
+	     <button
+			 follows="top|right"
+			 height="16"
+     image_selected="Inspector_I"
+     image_unselected="Inspector_I"
+			 layout="topleft"
+			 right="-5"
+			 name="BtnCreator"
+			 top_delta="-6"
+			 width="16" />
+	     <text
+			 type="string"
+			 length="1"
+			 follows="left|top"
+			 height="23"
+			 layout="topleft"
+			   left="5"
+			 name="LabelOwnerTitle"
+			   top_pad="10"
+			 width="78">
+			    Owner:
+	     </text>
+	     <avatar_icon
+			   follows="top|left"
+			   height="20"
+			   default_icon_name="Generic_Person"
+			   layout="topleft"
+			   left_pad="0"
+			   top_delta="-6"
+			   mouse_opaque="true"
+			   width="20" />
+	     <text
+			 type="string"
+			   follows="left|right|top"
+			   font="SansSerifSmall"
+			   height="15"
+			   layout="topleft"
+			   left_pad="5"
+			 name="LabelOwnerName"
+			 top_delta="6"
+			 width="140">
+			    Thrax Linden
+	     </text>
 	     <button
 			 follows="top|right"
 			 height="16"
@@ -241,6 +234,7 @@ top_pad="10"
 			 name="LabelAcquiredDate"
 			 top_delta="0"
 			 width="222">
+			Wed May 24 12:50:46 2006
       </text>
 	 <panel
          border="false"
@@ -399,7 +393,7 @@ top_pad="10"
 			    label_width="75"
 			    left="120"
 			    width="170"
-			    min_val="0"
+			    min_val="1"
 			    height="23"
 			    max_val="999999999"
 			    top_pad="10"/>

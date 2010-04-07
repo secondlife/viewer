@@ -2,25 +2,31 @@
  * @file llagent.h
  * @brief LLAgent class header file
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2000&license=viewergpl$
+ * 
+ * Copyright (c) 2000-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -33,7 +39,6 @@
 
 class LLPickInfo;
 class LLVOAvatarSelf;
-class LLControlVariable;
 
 //--------------------------------------------------------------------
 // Types
@@ -76,7 +81,6 @@ public:
 	void			init();
 	void			cleanup();
 	void		    setAvatarObject(LLVOAvatarSelf* avatar);
-	bool			isInitialized() { return mInitialized; }
 private:
 	bool			mInitialized;
 
@@ -88,7 +92,7 @@ public:
 	void			changeCameraToDefault();
 	void			changeCameraToMouselook(BOOL animate = TRUE);
 	void			changeCameraToThirdPerson(BOOL animate = TRUE);
-	void			changeCameraToCustomizeAvatar(); // Trigger transition animation
+	void			changeCameraToCustomizeAvatar(BOOL avatar_animate = TRUE, BOOL camera_animate = TRUE); // Trigger transition animation
 	void			changeCameraToFollow(BOOL animate = TRUE); 	// Ventrella
 	BOOL			cameraThirdPerson() const		{ return (mCameraMode == CAMERA_MODE_THIRD_PERSON && mLastCameraMode == CAMERA_MODE_THIRD_PERSON); }
 	BOOL			cameraMouselook() const			{ return (mCameraMode == CAMERA_MODE_MOUSELOOK && mLastCameraMode == CAMERA_MODE_MOUSELOOK); }
@@ -117,10 +121,10 @@ private:
 	ECameraPreset mCameraPreset; 
 
 	/** Initial camera offsets */
-	std::map<ECameraPreset, LLPointer<LLControlVariable> > mCameraOffsetInitial;
+	std::map<ECameraPreset, LLVector3> mCameraOffsetInitial;
 
 	/** Initial focus offsets */
-	std::map<ECameraPreset, LLPointer<LLControlVariable> > mFocusOffsetInitial;
+	std::map<ECameraPreset, LLVector3d> mFocusOffsetInitial;
 
 	//--------------------------------------------------------------------
 	// Position
@@ -132,6 +136,7 @@ public:
 	F32				getCameraMinOffGround(); 		// Minimum height off ground for this mode, meters
 	void			setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
 	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
+	F32				calcCustomizeAvatarUIOffset(const LLVector3d& camera_pos_global);
 	F32				getCurrentCameraBuildOffset() 	{ return (F32)mCameraFocusOffset.length(); }
 	void			clearCameraLag() { mCameraLag.clearVec(); }
 private:
@@ -178,7 +183,7 @@ private:
 public:
 	void			setCameraAnimating(BOOL b)			{ mCameraAnimating = b; }
 	BOOL			getCameraAnimating()				{ return mCameraAnimating; }
-	void			setAnimationDuration(F32 seconds);
+	void			setAnimationDuration(F32 seconds) 	{ mAnimationDuration = seconds; }
 	void			startCameraAnimation();
 	void			stopCameraAnimation();
 private:
@@ -219,6 +224,7 @@ private:
 	LLVector3		mFocusObjectOffset;
 	F32				mFocusDotRadius; 				// Meters
 	BOOL			mTrackFocusObject;
+	F32				mUIOffset;	
 	
 	//--------------------------------------------------------------------
 	// Lookat / Pointat

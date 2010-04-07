@@ -11,8 +11,8 @@
 	<check_box label="Odtwarzaj media" name="enable_media"/>
 	<slider label="Komunikacja Głosowa" name="Voice Volume"/>
 	<check_box label="Pozwól na rozmowy głosowe" name="enable_voice_check"/>
-	<check_box label="Automatycznie odtwarzaj media" name="media_auto_play_btn" tool_tip="Zaznacz tę funkcję by uruchomić automatyczne uruchamianie mediów" value="true"/>
-	<check_box label="Uruchom media załączone do innych awatarów" name="media_show_on_others_btn" tool_tip="Odznacz tę funkcję by ukryć media załączone to awatarów w publiżu" value="true"/>
+	<check_box label="Automatycznie odtwarzaj media" name="media_auto_play_btn" tool_tip="Zaznacz tę funkcję by uruchomić automatyczne uruchamianie mediów" value="prawda"/>
+	<check_box label="Uruchom media załączone do innych awatarów" name="media_show_on_others_btn" tool_tip="Odznacz tę funkcję by ukryć media załączone to awatarów w publiżu" value="prawda"/>
 	<text name="voice_chat_settings">
 		Ustawienia Komunikacji Głosowej
 	</text>
@@ -27,12 +27,6 @@
 	<panel label="Ustawienia Sprzętowe" name="device_settings_panel">
 		<panel.string name="default_text">
 			Domyślne
-		</panel.string>
-		<panel.string name="default system device">
-			Domyślne ustawienia sprzętowe
-		</panel.string>
-		<panel.string name="no device">
-			Brak sprzętu
 		</panel.string>
 		<text name="Input">
 			Wejściowe

@@ -2,25 +2,31 @@
  * @file llpanelavatar.cpp
  * @brief LLPanelAvatar and related class implementations
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * 
+ * Copyright (c) 2004-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -31,7 +37,6 @@
 #include "llpanelimcontrolpanel.h"
 
 #include "llagent.h"
-#include "llappviewer.h" // for gDisconnected
 #include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llbutton.h"
@@ -76,8 +81,7 @@ void LLPanelChatControlPanel::onVoiceChannelStateChanged(const LLVoiceChannel::E
 
 void LLPanelChatControlPanel::updateCallButton()
 {
-	// hide/show call button
-	bool voice_enabled = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+	bool voice_enabled = LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
 
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionId);
 	
@@ -120,7 +124,7 @@ BOOL LLPanelChatControlPanel::postBuild()
 	childSetAction("end_call_btn", boost::bind(&LLPanelChatControlPanel::onEndCallButtonClicked, this));
 	childSetAction("voice_ctrls_btn", boost::bind(&LLPanelChatControlPanel::onOpenVoiceControlsClicked, this));
 
-	LLVoiceClient::getInstance()->addObserver(this);
+	gVoiceClient->addObserver(this);
 
 	return TRUE;
 }
@@ -158,7 +162,7 @@ BOOL LLPanelIMControlPanel::postBuild()
 	childSetAction("pay_btn", boost::bind(&LLPanelIMControlPanel::onPayButtonClicked, this));
 	childSetEnabled("add_friend_btn", !LLAvatarActions::isFriend(getChild<LLAvatarIconCtrl>("avatar_icon")->getAvatarId()));
 
-	setFocusReceivedCallback(boost::bind(&LLPanelIMControlPanel::onFocusReceived, this));
+	
 	
 	return LLPanelChatControlPanel::postBuild();
 }
@@ -187,15 +191,6 @@ void LLPanelIMControlPanel::onAddFriendButtonClicked()
 void LLPanelIMControlPanel::onShareButtonClicked()
 {
 	LLAvatarActions::share(mAvatarID);
-}
-
-void LLPanelIMControlPanel::onFocusReceived()
-{
-	// Disable all the buttons (Call, Teleport, etc) if disconnected.
-	if (gDisconnected)
-	{
-		setAllChildrenEnabled(FALSE);
-	}
 }
 
 void LLPanelIMControlPanel::setSessionId(const LLUUID& session_id)

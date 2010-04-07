@@ -4,25 +4,8 @@
  * @date   2009-03-18
  * @brief  Implementation for llxmlrpclistener.
  * 
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * Copyright (c) 2009, Linden Research, Inc.
  * $/LicenseInfo$
  */
 
@@ -45,7 +28,6 @@
 #include "llerror.h"
 #include "stringize.h"
 #include "llxmlrpctransaction.h"
-#include "llsecapi.h"
 
 #if LL_WINDOWS
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
@@ -374,22 +356,7 @@ public:
                                      << data["errorcode"].asString()
                                      << " (" << data["error"].asString() << ")"
                                      << LL_ENDL;
-		
-		switch (curlcode)
-		{
-			case CURLE_SSL_PEER_CERTIFICATE:
-			case CURLE_SSL_CACERT:
-			{
-				LLPointer<LLCertificate> error_cert(mTransaction->getErrorCert());
-				if(error_cert)
-				{
-					data["certificate"] = error_cert->getPem();
-				}
-				break;
-			}
-			default:
-				break;
-		}
+        // In addition to CURLE_OK, LLUserAuth distinguishes different error
         // values of 'curlcode':
         // CURLE_COULDNT_RESOLVE_HOST,
         // CURLE_SSL_PEER_CERTIFICATE,

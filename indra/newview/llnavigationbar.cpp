@@ -2,25 +2,31 @@
  * @file llnavigationbar.cpp
  * @brief Navigation bar implementation
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -42,11 +48,11 @@
 #include "lllandmarkactions.h"
 #include "lllocationhistory.h"
 #include "lllocationinputctrl.h"
-#include "llpaneltopinfobar.h"
 #include "llteleporthistory.h"
 #include "llsearchcombobox.h"
 #include "llsidetray.h"
 #include "llslurl.h"
+#include "llurlsimstring.h"
 #include "llurlregistry.h"
 #include "llurldispatcher.h"
 #include "llviewerinventory.h"
@@ -369,6 +375,7 @@ void LLNavigationBar::draw()
 	if(mPurgeTPHistoryItems)
 	{
 		LLTeleportHistory::getInstance()->purgeItems();
+		onTeleportHistoryChanged();
 		mPurgeTPHistoryItems = false;
 	}
 
@@ -501,34 +508,29 @@ void LLNavigationBar::onLocationSelection()
 	
 	std::string region_name;
 	LLVector3 local_coords(128, 128, 0);
+	S32 x = 0, y = 0, z = 0;
 	// Is the typed location a SLURL?
-	LLSLURL slurl = LLSLURL(typed_location);
-	if (slurl.getType() == LLSLURL::LOCATION)
+	if (LLSLURL::isSLURL(typed_location))
 	{
-	  region_name = slurl.getRegion();
-	  local_coords = slurl.getPosition();
+		// Yes. Extract region name and local coordinates from it.
+		if (LLURLSimString::parse(LLSLURL::stripProtocol(typed_location), &region_name, &x, &y, &z))
+				local_coords.set(x, y, z);
+		else
+			return;
 	}
-	else if(!slurl.isValid())
+	// we have to do this check after previous, because LLUrlRegistry contains handlers for slurl too  
+	//but we need to know whether typed_location is a simple http url.
+	else if (LLUrlRegistry::instance().isUrl(typed_location)) 
 	{
-	  // we have to do this check after previous, because LLUrlRegistry contains handlers for slurl too  
-	  // but we need to know whether typed_location is a simple http url.
-	  if (LLUrlRegistry::instance().isUrl(typed_location)) 
-	    {
 		// display http:// URLs in the media browser, or
 		// anything else is sent to the search floater
 		LLWeb::loadURL(typed_location);
 		return;
-	  }
-	  else
-	  {
-	      // assume that an user has typed the {region name} or possible {region_name, parcel}
-	      region_name  = typed_location.substr(0,typed_location.find(','));
-	    }
 	}
 	else
 	{
-	  // was an app slurl, home, whatever.  Bail
-	  return;
+		// assume that an user has typed the {region name} or possible {region_name, parcel}
+		region_name  = typed_location.substr(0,typed_location.find(','));
 	}
 	
 	// Resolve the region name to its global coordinates.
@@ -560,7 +562,7 @@ void LLNavigationBar::onTeleportFinished(const LLVector3d& global_agent_pos)
 	 */
 		LLAgentUI::buildLocationString(location, LLAgentUI::LOCATION_FORMAT_NO_MATURITY,
 					gAgent.getPosAgentFromGlobal(global_agent_pos));
-	std::string tooltip (LLSLURL(gAgent.getRegion()->getName(), global_agent_pos).getSLURLString());
+	std::string tooltip (LLSLURL::buildSLURLfromPosGlobal(gAgent.getRegion()->getName(), global_agent_pos, false));
 	
 	LLLocationHistoryItem item (location,
 			global_agent_pos, tooltip,TYPED_REGION_SLURL);// we can add into history only TYPED location
@@ -649,7 +651,7 @@ void LLNavigationBar::onRegionNameResponse(
 	LLVector3d region_pos = from_region_handle(region_handle);
 	LLVector3d global_pos = region_pos + (LLVector3d) local_coords;
 
-	llinfos << "Teleporting to: " << LLSLURL(region_name,	global_pos).getSLURLString()  << llendl;
+	llinfos << "Teleporting to: " << LLSLURL::buildSLURLfromPosGlobal(region_name,	global_pos, false)  << llendl;
 	gAgent.teleportViaLocation(global_pos);
 }
 
@@ -708,8 +710,6 @@ void LLNavigationBar::onNavigationButtonHeldUp(LLButton* nav_button)
 
 void LLNavigationBar::handleLoginComplete()
 {
-	LLTeleportHistory::getInstance()->handleLoginComplete();
-	LLPanelTopInfoBar::instance().handleLoginComplete();
 	mCmbLocation->handleLoginComplete();
 }
 
@@ -770,7 +770,7 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 		{
 			// Navigation Panel must be shown. Favorites Panel is hidden.
 
-			S32 height = mDefaultNbRect.getHeight() - mDefaultFpRect.getHeight() - FAVBAR_TOP_PADDING;
+			S32 height = mDefaultNbRect.getHeight() - mDefaultFpRect.getHeight();
 			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), height);
 
 			reshape(nbRect.getWidth(), nbRect.getHeight());
@@ -784,11 +784,8 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 		{
 			// Navigation Panel must be hidden. Favorites Panel is visible.
 
-			S32 fpHeight = mDefaultFpRect.getHeight() + FAVBAR_TOP_PADDING;
-			S32 fpTop = fpHeight - (mDefaultFpRect.getHeight() / 2) + 1;
-
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fpHeight);
-			fbRect.setLeftTopAndSize(fbRect.mLeft, fpTop, fbRect.getWidth(), mDefaultFpRect.getHeight());
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fbRect.getHeight());
+			fbRect.setLeftTopAndSize(fbRect.mLeft, fbRect.getHeight(), fbRect.getWidth(), fbRect.getHeight());
 
 			// this is duplicated in 'else' section because it should be called BEFORE fb->reshape
 			reshape(nbRect.getWidth(), nbRect.getHeight());
@@ -810,9 +807,8 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 		}
 	}
 
-	childSetVisible("bg_icon", visible && fpVisible);
-	childSetVisible("bg_icon_no_fav_bevel", visible && !fpVisible);
-	childSetVisible("bg_icon_no_nav_bevel", !visible && fpVisible);
+	childSetVisible("bg_icon", fpVisible);
+	childSetVisible("bg_icon_no_fav", !fpVisible);
 }
 
 void LLNavigationBar::showFavoritesPanel(BOOL visible)
@@ -831,7 +827,7 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 			// Favorites Panel must be shown. Navigation Panel is visible.
 
 			S32 fbHeight = fbRect.getHeight();
-			S32 newHeight = nbRect.getHeight() + fbHeight + FAVBAR_TOP_PADDING;
+			S32 newHeight = nbRect.getHeight() + fbHeight;
 
 			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), newHeight);
 			fbRect.setLeftTopAndSize(mDefaultFpRect.mLeft, mDefaultFpRect.mTop, fbRect.getWidth(), fbRect.getHeight());
@@ -840,11 +836,9 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 		{
 			// Favorites Panel must be shown. Navigation Panel is hidden.
 
-			S32 fpHeight = mDefaultFpRect.getHeight() + FAVBAR_TOP_PADDING;
-			S32 fpTop = fpHeight - (mDefaultFpRect.getHeight() / 2) + 1;
-
+			S32 fpHeight = mDefaultFpRect.getHeight();
 			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fpHeight);
-			fbRect.setLeftTopAndSize(fbRect.mLeft, fpTop, fbRect.getWidth(), mDefaultFpRect.getHeight());
+			fbRect.setLeftTopAndSize(fbRect.mLeft, fpHeight, fbRect.getWidth(), fpHeight);
 		}
 
 		reshape(nbRect.getWidth(), nbRect.getHeight());
@@ -861,7 +855,7 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 			// Favorites Panel must be hidden. Navigation Panel is visible.
 
 			S32 fbHeight = fbRect.getHeight();
-			S32 newHeight = nbRect.getHeight() - fbHeight - FAVBAR_TOP_PADDING;
+			S32 newHeight = nbRect.getHeight() - fbHeight;
 
 			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), newHeight);
 		}
@@ -877,9 +871,8 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 		getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
 	}
 
-	childSetVisible("bg_icon", npVisible && visible);
-	childSetVisible("bg_icon_no_fav_bevel", npVisible && !visible);
-	childSetVisible("bg_icon_no_nav_bevel", !npVisible && visible);
+	childSetVisible("bg_icon", visible);
+	childSetVisible("bg_icon_no_fav", !visible);
 
 	fb->setVisible(visible);
 }

@@ -2,25 +2,31 @@
  * @file llscrollingpanelparam.cpp
  * @brief UI panel for a list of visual param panels
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -36,21 +42,24 @@
 #include "llbutton.h"
 #include "llsliderctrl.h"
 #include "llagent.h"
-#include "llviewborder.h"
 #include "llvoavatarself.h"
 
 // Constants for LLPanelVisualParam
 const F32 LLScrollingPanelParam::PARAM_STEP_TIME_THRESHOLD = 0.25f;
 
+const S32 LLScrollingPanelParam::BTN_BORDER = 2;
 const S32 LLScrollingPanelParam::PARAM_HINT_WIDTH = 128;
 const S32 LLScrollingPanelParam::PARAM_HINT_HEIGHT = 128;
+const S32 LLScrollingPanelParam::PARAM_HINT_LABEL_HEIGHT = 16;
+const S32 LLScrollingPanelParam::PARAM_PANEL_WIDTH = 2 * (3* BTN_BORDER + PARAM_HINT_WIDTH +  LLPANEL_BORDER_WIDTH);
+const S32 LLScrollingPanelParam::PARAM_PANEL_HEIGHT = 2 * BTN_BORDER + PARAM_HINT_HEIGHT + PARAM_HINT_LABEL_HEIGHT + 4 * LLPANEL_BORDER_WIDTH; 
 
 // LLScrollingPanelParam
 //static
 S32 LLScrollingPanelParam::sUpdateDelayFrames = 0;
 
 LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_params,
-											  LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp )
+											  LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable )
 	: LLScrollingPanel( panel_params ),
 	  mParam(param),
 	  mAllowModify(allow_modify),
@@ -58,18 +67,15 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_scrolling_param.xml");
 
-	// *HACK To avoid hard coding texture position, lets use border's position for texture. 
-	LLViewBorder* left_border = getChild<LLViewBorder>("left_border");
-
 	static LLUICachedControl<S32> slider_ctrl_height ("UISliderctrlHeight", 0);
-	S32 pos_x = left_border->getRect().mLeft + left_border->getBorderWidth();
-	S32 pos_y = left_border->getRect().mBottom + left_border->getBorderWidth();
+	S32 pos_x = 2 * LLPANEL_BORDER_WIDTH;
+	S32 pos_y = 3 * LLPANEL_BORDER_WIDTH + slider_ctrl_height;
 	F32 min_weight = param->getMinWeight();
 	F32 max_weight = param->getMaxWeight();
 
-	mHintMin = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable,  min_weight, jointp);
-	pos_x = getChild<LLViewBorder>("right_border")->getRect().mLeft + left_border->getBorderWidth();
-	mHintMax = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable, max_weight, jointp );
+	mHintMin = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()),  min_weight);
+	pos_x += PARAM_HINT_WIDTH + 3 * BTN_BORDER;
+	mHintMax = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), max_weight );
 	
 	mHintMin->setAllowsUpdates( FALSE );
 	mHintMax->setAllowsUpdates( FALSE );
@@ -156,10 +162,6 @@ void LLScrollingPanelParam::draw()
 	childSetVisible("less", mHintMin->getVisible());
 	childSetVisible("more", mHintMax->getVisible());
 
-	// hide borders if texture has been loaded
-	childSetVisible("left_border", !mHintMin->getVisible());
-	childSetVisible("right_border", !mHintMax->getVisible());
-
 	// Draw all the children except for the labels
 	childSetVisible( "min param text", FALSE );
 	childSetVisible( "max param text", FALSE );
@@ -169,7 +171,9 @@ void LLScrollingPanelParam::draw()
 	gGL.pushUIMatrix();
 	{
 		const LLRect& r = mHintMin->getRect();
-		gGL.translateUI((F32)r.mLeft, (F32)r.mBottom, 0.f);
+		F32 left = (F32)(r.mLeft + BTN_BORDER);
+		F32 bot  = (F32)(r.mBottom + BTN_BORDER);
+		gGL.translateUI(left, bot, 0.f);
 		mHintMin->draw();
 	}
 	gGL.popUIMatrix();
@@ -177,7 +181,9 @@ void LLScrollingPanelParam::draw()
 	gGL.pushUIMatrix();
 	{
 		const LLRect& r = mHintMax->getRect();
-		gGL.translateUI((F32)r.mLeft, (F32)r.mBottom, 0.f);
+		F32 left = (F32)(r.mLeft + BTN_BORDER);
+		F32 bot  = (F32)(r.mBottom + BTN_BORDER);
+		gGL.translateUI(left, bot, 0.f);
 		mHintMax->draw();
 	}
 	gGL.popUIMatrix();
@@ -185,10 +191,10 @@ void LLScrollingPanelParam::draw()
 
 	// Draw labels on top of the buttons
 	childSetVisible( "min param text", TRUE );
-	drawChild(getChild<LLView>("min param text"));
+	drawChild(getChild<LLView>("min param text"), BTN_BORDER, BTN_BORDER);
 
 	childSetVisible( "max param text", TRUE );
-	drawChild(getChild<LLView>("max param text"));
+	drawChild(getChild<LLView>("max param text"), BTN_BORDER, BTN_BORDER);
 }
 
 // static
@@ -203,7 +209,6 @@ void LLScrollingPanelParam::onSliderMoved(LLUICtrl* ctrl, void* userdata)
 	if (current_weight != new_weight )
 	{
 		self->mWearable->setVisualParamWeight( param->getID(), new_weight, FALSE );
-		self->mWearable->writeToAvatar();
 		gAgentAvatarp->updateVisualParams();
 	}
 }
@@ -293,7 +298,6 @@ void LLScrollingPanelParam::onHintHeldDown( LLVisualParamHint* hint )
 				&& new_percent < slider->getMaxValue())
 			{
 				mWearable->setVisualParamWeight( hint->getVisualParam()->getID(), new_weight, FALSE);
-				mWearable->writeToAvatar();
 				gAgentAvatarp->updateVisualParams();
 
 				slider->setValue( weightToPercent( new_weight ) );
@@ -326,7 +330,6 @@ void LLScrollingPanelParam::onHintMinMouseUp( void* userdata )
 				&& new_percent < slider->getMaxValue())
 			{
 				self->mWearable->setVisualParamWeight(hint->getVisualParam()->getID(), new_weight, FALSE);
-				self->mWearable->writeToAvatar();
 				slider->setValue( self->weightToPercent( new_weight ) );
 			}
 		}
@@ -360,7 +363,6 @@ void LLScrollingPanelParam::onHintMaxMouseUp( void* userdata )
 					&& new_percent < slider->getMaxValue())
 				{
 					self->mWearable->setVisualParamWeight(hint->getVisualParam()->getID(), new_weight, FALSE);
-					self->mWearable->writeToAvatar();
 					slider->setValue( self->weightToPercent( new_weight ) );
 				}
 			}

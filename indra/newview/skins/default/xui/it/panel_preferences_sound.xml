@@ -11,8 +11,8 @@
 	<check_box label="Abilitato" name="enable_media"/>
 	<slider label="Chat vocale" name="Voice Volume"/>
 	<check_box label="Abilitato" name="enable_voice_check"/>
-	<check_box label="Consenti riproduzione multimediale automatica" name="media_auto_play_btn" tool_tip="Seleziona qui per consentire la riproduzione multimediale automatica" value="true"/>
-	<check_box label="Riproduci media in uso da altri avatar" name="media_show_on_others_btn" tool_tip="Deseleziona qui per nascondere i media in uso dagli altri avatar nei dintorni" value="true"/>
+	<check_box label="Consenti riproduzione multimediale automatica" name="media_auto_play_btn" tool_tip="Seleziona qui per consentire la riproduzione multimediale automatica" value="vero"/>
+	<check_box label="Riproduci media in uso da altri avatar" name="media_show_on_others_btn" tool_tip="Deseleziona qui per nascondere i media in uso dagli altri avatar nei dintorni" value="vero"/>
 	<text name="voice_chat_settings">
 		Impostazioni Chat vocale
 	</text>
@@ -27,12 +27,6 @@
 	<panel label="Impostazioni del dispositivo" name="device_settings_panel">
 		<panel.string name="default_text">
 			Predefinito
-		</panel.string>
-		<panel.string name="default system device">
-			Dispositivo di sistema predefinito
-		</panel.string>
-		<panel.string name="no device">
-			Nessun dispositivo
 		</panel.string>
 		<text name="Input">
 			Input

@@ -97,9 +97,6 @@
   <!-- UI Definitions -->
 
     <color
-     name="AccordionHeaderTextColor"
-     reference="LtGray" />
-    <color
      name="AgentChatColor"
      reference="White" />
     <color
@@ -362,7 +359,7 @@
      reference="White"/>
     <color
      name="GroupNotifyDimmedTextColor"
-     reference="LtGray" />
+     reference="DkGray" />
     <color
      name="GroupOverTierColor"
      value="0.43 0.06 0.06 1" />
@@ -426,9 +423,6 @@
     <color
      name="InventoryItemLibraryColor"
      reference="EmphasisColor" />
-    <color
-     name="InventoryItemLinkColor"
-     reference="LtGray_50" />
     <color
      name="InventorySearchStatusColor"
      reference="EmphasisColor" />
@@ -533,7 +527,7 @@
      reference="Unused?" />
     <color
      name="NetMapBackgroundColor"
-     value="0 0 0 1" />
+     value="0 0 0 0" />
     <color
      name="NetMapGroupOwnAboveWater"
      reference="Purple" />
@@ -648,9 +642,6 @@
     <color
      name="ScrollbarTrackColor"
      reference="Black" />
-    <color
-     name="SelectedOutfitTextColor"
-     reference="EmphasisColor" />
     <color
      name="SilhouetteChildColor"
      value="0.13 0.42 0.77 1" />

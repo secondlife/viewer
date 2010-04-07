@@ -5,11 +5,10 @@
 		<menu_item_call label="Mit instrumentpanel" name="Manage My Account"/>
 		<menu_item_call label="Køb L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Profil" name="Profile"/>
-		<menu_item_call label="Skift sæt" name="ChangeOutfit"/>
+		<menu_item_call label="Udseende" name="Appearance"/>
 		<menu_item_check label="Beholdning" name="Inventory"/>
 		<menu_item_check label="Min beholdning" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mine bevægelser" name="Gestures"/>
-		<menu_item_check label="Min stemme" name="ShowVoice"/>
 		<menu label="Min status" name="Status">
 			<menu_item_call label="Væk" name="Set Away"/>
 			<menu_item_call label="Optaget" name="Set Busy"/>
@@ -30,7 +29,6 @@
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Opret landemærke for dette sted" name="Create Landmark Here"/>
 		<menu label="Profil for sted" name="Land">
-			<menu_item_call label="Profil for sted" name="Place Profile"/>
 			<menu_item_call label="Om land" name="About Land"/>
 			<menu_item_call label="Region/Estate" name="Region/Estate"/>
 		</menu>
@@ -66,15 +64,20 @@
 			<menu_item_call label="Byg værktøj" name="Create"/>
 			<menu_item_call label="Land værktøj" name="Land"/>
 		</menu>
+		<menu label="Redigér" name="Edit">
+			<menu_item_call label="Fortryd" name="Undo"/>
+			<menu_item_call label="Gendan" name="Redo"/>
+			<menu_item_call label="Klip" name="Cut"/>
+			<menu_item_call label="Kopiér" name="Copy"/>
+			<menu_item_call label="Sæt ind" name="Paste"/>
+			<menu_item_call label="Slet" name="Delete"/>
+			<menu_item_call label="Duplikér" name="Duplicate"/>
+			<menu_item_call label="Vælg alt" name="Select All"/>
+			<menu_item_call label="Fravælg" name="Deselect"/>
+		</menu>
 		<menu_item_call label="Sammenkæd" name="Link"/>
 		<menu_item_call label="Adskil" name="Unlink"/>
 		<menu_item_check label="Redigér sammekædede objekter" name="Edit Linked Parts"/>
-		<menu label="Vis lænkede dele" name="Select Linked Parts">
-			<menu_item_call label="Vælg næste del" name="Select Next Part"/>
-			<menu_item_call label="Vælg forrige del" name="Select Previous Part"/>
-			<menu_item_call label="Inkludér næste del" name="Include Next Part"/>
-			<menu_item_call label="Inkludér forrige del" name="Include Previous Part"/>
-		</menu>
 		<menu_item_call label="Fokusér på valgte" name="Focus on Selection"/>
 		<menu_item_call label="Zoom til valgte" name="Zoom to Selection"/>
 		<menu label="Objekt" name="Object">
@@ -92,7 +95,7 @@
 			<menu_item_call label="Sæt scripts til &quot;Not Running&quot;" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="Valg" name="Options">
-			<menu_item_call label="Sæt standard rettigher for upload" name="perm prefs"/>
+			<menu_item_call label="Sæt standard rettigheder" name="perm prefs"/>
 			<menu_item_check label="Vis avancerede rettigheder" name="DebugPermissions"/>
 			<menu_item_check label="Vælg kun egne objekter" name="Select Only My Objects"/>
 			<menu_item_check label="Vis kun flytbare objekter" name="Select Only Movable Objects"/>
@@ -105,21 +108,19 @@
 			<menu_item_call label="Benyt valgte som grundlag for gitter" name="Use Selection for Grid"/>
 			<menu_item_call label="Gitter indstillinger" name="Grid Options"/>
 		</menu>
-		<menu label="Send" name="Upload">
-			<menu_item_call label="Billede (L$[COST])..." name="Upload Image"/>
-			<menu_item_call label="Lyd (L$[COST])..." name="Upload Sound"/>
-			<menu_item_call label="Animation (L$[COST])..." name="Upload Animation"/>
-			<menu_item_call label="Mange (L$[COST] pr. fil)..." name="Bulk Upload"/>
+		<menu label="Vis lænkede dele" name="Select Linked Parts">
+			<menu_item_call label="Vælg næste del" name="Select Next Part"/>
+			<menu_item_call label="Vælg forrige del" name="Select Previous Part"/>
+			<menu_item_call label="Inkludér næste del" name="Include Next Part"/>
+			<menu_item_call label="Inkludér forrige del" name="Include Previous Part"/>
 		</menu>
 	</menu>
 	<menu label="Hjælp" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
 		<menu_item_call label="Rapporter misbrug" name="Report Abuse"/>
 		<menu_item_call label="Rapportér fejl" name="Report Bug"/>
-		<menu_item_call label="Om [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanceret" name="Advanced">
-		<menu_item_check label="Vis avanceret menu" name="Show Advanced Menu"/>
 		<menu_item_call label="Stop animering af min avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Gendan teksturer" name="Rebake Texture"/>
 		<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
@@ -141,6 +142,7 @@
 			<menu_item_check label="Fremhæv gennemsigtigt" name="Highlight Transparent"/>
 			<menu_item_check label="Vis HUD vedhæftninger" name="Show HUD Attachments"/>
 			<menu_item_check label="Vis muse-sigte" name="ShowCrosshairs"/>
+			<menu_item_check label="Vis tips om land" name="Land Tips"/>
 		</menu>
 		<menu label="Gengivelsestyper" name="Rendering Types">
 			<menu_item_check label="Simpel" name="Simple"/>
@@ -166,8 +168,7 @@
 			<menu_item_check label="Tåge" name="Fog"/>
 			<menu_item_check label="Fleksible objekter" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="Kør flere &apos;threats&apos;" name="Run Multiple Threads"/>
-		<menu_item_check label="Benyt &quot;Plugin Read Thread&quot;" name="Use Plugin Read Thread"/>
+		<menu_item_check label="Kør flere 'threats'" name="Run Multiple Threads"/>
 		<menu_item_call label="Tøm gruppe cache" name="ClearGroupCache"/>
 		<menu_item_check label="Muse udjævning" name="Mouse Smoothing"/>
 		<menu label="Shortcuts" name="Shortcuts">
@@ -175,7 +176,6 @@
 			<menu_item_check label="Søg" name="Search"/>
 			<menu_item_call label="Frigør taster" name="Release Keys"/>
 			<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
-			<menu_item_check label="Vis avanceret menu" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Løb altid" name="Always Run"/>
 			<menu_item_check label="Flyv" name="Fly"/>
 			<menu_item_call label="Luk vindue" name="Close Window"/>
@@ -195,6 +195,7 @@
 			<menu_item_call label="Zoom ind" name="Zoom In"/>
 			<menu_item_call label="Zoom standard" name="Zoom Default"/>
 			<menu_item_call label="Zoom ud" name="Zoom Out"/>
+			<menu_item_call label="Skift fuld-skærm" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="Vis debug valg" name="Debug Settings"/>
 		<menu_item_check label="Vis udviklingsmenu" name="Debug Mode"/>

@@ -3,25 +3,31 @@
  * @author Richard Nelson
  * @brief Voice communication set-up 
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * 
+ * Copyright (c) 2007-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
  
@@ -58,6 +64,9 @@ LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
 	// grab "live" mic volume level
 	mMicVolume = gSavedSettings.getF32("AudioLevelMic");
 
+	// ask for new device enumeration
+	// now do this in onOpen() instead...
+	//gVoiceClient->refreshDeviceLists();
 }
 
 LLPanelVoiceDeviceSettings::~LLPanelVoiceDeviceSettings()
@@ -96,7 +105,7 @@ void LLPanelVoiceDeviceSettings::draw()
 	refresh();
 
 	// let user know that volume indicator is not yet available
-	bool is_in_tuning_mode = LLVoiceClient::getInstance()->inTuningMode();
+	bool is_in_tuning_mode = gVoiceClient->inTuningMode();
 	childSetVisible("wait_text", !is_in_tuning_mode);
 
 	LLPanel::draw();
@@ -104,7 +113,7 @@ void LLPanelVoiceDeviceSettings::draw()
 	if (is_in_tuning_mode)
 	{
 		const S32 num_bars = 5;
-		F32 voice_power = LLVoiceClient::getInstance()->tuningGetEnergy() / LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
+		F32 voice_power = gVoiceClient->tuningGetEnergy() / LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
 		S32 discrete_power = llmin(num_bars, llfloor(voice_power * (F32)num_bars + 0.1f));
 
 		for(S32 power_bar_idx = 0; power_bar_idx < num_bars; power_bar_idx++)
@@ -185,13 +194,13 @@ void LLPanelVoiceDeviceSettings::refresh()
 	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
 	// set mic volume tuning slider based on last mic volume setting
 	F32 current_volume = (F32)volume_slider->getValue().asReal();
-	LLVoiceClient::getInstance()->tuningSetMicVolume(current_volume);
+	gVoiceClient->tuningSetMicVolume(current_volume);
 
 	// Fill in popup menus
 	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
 	mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
 
-	if(!LLVoiceClient::getInstance()->deviceSettingsAvailable())
+	if(!gVoiceClient->deviceSettingsAvailable())
 	{
 		// The combo boxes are disabled, since we can't get the device settings from the daemon just now.
 		// Put the currently set default (ONLY) in the box, and select it.
@@ -210,34 +219,19 @@ void LLPanelVoiceDeviceSettings::refresh()
 	}
 	else if (!mDevicesUpdated)
 	{
-		LLVoiceDeviceList::const_iterator iter;
+		LLVoiceClient::deviceList *devices;
+		
+		LLVoiceClient::deviceList::iterator iter;
 		
 		if(mCtrlInputDevices)
 		{
 			mCtrlInputDevices->removeall();
 			mCtrlInputDevices->add( getString("default_text"), ADD_BOTTOM );
 
-			for(iter=LLVoiceClient::getInstance()->getCaptureDevices().begin(); 
-				iter != LLVoiceClient::getInstance()->getCaptureDevices().end();
-				iter++)
+			devices = gVoiceClient->getCaptureDevices();
+			for(iter=devices->begin(); iter != devices->end(); iter++)
 			{
-				// Lets try to localize some system device names. EXT-8375
-				std::string device_name = *iter;
-				LLStringUtil::toLower(device_name); //compare in low case
-				if ("default system device" == device_name)
-				{
-					device_name = getString(device_name);
-				}
-				else if ("no device" == device_name)
-				{
-					device_name = getString(device_name);
-				}
-				else
-				{
-					// restore original value
-					device_name = *iter;
-				}
-				mCtrlInputDevices->add(device_name, ADD_BOTTOM );
+				mCtrlInputDevices->add( *iter, ADD_BOTTOM );
 			}
 
 			if(!mCtrlInputDevices->setSimple(mInputDevice))
@@ -251,26 +245,10 @@ void LLPanelVoiceDeviceSettings::refresh()
 			mCtrlOutputDevices->removeall();
 			mCtrlOutputDevices->add( getString("default_text"), ADD_BOTTOM );
 
-			for(iter= LLVoiceClient::getInstance()->getRenderDevices().begin(); 
-				iter !=  LLVoiceClient::getInstance()->getRenderDevices().end(); iter++)
+			devices = gVoiceClient->getRenderDevices();
+			for(iter=devices->begin(); iter != devices->end(); iter++)
 			{
-				// Lets try to localize some system device names. EXT-8375
-				std::string device_name = *iter;
-				LLStringUtil::toLower(device_name); //compare in low case
-				if ("default system device" == device_name)
-				{
-					device_name = getString(device_name);
-				}
-				else if ("no device" == device_name)
-				{
-					device_name = getString(device_name);
-				}
-				else
-				{
-					// restore original value
-					device_name = *iter;
-				}
-				mCtrlOutputDevices->add(device_name, ADD_BOTTOM );
+				mCtrlOutputDevices->add( *iter, ADD_BOTTOM );
 			}
 
 			if(!mCtrlOutputDevices->setSimple(mOutputDevice))
@@ -290,34 +268,37 @@ void LLPanelVoiceDeviceSettings::initialize()
 	mDevicesUpdated = FALSE;
 
 	// ask for new device enumeration
-	LLVoiceClient::getInstance()->refreshDeviceLists();
+	gVoiceClient->refreshDeviceLists();
 
 	// put voice client in "tuning" mode
-	LLVoiceClient::getInstance()->tuningStart();
+	gVoiceClient->tuningStart();
 	LLVoiceChannel::suspend();
 }
 
 void LLPanelVoiceDeviceSettings::cleanup()
 {
-	LLVoiceClient::getInstance()->tuningStop();
+	if (gVoiceClient)
+	{
+		gVoiceClient->tuningStop();
+	}
 	LLVoiceChannel::resume();
 }
 
 // static
 void LLPanelVoiceDeviceSettings::onCommitInputDevice(LLUICtrl* ctrl, void* user_data)
 {
-	if(LLVoiceClient::getInstance())
+	if(gVoiceClient)
 	{
-		LLVoiceClient::getInstance()->setCaptureDevice(ctrl->getValue().asString());
+		gVoiceClient->setCaptureDevice(ctrl->getValue().asString());
 	}
 }
 
 // static
 void LLPanelVoiceDeviceSettings::onCommitOutputDevice(LLUICtrl* ctrl, void* user_data)
 {
-	if(LLVoiceClient::getInstance())
+	if(gVoiceClient)
 	{
-		LLVoiceClient::getInstance()->setRenderDevice(ctrl->getValue().asString());
+		gVoiceClient->setRenderDevice(ctrl->getValue().asString());
 	}
 }
 

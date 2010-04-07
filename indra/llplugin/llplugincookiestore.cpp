@@ -3,25 +3,30 @@
  * @brief LLPluginCookieStore provides central storage for http cookies used by plugins
  *
  * @cond
- * $LicenseInfo:firstyear=2010&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
+ *
+ * Copyright (c) 2010, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlife.com/developers/opensource/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlife.com/developers/opensource/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  * @endcond
  */
@@ -94,7 +99,7 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 	std::string::size_type cookie_end = mCookie.size();
 	std::string::size_type field_start = 0;
 
-	LL_DEBUGS("CookieStoreParse") << "parsing cookie: " << mCookie << LL_ENDL;
+	lldebugs << "parsing cookie: " << mCookie << llendl;
 	while(field_start < cookie_end)
 	{
 		// Finding the start of the next field requires honoring special quoting rules
@@ -162,10 +167,10 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 			++value_end;
 		}
 
-		LL_DEBUGS("CookieStoreParse") 
+		lldebugs 
 			<< "    field name: \"" << mCookie.substr(name_start, name_end - name_start) 
 			<< "\", value: \"" << mCookie.substr(value_start, value_end - value_start) << "\""
-			<< LL_ENDL;
+			<< llendl;
 				
 		// See whether this field is one we know
 		if(first_field)
@@ -190,13 +195,13 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 #if 1
 				time_t date = curl_getdate(date_string.c_str(), NULL );
 				mDate.secondsSinceEpoch((F64)date);
-				LL_DEBUGS("CookieStoreParse") << "        expire date parsed to: " << mDate.asRFC1123() << LL_ENDL;
+				lldebugs << "        expire date parsed to: " << mDate.asRFC1123() << llendl;
 #else
 				// This doesn't work (rfc1123-format dates cause it to fail)
 				if(!mDate.fromString(date_string))
 				{
 					// Date failed to parse.
-					LL_WARNS("CookieStoreParse") << "failed to parse cookie's expire date: " << date << LL_ENDL;
+					llwarns << "failed to parse cookie's expire date: " << date << llendl;
 					return false;
 				}
 #endif
@@ -227,14 +232,9 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 			{
 				// We don't care about the value of this field (yet)
 			}
-			else if(matchName(name_start, name_end, "httponly"))
-			{
-				// We don't care about the value of this field (yet)
-			}
 			else
 			{
 				// An unknown field is a parse failure
-				LL_WARNS("CookieStoreParse") << "unexpected field name: " << mCookie.substr(name_start, name_end - name_start) << LL_ENDL;
 				return false;
 			}
 			
@@ -270,7 +270,7 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 		mCookie += host;
 		mDomainEnd = mCookie.size();
 		
-		LL_DEBUGS("CookieStoreParse") << "added domain (" << mDomainStart << " to " << mDomainEnd << "), new cookie is: " << mCookie << LL_ENDL;
+		lldebugs << "added domain (" << mDomainStart << " to " << mDomainEnd << "), new cookie is: " << mCookie << llendl;
 	}
 
 	// If the cookie doesn't have a path, add "/".
@@ -288,7 +288,7 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 		mCookie += "/";
 		mPathEnd = mCookie.size();
 		
-		LL_DEBUGS("CookieStoreParse") << "added path (" << mPathStart << " to " << mPathEnd << "), new cookie is: " << mCookie << LL_ENDL;
+		lldebugs << "added path (" << mPathStart << " to " << mPathEnd << "), new cookie is: " << mCookie << llendl;
 	}
 	
 	
@@ -566,7 +566,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 	Cookie *cookie = Cookie::createFromString(s, cookie_start, cookie_end, host);
 	if(cookie)
 	{
-		LL_DEBUGS("CookieStoreUpdate") << "setting cookie: " << cookie->getCookie() << LL_ENDL;
+		lldebugs << "setting cookie: " << cookie->getCookie() << llendl;
 		
 		// Create a key for this cookie
 		std::string key = cookie->getKey();
@@ -579,7 +579,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 			{
 				// If we're marking cookies as changed, we should keep it anyway since we'll need to send it out with deltas.
 				cookie->setDead(true);
-				LL_DEBUGS("CookieStoreUpdate") << "    marking dead" << LL_ENDL;
+				lldebugs << "    marking dead" << llendl;
 			}
 			else
 			{
@@ -590,7 +590,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 				delete cookie;
 				cookie = NULL;
 
-				LL_DEBUGS("CookieStoreUpdate") << "    removing" << LL_ENDL;
+				lldebugs << "    removing" << llendl;
 			}
 		}
 		
@@ -607,7 +607,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 					delete cookie;
 					cookie = NULL;
 
-					LL_DEBUGS("CookieStoreUpdate") << "    unchanged" << LL_ENDL;
+					lldebugs << "    unchanged" << llendl;
 				}
 				else
 				{
@@ -619,7 +619,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 					if(mark_changed)
 						mHasChangedCookies = true;
 
-					LL_DEBUGS("CookieStoreUpdate") << "    replacing" << LL_ENDL;
+					lldebugs << "    replacing" << llendl;
 				}
 			}
 			else
@@ -631,15 +631,10 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 				if(mark_changed)
 					mHasChangedCookies = true;
 
-				LL_DEBUGS("CookieStoreUpdate") << "    adding" << LL_ENDL;
+				lldebugs << "    adding" << llendl;
 			}
 		}
 	}
-	else
-	{
-		LL_WARNS("CookieStoreUpdate") << "failed to parse cookie: " << s.substr(cookie_start, cookie_end - cookie_start) << LL_ENDL;
-	}
-
 }
 
 void LLPluginCookieStore::clearCookies()

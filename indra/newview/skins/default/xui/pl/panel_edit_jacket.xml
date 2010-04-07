@@ -5,9 +5,7 @@
 		<texture_picker label="Dolny materiał" name="Lower Fabric" tool_tip="Kliknij aby wybrać teksturę"/>
 		<color_swatch label="Kolor/Barwa" name="Color/Tint" tool_tip="Kliknij aby wybrać kolor"/>
 	</panel>
-	<panel name="accordion_panel">
-		<accordion name="wearable_accordion">
-			<accordion_tab name="jacket_main_tab" title="Kurtka"/>
-		</accordion>
-	</panel>
+	<accordion name="wearable_accordion">
+		<accordion_tab name="jacket_main_tab" title="Kurtka"/>
+	</accordion>
 </panel>

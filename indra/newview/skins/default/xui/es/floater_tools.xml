@@ -67,10 +67,7 @@
 	<text name="RenderingCost" tool_tip="Muestra cuánto se calcula que cuesta renderizar este objeto">
 		þ: [COUNT]
 	</text>
-	<check_box label="" name="checkbox uniform"/>
-	<text label="Estirar ambos lados" name="checkbox uniform label">
-		Estirar ambos lados
-	</text>
+	<check_box label="Estirar ambos lados" name="checkbox uniform"/>
 	<check_box initial_value="true" label="Estirar las texturas" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Usar la cuadrícula" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Elige qué cuadricula usar para posicionar el objeto" width="82">
@@ -185,7 +182,7 @@
 			<button label="Configurar..." label_selected="Configurar..." name="button set group" tool_tip="Elige un grupo con el que compartir los permisos de este objeto"/>
 			<name_box initial_value="Cargando..." name="Group Name Proxy"/>
 			<button label="Transferir" label_selected="Transferir" name="button deed" tool_tip="La transferencia entrega este objeto con los permisos del próximo propietario. Los objetos compartidos por el grupo pueden ser transferidos por un oficial del grupo."/>
-			<check_box label="Compartir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
+			<check_box label="Comprtir" name="checkbox share with group" tool_tip="Permite que todos los miembros del grupo compartan tus permisos de modificación en este objeto. Debes transferirlo para activar las restricciones según los roles."/>
 			<text name="label click action" width="180">
 				Al tocarlo:
 			</text>
@@ -397,7 +394,8 @@
 			<text name="glow label">
 				Resplandor
 			</text>
-			<check_box bottom_delta="-21" label="Brillo al  máximo" name="checkbox fullbright"/>
+			<check_box bottom_delta="-21" label="Brillo al 
+máximo" name="checkbox fullbright"/>
 			<text name="tex gen">
 				Detallado
 			</text>
@@ -478,7 +476,14 @@
 			Área: [AREA] m²
 		</text>
 		<button label="Acerca del terreno" label_selected="Acerca del terreno" name="button about land"/>
-		<check_box label="Mostrar los propietarios" name="checkbox show owners" tool_tip="El color de las parcelas es según su propietario:   Verde = Su terreno  Agua = Terreno de sus grupos  Rojo = Propiedad de otros  Amarillo = En venta  Morado = Para subasta  Gris = Público"/>
+		<check_box label="Mostrar los propietarios" name="checkbox show owners" tool_tip="El color de las parcelas es según su propietario: 
+
+Verde = Su terreno 
+Agua = Terreno de sus grupos 
+Rojo = Propiedad de otros 
+Amarillo = En venta 
+Morado = Para subasta 
+Gris = Público"/>
 		<text name="label_parcel_modify">
 			Modificar la parcela
 		</text>

@@ -2,25 +2,31 @@
  * @file llpanelgrouproles.cpp
  * @brief Panel for roles information about a particular group.
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2006&license=viewergpl$
+ * 
+ * Copyright (c) 2006-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -45,7 +51,6 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltexteditor.h"
-#include "lltrans.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
@@ -113,7 +118,8 @@ LLPanelGroupRoles::LLPanelGroupRoles()
 	mCurrentTab(NULL),
 	mRequestedTab( NULL ),
 	mSubTabContainer( NULL ),
-	mFirstUse( TRUE )
+	mFirstUse( TRUE ),
+	mIgnoreTransition( FALSE )
 {
 }
 
@@ -139,6 +145,8 @@ BOOL LLPanelGroupRoles::postBuild()
 			llwarns << "Invalid subtab panel: " << panel->getName() << llendl;
 			return FALSE;
 		}
+		// Add click callbacks to all the tabs.
+		mSubTabContainer->setCommitCallback(boost::bind(&LLPanelGroupRoles::handleClickSubTab, this));
 
 		// Hand the subtab a pointer to this LLPanelGroupRoles, so that it can
 		// look around for the widgets it is interested in.
@@ -147,8 +155,6 @@ BOOL LLPanelGroupRoles::postBuild()
 
 		//subtabp->addObserver(this);
 	}
-	// Add click callbacks to tab switching.
-	mSubTabContainer->setValidateBeforeCommit(boost::bind(&LLPanelGroupRoles::handleSubTabSwitch, this, _1));
 
 	// Set the current tab to whatever is currently being shown.
 	mCurrentTab = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
@@ -190,17 +196,30 @@ BOOL LLPanelGroupRoles::isVisibleByAgent(LLAgent* agentp)
 								   
 }
 
-bool LLPanelGroupRoles::handleSubTabSwitch(const LLSD& data)
+void LLPanelGroupRoles::handleClickSubTab()
 {
-	std::string panel_name = data.asString();
-	
-	if(mRequestedTab != NULL)//we already have tab change request
+	// If we are already handling a transition,
+	// ignore this.
+	if (mIgnoreTransition)
 	{
-		return false;
+		return;
 	}
 
-	mRequestedTab = static_cast<LLPanelGroupTab*>(mSubTabContainer->getPanelByName(panel_name));
+	mRequestedTab = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
 
+	// Make sure they aren't just clicking the same tab...
+	if (mRequestedTab == mCurrentTab)
+	{
+		return;
+	}
+
+	// Try to switch from the current panel to the panel the user selected.
+	attemptTransition();
+}
+
+BOOL LLPanelGroupRoles::attemptTransition()
+{
+	// Check if the current tab needs to be applied.
 	std::string mesg;
 	if (mCurrentTab && mCurrentTab->needsApply(mesg))
 	{
@@ -216,14 +235,26 @@ bool LLPanelGroupRoles::handleSubTabSwitch(const LLSD& data)
 		LLNotificationsUtil::add("PanelGroupApply", args, LLSD(),
 			boost::bind(&LLPanelGroupRoles::handleNotifyCallback, this, _1, _2));
 		mHasModal = TRUE;
-		
+		// We need to reselect the current tab, since it isn't finished.
+		if (mSubTabContainer)
+		{
+			mIgnoreTransition = TRUE;
+			mSubTabContainer->selectTabPanel( mCurrentTab );
+			mIgnoreTransition = FALSE;
+		}
 		// Returning FALSE will block a close action from finishing until
 		// we get a response back from the user.
-		return false;
+		return FALSE;
 	}
-
-	transitionToTab();
-	return true;
+	else
+	{
+		// The current panel didn't have anything it needed to apply.
+		if (mRequestedTab)
+		{
+			transitionToTab();
+		}
+		return TRUE;
+	}
 }
 
 void LLPanelGroupRoles::transitionToTab()
@@ -240,7 +271,6 @@ void LLPanelGroupRoles::transitionToTab()
 		// This is now the current tab;
 		mCurrentTab = mRequestedTab;
 		mCurrentTab->activate();
-		mRequestedTab = 0;
 	}
 }
 
@@ -248,7 +278,6 @@ bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLS
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	mHasModal = FALSE;
-	LLPanelGroupTab* transition_tab = mRequestedTab;
 	switch (option)
 	{
 	case 0: // "Apply Changes"
@@ -268,20 +297,26 @@ bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLS
 			// Skip switching tabs.
 			break;
 		}
+
+		// This panel's info successfully applied.
+		// Switch to the next panel.
+		// No break!  Continue into 'Ignore Changes' which just switches tabs.
+		mIgnoreTransition = TRUE;
+		mSubTabContainer->selectTabPanel( mRequestedTab );
+		mIgnoreTransition = FALSE;
 		transitionToTab();
-		mSubTabContainer->selectTabPanel( transition_tab );
-		
 		break;
 	}
 	case 1: // "Ignore Changes"
 		// Switch to the requested panel without applying changes
 		cancel();
+		mIgnoreTransition = TRUE;
+		mSubTabContainer->selectTabPanel( mRequestedTab );
+		mIgnoreTransition = FALSE;
 		transitionToTab();
-		mSubTabContainer->selectTabPanel( transition_tab );
 		break;
 	case 2: // "Cancel"
 	default:
-		mRequestedTab = NULL;
 		// Do nothing.  The user is canceling the action.
 		break;
 	}
@@ -582,7 +617,7 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 
 		row["columns"][1]["column"] = "action";
 		row["columns"][1]["type"] = "text";
-		row["columns"][1]["value"] = LLTrans::getString(action_set->mActionSetData->mName);
+		row["columns"][1]["value"] = action_set->mActionSetData->mName;
 		row["columns"][1]["font"]["name"] = "SANSSERIF_SMALL";
 		
 
@@ -792,39 +827,8 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 
 void LLPanelGroupMembersSubTab::setGroupID(const LLUUID& id)
 {
-	//clear members list
-	if(mMembersList) mMembersList->deleteAllItems();
-	if(mAssignedRolesList) mAssignedRolesList->deleteAllItems();
-	if(mAllowedActionsList) mAllowedActionsList->deleteAllItems();
-
 	LLPanelGroupSubTab::setGroupID(id);
-}
 
-void LLPanelGroupRolesSubTab::setGroupID(const LLUUID& id)
-{
-	if(mRolesList) mRolesList->deleteAllItems();
-	if(mAssignedMembersList) mAssignedMembersList->deleteAllItems();
-	if(mAllowedActionsList) mAllowedActionsList->deleteAllItems();
-
-	if(mRoleName) mRoleName->clear();
-	if(mRoleDescription) mRoleDescription->clear();
-	if(mRoleTitle) mRoleTitle->clear();
-
-	mHasRoleChange = FALSE;
-
-	setFooterEnabled(FALSE);
-
-	LLPanelGroupSubTab::setGroupID(id);
-}
-void LLPanelGroupActionsSubTab::setGroupID(const LLUUID& id)
-{
-	if(mActionList) mActionList->deleteAllItems();
-	if(mActionRoles) mActionRoles->deleteAllItems();
-	if(mActionMembers) mActionMembers->deleteAllItems();
-
-	if(mActionDescription) mActionDescription->clear();
-
-	LLPanelGroupSubTab::setGroupID(id);
 }
 
 
@@ -1588,7 +1592,6 @@ void LLPanelGroupMembersSubTab::updateMembers()
 
 
 	LLGroupMgrGroupData::member_list_t::iterator end = gdatap->mMembers.end();
-	LLUIString donated = getString("donation_area");
 
 	S32 i = 0;
 	for( ; mMemberProgress != end && i<UPDATE_MEMBERS_PER_FRAME; 
@@ -1610,7 +1613,9 @@ void LLPanelGroupMembersSubTab::updateMembers()
 
 		if (add_member)
 		{
-			donated.setArg("[AREA]", llformat("%d", mMemberProgress->second->getContribution()));
+			// Build the donated tier string.
+			std::ostringstream donated;
+			donated << mMemberProgress->second->getContribution() << " sq. m.";
 
 			LLSD row;
 			row["id"] = (*mMemberProgress).first;
@@ -1619,7 +1624,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 			// value is filled in by name list control
 
 			row["columns"][1]["column"] = "donated";
-			row["columns"][1]["value"] = donated.getString();
+			row["columns"][1]["value"] = donated.str();
 
 			row["columns"][2]["column"] = "online";
 			row["columns"][2]["value"] = mMemberProgress->second->getOnlineStatus();
@@ -1745,7 +1750,8 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	mRoleTitle->setKeystrokeCallback(onPropertiesKey, this);
 
 	mRoleDescription->setCommitOnFocusLost(TRUE);
-	mRoleDescription->setKeystrokeCallback(boost::bind(&LLPanelGroupRolesSubTab::onDescriptionKeyStroke, this, _1));
+	mRoleDescription->setCommitCallback(onDescriptionCommit, this);
+	mRoleDescription->setFocusReceivedCallback(boost::bind(onDescriptionFocus, _1, this));
 
 	setFooterEnabled(FALSE);
 
@@ -2201,10 +2207,14 @@ void LLPanelGroupRolesSubTab::onPropertiesKey(LLLineEditor* ctrl, void* user_dat
 	self->notifyObservers();
 }
 
-void LLPanelGroupRolesSubTab::onDescriptionKeyStroke(LLTextEditor* caller)
+// static 
+void LLPanelGroupRolesSubTab::onDescriptionFocus(LLFocusableElement* ctrl, void* user_data)
 {
-	mHasRoleChange = TRUE;
-	notifyObservers();
+	LLPanelGroupRolesSubTab* self = static_cast<LLPanelGroupRolesSubTab*>(user_data);
+	if (!self) return;
+
+	self->mHasRoleChange = TRUE;
+	self->notifyObservers();
 }
 
 // static 

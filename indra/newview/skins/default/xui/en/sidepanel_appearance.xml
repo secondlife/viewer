@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
 background_visible="true"
-default_tab_group="1"
 follows="all"
 height="570"
 label="Outfits"
@@ -15,97 +14,63 @@ width="333">
    <string
    name="No Outfit"
    value="No Outfit" />
-   <string
-   name="Unsaved Changes"
-   value="Unsaved changes" />
-   <string
-   name="Now Wearing"
-   value="Now wearing..." />
-   <string
-   name="Changing outfits"
-   value="Changing outfits" />
    <panel
-   background_opaque="true"
-   background_visible="true"
-   bg_opaque_color="DkGray2"
-   left="10"
-   top="5"
-   follows="left|top|right"
+   left="0"
+   top="0"
+   follows="all"
    layout="topleft"
-   width="303"
+   width="330"
    height="33"
    name="panel_currentlook"
    >
       <button
       follows="left|top"
-      left="205" top="7" width="20" height="20"
-      label="E"
+      top="0"  width="1" height="1"
       layout="topleft"
-      name="editappearance_btn"
-      visible="false" />
+      left="0"
+      name="editappearance_btn" />
       <button
       follows="left|top"
-      left="235" top="7" width="20" height="20"
-      label="O"
+      top="0"  width="1" height="1"
       layout="topleft"
-      name="openoutfit_btn"
-      visible="false" />
+      left="0"
+      name="openoutfit_btn" />
       <icon
       follows="top|left"
-      height="31"
-      image_name="Shirt_Large"
+      height="24"
+      image_name="TabIcon_Appearance_Off"
       name="outfit_icon"
       mouse_opaque="false"
       visible="true"
-      left="1"
+      left="9"
       top="0"
-      width="31" />
+      width="24" />
       <text
-      font="SansSerifSmall"
-      text_color="EmphasisColor"
-      width="300"
-      height="10"
-      follows="top|left"
-      layout="topleft"
-      left="35"
-      top="3"
-      mouse_opaque="false"
-      name="currentlook_status" >
-      (Status)
-      </text>
-      <text
-      font="SansSerifLargeBold"
+      font="SansSerifHugeBold"
       height="20"
-      left="35"
-      text_color="White"
-      top="15"
+      left_pad="5"
+      text_color="LtGray"
+      top="0"
       use_ellipses="true"
-      width="230"
+      width="305"
       follows="top|left"
-      word_wrap="false"
+      word_wrap="true"
       mouse_opaque="false"
       name="currentlook_name">
       MyOutfit With a really Long Name like MOOSE
       </text>
-      <button
-      follows="left|top"
-      height="28"
-      image_overlay="Edit_Wrench"
-      label=""
+      <text
+      font="SansSerifSmall"
+      text_color="White_50"
+      width="300"
+      height="1"
+      follows="top|left"
       layout="topleft"
-      left="265"
-      name="edit_outfit_btn"
-      tool_tip="Edit this outfit"
-      top="3"
-      width="28" />
-      <loading_indicator
-      follows="left|top"
-      height="24"
-      layout="topleft"
-      left="268"
-      name="wearables_loading_indicator"
-      top="6"
-      width="24" />
+      top_pad="5"
+      mouse_opaque="false"
+      name="currentlook_title" >
+      (unsaved)
+       </text>
    </panel>
    <filter_editor
    height="23"
@@ -115,19 +80,16 @@ width="333">
    label="Filter Outfits"
    max_length="300"
    name="Filter"
-   search_button_visible="true"
    top_pad="10"
    width="303" />
    <panel
    class="panel_outfits_inventory"
    filename="panel_outfits_inventory.xml"
    name="panel_outfits_inventory"
-   height="493"
+   height="505"
    min_height="410"
    width="320"
-   visible="false"
    left="0"
-   tab_group="1"
    top_pad="6"
    follows="all" />
   <!--   <button
@@ -142,13 +104,13 @@ width="333">
    <panel
    class="panel_outfit_edit"
    filename="panel_outfit_edit.xml"
-   height="565"
+   height="550"
    follows="all"
    layout="topleft"
    left="5"
    min_height="410"
    name="panel_outfit_edit"
-   top="2"
+   top="5"
    visible="false" 
    width="320"/>
    <panel

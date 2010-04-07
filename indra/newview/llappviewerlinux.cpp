@@ -2,25 +2,31 @@
  * @file llappviewerlinux.cpp
  * @brief The LLAppViewerLinux class definitions
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * 
+ * Copyright (c) 2007-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */ 
 
@@ -39,6 +45,23 @@
 #include "llfindlocale.h"
 
 #include <exception>
+
+#if LL_LINUX
+# include <dlfcn.h>		// RTLD_LAZY
+# include <execinfo.h>  // backtrace - glibc only
+#elif LL_SOLARIS
+# include <sys/types.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <ucontext.h>
+#endif
+
+#ifdef LL_ELFBIN
+# ifdef __GNUC__
+#  include <cxxabi.h>			// for symbol demangling
+# endif
+# include "ELFIO/ELFIO.h"		// for better backtraces
+#endif
 
 #if LL_DBUS_ENABLED
 # include "llappviewerlinux_api_dbus.h"
@@ -63,6 +86,7 @@ static void exceptionTerminateHandler()
 	// reinstall default terminate() handler in case we re-terminate.
 	if (gOldTerminateHandler) std::set_terminate(gOldTerminateHandler);
 	// treat this like a regular viewer crash, with nice stacktrace etc.
+	LLAppViewer::handleSyncViewerCrash();
 	LLAppViewer::handleViewerCrash();
 	// we've probably been killed-off before now, but...
 	gOldTerminateHandler(); // call old terminate() handler
@@ -85,6 +109,7 @@ int main( int argc, char **argv )
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 	// install crash handlers
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
+	viewer_app_ptr->setSyncErrorHandler(LLAppViewer::handleSyncViewerCrash);
 
 	bool ok = viewer_app_ptr->init();
 	if(!ok)
@@ -112,6 +137,201 @@ int main( int argc, char **argv )
 	viewer_app_ptr = NULL;
 	return 0;
 }
+
+#ifdef LL_SOLARIS
+static inline BOOL do_basic_glibc_backtrace()
+{
+	BOOL success = FALSE;
+
+	std::string strace_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
+	llinfos << "Opening stack trace file " << strace_filename << llendl;
+	LLFILE* StraceFile = LLFile::fopen(strace_filename, "w");
+	if (!StraceFile)
+	{
+		llinfos << "Opening stack trace file " << strace_filename << " failed. Using stderr." << llendl;
+		StraceFile = stderr;
+	}
+
+	printstack(fileno(StraceFile));
+
+	if (StraceFile != stderr)
+		fclose(StraceFile);
+
+	return success;
+}
+#else
+#define MAX_STACK_TRACE_DEPTH 40
+// This uses glibc's basic built-in stack-trace functions for a not very
+// amazing backtrace.
+static inline BOOL do_basic_glibc_backtrace()
+{
+	void *stackarray[MAX_STACK_TRACE_DEPTH];
+	size_t size;
+	char **strings;
+	size_t i;
+	BOOL success = FALSE;
+
+	size = backtrace(stackarray, MAX_STACK_TRACE_DEPTH);
+	strings = backtrace_symbols(stackarray, size);
+
+	std::string strace_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
+	llinfos << "Opening stack trace file " << strace_filename << llendl;
+	LLFILE* StraceFile = LLFile::fopen(strace_filename, "w");		// Flawfinder: ignore
+        if (!StraceFile)
+	{
+		llinfos << "Opening stack trace file " << strace_filename << " failed. Using stderr." << llendl;
+		StraceFile = stderr;
+	}
+
+	if (size)
+	{
+		for (i = 0; i < size; i++)
+		{
+			// the format of the StraceFile is very specific, to allow (kludgy) machine-parsing
+			fprintf(StraceFile, "%-3lu ", (unsigned long)i);
+			fprintf(StraceFile, "%-32s\t", "unknown");
+			fprintf(StraceFile, "%p ", stackarray[i]);
+			fprintf(StraceFile, "%s\n", strings[i]);
+		}
+
+		success = TRUE;
+	}
+	
+	if (StraceFile != stderr)
+		fclose(StraceFile);
+
+	free (strings);
+	return success;
+}
+
+#if LL_ELFBIN
+// This uses glibc's basic built-in stack-trace functions together with
+// ELFIO's ability to parse the .symtab ELF section for better symbol
+// extraction without exporting symbols (which'd cause subtle, fatal bugs).
+static inline BOOL do_elfio_glibc_backtrace()
+{
+	void *stackarray[MAX_STACK_TRACE_DEPTH];
+	size_t btsize;
+	char **strings;
+	BOOL success = FALSE;
+
+	std::string appfilename = gDirUtilp->getExecutablePathAndName();
+
+	std::string strace_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
+	llinfos << "Opening stack trace file " << strace_filename << llendl;
+	LLFILE* StraceFile = LLFile::fopen(strace_filename, "w");		// Flawfinder: ignore
+        if (!StraceFile)
+	{
+		llinfos << "Opening stack trace file " << strace_filename << " failed. Using stderr." << llendl;
+		StraceFile = stderr;
+	}
+
+	// get backtrace address list and basic symbol info
+	btsize = backtrace(stackarray, MAX_STACK_TRACE_DEPTH);
+	strings = backtrace_symbols(stackarray, btsize);
+
+	// create ELF reader for our app binary
+	IELFI* pReader;
+	const IELFISection* pSec = NULL;
+	IELFISymbolTable* pSymTbl = 0;
+	if (ERR_ELFIO_NO_ERROR != ELFIO::GetInstance()->CreateELFI(&pReader) ||
+	    ERR_ELFIO_NO_ERROR != pReader->Load(appfilename.c_str()) ||
+	    // find symbol table, create reader-object
+	    NULL == (pSec = pReader->GetSection( ".symtab" )) ||
+	    ERR_ELFIO_NO_ERROR != pReader->CreateSectionReader(IELFI::ELFI_SYMBOL, pSec, (void**)&pSymTbl) )
+	{
+		// Failed to open our binary and read its symbol table somehow
+		llinfos << "Could not initialize ELF symbol reading - doing basic backtrace." << llendl;
+		if (StraceFile != stderr)
+			fclose(StraceFile);
+		// note that we may be leaking some of the above ELFIO
+		// objects now, but it's expected that we'll be dead soon
+		// and we want to tread delicately until we get *some* kind
+		// of useful backtrace.
+		return do_basic_glibc_backtrace();
+	}
+
+	// iterate over trace and symtab, looking for plausible symbols
+	std::string   name;
+	Elf32_Addr    value;
+	Elf32_Word    ssize;
+	unsigned char bind;
+	unsigned char type;
+	Elf32_Half    section;
+	int nSymNo = pSymTbl->GetSymbolNum();
+	size_t btpos;
+	for (btpos = 0; btpos < btsize; ++btpos)
+	{
+		// the format of the StraceFile is very specific, to allow (kludgy) machine-parsing
+		fprintf(StraceFile, "%-3ld ", (long)btpos);
+		int symidx;
+		for (symidx = 0; symidx < nSymNo; ++symidx)
+		{
+			if (ERR_ELFIO_NO_ERROR ==
+			    pSymTbl->GetSymbol(symidx, name, value, ssize,
+					       bind, type, section))
+			{
+				// check if trace address within symbol range
+				if (uintptr_t(stackarray[btpos]) >= value &&
+				    uintptr_t(stackarray[btpos]) < value+ssize)
+				{
+					// symbol is inside viewer
+					fprintf(StraceFile, "%-32s\t", "com.secondlife.indra.viewer");
+					fprintf(StraceFile, "%p ", stackarray[btpos]);
+
+					char *demangled_str = NULL;
+					int demangle_result = 1;
+					demangled_str =
+						abi::__cxa_demangle
+						(name.c_str(), NULL, NULL,
+						 &demangle_result);
+					if (0 == demangle_result &&
+					    NULL != demangled_str) {
+						fprintf(StraceFile,
+							"%s", demangled_str);
+						free(demangled_str);
+					}
+					else // failed demangle; print it raw
+					{
+						fprintf(StraceFile,
+							"%s", name.c_str());
+					}
+					// print offset from symbol start
+					fprintf(StraceFile,
+						" + %lu\n",
+						uintptr_t(stackarray[btpos]) -
+						value);
+					goto got_sym; // early escape
+				}
+			}
+		}
+		// Fallback:
+		// Didn't find a suitable symbol in the binary - it's probably
+		// a symbol in a DSO; use glibc's idea of what it should be.
+		fprintf(StraceFile, "%-32s\t", "unknown");
+		fprintf(StraceFile, "%p ", stackarray[btpos]);
+		fprintf(StraceFile, "%s\n", strings[btpos]);
+	got_sym:;
+	}
+	
+	if (StraceFile != stderr)
+		fclose(StraceFile);
+
+	pSymTbl->Release();
+	pSec->Release();
+	pReader->Release();
+
+	free(strings);
+
+	llinfos << "Finished generating stack trace." << llendl;
+
+	success = TRUE;
+	return success;
+}
+#endif // LL_ELFBIN
+
+#endif // LL_SOLARIS
+
 
 LLAppViewerLinux::LLAppViewerLinux()
 {
@@ -321,6 +541,16 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 }
 #endif // LL_DBUS_ENABLED
 
+void LLAppViewerLinux::handleSyncCrashTrace()
+{
+	// This backtrace writes into stack_trace.log
+#  if LL_ELFBIN
+	do_elfio_glibc_backtrace(); // more useful backtrace
+#  else
+	do_basic_glibc_backtrace(); // only slightly useful backtrace
+#  endif // LL_ELFBIN
+}
+
 void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 {
 	std::string cmd =gDirUtilp->getExecutableDir();
@@ -374,7 +604,7 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 				{cmd.c_str(),
 				 ask_dialog,
 				 "-user",
-				 (char*)LLGridManager::getInstance()->getGridLabel().c_str(),
+				 (char*)LLViewerLogin::getInstance()->getGridLabel().c_str(),
 				 "-name",
 				 LLAppViewer::instance()->getSecondLifeTitle().c_str(),
 				 NULL};
@@ -456,8 +686,6 @@ bool LLAppViewerLinux::beingDebugged()
 bool LLAppViewerLinux::initLogging()
 {
 	// Remove the last stack trace, if any
-	// This file is no longer created, since the move to Google Breakpad
-	// The code is left here to clean out any old state in the log dir
 	std::string old_stack_file =
 		gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	LLFile::remove(old_stack_file);

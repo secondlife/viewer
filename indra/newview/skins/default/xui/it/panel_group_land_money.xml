@@ -6,9 +6,6 @@
 	<panel.string name="cant_view_group_land_text">
 		Non sei autorizzato a vedere quali terreni appartengono al gruppo.
 	</panel.string>
-	<panel.string name="epmty_view_group_land_text">
-		Nessuna voce
-	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
 		Non sei autorizzato a visionare le informazioni finanziarie del gruppo.
 	</panel.string>

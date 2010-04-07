@@ -63,9 +63,6 @@
 				Posiadłość nie wybrana.
 Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokazać jej dane.
 			</panel.string>
-			<panel.string name="time_stamp_template">
-				[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
-			</panel.string>
 			<text name="Name:">
 				Nazwa:
 			</text>
@@ -199,13 +196,13 @@ Idź do Świat &gt; O Posiadłości albo wybierz inną posiadłość żeby pokaz
 			<text name="resellable_lbl">
 				Odsprzedaj:
 			</text>
-			<text left="115" name="resellable_clause">
+			<text left="115" name="resellable_clause" width="338">
 				Posiadłość zakupiona w tym Regionie nie może być odsprzedana.
 			</text>
 			<text name="changeable_lbl">
 				Podziel:
 			</text>
-			<text left="115" name="changeable_clause">
+			<text left="115" name="changeable_clause" width="338">
 				Posiadłość zakupiona w tym Regionie nie może być
 łączona/dzielona.
 			</text>
@@ -327,7 +324,7 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 			<check_box label="Wszyscy" name="edit objects check"/>
 			<check_box label="Grupa" name="edit group objects check"/>
 			<text name="allow_label3">
-				Nowe obiekty:
+				Nowe Obiekty:
 			</text>
 			<check_box label="Wszyscy" name="all object entry check"/>
 			<check_box label="Grupa" name="group object entry check"/>
@@ -380,7 +377,7 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				Punkt Lądowania: [LANDING]
 			</text>
 			<button label="Ustaw" label_selected="Ustaw" name="Set" tool_tip="Ustal miejsce lądowania dla przybywających gości. Używa położenia Twojego awatara na tej posiadłości."/>
-			<button label="Nowy" label_selected="Nowy" name="Clear" tool_tip="Usuń dotychczasowe miejsce lądowania."/>
+			<button label="Nowy" label_selected="Nowy" name="Clear" tool_tip="Clear the landing point."/>
 			<text name="Teleport Routing: ">
 				Trasa teleportacji:
 			</text>
@@ -399,7 +396,7 @@ Jedynie większe posiadłości mogą być umieszczone w bazie wyszukiwarki.
 				URL mediów:
 			</text>
 			<button label="Ustaw" name="set_media_url"/>
-			<check_box label="Ukryj URL mediów" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym Rezydentom. Nie dotyczy to jednak typów HTML."/>
+			<check_box label="Ukryj URL mediów" name="hide_media_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów wszystkim nieautoryzowanym Użytkownikom. Nie dotyczy to jednak typów HTML."/>
 			<text name="Description:">
 				Opis:
 			</text>
@@ -431,14 +428,14 @@ Mediów:
 			<check_box label="Ukryj URL muzyki" name="hide_music_url" tool_tip="Wybranie tej opcji, zablokuje widok adresu do medów muzycznych w posiadłości wszystkim nieautoryzowanym Użytkownikom"/>
 			<check_box label="Rozmowy dozwolone" name="parcel_enable_voice_channel"/>
 			<check_box label="Rozmowy dozwolone (ustawione przez Majątek)" name="parcel_enable_voice_channel_is_estate_disabled"/>
-			<check_box label="Ogranicz komunikację głosową w tej Posiadłości." name="parcel_enable_voice_channel_local"/>
+			<check_box label="Ogranicz komunikację głosową w tej posiadłości." name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="DOSTĘP" name="land_access_panel">
 			<panel.string name="access_estate_defined">
 				(Zdefiniowane przez Majątek)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Udostępnij publicznie ([MATURITY])
+				Udostępnij dostęp publiczny ([MATURITY])
 			</panel.string>
 			<panel.string name="estate_override">
 				Jedna lub więcej z tych opcji ustawiona jest z poziomu Posiadłości

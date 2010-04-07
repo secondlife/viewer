@@ -4,25 +4,31 @@
  * @date 2005-04-21
  * @brief Declaration of url based requests on pipes.
  *
- * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2005&license=viewergpl$
+ * 
+ * Copyright (c) 2005-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -38,8 +44,6 @@
 #include "lliopipe.h"
 #include "llchainio.h"
 #include "llerror.h"
-#include <openssl/x509_vfy.h>
-#include "llcurl.h"
 
 
 extern const std::string CONTEXT_REQUEST;
@@ -68,8 +72,6 @@ class LLURLRequest : public LLIOPipe
 {
 	LOG_CLASS(LLURLRequest);
 public:
-
-	typedef int (* SSLCertVerifyCallback)(X509_STORE_CTX *ctx, void *param);
 	/** 
 	 * @brief This enumeration is for specifying the type of request.
 	 */
@@ -123,7 +125,7 @@ public:
 	 * 
 	 */
 	void setURL(const std::string& url);
-	std::string getURL() const;
+
 	/** 
 	 * @brief Add a header to the http post.
 	 *
@@ -141,9 +143,8 @@ public:
 	 * Set whether request will check that remote server
 	 * certificates are signed by a known root CA when using HTTPS.
 	 */
-	void setSSLVerifyCallback(SSLCertVerifyCallback callback, void * param);
+	void checkRootCertificate(bool check);
 
-	
 	/**
 	 * @brief Return at most size bytes of body.
 	 *
@@ -188,7 +189,6 @@ public:
 	 * @brief Give this pipe a chance to handle a generated error
 	 */
 	virtual EStatus handleError(EStatus status, LLPumpIO* pump);
-
 	
 protected:
 	/** 
@@ -217,8 +217,6 @@ protected:
 	 S32 mRequestTransferedBytes;
 	 S32 mResponseTransferedBytes;
 
-	static CURLcode _sslCtxCallback(CURL * curl, void *sslctx, void *param);
-	
 private:
 	/** 
 	 * @brief Initialize the object. Called during construction.
@@ -366,6 +364,62 @@ protected:
 };
 
 
+/** 
+ * @class LLURLRequestClientFactory
+ * @brief Template class to build url request based client chains 
+ *
+ * This class eases construction of a basic sd rpc client. Here is an
+ * example of it's use:
+ * <code>
+ *  class LLUsefulService : public LLService { ... }<br>
+ *  LLService::registerCreator(<br>
+ *    "useful",<br>
+ *    LLService::creator_t(new LLURLRequestClientFactory<LLUsefulService>))<br>
+ * </code>
+ *
+ * This class should work, but I never got around to using/testing it.
+ *
+ */
+#if 0
+template<class Client>
+class LLURLRequestClientFactory : public LLChainIOFactory
+{
+public:
+	LLURLRequestClientFactory(LLURLRequest::ERequestAction action) {}
+	LLURLRequestClientFactory(
+		LLURLRequest::ERequestAction action,
+		const std::string& fixed_url) :
+		mAction(action),
+		mURL(fixed_url)
+	{
+	}
+	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
+	{
+		lldebugs << "LLURLRequestClientFactory::build" << llendl;
+		LLIOPipe::ptr_t service(new Client);
+		chain.push_back(service);
+		LLURLRequest* http(new LLURLRequest(mAction));
+		LLIOPipe::ptr_t http_pipe(http);
+		// *FIX: how do we know the content type?
+		//http->addHeader("Content-Type: text/llsd");
+		if(mURL.empty())
+		{
+			chain.push_back(LLIOPipe::ptr_t(new LLContextURLExtractor(http)));
+		}
+		else
+		{
+			http->setURL(mURL);
+		}
+		chain.push_back(http_pipe);
+		chain.push_back(service);
+		return true;
+	}
+
+protected:
+	LLURLRequest::ERequestAction mAction;
+	std::string mURL;
+};
+#endif
 
 /**
  * External constants

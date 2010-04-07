@@ -7,11 +7,10 @@
 		</menu_item_call>
 		<menu_item_call label="Acheter des L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Mon profil" name="Profile"/>
-		<menu_item_call label="Changer de tenue" name="ChangeOutfit"/>
+		<menu_item_call label="Mon apparence" name="Appearance"/>
 		<menu_item_check label="Mon inventaire" name="Inventory"/>
 		<menu_item_check label="Mon inventaire" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mes gestes" name="Gestures"/>
-		<menu_item_check label="Ma voix" name="ShowVoice"/>
 		<menu label="Mon statut" name="Status">
 			<menu_item_call label="Absent" name="Set Away"/>
 			<menu_item_call label="Occupé" name="Set Busy"/>
@@ -32,7 +31,6 @@
 		<menu_item_call label="Photo" name="Take Snapshot"/>
 		<menu_item_call label="Créer un repère pour ce lieu" name="Create Landmark Here"/>
 		<menu label="Profil du lieu" name="Land">
-			<menu_item_call label="Profil du lieu" name="Place Profile"/>
 			<menu_item_call label="À propos du terrain" name="About Land"/>
 			<menu_item_call label="Région/Domaine" name="Region/Estate"/>
 		</menu>
@@ -61,22 +59,27 @@
 	</menu>
 	<menu label="Construire" name="BuildTools">
 		<menu_item_check label="Construire" name="Show Build Tools"/>
-		<menu label="Sélectionner un outil de construction" name="Select Tool">
-			<menu_item_call label="Outil de mise au point" name="Focus"/>
+		<menu label="Sélectionner l&apos;outil de construction" name="Select Tool">
+			<menu_item_call label="Outil de zoom" name="Focus"/>
 			<menu_item_call label="Outil de déplacement" name="Move"/>
 			<menu_item_call label="Outil de modification" name="Edit"/>
 			<menu_item_call label="Outil de création" name="Create"/>
 			<menu_item_call label="Outil Terrain" name="Land"/>
 		</menu>
+		<menu label="Édition" name="Edit">
+			<menu_item_call label="Annuler" name="Undo"/>
+			<menu_item_call label="Refaire" name="Redo"/>
+			<menu_item_call label="Couper" name="Cut"/>
+			<menu_item_call label="Copier" name="Copy"/>
+			<menu_item_call label="Coller" name="Paste"/>
+			<menu_item_call label="Supprimer" name="Delete"/>
+			<menu_item_call label="Dupliquer" name="Duplicate"/>
+			<menu_item_call label="Tout sélectionner" name="Select All"/>
+			<menu_item_call label="Désélectionner" name="Deselect"/>
+		</menu>
 		<menu_item_call label="Lien" name="Link"/>
 		<menu_item_call label="Annuler le lien" name="Unlink"/>
 		<menu_item_check label="Modifier les parties liées" name="Edit Linked Parts"/>
-		<menu label="Sélectionner les parties liées" name="Select Linked Parts">
-			<menu_item_call label="Sélectionner la partie suivante" name="Select Next Part"/>
-			<menu_item_call label="Sélectionner la partie précédente" name="Select Previous Part"/>
-			<menu_item_call label="Inclure la partie suivante" name="Include Next Part"/>
-			<menu_item_call label="Inclure la partie précédente" name="Include Previous Part"/>
-		</menu>
 		<menu_item_call label="Point central sur la sélection" name="Focus on Selection"/>
 		<menu_item_call label="Zoomer sur la sélection" name="Zoom to Selection"/>
 		<menu label="Objet" name="Object">
@@ -107,11 +110,11 @@
 			<menu_item_call label="Utiliser la sélection pour la grille" name="Use Selection for Grid"/>
 			<menu_item_call label="Options de la grille" name="Grid Options"/>
 		</menu>
-		<menu label="Charger" name="Upload">
-			<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
-			<menu_item_call label="Son ([COST] L$)..." name="Upload Sound"/>
-			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
-			<menu_item_call label="Lot ([COST] L$ par fichier)..." name="Bulk Upload"/>
+		<menu label="Sélectionner les parties liées" name="Select Linked Parts">
+			<menu_item_call label="Sélectionner la partie suivante" name="Select Next Part"/>
+			<menu_item_call label="Sélectionner la partie précédente" name="Select Previous Part"/>
+			<menu_item_call label="Inclure la partie suivante" name="Include Next Part"/>
+			<menu_item_call label="Inclure la partie précédente" name="Include Previous Part"/>
 		</menu>
 	</menu>
 	<menu label="Aide" name="Help">
@@ -121,7 +124,6 @@
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avancé" name="Advanced">
-		<menu_item_check label="Afficher le menu Avancé" name="Show Advanced Menu"/>
 		<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Refixer les textures" name="Rebake Texture"/>
 		<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
@@ -143,6 +145,7 @@
 			<menu_item_check label="Mettre la transparence en surbrillance" name="Highlight Transparent"/>
 			<menu_item_check label="Afficher les éléments HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Afficher le réticule de la vue subjective" name="ShowCrosshairs"/>
+			<menu_item_check label="Afficher les info-bulles de terrain" name="Land Tips"/>
 		</menu>
 		<menu label="Types de rendu" name="Rendering Types">
 			<menu_item_check label="Simple" name="Simple"/>
@@ -169,7 +172,6 @@
 			<menu_item_check label="Objets flexibles" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="Exécuter plusieurs threads" name="Run Multiple Threads"/>
-		<menu_item_check label="Utiliser le thread de lecture de plug-in" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Effacer le cache du groupe" name="ClearGroupCache"/>
 		<menu_item_check label="Effet de lissage de la souris" name="Mouse Smoothing"/>
 		<menu label="Raccourcis" name="Shortcuts">
@@ -177,7 +179,6 @@
 			<menu_item_check label="Rechercher" name="Search"/>
 			<menu_item_call label="Relâcher les touches" name="Release Keys"/>
 			<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
-			<menu_item_check label="Afficher le menu Avancé - raccourci existant" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Toujours courir" name="Always Run"/>
 			<menu_item_check label="Voler" name="Fly"/>
 			<menu_item_call label="Fermer la fenêtre" name="Close Window"/>
@@ -187,8 +188,8 @@
 			<menu_item_check label="Joystick Flycam" name="Joystick Flycam"/>
 			<menu_item_call label="Réinitialiser la vue" name="Reset View"/>
 			<menu_item_call label="Regarder la dernière conversation" name="Look at Last Chatter"/>
-			<menu label="Sélectionner un outil de construction" name="Select Tool">
-				<menu_item_call label="Outil de mise au point" name="Focus"/>
+			<menu label="Sélectionner l&apos;outil de construction" name="Select Tool">
+				<menu_item_call label="Outil de zoom" name="Focus"/>
 				<menu_item_call label="Outil de déplacement" name="Move"/>
 				<menu_item_call label="Outil de modification" name="Edit"/>
 				<menu_item_call label="Outil de création" name="Create"/>
@@ -197,6 +198,7 @@
 			<menu_item_call label="Zoomer en avant" name="Zoom In"/>
 			<menu_item_call label="Zoom par défaut" name="Zoom Default"/>
 			<menu_item_call label="Zoomer en arrière" name="Zoom Out"/>
+			<menu_item_call label="Activer/Quitter le plein écran" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="Afficher les paramètres de débogage" name="Debug Settings"/>
 		<menu_item_check label="Afficher le menu Développeurs" name="Debug Mode"/>

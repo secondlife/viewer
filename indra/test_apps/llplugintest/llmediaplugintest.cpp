@@ -2,25 +2,30 @@
  * @file LLMediaPluginTest.cpp
  * @brief Primary test application for LLMedia (Separate Process) Plugin system
  *
- * $LicenseInfo:firstyear=2008&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
+ *
+ * Copyright (c) 2009, Linden Research, Inc.
+ *
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlife.com/developers/opensource/gplv2
+ *
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlife.com/developers/opensource/flossexception
+ *
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -236,9 +241,6 @@ LLMediaPluginTest::~LLMediaPluginTest()
 	{
 		remMediaPanel( mMediaPanels[ i ] );
 	};
-	
-	// Stop the plugin read thread if it's running.
-	LLPluginProcessParent::setUseReadThread(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1045,11 +1047,6 @@ void LLMediaPluginTest::gluiCallback( int control_id )
 		}
 	}
 	else
-	if ( control_id == mIdUsePluginReadThread )
-	{
-		LLPluginProcessParent::setUseReadThread(mUsePluginReadThread);
-	}
-	else
 	if ( control_id == mIdControlCrashPlugin )
 	{
 		// send message to plugin and ask it to crash
@@ -1431,12 +1428,6 @@ void LLMediaPluginTest::makeChrome()
 	mIdDisableTimeout = start_id++;
 	mDisableTimeout = 0;
 	glui_window_misc_control->add_checkbox( "Disable plugin timeout", &mDisableTimeout, mIdDisableTimeout, gluiCallbackWrapper );
-	glui_window_misc_control->set_main_gfx_window( mAppWindow );
-	glui_window_misc_control->add_column( true );
-
-	mIdUsePluginReadThread = start_id++;
-	mUsePluginReadThread = 0;
-	glui_window_misc_control->add_checkbox( "Use plugin read thread", &mUsePluginReadThread, mIdUsePluginReadThread, gluiCallbackWrapper );
 	glui_window_misc_control->set_main_gfx_window( mAppWindow );
 	glui_window_misc_control->add_column( true );
 

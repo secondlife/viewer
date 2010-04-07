@@ -4,25 +4,8 @@
  * @date   2009-07-10
  * @brief  Implementation for llagentlistener.
  * 
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * Copyright (c) 2009, Linden Research, Inc.
  * $/LicenseInfo$
  */
 
@@ -70,10 +53,7 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
 	}
 	else
 	{
-		std::string url = LLSLURL(event_data["regionname"], 
-								  LLVector3(event_data["x"].asReal(), 
-											event_data["y"].asReal(), 
-											event_data["z"].asReal())).getSLURLString();
+		std::string url = LLSLURL::buildSLURL(event_data["regionname"], event_data["x"], event_data["y"], event_data["z"]);
 		LLURLDispatcher::dispatch(url, NULL, false);
 	}
 }

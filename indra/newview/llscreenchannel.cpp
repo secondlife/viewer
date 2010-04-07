@@ -2,25 +2,31 @@
  * @file llscreenchannel.cpp
  * @brief Class implements a channel on a screen in which appropriate toasts may appear.
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2000&license=viewergpl$
+ * 
+ * Copyright (c) 2000-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -41,7 +47,7 @@
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
 #include "llscriptfloater.h"
-#include "llsidetray.h"
+#include "llfontgl.h"
 
 #include <algorithm>
 
@@ -53,7 +59,6 @@ bool LLScreenChannel::mWasStartUpToastShown = false;
 //////////////////////
 // LLScreenChannelBase
 //////////////////////
-
 LLScreenChannelBase::LLScreenChannelBase(const LLUUID& id) :
 												mToastAlignment(NA_BOTTOM)
 												,mCanStoreToasts(true)
@@ -64,7 +69,6 @@ LLScreenChannelBase::LLScreenChannelBase(const LLUUID& id) :
 {	
 	mID = id;
 	mWorldViewRectConnection = gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLScreenChannelBase::updatePositionAndSize, this, _1, _2));
-
 	setMouseOpaque( false );
 	setVisible(FALSE);
 }
@@ -83,30 +87,11 @@ bool  LLScreenChannelBase::isHovering()
 	return mHoveredToast->isHovered();
 }
 
-bool LLScreenChannelBase::resetPositionAndSize(const LLSD& newvalue)
-{
-	LLRect rc = gViewerWindow->getWorldViewRectScaled();
-	updatePositionAndSize(rc, rc);
-	return true;
-}
-
 void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
 {
-	/*
-	take sidetray into account - screenchannel should not overlap sidetray
-	*/
-	S32 world_rect_padding = 0;
-	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE
-		&& LLSideTray::instanceCreated	())
-	{
-		LLSideTray*	side_bar = LLSideTray::getInstance();
-
-		if (side_bar->getVisible() && !side_bar->getCollapsed())
-			world_rect_padding += side_bar->getRect().getWidth();
-	}
-
-
 	S32 top_delta = old_world_rect.mTop - new_world_rect.mTop;
+	S32 right_delta = old_world_rect.mRight - new_world_rect.mRight;
+
 	LLRect this_rect = getRect();
 
 	this_rect.mTop -= top_delta;
@@ -115,13 +100,11 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 	case CA_LEFT :
 		break;
 	case CA_CENTRE :
-		this_rect.setCenterAndSize( (new_world_rect.getWidth() - world_rect_padding) / 2, new_world_rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
+		this_rect.setCenterAndSize(new_world_rect.getWidth() / 2, new_world_rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
 		break;
 	case CA_RIGHT :
-		this_rect.setLeftTopAndSize(new_world_rect.mRight - world_rect_padding - this_rect.getWidth(),
-			this_rect.mTop,
-			this_rect.getWidth(),
-			this_rect.getHeight());
+		this_rect.mLeft -= right_delta;
+		this_rect.mRight -= right_delta;
 	}
 	setRect(this_rect);
 	redrawToasts();
@@ -130,12 +113,6 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 
 void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 {
-	if(LLSideTray::instanceCreated())
-	{
-		LLSideTray*	side_bar = LLSideTray::getInstance();
-		side_bar->getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this, _2));
-	}
-
 	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
 	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
@@ -197,20 +174,7 @@ std::list<LLToast*> LLScreenChannel::findToasts(const Matcher& matcher)
 //--------------------------------------------------------------------------
 void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
 {
-	/*
-	take sidetray into account - screenchannel should not overlap sidetray
-	*/
-	S32 world_rect_padding = 0;
-	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE 
-		&& LLSideTray::instanceCreated	())
-	{
-		LLSideTray*	side_bar = LLSideTray::getInstance();
-
-		if (side_bar->getVisible() && !side_bar->getCollapsed())
-			world_rect_padding += side_bar->getRect().getWidth();
-	}
-
-
+	S32 right_delta = old_world_rect.mRight - new_world_rect.mRight;
 	LLRect this_rect = getRect();
 
 	switch(mChannelAlignment)
@@ -223,10 +187,8 @@ void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_wo
 		return;
 	case CA_RIGHT :
 		this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
-		this_rect.setLeftTopAndSize(new_world_rect.mRight - world_rect_padding - this_rect.getWidth(),
-			this_rect.mTop,
-			this_rect.getWidth(),
-			this_rect.getHeight());
+		this_rect.mLeft -= right_delta;
+		this_rect.mRight -= right_delta;
 	}
 	setRect(this_rect);
 	redrawToasts();
@@ -290,12 +252,6 @@ void LLScreenChannel::onToastDestroyed(LLToast* toast)
 	if(it != mStoredToastList.end())
 	{
 		mStoredToastList.erase(it);
-	}
-
-	// if destroyed toast is hovered - reset hovered
-	if (mHoveredToast == toast)
-	{
-		mHoveredToast = NULL;
 	}
 }
 
@@ -626,6 +582,7 @@ void LLScreenChannel::showToastsTop()
 void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 {
 	LLRect toast_rect;
+	LLRect tbox_rect;
 	LLToast::Params p;
 	p.lifetime_secs = timer;
 	p.enable_hide_btn = false;
@@ -636,26 +593,34 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 
 	mStartUpToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onStartUpToastHide, this));
 
-	LLPanel* wrapper_panel = mStartUpToastPanel->getChild<LLPanel>("wrapper_panel");
 	LLTextBox* text_box = mStartUpToastPanel->getChild<LLTextBox>("toast_text");
 
 	std::string	text = LLTrans::getString("StartUpNotifications");
 
+	tbox_rect   = text_box->getRect();
+	S32 tbox_width  = tbox_rect.getWidth();
+	S32 tbox_vpad   = text_box->getVPad();
+	S32 text_width  = text_box->getDefaultFont()->getWidth(text);
+	S32 text_height = text_box->getTextPixelHeight();
+
+	// EXT - 3703 (Startup toast message doesn't fit toast width)
+	// Calculating TextBox HEIGHT needed to include the whole string according to the given WIDTH of the TextBox.
+	S32 new_tbox_height = (text_width/tbox_width + 1) * text_height;
+	// Calculating TOP position of TextBox
+	S32 new_tbox_top = new_tbox_height + tbox_vpad + gSavedSettings.getS32("ToastGap");
+	// Calculating toast HEIGHT according to the new TextBox size
+	S32 toast_height = new_tbox_height + tbox_vpad * 2;
+
+	tbox_rect.setLeftTopAndSize(tbox_rect.mLeft, new_tbox_top, tbox_rect.getWidth(), new_tbox_height);
+	text_box->setRect(tbox_rect);
+
 	toast_rect = mStartUpToastPanel->getRect();
 	mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
+	toast_rect.setLeftTopAndSize(0, toast_height + gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_height);
+	mStartUpToastPanel->setRect(toast_rect);
 
 	text_box->setValue(text);
 	text_box->setVisible(TRUE);
-
-	S32 old_height = text_box->getRect().getHeight();
-	text_box->reshapeToFitText();
-	text_box->setOrigin(text_box->getRect().mLeft, (wrapper_panel->getRect().getHeight() - text_box->getRect().getHeight())/2);
-	S32 new_height = text_box->getRect().getHeight();
-	S32 height_delta = new_height - old_height;
-
-	toast_rect.setLeftTopAndSize(0, toast_rect.getHeight() + height_delta +gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());
-	mStartUpToastPanel->setRect(toast_rect);
-
 	addChild(mStartUpToastPanel);
 	
 	mStartUpToastPanel->setVisible(TRUE);
@@ -748,31 +713,6 @@ void LLScreenChannel::hideToast(const LLUUID& notification_id)
 	{
 		ToastElem te = *it;
 		te.toast->hide();
-	}
-}
-
-void LLScreenChannel::closeHiddenToasts(const Matcher& matcher)
-{
-	// since we can't guarantee that close toast operation doesn't change mToastList
-	// we collect matched toasts that should be closed into separate list
-	std::list<ToastElem> toasts;
-	for (std::vector<ToastElem>::iterator it = mToastList.begin(); it
-			!= mToastList.end(); it++)
-	{
-		LLToast * toast = it->toast;
-		// add to list valid toast that match to provided matcher criteria
-		if (toast != NULL && !toast->isDead() && toast->getNotification() != NULL
-				&& !toast->getVisible() && matcher.matches(toast->getNotification()))
-		{
-			toasts.push_back(*it);
-		}
-	}
-
-	// close collected toasts
-	for (std::list<ToastElem>::iterator it = toasts.begin(); it
-			!= toasts.end(); it++)
-	{
-		it->toast->closeFloater();
 	}
 }
 

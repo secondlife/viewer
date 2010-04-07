@@ -3,25 +3,30 @@
  * @brief Outfits inventory panel
  * class definition
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ *
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ *
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ *
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ *
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -29,19 +34,20 @@
 #define LL_LLPANELOUTFITSINVENTORY_H
 
 #include "llpanel.h"
+#include "llinventoryobserver.h"
 
-class LLOutfitsList;
-class LLOutfitListGearMenu;
-class LLPanelAppearanceTab;
-class LLPanelWearing;
+class LLFolderView;
+class LLFolderViewItem;
+class LLFolderViewEventListener;
+class LLInventoryPanel;
+class LLSaveFolderState;
+class LLButton;
 class LLMenuGL;
 class LLSidepanelAppearance;
 class LLTabContainer;
-class LLSaveOutfitComboBtn;
 
 class LLPanelOutfitsInventory : public LLPanel
 {
-	LOG_CLASS(LLPanelOutfitsInventory);
 public:
 	LLPanelOutfitsInventory();
 	virtual ~LLPanelOutfitsInventory();
@@ -50,57 +56,79 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	
 	void onSearchEdit(const std::string& string);
+	void onAdd();
+	void onRemove();
+	void onEdit();
 	void onSave();
 	
 	bool onSaveCommit(const LLSD& notification, const LLSD& response);
 
-	static LLSidepanelAppearance* getAppearanceSP();
+	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+	void showEditOutfitPanel();
 
-	static LLPanelOutfitsInventory* findInstance();
+	// If a compatible listener type is selected, then return a pointer to that.
+	// Otherwise, return NULL.
+	LLFolderViewEventListener* getCorrectListenerForAction();
+	void setParent(LLSidepanelAppearance *parent);
+
+	LLFolderView* getRootFolder();
 
 protected:
 	void updateVerbs();
+	bool getIsCorrectType(const LLFolderViewEventListener *listenerp) const;
 
 private:
+	LLSidepanelAppearance*  mParent;
+	LLSaveFolderState*		mSavedFolderState;
 	LLTabContainer*			mAppearanceTabs;
 	std::string 			mFilterSubString;
-	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
 
+public:
 	//////////////////////////////////////////////////////////////////////////////////
-	// tab panels                                                                   //
+	// tab panels
+	LLInventoryPanel* 		getActivePanel() { return mActivePanel; }
+	const LLInventoryPanel* getActivePanel() const { return mActivePanel; }
+	BOOL 					isTabPanel(LLInventoryPanel *panel) const;
+	
 protected:
 	void 					initTabPanels();
+	void 					onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void 					onTabChange();
-	bool 					isCOFPanelActive() const;
+	BOOL 					isCOFPanelActive() const;
 
 private:
-	LLPanelAppearanceTab*	mActivePanel;
-	LLOutfitsList*			mMyOutfitsPanel;
-	LLPanelWearing*			mCurrentOutfitPanel;
+	LLInventoryPanel* 		mActivePanel;
+	typedef std::vector<LLInventoryPanel *> tabpanels_vec_t;
+	tabpanels_vec_t 		mTabPanels;
 
-	// tab panels                                                                   //
-	//////////////////////////////////////////////////////////////////////////////////
+	// tab panels                                                               //
+	////////////////////////////////////////////////////////////////////////////////
+	
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// List Commands                                                                //
 protected:
 	void initListCommandsHandlers();
 	void updateListCommands();
+	void onGearButtonClick();
 	void onWearButtonClick();
-	void showGearMenu();
+	void onAddButtonClick();
+	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
 	void onTrashButtonClick();
-	void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
-	bool isActionEnabled(const LLSD& userdata);
-	void setWearablesLoading(bool val);
-	void onWearablesLoaded();
-	void onWearablesLoading();
+	void onClipboardAction(const LLSD& userdata);
+	BOOL isActionEnabled(const LLSD& command_name);
+	void onCustomAction(const LLSD& command_name);
+	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
+	bool hasItemsSelected();
 private:
 	LLPanel*					mListCommands;
+	LLMenuGL*					mMenuGearDefault;
 	LLMenuGL*					mMenuAdd;
-	// List Commands                                                                //
-	//////////////////////////////////////////////////////////////////////////////////
-
-	bool mInitialized;
+	// List Commands                                                              //
+	////////////////////////////////////////////////////////////////////////////////
+	///
+public:
+	static bool sShowDebugEditor;
 };
 
 #endif //LL_LLPANELOUTFITSINVENTORY_H

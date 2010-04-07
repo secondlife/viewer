@@ -2,35 +2,15 @@
  * @file   lllogininstance_test.cpp
  * @brief  Test for lllogininstance.cpp.
  * 
- * $LicenseInfo:firstyear=2008&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
+ * Copyright (c) 2008, Linden Research, Inc.
  * $/LicenseInfo$
  */
 
 // Precompiled header
 #include "../llviewerprecompiledheaders.h"
 // Own header
-#include "../llsecapi.h"
-#include "../llviewernetwork.h"
 #include "../lllogininstance.h"
-
 // STL headers
 // std headers
 // external library headers
@@ -53,12 +33,7 @@ const std::string APPVIEWER_SERIALNUMBER("appviewer_serialno");
 //-----------------------------------------------------------------------------
 static LLEventStream gTestPump("test_pump");
 
-#include "../llslurl.h"
-#include "../llstartup.h"
-LLSLURL LLStartUp::sStartSLURL;
-
 #include "lllogin.h"
-
 static std::string gLoginURI;
 static LLSD gLoginCreds;
 static bool gDisconnectCalled = false;
@@ -79,75 +54,17 @@ void LLLogin::disconnect()
 	gDisconnectCalled = true;
 }
 
-LLSD LLCredential::getLoginParams()
-{
-	LLSD result = LLSD::emptyMap();
-
-	// legacy credential
-	result["passwd"] = "$1$testpasssd";
-	result["first"] = "myfirst";
-	result["last"] ="mylast";
-	return result;
-}
-void LLCredential::identifierType(std::string &idType)
-{
-}
-
-void LLCredential::authenticatorType(std::string &idType)
-{
-}
-
 //-----------------------------------------------------------------------------
 #include "../llviewernetwork.h"
-LLGridManager::~LLGridManager()
-{
-}
+unsigned char gMACAddress[MAC_ADDRESS_BYTES] = {'1','2','3','4','5','6'};
 
-void LLGridManager::addGrid(LLSD& grid_data)
-{
-}
-LLGridManager::LLGridManager()
-{	
-}
-
-void LLGridManager::getLoginURIs(std::vector<std::string>& uris)
+LLViewerLogin::LLViewerLogin() : mGridChoice(GRID_INFO_NONE) {}
+LLViewerLogin::~LLViewerLogin() {}
+void LLViewerLogin::getLoginURIs(std::vector<std::string>& uris) const 
 {
 	uris.push_back(VIEWERLOGIN_URI);
 }
-
-void LLGridManager::addSystemGrid(const std::string& label, 
-								  const std::string& name, 
-								  const std::string& login, 
-								  const std::string& helper,
-								  const std::string& login_page,
-								  const std::string& login_id)
-{
-}
-std::map<std::string, std::string> LLGridManager::getKnownGrids(bool favorite_only)
-{
-	std::map<std::string, std::string> result;
-	return result;
-}
-
-void LLGridManager::setGridChoice(const std::string& grid_name)
-{
-}
-
-bool LLGridManager::isInProductionGrid()
-{
-	return false;
-}
-
-void LLGridManager::saveFavorites()
-{}
-std::string LLGridManager::getSLURLBase(const std::string& grid_name)
-{
-	return "myslurl";
-}
-std::string LLGridManager::getAppSLURLBase(const std::string& grid_name)
-{
-	return "myappslurl";
-}
+std::string LLViewerLogin::getGridLabel() const { return VIEWERLOGIN_GRIDLABEL; }
 
 //-----------------------------------------------------------------------------
 #include "../llviewercontrol.h"
@@ -169,6 +86,10 @@ BOOL LLControlGroup::declareString(const std::string& name, const std::string &i
 #include "lluicolortable.h"
 void LLUIColorTable::saveUserSettings(void)const {}
 
+//-----------------------------------------------------------------------------
+#include "../llurlsimstring.h"
+LLURLSimString LLURLSimString::sInstance;
+bool LLURLSimString::parse() { return true; }
 
 //-----------------------------------------------------------------------------
 #include "llnotifications.h"
@@ -243,16 +164,6 @@ S32 LLNotification::getSelectedOption(const LLSD& notification, const LLSD& resp
 	return response.asInteger();
 }
 
-//-----------------------------------------------------------------------------
-#include "../llmachineid.h"
-unsigned char gMACAddress[MAC_ADDRESS_BYTES] = {77,21,46,31,89,2};
-
-S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
-{
-	memcpy(unique_id, gMACAddress, len);
-	return 1;
-}
-//-----------------------------------------------------------------------------
 // misc
 std::string xml_escape_string(const std::string& in)
 {
@@ -286,29 +197,15 @@ namespace tut
 			gSavedSettings.declareString("NextLoginLocation", "", "", FALSE);
 			gSavedSettings.declareBOOL("LoginLastLocation", FALSE, "", FALSE);
 
-			LLSD authenticator = LLSD::emptyMap();
-			LLSD identifier = LLSD::emptyMap();
-			identifier["type"] = "agent";
-			identifier["first_name"] = "testfirst";
-			identifier["last_name"] = "testlast";
-			authenticator["passwd"] = "testpass";
-			agentCredential = new LLCredential();
-			agentCredential->setCredentialData(identifier, authenticator);
-			
-			authenticator = LLSD::emptyMap();
-			identifier = LLSD::emptyMap();
-			identifier["type"] = "account";
-			identifier["username"] = "testuser";
-			authenticator["secret"] = "testsecret";
-			accountCredential = new LLCredential();
-			accountCredential->setCredentialData(identifier, authenticator);			
+			credentials["first"] = "testfirst";
+			credentials["last"] = "testlast";
+			credentials["passwd"] = "testpass";
 
 			logininstance->setNotificationsInterface(&notifications);
 		}
 
 		LLLoginInstance* logininstance;
-		LLPointer<LLCredential> agentCredential;
-		LLPointer<LLCredential> accountCredential;
+		LLSD credentials;
 		MockNotifications notifications;
     };
 
@@ -322,7 +219,7 @@ namespace tut
 		set_test_name("Test Simple Success And Disconnect");
 
 		// Test default connect.
-		logininstance->connect(agentCredential);
+		logininstance->connect(credentials);
 
 		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
 
@@ -363,7 +260,7 @@ namespace tut
 		const std::string test_uri = "testing-uri";
 
 		// Test default connect.
-		logininstance->connect(test_uri, agentCredential);
+		logininstance->connect(test_uri, credentials);
 
 		// connect should call LLLogin::connect to init gLoginURI and gLoginCreds.
 		ensure_equals("Default connect uri", gLoginURI, "testing-uri"); 
@@ -385,7 +282,7 @@ namespace tut
 		ensure("No TOS, failed auth", logininstance->authFailure());
 
 		// Start again.
-		logininstance->connect(test_uri, agentCredential);
+		logininstance->connect(test_uri, credentials);
 		gTestPump.post(response); // Fail for tos again.
 		gTOSReplyPump->post(true); // Accept tos, should reconnect w/ agree_to_tos.
 		ensure_equals("Accepted agree to tos", gLoginCreds["params"]["agree_to_tos"].asBoolean(), true);
@@ -397,11 +294,11 @@ namespace tut
 		gTestPump.post(response);
 		ensure("TOS auth failure", logininstance->authFailure());
 
-		logininstance->connect(test_uri, agentCredential);
+		logininstance->connect(test_uri, credentials);
 		ensure_equals("Reset to default for agree to tos", gLoginCreds["params"]["agree_to_tos"].asBoolean(), false);
 
 		// Critical Message failure response.
-		logininstance->connect(test_uri, agentCredential);
+		logininstance->connect(test_uri, credentials);
 		response["data"]["reason"] = "critical"; // Change response to "critical message"
 		gTestPump.post(response);
 
@@ -415,7 +312,7 @@ namespace tut
 		response["data"]["reason"] = "key"; // bad creds.
 		gTestPump.post(response);
 		ensure("TOS auth failure", logininstance->authFailure());
-		logininstance->connect(test_uri, agentCredential);
+		logininstance->connect(test_uri, credentials);
 		ensure_equals("Default for agree to tos", gLoginCreds["params"]["read_critical"].asBoolean(), false);
 	}
 
@@ -426,7 +323,7 @@ namespace tut
 
 		// Part 1 - Mandatory Update, with User accepts response.
 		// Test connect with update needed.
-		logininstance->connect(agentCredential);
+		logininstance->connect(credentials);
 
 		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
 
@@ -452,7 +349,7 @@ namespace tut
 		set_test_name("Test Mandatory Update User Decline");
 
 		// Test connect with update needed.
-		logininstance->connect(agentCredential);
+		logininstance->connect(credentials);
 
 		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
 
@@ -478,7 +375,7 @@ namespace tut
 
 		// Part 3 - Mandatory Update, with bogus response.
 		// Test connect with update needed.
-		logininstance->connect(agentCredential);
+		logininstance->connect(credentials);
 
 		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
 
@@ -504,7 +401,7 @@ namespace tut
 
 		// Part 3 - Mandatory Update, with bogus response.
 		// Test connect with update needed.
-		logininstance->connect(agentCredential);
+		logininstance->connect(credentials);
 
 		ensure_equals("Default connect uri", gLoginURI, VIEWERLOGIN_URI); 
 
