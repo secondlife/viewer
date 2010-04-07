@@ -103,15 +103,13 @@ protected:
 class LLInventoryFetchItemsObserver : public LLInventoryFetchObserver
 {
 public:
-	LLInventoryFetchItemsObserver(const LLUUID& item_id = LLUUID::null, 
-								  BOOL retry_if_missing = FALSE); 
-	LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids, 
-								  BOOL retry_if_missing = FALSE); 
+	LLInventoryFetchItemsObserver(const LLUUID& item_id = LLUUID::null); 
+	LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids); 
 
 	/*virtual*/ void startFetch();
 	/*virtual*/ void changed(U32 mask);
-protected:
-	BOOL mRetryIfMissing;
+private:
+	S8 mNumTries; // Number of times changed() was called without success
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

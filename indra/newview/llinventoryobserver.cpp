@@ -62,6 +62,14 @@
 #include "llsdutil.h"
 #include <deque>
 
+// If the viewer gets a notification, your observer assumes
+// that that notification is for itself and then tries to process
+// the results.  The notification could be for something else (e.g.
+// you're fetching an item and a notification gets triggered because
+// you renamed some other item).  This counter is to specify how many
+// notification to wait for before giving up.
+static const U32 MAX_NUM_NOTIFICATIONS_TO_PROCESS = 20;
+
 LLInventoryObserver::LLInventoryObserver()
 {
 }
@@ -138,66 +146,63 @@ void LLInventoryCompletionObserver::watchItem(const LLUUID& id)
 	}
 }
 
-/*
-LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(BOOL retry_if_missing) :
-	mRetryIfMissing(retry_if_missing)
-{
-}
-*/
-
-LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_id,
-															 BOOL retry_if_missing) :
+LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_id) :
 	LLInventoryFetchObserver(item_id),
-	mRetryIfMissing(retry_if_missing)
+	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
 {
 	mIDs.clear();
 	mIDs.push_back(item_id);
 }
 
-LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids,
-															 BOOL retry_if_missing) :
-	LLInventoryFetchObserver(item_ids),
-	mRetryIfMissing(retry_if_missing)
+LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids) :
+	LLInventoryFetchObserver(item_ids)
 {
 }
 
 void LLInventoryFetchItemsObserver::changed(U32 mask)
 {
+	BOOL any_items_missing = FALSE;
+
 	// scan through the incomplete items and move or erase them as
 	// appropriate.
 	if (!mIncomplete.empty())
 	{
 		for (uuid_vec_t::iterator it = mIncomplete.begin(); it < mIncomplete.end(); )
 		{
-			LLViewerInventoryItem* item = gInventory.getItem(*it);
+			const LLUUID& item_id = (*it);
+			LLViewerInventoryItem* item = gInventory.getItem(item_id);
 			if (!item)
 			{
-				if (mRetryIfMissing)
+				any_items_missing = TRUE;
+				if (mNumTries > 0)
 				{
-					// BAP changed to skip these items, so we should keep retrying until they arrive.
-					// Did not make this the default behavior because of uncertainty about impact -
-					// could cause some observers that currently complete to wait forever.
+					// Keep trying.
 					++it;
 				}
 				else
 				{
-					// BUG: This can cause done() to get called prematurely below.
-					// This happens with the LLGestureInventoryFetchObserver that
-					// loads gestures at startup. JC
+					// Just concede that this item hasn't arrived in reasonable time and continue on.
+					llwarns << "Fetcher timed out when fetching inventory item assetID:" << item_id << llendl;
 					it = mIncomplete.erase(it);
 				}
 				continue;
 			}
 			if (item->isFinished())
 			{
-				mComplete.push_back(*it);
+				mComplete.push_back(item_id);
 				it = mIncomplete.erase(it);
 				continue;
 			}
 			++it;
 		}
+		if (any_items_missing)
+		{
+			mNumTries--;
+		}
+
 		if (mIncomplete.empty())
 		{
+			mNumTries = MAX_NUM_NOTIFICATIONS_TO_PROCESS;
 			done();
 		}
 	}

@@ -73,7 +73,6 @@ LLGestureMgr::LLGestureMgr()
 	mActive(),
 	mLoadingCount(0)
 {
-	mRetryIfMissing = true;
 	gInventory.addObserver(this);
 }
 

@@ -91,7 +91,7 @@ class LLFetchAndLinkObserver: public LLInventoryFetchItemsObserver
 {
 public:
 	LLFetchAndLinkObserver(uuid_vec_t& ids):
-		LLInventoryFetchItemsObserver(ids, true) // retry for missing items
+		LLInventoryFetchItemsObserver(ids)
 	{
 	}
 	~LLFetchAndLinkObserver()
