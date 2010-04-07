@@ -137,8 +137,8 @@ class LLDir
 	static std::string getForbiddenFileChars();
 
 	virtual void setChatLogsDir(const std::string &path);		// Set the chat logs dir to this user's dir
-	virtual void setPerAccountChatLogsDir(const std::string &username);		// Set the per user chat log directory.
-	virtual void setLindenUserDir(const std::string &username);		// Set the linden user dir to this user's dir
+	virtual void setPerAccountChatLogsDir(const std::string &first, const std::string &last);		// Set the per user chat log directory.
+	virtual void setLindenUserDir(const std::string &first, const std::string &last);		// Set the linden user dir to this user's dir
 	virtual void setSkinFolder(const std::string &skin_folder);
 	virtual bool setCacheDir(const std::string &path);
 

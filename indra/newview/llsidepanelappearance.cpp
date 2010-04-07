@@ -389,7 +389,7 @@ void LLSidepanelAppearance::fetchInventory()
 	}
 
 	LLCurrentlyWornFetchObserver *fetch_worn = new LLCurrentlyWornFetchObserver(this);
-	fetch_worn->fetchItems(ids);
+	fetch_worn->fetch(ids);
 	// If no items to be fetched, done will never be triggered.
 	// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
 	if (fetch_worn->isEverythingComplete())

@@ -69,7 +69,7 @@ void LLInitialWearablesFetch::processContents()
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
 	LLFindWearables is_wearable;
-	gInventory.collectDescendentsIf(mCompleteFolders.front(), cat_array, wearable_array, 
+	gInventory.collectDescendentsIf(mComplete.front(), cat_array, wearable_array, 
 									LLInventoryModel::EXCLUDE_TRASH, is_wearable);
 
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
@@ -173,7 +173,7 @@ void LLInitialWearablesFetch::processWearablesMessage()
 
 		// Need to fetch the inventory items for ids, then create links to them after they arrive.
 		LLFetchAndLinkObserver *fetcher = new LLFetchAndLinkObserver(ids);
-		fetcher->fetchItems(ids);
+		fetcher->fetch(ids);
 		// If no items to be fetched, done will never be triggered.
 		// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
 		if (fetcher->isEverythingComplete())
@@ -282,13 +282,13 @@ void LLLibraryOutfitsFetch::folderDone()
 		mLibraryClothingID = cat->getUUID();
 	}
 
-	mCompleteFolders.clear();
+	mComplete.clear();
 	
 	// Get the complete information on the items in the inventory.
 	uuid_vec_t folders;
 	folders.push_back(mClothingID);
 	folders.push_back(mLibraryClothingID);
-	fetchDescendents(folders);
+	fetch(folders);
 	if (isEverythingComplete())
 	{
 		done();
@@ -336,9 +336,9 @@ void LLLibraryOutfitsFetch::outfitsDone()
 		mImportedClothingID = cat->getUUID();
 	}
 	
-	mCompleteFolders.clear();
+	mComplete.clear();
 	
-	fetchDescendents(folders);
+	fetch(folders);
 	if (isEverythingComplete())
 	{
 		done();
@@ -433,9 +433,9 @@ void LLLibraryOutfitsFetch::importedFolderFetch()
 	uuid_vec_t folders;
 	folders.push_back(mImportedClothingID);
 	
-	mCompleteFolders.clear();
+	mComplete.clear();
 	
-	fetchDescendents(folders);
+	fetch(folders);
 	if (isEverythingComplete())
 	{
 		done();
@@ -463,8 +463,8 @@ void LLLibraryOutfitsFetch::importedFolderDone()
 		mImportedClothingFolders.push_back(cat->getUUID());
 	}
 	
-	mCompleteFolders.clear();
-	fetchDescendents(folders);
+	mComplete.clear();
+	fetch(folders);
 	if (isEverythingComplete())
 	{
 		done();

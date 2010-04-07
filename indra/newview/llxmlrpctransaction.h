@@ -38,7 +38,6 @@
 typedef struct _xmlrpc_request* XMLRPC_REQUEST;
 typedef struct _xmlrpc_value* XMLRPC_VALUE;
 	// foward decl of types from xmlrpc.h (this usage is type safe)
-class LLCertificate;
 
 class LLXMLRPCValue
 	// a c++ wrapper around XMLRPC_VALUE
@@ -116,8 +115,6 @@ public:
 		
 	EStatus status(int* curlCode);
 		// return status, and extended CURL code, if code isn't null
-	
-	LLPointer<LLCertificate> getErrorCert();
 	std::string statusMessage();
 		// return a message string, suitable for showing the user
 	std::string statusURI();

@@ -480,7 +480,7 @@ void LLInspectObject::updateCreator(LLSelectNode* nodep)
 		// Objects cannot be created by a group, so use agent URL format
 		LLUUID creator_id = nodep->mPermissions->getCreator();
 		std::string creator_url =
-			LLSLURL("agent", creator_id, "about").getSLURLString();
+			LLSLURL::buildCommand("agent", creator_id, "about");
 		args["[CREATOR]"] = creator_url;
 				
 		// created by one user but owned by another
@@ -490,12 +490,12 @@ void LLInspectObject::updateCreator(LLSelectNode* nodep)
 		if (group_owned)
 		{
 			owner_id = nodep->mPermissions->getGroup();
-			owner_url =	LLSLURL("group", owner_id, "about").getSLURLString();
+			owner_url =	LLSLURL::buildCommand("group", owner_id, "about");
 		}
 		else
 		{
 			owner_id = nodep->mPermissions->getOwner();
-			owner_url =	LLSLURL("agent", owner_id, "about").getSLURLString();
+			owner_url =	LLSLURL::buildCommand("agent", owner_id, "about");
 		}
 		args["[OWNER]"] = owner_url;
 		

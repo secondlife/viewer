@@ -954,7 +954,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 		// that will trigger when the complete information is fetched.
 		uuid_vec_t folders;
 		folders.push_back(current_outfit_id);
-		outfit->fetchDescendents(folders);
+		outfit->fetch(folders);
 		if(outfit->isEverythingComplete())
 		{
 			// everything is already here - call done.
@@ -2070,7 +2070,7 @@ void LLAgentWearables::populateMyOutfitsFolder(void)
 
 	folders.push_back(outfits->mMyOutfitsID);
 	gInventory.addObserver(outfits);
-	outfits->fetchDescendents(folders);
+	outfits->fetch(folders);
 	if (outfits->isEverythingComplete())
 	{
 		outfits->done();

@@ -40,6 +40,7 @@
 #include "llbutton.h"
 #include "llfloaterreg.h"
 #include "llgroupactions.h"
+#include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "lllineeditor.h"
@@ -439,9 +440,9 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		if (item->getType() == LLAssetType::AT_OBJECT)
 		{
 			U32 flags = item->getFlags();
-			slam_perm 			= flags & LLInventoryItem::II_FLAGS_OBJECT_SLAM_PERM;
-			overwrite_everyone	= flags & LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE;
-			overwrite_group		= flags & LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
+			slam_perm 			= flags & LLInventoryItemFlags::II_FLAGS_OBJECT_SLAM_PERM;
+			overwrite_everyone	= flags & LLInventoryItemFlags::II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE;
+			overwrite_group		= flags & LLInventoryItemFlags::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
 		}
 		
 		std::string perm_string;
@@ -752,7 +753,7 @@ void LLSidepanelItemInfo::onCommitPermissions()
 		if((perm.getMaskNextOwner()!=item->getPermissions().getMaskNextOwner())
 		   && (item->getType() == LLAssetType::AT_OBJECT))
 		{
-			flags |= LLInventoryItem::II_FLAGS_OBJECT_SLAM_PERM;
+			flags |= LLInventoryItemFlags::II_FLAGS_OBJECT_SLAM_PERM;
 		}
 		// If everyone permissions have changed (and this is an object)
 		// then set the overwrite everyone permissions flag so they
@@ -760,7 +761,7 @@ void LLSidepanelItemInfo::onCommitPermissions()
 		if ((perm.getMaskEveryone()!=item->getPermissions().getMaskEveryone())
 			&& (item->getType() == LLAssetType::AT_OBJECT))
 		{
-			flags |= LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE;
+			flags |= LLInventoryItemFlags::II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE;
 		}
 		// If group permissions have changed (and this is an object)
 		// then set the overwrite group permissions flag so they
@@ -768,7 +769,7 @@ void LLSidepanelItemInfo::onCommitPermissions()
 		if ((perm.getMaskGroup()!=item->getPermissions().getMaskGroup())
 			&& (item->getType() == LLAssetType::AT_OBJECT))
 		{
-			flags |= LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
+			flags |= LLInventoryItemFlags::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
 		}
 		new_item->setFlags(flags);
 		if(mObjectID.isNull())
@@ -880,7 +881,7 @@ void LLSidepanelItemInfo::updateSaleInfo()
 		if (item->getType() == LLAssetType::AT_OBJECT)
 		{
 			U32 flags = new_item->getFlags();
-			flags |= LLInventoryItem::II_FLAGS_OBJECT_SLAM_SALE;
+			flags |= LLInventoryItemFlags::II_FLAGS_OBJECT_SLAM_SALE;
 			new_item->setFlags(flags);
 		}
 

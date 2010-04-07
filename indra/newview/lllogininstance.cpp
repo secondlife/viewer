@@ -48,16 +48,13 @@
 // newview
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
-#include "llslurl.h"
-#include "llstartup.h"
+#include "llurlsimstring.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
 #include "llwindow.h"
 #if LL_LINUX || LL_SOLARIS
 #include "lltrans.h"
 #endif
-#include "llsecapi.h"
-#include "llstartup.h"
 
 static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
 static const char * const TOS_LISTENER_NAME = "lllogininstance_tos";
@@ -86,14 +83,14 @@ LLLoginInstance::~LLLoginInstance()
 {
 }
 
-void LLLoginInstance::connect(LLPointer<LLCredential> credentials)
+void LLLoginInstance::connect(const LLSD& credentials)
 {
 	std::vector<std::string> uris;
-	LLGridManager::getInstance()->getLoginURIs(uris);
+	LLViewerLogin::getInstance()->getLoginURIs(uris);
 	connect(uris.front(), credentials);
 }
 
-void LLLoginInstance::connect(const std::string& uri, LLPointer<LLCredential> credentials)
+void LLLoginInstance::connect(const std::string& uri, const LLSD& credentials)
 {
 	mAttemptComplete = false; // Reset attempt complete at this point!
 	constructAuthParams(credentials);
@@ -105,7 +102,7 @@ void LLLoginInstance::reconnect()
 	// Sort of like connect, only using the pre-existing
 	// request params.
 	std::vector<std::string> uris;
-	LLGridManager::getInstance()->getLoginURIs(uris);
+	LLViewerLogin::getInstance()->getLoginURIs(uris);
 	mLoginModule->connect(uris.front(), mRequestData);
 }
 
@@ -121,7 +118,7 @@ LLSD LLLoginInstance::getResponse()
 	return mResponseData; 
 }
 
-void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credential)
+void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 {
 	// Set up auth request options.
 //#define LL_MINIMIAL_REQUESTED_OPTIONS
@@ -148,10 +145,8 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	requested_options.append("adult_compliant"); 
 	//requested_options.append("inventory-targets");
 	requested_options.append("buddy-list");
-	requested_options.append("newuser-config");
 	requested_options.append("ui-config");
 #endif
-	requested_options.append("voice-config");
 	requested_options.append("tutorial_setting");
 	requested_options.append("login-flags");
 	requested_options.append("global-textures");
@@ -160,18 +155,20 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 		gSavedSettings.setBOOL("UseDebugMenus", TRUE);
 		requested_options.append("god-connect");
 	}
-	
-	// (re)initialize the request params with creds.
-	LLSD request_params = user_credential->getLoginParams();
 
 	char hashed_mac_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
 	LLMD5 hashed_mac;
-	unsigned char MACAddress[MAC_ADDRESS_BYTES];
-	LLUUID::getNodeID(MACAddress);	
-	hashed_mac.update( MACAddress, MAC_ADDRESS_BYTES );
+	hashed_mac.update( gMACAddress, MAC_ADDRESS_BYTES );
 	hashed_mac.finalize();
 	hashed_mac.hex_digest(hashed_mac_string);
-	
+
+	// prepend "$1$" to the password to indicate its the md5'd version.
+	std::string dpasswd("$1$");
+	dpasswd.append(credentials["passwd"].asString());
+
+	// (re)initialize the request params with creds.
+	LLSD request_params(credentials);
+	request_params["passwd"] = dpasswd;
 	request_params["start"] = construct_start_string();
 	request_params["skipoptional"] = mSkipOptionalUpdate;
 	request_params["agree_to_tos"] = false; // Always false here. Set true in 
@@ -250,15 +247,6 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 			LLSD data(LLSD::emptyMap());
 			data["message"] = message_response;
 			data["reply_pump"] = TOS_REPLY_PUMP;
-			if(response.has("error_code"))
-			{
-				data["error_code"] = response["error_code"];
-			}
-			if(response.has("certificate"))
-			{
-				data["certificate"] = response["certificate"];
-			}
-			
 			LLFloaterReg::showInstance("message_critical", data);
 			LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
 				.listen(TOS_LISTENER_NAME,
@@ -466,31 +454,20 @@ bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD&
 std::string construct_start_string()
 {
 	std::string start;
-	LLSLURL start_slurl = LLStartUp::getStartSLURL();
-	switch(start_slurl.getType())
+	if (LLURLSimString::parse())
 	{
-		case LLSLURL::LOCATION:
-		{
-			// a startup URL was specified
-			LLVector3 position = start_slurl.getPosition();
-			std::string unescaped_start = 
+		// a startup URL was specified
+		std::string unescaped_start = 
 			STRINGIZE(  "uri:" 
-					  << start_slurl.getRegion() << "&" 
-						<< position[VX] << "&" 
-						<< position[VY] << "&" 
-						<< position[VZ]);
-			start = xml_escape_string(unescaped_start);
-			break;
-		}
-		case LLSLURL::HOME_LOCATION:
-		{
-			start = "home";
-			break;
-		}
-		default:
-		{
-			start = "last";
-		}
+						<< LLURLSimString::sInstance.mSimName << "&" 
+						<< LLURLSimString::sInstance.mX << "&" 
+						<< LLURLSimString::sInstance.mY << "&" 
+						<< LLURLSimString::sInstance.mZ);
+		start = xml_escape_string(unescaped_start);
+	}
+	else
+	{
+		start = gSavedSettings.getString("LoginLocation");
 	}
 	return start;
 }

@@ -50,6 +50,7 @@
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventoryclipboard.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -1858,7 +1859,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 
 	// this folder is coming from an object, as there is only one folder in an object, the root,
 	// we need to collect the entire contents and handle them as a group
-	InventoryObjectList inventory_objects;
+	LLInventoryObject::object_list_t inventory_objects;
 	object->getInventoryContents(inventory_objects);
 
 	if (inventory_objects.empty())
@@ -1872,8 +1873,8 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 
 	// coming from a task. Need to figure out if the person can
 	// move/copy this item.
-	InventoryObjectList::iterator it = inventory_objects.begin();
-	InventoryObjectList::iterator end = inventory_objects.end();
+	LLInventoryObject::object_list_t::iterator it = inventory_objects.begin();
+	LLInventoryObject::object_list_t::iterator end = inventory_objects.end();
 	for ( ; it != end; ++it)
 	{
 		// coming from a task. Need to figure out if the person can
@@ -1903,7 +1904,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	if(drop && accept)
 	{
 		it = inventory_objects.begin();
-		InventoryObjectList::iterator first_it = inventory_objects.begin();
+		LLInventoryObject::object_list_t::iterator first_it = inventory_objects.begin();
 		LLMoveInv* move_inv = new LLMoveInv;
 		move_inv->mObjectID = object_id;
 		move_inv->mCategoryID = category_id;
@@ -1973,7 +1974,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 {
 	// Avoid passing a NULL-ref as mCompleteFolders.front() down to
 	// gInventory.collectDescendents()
-	if( mCompleteFolders.empty() )
+	if( mComplete.empty() )
 	{
 		llwarns << "LLRightClickInventoryFetchDescendentsObserver::done with empty mCompleteFolders" << llendl;
 		dec_busy_count();
@@ -1987,7 +1988,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 	// happen.
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
-	gInventory.collectDescendents(mCompleteFolders.front(),
+	gInventory.collectDescendents(mComplete.front(),
 								  cat_array,
 								  item_array,
 								  LLInventoryModel::EXCLUDE_TRASH);
@@ -2006,7 +2007,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 #endif
 
 	LLRightClickInventoryFetchObserver* outfit;
-	outfit = new LLRightClickInventoryFetchObserver(mCompleteFolders.front(), mCopyItems);
+	outfit = new LLRightClickInventoryFetchObserver(mComplete.front(), mCopyItems);
 	uuid_vec_t ids;
 	for(S32 i = 0; i < count; ++i)
 	{
@@ -2025,7 +2026,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 	inc_busy_count();
 
 	// do the fetch
-	outfit->fetchItems(ids);
+	outfit->fetch(ids);
 	outfit->done();				//Not interested in waiting and this will be right 99% of the time.
 //Uncomment the following code for laggy Inventory UI.
 /*	if(outfit->isEverythingComplete())
@@ -2722,7 +2723,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			folders.push_back(category->getUUID());
 		}
-		fetch->fetchDescendents(folders);
+		fetch->fetch(folders);
 		inc_busy_count();
 		if(fetch->isEverythingComplete())
 		{
@@ -2946,7 +2947,7 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 	{
 		if (cat_and_wear && cat_and_wear->mWear)
 		{
-			InventoryObjectList inventory_objects;
+			LLInventoryObject::object_list_t inventory_objects;
 			object->getInventoryContents(inventory_objects);
 			int contents_count = inventory_objects.size()-1; //subtract one for containing folder
 
@@ -3373,7 +3374,7 @@ LLLandmarkBridge::LLLandmarkBridge(LLInventoryPanel* inventory,
 	LLItemBridge(inventory, root, uuid)
 {
 	mVisited = FALSE;
-	if (flags & LLInventoryItem::II_FLAGS_LANDMARK_VISITED)
+	if (flags & LLInventoryItemFlags::II_FLAGS_LANDMARK_VISITED)
 	{
 		mVisited = TRUE;
 	}
@@ -4013,7 +4014,7 @@ LLObjectBridge::LLObjectBridge(LLInventoryPanel* inventory,
 {
 	mAttachPt = (flags & 0xff); // low bye of inventory flags
 
-	mIsMultiObject = ( flags & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  TRUE: FALSE;
+	mIsMultiObject = ( flags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  TRUE: FALSE;
 }
 
 LLUIImagePtr LLObjectBridge::getIcon() const
@@ -4962,7 +4963,7 @@ LLUIImagePtr LLLinkItemBridge::getIcon() const
 	if (LLViewerInventoryItem *item = getItem())
 	{
 		U32 attachment_point = (item->getFlags() & 0xff); // low byte of inventory flags
-		bool is_multi =  LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & item->getFlags();
+		bool is_multi =  LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & item->getFlags();
 
 		return get_item_icon(item->getActualType(), item->getInventoryType(), attachment_point, is_multi);
 	}

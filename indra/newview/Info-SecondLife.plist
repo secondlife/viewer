@@ -18,33 +18,6 @@
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-        <key>CFBundleDocumentTypes</key>
-        <array>
-                <dict>
-                        <key>CFBundleTypeExtensions</key>
-                        <array>
-                                <string>slurl</string>
-                        </array>
-                        <key>CFBundleTypeIconFile</key>
-                        <string>seconlife</string>
-                        <key>CFBundleTypeMIMETypes</key>
-                        <array>
-                                <string>application/x-grid-location-info</string>
-                        </array>
-                        <key>CFBundleTypeName</key>
-                        <string>Secondlife SLURL</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-			  <string>SLRL</string>
-			</array>
-                        <key>CFBundleTypeRole</key>
-                        <string>Viewer</string>
-                        <key>LSTypeIsPackage</key>
-			<true/>
-                        <key>NSDocumentClass</key>
-                        <string>SecondLifeSLURL</string>
-                </dict>
-        </array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -53,7 +26,6 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>secondlife</string>
-				<string>x-grid-location-info</string>
 			</array>
 			<key>LSIsAppleDefaultForScheme</key>
 			<true/>
