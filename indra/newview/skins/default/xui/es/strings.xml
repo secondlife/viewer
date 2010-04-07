@@ -89,7 +89,7 @@
 		Descargando la ropa...
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Error de red: no se ha podido conectar; por favor, revisa tu conexión a internet.
+		Error de red: no se ha podido conectar; por favor, revisa tu conexión a Internet.
 	</string>
 	<string name="LoginFailed">
 		Error en el inicio de sesión.
@@ -101,7 +101,7 @@
 		http://join.secondlife.com/index.php?lang=es-ES
 	</string>
 	<string name="AgentLostConnection">
-		Esta región puede estar teniendo problemas. Por favor, comprueba tu conexión a internet.
+		Esta región puede estar teniendo problemas. Por favor, comprueba tu conexión a Internet.
 	</string>
 	<string name="SavingSettings">
 		Guardando tus configuraciones...

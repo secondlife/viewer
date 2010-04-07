@@ -17,7 +17,7 @@
 		<column label="Superficie" name="area"/>
 	</scroll_list>
 	<text name="allowed_label">
-		Propiedades de terreno permitidas en el plan de pago actual:
+		Propiedad de terreno permitida en el plan de pago:
 	</text>
 	<text name="allowed_text">
 		[AREA] m²
