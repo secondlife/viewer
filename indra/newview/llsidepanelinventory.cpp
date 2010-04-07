@@ -161,7 +161,7 @@ void LLSidepanelInventory::performActionOnSelection(const std::string &action)
 	{
 		return;
 	}
-	current_item->getListener()->performAction(panel_main_inventory->getActivePanel()->getRootFolder(), panel_main_inventory->getActivePanel()->getModel(), action);
+	current_item->getListener()->performAction(panel_main_inventory->getActivePanel()->getModel(), action);
 }
 
 void LLSidepanelInventory::onWearButtonClicked()

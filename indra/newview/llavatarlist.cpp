@@ -39,6 +39,7 @@
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
 #include "llrecentpeople.h"
+#include "lluuid.h"
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"	// for gSavedSettings
 
@@ -53,7 +54,7 @@ static const unsigned ADD_LIMIT = 50;
 
 bool LLAvatarList::contains(const LLUUID& id)
 {
-	const uuid_vector_t& ids = getIDs();
+	const uuid_vec_t& ids = getIDs();
 	return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
@@ -303,9 +304,9 @@ void LLAvatarList::refresh()
 
 bool LLAvatarList::filterHasMatches()
 {
-	uuid_vector_t values = getIDs();
+	uuid_vec_t values = getIDs();
 
-	for (uuid_vector_t::const_iterator it=values.begin(); it != values.end(); it++)
+	for (uuid_vec_t::const_iterator it=values.begin(); it != values.end(); it++)
 	{
 		std::string name;
 		const LLUUID& buddy_id = *it;

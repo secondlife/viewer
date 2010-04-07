@@ -1108,7 +1108,16 @@ S32 LLTextureCache::openAndReadEntry(const LLUUID& id, Entry& entry, bool create
 		{
 			readEntryFromHeaderImmediately(idx, entry) ;
 		}
-		llassert_always(entry.mImageSize > entry.mBodySize);
+		if(entry.mImageSize <= entry.mBodySize)//it happens on 64-bit systems, do not know why
+		{
+			llwarns << "corrupted entry: " << id << " entry image size: " << entry.mImageSize << " entry body size: " << entry.mBodySize << llendl ;
+
+			//erase this entry and the cached texture from the cache.
+			std::string tex_filename = getTextureFileName(id);
+			removeEntry(idx, entry, tex_filename) ;
+			mUpdatedEntryMap.erase(idx) ;
+			idx = -1 ;
+		}
 	}
 	return idx;
 }

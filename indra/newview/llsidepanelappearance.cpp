@@ -217,13 +217,13 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_tab");
 		if (inventory_panel)
 		{
-			LLFolderView *folder = inventory_panel->getRootFolder();
-			LLFolderViewItem *outfit_folder = folder->getItemByID(outfit_link->getLinkedUUID());
+			LLFolderView* root = inventory_panel->getRootFolder();
+			LLFolderViewItem *outfit_folder = root->getItemByID(outfit_link->getLinkedUUID());
 			if (outfit_folder)
 			{
 				outfit_folder->setOpen(!outfit_folder->isOpen());
-				folder->setSelectionFromRoot(outfit_folder,TRUE);
-				folder->scrollToShowSelection();
+				root->setSelectionFromRoot(outfit_folder,TRUE);
+				root->scrollToShowSelection();
 			}
 		}
 	}
@@ -354,7 +354,7 @@ void LLSidepanelAppearance::fetchInventory()
 {
 
 	mNewOutfitBtn->setEnabled(false);
-	LLInventoryFetchObserver::item_ref_t ids;
+	uuid_vec_t ids;
 	LLUUID item_id;
 	for(S32 type = (S32)WT_SHAPE; type < (S32)WT_COUNT; ++type)
 	{

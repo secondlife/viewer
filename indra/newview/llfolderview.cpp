@@ -2098,8 +2098,7 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 		if(!folder_item) continue;
 		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getListener();
 		if(!bridge) continue;
-
-		bridge->performAction(this, model, action);
+		bridge->performAction(model, action);
 	}
 
 	LLFloater::setFloaterHost(NULL);

@@ -181,7 +181,7 @@ void LLPanelOutfitsInventory::onWearButtonClick()
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
 	{
-		listenerp->performAction(NULL, NULL,"replaceoutfit");
+		listenerp->performAction(NULL, "replaceoutfit");
 	}
 }
 
@@ -190,7 +190,7 @@ void LLPanelOutfitsInventory::onAdd()
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
 	{
-		listenerp->performAction(NULL, NULL,"addtooutfit");
+		listenerp->performAction(NULL, "addtooutfit");
 	}
 }
 
@@ -199,7 +199,7 @@ void LLPanelOutfitsInventory::onRemove()
 	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
 	if (listenerp)
 	{
-		listenerp->performAction(NULL, NULL,"removefromoutfit");
+		listenerp->performAction(NULL, "removefromoutfit");
 	}
 }
 
@@ -436,18 +436,18 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	if (command_name == "delete" || command_name == "remove")
 	{
 		BOOL can_delete = FALSE;
-		LLFolderView *folder = getActivePanel()->getRootFolder();
-		if (folder)
+		LLFolderView* root = getActivePanel()->getRootFolder();
+		if (root)
 		{
 			std::set<LLUUID> selection_set;
-			folder->getSelectionList(selection_set);
+			root->getSelectionList(selection_set);
 			can_delete = (selection_set.size() > 0);
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
 				 ++iter)
 			{
 				const LLUUID &item_id = (*iter);
-				LLFolderViewItem *item = folder->getItemByID(item_id);
+				LLFolderViewItem *item = root->getItemByID(item_id);
 				can_delete &= item->getListener()->isItemRemovable();
 			}
 			return can_delete;
@@ -457,11 +457,11 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	if (command_name == "remove_link")
 	{
 		BOOL can_delete = FALSE;
-		LLFolderView *folder = getActivePanel()->getRootFolder();
-		if (folder)
+		LLFolderView* root = getActivePanel()->getRootFolder();
+		if (root)
 		{
 			std::set<LLUUID> selection_set;
-			folder->getSelectionList(selection_set);
+			root->getSelectionList(selection_set);
 			can_delete = (selection_set.size() > 0);
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
@@ -506,11 +506,11 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 bool LLPanelOutfitsInventory::hasItemsSelected()
 {
 	bool has_items_selected = false;
-	LLFolderView *folder = getActivePanel()->getRootFolder();
-	if (folder)
+	LLFolderView* root = getActivePanel()->getRootFolder();
+	if (root)
 	{
 		std::set<LLUUID> selection_set;
-		folder->getSelectionList(selection_set);
+		root->getSelectionList(selection_set);
 		has_items_selected = (selection_set.size() > 0);
 	}
 	return has_items_selected;

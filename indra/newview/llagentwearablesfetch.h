@@ -100,11 +100,11 @@ public:
 	LLUUID mMyOutfitsID;
 	void importedFolderFetch();
 protected:
-	void folderDone(void);
-	void outfitsDone(void);
-	void libraryDone(void);
-	void importedFolderDone(void);
-	void contentsDone(void);
+	void folderDone();
+	void outfitsDone();
+	void libraryDone();
+	void importedFolderDone();
+	void contentsDone();
 	enum ELibraryOutfitFetchStep mCurrFetchStep;
 	uuid_vec_t mLibraryClothingFolders;
 	uuid_vec_t mImportedClothingFolders;
