@@ -604,7 +604,7 @@ void LLAppViewerLinux::handleCrashReporting(bool reportFreeze)
 				{cmd.c_str(),
 				 ask_dialog,
 				 "-user",
-				 (char*)LLViewerLogin::getInstance()->getGridLabel().c_str(),
+				 (char*)LLGridManager::getInstance()->getGridLabel().c_str(),
 				 "-name",
 				 LLAppViewer::instance()->getSecondLifeTitle().c_str(),
 				 NULL};

@@ -193,7 +193,6 @@ private:
 
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
-	void initGridChoice();
 
 	bool initCache(); // Initialize local client cache.
 
