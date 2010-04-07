@@ -421,6 +421,9 @@
      name="InventoryItemSuffixColor"
      reference="White_25" />
     <color
+     name="InventoryItemLibraryColor"
+     reference="EmphasisColor" />
+    <color
      name="InventorySearchStatusColor"
      reference="EmphasisColor" />
     <color
@@ -731,7 +734,10 @@
     <color
      name="ChatToastAgentNameColor"
      reference="EmphasisColor" />
-  <color
+    <color
     name="ColorSwatchBorderColor"
     value="0.45098 0.517647 0.607843 1"/>
+    <color
+     name="ChatTimestampColor"
+     reference="White" />
 </colors>

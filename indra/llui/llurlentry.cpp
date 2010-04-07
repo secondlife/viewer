@@ -493,6 +493,35 @@ std::string LLUrlEntryInventory::getLabel(const std::string &url, const LLUrlLab
 	return LLURI::unescape(label.empty() ? url : label);
 }
 
+//
+// LLUrlEntryObjectIM Describes a Second Life inspector for the object Url, e.g.,
+// secondlife:///app/objectim/7bcd7864-da6b-e43f-4486-91d28a28d95b?name=Object&owner=3de548e1-57be-cfea-2b78-83ae3ad95998&slurl=Danger!%20Danger!/200/200/30/&groupowned=1
+//
+LLUrlEntryObjectIM::LLUrlEntryObjectIM()
+{
+	mPattern = boost::regex("secondlife:///app/objectim/[\\da-f-]+\?.*",
+							boost::regex::perl|boost::regex::icase);
+	mMenuName = "menu_url_objectim.xml";
+}
+
+std::string LLUrlEntryObjectIM::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	LLURI uri(url);
+	LLSD query_map = uri.queryMap();
+	if (query_map.has("name"))
+		return query_map["name"];
+	return unescapeUrl(url);
+}
+
+std::string LLUrlEntryObjectIM::getLocation(const std::string &url) const
+{
+	LLURI uri(url);
+	LLSD query_map = uri.queryMap();
+	if (query_map.has("slurl"))
+		return query_map["slurl"];
+	return LLUrlEntryBase::getLocation(url);
+}
+
 ///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about

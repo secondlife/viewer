@@ -489,7 +489,6 @@ void LLPanelEditWearable::initializePanel()
 
 		updateScrollingPanelUI();
 	}
-	
 }
 
 void LLPanelEditWearable::updateScrollingPanelUI()
@@ -640,14 +639,9 @@ void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value
 		{
 			LLPanel::Params p;
 			p.name("LLScrollingPanelParam");
-			p.rect(LLRect(0, LLScrollingPanelParam::PARAM_PANEL_HEIGHT, LLScrollingPanelParam::PARAM_PANEL_WIDTH, 0 ));
 			LLScrollingPanelParam* panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable());
 			height = panel_list->addPanel( panel_param );
 		}
-	
-		S32 width = tab->getRect().getWidth();
-	
-		tab->reshape(width,height + tab->getHeaderHeight()+10,FALSE);
 	}
 }
 

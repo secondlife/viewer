@@ -413,7 +413,7 @@ void LLFriendCardsManager::fetchAndCheckFolderDescendents(const LLUUID& folder_i
 	uuid_vec_t folders;
 	folders.push_back(folder_id);
 
-	fetch->fetchDescendents(folders);
+	fetch->fetch(folders);
 	if(fetch->isEverythingComplete())
 	{
 		// everything is already here - call done.

@@ -652,8 +652,8 @@ void LLPanelPeople::updateFriendList()
 	av_tracker.copyBuddyList(all_buddies);
 
 	// save them to the online and all friends vectors
-	LLAvatarList::uuid_vector_t& online_friendsp = mOnlineFriendList->getIDs();
-	LLAvatarList::uuid_vector_t& all_friendsp = mAllFriendList->getIDs();
+	uuid_vec_t& online_friendsp = mOnlineFriendList->getIDs();
+	uuid_vec_t& all_friendsp = mAllFriendList->getIDs();
 
 	all_friendsp.clear();
 	online_friendsp.clear();
@@ -746,7 +746,7 @@ void LLPanelPeople::buttonSetAction(const std::string& btn_name, const commit_si
 
 bool LLPanelPeople::isFriendOnline(const LLUUID& id)
 {
-	LLAvatarList::uuid_vector_t ids = mOnlineFriendList->getIDs();
+	uuid_vec_t ids = mOnlineFriendList->getIDs();
 	return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 

@@ -435,9 +435,9 @@ LLFolderViewItem* LLLandmarksPanel::selectItemInAccordionTab(LLPlacesInventoryPa
 	if (!inventory_list)
 		return NULL;
 
-	LLFolderView* folder_view = inventory_list->getRootFolder();
+	LLFolderView* root = inventory_list->getRootFolder();
 
-	LLFolderViewItem* item = folder_view->getItemByID(obj_id);
+	LLFolderViewItem* item = root->getItemByID(obj_id);
 	if (!item)
 		return NULL;
 
@@ -447,7 +447,7 @@ LLFolderViewItem* LLLandmarksPanel::selectItemInAccordionTab(LLPlacesInventoryPa
 		tab->changeOpenClose(false);
 	}
 
-	folder_view->setSelection(item, FALSE, take_keyboard_focus);
+	root->setSelection(item, FALSE, take_keyboard_focus);
 
 	LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("landmarks_accordion");
 	LLRect screen_rc;
@@ -983,7 +983,7 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	std::string command_name = userdata.asString();
 	if("more_info" == command_name)
 	{
-		cur_item->getListener()->performAction(mCurrentSelectedList->getRootFolder(),mCurrentSelectedList->getModel(),"about");
+		cur_item->getListener()->performAction(mCurrentSelectedList->getModel(),"about");
 	}
 	else if ("teleport" == command_name)
 	{

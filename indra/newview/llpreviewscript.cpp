@@ -41,6 +41,7 @@
 #include "llcombobox.h"
 #include "lldir.h"
 #include "llfloaterreg.h"
+#include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
@@ -1578,7 +1579,7 @@ void LLLiveLSLEditor::loadAsset()
 										  DEFAULT_SCRIPT_NAME,
 										  DEFAULT_SCRIPT_DESC,
 										  LLSaleInfo::DEFAULT,
-										  LLInventoryItem::II_FLAGS_NONE,
+										  LLInventoryItemFlags::II_FLAGS_NONE,
 										  time_corrected());
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}

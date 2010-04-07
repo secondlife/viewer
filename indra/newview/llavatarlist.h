@@ -53,8 +53,6 @@ class LLAvatarList : public LLFlatListView
 {
 	LOG_CLASS(LLAvatarList);
 public:
-	typedef uuid_vec_t uuid_vector_t;
-
 	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
 	{
 		Optional<bool>	ignore_online_status, // show all items as online
@@ -74,7 +72,7 @@ public:
 
 	void setNameFilter(const std::string& filter);
 	void setDirty(bool val = true, bool force_refresh = false);
-	uuid_vector_t& getIDs() 							{ return mIDs; }
+	uuid_vec_t& getIDs() 							{ return mIDs; }
 	bool contains(const LLUUID& id);
 
 	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
@@ -122,7 +120,7 @@ private:
 	LLTimer*				mLITUpdateTimer; // last interaction time update timer
 	std::string				mIconParamName;
 	std::string				mNameFilter;
-	uuid_vector_t			mIDs;
+	uuid_vec_t				mIDs;
 	LLUUID					mSessionID;
 
 	LLAvatarListItem::ContextMenu* mContextMenu;

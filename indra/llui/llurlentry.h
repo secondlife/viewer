@@ -201,6 +201,18 @@ public:
 private:
 };
 
+///
+/// LLUrlEntryObjectIM Describes a Second Life inspector for the object Url, e.g.,
+/// secondlife:///app/objectim/7bcd7864-da6b-e43f-4486-91d28a28d95b?name=Object&owner=3de548e1-57be-cfea-2b78-83ae3ad95998&slurl=Danger!%20Danger!/200/200/30/&groupowned=1
+///
+class LLUrlEntryObjectIM : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryObjectIM();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getLocation(const std::string &url) const;
+private:
+};
 
 ///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,

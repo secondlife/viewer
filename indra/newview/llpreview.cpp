@@ -36,7 +36,7 @@
 #include "llpreview.h"
 
 #include "lllineeditor.h"
-#include "llinventory.h"
+#include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "llresmgr.h"
 #include "lltextbox.h"

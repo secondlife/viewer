@@ -73,6 +73,7 @@
 #include "llhudmanager.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
@@ -3863,15 +3864,15 @@ BOOL enable_deed_object_to_group(void*)
  * No longer able to support viewer side manipulations in this way
  *
 void god_force_inv_owner_permissive(LLViewerObject* object,
-									InventoryObjectList* inventory,
+									LLInventoryObject::object_list_t* inventory,
 									S32 serial_num,
 									void*)
 {
 	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
 	item_array_t items;
 
-	InventoryObjectList::const_iterator inv_it = inventory->begin();
-	InventoryObjectList::const_iterator inv_end = inventory->end();
+	LLInventoryObject::object_list_t::const_iterator inv_it = inventory->begin();
+	LLInventoryObject::object_list_t::const_iterator inv_end = inventory->end();
 	for ( ; inv_it != inv_end; ++inv_it)
 	{
 		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY))
@@ -6153,11 +6154,11 @@ class LLAttachmentEnableDrop : public view_listener_t
 						// if a fetch is already out there (being sent from a slow sim)
 						// we refetch and there are 2 fetches
 						LLWornItemFetchedObserver* wornItemFetched = new LLWornItemFetchedObserver();
-						LLInventoryFetchObserver::item_ref_t items; //add item to the inventory item to be fetched
+						uuid_vec_t items; //add item to the inventory item to be fetched
 						
 						items.push_back((*attachment_iter)->getItemID());
 						
-						wornItemFetched->fetchItems(items);
+						wornItemFetched->fetch(items);
 						gInventory.addObserver(wornItemFetched);
 					}
 				}
@@ -6971,7 +6972,7 @@ void handle_grab_texture(void* data)
 										name,
 										LLStringUtil::null,
 										LLSaleInfo::DEFAULT,
-										LLInventoryItem::II_FLAGS_NONE,
+										LLInventoryItemFlags::II_FLAGS_NONE,
 										creation_date_now);
 
 		item->updateServer(TRUE);

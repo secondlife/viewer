@@ -36,8 +36,6 @@
 // external projects
 #include "lltransfersourceasset.h"
 
-
-
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
@@ -52,6 +50,7 @@
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventoryclipboard.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -71,6 +70,18 @@
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
 #include "llpaneloutfitsinventory.h"
+
+typedef std::pair<LLUUID, LLUUID> two_uuids_t;
+typedef std::list<two_uuids_t> two_uuids_list_t;
+
+struct LLMoveInv
+{
+	LLUUID mObjectID;
+	LLUUID mCategoryID;
+	two_uuids_list_t mMoveList;
+	void (*mCallback)(S32, void*);
+	void* mUserData;
+};
 
 using namespace LLOldEvents;
 
@@ -95,6 +106,7 @@ void remove_inventory_category_from_avatar(LLInventoryCategory* category);
 void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_id);
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv*);
 bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response);
+void teleport_via_landmark(const LLUUID& asset_id);
 
 std::string ICON_NAME[ICON_NAME_COUNT] =
 {
@@ -139,8 +151,12 @@ std::string ICON_NAME[ICON_NAME_COUNT] =
 // |        LLInvFVBridge                            |
 // +=================================================+
 
-LLInvFVBridge::LLInvFVBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
-mUUID(uuid), mInvType(LLInventoryType::IT_NONE)
+LLInvFVBridge::LLInvFVBridge(LLInventoryPanel* inventory, 
+							 LLFolderView* root,
+							 const LLUUID& uuid) :
+	mUUID(uuid), 
+	mRoot(root),
+	mInvType(LLInventoryType::IT_NONE)
 {
 	mInventoryPanel = inventory->getHandle();
 }
@@ -239,7 +255,7 @@ void LLInvFVBridge::showProperties()
 
 	// Disable old properties floater; this is replaced by the sidepanel.
 	/*
-	LLFloaterReg::showInstance("properties", mUUID);
+	  LLFloaterReg::showInstance("properties", mUUID);
 	*/
 }
 
@@ -487,8 +503,8 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 }
 
 void hide_context_entries(LLMenuGL& menu, 
-						const menuentry_vec_t &entries_to_show,
-						const menuentry_vec_t &disabled_entries)
+						  const menuentry_vec_t &entries_to_show,
+						  const menuentry_vec_t &disabled_entries)
 {
 	const LLView::child_list_t *list = menu.getChildList();
 
@@ -862,21 +878,11 @@ void LLInvFVBridge::changeCategoryParent(LLInventoryModel* model,
 	model->notifyObservers();
 }
 
-
-const std::string safe_inv_type_lookup(LLInventoryType::EType inv_type)
-{
-	const std::string rv= LLInventoryType::lookup(inv_type);
-	if(rv.empty())
-	{
-		return std::string("<invalid>");
-	}
-	return rv;
-}
-
 LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 										   LLAssetType::EType actual_asset_type,
 										   LLInventoryType::EType inv_type,
 										   LLInventoryPanel* inventory,
+										   LLFolderView* root,
 										   const LLUUID& uuid,
 										   U32 flags)
 {
@@ -886,104 +892,104 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		case LLAssetType::AT_TEXTURE:
 			if(!(inv_type == LLInventoryType::IT_TEXTURE || inv_type == LLInventoryType::IT_SNAPSHOT))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLTextureBridge(inventory, uuid, inv_type);
+			new_listener = new LLTextureBridge(inventory, root, uuid, inv_type);
 			break;
 
 		case LLAssetType::AT_SOUND:
 			if(!(inv_type == LLInventoryType::IT_SOUND))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLSoundBridge(inventory, uuid);
+			new_listener = new LLSoundBridge(inventory, root, uuid);
 			break;
 
 		case LLAssetType::AT_LANDMARK:
 			if(!(inv_type == LLInventoryType::IT_LANDMARK))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLLandmarkBridge(inventory, uuid, flags);
+			new_listener = new LLLandmarkBridge(inventory, root, uuid, flags);
 			break;
 
 		case LLAssetType::AT_CALLINGCARD:
 			if(!(inv_type == LLInventoryType::IT_CALLINGCARD))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLCallingCardBridge(inventory, uuid);
+			new_listener = new LLCallingCardBridge(inventory, root, uuid);
 			break;
 
 		case LLAssetType::AT_SCRIPT:
 			if(!(inv_type == LLInventoryType::IT_LSL))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLScriptBridge(inventory, uuid);
+			new_listener = new LLScriptBridge(inventory, root, uuid);
 			break;
 
 		case LLAssetType::AT_OBJECT:
 			if(!(inv_type == LLInventoryType::IT_OBJECT || inv_type == LLInventoryType::IT_ATTACHMENT))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLObjectBridge(inventory, uuid, inv_type, flags);
+			new_listener = new LLObjectBridge(inventory, root, uuid, inv_type, flags);
 			break;
 
 		case LLAssetType::AT_NOTECARD:
 			if(!(inv_type == LLInventoryType::IT_NOTECARD))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLNotecardBridge(inventory, uuid);
+			new_listener = new LLNotecardBridge(inventory, root, uuid);
 			break;
 
 		case LLAssetType::AT_ANIMATION:
 			if(!(inv_type == LLInventoryType::IT_ANIMATION))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLAnimationBridge(inventory, uuid);
+			new_listener = new LLAnimationBridge(inventory, root, uuid);
 			break;
 
 		case LLAssetType::AT_GESTURE:
 			if(!(inv_type == LLInventoryType::IT_GESTURE))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLGestureBridge(inventory, uuid);
+			new_listener = new LLGestureBridge(inventory, root, uuid);
 			break;
 
 		case LLAssetType::AT_LSL_TEXT:
 			if(!(inv_type == LLInventoryType::IT_LSL))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLLSLTextBridge(inventory, uuid);
+			new_listener = new LLLSLTextBridge(inventory, root, uuid);
 			break;
 
 		case LLAssetType::AT_CLOTHING:
 		case LLAssetType::AT_BODYPART:
 			if(!(inv_type == LLInventoryType::IT_WEARABLE))
 			{
-				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << safe_inv_type_lookup(inv_type) << " on uuid " << uuid << llendl;
+				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLWearableBridge(inventory, uuid, asset_type, inv_type, (EWearableType)flags);
+			new_listener = new LLWearableBridge(inventory, root, uuid, asset_type, inv_type, (EWearableType)flags);
 			break;
 		case LLAssetType::AT_CATEGORY:
 			if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
 			{
 				// Create a link folder handler instead.
-				new_listener = new LLLinkFolderBridge(inventory, uuid);
+				new_listener = new LLLinkFolderBridge(inventory, root, uuid);
 				break;
 			}
-			new_listener = new LLFolderBridge(inventory, uuid);
+			new_listener = new LLFolderBridge(inventory, root, uuid);
 			break;
 		case LLAssetType::AT_LINK:
 		case LLAssetType::AT_LINK_FOLDER:
 			// Only should happen for broken links.
-			new_listener = new LLLinkItemBridge(inventory, uuid);
+			new_listener = new LLLinkItemBridge(inventory, root, uuid);
 			break;
 		default:
 			llinfos << "Unhandled asset type (llassetstorage.h): "
@@ -1032,26 +1038,28 @@ LLInvFVBridge* LLInventoryFVBridgeBuilder::createBridge(LLAssetType::EType asset
 														LLAssetType::EType actual_asset_type,
 														LLInventoryType::EType inv_type,
 														LLInventoryPanel* inventory,
+														LLFolderView* root,
 														const LLUUID& uuid,
 														U32 flags /* = 0x00 */) const
 {
 	return LLInvFVBridge::createBridge(asset_type,
-		actual_asset_type,
-		inv_type,
-		inventory,
-		uuid,
-		flags);
+									   actual_asset_type,
+									   inv_type,
+									   inventory,
+									   root,
+									   uuid,
+									   flags);
 }
 
 // +=================================================+
 // |        LLItemBridge                             |
 // +=================================================+
 
-void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if ("goto" == action)
 	{
-		gotoItem(folder);
+		gotoItem();
 	}
 
 	if ("open" == action)
@@ -1102,7 +1110,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 		LLInventoryItem* itemp = model->getItem(mUUID);
 		if (!itemp) return;
 
-		LLFolderViewItem* folder_view_itemp = folder->getItemByID(itemp->getParentUUID());
+		LLFolderViewItem* folder_view_itemp = mRoot->getItemByID(itemp->getParentUUID());
 		if (!folder_view_itemp) return;
 
 		folder_view_itemp->getListener()->pasteFromClipboard();
@@ -1114,7 +1122,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 		LLInventoryItem* itemp = model->getItem(mUUID);
 		if (!itemp) return;
 
-		LLFolderViewItem* folder_view_itemp = folder->getItemByID(itemp->getParentUUID());
+		LLFolderViewItem* folder_view_itemp = mRoot->getItemByID(itemp->getParentUUID());
 		if (!folder_view_itemp) return;
 
 		folder_view_itemp->getListener()->pasteLinkFromClipboard();
@@ -1183,7 +1191,7 @@ void LLItemBridge::restoreToWorld()
 	}
 }
 
-void LLItemBridge::gotoItem(LLFolderView *folder)
+void LLItemBridge::gotoItem()
 {
 	LLInventoryObject *obj = getInventoryObject();
 	if (obj && obj->getIsLinkType())
@@ -1684,7 +1692,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		// Is the destination the trash?
 		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 		BOOL move_is_into_trash = (mUUID == trash_id)
-				|| model->isObjectDescendentOf(mUUID, trash_id);
+			|| model->isObjectDescendentOf(mUUID, trash_id);
 		BOOL is_movable = (!LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()));
 		const LLUUID current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 		BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
@@ -1732,12 +1740,11 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 		}
 
-
-		accept =	is_movable
-					&& (mUUID != cat_id)								// Can't move a folder into itself
-					&& (mUUID != inv_cat->getParentUUID())				// Avoid moves that would change nothing
-					&& !(model->isObjectDescendentOf(mUUID, cat_id));	// Avoid circularity
-		if(accept && drop)
+		accept = is_movable
+			&& (mUUID != cat_id)								// Can't move a folder into itself
+			&& (mUUID != inv_cat->getParentUUID())				// Avoid moves that would change nothing
+			&& !(model->isObjectDescendentOf(mUUID, cat_id));	// Avoid circularity
+		if (accept && drop)
 		{
 			// Look for any gestures and deactivate them
 			if (move_is_into_trash)
@@ -1775,22 +1782,22 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				else
 				{
 #if SUPPORT_ENSEMBLES
-				// BAP - should skip if dup.
-				if (move_is_into_current_outfit)
-				{
-					LLAppearanceMgr::instance().addEnsembleLink(inv_cat);
-				}
-				else
-				{
-					LLPointer<LLInventoryCallback> cb = NULL;
-					link_inventory_item(
-						gAgent.getID(),
-						inv_cat->getUUID(),
-						mUUID,
-						inv_cat->getName(),
-						LLAssetType::AT_LINK_FOLDER,
-						cb);
-				}
+					// BAP - should skip if dup.
+					if (move_is_into_current_outfit)
+					{
+						LLAppearanceMgr::instance().addEnsembleLink(inv_cat);
+					}
+					else
+					{
+						LLPointer<LLInventoryCallback> cb = NULL;
+						link_inventory_item(
+							gAgent.getID(),
+							inv_cat->getUUID(),
+							mUUID,
+							inv_cat->getName(),
+							LLAssetType::AT_LINK_FOLDER,
+							cb);
+					}
 #endif
 				}
 			}
@@ -1807,7 +1814,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 		}
 	}
-	else if(LLToolDragAndDrop::SOURCE_WORLD == source)
+	else if (LLToolDragAndDrop::SOURCE_WORLD == source)
 	{
 		// content category has same ID as object itself
 		LLUUID object_id = inv_cat->getUUID();
@@ -1852,7 +1859,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 
 	// this folder is coming from an object, as there is only one folder in an object, the root,
 	// we need to collect the entire contents and handle them as a group
-	InventoryObjectList inventory_objects;
+	LLInventoryObject::object_list_t inventory_objects;
 	object->getInventoryContents(inventory_objects);
 
 	if (inventory_objects.empty())
@@ -1866,8 +1873,8 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 
 	// coming from a task. Need to figure out if the person can
 	// move/copy this item.
-	InventoryObjectList::iterator it = inventory_objects.begin();
-	InventoryObjectList::iterator end = inventory_objects.end();
+	LLInventoryObject::object_list_t::iterator it = inventory_objects.begin();
+	LLInventoryObject::object_list_t::iterator end = inventory_objects.end();
 	for ( ; it != end; ++it)
 	{
 		// coming from a task. Need to figure out if the person can
@@ -1897,7 +1904,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	if(drop && accept)
 	{
 		it = inventory_objects.begin();
-		InventoryObjectList::iterator first_it = inventory_objects.begin();
+		LLInventoryObject::object_list_t::iterator first_it = inventory_objects.begin();
 		LLMoveInv* move_inv = new LLMoveInv;
 		move_inv->mObjectID = object_id;
 		move_inv->mCategoryID = category_id;
@@ -1935,7 +1942,7 @@ public:
 	LLRightClickInventoryFetchObserver(const LLUUID& cat_id, bool copy_items) :
 		mCatID(cat_id),
 		mCopyItems(copy_items)
-		{ };
+	{ };
 	virtual void done()
 	{
 		// we've downloaded all the items, so repaint the dialog
@@ -1967,7 +1974,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 {
 	// Avoid passing a NULL-ref as mCompleteFolders.front() down to
 	// gInventory.collectDescendents()
-	if( mCompleteFolders.empty() )
+	if( mComplete.empty() )
 	{
 		llwarns << "LLRightClickInventoryFetchDescendentsObserver::done with empty mCompleteFolders" << llendl;
 		dec_busy_count();
@@ -1981,7 +1988,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 	// happen.
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
-	gInventory.collectDescendents(mCompleteFolders.front(),
+	gInventory.collectDescendents(mComplete.front(),
 								  cat_array,
 								  item_array,
 								  LLInventoryModel::EXCLUDE_TRASH);
@@ -2000,8 +2007,8 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 #endif
 
 	LLRightClickInventoryFetchObserver* outfit;
-	outfit = new LLRightClickInventoryFetchObserver(mCompleteFolders.front(), mCopyItems);
-	LLInventoryFetchObserver::item_ref_t ids;
+	outfit = new LLRightClickInventoryFetchObserver(mComplete.front(), mCopyItems);
+	uuid_vec_t ids;
 	for(S32 i = 0; i < count; ++i)
 	{
 		ids.push_back(item_array.get(i)->getUUID());
@@ -2019,19 +2026,19 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 	inc_busy_count();
 
 	// do the fetch
-	outfit->fetchItems(ids);
+	outfit->fetch(ids);
 	outfit->done();				//Not interested in waiting and this will be right 99% of the time.
 //Uncomment the following code for laggy Inventory UI.
 /*	if(outfit->isEverythingComplete())
 	{
-		// everything is already here - call done.
-		outfit->done();
+	// everything is already here - call done.
+	outfit->done();
 	}
 	else
 	{
-		// it's all on it's way - add an observer, and the inventory
-		// will call done for us when everything is here.
-		gInventory.addObserver(outfit);
+	// it's all on it's way - add an observer, and the inventory
+	// will call done for us when everything is here.
+	gInventory.addObserver(outfit);
 	}*/
 }
 
@@ -2045,7 +2052,8 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 class LLInventoryCopyAndWearObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryCopyAndWearObserver(const LLUUID& cat_id, int count) :mCatID(cat_id), mContentsCount(count), mFolderAdded(FALSE) {}
+	LLInventoryCopyAndWearObserver(const LLUUID& cat_id, int count) :
+		mCatID(cat_id), mContentsCount(count), mFolderAdded(FALSE) {}
 	virtual ~LLInventoryCopyAndWearObserver() {}
 	virtual void changed(U32 mask);
 
@@ -2084,7 +2092,7 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 			if (NULL == category)
 			{
 				llwarns << "gInventory.getCategory(" << mCatID
-					<< ") was NULL" << llendl;
+						<< ") was NULL" << llendl;
 			}
 			else
 			{
@@ -2103,11 +2111,11 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 
 
 
-void LLFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if ("open" == action)
 	{
-		LLFolderViewFolder *f = dynamic_cast<LLFolderViewFolder *>(folder->getItemByID(mUUID));
+		LLFolderViewFolder *f = dynamic_cast<LLFolderViewFolder *>(mRoot->getItemByID(mUUID));
 		if (f)
 		{
 			f->setOpen(TRUE);
@@ -2460,16 +2468,16 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			}
 			else
 #endif
-			if (LLInventoryItem *item = model->getItem(object_id))
-			{
-				link_inventory_item(
-					gAgent.getID(),
-					item->getLinkedUUID(),
-					parent_id,
-					item->getName(),
-					LLAssetType::AT_LINK,
-					LLPointer<LLInventoryCallback>(NULL));
-			}
+				if (LLInventoryItem *item = model->getItem(object_id))
+				{
+					link_inventory_item(
+						gAgent.getID(),
+						item->getLinkedUUID(),
+						parent_id,
+						item->getName(),
+						LLAssetType::AT_LINK,
+						LLPointer<LLInventoryCallback>(NULL));
+				}
 		}
 	}
 }
@@ -2494,7 +2502,7 @@ void LLFolderBridge::folderOptionsMenu()
 	const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
 	// BAP change once we're no longer treating regular categories as ensembles.
 	const bool is_ensemble = (type == LLFolderType::FT_NONE ||
-				  LLFolderType::lookupIsEnsembleType(type));
+							  LLFolderType::lookupIsEnsembleType(type));
 
 	// calling card related functionality for folders.
 
@@ -2624,10 +2632,10 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	const LLUUID lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 
 	if (lost_and_found_id == mUUID)
-	  {
+	{
 		// This is the lost+found folder.
-		  mItems.push_back(std::string("Empty Lost And Found"));
-	  }
+		mItems.push_back(std::string("Empty Lost And Found"));
+	}
 
 	if(trash_id == mUUID)
 	{
@@ -2715,7 +2723,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			folders.push_back(category->getUUID());
 		}
-		fetch->fetchDescendents(folders);
+		fetch->fetch(folders);
 		inc_busy_count();
 		if(fetch->isEverythingComplete())
 		{
@@ -2912,10 +2920,10 @@ void LLFolderBridge::createWearable(const LLUUID &parent_id, EWearableType type)
 	LLAssetType::EType asset_type = wearable->getAssetType();
 	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-		parent_id, wearable->getTransactionID(), wearable->getName(),
-		wearable->getDescription(), asset_type, inv_type, wearable->getType(),
-		wearable->getPermissions().getMaskNextOwner(),
-		LLPointer<LLInventoryCallback>(NULL));
+						  parent_id, wearable->getTransactionID(), wearable->getName(),
+						  wearable->getDescription(), asset_type, inv_type, wearable->getType(),
+						  wearable->getPermissions().getMaskNextOwner(),
+						  LLPointer<LLInventoryCallback>(NULL));
 }
 
 void LLFolderBridge::modifyOutfit(BOOL append)
@@ -2939,7 +2947,7 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 	{
 		if (cat_and_wear && cat_and_wear->mWear)
 		{
-			InventoryObjectList inventory_objects;
+			LLInventoryObject::object_list_t inventory_objects;
 			object->getInventoryContents(inventory_objects);
 			int contents_count = inventory_objects.size()-1; //subtract one for containing folder
 
@@ -2949,8 +2957,8 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 
 		two_uuids_list_t::iterator move_it;
 		for (move_it = move_inv->mMoveList.begin();
-			move_it != move_inv->mMoveList.end();
-			++move_it)
+			 move_it != move_inv->mMoveList.end();
+			 ++move_it)
 		{
 			object->moveInventory(move_it->first, move_it->second);
 		}
@@ -2990,11 +2998,11 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		BOOL is_movable = TRUE;
 		switch( inv_item->getActualType() )
 		{
-		case LLAssetType::AT_CATEGORY:
-			is_movable = !LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)inv_item)->getPreferredType());
-			break;
-		default:
-			break;
+			case LLAssetType::AT_CATEGORY:
+				is_movable = !LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)inv_item)->getPreferredType());
+				break;
+			default:
+				break;
 		}
 
 		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
@@ -3172,7 +3180,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		if(drop)
 		{
 			copy_inventory_from_notecard(LLToolDragAndDrop::getInstance()->getObjectID(),
-				LLToolDragAndDrop::getInstance()->getSourceID(), inv_item);
+										 LLToolDragAndDrop::getInstance()->getSourceID(), inv_item);
 		}
 	}
 	else if(LLToolDragAndDrop::SOURCE_LIBRARY == source)
@@ -3271,7 +3279,7 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 }
 
 // virtual
-void LLTextureBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLTextureBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if ("save_as" == action)
 	{
@@ -3282,7 +3290,7 @@ void LLTextureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 			preview_texture->openToSave();
 		}
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(model, action);
 }
 
 // +=================================================+
@@ -3307,14 +3315,14 @@ void LLSoundBridge::openItem()
 // only open the preview dialog through the contextual right-click menu
 // double-click just plays the sound
 
-	LLViewerInventoryItem* item = getItem();
-	if(item)
-	{
-		openSoundPreview((void*)this);
-		//send_uuid_sound_trigger(item->getAssetUUID(), 1.0);
-	}
-*/
+LLViewerInventoryItem* item = getItem();
+if(item)
+{
+openSoundPreview((void*)this);
+//send_uuid_sound_trigger(item->getAssetUUID(), 1.0);
 }
+*/
+		}
 
 void LLSoundBridge::previewItem()
 {
@@ -3359,11 +3367,14 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 // |        LLLandmarkBridge                         |
 // +=================================================+
 
-LLLandmarkBridge::LLLandmarkBridge(LLInventoryPanel* inventory, const LLUUID& uuid, U32 flags/* = 0x00*/) :
-LLItemBridge(inventory, uuid)
+LLLandmarkBridge::LLLandmarkBridge(LLInventoryPanel* inventory, 
+								   LLFolderView* root,
+								   const LLUUID& uuid, 
+								   U32 flags/* = 0x00*/) :
+	LLItemBridge(inventory, root, uuid)
 {
 	mVisited = FALSE;
-	if (flags & LLInventoryItem::II_FLAGS_LANDMARK_VISITED)
+	if (flags & LLInventoryItemFlags::II_FLAGS_LANDMARK_VISITED)
 	{
 		mVisited = TRUE;
 	}
@@ -3421,7 +3432,7 @@ void teleport_via_landmark(const LLUUID& asset_id)
 }
 
 // virtual
-void LLLandmarkBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLLandmarkBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if ("teleport" == action)
 	{
@@ -3445,7 +3456,7 @@ void LLLandmarkBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 	}
 	else
 	{
-		LLItemBridge::performAction(folder, model, action);
+		LLItemBridge::performAction(model, action);
 	}
 }
 
@@ -3472,35 +3483,33 @@ void LLLandmarkBridge::openItem()
 	{
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
 	}
-/*
-	LLViewerInventoryItem* item = getItem();
-	if( item )
-	{
-		// Opening (double-clicking) a landmark immediately teleports,
-		// but warns you the first time.
-		// open_landmark(item);
-		LLSD payload;
-		payload["asset_id"] = item->getAssetUUID();
-		LLNotificationsUtil::add("TeleportFromLandmark", LLSD(), payload);
-	}
-*/
 }
 
 
 // +=================================================+
 // |        LLCallingCardObserver                    |
 // +=================================================+
-void LLCallingCardObserver::changed(U32 mask)
+class LLCallingCardObserver : public LLFriendObserver
 {
-	mBridgep->refreshFolderViewItem();
-}
+public:
+	LLCallingCardObserver(LLCallingCardBridge* bridge) : mBridgep(bridge) {}
+	virtual ~LLCallingCardObserver() { mBridgep = NULL; }
+	virtual void changed(U32 mask)
+	{
+		mBridgep->refreshFolderViewItem();
+	}
+protected:
+	LLCallingCardBridge* mBridgep;
+};
 
 // +=================================================+
 // |        LLCallingCardBridge                      |
 // +=================================================+
 
-LLCallingCardBridge::LLCallingCardBridge( LLInventoryPanel* inventory, const LLUUID& uuid ) :
-	LLItemBridge(inventory, uuid)
+LLCallingCardBridge::LLCallingCardBridge(LLInventoryPanel* inventory, 
+										 LLFolderView* root,
+										 const LLUUID& uuid ) :
+	LLItemBridge(inventory, root, uuid)
 {
 	mObserver = new LLCallingCardObserver(this);
 	LLAvatarTracker::instance().addObserver(mObserver);
@@ -3523,7 +3532,7 @@ void LLCallingCardBridge::refreshFolderViewItem()
 }
 
 // virtual
-void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLCallingCardBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if ("begin_im" == action)
 	{
@@ -3549,7 +3558,7 @@ void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* 
 			LLAvatarActions::offerTeleport(item->getCreatorUUID());
 		}
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(model, action);
 }
 
 LLUIImagePtr LLCallingCardBridge::getIcon() const
@@ -3585,11 +3594,11 @@ void LLCallingCardBridge::openItem()
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
 	}
 /*
-	LLViewerInventoryItem* item = getItem();
-	if(item && !item->getCreatorUUID().isNull())
-	{
-		LLAvatarActions::showProfile(item->getCreatorUUID());
-	}
+  LLViewerInventoryItem* item = getItem();
+  if(item && !item->getCreatorUUID().isNull())
+  {
+  LLAvatarActions::showProfile(item->getCreatorUUID());
+  }
 */
 }
 
@@ -3612,8 +3621,8 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		LLInventoryItem* item = getItem();
 		BOOL good_card = (item
-				  && (LLUUID::null != item->getCreatorUUID())
-				  && (item->getCreatorUUID() != gAgent.getID()));
+						  && (LLUUID::null != item->getCreatorUUID())
+						  && (item->getCreatorUUID() != gAgent.getID()));
 		BOOL user_online = FALSE;
 		if (item)
 		{
@@ -3648,16 +3657,16 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 		// check the type
 		switch(cargo_type)
 		{
-		case DAD_TEXTURE:
-		case DAD_SOUND:
-		case DAD_LANDMARK:
-		case DAD_SCRIPT:
-		case DAD_CLOTHING:
-		case DAD_OBJECT:
-		case DAD_NOTECARD:
-		case DAD_BODYPART:
-		case DAD_ANIMATION:
-		case DAD_GESTURE:
+			case DAD_TEXTURE:
+			case DAD_SOUND:
+			case DAD_LANDMARK:
+			case DAD_SCRIPT:
+			case DAD_CLOTHING:
+			case DAD_OBJECT:
+			case DAD_NOTECARD:
+			case DAD_BODYPART:
+			case DAD_ANIMATION:
+			case DAD_GESTURE:
 			{
 				LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 				const LLPermissions& perm = inv_item->getPermissions();
@@ -3680,7 +3689,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 				}
 				break;
 			}
-		case DAD_CATEGORY:
+			case DAD_CATEGORY:
 			{
 				LLInventoryCategory* inv_cat = (LLInventoryCategory*)cargo_data;
 				if( gInventory.getCategory( inv_cat->getUUID() ) )
@@ -3702,8 +3711,8 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 				}
 				break;
 			}
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 	return rv;
@@ -3728,11 +3737,11 @@ void LLNotecardBridge::openItem()
 	}
 
 /*
-	LLViewerInventoryItem* item = getItem();
-	if (item)
-	{
-		LLFloaterReg::showInstance("preview_notecard", LLSD(item->getUUID()), TAKE_FOCUS_YES);
-	}
+  LLViewerInventoryItem* item = getItem();
+  if (item)
+  {
+  LLFloaterReg::showInstance("preview_notecard", LLSD(item->getUUID()), TAKE_FOCUS_YES);
+  }
 */
 }
 
@@ -3773,7 +3782,7 @@ std::string LLGestureBridge::getLabelSuffix() const
 }
 
 // virtual
-void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLGestureBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if (isAddAction(action))
 	{
@@ -3819,7 +3828,7 @@ void LLGestureBridge::performAction(LLFolderView* folder, LLInventoryModel* mode
 			playGesture(mUUID);
 		}
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(model, action);
 }
 
 void LLGestureBridge::openItem()
@@ -3831,12 +3840,12 @@ void LLGestureBridge::openItem()
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
 	}
 /*
-	LLViewerInventoryItem* item = getItem();
-	if (item)
-	{
-		LLPreviewGesture* preview = LLPreviewGesture::show(mUUID, LLUUID::null);
-		preview->setFocus(TRUE);
-	}
+  LLViewerInventoryItem* item = getItem();
+  if (item)
+  {
+  LLPreviewGesture* preview = LLPreviewGesture::show(mUUID, LLUUID::null);
+  preview->setFocus(TRUE);
+  }
 */
 }
 
@@ -3948,7 +3957,7 @@ void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 }
 
 // virtual
-void LLAnimationBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLAnimationBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if ((action == "playworld") || (action == "playlocal"))
 	{
@@ -3967,7 +3976,7 @@ void LLAnimationBridge::performAction(LLFolderView* folder, LLInventoryModel* mo
 	}
 	else
 	{
-		LLItemBridge::performAction(folder, model, action);
+		LLItemBridge::performAction(model, action);
 	}
 }
 
@@ -3980,11 +3989,11 @@ void LLAnimationBridge::openItem()
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
 	}
 /*
-	LLViewerInventoryItem* item = getItem();
-	if (item)
-	{
-		LLFloaterReg::showInstance("preview_anim", LLSD(mUUID), TAKE_FOCUS_YES);
-	}
+  LLViewerInventoryItem* item = getItem();
+  if (item)
+  {
+  LLFloaterReg::showInstance("preview_anim", LLSD(mUUID), TAKE_FOCUS_YES);
+  }
 */
 }
 
@@ -3995,12 +4004,17 @@ void LLAnimationBridge::openItem()
 // static
 LLUUID LLObjectBridge::sContextMenuItemID;
 
-LLObjectBridge::LLObjectBridge(LLInventoryPanel* inventory, const LLUUID& uuid, LLInventoryType::EType type, U32 flags) :
-LLItemBridge(inventory, uuid), mInvType(type)
+LLObjectBridge::LLObjectBridge(LLInventoryPanel* inventory, 
+							   LLFolderView* root,
+							   const LLUUID& uuid, 
+							   LLInventoryType::EType type, 
+							   U32 flags) :
+	LLItemBridge(inventory, root, uuid), 
+	mInvType(type)
 {
 	mAttachPt = (flags & 0xff); // low bye of inventory flags
 
-	mIsMultiObject = ( flags & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  TRUE: FALSE;
+	mIsMultiObject = ( flags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  TRUE: FALSE;
 }
 
 LLUIImagePtr LLObjectBridge::getIcon() const
@@ -4020,7 +4034,7 @@ LLInventoryObject* LLObjectBridge::getObject() const
 }
 
 // virtual
-void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if (isAddAction(action))
 	{
@@ -4064,7 +4078,7 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 			}
 		}
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(model, action);
 }
 
 void LLObjectBridge::openItem()
@@ -4082,7 +4096,7 @@ void LLObjectBridge::openItem()
 
 	// Disable old properties floater; this is replaced by the sidepanel.
 	/*
-	LLFloaterReg::showInstance("properties", mUUID);
+	  LLFloaterReg::showInstance("properties", mUUID);
 	*/
 }
 
@@ -4333,18 +4347,24 @@ void LLLSLTextBridge::openItem()
 	{
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
 	}
-	/*
-	LLViewerInventoryItem* item = getItem();
-	if (item)
-	{
-		LLFloaterReg::showInstance("preview_script", LLSD(mUUID), TAKE_FOCUS_YES);
-	}
-	*/
 }
 
 // +=================================================+
 // |        LLWearableBridge                         |
 // +=================================================+
+
+LLWearableBridge::LLWearableBridge(LLInventoryPanel* inventory, 
+								   LLFolderView* root, 
+								   const LLUUID& uuid, 
+								   LLAssetType::EType asset_type, 
+								   LLInventoryType::EType inv_type, 
+								   EWearableType  wearable_type) :
+	LLItemBridge(inventory, root, uuid),
+	mAssetType( asset_type ),
+	mInvType(inv_type),
+	mWearableType(wearable_type)
+{
+}
 
 // *NOTE: hack to get from avatar inventory to avatar
 void wear_inventory_item_on_avatar( LLInventoryItem* item )
@@ -4366,10 +4386,10 @@ void wear_add_inventory_item_on_avatar( LLInventoryItem* item )
 				 << " )" << llendl;
 
 		LLWearableList::instance().getAsset(item->getAssetUUID(),
-							   item->getName(),
-							   item->getType(),
-							   LLWearableBridge::onWearAddOnAvatarArrived,
-							   new LLUUID(item->getUUID()));
+											item->getName(),
+											item->getType(),
+											LLWearableBridge::onWearAddOnAvatarArrived,
+											new LLUUID(item->getUUID()));
 	}
 }
 
@@ -4529,7 +4549,7 @@ LLUIImagePtr LLWearableBridge::getIcon() const
 }
 
 // virtual
-void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
+void LLWearableBridge::performAction(LLInventoryModel* model, std::string action)
 {
 	if (isAddAction(action))
 	{
@@ -4549,7 +4569,7 @@ void LLWearableBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 		removeFromAvatar();
 		return;
 	}
-	else LLItemBridge::performAction(folder, model, action);
+	else LLItemBridge::performAction(model, action);
 }
 
 void LLWearableBridge::openItem()
@@ -4560,42 +4580,6 @@ void LLWearableBridge::openItem()
 	{
 		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
 	}
-	/*
-	if( isItemInTrash() )
-	{
-		LLNotificationsUtil::add("CannotWearTrash");
-	}
-	else if(isAgentInventory())
-	{
-		if( !get_is_item_worn( mUUID ) )
-		{
-			wearOnAvatar();
-		}
-	}
-	else
-	{
-		// must be in the inventory library. copy it to our inventory
-		// and put it on right away.
-		LLViewerInventoryItem* item = getItem();
-		if(item && item->isComplete())
-		{
-			LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback();
-			copy_inventory_item(
-				gAgent.getID(),
-				item->getPermissions().getOwner(),
-				item->getUUID(),
-				LLUUID::null,
-				std::string(),
-				cb);
-		}
-		else if(item)
-		{
-			// *TODO: We should fetch the item details, and then do
-			// the operation above.
-			LLNotificationsUtil::add("CannotWearInfoNotComplete");
-		}
-	}
-	*/
 }
 
 void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
@@ -4919,7 +4903,7 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	delete on_remove_struct;
 }
 
-/* static */
+// static
 void LLWearableBridge::removeAllClothesFromAvatar()
 {
 	// Remove COF links.
@@ -4947,7 +4931,7 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 	LLAgentWearables::userRemoveAllClothes();
 }
 
-/* static */
+// static
 void LLWearableBridge::removeItemFromAvatar(LLViewerInventoryItem *item)
 {
 	if (item)
@@ -4969,61 +4953,124 @@ void LLWearableBridge::removeFromAvatar()
 	}
 }
 
-LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_type,
-													   const LLUUID& uuid,LLInventoryModel* model)
+// +=================================================+
+// |        LLLinkItemBridge                         |
+// +=================================================+
+// For broken item links
+std::string LLLinkItemBridge::sPrefix("Link: ");
+LLUIImagePtr LLLinkItemBridge::getIcon() const
 {
-	LLInvFVBridgeAction* action = NULL;
-	switch(asset_type)
+	if (LLViewerInventoryItem *item = getItem())
 	{
-	case LLAssetType::AT_TEXTURE:
-		action = new LLTextureBridgeAction(uuid,model);
-		break;
+		U32 attachment_point = (item->getFlags() & 0xff); // low byte of inventory flags
+		bool is_multi =  LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & item->getFlags();
 
-	case LLAssetType::AT_SOUND:
-		action = new LLSoundBridgeAction(uuid,model);
-		break;
-
-	case LLAssetType::AT_LANDMARK:
-		action = new LLLandmarkBridgeAction(uuid,model);
-		break;
-
-	case LLAssetType::AT_CALLINGCARD:
-		action = new LLCallingCardBridgeAction(uuid,model);
-		break;
-
-	case LLAssetType::AT_OBJECT:
-		action = new LLObjectBridgeAction(uuid,model);
-		break;
-
-	case LLAssetType::AT_NOTECARD:
-		action = new LLNotecardBridgeAction(uuid,model);
-		break;
-
-	case LLAssetType::AT_ANIMATION:
-		action = new LLAnimationBridgeAction(uuid,model);
-		break;
-
-	case LLAssetType::AT_GESTURE:
-		action = new LLGestureBridgeAction(uuid,model);
-		break;
-
-	case LLAssetType::AT_LSL_TEXT:
-		action = new LLLSLTextBridgeAction(uuid,model);
-		break;
-
-	case LLAssetType::AT_CLOTHING:
-	case LLAssetType::AT_BODYPART:
-		action = new LLWearableBridgeAction(uuid,model);
-
-		break;
-
-	default:
-		break;
+		return get_item_icon(item->getActualType(), item->getInventoryType(), attachment_point, is_multi);
 	}
-	return action;
+	return get_item_icon(LLAssetType::AT_LINK, LLInventoryType::IT_NONE, 0, FALSE);
+}
+void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	// *TODO: Translate
+	lldebugs << "LLLink::buildContextMenu()" << llendl;
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
+
+	items.push_back(std::string("Find Original"));
+	disabled_items.push_back(std::string("Find Original"));
+	
+	if(isItemInTrash())
+	{
+		addTrashContextMenuOptions(items, disabled_items);
+	}
+	else
+	{
+		items.push_back(std::string("Properties"));
+		addDeleteContextMenuOptions(items, disabled_items);
+	}
+	hide_context_entries(menu, items, disabled_items);
 }
 
-//static
+// +=================================================+
+// |        LLLinkBridge                             |
+// +=================================================+
+// For broken folder links.
+std::string LLLinkFolderBridge::sPrefix("Link: ");
+LLUIImagePtr LLLinkFolderBridge::getIcon() const
+{
+	LLFolderType::EType preferred_type = LLFolderType::FT_NONE;
+	if (LLViewerInventoryItem *item = getItem())
+	{
+		if (const LLViewerInventoryCategory* cat = item->getLinkedCategory())
+		{
+			preferred_type = cat->getPreferredType();
+		}
+	}
+	return LLFolderBridge::getIcon(preferred_type);
+}
+void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	// *TODO: Translate
+	lldebugs << "LLLink::buildContextMenu()" << llendl;
+	menuentry_vec_t items;
+	menuentry_vec_t disabled_items;
+
+	if (isItemInTrash())
+	{
+		addTrashContextMenuOptions(items, disabled_items);
+	}
+	else
+	{
+		items.push_back(std::string("Find Original"));
+		addDeleteContextMenuOptions(items, disabled_items);
+	}
+	hide_context_entries(menu, items, disabled_items);
+}
+void LLLinkFolderBridge::performAction(LLInventoryModel* model, std::string action)
+{
+	if ("goto" == action)
+	{
+		gotoItem();
+		return;
+	}
+	LLItemBridge::performAction(model,action);
+}
+void LLLinkFolderBridge::gotoItem()
+{
+	const LLUUID &cat_uuid = getFolderID();
+	if (!cat_uuid.isNull())
+	{
+		if (LLFolderViewItem *base_folder = mRoot->getItemByID(cat_uuid))
+		{
+			if (LLInventoryModel* model = getInventoryModel())
+			{
+				model->fetchDescendentsOf(cat_uuid);
+			}
+			base_folder->setOpen(TRUE);
+			mRoot->setSelectionFromRoot(base_folder,TRUE);
+			mRoot->scrollToShowSelection();
+		}
+	}
+}
+const LLUUID &LLLinkFolderBridge::getFolderID() const
+{
+	if (LLViewerInventoryItem *link_item = getItem())
+	{
+		if (const LLViewerInventoryCategory *cat = link_item->getLinkedCategory())
+		{
+			const LLUUID& cat_uuid = cat->getUUID();
+			return cat_uuid;
+		}
+	}
+	return LLUUID::null;
+}
+
+/********************************************************************************
+ **
+ **                    BRIDGE ACTIONS
+ **/
+
+// static
 void LLInvFVBridgeAction::doAction(LLAssetType::EType asset_type,
 								   const LLUUID& uuid,LLInventoryModel* model)
 {
@@ -5035,7 +5082,7 @@ void LLInvFVBridgeAction::doAction(LLAssetType::EType asset_type,
 	}
 }
 
-//static
+// static
 void LLInvFVBridgeAction::doAction(const LLUUID& uuid, LLInventoryModel* model)
 {
 	llassert(model);
@@ -5055,129 +5102,231 @@ void LLInvFVBridgeAction::doAction(const LLUUID& uuid, LLInventoryModel* model)
 
 LLViewerInventoryItem* LLInvFVBridgeAction::getItem() const
 {
-	if(mModel)
+	if (mModel)
 		return (LLViewerInventoryItem*)mModel->getItem(mUUID);
 	return NULL;
 }
 
-//virtual
-void	LLTextureBridgeAction::doIt()
+class LLTextureBridgeAction: public LLInvFVBridgeAction
 {
-	if (getItem())
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
 	{
-		LLFloaterReg::showInstance("preview_texture", LLSD(mUUID), TAKE_FOCUS_YES);
+		if (getItem())
+		{
+			LLFloaterReg::showInstance("preview_texture", LLSD(mUUID), TAKE_FOCUS_YES);
+		}
+		LLInvFVBridgeAction::doIt();
 	}
+	virtual ~LLTextureBridgeAction(){}
+protected:
+	LLTextureBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+};
 
-	LLInvFVBridgeAction::doIt();
-}
-
-//virtual
-void	LLSoundBridgeAction::doIt()
+class LLSoundBridgeAction: public LLInvFVBridgeAction
 {
-	LLViewerInventoryItem* item = getItem();
-	if(item)
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
 	{
-		LLFloaterReg::showInstance("preview_sound", LLSD(mUUID), TAKE_FOCUS_YES);
+		LLViewerInventoryItem* item = getItem();
+		if (item)
+		{
+			LLFloaterReg::showInstance("preview_sound", LLSD(mUUID), TAKE_FOCUS_YES);
+		}
+		LLInvFVBridgeAction::doIt();
 	}
+	virtual ~LLSoundBridgeAction(){}
+protected:
+	LLSoundBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+};
 
-	LLInvFVBridgeAction::doIt();
-}
-
-
-//virtual
-void	LLLandmarkBridgeAction::doIt()
+class LLLandmarkBridgeAction: public LLInvFVBridgeAction
 {
-	LLViewerInventoryItem* item = getItem();
-	if( item )
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
 	{
-		// Opening (double-clicking) a landmark immediately teleports,
-		// but warns you the first time.
-		LLSD payload;
-		payload["asset_id"] = item->getAssetUUID();		
-		
-		LLSD args; 
-		args["LOCATION"] = item->getName(); 
-		
-		LLNotificationsUtil::add("TeleportFromLandmark", args, payload);
+		LLViewerInventoryItem* item = getItem();
+		if (item)
+		{
+			// Opening (double-clicking) a landmark immediately teleports,
+			// but warns you the first time.
+			LLSD payload;
+			payload["asset_id"] = item->getAssetUUID();		
+			
+			LLSD args; 
+			args["LOCATION"] = item->getName(); 
+			
+			LLNotificationsUtil::add("TeleportFromLandmark", args, payload);
+		}
+		LLInvFVBridgeAction::doIt();
 	}
+	virtual ~LLLandmarkBridgeAction(){}
+protected:
+	LLLandmarkBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+};
 
-	LLInvFVBridgeAction::doIt();
-}
-
-
-//virtual
-void	LLCallingCardBridgeAction::doIt()
+class LLCallingCardBridgeAction: public LLInvFVBridgeAction
 {
-	LLViewerInventoryItem* item = getItem();
-	if(item && item->getCreatorUUID().notNull())
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
 	{
-		LLAvatarActions::showProfile(item->getCreatorUUID());
+		LLViewerInventoryItem* item = getItem();
+		if (item && item->getCreatorUUID().notNull())
+		{
+			LLAvatarActions::showProfile(item->getCreatorUUID());
+		}
+		LLInvFVBridgeAction::doIt();
 	}
+	virtual ~LLCallingCardBridgeAction(){}
+protected:
+	LLCallingCardBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
 
-	LLInvFVBridgeAction::doIt();
-}
+};
 
-//virtual
-void
-LLNotecardBridgeAction::doIt()
+class LLNotecardBridgeAction: public LLInvFVBridgeAction
 {
-	LLViewerInventoryItem* item = getItem();
-	if (item)
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
 	{
-		LLFloaterReg::showInstance("preview_notecard", LLSD(item->getUUID()), TAKE_FOCUS_YES);
+		LLViewerInventoryItem* item = getItem();
+		if (item)
+		{
+			LLFloaterReg::showInstance("preview_notecard", LLSD(item->getUUID()), TAKE_FOCUS_YES);
+		}
+		LLInvFVBridgeAction::doIt();
 	}
+	virtual ~LLNotecardBridgeAction(){}
+protected:
+	LLNotecardBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+};
 
-	LLInvFVBridgeAction::doIt();
-}
-
-//virtual
-void	LLGestureBridgeAction::doIt()
+class LLGestureBridgeAction: public LLInvFVBridgeAction
 {
-	LLViewerInventoryItem* item = getItem();
-	if (item)
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
 	{
-		LLPreviewGesture* preview = LLPreviewGesture::show(mUUID, LLUUID::null);
-		preview->setFocus(TRUE);
+		LLViewerInventoryItem* item = getItem();
+		if (item)
+		{
+			LLPreviewGesture* preview = LLPreviewGesture::show(mUUID, LLUUID::null);
+			preview->setFocus(TRUE);
+		}
+		LLInvFVBridgeAction::doIt();		
 	}
+	virtual ~LLGestureBridgeAction(){}
+protected:
+	LLGestureBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+};
 
-	LLInvFVBridgeAction::doIt();
-}
-
-//virtual
-void	LLAnimationBridgeAction::doIt()
+class LLAnimationBridgeAction: public LLInvFVBridgeAction
 {
-	LLViewerInventoryItem* item = getItem();
-	if (item)
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
 	{
-		LLFloaterReg::showInstance("preview_anim", LLSD(mUUID), TAKE_FOCUS_YES);
+		LLViewerInventoryItem* item = getItem();
+		if (item)
+		{
+			LLFloaterReg::showInstance("preview_anim", LLSD(mUUID), TAKE_FOCUS_YES);
+		}
+		LLInvFVBridgeAction::doIt();
 	}
+	virtual ~LLAnimationBridgeAction(){}
+protected:
+	LLAnimationBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+};
 
-	LLInvFVBridgeAction::doIt();
-}
-
-
-//virtual
-void	LLObjectBridgeAction::doIt()
+class LLObjectBridgeAction: public LLInvFVBridgeAction
 {
-	/*
-	LLFloaterReg::showInstance("properties", mUUID);
-	*/
-	LLInvFVBridgeAction::doIt();
-}
-
-
-//virtual
-void	LLLSLTextBridgeAction::doIt()
-{
-	LLViewerInventoryItem* item = getItem();
-	if (item)
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
 	{
-		LLFloaterReg::showInstance("preview_script", LLSD(mUUID), TAKE_FOCUS_YES);
+		/*
+		  LLFloaterReg::showInstance("properties", mUUID);
+		*/
+		LLInvFVBridgeAction::doIt();
 	}
+	virtual ~LLObjectBridgeAction(){}
+protected:
+	LLObjectBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+};
 
-	LLInvFVBridgeAction::doIt();
-}
+class LLLSLTextBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
+	{
+		LLViewerInventoryItem* item = getItem();
+		if (item)
+		{
+			LLFloaterReg::showInstance("preview_script", LLSD(mUUID), TAKE_FOCUS_YES);
+		}
+		LLInvFVBridgeAction::doIt();
+	}
+	virtual ~LLLSLTextBridgeAction(){}
+protected:
+	LLLSLTextBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+};
 
+class LLWearableBridgeAction: public LLInvFVBridgeAction
+{
+	friend class LLInvFVBridgeAction;
+public:
+	virtual void doIt()
+	{
+		if(isItemInTrash())
+		{
+			LLNotificationsUtil::add("CannotWearTrash");
+		}
+		else if(isAgentInventory())
+		{
+			if(!get_is_item_worn(mUUID))
+			{
+				wearOnAvatar();
+			}
+		}
+		else
+		{
+			// must be in the inventory library. copy it to our inventory
+			// and put it on right away.
+			LLViewerInventoryItem* item = getItem();
+			if(item && item->isComplete())
+			{
+				LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback();
+				copy_inventory_item(
+					gAgent.getID(),
+					item->getPermissions().getOwner(),
+					item->getUUID(),
+					LLUUID::null,
+					std::string(),
+					cb);
+			}
+			else if(item)
+			{
+				// *TODO: We should fetch the item details, and then do
+				// the operation above.
+				LLNotificationsUtil::add("CannotWearInfoNotComplete");
+			}
+		}
+		LLInvFVBridgeAction::doIt();
+	}
+	virtual ~LLWearableBridgeAction(){}
+protected:
+	LLWearableBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+	BOOL isItemInTrash() const;
+	// return true if the item is in agent inventory. if false, it
+	// must be lost or in the inventory library.
+	BOOL isAgentInventory() const;
+	void wearOnAvatar();
+};
 
 BOOL LLWearableBridgeAction::isItemInTrash() const
 {
@@ -5224,167 +5373,50 @@ void LLWearableBridgeAction::wearOnAvatar()
 	}
 }
 
-//virtual
-void LLWearableBridgeAction::doIt()
+LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_type,
+													   const LLUUID& uuid,
+													   LLInventoryModel* model)
 {
-	if(isItemInTrash())
+	LLInvFVBridgeAction* action = NULL;
+	switch(asset_type)
 	{
-		LLNotificationsUtil::add("CannotWearTrash");
+		case LLAssetType::AT_TEXTURE:
+			action = new LLTextureBridgeAction(uuid,model);
+			break;
+		case LLAssetType::AT_SOUND:
+			action = new LLSoundBridgeAction(uuid,model);
+			break;
+		case LLAssetType::AT_LANDMARK:
+			action = new LLLandmarkBridgeAction(uuid,model);
+			break;
+		case LLAssetType::AT_CALLINGCARD:
+			action = new LLCallingCardBridgeAction(uuid,model);
+			break;
+		case LLAssetType::AT_OBJECT:
+			action = new LLObjectBridgeAction(uuid,model);
+			break;
+		case LLAssetType::AT_NOTECARD:
+			action = new LLNotecardBridgeAction(uuid,model);
+			break;
+		case LLAssetType::AT_ANIMATION:
+			action = new LLAnimationBridgeAction(uuid,model);
+			break;
+		case LLAssetType::AT_GESTURE:
+			action = new LLGestureBridgeAction(uuid,model);
+			break;
+		case LLAssetType::AT_LSL_TEXT:
+			action = new LLLSLTextBridgeAction(uuid,model);
+			break;
+		case LLAssetType::AT_CLOTHING:
+		case LLAssetType::AT_BODYPART:
+			action = new LLWearableBridgeAction(uuid,model);
+			break;
+		default:
+			break;
 	}
-	else if(isAgentInventory())
-	{
-		if(!get_is_item_worn(mUUID))
-		{
-			wearOnAvatar();
-		}
-	}
-	else
-	{
-		// must be in the inventory library. copy it to our inventory
-		// and put it on right away.
-		LLViewerInventoryItem* item = getItem();
-		if(item && item->isComplete())
-		{
-			LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback();
-			copy_inventory_item(
-				gAgent.getID(),
-				item->getPermissions().getOwner(),
-				item->getUUID(),
-				LLUUID::null,
-				std::string(),
-				cb);
-		}
-		else if(item)
-		{
-			// *TODO: We should fetch the item details, and then do
-			// the operation above.
-			LLNotificationsUtil::add("CannotWearInfoNotComplete");
-		}
-	}
-
-	LLInvFVBridgeAction::doIt();
+	return action;
 }
 
-// +=================================================+
-// |        LLLinkItemBridge                         |
-// +=================================================+
-// For broken links
-
-std::string LLLinkItemBridge::sPrefix("Link: ");
-
-
-LLUIImagePtr LLLinkItemBridge::getIcon() const
-{
-	if (LLViewerInventoryItem *item = getItem())
-	{
-		U32 attachment_point = (item->getFlags() & 0xff); // low byte of inventory flags
-		bool is_multi =  LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS & item->getFlags();
-
-		return get_item_icon(item->getActualType(), item->getInventoryType(), attachment_point, is_multi);
-	}
-	return get_item_icon(LLAssetType::AT_LINK, LLInventoryType::IT_NONE, 0, FALSE);
-}
-
-void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
-{
-	// *TODO: Translate
-	lldebugs << "LLLink::buildContextMenu()" << llendl;
-	menuentry_vec_t items;
-	menuentry_vec_t disabled_items;
-
-	items.push_back(std::string("Find Original"));
-	disabled_items.push_back(std::string("Find Original"));
-	
-	if(isItemInTrash())
-	{
-		addTrashContextMenuOptions(items, disabled_items);
-	}
-	else
-	{
-		items.push_back(std::string("Properties"));
-		addDeleteContextMenuOptions(items, disabled_items);
-	}
-	hide_context_entries(menu, items, disabled_items);
-}
-
-
-// +=================================================+
-// |        LLLinkBridge                             |
-// +=================================================+
-// For broken links.
-
-std::string LLLinkFolderBridge::sPrefix("Link: ");
-
-
-LLUIImagePtr LLLinkFolderBridge::getIcon() const
-{
-	LLFolderType::EType preferred_type = LLFolderType::FT_NONE;
-	if (LLViewerInventoryItem *item = getItem())
-	{
-		if (const LLViewerInventoryCategory* cat = item->getLinkedCategory())
-		{
-			preferred_type = cat->getPreferredType();
-		}
-	}
-	return LLFolderBridge::getIcon(preferred_type);
-}
-
-void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
-{
-	// *TODO: Translate
-	lldebugs << "LLLink::buildContextMenu()" << llendl;
-	menuentry_vec_t items;
-	menuentry_vec_t disabled_items;
-
-	if (isItemInTrash())
-	{
-		addTrashContextMenuOptions(items, disabled_items);
-	}
-	else
-	{
-		items.push_back(std::string("Find Original"));
-		addDeleteContextMenuOptions(items, disabled_items);
-	}
-	hide_context_entries(menu, items, disabled_items);
-}
-
-void LLLinkFolderBridge::performAction(LLFolderView* folder, LLInventoryModel* model, std::string action)
-{
-	if ("goto" == action)
-	{
-		gotoItem(folder);
-		return;
-	}
-	LLItemBridge::performAction(folder,model,action);
-}
-
-void LLLinkFolderBridge::gotoItem(LLFolderView *folder)
-{
-	const LLUUID &cat_uuid = getFolderID();
-	if (!cat_uuid.isNull())
-	{
-		if (LLFolderViewItem *base_folder = folder->getItemByID(cat_uuid))
-		{
-			if (LLInventoryModel* model = getInventoryModel())
-			{
-				model->fetchDescendentsOf(cat_uuid);
-			}
-			base_folder->setOpen(TRUE);
-			folder->setSelectionFromRoot(base_folder,TRUE);
-			folder->scrollToShowSelection();
-		}
-	}
-}
-
-const LLUUID &LLLinkFolderBridge::getFolderID() const
-{
-	if (LLViewerInventoryItem *link_item = getItem())
-	{
-		if (const LLViewerInventoryCategory *cat = link_item->getLinkedCategory())
-		{
-			const LLUUID& cat_uuid = cat->getUUID();
-			return cat_uuid;
-		}
-	}
-	return LLUUID::null;
-}
+/**                    Bridge Actions
+ **
+ ********************************************************************************/

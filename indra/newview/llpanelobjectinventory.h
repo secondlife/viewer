@@ -82,12 +82,12 @@ public:
 protected:
 	void reset();
 	/*virtual*/ void inventoryChanged(LLViewerObject* object,
-								 InventoryObjectList* inventory,
+								 LLInventoryObject::object_list_t* inventory,
 								 S32 serial_num,
 								 void* user_data);
 	void updateInventory();
-	void createFolderViews(LLInventoryObject* inventory_root, InventoryObjectList& contents);
-	void createViewsForCategory(InventoryObjectList* inventory,
+	void createFolderViews(LLInventoryObject* inventory_root, LLInventoryObject::object_list_t& contents);
+	void createViewsForCategory(LLInventoryObject::object_list_t* inventory,
 								LLInventoryObject* parent,
 								LLFolderViewFolder* folder);
 	void clearContents();

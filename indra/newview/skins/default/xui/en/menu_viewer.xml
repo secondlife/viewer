@@ -369,7 +369,7 @@
              function="CheckControl"
              parameter="ShowNavbarFavoritesPanel" />
         </menu_item_check>
-        <menu_item_separator/>
+        <menu_item_separator/>-->
         <menu_item_separator/>
     <menu
          create_jump_keys="true"
@@ -815,7 +815,7 @@
              function="ShowHelp"
              parameter="f1_help" />
         </menu_item_call>
-        <menu_item_call
+<!--        <menu_item_call
          label="Tutorial"
          name="Tutorial">
             <menu_item_call.on_click

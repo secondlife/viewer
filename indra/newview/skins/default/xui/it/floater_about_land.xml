@@ -335,7 +335,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<check_box label="Tutti i residenti" name="check other scripts"/>
 			<check_box label="Gruppo" name="check group scripts"/>
 			<text name="land_options_label">
-				Opzioni della terra:
+				Opzioni per il terreno:
 			</text>
 			<check_box label="Sicuro (senza danno)" name="check safe" tool_tip="Se spuntato, imposta il terreno su &apos;sicuro&apos;, disabilitando i danni da combattimento. Se non spuntato, viene abilitato il combattimento a morte."/>
 			<check_box label="Nessuna spinta" name="PushRestrictCheck" tool_tip="Previeni i colpi. Selezionare questa opzione può essere utile per prevenire comportamenti dannosi sul tuo terreno."/>

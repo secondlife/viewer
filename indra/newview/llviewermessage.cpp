@@ -41,6 +41,7 @@
 #include "lleventtimer.h"
 #include "llfloaterreg.h"
 #include "llfollowcamparams.h"
+#include "llinventorydefines.h"
 #include "llregionhandle.h"
 #include "llsdserialize.h"
 #include "llteleportflags.h"
@@ -1203,10 +1204,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				// This is an offer from an agent. In this case, the back
 				// end has already copied the items into your inventory,
 				// so we can fetch it out of our inventory.
-				LLInventoryFetchObserver::item_ref_t items;
+				uuid_vec_t items;
 				items.push_back(mObjectID);
 				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(from_string);
-				open_agent_offer->fetchItems(items);
+				open_agent_offer->fetch(items);
 				if(catp || (itemp && itemp->isComplete()))
 				{
 					open_agent_offer->done();
@@ -1601,10 +1602,10 @@ void inventory_offer_handler(LLOfferInfo* info)
 		p.name = "UserGiveItem";
 		
 		// Prefetch the item into your local inventory.
-		LLInventoryFetchObserver::item_ref_t items;
+		uuid_vec_t items;
 		items.push_back(info->mObjectID);
 		LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-		fetch_item->fetchItems(items);
+		fetch_item->fetch(items);
 		if(fetch_item->isEverythingComplete())
 		{
 			fetch_item->done();
@@ -2120,10 +2121,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			if (is_muted)
 			{
 				// Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
-				LLInventoryFetchObserver::item_ref_t items;
+				uuid_vec_t items;
 				items.push_back(info->mObjectID);
 				LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-				fetch_item->fetchItems(items);
+				fetch_item->fetch(items);
 				delete fetch_item;
 
 				// Same as closing window
@@ -2857,8 +2858,8 @@ public:
 		LLInventoryModel::cat_array_t	land_cats;
 		LLInventoryModel::item_array_t	land_items;
 
-		uuid_vec_t::iterator it = mCompleteFolders.begin();
-		uuid_vec_t::iterator end = mCompleteFolders.end();
+		uuid_vec_t::iterator it = mComplete.begin();
+		uuid_vec_t::iterator end = mComplete.end();
 		for(; it != end; ++it)
 		{
 			gInventory.collectDescendentsIf(
@@ -2929,7 +2930,7 @@ BOOL LLPostTeleportNotifiers::tick()
 		if(!folders.empty())
 		{
 			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea;
-			fetcher->fetchDescendents(folders);
+			fetcher->fetch(folders);
 			if(fetcher->isEverythingComplete())
 			{
 				fetcher->done();
@@ -5228,7 +5229,7 @@ void process_derez_container(LLMessageSystem *msg, void**)
 }
 
 void container_inventory_arrived(LLViewerObject* object,
-								 InventoryObjectList* inventory,
+								 LLInventoryObject::object_list_t* inventory,
 								 S32 serial_num,
 								 void* data)
 {
@@ -5248,8 +5249,8 @@ void container_inventory_arrived(LLViewerObject* object,
 											  LLFolderType::FT_NONE,
 											  LLTrans::getString("AcquiredItems"));
 
-		InventoryObjectList::const_iterator it = inventory->begin();
-		InventoryObjectList::const_iterator end = inventory->end();
+		LLInventoryObject::object_list_t::const_iterator it = inventory->begin();
+		LLInventoryObject::object_list_t::const_iterator end = inventory->end();
 		for ( ; it != end; ++it)
 		{
 			if ((*it)->getType() != LLAssetType::AT_CATEGORY)
@@ -5285,7 +5286,7 @@ void container_inventory_arrived(LLViewerObject* object,
 	{
 		// we're going to get one fake root category as well as the
 		// one actual object
-		InventoryObjectList::iterator it = inventory->begin();
+		LLInventoryObject::object_list_t::iterator it = inventory->begin();
 
 		if ((*it)->getType() == LLAssetType::AT_CATEGORY)
 		{

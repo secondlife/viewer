@@ -46,6 +46,7 @@
 #include "llfontgl.h"
 #include "llframetimer.h"
 #include "llinventory.h"
+#include "llinventorydefines.h"
 #include "llmaterialtable.h"
 #include "llmutelist.h"
 #include "llnamevalue.h"
@@ -2177,8 +2178,8 @@ void LLViewerObject::deleteInventoryItem(const LLUUID& item_id)
 {
 	if(mInventory)
 	{
-		InventoryObjectList::iterator it = mInventory->begin();
-		InventoryObjectList::iterator end = mInventory->end();
+		LLInventoryObject::object_list_t::iterator it = mInventory->begin();
+		LLInventoryObject::object_list_t::iterator end = mInventory->end();
 		for( ; it != end; ++it )
 		{
 			if((*it)->getUUID() == item_id)
@@ -2488,7 +2489,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 		}
 		else
 		{
-			object->mInventory = new InventoryObjectList();
+			object->mInventory = new LLInventoryObject::object_list_t();
 		}
 		LLPointer<LLInventoryObject> obj;
 		obj = new LLInventoryObject(object->mID, LLUUID::null,
@@ -2544,7 +2545,7 @@ void LLViewerObject::loadTaskInvFile(const std::string& filename)
 		}
 		else
 		{
-			mInventory = new InventoryObjectList;
+			mInventory = new LLInventoryObject::object_list_t;
 		}
 		while(ifs.good())
 		{
@@ -2677,8 +2678,8 @@ LLInventoryObject* LLViewerObject::getInventoryObject(const LLUUID& item_id)
 	LLInventoryObject* rv = NULL;
 	if(mInventory)
 	{
-		InventoryObjectList::iterator it = mInventory->begin();
-		InventoryObjectList::iterator end = mInventory->end();
+		LLInventoryObject::object_list_t::iterator it = mInventory->begin();
+		LLInventoryObject::object_list_t::iterator end = mInventory->end();
 		for ( ; it != end; ++it)
 		{
 			if((*it)->getUUID() == item_id)
@@ -2691,12 +2692,12 @@ LLInventoryObject* LLViewerObject::getInventoryObject(const LLUUID& item_id)
 	return rv;
 }
 
-void LLViewerObject::getInventoryContents(InventoryObjectList& objects)
+void LLViewerObject::getInventoryContents(LLInventoryObject::object_list_t& objects)
 {
 	if(mInventory)
 	{
-		InventoryObjectList::iterator it = mInventory->begin();
-		InventoryObjectList::iterator end = mInventory->end();
+		LLInventoryObject::object_list_t::iterator it = mInventory->begin();
+		LLInventoryObject::object_list_t::iterator end = mInventory->end();
 		for( ; it != end; ++it)
 		{
 			if ((*it)->getType() != LLAssetType::AT_CATEGORY)
@@ -2726,8 +2727,8 @@ LLViewerInventoryItem* LLViewerObject::getInventoryItemByAsset(const LLUUID& ass
 	{
 		LLViewerInventoryItem* item = NULL;
 
-		InventoryObjectList::iterator it = mInventory->begin();
-		InventoryObjectList::iterator end = mInventory->end();
+		LLInventoryObject::object_list_t::iterator it = mInventory->begin();
+		LLInventoryObject::object_list_t::iterator end = mInventory->end();
 		for( ; it != end; ++it)
 		{
 			LLInventoryObject* obj = *it;
@@ -4089,8 +4090,8 @@ S32 LLViewerObject::countInventoryContents(LLAssetType::EType type)
 	S32 count = 0;
 	if( mInventory )
 	{
-		InventoryObjectList::const_iterator it = mInventory->begin();
-		InventoryObjectList::const_iterator end = mInventory->end();
+		LLInventoryObject::object_list_t::const_iterator it = mInventory->begin();
+		LLInventoryObject::object_list_t::const_iterator end = mInventory->end();
 		for(  ; it != end ; ++it )
 		{
 			if( (*it)->getType() == type )
