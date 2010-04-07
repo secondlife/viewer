@@ -6538,8 +6538,6 @@
     <real>0.01</real>
   </map>
 
-  
-  
   <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
@@ -6551,8 +6549,6 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-
-
 
   <key>RenderDeferredTreeShadowBias</key>
   <map>
