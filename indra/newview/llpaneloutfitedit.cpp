@@ -376,14 +376,14 @@ void LLPanelOutfitEdit::onEditWearableClicked(void)
 		if(wearable_to_edit)
 		{
 			bool can_modify = false;
-			bool is_complete = item_to_edit->isComplete();
+			bool is_complete = item_to_edit->isFinished();
 			// if item_to_edit is a link, its properties are not appropriate, 
 			// lets get original item with actual properties
 			LLViewerInventoryItem* original_item = gInventory.getItem(wearable_to_edit->getItemID());
 			if(original_item)
 			{
 				can_modify = original_item->getPermissions().allowModifyBy(gAgentID);
-				is_complete = original_item->isComplete();
+				is_complete = original_item->isFinished();
 			}
 
 			if (can_modify && is_complete)
