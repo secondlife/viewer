@@ -299,7 +299,7 @@ void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slur
 	bool gotSimName = LLWorldMap::getInstance()->simNameFromPosGlobal(global_pos, sim_name);
 	if (gotSimName)
 	{
-		std::string slurl = LLSLURL::buildSLURLfromPosGlobal(sim_name, global_pos, escaped);
+	  std::string slurl = LLSLURL(sim_name, global_pos).getSLURLString();
 		cb(slurl);
 
 		return;
@@ -351,7 +351,7 @@ void LLLandmarkActions::onRegionResponseSLURL(slurl_callback_t cb,
 	bool gotSimName = LLWorldMap::getInstance()->simNameFromPosGlobal(global_pos, sim_name);
 	if (gotSimName)
 	{
-		slurl = LLSLURL::buildSLURLfromPosGlobal(sim_name, global_pos, escaped);
+	  slurl = LLSLURL(sim_name, global_pos).getSLURLString();
 	}
 	else
 	{

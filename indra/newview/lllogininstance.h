@@ -36,6 +36,7 @@
 #include "lleventdispatcher.h"
 #include <boost/scoped_ptr.hpp>
 #include <boost/function.hpp>
+#include "llsecapi.h"
 class LLLogin;
 class LLEventStream;
 class LLNotificationsInterface;
@@ -48,8 +49,8 @@ public:
 	LLLoginInstance();
 	~LLLoginInstance();
 
-	void connect(const LLSD& credential); // Connect to the current grid choice.
-	void connect(const std::string& uri, const LLSD& credential);	// Connect to the given uri.
+	void connect(LLPointer<LLCredential> credentials); // Connect to the current grid choice.
+	void connect(const std::string& uri, LLPointer<LLCredential> credentials);	// Connect to the given uri.
 	void reconnect(); // reconnect using the current credentials.
 	void disconnect();
 
@@ -81,7 +82,7 @@ public:
 	void setUpdaterLauncher(const UpdaterLauncherCallback& ulc) { mUpdaterLauncher = ulc; }
 
 private:
-	void constructAuthParams(const LLSD& credentials); 
+	void constructAuthParams(LLPointer<LLCredential> user_credentials);
 	void updateApp(bool mandatory, const std::string& message);
 	bool updateDialogCallback(const LLSD& notification, const LLSD& response);
 
