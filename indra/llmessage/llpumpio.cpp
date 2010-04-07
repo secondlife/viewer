@@ -444,13 +444,13 @@ void LLPumpIO::pump()
 	pump(DEFAULT_POLL_TIMEOUT);
 }
 
-static LLFastTimer::DeclareTimer FTM_PUMP("Pump");
+static LLFastTimer::DeclareTimer FTM_PUMP_IO("Pump IO");
 
 //timeout is in microseconds
 void LLPumpIO::pump(const S32& poll_timeout)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_PUMP);
-	LLFastTimer t1(FTM_PUMP);
+	LLFastTimer t1(FTM_PUMP_IO);
 	//llinfos << "LLPumpIO::pump()" << llendl;
 
 	// Run any pending runners.
@@ -778,6 +778,8 @@ bool LLPumpIO::respond(
 	return true;
 }
 
+static LLFastTimer::DeclareTimer FTM_PUMP_CALLBACK_CHAIN("Chain");
+
 void LLPumpIO::callback()
 {
 	LLMemType m1(LLMemType::MTYPE_IO_PUMP);
@@ -799,6 +801,7 @@ void LLPumpIO::callback()
 		callbacks_t::iterator end = mCallbacks.end();
 		for(; it != end; ++it)
 		{
+			LLFastTimer t(FTM_PUMP_CALLBACK_CHAIN);
 			// it's always the first and last time for respone chains
 			(*it).mHead = (*it).mChainLinks.begin();
 			(*it).mInit = true;

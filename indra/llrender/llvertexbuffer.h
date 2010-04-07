@@ -83,6 +83,10 @@ public:
 	static LLVBOPool sDynamicVBOPool;
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
+	
+	static S32	sWeight4Loc;
+
+	static BOOL	sUseStreamDraw;
 
 	static void initClass(bool use_vbo);
 	static void cleanupClass();
@@ -107,6 +111,7 @@ public:
 		// These use VertexAttribPointer and should possibly be made generic
 		TYPE_BINORMAL,
 		TYPE_WEIGHT,
+		TYPE_WEIGHT4,
 		TYPE_CLOTHWEIGHT,
 		TYPE_MAX,
 		TYPE_INDEX,
@@ -122,6 +127,7 @@ public:
 		// These use VertexAttribPointer and should possibly be made generic
 		MAP_BINORMAL = (1<<TYPE_BINORMAL),
 		MAP_WEIGHT = (1<<TYPE_WEIGHT),
+		MAP_WEIGHT4 = (1<<TYPE_WEIGHT4),
 		MAP_CLOTHWEIGHT = (1<<TYPE_CLOTHWEIGHT),
 	};
 	
@@ -171,6 +177,7 @@ public:
 	bool getBinormalStrider(LLStrider<LLVector3>& strider, S32 index=0);
 	bool getColorStrider(LLStrider<LLColor4U>& strider, S32 index=0);
 	bool getWeightStrider(LLStrider<F32>& strider, S32 index=0);
+	bool getWeight4Strider(LLStrider<LLVector4>& strider, S32 index=0);
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0);
 	
 	BOOL isEmpty() const					{ return mEmpty; }

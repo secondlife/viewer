@@ -194,6 +194,7 @@ namespace
 			fileBuffer = new U8 [fileSize];
             vfile.read(fileBuffer, fileSize);
             ostream.write((char*)fileBuffer, fileSize);
+			delete [] fileBuffer;
 			eos = true;
 			return STATUS_DONE;
 		}

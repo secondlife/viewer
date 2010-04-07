@@ -73,6 +73,7 @@ public:
 		HUD_RENDER		= 0x0008,
 		USE_FACE_COLOR	= 0x0010,
 		TEXTURE_ANIM	= 0x0020, 
+		RIGGED			= 0x0040,
 	};
 
 	static void initClass();
@@ -145,7 +146,8 @@ public:
 	BOOL getGeometryVolume(const LLVolume& volume,
 						const S32 &f,
 						const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
-						const U16 &index_offset);
+						const U16 &index_offset,
+						bool force_rebuild = false);
 
 	// For avatar
 	U16			 getGeometryAvatar(

@@ -366,6 +366,7 @@ list ATI_Radeon_X1500
 Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_X1600 
 Disregard128DefaultDrawDistance	1	0
+RenderUseFBO 					0	0
 list ATI_Radeon_X1700 
 Disregard128DefaultDrawDistance	1	0
 list ATI_Mobility_Radeon_X1xxx

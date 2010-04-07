@@ -1709,7 +1709,7 @@
     <key>DebugShowRenderInfo</key>
     <map>
       <key>Comment</key>
-      <string>Show depth buffer contents</string>
+      <string>Show stats about current scene</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1717,6 +1717,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>DebugShowUploadCost</key>
+  <map>
+    <key>Comment</key>
+    <string>Show what it would cost to upload assets in current scene</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>DebugShowRenderMatrices</key>
   <map>
     <key>Comment</key>
@@ -5980,7 +5991,19 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  
+
+      <key>RenderLightingDetail</key>
+    <map>
+      <key>Comment</key>
+      <string>Amount of detail for lighting objects/avatars/terrain (0=sun/moon only, 1=enable local lights)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+
   <key>RenderShadowNearDist</key>
   <map>
     <key>Comment</key>
@@ -6094,7 +6117,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>60</integer>
+    <integer>200</integer>
   </map>
   <key>RenderSSAOFactor</key>
   <map>
@@ -6618,19 +6641,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-
-  <key>RenderDeferredShadow</key>
-  <map>
-    <key>Comment</key>
-    <string>Enable shadows in deferred renderer.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-
+  
   <key>RenderDeferredGI</key>
   <map>
     <key>Comment</key>
@@ -6641,18 +6652,6 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
-  </map>
-
-  <key>RenderDeferredSunShadow</key>
-  <map>
-    <key>Comment</key>
-    <string>Generate shadows from the sun.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
   </map>
 
   <key>RenderDeferredSun</key>
@@ -6671,6 +6670,18 @@
   <map>
     <key>Comment</key>
     <string>Execute atmospheric shader in deferred renderer.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+
+  <key>RenderDeferredSSAO</key>
+  <map>
+    <key>Comment</key>
+    <string>Execute screen space ambient occlusion shader in deferred renderer.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -6932,7 +6943,7 @@
     <key>RenderFastAlpha</key>
     <map>
       <key>Comment</key>
-      <string>Use lossy alpha rendering optimization (opaque/nonexistent small alpha faces).</string>
+      <string>Use alpha masks where appropriate.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -7201,17 +7212,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderLightingDetail</key>
-    <map>
-      <key>Comment</key>
-      <string>Amount of detail for lighting objects/avatars/terrain (0=sun/moon only, 1=enable local lights)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>RenderMaxPartCount</key>
     <map>
       <key>Comment</key>
@@ -7311,7 +7311,19 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>RenderReflectionRes</key>
+    <key>RenderShadowDetail</key>
+    <map>
+      <key>Comment</key>
+      <string>Detail of shadows.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+
+  <key>RenderReflectionRes</key>
     <map>
       <key>Comment</key>
       <string>Reflection map resolution.</string>
@@ -7474,8 +7486,19 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
+  <key>RenderUseTriStrips</key>
+  <map>
+    <key>Comment</key>
+    <string>Use triangle strips for rendering prims.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderUseTriStrips</key>
   <map>
     <key>Comment</key>
@@ -7542,6 +7565,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>RenderUseStreamVBO</key>
+  <map>
+    <key>Comment</key>
+    <string>Use VBO's for stream buffers</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>RenderVolumeLODFactor</key>
     <map>
       <key>Comment</key>
@@ -7586,17 +7620,6 @@
       <key>Value</key>
       <integer>512</integer>
     </map>
-    <key>RenderWaterReflections</key>
-    <map>
-      <key>Comment</key>
-      <string>Reflect the environment in the water.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>RotateRight</key>
     <map>
       <key>Comment</key>
@@ -7630,7 +7653,30 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SafeMode</key>
+  <key>MeshThreadCount</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of threads to use for loading meshes.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>8</integer>
+  </map>
+  <key>MeshMaxConcurrentRequests</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of threads to use for loading meshes.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>32</integer>
+  </map>
+
+  <key>SafeMode</key>
     <map>
       <key>Comment</key>
       <string>Reset preferences, run in safe mode.</string>
@@ -10180,7 +10226,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>SpeakerParticipantRemoveDelay</key>
     <map>

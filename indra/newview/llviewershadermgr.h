@@ -82,6 +82,7 @@ public:
 		MATERIAL_COLOR = 0,
 		SPECULAR_COLOR,
 		BINORMAL,
+		OBJECT_WEIGHT,
 		END_RESERVED_ATTRIBS
 	} eGLSLReservedAttribs;
 	
@@ -312,6 +313,8 @@ extern LLGLSLShader			gObjectFullbrightLODProgram;
 extern LLGLSLShader			gObjectFullbrightShinyProgram;
 extern LLGLSLShader			gObjectShinyProgram;
 extern LLGLSLShader			gObjectShinyWaterProgram;
+
+extern LLGLSLShader			gSkinnedObjectSimpleProgram;
 
 //environment shaders
 extern LLGLSLShader			gTerrainProgram;
