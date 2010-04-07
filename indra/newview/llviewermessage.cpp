@@ -757,11 +757,12 @@ void start_new_inventory_observer()
 	}
 }
 
-class LLDiscardAgentOffer : public LLInventoryFetchComboObserver
+class LLDiscardAgentOffer : public LLInventoryFetchItemsObserver
 {
 	LOG_CLASS(LLDiscardAgentOffer);
 public:
 	LLDiscardAgentOffer(const LLUUID& folder_id, const LLUUID& object_id) :
+		LLInventoryFetchItemsObserver(object_id),
 		mFolderID(folder_id),
 		mObjectID(object_id) {}
 	virtual ~LLDiscardAgentOffer() {}
@@ -1266,13 +1267,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			// Disabled logging to old chat floater to fix crash in group notices - EXT-4149
 			// LLFloaterChat::addChatHistory(chat);
 			
-			uuid_vec_t folders;
-			uuid_vec_t items;
-			items.push_back(mObjectID);
-			LLDiscardAgentOffer* discard_agent_offer;
-			discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
-			discard_agent_offer->startFetch(folders, items);
-			if(catp || (itemp && itemp->isFinished()))
+			LLDiscardAgentOffer* discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
+			discard_agent_offer->startFetch();
+			if (catp || (itemp && itemp->isFinished()))
 			{
 				discard_agent_offer->done();
 			}

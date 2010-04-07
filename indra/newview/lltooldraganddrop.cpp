@@ -235,7 +235,10 @@ bool LLGiveable::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 class LLCategoryFireAndForget : public LLInventoryFetchComboObserver
 {
 public:
-	LLCategoryFireAndForget() {}
+	LLCategoryFireAndForget(const uuid_vec_t& folder_ids,
+							const uuid_vec_t& item_ids) :
+		LLInventoryFetchComboObserver(folder_ids, item_ids)
+	{}
 	~LLCategoryFireAndForget() {}
 	virtual void done()
 	{
@@ -482,8 +485,8 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 			}
 			if (!folder_ids.empty() || !item_ids.empty())
 			{
-				LLCategoryFireAndForget fetcher;
-				fetcher.startFetch(folder_ids, item_ids);
+				LLCategoryFireAndForget fetcher(folder_ids, item_ids);
+				fetcher.startFetch();
 			}
 		}
 	}
@@ -552,8 +555,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 			uuid_vec_t item_ids;
 			std::back_insert_iterator<uuid_vec_t> copier(folder_ids);
 			std::copy(cat_ids.begin(), cat_ids.end(), copier);
-			LLCategoryFireAndForget fetcher;
-			fetcher.startFetch(folder_ids, item_ids);
+			LLCategoryFireAndForget fetcher(folder_ids, item_ids);
 		}
 	}
 }
