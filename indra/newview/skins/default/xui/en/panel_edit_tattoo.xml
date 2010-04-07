@@ -1,57 +1,62 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
  <panel
+     background_visible="true"
 	 follows="all"
 	 height="400"
 	 layout="topleft"
-	 left="10"
+	 left="0"
 	 name="edit_tattoo_panel"
 	 top_pad="10"
-	 width="313" >
+	 width="333" >
 	 <panel
-	  border="true"
-	  follows="left|top|right" 
-	  height="100" 
+	  border="false"
+      bg_alpha_color="DkGray2"
+      bg_opaque_color="DkGray2"
+      background_visible="true"
+      background_opaque="true"
+	  follows="top|left|right"
+	  height="400" 
 	  left="10" 
 	  layout="topleft" 
 	  name="avatar_tattoo_color_panel"
 	  top="0"
-	  width="293" >
+	  width="313" >
        <texture_picker
         can_apply_immediately="true"
         default_image_name="Default"
         follows="left|top"
-        height="80"
+        height="100"
         label="Head Tattoo"
         layout="topleft"
-        left="10"
+        left="30"
         name="Head Tattoo"
         tool_tip="Click to choose a picture"
         top="10"
-        width="64" />
+        width="94" />
        <texture_picker
         can_apply_immediately="true"
         default_image_name="Default"
         follows="left|top"
-        height="80"
+        height="100"
         label="Upper Tattoo"
         layout="topleft"
-        left_pad="10"
+        left_pad="30"
         name="Upper Tattoo"
         tool_tip="Click to choose a picture"
         top="10"
-        width="64" />
+        width="94" />
        <texture_picker
         can_apply_immediately="true"
         default_image_name="Default"
         follows="left|top"
-        height="80"
+        height="100"
         label="Lower Tattoo"
         layout="topleft"
-        left_pad="10"
+        left="30"
         name="Lower Tattoo"
         tool_tip="Click to choose a picture"
-        top="10"
-        width="64" />
+        top_pad="10"
+        width="94" />
 	 </panel>
 </panel>
 
