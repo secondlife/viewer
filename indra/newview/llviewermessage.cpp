@@ -4671,7 +4671,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 		// "<avatar name> paid you L$"
 		const std::string marker = "paid you L$";
 
-		args["MESSAGE"] = desc + item_description; // JAMESDEBUG
+		args["MESSAGE"] = desc + llformat(" JAMESDEBUG %d", transaction_type); // JAMESDEBUG;
 
 		// extract avatar name from system message
 		S32 marker_pos = desc.find(marker, 0);
@@ -4697,7 +4697,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 			std::string new_description = LLTrans::getString("paid_you_ldollars", str_args);
 
 
-			args["MESSAGE"] = new_description;
+			args["MESSAGE"] = new_description + llformat(" JAMESDEBUG %d", transaction_type); // JAMESDEBUG
 			args["NAME"] = LLCacheName::cleanFullName(name);
 			LLSD payload;
 			payload["from_id"] = from_id;
@@ -4757,7 +4757,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 					// forming final message string by retrieving localized version from xml
 					// and applying previously found arguments
 					line = LLTrans::getString(line, str_args);
-					args["MESSAGE"] = line;
+					args["MESSAGE"] = line + llformat(" JAMESDEBUG %d", transaction_type); // JAMESDEBUG;
 				}
 			}
 

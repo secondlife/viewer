@@ -234,7 +234,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		LLStatusBar::sendMoneyBalanceRequest();
 
 		LLSD args;
-		args["AMOUNT"] = llformat("%d", expected_upload_cost);
+		args["AMOUNT"] = llformat("%d", expected_upload_cost) + std::string(" JAMESDEBUG 1101"); // JAMESDEBUG
 		LLNotificationsUtil::add("UploadPayment", args);
 	}
 
