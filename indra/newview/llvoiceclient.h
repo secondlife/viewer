@@ -429,8 +429,38 @@ static	void updatePosition(void);
 		void deleteAllAutoAcceptRules(void);
 		void addAutoAcceptRule(const std::string &autoAcceptMask, const std::string &autoAddAsBuddy);
 		void accountListBlockRulesResponse(int statusCode, const std::string &statusString);						
-		void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);						
-		
+		void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);
+
+		struct voiceFontEntry
+		{
+			voiceFontEntry(S32 id);
+			S32			mID;
+			std::string mName;
+			std::string mDescription;
+			std::string mExpirationDate;
+			bool		mHasExpired;
+			std::string mFontType;
+			std::string mFontStatus;
+		};
+
+		typedef S32 voice_font_id_t;
+		typedef std::map<voice_font_id_t, std::string*> voice_font_list_t;
+		typedef std::map<voice_font_id_t, voiceFontEntry*> voice_font_map_t;
+
+		bool getVoiceFontsAvailable() const { return mSessionFontsReceived; };
+		bool setVoiceFont(voice_font_id_t id);
+		const voice_font_id_t getVoiceFont() const;
+		const voice_font_list_t &getVoiceFontList() const { return mSessionFontList; };
+
+		voiceFontEntry *addSessionFont(const voice_font_id_t &id,
+									   const std::string &name,
+									   const std::string &description,
+									   const std::string &expirationDate,
+									   const bool hasExpired,
+									   const std::string &fontType,
+									   const std::string &fontStatus);
+		void accountGetSessionFontsResponse(int statusCode, const std::string &statusString);
+
 		/////////////////////////////
 		// session control messages
 		void connectorCreate();
@@ -452,12 +482,15 @@ static	void updatePosition(void);
 
 		void accountListBlockRulesSendMessage();
 		void accountListAutoAcceptRulesSendMessage();
-		
+
+		void accountGetSessionFontsSendMessage();
+
 		void sessionGroupCreateSendMessage();
 		void sessionCreateSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
 		void sessionGroupAddSessionSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
 		void sessionMediaConnectSendMessage(sessionState *session);		// just joins the audio session
 		void sessionTextConnectSendMessage(sessionState *session);		// just joins the text session
+		void sessionSetVoiceFontSendMessage(sessionState *session);
 		void sessionTerminateSendMessage(sessionState *session);
 		void sessionGroupTerminateSendMessage(sessionState *session);
 		void sessionMediaDisconnectSendMessage(sessionState *session);
@@ -489,7 +522,7 @@ static	void updatePosition(void);
 
 		deviceList *getCaptureDevices();
 		deviceList *getRenderDevices();
-		
+
 		void setNonSpatialChannel(
 			const std::string &uri,
 			const std::string &credentials);
@@ -562,6 +595,7 @@ static	void updatePosition(void);
 			stateNeedsLogin,			// send login request
 			stateLoggingIn,				// waiting for account handle
 			stateLoggedIn,				// account handle received
+			stateFontListReceived,		// List of available voice fonts received
 			stateCreatingSessionGroup,	// Creating the main session group
 			stateNoChannel,				// 
 			stateJoiningSession,		// waiting for session handle
@@ -662,7 +696,12 @@ static	void updatePosition(void);
 		bool mBlockRulesListReceived;
 		bool mAutoAcceptRulesListReceived;
 		buddyListMap mBuddyListMap;
-		
+
+		bool mSessionFontsReceived;
+		S32 mFontID;
+		voice_font_list_t mSessionFontList;
+		voice_font_map_t mSessionFontMap; // *TODO: make private
+
 		deviceList mCaptureDevices;
 		deviceList mRenderDevices;
 

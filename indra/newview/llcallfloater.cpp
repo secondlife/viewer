@@ -52,6 +52,7 @@
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
+#include "llvoiceclient.h" // for Voice font list types
 #include "llviewerparcelmgr.h"
 
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids);
@@ -95,7 +96,7 @@ static void* create_non_avatar_caller(void*)
 	return new LLNonAvatarCaller;
 }
 
-LLVoiceChannel* LLCallFloater::sCurrentVoiceCanel = NULL;
+LLVoiceChannel* LLCallFloater::sCurrentVoiceChannel = NULL;
 
 LLCallFloater::LLCallFloater(const LLSD& key)
 : LLTransientDockableFloater(NULL, false, key)
@@ -105,6 +106,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mNonAvatarCaller(NULL)
 , mVoiceType(VC_LOCAL_CHAT)
 , mAgentPanel(NULL)
+, mVoiceFont(NULL)
 , mSpeakingIndicator(NULL)
 , mIsModeratorMutedVoice(false)
 , mInitParticipantsVoiceState(false)
@@ -147,6 +149,9 @@ BOOL LLCallFloater::postBuild()
 
 	childSetAction("leave_call_btn", boost::bind(&LLCallFloater::leaveCall, this));
 
+	mVoiceFont = getChild<LLComboBox>("voice_font");
+	childSetCommitCallback("voice_font", commitVoiceFont, this); // *FIX: childSetCommitCallback deprecated
+
 	mNonAvatarCaller = getChild<LLNonAvatarCaller>("non_avatar_caller");
 	mNonAvatarCaller->setVisible(FALSE);
 
@@ -157,7 +162,6 @@ BOOL LLCallFloater::postBuild()
 		getDockTongue(), LLDockControl::TOP));
 
 	initAgentData();
-
 
 	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
 
@@ -206,6 +210,9 @@ void LLCallFloater::draw()
 // virtual
 void LLCallFloater::onChange()
 {
+	// *FIX: Temporarily dumping this here till I decide where it should go
+	updateVoiceFont();
+
 	if (NULL == mParticipants) return;
 
 	updateParticipantsVoiceState();
@@ -229,6 +236,37 @@ void LLCallFloater::leaveCall()
 	if (voice_channel)
 	{
 		voice_channel->deactivate();
+	}
+}
+
+/* static */
+void LLCallFloater::commitVoiceFont(LLUICtrl* ctrl, void* userdata)
+{
+	LLVoiceClient::getInstance()->setVoiceFont(ctrl->getValue());
+}
+
+void LLCallFloater::updateVoiceFont()
+{
+	if (mVoiceFont)
+	{
+		mVoiceFont->removeall();
+		mVoiceFont->add(getString("no_voice_font"), 0);
+
+		if (LLVoiceClient::getInstance()->getVoiceFontsAvailable())
+		{
+			const LLVoiceClient::voice_font_list_t font_list = LLVoiceClient::getInstance()->getVoiceFontList();
+
+			for (LLVoiceClient::voice_font_list_t::const_iterator it = font_list.begin(); it != font_list.end(); ++it)
+			{
+				mVoiceFont->add(*(it->second), it->first, ADD_BOTTOM);
+			}
+			mVoiceFont->setEnabled(true);
+			mVoiceFont->setValue(LLVoiceClient::getInstance()->getVoiceFont());
+		}
+		else
+		{
+			mVoiceFont->setEnabled(false);
+		}
 	}
 }
 
@@ -370,7 +408,7 @@ void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 	// *NOTE: if signal was sent for voice channel with LLVoiceChannel::STATE_NO_CHANNEL_INFO
 	// it sill be sent for the same channel again (when state is changed).
 	// So, lets ignore this call.
-	if (channel == sCurrentVoiceCanel) return;
+	if (channel == sCurrentVoiceChannel) return;
 
 	LLCallFloater* call_floater = LLFloaterReg::getTypedInstance<LLCallFloater>("voice_controls");
 
@@ -715,9 +753,9 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 {
 	mVoiceChannelStateChangeConnection.disconnect();
 
-	sCurrentVoiceCanel = channel;
+	sCurrentVoiceChannel = channel;
 
-	mVoiceChannelStateChangeConnection = sCurrentVoiceCanel->setStateChangedCallback(boost::bind(&LLCallFloater::onVoiceChannelStateChanged, this, _1, _2));
+	mVoiceChannelStateChangeConnection = sCurrentVoiceChannel->setStateChangedCallback(boost::bind(&LLCallFloater::onVoiceChannelStateChanged, this, _1, _2));
 
 	updateState(channel->getState());
 }
@@ -737,7 +775,7 @@ void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old
 
 void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
 {
-	LL_DEBUGS("Voice") << "Updating state: " << new_state << ", session name: " << sCurrentVoiceCanel->getSessionName() << LL_ENDL;
+	LL_DEBUGS("Voice") << "Updating state: " << new_state << ", session name: " << sCurrentVoiceChannel->getSessionName() << LL_ENDL;
 	if (LLVoiceChannel::STATE_CONNECTED == new_state)
 	{
 		updateSession();
@@ -746,6 +784,9 @@ void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
 	{
 		reset(new_state);
 	}
+
+	// *FIX: Dumped here till I decide where to put it
+	updateVoiceFont();
 }
 
 void LLCallFloater::reset(const LLVoiceChannel::EState& new_state)
