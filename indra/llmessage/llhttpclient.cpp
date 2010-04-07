@@ -31,7 +31,7 @@
  */
 
 #include "linden_common.h"
-#include <openssl/x509_vfy.h>
+
 #include "llhttpclient.h"
 
 #include "llassetstorage.h"
@@ -46,10 +46,7 @@
 #include "message.h"
 #include <curl/curl.h>
 
-
 const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
-LLURLRequest::SSLCertVerifyCallback LLHTTPClient::mCertVerifyCallback = NULL;
-
 ////////////////////////////////////////////////////////////////////////////
 
 // Responder class moved to LLCurl
@@ -209,19 +206,13 @@ namespace
 	LLPumpIO* theClientPump = NULL;
 }
 
-void LLHTTPClient::setCertVerifyCallback(LLURLRequest::SSLCertVerifyCallback callback)
-{
-	LLHTTPClient::mCertVerifyCallback = callback;
-}
-
 static void request(
 	const std::string& url,
 	LLURLRequest::ERequestAction method,
 	Injector* body_injector,
 	LLCurl::ResponderPtr responder,
 	const F32 timeout = HTTP_REQUEST_EXPIRY_SECS,
-	const LLSD& headers = LLSD()
-    )
+	const LLSD& headers = LLSD())
 {
 	if (!LLHTTPClient::hasPump())
 	{
@@ -231,7 +222,7 @@ static void request(
 	LLPumpIO::chain_t chain;
 
 	LLURLRequest* req = new LLURLRequest(method, url);
-	req->setSSLVerifyCallback(LLHTTPClient::getCertVerifyCallback(), (void *)req);
+	req->checkRootCertificate(LLCurl::getSSLVerify());
 
 	
 	lldebugs << LLURLRequest::actionAsVerb(method) << " " << url << " "
@@ -426,6 +417,7 @@ static LLSD blocking_request(
 	std::string body_str;
 	
 	// other request method checks root cert first, we skip?
+	//req->checkRootCertificate(true);
 	
 	// * Set curl handle options
 	curl_easy_setopt(curlp, CURLOPT_NOSIGNAL, 1);	// don't use SIGALRM for timeouts

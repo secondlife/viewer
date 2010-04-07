@@ -71,8 +71,8 @@ public:
 				p.notification->getResponseTemplate()));
 		}
 
-		// set line max count to 2 in case of a very long name
-		snapToMessageHeight(getChild<LLTextBox>("message"), 2);
+		// set line max count to 3 in case of a very long name
+		snapToMessageHeight(getChild<LLTextBox>("message"), 3);
 	}
 };
 

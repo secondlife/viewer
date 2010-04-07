@@ -176,11 +176,11 @@ void LLInspectRemoteObject::update()
 	{
 		if (mGroupOwned)
 		{
-			owner = LLSLURL("group", mOwnerID, "about").getSLURLString();
+			owner = LLSLURL::buildCommand("group", mOwnerID, "about");
 		}
 		else
 		{
-			owner = LLSLURL("agent", mOwnerID, "about").getSLURLString();
+			owner = LLSLURL::buildCommand("agent", mOwnerID, "about");
 		}
 	}
 	else

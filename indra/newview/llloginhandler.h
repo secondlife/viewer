@@ -34,7 +34,6 @@
 #define LLLOGINHANDLER_H
 
 #include "llcommandhandler.h"
-#include "llsecapi.h"
 
 class LLLoginHandler : public LLCommandHandler
 {
@@ -47,15 +46,19 @@ class LLLoginHandler : public LLCommandHandler
 	// secondlife:///app/login?first=Bob&last=Dobbs
 	bool parseDirectLogin(std::string url);
 
+	std::string getFirstName() const { return mFirstName; }
+	std::string getLastName() const { return mLastName; }
+
 	// Web-based login unsupported
 	//LLUUID getWebLoginKey() const { return mWebLoginKey; }
-
-	LLPointer<LLCredential> loadSavedUserLoginInfo();  
-	LLPointer<LLCredential> initializeLoginInfo();
 
 private:
 	void parse(const LLSD& queryMap);
 
+private:
+	std::string mFirstName;
+	std::string mLastName;
+	//LLUUID mWebLoginKey;
 };
 
 extern LLLoginHandler gLoginHandler;

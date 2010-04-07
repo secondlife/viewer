@@ -536,7 +536,8 @@ void LLInspectAvatar::toggleSelectedVoice(bool enabled)
 
 void LLInspectAvatar::updateVolumeSlider()
 {
-	bool voice_enabled = LLVoiceClient::getInstance()->getVoiceEnabled(mAvatarID);
+
+	bool voice_enabled = gVoiceClient->getVoiceEnabled(mAvatarID);
 
 	// Do not display volume slider and mute button if it 
 	// is ourself or we are not in a voice channel together
@@ -566,7 +567,6 @@ void LLInspectAvatar::updateVolumeSlider()
 		volume_slider->setEnabled( !is_muted );
 
 		F32 volume;
-		
 		if (is_muted)
 		{
 			// it's clearer to display their volume as zero
@@ -575,7 +575,7 @@ void LLInspectAvatar::updateVolumeSlider()
 		else
 		{
 			// actual volume
-			volume = LLVoiceClient::getInstance()->getUserVolume(mAvatarID);
+			volume = gVoiceClient->getUserVolume(mAvatarID);
 		}
 		volume_slider->setValue( (F64)volume );
 	}
@@ -604,7 +604,7 @@ void LLInspectAvatar::onClickMuteVolume()
 void LLInspectAvatar::onVolumeChange(const LLSD& data)
 {
 	F32 volume = (F32)data.asReal();
-	LLVoiceClient::getInstance()->setUserVolume(mAvatarID, volume);
+	gVoiceClient->setUserVolume(mAvatarID, volume);
 }
 
 void LLInspectAvatar::nameUpdatedCallback(

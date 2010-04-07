@@ -1295,6 +1295,11 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		{
 			resetAxes(mAutoPilotTargetFacing);
 		}
+		// If the user cancelled, don't change the fly state
+		if (!user_cancel)
+		{
+			setFlying(mAutoPilotFlyOnStop);
+		}
 		//NB: auto pilot can terminate for a reason other than reaching the destination
 		if (mAutoPilotFinishedCallback)
 		{
@@ -1302,11 +1307,6 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		}
 		mLeaderID = LLUUID::null;
 
-		// If the user cancelled, don't change the fly state
-		if (!user_cancel)
-		{
-			setFlying(mAutoPilotFlyOnStop);
-		}
 		setControlFlags(AGENT_CONTROL_STOP);
 
 		if (user_cancel && !mAutoPilotBehaviorName.empty())
@@ -3231,7 +3231,7 @@ bool LLAgent::teleportCore(bool is_local)
 	
 	// MBW -- Let the voice client know a teleport has begun so it can leave the existing channel.
 	// This was breaking the case of teleporting within a single sim.  Backing it out for now.
-//	LLVoiceClient::getInstance()->leaveChannel();
+//	gVoiceClient->leaveChannel();
 	
 	return true;
 }
@@ -3375,7 +3375,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 	if (mTeleportState == TELEPORT_MOVING)
 	{
 		// We're outa here. Save "back" slurl.
-		LLAgentUI::buildSLURL(mTeleportSourceSLURL);
+		mTeleportSourceSLURL = LLAgentUI::buildSLURL();
 	}
 	else if(mTeleportState == TELEPORT_ARRIVING)
 	{

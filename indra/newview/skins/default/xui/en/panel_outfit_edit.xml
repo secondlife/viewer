@@ -12,6 +12,9 @@
  name="outfit_edit"
  top="0"
  width="320">
+    <string
+     name="No Outfit"
+     value="No Outfit"/>
 	
 	<panel.string
 		name="not_available">
@@ -94,7 +97,7 @@
                  font="SansSerifHugeBold"
                  height="26"
                  layout="topleft"
-                 name="curr_look_name"
+                 name="curr_outfit_name"
                  text_color="LtGray"
                  top_pad="0"
                  value="[Current Outfit]"

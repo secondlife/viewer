@@ -131,7 +131,7 @@ void LLPanelOutfitsInventory::updateVerbs()
 
 	if (mListCommands)
 	{
-		mListCommands->childSetVisible("look_edit_btn",sShowDebugEditor);
+		mListCommands->childSetVisible("edit_current_outfit_btn",sShowDebugEditor);
 		updateListCommands();
 	}
 }
@@ -269,19 +269,12 @@ void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewIte
 	}
 }
 
-void LLPanelOutfitsInventory::onSelectorButtonClicked()
+void LLPanelOutfitsInventory::showEditOutfitPanel()
 {
-	  LLFolderViewItem* cur_item = getRootFolder()->getCurSelectedItem();
-
-	  LLFolderViewEventListener* listenerp = cur_item->getListener();
-	  if (getIsCorrectType(listenerp))
-	  {
-	  LLSD key;
-	  key["type"] = "look";
-	  key["id"] = listenerp->getUUID();
-
-	  LLSideTray::getInstance()->showPanel("sidepanel_appearance", key);
-	  } 
+	LLSD key;
+	key["type"] = "edit_outfit";
+	
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", key);
 }
 
 LLFolderViewEventListener *LLPanelOutfitsInventory::getCorrectListenerForAction()
@@ -328,7 +321,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 	mListCommands->childSetAction("make_outfit_btn", boost::bind(&LLPanelOutfitsInventory::onAddButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
 
-	mListCommands->childSetAction("look_edit_btn", boost::bind(&LLPanelOutfitsInventory::onSelectorButtonClicked, this));
+	mListCommands->childSetAction("edit_current_outfit_btn", boost::bind(&LLPanelOutfitsInventory::showEditOutfitPanel, this));
 
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
 	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelOutfitsInventory::handleDragAndDropToTrash, this

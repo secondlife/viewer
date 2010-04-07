@@ -38,7 +38,6 @@
 class LLViewerTexture ;
 class LLEventPump;
 class LLStartupListener;
-class LLSLURL;
 
 // functions
 bool idle_startup();
@@ -102,18 +101,26 @@ public:
 	static void loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name );
 
+	// Load MD5 of user's password from local disk file.
+	static std::string loadPasswordFromDisk();
+	
+	// Record MD5 of user's password for subsequent login.
+	static void savePasswordToDisk(const std::string& hashed_password);
+	
+	// Delete the saved password local disk file.
+	static void deletePasswordFromDisk();
 	
 	static bool dispatchURL();
 		// if we have a SLURL or sim string ("Ahern/123/45") that started
 		// the viewer, dispatch it
 
+	static std::string sSLURLCommand;
+		// *HACK: On startup, if we were passed a secondlife://app/do/foo
+		// command URL, store it for later processing.
+
 	static void postStartupState();
-	static void setStartSLURL(const LLSLURL& slurl); 
-	static LLSLURL& getStartSLURL() { return sStartSLURL; } 
 
 private:
-	static LLSLURL sStartSLURL;
-
 	static std::string startupStateToString(EStartupState state);
 	static EStartupState gStartupState; // Do not set directly, use LLStartup::setStartupState
 	static boost::scoped_ptr<LLEventPump> sStateWatcher;
