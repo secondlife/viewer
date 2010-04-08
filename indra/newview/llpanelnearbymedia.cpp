@@ -88,6 +88,8 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
 							gSavedSettings.getBOOL("MediaTentativeAutoPlay");
 
+	gSavedSettings.getControl(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING)->getSignal()->connect(boost::bind(&LLPanelNearByMedia::handleMediaAutoPlayChanged, this, _2));
+
 	mCommitCallbackRegistrar.add("MediaListCtrl.EnableAll",		boost::bind(&LLPanelNearByMedia::onClickEnableAll, this));
 	mCommitCallbackRegistrar.add("MediaListCtrl.DisableAll",		boost::bind(&LLPanelNearByMedia::onClickDisableAll, this));
 	mCommitCallbackRegistrar.add("MediaListCtrl.GoMediaPrefs", boost::bind(&LLPanelNearByMedia::onAdvancedButtonClick, this));
@@ -173,6 +175,13 @@ BOOL LLPanelNearByMedia::postBuild()
 	onMoreLess();
 	
 	return TRUE;
+}
+
+void LLPanelNearByMedia::handleMediaAutoPlayChanged(const LLSD& newvalue)
+{
+	// update mParcelAudioAutoStart if AUTO_PLAY_MEDIA_SETTING changes
+	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+							gSavedSettings.getBOOL("MediaTentativeAutoPlay");							
 }
 
 /*virtual*/
