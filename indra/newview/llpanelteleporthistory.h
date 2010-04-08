@@ -73,6 +73,7 @@ public:
 
 	/*virtual*/ void onSearchEdit(const std::string& string);
 	/*virtual*/ void onShowOnMap();
+	/*virtual*/ void onShowProfile();
 	/*virtual*/ void onTeleport();
 	///*virtual*/ void onCopySLURL();
 	/*virtual*/ void updateVerbs();

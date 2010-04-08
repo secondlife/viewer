@@ -57,6 +57,7 @@ public:
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onSearchEdit(const std::string& string);
 	/*virtual*/ void onShowOnMap();
+	/*virtual*/ void onShowProfile();
 	/*virtual*/ void onTeleport();
 	/*virtual*/ void updateVerbs();
 
