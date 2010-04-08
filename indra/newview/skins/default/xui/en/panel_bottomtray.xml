@@ -127,6 +127,8 @@
              <gesture_combo_list.combo_button
               pad_right="10"
               use_ellipses="true" />
+             <gesture_combo_list.combo_list
+              page_lines="17" />
          </gesture_combo_list>
         </layout_panel>
 		 <icon
