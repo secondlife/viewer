@@ -252,6 +252,9 @@ BOOL LLPanelPlaces::postBuild()
 	mOverflowBtn = getChild<LLButton>("overflow_btn");
 	mOverflowBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
 
+	mPlaceInfoBtn = getChild<LLButton>("profile_btn");
+	mPlaceInfoBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onProfileButtonClicked, this));
+
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 	registrar.add("Places.OverflowMenu.Action",  boost::bind(&LLPanelPlaces::onOverflowMenuItemClicked, this, _2));
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
@@ -745,6 +748,14 @@ void LLPanelPlaces::onOverflowButtonClicked()
 	LLMenuGL::showPopup(this, menu, rect.mRight, rect.mTop);
 }
 
+void LLPanelPlaces::onProfileButtonClicked()
+{
+	if (!mActivePanel)
+		return;
+
+	mActivePanel->onShowProfile();
+}
+
 bool LLPanelPlaces::onOverflowMenuItemEnable(const LLSD& param)
 {
 	std::string value = param.asString();
@@ -1060,8 +1071,11 @@ void LLPanelPlaces::updateVerbs()
 	mSaveBtn->setVisible(isLandmarkEditModeOn);
 	mCancelBtn->setVisible(isLandmarkEditModeOn);
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
+	mPlaceInfoBtn->setVisible(mPlaceInfoType != LANDMARK_INFO_TYPE && mPlaceInfoType != TELEPORT_HISTORY_INFO_TYPE
+			&& !is_create_landmark_visible && !isLandmarkEditModeOn);
 
 	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
+	mPlaceInfoBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
 
 	if (is_place_info_visible)
 	{

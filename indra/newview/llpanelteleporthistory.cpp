@@ -496,6 +496,20 @@ void LLTeleportHistoryPanel::onShowOnMap()
 	}
 }
 
+//virtual
+void LLTeleportHistoryPanel::onShowProfile()
+{
+	if (!mLastSelectedFlatlList)
+		return;
+
+	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
+
+	if(!itemp)
+		return;
+
+	LLTeleportHistoryFlatItem::showPlaceInfoPanel(itemp->getIndex());
+}
+
 // virtual
 void LLTeleportHistoryPanel::onTeleport()
 {
@@ -544,6 +558,7 @@ void LLTeleportHistoryPanel::updateVerbs()
 	{
 		mTeleportBtn->setEnabled(false);
 		mShowOnMapBtn->setEnabled(false);
+		mShowProfile->setEnabled(false);
 		return;
 	}
 
@@ -551,6 +566,7 @@ void LLTeleportHistoryPanel::updateVerbs()
 
 	mTeleportBtn->setEnabled(NULL != itemp);
 	mShowOnMapBtn->setEnabled(NULL != itemp);
+	mShowProfile->setEnabled(NULL != itemp);
 }
 
 void LLTeleportHistoryPanel::getNextTab(const LLDate& item_date, S32& tab_idx, LLDate& tab_date)

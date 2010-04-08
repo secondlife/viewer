@@ -104,8 +104,13 @@ BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func
 								   S32 x, S32 y,
 								   bool close_popups)
 {
-	for (popup_list_t::iterator popup_it = mPopups.begin();
-		popup_it != mPopups.end();)
+	BOOL handled = FALSE;
+
+	// make a copy of list of popups, in case list is modified during mouse event handling
+	popup_list_t popups(mPopups);
+	for (popup_list_t::iterator popup_it = popups.begin(), popup_end = popups.end();
+		popup_it != popup_end;
+		++popup_it)
 	{
 		LLView* popup = popup_it->get();
 		if (!popup 
@@ -121,23 +126,19 @@ BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func
 		{
 			if (func(popup, popup_x, popup_y))
 			{
-				return TRUE;
+				handled = TRUE;
+				break;
 			}
 		}
 
 		if (close_popups)
 		{
-			popup_list_t::iterator cur_popup_it = popup_it++;
-			mPopups.erase(cur_popup_it);
+			mPopups.remove(*popup_it);
 			popup->onTopLost();
-		}
-		else
-		{
-			++popup_it;
 		}
 	}
 
-	return FALSE;
+	return handled;
 }
 
 
