@@ -79,7 +79,6 @@ public:
 
 	virtual const char *getFQURL() const;
 	virtual const char *getFullPath();
-	virtual const char *getAuthority();
 
 	virtual const char *updateRelativePath(const LLURL &url);
 

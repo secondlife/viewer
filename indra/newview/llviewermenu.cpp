@@ -73,6 +73,7 @@
 #include "llhudmanager.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
@@ -429,7 +430,7 @@ void init_menus()
 	gPopupMenuView->setBackgroundColor( color );
 
 	// If we are not in production, use a different color to make it apparent.
-	if (LLGridManager::getInstance()->isInProductionGrid())
+	if (LLViewerLogin::getInstance()->isInProductionGrid())
 	{
 		color = LLUIColorTable::instance().getColor( "MenuBarBgColor" );
 	}
@@ -445,7 +446,7 @@ void init_menus()
 	menu_bar_holder->addChild(gMenuBarView);
   
     gViewerWindow->setMenuBackgroundColor(false, 
-        LLGridManager::getInstance()->isInProductionGrid());
+        LLViewerLogin::getInstance()->isInProductionGrid());
 
 	// Assume L$10 for now, the server will tell us the real cost at login
 	// *TODO:Also fix cost in llfolderview.cpp for Inventory menus
@@ -3467,7 +3468,7 @@ void set_god_level(U8 god_level)
         if(gViewerWindow)
         {
             gViewerWindow->setMenuBackgroundColor(god_level > GOD_NOT,
-            LLGridManager::getInstance()->isInProductionGrid());
+            LLViewerLogin::getInstance()->isInProductionGrid());
         }
     
         LLSD args;
@@ -3507,7 +3508,7 @@ BOOL check_toggle_hacked_godmode(void*)
 
 bool enable_toggle_hacked_godmode(void*)
 {
-  return !LLGridManager::getInstance()->isInProductionGrid();
+  return !LLViewerLogin::getInstance()->isInProductionGrid();
 }
 #endif
 
@@ -3863,15 +3864,15 @@ BOOL enable_deed_object_to_group(void*)
  * No longer able to support viewer side manipulations in this way
  *
 void god_force_inv_owner_permissive(LLViewerObject* object,
-									InventoryObjectList* inventory,
+									LLInventoryObject::object_list_t* inventory,
 									S32 serial_num,
 									void*)
 {
 	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
 	item_array_t items;
 
-	InventoryObjectList::const_iterator inv_it = inventory->begin();
-	InventoryObjectList::const_iterator inv_end = inventory->end();
+	LLInventoryObject::object_list_t::const_iterator inv_it = inventory->begin();
+	LLInventoryObject::object_list_t::const_iterator inv_end = inventory->end();
 	for ( ; inv_it != inv_end; ++inv_it)
 	{
 		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY))
@@ -4378,7 +4379,7 @@ BOOL enable_take()
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!LLGridManager::getInstance()->isInProductionGrid() 
+		if (!LLViewerLogin::getInstance()->isInProductionGrid() 
             && gAgent.isGodlike())
 		{
 			return TRUE;
@@ -4991,7 +4992,7 @@ bool enable_object_delete()
 	TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	(!LLGridManager::getInstance()->isInProductionGrid()
+	(!LLViewerLogin::getInstance()->isInProductionGrid()
      && gAgent.isGodlike()) ||
 # endif
 	LLSelectMgr::getInstance()->canDoDelete();
@@ -5325,6 +5326,16 @@ class LLWorldCreateLandmark : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
+
+		return true;
+	}
+};
+
+class LLWorldPlaceProfile : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "agent"));
 
 		return true;
 	}
@@ -6157,7 +6168,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 						
 						items.push_back((*attachment_iter)->getItemID());
 						
-						wornItemFetched->fetchItems(items);
+						wornItemFetched->fetch(items);
 						gInventory.addObserver(wornItemFetched);
 					}
 				}
@@ -6627,7 +6638,7 @@ bool enable_object_take_copy()
 		all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (LLGridManager::getInstance()->isInProductionGrid()
+		if (LLViewerLogin::getInstance()->isInProductionGrid()
             || !gAgent.isGodlike())
 # endif
 		{
@@ -6689,7 +6700,7 @@ BOOL enable_save_into_inventory(void*)
 	return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!LLGridManager::getInstance()->isInProductionGrid()
+	if (!LLViewerLogin::getInstance()->isInProductionGrid()
         && gAgent.isGodlike())
 	{
 		return TRUE;
@@ -6971,7 +6982,7 @@ void handle_grab_texture(void* data)
 										name,
 										LLStringUtil::null,
 										LLSaleInfo::DEFAULT,
-										LLInventoryItem::II_FLAGS_NONE,
+										LLInventoryItemFlags::II_FLAGS_NONE,
 										creation_date_now);
 
 		item->updateServer(TRUE);
@@ -7739,6 +7750,7 @@ void initialize_menus()
 	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
+	view_listener_t::addMenu(new LLWorldPlaceProfile(), "World.PlaceProfile");
 	view_listener_t::addMenu(new LLWorldSetHomeLocation(), "World.SetHomeLocation");
 	view_listener_t::addMenu(new LLWorldTeleportHome(), "World.TeleportHome");
 	view_listener_t::addMenu(new LLWorldSetAway(), "World.SetAway");

@@ -42,6 +42,7 @@
 #include "llnotificationsutil.h"
 #include "llparcel.h"
 #include "message.h"
+#include "lluserauth.h"
 
 #include "llagent.h"
 #include "llbutton.h"
@@ -90,6 +91,7 @@ static std::string MATURITY 		= "[MATURITY]";
 // constants used in callbacks below - syntactic sugar.
 static const BOOL BUY_GROUP_LAND = TRUE;
 static const BOOL BUY_PERSONAL_LAND = FALSE;
+LLPointer<LLParcelSelection> LLPanelLandGeneral::sSelectionForBuyPass = NULL;
 
 // Statics
 LLParcelSelectionObserver* LLFloaterLand::sObserver = NULL;
@@ -803,7 +805,7 @@ void LLPanelLandGeneral::refreshNames()
 	else
 	{
 		// Figure out the owner's name
-		owner = LLSLURL("agent", parcel->getOwnerID(), "inspect").getSLURLString();
+		owner = LLSLURL::buildCommand("agent", parcel->getOwnerID(), "inspect");
 	}
 
 	if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
@@ -815,7 +817,7 @@ void LLPanelLandGeneral::refreshNames()
 	std::string group;
 	if (!parcel->getGroupID().isNull())
 	{
-		group = LLSLURL("group", parcel->getGroupID(), "inspect").getSLURLString();
+		group = LLSLURL::buildCommand("group", parcel->getGroupID(), "inspect");
 	}
 	mTextGroup->setText(group);
 
@@ -824,9 +826,9 @@ void LLPanelLandGeneral::refreshNames()
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
 		if(auth_buyer_id.notNull())
 		{
-		  std::string name;
-		  name = LLSLURL("agent", auth_buyer_id, "inspect").getSLURLString();
-		  mSaleInfoForSale2->setTextArg("[BUYER]", name);
+			std::string name;
+			name = LLSLURL::buildCommand("agent", auth_buyer_id, "inspect");
+			mSaleInfoForSale2->setTextArg("[BUYER]", name);
 		}
 		else
 		{
@@ -974,6 +976,8 @@ void LLPanelLandGeneral::onClickBuyPass(void* data)
 	args["PARCEL_NAME"] = parcel_name;
 	args["TIME"] = time;
 	
+	// creating pointer on selection to avoid deselection of parcel until we are done with buying pass (EXT-6464)
+	sSelectionForBuyPass = LLViewerParcelMgr::getInstance()->getParcelSelection();
 	LLNotificationsUtil::add("LandBuyPass", args, LLSD(), cbBuyPass);
 }
 
@@ -1005,6 +1009,8 @@ bool LLPanelLandGeneral::cbBuyPass(const LLSD& notification, const LLSD& respons
 		// User clicked OK
 		LLViewerParcelMgr::getInstance()->buyPass();
 	}
+	// we are done with buying pass, additional selection is no longer needed
+	sSelectionForBuyPass = NULL;
 	return false;
 }
 

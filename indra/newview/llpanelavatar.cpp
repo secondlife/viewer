@@ -163,7 +163,7 @@ BOOL LLPanelAvatarNotes::postBuild()
 	resetControls();
 	resetData();
 
-	LLVoiceClient::getInstance()->addObserver((LLVoiceClientStatusObserver*)this);
+	gVoiceClient->addObserver((LLVoiceClientStatusObserver*)this);
 
 	return TRUE;
 }
@@ -374,7 +374,7 @@ void LLPanelAvatarNotes::onChange(EStatusType status, const std::string &channel
 		return;
 	}
 
-	childSetEnabled("call", LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking());
+	childSetEnabled("call", LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
 }
 
 void LLPanelAvatarNotes::setAvatarId(const LLUUID& id)
@@ -518,7 +518,7 @@ BOOL LLPanelAvatarProfile::postBuild()
 	pic = getChild<LLTextureCtrl>("real_world_pic");
 	pic->setFallbackImageName("default_profile_picture.j2c");
 
-	LLVoiceClient::getInstance()->addObserver((LLVoiceClientStatusObserver*)this);
+	gVoiceClient->addObserver((LLVoiceClientStatusObserver*)this);
 
 	resetControls();
 	resetData();
@@ -809,7 +809,7 @@ void LLPanelAvatarProfile::onChange(EStatusType status, const std::string &chann
 		return;
 	}
 
-	childSetEnabled("call", LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking());
+	childSetEnabled("call", LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
 }
 
 void LLPanelAvatarProfile::setAvatarId(const LLUUID& id)

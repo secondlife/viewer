@@ -107,6 +107,8 @@
 #include "llpluginclassmedia.h"
 #include "llteleporthistorystorage.h"
 
+#include "lllogininstance.h"        // to check if logged in yet
+
 const F32 MAX_USER_FAR_CLIP = 512.f;
 const F32 MIN_USER_FAR_CLIP = 64.f;
 
@@ -501,13 +503,15 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
 		if (!gAgent.isAdult() && !gAgent.isGodlike())
 		{
-			// we're going to remove the adult entry from the combo. This obviously depends
-			// on the order of items in the XML file, but there doesn't seem to be a reasonable
-			// way to depend on the field in XML called 'name'.
-			maturity_combo->remove(0);
+			// we're going to remove the adult entry from the combo
+			LLScrollListCtrl* maturity_list = maturity_combo->findChild<LLScrollListCtrl>("ComboBox");
+			if (maturity_list)
+			{
+				maturity_list->deleteItems(LLSD(SIM_ACCESS_ADULT));
+			}
 		}
 		childSetVisible("maturity_desired_combobox", true);
-		childSetVisible("maturity_desired_textbox", false);		
+		childSetVisible("maturity_desired_textbox", false);
 	}
 	else
 	{
@@ -595,7 +599,7 @@ void LLFloaterPreference::onBtnOK()
 		llinfos << "Can't close preferences!" << llendl;
 	}
 
-	LLPanelLogin::updateLocationCombo( false );
+	LLPanelLogin::refreshLocation( false );
 }
 
 // static 
@@ -612,7 +616,7 @@ void LLFloaterPreference::onBtnApply( )
 	apply();
 	saveSettings();
 
-	LLPanelLogin::updateLocationCombo( false );
+	LLPanelLogin::refreshLocation( false );
 }
 
 // static 
@@ -856,6 +860,8 @@ void LLFloaterPreference::refreshEnabledState()
 	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
+
+	childSetEnabled ("block_list", LLLoginInstance::getInstance()->authSuccess());
 }
 
 void LLFloaterPreference::disableUnavailableSettings()

@@ -74,6 +74,7 @@ static const LLUUID PARCEL_AUDIO_LIST_ITEM_UUID = LLUUID("DF4B020D-8A24-4B95-AB5
 // LLPanelNearByMedia
 //
 
+
 LLPanelNearByMedia::LLPanelNearByMedia()
 :	mMediaList(NULL),
 	  mEnableAllCtrl(NULL),

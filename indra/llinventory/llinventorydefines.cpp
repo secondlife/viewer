@@ -1,11 +1,10 @@
 /** 
- * @file llfloaterbuy.h
- * @author James Cook
- * @brief LLFloaterBuy class definition
+ * @file llinventorydefines.cpp
+ * @brief Implementation of the inventory defines.
  *
- * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
- * Copyright (c) 2004-2009, Linden Research, Inc.
+ * Copyright (c) 2001-2009, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -31,50 +30,8 @@
  * $/LicenseInfo$
  */
 
-/**
- * Floater that appears when buying an object, giving a preview
- * of its contents and their permissions.
- */ 
+#include "linden_common.h"
+#include "llinventorydefines.h"
 
-#ifndef LL_LLFLOATERBUY_H
-#define LL_LLFLOATERBUY_H
-
-#include "llfloater.h"
-#include "llvoinventorylistener.h"
-#include "llsaleinfo.h"
-#include "llinventory.h"
-
-class LLViewerObject;
-class LLSaleInfo;
-class LLObjectSelection;
-
-class LLFloaterBuy
-: public LLFloater, public LLVOInventoryListener
-{
-public:
-	LLFloaterBuy(const LLSD& key);
-	~LLFloaterBuy();
-	
-	/*virtual*/	BOOL postBuild();
-	/*virtual*/ void onClose(bool app_quitting);
-	
-	static void show(const LLSaleInfo& sale_info);
-
-protected:
-	void reset();
-
-	void requestObjectInventories();
-	/*virtual*/ void inventoryChanged(LLViewerObject* obj,
-								 LLInventoryObject::object_list_t* inv,
-								 S32 serial_num,
-								 void* data);
-
-	void onClickBuy();
-	void onClickCancel();
-
-private:
-	LLSafeHandle<LLObjectSelection>	mObjectSelection;
-	LLSaleInfo mSaleInfo;
-};
-
-#endif
+const U8 TASK_INVENTORY_ITEM_KEY = 0;
+const U8 TASK_INVENTORY_ASSET_KEY = 1;

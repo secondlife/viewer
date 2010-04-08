@@ -41,6 +41,7 @@
 #include "lleventtimer.h"
 #include "llfloaterreg.h"
 #include "llfollowcamparams.h"
+#include "llinventorydefines.h"
 #include "llregionhandle.h"
 #include "llsdserialize.h"
 #include "llteleportflags.h"
@@ -1206,7 +1207,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				uuid_vec_t items;
 				items.push_back(mObjectID);
 				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(from_string);
-				open_agent_offer->fetchItems(items);
+				open_agent_offer->fetch(items);
 				if(catp || (itemp && itemp->isComplete()))
 				{
 					open_agent_offer->done();
@@ -1573,9 +1574,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 	payload["give_inventory_notification"] = FALSE;
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
-	args["NAME_SLURL"] = LLSLURL("agent", info->mFromID, "about").getSLURLString();
+	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
 	std::string verb = "select?name=" + LLURI::escape(msg);
-	args["ITEM_SLURL"] = LLSLURL("inventory", info->mObjectID, verb.c_str()).getSLURLString();
+	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
 
 	LLNotification::Params p("ObjectGiveItem");
 
@@ -1604,7 +1605,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 		uuid_vec_t items;
 		items.push_back(info->mObjectID);
 		LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-		fetch_item->fetchItems(items);
+		fetch_item->fetch(items);
 		if(fetch_item->isEverythingComplete())
 		{
 			fetch_item->done();
@@ -2123,7 +2124,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				uuid_vec_t items;
 				items.push_back(info->mObjectID);
 				LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-				fetch_item->fetchItems(items);
+				fetch_item->fetch(items);
 				delete fetch_item;
 
 				// Same as closing window
@@ -2244,7 +2245,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				query_string["groupowned"] = "true";
 			}	
 
-			chat.mURL = LLSLURL("objectim", session_id, "").getSLURLString();
+			std::ostringstream link;
+			link << "secondlife:///app/objectim/" << session_id << LLURI::mapToQueryString(query_string);
+
+			chat.mURL = link.str();
 			chat.mText = message;
 			chat.mSourceType = CHAT_SOURCE_OBJECT;
 
@@ -2327,7 +2331,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				LLSD args;
 				// *TODO: Translate -> [FIRST] [LAST] (maybe)
-				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
+				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
 				args["MESSAGE"] = message;
 				LLSD payload;
 				payload["from_id"] = from_id;
@@ -2393,7 +2397,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
+				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
 				if(message.empty())
 				{
 					//support for frienship offers from clients before July 2008
@@ -2854,8 +2858,8 @@ public:
 		LLInventoryModel::cat_array_t	land_cats;
 		LLInventoryModel::item_array_t	land_items;
 
-		uuid_vec_t::iterator it = mCompleteFolders.begin();
-		uuid_vec_t::iterator end = mCompleteFolders.end();
+		uuid_vec_t::iterator it = mComplete.begin();
+		uuid_vec_t::iterator end = mComplete.end();
 		for(; it != end; ++it)
 		{
 			gInventory.collectDescendentsIf(
@@ -2926,7 +2930,7 @@ BOOL LLPostTeleportNotifiers::tick()
 		if(!folders.empty())
 		{
 			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea;
-			fetcher->fetchDescendents(folders);
+			fetcher->fetch(folders);
 			if(fetcher->isEverythingComplete())
 			{
 				fetcher->done();
@@ -3152,9 +3156,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			// Chat the "back" SLURL. (DEV-4907)
 
-			LLSLURL slurl;
-			gAgent.getTeleportSourceSLURL(slurl);
-			LLSD substitution = LLSD().with("[T_SLURL]", slurl.getSLURLString());
+			LLSD substitution = LLSD().with("[T_SLURL]", gAgent.getTeleportSourceSLURL());
 			std::string completed_from = LLAgent::sTeleportProgressMessages["completed_from"];
 			LLStringUtil::format(completed_from, substitution);
 
@@ -5227,7 +5229,7 @@ void process_derez_container(LLMessageSystem *msg, void**)
 }
 
 void container_inventory_arrived(LLViewerObject* object,
-								 InventoryObjectList* inventory,
+								 LLInventoryObject::object_list_t* inventory,
 								 S32 serial_num,
 								 void* data)
 {
@@ -5247,8 +5249,8 @@ void container_inventory_arrived(LLViewerObject* object,
 											  LLFolderType::FT_NONE,
 											  LLTrans::getString("AcquiredItems"));
 
-		InventoryObjectList::const_iterator it = inventory->begin();
-		InventoryObjectList::const_iterator end = inventory->end();
+		LLInventoryObject::object_list_t::const_iterator it = inventory->begin();
+		LLInventoryObject::object_list_t::const_iterator end = inventory->end();
 		for ( ; it != end; ++it)
 		{
 			if ((*it)->getType() != LLAssetType::AT_CATEGORY)
@@ -5284,7 +5286,7 @@ void container_inventory_arrived(LLViewerObject* object,
 	{
 		// we're going to get one fake root category as well as the
 		// one actual object
-		InventoryObjectList::iterator it = inventory->begin();
+		LLInventoryObject::object_list_t::iterator it = inventory->begin();
 
 		if ((*it)->getType() == LLAssetType::AT_CATEGORY)
 		{
@@ -5547,9 +5549,7 @@ void send_group_notice(const LLUUID& group_id,
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string text = response["message"].asString();
-	LLSLURL slurl;
-	LLAgentUI::buildSLURL(slurl);
-	text.append("\r\n").append(slurl.getSLURLString());
+	text.append("\r\n").append(LLAgentUI::buildSLURL());
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(0 == option)
@@ -5992,7 +5992,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	std::string owner_name =
-		LLSLURL("agent", estate_owner_id, "inspect").getSLURLString();
+		LLSLURL::buildCommand("agent", estate_owner_id, "inspect");
 	LLPanelEstateCovenant::updateEstateOwnerName(owner_name);
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);

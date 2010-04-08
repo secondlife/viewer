@@ -182,11 +182,9 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	
 	mLookInfoType = key["type"].asString();
 
-	if (mLookInfoType == "look")
+	if (mLookInfoType == "edit_outfit")
 	{
-		LLInventoryCategory *pLook = gInventory.getCategory(key["id"].asUUID());
-		if (pLook)
-			mOutfitEdit->displayLookInfo(pLook);
+		mOutfitEdit->displayCurrentOutfit();
 	}
 }
 
@@ -297,6 +295,8 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 		return;
 	}
 
+	mCurrOutfitPanel->setVisible(!visible);
+
 	mEditWearable->setVisible(visible);
 	mEditWearable->setWearable(wearable);
 	mFilterEditor->setVisible(!visible);
@@ -389,7 +389,7 @@ void LLSidepanelAppearance::fetchInventory()
 	}
 
 	LLCurrentlyWornFetchObserver *fetch_worn = new LLCurrentlyWornFetchObserver(this);
-	fetch_worn->fetchItems(ids);
+	fetch_worn->fetch(ids);
 	// If no items to be fetched, done will never be triggered.
 	// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
 	if (fetch_worn->isEverythingComplete())

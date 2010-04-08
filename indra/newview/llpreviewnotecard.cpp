@@ -42,6 +42,7 @@
 #include "llviewerwindow.h"
 #include "llbutton.h"
 #include "llfloaterreg.h"
+#include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"

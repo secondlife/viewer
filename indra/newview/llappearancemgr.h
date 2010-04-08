@@ -282,14 +282,14 @@ public:
 		// happen.
 		LLInventoryModel::cat_array_t cat_array;
 		LLInventoryModel::item_array_t item_array;
-		gInventory.collectDescendents(mCompleteFolders.front(),
+		gInventory.collectDescendents(mComplete.front(),
 									  cat_array,
 									  item_array,
 									  LLInventoryModel::EXCLUDE_TRASH);
 		S32 count = item_array.count();
 		if(!count)
 		{
-			llwarns << "Nothing fetched in category " << mCompleteFolders.front()
+			llwarns << "Nothing fetched in category " << mComplete.front()
 					<< llendl;
 			//dec_busy_count();
 			gInventory.removeObserver(this);
@@ -307,7 +307,7 @@ public:
 		gInventory.removeObserver(this);
 		
 		// do the fetch
-		stage2->fetchItems(ids);
+		stage2->fetch(ids);
 		if(stage2->isEverythingComplete())
 		{
 			// everything is already here - call done.
@@ -331,7 +331,7 @@ void callAfterCategoryFetch(const LLUUID& cat_id, T callable)
 	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(callable);
 	uuid_vec_t folders;
 	folders.push_back(cat_id);
-	stage1->fetchDescendents(folders);
+	stage1->fetch(folders);
 	if (stage1->isEverythingComplete())
 	{
 		stage1->done();

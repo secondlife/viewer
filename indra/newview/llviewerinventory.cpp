@@ -36,6 +36,7 @@
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "message.h"
+#include "indra_constants.h"
 
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -43,6 +44,7 @@
 #include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -263,14 +265,10 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 		// we have to check region. It can be null after region was destroyed. See EXT-245
 		if (region)
 		{
-		  if(gAgent.getID() != mPermissions.getOwner())
-		    {
-		      url = region->getCapability("FetchLib");
-		    }
-		  else
-		    {	
-		      url = region->getCapability("FetchInventory");
-		    }
+			if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
+				url = region->getCapability("FetchLib");
+			else	
+				url = region->getCapability("FetchInventory");
 		}
 		else
 		{
@@ -518,7 +516,7 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	gAgent.sendReliableMessage();
 }
 
-bool LLViewerInventoryCategory::fetchDescendents()
+bool LLViewerInventoryCategory::fetch()
 {
 	if((VERSION_UNKNOWN == mVersion)
 	   && mDescendentsRequested.hasExpired())	//Expired check prevents multiple downloads.
@@ -1481,7 +1479,7 @@ EWearableType LLViewerInventoryItem::getWearableType() const
 		llwarns << "item is not a wearable" << llendl;
 		return WT_INVALID;
 	}
-	return EWearableType(getFlags() & LLInventoryItem::II_FLAGS_WEARABLES_MASK);
+	return EWearableType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
 }
 
 

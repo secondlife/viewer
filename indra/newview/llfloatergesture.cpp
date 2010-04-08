@@ -148,7 +148,7 @@ void LLFloaterGesture::done()
 		if (!unloaded_folders.empty())
 		{
 			LL_DEBUGS("Gesture")<< "Fetching subdirectories....." << LL_ENDL;
-			fetchDescendents(unloaded_folders);
+			fetch(unloaded_folders);
 		}
 		else
 		{
@@ -202,7 +202,7 @@ BOOL LLFloaterGesture::postBuild()
 	folders.push_back(mGestureFolderID);
 	//perform loading Gesture directory anyway to make sure that all subdirectory are loaded too. See method done() for details.
 	gInventory.addObserver(this);
-	fetchDescendents(folders);
+	fetch(folders);
 
 	if (mGestureList)
 	{

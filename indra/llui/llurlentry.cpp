@@ -41,9 +41,6 @@
 #include "lltrans.h"
 #include "lluicolortable.h"
 
-#define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
-
-
 LLUrlEntryBase::LLUrlEntryBase() :
 	mColor(LLUIColorTable::instance().getColor("HTMLLinkColor")),
 	mDisabledLink(false)
@@ -306,11 +303,10 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 //
 // LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 //
 LLUrlEntryAgent::LLUrlEntryAgent()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/\\w+",
+	mPattern = boost::regex("secondlife:///app/agent/[\\da-f-]+/\\w+",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_agent.xml";
 	mIcon = "Generic_Person";
@@ -422,11 +418,10 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 // LLUrlEntryGroup Describes a Second Life group Url, e.g.,
 // secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about
 // secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect
-// x-grid-location-info://lincoln.lindenlab.com/app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect
 //
 LLUrlEntryGroup::LLUrlEntryGroup()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/group/[\\da-f-]+/\\w+",
+	mPattern = boost::regex("secondlife:///app/group/[\\da-f-]+/\\w+",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_group.xml";
 	mIcon = "Generic_Group";
@@ -487,8 +482,7 @@ LLUrlEntryInventory::LLUrlEntryInventory()
 	//*TODO: add supporting of inventory item names with whitespaces
 	//this pattern cann't parse for example 
 	//secondlife:///app/inventory/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select?name=name with spaces&param2=value
-	//x-grid-location-info://lincoln.lindenlab.com/app/inventory/0e346d8b-4433-4d66-a6b0-fd37083abc4c/select?name=name with spaces&param2=value
-	mPattern = boost::regex(APP_HEADER_REGEX "/inventory/[\\da-f-]+/\\w+\\S*",
+	mPattern = boost::regex("secondlife:///app/inventory/[\\da-f-]+/\\w+\\S*",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_inventory.xml";
 }
@@ -499,14 +493,42 @@ std::string LLUrlEntryInventory::getLabel(const std::string &url, const LLUrlLab
 	return LLURI::unescape(label.empty() ? url : label);
 }
 
+//
+// LLUrlEntryObjectIM Describes a Second Life inspector for the object Url, e.g.,
+// secondlife:///app/objectim/7bcd7864-da6b-e43f-4486-91d28a28d95b?name=Object&owner=3de548e1-57be-cfea-2b78-83ae3ad95998&slurl=Danger!%20Danger!/200/200/30/&groupowned=1
+//
+LLUrlEntryObjectIM::LLUrlEntryObjectIM()
+{
+	mPattern = boost::regex("secondlife:///app/objectim/[\\da-f-]+\?.*",
+							boost::regex::perl|boost::regex::icase);
+	mMenuName = "menu_url_objectim.xml";
+}
+
+std::string LLUrlEntryObjectIM::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	LLURI uri(url);
+	LLSD query_map = uri.queryMap();
+	if (query_map.has("name"))
+		return query_map["name"];
+	return unescapeUrl(url);
+}
+
+std::string LLUrlEntryObjectIM::getLocation(const std::string &url) const
+{
+	LLURI uri(url);
+	LLSD query_map = uri.queryMap();
+	if (query_map.has("slurl"))
+		return query_map["slurl"];
+	return LLUrlEntryBase::getLocation(url);
+}
+
 ///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
-/// x-grid-location-info://lincoln.lindenlab.com/app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about
 ///
 LLUrlEntryParcel::LLUrlEntryParcel()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/parcel/[\\da-f-]+/about",
+	mPattern = boost::regex("secondlife:///app/parcel/[\\da-f-]+/about",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_parcel.xml";
 	mTooltip = LLTrans::getString("TooltipParcelUrl");
@@ -522,7 +544,7 @@ std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelC
 //
 LLUrlEntryPlace::LLUrlEntryPlace()
 {
-	mPattern = boost::regex("((x-grid-location-info://[-\\w\\.]+/region/)|(secondlife://))\\S+/?(\\d+/\\d+/\\d+|\\d+/\\d+)/?",
+	mPattern = boost::regex("secondlife://\\S+/?(\\d+/\\d+/\\d+|\\d+/\\d+)/?",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_slurl.xml";
 	mTooltip = LLTrans::getString("TooltipSLURL");
@@ -567,11 +589,10 @@ std::string LLUrlEntryPlace::getLocation(const std::string &url) const
 //
 // LLUrlEntryTeleport Describes a Second Life teleport Url, e.g.,
 // secondlife:///app/teleport/Ahern/50/50/50/
-// x-grid-location-info://lincoln.lindenlab.com/app/teleport/Ahern/50/50/50/
 //
 LLUrlEntryTeleport::LLUrlEntryTeleport()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/teleport/\\S+(/\\d+)?(/\\d+)?(/\\d+)?/?\\S*",
+	mPattern = boost::regex("secondlife:///app/teleport/\\S+(/\\d+)?(/\\d+)?(/\\d+)?/?\\S*",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_teleport.xml";
 	mTooltip = LLTrans::getString("TooltipTeleportUrl");
@@ -589,12 +610,7 @@ std::string LLUrlEntryTeleport::getLabel(const std::string &url, const LLUrlLabe
 	LLURI uri(url);
 	LLSD path_array = uri.pathArray();
 	S32 path_parts = path_array.size();
-	std::string host = uri.hostName();
-	std::string label = LLTrans::getString("SLurlLabelTeleport");
-	if (!host.empty())
-	{
-		label += " " + host;
-	}
+	const std::string label = LLTrans::getString("SLurlLabelTeleport");
 	if (path_parts == 6)
 	{
 		// handle teleport url with (X,Y,Z) coordinates
@@ -693,7 +709,7 @@ std::string LLUrlEntrySLLabel::getTooltip(const std::string &string) const
 //
 LLUrlEntryWorldMap::LLUrlEntryWorldMap()
 {
-	mPattern = boost::regex(APP_HEADER_REGEX "/worldmap/\\S+/?(\\d+)?/?(\\d+)?/?(\\d+)?/?\\S*",
+	mPattern = boost::regex("secondlife:///app/worldmap/\\S+/?(\\d+)?/?(\\d+)?/?(\\d+)?/?\\S*",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_map.xml";
 	mTooltip = LLTrans::getString("TooltipMapUrl");
@@ -716,7 +732,7 @@ std::string LLUrlEntryWorldMap::getLabel(const std::string &url, const LLUrlLabe
 	}
 
 	const std::string label = LLTrans::getString("SLurlLabelShowOnMap");
-	std::string location = path_array[2];
+	std::string location = unescapeUrl(path_array[2]);
 	std::string x = (path_parts > 3) ? path_array[3] : "128";
 	std::string y = (path_parts > 4) ? path_array[4] : "128";
 	std::string z = (path_parts > 5) ? path_array[5] : "0";

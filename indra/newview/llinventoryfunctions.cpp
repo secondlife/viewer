@@ -41,6 +41,7 @@
 #include "llagentwearables.h"
 #include "llcallingcard.h"
 #include "llfloaterreg.h"
+#include "llinventorydefines.h"
 #include "llsdserialize.h"
 #include "llfiltereditor.h"
 #include "llspinctrl.h"
@@ -101,30 +102,29 @@ bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* ite
 
 	switch(item->getType())
 	{
-	case LLAssetType::AT_CALLINGCARD:
-		// not allowed
-		break;
-		
-	case LLAssetType::AT_OBJECT:
-		if (isAgentAvatarValid() && !gAgentAvatarp->isWearingAttachment(item->getUUID()))
-		{
+		case LLAssetType::AT_CALLINGCARD:
+			// not allowed
+			break;
+			
+		case LLAssetType::AT_OBJECT:
+			if (isAgentAvatarValid() && !gAgentAvatarp->isWearingAttachment(item->getUUID()))
+			{
+				allowed = true;
+			}
+			break;
+			
+		case LLAssetType::AT_BODYPART:
+		case LLAssetType::AT_CLOTHING:
+			if(!gAgentWearables.isWearingItem(item->getUUID()))
+			{
+				allowed = true;
+			}
+			break;
+		default:
 			allowed = true;
-		}
-		break;
-		
-	case LLAssetType::AT_BODYPART:
-	case LLAssetType::AT_CLOTHING:
-		if(!gAgentWearables.isWearingItem(item->getUUID()))
-		{
-			allowed = true;
-		}
-		break;
-		
-	default:
-		allowed = true;
-		break;
+			break;
 	}
-
+	
 	return allowed;
 }
 
@@ -409,7 +409,7 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 
 static void assign_clothing_bodypart_icon(EInventoryIcon &idx, U32 attachment_point)
 {
-	const EWearableType wearable_type = EWearableType(LLInventoryItem::II_FLAGS_WEARABLES_MASK & attachment_point);
+	const EWearableType wearable_type = EWearableType(LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK & attachment_point);
 	switch(wearable_type)
 	{
 		case WT_SHAPE:

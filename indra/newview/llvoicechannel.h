@@ -98,8 +98,7 @@ public:
 
 	static LLVoiceChannel* getChannelByID(const LLUUID& session_id);
 	static LLVoiceChannel* getChannelByURI(std::string uri);
-	static LLVoiceChannel* getCurrentVoiceChannel();
-	
+	static LLVoiceChannel* getCurrentVoiceChannel() { return sCurrentVoiceChannel; }
 	static void initClass();
 	
 	static void suspend();
