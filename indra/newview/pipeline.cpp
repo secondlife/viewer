@@ -191,6 +191,7 @@ std::string gPoolNames[] =
 };
 
 void drawBox(const LLVector3& c, const LLVector3& r);
+void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
 U32 nhpo2(U32 v) 
 {
@@ -1521,8 +1522,10 @@ BOOL LLPipeline::visibleObjectsInFrustum(LLCamera& camera)
 
 BOOL LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& max)
 {
-	min = LLVector3(F32_MAX, F32_MAX, F32_MAX);
-	max = LLVector3(-F32_MAX, -F32_MAX, -F32_MAX);
+	const F32 X = 65536.f;
+
+	min = LLVector3(X,X,X);
+	max = LLVector3(-X,-X,-X);
 
 	U32 saved_camera_id = LLViewerCamera::sCurCameraID;
 	LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
@@ -3583,12 +3586,12 @@ void LLPipeline::renderDebug()
 
 		for (U32 i = 0; i < 8; i++)
 		{
+			LLVector3* frust = mShadowCamera[i].mAgentFrustum;
+
 			if (i > 3)
-			{
+			{ //render shadow frusta as volumes
 				gGL.color4fv(col+(i-4)*4);	
 			
-				LLVector3* frust = mShadowCamera[i].mAgentFrustum;
-
 				gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
 				gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[5].mV);
@@ -3616,31 +3619,46 @@ void LLPipeline::renderDebug()
 	
 			if (i < 4)
 			{
-				gGL.begin(LLRender::LINES);
-				
+
+				//render visible point cloud
+				gGL.flush();
+				glPointSize(8.f);
+				gGL.begin(LLRender::POINTS);
+
 				F32* c = col+i*4;
+				gGL.color3fv(c);
+
 				for (U32 j = 0; j < mShadowFrustPoints[i].size(); ++j)
-				{
+				{	
+					gGL.vertex3fv(mShadowFrustPoints[i][j].mV);
 					
-					gGL.color3fv(c);
-
-					for (U32 k = 0; k < mShadowFrustPoints[i].size(); ++k)
-					{
-						if (j != k)
-						{
-							gGL.vertex3fv(mShadowFrustPoints[i][j].mV);
-							gGL.vertex3fv(mShadowFrustPoints[i][k].mV);
-						}
-					}
-
-					if (!mShadowFrustOrigin[i].isExactlyZero())
-					{
-						gGL.vertex3fv(mShadowFrustPoints[i][j].mV);
-						gGL.color4f(1,1,1,1);
-						gGL.vertex3fv(mShadowFrustOrigin[i].mV);
-					}
 				}
 				gGL.end();
+
+				gGL.flush();
+				glPointSize(1.f);
+
+				LLVector3* ext = mShadowExtents[i]; 
+				LLVector3 pos = (ext[0]+ext[1])*0.5f;
+				LLVector3 size = (ext[1]-ext[0])*0.5f;
+				drawBoxOutline(pos, size);
+
+				//render camera frustum splits as outlines
+				gGL.begin(LLRender::LINES);
+				gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[1].mV);
+				gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[2].mV);
+				gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[3].mV);
+				gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[0].mV);
+				gGL.vertex3fv(frust[4].mV); gGL.vertex3fv(frust[5].mV);
+				gGL.vertex3fv(frust[5].mV); gGL.vertex3fv(frust[6].mV);
+				gGL.vertex3fv(frust[6].mV); gGL.vertex3fv(frust[7].mV);
+				gGL.vertex3fv(frust[7].mV); gGL.vertex3fv(frust[4].mV);
+				gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
+				gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[5].mV);
+				gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[6].mV);
+				gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[7].mV);
+				gGL.end();
+
 			}
 
 			/*for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
@@ -7639,14 +7657,14 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 				//get point of intersection of 3 planes "p"
 				LLVector3 p = (-d1*(n2%n3)-d2*(n3%n1)-d3*(n1%n2))/(n1*(n2%n3));
 				
-				if (llround(p*n1+d1, 0.0001f) == 0.f &&
-					llround(p*n2+d2, 0.0001f) == 0.f &&
-					llround(p*n3+d3, 0.0001f) == 0.f)
+				if (llround(p*n1+d1, 0.1f) == 0.f &&
+					llround(p*n2+d2, 0.1f) == 0.f &&
+					llround(p*n3+d3, 0.1f) == 0.f)
 				{ //point is on all three planes
 					BOOL found = TRUE;
 					for (U32 l = 0; l < ps.size() && found; ++l)
 					{
-						if (llround(ps[l].dist(p), 0.0001f) > 0.0f)
+						if (llround(ps[l].dist(p), 0.1f) > 0.0f)
 						{ //point is above some plane, not contained
 							found = FALSE;	
 						}
@@ -8091,7 +8109,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		shadow_cam = camera;
 		shadow_cam.setFar(16.f);
 	
-		LLViewerCamera::updateFrustumPlanes(shadow_cam);
+		LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
 
 		LLVector3* frust = shadow_cam.mAgentFrustum;
 
