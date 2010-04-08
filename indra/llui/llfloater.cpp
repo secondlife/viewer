@@ -1786,13 +1786,16 @@ void LLFloater::updateTitleButtons()
 					llround((F32)floater_close_box_size * mButtonScale));
 			}
 
-			if(!buttons_rect.isValid())
+			// first time here, init 'buttons_rect'
+			if(1 == button_count)
 			{
 				buttons_rect = btn_rect;
 			}
 			else
 			{
-				mDragOnLeft ? buttons_rect.mRight + btn_rect.mRight : 
+				// if mDragOnLeft=true then buttons are on top-left side vertically aligned
+				// title is not displayed in this case, calculating 'buttons_rect' for future use
+				mDragOnLeft ? buttons_rect.mBottom -= btn_rect.mBottom : 
 					buttons_rect.mLeft = btn_rect.mLeft;
 			}
 			mButtons[i]->setRect(btn_rect);
