@@ -2772,7 +2772,8 @@ void LLStartUp::initNameCache()
 	// Load stored cache if possible
 	LLAppViewer::instance()->loadNameCache();
 
-	LLAvatarNameCache::initClass();
+	// JAMESDEBUG TODO: won't need service url here, will use capability
+	LLAvatarNameCache::initClass("http://pdp15.lindenlab.com:8050/my-service/");
 }
 
 void LLStartUp::cleanupNameCache()

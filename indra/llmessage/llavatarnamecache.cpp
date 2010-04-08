@@ -48,9 +48,11 @@ namespace LLAvatarNameCache
 	// release and turn it on based on data from login.cgi
 	bool sUseDisplayNames = true;
 
-	// *TODO: configure the base URL for this in viewer with data
+	// Base lookup URL for name service.
+	// On simulator, loaded from indra.xml
+	// On viewer, sent down from login.cgi
 	// from login.cgi
-	std::string sNameServiceBaseURL = "http://pdp15.lindenlab.com:8050/my-service/";
+	std::string sNameServiceURL;
 
 	// accumulated agent IDs for next query against service
 	typedef std::set<LLUUID> ask_queue_t;
@@ -72,11 +74,18 @@ namespace LLAvatarNameCache
 	typedef std::map<LLUUID, LLAvatarName> cache_t;
 	cache_t sCache;
 
+	// Send bulk lookup requests a few times a second at most
 	// only need per-frame timing resolution
 	LLFrameTimer sRequestTimer;
 
+	// Periodically clean out expired entries from the cache
+	LLFrameTimer sEraseExpiredTimer;
+
+	void processNameFromService(const LLSD& row, U32 expires);
 	bool isRequestPending(const LLUUID& agent_id);
-	void processNameFromService(const LLSD& row);
+
+	// Erase expired names from cache
+	void eraseExpired();
 }
 
 class LLAvatarNameResponder : public LLHTTPClient::Responder
@@ -84,28 +93,32 @@ class LLAvatarNameResponder : public LLHTTPClient::Responder
 public:
 	/*virtual*/ void result(const LLSD& content)
 	{
+		// JAMESDEBUG TODO: get expiration from header
+		const U32 DEFAULT_EXPIRATION = 6 * 60 * 60;	// 6 hours
+		U32 now = (U32)LLFrameTimer::getTotalSeconds();
+		U32 expires = now + DEFAULT_EXPIRATION;
+
 		LLSD::array_const_iterator it = content.beginArray();
 		for ( ; it != content.endArray(); ++it)
 		{
 			const LLSD& row = *it;
-			LLAvatarNameCache::processNameFromService(row);
+			LLAvatarNameCache::processNameFromService(row, expires);
 		}
 	}
 
 	/*virtual*/ void error(U32 status, const std::string& reason)
 	{
-		llinfos << "JAMESDEBUG error " << status << " " << reason << llendl;
+		llinfos << "LLAvatarNameResponder error " << status << " " << reason << llendl;
 	}
 };
 
-void LLAvatarNameCache::processNameFromService(const LLSD& row)
+// "expires" is seconds-from-epoch
+void LLAvatarNameCache::processNameFromService(const LLSD& row, U32 expires)
 {
-	U32 now = (U32)LLFrameTimer::getTotalSeconds();
-
 	LLAvatarName av_name;
 	av_name.mSLID = row["slid"].asString();
 	av_name.mDisplayName = row["display_name"].asString();
-	av_name.mLastUpdate = now;
+	av_name.mExpires = expires;
 
 	// HACK for pretty stars
 	//if (row["last_name"].asString() == "Linden")
@@ -144,8 +157,9 @@ void LLAvatarNameCache::processNameFromService(const LLSD& row)
 	}
 }
 
-void LLAvatarNameCache::initClass()
+void LLAvatarNameCache::initClass(const std::string& name_service_url)
 {
+	setNameServiceURL(name_service_url);
 }
 
 void LLAvatarNameCache::cleanupClass()
@@ -160,12 +174,26 @@ void LLAvatarNameCache::exportFile(std::ostream& ostr)
 {
 }
 
+void LLAvatarNameCache::setNameServiceURL(const std::string& name_service_url)
+{
+	sNameServiceURL = name_service_url;
+}
+
 void LLAvatarNameCache::idle()
 {
-	const F32 SECS_BETWEEN_REQUESTS = 0.2f;  // JAMESDEBUG set to 0.1?
-	if (sRequestTimer.checkExpirationAndReset(SECS_BETWEEN_REQUESTS))
+	// 100 ms is the threshold for "user speed" operations, so we can
+	// stall for about that long to batch up requests.
+	const F32 SECS_BETWEEN_REQUESTS = 0.1f;
+	if (!sRequestTimer.checkExpirationAndReset(SECS_BETWEEN_REQUESTS))
 	{
 		return;
+	}
+
+	// Must be large relative to above
+	const F32 ERASE_EXPIRED_TIMEOUT = 60.f; // seconds
+	if (sEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
+	{
+		eraseExpired();
 	}
 
 	if (sAskQueue.empty())
@@ -183,8 +211,8 @@ void LLAvatarNameCache::idle()
 		agent_ids.append( LLSD( *it ) );
 	}
 
-	// *TODO: configure the base URL for this
-	std::string url = sNameServiceBaseURL + "agent/display-names/";
+	// *TODO: update for People API url formats
+	std::string url = sNameServiceURL + "agent/display-names/";
 	LLHTTPClient::post(url, body, new LLAvatarNameResponder());
 
 	// Move requests from Ask queue to Pending queue
@@ -205,10 +233,26 @@ bool LLAvatarNameCache::isRequestPending(const LLUUID& agent_id)
 	pending_queue_t::const_iterator it = sPendingQueue.find(agent_id);
 	if (it != sPendingQueue.end())
 	{
-		bool expired = (it->second < expire_time);
-		return !expired;
+		bool request_expired = (it->second < expire_time);
+		return !request_expired;
 	}
 	return false;
+}
+
+void LLAvatarNameCache::eraseExpired()
+{
+	U32 now = (U32)LLFrameTimer::getTotalSeconds();
+	cache_t::iterator it = sCache.begin();
+	while (it != sCache.end())
+	{
+		cache_t::iterator cur = it;
+		++it;
+		const LLAvatarName& av_name = cur->second;
+		if (av_name.mExpires < now)
+		{
+			sCache.erase(cur);
+		}
+	}
 }
 
 bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
@@ -287,7 +331,7 @@ public:
 
 	/*virtual*/ void error(U32 status, const std::string& reason)
 	{
-		llinfos << "JAMESDEBUG set names failed " << status
+		llinfos << "LLSetNameResponder failed " << status
 			<< " reason " << reason << llendl;
 
 		mSignal(false, reason, LLSD());
@@ -302,7 +346,7 @@ void LLAvatarNameCache::setDisplayName(const LLUUID& agent_id,
 	body["display_name"] = display_name;
 
 	// *TODO: configure the base URL for this
-	std::string url = sNameServiceBaseURL + "agent/";
+	std::string url = sNameServiceURL + "agent/";
 	url += agent_id.asString();
 	url += "/set-display-name/";
 	LLHTTPClient::post(url, body, new LLSetNameResponder(agent_id, slot));

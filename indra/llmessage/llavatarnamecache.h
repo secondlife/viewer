@@ -42,11 +42,13 @@ class LLUUID;
 
 namespace LLAvatarNameCache
 {
-	void initClass();
+	void initClass(const std::string& name_service_url);
 	void cleanupClass();
 
 	void importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
+
+	void setNameServiceURL(const std::string& name_service_url);
 
 	// Periodically makes a batch request for display names not already in
 	// cache.  Call once per frame.
@@ -83,7 +85,14 @@ namespace LLAvatarNameCache
 	// HACK: turn display names on and off
 	void toggleDisplayNames();
 	bool useDisplayNames();
+
 	void erase(const LLUUID& agent_id);
+
+	// Force a re-fetch of the most recent data, but keep the current
+	// data in cache
+	void fetch(const LLUUID& agent_id);
+
+	void insert(const LLUUID& agent_id, const LLAvatarName& av_name);
 }
 
 #endif
