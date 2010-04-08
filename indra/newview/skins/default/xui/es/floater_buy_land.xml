@@ -13,17 +13,17 @@
 		No puede unirse ni dividirse.
 	</floater.string>
 	<floater.string name="cant_buy_for_group">
-		No tiene permiso de comprar terreno para el grupo que tiene activado.
+		No tienes permiso de comprar terreno para el grupo que tienes activado.
 	</floater.string>
 	<floater.string name="no_land_selected">
 		No se ha seleccionado terreno.
 	</floater.string>
 	<floater.string name="multiple_parcels_selected">
 		Se han seleccionado varias parcelas diferentes. 
-Inténtelo seleccionando un área más pequeña.
+Inténtalo seleccionando un área más pequeña.
 	</floater.string>
 	<floater.string name="no_permission">
-		No tiene permiso de comprar terreno para el grupo que tiene activado.
+		No tienes permiso de comprar terreno para el grupo que tienes activado.
 	</floater.string>
 	<floater.string name="parcel_not_for_sale">
 		La parcela seleccionada no está en venta.
@@ -32,20 +32,20 @@ Inténtelo seleccionando un área más pequeña.
 		El grupo ya es propietario de la parcela.
 	</floater.string>
 	<floater.string name="you_already_own">
-		Usted ya es propietario de la parcela.
+		Ya eres propietario de la parcela.
 	</floater.string>
 	<floater.string name="set_to_sell_to_other">
-		La parcela seleccionada está marcada para ser vendida a otro
+		La parcela seleccionada está marcada para ser vendida a otro.
 	</floater.string>
 	<floater.string name="no_public_land">
 		El área seleccionada no tiene terreno público.
 	</floater.string>
 	<floater.string name="not_owned_by_you">
-		Está seleccionado un terreno propiedad de otro Residente. 
+		Estás seleccionado un terreno propiedad de otro Residente. 
 Prueba a seleccionar un área más pequeña.
 	</floater.string>
 	<floater.string name="processing">
-		Procesando su compra...
+		Procesando tu compra...
  
 (Llevará uno o dos minutos).
 	</floater.string>
@@ -68,10 +68,10 @@ Prueba a seleccionar un área más pequeña.
 		no necesita
 	</floater.string>
 	<floater.string name="must_upgrade">
-		Para poseer terreno, su cuenta debe ascender de categoría.
+		Para poseer terreno, tu cuenta debe ascender de categoría.
 	</floater.string>
 	<floater.string name="cant_own_land">
-		Su cuenta puede poseer terreno.
+		Tu cuenta puede poseer terreno.
 	</floater.string>
 	<floater.string name="land_holdings">
 		Tienes [BUYER] m² de terreno.
@@ -112,16 +112,16 @@ los suficientes créditos de uso en contribución de terreno
 para cubrir esta parcela.
 	</floater.string>
 	<floater.string name="have_enough_lindens">
-		Tiene [AMOUNT] L$, cantidad suficiente para comprar este terreno.
+		Tienes [AMOUNT] L$, cantidad suficiente para comprar este terreno.
 	</floater.string>
 	<floater.string name="not_enough_lindens">
-		Sólo tiene [AMOUNT] L$. Necesitaría [AMOUNT2] L$ más.
+		Sólo tienes [AMOUNT] L$. Necesitarías [AMOUNT2] L$ más.
 	</floater.string>
 	<floater.string name="balance_left">
-		Tras la compra, aún tendrá [AMOUNT] L$.
+		Tras la compra, aún tendrás [AMOUNT] L$.
 	</floater.string>
 	<floater.string name="balance_needed">
-		Para costearse este terreno, deberá comprar, al menos, [AMOUNT] L$.
+		Para costearte este terreno, deberás comprar, al menos, [AMOUNT] L$.
 	</floater.string>
 	<floater.string name="no_parcel_selected">
 		(No se ha seleccionado una parcela)
@@ -163,7 +163,7 @@ para cubrir esta parcela.
 		Podrá o no unirse o dividirse.
 	</text>
 	<text name="covenant_text">
-		Deve aceptar el Contrato del Estado:
+		Debes aceptar el Contrato del Estado:
 	</text>
 	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
@@ -198,7 +198,7 @@ se vende con los objetos
 	</text>
 	<button label="Ir al sitio web" name="error_web"/>
 	<text name="account_action">
-		Ascienda a la categoría de miembro premium.
+		Asciende a la categoría de miembro premium.
 	</text>
 	<text name="account_reason">
 		Sólo pueden ser propietarios de terreno los miembros premium.
@@ -209,7 +209,7 @@ se vende con los objetos
 		<combo_box.item label="6.00 US$/mes, facturados anualmente" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
-		Aumenta su cuota mensual por uso de terreno a 40 US$/mes.
+		Aumenta tu cuota mensual por uso de terreno a 40 US$/mes.
 	</text>
 	<text name="land_use_reason">
 		Tienes 1309 m² de terreno.
@@ -219,7 +219,7 @@ Esta parcela es de 512 m².
 		Pagar al residente Joe 4.000 L$ por el terreno
 	</text>
 	<text name="currency_reason">
-		Tiene 2.100 L$.
+		Tienes 2.100 L$.
 	</text>
 	<text name="currency_action">
 		Comprar más L$
@@ -231,7 +231,7 @@ Esta parcela es de 512 m².
 		por, aprox., [LOCAL_AMOUNT]
 	</text>
 	<text name="currency_balance">
-		Tiene 2.100 L$.
+		Tienes 2.100 L$.
 	</text>
 	<check_box label="Quitar [AMOUNT] m² de las contribuciones de grupo." name="remove_contribution"/>
 	<button label="Comprar" name="buy_btn"/>
