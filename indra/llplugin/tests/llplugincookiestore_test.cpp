@@ -127,7 +127,7 @@ namespace tut
 		// Valid, distinct cookies:
 		
 		std::string cookie01 = "cookieA=value; domain=example.com; path=/";
-		std::string cookie02 = "cookieB=value; domain=example.com; path=/"; // different name
+		std::string cookie02 = "cookieB=value; Domain=example.com; Path=/; Max-Age=10; Secure; Version=1; Comment=foo!; HTTPOnly"; // cookie with every supported field, in different cases.
 		std::string cookie03 = "cookieA=value; domain=foo.example.com; path=/"; // different domain
 		std::string cookie04 = "cookieA=value; domain=example.com; path=/bar/"; // different path
 		std::string cookie05 = "cookieC; domain=example.com; path=/"; // empty value
