@@ -10,7 +10,7 @@ Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
 Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
 		</message>
 		<message name="blocked_tport">
-			Lo sentimos, en estos momentos los teleportes están bloqueados. Vuelva a intentarlo en un momento. Si sigue sin poder teleportarse, desconéctese y vuelva a iniciar sesión para solucionar el problema.
+			Lo sentimos, en estos momentos los teleportes están bloqueados. Vuelve a intentarlo en un momento. Si sigues sin poder teleportarte, desconéctate y vuelve a iniciar sesión para solucionar el problema.
 		</message>
 		<message name="nolandmark_tport">
 			Lo sentimos, pero el sistema no ha podido localizar el destino de este hito.
@@ -20,22 +20,22 @@ Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
 Vuelva a intentarlo en un momento.
 		</message>
 		<message name="noaccess_tport">
-			Lo sentimos, pero usted no tiene acceso al destino de este teleporte.
+			Lo sentimos, pero no tienes acceso al destino de este teleporte.
 		</message>
 		<message name="missing_attach_tport">
-			Aún no han llegado sus objetos anexados. Espere unos segundos más o desconéctese y vuelva a iniciar sesión antes de teleportarse.
+			Aún no han llegado tus objetos anexados. Espera unos segundos más o desconéctate y vuelve a iniciar sesión antes de teleportarte.
 		</message>
 		<message name="too_many_uploads_tport">
-			La cola de espera en esta región está actualmente obstruida, por lo que su petición de teleporte no se atenderá en un tiempo prudencial. Por favor, vuelva a intentarlo en unos minutos o vaya a una zona menos ocupada.
+			La cola de espera en esta región está actualmente obstruida, por lo que tu petición de teleporte no se atenderá en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos o ve a una zona menos ocupada.
 		</message>
 		<message name="expired_tport">
-			Lo sentimos, pero el sistema no ha podido atender a su petición de teleporte en un tiempo prudencial. Por favor, vuelva a intentarlo en unos pocos minutos.
+			Lo sentimos, pero el sistema no ha podido atender a tu petición de teleporte en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos.
 		</message>
 		<message name="expired_region_handoff">
-			Lo sentimos, pero el sistema no ha podido completar su paso a otra región en un tiempo prudencial. Por favor, vuelva a intentarlo en unos pocos minutos.
+			Lo sentimos, pero el sistema no ha podido completar tu paso a otra región en un tiempo prudencial. Por favor, vuelve a intentarlo en unos minutos.
 		</message>
 		<message name="no_host">
-			Ha sido imposible encontrar el destino del teleporte: o está desactivado temporalmente o ya no existe. Por favor, vuelva a intentarlo en unos pocos minutos.
+			Ha sido imposible encontrar el destino del teleporte: o está desactivado temporalmente o ya no existe. Por favor, vuelve a intentarlo en unos minutos.
 		</message>
 		<message name="no_inventory_host">
 			En estos momentos no está disponible el sistema del inventario.

@@ -99,7 +99,7 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 	std::string::size_type cookie_end = mCookie.size();
 	std::string::size_type field_start = 0;
 
-	lldebugs << "parsing cookie: " << mCookie << llendl;
+	LL_DEBUGS("CookieStoreParse") << "parsing cookie: " << mCookie << LL_ENDL;
 	while(field_start < cookie_end)
 	{
 		// Finding the start of the next field requires honoring special quoting rules
@@ -167,10 +167,10 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 			++value_end;
 		}
 
-		lldebugs 
+		LL_DEBUGS("CookieStoreParse") 
 			<< "    field name: \"" << mCookie.substr(name_start, name_end - name_start) 
 			<< "\", value: \"" << mCookie.substr(value_start, value_end - value_start) << "\""
-			<< llendl;
+			<< LL_ENDL;
 				
 		// See whether this field is one we know
 		if(first_field)
@@ -195,13 +195,13 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 #if 1
 				time_t date = curl_getdate(date_string.c_str(), NULL );
 				mDate.secondsSinceEpoch((F64)date);
-				lldebugs << "        expire date parsed to: " << mDate.asRFC1123() << llendl;
+				LL_DEBUGS("CookieStoreParse") << "        expire date parsed to: " << mDate.asRFC1123() << LL_ENDL;
 #else
 				// This doesn't work (rfc1123-format dates cause it to fail)
 				if(!mDate.fromString(date_string))
 				{
 					// Date failed to parse.
-					llwarns << "failed to parse cookie's expire date: " << date << llendl;
+					LL_WARNS("CookieStoreParse") << "failed to parse cookie's expire date: " << date << LL_ENDL;
 					return false;
 				}
 #endif
@@ -232,9 +232,14 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 			{
 				// We don't care about the value of this field (yet)
 			}
+			else if(matchName(name_start, name_end, "httponly"))
+			{
+				// We don't care about the value of this field (yet)
+			}
 			else
 			{
 				// An unknown field is a parse failure
+				LL_WARNS("CookieStoreParse") << "unexpected field name: " << mCookie.substr(name_start, name_end - name_start) << LL_ENDL;
 				return false;
 			}
 			
@@ -270,7 +275,7 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 		mCookie += host;
 		mDomainEnd = mCookie.size();
 		
-		lldebugs << "added domain (" << mDomainStart << " to " << mDomainEnd << "), new cookie is: " << mCookie << llendl;
+		LL_DEBUGS("CookieStoreParse") << "added domain (" << mDomainStart << " to " << mDomainEnd << "), new cookie is: " << mCookie << LL_ENDL;
 	}
 
 	// If the cookie doesn't have a path, add "/".
@@ -288,7 +293,7 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 		mCookie += "/";
 		mPathEnd = mCookie.size();
 		
-		lldebugs << "added path (" << mPathStart << " to " << mPathEnd << "), new cookie is: " << mCookie << llendl;
+		LL_DEBUGS("CookieStoreParse") << "added path (" << mPathStart << " to " << mPathEnd << "), new cookie is: " << mCookie << LL_ENDL;
 	}
 	
 	
@@ -566,7 +571,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 	Cookie *cookie = Cookie::createFromString(s, cookie_start, cookie_end, host);
 	if(cookie)
 	{
-		lldebugs << "setting cookie: " << cookie->getCookie() << llendl;
+		LL_DEBUGS("CookieStoreUpdate") << "setting cookie: " << cookie->getCookie() << LL_ENDL;
 		
 		// Create a key for this cookie
 		std::string key = cookie->getKey();
@@ -579,7 +584,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 			{
 				// If we're marking cookies as changed, we should keep it anyway since we'll need to send it out with deltas.
 				cookie->setDead(true);
-				lldebugs << "    marking dead" << llendl;
+				LL_DEBUGS("CookieStoreUpdate") << "    marking dead" << LL_ENDL;
 			}
 			else
 			{
@@ -590,7 +595,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 				delete cookie;
 				cookie = NULL;
 
-				lldebugs << "    removing" << llendl;
+				LL_DEBUGS("CookieStoreUpdate") << "    removing" << LL_ENDL;
 			}
 		}
 		
@@ -607,7 +612,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 					delete cookie;
 					cookie = NULL;
 
-					lldebugs << "    unchanged" << llendl;
+					LL_DEBUGS("CookieStoreUpdate") << "    unchanged" << LL_ENDL;
 				}
 				else
 				{
@@ -619,7 +624,7 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 					if(mark_changed)
 						mHasChangedCookies = true;
 
-					lldebugs << "    replacing" << llendl;
+					LL_DEBUGS("CookieStoreUpdate") << "    replacing" << LL_ENDL;
 				}
 			}
 			else
@@ -631,10 +636,15 @@ void LLPluginCookieStore::setOneCookie(const std::string &s, std::string::size_t
 				if(mark_changed)
 					mHasChangedCookies = true;
 
-				lldebugs << "    adding" << llendl;
+				LL_DEBUGS("CookieStoreUpdate") << "    adding" << LL_ENDL;
 			}
 		}
 	}
+	else
+	{
+		LL_WARNS("CookieStoreUpdate") << "failed to parse cookie: " << s.substr(cookie_start, cookie_end - cookie_start) << LL_ENDL;
+	}
+
 }
 
 void LLPluginCookieStore::clearCookies()

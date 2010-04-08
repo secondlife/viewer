@@ -838,7 +838,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 							LLPanelLogin::refreshLocation( true );
 							LLPanelLogin::updateLocationUI();
 						}
-						return LLWindowCallbacks::DND_MOVE;
+						return LLWindowCallbacks::DND_COPY;
 					};
 				}
 
