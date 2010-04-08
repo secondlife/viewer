@@ -404,7 +404,6 @@ bool handleHighResSnapshotChanged(const LLSD& newvalue)
 
 bool handleVoiceClientPrefsChanged(const LLSD& newvalue)
 {
-	if(LLVoiceClient::getInstance())
 	LLVoiceClient::getInstance()->updateSettings();
 	return true;
 }
