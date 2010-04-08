@@ -4714,11 +4714,12 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 				if(boost::regex_match(desc, matches, expr))
 				{
 					// Name of full localizable notification string
-					// there are three types of this string- with name of receiver and reason of payment,
-					// without name and without reason (but not simultaneously)
+					// there are four types of this string- with name of receiver and reason of payment,
+					// without name and without reason (both may also be absent simultaneously).
 					// example of string without name - You paid L$100 to create a group.
 					// example of string without reason - You paid Smdby Linden L$100.
 					// example of string with reason and name - You paid Smbdy Linden L$100 for a land access pass.
+					// example of string with no info - You paid L$50.
 					std::string line = "you_paid_ldollars_no_name";
 
 					// arguments of string which will be in notification
@@ -4739,7 +4740,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 					std::string reason = std::string(matches[3]);
 					if (reason.empty())
 					{
-						line = "you_paid_ldollars_no_reason";
+						line = name.empty() ? "you_paid_ldollars_no_info" : "you_paid_ldollars_no_reason";
 					}
 					else
 					{
