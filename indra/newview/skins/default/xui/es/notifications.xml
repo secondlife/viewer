@@ -86,19 +86,19 @@ Asegúrate de que tu conexión a Internet está funcionando adecuadamente.
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No guardarlos" yestext="Guardarlos"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
-		Hubo un problema al subir el texto de un script por la siguiente razón: [REASON]. Por favor, inténtelo más tarde.
+		Hubo un problema al subir el texto de un script por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
 	</notification>
 	<notification name="CompileQueueSaveBytecode">
-		Hubo un problema al subir el script compilado por la siguiente razón: [REASON]. Por favor, inténtelo más tarde.
+		Hubo un problema al subir el script compilado por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
 	</notification>
 	<notification name="WriteAnimationFail">
-		Hubo un problema al escribir los datos de la animación. Por favor, inténtelo más tarde.
+		Hubo un problema al escribir los datos de la animación. Por favor, inténtalo más tarde.
 	</notification>
 	<notification name="UploadAuctionSnapshotFail">
 		Hubo un problema al subir la foto de la subasta por la siguiente razón: [REASON]
 	</notification>
 	<notification name="UnableToViewContentsMoreThanOne">
-		No se puede ver a la vez los contenidos de más de un ítem. Por favor, elija un solo objeto y vuelva a intentarlo.
+		No se puede ver a la vez los contenidos de más de un ítem. Por favor, elige un solo objeto y vuelve a intentarlo.
 	</notification>
 	<notification name="SaveClothingBodyChanges">
 		¿Guardar todos los cambios en la ropa y partes del cuerpo?
@@ -119,11 +119,11 @@ Asegúrate de que tu conexión a Internet está funcionando adecuadamente.
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="RevokeModifyRights">
-		¿Quiere revocar los derechos de modificación a [FIRST_NAME] [LAST_NAME]?
+		¿Quieres revocar los derechos de modificación a [FIRST_NAME] [LAST_NAME]?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="RevokeModifyRightsMultiple">
-		¿Quiere revocar los derechos de modificación a los residentes seleccionados?
+		¿Quieres revocar los derechos de modificación a los residentes seleccionados?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="UnableToCreateGroup">
@@ -188,7 +188,7 @@ Por favor, invita a miembros en las próximas 48 horas.
 		<usetemplate canceltext="Cancelar" name="okcancelbuttons" notext="Cancelar" yestext="Crear un grupo por 100 L$"/>
 	</notification>
 	<notification name="LandBuyPass">
-		Por [COST] L$ puede entrar a este terreno (&apos;[PARCEL_NAME]&apos;) durante [TIME] horas. ¿Comprar un pase?
+		Por [COST] L$ puedes entrar a este terreno (&apos;[PARCEL_NAME]&apos;) durante [TIME] horas. ¿Comprar un pase?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="SalePriceRestriction">
@@ -208,7 +208,7 @@ El precio de venta será de [SALE_PRICE] L$ y se autoriza la compra a [NAME].
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
-		¿Estás seguros de que quieres devolver todos los objetos de esta parcela que estén compartidos con el grupo &apos;[NAME]&apos; al inventario de su propietario anterior?
+		¿Estás seguro de que quieres devolver todos los objetos de esta parcela que estén compartidos con el grupo &apos;[NAME]&apos; al inventario de su propietario anterior?
 
 *ATENCIÓN* ¡Esto borrará los objetos no transferibles que se hayan cedido al grupo!
 
@@ -304,7 +304,7 @@ debes estar dentro de ella.
 La carpeta del vestuario contiene partes del cuerpo, u objetos a anexar o que no son ropa.
 	</notification>
 	<notification name="CannotWearTrash">
-		No puede vestirte ropas o partes del cuerpo que estén en la Papelera
+		No puedes vestirte ropas o partes del cuerpo que estén en la Papelera
 	</notification>
 	<notification name="MaxAttachmentsOnOutfit">
 		No se puede anexar el objeto.
@@ -426,7 +426,7 @@ El objeto debe de haber sido borrado o estar fuera de rango (&apos;out of range&
 		Al guardar un script compilado, hubo un problema por: [REASON]. Por favor, vuelve a intentar guardarlo más tarde..
 	</notification>
 	<notification name="StartRegionEmpty">
-		Perdon, no está definida tu Posición inicial.
+		Perdón, no está definida tu Posición inicial.
 Por favor, escribe el nombre de la región en el cajetín de Posición inicial, o elige para esa posición Mi Base o Mi última posición.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -639,22 +639,22 @@ Por favor, inténtalo más tarde.
 	</notification>
 	<notification name="CannotRecompileSelectObjectsNoScripts">
 		No se pudo &apos;recompilar&apos;.
-Seleccione un objeto con script.
+Selecciona un objeto con script.
 	</notification>
 	<notification name="CannotRecompileSelectObjectsNoPermission">
 		No se pudo &apos;recompilar&apos;.
 
-Seleccione objetos con scripts en los que usted tenga permiso para modificarlos.
+Selecciona objetos con scripts en los que tengas permiso para modificarlos.
 	</notification>
 	<notification name="CannotResetSelectObjectsNoScripts">
 		No se pudo &apos;reiniciar&apos;.
 
-Seleccione objetos con scripts.
+Selecciona objetos con scripts.
 	</notification>
 	<notification name="CannotResetSelectObjectsNoPermission">
 		No se pudo &apos;reiniciar&apos;.
 
-Seleccione objetos con scripts en los que usted tenga permiso para modificarlos.
+Selecciona objetos con scripts en los que tengas permiso para modificarlos.
 	</notification>
 	<notification name="CannotOpenScriptObjectNoMod">
 		Imposible abrir el script del objeto sin modificar los permisos.
@@ -662,7 +662,7 @@ Seleccione objetos con scripts en los que usted tenga permiso para modificarlos.
 	<notification name="CannotSetRunningSelectObjectsNoScripts">
 		No se puede configurar ningún script como &apos;ejecutándose&apos;.
 
-Seleccione objetos con scripts.
+Selecciona objetos con scripts.
 	</notification>
 	<notification name="CannotSetRunningNotSelectObjectsNoScripts">
 		No se puede configurar ningún script como &apos;no ejecutándose&apos;.
@@ -770,7 +770,7 @@ no se ha seleccionado una parcela.
 	</notification>
 	<notification name="CannotDeedLandNoGroup">
 		No se ha podido transferir el terreno:
-no ha seleccionado un grupo.
+no has seleccionado un grupo.
 	</notification>
 	<notification name="CannotDeedLandNoRegion">
 		No se ha podido transferir el terreno:
@@ -800,7 +800,7 @@ Vuelve a intentarlo en unos segundos.
 	</notification>
 	<notification name="CannotReleaseLandSelected">
 		No se ha podido abandonar el terreno:
-no es propietario de todas las parcelas seleccionadas.
+no eres propietario de todas las parcelas seleccionadas.
 
 Por favor, selecciona una sola parcela.
 	</notification>
