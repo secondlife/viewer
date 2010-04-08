@@ -134,5 +134,14 @@ background_visible="true"
          right="-10"
          top="1"
          width="60" />
+        <button
+         follows="bottom|left"
+         height="23"
+         label="Profile"
+         layout="topleft"
+         name="profile_btn"
+         right="-1"
+         top="1"
+         width="111" />
     </panel>
 </panel>
