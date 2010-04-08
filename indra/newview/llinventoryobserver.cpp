@@ -495,6 +495,69 @@ void LLInventoryExistenceObserver::changed(U32 mask)
 	}
 }
 
+void LLInventoryMoveFromWorldObserver::changed(U32 mask)
+{
+	if(!(mask & LLInventoryObserver::ADD))
+	{
+		return;
+	}
+
+	// nothing is watched
+	if (mWatchedAssets.size() == 0)
+	{
+		return;
+	}
+
+	LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem;
+	LLMessageSystem* msg = gMessageSystem;
+	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
+	for(S32 i = 0; i < num_blocks; ++i)
+	{
+		item->unpackMessage(msg, _PREHASH_InventoryData, i);
+		const LLUUID& asset_uuid = item->getAssetUUID();
+		if (item->getUUID().notNull() && asset_uuid.notNull())
+		{
+			if (isAssetWatched(asset_uuid))
+			{
+				LL_DEBUGS("Inventory_Move") << "Found asset UUID: " << asset_uuid << LL_ENDL;
+				mAddedItems.push_back(item->getUUID());
+			}
+		}
+	}
+
+	if (mAddedItems.size() == mWatchedAssets.size())
+	{
+		done();
+		LL_DEBUGS("Inventory_Move") << "All watched items are added & processed." << LL_ENDL;
+		mAddedItems.clear();
+
+		// Unable to clean watched items here due to somebody can require to check them in current frame.
+		// set dirty state to clean them while next watch cycle.
+		mIsDirty = true;
+	}
+}
+
+void LLInventoryMoveFromWorldObserver::watchAsset(const LLUUID& asset_id)
+{
+	if(asset_id.notNull())
+	{
+		if (mIsDirty)
+		{
+			LL_DEBUGS("Inventory_Move") << "Watched items are dirty. Clean them." << LL_ENDL;
+			mWatchedAssets.clear();
+			mIsDirty = false;
+		}
+
+		mWatchedAssets.push_back(asset_id);
+		onAssetAdded(asset_id);
+	}
+}
+
+bool LLInventoryMoveFromWorldObserver::isAssetWatched( const LLUUID& asset_id )
+{
+	return std::find(mWatchedAssets.begin(), mWatchedAssets.end(), asset_id) != mWatchedAssets.end();
+}
+
 void LLInventoryAddedObserver::changed(U32 mask)
 {
 	if(!(mask & LLInventoryObserver::ADD))

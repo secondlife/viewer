@@ -3167,6 +3167,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 			else
 			{
+				// store dad inventory item to select added one later. See EXT-4347
+				set_dad_inventory_item(inv_item, mUUID);
+
 				LLNotification::Params params("MoveInventoryFromObject");
 				params.functor.function(boost::bind(move_task_inventory_callback, _1, _2, move_inv));
 				LLNotifications::instance().forceResponse(params, 0);
