@@ -669,7 +669,8 @@ BOOL LLInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 	// If folder view is empty the (x, y) point won't be in its rect
 	// so the handler must be called explicitly.
-	if (!mFolderRoot->hasVisibleChildren())
+	// but only if was not handled before. See EXT-6746.
+	if (!handled && !mFolderRoot->hasVisibleChildren())
 	{
 		handled = mFolderRoot->handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	}
