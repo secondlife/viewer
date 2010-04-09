@@ -2940,6 +2940,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_moderator_label">(Moderator)</string>
 
 	<!-- voice calls -->
+	<string name="answered_call">Your call has been answered</string>
 	<string name="started_call">Started a voice call</string>
 	<string name="joined_call">Joined the voice call</string>
 
