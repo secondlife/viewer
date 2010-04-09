@@ -1924,11 +1924,8 @@ public:
 			return;
 		}
 		
-		if (mRes == 2)
-		{
-			//fully in, don't traverse further (won't effect extents
-		}
-		else if (mRes && group->isState(LLSpatialGroup::SKIP_FRUSTUM_CHECK))
+		if ((mRes && group->isState(LLSpatialGroup::SKIP_FRUSTUM_CHECK)) ||
+			mRes == 2)
 		{	//don't need to do frustum check
 			LLSpatialGroup::OctreeTraveler::traverse(n);
 		}
