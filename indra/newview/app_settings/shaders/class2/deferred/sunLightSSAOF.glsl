@@ -40,6 +40,9 @@ uniform vec2 proj_shadow_res;
 uniform float shadow_bias;
 uniform float shadow_offset;
 
+uniform float spot_shadow_bias;
+uniform float spot_shadow_offset;
+
 vec4 getPosition(vec2 pos_screen)
 {
 	float depth = texture2DRect(depthMap, pos_screen.xy).a;
@@ -134,7 +137,7 @@ float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc, float scl)
 float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl)
 {
 	stc.xyz /= stc.w;
-	stc.z += shadow_bias*scl;
+	stc.z += spot_shadow_bias*scl;
 	
 	float cs = shadow2D(shadowMap, stc.xyz).x;
 	float shadow = cs;
@@ -173,7 +176,10 @@ void main()
 	float shadow = 1.0;
 	float dp_directional_light = max(0.0, dot(norm, vary_light.xyz));
 
-	vec4 spos = vec4(pos.xyz + displace*norm + vary_light.xyz * (1.0-dp_directional_light)*shadow_offset, 1.0);
+	vec3 shadow_pos = pos.xyz + displace*norm;
+	vec3 offset = vary_light.xyz * (1.0-dp_directional_light);
+	
+	vec4 spos = vec4(shadow_pos+offset*shadow_offset, 1.0);
 	
 	if (spos.z > -shadow_clip.w)
 	{	
@@ -235,13 +241,15 @@ void main()
 	gl_FragColor[0] = shadow;
 	gl_FragColor[1] = calcAmbientOcclusion(pos, norm);
 	
+	spos.xyz = shadow_pos+offset*spot_shadow_offset;
+	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;
-	gl_FragColor[2] = pcfShadow(shadowMap4, lpos, 0.8).x; 
+	gl_FragColor[2] = pcfShadow(shadowMap4, lpos, 0.8); 
 	
 	//spotlight shadow 2
 	lpos = shadow_matrix[5]*spos;
-	gl_FragColor[3] = pcfShadow(shadowMap5, lpos, 0.8).x; 
+	gl_FragColor[3] = pcfShadow(shadowMap5, lpos, 0.8); 
 
 	//gl_FragColor.rgb = pos.xyz;
 	//gl_FragColor.b = shadow;

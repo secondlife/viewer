@@ -75,28 +75,10 @@ float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc, float scl)
 	//return shadow;
 }
 
-float pcfSpotShadow(sampler2DRectShadow shadowMap, vec4 stc, float scl)
-{
-	stc.xyz /= stc.w;
-	stc.z += spot_shadow_bias*scl;
-	
-	float cs = shadow2DRect(shadowMap, stc.xyz).x;
-	float shadow = cs;
-
-	shadow += max(shadow2DRect(shadowMap, stc.xyz+vec3(1.5, 1.5, 0.0)).x, cs);
-	shadow += max(shadow2DRect(shadowMap, stc.xyz+vec3(1.5, -1.5, 0.0)).x, cs);
-	shadow += max(shadow2DRect(shadowMap, stc.xyz+vec3(-1.5, 1.5, 0.0)).x, cs);
-	shadow += max(shadow2DRect(shadowMap, stc.xyz+vec3(-1.5, -1.5, 0.0)).x, cs);
-			
-	return shadow/5.0;
-	
-	//return shadow;
-}
-
 float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl)
 {
 	stc.xyz /= stc.w;
-	stc.z += shadow_bias*scl;
+	stc.z += spot_shadow_bias*scl;
 	
 	float cs = shadow2D(shadowMap, stc.xyz).x;
 	float shadow = cs;
@@ -107,8 +89,7 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl)
 	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(off.x, -off.y, 0.0)).x, cs);
 	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(-off.x, off.y, 0.0)).x, cs);
 	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(-off.x, -off.y, 0.0)).x, cs);
-	
-			
+				
 	return shadow/5.0;
 	
 	//return shadow;
@@ -200,15 +181,15 @@ void main()
 	gl_FragColor[0] = shadow;
 	gl_FragColor[1] = 1.0;
 	
-	spos.xyz = shadow_pos*offset*spot_shadow_offset;
+	spos.xyz = shadow_pos+offset*spot_shadow_offset;
 	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;
-	gl_FragColor[2] = pcfSpotShadow(shadowMap4, lpos, 0.8).x; 
+	gl_FragColor[2] = pcfShadow(shadowMap4, lpos, 0.8); 
 	
 	//spotlight shadow 2
 	lpos = shadow_matrix[5]*spos;
-	gl_FragColor[3] = pcfSpotShadow(shadowMap5, lpos, 0.8).x; 
+	gl_FragColor[3] = pcfShadow(shadowMap5, lpos, 0.8); 
 
 	//gl_FragColor.rgb = pos.xyz;
 	//gl_FragColor.b = shadow;
