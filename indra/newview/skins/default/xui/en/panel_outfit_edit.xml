@@ -338,6 +338,19 @@
          name="save_btn"
          width="145" />
         <button
+         follows="bottom|right"
+         height="23"
+         name="save_flyout_btn"
+         label=""
+         left_pad="-20"
+         tab_stop="false"
+         image_selected="SegmentedBtn_Right_Selected_Press"
+         image_unselected="SegmentedBtn_Right_Off"
+         image_pressed="SegmentedBtn_Right_Press"
+         image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+         image_overlay="Arrow_Small_Up"
+         width="20"/>
+        <button
          follows="bottom|left|right"
          height="23"
          left_pad="15"

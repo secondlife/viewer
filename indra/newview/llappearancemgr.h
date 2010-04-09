@@ -75,6 +75,9 @@ public:
 	const LLViewerInventoryItem *getBaseOutfitLink();
 	bool getBaseOutfitName(std::string &name);
 
+	// find the UUID of the currently worn outfit (Base Outfit)
+	const LLUUID getBaseOutfitUUID();
+
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
 
@@ -123,6 +126,10 @@ public:
 	// Create initial outfits from library.
 	void autopopulateOutfits();
 	
+	// Overrides the base outfit with the content from COF
+	// @return false if there is no base outfit
+	bool updateBaseOutfit();
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();

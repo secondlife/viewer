@@ -45,6 +45,7 @@
 #include "llfloaterreg.h"
 #include "llinventoryfunctions.h"
 #include "llinventorypanel.h"
+#include "llviewermenu.h"
 #include "llviewerwindow.h"
 #include "llviewerinventory.h"
 #include "llbutton.h"
@@ -54,12 +55,14 @@
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llpaneloutfitsinventory.h"
 #include "lluiconstants.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llsdutil.h"
 #include "llsidepanelappearance.h"
+#include "lltoggleablemenu.h"
 #include "llwearablelist.h"
 
 static LLRegisterPanelClassWrapper<LLPanelOutfitEdit> t_outfit_edit("panel_outfit_edit");
@@ -228,12 +231,46 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetAction("remove_item_btn", boost::bind(&LLPanelOutfitEdit::onRemoveFromLookClicked, this), this);
 	
+	childSetAction("save_btn", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, false));
+	childSetAction("save_as_btn", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, true));
+	childSetAction("save_flyout_btn", boost::bind(&LLPanelOutfitEdit::showSaveMenu, this));
+
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar save_registar;
+	save_registar.add("Outfit.Save.Action", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, false));
+	save_registar.add("Outfit.SaveAsNew.Action", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, true));
+	mSaveMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_save_outfit.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+
 	return TRUE;
 }
 
 void LLPanelOutfitEdit::showAddWearablesPanel()
 {
 	childSetVisible("add_wearables_panel", childGetValue("add_btn"));
+}
+
+void LLPanelOutfitEdit::saveOutfit(bool as_new)
+{
+	if (!as_new && LLAppearanceMgr::getInstance()->updateBaseOutfit())
+	{
+		// we don't need to ask for an outfit name, and updateBaseOutfit() successfully saved.
+		// If updateBaseOutfit fails, ask for an outfit name anyways
+		return;
+	}
+
+	LLPanelOutfitsInventory* panel_outfits_inventory = LLPanelOutfitsInventory::findInstance();
+	if (panel_outfits_inventory)
+	{
+		panel_outfits_inventory->onSave();
+	}
+}
+
+void LLPanelOutfitEdit::showSaveMenu()
+{
+	S32 x, y;
+	LLUI::getMousePositionLocal(this, &x, &y);
+
+	mSaveMenu->updateParent(LLMenuGL::sMenuContainer);
+	LLMenuGL::showPopup(this, mSaveMenu, x, y);
 }
 
 void LLPanelOutfitEdit::onTypeFilterChanged(LLUICtrl* ctrl)
@@ -301,6 +338,8 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 void LLPanelOutfitEdit::onAddToLookClicked(void)
 {
 	LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
+	if (!curr_item) return;
+
 	LLFolderViewEventListener* listenerp  = curr_item->getListener();
 	link_inventory_item(gAgent.getID(), listenerp->getUUID(), mCurrentOutfitID, listenerp->getName(),
 						LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));

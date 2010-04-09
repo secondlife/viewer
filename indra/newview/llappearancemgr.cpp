@@ -593,6 +593,23 @@ bool LLAppearanceMgr::getBaseOutfitName(std::string& name)
 	return false;
 }
 
+const LLUUID LLAppearanceMgr::getBaseOutfitUUID()
+{
+	const LLViewerInventoryItem* outfit_link = getBaseOutfitLink();
+	if (!outfit_link || !outfit_link->getIsLinkType()) return LLUUID::null;
+
+	const LLViewerInventoryCategory* outfit_cat = outfit_link->getLinkedCategory();
+	if (!outfit_cat) return LLUUID::null;
+
+	if (outfit_cat->getPreferredType() != LLFolderType::FT_OUTFIT)
+	{
+		llwarns << "Expected outfit type:" << LLFolderType::FT_OUTFIT << " but got type:" << outfit_cat->getType() << " for folder name:" << outfit_cat->getName() << llendl;
+		return LLUUID::null;
+	}
+
+	return outfit_cat->getUUID();
+}
+
 // Update appearance from outfit folder.
 void LLAppearanceMgr::changeOutfit(bool proceed, const LLUUID& category, bool append)
 {
@@ -1514,6 +1531,20 @@ void LLAppearanceMgr::autopopulateOutfits()
 void LLAppearanceMgr::onFirstFullyVisible()
 {
 	autopopulateOutfits();
+}
+
+bool LLAppearanceMgr::updateBaseOutfit()
+{
+	const LLUUID base_outfit_id = getBaseOutfitUUID();
+	if (base_outfit_id.isNull()) return false;
+
+	// in a Base Outfit we do not remove items, only links
+	purgeCategory(base_outfit_id, false);
+
+	//COF contains only links so we copy to the Base Outfit only links
+	shallowCopyCategoryContents(getCOF(), base_outfit_id, NULL);
+
+	return true;
 }
 
 //#define DUMP_CAT_VERBOSE
