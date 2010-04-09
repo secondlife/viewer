@@ -42,10 +42,8 @@
 
 #include "linden_common.h"
 
-#include "linux_volume_catcher.h"
+#include "volume_catcher.h"
 
-
-#if LL_PULSEAUDIO_ENABLED
 
 extern "C" {
 #include <glib.h>
@@ -161,11 +159,11 @@ extern "C" {
 }
 
 
-class LinuxVolumeCatcherImpl
+class VolumeCatcherImpl
 {
 public:
-	LinuxVolumeCatcherImpl();
-	~LinuxVolumeCatcherImpl();
+	VolumeCatcherImpl();
+	~VolumeCatcherImpl();
 
 	void setVolume(F32 volume);
 	void pump(void);
@@ -189,7 +187,7 @@ public:
 	bool mGotSyms;
 };
 
-LinuxVolumeCatcherImpl::LinuxVolumeCatcherImpl()
+VolumeCatcherImpl::VolumeCatcherImpl()
 	: mDesiredVolume(0.0f),
 	  mMainloop(NULL),
 	  mPAContext(NULL),
@@ -199,17 +197,17 @@ LinuxVolumeCatcherImpl::LinuxVolumeCatcherImpl()
 	init();
 }
 
-LinuxVolumeCatcherImpl::~LinuxVolumeCatcherImpl()
+VolumeCatcherImpl::~VolumeCatcherImpl()
 {
 	cleanup();
 }
 
-bool LinuxVolumeCatcherImpl::loadsyms(std::string pulse_dso_name)
+bool VolumeCatcherImpl::loadsyms(std::string pulse_dso_name)
 {
 	return grab_pa_syms(pulse_dso_name);
 }
 
-void LinuxVolumeCatcherImpl::init()
+void VolumeCatcherImpl::init()
 {
 	// try to be as defensive as possible because PA's interface is a
 	// bit fragile and (for our purposes) we'd rather simply not function
@@ -262,7 +260,7 @@ void LinuxVolumeCatcherImpl::init()
 	}
 }
 
-void LinuxVolumeCatcherImpl::cleanup()
+void VolumeCatcherImpl::cleanup()
 {
 	mConnected = false;
 
@@ -280,7 +278,7 @@ void LinuxVolumeCatcherImpl::cleanup()
 	mMainloop = NULL;
 }
 
-void LinuxVolumeCatcherImpl::setVolume(F32 volume)
+void VolumeCatcherImpl::setVolume(F32 volume)
 {
 	mDesiredVolume = volume;
 	
@@ -294,13 +292,13 @@ void LinuxVolumeCatcherImpl::setVolume(F32 volume)
 	pump();
 }
 
-void LinuxVolumeCatcherImpl::pump()
+void VolumeCatcherImpl::pump()
 {
 	gboolean may_block = FALSE;
 	g_main_context_iteration(g_main_context_default(), may_block);
 }
 
-void LinuxVolumeCatcherImpl::connected_okay()
+void VolumeCatcherImpl::connected_okay()
 {
 	pa_operation *op;
 
@@ -324,7 +322,7 @@ void LinuxVolumeCatcherImpl::connected_okay()
 	}
 }
 
-void LinuxVolumeCatcherImpl::update_all_volumes(F32 volume)
+void VolumeCatcherImpl::update_all_volumes(F32 volume)
 {
 	for (std::set<U32>::iterator it = mSinkInputIndices.begin();
 	     it != mSinkInputIndices.end(); ++it)
@@ -333,7 +331,7 @@ void LinuxVolumeCatcherImpl::update_all_volumes(F32 volume)
 	}
 }
 
-void LinuxVolumeCatcherImpl::update_index_volume(U32 index, F32 volume)
+void VolumeCatcherImpl::update_index_volume(U32 index, F32 volume)
 {
 	static pa_cvolume cvol;
 	llpa_cvolume_set(&cvol, mSinkInputNumChannels[index],
@@ -355,7 +353,7 @@ void LinuxVolumeCatcherImpl::update_index_volume(U32 index, F32 volume)
 
 void callback_discovered_sinkinput(pa_context *context, const pa_sink_input_info *sii, int eol, void *userdata)
 {
-	LinuxVolumeCatcherImpl *impl = dynamic_cast<LinuxVolumeCatcherImpl*>((LinuxVolumeCatcherImpl*)userdata);
+	VolumeCatcherImpl *impl = dynamic_cast<VolumeCatcherImpl*>((VolumeCatcherImpl*)userdata);
 	llassert(impl);
 
 	if (0 == eol)
@@ -386,7 +384,7 @@ void callback_discovered_sinkinput(pa_context *context, const pa_sink_input_info
 
 void callback_subscription_alert(pa_context *context, pa_subscription_event_type_t t, uint32_t index, void *userdata)
 {
-	LinuxVolumeCatcherImpl *impl = dynamic_cast<LinuxVolumeCatcherImpl*>((LinuxVolumeCatcherImpl*)userdata);
+	VolumeCatcherImpl *impl = dynamic_cast<VolumeCatcherImpl*>((VolumeCatcherImpl*)userdata);
 	llassert(impl);
 
 	switch (t & PA_SUBSCRIPTION_EVENT_FACILITY_MASK) {
@@ -420,7 +418,7 @@ void callback_subscription_alert(pa_context *context, pa_subscription_event_type
 
 void callback_context_state(pa_context *context, void *userdata)
 {
-	LinuxVolumeCatcherImpl *impl = dynamic_cast<LinuxVolumeCatcherImpl*>((LinuxVolumeCatcherImpl*)userdata);
+	VolumeCatcherImpl *impl = dynamic_cast<VolumeCatcherImpl*>((VolumeCatcherImpl*)userdata);
 	llassert(impl);
 	
 	switch (llpa_context_get_state(context))
@@ -441,48 +439,30 @@ void callback_context_state(pa_context *context, void *userdata)
 
 /////////////////////////////////////////////////////
 
-LinuxVolumeCatcher::LinuxVolumeCatcher()
+VolumeCatcher::VolumeCatcher()
 {
-	pimpl = new LinuxVolumeCatcherImpl();
+	pimpl = new VolumeCatcherImpl();
 }
 
-LinuxVolumeCatcher::~LinuxVolumeCatcher()
+VolumeCatcher::~VolumeCatcher()
 {
 	delete pimpl;
 	pimpl = NULL;
 }
 
-void LinuxVolumeCatcher::setVolume(F32 volume)
+void VolumeCatcher::setVolume(F32 volume)
 {
 	llassert(pimpl);
 	pimpl->setVolume(volume);
 }
 
-void LinuxVolumeCatcher::pump()
+void VolumeCatcher::setPan(F32 pan)
+{
+	// TODO: implement this (if possible)
+}
+
+void VolumeCatcher::pump()
 {
 	llassert(pimpl);
 	pimpl->pump();
 }
-
-#else // !LL_PULSEAUDIO_ENABLED
-
-// stub.
-
-LinuxVolumeCatcher::LinuxVolumeCatcher()
-{
-	pimpl = NULL;
-}
-
-LinuxVolumeCatcher::~LinuxVolumeCatcher()
-{
-}
-
-void LinuxVolumeCatcher::setVolume(F32 volume)
-{
-}
-
-void LinuxVolumeCatcher::pump()
-{
-}
-
-#endif // LL_PULSEAUDIO_ENABLED
