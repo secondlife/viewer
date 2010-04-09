@@ -189,7 +189,7 @@ void LLCallFloater::draw()
 	// Seems this is a problem somewhere in Voice Client (LLVoiceClient::participantAddedEvent)
 //	onChange();
 
-	bool is_moderator_muted = gVoiceClient->getIsModeratorMuted(gAgentID);
+	bool is_moderator_muted = LLVoiceClient::getInstance()->getIsModeratorMuted(gAgentID);
 
 	if (mIsModeratorMutedVoice != is_moderator_muted)
 	{
@@ -470,7 +470,7 @@ void LLCallFloater::updateAgentModeratorState()
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)
 {
 	// Get a list of participants from VoiceClient
-	LLVoiceClient::participantMap *voice_map = gVoiceClient->getParticipantList();
+	LLVoiceClient::participantMap *voice_map = LLVoiceClient::getInstance()->getParticipantList();
 	if (voice_map)
 	{
 		for (LLVoiceClient::participantMap::const_iterator iter = voice_map->begin();
@@ -725,7 +725,7 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
 	// check is voice operational and if it doesn't work hide VCP (EXT-4397)
-	if(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking())
+	if(LLVoiceClient::voiceEnabled() && LLVoiceClient::getInstance()->voiceWorking())
 	{
 		updateState(new_state);
 	}
