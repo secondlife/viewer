@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ height="201"
+ layout="topleft"
+ mouse_opaque="false"
+ name="save_outfit_menu"
+ width="120">
+    <menu_item_call 
+     name="save_outfit" 
+     label="Save">
+        <menu_item_call.on_click 
+         function="Outfit.Save.Action"
+         userdata=""/>
+        </menu_item_call>
+    <menu_item_call 
+     name="save_as_new_outfit" 
+     label="Save As New">
+        <menu_item_call.on_click 
+         function="Outfit.SaveAsNew.Action"
+         userdata="" />
+    </menu_item_call>
+</toggleable_menu>

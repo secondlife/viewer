@@ -135,7 +135,7 @@ BOOL LLSidepanelAppearance::postBuild()
 		LLButton* back_btn = mOutfitEdit->getChild<LLButton>("back_btn");
 		if (back_btn)
 		{
-			back_btn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onBackButtonClicked, this));
+			back_btn->setClickedCallback(boost::bind(&LLSidepanelAppearance::showOutfitsInventoryPanel, this));
 		}
 
 	}
@@ -176,7 +176,7 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 
 	if(key.size() == 0)
 		return;
-
+	
 	toggleOutfitEditPanel(TRUE);
 	updateVerbs();
 	
@@ -258,17 +258,35 @@ void LLSidepanelAppearance::onNewOutfitButtonClicked()
 	}
 }
 
-
-void LLSidepanelAppearance::onBackButtonClicked()
-{
-	toggleOutfitEditPanel(FALSE);
-}
-
 void LLSidepanelAppearance::onEditWearBackClicked()
 {
 	mEditWearable->saveChanges();
 	toggleWearableEditPanel(FALSE, NULL);
 	toggleOutfitEditPanel(TRUE);
+}
+
+void LLSidepanelAppearance::showOutfitsInventoryPanel()
+{
+	mOutfitEdit->setVisible(FALSE);
+
+	mPanelOutfitsInventory->setVisible(TRUE);
+
+	mFilterEditor->setVisible(TRUE);
+	mEditBtn->setVisible(TRUE);
+	mNewOutfitBtn->setVisible(TRUE);
+	mCurrOutfitPanel->setVisible(TRUE);
+}
+
+void LLSidepanelAppearance::showOutfitEditPanel()
+{
+	mOutfitEdit->setVisible(TRUE);
+	
+	mPanelOutfitsInventory->setVisible(FALSE);
+
+	mFilterEditor->setVisible(FALSE);
+	mEditBtn->setVisible(FALSE);
+	mNewOutfitBtn->setVisible(FALSE);
+	mCurrOutfitPanel->setVisible(FALSE);
 }
 
 void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible)

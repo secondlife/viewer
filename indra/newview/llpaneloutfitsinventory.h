@@ -73,6 +73,8 @@ public:
 
 	LLFolderView* getRootFolder();
 
+	static LLPanelOutfitsInventory* findInstance();
+
 protected:
 	void updateVerbs();
 	bool getIsCorrectType(const LLFolderViewEventListener *listenerp) const;

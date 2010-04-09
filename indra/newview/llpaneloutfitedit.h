@@ -52,6 +52,7 @@ class LLInventoryPanel;
 class LLSaveFolderState;
 class LLFolderViewItem;
 class LLScrollListCtrl;
+class LLToggleableMenu;
 class LLLookFetchObserver;
 class LLFilterEditor;
 
@@ -86,6 +87,8 @@ public:
 		// only update the location if there is none already available.
 
 	void showAddWearablesPanel();
+	void saveOutfit(bool as_new = false);
+	void showSaveMenu();
 
 	void onTypeFilterChanged(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
@@ -117,6 +120,7 @@ private:
 	LLButton*			mRemoveFromLookBtn;
 	LLButton*			mUpBtn;
 	LLButton*			mEditWearableBtn;
+	LLToggleableMenu*	mSaveMenu;
 	
 	LLLookFetchObserver*		mFetchLook;
 	LLInventoryLookObserver*	mLookObserver;
