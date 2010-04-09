@@ -527,7 +527,7 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 				nameString.clear();
 				descriptionString.clear();
 				expirationDateString.clear();
-				hasExpired.clear();
+				hasExpired = false;
 				fontTypeString.clear();
 				fontStatusString.clear();
 			}
@@ -7157,13 +7157,21 @@ LLVoiceClient::voiceFontEntry::voiceFontEntry(S32 id) :
 {
 }
 
-LLVoiceClient::voiceFontEntry *LLVoiceClient::addSessionFont(const voice_font_id_t &id,
-															 const std::string &name,
-															 const std::string &description,
-															 const std::string &expirationDate,
-															 const bool hasExpired,
-															 const std::string &fontType,
-															 const std::string &fontStatus)
+void LLVoiceClient::clearSessionFonts()
+{
+	// *FIX: Currently set voice font will be invalid
+	mSessionFontsReceived = false;
+	mSessionFontList.clear();
+	mSessionFontMap.clear();
+}
+
+void LLVoiceClient::addSessionFont(const voice_font_id_t &id,
+								   const std::string &name,
+								   const std::string &description,
+								   const std::string &expirationDate,
+								   const bool hasExpired,
+								   const std::string &fontType,
+								   const std::string &fontStatus)
 {
 	voiceFontEntry *font = NULL;
 
@@ -7189,7 +7197,6 @@ LLVoiceClient::voiceFontEntry *LLVoiceClient::addSessionFont(const voice_font_id
 		mSessionFontList.insert(voice_font_list_t::value_type(font->mID, &(font->mName)));
 		mSessionFontMap.insert(voice_font_map_t::value_type(font->mID, font));
 	}
-	return font;
 }
 
 bool LLVoiceClient::setVoiceFont(voice_font_id_t id)

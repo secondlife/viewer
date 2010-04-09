@@ -452,13 +452,14 @@ static	void updatePosition(void);
 		const voice_font_id_t getVoiceFont() const;
 		const voice_font_list_t &getVoiceFontList() const { return mSessionFontList; };
 
-		voiceFontEntry *addSessionFont(const voice_font_id_t &id,
-									   const std::string &name,
-									   const std::string &description,
-									   const std::string &expirationDate,
-									   const bool hasExpired,
-									   const std::string &fontType,
-									   const std::string &fontStatus);
+		void clearSessionFonts();
+		void addSessionFont(const voice_font_id_t &id,
+							const std::string &name,
+							const std::string &description,
+							const std::string &expirationDate,
+							const bool hasExpired,
+							const std::string &fontType,
+							const std::string &fontStatus);
 		void accountGetSessionFontsResponse(int statusCode, const std::string &statusString);
 
 		/////////////////////////////
