@@ -63,6 +63,10 @@ public:
 	// interaction with our buttons.
 	bool getParcelAudioAutoStart();
 
+	// callback for when the auto play media preference changes
+	// to update mParcelAudioAutoStart
+	void handleMediaAutoPlayChanged(const LLSD& newvalue);
+
 	LLPanelNearByMedia();
 	virtual ~LLPanelNearByMedia();
 

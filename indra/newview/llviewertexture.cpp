@@ -1426,15 +1426,15 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 //virtual
 void LLViewerFetchedTexture::setKnownDrawSize(S32 width, S32 height)
 {
-	if(mKnownDrawWidth != width || mKnownDrawHeight != height)
+	if(mKnownDrawWidth < width || mKnownDrawHeight < height)
 	{
-		mKnownDrawWidth = width;
-		mKnownDrawHeight = height;
+		mKnownDrawWidth = llmax(mKnownDrawWidth, width) ;
+		mKnownDrawHeight = llmax(mKnownDrawHeight, height) ;
 
 		mKnownDrawSizeChanged = TRUE ;
 		mFullyLoaded = FALSE ;
 	}
-	addTextureStats((F32)(width * height));
+	addTextureStats((F32)(mKnownDrawWidth * mKnownDrawHeight));
 }
 
 //virtual
