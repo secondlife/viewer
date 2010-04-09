@@ -1579,6 +1579,14 @@ bool LLAppearanceMgr::updateBaseOutfit()
 	return true;
 }
 
+void LLAppearanceMgr::wearBaseOutfit()
+{
+	const LLUUID& base_outfit_id = getBaseOutfitUUID();
+	if (base_outfit_id.isNull()) return;
+	
+	updateCOF(base_outfit_id);
+}
+
 //#define DUMP_CAT_VERBOSE
 
 void LLAppearanceMgr::dumpCat(const LLUUID& cat_id, const std::string& msg)

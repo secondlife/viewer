@@ -232,6 +232,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetAction("remove_item_btn", boost::bind(&LLPanelOutfitEdit::onRemoveFromLookClicked, this), this);
 	
+	childSetAction("revert_btn", boost::bind(&LLAppearanceMgr::wearBaseOutfit, LLAppearanceMgr::getInstance()));
+
 	childSetAction("save_btn", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, false));
 	childSetAction("save_as_btn", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, true));
 	childSetAction("save_flyout_btn", boost::bind(&LLPanelOutfitEdit::showSaveMenu, this));

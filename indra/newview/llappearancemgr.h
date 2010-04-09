@@ -129,6 +129,8 @@ public:
 	// Create initial outfits from library.
 	void autopopulateOutfits();
 	
+	void wearBaseOutfit();
+
 	// Overrides the base outfit with the content from COF
 	// @return false if there is no base outfit
 	bool updateBaseOutfit();
