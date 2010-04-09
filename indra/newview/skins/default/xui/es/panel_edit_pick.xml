@@ -21,11 +21,11 @@
 			<text name="pick_location">
 				cargando...
 			</text>
-			<button label="Configurar en la posición actual" name="set_to_curr_location_btn"/>
+			<button label="Configurar en mi posición" name="set_to_curr_location_btn"/>
 		</panel>
 	</scroll_container>
 	<panel label="bottom_panel" name="bottom_panel">
-		<button label="Guardar el destacado" name="save_changes_btn"/>
+		<button label="Guardar" name="save_changes_btn"/>
 		<button label="Cancelar" name="cancel_btn"/>
 	</panel>
 </panel>

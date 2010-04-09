@@ -22,6 +22,6 @@
 		¿Quieres dejar [CURRENT_CHAT] y entrar a este chat de voz?
 	</text>
 	<button label="Aceptar" label_selected="Aceptar" name="Accept"/>
-	<button label="Expulsar" label_selected="Expulsar" name="Reject"/>
+	<button label="Rechazar" label_selected="Rechazar" name="Reject"/>
 	<button label="Comenzar un MI" name="Start IM"/>
 </floater>

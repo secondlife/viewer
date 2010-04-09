@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
 background_visible="true"
+default_tab_group="1"
 follows="all"
 height="570"
 label="Outfits"
@@ -90,6 +91,7 @@ width="333">
    min_height="410"
    width="320"
    left="0"
+   tab_group="1"
    top_pad="6"
    follows="all" />
   <!--   <button
