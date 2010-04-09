@@ -93,7 +93,7 @@ public:
 	void onTypeFilterChanged(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
 	void onInventorySelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
-	void onAddToLookClicked(void);
+	void onAddToOutfitClicked(void);
 	void onLookItemSelectionChange(void);
 	void onRemoveFromLookClicked(void);
 	void onEditWearableClicked(void);
@@ -116,7 +116,7 @@ private:
 	LLFilterEditor*		mSearchFilter;
 	LLSaveFolderState*	mSavedFolderState;
 	std::string			mSearchString;
-	LLButton*			mAddToLookBtn;
+	LLButton*			mAddToOutfitBtn;
 	LLButton*			mRemoveFromLookBtn;
 	LLButton*			mUpBtn;
 	LLButton*			mEditWearableBtn;

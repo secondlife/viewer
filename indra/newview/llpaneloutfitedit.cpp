@@ -117,7 +117,7 @@ private:
 
 LLPanelOutfitEdit::LLPanelOutfitEdit()
 :	LLPanel(), mCurrentOutfitID(), mFetchLook(NULL), mSearchFilter(NULL),
-mLookContents(NULL), mInventoryItemsPanel(NULL), mAddToLookBtn(NULL),
+mLookContents(NULL), mInventoryItemsPanel(NULL), mAddToOutfitBtn(NULL),
 mRemoveFromLookBtn(NULL), mLookObserver(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
@@ -175,8 +175,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mInventoryItemsPanel = getChild<LLInventoryPanel>("inventory_items");
 	mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
 	mInventoryItemsPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	// mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
-	// mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
+	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
+	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
 	
 	LLComboBox* type_filter = getChild<LLComboBox>("inventory_filter");
 	type_filter->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onTypeFilterChanged, this, _1));
@@ -200,7 +200,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mAddToLookBtn->setEnabled(FALSE);
 	mAddToLookBtn->setVisible(FALSE); */
 	
-	childSetAction("add_item_btn", boost::bind(&LLPanelOutfitEdit::onAddToLookClicked, this), this);
+	childSetAction("add_to_outfit_btn", boost::bind(&LLPanelOutfitEdit::onAddToOutfitClicked, this));
+	childSetEnabled("add_to_outfit_btn", false);
 
 	mUpBtn = getChild<LLButton>("up_btn");
 	mUpBtn->setEnabled(TRUE);
@@ -335,15 +336,18 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 	mInventoryItemsPanel->setFilterSubString(mSearchString);
 }
 
-void LLPanelOutfitEdit::onAddToLookClicked(void)
+void LLPanelOutfitEdit::onAddToOutfitClicked(void)
 {
 	LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
 	if (!curr_item) return;
 
 	LLFolderViewEventListener* listenerp  = curr_item->getListener();
-	link_inventory_item(gAgent.getID(), listenerp->getUUID(), mCurrentOutfitID, listenerp->getName(),
-						LLAssetType::AT_LINK, LLPointer<LLInventoryCallback>(NULL));
-	updateLookInfo();
+	if (!listenerp) return;
+
+	if (LLAppearanceMgr::getInstance()->wearItemOnAvatar(listenerp->getUUID()))
+	{
+		updateLookInfo();
+	}
 }
 
 
@@ -443,6 +447,21 @@ void LLPanelOutfitEdit::onInventorySelectionChange(const std::deque<LLFolderView
 	if (!current_item)
 	{
 		return;
+	}
+
+	LLViewerInventoryItem* item = current_item->getInventoryItem();
+	if (!item) return;
+
+	switch (item->getType())
+	{
+	case LLAssetType::AT_CLOTHING:
+	case LLAssetType::AT_BODYPART:
+	case LLAssetType::AT_OBJECT:
+		childSetEnabled("add_to_outfit_btn", true);
+		break;
+	default:
+		childSetEnabled("add_to_outfit_btn", false);
+		break;
 	}
 	
 	/* Removing add to look inline button (not part of mvp for viewer 2)

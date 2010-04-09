@@ -257,7 +257,7 @@
              text_pad_left="25" />
 
             <inventory_panel
-             allow_multi_select="true"
+             allow_multi_select="false"
              border="false"
              follows="left|top|right|bottom"
              height="176"
@@ -315,6 +315,19 @@
                  layout="topleft"
                  left_pad="1"
                  name="list_view_btn"
+                 top="1"
+                 width="31" />
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="AddItem_Off"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 label=""
+                 layout="topleft"
+                 left_pad="1"
+                 name="add_to_outfit_btn"
                  top="1"
                  width="31" />
             </panel>
