@@ -181,10 +181,10 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 		parent = object->getRootEdit();
 	}
 
-
-	BOOL touchable = (object && object->flagHandleTouch()) 
-					 || (parent && parent->flagHandleTouch());
-
+	if (handleMediaClick(mPick))
+	{
+		return TRUE;
+	}
 
 	// If it's a left-click, and we have a special action, do it.
 	if (useClickAction(mask, object, parent))
@@ -286,13 +286,11 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 		}
 	}
 
-	if (handleMediaClick(mPick))
-	{
-		return TRUE;
-	}
-
 	// put focus back "in world"
 	gFocusMgr.setKeyboardFocus(NULL);
+
+	BOOL touchable = (object && object->flagHandleTouch()) 
+					 || (parent && parent->flagHandleTouch());
 
 	// Switch to grab tool if physical or triggerable
 	if (object && 
@@ -513,14 +511,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	LLViewerObject* click_action_object = click_action_pick.getObject();
-	if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
-	{
-		show_highlight = true;
-		ECursorType cursor = cursor_from_object(click_action_object);
-		gViewerWindow->setCursor(cursor);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
-	}
-	else if (handleMediaHover(mHoverPick))
+	if (handleMediaHover(mHoverPick))
 	{
 		// *NOTE: If you think the hover glow conflicts with the media outline, you
 		// could disable it here.
@@ -528,6 +519,14 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		// cursor set by media object
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
+	else if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
+	{
+		show_highlight = true;
+		ECursorType cursor = cursor_from_object(click_action_object);
+		gViewerWindow->setCursor(cursor);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+	}
+	
 	else if ((object && !object->isAvatar() && object->usePhysics()) 
 			 || (parent && !parent->isAvatar() && parent->usePhysics()))
 	{
