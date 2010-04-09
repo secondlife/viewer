@@ -79,7 +79,7 @@ public:
 	const LLUUID getBaseOutfitUUID();
 
 	// Wear/attach an item (from a user's inventory) on the agent
-	bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true);
+	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true);
 
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
