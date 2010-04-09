@@ -2392,10 +2392,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				chat.mFromID = from_id ^ gAgent.getSessionID();
 			}
 
+			chat.mSourceType = CHAT_SOURCE_OBJECT;
+
 			if(SYSTEM_FROM == name)
 			{
 				// System's UUID is NULL (fixes EXT-4766)
 				chat.mFromID = LLUUID::null;
+				chat.mSourceType = CHAT_SOURCE_SYSTEM;
 			}
 
 			LLSD query_string;
@@ -2412,7 +2415,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			chat.mURL = link.str();
 			chat.mText = message;
-			chat.mSourceType = CHAT_SOURCE_OBJECT;
 
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
 			// IMs from obejcts don't open IM sessions.
