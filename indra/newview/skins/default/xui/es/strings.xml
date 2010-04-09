@@ -88,24 +88,6 @@
 	<string name="LoginDownloadingClothing">
 		Descargando la ropa...
 	</string>
-	<string name="InvalidCertificate">
-		El servidor devolvió un certificado no válido o dañado. Ponte en contacto con el administrador de la cuadrícula.
-	</string>
-	<string name="CertInvalidHostname">
-		El nombre de host utilizado para acceder al servidor no es válido. Comprueba tu SLURL o el nombre de host de la cuadrícula.
-	</string>
-	<string name="CertExpired">
-		Parece que el certificado que devolvió la cuadrícula está caducado.  Comprueba el reloj del sistema o consulta al administrador de la cuadrícula.
-	</string>
-	<string name="CertKeyUsage">
-		El certificado que devolvió el servidor no puede utilizarse para SSL. Ponte en contacto con el administrador de la cuadrícula.
-	</string>
-	<string name="CertBasicConstraints">
-		La cadena de certificado del servidor contenía demasiados certificados. Ponte en contacto con el administrador de la cuadrícula.
-	</string>
-	<string name="CertInvalidSignature">
-		No se pudo verificar la firma del certificado devuelta por el servidor de la cuadrícula. Ponte en contacto con el administrador de la cuadrícula.
-	</string>
 	<string name="LoginFailedNoNetwork">
 		Error de red: no se ha podido conectar; por favor, revisa tu conexión a Internet.
 	</string>
@@ -184,7 +166,6 @@
 	<string name="TooltipMustSingleDrop">
 		Aquí se puede arrastrar sólo un ítem
 	</string>
-	<string name="TooltipPrice" value="[AMOUNT] L$:"/>
 	<string name="TooltipHttpUrl">
 		Pulsa para ver esta página web
 	</string>
@@ -237,6 +218,7 @@
 		Pulsa para ejecutar el comando secondlife://
 	</string>
 	<string name="CurrentURL" value="URL actual: [CurrentURL]"/>
+	<string name="TooltipPrice" value="[PRICE] L$"/>
 	<string name="SLurlLabelTeleport">
 		Teleportarse a
 	</string>
@@ -267,9 +249,6 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Cerrar (Ctrl+W)
 	</string>
-	<string name="BUTTON_CLOSE_CHROME">
-		Cerrar
-	</string>
 	<string name="BUTTON_RESTORE">
 		Maximizar
 	</string>
@@ -297,9 +276,6 @@
 	<string name="ReleaseNotes">
 		Notas de la versión
 	</string>
-	<string name="RELEASE_NOTES_BASE_URL">
-		http://wiki.secondlife.com/wiki/Release_Notes/
-	</string>
 	<string name="LoadingData">
 		Cargando...
 	</string>
@@ -311,9 +287,6 @@
 	</string>
 	<string name="GroupNameNone">
 		(ninguno)
-	</string>
-	<string name="AvalineCaller">
-		Avaline: [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		No hay ningún error
@@ -645,9 +618,6 @@
 	<string name="worldmap_offline">
 		Sin conexión
 	</string>
-	<string name="worldmap_item_tooltip_format">
-		[PRICE] L$ por [AREA] m²
-	</string>
 	<string name="worldmap_results_none_found">
 		No se ha encontrado.
 	</string>
@@ -737,12 +707,6 @@
 	</string>
 	<string name="land_type_unknown">
 		(desconocido)
-	</string>
-	<string name="Estate / Full Region">
-		Estado /Región completa
-	</string>
-	<string name="Mainland / Full Region">
-		Continente / Región completa
 	</string>
 	<string name="all_files">
 		Todos los archivos
@@ -849,93 +813,6 @@
 	<string name="invalid">
 		inválido/a
 	</string>
-	<string name="none">
-		ninguno
-	</string>
-	<string name="shirt_not_worn">
-		Camisa no puesta
-	</string>
-	<string name="pants_not_worn">
-		Pantalones no puestos
-	</string>
-	<string name="shoes_not_worn">
-		Zapatos no puestos
-	</string>
-	<string name="socks_not_worn">
-		Calcetines no puestos
-	</string>
-	<string name="jacket_not_worn">
-		Chaqueta no puesta
-	</string>
-	<string name="gloves_not_worn">
-		Guantes no puestos
-	</string>
-	<string name="undershirt_not_worn">
-		Camiseta no puesta
-	</string>
-	<string name="underpants_not_worn">
-		Ropa interior no puesta
-	</string>
-	<string name="skirt_not_worn">
-		Falda no puesta
-	</string>
-	<string name="alpha_not_worn">
-		Alfa no puesta
-	</string>
-	<string name="tattoo_not_worn">
-		Tatuaje no puesto
-	</string>
-	<string name="invalid_not_worn">
-		no válido/a
-	</string>
-	<string name="create_new_shape">
-		Crear una anatomía nueva
-	</string>
-	<string name="create_new_skin">
-		Crear una piel nueva
-	</string>
-	<string name="create_new_hair">
-		Crear pelo nuevo
-	</string>
-	<string name="create_new_eyes">
-		Crear ojos nuevos
-	</string>
-	<string name="create_new_shirt">
-		Crear una camisa nueva
-	</string>
-	<string name="create_new_pants">
-		Crear unos pantalones nuevos
-	</string>
-	<string name="create_new_shoes">
-		Crear unos zapatos nuevos
-	</string>
-	<string name="create_new_socks">
-		Crear unos calcetines nuevos
-	</string>
-	<string name="create_new_jacket">
-		Crear una chaqueta nueva
-	</string>
-	<string name="create_new_gloves">
-		Crear unos guantes nuevos
-	</string>
-	<string name="create_new_undershirt">
-		Crear una camiseta nueva
-	</string>
-	<string name="create_new_underpants">
-		Crear ropa interior nueva
-	</string>
-	<string name="create_new_skirt">
-		Crear una falda nueva
-	</string>
-	<string name="create_new_alpha">
-		Crear una capa alfa nueva
-	</string>
-	<string name="create_new_tattoo">
-		Crear un tatuaje nuevo
-	</string>
-	<string name="create_new_invalid">
-		no válido/a
-	</string>
 	<string name="NewWearable">
 		Nuevo [WEARABLE_ITEM]
 	</string>
@@ -1006,10 +883,7 @@
 		Pulsa ESC para salir de la vista subjetiva
 	</string>
 	<string name="InventoryNoMatchingItems">
-		¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/all/[SEARCH_TERM] Buscar].
-	</string>
-	<string name="PlacesNoMatchingItems">
-		¿No encuentras lo que buscas? Prueba con [secondlife:///app/search/places/[SEARCH_TERM] Buscar].
+		No se han encontrado tales ítems en el inventario.  Intenta con [secondlife:///app/search/groups &quot;Buscar&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Arrastra aquí un hito para tenerlo en tus favoritos.
@@ -1037,10 +911,8 @@
 	<string name="AnimFlagStop" value="Parar la animación:"/>
 	<string name="AnimFlagStart" value="Empezar la animación:"/>
 	<string name="Wave" value="Onda"/>
-	<string name="GestureActionNone" value="Ninguno"/>
 	<string name="HelloAvatar" value="¡Hola, avatar!"/>
 	<string name="ViewAllGestures" value="Ver todos &gt;&gt;"/>
-	<string name="GetMoreGestures" value="Obtener más &gt;&gt;"/>
 	<string name="Animations" value="Animaciones,"/>
 	<string name="Calling Cards" value="Tarjetas de visita,"/>
 	<string name="Clothing" value="Ropa,"/>
@@ -1117,14 +989,11 @@
 	<string name="InvFolder Gestures">
 		Gestos
 	</string>
-	<string name="InvFolder Favorite">
+	<string name="InvFolder favorite">
 		Favoritos
 	</string>
 	<string name="InvFolder Current Outfit">
 		Vestuario actual
-	</string>
-	<string name="InvFolder Initial Outfits">
-		Vestuario inicial
 	</string>
 	<string name="InvFolder My Outfits">
 		Mis vestuarios
@@ -1445,7 +1314,6 @@
 	<string name="SummaryForTheWeek" value="Resumen de esta semana, empezando el"/>
 	<string name="NextStipendDay" value="El próximo día de pago es el"/>
 	<string name="GroupIndividualShare" value="Grupo       Aportaciones individuales"/>
-	<string name="GroupColumn" value="Grupo"/>
 	<string name="Balance">
 		Saldo
 	</string>
@@ -1641,44 +1509,32 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD: abajo der.
 	</string>
-	<string name="Bad attachment point">
-		Punto de colocación no válido
-	</string>
 	<string name="CursorPos">
 		Línea [LINE], Columna [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
 		[COUNT] resultados
 	</string>
-	<string name="PanelContentsTooltip">
-		Contenido del objeto
-	</string>
 	<string name="PanelContentsNewScript">
 		Script nuevo
+	</string>
+	<string name="PanelContentsTooltip">
+		Contenido del objeto
 	</string>
 	<string name="BusyModeResponseDefault">
 		El Residente al que has enviado un mensaje ha solicitado que no se le moleste porque está en modo ocupado.    Podrá ver tu mensaje más adelante, ya que éste aparecerá en su panel de MI.
 	</string>
-	<string name="NoOutfits">
-		Todavía no tienes vestuario. Intenta con [secondlife:///app/search/all/ Buscar]
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		¿No encuentras lo que buscas? Intenta con [secondlife:///app/search/all/[SEARCH_TERM] Buscar].
-	</string>
 	<string name="MuteByName">
-		(Por el nombre)
+		(por el nombre)
 	</string>
 	<string name="MuteAgent">
 		(Residente)
 	</string>
 	<string name="MuteObject">
-		(Objeto)
+		(objeto)
 	</string>
 	<string name="MuteGroup">
-		(Grupo)
-	</string>
-	<string name="MuteExternal">
-		(Externo)
+		(grupo)
 	</string>
 	<string name="RegionNoCovenant">
 		No se ha aportado un contrato para este estado.
@@ -1686,7 +1542,9 @@
 	<string name="RegionNoCovenantOtherOwner">
 		No se ha aportado un contrato para este estado. El terreno de este estado lo vende el propietario del estado, no Linden Lab.  Por favor, contacta con ese propietario para informarte sobre la venta.
 	</string>
-	<string name="covenant_last_modified" value="Última modificación:"/>
+	<string name="covenant_last_modified">
+		Última modificación: 
+	</string>
 	<string name="none_text" value="(no hay)"/>
 	<string name="never_text" value=" (nunca)"/>
 	<string name="GroupOwned">
@@ -3363,15 +3221,6 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="LocationCtrlComboBtnTooltip">
 		Historial de mis localizaciones
 	</string>
-	<string name="LocationCtrlAdultIconTooltip">
-		Región Adulta
-	</string>
-	<string name="LocationCtrlModerateIconTooltip">
-		Región Moderada
-	</string>
-	<string name="LocationCtrlGeneralIconTooltip">
-		Región General
-	</string>
 	<string name="UpdaterWindowTitle">
 		Actualizar [APP_NAME]
 	</string>
@@ -3402,12 +3251,6 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 		Fallo al iniciar el visor
 	</string>
-	<string name="ItemsComingInTooFastFrom">
-		[APP_NAME]: Los ítems se reciben muy rápido de [FROM_NAME]; desactivada la vista previa automática durante [TIME] sgs.
-	</string>
-	<string name="ItemsComingInTooFast">
-		[APP_NAME]: Los ítems se reciben muy rápido; desactivada la vista previa automática durante [TIME] sgs.
-	</string>
 	<string name="IM_logging_string">
 		-- Activado el registro de los mensajes instantáneos --
 	</string>
@@ -3435,17 +3278,11 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="IM_moderator_label">
 		(Moderador)
 	</string>
-	<string name="answered_call">
-		Han respondido a tu llamada
+	<string name="started_call">
+		Llamada de voz iniciada
 	</string>
-	<string name="you_started_call">
-		Has iniciado una llamada de voz
-	</string>
-	<string name="you_joined_call">
-		Has entrado en la llamada de voz
-	</string>
-	<string name="name_started_call">
-		[NAME] inició una llamada de voz
+	<string name="joined_call">
+		Entrando a la llamada de voz
 	</string>
 	<string name="ringing-im">
 		Haciendo la llamada de voz...
@@ -3522,20 +3359,11 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="unread_chat_multiple">
 		[SOURCES] ha dicho algo nuevo
 	</string>
-	<string name="session_initialization_timed_out_error">
-		Se ha agotado el tiempo del inicio de sesión
-	</string>
-	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
-	</string>
 	<string name="paid_you_ldollars">
 		[NAME] te ha pagado [AMOUNT] L$
 	</string>
 	<string name="you_paid_ldollars">
 		Has pagado [AMOUNT] L$ a [NAME] por [REASON].
-	</string>
-	<string name="you_paid_ldollars_no_info">
-		Has pagado[AMOUNT] L$
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		Has pagado [AMOUNT] L$ a [NAME].
@@ -3584,9 +3412,6 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="group_role_owners">
 		Propietarios
-	</string>
-	<string name="group_member_status_online">
-		Conectado/a
 	</string>
 	<string name="uploading_abuse_report">
 		Subiendo...
@@ -3641,203 +3466,13 @@ Denuncia de infracción
 	<string name="Invalid Wearable">
 		No se puede poner
 	</string>
-	<string name="New Gesture">
-		Gesto nuevo
-	</string>
 	<string name="New Script">
 		Script nuevo
-	</string>
-	<string name="New Note">
-		Nota nueva
 	</string>
 	<string name="New Folder">
 		Carpeta nueva
 	</string>
 	<string name="Contents">
 		Contenidos
-	</string>
-	<string name="Gesture">
-		Gestos
-	</string>
-	<string name="Male Gestures">
-		Gestos de hombre
-	</string>
-	<string name="Female Gestures">
-		Gestos de mujer
-	</string>
-	<string name="Other Gestures">
-		Otros gestos
-	</string>
-	<string name="Speech Gestures">
-		Gestos al hablar
-	</string>
-	<string name="Common Gestures">
-		Gestos corrientes
-	</string>
-	<string name="Male - Excuse me">
-		Varón - Disculpa
-	</string>
-	<string name="Male - Get lost">
-		Varón – Déjame en paz
-	</string>
-	<string name="Male - Blow kiss">
-		Varón - Lanzar un beso
-	</string>
-	<string name="Male - Boo">
-		Varón - Abucheo
-	</string>
-	<string name="Male - Bored">
-		Varón - Aburrido
-	</string>
-	<string name="Male - Hey">
-		Varón – ¡Eh!
-	</string>
-	<string name="Male - Laugh">
-		Varón - Risa
-	</string>
-	<string name="Male - Repulsed">
-		Varón - Rechazo
-	</string>
-	<string name="Male - Shrug">
-		Varón - Encogimiento de hombros
-	</string>
-	<string name="Male - Stick tougue out">
-		Varón - Sacando la lengua
-	</string>
-	<string name="Male - Wow">
-		Varón - Admiración
-	</string>
-	<string name="Female - Chuckle">
-		Mujer - Risa suave
-	</string>
-	<string name="Female - Cry">
-		Mujer - Llorar
-	</string>
-	<string name="Female - Embarrassed">
-		Mujer - Ruborizada
-	</string>
-	<string name="Female - Excuse me">
-		Mujer - Disculpa
-	</string>
-	<string name="Female - Get lost">
-		Mujer – Déjame en paz
-	</string>
-	<string name="Female - Blow kiss">
-		Mujer - Lanzar un beso
-	</string>
-	<string name="Female - Boo">
-		Mujer - Abucheo
-	</string>
-	<string name="Female - Bored">
-		Mujer - Aburrida
-	</string>
-	<string name="Female - Hey">
-		Mujer - ¡Eh!
-	</string>
-	<string name="Female - Hey baby">
-		Mujer - ¡Eh, encanto!
-	</string>
-	<string name="Female - Laugh">
-		Mujer - Risa
-	</string>
-	<string name="Female - Looking good">
-		Mujer - Buen aspecto
-	</string>
-	<string name="Female - Over here">
-		Mujer - Por aquí
-	</string>
-	<string name="Female - Please">
-		Mujer - Por favor
-	</string>
-	<string name="Female - Repulsed">
-		Mujer - Rechazo
-	</string>
-	<string name="Female - Shrug">
-		Mujer - Encogimiento de hombros
-	</string>
-	<string name="Female - Stick tougue out">
-		Mujer - Sacando la lengua
-	</string>
-	<string name="Female - Wow">
-		Mujer - Admiración
-	</string>
-	<string name="AvatarBirthDateFormat">
-		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
-	</string>
-	<string name="DefaultMimeType">
-		ninguno/ninguno
-	</string>
-	<string name="texture_load_dimensions_error">
-		No se puede subir imágenes mayores de [WIDTH]*[HEIGHT]
-	</string>
-	<string name="words_separator" value=","/>
-	<string name="server_is_down">
-		Parece que hay algún problema que ha escapado a nuestros controles.
-
-	Visita status.secondlifegrid.net para ver si hay alguna incidencia conocida que esté afectando al servicio.  
-        Si sigues teniendo problemas, comprueba la configuración de la red y del servidor de seguridad.
-	</string>
-	<string name="dateTimeWeekdaysNames">
-		Domingo:Lunes:Martes:Miércoles:Jueves:Viernes:Sábado
-	</string>
-	<string name="dateTimeWeekdaysShortNames">
-		Dom:Lun:Mar:Mié:Jue:Vie:Sáb
-	</string>
-	<string name="dateTimeMonthNames">
-		Enero:Febrero:Marzo:Abril:Mayo:Junio:Julio:Agosto:Septiembre:Octubre:Noviembre:Diciembre
-	</string>
-	<string name="dateTimeMonthShortNames">
-		Ene:Feb:Mar:Abr:May:Jun:Jul:Ago:Sep:Oct:Nov:Dic
-	</string>
-	<string name="dateTimeDayFormat">
-		[MDAY]
-	</string>
-	<string name="dateTimeAM">
-		AM
-	</string>
-	<string name="dateTimePM">
-		PM
-	</string>
-	<string name="LocalEstimateUSD">
-		[AMOUNT] dólares estadounidenses
-	</string>
-	<string name="Membership">
-		Membresía
-	</string>
-	<string name="Roles">
-		Roles
-	</string>
-	<string name="Group Identity">
-		Indentidad de grupo
-	</string>
-	<string name="Parcel Management">
-		Gestión de la parcela
-	</string>
-	<string name="Parcel Identity">
-		Identidad de la parcela
-	</string>
-	<string name="Parcel Settings">
-		Configuración de la parcela
-	</string>
-	<string name="Parcel Powers">
-		Poder de la parcela
-	</string>
-	<string name="Parcel Access">
-		Acceso a la parcela
-	</string>
-	<string name="Parcel Content">
-		Contenido de la parcela
-	</string>
-	<string name="Object Management">
-		Manejo de objetos
-	</string>
-	<string name="Accounting">
-		Contabilidad
-	</string>
-	<string name="Notices">
-		Avisos
-	</string>
-	<string name="Chat">
-		Chat
 	</string>
 </strings>

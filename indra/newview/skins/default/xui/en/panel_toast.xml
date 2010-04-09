@@ -31,6 +31,8 @@
  can_close="false"
  can_dock="false"
  border_visible = "false"
+ border_drop_shadow_visible = "false"
+ drop_shadow_visible = "false"
  border = "false"
 >
  <panel
@@ -53,7 +55,7 @@
     clip_partial="true" 
    visible="false"
    follows="left|top|right|bottom"
-   font="SansSerif"
+   font="SansSerifBold"
    height="20"
    layout="topleft"
    left="20"

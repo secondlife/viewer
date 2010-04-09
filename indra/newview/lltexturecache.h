@@ -2,25 +2,31 @@
  * @file lltexturecache.h
  * @brief Object for managing texture cachees.
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2000&license=viewergpl$
+ * 
+ * Copyright (c) 2000-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -138,6 +144,7 @@ public:
 
 protected:
 	// Accessed by LLTextureCacheWorker
+	bool updateTextureEntryList(const LLUUID& id, S32 size);
 	std::string getLocalFileName(const LLUUID& id);
 	std::string getTextureFileName(const LLUUID& id);
 	void addCompleted(Responder* responder, bool success);
@@ -148,7 +155,6 @@ protected:
 private:
 	void setDirNames(ELLPath location);
 	void readHeaderCache();
-	void clearCorruptedCache();
 	void purgeAllTextures(bool purge_directories);
 	void purgeTextures(bool validate);
 	LLAPRFile* openHeaderEntriesFile(bool readonly, S32 offset);
@@ -156,16 +162,16 @@ private:
 	void readEntriesHeader();
 	void writeEntriesHeader();
 	S32 openAndReadEntry(const LLUUID& id, Entry& entry, bool create);
-	bool updateEntry(S32& idx, Entry& entry, S32 new_image_size, S32 new_body_size);
+	void updateEntry(S32 idx, Entry& entry, S32 new_image_size, S32 new_body_size);
 	void updateEntryTimeStamp(S32 idx, Entry& entry) ;
 	U32 openAndReadEntries(std::vector<Entry>& entries);
 	void writeEntriesAndClose(const std::vector<Entry>& entries);
-	void readEntryFromHeaderImmediately(S32& idx, Entry& entry) ;
-	void writeEntryToHeaderImmediately(S32& idx, Entry& entry, bool write_header = false) ;
+	void readEntryFromHeaderImmediately(S32 idx, Entry& entry) ;
+	void writeEntryToHeaderImmediately(S32 idx, Entry& entry, bool write_header = false) ;
 	void removeEntry(S32 idx, Entry& entry, std::string& filename);
 	void removeCachedTexture(const LLUUID& id) ;
-	S32 getHeaderCacheEntry(const LLUUID& id, Entry& entry);
-	S32 setHeaderCacheEntry(const LLUUID& id, Entry& entry, S32 imagesize, S32 datasize);
+	S32 getHeaderCacheEntry(const LLUUID& id, S32& imagesize);
+	S32 setHeaderCacheEntry(const LLUUID& id, S32 imagesize);
 	void writeUpdatedEntries() ;
 	void updatedHeaderEntriesFile() ;
 	void lockHeaders() { mHeaderMutex.lock(); }

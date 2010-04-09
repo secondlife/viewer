@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+	can_resize="true"
+	can_close="false"
  bg_opaque_image="Volume_Background" 
  bg_alpha_image="Volume_Background" 
   background_opaque="true"
 	background_visible="true"
 	layout="topleft"
-	width="328"
+	width="270"
 	height="230"
 	name="nearby_media"
 	help_topic="nearby_media">
@@ -27,7 +29,7 @@
 		follows="left"
 		tool_tip="Turn all nearby media off"
 		left="8"
-		width="95"
+		width="66"
 		height="22"
 		label="Stop All">
 	  <button.commit_callback
@@ -38,7 +40,7 @@
 		follows="left"
 		tool_tip="Turn all nearby media on"
 		left_pad="4"
-		width="95"
+		width="66"
 		height="22"
 		label="Start All">
 	  <button.commit_callback
@@ -56,6 +58,7 @@
 		top_delta="0"
 		left_pad="4"
 		height="22"
+		min_width="28"
 		width="28">
 	  <button.commit_callback
 		  function="MediaListCtrl.GoMediaPrefs" />
@@ -104,7 +107,6 @@
 		follows="top|left"
 		font="SansSerif"
 		left="10"
-		name="nearby_media_title"
 		width="100">
 	  Nearby Media
 	</text>
@@ -115,7 +117,6 @@
 		font="SansSerif"
 		top_pad="15"
 		left="10"
-		name="show_text"
 		width="40">
 	  Show:
 	</text>
@@ -187,7 +188,6 @@
 		bevel_style="in"
 		background_visible="false" 
 		follows="left|right|bottom"
-		name="media_controls_panel"
 		top_pad="5"
 		height="30"
 		left="10"

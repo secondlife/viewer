@@ -860,5 +860,16 @@ void LLAccordionCtrlTab::ctrlSetLeftTopAndSize(LLView* panel, S32 left, S32 top,
 	panel->reshape( width, height, 1);
 	panel->setRect(panel_rect);
 }
+BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	//header may be not the first child but we need to process it first
+	if(y >= (getRect().getHeight() - HEADER_HEIGHT - HEADER_HEIGHT/2) )
+	{
+		//inside tab header
+		//fix for EXT-6619
+		return TRUE;
+	}
+	return LLUICtrl::handleToolTip(x, y, mask);
+}
 
 

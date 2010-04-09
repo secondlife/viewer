@@ -20,11 +20,8 @@
 		<context_menu label="Desanexar  ▶" name="Object Detach"/>
 		<menu_item_call label="Quitarse todo" name="Detach All"/>
 	</context_menu>
-	<menu_item_call label="Cambiar vestuario" name="Chenge Outfit"/>
-	<menu_item_call label="Editar mi vestuario" name="Edit Outfit"/>
-	<menu_item_call label="Editar mi anatomía" name="Edit My Shape"/>
+	<menu_item_call label="Mi apariencia" name="Appearance..."/>
 	<menu_item_call label="Mis amigos" name="Friends..."/>
 	<menu_item_call label="Mis grupos" name="Groups..."/>
 	<menu_item_call label="Mi perfil" name="Profile..."/>
-	<menu_item_call label="Depurar las texturas" name="Debug..."/>
 </context_menu>
