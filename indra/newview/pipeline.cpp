@@ -3590,6 +3590,11 @@ void LLPipeline::renderDebug()
 
 			if (i > 3)
 			{ //render shadow frusta as volumes
+				if (mShadowFrustPoints[i-4].empty())
+				{
+					continue;
+				}
+
 				gGL.color4fv(col+(i-4)*4);	
 			
 				gGL.begin(LLRender::TRIANGLE_STRIP);
@@ -3620,44 +3625,47 @@ void LLPipeline::renderDebug()
 			if (i < 4)
 			{
 
-				//render visible point cloud
-				gGL.flush();
-				glPointSize(8.f);
-				gGL.begin(LLRender::POINTS);
+				if (i == 0 || !mShadowFrustPoints[i].empty())
+				{
+					//render visible point cloud
+					gGL.flush();
+					glPointSize(8.f);
+					gGL.begin(LLRender::POINTS);
 
-				F32* c = col+i*4;
-				gGL.color3fv(c);
+					F32* c = col+i*4;
+					gGL.color3fv(c);
 
-				for (U32 j = 0; j < mShadowFrustPoints[i].size(); ++j)
-				{	
-					gGL.vertex3fv(mShadowFrustPoints[i][j].mV);
-					
+					for (U32 j = 0; j < mShadowFrustPoints[i].size(); ++j)
+					{	
+						gGL.vertex3fv(mShadowFrustPoints[i][j].mV);
+						
+					}
+					gGL.end();
+
+					gGL.flush();
+					glPointSize(1.f);
+
+					LLVector3* ext = mShadowExtents[i]; 
+					LLVector3 pos = (ext[0]+ext[1])*0.5f;
+					LLVector3 size = (ext[1]-ext[0])*0.5f;
+					drawBoxOutline(pos, size);
+
+					//render camera frustum splits as outlines
+					gGL.begin(LLRender::LINES);
+					gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[1].mV);
+					gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[2].mV);
+					gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[3].mV);
+					gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[0].mV);
+					gGL.vertex3fv(frust[4].mV); gGL.vertex3fv(frust[5].mV);
+					gGL.vertex3fv(frust[5].mV); gGL.vertex3fv(frust[6].mV);
+					gGL.vertex3fv(frust[6].mV); gGL.vertex3fv(frust[7].mV);
+					gGL.vertex3fv(frust[7].mV); gGL.vertex3fv(frust[4].mV);
+					gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
+					gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[5].mV);
+					gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[6].mV);
+					gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[7].mV);
+					gGL.end();
 				}
-				gGL.end();
-
-				gGL.flush();
-				glPointSize(1.f);
-
-				LLVector3* ext = mShadowExtents[i]; 
-				LLVector3 pos = (ext[0]+ext[1])*0.5f;
-				LLVector3 size = (ext[1]-ext[0])*0.5f;
-				drawBoxOutline(pos, size);
-
-				//render camera frustum splits as outlines
-				gGL.begin(LLRender::LINES);
-				gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[1].mV);
-				gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[2].mV);
-				gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[3].mV);
-				gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[0].mV);
-				gGL.vertex3fv(frust[4].mV); gGL.vertex3fv(frust[5].mV);
-				gGL.vertex3fv(frust[5].mV); gGL.vertex3fv(frust[6].mV);
-				gGL.vertex3fv(frust[6].mV); gGL.vertex3fv(frust[7].mV);
-				gGL.vertex3fv(frust[7].mV); gGL.vertex3fv(frust[4].mV);
-				gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
-				gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[5].mV);
-				gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[6].mV);
-				gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[7].mV);
-				gGL.end();
 
 			}
 
@@ -8025,16 +8033,31 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	at.normVec();
 	
 	
+	LLCamera main_camera = camera;
+	
 	F32 near_clip = 0.f;
 	{
 		//get visible point cloud
 		std::vector<LLVector3> fp;
 
+		main_camera.calcAgentFrustumPlanes(main_camera.mAgentFrustum);
+		
 		LLVector3 min,max;
-		getVisiblePointCloud(camera,min,max,fp);
+		getVisiblePointCloud(main_camera,min,max,fp);
 
 		if (fp.empty())
 		{
+			if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA))
+			{
+				mShadowCamera[0] = main_camera;
+				mShadowExtents[0][0] = min;
+				mShadowExtents[0][1] = max;
+
+				mShadowFrustPoints[0].clear();
+				mShadowFrustPoints[1].clear();
+				mShadowFrustPoints[2].clear();
+				mShadowFrustPoints[3].clear();
+			}
 			mRenderTypeMask = type_mask;
 			return;
 		}
