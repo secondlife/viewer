@@ -280,6 +280,17 @@ void LLLandmarksPanel::onShowOnMap()
 	doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doShowOnMap, this, _1));
 }
 
+//virtual
+void LLLandmarksPanel::onShowProfile()
+{
+	LLFolderViewItem* cur_item = getCurSelectedItem();
+
+	if(!cur_item)
+		return;
+
+	cur_item->getListener()->performAction(mCurrentSelectedList->getModel(),"about");
+}
+
 // virtual
 void LLLandmarksPanel::onTeleport()
 {
@@ -306,6 +317,7 @@ void LLLandmarksPanel::updateVerbs()
 	bool landmark_selected = isLandmarkSelected();
 	mTeleportBtn->setEnabled(landmark_selected && isActionEnabled("teleport"));
 	mShowOnMapBtn->setEnabled(landmark_selected && isActionEnabled("show_on_map"));
+	mShowProfile->setEnabled(landmark_selected && isActionEnabled("more_info"));
 
 	// TODO: mantipov: Uncomment when mShareBtn is supported
 	// Share button should be enabled when neither a folder nor a landmark is selected
@@ -977,13 +989,10 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 
 void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 {
-	LLFolderViewItem* cur_item = getCurSelectedItem();
-	if(!cur_item)
-		return;
 	std::string command_name = userdata.asString();
 	if("more_info" == command_name)
 	{
-		cur_item->getListener()->performAction(mCurrentSelectedList->getModel(),"about");
+		onShowProfile();
 	}
 	else if ("teleport" == command_name)
 	{

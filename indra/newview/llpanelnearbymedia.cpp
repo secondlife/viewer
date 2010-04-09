@@ -74,6 +74,7 @@ static const LLUUID PARCEL_AUDIO_LIST_ITEM_UUID = LLUUID("DF4B020D-8A24-4B95-AB5
 // LLPanelNearByMedia
 //
 
+
 LLPanelNearByMedia::LLPanelNearByMedia()
 :	mMediaList(NULL),
 	  mEnableAllCtrl(NULL),
@@ -86,6 +87,8 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 
 	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
 							gSavedSettings.getBOOL("MediaTentativeAutoPlay");
+
+	gSavedSettings.getControl(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING)->getSignal()->connect(boost::bind(&LLPanelNearByMedia::handleMediaAutoPlayChanged, this, _2));
 
 	mCommitCallbackRegistrar.add("MediaListCtrl.EnableAll",		boost::bind(&LLPanelNearByMedia::onClickEnableAll, this));
 	mCommitCallbackRegistrar.add("MediaListCtrl.DisableAll",		boost::bind(&LLPanelNearByMedia::onClickDisableAll, this));
@@ -168,10 +171,17 @@ BOOL LLPanelNearByMedia::postBuild()
 	mLessRect = getRect();
 	mLessRect.mBottom = minimized_controls->getRect().mBottom;
 
-	getChild<LLUICtrl>("more_less_btn")->setValue(false);
+	getChild<LLUICtrl>("more_btn")->setVisible(false);
 	onMoreLess();
 	
 	return TRUE;
+}
+
+void LLPanelNearByMedia::handleMediaAutoPlayChanged(const LLSD& newvalue)
+{
+	// update mParcelAudioAutoStart if AUTO_PLAY_MEDIA_SETTING changes
+	mParcelAudioAutoStart = gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+							gSavedSettings.getBOOL("MediaTentativeAutoPlay");							
 }
 
 /*virtual*/
@@ -954,7 +964,7 @@ void LLPanelNearByMedia::onAdvancedButtonClick()
 
 void LLPanelNearByMedia::onMoreLess()
 {
-	bool is_more = getChild<LLUICtrl>("more_less_btn")->getValue();
+	bool is_more = getChild<LLUICtrl>("more_btn")->getVisible();
 	mNearbyMediaPanel->setVisible(is_more);
 
 	// enable resizing when expanded
@@ -964,6 +974,9 @@ void LLPanelNearByMedia::onMoreLess()
 	new_rect.translate(getRect().mRight - new_rect.mRight, getRect().mTop - new_rect.mTop);
 
 	setShape(new_rect);
+
+	getChild<LLUICtrl>("more_btn")->setVisible(!is_more);
+	getChild<LLUICtrl>("less_btn")->setVisible(is_more);
 }
 
 void LLPanelNearByMedia::updateControls()

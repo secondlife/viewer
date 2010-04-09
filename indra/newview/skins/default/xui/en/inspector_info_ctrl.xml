@@ -1,8 +1,8 @@
 <button
  chrome="true"
- image_selected="Info_Small"
- image_unselected="Info_Small"
- image_pressed="Info_Small"
+ image_selected="Info_Over"
+ image_unselected="Info_Over"
+ image_pressed="Info_Over"
  height="12"
  name="inspector_info_ctrl"
  width="12" />

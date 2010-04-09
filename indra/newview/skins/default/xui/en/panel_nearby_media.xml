@@ -64,19 +64,31 @@
 		  function="MediaListCtrl.GoMediaPrefs" />
 	</button>
 	<button
-		name="more_less_btn"
+		name="more_btn"
 		follows="right"
 		tool_tip="Advanced Controls"
 		top_delta="0"
 		right="-8"
 		width="66"
 		height="22"
-		toggle="true"
 		label="More &gt;&gt;"
 		label_selected="Less &lt;&lt;">
 	  <button.commit_callback
 		  function="MediaListCtrl.MoreLess" />
 	</button>
+  <button
+		name="less_btn"
+		follows="right"
+		tool_tip="Advanced Controls"
+		top_delta="0"
+		right="-8"
+		width="66"
+		height="22"
+		label="More &gt;&gt;"
+		label_selected="Less &lt;&lt;">
+      <button.commit_callback
+        function="MediaListCtrl.MoreLess" />
+  </button>
   </panel>
   <panel
 	  name="nearby_media_panel"
