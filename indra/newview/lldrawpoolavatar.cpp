@@ -314,6 +314,11 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		return;
 	}
 	
+	if (sShaderLevel > 0)
+	{
+		gAvatarMatrixParam = sVertexProgram->mUniform[LLViewerShaderMgr::AVATAR_MATRIX];
+	}
+
 	avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
 
 }
