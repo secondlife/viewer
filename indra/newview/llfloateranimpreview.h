@@ -50,6 +50,8 @@ protected:
 public:
 	LLPreviewAnimation(S32 width, S32 height);	
 
+	/*virtual*/ S8 getType() const ;
+
 	BOOL	render();
 	void	requestUpdate();
 	void	rotate(F32 yaw_radians, F32 pitch_radians);
