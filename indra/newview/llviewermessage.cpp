@@ -4786,6 +4786,10 @@ bool handle_special_notification_callback(const LLSD& notification, const LLSD& 
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
 		gAgent.sendMaturityPreferenceToServer(preferredMaturity);
 
+		// notify user that the maturity preference has been changed
+		LLSD args;
+		args["RATING"] = LLViewerRegion::accessToString(preferredMaturity);
+		LLNotificationsUtil::add("PreferredMaturityChanged", args);
 	}
 	
 	return false;

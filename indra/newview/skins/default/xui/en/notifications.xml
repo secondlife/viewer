@@ -3380,6 +3380,13 @@ You can click &apos;Change Preference&apos; to raise your maturity Rating prefer
   </notification>
 
   <notification
+   icon="notifytip.tga"
+   name="PreferredMaturityChanged"
+   type="notifytip">
+Your maturity rating preference is now [RATING].
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="LandClaimAccessBlocked"
    type="alertmodal">
