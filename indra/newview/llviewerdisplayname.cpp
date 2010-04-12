@@ -70,6 +70,7 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
 	if (cap_url.empty())
 	{
 		// JAMESDEBUG HACK for demos, fall back to prototype name service
+		llinfos << "Set name via legacy service" << llendl;
 		LLAvatarNameCache::setDisplayName(gAgent.getID(), display_name, slot);
 		return;
 
