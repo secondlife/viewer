@@ -3,7 +3,7 @@
 	<text name="estate_help_text">
 		Le modifiche apportate in questa scheda saranno valide per tutte le regioni in questa proprietà.
 	</text>
-	<text name="estate_text" width="140">
+	<text name="estate_text">
 		Proprietà immobiliari:
 	</text>
 	<text name="estate_name">
