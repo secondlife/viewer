@@ -743,7 +743,6 @@ LLTextureCache::LLTextureCache(bool threaded)
 	  mListMutex(NULL),
 	  mHeaderAPRFile(NULL),
 	  mReadOnly(TRUE), //do not allow to change the texture cache until setReadOnly() is called.
-	  mReadOnly(TRUE), //do not allow to change the texture cache until setReadOnly() is called.
 	  mTexturesSizeTotal(0),
 	  mDoPurge(FALSE)
 {
