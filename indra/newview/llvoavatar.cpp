@@ -3065,7 +3065,7 @@ LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::useDisplayNames()
 			&& LLAvatarNameCache::get(getID(), &av_name)
-			&& av_name.mIsLegacy)
+			&& av_name.mIsDisplayNameDefault)
 	{
 			color_name = "NameTagLegacy";
 		}

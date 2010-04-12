@@ -38,7 +38,7 @@
 LLAvatarName::LLAvatarName()
 :	mSLID(),
 	mDisplayName(),
-	mIsLegacy(false),
+	mIsDisplayNameDefault(false),
 	mExpires(U32_MAX),
 	mBadge()
 { }

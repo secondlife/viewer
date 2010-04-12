@@ -52,6 +52,7 @@ namespace LLAvatarNameCache
 	// On simulator, loaded from indra.xml
 	// On viewer, sent down from login.cgi
 	// from login.cgi
+	// Includes the trailing slash, like "http://pdp60.lindenlab.com:8000/"
 	std::string sNameServiceURL;
 
 	// accumulated agent IDs for next query against service
@@ -82,11 +83,47 @@ namespace LLAvatarNameCache
 	LLFrameTimer sEraseExpiredTimer;
 
 	void processNameFromService(const LLSD& row, U32 expires);
+	void requestNames();
 	bool isRequestPending(const LLUUID& agent_id);
 
 	// Erase expired names from cache
 	void eraseExpired();
 }
+
+/* Sample response:
+<?xml version="1.0"?>
+<llsd>
+  <map>
+    <key>agents</key>
+    <array>
+      <map>
+        <key>sl_id</key>
+        <string>mickbot390.llqabot</string>
+        <key>display_name</key>
+        <string>MickBot390 LLQABot</string>
+        <key>id</key>
+        <string>0012809d-7d2d-4c24-9609-af1230a37715</string>
+        <key>is_display_name_default</key>
+        <boolean>false</boolean>
+        <key>seconds_until_display_name_update</key>
+        <integer/>
+      </map>
+      <map>
+        <key>sl_id</key>
+        <string>sardonyx.linden</string>
+        <key>display_name</key>
+        <string>Bjork Gudmundsdottir</string>
+        <key>id</key>
+        <string>3941037e-78ab-45f0-b421-bd6e77c1804d</string>
+        <key>is_display_name_default</key>
+        <boolean>true</boolean>
+        <key>seconds_until_display_name_update</key>
+        <integer>46925</integer>
+      </map>
+    </array>
+  </map>
+</llsd>
+*/
 
 class LLAvatarNameResponder : public LLHTTPClient::Responder
 {
@@ -98,11 +135,12 @@ public:
 		U32 now = (U32)LLFrameTimer::getTotalSeconds();
 		U32 expires = now + DEFAULT_EXPIRATION;
 
-		LLSD::array_const_iterator it = content.beginArray();
-		for ( ; it != content.endArray(); ++it)
+		LLSD agents = content["agents"];
+		LLSD::array_const_iterator it = agents.beginArray();
+		for ( ; it != agents.endArray(); ++it)
 		{
-			const LLSD& row = *it;
-			LLAvatarNameCache::processNameFromService(row, expires);
+			const LLSD& entry = *it;
+			LLAvatarNameCache::processNameFromService(entry, expires);
 		}
 	}
 
@@ -116,8 +154,9 @@ public:
 void LLAvatarNameCache::processNameFromService(const LLSD& row, U32 expires)
 {
 	LLAvatarName av_name;
-	av_name.mSLID = row["slid"].asString();
+	av_name.mSLID = row["sl_id"].asString();
 	av_name.mDisplayName = row["display_name"].asString();
+	//av_name.mIsDisplayNameDefault = row["is_display_name_default"].asBoolean();
 	av_name.mExpires = expires;
 
 	// HACK for pretty stars
@@ -129,16 +168,28 @@ void LLAvatarNameCache::processNameFromService(const LLSD& row, U32 expires)
 	// Some avatars don't have explicit display names set
 	if (av_name.mDisplayName.empty())
 	{
-		// make up a display name
-		std::string first_name = row["first_name"].asString();
-		std::string last_name = row["last_name"].asString();
-		av_name.mDisplayName =
-			LLCacheName::buildFullName(first_name, last_name);
-		av_name.mIsLegacy = (last_name != "Resident");
+		av_name.mDisplayName = av_name.mSLID;
 	}
 
+	// HACK: Legacy users have '.' in their SLID
+	// JAMESDEBUG TODO: change to using is_display_name_default once that works
+	std::string mangled_name = av_name.mDisplayName;
+	for (U32 i = 0; i < mangled_name.size(); i++)
+	{
+		char c = mangled_name[i];
+		if (c == ' ')
+		{
+			mangled_name[i] = '.';
+		}
+		else
+		{
+			mangled_name[i] = tolower(c);
+		}
+	}
+	av_name.mIsDisplayNameDefault = (mangled_name == av_name.mSLID);
+
 	// add to cache
-	LLUUID agent_id = row["agent_id"].asUUID();
+	LLUUID agent_id = row["id"].asUUID();
 	sCache[agent_id] = av_name;
 
 	sPendingQueue.erase(agent_id);
@@ -154,6 +205,49 @@ void LLAvatarNameCache::processNameFromService(const LLSD& row, U32 expires)
 
 		delete signal;
 		signal = NULL;
+	}
+}
+
+void LLAvatarNameCache::requestNames()
+{
+	// URL format is like:
+	// http://pdp60.lindenlab.com:8000/agents/?ids=3941037e-78ab-45f0-b421-bd6e77c1804d&ids=0012809d-7d2d-4c24-9609-af1230a37715&ids=0019aaba-24af-4f0a-aa72-6457953cf7f0
+	//
+	// Apache can handle URLs of 4096 chars, but let's be conservative
+	const U32 NAME_URL_MAX = 4096;
+	const U32 NAME_URL_SEND_THRESHOLD = 3000;
+	std::string url;
+	url.reserve(NAME_URL_MAX);
+
+	ask_queue_t::const_iterator it = sAskQueue.begin();
+	for ( ; it != sAskQueue.end(); ++it)
+	{
+		if (url.empty())
+		{
+			// ...starting new request
+			url += sNameServiceURL;
+			url += "agents/?ids=";
+		}
+		else
+		{
+			// ...continuing existing request
+			url += "&ids=";
+		}
+		url += it->asString();
+
+		if (url.size() > NAME_URL_SEND_THRESHOLD)
+		{
+			//llinfos << "requestNames " << url << llendl;
+			LLHTTPClient::get(url, new LLAvatarNameResponder());
+			url.clear();
+		}
+	}
+
+	if (!url.empty())
+	{
+		//llinfos << "requestNames " << url << llendl;
+		LLHTTPClient::get(url, new LLAvatarNameResponder());
+		url.clear();
 	}
 }
 
@@ -201,23 +295,12 @@ void LLAvatarNameCache::idle()
 		return;
 	}
 
-	LLSD body;
-	body["agent_ids"] = LLSD::emptyArray();
-	LLSD& agent_ids = body["agent_ids"];
-
-	ask_queue_t::const_iterator it = sAskQueue.begin();
-	for ( ; it != sAskQueue.end(); ++it)
-	{
-		agent_ids.append( LLSD( *it ) );
-	}
-
-	// *TODO: update for People API url formats
-	std::string url = sNameServiceURL + "agent/display-names/";
-	LLHTTPClient::post(url, body, new LLAvatarNameResponder());
+	requestNames();
 
 	// Move requests from Ask queue to Pending queue
 	U32 now = (U32)LLFrameTimer::getTotalSeconds();
-	for (it = sAskQueue.begin(); it != sAskQueue.end(); ++it)
+	ask_queue_t::const_iterator it = sAskQueue.begin();
+	for ( ; it != sAskQueue.end(); ++it)
 	{
 		sPendingQueue[*it] = now;
 	}
@@ -307,6 +390,7 @@ void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
 	}
 }
 
+// JAMESDEBUG TODO: Eliminate and only route changes through simulator
 class LLSetNameResponder : public LLHTTPClient::Responder
 {
 public:
@@ -338,6 +422,7 @@ public:
 	}
 };
 
+// JAMESDEBUG TODO: Eliminate and only route changes through simulator
 void LLAvatarNameCache::setDisplayName(const LLUUID& agent_id, 
 									   const std::string& display_name,
 									   const set_name_slot_t& slot)
@@ -345,10 +430,8 @@ void LLAvatarNameCache::setDisplayName(const LLUUID& agent_id,
 	LLSD body;
 	body["display_name"] = display_name;
 
-	// *TODO: configure the base URL for this
 	std::string url = sNameServiceURL + "agent/";
 	url += agent_id.asString();
-	url += "/set-display-name/";
 	LLHTTPClient::post(url, body, new LLSetNameResponder(agent_id, slot));
 }
 

@@ -53,7 +53,7 @@ public:
 
 	// If true, both display name and SLID were generated from
 	// a legacy first and last name, like "James Linden (james.linden)"
-	bool mIsLegacy;
+	bool mIsDisplayNameDefault;
 
 	// Names can change, so need to keep track of when name was
 	// last checked.
