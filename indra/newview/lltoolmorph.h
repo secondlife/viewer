@@ -2,25 +2,31 @@
  * @file lltoolmorph.h
  * @brief A tool to select object faces.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -41,7 +47,6 @@
 class LLViewerJointMesh;
 class LLPolyMesh;
 class LLViewerObject;
-class LLJoint;
 
 //-----------------------------------------------------------------------------
 // LLVisualParamHint
@@ -57,9 +62,7 @@ public:
 		S32 width, S32 height, 
 		LLViewerJointMesh *mesh, 
 		LLViewerVisualParam *param,
-		LLWearable *wearable,
-		F32 param_weight, 
-		LLJoint* jointp);	
+		F32 param_weight);	
 
 	/*virtual*/ S8 getType() const ;
 
@@ -86,13 +89,11 @@ protected:
 	BOOL					mIsVisible;			// is this distortion hint visible?
 	LLViewerJointMesh*		mJointMesh;			// mesh that this distortion applies to
 	LLViewerVisualParam*	mVisualParam;		// visual param applied by this hint
-	LLWearable*				mWearablePtr;		// wearable we're editing
 	F32						mVisualParamWeight;		// weight for this visual parameter
 	BOOL					mAllowsUpdates;		// updates are blocked unless this is true
 	S32						mDelayFrames;		// updates are blocked for this many frames
 	LLRect					mRect;
 	F32						mLastParamWeight;
-	LLJoint*				mCamTargetJoint;	// joint to target with preview camera
 
 	LLUIImagePtr mBackgroundp;
 

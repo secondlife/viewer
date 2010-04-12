@@ -2,25 +2,31 @@
  * @file llfloaterimagepreview.cpp
  * @brief LLFloaterImagePreview class implementation
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * 
+ * Copyright (c) 2004-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -53,17 +59,12 @@
 #include "llviewertexturelist.h"
 #include "llstring.h"
 
-#include "llendianswizzle.h"
-
-#include "llviewercontrol.h"
-#include "lltrans.h"
-#include "llimagedimensionsinfo.h"
-
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
+
 
 //-----------------------------------------------------------------------------
 // LLFloaterImagePreview()
@@ -123,11 +124,6 @@ BOOL LLFloaterImagePreview::postBuild()
 		childShow("bad_image_text");
 		childDisable("clothing_type_combo");
 		childDisable("ok_btn");
-
-		if(!mImageLoadError.empty())
-		{
-			childSetValue("bad_image_text",mImageLoadError.c_str());
-		}
 	}
 	
 	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
@@ -344,27 +340,6 @@ bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
 	{
 		codec = IMG_CODEC_PNG;
 	}
-
-	LLImageDimensionsInfo image_info;
-	if(!image_info.load(src_filename,codec))
-	{
-		mImageLoadError = image_info.getLastError();
-		return false;
-	}
-
-	S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
-	S32 max_heigh = gSavedSettings.getS32("max_texture_dimension_Y");
-
-	if(image_info.getWidth() > max_width|| image_info.getHeight() > max_heigh)
-	{
-		LLStringUtil::format_map_t args;
-		args["WIDTH"] = llformat("%d", max_width);
-		args["HEIGHT"] = llformat("%d", max_heigh);
-
-		mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
-		return false;
-	}
-	
 
 	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
 

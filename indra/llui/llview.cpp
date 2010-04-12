@@ -3,25 +3,31 @@
  * @author James Cook
  * @brief Container for other views, anything that draws.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -101,12 +107,12 @@ LLView::Params::Params()
 	top_delta("top_delta", S32_MAX),
 	left_pad("left_pad"),
 	left_delta("left_delta", S32_MAX),
+	center_horiz("center_horiz", false),
+	center_vert("center_vert", false),
 	from_xui("from_xui", false),
 	user_resize("user_resize"),
 	auto_resize("auto_resize"),
 	needs_translate("translate"),
-	min_width("min_width"),
-	max_width("max_width"),
 	xmlns("xmlns"),
 	xmlns_xsi("xmlns:xsi"),
 	xsi_schemaLocation("xsi:schemaLocation"),
@@ -1315,6 +1321,8 @@ void LLView::drawChildren()
 
 			if (viewp->getVisible() && viewp->getRect().isValid())
 			{
+				// check for bad data
+				llassert_always(viewp->getVisible() == TRUE);
 				// Only draw views that are within the root view
 				localRectToScreen(viewp->getRect(),&screenRect);
 				if ( rootRect.overlaps(screenRect)  && LLUI::sDirtyRect.overlaps(screenRect))
@@ -2493,6 +2501,7 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 		p.layout = parent->getLayout();
 	}
 
+
 	if (parent)
 	{
 		LLRect parent_rect = parent->getLocalRect();
@@ -2500,20 +2509,59 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 		LLRect last_rect = parent->getLocalRect();
 
 		bool layout_topleft = (p.layout() == "topleft");
-
-		// convert negative or centered coordinates to parent relative values
-		// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
-		if (p.rect.left.isProvided() && p.rect.left < 0) p.rect.left = p.rect.left + parent_rect.getWidth();
-		if (p.rect.right.isProvided() && p.rect.right < 0) p.rect.right = p.rect.right + parent_rect.getWidth();
-		if (p.rect.bottom.isProvided() && p.rect.bottom < 0) p.rect.bottom = p.rect.bottom + parent_rect.getHeight();
-		if (p.rect.top.isProvided() && p.rect.top < 0) p.rect.top = p.rect.top + parent_rect.getHeight();
-
 		if (layout_topleft)
 		{
 			//invert top to bottom
 			if (p.rect.top.isProvided()) p.rect.top = parent_rect.getHeight() - p.rect.top;
 			if (p.rect.bottom.isProvided()) p.rect.bottom = parent_rect.getHeight() - p.rect.bottom;
 		}
+
+		// convert negative or centered coordinates to parent relative values
+		// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
+
+		if (p.center_horiz)
+		{
+			if (p.rect.left.isProvided() && p.rect.right.isProvided())
+			{
+				S32 width = p.rect.right - p.rect.left;
+				width = llmax(width, 0);
+				S32 offset = parent_rect.getWidth()/2 - width/2;
+				p.rect.left = p.rect.left + offset;
+				p.rect.right = p.rect.right + offset;
+			}
+			else
+			{
+				p.rect.left = p.rect.left + parent_rect.getWidth()/2 - p.rect.width/2;
+				p.rect.right.setProvided(false); // recalculate the right
+			}
+		}
+		else
+		{
+			if (p.rect.left.isProvided() && p.rect.left < 0) p.rect.left = p.rect.left + parent_rect.getWidth();
+			if (p.rect.right.isProvided() && p.rect.right < 0) p.rect.right = p.rect.right + parent_rect.getWidth();
+		}
+		if (p.center_vert)
+		{
+			if (p.rect.bottom.isProvided() && p.rect.top.isProvided())
+			{
+				S32 height = p.rect.top - p.rect.bottom;
+				height = llmax(height, 0);
+				S32 offset = parent_rect.getHeight()/2 - height/2;
+				p.rect.bottom = p.rect.bottom + offset;
+				p.rect.top = p.rect.top + offset;
+			}
+			else
+			{
+				p.rect.bottom = p.rect.bottom + parent_rect.getHeight()/2 - p.rect.height/2;
+				p.rect.top.setProvided(false); // recalculate the top
+			}
+		}
+		else
+		{
+			if (p.rect.bottom.isProvided() && p.rect.bottom < 0) p.rect.bottom = p.rect.bottom + parent_rect.getHeight();
+			if (p.rect.top.isProvided() && p.rect.top < 0) p.rect.top = p.rect.top + parent_rect.getHeight();
+		}
+
 
 		// DEPRECATE: automatically fall back to height of MIN_WIDGET_HEIGHT pixels
 		if (!p.rect.height.isProvided() && !p.rect.top.isProvided() && p.rect.height == 0)
