@@ -99,6 +99,12 @@ LLTexLayerSetBuffer::~LLTexLayerSetBuffer()
 }
 
 //virtual 
+S8 LLTexLayerSetBuffer::getType() const 
+{
+	return LLViewerDynamicTexture::LL_TEX_LAYER_SET_BUFFER ;
+}
+
+//virtual 
 void LLTexLayerSetBuffer::restoreGLTexture() 
 {	
 	LLViewerDynamicTexture::restoreGLTexture() ;

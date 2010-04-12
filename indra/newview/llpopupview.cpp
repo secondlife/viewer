@@ -116,7 +116,6 @@ BOOL LLPopupView::handleMouseEvent(boost::function<BOOL(LLView*, S32, S32)> func
 		if (!popup 
 			|| !predicate(popup))
 		{
-			++popup_it;
 			continue;
 		}
 
