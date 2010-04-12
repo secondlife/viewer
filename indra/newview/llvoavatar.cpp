@@ -3645,7 +3645,8 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 	
 	const U32 data_mask =	LLVertexBuffer::MAP_VERTEX | 
 							LLVertexBuffer::MAP_NORMAL | 
-							LLVertexBuffer::MAP_TEXCOORD0 | 
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_COLOR |
 							LLVertexBuffer::MAP_WEIGHT4;
 
 	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
@@ -3669,10 +3670,16 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 						if (face->isState(LLFace::RIGGED))
 						{
 							LLVolume* volume = attached_object->getVolume();
+							if (!volume || volume->getNumVolumeFaces() <= i)
+							{
+								continue;
+							}
+
 							const LLVolumeFace& vol_face = volume->getVolumeFace(i);
 
 							const LLMeshSkinInfo* skin = NULL;
 							LLVertexBuffer* buff = face->mVertexBuffer;
+							LLUUID mesh_id = volume->getParams().getSculptID();;
 
 							if (!buff || 
 								!buff->hasDataType(LLVertexBuffer::TYPE_WEIGHT4) ||
@@ -3682,7 +3689,6 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 								face->mLastVertexBuffer = NULL;
 								buff = NULL;
 
-								LLUUID mesh_id = volume->getParams().getSculptID();
 								if (mesh_id.notNull())
 								{
 									skin = gMeshRepo.getSkinInfo(mesh_id);
@@ -3693,7 +3699,8 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 
 										face->setGeomIndex(0);
 										face->setIndicesIndex(0);
-										
+										face->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
+
 										U16 offset = 0;
 										
 										LLMatrix4 mat_vert = skin->mBindShapeMatrix;
@@ -3705,8 +3712,13 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 								}
 							}								
 							
-							if (buff)
+							if (buff && mesh_id.notNull())
 							{
+								if (!skin)
+								{
+									skin = gMeshRepo.getSkinInfo(mesh_id);
+								}
+
 								if (skin)
 								{
 									LLMatrix4 mat[64];
@@ -3729,7 +3741,7 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 									buff->setBuffer(data_mask);
 
 									U16 start = face->getGeomStart();
-									U16 end = start + face->getGeomCount();
+									U16 end = start + face->getGeomCount()-1;
 									S32 offset = face->getIndicesStart();
 									U32 count = face->getIndicesCount();
 
