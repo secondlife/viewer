@@ -254,7 +254,7 @@ S32 LLDrawPoolAvatar::getNumShadowPasses()
 void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 {
 	LLFastTimer t(FTM_SHADOW_AVATAR);
-	
+	sSkipTransparent = TRUE;
 	sVertexProgram = &gDeferredAvatarShadowProgram;
 	if (sShaderLevel > 0)
 	{
@@ -276,7 +276,7 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 void LLDrawPoolAvatar::endShadowPass(S32 pass)
 {
 	LLFastTimer t(FTM_SHADOW_AVATAR);
-
+	sSkipTransparent = FALSE;
 	if (sShaderLevel > 0)
 	{
 		sRenderingSkinned = FALSE;
