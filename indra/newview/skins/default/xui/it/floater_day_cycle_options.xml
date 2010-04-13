@@ -59,7 +59,7 @@
 			</text>
 			<button font="SansSerifSmall" width="96" left="546" label="Aggiungi voce" label_selected="Aggiungi voce" name="WLAddKey"/>
 			<button font="SansSerifSmall" width="96" left="546" label="Cancella voce" label_selected="Cancella voce" name="WLDeleteKey"/>
-			<text name="WLCurKeyFrameText" width="210" left="17">
+			<text name="WLCurKeyFrameText">
 				Impostazioni del fotogramma chiave:
 			</text>
 			<text name="WLCurKeyTimeText">
