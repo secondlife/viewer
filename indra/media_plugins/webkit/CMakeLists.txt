@@ -51,6 +51,14 @@ if (LINUX AND PULSEAUDIO)
   list(APPEND media_plugin_webkit_LINK_LIBRARIES
        ${UI_LIBRARIES}     # for glib/GTK
        )
+elseif (DARWIN)
+  list(APPEND media_plugin_webkit_SOURCE_FILES mac_volume_catcher.cpp)
+  find_library(CORESERVICES_LIBRARY CoreServices)
+  find_library(AUDIOUNIT_LIBRARY AudioUnit)
+  list(APPEND media_plugin_webkit_LINK_LIBRARIES
+       ${CORESERVICES_LIBRARY}     # for Component Manager calls
+       ${AUDIOUNIT_LIBRARY}        # for AudioUnit calls
+       )
 else (LINUX AND PULSEAUDIO)
   # All other platforms use the dummy volume catcher for now.
   list(APPEND media_plugin_webkit_SOURCE_FILES dummy_volume_catcher.cpp)
