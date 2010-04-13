@@ -5395,6 +5395,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ParticipantListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide people icons in participant list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PerAccountSettingsFile</key>
     <map>
       <key>Comment</key>

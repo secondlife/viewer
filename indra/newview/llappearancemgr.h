@@ -135,6 +135,9 @@ public:
 	// @return false if there is no base outfit
 	bool updateBaseOutfit();
 
+	//Remove clothing or detach an object from the agent (a bodypart cannot be removed)
+	void removeItemFromAvatar(const LLUUID& item_id);
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();

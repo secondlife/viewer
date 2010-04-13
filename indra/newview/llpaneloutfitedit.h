@@ -94,8 +94,8 @@ public:
 	void onSearchEdit(const std::string& string);
 	void onInventorySelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onAddToOutfitClicked(void);
-	void onLookItemSelectionChange(void);
-	void onRemoveFromLookClicked(void);
+	void onOutfitItemSelectionChange(void);
+	void onRemoveFromOutfitClicked(void);
 	void onEditWearableClicked(void);
 	void onUpClicked(void);
 
@@ -117,7 +117,7 @@ private:
 	LLSaveFolderState*	mSavedFolderState;
 	std::string			mSearchString;
 	LLButton*			mAddToOutfitBtn;
-	LLButton*			mRemoveFromLookBtn;
+	LLButton*			mRemoveFromOutfitBtn;
 	LLButton*			mUpBtn;
 	LLButton*			mEditWearableBtn;
 	LLToggleableMenu*	mSaveMenu;
