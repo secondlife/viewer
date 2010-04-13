@@ -82,7 +82,7 @@ namespace LLAvatarNameCache
 	// Periodically clean out expired entries from the cache
 	LLFrameTimer sEraseExpiredTimer;
 
-	void processNameFromService(const LLSD& row, U32 expires);
+	void processNameFromService(const LLSD& row);
 	void requestNames();
 	bool isRequestPending(const LLUUID& agent_id);
 
@@ -97,28 +97,32 @@ namespace LLAvatarNameCache
     <key>agents</key>
     <array>
       <map>
-        <key>sl_id</key>
-        <string>mickbot390.llqabot</string>
+        <key>seconds_until_display_name_update</key>
+        <integer/>
         <key>display_name</key>
         <string>MickBot390 LLQABot</string>
+        <key>seconds_until_display_name_expires</key>
+        <integer/>
+        <key>sl_id</key>
+        <string>mickbot390.llqabot</string>
         <key>id</key>
         <string>0012809d-7d2d-4c24-9609-af1230a37715</string>
         <key>is_display_name_default</key>
         <boolean>false</boolean>
-        <key>seconds_until_display_name_update</key>
-        <integer/>
       </map>
       <map>
-        <key>sl_id</key>
-        <string>sardonyx.linden</string>
+        <key>seconds_until_display_name_update</key>
+        <integer/>
         <key>display_name</key>
         <string>Bjork Gudmundsdottir</string>
+        <key>seconds_until_display_name_expires</key>
+        <integer>3600</integer>
+        <key>sl_id</key>
+        <string>sardonyx.linden</string>
         <key>id</key>
         <string>3941037e-78ab-45f0-b421-bd6e77c1804d</string>
         <key>is_display_name_default</key>
         <boolean>true</boolean>
-        <key>seconds_until_display_name_update</key>
-        <integer>46925</integer>
       </map>
     </array>
   </map>
@@ -130,17 +134,12 @@ class LLAvatarNameResponder : public LLHTTPClient::Responder
 public:
 	/*virtual*/ void result(const LLSD& content)
 	{
-		// JAMESDEBUG TODO: get expiration from header
-		const U32 DEFAULT_EXPIRATION = 6 * 60 * 60;	// 6 hours
-		U32 now = (U32)LLFrameTimer::getTotalSeconds();
-		U32 expires = now + DEFAULT_EXPIRATION;
-
 		LLSD agents = content["agents"];
 		LLSD::array_const_iterator it = agents.beginArray();
 		for ( ; it != agents.endArray(); ++it)
 		{
 			const LLSD& entry = *it;
-			LLAvatarNameCache::processNameFromService(entry, expires);
+			LLAvatarNameCache::processNameFromService(entry);
 		}
 	}
 
@@ -151,13 +150,16 @@ public:
 };
 
 // "expires" is seconds-from-epoch
-void LLAvatarNameCache::processNameFromService(const LLSD& row, U32 expires)
+void LLAvatarNameCache::processNameFromService(const LLSD& row)
 {
 	LLAvatarName av_name;
 	av_name.mSLID = row["sl_id"].asString();
 	av_name.mDisplayName = row["display_name"].asString();
 	//av_name.mIsDisplayNameDefault = row["is_display_name_default"].asBoolean();
-	av_name.mExpires = expires;
+
+	U32 now = (U32)LLFrameTimer::getTotalSeconds();
+	S32 seconds_until_expires = row["seconds_until_display_name_expires"].asInteger();
+	av_name.mExpires = now + seconds_until_expires;
 
 	// HACK for pretty stars
 	//if (row["last_name"].asString() == "Linden")
