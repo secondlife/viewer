@@ -52,9 +52,8 @@ public:
 
 	void setVolume(F32 volume);
 	void setPan(F32 pan);
-	void pump(void);
 	
-	void setDelegateVolume(ComponentInstance delegate);
+	void setInstanceVolume(VolumeCatcherStorage *instance);
 	
 	std::list<VolumeCatcherStorage*> mComponentInstances;
 	Component mOriginalDefaultOutput;
@@ -62,11 +61,13 @@ public:
 	
 	static VolumeCatcherImpl *getInstance();
 private:
+	// This is a singleton class -- both callers and the component implementation should use getInstance() to find the instance.
 	VolumeCatcherImpl();
-	~VolumeCatcherImpl();
-
-	// The component entry point needs to be able to find the instance.
 	static VolumeCatcherImpl *sInstance;
+	
+	// The singlar instance of this class is expected to last until the process exits.
+	// To ensure this, we declare the destructor here but never define it, so any code which attempts to destroy the instance will not link.
+	~VolumeCatcherImpl();	
 	
 	F32 mVolume;
 	F32 mPan;
@@ -88,8 +89,7 @@ VolumeCatcherImpl *VolumeCatcherImpl::getInstance()
 {
 	if(!sInstance)
 	{
-		// The constructor will set up the instance pointer.
-		new VolumeCatcherImpl;
+		sInstance = new VolumeCatcherImpl;
 	}
 	
 	return sInstance;
@@ -97,14 +97,9 @@ VolumeCatcherImpl *VolumeCatcherImpl::getInstance()
 
 VolumeCatcherImpl::VolumeCatcherImpl()
 {
-	sInstance = this;
-	
 	mVolume = 1.0;	// default to full volume
 	mPan = 0.5;		// and center pan
-	
-	// Register a component which can delegate 
-	
-	// Capture the default audio output component.
+		
 	ComponentDescription desc;
 	desc.componentType = kAudioUnitType_Output;
 	desc.componentSubType = kAudioUnitSubType_DefaultOutput;
@@ -153,23 +148,33 @@ static ComponentResult volume_catcher_component_entry(ComponentParameters *cp, H
 static ComponentResult volume_catcher_component_open(VolumeCatcherStorage *storage, ComponentInstance self)
 {
 	ComponentResult result = noErr;
+	VolumeCatcherImpl *impl = VolumeCatcherImpl::getInstance();	
 	
 	storage = new VolumeCatcherStorage;
-	SetComponentInstanceStorage(self, (Handle)storage);
 
-	
-	VolumeCatcherImpl *impl = VolumeCatcherImpl::getInstance();	
-
-	impl->mComponentInstances.push_back(storage);
-	
 	storage->self = self;
 	storage->delegate = NULL;
 
 	result = OpenAComponent(impl->mOriginalDefaultOutput, &(storage->delegate));
 	
-//	std::cerr << "OpenAComponent result = " << result << ", component ref = " << storage->delegate << std::endl;
+	if(result != noErr)
+	{
+//		std::cerr << "OpenAComponent result = " << result << ", component ref = " << storage->delegate << std::endl;
+		
+		// If we failed to open the delagate component, our open is going to fail.  Clean things up.
+		delete storage;
+	}
+	else
+	{
+		// Success -- set up this component's storage
+		SetComponentInstanceStorage(self, (Handle)storage);
 
-	impl->setDelegateVolume(storage->delegate);
+		// add this instance to the global list
+		impl->mComponentInstances.push_back(storage);	
+		
+		// and set up the initial volume
+		impl->setInstanceVolume(storage);
+	}
 
 	return result;
 }
@@ -194,22 +199,15 @@ static ComponentResult volume_catcher_component_close(VolumeCatcherStorage *stor
 	return result;
 }
 
-VolumeCatcherImpl::~VolumeCatcherImpl()
-{
-	// We expect to persist until the process exits.  This should never be called.
-	abort();
-}
-
 void VolumeCatcherImpl::setVolume(F32 volume)
 {
 	VolumeCatcherImpl *impl = VolumeCatcherImpl::getInstance();	
 	impl->mVolume = volume;
-
-	std::list<VolumeCatcherStorage*>::iterator iter;
-		
-	for(iter = mComponentInstances.begin(); iter != mComponentInstances.end(); ++iter)
+	
+	// Iterate through all known instances, setting the volume on each.
+	for(std::list<VolumeCatcherStorage*>::iterator iter = mComponentInstances.begin(); iter != mComponentInstances.end(); ++iter)
 	{
-		impl->setDelegateVolume((*iter)->delegate);
+		impl->setInstanceVolume(*iter);
 	}
 }
 
@@ -223,23 +221,23 @@ void VolumeCatcherImpl::setPan(F32 pan)
 	// There's also a "3d mixer" component that we might be able to use...
 }
 
-void VolumeCatcherImpl::pump(void)
+void VolumeCatcherImpl::setInstanceVolume(VolumeCatcherStorage *instance)
 {
-}
-
-void VolumeCatcherImpl::setDelegateVolume(ComponentInstance delegate)
-{
-//	std::cerr << "Setting volume on component instance: " << (delegate) << " to " << mVolume << std::endl;
-		
-	OSStatus err;
-	err = AudioUnitSetParameter(
-			delegate, 
-			kHALOutputParam_Volume, 
-			kAudioUnitScope_Global,
-			0, 
-			mVolume, 
-			0);
-
+//	std::cerr << "Setting volume on component instance: " << (instance->delegate) << " to " << mVolume << std::endl;
+	
+	OSStatus err = noErr;
+	
+	if(instance && instance->delegate)
+	{
+		err = AudioUnitSetParameter(
+				instance->delegate, 
+				kHALOutputParam_Volume, 
+				kAudioUnitScope_Global,
+				0, 
+				mVolume, 
+				0);
+	}
+	
 	if(err)
 	{
 //		std::cerr << "    AudioUnitSetParameter returned " << err << std::endl;
@@ -260,16 +258,16 @@ VolumeCatcher::~VolumeCatcher()
 
 void VolumeCatcher::setVolume(F32 volume)
 {
-	VolumeCatcherImpl::getInstance()->setVolume(volume);
+	pimpl->setVolume(volume);
 }
 
 void VolumeCatcher::setPan(F32 pan)
 {
-	VolumeCatcherImpl::getInstance()->setPan(pan);
+	pimpl->setPan(pan);
 }
 
 void VolumeCatcher::pump()
 {
-	VolumeCatcherImpl::getInstance()->pump();
+	// No periodic tasks are necessary for this implementation.
 }
 
