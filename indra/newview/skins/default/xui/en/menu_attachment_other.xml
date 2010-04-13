@@ -72,7 +72,7 @@
              function="Avatar.EnableFreezeEject"/>
         </menu_item_call>
         <menu_item_call
-         label="Debug"
+         label="Debug Textures"
          name="Debug...">
             <menu_item_call.on_click
              function="Avatar.Debug" />

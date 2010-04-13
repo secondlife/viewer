@@ -166,12 +166,13 @@ void LLTexLayerSetBuffer::popProjection() const
 
 BOOL LLTexLayerSetBuffer::needsRender()
 {
-	const LLVOAvatarSelf* avatar = mTexLayerSet->getAvatar();
+	llassert(mTexLayerSet->getAvatar() == gAgentAvatarp);
+	if (!isAgentAvatarValid()) return FALSE;
 	BOOL upload_now = mNeedsUpload && mTexLayerSet->isLocalTextureDataFinal() && gAgentQueryManager.hasNoPendingQueries();
-	BOOL needs_update = (mNeedsUpdate || upload_now) && !avatar->mAppearanceAnimating;
+	BOOL needs_update = (mNeedsUpdate || upload_now) && !gAgentAvatarp->mAppearanceAnimating;
 	if (needs_update)
 	{
-		BOOL invalid_skirt = avatar->getBakedTE(mTexLayerSet) == LLVOAvatarDefines::TEX_SKIRT_BAKED && !avatar->isWearingWearableType(WT_SKIRT);
+		BOOL invalid_skirt = gAgentAvatarp->getBakedTE(mTexLayerSet) == LLVOAvatarDefines::TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(WT_SKIRT);
 		if (invalid_skirt)
 		{
 			// we were trying to create a skirt texture
@@ -181,7 +182,6 @@ BOOL LLTexLayerSetBuffer::needsRender()
 		}
 		else
 		{
-			needs_update &= (avatar->isSelf() || (avatar->isVisible() && !avatar->isCulled()));
 			needs_update &= mTexLayerSet->isLocalTextureDataAvailable();
 		}
 	}

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="650"
+ height="660"
  layout="topleft"
  name="avatar_texture_debug"
  help_topic="avatar_texture_debug"
  title="AVATAR TEXTURES"
- width="1250">
+ width="1253">
     <floater.string
      name="InvalidAvatar">
         INVALID AVATAR
