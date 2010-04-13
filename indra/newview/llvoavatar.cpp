@@ -2871,10 +2871,11 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerif());
 			}
-			if (show_slids)
+			// Suppress SLID display if display name matches exactly (ugh)
+			if (show_slids && !av_name.mIsDisplayNameDefault)
 			{
 				// JAMESDEBUG HACK
-				LLColor4 slid_color = name_tag_color * 0.8f;
+				LLColor4 slid_color = name_tag_color * 0.83f;
 				addNameTagLine(av_name.mSLID, slid_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerifSmall());
 			}
