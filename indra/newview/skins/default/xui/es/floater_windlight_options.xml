@@ -157,8 +157,7 @@
 			</text>
 			<button label="?" name="WLCloudScaleHelp"/>
 			<text font="SansSerifSmall" name="WLCloudDetailText">
-				Detalle de las nubes
-(Posición/Densidad)
+				Detalle de las nubes (Posición/Densidad)
 			</text>
 			<button label="?" name="WLCloudDetailHelp"/>
 			<text bottom="-113" name="BHText8">
