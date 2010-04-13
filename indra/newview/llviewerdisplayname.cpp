@@ -42,6 +42,7 @@
 #include "llavatarnamecache.h"
 #include "llhttpclient.h"
 #include "llhttpnode.h"
+#include "llnotificationsutil.h"
 
 namespace LLViewerDisplayName
 {
@@ -124,15 +125,21 @@ class LLDisplayNameUpdate : public LLHTTPNode
 	{
 		LLSD body = input["body"];
 		LLUUID agent_id = body["agent_id"];
-
-		llinfos << "JAMESDEBUG LLDisplayNameUpdate agent_id "
-			<< agent_id << llendl;
+		std::string slid = body["sl_id"];
+		std::string old_display_name = body["old_display_name"];
+		std::string new_display_name = body["new_display_name"];
 
 		// force re-request of this agent's name data
 		LLAvatarNameCache::erase(agent_id);
 
 		// force name tag to update
 		LLVOAvatar::invalidateNameTag(agent_id);
+
+		LLSD args;
+		args["OLD_NAME"] = old_display_name;
+		args["SLID"] = slid;
+		args["NEW_NAME"] = new_display_name;
+		LLNotificationsUtil::add("DisplayNameUpdate", args);
 	}
 };
 

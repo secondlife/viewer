@@ -3075,6 +3075,13 @@ Change your display name?
   </notification>
 
   <notification
+   icon="notifytip.tga"
+   name="DisplayNameUpdate"
+   type="notifytip">
+    [OLD_NAME] ([SLID]) is now known as [NEW_NAME].
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="OfferTeleport"
    type="alertmodal">
