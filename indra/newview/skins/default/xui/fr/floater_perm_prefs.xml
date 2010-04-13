@@ -4,7 +4,7 @@
 		<button label="?" label_selected="?" name="help"/>
 		<check_box label="Partager avec le groupe" name="share_with_group"/>
 		<check_box label="Autoriser tout le monde à copier" name="everyone_copy"/>
-		<text name="NextOwnerLabel" width="260">
+		<text name="NextOwnerLabel">
 			Le prochain propriétaire pourra :
 		</text>
 		<check_box label="Modifier" name="next_owner_modify"/>
