@@ -127,6 +127,8 @@
              <gesture_combo_list.combo_button
               pad_right="10"
               use_ellipses="true" />
+             <gesture_combo_list.combo_list
+              page_lines="17" />
          </gesture_combo_list>
         </layout_panel>
 		 <icon
@@ -344,7 +346,6 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
          user_resize="false">
             <chiclet_im_well
              max_displayed_count="99"
-             flash_period="0.3"
              follows="right"
              height="28"
              layout="topleft"
@@ -393,7 +394,6 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
          min_width="37"
          user_resize="false">
             <chiclet_notification
-             flash_period="0.25"
              follows="right"
              height="23"
              layout="topleft"

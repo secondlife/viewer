@@ -173,6 +173,36 @@ protected:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryMovedObserver
+//
+// This class is used as a base class for doing something when all the
+// item for observed asset ids were added into the inventory.
+// Derive a class from this class and implement the done() method to do
+// something useful.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLInventoryMoveFromWorldObserver : public LLInventoryObserver
+{
+public:
+	LLInventoryMoveFromWorldObserver() : mIsDirty(false) {}
+	virtual void changed(U32 mask);
+
+	void watchAsset(const LLUUID& asset_id);
+	bool isAssetWatched(const LLUUID& asset_id);
+
+protected:
+	virtual void onAssetAdded(const LLUUID& asset_id) {}
+	virtual void done() = 0;
+
+	typedef std::vector<LLUUID> item_ref_t;
+	item_ref_t mAddedItems;
+	item_ref_t mWatchedAssets;
+
+private:
+	bool mIsDirty;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryAddedObserver
 //
 //   Base class for doing something when a new item arrives in inventory.

@@ -2958,8 +2958,12 @@ void LLPipeline::renderHighlights()
 	}
 }
 
+//debug use
+U32 LLPipeline::sCurRenderPoolType = 0 ;
+
 void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 {
+	llpushcallstacks ;
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_RENDER_GEOM);
 	LLFastTimer t(FTM_RENDER_GEOMETRY);
 
@@ -3066,6 +3070,9 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 			LLDrawPool *poolp = *iter1;
 			
 			cur_type = poolp->getType();
+
+			//debug use
+			sCurRenderPoolType = cur_type ;
 
 			if (occlude && cur_type >= LLDrawPool::POOL_GRASS)
 			{
@@ -7096,6 +7103,7 @@ inline float sgn(float a)
 
 void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
+	llpushcallstacks ;
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
 		BOOL skip_avatar_update = FALSE;
@@ -7831,7 +7839,7 @@ void LLPipeline::renderHighlight(const LLViewerObject* obj, F32 fade)
 void LLPipeline::generateHighlight(LLCamera& camera)
 {
 	//render highlighted object as white into offscreen render target
-	
+	llpushcallstacks ;
 	if (mHighlightObject.notNull())
 	{
 		mHighlightSet.insert(HighlightItem(mHighlightObject));

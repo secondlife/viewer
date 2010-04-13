@@ -3380,6 +3380,13 @@ You can click &apos;Change Preference&apos; to raise your maturity Rating prefer
   </notification>
 
   <notification
+   icon="notifytip.tga"
+   name="PreferredMaturityChanged"
+   type="notifytip">
+Your maturity rating preference is now [RATING].
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="LandClaimAccessBlocked"
    type="alertmodal">
@@ -4373,6 +4380,18 @@ Although you&apos;re very nice, you can&apos;t add yourself as a friend.
    type="notifytip">
 Uploading in-world and web site snapshots...
 (Takes about 5 minutes.)
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UploadConfirmation"
+   type="alertmodal">
+Uploading costs L$[AMOUNT].
+Do you wish to proceed?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
   </notification>
 
   <notification
@@ -5940,6 +5959,13 @@ Are you sure you want to delete your teleport history?
    type="alert">
 Selected button can not be shown right now.
 The button will be shown when there is enough space for it.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ShareNotification"
+   type="notifytip">
+Drag items from inventory onto a person in the resident picker
   </notification>
 
 

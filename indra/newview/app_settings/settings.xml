@@ -10600,7 +10600,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>WaterEditPresets</key>
     <map>
@@ -10645,6 +10645,28 @@
       <string>F32</string>
       <key>Value</key>
       <real>50.0</real>
+    </map>
+    <key>WellIconFlashCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of flashes of IM Well and Notification Well icons after which flashing buttons stay lit up. Requires restart.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
+    </map>
+    <key>WellIconFlashPeriod</key>
+    <map>
+      <key>Comment</key>
+      <string>Period at which IM Well and Notification Well icons flash (seconds). Requires restart.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.25</real>
     </map>
     <key>WindLightUseAtmosShaders</key>
     <map>

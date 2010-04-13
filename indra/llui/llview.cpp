@@ -1321,6 +1321,8 @@ void LLView::drawChildren()
 
 			if (viewp->getVisible() && viewp->getRect().isValid())
 			{
+				// check for bad data
+				llassert_always(viewp->getVisible() == TRUE);
 				// Only draw views that are within the root view
 				localRectToScreen(viewp->getRect(),&screenRect);
 				if ( rootRect.overlaps(screenRect)  && LLUI::sDirtyRect.overlaps(screenRect))

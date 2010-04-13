@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
 background_visible="true"
+ default_tab_group="1"
  follows="all"
  height="570"
  label="Places"
@@ -37,6 +38,7 @@ background_visible="true"
      name="Places Tabs"
      tab_min_width="80"
      tab_height="30"
+     tab_group="1"
      tab_position="top"
      top_pad="10"
      width="315" />
@@ -132,5 +134,14 @@ background_visible="true"
          right="-10"
          top="1"
          width="60" />
+        <button
+         follows="bottom|left"
+         height="23"
+         label="Profile"
+         layout="topleft"
+         name="profile_btn"
+         right="-1"
+         top="1"
+         width="111" />
     </panel>
 </panel>

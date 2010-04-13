@@ -45,6 +45,7 @@ public:
 	virtual void onSearchEdit(const std::string& string) = 0;
 	virtual void updateVerbs() = 0;		// Updates buttons at the bottom of Places panel
 	virtual void onShowOnMap() = 0;
+	virtual void onShowProfile() = 0;
 	virtual void onTeleport() = 0;
 
 	bool isTabVisible(); // Check if parent TabContainer is visible.
@@ -62,6 +63,7 @@ public:
 protected:
 	LLButton*				mTeleportBtn;
 	LLButton*				mShowOnMapBtn;
+	LLButton*				mShowProfile;
 
 	// Search string for filtering landmarks and teleport history locations
 	static std::string		sFilterSubString;

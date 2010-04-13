@@ -438,6 +438,7 @@ set(viewer_SOURCE_FILES
     lltracker.cpp
     lltransientdockablefloater.cpp
     lltransientfloatermgr.cpp
+    llpanelgenerictip.cpp
     lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
@@ -940,6 +941,7 @@ set(viewer_HEADER_FILES
     lltracker.h
     lltransientdockablefloater.h
     lltransientfloatermgr.h
+    llpanelgenerictip.h
     lluiconstants.h
     lluilistener.h
     lluploaddialog.h

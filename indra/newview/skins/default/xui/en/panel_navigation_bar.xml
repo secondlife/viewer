@@ -66,6 +66,7 @@
 	    <button
 	     follows="left|top"
 	     height="23"
+	     image_bottom_pad="1"
 	     image_overlay="Home_Off"
 	     layout="topleft"
 	     left_pad="7"

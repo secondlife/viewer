@@ -59,7 +59,7 @@
 			</text>
 			<button font="SansSerifSmall" width="96" left="546" label="Añadir un punto" label_selected="Añadir un punto" name="WLAddKey"/>
 			<button font="SansSerifSmall" width="96" left="546" label="Quitar un punto" label_selected="Quitar un punto" name="WLDeleteKey"/>
-			<text font="SansSerifSmall" name="WLCurKeyFrameText" width="190">
+			<text name="WLCurKeyFrameText">
 				Configuración del fotograma clave:
 			</text>
 			<text name="WLCurKeyTimeText">
