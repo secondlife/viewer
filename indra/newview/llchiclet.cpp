@@ -131,8 +131,6 @@ LLSysWellChiclet::Params::Params()
 : button("button")
 , unread_notifications("unread_notifications")
 , max_displayed_count("max_displayed_count", 99)
-, flash_to_lit_count("flash_to_lit_count", 3)
-, flash_period("flash_period", 0.5F)
 {
 	button.name("button");
 	button.tab_stop(FALSE);
@@ -152,7 +150,13 @@ LLSysWellChiclet::LLSysWellChiclet(const Params& p)
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 	addChild(mButton);
 
-	mFlashToLitTimer = new FlashToLitTimer(p.flash_to_lit_count, p.flash_period, boost::bind(&LLSysWellChiclet::changeLitState, this));
+	// use settings from settings.xml to be able change them via Debug settings. See EXT-5973.
+	// Due to Timer is implemented as derived class from EventTimer it is impossible to change period
+	// in runtime. So, both settings are made as required restart.
+	static S32 flash_to_lit_count = gSavedSettings.getS32("WellIconFlashCount");
+	static F32 flash_period = gSavedSettings.getF32("WellIconFlashPeriod");
+
+	mFlashToLitTimer = new FlashToLitTimer(flash_to_lit_count, flash_period, boost::bind(&LLSysWellChiclet::changeLitState, this));
 }
 
 LLSysWellChiclet::~LLSysWellChiclet()
