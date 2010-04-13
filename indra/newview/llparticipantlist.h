@@ -46,7 +46,7 @@ class LLParticipantList
 
 		typedef boost::function<bool (const LLUUID& speaker_id)> validate_speaker_callback_t;
 
-		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true, bool exclude_agent = true);
+		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true, bool exclude_agent = true, bool can_toggle_icons = true);
 		~LLParticipantList();
 		void setSpeakingIndicatorsVisible(BOOL visible);
 
@@ -268,6 +268,7 @@ class LLParticipantList
 		boost::signals2::connection mAvatarListDoubleClickConnection;
 		boost::signals2::connection mAvatarListRefreshConnection;
 		boost::signals2::connection mAvatarListReturnConnection;
+		boost::signals2::connection mAvatarListToggleIconsConnection;
 
 		LLPointer<LLAvatarItemRecentSpeakerComparator> mSortByRecentSpeakers;
 		validate_speaker_callback_t mValidateSpeakerCallback;
