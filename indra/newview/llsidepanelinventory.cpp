@@ -33,6 +33,7 @@
 #include "llsidepanelinventory.h"
 
 #include "llagent.h"
+#include "llavataractions.h"
 #include "llbutton.h"
 #include "llinventorybridge.h"
 #include "llinventorypanel.h"
@@ -151,6 +152,7 @@ void LLSidepanelInventory::onInfoButtonClicked()
 
 void LLSidepanelInventory::onShareButtonClicked()
 {
+	LLAvatarActions::shareWithAvatars();
 }
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)
@@ -252,7 +254,9 @@ void LLSidepanelInventory::updateVerbs()
 	mPlayBtn->setEnabled(FALSE);
  	mTeleportBtn->setVisible(FALSE);
  	mTeleportBtn->setEnabled(FALSE);
-	
+
+	mShareBtn->setEnabled(canShare());
+
 	const LLInventoryItem *item = getSelectedItem();
 	if (!item)
 		return;
@@ -260,7 +264,6 @@ void LLSidepanelInventory::updateVerbs()
 	bool is_single_selection = getSelectedCount() == 1;
 
 	mInfoBtn->setEnabled(is_single_selection);
-	mShareBtn->setEnabled(is_single_selection);
 
 	switch(item->getInventoryType())
 	{
@@ -283,6 +286,25 @@ void LLSidepanelInventory::updateVerbs()
 		default:
 			break;
 	}
+}
+
+bool LLSidepanelInventory::canShare()
+{
+	LLPanelMainInventory* panel_main_inventory =
+		mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
+
+	LLFolderView* root_folder =
+		panel_main_inventory->getActivePanel()->getRootFolder();
+
+	LLFolderViewItem* current_item = root_folder->hasVisibleChildren()
+		? root_folder->getCurSelectedItem()
+		: NULL;
+
+	LLInvFVBridge* bridge = current_item
+		? dynamic_cast <LLInvFVBridge*> (current_item->getListener())
+		: NULL;
+
+	return bridge ? bridge->canShare() : false;
 }
 
 LLInventoryItem *LLSidepanelInventory::getSelectedItem()

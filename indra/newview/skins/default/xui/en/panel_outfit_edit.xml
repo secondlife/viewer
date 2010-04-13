@@ -257,7 +257,7 @@
              text_pad_left="25" />
 
             <inventory_panel
-             allow_multi_select="true"
+             allow_multi_select="false"
              border="false"
              follows="left|top|right|bottom"
              height="176"
@@ -317,6 +317,19 @@
                  name="list_view_btn"
                  top="1"
                  width="31" />
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="AddItem_Off"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 label=""
+                 layout="topleft"
+                 left_pad="1"
+                 name="add_to_outfit_btn"
+                 top="1"
+                 width="31" />
             </panel>
         </layout_panel>
     </layout_stack>
@@ -337,6 +350,19 @@
          layout="topleft"
          name="save_btn"
          width="145" />
+        <button
+         follows="bottom|right"
+         height="23"
+         name="save_flyout_btn"
+         label=""
+         left_pad="-20"
+         tab_stop="false"
+         image_selected="SegmentedBtn_Right_Selected_Press"
+         image_unselected="SegmentedBtn_Right_Off"
+         image_pressed="SegmentedBtn_Right_Press"
+         image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+         image_overlay="Arrow_Small_Up"
+         width="20"/>
         <button
          follows="bottom|left|right"
          height="23"

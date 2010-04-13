@@ -142,7 +142,7 @@ private:
 	/**
 	 * Processes drag-n-drop of the Landmarks and folders into trash button.
 	 */
-	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
+	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept);
 
 	/**
 	 * Landmark actions callbacks. Fire when a landmark is loaded from the list.

@@ -672,6 +672,11 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Share"));
+		if (!canShare())
+		{
+			disabled_items.push_back(std::string("Share"));
+		}
 		items.push_back(std::string("Open"));
 		items.push_back(std::string("Properties"));
 
@@ -1029,6 +1034,38 @@ bool LLInvFVBridge::isInOutfitsSidePanel() const
 	if (!outfit_panel)
 		return false;
 	return outfit_panel->isTabPanel(my_panel);
+}
+
+bool LLInvFVBridge::canShare()
+{
+	const LLInventoryModel* model = getInventoryModel();
+	if(!model)
+	{
+		return false;
+	}
+
+	LLViewerInventoryItem *item = model->getItem(mUUID);
+	if (item)
+	{
+		bool allowed = false;
+		allowed = LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item);
+		if (allowed &&
+			!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+		{
+			allowed = false;
+		}
+		if (allowed &&
+			!item->getPermissions().allowCopyBy(gAgent.getID()))
+		{
+			allowed = false;
+		}
+		return allowed;
+	}
+
+	LLViewerInventoryCategory* cat = model->getCategory(mUUID);
+
+	// All categories can be given.
+	return cat != NULL;
 }
 
 // +=================================================+
@@ -2748,7 +2785,13 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		mDisabledItems.push_back(std::string("Delete System Folder"));
 	}
-	
+
+	mItems.push_back(std::string("Share"));
+	if (!canShare())
+	{
+		mDisabledItems.push_back(std::string("Share"));
+	}
+
 	hide_context_entries(menu, mItems, mDisabledItems);
 }
 
@@ -3167,6 +3210,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 			else
 			{
+				// store dad inventory item to select added one later. See EXT-4347
+				set_dad_inventory_item(inv_item, mUUID);
+
 				LLNotification::Params params("MoveInventoryFromObject");
 				params.functor.function(boost::bind(move_task_inventory_callback, _1, _2, move_inv));
 				LLNotifications::instance().forceResponse(params, 0);
@@ -3263,6 +3309,12 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Share"));
+		if (!canShare())
+		{
+			disabled_items.push_back(std::string("Share"));
+		}
+
 		items.push_back(std::string("Open"));
 		items.push_back(std::string("Properties"));
 
@@ -3351,6 +3403,11 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Share"));
+		if (!canShare())
+		{
+			disabled_items.push_back(std::string("Share"));
+		}
 		items.push_back(std::string("Sound Open"));
 		items.push_back(std::string("Properties"));
 
@@ -3397,6 +3454,11 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Share"));
+		if (!canShare())
+		{
+			disabled_items.push_back(std::string("Share"));
+		}
 		items.push_back(std::string("Landmark Open"));
 		items.push_back(std::string("Properties"));
 
@@ -3614,6 +3676,11 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Share"));
+		if (!canShare())
+		{
+			disabled_items.push_back(std::string("Share"));
+		}
 		items.push_back(std::string("Open"));
 		items.push_back(std::string("Properties"));
 
@@ -3884,6 +3951,11 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Share"));
+		if (!canShare())
+		{
+			disabled_items.push_back(std::string("Share"));
+		}
 		bool is_sidepanel = isInOutfitsSidePanel();
 
 		if (!is_sidepanel)
@@ -3942,6 +4014,11 @@ void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Share"));
+		if (!canShare())
+		{
+			disabled_items.push_back(std::string("Share"));
+		}
 		items.push_back(std::string("Animation Open"));
 		items.push_back(std::string("Properties"));
 
@@ -4218,6 +4295,11 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else
 	{
+		items.push_back(std::string("Share"));
+		if (!canShare())
+		{
+			disabled_items.push_back(std::string("Share"));
+		}
 		bool is_sidepanel = isInOutfitsSidePanel();
 
 		if (!is_sidepanel)
@@ -4607,6 +4689,11 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			can_open = FALSE;
 		}
 
+		items.push_back(std::string("Share"));
+		if (!canShare())
+		{
+			disabled_items.push_back(std::string("Share"));
+		}
 		bool is_sidepanel = isInOutfitsSidePanel();
 		
 		if (can_open && !is_sidepanel)

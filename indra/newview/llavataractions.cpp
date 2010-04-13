@@ -35,6 +35,8 @@
 
 #include "llavataractions.h"
 
+#include "boost/lambda/lambda.hpp"	// for lambda::constant
+
 #include "llsd.h"
 #include "lldarray.h"
 #include "llnotifications.h"
@@ -46,6 +48,7 @@
 #include "llappviewer.h"		// for gLastVersionChannel
 #include "llcachename.h"
 #include "llcallingcard.h"		// for LLAvatarTracker
+#include "llfloateravatarpicker.h"	// for LLFloaterAvatarPicker
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
@@ -54,6 +57,7 @@
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
 #include "llimview.h"			// for gIMMgr
 #include "llmutelist.h"
+#include "llnotificationsutil.h"	// for LLNotificationsUtil
 #include "llrecentpeople.h"
 #include "llsidetray.h"
 #include "lltrans.h"
@@ -423,6 +427,16 @@ void LLAvatarActions::share(const LLUUID& id)
 		// we should always get here, but check to verify anyways
 		LLIMModel::getInstance()->addMessage(session_id, SYSTEM_FROM, LLUUID::null, LLTrans::getString("share_alert"), false);
 	}
+}
+
+//static
+void LLAvatarActions::shareWithAvatars()
+{
+	LLFloaterAvatarPicker* picker =
+		LLFloaterAvatarPicker::show(NULL, FALSE, TRUE);
+	picker->setOkBtnEnableCb(boost::lambda::constant(false));
+
+	LLNotificationsUtil::add("ShareNotification");
 }
 
 // static

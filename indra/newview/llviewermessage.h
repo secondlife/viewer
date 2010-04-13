@@ -208,6 +208,8 @@ void open_inventory_offer(const uuid_vec_t& items, const std::string& from_name)
 // Returns false if item is not found.
 bool highlight_offered_item(const LLUUID& item_id);
 
+void set_dad_inventory_item(LLInventoryItem* inv_item, const LLUUID& into_folder_uuid);
+
 struct LLOfferInfo
 {
         LLOfferInfo()

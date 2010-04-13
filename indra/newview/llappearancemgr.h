@@ -75,6 +75,12 @@ public:
 	const LLViewerInventoryItem *getBaseOutfitLink();
 	bool getBaseOutfitName(std::string &name);
 
+	// find the UUID of the currently worn outfit (Base Outfit)
+	const LLUUID getBaseOutfitUUID();
+
+	// Wear/attach an item (from a user's inventory) on the agent
+	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true);
+
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
 
@@ -123,6 +129,12 @@ public:
 	// Create initial outfits from library.
 	void autopopulateOutfits();
 	
+	void wearBaseOutfit();
+
+	// Overrides the base outfit with the content from COF
+	// @return false if there is no base outfit
+	bool updateBaseOutfit();
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();
