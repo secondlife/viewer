@@ -3077,7 +3077,7 @@ public:
 				return;
 			}
 			
-			if(!LLVoiceClient::voiceEnabled())
+			if(!LLVoiceClient::voiceEnabled() || !LLVoiceClient::getInstance()->voiceWorking())
 			{
 				// Don't display voice invites unless the user has voice enabled.
 				return;
