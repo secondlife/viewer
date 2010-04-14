@@ -2575,6 +2575,17 @@
       <key>Value</key>
       <real>0.10000000149</real>
     </map>
+    <key>DragAndDropDistanceThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of pixels that mouse should move before triggering drag and drop mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
+    </map>
     <key>DropShadowButton</key>
     <map>
       <key>Comment</key>
@@ -6481,6 +6492,52 @@
     <real>0.01</real>
   </map>
 
+  <key>RenderShadowBiasError</key>
+  <map>
+    <key>Comment</key>
+    <string>Error scale for shadow bias (based on altitude).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  <key>RenderShadowOffsetError</key>
+  <map>
+    <key>Comment</key>
+    <string>Error scale for shadow offset (based on altitude).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  
+  <key>RenderSpotShadowBias</key>
+  <map>
+    <key>Comment</key>
+    <string>Bias value for shadows (prevent shadow acne).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>-0.0005</real>
+  </map>
+  <key>RenderSpotShadowOffset</key>
+  <map>
+    <key>Comment</key>
+    <string>Offset value for shadows (prevent shadow acne).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.01</real>
+  </map>
+
   <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
@@ -6492,8 +6549,6 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-
-
 
   <key>RenderDeferredTreeShadowBias</key>
   <map>
@@ -8163,13 +8218,13 @@
     <key>NearbyPeopleSortOrder</key>
     <map>
       <key>Comment</key>
-      <string>Specifies sort order for nearby people (0 = by name, 2 = by most recent)</string>
+      <string>Specifies sort order for nearby people (0 = by name, 3 = by distance, 4 = by most recent)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>4</integer>
     </map>
     <key>RecentPeopleSortOrder</key>
     <map>
@@ -8692,17 +8747,6 @@
     <map>
       <key>Comment</key>
       <string>Whether to use the old Second Life particle clouds or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>SmallAvatarNames</key>
-    <map>
-      <key>Comment</key>
-      <string>Display avatar name text in smaller font</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10646,7 +10690,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>WaterEditPresets</key>
     <map>

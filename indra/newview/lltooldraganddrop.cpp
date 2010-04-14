@@ -50,6 +50,7 @@
 #include "llhudeffecttrail.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llmutelist.h"
 #include "llpreviewnotecard.h"
@@ -267,8 +268,8 @@ void LLCategoryDropObserver::done()
 	{
 		// *FIX: coalesce these...
  		LLInventoryItem* item = NULL;
-  		item_ref_t::iterator it = mComplete.begin();
-  		item_ref_t::iterator end = mComplete.end();
+  		uuid_vec_t::iterator it = mComplete.begin();
+  		uuid_vec_t::iterator end = mComplete.end();
   		for(; it < end; ++it)
   		{
  			item = gInventory.getItem(*it);
@@ -305,8 +306,8 @@ void LLCategoryDropDescendentsObserver::done()
 {
 
 	gInventory.removeObserver(this);
-	uuid_vec_t::iterator it = mCompleteFolders.begin();
-	uuid_vec_t::iterator end = mCompleteFolders.end();
+	uuid_vec_t::iterator it = mComplete.begin();
+	uuid_vec_t::iterator end = mComplete.end();
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
 	for(; it != end; ++it)
@@ -326,12 +327,12 @@ void LLCategoryDropDescendentsObserver::done()
 		{
 			unique_ids.insert(items.get(i)->getUUID());
 		}
-		LLInventoryFetchObserver::item_ref_t ids;
-		std::back_insert_iterator<LLInventoryFetchObserver::item_ref_t> copier(ids);
+		uuid_vec_t ids;
+		std::back_insert_iterator<uuid_vec_t> copier(ids);
 		std::copy(unique_ids.begin(), unique_ids.end(), copier);
 		LLCategoryDropObserver* dropper;
 		dropper = new LLCategoryDropObserver(mObjectID, mSource);
-		dropper->fetchItems(ids);
+		dropper->fetch(ids);
 		if (dropper->isEverythingComplete())
 		{
 			dropper->done();
@@ -413,9 +414,12 @@ void LLToolDragAndDrop::setDragStart(S32 x, S32 y)
 
 BOOL LLToolDragAndDrop::isOverThreshold(S32 x,S32 y)
 {
-	const S32 MIN_MANHATTAN_DIST = 3;
-	S32 manhattan_dist = llabs( x - mDragStartX ) + llabs( y - mDragStartY );
-	return manhattan_dist >= MIN_MANHATTAN_DIST;
+	static LLCachedControl<S32> drag_and_drop_threshold(gSavedSettings,"DragAndDropDistanceThreshold");
+	
+	S32 mouse_delta_x = x - mDragStartX;
+	S32 mouse_delta_y = y - mDragStartY;
+	
+	return (mouse_delta_x * mouse_delta_x) + (mouse_delta_y * mouse_delta_y) > drag_and_drop_threshold * drag_and_drop_threshold;
 }
 
 void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
@@ -2636,7 +2640,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 	// If every item is accepted, send it on
 	if (drop && (ACCEPT_YES_COPY_SINGLE <= rv))
 	{
-		LLInventoryFetchObserver::item_ref_t ids;
+		uuid_vec_t ids;
 		for (LLInventoryModel::item_array_t::const_iterator item_iter = items.begin();
 			 item_iter != items.end();
 			 ++item_iter)
@@ -2645,7 +2649,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 			ids.push_back(item->getUUID());
 		}
 		LLCategoryDropObserver* dropper = new LLCategoryDropObserver(obj->getID(), mSource);
-		dropper->fetchItems(ids);
+		dropper->fetch(ids);
 		if(dropper->isEverythingComplete())
 		{
 			dropper->done();

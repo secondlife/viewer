@@ -636,7 +636,6 @@ Leyla Linden               </text>
              length="1"
              enabled="false"
              follows="all"
-             handle_edit_keys_directly="true"
              height="200"
              layout="topleft"
              left="10"

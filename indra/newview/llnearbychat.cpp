@@ -207,7 +207,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 		return;
 	}
 
-	if (gSavedPerAccountSettings.getBOOL("LogChat")) 
+	if (gSavedPerAccountSettings.getBOOL("LogNearbyChat"))
 	{
 		LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
 	}

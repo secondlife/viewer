@@ -314,6 +314,11 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		return;
 	}
 	
+	if (sShaderLevel > 0)
+	{
+		gAvatarMatrixParam = sVertexProgram->mUniform[LLViewerShaderMgr::AVATAR_MATRIX];
+	}
+
 	avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
 
 }
@@ -358,6 +363,9 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 	case 2:
 		beginSkinned();
 		break;
+	case 3:
+		beginRigged();
+		break;
 	}
 }
 
@@ -381,6 +389,10 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 		break;
 	case 2:
 		endSkinned();
+		break;
+	case 3:
+		endRigged();
+		break;
 	}
 }
 
@@ -566,6 +578,20 @@ void LLDrawPoolAvatar::endSkinned()
 	gGL.getTexUnit(0)->activate();
 }
 
+void LLDrawPoolAvatar::beginRigged()
+{
+	sVertexProgram = NULL;
+	gSkinnedObjectSimpleProgram.bind();
+	LLVertexBuffer::sWeight4Loc = gSkinnedObjectSimpleProgram.getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
+}
+
+void LLDrawPoolAvatar::endRigged()
+{
+	sVertexProgram = NULL;
+	gSkinnedObjectSimpleProgram.unbind();
+	LLVertexBuffer::sWeight4Loc = -1;
+}
+
 void LLDrawPoolAvatar::beginDeferredSkinned()
 {
 	sShaderLevel = mVertexShaderLevel;
@@ -709,6 +735,12 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	{
 		// render rigid meshes (eyeballs) first
 		avatarp->renderRigid();
+		return;
+	}
+
+	if (pass == 3)
+	{
+		avatarp->renderSkinnedAttachments();
 		return;
 	}
 	

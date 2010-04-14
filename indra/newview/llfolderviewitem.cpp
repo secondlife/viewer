@@ -834,13 +834,17 @@ void LLFolderViewItem::draw()
 	static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
 	static LLUIColor sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
 	static LLUIColor sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
-	static LLUIColor sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemSuffixColor", DEFAULT_WHITE);
+	static LLUIColor sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
+	static LLUIColor sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
 	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
+
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	const S32 TOP_PAD = default_params.item_top_pad;
 	const S32 FOCUS_LEFT = 1;
 	const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
 
+	const BOOL in_inventory = getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getRootFolderID());
+	const BOOL in_library = getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getLibraryRootFolderID());
 
 	//--------------------------------------------------------------------------------//
 	// Draw open folder arrow
@@ -961,6 +965,8 @@ void LLFolderViewItem::draw()
 	}
 
 	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
+	if (in_library) color = sLibraryColor;
+
 	F32 right_x  = 0;
 	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
 	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
@@ -982,8 +988,6 @@ void LLFolderViewItem::draw()
 												 S32_MAX, S32_MAX, &right_x, FALSE );
 		text_left = right_x;
 	}
-
-
 	//--------------------------------------------------------------------------------//
 	// Draw the actual label text
 	//
@@ -995,13 +999,11 @@ void LLFolderViewItem::draw()
 	// Draw "Loading..." text
 	//
 	bool root_is_loading = false;
-	if (getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), 
-														 gInventory.getRootFolderID())) // Descendent of my inventory
+	if (in_inventory)
 	{
 		root_is_loading = LLInventoryModelBackgroundFetch::instance().inventoryFetchInProgress(); 
 	}
-	if (getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), 
-														 gInventory.getLibraryRootFolderID())) // Descendent of library
+	if (in_library)
 	{
 		root_is_loading = LLInventoryModelBackgroundFetch::instance().libraryFetchInProgress();
 	}
@@ -1057,20 +1059,21 @@ void LLFolderViewItem::draw()
 ///----------------------------------------------------------------------------
 
 LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ): 
-LLFolderViewItem( p ),	// 0 = no create time
-mIsOpen(FALSE),
-mExpanderHighlighted(FALSE),
-mCurHeight(0.f),
-mTargetHeight(0.f),
-mAutoOpenCountdown(0.f),
-mSubtreeCreationDate(0),
-mAmTrash(LLFolderViewFolder::UNKNOWN),
-mLastArrangeGeneration( -1 ),
-mLastCalculatedWidth(0),
-mCompletedFilterGeneration(-1),
-mMostFilteredDescendantGeneration(-1),
-mNeedsSort(false)
-{}
+	LLFolderViewItem( p ),	// 0 = no create time
+	mIsOpen(FALSE),
+	mExpanderHighlighted(FALSE),
+	mCurHeight(0.f),
+	mTargetHeight(0.f),
+	mAutoOpenCountdown(0.f),
+	mSubtreeCreationDate(0),
+	mAmTrash(LLFolderViewFolder::UNKNOWN),
+	mLastArrangeGeneration( -1 ),
+	mLastCalculatedWidth(0),
+	mCompletedFilterGeneration(-1),
+	mMostFilteredDescendantGeneration(-1),
+	mNeedsSort(false)
+{
+}
 
 // Destroys the object
 LLFolderViewFolder::~LLFolderViewFolder( void )

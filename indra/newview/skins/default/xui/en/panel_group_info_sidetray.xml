@@ -98,6 +98,7 @@ background_visible="true"
      left="0"
      top="0"
      single_expansion="true"
+     fit_parent="true"
      follows="all"
      layout="topleft"
      name="groups_accordion">

@@ -1180,6 +1180,5 @@ void LLCurl::cleanupClass()
 	{
 		llerrs << "CURL easy handles not cleaned up on shutdown!" << llendl;
 	}
-
-	curl_global_cleanup();
 }
+

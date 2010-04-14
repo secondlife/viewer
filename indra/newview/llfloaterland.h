@@ -234,6 +234,11 @@ protected:
 
 	LLSafeHandle<LLParcelSelection>&	mParcel;
 
+	// This pointer is needed to avoid parcel deselection until buying pass is completed or canceled.
+	// Deselection happened because of zero references to parcel selection, which took place when 
+	// "Buy Pass" was called from popup menu(EXT-6464)
+	static LLPointer<LLParcelSelection>	sSelectionForBuyPass;
+
 	static LLHandle<LLFloater> sBuyPassDialogHandle;
 };
 

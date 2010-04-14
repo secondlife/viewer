@@ -182,11 +182,9 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	
 	mLookInfoType = key["type"].asString();
 
-	if (mLookInfoType == "look")
+	if (mLookInfoType == "edit_outfit")
 	{
-		LLInventoryCategory *pLook = gInventory.getCategory(key["id"].asUUID());
-		if (pLook)
-			mOutfitEdit->displayLookInfo(pLook);
+		mOutfitEdit->displayCurrentOutfit();
 	}
 }
 
@@ -219,13 +217,13 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 		LLInventoryPanel *inventory_panel = tab_outfits->findChild<LLInventoryPanel>("outfitslist_tab");
 		if (inventory_panel)
 		{
-			LLFolderView *folder = inventory_panel->getRootFolder();
-			LLFolderViewItem *outfit_folder = folder->getItemByID(outfit_link->getLinkedUUID());
+			LLFolderView* root = inventory_panel->getRootFolder();
+			LLFolderViewItem *outfit_folder = root->getItemByID(outfit_link->getLinkedUUID());
 			if (outfit_folder)
 			{
 				outfit_folder->setOpen(!outfit_folder->isOpen());
-				folder->setSelectionFromRoot(outfit_folder,TRUE);
-				folder->scrollToShowSelection();
+				root->setSelectionFromRoot(outfit_folder,TRUE);
+				root->scrollToShowSelection();
 			}
 		}
 	}
@@ -297,6 +295,8 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 		return;
 	}
 
+	mCurrOutfitPanel->setVisible(!visible);
+
 	mEditWearable->setVisible(visible);
 	mEditWearable->setWearable(wearable);
 	mFilterEditor->setVisible(!visible);
@@ -354,7 +354,7 @@ void LLSidepanelAppearance::fetchInventory()
 {
 
 	mNewOutfitBtn->setEnabled(false);
-	LLInventoryFetchObserver::item_ref_t ids;
+	uuid_vec_t ids;
 	LLUUID item_id;
 	for(S32 type = (S32)WT_SHAPE; type < (S32)WT_COUNT; ++type)
 	{
@@ -389,7 +389,7 @@ void LLSidepanelAppearance::fetchInventory()
 	}
 
 	LLCurrentlyWornFetchObserver *fetch_worn = new LLCurrentlyWornFetchObserver(this);
-	fetch_worn->fetchItems(ids);
+	fetch_worn->fetch(ids);
 	// If no items to be fetched, done will never be triggered.
 	// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
 	if (fetch_worn->isEverythingComplete())

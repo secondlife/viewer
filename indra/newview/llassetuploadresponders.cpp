@@ -39,6 +39,7 @@
 #include "llcompilequeue.h"
 #include "llfloaterbuycurrency.h"
 #include "llfilepicker.h"
+#include "llinventorydefines.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llfloaterimportcollada.h"
@@ -144,7 +145,7 @@ void on_new_single_inventory_upload_complete(
 			item_name,
 			item_description,
 			LLSaleInfo::DEFAULT,
-			LLInventoryItem::II_FLAGS_NONE,
+			LLInventoryItemFlags::II_FLAGS_NONE,
 			creation_date_now);
 
 		gInventory.updateItem(item);

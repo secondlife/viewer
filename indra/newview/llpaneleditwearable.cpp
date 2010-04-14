@@ -270,6 +270,8 @@ LLEditWearableDictionary::SubpartEntry::SubpartEntry(ESubpart part,
 
 LLPanelEditWearable::LLPanelEditWearable()
 	: LLPanel()
+	, mWearablePtr(NULL)
+	, mWearableItem(NULL)
 {
 }
 
@@ -338,8 +340,7 @@ BOOL LLPanelEditWearable::isDirty() const
 //virtual
 void LLPanelEditWearable::draw()
 {
-	BOOL is_dirty = isDirty();
-	mBtnRevert->setEnabled(is_dirty);
+	updateVerbs();
 
 	LLPanel::draw();
 }
@@ -400,6 +401,9 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 	{
 		return;
 	}
+
+	mWearableItem = gInventory.getItem(mWearablePtr->getItemID());
+	llassert(mWearableItem);
 
 	EWearableType type = wearable->getType();
 	LLPanel *targetPanel = NULL;
@@ -489,7 +493,7 @@ void LLPanelEditWearable::initializePanel()
 
 		updateScrollingPanelUI();
 	}
-	
+	updateVerbs();
 }
 
 void LLPanelEditWearable::updateScrollingPanelUI()
@@ -640,18 +644,25 @@ void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value
 		{
 			LLPanel::Params p;
 			p.name("LLScrollingPanelParam");
-			p.rect(LLRect(0, LLScrollingPanelParam::PARAM_PANEL_HEIGHT, LLScrollingPanelParam::PARAM_PANEL_WIDTH, 0 ));
 			LLScrollingPanelParam* panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable());
 			height = panel_list->addPanel( panel_param );
 		}
-	
-		S32 width = tab->getRect().getWidth();
-	
-		tab->reshape(width,height + tab->getHeaderHeight()+10,FALSE);
 	}
 }
 
+void LLPanelEditWearable::updateVerbs()
+{
+	bool can_copy = false;
 
+	if(mWearableItem)
+	{
+		can_copy = mWearableItem->getPermissions().allowCopyBy(gAgentID);
+	}
 
+	BOOL is_dirty = isDirty();
 
+	mBtnRevert->setEnabled(is_dirty);
+	childSetEnabled("save_as_button", is_dirty && can_copy);
+}
 
+// EOF

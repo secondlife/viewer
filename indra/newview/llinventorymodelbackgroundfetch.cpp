@@ -257,7 +257,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 			{
 				// category exists but has no children yet, fetch the descendants
 				// for now, just request every time and rely on retry timer to throttle
-				if (cat->fetchDescendents())
+				if (cat->fetch())
 				{
 					mFetchTimer.reset();
 					mTimelyFetchPending = TRUE;

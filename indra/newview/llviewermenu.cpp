@@ -73,6 +73,7 @@
 #include "llhudmanager.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
@@ -136,6 +137,7 @@ extern BOOL gDebugWindowProc;
 LLMenuBarGL		*gMenuBarView = NULL;
 LLViewerMenuHolderGL	*gMenuHolder = NULL;
 LLMenuGL		*gPopupMenuView = NULL;
+LLMenuGL		*gEditMenu = NULL;
 LLMenuBarGL		*gLoginMenuBarView = NULL;
 
 // Pie menus
@@ -382,8 +384,10 @@ void init_menus()
 	///
 	/// Context menus
 	///
+
 	const widget_registry_t& registry =
 		LLViewerMenuHolderGL::child_registry_t::instance();
+	gEditMenu = LLUICtrlFactory::createFromFile<LLMenuGL>("menu_edit.xml", gMenuHolder, registry);
 	gMenuAvatarSelf = LLUICtrlFactory::createFromFile<LLContextMenu>(
 		"menu_avatar_self.xml", gMenuHolder, registry);
 	gMenuAvatarOther = LLUICtrlFactory::createFromFile<LLContextMenu>(
@@ -3859,15 +3863,15 @@ BOOL enable_deed_object_to_group(void*)
  * No longer able to support viewer side manipulations in this way
  *
 void god_force_inv_owner_permissive(LLViewerObject* object,
-									InventoryObjectList* inventory,
+									LLInventoryObject::object_list_t* inventory,
 									S32 serial_num,
 									void*)
 {
 	typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
 	item_array_t items;
 
-	InventoryObjectList::const_iterator inv_it = inventory->begin();
-	InventoryObjectList::const_iterator inv_end = inventory->end();
+	LLInventoryObject::object_list_t::const_iterator inv_it = inventory->begin();
+	LLInventoryObject::object_list_t::const_iterator inv_end = inventory->end();
 	for ( ; inv_it != inv_end; ++inv_it)
 	{
 		if(((*inv_it)->getType() != LLAssetType::AT_CATEGORY))
@@ -5182,10 +5186,6 @@ void toggle_debug_menus(void*)
 {
 	BOOL visible = ! gSavedSettings.getBOOL("UseDebugMenus");
 	gSavedSettings.setBOOL("UseDebugMenus", visible);
-	if(visible)
-	{
-		//LLFirstUse::useDebugMenus();
-	}
 	show_debug_menus();
 }
 
@@ -5325,6 +5325,16 @@ class LLWorldCreateLandmark : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
+
+		return true;
+	}
+};
+
+class LLWorldPlaceProfile : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "agent"));
 
 		return true;
 	}
@@ -6153,11 +6163,11 @@ class LLAttachmentEnableDrop : public view_listener_t
 						// if a fetch is already out there (being sent from a slow sim)
 						// we refetch and there are 2 fetches
 						LLWornItemFetchedObserver* wornItemFetched = new LLWornItemFetchedObserver();
-						LLInventoryFetchObserver::item_ref_t items; //add item to the inventory item to be fetched
+						uuid_vec_t items; //add item to the inventory item to be fetched
 						
 						items.push_back((*attachment_iter)->getItemID());
 						
-						wornItemFetched->fetchItems(items);
+						wornItemFetched->fetch(items);
 						gInventory.addObserver(wornItemFetched);
 					}
 				}
@@ -6971,7 +6981,7 @@ void handle_grab_texture(void* data)
 										name,
 										LLStringUtil::null,
 										LLSaleInfo::DEFAULT,
-										LLInventoryItem::II_FLAGS_NONE,
+										LLInventoryItemFlags::II_FLAGS_NONE,
 										creation_date_now);
 
 		item->updateServer(TRUE);
@@ -7739,6 +7749,7 @@ void initialize_menus()
 	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
+	view_listener_t::addMenu(new LLWorldPlaceProfile(), "World.PlaceProfile");
 	view_listener_t::addMenu(new LLWorldSetHomeLocation(), "World.SetHomeLocation");
 	view_listener_t::addMenu(new LLWorldTeleportHome(), "World.TeleportHome");
 	view_listener_t::addMenu(new LLWorldSetAway(), "World.SetAway");

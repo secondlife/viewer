@@ -443,9 +443,9 @@ della texture
 			<check_box label="Inverti" name="checkbox flip s"/>
 			<spinner label="Verticale (V)" name="TexScaleV"/>
 			<check_box label="Inverti" name="checkbox flip t"/>
-			<spinner label="Rotazione˚" left="120" name="TexRot" width="60"/>
-			<spinner label="Ripetizioni / Metro" left="120" name="rptctrl" width="60"/>
-			<button label="Applica" label_selected="Applica" left_delta="72" name="button apply"/>
+			<spinner label="Rotazione˚" name="TexRot" />
+			<spinner label="Ripetizioni / Metro" name="rptctrl" />
+			<button label="Applica" label_selected="Applica" name="button apply"/>
 			<text name="tex offset">
 				Bilanciamento della texture
 			</text>
@@ -484,7 +484,7 @@ della texture
 		<button label="Suddividi" label_selected="Suddividi" name="button subdivide land" width="156"/>
 		<button label="Iscriviti" label_selected="Iscriviti" name="button join land" width="156"/>
 		<text name="label_parcel_trans">
-			Transazioni del territorio
+			Transazioni terreno
 		</text>
 		<button label="Acquista terreno" label_selected="Acquista terreno" name="button buy land" width="156"/>
 		<button label="Abbandona il terreno" label_selected="Abbandona il terreno" name="button abandon land" width="156"/>

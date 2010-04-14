@@ -882,7 +882,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 							LLPanelLogin::refreshLocation( true );
 							LLPanelLogin::updateLocationUI();
 						}
-						return LLWindowCallbacks::DND_MOVE;
+						return LLWindowCallbacks::DND_COPY;
 					};
 				}
 
@@ -901,7 +901,11 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 					if (obj && !obj->getRegion()->getCapability("ObjectMedia").empty())
 					{
 						LLTextureEntry *te = obj->getTE(object_face);
-						if (te)
+
+						// can modify URL if we can modify the object or we have navigate permissions
+						bool allow_modify_url = obj->permModify() || obj->hasMediaPermission( te->getMediaData(), LLVOVolume::MEDIA_PERM_INTERACT );
+
+						if (te && allow_modify_url )
 						{
 							if (drop)
 							{
@@ -932,29 +936,24 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 									// URL passes the whitelist
 									if (te->getMediaData()->checkCandidateUrl( url ) )
 									{
-										// we are allowed to modify the object or we have navigate permissions
-										// NOTE: Design states you you can change the URL if you have media 
-										//       navigate permissions even if you do not have prim modify rights
-										if ( obj->permModify() || obj->hasMediaPermission( te->getMediaData(), LLVOVolume::MEDIA_PERM_INTERACT ) )
+										// just navigate to the URL
+										if (obj->getMediaImpl(object_face))
 										{
-											// just navigate to the URL
-											if (obj->getMediaImpl(object_face))
-											{
-												obj->getMediaImpl(object_face)->navigateTo(url);
-											}
-											else 
-											{
-												// This is very strange.  Navigation should
-												// happen via the Impl, but we don't have one.
-												// This sends it to the server, which /should/
-												// trigger us getting it.  Hopefully.
-												LLSD media_data;
-												media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
-												obj->syncMediaData(object_face, media_data, true, true);
-												obj->sendMediaDataUpdate();
-											}
-											result = LLWindowCallbacks::DND_LINK;
+											obj->getMediaImpl(object_face)->navigateTo(url);
 										}
+										else 
+										{
+											// This is very strange.  Navigation should
+											// happen via the Impl, but we don't have one.
+											// This sends it to the server, which /should/
+											// trigger us getting it.  Hopefully.
+											LLSD media_data;
+											media_data[LLMediaEntry::CURRENT_URL_KEY] = url;
+											obj->syncMediaData(object_face, media_data, true, true);
+											obj->sendMediaDataUpdate();
+										}
+										result = LLWindowCallbacks::DND_LINK;
+										
 									}
 								}
 								LLSelectMgr::getInstance()->unhighlightObjectOnly(mDragHoveredObject);
@@ -974,6 +973,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 										LLSelectMgr::getInstance()->highlightObjectOnly(mDragHoveredObject);
 									}
 									result = (! te->hasMedia()) ? LLWindowCallbacks::DND_COPY : LLWindowCallbacks::DND_LINK;
+
 								}
 							}
 						}
@@ -2189,12 +2189,14 @@ void LLViewerWindow::draw()
 // Takes a single keydown event, usually when UI is visible
 BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 {
+	// hide tooltips on keypress
+	LLToolTipMgr::instance().blockToolTips();
+
 	if (gFocusMgr.getKeyboardFocus() 
 		&& !(mask & (MASK_CONTROL | MASK_ALT))
 		&& !gFocusMgr.getKeystrokesOnly())
 	{
 		// We have keyboard focus, and it's not an accelerator
-
 		if (key < 0x80)
 		{
 			// Not a special key, so likely (we hope) to generate a character.  Let it fall through to character handler first.
@@ -2202,68 +2204,49 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		}
 	}
 
-	// hide tooltips on keypress
-	LLToolTipMgr::instance().blockToolTips();
-	
-	// Explicit hack for debug menu.
-	if ((MASK_ALT & mask) &&
-		(MASK_CONTROL & mask) &&
-		('D' == key || 'd' == key))
+	// let menus handle navigation keys for navigation
+	if ((gMenuBarView && gMenuBarView->handleKey(key, mask, TRUE))
+		||(gLoginMenuBarView && gLoginMenuBarView->handleKey(key, mask, TRUE))
+		||(gMenuHolder && gMenuHolder->handleKey(key, mask, TRUE)))
 	{
-		toggle_debug_menus(NULL);
+		return TRUE;
 	}
 
-		// Explicit hack for debug menu.
-	if ((mask == (MASK_SHIFT | MASK_CONTROL)) &&
-		('G' == key || 'g' == key))
+	// give menus a chance to handle modified (Ctrl, Alt) shortcut keys before current focus 
+	// as long as focus isn't locked
+	if (mask & (MASK_CONTROL | MASK_ALT) && !gFocusMgr.focusLocked())
 	{
-		if  (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)  //on splash page
+		if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
+			||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
 		{
-			BOOL visible = ! gSavedSettings.getBOOL("ForceShowGrid");
-			gSavedSettings.setBOOL("ForceShowGrid", visible);
-
-			// Initialize visibility (and don't force visibility - use prefs)
-			LLPanelLogin::refreshLocation( false );
+			return TRUE;
 		}
 	}
 
-	// Debugging view for unified notifications: CTRL-SHIFT-5
-	// *FIXME: Having this special-cased right here (just so this can be invoked from the login screen) sucks.
-	if ((MASK_SHIFT & mask) 
-	    && (!(MASK_ALT & mask))
-	    && (MASK_CONTROL & mask)
-	    && ('5' == key))
+	// give floaters first chance to handle TAB key
+	// so frontmost floater gets focus
+	// if nothing has focus, go to first or last UI element as appropriate
+	if (key == KEY_TAB && (mask & MASK_CONTROL || gFocusMgr.getKeyboardFocus() == NULL))
 	{
-		//LLFloaterNotificationConsole::showInstance();
-		LLFloaterReg::showInstance("notifications_console");
+		if (gMenuHolder) gMenuHolder->hideMenus();
+
+		// if CTRL-tabbing (and not just TAB with no focus), go into window cycle mode
+		gFloaterView->setCycleMode((mask & MASK_CONTROL) != 0);
+
+		// do CTRL-TAB and CTRL-SHIFT-TAB logic
+		if (mask & MASK_SHIFT)
+		{
+			mRootView->focusPrevRoot();
+		}
+		else
+		{
+			mRootView->focusNextRoot();
+		}
 		return TRUE;
 	}
 
-	// handle escape key
-	//if (key == KEY_ESCAPE && mask == MASK_NONE)
-	//{
-
-		// *TODO: get this to play well with mouselook and hidden
-		// cursor modes, etc, and re-enable.
-		//if (gFocusMgr.getMouseCapture())
-		//{
-		//	gFocusMgr.setMouseCapture(NULL);
-		//	return TRUE;
-		//}
-	//}
-
-	// let menus handle navigation keys
-	if (gMenuBarView && gMenuBarView->handleKey(key, mask, TRUE))
-	{
-		return TRUE;
-	}
-	// let menus handle navigation keys
-	if (gLoginMenuBarView && gLoginMenuBarView->handleKey(key, mask, TRUE))
-	{
-		return TRUE;
-	}
-	//some of context menus use this container, let context menu handle navigation keys
-	if(gMenuHolder && gMenuHolder->handleKey(key, mask, TRUE))
+	// hidden edit menu for cut/copy/paste
+	if (gEditMenu && gEditMenu->handleAcceleratorKey(key, mask))
 	{
 		return TRUE;
 	}
@@ -2328,50 +2311,10 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		return TRUE;
 	}
 
-	// Topmost view gets a chance before the hierarchy
-	// *FIX: get rid of this?
-	//LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
-	//if (top_ctrl)
-	//{
-	//	if( top_ctrl->handleKey( key, mask, TRUE ) )
-	//	{
-	//		return TRUE;
-	//	}
-	//}
 
-	// give floaters first chance to handle TAB key
-	// so frontmost floater gets focus
-	if (key == KEY_TAB)
-	{
-		// if nothing has focus, go to first or last UI element as appropriate
-		if (mask & MASK_CONTROL || gFocusMgr.getKeyboardFocus() == NULL)
-		{
-			if (gMenuHolder) gMenuHolder->hideMenus();
-
-			// if CTRL-tabbing (and not just TAB with no focus), go into window cycle mode
-			gFloaterView->setCycleMode((mask & MASK_CONTROL) != 0);
-
-			// do CTRL-TAB and CTRL-SHIFT-TAB logic
-			if (mask & MASK_SHIFT)
-			{
-				mRootView->focusPrevRoot();
-			}
-			else
-			{
-				mRootView->focusNextRoot();
-			}
-			return TRUE;
-		}
-	}
-	
-	// give menus a chance to handle keys
-	if (gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
-	{
-		return TRUE;
-	}
-	
-	// give menus a chance to handle keys
-	if (gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask))
+	// give menus a chance to handle unmodified accelerator keys
+	if ((gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
+		||(gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask)))
 	{
 		return TRUE;
 	}

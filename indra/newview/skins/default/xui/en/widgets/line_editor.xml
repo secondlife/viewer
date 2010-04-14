@@ -3,7 +3,6 @@
              background_image_disabled="TextField_Disabled"
              background_image_focused="TextField_Active"
              select_on_focus="false"
-             handle_edit_keys_directly="false"
              commit_on_focus_lost="true"
              ignore_tab="true"
              cursor_color="TextCursorColor"

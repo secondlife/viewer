@@ -91,7 +91,6 @@ LLLineEditor::Params::Params()
 	background_image_disabled("background_image_disabled"),
 	background_image_focused("background_image_focused"),
 	select_on_focus("select_on_focus", false),
-	handle_edit_keys_directly("handle_edit_keys_directly", false),
 	revert_on_esc("revert_on_esc", true),
 	commit_on_focus_lost("commit_on_focus_lost", true),
 	ignore_tab("ignore_tab", true),
@@ -136,7 +135,6 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mIgnoreArrowKeys( FALSE ),
 	mIgnoreTab( p.ignore_tab ),
 	mDrawAsterixes( FALSE ),
-	mHandleEditKeysDirectly(p.handle_edit_keys_directly),
 	mSelectAllonFocusReceived( p.select_on_focus ),
 	mPassDelete(FALSE),
 	mReadOnly(FALSE),
@@ -192,12 +190,8 @@ LLLineEditor::~LLLineEditor()
 {
 	mCommitOnFocusLost = FALSE;
 
+	// calls onCommit() while LLLineEditor still valid
 	gFocusMgr.releaseFocusIfNeeded( this );
-
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
 }
 
 
@@ -497,6 +491,7 @@ void LLLineEditor::selectAll()
 	setCursor(mSelectionEnd);
 	//mScrollHPos = 0;
 	mIsSelecting = TRUE;
+	updatePrimary();
 }
 
 
@@ -788,7 +783,7 @@ void LLLineEditor::removeChar()
 	}
 	else
 	{
-		reportBadKeystroke();
+		LLUI::reportBadKeystroke();
 	}
 }
 
@@ -827,7 +822,7 @@ void LLLineEditor::addChar(const llwchar uni_char)
 	}
 	else
 	{
-		reportBadKeystroke();
+		LLUI::reportBadKeystroke();
 	}
 
 	getWindow()->hideCursorUntilMouseMove();
@@ -916,7 +911,7 @@ BOOL LLLineEditor::handleSelectionKey(KEY key, MASK mask)
 			}
 			else
 			{
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
 			break;
 
@@ -932,7 +927,7 @@ BOOL LLLineEditor::handleSelectionKey(KEY key, MASK mask)
 			}
 			else
 			{
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
 			break;
 
@@ -955,22 +950,6 @@ BOOL LLLineEditor::handleSelectionKey(KEY key, MASK mask)
 		default:
 			handled = FALSE;
 			break;
-		}
-	}
-
-	if (!handled && mHandleEditKeysDirectly)
-	{
-		if( (MASK_CONTROL & mask) && ('A' == key) )
-		{
-			if( canSelectAll() )
-			{
-				selectAll();
-			}
-			else
-			{
-				reportBadKeystroke();
-			}
-			handled = TRUE;
 		}
 	}
 
@@ -1020,7 +999,7 @@ void LLLineEditor::cut()
 		if( need_to_rollback )
 		{
 			rollback.doRollback( this );
-			reportBadKeystroke();
+			LLUI::reportBadKeystroke();
 		}
 		else
 		if( mKeystrokeCallback )
@@ -1129,7 +1108,7 @@ void LLLineEditor::pasteHelper(bool is_primary)
 				}
 				// Truncate the clean string at the limit of what will fit
 				clean_string = clean_string.substr(0, wchars_that_fit);
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
  
 			mText.insert(getCursor(), clean_string);
@@ -1141,7 +1120,7 @@ void LLLineEditor::pasteHelper(bool is_primary)
 			if( need_to_rollback )
 			{
 				rollback.doRollback( this );
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
 			else
 			if( mKeystrokeCallback )
@@ -1206,7 +1185,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 			}
 			else
 			{
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
 		}
 		handled = TRUE;
@@ -1255,7 +1234,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 			}
 			else
 			{
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
 			handled = TRUE;
 		}
@@ -1282,7 +1261,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 			}
 			else
 			{
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
 			handled = TRUE;
 		}
@@ -1299,7 +1278,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 			}
 			else
 			{
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
 			handled = TRUE;
 		}
@@ -1316,7 +1295,7 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 			}
 			else
 			{
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
 			handled = TRUE;
 		}
@@ -1339,64 +1318,6 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 		break;
 	}
 
-	if( !handled && mHandleEditKeysDirectly )
-	{
-		// Standard edit keys (Ctrl-X, Delete, etc,) are handled here instead of routed by the menu system.
-		if( KEY_DELETE == key )
-		{
-			if( canDoDelete() )
-			{
-				doDelete();
-			}
-			else
-			{
-				reportBadKeystroke();
-			}
-			handled = TRUE;
-		}
-		else
-		if( MASK_CONTROL & mask )
-		{
-			if( 'C' == key )
-			{
-				if( canCopy() )
-				{
-					copy();
-				}
-				else
-				{
-					reportBadKeystroke();
-				}
-				handled = TRUE;
-			}
-			else
-			if( 'V' == key )
-			{
-				if( canPaste() )
-				{
-					paste();
-				}
-				else
-				{
-					reportBadKeystroke();
-				}
-				handled = TRUE;
-			}
-			else
-			if( 'X' == key )
-			{
-				if( canCut() )
-				{
-					cut();
-				}
-				else
-				{
-					reportBadKeystroke();
-				}
-				handled = TRUE;
-			}
-		}
-	}
 	return handled;
 }
 
@@ -1451,7 +1372,7 @@ BOOL LLLineEditor::handleKeyHere(KEY key, MASK mask )
 			{
 				rollback.doRollback(this);
 
-				reportBadKeystroke();
+				LLUI::reportBadKeystroke();
 			}
 
 			// Notify owner if requested
@@ -1499,7 +1420,7 @@ BOOL LLLineEditor::handleUnicodeCharHere(llwchar uni_char)
 		{
 			rollback.doRollback( this );
 
-			reportBadKeystroke();
+			LLUI::reportBadKeystroke();
 		}
 
 		// Notify owner if requested
@@ -1544,7 +1465,7 @@ void LLLineEditor::doDelete()
 		if( need_to_rollback )
 		{
 			rollback.doRollback( this );
-			reportBadKeystroke();
+			LLUI::reportBadKeystroke();
 		}
 		else
 		{
@@ -1877,11 +1798,6 @@ S32 LLLineEditor::findPixelNearestPos(const S32 cursor_offset) const
 	S32 dpos = getCursor() - mScrollHPos + cursor_offset;
 	S32 result = mGLFont->getWidth(mText.getWString().c_str(), mScrollHPos, dpos) + mTextLeftEdge;
 	return result;
-}
-
-void LLLineEditor::reportBadKeystroke()
-{
-	make_ui_sound("UISndBadKeystroke");
 }
 
 //virtual

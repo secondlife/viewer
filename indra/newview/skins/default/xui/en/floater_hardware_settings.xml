@@ -6,7 +6,7 @@
  name="Hardware Settings Floater"
  help_topic="hardware_settings_floater"
  title="HARDWARE SETTINGS"
- width="500">
+ width="615">
     <text
      type="string"
      length="1"
@@ -16,7 +16,7 @@
      left="10"
      name="Filtering:"
      top="20"
-     width="128">
+     width="188">
         Filtering:
     </text>
     <check_box
@@ -37,7 +37,7 @@
      left="10"
      name="Antialiasing:"
      top_pad="7"
-     width="128">
+     width="188">
         Antialiasing:
     </text>
     <combo_box
@@ -79,13 +79,13 @@
      increment="0.01"
      initial_value="1"
      label="Gamma:"
-     label_width="138"
+     label_width="198"
      layout="topleft"
      left="10"
      max_val="2"
      name="gamma"
      top_pad="7"
-     width="202" />
+     width="262" />
     <text
      type="string"
      length="1"
@@ -95,7 +95,7 @@
      left_pad="10"
      name="(brightness, lower is brighter)"
      top_delta="2"
-     width="315">
+     width="385">
         (0 = default brightness, lower = brighter)
     </text>
     <text
@@ -107,7 +107,7 @@
      left="10"
      name="Enable VBO:"
      top_pad="10"
-     width="128">
+     width="188">
         Enable VBO:
     </text>
     <check_box
@@ -128,14 +128,14 @@
      increment="16"
      initial_value="32"
      label="Texture Memory (MB):"
-     label_width="135"
+     label_width="195"
      layout="topleft"
      left="10"
      max_val="4096"
      name="GraphicsCardTextureMemory"
      tool_tip="Amount of memory to allocate for textures. Defaults to video card memory. Reducing this may improve performance but may also make textures blurry."
      top_pad="10"
-     width="300" />
+     width="360" />
     <spinner
      control_name="RenderFogRatio"
      decimal_digits="1"
@@ -143,14 +143,14 @@
      height="22"
      initial_value="4"
      label="Fog Distance Ratio:"
-     label_width="138"
+     label_width="198"
      layout="topleft"
      left_delta="0"
      max_val="10"
      min_val="0.5"
      name="fog"
      top_pad="7"
-     width="202" />
+     width="262" />
     <button
      follows="right|bottom"
      height="22"
