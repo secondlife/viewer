@@ -99,5 +99,12 @@
          function="ShowAgentProfile"
          parameter="agent" />
     </menu_item_call>
-    
+  <menu_item_call
+ label="Debug Textures"
+     name="Debug...">
+    <menu_item_call.on_click
+     function="Avatar.Debug" />
+    <menu_item_call.on_visible
+     function="IsGodCustomerService"/>
+  </menu_item_call>
 </context_menu>

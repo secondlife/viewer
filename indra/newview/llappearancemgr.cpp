@@ -51,7 +51,7 @@
 #include "llviewerregion.h"
 #include "llwearablelist.h"
 
-LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name)
+LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id, const std::string& name)
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;

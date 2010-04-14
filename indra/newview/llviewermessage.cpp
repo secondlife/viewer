@@ -746,10 +746,13 @@ static LLNotificationFunctorRegistration jgr_3("JoinGroupCanAfford", join_group_
 //-----------------------------------------------------------------------------
 // Instant Message
 //-----------------------------------------------------------------------------
-class LLOpenAgentOffer : public LLInventoryFetchObserver
+class LLOpenAgentOffer : public LLInventoryFetchItemsObserver
 {
 public:
-	LLOpenAgentOffer(const std::string& from_name) : mFromName(from_name) {}
+	LLOpenAgentOffer(const LLUUID& object_id,
+					 const std::string& from_name) : 
+		LLInventoryFetchItemsObserver(object_id),
+		mFromName(from_name) {}
 	/*virtual*/ void done()
 	{
 		open_inventory_offer(mComplete, mFromName);
@@ -936,11 +939,12 @@ void start_new_inventory_observer()
 	}
 }
 
-class LLDiscardAgentOffer : public LLInventoryFetchComboObserver
+class LLDiscardAgentOffer : public LLInventoryFetchItemsObserver
 {
 	LOG_CLASS(LLDiscardAgentOffer);
 public:
 	LLDiscardAgentOffer(const LLUUID& folder_id, const LLUUID& object_id) :
+		LLInventoryFetchItemsObserver(object_id),
 		mFolderID(folder_id),
 		mObjectID(object_id) {}
 	virtual ~LLDiscardAgentOffer() {}
@@ -1367,11 +1371,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				// This is an offer from an agent. In this case, the back
 				// end has already copied the items into your inventory,
 				// so we can fetch it out of our inventory.
-				uuid_vec_t items;
-				items.push_back(mObjectID);
-				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(from_string);
-				open_agent_offer->fetch(items);
-				if(catp || (itemp && itemp->isComplete()))
+				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(mObjectID, from_string);
+				open_agent_offer->startFetch();
+				if(catp || (itemp && itemp->isFinished()))
 				{
 					open_agent_offer->done();
 				}
@@ -1428,13 +1430,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			// Disabled logging to old chat floater to fix crash in group notices - EXT-4149
 			// LLFloaterChat::addChatHistory(chat);
 			
-			uuid_vec_t folders;
-			uuid_vec_t items;
-			items.push_back(mObjectID);
-			LLDiscardAgentOffer* discard_agent_offer;
-			discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
-			discard_agent_offer->fetch(folders, items);
-			if(catp || (itemp && itemp->isComplete()))
+			LLDiscardAgentOffer* discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
+			discard_agent_offer->startFetch();
+			if (catp || (itemp && itemp->isFinished()))
 			{
 				discard_agent_offer->done();
 			}
@@ -1765,11 +1763,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 		p.name = "UserGiveItem";
 		
 		// Prefetch the item into your local inventory.
-		uuid_vec_t items;
-		items.push_back(info->mObjectID);
-		LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-		fetch_item->fetch(items);
-		if(fetch_item->isEverythingComplete())
+		LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
+		fetch_item->startFetch();
+		if(fetch_item->isFinished())
 		{
 			fetch_item->done();
 		}
@@ -2331,10 +2327,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			if (is_muted)
 			{
 				// Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
-				uuid_vec_t items;
-				items.push_back(info->mObjectID);
-				LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-				fetch_item->fetch(items);
+				LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
+				fetch_item->startFetch();
 				delete fetch_item;
 
 				// Same as closing window
@@ -3068,7 +3062,9 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 class LLFetchInWelcomeArea : public LLInventoryFetchDescendentsObserver
 {
 public:
-	LLFetchInWelcomeArea() {}
+	LLFetchInWelcomeArea(const uuid_vec_t &ids) :
+		LLInventoryFetchDescendentsObserver(ids)
+	{}
 	virtual void done()
 	{
 		LLIsType is_landmark(LLAssetType::AT_LANDMARK);
@@ -3150,9 +3146,9 @@ BOOL LLPostTeleportNotifiers::tick()
 			folders.push_back(folder_id);
 		if(!folders.empty())
 		{
-			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea;
-			fetcher->fetch(folders);
-			if(fetcher->isEverythingComplete())
+			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea(folders);
+			fetcher->startFetch();
+			if(fetcher->isFinished())
 			{
 				fetcher->done();
 			}

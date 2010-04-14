@@ -334,7 +334,7 @@
              left="20"
              name="WLCurKeyFrameText"
              top="104"
-             width="150">
+             width="235">
                 Key Frame Settings:
             </text>
             <text
@@ -392,7 +392,7 @@
              left="30"
              name="WLCurKeyTimeText2"
              top="169"
-             width="120">
+             width="185">
                 Key Preset:
             </text>
             <combo_box

@@ -138,7 +138,7 @@ public:
 	bool importFileLocal(LLFILE* fp);
 
 	// new methods
-	BOOL isComplete() const { return mIsComplete; }
+	BOOL isFinished() const { return mIsComplete; }
 	void setComplete(BOOL complete) { mIsComplete = complete; }
 	//void updateAssetOnServer() const;
 
