@@ -5395,6 +5395,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ParticipantListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide people icons in participant list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PerAccountSettingsFile</key>
     <map>
       <key>Comment</key>
@@ -8535,32 +8546,10 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
-	<key>ShowVoiceChannelPopup</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls visibility of the current voice channel popup above the voice tab</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ShowVoiceVisualizersInCalls</key>
     <map>
       <key>Comment</key>
       <string>Enables in-world voice visualizers, voice gestures and lip-sync while in group or P2P calls.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowVolumeSettingsPopup</key>
-    <map>
-      <key>Comment</key>
-      <string>Show individual volume slider for voice, sound effects, etc</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10954,5 +10943,35 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+
+    <!-- Settings below are for back compatibility only.
+    They are not used in current viewer anymore. But they can't be removed to avoid
+    influence on previous versions of the viewer in case of settings are not used or default value
+    should be changed. See also EXT-6661. -->
+    <!-- 1.23 settings -->
+    <key>ShowVoiceChannelPopup</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls visibility of the current voice channel popup above the voice tab</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowVolumeSettingsPopup</key>
+    <map>
+      <key>Comment</key>
+      <string>Show individual volume slider for voice, sound effects, etc</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+  
+    <!-- End of back compatibility settings -->
 </map>
 </llsd>

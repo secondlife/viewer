@@ -42,8 +42,10 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
+#include "llselectmgr.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
+#include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
@@ -1585,6 +1587,39 @@ void LLAppearanceMgr::wearBaseOutfit()
 	if (base_outfit_id.isNull()) return;
 	
 	updateCOF(base_outfit_id);
+}
+
+void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
+{
+	LLViewerInventoryItem * item_to_remove = gInventory.getItem(id_to_remove);
+	if (!item_to_remove) return;
+
+	switch (item_to_remove->getType())
+	{
+	case LLAssetType::AT_CLOTHING:
+		if (get_is_item_worn(id_to_remove))
+		{
+			//*TODO move here the exact removing code from LLWearableBridge::removeItemFromAvatar in the future
+			LLWearableBridge::removeItemFromAvatar(item_to_remove);
+		}
+		break;
+	case LLAssetType::AT_OBJECT:
+		gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
+		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_to_remove->getLinkedUUID());
+		gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
+
+		{
+			// this object might have been selected, so let the selection manager know it's gone now
+			LLViewerObject *found_obj = gObjectList.findObject(item_to_remove->getLinkedUUID());
+			if (found_obj)
+			{
+				LLSelectMgr::getInstance()->remove(found_obj);
+			};
+		}
+	default: break;
+	}
 }
 
 //#define DUMP_CAT_VERBOSE

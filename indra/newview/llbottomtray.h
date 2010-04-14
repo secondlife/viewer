@@ -212,8 +212,6 @@ protected:
 
 	LLBottomTray(const LLSD& key = LLSD());
 
-	void onChicletClick(LLUICtrl* ctrl);
-
 	static void* createNearbyChatBar(void* userdata);
 
 	void updateContextMenu(S32 x, S32 y, MASK mask);
