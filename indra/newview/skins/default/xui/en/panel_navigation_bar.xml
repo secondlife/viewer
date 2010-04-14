@@ -119,7 +119,7 @@
 	     commit_on_focus_lost="false"
 	     follows="right|top"
 	     halign="right"
-	     height="22"
+	     height="23"
 	     label="Search"
 	     layout="topleft"
 	     right="-10"
