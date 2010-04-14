@@ -325,7 +325,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 
 S32 LLDrawPoolAvatar::getNumPasses()
 {
-	return LLPipeline::sImpostorRender ? 1 : 4;
+	return LLPipeline::sImpostorRender ? 1 : 3;
 }
 
 void LLDrawPoolAvatar::render(S32 pass)
@@ -362,6 +362,7 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 		break;
 	case 2:
 		beginSkinned();
+		break;
 	case 3:
 		beginRigged();
 		break;
@@ -579,12 +580,14 @@ void LLDrawPoolAvatar::endSkinned()
 
 void LLDrawPoolAvatar::beginRigged()
 {
+	sVertexProgram = NULL;
 	gSkinnedObjectSimpleProgram.bind();
 	LLVertexBuffer::sWeight4Loc = gSkinnedObjectSimpleProgram.getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
 }
 
 void LLDrawPoolAvatar::endRigged()
 {
+	sVertexProgram = NULL;
 	gSkinnedObjectSimpleProgram.unbind();
 	LLVertexBuffer::sWeight4Loc = -1;
 }

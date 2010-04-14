@@ -108,6 +108,12 @@ LLVisualParamHint::~LLVisualParamHint()
 	LLVisualParamHint::sInstances.erase( this );
 }
 
+//virtual
+S8 LLVisualParamHint::getType() const
+{
+	return LLViewerDynamicTexture::LL_VISUAL_PARAM_HINT ;
+}
+
 //-----------------------------------------------------------------------------
 // static
 // requestHintUpdates()
@@ -285,6 +291,12 @@ void LLVisualParamHint::draw()
 //-----------------------------------------------------------------------------
 LLVisualParamReset::LLVisualParamReset() : LLViewerDynamicTexture(1, 1, 1, ORDER_RESET, FALSE)
 {	
+}
+
+//virtual
+S8 LLVisualParamReset::getType() const
+{
+	return LLViewerDynamicTexture::LL_VISUAL_PARAM_RESET ;
 }
 
 //-----------------------------------------------------------------------------

@@ -119,9 +119,6 @@ TOOLPIPETTE             CURSOR                  "toolpipette.cur"
 TOOLPLAY                CURSOR                  "toolplay.cur"
 TOOLPAUSE               CURSOR                  "toolpause.cur"
 TOOLMEDIAOPEN           CURSOR                  "toolmediaopen.cur"
-TOOLOPEN                CURSOR                  "toolopen.cur"
-TOOLSIT                 CURSOR                  "toolsit.cur"
-TOOLBUY                 CURSOR                  "toolbuy.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //

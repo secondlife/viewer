@@ -39,7 +39,8 @@
 #include "llinventoryfunctions.h"
 #include "llvoavatarself.h"
 
-LLInitialWearablesFetch::LLInitialWearablesFetch()
+LLInitialWearablesFetch::LLInitialWearablesFetch(const LLUUID& cof_id) :
+	LLInventoryFetchDescendentsObserver(cof_id)
 {
 }
 
@@ -86,12 +87,11 @@ void LLInitialWearablesFetch::processContents()
 	delete this;
 }
 
-class LLFetchAndLinkObserver: public LLInventoryFetchObserver
+class LLFetchAndLinkObserver: public LLInventoryFetchItemsObserver
 {
 public:
 	LLFetchAndLinkObserver(uuid_vec_t& ids):
-		m_ids(ids),
-		LLInventoryFetchObserver(true) // retry for missing items
+		LLInventoryFetchItemsObserver(ids)
 	{
 	}
 	~LLFetchAndLinkObserver()
@@ -103,8 +103,8 @@ public:
 
 		// Link to all fetched items in COF.
 		LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
-		for (uuid_vec_t::iterator it = m_ids.begin();
-			 it != m_ids.end();
+		for (uuid_vec_t::iterator it = mIDs.begin();
+			 it != mIDs.end();
 			 ++it)
 		{
 			LLUUID id = *it;
@@ -123,8 +123,6 @@ public:
 								link_waiter);
 		}
 	}
-private:
-	uuid_vec_t m_ids;
 };
 
 void LLInitialWearablesFetch::processWearablesMessage()
@@ -173,10 +171,10 @@ void LLInitialWearablesFetch::processWearablesMessage()
 
 		// Need to fetch the inventory items for ids, then create links to them after they arrive.
 		LLFetchAndLinkObserver *fetcher = new LLFetchAndLinkObserver(ids);
-		fetcher->fetch(ids);
+		fetcher->startFetch();
 		// If no items to be fetched, done will never be triggered.
-		// TODO: Change LLInventoryFetchObserver::fetchItems to trigger done() on this condition.
-		if (fetcher->isEverythingComplete())
+		// TODO: Change LLInventoryFetchItemsObserver::fetchItems to trigger done() on this condition.
+		if (fetcher->isFinished())
 		{
 			fetcher->done();
 		}
@@ -191,7 +189,8 @@ void LLInitialWearablesFetch::processWearablesMessage()
 	}
 }
 
-LLLibraryOutfitsFetch::LLLibraryOutfitsFetch() : 
+LLLibraryOutfitsFetch::LLLibraryOutfitsFetch(const LLUUID& my_outfits_id) : 
+	LLInventoryFetchDescendentsObserver(my_outfits_id),
 	mCurrFetchStep(LOFS_FOLDER), 
 	mOutfitsPopulated(false) 
 {
@@ -288,8 +287,9 @@ void LLLibraryOutfitsFetch::folderDone()
 	uuid_vec_t folders;
 	folders.push_back(mClothingID);
 	folders.push_back(mLibraryClothingID);
-	fetch(folders);
-	if (isEverythingComplete())
+	setFetchIDs(folders);
+	startFetch();
+	if (isFinished())
 	{
 		done();
 	}
@@ -337,9 +337,9 @@ void LLLibraryOutfitsFetch::outfitsDone()
 	}
 	
 	mComplete.clear();
-	
-	fetch(folders);
-	if (isEverythingComplete())
+	setFetchIDs(folders);
+	startFetch();
+	if (isFinished())
 	{
 		done();
 	}
@@ -434,9 +434,9 @@ void LLLibraryOutfitsFetch::importedFolderFetch()
 	folders.push_back(mImportedClothingID);
 	
 	mComplete.clear();
-	
-	fetch(folders);
-	if (isEverythingComplete())
+	setFetchIDs(folders);
+	startFetch();
+	if (isFinished())
 	{
 		done();
 	}
@@ -464,8 +464,9 @@ void LLLibraryOutfitsFetch::importedFolderDone()
 	}
 	
 	mComplete.clear();
-	fetch(folders);
-	if (isEverythingComplete())
+	setFetchIDs(folders);
+	startFetch();
+	if (isFinished())
 	{
 		done();
 	}

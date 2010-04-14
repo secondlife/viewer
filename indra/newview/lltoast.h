@@ -63,6 +63,8 @@ public:
 	void start() { mEventTimer.start(); }
 	void restart() {mEventTimer.reset(); }
 	BOOL getStarted() { return mEventTimer.getStarted(); }
+
+	LLTimer&  getEventTimer() { return mEventTimer;}
 private :
 	LLToast* mToast;
 };
@@ -131,6 +133,8 @@ public:
 	void resetTimer() { mTimer->start(); }
 	//
 	void stopTimer() { mTimer->stop(); }
+	//
+	LLToastLifeTimer* getTimer() { return mTimer.get();}
 	//
 	virtual void draw();
 	//

@@ -2607,6 +2607,8 @@ void LLAppViewer::handleViewerCrash()
 {
 	llinfos << "Handle viewer crash entry." << llendl;
 
+	llinfos << "Last render pool type: " << LLPipeline::sCurRenderPoolType << llendl ;
+
 	//print out recorded call stacks if there are any.
 	LLError::LLCallStacks::print();
 
@@ -3077,7 +3079,7 @@ bool LLAppViewer::initCache()
 			gSavedSettings.getBOOL("PurgeCacheOnNextStartup"))
 		{
 			gSavedSettings.setBOOL("PurgeCacheOnNextStartup", false);
-			mPurgeCache = true;
+		mPurgeCache = true;
 		}
 	
 		// We have moved the location of the cache directory over time.

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Inventory Finder" title="ITENS_DE_INVENTÁRIO_RECENTES" width="165">
+<floater name="Inventory Finder" title="ITENS_DE_INVENTÁRIO_RECENTES">
 	<check_box label="Animação" name="check_animation"/>
 	<check_box label="Cartões de chamadas" name="check_calling_card"/>
 	<check_box label="Roupas" name="check_clothing"/>
@@ -13,8 +13,8 @@
 	<check_box label="Fotos" name="check_snapshot"/>
 	<button label="Tudo" label_selected="Tudo" name="All"/>
 	<button label="Nenhum" label_selected="Nenhum" name="None"/>
-	<check_box label="Sempre mostrar as pastas" name="check_show_empty" left="3"/>
-	<check_box label="Desde o Logoff" name="check_since_logoff" left="3"/>
+	<check_box label="Sempre mostrar as pastas" name="check_show_empty"/>
+	<check_box label="Desde o Logoff" name="check_since_logoff"/>
 	<text name="- OR -">
 		- OU -
 	</text>

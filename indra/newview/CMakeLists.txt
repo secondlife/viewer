@@ -149,7 +149,6 @@ set(viewer_SOURCE_FILES
     llfirstuse.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
-    llfloateractivespeakers.cpp
     llfloateranimpreview.cpp
     llfloaterauction.cpp
     llfloateravatarpicker.cpp
@@ -446,6 +445,7 @@ set(viewer_SOURCE_FILES
     lltracker.cpp
     lltransientdockablefloater.cpp
     lltransientfloatermgr.cpp
+    llpanelgenerictip.cpp
     lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
@@ -657,7 +657,6 @@ set(viewer_HEADER_FILES
     llfirstuse.h
     llflexibleobject.h
     llfloaterabout.h
-    llfloateractivespeakers.h
     llfloateranimpreview.h
     llfloaterauction.h
     llfloateravatarpicker.h
@@ -952,6 +951,7 @@ set(viewer_HEADER_FILES
     lltracker.h
     lltransientdockablefloater.h
     lltransientfloatermgr.h
+    llpanelgenerictip.h
     lluiconstants.h
     lluilistener.h
     lluploaddialog.h

@@ -1070,6 +1070,12 @@ LLPreviewAnimation::~LLPreviewAnimation()
 	mDummyAvatar->markDead();
 }
 
+//virtual
+S8 LLPreviewAnimation::getType() const
+{
+	return LLViewerDynamicTexture::LL_PREVIEW_ANIMATION ;
+}
+
 //-----------------------------------------------------------------------------
 // update()
 //-----------------------------------------------------------------------------

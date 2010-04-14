@@ -324,6 +324,8 @@ void LLNearbyChatToastPanel::draw()
 			icon->setDrawTooltip(mSourceType == CHAT_SOURCE_AGENT);
 			if(mSourceType == CHAT_SOURCE_AGENT)
 				icon->setValue(mFromID);
+			else if(mSourceType == CHAT_SOURCE_SYSTEM)
+				icon->setValue(LLSD("SL_Logo"));
 			else
 				icon->setValue(LLSD("OBJECT_Icon"));
 		}

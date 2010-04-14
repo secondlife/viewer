@@ -237,7 +237,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 
 	// do not enable the UI for incomplete items.
 	LLViewerInventoryItem* i = (LLViewerInventoryItem*)item;
-	BOOL is_complete = i->isComplete();
+	BOOL is_complete = i->isFinished();
 	const BOOL cannot_restrict_permissions = LLInventoryType::cannotRestrictPermissions(i->getInventoryType());
 	const BOOL is_calling_card = (i->getInventoryType() == LLInventoryType::IT_CALLINGCARD);
 	const LLPermissions& perm = item->getPermissions();
@@ -683,7 +683,7 @@ void LLFloaterProperties::onCommitPermissions()
 							CheckNextOwnerTransfer->get(), PERM_TRANSFER);
 	}
 	if(perm != item->getPermissions()
-		&& item->isComplete())
+		&& item->isFinished())
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		new_item->setPermissions(perm);
@@ -813,7 +813,7 @@ void LLFloaterProperties::updateSaleInfo()
 		sale_info.setSaleType(LLSaleInfo::FS_NOT);
 	}
 	if(sale_info != item->getSaleInfo()
-		&& item->isComplete())
+		&& item->isFinished())
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 

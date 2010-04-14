@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <menu_bar
- follows="left|top|right"
+ follows="left|top"
  height="18"
  layout="topleft"
  left_delta="0"

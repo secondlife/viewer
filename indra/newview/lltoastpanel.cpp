@@ -32,14 +32,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "lltoastpanel.h"
-
+#include "llpanelgenerictip.h"
 #include "llnotifications.h"
+#include "lltoastpanel.h"
 
 //static
 const S32 LLToastPanel::MIN_PANEL_HEIGHT = 40; // VPAD(4)*2 + ICON_HEIGHT(32)
 
-LLToastPanel::LLToastPanel(LLNotificationPtr& notification) 
+LLToastPanel::LLToastPanel(const LLNotificationPtr& notification)
 {
 	mNotification = notification;
 }
@@ -91,3 +91,20 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 	}
 }
 
+// static
+LLToastPanel* LLToastPanel::buidPanelFromNotification(
+		const LLNotificationPtr& notification)
+{
+	LLToastPanel* res = NULL;
+
+	if (notification->getName() == "SystemMessageTip")
+	{
+		res = new LLPanelGenericTip(notification);
+	}
+	/*
+	 else if(...)
+	 create all other specific non-public toast panel
+	 */
+
+	return res;
+}
