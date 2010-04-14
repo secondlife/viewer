@@ -135,6 +135,9 @@ public:
 	// @return false if there is no base outfit
 	bool updateBaseOutfit();
 
+	//Remove clothing or detach an object from the agent (a bodypart cannot be removed)
+	void removeItemFromAvatar(const LLUUID& item_id);
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();
@@ -256,10 +259,12 @@ void doOnIdleRepeating(T callable)
 }
 
 template <class T>
-class CallAfterCategoryFetchStage2: public LLInventoryFetchObserver
+class CallAfterCategoryFetchStage2: public LLInventoryFetchItemsObserver
 {
 public:
-	CallAfterCategoryFetchStage2(T callable):
+	CallAfterCategoryFetchStage2(const uuid_vec_t& ids,
+								 T callable) :
+		LLInventoryFetchItemsObserver(ids),
 		mCallable(callable)
 	{
 	}
@@ -280,7 +285,8 @@ template <class T>
 class CallAfterCategoryFetchStage1: public LLInventoryFetchDescendentsObserver
 {
 public:
-	CallAfterCategoryFetchStage1(T callable):
+	CallAfterCategoryFetchStage1(const LLUUID& cat_id, T callable) :
+		LLInventoryFetchDescendentsObserver(cat_id),
 		mCallable(callable)
 	{
 	}
@@ -309,7 +315,6 @@ public:
 			return;
 		}
 
-		CallAfterCategoryFetchStage2<T> *stage2 = new CallAfterCategoryFetchStage2<T>(mCallable);
 		uuid_vec_t ids;
 		for(S32 i = 0; i < count; ++i)
 		{
@@ -319,8 +324,9 @@ public:
 		gInventory.removeObserver(this);
 		
 		// do the fetch
-		stage2->fetch(ids);
-		if(stage2->isEverythingComplete())
+		CallAfterCategoryFetchStage2<T> *stage2 = new CallAfterCategoryFetchStage2<T>(ids, mCallable);
+		stage2->startFetch();
+		if(stage2->isFinished())
 		{
 			// everything is already here - call done.
 			stage2->done();
@@ -340,11 +346,9 @@ protected:
 template <class T> 
 void callAfterCategoryFetch(const LLUUID& cat_id, T callable)
 {
-	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(callable);
-	uuid_vec_t folders;
-	folders.push_back(cat_id);
-	stage1->fetch(folders);
-	if (stage1->isEverythingComplete())
+	CallAfterCategoryFetchStage1<T> *stage1 = new CallAfterCategoryFetchStage1<T>(cat_id, callable);
+	stage1->startFetch();
+	if (stage1->isFinished())
 	{
 		stage1->done();
 	}

@@ -211,7 +211,7 @@
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
-                 name="trash_btn"
+                 name="remove_from_outfit_btn"
                  right="-1"
                  top="1"
                  width="31" />

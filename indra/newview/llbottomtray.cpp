@@ -185,24 +185,6 @@ LLBottomTray::~LLBottomTray()
 	}
 }
 
-void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
-{
-	LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(ctrl);
-	if (chiclet)
-	{
-		// Until you can type into an IM Window and have a conversation,
-		// still show the old communicate window
-		//LLFloaterReg::showInstance("communicate", chiclet->getSessionId());
-
-		// Show after comm window so it is frontmost (and hence will not
-		// auto-hide)
-
-// this logic has been moved to LLIMChiclet::handleMouseDown
-//		LLIMFloater::show(chiclet->getSessionId());
-//		chiclet->setCounter(0);
-	}
-}
-
 // *TODO Vadim: why void* ?
 void* LLBottomTray::createNearbyChatBar(void* userdata)
 {
@@ -499,7 +481,6 @@ BOOL LLBottomTray::postBuild()
 	mNearbyChatBar->getChatBox()->setContextMenu(NULL);
 
 	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
-	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
 
 	initStateProcessedObjectMap();
 

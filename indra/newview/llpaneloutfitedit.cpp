@@ -118,7 +118,7 @@ private:
 LLPanelOutfitEdit::LLPanelOutfitEdit()
 :	LLPanel(), mCurrentOutfitID(), mFetchLook(NULL), mSearchFilter(NULL),
 mLookContents(NULL), mInventoryItemsPanel(NULL), mAddToOutfitBtn(NULL),
-mRemoveFromLookBtn(NULL), mLookObserver(NULL)
+mRemoveFromOutfitBtn(NULL), mLookObserver(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -164,14 +164,10 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetCommitCallback("add_btn", boost::bind(&LLPanelOutfitEdit::showAddWearablesPanel, this), NULL);
 
-	/*
-	mLookContents->setDoubleClickCallback(onDoubleClickSpeaker, this);
-	mLookContents->setCommitOnSelectionChange(TRUE);
-	mLookContents->setCommitCallback(boost::bind(&LLPanelActiveSpeakers::handleSpeakerSelect, this, _2));
-	mLookContents->setSortChangedCallback(boost::bind(&LLPanelActiveSpeakers::onSortChanged, this));
-	mLookContents->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
-	*/
-	
+	mLookContents = getChild<LLScrollListCtrl>("look_items_list");
+	mLookContents->sortByColumn("look_item_sort", TRUE);
+	mLookContents->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onOutfitItemSelectionChange, this));
+
 	mInventoryItemsPanel = getChild<LLInventoryPanel>("inventory_items");
 	mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
 	mInventoryItemsPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
@@ -207,31 +203,20 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mUpBtn->setEnabled(TRUE);
 	mUpBtn->setClickedCallback(boost::bind(&LLPanelOutfitEdit::onUpClicked, this));
 	
+	//*TODO rename mLookContents to mOutfitContents
 	mLookContents = getChild<LLScrollListCtrl>("look_items_list");
 	mLookContents->sortByColumn("look_item_sort", TRUE);
-	mLookContents->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onLookItemSelectionChange, this));
+	mLookContents->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onOutfitItemSelectionChange, this));
 
-	/*
-	LLButton::Params remove_params;
-	remove_params.name("remove_from_look");
-	remove_params.click_callback.function(boost::bind(&LLPanelOutfitEdit::onRemoveFromLookClicked, this));
-	remove_params.label("-"); */
-	
-	//mRemoveFromLookBtn = LLUICtrlFactory::create<LLButton>(remove_params);
-	mRemoveFromLookBtn = getChild<LLButton>("remove_from_look_btn");
-	mRemoveFromLookBtn->setEnabled(FALSE);
-	mRemoveFromLookBtn->setVisible(FALSE);
-	//childSetAction("remove_from_look_btn", boost::bind(&LLPanelOutfitEdit::onRemoveFromLookClicked, this), this);
-	mRemoveFromLookBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onRemoveFromLookClicked, this));
-	//getChild<LLPanel>("look_info_group_bar")->addChild(mRemoveFromLookBtn); remove_item_btn
-	
+	mRemoveFromOutfitBtn = getChild<LLButton>("remove_from_outfit_btn");
+	mRemoveFromOutfitBtn->setEnabled(FALSE);
+	mRemoveFromOutfitBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onRemoveFromOutfitClicked, this));
+
 	mEditWearableBtn = getChild<LLButton>("edit_wearable_btn");
 	mEditWearableBtn->setEnabled(FALSE);
 	mEditWearableBtn->setVisible(FALSE);
 	mEditWearableBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onEditWearableClicked, this));
 
-	childSetAction("remove_item_btn", boost::bind(&LLPanelOutfitEdit::onRemoveFromLookClicked, this), this);
-	
 	childSetAction("revert_btn", boost::bind(&LLAppearanceMgr::wearBaseOutfit, LLAppearanceMgr::getInstance()));
 
 	childSetAction("save_btn", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, false));
@@ -353,27 +338,15 @@ void LLPanelOutfitEdit::onAddToOutfitClicked(void)
 }
 
 
-void LLPanelOutfitEdit::onRemoveFromLookClicked(void)
+void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
 {
 	LLUUID id_to_remove = mLookContents->getSelectionInterface()->getCurrentID();
 	
-	LLViewerInventoryItem * item_to_remove = gInventory.getItem(id_to_remove);
-	
-	if (item_to_remove)
-	{
-		// returns null if not a wearable (attachment, etc).
-		const LLWearable* wearable_to_remove = gAgentWearables.getWearableFromAssetID(item_to_remove->getAssetUUID());
-		if (!wearable_to_remove || gAgentWearables.canWearableBeRemoved( wearable_to_remove ))
-		{											 
-			gInventory.purgeObject( id_to_remove );
-			updateLookInfo();
-			mRemoveFromLookBtn->setEnabled(FALSE);
-			if (mRemoveFromLookBtn->getVisible())
-			{
-				mRemoveFromLookBtn->setVisible(FALSE);
-			}
-		}
-	}
+	LLAppearanceMgr::getInstance()->removeItemFromAvatar(id_to_remove);
+
+	updateLookInfo();
+
+	mRemoveFromOutfitBtn->setEnabled(FALSE);
 }
 
 
@@ -421,14 +394,14 @@ void LLPanelOutfitEdit::onEditWearableClicked(void)
 		if(wearable_to_edit)
 		{
 			bool can_modify = false;
-			bool is_complete = item_to_edit->isComplete();
+			bool is_complete = item_to_edit->isFinished();
 			// if item_to_edit is a link, its properties are not appropriate, 
 			// lets get original item with actual properties
 			LLViewerInventoryItem* original_item = gInventory.getItem(wearable_to_edit->getItemID());
 			if(original_item)
 			{
 				can_modify = original_item->getPermissions().allowModifyBy(gAgentID);
-				is_complete = original_item->isComplete();
+				is_complete = original_item->isFinished();
 			}
 
 			if (can_modify && is_complete)
@@ -482,7 +455,7 @@ void LLPanelOutfitEdit::onInventorySelectionChange(const std::deque<LLFolderView
 	current_item->addChild(mAddToLookBtn); */
 }
 
-void LLPanelOutfitEdit::onLookItemSelectionChange(void)
+void LLPanelOutfitEdit::onOutfitItemSelectionChange(void)
 {	
 	S32 left_offset = -4;
 	S32 top_offset = -10;
@@ -504,7 +477,22 @@ void LLPanelOutfitEdit::onLookItemSelectionChange(void)
 	{
 		mEditWearableBtn->setVisible(TRUE);
 	}
-	//mLookContents->addChild(mRemoveFromLookBtn);
+
+
+	const LLUUID& id_item_to_remove = item->getUUID();
+	LLViewerInventoryItem* item_to_remove = gInventory.getItem(id_item_to_remove);
+	if (!item_to_remove) return;
+
+	switch (item_to_remove->getType())
+	{
+	case LLAssetType::AT_CLOTHING:
+	case LLAssetType::AT_OBJECT:
+		mRemoveFromOutfitBtn->setEnabled(TRUE);
+		break;
+	default:
+		mRemoveFromOutfitBtn->setEnabled(FALSE);
+		break;
+	}
 }
 
 void LLPanelOutfitEdit::changed(U32 mask)
@@ -548,11 +536,10 @@ void LLPanelOutfitEdit::updateLookInfo()
 	if (getVisible())
 	{
 		mLookContents->clearRows();
-		
-		uuid_vec_t folders;
-		folders.push_back(mCurrentOutfitID);
-		mFetchLook->fetch(folders);
-		if (mFetchLook->isEverythingComplete())
+
+		mFetchLook->setFetchID(mCurrentOutfitID);
+		mFetchLook->startFetch();
+		if (mFetchLook->isFinished())
 		{
 			mFetchLook->done();
 		}

@@ -82,8 +82,21 @@
          function="ParticipantList.EnableItem"
          parameter="can_pay" />
     </menu_item_call>
-        <menu_item_separator
-         layout="topleft" />
+    <menu_item_separator
+        layout="topleft"
+        name="View Icons Separator" />
+    <menu_item_check
+        label="View People Icons"
+        name="View Icons">
+      <on_click
+          function="ToggleControl"
+          parameter="ParticipantListShowIcons"/>
+      <on_check
+          function="CheckControl"
+          parameter="ParticipantListShowIcons" />
+    </menu_item_check>
+    <menu_item_separator
+        layout="topleft" />
     <menu_item_check
      label="Block Voice"
      layout="topleft"

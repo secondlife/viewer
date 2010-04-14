@@ -39,6 +39,7 @@
 
 #include "llparticipantlist.h"
 #include "llspeakers.h"
+#include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
 
@@ -50,7 +51,7 @@
 static const LLAvatarItemAgentOnTopComparator AGENT_ON_TOP_NAME_COMPARATOR;
 
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/,
-		bool exclude_agent /*= true*/):
+		bool exclude_agent /*= true*/, bool can_toggle_icons /*= true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
 	mSortOrder(E_SORT_BY_NAME)
@@ -87,6 +88,12 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 		mAvatarList->setContextMenu(NULL);
 	}
 
+	if (use_context_menu && can_toggle_icons)
+	{
+		mAvatarList->setShowIcons("ParticipantListShowIcons");
+		mAvatarListToggleIconsConnection = gSavedSettings.getControl("ParticipantListShowIcons")->getSignal()->connect(boost::bind(&LLAvatarList::toggleIcons, mAvatarList));
+	}
+
 	//Lets fill avatarList with existing speakers
 	LLSpeakerMgr::speaker_list_t speaker_list;
 	mSpeakerMgr->getSpeakerList(&speaker_list, true);
@@ -113,6 +120,7 @@ LLParticipantList::~LLParticipantList()
 	mAvatarListDoubleClickConnection.disconnect();
 	mAvatarListRefreshConnection.disconnect();
 	mAvatarListReturnConnection.disconnect();
+	mAvatarListToggleIconsConnection.disconnect();
 
 	// It is possible Participant List will be re-created from LLCallFloater::onCurrentChannelChanged()
 	// See ticket EXT-3427
@@ -440,6 +448,8 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	main_menu->setItemVisible("SortByName", is_sort_visible);
 	main_menu->setItemVisible("SortByRecentSpeakers", is_sort_visible);
 	main_menu->setItemVisible("Moderator Options", isGroupModerator());
+	main_menu->setItemVisible("View Icons Separator", mParent.mAvatarListToggleIconsConnection.connected());
+	main_menu->setItemVisible("View Icons", mParent.mAvatarListToggleIconsConnection.connected());
 	main_menu->arrangeAndClear();
 
 	return main_menu;
