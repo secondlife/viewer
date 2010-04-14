@@ -2296,11 +2296,6 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		{
 			resetAxes(mAutoPilotTargetFacing);
 		}
-		// If the user cancelled, don't change the fly state
-		if (!user_cancel)
-		{
-			setFlying(mAutoPilotFlyOnStop);
-		}
 		//NB: auto pilot can terminate for a reason other than reaching the destination
 		if (mAutoPilotFinishedCallback)
 		{
@@ -2308,6 +2303,11 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		}
 		mLeaderID = LLUUID::null;
 
+		// If the user cancelled, don't change the fly state
+		if (!user_cancel)
+		{
+			setFlying(mAutoPilotFlyOnStop);
+		}
 		setControlFlags(AGENT_CONTROL_STOP);
 
 		if (user_cancel && !mAutoPilotBehaviorName.empty())
