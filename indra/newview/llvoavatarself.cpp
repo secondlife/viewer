@@ -673,15 +673,6 @@ BOOL LLVOAvatarSelf::setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL
 /*virtual*/ 
 void LLVOAvatarSelf::updateVisualParams()
 {
-	for (U32 type = 0; type < WT_COUNT; type++)
-	{
-		LLWearable *wearable = gAgentWearables.getTopWearable((EWearableType)type);
-		if (wearable)
-		{
-			wearable->writeToAvatar();
-		}
-	}
-
 	LLVOAvatar::updateVisualParams();
 }
 
@@ -692,7 +683,14 @@ void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 	gAgentWearables.animateAllWearableParams(calcMorphAmount(), FALSE);
 
 	// apply wearable visual params to avatar
-	updateVisualParams();
+	for (U32 type = 0; type < WT_COUNT; type++)
+	{
+		LLWearable *wearable = gAgentWearables.getTopWearable((EWearableType)type);
+		if (wearable)
+		{
+			wearable->writeToAvatar();
+		}
+	}
 
 	//allow avatar to process updates
 	LLVOAvatar::idleUpdateAppearanceAnimation();
