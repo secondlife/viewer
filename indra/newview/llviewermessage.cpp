@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llviewermessage.h"
+#include "boost/lexical_cast.hpp"
 
 #include "llanimationstates.h"
 #include "llaudioengine.h" 
@@ -1860,6 +1861,53 @@ protected:
 	}
 };
 
+static void parse_lure_bucket(const std::string& bucket,
+							  U64& region_handle,
+							  LLVector3& pos,
+							  LLVector3& look_at,
+							  U8& region_access)
+{
+	// tokenize the bucket
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
+	tokenizer tokens(bucket, sep);
+	tokenizer::iterator iter = tokens.begin();
+
+	S32 gx = boost::lexical_cast<S32>((*(iter)).c_str());
+	S32 gy = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 rx = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 ry = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 rz = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 lx = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 ly = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 lz = boost::lexical_cast<S32>((*(++iter)).c_str());
+
+	// Grab region access
+	region_access = SIM_ACCESS_MIN;
+	if (++iter != tokens.end())
+	{
+		std::string access_str((*iter).c_str());
+		LLStringUtil::trim(access_str);
+		if ( access_str == "A" )
+		{
+			region_access = SIM_ACCESS_ADULT;
+		}
+		else if ( access_str == "M" )
+		{
+			region_access = SIM_ACCESS_MATURE;
+		}
+		else if ( access_str == "PG" )
+		{
+			region_access = SIM_ACCESS_PG;
+		}
+	}
+
+	pos.setVec((F32)rx, (F32)ry, (F32)rz);
+	look_at.setVec((F32)lx, (F32)ly, (F32)lz);
+
+	region_handle = to_region_handle(gx, gy);
+}
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -2493,10 +2541,19 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
+				LLVector3 pos, look_at;
+				U64 region_handle;
+				U8 region_access;
+				std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
+				parse_lure_bucket(region_info, region_handle, pos, look_at, region_access);
+
+				std::string region_access_str = LLViewerRegion::accessToString(region_access);
+
 				LLSD args;
 				// *TODO: Translate -> [FIRST] [LAST] (maybe)
 				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
 				args["MESSAGE"] = message;
+				args["MATURITY"] = region_access_str;
 				LLSD payload;
 				payload["from_id"] = from_id;
 				payload["lure_id"] = session_id;
