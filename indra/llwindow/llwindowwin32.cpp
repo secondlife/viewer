@@ -1548,9 +1548,9 @@ void LLWindowWin32::initCursors()
 	// Color cursors
 	gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "res", "toolbuy.cur");
 
-	mCursor[UI_CURSOR_TOOLSIT] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + "res" + gDirUtilp->getDirDelimiter() + "toolsit.cur").c_str());
-	mCursor[UI_CURSOR_TOOLBUY] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + "res" + gDirUtilp->getDirDelimiter() + "toolbuy.cur").c_str());
-	mCursor[UI_CURSOR_TOOLOPEN] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + "res" + gDirUtilp->getDirDelimiter() + "toolopen.cur").c_str());
+	mCursor[UI_CURSOR_TOOLSIT] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->findSkinnedFilename("textures", "toolsit.cur")).c_str());
+	mCursor[UI_CURSOR_TOOLBUY] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->findSkinnedFilename("textures", "toolbuy.cur")).c_str());
+	mCursor[UI_CURSOR_TOOLOPEN] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->findSkinnedFilename("textures", "toolopen.cur")).c_str());
 	mCursor[UI_CURSOR_TOOLPLAY] = loadColorCursor(TEXT("TOOLPLAY"));
 	mCursor[UI_CURSOR_TOOLPAUSE] = loadColorCursor(TEXT("TOOLPAUSE"));
 	mCursor[UI_CURSOR_TOOLMEDIAOPEN] = loadColorCursor(TEXT("TOOLMEDIAOPEN"));
