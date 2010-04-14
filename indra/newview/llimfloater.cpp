@@ -499,8 +499,8 @@ void LLIMFloater::setVisible(BOOL visible)
 	{
 		//only if floater was construced and initialized from xml
 		updateMessages();
-		//prevent steal focus when IM opened in multitab mode
-		if (!isChatMultiTab())
+		//prevent stealing focus when opening a background IM tab (EXT-5387, checking focus for EXT-6781)
+		if (!isChatMultiTab() || hasFocus())
 		{
 			mInputEditor->setFocus(TRUE);
 		}
