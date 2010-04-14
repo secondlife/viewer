@@ -570,9 +570,12 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		F32 scale = gSavedSettings.getF32("RenderShadowResolutionScale");
 
+		//HACK: make alpha masking work on ATI depth shadows (work around for ATI driver bug)
+		U32 shadow_fmt = gGLManager.mIsATI ? GL_ALPHA : 0;
+
 		for (U32 i = 0; i < 4; i++)
 		{
-			mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
+			mShadow[i].allocate(U32(resX*scale),U32(resY*scale), shadow_fmt, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
 		}
 
 
@@ -581,10 +584,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 		for (U32 i = 4; i < 6; i++)
 		{
-			mShadow[i].allocate(width, height, 0, TRUE, FALSE);
+			mShadow[i].allocate(width, height, shadow_fmt, TRUE, FALSE);
 		}
-
-
 
 		width = nhpo2(resX)/2;
 		height = nhpo2(resY)/2;
