@@ -217,8 +217,13 @@ bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD&
 		if( !outfit_name.empty() )
 		{
 			LLUUID outfit_folder = gAgentWearables.makeNewOutfitLinks(outfit_name);
-			LLSD key;
-			LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
+
+			LLSidepanelAppearance* panel_appearance =
+				dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+			if (panel_appearance)
+			{
+				panel_appearance->showOutfitsInventoryPanel();
+			}
 
 			if (mAppearanceTabs)
 			{
@@ -307,6 +312,12 @@ bool LLPanelOutfitsInventory::getIsCorrectType(const LLFolderViewEventListener *
 LLFolderView *LLPanelOutfitsInventory::getRootFolder()
 {
 	return mActivePanel->getRootFolder();
+}
+
+//static
+LLPanelOutfitsInventory* LLPanelOutfitsInventory::findInstance()
+{
+	return dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
 }
 
 //////////////////////////////////////////////////////////////////////////////////

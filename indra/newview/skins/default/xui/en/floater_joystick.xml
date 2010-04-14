@@ -819,7 +819,7 @@
      layout="topleft"
      left="20"
      name="ZoomDeadZone"
-     width="94">
+     width="96">
         Zoom Dead Zone
     </text>
     <spinner

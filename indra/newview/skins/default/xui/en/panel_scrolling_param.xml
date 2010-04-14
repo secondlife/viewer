@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- height="152"
+ height="157"
  layout="topleft"
  left="0"
  name="LLScrollingPanelParam"
@@ -10,25 +10,25 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left="4"
+     left="12"
      name="min param text"
-     top="116"
-     width="128" />
+     top="120"
+     width="120" />
     <text
      follows="left|top"
      height="16"
      layout="topleft"
-     left_pad="6"
+     left="155"
      name="max param text"
      top_delta="0"
-     width="128" />
+     width="120" />
     <text
      type="string"
      length="1"
      follows="left|top"
      height="16"
      layout="topleft"
-     left="8"
+     left="12"
      name="Loading..."
      top="11"
      width="128">
@@ -40,7 +40,7 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left_pad="6"
+     left="155"
      name="Loading...2"
      top_delta="0"
      width="128">
@@ -49,30 +49,30 @@
     <view_border 
      layout="topleft"
      follows="left|top"
-     left="2"
-     top="0"
+     left="7"
+     top="5"
      width="132"
      height="132"
      thickness="2"
-     shadow_light_color="LtGray_50"
-     highlight_light_color="LtGray_50"
-     highlight_dark_color="LtGray_50"
-     shadow_dark_color="LtGray_50"
+     shadow_light_color="0.3 0.3 0.3 1"
+     highlight_light_color="0.3 0.3 0.3 1"
+     highlight_dark_color="0.3 0.3 0.3 1"
+     shadow_dark_color="0.3 0.3 0.3 1"
      bevel_style="in"
      name="left_border"
     />
     <view_border 
      layout="topleft"
      follows="left|top"
-     left_pad="2"
+     left_pad="10"
      top_delta="0"
      width="132"
      height="132"
      thickness="2"
-     shadow_light_color="LtGray_50"
-     highlight_light_color="LtGray_50"
-     highlight_dark_color="LtGray_50"
-     shadow_dark_color="LtGray_50"
+     shadow_light_color="0.3 0.3 0.3 1"
+     highlight_light_color="0.3 0.3 0.3 1"
+     highlight_dark_color="0.3 0.3 0.3 1"
+     shadow_dark_color="0.3 0.3 0.3 1"
      bevel_style="in"
      name="right_border"
     />
@@ -84,10 +84,10 @@
      image_selected="PushButton_Selected"
      image_unselected="PushButton_Off"
      layout="topleft"
-     left="2"
+     left="7"
      name="less"
      tab_stop="false"
-     top="0"
+     top="5"
      width="132" />
     <button
      enabled="false"
@@ -97,7 +97,7 @@
      image_selected="PushButton_Selected"
      image_unselected="PushButton_Off"
      layout="topleft"
-     left_pad="2"
+     left_pad="10"
      name="more"
      tab_stop="false"
      top_delta="0"
@@ -111,10 +111,11 @@
      initial_value="0"
      label="[DESC]"
      label_width="100"
-     layout="topleft"
+     layout="bottom|left"
      left="6"
      max_val="100"
      name="param slider"
-     top="134"
-     width="258" />
+     bottom="1"
+     width="274" 
+     slider_label.font.style="BOLD" />
 </panel>

@@ -5150,7 +5150,7 @@ LLVoiceClient::participantState *LLVoiceClient::sessionState::addParticipant(con
 			else
 			{
 				// Create a UUID by hashing the URI, but do NOT set mAvatarIDValid.
-				// This tells both code in LLVoiceClient and code in llfloateractivespeakers.cpp that the ID will not be in the name cache.
+				// This tells code in LLVoiceClient that the ID will not be in the name cache.
 				setUUIDFromStringHash(result->mAvatarID, uri);
 			}
 		}

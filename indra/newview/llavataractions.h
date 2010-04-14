@@ -114,6 +114,11 @@ public:
 	static void share(const LLUUID& id);
 
 	/**
+	 * Share items with the picked avatars.
+	 */
+	static void shareWithAvatars();
+
+	/**
 	 * Block/unblock the avatar.
 	 */
 	static void toggleBlock(const LLUUID& id);

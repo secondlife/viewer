@@ -42,14 +42,16 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
+#include "llselectmgr.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
+#include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llviewerregion.h"
 #include "llwearablelist.h"
 
-LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id,const std::string& name)
+LLUUID findDescendentCategoryIDByName(const LLUUID& parent_id, const std::string& name)
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
@@ -591,6 +593,55 @@ bool LLAppearanceMgr::getBaseOutfitName(std::string& name)
 		}
 	}
 	return false;
+}
+
+const LLUUID LLAppearanceMgr::getBaseOutfitUUID()
+{
+	const LLViewerInventoryItem* outfit_link = getBaseOutfitLink();
+	if (!outfit_link || !outfit_link->getIsLinkType()) return LLUUID::null;
+
+	const LLViewerInventoryCategory* outfit_cat = outfit_link->getLinkedCategory();
+	if (!outfit_cat) return LLUUID::null;
+
+	if (outfit_cat->getPreferredType() != LLFolderType::FT_OUTFIT)
+	{
+		llwarns << "Expected outfit type:" << LLFolderType::FT_OUTFIT << " but got type:" << outfit_cat->getType() << " for folder name:" << outfit_cat->getName() << llendl;
+		return LLUUID::null;
+	}
+
+	return outfit_cat->getUUID();
+}
+
+bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_update)
+{
+	if (item_id_to_wear.isNull()) return false;
+
+	//only the item from a user's inventory is allowed
+	if (!gInventory.isObjectDescendentOf(item_id_to_wear, gInventory.getRootFolderID())) return false;
+
+	LLViewerInventoryItem* item_to_wear = gInventory.getItem(item_id_to_wear);
+	if (!item_to_wear) return false;
+
+	switch (item_to_wear->getType())
+	{
+	case LLAssetType::AT_CLOTHING:
+	case LLAssetType::AT_BODYPART:
+		// Don't wear anything until initial wearables are loaded, can
+		// destroy clothing items.
+		if (!gAgentWearables.areWearablesLoaded())
+		{
+			LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
+			return false;
+		}
+		addCOFItemLink(item_to_wear, do_update);
+		break;
+	case LLAssetType::AT_OBJECT:
+		rez_attachment(item_to_wear, NULL);
+		break;
+	default: return false;;
+	}
+
+	return true;
 }
 
 // Update appearance from outfit folder.
@@ -1514,6 +1565,61 @@ void LLAppearanceMgr::autopopulateOutfits()
 void LLAppearanceMgr::onFirstFullyVisible()
 {
 	autopopulateOutfits();
+}
+
+bool LLAppearanceMgr::updateBaseOutfit()
+{
+	const LLUUID base_outfit_id = getBaseOutfitUUID();
+	if (base_outfit_id.isNull()) return false;
+
+	// in a Base Outfit we do not remove items, only links
+	purgeCategory(base_outfit_id, false);
+
+	//COF contains only links so we copy to the Base Outfit only links
+	shallowCopyCategoryContents(getCOF(), base_outfit_id, NULL);
+
+	return true;
+}
+
+void LLAppearanceMgr::wearBaseOutfit()
+{
+	const LLUUID& base_outfit_id = getBaseOutfitUUID();
+	if (base_outfit_id.isNull()) return;
+	
+	updateCOF(base_outfit_id);
+}
+
+void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
+{
+	LLViewerInventoryItem * item_to_remove = gInventory.getItem(id_to_remove);
+	if (!item_to_remove) return;
+
+	switch (item_to_remove->getType())
+	{
+	case LLAssetType::AT_CLOTHING:
+		if (get_is_item_worn(id_to_remove))
+		{
+			//*TODO move here the exact removing code from LLWearableBridge::removeItemFromAvatar in the future
+			LLWearableBridge::removeItemFromAvatar(item_to_remove);
+		}
+		break;
+	case LLAssetType::AT_OBJECT:
+		gMessageSystem->newMessageFast(_PREHASH_DetachAttachmentIntoInv);
+		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		gMessageSystem->addUUIDFast(_PREHASH_ItemID, item_to_remove->getLinkedUUID());
+		gMessageSystem->sendReliable( gAgent.getRegion()->getHost());
+
+		{
+			// this object might have been selected, so let the selection manager know it's gone now
+			LLViewerObject *found_obj = gObjectList.findObject(item_to_remove->getLinkedUUID());
+			if (found_obj)
+			{
+				LLSelectMgr::getInstance()->remove(found_obj);
+			};
+		}
+	default: break;
+	}
 }
 
 //#define DUMP_CAT_VERBOSE

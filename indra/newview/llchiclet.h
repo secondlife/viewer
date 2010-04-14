@@ -800,16 +800,6 @@ public:
 		 */
 		Optional<S32> max_displayed_count;
 
-		/**
-		 * How many time chiclet should flash before set "Lit" state. Default value is 3.
-		 */
-		Optional<S32> flash_to_lit_count;
-
-		/**
-		 * Period of flashing while setting "Lit" state, in seconds. Default value is 0.5.
-		 */
-		Optional<F32> flash_period;
-
 		Params();
 	};
 

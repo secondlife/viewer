@@ -3252,8 +3252,9 @@ bool LLViewerMediaImpl::shouldShowBasedOnClass() const
 	//	" outside = " << (!inside_parcel && gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING)) << llendl;
 	
 	// If it has focus, we should show it
-	if (hasFocus())
-		return true;
+	// This is incorrect, and causes EXT-6750 (disabled attachment media still plays)
+//	if (hasFocus())
+//		return true;
 	
 	// If it is attached to an avatar and the pref is off, we shouldn't show it
 	if (attached_to_another_avatar)

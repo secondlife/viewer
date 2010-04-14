@@ -141,7 +141,7 @@ LLPreviewGesture* LLPreviewGesture::show(const LLUUID& item_id, const LLUUID& ob
 
 	// this will call refresh when we have everything.
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)preview->getItem();
-	if (item && !item->isComplete())
+	if (item && !item->isFinished())
 	{
 		LLInventoryGestureAvailable* observer;
 		observer = new LLInventoryGestureAvailable();
@@ -648,7 +648,7 @@ void LLPreviewGesture::refresh()
 	LLPreview::refresh();
 	// If previewing or item is incomplete, all controls are disabled
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
-	bool is_complete = (item && item->isComplete()) ? true : false;
+	bool is_complete = (item && item->isFinished()) ? true : false;
 	if (mPreviewGesture || !is_complete)
 	{
 		

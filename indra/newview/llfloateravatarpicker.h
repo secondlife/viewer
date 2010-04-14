@@ -37,6 +37,8 @@
 
 #include <vector>
 
+class LLScrollListCtrl;
+
 class LLFloaterAvatarPicker : public LLFloater
 {
 public:
@@ -59,6 +61,11 @@ public:
 
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
 
+	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
+						   BOOL drop, EDragAndDropType cargo_type,
+						   void *cargo_data, EAcceptance *accept,
+						   std::string& tooltip_msg);
+
 private:
 	void editKeystroke(class LLLineEditor* caller, void* user_data);
 
@@ -77,6 +84,7 @@ private:
 
 	void find();
 	void setAllowMultiple(BOOL allow_multiple);
+	LLScrollListCtrl* getActiveList();
 
 	virtual void draw();
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
