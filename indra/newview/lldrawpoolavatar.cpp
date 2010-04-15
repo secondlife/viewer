@@ -323,7 +323,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 
 S32 LLDrawPoolAvatar::getNumPasses()
 {
-	return LLPipeline::sImpostorRender ? 1 : 3;
+	return LLPipeline::sImpostorRender ? 1 : 4;
 }
 
 void LLDrawPoolAvatar::render(S32 pass)
@@ -586,6 +586,7 @@ void LLDrawPoolAvatar::beginRigged()
 void LLDrawPoolAvatar::endRigged()
 {
 	sVertexProgram = NULL;
+	LLVertexBuffer::unbind();
 	gSkinnedObjectSimpleProgram.unbind();
 	LLVertexBuffer::sWeight4Loc = -1;
 }
