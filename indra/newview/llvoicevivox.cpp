@@ -4582,7 +4582,11 @@ void LLVivoxVoiceClient::endUserIMSession(const LLUUID &uuid)
 		LL_DEBUGS("Voice") << "Session not found for participant ID " << uuid << LL_ENDL;
 	}
 }
-
+bool LLVivoxVoiceClient::invitePending(std::string &sessionHandle)
+{
+  return(findSession(sessionHandle) != NULL);
+	
+}
 bool LLVivoxVoiceClient::answerInvite(std::string &sessionHandle)
 {
 	// this is only ever used to answer incoming p2p call invites.
@@ -6217,12 +6221,10 @@ void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string 
 	{
 		mFriendsListDirty = true;
 	}
-	
 	// Iterate over all sessions.
 	for(sessionIterator iter = sessionsBegin(); iter != sessionsEnd(); iter++)
 	{
 		sessionState *session = *iter;
-
 		// Check for this user as a participant in this session
 		participantState *participant = session->findParticipantByID(id);
 		if(participant)
@@ -6249,13 +6251,14 @@ void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string 
 				session->mVoiceInvitePending = false;
 
 				gIMMgr->inviteToSession(
-										LLIMMgr::computeSessionID(IM_SESSION_P2P_INVITE, session->mCallerID),
+										session->mIMSessionID,
 										session->mName,
 										session->mCallerID, 
 										session->mName, 
 										IM_SESSION_P2P_INVITE, 
 										LLIMMgr::INVITATION_TYPE_VOICE,
-										session->mHandle);
+										session->mHandle,
+										session->mSIPURI);
 			}
 			
 		}

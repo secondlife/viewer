@@ -385,6 +385,18 @@ void LLVoiceClient::callUser(const LLUUID &uuid)
 	if (mVoiceModule) mVoiceModule->callUser(uuid);
 }
 
+bool LLVoiceClient::invitePending(std::string &channelHandle)
+{
+	if (mVoiceModule) 
+	{
+		return mVoiceModule->invitePending(channelHandle);
+	}
+	else
+	{
+		return false;
+	}
+}
+
 bool LLVoiceClient::answerInvite(std::string &channelHandle)
 {
 	if (mVoiceModule) 

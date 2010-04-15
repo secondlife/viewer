@@ -1847,12 +1847,8 @@ LLCallDialog(payload)
 
 void LLIncomingCallDialog::onLifetimeExpired()
 {
-	// check whether a call is valid or not
-	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mPayload["session_id"].asUUID());
-	if(channelp &&
-	   (channelp->getState() != LLVoiceChannel::STATE_NO_CHANNEL_INFO) &&
-	   (channelp->getState() != LLVoiceChannel::STATE_ERROR) &&
-	   (channelp->getState() != LLVoiceChannel::STATE_HUNG_UP))
+	std::string session_handle = mPayload["session_handle"].asString();
+	if (LLVoiceClient::getInstance()->invitePending(session_handle))
 	{
 		// restart notification's timer if call is still valid
 		mLifetimeTimer.start();
