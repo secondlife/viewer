@@ -182,7 +182,7 @@ typedef LLAtomic32<U32> LLAtomicU32;
 typedef LLAtomic32<S32> LLAtomicS32;
 
 // File IO convenience functions.
-// Returns NULL if the file fails to openm sets *sizep to file size of not NULL
+// Returns NULL if the file fails to open, sets *sizep to file size if not NULL
 // abbreviated flags
 #define LL_APR_R (APR_READ) // "r"
 #define LL_APR_W (APR_CREATE|APR_TRUNCATE|APR_WRITE) // "w"
@@ -200,7 +200,7 @@ typedef LLAtomic32<S32> LLAtomicS32;
 //      especially do not put some time-costly operations between open() and close().
 //      otherwise it might lock the APRFilePool.
 //there are two different apr_pools the APRFile can use:
-//      1, a temperary pool passed to an APRFile function, which is used within this function and only once.
+//      1, a temporary pool passed to an APRFile function, which is used within this function and only once.
 //      2, a global pool.
 //
 
