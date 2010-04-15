@@ -120,7 +120,7 @@ public:
 	// Loading state
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ BOOL    updateIsFullyLoaded();
+	/*virtual*/ BOOL    getIsCloud();
 private:
 	BOOL                mIsBaked; // are the stored baked textures up to date?
 
