@@ -1738,8 +1738,18 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 
 	if (mPickMask)
 	{
-		F32 u = tc.mV[0] - floorf(tc.mV[0]);
-		F32 v = tc.mV[1] - floorf(tc.mV[1]);
+		F32 u,v;
+		if (LL_LIKELY(tc.isFinite()))
+		{
+			u = tc.mV[0] - floorf(tc.mV[0]);
+			v = tc.mV[1] - floorf(tc.mV[1]);
+		}
+		else
+		{
+			LL_WARNS_ONCE("render") << "Ugh, non-finite u/v in mask pick" << LL_ENDL;
+			u = v = 0.f;
+			llassert(false);
+		}
 
 		if (LL_UNLIKELY(u < 0.f || u > 1.f ||
 				v < 0.f || v > 1.f))
