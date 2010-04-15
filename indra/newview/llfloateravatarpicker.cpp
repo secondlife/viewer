@@ -38,6 +38,8 @@
 #include "llcallingcard.h"
 #include "llfocusmgr.h"
 #include "llfloaterreg.h"
+#include "llimview.h"			// for gIMMgr
+#include "lltooldraganddrop.h"	// for LLToolDragAndDrop
 #include "llviewercontrol.h"
 #include "llworld.h"
 
@@ -370,6 +372,68 @@ void LLFloaterAvatarPicker::setAllowMultiple(BOOL allow_multiple)
 	getChild<LLScrollListCtrl>("Friends")->setAllowMultipleSelection(allow_multiple);
 }
 
+LLScrollListCtrl* LLFloaterAvatarPicker::getActiveList()
+{
+	std::string acvtive_panel_name;
+	LLScrollListCtrl* list = NULL;
+	LLPanel* active_panel = childGetVisibleTab("ResidentChooserTabs");
+	if(active_panel)
+	{
+		acvtive_panel_name = active_panel->getName();
+	}
+	if(acvtive_panel_name == "SearchPanel")
+	{
+		list = getChild<LLScrollListCtrl>("SearchResults");
+	}
+	else if(acvtive_panel_name == "NearMePanel")
+	{
+		list = getChild<LLScrollListCtrl>("NearMe");
+	}
+	else if (acvtive_panel_name == "FriendsPanel")
+	{
+		list = getChild<LLScrollListCtrl>("Friends");
+	}
+	return list;
+}
+
+BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
+											  BOOL drop, EDragAndDropType cargo_type,
+											  void *cargo_data, EAcceptance *accept,
+											  std::string& tooltip_msg)
+{
+	LLScrollListCtrl* list = getActiveList();
+	if(list)
+	{
+		LLRect rc_list;
+		LLRect rc_point(x,y,x,y);
+		if (localRectToOtherView(rc_point, &rc_list, list))
+		{
+			// Keep selected only one item
+			list->deselectAllItems(TRUE);
+			list->selectItemAt(rc_list.mLeft, rc_list.mBottom, mask);
+			LLScrollListItem* selection = list->getFirstSelected();
+			if (selection)
+			{
+				LLUUID session_id = LLUUID::null;
+				LLUUID dest_agent_id = selection->getUUID();
+				std::string avatar_name = selection->getColumn(0)->getValue().asString();
+				if (dest_agent_id.notNull() && dest_agent_id != gAgentID)
+				{
+					if (drop)
+					{
+						// Start up IM before give the item
+						session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, dest_agent_id);
+					}
+					return LLToolDragAndDrop::handleGiveDragAndDrop(dest_agent_id, session_id, drop,
+																	cargo_type, cargo_data, accept);
+				}
+			}
+		}
+	}
+	*accept = ACCEPT_NO;
+	return TRUE;
+}
+
 // static 
 void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void**)
 {
@@ -387,8 +451,8 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	
 	LLFloaterAvatarPicker* floater = LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
 
-	// these are not results from our last request
-	if (query_id != floater->mQueryID)
+	// floater is closed or these are not results from our last request
+	if (NULL == floater || query_id != floater->mQueryID)
 	{
 		return;
 	}

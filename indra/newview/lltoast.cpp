@@ -285,6 +285,12 @@ void LLToast::setVisible(BOOL show)
 		}
 		LLModalDialog::setFrontmost(FALSE);
 	}
+	else
+	{
+		//hide "hide" button in case toast was hidden without mouse_leave
+		if(mHideBtn)
+			mHideBtn->setVisible(show);
+	}
 	LLFloater::setVisible(show);
 	if(mPanel)
 	{

@@ -1286,7 +1286,30 @@ void LLViewerMedia::setOpenIDCookie()
 {
 	if(!sOpenIDCookie.empty())
 	{
-		getCookieStore()->setCookiesFromHost(sOpenIDCookie, sOpenIDURL.mAuthority);
+		// The LLURL can give me the 'authority', which is of the form: [username[:password]@]hostname[:port]
+		// We want just the hostname for the cookie code, but LLURL doesn't seem to have a way to extract that.
+		// We therefore do it here.
+		std::string authority = sOpenIDURL.mAuthority;
+		std::string::size_type host_start = authority.find('@'); 
+		if(host_start == std::string::npos)
+		{
+			// no username/password
+			host_start = 0;
+		}
+		else
+		{
+			// Hostname starts after the @. 
+			// (If the hostname part is empty, this may put host_start at the end of the string.  In that case, it will end up passing through an empty hostname, which is correct.)
+			++host_start;
+		}
+		std::string::size_type host_end = authority.rfind(':'); 
+		if((host_end == std::string::npos) || (host_end < host_start))
+		{
+			// no port
+			host_end = authority.size();
+		}
+		
+		getCookieStore()->setCookiesFromHost(sOpenIDCookie, authority.substr(host_start, host_end - host_start));
 	}
 }
 
@@ -3252,8 +3275,9 @@ bool LLViewerMediaImpl::shouldShowBasedOnClass() const
 	//	" outside = " << (!inside_parcel && gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING)) << llendl;
 	
 	// If it has focus, we should show it
-	if (hasFocus())
-		return true;
+	// This is incorrect, and causes EXT-6750 (disabled attachment media still plays)
+//	if (hasFocus())
+//		return true;
 	
 	// If it is attached to an avatar and the pref is off, we shouldn't show it
 	if (attached_to_another_avatar)

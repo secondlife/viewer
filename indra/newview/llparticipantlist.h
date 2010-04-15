@@ -38,6 +38,7 @@
 class LLSpeakerMgr;
 class LLAvatarList;
 class LLUICtrl;
+class LLAvalineUpdater;
 
 class LLParticipantList
 {
@@ -46,7 +47,7 @@ class LLParticipantList
 
 		typedef boost::function<bool (const LLUUID& speaker_id)> validate_speaker_callback_t;
 
-		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true, bool exclude_agent = true);
+		LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list, bool use_context_menu = true, bool exclude_agent = true, bool can_toggle_icons = true);
 		~LLParticipantList();
 		void setSpeakingIndicatorsVisible(BOOL visible);
 
@@ -235,6 +236,9 @@ class LLParticipantList
 		void onAvatarListDoubleClicked(LLUICtrl* ctrl);
 		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
 
+		void onAvalineCallerFound(const LLUUID& participant_id);
+		void onAvalineCallerRemoved(const LLUUID& participant_id);
+
 		/**
 		 * Adjusts passed participant to work properly.
 		 *
@@ -268,7 +272,9 @@ class LLParticipantList
 		boost::signals2::connection mAvatarListDoubleClickConnection;
 		boost::signals2::connection mAvatarListRefreshConnection;
 		boost::signals2::connection mAvatarListReturnConnection;
+		boost::signals2::connection mAvatarListToggleIconsConnection;
 
 		LLPointer<LLAvatarItemRecentSpeakerComparator> mSortByRecentSpeakers;
 		validate_speaker_callback_t mValidateSpeakerCallback;
+		LLAvalineUpdater* mAvalineUpdater;
 };

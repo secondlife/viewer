@@ -12,7 +12,7 @@
 	<slider label="ボイスチャット" name="Voice Volume"/>
 	<check_box label="有効" name="enable_voice_check"/>
 	<check_box label="メディアを自動再生する" name="media_auto_play_btn" tool_tip="ここにチェックを入れてメディアの自動再生を許可します" value="true"/>
-	<check_box label="他のアバターに取り付けられたメディアを再生します" name="media_show_on_others_btn" tool_tip="このチェックを外すと、近くにいる他のアバターに取り付けられたメディアを非表示にします。" value="true"/>
+	<check_box label="他のアバターに取り付けられたメディアを再生する" name="media_show_on_others_btn" tool_tip="このチェックを外すと、近くにいる他のアバターに取り付けられたメディアを非表示にします" value="true"/>
 	<text name="voice_chat_settings">
 		ボイスチャットの設定
 	</text>

@@ -3365,7 +3365,7 @@
      layout="topleft"
      name="make_outfit_btn"
      right="-218"
-     width="100" />
+     width="120" />
     <button
      bottom="574"
      follows="right|bottom"

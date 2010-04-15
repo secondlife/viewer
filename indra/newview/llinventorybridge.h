@@ -125,6 +125,8 @@ public:
 	// Allow context menus to be customized for side panel.
 	bool isInOutfitsSidePanel() const;
 
+	bool canShare();
+
 	//--------------------------------------------------------------------
 	// Convenience functions for adding various common menu options.
 	//--------------------------------------------------------------------

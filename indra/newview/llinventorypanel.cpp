@@ -38,6 +38,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llavataractions.h"
 #include "llfloaterinventory.h"
 #include "llfloaterreg.h"
 #include "llimfloater.h"
@@ -99,6 +100,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&LLInventoryPanel::doCreate, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.AttachObject", boost::bind(&LLInventoryPanel::attachObject, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
+	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars));
 	
 	if (mStartFolderString != "")
 	{
@@ -669,7 +671,8 @@ BOOL LLInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 	// If folder view is empty the (x, y) point won't be in its rect
 	// so the handler must be called explicitly.
-	if (!mFolderRoot->hasVisibleChildren())
+	// but only if was not handled before. See EXT-6746.
+	if (!handled && !mFolderRoot->hasVisibleChildren())
 	{
 		handled = mFolderRoot->handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	}
@@ -901,7 +904,7 @@ bool LLInventoryPanel::attachObject(const LLSD& userdata)
 		{
 			rez_attachment(item, attachmentp);
 		}
-		else if(item && item->isComplete())
+		else if(item && item->isFinished())
 		{
 			// must be in library. copy it to our inventory and put it on.
 			LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(attachmentp);

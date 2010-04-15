@@ -16,7 +16,7 @@
 		Modalità di controllo:
 	</text>
 	<check_box label="Avatar" name="JoystickAvatarEnabled"/>
-	<check_box label="Costruire" left="192" name="JoystickBuildEnabled"/>
+	<check_box label="Costruire" name="JoystickBuildEnabled"/>
 	<check_box label="Camera dall&apos;alto" name="JoystickFlycamEnabled"/>
 	<text name="XScale">
 		Regolazione X
@@ -27,13 +27,13 @@
 	<text name="ZScale">
 		Regolazione Z
 	</text>
-	<text left="3" name="PitchScale" width="112">
+	<text name="PitchScale">
 		Regolazione: Pitch
 	</text>
-	<text left="3" name="YawScale" width="112">
+	<text name="YawScale">
 		Regolazione: Yaw
 	</text>
-	<text left="3" name="RollScale" width="112">
+	<text name="RollScale">
 		Regolazione: Roll
 	</text>
 	<text name="XDeadZone">
@@ -45,22 +45,22 @@
 	<text name="ZDeadZone">
 		Angolo morto Z
 	</text>
-	<text left="3" name="PitchDeadZone" width="112">
+	<text name="PitchDeadZone">
 		Angolo morto: Pitch
 	</text>
-	<text left="3" name="YawDeadZone" width="112">
+	<text name="YawDeadZone">
 		Angolo morto: Yaw
 	</text>
-	<text left="3" name="RollDeadZone" width="112">
+	<text name="RollDeadZone">
 		Angolo morto: Roll
 	</text>
 	<text name="Feathering">
 		Smussamento
 	</text>
-	<text left="6" name="ZoomScale2" width="135">
+	<text  name="ZoomScale2">
 		Regolazione dello zoom
 	</text>
-	<text left="6" name="ZoomDeadZone" width="135">
+	<text name="ZoomDeadZone" width="140">
 		Angolo morto dello zoom
 	</text>
 	<button label="SpaceNavigator Defaults" name="SpaceNavigatorDefaults"/>

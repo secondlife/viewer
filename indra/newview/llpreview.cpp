@@ -138,7 +138,7 @@ void LLPreview::onCommit()
 	const LLViewerInventoryItem *item = dynamic_cast<const LLViewerInventoryItem*>(getItem());
 	if(item)
 	{
-		if (!item->isComplete())
+		if (!item->isFinished())
 		{
 			// We are attempting to save an item that was never loaded
 			llwarns << "LLPreview::onCommit() called with mIsComplete == FALSE"

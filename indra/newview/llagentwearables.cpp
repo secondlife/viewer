@@ -905,8 +905,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 
 		// Get the UUID of the current outfit folder (will be created if it doesn't exist)
 		const LLUUID current_outfit_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-		
-		LLInitialWearablesFetch* outfit = new LLInitialWearablesFetch();
+		LLInitialWearablesFetch* outfit = new LLInitialWearablesFetch(current_outfit_id);
 		
 		//lldebugs << "processAgentInitialWearablesUpdate()" << llendl;
 		// Add wearables
@@ -952,10 +951,8 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 		
 		// Get the complete information on the items in the inventory and set up an observer
 		// that will trigger when the complete information is fetched.
-		uuid_vec_t folders;
-		folders.push_back(current_outfit_id);
-		outfit->fetch(folders);
-		if(outfit->isEverythingComplete())
+		outfit->startFetch();
+		if(outfit->isFinished())
 		{
 			// everything is already here - call done.
 			outfit->done();
@@ -2061,17 +2058,15 @@ void LLAgentWearables::populateMyOutfitsFolder(void)
 {	
 	llinfos << "starting outfit population" << llendl;
 
-	LLLibraryOutfitsFetch* outfits = new LLLibraryOutfitsFetch();
+	const LLUUID& my_outfits_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+	LLLibraryOutfitsFetch* outfits = new LLLibraryOutfitsFetch(my_outfits_id);
+	outfits->mMyOutfitsID = my_outfits_id;
 	
 	// Get the complete information on the items in the inventory and 
 	// setup an observer that will wait for that to happen.
-	uuid_vec_t folders;
-	outfits->mMyOutfitsID = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-
-	folders.push_back(outfits->mMyOutfitsID);
 	gInventory.addObserver(outfits);
-	outfits->fetch(folders);
-	if (outfits->isEverythingComplete())
+	outfits->startFetch();
+	if (outfits->isFinished())
 	{
 		outfits->done();
 	}

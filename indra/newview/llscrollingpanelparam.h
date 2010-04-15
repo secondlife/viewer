@@ -75,13 +75,8 @@ public:
 	// Constants for LLPanelVisualParam
 	const static F32 PARAM_STEP_TIME_THRESHOLD;
 	
-	const static S32 BTN_BORDER;
 	const static S32 PARAM_HINT_WIDTH;
 	const static S32 PARAM_HINT_HEIGHT;
-	const static S32 PARAM_HINT_LABEL_HEIGHT;
-	const static S32 PARAM_PANEL_WIDTH;
-	const static S32 PARAM_PANEL_HEIGHT; 
-
 
 public:
 	LLViewerVisualParam* mParam;

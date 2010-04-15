@@ -13,10 +13,10 @@
 	</layout_stack>
 	<layout_stack name="media_controls">
 		<layout_panel name="back">
-			<button name="back_btn" tool_tip="Navigate back"/>
+			<button name="back_btn" tool_tip="前へ"/>
 		</layout_panel>
 		<layout_panel name="fwd">
-			<button name="fwd_btn" tool_tip="Navigate forward"/>
+			<button name="fwd_btn" tool_tip="次へ"/>
 		</layout_panel>
 		<layout_panel name="home">
 			<button name="home_btn" tool_tip="ホームページ"/>
@@ -51,10 +51,10 @@
 			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="ムービー再生進行"/>
 		</layout_panel>
 		<layout_panel name="skip_back">
-			<button name="skip_back_btn" tool_tip="Step back"/>
+			<button name="skip_back_btn" tool_tip="前にステップ"/>
 		</layout_panel>
 		<layout_panel name="skip_forward">
-			<button name="skip_forward_btn" tool_tip="Step forward"/>
+			<button name="skip_forward_btn" tool_tip="次にステップ"/>
 		</layout_panel>
 		<layout_panel name="media_volume">
 			<button name="media_mute_button" tool_tip="ミュート"/>
@@ -64,7 +64,7 @@
 			<button name="zoom_frame_btn" tool_tip="メディアにズームイン"/>
 		</layout_panel>
 		<layout_panel name="close">
-			<button name="close_btn" tool_tip="Zoom Back"/>
+			<button name="close_btn" tool_tip="ズームバック"/>
 		</layout_panel>
 		<layout_panel name="new_window">
 			<button name="new_window_btn" tool_tip="URL をブラウザで開く"/>

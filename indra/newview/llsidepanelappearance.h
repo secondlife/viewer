@@ -63,14 +63,18 @@ public:
 	void updateVerbs();
 	void onNewOutfitButtonClicked();
 
+	void showOutfitsInventoryPanel();
+	void showOutfitEditPanel();
+
 private:
 	void onFilterEdit(const std::string& search_string);
 
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
 	void onEditButtonClicked();
-	void onBackButtonClicked();
 	void onEditWearBackClicked();
+
+	//@deprecated use showXXX() methods instead
 	void toggleOutfitEditPanel(BOOL visible);
 	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable);
 

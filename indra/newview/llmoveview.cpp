@@ -200,7 +200,8 @@ void LLFloaterMove::setFlyingMode(BOOL fly)
 	if (instance)
 	{
 		instance->setFlyingModeImpl(fly);
-		instance->showModeButtons(!fly);
+		BOOL is_sitting = isAgentAvatarValid() && gAgentAvatarp->isSitting();
+		instance->showModeButtons(!fly && !is_sitting);
 	}
 	if (fly)
 	{

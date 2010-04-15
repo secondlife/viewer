@@ -73,7 +73,6 @@ LLGestureMgr::LLGestureMgr()
 	mActive(),
 	mLoadingCount(0)
 {
-	mRetryIfMissing = true;
 	gInventory.addObserver(this);
 }
 
@@ -100,7 +99,7 @@ void LLGestureMgr::init()
 
 void LLGestureMgr::changed(U32 mask) 
 { 
-	LLInventoryFetchObserver::changed(mask);
+	LLInventoryFetchItemsObserver::changed(mask);
 
 	if (mask & LLInventoryObserver::GESTURE)
 	{
@@ -1031,9 +1030,8 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 			else
 			{
 				// Watch this item and set gesture name when item exists in inventory
-				uuid_vec_t ids;
-				ids.push_back(item_id);
-				self.fetch(ids);
+				self.setFetchID(item_id);
+				self.startFetch();
 			}
 			self.mActive[item_id] = gesture;
 

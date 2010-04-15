@@ -57,8 +57,8 @@
 			<text name="WL12amHash2">
 				|
 			</text>
-			<button label="Ajouter clé" label_selected="Ajouter clé" name="WLAddKey" width="89" bottom="-45" />
-			<button label="Supprimer clé" label_selected="Supprimer clé" name="WLDeleteKey" width="89" bottom="-70" />
+			<button label="Ajouter clé" label_selected="Ajouter clé" name="WLAddKey"/>
+			<button label="Supprimer clé" label_selected="Supprimer clé" name="WLDeleteKey" width="89"/>
 			<text name="WLCurKeyFrameText" width="170">
 				Réglages des images-clés :
 			</text>
@@ -81,10 +81,10 @@
 			<spinner label="Heure" name="WLLengthOfDayHour" label_width="80" width="74" />
 			<spinner label="Min" name="WLLengthOfDayMin" />
 			<spinner label="S" name="WLLengthOfDaySec" label_width="10" width="50" left_delta="95"/>
-			<text name="DayCycleText3" left="280" width="200">
+			<text name="DayCycleText3">
 				Prévisualiser :
 			</text>
-			<button label="Lire" label_selected="Lire" name="WLAnimSky" left_delta="90"/>
+			<button label="Lire" label_selected="Lire" name="WLAnimSky"/>
 			<button label="Stop !" label_selected="Stop" name="WLStopAnimSky" />
 			<button label="Utiliser heure domaine" label_selected="Aller heure domaine"
 			     name="WLUseLindenTime" />

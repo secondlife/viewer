@@ -496,7 +496,7 @@
      top_delta="-1"
      name="DoSearch"
      tool_tip="Search for region"
-     width="58">
+     width="62">
 		<button.commit_callback
 		function="WMap.Location" />
     </button>
