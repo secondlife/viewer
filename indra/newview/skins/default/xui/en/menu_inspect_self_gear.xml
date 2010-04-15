@@ -16,8 +16,8 @@
      function="Self.EnableStandUp" />
   </menu_item_call>
   <menu_item_call
-   label="Change Outfit"
-   name="change_outfit">
+   label="My Appearance"
+   name="my_appearance">
     <menu_item_call.on_click
      function="CustomizeAvatar" />
     <menu_item_call.on_enable

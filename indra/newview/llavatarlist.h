@@ -96,6 +96,8 @@ public:
 
 	virtual S32 notifyParent(const LLSD& info);
 
+	void addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name);
+
 protected:
 	void refresh();
 
@@ -173,6 +175,29 @@ public:
 
 protected:
 	virtual bool doCompare(const LLAvatarListItem* avatar_item1, const LLAvatarListItem* avatar_item2) const;
+};
+
+/**
+ * Represents Avaline caller in Avatar list in Voice Control Panel and group chats.
+ */
+class LLAvalineListItem : public LLAvatarListItem
+{
+public:
+
+	/**
+	 * Constructor
+	 *
+	 * @param hide_number - flag indicating if number should be hidden.
+	 *		In this case It will be shown as "Avaline Caller 1", "Avaline Caller 1", etc.
+	 */
+	LLAvalineListItem(bool hide_number = true);
+
+	/*virtual*/ BOOL postBuild();
+
+	/*virtual*/ void setName(const std::string& name);
+
+private:
+	bool mIsHideNumber;
 };
 
 #endif // LL_LLAVATARLIST_H

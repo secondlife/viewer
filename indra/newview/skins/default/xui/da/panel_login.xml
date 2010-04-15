@@ -11,10 +11,14 @@
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
-			<text name="username_text">
-				Brugernavn:
+			<text name="first_name_text">
+				Fornavn:
 			</text>
-			<line_editor label="Brugernavn" name="username_edit" tool_tip="[SECOND_LIFE] Brugernavn"/>
+			<line_editor label="Fornavn" name="first_name_edit" tool_tip="[SECOND_LIFE] First Name"/>
+			<text name="last_name_text">
+				Efternavn:
+			</text>
+			<line_editor label="Efternavn" name="last_name_edit" tool_tip="[SECOND_LIFE] Last Name"/>
 			<text name="password_text">
 				Password:
 			</text>

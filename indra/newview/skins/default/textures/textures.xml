@@ -522,8 +522,6 @@ with the same filename but different name
   <!--WARNING OLD ART BELOW *do not use*-->
   <texture name="icn_media_web.tga" preload="true" />
   <texture name="icn_media_movie.tga" preload="true" />
-  <texture name="icn_speaker-muted_dark.tga" />
-  <texture name="icn_speaker_dark.tga" />
   <texture name="icn_voice-localchat.tga" />
   <texture name="icn_voice-groupfocus.tga" />
   <texture name="icn_voice-pvtfocus.tga" />
@@ -544,10 +542,6 @@ with the same filename but different name
 
   <texture name="tearoffbox.tga" />
   <texture name="tearoff_pressed.tga" />
-
-  <texture name="icn_label_music.tga" />
-  <texture name="icn_label_media.tga" />
-  <texture name="icn_rounded-text-field.tga" scale.left="14" scale.bottom="16" scale.top="16" scale.right="114" />
 
   <texture name="color_swatch_alpha.tga" preload="true" />
 
@@ -581,20 +575,6 @@ with the same filename but different name
   <texture name="map_track_16.tga" />
 
   <texture name="notify_caution_icon.tga" />
-
-  <texture name="icn_active-speakers-dot-lvl0.tga" />
-  <texture name="icn_active-speakers-dot-lvl1.tga" />
-  <texture name="icn_active-speakers-dot-lvl2.tga" />
-
-  <texture name="icn_voice_ptt-off.tga" />
-  <texture name="icn_voice_ptt-on.tga" />
-  <texture name="icn_voice_ptt-on-lvl1.tga" />
-  <texture name="icn_voice_ptt-on-lvl2.tga" />
-  <texture name="icn_voice_ptt-on-lvl3.tga" />
-  <texture name="icn_voice-call-end.tga" />
-  <texture name="icn_voice-call-start.tga" />
-
-  <texture name="mute_icon.tga" />
 
   <texture name="default_land_picture.j2c" />
   <texture name="default_profile_picture.j2c" />

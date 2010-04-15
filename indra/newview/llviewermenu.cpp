@@ -6106,10 +6106,12 @@ class LLAttachmentDetach : public view_listener_t
 
 //Adding an observer for a Jira 2422 and needs to be a fetch observer
 //for Jira 3119
-class LLWornItemFetchedObserver : public LLInventoryFetchObserver
+class LLWornItemFetchedObserver : public LLInventoryFetchItemsObserver
 {
 public:
-	LLWornItemFetchedObserver() {}
+	LLWornItemFetchedObserver(const LLUUID& worn_item_id) :
+		LLInventoryFetchItemsObserver(worn_item_id)
+	{}
 	virtual ~LLWornItemFetchedObserver() {}
 
 protected:
@@ -6163,13 +6165,9 @@ class LLAttachmentEnableDrop : public view_listener_t
 						// when the item finishes fetching worst case scenario 
 						// if a fetch is already out there (being sent from a slow sim)
 						// we refetch and there are 2 fetches
-						LLWornItemFetchedObserver* wornItemFetched = new LLWornItemFetchedObserver();
-						uuid_vec_t items; //add item to the inventory item to be fetched
-						
-						items.push_back((*attachment_iter)->getItemID());
-						
-						wornItemFetched->fetch(items);
-						gInventory.addObserver(wornItemFetched);
+						LLWornItemFetchedObserver* worn_item_fetched = new LLWornItemFetchedObserver((*attachment_iter)->getItemID());		
+						worn_item_fetched->startFetch();
+						gInventory.addObserver(worn_item_fetched);
 					}
 				}
 			}

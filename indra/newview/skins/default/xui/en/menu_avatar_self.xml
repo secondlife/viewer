@@ -183,30 +183,14 @@
         </menu_item_call>
     </context_menu>
      <menu_item_call
-     label="Change Outfit"
+     label="My Appearance"
      layout="topleft"
-     name="Chenge Outfit">
+     name="Appearance...">
         <menu_item_call.on_click
          function="CustomizeAvatar" />
         <menu_item_call.on_enable
          function="Edit.EnableCustomizeAvatar" />
     </menu_item_call>
-    <menu_item_call label="Edit My Outfit" 
-    layout="topleft"
-    name="Edit Outfit">
-       <menu_item_call.on_click
-        function="EditOutfit" />
-       <menu_item_call.on_enable
-        function="Edit.EnableCustomizeAvatar" />
-   </menu_item_call>
-    <menu_item_call label="Edit My Shape" 
-    layout="topleft"
-    name="Edit My Shape">
-       <menu_item_call.on_click
-        function="EditShape" />
-       <menu_item_call.on_enable
-        function="Edit.EnableEditShape" />
-   </menu_item_call>
    <menu_item_call
      label="My Friends"
      layout="topleft"

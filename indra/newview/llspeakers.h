@@ -2,25 +2,31 @@
  * @file llspeakers.h
  * @brief Management interface for muting and controlling volume of residents currently speaking
  *
- * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2005&license=viewergpl$
+ * 
+ * Copyright (c) 2005-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -236,13 +242,6 @@ public:
 	 */
 	bool removeAvalineSpeaker(const LLUUID& speaker_id) { return removeSpeaker(speaker_id); }
 
-	/**
-	 * Initializes mVoiceModerated depend on LLSpeaker::mModeratorMutedVoice of agent's participant.
-	 *
-	 * Is used only to implement workaround to initialize mVoiceModerated on first join to group chat. See EXT-6937
-	 */
-	void initVoiceModerateMode();
-
 protected:
 	virtual void updateSpeakerList();
 	void setSpeakerNotInChannel(LLSpeaker* speackerp);
@@ -259,14 +258,6 @@ protected:
 	 * time out speakers when they are not part of current session
 	 */
 	LLSpeakersDelayActionsStorage* mSpeakerDelayRemover;
-
-	// *TODO: should be moved back into LLIMSpeakerMgr when a way to request the current voice channel
-	// moderation mode is implemented: See EXT-6937
-	bool mVoiceModerated;
-
-	// *TODO: To be removed when a way to request the current voice channel
-	// moderation mode is implemented: See EXT-6937
-	bool mModerateModeHandledFirstTime;
 };
 
 class LLIMSpeakerMgr : public LLSpeakerMgr
@@ -288,21 +279,22 @@ public:
 	 * @param[in] avatar_id UUID of avatar to be processed
 	 * @param[in] unmute if false - specified avatar will be muted, otherwise - unmuted.
 	 *
-	 * @see moderateVoiceAllParticipants()
+	 * @see moderateVoiceOtherParticipants()
 	 */
 	void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
 
 	/**
-	 * Mutes/Unmutes all avatars for current group voice chat.
+	 * Mutes/Unmutes all avatars except specified for current group voice chat.
 	 *
 	 * It only marks avatars as muted for session and does not use local Agent's Block list.
-	 * It calls forceVoiceModeratedMode() in case of session is already in requested state.
+	 * It based call moderateVoiceParticipant() for each avatar should be muted/unmuted.
 	 *
-	 * @param[in] unmute_everyone if false - avatars will be muted, otherwise - unmuted.
+	 * @param[in] excluded_avatar_id UUID of avatar NOT to be processed
+	 * @param[in] unmute_everyone_else if false - avatars will be muted, otherwise - unmuted.
 	 *
 	 * @see moderateVoiceParticipant()
 	 */
-	void moderateVoiceAllParticipants(bool unmute_everyone);
+	void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute_everyone_else);
 
 	void processSessionUpdate(const LLSD& session_update);
 
@@ -311,11 +303,7 @@ protected:
 
 	void moderateVoiceSession(const LLUUID& session_id, bool disallow_voice);
 
-	/**
-	 * Process all participants to mute/unmute them according to passed voice session state.
-	 */
-	void forceVoiceModeratedMode(bool should_be_muted);
-
+	LLUUID mReverseVoiceModeratedAvatarID;
 };
 
 class LLActiveSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLActiveSpeakerMgr>

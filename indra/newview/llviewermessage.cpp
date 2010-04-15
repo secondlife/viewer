@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llviewermessage.h"
+#include "boost/lexical_cast.hpp"
 
 #include "llanimationstates.h"
 #include "llaudioengine.h" 
@@ -71,7 +72,6 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpanelgrouplandmoney.h"
-#include "llpanelplaces.h"
 #include "llrecentpeople.h"
 #include "llscriptfloater.h"
 #include "llselectmgr.h"
@@ -692,6 +692,52 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 
 	return false;
 }
+
+static void highlight_inventory_items_in_panel(const std::vector<LLUUID>& items, LLInventoryPanel *inventory_panel)
+{
+	if (NULL == inventory_panel) return;
+
+	for (std::vector<LLUUID>::const_iterator item_iter = items.begin();
+		item_iter != items.end();
+		++item_iter)
+	{
+		const LLUUID& item_id = (*item_iter);
+		if(!highlight_offered_item(item_id))
+		{
+			continue;
+		}
+
+		LLInventoryItem* item = gInventory.getItem(item_id);
+		llassert(item);
+		if (!item) {
+			continue;
+		}
+
+		LL_DEBUGS("Inventory_Move") << "Highlighting inventory item: " << item->getName() << ", " << item_id  << LL_ENDL;
+		LLFolderView* fv = inventory_panel->getRootFolder();
+		if (fv)
+		{
+			LLFolderViewItem* fv_item = fv->getItemByID(item_id);
+			if (fv_item)
+			{
+				LLFolderViewItem* fv_folder = fv_item->getParentFolder();
+				if (fv_folder)
+				{
+					// Parent folders can be different in case of 2 consecutive drag and drop
+					// operations when the second one is started before the first one completes.
+					LL_DEBUGS("Inventory_Move") << "Open folder: " << fv_folder->getName() << LL_ENDL;
+					fv_folder->setOpen(TRUE);
+					if (fv_folder->isSelected())
+					{
+						fv->changeSelection(fv_folder, FALSE);
+					}
+				}
+				fv->changeSelection(fv_item, TRUE);
+			}
+		}
+	}
+}
+
 static LLNotificationFunctorRegistration jgr_1("JoinGroup", join_group_response);
 static LLNotificationFunctorRegistration jgr_2("JoinedTooManyGroupsMember", join_group_response);
 static LLNotificationFunctorRegistration jgr_3("JoinGroupCanAfford", join_group_response);
@@ -700,10 +746,13 @@ static LLNotificationFunctorRegistration jgr_3("JoinGroupCanAfford", join_group_
 //-----------------------------------------------------------------------------
 // Instant Message
 //-----------------------------------------------------------------------------
-class LLOpenAgentOffer : public LLInventoryFetchObserver
+class LLOpenAgentOffer : public LLInventoryFetchItemsObserver
 {
 public:
-	LLOpenAgentOffer(const std::string& from_name) : mFromName(from_name) {}
+	LLOpenAgentOffer(const LLUUID& object_id,
+					 const std::string& from_name) : 
+		LLInventoryFetchItemsObserver(object_id),
+		mFromName(from_name) {}
 	/*virtual*/ void done()
 	{
 		open_inventory_offer(mComplete, mFromName);
@@ -713,6 +762,108 @@ public:
 private:
 	std::string mFromName;
 };
+
+/**
+ * Class to observe adding of new items moved from the world to user's inventory to select them in inventory.
+ *
+ * We can't create it each time items are moved because "drop" event is sent separately for each
+ * element even while multi-dragging. We have to have the only instance of the observer. See EXT-4347.
+ */
+class LLViewerInventoryMoveFromWorldObserver : public LLInventoryMoveFromWorldObserver
+{
+public:
+	LLViewerInventoryMoveFromWorldObserver()
+		: LLInventoryMoveFromWorldObserver()
+		, mActivePanel(NULL)
+	{
+
+	}
+
+	void setMoveIntoFolderID(const LLUUID& into_folder_uuid) {mMoveIntoFolderID = into_folder_uuid; }
+
+private:
+	/*virtual */void onAssetAdded(const LLUUID& asset_id)
+	{
+		// Store active Inventory panel.
+		mActivePanel = LLInventoryPanel::getActiveInventoryPanel();
+
+		// Store selected items (without destination folder)
+		mSelectedItems.clear();
+		mActivePanel->getRootFolder()->getSelectionList(mSelectedItems);
+		mSelectedItems.erase(mMoveIntoFolderID);
+	}
+
+	/**
+	 * Selects added inventory items watched by their Asset UUIDs if selection was not changed since
+	 * all items were started to watch (dropped into a folder).
+	 */
+	void done()
+	{
+		// if selection is not changed since watch started lets hightlight new items.
+		if (mActivePanel && !isSelectionChanged())
+		{
+			LL_DEBUGS("Inventory_Move") << "Selecting new items..." << LL_ENDL;
+			mActivePanel->clearSelection();
+			highlight_inventory_items_in_panel(mAddedItems, mActivePanel);
+		}
+	}
+
+	/**
+	 * Returns true if selected inventory items were changed since moved inventory items were started to watch.
+	 */
+	bool isSelectionChanged()
+	{
+		const LLInventoryPanel * const current_active_panel = LLInventoryPanel::getActiveInventoryPanel();
+
+		if (NULL == mActivePanel || current_active_panel != mActivePanel)
+		{
+			return true;
+		}
+
+		// get selected items (without destination folder)
+		selected_items_t selected_items;
+		mActivePanel->getRootFolder()->getSelectionList(selected_items);
+		selected_items.erase(mMoveIntoFolderID);
+
+		// compare stored & current sets of selected items
+		selected_items_t different_items;
+		std::set_symmetric_difference(mSelectedItems.begin(), mSelectedItems.end(),
+			selected_items.begin(), selected_items.end(), std::inserter(different_items, different_items.begin()));
+
+		LL_DEBUGS("Inventory_Move") << "Selected firstly: " << mSelectedItems.size()
+			<< ", now: " << selected_items.size() << ", difference: " << different_items.size() << LL_ENDL;
+
+		return different_items.size() > 0;
+	}
+
+	LLInventoryPanel *mActivePanel;
+	typedef std::set<LLUUID> selected_items_t;
+	selected_items_t mSelectedItems;
+
+	/**
+	 * UUID of FolderViewFolder into which watched items are moved.
+	 *
+	 * Destination FolderViewFolder becomes selected while mouse hovering (when dragged items are dropped).
+	 * 
+	 * If mouse is moved out it set unselected and number of selected items is changed 
+	 * even if selected items in Inventory stay the same.
+	 * So, it is used to update stored selection list.
+	 *
+	 * @see onAssetAdded()
+	 * @see isSelectionChanged()
+	 */
+	LLUUID mMoveIntoFolderID;
+};
+
+LLViewerInventoryMoveFromWorldObserver* gInventoryMoveObserver = NULL;
+
+void set_dad_inventory_item(LLInventoryItem* inv_item, const LLUUID& into_folder_uuid)
+{
+	start_new_inventory_observer();
+
+	gInventoryMoveObserver->setMoveIntoFolderID(into_folder_uuid);
+	gInventoryMoveObserver->watchAsset(inv_item->getAssetUUID());
+}
 
 //unlike the FetchObserver for AgentOffer, we only make one 
 //instance of the AddedObserver for TaskOffers
@@ -724,6 +875,33 @@ class LLOpenTaskOffer : public LLInventoryAddedObserver
 protected:
 	/*virtual*/ void done()
 	{
+		for (uuid_vec_t::iterator it = mAdded.begin(); it != mAdded.end();)
+		{
+			const LLUUID& item_uuid = *it;
+			bool was_moved = false;
+			LLInventoryObject* added_object = gInventory.getObject(item_uuid);
+			if (added_object)
+			{
+				// cast to item to get Asset UUID
+				LLInventoryItem* added_item = dynamic_cast<LLInventoryItem*>(added_object);
+				if (added_item)
+				{
+					const LLUUID& asset_uuid = added_item->getAssetUUID();
+					if (gInventoryMoveObserver->isAssetWatched(asset_uuid))
+					{
+						LL_DEBUGS("Inventory_Move") << "Found asset UUID: " << asset_uuid << LL_ENDL;
+						was_moved = true;
+					}
+				}
+			}
+
+			if (was_moved)
+			{
+				it = mAdded.erase(it);
+			}
+			else ++it;
+		}
+
 		open_inventory_offer(mAdded, "");
 		mAdded.clear();
 	}
@@ -752,13 +930,21 @@ void start_new_inventory_observer()
 		gNewInventoryObserver = new LLOpenTaskOffer;
 		gInventory.addObserver(gNewInventoryObserver);
 	}
+
+	if (!gInventoryMoveObserver) //inventory move from the world observer 
+	{
+		// Observer is deleted by gInventory
+		gInventoryMoveObserver = new LLViewerInventoryMoveFromWorldObserver;
+		gInventory.addObserver(gInventoryMoveObserver);
+	}
 }
 
-class LLDiscardAgentOffer : public LLInventoryFetchComboObserver
+class LLDiscardAgentOffer : public LLInventoryFetchItemsObserver
 {
 	LOG_CLASS(LLDiscardAgentOffer);
 public:
 	LLDiscardAgentOffer(const LLUUID& folder_id, const LLUUID& object_id) :
+		LLInventoryFetchItemsObserver(object_id),
 		mFolderID(folder_id),
 		mObjectID(object_id) {}
 	virtual ~LLDiscardAgentOffer() {}
@@ -916,9 +1102,12 @@ void open_inventory_offer(const uuid_vec_t& items, const std::string& from_name)
 					}
 					else if("group_offer" == from_name)
 					{
-						// do not open inventory when we open group notice attachment because 
-						// we already opened landmark info panel
 						// "group_offer" is passed by LLOpenTaskGroupOffer
+						// Notification about added landmark will be generated under the "from_name.empty()" called from LLOpenTaskOffer::done().
+						LLSD args;
+						args["type"] = "landmark";
+						args["id"] = item_id;
+						LLSideTray::getInstance()->showPanel("panel_places", args);
 
 						continue;
 					}
@@ -929,28 +1118,6 @@ void open_inventory_offer(const uuid_vec_t& items, const std::string& from_name)
 						args["LANDMARK_NAME"] = item->getName();
 						args["FOLDER_NAME"] = std::string(parent_folder ? parent_folder->getName() : "unknown");
 						LLNotificationsUtil::add("LandmarkCreated", args);
-						// Created landmark is passed to Places panel to allow its editing. In fact panel should be already displayed.
-						// If the panel is closed we don't reopen it until created landmark is loaded.
-						//TODO*:: dserduk(7/12/09) remove LLPanelPlaces dependency from here
-						LLPanelPlaces *places_panel = dynamic_cast<LLPanelPlaces*>(LLSideTray::getInstance()->getPanel("panel_places"));
-						if (places_panel)
-						{
-							// Landmark creation handling is moved to LLPanelPlaces::showAddedLandmarkInfo()
-							// TODO* LLPanelPlaces dependency is going to be removed. See EXT-4347.
-							//if("create_landmark" == places_panel->getPlaceInfoType() && !places_panel->getItem())
-							//{
-							//	places_panel->setItem(item);
-							//}
-							//else
-							// we are opening a group notice attachment
-							if("create_landmark" != places_panel->getPlaceInfoType())
-							{
-								LLSD args;
-								args["type"] = "landmark";
-								args["id"] = item_id;
-								LLSideTray::getInstance()->showPanel("panel_places", args);
-							}
-						}
 					}
 				}
 				break;
@@ -1204,11 +1371,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				// This is an offer from an agent. In this case, the back
 				// end has already copied the items into your inventory,
 				// so we can fetch it out of our inventory.
-				uuid_vec_t items;
-				items.push_back(mObjectID);
-				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(from_string);
-				open_agent_offer->fetch(items);
-				if(catp || (itemp && itemp->isComplete()))
+				LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(mObjectID, from_string);
+				open_agent_offer->startFetch();
+				if(catp || (itemp && itemp->isFinished()))
 				{
 					open_agent_offer->done();
 				}
@@ -1265,13 +1430,9 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			// Disabled logging to old chat floater to fix crash in group notices - EXT-4149
 			// LLFloaterChat::addChatHistory(chat);
 			
-			uuid_vec_t folders;
-			uuid_vec_t items;
-			items.push_back(mObjectID);
-			LLDiscardAgentOffer* discard_agent_offer;
-			discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
-			discard_agent_offer->fetch(folders, items);
-			if(catp || (itemp && itemp->isComplete()))
+			LLDiscardAgentOffer* discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
+			discard_agent_offer->startFetch();
+			if (catp || (itemp && itemp->isFinished()))
 			{
 				discard_agent_offer->done();
 			}
@@ -1602,11 +1763,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 		p.name = "UserGiveItem";
 		
 		// Prefetch the item into your local inventory.
-		uuid_vec_t items;
-		items.push_back(info->mObjectID);
-		LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-		fetch_item->fetch(items);
-		if(fetch_item->isEverythingComplete())
+		LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
+		fetch_item->startFetch();
+		if(fetch_item->isFinished())
 		{
 			fetch_item->done();
 		}
@@ -1697,6 +1856,53 @@ protected:
 		mParams.payload = payload;
 	}
 };
+
+static void parse_lure_bucket(const std::string& bucket,
+							  U64& region_handle,
+							  LLVector3& pos,
+							  LLVector3& look_at,
+							  U8& region_access)
+{
+	// tokenize the bucket
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
+	tokenizer tokens(bucket, sep);
+	tokenizer::iterator iter = tokens.begin();
+
+	S32 gx = boost::lexical_cast<S32>((*(iter)).c_str());
+	S32 gy = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 rx = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 ry = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 rz = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 lx = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 ly = boost::lexical_cast<S32>((*(++iter)).c_str());
+	S32 lz = boost::lexical_cast<S32>((*(++iter)).c_str());
+
+	// Grab region access
+	region_access = SIM_ACCESS_MIN;
+	if (++iter != tokens.end())
+	{
+		std::string access_str((*iter).c_str());
+		LLStringUtil::trim(access_str);
+		if ( access_str == "A" )
+		{
+			region_access = SIM_ACCESS_ADULT;
+		}
+		else if ( access_str == "M" )
+		{
+			region_access = SIM_ACCESS_MATURE;
+		}
+		else if ( access_str == "PG" )
+		{
+			region_access = SIM_ACCESS_PG;
+		}
+	}
+
+	pos.setVec((F32)rx, (F32)ry, (F32)rz);
+	look_at.setVec((F32)lx, (F32)ly, (F32)lz);
+
+	region_handle = to_region_handle(gx, gy);
+}
 
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
@@ -2121,10 +2327,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			if (is_muted)
 			{
 				// Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
-				uuid_vec_t items;
-				items.push_back(info->mObjectID);
-				LLInventoryFetchObserver* fetch_item = new LLInventoryFetchObserver();
-				fetch_item->fetch(items);
+				LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
+				fetch_item->startFetch();
 				delete fetch_item;
 
 				// Same as closing window
@@ -2230,10 +2434,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				chat.mFromID = from_id ^ gAgent.getSessionID();
 			}
 
+			chat.mSourceType = CHAT_SOURCE_OBJECT;
+
 			if(SYSTEM_FROM == name)
 			{
 				// System's UUID is NULL (fixes EXT-4766)
 				chat.mFromID = LLUUID::null;
+				chat.mSourceType = CHAT_SOURCE_SYSTEM;
 			}
 
 			LLSD query_string;
@@ -2250,7 +2457,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			chat.mURL = link.str();
 			chat.mText = message;
-			chat.mSourceType = CHAT_SOURCE_OBJECT;
 
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
 			// IMs from obejcts don't open IM sessions.
@@ -2329,10 +2535,19 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
+				LLVector3 pos, look_at;
+				U64 region_handle;
+				U8 region_access;
+				std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
+				parse_lure_bucket(region_info, region_handle, pos, look_at, region_access);
+
+				std::string region_access_str = LLViewerRegion::accessToString(region_access);
+
 				LLSD args;
 				// *TODO: Translate -> [FIRST] [LAST] (maybe)
 				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
 				args["MESSAGE"] = message;
+				args["MATURITY"] = region_access_str;
 				LLSD payload;
 				payload["from_id"] = from_id;
 				payload["lure_id"] = session_id;
@@ -2847,7 +3062,9 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 class LLFetchInWelcomeArea : public LLInventoryFetchDescendentsObserver
 {
 public:
-	LLFetchInWelcomeArea() {}
+	LLFetchInWelcomeArea(const uuid_vec_t &ids) :
+		LLInventoryFetchDescendentsObserver(ids)
+	{}
 	virtual void done()
 	{
 		LLIsType is_landmark(LLAssetType::AT_LANDMARK);
@@ -2929,9 +3146,9 @@ BOOL LLPostTeleportNotifiers::tick()
 			folders.push_back(folder_id);
 		if(!folders.empty())
 		{
-			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea;
-			fetcher->fetch(folders);
-			if(fetcher->isEverythingComplete())
+			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea(folders);
+			fetcher->startFetch();
+			if(fetcher->isFinished())
 			{
 				fetcher->done();
 			}
@@ -4554,11 +4771,12 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 				if(boost::regex_match(desc, matches, expr))
 				{
 					// Name of full localizable notification string
-					// there are three types of this string- with name of receiver and reason of payment,
-					// without name and without reason (but not simultaneously)
+					// there are four types of this string- with name of receiver and reason of payment,
+					// without name and without reason (both may also be absent simultaneously).
 					// example of string without name - You paid L$100 to create a group.
 					// example of string without reason - You paid Smdby Linden L$100.
 					// example of string with reason and name - You paid Smbdy Linden L$100 for a land access pass.
+					// example of string with no info - You paid L$50.
 					std::string line = "you_paid_ldollars_no_name";
 
 					// arguments of string which will be in notification
@@ -4579,7 +4797,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 					std::string reason = std::string(matches[3]);
 					if (reason.empty())
 					{
-						line = "you_paid_ldollars_no_reason";
+						line = name.empty() ? "you_paid_ldollars_no_info" : "you_paid_ldollars_no_reason";
 					}
 					else
 					{
@@ -4623,6 +4841,10 @@ bool handle_special_notification_callback(const LLSD& notification, const LLSD& 
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
 		gAgent.sendMaturityPreferenceToServer(preferredMaturity);
 
+		// notify user that the maturity preference has been changed
+		LLSD args;
+		args["RATING"] = LLViewerRegion::accessToString(preferredMaturity);
+		LLNotificationsUtil::add("PreferredMaturityChanged", args);
 	}
 	
 	return false;

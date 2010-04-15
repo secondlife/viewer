@@ -45,7 +45,6 @@
 				 layout="topleft"
 				 left="0"
 				 name="info_btn"
-				 tool_tip="Show object profile"
 				 top="0"
 				 width="102" />
 			<button
@@ -56,18 +55,6 @@
 				 layout="topleft"
 				 left="105"
 				 name="share_btn"
-				 tool_tip="Share an inventory item"
-				 top="0"
-				 width="102" />
-			<button
-				 enabled="true"
-				 follows="bottom|left"
-				 height="23"
-				 label="Shop"
-				 layout="topleft"
-				 left="210"
-				 name="shop_btn"
-				 tool_tip="Open Marketplace webpage"
 				 top="0"
 				 width="102" />
 			<button
@@ -78,7 +65,6 @@
 				 layout="topleft"
 				 left="210"
 				 name="wear_btn"
-				 tool_tip="Wear seleceted outfit"
 				 top="0"
 				 width="102" />
 			<button
@@ -99,7 +85,6 @@
 				 layout="topleft"
 				 left="210"
 				 name="teleport_btn"
-				 tool_tip="Teleport to the selected area"
 				 top="0"
 				 width="102" />
 		</panel>

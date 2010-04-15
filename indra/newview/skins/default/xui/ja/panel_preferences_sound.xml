@@ -28,12 +28,6 @@
 		<panel.string name="default_text">
 			デフォルト
 		</panel.string>
-		<panel.string name="default system device">
-			デフォルトのシステム機器
-		</panel.string>
-		<panel.string name="no device">
-			機器が設定されていません
-		</panel.string>
 		<text name="Input">
 			入力
 		</text>

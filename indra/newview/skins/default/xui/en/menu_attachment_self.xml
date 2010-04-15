@@ -11,7 +11,8 @@
          function="Object.Touch" />
         <menu_item_call.on_enable
          function="Object.EnableTouch"
-         name="EnableTouch"/>
+         name="EnableTouch"
+         parameter="Touch" />
     </menu_item_call>
     <!--menu_item_call
      label="Stand Up"
@@ -43,67 +44,61 @@
         <menu_item_call.on_enable
          function="Attachment.EnableDetach" />
     </menu_item_call>
-  <menu_item_separator
-    layout="topleft" />
-
-  <menu_item_call
-label="Stand Up"
-layout="topleft"
-name="Stand Up">
-    <menu_item_call.on_click
-     function="Self.StandUp"
-     parameter="" />
-    <menu_item_call.on_enable
-     function="Self.EnableStandUp" />
-  </menu_item_call>
-  <menu_item_call
-  label="Change Outfit"
-  name="Change Outfit">
-    <menu_item_call.on_click
-     function="CustomizeAvatar" />
-    <menu_item_call.on_enable
-     function="Edit.EnableCustomizeAvatar" />
-  </menu_item_call>
-  <menu_item_call label="Edit My Outfit"
-layout="topleft"
-name="Edit Outfit">
-    <menu_item_call.on_click
-     function="EditOutfit" />
-    <menu_item_call.on_enable
-     function="Edit.EnableCustomizeAvatar" />
-  </menu_item_call>
-  <menu_item_call label="Edit My Shape"
-    layout="topleft"
-    name="Edit My Shape">
-    <menu_item_call.on_click
-     function="EditShape" />
-    <menu_item_call.on_enable
-     function="Edit.EnableEditShape" />
-  </menu_item_call>
-  <menu_item_call
-    label="My Friends"
-    layout="topleft"
-    name="Friends...">
-    <menu_item_call.on_click
-     function="SideTray.PanelPeopleTab"
-     parameter="friends_panel" />
-  </menu_item_call>
-  <menu_item_call
-   label="My Groups"
-   layout="topleft"
-   name="Groups...">
-    <menu_item_call.on_click
-     function="SideTray.PanelPeopleTab"
-     parameter="groups_panel" />
-  </menu_item_call>
-  <menu_item_call
-    label="My Profile"
-    layout="topleft"
-    name="Profile...">
-    <menu_item_call.on_click
-     function="ShowAgentProfile"
-     parameter="agent" />
-  </menu_item_call>
+      <menu_item_call
+     enabled="false"
+     label="Drop"
+     layout="topleft"
+     name="Drop">
+        <menu_item_call.on_click
+         function="Attachment.Drop" />
+        <menu_item_call.on_enable
+         function="Attachment.EnableDrop" />
+    </menu_item_call>
+    <menu_item_separator
+      layout="topleft" />
+    
+       <menu_item_call
+     label="Stand Up"
+     layout="topleft"
+     name="Stand Up">
+        <menu_item_call.on_click
+         function="Self.StandUp"
+         parameter="" />
+        <menu_item_call.on_enable
+         function="Self.EnableStandUp" />
+    </menu_item_call>
+     <menu_item_call
+     label="My Appearance"
+     name="Appearance...">
+        <menu_item_call.on_click
+         function="CustomizeAvatar" />
+        <menu_item_call.on_enable
+         function="Edit.EnableCustomizeAvatar" />
+    </menu_item_call>
+   <menu_item_call
+     label="My Friends"
+     layout="topleft"
+     name="Friends...">
+        <menu_item_call.on_click
+         function="SideTray.PanelPeopleTab"
+         parameter="friends_panel" />
+    </menu_item_call>
+    <menu_item_call
+     label="My Groups"
+     layout="topleft"
+     name="Groups...">
+        <menu_item_call.on_click
+         function="SideTray.PanelPeopleTab"
+         parameter="groups_panel" />
+    </menu_item_call>
+   <menu_item_call
+     label="My Profile"
+     layout="topleft"
+     name="Profile...">
+        <menu_item_call.on_click
+         function="ShowAgentProfile"
+         parameter="agent" />
+    </menu_item_call>
   <menu_item_call
  label="Debug Textures"
      name="Debug...">
@@ -111,17 +106,5 @@ name="Edit Outfit">
      function="Avatar.Debug" />
     <menu_item_call.on_visible
      function="IsGodCustomerService"/>
-  </menu_item_call>
-  <menu_item_separator
-  layout="topleft" />
-  <menu_item_call
- enabled="false"
- label="Drop"
- layout="topleft"
- name="Drop">
-    <menu_item_call.on_click
-     function="Attachment.Drop" />
-    <menu_item_call.on_enable
-     function="Attachment.EnableDrop" />
   </menu_item_call>
 </context_menu>

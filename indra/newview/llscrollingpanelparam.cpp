@@ -42,17 +42,14 @@
 #include "llbutton.h"
 #include "llsliderctrl.h"
 #include "llagent.h"
+#include "llviewborder.h"
 #include "llvoavatarself.h"
 
 // Constants for LLPanelVisualParam
 const F32 LLScrollingPanelParam::PARAM_STEP_TIME_THRESHOLD = 0.25f;
 
-const S32 LLScrollingPanelParam::BTN_BORDER = 2;
 const S32 LLScrollingPanelParam::PARAM_HINT_WIDTH = 128;
 const S32 LLScrollingPanelParam::PARAM_HINT_HEIGHT = 128;
-const S32 LLScrollingPanelParam::PARAM_HINT_LABEL_HEIGHT = 16;
-const S32 LLScrollingPanelParam::PARAM_PANEL_WIDTH = 2 * (3* BTN_BORDER + PARAM_HINT_WIDTH +  LLPANEL_BORDER_WIDTH);
-const S32 LLScrollingPanelParam::PARAM_PANEL_HEIGHT = 2 * BTN_BORDER + PARAM_HINT_HEIGHT + PARAM_HINT_LABEL_HEIGHT + 4 * LLPANEL_BORDER_WIDTH; 
 
 // LLScrollingPanelParam
 //static
@@ -67,14 +64,17 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_scrolling_param.xml");
 
+	// *HACK To avoid hard coding texture position, lets use border's position for texture. 
+	LLViewBorder* left_border = getChild<LLViewBorder>("left_border");
+
 	static LLUICachedControl<S32> slider_ctrl_height ("UISliderctrlHeight", 0);
-	S32 pos_x = 2 * LLPANEL_BORDER_WIDTH;
-	S32 pos_y = 3 * LLPANEL_BORDER_WIDTH + slider_ctrl_height;
+	S32 pos_x = left_border->getRect().mLeft + left_border->getBorderWidth();
+	S32 pos_y = left_border->getRect().mBottom + left_border->getBorderWidth();
 	F32 min_weight = param->getMinWeight();
 	F32 max_weight = param->getMaxWeight();
 
 	mHintMin = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()),  min_weight);
-	pos_x += PARAM_HINT_WIDTH + 3 * BTN_BORDER;
+	pos_x = getChild<LLViewBorder>("right_border")->getRect().mLeft + left_border->getBorderWidth();
 	mHintMax = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), max_weight );
 	
 	mHintMin->setAllowsUpdates( FALSE );
@@ -162,6 +162,10 @@ void LLScrollingPanelParam::draw()
 	childSetVisible("less", mHintMin->getVisible());
 	childSetVisible("more", mHintMax->getVisible());
 
+	// hide borders if texture has been loaded
+	childSetVisible("left_border", !mHintMin->getVisible());
+	childSetVisible("right_border", !mHintMax->getVisible());
+
 	// Draw all the children except for the labels
 	childSetVisible( "min param text", FALSE );
 	childSetVisible( "max param text", FALSE );
@@ -171,9 +175,7 @@ void LLScrollingPanelParam::draw()
 	gGL.pushUIMatrix();
 	{
 		const LLRect& r = mHintMin->getRect();
-		F32 left = (F32)(r.mLeft + BTN_BORDER);
-		F32 bot  = (F32)(r.mBottom + BTN_BORDER);
-		gGL.translateUI(left, bot, 0.f);
+		gGL.translateUI((F32)r.mLeft, (F32)r.mBottom, 0.f);
 		mHintMin->draw();
 	}
 	gGL.popUIMatrix();
@@ -181,9 +183,7 @@ void LLScrollingPanelParam::draw()
 	gGL.pushUIMatrix();
 	{
 		const LLRect& r = mHintMax->getRect();
-		F32 left = (F32)(r.mLeft + BTN_BORDER);
-		F32 bot  = (F32)(r.mBottom + BTN_BORDER);
-		gGL.translateUI(left, bot, 0.f);
+		gGL.translateUI((F32)r.mLeft, (F32)r.mBottom, 0.f);
 		mHintMax->draw();
 	}
 	gGL.popUIMatrix();
@@ -191,10 +191,10 @@ void LLScrollingPanelParam::draw()
 
 	// Draw labels on top of the buttons
 	childSetVisible( "min param text", TRUE );
-	drawChild(getChild<LLView>("min param text"), BTN_BORDER, BTN_BORDER);
+	drawChild(getChild<LLView>("min param text"));
 
 	childSetVisible( "max param text", TRUE );
-	drawChild(getChild<LLView>("max param text"), BTN_BORDER, BTN_BORDER);
+	drawChild(getChild<LLView>("max param text"));
 }
 
 // static

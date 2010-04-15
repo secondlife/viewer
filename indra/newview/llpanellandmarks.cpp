@@ -675,6 +675,7 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	trash_btn->setDragAndDropHandler(boost::bind(&LLLandmarksPanel::handleDragAndDropToTrash, this
 			,	_4 // BOOL drop
 			,	_5 // EDragAndDropType cargo_type
+			,	_6 // void* cargo_data
 			,	_7 // EAcceptance* accept
 			));
 
@@ -1109,7 +1110,7 @@ void LLLandmarksPanel::onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* own
 	pick_panel = NULL;
 }
 
-bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)
+bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data , EAcceptance* accept)
 {
 	*accept = ACCEPT_NO;
 
@@ -1125,7 +1126,21 @@ bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType carg
 
 			if (is_enabled && drop)
 			{
-				onClipboardAction("delete");
+				// don't call onClipboardAction("delete")
+				// this lead to removing (N * 2 - 1) items if drag N>1 items into trash. EXT-6757
+				// So, let remove items one by one.
+				LLInventoryItem* item = static_cast<LLInventoryItem*>(cargo_data);
+				if (item)
+				{
+					LLFolderViewItem* fv_item = (mCurrentSelectedList && mCurrentSelectedList->getRootFolder()) ?
+						mCurrentSelectedList->getRootFolder()->getItemByID(item->getUUID()) : NULL;
+
+					if (fv_item)
+					{
+						// is Item Removable checked inside of remove()
+						fv_item->remove();
+					}
+				}
 			}
 		}
 		break;

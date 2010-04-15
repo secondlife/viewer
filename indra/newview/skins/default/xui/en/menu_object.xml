@@ -18,16 +18,16 @@
      name="Edit...">
         <menu_item_call.on_click
          function="Object.Edit" />
-    <menu_item_call.on_enable
+        <menu_item_call.on_visible
          function="EnableEdit"/>
     </menu_item_call>
     <menu_item_call
       label="Build"
       name="Build">
       <menu_item_call.on_click
-        function="Object.Build" />
-        <menu_item_call.on_enable
-         function="EnableEdit"/>
+       function="Object.Edit" />
+      <menu_item_call.on_visible
+       function="VisibleBuild"/>
     </menu_item_call>
    <menu_item_call
      enabled="false"
@@ -44,8 +44,11 @@
      name="Object Sit">
         <menu_item_call.on_click
          function="Object.SitOrStand" />
+        <menu_item_call.on_visible
+         function="Object.SitVisible" />
         <menu_item_call.on_enable
-         function="Object.EnableSit" />
+         function="Object.EnableSitOrStand"
+         name="EnableSitOrStand" />
    </menu_item_call>
    <menu_item_call
      enabled="false"
@@ -53,8 +56,11 @@
      name="Object Stand Up">
         <menu_item_call.on_click
          function="Object.SitOrStand" />
+        <menu_item_call.on_visible
+         function="Object.StandUpVisible" />
         <menu_item_call.on_enable
-         function="Object.EnableStandUp" />
+         function="Object.EnableSitOrStand"
+         name="EnableSitOrStand" />
    </menu_item_call>
    <menu_item_call
        label="Object Profile"

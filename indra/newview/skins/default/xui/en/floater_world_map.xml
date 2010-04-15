@@ -2,7 +2,8 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- open_centered="true"
+ center_horiz="true"
+ center_vert="true"
  height="600"
  layout="topleft"
  min_height="520"
@@ -178,29 +179,6 @@
      width="90">
         Land Sale
     </text>
-        <icon
-     color="0.5 0.25 1 1"
-     follows="top|right"
-     height="16"
-     image_name="legend.tga"
-     layout="topleft"
-     mouse_opaque="true"
-     name="square2"
-     left="20"
-     top_pad="2"
-     width="16" />
-    <text
-     type="string"
-     length="1"
-     follows="top|right"
-     height="16"
-     layout="topleft"
-     left_pad="0"
-     name="auction_label"
-     top_delta="3"
-     width="170">
-        land auction
-    </text>
     <icon
      color="1 1 0.25 1"
      follows="top|right"
@@ -209,8 +187,8 @@
      layout="topleft"
      mouse_opaque="true"
      name="square2"
-     left="20"
-     top_pad="-5"
+     left="41"
+     top_pad="-2"
      width="16" />
     <text
      type="string"
@@ -223,6 +201,29 @@
      top_delta="3"
      width="100">
        by owner
+    </text>
+        <icon
+     color="0.5 0.25 1 1"
+     follows="top|right"
+     height="16"
+     image_name="legend.tga"
+     layout="topleft"
+     mouse_opaque="true"
+     name="square2"
+     left="41"
+     top_pad="-3"
+     width="16" />
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_pad="0"
+     name="auction_label"
+     top_delta="3"
+     width="170">
+        land auction
     </text>
 
     <button
@@ -306,7 +307,7 @@
      initial_value="true"
      layout="topleft"
      left="135"
-     name="events_mature_chk"
+     name="event_mature_chk"
      top_pad="3"
      width="22" />
     <icon
@@ -328,7 +329,7 @@
      top_delta="2"
      left_pad="3"
      layout="topleft"
-     name="events_mature_label"
+     name="mature_label"
      width="66">
         Moderate
     </text>
@@ -339,7 +340,7 @@
      height="16"
      layout="topleft"
      left="135"
-     name="events_adult_chk"
+     name="event_adult_chk"
      top_pad="3"
      width="22" />
     <icon
@@ -361,7 +362,7 @@
      top_delta="2"
      left_pad="3"
      layout="topleft"
-     name="events_adult_label"
+     name="adult_label"
      width="66">
         Adult
     </text>
@@ -395,7 +396,7 @@
 
     <panel
      follows="right|top|bottom"
-	 height="330"
+	 height="310"
 	 top_pad="0"
 	 width="238"
 	 name="layout_panel_4">
@@ -534,69 +535,9 @@
 		<scroll_list.commit_callback
 		function="WMap.SearchResult" />
     </scroll_list>
-      <text
-      type="string"
-      length="1"
-      follows="right|bottom"
-      halign="right"
-      height="16"
-      layout="topleft"
-      left="25"
-      name="events_label"
-      top_pad="16"
-      width="70">
-      Location:
-      </text>
-      <spinner
-        control_name="Teleport_Coordinate_X"
-        decimal_digits="0"
-        follows="right|bottom"
-        height="23"
-        increment="1"
-        initial_value="128"
-        layout="topleft"
-        left_delta="74"
-        max_val="255"
-        min_val="0"
-        name="teleport_coordinate_x"
-        width="44" >
-        <spinner.commit_callback 
-          function="WMap.Coordinates" />
-      </spinner>
-      <spinner
-        control_name="Teleport_Coordinate_Y"
-        decimal_digits="0"
-        follows="right|bottom"
-        height="23"
-        increment="1"
-        initial_value="128"
-        layout="topleft"
-        left_delta="47"
-        max_val="255"
-        min_val="0"
-        name="teleport_coordinate_y" >
-        <spinner.commit_callback
-          function="WMap.Coordinates" />
-      </spinner>
-      <spinner
-        control_name="Teleport_Coordinate_Z"
-        decimal_digits="0"
-        follows="right|bottom"
-        height="23"
-        increment="1"
-        initial_value="128"
-        layout="topleft"
-        left_delta="47"
-        max_val="255"
-        min_val="0"
-        name="teleport_coordinate_z">
-        <spinner.commit_callback
-          function="WMap.Coordinates" />
-      </spinner>
-      <button
+    <button
      follows="right|bottom"
      height="23"
-     image_unselected="PushButton_On"
      label="Teleport"
      layout="topleft"
      left="25"
@@ -633,6 +574,66 @@
 		<button.commit_callback
 		function="WMap.ShowTarget" />
     </button>
+
+<!-- <text
+     type="string"
+     length="1"
+     follows="bottom|right"
+     halign="left"
+     height="16"
+     top_pad="4"
+     left="25"
+     layout="topleft"
+     name="land_sale_label"
+     width="250">
+        Location:
+    </text>
+      <spinner
+     decimal_digits="0"
+     follows="bottom|right"
+     increment="1"
+     initial_value="128"
+     layout="topleft"
+     top_pad="0"
+     left="25"
+     max_val="255"
+     name="spin x"
+     tool_tip="X coordinate of location to show on map"
+     width="48">
+		<spinner.commit_callback
+		function="WMap.CommitLocation" />
+    </spinner>
+    <spinner
+     decimal_digits="0"
+     follows="bottom|right"
+     height="16"
+     increment="1"
+     initial_value="128"
+     layout="topleft"
+     left_pad="2"
+     max_val="255"
+     name="spin y"
+     tool_tip="Y coordinate of location to show on map"
+     top_delta="0"
+     width="48" >
+		<spinner.commit_callback
+		function="WMap.CommitLocation" />
+    </spinner>
+    <spinner
+     decimal_digits="0"
+     follows="bottom|right"
+     increment="1"
+     initial_value="0"
+     layout="topleft"
+     left_pad="2"
+     max_val="4096"
+     name="spin z"
+     tool_tip="Z coordinate of location to show on map"
+     top_delta="0"
+     width="48">
+		<spinner.commit_callback
+		function="WMap.CommitLocation" />
+    </spinner>-->
     </panel>
       <panel
     follows="right|bottom"

@@ -410,14 +410,6 @@
          parameter="open" />
     </menu_item_call>
     <menu_item_call
-     label="Open Original"
-     layout="topleft"
-     name="Open Original">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="open_original" />
-    </menu_item_call>
-    <menu_item_call
      label="Properties"
      layout="topleft"
      name="Properties">
@@ -472,7 +464,7 @@
      layout="topleft" 
      name="Paste Separator" />
     <menu_item_call
-     label="Delete"
+     label="Remove Link"
      layout="topleft"
      name="Remove Link">
         <menu_item_call.on_click
@@ -606,7 +598,7 @@
     </menu_item_call>
     <menu_item_separator
      layout="topleft" 
-     name="Wearable And Object Separator"/>
+     name="Attach Separator"/>
     <menu_item_call
      label="Detach From Yourself"
      layout="topleft"
@@ -629,10 +621,10 @@
     <menu_item_call
      label="Wear"
      layout="topleft"
-     name="Wearable And Object Wear">
+     name="Object Wear">
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
-         parameter="wear" />
+         parameter="attach" />
     </menu_item_call>
     <menu
      label="Attach To"
@@ -642,6 +634,9 @@
      label="Attach To HUD"
      layout="topleft"
      name="Attach To HUD" />
+    <menu_item_separator
+     layout="topleft" 
+     name="Wearable Separator"/>
     <menu_item_call
      label="Edit"
      layout="topleft"
@@ -651,12 +646,12 @@
          parameter="edit" />
     </menu_item_call>
     <menu_item_call
-     label="Add"
+     label="Wear"
      layout="topleft"
-     name="Wearable Add">
+     name="Wearable Wear">
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
-         parameter="wear_add" />
+         parameter="wear" />
     </menu_item_call>
     <menu_item_call
      label="Take Off"
