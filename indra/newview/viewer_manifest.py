@@ -91,7 +91,6 @@ class ViewerManifest(LLManifest):
                             self.path("*.j2c")
                             self.path("*.jpg")
                             self.path("*.png")
-                            self.path("*.cur")
                             self.path("textures.xml")
                             self.end_prefix("*/textures")
                     self.path("*/xui/*/*.xml")
