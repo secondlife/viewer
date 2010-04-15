@@ -122,7 +122,7 @@ public:
 	// Loading state
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ BOOL    updateIsFullyLoaded();
+	/*virtual*/ BOOL    getIsCloud();
 private:
 
 	//--------------------------------------------------------------------
