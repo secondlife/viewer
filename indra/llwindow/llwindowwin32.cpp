@@ -1544,16 +1544,16 @@ void LLWindowWin32::initCursors()
 	mCursor[ UI_CURSOR_TOOLZOOMIN ] = LoadCursor(module, TEXT("TOOLZOOMIN"));
 	mCursor[ UI_CURSOR_TOOLPICKOBJECT3 ] = LoadCursor(module, TEXT("TOOLPICKOBJECT3"));
 	mCursor[ UI_CURSOR_PIPETTE ] = LoadCursor(module, TEXT("TOOLPIPETTE"));
+	mCursor[ UI_CURSOR_TOOLSIT ]	= LoadCursor(module, TEXT("TOOLSIT"));
+	mCursor[ UI_CURSOR_TOOLBUY ]	= LoadCursor(module, TEXT("TOOLBUY"));
+	mCursor[ UI_CURSOR_TOOLOPEN ]	= LoadCursor(module, TEXT("TOOLOPEN"));
+
+	mCursor[ UI_CURSOR_ARROW ] = LoadCursor(module, TEXT("TOOLPLAY"));
 
 	// Color cursors
-	gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "res", "toolbuy.cur");
-
-	mCursor[UI_CURSOR_TOOLSIT] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->findSkinnedFilename("textures", "toolsit.cur")).c_str());
-	mCursor[UI_CURSOR_TOOLBUY] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->findSkinnedFilename("textures", "toolbuy.cur")).c_str());
-	mCursor[UI_CURSOR_TOOLOPEN] = LoadCursorFromFile(utf8str_to_utf16str(gDirUtilp->findSkinnedFilename("textures", "toolopen.cur")).c_str());
-	mCursor[UI_CURSOR_TOOLPLAY] = loadColorCursor(TEXT("TOOLPLAY"));
-	mCursor[UI_CURSOR_TOOLPAUSE] = loadColorCursor(TEXT("TOOLPAUSE"));
-	mCursor[UI_CURSOR_TOOLMEDIAOPEN] = loadColorCursor(TEXT("TOOLMEDIAOPEN"));
+	mCursor[ UI_CURSOR_TOOLPLAY ]		= loadColorCursor(TEXT("TOOLPLAY"));
+	mCursor[ UI_CURSOR_TOOLPAUSE ]		= loadColorCursor(TEXT("TOOLPAUSE"));
+	mCursor[ UI_CURSOR_TOOLMEDIAOPEN ]	= loadColorCursor(TEXT("TOOLMEDIAOPEN"));
 
 	// Note: custom cursors that are not found make LoadCursor() return NULL.
 	for( S32 i = 0; i < UI_CURSOR_COUNT; i++ )
