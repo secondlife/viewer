@@ -5165,7 +5165,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
-[MESSAGE]
+[MESSAGE], ([MATURITY])
     <form name="form">
       <button
        index="0"

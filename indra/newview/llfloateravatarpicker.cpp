@@ -451,8 +451,8 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	
 	LLFloaterAvatarPicker* floater = LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
 
-	// these are not results from our last request
-	if (query_id != floater->mQueryID)
+	// floater is closed or these are not results from our last request
+	if (NULL == floater || query_id != floater->mQueryID)
 	{
 		return;
 	}

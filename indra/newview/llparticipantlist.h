@@ -38,6 +38,7 @@
 class LLSpeakerMgr;
 class LLAvatarList;
 class LLUICtrl;
+class LLAvalineUpdater;
 
 class LLParticipantList
 {
@@ -235,6 +236,9 @@ class LLParticipantList
 		void onAvatarListDoubleClicked(LLUICtrl* ctrl);
 		void onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param);
 
+		void onAvalineCallerFound(const LLUUID& participant_id);
+		void onAvalineCallerRemoved(const LLUUID& participant_id);
+
 		/**
 		 * Adjusts passed participant to work properly.
 		 *
@@ -272,4 +276,5 @@ class LLParticipantList
 
 		LLPointer<LLAvatarItemRecentSpeakerComparator> mSortByRecentSpeakers;
 		validate_speaker_callback_t mValidateSpeakerCallback;
+		LLAvalineUpdater* mAvalineUpdater;
 };

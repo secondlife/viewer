@@ -234,6 +234,14 @@ public:
 	LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
 	const LLUUID getSessionID();
 
+	/**
+	 * Removes avaline speaker.
+	 *
+	 * This is a HACK due to server does not send information that Avaline caller ends call.
+	 * It can be removed when server is updated. See EXT-4301 for details
+	 */
+	bool removeAvalineSpeaker(const LLUUID& speaker_id) { return removeSpeaker(speaker_id); }
+
 protected:
 	virtual void updateSpeakerList();
 	void setSpeakerNotInChannel(LLSpeaker* speackerp);
