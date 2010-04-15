@@ -16,7 +16,7 @@
 		Modos de Controle:
 	</text>
 	<check_box label="Avatar" name="JoystickAvatarEnabled"/>
-	<check_box label="Construir" left="192" name="JoystickBuildEnabled"/>
+	<check_box label="Construir" name="JoystickBuildEnabled"/>
 	<check_box label="Camera aérea" name="JoystickFlycamEnabled"/>
 	<text name="XScale">
 		Escala X
@@ -27,13 +27,13 @@
 	<text name="ZScale">
 		Escala Z
 	</text>
-	<text left="3" name="PitchScale" width="115">
+	<text name="PitchScale">
 		Escala de Elevação
 	</text>
-	<text left="3" name="YawScale" width="115">
+	<text name="YawScale">
 		Escala da Guinada
 	</text>
-	<text left="3" name="RollScale" width="115">
+	<text name="RollScale">
 		Escala de Rolagem
 	</text>
 	<text name="XDeadZone">
@@ -45,13 +45,13 @@
 	<text name="ZDeadZone">
 		Zona Morta Z
 	</text>
-	<text left="3" name="PitchDeadZone" width="115">
+	<text name="PitchDeadZone">
 		Zona Morta: Elevação
 	</text>
-	<text left="3" name="YawDeadZone" width="115">
+	<text name="YawDeadZone">
 		Zona Morta: Guinada
 	</text>
-	<text left="3" name="RollDeadZone" width="115">
+	<text name="RollDeadZone">
 		Zona Morta: Rolagem
 	</text>
 	<text name="Feathering">
@@ -60,7 +60,7 @@
 	<text name="ZoomScale2">
 		Escala de Zoom
 	</text>
-	<text left="4" name="ZoomDeadZone" width="110">
+	<text name="ZoomDeadZone">
 		Zona Morta de Zoom
 	</text>
 	<button font="SansSerifSmall" label="Padrões do SpaceNavigator" name="SpaceNavigatorDefaults"/>

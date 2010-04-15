@@ -212,21 +212,25 @@ void LLAvatarListItem::setState(EItemState item_style)
 	mAvatarIcon->setColor(item_icon_color_map[item_style]);
 }
 
-void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes)
+void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes/* = false*/, bool is_resident/* = true*/)
 {
 	if (mAvatarId.notNull())
 		LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarId, this);
 
 	mAvatarId = id;
-	mAvatarIcon->setValue(id);
 	mSpeakingIndicator->setSpeakerId(id, session_id);
 
 	// We'll be notified on avatar online status changes
 	if (!ignore_status_changes && mAvatarId.notNull())
 		LLAvatarTracker::instance().addParticularFriendObserver(mAvatarId, this);
 
-	// Set avatar name.
-	gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2, _3));
+	if (is_resident)
+	{
+		mAvatarIcon->setValue(id);
+
+		// Set avatar name.
+		gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2, _3));
+	}
 }
 
 void LLAvatarListItem::showLastInteractionTime(bool show)

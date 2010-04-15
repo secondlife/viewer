@@ -1,108 +1,108 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Joystick" title="KONFIGURACJA JOYSTICKA" width="590">
+<floater name="Joystick" title="KONFIGURACJA JOYSTICKA">
 	<check_box label="Aktywuj Joystick:" name="enable_joystick"/>
 	<text left="130" name="joystick_type" width="360"/>
 	<spinner label="Kalibracja Osi X" label_width="130" left="20" name="JoystickAxis1" width="170"/>
 	<spinner label="Kalibracja Osi Y" label_width="130" left="210" name="JoystickAxis2" width="170"/>
-	<spinner label="Kalibracja Osi Z" label_width="130" left="400" name="JoystickAxis0" width="170"/>
+	<spinner label="Kalibracja Osi Z" label_width="100" left="400" name="JoystickAxis0" width="140"/>
 	<spinner label="Kalibracja wznoszenia" label_width="130" left="20" name="JoystickAxis4" width="170"/>
 	<spinner label="Kalibracja wychylania" label_width="130" left="210" name="JoystickAxis5" width="170"/>
-	<spinner label="Kalibracja obrotu" label_width="130" left="400" name="JoystickAxis3" width="170"/>
+	<spinner label="Kalibracja obrotu" label_width="100" left="400" name="JoystickAxis3" width="140"/>
 	<spinner label="Kalibracja powiększania" label_width="130" name="JoystickAxis6" width="170"/>
 	<check_box label="Bezpośrednie" left="205" name="ZoomDirect"/>
 	<check_box label="Kursor 3D" left="340" name="Cursor3D"/>
 	<check_box label="Automatyczne" left="450" name="AutoLeveling"/>
-	<text left="22" name="Control Modes:">
+	<text name="Control Modes:">
 		Kontroluj:
 	</text>
-	<check_box label="Awatara" left="130" name="JoystickAvatarEnabled" width="90"/>
-	<check_box label="Budowanie" left="205" name="JoystickBuildEnabled" width="90"/>
-	<check_box label="Kamerę podczas latania" left="282" name="JoystickFlycamEnabled" width="90"/>
-	<text name="XScale" width="104">
+	<check_box label="Awatara" name="JoystickAvatarEnabled" width="90"/>
+	<check_box label="Budowanie" name="JoystickBuildEnabled" width="90"/>
+	<check_box label="Kamerę podczas latania" left="300" name="JoystickFlycamEnabled" width="90"/>
+	<text name="XScale">
 		Skala X
 	</text>
-	<spinner left="133" name="AvatarAxisScale1"/>
-	<spinner left="208" name="BuildAxisScale1"/>
-	<spinner left="283" name="FlycamAxisScale1"/>
-	<text name="YScale" width="104">
+	<spinner name="AvatarAxisScale1"/>
+	<spinner name="BuildAxisScale1"/>
+	<spinner left="300" name="FlycamAxisScale1"/>
+	<text name="YScale">
 		Skala Y
 	</text>
-	<spinner left="133" name="AvatarAxisScale2"/>
-	<spinner left="208" name="BuildAxisScale2"/>
-	<spinner left="283" name="FlycamAxisScale2"/>
-	<text name="ZScale" width="104">
+	<spinner name="AvatarAxisScale2"/>
+	<spinner name="BuildAxisScale2"/>
+	<spinner left="300" name="FlycamAxisScale2"/>
+	<text name="ZScale">
 		Skala Z
 	</text>
-	<spinner left="133" name="AvatarAxisScale0"/>
-	<spinner left="208" name="BuildAxisScale0"/>
-	<spinner left="283" name="FlycamAxisScale0"/>
-	<text name="PitchScale" width="104">
+	<spinner name="AvatarAxisScale0"/>
+	<spinner name="BuildAxisScale0"/>
+	<spinner left="300" name="FlycamAxisScale0"/>
+	<text name="PitchScale">
 		Skala wznoszenia
 	</text>
-	<spinner left="133" name="AvatarAxisScale4"/>
-	<spinner left="208" name="BuildAxisScale4"/>
-	<spinner left="283" name="FlycamAxisScale4"/>
-	<text name="YawScale" width="104">
+	<spinner name="AvatarAxisScale4"/>
+	<spinner name="BuildAxisScale4"/>
+	<spinner left="300" name="FlycamAxisScale4"/>
+	<text name="YawScale">
 		Skala odchylania
 	</text>
-	<spinner left="133" name="AvatarAxisScale5"/>
-	<spinner left="208" name="BuildAxisScale5"/>
-	<spinner left="283" name="FlycamAxisScale5"/>
-	<text name="RollScale" width="104">
+	<spinner name="AvatarAxisScale5"/>
+	<spinner name="BuildAxisScale5"/>
+	<spinner left="300" name="FlycamAxisScale5"/>
+	<text name="RollScale">
 		Skala obrotu
 	</text>
-	<spinner left="208" name="BuildAxisScale3"/>
-	<spinner left="283" name="FlycamAxisScale3"/>
-	<text name="XDeadZone" width="104">
+	<spinner name="BuildAxisScale3"/>
+	<spinner left="300" name="FlycamAxisScale3"/>
+	<text name="XDeadZone">
 		Tolerancja osi X
 	</text>
-	<spinner left="133" name="AvatarAxisDeadZone1"/>
-	<spinner left="208" name="BuildAxisDeadZone1"/>
-	<spinner left="283" name="FlycamAxisDeadZone1"/>
-	<text name="YDeadZone" width="104">
+	<spinner name="AvatarAxisDeadZone1"/>
+	<spinner name="BuildAxisDeadZone1"/>
+	<spinner left="300" name="FlycamAxisDeadZone1"/>
+	<text name="YDeadZone">
 		Tolerancja osi Y
 	</text>
-	<spinner left="133" name="AvatarAxisDeadZone2"/>
-	<spinner left="208" name="BuildAxisDeadZone2"/>
-	<spinner left="283" name="FlycamAxisDeadZone2"/>
-	<text name="ZDeadZone" width="104">
+	<spinner name="AvatarAxisDeadZone2"/>
+	<spinner name="BuildAxisDeadZone2"/>
+	<spinner left="300" name="FlycamAxisDeadZone2"/>
+	<text name="ZDeadZone">
 		Tolerancja osi Z
 	</text>
-	<spinner left="133" name="AvatarAxisDeadZone0"/>
-	<spinner left="208" name="BuildAxisDeadZone0"/>
-	<spinner left="283" name="FlycamAxisDeadZone0"/>
-	<text name="PitchDeadZone" width="104">
+	<spinner name="AvatarAxisDeadZone0"/>
+	<spinner name="BuildAxisDeadZone0"/>
+	<spinner left="300" name="FlycamAxisDeadZone0"/>
+	<text name="PitchDeadZone">
 		Tolerancja wznoszenia
 	</text>
-	<spinner left="133" name="AvatarAxisDeadZone4"/>
-	<spinner left="208" name="BuildAxisDeadZone4"/>
-	<spinner left="283" name="FlycamAxisDeadZone4"/>
-	<text name="YawDeadZone" width="104">
+	<spinner name="AvatarAxisDeadZone4"/>
+	<spinner name="BuildAxisDeadZone4"/>
+	<spinner left="300" name="FlycamAxisDeadZone4"/>
+	<text name="YawDeadZone">
 		Tolerancja odchylania
 	</text>
-	<spinner left="133" name="AvatarAxisDeadZone5"/>
-	<spinner left="208" name="BuildAxisDeadZone5"/>
-	<spinner left="283" name="FlycamAxisDeadZone5"/>
-	<text name="RollDeadZone" width="104">
+	<spinner name="AvatarAxisDeadZone5"/>
+	<spinner name="BuildAxisDeadZone5"/>
+	<spinner left="300" name="FlycamAxisDeadZone5"/>
+	<text name="RollDeadZone">
 		Tolerancja obrotu
 	</text>
-	<spinner left="208" name="BuildAxisDeadZone3"/>
-	<spinner left="283" name="FlycamAxisDeadZone3"/>
-	<text name="Feathering" width="104">
+	<spinner name="BuildAxisDeadZone3"/>
+	<spinner left="300" name="FlycamAxisDeadZone3"/>
+	<text name="Feathering">
 		Przenikanie
 	</text>
-	<slider label="" left="125" name="AvatarFeathering"/>
-	<slider label="" left="200" name="BuildFeathering"/>
-	<slider label="" left="275" name="FlycamFeathering"/>
-	<text name="ZoomScale2" width="104">
+	<slider label="" name="AvatarFeathering"/>
+	<slider label="" name="BuildFeathering"/>
+	<slider label="" left_delta="81" name="FlycamFeathering"/>
+	<text name="ZoomScale2">
 		Skala powiększania
 	</text>
-	<spinner label="" left="283" name="FlycamAxisScale6"/>
-	<text name="ZoomDeadZone" width="104">
+	<spinner label="" left="300" name="FlycamAxisScale6"/>
+	<text name="ZoomDeadZone">
 		Tolerancja powiększania
 	</text>
-	<spinner label="" left="283" name="FlycamAxisDeadZone6"/>
-	<button label="Ustawienia domyślne" left="366" name="SpaceNavigatorDefaults"/>
+	<spinner label="" left="300" name="FlycamAxisDeadZone6"/>
+	<button label="Ustawienia domyślne" name="SpaceNavigatorDefaults"/>
 	<button label="OK" label_selected="OK" left="366" name="ok_btn"/>
 	<button label="Anuluj" label_selected="Anuluj" name="cancel_btn"/>
 	<stat_view label="Monitor Joysticka" name="axis_view">
