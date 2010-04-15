@@ -42,13 +42,14 @@ class LLUUID;
 
 namespace LLAvatarNameCache
 {
-	void initClass(const std::string& name_service_url);
+	void initClass();
 	void cleanupClass();
 
 	void importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
 
-	void setNameServiceURL(const std::string& name_service_url);
+	// On the viewer, usually a simulator capabilitity
+	void setNameLookupURL(const std::string& name_lookup_url);
 
 	// Periodically makes a batch request for display names not already in
 	// cache.  Call once per frame.
@@ -67,20 +68,6 @@ namespace LLAvatarNameCache
 	// Fetches name information and calls callback.
 	// If name information is in cache, callback will be called immediately.
 	void get(const LLUUID& agent_id, callback_slot_t slot);
-
-	// JAMESDEBUG TODO: remove code to set display name, handle in 
-	// application layer because it's different for client and server
-
-	// Callback types for setDisplayName() below
-	typedef boost::signals2::signal<
-		void (bool success, const std::string& reason, const LLSD& content)>
-			set_name_signal_t;
-	typedef set_name_signal_t::slot_type set_name_slot_t;
-
-	// Sends an update to the server to change a display name
-	// and calls back the application layer when done
-	void setDisplayName(const LLUUID& agent_id, const std::string& display_name,
-			const set_name_slot_t& slot);
 
 	// HACK: turn display names on and off
 	void toggleDisplayNames();

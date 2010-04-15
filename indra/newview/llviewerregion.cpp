@@ -34,7 +34,9 @@
 
 #include "llviewerregion.h"
 
+// linden libraries
 #include "indra_constants.h"
+#include "llavatarnamecache.h"		// name lookup cap url
 #include "llfloaterreg.h"
 #include "llmath.h"
 #include "llhttpclient.h"
@@ -173,6 +175,19 @@ public:
 				mRegion->showReleaseNotes();
 			}
 		}
+
+		// Avatar name lookup library needs to know who to ask
+		std::string name_lookup_url = mRegion->getCapability("GetDisplayNames");
+		// capabilities require URLs with slashes before query params, like:
+		// https://<host>:<port>/cap/<uuid>/?ids=<blah>
+		// but the caps are granted like:
+		// https://<host>:<port>/cap/<uuid>
+		U32 url_size = name_lookup_url.size();
+		if (url_size > 0 && name_lookup_url[url_size-1] != '/')
+		{
+			name_lookup_url += '/';
+		}
+		LLAvatarNameCache::setNameLookupURL(name_lookup_url);
 		
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{
@@ -1474,6 +1489,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("ObjectMediaNavigate");
 	capabilityNames.append("FetchLib");
 	capabilityNames.append("FetchLibDescendents");
+	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetTexture");
 	capabilityNames.append("GroupProposalBallot");
 	capabilityNames.append("HomeLocation");

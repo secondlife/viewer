@@ -50,10 +50,9 @@ namespace LLAvatarNameCache
 
 	// Base lookup URL for name service.
 	// On simulator, loaded from indra.xml
-	// On viewer, sent down from login.cgi
-	// from login.cgi
-	// Includes the trailing slash, like "http://pdp60.lindenlab.com:8000/"
-	std::string sNameServiceURL;
+	// On viewer, usually a simulator capability (at People API team's request)
+	// Includes the trailing slash, like "http://pdp60.lindenlab.com:8000/agents/"
+	std::string sNameLookupURL;
 
 	// accumulated agent IDs for next query against service
 	typedef std::set<LLUUID> ask_queue_t;
@@ -155,7 +154,7 @@ void LLAvatarNameCache::processNameFromService(const LLSD& row)
 	LLAvatarName av_name;
 	av_name.mSLID = row["sl_id"].asString();
 	av_name.mDisplayName = row["display_name"].asString();
-	//av_name.mIsDisplayNameDefault = row["is_display_name_default"].asBoolean();
+	av_name.mIsDisplayNameDefault = row["is_display_name_default"].asBoolean();
 
 	U32 now = (U32)LLFrameTimer::getTotalSeconds();
 	S32 seconds_until_expires = row["seconds_until_display_name_expires"].asInteger();
@@ -172,23 +171,6 @@ void LLAvatarNameCache::processNameFromService(const LLSD& row)
 	{
 		av_name.mDisplayName = av_name.mSLID;
 	}
-
-	// HACK: Legacy users have '.' in their SLID
-	// JAMESDEBUG TODO: change to using is_display_name_default once that works
-	std::string mangled_name = av_name.mDisplayName;
-	for (U32 i = 0; i < mangled_name.size(); i++)
-	{
-		char c = mangled_name[i];
-		if (c == ' ')
-		{
-			mangled_name[i] = '.';
-		}
-		else
-		{
-			mangled_name[i] = tolower(c);
-		}
-	}
-	av_name.mIsDisplayNameDefault = (mangled_name == av_name.mSLID);
 
 	// add to cache
 	LLUUID agent_id = row["id"].asUUID();
@@ -227,8 +209,8 @@ void LLAvatarNameCache::requestNames()
 		if (url.empty())
 		{
 			// ...starting new request
-			url += sNameServiceURL;
-			url += "agents/?ids=";
+			url += sNameLookupURL;
+			url += "?ids=";
 		}
 		else
 		{
@@ -253,9 +235,8 @@ void LLAvatarNameCache::requestNames()
 	}
 }
 
-void LLAvatarNameCache::initClass(const std::string& name_service_url)
+void LLAvatarNameCache::initClass()
 {
-	setNameServiceURL(name_service_url);
 }
 
 void LLAvatarNameCache::cleanupClass()
@@ -270,9 +251,9 @@ void LLAvatarNameCache::exportFile(std::ostream& ostr)
 {
 }
 
-void LLAvatarNameCache::setNameServiceURL(const std::string& name_service_url)
+void LLAvatarNameCache::setNameLookupURL(const std::string& name_lookup_url)
 {
-	sNameServiceURL = name_service_url;
+	sNameLookupURL = name_lookup_url;
 }
 
 void LLAvatarNameCache::idle()
@@ -290,6 +271,12 @@ void LLAvatarNameCache::idle()
 	if (sEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
 	{
 		eraseExpired();
+	}
+
+	if (sNameLookupURL.empty())
+	{
+		// ...viewer has not yet received capability from region
+		return;
 	}
 
 	if (sAskQueue.empty())
@@ -392,50 +379,6 @@ void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
 	}
 }
 
-// JAMESDEBUG TODO: Eliminate and only route changes through simulator
-class LLSetNameResponder : public LLHTTPClient::Responder
-{
-public:
-	LLUUID mAgentID;
-	LLAvatarNameCache::set_name_signal_t mSignal;
-
-	LLSetNameResponder(const LLUUID& agent_id,
-					   const LLAvatarNameCache::set_name_slot_t& slot)
-	:	mAgentID(agent_id),
-		mSignal()
-	{
-		mSignal.connect(slot);
-	}
-
-	/*virtual*/ void result(const LLSD& content)
-	{
-		// force re-fetch
-		LLAvatarNameCache::sCache.erase(mAgentID);
-
-		mSignal(true, "", content);
-	}
-
-	/*virtual*/ void error(U32 status, const std::string& reason)
-	{
-		llinfos << "LLSetNameResponder failed " << status
-			<< " reason " << reason << llendl;
-
-		mSignal(false, reason, LLSD());
-	}
-};
-
-// JAMESDEBUG TODO: Eliminate and only route changes through simulator
-void LLAvatarNameCache::setDisplayName(const LLUUID& agent_id, 
-									   const std::string& display_name,
-									   const set_name_slot_t& slot)
-{
-	LLSD body;
-	body["display_name"] = display_name;
-
-	std::string url = sNameServiceURL + "agent/";
-	url += agent_id.asString();
-	LLHTTPClient::post(url, body, new LLSetNameResponder(agent_id, slot));
-}
 
 void LLAvatarNameCache::toggleDisplayNames()
 {
