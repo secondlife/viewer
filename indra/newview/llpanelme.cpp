@@ -307,9 +307,6 @@ void LLPanelMyProfileEdit::onCacheSetName(bool success,
 {
 	if (success)
 	{
-		// HACK: Use chat to invalidate names
-		send_chat_from_viewer("refreshname", CHAT_TYPE_NORMAL, 0);
-
 		// Re-fetch my name, as it may have been sanitized by the service
 		LLAvatarNameCache::get(getAvatarId(),
 			boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));

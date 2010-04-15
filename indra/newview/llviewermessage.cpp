@@ -2731,20 +2731,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 		chat.mText = mesg;
 
-		// IDEVO HACK Use chat to invalidate names
-		if (chat.mSourceType == CHAT_SOURCE_AGENT
-			&& chat.mText == "refreshname")
-		{
-			LLAvatarNameCache::erase(chat.mFromID);
-
-			// force name tag to update
-			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(chatter);
-			if (avatar)
-			{
-				avatar->clearNameTag();
-			}
-		}
-
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)
 		{
