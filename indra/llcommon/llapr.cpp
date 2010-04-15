@@ -535,6 +535,11 @@ S32 LLAPRFile::seek(apr_file_t* file_handle, apr_seek_where_t where, S32 offset)
 //static
 S32 LLAPRFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool)
 {
+	if (offset < 0)
+	{
+		return 0; // do nothing, negative offsets don't make sense for reads
+	}
+
 	//*****************************************
 	apr_file_t* file_handle = open(filename, pool, APR_READ|APR_BINARY); 
 	//*****************************************	
@@ -543,10 +548,10 @@ S32 LLAPRFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nb
 		return 0;
 	}
 
-	llassert(offset >= 0);
-
 	if (offset > 0)
+	{
 		offset = LLAPRFile::seek(file_handle, APR_SET, offset);
+	}
 	
 	apr_size_t bytes_read;
 	if (offset < 0)
