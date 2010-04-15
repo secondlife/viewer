@@ -900,14 +900,32 @@ void LLWorldMapView::drawFrustum()
 		// fade out in distance.
 		gGL.begin( LLRender::TRIANGLES  );
 		{
-			LLVector2 cam_lookat(LLViewerCamera::instance().getAtAxis().mV[VX], LLViewerCamera::instance().getAtAxis().mV[VY]);
-			LLVector2 cam_left(LLViewerCamera::instance().getLeftAxis().mV[VX], LLViewerCamera::instance().getLeftAxis().mV[VY]);
+			// get camera look at and left axes
+			LLVector3 at_axis = LLViewerCamera::instance().getAtAxis();
+			LLVector3 left_axis = LLViewerCamera::instance().getLeftAxis();
+
+			// grab components along XY plane
+			LLVector2 cam_lookat(at_axis.mV[VX], at_axis.mV[VY]);
+			LLVector2 cam_left(left_axis.mV[VX], left_axis.mV[VY]);
+
+			// but, when looking near straight up or down...
+			if (is_approx_zero(cam_lookat.magVecSquared()))
+			{
+				//...just fall back to looking down the x axis
+				cam_lookat = LLVector2(1.f, 0.f); // x axis
+				cam_left = LLVector2(0.f, 1.f); // y axis
+			}
+
+			// normalize to unit length
+			cam_lookat.normVec();
+			cam_left.normVec();
 
 			gGL.color4f(1.f, 1.f, 1.f, 0.25f);
 			gGL.vertex2f( 0, 0 );
 
 			gGL.color4f(1.f, 1.f, 1.f, 0.02f);
 			
+			// use 2d camera vectors to render frustum triangle
 			LLVector2 vert = cam_lookat * far_clip_pixels + cam_left * half_width_pixels;
 			gGL.vertex2f(vert.mV[VX], vert.mV[VY]);
 
