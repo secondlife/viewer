@@ -218,6 +218,7 @@ class LLAssetStorage : public LLTempAssetStorage
 public:
 	// VFS member is public because static child methods need it :(
 	LLVFS *mVFS;
+	LLVFS *mStaticVFS;
 	typedef void (*LLStoreAssetCallback)(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status);
 
 	enum ERequestType
@@ -247,10 +248,10 @@ protected:
 
 public:
 	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-				   LLVFS *vfs, const LLHost &upstream_host);
+				   LLVFS *vfs, LLVFS *static_vfs, const LLHost &upstream_host);
 
 	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-				   LLVFS *vfs);
+				   LLVFS *vfs, LLVFS *static_vfs);
 	virtual ~LLAssetStorage();
 
 	void setUpstream(const LLHost &upstream_host);
@@ -442,6 +443,7 @@ private:
 	void _init(LLMessageSystem *msg,
 			   LLXferManager *xfer,
 			   LLVFS *vfs,
+			   LLVFS *static_vfs,
 			   const LLHost &upstream_host);
 
 protected:
