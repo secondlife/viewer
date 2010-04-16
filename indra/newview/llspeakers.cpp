@@ -84,7 +84,7 @@ void LLSpeaker::onAvatarNameLookup(const LLUUID& id, const std::string& first, c
 
 bool LLSpeaker::isInVoiceChannel()
 {
-	return mStatus == LLSpeaker::STATUS_VOICE_ACTIVE || mStatus == LLSpeaker::STATUS_MUTED;
+	return mStatus <= LLSpeaker::STATUS_VOICE_ACTIVE || mStatus == LLSpeaker::STATUS_MUTED;
 }
 
 LLSpeakerUpdateModeratorEvent::LLSpeakerUpdateModeratorEvent(LLSpeaker* source)
