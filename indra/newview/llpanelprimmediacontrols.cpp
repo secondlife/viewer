@@ -66,10 +66,6 @@
 #include "llwindow.h"
 #include "llfloatertools.h"  // to enable hide if build tools are up
 
-#if defined(LL_DARWIN) || (defined(LL_WINDOW) && (! defined(LL_RELEASE_FOR_DOWNLOAD)) )
-#define PER_MEDIA_VOLUME
-#endif
-
 // Functions pulled from pipeline.cpp
 glh::matrix4f glh_get_current_modelview();
 glh::matrix4f glh_get_current_projection();
