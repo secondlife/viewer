@@ -5968,6 +5968,12 @@ The button will be shown when there is enough space for it.
 Drag items from inventory onto a person in the resident picker
   </notification>
 
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezNotification"
+   type="notifytip">
+Avatar '[NAME]' rezzed in [TIME] seconds.
+  </notification>
 
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.

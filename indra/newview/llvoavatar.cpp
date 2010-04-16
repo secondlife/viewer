@@ -66,6 +66,7 @@
 #include "llkeyframewalkmotion.h"
 #include "llmutelist.h"
 #include "llmoveview.h"
+#include "llnotificationsutil.h"
 #include "llquantize.h"
 #include "llregionhandle.h"
 #include "llresmgr.h"
@@ -100,6 +101,8 @@
 #endif
 
 #include <boost/lexical_cast.hpp>
+
+#define DISPLAY_AVATAR_LOAD_TIMES
 
 using namespace LLVOAvatarDefines;
 
@@ -656,6 +659,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNameMute(FALSE),
 	mRenderGroupTitles(sRenderGroupTitles),
 	mNameAppearance(FALSE),
+	mNameCloud(FALSE),
 	mFirstTEMessageReceived( FALSE ),
 	mFirstAppearanceMessageReceived( FALSE ),
 	mCulled( FALSE ),
@@ -2764,25 +2768,20 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 
 		if (mNameText.notNull() && firstname && lastname)
 		{
-			BOOL is_away = mSignaledAnimations.find(ANIM_AGENT_AWAY)  != mSignaledAnimations.end();
-			BOOL is_busy = mSignaledAnimations.find(ANIM_AGENT_BUSY) != mSignaledAnimations.end();
-			BOOL is_appearance = mSignaledAnimations.find(ANIM_AGENT_CUSTOMIZE) != mSignaledAnimations.end();
-			BOOL is_muted;
-			if (isSelf())
-			{
-				is_muted = FALSE;
-			}
-			else
-			{
-				is_muted = LLMuteList::getInstance()->isMuted(getID());
-			}
+			const BOOL is_away = mSignaledAnimations.find(ANIM_AGENT_AWAY)  != mSignaledAnimations.end();
+			const BOOL is_busy = mSignaledAnimations.find(ANIM_AGENT_BUSY) != mSignaledAnimations.end();
+			const BOOL is_appearance = mSignaledAnimations.find(ANIM_AGENT_CUSTOMIZE) != mSignaledAnimations.end();
+			const BOOL is_muted = isSelf() ? FALSE : LLMuteList::getInstance()->isMuted(getID());
+			const BOOL is_cloud = getIsCloud();
 
 			if (mNameString.empty() ||
 				new_name ||
 				(!title && !mTitle.empty()) ||
 				(title && mTitle != title->getString()) ||
 				(is_away != mNameAway || is_busy != mNameBusy || is_muted != mNameMute)
-				|| is_appearance != mNameAppearance)
+				|| is_appearance != mNameAppearance 
+				|| is_cloud != mNameCloud
+				)
 			{
 				std::string line;
 				if (!sRenderGroupTitles)
@@ -2836,7 +2835,12 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 					}
 					line += ")";
 				}
-				if (is_appearance)
+				if (is_cloud)
+				{
+					line += "\n";
+					line += "(" + LLTrans::getString("LoadingData") + ")";
+				}
+				else if (is_appearance)
 				{
 					line += "\n";
 					line += LLTrans::getString("AvatarEditingAppearance");
@@ -2845,6 +2849,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 				mNameBusy = is_busy;
 				mNameMute = is_muted;
 				mNameAppearance = is_appearance;
+				mNameCloud = is_cloud;
 				mTitle = title ? title->getString() : "";
 				LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 				mNameString = utf8str_to_wstring(line);
@@ -5812,27 +5817,29 @@ BOOL LLVOAvatar::isVisible() const
 		&& (mDrawable->isVisible() || mIsDummy);
 }
 
-// call periodically to keep isFullyLoaded up to date.
-// returns true if the value has changed.
-BOOL LLVOAvatar::updateIsFullyLoaded()
+// Determine if we have enough avatar data to render
+BOOL LLVOAvatar::getIsCloud()
 {
-    // a "heuristic" to determine if we have enough avatar data to render
-    // (to avoid rendering a "Ruth" - DEV-3168)
-	BOOL loading = FALSE;
-
-	// do we have a shape?
+	// Do we have a shape?
 	if (visualParamWeightsAreDefault())
 	{
-		loading = TRUE;
+		return TRUE;
 	}
 
 	if (!isTextureDefined(TEX_LOWER_BAKED) || 
 		!isTextureDefined(TEX_UPPER_BAKED) || 
 		!isTextureDefined(TEX_HEAD_BAKED))
 	{
-		loading = TRUE;
+		return TRUE;
 	}
-	
+	return FALSE;
+}
+
+// call periodically to keep isFullyLoaded up to date.
+// returns true if the value has changed.
+BOOL LLVOAvatar::updateIsFullyLoaded()
+{
+	const BOOL loading = getIsCloud();
 	updateRuthTimer(loading);
 	return processFullyLoadedChange(loading);
 }
@@ -5847,6 +5854,7 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 	if (mPreviousFullyLoaded)
 	{
 		mRuthTimer.reset();
+		mRuthDebugTimer.reset();
 	}
 	
 	const F32 LOADING_TIMEOUT = 120.f;
@@ -5875,7 +5883,17 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	
 	mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > PAUSE);
 
-	
+#ifdef DISPLAY_AVATAR_LOAD_TIMES
+	if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
+	{
+		llinfos << "Avatar '" << getFullname() << "' resolved in " << mRuthDebugTimer.getElapsedTimeF32() << " seconds." << llendl;
+		LLSD args;
+		args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
+		args["NAME"] = getFullname();
+		LLNotificationsUtil::add("AvatarRezNotification",args);
+	}
+#endif
+
 	// did our loading state "change" from last call?
 	const S32 UPDATE_RATE = 30;
 	BOOL changed =
