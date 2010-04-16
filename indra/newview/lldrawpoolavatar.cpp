@@ -123,7 +123,7 @@ void LLDrawPoolAvatar::prerender()
 	
 	if (sShaderLevel > 0)
 	{
-		sBufferUsage = GL_STATIC_DRAW_ARB;
+		sBufferUsage = GL_DYNAMIC_DRAW_ARB;
 	}
 	else
 	{
