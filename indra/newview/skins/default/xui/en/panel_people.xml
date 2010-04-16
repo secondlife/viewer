@@ -477,7 +477,7 @@ If you're looking for people to hang out with, [secondlife:///app/worldmap try t
          label="Share"
          layout="topleft"
          name="share_btn"
-         width="85" />
+         width="62" />
         <button
          follows="bottom|left"
          left_pad="3"
