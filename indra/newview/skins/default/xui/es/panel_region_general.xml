@@ -30,10 +30,10 @@
 	<text label="Calificación" name="access_text">
 		Calificación:
 	</text>
-	<icons_combo_box label="&apos;Mature&apos;" name="access_combo">
-		<icons_combo_box.item label="&apos;Adult&apos;" name="Adult" value="42"/>
+	<icons_combo_box label="Moderado" name="access_combo">
+		<icons_combo_box.item label="Adulto" name="Adult" value="42"/>
 		<icons_combo_box.item label="Moderado" name="Mature" value="21"/>
-		<icons_combo_box.item label="&apos;PG&apos;" name="PG" value="13"/>
+		<icons_combo_box.item label="General" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="Aplicar" name="apply_btn"/>
 	<button label="Teleportar a su Base a un Residente..." name="kick_btn"/>
