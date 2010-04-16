@@ -401,12 +401,41 @@ BOOL LLAssetStorage::hasLocalAsset(const LLUUID &uuid, const LLAssetType::EType 
 	return mStaticVFS->getExists(uuid, type) || mVFS->getExists(uuid, type);
 }
 
+bool LLAssetStorage::findInVFSAndInvokeCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type,
+												LLGetAssetCallback callback, void *user_data)
+{
+	// Try in static VFS first.
+	BOOL exists = vfs->getExists(uuid, type);
+	if (exists)
+	{
+		LLVFile file(vfs, uuid, type);
+		U32 size = exists ? file.getSize() : 0;
+		if (size>0)
+		{
+			// we've already got the file
+			// theoretically, partial files w/o a pending request shouldn't happen
+			// unless there's a weird error
+			if (callback)
+			{
+				callback(vfs, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+				return true;
+			}
+		}
+		else
+		{
+			llwarns << "Asset vfile " << uuid << ":" << type
+					<< " found with bad size " << file.getSize() << ", ignoring" << llendl;
+		}
+	}
+	return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 // GET routines
 ///////////////////////////////////////////////////////////////////////////
 
 // IW - uuid is passed by value to avoid side effects, please don't re-add &    
-void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat), void *user_data, BOOL is_priority)
+void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LLGetAssetCallback callback, void *user_data, BOOL is_priority)
 {
 	lldebugs << "LLAssetStorage::getAssetData() - " << uuid << "," << LLAssetType::lookup(type) << llendl;
 
@@ -425,31 +454,9 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, vo
 		return;
 	}
 
+	if (findInVFSAndInvokeCallback(mStaticVFS,uuid,type,callback,user_data))
 	{
-		// Try in static VFS first.
-		BOOL exists = mStaticVFS->getExists(uuid, type);
-		//exists = false;
-		if (exists)
-		{
-			LLVFile file(mStaticVFS, uuid, type);
-			U32 size = exists ? file.getSize() : 0;
-			if (size>0)
-			{
-				// we've already got the file
-				// theoretically, partial files w/o a pending request shouldn't happen
-				// unless there's a weird error
-				if (callback)
-				{
-					callback(mStaticVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
-				}
-				return;
-			}
-			else
-			{
-				llwarns << "Asset vfile " << uuid << ":" << type
-						<< " found in static VFS with bad size " << file.getSize() << ", ignoring" << llendl;
-			}
-		}
+		return;
 	}
 
 	BOOL exists = mVFS->getExists(uuid, type);
@@ -645,6 +652,11 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 		return;
 	}
 
+	if (findInVFSAndInvokeCallback(mStaticVFS,asset_id,atype,callback,user_data))
+	{
+		return;
+	}
+	
 	BOOL exists = mVFS->getExists(asset_id, atype);
 	LLVFile file(mVFS, asset_id, atype);
 	U32 size = exists ? file.getSize() : 0;
@@ -776,6 +788,12 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 
 	if(asset_id.notNull())
 	{
+		// Try static VFS first.
+		if (findInVFSAndInvokeCallback(mStaticVFS, asset_id, atype, callback, user_data))
+		{
+			return;
+		}
+
 		exists = mVFS->getExists(asset_id, atype);
 		LLVFile file(mVFS, asset_id, atype);
 		size = exists ? file.getSize() : 0;

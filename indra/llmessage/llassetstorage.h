@@ -258,6 +258,9 @@ public:
 
 	virtual BOOL hasLocalAsset(const LLUUID &uuid, LLAssetType::EType type);
 
+	bool findInVFSAndInvokeCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type,
+									LLGetAssetCallback callback, void *user_data);
+
 	// public interface methods
 	// note that your callback may get called BEFORE the function returns
 
