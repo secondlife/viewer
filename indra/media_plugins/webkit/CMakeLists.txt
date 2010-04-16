@@ -37,9 +37,9 @@ set(media_plugin_webkit_SOURCE_FILES
     )
 
 set(media_plugin_webkit_HEADER_FILES
-	volume_catcher.h
-	)
-	
+    volume_catcher.h
+    )
+
 set(media_plugin_webkit_LINK_LIBRARIES
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
