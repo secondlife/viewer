@@ -1162,6 +1162,9 @@ if (WINDOWS)
         res/toolpickobject2.cur
         res/toolpickobject3.cur
         res/toolpipette.cur
+        res/toolbuy.cur
+        res/toolopen.cur
+        res/toolsit.cur
         )
 
     set_source_files_properties(${viewer_RESOURCE_FILES}

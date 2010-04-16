@@ -46,9 +46,11 @@
 
 #include "llurl.h"
 
-#if defined(LL_DARWIN) || (defined(LL_WINDOWS) && (! defined(LL_RELEASE_FOR_DOWNLOAD)) )
+
+#if defined(LL_DARWIN) || (LL_WINDOWS && !LL_RELEASE_FOR_DOWNLOAD )
 #define PER_MEDIA_VOLUME
 #endif
+
 
 class LLViewerMediaImpl;
 class LLUUID;

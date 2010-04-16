@@ -321,6 +321,7 @@
              follows="all"
              height="223"
              layout="topleft"
+             single_expansion="true"
              left="0"
              name="advanced_info_accordion"
              top_pad="10"

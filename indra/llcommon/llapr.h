@@ -182,7 +182,7 @@ typedef LLAtomic32<U32> LLAtomicU32;
 typedef LLAtomic32<S32> LLAtomicS32;
 
 // File IO convenience functions.
-// Returns NULL if the file fails to openm sets *sizep to file size of not NULL
+// Returns NULL if the file fails to open, sets *sizep to file size if not NULL
 // abbreviated flags
 #define LL_APR_R (APR_READ) // "r"
 #define LL_APR_W (APR_CREATE|APR_TRUNCATE|APR_WRITE) // "w"
@@ -200,7 +200,7 @@ typedef LLAtomic32<S32> LLAtomicS32;
 //      especially do not put some time-costly operations between open() and close().
 //      otherwise it might lock the APRFilePool.
 //there are two different apr_pools the APRFile can use:
-//      1, a temperary pool passed to an APRFile function, which is used within this function and only once.
+//      1, a temporary pool passed to an APRFile function, which is used within this function and only once.
 //      2, a global pool.
 //
 
@@ -255,12 +255,12 @@ public:
 
 	// Returns bytes read/written, 0 if read/write fails:
 	static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL);	
-	static S32 writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL);	
+	static S32 writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL); // offset<0 means append
 //*******************************************************************************************************************************
 };
 
 /**
- * @brief Function which approprately logs error or remains quiet on
+ * @brief Function which appropriately logs error or remains quiet on
  * APR_SUCCESS.
  * @return Returns <code>true</code> if status is an error condition.
  */

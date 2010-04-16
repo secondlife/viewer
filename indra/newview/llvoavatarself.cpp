@@ -697,15 +697,6 @@ BOOL LLVOAvatarSelf::setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL
 /*virtual*/ 
 void LLVOAvatarSelf::updateVisualParams()
 {
-	for (U32 type = 0; type < WT_COUNT; type++)
-	{
-		LLWearable *wearable = gAgentWearables.getTopWearable((EWearableType)type);
-		if (wearable)
-		{
-			wearable->writeToAvatar();
-		}
-	}
-
 	LLVOAvatar::updateVisualParams();
 }
 
@@ -716,7 +707,14 @@ void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 	gAgentWearables.animateAllWearableParams(calcMorphAmount(), FALSE);
 
 	// apply wearable visual params to avatar
-	updateVisualParams();
+	for (U32 type = 0; type < WT_COUNT; type++)
+	{
+		LLWearable *wearable = gAgentWearables.getTopWearable((EWearableType)type);
+		if (wearable)
+		{
+			wearable->writeToAvatar();
+		}
+	}
 
 	//allow avatar to process updates
 	LLVOAvatar::idleUpdateAppearanceAnimation();
@@ -1699,22 +1697,20 @@ void LLVOAvatarSelf::dumpTotalLocalTextureByteCount()
 	llinfos << "Total Avatar LocTex GL:" << (gl_bytes/1024) << "KB" << llendl;
 }
 
-BOOL LLVOAvatarSelf::updateIsFullyLoaded()
+BOOL LLVOAvatarSelf::getIsCloud()
 {
-	BOOL loading = FALSE;
-
 	// do we have our body parts?
 	if (gAgentWearables.getWearableCount(WT_SHAPE) == 0 ||
 		gAgentWearables.getWearableCount(WT_HAIR) == 0 ||
 		gAgentWearables.getWearableCount(WT_EYES) == 0 ||
 		gAgentWearables.getWearableCount(WT_SKIN) == 0)	
 	{
-		loading = TRUE;
+		return TRUE;
 	}
 
 	if (!isTextureDefined(TEX_HAIR, 0))
 	{
-		loading = TRUE;
+		return TRUE;
 	}
 
 	if (!mPreviousFullyLoaded)
@@ -1722,13 +1718,13 @@ BOOL LLVOAvatarSelf::updateIsFullyLoaded()
 		if (!isLocalTextureDataAvailable(mBakedTextureDatas[BAKED_LOWER].mTexLayerSet) &&
 			(!isTextureDefined(TEX_LOWER_BAKED, 0)))
 		{
-			loading = TRUE;
+			return TRUE;
 		}
 
 		if (!isLocalTextureDataAvailable(mBakedTextureDatas[BAKED_UPPER].mTexLayerSet) &&
 			(!isTextureDefined(TEX_UPPER_BAKED, 0)))
 		{
-			loading = TRUE;
+			return TRUE;
 		}
 
 		for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
@@ -1736,22 +1732,22 @@ BOOL LLVOAvatarSelf::updateIsFullyLoaded()
 			if (i == BAKED_SKIRT && !isWearingWearableType(WT_SKIRT))
 				continue;
 
-			BakedTextureData& texture_data = mBakedTextureDatas[i];
+			const BakedTextureData& texture_data = mBakedTextureDatas[i];
 			if (!isTextureDefined(texture_data.mTextureIndex, 0))
 				continue;
 
 			// Check for the case that texture is defined but not sufficiently loaded to display anything.
-			LLViewerTexture* baked_img = getImage( texture_data.mTextureIndex, 0 );
+			const LLViewerTexture* baked_img = getImage( texture_data.mTextureIndex, 0 );
 			if (!baked_img || !baked_img->hasGLTexture())
 			{
-				loading = TRUE;
+				return TRUE;
 			}
-
 		}
 
 	}
-	return processFullyLoadedChange(loading);
+	return FALSE;
 }
+
 
 const LLUUID& LLVOAvatarSelf::grabLocalTexture(ETextureIndex type, U32 index) const
 {

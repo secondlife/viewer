@@ -200,7 +200,8 @@ void LLFloaterMove::setFlyingMode(BOOL fly)
 	if (instance)
 	{
 		instance->setFlyingModeImpl(fly);
-		instance->showModeButtons(!fly);
+		BOOL is_sitting = isAgentAvatarValid() && gAgentAvatarp->isSitting();
+		instance->showModeButtons(!fly && !is_sitting);
 	}
 	if (fly)
 	{
@@ -696,6 +697,7 @@ void LLPanelStandStopFlying::onStandButtonClick()
 	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 
 	setFocus(FALSE); // EXT-482
+	mStandButton->setVisible(FALSE); // force visibility changing to avoid seeing Stand & Move buttons at once.
 }
 
 void LLPanelStandStopFlying::onStopFlyingButtonClick()

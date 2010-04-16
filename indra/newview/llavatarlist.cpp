@@ -32,13 +32,18 @@
 
 #include "llviewerprecompiledheaders.h"
 
+// common
+#include "lltrans.h"
+
 #include "llavatarlist.h"
 #include "llagentdata.h" // for comparator
 
 // newview
+#include "llavatariconctrl.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
 #include "llrecentpeople.h"
+#include "lltextutil.h"
 #include "lluuid.h"
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"	// for gSavedSettings
@@ -191,6 +196,18 @@ void LLAvatarList::setDirty(bool val /*= true*/, bool force_refresh /*= false*/)
 	{
 		refresh();
 	}
+}
+
+void LLAvatarList::addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name)
+{
+	LL_DEBUGS("Avaline") << "Adding avaline item into the list: " << item_name << "|" << item_id << ", session: " << session_id << LL_ENDL;
+	LLAvalineListItem* item = new LLAvalineListItem;
+	item->setAvatarId(item_id, session_id, true, false);
+	item->setName(item_name);
+
+	addItem(item, item_id);
+	mIDs.push_back(item_id);
+	sort();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -470,4 +487,62 @@ bool LLAvatarItemAgentOnTopComparator::doCompare(const LLAvatarListItem* avatar_
 		return false;
 	}
 	return LLAvatarItemNameComparator::doCompare(avatar_item1,avatar_item2);
+}
+
+/************************************************************************/
+/*             class LLAvalineListItem                                  */
+/************************************************************************/
+LLAvalineListItem::LLAvalineListItem(bool hide_number/* = true*/) : LLAvatarListItem(false)
+, mIsHideNumber(hide_number)
+{
+	// should not use buildPanel from the base class to ensure LLAvalineListItem::postBuild is called.
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+}
+
+BOOL LLAvalineListItem::postBuild()
+{
+	BOOL rv = LLAvatarListItem::postBuild();
+
+	if (rv)
+	{
+		setOnline(true);
+		showLastInteractionTime(false);
+		setShowProfileBtn(false);
+		setShowInfoBtn(false);
+		mAvatarIcon->setValue("Avaline_Icon");
+		mAvatarIcon->setToolTip(std::string(""));
+	}
+	return rv;
+}
+
+// to work correctly this method should be called AFTER setAvatarId for avaline callers with hidden phone number
+void LLAvalineListItem::setName(const std::string& name)
+{
+	if (mIsHideNumber)
+	{
+		static U32 order = 0;
+		typedef std::map<LLUUID, U32> avaline_callers_nums_t;
+		static avaline_callers_nums_t mAvalineCallersNums;
+
+		llassert(getAvatarId() != LLUUID::null);
+
+		const LLUUID &uuid = getAvatarId();
+
+		if (mAvalineCallersNums.find(uuid) == mAvalineCallersNums.end())
+		{
+			mAvalineCallersNums[uuid] = ++order;
+			LL_DEBUGS("Avaline") << "Set name for new avaline caller: " << uuid << ", order: " << order << LL_ENDL;
+		}
+		LLStringUtil::format_map_t args;
+		args["[ORDER]"] = llformat("%u", mAvalineCallersNums[uuid]);
+		std::string hidden_name = LLTrans::getString("AvalineCaller", args);
+
+		LL_DEBUGS("Avaline") << "Avaline caller: " << uuid << ", name: " << hidden_name << LL_ENDL;
+		LLAvatarListItem::setName(hidden_name);
+	}
+	else
+	{
+		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
+		LLAvatarListItem::setName(formatted_phone);
+	}
 }
