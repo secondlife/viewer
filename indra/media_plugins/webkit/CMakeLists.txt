@@ -59,6 +59,8 @@ elseif (DARWIN)
        ${CORESERVICES_LIBRARY}     # for Component Manager calls
        ${AUDIOUNIT_LIBRARY}        # for AudioUnit calls
        )
+elseif (WINDOWS)
+  list(APPEND media_plugin_webkit_SOURCE_FILES windows_volume_catcher.cpp)
 else (LINUX AND PULSEAUDIO)
   # All other platforms use the dummy volume catcher for now.
   list(APPEND media_plugin_webkit_SOURCE_FILES dummy_volume_catcher.cpp)
