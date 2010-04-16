@@ -298,7 +298,7 @@ void main()
 		// The goal of the blur is to soften reflections in surfaces
 		// with low shinyness, and also to disguise our lameness.
 		float checkerboard = floor(mod(tc.x+tc.y, 2.0)); // 0.0, 1.0
-		vec2 checkoffset = normalize(ref2d)*5.0*(1.0-spec.a)*(checkerboard-0.5);
+		vec2 checkoffset = normalize(ref2d)*9.0*(1.0-spec.a)*(checkerboard-0.5);
 		ref2d += checkoffset;
 		ref2d += tc.xy; // use as offset from destination
 		// Get attributes from the 2D guess point.
