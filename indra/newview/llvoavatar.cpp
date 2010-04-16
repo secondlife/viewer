@@ -3730,12 +3730,16 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 										LLJoint* joint = getJoint(skin->mJointNames[i]);
 										if (joint)
 										{
-											mat[i] = skin->mInvBindMatrix[i];
-											mat[i] *= joint->getWorldMatrix();
+											mat[i*2+0] = skin->mInvBindMatrix[i];
+											mat[i*2+1] = joint->getWorldMatrix();
 										}
 									}
 									
 									gSkinnedObjectSimpleProgram.uniformMatrix4fv("matrixPalette", 
+										skin->mJointNames.size(),
+										FALSE,
+										(GLfloat*) mat[0].mMatrix);
+									gSkinnedObjectSimpleProgram.uniformMatrix4fv("matrixPalette[0]", 
 										skin->mJointNames.size(),
 										FALSE,
 										(GLfloat*) mat[0].mMatrix);
@@ -3747,7 +3751,9 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 									S32 offset = face->getIndicesStart();
 									U32 count = face->getIndicesCount();
 
-									buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+									glPointSize(8.f);
+									buff->drawRange(LLRender::POINTS, start, end, count, offset);
+									glPointSize(1.f);
 								}
 							}
 						}

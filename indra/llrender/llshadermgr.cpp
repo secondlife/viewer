@@ -322,10 +322,13 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type)
 {
 	GLenum error;
-	error = glGetError();
-	if (error != GL_NO_ERROR)
+	if (gDebugGL)
 	{
-		LL_WARNS("ShaderLoading") << "GL ERROR entering loadShaderFile(): " << error << LL_ENDL;
+		error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			LL_WARNS("ShaderLoading") << "GL ERROR entering loadShaderFile(): " << error << LL_ENDL;
+		}
 	}
 	
 	LL_DEBUGS("ShaderLoading") << "Loading shader file: " << filename << " class " << shader_level << LL_ENDL;
@@ -380,10 +383,13 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 	//create shader object
 	GLhandleARB ret = glCreateShaderObjectARB(type);
-	error = glGetError();
-	if (error != GL_NO_ERROR)
+	if (gDebugGL)
 	{
-		LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << LL_ENDL;
+		error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << LL_ENDL;
+		}
 	}
 	else
 	{
@@ -415,13 +421,16 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		//check for errors
 		GLint success = GL_TRUE;
 		glGetObjectParameterivARB(ret, GL_OBJECT_COMPILE_STATUS_ARB, &success);
-		error = glGetError();
-		if (error != GL_NO_ERROR || success == GL_FALSE) 
+		if (gDebugGL)
 		{
-			//an error occured, print log
-			LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
-			dumpObjectLog(ret);
-			ret = 0;
+			error = glGetError();
+			if (error != GL_NO_ERROR || success == GL_FALSE) 
+			{
+				//an error occured, print log
+				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
+				dumpObjectLog(ret);
+				ret = 0;
+			}
 		}
 	}
 	else
