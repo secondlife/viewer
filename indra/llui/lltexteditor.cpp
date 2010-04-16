@@ -713,7 +713,8 @@ BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		setFocus(TRUE);
 	}
-	if (!LLTextBase::handleRightMouseDown(x, y, mask))
+	// Prefer editor menu if it has selection. See EXT-6806.
+	if (hasSelection() || !LLTextBase::handleRightMouseDown(x, y, mask))
 	{
 		if(getShowContextMenu())
 		{
