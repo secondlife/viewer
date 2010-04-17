@@ -1010,7 +1010,7 @@ void LLPanelNearByMedia::updateControls()
 			if (NULL == impl)
 			{
 				// Just means it hasn't started yet
-				showBasicControls(false, false, false);
+				showBasicControls(false, false, false, false, 0);
 			}
 			else if (impl->isMediaTimeBased())
 			{
@@ -1022,7 +1022,11 @@ void LLPanelNearByMedia::updateControls()
 			}
 			else {
 				// non-time-based parcel media
-				showBasicControls(LLViewerMedia::isParcelMediaPlaying(), false, false);
+				showBasicControls(LLViewerMedia::isParcelMediaPlaying(), 
+							      false, 
+								  false, 
+								  impl->getVolume() == 0.0, 
+								  impl->getVolume());
 			}
 		}
 	}
@@ -1045,19 +1049,28 @@ void LLPanelNearByMedia::updateControls()
 			else {
 				showBasicControls(!impl->isMediaDisabled(), 
 								  ! impl->isParcelMedia(),  // include_zoom
-								  LLViewerMediaFocus::getInstance()->isZoomed());
+								  LLViewerMediaFocus::getInstance()->isZoomed(),
+								  impl->getVolume() == 0.0,
+								  impl->getVolume());
 			}
 		}
 	}
 }
 
-void LLPanelNearByMedia::showBasicControls(bool playing, bool include_zoom, bool is_zoomed)
+void LLPanelNearByMedia::showBasicControls(bool playing, bool include_zoom, bool is_zoomed, bool muted, F32 volume)
 {
 	mStopCtrl->setVisible(playing);
 	mPlayCtrl->setVisible(!playing);
 	mPauseCtrl->setVisible(false);
-	mMuteCtrl->setVisible(false);
+#ifdef PER_MEDIA_VOLUME
+	mVolumeSliderCtrl->setVisible(true);
+	mMuteCtrl->setVisible(true);
+	mMuteBtn->setValue(muted);
+	mVolumeSlider->setValue(volume);
+#else
 	mVolumeSliderCtrl->setVisible(false);
+	mMuteCtrl->setVisible(false);
+#endif
 	mZoomCtrl->setVisible(include_zoom && !is_zoomed);
 	mUnzoomCtrl->setVisible(include_zoom && is_zoomed);	
 	mStopCtrl->setEnabled(true);
@@ -1156,7 +1169,7 @@ void LLPanelNearByMedia::onClickSelectedMediaMute()
 	else {
 		LLViewerMediaImpl* impl = (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) ?
 			((LLViewerMediaImpl*)LLViewerParcelMedia::getParcelMedia()) : LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
-		if (NULL != impl && impl->isMediaTimeBased())
+		if (NULL != impl)
 		{
 			F32 volume = impl->getVolume();
 			if(volume > 0.0)
@@ -1187,7 +1200,7 @@ void LLPanelNearByMedia::onCommitSelectedMediaVolume()
 	else {
 		LLViewerMediaImpl* impl = (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) ?
 			((LLViewerMediaImpl*)LLViewerParcelMedia::getParcelMedia()) : LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
-		if (NULL != impl && impl->isMediaTimeBased())
+		if (NULL != impl)
 		{
 			impl->setVolume(mVolumeSlider->getValueF32());
 		}
