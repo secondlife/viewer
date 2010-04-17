@@ -4615,6 +4615,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
         msg->getS32("TransactionInfo", "Amount", amount);
         msg->getString("TransactionInfo", "ItemDescription", item_description);
         llinfos << "JAMESDEBUG money_balance_reply source " << source_id 
+			<< " dest " << dest_id
 			<< " item " << item_description << llendl;
     }
     

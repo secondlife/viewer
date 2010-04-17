@@ -60,7 +60,7 @@ namespace LLAvatarNameCache
 
 	// agent IDs that have been requested, but with no reply
 	// maps agent ID to frame time request was made
-	typedef std::map<LLUUID, F32> pending_queue_t;
+	typedef std::map<LLUUID, F64> pending_queue_t;
 	pending_queue_t sPendingQueue;
 
 	// Callbacks to fire when we received a name.
@@ -96,12 +96,12 @@ namespace LLAvatarNameCache
     <key>agents</key>
     <array>
       <map>
-        <key>seconds_until_display_name_update</key>
-        <integer/>
+        <key>display_name_next_update</key>
+        <date>2010-04-16T21:34:02+00:00Z</date>
+        <key>display_name_expires</key>
+        <date>2010-04-16T21:32:26.142178+00:00Z</date>
         <key>display_name</key>
         <string>MickBot390 LLQABot</string>
-        <key>seconds_until_display_name_expires</key>
-        <integer/>
         <key>sl_id</key>
         <string>mickbot390.llqabot</string>
         <key>id</key>
@@ -110,12 +110,12 @@ namespace LLAvatarNameCache
         <boolean>false</boolean>
       </map>
       <map>
-        <key>seconds_until_display_name_update</key>
-        <integer/>
+        <key>display_name_next_update</key>
+        <date>2010-04-16T21:34:02+00:00Z</date>
+        <key>display_name_expires</key>
+        <date>2010-04-16T21:32:26.142178+00:00Z</date>
         <key>display_name</key>
         <string>Bjork Gudmundsdottir</string>
-        <key>seconds_until_display_name_expires</key>
-        <integer>3600</integer>
         <key>sl_id</key>
         <string>sardonyx.linden</string>
         <key>id</key>
@@ -155,10 +155,9 @@ void LLAvatarNameCache::processNameFromService(const LLSD& row)
 	av_name.mSLID = row["sl_id"].asString();
 	av_name.mDisplayName = row["display_name"].asString();
 	av_name.mIsDisplayNameDefault = row["is_display_name_default"].asBoolean();
+	av_name.mExpires = row["display_name_expires"].asReal();
 
-	U32 now = (U32)LLFrameTimer::getTotalSeconds();
-	S32 seconds_until_expires = row["seconds_until_display_name_expires"].asInteger();
-	av_name.mExpires = now + seconds_until_expires;
+	llinfos << "JAMESDEBUG expires " << av_name.mExpires << " now " << LLFrameTimer::getTotalSeconds() << llendl;
 
 	// HACK for pretty stars
 	//if (row["last_name"].asString() == "Linden")
@@ -287,7 +286,7 @@ void LLAvatarNameCache::idle()
 	requestNames();
 
 	// Move requests from Ask queue to Pending queue
-	U32 now = (U32)LLFrameTimer::getTotalSeconds();
+	F64 now = LLFrameTimer::getTotalSeconds();
 	ask_queue_t::const_iterator it = sAskQueue.begin();
 	for ( ; it != sAskQueue.end(); ++it)
 	{
@@ -298,9 +297,9 @@ void LLAvatarNameCache::idle()
 
 bool LLAvatarNameCache::isRequestPending(const LLUUID& agent_id)
 {
-	const U32 PENDING_TIMEOUT_SECS = 5 * 60;
-	U32 now = (U32)LLFrameTimer::getTotalSeconds();
-	U32 expire_time = now - PENDING_TIMEOUT_SECS;
+	const F64 PENDING_TIMEOUT_SECS = 5.0 * 60.0;
+	F64 now = LLFrameTimer::getTotalSeconds();
+	F64 expire_time = now - PENDING_TIMEOUT_SECS;
 
 	pending_queue_t::const_iterator it = sPendingQueue.find(agent_id);
 	if (it != sPendingQueue.end())
@@ -313,7 +312,7 @@ bool LLAvatarNameCache::isRequestPending(const LLUUID& agent_id)
 
 void LLAvatarNameCache::eraseExpired()
 {
-	U32 now = (U32)LLFrameTimer::getTotalSeconds();
+	F64 now = LLFrameTimer::getTotalSeconds();
 	cache_t::iterator it = sCache.begin();
 	while (it != sCache.end())
 	{

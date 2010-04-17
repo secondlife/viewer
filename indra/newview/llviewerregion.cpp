@@ -176,6 +176,9 @@ public:
 			}
 		}
 
+		// JAMESDEBUG *TODO* THIS IS WRONG!!!!!!!!!!!!!!!!!!!!!
+		// this isn't necessarily the region the viewer is in
+
 		// Avatar name lookup library needs to know who to ask
 		std::string name_lookup_url = mRegion->getCapability("GetDisplayNames");
 		// capabilities require URLs with slashes before query params, like:
@@ -188,6 +191,8 @@ public:
 			name_lookup_url += '/';
 		}
 		LLAvatarNameCache::setNameLookupURL(name_lookup_url);
+
+		llinfos << "JAMESDEBUG cap " << name_lookup_url << llendl;
 		
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{
