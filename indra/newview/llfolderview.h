@@ -279,7 +279,7 @@ protected:
 	LLScrollContainer* mScrollContainer;  // NULL if this is not a child of a scroll container.
 
 	void commitRename( const LLSD& data );
-	static void onRenamerLost( LLFocusableElement* renamer);
+	void onRenamerLost( LLFocusableElement* renamer);
 
 	void finishRenamingItem( void );
 	void closeRenamer( void );
