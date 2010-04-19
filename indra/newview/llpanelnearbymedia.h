@@ -140,7 +140,7 @@ private:
 	
 	bool shouldShow(LLViewerMediaImpl* impl);
 	
-	void showBasicControls(bool playing, bool include_zoom, bool is_zoomed);
+	void showBasicControls(bool playing, bool include_zoom, bool is_zoomed, bool muted, F32 volume);
 	void showTimeBasedControls(bool playing, bool include_zoom, bool is_zoomed, bool muted, F32 volume);
 	void showDisabledControls();
 	void updateControls();

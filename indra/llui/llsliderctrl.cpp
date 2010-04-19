@@ -63,7 +63,8 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 	mCanEditText(p.can_edit_text),
 	mPrecision(p.decimal_digits),
 	mTextEnabledColor(p.text_color()),
-	mTextDisabledColor(p.text_disabled_color())
+	mTextDisabledColor(p.text_disabled_color()),
+	mLabelWidth(p.label_width)
 {
 	S32 top = getRect().getHeight();
 	S32 bottom = 0;
@@ -86,6 +87,7 @@ LLSliderCtrl::LLSliderCtrl(const LLSliderCtrl::Params& p)
 		params.initial_value(p.label());
 		mLabelBox = LLUICtrlFactory::create<LLTextBox> (params);
 		addChild(mLabelBox);
+		mLabelFont = params.font();
 	}
 
 	if (p.show_text && !p.text_width.isProvided())
@@ -186,9 +188,9 @@ BOOL LLSliderCtrl::setLabelArg( const std::string& key, const LLStringExplicit& 
 	if (mLabelBox)
 	{
 		res = mLabelBox->setTextArg(key, text);
-		if (res && mLabelWidth == 0)
+		if (res && mLabelFont && mLabelWidth == 0)
 		{
-			S32 label_width = mFont->getWidth(mLabelBox->getText());
+			S32 label_width = mLabelFont->getWidth(mLabelBox->getText());
 			LLRect rect = mLabelBox->getRect();
 			S32 prev_right = rect.mRight;
 			rect.mRight = rect.mLeft + label_width;
