@@ -258,9 +258,6 @@ public:
 
 	virtual BOOL hasLocalAsset(const LLUUID &uuid, LLAssetType::EType type);
 
-	bool findInVFSAndInvokeCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type,
-									LLGetAssetCallback callback, void *user_data);
-
 	// public interface methods
 	// note that your callback may get called BEFORE the function returns
 
@@ -319,6 +316,9 @@ public:
 	void		markAssetToxic( const LLUUID& uuid );
 
 protected:
+	bool findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
+										  LLGetAssetCallback callback, void *user_data);
+
 	virtual LLSD getPendingDetailsImpl(const request_list_t* requests,
 	 				LLAssetType::EType asset_type,
 	 				const std::string& detail_prefix) const;

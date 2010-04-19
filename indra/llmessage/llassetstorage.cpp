@@ -401,30 +401,27 @@ BOOL LLAssetStorage::hasLocalAsset(const LLUUID &uuid, const LLAssetType::EType 
 	return mStaticVFS->getExists(uuid, type) || mVFS->getExists(uuid, type);
 }
 
-bool LLAssetStorage::findInVFSAndInvokeCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type,
-												LLGetAssetCallback callback, void *user_data)
+bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
+													  LLGetAssetCallback callback, void *user_data)
 {
-	// Try in static VFS first.
-	BOOL exists = vfs->getExists(uuid, type);
+	BOOL exists = mStaticVFS->getExists(uuid, type);
 	if (exists)
 	{
-		LLVFile file(vfs, uuid, type);
+		LLVFile file(mStaticVFS, uuid, type);
 		U32 size = exists ? file.getSize() : 0;
 		if (size>0)
 		{
 			// we've already got the file
-			// theoretically, partial files w/o a pending request shouldn't happen
-			// unless there's a weird error
 			if (callback)
 			{
-				callback(vfs, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+				callback(mStaticVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
 			}
 			return true;
 		}
 		else
 		{
 			llwarns << "Asset vfile " << uuid << ":" << type
-					<< " found with bad size " << file.getSize() << ", ignoring" << llendl;
+					<< " found in static cache with bad size " << file.getSize() << ", ignoring" << llendl;
 		}
 	}
 	return false;
@@ -457,7 +454,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 	}
 
 	// Try static VFS first.
-	if (findInVFSAndInvokeCallback(mStaticVFS,uuid,type,callback,user_data))
+	if (findInStaticVFSAndInvokeCallback(uuid,type,callback,user_data))
 	{
 		return;
 	}
@@ -660,7 +657,7 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 	}
 
 	// Try static VFS first.
-	if (findInVFSAndInvokeCallback(mStaticVFS,asset_id,atype,callback,user_data))
+	if (findInStaticVFSAndInvokeCallback(asset_id,atype,callback,user_data))
 	{
 		return;
 	}
@@ -797,7 +794,7 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 	if(asset_id.notNull())
 	{
 		// Try static VFS first.
-		if (findInVFSAndInvokeCallback(mStaticVFS, asset_id, atype, callback, user_data))
+		if (findInStaticVFSAndInvokeCallback( asset_id, atype, callback, user_data))
 		{
 			return;
 		}
