@@ -75,7 +75,9 @@ public:
 		mPosY(0),
 		mPosZ(0),
 		mLoaded(false) 
-	{}
+	{
+		mHandle.bind(this);
+	}
 
 	void setLandmarkID(const LLUUID& id) { mLandmarkID = id; }
 	const LLUUID& getLandmarkId() const { return mLandmarkID; }
@@ -122,17 +124,21 @@ private:
 		if(LLLandmarkActions::getLandmarkGlobalPos(mLandmarkID, g_pos))
 		{
 			LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(g_pos,
-				boost::bind(&LLLandmarkInfoGetter::landmarkNameCallback, this, _1, _2, _3, _4));
+				boost::bind(&LLLandmarkInfoGetter::landmarkNameCallback, static_cast<LLHandle<LLLandmarkInfoGetter> >(mHandle), _1, _2, _3, _4));
 		}
 	}
 
-	void landmarkNameCallback(const std::string& name, S32 x, S32 y, S32 z)
+	static void landmarkNameCallback(LLHandle<LLLandmarkInfoGetter> handle, const std::string& name, S32 x, S32 y, S32 z)
 	{
-		mPosX = x;
-		mPosY = y;
-		mPosZ = z;
-		mName = name;
-		mLoaded = true;
+		LLLandmarkInfoGetter* getter = handle.get();
+		if (getter)
+		{
+			getter->mPosX = x;
+			getter->mPosY = y;
+			getter->mPosZ = z;
+			getter->mName = name;
+			getter->mLoaded = true;
+		}
 	}
 
 	LLUUID mLandmarkID;
@@ -141,6 +147,7 @@ private:
 	S32 mPosY;
 	S32 mPosZ;
 	bool mLoaded;
+	LLRootHandle<LLLandmarkInfoGetter> mHandle;
 };
 
 /**

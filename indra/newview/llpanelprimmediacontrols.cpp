@@ -66,10 +66,6 @@
 #include "llwindow.h"
 #include "llfloatertools.h"  // to enable hide if build tools are up
 
-#if defined(LL_DARWIN) || (defined(LL_WINDOW) && (! defined(LL_RELEASE_FOR_DOWNLOAD)) )
-#define PER_MEDIA_VOLUME
-#endif
-
 // Functions pulled from pipeline.cpp
 glh::matrix4f glh_get_current_modelview();
 glh::matrix4f glh_get_current_projection();
@@ -467,10 +463,21 @@ void LLPanelPrimMediaControls::updateShape()
 			mSkipBackCtrl->setEnabled(FALSE);
 			
 #ifdef PER_MEDIA_VOLUME
+			// these should be pulled up above the pluginSupportsMediaTime
+			// if check once we always have PER_MEDIA_VOLUME turned on
 			mVolumeCtrl->setVisible(has_focus);
 			mVolumeCtrl->setEnabled(has_focus);
 			mVolumeSliderCtrl->setEnabled(has_focus && shouldVolumeSliderBeVisible());
 			mVolumeSliderCtrl->setVisible(has_focus && shouldVolumeSliderBeVisible());
+
+			if(media_impl->getVolume() <= 0.0)
+			{
+				mMuteBtn->setToggleState(true);
+			}
+			else
+			{
+				mMuteBtn->setToggleState(false);
+			}
 #else
 			mVolumeCtrl->setVisible(FALSE);
 			mVolumeSliderCtrl->setVisible(FALSE);
