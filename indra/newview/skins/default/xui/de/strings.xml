@@ -3577,4 +3577,7 @@ Missbrauchsbericht
 	<string name="Contents">
 		Inhalt
 	</string>
+    <string name="AvatarBirthDateFormat">
+        [day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
+    </string>
 </strings>
