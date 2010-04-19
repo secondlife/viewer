@@ -13,10 +13,10 @@
  width="333">
     <string
      name="no_people"
-     value="No people" />
+     value="No recent people. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]." />
     <string
      name="no_one_near"
-     value="No one near" />
+     value="No one nearby. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]." />
     <string
      name="no_friends_online"
      value="No friends online" />
@@ -264,8 +264,8 @@
              top="10"
              width="293"
              wrap="true">
-                To add friends try [secondlife:///app/search/people global search] or use right-click on a Resident to add them as a friend.
-If you're looking for people to hang out with, [secondlife:///app/worldmap try the Map].
+                Find friends using [secondlife:///app/search/people Search] or right-click on a Resident to add them as a friend.
+Looking for people to hang out with? Try the [secondlife:///app/worldmap World Map].
              </text>
         </panel>
         <panel
