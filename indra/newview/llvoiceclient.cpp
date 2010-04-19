@@ -73,14 +73,10 @@
 #include "llvoavatarself.h"
 #include "llvoicechannel.h"
 
+#include "stringize.h"
+
 // for base64 decoding
 #include "apr_base64.h"
-
-// for SHA1 hash
-#include "apr_sha1.h"
-
-// for MD5 hash
-#include "llmd5.h"
 
 #define USE_SESSION_GROUPS 0
 
@@ -115,14 +111,6 @@ const int MAX_LOGIN_RETRIES = 12;
 // to make sure we don't make mistake when slight connection problems happen- situation when connection to server is 
 // blocked is VERY rare and it's better to sacrifice response time in this situation for the sake of stability.
 const int MAX_NORMAL_JOINING_SPATIAL_NUM = 50;
-
-static void setUUIDFromStringHash(LLUUID &uuid, const std::string &str)
-{
-	LLMD5 md5_uuid;
-	md5_uuid.update((const unsigned char*)str.data(), str.size());
-	md5_uuid.finalize();
-	md5_uuid.raw_digest(uuid.mData);
-}
 
 static int scale_mic_volume(float volume)
 {
@@ -258,8 +246,8 @@ protected:
 	std::string		descriptionString;
 	std::string		expirationDateString;
 	bool			hasExpired;
-	std::string		fontTypeString;
-	std::string		fontStatusString;
+	S32				fontType;
+	S32				fontStatus;
 	int				participantType;
 	bool			isLocallyMuted;
 	bool			isModeratorMuted;
@@ -519,7 +507,7 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 			}
 			else if (!stricmp("SessionFonts", tag))
 			{
-				LLVoiceClient::getInstance()->clearSessionFonts();
+				LLVoiceClient::getInstance()->deleteAllVoiceFonts();
 			}
 			else if (!stricmp("SessionFont", tag))
 			{
@@ -528,8 +516,8 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 				descriptionString.clear();
 				expirationDateString.clear();
 				hasExpired = false;
-				fontTypeString.clear();
-				fontStatusString.clear();
+				fontType = 0;
+				fontStatus = 0;
 			}
 		}
 	}
@@ -660,7 +648,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 			autoAddAsBuddy = string;
 		else if (!stricmp("SessionFont", tag))
 		{
-			LLVoiceClient::getInstance()->addSessionFont(id, nameString, descriptionString, expirationDateString, hasExpired, fontTypeString, fontStatusString);
+			LLVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDateString, hasExpired, fontType, fontStatus);
 		}
 		else if (!stricmp("ID", tag))
 		{
@@ -680,11 +668,11 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		}
 		else if (!stricmp("Type", tag))
 		{
-			fontTypeString = string;
+			fontType = strtol(string.c_str(), NULL, 10);
 		}
 		else if (!stricmp("Status", tag))
 		{
-			fontStatusString = string;
+			fontStatus = strtol(string.c_str(), NULL, 10);
 		}
 		else if (!stricmp("MessageHeader", tag))
 			messageHeader = string;
@@ -887,8 +875,6 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		}
 		else if (!stricmp(eventTypeCstr, "SessionUpdatedEvent"))  
 		{
-			// *TODO: Receive the current SessionFontID?
-			
 			/*
 			<Event type="SessionUpdatedEvent">
 				<SessionGroupHandle>c1_m1000xFnPP04IpREWNkuw1cOXlhw==_sg0</SessionGroupHandle>
@@ -1391,9 +1377,6 @@ LLVoiceClient::LLVoiceClient() :
 	mBlockRulesListReceived(false),
 	mAutoAcceptRulesListReceived(false),
 
-	mSessionFontsReceived(false),
-	mFontID(0),
-
 	mCaptureDeviceDirty(false),
 	mRenderDeviceDirty(false),
 	mSpatialCoordsDirty(false),
@@ -1874,7 +1857,8 @@ void LLVoiceClient::stateMachine()
 			// Clean up and reset everything. 
 			closeSocket();
 			deleteAllSessions();
-			deleteAllBuddies();		
+			deleteAllBuddies();
+			deleteAllVoiceFonts();
 			
 			mConnectorHandle.clear();
 			mAccountHandle.clear();
@@ -2640,6 +2624,7 @@ void LLVoiceClient::stateMachine()
 			mAccountHandle.clear();
 			deleteAllSessions();
 			deleteAllBuddies();
+			deleteAllVoiceFonts();
 
 			if(mVoiceEnabled && !mRelogRequested)
 			{
@@ -2829,7 +2814,7 @@ void LLVoiceClient::accountGetSessionFontsSendMessage()
 	{
 		std::ostringstream stream;
 
-		LL_DEBUGS("Voice") << "requesting session font list" << LL_ENDL;
+		LL_DEBUGS("Voice") << "Requesting voice font list." << LL_ENDL;
 
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.GetSessionFonts.1\">"
@@ -2863,7 +2848,10 @@ void LLVoiceClient::sessionGroupCreateSendMessage()
 void LLVoiceClient::sessionCreateSendMessage(sessionState *session, bool startAudio, bool startText)
 {
 	LL_DEBUGS("Voice") << "requesting create: " << session->mSIPURI << LL_ENDL;
-	
+
+	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
+	LL_DEBUGS("Voice") << "Requesting voice font: " << session->mVoiceFontID << " (" << font_index << ")" << LL_ENDL;
+
 	session->mCreateInProgress = true;
 	if(startAudio)
 	{
@@ -2887,11 +2875,11 @@ void LLVoiceClient::sessionCreateSendMessage(sessionState *session, bool startAu
 			<< "<Password>" << LLURI::escape(session->mHash, allowed_chars) << "</Password>"
 			<< "<PasswordHashAlgorithm>SHA1UserName</PasswordHashAlgorithm>";
 	}
-	
+
 	stream
 		<< "<ConnectAudio>" << (startAudio?"true":"false") << "</ConnectAudio>"
 		<< "<ConnectText>" << (startText?"true":"false") << "</ConnectText>"
-		<< "<VoiceFontID>" << mFontID << "</VoiceFontID>"
+		<< "<VoiceFontID>" << font_index << "</VoiceFontID>"
 		<< "<Name>" << mChannelName << "</Name>"
 	<< "</Request>\n\n\n";
 	writeString(stream.str());
@@ -2900,7 +2888,10 @@ void LLVoiceClient::sessionCreateSendMessage(sessionState *session, bool startAu
 void LLVoiceClient::sessionGroupAddSessionSendMessage(sessionState *session, bool startAudio, bool startText)
 {
 	LL_DEBUGS("Voice") << "requesting create: " << session->mSIPURI << LL_ENDL;
-	
+
+	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
+	LL_DEBUGS("Voice") << "Requesting voice font: " << session->mVoiceFontID << " (" << font_index << ")" << LL_ENDL;
+
 	session->mCreateInProgress = true;
 	if(startAudio)
 	{
@@ -2926,6 +2917,7 @@ void LLVoiceClient::sessionGroupAddSessionSendMessage(sessionState *session, boo
 		<< "<Name>" << mChannelName << "</Name>"
 		<< "<ConnectAudio>" << (startAudio?"true":"false") << "</ConnectAudio>"
 		<< "<ConnectText>" << (startText?"true":"false") << "</ConnectText>"
+		<< "<VoiceFontID>" << font_index << "</VoiceFontID>"
 		<< "<Password>" << password << "</Password>"
 		<< "<PasswordHashAlgorithm>SHA1UserName</PasswordHashAlgorithm>"
 	<< "</Request>\n\n\n"
@@ -2938,6 +2930,9 @@ void LLVoiceClient::sessionMediaConnectSendMessage(sessionState *session)
 {
 	LL_DEBUGS("Voice") << "connecting audio to session handle: " << session->mHandle << LL_ENDL;
 
+	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
+	LL_DEBUGS("Voice") << "Requesting voice font: " << session->mVoiceFontID << " (" << font_index << ")" << LL_ENDL;
+
 	session->mMediaConnectInProgress = true;
 	
 	std::ostringstream stream;
@@ -2946,6 +2941,7 @@ void LLVoiceClient::sessionMediaConnectSendMessage(sessionState *session)
 	<< "<Request requestId=\"" << session->mHandle << "\" action=\"Session.MediaConnect.1\">"
 		<< "<SessionGroupHandle>" << session->mGroupHandle << "</SessionGroupHandle>"
 		<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
+		<< "<VoiceFontID>" << font_index << "</VoiceFontID>"
 		<< "<Media>Audio</Media>"
 	<< "</Request>\n\n\n";
 
@@ -2969,15 +2965,15 @@ void LLVoiceClient::sessionTextConnectSendMessage(sessionState *session)
 
 void LLVoiceClient::sessionSetVoiceFontSendMessage(sessionState *session)
 {
-	llassert(session);
-	LL_DEBUGS("Voice") << "requesting voice font: " << mFontID << " in session handle: " << session->mHandle << LL_ENDL;
+	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
+	LL_DEBUGS("Voice") << "Requesting voice font: " << session->mVoiceFontID << " (" << font_index << "), session handle: " << session->mHandle << LL_ENDL;
 
 	std::ostringstream stream;
 
 	stream
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.SetVoiceFont.1\">"
 		<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
-		<< "<SessionFontID>" << mFontID << "</SessionFontID>"
+		<< "<SessionFontID>" << font_index << "</SessionFontID>"
 	<< "</Request>\n\n\n";
 
 	writeString(stream.str());
@@ -4272,7 +4268,7 @@ void LLVoiceClient::sessionAddedEvent(
 			else
 			{
 				LL_INFOS("Voice") << "Could not generate caller id from uri, using hash of uri " << session->mSIPURI << LL_ENDL;
-				setUUIDFromStringHash(session->mCallerID, session->mSIPURI);
+				session->mCallerID.generate(session->mSIPURI);
 				session->mSynthesizedCallerID = true;
 				
 				// Can't look up the name in this case -- we have to extract it from the URI.
@@ -5252,7 +5248,7 @@ LLVoiceClient::participantState *LLVoiceClient::sessionState::addParticipant(con
 			{
 				// Create a UUID by hashing the URI, but do NOT set mAvatarIDValid.
 				// This tells both code in LLVoiceClient and code in llfloateractivespeakers.cpp that the ID will not be in the name cache.
-				setUUIDFromStringHash(result->mAvatarID, uri);
+				result->mAvatarID.generate(uri);
 			}
 		}
 		
@@ -6637,7 +6633,8 @@ LLVoiceClient::sessionState::sessionState() :
 	mReconnect(false),
 	mVolumeDirty(false),
 	mMuteDirty(false),
-	mParticipantsChanged(false)
+	mParticipantsChanged(false),
+	mVoiceFontID(0)
 {
 }
 
@@ -7151,69 +7148,128 @@ void LLVoiceClient::addAutoAcceptRule(const std::string &autoAcceptMask, const s
 	}
 }
 
-LLVoiceClient::voiceFontEntry::voiceFontEntry(S32 id) :
+LLVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
 	mID(id),
-	mHasExpired(false)
+	mFontIndex(0),
+	mHasExpired(false),
+	mFontType(VOICE_FONT_TYPE_NONE),
+	mFontStatus(VOICE_FONT_STATUS_NONE)
 {
 }
 
-void LLVoiceClient::clearSessionFonts()
+LLVoiceClient::voiceFontEntry::~voiceFontEntry()
 {
-	// *FIX: Currently set voice font will be invalid
-	mSessionFontsReceived = false;
-	mSessionFontList.clear();
-	mSessionFontMap.clear();
 }
 
-void LLVoiceClient::addSessionFont(const voice_font_id_t &id,
-								   const std::string &name,
-								   const std::string &description,
-								   const std::string &expirationDate,
-								   const bool hasExpired,
-								   const std::string &fontType,
-								   const std::string &fontStatus)
+void LLVoiceClient::deleteAllVoiceFonts()
 {
-	voiceFontEntry *font = NULL;
+	// All sessions should be removed first as FontIDs will be invalid
+	llassert(mSessions.empty());
 
-	voice_font_map_t::iterator iter = mSessionFontMap.find(id);
-	if(iter != mSessionFontMap.end())
+	LL_DEBUGS("Voice") << "Clearing voice font list." << LL_ENDL;
+
+	mVoiceFontList.clear();
+
+	voice_font_map_t::iterator iter;
+
+	for (iter = mVoiceFontMap.begin(); iter == mVoiceFontMap.end(); ++iter)
 	{
-		// Found session font already in the map.
-		LL_DEBUGS("Voice") << "existing session font " << id << " : " << name << LL_ENDL;
-		font = iter->second;
+		delete iter->second;
 	}
-
-	if(font == NULL)
-	{
-		LL_DEBUGS("Voice") << "adding session font " << id << " : " << name << (hasExpired?" (Expired)":"") << LL_ENDL;
-		font = new voiceFontEntry(id);
-		font->mName = name;
-		font->mDescription = description;
-		font->mExpirationDate = expirationDate;
-		font->mHasExpired = hasExpired;
-		font->mFontType = fontType;
-		font->mFontStatus = fontStatus;
-
-		mSessionFontList.insert(voice_font_list_t::value_type(font->mID, &(font->mName)));
-		mSessionFontMap.insert(voice_font_map_t::value_type(font->mID, font));
-	}
+	mVoiceFontMap.clear();
 }
 
-bool LLVoiceClient::setVoiceFont(voice_font_id_t id)
+void LLVoiceClient::addVoiceFont(const S32 font_index,
+								 const std::string &name,
+								 const std::string &description,
+								 const std::string &expiration_date,
+								 const bool has_expired,
+								 const S32 font_type,
+								 const S32 font_status)
 {
-	if (!mAudioSession || !mAudioSession->mVoiceEnabled || !mSessionFontsReceived)
-	{
-		LL_DEBUGS("Voice") << "Session fonts not available" << LL_ENDL;
-		return false;
-	}
+	// Vivox SessionFontIDs are not guaranteed to remain the same between
+	// sessions or grids so use a UUID for the name.
 
-	if(id == 0 || mSessionFontMap.find(id) != mSessionFontMap.end())
+	// If received name is not a UUID, fudge one by hashing the name and type
+	LLUUID font_id;
+	if (LLUUID::validate(name))
 	{
-		mFontID = id;
+		font_id = LLUUID(name);
 	}
 	else
 	{
-		LL_DEBUGS("Voice") << "Invalid session font " << id << LL_ENDL;
+		font_id.generate(STRINGIZE(font_type << ":" << name));
+	}
+
+	voiceFontEntry *font = NULL;
+
+	// Hopefully won't happen, but behave gracefully if there is a duplicate
+	// by Replacing the previous one unless this one has expired.
+	// *TODO: Should maybe check for the later expiry date if neither has
+	// expired, and favour user fonts over root fonts? But as we shouldn't
+	// have duplicates anyway, it's probably not worth the effort.
+	voice_font_map_t::iterator iter = mVoiceFontMap.find(&font_id);
+	bool duplicate = (iter != mVoiceFontMap.end());
+	if (duplicate)
+	{
+		LL_DEBUGS("Voice") << "Voice font " << font_index << " duplicates " << iter->second->mFontIndex << "!" << LL_ENDL;
+
+		if (!has_expired)
+		{
+			font = iter->second;
+		}
+	}
+	else
+	{
+		font = new voiceFontEntry(font_id);
+	}
+
+	if (font)
+	{
+		font->mFontIndex = font_index;
+		// Use the description for the human readable name if available, as the
+		// "name" will probably be a UUID.
+		font->mName = description.empty() ? name : description;
+		font->mExpirationDate = expiration_date;
+		font->mHasExpired = has_expired;
+		font->mFontType = font_type;
+		font->mFontStatus = font_status;
+
+		LL_DEBUGS("Voice") << "Adding voice font : " << font_id << " (" << font_index << ") : " << name << (has_expired?" (Expired)":"") << LL_ENDL;
+
+		if (font_type < VOICE_FONT_TYPE_NONE || font_type >= VOICE_FONT_TYPE_UNKNOWN)
+		{
+			LL_DEBUGS("Voice") << "Unknown voice font type: " << font_type << LL_ENDL;
+		}
+		if (font_status < VOICE_FONT_STATUS_NONE || font_status >= VOICE_FONT_STATUS_UNKNOWN)
+		{
+			LL_DEBUGS("Voice") << "Unknown voice font status: " << font_status << LL_ENDL;
+		}
+
+		if (!duplicate)
+		{
+			mVoiceFontMap.insert(voice_font_map_t::value_type(&(font->mID), font));
+			mVoiceFontList.insert(voice_font_list_t::value_type(&(font->mName), &(font->mID)));
+		}
+	}
+}
+
+bool LLVoiceClient::setVoiceFont(const LLUUID& id)
+{
+	if (!mAudioSession || !mAudioSession->mVoiceEnabled || !hasVoiceFonts())
+	{
+		LL_DEBUGS("Voice") << "Voice fonts not available." << LL_ENDL;
+		return false;
+	}
+
+	if (id.isNull() || (mVoiceFontMap.find(&id) != mVoiceFontMap.end()))
+	{
+		// *TODO: Check for expired fonts
+		mAudioSession->mVoiceFontID = id;
+	}
+	else
+	{
+		LL_DEBUGS("Voice") << "Invalid voice font " << id << LL_ENDL;
 		return false;
 	}
 
@@ -7221,9 +7277,48 @@ bool LLVoiceClient::setVoiceFont(voice_font_id_t id)
 	return true;
 }
 
-const LLVoiceClient::voice_font_id_t LLVoiceClient::getVoiceFont() const
+const LLUUID LLVoiceClient::getVoiceFont()
 {
-	return mFontID;
+	if (mAudioSession)
+	{
+		return getVoiceFont(mAudioSession->mHandle);
+	}
+	else
+	{
+		return LLUUID::null;
+	}
+}
+
+const LLUUID LLVoiceClient::getVoiceFont(const std::string &session_handle)
+{
+	LLUUID result;
+	if (hasVoiceFonts())
+	{
+		sessionState *session = findSession(session_handle);
+		if (session)
+		{
+			result = mAudioSession->mVoiceFontID;
+		}
+	}
+	return result;
+}
+
+S32 LLVoiceClient::getVoiceFontIndex(const LLUUID& id) const
+{
+	S32 result = 0;
+	if (!id.isNull())
+	{
+		voice_font_map_t::const_iterator it = mVoiceFontMap.find(&id);
+		if (it != mVoiceFontMap.end())
+		{
+			result = it->second->mFontIndex;
+		}
+		else
+		{
+			LL_DEBUGS("Voice") << "Selected voice font " << id << " is not available." << LL_ENDL;
+		}
+	}
+	return result;
 }
 
 void LLVoiceClient::accountListBlockRulesResponse(int statusCode, const std::string &statusString)
@@ -7240,9 +7335,7 @@ void LLVoiceClient::accountListAutoAcceptRulesResponse(int statusCode, const std
 
 void LLVoiceClient::accountGetSessionFontsResponse(int statusCode, const std::string &statusString)
 {
-	// Session font list entries were updated via addSessionFont() during parsing.  Just flag that we're done.
-	mSessionFontsReceived = true;
-
+	// Voice font list entries were updated via addVoiceFont() during parsing.
 	if(getState() == stateLoggedIn)
 	{
 		setState(stateFontListReceived);

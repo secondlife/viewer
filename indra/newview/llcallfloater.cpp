@@ -250,15 +250,15 @@ void LLCallFloater::updateVoiceFont()
 	if (mVoiceFont)
 	{
 		mVoiceFont->removeall();
-		mVoiceFont->add(getString("no_voice_font"), 0);
+		mVoiceFont->add(getString("no_voice_font"), LLUUID::null);
 
-		if (LLVoiceClient::getInstance()->getVoiceFontsAvailable())
+		if (LLVoiceClient::getInstance()->hasVoiceFonts())
 		{
 			const LLVoiceClient::voice_font_list_t font_list = LLVoiceClient::getInstance()->getVoiceFontList();
 
 			for (LLVoiceClient::voice_font_list_t::const_iterator it = font_list.begin(); it != font_list.end(); ++it)
 			{
-				mVoiceFont->add(*(it->second), it->first, ADD_BOTTOM);
+				mVoiceFont->add(*(it->first), *(it->second), ADD_BOTTOM);
 			}
 			mVoiceFont->setEnabled(true);
 			mVoiceFont->setValue(LLVoiceClient::getInstance()->getVoiceFont());

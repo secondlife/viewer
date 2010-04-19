@@ -358,6 +358,8 @@ static	void updatePosition(void);
 			bool		mParticipantsChanged;
 			participantMap mParticipantsByURI;
 			participantUUIDMap mParticipantsByUUID;
+
+			LLUUID		mVoiceFontID;
 		};
 
 		participantState *findParticipantByID(const LLUUID& id);
@@ -431,35 +433,24 @@ static	void updatePosition(void);
 		void accountListBlockRulesResponse(int statusCode, const std::string &statusString);						
 		void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);
 
-		struct voiceFontEntry
-		{
-			voiceFontEntry(S32 id);
-			S32			mID;
-			std::string mName;
-			std::string mDescription;
-			std::string mExpirationDate;
-			bool		mHasExpired;
-			std::string mFontType;
-			std::string mFontStatus;
-		};
+		/////////////////////////////
+		// Voice Fonts
+		bool hasVoiceFonts() const { return !mVoiceFontMap.empty(); };
+		bool setVoiceFont(const LLUUID& id);
+		const LLUUID getVoiceFont();
+		const LLUUID getVoiceFont(const std::string &session_handle);
 
-		typedef S32 voice_font_id_t;
-		typedef std::map<voice_font_id_t, std::string*> voice_font_list_t;
-		typedef std::map<voice_font_id_t, voiceFontEntry*> voice_font_map_t;
+		typedef std::multimap<const std::string*, const LLUUID*, stringMapComparitor> voice_font_list_t;
 
-		bool getVoiceFontsAvailable() const { return mSessionFontsReceived; };
-		bool setVoiceFont(voice_font_id_t id);
-		const voice_font_id_t getVoiceFont() const;
-		const voice_font_list_t &getVoiceFontList() const { return mSessionFontList; };
+		const voice_font_list_t &getVoiceFontList() const { return mVoiceFontList; };
 
-		void clearSessionFonts();
-		void addSessionFont(const voice_font_id_t &id,
-							const std::string &name,
-							const std::string &description,
-							const std::string &expirationDate,
-							const bool hasExpired,
-							const std::string &fontType,
-							const std::string &fontStatus);
+		void addVoiceFont(const S32 id,
+						  const std::string &name,
+						  const std::string &description,
+						  const std::string &expiration_date,
+						  const bool has_expired,
+						  const S32 font_type,
+						  const S32 font_status);
 		void accountGetSessionFontsResponse(int statusCode, const std::string &statusString);
 
 		/////////////////////////////
@@ -698,10 +689,46 @@ static	void updatePosition(void);
 		bool mAutoAcceptRulesListReceived;
 		buddyListMap mBuddyListMap;
 
-		bool mSessionFontsReceived;
-		S32 mFontID;
-		voice_font_list_t mSessionFontList;
-		voice_font_map_t mSessionFontMap; // *TODO: make private
+		// Voice Fonts
+
+		S32 getVoiceFontIndex(const LLUUID& id) const;
+		void deleteAllVoiceFonts();
+
+		typedef enum e_voice_font_type
+		{
+			VOICE_FONT_TYPE_NONE = 0,
+			VOICE_FONT_TYPE_ROOT = 1,
+			VOICE_FONT_TYPE_USER = 2,
+			VOICE_FONT_TYPE_UNKNOWN
+		} EVoiceFontType;
+
+		typedef enum e_voice_font_status
+		{
+			VOICE_FONT_STATUS_NONE = 0,
+			VOICE_FONT_STATUS_FREE = 1,
+			VOICE_FONT_STATUS_NOT_FREE = 2,
+			VOICE_FONT_STATUS_UNKNOWN
+		} EVoiceFontStatus;
+
+		struct voiceFontEntry
+		{
+			voiceFontEntry(LLUUID& id);
+			~voiceFontEntry();
+
+			LLUUID		mID;
+			S32			mFontIndex;
+			std::string mName;
+			std::string mExpirationDate;
+			bool		mHasExpired;
+			S32			mFontType;
+			S32			mFontStatus;
+		};
+		typedef std::map<const LLUUID*, voiceFontEntry*, uuidMapComparitor> voice_font_map_t;
+
+		voice_font_map_t	mVoiceFontMap;
+		voice_font_list_t	mVoiceFontList;
+
+		// Audio devices
 
 		deviceList mCaptureDevices;
 		deviceList mRenderDevices;
@@ -714,8 +741,8 @@ static	void updatePosition(void);
 		// This should be called when the code detects we have changed parcels.
 		// It initiates the call to the server that gets the parcel channel.
 		void parcelChanged();
-		
-	void switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
+
+		void switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
 		void joinSession(sessionState *session);
 		
 static 	std::string nameFromAvatar(LLVOAvatar *avatar);
