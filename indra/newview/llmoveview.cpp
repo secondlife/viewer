@@ -200,7 +200,7 @@ void LLFloaterMove::setFlyingMode(BOOL fly)
 	if (instance)
 	{
 		instance->setFlyingModeImpl(fly);
-		LLVOAvatarSelf* avatar_object = gAgent.getAvatarObject();
+		LLVOAvatarSelf* avatar_object = gAgentAvatarp;
 		bool is_sitting = avatar_object
 			&& (avatar_object->getRegion() != NULL)
 			&& (!avatar_object->isDead())
