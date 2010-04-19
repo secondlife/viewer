@@ -2296,6 +2296,13 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		{
 			resetAxes(mAutoPilotTargetFacing);
 		}
+		// Restore previous flying state before invoking mAutoPilotFinishedCallback to allow
+		// callback function to change the flying state (like in near_sit_down_point()).
+		// If the user cancelled, don't change the fly state
+		if (!user_cancel)
+		{
+			setFlying(mAutoPilotFlyOnStop);
+		}
 		//NB: auto pilot can terminate for a reason other than reaching the destination
 		if (mAutoPilotFinishedCallback)
 		{
@@ -2303,11 +2310,6 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		}
 		mLeaderID = LLUUID::null;
 
-		// If the user cancelled, don't change the fly state
-		if (!user_cancel)
-		{
-			setFlying(mAutoPilotFlyOnStop);
-		}
 		setControlFlags(AGENT_CONTROL_STOP);
 
 		if (user_cancel && !mAutoPilotBehaviorName.empty())
