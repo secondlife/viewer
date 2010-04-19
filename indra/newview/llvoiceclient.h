@@ -176,7 +176,7 @@ public:
 	//@{
 	// start a voice channel with the specified user
 	virtual void callUser(const LLUUID &uuid)=0;
-	virtual bool invitePending(std::string& channelHandle)=0;
+	virtual bool isValidChannel(std::string& channelHandle)=0;
 	virtual bool answerInvite(std::string &channelHandle)=0;
 	virtual void declineInvite(std::string &channelHandle)=0;
 	//@}
@@ -326,7 +326,7 @@ static const F32 OVERDRIVEN_POWER_LEVEL;
 	std::string getCurrentChannel();
 	// start a voice channel with the specified user
 	void callUser(const LLUUID &uuid);
-	bool invitePending(std::string& channelHandle);
+	bool isValidChannel(std::string& channelHandle);
 	bool answerInvite(std::string &channelHandle);
 	void declineInvite(std::string &channelHandle);	
 	void leaveChannel(void);		// call this on logout or teleport begin

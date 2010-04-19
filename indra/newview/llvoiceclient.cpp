@@ -385,11 +385,11 @@ void LLVoiceClient::callUser(const LLUUID &uuid)
 	if (mVoiceModule) mVoiceModule->callUser(uuid);
 }
 
-bool LLVoiceClient::invitePending(std::string &channelHandle)
+bool LLVoiceClient::isValidChannel(std::string &session_handle)
 {
 	if (mVoiceModule) 
 	{
-		return mVoiceModule->invitePending(channelHandle);
+		return mVoiceModule->isValidChannel(session_handle);
 	}
 	else
 	{

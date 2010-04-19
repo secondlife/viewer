@@ -4582,7 +4582,7 @@ void LLVivoxVoiceClient::endUserIMSession(const LLUUID &uuid)
 		LL_DEBUGS("Voice") << "Session not found for participant ID " << uuid << LL_ENDL;
 	}
 }
-bool LLVivoxVoiceClient::invitePending(std::string &sessionHandle)
+bool LLVivoxVoiceClient::isValidChannel(std::string &sessionHandle)
 {
   return(findSession(sessionHandle) != NULL);
 	

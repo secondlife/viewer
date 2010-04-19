@@ -166,7 +166,7 @@ public:
 	//@{
 	// start a voice channel with the specified user
 	virtual void callUser(const LLUUID &uuid);	
-	virtual bool invitePending(std::string &channelHandle);
+	virtual bool isValidChannel(std::string &channelHandle);
 	virtual bool answerInvite(std::string &channelHandle);
 	virtual void declineInvite(std::string &channelHandle);
 	//@}
