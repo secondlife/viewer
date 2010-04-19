@@ -1636,6 +1636,18 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	return false;
 }
 
+class LLPostponedOfferNotification: public LLPostponedNotification
+{
+protected:
+	/* virtual */
+	void modifyNotificationParams()
+	{
+		LLSD substitutions = mParams.substitutions;
+		substitutions["NAME"] = mName;
+		mParams.substitutions = substitutions;
+	}
+};
+
 void inventory_offer_handler(LLOfferInfo* info)
 {
 	//Until throttling is implmented, busy mode should reject inventory instead of silently
@@ -1785,7 +1797,10 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Inform user that there is a script floater via toast system
 		{
 			payload["give_inventory_notification"] = TRUE;
-			LLNotificationPtr notification = LLNotifications::instance().add(p.payload(payload)); 
+		    LLNotification::Params params(p.name);
+		    params.substitutions = p.substitutions;
+		    params.payload = p.payload;
+		    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, info->mFromID, false);
 		}
 	}
 }
@@ -2557,7 +2572,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				payload["from_id"] = from_id;
 				payload["lure_id"] = session_id;
 				payload["godlike"] = FALSE;
-				LLNotificationsUtil::add("TeleportOffered", args, payload);
+
+			    LLNotification::Params params("TeleportOffered");
+			    params.substitutions = args;
+			    params.payload = payload;
+			    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
 			}
 		}
 		break;
@@ -2626,7 +2645,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				else
 				{
 					args["[MESSAGE]"] = message;
-				        LLNotificationsUtil::add("OfferFriendship", args, payload);
+				    LLNotification::Params params("OfferFriendship");
+				    params.substitutions = args;
+				    params.payload = payload;
+				    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
 				}
 			}
 		}
@@ -4406,6 +4428,9 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	}
 	
 	gAgentCamera.setForceMouselook(force_mouselook);
+	// Forcing turning off flying here to prevent flying after pressing "Stand"
+	// to stand up from an object. See EXT-1655.
+	gAgent.setFlying(FALSE);
 
 	LLViewerObject* object = gObjectList.findObject(sitObjectID);
 	if (object)

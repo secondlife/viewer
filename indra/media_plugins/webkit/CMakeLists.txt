@@ -36,6 +36,10 @@ set(media_plugin_webkit_SOURCE_FILES
     media_plugin_webkit.cpp
     )
 
+set(media_plugin_webkit_HEADER_FILES
+    volume_catcher.h
+    )
+
 set(media_plugin_webkit_LINK_LIBRARIES
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
@@ -59,10 +63,17 @@ elseif (DARWIN)
        ${CORESERVICES_LIBRARY}     # for Component Manager calls
        ${AUDIOUNIT_LIBRARY}        # for AudioUnit calls
        )
+elseif (WINDOWS)
+  list(APPEND media_plugin_webkit_SOURCE_FILES windows_volume_catcher.cpp)
 else (LINUX AND PULSEAUDIO)
   # All other platforms use the dummy volume catcher for now.
   list(APPEND media_plugin_webkit_SOURCE_FILES dummy_volume_catcher.cpp)
 endif (LINUX AND PULSEAUDIO)
+
+set_source_files_properties(${media_plugin_webkit_HEADER_FILES}
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+
+list(APPEND media_plugin_webkit_SOURCE_FILES ${media_plugin_webkit_HEADER_FILES})
 
 add_library(media_plugin_webkit
     SHARED

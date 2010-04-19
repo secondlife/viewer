@@ -110,7 +110,6 @@
      increment="1"
      initial_value="0"
      label="[DESC]"
-     label_width="100"
      layout="bottom|left"
      left="6"
      max_val="100"

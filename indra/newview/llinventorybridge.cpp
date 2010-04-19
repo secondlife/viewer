@@ -2680,6 +2680,13 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		// This is the lost+found folder.
 		mItems.push_back(std::string("Empty Lost And Found"));
+
+		mDisabledItems.push_back(std::string("New Folder"));
+		mDisabledItems.push_back(std::string("New Script"));
+		mDisabledItems.push_back(std::string("New Note"));
+		mDisabledItems.push_back(std::string("New Gesture"));
+		mDisabledItems.push_back(std::string("New Clothes"));
+		mDisabledItems.push_back(std::string("New Body Parts"));
 	}
 
 	if(trash_id == mUUID)
