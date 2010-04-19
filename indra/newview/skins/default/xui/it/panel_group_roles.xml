@@ -13,9 +13,6 @@
 Seleziona più membri tenendo premuto il tasto Ctrl e 
 cliccando sui loro nomi.
 			</panel.string>
-			<panel.string name="donation_area">
-				[AREA] m²
-			</panel.string>
 			<filter_editor label="Filtra Membri" name="filter_input"/>
 			<name_list name="member_list">
 				<name_list.columns label="Socio" name="name"/>
@@ -69,15 +66,21 @@ in questo gruppo. C&apos;è una vasta gamma di abilità.
 		<text name="static">
 			Nome del ruolo
 		</text>
-		<line_editor name="role_name"/>
+		<line_editor name="role_name">
+			Addetti
+		</line_editor>
 		<text name="static3">
 			Titolo del ruolo
 		</text>
-		<line_editor name="role_title"/>
+		<line_editor name="role_title">
+			(attendi)
+		</line_editor>
 		<text name="static2">
 			Descrizione
 		</text>
-		<text_editor name="role_description"/>
+		<text_editor name="role_description">
+			(attendi)
+		</text_editor>
 		<text name="static4">
 			Ruoli assegnati
 		</text>
@@ -88,6 +91,9 @@ in questo gruppo. C&apos;è una vasta gamma di abilità.
 		<scroll_list name="role_allowed_actions" tool_tip="Per i dettagli di ogni abilità consentita vedi la scheda abilità."/>
 	</panel>
 	<panel name="actions_footer">
+		<text name="static">
+			Descrizione abilità
+		</text>
 		<text_editor name="action_description">
 			Questa abilità è &apos;Espelli i membri dal gruppo&apos;. Solo un Capogruppo puo espellere un&apos;altro Capogruppo.
 		</text_editor>

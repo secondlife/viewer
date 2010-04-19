@@ -2,25 +2,31 @@
  * @file llfolderview.h
  * @brief Definition of the folder view collection of classes.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -90,7 +96,6 @@ public:
 		Mandatory<LLPanel*>	    parent_panel;
 		Optional<LLUUID>        task_id;
 		Optional<std::string>   title;
-		Optional<bool>			use_label_suffix;
 	};
 	LLFolderView(const Params&);
 	virtual ~LLFolderView( void );
@@ -159,7 +164,7 @@ public:
 
 	virtual S32 extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items);
 
-	virtual std::set<LLUUID> getSelectionList() const;
+	virtual BOOL getSelectionList(std::set<LLUUID> &selection) const;
 
 	// make sure if ancestor is selected, descendents are not
 	void sanitizeSelection();
@@ -225,7 +230,6 @@ public:
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask) { setShowSelectionContext(FALSE); }
 	virtual void draw();
 	virtual void deleteAllChildren();
 
@@ -256,8 +260,6 @@ public:
 	BOOL needsAutoSelect() { return mNeedsAutoSelect && !mAutoSelectOverride; }
 	BOOL needsAutoRename() { return mNeedsAutoRename; }
 	void setNeedsAutoRename(BOOL val) { mNeedsAutoRename = val; }
-	void setPinningSelectedItem(BOOL val) { mPinningSelectedItem = val; }
-	void setAutoSelectOverride(BOOL val) { mAutoSelectOverride = val; }
 
 	void setCallbackRegistrar(LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* registrar) { mCallbackRegistrar = registrar; }
 
@@ -270,7 +272,6 @@ public:
 	virtual S32	notify(const LLSD& info) ;
 	void setEnableScroll(bool enable_scroll) { mEnableScroll = enable_scroll; }
 	
-	bool useLabelSuffix() { return mUseLabelSuffix; }
 private:
 	void updateRenamerPosition();
 
@@ -286,8 +287,6 @@ protected:
 	bool selectFirstItem();
 	bool selectLastItem();
 	
-	BOOL addNoOptions(LLMenuGL* menu) const;
-
 protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	
@@ -309,7 +308,6 @@ protected:
 	BOOL							mNeedsAutoSelect;
 	BOOL							mAutoSelectOverride;
 	BOOL							mNeedsAutoRename;
-	bool							mUseLabelSuffix;
 	
 	BOOL							mDebugFilters;
 	U32								mSortOrder;

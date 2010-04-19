@@ -2,25 +2,31 @@
  * @file llsys.cpp
  * @brief Impelementation of the basic system query functions.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -52,6 +58,7 @@
 #	include <unistd.h>
 #	include <sys/sysinfo.h>
 const char MEMINFO_FILE[] = "/proc/meminfo";
+const char CPUINFO_FILE[] = "/proc/cpuinfo";
 #elif LL_SOLARIS
 #	include <stdio.h>
 #	include <unistd.h>
@@ -506,21 +513,71 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 LLCPUInfo::LLCPUInfo()
 {
 	std::ostringstream out;
-	LLProcessorInfo proc;
+	CProcessor proc;
+	const ProcessorInfo* info = proc.GetCPUInfo();
 	// proc.WriteInfoTextFile("procInfo.txt");
-	mHasSSE = proc.hasSSE();
-	mHasSSE2 = proc.hasSSE2();
-	mHasAltivec = proc.hasAltivec();
-	mCPUMHz = (F64)proc.getCPUFrequency();
-	mFamily = proc.getCPUFamilyName();
+	mHasSSE = info->_Ext.SSE_StreamingSIMD_Extensions;
+	mHasSSE2 = info->_Ext.SSE2_StreamingSIMD2_Extensions;
+	mHasAltivec = info->_Ext.Altivec_Extensions;
+	mCPUMHz = (F64)(proc.GetCPUFrequency(50)/1000000.0F);
+	mFamily.assign( info->strFamily );
 	mCPUString = "Unknown";
 
-	out << proc.getCPUBrandName();
+#if LL_WINDOWS || LL_DARWIN || LL_SOLARIS
+	out << proc.strCPUName;
 	if (200 < mCPUMHz && mCPUMHz < 10000)           // *NOTE: cpu speed is often way wrong, do a sanity check
 	{
 		out << " (" << mCPUMHz << " MHz)";
 	}
 	mCPUString = out.str();
+	
+#elif LL_LINUX
+	std::map< std::string, std::string > cpuinfo;
+	LLFILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, "rb");
+	if(cpuinfo_fp)
+	{
+		char line[MAX_STRING];
+		memset(line, 0, MAX_STRING);
+		while(fgets(line, MAX_STRING, cpuinfo_fp))
+		{
+			// /proc/cpuinfo on Linux looks like:
+			// name\t*: value\n
+			char* tabspot = strchr( line, '\t' );
+			if (tabspot == NULL)
+				continue;
+			char* colspot = strchr( tabspot, ':' );
+			if (colspot == NULL)
+				continue;
+			char* spacespot = strchr( colspot, ' ' );
+			if (spacespot == NULL)
+				continue;
+			char* nlspot = strchr( line, '\n' );
+			if (nlspot == NULL)
+				nlspot = line + strlen( line ); // Fallback to terminating NUL
+			std::string linename( line, tabspot );
+			std::string llinename(linename);
+			LLStringUtil::toLower(llinename);
+			std::string lineval( spacespot + 1, nlspot );
+			cpuinfo[ llinename ] = lineval;
+		}
+		fclose(cpuinfo_fp);
+	}
+# if LL_X86
+	std::string flags = " " + cpuinfo["flags"] + " ";
+	LLStringUtil::toLower(flags);
+	mHasSSE = ( flags.find( " sse " ) != std::string::npos );
+	mHasSSE2 = ( flags.find( " sse2 " ) != std::string::npos );
+	
+	F64 mhz;
+	if (LLStringUtil::convertToF64(cpuinfo["cpu mhz"], mhz)
+	    && 200.0 < mhz && mhz < 10000.0)
+	{
+		mCPUMHz = (F64)(mhz);
+	}
+	if (!cpuinfo["model name"].empty())
+		mCPUString = cpuinfo["model name"];
+# endif // LL_X86
+#endif // LL_LINUX
 }
 
 bool LLCPUInfo::hasAltivec() const
@@ -550,9 +607,38 @@ std::string LLCPUInfo::getCPUString() const
 
 void LLCPUInfo::stream(std::ostream& s) const
 {
+#if LL_WINDOWS || LL_DARWIN || LL_SOLARIS
 	// gather machine information.
-	s << LLProcessorInfo().getCPUFeatureDescription();
-
+	char proc_buf[CPUINFO_BUFFER_SIZE];		/* Flawfinder: ignore */
+	CProcessor proc;
+	if(proc.CPUInfoToText(proc_buf, CPUINFO_BUFFER_SIZE))
+	{
+		s << proc_buf;
+	}
+	else
+	{
+		s << "Unable to collect processor information" << std::endl;
+	}
+#else
+	// *NOTE: This works on linux. What will it do on other systems?
+	LLFILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "rb");
+	if(cpuinfo)
+	{
+		char line[MAX_STRING];
+		memset(line, 0, MAX_STRING);
+		while(fgets(line, MAX_STRING, cpuinfo))
+		{
+			line[strlen(line)-1] = ' ';
+			s << line;
+		}
+		fclose(cpuinfo);
+		s << std::endl;
+	}
+	else
+	{
+		s << "Unable to collect processor information" << std::endl;
+	}
+#endif
 	// These are interesting as they reflect our internal view of the
 	// CPU's attributes regardless of platform
 	s << "->mHasSSE:     " << (U32)mHasSSE << std::endl;

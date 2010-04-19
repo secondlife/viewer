@@ -16,15 +16,13 @@
 		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
 	</panel.string>
 	<panel.string name="timeTooltip">
-		[weekday, datetime, slt] [sday, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
 	</panel.string>
 	<panel.string name="buycurrencylabel">
 		[AMT] L$
 	</panel.string>
-	<panel name="balance_bg">
-		<text name="balance" tool_tip="Mon solde" value="20 L$"/>
-		<button label="ACHETER L$" name="buyL" tool_tip="Cliquer pour acheter plus de L$"/>
-	</panel>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Mon solde"/>
+	<button label="Acheter L$" name="buyL" tool_tip="Cliquez pour acheter plus de L$"/>
 	<text name="TimeText" tool_tip="Heure actuelle (Pacifique)">
 		00h00 PST
 	</text>

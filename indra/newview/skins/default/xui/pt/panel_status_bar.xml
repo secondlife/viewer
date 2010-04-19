@@ -21,10 +21,8 @@
 	<panel.string name="buycurrencylabel">
 		L$ [AMT]
 	</panel.string>
-	<panel name="balance_bg">
-		<text name="balance" tool_tip="Meu saldo" value="L$20"/>
-		<button label="Comprar L$" name="buyL" tool_tip="Comprar mais L$"/>
-	</panel>
+	<button label="" label_selected="" name="buycurrency" tool_tip="Meu saldo"/>
+	<button label="Comprar L$" name="buyL" tool_tip="Comprar mais L$"/>
 	<text name="TimeText" tool_tip="Hora atual (Pacífico)">
 		24:00 AM PST
 	</text>

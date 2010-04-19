@@ -333,9 +333,6 @@ Sie benötigen ein Benutzerkonto, um [SECOND_LIFE] betreten zu können. Möchten
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Erneut versuchen" yestext="Neues Benutzerkonto anlegen"/>
 	</notification>
-	<notification name="InvalidCredentialFormat">
-		Sie müssen den Vor- und Nachnamen Ihres Avatars in das Feld Benutzername eingeben, und sich dann erneut anmelden.
-	</notification>
 	<notification name="AddClassified">
 		Anzeigen werden im Suchverzeichnis im Abschnitt „Anzeigen&quot; und auf [http://secondlife.com/community/classifieds secondlife.com] für eine Woche angezeigt.
 Füllen Sie Ihre Anzeige aus und klicken Sie auf &apos;Veröffentlichen...&apos;, um sie zum Verzeichnis hinzuzufügen.
@@ -362,11 +359,7 @@ Sind Sie sicher, dass Sie fortfahren wollen?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		Auswahl &lt;nolink&gt;[PICK]&lt;/nolink&gt; löschen?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
-	</notification>
-	<notification name="DeleteOutfits">
-		Das/Die ausgewählte(n) Outfit(s) löschen?
+		Auswahl [PICK] löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -486,9 +479,7 @@ Sie können die Grafikqualität unter Einstellungen &gt; Grafik wieder erhöhen.
 		Die Region [REGION] erlaubt kein Terraforming.
 	</notification>
 	<notification name="CannotCopyWarning">
-		Sie sind nicht berechtigt, die folgenden Objekte zu kopieren:
-[ITEMS]
-Wenn Sie diese weitergeben, werden sie aus Ihrem Inventar entfernt. Möchten Sie diese Objekte wirklich weggeben?
+		Sie sind nicht berechtigt, dieses Objekt zu kopieren und verlieren es aus Ihrem Inventar, wenn Sie es weggeben. Möchten Sie dieses Objekt anbieten?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -624,10 +615,6 @@ Erwartet wurde [VALIDS]
 	</notification>
 	<notification name="CannotEncodeFile">
 		Datei konnte nicht kodiert werden: [FILE]
-	</notification>
-	<notification name="CorruptedProtectedDataStore">
-		Wir können Ihren Benutzernamen und Ihr Kennwort nicht automatisch ausfüllen.  Dies kann passieren, wenn Sie die Netzwerkeinstellungen ändern.
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
 		Ressourcendatei beschädigt: [FILE]
@@ -950,36 +937,6 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
-	<notification label="Outfit speichern" name="SaveOutfitAs">
-		Mein aktuelles Outfit als neues Outfit speichern:
-		<form name="form">
-			<input name="message">
-				[DESC] (neu)
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="Abbrechen"/>
-		</form>
-	</notification>
-	<notification label="Kleidungstyp speichern" name="SaveWearableAs">
-		Objekt in meinem Inventar speichern als:
-		<form name="form">
-			<input name="message">
-				[DESC] (neu)
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="Abbrechen"/>
-		</form>
-	</notification>
-	<notification label="Outfit neu benennen" name="RenameOutfit">
-		Neuer Outfit-Name:
-		<form name="form">
-			<input name="new_name">
-				[NAME]
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="Abbrechen"/>
-		</form>
-	</notification>
 	<notification name="RemoveFromFriends">
 		Möchten Sie [FIRST_NAME] [LAST_NAME] aus Ihrer Freundesliste entfernen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
@@ -1013,12 +970,6 @@ auf ALLEN LÄNDERN in diesem Sim LÖSCHEN?
 		Der Mindestbetrag für die Listung ist [MIN_PRICE] L$.
 
 Geben sie einen höheren Betrag ein.
-	</notification>
-	<notification name="ConfirmItemDeleteHasLinks">
-		Mindestens eines Ihrer ausgewählten Objekte verfügt über verknüpfte Objekte.  Wenn Sie dieses Objekt löschen, funktionieren die Verknüpfungen nicht mehr.  Wir empfehlen Ihnen daher, diese Verknüpfungen zuerst zu löschen.
-
-Möchten Sie diese Objekte wirklich löschen?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLock">
 		Mindestens ein ausgewähltes Objekt ist gesperrt.
@@ -1169,42 +1120,6 @@ Drücken Sie F1 für Hilfe oder für weitere Informationen über [SECOND_LIFE].
 Bitte wählen Sie einen männlichen oder weiblichen Avatar.
 Sie können sich später noch umentscheiden.
 		<usetemplate name="okcancelbuttons" notext="Weiblich" yestext="Männlich"/>
-	</notification>
-	<notification name="CantTeleportToGrid">
-		Konnte nicht zu [SLURL] teleportieren, da dieser Standort sich auf einem anderen Grid ([GRID]) befindet. Sie befinden sich im Moment auf dem Grid ([CURRENT_GRID]).  Bitte schließen Sie Ihren Viewer und versuchen Sie es erneut.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GeneralCertificateError">
-		Eine Verbindung zum Server konnte nicht hergestellt werden.
-[REASON]
-
-SubjektName: [SUBJECT_NAME_STRING]
-Herausgeber: [ISSUER_NAME_STRING]
-Gültig ab: [VALID_FROM]
-Gültig bis: [VALID_TO]
-MD5 Fingerabdruck: [SHA1_DIGEST]
-SHA1 Fingerabdruck: [MD5_DIGEST]
-Verwendung: [KEYUSAGE]
-Erweiterte Verwendung: [EXTENDEDKEYUSAGE]
-Identifikation: [SUBJECTKEYIDENTIFIER]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="TrustCertificateError">
-		Die Zertifizierungsautorität für diesen Server ist unbekannt.
-
-Zertifikatsinformation:
-SubjektName: [SUBJECT_NAME_STRING]
-Herausgeber: [ISSUER_NAME_STRING]
-Gültig ab: [VALID_FROM]
-Gültig bis: [VALID_TO]
-MD5 Fingerabdruck: [SHA1_DIGEST]
-SHA1 Fingerabdruck: [MD5_DIGEST]
-Verwendung: [KEYUSAGE]
-Erweiterte Verwendung: [EXTENDEDKEYUSAGE]
-Identifikation: [SUBJECTKEYIDENTIFIER]
-
-Möchten Sie dieser Autorität vertrauen?
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Vertrauen"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] [PRICE] L$  Sie haben nicht genügend L$, um diese Aktion auszuführen.
@@ -1511,10 +1426,6 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		Zu [CLASSIFIED] teleportieren?
 		<usetemplate ignoretext="Bestätigen, dass ich zu einer Position in Anzeigen teleportieren möchte." name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
 	</notification>
-	<notification name="TeleportToHistoryEntry">
-		Nach [HISTORY_ENTRY] teleportieren?
-		<usetemplate ignoretext="Bestätigen, dass ich zu einem Standort aus der Teleportliste teleportieren möchte" name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
-	</notification>
 	<notification label="Nachricht an alle auf diesem Grundbesitz" name="MessageEstate">
 		Geben Sie eine kurze Nachricht ein, die an jede Person auf Ihrem Grundbesitz gesendet wird.
 		<form name="form">
@@ -1597,17 +1508,14 @@ Möchten Sie unsere Knowledgebase besuchen, um mehr Informationen über Alterein
 		Aufgrund Ihrer Alterseinstufung dürfen Sie diese Region nicht betreten.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		Sie dürfen diese Region aufgrund der Einstellung Ihrer Inhaltseinstufung nicht betreten.
+		Sie dürfen diese Region aufgrund der Einstellung Ihrer Alterseinstufung nicht betreten.
 
-Bitte ändern Sie Ihre Einstellungen bezüglich der Inhaltseinstufung, um die gewünschte Region zu betreten. Danach können Sie nach [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Um die Veränderungen rückgängig zu machen, gehen Sie zu Ich &gt; Einstellungen &gt; Allgemein.
+Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstufung sofort zu ändern und Zugang zu erhalten. Sie können ab sofort [REGIONMATURITY]-Inhalt suchen und auf diesen zugreifen. Falls Sie diese Einstellung später rückgängig machen möchten, gehen Sie zu Bearbeiten &gt; Einstellungen &gt; Allgemein.
 		<form name="form">
 			<button name="OK" text="Einstellung ändern"/>
 			<button name="Cancel" text="Schließen"/>
 			<ignore name="ignore" text="Meine Alterseinstufung lässt nicht zu, dass ich eine Region betrete."/>
 		</form>
-	</notification>
-	<notification name="PreferredMaturityChanged">
-		Ihre Inhaltseinstufung ist jetzt [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		Sie haben aufgrund Ihrer Alterseinstufung keinen Anspruch auf dieses Land. Der Grund hierfür ist möglicherweise, dass Sie nicht altersüberprüft sind.
@@ -2024,9 +1932,6 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 	<notification name="SystemMessageTip">
 		[MESSAGE]
 	</notification>
-	<notification name="IMSystemMessageTip">
-		[MESSAGE]
-	</notification>
 	<notification name="Cancelled">
 		Abgebrochen
 	</notification>
@@ -2367,6 +2272,15 @@ Versuchen Sie es in einigen Minuten erneut.
 			<button name="Mute" text="Ignorieren"/>
 		</form>
 	</notification>
+	<notification name="ObjectGiveItemUnknownUser">
+		Ein Objekt namens [OBJECTFROMNAME] von (einem unbekannten Einwohner) hat Ihnen folgendes übergeben [OBJECTTYPE]:
+[ITEM_SLURL]
+		<form name="form">
+			<button name="Keep" text="Behalten"/>
+			<button name="Discard" text="Verwerfen"/>
+			<button name="Mute" text="Ignorieren"/>
+		</form>
+	</notification>
 	<notification name="UserGiveItem">
 		[NAME_SLURL] hat Ihnen folgendes [OBJECTTYPE] übergeben:
 [ITEM_SLURL]
@@ -2390,9 +2304,9 @@ Versuchen Sie es in einigen Minuten erneut.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME_SLURL] hat Ihnen einen Teleport an seine/ihre Position angeboten:
+		[NAME] hat Ihnen einen Teleport an seine/ihre Position angeboten:
 
-[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+[MESSAGE]
 		<form name="form">
 			<button name="Teleport" text="Teleportieren"/>
 			<button name="Cancel" text="Abbrechen"/>
@@ -2410,11 +2324,11 @@ Versuchen Sie es in einigen Minuten erneut.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME_SLURL] bietet Ihnen die Freundschaft an.
+		[NAME] bietet Ihnen die Freundschaft an.
 
 [MESSAGE]
 
-(Standardmäßig können Sie gegenseitig ihren Online-Status sehen.)
+(Standardmäßig werden Sie gegenseitig ihren Online-Status sehen können.)
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
 			<button name="Decline" text="Ablehnen"/>
@@ -2518,6 +2432,14 @@ Anfrage gestatten?
 			<button name="Ignore" text="Ignorieren"/>
 		</form>
 	</notification>
+	<notification name="ScriptToast">
+		[FIRST] [LAST]s &apos;[TITLE]&apos; fordert Eingaben vom Benutzer an.
+		<form name="form">
+			<button name="Open" text="Dialog öffnen"/>
+			<button name="Ignore" text="Ignorieren"/>
+			<button name="Block" text="Ignorieren"/>
+		</form>
+	</notification>
 	<notification name="BuyLindenDollarSuccess">
 		Vielen Dank für Ihre Zahlung.
 
@@ -2609,21 +2531,6 @@ Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Chat beizutreten, oder auf  &a
 	<notification name="VoiceLoginRetry">
 		Wir erstellen einen Voice-Kanal für Sie. Bitte warten Sie einen Moment.
 	</notification>
-	<notification name="VoiceEffectsExpired">
-		Ein oder mehrere Ihrer Voice-Morph-Abos ist/sind abgelaufen.
-[[URL] Hier klicken], um Ihr Abo zu erneuern.
-	</notification>
-	<notification name="VoiceEffectsExpiredInUse">
-		Das aktive Voice-Morph-Abo ist abgelaufen. Ihre normalen Voice-Einstellungen werden angewendet.
-[[URL] Hier klicken], um Ihr Abo zu erneuern.
-	</notification>
-	<notification name="VoiceEffectsWillExpire">
-		Ein oder mehrere Ihrer Voice-Morph-Abos werden in weniger als [INTERVAL] Tagen ablaufen.
-[[URL] Hier klicken], um Ihr Abo zu erneuern.
-	</notification>
-	<notification name="VoiceEffectsNew">
-		Neue Voice-Morph-Effekte sind erhältlich!
-	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		Nur Mitglieder einer bestimmten Gruppe dürfen diesen Bereich betreten.
 	</notification>
@@ -2689,96 +2596,6 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 		Die ausgewählte Schaltfläche kann zur Zeit nicht angezeigt werden.
 Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
 	</notification>
-	<notification name="ShareNotification">
-		Wählen Sie Einwohner aus, für die Sie das Objekt freigeben möchten.
-	</notification>
-	<notification name="ShareItemsConfirmation">
-		Möchten Sie diese Objekte wirklich für andere freigeben:
-
-[ITEMS]
-
-Für folgende Einwohner:
-
-[RESIDENTS]
-		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
-	</notification>
-	<notification name="ItemsShared">
-		Objekte wurden erfolgreich freigegeben.
-	</notification>
-	<notification name="DeedToGroupFail">
-		Übertragung an Gruppe ist fehlgeschlagen.
-	</notification>
-	<notification name="AvatarRezNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Avatar &apos;[NAME]&apos; wurde in [TIME] Sekunden gerezzt.
-	</notification>
-	<notification name="AvatarRezSelfBakedDoneNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Ihr Outfit wurde in [TIME] Sekunden gebacken.
-	</notification>
-	<notification name="AvatarRezSelfBakedUpdateNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Nach [TIME] Sekunden wurde eine Aktualisierung Ihres Aussehens gesendet.
-[STATUS]
-	</notification>
-	<notification name="AvatarRezCloudNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Avatar &apos;[NAME]&apos; wird als Wolke angezeigt.
-	</notification>
-	<notification name="AvatarRezArrivedNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Avatar &apos;[NAME]&apos; wird angezeigt.
-	</notification>
-	<notification name="AvatarRezLeftCloudNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Avatar &apos;[NAME]&apos; hat nach [TIME] Sekunden als Wolke die Welt verlassen.
-	</notification>
-	<notification name="AvatarRezEnteredAppearanceNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Avatar &apos;[NAME]&apos; befindet sich im Modus „Aussehen bearbeiten&quot;.
-	</notification>
-	<notification name="AvatarRezLeftAppearanceNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Avatar &apos;[NAME]&apos; hat Modus „Aussehen bearbeiten&quot; verlassen.
-	</notification>
-	<notification name="NoConnect">
-		Es gibt Probleme mit der Verbindung mit [PROTOCOL] [HOSTID].
-Bitte überprüfen Sie Ihre Netzwerk- und Firewalleinstellungen.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
-	</notification>
-	<notification name="NoVoiceConnect">
-		Verbindung mit Voice-Server ist leider nicht möglich:
-
-[HOSTID]
-
-Voice-Kommunikation ist leider nicht verfügbar.
-Bitte überprüfen Sie Ihr Netzwerk- und Firewall-Setup.
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
-	</notification>
-	<notification name="AvatarRezLeftNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Avatar &apos;[NAME]&apos; hat als vollständig gerezzter Avatar die Welt verlassen.
-	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
-		(Seit [EXISTENCE] Sekunden inworld )
-Die [RESOLUTION]-gebakene Textur für &apos;[BODYREGION]&apos; wurde in [TIME] Sekunden [ACTION].
-	</notification>
-	<notification name="ConfirmLeaveCall">
-		Möchten Sie dieses Gespräch wirklich verlassen ?
-		<usetemplate ignoretext="Bestätigen, bevor ich den Anruf verlasse." name="okcancelignore" notext="Nein" yestext="Ja"/>
-	</notification>
-	<notification name="ConfirmMuteAll">
-		Die von Ihnen ausgewählten Einstellungen werden alle Teilnehmer eines Gruppengespräches stummschalten.
-Dies bedeutet, dass alle Einwohner, die später dem Gespräch beitreten,
-auch dann stummgeschaltet werden, wenn Sie den Anruf verlassen haben.
-
-Alle stummschalten?
-		<usetemplate ignoretext="Bestätigen, bevor alle Teilnehmer in einem Gruppengespräch stummgeschaltet werden." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
-	</notification>
 	<global name="UnsupportedCPU">
 		- Ihre CPU-Geschwindigkeit entspricht nicht den Mindestanforderungen.
 	</global>
@@ -2802,8 +2619,5 @@ Sollte das Problem fortbestehen, finden Sie weitere Hilfestellung unter [SUPPORT
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		Wenn Sie ein Stück Land besitzen, können Sie dies als Ihr Zuhause festlegen.
 Ansonsten können Sie auf der Karte nachsehen und dort Ort suchen, die als „Infohub“ gekennzeichnet sind.
-	</global>
-	<global name="You died and have been teleported to your home location">
-		Sie sind gestorben und wurden zu Ihrem Zuhause teleportiert.
 	</global>
 </notifications>

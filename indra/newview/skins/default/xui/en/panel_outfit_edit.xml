@@ -25,6 +25,10 @@
 		(unknown)
 	</panel.string>
 
+    <!-- Wearables filtering strings -->
+    <string name="Filter.All" value="All"/>
+    <string name="Filter.Clothes/Body" value="Clothes/Body"/>
+    <string name="Filter.Objects" value="Objects"/>
 
     <button
      follows="top|left"
@@ -154,6 +158,16 @@
                  sort_column="look_item_sort"
                  name="look_item_sort" />
             </scroll_list>
+			<!-- TODO remove this button. Added it temporary for QA to be able to test new edit wearable panel (see EXT-6564)-->
+				<button
+				  follows="left|top|right"
+				  height="20"
+				  label="edit"
+				  left="0"
+				  top="0"
+				  layout="topleft"
+				  name="edit_wearable_btn"
+				  width="40" />
 
             <panel
              background_visible="true"
@@ -222,29 +236,18 @@
         <layout_panel
          auto_resize="true"
          default_tab_group="3"
-         height="250" 
-         min_height="120"
+         height="210" 
+         min_height="210"
          name="add_wearables_panel"
          width="300"
          tab_group="2"
          user_resize="true"
          visible="false">
 
-            <text
-             follows="top|left|right"
-             font="SansSerifBold"
-             height="13"
-             layout="topleft"
-             left="5"
-             name="status"
-             text_color="LtGray"
-             top="5"
-             value="Add Wearables"
-             use_ellipses="true"
-             width="275" />
-
+            <!-- *NOTE is not used, invisible and disabled -->
             <filter_editor
              background_image="TextField_Search_Off"
+             enabled="false"
              follows="left|top|right"
              font="SansSerif"
              label="Filter"
@@ -254,13 +257,79 @@
              height="20"
              name="look_item_filter"
              text_color="black"
-             text_pad_left="25" />
+             text_pad_left="25"
+             visible="false"/>
+
+            <layout_stack
+             animate="true"
+             follows="all"
+             height="25"
+             width="300"
+             layout="topleft"
+             orientation="horizontal"
+             name="filter_panels"
+             top="0"
+             left="0">
+                <layout_panel
+                 layout="topleft"
+                 follows="left|top|right"
+                 height="25"
+                 label="IM Control Panel"
+                 name="filter_button_panel"
+                 width="150"
+                 auto_resize="true"
+                 user_resize="false">
+                    <text
+                     follows="top|left|right"
+                     font="SansSerifBold"
+                     height="13"
+                     layout="topleft"
+                     left="5"
+                     name="add_to_outfit_label"
+                     text_color="LtGray"
+                     top="3"
+                     value="Add to Outfit:"
+                     use_ellipses="true"
+                     width="270" />
+                    <button
+                     follows="top|right"
+                     height="20"
+                     image_hover_unselected="Toolbar_Middle_Over"
+                     image_overlay=""
+                     image_selected="Toolbar_Middle_Selected"
+                     image_unselected="Toolbar_Middle_Off"
+                     is_toggle="true"
+                     label="O"
+                     layout="topleft"
+                     right="-1"
+                     name="filter_button"
+                     top="3"
+                     width="20" />
+                </layout_panel>
+                <layout_panel
+                 auto_resize="true"
+                 height="25"
+                 min_width="130"
+                 name="filter_combobox_panel"
+                 width="150"
+                 user_resize="false"
+                 visible="false">
+                    <combo_box
+                     follows="top|left|right"
+                     height="20"
+                     layout="topleft"
+                     right="-5"
+                     name="filter_wearables_combobox"
+                     top="0"
+                     width="130"/>
+                </layout_panel>
+            </layout_stack>
 
             <inventory_panel
              allow_multi_select="false"
              border="false"
              follows="left|top|right|bottom"
-             height="176"
+             height="155"
              layout="topleft"
              left="0"
              mouse_opaque="false"

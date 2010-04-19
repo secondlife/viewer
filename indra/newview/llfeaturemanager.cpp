@@ -2,25 +2,31 @@
  * @file llfeaturemanager.cpp
  * @brief LLFeatureManager class implementation
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * 
+ * Copyright (c) 2003-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -39,13 +45,10 @@
 #include "llsecondlifeurls.h"
 
 #include "llappviewer.h"
-#include "llhttpclient.h"
-#include "llnotificationsutil.h"
 #include "llviewercontrol.h"
 #include "llworld.h"
 #include "lldrawpoolterrain.h"
 #include "llviewertexturelist.h"
-#include "llversioninfo.h"
 #include "llwindow.h"
 #include "llui.h"
 #include "llcontrol.h"
@@ -59,20 +62,15 @@
 
 #if LL_DARWIN
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
-const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_mac.%s.txt";
 #elif LL_LINUX
 const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
-const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_linux.%s.txt";
 #elif LL_SOLARIS
 const char FEATURE_TABLE_FILENAME[] = "featuretable_solaris.txt";
-const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_solaris.%s.txt";
 #else
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
-const char FEATURE_TABLE_VER_FILENAME[] = "featuretable.%s.txt";
 #endif
 
 const char GPU_TABLE_FILENAME[] = "gpu_table.txt";
-const char GPU_TABLE_VER_FILENAME[] = "gpu_table.%s.txt";
 
 LLFeatureInfo::LLFeatureInfo(const std::string& name, const BOOL available, const F32 level)
 	: mValid(TRUE), mName(name), mAvailable(available), mRecommendedLevel(level)
@@ -217,44 +215,22 @@ BOOL LLFeatureManager::loadFeatureTables()
 	mSkippedFeatures.insert("RenderVBOEnable");
 	mSkippedFeatures.insert("RenderFogRatio");
 
-	// first table is install with app
-	std::string app_path = gDirUtilp->getAppRODataDir();
-	app_path += gDirUtilp->getDirDelimiter();
-	app_path += FEATURE_TABLE_FILENAME;
+	std::string data_path = gDirUtilp->getAppRODataDir();
 
-	// second table is downloaded with HTTP
-	std::string http_filename = llformat(FEATURE_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());
-	std::string http_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, http_filename);
+	data_path += gDirUtilp->getDirDelimiter();
 
-	// use HTTP table if it exists
-	std::string path;
-	if (gDirUtilp->fileExists(http_path))
-	{
-		path = http_path;
-	}
-	else
-	{
-		path = app_path;
-	}
-
-	
-	return parseFeatureTable(path);
-}
-
-
-BOOL LLFeatureManager::parseFeatureTable(std::string filename)
-{
-	llinfos << "Looking for feature table in " << filename << llendl;
+	data_path += FEATURE_TABLE_FILENAME;
+	lldebugs << "Looking for feature table in " << data_path << llendl;
 
 	llifstream file;
 	std::string name;
 	U32		version;
 	
-	file.open(filename); 	 /*Flawfinder: ignore*/
+	file.open(data_path); 	 /*Flawfinder: ignore*/
 
 	if (!file)
 	{
-		LL_WARNS("RenderInit") << "Unable to open feature table " << filename << LL_ENDL;
+		LL_WARNS("RenderInit") << "Unable to open feature table!" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -263,7 +239,7 @@ BOOL LLFeatureManager::parseFeatureTable(std::string filename)
 	file >> version;
 	if (name != "version")
 	{
-		LL_WARNS("RenderInit") << filename << " does not appear to be a valid feature table!" << LL_ENDL;
+		LL_WARNS("RenderInit") << data_path << " does not appear to be a valid feature table!" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -326,44 +302,24 @@ BOOL LLFeatureManager::parseFeatureTable(std::string filename)
 
 void LLFeatureManager::loadGPUClass()
 {
+	std::string data_path = gDirUtilp->getAppRODataDir();
+
+	data_path += gDirUtilp->getDirDelimiter();
+
+	data_path += GPU_TABLE_FILENAME;
+
 	// defaults
 	mGPUClass = GPU_CLASS_UNKNOWN;
 	mGPUString = gGLManager.getRawGLString();
 	mGPUSupported = FALSE;
 
-	// first table is in the app dir
-	std::string app_path = gDirUtilp->getAppRODataDir();
-	app_path += gDirUtilp->getDirDelimiter();
-	app_path += GPU_TABLE_FILENAME;
-	
-	// second table is downloaded with HTTP
-	std::string http_filename = llformat(GPU_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());
-	std::string http_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, http_filename);
-
-	// use HTTP table if it exists
-	std::string path;
-	if (gDirUtilp->fileExists(http_path))
-	{
-		path = http_path;
-	}
-	else
-	{
-		path = app_path;
-	}
-
-	parseGPUTable(path);
-}
-
-	
-void LLFeatureManager::parseGPUTable(std::string filename)
-{
 	llifstream file;
 		
-	file.open(filename);
+	file.open(data_path); 		 /*Flawfinder: ignore*/
 
 	if (!file)
 	{
-		LL_WARNS("RenderInit") << "Unable to open GPU table: " << filename << "!" << LL_ENDL;
+		LL_WARNS("RenderInit") << "Unable to open GPU table: " << data_path << "!" << LL_ENDL;
 		return;
 	}
 
@@ -446,70 +402,6 @@ void LLFeatureManager::parseGPUTable(std::string filename)
 
 	LL_WARNS("RenderInit") << "Couldn't match GPU to a class: " << gGLManager.getRawGLString() << LL_ENDL;
 }
-
-// responder saves table into file
-class LLHTTPFeatureTableResponder : public LLHTTPClient::Responder
-{
-public:
-
-	LLHTTPFeatureTableResponder(std::string filename) :
-		mFilename(filename)
-	{
-	}
-
-	
-	virtual void completedRaw(U32 status, const std::string& reason,
-							  const LLChannelDescriptors& channels,
-							  const LLIOPipe::buffer_ptr_t& buffer)
-	{
-		if (isGoodStatus(status))
-		{
-			// write to file
-
-			llinfos << "writing feature table to " << mFilename << llendl;
-			
-			S32 file_size = buffer->countAfter(channels.in(), NULL);
-			if (file_size > 0)
-			{
-				// read from buffer
-				U8* copy_buffer = new U8[file_size];
-				buffer->readAfter(channels.in(), NULL, copy_buffer, file_size);
-
-				// write to file
-				LLAPRFile out(mFilename, LL_APR_WB);
-				out.write(copy_buffer, file_size);
-				out.close();
-			}
-		}
-		
-	}
-	
-private:
-	std::string mFilename;
-};
-
-void fetch_table(std::string table)
-{
-	const std::string base       = gSavedSettings.getString("FeatureManagerHTTPTable");
-
-	const std::string filename   = llformat(table.c_str(), LLVersionInfo::getVersion().c_str());
-
-	const std::string url        = base + "/" + filename;
-
-	const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
-
-	llinfos << "LLFeatureManager fetching " << url << " into " << path << llendl;
-	
-	LLHTTPClient::get(url, new LLHTTPFeatureTableResponder(path));
-}
-
-// fetch table(s) from a website (S3)
-void LLFeatureManager::fetchHTTPTables()
-{
-	fetch_table(FEATURE_TABLE_VER_FILENAME);
-	fetch_table(GPU_TABLE_VER_FILENAME);
-}
-
 
 void LLFeatureManager::cleanupFeatureTables()
 {
