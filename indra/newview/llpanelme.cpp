@@ -45,8 +45,8 @@
 
 // Linden libraries
 #include "llavatarnamecache.h"		// IDEVO
-#include "llchat.h"					// IDEVO HACK
 #include "lliconctrl.h"
+#include "llnotifications.h"
 #include "llnotificationsutil.h"	// IDEVO
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
@@ -298,9 +298,6 @@ void LLPanelMyProfileEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
 	mTextureEditIconMap[ctrl->getName()]->setVisible(FALSE);
 }
 
-// IDEVO HACK
-extern void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
-
 void LLPanelMyProfileEdit::onCacheSetName(bool success,
 										  const std::string& reason,
 										  const LLSD& content)
@@ -310,15 +307,34 @@ void LLPanelMyProfileEdit::onCacheSetName(bool success,
 		// Re-fetch my name, as it may have been sanitized by the service
 		LLAvatarNameCache::get(getAvatarId(),
 			boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
+		return;
 	}
-	else
+
+	// Request failed, notify the user
+	std::string error_tag = content["error_tag"].asString();
+	llinfos << "set name failure error_tag " << error_tag << llendl;
+
+	// We might have a localized string for this message
+	if (!error_tag.empty()
+		&& LLNotifications::getInstance()->templateExists(error_tag))
 	{
-		// JAMESDEBUG TODO: localize strings for reasons we couldn't
-		// change the name
-		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
-		// TODO: SetDisplayNameFailedThrottle with [FREQUENCY]
-		// TODO: SetDisplayNameFailedUnavailable
+		LLNotificationsUtil::add(error_tag);
+		return;
 	}
+
+	// The server error might have a localized message for us
+	std::string lang_code = LLUI::getLanguage();
+	LLSD error_desc = content["error_description"];
+	if (error_desc.has( lang_code ))
+	{
+		LLSD args;
+		args["MESSAGE"] = error_desc[lang_code].asString();
+		LLNotificationsUtil::add("GenericAlert", args);
+		return;
+	}
+
+	// No specific error, throw a generic one
+	LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
 }
 
 void LLPanelMyProfileEdit::onDialogSetName(const LLSD& notification, const LLSD& response)

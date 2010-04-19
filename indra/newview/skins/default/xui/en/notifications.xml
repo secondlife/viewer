@@ -3062,6 +3062,15 @@ Change your display name?
 
   <notification
    icon="alertmodal.tga"
+   name="AgentDisplayNameSetLindenFailed"
+   type="alertmodal">
+Sorry, your display name cannot contain the word 'Linden'.
+
+Please try a different name.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="SetDisplayNameFailedThrottle"
    type="alertmodal">
     Sorry, you can only change your display name once every [FREQUENCY] hour(s). 
