@@ -175,24 +175,6 @@ public:
 				mRegion->showReleaseNotes();
 			}
 		}
-
-		// JAMESDEBUG *TODO* THIS IS WRONG!!!!!!!!!!!!!!!!!!!!!
-		// this isn't necessarily the region the viewer is in
-
-		// Avatar name lookup library needs to know who to ask
-		std::string name_lookup_url = mRegion->getCapability("GetDisplayNames");
-		// capabilities require URLs with slashes before query params, like:
-		// https://<host>:<port>/cap/<uuid>/?ids=<blah>
-		// but the caps are granted like:
-		// https://<host>:<port>/cap/<uuid>
-		U32 url_size = name_lookup_url.size();
-		if (url_size > 0 && name_lookup_url[url_size-1] != '/')
-		{
-			name_lookup_url += '/';
-		}
-		LLAvatarNameCache::setNameLookupURL(name_lookup_url);
-
-		llinfos << "JAMESDEBUG cap " << name_lookup_url << llendl;
 		
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{

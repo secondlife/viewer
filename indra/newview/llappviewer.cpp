@@ -3541,9 +3541,10 @@ void LLAppViewer::idle()
 	    // NOTE: Starting at this point, we may still have pointers to "dead" objects
 	    // floating throughout the various object lists.
 	    //
+		idleNameCache();
     
 		idleNetwork();
-	    	        
+
 
 		// Check for away from keyboard, kick idle agents.
 		idle_afk_check();
@@ -3878,6 +3879,41 @@ void LLAppViewer::sendLogoutRequest()
 	}
 }
 
+void LLAppViewer::idleNameCache()
+{
+	// Neither old nor new name cache can function before agent has a region
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region) return;
+
+	// deal with any queued name requests and replies.
+	gCacheName->processPending();
+
+	// Agent may have moved to a different region, so need to update cap URL
+	// for name lookups.  Can't do this in the cap grant code, as caps are
+	// granted to neighbor regions before the main agent gets there.  Can't
+	// do it in the move-into-region code because cap not guaranteed to be
+	// granted yet, for example on teleport.
+	std::string name_lookup_url;
+	name_lookup_url.reserve(128); // avoid a memory allocation below
+	name_lookup_url = region->getCapability("GetDisplayNames");
+
+	// Ensure capability has been granted
+	U32 url_size = name_lookup_url.size();
+	if (url_size > 0)
+	{
+		// capabilities require URLs with slashes before query params:
+		// https://<host>:<port>/cap/<uuid>/?ids=<blah>
+		// but the caps are granted like:
+		// https://<host>:<port>/cap/<uuid>
+		if (name_lookup_url[url_size-1] != '/')
+		{
+			name_lookup_url += '/';
+		}
+		LLAvatarNameCache::setNameLookupURL(name_lookup_url);
+	}
+	LLAvatarNameCache::idle();
+}
+
 //
 // Handle messages, and all message related stuff
 //
@@ -3905,10 +3941,6 @@ void LLAppViewer::idleNetwork()
 	{
 		LLFastTimer t(FTM_IDLE_NETWORK); // decode
 		
-		// deal with any queued name requests and replies.
-		gCacheName->processPending();
-		LLAvatarNameCache::idle();
-
 		llpushcallstacks ;
 		LLTimer check_message_timer;
 		//  Read all available packets from network 
