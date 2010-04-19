@@ -71,10 +71,7 @@ void LLPanelPlacesTab::onRegionResponse(const LLVector3d& landmark_global_pos,
 	std::string sl_url;
 	if ( gotSimName )
 	{
-		F32 region_x = (F32)fmod( landmark_global_pos.mdV[VX], (F64)REGION_WIDTH_METERS );
-		F32 region_y = (F32)fmod( landmark_global_pos.mdV[VY], (F64)REGION_WIDTH_METERS );
-
-		sl_url = LLSLURL::buildSLURL(sim_name, llround(region_x), llround(region_y), llround((F32)landmark_global_pos.mdV[VZ]));
+		sl_url = LLSLURL(sim_name, landmark_global_pos).getSLURLString();
 	}
 	else
 	{
