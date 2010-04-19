@@ -158,6 +158,7 @@ class LLParticipantList
 			LLParticipantList& mParent;
 		private:
 			bool enableContextMenuItem(const LLSD& userdata);
+			bool enableModerateContextMenuItem(const LLSD& userdata);
 			bool checkContextMenuItem(const LLSD& userdata);
 
 			void sortParticipantList(const LLSD& userdata);
