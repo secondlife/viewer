@@ -200,7 +200,11 @@ void LLFloaterMove::setFlyingMode(BOOL fly)
 	if (instance)
 	{
 		instance->setFlyingModeImpl(fly);
-		BOOL is_sitting = isAgentAvatarValid() && gAgentAvatarp->isSitting();
+		LLVOAvatarSelf* avatar_object = gAgent.getAvatarObject();
+		bool is_sitting = avatar_object
+			&& (avatar_object->getRegion() != NULL)
+			&& (!avatar_object->isDead())
+			&& avatar_object->isSitting();
 		instance->showModeButtons(!fly && !is_sitting);
 	}
 	if (fly)
