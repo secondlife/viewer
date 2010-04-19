@@ -133,10 +133,6 @@ mRemoveFromOutfitBtn(NULL), mLookObserver(NULL)
 		mLookItemTypes.push_back(LLLookItemType());
 	}
 	
-	// TODO: make these strings translatable
-	mLookItemTypes[LIT_ALL] = LLLookItemType("All Items", ALL_ITEMS_MASK);
-	mLookItemTypes[LIT_WEARABLE] = LLLookItemType("Shape & Clothing", WEARABLE_MASK);
-	mLookItemTypes[LIT_ATTACHMENT] = LLLookItemType("Attachments", ATTACHMENT_MASK);
 
 }
 
@@ -159,10 +155,15 @@ LLPanelOutfitEdit::~LLPanelOutfitEdit()
 BOOL LLPanelOutfitEdit::postBuild()
 {
 	// gInventory.isInventoryUsable() no longer needs to be tested per Richard's fix for race conditions between inventory and panels
-		
+
+	mLookItemTypes[LIT_ALL] = LLLookItemType(getString("Filter.All"), ALL_ITEMS_MASK);
+	mLookItemTypes[LIT_WEARABLE] = LLLookItemType(getString("Filter.Clothes/Body"), WEARABLE_MASK);
+	mLookItemTypes[LIT_ATTACHMENT] = LLLookItemType(getString("Filter.Objects"), ATTACHMENT_MASK);
+
 	mCurrentOutfitName = getChild<LLTextBox>("curr_outfit_name"); 
 
 	childSetCommitCallback("add_btn", boost::bind(&LLPanelOutfitEdit::showAddWearablesPanel, this), NULL);
+	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
 
 	mLookContents = getChild<LLScrollListCtrl>("look_items_list");
 	mLookContents->sortByColumn("look_item_sort", TRUE);
@@ -174,7 +175,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
 	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
 	
-	LLComboBox* type_filter = getChild<LLComboBox>("inventory_filter");
+	LLComboBox* type_filter = getChild<LLComboBox>("filter_wearables_combobox");
 	type_filter->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onTypeFilterChanged, this, _1));
 	type_filter->removeall();
 	for (U32 i = 0; i < mLookItemTypes.size(); ++i)
@@ -234,6 +235,11 @@ BOOL LLPanelOutfitEdit::postBuild()
 void LLPanelOutfitEdit::showAddWearablesPanel()
 {
 	childSetVisible("add_wearables_panel", childGetValue("add_btn"));
+}
+
+void LLPanelOutfitEdit::showWearablesFilter()
+{
+	childSetVisible("filter_combobox_panel", childGetValue("filter_button"));
 }
 
 void LLPanelOutfitEdit::saveOutfit(bool as_new)
