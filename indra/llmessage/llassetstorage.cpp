@@ -418,8 +418,8 @@ bool LLAssetStorage::findInVFSAndInvokeCallback(LLVFS *vfs, const LLUUID& uuid, 
 			if (callback)
 			{
 				callback(vfs, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
-				return true;
 			}
+			return true;
 		}
 		else
 		{
@@ -454,6 +454,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 		return;
 	}
 
+	// Try static VFS first.
 	if (findInVFSAndInvokeCallback(mStaticVFS,uuid,type,callback,user_data))
 	{
 		return;
@@ -652,6 +653,7 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 		return;
 	}
 
+	// Try static VFS first.
 	if (findInVFSAndInvokeCallback(mStaticVFS,asset_id,atype,callback,user_data))
 	{
 		return;
