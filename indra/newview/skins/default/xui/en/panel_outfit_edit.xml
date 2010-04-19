@@ -154,6 +154,16 @@
                  sort_column="look_item_sort"
                  name="look_item_sort" />
             </scroll_list>
+			<!-- TODO remove this button. Added it temporary for QA to be able to test new edit wearable panel (see EXT-6564)-->
+				<button
+				  follows="left|top|right"
+				  height="20"
+				  label="edit"
+				  left="0"
+				  top="0"
+				  layout="topleft"
+				  name="edit_wearable_btn"
+				  width="40" />
 
             <panel
              background_visible="true"

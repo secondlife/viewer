@@ -457,20 +457,18 @@ void LLPanelOutfitEdit::onInventorySelectionChange(const std::deque<LLFolderView
 
 void LLPanelOutfitEdit::onOutfitItemSelectionChange(void)
 {	
-	S32 left_offset = -4;
-	S32 top_offset = -10;
 	LLScrollListItem* item = mLookContents->getLastSelectedItem();
 	if (!item)
 		return;
 
-	LLRect rect = item->getRect();
-	LLRect btn_rect(
-					left_offset + rect.mRight - 50,
-					top_offset  + rect.mTop,
-					left_offset + rect.mRight - 30,
-					top_offset  + rect.mBottom);
+	LLRect item_rect;
+	mLookContents->localRectToOtherView(item->getRect(), &item_rect, getChild<LLUICtrl>("outfit_wearables_panel"));
+
+	// TODO button(and item list) should be removed (when new widget is ready)
+	LLRect btn_rect = mEditWearableBtn->getRect();
+	btn_rect.set(item_rect.mRight - btn_rect.getWidth(), item_rect.mTop, item_rect.mRight, item_rect.mBottom);
 	
-	mEditWearableBtn->setRect(btn_rect);
+	mEditWearableBtn->setShape(btn_rect);
 	
 	mEditWearableBtn->setEnabled(TRUE);
 	if (!mEditWearableBtn->getVisible())
