@@ -35,10 +35,10 @@
      -->
     <string
      name="no_filtered_groups_msg"
-     value="[secondlife:///app/search/groups Try finding the group in search?]" />
+     value="Didn't find what you're looking for? Try [secondlife:///app/search/groups Search]." />
     <string
      name="no_groups_msg"
-     value="[secondlife:///app/search/groups Try searching for some groups to join.]" />
+     value="Looking for Groups to join? Try [secondlife:///app/search/groups Search]." />
     <filter_editor
      follows="left|top|right"
      height="23"
