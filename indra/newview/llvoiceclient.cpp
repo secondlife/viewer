@@ -6633,8 +6633,7 @@ LLVoiceClient::sessionState::sessionState() :
 	mReconnect(false),
 	mVolumeDirty(false),
 	mMuteDirty(false),
-	mParticipantsChanged(false),
-	mVoiceFontID(0)
+	mParticipantsChanged(false)
 {
 }
 
