@@ -87,6 +87,7 @@ public:
 		// only update the location if there is none already available.
 
 	void showAddWearablesPanel();
+	void showWearablesFilter();
 	void saveOutfit(bool as_new = false);
 	void showSaveMenu();
 
