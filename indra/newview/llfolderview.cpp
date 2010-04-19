@@ -1416,8 +1416,8 @@ void LLFolderView::startRenamingSelectedItem( void )
 		mRenamer->setVisible( TRUE );
 		// set focus will fail unless item is visible
 		mRenamer->setFocus( TRUE );
-		mRenamer->setTopLostCallback(boost::bind(onRenamerLost, _1));
-		mRenamer->setFocusLostCallback(boost::bind(onRenamerLost, _1));
+		mRenamer->setTopLostCallback(boost::bind(&LLFolderView::onRenamerLost, this, _1));
+		mRenamer->setFocusLostCallback(boost::bind(&LLFolderView::onRenamerLost, this, _1));
 		gViewerWindow->addPopup(mRenamer);
 	}
 }
@@ -2386,9 +2386,9 @@ S32	LLFolderView::notify(const LLSD& info)
 /// Local function definitions
 ///----------------------------------------------------------------------------
 
-//static 
 void LLFolderView::onRenamerLost( LLFocusableElement* renamer)
 {
+	mRenameItem = NULL;
 	LLUICtrl* uictrl = dynamic_cast<LLUICtrl*>(renamer);
 	if (uictrl)
 	{
