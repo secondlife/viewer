@@ -36,10 +36,12 @@
 // Viewer includes
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "lldateutil.h"			// IDEVO
+#include "lldate.h"				// split()
+#include "lldateutil.h"			// ageFromDate()
 #include "llfocusmgr.h"
 #include "llfloaterreg.h"
 #include "llviewercontrol.h"
+#include "llviewerregion.h"		// getCapability()
 #include "llworld.h"
 
 // Linden libraries
@@ -371,12 +373,26 @@ void LLFloaterAvatarPicker::find()
 	std::string text = childGetValue("Edit").asString();
 
 	mQueryID.generate();
-	// IDEVO
-	if (LLAvatarNameCache::useDisplayNames())
+
+	std::string url;
+	url.reserve(128); // avoid a memory allocation or two
+
+	LLViewerRegion* region = gAgent.getRegion();
+	url = region->getCapability("AvatarPickerSearch");
+	// Prefer use of capabilities to search on both SLID and display name
+	// but allow display name search to be manually turned off for test
+	if (!url.empty()
+		&& LLAvatarNameCache::useDisplayNames())
 	{
-		std::string url = "http://pdp15.lindenlab.com:8050/my-service/agent/search/";
+		// capability urls don't end in '/', but we need one to parse
+		// query parameters correctly
+		if (url.size() > 0 && url[url.size()-1] != '/')
+		{
+			url += "/";
+		}
+		url += "?name=";
 		url += LLURI::escape(text);
-		url += "/";
+		llinfos << "JAMESDEBUG picker " << url << llendl;
 		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
 	}
 	else
@@ -483,7 +499,8 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 
 	LLScrollListCtrl* search_results = getChild<LLScrollListCtrl>("SearchResults");
 
-	if (content.size() == 0)
+	LLSD agents = content["agents"];
+	if (agents.size() == 0)
 	{
 		LLStringUtil::format_map_t map;
 		map["[TEXT]"] = childGetText("Edit");
@@ -501,8 +518,8 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 	search_results->deleteAllItems();
 
 	LLSD item;
-	LLSD::array_const_iterator it = content.beginArray();
-	for ( ; it != content.endArray(); ++it)
+	LLSD::array_const_iterator it = agents.beginArray();
+	for ( ; it != agents.endArray(); ++it)
 	{
 		const LLSD& row = *it;
 		item["id"] = row["agent_id"];
@@ -510,12 +527,13 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 		columns[0]["column"] = "name";
 		columns[0]["value"] = row["display_name"];
 		columns[1]["column"] = "slid";
-		columns[1]["value"] = row["slid"];
-		std::string born_on = row["born_on"].asString();
+		columns[1]["value"] = row["sl_id"];
+		LLDate account_created = row["account_created"].asDate();
+		S32 year, month, day;
+		account_created.split(&year, &month, &day);
+		std::string age = LLDateUtil::ageFromDate(year, month, day);
 		columns[2]["column"] = "age";
-		columns[2]["value"] = LLDateUtil::ageFromDateISO(born_on);
-		columns[3]["column"] = "profile";
-		columns[3]["value"] = row["profile"];
+		columns[2]["value"] = age;
 		search_results->addElement(item);
 	}
 

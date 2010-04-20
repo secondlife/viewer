@@ -104,10 +104,6 @@
               label="Age"
               name="age"
               width="100" />
-            <columns
-              label="Profile"
-              name="profile"
-              width="100" />
           </scroll_list>
         </panel>
         <panel

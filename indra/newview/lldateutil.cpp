@@ -180,3 +180,8 @@ std::string LLDateUtil::ageFromDateISO(const std::string& date_string)
 {
 	return ageFromDateISO(date_string, LLDate::now());
 }
+
+std::string LLDateUtil::ageFromDate(S32 year, S32 month, S32 day)
+{
+	return age_from_date(year, month, day, LLDate::now());
+}

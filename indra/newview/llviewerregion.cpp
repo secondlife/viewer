@@ -1466,6 +1466,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	LLSD capabilityNames = LLSD::emptyArray();
 	
 	capabilityNames.append("AttachmentResources");
+	capabilityNames.append("AvatarPickerSearch");
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("DispatchRegionInfo");
