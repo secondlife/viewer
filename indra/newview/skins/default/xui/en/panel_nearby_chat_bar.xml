@@ -16,10 +16,11 @@
      label="Click here to chat."
      layout="topleft"
      left_delta="3"
-     text_pad_right="25"
      left="0"
      max_length="512"
      name="chat_box"
+     text_pad_left="5"
+     text_pad_right="25"
      tool_tip="Press Enter to say, Ctrl+Enter to shout"
      top="2"
      width="283" />
