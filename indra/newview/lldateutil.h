@@ -51,7 +51,7 @@ namespace LLDateUtil
 	// Calls the above with LLDate::now()
 	std::string ageFromDateISO(const std::string& date_string);
 
-	std::string ageFromDate(S32 year, S32 month, S32 day);
+	std::string ageFromDate(S32 born_year, S32 born_month, S32 born_day, const LLDate& now);
 }
 
 #endif
