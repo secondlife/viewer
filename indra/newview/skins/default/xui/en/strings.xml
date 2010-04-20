@@ -3106,7 +3106,7 @@ Abuse Report</string>
 
   <!-- birth date format shared by avatar inspector and profile panels -->
   <string name="AvatarBirthDateFormat">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
+  
+  <string name="DefaultMimeType">none/none</string>
 
-  <string name="texture_load_dimensions_error">Can't load images larger then [WIDTH]*[HEIGHT]</string>
-
-</strings>
+  </strings>
