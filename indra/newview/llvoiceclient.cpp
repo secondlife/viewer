@@ -1715,7 +1715,8 @@ std::string LLVoiceClient::state2string(LLVoiceClient::state inState)
 		CASE(stateNeedsLogin);
 		CASE(stateLoggingIn);
 		CASE(stateLoggedIn);
-		CASE(stateFontListReceived);
+		CASE(stateVoiceFontsWait);
+		CASE(stateVoiceFontsReceived);
 		CASE(stateCreatingSessionGroup);
 		CASE(stateNoChannel);
 		CASE(stateJoiningSession);
@@ -2293,6 +2294,7 @@ void LLVoiceClient::stateMachine()
 			notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
 
 			// request the set of available voice fonts
+			setState(stateVoiceFontsWait);
 			accountGetSessionFontsSendMessage();
 
 			// request the current set of block rules (we'll need them when updating the friends list)
@@ -2326,17 +2328,21 @@ void LLVoiceClient::stateMachine()
 					writeString(stream.str());
 				}
 			}
-
-			// accountGetSessionFontsResponse() will transition from here to stateFontListReceived.
-
-		//MARK: stateFontListReceived
-		case stateFontListReceived:		// font list received
+		break;
 			
+		//MARK: stateVoiceFontsWait
+		case stateVoiceFontsWait:		// Await voice font list
+			// accountGetSessionFontsResponse() will transition from here to
+			// stateVoiceFontsReceived, to ensure we have the voice font list
+			// before attempting to create a session.
+		break;
+
+		//MARK: stateVoiceFontsReceived
+		case stateVoiceFontsReceived:		// Voice font list received
 #if USE_SESSION_GROUPS			
 			// create the main session group
-			sessionGroupCreateSendMessage();
-			
 			setState(stateCreatingSessionGroup);
+			sessionGroupCreateSendMessage();
 #else
 			// Not using session groups -- skip the stateCreatingSessionGroup state.
 			setState(stateNoChannel);
@@ -7162,16 +7168,10 @@ LLVoiceClient::voiceFontEntry::~voiceFontEntry()
 
 void LLVoiceClient::deleteAllVoiceFonts()
 {
-	// All sessions should be removed first as FontIDs will be invalid
-	llassert(mSessions.empty());
-
-	LL_DEBUGS("Voice") << "Clearing voice font list." << LL_ENDL;
-
 	mVoiceFontList.clear();
 
 	voice_font_map_t::iterator iter;
-
-	for (iter = mVoiceFontMap.begin(); iter == mVoiceFontMap.end(); ++iter)
+	for (iter = mVoiceFontMap.begin(); iter != mVoiceFontMap.end(); ++iter)
 	{
 		delete iter->second;
 	}
@@ -7335,9 +7335,9 @@ void LLVoiceClient::accountListAutoAcceptRulesResponse(int statusCode, const std
 void LLVoiceClient::accountGetSessionFontsResponse(int statusCode, const std::string &statusString)
 {
 	// Voice font list entries were updated via addVoiceFont() during parsing.
-	if(getState() == stateLoggedIn)
+	if(getState() == stateVoiceFontsWait)
 	{
-		setState(stateFontListReceived);
+		setState(stateVoiceFontsReceived);
 	}
 }
 

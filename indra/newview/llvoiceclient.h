@@ -587,7 +587,8 @@ static	void updatePosition(void);
 			stateNeedsLogin,			// send login request
 			stateLoggingIn,				// waiting for account handle
 			stateLoggedIn,				// account handle received
-			stateFontListReceived,		// List of available voice fonts received
+			stateVoiceFontsWait,		// Awaiting the list of voice fonts
+			stateVoiceFontsReceived,	// List of voice fonts received
 			stateCreatingSessionGroup,	// Creating the main session group
 			stateNoChannel,				// 
 			stateJoiningSession,		// waiting for session handle
