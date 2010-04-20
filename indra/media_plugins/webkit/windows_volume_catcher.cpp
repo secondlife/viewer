@@ -232,14 +232,22 @@ VolumeCatcherImpl::VolumeCatcherImpl()
 :	mVolume(1.0f),	// default volume is max
 	mPan(0.f)		// default pan is centered
 {
-	// for each reported mixer "device", create a proxy object and add to list
-	U32 num_mixers = mixerGetNumDevs();
-	for (U32 mixer_index = 0; mixer_index < num_mixers; ++mixer_index)
+	OSVERSIONINFOEX	V = {sizeof(OSVERSIONINFOEX)};	//EX for NT 5.0 and later
+
+	::GetVersionEx((POSVERSIONINFO)&V);
+
+	// disable volume on XP and below
+	if (V.dwPlatformId == VER_PLATFORM_WIN32_NT && V.dwMajorVersion >= 6)
 	{
-		Mixer* mixerp = Mixer::create(mixer_index);
-		if (mixerp)
+		// for each reported mixer "device", create a proxy object and add to list
+		U32 num_mixers = mixerGetNumDevs();
+		for (U32 mixer_index = 0; mixer_index < num_mixers; ++mixer_index)
 		{
-			mMixers.push_back(mixerp);
+			Mixer* mixerp = Mixer::create(mixer_index);
+			if (mixerp)
+			{
+				mMixers.push_back(mixerp);
+			}
 		}
 	}
 }
@@ -279,6 +287,7 @@ void VolumeCatcherImpl::setVolume(F32 volume)
 		}
 
 	}
+
 	mVolume = volume;
 }
 
