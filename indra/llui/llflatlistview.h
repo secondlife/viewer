@@ -58,7 +58,7 @@
  * - Order of returned selected items are not guaranteed
  * - The control assumes that all items being added are unique.
  */
-class LLFlatListView : public LLScrollContainer
+class LLFlatListView : public LLScrollContainer, public LLEditMenuHandler
 {
 public:
 
@@ -114,8 +114,6 @@ public:
 		Params();
 	};
 	
-	virtual ~LLFlatListView() { clear(); };
-
 	/**
 	 * Connects callback to signal called when Return key is pressed.
 	 */
@@ -224,7 +222,7 @@ public:
 	 * Get LLUUIDs associated with selected items
 	 * @param selected_uuids An std::vector being populated with LLUUIDs associated with selected items
 	 */
-	virtual void getSelectedUUIDs(std::vector<LLUUID>& selected_uuids) const;
+	virtual void getSelectedUUIDs(uuid_vec_t& selected_uuids) const;
 
 	/** Get the top selected item */
 	virtual LLPanel* getSelectedItem() const;
@@ -344,7 +342,8 @@ protected:
 
 	virtual bool selectNextItemPair(bool is_up_direction, bool reset_selection);
 
-	virtual bool selectAll();
+	virtual BOOL canSelectAll() const;
+	virtual void selectAll();
 
 	virtual bool isSelected(item_pair_t* item_pair) const;
 
@@ -379,10 +378,13 @@ private:
 
 	void setNoItemsCommentVisible(bool visible) const;
 
-private:
+protected:
 
 	/** Comparator to use when sorting the list. */
 	const ItemComparator* mItemComparator;
+
+
+private:
 
 	LLPanel* mItemsPanel;
 

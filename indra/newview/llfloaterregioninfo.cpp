@@ -610,7 +610,7 @@ void LLPanelRegionGeneralInfo::onClickKick()
 	parent_floater->addDependentFloater(child_floater);
 }
 
-void LLPanelRegionGeneralInfo::onKickCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
+void LLPanelRegionGeneralInfo::onKickCommit(const std::vector<std::string>& names, const uuid_vec_t& ids)
 {
 	if (names.empty() || ids.empty()) return;
 	if(ids[0].notNull())
@@ -848,7 +848,7 @@ void LLPanelRegionDebugInfo::onClickChooseAvatar()
 }
 
 
-void LLPanelRegionDebugInfo::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
+void LLPanelRegionDebugInfo::callbackAvatarID(const std::vector<std::string>& names, const uuid_vec_t& ids)
 {
 	if (ids.empty() || names.empty()) return;
 	mTargetAvatar = ids[0];
@@ -1531,7 +1531,7 @@ void LLPanelEstateInfo::onClickKickUser()
 	parent_floater->addDependentFloater(child_floater);
 }
 
-void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
+void LLPanelEstateInfo::onKickUserCommit(const std::vector<std::string>& names, const uuid_vec_t& ids)
 {
 	if (names.empty() || ids.empty()) return;
 	
@@ -1616,7 +1616,6 @@ bool LLPanelEstateInfo::isLindenEstate()
 	return (estate_id <= ESTATE_LAST_LINDEN);
 }
 
-typedef std::vector<LLUUID> AgentOrGroupIDsVector;
 struct LLEstateAccessChangeInfo
 {
 	LLEstateAccessChangeInfo(const LLSD& sd)
@@ -1637,7 +1636,7 @@ struct LLEstateAccessChangeInfo
 		LLSD sd;
 		sd["name"] = mDialogName;
 		sd["operation"] = (S32)mOperationFlag;
-		for (AgentOrGroupIDsVector::const_iterator it = mAgentOrGroupIDs.begin();
+		for (uuid_vec_t::const_iterator it = mAgentOrGroupIDs.begin();
 			it != mAgentOrGroupIDs.end();
 			++it)
 		{
@@ -1648,7 +1647,7 @@ struct LLEstateAccessChangeInfo
 
 	U32 mOperationFlag;	// ESTATE_ACCESS_BANNED_AGENT_ADD, _REMOVE, etc.
 	std::string mDialogName;
-	AgentOrGroupIDsVector mAgentOrGroupIDs; // List of agent IDs to apply to this change
+	uuid_vec_t mAgentOrGroupIDs; // List of agent IDs to apply to this change
 };
 
 // Special case callback for groups, since it has different callback format than names
@@ -1716,7 +1715,7 @@ bool LLPanelEstateInfo::accessAddCore2(const LLSD& notification, const LLSD& res
 }
 
 // static
-void LLPanelEstateInfo::accessAddCore3(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data)
+void LLPanelEstateInfo::accessAddCore3(const std::vector<std::string>& names, const uuid_vec_t& ids, void* data)
 {
 	LLEstateAccessChangeInfo* change_info = (LLEstateAccessChangeInfo*)data;
 	if (!change_info) return;

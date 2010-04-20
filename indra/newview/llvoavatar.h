@@ -259,6 +259,7 @@ private:
 	S32				mFullyLoadedFrameCounter;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
+	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
 	
 /**                    State
  **                                                                            **

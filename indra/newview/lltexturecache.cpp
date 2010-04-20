@@ -963,7 +963,7 @@ void LLTextureCache::purgeCache(ELLPath location)
 			LLAPRFile::remove(file_name, getLocalAPRFilePool());
 
 			purgeAllTextures(true);
-	}
+		}
 		mTexturesDirName = texture_dir ;
 	}
 
@@ -974,14 +974,14 @@ void LLTextureCache::purgeCache(ELLPath location)
 //is called in the main thread before initCache(...) is called.
 void LLTextureCache::setReadOnly(BOOL read_only)
 {
-	mReadOnly = read_only;
+	mReadOnly = read_only ;
 }
 
 //called in the main thread.
 S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL disable_texture_cache)
 {
 	llassert_always(getPending() == 0) ; //should not start accessing the texture cache before initialized.
-	
+
 	S64 header_size = (max_size * 2) / 10;
 	S64 max_entries = header_size / TEXTURE_CACHE_ENTRY_SIZE;
 	sCacheMaxEntries = (S32)(llmin((S64)sCacheMaxEntries, max_entries));
@@ -1010,6 +1010,7 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL disable_textu
 	if (!mReadOnly)
 	{
 		LLFile::mkdir(mTexturesDirName);
+		
 		const char* subdirs = "0123456789abcdef";
 		for (S32 i=0; i<16; i++)
 		{
@@ -1274,8 +1275,8 @@ U32 LLTextureCache::openAndReadEntries(std::vector<Entry>& entries)
 	else //update the header file first.
 	{
 		aprfile = openHeaderEntriesFile(false, 0);
-	updatedHeaderEntriesFile() ;
-	aprfile->seek(APR_SET, (S32)sizeof(EntriesInfo));
+		updatedHeaderEntriesFile() ;
+		aprfile->seek(APR_SET, (S32)sizeof(EntriesInfo));
 	}
 	for (U32 idx=0; idx<num_entries; idx++)
 	{
@@ -1498,9 +1499,9 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 		}
 		if (purge_directories)
 		{
-			gDirUtilp->deleteFilesInDir(mTexturesDirName,mask);
+			gDirUtilp->deleteFilesInDir(mTexturesDirName, mask);
 			LLFile::rmdir(mTexturesDirName);
-		}
+		}		
 	}
 	mHeaderIDMap.clear();
 	mTexturesSizeMap.clear();

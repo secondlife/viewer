@@ -24,8 +24,7 @@
 	<check_box label="Impedir los &apos;empujones&apos;" name="restrict_pushobject"/>
 	<check_box label="Permitir la reventa del terreno" name="allow_land_resell_check"/>
 	<check_box label="Permitir unir/dividir el terreno" name="allow_parcel_changes_check"/>
-	<check_box label="Bloquear el mostrar el terreno en 
-la búsqueda." name="block_parcel_search_check" tool_tip="Permitir que la gente vea esta región y sus parcelas en los resultados de la búsqueda."/>
+	<check_box label="Bloquear el mostrar el terreno en la búsqueda" name="block_parcel_search_check" tool_tip="Permitir que la gente vea esta región y sus parcelas en los resultados de la búsqueda."/>
 	<spinner label="Nº máximo de avatares" label_width="120" name="agent_limit_spin" width="180"/>
 	<spinner label="Plus de objetos" label_width="120" name="object_bonus_spin" width="180"/>
 	<text label="Calificación" name="access_text">
@@ -33,7 +32,7 @@ la búsqueda." name="block_parcel_search_check" tool_tip="Permitir que la gente 
 	</text>
 	<icons_combo_box label="&apos;Mature&apos;" name="access_combo">
 		<icons_combo_box.item label="&apos;Adult&apos;" name="Adult" value="42"/>
-		<icons_combo_box.item label="&apos;Mature&apos;" name="Mature" value="21"/>
+		<icons_combo_box.item label="Moderado" name="Mature" value="21"/>
 		<icons_combo_box.item label="&apos;PG&apos;" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="Aplicar" name="apply_btn"/>

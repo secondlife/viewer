@@ -39,6 +39,7 @@
 #include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "llfoldertype.h"
 #include "llfloaterinventory.h"// hacked in for the bonus context menu items.
@@ -274,11 +275,6 @@ LLFolderView::~LLFolderView( void )
 	mRenameItem = NULL;
 	mRenamer = NULL;
 	mStatusTextBox = NULL;
-
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
 
 	mAutoOpenItems.removeAllNodes();
 	gIdleCallbacks.deleteFunction(idle, this);
@@ -865,7 +861,7 @@ BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection) const
 BOOL LLFolderView::startDrag(LLToolDragAndDrop::ESource source)
 {
 	std::vector<EDragAndDropType> types;
-	std::vector<LLUUID> cargo_ids;
+	uuid_vec_t cargo_ids;
 	selected_items_t::iterator item_it;
 	BOOL can_drag = TRUE;
 	if (!mSelectedItems.empty())
@@ -943,7 +939,7 @@ void LLFolderView::draw()
 	}
 	else
 	{
-		if (gInventory.backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
+		if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
 		{
 			mStatusText = LLTrans::getString("Searching");
 			//font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
@@ -979,7 +975,6 @@ void LLFolderView::finishRenamingItem( void )
 	if( mRenameItem )
 	{
 		setSelectionFromRoot( mRenameItem, TRUE );
-		mRenameItem = NULL;
 	}
 
 	// List is re-sorted alphabeticly, so scroll to make sure the selected item is visible.
@@ -1421,8 +1416,8 @@ void LLFolderView::startRenamingSelectedItem( void )
 		mRenamer->setVisible( TRUE );
 		// set focus will fail unless item is visible
 		mRenamer->setFocus( TRUE );
-		mRenamer->setTopLostCallback(boost::bind(onRenamerLost, _1));
-		mRenamer->setFocusLostCallback(boost::bind(onRenamerLost, _1));
+		mRenamer->setTopLostCallback(boost::bind(&LLFolderView::onRenamerLost, this, _1));
+		mRenamer->setFocusLostCallback(boost::bind(&LLFolderView::onRenamerLost, this, _1));
 		gViewerWindow->addPopup(mRenamer);
 	}
 }
@@ -2103,8 +2098,7 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 		if(!folder_item) continue;
 		LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getListener();
 		if(!bridge) continue;
-
-		bridge->performAction(this, model, action);
+		bridge->performAction(model, action);
 	}
 
 	LLFloater::setFloaterHost(NULL);
@@ -2392,9 +2386,9 @@ S32	LLFolderView::notify(const LLSD& info)
 /// Local function definitions
 ///----------------------------------------------------------------------------
 
-//static 
 void LLFolderView::onRenamerLost( LLFocusableElement* renamer)
 {
+	mRenameItem = NULL;
 	LLUICtrl* uictrl = dynamic_cast<LLUICtrl*>(renamer);
 	if (uictrl)
 	{

@@ -47,6 +47,7 @@
 #include "llviewerwindow.h"
 #include "llnetmap.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
 #include "lltooltip.h"
@@ -288,7 +289,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 	LLMemType mt(LLMemType::MTYPE_OBJECT_PROCESS_UPDATE);
 	LLFastTimer t(FTM_PROCESS_OBJECTS);	
 	
-	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
+	LLVector3d camera_global = gAgentCamera.getCameraPositionGlobal();
 	LLViewerObject *objectp;
 	S32			num_objects;
 	U32			local_id;
@@ -473,7 +474,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			
 			if (objectp->getRegion() != regionp)
 			{    // Object changed region, so update it
-				objectp->setRegion(regionp);
 				objectp->updateRegion(regionp); // for LLVOAvatar
 			}
 		}
@@ -614,7 +614,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	}
 
 	// Focused
-	objectp = gAgent.getFocusObject();
+	objectp = gAgentCamera.getFocusObject();
 	if (objectp)
 	{
 		objectp->boostTexturePriority();
@@ -894,6 +894,13 @@ void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 
 BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 {
+	// Don't ever kill gAgentAvatarp, just mark it as null region instead.
+	if (objectp == gAgentAvatarp)
+	{
+		objectp->setRegion(NULL);
+		return FALSE;
+	}
+
 	// When we're killing objects, all we do is mark them as dead.
 	// We clean up the dead objects later.
 
@@ -942,7 +949,8 @@ void LLViewerObjectList::killAllObjects()
 	{
 		objectp = *iter;
 		killObject(objectp);
-		llassert(objectp->isDead());
+		// Object must be dead, or it's the LLVOAvatarSelf which never dies.
+		llassert((objectp == gAgentAvatarp) || objectp->isDead());
 	}
 
 	cleanDeadObjects(FALSE);
@@ -1209,11 +1217,10 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 		}
 
 		// add all hud objects to pick list
-		LLVOAvatar* avatarp = gAgent.getAvatarObject();
-		if (avatarp)
+		if (isAgentAvatarValid())
 		{
-			for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
-				 iter != avatarp->mAttachmentPoints.end(); )
+			for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+				 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 			{
 				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 				LLViewerJointAttachment* attachment = curiter->second;
@@ -1281,7 +1288,7 @@ void LLViewerObjectList::renderPickList(const LLRect& screen_rect, BOOL pick_par
 	gViewerWindow->renderSelections( TRUE, pick_parcel_wall, FALSE );
 
 	//fix for DEV-19335.  Don't pick hud objects when customizing avatar (camera mode doesn't play nice with nametags).
-	if (!gAgent.cameraCustomizeAvatar())
+	if (!gAgentCamera.cameraCustomizeAvatar())
 	{
 		// render pickable ui elements, like names, etc.
 		LLHUDObject::renderAllForSelect();

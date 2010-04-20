@@ -39,6 +39,7 @@
 #include "llcompilequeue.h"
 #include "llfloaterbuycurrency.h"
 #include "llfilepicker.h"
+#include "llinventorydefines.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llpermissionsflags.h"
@@ -202,13 +203,19 @@ void LLAssetUploadResponder::uploadComplete(const LLSD& content)
 
 LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data,
 														   const LLUUID& vfile_id,
-														   LLAssetType::EType asset_type)
-: LLAssetUploadResponder(post_data, vfile_id, asset_type)
+														   LLAssetType::EType asset_type,
+														   boost::function<void(const LLUUID& uuid)> callback)
+: LLAssetUploadResponder(post_data, vfile_id, asset_type),
+  mCallback(callback)
 {
 }
 
-LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data, const std::string& file_name, LLAssetType::EType asset_type)
-: LLAssetUploadResponder(post_data, file_name, asset_type)
+LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(const LLSD& post_data, 
+														   const std::string& file_name, 
+														   LLAssetType::EType asset_type, 
+														   boost::function<void(const LLUUID& uuid)> callback)
+: LLAssetUploadResponder(post_data, file_name, asset_type),
+  mCallback(callback)
 {
 }
 
@@ -282,10 +289,16 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 										mPostData["name"].asString(),
 										mPostData["description"].asString(),
 										LLSaleInfo::DEFAULT,
-										LLInventoryItem::II_FLAGS_NONE,
+										LLInventoryItemFlags::II_FLAGS_NONE,
 										creation_date_now);
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
+		
+		if (mCallback)
+		{
+			// call the callback with the new Asset UUID
+			mCallback(item->getAssetUUID());
+		}
 
 		// Show the preview panel for textures and sounds to let
 		// user know that the image (or snapshot) arrived intact.
@@ -333,13 +346,11 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		U32 group_perms      = mPostData.has("group_mask")      ? mPostData.get("group_mask"     ).asInteger() : PERM_NONE;
 		U32 next_owner_perms = mPostData.has("next_owner_mask") ? mPostData.get("next_owner_mask").asInteger() : PERM_NONE;
 		std::string display_name = LLStringUtil::null;
-		LLAssetStorage::LLStoreAssetCallback callback = NULL;
-		void *userdata = NULL;
 		upload_new_resource(next_file, asset_name, asset_name,
-				    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+				    LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
 				    next_owner_perms, group_perms,
 				    everyone_perms, display_name,
-				    callback, expected_upload_cost, userdata);
+				    NULL, expected_upload_cost);
 	}
 }
 
@@ -477,10 +488,10 @@ void LLUpdateAgentInventoryResponder::uploadComplete(const LLSD& content)
 	  {
 		  // If this gesture is active, then we need to update the in-memory
 		  // active map with the new pointer.				
-		  if (LLGestureManager::instance().isGestureActive(item_id))
+		  if (LLGestureMgr::instance().isGestureActive(item_id))
 		  {
 			  LLUUID asset_id = new_item->getAssetUUID();
-			  LLGestureManager::instance().replaceGesture(item_id, asset_id);
+			  LLGestureMgr::instance().replaceGesture(item_id, asset_id);
 			  gInventory.notifyObservers();
 		  }				
 

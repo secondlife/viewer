@@ -55,7 +55,7 @@
     clip_partial="true" 
    visible="false"
    follows="left|top|right|bottom"
-   font="SansSerifBold"
+   font="SansSerif"
    height="20"
    layout="topleft"
    left="20"
@@ -64,7 +64,6 @@
    text_color="white"
    top="5"
    translate="false"
-   v_pad="5" 
    use_ellipses="true"
    width="260">
     Toast text;

@@ -61,10 +61,10 @@ public:
 	void onEdit();
 	void onSave();
 	
-	void onSaveCommit(const std::string& item_name);
+	bool onSaveCommit(const LLSD& notification, const LLSD& response);
 
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
-	void onSelectorButtonClicked();
+	void showEditOutfitPanel();
 
 	// If a compatible listener type is selected, then return a pointer to that.
 	// Otherwise, return NULL.
@@ -72,6 +72,8 @@ public:
 	void setParent(LLSidepanelAppearance *parent);
 
 	LLFolderView* getRootFolder();
+
+	static LLPanelOutfitsInventory* findInstance();
 
 protected:
 	void updateVerbs();

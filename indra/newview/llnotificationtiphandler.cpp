@@ -71,8 +71,8 @@ public:
 				p.notification->getResponseTemplate()));
 		}
 
-		// set line max count to 2 in case of a very long name
-		snapToMessageHeight(getChild<LLTextBox>("message"), 2);
+		// set line max count to 3 in case of a very long name
+		snapToMessageHeight(getChild<LLTextBox>("message"), 3);
 	}
 };
 
@@ -157,6 +157,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		}
 
 		LLToastPanel* notify_box = NULL;
+		// TODO: this should be implemented in LLToastPanel::buidPanelFromNotification
 		if("FriendOffline" == notification->getName() || "FriendOnline" == notification->getName())
 		{
 			LLOnlineStatusToast::Params p;
@@ -166,6 +167,14 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 			notify_box = new LLOnlineStatusToast(p);
 		}
 		else
+		{
+			notify_box = LLToastPanel::buidPanelFromNotification(notification);
+		}
+
+		// TODO: this if statement should be removed  after modification of
+		// LLToastPanel::buidPanelFromNotification() to allow create generic tip panel
+		// for all tip notifications except FriendOnline and FriendOffline
+		if (notify_box == NULL)
 		{
 			notify_box = new LLToastNotifyPanel(notification);
 		}

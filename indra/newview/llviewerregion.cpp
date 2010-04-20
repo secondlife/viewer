@@ -47,6 +47,7 @@
 #include "v4math.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llcaphttpsender.h"
 #include "llcommandhandler.h"
@@ -819,7 +820,7 @@ void LLViewerRegion::calculateCenterGlobal()
 
 void LLViewerRegion::calculateCameraDistance()
 {
-	mCameraDistanceSquared = (F32)(gAgent.getCameraPositionGlobal() - getCenterGlobal()).magVecSquared();
+	mCameraDistanceSquared = (F32)(gAgentCamera.getCameraPositionGlobal() - getCenterGlobal()).magVecSquared();
 }
 
 std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region)

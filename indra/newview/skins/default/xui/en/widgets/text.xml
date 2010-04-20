@@ -15,6 +15,7 @@
       bg_visible="false" 
       border_visible="false" 
       hover="false" 
+      sound_flags="0"
       text_color="LabelTextColor"
       v_pad="0"
       max_length="4096"/>

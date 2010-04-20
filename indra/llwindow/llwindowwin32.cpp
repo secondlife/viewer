@@ -2957,7 +2957,7 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
 }
 
 
-void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url )
+void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
 {
 	bool found = false;
 	S32 i;
@@ -2987,84 +2987,16 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url )
 
 	// let the OS decide what to use to open the URL
 	SHELLEXECUTEINFO sei = { sizeof( sei ) };
-	sei.fMask = SEE_MASK_FLAG_DDEWAIT;
+	// NOTE: this assumes that SL will stick around long enough to complete the DDE message exchange
+	// necessary for ShellExecuteEx to complete
+	if (async)
+	{
+		sei.fMask = SEE_MASK_ASYNCOK;
+	}
 	sei.nShow = SW_SHOWNORMAL;
 	sei.lpVerb = L"open";
 	sei.lpFile = url_utf16.c_str();
 	ShellExecuteEx( &sei );
-
-	//// TODO: LEAVING OLD CODE HERE SO I DON'T BONE OTHER MERGES
-	//// DELETE THIS ONCE THE MERGES ARE DONE
-
-	// Figure out the user's default web browser
-	// HKEY_CLASSES_ROOT\http\shell\open\command
-	/*
-	std::string reg_path_str = gURLProtocolWhitelistHandler[i] + "\\shell\\open\\command";
-	WCHAR reg_path_wstr[256];
-	mbstowcs( reg_path_wstr, reg_path_str.c_str(), LL_ARRAY_SIZE(reg_path_wstr) );
-
-	HKEY key;
-	WCHAR browser_open_wstr[1024];
-	DWORD buffer_length = 1024;
-	RegOpenKeyEx(HKEY_CLASSES_ROOT, reg_path_wstr, 0, KEY_QUERY_VALUE, &key);
-	RegQueryValueEx(key, NULL, NULL, NULL, (LPBYTE)browser_open_wstr, &buffer_length);
-	RegCloseKey(key);
-
-	// Convert to STL string
-	LLWString browser_open_wstring = utf16str_to_wstring(browser_open_wstr);
-
-	if (browser_open_wstring.length() < 2)
-	{
-		LL_WARNS("Window") << "Invalid browser executable in registry " << browser_open_wstring << LL_ENDL;
-		return;
-	}
-
-	// Extract the process that's supposed to be launched
-	LLWString browser_executable;
-	if (browser_open_wstring[0] == '"')
-	{
-		// executable is quoted, find the matching quote
-		size_t quote_pos = browser_open_wstring.find('"', 1);
-		// copy out the string including both quotes
-		browser_executable = browser_open_wstring.substr(0, quote_pos+1);
-	}
-	else
-	{
-		// executable not quoted, find a space
-		size_t space_pos = browser_open_wstring.find(' ', 1);
-		browser_executable = browser_open_wstring.substr(0, space_pos);
-	}
-
-	LL_DEBUGS("Window") << "Browser reg key: " << wstring_to_utf8str(browser_open_wstring) << LL_ENDL;
-	LL_INFOS("Window") << "Browser executable: " << wstring_to_utf8str(browser_executable) << LL_ENDL;
-
-	// Convert URL to wide string for Windows API
-	// Assume URL is UTF8, as can come from scripts
-	LLWString url_wstring = utf8str_to_wstring(escaped_url);
-	llutf16string url_utf16 = wstring_to_utf16str(url_wstring);
-
-	// Convert executable and path to wide string for Windows API
-	llutf16string browser_exec_utf16 = wstring_to_utf16str(browser_executable);
-
-	// ShellExecute returns HINSTANCE for backwards compatiblity.
-	// MS docs say to cast to int and compare to 32.
-	HWND our_window = NULL;
-	LPCWSTR directory_wstr = NULL;
-	int retval = (int) ShellExecute(our_window, 	// Flawfinder: ignore
-									L"open", 
-									browser_exec_utf16.c_str(), 
-									url_utf16.c_str(), 
-									directory_wstr,
-									SW_SHOWNORMAL);
-	if (retval > 32)
-	{
-		LL_DEBUGS("Window") << "load_url success with " << retval << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS("Window") << "load_url failure with " << retval << LL_ENDL;
-	}
-	*/
 }
 
 /*

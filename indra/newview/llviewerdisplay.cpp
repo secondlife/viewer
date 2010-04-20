@@ -38,6 +38,7 @@
 #include "llrender.h"
 #include "llglheaders.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "llcoord.h"
 #include "llcriticaldamp.h"
@@ -174,8 +175,8 @@ void display_update_camera()
 
 	// Cut draw distance in half when customizing avatar,
 	// but on the viewer only.
-	F32 final_far = gAgent.mDrawDistance;
-	if (CAMERA_MODE_CUSTOMIZE_AVATAR == gAgent.getCameraMode())
+	F32 final_far = gAgentCamera.mDrawDistance;
+	if (CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode())
 	{
 		final_far *= 0.5f;
 	}
@@ -344,9 +345,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		const F32 TELEPORT_ARRIVAL_DELAY = 2.f; // Time to preload the world before raising the curtain after we've actually already arrived.
 
 		S32 attach_count = 0;
-		if (gAgent.getAvatarObject())
+		if (isAgentAvatarValid())
 		{
-			attach_count = gAgent.getAvatarObject()->getAttachmentCount();
+			attach_count = gAgentAvatarp->getAttachmentCount();
 		}
 		F32 teleport_save_time = TELEPORT_EXPIRY + TELEPORT_EXPIRY_PER_ATTACHMENT * attach_count;
 		F32 teleport_elapsed = gTeleportDisplayTimer.getElapsedTimeF32();
@@ -393,7 +394,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
-			gAgent.resetView(TRUE, TRUE);
+			gAgentCamera.resetView(TRUE, TRUE);
 			break;
 
 		case LLAgent::TELEPORT_ARRIVING:
@@ -920,9 +921,9 @@ void render_hud_attachments()
 	glh::matrix4f current_mod = glh_get_current_modelview();
 
 	// clamp target zoom level to reasonable values
-	gAgent.mHUDTargetZoom = llclamp(gAgent.mHUDTargetZoom, 0.1f, 1.f);
+	gAgentCamera.mHUDTargetZoom = llclamp(gAgentCamera.mHUDTargetZoom, 0.1f, 1.f);
 	// smoothly interpolate current zoom level
-	gAgent.mHUDCurZoom = lerp(gAgent.mHUDCurZoom, gAgent.mHUDTargetZoom, LLCriticalDamp::getInterpolant(0.03f));
+	gAgentCamera.mHUDCurZoom = lerp(gAgentCamera.mHUDCurZoom, gAgentCamera.mHUDTargetZoom, LLCriticalDamp::getInterpolant(0.03f));
 
 	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
 	{
@@ -1031,11 +1032,10 @@ LLRect get_whole_screen_region()
 
 bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::matrix4f &model)
 {
-	LLVOAvatar* my_avatarp = gAgent.getAvatarObject();
-	if (my_avatarp && my_avatarp->hasHUDAttachment())
+	if (isAgentAvatarValid() && gAgentAvatarp->hasHUDAttachment())
 	{
-		F32 zoom_level = gAgent.mHUDCurZoom;
-		LLBBox hud_bbox = my_avatarp->getHUDBBox();
+		F32 zoom_level = gAgentCamera.mHUDCurZoom;
+		LLBBox hud_bbox = gAgentAvatarp->getHUDBBox();
 		
 		F32 hud_depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
 		proj = gl_ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, hud_depth);
@@ -1299,14 +1299,14 @@ void render_ui_2d()
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	// render outline for HUD
-	if (gAgent.getAvatarObject() && gAgent.mHUDCurZoom < 0.98f)
+	if (isAgentAvatarValid() && gAgentCamera.mHUDCurZoom < 0.98f)
 	{
 		glPushMatrix();
 		S32 half_width = (gViewerWindow->getWorldViewWidthScaled() / 2);
 		S32 half_height = (gViewerWindow->getWorldViewHeightScaled() / 2);
 		glScalef(LLUI::sGLScaleFactor.mV[0], LLUI::sGLScaleFactor.mV[1], 1.f);
 		glTranslatef((F32)half_width, (F32)half_height, 0.f);
-		F32 zoom = gAgent.mHUDCurZoom;
+		F32 zoom = gAgentCamera.mHUDCurZoom;
 		glScalef(zoom,zoom,1.f);
 		gGL.color4fv(LLColor4::white.mV);
 		gl_rect_2d(-half_width, half_height, half_width, -half_height, FALSE);

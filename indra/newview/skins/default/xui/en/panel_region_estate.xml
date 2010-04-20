@@ -33,7 +33,7 @@
      left_delta="0"
      name="estate_text"
      top_pad="2"
-     width="80">
+     width="140">
         Estate:
     </text>
     <text
@@ -59,7 +59,7 @@
      left_delta="0"
      name="owner_text"
      top_pad="2"
-     width="80">
+     width="150">
         Estate owner:
     </text>
     <text
@@ -191,19 +191,19 @@
      height="23"
      label="Send Message To Estate..."
      layout="topleft"
-     left="50"
+     left="20"
      name="message_estate_btn"
      top_pad="20"
-     width="160" />
+     width="220" />
     <button
      follows="left|top"
      height="23"
      label="Kick Resident from Estate..."
      layout="topleft"
-     left="50"
+     left="20"
      name="kick_user_from_estate_btn"
      top_pad="5"
-     width="160" />
+     width="220" />
 
     <text
      type="string"

@@ -1725,7 +1725,7 @@ Inventarobjekt(e) verschieben?
 	<notification name="ClickActionNotPayable">
 		Achtung: Die Klickaktion „Objekt bezahlen&quot; wurde eingestellt. Diese funktioniert jedoch nicht, wenn ein Skript mit einer Geldtransaktion () hinzugefügt wird.
 		<form name="form">
-			<ignore name="ignore" text="I habe die Aktion „Objekt bezahlen&quot; eingestellt, während ich ein Objekt gebaut habe, dass kein Geld()-Skript enthält."/>
+			<ignore name="ignore" text="Ich habe die Aktion „Objekt bezahlen&quot; eingestellt, während ich ein Objekt gebaut habe, dass kein Geld()-Skript enthält."/>
 		</form>
 	</notification>
 	<notification name="OpenObjectCannotCopy">

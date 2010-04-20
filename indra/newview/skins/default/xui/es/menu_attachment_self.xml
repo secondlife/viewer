@@ -4,7 +4,7 @@
 	<menu_item_call label="Editar" name="Edit..."/>
 	<menu_item_call label="Quitar" name="Detach"/>
 	<menu_item_call label="Soltar" name="Drop"/>
-	<menu_item_call label="Levantarse" name="Stand Up"/>
+	<menu_item_call label="Levantarme" name="Stand Up"/>
 	<menu_item_call label="Mi apariencia" name="Appearance..."/>
 	<menu_item_call label="Mis amigos" name="Friends..."/>
 	<menu_item_call label="Mis grupos" name="Groups..."/>

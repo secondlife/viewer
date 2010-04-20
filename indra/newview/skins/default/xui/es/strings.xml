@@ -89,7 +89,7 @@
 		Descargando la ropa...
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Error de red: no se ha podido conectar; por favor, revisa tu conexión a internet.
+		Error de red: no se ha podido conectar; por favor, revisa tu conexión a Internet.
 	</string>
 	<string name="LoginFailed">
 		Error en el inicio de sesión.
@@ -101,7 +101,7 @@
 		http://join.secondlife.com/index.php?lang=es-ES
 	</string>
 	<string name="AgentLostConnection">
-		Esta región puede estar teniendo problemas. Por favor, comprueba tu conexión a internet.
+		Esta región puede estar teniendo problemas. Por favor, comprueba tu conexión a Internet.
 	</string>
 	<string name="SavingSettings">
 		Guardando tus configuraciones...
@@ -1543,10 +1543,10 @@
 		No se ha aportado un contrato para este estado. El terreno de este estado lo vende el propietario del estado, no Linden Lab.  Por favor, contacta con ese propietario para informarte sobre la venta.
 	</string>
 	<string name="covenant_last_modified">
-		Última modificación:
+		Última modificación: 
 	</string>
 	<string name="none_text" value="(no hay)"/>
-	<string name="never_text" value="(nunca)"/>
+	<string name="never_text" value=" (nunca)"/>
 	<string name="GroupOwned">
 		Propiedad del grupo
 	</string>
@@ -2013,7 +2013,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Puente: ancho
 	</string>
 	<string name="Broad">
-		Ancho
+		Aumentar
 	</string>
 	<string name="Brow Size">
 		Arco ciliar

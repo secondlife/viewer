@@ -49,6 +49,9 @@ class LLNotificationForm;
  * Notification panel should be used for notifications that require a response from the user.
  *
  * Replaces class LLNotifyBox.
+ *
+ * @deprecated this class will be removed after all toast panel types are
+ *  implemented in separate classes.
  */
 class LLToastNotifyPanel: public LLToastPanel 
 {
@@ -60,6 +63,8 @@ public:
 	 * @param rect an initial rectangle of the toast panel. 
 	 * If it is null then a loaded from xml rectangle will be used. 
 	 * @see LLNotification
+	 * @deprecated if you intend to instantiate LLToastNotifyPanel - it's point to
+	 * implement right class for desired toast panel. @see LLGenericTipPanel as example.
 	 */
 	LLToastNotifyPanel(LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null);
 	virtual ~LLToastNotifyPanel();
@@ -138,9 +143,14 @@ class LLIMToastNotifyPanel : public LLToastNotifyPanel
 {
 public:
 
-	LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null);
+	LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect = LLRect::null);
+
+	~LLIMToastNotifyPanel();
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
+protected:
+	LLUUID	mSessionID;
 };
 
 #endif /* LLTOASTNOTIFYPANEL_H_ */

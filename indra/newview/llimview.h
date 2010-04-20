@@ -34,6 +34,7 @@
 #define LL_LLIMVIEW_H
 
 #include "lldockablefloater.h"
+#include "lleventtimer.h"
 #include "llinstantmessage.h"
 
 #include "lllogchat.h"
@@ -45,7 +46,24 @@ class LLFriendObserver;
 class LLCallDialogManager;	
 class LLIMSpeakerMgr;
 
+/**
+ * Timeout Timer for outgoing Ad-Hoc/Group IM sessions which being initialized by the server
+ */
+class LLSessionTimeoutTimer : public LLEventTimer
+{
+public:
+	LLSessionTimeoutTimer(const LLUUID& session_id, F32 period) : LLEventTimer(period), mSessionId(session_id) {}
+	virtual ~LLSessionTimeoutTimer() {};
+	/* virtual */ BOOL tick();
 
+private:
+	LLUUID mSessionId;
+};
+
+
+/**
+ * Model (MVC) for IM Sessions
+ */
 class LLIMModel :  public LLSingleton<LLIMModel>
 {
 public:
@@ -61,7 +79,7 @@ public:
 		} SType;
 
 		LLIMSession(const LLUUID& session_id, const std::string& name, 
-			const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids, bool voice);
+			const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice);
 		virtual ~LLIMSession();
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
@@ -93,7 +111,7 @@ public:
 		EInstantMessage mType;
 		SType mSessionType;
 		LLUUID mOtherParticipantID;
-		std::vector<LLUUID> mInitialTargetIDs;
+		uuid_vec_t mInitialTargetIDs;
 		std::string mHistoryFileName;
 
 		// connection to voice channel state change signal
@@ -152,7 +170,7 @@ public:
 	 * Find an Ad-Hoc IM Session with specified participants
 	 * @return first found Ad-Hoc session or NULL if the session does not exist
 	 */
-	LLIMSession* findAdHocIMSession(const std::vector<LLUUID>& ids);
+	LLIMSession* findAdHocIMSession(const uuid_vec_t& ids);
 
 	/**
 	 * Rebind session data to a new session id.
@@ -167,7 +185,7 @@ public:
 	 * @param name session name should not be empty, will return false if empty
 	 */
 	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, 
-		const std::vector<LLUUID>& ids, bool voice = false);
+		const uuid_vec_t& ids, bool voice = false);
 
 	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type,
 		const LLUUID& other_participant_id, bool voice = false);
@@ -255,7 +273,7 @@ public:
 
 	static void sendLeaveSession(const LLUUID& session_id, const LLUUID& other_participant_id);
 	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
-						  const std::vector<LLUUID>& ids, EInstantMessage dialog);
+						  const uuid_vec_t& ids, EInstantMessage dialog);
 	static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
 	static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
 								const LLUUID& other_participant_id, EInstantMessage dialog);
@@ -477,7 +495,7 @@ class LLCallDialog : public LLDockableFloater
 {
 public:
 	LLCallDialog(const LLSD& payload);
-	~LLCallDialog() {}
+	~LLCallDialog();
 
 	virtual BOOL postBuild();
 

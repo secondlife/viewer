@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!-- Side tray panel -->
 <panel
+ default_tab_group="1"
  follows="all"
  height="449"
  label="People"
@@ -56,6 +57,7 @@
      layout="topleft"
      left="5"
      name="tabs"
+     tab_group="1"
      tab_min_width="70"
      tab_height="30"
      tab_position="top"
@@ -81,7 +83,7 @@
        		 bg_alpha_color="DkGray2"
              bg_opaque_color="DkGray2"
              follows="all"
-             height="352"
+             height="356"
              ignore_online_status="true"
              layout="topleft"
              left="3"
@@ -97,6 +99,7 @@
              layout="topleft"
              left="3"
              name="bottom_panel"
+             top_pad="0"
              width="313">
              <button
              follows="bottom|left"
@@ -156,7 +159,7 @@
        		 bg_alpha_color="DkGray2"
        		 bg_opaque_color="DkGray2"
              follows="all"
-             height="352"
+             height="356"
              layout="topleft"
              left="3"
              name="friends_accordion"
@@ -204,6 +207,7 @@
              layout="topleft"
              left="3"
              name="bottom_panel"
+             top_pad="0"
              width="313">
                <button
                follows="bottom|left"
@@ -237,7 +241,7 @@
              	 layout="topleft"
              	 left_pad="1"
              	 name="dummy_icon"
-             	 width="210"
+             	 width="209"
              />
                 <button
                  follows="bottom|left"
@@ -287,7 +291,7 @@ If you're looking for people to hang out with, [secondlife:///app/worldmap try t
              bg_alpha_color="DkGray2"
              bg_opaque_color="DkGray2"
              follows="all"
-             height="352"
+             height="356"
              layout="topleft"
              left="3"
              name="group_list"
@@ -303,6 +307,7 @@ If you're looking for people to hang out with, [secondlife:///app/worldmap try t
              layout="topleft"
              left="0"
              name="bottom_panel"
+             top_pad="0"
              width="313">
                <button
                follows="bottom|left"
@@ -372,7 +377,7 @@ If you're looking for people to hang out with, [secondlife:///app/worldmap try t
        		 bg_alpha_color="DkGray2"
              bg_opaque_color="DkGray2"
              follows="all"
-             height="352"
+             height="356"
              layout="topleft"
              left="3"
              multi_select="true"
@@ -388,6 +393,7 @@ If you're looking for people to hang out with, [secondlife:///app/worldmap try t
              layout="topleft"
              left="0"
              name="bottom_panel"
+             top_pad="0"
              width="313">
                <button
                follows="bottom|left"

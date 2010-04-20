@@ -172,12 +172,13 @@ void LLTexLayerSetBuffer::popProjection() const
 
 BOOL LLTexLayerSetBuffer::needsRender()
 {
-	const LLVOAvatarSelf* avatar = mTexLayerSet->getAvatar();
+	llassert(mTexLayerSet->getAvatar() == gAgentAvatarp);
+	if (!isAgentAvatarValid()) return FALSE;
 	BOOL upload_now = mNeedsUpload && mTexLayerSet->isLocalTextureDataFinal() && gAgentQueryManager.hasNoPendingQueries();
-	BOOL needs_update = (mNeedsUpdate || upload_now) && !avatar->mAppearanceAnimating;
+	BOOL needs_update = (mNeedsUpdate || upload_now) && !gAgentAvatarp->mAppearanceAnimating;
 	if (needs_update)
 	{
-		BOOL invalid_skirt = avatar->getBakedTE(mTexLayerSet) == LLVOAvatarDefines::TEX_SKIRT_BAKED && !avatar->isWearingWearableType(WT_SKIRT);
+		BOOL invalid_skirt = gAgentAvatarp->getBakedTE(mTexLayerSet) == LLVOAvatarDefines::TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(WT_SKIRT);
 		if (invalid_skirt)
 		{
 			// we were trying to create a skirt texture
@@ -187,7 +188,6 @@ BOOL LLTexLayerSetBuffer::needsRender()
 		}
 		else
 		{
-			needs_update &= (avatar->isSelf() || (avatar->isVisible() && !avatar->isCulled()));
 			needs_update &= mTexLayerSet->isLocalTextureDataAvailable();
 		}
 	}
@@ -290,8 +290,6 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 	llinfos << "Baked " << mTexLayerSet->getBodyRegion() << llendl;
 	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_BAKES);
 
-	llassert( gAgent.getAvatarObject() == mTexLayerSet->getAvatar() );
-
 	// We won't need our caches since we're baked now.  (Techically, we won't 
 	// really be baked until this image is sent to the server and the Avatar
 	// Appearance message is received.)
@@ -358,7 +356,7 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 			{
 				// baked_upload_data is owned by the responder and deleted after the request completes
 				LLBakedUploadData* baked_upload_data =
-					new LLBakedUploadData(gAgent.getAvatarObject(), this->mTexLayerSet, asset_id);
+					new LLBakedUploadData(gAgentAvatarp, this->mTexLayerSet, asset_id);
 				mUploadID = asset_id;
 				
 				// upload the image
@@ -415,12 +413,10 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 {
 	LLBakedUploadData* baked_upload_data = (LLBakedUploadData*)userdata;
 
-	LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-
 	if (0 == result &&
-		avatar &&
-		!avatar->isDead() &&
-		baked_upload_data->mAvatar == avatar && // Sanity check: only the user's avatar should be uploading textures.
+		isAgentAvatarValid() &&
+		!gAgentAvatarp->isDead() &&
+		baked_upload_data->mAvatar == gAgentAvatarp && // Sanity check: only the user's avatar should be uploading textures.
 		baked_upload_data->mTexLayerSet->hasComposite()
 		)
 	{
@@ -445,11 +441,11 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 
 			if (result >= 0)
 			{
-				LLVOAvatarDefines::ETextureIndex baked_te = avatar->getBakedTE(layerset_buffer->mTexLayerSet);
+				LLVOAvatarDefines::ETextureIndex baked_te = gAgentAvatarp->getBakedTE(layerset_buffer->mTexLayerSet);
 				// Update baked texture info with the new UUID
 				U64 now = LLFrameTimer::getTotalTime();		// Record starting time
 				llinfos << "Baked texture upload took " << (S32)((now - baked_upload_data->mStartTime) / 1000) << " ms" << llendl;
-				avatar->setNewBakedTexture(baked_te, uuid);
+				gAgentAvatarp->setNewBakedTexture(baked_te, uuid);
 			}
 			else
 			{	
@@ -463,7 +459,7 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid,
 			llinfos << "Received baked texture out of date, ignored." << llendl;
 		}
 
-		avatar->dirtyMesh();
+		gAgentAvatarp->dirtyMesh();
 	}
 	else
 	{

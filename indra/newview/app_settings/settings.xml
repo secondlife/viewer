@@ -4,8 +4,8 @@
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
-      <string>Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
-	  Valid values are: 0, 120, 300, 600, 1800</string>	  
+      <string>Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never). 
+        Valid values are: 0, 120, 300, 600, 1800</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -2564,6 +2564,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.10000000149</real>
+    </map>
+    <key>DragAndDropDistanceThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of pixels that mouse should move before triggering drag and drop mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
     </map>
     <key>DropShadowButton</key>
     <map>
@@ -5385,6 +5396,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ParticipantListShowIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide people icons in participant list</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PerAccountSettingsFile</key>
     <map>
       <key>Comment</key>
@@ -8118,13 +8140,13 @@
     <key>NearbyPeopleSortOrder</key>
     <map>
       <key>Comment</key>
-      <string>Specifies sort order for nearby people (0 = by name, 2 = by most recent)</string>
+      <string>Specifies sort order for nearby people (0 = by name, 3 = by distance, 4 = by most recent)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>4</integer>
     </map>
     <key>RecentPeopleSortOrder</key>
     <map>
@@ -8525,32 +8547,10 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
-	<key>ShowVoiceChannelPopup</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls visibility of the current voice channel popup above the voice tab</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ShowVoiceVisualizersInCalls</key>
     <map>
       <key>Comment</key>
       <string>Enables in-world voice visualizers, voice gestures and lip-sync while in group or P2P calls.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowVolumeSettingsPopup</key>
-    <map>
-      <key>Comment</key>
-      <string>Show individual volume slider for voice, sound effects, etc</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8647,17 +8647,6 @@
     <map>
       <key>Comment</key>
       <string>Whether to use the old Second Life particle clouds or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>SmallAvatarNames</key>
-    <map>
-      <key>Comment</key>
-      <string>Display avatar name text in smaller font</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10647,6 +10636,28 @@
       <key>Value</key>
       <real>50.0</real>
     </map>
+    <key>WellIconFlashCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of flashes of IM Well and Notification Well icons after which flashing buttons stay lit up. Requires restart.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
+    </map>
+    <key>WellIconFlashPeriod</key>
+    <map>
+      <key>Comment</key>
+      <string>Period at which IM Well and Notification Well icons flash (seconds). Requires restart.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.25</real>
+    </map>
     <key>WindLightUseAtmosShaders</key>
     <map>
       <key>Comment</key>
@@ -10933,5 +10944,35 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+
+    <!-- Settings below are for back compatibility only.
+    They are not used in current viewer anymore. But they can't be removed to avoid
+    influence on previous versions of the viewer in case of settings are not used or default value
+    should be changed. See also EXT-6661. -->
+    <!-- 1.23 settings -->
+    <key>ShowVoiceChannelPopup</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls visibility of the current voice channel popup above the voice tab</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowVolumeSettingsPopup</key>
+    <map>
+      <key>Comment</key>
+      <string>Show individual volume slider for voice, sound effects, etc</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+  
+    <!-- End of back compatibility settings -->
 </map>
 </llsd>

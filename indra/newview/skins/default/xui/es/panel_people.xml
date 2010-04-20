@@ -49,9 +49,9 @@ Si estás buscando gente para pasar el rato, [secondlife:///app/worldmap usa el 
 	<panel name="button_bar">
 		<button label="Perfil" name="view_profile_btn" tool_tip="Mostrar imágenes, grupos y otra información del Residente"/>
 		<button label="MI" name="im_btn" tool_tip="Abrir un mensaje instantáneo"/>
-		<button label="Llamada" name="call_btn" tool_tip="Llamar a este Residente"/>
+		<button label="Llamar" name="call_btn" tool_tip="Llamar a este Residente"/>
 		<button label="Compartir" name="share_btn"/>
-		<button label="Teleportarse" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
+		<button label="Teleportar" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
 		<button label="Perfil del grupo" name="group_info_btn" tool_tip="Ver la información del grupo"/>
 		<button label="Chat de grupo" name="chat_btn" tool_tip="Abrir el chat"/>
 		<button label="Multiconferencia" name="group_call_btn" tool_tip="Llamar a este grupo"/>

@@ -264,7 +264,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				[COUNT]
 			</text>
 			<text left="4" name="Autoreturn" width="412">
-				Devolución automática de objetos de otros Residentes (minutos, 0 para desactivarla):
+				Devolución automát. de objetos de otros (en min., 0 la desactiva):
 			</text>
 			<line_editor name="clean other time" right="-20"/>
 			<text name="Object Owners:" width="150">
@@ -275,7 +275,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<name_list name="owner list">
 				<name_list.columns label="Tipo" name="type"/>
 				<name_list.columns label="Nombre" name="name"/>
-				<name_list.columns label="Número" name="count"/>
+				<name_list.columns label="Núm." name="count"/>
 				<name_list.columns label="Más recientes" name="mostrecent"/>
 			</name_list>
 		</panel>

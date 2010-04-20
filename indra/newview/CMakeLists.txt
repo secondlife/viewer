@@ -66,6 +66,7 @@ include_directories(
 set(viewer_SOURCE_FILES
     llagent.cpp
     llagentaccess.cpp
+    llagentcamera.cpp
     llagentdata.cpp
     llagentlanguage.cpp
     llagentlistener.cpp
@@ -73,6 +74,7 @@ set(viewer_SOURCE_FILES
     llagentpilot.cpp
     llagentui.cpp
     llagentwearables.cpp
+    llagentwearablesfetch.cpp
     llanimstatelabels.cpp
     llappearancemgr.cpp
     llappviewer.cpp
@@ -143,7 +145,6 @@ set(viewer_SOURCE_FILES
     llfirstuse.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
-    llfloateractivespeakers.cpp
     llfloateranimpreview.cpp
     llfloaterauction.cpp
     llfloateravatarpicker.cpp
@@ -252,6 +253,7 @@ set(viewer_SOURCE_FILES
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventorymodel.cpp
+    llinventorymodelbackgroundfetch.cpp
     llinventoryobserver.cpp
     llinventorypanel.cpp
     lljoystickbutton.cpp
@@ -316,7 +318,6 @@ set(viewer_SOURCE_FILES
     llpanellandmedia.cpp
     llpanellogin.cpp
     llpanelloginlistener.cpp
-    llpanellookinfo.cpp
     llpanelmaininventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
@@ -325,6 +326,7 @@ set(viewer_SOURCE_FILES
     llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
+    llpaneloutfitedit.cpp
     llpaneloutfitsinventory.cpp
     llpanelpeople.cpp
     llpanelpeoplemenus.cpp
@@ -435,6 +437,7 @@ set(viewer_SOURCE_FILES
     lltracker.cpp
     lltransientdockablefloater.cpp
     lltransientfloatermgr.cpp
+    llpanelgenerictip.cpp
     lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
@@ -564,6 +567,7 @@ set(viewer_HEADER_FILES
     ViewerInstall.cmake
     llagent.h
     llagentaccess.h
+    llagentcamera.h
     llagentdata.h
     llagentlanguage.h
     llagentlistener.h
@@ -571,6 +575,7 @@ set(viewer_HEADER_FILES
     llagentpilot.h
     llagentui.h
     llagentwearables.h
+    llagentwearablesfetch.h
     llanimstatelabels.h
     llappearance.h
     llappearancemgr.h
@@ -644,7 +649,6 @@ set(viewer_HEADER_FILES
     llfirstuse.h
     llflexibleobject.h
     llfloaterabout.h
-    llfloateractivespeakers.h
     llfloateranimpreview.h
     llfloaterauction.h
     llfloateravatarpicker.h
@@ -752,6 +756,7 @@ set(viewer_HEADER_FILES
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventorymodel.h
+    llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
     llinventorypanel.h
     lljoystickbutton.h
@@ -812,7 +817,6 @@ set(viewer_HEADER_FILES
     llpanellandmedia.h
     llpanellogin.h
     llpanelloginlistener.h
-    llpanellookinfo.h
     llpanelmaininventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
@@ -821,6 +825,7 @@ set(viewer_HEADER_FILES
     llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h
+    llpaneloutfitedit.h
     llpaneloutfitsinventory.h
     llpanelpeople.h
     llpanelpeoplemenus.h
@@ -934,6 +939,7 @@ set(viewer_HEADER_FILES
     lltracker.h
     lltransientdockablefloater.h
     lltransientfloatermgr.h
+    llpanelgenerictip.h
     lluiconstants.h
     lluilistener.h
     lluploaddialog.h

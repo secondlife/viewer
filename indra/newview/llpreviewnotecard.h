@@ -79,6 +79,7 @@ public:
 
 protected:
 
+	void updateTitleButtons();
 	virtual void loadAsset();
 	bool saveIfNeeded(LLInventoryItem* copyitem = NULL);
 

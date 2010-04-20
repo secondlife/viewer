@@ -73,7 +73,7 @@ public:
 	void changedGlobalPos(const LLVector3d &global_pos);
 
 	// Opens landmark info panel when agent creates or receives landmark.
-	void showAddedLandmarkInfo(const std::vector<LLUUID>& items);
+	void showAddedLandmarkInfo(const uuid_vec_t& items);
 
 	void setItem(LLInventoryItem* item);
 
@@ -98,6 +98,7 @@ private:
 	bool onOverflowMenuItemEnable(const LLSD& param);
 	void onCreateLandmarkButtonClicked(const LLUUID& folder_id);
 	void onBackButtonClicked();
+	void onProfileButtonClicked();
 
 	void toggleMediaPanel();
 	void togglePickPanel(BOOL visible);
@@ -128,6 +129,7 @@ private:
 	LLButton*					mCancelBtn;
 	LLButton*					mCloseBtn;
 	LLButton*					mOverflowBtn;
+	LLButton*					mPlaceInfoBtn;
 
 	LLPlacesInventoryObserver*	mInventoryObserver;
 	LLPlacesParcelObserver*		mParcelObserver;

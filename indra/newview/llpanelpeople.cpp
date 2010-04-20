@@ -134,13 +134,13 @@ public:
 	typedef std::map < LLUUID, LLVector3d > id_to_pos_map_t;
 	LLAvatarItemDistanceComparator() {};
 
-	void updateAvatarsPositions(std::vector<LLVector3d>& positions, std::vector<LLUUID>& uuids)
+	void updateAvatarsPositions(std::vector<LLVector3d>& positions, uuid_vec_t& uuids)
 	{
 		std::vector<LLVector3d>::const_iterator
 			pos_it = positions.begin(),
 			pos_end = positions.end();
 
-		std::vector<LLUUID>::const_iterator
+		uuid_vec_t::const_iterator
 			id_it = uuids.begin(),
 			id_end = uuids.end();
 
@@ -178,8 +178,8 @@ public:
 protected:
 	virtual bool doCompare(const LLAvatarListItem* item1, const LLAvatarListItem* item2) const
 	{
-		LLPointer<LLSpeaker> lhs = LLLocalSpeakerMgr::instance().findSpeaker(item1->getAvatarId());
-		LLPointer<LLSpeaker> rhs = LLLocalSpeakerMgr::instance().findSpeaker(item2->getAvatarId());
+		LLPointer<LLSpeaker> lhs = LLActiveSpeakerMgr::instance().findSpeaker(item1->getAvatarId());
+		LLPointer<LLSpeaker> rhs = LLActiveSpeakerMgr::instance().findSpeaker(item2->getAvatarId());
 		if ( lhs.notNull() && rhs.notNull() )
 		{
 			// Compare by last speaking time
@@ -652,8 +652,8 @@ void LLPanelPeople::updateFriendList()
 	av_tracker.copyBuddyList(all_buddies);
 
 	// save them to the online and all friends vectors
-	LLAvatarList::uuid_vector_t& online_friendsp = mOnlineFriendList->getIDs();
-	LLAvatarList::uuid_vector_t& all_friendsp = mAllFriendList->getIDs();
+	uuid_vec_t& online_friendsp = mOnlineFriendList->getIDs();
+	uuid_vec_t& all_friendsp = mAllFriendList->getIDs();
 
 	all_friendsp.clear();
 	online_friendsp.clear();
@@ -672,11 +672,6 @@ void LLPanelPeople::updateFriendList()
 		lldebugs << "Friends Cards were not found" << llendl;
 	}
 
-	// show special help text for just created account to help found friends. EXT-4836
-	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
-	no_friends_text->setVisible(all_friendsp.size() == 0);
-
-
 	LLAvatarTracker::buddy_map_t::const_iterator buddy_it = all_buddies.begin();
 	for (; buddy_it != all_buddies.end(); ++buddy_it)
 	{
@@ -684,6 +679,14 @@ void LLPanelPeople::updateFriendList()
 		if (av_tracker.isBuddyOnline(buddy_id))
 			online_friendsp.push_back(buddy_id);
 	}
+
+	// show special help text for just created account to help found friends. EXT-4836
+	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
+
+	// Seems sometimes all_friends can be empty because of issue with Inventory loading (clear cache, slow connection...)
+	// So, lets check all lists to avoid overlapping the text with online list. See EXT-6448.
+	bool any_friend_exists = (all_friendsp.size() > 0) || (online_friendsp.size() > 0);
+	no_friends_text->setVisible(!any_friend_exists);
 
 	/*
 	 * Avatarlists  will be hidden by showFriendsAccordionsIfNeeded(), if they do not have items.
@@ -708,7 +711,7 @@ void LLPanelPeople::updateNearbyList()
 	mNearbyList->setDirty();
 
 	DISTANCE_COMPARATOR.updateAvatarsPositions(positions, mNearbyList->getIDs());
-	LLLocalSpeakerMgr::instance().update(TRUE);
+	LLActiveSpeakerMgr::instance().update(TRUE);
 }
 
 void LLPanelPeople::updateRecentList()
@@ -743,7 +746,7 @@ void LLPanelPeople::buttonSetAction(const std::string& btn_name, const commit_si
 
 bool LLPanelPeople::isFriendOnline(const LLUUID& id)
 {
-	LLAvatarList::uuid_vector_t ids = mOnlineFriendList->getIDs();
+	uuid_vec_t ids = mOnlineFriendList->getIDs();
 	return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
@@ -756,7 +759,7 @@ void LLPanelPeople::updateButtons()
 	//bool recent_tab_active	= (cur_tab == RECENT_TAB_NAME);
 	LLUUID selected_id;
 
-	std::vector<LLUUID> selected_uuids;
+	uuid_vec_t selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 	bool item_selected = (selected_uuids.size() == 1);
 	bool multiple_selected = (selected_uuids.size() >= 1);
@@ -852,7 +855,7 @@ LLUUID LLPanelPeople::getCurrentItemID() const
 	return LLUUID::null;
 }
 
-void LLPanelPeople::getCurrentItemIDs(std::vector<LLUUID>& selected_uuids) const
+void LLPanelPeople::getCurrentItemIDs(uuid_vec_t& selected_uuids) const
 {
 	std::string cur_tab = getActiveTabName();
 
@@ -1063,10 +1066,10 @@ void LLPanelPeople::onAddFriendButtonClicked()
 	}
 }
 
-bool LLPanelPeople::isItemsFreeOfFriends(const std::vector<LLUUID>& uuids)
+bool LLPanelPeople::isItemsFreeOfFriends(const uuid_vec_t& uuids)
 {
 	const LLAvatarTracker& av_tracker = LLAvatarTracker::instance();
-	for ( std::vector<LLUUID>::const_iterator
+	for ( uuid_vec_t::const_iterator
 			  id = uuids.begin(),
 			  id_end = uuids.end();
 		  id != id_end; ++id )
@@ -1094,7 +1097,7 @@ void LLPanelPeople::onAddFriendWizButtonClicked()
 
 void LLPanelPeople::onDeleteFriendButtonClicked()
 {
-	std::vector<LLUUID> selected_uuids;
+	uuid_vec_t selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 
 	if (selected_uuids.size() == 1)
@@ -1121,7 +1124,7 @@ void LLPanelPeople::onChatButtonClicked()
 
 void LLPanelPeople::onImButtonClicked()
 {
-	std::vector<LLUUID> selected_uuids;
+	uuid_vec_t selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 	if ( selected_uuids.size() == 1 )
 	{
@@ -1143,7 +1146,7 @@ void LLPanelPeople::onActivateButtonClicked()
 // static
 void LLPanelPeople::onAvatarPicked(
 		const std::vector<std::string>& names,
-		const std::vector<LLUUID>& ids)
+		const uuid_vec_t& ids)
 {
 	if (!names.empty() && !ids.empty())
 		LLAvatarActions::requestFriendshipDialog(ids[0], names[0]);
@@ -1293,7 +1296,7 @@ bool LLPanelPeople::onRecentViewSortMenuItemCheck(const LLSD& userdata)
 
 void LLPanelPeople::onCallButtonClicked()
 {
-	std::vector<LLUUID> selected_uuids;
+	uuid_vec_t selected_uuids;
 	getCurrentItemIDs(selected_uuids);
 
 	if (selected_uuids.size() == 1)

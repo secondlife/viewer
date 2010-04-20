@@ -48,12 +48,12 @@ rápido
 		<check_box initial_value="true" label="Atributos do Avatar" name="AvatarImpostors"/>
 		<check_box initial_value="true" label="Melhoria de Hardware" name="AvatarVertexProgram"/>
 		<check_box initial_value="true" label="Vestimenta do Avatar" name="AvatarCloth"/>
-		<slider label="Distancia de desenho:" label_width="150" name="DrawDistance" width="255"/>
+		<slider label="Distancia de desenho:" name="DrawDistance"/>
 		<text name="DrawDistanceMeterText2">
 			m
 		</text>
-		<slider label="Contador máx. de partículas:" label_width="150" name="MaxParticleCount" width="262"/>
-		<slider label="Qualidade de Pós-processamento:" label_width="178" name="RenderPostProcess" width="223"/>
+		<slider label="Contador máx. de partículas:" name="MaxParticleCount"/>
+		<slider label="Qualidade de Pós-processamento:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Detalhes de Malha:
 		</text>
@@ -94,13 +94,13 @@ rápido
 		<text name="TerrainDetailText">
 			Detalhe do Terreno:
 		</text>
-		<radio_group left_delta="45" name="TerrainDetailRadio" width="276">
+		<radio_group left_delta="45" name="TerrainDetailRadio">
 			<radio_item label="Baixo" name="0"/>
 			<radio_item label="Alto" name="2"/>
 		</radio_group>
 	</panel>
 	<button label="Aplicar" label_selected="Aplicar" name="Apply"/>
-	<button label="Redefinir" left="110" name="Defaults" width="190"/>
+	<button label="Redefinir" left="110" name="Defaults"/>
 	<button label="Avançado" name="Advanced"/>
 	<button label="Hardware" label_selected="Hardware" name="GraphicsHardwareButton"/>
 </panel>

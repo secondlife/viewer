@@ -1209,7 +1209,7 @@ static LLVector3d unpackLocalToGlobalPosition(U32 compact_local, const LLVector3
 	return pos_global;
 }
 
-void LLWorld::getAvatars(std::vector<LLUUID>* avatar_ids, std::vector<LLVector3d>* positions, const LLVector3d& relative_to, F32 radius) const
+void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positions, const LLVector3d& relative_to, F32 radius) const
 {
 	if(avatar_ids != NULL)
 	{

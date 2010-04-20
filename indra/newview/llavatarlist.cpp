@@ -32,13 +32,19 @@
 
 #include "llviewerprecompiledheaders.h"
 
+// common
+#include "lltrans.h"
+
 #include "llavatarlist.h"
 #include "llagentdata.h" // for comparator
 
 // newview
+#include "llavatariconctrl.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
 #include "llrecentpeople.h"
+#include "lltextutil.h"
+#include "lluuid.h"
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"	// for gSavedSettings
 
@@ -53,7 +59,7 @@ static const unsigned ADD_LIMIT = 50;
 
 bool LLAvatarList::contains(const LLUUID& id)
 {
-	const uuid_vector_t& ids = getIDs();
+	const uuid_vec_t& ids = getIDs();
 	return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
@@ -192,6 +198,18 @@ void LLAvatarList::setDirty(bool val /*= true*/, bool force_refresh /*= false*/)
 	}
 }
 
+void LLAvatarList::addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name)
+{
+	LL_DEBUGS("Avaline") << "Adding avaline item into the list: " << item_name << "|" << item_id << ", session: " << session_id << LL_ENDL;
+	LLAvalineListItem* item = new LLAvalineListItem;
+	item->setAvatarId(item_id, session_id, true, false);
+	item->setName(item_name);
+
+	addItem(item, item_id);
+	mIDs.push_back(item_id);
+	sort();
+}
+
 //////////////////////////////////////////////////////////////////////////
 // PROTECTED SECTION
 //////////////////////////////////////////////////////////////////////////
@@ -204,17 +222,17 @@ void LLAvatarList::refresh()
 	bool have_filter		= !mNameFilter.empty();
 
 	// Save selection.	
-	std::vector<LLUUID> selected_ids;
+	uuid_vec_t selected_ids;
 	getSelectedUUIDs(selected_ids);
 	LLUUID current_id = getSelectedUUID();
 
 	// Determine what to add and what to remove.
-	std::vector<LLUUID> added, removed;
+	uuid_vec_t added, removed;
 	LLAvatarList::computeDifference(getIDs(), added, removed);
 
 	// Handle added items.
 	unsigned nadded = 0;
-	for (std::vector<LLUUID>::const_iterator it=added.begin(); it != added.end(); it++)
+	for (uuid_vec_t::const_iterator it=added.begin(); it != added.end(); it++)
 	{
 		std::string name;
 		const LLUUID& buddy_id = *it;
@@ -236,7 +254,7 @@ void LLAvatarList::refresh()
 	}
 
 	// Handle removed items.
-	for (std::vector<LLUUID>::const_iterator it=removed.begin(); it != removed.end(); it++)
+	for (uuid_vec_t::const_iterator it=removed.begin(); it != removed.end(); it++)
 	{
 		removeItemByUUID(*it);
 		modified = true;
@@ -303,9 +321,9 @@ void LLAvatarList::refresh()
 
 bool LLAvatarList::filterHasMatches()
 {
-	uuid_vector_t values = getIDs();
+	uuid_vec_t values = getIDs();
 
-	for (uuid_vector_t::const_iterator it=values.begin(); it != values.end(); it++)
+	for (uuid_vec_t::const_iterator it=values.begin(); it != values.end(); it++)
 	{
 		std::string name;
 		const LLUUID& buddy_id = *it;
@@ -334,6 +352,17 @@ boost::signals2::connection LLAvatarList::setItemDoubleClickCallback(const mouse
 	return mItemDoubleClickSignal.connect(cb);
 }
 
+//virtual
+S32 LLAvatarList::notifyParent(const LLSD& info)
+{
+	if (info.has("sort") && &NAME_COMPARATOR == mItemComparator)
+	{
+		sort();
+		return 1;
+	}
+	return LLFlatListView::notifyParent(info);
+}
+
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
@@ -358,7 +387,7 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 	if ( mContextMenu )
 	{
-		std::vector<LLUUID> selected_uuids;
+		uuid_vec_t selected_uuids;
 		getSelectedUUIDs(selected_uuids);
 		mContextMenu->show(this, selected_uuids, x, y);
 	}
@@ -366,12 +395,12 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 
 void LLAvatarList::computeDifference(
-	const std::vector<LLUUID>& vnew_unsorted,
-	std::vector<LLUUID>& vadded,
-	std::vector<LLUUID>& vremoved)
+	const uuid_vec_t& vnew_unsorted,
+	uuid_vec_t& vadded,
+	uuid_vec_t& vremoved)
 {
-	std::vector<LLUUID> vcur;
-	std::vector<LLUUID> vnew = vnew_unsorted;
+	uuid_vec_t vcur;
+	uuid_vec_t vnew = vnew_unsorted;
 
 	// Convert LLSDs to LLUUIDs.
 	{
@@ -385,7 +414,7 @@ void LLAvatarList::computeDifference(
 	std::sort(vcur.begin(), vcur.end());
 	std::sort(vnew.begin(), vnew.end());
 
-	std::vector<LLUUID>::iterator it;
+	uuid_vec_t::iterator it;
 	size_t maxsize = llmax(vcur.size(), vnew.size());
 	vadded.resize(maxsize);
 	vremoved.resize(maxsize);
@@ -458,4 +487,62 @@ bool LLAvatarItemAgentOnTopComparator::doCompare(const LLAvatarListItem* avatar_
 		return false;
 	}
 	return LLAvatarItemNameComparator::doCompare(avatar_item1,avatar_item2);
+}
+
+/************************************************************************/
+/*             class LLAvalineListItem                                  */
+/************************************************************************/
+LLAvalineListItem::LLAvalineListItem(bool hide_number/* = true*/) : LLAvatarListItem(false)
+, mIsHideNumber(hide_number)
+{
+	// should not use buildPanel from the base class to ensure LLAvalineListItem::postBuild is called.
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_list_item.xml");
+}
+
+BOOL LLAvalineListItem::postBuild()
+{
+	BOOL rv = LLAvatarListItem::postBuild();
+
+	if (rv)
+	{
+		setOnline(true);
+		showLastInteractionTime(false);
+		setShowProfileBtn(false);
+		setShowInfoBtn(false);
+		mAvatarIcon->setValue("Avaline_Icon");
+		mAvatarIcon->setToolTip(std::string(""));
+	}
+	return rv;
+}
+
+// to work correctly this method should be called AFTER setAvatarId for avaline callers with hidden phone number
+void LLAvalineListItem::setName(const std::string& name)
+{
+	if (mIsHideNumber)
+	{
+		static U32 order = 0;
+		typedef std::map<LLUUID, U32> avaline_callers_nums_t;
+		static avaline_callers_nums_t mAvalineCallersNums;
+
+		llassert(getAvatarId() != LLUUID::null);
+
+		const LLUUID &uuid = getAvatarId();
+
+		if (mAvalineCallersNums.find(uuid) == mAvalineCallersNums.end())
+		{
+			mAvalineCallersNums[uuid] = ++order;
+			LL_DEBUGS("Avaline") << "Set name for new avaline caller: " << uuid << ", order: " << order << LL_ENDL;
+		}
+		LLStringUtil::format_map_t args;
+		args["[ORDER]"] = llformat("%u", mAvalineCallersNums[uuid]);
+		std::string hidden_name = LLTrans::getString("AvalineCaller", args);
+
+		LL_DEBUGS("Avaline") << "Avaline caller: " << uuid << ", name: " << hidden_name << LL_ENDL;
+		LLAvatarListItem::setName(hidden_name);
+	}
+	else
+	{
+		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
+		LLAvatarListItem::setName(formatted_phone);
+	}
 }

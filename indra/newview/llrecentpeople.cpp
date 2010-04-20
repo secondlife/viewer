@@ -63,7 +63,7 @@ bool LLRecentPeople::contains(const LLUUID& id) const
 	return mPeople.find(id) != mPeople.end();
 }
 
-void LLRecentPeople::get(std::vector<LLUUID>& result) const
+void LLRecentPeople::get(uuid_vec_t& result) const
 {
 	result.clear();
 	for (recent_people_t::const_iterator pos = mPeople.begin(); pos != mPeople.end(); ++pos)

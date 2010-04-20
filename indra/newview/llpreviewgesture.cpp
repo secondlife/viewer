@@ -42,6 +42,10 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llfloaterreg.h"
+#include "llinventorydefines.h"
+#include "llinventoryfunctions.h"
+#include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llmultigesture.h"
 #include "llnotificationsutil.h"
 #include "llvfile.h"
@@ -56,7 +60,6 @@
 #include "lldelayedgestureerror.h"
 #include "llfloatergesture.h" // for some label constants
 #include "llgesturemgr.h"
-#include "llinventorymodel.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llradiogroup.h"
@@ -97,7 +100,7 @@ protected:
 
 void LLInventoryGestureAvailable::done()
 {
-	for(item_ref_t::iterator it = mComplete.begin(); it != mComplete.end(); ++it)
+	for(uuid_vec_t::iterator it = mComplete.begin(); it != mComplete.end(); ++it)
 	{
 		LLPreviewGesture* preview = LLFloaterReg::findTypedInstance<LLPreviewGesture>("preview_gesture", *it);
 		if(preview)
@@ -131,14 +134,14 @@ LLPreviewGesture* LLPreviewGesture::show(const LLUUID& item_id, const LLUUID& ob
 	
 	// Start speculative download of sounds and animations
 	const LLUUID animation_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_ANIMATION);
-	gInventory.startBackgroundFetch(animation_folder_id);
+	LLInventoryModelBackgroundFetch::instance().start(animation_folder_id);
 
 	const LLUUID sound_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SOUND);
-	gInventory.startBackgroundFetch(sound_folder_id);
+	LLInventoryModelBackgroundFetch::instance().start(sound_folder_id);
 
 	// this will call refresh when we have everything.
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)preview->getItem();
-	if (item && !item->isComplete())
+	if (item && !item->isFinished())
 	{
 		LLInventoryGestureAvailable* observer;
 		observer = new LLInventoryGestureAvailable();
@@ -269,7 +272,7 @@ BOOL LLPreviewGesture::canClose()
 // virtual
 void LLPreviewGesture::onClose(bool app_quitting)
 {
-	LLGestureManager::instance().stopGesture(mPreviewGesture);
+	LLGestureMgr::instance().stopGesture(mPreviewGesture);
 }
 
 // virtual
@@ -293,13 +296,13 @@ bool LLPreviewGesture::handleSaveChangesDialog(const LLSD& notification, const L
 	switch(option)
 	{
 	case 0:  // "Yes"
-		LLGestureManager::instance().stopGesture(mPreviewGesture);
+		LLGestureMgr::instance().stopGesture(mPreviewGesture);
 		mCloseAfterSave = TRUE;
 		onClickSave(this);
 		break;
 
 	case 1:  // "No"
-		LLGestureManager::instance().stopGesture(mPreviewGesture);
+		LLGestureMgr::instance().stopGesture(mPreviewGesture);
 		mDirty = FALSE; // Force the dirty flag because user has clicked NO on confirm save dialog...
 		closeFloater();
 		break;
@@ -645,7 +648,7 @@ void LLPreviewGesture::refresh()
 	LLPreview::refresh();
 	// If previewing or item is incomplete, all controls are disabled
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
-	bool is_complete = (item && item->isComplete()) ? true : false;
+	bool is_complete = (item && item->isFinished()) ? true : false;
 	if (mPreviewGesture || !is_complete)
 	{
 		
@@ -784,7 +787,7 @@ void LLPreviewGesture::refresh()
 	
 	mOptionsText->setText(optionstext);
 
-	BOOL active = LLGestureManager::instance().isGestureActive(mItemUUID);
+	BOOL active = LLGestureMgr::instance().isGestureActive(mItemUUID);
 	mActiveCheck->set(active);
 
 	// Can only preview if there are steps
@@ -1138,10 +1141,10 @@ void LLPreviewGesture::saveIfNeeded()
 
 		// If this gesture is active, then we need to update the in-memory
 		// active map with the new pointer.
-		if (!delayedUpload && LLGestureManager::instance().isGestureActive(mItemUUID))
+		if (!delayedUpload && LLGestureMgr::instance().isGestureActive(mItemUUID))
 		{
 			// gesture manager now owns the pointer
-			LLGestureManager::instance().replaceGesture(mItemUUID, gesture, asset_id);
+			LLGestureMgr::instance().replaceGesture(mItemUUID, gesture, asset_id);
 
 			// replaceGesture may deactivate other gestures so let the
 			// inventory know.
@@ -1702,13 +1705,13 @@ void LLPreviewGesture::onClickDelete(void* data)
 void LLPreviewGesture::onCommitActive(LLUICtrl* ctrl, void* data)
 {
 	LLPreviewGesture* self = (LLPreviewGesture*)data;
-	if (!LLGestureManager::instance().isGestureActive(self->mItemUUID))
+	if (!LLGestureMgr::instance().isGestureActive(self->mItemUUID))
 	{
-		LLGestureManager::instance().activateGesture(self->mItemUUID);
+		LLGestureMgr::instance().activateGesture(self->mItemUUID);
 	}
 	else
 	{
-		LLGestureManager::instance().deactivateGesture(self->mItemUUID);
+		LLGestureMgr::instance().deactivateGesture(self->mItemUUID);
 	}
 
 	// Make sure the (active) label in the inventory gets updated.
@@ -1747,14 +1750,14 @@ void LLPreviewGesture::onClickPreview(void* data)
 		self->mPreviewBtn->setLabel(self->getString("stop_txt"));
 
 		// play it, and delete when done
-		LLGestureManager::instance().playGesture(self->mPreviewGesture);
+		LLGestureMgr::instance().playGesture(self->mPreviewGesture);
 
 		self->refresh();
 	}
 	else
 	{
 		// Will call onDonePreview() below
-		LLGestureManager::instance().stopGesture(self->mPreviewGesture);
+		LLGestureMgr::instance().stopGesture(self->mPreviewGesture);
 
 		self->refresh();
 	}

@@ -62,6 +62,14 @@
 #include "llsdutil.h"
 #include <deque>
 
+// If the viewer gets a notification, your observer assumes
+// that that notification is for itself and then tries to process
+// the results.  The notification could be for something else (e.g.
+// you're fetching an item and a notification gets triggered because
+// you renamed some other item).  This counter is to specify how many
+// notification to wait for before giving up.
+static const U32 MAX_NUM_NOTIFICATIONS_TO_PROCESS = 20;
+
 LLInventoryObserver::LLInventoryObserver()
 {
 }
@@ -71,21 +79,51 @@ LLInventoryObserver::~LLInventoryObserver()
 {
 }
 
+LLInventoryFetchObserver::LLInventoryFetchObserver(const LLUUID& id)
+{
+	mIDs.clear();
+	if (id != LLUUID::null)
+	{
+		setFetchID(id);
+	}
+}
+
+LLInventoryFetchObserver::LLInventoryFetchObserver(const uuid_vec_t& ids)
+{
+	setFetchIDs(ids);
+}
+
+BOOL LLInventoryFetchObserver::isFinished() const
+{
+	return mIncomplete.empty();
+}
+
+void LLInventoryFetchObserver::setFetchIDs(const uuid_vec_t& ids)
+{
+	mIDs = ids;
+}
+void LLInventoryFetchObserver::setFetchID(const LLUUID& id)
+{
+	mIDs.clear();
+	mIDs.push_back(id);
+}
+
+
 void LLInventoryCompletionObserver::changed(U32 mask)
 {
 	// scan through the incomplete items and move or erase them as
 	// appropriate.
-	if(!mIncomplete.empty())
+	if (!mIncomplete.empty())
 	{
-		for(item_ref_t::iterator it = mIncomplete.begin(); it < mIncomplete.end(); )
+		for (uuid_vec_t::iterator it = mIncomplete.begin(); it < mIncomplete.end(); )
 		{
-			LLViewerInventoryItem* item = gInventory.getItem(*it);
-			if(!item)
+			const LLViewerInventoryItem* item = gInventory.getItem(*it);
+			if (!item)
 			{
 				it = mIncomplete.erase(it);
 				continue;
 			}
-			if(item->isComplete())
+			if (item->isFinished())
 			{
 				mComplete.push_back(*it);
 				it = mIncomplete.erase(it);
@@ -93,7 +131,7 @@ void LLInventoryCompletionObserver::changed(U32 mask)
 			}
 			++it;
 		}
-		if(mIncomplete.empty())
+		if (mIncomplete.empty())
 		{
 			done();
 		}
@@ -102,60 +140,74 @@ void LLInventoryCompletionObserver::changed(U32 mask)
 
 void LLInventoryCompletionObserver::watchItem(const LLUUID& id)
 {
-	if(id.notNull())
+	if (id.notNull())
 	{
 		mIncomplete.push_back(id);
 	}
 }
 
-
-void LLInventoryFetchObserver::changed(U32 mask)
+LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_id) :
+	LLInventoryFetchObserver(item_id),
+	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
 {
+	mIDs.clear();
+	mIDs.push_back(item_id);
+}
+
+LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids) :
+	LLInventoryFetchObserver(item_ids)
+{
+}
+
+void LLInventoryFetchItemsObserver::changed(U32 mask)
+{
+	BOOL any_items_missing = FALSE;
+
 	// scan through the incomplete items and move or erase them as
 	// appropriate.
-	if(!mIncomplete.empty())
+	if (!mIncomplete.empty())
 	{
-		for(item_ref_t::iterator it = mIncomplete.begin(); it < mIncomplete.end(); )
+		for (uuid_vec_t::iterator it = mIncomplete.begin(); it < mIncomplete.end(); )
 		{
-			LLViewerInventoryItem* item = gInventory.getItem(*it);
-			if(!item)
+			const LLUUID& item_id = (*it);
+			LLViewerInventoryItem* item = gInventory.getItem(item_id);
+			if (!item)
 			{
-				if (mRetryIfMissing)
+				any_items_missing = TRUE;
+				if (mNumTries > 0)
 				{
-					// BAP changed to skip these items, so we should keep retrying until they arrive.
-					// Did not make this the default behavior because of uncertainty about impact -
-					// could cause some observers that currently complete to wait forever.
+					// Keep trying.
 					++it;
 				}
 				else
 				{
-					// BUG: This can cause done() to get called prematurely below.
-					// This happens with the LLGestureInventoryFetchObserver that
-					// loads gestures at startup. JC
+					// Just concede that this item hasn't arrived in reasonable time and continue on.
+					llwarns << "Fetcher timed out when fetching inventory item assetID:" << item_id << llendl;
 					it = mIncomplete.erase(it);
 				}
 				continue;
 			}
-			if(item->isComplete())
+			if (item->isFinished())
 			{
-				mComplete.push_back(*it);
+				mComplete.push_back(item_id);
 				it = mIncomplete.erase(it);
 				continue;
 			}
 			++it;
 		}
-		if(mIncomplete.empty())
+		if (any_items_missing)
 		{
+			mNumTries--;
+		}
+
+		if (mIncomplete.empty())
+		{
+			mNumTries = MAX_NUM_NOTIFICATIONS_TO_PROCESS;
 			done();
 		}
 	}
-	//llinfos << "LLInventoryFetchObserver::changed() mComplete size " << mComplete.size() << llendl;
-	//llinfos << "LLInventoryFetchObserver::changed() mIncomplete size " << mIncomplete.size() << llendl;
-}
-
-bool LLInventoryFetchObserver::isEverythingComplete() const
-{
-	return mIncomplete.empty();
+	//llinfos << "LLInventoryFetchItemsObserver::changed() mComplete size " << mComplete.size() << llendl;
+	//llinfos << "LLInventoryFetchItemsObserver::changed() mIncomplete size " << mIncomplete.size() << llendl;
 }
 
 void fetch_items_from_llsd(const LLSD& items_llsd)
@@ -195,7 +247,7 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 		for (S32 j=0; j<body[i]["items"].size(); j++)
 		{
 			LLSD item_entry = body[i]["items"][j];
-			if(start_new_message)
+			if (start_new_message)
 			{
 				start_new_message = FALSE;
 				msg->newMessageFast(_PREHASH_FetchInventory);
@@ -206,30 +258,29 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 			msg->nextBlockFast(_PREHASH_InventoryData);
 			msg->addUUIDFast(_PREHASH_OwnerID, item_entry["owner_id"].asUUID());
 			msg->addUUIDFast(_PREHASH_ItemID, item_entry["item_id"].asUUID());
-			if(msg->isSendFull(NULL))
+			if (msg->isSendFull(NULL))
 			{
 				start_new_message = TRUE;
 				gAgent.sendReliableMessage();
 			}
 		}
-		if(!start_new_message)
+		if (!start_new_message)
 		{
 			gAgent.sendReliableMessage();
 		}
 	}
 }
 
-void LLInventoryFetchObserver::fetchItems(
-	const LLInventoryFetchObserver::item_ref_t& ids)
+void LLInventoryFetchItemsObserver::startFetch()
 {
 	LLUUID owner_id;
 	LLSD items_llsd;
-	for(item_ref_t::const_iterator it = ids.begin(); it < ids.end(); ++it)
+	for (uuid_vec_t::const_iterator it = mIDs.begin(); it < mIDs.end(); ++it)
 	{
 		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		if(item)
+		if (item)
 		{
-			if(item->isComplete())
+			if (item->isFinished())
 			{
 				// It's complete, so put it on the complete container.
 				mComplete.push_back(*it);
@@ -259,84 +310,88 @@ void LLInventoryFetchObserver::fetchItems(
 	fetch_items_from_llsd(items_llsd);
 }
 
+LLInventoryFetchDescendentsObserver::LLInventoryFetchDescendentsObserver(const LLUUID& cat_id) :
+	LLInventoryFetchObserver(cat_id)
+{
+}
+
+LLInventoryFetchDescendentsObserver::LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids) :
+	LLInventoryFetchObserver(cat_ids)
+{
+}
+
 // virtual
 void LLInventoryFetchDescendentsObserver::changed(U32 mask)
 {
-	for(folder_ref_t::iterator it = mIncompleteFolders.begin(); it < mIncompleteFolders.end();)
+	for (uuid_vec_t::iterator it = mIncomplete.begin(); it < mIncomplete.end();)
 	{
-		LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
-		if(!cat)
+		const LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
+		if (!cat)
 		{
-			it = mIncompleteFolders.erase(it);
+			it = mIncomplete.erase(it);
 			continue;
 		}
-		if(isComplete(cat))
+		if (isCategoryComplete(cat))
 		{
-			mCompleteFolders.push_back(*it);
-			it = mIncompleteFolders.erase(it);
+			mComplete.push_back(*it);
+			it = mIncomplete.erase(it);
 			continue;
 		}
 		++it;
 	}
-	if(mIncompleteFolders.empty())
+	if (mIncomplete.empty())
 	{
 		done();
 	}
 }
 
-void LLInventoryFetchDescendentsObserver::fetchDescendents(
-	const folder_ref_t& ids)
+void LLInventoryFetchDescendentsObserver::startFetch()
 {
-	for(folder_ref_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	for (uuid_vec_t::const_iterator it = mIDs.begin(); it != mIDs.end(); ++it)
 	{
 		LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
-		if(!cat) continue;
-		if(!isComplete(cat))
+		if (!cat) continue;
+		if (!isCategoryComplete(cat))
 		{
-			cat->fetchDescendents();		//blindly fetch it without seeing if anything else is fetching it.
-			mIncompleteFolders.push_back(*it);	//Add to list of things being downloaded for this observer.
+			cat->fetch();		//blindly fetch it without seeing if anything else is fetching it.
+			mIncomplete.push_back(*it);	//Add to list of things being downloaded for this observer.
 		}
 		else
 		{
-			mCompleteFolders.push_back(*it);
+			mComplete.push_back(*it);
 		}
 	}
 }
 
-bool LLInventoryFetchDescendentsObserver::isEverythingComplete() const
-{
-	return mIncompleteFolders.empty();
-}
-
-bool LLInventoryFetchDescendentsObserver::isComplete(LLViewerInventoryCategory* cat)
+BOOL LLInventoryFetchDescendentsObserver::isCategoryComplete(const LLViewerInventoryCategory* cat) const
 {
 	const S32 version = cat->getVersion();
 	const S32 expected_num_descendents = cat->getDescendentCount();
 	if ((version == LLViewerInventoryCategory::VERSION_UNKNOWN) ||
 		(expected_num_descendents == LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN))
 	{
-		return false;
+		return FALSE;
 	}
 	// it might be complete - check known descendents against
 	// currently available.
 	LLInventoryModel::cat_array_t* cats;
 	LLInventoryModel::item_array_t* items;
 	gInventory.getDirectDescendentsOf(cat->getUUID(), cats, items);
-	if(!cats || !items)
+	if (!cats || !items)
 	{
 		llwarns << "Category '" << cat->getName() << "' descendents corrupted, fetch failed." << llendl;
 		// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
 		// that the cat just doesn't have any items or subfolders).
 		// Unrecoverable, so just return done so that this observer can be cleared
 		// from memory.
-		return true;
+		return TRUE;
 	}
 	const S32 current_num_known_descendents = cats->count() + items->count();
 	
 	// Got the number of descendents that we were expecting, so we're done.
 	if (current_num_known_descendents == expected_num_descendents)
 	{
-		return true;
+		return TRUE;
 	}
 
 	// Error condition, but recoverable.  This happens if something was added to the
@@ -345,125 +400,62 @@ bool LLInventoryFetchDescendentsObserver::isComplete(LLViewerInventoryCategory* 
 	if (current_num_known_descendents >= expected_num_descendents)
 	{
 		llwarns << "Category '" << cat->getName() << "' expected descendentcount:" << expected_num_descendents << " descendents but got descendentcount:" << current_num_known_descendents << llendl;
-		cat->setDescendentCount(current_num_known_descendents);
-		return true;
+		const_cast<LLViewerInventoryCategory *>(cat)->setDescendentCount(current_num_known_descendents);
+		return TRUE;
 	}
-	return false;
+	return FALSE;
+}
+
+LLInventoryFetchComboObserver::LLInventoryFetchComboObserver(const uuid_vec_t& folder_ids,
+															 const uuid_vec_t& item_ids)
+{
+	mFetchDescendents = new LLInventoryFetchDescendentsObserver(folder_ids);
+
+	uuid_vec_t pruned_item_ids;
+	for (uuid_vec_t::const_iterator item_iter = item_ids.begin();
+		 item_iter != item_ids.end();
+		 ++item_iter)
+	{
+		const LLUUID& item_id = (*item_iter);
+		const LLViewerInventoryItem* item = gInventory.getItem(item_id);
+		if (item && std::find(folder_ids.begin(), folder_ids.end(), item->getParentUUID()) == folder_ids.end())
+		{
+			continue;
+		}
+		pruned_item_ids.push_back(item_id);
+	}
+
+	mFetchItems = new LLInventoryFetchItemsObserver(pruned_item_ids);
+	mFetchDescendents = new LLInventoryFetchDescendentsObserver(folder_ids);
+}
+
+LLInventoryFetchComboObserver::~LLInventoryFetchComboObserver()
+{
+	mFetchItems->done();
+	mFetchDescendents->done();
+	delete mFetchItems;
+	delete mFetchDescendents;
 }
 
 void LLInventoryFetchComboObserver::changed(U32 mask)
 {
-	if(!mIncompleteItems.empty())
+	mFetchItems->changed(mask);
+	mFetchDescendents->changed(mask);
+	if (mFetchItems->isFinished() && mFetchDescendents->isFinished())
 	{
-		for(item_ref_t::iterator it = mIncompleteItems.begin(); it < mIncompleteItems.end(); )
-		{
-			LLViewerInventoryItem* item = gInventory.getItem(*it);
-			if(!item)
-			{
-				it = mIncompleteItems.erase(it);
-				continue;
-			}
-			if(item->isComplete())
-		{	
-				mCompleteItems.push_back(*it);
-				it = mIncompleteItems.erase(it);
-				continue;
-			}
-			++it;
-		}
-	}
-	if(!mIncompleteFolders.empty())
-	{
-		for(folder_ref_t::iterator it = mIncompleteFolders.begin(); it < mIncompleteFolders.end();)
-		{
-			LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
-			if(!cat)
-			{
-				it = mIncompleteFolders.erase(it);
-				continue;
-			}
-			if(gInventory.isCategoryComplete(*it))
-			{
-				mCompleteFolders.push_back(*it);
-				it = mIncompleteFolders.erase(it);
-				continue;
-			}
-			++it;
-		}
-	}
-	if(!mDone && mIncompleteItems.empty() && mIncompleteFolders.empty())
-	{
-		mDone = true;
 		done();
 	}
 }
 
-void LLInventoryFetchComboObserver::fetch(
-	const folder_ref_t& folder_ids,
-	const item_ref_t& item_ids)
+void LLInventoryFetchComboObserver::startFetch()
 {
-	lldebugs << "LLInventoryFetchComboObserver::fetch()" << llendl;
-	for(folder_ref_t::const_iterator fit = folder_ids.begin(); fit != folder_ids.end(); ++fit)
-	{
-		LLViewerInventoryCategory* cat = gInventory.getCategory(*fit);
-		if(!cat) continue;
-		if(!gInventory.isCategoryComplete(*fit))
-		{
-			cat->fetchDescendents();
-			lldebugs << "fetching folder " << *fit <<llendl;
-			mIncompleteFolders.push_back(*fit);
-		}
-		else
-		{
-			mCompleteFolders.push_back(*fit);
-			lldebugs << "completing folder " << *fit <<llendl;
-		}
-	}
-
-	// Now for the items - we fetch everything which is not a direct
-	// descendent of an incomplete folder because the item will show
-	// up in an inventory descendents message soon enough so we do not
-	// have to fetch it individually.
-	LLSD items_llsd;
-	LLUUID owner_id;
-	for(item_ref_t::const_iterator iit = item_ids.begin(); iit != item_ids.end(); ++iit)
-	{
-		LLViewerInventoryItem* item = gInventory.getItem(*iit);
-		if(!item)
-		{
-			lldebugs << "uanble to find item " << *iit << llendl;
-			continue;
-		}
-		if(item->isComplete())
-		{
-			// It's complete, so put it on the complete container.
-			mCompleteItems.push_back(*iit);
-			lldebugs << "completing item " << *iit << llendl;
-			continue;
-		}
-		else
-		{
-			mIncompleteItems.push_back(*iit);
-			owner_id = item->getPermissions().getOwner();
-		}
-		if(std::find(mIncompleteFolders.begin(), mIncompleteFolders.end(), item->getParentUUID()) == mIncompleteFolders.end())
-		{
-			LLSD item_entry;
-			item_entry["owner_id"] = owner_id;
-			item_entry["item_id"] = (*iit);
-			items_llsd.append(item_entry);
-		}
-		else
-		{
-			lldebugs << "not worrying about " << *iit << llendl;
-		}
-	}
-	fetch_items_from_llsd(items_llsd);
+	mFetchItems->startFetch();
+	mFetchDescendents->startFetch();
 }
 
 void LLInventoryExistenceObserver::watchItem(const LLUUID& id)
 {
-	if(id.notNull())
+	if (id.notNull())
 	{
 		mMIA.push_back(id);
 	}
@@ -473,12 +465,12 @@ void LLInventoryExistenceObserver::changed(U32 mask)
 {
 	// scan through the incomplete items and move or erase them as
 	// appropriate.
-	if(!mMIA.empty())
+	if (!mMIA.empty())
 	{
-		for(item_ref_t::iterator it = mMIA.begin(); it < mMIA.end(); )
+		for (uuid_vec_t::iterator it = mMIA.begin(); it < mMIA.end(); )
 		{
 			LLViewerInventoryItem* item = gInventory.getItem(*it);
-			if(!item)
+			if (!item)
 			{
 				++it;
 				continue;
@@ -486,16 +478,79 @@ void LLInventoryExistenceObserver::changed(U32 mask)
 			mExist.push_back(*it);
 			it = mMIA.erase(it);
 		}
-		if(mMIA.empty())
+		if (mMIA.empty())
 		{
 			done();
 		}
 	}
 }
 
-void LLInventoryAddedObserver::changed(U32 mask)
+void LLInventoryMoveFromWorldObserver::changed(U32 mask)
 {
 	if(!(mask & LLInventoryObserver::ADD))
+	{
+		return;
+	}
+
+	// nothing is watched
+	if (mWatchedAssets.size() == 0)
+	{
+		return;
+	}
+
+	LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem;
+	LLMessageSystem* msg = gMessageSystem;
+	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
+	for(S32 i = 0; i < num_blocks; ++i)
+	{
+		item->unpackMessage(msg, _PREHASH_InventoryData, i);
+		const LLUUID& asset_uuid = item->getAssetUUID();
+		if (item->getUUID().notNull() && asset_uuid.notNull())
+		{
+			if (isAssetWatched(asset_uuid))
+			{
+				LL_DEBUGS("Inventory_Move") << "Found asset UUID: " << asset_uuid << LL_ENDL;
+				mAddedItems.push_back(item->getUUID());
+			}
+		}
+	}
+
+	if (mAddedItems.size() == mWatchedAssets.size())
+	{
+		done();
+		LL_DEBUGS("Inventory_Move") << "All watched items are added & processed." << LL_ENDL;
+		mAddedItems.clear();
+
+		// Unable to clean watched items here due to somebody can require to check them in current frame.
+		// set dirty state to clean them while next watch cycle.
+		mIsDirty = true;
+	}
+}
+
+void LLInventoryMoveFromWorldObserver::watchAsset(const LLUUID& asset_id)
+{
+	if(asset_id.notNull())
+	{
+		if (mIsDirty)
+		{
+			LL_DEBUGS("Inventory_Move") << "Watched items are dirty. Clean them." << LL_ENDL;
+			mWatchedAssets.clear();
+			mIsDirty = false;
+		}
+
+		mWatchedAssets.push_back(asset_id);
+		onAssetAdded(asset_id);
+	}
+}
+
+bool LLInventoryMoveFromWorldObserver::isAssetWatched( const LLUUID& asset_id )
+{
+	return std::find(mWatchedAssets.begin(), mWatchedAssets.end(), asset_id) != mWatchedAssets.end();
+}
+
+void LLInventoryAddedObserver::changed(U32 mask)
+{
+	if (!(mask & LLInventoryObserver::ADD))
 	{
 		return;
 	}
@@ -527,7 +582,7 @@ void LLInventoryAddedObserver::changed(U32 mask)
 
 	LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
 	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	for(S32 i = 0; i < num_blocks; ++i)
+	for (S32 i = 0; i < num_blocks; ++i)
 	{
 		titem->unpackMessage(msg, _PREHASH_InventoryData, i);
 		if (!(titem->getUUID().isNull()))
@@ -542,46 +597,45 @@ void LLInventoryAddedObserver::changed(U32 mask)
 	}
 }
 
-LLInventoryTransactionObserver::LLInventoryTransactionObserver(
-	const LLTransactionID& transaction_id) :
+LLInventoryTransactionObserver::LLInventoryTransactionObserver(const LLTransactionID& transaction_id) :
 	mTransactionID(transaction_id)
 {
 }
 
 void LLInventoryTransactionObserver::changed(U32 mask)
 {
-	if(mask & LLInventoryObserver::ADD)
+	if (mask & LLInventoryObserver::ADD)
 	{
 		// This could be it - see if we are processing a bulk update
 		LLMessageSystem* msg = gMessageSystem;
-		if(msg->getMessageName()
+		if (msg->getMessageName()
 		   && (0 == strcmp(msg->getMessageName(), "BulkUpdateInventory")))
 		{
 			// we have a match for the message - now check the
 			// transaction id.
 			LLUUID id;
 			msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_TransactionID, id);
-			if(id == mTransactionID)
+			if (id == mTransactionID)
 			{
 				// woo hoo, we found it
-				folder_ref_t folders;
-				item_ref_t items;
+				uuid_vec_t folders;
+				uuid_vec_t items;
 				S32 count;
 				count = msg->getNumberOfBlocksFast(_PREHASH_FolderData);
 				S32 i;
-				for(i = 0; i < count; ++i)
+				for (i = 0; i < count; ++i)
 				{
 					msg->getUUIDFast(_PREHASH_FolderData, _PREHASH_FolderID, id, i);
-					if(id.notNull())
+					if (id.notNull())
 					{
 						folders.push_back(id);
 					}
 				}
 				count = msg->getNumberOfBlocksFast(_PREHASH_ItemData);
-				for(i = 0; i < count; ++i)
+				for (i = 0; i < count; ++i)
 				{
 					msg->getUUIDFast(_PREHASH_ItemData, _PREHASH_ItemID, id, i);
-					if(id.notNull())
+					if (id.notNull())
 					{
 						items.push_back(id);
 					}

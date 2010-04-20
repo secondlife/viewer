@@ -465,10 +465,11 @@ void LLAccordionCtrlTab::setHeaderVisible(bool value)
 	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
 };
 
-//vurtual
+//virtual
 BOOL LLAccordionCtrlTab::postBuild()
 {
-	mHeader->setVisible(mHeaderVisible);
+	if(mHeader)
+		mHeader->setVisible(mHeaderVisible);
 	
 	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
@@ -504,7 +505,8 @@ BOOL LLAccordionCtrlTab::postBuild()
 		mScrollbar->setVisible(false);
 	}
 
-	mContainerPanel->setVisible(mDisplayChildren);
+	if(mContainerPanel)
+		mContainerPanel->setVisible(mDisplayChildren);
 
 	return LLUICtrl::postBuild();
 }
@@ -857,6 +859,17 @@ void LLAccordionCtrlTab::ctrlSetLeftTopAndSize(LLView* panel, S32 left, S32 top,
 	panel_rect.setLeftTopAndSize( left, top, width, height);
 	panel->reshape( width, height, 1);
 	panel->setRect(panel_rect);
+}
+BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
+{
+	//header may be not the first child but we need to process it first
+	if(y >= (getRect().getHeight() - HEADER_HEIGHT - HEADER_HEIGHT/2) )
+	{
+		//inside tab header
+		//fix for EXT-6619
+		return TRUE;
+	}
+	return LLUICtrl::handleToolTip(x, y, mask);
 }
 
 

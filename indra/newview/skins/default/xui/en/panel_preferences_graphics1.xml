@@ -16,35 +16,8 @@
      height="12"
      layout="topleft"
      left="30"
-     name="UI Size:"
-     top="10"
-     width="300">
-        UI size:
-    </text>
-    <slider
-     can_edit_text="true"
-     control_name="UIScaleFactor"
-     decimal_digits="2"
-     follows="left|top"
-     height="15"
-     increment="0.025"
-     initial_value="1"
-     layout="topleft"
-     left_delta="52"
-     max_val="1.4"
-     min_val="0.75"
-     name="ui_scale_slider"
-     top_pad="2"
-     width="180" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="12"
-     layout="topleft"
-     left="30"
      name="QualitySpeed"
-     top_pad="4"
+     top="10" 
      width="400">
         Quality and speed:
     </text>
@@ -314,7 +287,7 @@
 		left_delta="2"
 		name="AvatarRenderingText"
 		top_pad="5"
-		width="128">
+		width="158">
 			Avatar rendering:
 		</text>
 		<check_box

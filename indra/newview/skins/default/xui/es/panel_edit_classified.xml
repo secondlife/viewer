@@ -29,7 +29,7 @@
 			<text name="classified_location">
 				cargando...
 			</text>
-			<button label="Configurarlo en esta localización" name="set_to_curr_location_btn"/>
+			<button label="Configurar en esta posición" name="set_to_curr_location_btn"/>
 			<text name="category_label" value="Categoría:"/>
 			<text name="content_type_label" value="Tipo de contenido:"/>
 			<icons_combo_box label="Contenido general" name="content_type">

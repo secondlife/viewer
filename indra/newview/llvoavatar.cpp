@@ -48,6 +48,7 @@
 #include "sound_ids.h"
 
 #include "llagent.h" //  Get state values from here
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llanimationstates.h"
 #include "llavatarpropertiesprocessor.h"
@@ -65,6 +66,7 @@
 #include "llkeyframewalkmotion.h"
 #include "llmutelist.h"
 #include "llmoveview.h"
+#include "llnotificationsutil.h"
 #include "llquantize.h"
 #include "llregionhandle.h"
 #include "llresmgr.h"
@@ -99,6 +101,8 @@
 #endif
 
 #include <boost/lexical_cast.hpp>
+
+#define DISPLAY_AVATAR_LOAD_TIMES
 
 using namespace LLVOAvatarDefines;
 
@@ -755,11 +759,6 @@ LLVOAvatar::~LLVOAvatar()
 {
 	lldebugs << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << llendl;
 
-	if (isSelf())
-	{
-		gAgent.setAvatarObject(NULL);
-	}
-
 	mRoot.removeAllChildren();
 
 	deleteAndClearArray(mSkeleton);
@@ -886,7 +885,7 @@ BOOL LLVOAvatar::areAllNearbyInstancesBaked(S32& grey_avatars)
 // static
 void LLVOAvatar::dumpBakedStatus()
 {
-	LLVector3d camera_pos_global = gAgent.getCameraPositionGlobal();
+	LLVector3d camera_pos_global = gAgentCamera.getCameraPositionGlobal();
 
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		 iter != LLCharacter::sInstances.end(); ++iter)
@@ -965,15 +964,14 @@ void LLVOAvatar::dumpBakedStatus()
 //static
 void LLVOAvatar::restoreGL()
 {
-	LLVOAvatar* self = gAgent.getAvatarObject();
-	if (!self)
-		return;
-	self->setCompositeUpdatesEnabled(TRUE);
-	for (U32 i = 0; i < self->mBakedTextureDatas.size(); i++)
+	if (!isAgentAvatarValid()) return;
+
+	gAgentAvatarp->setCompositeUpdatesEnabled(TRUE);
+	for (U32 i = 0; i < gAgentAvatarp->mBakedTextureDatas.size(); i++)
 	{
-		self->invalidateComposite(self->mBakedTextureDatas[i].mTexLayerSet, FALSE);
+		gAgentAvatarp->invalidateComposite(gAgentAvatarp->mBakedTextureDatas[i].mTexLayerSet, FALSE);
 	}
-	self->updateMeshTextures();
+	gAgentAvatarp->updateMeshTextures();
 }
 
 //static
@@ -2085,7 +2083,7 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	if(retval & LLViewerObject::INVALID_UPDATE)
 	{
-		if(this == gAgent.getAvatarObject())
+		if (isSelf())
 		{
 			//tell sim to cancel this update
 			gAgent.teleportViaLocation(gAgent.getPositionGlobal());
@@ -2226,7 +2224,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 {
 	// disable voice visualizer when in mouselook
-	mVoiceVisualizer->setVoiceEnabled( voice_enabled && !(isSelf() && gAgent.cameraMouselook()) );
+	mVoiceVisualizer->setVoiceEnabled( voice_enabled && !(isSelf() && gAgentCamera.cameraMouselook()) );
 	if ( voice_enabled )
 	{		
 		//----------------------------------------------------------------
@@ -2254,7 +2252,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 					else	{ llinfos << "oops - CurrentGesticulationLevel can be only 0, 1, or 2"  << llendl; }
 					
 					// this is the call that Karl S. created for triggering gestures from within the code.
-					LLGestureManager::instance().triggerAndReviseString( gestureString );
+					LLGestureMgr::instance().triggerAndReviseString( gestureString );
 				}
 			}
 			
@@ -2547,7 +2545,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 				llinfos << "self isFullyLoaded, first_fully_visible" << llendl;
 
 				first_fully_visible = false;
-				LLAppearanceManager::instance().onFirstFullyVisible();
+				LLAppearanceMgr::instance().onFirstFullyVisible();
 			}
 		}
 		if (isFullyLoaded())
@@ -2672,7 +2670,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	if (isSelf())
 	{
 		render_name = render_name
-			&& !gAgent.cameraMouselook()
+			&& !gAgentCamera.cameraMouselook()
 			&& (visible_chat || (gSavedSettings.getBOOL("RenderNameShowSelf") 
 								 && gSavedSettings.getS32("AvatarNameTagMode") ));
 	}
@@ -2936,14 +2934,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 			}
 			else
 			{
-				if (gSavedSettings.getBOOL("SmallAvatarNames"))
-				{
-					mNameText->setFont(LLFontGL::getFontSansSerif());
-				}
-				else
-				{
-					mNameText->setFont(LLFontGL::getFontSansSerifBig());
-				}
+				mNameText->setFont(LLFontGL::getFontSansSerif());
 				mNameText->setTextAlignment(LLHUDText::ALIGN_TEXT_CENTER);
 				mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
 				mNameText->setVisibleOffScreen(FALSE);
@@ -3237,7 +3228,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 				}
 			}
 			LLVector3 fwdDir = lerp(primDir, velDir, clamp_rescale(speed, 0.5f, 2.0f, 0.0f, 1.0f));
-			if (isSelf() && gAgent.cameraMouselook())
+			if (isSelf() && gAgentCamera.cameraMouselook())
 			{
 				// make sure fwdDir stays in same general direction as primdir
 				if (gAgent.getFlying())
@@ -3268,7 +3259,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			// When moving very slow, the pelvis is allowed to deviate from the
 			// forward direction to allow it to hold it's position while the torso
 			// and head turn.  Once in motion, it must conform however.
-			BOOL self_in_mouselook = isSelf() && gAgent.cameraMouselook();
+			BOOL self_in_mouselook = isSelf() && gAgentCamera.cameraMouselook();
 
 			LLVector3 pelvisDir( mRoot.getWorldMatrix().getFwdRow4().mV );
 			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, PELVIS_ROT_THRESHOLD_SLOW, PELVIS_ROT_THRESHOLD_FAST);
@@ -5208,7 +5199,7 @@ BOOL LLVOAvatar::updateJointLODs()
 	{
 		if (isSelf())
 		{
-			if(gAgent.cameraCustomizeAvatar() || gAgent.cameraMouselook())
+			if(gAgentCamera.cameraCustomizeAvatar() || gAgentCamera.cameraMouselook())
 			{
 				mAdjustedPixelArea = MAX_PIXEL_AREA;
 			}
@@ -5354,7 +5345,7 @@ void LLVOAvatar::updateShadowFaces()
 
 			// Render sprite
 			sprite.setNormal(normal);
-			if (isSelf() && gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+			if (isSelf() && gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 			{
 				sprite.setColor(0.f, 0.f, 0.f, 0.f);
 			}
@@ -5387,7 +5378,7 @@ void LLVOAvatar::updateShadowFaces()
 
 			// Render sprite
 			sprite.setNormal(normal);
-			if (isSelf() && gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+			if (isSelf() && gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 			{
 				sprite.setColor(0.f, 0.f, 0.f, 0.f);
 			}
@@ -5442,7 +5433,7 @@ BOOL LLVOAvatar::setParent(LLViewerObject* parent)
 		ret = LLViewerObject::setParent(parent);
 		if (isSelf())
 		{
-			gAgent.resetCamera();
+			gAgentCamera.resetCamera();
 		}
 	}
 	else
@@ -5627,15 +5618,15 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 		//LLFirstUse::useSit();
 
 		gAgent.setFlying(FALSE);
-		gAgent.setThirdPersonHeadOffset(LLVector3::zero);
+		gAgentCamera.setThirdPersonHeadOffset(LLVector3::zero);
 		//interpolate to new camera position
-		gAgent.startCameraAnimation();
+		gAgentCamera.startCameraAnimation();
 		// make sure we are not trying to autopilot
 		gAgent.stopAutoPilot();
-		gAgent.setupSitCamera();
-		if (gAgent.getForceMouselook())
+		gAgentCamera.setupSitCamera();
+		if (gAgentCamera.getForceMouselook())
 		{
-			gAgent.changeCameraToMouselook();
+			gAgentCamera.changeCameraToMouselook();
 		}
 	}
 
@@ -5724,9 +5715,9 @@ void LLVOAvatar::getOffObject()
 
 		//reset orientation
 //		mRoot.setRotation(avWorldRot);
-		gAgent.setThirdPersonHeadOffset(LLVector3(0.f, 0.f, 1.f));
+		gAgentCamera.setThirdPersonHeadOffset(LLVector3(0.f, 0.f, 1.f));
 
-		gAgent.setSitCamera(LLUUID::null);
+		gAgentCamera.setSitCamera(LLUUID::null);
 	}
 }
 
@@ -5864,6 +5855,7 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 	if (mPreviousFullyLoaded)
 	{
 		mRuthTimer.reset();
+		mRuthDebugTimer.reset();
 	}
 	
 	const F32 LOADING_TIMEOUT = 120.f;
@@ -5892,7 +5884,17 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	
 	mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > PAUSE);
 
-	
+#ifdef DISPLAY_AVATAR_LOAD_TIMES
+	if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
+	{
+		llinfos << "Avatar '" << getFullname() << "' resolved in " << mRuthDebugTimer.getElapsedTimeF32() << " seconds." << llendl;
+		LLSD args;
+		args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
+		args["NAME"] = getFullname();
+		LLNotificationsUtil::add("AvatarRezNotification",args);
+	}
+#endif
+
 	// did our loading state "change" from last call?
 	const S32 UPDATE_RATE = 30;
 	BOOL changed =
@@ -5943,7 +5945,7 @@ void LLVOAvatar::updateMeshTextures()
 		}
 	}
 
-	const BOOL self_customizing = isSelf() && gAgent.cameraCustomizeAvatar(); // During face edit mode, we don't use baked textures
+	const BOOL self_customizing = isSelf() && gAgentCamera.cameraCustomizeAvatar(); // During face edit mode, we don't use baked textures
 	const BOOL other_culled = !isSelf() && mCulled;
 
 	std::vector<BOOL> is_layer_baked;
@@ -6864,8 +6866,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 // static
 void LLVOAvatar::dumpArchetypeXML( void* )
 {
-	LLVOAvatar* avatar = gAgent.getAvatarObject();
-	LLAPRFile outfile ;
+	LLAPRFile outfile;
 	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"new archetype.xml"), LL_APR_WB );
 	apr_file_t* file = outfile.getFileHandle() ;
 	if (!file)
@@ -6883,7 +6884,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 		const std::string& wearable_name = LLWearableDictionary::getTypeName((EWearableType)type);
 		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
-		for (LLVisualParam* param = avatar->getFirstVisualParam(); param; param = avatar->getNextVisualParam())
+		for (LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam())
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 			if( (viewer_param->getWearableType() == type) && 
@@ -6899,7 +6900,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 			if (LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te) == type)
 			{
 				// MULTIPLE_WEARABLES: extend to multiple wearables?
-				LLViewerTexture* te_image = avatar->getImage((ETextureIndex)te, 0);
+				LLViewerTexture* te_image = ((LLVOAvatar *)(gAgentAvatarp))->getImage((ETextureIndex)te, 0);
 				if( te_image )
 				{
 					std::string uuid_str;

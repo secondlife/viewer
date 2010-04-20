@@ -39,6 +39,7 @@
 #include "llparcel.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
 //#include "llfirstuse.h"
@@ -180,10 +181,10 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 		parent = object->getRootEdit();
 	}
 
-
-	BOOL touchable = (object && object->flagHandleTouch()) 
-					 || (parent && parent->flagHandleTouch());
-
+	if (handleMediaClick(mPick))
+	{
+		return TRUE;
+	}
 
 	// If it's a left-click, and we have a special action, do it.
 	if (useClickAction(mask, object, parent))
@@ -204,15 +205,15 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			// touch behavior down below...
 			break;
 		case CLICK_ACTION_SIT:
-
-			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // agent not already sitting
 			{
-				handle_object_sit_or_stand();
-				// put focus in world when sitting on an object
-				gFocusMgr.setKeyboardFocus(NULL);
-				return TRUE;
-			} // else nothing (fall through to touch)
-			
+				if (isAgentAvatarValid() && !gAgentAvatarp->isSitting()) // agent not already sitting
+				{
+					handle_object_sit_or_stand();
+					// put focus in world when sitting on an object
+					gFocusMgr.setKeyboardFocus(NULL);
+					return TRUE;
+				} // else nothing (fall through to touch)
+			}
 		case CLICK_ACTION_PAY:
 			if ((object && object->flagTakesMoney())
 				|| (parent && parent->flagTakesMoney()))
@@ -263,7 +264,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 				
 				if (object)
 				{
-					gAgent.setFocusOnAvatar(FALSE, ANIMATE);
+					gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
 					
 					LLBBox bbox = object->getBoundingBoxAgent() ;
 					F32 angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getAspect() > 1.f ? LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect() : LLViewerCamera::getInstance()->getView());
@@ -273,7 +274,7 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 					obj_to_cam.normVec();
 					
 					LLVector3d object_center_global = gAgent.getPosGlobalFromAgent(bbox.getCenterAgent());
-					gAgent.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance), 
+					gAgentCamera.setCameraPosAndFocusGlobal(object_center_global + LLVector3d(obj_to_cam * distance), 
 													  object_center_global, 
 													  mPick.mObjectID );
 				}
@@ -285,13 +286,11 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 		}
 	}
 
-	if (handleMediaClick(mPick))
-	{
-		return TRUE;
-	}
-
 	// put focus back "in world"
 	gFocusMgr.setKeyboardFocus(NULL);
+
+	BOOL touchable = (object && object->flagHandleTouch()) 
+					 || (parent && parent->flagHandleTouch());
 
 	// Switch to grab tool if physical or triggerable
 	if (object && 
@@ -329,14 +328,14 @@ BOOL LLToolPie::pickLeftMouseDownCallback()
 			}
 			object = (LLViewerObject*)object->getParent();
 		}
-		if (object && object == gAgent.getAvatarObject())
+		if (object && object == gAgentAvatarp)
 		{
 			// we left clicked on avatar, switch to focus mode
 			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
 			gViewerWindow->hideCursor();
 			LLToolCamera::getInstance()->setMouseCapture(TRUE);
 			LLToolCamera::getInstance()->pickCallback(mPick);
-			gAgent.setFocusOnAvatar(TRUE, TRUE);
+			gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
 
 			return TRUE;
 		}
@@ -410,9 +409,11 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	switch(click_action)
 	{
 	case CLICK_ACTION_SIT:
-		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->isSitting())) // not already sitting?
 		{
-			cursor = UI_CURSOR_TOOLSIT;
+			if (isAgentAvatarValid() && !gAgentAvatarp->isSitting()) // not already sitting?
+			{
+				cursor = UI_CURSOR_TOOLSIT;
+			}
 		}
 		break;
 	case CLICK_ACTION_BUY:
@@ -510,14 +511,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	LLViewerObject* click_action_object = click_action_pick.getObject();
-	if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
-	{
-		show_highlight = true;
-		ECursorType cursor = cursor_from_object(click_action_object);
-		gViewerWindow->setCursor(cursor);
-		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
-	}
-	else if (handleMediaHover(mHoverPick))
+	if (handleMediaHover(mHoverPick))
 	{
 		// *NOTE: If you think the hover glow conflicts with the media outline, you
 		// could disable it here.
@@ -525,6 +519,14 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		// cursor set by media object
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
+	else if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
+	{
+		show_highlight = true;
+		ECursorType cursor = cursor_from_object(click_action_object);
+		gViewerWindow->setCursor(cursor);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
+	}
+	
 	else if ((object && !object->isAvatar() && object->usePhysics()) 
 			 || (parent && !parent->isAvatar() && parent->usePhysics()))
 	{
@@ -595,7 +597,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	mGrabMouseButtonDown = FALSE;
 	LLToolMgr::getInstance()->clearTransientTool();
-	gAgent.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
+	gAgentCamera.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
 	return LLTool::handleMouseUp(x, y, mask);
 }
 
@@ -1265,6 +1267,7 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 
 	if (!parcel ||
 		objectp.isNull() ||
+		objectp->isHUDAttachment() ||
 		pick.mObjectFace < 0 || 
 		pick.mObjectFace >= objectp->getNumTEs()) 
 	{

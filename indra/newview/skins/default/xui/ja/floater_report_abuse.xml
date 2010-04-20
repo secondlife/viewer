@@ -92,7 +92,7 @@
 	<text name="dscr_title">
 		詳細：
 	</text>
-	<text name="bug_aviso" width="210">
+	<text name="bug_aviso">
 		できるだけ具体的に詳しく記入してください。
 	</text>
 	<text name="incomplete_title">
