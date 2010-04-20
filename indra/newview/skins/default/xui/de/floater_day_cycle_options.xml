@@ -66,7 +66,7 @@
 				Key-Zeit:
 			</text>
 			<spinner label="Std." name="WLCurKeyHour" />
-			<spinner label="Min." name="WLCurKeyMin" label_width="100" width="66"/>
+			<spinner label="Min." name="WLCurKeyMin"/>
 			<text name="WLCurKeyTimeText2">
 				Key-Voreinstellung:
 			</text>
@@ -79,8 +79,8 @@
 				Zykluslänge:
 			</text>
 			<spinner label="Std." name="WLLengthOfDayHour" />
-			<spinner label="Min." name="WLLengthOfDayMin" label_width="100" width="66"/>
-			<spinner label="Sek." name="WLLengthOfDaySec" label_width="100" width="66"/>
+			<spinner label="Min." name="WLLengthOfDayMin"/>
+			<spinner label="Sek." name="WLLengthOfDaySec"/>
 			<text name="DayCycleText3">
 				Vorschau:
 			</text>

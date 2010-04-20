@@ -2,14 +2,14 @@
 <panel
  border="false"
  follows="top|left"
- height="320"
+ height="510"
  help_topic="panel_region_estate_tab"
  label="Estate"
  layout="topleft"
  left="0"
  name="Estate"
  top="320"
- width="480">
+ width="530">
     <text
      type="string"
      length="1"
@@ -20,7 +20,7 @@
      name="estate_help_text"
      top="14"
      word_wrap="true"
-     width="250">
+     width="300">
         Changes to settings on this tab will affect all regions in the estate.
     </text>
     <text
@@ -82,7 +82,7 @@
      layout="topleft"
      left_delta="-4"
      top_pad="5"
-     width="250" />
+     width="300" />
     <check_box
      height="20"
      label="Use Global Time"
@@ -184,14 +184,14 @@
      layout="topleft"
      name="apply_btn"
      top_pad="10"
-     left="78"
+     left="110"
      width="97" />
     <button
      follows="left|top"
      height="23"
      label="Send Message To Estate..."
      layout="topleft"
-     left="20"
+     left="45"
      name="message_estate_btn"
      top_pad="20"
      width="220" />
@@ -200,7 +200,7 @@
      height="23"
      label="Kick Resident from Estate..."
      layout="topleft"
-     left="20"
+     left="45"
      name="kick_user_from_estate_btn"
      top_pad="5"
      width="220" />
@@ -213,7 +213,7 @@
      height="20"
      layout="topleft"
      name="estate_manager_label"
-     right="470"
+     right="520"
      width="200">
         Estate Managers:
     </text>
@@ -222,7 +222,7 @@
      follows="top|left"
      height="71"
      layout="topleft"
-     right="470"
+     right="520"
      top_pad="-5"
      width="200" />
     <name_list
@@ -240,7 +240,7 @@
      label="Remove..."
      layout="topleft"
      name="remove_estate_manager_btn"
-     right="470"
+     right="520"
      top_pad="5"
      width="97" />
     <button
@@ -269,7 +269,7 @@
      follows="top|left"
      height="71"
      layout="topleft"
-     right="470"
+     right="520"
      top_pad="-5"
      width="200" />
     <name_list
@@ -287,7 +287,7 @@
      label="Remove..."
      layout="topleft"
      name="remove_allowed_avatar_btn"
-     right="470"
+     right="520"
      top_pad="5"
      width="97" />
     <button
@@ -316,7 +316,7 @@
      follows="top|left"
      height="71"
      layout="topleft"
-     right="470"
+     right="520"
      top_pad="-5"
      width="200" />
     <name_list
@@ -334,7 +334,7 @@
      label="Remove..."
      layout="topleft"
      name="remove_allowed_group_btn"
-     right="470"
+     right="520"
      top_pad="5"
      width="97" />
     <button
@@ -363,7 +363,7 @@
      follows="top|left"
      height="71"
      layout="topleft"
-     right="470"
+     right="520"
      top_pad="-5"
      width="200" />
     <name_list
@@ -381,7 +381,7 @@
      label="Remove..."
      layout="topleft"
      name="remove_banned_avatar_btn"
-     right="470"
+     right="520"
      top_pad="5"
      width="97" />
     <button

@@ -1062,15 +1062,10 @@ void LLPanelNearByMedia::showBasicControls(bool playing, bool include_zoom, bool
 	mStopCtrl->setVisible(playing);
 	mPlayCtrl->setVisible(!playing);
 	mPauseCtrl->setVisible(false);
-#ifdef PER_MEDIA_VOLUME
 	mVolumeSliderCtrl->setVisible(true);
 	mMuteCtrl->setVisible(true);
 	mMuteBtn->setValue(muted);
 	mVolumeSlider->setValue(volume);
-#else
-	mVolumeSliderCtrl->setVisible(false);
-	mMuteCtrl->setVisible(false);
-#endif
 	mZoomCtrl->setVisible(include_zoom && !is_zoomed);
 	mUnzoomCtrl->setVisible(include_zoom && is_zoomed);	
 	mStopCtrl->setEnabled(true);
