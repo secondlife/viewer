@@ -5251,11 +5251,14 @@ void LLVOAvatar::updateSexDependentLayerSets( BOOL upload_bake )
 //-----------------------------------------------------------------------------
 // dirtyMesh()
 //-----------------------------------------------------------------------------
+void LLVOAvatar::dirtyMesh()
+{
+	dirtyMesh(1);
+}
 void LLVOAvatar::dirtyMesh(S32 priority)
 {
 	mDirtyMesh = llmax(mDirtyMesh, priority);
 }
-
 //-----------------------------------------------------------------------------
 // hideSkirt()
 //-----------------------------------------------------------------------------

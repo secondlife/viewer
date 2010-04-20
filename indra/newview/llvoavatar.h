@@ -564,12 +564,13 @@ private:
 public:
 	void 			updateMeshTextures();
 	void 			updateSexDependentLayerSets(BOOL upload_bake);
-	void 			dirtyMesh(S32 priority = 1); // Dirty the avatar mesh
+	void 			dirtyMesh(); // Dirty the avatar mesh
 	void 			updateMeshData();
 protected:
 	void 			releaseMeshData();
 	virtual void restoreMeshData();
 private:
+	void 			dirtyMesh(S32 priority); // Dirty the avatar mesh, with priority
 	S32 			mDirtyMesh; // 0 -- not dirty, 1 -- morphed, 2 -- LOD
 	BOOL			mMeshTexturesDirty;
 
