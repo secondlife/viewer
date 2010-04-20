@@ -1799,7 +1799,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 			payload["give_inventory_notification"] = TRUE;
 		    LLNotification::Params params(p.name);
 		    params.substitutions = p.substitutions;
-		    params.payload = p.payload;
+		    params.payload = payload;
 		    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, info->mFromID, false);
 		}
 	}
