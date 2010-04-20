@@ -1966,7 +1966,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 		{
 			LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 
-			if (root->getVObj()->isAttachment())
+			if (root && root->getVObj()->isAttachment())
 			{
 				LLVOAvatar* av = root->getParent()->getVObj()->asAvatar();
 				if (av && av->isImpostor())
