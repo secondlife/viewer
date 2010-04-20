@@ -1,6 +1,6 @@
 /** 
  * @File llvoavatar.cpp
- * @brief Implementation of LLVOAvatar class which is a derivation fo LLViewerObject
+ * @brief Implementation of LLVOAvatar class which is a derivation of LLViewerObject
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -5644,6 +5644,8 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 	mDrawable->mXform.setRotation(mDrawable->getWorldRotation() * inv_obj_rot);
 
 	gPipeline.markMoved(mDrawable, TRUE);
+	// Notice that removing sitDown() from here causes avatars sitting on
+	// objects to be not rendered for new arrivals. See EXT-6835 and EXT-1655.
 	sitDown(TRUE);
 	mRoot.getXform()->setParent(&sit_object->mDrawable->mXform); // LLVOAvatar::sitOnObject
 	mRoot.setPosition(getPosition());
