@@ -66,6 +66,10 @@ public:
 	static std::string findDefaultMimeType(const std::string& widget_type);
 		// Canonical mime type associated with this widget set
 
+	static const std::string& getDefaultMimeType();
+
+	static const std::string& getDefaultMimeTypeTranslation();
+
 	static bool findAllowResize(const std::string& mime_type);
 		// accessor for flag to enable/disable media size edit fields
 

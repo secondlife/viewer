@@ -58,6 +58,7 @@
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
 #include "lltooltip.h"	// positionViewNearMouse()
+#include "lltrans.h"
 #include "lluictrl.h"
 
 #include "llavatariconctrl.h"
@@ -380,7 +381,11 @@ void LLInspectAvatar::requestUpdate()
 void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 {
 	LLStringUtil::format_map_t args;
-	args["[BORN_ON]"] = data->born_on;
+	{
+		std::string birth_date = LLTrans::getString("AvatarBirthDateFormat");
+		LLStringUtil::format(birth_date, LLSD().with("datetime", (S32) data->born_on.secondsSinceEpoch()));
+		args["[BORN_ON]"] = birth_date;
+	}
 	args["[AGE]"] = LLDateUtil::ageFromDate(data->born_on, LLDate::now());
 	args["[SL_PROFILE]"] = data->about_text;
 	args["[RW_PROFILE"] = data->fl_about_text;

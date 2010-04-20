@@ -7,7 +7,7 @@
  help_topic="day_cycle_floater"
  save_rect="true"
  title="DAY CYCLE EDITOR"
- width="646">
+ width="658">
     <tab_container
      follows="left|top"
      height="255"
@@ -16,7 +16,7 @@
      name="Day Cycle Tabs"
      tab_position="top"
      top="20"
-     width="644">
+     width="656">
         <panel
          border="true"
          follows="left|top|right|bottom"
@@ -27,7 +27,7 @@
          mouse_opaque="false"
          name="Day Cycle"
          top="0"
-         width="642">
+         width="654">
             <multi_slider
              can_edit_text="true"
              control_name="WLTimeSlider"
@@ -313,7 +313,7 @@
              left="555"
              name="WLAddKey"
              top="30"
-             width="80" />
+             width="96" />
             <button
              height="20"
              label="Delete Key"
@@ -322,7 +322,7 @@
              left_delta="0"
              name="WLDeleteKey"
              top_pad="5"
-             width="80" />
+             width="96" />
             <text
              type="string"
              length="1"
@@ -348,7 +348,7 @@
              left="30"
              name="WLCurKeyTimeText"
              top="124"
-             width="100">
+             width="105">
                 Key Time:
             </text>
             <spinner
@@ -361,11 +361,11 @@
              label="Hour"
              label_width="30"
              layout="topleft"
-             left_delta="0"
+             left_delta="25"
              max_val="100"
              name="WLCurKeyHour"
              top_pad="4"
-             width="70" />
+             width="74" />
             <spinner
              control_name="WLCurKeyMin"
              decimal_digits="0"
@@ -402,7 +402,7 @@
              left_delta="0"
              name="WLKeyPresets"
              top_pad="7"
-             width="155" />
+             width="205" />
             <view_border
              bevel_style="none"
              follows="top|left"
@@ -410,7 +410,7 @@
              layout="topleft"
              left="12"
              top="101"
-             width="190" />
+             width="240" />
             <text
              type="string"
              length="1"
@@ -419,7 +419,7 @@
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="220"
+             left_pad="15"
              name="DayCycleText"
              top="114"
              width="120">
@@ -444,7 +444,7 @@
              layout="topleft"
              left_delta="0"
              name="DayCycleText2"
-             top_pad="9"
+             top_pad="17"
              width="120">
                 Length of Cycle:
             </text>
@@ -462,7 +462,7 @@
              max_val="100"
              name="WLLengthOfDayHour"
              top_pad="4"
-             width="70" />
+             width="74" />
             <spinner
              control_name="WLLengthOfDayMin"
              decimal_digits="0"
@@ -492,57 +492,58 @@
              max_val="59"
              name="WLLengthOfDaySec"
              top_delta="0"
-             width="60" />
+             width="60"/>
             <text
              type="string"
+             halign="right"
              length="1"
              border_visible="true"
              follows="left|top|right"
              font="SansSerif"
              height="16"
              layout="topleft"
-             left="310"
+             left_delta="-23"
              name="DayCycleText3"
              top="114"
-             width="120">
-                Preview:
+             width="85">
+                Preview :
             </text>
             <button
              height="20"
              label="Play"
              label_selected="Play"
              layout="topleft"
-             left_delta="60"
+             left="480"
              name="WLAnimSky"
              top_pad="5"
-             width="50" />
+             width="83" />
             <button
              height="20"
              label="Stop!"
              label_selected="Stop"
              layout="topleft"
-             left_pad="5"
+             left_pad="4"
              name="WLStopAnimSky"
              top_delta="0"
-             width="50" />
+             width="83" />
             <button
              height="20"
              label="Use Estate Time"
              label_selected="Go to Estate Time"
              layout="topleft"
-             left_pad="5"
+             left="480"
              name="WLUseLindenTime"
-             top_delta="0"
-             width="150" />
+             top_pad="9"
+             width="170" />
             <button
              height="20"
              label="Save Test Day"
              label_selected="Save Test Day"
              layout="topleft"
-             left="480"
+             left_delta="0"
              name="WLSaveDayCycle"
-             top="175"
-             width="150" />
+             top_pad="9"
+             width="170" />
             <button
              height="20"
              label="Load Test Day"
@@ -550,8 +551,8 @@
              layout="topleft"
              left_delta="0"
              name="WLLoadDayCycle"
-             top_pad="5"
-             width="150" />
+             top_pad="3"
+             width="170" />
         </panel>
     </tab_container>
 </floater>

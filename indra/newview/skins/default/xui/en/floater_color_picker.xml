@@ -213,7 +213,8 @@
      left="10"
      name="(Drag below to save.)"
      top_pad="66"
-     width="130">
+     width="130"
+     wrap="true">
         (Drag below to save)
     </text>
 </floater>

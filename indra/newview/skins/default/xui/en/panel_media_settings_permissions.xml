@@ -42,10 +42,11 @@
 
   <text 
    bottom_delta="-50" 
+   enabled="false"
    follows="top|left" 
    height="15" 
    left="10" 
-   enabled="false">
+   name="owner_label">
     Owner
   </text>
   
@@ -79,10 +80,11 @@
 
   <text 
    bottom_delta="-36" 
+   enabled="false"
    follows="top|left" 
    height="15" 
    left="10" 
-   enabled="false">
+   name="group_label">
     Group:
   </text>
   
@@ -126,10 +128,11 @@
 
   <text 
    bottom_delta="-36" 
+   enabled="false"
    follows="top|left" 
    height="15" 
    left="10" 
-   enabled="false">
+   name="anyone_label">
     Anyone
   </text>
   
