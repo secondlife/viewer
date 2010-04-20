@@ -669,7 +669,7 @@ void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32
 //-----------------------------------------------------------------------------
 static LLFastTimer::DeclareTimer FTM_AVATAR_FACE("Avatar Face");
 
-void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind)
+void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
 {
 	mFace = face;
 
@@ -704,22 +704,6 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 			vertex_weightsp += mMesh->mFaceVertexOffset;
 			clothing_weightsp += mMesh->mFaceVertexOffset;
 
-			U32* __restrict v = (U32*) verticesp.get();
-			const U32 vert_skip = verticesp.getSkip()/sizeof(U32);
-
-			U32* __restrict tc = (U32*) tex_coordsp.get();
-			const U32 tc_skip = tex_coordsp.getSkip()/sizeof(U32);
-
-			U32* __restrict n = (U32*) normalsp.get();
-			const U32 n_skip = normalsp.getSkip()/sizeof(U32);
-			
-			U32* __restrict vw = (U32*) vertex_weightsp.get();
-			const U32 vw_skip = vertex_weightsp.getSkip()/sizeof(U32);
-
-
-			U32* __restrict cw = (U32*) clothing_weightsp.get();
-			const U32 cw_skip = vertex_weightsp.getSkip()/sizeof(U32);
-
 			const U32* __restrict coords = (U32*) mMesh->getCoords();
 			const U32* __restrict tex_coords = (U32*) mMesh->getTexCoords();
 			const U32* __restrict normals = (U32*) mMesh->getNormals();
@@ -729,49 +713,84 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 			const U32 num_verts = mMesh->getNumVertices();
 
 			U32 i = 0;
-			do
+
+			const U32 skip = verticesp.getSkip()/sizeof(U32);
+
+			U32* __restrict v = (U32*) verticesp.get();
+			U32* __restrict n = (U32*) normalsp.get();
+			
+			if (terse_update)
 			{
-				v[0] = *(coords++); 
-				v[1] = *(coords++); 
-				v[2] = *(coords++);
-				v += vert_skip;
+				for (S32 i = num_verts; i > 0; --i)
+				{
+					//morph target application only, only update positions and normals
+					v[0] = coords[0]; 
+					v[1] = coords[1]; 
+					v[2] = coords[2];		
+					coords += 3;
+					v += skip;
+				}
 
-				tc[0] = *(tex_coords++); 
-				tc[1] = *(tex_coords++);
-				tc += tc_skip;
-
-				n[0] = *(normals++); 
-				n[1] = *(normals++);
-				n[2] = *(normals++);
-				n += n_skip;
-
-				vw[0] = *(weights++);
-				vw += vw_skip;
-
-				cw[0] = *(cloth_weights++);
-				cw[1] = *(cloth_weights++);
-				cw[2] = *(cloth_weights++);
-				cw[3] = *(cloth_weights++);
-				cw += cw_skip;
+				for (S32 i = num_verts; i > 0; --i)
+				{
+					n[0] = normals[0]; 
+					n[1] = normals[1];
+					n[2] = normals[2];
+					normals += 3;
+					n += skip;
+				}
 			}
-			while (++i < num_verts);
+			else
+				{
 
-			const U32 idx_count = mMesh->getNumFaces()*3;
+				U32* __restrict tc = (U32*) tex_coordsp.get();
+				U32* __restrict vw = (U32*) vertex_weightsp.get();
+				U32* __restrict cw = (U32*) clothing_weightsp.get();
+				
+				do
+				{
+					v[0] = *(coords++); 
+					v[1] = *(coords++); 
+					v[2] = *(coords++);
+					v += skip;
 
-			indicesp += mMesh->mFaceIndexOffset;
+					tc[0] = *(tex_coords++); 
+					tc[1] = *(tex_coords++);
+					tc += skip;
 
-			U16* __restrict idx = indicesp.get();
-			S32* __restrict src_idx = (S32*) mMesh->getFaces();
+					n[0] = *(normals++); 
+					n[1] = *(normals++);
+					n[2] = *(normals++);
+					n += skip;
 
-			i = 0;
+					vw[0] = *(weights++);
+					vw += skip;
 
-			const S32 offset = (S32) mMesh->mFaceVertexOffset;
+					cw[0] = *(cloth_weights++);
+					cw[1] = *(cloth_weights++);
+					cw[2] = *(cloth_weights++);
+					cw[3] = *(cloth_weights++);
+					cw += skip;
+				}
+				while (++i < num_verts);
 
-			do
-			{
-				*(idx++) = *(src_idx++)+offset;
+				const U32 idx_count = mMesh->getNumFaces()*3;
+
+				indicesp += mMesh->mFaceIndexOffset;
+
+				U16* __restrict idx = indicesp.get();
+				S32* __restrict src_idx = (S32*) mMesh->getFaces();
+
+				i = 0;
+
+				const S32 offset = (S32) mMesh->mFaceVertexOffset;
+
+				do
+				{
+					*(idx++) = *(src_idx++)+offset;
+				}
+				while (++i < idx_count);
 			}
-			while (++i < idx_count);
 		}
 	}
 }
