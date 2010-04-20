@@ -2245,7 +2245,7 @@ void LLViewerMediaImpl::navigateInternal()
 	// This helps in supporting legacy media content where the server the media resides on returns a bogus MIME type
 	// but the parcel owner has correctly set the MIME type in the parcel media settings.
 	
-	if(!mMimeType.empty() && (mMimeType != "none/none"))
+	if(!mMimeType.empty() && (mMimeType != LLMIMETypes::getDefaultMimeType()))
 	{
 		std::string plugin_basename = LLMIMETypes::implType(mMimeType);
 		if(!plugin_basename.empty())

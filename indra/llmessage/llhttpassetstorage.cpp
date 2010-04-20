@@ -401,21 +401,23 @@ size_t LLHTTPAssetRequest::curlCompressedUploadCallback(
 
 
 LLHTTPAssetStorage::LLHTTPAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-									 LLVFS *vfs, const LLHost &upstream_host,
+									 LLVFS *vfs, LLVFS *static_vfs, 
+									 const LLHost &upstream_host,
 									 const std::string& web_host,
 									 const std::string& local_web_host,
 									 const std::string& host_name)
-	: LLAssetStorage(msg, xfer, vfs, upstream_host)
+	: LLAssetStorage(msg, xfer, vfs, static_vfs, upstream_host)
 {
 	_init(web_host, local_web_host, host_name);
 }
 
 LLHTTPAssetStorage::LLHTTPAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 									   LLVFS *vfs,
+									   LLVFS *static_vfs,
 									   const std::string& web_host,
 									   const std::string& local_web_host,
 									   const std::string& host_name)
-	: LLAssetStorage(msg, xfer, vfs)
+	: LLAssetStorage(msg, xfer, vfs, static_vfs)
 {
 	_init(web_host, local_web_host, host_name);
 }

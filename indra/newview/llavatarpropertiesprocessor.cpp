@@ -37,6 +37,7 @@
 // Viewer includes
 #include "llagent.h"
 #include "llagentpicksinfo.h"
+#include "lldateutil.h"
 #include "llviewergenericmessage.h"
 
 // Linden library includes
@@ -246,6 +247,7 @@ std::string LLAvatarPropertiesProcessor::paymentInfo(const LLAvatarData* avatar_
 void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* msg, void**)
 {
 	LLAvatarData avatar_data;
+	std::string birth_date;
 
 	msg->getUUIDFast(	_PREHASH_AgentData,			_PREHASH_AgentID, 		avatar_data.agent_id);
 	msg->getUUIDFast(	_PREHASH_AgentData,			_PREHASH_AvatarID, 		avatar_data.avatar_id);
@@ -254,11 +256,12 @@ void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* 
 	msg->getUUIDFast(	_PREHASH_PropertiesData,	_PREHASH_PartnerID,		avatar_data.partner_id);
 	msg->getStringFast(	_PREHASH_PropertiesData,	_PREHASH_AboutText,		avatar_data.about_text);
 	msg->getStringFast(	_PREHASH_PropertiesData,	_PREHASH_FLAboutText,	avatar_data.fl_about_text);
-	msg->getStringFast(	_PREHASH_PropertiesData,	_PREHASH_BornOn,		avatar_data.born_on);
+	msg->getStringFast(	_PREHASH_PropertiesData,	_PREHASH_BornOn,		birth_date);
 	msg->getString(		_PREHASH_PropertiesData,	_PREHASH_ProfileURL,	avatar_data.profile_url);
 	msg->getU32Fast(	_PREHASH_PropertiesData,	_PREHASH_Flags,			avatar_data.flags);
 
 
+	LLDateUtil::dateFromPDTString(avatar_data.born_on, birth_date);
 	avatar_data.caption_index = 0;
 
 	S32 charter_member_size = 0;
