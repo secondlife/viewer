@@ -53,6 +53,8 @@ public:
 	void	onNearbyChatContextMenuItemClicked(const LLSD& userdata);
 	bool	onNearbyChatCheckContextMenuItem(const LLSD& userdata);
 
+	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+
 	// focus overrides
 	/*virtual*/ void	onFocusLost();
 	/*virtual*/ void	onFocusReceived();
