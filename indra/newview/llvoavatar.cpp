@@ -1,6 +1,6 @@
 /** 
  * @File llvoavatar.cpp
- * @brief Implementation of LLVOAvatar class which is a derivation fo LLViewerObject
+ * @brief Implementation of LLVOAvatar class which is a derivation of LLViewerObject
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 

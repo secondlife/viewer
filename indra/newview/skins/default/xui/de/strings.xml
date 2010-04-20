@@ -100,24 +100,6 @@
 	<string name="LoginDownloadingClothing">
 		Kleidung wird geladen...
 	</string>
-	<string name="InvalidCertificate">
-		Der Server hat ein ungültiges oder korruptes Zertifikate zurückgegeben. Bitte kontaktieren Sie den Grid-Administrator.
-	</string>
-	<string name="CertInvalidHostname">
-		Ein ungültiger Hostname wurde verwendet, um auf den Server zuzugreifen. Bitte überprüfen Sie Ihre SLURL oder den Grid-Hostnamen.
-	</string>
-	<string name="CertExpired">
-		Das vom Grid ausgegebene Zertifikate ist abgelaufen.  Bitte überprüfen Sie Ihre Systemuhr oder kontaktieren Sie Ihren Grid-Administrator.
-	</string>
-	<string name="CertKeyUsage">
-		Das vom Server ausgegebene Zertifikat konnte nicht für SSL verwendet werden.  Bitte kontaktieren Sie Ihren Grid-Administrator.
-	</string>
-	<string name="CertBasicConstraints">
-		In der Zertifikatskette des Servers befanden sich zu viele Zertifikate.  Bitte kontaktieren Sie Ihren Grid-Administrator.
-	</string>
-	<string name="CertInvalidSignature">
-		Die Zertifikatsunterschrift des Gridservers konnte nicht bestätigt werden.  Bitte kontaktieren Sie Ihren Grid-Administrator.
-	</string>
 	<string name="LoginFailedNoNetwork">
 		Netzwerk Fehler: Eine Verbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.
 	</string>
@@ -196,7 +178,6 @@
 	<string name="TooltipMustSingleDrop">
 		Sie können nur ein einzelnes Objekt hierher ziehen
 	</string>
-	<string name="TooltipPrice" value="[AMOUNT] L$"/>
 	<string name="TooltipHttpUrl">
 		Anklicken, um Webseite anzuzeigen
 	</string>
@@ -249,6 +230,7 @@
 		Anklicken, um Befehl secondlife:// auszuführen
 	</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]"/>
+	<string name="TooltipPrice" value="[PRICE] L$"/>
 	<string name="SLurlLabelTeleport">
 		Teleportieren nach
 	</string>
@@ -279,9 +261,6 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Schließen (Strg+W)
 	</string>
-	<string name="BUTTON_CLOSE_CHROME">
-		Schließen
-	</string>
 	<string name="BUTTON_RESTORE">
 		Wiederherstellen
 	</string>
@@ -309,9 +288,6 @@
 	<string name="ReleaseNotes">
 		Versionshinweise
 	</string>
-	<string name="RELEASE_NOTES_BASE_URL">
-		http://wiki.secondlife.com/wiki/Release_Notes/
-	</string>
 	<string name="LoadingData">
 		Wird geladen...
 	</string>
@@ -326,9 +302,6 @@
 	</string>
 	<string name="GroupNameNone">
 		(keiner)
-	</string>
-	<string name="AvalineCaller">
-		Avaline-Anfrufer [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Kein Fehler
@@ -663,9 +636,6 @@
 	<string name="worldmap_offline">
 		Offline
 	</string>
-	<string name="worldmap_item_tooltip_format">
-		[PRICE] L$ für [AREA] m²
-	</string>
 	<string name="worldmap_results_none_found">
 		Nicht gefunden.
 	</string>
@@ -758,12 +728,6 @@
 	</string>
 	<string name="land_type_unknown">
 		(unbekannt)
-	</string>
-	<string name="Estate / Full Region">
-		Grundstück / Vollständige Region
-	</string>
-	<string name="Mainland / Full Region">
-		Mainland / Vollständige Region
 	</string>
 	<string name="all_files">
 		Alle Dateien
@@ -870,93 +834,6 @@
 	<string name="invalid">
 		ungültig
 	</string>
-	<string name="none">
-		keine
-	</string>
-	<string name="shirt_not_worn">
-		Hemd nicht getragen
-	</string>
-	<string name="pants_not_worn">
-		Hosen nicht getragen
-	</string>
-	<string name="shoes_not_worn">
-		Schuhe nicht getragen
-	</string>
-	<string name="socks_not_worn">
-		Socken nicht getragen
-	</string>
-	<string name="jacket_not_worn">
-		Jacke nicht getragen
-	</string>
-	<string name="gloves_not_worn">
-		Handschuhe nicht getragen
-	</string>
-	<string name="undershirt_not_worn">
-		Unterhemd nicht getragen
-	</string>
-	<string name="underpants_not_worn">
-		Unterhose nicht getragen
-	</string>
-	<string name="skirt_not_worn">
-		Rock nicht getragen
-	</string>
-	<string name="alpha_not_worn">
-		Alpha nicht getragen
-	</string>
-	<string name="tattoo_not_worn">
-		Tätowierung nicht getragen
-	</string>
-	<string name="invalid_not_worn">
-		ungültig
-	</string>
-	<string name="create_new_shape">
-		Neue Form/Gestalt erstellen
-	</string>
-	<string name="create_new_skin">
-		Neue Haut erstellen
-	</string>
-	<string name="create_new_hair">
-		Neue Haare erstellen
-	</string>
-	<string name="create_new_eyes">
-		Neue Augen erstellen
-	</string>
-	<string name="create_new_shirt">
-		Neues Hemd erstellen
-	</string>
-	<string name="create_new_pants">
-		Neue Hose erstellen
-	</string>
-	<string name="create_new_shoes">
-		Neue Schuhe erstellen
-	</string>
-	<string name="create_new_socks">
-		Neue Socken erstellen
-	</string>
-	<string name="create_new_jacket">
-		Neue Jacke erstellen
-	</string>
-	<string name="create_new_gloves">
-		Neue Handschuhe erstellen
-	</string>
-	<string name="create_new_undershirt">
-		Neues Unterhemd erstellen
-	</string>
-	<string name="create_new_underpants">
-		Neue Unterhose erstellen
-	</string>
-	<string name="create_new_skirt">
-		Neuer Rock erstellen
-	</string>
-	<string name="create_new_alpha">
-		Neue Alpha erstellen
-	</string>
-	<string name="create_new_tattoo">
-		Neue Tätowierung erstellen
-	</string>
-	<string name="create_new_invalid">
-		ungültig
-	</string>
 	<string name="NewWearable">
 		Neue/r/s [WEARABLE_ITEM]
 	</string>
@@ -1027,10 +904,7 @@
 		ESC drücken, um zur Normalansicht zurückzukehren
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/all/[SEARCH_TERM] Suche].
-	</string>
-	<string name="PlacesNoMatchingItems">
-		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/places/[SEARCH_TERM] Suche].
+		Im Inventar wurden keine passenden Objekte gefunden.  Versuchen Sie es mit [secondlife:///app/search/groups „Suche&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Landmarke hier hin ziehen, um diese hinzuzufügen.
@@ -1064,10 +938,8 @@
 	<string name="AnimFlagStop" value=" Animation stoppen:"/>
 	<string name="AnimFlagStart" value=" Animation starten:"/>
 	<string name="Wave" value=" Winken"/>
-	<string name="GestureActionNone" value="Keine"/>
 	<string name="HelloAvatar" value=" Hallo Avatar!"/>
 	<string name="ViewAllGestures" value="  Alle anzeigen &gt;&gt;"/>
-	<string name="GetMoreGestures" value="Mehr &gt;&gt;"/>
 	<string name="Animations" value=" Animationen,"/>
 	<string name="Calling Cards" value=" Visitenkarten,"/>
 	<string name="Clothing" value=" Kleidung,"/>
@@ -1144,14 +1016,11 @@
 	<string name="InvFolder Gestures">
 		Gesten
 	</string>
-	<string name="InvFolder Favorite">
+	<string name="InvFolder favorite">
 		Favoriten
 	</string>
 	<string name="InvFolder Current Outfit">
 		Aktuelles Outfit
-	</string>
-	<string name="InvFolder Initial Outfits">
-		Ursprüngliche Outfits
 	</string>
 	<string name="InvFolder My Outfits">
 		Meine Outfits
@@ -1472,7 +1341,6 @@
 	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am "/>
 	<string name="NextStipendDay" value=". Der nächste Stipendium-Tag ist "/>
 	<string name="GroupIndividualShare" value="                      Gruppenanteil       Einzelanteil"/>
-	<string name="GroupColumn" value="Gruppe"/>
 	<string name="Balance">
 		Kontostand
 	</string>
@@ -1668,9 +1536,6 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD unten rechts
 	</string>
-	<string name="Bad attachment point">
-		Ungültige Stelle für Anhang
-	</string>
 	<string name="CursorPos">
 		Zeile [LINE], Spalte [COLUMN]
 	</string>
@@ -1683,23 +1548,17 @@
 	<string name="PanelDirEventsDateText">
 		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
-	<string name="PanelContentsTooltip">
-		Objektinhalt
-	</string>
 	<string name="PanelContentsNewScript">
 		Neues Skript
 	</string>
+	<string name="PanelContentsTooltip">
+		Objektinhalt
+	</string>
 	<string name="BusyModeResponseDefault">
-		Der Einwohner/Die Einwohnerin ist „beschäftigt”, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
-	</string>
-	<string name="NoOutfits">
-		Sie haben noch keine Outfits. Versuchen Sie es mit der [secondlife:///app/search/all Suche].
-	</string>
-	<string name="NoOutfitsTabsMatched">
-		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/all/[SEARCH_TERM] Suche].
+		Der Einwohner/Die Einwohnerin ist „beschäftigt&quot;, d.h. er/sie möchte im Moment nicht gestört werden.  Ihre Nachricht wird dem Einwohner/der Einwohnerin als IM angezeigt, und kann später beantwortet werden.
 	</string>
 	<string name="MuteByName">
-		(Nach Namen)
+		(nach Namen)
 	</string>
 	<string name="MuteAgent">
 		(Einwohner)
@@ -1710,16 +1569,15 @@
 	<string name="MuteGroup">
 		(Gruppe)
 	</string>
-	<string name="MuteExternal">
-		(Extern)
-	</string>
 	<string name="RegionNoCovenant">
 		Für diesen Grundbesitz liegt kein Vertrag vor.
 	</string>
 	<string name="RegionNoCovenantOtherOwner">
 		Für diesen Grundbesitz liegt kein Vertrag vor. Das Land auf diesem Grundbesitz wird vom Grundbesitzer und nicht von Linden Lab verkauft.  Für Informationen zum Verkauf setzen Sie sich bitte mit dem Grundbesitzer in Verbindung.
 	</string>
-	<string name="covenant_last_modified" value="Zuletzt geändert:"/>
+	<string name="covenant_last_modified">
+		Zuletzt geändert:
+	</string>
 	<string name="none_text" value=" (keiner) "/>
 	<string name="never_text" value=" (nie) "/>
 	<string name="GroupOwned">
@@ -3453,15 +3311,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="LocationCtrlDamageTooltip">
 		Gesundheit
 	</string>
-	<string name="LocationCtrlAdultIconTooltip">
-		Adult-Region
-	</string>
-	<string name="LocationCtrlModerateIconTooltip">
-		Moderate Region
-	</string>
-	<string name="LocationCtrlGeneralIconTooltip">
-		Generelle Region
-	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Aktualisierung
 	</string>
@@ -3492,12 +3341,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="UpdaterFailStartTitle">
 		Viewer konnte nicht gestartet werden
 	</string>
-	<string name="ItemsComingInTooFastFrom">
-		[APP_NAME]: Zuviele Objekte auf einmal von [FROM_NAME]. Automaitsche Vorschau ist für [TIME] Sekunden nicht verfügbar.
-	</string>
-	<string name="ItemsComingInTooFast">
-		[APP_NAME]: Zuviele Objekte auf einmal. Automaitsche Vorschau ist für [TIME] Sekunden nicht verfügbar.
-	</string>
 	<string name="IM_logging_string">
 		-- Instant-Message-Protokoll aktiviert --
 	</string>
@@ -3525,17 +3368,11 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="IM_moderator_label">
 		(Moderator)
 	</string>
-	<string name="answered_call">
-		Ihr Anruf wurde entgegengenommen
+	<string name="started_call">
+		haben/hat einen Anruf initiiert
 	</string>
-	<string name="you_started_call">
-		Sie haben einen Voice-Anruf begonnen
-	</string>
-	<string name="you_joined_call">
-		Sie sind dem Gespräch beigetreten
-	</string>
-	<string name="name_started_call">
-		[NAME] hat einen Voice-Anruf begonnen
+	<string name="joined_call">
+		ist dem Gespräch beigetreten
 	</string>
 	<string name="ringing-im">
 		Verbindung wird hergestellt...
@@ -3624,20 +3461,11 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="unread_chat_multiple">
 		[SOURCES] haben etwas Neues gesagt
 	</string>
-	<string name="session_initialization_timed_out_error">
-		Die Initialisierung der Sitzung ist fehlgeschlagen
-	</string>
-	<string name="voice_morphing_url">
-		http://secondlife.com/landing/voicemorphing
-	</string>
 	<string name="paid_you_ldollars">
 		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
 	</string>
 	<string name="you_paid_ldollars">
 		Sie haben [REASON] [AMOUNT] L$ an [NAME] bezahlt.
-	</string>
-	<string name="you_paid_ldollars_no_info">
-		Sie haben [AMOUNT] L$ bezahlt.
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		Sie haben [AMOUNT] L$ an [NAME] bezahlt.
@@ -3686,9 +3514,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="group_role_owners">
 		Eigentümer
-	</string>
-	<string name="group_member_status_online">
-		Online
 	</string>
 	<string name="uploading_abuse_report">
 		Bericht wird hochgeladen...
@@ -3743,14 +3568,8 @@ Missbrauchsbericht
 	<string name="Invalid Wearable">
 		Ungültiges Objekt
 	</string>
-	<string name="New Gesture">
-		Neue Geste
-	</string>
 	<string name="New Script">
 		Neues Skript
-	</string>
-	<string name="New Note">
-		Neue Notiz
 	</string>
 	<string name="New Folder">
 		Neuer Ordner
@@ -3758,188 +3577,7 @@ Missbrauchsbericht
 	<string name="Contents">
 		Inhalt
 	</string>
-	<string name="Gesture">
-		Gesten
-	</string>
-	<string name="Male Gestures">
-		Männliche Gesten
-	</string>
-	<string name="Female Gestures">
-		Weibliche Gesten
-	</string>
-	<string name="Other Gestures">
-		Andere Gesten
-	</string>
-	<string name="Speech Gestures">
-		Sprachgesten
-	</string>
-	<string name="Common Gestures">
-		Häufig verwendete Gesten
-	</string>
-	<string name="Male - Excuse me">
-		Männlich - Excuse me
-	</string>
-	<string name="Male - Get lost">
-		Männlich - Get lost
-	</string>
-	<string name="Male - Blow kiss">
-		Männlich - Kusshand
-	</string>
-	<string name="Male - Boo">
-		Männlich - Buh
-	</string>
-	<string name="Male - Bored">
-		Männlich - Gelangweilt
-	</string>
-	<string name="Male - Hey">
-		Männlich - Hey
-	</string>
-	<string name="Male - Laugh">
-		Männlich - Lachen
-	</string>
-	<string name="Male - Repulsed">
-		Männlich - Angewidert
-	</string>
-	<string name="Male - Shrug">
-		Männlich - Achselzucken
-	</string>
-	<string name="Male - Stick tougue out">
-		Männlich - Zunge herausstrecken
-	</string>
-	<string name="Male - Wow">
-		Männlich - Wow
-	</string>
-	<string name="Female - Chuckle">
-		Weiblich - Kichern
-	</string>
-	<string name="Female - Cry">
-		Weiblich - Weinen
-	</string>
-	<string name="Female - Embarrassed">
-		Weiblich - Verlegen
-	</string>
-	<string name="Female - Excuse me">
-		Weiblich - Räuspern
-	</string>
-	<string name="Female - Get lost">
-		Weiblich - Get lost
-	</string>
-	<string name="Female - Blow kiss">
-		Weiblich - Kusshand
-	</string>
-	<string name="Female - Boo">
-		Weiblich  - Buh
-	</string>
-	<string name="Female - Bored">
-		Weiblich - Gelangweilt
-	</string>
-	<string name="Female - Hey">
-		Weiblich - Hey
-	</string>
-	<string name="Female - Hey baby">
-		Weiblich - Hey Süße(r)
-	</string>
-	<string name="Female - Laugh">
-		Weiblich - Lachen
-	</string>
-	<string name="Female - Looking good">
-		Weiblich - Looking good
-	</string>
-	<string name="Female - Over here">
-		Weiblich - Over here
-	</string>
-	<string name="Female - Please">
-		Weiblich - Please
-	</string>
-	<string name="Female - Repulsed">
-		Weiblich - Angewidert
-	</string>
-	<string name="Female - Shrug">
-		Weiblich - Achselzucken
-	</string>
-	<string name="Female - Stick tougue out">
-		Weiblich - Zunge herausstrecken
-	</string>
-	<string name="Female - Wow">
-		Weiblich - Wow
-	</string>
-	<string name="AvatarBirthDateFormat">
-		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
-	</string>
-	<string name="DefaultMimeType">
-		Keine/Keiner
-	</string>
-	<string name="texture_load_dimensions_error">
-		Bilder, die größer sind als [WIDTH]*[HEIGHT] können nicht geladen werden
-	</string>
-	<string name="words_separator" value=","/>
-	<string name="server_is_down">
-		Trotz all unserer Bemühungen ist ein unerwarteter Fehler aufgetreten.
-
-	Bitte überprüfen Sie status.secondlifegrid.net, um festzustellen, ob ein Problem besteht.  
-        Falls Sie weiterhin Problem haben, überprüfen Sie bitte Ihre Netzwerk- und Firewalleinstellungen.
-	</string>
-	<string name="dateTimeWeekdaysNames">
-		Sonntag:Montag:Dienstag:Mittwoch:Donnerstag:Freitag:Samstag
-	</string>
-	<string name="dateTimeWeekdaysShortNames">
-		So:Mo:Di:Mi:Do:Fr:Sa
-	</string>
-	<string name="dateTimeMonthNames">
-		Januar:Februar:März:April:Mai:Juni:Juli:August:September:Oktober:November:Dezember
-	</string>
-	<string name="dateTimeMonthShortNames">
-		Jan:Feb:Mär:Apr:Mai:Jun:Jul:Aug:Sep:Okt:Nov:Dez
-	</string>
-	<string name="dateTimeDayFormat">
-		[MDAY]
-	</string>
-	<string name="dateTimeAM">
-		Uhr
-	</string>
-	<string name="dateTimePM">
-		Uhr
-	</string>
-	<string name="LocalEstimateUSD">
-		[AMOUNT] US$
-	</string>
-	<string name="Membership">
-		Mitgliedschaft
-	</string>
-	<string name="Roles">
-		Rollen
-	</string>
-	<string name="Group Identity">
-		Gruppenidentität
-	</string>
-	<string name="Parcel Management">
-		Parzellenverwaltung
-	</string>
-	<string name="Parcel Identity">
-		Parzellenidentität
-	</string>
-	<string name="Parcel Settings">
-		Parzelleneinstellungen
-	</string>
-	<string name="Parcel Powers">
-		Parzellenfähigkeiten
-	</string>
-	<string name="Parcel Access">
-		Parzellenzugang
-	</string>
-	<string name="Parcel Content">
-		Parzelleninhalt
-	</string>
-	<string name="Object Management">
-		Objektmanagement
-	</string>
-	<string name="Accounting">
-		Kontoführung
-	</string>
-	<string name="Notices">
-		Mitteilungen
-	</string>
-	<string name="Chat">
-		Chat
-	</string>
+    <string name="AvatarBirthDateFormat">
+        [day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
+    </string>
 </strings>

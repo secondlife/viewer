@@ -643,6 +643,7 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	registrar.add("ParticipantList.ModerateVoice", boost::bind(&LLParticipantList::LLParticipantListMenu::moderateVoice, this, _2));
 
 	enable_registrar.add("ParticipantList.EnableItem", boost::bind(&LLParticipantList::LLParticipantListMenu::enableContextMenuItem,	this, _2));
+	enable_registrar.add("ParticipantList.EnableItem.Moderate", boost::bind(&LLParticipantList::LLParticipantListMenu::enableModerateContextMenuItem,	this, _2));
 	enable_registrar.add("ParticipantList.CheckItem",  boost::bind(&LLParticipantList::LLParticipantListMenu::checkContextMenuItem,	this, _2));
 
 	// create the context menu from the XUI
@@ -667,7 +668,7 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 
 	if (uuids.size() == 0) return;
 
-	const LLUUID speaker_id = mUUIDs.front();
+	const LLUUID& speaker_id = mUUIDs.front();
 	BOOL is_muted = isMuted(speaker_id);
 
 	if (is_muted)
@@ -801,27 +802,17 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(co
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
+	const LLUUID& participant_id = mUUIDs.front();
+
+	// For now non of "can_view_profile" action and menu actions listed below except "can_block"
+	// can be performed for Avaline callers.
+	bool is_participant_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(participant_id);
+	if (!is_participant_avatar && "can_block" != item) return false;
+
 	if (item == "can_mute_text" || "can_block" == item || "can_share" == item || "can_im" == item 
 		|| "can_pay" == item)
 	{
 		return mUUIDs.front() != gAgentID;
-	}
-	else if (item == "can_allow_text_chat")
-	{
-		return isGroupModerator();
-	}
-	else if ("can_moderate_voice" == item)
-	{
-		if (isGroupModerator())
-		{
-			LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(mUUIDs.front());
-			if (speakerp.notNull())
-			{
-				// not in voice participants can not be moderated
-				return speakerp->isInVoiceChannel();
-			}
-		}
-		return false;
 	}
 	else if (item == std::string("can_add"))
 	{
@@ -851,6 +842,36 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 		bool can_call = not_agent && LLVoiceClient::voiceEnabled() && LLVoiceClient::getInstance()->voiceWorking();
 		return can_call;
 	}
+
+	return true;
+}
+
+/*
+Processed menu items with such parameters:
+	can_allow_text_chat
+	can_moderate_voice
+*/
+bool LLParticipantList::LLParticipantListMenu::enableModerateContextMenuItem(const LLSD& userdata)
+{
+	// only group moderators can perform actions related to this "enable callback"
+	if (!isGroupModerator()) return false;
+
+	const LLUUID& participant_id = mUUIDs.front();
+	LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(participant_id);
+
+	// not in voice participants can not be moderated
+	bool speaker_in_voice = speakerp.notNull() && speakerp->isInVoiceChannel();
+
+	const std::string& item = userdata.asString();
+
+	if ("can_moderate_voice" == item)
+	{
+		return speaker_in_voice;
+	}
+
+	// For now non of menu actions except "can_moderate_voice" can be performed for Avaline callers.
+	bool is_participant_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(participant_id);
+	if (!is_participant_avatar) return false;
 
 	return true;
 }

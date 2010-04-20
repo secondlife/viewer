@@ -3103,4 +3103,10 @@ Abuse Report</string>
   <string name="New Script">New Script</string>
   <string name="New Folder">New Folder</string>
   <string name="Contents">Contents</string>
-</strings>
+
+  <!-- birth date format shared by avatar inspector and profile panels -->
+  <string name="AvatarBirthDateFormat">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
+  
+  <string name="DefaultMimeType">none/none</string>
+
+  </strings>

@@ -34,14 +34,24 @@
 #ifndef LL_PANELGENERICTIP_H
 #define LL_PANELGENERICTIP_H
 
-#include "lltoastpanel.h"
+#include "llpaneltiptoast.h"
 
-class LLPanelGenericTip: public LLToastPanel
+/**
+ * Represents tip toast panel that contains only one child element - message text.
+ * This panel can be used for different cases of tip notifications.
+ */
+class LLPanelGenericTip: public LLPanelTipToast
 {
 	// disallow instantiation of this class
 private:
 	// grant privileges to instantiate this class to LLToastPanel
 	friend class LLToastPanel;
+	/**
+	 * Generic toast tip panel.
+	 * This is particular case of toast panel that decoupled from LLToastNotifyPanel.
+	 * From now LLToastNotifyPanel is deprecated and will be removed after all  panel
+	 * types are represented in separate classes.
+	 */
 	LLPanelGenericTip(const LLNotificationPtr& notification);
 };
 #endif /* LL_PANELGENERICTIP_H */
