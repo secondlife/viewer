@@ -120,15 +120,33 @@ LLSD LLLoginInstance::getResponse()
 
 void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 {
-	// Set up auth request options.
-//#define LL_MINIMIAL_REQUESTED_OPTIONS
-	LLSD requested_options;
 	// *Note: this is where gUserAuth used to be created.
+
+	// Set up auth request options.
+	LLSD requested_options;
+	requested_options.append("global-textures");
 	requested_options.append("inventory-root");
 	requested_options.append("inventory-skeleton");
 	//requested_options.append("inventory-meat");
 	//requested_options.append("inventory-skel-targets");
+	requested_options.append("login-flags");
+
+//#define LL_MINIMIAL_REQUESTED_OPTIONS
 #if (!defined LL_MINIMIAL_REQUESTED_OPTIONS)
+	// *NOTE: Keep alphabetized for easier merges
+	requested_options.append("adult_compliant"); 
+	requested_options.append("buddy-list");
+	requested_options.append("classified_categories");
+	requested_options.append("display_names");
+	requested_options.append("event_categories");
+	requested_options.append("event_notifications");
+	requested_options.append("gestures");
+	if(gSavedSettings.getBOOL("ConnectAsGod"))
+	{
+		gSavedSettings.setBOOL("UseDebugMenus", TRUE);
+		requested_options.append("god-connect");
+	}
+	requested_options.append("initial-outfit");
 	if(FALSE == gSavedSettings.getBOOL("NoInventoryLibrary"))
 	{
 		requested_options.append("inventory-lib-root");
@@ -136,25 +154,11 @@ void LLLoginInstance::constructAuthParams(const LLSD& credentials)
 		requested_options.append("inventory-skel-lib");
 	//	requested_options.append("inventory-meat-lib");
 	}
-
-	requested_options.append("initial-outfit");
-	requested_options.append("gestures");
-	requested_options.append("event_categories");
-	requested_options.append("event_notifications");
-	requested_options.append("classified_categories");
-	requested_options.append("adult_compliant"); 
 	//requested_options.append("inventory-targets");
-	requested_options.append("buddy-list");
-	requested_options.append("ui-config");
-#endif
 	requested_options.append("tutorial_setting");
-	requested_options.append("login-flags");
-	requested_options.append("global-textures");
-	if(gSavedSettings.getBOOL("ConnectAsGod"))
-	{
-		gSavedSettings.setBOOL("UseDebugMenus", TRUE);
-		requested_options.append("god-connect");
-	}
+	requested_options.append("ui-config");
+	// *NOTE: Keep alphabetized for easier merges
+#endif
 
 	char hashed_mac_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
 	LLMD5 hashed_mac;

@@ -34,7 +34,6 @@
 
 #include "llavatarnamecache.h"
 
-#include "llcachename.h"	// *TODO: remove
 #include "llframetimer.h"
 #include "llhttpclient.h"
 #include "llsd.h"
@@ -379,15 +378,13 @@ void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
 }
 
 
-void LLAvatarNameCache::toggleDisplayNames()
+void LLAvatarNameCache::setUseDisplayNames(bool use)
 {
-	sUseDisplayNames = !sUseDisplayNames;
-	// flush our cache
-	sCache.clear();
-	// force re-lookups
-	if (gCacheName)
+	if (use != sUseDisplayNames)
 	{
-		gCacheName->clear();
+		sUseDisplayNames = use;
+		// flush our cache
+		sCache.clear();
 	}
 }
 

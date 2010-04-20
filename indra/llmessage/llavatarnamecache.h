@@ -69,8 +69,8 @@ namespace LLAvatarNameCache
 	// If name information is in cache, callback will be called immediately.
 	void get(const LLUUID& agent_id, callback_slot_t slot);
 
-	// HACK: turn display names on and off
-	void toggleDisplayNames();
+	// Not all grids support display names
+	void setUseDisplayNames(bool use);
 	bool useDisplayNames();
 
 	void erase(const LLUUID& agent_id);

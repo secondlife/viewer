@@ -7592,6 +7592,13 @@ class LLWorldToggleCameraControls : public view_listener_t
 	}
 };
 
+// IDEVO JAMESDEBUG temp code for testing
+void toggle_display_names()
+{
+	bool use = LLAvatarNameCache::useDisplayNames();
+	LLAvatarNameCache::setUseDisplayNames(!use);
+}
+
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
 	static LLMenuGL*	show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
@@ -7757,7 +7764,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedDumpInfoToConsole(), "Advanced.DumpInfoToConsole");
 	
 	// IDEVO
-	commit.add("IDEVO.ToggleDisplayNames", boost::bind(&LLAvatarNameCache::toggleDisplayNames));
+	commit.add("IDEVO.ToggleDisplayNames", boost::bind(&toggle_display_names));
 	enable.add("IDEVO.CheckDisplayNames", boost::bind(&LLAvatarNameCache::useDisplayNames));
 	
 	// Advanced > HUD Info
