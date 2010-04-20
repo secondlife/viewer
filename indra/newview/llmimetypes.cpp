@@ -34,6 +34,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llmimetypes.h"
+#include "lltrans.h"
 #include "llxmlnode.h"
 
 #include "lluictrlfactory.h"
@@ -49,6 +50,7 @@ std::string sDefaultImpl;
 	// Returned when we don't know what impl to use
 std::string sXMLFilename; 
     // Squirrel away XML filename so we know how to reset
+std::string DEFAULT_MIME_TYPE = "none/none";
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -212,12 +214,24 @@ std::string LLMIMETypes::findIcon(const std::string& mime_type)
 // static
 std::string LLMIMETypes::findDefaultMimeType(const std::string& widget_type)
 {
-	std::string mime_type = "none/none";
+	std::string mime_type = getDefaultMimeType();
 	mime_widget_set_map_t::iterator it = sWidgetMap.find(widget_type);
 	if(it != sWidgetMap.end())
 	{
 		mime_type = it->second.mDefaultMimeType;
 	}
+	return mime_type;
+}
+
+// static
+const std::string& LLMIMETypes::getDefaultMimeType()
+{
+	return DEFAULT_MIME_TYPE;
+}
+
+const std::string& LLMIMETypes::getDefaultMimeTypeTranslation()
+{
+	static std::string mime_type = LLTrans::getString("DefaultMimeType");
 	return mime_type;
 }
 
