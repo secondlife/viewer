@@ -148,6 +148,7 @@ void LLInventoryCompletionObserver::watchItem(const LLUUID& id)
 
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_id) :
 	LLInventoryFetchObserver(item_id),
+
 	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
 {
 	mIDs.clear();
@@ -155,7 +156,9 @@ LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_
 }
 
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids) :
-	LLInventoryFetchObserver(item_ids)
+	LLInventoryFetchObserver(item_ids),
+
+	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
 {
 }
 
