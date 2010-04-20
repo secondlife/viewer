@@ -428,11 +428,30 @@ public:
 
 	virtual void setToggleState(bool toggle);
 
+	/**
+	 * Displays popup menu.
+	 */
+	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
 protected:
 
 	LLIMChiclet(const LLIMChiclet::Params& p);
 
 protected:
+
+	/**
+	 * Creates chiclet popup menu.
+	 */
+	virtual void createPopupMenu() = 0;
+
+	/** 
+	 * Enables/disables menus.
+	 */
+	virtual void updateMenuItems() {};
+
+	bool canCreateMenu();
+
+	LLMenuGL* mPopupMenu;
 
 	bool mShowSpeaker;
 	bool mCounterEnabled;
@@ -519,11 +538,6 @@ protected:
 	 */
 	virtual void onMenuItemClicked(const LLSD& user_data);
 
-	/**
-	 * Displays popup menu.
-	 */
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-
 	/** 
 	 * Enables/disables menus based on relationship with other participant.
 	 * Enables/disables "show session" menu item depending on visible IM floater existence.
@@ -533,7 +547,6 @@ protected:
 private:
 
 	LLChicletAvatarIconCtrl* mChicletIconCtrl;
-	LLMenuGL* mPopupMenu;
 };
 
 /**
@@ -598,11 +611,6 @@ protected:
 	virtual void onMenuItemClicked(const LLSD& user_data);
 
 	/**
-	 * Displays popup menu.
-	 */
-	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-
-	/**
 	 * Finds a current speaker and resets the SpeakerControl with speaker's ID
 	 */
 	/*virtual*/ void switchToCurrentSpeaker();
@@ -610,7 +618,6 @@ protected:
 private:
 
 	LLChicletAvatarIconCtrl* mChicletIconCtrl;
-	LLMenuGL* mPopupMenu;
 };
 
 /**
@@ -646,6 +653,16 @@ protected:
 
 	LLScriptChiclet(const Params&);
 	friend class LLUICtrlFactory;
+
+	/**
+	 * Creates chiclet popup menu.
+	 */
+	virtual void createPopupMenu();
+
+	/**
+	 * Processes clicks on chiclet popup menu.
+	 */
+	virtual void onMenuItemClicked(const LLSD& user_data);
 
 private:
 
@@ -684,6 +701,16 @@ public:
 protected:
 	LLInvOfferChiclet(const Params&);
 	friend class LLUICtrlFactory;
+
+	/**
+	 * Creates chiclet popup menu.
+	 */
+	virtual void createPopupMenu();
+
+	/**
+	 * Processes clicks on chiclet popup menu.
+	 */
+	virtual void onMenuItemClicked(const LLSD& user_data);
 
 private:
 	LLChicletInvOfferIconCtrl* mChicletIconCtrl;
@@ -767,15 +794,9 @@ protected:
 	 */
 	virtual void updateMenuItems();
 
-	/**
-	 * Displays popup menu.
-	 */
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-
 private:
 
 	LLChicletGroupIconCtrl* mChicletIconCtrl;
-	LLMenuGL* mPopupMenu;
 };
 
 /**
