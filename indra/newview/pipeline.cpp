@@ -1960,31 +1960,29 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_MARK_VISIBLE);
 
-	if(!drawablep || drawablep->isDead())
+	if(drawablep && !drawablep->isDead())
 	{
-		return;
-	}
-	
-	if (drawablep->isSpatialBridge())
-	{
-		LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
-
-		if (root && root->getParent() && root->getVObj() && root->getVObj()->isAttachment())
+		if (drawablep->isSpatialBridge())
 		{
-			LLVOAvatar* av = root->getParent()->getVObj()->asAvatar();
-			if (av && av->isImpostor())
-			{
-				return;
-			}
-		}
-		sCull->pushBridge((LLSpatialBridge*) drawablep);
-	}
-	else
-	{
-		sCull->pushDrawable(drawablep);
-	}
+			LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 
-	drawablep->setVisible(camera);
+			if (root->getVObj()->isAttachment())
+			{
+				LLVOAvatar* av = root->getParent()->getVObj()->asAvatar();
+				if (av && av->isImpostor())
+				{
+					return;
+				}
+			}
+			sCull->pushBridge((LLSpatialBridge*) drawablep);
+		}
+		else
+		{
+			sCull->pushDrawable(drawablep);
+		}
+
+		drawablep->setVisible(camera);
+	}
 }
 
 void LLPipeline::markMoved(LLDrawable *drawablep, BOOL damped_motion)
