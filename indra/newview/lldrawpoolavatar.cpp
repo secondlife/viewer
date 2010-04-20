@@ -353,7 +353,7 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 	switch (pass)
 	{
 	case 0:
-		beginFootShadow();
+		beginImpostor();
 		break;
 	case 1:
 		beginRigid();
@@ -377,7 +377,7 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 	switch (pass)
 	{
 	case 0:
-		endFootShadow();
+		endImpostor();
 		break;
 	case 1:
 		endRigid();
@@ -387,7 +387,7 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 	}
 }
 
-void LLDrawPoolAvatar::beginFootShadow()
+void LLDrawPoolAvatar::beginImpostor()
 {
 	if (!LLPipeline::sReflectionRender)
 	{
@@ -399,7 +399,7 @@ void LLDrawPoolAvatar::beginFootShadow()
 	diffuse_channel = 0;
 }
 
-void LLDrawPoolAvatar::endFootShadow()
+void LLDrawPoolAvatar::endImpostor()
 {
 	gPipeline.enableLightsDynamic();
 }
@@ -695,10 +695,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 				}
 			}
 			avatarp->renderImpostor(LLColor4U(255,255,255,255), diffuse_channel);
-		}
-		else if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS) && !LLPipeline::sRenderDeferred)
-		{
-			avatarp->renderFootShadows();	
 		}
 		return;
 	}

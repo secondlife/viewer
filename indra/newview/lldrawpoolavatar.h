@@ -88,11 +88,11 @@ public:
 	/*virtual*/ void renderShadow(S32 pass);
 
 	void beginRigid();
-	void beginFootShadow();
+	void beginImpostor();
 	void beginSkinned();
 		
 	void endRigid();
-	void endFootShadow();
+	void endImpostor();
 	void endSkinned();
 
 	void beginDeferredImpostor();
