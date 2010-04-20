@@ -58,15 +58,15 @@
 				|
 			</text>
 			<button label="Ajouter clé" label_selected="Ajouter clé" name="WLAddKey"/>
-			<button label="Supprimer clé" label_selected="Supprimer clé" name="WLDeleteKey" width="89"/>
-			<text name="WLCurKeyFrameText" width="170">
+			<button label="Supprimer clé" label_selected="Supprimer clé" name="WLDeleteKey"/>
+			<text name="WLCurKeyFrameText">
 				Réglages des images-clés :
 			</text>
-			<text name="WLCurKeyTimeText" width="170">
+			<text name="WLCurKeyTimeText">
 				Heure de la clé :
 			</text>
-			<spinner label="Heure" name="WLCurKeyHour" label_width="80" width="74"/>
-			<spinner label="Min" name="WLCurKeyMin" label_width="80"/>
+			<spinner label="Heure" name="WLCurKeyHour"/>
+			<spinner label="Min" name="WLCurKeyMin"/>
 			<text name="WLCurKeyTimeText2">
 				Préréglages clés :
 			</text>
@@ -78,9 +78,9 @@
 			<text name="DayCycleText2">
 				Durée du cycle :
 			</text>
-			<spinner label="Heure" name="WLLengthOfDayHour" label_width="80" width="74" />
+			<spinner label="Heure" name="WLLengthOfDayHour"/>
 			<spinner label="Min" name="WLLengthOfDayMin" />
-			<spinner label="S" name="WLLengthOfDaySec" label_width="10" width="50" left_delta="95"/>
+			<spinner label="S" name="WLLengthOfDaySec"/>
 			<text name="DayCycleText3">
 				Prévisualiser :
 			</text>
