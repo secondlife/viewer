@@ -148,7 +148,6 @@ public:
 
 	virtual void done() = 0;
 protected:
-	BOOL mDone;
 	LLInventoryFetchItemsObserver *mFetchItems;
 	LLInventoryFetchDescendentsObserver *mFetchDescendents;
 };

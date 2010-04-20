@@ -41,10 +41,11 @@
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llnotificationmanager.h"
+#include "llpaneltiptoast.h"
 
 using namespace LLNotificationsUI;
 
-class LLOnlineStatusToast : public LLToastPanel
+class LLOnlineStatusToast : public LLPanelTipToast
 {
 public:
 
@@ -57,7 +58,7 @@ public:
 		Params() {}
 	};
 
-	LLOnlineStatusToast(Params& p) : LLToastPanel(p.notification)
+	LLOnlineStatusToast(Params& p) : LLPanelTipToast(p.notification)
 	{
 		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_online_status_toast.xml");
 

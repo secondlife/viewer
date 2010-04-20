@@ -303,6 +303,7 @@ set(viewer_SOURCE_FILES
     llpanelcontents.cpp
     llpaneleditwearable.cpp
     llpanelface.cpp
+    llpanelgenerictip.cpp
     llpanelgroup.cpp
     llpanelgroupgeneral.cpp
     llpanelgroupinvite.cpp
@@ -342,6 +343,7 @@ set(viewer_SOURCE_FILES
     llpanelprofile.cpp
     llpanelprofileview.cpp
     llpanelteleporthistory.cpp
+    llpaneltiptoast.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
     llparcelselection.cpp
@@ -437,7 +439,6 @@ set(viewer_SOURCE_FILES
     lltracker.cpp
     lltransientdockablefloater.cpp
     lltransientfloatermgr.cpp
-    llpanelgenerictip.cpp
     lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
@@ -802,6 +803,7 @@ set(viewer_HEADER_FILES
     llpanelcontents.h
     llpaneleditwearable.h
     llpanelface.h
+    llpanelgenerictip.h
     llpanelgroup.h
     llpanelgroupgeneral.h
     llpanelgroupinvite.h
@@ -841,6 +843,7 @@ set(viewer_HEADER_FILES
     llpanelprofile.h
     llpanelprofileview.h
     llpanelteleporthistory.h
+    llpaneltiptoast.h
     llpanelvolume.h
     llpanelvolumepulldown.h
     llparcelselection.h
@@ -939,7 +942,6 @@ set(viewer_HEADER_FILES
     lltracker.h
     lltransientdockablefloater.h
     lltransientfloatermgr.h
-    llpanelgenerictip.h
     lluiconstants.h
     lluilistener.h
     lluploaddialog.h
