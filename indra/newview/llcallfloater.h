@@ -40,6 +40,7 @@
 
 class LLAvatarList;
 class LLAvatarListItem;
+class LLComboBox;
 class LLNonAvatarCaller;
 class LLOutputMonitorCtrl;
 class LLParticipantList;
@@ -47,15 +48,15 @@ class LLSpeakerMgr;
 class LLSpeakersDelayActionsStorage;
 
 /**
- * The Voice Control Panel is an ambient window summoned by clicking the flyout chevron on the Speak button.
- * It can be torn-off and freely positioned onscreen.
+ * The Voice Control Panel is an ambient window summoned by clicking the flyout chevron
+ * on the Speak button. It can be torn-off and freely positioned onscreen.
  *
- * When the Resident is engaged in Nearby Voice Chat, the Voice Control Panel provides control over 
- * the Resident's own microphone input volume, the audible volume of each of the other participants,
- * the Resident's own Voice Morphing settings (if she has subscribed to enable the feature), and Voice Recording.
+ * When the Resident is engaged in Voice Chat, the Voice Control Panel provides control
+ * over the audible volume of each of the other participants, the Resident's own Voice
+ * Morphing settings (if she has subscribed to enable the feature), and Voice Recording.
  *
- * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel also provides an 
- * 'Leave Call' button to allow the Resident to leave that voice channel.
+ * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel
+ * also provides a 'Leave Call' button to allow the Resident to leave that voice channel.
  */
 class LLCallFloater : public LLTransientDockableFloater, LLVoiceClientParticipantObserver
 {
@@ -100,6 +101,9 @@ private:
 	typedef std::map<LLUUID, ESpeakerState> speaker_state_map_t;
 
 	void leaveCall();
+
+	static void commitVoiceFont(LLUICtrl*,void* userdata);
+	void updateVoiceFont();
 
 	/**
 	 * Updates mSpeakerManager and list according to current Voice Channel
@@ -230,6 +234,7 @@ private:
 	LLNonAvatarCaller* mNonAvatarCaller;
 	EVoiceControls mVoiceType;
 	LLPanel* mAgentPanel;
+	LLComboBox* mVoiceFont;
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 	bool mIsModeratorMutedVoice;
 
@@ -259,7 +264,7 @@ private:
 	 *
 	 * @see sOnCurrentChannelChanged()
 	 */
-	static LLVoiceChannel* sCurrentVoiceCanel;
+	static LLVoiceChannel* sCurrentVoiceChannel;
 
 	/* virtual */
 	LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
