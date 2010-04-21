@@ -2520,6 +2520,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 						item->getLinkedUUID(),
 						parent_id,
 						item->getName(),
+						item->getDescription(),
 						LLAssetType::AT_LINK,
 						LLPointer<LLInventoryCallback>(NULL));
 				}
@@ -3166,6 +3167,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 						inv_item->getLinkedUUID(),
 						mUUID,
 						inv_item->getName(),
+						inv_item->getDescription(),
 						LLAssetType::AT_LINK,
 						cb);
 				}

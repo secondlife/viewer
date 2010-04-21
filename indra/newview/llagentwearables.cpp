@@ -1361,24 +1361,6 @@ private:
 	LLUUID mFolderID;
 };
 
-LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
-{
-	if (!isAgentAvatarValid()) return LLUUID::null;
-
-	// First, make a folder in the My Outfits directory.
-	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	LLUUID folder_id = gInventory.createNewCategory(
-		parent_id,
-		LLFolderType::FT_OUTFIT,
-		new_folder_name);
-
-	LLPointer<LLInventoryCallback> cb = new LLShowCreatedOutfit(folder_id);
-	LLAppearanceMgr::instance().shallowCopyCategoryContents(LLAppearanceMgr::instance().getCOF(),folder_id, cb);
-	LLAppearanceMgr::instance().createBaseOutfitLink(folder_id, cb);
-
-	return folder_id;
-}
-
 void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 {
 	LLUUID first_item_id = getWearableItemID((EWearableType)type, index);

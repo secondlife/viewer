@@ -216,7 +216,7 @@ bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD&
 		LLStringUtil::trim(outfit_name);
 		if( !outfit_name.empty() )
 		{
-			LLUUID outfit_folder = gAgentWearables.makeNewOutfitLinks(outfit_name);
+			LLUUID outfit_folder = LLAppearanceMgr::getInstance()->makeNewOutfitLinks(outfit_name);
 
 			LLSidepanelAppearance* panel_appearance =
 				dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
