@@ -408,8 +408,8 @@ bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAsse
 	if (exists)
 	{
 		LLVFile file(mStaticVFS, uuid, type);
-		U32 size = exists ? file.getSize() : 0;
-		if (size>0)
+		U32 size = file.getSize();
+		if (size > 0)
 		{
 			// we've already got the file
 			if (callback)
