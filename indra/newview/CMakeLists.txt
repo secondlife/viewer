@@ -252,6 +252,7 @@ set(viewer_SOURCE_FILES
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
+    llinventoryitemslist.cpp
     llinventorymodel.cpp
     llinventorymodelbackgroundfetch.cpp
     llinventoryobserver.cpp
@@ -295,6 +296,7 @@ set(viewer_SOURCE_FILES
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
     llnotificationtiphandler.cpp
+    lloutfitslist.cpp
     lloutputmonitorctrl.cpp
     llpanelavatar.cpp
     llpanelavatartag.cpp
@@ -528,6 +530,7 @@ set(viewer_SOURCE_FILES
     llwaterparamset.cpp
     llwearable.cpp
     llwearabledictionary.cpp
+    llwearableitemslist.cpp
     llwearablelist.cpp
     llweb.cpp
     llwind.cpp
@@ -756,6 +759,7 @@ set(viewer_HEADER_FILES
     llinventoryclipboard.h
     llinventoryfilter.h
     llinventoryfunctions.h
+    llinventoryitemslist.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
@@ -795,6 +799,7 @@ set(viewer_HEADER_FILES
     llnetmap.h
     llnotificationhandler.h
     llnotificationmanager.h
+    lloutfitslist.h
     lloutputmonitorctrl.h
     llpanelavatar.h
     llpanelavatartag.h
@@ -1030,6 +1035,7 @@ set(viewer_HEADER_FILES
     llwaterparamset.h
     llwearable.h
     llwearabledictionary.h
+    llwearableitemslist.h
     llwearablelist.h
     llweb.h
     llwind.h

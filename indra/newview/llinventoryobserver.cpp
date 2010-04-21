@@ -650,3 +650,35 @@ void LLInventoryTransactionObserver::changed(U32 mask)
 		}
 	}
 }
+
+void LLInventoryCategoriesObserver::changed(U32 mask)
+{
+	if (!mCategoryMap.size())
+		return;
+
+	for (category_map_t::iterator iter = mCategoryMap.begin();
+		 iter != mCategoryMap.end();
+		 iter++)
+	{
+		// Inventory category version is used to find out if some changes
+		// to a category have been made.
+		S32 version = gInventory.getCategory((*iter).first)->getVersion();
+		if (version != (*iter).second.mVersion)
+		{
+			// Update category version in map.
+			(*iter).second.mVersion = version;
+			(*iter).second.mCallback();
+		}
+	}
+}
+
+void LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb)
+{
+	S32 version = gInventory.getCategory(cat_id)->getVersion();
+	mCategoryMap.insert(category_map_value_t(cat_id, LLCategoryData(cb, version)));
+}
+
+void LLInventoryCategoriesObserver::removeCategory(const LLUUID& cat_id)
+{
+	mCategoryMap.erase(mCategoryMap.find(cat_id));
+}
