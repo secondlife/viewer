@@ -37,6 +37,7 @@
 #include "llframetimer.h"
 #include "llhttpclient.h"
 #include "llsd.h"
+#include "llsdserialize.h"
 
 #include <map>
 #include <set>
@@ -243,10 +244,43 @@ void LLAvatarNameCache::cleanupClass()
 
 void LLAvatarNameCache::importFile(std::istream& istr)
 {
+	LLSD data;
+	S32 parse_count = LLSDSerialize::fromXMLDocument(data, istr);
+	if (parse_count < 1) return;
+
+	// by convention LLSD storage is a map
+	// we only store one entry in the map
+	LLSD agents = data["agents"];
+
+	LLUUID agent_id;
+	LLAvatarName av_name;
+	LLSD::map_const_iterator it = agents.beginMap();
+	for ( ; it != agents.endMap(); ++it)
+	{
+		agent_id.set(it->first);
+		av_name.fromLLSD( it->second );
+		sCache[agent_id] = av_name;
+	}
+	// entries may have expired since we last ran the viewer, just
+	// clean them out now
+	eraseExpired();
+	llinfos << "loaded " << sCache.size() << llendl;
 }
 
 void LLAvatarNameCache::exportFile(std::ostream& ostr)
 {
+	LLSD agents;
+	cache_t::const_iterator it = sCache.begin();
+	for ( ; it != sCache.end(); ++it)
+	{
+		const LLUUID& agent_id = it->first;
+		const LLAvatarName& av_name = it->second;
+		// key must be a string
+		agents[agent_id.asString()] = av_name.asLLSD();
+	}
+	LLSD data;
+	data["agents"] = agents;
+	LLSDSerialize::toPrettyXML(data, ostr);
 }
 
 void LLAvatarNameCache::setNameLookupURL(const std::string& name_lookup_url)

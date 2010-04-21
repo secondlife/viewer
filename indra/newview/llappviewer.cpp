@@ -3333,6 +3333,15 @@ void LLAppViewer::saveFinalSnapshot()
 
 void LLAppViewer::loadNameCache()
 {
+	// display names cache
+	std::string filename =
+		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+	llifstream name_cache_stream(filename);
+	if(name_cache_stream.is_open())
+	{
+		LLAvatarNameCache::importFile(name_cache_stream);
+	}
+
 	if (!gCacheName) return;
 
 	std::string name_cache;
@@ -3346,6 +3355,15 @@ void LLAppViewer::loadNameCache()
 
 void LLAppViewer::saveNameCache()
 {
+	// display names cache
+	std::string filename =
+		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+	llofstream name_cache_stream(filename);
+	if(name_cache_stream.is_open())
+	{
+		LLAvatarNameCache::exportFile(name_cache_stream);
+	}
+
 	if (!gCacheName) return;
 
 	std::string name_cache;

@@ -36,12 +36,18 @@
 
 #include <string>
 
+class LLSD;
+
 class LL_COMMON_API LLAvatarName
 {
 public:
 	LLAvatarName();
-
+	
 	bool operator<(const LLAvatarName& rhs) const;
+
+	LLSD asLLSD() const;
+
+	void fromLLSD(const LLSD& sd);
 
 	// "bobsmith123" or "james.linden", US-ASCII only
 	std::string mSLID;
