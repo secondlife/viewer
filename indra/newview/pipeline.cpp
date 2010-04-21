@@ -6664,6 +6664,15 @@ void LLPipeline::renderDeferredLighting()
 						continue;
 					}
 
+					if (volume->isAttachment())
+					{
+						if (!sRenderAttachedLights)
+						{
+							continue;
+						}
+					}
+
+
 					LLVector3 center = drawablep->getPositionAgent();
 					F32* c = center.mV;
 					F32 s = volume->getLightRadius()*1.5f;
