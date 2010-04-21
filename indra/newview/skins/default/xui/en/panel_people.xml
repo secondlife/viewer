@@ -30,6 +30,15 @@
      name="no_friends"
      value="No friends" />
     <string
+     name="no_friends_msg">
+         Find friends using [secondlife:///app/search/people Search] or right-click on a Resident to add them as a friend.
+Looking for people to hang out with? Try the [secondlife:///app/worldmap World Map].
+    </string>
+    <string
+     name="no_filtered_friends_msg">
+         Didn't find what you're looking for? Try [secondlife:///app/search/people Search].
+    </string>
+    <string
      name="people_filter_label"
      value="Filter People" />
     <string
@@ -265,14 +274,11 @@
             <text
              follows="all"
              height="450"
-             left="10"
-             name="no_friends_msg"
+             left="13"
+             name="no_friends_help_text"
              top="10"
              width="293"
-             wrap="true">
-                Find friends using [secondlife:///app/search/people Search] or right-click on a Resident to add them as a friend.
-Looking for people to hang out with? Try the [secondlife:///app/worldmap World Map].
-             </text>
+             wrap="true" />
         </panel>
         <panel
          background_opaque="true"
