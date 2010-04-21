@@ -794,7 +794,10 @@ private:
 
 		// Store selected items (without destination folder)
 		mSelectedItems.clear();
-		mActivePanel->getRootFolder()->getSelectionList(mSelectedItems);
+		if (mActivePanel)
+		{
+			mActivePanel->getRootFolder()->getSelectionList(mSelectedItems);
+		}
 		mSelectedItems.erase(mMoveIntoFolderID);
 	}
 

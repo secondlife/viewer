@@ -118,9 +118,10 @@
 		</menu>
 	</menu>
 	<menu label="Aiuto" name="Help">
-		<menu_item_call label="[SECOND_LIFE] Aiuto" name="Second Life Help"/>
+		<menu_item_call label="Aiuto di [SECOND_LIFE]" name="Second Life Help"/>
 		<menu_item_call label="Segnala abuso" name="Report Abuse"/>
 		<menu_item_call label="Segnala bug" name="Report Bug"/>
+		<menu_item_call label="Informazioni su [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanzate" name="Advanced">
 		<menu_item_call label="Ferma animazione" name="Stop Animating My Avatar"/>
