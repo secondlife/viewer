@@ -523,7 +523,7 @@
 		</panel>
 	</tab_container>
 	<scroll_container left="251" name="panel_container"/>
-	<button label="Infos sur les scripts" label_selected="Infos sur les scripts" name="script_info" tool_tip="Afficher les scripts attachés à votre avatar"/>
+	<button label="Infos scripts" label_selected="Infos scripts" name="script_info" tool_tip="Afficher les scripts attachés à votre avatar"/>
 	<button label="Créer tenue" label_selected="Créer une tenue..." name="make_outfit_btn"/>
 	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>

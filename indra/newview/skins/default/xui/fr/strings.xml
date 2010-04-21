@@ -2361,7 +2361,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Gants avec doigts
 	</string>
 	<string name="Glove Length">
-		Longueur des gants
+		Longueur
 	</string>
 	<string name="Hair">
 		Cheveux
@@ -2475,7 +2475,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Angle mâchoire
 	</string>
 	<string name="Jaw Jut">
-		Saillie de la mâchoire
+		Saillie mâchoire
 	</string>
 	<string name="Jaw Shape">
 		Mâchoire
@@ -2826,10 +2826,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Largeur du nez
 	</string>
 	<string name="Nostril Division">
-		Division des narines
+		Division narines
 	</string>
 	<string name="Nostril Width">
-		Largeur des narines
+		Largeur narines
 	</string>
 	<string name="Opaque">
 		Opaque
@@ -2919,10 +2919,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus rose
 	</string>
 	<string name="Platform Height">
-		Plateforme (hauteur)
+		Platef. (hauteur)
 	</string>
 	<string name="Platform Width">
-		Plateforme (largeur)
+		Platef. (largeur)
 	</string>
 	<string name="Pointy">
 		Pointue
@@ -3012,7 +3012,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Vers la gauche
 	</string>
 	<string name="Shift Mouth">
-		Déplacer la bouche
+		Déplacement
 	</string>
 	<string name="Shift Right">
 		Vers la droite
@@ -3210,7 +3210,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Forme de l&apos;orteil
 	</string>
 	<string name="Toe Thickness">
-		Épaisseur de l&apos;orteil
+		Épaisseur orteil
 	</string>
 	<string name="Torso Length">
 		Longueur du torse

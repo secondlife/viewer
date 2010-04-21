@@ -7,7 +7,7 @@
  left="0"
  name="chat_bar"
  top="21"
- width="308">
+ width="310">
     <line_editor
      border_style="line"
      border_thickness="1"
@@ -17,7 +17,7 @@
      layout="topleft"
      left_delta="3"
      left="0"
-     max_length="1024"
+     max_length="512"
      name="chat_box"
      text_pad_left="5"
      text_pad_right="25"

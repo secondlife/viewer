@@ -7,11 +7,10 @@
 		</menu_item_call>
 		<menu_item_call label="Compra L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Il mio profilo" name="Profile"/>
-		<menu_item_call label="Cambia vestiario" name="ChangeOutfit"/>
+		<menu_item_call label="Il mio aspetto" name="Appearance"/>
 		<menu_item_check label="Il mio inventario" name="Inventory"/>
 		<menu_item_check label="Il mio inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Le mie gesture" name="Gestures"/>
-		<menu_item_check label="La mia voce" name="ShowVoice"/>
 		<menu label="Il mio stato" name="Status">
 			<menu_item_call label="Assente" name="Set Away"/>
 			<menu_item_call label="Non disponibile" name="Set Busy"/>
@@ -31,8 +30,7 @@
 		<menu_item_check label="Mappa del mondo" name="World Map"/>
 		<menu_item_call label="Istantanea" name="Take Snapshot"/>
 		<menu_item_call label="Crea punto di riferimento per questo luogo" name="Create Landmark Here"/>
-		<menu label="Profilo del luogo" name="Land">
-			<menu_item_call label="Profilo del luogo" name="Place Profile"/>
+		<menu label="Profilo del posto" name="Land">
 			<menu_item_call label="Informazioni sui terreni" name="About Land"/>
 			<menu_item_call label="Regione/proprietà immobiliare" name="Region/Estate"/>
 		</menu>
@@ -65,18 +63,23 @@
 			<menu_item_call label="Strumento Ingrandisci" name="Focus"/>
 			<menu_item_call label="Strumento Movimento" name="Move"/>
 			<menu_item_call label="Strumento Modifica" name="Edit"/>
-			<menu_item_call label="Strumento Crea" name="Create"/>
+			<menu_item_call label="Crea strumento" name="Create"/>
 			<menu_item_call label="Strumento Terreno" name="Land"/>
+		</menu>
+		<menu label="Modifica" name="Edit">
+			<menu_item_call label="Annulla" name="Undo"/>
+			<menu_item_call label="Rifai" name="Redo"/>
+			<menu_item_call label="Taglia" name="Cut"/>
+			<menu_item_call label="Copia" name="Copy"/>
+			<menu_item_call label="Incolla" name="Paste"/>
+			<menu_item_call label="Elimina" name="Delete"/>
+			<menu_item_call label="Duplica" name="Duplicate"/>
+			<menu_item_call label="Seleziona tutto" name="Select All"/>
+			<menu_item_call label="Deseleziona" name="Deselect"/>
 		</menu>
 		<menu_item_call label="Collegamento" name="Link"/>
 		<menu_item_call label="Scollega" name="Unlink"/>
 		<menu_item_check label="Modifica le parti collegate" name="Edit Linked Parts"/>
-		<menu label="Seleziona parti collegate" name="Select Linked Parts">
-			<menu_item_call label="Seleziona parte successiva" name="Select Next Part"/>
-			<menu_item_call label="Seleziona parte precedente" name="Select Previous Part"/>
-			<menu_item_call label="Includi parte successiva" name="Include Next Part"/>
-			<menu_item_call label="Includi parte precedente" name="Include Previous Part"/>
-		</menu>
 		<menu_item_call label="Ingrandisci selezione" name="Focus on Selection"/>
 		<menu_item_call label="Zoom sulla selezione" name="Zoom to Selection"/>
 		<menu label="Oggetto" name="Object">
@@ -107,11 +110,11 @@
 			<menu_item_call label="Usa la selezione per la griglia" name="Use Selection for Grid"/>
 			<menu_item_call label="Opzioni della griglia" name="Grid Options"/>
 		</menu>
-		<menu label="Carica sul server" name="Upload">
-			<menu_item_call label="Immagine ([COST] L$)..." name="Upload Image"/>
-			<menu_item_call label="Suono ([COST] L$)..." name="Upload Sound"/>
-			<menu_item_call label="Animazione ([COST] L$)..." name="Upload Animation"/>
-			<menu_item_call label="In blocco ([COST] L$ per file)..." name="Bulk Upload"/>
+		<menu label="Seleziona parti collegate" name="Select Linked Parts">
+			<menu_item_call label="Seleziona parte successiva" name="Select Next Part"/>
+			<menu_item_call label="Seleziona parte precedente" name="Select Previous Part"/>
+			<menu_item_call label="Includi parte successiva" name="Include Next Part"/>
+			<menu_item_call label="Includi parte precedente" name="Include Previous Part"/>
 		</menu>
 	</menu>
 	<menu label="Aiuto" name="Help">
@@ -121,7 +124,6 @@
 		<menu_item_call label="Informazioni su [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanzate" name="Advanced">
-		<menu_item_check label="Mostra menu Avanzato" name="Show Advanced Menu"/>
 		<menu_item_call label="Ferma animazione" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Ridisegna le texture" name="Rebake Texture"/>
 		<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
@@ -143,6 +145,7 @@
 			<menu_item_check label="Evidenzia trasparenza" name="Highlight Transparent"/>
 			<menu_item_check label="Mostra elementi HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Mostra mirino visuale soggettiva" name="ShowCrosshairs"/>
+			<menu_item_check label="Mostra tooltip terreno" name="Land Tips"/>
 		</menu>
 		<menu label="Modalità di rendering" name="Rendering Types">
 			<menu_item_check label="Semplice" name="Simple"/>
@@ -169,7 +172,6 @@
 			<menu_item_check label="Oggetti flessibili" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="Esegui thread multipli" name="Run Multiple Threads"/>
-		<menu_item_check label="Usa thread lettura plugin" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Pulisci cache di gruppo" name="ClearGroupCache"/>
 		<menu_item_check label="Fluidità mouse" name="Mouse Smoothing"/>
 		<menu label="Scorciatoie" name="Shortcuts">
@@ -177,7 +179,6 @@
 			<menu_item_check label="Cerca" name="Search"/>
 			<menu_item_call label="Rilascia tasti" name="Release Keys"/>
 			<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
-			<menu_item_check label="Mostra menu Avanzato - tasti di scelta rapida esistenti" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Corri sempre" name="Always Run"/>
 			<menu_item_check label="Vola" name="Fly"/>
 			<menu_item_call label="Chiudi finestra" name="Close Window"/>
@@ -191,12 +192,13 @@
 				<menu_item_call label="Strumento Ingrandisci" name="Focus"/>
 				<menu_item_call label="Strumento Movimento" name="Move"/>
 				<menu_item_call label="Strumento Modifica" name="Edit"/>
-				<menu_item_call label="Strumento Crea" name="Create"/>
+				<menu_item_call label="Crea strumento" name="Create"/>
 				<menu_item_call label="Strumento Terreno" name="Land"/>
 			</menu>
 			<menu_item_call label="Zoom avanti" name="Zoom In"/>
 			<menu_item_call label="Zoom predefinito" name="Zoom Default"/>
 			<menu_item_call label="Zoom indietro" name="Zoom Out"/>
+			<menu_item_call label="Alterna schermo intero" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="Mostra impostazioni di debug" name="Debug Settings"/>
 		<menu_item_check label="Mostra menu sviluppo" name="Debug Mode"/>
