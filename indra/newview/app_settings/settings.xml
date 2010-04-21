@@ -10183,7 +10183,17 @@
       <key>Value</key>
       <real>10.0</real>
     </map>
-
+    <key>UseNewWalkRun</key>
+    <map>
+      <key>Comment</key>
+      <string>Replace standard walk/run animations with new ones.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>

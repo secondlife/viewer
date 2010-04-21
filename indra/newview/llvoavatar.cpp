@@ -1225,7 +1225,11 @@ void LLVOAvatar::initInstance(void)
 		registerMotion( ANIM_AGENT_EXPRESS_TOOTHSMILE,		LLEmote::create );
 		registerMotion( ANIM_AGENT_EXPRESS_WINK,			LLEmote::create );
 		registerMotion( ANIM_AGENT_EXPRESS_WORRY,			LLEmote::create );
+		registerMotion( ANIM_AGENT_FEMALE_RUN_NEW,			LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_FEMALE_WALK,				LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_FEMALE_WALK_NEW,			LLKeyframeWalkMotion::create );
 		registerMotion( ANIM_AGENT_RUN,						LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_RUN_NEW,					LLKeyframeWalkMotion::create );
 		registerMotion( ANIM_AGENT_STAND,					LLKeyframeStandMotion::create );
 		registerMotion( ANIM_AGENT_STAND_1,					LLKeyframeStandMotion::create );
 		registerMotion( ANIM_AGENT_STAND_2,					LLKeyframeStandMotion::create );
@@ -1235,6 +1239,7 @@ void LLVOAvatar::initInstance(void)
 		registerMotion( ANIM_AGENT_TURNLEFT,				LLKeyframeWalkMotion::create );
 		registerMotion( ANIM_AGENT_TURNRIGHT,				LLKeyframeWalkMotion::create );
 		registerMotion( ANIM_AGENT_WALK,					LLKeyframeWalkMotion::create );
+		registerMotion( ANIM_AGENT_WALK_NEW,				LLKeyframeWalkMotion::create );
 		
 		// motions without a start/stop bit
 		registerMotion( ANIM_AGENT_BODY_NOISE,				LLBodyNoiseMotion::create );
@@ -4369,6 +4374,55 @@ void LLVOAvatar::resetAnimations()
 	flushAllMotions();
 }
 
+// Override selectively based on avatar sex and whether we're using new
+// animations.
+LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
+{
+	BOOL use_new_walk_run = gSavedSettings.getBOOL("UseNewWalkRun");
+	LLUUID result = id;
+
+	// start special case female walk for female avatars
+	if (getSex() == SEX_FEMALE)
+	{
+		if (id == ANIM_AGENT_WALK)
+		{
+			if (use_new_walk_run)
+				result = ANIM_AGENT_FEMALE_WALK_NEW;
+			else
+				result = ANIM_AGENT_FEMALE_WALK;
+		}
+		else if (id == ANIM_AGENT_RUN)
+		{
+			// There is no old female run animation, so only override
+			// in one case.
+			if (use_new_walk_run)
+				result = ANIM_AGENT_FEMALE_RUN_NEW;
+		}
+		else if (id == ANIM_AGENT_SIT)
+		{
+			result = ANIM_AGENT_SIT_FEMALE;
+		}
+	}
+	else
+	{
+		// Male avatar.
+		if (id == ANIM_AGENT_WALK)
+		{
+			if (use_new_walk_run)
+				result = ANIM_AGENT_WALK_NEW;
+		}
+		else if (id == ANIM_AGENT_RUN)
+		{
+			if (use_new_walk_run)
+				result = ANIM_AGENT_RUN_NEW;
+		}
+	
+	}
+
+	return result;
+
+}
+
 //-----------------------------------------------------------------------------
 // startMotion()
 // id is the asset if of the animation to start
@@ -4376,27 +4430,18 @@ void LLVOAvatar::resetAnimations()
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 {
-	LLMemType mt(LLMemType::MTYPE_AVATAR);
-	
-	// start special case female walk for female avatars
-	if (getSex() == SEX_FEMALE)
-	{
-		if (id == ANIM_AGENT_WALK)
-		{
-			return LLCharacter::startMotion(ANIM_AGENT_FEMALE_WALK, time_offset);
-		}
-		else if (id == ANIM_AGENT_SIT)
-		{
-			return LLCharacter::startMotion(ANIM_AGENT_SIT_FEMALE, time_offset);
-		}
-	}
+	llinfos << "motion " << id.asString() << llendl;
 
-	if (isSelf() && id == ANIM_AGENT_AWAY)
+	LLMemType mt(LLMemType::MTYPE_AVATAR);
+
+	LLUUID remap_id = remapMotionID(id);
+	
+	if (isSelf() && remap_id == ANIM_AGENT_AWAY)
 	{
 		gAgent.setAFK();
 	}
 
-	return LLCharacter::startMotion(id, time_offset);
+	return LLCharacter::startMotion(remap_id, time_offset);
 }
 
 //-----------------------------------------------------------------------------
@@ -4404,21 +4449,14 @@ BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::stopMotion(const LLUUID& id, BOOL stop_immediate)
 {
+	LLUUID remap_id = remapMotionID(id);
+	
 	if (isSelf())
 	{
-		gAgent.onAnimStop(id);
+		gAgent.onAnimStop(remap_id);
 	}
 
-	if (id == ANIM_AGENT_WALK)
-	{
-		LLCharacter::stopMotion(ANIM_AGENT_FEMALE_WALK, stop_immediate);
-	}
-	else if (id == ANIM_AGENT_SIT)
-	{
-		LLCharacter::stopMotion(ANIM_AGENT_SIT_FEMALE, stop_immediate);
-	}
-
-	return LLCharacter::stopMotion(id, stop_immediate);
+	return LLCharacter::stopMotion(remap_id, stop_immediate);
 }
 
 //-----------------------------------------------------------------------------
