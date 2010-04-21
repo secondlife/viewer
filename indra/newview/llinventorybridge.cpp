@@ -211,10 +211,14 @@ BOOL LLInvFVBridge::isItemRemovable() const
 		return FALSE;
 	}
 
-	// Disable delete from COF folder; have users explicitly choose "detach/take off".
+	// Disable delete from COF folder; have users explicitly choose "detach/take off",
+	// unless the item is not worn but in the COF (i.e. is bugged).
 	if (LLAppearanceMgr::instance().getIsProtectedCOFItem(mUUID))
 	{
-		return FALSE;
+		if (get_is_item_worn(mUUID))
+		{
+			return FALSE;
+		}
 	}
 
 	const LLInventoryObject *obj = model->getItem(mUUID);
@@ -712,7 +716,7 @@ void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 	const LLInventoryObject *obj = getInventoryObject();
 
 	// Don't allow delete as a direct option from COF folder.
-	if (obj && obj->getIsLinkType() && isCOFFolder())
+	if (obj && obj->getIsLinkType() && isCOFFolder() && get_is_item_worn(mUUID))
 	{
 		return;
 	}
