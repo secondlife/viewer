@@ -1338,7 +1338,8 @@ public:
 		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
 		LLPanelOutfitsInventory *outfit_panel =
 			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-		if (outfit_panel)
+		// TODO: add handling "My Outfits" tab.
+		if (outfit_panel && outfit_panel->isCOFPanelActive())
 		{
 			outfit_panel->getRootFolder()->clearSelection();
 			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);

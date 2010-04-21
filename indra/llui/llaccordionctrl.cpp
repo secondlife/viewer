@@ -332,9 +332,29 @@ void LLAccordionCtrl::addCollapsibleCtrl(LLView* view)
 	if(std::find(getChildList()->begin(),getChildList()->end(),accordion_tab) == getChildList()->end())
 		addChild(accordion_tab);
 	mAccordionTabs.push_back(accordion_tab);
-	
+
 	accordion_tab->setDropDownStateChangedCallback( boost::bind(&LLAccordionCtrl::onCollapseCtrlCloseOpen, this, mAccordionTabs.size() - 1) );
 
+}
+
+void LLAccordionCtrl::removeCollapsibleCtrl(LLView* view)
+{
+	LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(view);
+	if(!accordion_tab)
+		return;
+
+	if(std::find(getChildList()->begin(),getChildList()->end(),accordion_tab) != getChildList()->end())
+		removeChild(accordion_tab);
+
+	for (std::vector<LLAccordionCtrlTab*>::iterator iter = mAccordionTabs.begin();
+			iter != mAccordionTabs.end(); ++iter)
+	{
+		if (accordion_tab == (*iter))
+		{
+			mAccordionTabs.erase(iter);
+			break;
+		}
+	}
 }
 
 void	LLAccordionCtrl::arrangeSinge()
