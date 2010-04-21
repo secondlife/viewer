@@ -1800,10 +1800,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Inform user that there is a script floater via toast system
 		{
 			payload["give_inventory_notification"] = TRUE;
-		    LLNotification::Params params(p.name);
-		    params.substitutions = p.substitutions;
-		    params.payload = payload;
-		    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, info->mFromID, false);
+		    p.payload = payload;
+		    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
 		}
 	}
 }
