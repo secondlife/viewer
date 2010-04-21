@@ -1964,16 +1964,25 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 	{
 		if (drawablep->isSpatialBridge())
 		{
-			LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
-			llassert(root);
-			if (root->getVObj()->isAttachment())
+			const LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
+			llassert(root); // trying to catch a bad assumption
+			if (root && //  // this test may not be needed, see above
+			    root->getVObj()->isAttachment())
 			{
-				llassert(root->getParent());
-				llassert(root->getParent()->getVObj());
-				LLVOAvatar* av = root->getParent()->getVObj()->asAvatar();
-				if (av && av->isImpostor())
+				LLDrawable* rootparent = root->getParent();
+				llassert(rootparent); // trying to catch a bad assumption
+				if (rootparent) // this test may not be needed, see above
 				{
-					return;
+					LLViewerObject *vobj = rootparent->getVObj();
+					llassert(vobj); // trying to catch a bad assumption
+					if (vobj) // this test may not be needed, see above
+					{
+						const LLVOAvatar* av = vobj->asAvatar();
+						if (av && av->isImpostor())
+						{
+							return;
+						}
+					}
 				}
 			}
 			sCull->pushBridge((LLSpatialBridge*) drawablep);
