@@ -4797,7 +4797,7 @@ std::string LLVivoxVoiceClient::nameFromID(const LLUUID &uuid)
 		LLStringUtil::replaceChar(result, '_', ' ');
 		return result;
 	}
-	// Prepending this apparently prevents conflicts with reserved names inside the vivox and diamondware code.
+	// Prepending this apparently prevents conflicts with reserved names inside the vivox code.
 	result = "x";
 	
 	// Base64 encode and replace the pieces of base64 that are less compatible 
