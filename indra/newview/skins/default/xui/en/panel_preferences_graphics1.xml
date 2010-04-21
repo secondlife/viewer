@@ -597,7 +597,7 @@
       follows="left|top"
       height="12"
       layout="topleft"
-      left_delta="-230"
+      left_delta="-260"
       name="AvatarRenderingText"
       top_pad="8"
       width="128">
@@ -642,6 +642,7 @@
         follows="left|top"
         height="12"
         layout="topleft"
+        left="358"
         left_pad="-30"
         name="TerrainDetailText"
         top="488"
