@@ -512,15 +512,19 @@ BOOL LLPanelPeople::postBuild()
 
 	mNearbyList = getChild<LLPanel>(NEARBY_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
 	mNearbyList->setNoItemsCommentText(getString("no_one_near"));
+	mNearbyList->setNoItemsMsg(getString("no_one_near"));
+	mNearbyList->setNoFilteredItemsMsg(getString("no_one_filtered_near"));
 	mNearbyList->setShowIcons("NearbyListShowIcons");
 
 	mRecentList = getChild<LLPanel>(RECENT_TAB_NAME)->getChild<LLAvatarList>("avatar_list");
-	mRecentList->setNoItemsCommentText(getString("no_people"));
+	mRecentList->setNoItemsCommentText(getString("no_recent_people"));
+	mRecentList->setNoItemsMsg(getString("no_recent_people"));
+	mRecentList->setNoFilteredItemsMsg(getString("no_filtered_recent_people"));
 	mRecentList->setShowIcons("RecentListShowIcons");
 
 	mGroupList = getChild<LLGroupList>("group_list");
-	mGroupList->setNoGroupsMsg(getString("no_groups_msg"));
-	mGroupList->setNoFilteredGroupsMsg(getString("no_filtered_groups_msg"));
+	mGroupList->setNoItemsMsg(getString("no_groups_msg"));
+	mGroupList->setNoFilteredItemsMsg(getString("no_filtered_groups_msg"));
 
 	mNearbyList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	mRecentList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);

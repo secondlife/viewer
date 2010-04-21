@@ -10972,7 +10972,27 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  
+    <key>max_texture_dimension_X</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum texture width for user uploaded textures</string>
+      <key>Persist</key>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2048</integer>
+    </map>
+    <key>max_texture_dimension_Y</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum texture height for user uploaded textures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2048</integer>
+    </map>
     <!-- End of back compatibility settings -->
 </map>
 </llsd>
