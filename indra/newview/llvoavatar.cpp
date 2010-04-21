@@ -3705,7 +3705,15 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 										U16 offset = 0;
 										
 										LLMatrix4 mat_vert = skin->mBindShapeMatrix;
-										LLMatrix3 mat_normal;
+										glh::matrix4f m((F32*) mat_vert.mMatrix);
+										m = m.inverse().transpose();
+										
+										F32 mat3[] = 
+										{ m.m[0], m.m[1], m.m[2],
+										  m.m[4], m.m[5], m.m[6],
+										  m.m[8], m.m[9], m.m[10] };
+
+										LLMatrix3 mat_normal(mat3);				
 
 										face->getGeometryVolume(*volume, i, mat_vert, mat_normal, offset, true);
 										buff = face->mVertexBuffer;
@@ -3729,8 +3737,8 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 										LLJoint* joint = getJoint(skin->mJointNames[i]);
 										if (joint)
 										{
-											mat[i*2+0] = skin->mInvBindMatrix[i];
-											mat[i*2+1] = joint->getWorldMatrix();
+											mat[i] = skin->mInvBindMatrix[i];
+											mat[i] *= joint->getWorldMatrix();
 										}
 									}
 									
@@ -3750,9 +3758,9 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 									S32 offset = face->getIndicesStart();
 									U32 count = face->getIndicesCount();
 
-									glPointSize(8.f);
-									buff->drawRange(LLRender::POINTS, start, end, count, offset);
-									glPointSize(1.f);
+									gGL.getTexUnit(0)->bind(face->getTexture());
+									buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+									
 								}
 							}
 						}
