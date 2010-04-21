@@ -113,7 +113,7 @@ LLAvatarList::Params::Params()
 }
 
 LLAvatarList::LLAvatarList(const Params& p)
-:	LLFlatListView(p)
+:	LLFlatListViewEx(p)
 , mIgnoreOnlineStatus(p.ignore_online_status)
 , mShowLastInteractionTime(p.show_last_interaction_time)
 , mContextMenu(NULL)
@@ -154,7 +154,7 @@ void LLAvatarList::draw()
 	// *NOTE dzaporozhan
 	// Call refresh() after draw() to avoid flickering of avatar list items.
 
-	LLFlatListView::draw();
+	LLFlatListViewEx::draw();
 
 	if (mDirty)
 		refresh();
@@ -171,7 +171,7 @@ void LLAvatarList::clear()
 {
 	getIDs().clear();
 	setDirty(true);
-	LLFlatListView::clear();
+	LLFlatListViewEx::clear();
 }
 
 void LLAvatarList::setNameFilter(const std::string& filter)
@@ -179,6 +179,10 @@ void LLAvatarList::setNameFilter(const std::string& filter)
 	if (mNameFilter != filter)
 	{
 		mNameFilter = filter;
+
+		// update message for empty state here instead of refresh() to avoid blinking when switch
+		// between tabs.
+		updateNoItemsMessage(!mNameFilter.empty());
 		setDirty();
 	}
 }
@@ -360,7 +364,7 @@ S32 LLAvatarList::notifyParent(const LLSD& info)
 		sort();
 		return 1;
 	}
-	return LLFlatListView::notifyParent(info);
+	return LLFlatListViewEx::notifyParent(info);
 }
 
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)

@@ -49,11 +49,11 @@ class LLTimer;
  * @see setDirty()
  * @see setNameFilter()
  */
-class LLAvatarList : public LLFlatListView
+class LLAvatarList : public LLFlatListViewEx
 {
 	LOG_CLASS(LLAvatarList);
 public:
-	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params> 
+	struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
 	{
 		Optional<bool>	ignore_online_status, // show all items as online
 						show_last_interaction_time, // show most recent interaction time. *HACK: move this to a derived class
