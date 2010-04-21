@@ -221,16 +221,12 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLLineEditor* edit = getChild<LLLineEditor>("password_edit");
 	if (edit) edit->setDrawAsterixes(TRUE);
 
-	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
-
 	if(LLStartUp::getStartSLURL().getType() != LLSLURL::LOCATION)
 	{
 		LLSLURL slurl(gSavedSettings.getString("LoginLocation"));
 		LLStartUp::setStartSLURL(slurl);
 	}
 	updateLocationCombo(false);
-	
-	combo->setCommitCallback(onSelectLocation, NULL);
 
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer, NULL);
@@ -692,7 +688,6 @@ void LLPanelLogin::updateLocationCombo( bool force_visible )
 		return;
 	}	
 	
-	llinfos << "updatelocationcombo " << LLStartUp::getStartSLURL().asString() << llendl;
 	LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
 	
 	switch(LLStartUp::getStartSLURL().getType())
@@ -724,7 +719,7 @@ void LLPanelLogin::updateLocationCombo( bool force_visible )
 }
 
 // static
-void LLPanelLogin::onSelectLocation(LLUICtrl*, void*)
+void LLPanelLogin::updateStartSLURL()
 {
 	if (!sInstance) return;
 	
@@ -733,30 +728,11 @@ void LLPanelLogin::onSelectLocation(LLUICtrl*, void*)
 	
 	switch (index)
 	{
-		case 2:
+		case 0:
 		{
-			LLSLURL slurl = LLSLURL(combo->getSelectedValue());
-			if((slurl.getType() == LLSLURL::LOCATION) &&
-			   (slurl.getGrid() != LLStartUp::getStartSLURL().getGrid()))
-			{
-				
-
-				// we've changed the grid, so update the grid selection
-				try 
-				{
-					LLStartUp::setStartSLURL(slurl);
-				}
-				catch (LLInvalidGridName ex)
-				{
-					LLSD args;	
-					args["GRID"] = slurl.getGrid();
-					LLNotificationsUtil::add("InvalidGrid", args);
-					return; 
-				}	
-				loadLoginPage();
-			}
+			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_LAST));
 			break;
-		}
+		}			
 		case 1:
 		{
 			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
@@ -764,43 +740,17 @@ void LLPanelLogin::onSelectLocation(LLUICtrl*, void*)
 		}
 		default:
 		{
-			LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_LAST));
+			LLSLURL slurl = LLSLURL(combo->getValue().asString());
+			if(slurl.getType() == LLSLURL::LOCATION)
+			{
+				// we've changed the grid, so update the grid selection
+				LLStartUp::setStartSLURL(slurl);
+			}
 			break;
-		}
+		}			
 	}
 }
 
-
-// static
-void LLPanelLogin::getLocation(LLSLURL& slurl)
-{
-	LLSLURL result;
-	if (!sInstance)
-	{
-		llwarns << "Attempted getLocation with no login view shown" << llendl;
-	}
-	
-	LLComboBox* combo = sInstance->getChild<LLComboBox>("start_location_combo");
-	
-	switch(combo->getCurrentIndex())
-	{
-		case 0:
-		  {
-			slurl = LLSLURL(LLSLURL::SIM_LOCATION_HOME);
-			break;
-		  }
-		case 1:
-		  {
-			slurl =  LLSLURL(LLSLURL::SIM_LOCATION_LAST);
-			break;
-		  }
-		default:
-		  {
-			slurl = LLSLURL(combo->getValue().asString());
-			break;
-		  }
-	}
-}
 
 void LLPanelLogin::setLocation(const LLSLURL& slurl)
 {
@@ -1024,7 +974,7 @@ void LLPanelLogin::onClickConnect(void *)
 			LLNotificationsUtil::add("InvalidGrid", args);
 			return;
 		}
-		
+		updateStartSLURL();
 		std::string username = sInstance->childGetText("username_edit");
 		if(username.empty())
 		{
@@ -1134,11 +1084,9 @@ void LLPanelLogin::updateServerCombo()
 	// We add all of the possible values, sorted, and then add a bar and the current value at the top
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");	
 	server_choice_combo->removeall();
-#ifdef LL_RELEASE_FOR_DOWNLOAD
-	std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids(TRUE);
-#else
-	std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids(FALSE);	
-#endif
+
+	std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids(!gSavedSettings.getBOOL("ShowBetaGrids"));
+
 	for (std::map<std::string, std::string>::iterator grid_choice = known_grids.begin();
 		 grid_choice != known_grids.end();
 		 grid_choice++)

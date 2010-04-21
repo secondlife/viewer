@@ -92,20 +92,11 @@ void LLGridManager::initialize(const std::string& grid_file)
 	
 
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-  	addSystemGrid("Agni",                                                                                             
+  	addSystemGrid("Secondlife.com (Agni)",                                                                                             
 				  MAINGRID,                                               
 				  "https://login.agni.lindenlab.com/cgi-bin/login.cgi",                    
 				  "https://secondlife.com/helpers/",     
 				  DEFAULT_LOGIN_PAGE);
-#else
-	addSystemGrid("Secondlife.com",                                                                                             
-				  MAINGRID,                                               
-				  "https://login.agni.lindenlab.com/cgi-bin/login.cgi",                    
-				  "https://secondlife.com/helpers/",     
-				  DEFAULT_LOGIN_PAGE,
-				  "Agni");
-#endif // LL_RELEASE_FOR_DOWNLOAD	
 	addSystemGrid("Aditi",                                                                                             
 				  "util.aditi.lindenlab.com",                                              
 				  "https://login.aditi.lindenlab.com/cgi-bin/login.cgi",                   
@@ -313,11 +304,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 		// the grid name was empty, or the grid isn't actually in the list, then set it to the
 		// appropriate default.
 		LL_INFOS("GridManager") << "Resetting grid as grid name " << mGrid << " is not in the list" << LL_ENDL;
-#if LL_RELEASE_FOR_DOWNLOAD
 		mGrid = MAINGRID;
-#else
-		mGrid = "";
-#endif
 	}
 	LL_INFOS("GridManager") << "Selected grid is " << mGrid << LL_ENDL;		
 	gSavedSettings.setString("CurrentGrid", mGrid);
@@ -418,7 +405,7 @@ void LLGridManager::addSystemGrid(const std::string& label,
 	}
 	else
 	{
-		grid[GRID_SLURL_BASE] = llformat(SYSTEM_GRID_SLURL_BASE, label.c_str());		
+		grid[GRID_SLURL_BASE] = llformat(SYSTEM_GRID_SLURL_BASE, label.c_str());
 	}
 	addGrid(grid);
 }

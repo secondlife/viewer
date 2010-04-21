@@ -143,30 +143,17 @@ namespace tut
 		manager->initialize("grid_test.xml");
 		// validate that some of the defaults are available.
 		std::map<std::string, std::string> known_grids = manager->getKnownGrids();
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 		ensure_equals("Known grids is a string-string map of size 18", known_grids.size(), 18);
 		ensure_equals("Agni has the right name and label", 
-					  known_grids[std::string("util.agni.lindenlab.com")], std::string("Agni"));
-#else // LL_RELEASE_FOR_DOWNLOAD
-		ensure_equals("Known grids is a string-string map of size 2", known_grids.size(), 2);
-		ensure_equals("Agni has the right name and label", 
-					  known_grids[std::string("util.agni.lindenlab.com")], std::string("Secondlife.com"));		
-#endif // LL_RELEASE_FOR_DOWNLOAD
-
-
+					  known_grids[std::string("util.agni.lindenlab.com")], std::string("Secondlife.com (Agni)"));
 		ensure_equals("None exists", known_grids[""], "None");
 		
 		LLSD grid = LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com");
 		ensure("Grid info for agni is a map", grid.isMap());
 		ensure_equals("name is correct for agni", 
 					  grid[GRID_VALUE].asString(), std::string("util.agni.lindenlab.com"));
-#ifndef LL_RELEASE_FOR_DOWNLOAD		
 		ensure_equals("label is correct for agni", 
-					  grid[GRID_LABEL_VALUE].asString(), std::string("Agni"));
-#else // LL_RELEASE_FOR_DOWNLOAD
-		ensure_equals("label is correct for agni", 
-					  grid[GRID_LABEL_VALUE].asString(), std::string("Secondlife.com"));		
-#endif // LL_RELEASE_FOR_DOWNLOAD
+					  grid[GRID_LABEL_VALUE].asString(), std::string("Secondlife.com (Agni)"));
 		ensure("Login URI is an array", 
 			   grid[GRID_LOGIN_URI_VALUE].isArray());
 		ensure_equals("Agni login uri is correct", 
@@ -196,30 +183,17 @@ namespace tut
 		
 		LLGridManager::getInstance()->initialize("grid_test.xml");
 		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 		ensure_equals("adding a grid via a grid file increases known grid size", 
 					  known_grids.size(), 19);
 		ensure_equals("Agni is still there after we've added a grid via a grid file", 
-					  known_grids["util.agni.lindenlab.com"], std::string("Agni"));
-	
-#else
-		ensure_equals("adding a grid via a grid file increases known grid size", 
-					  known_grids.size(), 3);
-		ensure_equals("Agni is still there after we've added a grid via a grid file", 
-					  known_grids["util.agni.lindenlab.com"], std::string("Secondlife.com"));
-
-#endif
+					  known_grids["util.agni.lindenlab.com"], std::string("Secondlife.com (Agni)"));
 	
 		
 		// assure Agni doesn't get overwritten
 		LLSD grid = LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com");
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+
 		ensure_equals("Agni grid label was not modified by grid file", 
-					  grid[GRID_LABEL_VALUE].asString(), std::string("Agni"));
-#else \\ LL_RELEASE_FOR_DOWNLOAD
-		ensure_equals("Agni grid label was not modified by grid file", 
-					  grid[GRID_LABEL_VALUE].asString(), std::string("Secondlife.com"));
-#endif \\ LL_RELEASE_FOR_DOWNLOAD
+					  grid[GRID_LABEL_VALUE].asString(), std::string("Secondlife.com (Agni)"));
 		
 		ensure_equals("Agni name wasn't modified by grid file",
 					  grid[GRID_VALUE].asString(), std::string("util.agni.lindenlab.com"));
@@ -345,12 +319,8 @@ namespace tut
 
 		LLGridManager::getInstance()->initialize("grid_test.xml");
 		LLGridManager::getInstance()->addGrid(grid);
-		LLGridManager::getInstance()->setGridChoice("util.agni.lindenlab.com");
-#ifndef LL_RELEASE_FOR_DOWNLOAD		
-		ensure_equals("getGridLabel", LLGridManager::getInstance()->getGridLabel(), std::string("Agni"));
-#else // LL_RELEASE_FOR_DOWNLOAD
-		ensure_equals("getGridLabel", LLGridManager::getInstance()->getGridLabel(), std::string("Secondlife.com"));		
-#endif // LL_RELEASE_FOR_DOWNLOAD
+		LLGridManager::getInstance()->setGridChoice("util.agni.lindenlab.com");	
+		ensure_equals("getGridLabel", LLGridManager::getInstance()->getGridLabel(), std::string("Secondlife.com (Agni)"));
 		ensure_equals("getGrid", LLGridManager::getInstance()->getGrid(), 
 					  std::string("util.agni.lindenlab.com"));
 		ensure_equals("getHelperURI", LLGridManager::getInstance()->getHelperURI(), 

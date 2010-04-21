@@ -73,7 +73,6 @@ public:
 
 	static BOOL isGridComboDirty();
 	static BOOL areCredentialFieldsDirty();
-	static void getLocation(LLSLURL& slurl);
 	static void setLocation(const LLSLURL& slurl);
 	
 	static void updateLocationCombo(bool force_visible);  // simply update the combo box
@@ -102,7 +101,7 @@ private:
 	static void onSelectServer(LLUICtrl*, void*);
 	static void onServerComboLostFocus(LLFocusableElement*);
 	static void updateServerCombo();
-	static void onSelectLocation(LLUICtrl*, void*);
+	static void updateStartSLURL();
 	
 	static void updateLoginPanelLinks();
 
