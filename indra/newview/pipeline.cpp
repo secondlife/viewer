@@ -1979,7 +1979,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 		{
 			LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 
-			if (root->getVObj()->isAttachment())
+			if (root && root->getVObj() && root->getVObj()->isAttachment())
 			{
 				LLVOAvatar* av = root->getParent()->getVObj()->asAvatar();
 				if (av && av->isImpostor())
@@ -6735,6 +6735,15 @@ void LLPipeline::renderDeferredLighting()
 					{
 						continue;
 					}
+
+					if (volume->isAttachment())
+					{
+						if (!sRenderAttachedLights)
+						{
+							continue;
+						}
+					}
+
 
 					LLVector3 center = drawablep->getPositionAgent();
 					F32* c = center.mV;
