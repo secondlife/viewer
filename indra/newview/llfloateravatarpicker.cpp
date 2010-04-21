@@ -363,7 +363,7 @@ public:
 
 	/*virtual*/ void error(U32 status, const std::string& reason)
 	{
-		llinfos << "JAMESDEBUG avatar picker failed " << status
+		llinfos << "avatar picker failed " << status
 			<< " reason " << reason << llendl;
 	}
 };
@@ -392,7 +392,7 @@ void LLFloaterAvatarPicker::find()
 		}
 		url += "?name=";
 		url += LLURI::escape(text);
-		llinfos << "JAMESDEBUG picker " << url << llendl;
+		llinfos << "avatar picker " << url << llendl;
 		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
 	}
 	else
