@@ -350,6 +350,11 @@ void LLPanelPrimMediaControls::updateShape()
 		mHomeCtrl->setEnabled(has_focus && can_navigate);
 		LLPluginClassMediaOwner::EMediaStatus result = ((media_impl != NULL) && media_impl->hasMedia()) ? media_plugin->getStatus() : LLPluginClassMediaOwner::MEDIA_NONE;
 		
+		mVolumeCtrl->setVisible(has_focus);
+		mVolumeCtrl->setEnabled(has_focus);
+		mVolumeSliderCtrl->setEnabled(has_focus && shouldVolumeSliderBeVisible());
+		mVolumeSliderCtrl->setVisible(has_focus && shouldVolumeSliderBeVisible());
+
 		if(media_plugin && media_plugin->pluginSupportsMediaTime())
 		{
 			mReloadCtrl->setEnabled(false);
@@ -462,14 +467,6 @@ void LLPanelPrimMediaControls::updateShape()
 			mSkipBackCtrl->setVisible(FALSE);
 			mSkipBackCtrl->setEnabled(FALSE);
 			
-#ifdef PER_MEDIA_VOLUME
-			// these should be pulled up above the pluginSupportsMediaTime
-			// if check once we always have PER_MEDIA_VOLUME turned on
-			mVolumeCtrl->setVisible(has_focus);
-			mVolumeCtrl->setEnabled(has_focus);
-			mVolumeSliderCtrl->setEnabled(has_focus && shouldVolumeSliderBeVisible());
-			mVolumeSliderCtrl->setVisible(has_focus && shouldVolumeSliderBeVisible());
-
 			if(media_impl->getVolume() <= 0.0)
 			{
 				mMuteBtn->setToggleState(true);
@@ -478,12 +475,6 @@ void LLPanelPrimMediaControls::updateShape()
 			{
 				mMuteBtn->setToggleState(false);
 			}
-#else
-			mVolumeCtrl->setVisible(FALSE);
-			mVolumeSliderCtrl->setVisible(FALSE);
-			mVolumeCtrl->setEnabled(FALSE);
-			mVolumeSliderCtrl->setEnabled(FALSE);
-#endif
 
 			if (mMediaPanelScroll)
 			{

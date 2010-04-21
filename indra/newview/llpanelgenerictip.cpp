@@ -36,15 +36,10 @@
 #include "llpanelgenerictip.h"
 #include "llnotifications.h"
 
-/**
- * Generic toast tip panel.
- * This is particular case of toast panel that decoupled from LLToastNotifyPanel.
- * From now LLToastNotifyPanel is deprecated and will be removed after all  panel
- * types are represented in separate classes.
- */
+
 LLPanelGenericTip::LLPanelGenericTip(
 		const LLNotificationPtr& notification) :
-	LLToastPanel(notification)
+		LLPanelTipToast(notification)
 {
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_generic_tip.xml");
 

@@ -30,9 +30,9 @@
 			<text name="WL12am2">
 				24:00
 			</text>
-			<button font="SansSerifSmall" width="96" left="546" label="Adicionar chave" label_selected="Adicionar chave" name="WLAddKey"/>
-			<button font="SansSerifSmall" width="96" left="546" label="Apagar chave" label_selected="Apagar chave" name="WLDeleteKey"/>
-			<text name="WLCurKeyFrameText" width="190" left="17">
+			<button label="Adicionar chave" label_selected="Adicionar chave" name="WLAddKey"/>
+			<button label="Apagar chave" label_selected="Apagar chave" name="WLDeleteKey"/>
+			<text name="WLCurKeyFrameText">
 				Configurações de Quadro-chave:
 			</text>
 			<text name="WLCurKeyTimeText">
@@ -47,7 +47,7 @@
 			<text name="DayCycleText">
 				Grudar:
 			</text>
-			<combo_box label="5 minutos" name="WLSnapOptions" width="85"/>
+			<combo_box label="5 minutos" name="WLSnapOptions"/>
 			<text name="DayCycleText2">
 				Duração do Ciclo:
 			</text>
@@ -59,7 +59,7 @@
 			</text>
 			<button label="Tocar" label_selected="Tocar" name="WLAnimSky"/>
 			<button label="Pare!" label_selected="Pare" name="WLStopAnimSky"/>
-			<button width="175" font="SansSerifSmall" label="Usar o horário da Propriedade" label_selected="Ir para o horário da Propriedade" name="WLUseLindenTime"/>
+			<button label="Usar o horário da Propriedade" label_selected="Ir para o horário da Propriedade" name="WLUseLindenTime"/>
 			<button label="Salvar o Dia teste" label_selected="Salvar o Dia teste" name="WLSaveDayCycle"/>
 			<button label="Carregar o Dia teste" label_selected="Carregar o Dia teste" name="WLLoadDayCycle"/>
 		</panel>

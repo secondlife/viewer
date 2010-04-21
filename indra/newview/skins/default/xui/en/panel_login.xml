@@ -191,7 +191,7 @@ height="16"
 name="forgot_password_text"
 top_pad="12"
 right="-10"
-  width="210">
+  width="215">
        Forgot your name or password?
 </text>
 <text
@@ -203,7 +203,7 @@ height="16"
 name="login_help"
 top_pad="2"
 right="-10"
-    width="190">
+    width="220">
        Need help logging in?   </text>
 <!--  <text
     follows="right|bottom"

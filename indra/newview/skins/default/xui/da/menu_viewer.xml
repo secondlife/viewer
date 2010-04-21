@@ -119,6 +119,7 @@
 		<menu_item_call label="[SECOND_LIFE] Help" name="Second Life Help"/>
 		<menu_item_call label="Rapporter misbrug" name="Report Abuse"/>
 		<menu_item_call label="Rapportér fejl" name="Report Bug"/>
+		<menu_item_call label="Om [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanceret" name="Advanced">
 		<menu_item_call label="Stop animering af min avatar" name="Stop Animating My Avatar"/>

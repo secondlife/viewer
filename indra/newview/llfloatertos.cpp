@@ -144,9 +144,6 @@ BOOL LLFloaterTOS::postBuild()
 		// Don't use the start_url parameter for this browser instance -- it may finish loading before we get to add our observer.
 		// Store the URL separately and navigate here instead.
 		web_browser->navigateTo( getString( "loading_url" ) );
-		
-		gResponsePtr = LLIamHere::build( this );
-		LLHTTPClient::get( getString( "real_url" ), gResponsePtr );
 	}
 
 	return TRUE;
@@ -163,10 +160,19 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 		if ( alive )
 		{
 			// navigate to the "real" page 
-			loadIfNeeded();
+			if(!mRealNavigateBegun && mSiteAlive)
+			{
+				LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("tos_html");
+				if(web_browser)
+				{
+					mRealNavigateBegun = true;
+					web_browser->navigateTo( getString( "real_url" ) );
+				}
+			}
 		}
 		else
 		{
+			LL_INFOS("TOS") << "ToS page: ToS page unavailable!" << LL_ENDL;
 			// normally this is set when navigation to TOS page navigation completes (so you can't accept before TOS loads)
 			// but if the page is unavailable, we need to do this now
 			LLCheckBoxCtrl* tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
@@ -175,22 +181,8 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 	}
 }
 
-void LLFloaterTOS::loadIfNeeded()
-{
-	if(!mRealNavigateBegun && mSiteAlive)
-	{
-		LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("tos_html");
-		if(web_browser)
-		{
-			mRealNavigateBegun = true;
-			web_browser->navigateTo( getString( "real_url" ) );
-		}
-	}
-}
-
 LLFloaterTOS::~LLFloaterTOS()
 {
-
 	// tell the responder we're not here anymore
 	if ( gResponsePtr )
 		gResponsePtr->setParent( 0 );
@@ -215,7 +207,7 @@ void LLFloaterTOS::updateAgree(LLUICtrl*, void* userdata )
 void LLFloaterTOS::onContinue( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
-	llinfos << "User agrees with TOS." << llendl;
+	LL_INFOS("TOS") << "User agrees with TOS." << LL_ENDL;
 
 	if(self->mReplyPumpName != "")
 	{
@@ -229,7 +221,7 @@ void LLFloaterTOS::onContinue( void* userdata )
 void LLFloaterTOS::onCancel( void* userdata )
 {
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
-	llinfos << "User disagrees with TOS." << llendl;
+	LL_INFOS("TOS") << "User disagrees with TOS." << LL_ENDL;
 	LLNotificationsUtil::add("MustAgreeToLogIn", LLSD(), LLSD(), login_alert_done);
 
 	if(self->mReplyPumpName != "")
@@ -254,11 +246,13 @@ void LLFloaterTOS::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 		if(!mLoadingScreenLoaded)
 		{
 			mLoadingScreenLoaded = true;
-			loadIfNeeded();
+
+			gResponsePtr = LLIamHere::build( this );
+			LLHTTPClient::get( getString( "real_url" ), gResponsePtr );
 		}
 		else if(mRealNavigateBegun)
 		{
-			llinfos << "NAVIGATE COMPLETE" << llendl;
+			LL_INFOS("TOS") << "TOS: NAVIGATE COMPLETE" << LL_ENDL;
 			// enable Agree to TOS radio button now that page has loaded
 			LLCheckBoxCtrl * tos_agreement = getChild<LLCheckBoxCtrl>("agree_chk");
 			tos_agreement->setEnabled( true );

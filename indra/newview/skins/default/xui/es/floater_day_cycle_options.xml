@@ -57,8 +57,8 @@
 			<text name="WL12amHash2">
 				|
 			</text>
-			<button font="SansSerifSmall" width="96" left="546" label="Añadir un punto" label_selected="Añadir un punto" name="WLAddKey"/>
-			<button font="SansSerifSmall" width="96" left="546" label="Quitar un punto" label_selected="Quitar un punto" name="WLDeleteKey"/>
+			<button label="Añadir un punto" label_selected="Añadir un punto" name="WLAddKey"/>
+			<button label="Quitar un punto" label_selected="Quitar un punto" name="WLDeleteKey"/>
 			<text name="WLCurKeyFrameText">
 				Configuración del fotograma clave:
 			</text>
@@ -86,9 +86,9 @@
 			</text>
 			<button label="Probar" label_selected="Probar" name="WLAnimSky"/>
 			<button label="Parar" label_selected="Parar" name="WLStopAnimSky"/>
-			<button width="150" font="SansSerifSmall" label="Usar el horario del estado" label_selected="Ir al horario del estado" name="WLUseLindenTime"/>
-			<button left="440" width="180" font="SansSerifSmall" label="Guardar este tipo de día" label_selected="Guardar este tipo de día" name="WLSaveDayCycle"/>
-			<button left="440" width="180" font="SansSerifSmall" label="Cargar y probar un tipo de día" label_selected="Cargar y probar un tipo de día" name="WLLoadDayCycle"/>
+			<button label="Usar el horario del estado" label_selected="Ir al horario del estado" name="WLUseLindenTime"/>
+			<button label="Guardar este tipo de día" label_selected="Guardar este tipo de día" name="WLSaveDayCycle"/>
+			<button label="Cargar y probar un tipo de día" label_selected="Cargar y probar un tipo de día" name="WLLoadDayCycle"/>
 		</panel>
 	</tab_container>
 </floater>

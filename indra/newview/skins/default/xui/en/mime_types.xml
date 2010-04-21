@@ -138,6 +138,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype name="video/*">
 		<label name="video2_label">
@@ -146,6 +149,9 @@
 		<widgettype>
 			movie
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype name="image/*">
 		<label name="image2_label">

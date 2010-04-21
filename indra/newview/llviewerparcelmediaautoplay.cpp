@@ -42,6 +42,7 @@
 #include "message.h"
 #include "llviewertexturelist.h"         // for texture stats
 #include "llagent.h"
+#include "llmimetypes.h"
 
 const F32 AUTOPLAY_TIME  = 5;          // how many seconds before we autoplay
 const F32 AUTOPLAY_SIZE  = 24*24;      // how big the texture must be (pixel area) before we autoplay
@@ -126,7 +127,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	if ((!mPlayed) &&							// if we've never played
 		(mTimeInParcel > AUTOPLAY_TIME) &&		// and if we've been here for so many seconds
 		(!this_media_url.empty()) &&			// and if the parcel has media
-		(stricmp(this_media_type.c_str(), "none/none") != 0) &&
+		(stricmp(this_media_type.c_str(), LLMIMETypes::getDefaultMimeType().c_str()) != 0) &&
 		(LLViewerParcelMedia::sMediaImpl.isNull()))	// and if the media is not already playing
 	{
 		if (this_media_texture_id.notNull())	// and if the media texture is good
