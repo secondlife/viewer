@@ -121,6 +121,7 @@
 		<menu_item_call label="Ayuda de [SECOND_LIFE]" name="Second Life Help"/>
 		<menu_item_call label="Denunciar una infracción" name="Report Abuse"/>
 		<menu_item_call label="Informar de un fallo" name="Report Bug"/>
+		<menu_item_call label="Acerca de [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanzado" name="Advanced">
 		<menu_item_call label="Parar mis animaciones" name="Stop Animating My Avatar"/>
