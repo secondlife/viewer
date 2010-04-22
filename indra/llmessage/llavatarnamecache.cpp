@@ -44,9 +44,12 @@
 
 namespace LLAvatarNameCache
 {
-	// *TODO: Defaulted to true for demo, probably want false for initial
-	// release and turn it on based on data from login.cgi
+	// Will be turned on and off based on service availability, sometimes
+	// in the middle of a session.
 	bool sUseDisplayNames = true;
+	
+	// While false, buffer requests for later.  Used during viewer startup.
+	bool sRunning = false;
 
 	// Base lookup URL for name service.
 	// On simulator, loaded from indra.xml
@@ -130,7 +133,16 @@ namespace LLAvatarNameCache
 
 class LLAvatarNameResponder : public LLHTTPClient::Responder
 {
+private:
+	// need to store agent ids that are part of this request in case of
+	// an error, so we can flag them as unavailable
+	std::vector<LLUUID> mAgentIDs;
+	
 public:
+	LLAvatarNameResponder(const std::vector<LLUUID>& agent_ids)
+	:	mAgentIDs(agent_ids)
+	{ }
+	
 	/*virtual*/ void result(const LLSD& content)
 	{
 		LLSD agents = content["agents"];
@@ -202,6 +214,9 @@ void LLAvatarNameCache::requestNames()
 	std::string url;
 	url.reserve(NAME_URL_MAX);
 
+	std::vector<LLUUID> agent_ids;
+	agent_ids.reserve(128);
+	
 	ask_queue_t::const_iterator it = sAskQueue.begin();
 	for ( ; it != sAskQueue.end(); ++it)
 	{
@@ -217,25 +232,29 @@ void LLAvatarNameCache::requestNames()
 			url += "&ids=";
 		}
 		url += it->asString();
+		agent_ids.push_back(*it);
 
 		if (url.size() > NAME_URL_SEND_THRESHOLD)
 		{
 			//llinfos << "requestNames " << url << llendl;
-			LLHTTPClient::get(url, new LLAvatarNameResponder());
+			LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));
 			url.clear();
+			agent_ids.clear();
 		}
 	}
 
 	if (!url.empty())
 	{
 		//llinfos << "requestNames " << url << llendl;
-		LLHTTPClient::get(url, new LLAvatarNameResponder());
+		LLHTTPClient::get(url, new LLAvatarNameResponder(agent_ids));
 		url.clear();
+		agent_ids.clear();
 	}
 }
 
-void LLAvatarNameCache::initClass()
+void LLAvatarNameCache::initClass(bool running)
 {
+	sRunning = running;
 }
 
 void LLAvatarNameCache::cleanupClass()
@@ -288,8 +307,18 @@ void LLAvatarNameCache::setNameLookupURL(const std::string& name_lookup_url)
 	sNameLookupURL = name_lookup_url;
 }
 
+void LLAvatarNameCache::setRunning(bool running)
+{
+	sRunning = running;
+}
+
 void LLAvatarNameCache::idle()
 {
+	if (!sRunning)
+	{
+		return;
+	}
+	
 	// 100 ms is the threshold for "user speed" operations, so we can
 	// stall for about that long to batch up requests.
 	const F32 SECS_BETWEEN_REQUESTS = 0.1f;

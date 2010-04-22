@@ -42,7 +42,10 @@ class LLUUID;
 
 namespace LLAvatarNameCache
 {
-	void initClass();
+	// On the viewer, name cache starts in a non-running state until we
+	// know if we have the name lookup capability for the agent's region.
+	// In that state it buffers requests for later.
+	void initClass(bool running);
 	void cleanupClass();
 
 	void importFile(std::istream& istr);
@@ -51,6 +54,10 @@ namespace LLAvatarNameCache
 	// On the viewer, usually a simulator capabilitity
 	void setNameLookupURL(const std::string& name_lookup_url);
 
+	// Once we know if the lookup service is available we can start
+	// requesting names.
+	void setRunning(bool running);
+	
 	// Periodically makes a batch request for display names not already in
 	// cache.  Call once per frame.
 	void idle();
@@ -69,7 +76,9 @@ namespace LLAvatarNameCache
 	// If name information is in cache, callback will be called immediately.
 	void get(const LLUUID& agent_id, callback_slot_t slot);
 
-	// Not all grids support display names
+	// JAMESDEBUG TODO: collapse this with setNameLookupUrl?
+	// Not all grids support display names.  If display names are disabled,
+	// fall back to old name lookup system.
 	void setUseDisplayNames(bool use);
 	bool useDisplayNames();
 
