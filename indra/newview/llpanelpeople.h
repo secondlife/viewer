@@ -73,6 +73,7 @@ private:
 	} ESortOrder;
 
 	// methods indirectly called by the updaters
+	void					updateFriendListHelpText();
 	void					updateFriendList();
 	void					updateNearbyList();
 	void					updateRecentList();

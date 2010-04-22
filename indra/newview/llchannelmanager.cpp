@@ -35,6 +35,7 @@
 #include "llchannelmanager.h"
 
 #include "llappviewer.h"
+#include "llnotificationstorage.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llrootview.h"
@@ -107,31 +108,35 @@ void LLChannelManager::onLoginCompleted()
 	if(!away_notifications)
 	{
 		onStartUpToastClose();
-		return;
 	}
-	
-	// create a channel for the StartUp Toast
-	LLChannelManager::Params p;
-	p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
-	p.channel_align = CA_RIGHT;
-	mStartUpChannel = createChannel(p);
-
-	if(!mStartUpChannel)
+	else
 	{
-		onStartUpToastClose();
-		return;
+		// create a channel for the StartUp Toast
+		LLChannelManager::Params p;
+		p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
+		p.channel_align = CA_RIGHT;
+		mStartUpChannel = createChannel(p);
+
+		if(!mStartUpChannel)
+		{
+			onStartUpToastClose();
+		}
+		else
+		{
+			gViewerWindow->getRootView()->addChild(mStartUpChannel);
+
+			// init channel's position and size
+			S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
+			S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
+			mStartUpChannel->init(channel_right_bound - channel_width, channel_right_bound);
+			mStartUpChannel->setMouseDownCallback(boost::bind(&LLNotificationWellWindow::onStartUpToastClick, LLNotificationWellWindow::getInstance(), _2, _3, _4));
+
+			mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
+			mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("StartUpToastLifeTime"));
+		}
 	}
 
-	gViewerWindow->getRootView()->addChild(mStartUpChannel);
-
-	// init channel's position and size
-	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
-	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mStartUpChannel->init(channel_right_bound - channel_width, channel_right_bound);
-	mStartUpChannel->setMouseDownCallback(boost::bind(&LLNotificationWellWindow::onStartUpToastClick, LLNotificationWellWindow::getInstance(), _2, _3, _4));
-
-	mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
-	mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("StartUpToastLifeTime"));
+	LLPersistentNotificationStorage::getInstance()->loadNotifications();
 }
 
 //--------------------------------------------------------------------------

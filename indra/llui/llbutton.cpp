@@ -1003,6 +1003,11 @@ void LLButton::setImageDisabledSelected(LLPointer<LLUIImage> image)
 	mFadeWhenDisabled = TRUE;
 }
 
+void LLButton::setImagePressed(LLPointer<LLUIImage> image)
+{
+	mImagePressed = image;
+}
+
 void LLButton::setImageHoverSelected(LLPointer<LLUIImage> image)
 {
 	mImageHoverSelected = image;

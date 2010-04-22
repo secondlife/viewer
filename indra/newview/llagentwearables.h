@@ -169,8 +169,7 @@ public:
 								  const LLDynamicArray<S32>& wearables_to_include,
 								  const LLDynamicArray<S32>& attachments_to_include,
 								  BOOL rename_clothing);
-	
-	LLUUID			makeNewOutfitLinks(const std::string& new_folder_name);
+
 	
 	// Should only be called if we *know* we've never done so before, since users may
 	// not want the Library outfits to stay in their quick outfit selector and can delete them.

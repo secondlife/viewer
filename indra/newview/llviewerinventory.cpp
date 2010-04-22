@@ -923,6 +923,7 @@ void link_inventory_item(
 	const LLUUID& item_id,
 	const LLUUID& parent_id,
 	const std::string& new_name,
+	const std::string& new_description,
 	const LLAssetType::EType asset_type,
 	LLPointer<LLInventoryCallback> cb)
 {
@@ -948,7 +949,6 @@ void link_inventory_item(
 	}
 	
 	LLUUID transaction_id;
-	std::string desc = "Broken link"; // This should only show if the object can't find its baseobj.
 	LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
 	if (dynamic_cast<const LLInventoryCategory *>(baseobj))
 	{
@@ -979,7 +979,7 @@ void link_inventory_item(
 		msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
 		msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
 		msg->addStringFast(_PREHASH_Name, new_name);
-		msg->addStringFast(_PREHASH_Description, desc);
+		msg->addStringFast(_PREHASH_Description, new_description);
 	}
 	gAgent.sendReliableMessage();
 }
