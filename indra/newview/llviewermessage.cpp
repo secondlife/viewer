@@ -2482,7 +2482,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
 			// IMs from obejcts don't open IM sessions.
 			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-			if(nearby_chat)
+			if(SYSTEM_FROM != name && nearby_chat)
 			{
 				LLSD args;
 				args["owner_id"] = from_id;
