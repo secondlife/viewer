@@ -36,7 +36,6 @@
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "message.h"
-#include "indra_constants.h"
 
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -265,10 +264,14 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 		// we have to check region. It can be null after region was destroyed. See EXT-245
 		if (region)
 		{
-			if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
-				url = region->getCapability("FetchLib");
-			else	
-				url = region->getCapability("FetchInventory");
+		  if(gAgent.getID() != mPermissions.getOwner())
+		    {
+		      url = region->getCapability("FetchLib");
+		    }
+		  else
+		    {	
+		      url = region->getCapability("FetchInventory");
+		    }
 		}
 		else
 		{

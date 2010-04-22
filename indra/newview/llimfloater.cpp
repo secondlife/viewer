@@ -58,7 +58,6 @@
 #include "lltransientfloatermgr.h"
 #include "llinventorymodel.h"
 #include "llrootview.h"
-
 #include "llspeakers.h"
 
 
