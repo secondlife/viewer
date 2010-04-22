@@ -299,6 +299,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      Values are set from appropriate strings at the top of file via LLPeoplePanel::postBuild()
     -->
             <group_list
+             allow_select="true" 
              background_visible="true"
              bg_alpha_color="DkGray2"
              bg_opaque_color="DkGray2"
