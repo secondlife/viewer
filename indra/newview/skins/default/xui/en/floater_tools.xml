@@ -1418,39 +1418,6 @@ even though the user gets a free copy.
              text_enabled_color="1 1 1 1"
              top_pad="3"
              width="87" />
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="10"
-             layout="topleft"
-             left_delta="0"
-             name="label physicsrep"
-             top_pad="10"
-             width="121">
-                Physics Rep:
-            </text>
-			<combo_box
-			   height="23"
-			   layout="topleft"
-			   follows="left|top"
-			   name="Physics Rep Combo Ctrl"
-			   tool_tip="Choose the physics representation"
-			   left_pad="0"
-			   width="108">
-			  <combo_box.item
-				 label="Default"
-				 name="Default"
-				 value="Default" />
-			  <combo_box.item
-				 label="No Shape"
-				 name="No Shape"
-				 value="No Shape" />
-			  <combo_box.item
-				 label="Convex Hull"
-				 name="Convex Hull"
-				 value="Convex Hull" />
-			</combo_box>
 
  <!--           <text
              type="string"

@@ -199,7 +199,6 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mGLName(0),
 	mbCanSelect(TRUE),
 	mFlags(0),
-	mPhysicsRep(0),
 	mDrawable(),
 	mCreateSelected(FALSE),
 	mRenderMedia(FALSE),
@@ -4962,14 +4961,7 @@ void LLViewerObject::updateFlags()
 	gMessageSystem->addBOOL("IsTemporary", flagTemporaryOnRez() );
 	gMessageSystem->addBOOL("IsPhantom", flagPhantom() );
 	gMessageSystem->addBOOL("CastsShadows", flagCastShadows() );
-	gMessageSystem->nextBlock("ExtraPhysics");
-	gMessageSystem->addU8("PhysicsRep", getPhysicsRep() );
 	gMessageSystem->sendReliable( regionp->getHost() );
-
-	if (getPhysicsRep() != 0)
-	{
-		llwarns << "sent non default physics rep" << llendl;
-	}
 }
 
 BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
@@ -4999,12 +4991,6 @@ BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
 		updateFlags();
 	}
 	return setit;
-}
-
-void LLViewerObject::setPhysicsRep(U8 rep)
-{
-	mPhysicsRep = rep;
-	updateFlags();
 }
 
 void LLViewerObject::applyAngularVelocity(F32 dt)
@@ -5217,50 +5203,4 @@ void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplif
 
 	return ;
 }
-#include "../llcommon/llsdserialize.h"
-class ObjectPhysicsProperties : public LLHTTPNode
-{
-public:
-	virtual void post(
-		ResponsePtr responder,
-		const LLSD& context,
-		const LLSD& input) const
-	{
-		LLSD objectData = input["body"]["ObjectData"];
-		S32 numEntries = objectData.size();
-		
-		for ( S32 i = 0; i < numEntries; i++ )
-		{
-			U32 localID = objectData[i]["LocalID"].asInteger();
-
-			std::ostringstream string;
-			LLSDSerialize::serialize( input, string, LLSDSerialize::LLSD_XML, LLSDFormatter::OPTIONS_PRETTY);
-			llinfos << string.str() << llendl;
-
-			// Iterate through nodes at end, since it can be on both the regular AND hover list
-			struct f : public LLSelectedNodeFunctor
-			{
-				U32 mID;
-				f(const U32& id) : mID(id) {}
-				virtual bool apply(LLSelectNode* node)
-				{
-					return (node->getObject() && node->getObject()->mLocalID == mID );
-				}
-			} func(localID);
-
-			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(&func);
-
-			U8 physicsRepSpec = (U8)objectData[i]["PhysicsRepSpec"].asInteger();
-
-			if (node)
-			{
-				node->getObject()->setPhysicsRep(physicsRepSpec);
-			}	
-		}
-		
-	};
-};
-
-LLHTTPRegistration<ObjectPhysicsProperties>
-	gHTTPRegistrationObjectPhysicsProperties("/message/ObjectPhysicsProperties");
 
