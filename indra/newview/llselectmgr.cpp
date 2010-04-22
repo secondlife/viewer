@@ -3931,28 +3931,6 @@ void LLSelectMgr::selectionUpdateCastShadows(BOOL cast_shadows)
 	getSelection()->applyToObjects(&func);	
 }
 
-struct LLSelectMgrApplyPhysicsRep : public LLSelectedObjectFunctor
-{
-	LLSelectMgrApplyPhysicsRep(U8 value) : mValue(value) {}
-	U8 mValue;
-	virtual bool apply(LLViewerObject* object)
-	{
-		if ( object->permModify() ) 	// preemptive permissions check
-		{
-			object->setPhysicsRep( mValue );
-			object->updateFlags();
-		}
-		return true;
-	}
-};
-
-
-void LLSelectMgr::selectionUpdatePhysicsRep(U8 rep)
-{
-	llwarns << "physics rep ->" << (U32)rep << llendl;
-	LLSelectMgrApplyPhysicsRep func(rep);
-	getSelection()->applyToObjects(&func);	
-}
 
 //----------------------------------------------------------------------
 // Helpful packing functions for sendObjectMessage()
@@ -4641,6 +4619,7 @@ void LLSelectMgr::processForceObjectSelect(LLMessageSystem* msg, void**)
 	// Don't select, just highlight
 	LLSelectMgr::getInstance()->highlightObjectAndFamily(objects);
 }
+
 
 extern LLGLdouble	gGLModelView[16];
 
