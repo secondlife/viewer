@@ -174,7 +174,7 @@ public:
 				mRegion->showReleaseNotes();
 			}
 		}
-
+		
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{
 			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
@@ -1490,7 +1490,6 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("RemoteParcelRequest");
 	capabilityNames.append("RequestTextureDownload");
-	capabilityNames.append("SimulatorFeatures");
 	capabilityNames.append("SearchStatRequest");
 	capabilityNames.append("SearchStatTracking");
 	capabilityNames.append("SendPostcard");
