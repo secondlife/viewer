@@ -5257,7 +5257,6 @@ public:
 			}	
 		}
 		
-		dialog_refresh_all();
 	};
 };
 
