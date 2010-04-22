@@ -95,6 +95,13 @@ LLSD LLCredential::getLoginParams()
 	return result;
 }
 
+void LLCredential::identifierType(std::string &idType)
+{
+}
+
+void LLCredential::authenticatorType(std::string &idType)
+{
+}
 
 
 LLControlGroup gSavedSettings("test");
