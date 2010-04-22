@@ -1072,18 +1072,10 @@ BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, MASK mask )
 			// zoomed out, so don't display anything about the count. JC
 			if (agent_count > 0)
 			{
-				// Merov: i18n horror!!! Even using gettext(), concatenating strings is not localizable. 
-				// The singular/plural switch form here under might make no sense in some languages. Don't do that.
-				message += llformat("\n%d ", agent_count);
-
-				if (agent_count == 1)
-				{
-					message += "person";
-				}
-				else
-				{
-					message += "people";
-				}
+				LLStringUtil::format_map_t string_args;
+				string_args["[NUMBER]"] = llformat("%d", agent_count);
+				message += '\n';
+				message += getString((agent_count == 1 ? "world_map_person" : "world_map_people") , string_args);
 			}
 		}
 		tooltip_msg.assign( message );

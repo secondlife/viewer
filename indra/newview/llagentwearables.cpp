@@ -1338,7 +1338,8 @@ public:
 		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
 		LLPanelOutfitsInventory *outfit_panel =
 			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-		if (outfit_panel)
+		// TODO: add handling "My Outfits" tab.
+		if (outfit_panel && outfit_panel->isCOFPanelActive())
 		{
 			outfit_panel->getRootFolder()->clearSelection();
 			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
@@ -1360,24 +1361,6 @@ public:
 private:
 	LLUUID mFolderID;
 };
-
-LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
-{
-	if (!isAgentAvatarValid()) return LLUUID::null;
-
-	// First, make a folder in the My Outfits directory.
-	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	LLUUID folder_id = gInventory.createNewCategory(
-		parent_id,
-		LLFolderType::FT_OUTFIT,
-		new_folder_name);
-
-	LLPointer<LLInventoryCallback> cb = new LLShowCreatedOutfit(folder_id);
-	LLAppearanceMgr::instance().shallowCopyCategoryContents(LLAppearanceMgr::instance().getCOF(),folder_id, cb);
-	LLAppearanceMgr::instance().createBaseOutfitLink(folder_id, cb);
-
-	return folder_id;
-}
 
 void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 {

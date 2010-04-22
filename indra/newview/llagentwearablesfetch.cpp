@@ -119,6 +119,7 @@ public:
 								item->getLinkedUUID(),
 								LLAppearanceMgr::instance().getCOF(),
 								item->getName(),
+								item->getDescription(),
 								LLAssetType::AT_LINK,
 								link_waiter);
 		}
@@ -507,6 +508,7 @@ void LLLibraryOutfitsFetch::contentsDone()
 								item->getLinkedUUID(),
 								new_outfit_folder_id,
 								item->getName(),
+								item->getDescription(),
 								LLAssetType::AT_LINK,
 								NULL);
 		}
