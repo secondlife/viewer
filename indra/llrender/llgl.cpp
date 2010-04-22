@@ -1041,7 +1041,7 @@ void flush_glerror()
 
 void do_assert_glerror()
 {
-	if (!gGLManager.mInited)
+	if (LL_UNLIKELY(!gGLManager.mInited))
 	{
 		LL_ERRS("RenderInit") << "GL not initialized" << LL_ENDL;
 	}
@@ -1049,10 +1049,9 @@ void do_assert_glerror()
 	GLenum error;
 	error = glGetError();
 	BOOL quit = FALSE;
-	while (error)
+	while (LL_UNLIKELY(error))
 	{
 		quit = TRUE;
-#ifndef LL_LINUX // *FIX: !  This should be an error for linux as well.
 		GLubyte const * gl_error_msg = gluErrorString(error);
 		if (NULL != gl_error_msg)
 		{
@@ -1076,7 +1075,6 @@ void do_assert_glerror()
 			}
 		}
 		error = glGetError();
-#endif
 	}
 
 	if (quit)
