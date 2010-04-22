@@ -175,7 +175,9 @@ public:
 				mRegion->showReleaseNotes();
 			}
 		}
-		
+
+		mRegion->setCapabilitiesReceived(true);
+
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{
 			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
@@ -232,7 +234,8 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
     // LLCapabilityListener binds all the globals it expects to need at
     // construction time.
     mCapabilityListener(host.getString(), gMessageSystem, *this,
-                        gAgent.getID(), gAgent.getSessionID())
+                        gAgent.getID(), gAgent.getSessionID()),
+	mCapabilitiesReceived(false)
 {
 	mWidth = region_width_meters;
 	mOriginGlobal = from_region_handle(handle); 
@@ -1555,6 +1558,16 @@ std::string LLViewerRegion::getCapability(const std::string& name) const
 		return "";
 	}
 	return iter->second;
+}
+
+bool LLViewerRegion::capabilitiesReceived() const
+{
+	return mCapabilitiesReceived;
+}
+
+void LLViewerRegion::setCapabilitiesReceived(bool received)
+{
+	mCapabilitiesReceived = received;
 }
 
 void LLViewerRegion::logActiveCapabilities() const

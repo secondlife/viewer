@@ -48,9 +48,6 @@ namespace LLAvatarNameCache
 	// in the middle of a session.
 	bool sUseDisplayNames = true;
 	
-	// While false, buffer requests for later.  Used during viewer startup.
-	bool sRunning = false;
-
 	// Base lookup URL for name service.
 	// On simulator, loaded from indra.xml
 	// On viewer, usually a simulator capability (at People API team's request)
@@ -85,7 +82,8 @@ namespace LLAvatarNameCache
 	LLFrameTimer sEraseExpiredTimer;
 
 	void processNameFromService(const LLSD& row);
-	void requestNames();
+	void requestNamesViaCapability();
+	void requestNamesViaLegacy();
 	bool isRequestPending(const LLUUID& agent_id);
 
 	// Erase expired names from cache
@@ -203,7 +201,7 @@ void LLAvatarNameCache::processNameFromService(const LLSD& row)
 	}
 }
 
-void LLAvatarNameCache::requestNames()
+void LLAvatarNameCache::requestNamesViaCapability()
 {
 	// URL format is like:
 	// http://pdp60.lindenlab.com:8000/agents/?ids=3941037e-78ab-45f0-b421-bd6e77c1804d&ids=0012809d-7d2d-4c24-9609-af1230a37715&ids=0019aaba-24af-4f0a-aa72-6457953cf7f0
@@ -252,9 +250,13 @@ void LLAvatarNameCache::requestNames()
 	}
 }
 
-void LLAvatarNameCache::initClass(bool running)
+void LLAvatarNameCache::requestNamesViaLegacy()
 {
-	sRunning = running;
+	// JAMESDEBUG TODO
+}
+
+void LLAvatarNameCache::initClass()
+{
 }
 
 void LLAvatarNameCache::cleanupClass()
@@ -307,18 +309,8 @@ void LLAvatarNameCache::setNameLookupURL(const std::string& name_lookup_url)
 	sNameLookupURL = name_lookup_url;
 }
 
-void LLAvatarNameCache::setRunning(bool running)
-{
-	sRunning = running;
-}
-
 void LLAvatarNameCache::idle()
 {
-	if (!sRunning)
-	{
-		return;
-	}
-	
 	// 100 ms is the threshold for "user speed" operations, so we can
 	// stall for about that long to batch up requests.
 	const F32 SECS_BETWEEN_REQUESTS = 0.1f;
@@ -334,18 +326,21 @@ void LLAvatarNameCache::idle()
 		eraseExpired();
 	}
 
-	if (sNameLookupURL.empty())
-	{
-		// ...viewer has not yet received capability from region
-		return;
-	}
-
 	if (sAskQueue.empty())
 	{
 		return;
 	}
 
-	requestNames();
+	if (!sNameLookupURL.empty())
+	{
+		requestNamesViaCapability();
+	}
+	else
+	{
+		// ...fall back to legacy name cache system
+		requestNamesViaLegacy();
+		llwarns << "JAMESDEBUG legacy lookup call" << llendl;
+	}
 
 	// Move requests from Ask queue to Pending queue
 	F64 now = LLFrameTimer::getTotalSeconds();
@@ -459,4 +454,16 @@ bool LLAvatarNameCache::useDisplayNames()
 void LLAvatarNameCache::erase(const LLUUID& agent_id)
 {
 	sCache.erase(agent_id);
+}
+
+void LLAvatarNameCache::fetch(const LLUUID& agent_id)
+{
+	// re-request, even if request is already pending
+	sAskQueue.insert(agent_id);
+}
+
+void LLAvatarNameCache::insert(const LLUUID& agent_id, const LLAvatarName& av_name)
+{
+	// *TODO: update timestamp if zero?
+	sCache[agent_id] = av_name;
 }

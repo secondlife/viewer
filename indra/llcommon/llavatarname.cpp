@@ -35,12 +35,15 @@
 
 #include "llavatarname.h"
 
+#include "lldate.h"
+#include "llsd.h"
+
 // Store these in pre-built std::strings to avoid memory allocations in
 // LLSD map lookups
 static const std::string SL_ID("sl_id");
 static const std::string DISPLAY_NAME("display_name");
 static const std::string IS_DISPLAY_NAME_DEFAULT("is_display_name_default");
-static const std::string EXPIRES("expires");
+static const std::string DISPLAY_NAME_EXPIRES("display_name_expires");
 
 LLAvatarName::LLAvatarName()
 :	mSLID(),
@@ -64,7 +67,7 @@ LLSD LLAvatarName::asLLSD() const
 	sd[SL_ID] = mSLID;
 	sd[DISPLAY_NAME] = mDisplayName;
 	sd[IS_DISPLAY_NAME_DEFAULT] = mIsDisplayNameDefault;
-	sd[EXPIRES] = mExpires;
+	sd[DISPLAY_NAME_EXPIRES] = LLDate(mExpires);
 	return sd;
 }
 
@@ -73,5 +76,6 @@ void LLAvatarName::fromLLSD(const LLSD& sd)
 	mSLID = sd[SL_ID].asString();
 	mDisplayName = sd[DISPLAY_NAME].asString();
 	mIsDisplayNameDefault = sd[IS_DISPLAY_NAME_DEFAULT].asBoolean();
-	mExpires = sd[EXPIRES].asReal();
+	LLDate expires = sd[DISPLAY_NAME_EXPIRES];
+	mExpires = expires.secondsSinceEpoch();
 }

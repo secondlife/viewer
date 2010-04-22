@@ -63,7 +63,7 @@ public:
 
 	// Names can change, so need to keep track of when name was
 	// last checked.
-	// Unix time-from-epoch seconds
+	// Unix time-from-epoch seconds for efficiency
 	F64 mExpires;
 
 	// Can be a viewer UI image name ("Person_Check") or a server-side

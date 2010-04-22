@@ -3906,6 +3906,11 @@ void LLAppViewer::idleNameCache()
 	// deal with any queued name requests and replies.
 	gCacheName->processPending();
 
+	// Can't run the new cache until we have the list of capabilities
+	// for the agent region, and can therefore decide whether to use
+	// display names or fall back to the old name system.
+	if (!region->capabilitiesReceived()) return;
+
 	// Agent may have moved to a different region, so need to update cap URL
 	// for name lookups.  Can't do this in the cap grant code, as caps are
 	// granted to neighbor regions before the main agent gets there.  Can't
@@ -3914,21 +3919,26 @@ void LLAppViewer::idleNameCache()
 	std::string name_lookup_url;
 	name_lookup_url.reserve(128); // avoid a memory allocation below
 	name_lookup_url = region->getCapability("GetDisplayNames");
-
-	// Ensure capability has been granted
-	U32 url_size = name_lookup_url.size();
-	if (url_size > 0)
+	if (!name_lookup_url.empty())
 	{
-		// capabilities require URLs with slashes before query params:
-		// https://<host>:<port>/cap/<uuid>/?ids=<blah>
-		// but the caps are granted like:
-		// https://<host>:<port>/cap/<uuid>
-		if (name_lookup_url[url_size-1] != '/')
-		{
-			name_lookup_url += '/';
-		}
+		// we have support for display names, use it
+	    U32 url_size = name_lookup_url.size();
+	    // capabilities require URLs with slashes before query params:
+	    // https://<host>:<port>/cap/<uuid>/?ids=<blah>
+	    // but the caps are granted like:
+	    // https://<host>:<port>/cap/<uuid>
+	    if (url_size > 0 && name_lookup_url[url_size-1] != '/')
+	    {
+		    name_lookup_url += '/';
+	    }
 		LLAvatarNameCache::setNameLookupURL(name_lookup_url);
 	}
+	else
+	{
+		// Display names not available on this region
+		LLAvatarNameCache::setNameLookupURL( std::string() );
+	}
+
 	LLAvatarNameCache::idle();
 }
 

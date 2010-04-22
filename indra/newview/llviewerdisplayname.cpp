@@ -120,20 +120,22 @@ class LLDisplayNameUpdate : public LLHTTPNode
 	{
 		LLSD body = input["body"];
 		LLUUID agent_id = body["agent_id"];
-		std::string slid = body["sl_id"];
 		std::string old_display_name = body["old_display_name"];
-		std::string new_display_name = body["new_display_name"];
+		// By convention this record is called "agent" in the People API
+		std::string name_data = body["agent"];
 
-		// force re-request of this agent's name data
-		LLAvatarNameCache::erase(agent_id);
+		// Inject the new name data into cache
+		LLAvatarName av_name;
+		av_name.fromLLSD( name_data );
+		LLAvatarNameCache::insert(agent_id, av_name);
 
 		// force name tag to update
 		LLVOAvatar::invalidateNameTag(agent_id);
 
 		LLSD args;
 		args["OLD_NAME"] = old_display_name;
-		args["SLID"] = slid;
-		args["NEW_NAME"] = new_display_name;
+		args["SLID"] = av_name.mSLID;
+		args["NEW_NAME"] = av_name.mDisplayName;
 		LLNotificationsUtil::add("DisplayNameUpdate", args);
 	}
 };

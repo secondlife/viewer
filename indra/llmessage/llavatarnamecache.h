@@ -42,21 +42,16 @@ class LLUUID;
 
 namespace LLAvatarNameCache
 {
-	// On the viewer, name cache starts in a non-running state until we
-	// know if we have the name lookup capability for the agent's region.
-	// In that state it buffers requests for later.
-	void initClass(bool running);
+	void initClass();
 	void cleanupClass();
 
 	void importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
 
 	// On the viewer, usually a simulator capabilitity
+	// If empty, name cache will fall back to using legacy name
+	// lookup system
 	void setNameLookupURL(const std::string& name_lookup_url);
-
-	// Once we know if the lookup service is available we can start
-	// requesting names.
-	void setRunning(bool running);
 	
 	// Periodically makes a batch request for display names not already in
 	// cache.  Call once per frame.
