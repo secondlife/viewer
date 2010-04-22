@@ -2063,7 +2063,7 @@ version 2.0
 	}
     {
 		ExtraPhysics        Variable
-		{   PhysicsShapeType U8     }
+		{   PhysicsRep      U8      }
 	}
 }
 

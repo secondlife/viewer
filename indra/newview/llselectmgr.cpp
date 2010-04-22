@@ -3931,15 +3931,15 @@ void LLSelectMgr::selectionUpdateCastShadows(BOOL cast_shadows)
 	getSelection()->applyToObjects(&func);	
 }
 
-struct LLSelectMgrApplyPhysicsShapeType : public LLSelectedObjectFunctor
+struct LLSelectMgrApplyPhysicsRep : public LLSelectedObjectFunctor
 {
-	LLSelectMgrApplyPhysicsShapeType(U8 value) : mValue(value) {}
+	LLSelectMgrApplyPhysicsRep(U8 value) : mValue(value) {}
 	U8 mValue;
 	virtual bool apply(LLViewerObject* object)
 	{
 		if ( object->permModify() ) 	// preemptive permissions check
 		{
-			object->setPhysicsShapeType( mValue );
+			object->setPhysicsRep( mValue );
 			object->updateFlags();
 		}
 		return true;
@@ -3947,10 +3947,10 @@ struct LLSelectMgrApplyPhysicsShapeType : public LLSelectedObjectFunctor
 };
 
 
-void LLSelectMgr::selectionUpdatePhysicsShapeType(U8 type)
+void LLSelectMgr::selectionUpdatePhysicsRep(U8 rep)
 {
-	llwarns << "physics shape type ->" << (U32)type << llendl;
-	LLSelectMgrApplyPhysicsShapeType func(type);
+	llwarns << "physics rep ->" << (U32)rep << llendl;
+	LLSelectMgrApplyPhysicsRep func(rep);
 	getSelection()->applyToObjects(&func);	
 }
 
