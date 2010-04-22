@@ -2165,7 +2165,7 @@ Clears (deletes) the media and all params from the given face.
 	<!-- Region/Estate Covenant -->
 	<string name="RegionNoCovenant">There is no Covenant provided for this Estate.</string>
 	<string name="RegionNoCovenantOtherOwner">There is no Covenant provided for this Estate. The land on this estate is being sold by the Estate owner, not Linden Lab.  Please contact the Estate Owner for sales details.</string>
-	<string name="covenant_last_modified">Last Modified:</string>
+	<string name="covenant_last_modified" value="Last Modified: " /> <!-- use value="" to keep the trailing space -->
 	<string name="none_text"  value=" (none) " />
 	<string name="never_text" value=" (never) " />
 
@@ -3117,5 +3117,6 @@ Abuse Report</string>
   <string name="AvatarBirthDateFormat">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
   
   <string name="DefaultMimeType">none/none</string>
+  <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
 
   </strings>

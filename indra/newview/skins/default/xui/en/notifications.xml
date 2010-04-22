@@ -800,7 +800,7 @@ Insufficient funds to create classified.
    icon="alertmodal.tga"
    name="DeleteAvatarPick"
    type="alertmodal">
-Delete pick [PICK]?
+Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"

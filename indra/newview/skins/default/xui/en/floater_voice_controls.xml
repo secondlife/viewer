@@ -10,7 +10,9 @@
  name="floater_voice_controls"
  help_topic="floater_voice_controls"
  title="Voice Controls"
+ save_dock_state="true"
  save_visibility="true"
+ save_rect="true"
  single_instance="true"
  width="282">
     <string

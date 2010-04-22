@@ -2741,6 +2741,12 @@ bool LLIMMgr::endCall(const LLUUID& session_id)
 	if (!voice_channel) return false;
 
 	voice_channel->deactivate();
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (im_session)
+	{
+		// need to update speakers' state
+		im_session->mSpeakers->update(FALSE);
+	}
 	return true;
 }
 

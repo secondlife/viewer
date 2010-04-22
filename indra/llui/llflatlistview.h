@@ -1,10 +1,10 @@
 /** 
  * @file llflatlistview.h
- * @brief LLFlatListView base class
+ * @brief LLFlatListView base class and extension to support messages for several cases of an empty list.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2009, Linden Research, Inc.
+ * Copyright (c) 2009-2010, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -428,6 +428,56 @@ private:
 	LLViewBorder* mSelectedItemsBorder;
 
 	commit_signal_t	mOnReturnSignal;
+};
+
+/**
+ * Extends LLFlatListView functionality to show different messages when there are no items in the
+ * list depend on whether they are filtered or not.
+ *
+ * Class provides one message per case of empty list.
+ * It also provides protected updateNoItemsMessage() method to be called each time when derived list
+ * is changed to update base mNoItemsCommentTextbox value.
+ *
+ * It is implemented to avoid duplication of this functionality in concrete implementations of the
+ * lists. It is intended to be used as a base class for lists which should support two different
+ * messages for empty state. Can be improved to support more than two messages via state-to-message map.
+ */
+class LLFlatListViewEx : public LLFlatListView
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params>
+	{
+		/**
+		 * Contains a message for empty list when it does not contain any items at all.
+		 */
+		Optional<std::string>	no_items_msg;
+
+		/**
+		 * Contains a message for empty list when its items are removed by filtering.
+		 */
+		Optional<std::string>	no_filtered_items_msg;
+		Params();
+	};
+
+	// *WORKAROUND: two methods to overload appropriate Params due to localization issue:
+	// no_items_msg & no_filtered_items_msg attributes are not defined as translatable in VLT. See EXT-5931
+	void setNoItemsMsg(const std::string& msg) { mNoItemsMsg = msg; }
+	void setNoFilteredItemsMsg(const std::string& msg) { mNoFilteredItemsMsg = msg; }
+
+protected:
+	LLFlatListViewEx(const Params& p);
+
+	/**
+	 * Applies a message for empty list depend on passed argument.
+	 *
+	 * @param items_filtered - if true message for filtered items will be set, otherwise for
+	 * completely empty list.
+	 */
+	void updateNoItemsMessage(bool items_filtered);
+
+private:
+	std::string mNoFilteredItemsMsg;
+	std::string mNoItemsMsg;
 };
 
 #endif

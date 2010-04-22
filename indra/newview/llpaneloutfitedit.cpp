@@ -468,13 +468,14 @@ void LLPanelOutfitEdit::onOutfitItemSelectionChange(void)
 		return;
 
 	LLRect item_rect;
-	mLookContents->localRectToOtherView(item->getRect(), &item_rect, getChild<LLUICtrl>("outfit_wearables_panel"));
+	mLookContents->localRectToOtherView(item->getRect(), &item_rect, this);
 
 	// TODO button(and item list) should be removed (when new widget is ready)
 	LLRect btn_rect = mEditWearableBtn->getRect();
 	btn_rect.set(item_rect.mRight - btn_rect.getWidth(), item_rect.mTop, item_rect.mRight, item_rect.mBottom);
 	
 	mEditWearableBtn->setShape(btn_rect);
+	sendChildToFront(mEditWearableBtn);
 	
 	mEditWearableBtn->setEnabled(TRUE);
 	if (!mEditWearableBtn->getVisible())

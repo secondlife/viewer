@@ -21,6 +21,7 @@ include_directories(
 set(llimage_SOURCE_FILES
     llimagebmp.cpp
     llimage.cpp
+    llimagedimensionsinfo.cpp
     llimagedxt.cpp
     llimagej2c.cpp
     llimagejpeg.cpp
@@ -35,6 +36,7 @@ set(llimage_HEADER_FILES
 
     llimage.h
     llimagebmp.h
+    llimagedimensionsinfo.h
     llimagedxt.h
     llimagej2c.h
     llimagejpeg.h
