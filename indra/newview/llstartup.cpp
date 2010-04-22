@@ -1614,23 +1614,6 @@ bool idle_startup()
 			LLClassifiedInfo::loadCategories(classified_categories);
 		}
 
-		bool use_display_names = false;
-		LLSD display_names = response["display_names"];
-		if (display_names.isDefined())
-		{
-			for(LLSD::array_const_iterator it = display_names.beginArray(),
-				end = display_names.endArray(); it != end; ++it)
-			{
-				LLSD display_name_version = (*it)["version"];
-				if (display_name_version.isDefined()
-					&& display_name_version.asInteger() > 0)
-				{
-					use_display_names = true;
-				}
-			}
-		}
-		LLAvatarNameCache::setUseDisplayNames(use_display_names);
-
 		// This method MUST be called before gInventory.findCategoryUUIDForType because of 
 		// gInventory.mIsAgentInvUsable is set to true in the gInventory.buildParentChildMap.
 		gInventory.buildParentChildMap();
