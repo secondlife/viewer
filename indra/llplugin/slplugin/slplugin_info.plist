@@ -6,7 +6,7 @@
 	<string>English</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
-	<key>LSBackgroundOnly</key>
-	<true/>
+	<key>LSUIElement</key>
+	<string>1</string>
 </dict>
 </plist>
