@@ -271,9 +271,22 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 		return;
 	}
 
+	U16* idx = ((U16*) getIndicesPointer())+indices_offset;
+
+	if (gDebugGL && !useVBOs())
+	{
+		for (U32 i = 0; i < count; ++i)
+		{
+			if (idx[i] < start || idx[i] > end)
+			{
+				llerrs << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << llendl;
+			}
+		}
+	}
+
 	stop_glerror();
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
-		((U16*) getIndicesPointer()) + indices_offset);
+		idx);
 	stop_glerror();
 }
 
