@@ -1425,7 +1425,7 @@ even though the user gets a free copy.
              height="10"
              layout="topleft"
              left_delta="0"
-             name="label physicsshapetype"
+             name="label physicsrep"
              top_pad="10"
              width="121">
                 Physics Rep:
@@ -1434,18 +1434,18 @@ even though the user gets a free copy.
 			   height="23"
 			   layout="topleft"
 			   follows="left|top"
-			   name="Physics Shape Type Combo Ctrl"
-			   tool_tip="Choose the physics shape type"
+			   name="Physics Rep Combo Ctrl"
+			   tool_tip="Choose the physics representation"
 			   left_pad="0"
 			   width="108">
 			  <combo_box.item
-				 label="Prim"
-				 name="Prim"
-				 value="Prim" />
+				 label="Default"
+				 name="Default"
+				 value="Default" />
 			  <combo_box.item
-				 label="None"
-				 name="None"
-				 value="None" />
+				 label="No Shape"
+				 name="No Shape"
+				 value="No Shape" />
 			  <combo_box.item
 				 label="Convex Hull"
 				 name="Convex Hull"
