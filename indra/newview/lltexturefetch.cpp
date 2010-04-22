@@ -850,6 +850,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mState = WAIT_HTTP_REQ;	
 
 				mFetcher->addToHTTPQueue(mID);
+				mSentRequest = QUEUED;
 				// Will call callbackHttpGet when curl request completes
 				std::vector<std::string> headers;
 				headers.push_back("Accept: image/x-j2c");
@@ -936,6 +937,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				mFileSize = mBufferSize;
 			}
+			else //the file size is unknown
+			{
+				mFileSize = mBufferSize + 1 ; //flag the file is not fully loaded.
+			}
+
 			U8* buffer = new U8[mBufferSize];
 			if (cur_size > 0)
 			{
