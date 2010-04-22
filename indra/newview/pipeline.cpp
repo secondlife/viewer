@@ -1970,8 +1970,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 			    root->getVObj()->isAttachment())
 			{
 				LLDrawable* rootparent = root->getParent();
-				llassert(rootparent); // trying to catch a bad assumption
-				if (rootparent) // this test may not be needed, see above
+				if (rootparent) // this IS sometimes NULL
 				{
 					LLViewerObject *vobj = rootparent->getVObj();
 					llassert(vobj); // trying to catch a bad assumption
