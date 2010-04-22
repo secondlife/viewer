@@ -66,17 +66,19 @@ public:
 	{
 		Optional<LLUIImage*>				icon_maturity_general,
 											icon_maturity_adult,
+											icon_maturity_moderate,
 											add_landmark_image_enabled,
 											add_landmark_image_disabled,
 											add_landmark_image_hover,
 											add_landmark_image_selected;
+		Optional<std::string>				maturity_help_topic;
 		Optional<S32>						icon_hpad,
 											add_landmark_hpad;
-		Optional<LLButton::Params>			add_landmark_button,
+		Optional<LLButton::Params>			maturity_button,
+											add_landmark_button,
 											for_sale_button,
 											info_button;
-		Optional<LLIconCtrl::Params>		maturity_icon,
-											voice_icon,
+		Optional<LLIconCtrl::Params>		voice_icon,
 											fly_icon,
 											push_icon,
 											build_icon,
@@ -136,8 +138,8 @@ private:
 	void					refreshParcelIcons();
 	// Refresh the value in the health percentage text field
 	void					refreshHealth();
-	void					refreshMaturityIcon();
-	void					positionMaturityIcon();
+	void					refreshMaturityButton();
+	void					positionMaturityButton();
 	
 	void					rebuildLocationHistory(const std::string& filter = LLStringUtil::null);
 	bool 					findTeleportItemsByTitle(const LLTeleportHistoryItem& item, const std::string& filter);
@@ -156,6 +158,7 @@ private:
 	void					onForSaleButtonClicked();
 	void					onAddLandmarkButtonClicked();
 	void					onAgentParcelChange();
+	void					onMaturityButtonClicked();
 	// callbacks
 	bool					onLocationContextMenuItemEnabled(const LLSD& userdata);
 	void 					onLocationContextMenuItemClicked(const LLSD& userdata);
@@ -168,7 +171,7 @@ private:
 	S32						mIconHPad;			// pad between all icons
 	S32						mAddLandmarkHPad;	// pad to left of landmark star
 
-	LLIconCtrl*	mMaturityIcon;
+	LLButton*	mMaturityButton;
 	LLIconCtrl*	mParcelIcon[ICON_COUNT];
 	LLTextBox* mDamageText;
 
@@ -182,14 +185,16 @@ private:
 	boost::signals2::connection	mLocationHistoryConnection;
 	LLUIImage* mLandmarkImageOn;
 	LLUIImage* mLandmarkImageOff;
-	LLUIImage* mIconMaturityGeneral;
-	LLUIImage* mIconMaturityAdult;
+	LLPointer<LLUIImage> mIconMaturityGeneral;
+	LLPointer<LLUIImage> mIconMaturityAdult;
+	LLPointer<LLUIImage> mIconMaturityModerate;
 
 	std::string mAddLandmarkTooltip;
 	std::string mEditLandmarkTooltip;
 	// this field holds a human-readable form of the location string, it is needed to be able to compare copy-pated value and real location
 	std::string mHumanReadableLocation;
 	bool isHumanReadableLocationVisible;
+	std::string mMaturityHelpTopic;
 };
 
 #endif

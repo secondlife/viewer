@@ -2897,6 +2897,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlBuildTooltip">Building/dropping objects not allowed</string>
   <string name="LocationCtrlScriptsTooltip">Scripts not allowed</string>
   <string name="LocationCtrlDamageTooltip">Health</string>
+  <string name="LocationCtrlAdultIconTooltip">Adult Region</string>
+  <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
+  <string name="LocationCtrlGeneralIconTooltip">General Region</string>
 
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
