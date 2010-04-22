@@ -301,7 +301,8 @@ void main()
 		// The goal of the blur is to soften reflections in surfaces
 		// with low shinyness, and also to disguise our lameness.
 		float checkerboard = floor(mod(tc.x+tc.y, 2.0)); // 0.0, 1.0
-		float checkoffset = 1.0 + (7.0*(1.0-spec.a))*(checkerboard-0.5);
+		float checkoffset = (3.0 + (7.0*(1.0-spec.a)))*(checkerboard-0.5);
+
 		ref2d += vec2(checkoffset, checkoffset);
 		ref2d += tc.xy; // use as offset from destination
 		// Get attributes from the 2D guess point.
@@ -327,6 +328,7 @@ void main()
 		float refmod = min(refapprop, reflit);
 		vec3 refprod = vary_SunlitColor * refcol.rgb * refmod;
 		vec3 ssshiny = (refprod * spec.a);
+		ssshiny *= 0.3; // dampen it even more
 
 		// add the two types of shiny together
 		col += (ssshiny + dumbshiny) * spec.rgb;
