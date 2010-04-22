@@ -571,7 +571,7 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 
 // static
 void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
-							 BOOL remember)
+							 BOOL& remember)
 {
 	if (!sInstance)
 	{
@@ -603,14 +603,14 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	{
 		LL_INFOS2("Credentials", "Authentication") << "account: " << username << LL_ENDL;
 		// single username, so this is a 'clear' identifier
-		identifier["type"] = "account";
+		identifier["type"] = CRED_IDENTIFIER_TYPE_ACCOUNT;
 		identifier["account_name"] = username;
 		
 		if (LLPanelLogin::sInstance->mPasswordModified)
 		{
 			authenticator = LLSD::emptyMap();
 			// password is plaintext
-			authenticator["type"] = "clear";
+			authenticator["type"] = CRED_AUTHENTICATOR_TYPE_CLEAR;
 			authenticator["secret"] = password;
 		}
 	}
@@ -618,14 +618,14 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	{
 		LL_INFOS2("Credentials", "Authentication") << "agent: " << username << LL_ENDL;
 		// traditional firstname / lastname
-		identifier["type"] = "agent";
+		identifier["type"] = CRED_IDENTIFIER_TYPE_AGENT;
 		identifier["first_name"] = username.substr(0, separator_index);
 		identifier["last_name"] = username.substr(separator_index+1, username.npos);
 		
 		if (LLPanelLogin::sInstance->mPasswordModified)
 		{
 			authenticator = LLSD::emptyMap();
-			authenticator["type"] = "hash";
+			authenticator["type"] = CRED_AUTHENTICATOR_TYPE_HASH;
 			authenticator["algorithm"] = "md5";
 			LLMD5 pass((const U8 *)password.c_str());
 			char md5pass[33];               /* Flawfinder: ignore */
@@ -978,14 +978,42 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 		updateStartSLURL();
 		std::string username = sInstance->childGetText("username_edit");
+
+		
 		if(username.empty())
 		{
+			// user must type in something into the username field
 			LLNotificationsUtil::add("MustHaveAccountToLogIn");
 		}
 		else
 		{
-			// has both first and last name typed
-			sInstance->mCallback(0, sInstance->mCallbackData);
+			LLPointer<LLCredential> cred;
+			BOOL remember;
+			getFields(cred, remember);
+			std::string identifier_type;
+			cred->identifierType(identifier_type);
+			LLSD allowed_credential_types;
+			LLGridManager::getInstance()->getLoginIdentifierTypes(allowed_credential_types);
+			
+			// check the typed in credential type against the credential types expected by the server.
+			for(LLSD::array_iterator i = allowed_credential_types.beginArray();
+				i != allowed_credential_types.endArray();
+				i++)
+			{
+				
+				if(i->asString() == identifier_type)
+				{
+					// yay correct credential type
+					sInstance->mCallback(0, sInstance->mCallbackData);
+					return;
+				}
+			}
+			
+			// Right now, maingrid is the only thing that is picky about
+			// credential format, as it doesn't yet allow account (single username)
+			// format creds.  - Rox.  James, we wanna fix the message when we change
+			// this.
+			LLNotificationsUtil::add("InvalidCredentialFormat");			
 		}
 	}
 }

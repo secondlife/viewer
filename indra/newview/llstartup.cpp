@@ -799,7 +799,7 @@ bool idle_startup()
 		gViewerWindow->moveProgressViewToFront();
 
 		//reset the values that could have come in from a slurl
-		// DEV-42215: Make sure they're not empty -- gFirstname and gLastname
+		// DEV-42215: Make sure they're not empty -- gUserCredential
 		// might already have been set from gSavedSettings, and it's too bad
 		// to overwrite valid values with empty strings.
 

@@ -35,6 +35,7 @@
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
 #include "llsdserialize.h"
+#include "llsecapi.h"
 #include "llweb.h"
 
                                                             
@@ -92,7 +93,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 	
 
 
-  	addSystemGrid("Secondlife.com (Agni)",                                                                                             
+  	addSystemGrid("Agni",                                                                                             
 				  MAINGRID,                                               
 				  "https://login.agni.lindenlab.com/cgi-bin/login.cgi",                    
 				  "https://secondlife.com/helpers/",     
@@ -361,7 +362,17 @@ void LLGridManager::addGrid(LLSD& grid_data)
 		if (!grid_data.has(GRID_HELPER_URI_VALUE)) 
 		{
 			grid_data[GRID_HELPER_URI_VALUE] = std::string("https://") + grid + "/helpers/";
-		}		
+		}
+		
+		if (!grid_data.has(GRID_LOGIN_IDENTIFIER_TYPES))
+		{
+			// non system grids and grids that haven't already been configured with values
+			// get both types of credentials.
+			grid_data[GRID_LOGIN_IDENTIFIER_TYPES] = LLSD::emptyArray();
+			grid_data[GRID_LOGIN_IDENTIFIER_TYPES].append(CRED_IDENTIFIER_TYPE_AGENT);
+			grid_data[GRID_LOGIN_IDENTIFIER_TYPES].append(CRED_IDENTIFIER_TYPE_ACCOUNT);
+		}
+		
 		LL_INFOS("GridManager") << "ADDING: " << grid << LL_ENDL;
 		mGridList[grid] = grid_data;		
 	}
@@ -384,7 +395,8 @@ void LLGridManager::addSystemGrid(const std::string& label,
 	grid[GRID_LOGIN_URI_VALUE].append(login);
 	grid[GRID_LOGIN_PAGE_VALUE] = login_page;
 	grid[GRID_IS_SYSTEM_GRID_VALUE] = TRUE;
-	grid[GRID_LOGIN_CREDENTIAL_PAGE_TYPE_VALUE] = GRID_LOGIN_CREDENTIAL_PAGE_TYPE_AGENT;
+	grid[GRID_LOGIN_IDENTIFIER_TYPES] = LLSD::emptyArray();
+	grid[GRID_LOGIN_IDENTIFIER_TYPES].append(CRED_IDENTIFIER_TYPE_AGENT);
 	
 	grid[GRID_APP_SLURL_BASE] = SYSTEM_GRID_APP_SLURL_BASE;
 	if (login_id.empty())

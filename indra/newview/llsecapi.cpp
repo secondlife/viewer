@@ -143,19 +143,51 @@ int secapiSSLCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
 LLSD LLCredential::getLoginParams()
 {
 	LLSD result = LLSD::emptyMap();
-	if (mIdentifier["type"].asString() == "agent")
+	try 
 	{
-		// legacy credential
-		result["passwd"] = "$1$" + mAuthenticator["secret"].asString();
-		result["first"] = mIdentifier["first_name"];
-		result["last"] = mIdentifier["last_name"];
-	
+		if (mIdentifier["type"].asString() == "agent")
+		{
+			// legacy credential
+			result["passwd"] = "$1$" + mAuthenticator["secret"].asString();
+			result["first"] = mIdentifier["first_name"];
+			result["last"] = mIdentifier["last_name"];
+		
+		}
+		else if (mIdentifier["type"].asString() == "account")
+		{
+			result["username"] = mIdentifier["account_name"];
+			result["passwd"] = mAuthenticator["secret"];
+										
+		}
 	}
-	else if (mIdentifier["type"].asString() == "account")
+	catch (...)
 	{
-		result["username"] = mIdentifier["account_name"];
-		result["passwd"] = mAuthenticator["secret"];
-                                    
+		// we could have corrupt data, so simply return a null login param if so
+		LL_WARNS("AppInit") << "Invalid credential" << LL_ENDL;
 	}
 	return result;
+}
+
+void LLCredential::identifierType(std::string &idType)
+{
+	if(mIdentifier.has("type"))
+	{
+		idType = mIdentifier["type"].asString();
+	}
+	else {
+		idType = std::string();
+		
+	}
+}
+
+void LLCredential::authenticatorType(std::string &idType)
+{
+	if(mAuthenticator.has("type"))
+	{
+		idType = mAuthenticator["type"].asString();
+	}
+	else {
+		idType = std::string();
+		
+	}
 }

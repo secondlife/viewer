@@ -286,6 +286,10 @@ bool operator!=(const LLCertificateVector::iterator& _lhs, const LLCertificateVe
 }
 
 
+#define CRED_IDENTIFIER_TYPE_ACCOUNT "account"
+#define CRED_IDENTIFIER_TYPE_AGENT "agent"
+#define CRED_AUTHENTICATOR_TYPE_CLEAR "clear"
+#define CRED_AUTHENTICATOR_TYPE_HASH   "hash"
 //
 // LLCredential - interface for credentials providing the following functionality:
 // * persistance of credential information based on grid (for saving username/password)
@@ -312,7 +316,9 @@ public:
 		mAuthenticator = authenticator;
 	}
 	virtual LLSD getIdentifier() { return mIdentifier; }
+	virtual void identifierType(std::string& idType);
 	virtual LLSD getAuthenticator() { return mAuthenticator; }
+	virtual void authenticatorType(std::string& authType);
 	virtual LLSD getLoginParams();
 	virtual std::string getGrid() { return mGrid; }
 	

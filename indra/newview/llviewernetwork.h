@@ -43,11 +43,8 @@ extern const char* DEFAULT_LOGIN_PAGE;
 #define GRID_LOGIN_PAGE_VALUE "login_page"
 #define GRID_IS_SYSTEM_GRID_VALUE "system_grid"
 #define GRID_IS_FAVORITE_VALUE "favorite"
-#define GRID_LOGIN_CREDENTIAL_PAGE_TYPE_VALUE "credential_type"
-#define GRID_LOGIN_CREDENTIAL_PAGE_TYPE_AGENT "agent"
-#define GRID_LOGIN_CREDENTIAL_PAGE_TYPE_ACCOUNT "account"
 #define MAINGRID "util.agni.lindenlab.com"
-
+#define GRID_LOGIN_IDENTIFIER_TYPES "login_identifier_types"
 // defines slurl formats associated with various grids.
 // we need to continue to support existing forms, as slurls
 // are shared between viewers that may not understand newer
@@ -119,6 +116,7 @@ public:
 	std::string getLoginPage() {return mGridList[mGrid][GRID_LOGIN_PAGE_VALUE];}
 	std::string getGridLoginID() { return mGridList[mGrid][GRID_ID_VALUE]; }	
 	std::string getLoginPage(const std::string& grid) { return mGridList[grid][GRID_LOGIN_PAGE_VALUE]; }
+	void        getLoginIdentifierTypes(LLSD& idTypes) { idTypes = mGridList[mGrid][GRID_LOGIN_IDENTIFIER_TYPES]; }
 	
 	// build a slurl for the given region within the selected grid
 	std::string getSLURLBase(const std::string& grid);

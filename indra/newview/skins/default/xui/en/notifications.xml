@@ -735,6 +735,14 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
 
   <notification
    icon="alertmodal.tga"
+   name="InvalidCredentialFormat"
+   type="alertmodal">
+You need to enter both the First and Last name of your avatar into the Username field, then login again.
+  </notification>
+  
+
+  <notification
+   icon="alertmodal.tga"
    name="AddClassified"
    type="alertmodal">
 Classified ads appear in the &apos;Classified&apos; section of the Search directory and on [http://secondlife.com/community/classifieds secondlife.com] for one week.

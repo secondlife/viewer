@@ -72,6 +72,13 @@ LLSD LLCredential::getLoginParams()
 	result["last"] ="mylast";
 	return result;
 }
+void LLCredential::identifierType(std::string &idType)
+{
+}
+
+void LLCredential::authenticatorType(std::string &idType)
+{
+}
 
 //-----------------------------------------------------------------------------
 #include "../llviewernetwork.h"
