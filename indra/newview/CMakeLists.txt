@@ -329,6 +329,7 @@ set(viewer_SOURCE_FILES
     llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
+    llpanelonlinestatus.cpp
     llpaneloutfitedit.cpp
     llpaneloutfitsinventory.cpp
     llpanelpeople.cpp
@@ -832,6 +833,7 @@ set(viewer_HEADER_FILES
     llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h
+    llpanelonlinestatus.h
     llpaneloutfitedit.h
     llpaneloutfitsinventory.h
     llpanelpeople.h
