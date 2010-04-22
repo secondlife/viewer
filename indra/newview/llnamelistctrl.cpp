@@ -81,7 +81,7 @@ void LLNameListCtrl::addNameItem(const LLUUID& agent_id, EAddPosition pos,
 	item.enabled = enabled;
 	item.target = INDIVIDUAL;
 
-	addNameItemRow(item, pos);
+	addNameItemRow(item, pos, suffix);
 }
 
 // virtual, public
