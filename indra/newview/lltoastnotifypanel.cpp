@@ -493,7 +493,7 @@ void LLToastNotifyPanel::onClickButton(void* data)
 	{
 		sButtonClickSignal(self->mNotification->getID(), button_name);
 
-		if(new_info)
+		if(new_info && !self->mNotification->isPersistent())
 		{
 			self->mNotification->setResponseFunctor(
 				boost::bind(&LLOfferInfo::inventory_offer_callback, new_info, _1, _2));

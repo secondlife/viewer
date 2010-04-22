@@ -1247,6 +1247,16 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 			gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(blocked_id));
 }
 
+LLOfferInfo::LLOfferInfo()
+ : LLNotificationResponderInterface()
+ , mFromGroup(FALSE)
+ , mFromObject(FALSE)
+ , mIM(IM_NOTHING_SPECIAL)
+ , mType(LLAssetType::AT_NONE)
+ , mPersist(false)
+{
+}
+
 LLOfferInfo::LLOfferInfo(const LLSD& sd)
 {
 	mIM = (EInstantMessage)sd["im_type"].asInteger();
@@ -1260,6 +1270,7 @@ LLOfferInfo::LLOfferInfo(const LLSD& sd)
 	mFromName = sd["from_name"].asString();
 	mDesc = sd["description"].asString();
 	mHost = LLHost(sd["sender"].asString());
+	mPersist = sd["persist"].asBoolean();
 }
 
 LLOfferInfo::LLOfferInfo(const LLOfferInfo& info)
@@ -1275,6 +1286,7 @@ LLOfferInfo::LLOfferInfo(const LLOfferInfo& info)
 	mFromName = info.mFromName;
 	mDesc = info.mDesc;
 	mHost = info.mHost;
+	mPersist = info.mPersist;
 }
 
 LLSD LLOfferInfo::asLLSD()
@@ -1291,7 +1303,13 @@ LLSD LLOfferInfo::asLLSD()
 	sd["from_name"] = mFromName;
 	sd["description"] = mDesc;
 	sd["sender"] = mHost.getIPandPort();
+	sd["persist"] = mPersist;
 	return sd;
+}
+
+void LLOfferInfo::fromLLSD(const LLSD& params)
+{
+	*this = params;
 }
 
 void LLOfferInfo::send_auto_receive_response(void)
@@ -1331,6 +1349,21 @@ void LLOfferInfo::send_auto_receive_response(void)
 		// add buddy to recent people list
 		LLRecentPeople::instance().add(mFromID);
 	}
+}
+
+void LLOfferInfo::handleRespond(const LLSD& notification, const LLSD& response)
+{
+	initRespondFunctionMap();
+
+	const std::string name = notification["name"].asString();
+	if(mRespondFunctions.find(name) == mRespondFunctions.end())
+	{
+		llwarns << "Unexpected notification name : " << name << llendl;
+		llassert(!"Unexpected notification name");
+		return;
+	}
+
+	mRespondFunctions[name](notification, response);
 }
 
 bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD& response)
@@ -1469,7 +1502,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		gInventory.addObserver(opener);
 	}
 
-	delete this;
+	if(!mPersist)
+	{
+		delete this;
+	}
 	return false;
 }
 
@@ -1635,7 +1671,10 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		gInventory.addObserver(opener);
 	}
 
-	delete this;
+	if(!mPersist)
+	{
+		delete this;
+	}
 	return false;
 }
 
@@ -1650,6 +1689,15 @@ protected:
 		mParams.substitutions = substitutions;
 	}
 };
+
+void LLOfferInfo::initRespondFunctionMap()
+{
+	if(mRespondFunctions.empty())
+	{
+		mRespondFunctions["ObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
+		mRespondFunctions["UserGiveItem"] = boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2);
+	}
+}
 
 void inventory_offer_handler(LLOfferInfo* info)
 {
@@ -1767,7 +1815,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Inventory Slurls don't currently work for non agent transfers, so only display the object name.
 		args["ITEM_SLURL"] = msg;
 		// Note: sets inventory_task_offer_callback as the callback
-		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_task_offer_callback, info, _1, _2));
+		p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
+		info->mPersist = true;
 		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
 		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
 		LLNotifications::instance().add(p);
@@ -1779,7 +1828,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// *TODO fix memory leak
 		// inventory_offer_callback() is not invoked if user received notification and 
 		// closes viewer(without responding the notification)
-		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, info, _1, _2));
+		p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
+		info->mPersist = true;
 		p.name = "UserGiveItem";
 		
 		// Prefetch the item into your local inventory.

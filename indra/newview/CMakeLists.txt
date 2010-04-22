@@ -295,6 +295,7 @@ set(viewer_SOURCE_FILES
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
+    llnotificationstorage.cpp
     llnotificationtiphandler.cpp
     lloutfitslist.cpp
     lloutputmonitorctrl.cpp
@@ -800,6 +801,7 @@ set(viewer_HEADER_FILES
     llnetmap.h
     llnotificationhandler.h
     llnotificationmanager.h
+    llnotificationstorage.h
     lloutfitslist.h
     lloutputmonitorctrl.h
     llpanelavatar.h
