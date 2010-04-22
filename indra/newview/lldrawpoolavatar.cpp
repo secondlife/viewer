@@ -53,8 +53,9 @@
 static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
 static U32 sShaderLevel = 0;
-static LLGLSLShader* sVertexProgram = NULL;
 
+
+LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = NULL;
 BOOL	LLDrawPoolAvatar::sSkipOpaque = FALSE;
 BOOL	LLDrawPoolAvatar::sSkipTransparent = FALSE;
 
@@ -176,6 +177,9 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 	case 2:
 		beginDeferredSkinned();
 		break;
+	case 3:
+		beginDeferredRigged();
+		break;
 	}
 }
 
@@ -202,6 +206,8 @@ void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 	case 2:
 		endDeferredSkinned();
 		break;
+	case 3:
+		endDeferredRigged();
 	}
 }
 
@@ -248,41 +254,58 @@ void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
 
 S32 LLDrawPoolAvatar::getNumShadowPasses()
 {
-	return 1;
+	return 2;
 }
 
 void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 {
 	LLFastTimer t(FTM_SHADOW_AVATAR);
-	sVertexProgram = &gDeferredAvatarShadowProgram;
-	if (sShaderLevel > 0)
-	{
-		gAvatarMatrixParam = sVertexProgram->mUniform[LLViewerShaderMgr::AVATAR_MATRIX];
-	}
-	gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.2f);
-	
-	glColor4f(1,1,1,1);
 
-	if ((sShaderLevel > 0))  // for hardware blending
+	if (pass == 0)
 	{
-		sRenderingSkinned = TRUE;
+		sVertexProgram = &gDeferredAvatarShadowProgram;
+		if (sShaderLevel > 0)
+		{
+			gAvatarMatrixParam = sVertexProgram->mUniform[LLViewerShaderMgr::AVATAR_MATRIX];
+		}
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER_EQUAL, 0.2f);
+		
+		glColor4f(1,1,1,1);
+
+		if ((sShaderLevel > 0))  // for hardware blending
+		{
+			sRenderingSkinned = TRUE;
+			sVertexProgram->bind();
+			enable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
+		}
+	}
+	else
+	{
+		sVertexProgram = &gDeferredAttachmentShadowProgram;
 		sVertexProgram->bind();
-		enable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
+		LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
 	}
-
 }
 
 void LLDrawPoolAvatar::endShadowPass(S32 pass)
 {
 	LLFastTimer t(FTM_SHADOW_AVATAR);
-	if (sShaderLevel > 0)
+	if (pass == 0)
 	{
-		sRenderingSkinned = FALSE;
-		sVertexProgram->unbind();
-		disable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
+		if (sShaderLevel > 0)
+		{
+			sRenderingSkinned = FALSE;
+			sVertexProgram->unbind();
+			disable_vertex_weighting(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT]);
+		}
 	}
-
-	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	else
+	{
+		LLVertexBuffer::unbind();
+		sVertexProgram->unbind();
+		LLVertexBuffer::sWeight4Loc = -1;
+		sVertexProgram = NULL;
+	}
 }
 
 void LLDrawPoolAvatar::renderShadow(S32 pass)
@@ -312,13 +335,19 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		return;
 	}
 	
-	if (sShaderLevel > 0)
+	if (pass == 0)
 	{
-		gAvatarMatrixParam = sVertexProgram->mUniform[LLViewerShaderMgr::AVATAR_MATRIX];
+		if (sShaderLevel > 0)
+		{
+			gAvatarMatrixParam = sVertexProgram->mUniform[LLViewerShaderMgr::AVATAR_MATRIX];
+		}
+
+		avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
 	}
-
-	avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
-
+	else
+	{
+		avatarp->renderSkinnedAttachments();
+	}
 }
 
 S32 LLDrawPoolAvatar::getNumPasses()
@@ -578,7 +607,7 @@ void LLDrawPoolAvatar::endSkinned()
 
 void LLDrawPoolAvatar::beginRigged()
 {
-	sVertexProgram = NULL;
+	sVertexProgram = &gSkinnedObjectSimpleProgram;
 	gSkinnedObjectSimpleProgram.bind();
 	LLVertexBuffer::sWeight4Loc = gSkinnedObjectSimpleProgram.getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
 }
@@ -589,6 +618,21 @@ void LLDrawPoolAvatar::endRigged()
 	LLVertexBuffer::unbind();
 	gSkinnedObjectSimpleProgram.unbind();
 	LLVertexBuffer::sWeight4Loc = -1;
+}
+
+void LLDrawPoolAvatar::beginDeferredRigged()
+{
+	sVertexProgram = &gDeferredSkinnedDiffuseProgram;
+	sVertexProgram->bind();
+	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
+}
+
+void LLDrawPoolAvatar::endDeferredRigged()
+{
+	LLVertexBuffer::unbind();
+	sVertexProgram->unbind();
+	LLVertexBuffer::sWeight4Loc = -1;
+	sVertexProgram = NULL;
 }
 
 void LLDrawPoolAvatar::beginDeferredSkinned()
@@ -893,16 +937,16 @@ void LLVertexBufferAvatar::setupVertexBuffer(U32 data_mask) const
 		glNormalPointer(GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_NORMAL]));
 		glTexCoordPointer(2,GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_TEXCOORD0]));
 		
-		set_vertex_weights(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT], mStride, (F32*)(base + mOffsets[TYPE_WEIGHT]));
+		set_vertex_weights(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT], mStride, (F32*)(base + mOffsets[TYPE_WEIGHT]));
 
 		if (sShaderLevel >= LLDrawPoolAvatar::SHADER_LEVEL_BUMP)
 		{
-			set_binormals(sVertexProgram->mAttribute[LLViewerShaderMgr::BINORMAL], mStride, (LLVector3*)(base + mOffsets[TYPE_BINORMAL]));
+			set_binormals(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::BINORMAL], mStride, (LLVector3*)(base + mOffsets[TYPE_BINORMAL]));
 		}
 	
 		if (sShaderLevel >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH)
 		{
-			set_vertex_clothing_weights(sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_CLOTHING], mStride, (LLVector4*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+			set_vertex_clothing_weights(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_CLOTHING], mStride, (LLVector4*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
 		}
 	}
 	else

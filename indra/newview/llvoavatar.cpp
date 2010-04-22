@@ -3742,11 +3742,11 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 										}
 									}
 									
-									gSkinnedObjectSimpleProgram.uniformMatrix4fv("matrixPalette", 
+									LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette", 
 										skin->mJointNames.size(),
 										FALSE,
 										(GLfloat*) mat[0].mMatrix);
-									gSkinnedObjectSimpleProgram.uniformMatrix4fv("matrixPalette[0]", 
+									LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette[0]", 
 										skin->mJointNames.size(),
 										FALSE,
 										(GLfloat*) mat[0].mMatrix);
