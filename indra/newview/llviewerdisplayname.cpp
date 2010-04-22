@@ -122,7 +122,7 @@ class LLDisplayNameUpdate : public LLHTTPNode
 		LLUUID agent_id = body["agent_id"];
 		std::string old_display_name = body["old_display_name"];
 		// By convention this record is called "agent" in the People API
-		std::string name_data = body["agent"];
+		LLSD name_data = body["agent"];
 
 		// Inject the new name data into cache
 		LLAvatarName av_name;
