@@ -282,6 +282,8 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	text_p.border_visible(false);
 	text_p.rect(mItemListRect);
 	text_p.follows.flags(FOLLOWS_ALL);
+	// word wrap was added accroding to the EXT-6841
+	text_p.wrap(true);
 	addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
 }
 
