@@ -55,6 +55,7 @@ class LLScrollListCtrl;
 class LLToggleableMenu;
 class LLLookFetchObserver;
 class LLFilterEditor;
+class LLFilteredWearableListManager;
 
 class LLPanelOutfitEdit : public LLPanel
 {
@@ -88,6 +89,7 @@ public:
 
 	void showAddWearablesPanel();
 	void showWearablesFilter();
+	void showFilteredWearablesPanel();
 	void saveOutfit(bool as_new = false);
 	void showSaveMenu();
 
@@ -122,7 +124,9 @@ private:
 	LLButton*			mUpBtn;
 	LLButton*			mEditWearableBtn;
 	LLToggleableMenu*	mSaveMenu;
-	
+
+	LLFilteredWearableListManager* mWearableListManager;
+
 	LLLookFetchObserver*		mFetchLook;
 	LLInventoryLookObserver*	mLookObserver;
 	std::vector<LLLookItemType> mLookItemTypes;

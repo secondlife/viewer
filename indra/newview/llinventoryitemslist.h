@@ -80,9 +80,43 @@ public:
 
 	void refreshList(const LLInventoryModel::item_array_t item_array);
 
+	/**
+	 * Let list know items need to be refreshed in next draw()
+	 */
+	void setNeedsRefresh(bool needs_refresh){ mNeedsRefresh = needs_refresh; }
+
+	bool getNeedsRefresh(){ return mNeedsRefresh; }
+
+	/*virtual*/ void draw();
+
 protected:
 	friend class LLUICtrlFactory;
 	LLInventoryItemsList(const LLFlatListView::Params& p);
+
+	uuid_vec_t& getIDs() { return mIDs; }
+
+	/**
+	 * Refreshes list items, adds new items and removes deleted items. 
+	 * Called from draw() until all new items are added, ,
+	 * maximum 50 items can be added during single call.
+	 */
+	void refresh();
+
+	/**
+	 * Compute difference between new items and current items, fills 'vadded' with added items,
+	 * 'vremoved' with removed items. See LLCommonUtils::computeDifference
+	 */
+	void computeDifference(const uuid_vec_t& vnew, uuid_vec_t& vadded, uuid_vec_t& vremoved);
+
+	/**
+	 * Add an item to the list
+	 */
+	void addNewItem(LLViewerInventoryItem* item);
+
+private:
+	uuid_vec_t mIDs; // IDs of items that were added in refreshList().
+					 // Will be used in refresh() to determine added and removed ids
+	bool mNeedsRefresh;
 };
 
 #endif //LL_LLINVENTORYITEMSLIST_H

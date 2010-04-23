@@ -2933,6 +2933,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	  Failed to start viewer
 	</string>
 
+	<!-- System Messages -->
+	<string name="ItemsComingInTooFastFrom">[APP_NAME]: Items coming in too fast from [FROM_NAME], automatic preview disabled for [TIME] seconds</string>
+	<string name="ItemsComingInTooFast">[APP_NAME]: Items coming in too fast, automatic preview disabled for [TIME] seconds</string>
+
 	<!-- IM system messages -->
 	<string name="IM_logging_string">-- Instant message logging enabled --</string>
 	<string name="IM_typing_start_string">[NAME] is typing...</string>

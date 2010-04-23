@@ -142,6 +142,7 @@ set(viewer_SOURCE_FILES
     llfavoritesbar.cpp
     llfeaturemanager.cpp
     llfilepicker.cpp
+    llfilteredwearablelist.cpp
     llfirstuse.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
@@ -652,6 +653,7 @@ set(viewer_HEADER_FILES
     llfavoritesbar.h
     llfeaturemanager.h
     llfilepicker.h
+    llfilteredwearablelist.h
     llfirstuse.h
     llflexibleobject.h
     llfloaterabout.h
