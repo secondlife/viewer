@@ -8118,6 +8118,14 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	LLVector3 n = gSavedSettings.getVector3("RenderShadowNearDist");
 	//F32 nearDist[] = { n.mV[0], n.mV[1], n.mV[2], n.mV[2] };
 
+	//put together a universal "near clip" plane for shadow frusta
+	LLPlane shadow_near_clip;
+	{
+		LLVector3 p = gAgent.getPositionAgent();
+		p += mSunDir * gSavedSettings.getF32("RenderFarClip")*2.f;
+		shadow_near_clip.setVec(p, mSunDir);
+	}
+
 	LLVector3 lightDir = -mSunDir;
 	lightDir.normVec();
 
@@ -8551,7 +8559,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 		LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
 
-		shadow_cam.ignoreAgentFrustumPlane(LLCamera::AGENT_PLANE_NEAR);
+		//shadow_cam.ignoreAgentFrustumPlane(LLCamera::AGENT_PLANE_NEAR);
+		shadow_cam.getAgentPlane(LLCamera::AGENT_PLANE_NEAR).set(shadow_near_clip);
 
 		//translate and scale to from [-1, 1] to [0, 1]
 		glh::matrix4f trans(0.5f, 0.f, 0.f, 0.5f,
