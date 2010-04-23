@@ -425,6 +425,9 @@ bool LLAccordionCtrlTab::addChild(LLView* child, S32 tab_group)
 			setDisplayChildren(getDisplayChildren());	
 	}
 
+	if (!mContainerPanel)
+		mContainerPanel = findContainerView();
+
 	return res;
 }
 

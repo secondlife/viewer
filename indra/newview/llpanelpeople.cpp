@@ -645,6 +645,23 @@ void LLPanelPeople::onChange(EStatusType status, const std::string &channelURI, 
 	updateButtons();
 }
 
+void LLPanelPeople::updateFriendListHelpText()
+{
+	// show special help text for just created account to help finding friends. EXT-4836
+	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_help_text");
+
+	// Seems sometimes all_friends can be empty because of issue with Inventory loading (clear cache, slow connection...)
+	// So, lets check all lists to avoid overlapping the text with online list. See EXT-6448.
+	bool any_friend_exists = mAllFriendList->filterHasMatches() || mOnlineFriendList->filterHasMatches();
+	no_friends_text->setVisible(!any_friend_exists);
+	if (no_friends_text->getVisible())
+	{
+		//update help text for empty lists
+		std::string message_name = mFilterSubString.empty() ? "no_friends_msg" : "no_filtered_friends_msg";
+		no_friends_text->setText(getString(message_name));
+	}
+}
+
 void LLPanelPeople::updateFriendList()
 {
 	if (!mOnlineFriendList || !mAllFriendList)
@@ -683,14 +700,6 @@ void LLPanelPeople::updateFriendList()
 		if (av_tracker.isBuddyOnline(buddy_id))
 			online_friendsp.push_back(buddy_id);
 	}
-
-	// show special help text for just created account to help found friends. EXT-4836
-	static LLTextBox* no_friends_text = getChild<LLTextBox>("no_friends_msg");
-
-	// Seems sometimes all_friends can be empty because of issue with Inventory loading (clear cache, slow connection...)
-	// So, lets check all lists to avoid overlapping the text with online list. See EXT-6448.
-	bool any_friend_exists = (all_friendsp.size() > 0) || (online_friendsp.size() > 0);
-	no_friends_text->setVisible(!any_friend_exists);
 
 	/*
 	 * Avatarlists  will be hidden by showFriendsAccordionsIfNeeded(), if they do not have items.
@@ -1436,6 +1445,9 @@ void LLPanelPeople::showFriendsAccordionsIfNeeded()
 		// Rearrange accordions
 		LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
 		accordion->arrange();
+
+		// keep help text in a synchronization with accordions visibility.
+		updateFriendListHelpText();
 	}
 }
 

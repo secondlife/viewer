@@ -5137,6 +5137,7 @@ No valid parcel could be found.
   <notification
    icon="notify.tga"
    name="ObjectGiveItem"
+   persist="true"
    type="offer">
 An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -5181,6 +5182,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
   <notification
    icon="notify.tga"
    name="UserGiveItem"
+   persist="true"
    type="offer">
 [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -5233,6 +5235,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
   <notification
    icon="notify.tga"
    name="TeleportOffered"
+   persist="true"
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
@@ -5278,6 +5281,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
   <notification
    icon="notify.tga"
    name="OfferFriendship"
+   persist="true"
    type="offer">
 [NAME_SLURL] is offering friendship.
 

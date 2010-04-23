@@ -99,6 +99,8 @@ public:
 
 	bool getFloaterPosition(const LLUUID& object_id, FloaterPositionInfo& fpi);
 
+	void setFloaterVisible(const LLUUID& notification_id, bool visible);
+
 protected:
 
 	typedef std::map<std::string, EObjectType> object_type_map;

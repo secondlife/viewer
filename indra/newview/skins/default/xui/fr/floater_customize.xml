@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="APPARENCE" width="548">
-	<tab_container name="customize tab container" tab_min_width="150" width="546">
+<floater name="floater customize" title="APPARENCE">
+	<tab_container name="customize tab container" tab_min_width="150">
 		<text label="Parties du corps" name="body_parts_placeholder">
 			Parties du corps
 		</text>
 		<panel label="Silhouette" left="154" name="Shape" width="389">
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 			<button label="Corps" label_selected="Corps" name="Body"/>
 			<button label="Tête" label_selected="Tête" name="Head"/>
 			<button label="Yeux" label_selected="Yeux" name="Eyes"/>
@@ -44,8 +44,8 @@
 				Silhouette :
 			</text>
 			<button label="Créer une silhouette" label_selected="Créer une silhouette" name="Create New"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
 		</panel>
 		<panel label="Peau" name="Skin">
 			<button label="Couleur" label_selected="Couleur" name="Skin Color" width="84"/>
@@ -80,9 +80,9 @@
 			<texture_picker label="Tatouages haut" name="Upper Tattoos" tool_tip="Cliquez pour sélectionner une image" width="78"/>
 			<texture_picker label="Tatouages bas" name="Lower Tattoos" tool_tip="Cliquez pour sélectionner une image" width="78"/>
 			<button label="Créer une peau" label_selected="Créer une peau" name="Create New"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Cheveux" name="Hair">
 			<button label="Couleur" label_selected="Couleur" name="Color"/>
@@ -115,9 +115,9 @@
 			</text>
 			<texture_picker label="Texture" name="Texture" tool_tip="Cliquez pour sélectionner une image"/>
 			<button label="Créer des cheveux" label_selected="Créer des cheveux" name="Create New"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Yeux" name="Eyes">
 			<text name="title">
@@ -146,9 +146,9 @@
 			</text>
 			<texture_picker label="Iris" name="Iris" tool_tip="Cliquez pour sélectionner une image"/>
 			<button label="Créer des yeux" label_selected="Créer des yeux" name="Create New"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<text label="Habits" name="clothes_placeholder">
 			Habits
@@ -158,9 +158,9 @@
 			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Créer une chemise" label_selected="Créer une chemise" name="Create New"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 			<text name="title">
 				[DESC]
 			</text>
@@ -191,9 +191,9 @@
 			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
 			<button label="Créer un pantalon" label_selected="Créer un pantalon" name="Create New"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 			<text name="title">
 				[DESC]
 			</text>
@@ -248,9 +248,9 @@
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Chaussettes" name="Socks">
 			<text name="title">
@@ -281,9 +281,9 @@
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Veste" name="Jacket">
 			<text name="title">
@@ -315,9 +315,9 @@
 			<texture_picker label="Tissu (dessous)" name="Lower Fabric" tool_tip="Cliquez pour sélectionner une image" width="81"/>
 			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="81"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Gants" name="Gloves">
 			<text name="title">
@@ -348,9 +348,9 @@
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Débardeur" name="Undershirt">
 			<text name="title">
@@ -375,15 +375,15 @@
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<text bottom="-470" name="Item Action Label" right="92">
+			<text name="Item Action Label">
 				Débardeur :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Caleçon" name="Underpants">
 			<text name="title">
@@ -408,15 +408,15 @@
 			<text name="no modify instructions">
 				Vous n&apos;avez pas la permission de modifier cet objet.
 			</text>
-			<text bottom="-470" name="Item Action Label" right="92">
+			<text name="Item Action Label">
 				Caleçon :
 			</text>
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Jupe" name="Skirt">
 			<text name="title">
@@ -447,9 +447,9 @@
 			<texture_picker label="Tissu" name="Fabric" tool_tip="Cliquez pour sélectionner une image" width="74"/>
 			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs" width="74"/>
 			<button label="Enlever" label_selected="Enlever" left="12" name="Take Off" width="82"/>
-			<button label="Enregistrer" label_selected="Enregistrer" left="100" name="Save" width="82"/>
-			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." left="188" name="Save As" width="111"/>
-			<button label="Rétablir" label_selected="Rétablir" left="305" name="Revert" width="82"/>
+			<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+			<button label="Enregistrer sous..." label_selected="Enregistrer sous..." name="Save As"/>
+			<button label="Rétablir" label_selected="Rétablir" name="Revert"/>
 		</panel>
 		<panel label="Tatouage" name="Tattoo">
 			<text name="title">

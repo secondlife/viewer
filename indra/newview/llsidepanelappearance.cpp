@@ -329,8 +329,8 @@ void LLSidepanelAppearance::updateVerbs()
 
 	if (mPanelOutfitsInventory && !is_look_info_visible)
 	{
-		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
-		mEditBtn->setEnabled(is_correct_type);
+//		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
+//		mEditBtn->setEnabled(is_correct_type);
 	}
 	else
 	{

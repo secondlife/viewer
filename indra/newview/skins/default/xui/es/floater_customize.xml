@@ -81,7 +81,7 @@
 			<texture_picker label="Tatuaje: inferior" name="Lower Tattoos" tool_tip="Pulse para elegir una imagen" width="90"/>
 			<button label="Crear una piel nueva" label_selected="Crear una piel nueva" name="Create New"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Pelo" name="Hair">
@@ -116,7 +116,7 @@
 			<texture_picker label="Textura" name="Texture" tool_tip="Pulse para elegir una imagen"/>
 			<button label="Crear un pelo nuevo" label_selected="Crear un pelo nuevo" name="Create New"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Ojos" name="Eyes">
@@ -147,7 +147,7 @@
 			<texture_picker label="Iris" name="Iris" tool_tip="Pulse para elegir una imagen"/>
 			<button label="Crear unos ojos nuevos" label_selected="Crear unos ojos nuevos" name="Create New"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<text label="Ropa" name="clothes_placeholder">
@@ -159,7 +159,7 @@
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
 			<button label="Crear una falda nueva" label_selected="Crear una falda nueva" name="Create New"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 			<text name="title">
 				[DESC]
@@ -192,7 +192,7 @@
 			<button label="Quitarlos" label_selected="Quitarlos" name="Take Off"/>
 			<button label="Crear unos pantalones nuevos" label_selected="Crear unos pantalones nuevos" name="Create New" width="185"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 			<text name="title">
 				[DESC]
@@ -249,7 +249,7 @@
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Quitarlos" label_selected="Quitarlos" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Calcetines" name="Socks">
@@ -282,7 +282,7 @@
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Quitarlos" label_selected="Quitarlos" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Chaqueta" name="Jacket">
@@ -316,7 +316,7 @@
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Guantes" name="Gloves">
@@ -349,7 +349,7 @@
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Quitarlos" label_selected="Quitarlos" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Camiseta" name="Undershirt">
@@ -382,7 +382,7 @@
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Ropa interior" name="Underpants">
@@ -415,7 +415,7 @@
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Falda" name="Skirt">
@@ -448,7 +448,7 @@
 			<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 			<button label="Quitarla" label_selected="Quitarla" name="Take Off"/>
 			<button label="Guardar" label_selected="Guardar" left="113" name="Save"/>
-			<button label="Guardar como..." label_selected="Guardar como..." left="199" name="Save As" width="102"/>
+			<button label="Guardar como..." label_selected="Guardar como..." name="Save As"/>
 			<button label="Restablecer" label_selected="Restablecer" name="Revert"/>
 		</panel>
 		<panel label="Tatuaje" name="Tattoo">

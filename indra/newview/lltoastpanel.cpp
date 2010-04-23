@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanelgenerictip.h"
+#include "llpanelonlinestatus.h"
 #include "llnotifications.h"
 #include "lltoastpanel.h"
 
@@ -97,9 +98,19 @@ LLToastPanel* LLToastPanel::buidPanelFromNotification(
 {
 	LLToastPanel* res = NULL;
 
-	if (notification->getName() == "SystemMessageTip")
+	//process tip toast panels
+	if ("notifytip" == notification->getType())
 	{
-		res = new LLPanelGenericTip(notification);
+		// if it is online/offline notification
+		if ("FriendOffline" == notification->getName() || "FriendOnline" == notification->getName())
+		{
+			res = new LLPanelOnlineStatus(notification);
+		}
+		// in all other case we use generic tip panel
+		else
+		{
+			res = new LLPanelGenericTip(notification);
+		}
 	}
 	/*
 	 else if(...)

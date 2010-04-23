@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+   background_visible="true"
+   bg_alpha_color="DkGray"
+   border="false"
+   follows="all"
+   height="400"
+   name="Outfits"
+   layout="topleft"
+   left="0"
+   top="0"
+   width="313">
+    <accordion
+     background_visible="true"
+     bg_alpha_color="DkGray2"
+     bg_opaque_color="DkGray2"
+     follows="all"
+     height="400"
+     layout="topleft"
+     left="3"
+     name="outfits_accordion"
+     top="0"
+     width="307">
+    </accordion>
+</panel>
