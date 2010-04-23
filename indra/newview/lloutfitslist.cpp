@@ -168,26 +168,21 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		std::string name = cat->getName();
 
-		// *TODO: create accordion tabs and lists from XML.
-		LLAccordionCtrlTab::Params params;
-		params.name(name);
-		params.title(name);
-		params.rect(LLRect(0, 0, 315, 20));
-		params.display_children(false);
-		LLAccordionCtrlTab* tab  = LLUICtrlFactory::create<LLAccordionCtrlTab>(params);
+		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
 
+		accordionXmlNode->setAttributeString("name", name);
+		accordionXmlNode->setAttributeString("title", name);
+		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+
+		// *TODO: LLUICtrlFactory::defaultBuilder does not use "display_children" from xml. Should be investigated.
+		tab->setDisplayChildren(false); 
 		mAccordion->addCollapsibleCtrl(tab);
-
-		LLFlatListView::Params list_params;
-		LLWearableItemsList* list  = LLUICtrlFactory::create<LLWearableItemsList>(list_params);
-
-		tab->addChild(list, 0);
-		tab->setDisplayChildren(false);
 
 		// Map the new tab with outfit category UUID.
 		mOutfitsMap.insert(LLOutfitsList::outfits_map_value_t(cat_id, tab));
 
 		// Start observing the new outfit category.
+		LLWearableItemsList* list  = tab->getChild<LLWearableItemsList>("wearable_items_list");
 		mCategoriesObserver->addCategory(cat_id, boost::bind(&LLWearableItemsList::updateList, list, cat_id));
 
 		// Fetch the new outfit contents.
@@ -260,6 +255,23 @@ void LLOutfitsList::updateOutfitTab(const LLUUID& category_id)
 void LLOutfitsList::setFilterSubString(const std::string& string)
 {
 	mFilterSubString = string;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// Private methods
+//////////////////////////////////////////////////////////////////////////
+LLXMLNodePtr LLOutfitsList::getAccordionTabXMLNode()
+{
+	LLXMLNodePtr xmlNode = NULL;
+	bool success = LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode);
+	if (!success)
+	{
+		llwarns << "Failed to read xml of Outfit's Accordion Tab from outfit_accordion_tab.xml" << llendl;
+		return NULL;
+	}
+
+	return xmlNode;
 }
 
 // EOF
