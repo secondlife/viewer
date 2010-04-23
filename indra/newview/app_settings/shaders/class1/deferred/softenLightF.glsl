@@ -270,7 +270,6 @@ void main()
 	vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
 	float scol = max(scol_ambocc.r, diffuse.a); 
 	float ambocc = scol_ambocc.g;
-	float glowresult = 0.0;
 	
 	calcAtmospherics(pos.xyz, ambocc);
 	
@@ -286,7 +285,6 @@ void main()
 		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 		float sa = dot(refnormpersp, vary_light.xyz);
 		vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*texture2D(lightFunc, vec2(sa, spec.a)).a;
-		glowresult = 0.08 * dot(dumbshiny.rgb, spec.rgb);
 
 		// screen-space cheap fakey reflection map
 		//
@@ -336,5 +334,5 @@ void main()
 	col = scaleSoftClip(col);
 		
 	gl_FragColor.rgb = col;
-	gl_FragColor.a = glowresult;
+	gl_FragColor.a = 0.0;
 }
