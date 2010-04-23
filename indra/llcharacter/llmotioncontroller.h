@@ -169,6 +169,8 @@ public:
 	bool isMotionLoading( LLMotion *motion );
 	LLMotion *findMotion( const LLUUID& id ) const;
 
+	void dumpMotions();
+	
 protected:
 	// internal operations act on motion instances directly
 	// as there can be duplicate motions per id during blending overlap

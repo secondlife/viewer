@@ -227,6 +227,11 @@ public:
 	// Retun NULL if the name is invalid.
 	//-----------------------------------------------------------------------------
 	LLUUID stringToAnimState( const std::string& name, BOOL allow_ids = TRUE );
+
+	//-----------------------------------------------------------------------------
+	// Associate an anim state with a name
+	//-----------------------------------------------------------------------------
+	void animStateSetString( const LLUUID& state, const std::string& name);
 };
 
 struct LLAnimStateEntry
@@ -252,6 +257,7 @@ extern const LLAnimStateEntry gUserAnimStates[];
 extern const S32 gUserAnimStatesCount;
 extern LLAnimationLibrary gAnimLibrary;
 
+std::string animationName( const LLUUID& id );
 
 #endif // LL_LLANIMATIONSTATES_H
 

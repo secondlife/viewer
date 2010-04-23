@@ -392,6 +392,8 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 //-----------------------------------------------------------------------------
 BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 {
+	llinfos << animationName(id) << llendl;
+	
 	// do we have an instance of this motion for this character?
 	LLMotion *motion = findMotion(id);
 
@@ -804,6 +806,8 @@ void LLMotionController::updateLoadingMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::updateMotions(bool force_update)
 {
+	dumpMotions();
+	
 	BOOL use_quantum = (mTimeStep != 0.f);
 
 	// Always update mPrevTimerElapsed
@@ -1029,6 +1033,31 @@ LLMotion* LLMotionController::findMotion(const LLUUID& id) const
 	else
 	{
 		return iter->second;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// dumpMotions()
+//-----------------------------------------------------------------------------
+void LLMotionController::dumpMotions()
+{
+	for (motion_map_t::iterator iter = mAllMotions.begin();
+		 iter != mAllMotions.end(); iter++)
+	{
+		llinfos << "=====================================" << llendl;
+		LLUUID id = iter->first;
+		std::string state_string;
+		LLMotion *motion = iter->second;
+		if (mLoadingMotions.find(motion) != mLoadingMotions.end())
+			state_string += std::string("l");
+		if (mLoadedMotions.find(motion) != mLoadedMotions.end())
+			state_string += std::string("L");
+		if (std::find(mActiveMotions.begin(), mActiveMotions.end(), motion)!=mActiveMotions.end())
+			state_string += std::string("A");
+		if (mDeprecatedMotions.find(motion) != mDeprecatedMotions.end())
+			state_string += std::string("D");
+		llinfos << animationName(id) << " " << state_string << llendl;
+		
 	}
 }
 

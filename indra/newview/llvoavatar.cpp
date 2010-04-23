@@ -1114,6 +1114,17 @@ void LLVOAvatar::initClass()
 	{
 		llerrs << "Error parsing skeleton node in avatar XML file: " << skeleton_path << llendl;
 	}
+
+	gAnimLibrary.animStateSetString(ANIM_AGENT_BODY_NOISE,"body_noise");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_BREATHE_ROT,"breathe_rot");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_EDITING,"editing");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_EYE,"eye");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_FLY_ADJUST,"fly_adjust");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_HAND_MOTION,"hand_motion");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_HEAD_ROT,"head_rot");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_PELVIS_FIX,"pelvis_fix");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_TARGET,"target");
+	gAnimLibrary.animStateSetString(ANIM_AGENT_WALK_ADJUST,"walk_adjust");
 }
 
 
@@ -2120,6 +2131,30 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Update Avatar");
 static LLFastTimer::DeclareTimer FTM_JOINT_UPDATE("Update Joints");
 
+void dumpAnimationState(LLVOAvatar *self)
+{
+	llinfos << "==============================================" << llendl;
+	for (LLVOAvatar::AnimIterator it = self->mSignaledAnimations.begin(); it != self->mSignaledAnimations.end(); ++it)
+	{
+		LLUUID id = it->first;
+		std::string playtag = "";
+		if (self->mPlayingAnimations.find(id) != self->mPlayingAnimations.end())
+		{
+			playtag = "*";
+		}
+		llinfos << animationName(id) << playtag << llendl;
+	}
+	for (LLVOAvatar::AnimIterator it = self->mPlayingAnimations.begin(); it != self->mPlayingAnimations.end(); ++it)
+	{
+		LLUUID id = it->first;
+		bool is_signaled = self->mSignaledAnimations.find(id) != self->mSignaledAnimations.end();
+		if (!is_signaled)
+		{
+			llinfos << animationName(id) << "!S" << llendl;
+		}
+	}
+}
+
 //------------------------------------------------------------------------
 // idleUpdate()
 //------------------------------------------------------------------------
@@ -2223,6 +2258,12 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	idleUpdateNameTag( root_pos_last );
 	idleUpdateRenderCost();
 	idleUpdateTractorBeam();
+
+	if (isSelf())
+	{
+		dumpAnimationState(this);
+	}
+	
 	return TRUE;
 }
 
@@ -4430,12 +4471,17 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 {
-	llinfos << "motion " << id.asString() << llendl;
-
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
+	llinfos << "motion requested " << id.asString() << " " << animationName(id) << llendl;
+
 	LLUUID remap_id = remapMotionID(id);
-	
+
+	if (remap_id != id)
+	{
+		llinfos << "motion resultant " << remap_id.asString() << " " << animationName(remap_id) << llendl;
+	}
+
 	if (isSelf() && remap_id == ANIM_AGENT_AWAY)
 	{
 		gAgent.setAFK();
@@ -4449,8 +4495,15 @@ BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::stopMotion(const LLUUID& id, BOOL stop_immediate)
 {
+	llinfos << "motion requested " << id.asString() << " " << animationName(id) << llendl;
+
 	LLUUID remap_id = remapMotionID(id);
 	
+	if (remap_id != id)
+	{
+		llinfos << "motion resultant " << remap_id.asString() << " " << animationName(remap_id) << llendl;
+	}
+
 	if (isSelf())
 	{
 		gAgent.onAnimStop(remap_id);
