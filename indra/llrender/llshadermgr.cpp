@@ -321,7 +321,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 
 GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type)
 {
-	GLenum error;
+	GLenum error = GL_NO_ERROR;
 	if (gDebugGL)
 	{
 		error = glGetError();
