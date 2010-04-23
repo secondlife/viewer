@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="UITERLIJK" width="551">
-	<tab_container name="customize tab container" tab_min_width="120" width="549">
+<floater name="floater customize" title="UITERLIJK">
+	<tab_container name="customize tab container" tab_min_width="120">
 		<placeholder label="Lichaamsdelen" name="body_parts_placeholder"/>
 		<panel label="Postuur" name="Shape" left="124" width="389">
 			<button label="Herstel" label_selected="Herstel" name="Revert"/>
@@ -462,7 +462,7 @@ slepen. Ook kunt u zelf van begin af aan een nieuwe creëren en dragen.
 			<button label="Herstel" label_selected="Herstel" name="Revert"/>
 		</panel>
 	</tab_container>
-	<scroll_container left="254" name="panel_container"/>
+	<scroll_container name="panel_container"/>
 	<button label="Annuleren" label_selected="Annuleren" name="Cancel"/>
 	<button label="OK" label_selected="OK" name="Ok"/>
 	<button label="Maak kleding..." label_selected="Maak kleding..." name="Make Outfit" left="110"/>

@@ -1571,10 +1571,6 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		// larger mips are corrupted
 		priority = -3.0f;
 	}
-	else if (cur_discard <= mDesiredDiscardLevel)
-	{
-		priority = -4.0f;
-	}
 	else
 	{
 		// priority range = 100,000 - 500,000

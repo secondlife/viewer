@@ -33,6 +33,9 @@
 
 #include "llinventoryitemslist.h"
 
+// llcommon
+#include "llcommonutils.h"
+
 #include "lliconctrl.h"
 
 #include "llinventoryfunctions.h"
@@ -112,6 +115,7 @@ void LLPanelInventoryItem::onMouseLeave(S32 x, S32 y, MASK mask)
 
 LLInventoryItemsList::LLInventoryItemsList(const LLFlatListView::Params& p)
 :	LLFlatListView(p)
+,	mNeedsRefresh(false)
 {}
 
 // virtual
@@ -120,22 +124,88 @@ LLInventoryItemsList::~LLInventoryItemsList()
 
 void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item_array)
 {
-	clear();
-
-	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
-		 iter != item_array.end();
-		 iter++)
+	getIDs().clear();
+	LLInventoryModel::item_array_t::const_iterator it = item_array.begin();
+	for( ; item_array.end() != it; ++it)
 	{
-		LLViewerInventoryItem *item = (*iter);
+		getIDs().push_back((*it)->getUUID());
+	}
+	mNeedsRefresh = true;
+}
 
-		LLPanelInventoryItem *list_item = new LLPanelInventoryItem(item->getType(),
-																   item->getInventoryType(),
-																   item->getFlags(),
-																   item->getName(),
-																   LLStringUtil::null);
-		if (!addItem(list_item, item->getUUID()))
-		{
-			llerrs << "Couldn't add flat item." << llendl;
-		}
+void LLInventoryItemsList::draw()
+{
+	LLFlatListView::draw();
+	if(mNeedsRefresh)
+	{
+		refresh();
 	}
 }
+
+void LLInventoryItemsList::refresh()
+{
+	static const unsigned ADD_LIMIT = 50;
+
+	uuid_vec_t added_items;
+	uuid_vec_t removed_items;
+
+	computeDifference(getIDs(), added_items, removed_items);
+
+	bool add_limit_exceeded = false;
+	unsigned nadded = 0;
+
+	uuid_vec_t::const_iterator it = added_items.begin();
+	for( ; added_items.end() != it; ++it)
+	{
+		if(nadded >= ADD_LIMIT)
+		{
+			add_limit_exceeded = true;
+			break;
+		}
+		LLViewerInventoryItem* item = gInventory.getItem(*it);
+		addNewItem(item);
+		++nadded;
+	}
+
+	it = removed_items.begin();
+	for( ; removed_items.end() != it; ++it)
+	{
+		removeItemByUUID(*it);
+	}
+
+	bool needs_refresh = add_limit_exceeded;
+	setNeedsRefresh(needs_refresh);
+}
+
+void LLInventoryItemsList::computeDifference(
+	const uuid_vec_t& vnew,
+	uuid_vec_t& vadded,
+	uuid_vec_t& vremoved)
+{
+	uuid_vec_t vcur;
+	{
+		std::vector<LLSD> vcur_values;
+		getValues(vcur_values);
+
+		for (size_t i=0; i<vcur_values.size(); i++)
+			vcur.push_back(vcur_values[i].asUUID());
+	}
+
+	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
+}
+
+void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item)
+{
+	llassert(item);
+
+	LLPanelInventoryItem *list_item = new LLPanelInventoryItem(item->getType(),
+		item->getInventoryType(), item->getFlags(), item->getName(), LLStringUtil::null);
+
+	if (!addItem(list_item, item->getUUID()))
+	{
+		llwarns << "Couldn't add flat list item." << llendl;
+		llassert(!"Couldn't add flat list item.");
+	}
+}
+
+// EOF

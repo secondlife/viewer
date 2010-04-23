@@ -342,6 +342,30 @@
              width="300"/>
 
             <panel
+             name="filtered_wearables_panel"
+             background_opaque="true"
+             background_visible="true"
+             layout="topleft"
+             follows="left|top|right|bottom"
+             border="false"
+             height="155"
+             left="0"
+             mouse_opaque="false"
+             width="300"
+             top_delta="0"
+             visible="false">
+             <wearable_items_list
+              name="filtered_wearables_list"
+              allow_select="true"
+              layout="topleft"
+              follows="all"
+              width="300"
+              height="155"
+              left="0"
+              top="0" />
+            </panel>
+
+            <panel
              background_visible="true"
              bevel_style="none"
              follows="left|right|bottom"
