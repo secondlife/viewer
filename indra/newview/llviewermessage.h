@@ -40,6 +40,7 @@
 #include "lluuid.h"
 #include "message.h"
 #include "stdenums.h"
+#include "llnotifications.h"
 
 //
 // Forward declarations
@@ -210,11 +211,10 @@ bool highlight_offered_item(const LLUUID& item_id);
 
 void set_dad_inventory_item(LLInventoryItem* inv_item, const LLUUID& into_folder_uuid);
 
-struct LLOfferInfo
+class LLOfferInfo : public LLNotificationResponderInterface
 {
-        LLOfferInfo()
-	:	mFromGroup(FALSE), mFromObject(FALSE),
-		mIM(IM_NOTHING_SPECIAL), mType(LLAssetType::AT_NONE) {};
+public:
+	LLOfferInfo();
 	LLOfferInfo(const LLSD& sd);
 
 	LLOfferInfo(const LLOfferInfo& info);
@@ -232,12 +232,27 @@ struct LLOfferInfo
 	std::string mFromName;
 	std::string mDesc;
 	LLHost mHost;
+	bool mPersist;
 
-	LLSD asLLSD();
+	// LLNotificationResponderInterface implementation
+	/*virtual*/ LLSD asLLSD();
+	/*virtual*/ void fromLLSD(const LLSD& params);
+	/*virtual*/ void handleRespond(const LLSD& notification, const LLSD& response);
+
 	void send_auto_receive_response(void);
+
+	// TODO - replace all references with handleRespond()
 	bool inventory_offer_callback(const LLSD& notification, const LLSD& response);
 	bool inventory_task_offer_callback(const LLSD& notification, const LLSD& response);
 
+private:
+
+	void initRespondFunctionMap();
+
+	typedef boost::function<bool (const LLSD&, const LLSD&)> respond_function_t;
+	typedef std::map<std::string, respond_function_t> respond_function_map_t;
+
+	respond_function_map_t mRespondFunctions;
 };
 
 void process_feature_disabled_message(LLMessageSystem* msg, void**);

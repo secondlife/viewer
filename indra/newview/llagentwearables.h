@@ -82,6 +82,8 @@ public:
 
 	void			animateAllWearableParams(F32 delta, BOOL upload_bake);
 	
+	bool			moveWearable(const LLViewerInventoryItem* item, bool closer_to_body);
+
 	//--------------------------------------------------------------------
 	// Accessors
 	//--------------------------------------------------------------------
