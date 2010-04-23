@@ -86,6 +86,8 @@ public:
 		// Sends a request for data about the given parcel, which will
 		// only update the location if there is none already available.
 
+	void moveWearable(bool closer_to_body);
+
 	void showAddWearablesPanel();
 	void showWearablesFilter();
 	void saveOutfit(bool as_new = false);
@@ -107,6 +109,8 @@ public:
 	void updateLookInfo(void);
 
 private:
+
+	void updateVerbs();
 
 	//*TODO got rid of mCurrentOutfitID
 	LLUUID				mCurrentOutfitID;

@@ -2031,6 +2031,39 @@ void LLAgentWearables::animateAllWearableParams(F32 delta, BOOL upload_bake)
 	}
 }
 
+bool LLAgentWearables::moveWearable(const LLViewerInventoryItem* item, bool closer_to_body)
+{
+	if (!item) return false;
+	if (!item->isWearableType()) return false;
+
+	wearableentry_map_t::iterator wearable_iter = mWearableDatas.find(item->getWearableType());
+	if (wearable_iter == mWearableDatas.end()) return false;
+
+	wearableentry_vec_t& wearable_vec = wearable_iter->second;
+	if (wearable_vec.empty()) return false;
+
+	const LLUUID& asset_id = item->getAssetUUID();
+
+	//nowhere to move if the wearable is already on any boundary (closest to the body/furthest from the body)
+	if (closer_to_body && asset_id == wearable_vec.front()->getAssetID()) return false;
+	if (!closer_to_body && asset_id == wearable_vec.back()->getAssetID()) return false;
+
+	for (U32 i = 0; i < wearable_vec.size(); ++i)
+	{
+		LLWearable* wearable = wearable_vec[i];
+		if (!wearable) continue;
+		if (wearable->getAssetID() != asset_id) continue;
+		
+		//swapping wearables
+		U32 swap_i = closer_to_body ? i-1 : i+1;
+		wearable_vec[i] = wearable_vec[swap_i];
+		wearable_vec[swap_i] = wearable;
+		return true;
+	}
+
+	return false;
+}
+
 void LLAgentWearables::updateServer()
 {
 	sendAgentWearablesUpdate();

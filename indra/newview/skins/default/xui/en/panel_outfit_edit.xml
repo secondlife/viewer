@@ -222,6 +222,30 @@
                  top="1"
                  width="31" />
                 <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Movement_Forward_On"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="move_closer_btn"
+                 top="1"
+                 width="31" />
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Movement_Backward_On"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="move_further_btn"
+                 top="1"
+                 width="31" />
+                <button
                  follows="bottom|right"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
