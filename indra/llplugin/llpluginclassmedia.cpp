@@ -160,7 +160,7 @@ void LLPluginClassMedia::idle(void)
 		mPlugin->idle();
 	}
 	
-	if((mMediaWidth == -1) || (!mTextureParamsReceived) || (mPlugin == NULL))
+	if((mMediaWidth == -1) || (!mTextureParamsReceived) || (mPlugin == NULL) || (mPlugin->isBlocked()))
 	{
 		// Can't process a size change at this time
 	}
@@ -437,6 +437,11 @@ void LLPluginClassMedia::mouseEvent(EMouseEventType type, int button, int x, int
 {
 	if(type == MOUSE_EVENT_MOVE)
 	{
+		if(!mPlugin || !mPlugin->isRunning() || mPlugin->isBlocked())
+		{
+			// Don't queue up mouse move events that can't be delivered.
+		}
+
 		if((x == mLastMouseX) && (y == mLastMouseY))
 		{
 			// Don't spam unnecessary mouse move events.
