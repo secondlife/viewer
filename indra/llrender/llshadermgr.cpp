@@ -391,26 +391,31 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << LL_ENDL;
 		}
 	}
-	else
+	
+	//load source
+	glShaderSourceARB(ret, count, (const GLcharARB**) text, NULL);
+
+	if (gDebugGL)
 	{
-		//load source
-		glShaderSourceARB(ret, count, (const GLcharARB**) text, NULL);
 		error = glGetError();
 		if (error != GL_NO_ERROR)
 		{
 			LL_WARNS("ShaderLoading") << "GL ERROR in glShaderSourceARB: " << error << LL_ENDL;
 		}
-		else
+	}
+
+	//compile source
+	glCompileShaderARB(ret);
+
+	if (gDebugGL)
+	{
+		error = glGetError();
+		if (error != GL_NO_ERROR)
 		{
-			//compile source
-			glCompileShaderARB(ret);
-			error = glGetError();
-			if (error != GL_NO_ERROR)
-			{
-				LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << LL_ENDL;
-			}
+			LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << LL_ENDL;
 		}
 	}
+		
 	//free memory
 	for (GLuint i = 0; i < count; i++)
 	{
@@ -421,7 +426,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		//check for errors
 		GLint success = GL_TRUE;
 		glGetObjectParameterivARB(ret, GL_OBJECT_COMPILE_STATUS_ARB, &success);
-		if (gDebugGL)
+		if (gDebugGL || success == GL_FALSE)
 		{
 			error = glGetError();
 			if (error != GL_NO_ERROR || success == GL_FALSE) 

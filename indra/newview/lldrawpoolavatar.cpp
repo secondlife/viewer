@@ -352,7 +352,18 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 
 S32 LLDrawPoolAvatar::getNumPasses()
 {
-	return LLPipeline::sImpostorRender ? 1 : 4;
+	if (LLPipeline::sImpostorRender)
+	{
+		return 1;
+	}
+	else if (getVertexShaderLevel() > 0)
+	{
+		return 4;
+	}
+	else
+	{
+		return 3;
+	}
 }
 
 void LLDrawPoolAvatar::render(S32 pass)
