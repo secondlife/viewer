@@ -656,6 +656,9 @@ void LLPanelGroupNotices::setGroupID(const LLUUID& id)
 
 	if(mViewMessage) 
 		mViewMessage->clear();
+
+	if(mViewInventoryName)
+		mViewInventoryName->clear();
 	
 	activate();
 }
