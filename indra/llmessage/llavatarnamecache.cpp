@@ -81,7 +81,9 @@ namespace LLAvatarNameCache
 	// Periodically clean out expired entries from the cache
 	LLFrameTimer sEraseExpiredTimer;
 
-	void processNameFromService(const LLSD& row);
+	// Handle name response off network
+	void processName(const LLUUID& agent_id, const LLAvatarName& av_name);
+
 	void requestNamesViaCapability();
 	void requestNamesViaLegacy();
 	bool isRequestPending(const LLUUID& agent_id);
@@ -147,42 +149,102 @@ public:
 		LLSD::array_const_iterator it = agents.beginArray();
 		for ( ; it != agents.endArray(); ++it)
 		{
-			const LLSD& entry = *it;
-			LLAvatarNameCache::processNameFromService(entry);
+			const LLSD& row = *it;
+			LLUUID agent_id = row["id"].asUUID();
+
+			LLAvatarName av_name;
+			av_name.fromLLSD(row);
+
+			// Some avatars don't have explicit display names set
+			if (av_name.mDisplayName.empty())
+			{
+				av_name.mDisplayName = av_name.mSLID;
+			}
+
+			LLAvatarNameCache::processName(agent_id, av_name);
 		}
 	}
 
-	/*virtual*/ void error(U32 status, const std::string& reason)
+	// This is called for both successful and failed requests, and is
+	// called _after_ result() above.
+	/*virtual*/ void completedHeader(U32 status, const std::string& reason, 
+		const LLSD& headers)
 	{
-		llinfos << "LLAvatarNameResponder error " << status << " " << reason << llendl;
+		// Only care about headers when there is an error
+		if (isGoodStatus(status)) return;
+
+		// We're going to construct a dummy record and cache it for a while,
+		// either briefly for a 503 Service Unavailable, or longer for other
+		// errors.
+		F64 retry_timestamp = errorRetryTimestamp(status, headers);
+
+		// *NOTE: "??" starts trigraphs in C/C++, escape the question marks.
+		const std::string DUMMY_NAME("\?\?\?");
+		LLAvatarName av_name;
+		av_name.mSLID = DUMMY_NAME;
+		av_name.mDisplayName = DUMMY_NAME;
+		av_name.mIsDisplayNameDefault = false;
+		av_name.mExpires = retry_timestamp;
+
+		// Add dummy records for all agent IDs in this request
+		std::vector<LLUUID>::const_iterator it = mAgentIDs.begin();
+		for ( ; it != mAgentIDs.end(); ++it)
+		{
+			const LLUUID& agent_id = *it;
+			LLAvatarNameCache::processName(agent_id, av_name);
+		}
+	}
+
+	// Return time to retry a request that generated an error, based on
+	// error type and headers.  Return value is seconds-since-epoch.
+	F64 errorRetryTimestamp(S32 status, const LLSD& headers)
+	{
+		LLSD expires = headers["expires"];
+		if (expires.isDefined())
+		{
+			LLDate expires_date = expires.asDate();
+			return expires_date.secondsSinceEpoch();
+		}
+
+		LLSD retry_after = headers["retry-after"];
+		if (retry_after.isDefined())
+		{
+			// does the header use the delta-seconds type?
+			S32 delta_seconds = retry_after.asInteger();
+			if (delta_seconds > 0)
+			{
+				// ...valid delta-seconds
+				F64 now = LLFrameTimer::getTotalSeconds();
+				return now + F64(delta_seconds);
+			}
+			else
+			{
+				// ...it's a date
+				LLDate expires_date = retry_after.asDate();
+				return expires_date.secondsSinceEpoch();
+			}
+		}
+
+		// No information in header, make a guess
+		F64 now = LLFrameTimer::getTotalSeconds();
+		if (status == 503)
+		{
+			// ...service unavailable, retry soon
+			const F64 SERVICE_UNAVAILABLE_DELAY = 600.0; // 10 min
+			return now + SERVICE_UNAVAILABLE_DELAY;
+		}
+		else
+		{
+			// ...other unexpected error
+			const F64 DEFAULT_DELAY = 3600.0; // 1 hour
+			return now + DEFAULT_DELAY;
+		}
 	}
 };
 
-// "expires" is seconds-from-epoch
-void LLAvatarNameCache::processNameFromService(const LLSD& row)
+void LLAvatarNameCache::processName(const LLUUID& agent_id,
+									const LLAvatarName& av_name)
 {
-	LLAvatarName av_name;
-	av_name.mSLID = row["sl_id"].asString();
-	av_name.mDisplayName = row["display_name"].asString();
-	av_name.mIsDisplayNameDefault = row["is_display_name_default"].asBoolean();
-	av_name.mExpires = row["display_name_expires"].asReal();
-
-	llinfos << "JAMESDEBUG expires " << av_name.mExpires << " now " << LLFrameTimer::getTotalSeconds() << llendl;
-
-	// HACK for pretty stars
-	//if (row["last_name"].asString() == "Linden")
-	//{
-	//	av_name.mBadge = "Person_Star";
-	//}
-
-	// Some avatars don't have explicit display names set
-	if (av_name.mDisplayName.empty())
-	{
-		av_name.mDisplayName = av_name.mSLID;
-	}
-
-	// add to cache
-	LLUUID agent_id = row["id"].asUUID();
 	sCache[agent_id] = av_name;
 
 	sPendingQueue.erase(agent_id);
