@@ -1846,7 +1846,8 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	gInventory.collectDescendentsIf(getCOF(), cats, items, true, LLFindClothesOfType(item->getWearableType()));
+	LLFindClothesOfType filter_wearables_of_type(item->getWearableType());
+	gInventory.collectDescendentsIf(getCOF(), cats, items, true, filter_wearables_of_type);
 	if (items.empty()) return false;
 
 	//*TODO all items are not guarantied to have valid descriptions (check?)
