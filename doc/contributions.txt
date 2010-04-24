@@ -17,6 +17,7 @@ Agathos Frascati
 	CT-317
 	CT-352
 Aimee Trescothick
+	SNOW-570
 	SNOW-572
 	VWR-3321
 	VWR-3336
@@ -49,6 +50,7 @@ Aimee Trescothick
 	VWR-14087
 	VWR-14267
 	VWR-14278
+	VWR-14711
 	VWR-14712
 Alejandro Rosenthal
 	VWR-1184
