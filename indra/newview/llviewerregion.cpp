@@ -627,6 +627,26 @@ std::string LLViewerRegion::accessToString(U8 sim_access)
 }
 
 // static
+std::string LLViewerRegion::getAccessIcon(U8 sim_access)
+{
+	switch(sim_access)
+	{
+	case SIM_ACCESS_MATURE:
+		return "Parcel_M_Dark";
+
+	case SIM_ACCESS_ADULT:
+		return "Parcel_R_Light";
+
+	case SIM_ACCESS_PG:
+		return "Parcel_PG_Light";
+
+	case SIM_ACCESS_MIN:
+	default:
+		return "";
+	}
+}
+
+// static
 std::string LLViewerRegion::accessToShortString(U8 sim_access)
 {
 	switch(sim_access)		/* Flawfinder: ignore */

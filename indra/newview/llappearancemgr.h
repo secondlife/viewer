@@ -141,6 +141,8 @@ public:
 
 	LLUUID makeNewOutfitLinks(const std::string& new_folder_name);
 
+	bool moveWearable(LLViewerInventoryItem* item, bool closer_to_body);
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();

@@ -122,6 +122,38 @@ private:
 	bool mAppend;
 };
 
+
+//Inventory callback updating "dirty" state when destroyed
+class LLUpdateDirtyState: public LLInventoryCallback
+{
+public:
+	LLUpdateDirtyState() {}
+	virtual ~LLUpdateDirtyState(){ LLAppearanceMgr::getInstance()->updateIsDirty(); }
+	virtual void fire(const LLUUID&) {}
+};
+
+
+//Inventory collect functor collecting wearables of a specific wearable type
+class LLFindClothesOfType : public LLInventoryCollectFunctor
+{
+public:
+	LLFindClothesOfType(EWearableType type) : mWearableType(type) {}
+	virtual ~LLFindClothesOfType() {}
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		if (!item) return false;
+		if (item->getType() != LLAssetType::AT_CLOTHING) return false;
+		
+		LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+		if (!vitem || vitem->getWearableType() != mWearableType) return false;
+
+		return true;
+	}
+
+	const EWearableType mWearableType;
+};
+
+
 LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy():
 	mFireCount(0)
 {
@@ -1593,8 +1625,11 @@ bool LLAppearanceMgr::updateBaseOutfit()
 	// in a Base Outfit we do not remove items, only links
 	purgeCategory(base_outfit_id, false);
 
+
+	LLPointer<LLInventoryCallback> dirty_state_updater = new LLUpdateDirtyState();
+
 	//COF contains only links so we copy to the Base Outfit only links
-	shallowCopyCategoryContents(getCOF(), base_outfit_id, NULL);
+	shallowCopyCategoryContents(getCOF(), base_outfit_id, dirty_state_updater);
 
 	return true;
 }
@@ -1801,6 +1836,63 @@ void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 	default: break;
 	}
 }
+
+
+bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_body)
+{
+	if (!item || !item->isWearableType()) return false;
+	if (item->getType() != LLAssetType::AT_CLOTHING) return false;
+	if (!gInventory.isObjectDescendentOf(item->getUUID(), getCOF())) return false;
+
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindClothesOfType filter_wearables_of_type(item->getWearableType());
+	gInventory.collectDescendentsIf(getCOF(), cats, items, true, filter_wearables_of_type);
+	if (items.empty()) return false;
+
+	//*TODO all items are not guarantied to have valid descriptions (check?)
+	std::sort(items.begin(), items.end(), WearablesOrderComparator(item->getWearableType()));
+
+	if (closer_to_body && items.front() == item) return false;
+	if (!closer_to_body && items.back() == item) return false;
+	
+	LLInventoryModel::item_array_t::iterator it = std::find(items.begin(), items.end(), item);
+	if (items.end() == it) return false;
+
+
+	//swapping descriptions
+	closer_to_body ? --it : ++it;
+	LLViewerInventoryItem* swap_item = *it;
+	if (!swap_item) return false;
+	std::string tmp = swap_item->LLInventoryItem::getDescription();
+	swap_item->setDescription(item->LLInventoryItem::getDescription());
+	item->setDescription(tmp);
+
+
+	//items need to be updated on a dataserver
+	item->setComplete(TRUE);
+	item->updateServer(FALSE);
+	gInventory.updateItem(item);
+
+	swap_item->setComplete(TRUE);
+	swap_item->updateServer(FALSE);
+	gInventory.updateItem(swap_item);
+
+	//to cause appearance of the agent to be updated
+	bool result = false;
+	if (result = gAgentWearables.moveWearable(item, closer_to_body))
+	{
+		gAgentAvatarp->wearableUpdated(item->getWearableType(), TRUE);
+	}
+
+	setOutfitDirty(true);
+
+	//*TODO do we need to notify observers here in such a way?
+	gInventory.notifyObservers();
+
+	return result;
+}
+
 
 //#define DUMP_CAT_VERBOSE
 

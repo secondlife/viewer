@@ -10994,5 +10994,16 @@
       <integer>2048</integer>
     </map>
     <!-- End of back compatibility settings -->
+    <key>teleport_offer_invitation_max_length</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum length of teleport offer invitation line editor. 254 - max_location_url_length(76) = 178</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>178</integer>
+    </map>
 </map>
 </llsd>

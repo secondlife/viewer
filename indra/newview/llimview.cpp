@@ -1767,6 +1767,8 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 			getChild<LLTextBox>("leaving")->setVisible(true);
 		}
 		break;
+	// STATE_READY is here to show appropriate text for ad-hoc and group calls when floater is shown(EXT-6893)
+	case LLVoiceChannel::STATE_READY :
 	case LLVoiceChannel::STATE_RINGING :
 		if(show_oldchannel)
 		{
