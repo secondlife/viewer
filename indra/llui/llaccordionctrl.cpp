@@ -668,15 +668,23 @@ S32	LLAccordionCtrl::notifyParent(const LLSD& info)
 				LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(mAccordionTabs[i]);
 				if(accordion_tab->hasFocus() && i>0)
 				{
+					bool prev_visible_tab_found = false;
 					while(i>0)
 					{
 						if(mAccordionTabs[--i]->getVisible())
+						{
+							prev_visible_tab_found = true;
 							break;
+						}
 					}
-					
-					accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(mAccordionTabs[i]);
-					accordion_tab->notify(LLSD().with("action","select_last"));
-					return 1;
+
+					if (prev_visible_tab_found)
+					{
+						accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(mAccordionTabs[i]);
+						accordion_tab->notify(LLSD().with("action","select_last"));
+						return 1;
+					}
+					break;
 				}
 			}
 			return 0;
