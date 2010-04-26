@@ -182,7 +182,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	gGL.setColorMask(true, true);
 
-	if (LLPipeline::sFastAlpha && !deferred_render)
+	if (LLPipeline::sAutoMaskAlphaNonDeferred && !deferred_render)
 	{
 		mColorSFactor = LLRender::BF_ONE;  // }
 		mColorDFactor = LLRender::BF_ZERO; // } these are like disabling blend on the color channels, but we're still blending on the alpha channel so that we can suppress glow
