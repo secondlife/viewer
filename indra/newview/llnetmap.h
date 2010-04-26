@@ -46,10 +46,6 @@ class LLImageRaw;
 class LLTextBox;
 class LLViewerTexture;
 
-const F32 MAP_SCALE_MIN = 64.f;
-const F32 MAP_SCALE_MID = 172.f;
-const F32 MAP_SCALE_MAX = 512.f;
-
 class LLNetMap : public LLUICtrl
 {
 public:

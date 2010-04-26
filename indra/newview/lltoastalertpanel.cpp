@@ -50,6 +50,7 @@
 #include "llnotifications.h"
 #include "llfunctorregistry.h"
 #include "llrootview.h"
+#include "llviewercontrol.h" // for gSavedSettings
 
 const S32 MAX_ALLOWED_MSG_WIDTH = 400;
 const F32 DEFAULT_BUTTON_DELAY = 0.5f;
@@ -279,7 +280,18 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->reshape(leditor_rect.getWidth(), leditor_rect.getHeight());
 			mLineEditor->setRect(leditor_rect);
 			mLineEditor->setText(edit_text_contents);
-			mLineEditor->setMaxTextLength(STD_STRING_STR_LEN - 1);
+
+			// decrease limit of line editor of teleport offer dialog to avoid truncation of
+			// location URL in invitation message, see EXT-6891
+			if ("OfferTeleport" == mNotification->getName())
+			{
+				mLineEditor->setMaxTextLength(gSavedSettings.getS32(
+						"teleport_offer_invitation_max_length"));
+			}
+			else
+			{
+				mLineEditor->setMaxTextLength(STD_STRING_STR_LEN - 1);
+			}
 
 			LLToastPanel::addChild(mLineEditor);
 

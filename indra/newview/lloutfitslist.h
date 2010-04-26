@@ -59,6 +59,14 @@ public:
 	void setFilterSubString(const std::string& string);
 
 private:
+	/**
+	 * Reads xml with accordion tab and Flat list from xml file.
+	 *
+	 * @return LLPointer to XMLNode with accordion tab and flat list.
+	 */
+	LLXMLNodePtr getAccordionTabXMLNode();
+
+
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 
 	LLAccordionCtrl*				mAccordion;

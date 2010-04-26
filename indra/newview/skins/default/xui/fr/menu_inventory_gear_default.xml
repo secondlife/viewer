@@ -7,7 +7,7 @@
 	<menu_item_call label="Réinitialiser les filtres" name="reset_filters"/>
 	<menu_item_call label="Fermer tous les dossiers" name="close_folders"/>
 	<menu_item_call label="Vider la corbeille" name="empty_trash"/>
-	<menu_item_call label="Vider les Objets trouvés" name="empty_lostnfound"/>
+	<menu_item_call label="Vider les objets trouvés" name="empty_lostnfound"/>
 	<menu_item_call label="Enregistrer la texture sous" name="Save Texture As"/>
 	<menu_item_call label="Trouver l&apos;original" name="Find Original"/>
 	<menu_item_call label="Trouver tous les liens" name="Find All Links"/>

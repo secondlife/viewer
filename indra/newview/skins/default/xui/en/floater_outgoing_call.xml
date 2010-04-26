@@ -119,7 +119,7 @@ No Answer.  Please try again later.
      layout="topleft"
      left="77"
      name="leaving"
-     top="52"
+     top="62"
      width="315"
      word_wrap="true">
 Leaving [CURRENT_CHAT].
