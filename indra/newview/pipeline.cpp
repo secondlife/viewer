@@ -7605,115 +7605,172 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	LLPipeline::sShadowRender = FALSE;
 }
 
-
+static LLFastTimer::DeclareTimer FTM_VISIBLE_CLOUD("Visible Cloud");
 BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir)
 {
+	LLFastTimer t(FTM_VISIBLE_CLOUD);
 	//get point cloud of intersection of frust and min, max
 
-	//get set of planes
-	std::vector<LLPlane> ps;
-	
 	if (getVisibleExtents(camera, min, max))
 	{
 		return FALSE;
 	}
 
-	ps.push_back(LLPlane(min, LLVector3(-1,0,0)));
-	ps.push_back(LLPlane(min, LLVector3(0,-1,0)));
-	ps.push_back(LLPlane(min, LLVector3(0,0,-1)));
-	ps.push_back(LLPlane(max, LLVector3(1,0,0)));
-	ps.push_back(LLPlane(max, LLVector3(0,1,0)));
-	ps.push_back(LLPlane(max, LLVector3(0,0,1)));
-
-	/*if (!light_dir.isExactlyZero())
-	{
-		LLPlane ucp;
-		LLPlane mcp;
-
-		F32 maxd = -1.f;
-		F32 mind = 1.f;
-
-		for (U32 i = 0; i < ps.size(); ++i)
-		{  //pick the plane most aligned to lightDir for user clip plane
-			LLVector3 n(ps[i].mV);
-			F32 da = n*light_dir;
-			if (da > maxd)
-			{
-				maxd = da;
-				ucp = ps[i];
-			}
-
-			if (da < mind)
-			{
-				mind = da;
-				mcp = ps[i];
-			}
-		}
-			
-		camera.setUserClipPlane(ucp);
-
-		ps.clear();
-		ps.push_back(ucp);
-		ps.push_back(mcp);
-	}*/
+	//get set of planes on bounding box
+	std::vector<LLPlane> bp;
+		
+	bp.push_back(LLPlane(min, LLVector3(-1,0,0)));
+	bp.push_back(LLPlane(min, LLVector3(0,-1,0)));
+	bp.push_back(LLPlane(min, LLVector3(0,0,-1)));
+	bp.push_back(LLPlane(max, LLVector3(1,0,0)));
+	bp.push_back(LLPlane(max, LLVector3(0,1,0)));
+	bp.push_back(LLPlane(max, LLVector3(0,0,1)));
 	
-	for (U32 i = 0; i < 6; i++)
+	//potential points
+	std::vector<LLVector3> pp;
+
+	//add corners of AABB
+	pp.push_back(LLVector3(min.mV[0], min.mV[1], min.mV[2]));
+	pp.push_back(LLVector3(max.mV[0], min.mV[1], min.mV[2]));
+	pp.push_back(LLVector3(min.mV[0], max.mV[1], min.mV[2]));
+	pp.push_back(LLVector3(max.mV[0], max.mV[1], min.mV[2]));
+	pp.push_back(LLVector3(min.mV[0], min.mV[1], max.mV[2]));
+	pp.push_back(LLVector3(max.mV[0], min.mV[1], max.mV[2]));
+	pp.push_back(LLVector3(min.mV[0], max.mV[1], max.mV[2]));
+	pp.push_back(LLVector3(max.mV[0], max.mV[1], max.mV[2]));
+
+	//add corners of camera frustum
+	for (U32 i = 0; i < 8; i++)
 	{
-		ps.push_back(camera.getAgentPlane(i));
+		pp.push_back(camera.mAgentFrustum[i]);
 	}
 
-	//get set of points where planes intersect and points are not above any plane
-	fp.clear();
-	
-	for (U32 i = 0; i < ps.size(); ++i)
+
+	//bounding box line segments
+	U32 bs[] = 
 	{
-		for (U32 j = 0; j < ps.size(); ++j)
+		0,1,
+		1,3,
+		3,2,
+		2,0,
+
+		4,5,
+		5,7,
+		7,6,
+		6,4,
+
+		0,4,
+		1,5,
+		3,7,
+		2,6
+	};
+
+	for (U32 i = 0; i < 12; i++)
+	{ //for each line segment in bounding box
+		for (U32 j = 0; j < 6; j++) 
+		{ //for each plane in camera frustum
+			const LLPlane& cp = camera.getAgentPlane(j);
+			const LLVector3& v1 = pp[bs[i*2+0]];
+			const LLVector3& v2 = pp[bs[i*2+1]];
+			const LLVector3 n(cp.mV);
+
+			LLVector3 line = v1-v2;
+
+			F32 d1 = line*n;
+			F32 d2 = -cp.dist(v2);
+
+			F32 t = d2/d1;
+
+			if (t > 0.f && t < 1.f)
+			{
+				LLVector3 intersect = v2+line*t;
+				pp.push_back(intersect);
+			}
+		}
+	}
+
+	//camera frustum line segments
+	const U32 fs[] =
+	{
+		0,1,
+		1,2,
+		2,3,
+		3,1,
+
+		4,5,
+		5,6,
+		6,7,
+		7,4,
+
+		0,4,
+		1,5,
+		2,6,
+		3,7	
+	};
+
+	LLVector3 center = (max+min)*0.5f;
+	LLVector3 size = (max-min)*0.5f;
+
+	for (U32 i = 0; i < 12; i++)
+	{
+		for (U32 j = 0; j < 6; ++j)
 		{
-			for (U32 k = 0; k < ps.size(); ++k)
+			const LLVector3& v1 = pp[fs[i*2+0]+8];
+			const LLVector3& v2 = pp[fs[i*2+1]+8];
+			const LLPlane& cp = bp[j];
+			const LLVector3 n(cp.mV);
+
+			LLVector3 line = v1-v2;
+
+			F32 d1 = line*n;
+			F32 d2 = -cp.dist(v2);
+
+			F32 t = d2/d1;
+
+			if (t > 0.f && t < 1.f)
 			{
-				if (i == j ||
-					i == k ||
-					k == j)
-				{
-					continue;
-				}
-
-				LLVector3 n1,n2,n3;
-				F32 d1,d2,d3;
-
-				n1.setVec(ps[i].mV);
-				n2.setVec(ps[j].mV);
-				n3.setVec(ps[k].mV);
-
-				d1 = ps[i].mV[3];
-				d2 = ps[j].mV[3];
-				d3 = ps[k].mV[3];
-			
-				//get point of intersection of 3 planes "p"
-				LLVector3 p = (-d1*(n2%n3)-d2*(n3%n1)-d3*(n1%n2))/(n1*(n2%n3));
-				
-				if (llround(p*n1+d1, 0.1f) == 0.f &&
-					llround(p*n2+d2, 0.1f) == 0.f &&
-					llround(p*n3+d3, 0.1f) == 0.f)
-				{ //point is on all three planes
-					BOOL found = TRUE;
-					for (U32 l = 0; l < ps.size() && found; ++l)
-					{
-						if (llround(ps[l].dist(p), 0.1f) > 0.0f)
-						{ //point is above some plane, not contained
-							found = FALSE;	
-						}
-					}
-
-					if (found)
-					{
-						fp.push_back(p);
-					}
-				}
-			}
+				LLVector3 intersect = v2+line*t;
+				pp.push_back(intersect);
+			}	
 		}
 	}
 	
+	LLVector3 ext[] = { min-LLVector3(0.05f,0.05f,0.05f),
+		max+LLVector3(0.05f,0.05f,0.05f) };
+
+	for (U32 i = 0; i < pp.size(); ++i)
+	{
+		bool found = true;
+		
+		const F32* p = pp[i].mV;
+
+		for (U32 j = 0; j < 3; ++j)
+		{
+			if (p[j] < ext[0].mV[j] ||
+				p[j] > ext[1].mV[j])
+			{
+				found = false;
+				break;
+			}
+		}
+			
+		for (U32 j = 0; j < 6; ++j)
+		{
+			const LLPlane& cp = camera.getAgentPlane(j);
+			F32 dist = cp.dist(pp[i]);
+			if (dist > 0.05f) //point is above some plane, not contained
+			{
+				found = false;
+				break;
+			}
+		}
+
+		if (found)
+		{
+			fp.push_back(pp[i]);
+		}
+	}
+
 	if (fp.empty())
 	{
 		return FALSE;
