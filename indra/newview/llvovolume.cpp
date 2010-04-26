@@ -2921,9 +2921,7 @@ F32 LLVOVolume::getBinRadius()
 		{
 			LLFace* face = mDrawable->getFace(i);
 			if (face->getPoolType() == LLDrawPool::POOL_ALPHA &&
-				(!LLPipeline::sFastAlpha || 
-				face->getFaceColor().mV[3] != 1.f ||
-				!face->getTexture()->getIsAlphaMask()))
+			    !face->canRenderAsMask())
 			{
 				alpha_wrap = TRUE;
 				break;
@@ -3296,19 +3294,6 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
 static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
-bool LLVolumeGeometryManager::canRenderAsMask(LLFace* facep)
-{
-	const LLTextureEntry* te = facep->getTextureEntry();
-	return (
-		LLPipeline::sFastAlpha && // do we want masks at all?
-
-		(te->getColor().mV[3] == 1.0f) && // can't treat as mask if we have face alpha
-		!(LLPipeline::sRenderDeferred && te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible in deferred rendering mode, need to figure out why - for now, avoid
-		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
-
-		facep->getTexture()->getIsAlphaMask() // texture actually qualifies for masking (lazily calculated but expensive)
-		);
-}
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
@@ -3435,7 +3420,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 				if (type == LLDrawPool::POOL_ALPHA)
 				{
-					if (canRenderAsMask(facep))
+					if (facep->canRenderAsMask())
 					{ //can be treated as alpha mask
 						simple_faces.push_back(facep);
 					}
@@ -3784,7 +3769,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			if (is_alpha)
 			{
 				// can we safely treat this as an alpha mask?
-				if (canRenderAsMask(facep))
+				if (facep->canRenderAsMask())
 				{
 					if (te->getFullbright())
 					{

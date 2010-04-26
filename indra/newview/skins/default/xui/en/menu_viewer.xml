@@ -2137,14 +2137,24 @@
                  parameter="RenderDebugPipeline" />
             </menu_item_check>
             <menu_item_check
-             label="Fast Alpha"
-             name="Fast Alpha">
+             label="Automatic Alpha Masks (deferred)"
+             name="Automatic Alpha Masks (deferred)">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderFastAlpha" />
+                 parameter="RenderAutoMaskAlphaDeferred" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderFastAlpha" />
+                 parameter="RenderAutoMaskAlphaDeferred" />
+            </menu_item_check>
+            <menu_item_check
+             label="Automatic Alpha Masks (non-deferred)"
+             name="Automatic Alpha Masks (non-deferred)">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderAutoMaskAlphaNonDeferred" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderAutoMaskAlphaNonDeferred" />
             </menu_item_check>
             <menu_item_check
              label="Animation Textures"

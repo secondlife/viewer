@@ -6973,16 +6973,27 @@
       <key>Value</key>
       <real>256.0</real>
     </map>
-    <key>RenderFastAlpha</key>
+    <key>RenderAutoMaskAlphaNonDeferred</key>
     <map>
       <key>Comment</key>
-      <string>Use lossy alpha rendering optimization (opaque/nonexistent small alpha faces).</string>
+      <string>Use alpha masks where appropriate, in the non-deferred (non-'Lighting and Shadows') graphics mode</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderAutoMaskAlphaDeferred</key>
+    <map>
+      <key>Comment</key>
+      <string>Use alpha masks where appropriate, in the deferred ('Lighting and Shadows') graphics mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>RenderFastUI</key>
     <map>

@@ -620,8 +620,6 @@ class LLVolumeGeometryManager: public LLGeometryManager
 	virtual void getGeometry(LLSpatialGroup* group);
 	void genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
- private:
-	bool canRenderAsMask(LLFace* facep); // logic helper
 };
 
 //spatial partition that uses volume geometry manager (implemented in LLVOVolume.cpp)
