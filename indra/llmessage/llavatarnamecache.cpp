@@ -184,6 +184,7 @@ public:
 		av_name.mSLID = DUMMY_NAME;
 		av_name.mDisplayName = DUMMY_NAME;
 		av_name.mIsDisplayNameDefault = false;
+		av_name.mIsDummy = true;
 		av_name.mExpires = retry_timestamp;
 
 		// Add dummy records for all agent IDs in this request
@@ -358,8 +359,11 @@ void LLAvatarNameCache::exportFile(std::ostream& ostr)
 	{
 		const LLUUID& agent_id = it->first;
 		const LLAvatarName& av_name = it->second;
-		// key must be a string
-		agents[agent_id.asString()] = av_name.asLLSD();
+		if (!av_name.mIsDummy)
+		{
+			// key must be a string
+			agents[agent_id.asString()] = av_name.asLLSD();
+		}
 	}
 	LLSD data;
 	data["agents"] = agents;

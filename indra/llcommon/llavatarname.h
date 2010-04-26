@@ -61,6 +61,11 @@ public:
 	// a legacy first and last name, like "James Linden (james.linden)"
 	bool mIsDisplayNameDefault;
 
+	// Under error conditions, we may insert "dummy" records with
+	// names like "???" into caches as placeholders.  These can be
+	// shown in UI, but are not serialized.
+	bool mIsDummy;
+
 	// Names can change, so need to keep track of when name was
 	// last checked.
 	// Unix time-from-epoch seconds for efficiency
