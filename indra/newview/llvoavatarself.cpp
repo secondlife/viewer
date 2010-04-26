@@ -143,7 +143,9 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	mRegionCrossingCount(0)
 {
 	gAgentWearables.setAvatarObject(this);
-	
+
+	mMotionController.mIsSelf = TRUE;
+
 	lldebugs << "Marking avatar as self " << id << llendl;
 }
 

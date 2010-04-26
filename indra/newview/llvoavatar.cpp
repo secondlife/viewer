@@ -2259,11 +2259,6 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	idleUpdateRenderCost();
 	idleUpdateTractorBeam();
 
-	if (isSelf())
-	{
-		dumpAnimationState(this);
-	}
-	
 	return TRUE;
 }
 
@@ -3064,6 +3059,11 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 				addDebugText(output);
 			}
 		}
+	}
+
+	if (isSelf())
+	{
+		dumpAnimationState(this);
 	}
 
 	if (gNoRender)

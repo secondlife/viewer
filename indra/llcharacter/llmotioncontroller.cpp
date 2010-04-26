@@ -143,7 +143,8 @@ LLMotionController::LLMotionController()
 	  mPauseTime(0.f),
 	  mTimeStep(0.f),
 	  mTimeStepCount(0),
-	  mLastInterp(0.f)
+	  mLastInterp(0.f),
+	  mIsSelf(FALSE)
 {
 }
 
@@ -806,7 +807,10 @@ void LLMotionController::updateLoadingMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::updateMotions(bool force_update)
 {
-	dumpMotions();
+	if (mIsSelf)
+	{
+		dumpMotions();
+	}
 	
 	BOOL use_quantum = (mTimeStep != 0.f);
 
@@ -1041,10 +1045,10 @@ LLMotion* LLMotionController::findMotion(const LLUUID& id) const
 //-----------------------------------------------------------------------------
 void LLMotionController::dumpMotions()
 {
+	llinfos << "=====================================" << llendl;
 	for (motion_map_t::iterator iter = mAllMotions.begin();
 		 iter != mAllMotions.end(); iter++)
 	{
-		llinfos << "=====================================" << llendl;
 		LLUUID id = iter->first;
 		std::string state_string;
 		LLMotion *motion = iter->second;
