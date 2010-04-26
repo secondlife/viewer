@@ -744,12 +744,18 @@ LLRect LLFlatListView::getLastSelectedItemRect()
 
 void LLFlatListView::selectFirstItem	()
 {
+	// No items - no actions!
+	if (mItemPairs.empty()) return;
+
 	selectItemPair(mItemPairs.front(), true);
 	ensureSelectedVisible();
 }
 
 void LLFlatListView::selectLastItem		()
 {
+	// No items - no actions!
+	if (mItemPairs.empty()) return;
+
 	selectItemPair(mItemPairs.back(), true);
 	ensureSelectedVisible();
 }

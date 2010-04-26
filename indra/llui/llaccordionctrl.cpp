@@ -329,7 +329,7 @@ void LLAccordionCtrl::addCollapsibleCtrl(LLView* view)
 	LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(view);
 	if(!accordion_tab)
 		return;
-	if(std::find(getChildList()->begin(),getChildList()->end(),accordion_tab) == getChildList()->end())
+	if(std::find(beginChild(), endChild(), accordion_tab) == endChild())
 		addChild(accordion_tab);
 	mAccordionTabs.push_back(accordion_tab);
 
@@ -343,7 +343,7 @@ void LLAccordionCtrl::removeCollapsibleCtrl(LLView* view)
 	if(!accordion_tab)
 		return;
 
-	if(std::find(getChildList()->begin(),getChildList()->end(),accordion_tab) != getChildList()->end())
+	if(std::find(beginChild(), endChild(), accordion_tab) != endChild())
 		removeChild(accordion_tab);
 
 	for (std::vector<LLAccordionCtrlTab*>::iterator iter = mAccordionTabs.begin();
@@ -668,15 +668,23 @@ S32	LLAccordionCtrl::notifyParent(const LLSD& info)
 				LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(mAccordionTabs[i]);
 				if(accordion_tab->hasFocus() && i>0)
 				{
+					bool prev_visible_tab_found = false;
 					while(i>0)
 					{
 						if(mAccordionTabs[--i]->getVisible())
+						{
+							prev_visible_tab_found = true;
 							break;
+						}
 					}
-					
-					accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(mAccordionTabs[i]);
-					accordion_tab->notify(LLSD().with("action","select_last"));
-					return 1;
+
+					if (prev_visible_tab_found)
+					{
+						accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(mAccordionTabs[i]);
+						accordion_tab->notify(LLSD().with("action","select_last"));
+						return 1;
+					}
+					break;
 				}
 			}
 			return 0;

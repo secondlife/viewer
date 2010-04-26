@@ -62,7 +62,10 @@ bool LLFindOutfitItems::operator()(LLInventoryCategory* cat,
 
 static const LLDefaultChildRegistry::Register<LLWearableItemsList> r("wearable_items_list");
 
-LLWearableItemsList::LLWearableItemsList(const LLFlatListView::Params& p)
+LLWearableItemsList::Params::Params()
+{}
+
+LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 :	LLInventoryItemsList(p)
 {}
 
