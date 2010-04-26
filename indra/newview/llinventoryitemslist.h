@@ -2,6 +2,10 @@
  * @file llinventoryitemslist.h
  * @brief A list of inventory items represented by LLFlatListView.
  *
+ * Class LLInventoryItemsList implements a flat list of inventory items.
+ * Class LLPanelInventoryListItem displays inventory item as an element
+ * of LLInventoryItemsList.
+ *
  * $LicenseInfo:firstyear=2010&license=viewergpl$
  *
  * Copyright (c) 2010, Linden Research, Inc.
@@ -32,28 +36,23 @@
 #ifndef LL_LLINVENTORYITEMSLIST_H
 #define LL_LLINVENTORYITEMSLIST_H
 
+#include "lldarray.h"
+
 #include "llpanel.h"
-
-#include "llassettype.h"
-
-#include "llinventorytype.h"
 
 // newview
 #include "llflatlistview.h"
-#include "llinventorymodel.h"
 
 class LLIconCtrl;
 class LLTextBox;
+class LLViewerInventoryItem;
 
-class LLPanelInventoryItem : public LLPanel
+class LLPanelInventoryListItem : public LLPanel
 {
 public:
-	LLPanelInventoryItem(LLAssetType::EType asset_type,
-						 LLInventoryType::EType inventory_type,
-						 U32 wearable_type,
-						 const std::string &item_name,
-						 const std::string &hl);
-	virtual ~LLPanelInventoryItem();
+	static LLPanelInventoryListItem* createItemPanel(const LLViewerInventoryItem* item);
+
+	virtual ~LLPanelInventoryListItem();
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setValue(const LLSD& value);
@@ -62,6 +61,9 @@ public:
 
 	void onMouseEnter(S32 x, S32 y, MASK mask);
 	void onMouseLeave(S32 x, S32 y, MASK mask);
+
+protected:
+	LLPanelInventoryListItem(const LLViewerInventoryItem* item);
 
 private:
 	LLIconCtrl*		mIcon;
@@ -72,13 +74,17 @@ private:
 	std::string		mHighlightedText;
 };
 
-
 class LLInventoryItemsList : public LLFlatListView
 {
 public:
+	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params>
+	{
+		Params();
+	};
+
 	virtual ~LLInventoryItemsList();
 
-	void refreshList(const LLInventoryModel::item_array_t item_array);
+	void refreshList(const LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array);
 
 	/**
 	 * Let list know items need to be refreshed in next draw()
@@ -91,7 +97,7 @@ public:
 
 protected:
 	friend class LLUICtrlFactory;
-	LLInventoryItemsList(const LLFlatListView::Params& p);
+	LLInventoryItemsList(const LLInventoryItemsList::Params& p);
 
 	uuid_vec_t& getIDs() { return mIDs; }
 

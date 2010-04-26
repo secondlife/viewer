@@ -34,23 +34,32 @@
 
 #include "llpanel.h"
 
-#include "llassettype.h"
-
-#include "llinventorytype.h"
-
 // newview
 #include "llinventoryitemslist.h"
 
+/**
+ * @class LLWearableItemsList
+ *
+ * A flat list of wearable inventory items.
+ * Collects all items that can be a part of an outfit from
+ * an inventory category specified by UUID and displays them
+ * as a flat list.
+ */
 class LLWearableItemsList : public LLInventoryItemsList
 {
 public:
+	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>
+	{
+		Params();
+	};
+
 	virtual ~LLWearableItemsList();
 
 	void updateList(const LLUUID& category_id);
 
 protected:
 	friend class LLUICtrlFactory;
-	LLWearableItemsList(const LLFlatListView::Params& p);
+	LLWearableItemsList(const LLWearableItemsList::Params& p);
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H

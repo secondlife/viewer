@@ -329,7 +329,7 @@ void LLAccordionCtrl::addCollapsibleCtrl(LLView* view)
 	LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(view);
 	if(!accordion_tab)
 		return;
-	if(std::find(getChildList()->begin(),getChildList()->end(),accordion_tab) == getChildList()->end())
+	if(std::find(beginChild(), endChild(), accordion_tab) == endChild())
 		addChild(accordion_tab);
 	mAccordionTabs.push_back(accordion_tab);
 
@@ -343,7 +343,7 @@ void LLAccordionCtrl::removeCollapsibleCtrl(LLView* view)
 	if(!accordion_tab)
 		return;
 
-	if(std::find(getChildList()->begin(),getChildList()->end(),accordion_tab) != getChildList()->end())
+	if(std::find(beginChild(), endChild(), accordion_tab) != endChild())
 		removeChild(accordion_tab);
 
 	for (std::vector<LLAccordionCtrlTab*>::iterator iter = mAccordionTabs.begin();
