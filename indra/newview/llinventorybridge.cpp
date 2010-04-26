@@ -498,7 +498,7 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 			}
 		}
 		const LLViewerInventoryCategory *cat = model->getCategory(objects.get(i));
-		if (cat && !LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
+		if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
 		{
 			return FALSE;
 		}
@@ -645,13 +645,10 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		disabled_items.push_back(std::string("Paste"));
 	}
 
-	if (gAgent.isGodlike())
+	items.push_back(std::string("Paste As Link"));
+	if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
 	{
-		items.push_back(std::string("Paste As Link"));
-		if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
-		{
-			disabled_items.push_back(std::string("Paste As Link"));
-		}
+		disabled_items.push_back(std::string("Paste As Link"));
 	}
 
 	items.push_back(std::string("Paste Separator"));
@@ -1449,17 +1446,11 @@ BOOL LLItemBridge::isItemCopyable() const
 			return FALSE;
 		}
 
-		if (gAgent.isGodlike())
-		{
-			// All items can be copied in god mode since you can
-			// at least paste-as-link the item, though you 
-			// still may not be able paste the item.
-			return TRUE;
-		}
-		else
-		{
-			return (item->getPermissions().allowCopyBy(gAgent.getID()));
-		}
+		// All items can be copied in god mode since you can
+		// at least paste-as-link the item, though you 
+		// still may not be able paste the item.
+		return TRUE;
+		// return (item->getPermissions().allowCopyBy(gAgent.getID()));
 	}
 	return FALSE;
 }
@@ -1600,7 +1591,8 @@ BOOL LLFolderBridge::isUpToDate() const
 
 BOOL LLFolderBridge::isItemCopyable() const
 {
-	return FALSE;
+	// Can copy folders to paste-as-link, but not for straight paste.
+	return TRUE;
 }
 
 BOOL LLFolderBridge::copyToClipboard() const
@@ -2504,7 +2496,6 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			 ++iter)
 		{
 			const LLUUID &object_id = (*iter);
-#if SUPPORT_ENSEMBLES
 			if (LLInventoryCategory *cat = model->getCategory(object_id))
 			{
 				link_inventory_item(
@@ -2515,18 +2506,16 @@ void LLFolderBridge::pasteLinkFromClipboard()
 					LLAssetType::AT_LINK_FOLDER,
 					LLPointer<LLInventoryCallback>(NULL));
 			}
-			else
-#endif
-				if (LLInventoryItem *item = model->getItem(object_id))
-				{
-					link_inventory_item(
-						gAgent.getID(),
-						item->getLinkedUUID(),
-						parent_id,
-						item->getName(),
-						LLAssetType::AT_LINK,
-						LLPointer<LLInventoryCallback>(NULL));
-				}
+			else if (LLInventoryItem *item = model->getItem(object_id))
+			{
+				link_inventory_item(
+					gAgent.getID(),
+					item->getLinkedUUID(),
+					parent_id,
+					item->getName(),
+					LLAssetType::AT_LINK,
+					LLPointer<LLInventoryCallback>(NULL));
+			}
 		}
 	}
 }
