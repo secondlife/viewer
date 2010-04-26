@@ -90,6 +90,8 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
 
 class LLSetDisplayNameReply : public LLHTTPNode
 {
+	LOG_CLASS(LLSetDisplayNameReply);
+public:
 	/*virtual*/ void post(
 		LLHTTPNode::ResponsePtr response,
 		const LLSD& context,
@@ -102,8 +104,7 @@ class LLSetDisplayNameReply : public LLHTTPNode
 		std::string reason = body["reason"].asString();
 		LLSD content = body["content"];
 
-		llinfos << "JAMESDEBUG LLSetDisplayNameReply status " << status
-			<< " reason " << reason << llendl;
+		llinfos << "status " << status << " reason " << reason << llendl;
 
 		// inform caller of result
 		LLViewerDisplayName::sSetDisplayNameSignal(success, reason, content);
