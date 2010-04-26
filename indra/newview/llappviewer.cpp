@@ -3919,7 +3919,8 @@ void LLAppViewer::idleNameCache()
 	std::string name_lookup_url;
 	name_lookup_url.reserve(128); // avoid a memory allocation below
 	name_lookup_url = region->getCapability("GetDisplayNames");
-	if (!name_lookup_url.empty())
+	bool have_capability = !name_lookup_url.empty();
+	if (have_capability)
 	{
 		// we have support for display names, use it
 	    U32 url_size = name_lookup_url.size();
@@ -3937,6 +3938,21 @@ void LLAppViewer::idleNameCache()
 	{
 		// Display names not available on this region
 		LLAvatarNameCache::setNameLookupURL( std::string() );
+	}
+
+	// Error recovery - did we change state?
+	if (LLAvatarNameCache::useDisplayNames() && !have_capability)
+	{
+		// ...we just lost the capability, turn names off
+		LLAvatarNameCache::setUseDisplayNames(false);
+		// name tags are persistant on screen, so make sure they refresh
+		LLVOAvatar::invalidateNameTags();
+	}
+	else if (!LLAvatarNameCache::useDisplayNames() && have_capability)
+	{
+		// ...we just gained the capability, turn names on
+		LLAvatarNameCache::setUseDisplayNames(true);
+		LLVOAvatar::invalidateNameTags();
 	}
 
 	LLAvatarNameCache::idle();

@@ -3017,6 +3017,20 @@ void LLVOAvatar::invalidateNameTag(const LLUUID& agent_id)
 	avatar->clearNameTag();
 }
 
+//static
+void LLVOAvatar::invalidateNameTags()
+{
+	std::vector<LLCharacter*>::iterator it = LLCharacter::sInstances.begin();
+	for ( ; it != LLCharacter::sInstances.end(); ++it)
+	{
+		LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*it);
+		if (!avatar) continue;
+		if (avatar->isDead()) continue;
+
+		avatar->clearNameTag();
+	}
+}
+
 // Compute name tag position during idle update
 LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 {
