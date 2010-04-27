@@ -108,8 +108,10 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 	}
 
 	// Update the avatar name.
-	gCacheName->get(getAvatarId(), false,
-		boost::bind(&LLPanelProfileView::onNameCache, this, _1, _2, _3));
+//	gCacheName->get(getAvatarId(), false,
+//		boost::bind(&LLPanelProfileView::onNameCache, this, _1, _2, _3));
+	LLAvatarNameCache::get(getAvatarId(),
+		boost::bind(&LLPanelProfileView::onAvatarNameCache, this, _1, _2));
 
 	updateOnlineStatus();
 
@@ -199,22 +201,11 @@ void LLPanelProfileView::processOnlineStatus(bool online)
 	mStatusText->setValue(status);
 }
 
-void LLPanelProfileView::onNameCache(const LLUUID& id, const std::string& full_name, bool is_group)
+void LLPanelProfileView::onAvatarNameCache(const LLUUID& agent_id,
+										   const LLAvatarName& av_name)
 {
-	llassert(getAvatarId() == id);
-	// IDEVO
-	LLAvatarName av_name;
-	if (LLAvatarNameCache::useDisplayNames()
-		&& LLAvatarNameCache::get(id, &av_name))
-	{
-		getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
-		getChild<LLUICtrl>("user_slid")->setValue( av_name.mSLID );
-	}
-	else
-	{
-		getChild<LLUICtrl>("user_name")->setValue(full_name);
-		getChild<LLUICtrl>("user_slid")->setValue("");
-	}
+	getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+	getChild<LLUICtrl>("user_slid")->setValue( av_name.mSLID );
 }
 
 // EOF

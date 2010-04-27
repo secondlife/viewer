@@ -39,6 +39,7 @@
 #include "llagent.h"
 #include "lltooldraganddrop.h"
 
+class LLAvatarName;
 class LLPanelProfile;
 class LLPanelProfileTab;
 class LLTextBox;
@@ -99,10 +100,11 @@ protected:
 private:
 	// LLCacheName will call this function when avatar name is loaded from server.
 	// This is required to display names that have not been cached yet.
-	void onNameCache(
-		const LLUUID& id, 
-		const std::string& full_name,
-		bool is_group);
+//	void onNameCache(
+//		const LLUUID& id, 
+//		const std::string& full_name,
+//		bool is_group);
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 	LLTextBox* mStatusText;
 	AvatarStatusObserver* mAvatarStatusObserver;
