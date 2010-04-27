@@ -130,6 +130,9 @@
 		<widgettype>
 			none
 		</widgettype>
+		<impl>
+			media_plugin_webkit
+		</impl>
 	</mimetype>
 	<mimetype name="audio/*">
 		<label name="audio2_label">
@@ -160,6 +163,9 @@
 		<widgettype>
 			image
 		</widgettype>
+        <impl>
+			media_plugin_webkit
+		</impl>
 	</mimetype>
 	<mimetype menu="1" name="video/vnd.secondlife.qt.legacy">
 		<label name="vnd.secondlife.qt.legacy_label">
@@ -179,6 +185,9 @@
 		<widgettype>
 			web
 		</widgettype>
+		<impl>
+			media_plugin_webkit
+		</impl>
 	</mimetype>
 	<mimetype name="application/ogg">
 		<label name="application/ogg_label">
@@ -187,6 +196,9 @@
 		<widgettype>
 			audio
 		</widgettype>
+		<impl>
+			media_plugin_quicktime
+		</impl>
 	</mimetype>
 	<mimetype name="application/pdf">
 		<label name="application/pdf_label">
@@ -195,6 +207,9 @@
 		<widgettype>
 			image
 		</widgettype>
+		<impl>
+			media_plugin_webkit
+		</impl>
 	</mimetype>
 	<mimetype name="application/postscript">
 		<label name="application/postscript_label">
@@ -203,6 +218,9 @@
 		<widgettype>
 			image
 		</widgettype>
+		<impl>
+			media_plugin_webkit
+		</impl>
 	</mimetype>
 	<mimetype name="application/rtf">
 		<label name="application/rtf_label">
@@ -211,6 +229,9 @@
 		<widgettype>
 			image
 		</widgettype>
+		<impl>
+			media_plugin_webkit
+		</impl>
 	</mimetype>
 	<mimetype name="application/smil">
 		<label name="application/smil_label">
@@ -219,6 +240,9 @@
 		<widgettype>
 			movie
 		</widgettype>
+		<impl>
+			media_plugin_webkit
+		</impl>
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
@@ -227,6 +251,9 @@
 		<widgettype>
 			web
 		</widgettype>
+		<impl>
+			media_plugin_webkit
+		</impl>
 	</mimetype>
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
@@ -235,6 +262,9 @@
 		<widgettype>
 			image
 		</widgettype>
+		<impl>
+			media_plugin_webkit
+		</impl>
 	</mimetype>
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">
