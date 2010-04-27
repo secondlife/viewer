@@ -3117,4 +3117,7 @@ Abuse Report</string>
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
 
+  <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
+  <string name="sentences_separator" value=" "></string>
+
   </strings>
