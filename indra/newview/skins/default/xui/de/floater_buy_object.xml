@@ -6,7 +6,7 @@
 	<text name="buy_text">
 		[AMOUNT] L$ von [NAME] kaufen?
 	</text>
-	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn" width="73"/>
+	<button label="Abbrechen" label_selected="Abbrechen" name="cancel_btn"/>
 	<button label="Kaufen" label_selected="Kaufen" name="buy_btn"/>
 	<text name="title_buy_text">
 		Kaufen

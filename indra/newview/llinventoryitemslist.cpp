@@ -2,6 +2,10 @@
  * @file llinventoryitemslist.cpp
  * @brief A list of inventory items represented by LLFlatListView.
  *
+ * Class LLInventoryItemsList implements a flat list of inventory items.
+ * Class LLPanelInventoryListItem displays inventory item as an element
+ * of LLInventoryItemsList.
+ *
  * $LicenseInfo:firstyear=2010&license=viewergpl$
  *
  * Copyright (c) 2010, Linden Research, Inc.
@@ -39,33 +43,31 @@
 #include "lliconctrl.h"
 
 #include "llinventoryfunctions.h"
+#include "llinventorymodel.h"
 #include "lltextutil.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-LLPanelInventoryItem::LLPanelInventoryItem(LLAssetType::EType asset_type,
-										   LLInventoryType::EType inventory_type,
-										   U32 wearable_type,
-										   const std::string &item_name,
-										   const std::string &hl)
-:	 LLPanel()
-	,mItemName(item_name)
-	,mHighlightedText(hl)
-	,mIcon(NULL)
-	,mTitle(NULL)
+// static
+LLPanelInventoryListItem* LLPanelInventoryListItem::createItemPanel(const LLViewerInventoryItem* item)
 {
-	mItemIcon = get_item_icon(asset_type, inventory_type, wearable_type, FALSE);
-
-	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory_item.xml");
+	if (item)
+	{
+		return new LLPanelInventoryListItem(item);
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
-LLPanelInventoryItem::~LLPanelInventoryItem()
+LLPanelInventoryListItem::~LLPanelInventoryListItem()
 {}
 
 //virtual
-BOOL LLPanelInventoryItem::postBuild()
+BOOL LLPanelInventoryListItem::postBuild()
 {
 	mIcon = getChild<LLIconCtrl>("item_icon");
 	mTitle = getChild<LLTextBox>("item_name");
@@ -76,14 +78,14 @@ BOOL LLPanelInventoryItem::postBuild()
 }
 
 //virtual
-void LLPanelInventoryItem::setValue(const LLSD& value)
+void LLPanelInventoryListItem::setValue(const LLSD& value)
 {
 	if (!value.isMap()) return;
 	if (!value.has("selected")) return;
 	childSetVisible("selected_icon", value["selected"]);
 }
 
-void LLPanelInventoryItem::updateItem()
+void LLPanelInventoryListItem::updateItem()
 {
 	if (mItemIcon.notNull())
 		mIcon->setImage(mItemIcon);
@@ -95,28 +97,47 @@ void LLPanelInventoryItem::updateItem()
 		mHighlightedText);
 }
 
-void LLPanelInventoryItem::onMouseEnter(S32 x, S32 y, MASK mask)
+void LLPanelInventoryListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", true);
 
 	LLPanel::onMouseEnter(x, y, mask);
 }
 
-void LLPanelInventoryItem::onMouseLeave(S32 x, S32 y, MASK mask)
+void LLPanelInventoryListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	childSetVisible("hovered_icon", false);
 
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
+LLPanelInventoryListItem::LLPanelInventoryListItem(const LLViewerInventoryItem* item)
+:	 LLPanel()
+	,mIcon(NULL)
+	,mTitle(NULL)
+{
+	mItemName = item->getName();
+	mItemIcon = get_item_icon(item->getType(), item->getInventoryType(), item->getFlags(), FALSE);
+
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory_item.xml");
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-LLInventoryItemsList::LLInventoryItemsList(const LLFlatListView::Params& p)
+LLInventoryItemsList::Params::Params()
+{}
+
+LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p)
 :	LLFlatListView(p)
 ,	mNeedsRefresh(false)
-{}
+{
+	// TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
+	// but reset to true in all derived classes. This settings might need to
+	// be added to LLFlatListView::Params() and/or set to "true" by default.
+	setCommitOnSelectionChange(true);
+}
 
 // virtual
 LLInventoryItemsList::~LLInventoryItemsList()
@@ -196,10 +217,15 @@ void LLInventoryItemsList::computeDifference(
 
 void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item)
 {
-	llassert(item);
+	if (!item)
+	{
+		llwarns << "No inventory item. Couldn't create flat list item." << llendl;
+		llassert(!"No inventory item. Couldn't create flat list item.");
+	}
 
-	LLPanelInventoryItem *list_item = new LLPanelInventoryItem(item->getType(),
-		item->getInventoryType(), item->getFlags(), item->getName(), LLStringUtil::null);
+	LLPanelInventoryListItem *list_item = LLPanelInventoryListItem::createItemPanel(item);
+	if (!list_item)
+		return;
 
 	if (!addItem(list_item, item->getUUID()))
 	{
