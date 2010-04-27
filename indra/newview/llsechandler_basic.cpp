@@ -782,23 +782,49 @@ bool _cert_hostname_wildcard_match(const std::string& hostname, const std::strin
 {
 	std::string new_hostname = hostname;
 	std::string new_cn = common_name;
-	int subdomain_pos = new_hostname.find_first_of('.');
-	int subcn_pos = new_cn.find_first_of('.');
 	
+	// find the last '.' in the hostname and the match name.
+	int subdomain_pos = new_hostname.find_last_of('.');
+	int subcn_pos = new_cn.find_last_of('.');
+	
+	// if the last char is a '.', strip it
+	if(subdomain_pos == (new_hostname.length()-1))
+	{
+		new_hostname = new_hostname.substr(0, subdomain_pos);
+		subdomain_pos = new_hostname.find_last_of('.');
+	}
+	if(subcn_pos == (new_cn.length()-1))
+	{
+		new_cn = new_cn.substr(0, subcn_pos);
+		subcn_pos = new_cn.find_last_of('.');
+	}	
+
+	// Check to see if there are any further '.' in the string.  
 	while((subcn_pos != std::string::npos) && (subdomain_pos != std::string::npos))
 	{
-		// snip out the first subdomain and cn element
-
-		if(!_cert_subdomain_wildcard_match(new_hostname.substr(0, subdomain_pos),
-										   new_cn.substr(0, subcn_pos)))
+		// snip out last subdomain in both the match string and the hostname
+		// The last bit for 'my.current.host.com' would be 'com'  
+		std::string cn_part = new_cn.substr(subcn_pos+1, std::string::npos);
+		std::string hostname_part = new_hostname.substr(subdomain_pos+1, std::string::npos);
+		
+		if(!_cert_subdomain_wildcard_match(new_hostname.substr(subdomain_pos+1, std::string::npos),
+										   cn_part))
 		{
 			return FALSE;
 		}
-		new_hostname = new_hostname.substr(subdomain_pos+1, std::string::npos);
-		new_cn = new_cn.substr(subcn_pos+1, std::string::npos);
-		subdomain_pos = new_hostname.find_first_of('.');
-		subcn_pos = new_cn.find_first_of('.');
+		new_hostname = new_hostname.substr(0, subdomain_pos);
+		new_cn = new_cn.substr(0, subcn_pos);
+		subdomain_pos = new_hostname.find_last_of('.');
+		subcn_pos = new_cn.find_last_of('.');
+	}	
+	// check to see if the most significant portion of the common name is '*'.  If so, we can
+	// simply return success as child domains are also matched.
+	if(new_cn == "*")
+	{
+		// if it's just a '*' we support all child domains as well, so '*.
+		return TRUE;
 	}
+	
 	return _cert_subdomain_wildcard_match(new_hostname, new_cn);
 
 }

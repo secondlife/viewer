@@ -702,12 +702,18 @@ namespace tut
 	{
 		ensure("simple name match", 
 			   _cert_hostname_wildcard_match("foo", "foo"));
-		
+
 		ensure("simple name match, with end period", 
 			   _cert_hostname_wildcard_match("foo.", "foo."));
 		
 		ensure("simple name match, with begin period", 
 			   _cert_hostname_wildcard_match(".foo", ".foo"));		
+
+		ensure("simple name match, with mismatched period cn", 
+			   _cert_hostname_wildcard_match("foo.", "foo"));	
+		
+		ensure("simple name match, with mismatched period hostname", 
+			   _cert_hostname_wildcard_match("foo", "foo."));	
 		
 		ensure("simple name match, with subdomain", 
 			   _cert_hostname_wildcard_match("foo.bar", "foo.bar"));	
@@ -772,11 +778,26 @@ namespace tut
 		ensure("end periods", 
 			   _cert_hostname_wildcard_match("foo.bar.com.", "*.b*r.com."));	
 		
-		ensure("mismatch end period", 
-			   !_cert_hostname_wildcard_match("foo.bar.com.", "*.b*r.com"));
+		ensure("match end period", 
+			   _cert_hostname_wildcard_match("foo.bar.com.", "*.b*r.com"));
 		
-		ensure("mismatch end period2", 
-			   !_cert_hostname_wildcard_match("foo.bar.com", "*.b*r.com."));				
+		ensure("match end period2", 
+			   _cert_hostname_wildcard_match("foo.bar.com", "*.b*r.com."));
+		
+		ensure("wildcard mismatch", 
+			   !_cert_hostname_wildcard_match("bar.com", "*.bar.com"));	
+		
+		ensure("wildcard match", 
+			   _cert_hostname_wildcard_match("foo.bar.com", "*.bar.com"));	
+
+		ensure("wildcard match", 
+			   _cert_hostname_wildcard_match("foo.foo.bar.com", "*.bar.com"));	
+		
+		ensure("wildcard match", 
+			   _cert_hostname_wildcard_match("foo.foo.bar.com", "*.*.com"));
+		
+		ensure("wildcard mismatch", 
+			   !_cert_hostname_wildcard_match("foo.foo.bar.com", "*.foo.com"));			
 	}
 	
 	// test cert chain
