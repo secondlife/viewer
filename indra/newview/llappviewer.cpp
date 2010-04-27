@@ -3916,6 +3916,7 @@ void LLAppViewer::idleNameCache()
 	// granted to neighbor regions before the main agent gets there.  Can't
 	// do it in the move-into-region code because cap not guaranteed to be
 	// granted yet, for example on teleport.
+	bool had_capability = LLAvatarNameCache::hasNameLookupURL();
 	std::string name_lookup_url;
 	name_lookup_url.reserve(128); // avoid a memory allocation below
 	name_lookup_url = region->getCapability("GetDisplayNames");
@@ -3941,17 +3942,9 @@ void LLAppViewer::idleNameCache()
 	}
 
 	// Error recovery - did we change state?
-	if (LLAvatarNameCache::useDisplayNames() && !have_capability)
+	if (had_capability != have_capability)
 	{
-		// ...we just lost the capability, turn names off
-		LLAvatarNameCache::setUseDisplayNames(false);
 		// name tags are persistant on screen, so make sure they refresh
-		LLVOAvatar::invalidateNameTags();
-	}
-	else if (!LLAvatarNameCache::useDisplayNames() && have_capability)
-	{
-		// ...we just gained the capability, turn names on
-		LLAvatarNameCache::setUseDisplayNames(true);
 		LLVOAvatar::invalidateNameTags();
 	}
 

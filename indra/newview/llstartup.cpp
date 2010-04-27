@@ -2771,7 +2771,9 @@ void LLStartUp::initNameCache()
 	// Load stored cache if possible
 	LLAppViewer::instance()->loadNameCache();
 
-	LLAvatarNameCache::initClass();
+	// Start cache in not-running state until we figure out if we have
+	// capabilities for display name lookup
+	LLAvatarNameCache::initClass(false);
 }
 
 void LLStartUp::cleanupNameCache()

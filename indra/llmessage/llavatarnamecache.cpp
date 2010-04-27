@@ -44,9 +44,13 @@
 
 namespace LLAvatarNameCache
 {
-	// Will be turned on and off based on service availability, sometimes
-	// in the middle of a session.
+	// Manual override for display names - can disable even if the region
+	// supports it.
 	bool sUseDisplayNames = true;
+
+	// Cache starts in a paused state until we can determine if the
+	// current region supports display names.
+	bool sRunning = false;
 	
 	// Base lookup URL for name service.
 	// On simulator, loaded from indra.xml
@@ -318,8 +322,9 @@ void LLAvatarNameCache::requestNamesViaLegacy()
 	// JAMESDEBUG TODO
 }
 
-void LLAvatarNameCache::initClass()
+void LLAvatarNameCache::initClass(bool running)
 {
+	sRunning = running;
 }
 
 void LLAvatarNameCache::cleanupClass()
@@ -375,8 +380,16 @@ void LLAvatarNameCache::setNameLookupURL(const std::string& name_lookup_url)
 	sNameLookupURL = name_lookup_url;
 }
 
+bool LLAvatarNameCache::hasNameLookupURL()
+{
+	return !sNameLookupURL.empty();
+}
+
 void LLAvatarNameCache::idle()
 {
+	// By convention, start running at first idle() call
+	sRunning = true;
+
 	// 100 ms is the threshold for "user speed" operations, so we can
 	// stall for about that long to batch up requests.
 	const F32 SECS_BETWEEN_REQUESTS = 0.1f;
@@ -405,7 +418,6 @@ void LLAvatarNameCache::idle()
 	{
 		// ...fall back to legacy name cache system
 		requestNamesViaLegacy();
-		llwarns << "JAMESDEBUG legacy lookup call" << llendl;
 	}
 
 	// Move requests from Ask queue to Pending queue
@@ -451,11 +463,15 @@ void LLAvatarNameCache::eraseExpired()
 
 bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 {
-	std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
-	if (it != sCache.end())
+	if (sRunning)
 	{
-		*av_name = it->second;
-		return true;
+		// ...only do immediate lookups when cache is running
+		std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
+		if (it != sCache.end())
+		{
+			*av_name = it->second;
+			return true;
+		}
 	}
 
 	if (!isRequestPending(agent_id))
@@ -468,14 +484,18 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 
 void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
 {
-	std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
-	if (it != sCache.end())
+	if (sRunning)
 	{
-		// ...name already exists in cache, fire callback now
-		callback_signal_t signal;
-		signal.connect(slot);
-		signal(agent_id, it->second);
-		return;
+		// ...only do immediate lookups when cache is running
+		std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
+		if (it != sCache.end())
+		{
+			// ...name already exists in cache, fire callback now
+			callback_signal_t signal;
+			signal.connect(slot);
+			signal(agent_id, it->second);
+			return;
+		}
 	}
 
 	// schedule a request

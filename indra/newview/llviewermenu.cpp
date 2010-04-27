@@ -7597,6 +7597,8 @@ void toggle_display_names()
 {
 	bool use = LLAvatarNameCache::useDisplayNames();
 	LLAvatarNameCache::setUseDisplayNames(!use);
+
+	LLVOAvatar::invalidateNameTags();
 }
 
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
