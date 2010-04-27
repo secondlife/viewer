@@ -5,7 +5,7 @@
  height="290"
  layout="topleft"
  min_height="150"
- min_width="200"
+ min_width="225"
  name="contents"
  help_topic="contents"
  save_rect="true"
@@ -52,7 +52,7 @@
     <text
      type="string"
      length="1"
-     follows="all"
+     follows="left|top|right"
      font="SansSerif"
      height="16"
      layout="topleft"
@@ -90,7 +90,8 @@
      name="buy_text"
      text_color="white"
      top_pad="5"
-     width="276">
+     use_ellipses="true"
+     width="260">
         Buy for L$[AMOUNT] from [NAME]?
     </text>
     <button
