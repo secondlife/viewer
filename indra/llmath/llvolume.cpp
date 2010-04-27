@@ -2028,8 +2028,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 					while (joint != END_INFLUENCES)
 					{
 						U16 influence = weights[idx++];
-						influence = influence << 8;
-						influence |= weights[idx++];
+						influence |= ((U16) weights[idx++] << 8);
 
 						F32 w = llmin((F32) influence / 65535.f, 0.99999f);
 						face.mWeights[cur_vertex].mV[cur_influence++] = (F32) joint + w;
