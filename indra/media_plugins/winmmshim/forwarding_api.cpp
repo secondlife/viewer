@@ -210,9 +210,9 @@ mciGetYieldProc_type mciGetYieldProc_orig;
 mciLoadCommandResource_type mciLoadCommandResource_orig;
 mciExecute_type mciExecute_orig;
 
-
+// grab pointers to function calls in the real DLL
 void init_function_pointers(HMODULE winmm_handle)
-{
+{	
 	CloseDriver_orig = (CloseDriver_type)::GetProcAddress(winmm_handle, "CloseDriver");
 	OpenDriver_orig = (OpenDriver_type)::GetProcAddress(winmm_handle, "OpenDriver");
 	SendDriverMessage_orig = (SendDriverMessage_type)::GetProcAddress(winmm_handle, "SendDriverMessage");
@@ -536,7 +536,7 @@ extern "C" {
 	//MMRESULT WINAPI waveOutWrite( HWAVEOUT hwo, LPWAVEHDR pwh, UINT cbwh)
 	//{
 	//	//OutputDebugString(L"waveOutUnprepareHeader\n");
-	//	return waveOutUnprepareHeader_orig( hwo, pwh, cbwh);
+	//	return waveOutWrite_orig( hwo, pwh, cbwh);
 	//}
 
 	MMRESULT WINAPI waveOutPause( HWAVEOUT hwo)
