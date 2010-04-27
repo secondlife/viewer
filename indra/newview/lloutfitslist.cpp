@@ -36,6 +36,9 @@
 // llcommon
 #include "llcommonutils.h"
 
+// llcommon
+#include "llcommonutils.h"
+
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llinventoryfunctions.h"
@@ -119,31 +122,11 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		LLInventoryModel::EXCLUDE_TRASH,
 		is_category);
 
-	uuid_vec_t vnew;
-
-	// Creating a vector of newly collected sub-categories UUIDs.
-	for (LLInventoryModel::cat_array_t::const_iterator iter = cat_array.begin();
-		 iter != cat_array.end();
-		 ++iter)
-	{
-		vnew.push_back((*iter)->getUUID());
-	}
-
-	uuid_vec_t vcur;
-
-	// Creating a vector of currently displayed sub-categories UUIDs.
-	for (outfits_map_t::const_iterator iter = mOutfitsMap.begin();
-		 iter != mOutfitsMap.end();
-		 ++iter)
-	{
-		vcur.push_back((*iter).first);
-	}
-
 	uuid_vec_t vadded;
 	uuid_vec_t vremoved;
 
 	// Create added and removed items vectors.
-	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
+	computeDifference(cat_array, vadded, vremoved);
 
 	// Handle added tabs.
 	for (uuid_vec_t::const_iterator iter = vadded.begin();
@@ -272,6 +255,32 @@ LLXMLNodePtr LLOutfitsList::getAccordionTabXMLNode()
 	}
 
 	return xmlNode;
+}
+
+void LLOutfitsList::computeDifference(
+	const LLInventoryModel::cat_array_t& vcats, 
+	uuid_vec_t& vadded, 
+	uuid_vec_t& vremoved)
+{
+	uuid_vec_t vnew;
+	// Creating a vector of newly collected sub-categories UUIDs.
+	for (LLInventoryModel::cat_array_t::const_iterator iter = vcats.begin();
+		iter != vcats.end();
+		iter++)
+	{
+		vnew.push_back((*iter)->getUUID());
+	}
+
+	uuid_vec_t vcur;
+	// Creating a vector of currently displayed sub-categories UUIDs.
+	for (outfits_map_t::const_iterator iter = mOutfitsMap.begin();
+		iter != mOutfitsMap.end();
+		iter++)
+	{
+		vcur.push_back((*iter).first);
+	}
+
+	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
 }
 
 // EOF

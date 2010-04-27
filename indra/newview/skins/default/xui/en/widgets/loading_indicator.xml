@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<loading_indicator
+    follows="left|top"
+    mouse_opaque="false"
+    name="loading_indicator"
+    rotations_per_sec="1.0"
+    tab_stop="false"
+/>

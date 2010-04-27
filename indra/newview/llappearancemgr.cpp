@@ -1059,6 +1059,10 @@ bool sort_by_description(const LLInventoryItem* item1, const LLInventoryItem* it
 
 void LLAppearanceMgr::updateAppearanceFromCOF()
 {
+	//checking integrity of the COF in terms of ordering of wearables, 
+	//checking and updating links' descriptions of wearables in the COF (before analyzed for "dirty" state)
+	updateClothingOrderingInfo();
+
 	// update dirty flag to see if the state of the COF matches
 	// the saved outfit stored as a folder link
 	llinfos << "starting" << llendl;
@@ -1066,8 +1070,6 @@ void LLAppearanceMgr::updateAppearanceFromCOF()
 	updateIsDirty();
 
 	dumpCat(getCOF(),"COF, start");
-
-	updateClothingOrderingInfo();
 
 	bool follow_folder_links = true;
 	LLUUID current_outfit_id = getCOF();
@@ -1523,6 +1525,17 @@ void LLAppearanceMgr::removeCOFItemLinks(const LLUUID& item_id, bool do_update)
 	}
 }
 
+bool sort_by_linked_uuid(const LLViewerInventoryItem* item1, const LLViewerInventoryItem* item2)
+{
+	if (!item1 || !item2)
+	{
+		llwarning("item1, item2 cannot be null, something is very wrong", 0);
+		return true;
+	}
+
+	return item1->getLinkedUUID() < item2->getLinkedUUID();
+}
+
 void LLAppearanceMgr::updateIsDirty()
 {
 	LLUUID cof = getCOF();
@@ -1562,33 +1575,37 @@ void LLAppearanceMgr::updateIsDirty()
 			// Current outfit folder should have one more item than the outfit folder.
 			// this one item is the link back to the outfit folder itself.
 			mOutfitIsDirty = true;
+			return;
 		}
-		else
+
+		//getting rid of base outfit folder link to simplify comparison
+		for (LLInventoryModel::item_array_t::iterator it = cof_items.begin(); it != cof_items.end(); ++it)
 		{
-			typedef std::set<LLUUID> item_set_t;
-			item_set_t cof_set;
-			item_set_t outfit_set;
-
-			// sort COF items by UUID
-			for (S32 i = 0; i < cof_items.count(); ++i)
+			if (*it == base_outfit_item)
 			{
-				LLViewerInventoryItem *item = cof_items.get(i);
-				// don't add the base outfit link to the list of objects we're comparing
-				if(item != base_outfit_item)
-				{
-					cof_set.insert(item->getLinkedUUID());
-				}
+				cof_items.erase(it);
+				break;
 			}
-
-			// sort outfit folder by UUID
-			for (S32 i = 0; i < outfit_items.count(); ++i)
-			{
-				LLViewerInventoryItem *item = outfit_items.get(i);
-				outfit_set.insert(item->getLinkedUUID());
-			}
-
-			mOutfitIsDirty = (outfit_set != cof_set);
 		}
+
+		//"dirty" - also means a difference in linked UUIDs and/or a difference in wearables order (links' descriptions)
+		std::sort(cof_items.begin(), cof_items.end(), sort_by_linked_uuid);
+		std::sort(outfit_items.begin(), outfit_items.end(), sort_by_linked_uuid);
+
+		for (U32 i = 0; i < cof_items.size(); ++i)
+		{
+			LLViewerInventoryItem *item1 = cof_items.get(i);
+			LLViewerInventoryItem *item2 = outfit_items.get(i);
+
+			if (item1->getLinkedUUID() != item2->getLinkedUUID() || 
+				item1->LLInventoryItem::getDescription() != item2->LLInventoryItem::getDescription())
+			{
+				mOutfitIsDirty = true;
+				return;
+			}
+		}
+
+		mOutfitIsDirty = false;
 	}
 }
 

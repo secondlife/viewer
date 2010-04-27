@@ -108,6 +108,7 @@ set(viewer_SOURCE_FILES
     llclassifiedinfo.cpp
     llclassifiedstatsresponder.cpp
     llcloud.cpp
+    llcofwearables.cpp
     llcolorswatch.cpp
     llcommanddispatcherlistener.cpp
     llcommandhandler.cpp
@@ -622,6 +623,7 @@ set(viewer_HEADER_FILES
     llclassifiedinfo.h
     llclassifiedstatsresponder.h
     llcloud.h
+    llcofwearables.h
     llcolorswatch.h
     llcommanddispatcherlistener.h
     llcommandhandler.h

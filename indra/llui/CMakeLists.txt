@@ -52,6 +52,7 @@ set(llui_SOURCE_FILES
     llkeywords.cpp
     lllayoutstack.cpp
     lllineeditor.cpp
+    llloadingindicator.cpp
     lllocalcliprect.cpp
     llmenubutton.cpp
     llmenugl.cpp
@@ -144,6 +145,7 @@ set(llui_HEADER_FILES
     lllayoutstack.h
     lllazyvalue.h
     lllineeditor.h
+    llloadingindicator.h
     lllocalcliprect.h
     llmenubutton.h
     llmenugl.h

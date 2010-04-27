@@ -35,6 +35,7 @@
 #include "llpanel.h"
 
 // newview
+#include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 
 class LLAccordionCtrl;
@@ -78,6 +79,11 @@ private:
 	 * @return LLPointer to XMLNode with accordion tab and flat list.
 	 */
 	LLXMLNodePtr getAccordionTabXMLNode();
+
+	/**
+	 * Wrapper for LLCommonUtils::computeDifference. @see LLCommonUtils::computeDifference
+	 */
+	void computeDifference(const LLInventoryModel::cat_array_t& vcats, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
 
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
