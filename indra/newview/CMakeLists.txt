@@ -1459,8 +1459,6 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
       ${CMAKE_CURRENT_SOURCE_DIR}/fmod.dll
-      ${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}/media_plugin_quicktime.dll
-      ${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}/media_plugin_webkit.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtcore4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtgui4.dll
@@ -1500,6 +1498,7 @@ if (WINDOWS)
       SLPlugin
       media_plugin_quicktime
       media_plugin_webkit
+      winmm_shim
       windows-crash-logger
       windows-updater
       )
@@ -1540,8 +1539,6 @@ if (WINDOWS)
         
     add_dependencies(${VIEWER_BINARY_NAME} 
       SLPlugin 
-      media_plugin_quicktime 
-      media_plugin_webkit
       windows-updater 
       windows-crash-logger
       )
