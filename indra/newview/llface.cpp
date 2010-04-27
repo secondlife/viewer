@@ -1365,7 +1365,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			*binormals++ = binormal;
 		}
 		
-		if (rebuild_weights)
+		if (rebuild_weights && vf.mWeights.size() > i)
 		{
 			*weights++ = vf.mWeights[i];
 		}
