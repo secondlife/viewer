@@ -332,7 +332,7 @@ class WindowsManifest(ViewerManifest):
             self.path("media_plugin_webkit.dll")
             self.end_prefix()
 
-		# winmm.dll shim
+        # winmm.dll shim
         if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst="llplugin"):
             self.path("winmm.dll")
             self.end_prefix()

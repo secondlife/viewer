@@ -29,6 +29,6 @@ if (WINDOWS)
     winmm_shim
     PROPERTIES
     LINK_FLAGS "/MANIFEST:NO"
-	OUTPUT_NAME "winmm"
+    OUTPUT_NAME "winmm"
     )
 endif (WINDOWS)
