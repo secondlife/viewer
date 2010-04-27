@@ -678,7 +678,8 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		items.push_back(std::string("Open"));
+		
+		addOpenRightClickMenuOption(items);
 		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
@@ -732,6 +733,17 @@ void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 	{
 		disabled_items.push_back(std::string("Delete"));
 	}
+}
+
+void LLInvFVBridge::addOpenRightClickMenuOption(menuentry_vec_t &items)
+{
+	const LLInventoryObject *obj = getInventoryObject();
+	const BOOL is_link = (obj && obj->getIsLinkType());
+
+	if (is_link)
+		items.push_back(std::string("Open Original"));
+	else
+		items.push_back(std::string("Open"));
 }
 
 // *TODO: remove this
@@ -1100,7 +1112,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		gotoItem();
 	}
 
-	if ("open" == action)
+	if ("open" == action || "open_original" == action)
 	{
 		openItem();
 		return;
@@ -3324,7 +3336,7 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Share"));
 		}
 
-		items.push_back(std::string("Open"));
+		addOpenRightClickMenuOption(items);
 		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
@@ -3690,7 +3702,7 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		items.push_back(std::string("Open"));
+		addOpenRightClickMenuOption(items);
 		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
@@ -3969,7 +3981,7 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		if (!is_sidepanel)
 		{
-			items.push_back(std::string("Open"));
+			addOpenRightClickMenuOption(items);
 			items.push_back(std::string("Properties"));
 		}
 
@@ -4707,7 +4719,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		
 		if (can_open && !is_sidepanel)
 		{
-			items.push_back(std::string("Open"));
+			addOpenRightClickMenuOption(items);
 		}
 
 		if (!is_sidepanel)
@@ -5168,9 +5180,13 @@ const LLUUID &LLLinkFolderBridge::getFolderID() const
 
 // static
 void LLInvFVBridgeAction::doAction(LLAssetType::EType asset_type,
-								   const LLUUID& uuid,LLInventoryModel* model)
+								   const LLUUID& uuid,
+								   LLInventoryModel* model)
 {
-	LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
+	// Perform indirection in case of link.
+	const LLUUID& linked_uuid = gInventory.getLinkedItemID(uuid);
+
+	LLInvFVBridgeAction* action = createAction(asset_type,linked_uuid,model);
 	if(action)
 	{
 		action->doIt();
@@ -5283,7 +5299,8 @@ protected:
 
 };
 
-class LLNotecardBridgeAction: public LLInvFVBridgeAction
+class LLNotecardBridgeAction
+: public LLInvFVBridgeAction
 {
 	friend class LLInvFVBridgeAction;
 public:
