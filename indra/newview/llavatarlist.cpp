@@ -34,6 +34,7 @@
 
 // common
 #include "lltrans.h"
+#include "llcommonutils.h"
 
 #include "llavatarlist.h"
 #include "llagentdata.h" // for comparator
@@ -404,7 +405,6 @@ void LLAvatarList::computeDifference(
 	uuid_vec_t& vremoved)
 {
 	uuid_vec_t vcur;
-	uuid_vec_t vnew = vnew_unsorted;
 
 	// Convert LLSDs to LLUUIDs.
 	{
@@ -415,21 +415,7 @@ void LLAvatarList::computeDifference(
 			vcur.push_back(vcur_values[i].asUUID());
 	}
 
-	std::sort(vcur.begin(), vcur.end());
-	std::sort(vnew.begin(), vnew.end());
-
-	uuid_vec_t::iterator it;
-	size_t maxsize = llmax(vcur.size(), vnew.size());
-	vadded.resize(maxsize);
-	vremoved.resize(maxsize);
-
-	// what to remove
-	it = set_difference(vcur.begin(), vcur.end(), vnew.begin(), vnew.end(), vremoved.begin());
-	vremoved.erase(it, vremoved.end());
-
-	// what to add
-	it = set_difference(vnew.begin(), vnew.end(), vcur.begin(), vcur.end(), vadded.begin());
-	vadded.erase(it, vadded.end());
+	LLCommonUtils::computeDifference(vnew_unsorted, vcur, vadded, vremoved);
 }
 
 // Refresh shown time of our last interaction with all listed avatars.

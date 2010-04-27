@@ -38,6 +38,11 @@ namespace LLCommonUtils
 	 * Computes difference between 'vnew' and 'vcur' vectors.
 	 * Items present in 'vnew' and missing in 'vcur' are treated as added and are copied into 'vadded'
 	 * Items missing in 'vnew' and present in 'vcur' are treated as removed and are copied into 'vremoved'
+	 *
+	 * @param vnew[in] - incoming IDs
+	 * @param vcur[in] - current IDs
+	 * @param vadded[out] - difference between incoming and current IDS - added IDs
+	 * @param vremoved[out] - difference between incoming and current IDS - removed IDs
 	 */
 	LL_COMMON_API void computeDifference(
 		const uuid_vec_t& vnew,
