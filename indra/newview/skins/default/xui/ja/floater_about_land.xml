@@ -264,7 +264,7 @@
 			<text left="200" name="selected_objects_text">
 				[COUNT]
 			</text>
-			<text name="Autoreturn" width="500">
+			<text name="Autoreturn">
 				他人のオブジェクトを自動返却（分単位、0 で自動返却なし）：
 			</text>
 			<line_editor left_delta="5" name="clean other time" right="-80"/>

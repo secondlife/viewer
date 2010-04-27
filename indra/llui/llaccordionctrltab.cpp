@@ -554,7 +554,8 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 			}
 			
 			//LLAccordionCtrl should rearrange accodion tab if one of accordion change its size
-			getParent()->notifyParent(info);
+			if (getParent()) // A parent may not be set if tabs are added dynamically.
+				getParent()->notifyParent(info);
 			return 1;
 		}
 		else if(str_action == "select_prev") 

@@ -266,7 +266,7 @@ o suddivisa.
 			<text left="214" name="selected_objects_text" width="48">
 				[COUNT]
 			</text>
-			<text left="4" name="Autoreturn" width="412">
+			<text name="Autoreturn">
 				Restituzione automatica degli oggetti di altri residenti (minuti, 0 per disattivarla):
 			</text>
 			<line_editor name="clean other time" right="-20"/>

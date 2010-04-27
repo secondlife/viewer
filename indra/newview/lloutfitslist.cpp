@@ -33,6 +33,9 @@
 
 #include "lloutfitslist.h"
 
+// llcommon
+#include "llcommonutils.h"
+
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llinventoryfunctions.h"
@@ -45,7 +48,12 @@ LLOutfitsList::LLOutfitsList()
 	:	LLPanel()
 	,	mAccordion(NULL)
 	,	mListCommands(NULL)
-{}
+{
+	mCategoriesObserver = new LLInventoryCategoriesObserver();
+	gInventory.addObserver(mCategoriesObserver);
+
+	gInventory.addObserver(this);
+}
 
 LLOutfitsList::~LLOutfitsList()
 {
@@ -65,11 +73,6 @@ BOOL LLOutfitsList::postBuild()
 {
 	mAccordion = getChild<LLAccordionCtrl>("outfits_accordion");
 
-	mCategoriesObserver = new LLInventoryCategoriesObserver();
-	gInventory.addObserver(mCategoriesObserver);
-
-	gInventory.addObserver(this);
-
 	return TRUE;
 }
 
@@ -79,14 +82,14 @@ void LLOutfitsList::changed(U32 mask)
 	if (!gInventory.isInventoryUsable())
 		return;
 
-	// Start observing changes in "My Outfits" category.
 	const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	mCategoriesObserver->addCategory(outfits,
-			boost::bind(&LLOutfitsList::refreshList, this, outfits));
-
 	LLViewerInventoryCategory* category = gInventory.getCategory(outfits);
 	if (!category)
 		return;
+
+	// Start observing changes in "My Outfits" category.
+	mCategoriesObserver->addCategory(outfits,
+			boost::bind(&LLOutfitsList::refreshList, this, outfits));
 
 	// Fetch "My Outfits" contents and refresh the list to display
 	// initially fetched items. If not all items are fetched now
@@ -121,7 +124,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 	// Creating a vector of newly collected sub-categories UUIDs.
 	for (LLInventoryModel::cat_array_t::const_iterator iter = cat_array.begin();
 		 iter != cat_array.end();
-		 iter++)
+		 ++iter)
 	{
 		vnew.push_back((*iter)->getUUID());
 	}
@@ -131,35 +134,21 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 	// Creating a vector of currently displayed sub-categories UUIDs.
 	for (outfits_map_t::const_iterator iter = mOutfitsMap.begin();
 		 iter != mOutfitsMap.end();
-		 iter++)
+		 ++iter)
 	{
 		vcur.push_back((*iter).first);
 	}
 
-	// Sorting both vectors to compare.
-	std::sort(vcur.begin(), vcur.end());
-	std::sort(vnew.begin(), vnew.end());
-
 	uuid_vec_t vadded;
 	uuid_vec_t vremoved;
 
-	uuid_vec_t::iterator it;
-	size_t maxsize = llmax(vcur.size(), vnew.size());
-	vadded.resize(maxsize);
-	vremoved.resize(maxsize);
-
-	// what to remove
-	it = set_difference(vcur.begin(), vcur.end(), vnew.begin(), vnew.end(), vremoved.begin());
-	vremoved.erase(it, vremoved.end());
-
-	// what to add
-	it = set_difference(vnew.begin(), vnew.end(), vcur.begin(), vcur.end(), vadded.begin());
-	vadded.erase(it, vadded.end());
+	// Create added and removed items vectors.
+	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
 
 	// Handle added tabs.
 	for (uuid_vec_t::const_iterator iter = vadded.begin();
 		 iter != vadded.end();
-		 iter++)
+		 ++iter)
 	{
 		const LLUUID cat_id = (*iter);
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
@@ -175,7 +164,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
 
 		// *TODO: LLUICtrlFactory::defaultBuilder does not use "display_children" from xml. Should be investigated.
-		tab->setDisplayChildren(false); 
+		tab->setDisplayChildren(false);
 		mAccordion->addCollapsibleCtrl(tab);
 
 		// Map the new tab with outfit category UUID.
@@ -184,6 +173,9 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		// Start observing the new outfit category.
 		LLWearableItemsList* list  = tab->getChild<LLWearableItemsList>("wearable_items_list");
 		mCategoriesObserver->addCategory(cat_id, boost::bind(&LLWearableItemsList::updateList, list, cat_id));
+
+		// Setting drop down callback to monitor currently selected outfit.
+		tab->setDropDownStateChangedCallback(boost::bind(&LLOutfitsList::onTabExpandedCollapsed, this, list));
 
 		// Fetch the new outfit contents.
 		cat->fetch();
@@ -250,6 +242,14 @@ void LLOutfitsList::updateOutfitTab(const LLUUID& category_id)
 			tab_title->setText(name);
 		}
 	}
+}
+
+void LLOutfitsList::onTabExpandedCollapsed(LLWearableItemsList* list)
+{
+	if (!list)
+		return;
+
+	// TODO: Add outfit selection handling.
 }
 
 void LLOutfitsList::setFilterSubString(const std::string& string)
