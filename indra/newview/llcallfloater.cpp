@@ -115,7 +115,8 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLCallFloater::removeVoiceLeftParticipant, this, _1), voice_left_remove_delay);
 
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
-	LLVoiceClient::getInstance()->addObserver(this);
+	LLVoiceClient::instance().addObserver(dynamic_cast<LLVoiceClientParticipantObserver*>(this));
+	LLVoiceClient::instance().addObserver(dynamic_cast<LLVoiceClientFontsObserver*>(this));
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
 
 	// force docked state since this floater doesn't save it between recreations
@@ -135,7 +136,8 @@ LLCallFloater::~LLCallFloater()
 
 	if(LLVoiceClient::instanceExists())
 	{
-		LLVoiceClient::instance().removeObserver(this);
+		LLVoiceClient::instance().removeObserver(dynamic_cast<LLVoiceClientParticipantObserver*>(this));
+		LLVoiceClient::instance().removeObserver(dynamic_cast<LLVoiceClientFontsObserver*>(this));
 	}
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
@@ -208,11 +210,8 @@ void LLCallFloater::draw()
 }
 
 // virtual
-void LLCallFloater::onChange()
+void LLCallFloater::onParticipantsChanged()
 {
-	// *FIX: Temporarily dumping this here till I decide where it should go
-	updateVoiceFont();
-
 	if (NULL == mParticipants) return;
 
 	updateParticipantsVoiceState();
@@ -223,6 +222,31 @@ void LLCallFloater::onChange()
 	for (uuid_vec_t::const_iterator it = speakers_uuids.begin(); it != speakers_uuids.end(); it++)
 	{
 		mParticipants->addAvatarIDExceptAgent(*it);
+	}
+}
+
+// virtual
+void LLCallFloater::onVoiceFontsChanged()
+{
+	if (mVoiceFont)
+	{
+		mVoiceFont->removeall();
+		mVoiceFont->add(getString("no_voice_font"), LLUUID::null);
+
+		if (LLVoiceClient::instance().hasVoiceFonts())
+		{
+			const LLVoiceClient::voice_font_list_t font_list = LLVoiceClient::instance().getVoiceFontList();
+			for (LLVoiceClient::voice_font_list_t::const_iterator it = font_list.begin(); it != font_list.end(); ++it)
+			{
+				mVoiceFont->add(*(it->first), *(it->second), ADD_BOTTOM);
+			}
+			mVoiceFont->setEnabled(true);
+			mVoiceFont->setValue(LLVoiceClient::instance().getVoiceFont());
+		}
+		else
+		{
+			mVoiceFont->setEnabled(false);
+		}
 	}
 }
 
@@ -243,31 +267,6 @@ void LLCallFloater::leaveCall()
 void LLCallFloater::commitVoiceFont(LLUICtrl* ctrl, void* userdata)
 {
 	LLVoiceClient::getInstance()->setVoiceFont(ctrl->getValue());
-}
-
-void LLCallFloater::updateVoiceFont()
-{
-	if (mVoiceFont)
-	{
-		mVoiceFont->removeall();
-		mVoiceFont->add(getString("no_voice_font"), LLUUID::null);
-
-		if (LLVoiceClient::getInstance()->hasVoiceFonts())
-		{
-			const LLVoiceClient::voice_font_list_t font_list = LLVoiceClient::getInstance()->getVoiceFontList();
-
-			for (LLVoiceClient::voice_font_list_t::const_iterator it = font_list.begin(); it != font_list.end(); ++it)
-			{
-				mVoiceFont->add(*(it->first), *(it->second), ADD_BOTTOM);
-			}
-			mVoiceFont->setEnabled(true);
-			mVoiceFont->setValue(LLVoiceClient::getInstance()->getVoiceFont());
-		}
-		else
-		{
-			mVoiceFont->setEnabled(false);
-		}
-	}
 }
 
 void LLCallFloater::updateSession()
@@ -334,7 +333,7 @@ void LLCallFloater::updateSession()
 	}
 
 	updateTitle();
-	
+
 	//hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
 	childSetVisible("leave_call_btn_panel", !is_local_chat);
@@ -787,9 +786,6 @@ void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
 	{
 		reset(new_state);
 	}
-
-	// *FIX: Dumped here till I decide where to put it
-	updateVoiceFont();
 }
 
 void LLCallFloater::reset(const LLVoiceChannel::EState& new_state)

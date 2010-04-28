@@ -101,20 +101,20 @@
          orientation="horizontal"
          width="263">
           <layout_panel
-           auto_resize="false"
+           auto_resize="true"
            user_resize="false"
            follows="top|left"
            height="26"
            visible="true"
            layout="topleft"
            name="voice_font_panel"
-           width="120">
+           width="150">
             <combo_box
-             follows="left|top"
+             follows="left|top|right"
              height="23"
              name="voice_font"
              top_pad="0"
-             width="120">
+             width="150">
               <combo_box.item
                 label="No Voice Effect"
                 name="no_voice_font"
@@ -124,14 +124,14 @@
         <layout_panel
           auto_resize="false"
           user_resize="false" 
-          follows="top|left"
+          follows="top|right"
           height="26"
           visible="true"
           layout="topleft"
           name="leave_call_btn_panel"
           width="100">
            <button
-          follows="right|top"
+            follows="right|top"
             height="23"
             top_pad="0"
             label="Leave Call"

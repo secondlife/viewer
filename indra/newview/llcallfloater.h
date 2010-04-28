@@ -58,7 +58,9 @@ class LLSpeakersDelayActionsStorage;
  * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel
  * also provides a 'Leave Call' button to allow the Resident to leave that voice channel.
  */
-class LLCallFloater : public LLTransientDockableFloater, LLVoiceClientParticipantObserver
+class LLCallFloater : public LLTransientDockableFloater,
+							 LLVoiceClientParticipantObserver,
+							 LLVoiceClientFontsObserver
 {
 public:
 
@@ -76,7 +78,10 @@ public:
 	 *
 	 * Refreshes list to display participants not in voice as disabled.
 	 */
-	/*virtual*/ void onChange();
+	/*virtual*/ void onParticipantsChanged();
+
+	/// Called by LLVoiceClient::notifyVoiceFontObservers when voice font list is changed.
+	/*virtual*/ void onVoiceFontsChanged();
 
 	static void sOnCurrentChannelChanged(const LLUUID& session_id);
 
@@ -103,7 +108,6 @@ private:
 	void leaveCall();
 
 	static void commitVoiceFont(LLUICtrl*,void* userdata);
-	void updateVoiceFont();
 
 	/**
 	 * Updates mSpeakerManager and list according to current Voice Channel

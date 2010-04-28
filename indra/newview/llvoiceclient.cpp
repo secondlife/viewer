@@ -6641,6 +6641,7 @@ LLVoiceClient::sessionState::sessionState() :
 	mMuteDirty(false),
 	mParticipantsChanged(false)
 {
+	mVoiceFontID = LLUUID(gSavedSettings.getString("VoiceFontDefault"));
 }
 
 LLVoiceClient::sessionState::~sessionState()
@@ -7263,8 +7264,11 @@ bool LLVoiceClient::setVoiceFont(const LLUUID& id)
 
 	if (id.isNull() || (mVoiceFontMap.find(&id) != mVoiceFontMap.end()))
 	{
-		// *TODO: Check for expired fonts
+		// *TODO: Check for expired fonts?
 		mAudioSession->mVoiceFontID = id;
+
+		// *TODO: Separate voice font defaults for spatial chat and IM?
+		gSavedSettings.setString("VoiceFontDefault", id.asString());
 	}
 	else
 	{
@@ -7273,6 +7277,7 @@ bool LLVoiceClient::setVoiceFont(const LLUUID& id)
 	}
 
 	sessionSetVoiceFontSendMessage(mAudioSession);
+	notifyVoiceFontObservers();
 	return true;
 }
 
@@ -7339,6 +7344,7 @@ void LLVoiceClient::accountGetSessionFontsResponse(int statusCode, const std::st
 	{
 		setState(stateVoiceFontsReceived);
 	}
+	notifyVoiceFontObservers();
 }
 
 void LLVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
@@ -7358,9 +7364,32 @@ void LLVoiceClient::notifyParticipantObservers()
 		)
 	{
 		LLVoiceClientParticipantObserver* observer = *it;
-		observer->onChange();
-		// In case onChange() deleted an entry.
+		observer->onParticipantsChanged();
+		// In case onParticipantsChanged() deleted an entry.
 		it = mParticipantObservers.upper_bound(observer);
+	}
+}
+
+void LLVoiceClient::addObserver(LLVoiceClientFontsObserver* observer)
+{
+	mVoiceFontObservers.insert(observer);
+}
+
+void LLVoiceClient::removeObserver(LLVoiceClientFontsObserver* observer)
+{
+	mVoiceFontObservers.erase(observer);
+}
+
+void LLVoiceClient::notifyVoiceFontObservers()
+{
+	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
+		 it != mVoiceFontObservers.end();
+		 )
+	{
+		LLVoiceClientFontsObserver* observer = *it;
+		observer->onVoiceFontsChanged();
+		// In case onVoiceFontsChanged() deleted an entry.
+		it = mVoiceFontObservers.upper_bound(observer);
 	}
 }
 

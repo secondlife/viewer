@@ -49,7 +49,14 @@ class LLVoiceClientParticipantObserver
 {
 public:
 	virtual ~LLVoiceClientParticipantObserver() { }
-	virtual void onChange() = 0;
+	virtual void onParticipantsChanged() = 0;
+};
+
+class LLVoiceClientFontsObserver
+{
+public:
+	virtual ~LLVoiceClientFontsObserver() { }
+	virtual void onVoiceFontsChanged() = 0;
 };
 
 class LLVoiceClientStatusObserver
@@ -500,6 +507,9 @@ static	void updatePosition(void);
 		void addObserver(LLVoiceClientParticipantObserver* observer);
 		void removeObserver(LLVoiceClientParticipantObserver* observer);
 
+		void addObserver(LLVoiceClientFontsObserver* observer);
+		void removeObserver(LLVoiceClientFontsObserver* observer);
+
 		void addObserver(LLVoiceClientStatusObserver* observer);
 		void removeObserver(LLVoiceClientStatusObserver* observer);
 
@@ -831,6 +841,11 @@ static	std::string nameFromsipURI(const std::string &uri);
 		observer_set_t mParticipantObservers;
 
 		void notifyParticipantObservers();
+
+		typedef std::set<LLVoiceClientFontsObserver*> voice_font_observer_set_t;
+		voice_font_observer_set_t mVoiceFontObservers;
+
+		void notifyVoiceFontObservers();
 
 		typedef std::set<LLVoiceClientStatusObserver*> status_observer_set_t;
 		status_observer_set_t mStatusObservers;
