@@ -372,32 +372,31 @@ LLEditWearableDictionary::PickerControlEntry::PickerControlEntry(ETextureIndex t
 }
 
 // Helper functions.
+static const texture_vec_t null_texture_vec;
 
 // Specializations of this template function return a vector of texture indexes of particular control type
 // (i.e. LLColorSwatchCtrl or LLTextureCtrl) which are contained in given WearableEntry.
 template <typename T>
 const texture_vec_t&
-get_pickers_indexes(const LLEditWearableDictionary::WearableEntry *wearable_entry);
+get_pickers_indexes(const LLEditWearableDictionary::WearableEntry *wearable_entry) { return null_texture_vec; }
 
 // Specializations of this template function return picker control entry for particular control type.
 template <typename T>
-const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry*
-get_picker_entry (const ETextureIndex index);
+const LLEditWearableDictionary::PickerControlEntry*
+get_picker_entry (const ETextureIndex index) { return NULL; }
 
-typedef boost::function<void(LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry*)> function_t;
+typedef boost::function<void(LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry*)> function_t;
 
 typedef struct PickerControlEntryNamePredicate
 {
 	PickerControlEntryNamePredicate(const std::string name) : mName (name) {};
-	bool operator()(const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry* entry) const
+	bool operator()(const LLEditWearableDictionary::PickerControlEntry* entry) const
 	{
 		return (entry && entry->mName == mName);
 	}
 private:
 	const std::string mName;
 } PickerControlEntryNamePredicate;
-
-static const texture_vec_t null_texture_vec;
 
 // A full specialization of get_pickers_indexes for LLColorSwatchCtrl
 template <>
@@ -427,7 +426,7 @@ get_pickers_indexes<LLTextureCtrl> (const LLEditWearableDictionary::WearableEntr
 
 // A full specialization of get_picker_entry for LLColorSwatchCtrl
 template <>
-const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry*
+const LLEditWearableDictionary::PickerControlEntry*
 get_picker_entry<LLColorSwatchCtrl> (const ETextureIndex index)
 {
 	return LLEditWearableDictionary::getInstance()->getColorSwatch(index);
@@ -435,14 +434,14 @@ get_picker_entry<LLColorSwatchCtrl> (const ETextureIndex index)
 
 // A full specialization of get_picker_entry for LLTextureCtrl
 template <>
-const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry*
+const LLEditWearableDictionary::PickerControlEntry*
 get_picker_entry<LLTextureCtrl> (const ETextureIndex index)
 {
 	return LLEditWearableDictionary::getInstance()->getTexturePicker(index);
 }
 
 template <typename CtrlType, class Predicate>
-const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry*
+const LLEditWearableDictionary::PickerControlEntry*
 find_picker_ctrl_entry_if(EWearableType type, const Predicate pred)
 {
 	const LLEditWearableDictionary::WearableEntry *wearable_entry
@@ -459,7 +458,7 @@ find_picker_ctrl_entry_if(EWearableType type, const Predicate pred)
 		 iter != iter_end; ++iter)
 	{
 		const ETextureIndex te = *iter;
-		const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry*	entry
+		const LLEditWearableDictionary::PickerControlEntry*	entry
 			= get_picker_entry<CtrlType>(te);
 		if (!entry)
 		{
@@ -497,7 +496,7 @@ for_each_picker_ctrl_entry(LLPanel* panel, EWearableType type, function_t fun)
 		 iter != iter_end; ++iter)
 	{
 		const ETextureIndex te = *iter;
-		const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry*	entry
+		const LLEditWearableDictionary::PickerControlEntry*	entry
 			= get_picker_entry<CtrlType>(te);
 		if (!entry)
 		{
@@ -509,7 +508,7 @@ for_each_picker_ctrl_entry(LLPanel* panel, EWearableType type, function_t fun)
 }
 
 // The helper functions for pickers management
-static void init_color_swatch_ctrl(LLPanelEditWearable* self, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry* entry)
+static void init_color_swatch_ctrl(LLPanelEditWearable* self, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry* entry)
 {
 	LLColorSwatchCtrl* color_swatch_ctrl = panel->getChild<LLColorSwatchCtrl>(entry->mControlName);
 	if (color_swatch_ctrl)
@@ -518,7 +517,7 @@ static void init_color_swatch_ctrl(LLPanelEditWearable* self, LLPanel* panel, co
 	}
 }
 
-static void init_texture_ctrl(LLPanelEditWearable* self, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry* entry)
+static void init_texture_ctrl(LLPanelEditWearable* self, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry* entry)
 {
 	LLTextureCtrl* texture_ctrl = panel->getChild<LLTextureCtrl>(entry->mControlName);
 	if (texture_ctrl)
@@ -531,7 +530,7 @@ static void init_texture_ctrl(LLPanelEditWearable* self, LLPanel* panel, const L
 	}
 }
 
-static void update_color_swatch_ctrl(LLPanelEditWearable* self, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry* entry)
+static void update_color_swatch_ctrl(LLPanelEditWearable* self, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry* entry)
 {
 	LLColorSwatchCtrl* color_swatch_ctrl = panel->getChild<LLColorSwatchCtrl>(entry->mControlName);
 	if (color_swatch_ctrl)
@@ -540,7 +539,7 @@ static void update_color_swatch_ctrl(LLPanelEditWearable* self, LLPanel* panel, 
 	}
 }
 
-static void update_texture_ctrl(LLPanelEditWearable* self, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry* entry)
+static void update_texture_ctrl(LLPanelEditWearable* self, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry* entry)
 {
 	LLTextureCtrl* texture_ctrl = panel->getChild<LLTextureCtrl>(entry->mControlName);
 	if (texture_ctrl)
@@ -565,7 +564,7 @@ static void update_texture_ctrl(LLPanelEditWearable* self, LLPanel* panel, const
 	}
 }
 
-static void set_enabled_color_swatch_ctrl(bool enabled, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry* entry)
+static void set_enabled_color_swatch_ctrl(bool enabled, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry* entry)
 {
 	LLColorSwatchCtrl* color_swatch_ctrl = panel->getChild<LLColorSwatchCtrl>(entry->mControlName);
 	if (color_swatch_ctrl)
@@ -574,7 +573,7 @@ static void set_enabled_color_swatch_ctrl(bool enabled, LLPanel* panel, const LL
 	}
 }
 
-static void set_enabled_texture_ctrl(bool enabled, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry* entry)
+static void set_enabled_texture_ctrl(bool enabled, LLPanel* panel, const LLEditWearableDictionary::PickerControlEntry* entry)
 {
 	LLTextureCtrl* texture_ctrl = panel->getChild<LLTextureCtrl>(entry->mControlName);
 	if (texture_ctrl)
@@ -697,7 +696,7 @@ void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
 	{
 		EWearableType type = getWearable()->getType();
 		const PickerControlEntryNamePredicate name_pred(texture_ctrl->getName());
-		const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry* entry
+		const LLEditWearableDictionary::PickerControlEntry* entry
 			= find_picker_ctrl_entry_if<LLTextureCtrl, PickerControlEntryNamePredicate>(type, name_pred);
 		if (entry)
 		{
@@ -728,7 +727,7 @@ void LLPanelEditWearable::onColorSwatchCommit(const LLUICtrl* ctrl)
 	{
 		EWearableType type = getWearable()->getType();
 		const PickerControlEntryNamePredicate name_pred(ctrl->getName());
-		const LLEditWearableDictionary::PickerControlEntry::PickerControlEntry* entry
+		const LLEditWearableDictionary::PickerControlEntry* entry
 			= find_picker_ctrl_entry_if<LLColorSwatchCtrl, PickerControlEntryNamePredicate>(type, name_pred);
 		if (entry)
 		{
