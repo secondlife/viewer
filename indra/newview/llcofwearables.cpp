@@ -94,47 +94,139 @@ void LLCOFWearables::refresh()
 	clear();
 
 	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	
-	gInventory.collectDescendents(LLAppearanceMgr::getInstance()->getCOF(), cats, items, LLInventoryModel::EXCLUDE_TRASH);
-	if (items.empty()) return;
+	LLInventoryModel::item_array_t cof_items;
 
-	for (U32 i = 0; i < items.size(); ++i)
+	gInventory.collectDescendents(LLAppearanceMgr::getInstance()->getCOF(), cats, cof_items, LLInventoryModel::EXCLUDE_TRASH);
+
+	populateAttachmentsAndBodypartsLists(cof_items);
+
+
+	LLAppearanceMgr::wearables_by_type_t clothing_by_type(WT_COUNT);
+	LLAppearanceMgr::getInstance()->divvyWearablesByType(cof_items, clothing_by_type);
+	
+	populateClothingList(clothing_by_type);
+}
+
+
+void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel::item_array_t& cof_items)
+{
+	for (U32 i = 0; i < cof_items.size(); ++i)
 	{
-		LLViewerInventoryItem* item = items.get(i);
+		LLViewerInventoryItem* item = cof_items.get(i);
 		if (!item) continue;
+
+		const LLAssetType::EType item_type = item->getType();
+		if (item_type == LLAssetType::AT_CLOTHING) continue;
 
 		LLPanelInventoryListItem* item_panel = LLPanelInventoryListItem::createItemPanel(item);
 		if (!item_panel) continue;
 
-		switch (item->getType())
+		if (item_type == LLAssetType::AT_OBJECT)
 		{
-			case LLAssetType::AT_OBJECT:
-				mAttachments->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
-				break;
-
-			case LLAssetType::AT_BODYPART:
-				mBodyParts->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
-				break;
-
-			case LLAssetType::AT_CLOTHING:
-				mClothing->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
-				break;
-
-			default: break;
+			mAttachments->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
+		}
+		else if (item_type == LLAssetType::AT_BODYPART)
+		{
+			mBodyParts->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
+			addWearableTypeSeparator(mBodyParts);
 		}
 	}
 
-	mAttachments->sort(); //*TODO by Name
-	mAttachments->notify(REARRANGE); //notifying the parent about the list's size change (cause items were added with rearrange=false)
-	
-	mClothing->sort(); //*TODO by actual inventory item description
-	mClothing->notify(REARRANGE);
-	
-	mBodyParts->sort(); //*TODO by name
+	if (mAttachments->size())
+	{
+		mAttachments->sort(); //*TODO by Name
+		mAttachments->notify(REARRANGE); //notifying the parent about the list's size change (cause items were added with rearrange=false)
+	}
+
+	if (mBodyParts->size())
+	{
+		mBodyParts->sort(); //*TODO by name
+	}
+
+	addListButtonBar(mBodyParts, "panel_bodyparts_list_button_bar.xml");
 	mBodyParts->notify(REARRANGE);
 }
 
+
+void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& clothing_by_type)
+{
+	llassert(clothing_by_type.size() == WT_COUNT);
+
+	addListButtonBar(mClothing, "panel_clothing_list_button_bar.xml");
+
+	for (U32 type = WT_SHIRT; type < WT_COUNT; ++type)
+	{
+		U32 size = clothing_by_type[type].size();
+		if (!size) continue;
+
+		LLAppearanceMgr::sortItemsByActualDescription(clothing_by_type[type]);
+
+		for (U32 i = 0; i < size; i++)
+		{
+			LLViewerInventoryItem* item = clothing_by_type[type][i];
+
+			LLPanelInventoryListItem* item_panel = LLPanelInventoryListItem::createItemPanel(item);
+			if (!item_panel) continue;
+
+			mClothing->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
+		}
+
+		addWearableTypeSeparator(mClothing);
+	}
+
+	addClothingTypesDummies(clothing_by_type);
+
+	mClothing->notify(REARRANGE);
+}
+
+void LLCOFWearables::addListButtonBar(LLFlatListView* list, std::string xml_filename)
+{
+	llassert(list);
+	llassert(xml_filename.length());
+	
+	LLPanel::Params params;
+	LLPanel* button_bar = LLUICtrlFactory::create<LLPanel>(params);
+	LLUICtrlFactory::instance().buildPanel(button_bar, xml_filename);
+
+	LLRect rc = button_bar->getRect();
+	button_bar->reshape(list->getItemsRect().getWidth(), rc.getHeight());
+
+	list->addItem(button_bar, LLUUID::null, ADD_TOP, false);
+}
+
+//adding dummy items for missing wearable types
+void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by_type_t& clothing_by_type)
+{
+	llassert(clothing_by_type.size() == WT_COUNT);
+	
+	for (U32 type = WT_SHIRT; type < WT_COUNT; type++)
+	{
+		U32 size = clothing_by_type[type].size();
+		if (size) continue;
+
+		//*TODO create dummy item panel
+		
+		//*TODO add dummy item panel -> mClothing->addItem(dummy_item_panel, item->getUUID(), ADD_BOTTOM, false);
+
+		addWearableTypeSeparator(mClothing);
+	}
+}
+
+void LLCOFWearables::addWearableTypeSeparator(LLFlatListView* list)
+{
+	llassert(list);
+	
+	static LLXMLNodePtr separator_xml_node = getXMLNode("panel_wearable_type_separator.xml");
+	if (separator_xml_node->isNull()) return;
+
+	LLPanel* separator = LLUICtrlFactory::defaultBuilder<LLPanel>(separator_xml_node, NULL, NULL);
+
+	LLRect rc = separator->getRect();
+	rc.setOriginAndSize(0, 0, list->getItemsRect().getWidth(), rc.getHeight());
+	separator->setRect(rc);
+
+	list->addItem(separator, LLUUID::null, ADD_BOTTOM, false);
+}
 
 LLUUID LLCOFWearables::getSelectedUUID()
 {
@@ -148,6 +240,19 @@ void LLCOFWearables::clear()
 	mAttachments->clear();
 	mClothing->clear();
 	mBodyParts->clear();
+}
+
+LLXMLNodePtr LLCOFWearables::getXMLNode(std::string xml_filename)
+{
+	LLXMLNodePtr xmlNode = NULL;
+	bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, xmlNode);
+	if (!success)
+	{
+		llwarning("Failed to read xml", 0);
+		return NULL;
+	}
+
+	return xmlNode;
 }
 
 //EOF
