@@ -34,6 +34,8 @@
 #define LL_LLCOFWEARABLES_H
 
 #include "llpanel.h"
+#include "llinventorymodel.h"
+#include "llappearancemgr.h"
 
 class LLFlatListView;
 
@@ -52,7 +54,15 @@ public:
 
 protected:
 
+	void populateAttachmentsAndBodypartsLists(const LLInventoryModel::item_array_t& cof_items);
+	void populateClothingList(LLAppearanceMgr::wearables_by_type_t& clothing_by_type);
+	
+	void addListButtonBar(LLFlatListView* list, std::string xml_filename);
+	void addClothingTypesDummies(const LLAppearanceMgr::wearables_by_type_t& clothing_by_type);
+	void addWearableTypeSeparator(LLFlatListView* list);
 	void onSelectionChange(LLFlatListView* selected_list);
+
+	LLXMLNodePtr LLCOFWearables::getXMLNode(std::string xml_filename);
 
 	LLFlatListView* mAttachments;
 	LLFlatListView* mClothing;
