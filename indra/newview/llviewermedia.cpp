@@ -732,10 +732,21 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_MEDIA_UPDATE("Update Media");
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::updateMedia(void *dummy_arg)
 {
+	LLFastTimer t1(FTM_MEDIA_UPDATE);
+	
+	bool use_read_thread = gSavedSettings.getBOOL("PluginUseReadThread");
+	if(LLPluginProcessParent::getUseReadThread() != use_read_thread)
+	{
+		// Enable/disable the plugin read thread
+		LLPluginProcessParent::setUseReadThread(use_read_thread);
+	}
+	
 	sAnyMediaShowing = false;
 	sUpdatedCookies = getCookieStore()->getChangedCookies();
 	if(!sUpdatedCookies.empty())
