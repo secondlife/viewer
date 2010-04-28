@@ -35,6 +35,9 @@
      name="no_one_near">
         No one near has voice enabled
     </string>
+    <floater.string name="no_voice_font">
+        No Voice Effect
+    </floater.string>
       <layout_stack
          clip="false"
          follows="all"
@@ -86,23 +89,56 @@
              visible="true"
              width="20" />
         </layout_panel>
-         <layout_panel
+        <layout_stack
+         clip="false"
+         auto_resize="false"
+         follows="left|right"
+         height="23"
+         layout="topleft"
+         left="10"
+         mouse_opaque="false"
+         name="voice_font_and_leave_call_stack"
+         orientation="horizontal"
+         width="263">
+          <layout_panel
+           auto_resize="true"
+           user_resize="false"
+           follows="top|left"
+           height="26"
+           visible="true"
+           layout="topleft"
+           name="voice_font_panel"
+           width="150">
+            <combo_box
+             follows="left|top|right"
+             height="23"
+             name="voice_font"
+             top_pad="0"
+             width="150">
+              <combo_box.item
+                label="No Voice Effect"
+                name="no_voice_font"
+                value="0" />
+            </combo_box>
+          </layout_panel>
+        <layout_panel
           auto_resize="false"
           user_resize="false" 
-          follows="top|left"
+          follows="top|right"
           height="26"
           visible="true"
           layout="topleft"
           name="leave_call_btn_panel"
           width="100">
            <button
-          follows="right|top"
+            follows="right|top"
             height="23"
             top_pad="0"
             label="Leave Call"
             name="leave_call_btn"
             width="100" />
          </layout_panel>
+      </layout_stack>
       <layout_panel
           follows="all"
           layout="topleft"

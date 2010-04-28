@@ -107,7 +107,7 @@ private:
 	 * So, method does not calculate difference between these list it only switches off already 
 	 * switched on indicators and switches on indicators of voice channel participants
 	 */
-	void onChange();
+	void onParticipantsChanged();
 
 	/**
 	 * Changes state of indicators specified by LLUUIDs
@@ -205,7 +205,7 @@ void SpeakingIndicatorManager::sOnCurrentChannelChanged(const LLUUID& /*session_
 	mSwitchedIndicatorsOn.clear();
 }
 
-void SpeakingIndicatorManager::onChange()
+void SpeakingIndicatorManager::onParticipantsChanged()
 {
 	LL_DEBUGS("SpeakingIndicator") << "Voice participant list was changed, updating indicators" << LL_ENDL;
 

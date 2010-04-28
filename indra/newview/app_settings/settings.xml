@@ -10405,6 +10405,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>VoiceFontDefault</key>
+    <map>
+      <key>Comment</key>
+      <string>Selected voice font</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>00000000-0000-0000-0000-000000000000</string>
+    </map>
     <key>AutoDisengageMic</key>
     <map>
       <key>Comment</key>
