@@ -14,6 +14,7 @@
      height="373"
      layout="topleft"
      left="3"
+     single_expansion="true"
      top="0"
      name="cof_wearables_accordion"
      background_visible="true"
