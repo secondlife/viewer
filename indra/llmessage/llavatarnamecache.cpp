@@ -34,6 +34,7 @@
 
 #include "llavatarnamecache.h"
 
+#include "llcachename.h"		// we wrap this system
 #include "llframetimer.h"
 #include "llhttpclient.h"
 #include "llsd.h"
@@ -85,11 +86,36 @@ namespace LLAvatarNameCache
 	// Periodically clean out expired entries from the cache
 	LLFrameTimer sEraseExpiredTimer;
 
-	// Handle name response off network
-	void processName(const LLUUID& agent_id, const LLAvatarName& av_name);
+	//-----------------------------------------------------------------------
+	// Internal methods
+	//-----------------------------------------------------------------------
+
+	// Handle name response off network.
+	// Optionally skip adding to cache, used when this is a fallback to the
+	// legacy name system.
+	void processName(const LLUUID& agent_id,
+					 const LLAvatarName& av_name,
+					 bool add_to_cache);
 
 	void requestNamesViaCapability();
+
+	// Legacy name system callback
+	void legacyNameCallback(const LLUUID& agent_id,
+		const std::string& full_name,
+		bool is_group);
+
 	void requestNamesViaLegacy();
+
+	// Fill in an LLAvatarName with the legacy name data
+	void buildLegacyName(const std::string& full_name,
+						 LLAvatarName* av_name);
+
+	// Do a single callback to a given slot
+	void fireSignal(const LLUUID& agent_id,
+					const callback_slot_t& slot,
+					const LLAvatarName& av_name);
+	
+	// Is a request in-flight over the network?
 	bool isRequestPending(const LLUUID& agent_id);
 
 	// Erase expired names from cache
@@ -165,7 +191,8 @@ public:
 				av_name.mDisplayName = av_name.mSLID;
 			}
 
-			LLAvatarNameCache::processName(agent_id, av_name);
+			// cache it and fire signals
+			LLAvatarNameCache::processName(agent_id, av_name, true);
 		}
 	}
 
@@ -196,7 +223,8 @@ public:
 		for ( ; it != mAgentIDs.end(); ++it)
 		{
 			const LLUUID& agent_id = *it;
-			LLAvatarNameCache::processName(agent_id, av_name);
+			// cache it and fire signals
+			LLAvatarNameCache::processName(agent_id, av_name, true);
 		}
 	}
 
@@ -248,9 +276,13 @@ public:
 };
 
 void LLAvatarNameCache::processName(const LLUUID& agent_id,
-									const LLAvatarName& av_name)
+									const LLAvatarName& av_name,
+									bool add_to_cache)
 {
-	sCache[agent_id] = av_name;
+	if (add_to_cache)
+	{
+		sCache[agent_id] = av_name;
+	}
 
 	sPendingQueue.erase(agent_id);
 
@@ -270,6 +302,8 @@ void LLAvatarNameCache::processName(const LLUUID& agent_id,
 
 void LLAvatarNameCache::requestNamesViaCapability()
 {
+	F64 now = LLFrameTimer::getTotalSeconds();
+
 	// URL format is like:
 	// http://pdp60.lindenlab.com:8000/agents/?ids=3941037e-78ab-45f0-b421-bd6e77c1804d&ids=0012809d-7d2d-4c24-9609-af1230a37715&ids=0019aaba-24af-4f0a-aa72-6457953cf7f0
 	//
@@ -285,6 +319,8 @@ void LLAvatarNameCache::requestNamesViaCapability()
 	ask_queue_t::const_iterator it = sAskQueue.begin();
 	for ( ; it != sAskQueue.end(); ++it)
 	{
+		const LLUUID& agent_id = *it;
+
 		if (url.empty())
 		{
 			// ...starting new request
@@ -296,8 +332,11 @@ void LLAvatarNameCache::requestNamesViaCapability()
 			// ...continuing existing request
 			url += "&ids=";
 		}
-		url += it->asString();
-		agent_ids.push_back(*it);
+		url += agent_id.asString();
+		agent_ids.push_back(agent_id);
+
+		// mark request as pending
+		sPendingQueue[agent_id] = now;
 
 		if (url.size() > NAME_URL_SEND_THRESHOLD)
 		{
@@ -315,11 +354,47 @@ void LLAvatarNameCache::requestNamesViaCapability()
 		url.clear();
 		agent_ids.clear();
 	}
+
+	// We've moved all asks to the pending request queue
+	sAskQueue.clear();
+}
+
+void LLAvatarNameCache::legacyNameCallback(const LLUUID& agent_id,
+										   const std::string& full_name,
+										   bool is_group)
+{
+	// Construct a dummy record for this name.  By convention, SLID is blank
+	// Never expires, but not written to disk, so lasts until end of session.
+	LLAvatarName av_name;
+	buildLegacyName(full_name, &av_name);
+
+	// Don't add to cache, the data already exists in the legacy name system
+	// cache and we don't want or need duplicate storage, because keeping the
+	// two copies in sync is complex.
+	processName(agent_id, av_name, false);
 }
 
 void LLAvatarNameCache::requestNamesViaLegacy()
 {
-	// JAMESDEBUG TODO
+	F64 now = LLFrameTimer::getTotalSeconds();
+	std::string full_name;
+	ask_queue_t::const_iterator it = sAskQueue.begin();
+	for (; it != sAskQueue.end(); ++it)
+	{
+		const LLUUID& agent_id = *it;
+
+		// Mark as pending first, just in case the callback is immediately
+		// invoked below.  This should never happen in practice.
+		sPendingQueue[agent_id] = now;
+
+		gCacheName->get(agent_id, false,
+			boost::bind(&LLAvatarNameCache::legacyNameCallback,
+				_1, _2, _3));
+	}
+
+	// We've either answered immediately or moved all asks to the
+	// pending queue
+	sAskQueue.clear();
 }
 
 void LLAvatarNameCache::initClass(bool running)
@@ -410,7 +485,7 @@ void LLAvatarNameCache::idle()
 		return;
 	}
 
-	if (!sNameLookupURL.empty())
+	if (useDisplayNames())
 	{
 		requestNamesViaCapability();
 	}
@@ -419,15 +494,6 @@ void LLAvatarNameCache::idle()
 		// ...fall back to legacy name cache system
 		requestNamesViaLegacy();
 	}
-
-	// Move requests from Ask queue to Pending queue
-	F64 now = LLFrameTimer::getTotalSeconds();
-	ask_queue_t::const_iterator it = sAskQueue.begin();
-	for ( ; it != sAskQueue.end(); ++it)
-	{
-		sPendingQueue[*it] = now;
-	}
-	sAskQueue.clear();
 }
 
 bool LLAvatarNameCache::isRequestPending(const LLUUID& agent_id)
@@ -461,16 +527,41 @@ void LLAvatarNameCache::eraseExpired()
 	}
 }
 
+void LLAvatarNameCache::buildLegacyName(const std::string& full_name,
+										LLAvatarName* av_name)
+{
+	llassert(av_name);
+	av_name->mSLID = "";
+	av_name->mDisplayName = full_name;
+	av_name->mIsDisplayNameDefault = true;
+	av_name->mIsDummy = true;
+	av_name->mExpires = F64_MAX;
+}
+
 bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 {
 	if (sRunning)
 	{
 		// ...only do immediate lookups when cache is running
-		std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
-		if (it != sCache.end())
+		if (useDisplayNames())
 		{
-			*av_name = it->second;
-			return true;
+			// ...use display names cache
+			std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
+			if (it != sCache.end())
+			{
+				*av_name = it->second;
+				return true;
+			}
+		}
+		else
+		{
+			// ...use legacy names cache
+			std::string full_name;
+			if (gCacheName->getFullName(agent_id, full_name))
+			{
+				buildLegacyName(full_name, av_name);
+				return true;
+			}
 		}
 	}
 
@@ -482,19 +573,42 @@ bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 	return false;
 }
 
+void LLAvatarNameCache::fireSignal(const LLUUID& agent_id,
+								   const callback_slot_t& slot,
+								   const LLAvatarName& av_name)
+{
+	callback_signal_t signal;
+	signal.connect(slot);
+	signal(agent_id, av_name);
+}
+
 void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
 {
 	if (sRunning)
 	{
 		// ...only do immediate lookups when cache is running
-		std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
-		if (it != sCache.end())
+		if (useDisplayNames())
 		{
-			// ...name already exists in cache, fire callback now
-			callback_signal_t signal;
-			signal.connect(slot);
-			signal(agent_id, it->second);
-			return;
+			// ...use new cache
+			std::map<LLUUID,LLAvatarName>::iterator it = sCache.find(agent_id);
+			if (it != sCache.end())
+			{
+				// ...name already exists in cache, fire callback now
+				fireSignal(agent_id, slot, it->second);
+				return;
+			}
+		}
+		else
+		{
+			// ...use old name system
+			std::string full_name;
+			if (gCacheName->getFullName(agent_id, full_name))
+			{
+				LLAvatarName av_name;
+				buildLegacyName(full_name, &av_name);
+				fireSignal(agent_id, slot, av_name);
+				return;
+			}
 		}
 	}
 
@@ -534,7 +648,8 @@ void LLAvatarNameCache::setUseDisplayNames(bool use)
 
 bool LLAvatarNameCache::useDisplayNames()
 {
-	return sUseDisplayNames;
+	// Must be both manually set on and able to look up names.
+	return sUseDisplayNames && !sNameLookupURL.empty();
 }
 
 void LLAvatarNameCache::erase(const LLUUID& agent_id)
