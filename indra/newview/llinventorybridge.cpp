@@ -1835,11 +1835,13 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					else
 					{
 						LLPointer<LLInventoryCallback> cb = NULL;
+						const std::string empty_description = "";
 						link_inventory_item(
 							gAgent.getID(),
 							inv_cat->getUUID(),
 							mUUID,
 							inv_cat->getName(),
+							empty_description,
 							LLAssetType::AT_LINK_FOLDER,
 							cb);
 					}
@@ -2510,11 +2512,13 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			const LLUUID &object_id = (*iter);
 			if (LLInventoryCategory *cat = model->getCategory(object_id))
 			{
+				const std::string empty_description = "";
 				link_inventory_item(
 					gAgent.getID(),
 					cat->getUUID(),
 					parent_id,
 					cat->getName(),
+					empty_description,
 					LLAssetType::AT_LINK_FOLDER,
 					LLPointer<LLInventoryCallback>(NULL));
 			}
@@ -2525,7 +2529,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 					item->getLinkedUUID(),
 					parent_id,
 					item->getName(),
-						item->getDescription(),
+					item->getDescription(),
 					LLAssetType::AT_LINK,
 					LLPointer<LLInventoryCallback>(NULL));
 			}
