@@ -2085,7 +2085,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Large
 	</string>
 	<string name="Brow Size">
-		Taille
+		Taille du front
 	</string>
 	<string name="Bug Eyes">
 		Yeux globuleux
@@ -2235,7 +2235,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Extrémités
 	</string>
 	<string name="Egg Head">
-		Forme de la tête
+		Proéminence
 	</string>
 	<string name="Eye Bags">
 		Cernes
@@ -2559,7 +2559,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Fente labiale
 	</string>
 	<string name="Lip Cleft Depth">
-		Fente labiale
+		Prof. fente labiale
 	</string>
 	<string name="Lip Fullness">
 		Volume des lèvres
@@ -2643,7 +2643,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Abaisser
 	</string>
 	<string name="Lower Bridge">
-		Arête plus basse
+		Arête inférieure
 	</string>
 	<string name="Lower Cheeks">
 		Joue inférieure
@@ -2817,10 +2817,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Épaisseur du nez
 	</string>
 	<string name="Nose Tip Angle">
-		Bout du nez
+		Angle bout du nez
 	</string>
 	<string name="Nose Tip Shape">
-		Bout du nez
+		Forme bout du nez
 	</string>
 	<string name="Nose Width">
 		Largeur du nez
@@ -2946,7 +2946,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus
 	</string>
 	<string name="Puffy Eyelids">
-		Cernes
+		Paup. gonflées
 	</string>
 	<string name="Rainbow Color">
 		Couleur arc en ciel
@@ -3237,7 +3237,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Arête supérieure
 	</string>
 	<string name="Upper Cheeks">
-		Pommette
+		Joue supérieure
 	</string>
 	<string name="Upper Chin Cleft">
 		Menton supérieur

@@ -49,6 +49,7 @@
 #include "lllineeditor.h"
 #include "llmodaldialog.h"
 #include "llnotificationsutil.h"
+#include "lloutfitslist.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltabcontainer.h"
@@ -71,7 +72,8 @@ bool LLPanelOutfitsInventory::sShowDebugEditor = false;
 
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
-	mActivePanel(NULL),
+	mMyOutfitsPanel(NULL),
+	mCurrentOutfitPanel(NULL),
 	mParent(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
@@ -145,9 +147,17 @@ void LLPanelOutfitsInventory::setParent(LLSidepanelAppearance* parent)
 void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 {
 	mFilterSubString = string;
+
+	// TODO: add handling "My Outfits" tab.
+	if (!isCOFPanelActive())
+	{
+		mMyOutfitsPanel->setFilterSubString(string);
+		return;
+	}
+
 	if (string == "")
 	{
-		mActivePanel->setFilterSubString(LLStringUtil::null);
+		getActivePanel()->setFilterSubString(LLStringUtil::null);
 
 		// re-open folders that were initially open
 		mSavedFolderState->setApply(TRUE);
@@ -159,7 +169,7 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 
 	LLInventoryModelBackgroundFetch::instance().start();
 
-	if (mActivePanel->getFilterSubString().empty() && string.empty())
+	if (getActivePanel()->getFilterSubString().empty() && string.empty())
 	{
 		// current filter and new filter empty, do nothing
 		return;
@@ -173,7 +183,7 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 	}
 
 	// set new filter string
-	mActivePanel->setFilterSubString(string);
+	getActivePanel()->setFilterSubString(string);
 }
 
 void LLPanelOutfitsInventory::onWearButtonClick()
@@ -216,7 +226,7 @@ bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD&
 		LLStringUtil::trim(outfit_name);
 		if( !outfit_name.empty() )
 		{
-			LLUUID outfit_folder = gAgentWearables.makeNewOutfitLinks(outfit_name);
+			LLUUID outfit_folder = LLAppearanceMgr::getInstance()->makeNewOutfitLinks(outfit_name);
 
 			LLSidepanelAppearance* panel_appearance =
 				dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
@@ -267,6 +277,11 @@ void LLPanelOutfitsInventory::onSave()
 void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
 	updateVerbs();
+
+	// TODO: add handling "My Outfits" tab.
+	if (!isCOFPanelActive())
+		return;
+
 	if (getRootFolder()->needsAutoRename() && items.size())
 	{
 		getRootFolder()->startRenamingSelectedItem();
@@ -284,6 +299,10 @@ void LLPanelOutfitsInventory::showEditOutfitPanel()
 
 LLFolderViewEventListener *LLPanelOutfitsInventory::getCorrectListenerForAction()
 {
+	// TODO: add handling "My Outfits" tab.
+	if (!isCOFPanelActive())
+		return NULL;
+
 	LLFolderViewItem* current_item = getRootFolder()->getCurSelectedItem();
 	if (!current_item)
 		return NULL;
@@ -311,7 +330,7 @@ bool LLPanelOutfitsInventory::getIsCorrectType(const LLFolderViewEventListener *
 
 LLFolderView *LLPanelOutfitsInventory::getRootFolder()
 {
-	return mActivePanel->getRootFolder();
+	return getActivePanel()->getRootFolder();
 }
 
 //static
@@ -393,7 +412,11 @@ void LLPanelOutfitsInventory::onTrashButtonClick()
 void LLPanelOutfitsInventory::onClipboardAction(const LLSD& userdata)
 {
 	std::string command_name = userdata.asString();
-	getActivePanel()->getRootFolder()->doToSelected(getActivePanel()->getModel(),command_name);
+	// TODO: add handling "My Outfits" tab.
+	if (isCOFPanelActive())
+	{
+		getActivePanel()->getRootFolder()->doToSelected(getActivePanel()->getModel(),command_name);
+	}
 	updateListCommands();
 	updateVerbs();
 }
@@ -447,21 +470,26 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	if (command_name == "delete" || command_name == "remove")
 	{
 		BOOL can_delete = FALSE;
-		LLFolderView* root = getActivePanel()->getRootFolder();
-		if (root)
+
+		// TODO: add handling "My Outfits" tab.
+		if (isCOFPanelActive())
 		{
-			std::set<LLUUID> selection_set;
-			root->getSelectionList(selection_set);
-			can_delete = (selection_set.size() > 0);
-			for (std::set<LLUUID>::iterator iter = selection_set.begin();
-				 iter != selection_set.end();
-				 ++iter)
+			LLFolderView* root = getActivePanel()->getRootFolder();
+			if (root)
 			{
-				const LLUUID &item_id = (*iter);
-				LLFolderViewItem *item = root->getItemByID(item_id);
-				can_delete &= item->getListener()->isItemRemovable();
+				std::set<LLUUID> selection_set;
+				root->getSelectionList(selection_set);
+				can_delete = (selection_set.size() > 0);
+				for (std::set<LLUUID>::iterator iter = selection_set.begin();
+					 iter != selection_set.end();
+					 ++iter)
+				{
+					const LLUUID &item_id = (*iter);
+					LLFolderViewItem *item = root->getItemByID(item_id);
+					can_delete &= item->getListener()->isItemRemovable();
+				}
+				return can_delete;
 			}
-			return can_delete;
 		}
 		return FALSE;
 	}
@@ -517,12 +545,17 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 bool LLPanelOutfitsInventory::hasItemsSelected()
 {
 	bool has_items_selected = false;
-	LLFolderView* root = getActivePanel()->getRootFolder();
-	if (root)
+
+	// TODO: add handling "My Outfits" tab.
+	if (isCOFPanelActive())
 	{
-		std::set<LLUUID> selection_set;
-		root->getSelectionList(selection_set);
-		has_items_selected = (selection_set.size() > 0);
+		LLFolderView* root = getActivePanel()->getRootFolder();
+		if (root)
+		{
+			std::set<LLUUID> selection_set;
+			root->getSelectionList(selection_set);
+			has_items_selected = (selection_set.size() > 0);
+		}
 	}
 	return has_items_selected;
 }
@@ -549,74 +582,58 @@ bool LLPanelOutfitsInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropTy
 
 void LLPanelOutfitsInventory::initTabPanels()
 {
-	LLInventoryPanel *cof_panel = getChild<LLInventoryPanel>(COF_TAB_NAME);
-	cof_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mTabPanels.push_back(cof_panel);
+	mCurrentOutfitPanel = getChild<LLInventoryPanel>(COF_TAB_NAME);
+	mCurrentOutfitPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+	mCurrentOutfitPanel->setSelectCallback(boost::bind(&LLPanelOutfitsInventory::onTabSelectionChange, this, mCurrentOutfitPanel, _1, _2));
 
-	LLInventoryPanel *myoutfits_panel = getChild<LLInventoryPanel>(OUTFITS_TAB_NAME);
-	myoutfits_panel->setFilterTypes(1LL << LLFolderType::FT_OUTFIT, LLInventoryFilter::FILTERTYPE_CATEGORY);
-	myoutfits_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mTabPanels.push_back(myoutfits_panel);
-	
-	for (tabpanels_vec_t::iterator iter = mTabPanels.begin();
-		 iter != mTabPanels.end();
-		 ++iter)
-	{
-		LLInventoryPanel *panel = (*iter);
-		panel->setSelectCallback(boost::bind(&LLPanelOutfitsInventory::onTabSelectionChange, this, panel, _1, _2));
-	}
+	mMyOutfitsPanel = getChild<LLOutfitsList>(OUTFITS_TAB_NAME);
 
 	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
 	mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));
-	mActivePanel = (LLInventoryPanel*)mAppearanceTabs->getCurrentPanel();
 }
 
 void LLPanelOutfitsInventory::onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
 {
 	if (user_action && items.size() > 0)
 	{
-		for (tabpanels_vec_t::iterator iter = mTabPanels.begin();
-			 iter != mTabPanels.end();
-			 ++iter)
+		// TODO: add handling "My Outfits" tab.
+		if (isCOFPanelActive())
 		{
-			LLInventoryPanel *panel = (*iter);
-			if (panel == tab_panel)
-			{
-				mActivePanel = panel;
-			}
-			else
-			{
-				panel->getRootFolder()->clearSelection();
-			}
+			onSelectionChange(items, user_action);
+		}
+		else
+		{
+			mCurrentOutfitPanel->getRootFolder()->clearSelection();
 		}
 	}
-	onSelectionChange(items, user_action);
 }
 
 void LLPanelOutfitsInventory::onTabChange()
 {
-	mActivePanel = (LLInventoryPanel*)childGetVisibleTab("appearance_tabs");
-	if (!mActivePanel)
+	// TODO: add handling "My Outfits" tab.
+	if (isCOFPanelActive())
 	{
-		return;
+		mCurrentOutfitPanel->setFilterSubString(mFilterSubString);
 	}
-	mActivePanel->setFilterSubString(mFilterSubString);
+	else
+	{
+		mMyOutfitsPanel->setFilterSubString(mFilterSubString);
+	}
+
 	updateVerbs();
 }
 
 BOOL LLPanelOutfitsInventory::isTabPanel(LLInventoryPanel *panel) const
 {
-	for(tabpanels_vec_t::const_iterator it = mTabPanels.begin();
-		it != mTabPanels.end();
-		++it)
+	// TODO: add handling "My Outfits" tab.
+	if (mCurrentOutfitPanel == panel)
 	{
-		if (*it == panel)
-			return TRUE;
+		return TRUE;
 	}
 	return FALSE;
 }
 
 BOOL LLPanelOutfitsInventory::isCOFPanelActive() const
 {
-	return (getActivePanel()->getName() == COF_TAB_NAME);
+	return (childGetVisibleTab("appearance_tabs")->getName() == COF_TAB_NAME);
 }

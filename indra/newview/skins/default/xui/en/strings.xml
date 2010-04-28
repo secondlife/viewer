@@ -1842,7 +1842,8 @@ Clears (deletes) the media and all params from the given face.
 	<string name="LeaveMouselook">Press ESC to return to World View</string>
 
 	<!-- inventory -->
-	<string name="InventoryNoMatchingItems">No matching items found in inventory.  Try [secondlife:///app/search/groups "Search"].</string>
+	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
+	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
     <!-- use value="" because they have preceding spaces -->
@@ -2897,6 +2898,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlBuildTooltip">Building/dropping objects not allowed</string>
   <string name="LocationCtrlScriptsTooltip">Scripts not allowed</string>
   <string name="LocationCtrlDamageTooltip">Health</string>
+  <string name="LocationCtrlAdultIconTooltip">Adult Region</string>
+  <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
+  <string name="LocationCtrlGeneralIconTooltip">General Region</string>
 
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
@@ -2929,6 +2933,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 	  Failed to start viewer
 	</string>
+
+	<!-- System Messages -->
+	<string name="ItemsComingInTooFastFrom">[APP_NAME]: Items coming in too fast from [FROM_NAME], automatic preview disabled for [TIME] seconds</string>
+	<string name="ItemsComingInTooFast">[APP_NAME]: Items coming in too fast, automatic preview disabled for [TIME] seconds</string>
 
 	<!-- IM system messages -->
 	<string name="IM_logging_string">-- Instant message logging enabled --</string>
@@ -3109,5 +3117,8 @@ Abuse Report</string>
   
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
+
+  <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
+  <string name="sentences_separator" value=" "></string>
 
   </strings>

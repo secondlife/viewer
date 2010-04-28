@@ -263,7 +263,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 			<text left="204" name="selected_objects_text" width="48">
 				[COUNT]
 			</text>
-			<text left="4" name="Autoreturn" width="412">
+			<text name="Autoreturn">
 				Devolución automát. de objetos de otros (en min., 0 la desactiva):
 			</text>
 			<line_editor name="clean other time" right="-20"/>

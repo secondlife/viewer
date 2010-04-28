@@ -138,11 +138,24 @@ public:
 	//Remove clothing or detach an object from the agent (a bodypart cannot be removed)
 	void removeItemFromAvatar(const LLUUID& item_id);
 
+
+	LLUUID makeNewOutfitLinks(const std::string& new_folder_name);
+
+	bool moveWearable(LLViewerInventoryItem* item, bool closer_to_body);
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();
 
 private:
+
+	typedef std::vector<LLInventoryModel::item_array_t> wearables_by_type_t;
+
+	//Divvy items into arrays by wearable type
+	static void divvyWearablesByType(const LLInventoryModel::item_array_t& items, wearables_by_type_t& items_by_type);
+
+	//Check ordering information on wearables stored in links' descriptions and update if it is invalid
+	void updateClothingOrderingInfo();
 
 	void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
 	

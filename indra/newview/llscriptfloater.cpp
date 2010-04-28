@@ -539,4 +539,14 @@ bool LLScriptFloaterManager::getFloaterPosition(const LLUUID& object_id, Floater
 	return false;
 }
 
+void LLScriptFloaterManager::setFloaterVisible(const LLUUID& notification_id, bool visible)
+{
+	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>(
+		"script_floater", notification_id);
+	if(floater)
+	{
+		floater->setVisible(visible);
+	}
+}
+
 // EOF

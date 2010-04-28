@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="UDSEENDE" width="509">
-	<tab_container name="customize tab container" width="507">
+<floater name="floater customize" title="UDSEENDE">
+	<tab_container name="customize tab container">
 		<text label="Krops Dele" name="body_parts_placeholder">
 			Kropsdele
 		</text>
@@ -522,7 +522,7 @@
 			<button label="Vend tilbage" label_selected="Vend tilbage" name="Revert"/>
 		</panel>
 	</tab_container>
-	<scroll_container left="212" name="panel_container"/>
+	<scroll_container name="panel_container"/>
 	<button label="Script info" label_selected="Script info" name="script_info" tool_tip="Vis scripts vedhæftet på din avatar"/>
 	<button label="Lav sæt" label_selected="Lav sæt" name="make_outfit_btn"/>
 	<button label="Annullér" label_selected="Annullér" name="Cancel"/>

@@ -264,7 +264,7 @@ werden.
 			<text left="204" name="selected_objects_text" width="48">
 				[COUNT]
 			</text>
-			<text left="4" name="Autoreturn" width="410">
+			<text name="Autoreturn">
 				Objekte anderer Einwohner automatisch zurückgeben (Minuten, 0 für aus):
 			</text>
 			<line_editor name="clean other time" right="-10" width="56"/>

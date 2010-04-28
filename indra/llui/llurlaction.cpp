@@ -146,3 +146,20 @@ void LLUrlAction::copyLabelToClipboard(std::string url)
 		LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(match.getLabel()));
 	}	
 }
+
+void LLUrlAction::showProfile(std::string url)
+{
+	// Get id from 'secondlife:///app/{cmd}/{id}/{action}'
+	// and show its profile
+	LLURI uri(url);
+	LLSD path_array = uri.pathArray();
+	if (path_array.size() == 4)
+	{
+		std::string id_str = path_array.get(2).asString();
+		if (LLUUID::validate(id_str))
+		{
+			std::string cmd_str = path_array.get(1).asString();
+			executeSLURL("secondlife:///app/" + cmd_str + "/" + id_str + "/about");
+		}
+	}
+}

@@ -432,11 +432,15 @@ private:
 
 class LLFloaterView : public LLUICtrl
 {
+public:
+	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>{};
+
 protected:
 	LLFloaterView (const Params& p);
 	friend class LLUICtrlFactory;
 
 public:
+
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	void reshapeFloater(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical);
 

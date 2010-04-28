@@ -136,6 +136,7 @@ void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
 		if (mCurrentItem < 0 || mCurrentItem >= (int) mItems.size()) // sanity check
 		{
 			llwarns << "Invalid current item. (this should not happen)" << llendl;
+			llassert(!"Invalid current teleport histiry item");
 			return;
 		}
 		LLVector3 new_pos_local = gAgent.getPosAgentFromGlobal(new_pos);
@@ -166,6 +167,17 @@ void LLTeleportHistory::onHistoryChanged()
 
 void LLTeleportHistory::purgeItems()
 {
+	if (mItems.size() == 0) // no entries yet (we're called before login)
+	{
+		// If we don't return here the history will get into inconsistent state, hence:
+		// 1) updateCurrentLocation() will malfunction,
+		//    so further teleports will not properly update the history;
+		// 2) mHistoryChangedSignal subscribers will be notified
+		//    of such an invalid change. (EXT-6798)
+		// Both should not happen.
+		return;
+	}
+
 	if (mItems.size() > 0)
 	{
 		mItems.erase(mItems.begin(), mItems.end()-1);

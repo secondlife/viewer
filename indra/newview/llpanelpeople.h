@@ -73,6 +73,7 @@ private:
 	} ESortOrder;
 
 	// methods indirectly called by the updaters
+	void					updateFriendListHelpText();
 	void					updateFriendList();
 	void					updateNearbyList();
 	void					updateRecentList();
@@ -168,6 +169,7 @@ private:
 	Updater*				mRecentListUpdater;
 
 	std::string				mFilterSubString;
+	std::string				mFilterSubStringOrig;
 };
 
 #endif //LL_LLPANELPEOPLE_H

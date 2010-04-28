@@ -580,4 +580,17 @@ with the same filename but different name
   <texture name="default_profile_picture.j2c" />
   <texture name="locked_image.j2c" />
 
+  <texture name="Progress_1" file_name="icons/Progress_1.png" preload="true" />
+  <texture name="Progress_2" file_name="icons/Progress_2.png" preload="true" />
+  <texture name="Progress_3" file_name="icons/Progress_3.png" preload="true" />
+  <texture name="Progress_4" file_name="icons/Progress_4.png" preload="true" />
+  <texture name="Progress_5" file_name="icons/Progress_5.png" preload="true" />
+  <texture name="Progress_6" file_name="icons/Progress_6.png" preload="true" />
+  <texture name="Progress_7" file_name="icons/Progress_7.png" preload="true" />
+  <texture name="Progress_8" file_name="icons/Progress_8.png" preload="true" />
+  <texture name="Progress_9" file_name="icons/Progress_9.png" preload="true" />
+  <texture name="Progress_10" file_name="icons/Progress_10.png" preload="true" />
+  <texture name="Progress_11" file_name="icons/Progress_11.png" preload="true" />
+  <texture name="Progress_12" file_name="icons/Progress_12.png" preload="true" />
+
 </textures>
