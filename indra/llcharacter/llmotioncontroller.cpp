@@ -449,9 +449,15 @@ BOOL LLMotionController::stopMotionInstance(LLMotion* motion, BOOL stop_immediat
 		return FALSE;
 	}
 
+	
 	// If on active list, stop it
 	if (isMotionActive(motion) && !motion->isStopped())
 	{
+		if (motion->getID() == ANIM_AGENT_FEMALE_WALK_NEW || motion->getID() == ANIM_AGENT_FEMALE_WALK)
+		{
+			llinfos << "stop female walk: " << animationName(motion->getID()) << llendl;
+		}
+
 		motion->setStopTime(mAnimTime);
 		if (stop_immediate)
 		{
