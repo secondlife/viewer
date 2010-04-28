@@ -105,11 +105,13 @@ void LLPanelProfileView::onOpen(const LLSD& key)
 	if(id.notNull() && getAvatarId() != id)
 	{
 		setAvatarId(id);
+
+		// clear name fields, which might have old data
+		getChild<LLUICtrl>("user_name")->setValue( LLSD() );
+		getChild<LLUICtrl>("user_slid")->setValue( LLSD() );
 	}
 
 	// Update the avatar name.
-//	gCacheName->get(getAvatarId(), false,
-//		boost::bind(&LLPanelProfileView::onNameCache, this, _1, _2, _3));
 	LLAvatarNameCache::get(getAvatarId(),
 		boost::bind(&LLPanelProfileView::onAvatarNameCache, this, _1, _2));
 
