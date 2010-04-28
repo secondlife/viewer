@@ -3,12 +3,11 @@
 <!-- All accordion tabs in the My Appearance/My Outfits panel will be created from this one at runtime-->
 <!-- Non of string values of controls below are visible to user. They are not need to be translated. -->
 <accordion_tab
- expanded="false"
+ display_children="false"
  follows="all"
  height="45"
  layout="topleft"
  name="Mockup Tab"
- selection_enabled="true"
  title="Mockup Tab"
  translate="false"
  width="0">
@@ -16,9 +15,7 @@
      allow_select="true"
      follows="all"
      keep_one_selected="true"
-     multi_select="true"
      name="wearable_items_list"
      translate="false"
-     standalone="false"
     />
 </accordion_tab>

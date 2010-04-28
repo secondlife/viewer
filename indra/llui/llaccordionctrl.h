@@ -2,25 +2,31 @@
  * @file LLAccordionCtrl.h
  * @brief Accordion Panel implementation
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * 
+ * Copyright (c) 2004-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -28,7 +34,6 @@
 #define LL_ACCORDIONCTRL_H
 
 #include "llpanel.h"
-#include "lltextbox.h"
 #include "llscrollbar.h"
 
 #include <vector>
@@ -51,19 +56,6 @@ private:
 
 
 public:
-	/**
-	 * Abstract comparator for accordion tabs.
-	 */
-	class LLTabComparator
-	{
-	public:
-		LLTabComparator() {};
-		virtual ~LLTabComparator() {};
-
-		/** Returns true if tab1 < tab2, false otherwise */
-		virtual bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const = 0;
-	};
-
 	struct Params 
 		: public LLInitParam::Block<Params, LLPanel::Params>
 	{
@@ -72,14 +64,10 @@ public:
 								accordion tabs are responsible for scrolling their content.
 								*NOTE fit_parent works best when combined with single_expansion.
 								Accordion view should implement getRequiredRect() and provide valid height*/
-		Optional<LLTextBox::Params>	no_matched_tabs_text;
-		Optional<LLTextBox::Params>	no_visible_tabs_text;
 
 		Params()
 			: single_expansion("single_expansion",false)
 			, fit_parent("fit_parent", false)
-			, no_matched_tabs_text("no_matched_tabs_text")
-			, no_visible_tabs_text("no_visible_tabs_text")
 		{};
 	};
 
@@ -116,31 +104,8 @@ public:
 	S32		notifyParent(const LLSD& info);
 
 	void	reset		();
-	void	expandDefaultTab();
-
-	void	setComparator(const LLTabComparator* comp) { mTabComparator = comp; }
-	void	sort();
-
-	/**
-	 * Sets filter substring as a search_term for help text when there are no any visible tabs.
-	 */
-	void	setFilterSubString(const std::string& filter_string);
-
-	/**
-	 * This method returns the first expanded accordion tab.
-	 * It is expected to be called for accordion which doesn't allow multiple
-	 * tabs to be expanded. Use with care.
-	 */
-	const LLAccordionCtrlTab* getExpandedTab() const;
-
-	const LLAccordionCtrlTab* getSelectedTab() const { return mSelectedTab; }
-
-	bool getFitParent() const {return mFitParent;}
 
 private:
-	void	initNoTabsWidget(const LLTextBox::Params& tb_params);
-	void	updateNoTabsHelpTextVisibility();
-
 	void	arrangeSinge();
 	void	arrangeMultiple();
 
@@ -158,21 +123,6 @@ private:
 
 	BOOL	autoScroll				(S32 x, S32 y);
 
-	/**
-	 * An adaptor for LLTabComparator
-	 */
-	struct LLComparatorAdaptor
-	{
-		LLComparatorAdaptor(const LLTabComparator& comparator) : mComparator(comparator) {};
-
-		bool operator()(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2)
-		{
-			return mComparator.compare(tab1, tab2);
-		}
-
-		const LLTabComparator& mComparator;
-	};
-
 private:
 	LLRect			mInnerRect;
 	LLScrollbar*	mScrollbar;
@@ -180,13 +130,6 @@ private:
 	bool			mFitParent;
 	bool			mAutoScrolling;
 	F32				mAutoScrollRate;
-	LLTextBox*		mNoVisibleTabsHelpText;
-
-	std::string		mNoMatchedTabsOrigString;
-	std::string		mNoVisibleTabsOrigString;
-
-	LLAccordionCtrlTab*		mSelectedTab;
-	const LLTabComparator*	mTabComparator;
 };
 
 

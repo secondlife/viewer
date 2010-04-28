@@ -3,26 +3,33 @@
  * @brief A list of inventory items represented by LLFlatListView.
  *
  * Class LLInventoryItemsList implements a flat list of inventory items.
+ * Class LLPanelInventoryListItem displays inventory item as an element
+ * of LLInventoryItemsList.
  *
- * $LicenseInfo:firstyear=2010&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
+ *
+ * Copyright (c) 2010, Linden Research, Inc.
+ *
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
+ *
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/flossexception
+ *
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -33,36 +40,108 @@
 // llcommon
 #include "llcommonutils.h"
 
-#include "lltrans.h"
+#include "lliconctrl.h"
 
-#include "llcallbacklist.h"
-#include "llinventorylistitem.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
-#include "llviewerinventory.h"
+#include "lltextutil.h"
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// static
+LLPanelInventoryListItem* LLPanelInventoryListItem::createItemPanel(const LLViewerInventoryItem* item)
+{
+	if (item)
+	{
+		return new LLPanelInventoryListItem(item);
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+LLPanelInventoryListItem::~LLPanelInventoryListItem()
+{}
+
+//virtual
+BOOL LLPanelInventoryListItem::postBuild()
+{
+	mIcon = getChild<LLIconCtrl>("item_icon");
+	mTitle = getChild<LLTextBox>("item_name");
+
+	updateItem();
+
+	return TRUE;
+}
+
+//virtual
+void LLPanelInventoryListItem::setValue(const LLSD& value)
+{
+	if (!value.isMap()) return;
+	if (!value.has("selected")) return;
+	childSetVisible("selected_icon", value["selected"]);
+}
+
+void LLPanelInventoryListItem::updateItem()
+{
+	if (mItemIcon.notNull())
+		mIcon->setImage(mItemIcon);
+
+	LLTextUtil::textboxSetHighlightedVal(
+		mTitle,
+		LLStyle::Params(),
+		mItemName,
+		mHighlightedText);
+}
+
+void LLPanelInventoryListItem::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	childSetVisible("hovered_icon", true);
+
+	LLPanel::onMouseEnter(x, y, mask);
+}
+
+void LLPanelInventoryListItem::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	childSetVisible("hovered_icon", false);
+
+	LLPanel::onMouseLeave(x, y, mask);
+}
+
+LLPanelInventoryListItem::LLPanelInventoryListItem(const LLViewerInventoryItem* item)
+:	 LLPanel()
+	,mIcon(NULL)
+	,mTitle(NULL)
+{
+	mItemName = item->getName();
+	mItemIcon = get_item_icon(item->getType(), item->getInventoryType(), item->getFlags(), FALSE);
+
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_inventory_item.xml");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 LLInventoryItemsList::Params::Params()
 {}
 
 LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p)
-:	LLFlatListViewEx(p)
+:	LLFlatListView(p)
 ,	mNeedsRefresh(false)
-,	mForceRefresh(false)
 {
 	// TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
 	// but reset to true in all derived classes. This settings might need to
 	// be added to LLFlatListView::Params() and/or set to "true" by default.
 	setCommitOnSelectionChange(true);
-
-	setNoFilteredItemsMsg(LLTrans::getString("InventoryNoMatchingItems"));
-
-	gIdleCallbacks.addFunction(idle, this);
 }
 
 // virtual
 LLInventoryItemsList::~LLInventoryItemsList()
-{
-	gIdleCallbacks.deleteFunction(idle, this);
-}
+{}
 
 void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item_array)
 {
@@ -75,39 +154,18 @@ void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item
 	mNeedsRefresh = true;
 }
 
-boost::signals2::connection LLInventoryItemsList::setRefreshCompleteCallback(const commit_signal_t::slot_type& cb)
+void LLInventoryItemsList::draw()
 {
-	return mRefreshCompleteSignal.connect(cb);
-}
-
-void LLInventoryItemsList::doIdle()
-{
-	if (!mNeedsRefresh) return;
-
-	if (isInVisibleChain() || mForceRefresh)
+	LLFlatListView::draw();
+	if(mNeedsRefresh)
 	{
 		refresh();
-
-		mRefreshCompleteSignal(this, LLSD());
 	}
 }
-
-//static
-void LLInventoryItemsList::idle(void* user_data)
-{
-	LLInventoryItemsList* self = static_cast<LLInventoryItemsList*>(user_data);
-	if ( self )
-	{	// Do the real idle
-		self->doIdle();
-	}
-}
-
-LLFastTimer::DeclareTimer FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refresh");
 
 void LLInventoryItemsList::refresh()
 {
-	LLFastTimer _(FTM_INVENTORY_ITEMS_REFRESH);
-	static const unsigned ADD_LIMIT = 20;
+	static const unsigned ADD_LIMIT = 50;
 
 	uuid_vec_t added_items;
 	uuid_vec_t removed_items;
@@ -115,7 +173,7 @@ void LLInventoryItemsList::refresh()
 	computeDifference(getIDs(), added_items, removed_items);
 
 	bool add_limit_exceeded = false;
-	unsigned int nadded = 0;
+	unsigned nadded = 0;
 
 	uuid_vec_t::const_iterator it = added_items.begin();
 	for( ; added_items.end() != it; ++it)
@@ -126,28 +184,18 @@ void LLInventoryItemsList::refresh()
 			break;
 		}
 		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		// Do not rearrange items on each adding, let's do that on filter call
-		llassert(item);
-		if (item)
-		{
-			addNewItem(item, false);
-			++nadded;
-		}
+		addNewItem(item);
+		++nadded;
 	}
 
 	it = removed_items.begin();
 	for( ; removed_items.end() != it; ++it)
 	{
-		// don't filter items right away
-		removeItemByUUID(*it, false);
+		removeItemByUUID(*it);
 	}
-
-	// Filter, rearrange and notify parent about shape changes
-	filterItems();
 
 	bool needs_refresh = add_limit_exceeded;
 	setNeedsRefresh(needs_refresh);
-	setForceRefresh(needs_refresh);
 }
 
 void LLInventoryItemsList::computeDifference(
@@ -167,23 +215,22 @@ void LLInventoryItemsList::computeDifference(
 	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
 }
 
-void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrange /*= true*/)
+void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item)
 {
 	if (!item)
 	{
 		llwarns << "No inventory item. Couldn't create flat list item." << llendl;
-		llassert(item != NULL);
+		llassert(!"No inventory item. Couldn't create flat list item.");
 	}
 
-	LLPanelInventoryListItemBase *list_item = LLPanelInventoryListItemBase::create(item);
+	LLPanelInventoryListItem *list_item = LLPanelInventoryListItem::createItemPanel(item);
 	if (!list_item)
 		return;
 
-	bool is_item_added = addItem(list_item, item->getUUID(), ADD_BOTTOM, rearrange);
-	if (!is_item_added)
+	if (!addItem(list_item, item->getUUID()))
 	{
 		llwarns << "Couldn't add flat list item." << llendl;
-		llassert(is_item_added);
+		llassert(!"Couldn't add flat list item.");
 	}
 }
 

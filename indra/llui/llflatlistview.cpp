@@ -744,12 +744,18 @@ LLRect LLFlatListView::getLastSelectedItemRect()
 
 void LLFlatListView::selectFirstItem	()
 {
+	// No items - no actions!
+	if (mItemPairs.empty()) return;
+
 	selectItemPair(mItemPairs.front(), true);
 	ensureSelectedVisible();
 }
 
 void LLFlatListView::selectLastItem		()
 {
+	// No items - no actions!
+	if (mItemPairs.empty()) return;
+
 	selectItemPair(mItemPairs.back(), true);
 	ensureSelectedVisible();
 }
@@ -1141,12 +1147,17 @@ LLFlatListViewEx::LLFlatListViewEx(const Params& p)
 
 }
 
-void LLFlatListViewEx::updateNoItemsMessage(bool items_filtered)
+void LLFlatListViewEx::updateNoItemsMessage(const std::string& filter_string)
 {
+	bool items_filtered = !filter_string.empty();
 	if (items_filtered)
 	{
 		// items were filtered
-		setNoItemsCommentText(mNoFilteredItemsMsg);
+		LLStringUtil::format_map_t args;
+		args["[SEARCH_TERM]"] = LLURI::escape(filter_string);
+		std::string text = mNoFilteredItemsMsg;
+		LLStringUtil::format(text, args);
+		setNoItemsCommentText(text);
 	}
 	else
 	{

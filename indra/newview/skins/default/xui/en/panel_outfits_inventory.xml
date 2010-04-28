@@ -23,20 +23,16 @@
      tab_position="top"
      halign="center"
      width="312">
-         <inventory_panel
-           background_visible="true"
-           background_opaque="true"
-           label="MY OUTFITS"
-           help_topic="my_outfits_tab"
-           allow_multi_select="true"
-           follows="all"
-           border="false"
-           left="0"
-           top="0"
-           width="315"
-           mouse_opaque="true"
+         <panel
+           class="outfits_list"
+           filename="panel_outfits_list.xml"
+           height="490"
            name="outfitslist_tab"
-           start_folder="My Outfits" /> 
+           background_visible="true"
+           follows="all"
+           label="MY OUTFITS"
+           layout="topleft"
+           width="315" />
          <inventory_panel
            follows="all"
            background_visible="true"

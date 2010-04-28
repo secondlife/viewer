@@ -946,7 +946,9 @@ void LLFolderView::draw()
 		}
 		else
 		{
-			mStatusText = LLTrans::getString(getFilter()->getEmptyLookupMessage());
+			LLStringUtil::format_map_t args;
+			args["[SEARCH_TERM]"] = LLURI::escape(getFilter()->getFilterSubStringOrig());
+			mStatusText = LLTrans::getString(getFilter()->getEmptyLookupMessage(), args);
 			//font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		mStatusTextBox->setValue(mStatusText);

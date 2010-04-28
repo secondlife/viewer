@@ -91,7 +91,6 @@ set(llui_SOURCE_FILES
     lltextbox.cpp
     lltexteditor.cpp
     lltextparser.cpp
-    lltextutil.cpp
     lltextvalidate.cpp
     lltransutil.cpp
     lltoggleablemenu.cpp
@@ -186,7 +185,6 @@ set(llui_HEADER_FILES
     lltextbox.h
     lltexteditor.h
     lltextparser.h
-    lltextutil.h
     lltextvalidate.h
     lltoggleablemenu.h
     lltooltip.h
@@ -240,12 +238,10 @@ target_link_libraries(llui
     ${LLCOMMON_LIBRARIES} # must be after llimage, llwindow, llrender
     )
 
-if(LL_TESTS)
-  # Add tests
-  include(LLAddBuildTest)
-  SET(llui_TEST_SOURCE_FILES
-      llurlmatch.cpp
-      llurlentry.cpp
-      )
-  LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")
-endif(LL_TESTS)
+# Add tests
+include(LLAddBuildTest)
+SET(llui_TEST_SOURCE_FILES
+    llurlmatch.cpp
+    llurlentry.cpp
+    )
+LL_ADD_PROJECT_UNIT_TESTS(llui "${llui_TEST_SOURCE_FILES}")

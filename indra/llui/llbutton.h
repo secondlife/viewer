@@ -2,25 +2,31 @@
  * @file llbutton.h
  * @brief Header for buttons
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -78,7 +84,6 @@ public:
 								image_hover_unselected,
 								image_disabled_selected,
 								image_disabled,
-								image_flash,
 								image_pressed,
 								image_pressed_selected,
 								image_overlay;
@@ -146,7 +151,6 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
-	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual void	draw();
 	/*virtual*/ BOOL postBuild();
 
@@ -224,8 +228,6 @@ public:
 	
 	void			setFont(const LLFontGL *font)		
 		{ mGLFont = ( font ? font : LLFontGL::getFontSansSerif()); }
-	const LLFontGL* getFont() const { return mGLFont; }
-
 
 	S32				getLastDrawCharsCount() const { return mLastDrawCharsCount; }
 
@@ -244,7 +246,6 @@ public:
 	void			setImageHoverUnselected(LLPointer<LLUIImage> image);
 	void			setImageDisabled(LLPointer<LLUIImage> image);
 	void			setImageDisabledSelected(LLPointer<LLUIImage> image);
-	void			setImageFlash(LLPointer<LLUIImage> image);
 	void			setImagePressed(LLPointer<LLUIImage> image);
 
 	void			setCommitOnReturn(BOOL commit) { mCommitOnReturn = commit; }
@@ -308,11 +309,6 @@ private:
 
 	LLPointer<LLUIImage>		mImagePressed;
 	LLPointer<LLUIImage>		mImagePressedSelected;
-
-	/* There are two ways an image can flash- by making changes in color according to flash_color attribute
-	   or by changing icon from current to the one specified in image_flash. Second way is used only if
-	   flash icon name is set in attributes(by default it isn't). First way is used otherwise. */
-	LLPointer<LLUIImage>		mImageFlash;
 
 	LLUIColor					mHighlightColor;
 	LLUIColor					mFlashBgColor;

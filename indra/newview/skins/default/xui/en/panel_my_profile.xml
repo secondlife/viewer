@@ -401,14 +401,6 @@
          name="edit_profile_btn"
          tool_tip="Edit your personal information"
          width="152" />
-        <button
-         follows="bottom|right"
-         height="23"
-         label="Edit Appearance"
-         left_pad="3"
-         name="edit_appearance_btn"
-         tool_tip="Create/edit your appearance: physical data, clothes and etc."
-         width="153" />
  </layout_panel>
 </layout_stack>
 </panel>

@@ -2,25 +2,31 @@
  * @file winmmshim.cpp
  * @brief controls volume level of process by intercepting calls to winmm.dll
  *
- * $LicenseInfo:firstyear=2010&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
+ * 
+ * Copyright (c) 2010, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 #include "forwarding_api.h"
@@ -114,8 +120,8 @@ extern "C"
 		{ // zero out the audio buffer when muted
 			memset(pwh->lpData, 0, pwh->dwBufferLength);
 		}
-		else if (sVolumeLevel != 1.f) 
-		{ // need to apply volume level
+		else
+		{
 			wave_out_map_t::iterator found_it = sWaveOuts.find(hwo);
 			if (found_it != sWaveOuts.end())
 			{
@@ -138,11 +144,10 @@ extern "C"
 
 						// copy volume level 4 times into 64 bit MMX register
 						__m64 volume_64 = _mm_set_pi16(volume_16, volume_16, volume_16, volume_16);
-						__m64* sample_64;
-						__m64* last_sample_64 =  (__m64*)(pwh->lpData + pwh->dwBufferLength - sizeof(__m64));
+						__m64 *sample_64;
 						// for everything that can be addressed in 64 bit multiples...
 						for (sample_64 = (__m64*)pwh->lpData;
-							sample_64 <= last_sample_64;
+							sample_64 < (__m64*)(pwh->lpData + pwh->dwBufferLength);
 							++sample_64)
 						{
 							//...multiply the samples by the volume...
@@ -157,11 +162,10 @@ extern "C"
 						// the captain has turned off the MMX sign, you are now free to use floating point registers
 						_mm_empty();
 
-						// finish remaining samples that didn't fit into 64 bit register
 						for (short* sample_16 = (short*)sample_64;
 							sample_16 < (short*)(pwh->lpData + pwh->dwBufferLength);
 							++sample_16)
-						{	
+						{	// finish remaining samples that didn't fit into 64 bit register
 							*sample_16 = (*sample_16 * volume_16) >> 15;
 						}
 

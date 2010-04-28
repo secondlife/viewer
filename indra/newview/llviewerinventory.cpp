@@ -67,6 +67,40 @@
 #include "llviewermessage.h"
 
 ///----------------------------------------------------------------------------
+/// Helper class to store special inventory item names 
+///----------------------------------------------------------------------------
+class LLLocalizedInventoryItemsDictionary : public LLSingleton<LLLocalizedInventoryItemsDictionary>
+{
+public:
+	std::map<std::string, std::string> mInventoryItemsDict;
+
+	LLLocalizedInventoryItemsDictionary()
+	{
+		mInventoryItemsDict["New Shape"]		= LLTrans::getString("New Shape");
+		mInventoryItemsDict["New Skin"]			= LLTrans::getString("New Skin");
+		mInventoryItemsDict["New Hair"]			= LLTrans::getString("New Hair");
+		mInventoryItemsDict["New Eyes"]			= LLTrans::getString("New Eyes");
+		mInventoryItemsDict["New Shirt"]		= LLTrans::getString("New Shirt");
+		mInventoryItemsDict["New Pants"]		= LLTrans::getString("New Pants");
+		mInventoryItemsDict["New Shoes"]		= LLTrans::getString("New Shoes");
+		mInventoryItemsDict["New Socks"]		= LLTrans::getString("New Socks");
+		mInventoryItemsDict["New Jacket"]		= LLTrans::getString("New Jacket");
+		mInventoryItemsDict["New Gloves"]		= LLTrans::getString("New Gloves");
+		mInventoryItemsDict["New Undershirt"]	= LLTrans::getString("New Undershirt");
+		mInventoryItemsDict["New Underpants"]	= LLTrans::getString("New Underpants");
+		mInventoryItemsDict["New Skirt"]		= LLTrans::getString("New Skirt");
+		mInventoryItemsDict["New Alpha"]		= LLTrans::getString("New Alpha");
+		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
+		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
+
+		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
+		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
+		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
+	}
+};
+
+
+///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
@@ -316,6 +350,18 @@ BOOL LLViewerInventoryItem::unpackMessage(LLSD item)
 BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
+
+	std::string localized_str;
+
+	std::map<std::string, std::string>::const_iterator dictionary_iter;
+
+	dictionary_iter = LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.find(mName);
+
+	if(dictionary_iter != LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.end())
+	{
+		mName = dictionary_iter->second;
+	}
+
 	mIsComplete = TRUE;
 	return rv;
 }
@@ -867,6 +913,25 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb)
 {
+	//check if name is equal to one of special inventory items names
+	//EXT-5839
+	std::string server_name = name;
+
+	{
+		std::map<std::string, std::string>::const_iterator dictionary_iter;
+
+		for (dictionary_iter = LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.begin();
+			 dictionary_iter != LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.end();
+			 dictionary_iter++)
+		{
+			const std::string& localized_name = dictionary_iter->second;
+			if(localized_name == name)
+			{
+				server_name = dictionary_iter->first;
+			}
+		}
+	}
+
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_CreateInventoryItem);
 	msg->nextBlock(_PREHASH_AgentData);
@@ -880,7 +945,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
 	msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
 	msg->addU8Fast(_PREHASH_WearableType, (U8)wtype);
-	msg->addStringFast(_PREHASH_Name, name);
+	msg->addStringFast(_PREHASH_Name, server_name);
 	msg->addStringFast(_PREHASH_Description, desc);
 	
 	gAgent.sendReliableMessage();
@@ -923,6 +988,7 @@ void link_inventory_item(
 	const LLUUID& item_id,
 	const LLUUID& parent_id,
 	const std::string& new_name,
+	const std::string& new_description,
 	const LLAssetType::EType asset_type,
 	LLPointer<LLInventoryCallback> cb)
 {
@@ -948,7 +1014,6 @@ void link_inventory_item(
 	}
 	
 	LLUUID transaction_id;
-	std::string desc = "Broken link"; // This should only show if the object can't find its baseobj.
 	LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
 	if (dynamic_cast<const LLInventoryCategory *>(baseobj))
 	{
@@ -979,7 +1044,7 @@ void link_inventory_item(
 		msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
 		msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
 		msg->addStringFast(_PREHASH_Name, new_name);
-		msg->addStringFast(_PREHASH_Description, desc);
+		msg->addStringFast(_PREHASH_Description, new_description);
 	}
 	gAgent.sendReliableMessage();
 }

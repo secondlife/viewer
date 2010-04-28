@@ -62,9 +62,6 @@
 			<panel.string name="no_selection_text">
 				Aucune parcelle sélectionnée.
 			</panel.string>
-			<panel.string name="time_stamp_template">
-				[wkday,datetime,local] [day,datetime,local] [mth,datetime,local] [year,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
-			</panel.string>
 			<text name="Name:">
 				Nom :
 			</text>
@@ -220,10 +217,10 @@ ou divisé.
 				[COUNT] sur [MAX] ([DELETED] seront supprimés)
 			</panel.string>
 			<text name="parcel_object_bonus">
-				Facteur Bonus objets : [BONUS]
+				Facteur Bonus Objets : [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Utilisation des primitives :
+				Utilisation des prims :
 			</text>
 			<text left="214" name="objects_available" width="230">
 				[COUNT] sur [MAX] ([AVAILABLE] disponibles)

@@ -2,25 +2,31 @@
  * @file lluictrlfactory.cpp
  * @brief Factory class for creating UI controls
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * 
+ * Copyright (c) 2003-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -95,9 +101,7 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 
 	if (LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
 	{
-		LLUICtrlFactory::instance().pushFileName(filename);
 		LLXUIParser::instance().readXUI(root_node, block, filename);
-		LLUICtrlFactory::instance().popFileName();
 	}
 }
 
@@ -207,7 +211,7 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 	bool res = true;
 	
 	lldebugs << "Building floater " << filename << llendl;
-	pushFileName(filename);
+	mFileNames.push_back(gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), filename));
 	{
 		if (!floaterp->getFactoryMap().empty())
 		{
@@ -218,7 +222,7 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		floaterp->getCommitCallbackRegistrar().pushScope();
 		floaterp->getEnableCallbackRegistrar().pushScope();
 		
-		res = floaterp->initFloaterXML(root, floaterp->getParent(), filename, output_node);
+		res = floaterp->initFloaterXML(root, floaterp->getParent(), output_node);
 
 		floaterp->setXMLFilename(filename);
 		
@@ -230,7 +234,7 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 			mFactoryStack.pop_front();
 		}
 	}
-	popFileName();
+	mFileNames.pop_back();
 	
 	return res;
 }
@@ -279,7 +283,7 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 
 	lldebugs << "Building panel " << filename << llendl;
 
-	pushFileName(filename);
+	mFileNames.push_back(gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), filename));
 	{
 		if (!panelp->getFactoryMap().empty())
 		{
@@ -302,7 +306,7 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 			mFactoryStack.pop_front();
 		}
 	}
-	popFileName();
+	mFileNames.pop_back();
 	return didPost;
 }
 
@@ -359,23 +363,6 @@ LLPanel* LLUICtrlFactory::createFactoryPanel(const std::string& name)
 	LLPanel::Params panel_p;
 	return create<LLPanel>(panel_p);
 }
-
-std::string LLUICtrlFactory::getCurFileName() 
-{ 
-	return mFileNames.empty() ? "" : gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + mFileNames.back(); 
-}
-
-
-void LLUICtrlFactory::pushFileName(const std::string& name) 
-{ 
-	mFileNames.push_back(gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), name)); 
-}
-
-void LLUICtrlFactory::popFileName() 
-{ 
-	mFileNames.pop_back(); 
-}
-
 
 //-----------------------------------------------------------------------------
 
@@ -446,22 +433,14 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 {
 	// associate parameter block type with template .xml file
 	std::string* existing_tag = LLWidgetNameRegistry::instance().getValue(param_block_type);
-	if (existing_tag != NULL)
+	if (existing_tag != NULL && *existing_tag != tag)
 	{
-		if(*existing_tag != tag)
-		{
-			std::cerr << "Duplicate entry for T::Params, try creating empty param block in derived classes that inherit T::Params" << std::endl;
-			// forcing crash here
-			char* foo = 0;
-			*foo = 1;
-		}
-		else
-		{
-			// widget already registered
-			return;
-		}
+		std::cerr << "Duplicate entry for T::Params, try creating empty param block in derived classes that inherit T::Params" << std::endl;
+		// forcing crash here
+		char* foo = 0;
+		*foo = 1;
 	}
-	LLWidgetNameRegistry::instance().defaultRegistrar().add(param_block_type, tag);
+	LLWidgetNameRegistry ::instance().defaultRegistrar().add(param_block_type, tag);
 	// associate widget type with factory function
 	LLDefaultWidgetRegistry::instance().defaultRegistrar().add(widget_type, creator_func);
 	//FIXME: comment this in when working on schema generation

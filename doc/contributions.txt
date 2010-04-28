@@ -25,7 +25,6 @@ Aimee Trescothick
 	VWR-3903
 	VWR-4083
 	VWR-4106
-	VWR-5308
 	VWR-6348
 	VWR-6358
 	VWR-6360
@@ -150,10 +149,6 @@ blino Nakamura
 	VWR-17
 Boroondas Gupte
 	SNOW-278
-	SNOW-503
-	SNOW-510
-	SNOW-527
-	SNOW-624
 	VWR-233
 	WEB-262
 Bulli Schumann
@@ -189,8 +184,6 @@ Dale Glass
 	VWR-2502
 	VWR-1358
 	VWR-2041
-Drew Dri
-	VWR-19683
 Drewan Keats
 	VWR-28
 	VWR-248
@@ -259,7 +252,6 @@ Gigs Taggart
 	VWR-2491
 	VWR-2502
 	VWR-2331
-	VWR-5308
 	VWR-8781
 	VWR-8783
 Ginko Bayliss
@@ -331,8 +323,6 @@ Khyota Wulluf
 	VWR-8885
 	VWR-9256
 	VWR-9966
-Kitty Barnett
-	VWR-19699
 Kunnis Basiat
 	VWR-82
 	VWR-102
@@ -521,20 +511,11 @@ Ringo Tuxing
 Robin Cornelius
 	SNOW-108
 	SNOW-204
-	SNOW-484
-	SNOW-504
-	SNOW-506
-	SNOW-507
-	SNOW-511
-	SNOW-514
-	SNOW-520
-	SNOW-585
 	VWR-2488
 	VWR-9557
 	VWR-11128
 	VWR-12533
 	VWR-12587
-	VWR-12758
 	VWR-12763
 	VWR-12995
 Ryozu Kojima
@@ -608,8 +589,6 @@ Strife Onizuka
 	VWR-2265
 	VWR-4111
 Tayra Dagostino
-	SNOW-517
-	SNOW-543
 	VWR-13947
 TBBle Kurosawa
 	VWR-938
@@ -617,22 +596,18 @@ TBBle Kurosawa
 	VWR-942
 	VWR-944
 	VWR-945
-	SNOW-543
 	VWR-1891
 	VWR-1892
 Teardrops Fall
 	VWR-5366
 Techwolf Lupindo
 	SNOW-92
-	SNOW-649
 	VWR-12385
 tenebrous pau
 	VWR-247
 Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
-	SNOW-207
-	SNOW-743
 	VWR-7109
 	VWR-9287
 	VWR-13483

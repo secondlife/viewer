@@ -470,10 +470,10 @@ protected:
 	/**
 	 * Applies a message for empty list depend on passed argument.
 	 *
-	 * @param items_filtered - if true message for filtered items will be set, otherwise for
-	 * completely empty list.
+	 * @param filter_string - if is not empty, message for filtered items will be set, otherwise for
+	 * completely empty list. Value of filter string will be passed as search_term in SLURL.
 	 */
-	void updateNoItemsMessage(bool items_filtered);
+	void updateNoItemsMessage(const std::string& filter_string);
 
 private:
 	std::string mNoFilteredItemsMsg;

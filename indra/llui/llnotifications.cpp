@@ -48,122 +48,38 @@
 
 const std::string NOTIFICATION_PERSIST_VERSION = "0.93";
 
-// local channel for notification history
-class LLNotificationHistoryChannel : public LLNotificationChannel
+// Local channel for persistent notifications
+// Stores only persistent notifications.
+// Class users can use connectChanged() to process persistent notifications
+// (see LLNotificationStorage for example).
+class LLPersistentNotificationChannel : public LLNotificationChannel
 {
-	LOG_CLASS(LLNotificationHistoryChannel);
+	LOG_CLASS(LLPersistentNotificationChannel);
 public:
-	LLNotificationHistoryChannel(const std::string& filename) : 
-		LLNotificationChannel("History", "Visible", &historyFilter, LLNotificationComparators::orderByUUID()),
-		mFileName(filename)
+	LLPersistentNotificationChannel() :
+		LLNotificationChannel("Persistent", "Visible", &notificationFilter, LLNotificationComparators::orderByUUID())
 	{
-		connectChanged(boost::bind(&LLNotificationHistoryChannel::historyHandler, this, _1));
-		loadPersistentNotifications();
 	}
 
 private:
-	bool historyHandler(const LLSD& payload)
+
+	// The channel gets all persistent notifications except those that have been canceled
+	static bool notificationFilter(LLNotificationPtr pNotification)
 	{
-		// we ignore "load" messages, but rewrite the persistence file on any other
-		std::string sigtype = payload["sigtype"];
-		if (sigtype != "load")
-		{
-			savePersistentNotifications();
-		}
-		return false;
+		bool handle_notification = false;
+
+		handle_notification = pNotification->isPersistent()
+			&& !pNotification->isCancelled();
+
+		return handle_notification;
 	}
 
-	// The history channel gets all notifications except those that have been cancelled
-	static bool historyFilter(LLNotificationPtr pNotification)
-	{
-		return !pNotification->isCancelled();
-	}
-
-	void savePersistentNotifications()
-	{
-		/* NOTE: As of 2009-11-09 the reload of notifications on startup does not
-		work, and has not worked for months.  Skip saving notifications until the
-		read can be fixed, because this hits the disk once per notification and
-		causes log spam.  James
-
-		llinfos << "Saving open notifications to " << mFileName << llendl;
-
-		llofstream notify_file(mFileName.c_str());
-		if (!notify_file.is_open()) 
-		{
-			llwarns << "Failed to open " << mFileName << llendl;
-			return;
-		}
-
-		LLSD output;
-		output["version"] = NOTIFICATION_PERSIST_VERSION;
-		LLSD& data = output["data"];
-
-		for (LLNotificationSet::iterator it = mItems.begin(); it != mItems.end(); ++it)
-		{
-			if (!LLNotifications::instance().templateExists((*it)->getName())) continue;
-
-			// only store notifications flagged as persisting
-			LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate((*it)->getName());
-			if (!templatep->mPersist) continue;
-
-			data.append((*it)->asLLSD());
-		}
-
-		LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
-		formatter->format(output, notify_file, LLSDFormatter::OPTIONS_PRETTY);
-		*/
-	}
-
-	void loadPersistentNotifications()
-	{
-		llinfos << "Loading open notifications from " << mFileName << llendl;
-
-		llifstream notify_file(mFileName.c_str());
-		if (!notify_file.is_open()) 
-		{
-			llwarns << "Failed to open " << mFileName << llendl;
-			return;
-		}
-
-		LLSD input;
-		LLPointer<LLSDParser> parser = new LLSDXMLParser();
-		if (parser->parse(notify_file, input, LLSDSerialize::SIZE_UNLIMITED) < 0)
-		{
-			llwarns << "Failed to parse open notifications" << llendl;
-			return;
-		}
-
-		if (input.isUndefined()) return;
-		std::string version = input["version"];
-		if (version != NOTIFICATION_PERSIST_VERSION)
-		{
-			llwarns << "Bad open notifications version: " << version << llendl;
-			return;
-		}
-		LLSD& data = input["data"];
-		if (data.isUndefined()) return;
-
-		LLNotifications& instance = LLNotifications::instance();
-		for (LLSD::array_const_iterator notification_it = data.beginArray();
-			notification_it != data.endArray();
-			++notification_it)
-		{
-			instance.add(LLNotificationPtr(new LLNotification(*notification_it)));
-		}
-	}
-
-	//virtual
 	void onDelete(LLNotificationPtr pNotification)
 	{
-		// we want to keep deleted notifications in our log
+		// we want to keep deleted notifications in our log, otherwise some 
+		// notifications will be lost on exit.
 		mItems.insert(pNotification);
-		
-		return;
 	}
-	
-private:
-	std::string mFileName;
 };
 
 bool filterIgnoredNotifications(LLNotificationPtr notification)
@@ -417,6 +333,10 @@ LLNotification::LLNotification(const LLNotification::Params& p) :
 
 		mTemporaryResponder = true;
 	}
+	else if(p.functor.responder.isChosen())
+	{
+		mResponder = p.functor.responder;
+	}
 
 	if(p.responder.isProvided())
 	{
@@ -462,6 +382,12 @@ LLSD LLNotification::asLLSD()
 	output["priority"] = (S32)mPriority;
 	output["responseFunctor"] = mResponseFunctorName;
 	output["reusable"] = mIsReusable;
+
+	if(mResponder)
+	{
+		output["responder"] = mResponder->asLLSD();
+	}
+
 	return output;
 }
 
@@ -571,12 +497,20 @@ void LLNotification::respond(const LLSD& response)
 	// *TODO may remove mRespondedTo and use mResponce.isDefined() in isRespondedTo()
 	mRespondedTo = true;
 	mResponse = response;
-	// look up the functor
-	LLNotificationFunctorRegistry::ResponseFunctor functor = 
-		LLNotificationFunctorRegistry::instance().getFunctor(mResponseFunctorName);
-	// and then call it
-	functor(asLLSD(), response);
-	
+
+	if(mResponder)
+	{
+		mResponder->handleRespond(asLLSD(), response);
+	}
+	else
+	{
+		// look up the functor
+		LLNotificationFunctorRegistry::ResponseFunctor functor =
+			LLNotificationFunctorRegistry::instance().getFunctor(mResponseFunctorName);
+		// and then call it
+		functor(asLLSD(), response);
+	}
+
 	if (mTemporaryResponder && !isReusable())
 	{
 		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
@@ -619,6 +553,11 @@ void LLNotification::setResponseFunctor(const LLNotificationFunctorRegistry::Res
 	}
 
 	LLNotificationFunctorRegistry::instance().registerFunctor(mResponseFunctorName, cb);
+}
+
+void LLNotification::setResponseFunctor(const LLNotificationResponderPtr& responder)
+{
+	mResponder = responder;
 }
 
 bool LLNotification::payloadContainsAll(const std::vector<std::string>& required_fields) const
@@ -1116,12 +1055,9 @@ void LLNotifications::createDefaultChannels()
 	LLNotificationChannel::buildChannel("Visible", "Ignore",
 		&LLNotificationFilters::includeEverything);
 
-	// create special history channel
-	//std::string notifications_log_file = gDirUtilp->getExpandedFilename ( LL_PATH_PER_SL_ACCOUNT, "open_notifications.xml" );
-	// use ^^^ when done debugging notifications serialization
-	std::string notifications_log_file = gDirUtilp->getExpandedFilename ( LL_PATH_USER_SETTINGS, "open_notifications.xml" );
+	// create special persistent notification channel
 	// this isn't a leak, don't worry about the empty "new"
-	new LLNotificationHistoryChannel(notifications_log_file);
+	new LLPersistentNotificationChannel();
 
 	// connect action methods to these channels
 	LLNotifications::instance().getChannel("Expiration")->
