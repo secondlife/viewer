@@ -148,7 +148,6 @@ public:
 
 	virtual void done() = 0;
 protected:
-	BOOL mDone;
 	LLInventoryFetchItemsObserver *mFetchItems;
 	LLInventoryFetchDescendentsObserver *mFetchDescendents;
 };
@@ -262,5 +261,40 @@ protected:
 	uuid_vec_t mIncomplete;
 };
 
-#endif // LL_LLINVENTORYOBSERVERS_H
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryCategoriesObserver
+//
+// This class is used for monitoring a list of inventory categories
+// and firing a callback when there are changes in any of them.
+// Categories are identified by their UUIDs.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLInventoryCategoriesObserver : public LLInventoryObserver
+{
+public:
+	typedef boost::function<void()> callback_t;
 
+	LLInventoryCategoriesObserver() {};
+	virtual void changed(U32 mask);
+
+	void addCategory(const LLUUID& cat_id, callback_t cb);
+	void removeCategory(const LLUUID& cat_id);
+
+protected:
+	struct LLCategoryData
+	{
+		LLCategoryData(callback_t cb, S32 version)
+		: mCallback(cb)
+		, mVersion(version)
+		{}
+
+		callback_t	mCallback;
+		S32			mVersion;
+	};
+
+	typedef	std::map<LLUUID, LLCategoryData>	category_map_t;
+	typedef category_map_t::value_type			category_map_value_t;
+
+	category_map_t				mCategoryMap;
+};
+
+#endif // LL_LLINVENTORYOBSERVERS_H

@@ -765,3 +765,35 @@ std::string LLUrlEntryNoLink::getLabel(const std::string &url, const LLUrlLabelC
 {
 	return getUrl(url);
 }
+
+//
+// LLUrlEntryIcon describes an icon with <icon>...</icon> tags
+//
+LLUrlEntryIcon::LLUrlEntryIcon()
+{
+	mPattern = boost::regex("<icon\\s*>\\s*([^<]*)?\\s*</icon\\s*>",
+							boost::regex::perl|boost::regex::icase);
+	mDisabledLink = true;
+}
+
+std::string LLUrlEntryIcon::getUrl(const std::string &url) const
+{
+	return LLStringUtil::null;
+}
+
+std::string LLUrlEntryIcon::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	return LLStringUtil::null;
+}
+
+std::string LLUrlEntryIcon::getIcon(const std::string &url)
+{
+	// Grep icon info between <icon>...</icon> tags
+	// matches[1] contains the icon name/path
+	boost::match_results<std::string::const_iterator> matches;
+	mIcon = (boost::regex_match(url, matches, mPattern) && matches[1].matched)
+		? matches[1]
+		: LLStringUtil::null;
+	LLStringUtil::trim(mIcon);
+	return mIcon;
+}

@@ -148,6 +148,7 @@ void LLInventoryCompletionObserver::watchItem(const LLUUID& id)
 
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_id) :
 	LLInventoryFetchObserver(item_id),
+
 	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
 {
 	mIDs.clear();
@@ -155,7 +156,9 @@ LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_
 }
 
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids) :
-	LLInventoryFetchObserver(item_ids)
+	LLInventoryFetchObserver(item_ids),
+
+	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
 {
 }
 
@@ -646,4 +649,54 @@ void LLInventoryTransactionObserver::changed(U32 mask)
 			}
 		}
 	}
+}
+
+void LLInventoryCategoriesObserver::changed(U32 mask)
+{
+	if (!mCategoryMap.size())
+		return;
+
+	for (category_map_t::iterator iter = mCategoryMap.begin();
+		 iter != mCategoryMap.end();
+		 ++iter)
+	{
+		LLViewerInventoryCategory* category = gInventory.getCategory((*iter).first);
+		if (!category)
+			continue;
+
+		S32 version = category->getVersion();
+		if (version != (*iter).second.mVersion)
+		{
+			// Update category version in map.
+			(*iter).second.mVersion = version;
+			(*iter).second.mCallback();
+		}
+	}
+}
+
+void LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb)
+{
+	S32 version;
+	LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
+	if (category)
+	{
+		// Inventory category version is used to find out if some changes
+		// to a category have been made.
+		version = category->getVersion();
+	}
+	else
+	{
+		// If category could not be retrieved it might mean that
+		// inventory is unusable at the moment so the category is
+		// stored with VERSION_UNKNOWN and it may be updated later.
+		version = LLViewerInventoryCategory::VERSION_UNKNOWN;
+	}
+
+	version = category->getVersion();
+	mCategoryMap.insert(category_map_value_t(cat_id, LLCategoryData(cb, version)));
+}
+
+void LLInventoryCategoriesObserver::removeCategory(const LLUUID& cat_id)
+{
+	mCategoryMap.erase(cat_id);
 }

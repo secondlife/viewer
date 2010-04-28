@@ -67,6 +67,7 @@ LLToast::Params::Params()
 LLToast::LLToast(const LLToast::Params& p) 
 :	LLModalDialog(LLSD(), p.is_modal),
 	mPanel(p.panel), 
+	mToastLifetime(p.lifetime_secs),
 	mToastFadingTime(p.fading_time_secs),
 	mNotificationID(p.notif_id),  
 	mSessionID(p.session_id),
@@ -119,27 +120,7 @@ BOOL LLToast::postBuild()
 		mTimer->stop();
 	}
 
-	if (mIsTip)
-	{
-		mTextEditor = mPanel->getChild<LLTextEditor>("text_editor_box");
-
-		if (mTextEditor)
-		{
-			mTextEditor->setMouseUpCallback(boost::bind(&LLToast::hide,this));
-			mPanel->setMouseUpCallback(boost::bind(&LLToast::handleTipToastClick, this, _2, _3, _4));
-		}
-	}
-
 	return TRUE;
-}
-
-//--------------------------------------------------------------------------
-void LLToast::handleTipToastClick(S32 x, S32 y, MASK mask)
-{
-	if (!mTextEditor->getRect().pointInRect(x, y))
-	{
-		hide();
-	}
 }
 
 //--------------------------------------------------------------------------
@@ -260,6 +241,13 @@ void LLToast::draw()
 		{
 			drawChild(mHideBtn);
 		}
+	}
+
+	// if timer started and remaining time <= fading time
+	if (mTimer->getStarted() && (mToastLifetime
+			- mTimer->getEventTimer().getElapsedTimeF32()) <= mToastFadingTime)
+	{
+		setBackgroundOpaque(FALSE);
 	}
 }
 
@@ -421,4 +409,13 @@ bool LLToast::isNotificationValid()
 
 //--------------------------------------------------------------------------
 
+S32	LLToast::notifyParent(const LLSD& info)
+{
+	if (info.has("action") && "hide_toast" == info["action"].asString())
+	{
+		hide();
+		return 1;
+	}
 
+	return LLModalDialog::notifyParent(info);
+}

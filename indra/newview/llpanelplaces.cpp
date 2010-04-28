@@ -528,8 +528,7 @@ void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_fi
 		std::string string = search_string;
 
 		// Searches are case-insensitive
-		LLStringUtil::toUpper(string);
-		LLStringUtil::trimHead(string);
+		// but we don't convert the typed string to upper-case so that it can be fed to the web search as-is.
 
 		mActivePanel->onSearchEdit(string);
 	}
@@ -1071,8 +1070,7 @@ void LLPanelPlaces::updateVerbs()
 	mSaveBtn->setVisible(isLandmarkEditModeOn);
 	mCancelBtn->setVisible(isLandmarkEditModeOn);
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
-	mPlaceInfoBtn->setVisible(mPlaceInfoType != LANDMARK_INFO_TYPE && mPlaceInfoType != TELEPORT_HISTORY_INFO_TYPE
-			&& !is_create_landmark_visible && !isLandmarkEditModeOn);
+	mPlaceInfoBtn->setVisible(!is_place_info_visible && !is_create_landmark_visible && !isLandmarkEditModeOn);
 
 	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
 	mPlaceInfoBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);

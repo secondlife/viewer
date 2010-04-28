@@ -27,8 +27,14 @@ set(SLPlugin_SOURCE_FILES
 
 add_executable(SLPlugin
     WIN32
+    MACOSX_BUNDLE
     ${SLPlugin_SOURCE_FILES}
 )
+
+set_target_properties(SLPlugin
+  PROPERTIES
+  MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
+  )
 
 target_link_libraries(SLPlugin
   ${LLPLUGIN_LIBRARIES}
@@ -44,12 +50,16 @@ add_dependencies(SLPlugin
 )
 
 if (DARWIN)
-  # Mac version needs to link against carbon, and also needs an embedded plist (to set LSBackgroundOnly)
+  # Mac version needs to link against Carbon
   target_link_libraries(SLPlugin ${CARBON_LIBRARY})
-  set_target_properties(
-    SLPlugin
-    PROPERTIES
-    LINK_FLAGS "-Wl,-sectcreate,__TEXT,__info_plist,${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist"
+  # Make sure the app bundle has a Resources directory (it will get populated by viewer-manifest.py later)
+  add_custom_command(
+    TARGET SLPlugin POST_BUILD
+    COMMAND mkdir
+    ARGS
+      -p
+      ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/SLPlugin.app/Contents/Resources
   )
 endif (DARWIN)
 
+ll_deploy_sharedlibs_command(SLPlugin)

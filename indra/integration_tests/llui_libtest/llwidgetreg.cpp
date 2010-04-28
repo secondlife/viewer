@@ -37,6 +37,7 @@
 #include "llcombobox.h"
 #include "llcontainerview.h"
 #include "lliconctrl.h"
+#include "llloadingindicator.h"
 #include "llmenubutton.h"
 #include "llmenugl.h"
 #include "llmultislider.h"
@@ -72,6 +73,7 @@ void LLWidgetReg::initClass(bool register_widgets)
 		LLDefaultChildRegistry::Register<LLFlyoutButton> flyout_button("flyout_button");
 		LLDefaultChildRegistry::Register<LLContainerView> container_view("container_view");
 		LLDefaultChildRegistry::Register<LLIconCtrl> icon("icon");
+		LLDefaultChildRegistry::Register<LLLoadingIndicator> loading_indicator("loading_indicator");
 		LLDefaultChildRegistry::Register<LLLineEditor> line_editor("line_editor");
 		LLDefaultChildRegistry::Register<LLMenuItemSeparatorGL> menu_item_separator("menu_item_separator");
 		LLDefaultChildRegistry::Register<LLMenuItemCallGL> menu_item_call_gl("menu_item_call");

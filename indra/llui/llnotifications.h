@@ -116,7 +116,22 @@ typedef enum e_notification_priority
 	NOTIFICATION_PRIORITY_CRITICAL
 } ENotificationPriority;
 
+class LLNotificationResponderInterface
+{
+public:
+	LLNotificationResponderInterface(){};
+	virtual ~LLNotificationResponderInterface(){};
+
+	virtual void handleRespond(const LLSD& notification, const LLSD& response) = 0;
+
+	virtual LLSD asLLSD() = 0;
+
+	virtual void fromLLSD(const LLSD& params) = 0;
+};
+
 typedef boost::function<void (const LLSD&, const LLSD&)> LLNotificationResponder;
+
+typedef boost::shared_ptr<LLNotificationResponderInterface> LLNotificationResponderPtr;
 
 typedef LLFunctorRegistry<LLNotificationResponder> LLNotificationFunctorRegistry;
 typedef LLFunctorRegistration<LLNotificationResponder> LLNotificationFunctorRegistration;
@@ -303,10 +318,12 @@ public:
 		{
 			Alternative<std::string>										name;
 			Alternative<LLNotificationFunctorRegistry::ResponseFunctor>	function;
+			Alternative<LLNotificationResponderPtr>						responder;
 
 			Functor()
 			:	name("functor_name"),
-				function("functor")
+				function("functor"),
+				responder("responder")
 			{}
 		};
 		Optional<Functor>						functor;
@@ -349,12 +366,13 @@ private:
 	bool mIgnored;
 	ENotificationPriority mPriority;
 	LLNotificationFormPtr mForm;
-	void* mResponderObj;
+	void* mResponderObj; // TODO - refactor/remove this field
 	bool mIsReusable;
-	
+	LLNotificationResponderPtr mResponder;
+
 	// a reference to the template
 	LLNotificationTemplatePtr mTemplatep;
-	
+
 	/*
 	 We want to be able to store and reload notifications so that they can survive
 	 a shutdown/restart of the client. So we can't simply pass in callbacks;
@@ -392,6 +410,8 @@ public:
 	void setResponseFunctor(std::string const &responseFunctorName);
 
 	void setResponseFunctor(const LLNotificationFunctorRegistry::ResponseFunctor& cb);
+
+	void setResponseFunctor(const LLNotificationResponderPtr& responder);
 
 	typedef enum e_response_template_type
 	{
@@ -459,7 +479,12 @@ public:
 	{
 		return mTemplatep->mName;
 	}
-	
+
+	bool isPersistent() const
+	{
+		return mTemplatep->mPersist;
+	}
+
 	const LLUUID& id() const
 	{
 		return mId;

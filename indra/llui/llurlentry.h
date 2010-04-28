@@ -77,7 +77,7 @@ public:
 	virtual std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) { return url; }
 
 	/// Return an icon that can be displayed next to Urls of this type
-	std::string getIcon() const { return mIcon; }
+	virtual std::string getIcon(const std::string &url) { return mIcon; }
 
 	/// Return the color to render the displayed text
 	LLUIColor getColor() const { return mColor; }
@@ -295,5 +295,18 @@ public:
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
+
+///
+/// LLUrlEntryIcon describes an icon with <icon>...</icon> tags
+///
+class LLUrlEntryIcon : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryIcon();
+	/*virtual*/ std::string getUrl(const std::string &string) const;
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getIcon(const std::string &url);
+};
+
 
 #endif

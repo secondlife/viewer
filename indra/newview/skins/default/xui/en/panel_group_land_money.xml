@@ -17,6 +17,10 @@
         You don&apos;t have permission to view group owned land
     </panel.string>
     <panel.string
+     name="epmty_view_group_land_text">
+        No entries
+    </panel.string>
+    <panel.string
      name="cant_view_group_accounting_text">
         You don&apos;t have permission to view the group&apos;s accounting information.
     </panel.string>
@@ -262,6 +266,7 @@
          top="0"
          width="313">
             <text_editor
+             enabled="false"
              type="string"
              follows="all"
              height="200"
@@ -286,6 +291,7 @@
          top="0"
          width="313">
           <text_editor
+             enabled="false"
              type="string"
              follows="all"
              height="185"
@@ -329,6 +335,7 @@
          top="0"
          width="313">
             <text_editor
+             enabled="false"
              type="string"
              follows="all"
              height="185"

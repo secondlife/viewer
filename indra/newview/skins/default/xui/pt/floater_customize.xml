@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater customize" title="APARÊNCIA" width="546">
-	<tab_container name="customize tab container" tab_min_width="115" width="544">
+<floater name="floater customize" title="APARÊNCIA">
+	<tab_container name="customize tab container" tab_min_width="115">
 		<text label="Corpo" name="body_parts_placeholder">
 			Partes do corpo
 		</text>

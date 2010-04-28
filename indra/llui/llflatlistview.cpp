@@ -1,10 +1,10 @@
 /** 
  * @file llflatlistview.cpp
- * @brief LLFlatListView base class
+ * @brief LLFlatListView base class and extension to support messages for several cases of an empty list.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2009, Linden Research, Inc.
+ * Copyright (c) 2009-2010, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -744,12 +744,18 @@ LLRect LLFlatListView::getLastSelectedItemRect()
 
 void LLFlatListView::selectFirstItem	()
 {
+	// No items - no actions!
+	if (mItemPairs.empty()) return;
+
 	selectItemPair(mItemPairs.front(), true);
 	ensureSelectedVisible();
 }
 
 void LLFlatListView::selectLastItem		()
 {
+	// No items - no actions!
+	if (mItemPairs.empty()) return;
+
 	selectItemPair(mItemPairs.back(), true);
 	ensureSelectedVisible();
 }
@@ -1120,6 +1126,45 @@ void LLFlatListView::detachItems(std::vector<LLPanel*>& detached_items)
 		}
 		notifyParentItemsRectChanged();
 	}
+}
+
+
+/************************************************************************/
+/*             LLFlatListViewEx implementation                          */
+/************************************************************************/
+LLFlatListViewEx::Params::Params()
+: no_items_msg("no_items_msg")
+, no_filtered_items_msg("no_filtered_items_msg")
+{
+
+}
+
+LLFlatListViewEx::LLFlatListViewEx(const Params& p)
+:	LLFlatListView(p)
+, mNoFilteredItemsMsg(p.no_filtered_items_msg)
+, mNoItemsMsg(p.no_items_msg)
+{
+
+}
+
+void LLFlatListViewEx::updateNoItemsMessage(const std::string& filter_string)
+{
+	bool items_filtered = !filter_string.empty();
+	if (items_filtered)
+	{
+		// items were filtered
+		LLStringUtil::format_map_t args;
+		args["[SEARCH_TERM]"] = LLURI::escape(filter_string);
+		std::string text = mNoFilteredItemsMsg;
+		LLStringUtil::format(text, args);
+		setNoItemsCommentText(text);
+	}
+	else
+	{
+		// list does not contain any items at all
+		setNoItemsCommentText(mNoItemsMsg);
+	}
+
 }
 
 //EOF

@@ -800,7 +800,7 @@ Insufficient funds to create classified.
    icon="alertmodal.tga"
    name="DeleteAvatarPick"
    type="alertmodal">
-Delete pick [PICK]?
+Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -5066,6 +5066,7 @@ No valid parcel could be found.
   <notification
    icon="notify.tga"
    name="ObjectGiveItem"
+   persist="true"
    type="offer">
 An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -5110,6 +5111,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
   <notification
    icon="notify.tga"
    name="UserGiveItem"
+   persist="true"
    type="offer">
 [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -5162,10 +5164,11 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
   <notification
    icon="notify.tga"
    name="TeleportOffered"
+   persist="true"
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
-[MESSAGE], ([MATURITY])
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
     <form name="form">
       <button
        index="0"
@@ -5207,6 +5210,7 @@ An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you th
   <notification
    icon="notify.tga"
    name="OfferFriendship"
+   persist="true"
    type="offer">
 [NAME_SLURL] is offering friendship.
 

@@ -1767,6 +1767,8 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 			getChild<LLTextBox>("leaving")->setVisible(true);
 		}
 		break;
+	// STATE_READY is here to show appropriate text for ad-hoc and group calls when floater is shown(EXT-6893)
+	case LLVoiceChannel::STATE_READY :
 	case LLVoiceChannel::STATE_RINGING :
 		if(show_oldchannel)
 		{
@@ -2744,6 +2746,12 @@ bool LLIMMgr::endCall(const LLUUID& session_id)
 	if (!voice_channel) return false;
 
 	voice_channel->deactivate();
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (im_session)
+	{
+		// need to update speakers' state
+		im_session->mSpeakers->update(FALSE);
+	}
 	return true;
 }
 

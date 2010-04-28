@@ -2238,7 +2238,6 @@ LLGLuint LLVOAvatarSelf::getScratchTexName( LLGLenum format, S32& components, U3
 	{
 		case GL_LUMINANCE:			components = 1; internal_format = GL_LUMINANCE8;		break;
 		case GL_ALPHA:				components = 1; internal_format = GL_ALPHA8;			break;
-		case GL_COLOR_INDEX:		components = 1; internal_format = GL_COLOR_INDEX8_EXT;	break;
 		case GL_LUMINANCE_ALPHA:	components = 2; internal_format = GL_LUMINANCE8_ALPHA8;	break;
 		case GL_RGB:				components = 3; internal_format = GL_RGB8;				break;
 		case GL_RGBA:				components = 4; internal_format = GL_RGBA8;				break;

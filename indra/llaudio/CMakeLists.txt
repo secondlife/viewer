@@ -57,13 +57,11 @@ if (FMOD)
          llstreamingaudio_fmod.h
          )
 
-    if (LINUX)
-      if (${CXX_VERSION_NUMBER} GREATER 419)
-        set_source_files_properties(llaudioengine_fmod.cpp
-                                    llstreamingaudio_fmod.cpp
-                                    COMPILE_FLAGS -Wno-write-strings)
-      endif (${CXX_VERSION_NUMBER} GREATER 419)
-    endif (LINUX)
+    if (LINUX OR DARWIN)
+      set_source_files_properties(llaudioengine_fmod.cpp
+                                  llstreamingaudio_fmod.cpp
+                                  COMPILE_FLAGS -Wno-write-strings)
+    endif (LINUX OR DARWIN)
 endif (FMOD)
 
 if (OPENAL)

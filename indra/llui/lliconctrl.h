@@ -73,6 +73,7 @@ public:
 	std::string	getImageName() const;
 
 	void			setColor(const LLColor4& color) { mColor = color; }
+	void			setImage(LLPointer<LLUIImage> image) { mImagep = image; }
 	
 private:
 	void setIconImageDrawSize() ;

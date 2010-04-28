@@ -37,7 +37,7 @@
 #include "lltimer.h"
 #include "llvoiceclient.h"
 
-struct LLOfferInfo;
+class LLOfferInfo;
 
 const S32 UPDATE_MEMBERS_PER_FRAME = 500;
 

@@ -143,7 +143,8 @@ protected:
 	LLRect			mPreviewRect;
 	LLRectf			mPreviewImageRect;
 	LLPointer<LLViewerTexture> mImagep ;
-
+	
+	std::string mImageLoadError;
 };
 
 #endif  // LL_LLFLOATERIMAGEPREVIEW_H

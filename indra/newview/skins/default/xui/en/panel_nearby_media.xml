@@ -7,7 +7,7 @@
   background_opaque="true"
 	background_visible="true"
 	layout="topleft"
-	width="270"
+	width="328"
 	height="230"
 	name="nearby_media"
 	help_topic="nearby_media">
@@ -29,7 +29,7 @@
 		follows="left"
 		tool_tip="Turn all nearby media off"
 		left="8"
-		width="66"
+		width="95"
 		height="22"
 		label="Stop All">
 	  <button.commit_callback
@@ -40,7 +40,7 @@
 		follows="left"
 		tool_tip="Turn all nearby media on"
 		left_pad="4"
-		width="66"
+		width="95"
 		height="22"
 		label="Start All">
 	  <button.commit_callback

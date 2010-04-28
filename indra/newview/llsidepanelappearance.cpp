@@ -197,8 +197,7 @@ void LLSidepanelAppearance::onFilterEdit(const std::string& search_string)
 		mFilterSubString = search_string;
 
 		// Searches are case-insensitive
-		LLStringUtil::toUpper(mFilterSubString);
-		LLStringUtil::trimHead(mFilterSubString);
+		// but we don't convert the typed string to upper-case so that it can be fed to the web search as-is.
 
 		mPanelOutfitsInventory->onSearchEdit(mFilterSubString);
 	}
@@ -329,8 +328,8 @@ void LLSidepanelAppearance::updateVerbs()
 
 	if (mPanelOutfitsInventory && !is_look_info_visible)
 	{
-		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
-		mEditBtn->setEnabled(is_correct_type);
+//		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
+//		mEditBtn->setEnabled(is_correct_type);
 	}
 	else
 	{

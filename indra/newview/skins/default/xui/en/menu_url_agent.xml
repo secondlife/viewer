@@ -7,7 +7,7 @@
      layout="topleft"
      name="show_agent">
         <menu_item_call.on_click
-         function="Url.Execute" />
+         function="Url.ShowProfile" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft" />

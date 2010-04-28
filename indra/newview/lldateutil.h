@@ -36,6 +36,29 @@ class LLDate;
 
 namespace LLDateUtil
 {
+	/**
+	 * Convert a date provided by the server into seconds since the Epoch.
+	 * 
+	 * @param[out] date Number of seconds since 01/01/1970 UTC.
+	 * @param[in]  str  Date string (MM/DD/YYYY) in PDT time zone.
+	 * 
+	 * @return true on success, false on parse error
+	 */
+	bool dateFromPDTString(LLDate& date, const std::string& str);
+
+	/**
+	 * Get human-readable avatar age.
+	 * 
+	 * Used for avatar inspectors and profiles.
+	 * 
+	 * @param born_date Date an avatar was born on.
+	 * @param now       Current date.
+	 * 
+	 * @return human-readable localized string like "1 year, 2 months",
+	 *         or "???" on error.
+	 */
+	std::string ageFromDate(const LLDate& born_date, const LLDate& now);
+
 	// Convert a date provided by the server (MM/DD/YYYY) into a localized,
 	// human-readable age (1 year, 2 months) using translation strings.
 	// Pass LLDate::now() for now.

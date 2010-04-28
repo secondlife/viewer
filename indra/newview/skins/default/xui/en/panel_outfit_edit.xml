@@ -30,6 +30,20 @@
     <string name="Filter.Clothes/Body" value="Clothes/Body"/>
     <string name="Filter.Objects" value="Objects"/>
 
+  <!-- 
+  TODO remove this button. Added it temporary for QA to be able to test new edit wearable 
+  panel (see EXT-6564)
+  -->
+				<button
+				  follows="left|top|right"
+				  height="20"
+				  label="edit"
+				  left="0"
+				  top="0"
+				  layout="topleft"
+				  name="edit_wearable_btn"
+				  width="40" /> 
+  
     <button
      follows="top|left"
      height="23"
@@ -135,41 +149,20 @@
          auto_resize="true"
          user_resize="true">
 
-            <scroll_list
-             width="300"
-             column_padding="0"
-             draw_heading="false"
-             draw_stripes="false"
-             follows="left|top|right|bottom"
-             layout="topleft"
-             name="look_items_list"
-             search_column="1"
-             sort_column="2"
-             left="0"
-             height="193"
-             top="0">
-                <scroll_list.columns
-                 label="Look Item"
-                 name="look_item"
-                 width="285" />
-                <scroll_list.columns
-                 label="Outfit Item Sort"
-                 width="0"
-                 sort_column="look_item_sort"
-                 name="look_item_sort" />
-            </scroll_list>
-			<!-- TODO remove this button. Added it temporary for QA to be able to test new edit wearable panel (see EXT-6564)-->
-				<button
-				  follows="left|top|right"
-				  height="20"
-				  label="edit"
-				  left="0"
-				  top="0"
-				  layout="topleft"
-				  name="edit_wearable_btn"
-				  width="40" />
-
+            <!-- List containing items from the COF and Base outfit -->
             <panel
+             background_visible="false"
+             class="cof_wearables"
+             filename="panel_cof_wearables.xml"
+             follows="left|top|right|bottom"
+             height="193"
+             layout="topleft"
+             left="0"
+             name="cof_wearables_list"
+             top="0"
+             width="300" /> 
+
+          <panel
              background_visible="true"
              bevel_style="none"
              follows="bottom|left|right"
@@ -215,6 +208,30 @@
                  layout="topleft"
                  left_pad="1"
                  name="new_btn"
+                 top="1"
+                 width="31" />
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Movement_Forward_On"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="move_closer_btn"
+                 top="1"
+                 width="31" />
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Movement_Backward_On"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="move_further_btn"
                  top="1"
                  width="31" />
                 <button
@@ -336,6 +353,30 @@
              name="inventory_items"
              top_pad="5"
              width="300"/>
+
+            <panel
+             name="filtered_wearables_panel"
+             background_opaque="true"
+             background_visible="true"
+             layout="topleft"
+             follows="left|top|right|bottom"
+             border="false"
+             height="155"
+             left="0"
+             mouse_opaque="false"
+             width="300"
+             top_delta="0"
+             visible="false">
+             <wearable_items_list
+              name="filtered_wearables_list"
+              allow_select="true"
+              layout="topleft"
+              follows="all"
+              width="300"
+              height="155"
+              left="0"
+              top="0" />
+            </panel>
 
             <panel
              background_visible="true"

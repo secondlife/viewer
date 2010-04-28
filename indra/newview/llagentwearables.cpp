@@ -1338,7 +1338,8 @@ public:
 		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
 		LLPanelOutfitsInventory *outfit_panel =
 			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-		if (outfit_panel)
+		// TODO: add handling "My Outfits" tab.
+		if (outfit_panel && outfit_panel->isCOFPanelActive())
 		{
 			outfit_panel->getRootFolder()->clearSelection();
 			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
@@ -1360,24 +1361,6 @@ public:
 private:
 	LLUUID mFolderID;
 };
-
-LLUUID LLAgentWearables::makeNewOutfitLinks(const std::string& new_folder_name)
-{
-	if (!isAgentAvatarValid()) return LLUUID::null;
-
-	// First, make a folder in the My Outfits directory.
-	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	LLUUID folder_id = gInventory.createNewCategory(
-		parent_id,
-		LLFolderType::FT_OUTFIT,
-		new_folder_name);
-
-	LLPointer<LLInventoryCallback> cb = new LLShowCreatedOutfit(folder_id);
-	LLAppearanceMgr::instance().shallowCopyCategoryContents(LLAppearanceMgr::instance().getCOF(),folder_id, cb);
-	LLAppearanceMgr::instance().createBaseOutfitLink(folder_id, cb);
-
-	return folder_id;
-}
 
 void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 {
@@ -2050,6 +2033,39 @@ void LLAgentWearables::animateAllWearableParams(F32 delta, BOOL upload_bake)
 			wearable->animateParams(delta, upload_bake);
 		}
 	}
+}
+
+bool LLAgentWearables::moveWearable(const LLViewerInventoryItem* item, bool closer_to_body)
+{
+	if (!item) return false;
+	if (!item->isWearableType()) return false;
+
+	wearableentry_map_t::iterator wearable_iter = mWearableDatas.find(item->getWearableType());
+	if (wearable_iter == mWearableDatas.end()) return false;
+
+	wearableentry_vec_t& wearable_vec = wearable_iter->second;
+	if (wearable_vec.empty()) return false;
+
+	const LLUUID& asset_id = item->getAssetUUID();
+
+	//nowhere to move if the wearable is already on any boundary (closest to the body/furthest from the body)
+	if (closer_to_body && asset_id == wearable_vec.front()->getAssetID()) return false;
+	if (!closer_to_body && asset_id == wearable_vec.back()->getAssetID()) return false;
+
+	for (U32 i = 0; i < wearable_vec.size(); ++i)
+	{
+		LLWearable* wearable = wearable_vec[i];
+		if (!wearable) continue;
+		if (wearable->getAssetID() != asset_id) continue;
+		
+		//swapping wearables
+		U32 swap_i = closer_to_body ? i-1 : i+1;
+		wearable_vec[i] = wearable_vec[swap_i];
+		wearable_vec[swap_i] = wearable;
+		return true;
+	}
+
+	return false;
 }
 
 void LLAgentWearables::updateServer()
