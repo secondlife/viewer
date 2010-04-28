@@ -548,7 +548,7 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 //static
 void LLFloaterAvatarPicker::editKeystroke(LLLineEditor* caller, void* user_data)
 {
-	childSetEnabled("Find", caller->getText().size() >= 3);
+	childSetEnabled("Find", caller->getText().size() > 0);
 }
 
 // virtual
