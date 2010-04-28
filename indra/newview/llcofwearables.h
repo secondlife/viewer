@@ -62,7 +62,7 @@ protected:
 	void addWearableTypeSeparator(LLFlatListView* list);
 	void onSelectionChange(LLFlatListView* selected_list);
 
-	LLXMLNodePtr LLCOFWearables::getXMLNode(std::string xml_filename);
+	LLXMLNodePtr getXMLNode(std::string xml_filename);
 
 	LLFlatListView* mAttachments;
 	LLFlatListView* mClothing;
