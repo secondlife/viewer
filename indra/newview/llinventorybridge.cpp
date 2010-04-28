@@ -212,10 +212,14 @@ BOOL LLInvFVBridge::isItemRemovable() const
 		return FALSE;
 	}
 
-	// Disable delete from COF folder; have users explicitly choose "detach/take off".
+	// Disable delete from COF folder; have users explicitly choose "detach/take off",
+	// unless the item is not worn but in the COF (i.e. is bugged).
 	if (LLAppearanceMgr::instance().getIsProtectedCOFItem(mUUID))
 	{
-		return FALSE;
+		if (get_is_item_worn(mUUID))
+		{
+			return FALSE;
+		}
 	}
 
 	const LLInventoryObject *obj = model->getItem(mUUID);
@@ -495,7 +499,7 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 			}
 		}
 		const LLViewerInventoryCategory *cat = model->getCategory(objects.get(i));
-		if (cat && !LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
+		if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
 		{
 			return FALSE;
 		}
@@ -642,13 +646,10 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		disabled_items.push_back(std::string("Paste"));
 	}
 
-	if (gAgent.isGodlike())
+	items.push_back(std::string("Paste As Link"));
+	if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
 	{
-		items.push_back(std::string("Paste As Link"));
-		if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
-		{
-			disabled_items.push_back(std::string("Paste As Link"));
-		}
+		disabled_items.push_back(std::string("Paste As Link"));
 	}
 
 	items.push_back(std::string("Paste Separator"));
@@ -678,7 +679,8 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		items.push_back(std::string("Open"));
+		
+		addOpenRightClickMenuOption(items);
 		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
@@ -713,7 +715,7 @@ void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 	const LLInventoryObject *obj = getInventoryObject();
 
 	// Don't allow delete as a direct option from COF folder.
-	if (obj && obj->getIsLinkType() && isCOFFolder())
+	if (obj && obj->getIsLinkType() && isCOFFolder() && get_is_item_worn(mUUID))
 	{
 		return;
 	}
@@ -732,6 +734,17 @@ void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 	{
 		disabled_items.push_back(std::string("Delete"));
 	}
+}
+
+void LLInvFVBridge::addOpenRightClickMenuOption(menuentry_vec_t &items)
+{
+	const LLInventoryObject *obj = getInventoryObject();
+	const BOOL is_link = (obj && obj->getIsLinkType());
+
+	if (is_link)
+		items.push_back(std::string("Open Original"));
+	else
+		items.push_back(std::string("Open"));
 }
 
 // *TODO: remove this
@@ -1108,7 +1121,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		gotoItem();
 	}
 
-	if ("open" == action)
+	if ("open" == action || "open_original" == action)
 	{
 		openItem();
 		return;
@@ -1454,17 +1467,11 @@ BOOL LLItemBridge::isItemCopyable() const
 			return FALSE;
 		}
 
-		if (gAgent.isGodlike())
-		{
-			// All items can be copied in god mode since you can
-			// at least paste-as-link the item, though you 
-			// still may not be able paste the item.
-			return TRUE;
-		}
-		else
-		{
-			return (item->getPermissions().allowCopyBy(gAgent.getID()));
-		}
+		// All items can be copied in god mode since you can
+		// at least paste-as-link the item, though you 
+		// still may not be able paste the item.
+		return TRUE;
+		// return (item->getPermissions().allowCopyBy(gAgent.getID()));
 	}
 	return FALSE;
 }
@@ -1605,7 +1612,8 @@ BOOL LLFolderBridge::isUpToDate() const
 
 BOOL LLFolderBridge::isItemCopyable() const
 {
-	return FALSE;
+	// Can copy folders to paste-as-link, but not for straight paste.
+	return TRUE;
 }
 
 BOOL LLFolderBridge::copyToClipboard() const
@@ -1836,11 +1844,13 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 					else
 					{
 						LLPointer<LLInventoryCallback> cb = NULL;
+						const std::string empty_description = "";
 						link_inventory_item(
 							gAgent.getID(),
 							inv_cat->getUUID(),
 							mUUID,
 							inv_cat->getName(),
+							empty_description,
 							LLAssetType::AT_LINK_FOLDER,
 							cb);
 					}
@@ -2512,30 +2522,29 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			 ++iter)
 		{
 			const LLUUID &object_id = (*iter);
-#if SUPPORT_ENSEMBLES
 			if (LLInventoryCategory *cat = model->getCategory(object_id))
 			{
+				const std::string empty_description = "";
 				link_inventory_item(
 					gAgent.getID(),
 					cat->getUUID(),
 					parent_id,
 					cat->getName(),
+					empty_description,
 					LLAssetType::AT_LINK_FOLDER,
 					LLPointer<LLInventoryCallback>(NULL));
 			}
-			else
-#endif
-				if (LLInventoryItem *item = model->getItem(object_id))
-				{
-					link_inventory_item(
-						gAgent.getID(),
-						item->getLinkedUUID(),
-						parent_id,
-						item->getName(),
-						item->getDescription(),
-						LLAssetType::AT_LINK,
-						LLPointer<LLInventoryCallback>(NULL));
-				}
+			else if (LLInventoryItem *item = model->getItem(object_id))
+			{
+				link_inventory_item(
+					gAgent.getID(),
+					item->getLinkedUUID(),
+					parent_id,
+					item->getName(),
+					item->getDescription(),
+					LLAssetType::AT_LINK,
+					LLPointer<LLInventoryCallback>(NULL));
+			}
 		}
 	}
 }
@@ -3346,7 +3355,7 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Share"));
 		}
 
-		items.push_back(std::string("Open"));
+		addOpenRightClickMenuOption(items);
 		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
@@ -3712,7 +3721,7 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		items.push_back(std::string("Open"));
+		addOpenRightClickMenuOption(items);
 		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
@@ -3992,7 +4001,7 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		if (!is_sidepanel)
 		{
-			items.push_back(std::string("Open"));
+			addOpenRightClickMenuOption(items);
 			items.push_back(std::string("Properties"));
 		}
 
@@ -4730,7 +4739,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		
 		if (can_open && !is_sidepanel)
 		{
-			items.push_back(std::string("Open"));
+			addOpenRightClickMenuOption(items);
 		}
 
 		if (!is_sidepanel)
@@ -5250,9 +5259,13 @@ const LLUUID &LLLinkFolderBridge::getFolderID() const
 
 // static
 void LLInvFVBridgeAction::doAction(LLAssetType::EType asset_type,
-								   const LLUUID& uuid,LLInventoryModel* model)
+								   const LLUUID& uuid,
+								   LLInventoryModel* model)
 {
-	LLInvFVBridgeAction* action = createAction(asset_type,uuid,model);
+	// Perform indirection in case of link.
+	const LLUUID& linked_uuid = gInventory.getLinkedItemID(uuid);
+
+	LLInvFVBridgeAction* action = createAction(asset_type,linked_uuid,model);
 	if(action)
 	{
 		action->doIt();
@@ -5365,7 +5378,8 @@ protected:
 
 };
 
-class LLNotecardBridgeAction: public LLInvFVBridgeAction
+class LLNotecardBridgeAction
+: public LLInvFVBridgeAction
 {
 	friend class LLInvFVBridgeAction;
 public:

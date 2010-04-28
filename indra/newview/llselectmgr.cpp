@@ -3624,14 +3624,14 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 		return;
 	}
 
-#if ENABLE_MULTIATTACHMENTS
-	attachment_point |= ATTACHMENT_ADD;
-#endif
 	BOOL build_mode = LLToolMgr::getInstance()->inEdit();
 	// Special case: Attach to default location for this object.
 	if (0 == attachment_point ||
 		get_if_there(gAgentAvatarp->mAttachmentPoints, (S32)attachment_point, (LLViewerJointAttachment*)NULL))
 	{
+#if ENABLE_MULTIATTACHMENTS
+		attachment_point |= ATTACHMENT_ADD;
+#endif
 		sendListToRegions(
 			"ObjectAttach",
 			packAgentIDAndSessionAndAttachment, 
