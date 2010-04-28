@@ -131,9 +131,15 @@ BOOL LLGroupList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 void LLGroupList::setNameFilter(const std::string& filter)
 {
-	if (mNameFilter != filter)
+	std::string filter_upper = filter;
+	LLStringUtil::toUpper(filter_upper);
+	if (mNameFilter != filter_upper)
 	{
-		mNameFilter = filter;
+		mNameFilter = filter_upper;
+
+		// set no items message depend on filter state
+		updateNoItemsMessage(filter);
+
 		setDirty();
 	}
 }
@@ -150,9 +156,6 @@ void LLGroupList::refresh()
 	S32					count			= gAgent.mGroups.count();
 	LLUUID				id;
 	bool				have_filter		= !mNameFilter.empty();
-
-	// set no items message depend on filter state & total count of groups
-	updateNoItemsMessage(have_filter);
 
 	clear();
 

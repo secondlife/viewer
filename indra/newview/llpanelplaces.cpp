@@ -528,8 +528,7 @@ void LLPanelPlaces::onFilterEdit(const std::string& search_string, bool force_fi
 		std::string string = search_string;
 
 		// Searches are case-insensitive
-		LLStringUtil::toUpper(string);
-		LLStringUtil::trimHead(string);
+		// but we don't convert the typed string to upper-case so that it can be fed to the web search as-is.
 
 		mActivePanel->onSearchEdit(string);
 	}
