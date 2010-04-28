@@ -443,6 +443,7 @@ public:
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
 		mFilterSubString(LLStringUtil::null),
+		mFilterSubStringOrig(LLStringUtil::null),
 		mFilterEditor(NULL),
 		mTabContainer(NULL),
 		mOnlineFriendList(NULL),
@@ -658,7 +659,9 @@ void LLPanelPeople::updateFriendListHelpText()
 	{
 		//update help text for empty lists
 		std::string message_name = mFilterSubString.empty() ? "no_friends_msg" : "no_filtered_friends_msg";
-		no_friends_text->setText(getString(message_name));
+		LLStringUtil::format_map_t args;
+		args["[SEARCH_TERM]"] = LLURI::escape(mFilterSubStringOrig);
+		no_friends_text->setText(getString(message_name, args));
 	}
 }
 
@@ -981,10 +984,11 @@ bool LLPanelPeople::isRealGroup()
 
 void LLPanelPeople::onFilterEdit(const std::string& search_string)
 {
-	std::string search_upper = search_string;
+	mFilterSubStringOrig = search_string;
+	LLStringUtil::trimHead(mFilterSubStringOrig);
 	// Searches are case-insensitive
+	std::string search_upper = mFilterSubStringOrig;
 	LLStringUtil::toUpper(search_upper);
-	LLStringUtil::trimHead(search_upper);
 
 	if (mFilterSubString == search_upper)
 		return;
@@ -999,11 +1003,11 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 
 
 	// Apply new filter.
-	mNearbyList->setNameFilter(mFilterSubString);
-	mOnlineFriendList->setNameFilter(mFilterSubString);
-	mAllFriendList->setNameFilter(mFilterSubString);
-	mRecentList->setNameFilter(mFilterSubString);
-	mGroupList->setNameFilter(mFilterSubString);
+	mNearbyList->setNameFilter(mFilterSubStringOrig);
+	mOnlineFriendList->setNameFilter(mFilterSubStringOrig);
+	mAllFriendList->setNameFilter(mFilterSubStringOrig);
+	mRecentList->setNameFilter(mFilterSubStringOrig);
+	mGroupList->setNameFilter(mFilterSubStringOrig);
 
 	setAccordionCollapsedByUser("tab_online", false);
 	setAccordionCollapsedByUser("tab_all", false);

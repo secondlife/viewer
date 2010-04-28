@@ -329,9 +329,10 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		// appending new characters
 		const BOOL more_restrictive = mFilterSubString.size() < string.size() && !string.substr(0, mFilterSubString.size()).compare(mFilterSubString);
 
-		mFilterSubString = string;
+		mFilterSubStringOrig = string;
+		LLStringUtil::trimHead(mFilterSubStringOrig);
+		mFilterSubString = mFilterSubStringOrig;
 		LLStringUtil::toUpper(mFilterSubString);
-		LLStringUtil::trimHead(mFilterSubString);
 		if (less_restrictive)
 		{
 			setModified(FILTER_LESS_RESTRICTIVE);

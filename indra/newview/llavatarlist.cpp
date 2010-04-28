@@ -176,13 +176,15 @@ void LLAvatarList::clear()
 
 void LLAvatarList::setNameFilter(const std::string& filter)
 {
-	if (mNameFilter != filter)
+	std::string filter_upper = filter;
+	LLStringUtil::toUpper(filter_upper);
+	if (mNameFilter != filter_upper)
 	{
-		mNameFilter = filter;
+		mNameFilter = filter_upper;
 
 		// update message for empty state here instead of refresh() to avoid blinking when switch
 		// between tabs.
-		updateNoItemsMessage(!mNameFilter.empty());
+		updateNoItemsMessage(filter);
 		setDirty();
 	}
 }

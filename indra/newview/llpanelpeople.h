@@ -169,6 +169,7 @@ private:
 	Updater*				mRecentListUpdater;
 
 	std::string				mFilterSubString;
+	std::string				mFilterSubStringOrig;
 };
 
 #endif //LL_LLPANELPEOPLE_H
