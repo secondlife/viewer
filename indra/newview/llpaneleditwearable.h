@@ -77,6 +77,10 @@ private:
 	// update bottom bar buttons ("Save", "Revert", etc)
 	void				updateVerbs();
 
+	void				onColorSwatchCommit(const LLUICtrl*);
+	void				onTexturePickerCommit(const LLUICtrl*);
+	void				updatePanelPickerControls(EWearableType type);
+
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;
 	LLViewerInventoryItem* mWearableItem;
@@ -112,7 +116,6 @@ private:
 	LLPanel *mPanelSkirt;
 	LLPanel *mPanelAlpha;
 	LLPanel *mPanelTattoo;
-
 };
 
 #endif
