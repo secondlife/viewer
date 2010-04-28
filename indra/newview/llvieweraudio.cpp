@@ -145,7 +145,7 @@ void audio_update_volume(bool force_update)
 	{		
 		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
 		BOOL music_muted = gSavedSettings.getBOOL("MuteMusic");
-		music_volume = mute_volume * master_volume * (music_volume*music_volume);
+		music_volume = mute_volume * master_volume * music_volume;
 		gAudiop->setInternetStreamGain ( music_muted ? 0.f : music_volume );
 	
 	}
@@ -153,7 +153,7 @@ void audio_update_volume(bool force_update)
 	// Streaming Media
 	F32 media_volume = gSavedSettings.getF32("AudioLevelMedia");
 	BOOL media_muted = gSavedSettings.getBOOL("MuteMedia");
-	media_volume = mute_volume * master_volume * (media_volume*media_volume);
+	media_volume = mute_volume * master_volume * media_volume;
 	LLViewerMedia::setVolume( media_muted ? 0.0f : media_volume );
 
 	// Voice
