@@ -16,13 +16,13 @@
      value="No recent people. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]." />
     <string
      name="no_filtered_recent_people"
-     value="Didn't find what you're looking for? Try [secondlife:///app/search/people Search]." />
+     value="Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]." />
     <string
      name="no_one_near"
      value="No one nearby. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]." />
     <string
      name="no_one_filtered_near"
-     value="Didn't find what you're looking for? Try [secondlife:///app/search/people Search]." />
+     value="Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]." />
     <string
      name="no_friends_online"
      value="No friends online" />
@@ -36,7 +36,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
     </string>
     <string
      name="no_filtered_friends_msg">
-         Didn't find what you're looking for? Try [secondlife:///app/search/people Search].
+         Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search].
     </string>
     <string
      name="people_filter_label"
@@ -50,7 +50,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      -->
     <string
      name="no_filtered_groups_msg"
-     value="Didn't find what you're looking for? Try [secondlife:///app/search/groups Search]." />
+     value="Didn't find what you're looking for? Try [secondlife:///app/search/groups/[SEARCH_TERM] Search]." />
     <string
      name="no_groups_msg"
      value="Looking for Groups to join? Try [secondlife:///app/search/groups Search]." />
