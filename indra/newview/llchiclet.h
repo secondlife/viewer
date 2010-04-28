@@ -921,6 +921,9 @@ protected:
 class LLNotificationChiclet : public LLSysWellChiclet
 {
 	friend class LLUICtrlFactory;
+public:
+	struct Params : public LLInitParam::Block<Params, LLSysWellChiclet::Params>{};
+
 protected:
 	LLNotificationChiclet(const Params& p);
 
