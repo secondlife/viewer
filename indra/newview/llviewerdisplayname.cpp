@@ -121,6 +121,21 @@ public:
 
 		llinfos << "status " << status << " reason " << reason << llendl;
 
+		// If viewer's concept of display name is out-of-date, the set request
+		// will fail with 409 Conflict.  If that happens, fetch up-to-date
+		// name information.
+		if (status == 409)
+		{
+			LLUUID agent_id = gAgent.getID();
+			// Flush stale data
+			LLAvatarNameCache::erase( agent_id );
+			// Queue request for new data
+			LLAvatarName ignored;
+			LLAvatarNameCache::get( agent_id, &ignored );
+			// Kill name tag, as it is wrong
+			LLVOAvatar::invalidateNameTag( agent_id );
+		}
+
 		// inform caller of result
 		LLViewerDisplayName::sSetDisplayNameSignal(success, reason, content);
 		LLViewerDisplayName::sSetDisplayNameSignal.disconnect_all_slots();
