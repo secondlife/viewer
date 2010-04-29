@@ -6641,7 +6641,7 @@ LLVoiceClient::sessionState::sessionState() :
 	mMuteDirty(false),
 	mParticipantsChanged(false)
 {
-	mVoiceFontID = LLUUID(gSavedSettings.getString("VoiceFontDefault"));
+	mVoiceFontID = LLUUID(gSavedPerAccountSettings.getString("VoiceFontDefault"));
 }
 
 LLVoiceClient::sessionState::~sessionState()
@@ -7279,7 +7279,7 @@ bool LLVoiceClient::setVoiceFont(const std::string &session_handle, const LLUUID
 	mAudioSession->mVoiceFontID = id;
 
 	// *TODO: Separate voice font defaults for spatial chat and IM?
-	gSavedSettings.setString("VoiceFontDefault", id.asString());
+	gSavedPerAccountSettings.setString("VoiceFontDefault", id.asString());
 
 	sessionSetVoiceFontSendMessage(session);
 	notifyVoiceFontObservers();
