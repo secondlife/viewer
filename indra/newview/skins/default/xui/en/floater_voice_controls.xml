@@ -90,9 +90,9 @@
              width="20" />
         </layout_panel>
         <layout_stack
-         clip="false"
+         clip="true"
          auto_resize="false"
-         follows="left|right"
+         follows="left|top|right"
          height="23"
          layout="topleft"
          left="10"
