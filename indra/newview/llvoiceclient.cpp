@@ -7256,55 +7256,46 @@ void LLVoiceClient::addVoiceFont(const S32 font_index,
 
 bool LLVoiceClient::setVoiceFont(const LLUUID& id)
 {
-	if (!mAudioSession || !mAudioSession->mVoiceEnabled || !hasVoiceFonts())
+	return mAudioSession ? setVoiceFont(mAudioSession->mHandle, id) : false;
+}
+
+bool LLVoiceClient::setVoiceFont(const std::string &session_handle, const LLUUID& id)
+{
+	sessionState *session = findSession(session_handle);
+
+	if (!session || !session->mVoiceEnabled || !hasVoiceFonts())
 	{
 		LL_DEBUGS("Voice") << "Voice fonts not available." << LL_ENDL;
 		return false;
 	}
 
-	if (id.isNull() || (mVoiceFontMap.find(&id) != mVoiceFontMap.end()))
-	{
-		// *TODO: Check for expired fonts?
-		mAudioSession->mVoiceFontID = id;
-
-		// *TODO: Separate voice font defaults for spatial chat and IM?
-		gSavedSettings.setString("VoiceFontDefault", id.asString());
-	}
-	else
+	if (!id.isNull() && (mVoiceFontMap.find(&id) == mVoiceFontMap.end()))
 	{
 		LL_DEBUGS("Voice") << "Invalid voice font " << id << LL_ENDL;
 		return false;
 	}
 
-	sessionSetVoiceFontSendMessage(mAudioSession);
+	// *TODO: Check for expired fonts?
+	mAudioSession->mVoiceFontID = id;
+
+	// *TODO: Separate voice font defaults for spatial chat and IM?
+	gSavedSettings.setString("VoiceFontDefault", id.asString());
+
+	sessionSetVoiceFontSendMessage(session);
 	notifyVoiceFontObservers();
+
 	return true;
 }
 
 const LLUUID LLVoiceClient::getVoiceFont()
 {
-	if (mAudioSession)
-	{
-		return getVoiceFont(mAudioSession->mHandle);
-	}
-	else
-	{
-		return LLUUID::null;
-	}
+	return mAudioSession ? getVoiceFont(mAudioSession->mHandle) : LLUUID::null;
 }
 
 const LLUUID LLVoiceClient::getVoiceFont(const std::string &session_handle)
 {
-	LLUUID result;
-	if (hasVoiceFonts())
-	{
-		sessionState *session = findSession(session_handle);
-		if (session)
-		{
-			result = mAudioSession->mVoiceFontID;
-		}
-	}
-	return result;
+	sessionState *session = findSession(session_handle);
+	return session ? session->mVoiceFontID : LLUUID::null;
 }
 
 S32 LLVoiceClient::getVoiceFontIndex(const LLUUID& id) const

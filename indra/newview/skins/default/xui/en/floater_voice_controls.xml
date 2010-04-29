@@ -110,15 +110,18 @@
            name="voice_font_panel"
            width="150">
             <combo_box
+             enabled="false"
              follows="left|top|right"
              height="23"
              name="voice_font"
              top_pad="0"
              width="150">
               <combo_box.item
-                label="No Voice Effect"
-                name="no_voice_font"
-                value="0" />
+               label="No Voice Effect"
+               name="no_voice_font"
+               value="0" />
+              <combo_box.commit_callback
+               function="Voice.CommitVoiceFont" />
             </combo_box>
           </layout_panel>
         <layout_panel

@@ -444,6 +444,7 @@ static	void updatePosition(void);
 		// Voice Fonts
 		bool hasVoiceFonts() const { return !mVoiceFontMap.empty(); };
 		bool setVoiceFont(const LLUUID& id);
+		bool setVoiceFont(const std::string &session_handle, const LLUUID& id);
 		const LLUUID getVoiceFont();
 		const LLUUID getVoiceFont(const std::string &session_handle);
 

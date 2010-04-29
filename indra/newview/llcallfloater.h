@@ -107,7 +107,8 @@ private:
 
 	void leaveCall();
 
-	static void commitVoiceFont(LLUICtrl*,void* userdata);
+	void onCommitVoiceFont();
+	void updateVoiceFont();
 
 	/**
 	 * Updates mSpeakerManager and list according to current Voice Channel
