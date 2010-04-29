@@ -1578,6 +1578,7 @@ void LLViewerMediaImpl::destroyMediaSource()
 	
 	if(mMediaSource)
 	{
+		mMediaSource->setDeleteOK(true) ;
 		delete mMediaSource;
 		mMediaSource = NULL;
 	}	
@@ -1729,7 +1730,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		}
 				
 		mMediaSource = media_source;
-
+		mMediaSource->setDeleteOK(false) ;
 		updateVolume();
 
 		return true;
