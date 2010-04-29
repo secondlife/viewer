@@ -15,6 +15,6 @@
 		<menu_item_call label="Disattiva audio di questo participante" name="ModerateVoiceMuteSelected"/>
 		<menu_item_call label="Disattiva audio di tutti gli altri" name="ModerateVoiceMuteOthers"/>
 		<menu_item_call label="Riattiva audio di questo participante" name="ModerateVoiceUnMuteSelected"/>
-		<menu_item_call label="Disattiva audio di tutti gli altri" name="ModerateVoiceUnMuteOthers"/>
+		<menu_item_call label="Riattiva audio di tutti gli altri" name="ModerateVoiceUnMuteOthers"/>
 	</context_menu>
 </context_menu>
