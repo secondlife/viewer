@@ -118,7 +118,7 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 
 		const LLAssetType::EType item_type = item->getType();
 		if (item_type == LLAssetType::AT_CLOTHING) continue;
-		LLPanelInventoryListItem* item_panel = NULL;
+		LLPanelInventoryListItemBase* item_panel = NULL;
 		if (item_type == LLAssetType::AT_OBJECT)
 		{
 				item_panel = LLPanelInventoryListItemBase::create(item);
@@ -165,7 +165,7 @@ void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& 
 		{
 			LLViewerInventoryItem* item = clothing_by_type[type][i];
 
-			LLPanelInventoryListItem* item_panel = LLPanelClothingListItem::create(item);
+			LLPanelInventoryListItemBase* item_panel = LLPanelClothingListItem::create(item);
 			if (!item_panel) continue;
 
 			mClothing->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
