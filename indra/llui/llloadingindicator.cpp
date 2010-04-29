@@ -78,10 +78,8 @@ void LLLoadingIndicator::Data::initSingleton()
 
 LLPointer<LLUIImage> LLLoadingIndicator::Data::getNextImage(S8& idx) const
 {
-	// Actually selects previous image because
-	// current images seem to be in wrong order;
-	// performs array bounds checking.
-	idx = idx > 0 ? llmin(NIMAGES-1, idx-1) : NIMAGES-1;
+	// Calculate next index, performing array bounds checking.
+	idx = (idx >= NIMAGES || idx < 0) ? 0 : (idx + 1) % NIMAGES; 
 	return mImages[idx];
 }
 
