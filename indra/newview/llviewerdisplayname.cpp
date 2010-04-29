@@ -75,16 +75,31 @@ void LLViewerDisplayName::set(const std::string& display_name, const set_name_sl
 		return;
 	}
 
+	// People API requires both the old and new value to change a variable.
+	// Our display name will be in cache before the viewer's UI is available
+	// to request a change, so we can use direct lookup without callback.
+	LLAvatarName av_name;
+	if (!LLAvatarNameCache::get( gAgent.getID(), &av_name))
+	{
+		slot(false, "name unavailable", LLSD());
+		return;
+	}
+
+	// People API expects array of [ "old value", "new value" ]
+	LLSD change_array = LLSD::emptyArray();
+	change_array.append(av_name.mDisplayName);
+	change_array.append(display_name);
+	
 	llinfos << "Set name POST to " << cap_url << llendl;
 
 	// Record our caller for when the server sends back a reply
 	sSetDisplayNameSignal.connect(slot);
-
+	
 	// POST the requested change.  The sim will not send a response back to
 	// this request directly, rather it will send a separate message after it
 	// communicates with the back-end.
 	LLSD body;
-	body["display_name"] = display_name;
+	body["display_name"] = change_array;
 	LLHTTPClient::post(cap_url, body, new LLSetDisplayNameResponder);
 }
 
