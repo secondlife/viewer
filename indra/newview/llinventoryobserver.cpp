@@ -215,7 +215,7 @@ void LLInventoryFetchItemsObserver::changed(U32 mask)
 
 void fetch_items_from_llsd(const LLSD& items_llsd)
 {
-	if (!items_llsd.size()) return;
+	if (!items_llsd.size() || gDisconnected) return;
 	LLSD body;
 	body[0]["cap_name"] = "FetchInventory";
 	body[1]["cap_name"] = "FetchLib";
@@ -235,6 +235,11 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 		
 	for (S32 i=0; i<body.size(); i++)
 	{
+		if(!gAgent.getRegion())
+		{
+			llwarns<<"Agent's region is null"<<llendl;
+			break;
+		}
 		if (0 >= body[i].size()) continue;
 		std::string url = gAgent.getRegion()->getCapability(body[i]["cap_name"].asString());
 
