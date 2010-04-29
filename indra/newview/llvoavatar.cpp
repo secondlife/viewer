@@ -3063,7 +3063,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	if (isSelf())
 	{
-		dumpAnimationState(this);
+		// dumpAnimationState(this);
 	}
 
 	if (gNoRender)
