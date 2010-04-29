@@ -70,10 +70,6 @@ public:
 	// last checked.
 	// Unix time-from-epoch seconds for efficiency
 	F64 mExpires;
-
-	// Can be a viewer UI image name ("Person_Check") or a server-side
-	// image UUID, or empty string.
-	std::string mBadge;
 };
 
 #endif

@@ -334,10 +334,8 @@ void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 {
 	// IDEVO demo code
 	std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
-	// use custom icon if available
-	std::string icon = (!av_name.mBadge.empty() ? av_name.mBadge : mIcon);
 	// received the agent name from the server - tell our observers
-	callObservers(id.asString(), label, icon);
+	callObservers(id.asString(), label, mIcon);
 }
 
 std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
@@ -456,26 +454,9 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 
 std::string LLUrlEntryAgent::getIcon(const std::string &url) const
 {
-	std::string agent_id_string = getIDStringFromUrl(url);
-	if (agent_id_string.empty())
-	{
-		return mIcon;
-	}
-
-	LLUUID agent_id(agent_id_string);
-	if (agent_id.isNull())
-	{
-		return mIcon;
-	}
-
-	LLAvatarName av_name;
-	LLAvatarNameCache::get(agent_id, &av_name);
-	if (av_name.mBadge.empty())
-	{
-		return mIcon;
-	}
-
-	return av_name.mBadge;
+	// *NOTE: Could look up a badge here by calling getIDStringFromUrl()
+	// and looking up the badge for the agent.
+	return mIcon;
 }
 
 //

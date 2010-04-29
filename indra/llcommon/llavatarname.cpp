@@ -50,8 +50,7 @@ LLAvatarName::LLAvatarName()
 	mDisplayName(),
 	mIsDisplayNameDefault(false),
 	mIsDummy(false),
-	mExpires(F64_MAX),
-	mBadge()
+	mExpires(F64_MAX)
 { }
 
 bool LLAvatarName::operator<(const LLAvatarName& rhs) const
