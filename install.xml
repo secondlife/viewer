@@ -1112,9 +1112,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>a7b49e0f3eedbd5de117a3524c414b3a</string>
+            <string>11d2be4f2b172430747b7d4a6739e3d8</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8l-darwin-20100428.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
