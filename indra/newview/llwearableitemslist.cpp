@@ -60,6 +60,158 @@ bool LLFindOutfitItems::operator()(LLInventoryCategory* cat,
 	return FALSE;
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+void LLPanelWearableListItem::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+	LLPanelInventoryListItemBase::onMouseEnter(x, y, mask);
+	setWidgetsVisible(true);
+	reshapeWidgets();
+}
+
+void LLPanelWearableListItem::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	LLPanelInventoryListItemBase::onMouseLeave(x, y, mask);
+	setWidgetsVisible(false);
+	reshapeWidgets();
+}
+
+LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item)
+: LLPanelInventoryListItemBase(item)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// static
+LLPanelClothingListItem* LLPanelClothingListItem::create(LLViewerInventoryItem* item)
+{
+	LLPanelClothingListItem* list_item = NULL;
+	if(item)
+	{
+		list_item = new LLPanelClothingListItem(item);
+		list_item->init();
+	}
+	return list_item;
+}
+
+LLPanelClothingListItem::LLPanelClothingListItem(LLViewerInventoryItem* item)
+ : LLPanelWearableListItem(item)
+{
+}
+
+LLPanelClothingListItem::~LLPanelClothingListItem()
+{
+}
+
+void LLPanelClothingListItem::init()
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_clothing_list_item.xml");
+}
+
+BOOL LLPanelClothingListItem::postBuild()
+{
+	LLPanelInventoryListItemBase::postBuild();
+
+	addWidgetToLeftSide("btn_delete");
+	addWidgetToRightSide("btn_move_up");
+	addWidgetToRightSide("btn_move_down");
+	addWidgetToRightSide("btn_lock");
+	addWidgetToRightSide("btn_edit");
+
+	LLButton* delete_btn = getChild<LLButton>("btn_delete");
+	// Reserve space for 'delete' button event if it is invisible.
+	setLeftWidgetsWidth(delete_btn->getRect().mRight);
+
+	setWidgetsVisible(false);
+	reshapeWidgets();
+
+	return TRUE;
+}
+
+void LLPanelClothingListItem::setShowDeleteButton(bool show)
+{
+	setShowWidget("btn_delete", show);
+}
+
+void LLPanelClothingListItem::setShowMoveUpButton(bool show)
+{
+	setShowWidget("btn_move_up", show);
+}
+
+void LLPanelClothingListItem::setShowMoveDownButton(bool show)
+{
+	setShowWidget("btn_move_down", show);
+}
+
+void LLPanelClothingListItem::setShowLockButton(bool show)
+{
+	setShowWidget("btn_lock", show);
+}
+
+void LLPanelClothingListItem::setShowEditButton(bool show)
+{
+	setShowWidget("btn_edit", show);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// static
+LLPanelBodyPartsListItem* LLPanelBodyPartsListItem::create(LLViewerInventoryItem* item)
+{
+	LLPanelBodyPartsListItem* list_item = NULL;
+	if(item)
+	{
+		list_item = new LLPanelBodyPartsListItem(item);
+		list_item->init();
+	}
+	return list_item;
+}
+
+LLPanelBodyPartsListItem::LLPanelBodyPartsListItem(LLViewerInventoryItem* item)
+: LLPanelWearableListItem(item)
+{
+}
+
+LLPanelBodyPartsListItem::~LLPanelBodyPartsListItem()
+{
+}
+
+void LLPanelBodyPartsListItem::init()
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_body_parts_list_item.xml");
+}
+
+BOOL LLPanelBodyPartsListItem::postBuild()
+{
+	LLPanelInventoryListItemBase::postBuild();
+
+	addWidgetToRightSide("btn_lock");
+	addWidgetToRightSide("btn_edit");
+
+	return TRUE;
+}
+
+void LLPanelBodyPartsListItem::setShowLockButton(bool show)
+{
+	setShowWidget("btn_lock", show);
+}
+
+void LLPanelBodyPartsListItem::setShowEditButton(bool show)
+{
+	setShowWidget("btn_edit", show);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 static const LLDefaultChildRegistry::Register<LLWearableItemsList> r("wearable_items_list");
 
 LLWearableItemsList::Params::Params()
@@ -89,3 +241,5 @@ void LLWearableItemsList::updateList(const LLUUID& category_id)
 
 	refreshList(item_array);
 }
+
+// EOF
