@@ -47,6 +47,14 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include "llxorcipher.h"
+#include <openssl/ossl_typ.h>
+#include <openssl/x509.h>
+#include <openssl/x509v3.h>
+#include <openssl/pem.h>
+#include <openssl/asn1.h>
+#include <openssl/rand.h>
+#include <openssl/err.h>
+
 
 #define ensure_throws(str, exc_type, cert, func, ...) \
 try \
@@ -115,7 +123,7 @@ namespace tut
 	// Test wrapper declaration : wrapping nothing for the moment
 	struct sechandler_basic_test
 	{
-		std::string mPemTestCert, mPemRootCert, mPemIntermediateCert, mPemChildCert;
+		std::string mPemTestCert, mPemRootCert, mPemIntermediateCert, mPemChildCert, mSha1RSATestCert, mSha1RSATestCA;
 		std::string mDerFormat;
 		X509 *mX509TestCert, *mX509RootCert, *mX509IntermediateCert, *mX509ChildCert;
 
@@ -222,6 +230,49 @@ namespace tut
 "S//JYeIc7Fue2JNLd00UOSMMaiK/t79enKNHEA2fupH3vEigf5Eh4bVAN5VohrTm6MY53x7XQZZr"
 "1ME7a55lFEnSeT0umlOAjR2mAbvSM5X5oSZNrmetdzyTj2flCM8CC7MLab0kkdngRIlUBGHF1/S5"
 "nmPbK+9A46sd33oqK8n8";
+			
+			mSha1RSATestCert = "-----BEGIN CERTIFICATE-----\n"
+			"MIIDFDCCAn2gAwIBAgIDDqqYMA0GCSqGSIb3DQEBBQUAME4xCzAJBgNVBAYTAlVT\n"
+			"MRAwDgYDVQQKEwdFcXVpZmF4MS0wKwYDVQQLEyRFcXVpZmF4IFNlY3VyZSBDZXJ0\n"
+			"aWZpY2F0ZSBBdXRob3JpdHkwHhcNMTAwMTA1MDAzNjMwWhcNMTEwMTA3MjAyMTE0\n"
+			"WjCBnjEpMCcGA1UEBRMgQmNmc0RBRkl1U0YwdFpWVm5vOFJKbjVUbW9hNGR2Wkgx\n"
+			"CzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1TYW4g\n"
+			"RnJhbmNpc2NvMR0wGwYDVQQKExRMaW5kZW4gUmVzZWFyY2ggSW5jLjEYMBYGA1UE\n"
+			"AxQPKi5saW5kZW5sYWIuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQD2\n"
+			"14Jdko8v6GB33hHbW+lNQyloFQtc2h4ykjf+fYPJ27dw6tQO2if7N3k/5XDkwC1N\n"
+			"krGgE9vt3iecCPgasue6k67Zyfj9HbEP2D+j38eROudrsxLaRFDQx50BvZ5YMNl3\n"
+			"4zQCj8/gCMsuq8cvaP9/rbJTUpgYWFGLsm8yAYOgWwIDAQABo4GuMIGrMA4GA1Ud\n"
+			"DwEB/wQEAwIE8DAdBgNVHQ4EFgQUIBK/JB9AyqquSEbkzt2Zux6v9sYwOgYDVR0f\n"
+			"BDMwMTAvoC2gK4YpaHR0cDovL2NybC5nZW90cnVzdC5jb20vY3Jscy9zZWN1cmVj\n"
+			"YS5jcmwwHwYDVR0jBBgwFoAUSOZo+SvSspXXR9gjIBBPM5iQn9QwHQYDVR0lBBYw\n"
+			"FAYIKwYBBQUHAwEGCCsGAQUFBwMCMA0GCSqGSIb3DQEBBQUAA4GBAKKR84+hvLuB\n"
+			"pop9VG7HQPIyEKtZq3Nnk+UlJGfjGY3csLWSFmxU727r5DzdEP1W1PwF3rxuoKcZ\n"
+			"4nJJpKdzoGVujgBMP2U/J0PJvU7D8U3Zqu7nrXAjOHj7iVnvJ3EKJ1bvwXaisgPN\n"
+			"wt21kKfGnA4OlhJtJ6VQvUkcF12I3pTP\n"
+			"-----END CERTIFICATE-----\n";
+			
+			mSha1RSATestCA = "-----BEGIN CERTIFICATE-----\n"
+			"MIIDIDCCAomgAwIBAgIENd70zzANBgkqhkiG9w0BAQUFADBOMQswCQYDVQQGEwJV\n"
+			"UzEQMA4GA1UEChMHRXF1aWZheDEtMCsGA1UECxMkRXF1aWZheCBTZWN1cmUgQ2Vy\n"
+			"dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTk4MDgyMjE2NDE1MVoXDTE4MDgyMjE2NDE1\n"
+			"MVowTjELMAkGA1UEBhMCVVMxEDAOBgNVBAoTB0VxdWlmYXgxLTArBgNVBAsTJEVx\n"
+			"dWlmYXggU2VjdXJlIENlcnRpZmljYXRlIEF1dGhvcml0eTCBnzANBgkqhkiG9w0B\n"
+			"AQEFAAOBjQAwgYkCgYEAwV2xWGcIYu6gmi0fCG2RFGiYCh7+2gRvE4RiIcPRfM6f\n"
+			"BeC4AfBONOziipUEZKzxa1NfBbPLZ4C/QgKO/t0BCezhABRP/PvwDN1Dulsr4R+A\n"
+			"cJkVV5MW8Q+XarfCaCMczE1ZMKxRHjuvK9buY0V7xdlfUNLjUA86iOe/FP3gx7kC\n"
+			"AwEAAaOCAQkwggEFMHAGA1UdHwRpMGcwZaBjoGGkXzBdMQswCQYDVQQGEwJVUzEQ\n"
+			"MA4GA1UEChMHRXF1aWZheDEtMCsGA1UECxMkRXF1aWZheCBTZWN1cmUgQ2VydGlm\n"
+			"aWNhdGUgQXV0aG9yaXR5MQ0wCwYDVQQDEwRDUkwxMBoGA1UdEAQTMBGBDzIwMTgw\n"
+			"ODIyMTY0MTUxWjALBgNVHQ8EBAMCAQYwHwYDVR0jBBgwFoAUSOZo+SvSspXXR9gj\n"
+			"IBBPM5iQn9QwHQYDVR0OBBYEFEjmaPkr0rKV10fYIyAQTzOYkJ/UMAwGA1UdEwQF\n"
+			"MAMBAf8wGgYJKoZIhvZ9B0EABA0wCxsFVjMuMGMDAgbAMA0GCSqGSIb3DQEBBQUA\n"
+			"A4GBAFjOKer89961zgK5F7WF0bnj4JXMJTENAKaSbn+2kmOeUJXRmm/kEd5jhW6Y\n"
+			"7qj/WsjTVbJmcVfewCHrPSqnI0kBBIZCe/zuf6IWUrVnZ9NA2zsmWLIodz2uFHdh\n"
+			"1voqZiegDfqnc1zqcPGUIWVEX/r87yloqaKHee9570+sB3c4\n"
+			"-----END CERTIFICATE-----\n";
+
+			
+			
 			
 			mX509TestCert = NULL;
 			mX509RootCert = NULL;
@@ -951,7 +1002,7 @@ namespace tut
 		validation_params[CERT_VALIDATION_DATE] = LLDate(child_info[CERT_VALID_FROM].asDate().secondsSinceEpoch() - 1.0);
  		
 		// test not yet valid
-		ensure_throws("Child cert not yet valid", 
+		ensure_throws("Child cert not yet valid" , 
 					  LLCertValidationExpirationException, 
 					  (*test_chain)[0],
 					  test_chain->validate, 
@@ -987,6 +1038,14 @@ namespace tut
 					  VALIDATION_POLICY_SSL_KU, 
 					  test_store, 
 					  validation_params);
+		
+		// test sha1RSA validation
+		test_chain = new LLBasicCertificateChain(NULL);
+		test_chain->add(new LLBasicCertificate(mSha1RSATestCert));	
+		test_chain->add(new LLBasicCertificate(mSha1RSATestCA));
+
+		test_chain->validate(0, test_store, validation_params);	
 	}
+	
 };
 
