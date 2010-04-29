@@ -48,14 +48,13 @@
      top="4"
      value="..."
      width="359" />
-    <button 
+    <icon 
      name="btn_lock"
      layout="topleft"
      follows="top|right"
-     image_unselected="Lock2"
-     image_selected="Lock2"
+     image_name="Lock2"
      top="0"
-     left_pad="3"
+     left="0"
      height="20"
      width="20"
      tab_stop="false" />
