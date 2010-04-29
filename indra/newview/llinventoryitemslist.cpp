@@ -368,17 +368,18 @@ void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item)
 	if (!item)
 	{
 		llwarns << "No inventory item. Couldn't create flat list item." << llendl;
-		llassert(!"No inventory item. Couldn't create flat list item.");
+		llassert(item != NULL);
 	}
 
 	LLPanelInventoryListItemBase *list_item = LLPanelInventoryListItemBase::create(item);
 	if (!list_item)
 		return;
 
-	if (!addItem(list_item, item->getUUID()))
+	bool is_item_added = addItem(list_item, item->getUUID());
+	if (!is_item_added)
 	{
 		llwarns << "Couldn't add flat list item." << llendl;
-		llassert(!"Couldn't add flat list item.");
+		llassert(is_item_added);
 	}
 }
 
