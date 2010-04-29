@@ -74,6 +74,9 @@ public:
 	// returns true if the process has exited or we've had a fatal error
 	bool isDone(void);	
 	
+	// returns true if the process is currently waiting on a blocking request
+	bool isBlocked(void) { return mBlocked; };
+	
 	void killSockets(void);
 	
 	// Go to the proper error state
@@ -160,6 +163,7 @@ private:
 	
 	bool mDisableTimeout;
 	bool mDebug;
+	bool mBlocked;
 
 	LLProcessLauncher mDebugger;
 	

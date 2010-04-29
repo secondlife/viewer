@@ -36,6 +36,89 @@
 
 // newview
 #include "llinventoryitemslist.h"
+#include "llinventorymodel.h"
+#include "llwearabledictionary.h"
+
+/**
+ * @class LLPanelWearableListItem
+ *
+ * Extends LLPanelInventoryListItemBase:
+ * - makes side widgets show on mouse_enter and hide on 
+ *   mouse_leave events.
+ * - provides callback for button clicks
+ */
+class LLPanelWearableListItem : public LLPanelInventoryListItemBase
+{
+	LOG_CLASS(LLPanelWearableListItem);
+public:
+
+	/**
+	* Shows buttons when mouse is over
+	*/
+	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
+
+	/**
+	* Hides buttons when mouse is out
+	*/
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+
+protected:
+
+	LLPanelWearableListItem(LLViewerInventoryItem* item);
+};
+
+/**
+ * @class LLPanelClothingListItem
+ *
+ * Provides buttons for editing, moving, deleting a wearable.
+ */
+class LLPanelClothingListItem : public LLPanelWearableListItem
+{
+	LOG_CLASS(LLPanelClothingListItem);
+public:
+
+	static LLPanelClothingListItem* create(LLViewerInventoryItem* item);
+
+	virtual ~LLPanelClothingListItem();
+
+	/*virtual*/ void init();
+	/*virtual*/ BOOL postBuild();
+
+	/**
+	 * Make button visible during mouse over event.
+	 */
+	inline void setShowDeleteButton(bool show);
+	inline void setShowMoveUpButton(bool show);
+	inline void setShowMoveDownButton(bool show);
+	inline void setShowLockButton(bool show);
+	inline void setShowEditButton(bool show);
+
+protected:
+
+	LLPanelClothingListItem(LLViewerInventoryItem* item);
+};
+
+class LLPanelBodyPartsListItem : public LLPanelWearableListItem
+{
+	LOG_CLASS(LLPanelBodyPartsListItem);
+public:
+
+	static LLPanelBodyPartsListItem* create(LLViewerInventoryItem* item);
+
+	virtual ~LLPanelBodyPartsListItem();
+
+	/*virtual*/ void init();
+	/*virtual*/ BOOL postBuild();
+
+	/**
+	* Make button visible during mouse over event.
+	*/
+	inline void setShowLockButton(bool show);
+	inline void setShowEditButton(bool show);
+
+protected:
+	LLPanelBodyPartsListItem(LLViewerInventoryItem* item);
+};
 
 /**
  * @class LLWearableItemsList
