@@ -65,14 +65,8 @@ LLPanelInventoryListItemBase* LLPanelInventoryListItemBase::create(LLViewerInven
 
 void LLPanelInventoryListItemBase::updateItem()
 {
-	if (mItemIcon.notNull())
-		mIcon->setImage(mItemIcon);
-
-	LLTextUtil::textboxSetHighlightedVal(
-		mTitle,
-		LLStyle::Params(),
-		mItem->getName(),
-		mHighlightedText);
+	setIconImage(mIconImage);
+	setTitle(mItem->getName(), mHighlightedText);
 }
 
 void LLPanelInventoryListItemBase::addWidgetToLeftSide(const std::string& name, bool show_widget/* = true*/)
@@ -122,9 +116,10 @@ void LLPanelInventoryListItemBase::setShowWidget(LLUICtrl* ctrl, bool show)
 
 BOOL LLPanelInventoryListItemBase::postBuild()
 {
-	// Inheritors need to call base implementation
-	mIcon = getChild<LLIconCtrl>("item_icon");
-	mTitle = getChild<LLTextBox>("item_name");
+	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
+	setTitleCtrl(getChild<LLTextBox>("item_name"));
+
+	mIconImage = get_item_icon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
 
 	updateItem();
 
@@ -156,13 +151,12 @@ void LLPanelInventoryListItemBase::onMouseLeave(S32 x, S32 y, MASK mask)
 LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem* item)
 : LLPanel()
 , mItem(item)
-, mIcon(NULL)
-, mTitle(NULL)
+, mIconCtrl(NULL)
+, mTitleCtrl(NULL)
 , mWidgetSpacing(WIDGET_SPACING)
 , mLeftWidgetsWidth(0)
 , mRightWidgetsWidth(0)
 {
-	mItemIcon = get_item_icon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
 }
 
 void LLPanelInventoryListItemBase::init()
@@ -195,6 +189,24 @@ void LLPanelInventoryListItemBase::reshapeWidgets()
 	/*reshapeLeftWidgets();*/
 	reshapeRightWidgets();
 	reshapeMiddleWidgets();
+}
+
+void LLPanelInventoryListItemBase::setIconImage(const LLUIImagePtr& image)
+{
+	if(image)
+	{
+		mIconImage = image; 
+		mIconCtrl->setImage(mIconImage);
+	}
+}
+
+void LLPanelInventoryListItemBase::setTitle(const std::string& title, const std::string& highlit_text)
+{
+	LLTextUtil::textboxSetHighlightedVal(
+		mTitleCtrl,
+		LLStyle::Params(),
+		title,
+		highlit_text);
 }
 
 void LLPanelInventoryListItemBase::reshapeLeftWidgets()
@@ -246,16 +258,16 @@ void LLPanelInventoryListItemBase::reshapeRightWidgets()
 
 void LLPanelInventoryListItemBase::reshapeMiddleWidgets()
 {
-	LLRect icon_rect(mIcon->getRect());
+	LLRect icon_rect(mIconCtrl->getRect());
 	icon_rect.setLeftTopAndSize(mLeftWidgetsWidth + getWidgetSpacing(), icon_rect.mTop, 
 		icon_rect.getWidth(), icon_rect.getHeight());
-	mIcon->setShape(icon_rect);
+	mIconCtrl->setShape(icon_rect);
 
 	S32 name_left = icon_rect.mRight + getWidgetSpacing();
 	S32 name_right = getLocalRect().getWidth() - mRightWidgetsWidth - getWidgetSpacing();
-	LLRect name_rect(mTitle->getRect());
+	LLRect name_rect(mTitleCtrl->getRect());
 	name_rect.set(name_left, name_rect.mTop, name_right, name_rect.mBottom);
-	mTitle->setShape(name_rect);
+	mTitleCtrl->setShape(name_rect);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

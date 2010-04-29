@@ -81,7 +81,6 @@ public:
 
 	virtual ~LLPanelClothingListItem();
 
-	/*virtual*/ void init();
 	/*virtual*/ BOOL postBuild();
 
 	/**
@@ -96,6 +95,8 @@ public:
 protected:
 
 	LLPanelClothingListItem(LLViewerInventoryItem* item);
+	
+	/*virtual*/ void init();
 };
 
 class LLPanelBodyPartsListItem : public LLPanelWearableListItem
@@ -107,7 +108,6 @@ public:
 
 	virtual ~LLPanelBodyPartsListItem();
 
-	/*virtual*/ void init();
 	/*virtual*/ BOOL postBuild();
 
 	/**
@@ -118,6 +118,32 @@ public:
 
 protected:
 	LLPanelBodyPartsListItem(LLViewerInventoryItem* item);
+
+	/*virtual*/ void init();
+};
+
+/**
+ * @class LLPanelDummyClothingListItem
+ *
+ * A dummy item panel - displays grayed clothing icon, grayed title '<clothing> not worn' and 'add' button
+ */
+class LLPanelDummyClothingListItem : public LLPanelWearableListItem
+{
+public:
+	static LLPanelDummyClothingListItem* create(EWearableType w_type);
+
+	/*virtual*/ void updateItem();
+	/*virtual*/ BOOL postBuild();
+
+protected:
+	LLPanelDummyClothingListItem(EWearableType w_type);
+
+	/*virtual*/ void init();
+
+	static std::string wearableTypeToString(EWearableType w_type);
+
+private:
+	EWearableType mWearableType;
 };
 
 /**
