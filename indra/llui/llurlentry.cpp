@@ -42,6 +42,10 @@
 #include "lltrans.h"
 #include "lluicolortable.h"
 
+// Utility functions
+std::string localize_slapp_label(const std::string& url, const std::string& full_name);
+
+
 LLUrlEntryBase::LLUrlEntryBase() :
 	mColor(LLUIColorTable::instance().getColor("HTMLLinkColor")),
 	mDisabledLink(false)
@@ -140,7 +144,8 @@ void LLUrlEntryBase::addObserver(const std::string &id,
 		mObservers.insert(std::pair<std::string, LLUrlEntryObserver>(id, observer));
 	}
 }
- 
+
+// *NOTE: See also LLUrlEntryAgent::callObservers()
 void LLUrlEntryBase::callObservers(const std::string &id,
 								   const std::string &label,
 								   const std::string &icon)
@@ -322,18 +327,33 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
-void LLUrlEntryAgent::onNameCache(const LLUUID& id,
-								  const std::string& full_name,
-								  bool is_group)
+// virtual
+void LLUrlEntryAgent::callObservers(const std::string &id,
+								    const std::string &label,
+								    const std::string &icon)
 {
-	callObservers(id.asString(), full_name, mIcon);
+	// notify all callbacks waiting on the given uuid
+	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
+	for (it = mObservers.find(id); it != mObservers.end();)
+	{
+		// call the callback - give it the new label
+		LLUrlEntryObserver &observer = it->second;
+		std::string final_label = localize_slapp_label(observer.url, label);
+		(*observer.signal)(observer.url, final_label, icon);
+		// then remove the signal - we only need to call it once
+		delete observer.signal;
+		mObservers.erase(it++);
+	}
 }
 
 void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
 {
-	// IDEVO demo code
-	std::string label = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+	std::string label = av_name.mDisplayName;
+	if (!av_name.mSLID.empty())
+	{
+		label += " (" + av_name.mSLID + ")";
+	}
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), label, mIcon);
 }
@@ -391,64 +411,56 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 		return LLTrans::getString("AvatarNameNobody");
 	}
 
-	if (LLAvatarNameCache::useDisplayNames())
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::get(agent_id, &av_name))
 	{
-		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(agent_id, &av_name))
+		std::string label = av_name.mDisplayName;
+		if (!av_name.mSLID.empty())
 		{
-			return av_name.mDisplayName + " (" + av_name.mSLID + ")";
+			label += " (" + av_name.mSLID + ")";
 		}
-		else
-		{
-			LLAvatarNameCache::get(agent_id,
-				boost::bind(&LLUrlEntryAgent::onAvatarNameCache,
-					this, _1, _2));
-			addObserver(agent_id_string, url, cb);
-			return LLTrans::getString("LoadingData");
-		}
+		// handle suffixes like /mute or /offerteleport
+		label = localize_slapp_label(url, label);
+		return label;
 	}
 	else
 	{
-		// ...no display names
-		std::string full_name;
-		if (gCacheName->getFullName(agent_id, full_name))
-	{
-		// customize label string based on agent SLapp suffix
-		if (LLStringUtil::endsWith(url, "/mute"))
-		{
-			return LLTrans::getString("SLappAgentMute") + " " + full_name;
-		}
-		if (LLStringUtil::endsWith(url, "/unmute"))
-		{
-			return LLTrans::getString("SLappAgentUnmute") + " " + full_name;
-		}
-		if (LLStringUtil::endsWith(url, "/im"))
-		{
-			return LLTrans::getString("SLappAgentIM") + " " + full_name;
-		}
-		if (LLStringUtil::endsWith(url, "/pay"))
-		{
-			return LLTrans::getString("SLappAgentPay") + " " + full_name;
-		}
-		if (LLStringUtil::endsWith(url, "/offerteleport"))
-		{
-			return LLTrans::getString("SLappAgentOfferTeleport") + " " + full_name;
-		}
-		if (LLStringUtil::endsWith(url, "/requestfriend"))
-		{
-			return LLTrans::getString("SLappAgentRequestFriend") + " " + full_name;
-		}
-		return full_name;
-	}
-	else
-	{
-			gCacheName->get(agent_id, false,
-				boost::bind(&LLUrlEntryAgent::onNameCache,
-					this, _1, _2, _3));
+		LLAvatarNameCache::get(agent_id,
+			boost::bind(&LLUrlEntryAgent::onAvatarNameCache,
+				this, _1, _2));
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}
 }
+
+std::string localize_slapp_label(const std::string& url, const std::string& full_name)
+{
+	// customize label string based on agent SLapp suffix
+	if (LLStringUtil::endsWith(url, "/mute"))
+	{
+		return LLTrans::getString("SLappAgentMute") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/unmute"))
+	{
+		return LLTrans::getString("SLappAgentUnmute") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/im"))
+	{
+		return LLTrans::getString("SLappAgentIM") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/pay"))
+	{
+		return LLTrans::getString("SLappAgentPay") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/offerteleport"))
+	{
+		return LLTrans::getString("SLappAgentOfferTeleport") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/requestfriend"))
+	{
+		return LLTrans::getString("SLappAgentRequestFriend") + " " + full_name;
+	}
+	return full_name;
 }
 
 

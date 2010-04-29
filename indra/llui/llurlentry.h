@@ -104,7 +104,7 @@ protected:
 	std::string getLabelFromWikiLink(const std::string &url) const;
 	std::string getUrlFromWikiLink(const std::string &string) const;
 	void addObserver(const std::string &id, const std::string &url, const LLUrlLabelCallback &cb); 
-	void callObservers(const std::string &id, const std::string &label, const std::string& icon);
+	virtual void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 
 	typedef struct {
 		std::string url;
@@ -173,8 +173,9 @@ public:
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getIcon(const std::string &url) const;
 	/*virtual*/ std::string getTooltip(const std::string &string) const;
+protected:
+	/*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 private:
-	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 };
 
