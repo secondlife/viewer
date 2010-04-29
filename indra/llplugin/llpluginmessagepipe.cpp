@@ -299,26 +299,23 @@ bool LLPluginMessagePipe::pump(F64 timeout)
 void LLPluginMessagePipe::processInput(void)
 {
 	// Look for input delimiter(s) in the input buffer.
-	int start = 0;
 	int delim;
-	while((delim = mInput.find(MESSAGE_DELIMITER, start)) != std::string::npos)
+	while((delim = mInput.find(MESSAGE_DELIMITER)) != std::string::npos)
 	{	
 		// Let the owner process this message
 		if (mOwner)
 		{
-			mOwner->receiveMessageRaw(mInput.substr(start, delim - start));
+			// Pull the message out of the input buffer before calling receiveMessageRaw.
+			// It's now possible for this function to get called recursively (in the case where the plugin makes a blocking request)
+			// and this guarantees that the messages will get dequeued correctly.
+			std::string message(mInput, 0, delim);
+			mInput.erase(0, delim + 1);
+			mOwner->receiveMessageRaw(message);
 		}
 		else
 		{
 			LL_WARNS("Plugin") << "!mOwner" << LL_ENDL;
 		}
-		
-		start = delim + 1;
 	}
-	
-	// Remove delivered messages from the input buffer.
-	if(start != 0)
-		mInput = mInput.substr(start);
-	
 }
 

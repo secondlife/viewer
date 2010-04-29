@@ -54,6 +54,7 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner)
 	mCPUUsage = 0.0;
 	mDisableTimeout = false;
 	mDebug = false;
+	mBlocked = false;
 
 	mPluginLaunchTimeout = 60.0f;
 	mPluginLockupTimeout = 15.0f;
@@ -479,6 +480,13 @@ void LLPluginProcessParent::setSleepTime(F64 sleep_time, bool force_send)
 
 void LLPluginProcessParent::sendMessage(const LLPluginMessage &message)
 {
+	if(message.hasValue("blocking_response"))
+	{
+		mBlocked = false;
+
+		// reset the heartbeat timer, since there will have been no heartbeats while the plugin was blocked.
+		mHeartbeat.setTimerExpirySec(mPluginLockupTimeout);
+	}
 	
 	std::string buffer = message.generate();
 	LL_DEBUGS("Plugin") << "Sending: " << buffer << LL_ENDL;	
@@ -501,6 +509,11 @@ void LLPluginProcessParent::receiveMessageRaw(const std::string &message)
 
 void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 {
+	if(message.hasValue("blocking_request"))
+	{
+		mBlocked = true;
+	}
+
 	std::string message_class = message.getClass();
 	if(message_class == LLPLUGIN_MESSAGE_CLASS_INTERNAL)
 	{
@@ -689,18 +702,15 @@ bool LLPluginProcessParent::pluginLockedUpOrQuit()
 {
 	bool result = false;
 	
-	if(!mDisableTimeout && !mDebug)
+	if(!mProcess.isRunning())
 	{
-		if(!mProcess.isRunning())
-		{
-			LL_WARNS("Plugin") << "child exited" << llendl;
-			result = true;
-		}
-		else if(pluginLockedUp())
-		{
-			LL_WARNS("Plugin") << "timeout" << llendl;
-			result = true;
-		}
+		LL_WARNS("Plugin") << "child exited" << llendl;
+		result = true;
+	}
+	else if(pluginLockedUp())
+	{
+		LL_WARNS("Plugin") << "timeout" << llendl;
+		result = true;
 	}
 	
 	return result;
@@ -708,6 +718,12 @@ bool LLPluginProcessParent::pluginLockedUpOrQuit()
 
 bool LLPluginProcessParent::pluginLockedUp()
 {
+	if(mDisableTimeout || mDebug || mBlocked)
+	{
+		// Never time out a plugin process in these cases.
+		return false;
+	}
+	
 	// If the timer is running and has expired, the plugin has locked up.
 	return (mHeartbeat.getStarted() && mHeartbeat.hasExpired());
 }

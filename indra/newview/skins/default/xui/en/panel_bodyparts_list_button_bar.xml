@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+
+<panel
+ follows="left|right|top"
+ height="35"
+ layout="topleft"
+ left="0"
+ name="clothing_list_button_bar_panel"
+ top="0"
+ visible="true"
+ width="300">
+    <button
+     follows="top|left"
+     height="25"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_selected="Toolbar_Middle_Selected"
+     image_unselected="Toolbar_Middle_Off"
+     label="Switch"
+     layout="topleft"
+     left="5"
+     name="switch_btn"
+     top="5"
+     width="45" />
+    <button
+     follows="top|right"
+     height="25"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_selected="Toolbar_Middle_Selected"
+     image_unselected="Toolbar_Middle_Off"
+     label="Shop >" 
+     layout="topleft"
+     right="-5"
+     name="bodyparts_shop_btn"
+     top="5"
+     width="61" />
+</panel>

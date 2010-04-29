@@ -1842,7 +1842,8 @@ Clears (deletes) the media and all params from the given face.
 	<string name="LeaveMouselook">Press ESC to return to World View</string>
 
 	<!-- inventory -->
-	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all Search].</string>
+	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
+	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
     <!-- use value="" because they have preceding spaces -->
@@ -2950,8 +2951,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
 	<!-- voice calls -->
 	<string name="answered_call">Your call has been answered</string>
-	<string name="started_call">Started a voice call</string>
-	<string name="joined_call">Joined the voice call</string>
+	<string name="you_started_call">You started a voice call</string>
+	<string name="you_joined_call">You joined the voice call</string>
+	<string name="name_started_call">[NAME] started a voice call</string>
 
   <string name="ringing-im">
     Joining voice call...

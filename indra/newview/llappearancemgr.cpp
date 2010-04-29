@@ -1092,7 +1092,8 @@ void LLAppearanceMgr::updateAppearanceFromCOF()
 	}
 
 	//preparing the list of wearables in the correct order for LLAgentWearables
-	std::sort(wear_items.begin(), wear_items.end(), sort_by_description);
+	sortItemsByActualDescription(wear_items);
+
 
 	LLWearableHoldingPattern* holder = new LLWearableHoldingPattern;
 
@@ -1910,6 +1911,13 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 	return result;
 }
 
+//static
+void LLAppearanceMgr::sortItemsByActualDescription(LLInventoryModel::item_array_t& items)
+{
+	if (items.size() < 2) return;
+
+	std::sort(items.begin(), items.end(), sort_by_description);
+}
 
 //#define DUMP_CAT_VERBOSE
 

@@ -3,7 +3,7 @@
  background_visible="true"
  default_tab_group="1"
  follows="all"
- height="408"
+ height="423"
  label="Things"
  layout="topleft"
  min_height="350"
@@ -48,7 +48,7 @@
    left="10"
    max_length="300"
    name="inventory search editor"
-   top="3"
+   top="18"
    width="303" />
   <tab_container
      bg_alpha_color="DkGray"
