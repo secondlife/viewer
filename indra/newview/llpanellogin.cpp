@@ -614,23 +614,30 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 			authenticator["secret"] = password;
 		}
 	}
-	else if (separator_index == username.find_last_of(' '))
+	else
 	{
-		LL_INFOS2("Credentials", "Authentication") << "agent: " << username << LL_ENDL;
-		// traditional firstname / lastname
-		identifier["type"] = CRED_IDENTIFIER_TYPE_AGENT;
-		identifier["first_name"] = username.substr(0, separator_index);
-		identifier["last_name"] = username.substr(separator_index+1, username.npos);
+		std::string first = username.substr(0, separator_index);
+		std::string last = username.substr(separator_index, username.npos);
+		LLStringUtil::trim(last);
 		
-		if (LLPanelLogin::sInstance->mPasswordModified)
+		if (last.find_first_of(' ') == last.npos)
 		{
-			authenticator = LLSD::emptyMap();
-			authenticator["type"] = CRED_AUTHENTICATOR_TYPE_HASH;
-			authenticator["algorithm"] = "md5";
-			LLMD5 pass((const U8 *)password.c_str());
-			char md5pass[33];               /* Flawfinder: ignore */
-			pass.hex_digest(md5pass);
-			authenticator["secret"] = md5pass;
+			LL_INFOS2("Credentials", "Authentication") << "agent: " << username << LL_ENDL;
+			// traditional firstname / lastname
+			identifier["type"] = CRED_IDENTIFIER_TYPE_AGENT;
+			identifier["first_name"] = first;
+			identifier["last_name"] = last;
+		
+			if (LLPanelLogin::sInstance->mPasswordModified)
+			{
+				authenticator = LLSD::emptyMap();
+				authenticator["type"] = CRED_AUTHENTICATOR_TYPE_HASH;
+				authenticator["algorithm"] = "md5";
+				LLMD5 pass((const U8 *)password.c_str());
+				char md5pass[33];               /* Flawfinder: ignore */
+				pass.hex_digest(md5pass);
+				authenticator["secret"] = md5pass;
+			}
 		}
 	}
 	credential = gSecAPIHandler->createCredential(LLGridManager::getInstance()->getGrid(), identifier, authenticator);
