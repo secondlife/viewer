@@ -886,13 +886,13 @@
 		Alto
 	</string>
 	<string name="LeaveMouselook">
-		Premi ESC per tornare in visulizzazione normale
+		Premi ESC per tornare in visualizzazione normale
 	</string>
 	<string name="InventoryNoMatchingItems">
 		Nessun oggetto corrispondente trovato in inventario.  Prova [secondlife:///app/search/groups &quot;Cerca&quot;].
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Trascina qui un punto di riferimento per aggiungerlo ai tuoi preferiti.
+		Trascina qui un punto di riferimento per aggiungerlo ai Preferiti.
 	</string>
 	<string name="InventoryNoTexture">
 		Non hai una copia di questa texture nel tuo inventario
@@ -1566,7 +1566,7 @@
 		(si aggiornerà dopo la pubblicazione)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Non hai creato luoghi preferiti né inserzioni. Clicca il pulsante più qui sotto per creare un luogo preferito o un&apos;inserzione.
+		Non hai creato luoghi preferiti né inserzioni. Clicca il pulsante + qui sotto per creare un luogo preferito o un&apos;inserzione.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		L&apos;utente non ha luoghi preferiti né inserzioni

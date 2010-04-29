@@ -181,6 +181,10 @@ bool LLInventoryType::cannotRestrictPermissions(LLInventoryType::EType type)
 bool inventory_and_asset_types_match(LLInventoryType::EType inventory_type,
 									 LLAssetType::EType asset_type)
 {
+	// Links can be of any inventory type.
+	if (LLAssetType::lookupIsLinkType(asset_type))
+		return true;
+
 	const InventoryEntry *entry = LLInventoryDictionary::getInstance()->lookup(inventory_type);
 	if (!entry) return false;
 
