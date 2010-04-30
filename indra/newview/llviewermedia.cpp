@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llmimetypes.h"
@@ -1914,15 +1915,29 @@ void LLViewerMediaImpl::updateVolume()
 {
 	if(mMediaSource)
 	{
-		F32 attenuation_multiplier = 1.0;
+		// always scale the volume by the global media volume 
+		F32 volume = mRequestedVolume * LLViewerMedia::getVolume();
 
-		if (mProximityDistance > 0)
+		// attenuate if this is not parcel media
+		if (!mIsParcelMedia) 
 		{
-			// the attenuation multiplier should never be more than one since that would increase volume
-			attenuation_multiplier = llmin(1.0, gSavedSettings.getF32("MediaRollOffFactor")/mProximityDistance);
+			if (mProximityCamera > gSavedSettings.getF32("MediaRollOffMaxDistance"))
+			{
+				volume = 0;
+			}
+			else
+			{
+				// attenuated volume = volume * roll_off rate / distance^2
+				// adjust distance by saved setting so we can tune the distance at which attenuation begins
+				// the actual start distance is sqrt(MediaRollOffMaxDistance)+MediaRollOffStartAdjustment
+				F64 adjusted_distance = mProximityCamera - gSavedSettings.getF32("MediaRollOffStart");
+
+				// the attenuation multiplier should never be more than one since that would increase volume
+				volume = volume * llmin(1.0, gSavedSettings.getF32("MediaRollOffRate")/adjusted_distance*adjusted_distance);
+			}
 		}
 
-		mMediaSource->setVolume(mRequestedVolume * LLViewerMedia::getVolume() * attenuation_multiplier);
+		mMediaSource->setVolume(volume);
 	}
 }
 
@@ -3009,6 +3024,9 @@ void LLViewerMediaImpl::calculateInterest()
 		LLVector3d agent_global = gAgent.getPositionGlobal() ;
 		LLVector3d global_delta = agent_global - obj_global ;
 		mProximityDistance = global_delta.magVecSquared();  // use distance-squared because it's cheaper and sorts the same.
+
+		LLVector3d camera_delta = gAgentCamera.getCameraPositionGlobal() - obj_global;
+		mProximityCamera = camera_delta.magVec();
 	}
 	
 	if(mNeedsMuteCheck)
