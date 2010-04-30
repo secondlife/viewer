@@ -1799,7 +1799,6 @@ void LLPipeline::rebuildPriorityGroups()
 		
 void LLPipeline::rebuildGroups()
 {
-	llpushcallstacks ;
 	// Iterate through some drawables on the non-priority build queue
 	S32 size = (S32) mGroupQ2.size();
 	S32 min_count = llclamp((S32) ((F32) (size * size)/4096*0.25f), 1, size);
@@ -2963,7 +2962,6 @@ U32 LLPipeline::sCurRenderPoolType = 0 ;
 
 void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 {
-	llpushcallstacks ;
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_RENDER_GEOM);
 	LLFastTimer t(FTM_RENDER_GEOMETRY);
 
@@ -7839,7 +7837,6 @@ void LLPipeline::renderHighlight(const LLViewerObject* obj, F32 fade)
 void LLPipeline::generateHighlight(LLCamera& camera)
 {
 	//render highlighted object as white into offscreen render target
-	llpushcallstacks ;
 	if (mHighlightObject.notNull())
 	{
 		mHighlightSet.insert(HighlightItem(mHighlightObject));
