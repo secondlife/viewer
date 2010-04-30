@@ -47,32 +47,140 @@ class LLIconCtrl;
 class LLTextBox;
 class LLViewerInventoryItem;
 
-class LLPanelInventoryListItem : public LLPanel
+/**
+ * @class LLPanelInventoryListItemBase
+ *
+ * Base class for Inventory flat list item. Panel consists of inventory icon
+ * and inventory item name.
+ * This class is able to display widgets(buttons) on left(before icon) and right(after text-box) sides 
+ * of panel.
+ *
+ * How to use (see LLPanelClothingListItem for example):
+ * - implement init() to build panel from xml
+ * - create new xml file, fill it with widgets you want to dynamically show/hide/reshape on left/right sides
+ * - redefine postBuild()(call base implementation) and add needed widgets to needed sides,
+ *
+ */
+class LLPanelInventoryListItemBase : public LLPanel
 {
 public:
-	static LLPanelInventoryListItem* createItemPanel(const LLViewerInventoryItem* item);
 
-	virtual ~LLPanelInventoryListItem();
+	static LLPanelInventoryListItemBase* create(LLViewerInventoryItem* item);
 
+	/**
+	 * Called after inventory item was updated, update panel widgets to reflect inventory changes.
+	 */
+	virtual void updateItem();
+
+	/**
+	 * Add widget to left side
+	 */
+	void addWidgetToLeftSide(const std::string& name, bool show_widget = true);
+	void addWidgetToLeftSide(LLUICtrl* ctrl, bool show_widget = true);
+
+	/**
+	 * Add widget to right side, widget is supposed to be child of calling panel
+	 */
+	void addWidgetToRightSide(const std::string& name, bool show_widget = true);
+	void addWidgetToRightSide(LLUICtrl* ctrl, bool show_widget = true);
+
+	/**
+	 * Mark widgets as visible. Only visible widgets take part in reshaping children
+	 */
+	void setShowWidget(const std::string& name, bool show);
+	void setShowWidget(LLUICtrl* ctrl, bool show);
+
+	/**
+	 * Set spacing between widgets during reshape
+	 */
+	void setWidgetSpacing(S32 spacing) { mWidgetSpacing = spacing; }
+
+	S32 getWidgetSpacing() { return mWidgetSpacing; }
+
+	/**
+	 * Inheritors need to call base implementation of postBuild()
+	 */
 	/*virtual*/ BOOL postBuild();
+
+	/**
+	 * Handles item selection
+	 */
 	/*virtual*/ void setValue(const LLSD& value);
 
-	void updateItem();
+	 /* Highlights item */
+	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
+	/* Removes item highlight */
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
-	void onMouseEnter(S32 x, S32 y, MASK mask);
-	void onMouseLeave(S32 x, S32 y, MASK mask);
+	virtual ~LLPanelInventoryListItemBase(){}
 
 protected:
-	LLPanelInventoryListItem(const LLViewerInventoryItem* item);
+
+	LLPanelInventoryListItemBase(LLViewerInventoryItem* item);
+
+	typedef std::vector<LLUICtrl*> widget_array_t;
+
+	/**
+	 * Use it from a factory function to build panel, do not build panel in constructor
+	 */
+	virtual void init();
+
+	/** setter for mIconCtrl */
+	void setIconCtrl(LLIconCtrl* icon) { mIconCtrl = icon; }
+	/** setter for MTitleCtrl */
+	void setTitleCtrl(LLTextBox* tb) { mTitleCtrl = tb; }
+
+	void setLeftWidgetsWidth(S32 width) { mLeftWidgetsWidth = width; }
+	void setRightWidgetsWidth(S32 width) { mRightWidgetsWidth = width; }
+
+	/**
+	 * Set all widgets from both side visible/invisible. Only enabled widgets
+	 * (see setShowWidget()) can become visible
+	 */
+	virtual void setWidgetsVisible(bool visible);
+
+	/**
+	 * Reshape all child widgets - icon, text-box and side widgets
+	 */
+	virtual void reshapeWidgets();
+
+	/** set wearable type icon image */
+	void setIconImage(const LLUIImagePtr& image);
+
+	/** Set item title - inventory item name usually */
+	void setTitle(const std::string& title, const std::string& highlit_text);
 
 private:
-	LLIconCtrl*		mIcon;
-	LLTextBox*		mTitle;
 
-	LLUIImagePtr	mItemIcon;
-	std::string		mItemName;
+	/** reshape left side widgets
+	 * Deprecated for now. Disabled reshape left for now to reserve space for 'delete' 
+	 * button in LLPanelClothingListItem according to Neal's comment (https://codereview.productengine.com/secondlife/r/325/)
+	 */
+	void reshapeLeftWidgets();
+
+	/** reshape right side widgets */
+	void reshapeRightWidgets();
+
+	/** reshape remaining widgets */
+	void reshapeMiddleWidgets();
+
+	LLViewerInventoryItem* mItem;
+
+	LLIconCtrl*		mIconCtrl;
+	LLTextBox*		mTitleCtrl;
+
+	LLUIImagePtr	mIconImage;
 	std::string		mHighlightedText;
+
+	widget_array_t	mLeftSideWidgets;
+	widget_array_t	mRightSideWidgets;
+	S32				mWidgetSpacing;
+
+	S32				mLeftWidgetsWidth;
+	S32				mRightWidgetsWidth;
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 class LLInventoryItemsList : public LLFlatListView
 {
@@ -117,7 +225,7 @@ protected:
 	/**
 	 * Add an item to the list
 	 */
-	void addNewItem(LLViewerInventoryItem* item);
+	virtual void addNewItem(LLViewerInventoryItem* item);
 
 private:
 	uuid_vec_t mIDs; // IDs of items that were added in refreshList().

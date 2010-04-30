@@ -89,6 +89,7 @@ void LLCOFWearables::onSelectionChange(LLFlatListView* selected_list)
 	onCommit();
 }
 
+#include "llwearableitemslist.h"
 void LLCOFWearables::refresh()
 {
 	clear();
@@ -117,16 +118,15 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 
 		const LLAssetType::EType item_type = item->getType();
 		if (item_type == LLAssetType::AT_CLOTHING) continue;
-
-		LLPanelInventoryListItem* item_panel = LLPanelInventoryListItem::createItemPanel(item);
-		if (!item_panel) continue;
-
+		LLPanelInventoryListItemBase* item_panel = NULL;
 		if (item_type == LLAssetType::AT_OBJECT)
 		{
+				item_panel = LLPanelInventoryListItemBase::create(item);
 			mAttachments->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
 		}
 		else if (item_type == LLAssetType::AT_BODYPART)
 		{
+			item_panel = LLPanelBodyPartsListItem::create(item);
 			mBodyParts->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
 			addWearableTypeSeparator(mBodyParts);
 		}
@@ -165,7 +165,7 @@ void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& 
 		{
 			LLViewerInventoryItem* item = clothing_by_type[type][i];
 
-			LLPanelInventoryListItem* item_panel = LLPanelInventoryListItem::createItemPanel(item);
+			LLPanelInventoryListItemBase* item_panel = LLPanelClothingListItem::create(item);
 			if (!item_panel) continue;
 
 			mClothing->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
@@ -204,10 +204,10 @@ void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by
 		U32 size = clothing_by_type[type].size();
 		if (size) continue;
 
-		//*TODO create dummy item panel
-		
-		//*TODO add dummy item panel -> mClothing->addItem(dummy_item_panel, item->getUUID(), ADD_BOTTOM, false);
-
+		EWearableType w_type = static_cast<EWearableType>(type);
+		LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);
+		if(!item_panel) continue;
+		mClothing->addItem(item_panel, LLUUID::null, ADD_BOTTOM, false);
 		addWearableTypeSeparator(mClothing);
 	}
 }

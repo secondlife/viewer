@@ -65,10 +65,9 @@ public:
 
 	void refreshList(const LLUUID& category_id);
 
-	// Update tab displaying outfit identified by category_id.
-	void updateOutfitTab(const LLUUID& category_id);
+	void onSelectionChange(LLUICtrl* ctrl);
 
-	void onTabExpandedCollapsed(LLWearableItemsList* list);
+	void performAction(std::string action);
 
 	void setFilterSubString(const std::string& string);
 
@@ -85,11 +84,23 @@ private:
 	 */
 	void computeDifference(const LLInventoryModel::cat_array_t& vcats, uuid_vec_t& vadded, uuid_vec_t& vremoved);
 
+	/**
+	 * Updates tab displaying outfit identified by category_id.
+	 */
+	void updateOutfitTab(const LLUUID& category_id);
+
+	/**
+	 * Resets previous selection and stores newly selected list and outfit id.
+	 */
+	void changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
 
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 
 	LLAccordionCtrl*				mAccordion;
 	LLPanel*						mListCommands;
+
+	LLWearableItemsList*			mSelectedList;
+	LLUUID							mSelectedOutfitUUID;
 
 	std::string 					mFilterSubString;
 

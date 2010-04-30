@@ -310,6 +310,12 @@ LLUIImagePtr get_item_icon(LLAssetType::EType asset_type,
 // Is this item or its baseitem is worn, attached, etc...
 BOOL get_is_item_worn(const LLUUID& id);
 
+
+void change_item_parent(LLInventoryModel* model,
+									 LLViewerInventoryItem* item,
+									 const LLUUID& new_parent_id,
+									 BOOL restamp);
+
 #endif // LL_LLINVENTORYFUNCTIONS_H
 
 
