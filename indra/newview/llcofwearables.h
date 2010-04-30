@@ -56,7 +56,7 @@ public:
 		LLView* parent = getParent();
 		if (!parent) return -1;
 		
-		if (!info.has("action") || "size_changes" != info["action"])
+		if (!(info.has("action") && "size_changes" == info["action"].asString()))
 		{
 			return parent->notifyParent(info);
 		}
