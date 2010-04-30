@@ -148,6 +148,8 @@ private:
 	// Remove the "User is typing..." indicator.
 	void removeTypingIndicator(const LLIMInfo* im_info = NULL);
 
+	static void closeHiddenIMToasts();
+
 	LLPanelChatControlPanel* mControlPanel;
 	LLUUID mSessionID;
 	S32 mLastMessageIndex;

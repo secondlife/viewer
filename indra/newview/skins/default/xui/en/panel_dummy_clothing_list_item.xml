@@ -4,7 +4,7 @@
  height="20"
  layout="topleft"
  left="0"
- name="wearable_item"
+ name="dummy_clothing_item"
  top="0"
  width="380">
     <icon
@@ -29,10 +29,11 @@
      width="380" />
     <icon
      height="16"
+     color="0.75 0.75 0.75 1"
      follows="top|left"
      image_name="Inv_Object"
      layout="topleft"
-     left="0"
+     left="20"
      name="item_icon"
      top="2"
      width="16" />
@@ -44,28 +45,17 @@
      allow_html="false"
      use_ellipses="true"
      name="item_name"
-     text_color="white"
+     text_color="LtGray_50"
      top="4"
      value="..."
      width="359" />
-    <icon 
-     name="btn_lock"
+    <button 
+     name="btn_add"
      layout="topleft"
      follows="top|right"
-     image_name="Lock2"
+     label="+"
      top="0"
      left="0"
-     height="20"
-     width="20"
-     tab_stop="false" />
-    <button 
-     name="btn_edit"
-     layout="topleft"
-     follows="top|right"
-     image_unselected="Icon_Gear_Background"
-     image_selected="Icon_Gear_Background"
-     top="0"
-     left_pad="3"
      height="20"
      width="20"
      tab_stop="false" />

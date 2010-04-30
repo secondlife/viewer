@@ -85,9 +85,14 @@ void LLPluginProcessChild::idle(void)
 	bool idle_again;
 	do
 	{
-		if(mSocketError != APR_SUCCESS)
+		if(APR_STATUS_IS_EOF(mSocketError))
 		{
-			LL_INFOS("Plugin") << "message pipe is in error state, moving to STATE_ERROR"<< LL_ENDL;
+			// Plugin socket was closed.  This covers both normal plugin termination and host crashes.
+			setState(STATE_ERROR);
+		}
+		else if(mSocketError != APR_SUCCESS)
+		{
+			LL_INFOS("Plugin") << "message pipe is in error state (" << mSocketError << "), moving to STATE_ERROR"<< LL_ENDL;
 			setState(STATE_ERROR);
 		}	
 

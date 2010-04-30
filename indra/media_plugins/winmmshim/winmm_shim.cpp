@@ -144,10 +144,11 @@ extern "C"
 
 						// copy volume level 4 times into 64 bit MMX register
 						__m64 volume_64 = _mm_set_pi16(volume_16, volume_16, volume_16, volume_16);
-						__m64 *sample_64;
+						__m64* sample_64;
+						__m64* last_sample_64 =  (__m64*)(pwh->lpData + pwh->dwBufferLength - sizeof(__m64));
 						// for everything that can be addressed in 64 bit multiples...
 						for (sample_64 = (__m64*)pwh->lpData;
-							sample_64 < (__m64*)(pwh->lpData + pwh->dwBufferLength);
+							sample_64 <= last_sample_64;
 							++sample_64)
 						{
 							//...multiply the samples by the volume...

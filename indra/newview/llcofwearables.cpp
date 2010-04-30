@@ -204,10 +204,10 @@ void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by
 		U32 size = clothing_by_type[type].size();
 		if (size) continue;
 
-		//*TODO create dummy item panel
-		
-		//*TODO add dummy item panel -> mClothing->addItem(dummy_item_panel, item->getUUID(), ADD_BOTTOM, false);
-
+		EWearableType w_type = static_cast<EWearableType>(type);
+		LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);
+		if(!item_panel) continue;
+		mClothing->addItem(item_panel, LLUUID::null, ADD_BOTTOM, false);
 		addWearableTypeSeparator(mClothing);
 	}
 }

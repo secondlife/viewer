@@ -84,8 +84,18 @@
      label="Save"
      label_selected="Save"
      layout="topleft"
-     left="288"
+     left="178"
      name="Save"
+     top="332"
+     width="100" />
+    <button
+     follows="right|bottom"
+     height="22"
+     label="Delete"
+     label_selected="Delete"
+     layout="topleft"
+     left="288"
+     name="Delete"
      top="332"
      width="100" />
 </floater>

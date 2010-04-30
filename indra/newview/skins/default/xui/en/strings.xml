@@ -1802,6 +1802,20 @@ Clears (deletes) the media and all params from the given face.
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
 	<string name="invalid">invalid</string>
+  
+  <!-- Not Worn Wearable Types -->
+	<string name="shirt_not_worn">Shirt not worn</string>
+	<string name="pants_not_worn">Pants not worn</string>
+	<string name="shoes_not_worn">Shoes not worn</string>
+	<string name="socks_not_worn">Socks not worn</string>
+	<string name="jacket_not_worn">Jacket not worn</string>
+	<string name="gloves_not_worn">Gloves not worn</string>
+	<string name="undershirt_not_worn">Undershirt not worn</string>
+	<string name="underpants_not_worn">Underpants not worn</string>
+	<string name="skirt_not_worn">Skirt not worn</string>
+	<string name="alpha_not_worn">Alpha not worn</string>
+	<string name="tattoo_not_worn">Tattoo not worn</string>
+	<string name="invalid_not_worn">invalid</string>
 
   <!-- Wearable List-->
   <string name="NewWearable">New [WEARABLE_ITEM]</string>

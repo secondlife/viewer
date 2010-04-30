@@ -243,3 +243,19 @@ void LLChannelManager::killToastsFromChannel(const LLUUID& channel_id, const LLS
 	}
 }
 
+// static
+LLNotificationsUI::LLScreenChannel* LLChannelManager::getNotificationScreenChannel()
+{
+	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
+	(LLNotificationsUI::LLChannelManager::getInstance()->
+										findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+
+	if (channel == NULL)
+	{
+		llwarns << "Can't find screen channel by NotificationChannelUUID" << llendl;
+		llassert(!"Can't find screen channel by NotificationChannelUUID");
+	}
+
+	return channel;
+}
+

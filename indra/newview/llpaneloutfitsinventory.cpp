@@ -188,19 +188,37 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitsInventory::onWearButtonClick()
 {
-	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
-	if (listenerp)
+	// TODO: Remove if/else, add common interface
+	// for "My Outfits" and "Wearing" tabs.
+	if (!isCOFPanelActive())
 	{
-		listenerp->performAction(NULL, "replaceoutfit");
+		mMyOutfitsPanel->performAction("replaceoutfit");
+	}
+	else
+	{
+		LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
+		if (listenerp)
+		{
+			listenerp->performAction(NULL, "replaceoutfit");
+		}
 	}
 }
 
 void LLPanelOutfitsInventory::onAdd()
 {
-	LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
-	if (listenerp)
+	// TODO: Remove if/else, add common interface
+	// for "My Outfits" and "Wearing" tabs.
+	if (!isCOFPanelActive())
 	{
-		listenerp->performAction(NULL, "addtooutfit");
+		mMyOutfitsPanel->performAction("addtooutfit");
+	}
+	else
+	{
+		LLFolderViewEventListener* listenerp = getCorrectListenerForAction();
+		if (listenerp)
+		{
+			listenerp->performAction(NULL, "addtooutfit");
+		}
 	}
 }
 
