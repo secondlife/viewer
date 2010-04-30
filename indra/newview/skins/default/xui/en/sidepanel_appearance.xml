@@ -15,63 +15,85 @@ width="333">
    <string
    name="No Outfit"
    value="No Outfit" />
+   <string
+   name="Unsaved Changes"
+   value="Unsaved changes" />
+   <string
+   name="Now Wearing"
+   value="Now wearing..." />
    <panel
-   left="0"
-   top="0"
-   follows="all"
+   background_opaque="true"
+   background_visible="true"
+   bg_opaque_color="DkGray2"
+   left="10"
+   top="5"
+   follows="left|top|right"
    layout="topleft"
-   width="330"
+   width="303"
    height="33"
    name="panel_currentlook"
    >
       <button
       follows="left|top"
-      top="0"  width="1" height="1"
+      left="205" top="7" width="20" height="20"
+      label="E"
       layout="topleft"
-      left="0"
-      name="editappearance_btn" />
+      name="editappearance_btn"
+      visible="false" />
       <button
       follows="left|top"
-      top="0"  width="1" height="1"
+      left="235" top="7" width="20" height="20"
+      label="O"
       layout="topleft"
-      left="0"
-      name="openoutfit_btn" />
+      name="openoutfit_btn"
+      visible="false" />
       <icon
       follows="top|left"
-      height="24"
+      height="32"
       image_name="TabIcon_Appearance_Off"
       name="outfit_icon"
       mouse_opaque="false"
       visible="true"
-      left="9"
+      left="0"
       top="0"
-      width="24" />
+      width="32" />
       <text
-      font="SansSerifHugeBold"
-      height="20"
-      left_pad="5"
-      text_color="LtGray"
-      top="0"
-      use_ellipses="true"
-      width="305"
+      font="SansSerifSmallBold"
+      text_color="EmphasisColor"
+      width="300"
+      height="10"
       follows="top|left"
-      word_wrap="true"
+      layout="topleft"
+      left="35"
+      top="3"
+      mouse_opaque="false"
+      name="currentlook_status" >
+      (Status)
+      </text>
+      <text
+      font="SansSerifLargeBold"
+      height="20"
+      left="35"
+      text_color="White"
+      top="15"
+      use_ellipses="true"
+      width="230"
+      follows="top|left"
+      word_wrap="false"
       mouse_opaque="false"
       name="currentlook_name">
       MyOutfit With a really Long Name like MOOSE
       </text>
-      <text
-      font="SansSerifSmall"
-      text_color="White_50"
-      width="300"
-      height="1"
-      follows="top|left"
+      <button
+      follows="left|top"
+      height="20"
+      image_overlay="windows/Icon_Gear_Over.png"
+      label=""
       layout="topleft"
-      top_pad="5"
-      mouse_opaque="false"
-      name="currentlook_title" >
-      (unsaved)
-       </text>
+      left="265"
+      name="edit_outfit_btn"
+      top="7"
+      width="30" />
    </panel>
    <filter_editor
    height="23"
@@ -87,7 +109,7 @@ width="333">
    class="panel_outfits_inventory"
    filename="panel_outfits_inventory.xml"
    name="panel_outfits_inventory"
-   height="505"
+   height="493"
    min_height="410"
    width="320"
    left="0"

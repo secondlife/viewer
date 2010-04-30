@@ -496,12 +496,6 @@ bool toggle_show_favorites_panel(const LLSD& newvalue)
 	return true;
 }
 
-bool toggle_show_appearance_editor(const LLSD& newvalue)
-{
-	LLPanelOutfitsInventory::sShowDebugEditor = newvalue.asBoolean();
-	return true;
-}
-
 bool toggle_show_object_render_cost(const LLSD& newvalue)
 {
 	LLFloaterTools::sShowObjectCost = newvalue.asBoolean();
@@ -650,7 +644,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ShowSnapshotButton")->getSignal()->connect(boost::bind(&toggle_show_snapshot_button, _2));
 	gSavedSettings.getControl("ShowNavbarNavigationPanel")->getSignal()->connect(boost::bind(&toggle_show_navigation_panel, _2));
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
-	gSavedSettings.getControl("ShowDebugAppearanceEditor")->getSignal()->connect(boost::bind(&toggle_show_appearance_editor, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
 }
