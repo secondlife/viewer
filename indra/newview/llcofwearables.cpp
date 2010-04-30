@@ -94,6 +94,16 @@ void LLCOFWearables::onSelectionChange(LLFlatListView* selected_list)
 
 void LLCOFWearables::refresh()
 {
+	typedef std::vector<LLSD> values_vector_t;
+	typedef std::map<LLFlatListView*, values_vector_t> selection_map_t;
+
+	selection_map_t preserve_selection;
+
+	// Save current selection
+	mAttachments->getSelectedValues(preserve_selection[mAttachments]);
+	mClothing->getSelectedValues(preserve_selection[mClothing]);
+	mBodyParts->getSelectedValues(preserve_selection[mBodyParts]);
+
 	clear();
 
 	LLInventoryModel::cat_array_t cats;
@@ -108,6 +118,23 @@ void LLCOFWearables::refresh()
 	LLAppearanceMgr::getInstance()->divvyWearablesByType(cof_items, clothing_by_type);
 	
 	populateClothingList(clothing_by_type);
+
+	// Restore previous selection
+	for (selection_map_t::iterator
+			 iter = preserve_selection.begin(),
+			 iter_end = preserve_selection.end();
+		 iter != iter_end; ++iter)
+	{
+		LLFlatListView* list = iter->first;
+		const values_vector_t& values = iter->second;
+		for (values_vector_t::const_iterator
+				 value_it = values.begin(),
+				 value_it_end = values.end();
+			 value_it != value_it_end; ++value_it)
+		{
+			list->selectItemByValue(*value_it);
+		}
+	}
 }
 
 

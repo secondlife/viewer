@@ -245,6 +245,34 @@ void LLOutfitsList::performAction(std::string action)
 void LLOutfitsList::setFilterSubString(const std::string& string)
 {
 	mFilterSubString = string;
+
+	for (outfits_map_t::iterator
+			 iter = mOutfitsMap.begin(),
+			 iter_end = mOutfitsMap.end();
+		 iter != iter_end; ++iter)
+	{
+		LLAccordionCtrlTab* tab = iter->second;
+		if (tab)
+		{
+			LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*> (tab->getAccordionView());
+			if (list)
+			{
+				list->setFilterSubString(mFilterSubString);
+			}
+
+			if(!mFilterSubString.empty())
+			{
+				//store accordion tab state when filter is not empty
+				tab->notifyChildren(LLSD().with("action","store_state"));
+				tab->setDisplayChildren(true);
+			}
+			else
+			{
+				//restore accordion state after all those accodrion tab manipulations
+				tab->notifyChildren(LLSD().with("action","restore_state"));
+			}
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
