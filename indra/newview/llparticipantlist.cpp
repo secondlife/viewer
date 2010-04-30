@@ -722,7 +722,21 @@ void LLParticipantList::LLParticipantListMenu::toggleMute(const LLSD& userdata, 
 
 	name = speakerp->mDisplayName;
 
-	LLMute mute(speaker_id, name, speakerp->mType == LLSpeaker::SPEAKER_AGENT ? LLMute::AGENT : LLMute::OBJECT);
+	LLMute::EType mute_type;
+	switch (speakerp->mType)
+	{
+		case LLSpeaker::SPEAKER_AGENT:
+			mute_type = LLMute::AGENT;
+			break;
+		case LLSpeaker::SPEAKER_OBJECT:
+			mute_type = LLMute::OBJECT;
+			break;
+		case LLSpeaker::SPEAKER_EXTERNAL:
+		default:
+			mute_type = LLMute::EXTERNAL;
+			break;
+	}
+	LLMute mute(speaker_id, name, mute_type);
 
 	if (!is_muted)
 	{
