@@ -86,11 +86,13 @@ public:
 	/**
 	 * Make button visible during mouse over event.
 	 */
-	inline void setShowDeleteButton(bool show);
-	inline void setShowMoveUpButton(bool show);
-	inline void setShowMoveDownButton(bool show);
-	inline void setShowLockButton(bool show);
-	inline void setShowEditButton(bool show);
+	inline void setShowDeleteButton(bool show) { setShowWidget("btn_delete", show); }
+	inline void setShowMoveUpButton(bool show) { setShowWidget("btn_move_up", show); }
+
+	inline void setShowMoveDownButton(bool show) { setShowWidget("btn_move_down", show); }
+	inline void setShowLockButton(bool show) { setShowWidget("btn_lock", show); }
+	inline void setShowEditButton(bool show) { setShowWidget("btn_edit", show); }
+
 
 protected:
 
@@ -113,8 +115,8 @@ public:
 	/**
 	* Make button visible during mouse over event.
 	*/
-	inline void setShowLockButton(bool show);
-	inline void setShowEditButton(bool show);
+	inline void setShowLockButton(bool show) { setShowWidget("btn_lock", show); }
+	inline void setShowEditButton(bool show) { setShowWidget("btn_edit", show); }
 
 protected:
 	LLPanelBodyPartsListItem(LLViewerInventoryItem* item);
