@@ -128,8 +128,6 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mSearchFilter(NULL),
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
-	mAddToOutfitBtn(NULL),
-	mRemoveFromOutfitBtn(NULL),
 	mLookObserver(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
@@ -216,13 +214,6 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mAddToLookBtn->setEnabled(FALSE);
 	mAddToLookBtn->setVisible(FALSE); */
 	
-	childSetAction("add_to_outfit_btn", boost::bind(&LLPanelOutfitEdit::onAddToOutfitClicked, this));
-	childSetEnabled("add_to_outfit_btn", false);
-
-	mRemoveFromOutfitBtn = getChild<LLButton>("remove_from_outfit_btn");
-	mRemoveFromOutfitBtn->setEnabled(FALSE);
-	mRemoveFromOutfitBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onRemoveFromOutfitClicked, this));
-
 	mEditWearableBtn = getChild<LLButton>("edit_wearable_btn");
 	mEditWearableBtn->setEnabled(FALSE);
 	mEditWearableBtn->setVisible(FALSE);
@@ -383,8 +374,6 @@ void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
 	LLAppearanceMgr::getInstance()->removeItemFromAvatar(id_to_remove);
 
 	updateLookInfo();
-
-	mRemoveFromOutfitBtn->setEnabled(FALSE);
 }
 
 
@@ -438,10 +427,7 @@ void LLPanelOutfitEdit::onInventorySelectionChange(const std::deque<LLFolderView
 	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_BODYPART:
 	case LLAssetType::AT_OBJECT:
-		childSetEnabled("add_to_outfit_btn", true);
-		break;
 	default:
-		childSetEnabled("add_to_outfit_btn", false);
 		break;
 	}
 	
@@ -474,10 +460,7 @@ void LLPanelOutfitEdit::onOutfitItemSelectionChange(void)
 	{
 	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_OBJECT:
-		mRemoveFromOutfitBtn->setEnabled(TRUE);
-		break;
 	default:
-		mRemoveFromOutfitBtn->setEnabled(FALSE);
 		break;
 	}
 }

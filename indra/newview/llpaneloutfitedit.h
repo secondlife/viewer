@@ -122,8 +122,6 @@ private:
 	LLFilterEditor*		mSearchFilter;
 	LLSaveFolderState*	mSavedFolderState;
 	std::string			mSearchString;
-	LLButton*			mAddToOutfitBtn;
-	LLButton*			mRemoveFromOutfitBtn;
 	LLButton*			mEditWearableBtn;
 	LLToggleableMenu*	mSaveMenu;
 

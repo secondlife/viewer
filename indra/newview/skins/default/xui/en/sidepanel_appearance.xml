@@ -106,7 +106,7 @@ width="333">
    <panel
    class="panel_outfit_edit"
    filename="panel_outfit_edit.xml"
-   height="550"
+   height="565"
    follows="all"
    layout="topleft"
    left="5"
