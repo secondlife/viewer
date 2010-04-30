@@ -196,6 +196,13 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 	// Disable editing until data is loaded, or edited fields will be overwritten when data
 	// is loaded.
 	enableEditing(false);
+
+	// Only allow changing name if this region/grid supports it
+	bool use_display_names = LLAvatarNameCache::useDisplayNames();
+	LLUICtrl* set_name = getChild<LLUICtrl>("set_name");
+	set_name->setVisible(use_display_names);
+	set_name->setEnabled(use_display_names);
+
 	LLPanelMyProfile::onOpen(getAvatarId());
 }
 
