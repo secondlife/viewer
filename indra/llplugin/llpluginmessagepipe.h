@@ -35,6 +35,7 @@
 #define LL_LLPLUGINMESSAGEPIPE_H
 
 #include "lliosocket.h"
+#include "llthread.h"
 
 class LLPluginMessagePipe;
 
@@ -51,7 +52,7 @@ public:
 	virtual apr_status_t socketError(apr_status_t error);
 
 	// called from LLPluginMessagePipe to manage the connection with LLPluginMessagePipeOwner -- do not use!
-	virtual void setMessagePipe(LLPluginMessagePipe *message_pipe) ;
+	virtual void setMessagePipe(LLPluginMessagePipe *message_pipe);
 
 protected:
 	// returns false if writeMessageRaw() would drop the message
@@ -76,14 +77,18 @@ public:
 	void clearOwner(void);
 	
 	bool pump(F64 timeout = 0.0f);
-	
+	bool pumpOutput();
+	bool pumpInput(F64 timeout = 0.0f);
+		
 protected:	
 	void processInput(void);
 
 	// used internally by pump()
 	void setSocketTimeout(apr_interval_time_t timeout_usec);
 	
+	LLMutex mInputMutex;
 	std::string mInput;
+	LLMutex mOutputMutex;
 	std::string mOutput;
 
 	LLPluginMessagePipeOwner *mOwner;

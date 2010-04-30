@@ -41,6 +41,7 @@
 
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
+#include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llwearableitemslist.h"
@@ -51,6 +52,7 @@ LLOutfitsList::LLOutfitsList()
 	:	LLPanel()
 	,	mAccordion(NULL)
 	,	mListCommands(NULL)
+	,	mSelectedList(NULL)
 {
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
 	gInventory.addObserver(mCategoriesObserver);
@@ -135,30 +137,37 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 	{
 		const LLUUID cat_id = (*iter);
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
-		if (!cat)
-			continue;
+		if (!cat) continue;
 
 		std::string name = cat->getName();
 
 		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
-
-		accordionXmlNode->setAttributeString("name", name);
-		accordionXmlNode->setAttributeString("title", name);
 		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+
+		tab->setName(name);
+		tab->setTitle(name);
 
 		// *TODO: LLUICtrlFactory::defaultBuilder does not use "display_children" from xml. Should be investigated.
 		tab->setDisplayChildren(false);
 		mAccordion->addCollapsibleCtrl(tab);
 
+		// Start observing the new outfit category.
+		LLWearableItemsList* list  = tab->getChild<LLWearableItemsList>("wearable_items_list");
+		if (!mCategoriesObserver->addCategory(cat_id, boost::bind(&LLWearableItemsList::updateList, list, cat_id)))
+		{
+			// Remove accordion tab if category could not be added to observer.
+			mAccordion->removeCollapsibleCtrl(tab);
+			continue;
+		}
+
 		// Map the new tab with outfit category UUID.
 		mOutfitsMap.insert(LLOutfitsList::outfits_map_value_t(cat_id, tab));
 
-		// Start observing the new outfit category.
-		LLWearableItemsList* list  = tab->getChild<LLWearableItemsList>("wearable_items_list");
-		mCategoriesObserver->addCategory(cat_id, boost::bind(&LLWearableItemsList::updateList, list, cat_id));
+		// Setting tab focus callback to monitor currently selected outfit.
+		tab->setFocusReceivedCallback(boost::bind(&LLOutfitsList::changeOutfitSelection, this, list, cat_id));
 
-		// Setting drop down callback to monitor currently selected outfit.
-		tab->setDropDownStateChangedCallback(boost::bind(&LLOutfitsList::onTabExpandedCollapsed, this, list));
+		// Setting list commit callback to monitor currently selected wearable item.
+		list->setCommitCallback(boost::bind(&LLOutfitsList::onSelectionChange, this, _1));
 
 		// Fetch the new outfit contents.
 		cat->fetch();
@@ -178,10 +187,18 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 			// 1. Remove outfit accordion tab from accordion.
 			mAccordion->removeCollapsibleCtrl(outfits_iter->second);
 
-			// 2. Remove outfit category from observer to stop monitoring its changes.
-			mCategoriesObserver->removeCategory(outfits_iter->first);
+			const LLUUID& outfit_id = outfits_iter->first;
 
-			// 3. Remove category UUID to accordion tab mapping.
+			// 2. Remove outfit category from observer to stop monitoring its changes.
+			mCategoriesObserver->removeCategory(outfit_id);
+
+			// 3. Reset selection if selected outfit is being removed.
+			if (mSelectedOutfitUUID == outfit_id)
+			{
+				changeOutfitSelection(NULL, LLUUID());
+			}
+
+			// 4. Remove category UUID to accordion tab mapping.
 			mOutfitsMap.erase(outfits_iter);
 		}
 	}
@@ -199,47 +216,36 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 	mAccordion->arrange();
 }
 
-void LLOutfitsList::updateOutfitTab(const LLUUID& category_id)
+void LLOutfitsList::onSelectionChange(LLUICtrl* ctrl)
 {
-	outfits_map_t::iterator outfits_iter = mOutfitsMap.find(category_id);
-	if (outfits_iter != mOutfitsMap.end())
-	{
-		LLViewerInventoryCategory *cat = gInventory.getCategory(category_id);
-		if (!cat)
-			return;
+	LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(ctrl);
+	if (!list) return;
 
-		std::string name = cat->getName();
+	LLViewerInventoryItem *item = gInventory.getItem(list->getSelectedUUID());
+	if (!item) return;
 
-		// Update tab name with the new category name.
-		LLAccordionCtrlTab* tab = outfits_iter->second;
-		if (tab)
-		{
-			tab->setName(name);
-		}
-
-		// Update tab title with the new category name using textbox
-		// in accordion tab header.
-		LLTextBox* tab_title = tab->findChild<LLTextBox>("dd_textbox");
-		if (tab_title)
-		{
-			tab_title->setText(name);
-		}
-	}
+	changeOutfitSelection(list, item->getParentUUID());
 }
 
-void LLOutfitsList::onTabExpandedCollapsed(LLWearableItemsList* list)
+void LLOutfitsList::performAction(std::string action)
 {
-	if (!list)
-		return;
+	LLViewerInventoryCategory* cat = gInventory.getCategory(mSelectedOutfitUUID);
+	if (!cat) return;
 
-	// TODO: Add outfit selection handling.
+	if ("replaceoutfit" == action)
+	{
+		LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, FALSE );
+	}
+	else if ("addtooutfit" == action)
+	{
+		LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, TRUE );
+	}
 }
 
 void LLOutfitsList::setFilterSubString(const std::string& string)
 {
 	mFilterSubString = string;
 }
-
 
 //////////////////////////////////////////////////////////////////////////
 // Private methods
@@ -281,6 +287,39 @@ void LLOutfitsList::computeDifference(
 	}
 
 	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
+}
+
+void LLOutfitsList::updateOutfitTab(const LLUUID& category_id)
+{
+	outfits_map_t::iterator outfits_iter = mOutfitsMap.find(category_id);
+	if (outfits_iter != mOutfitsMap.end())
+	{
+		LLViewerInventoryCategory *cat = gInventory.getCategory(category_id);
+		if (!cat) return;
+
+		std::string name = cat->getName();
+
+		// Update tab name with the new category name.
+		LLAccordionCtrlTab* tab = outfits_iter->second;
+		if (tab)
+		{
+			tab->setName(name);
+			tab->setTitle(name);
+		}
+	}
+}
+
+void LLOutfitsList::changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
+{
+	// Reset selection in previously selected tab
+	// if a new one is selected.
+	if (list && mSelectedList && mSelectedList != list)
+	{
+		mSelectedList->resetSelection();
+	}
+
+	mSelectedList = list;
+	mSelectedOutfitUUID = category_id;
 }
 
 // EOF

@@ -898,7 +898,7 @@ Unisci il terreno?
 In genere si tratta di un problema temporaneo. Attendi alcuni minuti per modificare e salvare nuovamente gli elementi indossabili.
 	</notification>
 	<notification name="YouHaveBeenLoggedOut">
-		Accidenti. Sei stato scollegato da [SECOND_LIFE]
+		Sei stato scollegato da [SECOND_LIFE].
             [MESSAGE]
 		<usetemplate name="okcancelbuttons" notext="Esci" yestext="Vedi IM &amp; Chat"/>
 	</notification>

@@ -174,12 +174,19 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mCurrentOutfitName = getChild<LLTextBox>("curr_outfit_name"); 
 
-	childSetCommitCallback("add_btn", boost::bind(&LLPanelOutfitEdit::showAddWearablesPanel, this), NULL);
 	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredWearablesPanel, this), NULL);
 
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onOutfitItemSelectionChange, this));
+
+	mCOFWearables->getCOFCallbacks().mEditWearable = boost::bind(&LLPanelOutfitEdit::onEditWearableClicked, this);
+	mCOFWearables->getCOFCallbacks().mDeleteWearable = boost::bind(&LLPanelOutfitEdit::onRemoveFromOutfitClicked, this);
+	mCOFWearables->getCOFCallbacks().mMoveWearableCloser = boost::bind(&LLPanelOutfitEdit::moveWearable, this, true);
+	mCOFWearables->getCOFCallbacks().mMoveWearableFurther = boost::bind(&LLPanelOutfitEdit::moveWearable, this, false);
+
+	mCOFWearables->childSetAction("add_btn", boost::bind(&LLPanelOutfitEdit::toggleAddWearablesPanel, this));
+
 
 	mInventoryItemsPanel = getChild<LLInventoryPanel>("inventory_items");
 	mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
@@ -233,9 +240,6 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mWearableListManager = new LLFilteredWearableListManager(
 		getChild<LLInventoryItemsList>("filtered_wearables_list"), ALL_ITEMS_MASK);
-		
-	childSetAction("move_closer_btn", boost::bind(&LLPanelOutfitEdit::moveWearable, this, true));
-	childSetAction("move_further_btn", boost::bind(&LLPanelOutfitEdit::moveWearable, this, false));
 
 	return TRUE;
 }
@@ -252,9 +256,9 @@ void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
 	updateLookInfo();
 }
 
-void LLPanelOutfitEdit::showAddWearablesPanel()
+void LLPanelOutfitEdit::toggleAddWearablesPanel()
 {
-	childSetVisible("add_wearables_panel", childGetValue("add_btn"));
+	childSetVisible("add_wearables_panel", !childIsVisible("add_wearables_panel"));
 }
 
 void LLPanelOutfitEdit::showWearablesFilter()

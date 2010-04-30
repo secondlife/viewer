@@ -732,10 +732,17 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_MEDIA_UPDATE("Update Media");
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::updateMedia(void *dummy_arg)
 {
+	LLFastTimer t1(FTM_MEDIA_UPDATE);
+	
+	// Enable/disable the plugin read thread
+	LLPluginProcessParent::setUseReadThread(gSavedSettings.getBOOL("PluginUseReadThread"));
+	
 	sAnyMediaShowing = false;
 	sUpdatedCookies = getCookieStore()->getChangedCookies();
 	if(!sUpdatedCookies.empty())
@@ -1914,7 +1921,15 @@ void LLViewerMediaImpl::updateVolume()
 {
 	if(mMediaSource)
 	{
-		mMediaSource->setVolume(mRequestedVolume * LLViewerMedia::getVolume());
+		F32 attenuation_multiplier = 1.0;
+
+		if (mProximityDistance > 0)
+		{
+			// the attenuation multiplier should never be more than one since that would increase volume
+			attenuation_multiplier = llmin(1.0, gSavedSettings.getF32("MediaRollOffFactor")/mProximityDistance);
+		}
+
+		mMediaSource->setVolume(mRequestedVolume * LLViewerMedia::getVolume() * attenuation_multiplier);
 	}
 }
 
@@ -2427,6 +2442,8 @@ void LLViewerMediaImpl::update()
 	}
 	else
 	{
+		updateVolume();
+
 		// If we didn't just create the impl, it may need to get cookie updates.
 		if(!sUpdatedCookies.empty())
 		{

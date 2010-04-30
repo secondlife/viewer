@@ -330,7 +330,7 @@
     <check_box
      enabled="false"
      height="16"
-     label="Enable plain text chat history"
+     label="Enable plain text IM and chat history"
      layout="topleft"
      left_delta="0"
      name="plain_text_chat_history"

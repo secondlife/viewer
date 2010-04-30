@@ -53,6 +53,7 @@
 #include "llsyswellwindow.h"
 #include "lltrans.h"
 #include "llchathistory.h"
+#include "llnotifications.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 #include "lltransientfloatermgr.h"
@@ -371,6 +372,8 @@ void LLIMFloater::onSlide()
 //static
 LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 {
+	closeHiddenIMToasts();
+
 	if (!gIMMgr->hasSession(session_id)) return NULL;
 
 	if(!isChatMultiTab())
@@ -1080,6 +1083,26 @@ void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
 			}
 		}
 
+	}
+}
+
+// static
+void LLIMFloater::closeHiddenIMToasts()
+{
+	class IMToastMatcher: public LLNotificationsUI::LLScreenChannel::Matcher
+	{
+	public:
+		bool matches(const LLNotificationPtr notification) const
+		{
+			// "notifytoast" type of notifications is reserved for IM notifications
+			return "notifytoast" == notification->getType();
+		}
+	};
+
+	LLNotificationsUI::LLScreenChannel* channel = LLNotificationsUI::LLChannelManager::getNotificationScreenChannel();
+	if (channel != NULL)
+	{
+		channel->closeHiddenToasts(IMToastMatcher());
 	}
 }
 

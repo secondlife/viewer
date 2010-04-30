@@ -436,6 +436,34 @@ void LLAccordionCtrlTab::setAccordionView(LLView* panel)
 	addChild(panel,0);
 }
 
+void LLAccordionCtrlTab::setTitle(const std::string& title)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		header->setTitle(title);
+	}
+}
+
+boost::signals2::connection LLAccordionCtrlTab::setFocusReceivedCallback(const focus_signal_t::slot_type& cb)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		return header->setFocusReceivedCallback(cb);
+	}
+	return boost::signals2::connection();
+}
+
+boost::signals2::connection LLAccordionCtrlTab::setFocusLostCallback(const focus_signal_t::slot_type& cb)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		return header->setFocusLostCallback(cb);
+	}
+	return boost::signals2::connection();
+}
 
 LLView*	LLAccordionCtrlTab::findContainerView()
 {

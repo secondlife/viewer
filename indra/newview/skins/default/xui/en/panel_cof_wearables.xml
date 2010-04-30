@@ -3,7 +3,6 @@
  background_visible="true"
  bg_alpha_color="DkGray"
  border="false"
- bottom="0"
  follows="all"
  height="200"
  left="0"
@@ -11,7 +10,7 @@
  width="313">
     <accordion
      follows="all"
-     height="373"
+     height="200"
      layout="topleft"
      left="3"
      single_expansion="true"
@@ -27,7 +26,7 @@
             <flat_list_view
              allow_select="true"
              follows="all"
-             height="150"
+             height="10"
              layout="topleft"
              left="0"
              name="list_attachments"
@@ -38,29 +37,71 @@
          layout="topleft"
          name="tab_clothing"
          title="Clothing">
-            <flat_list_view
-             allow_select="true"
+            
+            <!-- *NOTE there should be no any gaps between the button bar and the list - 
+            accordiong-list adaptor won't employ them while calculating new height when the size of the list changes -->
+            <panel
+             background_visible="false"
+             class="accordion_list_adaptor"
              follows="all"
-             height="150"
+             height="45"
              layout="topleft"
              left="0"
-             name="list_clothing"
+             name="button_bar_adaptor"
              top="0"
-             width="307" />
+             width="307">
+                <panel
+                 bevel="none"
+                 filename="panel_clothing_list_button_bar.xml"
+                 height="35"
+                 name="button_bar"
+                 top="0"
+                 width="307" />
+                <flat_list_view
+                 allow_select="true"
+                 follows="all"
+                 height="10"
+                 layout="topleft"
+                 left="0"
+                 name="list_clothing"
+                 top_pad="0"
+                 width="307" />
+            </panel>
         </accordion_tab>
         <accordion_tab
          layout="topleft"
          name="tab_body_parts"
          title="Body Parts">
-            <flat_list_view
-             allow_select="true"
+
+            <!-- *NOTE there should be no any gaps between the button bar and the list - 
+            accordiong-list adaptor won't employ them while calculating new height when the size of the list changes -->
+            <panel
+             background_visible="false"
+             class="accordion_list_adaptor"
              follows="all"
-             height="150"
+             height="45"
              layout="topleft"
              left="0"
-             name="list_body_parts"
+             name="button_bar_adaptor"
              top="0"
-             width="307" />
+             width="307">
+                <panel 
+                 bevel="none"
+                 filename="panel_bodyparts_list_button_bar.xml" 
+                 height="35"
+                 name="button_bar"
+                 top="0"
+                 width="307"/>
+                <flat_list_view
+                 allow_select="true"
+                 follows="all"
+                 height="10"
+                 layout="topleft"
+                 left="0"
+                 name="list_body_parts"
+                 top_pad="0"
+                 width="307" />
+            </panel>
         </accordion_tab>
     </accordion>
 </panel>

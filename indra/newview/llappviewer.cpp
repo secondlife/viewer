@@ -1530,6 +1530,9 @@ bool LLAppViewer::cleanup()
 	
 	LLViewerMedia::saveCookieFile();
 
+	// Stop the plugin read thread if it's running.
+	LLPluginProcessParent::setUseReadThread(false);
+
 	llinfos << "Shutting down Threads" << llendflush;
 
 	// Let threads finish

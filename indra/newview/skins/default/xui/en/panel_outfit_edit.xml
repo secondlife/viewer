@@ -130,7 +130,7 @@
      animate="false"
      default_tab_group="2"
      follows="all"
-     height="470"
+     height="450"
      width="300"
      layout="topleft"
      orientation="vertical"
@@ -140,8 +140,7 @@
      left="5">
         <layout_panel
          layout="topleft"
-         follows="left|top|right"
-         height="220"
+         height="225"
          label="IM Control Panel"
          min_height="100"
          name="outfit_wearables_panel"
@@ -151,27 +150,26 @@
 
             <!-- List containing items from the COF and Base outfit -->
             <panel
-             background_visible="false"
              class="cof_wearables"
              filename="panel_cof_wearables.xml"
              follows="left|top|right|bottom"
-             height="193"
+             height="198"
              layout="topleft"
              left="0"
              name="cof_wearables_list"
              top="0"
              width="300" /> 
 
-          <panel
+            <panel
              background_visible="true"
              bevel_style="none"
+             bottom="0"
              follows="bottom|left|right"
              height="27"
              label="bottom_panel"
-             layout="topleft"
+             layout="bottomleft"
              left="0"
              name="edit_panel"
-             top_pad="0"
              width="300">
                 <button
                  follows="bottom|left"
@@ -186,11 +184,10 @@
                  top="1"
                  width="31" />
                 <button
-                 is_toggle="true"
                  follows="bottom|left"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="AddItem_Off"
+                 image_overlay=""
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
@@ -214,7 +211,7 @@
                  follows="bottom|left"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="Movement_Forward_On"
+                 image_overlay=""
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
@@ -226,7 +223,7 @@
                  follows="bottom|left"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="Movement_Backward_On"
+                 image_overlay=""
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
@@ -234,6 +231,14 @@
                  name="move_further_btn"
                  top="1"
                  width="31" />
+                <icon
+                 follows="bottom|left"
+                 height="25"
+                 image_name="Toolbar_Middle_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="dummy_icon"
+                 width="105" />
                 <button
                  follows="bottom|right"
                  height="25"
@@ -253,8 +258,8 @@
         <layout_panel
          auto_resize="true"
          default_tab_group="3"
-         height="210" 
-         min_height="210"
+         height="225" 
+         min_height="225"
          name="add_wearables_panel"
          width="300"
          tab_group="2"
@@ -439,6 +444,22 @@
                  left_pad="1"
                  name="add_to_outfit_btn"
                  top="1"
+                 width="31" />
+                <icon
+                 follows="bottom|left"
+                 height="25"
+                 image_name="Toolbar_Middle_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="dummy_middle_icon"
+                 width="140" />
+                <icon
+                 follows="bottom|left"
+                 height="25"
+                 image_name="Toolbar_Right_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="dummy_right_icon"
                  width="31" />
             </panel>
         </layout_panel>

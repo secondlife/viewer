@@ -5585,6 +5585,19 @@
       <key>Value</key>
       <integer>8</integer>
     </map>
+
+   <key>PluginUseReadThread</key>
+    <map>
+      <key>Comment</key>
+      <string>Use a separate thread to read incoming messages from plugins</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+
     <key>PrecachingDelay</key>
     <map>
       <key>Comment</key>
@@ -5838,7 +5851,18 @@
         <key>Value</key>
             <real>1.0</real>
         </map>
-    <key>RecentItemsSortOrder</key>
+  <key>MediaRollOffFactor</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier to change rate of media attenuation</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>10.0</real>
+  </map>
+  <key>RecentItemsSortOrder</key>
     <map>
       <key>Comment</key>
       <string>Specifies sort key for recent inventory items (+0 = name, +1 = date, +2 = folders always by name, +4 = system folders to top)</string>
