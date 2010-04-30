@@ -50,7 +50,7 @@ apr_pollset_t *LLPluginProcessParent::sPollSet = NULL;
 bool LLPluginProcessParent::sPollsetNeedsRebuild = false;
 LLMutex *LLPluginProcessParent::sInstancesMutex;
 std::list<LLPluginProcessParent*> LLPluginProcessParent::sInstances;
-LLThread *LLPluginProcessParent::sPollThread = NULL;
+LLThread *LLPluginProcessParent::sReadThread = NULL;
 
 
 class LLPluginProcessParentPollThread: public LLThread
@@ -108,9 +108,10 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner):
 	mHeartbeat.stop();
 	
 	// Don't add to the global list until fully constructed.
-	sInstancesMutex->lock();
-	sInstances.push_back(this);
-	sInstancesMutex->unlock();
+	{
+		LLMutexLock lock(sInstancesMutex);
+		sInstances.push_back(this);
+	}
 }
 
 LLPluginProcessParent::~LLPluginProcessParent()
@@ -118,9 +119,14 @@ LLPluginProcessParent::~LLPluginProcessParent()
 	LL_DEBUGS("Plugin") << "destructor" << LL_ENDL;
 
 	// Remove from the global list before beginning destruction.
-	sInstancesMutex->lock();
-	sInstances.remove(this);
-	sInstancesMutex->unlock();
+	{
+		// Make sure to get the global mutex _first_ here, to avoid a possible deadlock against LLPluginProcessParent::poll()
+		LLMutexLock lock(sInstancesMutex);
+		{
+			LLMutexLock lock2(&mIncomingQueueMutex);
+			sInstances.remove(this);
+		}
+	}
 
 	// Destroy any remaining shared memory regions
 	sharedMemoryRegionsType::iterator iter;
@@ -139,9 +145,11 @@ LLPluginProcessParent::~LLPluginProcessParent()
 
 void LLPluginProcessParent::killSockets(void)
 {
-	mIncomingQueueMutex.lock();
-	killMessagePipe();
-	mIncomingQueueMutex.unlock();
+	{
+		LLMutexLock lock(&mIncomingQueueMutex);
+		killMessagePipe();
+	}
+
 	mListenSocket.reset();
 	mSocket.reset();
 }
@@ -619,10 +627,10 @@ void LLPluginProcessParent::dirtyPollSet()
 {
 	sPollsetNeedsRebuild = true;
 	
-	if(sPollThread)
+	if(sReadThread)
 	{
-		LL_DEBUGS("PluginPoll") << "unpausing polling thread " << LL_ENDL;
-		sPollThread->unpause();
+		LL_DEBUGS("PluginPoll") << "unpausing read thread " << LL_ENDL;
+		sReadThread->unpause();
 	}
 }
 
@@ -634,7 +642,7 @@ void LLPluginProcessParent::updatePollset()
 		return;
 	}
 		
-	sInstancesMutex->lock();
+	LLMutexLock lock(sInstancesMutex);
 
 	if(sPollSet)
 	{
@@ -658,7 +666,7 @@ void LLPluginProcessParent::updatePollset()
 		}
 	}
 
-	if(sUseReadThread && sPollThread && !sPollThread->isQuitting())
+	if(sUseReadThread && sReadThread && !sReadThread->isQuitting())
 	{
 		if(!sPollSet && (count > 0))
 		{
@@ -692,7 +700,6 @@ void LLPluginProcessParent::updatePollset()
 			}
 		}
 	}
-	sInstancesMutex->unlock();
 }
 
 void LLPluginProcessParent::setUseReadThread(bool use_read_thread)
@@ -703,26 +710,26 @@ void LLPluginProcessParent::setUseReadThread(bool use_read_thread)
 		
 		if(sUseReadThread)
 		{
-			if(!sPollThread)
+			if(!sReadThread)
 			{
 				// start up the read thread
-				LL_INFOS("PluginPoll") << "creating polling thread " << LL_ENDL;
+				LL_INFOS("PluginPoll") << "creating read thread " << LL_ENDL;
 
 				// make sure the pollset gets rebuilt.
 				sPollsetNeedsRebuild = true;
 				
-				sPollThread = new LLPluginProcessParentPollThread;
-				sPollThread->start();
+				sReadThread = new LLPluginProcessParentPollThread;
+				sReadThread->start();
 			}
 		}
 		else
 		{
-			if(sPollThread)
+			if(sReadThread)
 			{
 				// shut down the read thread
-				LL_INFOS("PluginPoll") << "destroying polling thread " << LL_ENDL;
-				delete sPollThread;
-				sPollThread = NULL;
+				LL_INFOS("PluginPoll") << "destroying read thread " << LL_ENDL;
+				delete sReadThread;
+				sReadThread = NULL;
 			}
 		}
 
@@ -756,21 +763,22 @@ void LLPluginProcessParent::poll(F64 timeout)
 				if(self)
 				{
 					// Make sure this pointer is still in the instances list
-					sInstancesMutex->lock();
 					bool valid = false;
-					for(std::list<LLPluginProcessParent*>::iterator iter = sInstances.begin(); iter != sInstances.end(); ++iter)
 					{
-						if(*iter == self)
+						LLMutexLock lock(sInstancesMutex);
+						for(std::list<LLPluginProcessParent*>::iterator iter = sInstances.begin(); iter != sInstances.end(); ++iter)
 						{
-							// Lock the instance's mutex before unlocking the global mutex.  
-							// This avoids a possible race condition where the instance gets deleted between this check and the servicePoll() call.
-							self->mIncomingQueueMutex.lock();
-							valid = true;
-							break;
+							if(*iter == self)
+							{
+								// Lock the instance's mutex before unlocking the global mutex.  
+								// This avoids a possible race condition where the instance gets deleted between this check and the servicePoll() call.
+								self->mIncomingQueueMutex.lock();
+								valid = true;
+								break;
+							}
 						}
 					}
-					sInstancesMutex->unlock();
-
+					
 					if(valid)
 					{
 						// The instance is still valid.
@@ -872,9 +880,7 @@ void LLPluginProcessParent::receiveMessageEarly(const LLPluginMessage &message)
 	if(!handled)
 	{
 		// any message that wasn't handled early needs to be queued.
-//		mIncomingQueueMutex.lock();
 		mIncomingQueue.push(message);
-//		mIncomingQueueMutex.unlock();
 	}
 }
 

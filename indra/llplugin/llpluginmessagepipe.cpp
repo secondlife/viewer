@@ -117,10 +117,9 @@ LLPluginMessagePipe::~LLPluginMessagePipe()
 bool LLPluginMessagePipe::addMessage(const std::string &message)
 {
 	// queue the message for later output
-	mOutputMutex.lock();
+	LLMutexLock lock(&mOutputMutex);
 	mOutput += message;
 	mOutput += MESSAGE_DELIMITER;	// message separator
-	mOutputMutex.unlock();
 	
 	return true;
 }
@@ -173,7 +172,7 @@ bool LLPluginMessagePipe::pumpOutput()
 		apr_status_t status;
 		apr_size_t size;
 		
-		mOutputMutex.lock();
+		LLMutexLock lock(&mOutputMutex);
 		if(!mOutput.empty())
 		{
 			// write any outgoing messages
@@ -225,7 +224,6 @@ bool LLPluginMessagePipe::pumpOutput()
 				result = false;
 			}
 		}
-		mOutputMutex.unlock();
 	}
 	
 	return result;
@@ -288,9 +286,8 @@ bool LLPluginMessagePipe::pumpInput(F64 timeout)
 				
 				if(size > 0)
 				{
-					mInputMutex.lock();
+					LLMutexLock lock(&mInputMutex);
 					mInput.append(input_buf, size);
-					mInputMutex.unlock();
 				}
 
 				if(status == APR_SUCCESS)

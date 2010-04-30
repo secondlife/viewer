@@ -188,7 +188,7 @@ private:
 	static void dirtyPollSet();
 	static void updatePollset();
 	void servicePoll();
-	static LLThread *sPollThread;
+	static LLThread *sReadThread;
 	
 	LLMutex mIncomingQueueMutex;
 	std::queue<LLPluginMessage> mIncomingQueue;
