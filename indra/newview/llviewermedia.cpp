@@ -1918,22 +1918,21 @@ void LLViewerMediaImpl::updateVolume()
 		// always scale the volume by the global media volume 
 		F32 volume = mRequestedVolume * LLViewerMedia::getVolume();
 
-		// attenuate if this is not parcel media
-		if (!mIsParcelMedia) 
+		if (mProximityCamera > 0) 
 		{
-			if (mProximityCamera > gSavedSettings.getF32("MediaRollOffMaxDistance"))
+			if (mProximityCamera > gSavedSettings.getF32("MediaRollOffMax"))
 			{
 				volume = 0;
 			}
-			else
+			else if (mProximityCamera > gSavedSettings.getF32("MediaRollOffMin"))
 			{
-				// attenuated volume = volume * roll_off rate / distance^2
-				// adjust distance by saved setting so we can tune the distance at which attenuation begins
-				// the actual start distance is sqrt(MediaRollOffMaxDistance)+MediaRollOffStartAdjustment
-				F64 adjusted_distance = mProximityCamera - gSavedSettings.getF32("MediaRollOffStart");
-
+				// attenuated_volume = v / ( 1 + (roll_off_rate * (d - min))^2
+				// the +1 is there so that for distance 0 the volume stays the same
+				F64 adjusted_distance = mProximityCamera - gSavedSettings.getF32("MediaRollOffMin");
+				F64 attenuation = gSavedSettings.getF32("MediaRollOffRate") * adjusted_distance;
+				attenuation = attenuation * attenuation;
 				// the attenuation multiplier should never be more than one since that would increase volume
-				volume = volume * llmin(1.0, gSavedSettings.getF32("MediaRollOffRate")/adjusted_distance*adjusted_distance);
+				volume = volume * llmin(1.0, 1 /(attenuation + 1));
 			}
 		}
 

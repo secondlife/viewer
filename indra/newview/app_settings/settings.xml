@@ -5838,7 +5838,7 @@
         <key>Value</key>
             <real>1.0</real>
         </map>
-  <key>MediaRollOffFactor</key>
+  <key>MediaRollOffRate</key>
   <map>
     <key>Comment</key>
     <string>Multiplier to change rate of media attenuation</string>
@@ -5847,7 +5847,29 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>10.0</real>
+    <real>0.2</real>
+  </map>
+  <key>MediaRollOffMin</key>
+  <map>
+    <key>Comment</key>
+    <string>Adjusts the distance at which media attentuation starts</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>7.0</real>
+  </map>
+  <key>MediaRollOffMax</key>
+  <map>
+    <key>Comment</key>
+    <string>Distance at which media volume is set to 0</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>30.0</real>
   </map>
   <key>RecentItemsSortOrder</key>
     <map>
