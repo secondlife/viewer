@@ -99,6 +99,17 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+    <key>VoiceFontDefault</key>
+    <map>
+        <key>Comment</key>
+            <string>Selected voice font</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>00000000-0000-0000-0000-000000000000</string>
+    </map>
 
     <!-- Settings below are for back compatibility only.
     They are not used in current viewer anymore. But they can't be removed to avoid
