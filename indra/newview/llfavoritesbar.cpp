@@ -1165,6 +1165,17 @@ void LLFavoritesBarCtrl::pastFromClipboard() const
 
 void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
+	// EXT-6997 (Fav bar: Pop-up menu for LM in overflow dropdown is kept after LM was dragged away)
+	// mInventoryItemsPopupMenuHandle.get() - is a pop-up menu (of items) in already opened dropdown menu.
+	// We have to check and set visibility of pop-up menu in such a way instead of using
+	// LLMenuHolderGL::hideMenus() because it will close both menus(dropdown and pop-up), but
+	// we need to close only pop-up menu while dropdown one should be still opened.
+	LLMenuGL* menu = (LLMenuGL*)mInventoryItemsPopupMenuHandle.get();
+	if(menu && menu->getVisible())
+	{
+		menu->setVisible(FALSE);
+	}
+
 	mDragItemId = id;
 	mStartDrag = TRUE;
 
