@@ -40,7 +40,6 @@
 
 class LLAvatarList;
 class LLAvatarListItem;
-class LLComboBox;
 class LLNonAvatarCaller;
 class LLOutputMonitorCtrl;
 class LLParticipantList;
@@ -58,9 +57,7 @@ class LLSpeakersDelayActionsStorage;
  * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel
  * also provides a 'Leave Call' button to allow the Resident to leave that voice channel.
  */
-class LLCallFloater : public LLTransientDockableFloater,
-							 LLVoiceClientParticipantObserver,
-							 LLVoiceClientFontsObserver
+class LLCallFloater : public LLTransientDockableFloater, LLVoiceClientParticipantObserver
 {
 public:
 
@@ -79,9 +76,6 @@ public:
 	 * Refreshes list to display participants not in voice as disabled.
 	 */
 	/*virtual*/ void onParticipantsChanged();
-
-	/// Called by LLVoiceClient::notifyVoiceFontObservers when voice font list is changed.
-	/*virtual*/ void onVoiceFontsChanged();
 
 	static void sOnCurrentChannelChanged(const LLUUID& session_id);
 
@@ -106,9 +100,6 @@ private:
 	typedef std::map<LLUUID, ESpeakerState> speaker_state_map_t;
 
 	void leaveCall();
-
-	void onCommitVoiceFont();
-	void updateVoiceFont();
 
 	/**
 	 * Updates mSpeakerManager and list according to current Voice Channel
@@ -239,7 +230,6 @@ private:
 	LLNonAvatarCaller* mNonAvatarCaller;
 	EVoiceControls mVoiceType;
 	LLPanel* mAgentPanel;
-	LLComboBox* mVoiceFont;
 	LLOutputMonitorCtrl* mSpeakingIndicator;
 	bool mIsModeratorMutedVoice;
 

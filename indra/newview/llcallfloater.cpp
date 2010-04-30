@@ -52,7 +52,7 @@
 #include "lltransientfloatermgr.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
-#include "llvoiceclient.h" // for Voice font list types
+#include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids);
@@ -106,7 +106,6 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 , mNonAvatarCaller(NULL)
 , mVoiceType(VC_LOCAL_CHAT)
 , mAgentPanel(NULL)
-, mVoiceFont(NULL)
 , mSpeakingIndicator(NULL)
 , mIsModeratorMutedVoice(false)
 , mInitParticipantsVoiceState(false)
@@ -115,10 +114,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLCallFloater::removeVoiceLeftParticipant, this, _1), voice_left_remove_delay);
 
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
-
-	LLVoiceClient::instance().addObserver(dynamic_cast<LLVoiceClientParticipantObserver*>(this));
-	LLVoiceClient::instance().addObserver(dynamic_cast<LLVoiceClientFontsObserver*>(this));
-	mCommitCallbackRegistrar.add("Voice.CommitVoiceFont", boost::bind(&LLCallFloater::onCommitVoiceFont, this));
+	LLVoiceClient::instance().addObserver(this);
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
 
 	// force docked state since this floater doesn't save it between recreations
@@ -138,8 +134,7 @@ LLCallFloater::~LLCallFloater()
 
 	if(LLVoiceClient::instanceExists())
 	{
-		LLVoiceClient::instance().removeObserver(dynamic_cast<LLVoiceClientParticipantObserver*>(this));
-		LLVoiceClient::instance().removeObserver(dynamic_cast<LLVoiceClientFontsObserver*>(this));
+		LLVoiceClient::instance().removeObserver(this);
 	}
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
@@ -153,7 +148,6 @@ BOOL LLCallFloater::postBuild()
 
 	childSetAction("leave_call_btn", boost::bind(&LLCallFloater::leaveCall, this));
 
-	mVoiceFont = getChild<LLComboBox>("voice_font");
 	mNonAvatarCaller = getChild<LLNonAvatarCaller>("non_avatar_caller");
 	mNonAvatarCaller->setVisible(FALSE);
 
@@ -225,12 +219,6 @@ void LLCallFloater::onParticipantsChanged()
 	}
 }
 
-// virtual
-void LLCallFloater::onVoiceFontsChanged()
-{
-	updateVoiceFont();
-}
-
 //////////////////////////////////////////////////////////////////////////
 /// PRIVATE SECTION
 //////////////////////////////////////////////////////////////////////////
@@ -241,38 +229,6 @@ void LLCallFloater::leaveCall()
 	if (voice_channel)
 	{
 		gIMMgr->endCall(voice_channel->getSessionID());
-	}
-}
-
-void LLCallFloater::onCommitVoiceFont()
-{
-	if (LLVoiceClient::instance().hasVoiceFonts())
-	{
-		LLVoiceClient::getInstance()->setVoiceFont(mVoiceFont->getValue());
-	}
-}
-
-void LLCallFloater::updateVoiceFont()
-{
-	if (mVoiceFont)
-	{
-		mVoiceFont->removeall();
-		mVoiceFont->add(getString("no_voice_font"), LLUUID::null);
-
-		if (LLVoiceClient::instance().hasVoiceFonts())
-		{
-			const LLVoiceClient::voice_font_list_t font_list = LLVoiceClient::instance().getVoiceFontList();
-			for (LLVoiceClient::voice_font_list_t::const_iterator it = font_list.begin(); it != font_list.end(); ++it)
-			{
-				mVoiceFont->add(*(it->first), *(it->second), ADD_BOTTOM);
-			}
-			mVoiceFont->setEnabled(true);
-			mVoiceFont->setValue(LLVoiceClient::instance().getVoiceFont());
-		}
-		else
-		{
-			mVoiceFont->setEnabled(false);
-		}
 	}
 }
 
@@ -333,23 +289,22 @@ void LLCallFloater::updateSession()
 
 	if (NULL == mSpeakerManager)
 	{
-		// by default let show nearby chat participants
+		// By default show nearby chat participants
 		mSpeakerManager = LLLocalSpeakerMgr::getInstance();
 		lldebugs << "Set DEFAULT speaker manager" << llendl;
 		mVoiceType = VC_LOCAL_CHAT;
 	}
 
 	updateTitle();
-	updateVoiceFont();
 
-	//hide "Leave Call" button for nearby chat
+	// Hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
 	childSetVisible("leave_call_btn_panel", !is_local_chat);
 
 	refreshParticipantList();
 	updateAgentModeratorState();
 
-	//show floater for voice calls & only in CONNECTED to voice channel state
+	// Show floater for voice calls & only in CONNECTED to voice channel state
 	if (!is_local_chat &&
 	    voice_channel &&
 	    LLVoiceChannel::STATE_CONNECTED == voice_channel->getState())

@@ -7262,8 +7262,13 @@ bool LLVoiceClient::setVoiceFont(const LLUUID& id)
 bool LLVoiceClient::setVoiceFont(const std::string &session_handle, const LLUUID& id)
 {
 	sessionState *session = findSession(session_handle);
+	if (!session)
+	{
+		LL_DEBUGS("Voice") << "Invalid Session." << LL_ENDL;
+		return false;
+	}
 
-	if (!session || !session->mVoiceEnabled || !hasVoiceFonts())
+	if (!hasVoiceFonts())
 	{
 		LL_DEBUGS("Voice") << "Voice fonts not available." << LL_ENDL;
 		return false;

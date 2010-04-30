@@ -3,7 +3,7 @@
  can_resize="true"
  can_minimize="true"
  can_close="false"
- height="202"
+ height="205"
  layout="topleft"
  min_height="124"
  min_width="190"
@@ -35,9 +35,6 @@
      name="no_one_near">
         No one near has voice enabled
     </string>
-    <floater.string name="no_voice_font">
-        No Voice Effect
-    </floater.string>
       <layout_stack
          clip="false"
          follows="all"
@@ -53,7 +50,7 @@
           user_resize="false" 
          auto_resize="false" 
          layout="topleft"
-         height="26"
+         height="20"
          name="my_panel">
             <avatar_icon
              enabled="false"
@@ -93,55 +90,34 @@
          clip="true"
          auto_resize="false"
          follows="left|top|right"
-         height="23"
+         height="26"
          layout="topleft"
-         left="10"
          mouse_opaque="false"
          name="voice_font_and_leave_call_stack"
          orientation="horizontal"
-         width="263">
-          <layout_panel
-           auto_resize="true"
-           user_resize="false"
-           follows="top|left"
-           height="26"
+         width="262">
+          <panel
+           class="panel_voice_font"
+           name="panel_voice_font"
            visiblity_control="VoiceFontUI"
+           filename="panel_voice_font.xml" />
+          <layout_panel
+           auto_resize="false"
+           user_resize="false"
+           follows="top|right"
+           height="23"
+           visible="true"
            layout="topleft"
-           name="voice_font_panel"
-           width="150">
-            <combo_box
-             enabled="false"
-             follows="left|top|right"
+           name="leave_call_btn_panel"
+           width="100">
+            <button
+             follows="right|top"
              height="23"
-             name="voice_font"
-             top_pad="0"
-             width="150">
-              <combo_box.item
-               label="No Voice Effect"
-               name="no_voice_font"
-               value="0" />
-              <combo_box.commit_callback
-               function="Voice.CommitVoiceFont" />
-            </combo_box>
+             label="Leave Call"
+             name="leave_call_btn"
+             width="100" />
           </layout_panel>
-        <layout_panel
-          auto_resize="false"
-          user_resize="false" 
-          follows="top|right"
-          height="26"
-          visible="true"
-          layout="topleft"
-          name="leave_call_btn_panel"
-          width="100">
-           <button
-            follows="right|top"
-            height="23"
-            top_pad="0"
-            label="Leave Call"
-            name="leave_call_btn"
-            width="100" />
-         </layout_panel>
-      </layout_stack>
+        </layout_stack>
       <layout_panel
           follows="all"
           layout="topleft"
