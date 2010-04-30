@@ -1653,6 +1653,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 	}
 
 	U32 length = w * h;
+	U32 alphatotal = 0;
 	
 	U32 sample[16];
 	memset(sample, 0, sizeof(U32)*16);
@@ -1672,11 +1673,15 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 			const GLubyte* current = rowstart;
 			for (U32 x = 0; x < w; x+=2)
 			{
-				U32 s1 = current[0];
-				U32 s2 = current[w * mAlphaStride];
+				const U32 s1 = current[0];
+				alphatotal += s1;
+				const U32 s2 = current[w * mAlphaStride];
+				alphatotal += s2;
 				current += mAlphaStride;
-				U32 s3 = current[0];
-				U32 s4 = current[w * mAlphaStride];
+				const U32 s3 = current[0];
+				alphatotal += s3;
+				const U32 s4 = current[w * mAlphaStride];
+				alphatotal += s4;
 				current += mAlphaStride;
 
 				++sample[s1/16];
@@ -1684,19 +1689,23 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 				++sample[s3/16];
 				++sample[s4/16];
 
-				sample[(s1+s2+s3+s4)/(16 * 4)] += 4;
+				const U32 asum = (s1+s2+s3+s4);
+				alphatotal += asum;
+				sample[asum/(16*4)] += 4;
 			}
 			
 			rowstart += 2 * w * mAlphaStride;
 		}
-		length += length;
+		length *= 2; // we sampled everything twice, essentially
 	}
 	else
 	{
 		const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset;
 		for (U32 i = 0; i < length; i++)
 		{
-			++sample[*current/16];
+			const U32 s1 = *current;
+			alphatotal += s1;
+			++sample[s1/16];
 			current += mAlphaStride;
 		}
 	}
@@ -1704,15 +1713,31 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 	// if more than 1/16th of alpha samples are mid-range, this
 	// shouldn't be treated as a 1-bit mask
 
+	// also, if all of the alpha samples are clumped on one half
+	// of the range (but not at an absolute extreme), then consider
+	// this to be an intentional effect and don't treat as a mask.
+
 	U32 midrangetotal = 0;
 	for (U32 i = 4; i < 11; i++)
 	{
 		midrangetotal += sample[i];
 	}
-
-	if (midrangetotal > length/16)
+	U32 lowerhalftotal = 0;
+	for (U32 i = 0; i < 8; i++)
 	{
-		mIsMask = FALSE;
+		lowerhalftotal += sample[i];
+	}
+	U32 upperhalftotal = 0;
+	for (U32 i = 8; i < 16; i++)
+	{
+		upperhalftotal += sample[i];
+	}
+
+	if (midrangetotal > length/16 || // lots of midrange, or
+	    (lowerhalftotal == length && alphatotal != 0) || // all close to transparent but not all totally transparent, or
+	    (upperhalftotal == length && alphatotal != 255*length)) // all close to opaque but not all totally opaque
+	{
+		mIsMask = FALSE; // not suitable for masking
 	}
 	else
 	{
