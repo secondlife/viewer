@@ -234,9 +234,6 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearableListManager = new LLFilteredWearableListManager(
 		getChild<LLInventoryItemsList>("filtered_wearables_list"), ALL_ITEMS_MASK);
 		
-	childSetAction("move_closer_btn", boost::bind(&LLPanelOutfitEdit::moveWearable, this, true));
-	childSetAction("move_further_btn", boost::bind(&LLPanelOutfitEdit::moveWearable, this, false));
-
 	return TRUE;
 }
 
