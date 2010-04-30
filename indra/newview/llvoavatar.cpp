@@ -95,6 +95,11 @@
 #include "llvoiceclient.h"
 #include "llvoicevisualizer.h" // Ventrella
 
+#include "lldebugmessagebox.h"
+extern F32 SPEED_ADJUST_MAX;
+extern F32 SPEED_ADJUST_MAX_SEC;
+extern F32 ANIM_SPEED_MAX;
+
 #if LL_MSVC
 // disable boost::lexical_cast warning
 #pragma warning (disable:4702)
@@ -3031,6 +3036,13 @@ void LLVOAvatar::slamPosition()
 //------------------------------------------------------------------------
 BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 {
+ 	if (!LLApp::isExiting())
+ 	{
+ 		LLDebugVarMessageBox::show("Adj Max", &SPEED_ADJUST_MAX, 5.0f, 0.1f);
+ 		LLDebugVarMessageBox::show("Adj Max Sec", &SPEED_ADJUST_MAX_SEC, 5.0f, 0.1f);
+ 		LLDebugVarMessageBox::show("Anim Max", &ANIM_SPEED_MAX, 10.0f, 0.1f);
+ 	}
+
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
 	// clear debug text

@@ -48,8 +48,9 @@ const F32 MAX_WALK_PLAYBACK_SPEED = 8.f;	// max m/s for which we adjust walk cyc
 
 const F32 MIN_WALK_SPEED = 0.1f;	// minimum speed at which we use velocity for down foot detection
 const F32 MAX_TIME_DELTA = 2.f;		//max two seconds a frame for calculating interpolation
-const F32 SPEED_ADJUST_MAX = 2.5f; // maximum adjustment of walk animation playback speed
-const F32 SPEED_ADJUST_MAX_SEC = 3.f;	// maximum adjustment to walk animation playback speed for a second
+F32 SPEED_ADJUST_MAX = 2.5f; // maximum adjustment of walk animation playback speed
+F32 SPEED_ADJUST_MAX_SEC = 3.f;	// maximum adjustment to walk animation playback speed for a second
+F32 ANIM_SPEED_MAX = 5.0f; // absolute limit on animation speed
 const F32 DRIFT_COMP_MAX_TOTAL = 0.07f;//0.55f; // maximum drift compensation overall, in any direction 
 const F32 DRIFT_COMP_MAX_SPEED = 4.f; // speed at which drift compensation total maxes out
 const F32 MAX_ROLL = 0.6f;
@@ -300,6 +301,7 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	// and if we're moving backward, we walk backward
 
 	F32 directional_factor = localVel.mV[VX] * mRelativeDir;
+
 	if (speed > 0.1f)
 	{
 		// calculate ratio of desired foot velocity to detected foot velocity
@@ -318,15 +320,16 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	}
 
 	mAnimSpeed = (mAvgSpeed + mSpeedAdjust) * mRelativeDir;
-//	char debug_text[64];
-//	sprintf(debug_text, "Foot slip vel: %.2f", footSlipVelocity);
-//	mCharacter->addDebugText(debug_text);
-//	sprintf(debug_text, "Speed: %.2f", mAvgSpeed);
-//	mCharacter->addDebugText(debug_text);
-//	sprintf(debug_text, "Speed Adjust: %.2f", mSpeedAdjust);
-//	mCharacter->addDebugText(debug_text);
-//	sprintf(debug_text, "Animation Playback Speed: %.2f", mAnimSpeed);
-//	mCharacter->addDebugText(debug_text);
+	mAnimSpeed = llclamp(mAnimSpeed, -ANIM_SPEED_MAX, ANIM_SPEED_MAX);
+	char debug_text[64];
+	sprintf(debug_text, "Foot slip vel: %.2f", footSlipVelocity);
+	mCharacter->addDebugText(debug_text);
+	sprintf(debug_text, "Speed: %.2f", mAvgSpeed);
+	mCharacter->addDebugText(debug_text);
+	sprintf(debug_text, "Speed Adjust: %.2f", mSpeedAdjust);
+	mCharacter->addDebugText(debug_text);
+	sprintf(debug_text, "Animation Playback Speed: %.2f", mAnimSpeed);
+	mCharacter->addDebugText(debug_text);
 	mCharacter->setAnimationData("Walk Speed", &mAnimSpeed);
 
 	// clamp pelvis offset to a 90 degree arc behind the nominal position

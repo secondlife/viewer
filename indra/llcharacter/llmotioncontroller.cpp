@@ -559,8 +559,8 @@ void breakWalkIf(LLMotion *motionp, BOOL flag)
 		(motionp->getID() == ANIM_AGENT_FEMALE_WALK) ||
 		(motionp->getID() == ANIM_AGENT_FEMALE_WALK_NEW) ||
 		(motionp->getID() == ANIM_AGENT_FEMALE_RUN_NEW) ||
-		(motionp->getID() == ANIM_AGENT_FEMALE_WALK_NEW) ||
 		(motionp->getID() == ANIM_AGENT_WALK) ||
+		(motionp->getID() == ANIM_AGENT_WALK_NEW) ||
 		(motionp->getID() == ANIM_AGENT_RUN) ||
 		(motionp->getID() == ANIM_AGENT_RUN_NEW)
 		)
