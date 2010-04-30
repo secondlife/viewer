@@ -125,6 +125,11 @@ protected:
 	 */
 	virtual void init();
 
+	/** setter for mIconCtrl */
+	void setIconCtrl(LLIconCtrl* icon) { mIconCtrl = icon; }
+	/** setter for MTitleCtrl */
+	void setTitleCtrl(LLTextBox* tb) { mTitleCtrl = tb; }
+
 	void setLeftWidgetsWidth(S32 width) { mLeftWidgetsWidth = width; }
 	void setRightWidgetsWidth(S32 width) { mRightWidgetsWidth = width; }
 
@@ -138,6 +143,12 @@ protected:
 	 * Reshape all child widgets - icon, text-box and side widgets
 	 */
 	virtual void reshapeWidgets();
+
+	/** set wearable type icon image */
+	void setIconImage(const LLUIImagePtr& image);
+
+	/** Set item title - inventory item name usually */
+	void setTitle(const std::string& title, const std::string& highlit_text);
 
 private:
 
@@ -155,10 +166,10 @@ private:
 
 	LLViewerInventoryItem* mItem;
 
-	LLIconCtrl*		mIcon;
-	LLTextBox*		mTitle;
+	LLIconCtrl*		mIconCtrl;
+	LLTextBox*		mTitleCtrl;
 
-	LLUIImagePtr	mItemIcon;
+	LLUIImagePtr	mIconImage;
 	std::string		mHighlightedText;
 
 	widget_array_t	mLeftSideWidgets;

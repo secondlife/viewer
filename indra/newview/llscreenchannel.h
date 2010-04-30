@@ -173,6 +173,12 @@ public:
 	void		hideToastsFromScreen();
 	// hide toast by notification id
 	void		hideToast(const LLUUID& notification_id);
+
+	/**
+	 * Closes hidden matched toasts from channel.
+	 */
+	void closeHiddenToasts(const Matcher& matcher);
+
 	// removes all toasts from a channel
 	void		removeToastsFromChannel();
 	// show all toasts in a channel

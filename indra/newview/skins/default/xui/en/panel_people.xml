@@ -490,6 +490,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          label="Share"
          layout="topleft"
          name="share_btn"
+         tool_tip="Share an inventory item"
          width="62" />
         <button
          follows="bottom|left"

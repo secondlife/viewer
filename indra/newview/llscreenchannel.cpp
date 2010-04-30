@@ -706,6 +706,31 @@ void LLScreenChannel::hideToast(const LLUUID& notification_id)
 	}
 }
 
+void LLScreenChannel::closeHiddenToasts(const Matcher& matcher)
+{
+	// since we can't guarantee that close toast operation doesn't change mToastList
+	// we collect matched toasts that should be closed into separate list
+	std::list<ToastElem> toasts;
+	for (std::vector<ToastElem>::iterator it = mToastList.begin(); it
+			!= mToastList.end(); it++)
+	{
+		LLToast * toast = it->toast;
+		// add to list valid toast that match to provided matcher criteria
+		if (toast != NULL && !toast->isDead() && toast->getNotification() != NULL
+				&& !toast->getVisible() && matcher.matches(toast->getNotification()))
+		{
+			toasts.push_back(*it);
+		}
+	}
+
+	// close collected toasts
+	for (std::list<ToastElem>::iterator it = toasts.begin(); it
+			!= toasts.end(); it++)
+	{
+		it->toast->closeFloater();
+	}
+}
+
 //--------------------------------------------------------------------------
 void LLScreenChannel::removeToastsFromChannel()
 {

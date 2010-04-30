@@ -582,3 +582,26 @@ BOOL get_is_item_worn(const LLUUID& id)
 	}
 	return FALSE;
 }
+
+
+void change_item_parent(LLInventoryModel* model,
+									 LLViewerInventoryItem* item,
+									 const LLUUID& new_parent_id,
+									 BOOL restamp)
+{
+	if (item->getParentUUID() != new_parent_id)
+	{
+		LLInventoryModel::update_list_t update;
+		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
+		update.push_back(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+		update.push_back(new_folder);
+		gInventory.accountForUpdate(update);
+
+		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+		new_item->setParent(new_parent_id);
+		new_item->updateParentOnServer(restamp);
+		model->updateItem(new_item);
+		model->notifyObservers();
+	}
+}
