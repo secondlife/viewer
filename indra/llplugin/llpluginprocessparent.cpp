@@ -670,12 +670,15 @@ void LLPluginProcessParent::updatePollset()
 	{
 		if(!sPollSet && (count > 0))
 		{
+#ifdef APR_POLLSET_NOCOPY
 			// The pollset doesn't exist yet.  Create it now.
 			apr_status_t status = apr_pollset_create(&sPollSet, count, gAPRPoolp, APR_POLLSET_NOCOPY);
 			if(status != APR_SUCCESS)
 			{
+#endif // APR_POLLSET_NOCOPY
 				LL_WARNS("PluginPoll") << "Couldn't create pollset.  Falling back to non-pollset mode." << LL_ENDL;
 				sPollSet = NULL;
+#ifdef APR_POLLSET_NOCOPY
 			}
 			else
 			{
@@ -698,6 +701,7 @@ void LLPluginProcessParent::updatePollset()
 					}
 				}
 			}
+#endif // APR_POLLSET_NOCOPY
 		}
 	}
 }
