@@ -3950,7 +3950,6 @@ void LLAppViewer::idleNetwork()
 {
 	LLMemType mt_in(LLMemType::MTYPE_IDLE_NETWORK);
 	pingMainloopTimeout("idleNetwork");
-	LLError::LLCallStacks::clear() ;
 	
 	gObjectList.mNumNewObjects = 0;
 	S32 total_decoded = 0;
