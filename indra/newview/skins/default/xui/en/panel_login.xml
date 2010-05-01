@@ -13,7 +13,7 @@ top="600"
 </panel.string>
 <panel.string
      name="real_url" translate="false">
-       http://secondlife.com/app/login/
+  http://www.yahoo.com/
 </panel.string>
     <string name="reg_in_client_url" translate="false">
      http://secondlife.eniac15.lindenlab.com/reg-in-client/
