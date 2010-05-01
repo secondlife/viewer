@@ -52,6 +52,7 @@
 #include "object_flags.h"
 #include "llagentconstants.h"
 #include "lldrawable.h"
+#include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
 #include "llface.h"
 #include "llspatialpartition.h"
@@ -73,6 +74,8 @@
 #include "llmeshrepository.h"
 #include "llagent.h"
 #include "llviewermediafocus.h"
+#include "llvoavatar.h"
+
 
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
@@ -3415,6 +3418,33 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
 static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
+LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
+{
+	LLVOAvatar* avatar = vobj->getAvatar();
+					
+	if (avatar)
+	{
+		LLDrawable* drawable = avatar->mDrawable;
+		if (drawable && drawable->getNumFaces() > 0)
+		{
+			LLFace* face = drawable->getFace(0);
+			if (face)
+			{
+				LLDrawPool* drawpool = face->getPool();
+				if (drawpool)
+				{
+					if (drawpool->getType() == LLDrawPool::POOL_AVATAR)
+					{
+						return (LLDrawPoolAvatar*) drawpool;
+					}
+				}
+			}
+		}
+	}
+
+	return NULL;
+}
+		
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
@@ -3499,13 +3529,47 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					facep->mVertexBuffer = NULL;
 					facep->mLastVertexBuffer = NULL;
 					facep->setState(LLFace::RIGGED);
+					
+					//get drawpool of avatar with rigged face
+					LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
+					
+					if (pool)
+					{
+						const LLTextureEntry* te = facep->getTextureEntry();
+
+						//remove face from old pool if it exists
+						LLDrawPool* old_pool = facep->getPool();
+						if (old_pool && old_pool->getType() == LLDrawPool::POOL_AVATAR)
+						{
+							((LLDrawPoolAvatar*) old_pool)->removeRiggedFace(facep);
+						}
+
+						//add face to new pool
+						if (te->getShiny())
+						{
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY_SIMPLE);
+						}
+						else
+						{
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
+						}
+					}
+
 				}
 
 				continue;
 			}
 			else
 			{
-				facep->clearState(LLFace::RIGGED);
+				if (facep->isState(LLFace::RIGGED))
+				{ //face is not rigged but used to be, remove from rigged face pool
+					LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*) facep->getPool();
+					if (pool)
+					{
+						pool->removeRiggedFace(facep);
+					}
+					facep->clearState(LLFace::RIGGED);
+				}
 			}
 
 			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)

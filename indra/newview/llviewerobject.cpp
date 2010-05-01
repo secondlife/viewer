@@ -5219,6 +5219,25 @@ void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplif
 	return ;
 }
 
+//virtual
+LLVOAvatar* LLViewerObject::getAvatar() const
+{
+	if (isAttachment())
+	{
+		LLViewerObject* vobj = (LLViewerObject*) getParent();
+
+		while (vobj && !vobj->asAvatar())
+		{
+			vobj = (LLViewerObject*) vobj->getParent();
+		}
+
+		return (LLVOAvatar*) vobj;
+	}
+
+	return NULL;
+}
+
+
 class ObjectPhysicsProperties : public LLHTTPNode
 {
 public:

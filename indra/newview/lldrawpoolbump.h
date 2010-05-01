@@ -41,6 +41,7 @@
 class LLImageRaw;
 class LLSpatialGroup;
 class LLDrawInfo;
+class LLGLSLShader;
 class LLViewerFetchedTexture;
 
 class LLDrawPoolBump : public LLRenderPass
@@ -78,6 +79,9 @@ public:
 	void beginBump();
 	void renderBump();
 	void endBump();
+
+	static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible);
+	static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible);
 
 	virtual S32 getNumDeferredPasses();
 	/*virtual*/ void beginDeferredPass(S32 pass);
