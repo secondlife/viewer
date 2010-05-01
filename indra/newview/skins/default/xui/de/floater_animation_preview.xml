@@ -142,35 +142,35 @@ Maximal erlaubt sind [MAX_LENGTH] Sekunden.
 		Ausdruck
 	</text>
 	<combo_box label="" name="emote_combo" tool_tip="Steuert Gesichtsregungen während der Animation">
-		<combo_box.item label="(Keiner)" name="[None]"/>
-		<combo_box.item label="Aaaaah" name="Aaaaah"/>
-		<combo_box.item label="Ängstlich" name="Afraid"/>
-		<combo_box.item label="Verärgert" name="Angry"/>
-		<combo_box.item label="Grinst" name="BigSmile"/>
-		<combo_box.item label="Gelangweilt" name="Bored"/>
-		<combo_box.item label="Weinen" name="Cry"/>
-		<combo_box.item label="Verachten" name="Disdain"/>
-		<combo_box.item label="Verlegen" name="Embarrassed"/>
-		<combo_box.item label="Stirnrunzeln" name="Frown"/>
-		<combo_box.item label="Küssen" name="Kiss"/>
-		<combo_box.item label="Lachen" name="Laugh"/>
-		<combo_box.item label="Bäääh" name="Plllppt"/>
-		<combo_box.item label="Angewidert" name="Repulsed"/>
-		<combo_box.item label="Traurig" name="Sad"/>
-		<combo_box.item label="Schulterzucken" name="Shrug"/>
-		<combo_box.item label="Lächeln" name="Smile"/>
-		<combo_box.item label="Überraschung" name="Surprise"/>
-		<combo_box.item label="Zwinkern" name="Wink"/>
-		<combo_box.item label="Sorgenvoll" name="Worry"/>
+		<item label="(Keiner)" name="[None]" value=""/>
+		<item label="Aaaaah" name="Aaaaah" value="Aaaaah"/>
+		<item label="Ängstlich" name="Afraid" value="Ängstlich"/>
+		<item label="Verärgert" name="Angry" value="Verärgert"/>
+		<item label="Grinst" name="BigSmile" value="Grinsend"/>
+		<item label="Gelangweilt" name="Bored" value="Gelangweilt"/>
+		<item label="Weinen" name="Cry" value="Weinen"/>
+		<item label="Verachten" name="Disdain" value="Verachten"/>
+		<item label="Verlegen" name="Embarrassed" value="Verlegen"/>
+		<item label="Stirnrunzeln" name="Frown" value="Stirnrunzeln"/>
+		<item label="Küssen" name="Kiss" value="Küssen"/>
+		<item label="Lachen" name="Laugh" value="Lachen"/>
+		<item label="Bäääh" name="Plllppt" value="Bäääh"/>
+		<item label="Angewidert" name="Repulsed" value="Angewidert"/>
+		<item label="Traurig" name="Sad" value="Traurig"/>
+		<item label="Schulterzucken" name="Shrug" value="Schulterzucken"/>
+		<item label="Lächeln" name="Smile" value="Lächeln"/>
+		<item label="Überraschung" name="Surprise" value="Überraschung"/>
+		<item label="Zwinkern" name="Wink" value="Zwinkern"/>
+		<item label="Sorgenvoll" name="Worry" value="Sorgenvoll"/>
 	</combo_box>
 	<text name="preview_label" width="97">
 		Vorschau während:
 	</text>
 	<combo_box label="" left_delta="107" name="preview_base_anim" tool_tip="Hiermit können Sie das Verhalten Ihres Avatars testen, während Ihr Avatar normale Bewegungen ausführt.">
-		<combo_box.item label="Stehend" name="Standing"/>
-		<combo_box.item label="Geht" name="Walking"/>
-		<combo_box.item label="Sitzt" name="Sitting"/>
-		<combo_box.item label="Fliegen" name="Flying"/>
+		<item label="Stehend" name="Standing" value="Stehend"/>
+		<item label="Geht" name="Walking" value="Gehend"/>
+		<item label="Sitzt" name="Sitting" value="Sitzend"/>
+		<item label="Fliegen" name="Flying" value="Fliegen"/>
 	</combo_box>
 	<spinner label="Eingang glätten (s)" label_width="105" name="ease_in_time" tool_tip="Einblendungsgeschwindigkeit von Animationen (in Sekunden)" width="175"/>
 	<spinner bottom_delta="-20" label="Ausgang glätten (s)" label_width="105" left="10" name="ease_out_time" tool_tip="Ausblendegeschwindigkeit von Animationen (in Sekunden)" width="175"/>

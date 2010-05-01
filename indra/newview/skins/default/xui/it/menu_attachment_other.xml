@@ -10,7 +10,7 @@
 	<menu_item_call label="Segnala" name="abuse"/>
 	<menu_item_call label="Congela" name="Freeze..."/>
 	<menu_item_call label="Espelli" name="Eject..."/>
-	<menu_item_call label="Debug" name="Debug..."/>
+	<menu_item_call label="Debug delle texture" name="Debug..."/>
 	<menu_item_call label="Zoom avanti" name="Zoom In"/>
 	<menu_item_call label="Paga" name="Pay..."/>
 	<menu_item_call label="Profilo dell&apos;oggetto" name="Object Inspect"/>

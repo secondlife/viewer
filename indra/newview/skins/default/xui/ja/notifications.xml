@@ -374,7 +374,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		ピック「 [PICK] 」を削除しますか？
+		&lt;nolink&gt;[PICK]&lt;/nolink&gt; を削除しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -958,6 +958,16 @@ L$ は返金されません。
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
+	<notification label="アウトフィットを保存する" name="SaveOutfitAs">
+		着用中のアウトフィットを新しいアウトフットとして保存：
+		<form name="form">
+			<input name="message">
+				[DESC] （新）
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="キャンセル"/>
+		</form>
+	</notification>
 	<notification name="RemoveFromFriends">
 		[FIRST_NAME] [LAST_NAME] をフレンドリストから削除しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
@@ -1456,6 +1466,10 @@ F1 キーを押してください。
 		[CLASSIFIED] にテレポートしますか？
 		<usetemplate ignoretext="クラシファイド広告の場所にテレポートしたいかどうかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
 	</notification>
+	<notification name="TeleportToHistoryEntry">
+		[HISTORY_ENTRY] にテレポートしますか？
+		<usetemplate ignoretext="履歴の場所にテレポートしたいかどうかの確認" name="okcancelignore" notext="キャンセル" yestext="テレポート"/>
+	</notification>
 	<notification label="あなたの不動産内の全員にメッセージを送信" name="MessageEstate">
 		今あなたの不動産にいる人全員に送る、短いメッセージを入力してください。
 		<form name="form">
@@ -1546,6 +1560,9 @@ F1 キーを押してください。
 			<button default="true" name="Cancel" text="閉じる"/>
 			<ignore name="ignore" text="選択したレーティング区分が原因で、リージョンに入れないとき"/>
 		</form>
+	</notification>
+	<notification name="PreferredMaturityChanged">
+		あなたのレーティング区分設定は現在 [RATING] です。
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		あなたのレーティング区分により、この土地を取得することはできません。 年齢を確認する際の情報に不足があったためと考えられます。
@@ -1970,6 +1987,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="SystemMessageTip">
 		[MESSAGE]
 	</notification>
+	<notification name="IMSystemMessageTip">
+		[MESSAGE]
+	</notification>
 	<notification name="Cancelled">
 		取り消されました。
 	</notification>
@@ -1997,6 +2017,11 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="UploadingAuctionSnapshot">
 		インワールドと Web サイトのスナップショットをアップロード中です...
 （所要時間：約 5 分）
+	</notification>
+	<notification name="UploadConfirmation">
+		アップロード料金は L$[AMOUNT] です。
+続けますか？
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="アップロード"/>
 	</notification>
 	<notification name="UploadPayment">
 		アップロードに L$ [AMOUNT] 支払いました。
@@ -2346,9 +2371,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] はテレポートであなたを呼んでいます。
+		[NAME_SLURL] はテレポートであなたを呼んでいます。
 
-[MESSAGE]
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
 		<form name="form">
 			<button name="Teleport" text="テレポート"/>
 			<button name="Cancel" text="取り消し"/>
@@ -2366,12 +2391,11 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME]は、
-フレンド登録を申し込んでいます。
+		[NAME_SLURL] はフレンド登録を申し込んでいます。
 
 [MESSAGE]
 
-（デフォルトでお互いのオンライン状態を見ることができるようになります。）
+（デフォルト設定だとお互いのオンライン状態を見ることができます）
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="辞退"/>
@@ -2435,6 +2459,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="FailedToFindWearable">
 		データベースに [DESC] という名前の [TYPE] が見つかりませんでした。
 	</notification>
+	<notification name="ShareToWebFailed">
+		Web サイトへの画像のアップロードに失敗しました。
+	</notification>
 	<notification name="InvalidWearable">
 		着用しようとしているアイテムはあなたのビューワでは読み込むことができません。 [APP_NAME] のバージョンをアップグレードしてからこのアイテムを着用してください。
 	</notification>
@@ -2474,14 +2501,6 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="無視する"/>
-		</form>
-	</notification>
-	<notification name="ScriptToast">
-		[FIRST] [LAST] の「 [TITLE] 」は、住人インプットをリクエストしています。
-		<form name="form">
-			<button name="Open" text="ダイアログを開く"/>
-			<button name="Ignore" text="無視"/>
-			<button name="Block" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2638,6 +2657,12 @@ M キーを押して変更します。
 	<notification name="BottomTrayButtonCanNotBeShown">
 		選択したボタンを現在表示することができません。
 じゅうぶんなスペースができればボタンは表示されます。
+	</notification>
+	<notification name="ShareNotification">
+		住人選択画面に表示された人に、持ち物からアイテムをドラッグ
+	</notification>
+	<notification name="AvatarRezNotification">
+		アバター名「 [NAME] 」が [TIME] 秒で出現します。
 	</notification>
 	<global name="UnsupportedCPU">
 		- あなたの CPU の速度は必須動作環境の条件を満たしていません。

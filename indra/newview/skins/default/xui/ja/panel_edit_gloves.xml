@@ -4,7 +4,9 @@
 		<texture_picker label="生地" name="Fabric" tool_tip="クリックして写真を選択します"/>
 		<color_swatch label="色・色彩配合" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
 	</panel>
-	<accordion name="wearable_accordion">
-		<accordion_tab name="gloves_main_tab" title="手袋"/>
-	</accordion>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="gloves_main_tab" title="手袋"/>
+		</accordion>
+	</panel>
 </panel>

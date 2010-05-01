@@ -4,7 +4,9 @@
 		<texture_picker label="Stoff" name="Fabric" tool_tip="Zum Auswählen eines Bildes hier klicken"/>
 		<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
 	</panel>
-	<accordion name="wearable_accordion">
-		<accordion_tab name="pants_main_tab" title="Hose"/>
-	</accordion>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="pants_main_tab" title="Hose"/>
+		</accordion>
+	</panel>
 </panel>

@@ -11,5 +11,6 @@
 		<button label="Salvar" name="save_btn"/>
 		<button label="Cancelar" name="cancel_btn"/>
 		<button label="Fechar" name="close_btn"/>
+		<button label="Perfil" name="profile_btn"/>
 	</panel>
 </panel>

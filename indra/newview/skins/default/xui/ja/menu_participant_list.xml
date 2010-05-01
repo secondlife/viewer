@@ -8,6 +8,7 @@
 	<menu_item_call label="コール" name="Call"/>
 	<menu_item_call label="共有" name="Share"/>
 	<menu_item_call label="支払う" name="Pay"/>
+	<menu_item_check label="人のアイコン表示" name="View Icons"/>
 	<menu_item_check label="ボイスをブロック" name="Block/Unblock"/>
 	<menu_item_check label="文字をブロックする" name="MuteText"/>
 	<context_menu label="モデレーターのオプション &gt;" name="Moderator Options">

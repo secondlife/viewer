@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
+	<menu_item_call label="Partager" name="Share"/>
 	<menu_item_call label="Acheter" name="Task Buy"/>
 	<menu_item_call label="Ouvrir" name="Task Open"/>
 	<menu_item_call label="Jouer" name="Task Play"/>
@@ -49,9 +50,9 @@
 	<menu_item_call label="Remplacer la tenue actuelle" name="Replace Outfit"/>
 	<menu_item_call label="Ajouter à la tenue actuelle" name="Add To Outfit"/>
 	<menu_item_call label="Enlever de la tenue actuelle" name="Remove From Outfit"/>
+	<menu_item_call label="Trouver l&apos;original" name="Find Original"/>
 	<menu_item_call label="Purger l&apos;objet" name="Purge Item"/>
 	<menu_item_call label="Restaurer l&apos;objet" name="Restore Item"/>
-	<menu_item_call label="Trouver l&apos;original" name="Find Original"/>
 	<menu_item_call label="Ouvrir" name="Open"/>
 	<menu_item_call label="Propriétés" name="Properties"/>
 	<menu_item_call label="Renommer" name="Rename"/>

@@ -5,10 +5,12 @@
 		<texture_picker label="上部のタトゥー" name="Upper Tattoos" tool_tip="クリックして写真を選択"/>
 		<texture_picker label="下部のタトゥー" name="Lower Tattoos" tool_tip="クリックして写真を選択"/>
 	</panel>
-	<accordion name="wearable_accordion">
-		<accordion_tab name="skin_color_tab" title="肌の色"/>
-		<accordion_tab name="skin_face_tab" title="顔の詳細"/>
-		<accordion_tab name="skin_makeup_tab" title="メイクアップ"/>
-		<accordion_tab name="skin_body_tab" title="身体の詳細"/>
-	</accordion>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="skin_color_tab" title="肌の色"/>
+			<accordion_tab name="skin_face_tab" title="顔の詳細"/>
+			<accordion_tab name="skin_makeup_tab" title="メイクアップ"/>
+			<accordion_tab name="skin_body_tab" title="身体の詳細"/>
+		</accordion>
+	</panel>
 </panel>

@@ -94,8 +94,13 @@
 	<panel label="Chemise" name="wearable_type_panel">
 		<text name="description_text" value="Silhouette :"/>
 	</panel>
+	<panel label="gear_buttom_panel" name="gear_buttom_panel">
+		<button name="friends_viewsort_btn" tool_tip="Options"/>
+		<button name="add_btn" tool_tip="TODO"/>
+		<button name="del_btn" tool_tip="TODO"/>
+	</panel>
 	<panel name="button_panel">
 		<button label="Enregistrer sous" name="save_as_button"/>
-		<button label="Rétablir" width="130" name="revert_button"/>
+		<button label="Rétablir" name="revert_button" width="130"/>
 	</panel>
 </panel>

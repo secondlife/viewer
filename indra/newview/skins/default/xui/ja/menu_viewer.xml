@@ -31,6 +31,7 @@
 		<menu_item_call label="スナップショット" name="Take Snapshot"/>
 		<menu_item_call label="現在地をランドマーク" name="Create Landmark Here"/>
 		<menu label="場所のプロフィール" name="Land">
+			<menu_item_call label="場所のプロフィール" name="Place Profile"/>
 			<menu_item_call label="土地情報" name="About Land"/>
 			<menu_item_call label="地域 / 不動産" name="Region/Estate"/>
 		</menu>
@@ -65,17 +66,6 @@
 			<menu_item_call label="編集ツール" name="Edit"/>
 			<menu_item_call label="作成ツール" name="Create"/>
 			<menu_item_call label="土地ツール" name="Land"/>
-		</menu>
-		<menu label="編集" name="Edit">
-			<menu_item_call label="元に戻す" name="Undo"/>
-			<menu_item_call label="やり直し" name="Redo"/>
-			<menu_item_call label="切り取り" name="Cut"/>
-			<menu_item_call label="コピー" name="Copy"/>
-			<menu_item_call label="貼り付け" name="Paste"/>
-			<menu_item_call label="削除" name="Delete"/>
-			<menu_item_call label="複製" name="Duplicate"/>
-			<menu_item_call label="すべて選択" name="Select All"/>
-			<menu_item_call label="選択解除" name="Deselect"/>
 		</menu>
 		<menu_item_call label="リンク" name="Link"/>
 		<menu_item_call label="リンクを外す" name="Unlink"/>
@@ -124,6 +114,7 @@
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
 	</menu>
 	<menu label="アドバンス" name="Advanced">
+		<menu_item_check label="アドバンスメニューを表示する" name="Show Advanced Menu"/>
 		<menu_item_call label="自分のアニメーションを停止する" name="Stop Animating My Avatar"/>
 		<menu_item_call label="テクスチャのリベークをする" name="Rebake Texture"/>
 		<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
@@ -145,7 +136,6 @@
 			<menu_item_check label="透明部分をハイライトする" name="Highlight Transparent"/>
 			<menu_item_check label="HUD を表示する" name="Show HUD Attachments"/>
 			<menu_item_check label="一人称視点のときに十字線を表示する" name="ShowCrosshairs"/>
-			<menu_item_check label="土地のツールチップを表示する" name="Land Tips"/>
 		</menu>
 		<menu label="レンダリング（種類）" name="Rendering Types">
 			<menu_item_check label="シンプル" name="Simple"/>

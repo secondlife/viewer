@@ -2,12 +2,11 @@
 <floater name="godtools floater" title="FERRAMENTAS DE DEUS">
 	<tab_container name="GodTools Tabs">
 		<panel label="Grade" name="grid">
-			<button label="Chutar todos" label_selected="Chutar todos" name="Kick all users"/>
 			<button label="Limpar os cachês de visibilidade do mapa da região." label_selected="Limpar os cachês de visibilidade do mapa da região." name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="Região" name="region">
-			<text name="Sim Name:">
-				Nome do Simulador:
+			<text name="Region Name:">
+				Nome da região:
 			</text>
 			<check_box label="Prelúdio" name="check prelude" tool_tip="Ajustar para tornar esta região um prelúdio."/>
 			<check_box label="Fixar Sol" name="check fixed sun" tool_tip="Fixa a posição do sol (como em Região/Estados) &gt; Terreno."/>
@@ -47,8 +46,8 @@
 			<button label="Autosalvar Agora" label_selected="Autosalvar Agora" name="Autosave now" tool_tip="Salvar estado compactado para o diretório de gravação automática."/>
 		</panel>
 		<panel label="Objetos" name="objects">
-			<text name="Sim Name:">
-				Sim Nome:
+			<text name="Region Name:">
+				Nome da região:
 			</text>
 			<text name="region name">
 				Welsh

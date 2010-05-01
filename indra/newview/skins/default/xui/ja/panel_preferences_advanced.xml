@@ -20,6 +20,9 @@
 	<check_box label="吹き出しチャット" name="bubble_text_chat"/>
 	<slider label="透明度" name="bubble_chat_opacity"/>
 	<color_swatch name="background" tool_tip="吹き出しチャットの色を選択します"/>
+	<text name="UI Size:">
+		UI サイズ
+	</text>
 	<check_box label="スクリプトのエラーを表示：" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="近くのチャット" name="0"/>
@@ -29,4 +32,5 @@
 	<line_editor label="プッシュ・トゥ・スピークのトリガー" name="modifier_combo"/>
 	<button label="キー設定" name="set_voice_hotkey_button"/>
 	<button label="マウスの中央ボタン" name="set_voice_middlemouse_button" tool_tip="マウスの中央ボタンにリセットします"/>
+	<button label="その他のディバイス" name="joystick_setup_button"/>
 </panel>

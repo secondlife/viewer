@@ -20,6 +20,9 @@
 	<check_box label="Bulles de chat" name="bubble_text_chat"/>
 	<slider label="Opacité" name="bubble_chat_opacity"/>
 	<color_swatch name="background" tool_tip="Choisir la couleur des bulles de chat"/>
+	<text name="UI Size:">
+		Taille de l&apos;interface
+	</text>
 	<check_box label="Afficher les erreurs de script dans :" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Chat près de moi" name="0"/>
@@ -29,4 +32,5 @@
 	<line_editor label="Touche de contrôle de la fonction Appuyer pour parler" name="modifier_combo"/>
 	<button label="Définir la touche" name="set_voice_hotkey_button"/>
 	<button label="Bouton central de la souris" name="set_voice_middlemouse_button" tool_tip="Réinitialiser sur le bouton central de la souris"/>
+	<button label="Autres accessoires" name="joystick_setup_button"/>
 </panel>
