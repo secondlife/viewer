@@ -1,5 +1,5 @@
 /** 
- * @file dummy_volume_catcher.cpp
+ * @file mac_volume_catcher.cpp
  * @brief A Mac OS X specific hack to control the volume level of all audio channels opened by a process.
  *
  * @cond
@@ -98,7 +98,7 @@ VolumeCatcherImpl *VolumeCatcherImpl::getInstance()
 VolumeCatcherImpl::VolumeCatcherImpl()
 {
 	mVolume = 1.0;	// default to full volume
-	mPan = 0.5;		// and center pan
+	mPan = 0.0;		// and center pan
 		
 	ComponentDescription desc;
 	desc.componentType = kAudioUnitType_Output;

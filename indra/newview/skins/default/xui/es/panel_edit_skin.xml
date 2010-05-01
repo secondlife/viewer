@@ -5,10 +5,12 @@
 		<texture_picker label="Tatuajes superiores" name="Upper Tattoos" tool_tip="Pulsa para elegir una imagen"/>
 		<texture_picker label="Tatuajes inferiores" name="Lower Tattoos" tool_tip="Pulsa para elegir una imagen"/>
 	</panel>
-	<accordion name="wearable_accordion">
-		<accordion_tab name="skin_color_tab" title="Color de la piel"/>
-		<accordion_tab name="skin_face_tab" title="Detalles faciales"/>
-		<accordion_tab name="skin_makeup_tab" title="Maquillaje"/>
-		<accordion_tab name="skin_body_tab" title="Detalles del cuerpo"/>
-	</accordion>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="skin_color_tab" title="Color de la piel"/>
+			<accordion_tab name="skin_face_tab" title="Detalles faciales"/>
+			<accordion_tab name="skin_makeup_tab" title="Maquillaje"/>
+			<accordion_tab name="skin_body_tab" title="Detalles del cuerpo"/>
+		</accordion>
+	</panel>
 </panel>

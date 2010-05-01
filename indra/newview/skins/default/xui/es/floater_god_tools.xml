@@ -2,12 +2,11 @@
 <floater name="godtools floater" title="HERRAMIENTAS DE DIOS">
 	<tab_container name="GodTools Tabs">
 		<panel label="Red" name="grid">
-			<button label="Expulsar a todos los Residentes" label_selected="Expulsar a todos los Residentes" name="Kick all users"/>
 			<button label="Vaciar los caches de visibilidad del mapa de la región" label_selected="Vaciar los caches de visibilidad del mapa de la región" name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="Región" name="region">
-			<text name="Sim Name:">
-				Nombre del Sim:
+			<text name="Region Name:">
+				Nombre de la región:
 			</text>
 			<check_box label="Preludio" name="check prelude" tool_tip="Defina esté para hacer un preludio de la región."/>
 			<check_box label="Sol fijo" name="check fixed sun" tool_tip="Fijar la posición del sol (así como en Región/Propiedad &gt; Terreno."/>
@@ -47,8 +46,8 @@
 			<button label="Guardado automático ahora" label_selected="Guardado automático ahora" name="Autosave now" tool_tip="Guardar estado con gzip en el directorio de guardado automático."/>
 		</panel>
 		<panel label="Objetos" name="objects">
-			<text name="Sim Name:">
-				Nombre del Sim:
+			<text name="Region Name:">
+				Nombre de la región:
 			</text>
 			<text name="region name">
 				Galés

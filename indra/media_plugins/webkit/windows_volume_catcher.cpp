@@ -34,7 +34,6 @@
 #include "volume_catcher.h"
 #include <windows.h>
 #include "llsingleton.h"
-
 class VolumeCatcherImpl : public LLSingleton<VolumeCatcherImpl>
 {
 friend LLSingleton<VolumeCatcherImpl>;
@@ -48,8 +47,8 @@ private:
 	VolumeCatcherImpl();
 	~VolumeCatcherImpl();
 
-	typedef void (*set_volume_func_t)(F32);
-	typedef void (*set_mute_func_t)(bool);
+	typedef void (WINAPI *set_volume_func_t)(F32);
+	typedef void (WINAPI *set_mute_func_t)(bool);
 
 	set_volume_func_t mSetVolumeFunc;
 	set_mute_func_t mSetMuteFunc;
@@ -57,7 +56,6 @@ private:
 	F32 	mVolume;
 	F32 	mPan;
 };
-
 VolumeCatcherImpl::VolumeCatcherImpl()
 :	mVolume(1.0f),	// default volume is max
 	mPan(0.f)		// default pan is centered
@@ -77,10 +75,8 @@ VolumeCatcherImpl::~VolumeCatcherImpl()
 
 void VolumeCatcherImpl::setVolume(F32 volume)
 {
-	//F32 left_volume = volume * min(1.f, 1.f - mPan);
-	//F32 right_volume = volume * max(0.f, 1.f + mPan);
-	
 	mVolume = volume;
+
 	if (mSetMuteFunc)
 	{
 		mSetMuteFunc(volume == 0.f);
@@ -122,4 +118,5 @@ void VolumeCatcher::pump()
 {
 	// No periodic tasks are necessary for this implementation.
 }
+
 

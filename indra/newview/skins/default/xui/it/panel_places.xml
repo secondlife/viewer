@@ -11,5 +11,6 @@
 		<button label="Salva" name="save_btn"/>
 		<button label="Annulla" name="cancel_btn"/>
 		<button label="Chiudi" name="close_btn"/>
+		<button label="Profilo" name="profile_btn"/>
 	</panel>
 </panel>

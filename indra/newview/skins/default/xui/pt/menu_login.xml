@@ -7,18 +7,8 @@
 	<menu label="Ajuda" name="Help">
 		<menu_item_call label="Ajuda do [SECOND_LIFE]" name="Second Life Help"/>
 	</menu>
+	<menu_item_check label="Exibir menu de depuração" name="Show Debug Menu"/>
 	<menu label="Depurar" name="Debug">
-		<menu label="Editar" name="Edit">
-			<menu_item_call label="Desfazer" name="Undo"/>
-			<menu_item_call label="Repetir" name="Redo"/>
-			<menu_item_call label="Cortar" name="Cut"/>
-			<menu_item_call label="Copiar" name="Copy"/>
-			<menu_item_call label="Colar" name="Paste"/>
-			<menu_item_call label="Excluir" name="Delete"/>
-			<menu_item_call label="Replicar" name="Duplicate"/>
-			<menu_item_call label="Selecionar tudo" name="Select All"/>
-			<menu_item_call label="Desfazer seleção" name="Deselect"/>
-		</menu>
 		<menu_item_call label="Mostrar configurações" name="Debug Settings"/>
 		<menu_item_call label="Configurações da interface e cor" name="UI/Color Settings"/>
 		<menu label="Testes de UI" name="UI Tests"/>
@@ -26,5 +16,7 @@
 		<menu_item_call label="Mostrar TOS" name="TOS"/>
 		<menu_item_call label="Mostrar mensagem crítica" name="Critical"/>
 		<menu_item_call label="Teste de navegador web" name="Web Browser Test"/>
+		<menu_item_check label="Exibir seletor da grade" name="Show Grid Picker"/>
+		<menu_item_call label="Exibir painel de notificações" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

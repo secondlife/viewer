@@ -94,6 +94,11 @@
 	<panel label="シャツ" name="wearable_type_panel">
 		<text name="description_text" value="シェイプ："/>
 	</panel>
+	<panel label="gear_buttom_panel" name="gear_buttom_panel">
+		<button name="friends_viewsort_btn" tool_tip="オプション"/>
+		<button name="add_btn" tool_tip="TODO"/>
+		<button name="del_btn" tool_tip="TODO"/>
+	</panel>
 	<panel name="button_panel">
 		<button label="別名で保存" name="save_as_button"/>
 		<button label="元に戻す" name="revert_button"/>

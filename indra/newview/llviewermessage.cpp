@@ -1091,7 +1091,7 @@ void open_inventory_offer(const uuid_vec_t& items, const std::string& from_name)
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Special handling for various types.
-		const LLAssetType::EType asset_type = item->getType();
+		const LLAssetType::EType asset_type = item->getActualType();
 		if (check_offer_throttle(from_name, false)) // If we are throttled, don't display
 		{
 			LL_DEBUGS("Messaging") << "Highlighting inventory item: " << item->getUUID()  << LL_ENDL;

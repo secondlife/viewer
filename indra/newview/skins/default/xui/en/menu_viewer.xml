@@ -1339,6 +1339,16 @@
              function="ToggleControl"
              parameter="RunMultipleThreads" />
         </menu_item_check>
+        <menu_item_check
+         label="Use Plugin Read Thread"
+         name="Use Plugin Read Thread">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="PluginUseReadThread" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="PluginUseReadThread" />
+        </menu_item_check>
         <menu_item_call
          label="Clear Group Cache"
          name="ClearGroupCache">

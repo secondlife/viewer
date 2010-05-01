@@ -32,7 +32,10 @@
         name="Lower Alpha"
         tool_tip="Click to choose a picture"
         top="10"
-        width="94" />
+        width="94" >
+         <texture_picker.commit_callback
+             function="TexturePicker.Commit" />
+       </texture_picker>
        <check_box
         control_name="LowerAlphaTextureInvisible"
         follows="left"
@@ -53,7 +56,10 @@
         name="Upper Alpha"
         tool_tip="Click to choose a picture"
         top="10"
-        width="94" />
+        width="94">
+         <texture_picker.commit_callback
+             function="TexturePicker.Commit" />
+       </texture_picker>
        <check_box
         control_name="UpperAlphaTextureInvisible"
         follows="left"
@@ -74,7 +80,10 @@
         name="Head Alpha"
         tool_tip="Click to choose a picture"
         top="120"
-        width="94" />
+        width="94" >
+         <texture_picker.commit_callback
+             function="TexturePicker.Commit" />
+       </texture_picker>
        <check_box
         control_name="HeadAlphaTextureInvisible"
         follows="left"
@@ -95,7 +104,10 @@
         name="Eye Alpha"
         tool_tip="Click to choose a picture"
         top="120"
-        width="94" />
+        width="94" >
+         <texture_picker.commit_callback
+             function="TexturePicker.Commit" />
+       </texture_picker>
        <check_box
         control_name="Eye AlphaTextureInvisible"
         follows="left"
@@ -116,7 +128,10 @@
         name="Hair Alpha"
         tool_tip="Click to choose a picture"
         top="230"
-        width="94" />
+        width="94" >
+         <texture_picker.commit_callback
+             function="TexturePicker.Commit" />
+       </texture_picker>
        <check_box
         control_name="HairAlphaTextureInvisible"
         follows="left"

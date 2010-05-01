@@ -2881,9 +2881,12 @@ void LLSplashScreenWin32::updateImpl(const std::string& mesg)
 	if( output_str_len>1024 )
 		return;
 
-	WCHAR w_mesg[1024];
+	WCHAR w_mesg[1025];//big enought to keep null terminatos
 
 	MultiByteToWideChar (CP_UTF8, 0, mesg.c_str(), mesg.length(), w_mesg, output_str_len);
+
+	//looks like MultiByteToWideChar didn't add null terminator to converted string, see EXT-4858
+	w_mesg[output_str_len] = 0;
 
 	SendDlgItemMessage(mWindow,
 		666,		// HACK: text id

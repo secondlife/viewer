@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llmimetypes.h"
@@ -732,10 +733,17 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_MEDIA_UPDATE("Update Media");
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 void LLViewerMedia::updateMedia(void *dummy_arg)
 {
+	LLFastTimer t1(FTM_MEDIA_UPDATE);
+	
+	// Enable/disable the plugin read thread
+	LLPluginProcessParent::setUseReadThread(gSavedSettings.getBOOL("PluginUseReadThread"));
+	
 	sAnyMediaShowing = false;
 	sUpdatedCookies = getCookieStore()->getChangedCookies();
 	if(!sUpdatedCookies.empty())
@@ -1578,6 +1586,7 @@ void LLViewerMediaImpl::destroyMediaSource()
 	
 	if(mMediaSource)
 	{
+		mMediaSource->setDeleteOK(true) ;
 		delete mMediaSource;
 		mMediaSource = NULL;
 	}	
@@ -1729,7 +1738,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		}
 				
 		mMediaSource = media_source;
-
+		mMediaSource->setDeleteOK(false) ;
 		updateVolume();
 
 		return true;
@@ -1914,7 +1923,28 @@ void LLViewerMediaImpl::updateVolume()
 {
 	if(mMediaSource)
 	{
-		mMediaSource->setVolume(mRequestedVolume * LLViewerMedia::getVolume());
+		// always scale the volume by the global media volume 
+		F32 volume = mRequestedVolume * LLViewerMedia::getVolume();
+
+		if (mProximityCamera > 0) 
+		{
+			if (mProximityCamera > gSavedSettings.getF32("MediaRollOffMax"))
+			{
+				volume = 0;
+			}
+			else if (mProximityCamera > gSavedSettings.getF32("MediaRollOffMin"))
+			{
+				// attenuated_volume = v / ( 1 + (roll_off_rate * (d - min))^2
+				// the +1 is there so that for distance 0 the volume stays the same
+				F64 adjusted_distance = mProximityCamera - gSavedSettings.getF32("MediaRollOffMin");
+				F64 attenuation = gSavedSettings.getF32("MediaRollOffRate") * adjusted_distance;
+				attenuation = attenuation * attenuation;
+				// the attenuation multiplier should never be more than one since that would increase volume
+				volume = volume * llmin(1.0, 1 /(attenuation + 1));
+			}
+		}
+
+		mMediaSource->setVolume(volume);
 	}
 }
 
@@ -2427,6 +2457,8 @@ void LLViewerMediaImpl::update()
 	}
 	else
 	{
+		updateVolume();
+
 		// If we didn't just create the impl, it may need to get cookie updates.
 		if(!sUpdatedCookies.empty())
 		{
@@ -2999,6 +3031,9 @@ void LLViewerMediaImpl::calculateInterest()
 		LLVector3d agent_global = gAgent.getPositionGlobal() ;
 		LLVector3d global_delta = agent_global - obj_global ;
 		mProximityDistance = global_delta.magVecSquared();  // use distance-squared because it's cheaper and sorts the same.
+
+		LLVector3d camera_delta = gAgentCamera.getCameraPositionGlobal() - obj_global;
+		mProximityCamera = camera_delta.magVec();
 	}
 	
 	if(mNeedsMuteCheck)

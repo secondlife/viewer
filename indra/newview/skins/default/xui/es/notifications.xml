@@ -349,7 +349,7 @@ No se reembolsan las cuotas pagadas.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		¿Borrar el destacado [PICK]?
+		¿Borrar el destacado &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -929,6 +929,16 @@ no tienes el permiso de comprar terreno para el grupo que tienes activado actual
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
+	<notification label="Guardar el vestuario" name="SaveOutfitAs">
+		Guardar como un nuevo vestuario lo que estoy llevando:
+		<form name="form">
+			<input name="message">
+				[DESC] (nuevo)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Cancelar"/>
+		</form>
+	</notification>
 	<notification name="RemoveFromFriends">
 		¿Quieres quitar a [FIRST_NAME] [LAST_NAME] de tu lista de amigos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
@@ -1421,6 +1431,10 @@ Se ocultará el chat y los mensajes instantáneos (éstos recibirán tu Respuest
 		¿Teleportarte a [CLASSIFIED]?
 		<usetemplate ignoretext="Confirmar el teleporte a una localización de los Clasificados" name="okcancelignore" notext="Cancelar" yestext="Teleportar"/>
 	</notification>
+	<notification name="TeleportToHistoryEntry">
+		¿Teleportarse a [HISTORY_ENTRY]?
+		<usetemplate ignoretext="Confirmar que quiero teleportarme a una localización del historial" name="okcancelignore" notext="Cancelar" yestext="Teleportar"/>
+	</notification>
 	<notification label="Mensaje a todo el estado" name="MessageEstate">
 		Escribe un anuncio breve que se enviará a todo el que esté en tu estado.
 		<form name="form">
@@ -1511,6 +1525,9 @@ Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferen
 			<button default="true" name="Cancel" text="Cerrar"/>
 			<ignore name="ignore" text="Mis preferencias sobre nivel de calificación me impiden entrar a esta región"/>
 		</form>
+	</notification>
+	<notification name="PreferredMaturityChanged">
+		Tu preferencia actual de calificación es [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		No puedes reclamar este terreno por su nivel de calificación. Puede deberse a que no hay información validada de tu edad.
@@ -1926,6 +1943,9 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 	<notification name="SystemMessageTip">
 		[MESSAGE]
 	</notification>
+	<notification name="IMSystemMessageTip">
+		[MESSAGE]
+	</notification>
 	<notification name="Cancelled">
 		Cancelado
 	</notification>
@@ -1953,6 +1973,11 @@ Publícala en una página web para que otros puedan acceder fácilmente a esta p
 	<notification name="UploadingAuctionSnapshot">
 		Subiendo fotos del mundo y del sitio web...
 (tardará unos 5 minutos).
+	</notification>
+	<notification name="UploadConfirmation">
+		La subida cuesta [AMOUNT] L$.
+¿Quieres continuar?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Subir"/>
 	</notification>
 	<notification name="UploadPayment">
 		Has pagado [AMOUNT] LS por la subida.
@@ -2295,9 +2320,9 @@ Por favor, vuelve a intentarlo en unos momentos.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] te ofrece teleportarte a su localización:
+		[NAME_SLURL] te ha ofrecido teleportarte a su posición:
 
-[MESSAGE]
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
 		<form name="form">
 			<button name="Teleport" text="Teleportar"/>
 			<button name="Cancel" text="Cancelar"/>
@@ -2315,11 +2340,11 @@ Por favor, vuelve a intentarlo en unos momentos.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME] te está ofreciendo amistad.
+		[NAME_SLURL] te está ofreciendo su amistad.
 
 [MESSAGE]
 
-(Por defecto, podrás ver si están conectados los demás).
+(Por defecto, podrás ver si el otro está conectado)
 		<form name="form">
 			<button name="Accept" text="Aceptar"/>
 			<button name="Decline" text="Rehusar"/>
@@ -2381,6 +2406,9 @@ Del objeto: [OBJECTNAME]; propiedad de: [NAME]?
 	</notification>
 	<notification name="FailedToFindWearable">
 		Búsqueda fallida de [TYPE] de nombre [DESC] en la base de datos.
+	</notification>
+	<notification name="ShareToWebFailed">
+		Fallo al subir la imagen a la web.
 	</notification>
 	<notification name="InvalidWearable">
 		El ítem que quieres vestirte tiene una característica que tu visor no puede leer. Por favor, actualiza tu versión de [APP_NAME] para ponerte este ítem.
@@ -2576,6 +2604,12 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 	<notification name="BottomTrayButtonCanNotBeShown">
 		El botón elegido no se puede mostrar correctamente.
 Se mostrará cuando haya suficiente espacio.
+	</notification>
+	<notification name="ShareNotification">
+		Arrastrar ítems desde el inventario hasta una persona en el perfil del residente.
+	</notification>
+	<notification name="AvatarRezNotification">
+		Avatar de &apos;[NAME]&apos; obtenido en [TIME] segs.
 	</notification>
 	<global name="UnsupportedCPU">
 		- La velocidad de tu CPU no cumple los requerimientos mínimos.

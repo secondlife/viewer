@@ -8,18 +8,8 @@
 		<menu_item_call label="Aide de [SECOND_LIFE]" name="Second Life Help"/>
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
 	</menu>
+	<menu_item_check label="Afficher le menu de débogage" name="Show Debug Menu"/>
 	<menu label="Débogage" name="Debug">
-		<menu label="Éditer" name="Edit">
-			<menu_item_call label="Annuler" name="Undo"/>
-			<menu_item_call label="Refaire" name="Redo"/>
-			<menu_item_call label="Couper" name="Cut"/>
-			<menu_item_call label="Copier" name="Copy"/>
-			<menu_item_call label="Coller" name="Paste"/>
-			<menu_item_call label="Supprimer" name="Delete"/>
-			<menu_item_call label="Dupliquer" name="Duplicate"/>
-			<menu_item_call label="Tout sélectionner" name="Select All"/>
-			<menu_item_call label="Désélectionner" name="Deselect"/>
-		</menu>
 		<menu_item_call label="Afficher les paramètres de débogage" name="Debug Settings"/>
 		<menu_item_call label="Paramètres de couleurs/interface" name="UI/Color Settings"/>
 		<menu_item_call label="Outil d&apos;aperçu XUI" name="UI Preview Tool"/>
@@ -28,5 +18,7 @@
 		<menu_item_call label="Afficher les conditions d&apos;utilisation" name="TOS"/>
 		<menu_item_call label="Afficher le message critique" name="Critical"/>
 		<menu_item_call label="Test du navigateur Web" name="Web Browser Test"/>
+		<menu_item_check label="Afficher le sélecteur de grille" name="Show Grid Picker"/>
+		<menu_item_call label="Afficher la console des notifications" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

@@ -11,10 +11,19 @@
 			Mini
 		</combo_item>
 	</combo_box>
+	<text name="owner_label">
+		Eigentümer
+	</text>
 	<check_box initial_value="false" label="Naviation &amp; Interaktion zulassen" name="perms_owner_interact"/>
 	<check_box initial_value="false" label="Steuerungsleiste anzeigen" name="perms_owner_control"/>
+	<text name="group_label">
+		Gruppe:
+	</text>
 	<check_box initial_value="false" label="Naviation &amp; Interaktion zulassen" name="perms_group_interact"/>
 	<check_box initial_value="false" label="Steuerungsleiste anzeigen" name="perms_group_control"/>
+	<text name="anyone_label">
+		Jeder
+	</text>
 	<check_box initial_value="false" label="Naviation &amp; Interaktion zulassen" name="perms_anyone_interact"/>
 	<check_box initial_value="false" label="Steuerungsleiste anzeigen" name="perms_anyone_control"/>
 </panel>

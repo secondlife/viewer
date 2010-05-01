@@ -2,12 +2,11 @@
 <floater name="godtools floater" title="ゴッド・ツール">
 	<tab_container name="GodTools Tabs">
 		<panel label="グリッド" name="grid">
-			<button label="住人全員を追い出す" label_selected="住人全員を追い出す" name="Kick all users" width="160"/>
 			<button label="この地域の地図の表示キャッシュを消去" label_selected="この地域の地図の表示キャッシュを消去" name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="地域" name="region">
-			<text name="Sim Name:">
-				シム名：
+			<text name="Region Name:">
+				リージョン名：
 			</text>
 			<check_box label="準備" name="check prelude" tool_tip="この設定により、この地域の準備をします。"/>
 			<check_box label="太陽固定" name="check fixed sun" tool_tip="太陽位置を固定（[地域／不動産]＞[地形]の場合と同様）"/>
@@ -52,8 +51,8 @@
 			<panel.string name="no_target">
 				（ターゲットなし）
 			</panel.string>
-			<text name="Sim Name:">
-				シム名：
+			<text name="Region Name:">
+				リージョン名：
 			</text>
 			<text name="region name">
 				ウェルシュ

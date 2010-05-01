@@ -34,10 +34,13 @@
 
 #include "llcofwearables.h"
 
+#include "llagentdata.h"
 #include "llappearancemgr.h"
 #include "llinventory.h"
-#include "llinventoryitemslist.h"
 #include "llinventoryfunctions.h"
+#include "llwearableitemslist.h"
+
+static LLRegisterPanelClassWrapper<LLCOFAccordionListAdaptor> t_cof_accodion_list_adaptor("accordion_list_adaptor");
 
 static LLRegisterPanelClassWrapper<LLCOFWearables> t_cof_wearables("cof_wearables");
 
@@ -91,50 +94,187 @@ void LLCOFWearables::onSelectionChange(LLFlatListView* selected_list)
 
 void LLCOFWearables::refresh()
 {
+	typedef std::vector<LLSD> values_vector_t;
+	typedef std::map<LLFlatListView*, values_vector_t> selection_map_t;
+
+	selection_map_t preserve_selection;
+
+	// Save current selection
+	mAttachments->getSelectedValues(preserve_selection[mAttachments]);
+	mClothing->getSelectedValues(preserve_selection[mClothing]);
+	mBodyParts->getSelectedValues(preserve_selection[mBodyParts]);
+
 	clear();
 
 	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	
-	gInventory.collectDescendents(LLAppearanceMgr::getInstance()->getCOF(), cats, items, LLInventoryModel::EXCLUDE_TRASH);
-	if (items.empty()) return;
+	LLInventoryModel::item_array_t cof_items;
 
-	for (U32 i = 0; i < items.size(); ++i)
+	gInventory.collectDescendents(LLAppearanceMgr::getInstance()->getCOF(), cats, cof_items, LLInventoryModel::EXCLUDE_TRASH);
+
+	populateAttachmentsAndBodypartsLists(cof_items);
+
+
+	LLAppearanceMgr::wearables_by_type_t clothing_by_type(WT_COUNT);
+	LLAppearanceMgr::getInstance()->divvyWearablesByType(cof_items, clothing_by_type);
+	
+	populateClothingList(clothing_by_type);
+
+	// Restore previous selection
+	for (selection_map_t::iterator
+			 iter = preserve_selection.begin(),
+			 iter_end = preserve_selection.end();
+		 iter != iter_end; ++iter)
 	{
-		LLViewerInventoryItem* item = items.get(i);
+		LLFlatListView* list = iter->first;
+		const values_vector_t& values = iter->second;
+		for (values_vector_t::const_iterator
+				 value_it = values.begin(),
+				 value_it_end = values.end();
+			 value_it != value_it_end; ++value_it)
+		{
+			list->selectItemByValue(*value_it);
+		}
+	}
+}
+
+
+void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel::item_array_t& cof_items)
+{
+	for (U32 i = 0; i < cof_items.size(); ++i)
+	{
+		LLViewerInventoryItem* item = cof_items.get(i);
 		if (!item) continue;
 
-		LLPanelInventoryListItem* item_panel = LLPanelInventoryListItem::createItemPanel(item);
-		if (!item_panel) continue;
-
-		switch (item->getType())
+		const LLAssetType::EType item_type = item->getType();
+		if (item_type == LLAssetType::AT_CLOTHING) continue;
+		LLPanelInventoryListItemBase* item_panel = NULL;
+		if (item_type == LLAssetType::AT_OBJECT)
 		{
-			case LLAssetType::AT_OBJECT:
-				mAttachments->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
-				break;
+				item_panel = LLPanelInventoryListItemBase::create(item);
+			mAttachments->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
+		}
+		else if (item_type == LLAssetType::AT_BODYPART)
+		{
+			item_panel = buildBodypartListItem(item);
+			if (!item_panel) continue;
 
-			case LLAssetType::AT_BODYPART:
-				mBodyParts->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
-				break;
-
-			case LLAssetType::AT_CLOTHING:
-				mClothing->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
-				break;
-
-			default: break;
+			mBodyParts->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
 		}
 	}
 
-	mAttachments->sort(); //*TODO by Name
-	mAttachments->notify(REARRANGE); //notifying the parent about the list's size change (cause items were added with rearrange=false)
-	
-	mClothing->sort(); //*TODO by actual inventory item description
-	mClothing->notify(REARRANGE);
-	
-	mBodyParts->sort(); //*TODO by name
+	if (mAttachments->size())
+	{
+		mAttachments->sort(); //*TODO by Name
+		mAttachments->notify(REARRANGE); //notifying the parent about the list's size change (cause items were added with rearrange=false)
+	}
+
+	if (mBodyParts->size())
+	{
+		mBodyParts->sort(); //*TODO by name
+	}
+
 	mBodyParts->notify(REARRANGE);
 }
 
+//create a clothing list item, update verbs and show/hide line separator
+LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last)
+{
+	llassert(item);
+
+	LLPanelClothingListItem* item_panel = LLPanelClothingListItem::create(item);
+	if (!item_panel) return NULL;
+
+	//updating verbs
+	//we don't need to use permissions of a link but of an actual/linked item
+	if (item->getLinkedItem()) item = item->getLinkedItem();
+
+	bool allow_modify = item->getPermissions().allowModifyBy(gAgentID);
+	
+	item_panel->setShowLockButton(!allow_modify);
+	item_panel->setShowEditButton(allow_modify);
+
+	item_panel->setShowMoveUpButton(!first);
+	item_panel->setShowMoveDownButton(!last);
+
+	//setting callbacks
+	//*TODO move that item panel's inner structure disclosing stuff into the panels
+	item_panel->childSetAction("btn_delete", mCOFCallbacks.mDeleteWearable);
+	item_panel->childSetAction("btn_move_up", mCOFCallbacks.mMoveWearableCloser);
+	item_panel->childSetAction("btn_move_down", mCOFCallbacks.mMoveWearableFurther);
+	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
+	
+	//turning on gray separator line for the last item in the items group of the same wearable type
+	item_panel->childSetVisible("wearable_type_separator_panel", last);
+
+	return item_panel;
+}
+
+LLPanelBodyPartsListItem* LLCOFWearables::buildBodypartListItem(LLViewerInventoryItem* item)
+{
+	llassert(item);
+
+	LLPanelBodyPartsListItem* item_panel = LLPanelBodyPartsListItem::create(item);
+	if (!item_panel) return NULL;
+
+	//updating verbs
+	//we don't need to use permissions of a link but of an actual/linked item
+	if (item->getLinkedItem()) item = item->getLinkedItem();
+
+	bool allow_modify = item->getPermissions().allowModifyBy(gAgentID);
+	item_panel->setShowLockButton(!allow_modify);
+	item_panel->setShowEditButton(allow_modify);
+
+	//setting callbacks
+	//*TODO move that item panel's inner structure disclosing stuff into the panels
+	item_panel->childSetAction("btn_delete", mCOFCallbacks.mDeleteWearable);
+	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
+
+	return item_panel;
+}
+
+void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& clothing_by_type)
+{
+	llassert(clothing_by_type.size() == WT_COUNT);
+
+	for (U32 type = WT_SHIRT; type < WT_COUNT; ++type)
+	{
+		U32 size = clothing_by_type[type].size();
+		if (!size) continue;
+
+		LLAppearanceMgr::sortItemsByActualDescription(clothing_by_type[type]);
+
+		for (U32 i = 0; i < size; i++)
+		{
+			LLViewerInventoryItem* item = clothing_by_type[type][i];
+
+			LLPanelClothingListItem* item_panel = buildClothingListItem(item, i == 0, i == size - 1);
+			if (!item_panel) continue;
+
+			mClothing->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
+		}
+	}
+
+	addClothingTypesDummies(clothing_by_type);
+
+	mClothing->notify(REARRANGE);
+}
+
+//adding dummy items for missing wearable types
+void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by_type_t& clothing_by_type)
+{
+	llassert(clothing_by_type.size() == WT_COUNT);
+	
+	for (U32 type = WT_SHIRT; type < WT_COUNT; type++)
+	{
+		U32 size = clothing_by_type[type].size();
+		if (size) continue;
+
+		EWearableType w_type = static_cast<EWearableType>(type);
+		LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);
+		if(!item_panel) continue;
+		mClothing->addItem(item_panel, LLUUID::null, ADD_BOTTOM, false);
+	}
+}
 
 LLUUID LLCOFWearables::getSelectedUUID()
 {

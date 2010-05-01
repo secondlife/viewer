@@ -44,6 +44,7 @@
 #include "llfoldervieweventlistener.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
+#include "llsidetray.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llviewerregion.h"
@@ -115,6 +116,8 @@ BOOL LLSidepanelAppearance::postBuild()
 	mEditAppearanceBtn = getChild<LLButton>("editappearance_btn");
 	mEditAppearanceBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditAppearanceButtonClicked, this));
 
+	childSetAction("edit_outfit_btn", boost::bind(&LLSidepanelAppearance::onEditOutfitButtonClicked, this));
+
 	mEditBtn = getChild<LLButton>("edit_btn");
 	mEditBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditButtonClicked, this));
 
@@ -154,7 +157,7 @@ BOOL LLSidepanelAppearance::postBuild()
 
 	mCurrentLookName = getChild<LLTextBox>("currentlook_name");
 
-	mOutfitDirtyTag = getChild<LLTextBox>("currentlook_title");
+	mOutfitStatus = getChild<LLTextBox>("currentlook_status");
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
@@ -236,6 +239,13 @@ void LLSidepanelAppearance::onEditAppearanceButtonClicked()
 	{
 		gAgentCamera.changeCameraToCustomizeAvatar();
 	}
+}
+
+void LLSidepanelAppearance::onEditOutfitButtonClicked()
+{
+	LLSD key;
+	key["type"] = "edit_outfit";
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", key);
 }
 
 void LLSidepanelAppearance::onEditButtonClicked()
@@ -339,7 +349,11 @@ void LLSidepanelAppearance::updateVerbs()
 
 void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
-	mOutfitDirtyTag->setVisible(LLAppearanceMgr::getInstance()->isOutfitDirty());
+	// Set current outfit status (wearing/unsaved).
+	bool dirty = LLAppearanceMgr::getInstance()->isOutfitDirty();
+	std::string cof_status_str = getString(dirty ? "Unsaved Changes" : "Now Wearing");
+	mOutfitStatus->setText(cof_status_str);
+
 	if (name == "")
 	{
 		std::string outfit_name;

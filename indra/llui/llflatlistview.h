@@ -264,9 +264,8 @@ public:
 	/** Get number of selected items in the list */
 	U32 numSelected() const {return mSelectedItemPairs.size(); }
 
-	/** Get number of items in the list */
-	U32 size() const { return mItemPairs.size(); }
-
+	/** Get number of (visible) items in the list */
+	U32 size(const bool only_visible_items = true) const;
 
 	/** Removes all items from the list */
 	virtual void clear();
@@ -464,6 +463,17 @@ public:
 	void setNoItemsMsg(const std::string& msg) { mNoItemsMsg = msg; }
 	void setNoFilteredItemsMsg(const std::string& msg) { mNoFilteredItemsMsg = msg; }
 
+	/**
+	 * Sets up new filter string and filters the list.
+	 */
+	void setFilterSubString(const std::string& filter_str);
+	
+	/**
+	 * Filters the list, rearranges and notifies parent about shape changes.
+	 * Derived classes may want to overload rearrangeItems() to exclude repeated separators after filtration.
+	 */
+	void filterItems();
+
 protected:
 	LLFlatListViewEx(const Params& p);
 
@@ -478,6 +488,7 @@ protected:
 private:
 	std::string mNoFilteredItemsMsg;
 	std::string mNoItemsMsg;
+	std::string	mFilterSubString;
 };
 
 #endif

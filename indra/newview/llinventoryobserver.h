@@ -276,19 +276,28 @@ public:
 	LLInventoryCategoriesObserver() {};
 	virtual void changed(U32 mask);
 
-	void addCategory(const LLUUID& cat_id, callback_t cb);
+	/**
+	 * Add cat_id to the list of observed categories with a
+	 * callback fired on category being changed.
+	 *
+	 * @return "true" if category was added, "false" if it could
+	 * not be found.
+	 */
+	bool addCategory(const LLUUID& cat_id, callback_t cb);
 	void removeCategory(const LLUUID& cat_id);
 
 protected:
 	struct LLCategoryData
 	{
-		LLCategoryData(callback_t cb, S32 version)
+		LLCategoryData(callback_t cb, S32 version, S32 num_descendents)
 		: mCallback(cb)
 		, mVersion(version)
+		, mDescendentsCount(num_descendents)
 		{}
 
 		callback_t	mCallback;
 		S32			mVersion;
+		S32			mDescendentsCount;
 	};
 
 	typedef	std::map<LLUUID, LLCategoryData>	category_map_t;

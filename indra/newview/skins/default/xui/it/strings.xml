@@ -255,6 +255,9 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Chiudi (Ctrl+W)
 	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		Chiudi
+	</string>
 	<string name="BUTTON_RESTORE">
 		Ripristina
 	</string>
@@ -293,6 +296,9 @@
 	</string>
 	<string name="GroupNameNone">
 		(nessuno)
+	</string>
+	<string name="AvalineCaller">
+		Chiamante Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Nessun errore
@@ -886,13 +892,13 @@
 		Alto
 	</string>
 	<string name="LeaveMouselook">
-		Premi ESC per tornare in visulizzazione normale
+		Premi ESC per tornare in visualizzazione normale
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Nessun oggetto corrispondente trovato in inventario.  Prova [secondlife:///app/search/groups &quot;Cerca&quot;].
+		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/all Cerca].
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Trascina qui un punto di riferimento per aggiungerlo ai tuoi preferiti.
+		Trascina qui un punto di riferimento per aggiungerlo ai Preferiti.
 	</string>
 	<string name="InventoryNoTexture">
 		Non hai una copia di questa texture nel tuo inventario
@@ -1548,9 +1554,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		Non esiste alcun regolamento per questa proprietà. Il terreno di questa proprietà è messo in vendita dal proprietario, non dalla Linden Lab.  Contatta il proprietario del terreno per i dettagli della vendita.
 	</string>
-	<string name="covenant_last_modified">
-		Ultima modifica:
-	</string>
+	<string name="covenant_last_modified" value="Ultima modifica:"/>
 	<string name="none_text" value="(nessuno)"/>
 	<string name="never_text" value="(mai)"/>
 	<string name="GroupOwned">
@@ -1566,7 +1570,7 @@
 		(si aggiornerà dopo la pubblicazione)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Non hai creato luoghi preferiti né inserzioni. Clicca il pulsante più qui sotto per creare un luogo preferito o un&apos;inserzione.
+		Non hai creato luoghi preferiti né inserzioni. Clicca il pulsante + qui sotto per creare un luogo preferito o un&apos;inserzione.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		L&apos;utente non ha luoghi preferiti né inserzioni
@@ -3227,6 +3231,15 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="LocationCtrlComboBtnTooltip">
 		La cronologia delle mie posizioni
 	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		Regione con categoria adulti
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		Regione con categoria moderata
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		Regione generale
+	</string>
 	<string name="UpdaterWindowTitle">
 		Aggiornamento [APP_NAME]
 	</string>
@@ -3257,6 +3270,12 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 		Errore nell&apos;avvio del viewer
 	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME]: Oggetti in arrivo troppo velocemente da [FROM_NAME], anteprima automatica disattivata per [TIME] secondi
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME]: Oggetti in arrivo troppo velocemente, anteprima automatica disattivata per [TIME] secondi
+	</string>
 	<string name="IM_logging_string">
 		-- Registrazione messaggi instantanei abilitata --
 	</string>
@@ -3283,6 +3302,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="IM_moderator_label">
 		(Moderatore)
+	</string>
+	<string name="answered_call">
+		Risposto alla chiamata
 	</string>
 	<string name="started_call">
 		Chiamata vocale iniziata
@@ -3365,11 +3387,17 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="unread_chat_multiple">
 		[SOURCES] ha detto qualcosa di nuovo
 	</string>
+	<string name="session_initialization_timed_out_error">
+		Sessione di inizializzazione scaduta
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] ti ha inviato un pagamento di L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars">
 		Hai inviato un pagamento di L$[AMOUNT] a [NAME] [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		Hai pagato L$ [AMOUNT].
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		Hai inviato un pagamento di L$[AMOUNT] a [NAME].
@@ -3480,5 +3508,14 @@ Segnala abuso
 	</string>
 	<string name="Contents">
 		Contenuto
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		nessuna/nessuna
+	</string>
+	<string name="texture_load_dimensions_error">
+		Impossibile caricare immagini di dimensioni superiori a [WIDTH]*[HEIGHT]
 	</string>
 </strings>

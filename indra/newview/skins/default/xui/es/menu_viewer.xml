@@ -31,6 +31,7 @@
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Crear un hito de este sitio" name="Create Landmark Here"/>
 		<menu label="Perfil del lugar" name="Land">
+			<menu_item_call label="Perfil del lugar" name="Place Profile"/>
 			<menu_item_call label="Acerca del terreno" name="About Land"/>
 			<menu_item_call label="Región/Estado" name="Region/Estate"/>
 		</menu>
@@ -65,17 +66,6 @@
 			<menu_item_call label="Herramienta Editar" name="Edit"/>
 			<menu_item_call label="Herramienta Crear" name="Create"/>
 			<menu_item_call label="Herramienta Terreno" name="Land"/>
-		</menu>
-		<menu label="Editar" name="Edit">
-			<menu_item_call label="Deshacer" name="Undo"/>
-			<menu_item_call label="Rehacer" name="Redo"/>
-			<menu_item_call label="Cortar" name="Cut"/>
-			<menu_item_call label="Copiar" name="Copy"/>
-			<menu_item_call label="Pegar" name="Paste"/>
-			<menu_item_call label="Eliminar" name="Delete"/>
-			<menu_item_call label="Duplicar" name="Duplicate"/>
-			<menu_item_call label="Seleccionar todo" name="Select All"/>
-			<menu_item_call label="Deseleccionar" name="Deselect"/>
 		</menu>
 		<menu_item_call label="Enlazar" name="Link"/>
 		<menu_item_call label="Desenlazar" name="Unlink"/>
@@ -124,6 +114,7 @@
 		<menu_item_call label="Acerca de [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanzado" name="Advanced">
+		<menu_item_check label="Mostrar el menú Avanzado" name="Show Advanced Menu"/>
 		<menu_item_call label="Parar mis animaciones" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Recargar las texturas" name="Rebake Texture"/>
 		<menu_item_call label="Interfaz en el tamaño predeterminado" name="Set UI Size to Default"/>
@@ -145,7 +136,6 @@
 			<menu_item_check label="Realzar las transparencias" name="Highlight Transparent"/>
 			<menu_item_check label="Mostrar los HUD anexados" name="Show HUD Attachments"/>
 			<menu_item_check label="Mostrar el Punto de Mira en la vista subjetiva" name="ShowCrosshairs"/>
-			<menu_item_check label="Mostrar información complementaria del terreno" name="Land Tips"/>
 		</menu>
 		<menu label="Objetos representados" name="Rendering Types">
 			<menu_item_check label="Simple" name="Simple"/>
@@ -201,7 +191,7 @@
 			<menu_item_call label="Pantalla completa" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="Mostrar las configuraciones del depurador" name="Debug Settings"/>
-		<menu_item_check label="Mostrar el menú 'Develop'" name="Debug Mode"/>
+		<menu_item_check label="Mostrar el menú &apos;Develop&apos;" name="Debug Mode"/>
 	</menu>
 	<menu label="Develop" name="Develop">
 		<menu label="Consoles" name="Consoles">

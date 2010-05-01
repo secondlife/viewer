@@ -10,7 +10,7 @@
 	<menu_item_call label="Signaler" name="abuse"/>
 	<menu_item_call label="Figer" name="Freeze..."/>
 	<menu_item_call label="Expulser" name="Eject..."/>
-	<menu_item_call label="Débogage" name="Debug..."/>
+	<menu_item_call label="Déboguer les textures" name="Debug..."/>
 	<menu_item_call label="Zoomer en avant" name="Zoom In"/>
 	<menu_item_call label="Payer" name="Pay..."/>
 	<menu_item_call label="Profil de l&apos;objet" name="Object Inspect"/>

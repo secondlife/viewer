@@ -5,4 +5,5 @@
 	<menu_item_call label="Mi perfil" name="my_profile"/>
 	<menu_item_call label="Mis amigos" name="my_friends"/>
 	<menu_item_call label="Mis grupos" name="my_groups"/>
+	<menu_item_call label="Depurar las texturas" name="Debug..."/>
 </menu>

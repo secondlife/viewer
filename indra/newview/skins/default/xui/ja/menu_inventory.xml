@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
+	<menu_item_call label="共有" name="Share"/>
 	<menu_item_call label="購入" name="Task Buy"/>
 	<menu_item_call label="開く" name="Task Open"/>
 	<menu_item_call label="再生" name="Task Play"/>
@@ -49,9 +50,9 @@
 	<menu_item_call label="着用中のアウトフィットを入れ替える" name="Replace Outfit"/>
 	<menu_item_call label="着用中のアウトフィットに追加する" name="Add To Outfit"/>
 	<menu_item_call label="着用中のアウトフィットから取り除く" name="Remove From Outfit"/>
+	<menu_item_call label="オリジナルを探す" name="Find Original"/>
 	<menu_item_call label="アイテムを除外する" name="Purge Item"/>
 	<menu_item_call label="アイテムを復元する" name="Restore Item"/>
-	<menu_item_call label="オリジナルを探す" name="Find Original"/>
 	<menu_item_call label="開く" name="Open"/>
 	<menu_item_call label="プロパティ" name="Properties"/>
 	<menu_item_call label="名前を変更する" name="Rename"/>

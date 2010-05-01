@@ -167,8 +167,6 @@ public:
 	}
 
 protected:
-	LLTextureFetchWorker(LLTextureFetch* fetcher, const LLUUID& id, const LLHost& host,
-						 F32 priority, S32 discard, S32 size);
 	LLTextureFetchWorker(LLTextureFetch* fetcher, const std::string& url, const LLUUID& id, const LLHost& host,
 						 F32 priority, S32 discard, S32 size);
 
@@ -215,8 +213,15 @@ private:
 		QUEUED = 1,
 		SENT_SIM = 2
 	};
+	enum e_write_to_cache_state //mWriteToCacheState
+	{
+		NOT_WRITE = 0,
+		CAN_WRITE = 1,
+		SHOULD_WRITE = 2
+	};
 	static const char* sStateDescs[];
 	e_state mState;
+	e_write_to_cache_state mWriteToCacheState;
 	LLTextureFetch* mFetcher;
 	LLPointer<LLImageFormatted> mFormattedImage;
 	LLPointer<LLImageRaw> mRawImage;
@@ -377,6 +382,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 										   S32 size)			// Desired size
 	: LLWorkerClass(fetcher, "TextureFetch"),
 	  mState(INIT),
+	  mWriteToCacheState(NOT_WRITE),
 	  mFetcher(fetcher),
 	  mID(id),
 	  mHost(host),
@@ -595,7 +601,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	}
 
 	if (mState == INIT)
-	{
+	{		
 		mRawImage = NULL ;
 		mRequestedDiscard = -1;
 		mLoadedDiscard = -1;
@@ -636,17 +642,18 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mFileSize = 0;
 			mLoaded = FALSE;
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
-
-			CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
+			
 			if (mUrl.compare(0, 7, "file://") == 0)
 			{
 				// read file from local disk
 				std::string filename = mUrl.substr(7, std::string::npos);
+				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
 				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(filename, mID, cache_priority,
 																		  offset, size, responder);
 			}
 			else if (mUrl.empty())
 			{
+				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
 				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(mID, cache_priority,
 																		  offset, size, responder);
 			}
@@ -659,8 +666,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				mState = SEND_HTTP_REQ;
-				delete responder;
-				responder = NULL;
 			}
 		}
 
@@ -694,6 +699,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			llassert_always(mFormattedImage->getDataSize() > 0);
 			mLoadedDiscard = mDesiredDiscard;
 			mState = DECODE_IMAGE;
+			mWriteToCacheState = NOT_WRITE ;
 			LL_DEBUGS("Texture") << mID << ": Cached. Bytes: " << mFormattedImage->getDataSize()
 								 << " Size: " << llformat("%dx%d",mFormattedImage->getWidth(),mFormattedImage->getHeight())
 								 << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
@@ -735,6 +741,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				if (!http_url.empty())
 				{
 					mUrl = http_url + "/?texture_id=" + mID.asString().c_str();
+					mWriteToCacheState = CAN_WRITE ; //because this texture has a fixed texture id.
 				}
 			}
 			else
@@ -747,12 +754,17 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			mState = LLTextureFetchWorker::SEND_HTTP_REQ;
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+			if(mWriteToCacheState != NOT_WRITE)
+			{
+				mWriteToCacheState = CAN_WRITE ;
+			}
 			// don't return, fall through to next state
 		}
 		else if (mSentRequest == UNSENT)
 		{
 			// Add this to the network queue and sit here.
 			// LLTextureFetch::update() will send off a request which will change our state
+			mWriteToCacheState = CAN_WRITE ;
 			mRequestedSize = mDesiredSize;
 			mRequestedDiscard = mDesiredDiscard;
 			mSentRequest = QUEUED;
@@ -789,6 +801,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			mState = DECODE_IMAGE;
+			mWriteToCacheState = SHOULD_WRITE ;
 		}
 		else
 		{
@@ -850,7 +863,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mState = WAIT_HTTP_REQ;	
 
 				mFetcher->addToHTTPQueue(mID);
-				mSentRequest = QUEUED;
 				// Will call callbackHttpGet when curl request completes
 				std::vector<std::string> headers;
 				headers.push_back("Accept: image/x-j2c");
@@ -933,15 +945,15 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			
 			llassert_always(mBufferSize == cur_size + mRequestedSize);
-			if (mHaveAllData)
+			if (mHaveAllData && mRequestedDiscard == 0) //the image file is fully loaded.
 			{
 				mFileSize = mBufferSize;
 			}
-			else //the file size is unknown
+			else //the file size is unknown.
 			{
-				mFileSize = S32_MAX ; //flag the file is not fully loaded.
+				mFileSize = mBufferSize + 1 ; //flag the file is not fully loaded.
 			}
-
+			
 			U8* buffer = new U8[mBufferSize];
 			if (cur_size > 0)
 			{
@@ -956,6 +968,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mBufferSize = 0;
 			mLoadedDiscard = mRequestedDiscard;
 			mState = DECODE_IMAGE;
+			if(mWriteToCacheState != NOT_WRITE)
+			{
+				mWriteToCacheState = SHOULD_WRITE ;
+			}
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			return false;
 		}
@@ -1055,7 +1071,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == WRITE_TO_CACHE)
 	{
-		if (mInLocalCache || mSentRequest == UNSENT || mFormattedImage.isNull())
+		if (mWriteToCacheState != SHOULD_WRITE || mFormattedImage.isNull())
 		{
 			// If we're in a local cache or we didn't actually receive any new data,
 			// or we failed to load anything, skip
@@ -1063,6 +1079,17 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			return false;
 		}
 		S32 datasize = mFormattedImage->getDataSize();
+		if(mFileSize < datasize)//This could happen when http fetching and sim fetching mixed.
+		{
+			if(mHaveAllData)
+			{
+				mFileSize = datasize ;
+			}
+			else
+			{
+				mFileSize = datasize + 1 ; //flag not fully loaded.
+			}
+		}
 		llassert_always(datasize);
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		U32 cache_priority = mWorkPriority;

@@ -5,7 +5,7 @@
  background_opaque="true"
  background_visible="true"
   follows="all"
- height="570"
+ height="575"
  label="Things"
  layout="topleft"
  min_height="350"
@@ -14,7 +14,7 @@
  border="false">
    <tab_container
      follows="all"
-     height="501"
+     height="509"
      layout="topleft"
      left="7"
      name="appearance_tabs"
@@ -22,6 +22,7 @@
      tab_height="30"
      tab_position="top"
      halign="center"
+     top="8"
      width="312">
          <panel
            class="outfits_list"
@@ -50,8 +51,8 @@
    </tab_container>
 	 <panel
        background_visible="true"
-	  follows="bottom|left"
-	  height="73"
+	  follows="bottom|left|right"
+	  height="57"
 	  layout="topleft"
 	  left="9"
 	  top_pad="-1"
@@ -72,7 +73,7 @@
          top="1"
          width="31" />
      <icon
-      follows="bottom|left"
+      follows="bottom|left|right"
       height="25"
       image_name="Toolbar_Middle_Off"
       layout="topleft"
@@ -82,7 +83,7 @@
         />
 
         <dnd_button
-         follows="bottom|left"
+         follows="bottom|right"
          height="25"
          image_hover_unselected="Toolbar_Right_Over"
           image_overlay="TrashItem_Off"
@@ -104,7 +105,7 @@
        left="0"
       width="153" />
      <button
-      follows="bottom|right" 
+      follows="bottom|left|right" 
       height="23" 
       label="Wear"
       layout="topleft"
@@ -112,16 +113,6 @@
       left_pad="3"
       tool_tip="Wear selected outfit"
       width="152" />
-	 <button
-	  follows="bottom|left"
-		height="23" 
-		label="Edit Outfit" 
-		layout="topleft"
-        right="-140"
-		name="edit_current_outfit_btn"
-        top="26"
-        visible="false" 
-		width="50" />
 	 </panel>
        
 </panel>

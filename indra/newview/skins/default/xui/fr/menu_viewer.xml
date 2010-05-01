@@ -31,6 +31,7 @@
 		<menu_item_call label="Photo" name="Take Snapshot"/>
 		<menu_item_call label="Créer un repère pour ce lieu" name="Create Landmark Here"/>
 		<menu label="Profil du lieu" name="Land">
+			<menu_item_call label="Profil du lieu" name="Place Profile"/>
 			<menu_item_call label="À propos du terrain" name="About Land"/>
 			<menu_item_call label="Région/Domaine" name="Region/Estate"/>
 		</menu>
@@ -65,17 +66,6 @@
 			<menu_item_call label="Outil de modification" name="Edit"/>
 			<menu_item_call label="Outil de création" name="Create"/>
 			<menu_item_call label="Outil Terrain" name="Land"/>
-		</menu>
-		<menu label="Édition" name="Edit">
-			<menu_item_call label="Annuler" name="Undo"/>
-			<menu_item_call label="Refaire" name="Redo"/>
-			<menu_item_call label="Couper" name="Cut"/>
-			<menu_item_call label="Copier" name="Copy"/>
-			<menu_item_call label="Coller" name="Paste"/>
-			<menu_item_call label="Supprimer" name="Delete"/>
-			<menu_item_call label="Dupliquer" name="Duplicate"/>
-			<menu_item_call label="Tout sélectionner" name="Select All"/>
-			<menu_item_call label="Désélectionner" name="Deselect"/>
 		</menu>
 		<menu_item_call label="Lien" name="Link"/>
 		<menu_item_call label="Annuler le lien" name="Unlink"/>
@@ -124,6 +114,7 @@
 		<menu_item_call label="À propos de [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avancé" name="Advanced">
+		<menu_item_check label="Afficher le menu Avancé" name="Show Advanced Menu"/>
 		<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Refixer les textures" name="Rebake Texture"/>
 		<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
@@ -145,7 +136,6 @@
 			<menu_item_check label="Mettre la transparence en surbrillance" name="Highlight Transparent"/>
 			<menu_item_check label="Afficher les éléments HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Afficher le réticule de la vue subjective" name="ShowCrosshairs"/>
-			<menu_item_check label="Afficher les info-bulles de terrain" name="Land Tips"/>
 		</menu>
 		<menu label="Types de rendu" name="Rendering Types">
 			<menu_item_check label="Simple" name="Simple"/>

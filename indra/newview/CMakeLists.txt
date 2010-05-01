@@ -1588,7 +1588,10 @@ if (WINDOWS)
           --login_channel=${VIEWER_LOGIN_CHANNEL}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
-        DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        DEPENDS 
+            ${VIEWER_BINARY_NAME} 
+            ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+            ${COPY_INPUT_DEPENDENCIES}
         )
 
       add_custom_target(package ALL DEPENDS 
