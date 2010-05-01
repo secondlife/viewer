@@ -98,6 +98,7 @@ public:
 	void beginSkinned();
 	void beginRiggedSimple();
 	void beginRiggedFullbright();
+	void beginRiggedFullbrightShiny();
 	void beginRiggedShinySimple();
 
 	void endRigid();
@@ -105,6 +106,7 @@ public:
 	void endSkinned();
 	void endRiggedSimple();
 	void endRiggedFullbright();
+	void endRiggedFullbrightShiny();
 	void endRiggedShinySimple();
 
 	void beginDeferredImpostor();
@@ -127,6 +129,7 @@ public:
 	void renderRiggedSimple(LLVOAvatar* avatar);
 	void renderRiggedFullbright(LLVOAvatar* avatar);
 	void renderRiggedShinySimple(LLVOAvatar* avatar);
+	void renderRiggedFullbrightShiny(LLVOAvatar* avatar);
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
@@ -137,11 +140,11 @@ public:
 	{
 		RIGGED_SIMPLE = 0,
 		RIGGED_FULLBRIGHT,
-		RIGGED_SHINY_SIMPLE,
-		RIGGED_SHINY_FULLBRIGHT,
-		RIGGED_SHINY_BUMP,
-		RIGGED_BUMP,
+		RIGGED_SHINY,
+		RIGGED_FULLBRIGHT_SHINY,
+		RIGGED_GLOW,
 		RIGGED_ALPHA,
+		RIGGED_FULLBRIGHT_ALPHA,
 		NUM_RIGGED_PASSES,
 		RIGGED_UNKNOWN,
 	} eRiggedPass;

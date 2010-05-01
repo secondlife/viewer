@@ -364,7 +364,7 @@ S32 LLDrawPoolAvatar::getNumPasses()
 	}
 	else if (getVertexShaderLevel() > 0)
 	{
-		return 6;
+		return 7;
 	}
 	else
 	{
@@ -416,6 +416,9 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 	case 5:
 		beginRiggedShinySimple();
 		break;
+	case 6:
+		beginRiggedFullbrightShiny();
+		break;
 	}
 }
 
@@ -448,6 +451,9 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 		break;
 	case 5:
 		endRiggedShinySimple();
+		break;
+	case 6:
+		endRiggedFullbrightShiny();
 		break;
 	}
 }
@@ -683,6 +689,24 @@ void LLDrawPoolAvatar::endRiggedShinySimple()
 	LLVertexBuffer::sWeight4Loc = -1;
 }
 
+void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
+{
+	sVertexProgram = &gSkinnedObjectFullbrightShinyProgram;
+	sVertexProgram->bind();
+	LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, diffuse_channel, cube_channel, false);
+	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
+}
+
+void LLDrawPoolAvatar::endRiggedFullbrightShiny()
+{
+	LLVertexBuffer::unbind();
+	LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, diffuse_channel, cube_channel, false);
+	sVertexProgram->unbind();
+	sVertexProgram = NULL;
+	LLVertexBuffer::sWeight4Loc = -1;
+}
+
+
 void LLDrawPoolAvatar::beginDeferredRigged()
 {
 	sVertexProgram = &gDeferredSkinnedDiffuseProgram;
@@ -855,6 +879,12 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	if (pass == 5)
 	{
 		renderRiggedShinySimple(avatarp);
+		return;
+	}
+
+	if (pass == 6)
+	{
+		renderRiggedFullbrightShiny(avatarp);
 		return;
 	}
 
@@ -1037,7 +1067,18 @@ void LLDrawPoolAvatar::renderRiggedShinySimple(LLVOAvatar* avatar)
 							LLVertexBuffer::MAP_COLOR |
 							LLVertexBuffer::MAP_WEIGHT4;
 
-	renderRigged(avatar, RIGGED_SHINY_SIMPLE, data_mask);
+	renderRigged(avatar, RIGGED_SHINY, data_mask);
+}
+
+void LLDrawPoolAvatar::renderRiggedFullbrightShiny(LLVOAvatar* avatar)
+{
+	const U32 data_mask =	LLVertexBuffer::MAP_VERTEX | 
+							LLVertexBuffer::MAP_NORMAL | 
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_COLOR |
+							LLVertexBuffer::MAP_WEIGHT4;
+
+	renderRigged(avatar, RIGGED_FULLBRIGHT_SHINY, data_mask);
 }
 
 //-----------------------------------------------------------------------------

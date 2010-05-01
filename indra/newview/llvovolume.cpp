@@ -3547,7 +3547,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						//add face to new pool
 						if (te->getShiny())
 						{
-							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY_SIMPLE);
+							if (te->getFullbright())
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY);
+							}
+							else
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
+							}
 						}
 						else
 						{
