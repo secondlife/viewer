@@ -297,6 +297,27 @@ void LLFlatListView::setNoItemsCommentText(const std::string& comment_text)
 	mNoItemsCommentTextbox->setValue(comment_text);
 }
 
+U32 LLFlatListView::size(const bool only_visible_items) const
+{
+	if (only_visible_items)
+	{
+		U32 size = 0;
+		for (pairs_const_iterator_t
+				 iter = mItemPairs.begin(),
+				 iter_end = mItemPairs.end();
+			 iter != iter_end; ++iter)
+		{
+			if ((*iter)->first->getVisible())
+				++size;
+		}
+		return size;
+	}
+	else
+	{
+		return mItemPairs.size();
+	}
+}
+
 void LLFlatListView::clear()
 {
 	// do not use LLView::deleteAllChildren to avoid removing nonvisible items. drag-n-drop for ex.
@@ -426,7 +447,7 @@ void LLFlatListView::rearrangeItems()
 {
 	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
-	setNoItemsCommentVisible(mItemPairs.empty());
+	setNoItemsCommentVisible(0==size());
 
 	if (mItemPairs.empty()) return;
 
@@ -745,19 +766,43 @@ LLRect LLFlatListView::getLastSelectedItemRect()
 void LLFlatListView::selectFirstItem	()
 {
 	// No items - no actions!
-	if (mItemPairs.empty()) return;
+	if (0 == size()) return;
 
-	selectItemPair(mItemPairs.front(), true);
-	ensureSelectedVisible();
+	// Select first visible item
+	for (pairs_iterator_t
+			 iter = mItemPairs.begin(),
+			 iter_end = mItemPairs.end();
+		 iter != iter_end; ++iter)
+	{
+		// skip invisible items
+		if ( (*iter)->first->getVisible() )
+		{
+			selectItemPair(*iter, true);
+			ensureSelectedVisible();
+			break;
+		}
+	}
 }
 
 void LLFlatListView::selectLastItem		()
 {
 	// No items - no actions!
-	if (mItemPairs.empty()) return;
+	if (0 == size()) return;
 
-	selectItemPair(mItemPairs.back(), true);
-	ensureSelectedVisible();
+	// Select last visible item
+	for (pairs_list_t::reverse_iterator
+			 r_iter = mItemPairs.rbegin(),
+			 r_iter_end = mItemPairs.rend();
+		 r_iter != r_iter_end; ++r_iter)
+	{
+		// skip invisible items
+		if ( (*r_iter)->first->getVisible() )
+		{
+			selectItemPair(*r_iter, true);
+			ensureSelectedVisible();
+			break;
+		}
+	}
 }
 
 void LLFlatListView::ensureSelectedVisible()
@@ -775,14 +820,14 @@ void LLFlatListView::ensureSelectedVisible()
 bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selection)
 {
 	// No items - no actions!
-	if ( !mItemPairs.size() )
+	if ( 0 == size() )
 		return false;
 
-	
-	item_pair_t* to_sel_pair = NULL;
-	item_pair_t* cur_sel_pair = NULL;
 	if ( mSelectedItemPairs.size() )
 	{
+		item_pair_t* to_sel_pair = NULL;
+		item_pair_t* cur_sel_pair = NULL;
+
 		// Take the last selected pair
 		cur_sel_pair = mSelectedItemPairs.back();
 		// Bases on given direction choose next item to select
@@ -816,42 +861,42 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 				}
 			}
 		}
+
+		if ( to_sel_pair )
+		{
+			bool select = true;
+			if ( reset_selection )
+			{
+				// Reset current selection if we were asked about it
+				resetSelection();
+			}
+			else
+			{
+				// If item already selected and no reset request than we should deselect last selected item.
+				select = (mSelectedItemPairs.end() == std::find(mSelectedItemPairs.begin(), mSelectedItemPairs.end(), to_sel_pair));
+			}
+			// Select/Deselect next item
+			selectItemPair(select ? to_sel_pair : cur_sel_pair, select);
+			return true;
+		}
 	}
 	else
 	{
 		// If there weren't selected items then choose the first one bases on given direction
-		cur_sel_pair = (is_up_direction) ? mItemPairs.back() : mItemPairs.front();
 		// Force selection to first item
-		to_sel_pair = cur_sel_pair;
-	}
-
-
-	if ( to_sel_pair )
-	{
-		bool select = true;
-
-		if ( reset_selection )
-		{
-			// Reset current selection if we were asked about it
-			resetSelection();
-		}
+		if (is_up_direction)
+			selectLastItem();
 		else
-		{
-			// If item already selected and no reset request than we should deselect last selected item.
-			select = (mSelectedItemPairs.end() == std::find(mSelectedItemPairs.begin(), mSelectedItemPairs.end(), to_sel_pair));
-		}
-
-		// Select/Deselect next item
-		selectItemPair(select ? to_sel_pair : cur_sel_pair, select);
-
+			selectFirstItem();
 		return true;
 	}
+
 	return false;
 }
 
 BOOL LLFlatListView::canSelectAll() const
 {
-	return !mItemPairs.empty() && mAllowSelection && mMultipleSelection;
+	return 0 != size() && mAllowSelection && mMultipleSelection;
 }
 
 void LLFlatListView::selectAll()
@@ -1165,6 +1210,53 @@ void LLFlatListViewEx::updateNoItemsMessage(const std::string& filter_string)
 		setNoItemsCommentText(mNoItemsMsg);
 	}
 
+}
+
+void LLFlatListViewEx::setFilterSubString(const std::string& filter_str)
+{
+	if (0 != LLStringUtil::compareInsensitive(filter_str, mFilterSubString))
+	{
+		mFilterSubString = filter_str;
+		updateNoItemsMessage(mFilterSubString);
+		filterItems();
+	}
+}
+
+void LLFlatListViewEx::filterItems()
+{
+	typedef std::vector <LLPanel*> item_panel_list_t;
+
+	std::string cur_filter = mFilterSubString;
+	LLStringUtil::toUpper(cur_filter);
+
+	LLSD action;
+	action.with("match_filter", cur_filter);
+
+	item_panel_list_t items;
+	getItems(items);
+
+	for (item_panel_list_t::iterator
+			 iter = items.begin(),
+			 iter_end = items.end();
+		 iter != iter_end; ++iter)
+	{
+		LLPanel* pItem = (*iter);
+		// 0 signifies that filter is matched,
+		// i.e. we don't hide items that don't support 'match_filter' action, separators etc.
+		if (0 == pItem->notify(action))
+		{
+			pItem->setVisible(true);
+		}
+		else
+		{
+			// TODO: implement (re)storing of current selection.
+			selectItem(pItem, false);
+			pItem->setVisible(false);
+		}
+	}
+
+	rearrangeItems();
+	notifyParentItemsRectChanged();
 }
 
 //EOF

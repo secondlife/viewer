@@ -36,12 +36,80 @@
 #include "llpanel.h"
 #include "llinventorymodel.h"
 #include "llappearancemgr.h"
+#include "llwearableitemslist.h"
 
 class LLFlatListView;
+
+/**
+ * Adaptor between LLAccordionCtrlTab and LLFlatListView to facilitate communication between them 
+ * (notify, notifyParent) regarding size changes of a list and selection changes across accordion tabs.
+ * Besides that it acts as a container for the LLFlatListView and a button bar on top of it.
+ */
+class LLCOFAccordionListAdaptor : public LLPanel
+{
+public:
+	LLCOFAccordionListAdaptor() : LLPanel() {};
+	~LLCOFAccordionListAdaptor() {};
+
+	S32 notifyParent(const LLSD& info)
+	{
+		LLView* parent = getParent();
+		if (!parent) return -1;
+		
+		if (!(info.has("action") && "size_changes" == info["action"].asString()))
+		{
+			return parent->notifyParent(info);
+		}
+
+		LLRect rc;
+		childGetRect("button_bar", rc);
+
+		LLSD params;
+		params["action"] = "size_changes";
+		params["width"] = info["width"];
+		params["height"] = info["height"].asInteger() + rc.getHeight();
+
+		return parent->notifyParent(params);
+	}
+
+
+	S32 notify(const LLSD& info)
+	{
+		for (child_list_const_iter_t iter = beginChild(); iter != endChild(); iter++)
+		{
+			if (dynamic_cast<LLFlatListView*>(*iter))
+			{
+				return (*iter)->notify(info);
+			}
+		}
+		return LLPanel::notify(info);
+	};
+};
+
 
 class LLCOFWearables : public LLPanel
 {
 public:
+
+	/**
+	 * Represents a collection of callbacks assigned to inventory panel item's buttons
+	 */
+	class LLCOFCallbacks
+	{
+	public:
+		LLCOFCallbacks() {};
+		virtual ~LLCOFCallbacks() {};
+		
+		typedef boost::function<void (void*)> cof_callback_t;
+
+		cof_callback_t mMoveWearableCloser;
+		cof_callback_t mMoveWearableFurther;
+		cof_callback_t mEditWearable;
+		cof_callback_t mDeleteWearable;
+	};
+
+
+
 	LLCOFWearables();
 	virtual ~LLCOFWearables() {};
 
@@ -52,23 +120,26 @@ public:
 	void refresh();
 	void clear();
 
+	LLCOFCallbacks& getCOFCallbacks() { return mCOFCallbacks; }
+
 protected:
 
 	void populateAttachmentsAndBodypartsLists(const LLInventoryModel::item_array_t& cof_items);
 	void populateClothingList(LLAppearanceMgr::wearables_by_type_t& clothing_by_type);
 	
-	void addListButtonBar(LLFlatListView* list, std::string xml_filename);
 	void addClothingTypesDummies(const LLAppearanceMgr::wearables_by_type_t& clothing_by_type);
-	void addWearableTypeSeparator(LLFlatListView* list);
 	void onSelectionChange(LLFlatListView* selected_list);
 
-	LLXMLNodePtr getXMLNode(std::string xml_filename);
+	LLPanelClothingListItem* buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last);
+	LLPanelBodyPartsListItem* buildBodypartListItem(LLViewerInventoryItem* item);
 
 	LLFlatListView* mAttachments;
 	LLFlatListView* mClothing;
 	LLFlatListView* mBodyParts;
 
 	LLFlatListView* mLastSelectedList;
+
+	LLCOFCallbacks mCOFCallbacks;
 
 };
 

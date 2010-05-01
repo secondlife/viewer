@@ -90,7 +90,7 @@ public:
 
 	void moveWearable(bool closer_to_body);
 
-	void showAddWearablesPanel();
+	void toggleAddWearablesPanel();
 	void showWearablesFilter();
 	void showFilteredWearablesPanel();
 	void saveOutfit(bool as_new = false);
@@ -122,8 +122,6 @@ private:
 	LLFilterEditor*		mSearchFilter;
 	LLSaveFolderState*	mSavedFolderState;
 	std::string			mSearchString;
-	LLButton*			mAddToOutfitBtn;
-	LLButton*			mRemoveFromOutfitBtn;
 	LLButton*			mEditWearableBtn;
 	LLToggleableMenu*	mSaveMenu;
 

@@ -136,31 +136,6 @@ BOOL LLPanelClothingListItem::postBuild()
 	return TRUE;
 }
 
-void LLPanelClothingListItem::setShowDeleteButton(bool show)
-{
-	setShowWidget("btn_delete", show);
-}
-
-void LLPanelClothingListItem::setShowMoveUpButton(bool show)
-{
-	setShowWidget("btn_move_up", show);
-}
-
-void LLPanelClothingListItem::setShowMoveDownButton(bool show)
-{
-	setShowWidget("btn_move_down", show);
-}
-
-void LLPanelClothingListItem::setShowLockButton(bool show)
-{
-	setShowWidget("btn_lock", show);
-}
-
-void LLPanelClothingListItem::setShowEditButton(bool show)
-{
-	setShowWidget("btn_edit", show);
-}
-
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -199,16 +174,6 @@ BOOL LLPanelBodyPartsListItem::postBuild()
 	addWidgetToRightSide("btn_edit");
 
 	return TRUE;
-}
-
-void LLPanelBodyPartsListItem::setShowLockButton(bool show)
-{
-	setShowWidget("btn_lock", show);
-}
-
-void LLPanelBodyPartsListItem::setShowEditButton(bool show)
-{
-	setShowWidget("btn_edit", show);
 }
 
 //////////////////////////////////////////////////////////////////////////

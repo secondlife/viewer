@@ -45,6 +45,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "lltextutil.h"
+#include "lltrans.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +62,16 @@ LLPanelInventoryListItemBase* LLPanelInventoryListItemBase::create(LLViewerInven
 		list_item->init();
 	}
 	return list_item;
+}
+
+void LLPanelInventoryListItemBase::draw()
+{
+	if (getNeedsRefresh())
+	{
+		updateItem();
+		setNeedsRefresh(false);
+	}
+	LLPanel::draw();
 }
 
 void LLPanelInventoryListItemBase::updateItem()
@@ -121,7 +132,7 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 
 	mIconImage = get_item_icon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
 
-	updateItem();
+	setNeedsRefresh(true);
 
 	setWidgetsVisible(false);
 	reshapeWidgets();
@@ -148,6 +159,34 @@ void LLPanelInventoryListItemBase::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
+S32 LLPanelInventoryListItemBase::notify(const LLSD& info)
+{
+	S32 rv = 0;
+	if(info.has("match_filter"))
+	{
+		mHighlightedText = info["match_filter"].asString();
+
+		std::string test(mItem->getName());
+		LLStringUtil::toUpper(test);
+
+		if(mHighlightedText.empty() || std::string::npos != test.find(mHighlightedText))
+		{
+			rv = 0; // substring is found
+		}
+		else
+		{
+			rv = -1;
+		}
+
+		setNeedsRefresh(true);
+	}
+	else
+	{
+		rv = LLPanel::notify(info);
+	}
+	return rv;
+}
+
 LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem* item)
 : LLPanel()
 , mItem(item)
@@ -156,6 +195,7 @@ LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem
 , mWidgetSpacing(WIDGET_SPACING)
 , mLeftWidgetsWidth(0)
 , mRightWidgetsWidth(0)
+, mNeedsRefresh(false)
 {
 }
 
@@ -278,13 +318,15 @@ LLInventoryItemsList::Params::Params()
 {}
 
 LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p)
-:	LLFlatListView(p)
+:	LLFlatListViewEx(p)
 ,	mNeedsRefresh(false)
 {
 	// TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
 	// but reset to true in all derived classes. This settings might need to
 	// be added to LLFlatListView::Params() and/or set to "true" by default.
 	setCommitOnSelectionChange(true);
+
+	setNoFilteredItemsMsg(LLTrans::getString("InventoryNoMatchingItems"));
 }
 
 // virtual
@@ -304,7 +346,7 @@ void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item
 
 void LLInventoryItemsList::draw()
 {
-	LLFlatListView::draw();
+	LLFlatListViewEx::draw();
 	if(mNeedsRefresh)
 	{
 		refresh();
@@ -332,7 +374,8 @@ void LLInventoryItemsList::refresh()
 			break;
 		}
 		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		addNewItem(item);
+		// Do not rearrange items on each adding, let's do that on filter call
+		addNewItem(item, false);
 		++nadded;
 	}
 
@@ -341,6 +384,9 @@ void LLInventoryItemsList::refresh()
 	{
 		removeItemByUUID(*it);
 	}
+
+	// Filter, rearrange and notify parent about shape changes
+	filterItems();
 
 	bool needs_refresh = add_limit_exceeded;
 	setNeedsRefresh(needs_refresh);
@@ -363,7 +409,7 @@ void LLInventoryItemsList::computeDifference(
 	LLCommonUtils::computeDifference(vnew, vcur, vadded, vremoved);
 }
 
-void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item)
+void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrange /*= true*/)
 {
 	if (!item)
 	{
@@ -375,7 +421,7 @@ void LLInventoryItemsList::addNewItem(LLViewerInventoryItem* item)
 	if (!list_item)
 		return;
 
-	bool is_item_added = addItem(list_item, item->getUUID());
+	bool is_item_added = addItem(list_item, item->getUUID(), ADD_BOTTOM, rearrange);
 	if (!is_item_added)
 	{
 		llwarns << "Couldn't add flat list item." << llendl;

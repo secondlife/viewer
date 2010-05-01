@@ -36,7 +36,7 @@
              layout="topleft"
              name="speakers_list"
              opaque="false"
-             show_info_btn="false"
+             show_info_btn="true"
              show_profile_btn="false"
              show_speaking_indicator="false"
              width="145" />

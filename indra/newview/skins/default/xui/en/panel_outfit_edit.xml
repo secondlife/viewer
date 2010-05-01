@@ -69,19 +69,21 @@
 
 <!-- "HEADER WITH ICON, STATUS TEXT AND OUTFIT NAME" -->
     <panel
+     background_visible="true"
+     bg_alpha_color="DkGray2"
      bevel_style="none"
      follows="top|left|right"
-     height="45"
+     height="40"
      label="bottom_panel"
      layout="topleft"
-     left="5"
+     left="6"
      name="header_panel"
      top_pad="5" 
-     width="300">
+     width="311">
         <icon
          follows="left|top"
          height="40"
-         image_name="t-shirt-image"
+         image_name="TabIcon_Appearance_Off"
          left="2"
          mouse_opaque="false"
          name="outfit_icon"
@@ -92,35 +94,35 @@
             <panel
              bevel_style="none"
              follows="top|right"
-             height="40"
+             height="38"
              label="bottom_panel"
              layout="topleft"
-             left_pad="10"
+             left_pad="5"
              name="outfit_name_and_status"
              top="2"
-             width="200">
+             width="270">
                 <text
                  follows="top|left|right"
-                 font="SansSerif"
+                 font="SansSerifSmallBold"
                  height="13"
                  layout="topleft"
                  name="status"
-                 text_color="Green"
-                 top="0"
-                 value="Editing..."
+                 text_color="EmphasisColor"
+                 top="2"
+                 value="Now editing..."
                  use_ellipses="true"
-                 width="275" /> 
+                 width="270" /> 
                 <text
                  follows="bottom|left|right"
-                 font="SansSerifHugeBold"
+                 font="SansSerifLargeBold"
                  height="26"
                  layout="topleft"
                  name="curr_outfit_name"
                  text_color="LtGray"
-                 top_pad="0"
+                 top_pad="2"
                  value="[Current Outfit]"
                  use_ellipses="true"
-                 width="275" /> 
+                 width="270" /> 
             </panel>
     </panel>
 
@@ -130,22 +132,21 @@
      animate="false"
      default_tab_group="2"
      follows="all"
-     height="470"
-     width="300"
+     height="495"
+     width="313"
      layout="topleft"
      orientation="vertical"
      name="im_panels"
      tab_group="1"
-     top_pad="10"
+     top_pad="5"
      left="5">
         <layout_panel
          layout="topleft"
-         follows="left|top|right"
          height="220"
          label="IM Control Panel"
          min_height="100"
          name="outfit_wearables_panel"
-         width="300"
+         width="313"
          auto_resize="true"
          user_resize="true">
 
@@ -157,11 +158,12 @@
              follows="left|top|right|bottom"
              height="193"
              layout="topleft"
-             left="0"
+             left="1"
              name="cof_wearables_list"
              top="0"
-             width="300" /> 
+             width="311" />
 
+          <!-- Button bar -->
           <panel
              background_visible="true"
              bevel_style="none"
@@ -171,8 +173,8 @@
              layout="topleft"
              left="0"
              name="edit_panel"
-             top_pad="0"
-             width="300">
+             top="193"
+             width="313">
                 <button
                  follows="bottom|left"
                  height="25"
@@ -185,75 +187,14 @@
                  name="gear_menu_btn"
                  top="1"
                  width="31" />
-                <button
-                 is_toggle="true"
-                 follows="bottom|left"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="AddItem_Off"
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 left_pad="1"
-                 name="add_btn"
-                 top="1"
-                 width="31" />
-                <button
-                 follows="bottom|left"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay=""
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 left_pad="1"
-                 name="new_btn"
-                 top="1"
-                 width="31" />
-                <button
-                 follows="bottom|left"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="Movement_Forward_On"
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 left_pad="1"
-                 name="move_closer_btn"
-                 top="1"
-                 width="31" />
-                <button
-                 follows="bottom|left"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="Movement_Backward_On"
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 left_pad="1"
-                 name="move_further_btn"
-                 top="1"
-                 width="31" />
                 <icon
-                 follows="bottom|left"
+                 follows="bottom|left|right"
                  height="25"
-                 image_name="Toolbar_Middle_Off"
+                 image_name="Toolbar_Right_Off"
                  layout="topleft"
                  left_pad="1"
-                 name="dummy_icon"
-                 width="105" />
-                <button
-                 follows="bottom|right"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="TrashItem_Off"
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 name="remove_from_outfit_btn"
-                 right="-1"
-                 top="1"
-                 width="31" />
+                 name="dummy_right_icon"
+                 width="281" />
             </panel>
         </layout_panel>
 
@@ -264,7 +205,7 @@
          height="210" 
          min_height="210"
          name="add_wearables_panel"
-         width="300"
+         width="313"
          tab_group="2"
          user_resize="true"
          visible="false">
@@ -448,22 +389,6 @@
                  name="add_to_outfit_btn"
                  top="1"
                  width="31" />
-                <icon
-                 follows="bottom|left"
-                 height="25"
-                 image_name="Toolbar_Middle_Off"
-                 layout="topleft"
-                 left_pad="1"
-                 name="dummy_middle_icon"
-                 width="140" />
-                <icon
-                 follows="bottom|left"
-                 height="25"
-                 image_name="Toolbar_Right_Off"
-                 layout="topleft"
-                 left_pad="1"
-                 name="dummy_right_icon"
-                 width="31" />
             </panel>
         </layout_panel>
     </layout_stack>
@@ -472,25 +397,28 @@
      follows="left|right|bottom"
      height="30"
      layout="topleft"
-     left="5"
-     top_pad="10"
+     left="4"
+     top_pad="2"
      name="save_revert_button_bar"
      width="300">
         <button
-         follows="bottom|left|right"
+         follows="bottom|left"
          height="23"
          label="Save"
          left="0"
          layout="topleft"
          name="save_btn"
-         width="145" />
+         top="0"
+         width="155" />
         <button
-         follows="bottom|right"
+         follows="bottom|left"
          height="23"
          name="save_flyout_btn"
          label=""
+         layout="topleft"
          left_pad="-20"
          tab_stop="false"
+         top="0"
          image_selected="SegmentedBtn_Right_Selected_Press"
          image_unselected="SegmentedBtn_Right_Off"
          image_pressed="SegmentedBtn_Right_Press"
@@ -500,10 +428,11 @@
         <button
          follows="bottom|left|right"
          height="23"
-         left_pad="15"
+         left_pad="12"
          label="Revert"
          layout="topleft"
          name="revert_btn"
-         width="145" />
+         top="0"
+         width="147" />
     </panel>
 </panel>
