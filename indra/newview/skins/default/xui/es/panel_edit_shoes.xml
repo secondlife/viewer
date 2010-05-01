@@ -4,7 +4,9 @@
 		<texture_picker label="Tela" name="Fabric" tool_tip="Pulsa para elegir una imagen"/>
 		<color_swatch label="Color/Tinte" name="Color/Tint" tool_tip="Pulsa para abrir el selector de color"/>
 	</panel>
-	<accordion name="wearable_accordion">
-		<accordion_tab name="shoes_main_tab" title="Zapatos"/>
-	</accordion>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="shoes_main_tab" title="Zapatos"/>
+		</accordion>
+	</panel>
 </panel>

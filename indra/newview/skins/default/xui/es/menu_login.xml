@@ -7,18 +7,8 @@
 	<menu label="Ayuda" name="Help">
 		<menu_item_call label="Ayuda de [SECOND_LIFE]" name="Second Life Help"/>
 	</menu>
+	<menu_item_check label="Mostrar el menú &apos;Debug&apos;" name="Show Debug Menu"/>
 	<menu label="Depurar" name="Debug">
-		<menu label="Editar" name="Edit">
-			<menu_item_call label="Deshacer" name="Undo"/>
-			<menu_item_call label="Rehacer" name="Redo"/>
-			<menu_item_call label="Cortar" name="Cut"/>
-			<menu_item_call label="Copiar" name="Copy"/>
-			<menu_item_call label="Pegar" name="Paste"/>
-			<menu_item_call label="Borrar" name="Delete"/>
-			<menu_item_call label="Duplicar" name="Duplicate"/>
-			<menu_item_call label="Seleccionar todo" name="Select All"/>
-			<menu_item_call label="Deseleccionar" name="Deselect"/>
-		</menu>
 		<menu_item_call label="Mostrar las configuraciones del depurador" name="Debug Settings"/>
 		<menu_item_call label="Configuraciones del Visor/Color" name="UI/Color Settings"/>
 		<menu label="Pruebas de la interfaz" name="UI Tests"/>
@@ -26,5 +16,7 @@
 		<menu_item_call label="Mostrar los &apos;TOS&apos;" name="TOS"/>
 		<menu_item_call label="Mostrar mensaje crítico" name="Critical"/>
 		<menu_item_call label="Web Browser Test" name="Web Browser Test"/>
+		<menu_item_check label="Mostrar el selector de Grid" name="Show Grid Picker"/>
+		<menu_item_call label="Mostrar la consola de notificaciones" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

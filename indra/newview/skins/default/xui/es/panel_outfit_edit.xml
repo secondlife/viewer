@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray Outfit Edit panel -->
+<panel label="Editar el vestuario" name="outfit_edit">
+	<string name="No Outfit" value="No hay vestuario"/>
+	<panel.string name="not_available">
+		(No disp.)
+	</panel.string>
+	<panel.string name="unknown">
+		(desconocido)
+	</panel.string>
+	<string name="Filter.All" value="Todos"/>
+	<string name="Filter.Clothes/Body" value="Ropas/Cuerpo"/>
+	<string name="Filter.Objects" value="Objetos"/>
+	<button label="editar" name="edit_wearable_btn"/>
+	<text name="title" value="Editar el vestuario"/>
+	<panel label="bottom_panel" name="header_panel">
+		<panel label="bottom_panel" name="outfit_name_and_status">
+			<text name="status" value="Editando..."/>
+			<text name="curr_outfit_name" value="[Vestuario actual]"/>
+		</panel>
+	</panel>
+	<layout_stack name="im_panels">
+		<layout_panel label="Panel de control de los MI" name="outfit_wearables_panel">
+			<scroll_list name="look_items_list">
+				<scroll_list.columns label="Vestuario" name="look_item"/>
+				<scroll_list.columns label="Orden de los ítems del vestuario" name="look_item_sort"/>
+			</scroll_list>
+			<panel label="bottom_panel" name="edit_panel"/>
+		</layout_panel>
+		<layout_panel name="add_wearables_panel">
+			<filter_editor label="Filtrar" name="look_item_filter"/>
+			<layout_stack name="filter_panels">
+				<layout_panel label="Panel de control de los MI" name="filter_button_panel">
+					<text name="add_to_outfit_label" value="Añadir al vestuario:"/>
+					<button label="o" name="filter_button"/>
+				</layout_panel>
+			</layout_stack>
+			<panel label="add_wearables_button_bar" name="add_wearables_button_bar">
+				<button label="C" name="folder_view_btn"/>
+				<button label="L" name="list_view_btn"/>
+			</panel>
+		</layout_panel>
+	</layout_stack>
+	<panel name="save_revert_button_bar">
+		<button label="Guardar" name="save_btn"/>
+		<button label="Revertir" name="revert_btn"/>
+	</panel>
+</panel>

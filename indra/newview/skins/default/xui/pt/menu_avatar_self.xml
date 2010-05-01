@@ -24,4 +24,5 @@
 	<menu_item_call label="Meus amigos" name="Friends..."/>
 	<menu_item_call label="Meus grupos" name="Groups..."/>
 	<menu_item_call label="Meu perfil" name="Profile..."/>
+	<menu_item_call label="Depurar texturas" name="Debug..."/>
 </context_menu>

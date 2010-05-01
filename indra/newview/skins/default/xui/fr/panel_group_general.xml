@@ -47,8 +47,11 @@ Faites glisser le pointeur de la souris sur les options pour en savoir plus.
 		<check_box label="Inscription payante" name="check_enrollment_fee" tool_tip="Indique s&apos;il faut payer des frais d&apos;inscription pour rejoindre ce groupe"/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Les nouveaux membres doivent payer ces frais pour rejoindre le groupe quand l&apos;option Frais d&apos;inscription est cochée."/>
 		<combo_box name="group_mature_check" tool_tip="Définit si votre groupe contient des informations de type Modéré" width="195">
-			<combo_box.item label="Contenu Général" name="pg"/>
+			<combo_item name="select_mature">
+				- Catégorie d&apos;accès -
+			</combo_item>
 			<combo_box.item label="Contenu Modéré" name="mature"/>
+			<combo_box.item label="Contenu Général" name="pg"/>
 		</combo_box>
 		<check_box initial_value="true" label="Afficher dans la recherche" name="show_in_group_list" tool_tip="Permettre aux autres résidents de voir ce groupe dans les résultats de recherche"/>
 	</panel>

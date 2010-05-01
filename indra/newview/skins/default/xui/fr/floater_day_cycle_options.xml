@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Day Cycle Floater" title="EDITEUR DU CYCLE DU JOUR">
 	<tab_container name="Day Cycle Tabs">
 		<panel label="Cycle du jour" name="Day Cycle">
-			<button label="?" name="WLDayCycleHelp" />
+			<button label="?" name="WLDayCycleHelp"/>
 			<text name="WL12am">
 				Min.
 			</text>
@@ -70,28 +70,25 @@
 			<text name="WLCurKeyTimeText2">
 				Préréglages clés :
 			</text>
-			<combo_box label="Préréglage" name="WLKeyPresets" />
+			<combo_box label="Préréglage" name="WLKeyPresets"/>
 			<text name="DayCycleText">
 				Snap :
 			</text>
-			<combo_box label="5 min" name="WLSnapOptions" />
+			<combo_box label="5 min" name="WLSnapOptions"/>
 			<text name="DayCycleText2">
 				Durée du cycle :
 			</text>
 			<spinner label="Heure" name="WLLengthOfDayHour"/>
-			<spinner label="Min" name="WLLengthOfDayMin" />
+			<spinner label="Min" name="WLLengthOfDayMin"/>
 			<spinner label="S" name="WLLengthOfDaySec"/>
 			<text name="DayCycleText3">
-				Prévisualiser :
+				Aperçu :
 			</text>
 			<button label="Lire" label_selected="Lire" name="WLAnimSky"/>
-			<button label="Stop !" label_selected="Stop" name="WLStopAnimSky" />
-			<button label="Utiliser heure domaine" label_selected="Aller heure domaine"
-			     name="WLUseLindenTime" />
-			<button label="Enregistrer jour test" label_selected="Enregistrer jour test"
-			     name="WLSaveDayCycle" />
-			<button label="Charger jour test" label_selected="Charger jour test"
-			     name="WLLoadDayCycle" />
+			<button label="Stop !" label_selected="Stop" name="WLStopAnimSky"/>
+			<button label="Utiliser heure domaine" label_selected="Aller heure domaine" name="WLUseLindenTime"/>
+			<button label="Enregistrer jour test" label_selected="Enregistrer jour test" name="WLSaveDayCycle"/>
+			<button label="Charger jour test" label_selected="Charger jour test" name="WLLoadDayCycle"/>
 		</panel>
 	</tab_container>
 </floater>

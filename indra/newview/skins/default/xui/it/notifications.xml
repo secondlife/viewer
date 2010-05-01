@@ -352,7 +352,7 @@ Vuoi continuare?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		Cancella il favorito [PICK]?
+		Elimina preferito &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -924,6 +924,16 @@ Offri l&apos;amicizia a [NAME]?
 			<button name="Cancel" text="Annulla"/>
 		</form>
 	</notification>
+	<notification label="Salva vestiario" name="SaveOutfitAs">
+		Salva gli abiti che indosso come nuovo vestiario:
+		<form name="form">
+			<input name="message">
+				[DESC] (nuovo)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Annulla"/>
+		</form>
+	</notification>
 	<notification name="RemoveFromFriends">
 		Vuoi rimuovere remove [FIRST_NAME] [LAST_NAME] dalla lista dei tuoi amici?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
@@ -1414,6 +1424,10 @@ La chat e gli IM verranno nascosti. Gli IM riceveranno la tua risposta di Non di
 		Teleport a [CLASSIFIED]?
 		<usetemplate ignoretext="Conferma il teleport verso questa posizione negli annunci" name="okcancelignore" notext="Annulla" yestext="Teleport"/>
 	</notification>
+	<notification name="TeleportToHistoryEntry">
+		Teleport a [HISTORY_ENTRY]?
+		<usetemplate ignoretext="Conferma il teleport verso un luogo che compare nella cronologia" name="okcancelignore" notext="Annulla" yestext="Teleport"/>
+	</notification>
 	<notification label="Manda un messaggio a tutti nella tua proprietà" name="MessageEstate">
 		Scrivi un annuncio breve che verrà mandato a tutti quelli che sono in questo momento nella tua proprietà.
 		<form name="form">
@@ -1504,6 +1518,9 @@ Puoi cliccare su Cambia preferenze per modificare la categoria di accesso e quin
 			<button default="true" name="Cancel" text="Chiudi"/>
 			<ignore name="ignore" text="La categoria di accesso impostata mi impedisce di entrare in una regione"/>
 		</form>
+	</notification>
+	<notification name="PreferredMaturityChanged">
+		La tua categoria di accesso attuale è [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		Non puoi prendere possesso di questo terreno a causa della tua categoria di accesso. Questo può essere dovuto ad una mancanza di informazioni valide che confermino la tua età.
@@ -1921,6 +1938,9 @@ Inseriscilo in una pagina web per dare ad altri un accesso facile a questa ubica
 	<notification name="SystemMessageTip">
 		[MESSAGE]
 	</notification>
+	<notification name="IMSystemMessageTip">
+		[MESSAGE]
+	</notification>
 	<notification name="Cancelled">
 		Annullato
 	</notification>
@@ -1948,6 +1968,11 @@ Inseriscilo in una pagina web per dare ad altri un accesso facile a questa ubica
 	<notification name="UploadingAuctionSnapshot">
 		Sto importando le fotografie per l&apos;uso inworld e per il web...
 (Durata circa 5 minuti.)
+	</notification>
+	<notification name="UploadConfirmation">
+		Il costo per il caricamento è di L$ [AMOUNT].
+Continuare?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Carica nel server"/>
 	</notification>
 	<notification name="UploadPayment">
 		Hai pagato [AMOUNT]L$ per il caricamento.
@@ -2290,9 +2315,9 @@ Riprova tra qualche istante.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] ti ha offerto di teleportarti nella sua ubicazione:
+		[NAME_SLURL] ti ha offerto il teleport alla sua ubicazione:
 
-[MESSAGE]
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
 		<form name="form">
 			<button name="Teleport" text="Teleport"/>
 			<button name="Cancel" text="Cancella"/>
@@ -2310,11 +2335,11 @@ Riprova tra qualche istante.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME] ti ha offerto la sua amicizia.
+		[NAME_SLURL] ti ha offerto di diventare amici.
 
 [MESSAGE]
 
-(Di default, potrete vedervi reciprocamente online.)
+(L&apos;impostazione predefinita consente a ciascuno di vedere se l&apos;altro è online.)
 		<form name="form">
 			<button name="Accept" text="Accetta"/>
 			<button name="Decline" text="Rifiuta"/>
@@ -2376,6 +2401,9 @@ Dall&apos;oggetto: [OBJECTNAME], di: [NAME]?
 	</notification>
 	<notification name="FailedToFindWearable">
 		Impossibile trovare [TYPE] chiamato [DESC] nel database.
+	</notification>
+	<notification name="ShareToWebFailed">
+		Caricamento dell&apos;immagine su Web non riuscita.
 	</notification>
 	<notification name="InvalidWearable">
 		L&apos;elemento che stai tentando di indossare usa delle caratteristiche che il tuo viewer non può leggere. Aggiorna la versione di [APP_NAME] per poterlo indossare.
@@ -2572,6 +2600,12 @@ Per sicurezza, verranno bloccati per alcuni secondi.
 	<notification name="BottomTrayButtonCanNotBeShown">
 		Il pulsante selezionato non può essere visualizzato in questo momento.
 Il pulsante verrà visualizzato quando lo spazio sarà sufficiente.
+	</notification>
+	<notification name="ShareNotification">
+		Trascina articoli dell&apos;inventario su una persona nel selettore residenti
+	</notification>
+	<notification name="AvatarRezNotification">
+		Avatar &apos;[NAME]&apos; rezzato in [TIME] secondi.
 	</notification>
 	<global name="UnsupportedCPU">
 		- La velocità della tua CPU non soddisfa i requisiti minimi.

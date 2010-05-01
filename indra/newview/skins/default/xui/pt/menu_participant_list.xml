@@ -8,6 +8,7 @@
 	<menu_item_call label="Ligar" name="Call"/>
 	<menu_item_call label="Compartilhar" name="Share"/>
 	<menu_item_call label="Pagar" name="Pay"/>
+	<menu_item_check label="Ver ícones de pessoas" name="View Icons"/>
 	<menu_item_check label="Bloquear voz" name="Block/Unblock"/>
 	<menu_item_check label="Bloquear texto" name="MuteText"/>
 	<context_menu label="Opções do moderador &gt;" name="Moderator Options">

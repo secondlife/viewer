@@ -3,6 +3,7 @@
 	<panel label="" name="sidepanel__inventory_panel">
 		<panel name="button_panel">
 			<button label="Profil" name="info_btn"/>
+			<button label="Teilen" name="share_btn"/>
 			<button label="Anziehen" name="wear_btn"/>
 			<button label="Wiedergeben" name="play_btn"/>
 			<button label="Teleportieren" name="teleport_btn"/>

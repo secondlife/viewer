@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray Outfit Edit panel -->
+<panel label="アウトフットの編集" name="outfit_edit">
+	<string name="No Outfit" value="アウトフィットなし"/>
+	<panel.string name="not_available">
+		（該当なし）
+	</panel.string>
+	<panel.string name="unknown">
+		（不明）
+	</panel.string>
+	<string name="Filter.All" value="すべて"/>
+	<string name="Filter.Clothes/Body" value="衣類/身体"/>
+	<string name="Filter.Objects" value="オブジェクト"/>
+	<button label="編集" name="edit_wearable_btn"/>
+	<text name="title" value="アウトフットの編集"/>
+	<panel label="bottom_panel" name="header_panel">
+		<panel label="bottom_panel" name="outfit_name_and_status">
+			<text name="status" value="編集中..."/>
+			<text name="curr_outfit_name" value="[Current Outfit]"/>
+		</panel>
+	</panel>
+	<layout_stack name="im_panels">
+		<layout_panel label="IM コントロールパネル" name="outfit_wearables_panel">
+			<scroll_list name="look_items_list">
+				<scroll_list.columns label="アイテムを確認" name="look_item"/>
+				<scroll_list.columns label="アウトフィットアイテムの並べ替え" name="look_item_sort"/>
+			</scroll_list>
+			<panel label="bottom_panel" name="edit_panel"/>
+		</layout_panel>
+		<layout_panel name="add_wearables_panel">
+			<filter_editor label="フィルター" name="look_item_filter"/>
+			<layout_stack name="filter_panels">
+				<layout_panel label="IM コントロールパネル" name="filter_button_panel">
+					<text name="add_to_outfit_label" value="アウトフィットに追加："/>
+					<button label="O" name="filter_button"/>
+				</layout_panel>
+			</layout_stack>
+			<panel label="add_wearables_button_bar" name="add_wearables_button_bar">
+				<button label="F" name="folder_view_btn"/>
+				<button label="L" name="list_view_btn"/>
+			</panel>
+		</layout_panel>
+	</layout_stack>
+	<panel name="save_revert_button_bar">
+		<button label="保存" name="save_btn"/>
+		<button label="元に戻す" name="revert_btn"/>
+	</panel>
+</panel>

@@ -3994,9 +3994,7 @@ void LLAppViewer::idleNetwork()
 {
 	LLMemType mt_in(LLMemType::MTYPE_IDLE_NETWORK);
 	pingMainloopTimeout("idleNetwork");
-	LLError::LLCallStacks::clear() ;
-	llpushcallstacks ;
-
+	
 	gObjectList.mNumNewObjects = 0;
 	S32 total_decoded = 0;
 
@@ -4006,7 +4004,6 @@ void LLAppViewer::idleNetwork()
 		
 		// deal with any queued name requests and replies.
 		gCacheName->processPending();
-		llpushcallstacks ;
 		LLTimer check_message_timer;
 		//  Read all available packets from network 
 		const S64 frame_count = gFrameCount;  // U32->S64
@@ -4079,7 +4076,6 @@ void LLAppViewer::idleNetwork()
 			gPrintMessagesThisFrame = FALSE;
 		}
 	}
-	llpushcallstacks ;
 	LLViewerStats::getInstance()->mNumNewObjectsStat.addValue(gObjectList.mNumNewObjects);
 
 	// Retransmit unacknowledged packets.
@@ -4093,14 +4089,12 @@ void LLAppViewer::idleNetwork()
 		gAssetStorage->checkForTimeouts();
 	}
 
-	llpushcallstacks ;
 
 	{
 		LLFastTimer ftm(FTM_DYNAMIC_THROTTLE);
 		gViewerThrottle.updateDynamicThrottle();
 	}
 
-	llpushcallstacks ;
 	// Check that the circuit between the viewer and the agent's current
 	// region is still alive
 	{
@@ -4119,7 +4113,6 @@ void LLAppViewer::idleNetwork()
 			mAgentRegionLastAlive = this_region_alive;
 		}
 	}
-	llpushcallstacks ;
 }
 
 void LLAppViewer::disconnectViewer()

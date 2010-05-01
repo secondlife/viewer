@@ -9,4 +9,5 @@
 	<menu_item_call label="Mis amigos" name="Friends..."/>
 	<menu_item_call label="Mis grupos" name="Groups..."/>
 	<menu_item_call label="Mi perfil" name="Profile..."/>
+	<menu_item_call label="Depurar las texturas" name="Debug..."/>
 </context_menu>
