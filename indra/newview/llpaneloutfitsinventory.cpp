@@ -68,7 +68,6 @@ static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";
 static const std::string COF_TAB_NAME = "cof_tab";
 
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
-bool LLPanelOutfitsInventory::sShowDebugEditor = false;
 
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
@@ -88,7 +87,6 @@ LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 // virtual
 BOOL LLPanelOutfitsInventory::postBuild()
 {
-	sShowDebugEditor = gSavedSettings.getBOOL("ShowDebugAppearanceEditor");
 	initTabPanels();
 	initListCommandsHandlers();
 
@@ -133,7 +131,6 @@ void LLPanelOutfitsInventory::updateVerbs()
 
 	if (mListCommands)
 	{
-		mListCommands->childSetVisible("edit_current_outfit_btn",sShowDebugEditor);
 		updateListCommands();
 	}
 }
@@ -307,14 +304,6 @@ void LLPanelOutfitsInventory::onSelectionChange(const std::deque<LLFolderViewIte
 	}
 }
 
-void LLPanelOutfitsInventory::showEditOutfitPanel()
-{
-	LLSD key;
-	key["type"] = "edit_outfit";
-	
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", key);
-}
-
 LLFolderViewEventListener *LLPanelOutfitsInventory::getCorrectListenerForAction()
 {
 	// TODO: add handling "My Outfits" tab.
@@ -368,8 +357,6 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 	mListCommands->childSetAction("make_outfit_btn", boost::bind(&LLPanelOutfitsInventory::onAddButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
-
-	mListCommands->childSetAction("edit_current_outfit_btn", boost::bind(&LLPanelOutfitsInventory::showEditOutfitPanel, this));
 
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
 	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelOutfitsInventory::handleDragAndDropToTrash, this

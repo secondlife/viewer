@@ -689,7 +689,10 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 			// Unrecoverable, so just skip this category.
 
 			llassert(cats != NULL && items != NULL);
+
+			continue;
 		}
+
 		const S32 current_num_known_descendents = cats->count() + items->count();
 
 		LLCategoryData cat_data = (*iter).second;
@@ -708,11 +711,15 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
 
 bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb)
 {
-	S32 version;
-	S32 current_num_known_descendents;
+	S32 version = LLViewerInventoryCategory::VERSION_UNKNOWN;
+	S32 current_num_known_descendents = LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN;
 	bool can_be_added = true;
 
 	LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
+	// If category could not be retrieved it might mean that
+	// inventory is unusable at the moment so the category is
+	// stored with VERSION_UNKNOWN and DESCENDENT_COUNT_UNKNOWN,
+	// it may be updated later.
 	if (category)
 	{
 		// Inventory category version is used to find out if some changes
@@ -732,16 +739,10 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 
 			llassert(cats != NULL && items != NULL);
 		}
-		current_num_known_descendents = cats->count() + items->count();
-	}
-	else
-	{
-		// If category could not be retrieved it might mean that
-		// inventory is unusable at the moment so the category is
-		// stored with VERSION_UNKNOWN and DESCENDENT_COUNT_UNKNOWN,
-		// it may be updated later.
-		version = LLViewerInventoryCategory::VERSION_UNKNOWN;
-		current_num_known_descendents = LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN;
+		else
+		{
+			current_num_known_descendents = cats->count() + items->count();
+		}
 	}
 
 	if (can_be_added)

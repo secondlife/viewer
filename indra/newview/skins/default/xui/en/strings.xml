@@ -2163,10 +2163,11 @@ Clears (deletes) the media and all params from the given face.
   <string name="BusyModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
 
 	<!-- Mute -->
-	<string name="MuteByName">(by name)</string>
+	<string name="MuteByName">(By name)</string>
 	<string name="MuteAgent">(Resident)</string>
-	<string name="MuteObject">(object)</string>
-	<string name="MuteGroup">(group)</string>
+	<string name="MuteObject">(Object)</string>
+	<string name="MuteGroup">(Group)</string>
+	<string name="MuteExternal">(External)</string>
 
 	<!-- Region/Estate Covenant -->
 	<string name="RegionNoCovenant">There is no Covenant provided for this Estate.</string>

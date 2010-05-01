@@ -5143,9 +5143,6 @@ LLVoiceClient::participantState *LLVoiceClient::sessionState::addParticipant(con
 			{
 				result->mAvatarIDValid = true;
 				result->mAvatarID = id;
-
-				if(result->updateMuteState())
-					mMuteDirty = true;
 			}
 			else
 			{
@@ -5154,7 +5151,12 @@ LLVoiceClient::participantState *LLVoiceClient::sessionState::addParticipant(con
 				setUUIDFromStringHash(result->mAvatarID, uri);
 			}
 		}
-		
+
+		if(result->updateMuteState())
+		{
+			mMuteDirty = true;
+		}
+
 		mParticipantsByUUID.insert(participantUUIDMap::value_type(&(result->mAvatarID), result));
 
 		if (LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(result->mAvatarID, result->mVolume))
@@ -5173,15 +5175,12 @@ bool LLVoiceClient::participantState::updateMuteState()
 {
 	bool result = false;
 	
-	if(mAvatarIDValid)
+	bool isMuted = LLMuteList::getInstance()->isMuted(mAvatarID, LLMute::flagVoiceChat);
+	if(mOnMuteList != isMuted)
 	{
-		bool isMuted = LLMuteList::getInstance()->isMuted(mAvatarID, LLMute::flagVoiceChat);
-		if(mOnMuteList != isMuted)
-		{
-			mOnMuteList = isMuted;
-			mVolumeDirty = true;
-			result = true;
-		}
+		mOnMuteList = isMuted;
+		mVolumeDirty = true;
+		result = true;
 	}
 	return result;
 }

@@ -64,13 +64,16 @@ class LLViewerInventoryItem;
 class LLPanelInventoryListItemBase : public LLPanel
 {
 public:
-
 	static LLPanelInventoryListItemBase* create(LLViewerInventoryItem* item);
 
+	virtual void draw();
+
 	/**
-	 * Called after inventory item was updated, update panel widgets to reflect inventory changes.
+	 * Let item know it need to be refreshed in next draw()
 	 */
-	virtual void updateItem();
+	void setNeedsRefresh(bool needs_refresh){ mNeedsRefresh = needs_refresh; }
+
+	bool getNeedsRefresh(){ return mNeedsRefresh; }
 
 	/**
 	 * Add widget to left side
@@ -107,6 +110,11 @@ public:
 	 */
 	/*virtual*/ void setValue(const LLSD& value);
 
+	/**
+	 * Handles filter request
+	 */
+	/*virtual*/ S32  notify(const LLSD& info);
+
 	 /* Highlights item */
 	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
 	/* Removes item highlight */
@@ -124,6 +132,11 @@ protected:
 	 * Use it from a factory function to build panel, do not build panel in constructor
 	 */
 	virtual void init();
+
+	/**
+	 * Called after inventory item was updated, update panel widgets to reflect inventory changes.
+	 */
+	virtual void updateItem();
 
 	/** setter for mIconCtrl */
 	void setIconCtrl(LLIconCtrl* icon) { mIconCtrl = icon; }
@@ -178,14 +191,15 @@ private:
 
 	S32				mLeftWidgetsWidth;
 	S32				mRightWidgetsWidth;
+	bool			mNeedsRefresh;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class LLInventoryItemsList : public LLFlatListView
+class LLInventoryItemsList : public LLFlatListViewEx
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params>
+	struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
 	{
 		Params();
 	};
@@ -225,7 +239,7 @@ protected:
 	/**
 	 * Add an item to the list
 	 */
-	virtual void addNewItem(LLViewerInventoryItem* item);
+	virtual void addNewItem(LLViewerInventoryItem* item, bool rearrange = true);
 
 private:
 	uuid_vec_t mIDs; // IDs of items that were added in refreshList().

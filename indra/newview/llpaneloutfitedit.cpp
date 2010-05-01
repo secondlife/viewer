@@ -128,8 +128,6 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mSearchFilter(NULL),
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
-	mAddToOutfitBtn(NULL),
-	mRemoveFromOutfitBtn(NULL),
 	mLookObserver(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
@@ -174,12 +172,19 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mCurrentOutfitName = getChild<LLTextBox>("curr_outfit_name"); 
 
-	childSetCommitCallback("add_btn", boost::bind(&LLPanelOutfitEdit::showAddWearablesPanel, this), NULL);
 	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredWearablesPanel, this), NULL);
 
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onOutfitItemSelectionChange, this));
+
+	mCOFWearables->getCOFCallbacks().mEditWearable = boost::bind(&LLPanelOutfitEdit::onEditWearableClicked, this);
+	mCOFWearables->getCOFCallbacks().mDeleteWearable = boost::bind(&LLPanelOutfitEdit::onRemoveFromOutfitClicked, this);
+	mCOFWearables->getCOFCallbacks().mMoveWearableCloser = boost::bind(&LLPanelOutfitEdit::moveWearable, this, true);
+	mCOFWearables->getCOFCallbacks().mMoveWearableFurther = boost::bind(&LLPanelOutfitEdit::moveWearable, this, false);
+
+	mCOFWearables->childSetAction("add_btn", boost::bind(&LLPanelOutfitEdit::toggleAddWearablesPanel, this));
+
 
 	mInventoryItemsPanel = getChild<LLInventoryPanel>("inventory_items");
 	mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
@@ -209,13 +214,6 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mAddToLookBtn->setEnabled(FALSE);
 	mAddToLookBtn->setVisible(FALSE); */
 	
-	childSetAction("add_to_outfit_btn", boost::bind(&LLPanelOutfitEdit::onAddToOutfitClicked, this));
-	childSetEnabled("add_to_outfit_btn", false);
-
-	mRemoveFromOutfitBtn = getChild<LLButton>("remove_from_outfit_btn");
-	mRemoveFromOutfitBtn->setEnabled(FALSE);
-	mRemoveFromOutfitBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onRemoveFromOutfitClicked, this));
-
 	mEditWearableBtn = getChild<LLButton>("edit_wearable_btn");
 	mEditWearableBtn->setEnabled(FALSE);
 	mEditWearableBtn->setVisible(FALSE);
@@ -233,9 +231,6 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mWearableListManager = new LLFilteredWearableListManager(
 		getChild<LLInventoryItemsList>("filtered_wearables_list"), ALL_ITEMS_MASK);
-		
-	childSetAction("move_closer_btn", boost::bind(&LLPanelOutfitEdit::moveWearable, this, true));
-	childSetAction("move_further_btn", boost::bind(&LLPanelOutfitEdit::moveWearable, this, false));
 
 	return TRUE;
 }
@@ -252,9 +247,9 @@ void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
 	updateLookInfo();
 }
 
-void LLPanelOutfitEdit::showAddWearablesPanel()
+void LLPanelOutfitEdit::toggleAddWearablesPanel()
 {
-	childSetVisible("add_wearables_panel", childGetValue("add_btn"));
+	childSetVisible("add_wearables_panel", !childIsVisible("add_wearables_panel"));
 }
 
 void LLPanelOutfitEdit::showWearablesFilter()
@@ -379,8 +374,6 @@ void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
 	LLAppearanceMgr::getInstance()->removeItemFromAvatar(id_to_remove);
 
 	updateLookInfo();
-
-	mRemoveFromOutfitBtn->setEnabled(FALSE);
 }
 
 
@@ -434,10 +427,7 @@ void LLPanelOutfitEdit::onInventorySelectionChange(const std::deque<LLFolderView
 	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_BODYPART:
 	case LLAssetType::AT_OBJECT:
-		childSetEnabled("add_to_outfit_btn", true);
-		break;
 	default:
-		childSetEnabled("add_to_outfit_btn", false);
 		break;
 	}
 	
@@ -470,10 +460,7 @@ void LLPanelOutfitEdit::onOutfitItemSelectionChange(void)
 	{
 	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_OBJECT:
-		mRemoveFromOutfitBtn->setEnabled(TRUE);
-		break;
 	default:
-		mRemoveFromOutfitBtn->setEnabled(FALSE);
 		break;
 	}
 }
