@@ -4686,21 +4686,12 @@ Please select at least one type of content to search (General, Moderate, or Adul
 [MESSAGE]
   </notification>
 
-  <!--
-  <notification
-   icon="notify.tga"
-   name="PaymentReceivedFor"
-   type="notify">
-[NAME] paid you L$[AMOUNT] for [REASON].
-  </notification>
-
   <notification
    icon="notify.tga"
    name="PaymentSent"
    type="notify">
-You paid [NAME] L$[AMOUNT][REASON].
+[MESSAGE]
   </notification>
-  -->
 
   <notification
    icon="notify.tga"

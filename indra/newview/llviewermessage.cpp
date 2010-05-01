@@ -132,6 +132,8 @@ extern BOOL gDebugClicks;
 
 // function prototypes
 bool check_offer_throttle(const std::string& from_name, bool check_only);
+static void process_money_balance_reply_extended(LLMessageSystem* msg);
+static void process_money_balance_reply_legacy(const std::string& desc);
 
 //inventory offer throttle globals
 LLFrameTimer gThrottleTimer;
@@ -4588,14 +4590,66 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	S32 credit = 0;
 	S32 committed = 0;
 	std::string desc;
+	LLUUID tid;
 
+	msg->getUUID("MoneyData", "TransactionID", tid);
 	msg->getS32("MoneyData", "MoneyBalance", balance);
 	msg->getS32("MoneyData", "SquareMetersCredit", credit);
 	msg->getS32("MoneyData", "SquareMetersCommitted", committed);
 	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_Description, desc);
 	LL_INFOS("Messaging") << "L$, credit, committed: " << balance << " " << credit << " "
 			<< committed << LL_ENDL;
+    
+	if (gStatusBar)
+	{
+		gStatusBar->setBalance(balance);
+		gStatusBar->setLandCredit(credit);
+		gStatusBar->setLandCommitted(committed);
+	}
 
+	if (desc.empty()
+		|| !gSavedSettings.getBOOL("NotifyMoneyChange"))
+	{
+		// ...nothing to display
+		return;
+	}
+
+	// Suppress duplicate messages about the same transaction
+	static std::deque<LLUUID> recent;
+	if (std::find(recent.rbegin(), recent.rend(), tid) != recent.rend())
+	{
+		return;
+	}
+
+	// Once the 'recent' container gets large enough, chop some
+	// off the beginning.
+	const U32 MAX_LOOKBACK = 30;
+	const S32 POP_FRONT_SIZE = 12;
+	if(recent.size() > MAX_LOOKBACK)
+	{
+		LL_DEBUGS("Messaging") << "Removing oldest transaction records" << LL_ENDL;
+		recent.erase(recent.begin(), recent.begin() + POP_FRONT_SIZE);
+	}
+	//LL_DEBUGS("Messaging") << "Pushing back transaction " << tid << LL_ENDL;
+	recent.push_back(tid);
+
+	if (msg->has("TransactionInfo"))
+	{
+		// JAMESDEBUG TODO - for test, do both!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		process_money_balance_reply_legacy(desc);
+
+		// ...message has extended info for localization
+		process_money_balance_reply_extended(msg);
+	}
+	else
+	{
+		// *NOTE: Can remove this after server 1.40 is widely deployed.
+		process_money_balance_reply_legacy(desc);
+	}
+}
+
+static void process_money_balance_reply_extended(LLMessageSystem* msg)
+{
     // Added in server 1.40 and viewer 2.1, support for localization
     // and agent ids for name lookup.
     S32 transaction_type = 0;
@@ -4605,163 +4659,150 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	BOOL is_dest_group = FALSE;
     S32 amount = 0;
     std::string item_description;
-    if (msg->has("TransactionInfo"))
-    {
-        msg->getS32("TransactionInfo", "TransactionType", transaction_type);
-        msg->getUUID("TransactionInfo", "SourceID", source_id);
-		msg->getBOOL("TransactionInfo", "IsSourceGroup", is_source_group);
-        msg->getUUID("TransactionInfo", "DestID", dest_id);
-		msg->getBOOL("TransactionInfo", "IsDestGroup", is_dest_group);
-        msg->getS32("TransactionInfo", "Amount", amount);
-        msg->getString("TransactionInfo", "ItemDescription", item_description);
-        LL_DEBUGS("Money") << "MoneyBalanceReply source " << source_id 
-			<< " dest " << dest_id
-			<< " item " << item_description << LL_ENDL;
-    }
-    
-	if (gStatusBar)
-	{
-	//	S32 old_balance = gStatusBar->getBalance();
 
-		// This is an update, not the first transmission of balance
-	/*	if (old_balance != 0)
-		{
-			// this is actually an update
-			if (balance > old_balance)
-			{
-				LLFirstUse::useBalanceIncrease(balance - old_balance);
-			}
-			else if (balance < old_balance)
-			{
-				LLFirstUse::useBalanceDecrease(balance - old_balance);
-			}
-		}
-	 */
-		gStatusBar->setBalance(balance);
-		gStatusBar->setLandCredit(credit);
-		gStatusBar->setLandCommitted(committed);
-	}
+    msg->getS32("TransactionInfo", "TransactionType", transaction_type);
+    msg->getUUID("TransactionInfo", "SourceID", source_id);
+	msg->getBOOL("TransactionInfo", "IsSourceGroup", is_source_group);
+    msg->getUUID("TransactionInfo", "DestID", dest_id);
+	msg->getBOOL("TransactionInfo", "IsDestGroup", is_dest_group);
+    msg->getS32("TransactionInfo", "Amount", amount);
+    msg->getString("TransactionInfo", "ItemDescription", item_description);
+    LL_INFOS("Money") << "MoneyBalanceReply source " << source_id 
+		<< " dest " << dest_id
+		<< " type " << transaction_type
+		<< " item " << item_description << LL_ENDL;
 
-	LLUUID tid;
-	msg->getUUID("MoneyData", "TransactionID", tid);
-	static std::deque<LLUUID> recent;
-	if(!desc.empty() && gSavedSettings.getBOOL("NotifyMoneyChange")
-	   && (std::find(recent.rbegin(), recent.rend(), tid) == recent.rend()))
-	{
-		// Make the user confirm the transaction, since they might
-		// have missed something during an event.
-		// *TODO: Translate
-		LLSD args;
-		
-
-		// this is a marker to retrieve avatar name from server message:
-		// "<avatar name> paid you L$"
-		const std::string marker = "paid you L$";
-
-		args["MESSAGE"] = desc;
-
-		// extract avatar name from system message
-		S32 marker_pos = desc.find(marker, 0);
-
-		std::string base_name = desc.substr(0, marker_pos);
-		
-		std::string name = base_name;
-		LLStringUtil::trim(name);
-
-		// if name extracted and name cache contains avatar id send loggable notification
-		LLUUID from_id;
-		if(name.size() > 0 && gCacheName->getUUID(name, from_id))
-		{
-			//description always comes not localized. lets fix this
-
-			//ammount paid
-			std::string ammount = desc.substr(marker_pos + marker.length(),desc.length() - marker.length() - marker_pos);
+	const char* source_type = (is_source_group ? "group" : "agent");
+	std::string source_slurl =
+		LLSLURL::buildCommand( source_type, source_id, "about");
 	
-			//reform description
-			LLStringUtil::format_map_t str_args;
-			str_args["NAME"] = LLCacheName::cleanFullName(name);
-			str_args["AMOUNT"] = ammount;
-			std::string new_description = LLTrans::getString("paid_you_ldollars", str_args);
+	const char* dest_type = (is_dest_group ? "group" : "agent");
+	std::string dest_slurl =
+		LLSLURL::buildCommand( dest_type, dest_id, "about");
 
-			args["MESSAGE"] = new_description;
-			args["NAME"] = LLCacheName::cleanFullName(name);
-			LLSD payload;
-			payload["from_id"] = from_id;
-			LLNotificationsUtil::add("PaymentReceived", args, payload);
-		}
-		//AD *HACK: Parsing incoming string to localize messages that come from server! EXT-5986
-		// It's only a temporarily and ineffective measure. It doesn't affect performance much
-		// because we get here only for specific type of messages, but anyway it is not right to do it!
-		// *TODO: Server-side changes should be made and this code removed.
-		else
-		{
-			if(desc.find("You paid")==0)
-			{
-				// Regular expression for message parsing- change it in case of server-side changes.
-				// Each set of parenthesis will later be used to find arguments of message we generate
-				// in the end of this if- (.*) gives us name of money receiver, (\\d+)-amount of money we pay
-				// and ([^$]*)- reason of payment
-				boost::regex expr("You paid (?:.{0}|(.*) )L\\$(\\d+)\\s?([^$]*)\\.");
-				boost::match_results <std::string::const_iterator> matches;
-				if(boost::regex_match(desc, matches, expr))
-				{
-					// Name of full localizable notification string
-					// there are three types of this string- with name of receiver and reason of payment,
-					// without name and without reason (but not simultaneously)
-					// example of string without name - You paid L$100 to create a group.
-					// example of string without reason - You paid Smdby Linden L$100.
-					// example of string with reason and name - You paid Smbdy Linden L$100 for a land access pass.
-					std::string line = "you_paid_ldollars_no_name";
+	//
+	//
+	// JAMESDEBUG TODO HERE!!!
+	//
+	//
 
-					// arguments of string which will be in notification
-					LLStringUtil::format_map_t str_args;
-
-					// extracting amount of money paid (without L$ symbols). It is always present.
-					str_args["[AMOUNT]"] = std::string(matches[2]);
-
-					// extracting name of person/group you are paying (it may be absent)
-					std::string name = std::string(matches[1]);
-					if(!name.empty())
-					{
-						str_args["[NAME]"] = LLCacheName::cleanFullName(name);
-						line = "you_paid_ldollars";
-					}
-
-					// extracting reason of payment (it may be absent)
-					std::string reason = std::string(matches[3]);
-					if (reason.empty())
-					{
-						line = "you_paid_ldollars_no_reason";
-					}
-					else
-					{
-						std::string localized_reason;
-						// if we haven't found localized string for reason of payment leave it as it was
-						str_args["[REASON]"] =  LLTrans::findString(localized_reason, reason) ? localized_reason : reason;
-					}
-
-					// forming final message string by retrieving localized version from xml
-					// and applying previously found arguments
-					line = LLTrans::getString(line, str_args);
-					args["MESSAGE"] = line;
-				}
-			}
-
-			LLNotificationsUtil::add("SystemMessage", args);
-		}
-
-		// Once the 'recent' container gets large enough, chop some
-		// off the beginning.
-		const U32 MAX_LOOKBACK = 30;
-		const S32 POP_FRONT_SIZE = 12;
-		if(recent.size() > MAX_LOOKBACK)
-		{
-			LL_DEBUGS("Messaging") << "Removing oldest transaction records" << LL_ENDL;
-			recent.erase(recent.begin(), recent.begin() + POP_FRONT_SIZE);
-		}
-		//LL_DEBUGS("Messaging") << "Pushing back transaction " << tid << LL_ENDL;
-		recent.push_back(tid);
+	switch (transaction_type)
+	{
+	case TRANS_OBJECT_SALE:
+	case TRANS_LAND_SALE:
+	case TRANS_LAND_PASS_SALE:
+	case TRANS_GROUP_LAND_DEED:
+	case TRANS_GROUP_CREATE:
+	case TRANS_GROUP_JOIN:
+	case TRANS_UPLOAD_CHARGE:
+	default:
+		llinfos << "HERE!" << llendl;
+		break;
 	}
+}
+
+// *NOTE: This can be removed after server 1.40 is widely deployed, as it will
+// send an extra TransactionInfo block to allow proper localization.
+static void process_money_balance_reply_legacy(const std::string& desc)
+{
+	LLSD args;
+
+	// this is a marker to retrieve avatar name from server message:
+	// "<avatar name> paid you L$"
+	const std::string marker = "paid you L$";
+
+	args["MESSAGE"] = desc;
+
+	// extract avatar name from system message
+	S32 marker_pos = desc.find(marker, 0);
+
+	std::string base_name = desc.substr(0, marker_pos);
+	
+	std::string name = base_name;
+	LLStringUtil::trim(name);
+
+	// if name extracted and name cache contains avatar id send loggable notification
+	LLUUID from_id;
+	if(name.size() > 0 && gCacheName->getUUID(name, from_id))
+	{
+		//description always comes not localized. lets fix this
+
+		//ammount paid
+		std::string ammount = desc.substr(marker_pos + marker.length(),desc.length() - marker.length() - marker_pos);
+
+		//reform description
+		LLStringUtil::format_map_t str_args;
+		str_args["NAME"] = LLCacheName::cleanFullName(name);
+		str_args["AMOUNT"] = ammount;
+		std::string new_description = LLTrans::getString("paid_you_ldollars", str_args);
+
+		args["MESSAGE"] = new_description;
+		args["NAME"] = LLCacheName::cleanFullName(name);
+		LLSD payload;
+		payload["from_id"] = from_id;
+		LLNotificationsUtil::add("PaymentReceived", args, payload);
+	}
+	//AD *HACK: Parsing incoming string to localize messages that come from server! EXT-5986
+	// It's only a temporarily and ineffective measure. It doesn't affect performance much
+	// because we get here only for specific type of messages, but anyway it is not right to do it!
+	// *TODO: Server-side changes should be made and this code removed.
+	else
+	{
+		if(desc.find("You paid")==0)
+		{
+			// Regular expression for message parsing- change it in case of server-side changes.
+			// Each set of parenthesis will later be used to find arguments of message we generate
+			// in the end of this if- (.*) gives us name of money receiver, (\\d+)-amount of money we pay
+			// and ([^$]*)- reason of payment
+			boost::regex expr("You paid (?:.{0}|(.*) )L\\$(\\d+)\\s?([^$]*)\\.");
+			boost::match_results <std::string::const_iterator> matches;
+			if(boost::regex_match(desc, matches, expr))
+			{
+				// Name of full localizable notification string
+				// there are three types of this string- with name of receiver and reason of payment,
+				// without name and without reason (but not simultaneously)
+				// example of string without name - You paid L$100 to create a group.
+				// example of string without reason - You paid Smdby Linden L$100.
+				// example of string with reason and name - You paid Smbdy Linden L$100 for a land access pass.
+				std::string line = "you_paid_ldollars_no_name";
+
+				// arguments of string which will be in notification
+				LLStringUtil::format_map_t str_args;
+
+				// extracting amount of money paid (without L$ symbols). It is always present.
+				str_args["[AMOUNT]"] = std::string(matches[2]);
+
+				// extracting name of person/group you are paying (it may be absent)
+				std::string name = std::string(matches[1]);
+				if(!name.empty())
+				{
+					str_args["[NAME]"] = LLCacheName::cleanFullName(name);
+					line = "you_paid_ldollars";
+				}
+
+				// extracting reason of payment (it may be absent)
+				std::string reason = std::string(matches[3]);
+				if (reason.empty())
+				{
+					line = "you_paid_ldollars_no_reason";
+				}
+				else
+				{
+					std::string localized_reason;
+					// if we haven't found localized string for reason of payment leave it as it was
+					str_args["[REASON]"] =  LLTrans::findString(localized_reason, reason) ? localized_reason : reason;
+				}
+
+				// forming final message string by retrieving localized version from xml
+				// and applying previously found arguments
+				line = LLTrans::getString(line, str_args);
+				args["MESSAGE"] = line;
+			}
+		}
+
+		LLNotificationsUtil::add("SystemMessage", args);
+	}
+
 }
 
 bool handle_special_notification_callback(const LLSD& notification, const LLSD& response)
