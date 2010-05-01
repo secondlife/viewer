@@ -315,6 +315,7 @@ extern LLGLSLShader			gObjectShinyProgram;
 extern LLGLSLShader			gObjectShinyWaterProgram;
 
 extern LLGLSLShader			gSkinnedObjectSimpleProgram;
+extern LLGLSLShader			gSkinnedObjectFullbrightProgram;
 extern LLGLSLShader			gSkinnedObjectShinySimpleProgram;
 
 //environment shaders

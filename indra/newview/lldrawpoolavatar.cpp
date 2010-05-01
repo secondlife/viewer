@@ -364,7 +364,7 @@ S32 LLDrawPoolAvatar::getNumPasses()
 	}
 	else if (getVertexShaderLevel() > 0)
 	{
-		return 5;
+		return 6;
 	}
 	else
 	{
@@ -411,6 +411,9 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 		beginRiggedSimple();
 		break;
 	case 4:
+		beginRiggedFullbright();
+		break;
+	case 5:
 		beginRiggedShinySimple();
 		break;
 	}
@@ -441,6 +444,9 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 		endRiggedSimple();
 		break;
 	case 4:
+		endRiggedFullbright();
+		break;
+	case 5:
 		endRiggedShinySimple();
 		break;
 	}
@@ -644,6 +650,22 @@ void LLDrawPoolAvatar::endRiggedSimple()
 	LLVertexBuffer::sWeight4Loc = -1;
 }
 
+void LLDrawPoolAvatar::beginRiggedFullbright()
+{
+	sVertexProgram = &gSkinnedObjectFullbrightProgram;
+	diffuse_channel = 0;
+	gSkinnedObjectFullbrightProgram.bind();
+	LLVertexBuffer::sWeight4Loc = gSkinnedObjectFullbrightProgram.getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
+}
+
+void LLDrawPoolAvatar::endRiggedFullbright()
+{
+	sVertexProgram = NULL;
+	LLVertexBuffer::unbind();
+	gSkinnedObjectFullbrightProgram.unbind();
+	LLVertexBuffer::sWeight4Loc = -1;
+}
+
 void LLDrawPoolAvatar::beginRiggedShinySimple()
 {
 	sVertexProgram = &gSkinnedObjectShinySimpleProgram;
@@ -826,6 +848,12 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	if (pass == 4)
 	{
+		renderRiggedFullbright(avatarp);
+		return;
+	}
+
+	if (pass == 5)
+	{
 		renderRiggedShinySimple(avatarp);
 		return;
 	}
@@ -988,6 +1016,16 @@ void LLDrawPoolAvatar::renderRiggedSimple(LLVOAvatar* avatar)
 							LLVertexBuffer::MAP_WEIGHT4;
 
 	renderRigged(avatar, RIGGED_SIMPLE, data_mask);
+}
+
+void LLDrawPoolAvatar::renderRiggedFullbright(LLVOAvatar* avatar)
+{
+	const U32 data_mask =	LLVertexBuffer::MAP_VERTEX | 
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_COLOR |
+							LLVertexBuffer::MAP_WEIGHT4;
+
+	renderRigged(avatar, RIGGED_FULLBRIGHT, data_mask);
 }
 
 	

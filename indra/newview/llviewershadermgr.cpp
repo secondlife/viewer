@@ -79,6 +79,7 @@ LLGLSLShader		gObjectShinyWaterProgram;
 
 //object hardware skinning shaders
 LLGLSLShader		gSkinnedObjectSimpleProgram;
+LLGLSLShader		gSkinnedObjectFullbrightProgram;
 LLGLSLShader		gSkinnedObjectShinySimpleProgram;
 
 //environment shaders
@@ -155,6 +156,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gObjectFullbrightProgram);
 	mShaderList.push_back(&gObjectFullbrightShinyProgram);
 	mShaderList.push_back(&gSkinnedObjectSimpleProgram);
+	mShaderList.push_back(&gSkinnedObjectFullbrightProgram);
 	mShaderList.push_back(&gSkinnedObjectShinySimpleProgram);
 	mShaderList.push_back(&gTerrainProgram);
 	mShaderList.push_back(&gTerrainWaterProgram);
@@ -562,6 +564,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gObjectShinyWaterProgram.unload();
 
 	gSkinnedObjectSimpleProgram.unload();
+	gSkinnedObjectFullbrightProgram.unload();
 	gSkinnedObjectShinySimpleProgram.unload();
 	
 
@@ -1258,6 +1261,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectFullbrightProgram.unload();
 		gObjectFullbrightWaterProgram.unload();
 		gSkinnedObjectSimpleProgram.unload();
+		gSkinnedObjectFullbrightProgram.unload();
 		gSkinnedObjectShinySimpleProgram.unload();
 	
 		return FALSE;
@@ -1383,6 +1387,21 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gSkinnedObjectSimpleProgram.mShaderFiles.push_back(make_pair("objects/simpleF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gSkinnedObjectSimpleProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
 		success = gSkinnedObjectSimpleProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gSkinnedObjectFullbrightProgram.mName = "Skinned Fullbright Shader";
+		gSkinnedObjectFullbrightProgram.mFeatures.calculatesAtmospherics = true;
+		gSkinnedObjectFullbrightProgram.mFeatures.hasGamma = true;
+		gSkinnedObjectFullbrightProgram.mFeatures.hasTransport = true;
+		gSkinnedObjectFullbrightProgram.mFeatures.isFullbright = true;
+		gSkinnedObjectFullbrightProgram.mFeatures.hasObjectSkinning = true;
+		gSkinnedObjectFullbrightProgram.mShaderFiles.clear();
+		gSkinnedObjectFullbrightProgram.mShaderFiles.push_back(make_pair("objects/fullbrightSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
+		gSkinnedObjectFullbrightProgram.mShaderFiles.push_back(make_pair("objects/fullbrightF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gSkinnedObjectFullbrightProgram.mShaderLevel = mVertexShaderLevel[SHADER_OBJECT];
+		success = gSkinnedObjectFullbrightProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

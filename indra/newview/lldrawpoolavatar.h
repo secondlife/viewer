@@ -97,12 +97,14 @@ public:
 	void beginImpostor();
 	void beginSkinned();
 	void beginRiggedSimple();
+	void beginRiggedFullbright();
 	void beginRiggedShinySimple();
 
 	void endRigid();
 	void endImpostor();
 	void endSkinned();
 	void endRiggedSimple();
+	void endRiggedFullbright();
 	void endRiggedShinySimple();
 
 	void beginDeferredImpostor();
@@ -123,6 +125,7 @@ public:
 
 	void renderRigged(LLVOAvatar* avatar, U32 type, const U32 data_mask);
 	void renderRiggedSimple(LLVOAvatar* avatar);
+	void renderRiggedFullbright(LLVOAvatar* avatar);
 	void renderRiggedShinySimple(LLVOAvatar* avatar);
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
@@ -133,11 +136,11 @@ public:
 	typedef enum
 	{
 		RIGGED_SIMPLE = 0,
+		RIGGED_FULLBRIGHT,
 		RIGGED_SHINY_SIMPLE,
 		RIGGED_SHINY_FULLBRIGHT,
 		RIGGED_SHINY_BUMP,
 		RIGGED_BUMP,
-		RIGGED_FULLBRIGHT,
 		RIGGED_ALPHA,
 		NUM_RIGGED_PASSES,
 		RIGGED_UNKNOWN,
