@@ -234,6 +234,7 @@ public:
 private:
 	friend class LLGeometryManager;
 	friend class LLVolumeGeometryManager;
+	friend class LLDrawPoolAvatar;
 
 	U32			mState;
 	LLFacePool*	mDrawPoolp;

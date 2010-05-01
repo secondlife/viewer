@@ -124,7 +124,7 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	{
 		GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second);
 		LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
-		if (mShaderLevel > 0)
+		if (shaderhandle > 0)
 		{
 			attachObject(shaderhandle);
 		}

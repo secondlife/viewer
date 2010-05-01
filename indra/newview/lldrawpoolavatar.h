@@ -37,6 +37,11 @@
 
 class LLVOAvatar;
 class LLGLSLShader;
+class LLFace;
+class LLMeshSkinInfo;
+class LLVolume;
+class LLVolumeFace;
+
 
 class LLDrawPoolAvatar : public LLFacePool
 {
@@ -91,12 +96,14 @@ public:
 	void beginRigid();
 	void beginImpostor();
 	void beginSkinned();
-	void beginRigged();
-		
+	void beginRiggedSimple();
+	void beginRiggedShinySimple();
+
 	void endRigid();
 	void endImpostor();
 	void endSkinned();
-	void endRigged();
+	void endRiggedSimple();
+	void endRiggedShinySimple();
 
 	void beginDeferredImpostor();
 	void beginDeferredRigid();
@@ -108,10 +115,39 @@ public:
 	void endDeferredSkinned();
 	void endDeferredRigged();
 		
+	void updateRiggedFaceVertexBuffer(LLFace* facep, 
+									  const LLMeshSkinInfo* skin, 
+									  LLVolume* volume,
+									  const LLVolumeFace& vol_face, 
+									  U32 data_mask);
+
+	void renderRigged(LLVOAvatar* avatar, U32 type, const U32 data_mask);
+	void renderRiggedSimple(LLVOAvatar* avatar);
+	void renderRiggedShinySimple(LLVOAvatar* avatar);
+
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
 	void renderAvatars(LLVOAvatar *single_avatar, S32 pass = -1); // renders only one avatar if single_avatar is not null.
+
+	typedef enum
+	{
+		RIGGED_SIMPLE = 0,
+		RIGGED_SHINY_SIMPLE,
+		RIGGED_SHINY_FULLBRIGHT,
+		RIGGED_SHINY_BUMP,
+		RIGGED_BUMP,
+		RIGGED_FULLBRIGHT,
+		RIGGED_ALPHA,
+		NUM_RIGGED_PASSES,
+		RIGGED_UNKNOWN,
+	} eRiggedPass;
+
+	
+	void addRiggedFace(LLFace* facep, U32 type);
+	void removeRiggedFace(LLFace* facep, U32 type = RIGGED_UNKNOWN); 
+
+	std::vector<LLFace*> mRiggedFace[NUM_RIGGED_PASSES];
 
 	static BOOL sSkipOpaque;
 	static BOOL sSkipTransparent;

@@ -187,8 +187,6 @@ public:
 	virtual void resetDrawOrders();
 	void resetAll();
 
-	BOOL moveFace(LLFace *face, LLDrawPool *poolp, BOOL copy_data = FALSE);
-
 	void destroy();
 
 	void buildEdges();

@@ -3642,7 +3642,7 @@ bool LLVOAvatar::shouldAlphaMask()
 
 U32 LLVOAvatar::renderSkinnedAttachments()
 {
-	U32 num_indices = 0;
+	/*U32 num_indices = 0;
 	
 	const U32 data_mask =	LLVertexBuffer::MAP_VERTEX | 
 							LLVertexBuffer::MAP_NORMAL | 
@@ -3670,107 +3670,14 @@ U32 LLVOAvatar::renderSkinnedAttachments()
 						LLFace* face = drawable->getFace(i);
 						if (face->isState(LLFace::RIGGED))
 						{
-							LLVolume* volume = attached_object->getVolume();
-							if (!volume || volume->getNumVolumeFaces() <= i)
-							{
-								continue;
-							}
-
-							const LLVolumeFace& vol_face = volume->getVolumeFace(i);
-
-							const LLMeshSkinInfo* skin = NULL;
-							LLVertexBuffer* buff = face->mVertexBuffer;
-							LLUUID mesh_id = volume->getParams().getSculptID();;
-
-							if (!buff || 
-								!buff->hasDataType(LLVertexBuffer::TYPE_WEIGHT4) ||
-								buff->getRequestedVerts() != vol_face.mVertices.size())
-							{
-								face->mVertexBuffer = NULL;
-								face->mLastVertexBuffer = NULL;
-								buff = NULL;
-
-								if (mesh_id.notNull())
-								{
-									skin = gMeshRepo.getSkinInfo(mesh_id);
-									if (skin)
-									{
-										face->mVertexBuffer = new LLVertexBuffer(data_mask, 0);
-										face->mVertexBuffer->allocateBuffer(vol_face.mVertices.size(), vol_face.mIndices.size(), true);
-
-										face->setGeomIndex(0);
-										face->setIndicesIndex(0);
-										face->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
-
-										U16 offset = 0;
-										
-										LLMatrix4 mat_vert = skin->mBindShapeMatrix;
-										glh::matrix4f m((F32*) mat_vert.mMatrix);
-										m = m.inverse().transpose();
-										
-										F32 mat3[] = 
-										{ m.m[0], m.m[1], m.m[2],
-										  m.m[4], m.m[5], m.m[6],
-										  m.m[8], m.m[9], m.m[10] };
-
-										LLMatrix3 mat_normal(mat3);				
-
-										face->getGeometryVolume(*volume, i, mat_vert, mat_normal, offset, true);
-										buff = face->mVertexBuffer;
-									}
-								}
-							}								
 							
-							if (buff && mesh_id.notNull())
-							{
-								if (!skin)
-								{
-									skin = gMeshRepo.getSkinInfo(mesh_id);
-								}
-
-								if (skin)
-								{
-									LLMatrix4 mat[64];
-
-									for (U32 i = 0; i < skin->mJointNames.size(); ++i)
-									{
-										LLJoint* joint = getJoint(skin->mJointNames[i]);
-										if (joint)
-										{
-											mat[i] = skin->mInvBindMatrix[i];
-											mat[i] *= joint->getWorldMatrix();
-										}
-									}
-									
-									LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette", 
-										skin->mJointNames.size(),
-										FALSE,
-										(GLfloat*) mat[0].mMatrix);
-									LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv("matrixPalette[0]", 
-										skin->mJointNames.size(),
-										FALSE,
-										(GLfloat*) mat[0].mMatrix);
-
-									buff->setBuffer(data_mask);
-
-									U16 start = face->getGeomStart();
-									U16 end = start + face->getGeomCount()-1;
-									S32 offset = face->getIndicesStart();
-									U32 count = face->getIndicesCount();
-
-									gGL.getTexUnit(0)->bind(face->getTexture());
-									buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
-									
-								}
-							}
-						}
-					}
 				}
 			}
 		}
 	}
 
-	return num_indices;
+	return num_indices;*/
+	return 0;
 }
 
 //-----------------------------------------------------------------------------

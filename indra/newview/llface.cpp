@@ -205,7 +205,12 @@ void LLFace::destroy()
 	if (mDrawPoolp)
 	{
 		LLFastTimer t(FTM_DESTROY_DRAWPOOL);
+
+		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
 		mDrawPoolp->removeFace(this);
+
+		
+		
 		mDrawPoolp = NULL;
 	}
 
