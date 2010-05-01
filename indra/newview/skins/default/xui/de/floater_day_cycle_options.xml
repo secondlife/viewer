@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Day Cycle Floater" title="TAGESZYKLUS-EDITOR">
 	<tab_container name="Day Cycle Tabs">
 		<panel label="Tageszyklus" name="Day Cycle">
-			<button label=" ?" name="WLDayCycleHelp" />
+			<button label=" ?" name="WLDayCycleHelp"/>
 			<text name="WL12am">
 				24:00
 			</text>
@@ -57,40 +57,38 @@
 			<text name="WL12amHash2">
 				|
 			</text>
-			<button label="Key hinzu" label_selected="Key hinzu" name="WLAddKey" />
-			<button label="Key löschen" label_selected="Key löschen" name="WLDeleteKey" />
+			<button label="Key hinzu" label_selected="Key hinzu" name="WLAddKey"/>
+			<button label="Key löschen" label_selected="Key löschen" name="WLDeleteKey"/>
 			<text name="WLCurKeyFrameText">
 				Keyframe-Einstellungen:
 			</text>
 			<text name="WLCurKeyTimeText">
 				Key-Zeit:
 			</text>
-			<spinner label="Std." name="WLCurKeyHour" />
+			<spinner label="Std." name="WLCurKeyHour"/>
 			<spinner label="Min." name="WLCurKeyMin"/>
 			<text name="WLCurKeyTimeText2">
 				Key-Voreinstellung:
 			</text>
-			<combo_box label="Voreinstellung" name="WLKeyPresets" />
+			<combo_box label="Voreinstellung" name="WLKeyPresets"/>
 			<text name="DayCycleText">
 				Einrasten:
 			</text>
-			<combo_box label="5 min" name="WLSnapOptions" />
+			<combo_box label="5 min" name="WLSnapOptions"/>
 			<text name="DayCycleText2">
 				Zykluslänge:
 			</text>
-			<spinner label="Std." name="WLLengthOfDayHour" />
+			<spinner label="Std." name="WLLengthOfDayHour"/>
 			<spinner label="Min." name="WLLengthOfDayMin"/>
 			<spinner label="Sek." name="WLLengthOfDaySec"/>
 			<text name="DayCycleText3">
 				Vorschau:
 			</text>
-			<button label="Start" label_selected="Start" name="WLAnimSky" />
-			<button label="Stopp" label_selected="Stopp" name="WLStopAnimSky" />
-			<button label="Grundbesitzzeit verw" label_selected="Zur Grundbesitzzeit"
-			     name="WLUseLindenTime" />
-			<button label="Testtag speichern" label_selected="Testtag speichern"
-			     name="WLSaveDayCycle" />
-			<button label="Testtag laden" label_selected="Testtag laden" name="WLLoadDayCycle" />
+			<button label="Start" label_selected="Start" name="WLAnimSky"/>
+			<button label="Stopp" label_selected="Stopp" name="WLStopAnimSky"/>
+			<button label="Grundbesitzzeit verw" label_selected="Zur Grundbesitzzeit" name="WLUseLindenTime"/>
+			<button label="Testtag speichern" label_selected="Testtag speichern" name="WLSaveDayCycle"/>
+			<button label="Testtag laden" label_selected="Testtag laden" name="WLLoadDayCycle"/>
 		</panel>
 	</tab_container>
 </floater>

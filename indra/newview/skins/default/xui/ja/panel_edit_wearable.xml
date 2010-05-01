@@ -72,7 +72,7 @@
 	<string name="jacket_desc_text">
 		ジャケット：
 	</string>
-	<string name="skirt_desc_text">
+	<string name="skirt_skirt_desc_text">
 		スカート：
 	</string>
 	<string name="gloves_desc_text">
@@ -90,19 +90,17 @@
 	<string name="tattoo_desc_text">
 		タトゥ：
 	</string>
-	<labeled_back_button label="保存" name="back_btn" tool_tip="アウトフィットの編集に戻る"/>
 	<text name="edit_wearable_title" value="シェイプを編集中"/>
 	<panel label="シャツ" name="wearable_type_panel">
 		<text name="description_text" value="シェイプ："/>
-		<radio_group name="sex_radio">
-			<radio_item label="" name="sex_male" tool_tip="男性" value="1"/>
-			<radio_item label="" name="sex_female" tool_tip="女性" value="0"/>
-		</radio_group>
-		<icon name="male_icon" tool_tip="男性"/>
-		<icon name="female_icon" tool_tip="女性"/>
+	</panel>
+	<panel label="gear_buttom_panel" name="gear_buttom_panel">
+		<button name="friends_viewsort_btn" tool_tip="オプション"/>
+		<button name="add_btn" tool_tip="TODO"/>
+		<button name="del_btn" tool_tip="TODO"/>
 	</panel>
 	<panel name="button_panel">
 		<button label="別名で保存" name="save_as_button"/>
-		<button label="変更を元に戻す" name="revert_button"/>
+		<button label="元に戻す" name="revert_button"/>
 	</panel>
 </panel>

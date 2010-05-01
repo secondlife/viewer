@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_shape_panel">
-	<string name="meters">
-		mètres
-	</string>
-	<string name="feet">
-		pieds
-	</string>
-	<string name="height">
-		Taille :
-	</string>
-	<text name="avatar_height"/>
+	<panel name="avatar_sex_panel">
+		<text name="gender_text">
+			Sexe :
+		</text>
+		<radio_group name="sex_radio">
+			<radio_item label="Femme" name="radio"/>
+			<radio_item label="Homme" name="radio2"/>
+		</radio_group>
+	</panel>
 	<panel label="Chemise" name="accordion_panel">
 		<accordion name="wearable_accordion">
 			<accordion_tab name="shape_body_tab" title="Corps"/>

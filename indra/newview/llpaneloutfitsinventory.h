@@ -65,7 +65,6 @@ public:
 	bool onSaveCommit(const LLSD& notification, const LLSD& response);
 
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
-	void showEditOutfitPanel();
 
 	// If a compatible listener type is selected, then return a pointer to that.
 	// Otherwise, return NULL.
@@ -131,8 +130,6 @@ private:
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
 	///
-public:
-	static bool sShowDebugEditor;
 };
 
 #endif //LL_LLPANELOUTFITSINVENTORY_H

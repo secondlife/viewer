@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_shape_panel">
-	<string name="meters">
-		メートル
-	</string>
-	<string name="feet">
-		フィート
-	</string>
-	<string name="height">
-		高さ：
-	</string>
-	<text name="avatar_height"/>
+	<panel name="avatar_sex_panel">
+		<text name="gender_text">
+			性別：
+		</text>
+		<radio_group name="sex_radio">
+			<radio_item label="女性" name="radio"/>
+			<radio_item label="男性" name="radio2"/>
+		</radio_group>
+	</panel>
 	<panel label="シャツ" name="accordion_panel">
 		<accordion name="wearable_accordion">
 			<accordion_tab name="shape_body_tab" title="身体"/>
@@ -19,7 +18,7 @@
 			<accordion_tab name="shape_nose_tab" title="鼻"/>
 			<accordion_tab name="shape_mouth_tab" title="口"/>
 			<accordion_tab name="shape_chin_tab" title="あご"/>
-			<accordion_tab name="shape_torso_tab" title="上半身"/>
+			<accordion_tab name="shape_torso_tab" title="頭"/>
 			<accordion_tab name="shape_legs_tab" title="脚"/>
 		</accordion>
 	</panel>

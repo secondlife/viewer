@@ -2,8 +2,6 @@
 <!-- Side tray Outfit Edit panel -->
 <panel label="Outfit bearbeiten" name="outfit_edit">
 	<string name="No Outfit" value="Kein Outfit"/>
-	<string name="unsaved_changes" value="Ungespeicherte Änderungen"/>
-	<string name="now_editing" value="Wird bearbeitet"/>
 	<panel.string name="not_available">
 		k.A.
 	</panel.string>
@@ -13,9 +11,7 @@
 	<string name="Filter.All" value="Alle"/>
 	<string name="Filter.Clothes/Body" value="Kleider/Körper"/>
 	<string name="Filter.Objects" value="Objekte"/>
-	<string name="Filter.Clothing" value="Kleidung"/>
-	<string name="Filter.Bodyparts" value="Körperteile"/>
-	<string name="replace_body_part" value="Klicken, um Ihre aktuelle Form zu ersetzen"/>
+	<button label="Bearbeiten" name="edit_wearable_btn"/>
 	<text name="title" value="Outfit bearbeiten"/>
 	<panel label="bottom_panel" name="header_panel">
 		<panel label="bottom_panel" name="outfit_name_and_status">
@@ -25,27 +21,28 @@
 	</panel>
 	<layout_stack name="im_panels">
 		<layout_panel label="IM Steuerkonsole" name="outfit_wearables_panel">
-			<layout_stack name="filter_panels">
-				<layout_panel name="add_button_and_combobox">
-					<button label="Mehr hinzufügen" name="show_add_wearables_btn" tool_tip="Öffnen/Schließen"/>
-				</layout_panel>
-				<layout_panel name="filter_panel">
-					<filter_editor label="Tragbare Inventarobjekte filtern" name="look_item_filter"/>
-				</layout_panel>
-			</layout_stack>
+			<scroll_list name="look_items_list">
+				<scroll_list.columns label="Look-Artikel" name="look_item"/>
+				<scroll_list.columns label="Outfit-Artikel sortieren" name="look_item_sort"/>
+			</scroll_list>
+			<panel label="bottom_panel" name="edit_panel"/>
 		</layout_panel>
 		<layout_panel name="add_wearables_panel">
-			<button label="Objekt anziehen" name="plus_btn"/>
+			<filter_editor label="Filter" name="look_item_filter"/>
+			<layout_stack name="filter_panels">
+				<layout_panel label="IM Steuerkonsole" name="filter_button_panel">
+					<text name="add_to_outfit_label" value="Zum Outfit hinzufügen:"/>
+					<button label="O" name="filter_button"/>
+				</layout_panel>
+			</layout_stack>
+			<panel label="add_wearables_button_bar" name="add_wearables_button_bar">
+				<button label="O" name="folder_view_btn"/>
+				<button label="L" name="list_view_btn"/>
+			</panel>
 		</layout_panel>
 	</layout_stack>
-	<panel name="no_add_wearables_button_bar">
-		<button name="shop_btn_1" tool_tip="Besuchen Sie den Marktplatz. Sie können auch einen Teil Ihres Outfits auswählen, und dann hier klicken, um ähnliche Artikel anzuzeigen."/>
-	</panel>
-	<panel name="add_wearables_button_bar">
-		<button name="shop_btn_2" tool_tip="Besuchen Sie den Marktplatz. Sie können auch einen Teil Ihres Outfits auswählen, und dann hier klicken, um ähnliche Artikel anzuzeigen."/>
-	</panel>
 	<panel name="save_revert_button_bar">
 		<button label="Speichern" name="save_btn"/>
-		<button label="Änderungen rückgängig machen" name="revert_btn" tool_tip="Zur zuletzt gespeicherten Version zurücksetzen"/>
+		<button label="Zurücksetzen" name="revert_btn"/>
 	</panel>
 </panel>

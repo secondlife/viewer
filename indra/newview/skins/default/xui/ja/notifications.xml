@@ -348,9 +348,6 @@ L$ が不足しているのでこのグループに参加することができ�
 		</url>
 		<usetemplate name="okcancelbuttons" notext="もう一度試す" yestext="新しいアカウントを作成"/>
 	</notification>
-	<notification name="InvalidCredentialFormat">
-		「ユーザーネーム」欄にアバターのファーストネームとラストネーム両方を入力してからログインしてください。
-	</notification>
 	<notification name="AddClassified">
 		クラシファイド広告は、検索ディレクトリと [http://secondlife.com/community/classifieds secondlife.com] の「クラシファイド広告」セクションに一週間掲載されます。
 広告を記入したら、「掲載...」をクリックしてディレクトリに追加してください。
@@ -378,10 +375,6 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="DeleteAvatarPick">
 		&lt;nolink&gt;[PICK]&lt;/nolink&gt; を削除しますか？
-		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
-	</notification>
-	<notification name="DeleteOutfits">
-		選択したアウトフィットを削除しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -501,7 +494,8 @@ L$ が不足しているのでこのグループに参加することができ�
 		[REGION] では、地形の変更ができません。
 	</notification>
 	<notification name="CannotCopyWarning">
-		あなたには[ITEMS]というアイテムをコピーする許可がありません。他の住人に提供すると、そのアイテムはあなたの「持ち物」から削除されます。本当にこれらのアイテムを譲りますか？
+		あなたはこのアイテムのコピーを許されていないので、人にあげると「持ち物」からなくなります。
+本当にこれを渡しますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -640,10 +634,6 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="CannotEncodeFile">
 		次のファイルのエンコードができません： [FILE]
-	</notification>
-	<notification name="CorruptedProtectedDataStore">
-		ユーザー名とパスワードを自動入力できません。これはネットワーク設定が変更された場合に起こります
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
 		破損したリソースファイル： [FILE]
@@ -978,26 +968,6 @@ L$ は返金されません。
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
-	<notification label="着用物を保存" name="SaveWearableAs">
-		アイテムを別名で持ち物に保存：
-		<form name="form">
-			<input name="message">
-				[DESC]（新規）
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="取り消し"/>
-		</form>
-	</notification>
-	<notification label="アウトフィットの名前を変更する" name="RenameOutfit">
-		新しいアウトフィットの名前：
-		<form name="form">
-			<input name="new_name">
-				[NAME]
-			</input>
-			<button name="Offer" text="OK"/>
-			<button name="Cancel" text="取り消し"/>
-		</form>
-	</notification>
 	<notification name="RemoveFromFriends">
 		[FIRST_NAME] [LAST_NAME] をフレンドリストから削除しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
@@ -1029,12 +999,6 @@ L$ は返金されません。
 		広告料は最低 L$ [MIN_PRICE] 必要です。
 
 金額を増やしてください。
-	</notification>
-	<notification name="ConfirmItemDeleteHasLinks">
-		ここにリンクされたアイテムが少なくとも1つあります。  このアイテムを削除するとここにリンクされたものが機能しなくなります。  リンクを先に削除することを強くお勧めします。
-
-これらのアイテムを削除しますか？
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmObjectDeleteLock">
 		選択したアイテムのうち、少なくとも 1 つがロックされています。
@@ -1192,42 +1156,6 @@ F1 キーを押してください。
 男性あるいは女性のアバターを選択してください。
 あなたの決定は後で変更できます。
 		<usetemplate name="okcancelbuttons" notext="女性" yestext="男性"/>
-	</notification>
-	<notification name="CantTeleportToGrid">
-		現在のグリッド（[CURRENT_GRID]）とはグリッド（[GRID]）が異なるため、[SLURL] にテレポートできませんでした。   ビューワを閉じてからもう一度お試しください。
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="GeneralCertificateError">
-		サーバーに接続できませんでした。
-[REASON]
-
-サブジェクト名： [SUBJECT_NAME_STRING]
-発行元： [ISSUER_NAME_STRING]
-有効日： [VALID_FROM]
-次の更新日： [VALID_TO]
-MD5 フィンガープリント： [SHA1_DIGEST]
-SHA1 フィンガープリント： [MD5_DIGEST]
-キー使用法： [KEYUSAGE]
-拡張キー使用法： [EXTENDEDKEYUSAGE]
-サブジェクトキー認識別子： [SUBJECTKEYIDENTIFIER]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="TrustCertificateError">
-		このサーバーの認証機関は不明です。
-
-認証情報：
-サブジェクト名： [SUBJECT_NAME_STRING]
-発行元： [ISSUER_NAME_STRING]
-有効日： [VALID_FROM]
-次の更新日： [VALID_TO]
-MD5 フィンガープリント： [SHA1_DIGEST]
-SHA1 フィンガープリント： [MD5_DIGEST]
-キー使用法： [KEYUSAGE]
-拡張キー使用法： [EXTENDEDKEYUSAGE]
-サブジェクトキー認識別子： [SUBJECTKEYIDENTIFIER]
-
-この認証局を信頼しますか？
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="信用する"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] L$[PRICE] 残高不足のため実行不可です。
@@ -1624,9 +1552,9 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 		あなたのレーティング区分により、そのリージョン（地域）へは入ることができません。
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		レーティング区分に関する設定により、その地域（リージョン）には立ち入れません。
+		あなたのレーティング区分設定により、そのリージョン（地域）へは入ることができません。
 
-その地域に入るには、あなたのレーティング区分の設定を変更してください。変更すると、[REGIONMATURITY]のコンテンツの検索やアクセスが可能になります。変更内容を元に戻すには、ミー &gt; 環境設定 &gt; 一般を選択してください。
+「設定を変更」をクリックしてあなたのレーティング区分を上げると、入れるようになります。 あなたは今後 [REGIONMATURITY] コンテンツの検索及びアクセスが可能となります。 あとで設定を元に戻したい場合は、「編集」＞「環境設定」をご覧ください。
 		<form name="form">
 			<button name="OK" text="環境設定の変更"/>
 			<button default="true" name="Cancel" text="閉じる"/>
@@ -2090,6 +2018,11 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		インワールドと Web サイトのスナップショットをアップロード中です...
 （所要時間：約 5 分）
 	</notification>
+	<notification name="UploadConfirmation">
+		アップロード料金は L$[AMOUNT] です。
+続けますか？
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="アップロード"/>
+	</notification>
 	<notification name="UploadPayment">
 		アップロードに L$ [AMOUNT] 支払いました。
 	</notification>
@@ -2297,7 +2230,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 ここでは飛べません。
 	</notification>
 	<notification name="PushRestricted">
-		このエリアではプッシュが禁止されています。 土地所有者以外は他人をプッシュすることはできません。
+		このエリアではプッシュが制限されています。 土地所有者以外は他人をプッシュすることはできません。
 	</notification>
 	<notification name="NoVoice">
 		このエリアではボイスチャットが無効です。 誰かが話しているのを聞くことはできません。
@@ -2399,6 +2332,15 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="ObjectGiveItem">
 		[NAME_SLURL] が所有する [OBJECTFROMNAME] という名前のオブジェクトが、あなたに [OBJECTTYPE] を渡しました：
+[ITEM_SLURL]
+		<form name="form">
+			<button name="Keep" text="受け取る"/>
+			<button name="Discard" text="破棄"/>
+			<button name="Mute" text="ブロック"/>
+		</form>
+	</notification>
+	<notification name="ObjectGiveItemUnknownUser">
+		（不明の住人）が所有する [OBJECTFROMNAME] という名前のオブジェクトが、あなたに [OBJECTTYPE] を渡しました：
 [ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="受け取る"/>
@@ -2516,6 +2458,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="FailedToFindWearable">
 		データベースに [DESC] という名前の [TYPE] が見つかりませんでした。
+	</notification>
+	<notification name="ShareToWebFailed">
+		Web サイトへの画像のアップロードに失敗しました。
 	</notification>
 	<notification name="InvalidWearable">
 		着用しようとしているアイテムはあなたのビューワでは読み込むことができません。 [APP_NAME] のバージョンをアップグレードしてからこのアイテムを着用してください。
@@ -2648,18 +2593,6 @@ M キーを押して変更します。
 	<notification name="VoiceLoginRetry">
 		ボイスチャンネルを作成しています。1 分ほどかかります。
 	</notification>
-	<notification name="VoiceEffectsExpired">
-		ボイスモーフィング効果の1つまたは複数の有効期限が終了しました。期限を延長・更新するには[[URL]こちらをクリック]してください。
-	</notification>
-	<notification name="VoiceEffectsExpiredInUse">
-		ボイスモーフィング効果の有効期限が終了したため、あなたの通常のボイス設定が適用されました。期限を延長・更新するには[[URL]こちらをクリック]してください。
-	</notification>
-	<notification name="VoiceEffectsWillExpire">
-		ボイスモーフィング効果の1つまたは複数の有効期限が[INTERVAL]日以内に終了します。期限を延長・更新するには[[URL]こちらをクリック]してください。
-	</notification>
-	<notification name="VoiceEffectsNew">
-		新しいボイスモーフィング効果が登場！
-	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		特定のグループメンバーのみこのエリアを訪問することができます。
 	</notification>
@@ -2726,94 +2659,10 @@ M キーを押して変更します。
 じゅうぶんなスペースができればボタンは表示されます。
 	</notification>
 	<notification name="ShareNotification">
-		共有する住人を選択します。
-	</notification>
-	<notification name="ShareItemsConfirmation">
-		次のアイテムを共有しますか：
-
-[ITEMS]
-
-次の住人と共有しますか：
-
-[RESIDENTS]
-		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
-	</notification>
-	<notification name="ItemsShared">
-		アイテムが共有されました。
-	</notification>
-	<notification name="DeedToGroupFail">
-		グループへの譲渡に失敗しました。
+		住人選択画面に表示された人に、持ち物からアイテムをドラッグ
 	</notification>
 	<notification name="AvatarRezNotification">
-		（作成後[EXISTENCE]秒経過）
-&apos;[NAME]&apos;というアバターは[TIME]秒後に姿を現わしました。
-	</notification>
-	<notification name="AvatarRezSelfBakedDoneNotification">
-		（作成後[EXISTENCE]秒経過）
-アウトフィットのベークは[TIME]秒後に完了しました。
-	</notification>
-	<notification name="AvatarRezSelfBakedUpdateNotification">
-		（作成後[EXISTENCE]秒経過）
-容姿の更新は[TIME]秒後に送信されました。
-[STATUS]
-	</notification>
-	<notification name="AvatarRezCloudNotification">
-		（ [EXISTENCE] 秒）
-アバター「 NAME 」がクラウドになりました。
-	</notification>
-	<notification name="AvatarRezArrivedNotification">
-		（ [EXISTENCE] 秒）
-アバター「 NAME 」が現れました。
-	</notification>
-	<notification name="AvatarRezLeftCloudNotification">
-		（ [EXISTENCE] 秒）
-アバター「 [NAME] 」が [TIME] 秒でクラウド状態から出現します。
-	</notification>
-	<notification name="AvatarRezEnteredAppearanceNotification">
-		（ [EXISTENCE] 秒）
-アバター「 NAME 」が容姿編集モードに入りました。
-	</notification>
-	<notification name="AvatarRezLeftAppearanceNotification">
-		（ [EXISTENCE] 秒）
-アバター「 NAME 」が容姿編集モードを解除しました。
-	</notification>
-	<notification name="NoConnect">
-		[PROTOCOL] [HOSTID]を使って接続できません。
-お使いのネットワークやファイアウォールの設定を確認してください。
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
-	</notification>
-	<notification name="NoVoiceConnect">
-		ボイスサーバーに接続できません：
-
-[HOSTID]
-
-ボイスチャットによるコミュニケーションが利用できません。
-お使いのネットワークやファイアウォールの設定を確認してください。
-		<form name="form">
-			<button name="OK" text="OK"/>
-		</form>
-	</notification>
-	<notification name="AvatarRezLeftNotification">
-		（ [EXISTENCE] 秒）
-アバター「 NAME 」が完全に読み込まれました。
-	</notification>
-	<notification name="AvatarRezSelfBakeNotification">
-		( 作成後[EXISTENCE]秒経過）
-&apos;[BODYREGION]&apos; の[RESOLUTION]のベークドテクスチャは[TIME]秒後に[ACTION]されました。
-	</notification>
-	<notification name="ConfirmLeaveCall">
-		このコールから抜けますか？
-		<usetemplate ignoretext="コールから抜ける前の確認" name="okcancelignore" notext="いいえ" yestext="はい"/>
-	</notification>
-	<notification name="ConfirmMuteAll">
-		グループコールの参加者全員をミュートしました。
-あとからこのコールに参加する住人も
-ミュートされます。あなたがコールを終了しても他の参加者のミュート状態が続きます。
-
-全員をミュートしますか？
-		<usetemplate ignoretext="グループコールの参加者全員をミュートする前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
+		アバター名「 [NAME] 」が [TIME] 秒で出現します。
 	</notification>
 	<global name="UnsupportedCPU">
 		- あなたの CPU の速度は必須動作環境の条件を満たしていません。
@@ -2838,8 +2687,5 @@ M キーを押して変更します。
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		自分の土地をお持ちの場合、「ホーム」に設定できます。
 お持ちでない場合は、地図で「インフォハブ」をお探しください。
-	</global>
-	<global name="You died and have been teleported to your home location">
-		死んでしまったので、ホームにテレポートされました。
 	</global>
 </notifications>

@@ -55,7 +55,7 @@
 			<spinner label="Minuto" name="WLLengthOfDayMin"/>
 			<spinner label="Segundo" name="WLLengthOfDaySec"/>
 			<text name="DayCycleText3">
-				Prévia:
+				Visualizar
 			</text>
 			<button label="Tocar" label_selected="Tocar" name="WLAnimSky"/>
 			<button label="Pare!" label_selected="Pare" name="WLStopAnimSky"/>

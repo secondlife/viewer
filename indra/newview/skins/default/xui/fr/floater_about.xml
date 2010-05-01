@@ -23,13 +23,13 @@ Cartes graphiques : [GRAPHICS_CARD]
 		Version Windows Graphics Driver : [GRAPHICS_DRIVER_VERSION]
 	</floater.string>
 	<floater.string name="AboutLibs">
-		Version OpenGL : [OPENGL_VERSION]
+		Version OpenGL : [OPENGL_VERSION]
 
 Version libcurl : [LIBCURL_VERSION]
-Version J2C Decoder : [J2C_VERSION]
-Version Audio Driver : [AUDIO_DRIVER_VERSION]
-Version Qt Webkit : [QT_WEBKIT_VERSION]
-Version serveur vocal : [VOICE_VERSION]
+Version J2C Decoder : [J2C_VERSION]
+Version Audio Driver : [AUDIO_DRIVER_VERSION]
+Version Qt Webkit : [QT_WEBKIT_VERSION]
+Version Vivox : [VIVOX_VERSION]
 	</floater.string>
 	<floater.string name="none">
 		(aucun)

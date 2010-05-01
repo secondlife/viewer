@@ -29,7 +29,7 @@ libcurl バージョン： [LIBCURL_VERSION]
 J2C デコーダバージョン： [J2C_VERSION]
 オーディオドライババージョン： [AUDIO_DRIVER_VERSION]
 Qt Webkit バージョン： [QT_WEBKIT_VERSION]
-ボイスサーバーバージョン： [VOICE_VERSION]
+Vivox バージョン： [VIVOX_VERSION]
 	</floater.string>
 	<floater.string name="none">
 		（なし）

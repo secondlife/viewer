@@ -49,19 +49,15 @@
 	<menu_item_call label="Abrir" name="Sound Open"/>
 	<menu_item_call label="Reemplazar el vestuario" name="Replace Outfit"/>
 	<menu_item_call label="Añadir al vestuario" name="Add To Outfit"/>
-	<menu_item_call label="Quitar del vestuario actual" name="Remove From Outfit"/>
-	<menu_item_call label="Encontrar el original" name="Find Original"/>
 	<menu_item_call label="Eliminar el ítem" name="Purge Item"/>
 	<menu_item_call label="Restaurar el ítem" name="Restore Item"/>
 	<menu_item_call label="Abrir" name="Open"/>
-	<menu_item_call label="Abrir original" name="Open Original"/>
 	<menu_item_call label="Propiedades" name="Properties"/>
 	<menu_item_call label="Renombrar" name="Rename"/>
 	<menu_item_call label="Copiar la UUID" name="Copy Asset UUID"/>
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Pegar" name="Paste"/>
 	<menu_item_call label="Pegar como enlace" name="Paste As Link"/>
-	<menu_item_call label="Borrar" name="Remove Link"/>
 	<menu_item_call label="Borrar" name="Delete"/>
 	<menu_item_call label="Borrar carpeta del sistema" name="Delete System Folder"/>
 	<menu_item_call label="Empezar multiconferencia" name="Conference Chat Folder"/>
@@ -76,11 +72,11 @@
 	<menu_item_call label="Desactivar" name="Deactivate"/>
 	<menu_item_call label="Guardar como" name="Save As"/>
 	<menu_item_call label="Quitarse" name="Detach From Yourself"/>
-	<menu_item_call label="Ponerme" name="Wearable And Object Wear"/>
+	<menu_item_call label="Ponerse" name="Object Wear"/>
 	<menu label="Anexar a" name="Attach To"/>
 	<menu label="Anexar como HUD" name="Attach To HUD"/>
 	<menu_item_call label="Editar" name="Wearable Edit"/>
-	<menu_item_call label="Añadir" name="Wearable Add"/>
+	<menu_item_call label="Ponerse" name="Wearable Wear"/>
 	<menu_item_call label="Quitarse" name="Take Off"/>
 	<menu_item_call label="--sin opciones--" name="--no options--"/>
 </menu>

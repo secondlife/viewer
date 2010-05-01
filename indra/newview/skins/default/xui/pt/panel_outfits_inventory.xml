@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Coisas" name="Outfits">
-	<panel.string name="wear_outfit_tooltip">
-		Vestir look selecionado
-	</panel.string>
-	<panel.string name="wear_items_tooltip">
-		Vestir itens selecionados
-	</panel.string>
 	<tab_container name="appearance_tabs">
 		<panel label="MEUS LOOKS" name="outfitslist_tab"/>
-		<panel label="EM USO" name="cof_tab"/>
+		<inventory_panel label="EM USO" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
-		<button label="Salvar como" name="save_btn"/>
+		<button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
+		<dnd_button name="trash_btn" tool_tip="Remover item selecionado"/>
+		<button label="Salvar este look" name="make_outfit_btn" tool_tip="Salvar aparência como um look"/>
 		<button label="Vestir" name="wear_btn" tool_tip="Vestir look selecionado"/>
+		<button label="Editar look" name="edit_current_outfit_btn"/>
 	</panel>
 </panel>

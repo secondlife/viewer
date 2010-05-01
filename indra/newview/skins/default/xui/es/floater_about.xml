@@ -29,7 +29,7 @@ Versión de libcurl: [LIBCURL_VERSION]
 Versión de J2C Decoder: [J2C_VERSION]
 Versión de Audio Driver: [AUDIO_DRIVER_VERSION]
 Versión de Qt Webkit: [QT_WEBKIT_VERSION]
-Versión del servidor de voz: [VOICE_VERSION]
+Versión de Vivox: [VIVOX_VERSION]
 	</floater.string>
 	<floater.string name="none">
 		(no hay)

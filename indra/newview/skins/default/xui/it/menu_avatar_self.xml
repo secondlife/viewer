@@ -20,9 +20,7 @@
 		<context_menu label="Stacca  ▶" name="Object Detach"/>
 		<menu_item_call label="Stacca tutto" name="Detach All"/>
 	</context_menu>
-	<menu_item_call label="Cambia vestiario" name="Chenge Outfit"/>
-	<menu_item_call label="Modifica il mio vestiario" name="Edit Outfit"/>
-	<menu_item_call label="Modifica la figura corporea" name="Edit My Shape"/>
+	<menu_item_call label="Il mio aspetto" name="Appearance..."/>
 	<menu_item_call label="I miei amici..." name="Friends..."/>
 	<menu_item_call label="I miei gruppi" name="Groups..."/>
 	<menu_item_call label="Il mio profilo" name="Profile..."/>

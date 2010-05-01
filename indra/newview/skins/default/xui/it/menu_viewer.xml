@@ -31,6 +31,7 @@
 		<menu_item_call label="Istantanea" name="Take Snapshot"/>
 		<menu_item_call label="Crea punto di riferimento per questo luogo" name="Create Landmark Here"/>
 		<menu label="Profilo del posto" name="Land">
+			<menu_item_call label="Profilo del luogo" name="Place Profile"/>
 			<menu_item_call label="Informazioni sui terreni" name="About Land"/>
 			<menu_item_call label="Regione/proprietà immobiliare" name="Region/Estate"/>
 		</menu>
@@ -65,17 +66,6 @@
 			<menu_item_call label="Strumento Modifica" name="Edit"/>
 			<menu_item_call label="Crea strumento" name="Create"/>
 			<menu_item_call label="Strumento Terreno" name="Land"/>
-		</menu>
-		<menu label="Modifica" name="Edit">
-			<menu_item_call label="Annulla" name="Undo"/>
-			<menu_item_call label="Rifai" name="Redo"/>
-			<menu_item_call label="Taglia" name="Cut"/>
-			<menu_item_call label="Copia" name="Copy"/>
-			<menu_item_call label="Incolla" name="Paste"/>
-			<menu_item_call label="Elimina" name="Delete"/>
-			<menu_item_call label="Duplica" name="Duplicate"/>
-			<menu_item_call label="Seleziona tutto" name="Select All"/>
-			<menu_item_call label="Deseleziona" name="Deselect"/>
 		</menu>
 		<menu_item_call label="Collegamento" name="Link"/>
 		<menu_item_call label="Scollega" name="Unlink"/>
@@ -124,6 +114,7 @@
 		<menu_item_call label="Informazioni su [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanzate" name="Advanced">
+		<menu_item_check label="Mostra menu Avanzato" name="Show Advanced Menu"/>
 		<menu_item_call label="Ferma animazione" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Ridisegna le texture" name="Rebake Texture"/>
 		<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
@@ -145,7 +136,6 @@
 			<menu_item_check label="Evidenzia trasparenza" name="Highlight Transparent"/>
 			<menu_item_check label="Mostra elementi HUD" name="Show HUD Attachments"/>
 			<menu_item_check label="Mostra mirino visuale soggettiva" name="ShowCrosshairs"/>
-			<menu_item_check label="Mostra tooltip terreno" name="Land Tips"/>
 		</menu>
 		<menu label="Modalità di rendering" name="Rendering Types">
 			<menu_item_check label="Semplice" name="Simple"/>

@@ -36,6 +36,117 @@
 
 // newview
 #include "llinventoryitemslist.h"
+#include "llinventorymodel.h"
+#include "llwearabledictionary.h"
+
+/**
+ * @class LLPanelWearableListItem
+ *
+ * Extends LLPanelInventoryListItemBase:
+ * - makes side widgets show on mouse_enter and hide on 
+ *   mouse_leave events.
+ * - provides callback for button clicks
+ */
+class LLPanelWearableListItem : public LLPanelInventoryListItemBase
+{
+	LOG_CLASS(LLPanelWearableListItem);
+public:
+
+	/**
+	* Shows buttons when mouse is over
+	*/
+	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
+
+	/**
+	* Hides buttons when mouse is out
+	*/
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+
+protected:
+
+	LLPanelWearableListItem(LLViewerInventoryItem* item);
+};
+
+/**
+ * @class LLPanelClothingListItem
+ *
+ * Provides buttons for editing, moving, deleting a wearable.
+ */
+class LLPanelClothingListItem : public LLPanelWearableListItem
+{
+	LOG_CLASS(LLPanelClothingListItem);
+public:
+
+	static LLPanelClothingListItem* create(LLViewerInventoryItem* item);
+
+	virtual ~LLPanelClothingListItem();
+
+	/*virtual*/ BOOL postBuild();
+
+	/**
+	 * Make button visible during mouse over event.
+	 */
+	inline void setShowDeleteButton(bool show) { setShowWidget("btn_delete", show); }
+	inline void setShowMoveUpButton(bool show) { setShowWidget("btn_move_up", show); }
+
+	inline void setShowMoveDownButton(bool show) { setShowWidget("btn_move_down", show); }
+	inline void setShowLockButton(bool show) { setShowWidget("btn_lock", show); }
+	inline void setShowEditButton(bool show) { setShowWidget("btn_edit", show); }
+
+
+protected:
+
+	LLPanelClothingListItem(LLViewerInventoryItem* item);
+	
+	/*virtual*/ void init();
+};
+
+class LLPanelBodyPartsListItem : public LLPanelWearableListItem
+{
+	LOG_CLASS(LLPanelBodyPartsListItem);
+public:
+
+	static LLPanelBodyPartsListItem* create(LLViewerInventoryItem* item);
+
+	virtual ~LLPanelBodyPartsListItem();
+
+	/*virtual*/ BOOL postBuild();
+
+	/**
+	* Make button visible during mouse over event.
+	*/
+	inline void setShowLockButton(bool show) { setShowWidget("btn_lock", show); }
+	inline void setShowEditButton(bool show) { setShowWidget("btn_edit", show); }
+
+protected:
+	LLPanelBodyPartsListItem(LLViewerInventoryItem* item);
+
+	/*virtual*/ void init();
+};
+
+/**
+ * @class LLPanelDummyClothingListItem
+ *
+ * A dummy item panel - displays grayed clothing icon, grayed title '<clothing> not worn' and 'add' button
+ */
+class LLPanelDummyClothingListItem : public LLPanelWearableListItem
+{
+public:
+	static LLPanelDummyClothingListItem* create(EWearableType w_type);
+
+	/*virtual*/ void updateItem();
+	/*virtual*/ BOOL postBuild();
+
+protected:
+	LLPanelDummyClothingListItem(EWearableType w_type);
+
+	/*virtual*/ void init();
+
+	static std::string wearableTypeToString(EWearableType w_type);
+
+private:
+	EWearableType mWearableType;
+};
 
 /**
  * @class LLWearableItemsList

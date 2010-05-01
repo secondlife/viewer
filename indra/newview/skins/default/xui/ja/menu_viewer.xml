@@ -7,11 +7,10 @@
 		</menu_item_call>
 		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
 		<menu_item_call label="プロフィール" name="Profile"/>
-		<menu_item_call label="アウトフィットを変更" name="ChangeOutfit"/>
+		<menu_item_call label="容姿" name="Appearance"/>
 		<menu_item_check label="持ち物" name="Inventory"/>
 		<menu_item_check label="持ち物" name="ShowSidetrayInventory"/>
 		<menu_item_check label="ジェスチャー" name="Gestures"/>
-		<menu_item_check label="マイボイス" name="ShowVoice"/>
 		<menu label="ログイン状態" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
 			<menu_item_call label="取り込み中" name="Set Busy"/>
@@ -71,12 +70,6 @@
 		<menu_item_call label="リンク" name="Link"/>
 		<menu_item_call label="リンクを外す" name="Unlink"/>
 		<menu_item_check label="リンクした部分を編集" name="Edit Linked Parts"/>
-		<menu label="リンクした部分を選択する" name="Select Linked Parts">
-			<menu_item_call label="次の部分を選択する" name="Select Next Part"/>
-			<menu_item_call label="前回の部分を選択する" name="Select Previous Part"/>
-			<menu_item_call label="次の部分を含める" name="Include Next Part"/>
-			<menu_item_call label="前回の部分を含める" name="Include Previous Part"/>
-		</menu>
 		<menu_item_call label="選択したものに焦点を合わせる" name="Focus on Selection"/>
 		<menu_item_call label="選択したものをズームする" name="Zoom to Selection"/>
 		<menu label="オブジェクト" name="Object">
@@ -94,7 +87,7 @@
 			<menu_item_call label="スクリプトを実行停止にする" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="オプション" name="Options">
-			<menu_item_call label="デフォルトのアップロード権限を設定" name="perm prefs"/>
+			<menu_item_call label="デフォルトのアップロード権限を設定する" name="perm prefs"/>
 			<menu_item_check label="権限の詳細を表示する" name="DebugPermissions"/>
 			<menu_item_check label="私のオブジェクトだけを選択する" name="Select Only My Objects"/>
 			<menu_item_check label="動的オブジェクトだけを選択する" name="Select Only Movable Objects"/>
@@ -107,11 +100,11 @@
 			<menu_item_call label="選択をグリッドに使用する" name="Use Selection for Grid"/>
 			<menu_item_call label="グリッドオプション" name="Grid Options"/>
 		</menu>
-		<menu label="アップロード" name="Upload">
-			<menu_item_call label="画像（L$[COST]）..." name="Upload Image"/>
-			<menu_item_call label="サウンド（L$[COST]）..." name="Upload Sound"/>
-			<menu_item_call label="アニメーション（L$[COST]）..." name="Upload Animation"/>
-			<menu_item_call label="一括 （ファイルにつきL$[COST]）..." name="Bulk Upload"/>
+		<menu label="リンクした部分を選択する" name="Select Linked Parts">
+			<menu_item_call label="次の部分を選択する" name="Select Next Part"/>
+			<menu_item_call label="前回の部分を選択する" name="Select Previous Part"/>
+			<menu_item_call label="次の部分を含める" name="Include Next Part"/>
+			<menu_item_call label="前回の部分を含める" name="Include Previous Part"/>
 		</menu>
 	</menu>
 	<menu label="ヘルプ" name="Help">
@@ -170,7 +163,6 @@
 			<menu_item_check label="フレキシブルオブジェクト" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="マルチスレッド処理" name="Run Multiple Threads"/>
-		<menu_item_check label="Use Plugin Read Thread" name="Use Plugin Read Thread"/>
 		<menu_item_call label="グループキャッシュのクリア" name="ClearGroupCache"/>
 		<menu_item_check label="マウスの平滑化" name="Mouse Smoothing"/>
 		<menu label="ショートカット" name="Shortcuts">
@@ -178,7 +170,6 @@
 			<menu_item_check label="検索" name="Search"/>
 			<menu_item_call label="キーをリリース" name="Release Keys"/>
 			<menu_item_call label="UI のサイズをデフォルトに設定する" name="Set UI Size to Default"/>
-			<menu_item_check label="アドバンスメニューを表示 - レガシーのショートカット" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="常に走る" name="Always Run"/>
 			<menu_item_check label="飛行する" name="Fly"/>
 			<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
@@ -198,6 +189,7 @@
 			<menu_item_call label="ズームイン" name="Zoom In"/>
 			<menu_item_call label="ズーム（デフォルト）" name="Zoom Default"/>
 			<menu_item_call label="ズームアウト" name="Zoom Out"/>
+			<menu_item_call label="全画面表示" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="デバッグ設定を表示する" name="Debug Settings"/>
 		<menu_item_check label="開発メニューを表示する" name="Debug Mode"/>

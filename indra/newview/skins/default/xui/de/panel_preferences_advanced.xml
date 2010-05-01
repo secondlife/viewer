@@ -13,7 +13,6 @@
 	</text>
 	<check_box label="Bauen/Bearbeiten" name="edit_camera_movement" tool_tip="Automatische Kamerapositionierung bei Wechsel in und aus dem Bearbeitungsmodus verwenden"/>
 	<check_box label="Aussehen" name="appearance_camera_movement" tool_tip="Automatische Kamerapositionierung im Bearbeitenmodus verwenden"/>
-	<check_box initial_value="true" label="Seitenleiste" name="appearance_sidebar_positioning" tool_tip="Automatische Kameraposition für Seitenleiste verwenden"/>
 	<check_box label="Mich im Mouselook anzeigen" name="first_person_avatar_visible"/>
 	<check_box label="Mit Pfeiltasten bewegen" name="arrow_keys_move_avatar_check"/>
 	<check_box label="2-mal-drücken-halten, um zu rennen" name="tap_tap_hold_to_run"/>

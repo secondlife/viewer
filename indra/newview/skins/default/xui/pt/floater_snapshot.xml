@@ -1,79 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="VER FOTO">
-	<text name="type_label">
-		Destino da foto
-	</text>
-	<radio_group label="Tipo de foto" name="snapshot_type_radio">
-		<radio_item label="Email" name="postcard"/>
-		<radio_item label="Meu inventário (L$[AMOUNT])" name="texture"/>
-		<radio_item label="Salvar no meu PC" name="local"/>
-	</radio_group>
-	<text name="file_size_label">
-		[SIZE] KB
-	</text>
-	<button label="Atualizar a foto" name="new_snapshot_btn"/>
-	<button label="Enviar" name="send_btn"/>
-	<button label="Salvar (L$[AMOUNT])" name="upload_btn"/>
-	<flyout_button label="Salvar" name="save_btn" tool_tip="Salvar imagem em um arquivo">
-		<flyout_button.item label="Salvar" name="save_item"/>
-		<flyout_button.item label="Salvar como..." name="saveas_item"/>
-	</flyout_button>
-	<button label="Cancelar" name="discard_btn"/>
-	<button label="Mais" name="more_btn" tool_tip="Opções avançadas"/>
-	<button label="Menos" name="less_btn" tool_tip="Opções avançadas"/>
-	<text name="type_label2">
-		Tamanho
-	</text>
-	<text name="format_label">
-		Formato
-	</text>
-	<combo_box label="Resolução" name="postcard_size_combo">
-		<combo_box.item label="Janela atual" name="CurrentWindow"/>
-		<combo_box.item label="640x480" name="640x480"/>
-		<combo_box.item label="800x600" name="800x600"/>
-		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="Customizado" name="Custom"/>
-	</combo_box>
-	<combo_box label="Resolução" name="texture_size_combo">
-		<combo_box.item label="Janela atual" name="CurrentWindow"/>
-		<combo_box.item label="Pequeno (128x128)" name="Small(128x128)"/>
-		<combo_box.item label="Médio (256x256)" name="Medium(256x256)"/>
-		<combo_box.item label="Grande (512x512)" name="Large(512x512)"/>
-		<combo_box.item label="Customizado" name="Custom"/>
-	</combo_box>
-	<combo_box label="Resolução" name="local_size_combo">
-		<combo_box.item label="Janela atual" name="CurrentWindow"/>
-		<combo_box.item label="320x240" name="320x240"/>
-		<combo_box.item label="640x480" name="640x480"/>
-		<combo_box.item label="800x600" name="800x600"/>
-		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="1280x1024" name="1280x1024"/>
-		<combo_box.item label="1600x1200" name="1600x1200"/>
-		<combo_box.item label="Customizado" name="Custom"/>
-	</combo_box>
-	<combo_box label="Formato" name="local_format_combo">
-		<combo_box.item label="PNG" name="PNG"/>
-		<combo_box.item label="JPEG" name="JPEG"/>
-		<combo_box.item label="BMP" name="BMP"/>
-	</combo_box>
-	<spinner label="Largura" label_width="41" name="snapshot_width" width="101"/>
-	<spinner label="Altura" label_width="31" left="119" name="snapshot_height" width="91"/>
-	<check_box label="Limitar proproções" name="keep_aspect_check"/>
-	<slider label="Qualidade da imagem" name="image_quality_slider"/>
-	<text name="layer_type_label">
-		Capturar:
-	</text>
-	<combo_box label="Camadas da imagem" name="layer_types">
-		<combo_box.item label="Cores" name="Colors"/>
-		<combo_box.item label="Formato" name="Depth"/>
-		<combo_box.item label="Decoração do objeto" name="ObjectMattes"/>
-	</combo_box>
-	<check_box label="Interface" name="ui_check"/>
-	<check_box bottom_delta="-17" label="HUDs" name="hud_check"/>
-	<check_box bottom_delta="-17" label="Manter aberto após salvar" name="keep_open_check"/>
-	<check_box bottom_delta="-17" label="Gerar quadro (tela inteira)" name="freeze_frame_check"/>
-	<check_box bottom_delta="-29" label="Auto-atualizar" name="auto_snapshot_check"/>
-	<string name="unknown">
+<floater name="Snapshot" title="Foto">
+	<floater.string name="unknown">
 		desconhecido
-	</string>
+	</floater.string>
+	<button label="Atualizar a foto" name="new_snapshot_btn"/>
+	<line_editor label="Descrição" name="description"/>
+	<button label="Compartilhar foto" name="share"/>
+	<button label="Compartilhar na web" name="share_to_web"/>
+	<button label="Salvar no meu inventário" name="save_to_inventory"/>
+	<button label="Salvar foto" name="save"/>
+	<button label="Enviar foto por email" name="share_to_email"/>
+	<button label="Salvar no meu PC" name="save_to_computer"/>
+	<button label="Usar como foto do perfil" name="set_profile_pic"/>
+	<button label="Atrás" name="cancel"/>
 </floater>

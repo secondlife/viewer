@@ -120,8 +120,8 @@ extern "C"
 		{ // zero out the audio buffer when muted
 			memset(pwh->lpData, 0, pwh->dwBufferLength);
 		}
-		else
-		{
+		else if (sVolumeLevel != 1.f) 
+		{ // need to apply volume level
 			wave_out_map_t::iterator found_it = sWaveOuts.find(hwo);
 			if (found_it != sWaveOuts.end())
 			{
@@ -144,10 +144,11 @@ extern "C"
 
 						// copy volume level 4 times into 64 bit MMX register
 						__m64 volume_64 = _mm_set_pi16(volume_16, volume_16, volume_16, volume_16);
-						__m64 *sample_64;
+						__m64* sample_64;
+						__m64* last_sample_64 =  (__m64*)(pwh->lpData + pwh->dwBufferLength - sizeof(__m64));
 						// for everything that can be addressed in 64 bit multiples...
 						for (sample_64 = (__m64*)pwh->lpData;
-							sample_64 < (__m64*)(pwh->lpData + pwh->dwBufferLength);
+							sample_64 <= last_sample_64;
 							++sample_64)
 						{
 							//...multiply the samples by the volume...
@@ -162,10 +163,11 @@ extern "C"
 						// the captain has turned off the MMX sign, you are now free to use floating point registers
 						_mm_empty();
 
+						// finish remaining samples that didn't fit into 64 bit register
 						for (short* sample_16 = (short*)sample_64;
 							sample_16 < (short*)(pwh->lpData + pwh->dwBufferLength);
 							++sample_16)
-						{	// finish remaining samples that didn't fit into 64 bit register
+						{	
 							*sample_16 = (*sample_16 * volume_16) >> 15;
 						}
 

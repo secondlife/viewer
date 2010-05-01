@@ -2,8 +2,6 @@
 <!-- Side tray Outfit Edit panel -->
 <panel label="Modifica del vestiario" name="outfit_edit">
 	<string name="No Outfit" value="Nessun vestiario"/>
-	<string name="unsaved_changes" value="Modifiche non salvate"/>
-	<string name="now_editing" value="Modifica di"/>
 	<panel.string name="not_available">
 		(non pert.)
 	</panel.string>
@@ -13,39 +11,38 @@
 	<string name="Filter.All" value="Tutto"/>
 	<string name="Filter.Clothes/Body" value="Abiti/corpo"/>
 	<string name="Filter.Objects" value="Oggetti"/>
-	<string name="Filter.Clothing" value="Vestiario"/>
-	<string name="Filter.Bodyparts" value="Parti del corpo"/>
-	<string name="replace_body_part" value="Fai clic per sostituire la forma corporea esistente"/>
+	<button label="modifica" name="edit_wearable_btn"/>
 	<text name="title" value="Modifica vestiario"/>
 	<panel label="bottom_panel" name="header_panel">
 		<panel label="bottom_panel" name="outfit_name_and_status">
-			<text name="status" value="Modifica di..."/>
+			<text name="status" value="Modifica..."/>
 			<text name="curr_outfit_name" value="[Current Outfit]"/>
 		</panel>
 	</panel>
 	<layout_stack name="im_panels">
 		<layout_panel label="Pannello di controllo IM" name="outfit_wearables_panel">
-			<layout_stack name="filter_panels">
-				<layout_panel name="add_button_and_combobox">
-					<button label="Aggiungi altri..." name="show_add_wearables_btn" tool_tip="Apri/chiudi"/>
-				</layout_panel>
-				<layout_panel name="filter_panel">
-					<filter_editor label="Filtra capi da indossare dell&apos;inventario" name="look_item_filter"/>
-				</layout_panel>
-			</layout_stack>
+			<scroll_list name="look_items_list">
+				<scroll_list.columns label="Articolo look" name="look_item"/>
+				<scroll_list.columns label="Ordina in base agli articoli del vestiario" name="look_item_sort"/>
+			</scroll_list>
+			<panel label="bottom_panel" name="edit_panel"/>
 		</layout_panel>
 		<layout_panel name="add_wearables_panel">
-			<button label="Indossa capo" name="plus_btn"/>
+			<filter_editor label="Filtro" name="look_item_filter"/>
+			<layout_stack name="filter_panels">
+				<layout_panel label="Pannello di controllo IM" name="filter_button_panel">
+					<text name="add_to_outfit_label" value="Aggiungi al vestiario:"/>
+					<button label="V" name="filter_button"/>
+				</layout_panel>
+			</layout_stack>
+			<panel label="add_wearables_button_bar" name="add_wearables_button_bar">
+				<button label="C" name="folder_view_btn"/>
+				<button label="E" name="list_view_btn"/>
+			</panel>
 		</layout_panel>
 	</layout_stack>
-	<panel name="no_add_wearables_button_bar">
-		<button name="shop_btn_1" tool_tip="Visita Marketplace di SL. In alternativa puoi scegliere un capo che stai indossando, poi fare clic qui per vedere altri capi simili"/>
-	</panel>
-	<panel name="add_wearables_button_bar">
-		<button name="shop_btn_2" tool_tip="Visita Marketplace di SL. In alternativa puoi scegliere un capo che stai indossando, poi fare clic qui per vedere altri capi simili"/>
-	</panel>
 	<panel name="save_revert_button_bar">
 		<button label="Salva" name="save_btn"/>
-		<button label="Annulla modifiche" name="revert_btn" tool_tip="Ripristina l&apos;ultima versione salvata"/>
+		<button label="Ripristina" name="revert_btn"/>
 	</panel>
 </panel>

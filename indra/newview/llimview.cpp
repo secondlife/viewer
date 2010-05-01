@@ -257,9 +257,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
 {
-	std::string you = LLTrans::getString("You");
-	std::string started_call = LLTrans::getString("started_call");
-	std::string joined_call = LLTrans::getString("joined_call");
+	std::string you_joined_call = LLTrans::getString("you_joined_call");
+	std::string you_started_call = LLTrans::getString("you_started_call");
 	std::string other_avatar_name = "";
 
 	std::string message;
@@ -277,13 +276,15 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				message = other_avatar_name + " " + started_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
-				
-				break;
+				{
+					LLStringUtil::format_map_t string_args;
+					string_args["[NAME]"] = other_avatar_name;
+					message = LLTrans::getString("name_started_call", string_args);
+					LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);				
+					break;
+				}
 			case LLVoiceChannel::STATE_CONNECTED :
-				message = you + " " + joined_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, you_joined_call);
 			default:
 				break;
 			}
@@ -293,8 +294,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				message = you + " " + started_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, you_started_call);
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
 				message = LLTrans::getString("answered_call");
@@ -312,8 +312,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CONNECTED :
-				message = you + " " + joined_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, you_joined_call);
 			default:
 				break;
 			}
@@ -323,8 +322,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				message = you + " " + started_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, you_started_call);
 				break;
 			default:
 				break;
@@ -2069,8 +2067,9 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 				// send notification message to the corresponding chat 
 				if (mPayload["notify_box_type"].asString() == "VoiceInviteGroup" || mPayload["notify_box_type"].asString() == "VoiceInviteAdHoc")
 				{
-					std::string started_call = LLTrans::getString("started_call");
-					std::string message = mPayload["caller_name"].asString() + " " + started_call;
+					LLStringUtil::format_map_t string_args;
+					string_args["[NAME]"] = mPayload["caller_name"].asString();
+					std::string message = LLTrans::getString("name_started_call", string_args);
 					LLIMModel::getInstance()->addMessageSilently(session_id, SYSTEM_FROM, LLUUID::null, message);
 				}
 			}
