@@ -373,6 +373,14 @@ protected:
 	F64				mCurrentRate;
 	F64				mLoadedDuration;
 	
+//--------------------------------------
+	//debug use only
+	//
+private:
+	bool  mDeleteOK ;
+public:
+	void setDeleteOK(bool flag) { mDeleteOK = flag ;}
+//--------------------------------------
 };
 
 #endif // LL_LLPLUGINCLASSMEDIA_H

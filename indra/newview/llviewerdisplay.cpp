@@ -169,7 +169,6 @@ void display_startup()
 void display_update_camera()
 {
 	LLMemType mt_uc(LLMemType::MTYPE_DISPLAY_UPDATE_CAMERA);
-	llpushcallstacks ;
 	// TODO: cut draw distance down if customizing avatar?
 	// TODO: cut draw distance on per-parcel basis?
 

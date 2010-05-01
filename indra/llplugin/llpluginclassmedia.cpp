@@ -57,11 +57,15 @@ LLPluginClassMedia::LLPluginClassMedia(LLPluginClassMediaOwner *owner)
 	mOwner = owner;
 	mPlugin = NULL;
 	reset();
+
+	//debug use
+	mDeleteOK = true ;
 }
 
 
 LLPluginClassMedia::~LLPluginClassMedia()
 {
+	llassert_always(mDeleteOK) ;
 	reset();
 }
 
