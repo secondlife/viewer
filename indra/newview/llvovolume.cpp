@@ -3545,7 +3545,21 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						//add face to new pool
-						if (te->getShiny())
+						LLViewerTexture* tex = facep->getTexture();
+						U32 type = gPipeline.getPoolTypeFromTE(te, tex);
+
+						if (type == LLDrawPool::POOL_ALPHA)
+						{
+							if (te->getFullbright())
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA);
+							}
+							else
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_ALPHA);
+							}
+						}
+						else if (te->getShiny())
 						{
 							if (te->getFullbright())
 							{
@@ -3566,6 +3580,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							{
 								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
 							}
+						}
+
+						if (te->getGlow())
+						{
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_GLOW);
 						}
 					}
 

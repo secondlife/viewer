@@ -260,6 +260,8 @@ private:
 	S32			mTEOffset;
 
 	S32			mReferenceIndex;
+	std::vector<S32> mRiggedIndex;
+	 
 	F32			mVSize;
 	F32			mPixelArea;
 

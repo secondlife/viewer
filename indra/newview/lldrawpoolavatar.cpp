@@ -364,7 +364,7 @@ S32 LLDrawPoolAvatar::getNumPasses()
 	}
 	else if (getVertexShaderLevel() > 0)
 	{
-		return 7;
+		return 10;
 	}
 	else
 	{
@@ -419,6 +419,15 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 	case 6:
 		beginRiggedFullbrightShiny();
 		break;
+	case 7:
+		beginRiggedAlpha();
+		break;
+	case 8:
+		beginRiggedFullbrightAlpha();
+		break;
+	case 9:
+		beginRiggedGlow();
+		break;
 	}
 }
 
@@ -454,6 +463,15 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 		break;
 	case 6:
 		endRiggedFullbrightShiny();
+		break;
+	case 7:
+		endRiggedAlpha();
+		break;
+	case 8:
+		endRiggedFullbrightAlpha();
+		break;
+	case 9:
+		endRiggedGlow();
 		break;
 	}
 }
@@ -653,6 +671,55 @@ void LLDrawPoolAvatar::endRiggedSimple()
 	sVertexProgram = NULL;
 	LLVertexBuffer::unbind();
 	gSkinnedObjectSimpleProgram.unbind();
+	LLVertexBuffer::sWeight4Loc = -1;
+}
+
+void LLDrawPoolAvatar::beginRiggedAlpha()
+{
+	sVertexProgram = &gSkinnedObjectSimpleProgram;
+	diffuse_channel = 0;
+	sVertexProgram->bind();
+	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
+}
+
+void LLDrawPoolAvatar::endRiggedAlpha()
+{
+	sVertexProgram->unbind();
+	sVertexProgram = NULL;
+	LLVertexBuffer::unbind();
+	LLVertexBuffer::sWeight4Loc = -1;
+}
+
+
+void LLDrawPoolAvatar::beginRiggedFullbrightAlpha()
+{
+	sVertexProgram = &gSkinnedObjectFullbrightProgram;
+	diffuse_channel = 0;
+	sVertexProgram->bind();
+	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
+}
+
+void LLDrawPoolAvatar::endRiggedFullbrightAlpha()
+{
+	sVertexProgram->unbind();
+	sVertexProgram = NULL;
+	LLVertexBuffer::unbind();
+	LLVertexBuffer::sWeight4Loc = -1;
+}
+
+void LLDrawPoolAvatar::beginRiggedGlow()
+{
+	sVertexProgram = &gSkinnedObjectFullbrightProgram;
+	diffuse_channel = 0;
+	sVertexProgram->bind();
+	LLVertexBuffer::sWeight4Loc = sVertexProgram->getAttribLocation(LLViewerShaderMgr::OBJECT_WEIGHT);
+}
+
+void LLDrawPoolAvatar::endRiggedGlow()
+{
+	sVertexProgram->unbind();
+	sVertexProgram = NULL;
+	LLVertexBuffer::unbind();
 	LLVertexBuffer::sWeight4Loc = -1;
 }
 
@@ -888,6 +955,48 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
+	if (pass >= 7 && pass <= 9)
+	{
+		LLGLEnable blend(GL_BLEND);
+
+		gGL.setColorMask(true, true);
+		gGL.blendFunc(LLRender::BF_SOURCE_ALPHA,
+					  LLRender::BF_ONE_MINUS_SOURCE_ALPHA,
+					  LLRender::BF_ZERO,
+					  LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+
+		
+		if (pass == 7)
+		{
+			renderRiggedAlpha(avatarp);
+			return;
+		}
+
+		if (pass == 8)
+		{
+			renderRiggedFullbrightAlpha(avatarp);
+			return;
+		}
+	}
+
+	if (pass == 9)
+	{
+		LLGLEnable blend(GL_BLEND);
+		LLGLDisable test(GL_ALPHA_TEST);
+		gGL.flush();
+
+		LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-1.0f, -1.0f);
+		gGL.setSceneBlendType(LLRender::BT_ADD);
+
+		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+		gGL.setColorMask(false, true);
+
+		renderRiggedGlow(avatarp);
+		gGL.setColorMask(true, false);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
+	}
+
 	
 	if (sShaderLevel > 0)
 	{
@@ -958,7 +1067,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLFace* face, const LLMeshSk
 	}
 }
 
-void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, const U32 data_mask)
+void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, const U32 data_mask, bool glow)
 {
 	for (U32 i = 0; i < mRiggedFace[type].size(); ++i)
 	{
@@ -1031,6 +1140,11 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, const U32 data
 			S32 offset = face->getIndicesStart();
 			U32 count = face->getIndicesCount();
 
+			if (glow)
+			{
+				glColor4f(0,0,0,face->getTextureEntry()->getGlow());
+			}
+
 			gGL.getTexUnit(0)->bind(face->getTexture());
 			buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);		
 		}
@@ -1080,6 +1194,39 @@ void LLDrawPoolAvatar::renderRiggedFullbrightShiny(LLVOAvatar* avatar)
 
 	renderRigged(avatar, RIGGED_FULLBRIGHT_SHINY, data_mask);
 }
+
+void LLDrawPoolAvatar::renderRiggedAlpha(LLVOAvatar* avatar)
+{
+	const U32 data_mask =	LLVertexBuffer::MAP_VERTEX | 
+							LLVertexBuffer::MAP_NORMAL | 
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_COLOR |
+							LLVertexBuffer::MAP_WEIGHT4;
+
+	renderRigged(avatar, RIGGED_ALPHA, data_mask);
+}
+
+void LLDrawPoolAvatar::renderRiggedFullbrightAlpha(LLVOAvatar* avatar)
+{
+	const U32 data_mask =	LLVertexBuffer::MAP_VERTEX | 
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_COLOR |
+							LLVertexBuffer::MAP_WEIGHT4;
+
+	renderRigged(avatar, RIGGED_FULLBRIGHT_ALPHA, data_mask);
+}
+
+void LLDrawPoolAvatar::renderRiggedGlow(LLVOAvatar* avatar)
+{
+	const U32 data_mask =	LLVertexBuffer::MAP_VERTEX | 
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_WEIGHT4;
+
+	renderRigged(avatar, RIGGED_GLOW, data_mask, true);
+}
+
+
+
 
 //-----------------------------------------------------------------------------
 // renderForSelect()
@@ -1181,59 +1328,56 @@ LLColor3 LLDrawPoolAvatar::getDebugColor() const
 
 void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 {
-	if (facep->getReferenceIndex() != -1)
+	if (facep->mRiggedIndex.empty())
 	{
-		llerrs << "Tried to add a rigged face that's referenced elsewhere." << llendl;
-	}	
-
-	if (type >= NUM_RIGGED_PASSES)
-	{
-		llerrs << "Invalid rigged face type." << llendl;
-	}
-
-	facep->setReferenceIndex(mRiggedFace[type].size());
-	facep->mDrawPoolp = this;
-	mRiggedFace[type].push_back(facep);
-}
-
-void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep, U32 type)
-{
-	S32 index = facep->getReferenceIndex();
-	if (index == -1)
-	{
-		llerrs << "Tried to remove rigged face with invalid index." << llendl;
-	}
-
-	if (type > RIGGED_UNKNOWN)
-	{
-		llerrs << "Invalid rigged face type." << llendl;
-	}
-
-	facep->setReferenceIndex(-1);
-	facep->mDrawPoolp = NULL;
-
-	if (type == RIGGED_UNKNOWN)
-	{
-		for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
+		facep->mRiggedIndex.resize(LLDrawPoolAvatar::NUM_RIGGED_PASSES);
+		for (U32 i = 0; i < facep->mRiggedIndex.size(); ++i)
 		{
-			if (mRiggedFace[i].size() > index && mRiggedFace[i][index] == facep)
-			{
-				type = i;
-				break;
-			}
+			facep->mRiggedIndex[i] = -1;
 		}
 	}
 
 	if (type >= NUM_RIGGED_PASSES)
 	{
-		llerrs << "Could not find face for removal from current drawpool." << llendl;
+		llerrs << "Invalid rigged face type." << llendl;
 	}
 
-	mRiggedFace[type].erase(mRiggedFace[type].begin()+index);
+	if (facep->mRiggedIndex[type] != -1)
+	{
+		llerrs << "Tried to add a rigged face that's referenced elsewhere." << llendl;
+	}	
 
-	for (S32 i = index; i < mRiggedFace[type].size(); ++i)
-	{ //bump indexes of currently held faces down after removal
-		mRiggedFace[type][i]->setReferenceIndex(i);
+	
+	facep->mRiggedIndex[type] = mRiggedFace[type].size();
+	facep->mDrawPoolp = this;
+	mRiggedFace[type].push_back(facep);
+}
+
+void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep)
+{
+	
+	facep->mDrawPoolp = NULL;
+
+	for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
+	{
+		S32 index = facep->mRiggedIndex[i];
+		
+		if (index > -1)
+		{
+			if (mRiggedFace[i].size() > index && mRiggedFace[i][index] == facep)
+			{
+				facep->mRiggedIndex[i] = -1;
+				mRiggedFace[i].erase(mRiggedFace[i].begin()+index);
+				for (U32 j = index; j < mRiggedFace[i].size(); ++j)
+				{ //bump indexes down for faces referenced after erased face
+					mRiggedFace[i][j]->mRiggedIndex[i] = j;
+				}
+			}
+			else
+			{
+				llerrs << "Face reference data corrupt for rigged type " << i << llendl;
+			}
+		}
 	}
 }
 

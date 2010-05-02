@@ -100,6 +100,9 @@ public:
 	void beginRiggedFullbright();
 	void beginRiggedFullbrightShiny();
 	void beginRiggedShinySimple();
+	void beginRiggedAlpha();
+	void beginRiggedFullbrightAlpha();
+	void beginRiggedGlow();
 
 	void endRigid();
 	void endImpostor();
@@ -108,6 +111,9 @@ public:
 	void endRiggedFullbright();
 	void endRiggedFullbrightShiny();
 	void endRiggedShinySimple();
+	void endRiggedAlpha();
+	void endRiggedFullbrightAlpha();
+	void endRiggedGlow();
 
 	void beginDeferredImpostor();
 	void beginDeferredRigid();
@@ -125,11 +131,14 @@ public:
 									  const LLVolumeFace& vol_face, 
 									  U32 data_mask);
 
-	void renderRigged(LLVOAvatar* avatar, U32 type, const U32 data_mask);
+	void renderRigged(LLVOAvatar* avatar, U32 type, const U32 data_mask, bool glow = false);
 	void renderRiggedSimple(LLVOAvatar* avatar);
+	void renderRiggedAlpha(LLVOAvatar* avatar);
+	void renderRiggedFullbrightAlpha(LLVOAvatar* avatar);
 	void renderRiggedFullbright(LLVOAvatar* avatar);
 	void renderRiggedShinySimple(LLVOAvatar* avatar);
 	void renderRiggedFullbrightShiny(LLVOAvatar* avatar);
+	void renderRiggedGlow(LLVOAvatar* avatar);
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
@@ -151,7 +160,7 @@ public:
 
 	
 	void addRiggedFace(LLFace* facep, U32 type);
-	void removeRiggedFace(LLFace* facep, U32 type = RIGGED_UNKNOWN); 
+	void removeRiggedFace(LLFace* facep); 
 
 	std::vector<LLFace*> mRiggedFace[NUM_RIGGED_PASSES];
 
