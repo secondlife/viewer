@@ -3802,13 +3802,13 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 				else if (LLPipeline::sRenderDeferred)
 				{
-					if (te->getBumpmap())
-					{
-						registerFace(group, facep, LLRenderPass::PASS_BUMP);
-					}
-					else if (te->getFullbright())
+					if (te->getFullbright())
 					{
 						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_SHINY);
+					}
+					else if (te->getBumpmap())
+					{
+						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
 					else
 					{
