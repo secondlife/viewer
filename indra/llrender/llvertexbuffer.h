@@ -190,7 +190,7 @@ public:
 	U8* getIndicesPointer() const			{ return useVBOs() ? NULL : mMappedIndexData; }
 	U8* getVerticesPointer() const			{ return useVBOs() ? NULL : mMappedData; }
 	S32 getStride() const					{ return mStride; }
-	S32 getTypeMask() const					{ return mTypeMask; }
+	U32 getTypeMask() const					{ return mTypeMask; }
 	BOOL hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()) ? TRUE : FALSE; }
 	S32 getSize() const						{ return mNumVerts*mStride; }
 	S32 getIndicesSize() const				{ return mNumIndices * sizeof(U16); }

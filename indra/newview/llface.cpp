@@ -41,6 +41,7 @@
 #include "m3math.h"
 #include "v3color.h"
 
+#include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
 #include "llgl.h"
 #include "llrender.h"
@@ -205,7 +206,16 @@ void LLFace::destroy()
 	if (mDrawPoolp)
 	{
 		LLFastTimer t(FTM_DESTROY_DRAWPOOL);
-		mDrawPoolp->removeFace(this);
+
+		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
+		{
+			((LLDrawPoolAvatar*) mDrawPoolp)->removeRiggedFace(this);
+		}
+		else
+		{
+			mDrawPoolp->removeFace(this);
+		}
+	
 		mDrawPoolp = NULL;
 	}
 

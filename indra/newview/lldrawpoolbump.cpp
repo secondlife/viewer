@@ -323,30 +323,43 @@ void LLDrawPoolBump::beginShiny(bool invisible)
 		sVertexMask = VERTEX_MASK_SHINY | LLVertexBuffer::MAP_TEXCOORD0;
 	}
 	
-	if (LLPipeline::sUnderWaterRender)
+	if (getVertexShaderLevel() > 0)
 	{
-		shader = &gObjectShinyWaterProgram;
+		if (LLPipeline::sUnderWaterRender)
+		{
+			shader = &gObjectShinyWaterProgram;
+		}
+		else
+		{
+			shader = &gObjectShinyProgram;
+		}
+		shader->bind();
 	}
 	else
 	{
-		shader = &gObjectShinyProgram;
+		shader = NULL;
 	}
 
+	bindCubeMap(shader, mVertexShaderLevel, diffuse_channel, cube_channel, invisible);
+}
+
+//static
+void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible)
+{
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 	if( cube_map )
 	{
-		if (!invisible && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0 )
+		if (!invisible && shader )
 		{
 			LLMatrix4 mat;
 			mat.initRows(LLVector4(gGLModelView+0),
 						 LLVector4(gGLModelView+4),
 						 LLVector4(gGLModelView+8),
 						 LLVector4(gGLModelView+12));
-			shader->bind();
 			LLVector3 vec = LLVector3(gShinyOrigin) * mat;
 			LLVector4 vec4(vec, gShinyOrigin.mV[3]);
 			shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, 1, vec4.mV);			
-			if (mVertexShaderLevel > 1)
+			if (shader_level > 1)
 			{
 				cube_map->setMatrix(1);
 				// Make sure that texture coord generation happens for tex unit 1, as that's the one we use for 
@@ -408,22 +421,16 @@ void LLDrawPoolBump::renderShiny(bool invisible)
 	}
 }
 
-void LLDrawPoolBump::endShiny(bool invisible)
+//static
+void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible)
 {
-	LLFastTimer t(FTM_RENDER_SHINY);
-	if ((!invisible && !gPipeline.hasRenderBatches(LLRenderPass::PASS_SHINY))|| 
-		(invisible && !gPipeline.hasRenderBatches(LLRenderPass::PASS_INVISI_SHINY)))
-	{
-		return;
-	}
-
 	LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 	if( cube_map )
 	{
 		cube_map->disable();
 		cube_map->restoreMatrix();
 
-		if (!invisible && mVertexShaderLevel > 1)
+		if (!invisible && shader_level > 1)
 		{
 			shader->disableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 					
@@ -434,7 +441,6 @@ void LLDrawPoolBump::endShiny(bool invisible)
 					shader->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 				}
 			}
-			shader->unbind();
 		}
 	}
 	gGL.getTexUnit(diffuse_channel)->disable();
@@ -442,6 +448,22 @@ void LLDrawPoolBump::endShiny(bool invisible)
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+}
+
+void LLDrawPoolBump::endShiny(bool invisible)
+{
+	LLFastTimer t(FTM_RENDER_SHINY);
+	if ((!invisible && !gPipeline.hasRenderBatches(LLRenderPass::PASS_SHINY))|| 
+		(invisible && !gPipeline.hasRenderBatches(LLRenderPass::PASS_INVISI_SHINY)))
+	{
+		return;
+	}
+
+	unbindCubeMap(shader, mVertexShaderLevel, diffuse_channel, cube_channel, invisible);
+	if (shader)
+	{
+		shader->unbind();
+	}
 
 	diffuse_channel = -1;
 	cube_channel = 0;
@@ -569,17 +591,36 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 // static
 BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 {
-	LLViewerTexture* bump = NULL;
-
 	U8 bump_code = params.mBump;
 
+	return bindBumpMap(bump_code, params.mTexture, params.mVSize, channel);
+}
+
+//static
+BOOL LLDrawPoolBump::bindBumpMap(LLFace* face, S32 channel)
+{
+	const LLTextureEntry* te = face->getTextureEntry();
+	if (te)
+	{
+		U8 bump_code = te->getBumpmap();
+		return bindBumpMap(bump_code, face->getTexture(), face->getVirtualSize(), channel);
+	}
+
+	return FALSE;
+}
+
+//static
+BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsize, S32 channel)
+{
 	//Note: texture atlas does not support bump texture now.
-	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params.mTexture) ;
+	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(texture) ;
 	if(!tex)
 	{
 		//if the texture is not a fetched texture
 		return FALSE;
 	}
+
+	LLViewerTexture* bump = NULL;
 
 	switch( bump_code )
 	{
@@ -594,7 +635,7 @@ BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 		if( bump_code < LLStandardBumpmap::sStandardBumpmapCount )
 		{
 			bump = gStandardBumpmapList[bump_code].mImage;
-			gBumpImageList.addTextureStats(bump_code, tex->getID(), params.mVSize);
+			gBumpImageList.addTextureStats(bump_code, tex->getID(), vsize);
 		}
 		break;
 	}
