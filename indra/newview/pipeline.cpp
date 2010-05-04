@@ -631,10 +631,11 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 void LLPipeline::updateRenderDeferred()
 {
 	BOOL deferred = (gSavedSettings.getBOOL("RenderDeferred") && 
-		LLRenderTarget::sUseFBO &&
-		gSavedSettings.getBOOL("VertexShaderEnable") && 
-		gSavedSettings.getBOOL("RenderAvatarVP") &&
-		gSavedSettings.getBOOL("WindLightUseAtmosShaders")) ? TRUE : FALSE;
+			 LLRenderTarget::sUseFBO &&
+			 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+			 gSavedSettings.getBOOL("VertexShaderEnable") && 
+			 gSavedSettings.getBOOL("RenderAvatarVP") &&
+			 gSavedSettings.getBOOL("WindLightUseAtmosShaders")) ? TRUE : FALSE;
 	
 	sRenderDeferred = deferred;			
 }
