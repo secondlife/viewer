@@ -78,6 +78,8 @@
 
 #define USE_SESSION_GROUPS 0
 
+const F32 VOLUME_SCALE_VIVOX = 0.01f;
+
 const F32 SPEAKING_TIMEOUT = 1.f;
 
 static const std::string VOICE_SERVER_TYPE = "Vivox";
@@ -1476,9 +1478,10 @@ void LLVivoxVoiceClient::stateMachine()
 					enforceTether();
 				}
 				
-				// Send an update if the ptt state has changed (which shouldn't be able to happen that often -- the user can only click so fast)
-				// or every 10hz, whichever is sooner.
-				if((mAudioSession && mAudioSession->mVolumeDirty) || mPTTDirty || mSpeakerVolumeDirty || mUpdateTimer.hasExpired())
+				// Send an update only if the ptt or mute state has changed (which shouldn't be able to happen that often
+				// -- the user can only click so fast) or every 10hz, whichever is sooner.
+				// Sending for every volume update causes an excessive flood of messages whenever a volume slider is dragged.
+				if((mAudioSession && mAudioSession->mMuteDirty) || mPTTDirty || mUpdateTimer.hasExpired())
 				{
 					mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
 					sendPositionalUpdate();
@@ -2475,11 +2478,12 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 		stream << "</Request>\n\n\n";
 	}	
 	
-	if(mAudioSession && mAudioSession->mVolumeDirty)
+	if(mAudioSession && (mAudioSession->mVolumeDirty || mAudioSession->mMuteDirty))
 	{
 		participantMap::iterator iter = mAudioSession->mParticipantsByURI.begin();
 
 		mAudioSession->mVolumeDirty = false;
+		mAudioSession->mMuteDirty = false;
 		
 		for(; iter != mAudioSession->mParticipantsByURI.end(); iter++)
 		{
@@ -2490,7 +2494,8 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 				// Can't set volume/mute for yourself
 				if(!p->mIsSelf)
 				{
-					int volume = 56; // nominal default value
+					// scale from the range 0.0-1.0 to vivox volume in the range 0-100
+					S32 volume = llround(p->mVolume / VOLUME_SCALE_VIVOX);
 					bool mute = p->mOnMuteList;
 					
 					if(p->mUserVolume != -1)
@@ -2514,10 +2519,15 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 						// If we want the user to be muted, set their volume to 0 as well.
 						// This isn't perfect, but it will at least reduce their volume to a minimum.
 						volume = 0;
+						// Mark the current volume level as set to prevent incoming events
+						// changing it to 0, so that we can return to it when unmuting.
+						p->mVolumeSet = true;
 					}
 					
 					if(volume == 0)
+					{
 						mute = true;
+					}
 
 					LL_DEBUGS("Voice") << "Setting volume/mute for avatar " << p->mAvatarID << " to " << volume << (mute?"/true":"/false") << LL_ENDL;
 					
@@ -3671,15 +3681,12 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
 				participant->mPower = 0.0f;
 			}
 
-			// *HACK: Minimal hack to fix EXT-6508, ignore the incoming volume if it is zero.
-			// This happens because we send volume zero to Vivox when someone is muted,
-			// Vivox then send it back to us, overwriting the previous volume.
-			// Remove this hack once volume refactoring from EXT-6031 is applied.
-			if (volume != 0)
-			  {
-			    participant->mVolume = volume;
-			  }
- 
+			// Ignore incoming volume level if it has been explicitly set, or there
+			//  is a volume or mute change pending.
+			if ( !participant->mVolumeSet && !participant->mVolumeDirty)
+			{
+				participant->mVolume = (F32)volume * VOLUME_SCALE_VIVOX;
+			}
 			
 			// *HACK: mantipov: added while working on EXT-3544                                                                                   
 			/*                                                                                                                                    
@@ -4089,7 +4096,7 @@ LLVivoxVoiceClient::participantState::participantState(const std::string &uri) :
 	 mIsModeratorMuted(false), 
 	 mLastSpokeTimestamp(0.f), 
 	 mPower(0.f), 
-	 mVolume(-1), 
+	 mVolume(LLVoiceClient::VOLUME_DEFAULT), 
 	 mOnMuteList(false), 
 	 mUserVolume(-1), 
 	 mVolumeDirty(false), 
@@ -4141,7 +4148,7 @@ LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::addParti
 				result->mAvatarID = id;
 
 				if(result->updateMuteState())
-					mVolumeDirty = true;
+					mMuteDirty = true;
 			}
 			else
 			{
@@ -4153,7 +4160,11 @@ LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::addParti
 		
 		mParticipantsByUUID.insert(participantUUIDMap::value_type(result->mAvatarID, result));
 
-		result->mUserVolume = LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(result->mAvatarID);
+		if (LLSpeakerVolumeStorage::getInstance()->getSpeakerVolume(result->mAvatarID, result->mVolume))
+		{
+			result->mVolumeDirty = true;
+			mVolumeDirty = true;
+		}
 		
 		LL_DEBUGS("Voice") << "participant \"" << result->mURI << "\" added." << LL_ENDL;
 	}
@@ -5351,50 +5362,20 @@ BOOL LLVivoxVoiceClient::getOnMuteList(const LLUUID& id)
 	return result;
 }
 
-// External accessiors. Maps 0.0 to 1.0 to internal values 0-400 with .5 == 100
-// internal = 400 * external^2
+// External accessors.
 F32 LLVivoxVoiceClient::getUserVolume(const LLUUID& id)
 {
-	F32 result = 0.0f;
+       // Minimum volume will be returned for users with voice disabled
+       F32 result = LLVoiceClient::VOLUME_MIN;
 	
-	participantState *participant = findParticipantByID(id);
-	if(participant)
+        participantState *participant = findParticipantByID(id);
+        if(participant)
 	{
-		S32 ires = 100; // nominal default volume
-		
-		if(participant->mIsSelf)
-		{
-			// Always make it look like the user's own volume is set at the default.
-		}
-		else if(participant->mUserVolume != -1)
-		{
-			// Use the internal volume
-			ires = participant->mUserVolume;
-			
-			// Enable this when debugging voice slider issues.  It's way to spammy even for debug-level logging.
-//			LL_DEBUGS("Voice") << "mapping from mUserVolume " << ires << LL_ENDL;
-		}
-		else if(participant->mVolume != -1)
-		{
-			// Map backwards from vivox volume 
+		result = participant->mVolume;
 
-			// Enable this when debugging voice slider issues.  It's way to spammy even for debug-level logging.
-//			LL_DEBUGS("Voice") << "mapping from mVolume " << participant->mVolume << LL_ENDL;
-
-			if(participant->mVolume < 56)
-			{
-				ires = (participant->mVolume * 100) / 56;
-			}
-			else
-			{
-				ires = (((participant->mVolume - 56) * 300) / (100 - 56)) + 100;
-			}
-		}
-		result = sqrtf(((F32)ires) / 400.f);
+		// Enable this when debugging voice slider issues.  It's way to spammy even for debug-level logging.
+		// LL_DEBUGS("Voice") << "mVolume = " << result <<  " for " << id << LL_ENDL;
 	}
-
-	// Enable this when debugging voice slider issues.  It's way to spammy even for debug-level logging.
-//	LL_DEBUGS("Voice") << "returning " << result << LL_ENDL;
 
 	return result;
 }
@@ -5404,16 +5385,23 @@ void LLVivoxVoiceClient::setUserVolume(const LLUUID& id, F32 volume)
 	if(mAudioSession)
 	{
 		participantState *participant = findParticipantByID(id);
-		if (participant)
+		if (participant && !participant->mIsSelf)
 		{
-			// store this volume setting for future sessions
-			LLSpeakerVolumeStorage::getInstance()->storeSpeakerVolume(id, volume);
-			// volume can amplify by as much as 4x!
-			S32 ivol = (S32)(400.f * volume * volume);
-			participant->mUserVolume = llclamp(ivol, 0, 400);
-			participant->mVolumeDirty = TRUE;
-			mAudioSession->mVolumeDirty = TRUE;
+			if (!is_approx_equal(volume, LLVoiceClient::VOLUME_DEFAULT))
+			{
+				// Store this volume setting for future sessions if it has been
+				// changed from the default
+				LLSpeakerVolumeStorage::getInstance()->storeSpeakerVolume(id, volume);
+			}
+			else
+			{
+				// Remove stored volume setting if it is returned to the default
+				LLSpeakerVolumeStorage::getInstance()->removeSpeakerVolume(id);
+			}
 
+			participant->mVolume = llclamp(volume, LLVoiceClient::VOLUME_MIN, LLVoiceClient::VOLUME_MAX);
+			participant->mVolumeDirty = true;
+			mAudioSession->mVolumeDirty = true;
 		}
 	}
 }

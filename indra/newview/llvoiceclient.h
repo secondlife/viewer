@@ -272,7 +272,11 @@ public:
 	
 	const LLVoiceVersionInfo getVersion();
 	
-static const F32 OVERDRIVEN_POWER_LEVEL;
+	static const F32 OVERDRIVEN_POWER_LEVEL;
+
+	static const F32 VOLUME_MIN;
+	static const F32 VOLUME_DEFAULT;
+	static const F32 VOLUME_MAX;
 
 	void updateSettings(); // call after loading settings and whenever they change
 
@@ -406,31 +410,34 @@ protected:
 /**
  * Speaker volume storage helper class
  **/
-
 class LLSpeakerVolumeStorage : public LLSingleton<LLSpeakerVolumeStorage>
 {
 	LOG_CLASS(LLSpeakerVolumeStorage);
 public:
 
 	/**
-	 * Sets internal voluem level for specified user.
+	 * Stores volume level for specified user.
 	 *
-	 * @param[in] speaker_id - LLUUID of user to store volume level for
-	 * @param[in] volume - external volume level to be stored for user.
+	 * @param[in] speaker_id - LLUUID of user to store volume level for.
+	 * @param[in] volume - volume level to be stored for user.
 	 */
 	void storeSpeakerVolume(const LLUUID& speaker_id, F32 volume);
 
 	/**
-	 * Gets stored external volume level for specified speaker.
+	 * Gets stored volume level for specified speaker
 	 *
-	 * If specified user is not found default level will be returned. It is equivalent of 
-	 * external level 0.5 from the 0.0..1.0 range.
-	 * Default external level is calculated as: internal = 400 * external^2
-	 * Maps 0.0 to 1.0 to internal values 0-400 with default 0.5 == 100
-	 *
-	 * @param[in] speaker_id - LLUUID of user to get his volume level
+	 * @param[in] speaker_id - LLUUID of user to retrieve volume level for.
+	 * @param[out] volume - set to stored volume if found, otherwise unmodified.
+	 * @return - true if a stored volume is found.
 	 */
-	S32 getSpeakerVolume(const LLUUID& speaker_id);
+	bool getSpeakerVolume(const LLUUID& speaker_id, F32& volume);
+
+	/**
+	 * Removes stored volume level for specified user.
+	 *
+	 * @param[in] speaker_id - LLUUID of user to remove.
+	 */
+	void removeSpeakerVolume(const LLUUID& speaker_id);
 
 private:
 	friend class LLSingleton<LLSpeakerVolumeStorage>;
@@ -441,6 +448,9 @@ private:
 
 	void load();
 	void save();
+
+	static F32 LLSpeakerVolumeStorage::transformFromLegacyVolume(F32 volume_in);
+	static F32 LLSpeakerVolumeStorage::transformToLegacyVolume(F32 volume_in);
 
 	typedef std::map<LLUUID, F32> speaker_data_map_t;
 	speaker_data_map_t mSpeakersData;
