@@ -4470,6 +4470,17 @@
       <key>Value</key>
       <real>128.0</real>
     </map>
+    <key>MapServerURL</key>
+    <map>
+      <key>Comment</key>
+      <string>World map URL template for locating map tiles</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://map.secondlife.com.s3.amazonaws.com/</string>
+    </map>
     <key>MapShowEvents</key>
     <map>
       <key>Comment</key>

@@ -3030,6 +3030,13 @@ bool process_login_success_response()
 	{
 		gSavedSettings.setString("VoiceServerType", voice_config_info["VoiceServerType"].asString()); 
 	}
+
+	// Request the map server url
+	std::string map_server_url = response["map-server-url"];
+	if(!map_server_url.empty())
+	{
+		gSavedSettings.setString("MapServerURL", map_server_url); 
+	}
 	
 	// Default male and female avatars allowing the user to choose their avatar on first login.
 	// These may be passed up by SLE to allow choice of enterprise avatars instead of the standard
