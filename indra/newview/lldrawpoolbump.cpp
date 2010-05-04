@@ -591,17 +591,36 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 // static
 BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 {
-	LLViewerTexture* bump = NULL;
-
 	U8 bump_code = params.mBump;
 
+	return bindBumpMap(bump_code, params.mTexture, params.mVSize, channel);
+}
+
+//static
+BOOL LLDrawPoolBump::bindBumpMap(LLFace* face, S32 channel)
+{
+	const LLTextureEntry* te = face->getTextureEntry();
+	if (te)
+	{
+		U8 bump_code = te->getBumpmap();
+		return bindBumpMap(bump_code, face->getTexture(), face->getVirtualSize(), channel);
+	}
+
+	return FALSE;
+}
+
+//static
+BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsize, S32 channel)
+{
 	//Note: texture atlas does not support bump texture now.
-	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params.mTexture) ;
+	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(texture) ;
 	if(!tex)
 	{
 		//if the texture is not a fetched texture
 		return FALSE;
 	}
+
+	LLViewerTexture* bump = NULL;
 
 	switch( bump_code )
 	{
@@ -616,7 +635,7 @@ BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params, S32 channel)
 		if( bump_code < LLStandardBumpmap::sStandardBumpmapCount )
 		{
 			bump = gStandardBumpmapList[bump_code].mImage;
-			gBumpImageList.addTextureStats(bump_code, tex->getID(), params.mVSize);
+			gBumpImageList.addTextureStats(bump_code, tex->getID(), vsize);
 		}
 		break;
 	}

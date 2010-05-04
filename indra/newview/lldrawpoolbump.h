@@ -93,7 +93,12 @@ public:
 	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);
 
-	BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
+	static BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
+	static BOOL bindBumpMap(LLFace* face, S32 channel = -2);
+
+private:
+	static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, F32 vsize, S32 channel);
+
 };
 
 enum EBumpEffect

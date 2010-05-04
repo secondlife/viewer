@@ -103,6 +103,8 @@ public:
 	void beginRiggedAlpha();
 	void beginRiggedFullbrightAlpha();
 	void beginRiggedGlow();
+	void beginPostDeferredAlpha();
+	void beginDeferredRiggedAlpha();
 
 	void endRigid();
 	void endImpostor();
@@ -114,24 +116,27 @@ public:
 	void endRiggedAlpha();
 	void endRiggedFullbrightAlpha();
 	void endRiggedGlow();
+	void endPostDeferredAlpha();
+	void endDeferredRiggedAlpha();
 
 	void beginDeferredImpostor();
 	void beginDeferredRigid();
 	void beginDeferredSkinned();
-	void beginDeferredRigged();
+	void beginDeferredRiggedSimple();
+	void beginDeferredRiggedBump();
 	
 	void endDeferredImpostor();
 	void endDeferredRigid();
 	void endDeferredSkinned();
-	void endDeferredRigged();
+	void endDeferredRiggedSimple();
+	void endDeferredRiggedBump();
 		
 	void updateRiggedFaceVertexBuffer(LLFace* facep, 
 									  const LLMeshSkinInfo* skin, 
 									  LLVolume* volume,
-									  const LLVolumeFace& vol_face, 
-									  U32 data_mask);
+									  const LLVolumeFace& vol_face);
 
-	void renderRigged(LLVOAvatar* avatar, U32 type, const U32 data_mask, bool glow = false);
+	void renderRigged(LLVOAvatar* avatar, U32 type, bool glow = false);
 	void renderRiggedSimple(LLVOAvatar* avatar);
 	void renderRiggedAlpha(LLVOAvatar* avatar);
 	void renderRiggedFullbrightAlpha(LLVOAvatar* avatar);
@@ -139,6 +144,8 @@ public:
 	void renderRiggedShinySimple(LLVOAvatar* avatar);
 	void renderRiggedFullbrightShiny(LLVOAvatar* avatar);
 	void renderRiggedGlow(LLVOAvatar* avatar);
+	void renderDeferredRiggedSimple(LLVOAvatar* avatar);
+	void renderDeferredRiggedBump(LLVOAvatar* avatar);
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
@@ -154,11 +161,43 @@ public:
 		RIGGED_GLOW,
 		RIGGED_ALPHA,
 		RIGGED_FULLBRIGHT_ALPHA,
+		RIGGED_DEFERRED_BUMP,
+		RIGGED_DEFERRED_SIMPLE,
 		NUM_RIGGED_PASSES,
 		RIGGED_UNKNOWN,
 	} eRiggedPass;
 
-	
+	typedef enum
+	{
+		RIGGED_SIMPLE_MASK = LLVertexBuffer::MAP_VERTEX | 
+							 LLVertexBuffer::MAP_NORMAL | 
+							 LLVertexBuffer::MAP_TEXCOORD0 |
+							 LLVertexBuffer::MAP_COLOR |
+							 LLVertexBuffer::MAP_WEIGHT4,
+		RIGGED_FULLBRIGHT_MASK = LLVertexBuffer::MAP_VERTEX | 
+							 LLVertexBuffer::MAP_TEXCOORD0 |
+							 LLVertexBuffer::MAP_COLOR |
+							 LLVertexBuffer::MAP_WEIGHT4,
+		RIGGED_SHINY_MASK = RIGGED_SIMPLE_MASK,
+		RIGGED_FULLBRIGHT_SHINY_MASK = RIGGED_SIMPLE_MASK,							 
+		RIGGED_GLOW_MASK = LLVertexBuffer::MAP_VERTEX | 
+							 LLVertexBuffer::MAP_TEXCOORD0 |
+							 LLVertexBuffer::MAP_WEIGHT4,
+		RIGGED_ALPHA_MASK = RIGGED_SIMPLE_MASK,
+		RIGGED_FULLBRIGHT_ALPHA_MASK = RIGGED_FULLBRIGHT_MASK,
+		RIGGED_DEFERRED_BUMP_MASK = LLVertexBuffer::MAP_VERTEX | 
+							 LLVertexBuffer::MAP_NORMAL | 
+							 LLVertexBuffer::MAP_TEXCOORD0 |
+							 LLVertexBuffer::MAP_BINORMAL |
+							 LLVertexBuffer::MAP_COLOR |
+							 LLVertexBuffer::MAP_WEIGHT4,
+		RIGGED_DEFERRED_SIMPLE_MASK = LLVertexBuffer::MAP_VERTEX | 
+							 LLVertexBuffer::MAP_NORMAL | 
+							 LLVertexBuffer::MAP_TEXCOORD0 |
+							 LLVertexBuffer::MAP_COLOR |
+							 LLVertexBuffer::MAP_WEIGHT4,
+	} eRiggedDataMask;
+
 	void addRiggedFace(LLFace* facep, U32 type);
 	void removeRiggedFace(LLFace* facep); 
 

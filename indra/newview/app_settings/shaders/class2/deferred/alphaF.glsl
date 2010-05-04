@@ -115,7 +115,7 @@ void main()
 
 	//gl_FragColor = gl_Color;
 	gl_FragColor = color;
-	//gl_FragColor = vec4(1,0,1,1)*shadow;
+	//gl_FragColor = vec4(1,shadow,1,1);
 	
 }
 
