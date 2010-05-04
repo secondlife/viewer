@@ -102,8 +102,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-#define DISPLAY_AVATAR_LOAD_TIMES
-
 using namespace LLVOAvatarDefines;
 
 //-----------------------------------------------------------------------------
@@ -5892,16 +5890,17 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	
 	mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > PAUSE);
 
-#ifdef DISPLAY_AVATAR_LOAD_TIMES
-	if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
+	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
-		llinfos << "Avatar '" << getFullname() << "' resolved in " << mRuthDebugTimer.getElapsedTimeF32() << " seconds." << llendl;
-		LLSD args;
-		args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
-		args["NAME"] = getFullname();
-		LLNotificationsUtil::add("AvatarRezNotification",args);
+		if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
+		{
+			llinfos << "Avatar '" << getFullname() << "' resolved in " << mRuthDebugTimer.getElapsedTimeF32() << " seconds." << llendl;
+			LLSD args;
+			args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
+			args["NAME"] = getFullname();
+			LLNotificationsUtil::add("AvatarRezNotification",args);
+		}
 	}
-#endif
 
 	// did our loading state "change" from last call?
 	const S32 UPDATE_RATE = 30;
