@@ -263,6 +263,7 @@ protected:
 	S32 mFullHeight;
 	BOOL  mUseMipMaps ;
 	S8  mComponents;
+	bool mCanResetMaxVirtualSize;
 	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?
 	mutable S8  mNeedsGLTexture;
 	mutable BOOL mNeedsResetMaxVirtualSize ;
@@ -456,6 +457,8 @@ public:
 	BOOL		isFullyLoaded() const;
 
 	BOOL        hasFetcher() const { return mHasFetcher;}
+	void        setCanUseHTTP(bool can_use_http) {mCanUseHTTP = can_use_http;}
+
 protected:
 	/*virtual*/ void switchToCachedImage();
 	S32 getCurrentDiscardLevelForFetching() ;
@@ -505,6 +508,7 @@ protected:
 	S8  mIsRawImageValid;
 	S8  mHasFetcher;				// We've made a fecth request
 	S8  mIsFetching;				// Fetch request is active
+	bool mCanUseHTTP ;              //This texture can be fetched through http if true.
 	
 	mutable S8 mIsMissingAsset;		// True if we know that there is no image asset with this image id in the database.		
 
