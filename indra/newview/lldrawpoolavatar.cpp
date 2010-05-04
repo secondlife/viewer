@@ -1103,7 +1103,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	if (pass >= 7 && pass <= 9)
+	if (pass >= 7 && pass < 9)
 	{
 		LLGLEnable blend(GL_BLEND);
 

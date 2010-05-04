@@ -54,8 +54,7 @@ void main()
 
 	color.rgb = scaleSoftClip(color.rgb);
 
-	gl_FragColor = gl_Color;
-	//gl_FragColor = color;
+	gl_FragColor = color;
 	//gl_FragColor = vec4(1,0,1,1);
 	//gl_FragColor = vec4(1,0,1,1)*shadow;
 	
