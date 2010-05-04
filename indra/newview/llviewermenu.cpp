@@ -3786,7 +3786,9 @@ class LLViewFullscreen : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		gViewerWindow->toggleFullscreen(TRUE);
+		// we no longer permit full screen mode EXT-6775
+		// gViewerWindow->toggleFullscreen(TRUE);
+		llwarns << "full screen mode no longer supported" << llendl;
 		return true;
 	}
 };
