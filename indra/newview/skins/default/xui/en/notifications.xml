@@ -735,6 +735,14 @@ You need an account to enter [SECOND_LIFE]. Would you like to create one now?
 
   <notification
    icon="alertmodal.tga"
+   name="InvalidCredentialFormat"
+   type="alertmodal">
+You need to enter both the First and Last name of your avatar into the Username field, then login again.
+  </notification>
+  
+
+  <notification
+   icon="alertmodal.tga"
    name="AddClassified"
    type="alertmodal">
 Classified ads appear in the &apos;Classified&apos; section of the Search directory and on [http://secondlife.com/community/classifieds secondlife.com] for one week.
@@ -1382,6 +1390,18 @@ Unknown Vorbis encode failure on: [FILE]
 Unable to encode file: [FILE]
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="CorruptedProtectedDataStore"
+   type="alertmodal">
+  We are unable to read your protected data so it is being reset.
+   This may happen when you change network setup.
+
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+    
   <notification
    icon="alertmodal.tga"
    name="CorruptResourceFile"
@@ -2416,6 +2436,57 @@ Please choose the male or female avatar. You can change your mind later.
      name="okcancelbuttons"
      notext="Female"
      yestext="Male"/>
+  </notification>
+  <notification icon="alertmodal.tga"
+		name="CantTeleportToGrid"
+		type="alertmodal">
+Could not teleport to [SLURL] as it's on a different grid ([GRID]) than the current grid ([CURRENT_GRID]).  Please close your viewer and try again.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification icon="alertmodal.tga"
+		name="GeneralCertificateError"
+		type="alertmodal">
+Could not connect to the server.
+[REASON]
+
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Valid From: [VALID_FROM]
+Valid To: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+   </notification>
+
+  <notification icon="alertmodal.tga"
+		name="TrustCertificateError"
+		type="alertmodal">
+The certification authority for this server is not known.
+
+Certificate Information:
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Valid From: [VALID_FROM]
+Valid To: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+
+Would you like to trust this authority?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Trust"/>
   </notification>
 
   <notification

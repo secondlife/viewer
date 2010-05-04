@@ -284,7 +284,7 @@ void LLCurrencyUIManager::Impl::startTransaction(TransactionType type,
 	static std::string transactionURI;
 	if (transactionURI.empty())
 	{
-		transactionURI = LLViewerLogin::getInstance()->getHelperURI() + "currency.php";
+		transactionURI = LLGridManager::getInstance()->getHelperURI() + "currency.php";
 	}
 
 	delete mTransaction;
