@@ -404,7 +404,7 @@ void LLWorkerClass::scheduleDelete()
 void LLWorkerClass::setPriority(U32 priority)
 {
 	mMutex.lock();
-	if (mRequestHandle != LLWorkerThread::nullHandle())
+	if (mRequestHandle != LLWorkerThread::nullHandle() && mRequestPriority != priority)
 	{
 		mRequestPriority = priority;
 		mWorkerThread->setPriority(mRequestHandle, priority);
