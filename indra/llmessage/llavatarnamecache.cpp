@@ -167,14 +167,38 @@ private:
 	// need to store agent ids that are part of this request in case of
 	// an error, so we can flag them as unavailable
 	std::vector<LLUUID> mAgentIDs;
+
+	// Need the headers to look up Expires: and Retry-After:
+	LLSD mHeaders;
 	
 public:
 	LLAvatarNameResponder(const std::vector<LLUUID>& agent_ids)
-	:	mAgentIDs(agent_ids)
+	:	mAgentIDs(agent_ids),
+		mHeaders()
 	{ }
 	
+	/*virtual*/ void completedHeader(U32 status, const std::string& reason, 
+		const LLSD& headers)
+	{
+		mHeaders = headers;
+	}
+
 	/*virtual*/ void result(const LLSD& content)
 	{
+		const F64 DEFAULT_EXPIRES = 24.0 * 60.0 * 60.0;
+		F64 now = LLFrameTimer::getTotalSeconds();
+
+		// With no expiration info, default to a day
+		F64 expires = now + DEFAULT_EXPIRES;
+
+		// Allow the header to override the default
+		LLSD expires_header = mHeaders["expires"];
+		if (expires_header.isDefined())
+		{
+			LLDate expires_date = expires_header.asDate();
+			expires = expires_date.secondsSinceEpoch();
+		}
+
 		LLSD agents = content["agents"];
 		LLSD::array_const_iterator it = agents.beginArray();
 		for ( ; it != agents.endArray(); ++it)
@@ -184,6 +208,20 @@ public:
 
 			LLAvatarName av_name;
 			av_name.fromLLSD(row);
+
+			// *TODO: Remove this once People API starts passing "Expires:"
+			// headers.
+			// Prefer per-row data for expiration times
+			LLSD expires_row = row["display_name_expires"];
+			if (expires_row.isDefined())
+			{
+				LLDate expires_date = expires_row.asDate();
+				av_name.mExpires = expires_date.secondsSinceEpoch();
+			}
+			else
+			{
+				av_name.mExpires = expires;
+			}
 
 			// Some avatars don't have explicit display names set
 			if (av_name.mDisplayName.empty())
@@ -196,18 +234,12 @@ public:
 		}
 	}
 
-	// This is called for both successful and failed requests, and is
-	// called _after_ result() above.
-	/*virtual*/ void completedHeader(U32 status, const std::string& reason, 
-		const LLSD& headers)
+	/*virtual*/ void error(U32 status, const std::string& reason)
 	{
-		// Only care about headers when there is an error
-		if (isGoodStatus(status)) return;
-
 		// We're going to construct a dummy record and cache it for a while,
 		// either briefly for a 503 Service Unavailable, or longer for other
 		// errors.
-		F64 retry_timestamp = errorRetryTimestamp(status, headers);
+		F64 retry_timestamp = errorRetryTimestamp(status);
 
 		// *NOTE: "??" starts trigraphs in C/C++, escape the question marks.
 		const std::string DUMMY_NAME("\?\?\?");
@@ -230,16 +262,16 @@ public:
 
 	// Return time to retry a request that generated an error, based on
 	// error type and headers.  Return value is seconds-since-epoch.
-	F64 errorRetryTimestamp(S32 status, const LLSD& headers)
+	F64 errorRetryTimestamp(S32 status)
 	{
-		LLSD expires = headers["expires"];
+		LLSD expires = mHeaders["expires"];
 		if (expires.isDefined())
 		{
 			LLDate expires_date = expires.asDate();
 			return expires_date.secondsSinceEpoch();
 		}
 
-		LLSD retry_after = headers["retry-after"];
+		LLSD retry_after = mHeaders["retry-after"];
 		if (retry_after.isDefined())
 		{
 			// does the header use the delta-seconds type?

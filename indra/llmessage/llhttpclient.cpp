@@ -79,8 +79,8 @@ namespace
 		{
 			if (mResponder.get())
 			{
-				mResponder->completedRaw(mStatus, mReason, channels, buffer);
 				mResponder->completedHeader(mStatus, mReason, mHeaderOutput);
+				mResponder->completedRaw(mStatus, mReason, channels, buffer);
 			}
 		}
 		virtual void header(const std::string& header, const std::string& value)
