@@ -513,18 +513,17 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 LLCPUInfo::LLCPUInfo()
 {
 	std::ostringstream out;
-	CProcessor proc;
-	const ProcessorInfo* info = proc.GetCPUInfo();
+	LLProcessorInfo proc;
 	// proc.WriteInfoTextFile("procInfo.txt");
-	mHasSSE = info->_Ext.SSE_StreamingSIMD_Extensions;
-	mHasSSE2 = info->_Ext.SSE2_StreamingSIMD2_Extensions;
-	mHasAltivec = info->_Ext.Altivec_Extensions;
-	mCPUMHz = (F64)(proc.GetCPUFrequency(50)/1000000.0F);
-	mFamily.assign( info->strFamily );
+	mHasSSE = proc.hasSSE();
+	mHasSSE2 = proc.hasSSE2();
+	mHasAltivec = proc.hasAltivec();
+	mCPUMhz = (F64)(proc.getCPUFrequency()/1000000.0);
+	mFamily = proc.getCPUFamilyName();
 	mCPUString = "Unknown";
 
 #if LL_WINDOWS || LL_DARWIN || LL_SOLARIS
-	out << proc.strCPUName;
+	out << proc.getCPUBrandName();
 	if (200 < mCPUMHz && mCPUMHz < 10000)           // *NOTE: cpu speed is often way wrong, do a sanity check
 	{
 		out << " (" << mCPUMHz << " MHz)";
@@ -609,16 +608,7 @@ void LLCPUInfo::stream(std::ostream& s) const
 {
 #if LL_WINDOWS || LL_DARWIN || LL_SOLARIS
 	// gather machine information.
-	char proc_buf[CPUINFO_BUFFER_SIZE];		/* Flawfinder: ignore */
-	CProcessor proc;
-	if(proc.CPUInfoToText(proc_buf, CPUINFO_BUFFER_SIZE))
-	{
-		s << proc_buf;
-	}
-	else
-	{
-		s << "Unable to collect processor information" << std::endl;
-	}
+	s << LLProcessorInfo().getCPUFeatureDescription();
 #else
 	// *NOTE: This works on linux. What will it do on other systems?
 	LLFILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "rb");

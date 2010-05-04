@@ -232,7 +232,6 @@ set(llcommon_HEADER_FILES
     metaclasst.h
     metaproperty.h
     metapropertyt.h
-    processor.h
     reflective.h
     reflectivet.h
     roles_constants.h
