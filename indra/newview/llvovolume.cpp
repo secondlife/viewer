@@ -3418,7 +3418,7 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
 static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
-LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
+static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 {
 	LLVOAvatar* avatar = vobj->getAvatar();
 					
