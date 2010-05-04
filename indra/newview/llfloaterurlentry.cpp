@@ -70,11 +70,6 @@ public:
 		  completeAny(status, mime_type);
 	  }
 
-	  virtual void error( U32 status, const std::string& reason )
-	  {
-		  completeAny(status, LLMIMETypes::getDefaultMimeType());
-	  }
-
 	  void completeAny(U32 status, const std::string& mime_type)
 	  {
 		  // Set empty type to none/none.  Empty string is reserved for legacy parcels
