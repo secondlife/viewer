@@ -74,7 +74,7 @@ public:
 
 	// Start and stop background breadth-first fetching of inventory contents.
 	// This gets triggered when performing a filter-search
-	void start(const LLUUID& cat_id = LLUUID::null);
+	void start(const LLUUID& cat_id = LLUUID::null, BOOL recursive = TRUE);
 	BOOL backgroundFetchActive();
 	bool isEverythingFetched();
 	void incrBulkFetch(S16 fetching);
@@ -98,6 +98,9 @@ public:
 	static void backgroundFetchCB(void*); // background fetch idle function
 	void backgroundFetch();
 	
+protected:
+	bool fetchQueueContainsNoDescendentsOf(const LLUUID& cat_id) const;
+
 private:
  	BOOL mInventoryFetchStarted;
 	BOOL mLibraryFetchStarted;
@@ -112,7 +115,6 @@ private:
 	LLFrameTimer mFetchTimer;
 	F32 mMinTimeBetweenFetches;
 	F32 mMaxTimeBetweenFetches;
-
 };
 
 #endif // LL_LLINVENTORYMODELBACKGROUNDFETCH_H
