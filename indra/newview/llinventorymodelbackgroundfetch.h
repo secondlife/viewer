@@ -68,6 +68,8 @@ class LLInventoryCollectFunctor;
 
 class LLInventoryModelBackgroundFetch : public LLSingleton<LLInventoryModelBackgroundFetch>
 {
+	friend class LLInventoryModelFetchDescendentsResponder;
+
 public:
 	LLInventoryModelBackgroundFetch();
 	~LLInventoryModelBackgroundFetch();
@@ -98,12 +100,20 @@ public:
 	static void backgroundFetchCB(void*); // background fetch idle function
 	void backgroundFetch();
 	
+	struct FetchQueueInfo
+	{
+		FetchQueueInfo(const LLUUID& id, BOOL recursive) :
+			mCatUUID(id), mRecursive(recursive)
+		{
+		}
+		LLUUID mCatUUID;
+		BOOL mRecursive;
+	};
 protected:
 	bool fetchQueueContainsNoDescendentsOf(const LLUUID& cat_id) const;
-
 private:
- 	BOOL mInventoryFetchStarted;
-	BOOL mLibraryFetchStarted;
+ 	BOOL mRecursiveInventoryFetchStarted;
+	BOOL mRecursiveLibraryFetchStarted;
 	BOOL mAllFoldersFetched;
 
 	// completing the fetch once per session should be sufficient
@@ -115,6 +125,9 @@ private:
 	LLFrameTimer mFetchTimer;
 	F32 mMinTimeBetweenFetches;
 	F32 mMaxTimeBetweenFetches;
+
+	typedef std::deque<FetchQueueInfo> fetch_queue_t;
+	fetch_queue_t mFetchQueue;
 };
 
 #endif // LL_LLINVENTORYMODELBACKGROUNDFETCH_H
