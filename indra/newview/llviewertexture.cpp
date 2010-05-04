@@ -492,6 +492,7 @@ void LLViewerTexture::init(bool firstinit)
 
 	mTextureState = NO_DELETE ;
 	mDontDiscard = FALSE;
+	mCanResetMaxVirtualSize = true ;
 	mMaxVirtualSize = 0.f;
 	mNeedsGLTexture = FALSE ;
 	mNeedsResetMaxVirtualSize = FALSE ;
@@ -540,6 +541,11 @@ void LLViewerTexture::setBoostLevel(S32 level)
 		if(mBoostLevel != LLViewerTexture::BOOST_NONE)
 		{
 			setNoDelete() ;		
+
+			if(LLViewerTexture::BOOST_AVATAR_BAKED_SELF == mBoostLevel || LLViewerTexture::BOOST_AVATAR_BAKED == mBoostLevel)
+			{
+				mCanResetMaxVirtualSize = false ;
+			}
 		}
 		if(gAuditTexture)
 		{
@@ -1666,7 +1672,11 @@ void LLViewerFetchedTexture::updateVirtualSize()
 			setAdditionalDecodePriority(facep->getImportanceToCamera()) ;
 		}
 	}
-	mNeedsResetMaxVirtualSize = TRUE ;
+
+	if(mCanResetMaxVirtualSize)
+	{
+		mNeedsResetMaxVirtualSize = TRUE ;
+	}
 	reorganizeFaceList() ;
 	reorganizeVolumeList();
 }
@@ -3292,7 +3302,10 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 		}
 	}
 
-	mNeedsResetMaxVirtualSize = TRUE ;
+	if(mCanResetMaxVirtualSize)
+	{
+		mNeedsResetMaxVirtualSize = TRUE ;
+	}
 	reorganizeFaceList() ;
 	reorganizeVolumeList();
 
