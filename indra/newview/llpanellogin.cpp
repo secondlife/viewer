@@ -455,12 +455,6 @@ void LLPanelLogin::draw()
 // virtual
 BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask)
 {
-	if (( KEY_RETURN == key ) && (MASK_ALT == mask))
-	{
-		gViewerWindow->toggleFullscreen(FALSE);
-		return TRUE;
-	}
-
 	if ( KEY_F1 == key )
 	{
 		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
