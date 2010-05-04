@@ -375,7 +375,8 @@ void LLViewerShaderMgr::setShaders()
 		S32 water_class = 2;
 		S32 deferred_class = 0;
 		
-		if (gSavedSettings.getBOOL("RenderDeferred"))
+		if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+		    gSavedSettings.getBOOL("RenderDeferred"))
 		{
 			if (gSavedSettings.getS32("RenderShadowDetail") > 0)
 			{

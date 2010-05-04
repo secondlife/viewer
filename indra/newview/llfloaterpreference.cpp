@@ -862,18 +862,22 @@ void LLFloaterPreference::refreshEnabledState()
 	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseFBO") &&
+	    LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 		shaders)
 	{
-		BOOL enabled = ctrl_wind_light->get() ? TRUE : FALSE;
+		BOOL enabled = (ctrl_wind_light->get()) ? TRUE : FALSE;
 
 		ctrl_deferred->setEnabled(enabled);
 	
 		LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 		LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
 
-		enabled = enabled && (ctrl_deferred->get() ? TRUE : FALSE);
+		enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
 		
 		ctrl_ssao->setEnabled(enabled);
+
+		enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
+
 		ctrl_shadow->setEnabled(enabled);
 	}
 
@@ -940,7 +944,34 @@ void LLFloaterPreference::disableUnavailableSettings()
 		ctrl_deferred->setEnabled(FALSE);
 		ctrl_deferred->setValue(FALSE);
 	}
+
+	// disabled deferred
+	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"))
+	{
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
+	}
 	
+	// disabled deferred SSAO
+	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO"))
+	{
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+	}
+	
+	// disabled deferred shadows
+	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
+	{
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+	}
+
 	// disabled reflections
 	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
 	{
