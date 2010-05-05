@@ -2498,21 +2498,6 @@ void LLVivoxVoiceClient::sendPositionalUpdate(void)
 					S32 volume = llround(p->mVolume / VOLUME_SCALE_VIVOX);
 					bool mute = p->mOnMuteList;
 					
-					if(p->mUserVolume != -1)
-					{
-						// scale from user volume in the range 0-400 (with 100 as "normal") to vivox volume in the range 0-100 (with 56 as "normal")
-						if(p->mUserVolume < 100)
-							volume = (p->mUserVolume * 56) / 100;
-						else
-							volume = (((p->mUserVolume - 100) * (100 - 56)) / 300) + 56;
-					}
-					else if(p->mVolume != -1)
-					{
-						// Use the previously reported internal volume (comes in with a ParticipantUpdatedEvent)
-						volume = p->mVolume;
-					}
-										
-
 					if(mute)
 					{
 						// SetParticipantMuteForMe doesn't work in p2p sessions.
@@ -4098,7 +4083,6 @@ LLVivoxVoiceClient::participantState::participantState(const std::string &uri) :
 	 mPower(0.f), 
 	 mVolume(LLVoiceClient::VOLUME_DEFAULT), 
 	 mOnMuteList(false), 
-	 mUserVolume(-1), 
 	 mVolumeDirty(false), 
 	 mAvatarIDValid(false),
 	 mIsSelf(false)
