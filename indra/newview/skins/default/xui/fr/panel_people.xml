@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray panel -->
 <panel label="Résidents" name="people_panel">
-	<string name="no_people" value="Personne"/>
-	<string name="no_one_near" value="Personne près de vous"/>
+	<string name="no_recent_people" value="Personne de récent. Pour rechercher des résidents avec qui passer du temps, voir [secondlife:///app/search/people Rechercher] ou [secondlife:///app/worldmap Carte du monde]."/>
+	<string name="no_filtered_recent_people" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/people Rechercher]."/>
+	<string name="no_one_near" value="Personne près de vous. Pour rechercher des résidents avec qui passer du temps, voir [secondlife:///app/search/people Rechercher] ou [secondlife:///app/worldmap Carte du monde]."/>
+	<string name="no_one_filtered_near" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/people Rechercher]."/>
 	<string name="no_friends_online" value="Pas d&apos;amis connectés"/>
 	<string name="no_friends" value="Pas d&apos;amis"/>
+	<string name="no_friends_msg">
+		Pour rechercher des amis, utilisez [secondlife:///app/search/people Rechercher] ou cliquez-droit sur le résident à ajouter comme ami.
+Pour rechercher des résidents avec qui passer du temps, utilisez [secondlife:///app/worldmap Carte du monde].
+	</string>
+	<string name="no_filtered_friends_msg">
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/people Rechercher].
+	</string>
 	<string name="people_filter_label" value="Filtrer les personnes"/>
 	<string name="groups_filter_label" value="Filtrer les groupes"/>
-	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups Trouver le groupe via la recherche ?]"/>
-	<string name="no_groups_msg" value="[secondlife:///app/search/groups Rechercher des groupes à rejoindre.]"/>
+	<string name="no_filtered_groups_msg" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/groups Rechercher]."/>
+	<string name="no_groups_msg" value="Vous souhaitez trouver des groupes à rejoindre ? Utilisez [secondlife:///app/search/groups Rechercher]."/>
 	<filter_editor label="Filtre" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="PRÈS DE VOUS" name="nearby_panel">
@@ -27,10 +36,6 @@
 				<button name="add_btn" tool_tip="Proposer à un résident de devenir votre ami"/>
 				<button name="del_btn" tool_tip="Supprimer le résident sélectionné de votre liste d&apos;amis"/>
 			</panel>
-			<text name="no_friends_msg">
-				Pour ajouter des amis, utilisez la [secondlife:///app/search/people recherche] ou cliquez-droit sur le résident à ajouter comme ami.
-Si vous souhaitez rencontrer d&apos;autres résidents, cliquez sur [secondlife:///app/worldmap la carte].
-			</text>
 		</panel>
 		<panel label="MES GROUPES" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">

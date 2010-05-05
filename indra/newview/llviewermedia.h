@@ -431,6 +431,7 @@ private:
 	bool mIsParcelMedia;
 	S32 mProximity;
 	F64 mProximityDistance;
+	F64 mProximityCamera;
 	LLMimeDiscoveryResponder *mMimeTypeProbe;
 	bool mMediaAutoPlay;
 	std::string mMediaEntryURL;

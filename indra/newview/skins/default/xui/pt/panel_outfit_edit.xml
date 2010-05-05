@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray Outfit Edit panel -->
+<panel label="Editar look" name="outfit_edit">
+	<string name="No Outfit" value="Nenhum"/>
+	<panel.string name="not_available">
+		(N\A)
+	</panel.string>
+	<panel.string name="unknown">
+		(Desconhecido)
+	</panel.string>
+	<string name="Filter.All" value="Tudo"/>
+	<string name="Filter.Clothes/Body" value="Roupas/Corpo"/>
+	<string name="Filter.Objects" value="Objects"/>
+	<button label="Editar" name="edit_wearable_btn"/>
+	<text name="title" value="Editar look"/>
+	<panel label="bottom_panel" name="header_panel">
+		<panel label="bottom_panel" name="outfit_name_and_status">
+			<text name="status" value="Editando..."/>
+			<text name="curr_outfit_name" value="[Look atual]"/>
+		</panel>
+	</panel>
+	<layout_stack name="im_panels">
+		<layout_panel label="Painel de controle de MIs" name="outfit_wearables_panel">
+			<scroll_list name="look_items_list">
+				<scroll_list.columns label="Ver item" name="look_item"/>
+				<scroll_list.columns label="Ordenar itens" name="look_item_sort"/>
+			</scroll_list>
+			<panel label="bottom_panel" name="edit_panel"/>
+		</layout_panel>
+		<layout_panel name="add_wearables_panel">
+			<filter_editor label="Filtro" name="look_item_filter"/>
+			<layout_stack name="filter_panels">
+				<layout_panel label="Painel de controle de MIs" name="filter_button_panel">
+					<text name="add_to_outfit_label" value="Adicionar ao look:"/>
+					<button label="O" name="filter_button"/>
+				</layout_panel>
+			</layout_stack>
+			<panel label="add_wearables_button_bar" name="add_wearables_button_bar">
+				<button label="F" name="folder_view_btn"/>
+				<button label="L" name="list_view_btn"/>
+			</panel>
+		</layout_panel>
+	</layout_stack>
+	<panel name="save_revert_button_bar">
+		<button label="Salvar" name="save_btn"/>
+		<button label="Reverter" name="revert_btn"/>
+	</panel>
+</panel>

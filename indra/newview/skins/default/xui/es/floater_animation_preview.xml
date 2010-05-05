@@ -141,35 +141,35 @@ La duración máxima de una animación es de [MAX_LENGTH] segundos.
 		Expresión
 	</text>
 	<combo_box name="emote_combo" tool_tip="Controla qué hace la cara durante la animación">
-		<combo_box.item label="(ninguno)" name="[None]"/>
-		<combo_box.item label="Aaaaah" name="Aaaaah"/>
-		<combo_box.item label="Con miedo" name="Afraid"/>
-		<combo_box.item label="Enfado" name="Angry"/>
-		<combo_box.item label="Gran sonrisa" name="BigSmile"/>
-		<combo_box.item label="Aburrimiento" name="Bored"/>
-		<combo_box.item label="Llorar" name="Cry"/>
-		<combo_box.item label="Desdén" name="Disdain"/>
-		<combo_box.item label="Avergonzarse" name="Embarrassed"/>
-		<combo_box.item label="Fruncir el ceño" name="Frown"/>
-		<combo_box.item label="Beso" name="Kiss"/>
-		<combo_box.item label="Reír" name="Laugh"/>
-		<combo_box.item label="Sacar la lengua" name="Plllppt"/>
-		<combo_box.item label="Rechazo" name="Repulsed"/>
-		<combo_box.item label="Triste" name="Sad"/>
-		<combo_box.item label="Encogerse de hombros" name="Shrug"/>
-		<combo_box.item label="Sonrisa" name="Smile"/>
-		<combo_box.item label="Sorpresa" name="Surprise"/>
-		<combo_box.item label="Guiño" name="Wink"/>
-		<combo_box.item label="Preocupación" name="Worry"/>
+		<item label="(ninguno)" name="[None]" value=""/>
+		<item label="Aaaaah" name="Aaaaah" value="Aaaaah"/>
+		<item label="Con miedo" name="Afraid" value="Miedo"/>
+		<item label="Enfado" name="Angry" value="Enfado"/>
+		<item label="Gran sonrisa" name="BigSmile" value="Gran sonrisa"/>
+		<item label="Aburrimiento" name="Bored" value="Aburrimiento"/>
+		<item label="Llorar" name="Cry" value="Lloro"/>
+		<item label="Desdén" name="Disdain" value="Desdén"/>
+		<item label="Avergonzarse" name="Embarrassed" value="Vergüenza"/>
+		<item label="Fruncir el ceño" name="Frown" value="Fruncir el ceño"/>
+		<item label="Beso" name="Kiss" value="Beso"/>
+		<item label="Reír" name="Laugh" value="Risa"/>
+		<item label="Sacar la lengua" name="Plllppt" value="Sacar la lengua"/>
+		<item label="Rechazo" name="Repulsed" value="Rechazo"/>
+		<item label="Triste" name="Sad" value="Tristeza"/>
+		<item label="Encogerse de hombros" name="Shrug" value="Encogerse de hombros"/>
+		<item label="Sonrisa" name="Smile" value="Sonrisa"/>
+		<item label="Sorpresa" name="Surprise" value="Sorpresa"/>
+		<item label="Guiño" name="Wink" value="Guiño"/>
+		<item label="Preocupación" name="Worry" value="Preocupación"/>
 	</combo_box>
 	<text name="preview_label">
 		Vista previa mientras
 	</text>
 	<combo_box name="preview_base_anim" tool_tip="Compruebe cómo se comporta su animación a la vez que el avatar realiza acciones comunes.">
-		<combo_box.item label="De pie" name="Standing"/>
-		<combo_box.item label="Caminando" name="Walking"/>
-		<combo_box.item label="Sentado/a" name="Sitting"/>
-		<combo_box.item label="Volando" name="Flying"/>
+		<item label="De pie" name="Standing" value="De pie"/>
+		<item label="Caminando" name="Walking" value="Caminando"/>
+		<item label="Sentado/a" name="Sitting" value="Sentado"/>
+		<item label="Volando" name="Flying" value="Volando"/>
 	</combo_box>
 	<spinner label="Combinar (sec)" name="ease_in_time" tool_tip="Tiempo (en segundos) en el que se combinan las animaciones"/>
 	<spinner label="Dejar de combinar (sec)" name="ease_out_time" tool_tip="Tiempo (en segundos) en el que dejan de combinarse las animaciones"/>

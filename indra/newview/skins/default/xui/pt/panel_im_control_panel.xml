@@ -20,7 +20,7 @@
 			<button label="Ligar" name="call_btn"/>
 		</layout_panel>
 		<layout_panel name="end_call_btn_panel">
-			<button label="Desligar" name="end_call_btn"/>
+			<button label="Encerrar ligação" name="end_call_btn"/>
 		</layout_panel>
 		<layout_panel name="voice_ctrls_btn_panel">
 			<button label="Controles de voz" name="voice_ctrls_btn"/>

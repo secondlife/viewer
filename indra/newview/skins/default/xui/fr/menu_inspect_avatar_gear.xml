@@ -11,7 +11,7 @@
 	<menu_item_call label="Signaler" name="report"/>
 	<menu_item_call label="Figer" name="freeze"/>
 	<menu_item_call label="Expulser" name="eject"/>
-	<menu_item_call label="Débogage" name="debug"/>
+	<menu_item_call label="Déboguer les textures" name="debug"/>
 	<menu_item_call label="Situer sur la carte" name="find_on_map"/>
 	<menu_item_call label="Zoomer en avant" name="zoom_in"/>
 	<menu_item_call label="Payer" name="pay"/>

@@ -261,6 +261,9 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Fermer (Ctrl+W)
 	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		Fermer
+	</string>
 	<string name="BUTTON_RESTORE">
 		Restaurer
 	</string>
@@ -302,6 +305,9 @@
 	</string>
 	<string name="GroupNameNone">
 		(aucun)
+	</string>
+	<string name="AvalineCaller">
+		Appelant Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Aucune erreur
@@ -904,7 +910,7 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Objet inexistant dans l&apos;inventaire. Voir [secondlife:///app/search/groups &quot;Rechercher&quot;].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/all Rechercher].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -1575,9 +1581,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		Il n&apos;y a aucun règlement pour ce domaine. Le terrain sur ce domaine est vendu par le propriétaire, non par Linden Lab.  Pour en savoir plus, veuillez contacter le propriétaire.
 	</string>
-	<string name="covenant_last_modified">
-		Dernière modification :
-	</string>
+	<string name="covenant_last_modified" value="Dernière modification :"/>
 	<string name="none_text" value=" (aucun)"/>
 	<string name="never_text" value=" (jamais)"/>
 	<string name="GroupOwned">
@@ -3311,6 +3315,15 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="LocationCtrlDamageTooltip">
 		Santé
 	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		Région de type Adulte
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		Région de type Modéré
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		Région de type Général
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] - Mise à jour
 	</string>
@@ -3341,6 +3354,12 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 		Impossible de lancer le client
 	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME] : transfert trop rapide des articles de [FROM_NAME] ; aperçu automatique désactivé pendant [TIME] secondes
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME] : transfert trop rapide des articles ; aperçu automatique désactivé pendant [TIME] secondes
+	</string>
 	<string name="IM_logging_string">
 		-- Archivage des IM activé --
 	</string>
@@ -3367,6 +3386,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="IM_moderator_label">
 		(Modérateur)
+	</string>
+	<string name="answered_call">
+		Votre appel a fait l&apos;objet d&apos;une réponse
 	</string>
 	<string name="started_call">
 		A appelé quelqu&apos;un
@@ -3461,11 +3483,17 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="unread_chat_multiple">
 		[SOURCES] ont dit quelque chose de nouveau
 	</string>
+	<string name="session_initialization_timed_out_error">
+		Expiration du délai d&apos;initialisation de la session
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] vous a payé [AMOUNT] L$
 	</string>
 	<string name="you_paid_ldollars">
 		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		Vous avez payé [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		Vous avez payé à [NAME] [AMOUNT] L$.
@@ -3576,5 +3604,14 @@ de l&apos;infraction signalée
 	</string>
 	<string name="Contents">
 		Contenus
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		aucun/aucun
+	</string>
+	<string name="texture_load_dimensions_error">
+		Impossible de charger des images de taille supérieure à [WIDTH]*[HEIGHT]
 	</string>
 </strings>

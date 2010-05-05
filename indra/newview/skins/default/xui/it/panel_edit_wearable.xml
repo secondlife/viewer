@@ -94,6 +94,11 @@
 	<panel label="Camicia" name="wearable_type_panel">
 		<text name="description_text" value="Figura corporea:"/>
 	</panel>
+	<panel label="gear_buttom_panel" name="gear_buttom_panel">
+		<button name="friends_viewsort_btn" tool_tip="Opzioni"/>
+		<button name="add_btn" tool_tip="TODO"/>
+		<button name="del_btn" tool_tip="TODO"/>
+	</panel>
 	<panel name="button_panel">
 		<button label="Salva con nome" name="save_as_button"/>
 		<button label="Ripristina" name="revert_button"/>

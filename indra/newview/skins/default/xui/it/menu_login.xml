@@ -7,18 +7,8 @@
 	<menu label="Aiuto" name="Help">
 		<menu_item_call label="Aiuto di [SECOND_LIFE]" name="Second Life Help"/>
 	</menu>
+	<menu_item_check label="Mostra menu Debug" name="Show Debug Menu"/>
 	<menu label="Debug" name="Debug">
-		<menu label="Modifica" name="Edit">
-			<menu_item_call label="Annulla" name="Undo"/>
-			<menu_item_call label="Rifai" name="Redo"/>
-			<menu_item_call label="Taglia" name="Cut"/>
-			<menu_item_call label="Copia" name="Copy"/>
-			<menu_item_call label="Incolla" name="Paste"/>
-			<menu_item_call label="Elimina" name="Delete"/>
-			<menu_item_call label="Duplica" name="Duplicate"/>
-			<menu_item_call label="Seleziona tutto" name="Select All"/>
-			<menu_item_call label="Deseleziona" name="Deselect"/>
-		</menu>
 		<menu_item_call label="Mostra impostazioni di debug" name="Debug Settings"/>
 		<menu_item_call label="Impostazioni colori interfaccia" name="UI/Color Settings"/>
 		<menu label="Test interfaccia utente" name="UI Tests"/>
@@ -26,5 +16,7 @@
 		<menu_item_call label="Mostra i Termini del servizio (TOS)" name="TOS"/>
 		<menu_item_call label="Mostra messaggio critico" name="Critical"/>
 		<menu_item_call label="Test browser Web" name="Web Browser Test"/>
+		<menu_item_check label="Mostra selettore griglia" name="Show Grid Picker"/>
+		<menu_item_call label="Mostra Console notifiche" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

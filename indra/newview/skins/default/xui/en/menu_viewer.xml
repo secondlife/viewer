@@ -1565,15 +1565,6 @@
                 <menu_item_call.on_click
                  function="View.ZoomOut" />
             </menu_item_call>
-            <menu_item_separator/>
-            <menu_item_call
-             label="Toggle Fullscreen"
-             name="Toggle Fullscreen"
-             >
-               <!-- Note: shortcut="alt|Enter" was deleted from the preceding node-->
-                <menu_item_call.on_click
-                 function="View.Fullscreen" />
-            </menu_item_call>
         </menu>
         <menu_item_separator/>
         <menu_item_call
