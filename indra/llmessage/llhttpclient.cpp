@@ -79,8 +79,10 @@ namespace
 		{
 			if (mResponder.get())
 			{
-				mResponder->completedRaw(mStatus, mReason, channels, buffer);
+				// Allow clients to parse headers before we attempt to parse
+				// the body and provide completed/result/error calls.
 				mResponder->completedHeader(mStatus, mReason, mHeaderOutput);
+				mResponder->completedRaw(mStatus, mReason, channels, buffer);
 			}
 		}
 		virtual void header(const std::string& header, const std::string& value)
