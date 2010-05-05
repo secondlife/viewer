@@ -94,6 +94,14 @@ width="333">
       name="edit_outfit_btn"
       top="7"
       width="30" />
+      <loading_indicator
+      follows="left|top"
+      height="24"
+      layout="topleft"
+      left="268"
+      name="wearables_loading_indicator"
+      top="6"
+      width="24" />
    </panel>
    <filter_editor
    height="23"

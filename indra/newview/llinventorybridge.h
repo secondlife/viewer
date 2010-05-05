@@ -349,6 +349,11 @@ protected:
 	void modifyOutfit(BOOL append);
 	void determineFolderType();
 
+	/**
+	 * Returns a copy of current menu items.
+	 */
+	menuentry_vec_t getMenuItems() { return mItems; }
+
 public:
 	static LLFolderBridge* sSelf;
 	static void staticFolderOptionsMenu();
@@ -657,6 +662,58 @@ protected:
 	const LLUUID& mUUID; // item id
 	LLInventoryModel* mModel;
 };
+
+
+/************************************************************************/
+/* Recent Inventory Panel related classes                               */
+/************************************************************************/
+class LLRecentInventoryBridgeBuilder;
+/**
+ * Overridden version of the Inventory-Folder-View-Bridge for Folders
+ */
+class LLRecentItemsFolderBridge : public LLFolderBridge
+{
+	friend class LLRecentInventoryBridgeBuilder;
+
+public:
+	/**
+	 * Creates context menu for Folders related to Recent Inventory Panel.
+	 *
+	 * It uses base logic and than removes from visible items "New..." menu items.
+	 */
+	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
+
+protected:
+	LLRecentItemsFolderBridge(LLInventoryType::EType type,
+						 LLInventoryPanel* inventory,
+						 LLFolderView* root,
+						 const LLUUID& uuid) :
+		LLFolderBridge(inventory, root, uuid)
+	{
+		mInvType = type;
+	}
+};
+
+/**
+ * Bridge builder to create Inventory-Folder-View-Bridge for Recent Inventory Panel
+ */
+class LLRecentInventoryBridgeBuilder : public LLInventoryFVBridgeBuilder
+{
+	/**
+	 * Overrides FolderBridge for Recent Inventory Panel.
+	 *
+	 * It use base functionality for bridges other than FolderBridge.
+	 */
+	virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
+		LLAssetType::EType actual_asset_type,
+		LLInventoryType::EType inv_type,
+		LLInventoryPanel* inventory,
+		LLFolderView* root,
+		const LLUUID& uuid,
+		U32 flags = 0x00) const;
+
+};
+
 
 
 void wear_inventory_item_on_avatar(LLInventoryItem* item);

@@ -167,7 +167,7 @@ BOOL LLPanelMainInventory::postBuild()
 	// Now load the stored settings from disk, if available.
 	std::ostringstream filterSaveName;
 	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);
-	llinfos << "LLPanelMainInventory::init: reading from " << filterSaveName << llendl;
+	llinfos << "LLPanelMainInventory::init: reading from " << filterSaveName.str() << llendl;
 	llifstream file(filterSaveName.str());
 	LLSD savedFilterState;
 	if (file.is_open())
@@ -492,6 +492,10 @@ void LLPanelMainInventory::onFilterSelected()
 	{
 		return;
 	}
+
+	BOOL recent_active = ("Recent Items" == mActivePanel->getName());
+	childSetVisible("add_btn_panel", !recent_active);
+
 	setFilterSubString(mFilterSubString);
 	LLInventoryFilter* filter = mActivePanel->getFilter();
 	LLFloaterInventoryFinder *finder = getFinder();

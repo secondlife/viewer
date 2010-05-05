@@ -209,6 +209,17 @@ public:
 	U32				itemUpdatePendingCount() const;
 
 	//--------------------------------------------------------------------
+	// Signals
+	//--------------------------------------------------------------------
+public:
+	typedef boost::function<void()>			loaded_callback_t;
+	typedef boost::signals2::signal<void()>	loaded_signal_t;
+	boost::signals2::connection				addLoadedCallback(loaded_callback_t cb);
+
+private:
+	loaded_signal_t							mLoadedSignal; // emitted when all agent wearables get loaded
+
+	//--------------------------------------------------------------------
 	// Member variables
 	//--------------------------------------------------------------------
 private:

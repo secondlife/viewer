@@ -719,8 +719,10 @@ void LLParticipantList::LLParticipantListMenu::toggleMute(const LLSD& userdata, 
 	{
 		return;
 	}
+	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(mParent.mAvatarList->getItemByValue(speaker_id));
+	if (NULL == item) return;
 
-	name = speakerp->mDisplayName;
+	name = item->getAvatarName();
 
 	LLMute::EType mute_type;
 	switch (speakerp->mType)
