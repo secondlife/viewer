@@ -1915,7 +1915,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 
 		// store the mode the user wants (even if not there yet)
-		gSavedSettings.setBOOL("WindowFullScreen", mWantFullscreen);
+		gSavedSettings.setBOOL("FullScreen", mWantFullscreen);
 
 		// store new settings for the mode we are in, regardless
 		if (!mWindow->getFullscreen())
@@ -4716,7 +4716,7 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	BOOL was_maximized = gSavedSettings.getBOOL("WindowMaximized");
 	mWantFullscreen = fullscreen;
 	mShowFullscreenProgress = show_progress_bar;
-	gSavedSettings.setBOOL("WindowFullScreen", mWantFullscreen);
+	gSavedSettings.setBOOL("FullScreen", mWantFullscreen);
 
 	//gResizeScreenTexture = TRUE;
 
