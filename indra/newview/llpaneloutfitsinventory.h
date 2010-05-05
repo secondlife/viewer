@@ -123,6 +123,8 @@ protected:
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 	bool hasItemsSelected();
+	void setWearablesLoading(bool val);
+	void onWearablesLoaded();
 private:
 	LLPanel*					mListCommands;
 	LLMenuGL*					mMenuGearDefault;

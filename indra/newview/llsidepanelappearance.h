@@ -65,6 +65,7 @@ public:
 
 	void showOutfitsInventoryPanel();
 	void showOutfitEditPanel();
+	void setWearablesLoading(bool val);
 
 private:
 	void onFilterEdit(const std::string& search_string);

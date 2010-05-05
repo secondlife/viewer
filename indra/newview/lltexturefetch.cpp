@@ -166,6 +166,9 @@ public:
 		mGetReason = reason;
 	}
 
+	void setCanUseHTTP(bool can_use_http) {mCanUseHTTP = can_use_http;}
+	bool getCanUseHTTP()const {return mCanUseHTTP ;}
+
 protected:
 	LLTextureFetchWorker(LLTextureFetch* fetcher, const std::string& url, const LLUUID& id, const LLHost& host,
 						 F32 priority, S32 discard, S32 size);
@@ -247,15 +250,16 @@ private:
 	S32 mRequestedSize;
 	S32 mDesiredSize;
 	S32 mFileSize;
-	S32 mCachedSize;
-	BOOL mLoaded;
+	S32 mCachedSize;	
 	e_request_state mSentRequest;
 	handle_t mDecodeHandle;
+	BOOL mLoaded;
 	BOOL mDecoded;
 	BOOL mWritten;
 	BOOL mNeedsAux;
 	BOOL mHaveAllData;
 	BOOL mInLocalCache;
+	bool mCanUseHTTP ;
 	S32 mHTTPFailCount;
 	S32 mRetryAttempt;
 	S32 mActiveCount;
@@ -411,6 +415,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mNeedsAux(FALSE),
 	  mHaveAllData(FALSE),
 	  mInLocalCache(FALSE),
+	  mCanUseHTTP(true),
 	  mHTTPFailCount(0),
 	  mRetryAttempt(0),
 	  mActiveCount(0),
@@ -640,11 +645,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				return false;
 			}
 			mFileSize = 0;
-			mLoaded = FALSE;
-			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
+			mLoaded = FALSE;			
 			
 			if (mUrl.compare(0, 7, "file://") == 0)
 			{
+				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
+
 				// read file from local disk
 				std::string filename = mUrl.substr(7, std::string::npos);
 				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
@@ -653,11 +659,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			else if (mUrl.empty())
 			{
+				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
+
 				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
 				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(mID, cache_priority,
 																		  offset, size, responder);
 			}
-			else
+			else if(mCanUseHTTP)
 			{
 				if (!(mUrl.compare(0, 7, "http://") == 0))
 				{
@@ -666,6 +674,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				mState = SEND_HTTP_REQ;
+			}
+			else
+			{
+				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+				mState = LOAD_FROM_NETWORK;
 			}
 		}
 
@@ -727,7 +740,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP");
 
 // 		if (mHost != LLHost::invalid) get_url = false;
-		if ( use_http && mUrl.empty())//get http url.
+		if ( use_http && mCanUseHTTP && mUrl.empty())//get http url.
 		{
 			LLViewerRegion* region = NULL;
 			if (mHost == LLHost::invalid)
@@ -750,7 +763,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				//llwarns << "Region not found for host: " << mHost << llendl;
 			}
 		}
-		if (!mUrl.empty())
+		if (mCanUseHTTP && !mUrl.empty())
 		{
 			mState = LLTextureFetchWorker::SEND_HTTP_REQ;
 			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
@@ -891,7 +904,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				if (mGetStatus == HTTP_NOT_FOUND)
 				{
 					mHTTPFailCount = max_attempts = 1; // Don't retry
-					llinfos << "Texture missing from server (404): " << mUrl << llendl;
+					//llinfos << "Texture missing from server (404): " << mUrl << llendl;
+
+					//roll back to try UDP
+					mState = INIT ;
+					mCanUseHTTP = false ;
+					setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+					return false ;
 				}
 				else if (mGetStatus == HTTP_SERVICE_UNAVAILABLE)
 				{
@@ -1471,7 +1490,7 @@ LLTextureFetch::~LLTextureFetch()
 }
 
 bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
-								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux)
+								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http)
 {
 	if (mDebugPause)
 	{
@@ -1533,6 +1552,7 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 		worker->mNeedsAux = needs_aux;
 		worker->setImagePriority(priority);
 		worker->setDesiredDiscard(desired_discard, desired_size);
+		worker->setCanUseHTTP(can_use_http) ;
 		if (!worker->haveWork())
 		{
 			worker->mState = LLTextureFetchWorker::INIT;
@@ -1555,6 +1575,7 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 		worker->lockWorkMutex();
 		worker->mActiveCount++;
 		worker->mNeedsAux = needs_aux;
+		worker->setCanUseHTTP(can_use_http) ;
 		worker->unlockWorkMutex();
 	}
 	
@@ -2215,7 +2236,7 @@ BOOL LLTextureFetch::isFromLocalCache(const LLUUID& id)
 }
 
 S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& requested_priority_p,
-								  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p)
+								  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p, bool& can_use_http)
 {
 	S32 state = LLTextureFetchWorker::INVALID;
 	F32 data_progress = 0.0f;
@@ -2253,6 +2274,7 @@ S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& r
 			requested_priority = worker->mImagePriority;
 		}
 		fetch_priority = worker->getPriority();
+		can_use_http = worker->getCanUseHTTP() ;
 		worker->unlockWorkMutex();
 	}
 	data_progress_p = data_progress;
