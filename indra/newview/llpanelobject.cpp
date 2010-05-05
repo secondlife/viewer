@@ -137,6 +137,10 @@ BOOL	LLPanelObject::postBuild()
 	// Phantom checkbox
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
+
+	// PhysicsShapeType combobox
+	mComboPhysicsShapeType = getChild<LLComboBox>("Physics Shape Type Combo Ctrl");
+	childSetCommitCallback("Physics Shape Type Combo Ctrl", onCommitPhysicsShapeType,this);
 	
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
@@ -320,6 +324,7 @@ LLPanelObject::LLPanelObject()
 	mIsPhysical(FALSE),
 	mIsTemporary(FALSE),
 	mIsPhantom(FALSE),
+	mPhysicsShapeType(0),
 	mCastShadows(TRUE),
 	mSelectedType(MI_BOX),
 	mSculptTextureRevert(LLUUID::null),
@@ -526,6 +531,10 @@ void LLPanelObject::getState( )
 	mIsPhantom = root_objectp->flagPhantom();
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
+
+	mPhysicsShapeType = objectp->getPhysicsShapeType();
+	mComboPhysicsShapeType->setCurrentByIndex(mPhysicsShapeType);
+	mComboPhysicsShapeType->setEnabled(editable);
 
 #if 0 // 1.9.2
 	mCastShadows = root_objectp->flagCastShadows();
@@ -1232,6 +1241,22 @@ void LLPanelObject::sendIsPhantom()
 	}
 }
 
+void LLPanelObject::sendPhysicsShapeType()
+{
+	U8 value = (U8)mComboPhysicsShapeType->getCurrentIndex();
+	if (mPhysicsShapeType != value)
+	{
+		LLSelectMgr::getInstance()->selectionUpdatePhysicsShapeType(value);
+		mPhysicsShapeType = value;
+		
+		llinfos << "update physics shape type sent" << llendl;
+	}
+	else
+	{
+		llinfos << "update physics shape type not changed" << llendl;
+	}
+}
+
 void LLPanelObject::sendCastShadows()
 {
 	BOOL value = mCheckCastShadows->get();
@@ -1905,6 +1930,8 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
+	mComboPhysicsShapeType->setCurrentByIndex(0);
+	mComboPhysicsShapeType->setEnabled(FALSE);
 #if 0 // 1.9.2
 	mCheckCastShadows->set(FALSE);
 	mCheckCastShadows->setEnabled( FALSE );
@@ -1997,6 +2024,13 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
 	self->sendIsPhantom();
+}
+
+// static
+void LLPanelObject::onCommitPhysicsShapeType(LLUICtrl* ctrl, void* userdata )
+{
+	LLPanelObject* self = (LLPanelObject*) userdata;
+	self->sendPhysicsShapeType();
 }
 
 // static

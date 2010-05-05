@@ -73,6 +73,7 @@ public:
 		HUD_RENDER		= 0x0008,
 		USE_FACE_COLOR	= 0x0010,
 		TEXTURE_ANIM	= 0x0020, 
+		RIGGED			= 0x0040,
 	};
 
 	static void initClass();
@@ -138,14 +139,15 @@ public:
 	void			unsetFaceColor(); // switch back to material color
 	const LLColor4&	getFaceColor() const { return mFaceColor; } 
 	const LLColor4& getRenderColor() const;
-	
 
 	//for volumes
 	void updateRebuildFlags();
+	bool canRenderAsMask(); // logic helper
 	BOOL getGeometryVolume(const LLVolume& volume,
 						const S32 &f,
 						const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
-						const U16 &index_offset);
+						const U16 &index_offset,
+						bool force_rebuild = false);
 
 	// For avatar
 	U16			 getGeometryAvatar(
@@ -232,6 +234,7 @@ public:
 private:
 	friend class LLGeometryManager;
 	friend class LLVolumeGeometryManager;
+	friend class LLDrawPoolAvatar;
 
 	U32			mState;
 	LLFacePool*	mDrawPoolp;
@@ -257,6 +260,8 @@ private:
 	S32			mTEOffset;
 
 	S32			mReferenceIndex;
+	std::vector<S32> mRiggedIndex;
+	 
 	F32			mVSize;
 	F32			mPixelArea;
 

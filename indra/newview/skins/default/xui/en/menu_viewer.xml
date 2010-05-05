@@ -1756,6 +1756,17 @@
                  function="ToggleControl"
                  parameter="DebugShowTime" />
             </menu_item_check>
+          <menu_item_check
+             label="Show Upload Cost"
+             layout="topleft"
+             name="Show Upload Cost">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="DebugShowUploadCost" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="DebugShowUploadCost" />
+          </menu_item_check>
             <menu_item_check
              label="Show Render Info"
              name="Show Render Info">
@@ -2138,14 +2149,24 @@
                  parameter="RenderDebugPipeline" />
             </menu_item_check>
             <menu_item_check
-             label="Fast Alpha"
-             name="Fast Alpha">
+             label="Automatic Alpha Masks (deferred)"
+             name="Automatic Alpha Masks (deferred)">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderFastAlpha" />
+                 parameter="RenderAutoMaskAlphaDeferred" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderFastAlpha" />
+                 parameter="RenderAutoMaskAlphaDeferred" />
+            </menu_item_check>
+            <menu_item_check
+             label="Automatic Alpha Masks (non-deferred)"
+             name="Automatic Alpha Masks (non-deferred)">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="RenderAutoMaskAlphaNonDeferred" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="RenderAutoMaskAlphaNonDeferred" />
             </menu_item_check>
             <menu_item_check
              label="Animation Textures"
@@ -2871,6 +2892,16 @@
          shortcut="control|alt|shift|G">
             <menu_item_call.on_click
              function="Advanced.LeaveAdminStatus" />
+        </menu_item_call>
+		<menu_item_call
+           label="HACK Upload Model..."
+           layout="topleft"
+           name="Upload Model">
+          <menu_item_call.on_click
+             function="File.UploadModel"
+             parameter="" />
+          <menu_item_call.on_enable
+             function="File.EnableUploadModel" />
         </menu_item_call>
     </menu>
     <menu

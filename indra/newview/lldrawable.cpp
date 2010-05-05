@@ -189,20 +189,30 @@ BOOL LLDrawable::isLight() const
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_CLEANUP_DRAWABLE("Cleanup Drawable");
+static LLFastTimer::DeclareTimer FTM_DEREF_DRAWABLE("Deref");
+static LLFastTimer::DeclareTimer FTM_DELETE_FACES("Faces");
+
 void LLDrawable::cleanupReferences()
 {
-	LLFastTimer t(FTM_PIPELINE);
+	LLFastTimer t(FTM_CLEANUP_DRAWABLE);
 	
-	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
-	mFaces.clear();
+	{
+		LLFastTimer t(FTM_DELETE_FACES);
+		std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
+		mFaces.clear();
+	}
 
 	gObjectList.removeDrawable(this);
 	
 	gPipeline.unlinkDrawable(this);
 	
-	// Cleanup references to other objects
-	mVObjp = NULL;
-	mParent = NULL;
+	{
+		LLFastTimer t(FTM_DEREF_DRAWABLE);
+		// Cleanup references to other objects
+		mVObjp = NULL;
+		mParent = NULL;
+	}
 }
 
 void LLDrawable::cleanupDeadDrawables()
@@ -523,7 +533,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		{
 			// snap to final position
 			dist_squared = 0.0f;
-			if (!isRoot())
+			if (getVOVolume() && !isRoot())
 			{ //child prim snapping to some position, needs a rebuild
 				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 			}

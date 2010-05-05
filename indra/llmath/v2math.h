@@ -66,6 +66,9 @@ class LLVector2
 		void	set(const LLVector2 &vec);	// Sets LLVector2 to vec
 		void	set(const F32 *vec);			// Sets LLVector2 to vec
 
+		LLSD	getValue() const;
+		void	setValue(LLSD& sd);
+
 		void	setVec(F32 x, F32 y);	        // deprecated
 		void	setVec(const LLVector2 &vec);	// deprecated
 		void	setVec(const F32 *vec);			// deprecated

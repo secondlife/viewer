@@ -5915,7 +5915,7 @@ Attachment has been saved.
 Unable to find the help topic for this element.
   </notification>
 
-    <notification
+     <notification
  icon="alertmodal.tga"
  name="ObjectMediaFailure"
  type="alertmodal">
@@ -5945,6 +5945,17 @@ Your voice has been muted by moderator.
          name="okbutton"
          yestext="OK"/>
     </notification>
+  
+   <notification
+    icon="alertmodal.tga"
+    name="UploadCostConfirmation"
+    type="alertmodal">
+This upload will cost L$[PRICE], do you wish to continue with the upload?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -5973,12 +5984,18 @@ Drag items from inventory onto a person in the resident picker
   </notification>
 
   <notification
+    name="MeshUploadError"
+    icon="alert.tga"
+    type="alert">
+    [LABEL] failed to upload: [MESSAGE] [IDENTIFIER] [INVALIDITY_IDENTIFIER]
+  </notification>
+
+  <notification
    icon="notifytip.tga"
    name="AvatarRezNotification"
    type="notifytip">
 Avatar '[NAME]' rezzed in [TIME] seconds.
   </notification>
-
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>

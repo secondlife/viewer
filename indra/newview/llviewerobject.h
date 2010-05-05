@@ -181,6 +181,7 @@ public:
 	void			setOnActiveList(BOOL on_active)		{ mOnActiveList = on_active; }
 
 	virtual BOOL	isAttachment() const { return FALSE; }
+	virtual LLVOAvatar* getAvatar() const;  //get the avatar this object is attached to, or NULL if object is not an attachment
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
 	virtual void 	updateRadius() {};
 	virtual F32 	getVObjRadius() const; // default implemenation is mDrawable->getRadius()
@@ -229,6 +230,7 @@ public:
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
+	virtual BOOL isMesh() const						{ return FALSE; }
 	virtual BOOL hasLightTexture() const			{ return FALSE; }
 
 	// This method returns true if the object is over land owned by
@@ -459,6 +461,8 @@ public:
 	inline BOOL		flagCameraDecoupled() const		{ return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
 	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 
+	inline U8       getPhysicsShapeType() const     { return mPhysicsShapeType; }
+	
 	bool getIncludeInSearch() const;
 	void setIncludeInSearch(bool include_in_search);
 
@@ -474,6 +478,7 @@ public:
 
 	void updateFlags();
 	BOOL setFlags(U32 flag, BOOL state);
+	void setPhysicsShapeType(U8 type);
 	
 	virtual void dump() const;
 	static U32		getNumZombieObjects()			{ return sNumZombieObjects; }
@@ -552,6 +557,9 @@ public:
 
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
+
+	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
+	U8              mPhysicsShapeType;
 
 	// Pipeline classes
 	LLPointer<LLDrawable> mDrawable;

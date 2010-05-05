@@ -213,6 +213,8 @@ public:
 	void get(const std::string& url, LLCurl::ResponderPtr responder);
 	bool getByteRange(const std::string& url, const headers_t& headers, S32 offset, S32 length, LLCurl::ResponderPtr responder);
 	bool post(const std::string& url, const headers_t& headers, const LLSD& data, LLCurl::ResponderPtr responder);
+	bool post(const std::string& url, const headers_t& headers, const std::string& data, LLCurl::ResponderPtr responder);
+	
 	S32  process();
 	S32  getQueued();
 
@@ -226,6 +228,7 @@ private:
 	curlmulti_set_t mMultiSet;
 	LLCurl::Multi* mActiveMulti;
 	S32 mActiveRequestCount;
+	BOOL mProcessing;
 	U32 mThreadID; // debug
 };
 

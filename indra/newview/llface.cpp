@@ -41,6 +41,7 @@
 #include "m3math.h"
 #include "v3color.h"
 
+#include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
 #include "llgl.h"
 #include "llrender.h"
@@ -185,22 +186,42 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mHasMedia = FALSE ;
 }
 
+static LLFastTimer::DeclareTimer FTM_DESTROY_FACE("Destroy Face");
+static LLFastTimer::DeclareTimer FTM_DESTROY_TEXTURE("Texture");
+static LLFastTimer::DeclareTimer FTM_DESTROY_DRAWPOOL("Drawpool");
+static LLFastTimer::DeclareTimer FTM_DESTROY_TEXTURE_MATRIX("Texture Matrix");
+static LLFastTimer::DeclareTimer FTM_DESTROY_DRAW_INFO("Draw Info");
+static LLFastTimer::DeclareTimer FTM_DESTROY_ATLAS("Atlas");
+static LLFastTimer::DeclareTimer FTM_FACE_DEREF("Deref");
 
 void LLFace::destroy()
 {
+	LLFastTimer t(FTM_DESTROY_FACE);
 	if(mTexture.notNull())
 	{
+		LLFastTimer t(FTM_DESTROY_TEXTURE);
 		mTexture->removeFace(this) ;
 	}
 	
 	if (mDrawPoolp)
 	{
-		mDrawPoolp->removeFace(this);
+		LLFastTimer t(FTM_DESTROY_DRAWPOOL);
+
+		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
+		{
+			((LLDrawPoolAvatar*) mDrawPoolp)->removeRiggedFace(this);
+		}
+		else
+		{
+			mDrawPoolp->removeFace(this);
+		}
+	
 		mDrawPoolp = NULL;
 	}
 
 	if (mTextureMatrix)
 	{
+		LLFastTimer t(FTM_DESTROY_TEXTURE_MATRIX);
 		delete mTextureMatrix;
 		mTextureMatrix = NULL;
 
@@ -215,11 +236,21 @@ void LLFace::destroy()
 		}
 	}
 	
-	setDrawInfo(NULL);
+	{
+		LLFastTimer t(FTM_DESTROY_DRAW_INFO);
+		setDrawInfo(NULL);
+	}
 	
-	removeAtlas();
-	mDrawablep = NULL;
-	mVObjp = NULL;
+	{
+		LLFastTimer t(FTM_DESTROY_ATLAS);
+		removeAtlas();
+	}
+	
+	{
+		LLFastTimer t(FTM_FACE_DEREF);
+		mDrawablep = NULL;
+		mVObjp = NULL;
+	}
 }
 
 
@@ -862,11 +893,35 @@ void LLFace::updateRebuildFlags()
 	}
 }
 
+
+bool LLFace::canRenderAsMask()
+{
+	const LLTextureEntry* te = getTextureEntry();
+	return (
+		(
+		 (LLPipeline::sRenderDeferred && LLPipeline::sAutoMaskAlphaDeferred) ||
+		 
+		 (!LLPipeline::sRenderDeferred && LLPipeline::sAutoMaskAlphaNonDeferred)		 
+		 ) // do we want masks at all?
+		&&
+		(te->getColor().mV[3] == 1.0f) && // can't treat as mask if we have face alpha
+		!(LLPipeline::sRenderDeferred && te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible in deferred rendering mode, need to figure out why - for now, avoid
+		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
+
+		getTexture()->getIsAlphaMask() // texture actually qualifies for masking (lazily recalculated but expensive)
+		);
+}
+
+
+static LLFastTimer::DeclareTimer FTM_FACE_GET_GEOM("Face Geom");
+
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							   const S32 &f,
 								const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
-								const U16 &index_offset)
+								const U16 &index_offset,
+								bool force_rebuild)
 {
+	LLFastTimer t(FTM_FACE_GET_GEOM);
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
 	S32 num_vertices = (S32)vf.mVertices.size();
 	S32 num_indices = LLPipeline::sUseTriStrips ? (S32)vf.mTriStrip.size() : (S32) vf.mIndices.size();
@@ -901,8 +956,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	LLStrider<LLColor4U> colors;
 	LLStrider<LLVector3> binormals;
 	LLStrider<U16> indicesp;
+	LLStrider<LLVector4> weights;
 
-	BOOL full_rebuild = mDrawablep->isState(LLDrawable::REBUILD_VOLUME);
+	BOOL full_rebuild = force_rebuild || mDrawablep->isState(LLDrawable::REBUILD_VOLUME);
 	
 	BOOL global_volume = mDrawablep->getVOVolume()->isVolumeGlobal();
 	LLVector3 scale;
@@ -920,6 +976,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	BOOL rebuild_tcoord = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
 	BOOL rebuild_normal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
 	BOOL rebuild_binormal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_BINORMAL);
+	bool rebuild_weights = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_WEIGHT4);
 
 	const LLTextureEntry *tep = mVObjp->getTE(f);
 	U8  bump_code = tep ? tep->getBumpmap() : 0;
@@ -936,7 +993,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	{
 		mVertexBuffer->getBinormalStrider(binormals, mGeomIndex);
 	}
-
+	if (rebuild_weights)
+	{
+		mVertexBuffer->getWeight4Strider(weights, mGeomIndex);
+	}
+	
 	F32 tcoord_xoffset = 0.f ;
 	F32 tcoord_yoffset = 0.f ;
 	F32 tcoord_xscale = 1.f ;
@@ -1314,6 +1375,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			*binormals++ = binormal;
 		}
 		
+		if (rebuild_weights && vf.mWeights.size() > i)
+		{
+			*weights++ = vf.mWeights[i];
+		}
+
 		if (rebuild_color)
 		{
 			*colors++ = color;		

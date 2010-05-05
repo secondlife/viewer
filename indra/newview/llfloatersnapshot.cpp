@@ -979,7 +979,7 @@ LLFloaterPostcard* LLSnapshotLivePreview::savePostcard()
 }
 
 // Callback for asset upload
-void profile_pic_upload_callback(const LLUUID& uuid)
+void profile_pic_upload_callback(const LLUUID& uuid, void *user_data, S32 status, LLExtStat ext_status)
 {
 	LLFloaterSnapshot* floater =  LLFloaterReg::getTypedInstance<LLFloaterSnapshot>("snapshot");
 	floater->setAsProfilePic(uuid);
@@ -1023,7 +1023,7 @@ void LLSnapshotLivePreview::saveTexture(bool set_as_profile_pic)
 			
 	if (formatted->encode(scaled, 0.0f))
 	{
-		boost::function<void(const LLUUID& uuid)> callback = NULL;
+		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 
 		if (set_as_profile_pic)
 		{
@@ -1036,17 +1036,19 @@ void LLSnapshotLivePreview::saveTexture(bool set_as_profile_pic)
 		std::string who_took_it;
 		LLAgentUI::buildFullname(who_took_it);
 		S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+		std::string snapname = "Snapshot : " + pos_string;
 		upload_new_resource(tid,	// tid
 				    LLAssetType::AT_TEXTURE,
-				    "Snapshot : " + pos_string,
+				    snapname,
 				    "Taken by " + who_took_it + " at " + pos_string,
+				    0,
 				    LLFolderType::FT_SNAPSHOT_CATEGORY,
 				    LLInventoryType::IT_SNAPSHOT,
 				    PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
 				    PERM_NONE, // that ignores the user's premissions preferences and continues to
 				    PERM_NONE, // always use these fairly permissive hard-coded initial perms. - MG
-				    "Snapshot : " + pos_string,
-				    callback, expected_upload_cost);
+				    snapname,
+				    callback, expected_upload_cost, NULL);
 		gViewerWindow->playSnapshotAnimAndSound();
 	}
 	else

@@ -36,10 +36,12 @@
 #include "llerror.h"
 #include "llmath.h"
 
+
 #include "llsd.h"
 class LLVector2;
 class LLVector4;
 class LLMatrix3;
+class LLMatrix4;
 class LLVector3d;
 class LLQuaternion;
 
@@ -115,6 +117,7 @@ class LLVector3
 		const LLVector3&	rotVec(F32 angle, F32 x, F32 y, F32 z);		// Rotates about x,y,z by angle radians
 		const LLVector3&	rotVec(const LLMatrix3 &mat);				// Rotates by LLMatrix4 mat
 		const LLVector3&	rotVec(const LLQuaternion &q);				// Rotates by LLQuaternion q
+		const LLVector3&	transVec(const LLMatrix4& mat);				// Transforms by LLMatrix4 mat (mat * v)
 
 		const LLVector3&	scaleVec(const LLVector3& vec);				// scales per component by vec
 		LLVector3			scaledVec(const LLVector3& vec) const;			// get a copy of this vector scaled by vec

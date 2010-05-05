@@ -248,11 +248,6 @@ void LLFacePool::dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures
 {
 }
 
-BOOL LLFacePool::moveFace(LLFace *face, LLDrawPool *poolp, BOOL copy_data)
-{
-	return TRUE;
-}
-
 // static
 S32 LLFacePool::drawLoop(face_array_t& face_list)
 {
@@ -474,6 +469,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 	{
 		if (params.mTexture.notNull())
 		{
+			params.mTexture->addTextureStats(params.mVSize);
 			gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
 			if (params.mTextureMatrix)
 			{
