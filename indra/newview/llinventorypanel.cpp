@@ -1001,3 +1001,30 @@ BOOL LLInventoryPanel::getIsHiddenFolderType(LLFolderType::EType folder_type) co
 {
 	return (std::find(mHiddenFolderTypes.begin(), mHiddenFolderTypes.end(), folder_type) != mHiddenFolderTypes.end());
 }
+
+
+/************************************************************************/
+/* Recent Inventory Panel related class                                 */
+/************************************************************************/
+class LLInventoryRecentItemsPanel;
+static LLDefaultChildRegistry::Register<LLInventoryRecentItemsPanel> t_recent_inventory_panel("recent_inventory_panel");
+
+static const LLRecentInventoryBridgeBuilder RECENT_ITEMS_BUILDER;
+class LLInventoryRecentItemsPanel : public LLInventoryPanel
+{
+public:
+	struct Params :	public LLInitParam::Block<Params, LLInventoryPanel::Params>
+	{};
+
+protected:
+	LLInventoryRecentItemsPanel (const Params&);
+	friend class LLUICtrlFactory;
+};
+
+LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
+: LLInventoryPanel(params)
+{
+	// replace bridge builder to have necessary View bridges.
+	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
+}
+

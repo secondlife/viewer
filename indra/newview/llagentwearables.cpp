@@ -1164,6 +1164,7 @@ void LLAgentWearables::createStandardWearablesAllDone()
 
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
+	mLoadedSignal();
 	
 	updateServer();
 
@@ -1567,6 +1568,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
+	mLoadedSignal();
 	queryWearableCache();
 	updateServer();
 
@@ -2012,6 +2014,10 @@ BOOL LLAgentWearables::areWearablesLoaded() const
 void LLAgentWearables::updateWearablesLoaded()
 {
 	mWearablesLoaded = (itemUpdatePendingCount()==0);
+	if (mWearablesLoaded)
+	{
+		mLoadedSignal();
+	}
 }
 
 bool LLAgentWearables::canWearableBeRemoved(const LLWearable* wearable) const
@@ -2090,4 +2096,9 @@ void LLAgentWearables::populateMyOutfitsFolder(void)
 	{
 		outfits->done();
 	}
+}
+
+boost::signals2::connection LLAgentWearables::addLoadedCallback(loaded_callback_t cb)
+{
+	return mLoadedSignal.connect(cb);
 }

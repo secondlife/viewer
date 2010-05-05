@@ -410,6 +410,8 @@ private:
 
 	bool mKeepOneItemSelected;
 
+	bool mIsConsecutiveSelection;
+
 	/** All pairs of the list */
 	pairs_list_t mItemPairs;
 
