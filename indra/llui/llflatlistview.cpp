@@ -379,6 +379,7 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
   , mCommitOnSelectionChange(false)
   , mPrevNotifyParentRect(LLRect())
   , mNoItemsCommentTextbox(NULL)
+  , mIsConsecutiveSelection(false)
 {
 	mBorderThickness = getBorderWidth();
 
@@ -536,6 +537,7 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 			return;
 
 		bool grab_items = false;
+		bool reverse = false;
 		pairs_list_t pairs_to_select;
 
 		// Pick out items from list between last selected and current clicked item_pair.
@@ -547,6 +549,8 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 			item_pair_t* cur = *iter;
 			if (cur == last_selected_pair || cur == item_pair)
 			{
+				// We've got reverse selection if last grabed item isn't a new selection.
+				reverse = grab_items && (cur != item_pair);
 				grab_items = !grab_items;
 				// Skip last selected and current clicked item pairs.
 				continue;
@@ -562,10 +566,12 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 			}
 		}
 
-		if (select_item)
+		if (reverse)
 		{
-			pairs_to_select.push_back(item_pair);
+			pairs_to_select.reverse();
 		}
+
+		pairs_to_select.push_back(item_pair);
 
 		for (pairs_iterator_t
 				 iter = pairs_to_select.begin(),
@@ -573,15 +579,22 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 			 iter != iter_end; ++iter)
 		{
 			item_pair_t* pair_to_select = *iter;
-			selectItemPair(pair_to_select, true);
+			if (isSelected(pair_to_select))
+			{
+				// Item was already selected but there is a need to keep order from last selected pair to new selection.
+				// Do it here to prevent extra mCommitOnSelectionChange in selectItemPair().
+				mSelectedItemPairs.remove(pair_to_select);
+				mSelectedItemPairs.push_back(pair_to_select);
+			}
+			else
+			{
+				selectItemPair(pair_to_select, true);
+			}
 		}
 
 		if (!select_item)
 		{
-			// Item was already selected but there is a need to update last selected item and its border.
-			// Do it here to prevent extra mCommitOnSelectionChange in selectItemPair().
-			mSelectedItemPairs.remove(item_pair);
-			mSelectedItemPairs.push_back(item_pair);
+			// Update last selected item border.
 			mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
 		}
 		return;
@@ -749,6 +762,8 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 
 	// Stretch selected item rect to ensure it won't be clipped
 	mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
+	// By default mark it as not consecutive selection
+	mIsConsecutiveSelection = false;
 
 	return true;
 }
@@ -823,6 +838,17 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 	if ( 0 == size() )
 		return false;
 
+	if (!mIsConsecutiveSelection)
+	{
+		// Leave only one item selected if list has not consecutive selection
+		if (mSelectedItemPairs.size() && !reset_selection)
+		{
+			item_pair_t* cur_sel_pair = mSelectedItemPairs.back();
+			resetSelection();
+			selectItemPair (cur_sel_pair, true);
+		}
+	}
+
 	if ( mSelectedItemPairs.size() )
 	{
 		item_pair_t* to_sel_pair = NULL;
@@ -877,6 +903,8 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 			}
 			// Select/Deselect next item
 			selectItemPair(select ? to_sel_pair : cur_sel_pair, select);
+			// Mark it as consecutive selection
+			mIsConsecutiveSelection = true;
 			return true;
 		}
 	}
@@ -888,6 +916,8 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 			selectLastItem();
 		else
 			selectFirstItem();
+		// Mark it as consecutive selection
+		mIsConsecutiveSelection = true;
 		return true;
 	}
 
