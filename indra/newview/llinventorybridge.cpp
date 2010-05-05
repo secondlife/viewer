@@ -5525,3 +5525,67 @@ LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_
 /**                    Bridge Actions
  **
  ********************************************************************************/
+
+/************************************************************************/
+/* Recent Inventory Panel related classes                               */
+/************************************************************************/
+void LLRecentItemsFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	LLFolderBridge::buildContextMenu(menu, flags);
+
+	menuentry_vec_t disabled_items, items = getMenuItems();
+
+	items.erase(std::find(items.begin(), items.end(), std::string("New Folder")));
+	items.erase(std::find(items.begin(), items.end(), std::string("New Script")));
+	items.erase(std::find(items.begin(), items.end(), std::string("New Note")));
+	items.erase(std::find(items.begin(), items.end(), std::string("New Gesture")));
+	items.erase(std::find(items.begin(), items.end(), std::string("New Clothes")));
+	items.erase(std::find(items.begin(), items.end(), std::string("New Body Parts")));
+
+	hide_context_entries(menu, items, disabled_items);
+}
+
+LLInvFVBridge* LLRecentInventoryBridgeBuilder::createBridge(
+	LLAssetType::EType asset_type,
+	LLAssetType::EType actual_asset_type,
+	LLInventoryType::EType inv_type,
+	LLInventoryPanel* inventory,
+	LLFolderView* root,
+	const LLUUID& uuid,
+	U32 flags /*= 0x00*/ ) const
+{
+	LLInvFVBridge* new_listener = NULL;
+	switch(asset_type)
+	{
+	case LLAssetType::AT_CATEGORY:
+		if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
+		{
+			// *TODO: Create a link folder handler instead if it is necessary
+			new_listener = LLInventoryFVBridgeBuilder::createBridge(
+				asset_type,
+				actual_asset_type,
+				inv_type,
+				inventory,
+				root,
+				uuid,
+				flags);
+			break;
+		}
+		new_listener = new LLRecentItemsFolderBridge(inv_type, inventory, root, uuid);
+		break;
+	default:
+		new_listener = LLInventoryFVBridgeBuilder::createBridge(
+			asset_type,
+			actual_asset_type,
+			inv_type,
+			inventory,
+			root,
+			uuid,
+			flags);
+	}
+	return new_listener;
+
+}
+
+
+// EOF
