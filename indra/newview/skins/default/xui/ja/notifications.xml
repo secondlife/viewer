@@ -2659,7 +2659,7 @@ M キーを押して変更します。
 じゅうぶんなスペースができればボタンは表示されます。
 	</notification>
 	<notification name="ShareNotification">
-		住人選択画面に表示された人に、持ち物からアイテムをドラッグ
+		住人選択画面に表示された人に「持ち物」からアイテムをドラッグしてください
 	</notification>
 	<notification name="AvatarRezNotification">
 		アバター名「 [NAME] 」が [TIME] 秒で出現します。
