@@ -451,8 +451,8 @@ private:
 	void load();
 	void save();
 
-	static F32 LLSpeakerVolumeStorage::transformFromLegacyVolume(F32 volume_in);
-	static F32 LLSpeakerVolumeStorage::transformToLegacyVolume(F32 volume_in);
+	static F32 transformFromLegacyVolume(F32 volume_in);
+	static F32 transformToLegacyVolume(F32 volume_in);
 
 	typedef std::map<LLUUID, F32> speaker_data_map_t;
 	speaker_data_map_t mSpeakersData;
