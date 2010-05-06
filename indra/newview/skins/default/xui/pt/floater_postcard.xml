@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Postcard" title="ENVIAR FOTO VIA EMAIL">
 	<text name="to_label" width="135">
-		Email do Destinatário:
+		Para (email):
 	</text>
 	<line_editor left="143" name="to_form" width="127"/>
 	<text name="from_label">
-		Seu Email:
+		De (email):
 	</text>
 	<line_editor left="143" name="from_form" width="127"/>
 	<text name="name_label">
@@ -16,7 +16,7 @@
 		Assunto:
 	</text>
 	<line_editor left="143" name="subject_form" width="127"/>
-	<line_editor label="Digite seu assunto aqui." name="subject_form"/>
+	<line_editor label="Digite o assunto aqui" name="subject_form"/>
 	<text name="msg_label">
 		Mensagem:
 	</text>

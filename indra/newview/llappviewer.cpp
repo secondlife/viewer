@@ -2400,7 +2400,7 @@ bool LLAppViewer::initWindow()
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 		
-	if (gSavedSettings.getBOOL("WindowFullScreen"))
+	if (gSavedSettings.getBOOL("FullScreen"))
 	{
 		// request to go full screen... which will be delayed until login
 		gViewerWindow->toggleFullscreen(FALSE);

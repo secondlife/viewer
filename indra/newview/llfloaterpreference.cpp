@@ -1197,7 +1197,7 @@ void LLFloaterPreference::applyResolution()
 	gSavedSettings.setS32("FullScreenWidth", supported_resolutions[resIndex].mWidth);
 	gSavedSettings.setS32("FullScreenHeight", supported_resolutions[resIndex].mHeight);
 	
-	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("WindowFullScreen"));
+	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("FullScreen"));
 	
 	send_agent_update(TRUE);
 	

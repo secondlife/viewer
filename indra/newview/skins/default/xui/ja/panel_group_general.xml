@@ -48,7 +48,7 @@
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="「入会費」にチェックが入っている場合、新規メンバーは指定された入会費を支払わなければグループに入れません。"/>
 		<combo_box name="group_mature_check" tool_tip="あなたのグループに「Moderate」にレート設定された情報があるかどうかを設定します">
 			<combo_item name="select_mature">
-				- Mature の選択 -
+				- レーティングの選択 -
 			</combo_item>
 			<combo_box.item label="「Moderate」コンテンツ" name="mature"/>
 			<combo_box.item label="「General」コンテンツ" name="pg"/>
