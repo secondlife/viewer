@@ -148,6 +148,8 @@ public:
 	}
 };
 
+#include "llsdserialize.h"
+
 class LLDisplayNameUpdate : public LLHTTPNode
 {
 	/*virtual*/ void post(
@@ -164,6 +166,15 @@ class LLDisplayNameUpdate : public LLHTTPNode
 		// Inject the new name data into cache
 		LLAvatarName av_name;
 		av_name.fromLLSD( name_data );
+
+		// Name expiration time may be provided in headers, or we may use a
+		// default value
+		// JAMESDEBUG TODO: get actual headers out of ResponsePtr
+		//LLSD headers = response->mHeaders;
+		LLSD headers;
+		av_name.mExpires = 
+			LLAvatarNameCache::nameExpirationFromHeaders(headers);
+
 		LLAvatarNameCache::insert(agent_id, av_name);
 
 		// force name tag to update
