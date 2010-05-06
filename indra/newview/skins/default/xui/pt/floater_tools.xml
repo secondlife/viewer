@@ -68,7 +68,7 @@
 		þ: [COUNT]
 	</text>
 	<check_box label="Esticar ambos os lados" name="checkbox uniform"/>
-	<check_box initial_value="true" label="Esticar Texturas" name="checkbox stretch textures"/>
+	<check_box initial_value="true" label="Esticar texturas" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Mostrar na grade" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Selecione o tipo de régua da grade onde o objeto será colocado">
 		<combo_box.item label="Grid SL" name="World"/>
@@ -115,7 +115,7 @@
 	</text>
 	<button label="Aplicar" label_selected="Aplicar" name="button apply to selection" tool_tip="Modificar a terra selecionada"/>
 	<text left="134" name="obj_count">
-		Objects: [COUNT]
+		Objetos: [COUNT]
 	</text>
 	<text left="134" name="prim_count">
 		Prims: [COUNT]
