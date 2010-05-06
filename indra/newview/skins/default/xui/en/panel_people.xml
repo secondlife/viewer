@@ -464,7 +464,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          name="view_profile_btn"
          tool_tip="Show picture, groups, and other Residents information"
          top="0"
-         width="70" />
+         width="67" />
         <button
          follows="bottom|left"
          left_pad="3"
@@ -473,7 +473,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          layout="topleft"
          name="im_btn"
          tool_tip="Open instant message session"
-         width="43" />
+         width="40" />
         <button
          follows="bottom|left"
          left_pad="3"
@@ -491,7 +491,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          layout="topleft"
          name="share_btn"
          tool_tip="Share an inventory item"
-         width="62" />
+         width="65" />
         <button
          follows="bottom|left"
          left_pad="3"

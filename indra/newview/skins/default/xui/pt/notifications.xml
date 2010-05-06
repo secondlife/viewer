@@ -426,7 +426,7 @@ O objeto pode estar fora de alcance ou ter sido deletado.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Oops, você ainda não definiu sua região de partida. 
-Digite o nome da região na caixa &apos;Ponto de partida&apos; ou selecione &apos;Última localização&apos; ou &apos;Minha casa&apos; como ponto de partida.
+Digite o nome da região na caixa &apos;Ponto de partida&apos; ou selecione &apos;Última localização&apos; ou &apos;Meu início&apos; como ponto de partida.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CouldNotStartStopScript">
@@ -1067,7 +1067,7 @@ Você chegou a uma região próxima.
 	<notification name="AvatarMovedHome">
 		Esse destino não está disponível no momento. 
 Você chegou a uma região próxima. 
-Pense em usar outra região como casa.
+Pense em usar outra região como seu início.
 	</notification>
 	<notification name="ClothingLoading">
 		As suas roupas estão sendo transferidas. 
@@ -1127,7 +1127,7 @@ Isso é realmente útil apenas para depuração.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="KickUsersFromRegion">
-		Teletransportar para casa todos os residentes nesta região?
+		Teletransportar para o início todos os residentes nesta região?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="EstateObjectReturn">
@@ -2150,7 +2150,7 @@ Objetos não transferíveis dados ao grupo foram deletados.
 	</notification>
 	<notification name="NotSafe">
 		A opção &apos;danos&apos; desta região está ativada. 
-Você pode se dar mal aqui.  Se você morre, você será teletransportado de volta para casa.
+Você pode se dar mal aqui.  Se você morrer, você será teletransportado de volta para seu início.
 	</notification>
 	<notification name="NoFly">
 		Esta área desativou a opção de voar. 
@@ -2608,7 +2608,7 @@ Se você continuar a receber esta mensagem, consulte o [SUPPORT_SITE].
 		- A memória do seu sistema não suporta os requisitos mínimos exigidos.
 	</global>
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
-		Se você tem um terreno, seu terreno pode ser sua casa. 
+		Se você tem um terreno, seu terreno pode ser seu início. 
 Outra opção é procurar por lugares com a tag &apos;Infohub&apos; no mapa.
 	</global>
 </notifications>
