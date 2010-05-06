@@ -99,6 +99,7 @@
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
+extern F32 ANIM_SPEED_MIN;
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -3038,9 +3039,14 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 {
  	if (!LLApp::isExiting())
  	{
- 		LLDebugVarMessageBox::show("Adj Max", &SPEED_ADJUST_MAX, 5.0f, 0.1f);
- 		LLDebugVarMessageBox::show("Adj Max Sec", &SPEED_ADJUST_MAX_SEC, 5.0f, 0.1f);
- 		LLDebugVarMessageBox::show("Anim Max", &ANIM_SPEED_MAX, 10.0f, 0.1f);
+		BOOL show_walk_sliders = gSavedSettings.getBOOL("ShowWalkSliders");
+		if (show_walk_sliders)
+		{
+			LLDebugVarMessageBox::show("Adj Max", &SPEED_ADJUST_MAX, 5.0f, 0.1f);
+			LLDebugVarMessageBox::show("Adj Max Sec", &SPEED_ADJUST_MAX_SEC, 5.0f, 0.1f);
+			LLDebugVarMessageBox::show("Anim Max", &ANIM_SPEED_MAX, 10.0f, 0.1f);
+			LLDebugVarMessageBox::show("Anim Min", &ANIM_SPEED_MIN, 10.0f, 0.1f);
+		}
  	}
 
 	LLMemType mt(LLMemType::MTYPE_AVATAR);

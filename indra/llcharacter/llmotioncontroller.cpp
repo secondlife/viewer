@@ -567,7 +567,7 @@ void breakWalkIf(LLMotion *motionp, BOOL flag)
 	{
 		if (flag)
 		{
-			llinfos << "break here" << llendl;
+//			llinfos << "break here" << llendl;
 		}
 	}
 }

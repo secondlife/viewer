@@ -10194,6 +10194,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowWalkSliders</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow walk params to be adjusted on the fly.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>

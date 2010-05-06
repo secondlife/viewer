@@ -171,7 +171,9 @@ public:
 	LLMotion *findMotion( const LLUUID& id ) const;
 
 	void dumpMotions();
-	
+
+	const LLFrameTimer& getFrameTimer() { return mTimer; }
+
 protected:
 	// internal operations act on motion instances directly
 	// as there can be duplicate motions per id during blending overlap
