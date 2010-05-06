@@ -47,8 +47,8 @@
 			<menu_item_check label="Coordenadas" name="Coordinates"/>
 			<menu_item_check label="Propriedades do lote" name="Parcel Properties"/>
 		</menu>
-		<menu_item_call label="Teletransportar para início" name="Teleport Home"/>
-		<menu_item_call label="Definir como casa" name="Set Home to Here"/>
+		<menu_item_call label="Teletransportar para meu início" name="Teleport Home"/>
+		<menu_item_call label="Definir como Início" name="Set Home to Here"/>
 		<menu label="Sol" name="Environment Settings">
 			<menu_item_call label="Amanhecer" name="Sunrise"/>
 			<menu_item_call label="Meio-dia" name="Noon"/>
@@ -297,7 +297,7 @@
 			<menu_item_call label="Force Owner To Me" name="Force Owner To Me"/>
 			<menu_item_call label="Force Owner Permissive" name="Force Owner Permissive"/>
 			<menu_item_call label="Excluir" name="Delete"/>
-			<menu_item_call label="Lock" name="Lock"/>
+			<menu_item_call label="Bloquear" name="Lock"/>
 		</menu>
 		<menu label="Lote" name="Parcel">
 			<menu_item_call label="Force Owner To Me" name="Owner To Me"/>

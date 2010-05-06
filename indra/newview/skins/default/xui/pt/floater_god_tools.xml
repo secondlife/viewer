@@ -10,7 +10,7 @@
 			</text>
 			<check_box label="Prelúdio" name="check prelude" tool_tip="Ajustar para tornar esta região um prelúdio."/>
 			<check_box label="Fixar Sol" name="check fixed sun" tool_tip="Fixa a posição do sol (como em Região/Estados) &gt; Terreno."/>
-			<check_box label="Redefinir Home no teletransporte" name="check reset home" tool_tip="Quando um residente sair, definir o destino com sua posição inicial."/>
+			<check_box label="Redefinir Início no teletransporte" name="check reset home" tool_tip="Quando um residente sair, definir o destino com sua posição inicial."/>
 			<check_box label="Visível" name="check visible" tool_tip="Ajustar para fazer essa região visível para os não-deuses"/>
 			<check_box label="Dano" name="check damage" tool_tip="Ajustar para permitir dano nesta região"/>
 			<check_box label="Bloquear ratreamento do Tráfego" name="block dwell" tool_tip="Configure isto para fazer a região não computar o tráfego."/>

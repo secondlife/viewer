@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray panel -->
 <panel label="人" name="people_panel">
-	<string name="no_recent_people" value="最近交流した人はいません。 一緒に何かする仲間もお探しですか？ [secondlife:///app/search/people 検索] か [secondlife:///app/worldmap 世界地図] をお試しください。"/>
+	<string name="no_recent_people" value="最近交流した人はいません。 一緒に何かする仲間をお探しですか？ [secondlife:///app/search/people 検索] か [secondlife:///app/worldmap 世界地図] をお試しください。"/>
 	<string name="no_filtered_recent_people" value="お探しのものは見つかりましたか？ [secondlife:///app/search/people 検索] をお試しください。"/>
-	<string name="no_one_near" value="近くに誰もいません。 一緒に何かする仲間もお探しですか？ [secondlife:///app/search/people 検索] か [secondlife:///app/worldmap 世界地図] をお試しください。"/>
+	<string name="no_one_near" value="近くに誰もいません。 一緒に何かする仲間をお探しですか？ [secondlife:///app/search/people 検索] か [secondlife:///app/worldmap 世界地図] をお試しください。"/>
 	<string name="no_one_filtered_near" value="お探しのものは見つかりましたか？ [secondlife:///app/search/people 検索] をお試しください。"/>
 	<string name="no_friends_online" value="オンラインのフレンドはいません"/>
 	<string name="no_friends" value="フレンドはいません"/>
 	<string name="no_friends_msg">
 		友達を見つけるには、[secondlife:///app/search/people 検索] をするか、住人を右クリックしてフレンド登録してください。
-一緒に何かする仲間もお探しですか？ [secondlife:///app/worldmap 世界地図] をお試しください。
+一緒に何かする仲間をお探しですか？ [secondlife:///app/worldmap 世界地図] をお試しください。
 	</string>
 	<string name="no_filtered_friends_msg">
 		お探しのものは見つかりましたか？ [secondlife:///app/search/people 検索] をお試しください。

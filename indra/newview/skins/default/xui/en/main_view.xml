@@ -50,7 +50,7 @@
                name="non_side_tray_view"
                user_resize="false"
                width="500">
-          <view bottom="500"
+          <world_view bottom="500"
                 follows="all"
                 height="500"
                 left="0"

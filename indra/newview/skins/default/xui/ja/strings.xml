@@ -913,7 +913,7 @@
 		お探しのものは見つかりましたか？ [secondlife:///app/search/all 検索] をお試しください。
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		ここにランドマークをドラッグして、お気に入りに追加します。
+		ここにランドマークをドラッグしてお気に入りに追加します。
 	</string>
 	<string name="InventoryNoTexture">
 		「持ち物」内にこのテクスチャのコピーがありません
@@ -3355,10 +3355,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ビューワの起動に失敗しました
 	</string>
 	<string name="ItemsComingInTooFastFrom">
-		[APP_NAME] ： アイテムが [FROM_NAME] から一気に読み込まれているため、自動プレビューが [TIME] 秒間無効となります。
+		[APP_NAME] ： アイテムが [FROM_NAME] から同時にたくさん読み込まれているため、自動プレビューが [TIME] 秒間無効となります。
 	</string>
 	<string name="ItemsComingInTooFast">
-		[APP_NAME] ： アイテムが一気に読み込まれているため、自動プレビューが [TIME] 秒間無効となります。
+		[APP_NAME] ： アイテムが同時にたくさん読み込まれているため、自動プレビューが [TIME] 秒間無効となります。
 	</string>
 	<string name="IM_logging_string">
 		-- インスタントメッセージの保存開始 --
