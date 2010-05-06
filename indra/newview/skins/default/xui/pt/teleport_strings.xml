@@ -51,7 +51,7 @@ Se você continuar a receber esta mensagem, por favor consulte o [SUPPORT_SITE].
 			Transferindo para o destino.
 		</message>
 		<message name="sending_home">
-			Enviando solicitação de localização da casa.
+			Enviando solicitação de localização de início.
 		</message>
 		<message name="sending_landmark">
 			Enviando solicitação de localização de landmark.
