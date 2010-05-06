@@ -94,6 +94,16 @@ Automatic position for:
      name="appearance_camera_movement"
      tool_tip="Use automatic camera positioning while in edit mode"
      width="242" />
+    <check_box
+     control_name="SidebarCameraMovement"
+     follows="left|top"
+     height="16"
+     initial_value="1"
+     label="Sidebar"
+     layout="topleft"
+     name="appearance_sidebar_positioning"
+     tool_tip="Use automatic camera positioning for sidebar"
+     width="242" />
      	<icon
 	 follows="left|top"
 	 height="18"

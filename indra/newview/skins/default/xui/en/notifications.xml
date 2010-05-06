@@ -5088,28 +5088,6 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
 
   <notification
    icon="notify.tga"
-   name="ObjectGiveItemUnknownUser"
-   type="offer">
-An object named [OBJECTFROMNAME] owned by (an unknown Resident) has given you this [OBJECTTYPE]:
-[ITEM_SLURL]
-    <form name="form">
-      <button
-       index="0"
-       name="Keep"
-       text="Keep"/>
-      <button
-       index="1"
-       name="Discard"
-       text="Discard"/>
-      <button
-       index="2"
-       name="Mute"
-       text="Block"/>
-    </form>
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="UserGiveItem"
    persist="true"
    type="offer">
