@@ -3069,21 +3069,30 @@ void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 
 LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 {
-	const char* color_name = "NameTagText";
+	const char* color_name;
 	if (is_friend)
 	{
 		color_name = "NameTagFriend";
 	}
+	else if (LLAvatarNameCache::useDisplayNames())
+	{
+		// ...color based on whether SLID "matches" a computed display
+		// name
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(getID(), &av_name)
+			&& av_name.mIsDisplayNameDefault)
+		{
+			color_name = "NameTagMatch";
+		}
+		else
+		{
+			color_name = "NameTagMismatch";
+		}
+	}
 	else
 	{
-		// IDEVO can we avoid doing this lookup repeatedly?
-		LLAvatarName av_name;
-		if (LLAvatarNameCache::useDisplayNames()
-			&& LLAvatarNameCache::get(getID(), &av_name)
-			&& av_name.mIsDisplayNameDefault)
-	{
-			color_name = "NameTagLegacy";
-		}
+		// ...not using display names
+		color_name = "NameTagLegacy";
 	}
 	return LLUIColorTable::getInstance()->getColor( color_name );
 }

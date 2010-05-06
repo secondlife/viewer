@@ -531,9 +531,6 @@
      name="NameTagChat"
      reference="White" />
     <color
-     name="NameTagText"
-     reference="White" />
-    <color
      name="NameTagFriend"
      reference="EmphasisColor" />
     <color
@@ -541,6 +538,12 @@
      value="1 1 1 1" />
     <color
      name="NameTagLegacy"
+     reference="White" />
+    <color
+     name="NameTagMatch"
+     reference="White" />
+    <color
+     name="NameTagMismatch"
      value="0.984 0.758 0 1" />
     <color
      name="NameTagSLID"
