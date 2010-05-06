@@ -8139,6 +8139,17 @@
       <key>Value</key>
       <integer>1</integer>   
     </map>
+    <key>SidebarCameraMovement</key>
+    <map>
+      <key>Comment</key>
+      <string>Reflects world rect changing while changing sidebar visibility.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>GroupListShowIcons</key>
     <map>
       <key>Comment</key>
