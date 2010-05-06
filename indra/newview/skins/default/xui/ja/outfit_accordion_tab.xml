@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- *NOTE: mantipov: this xml is intended to be used inside panel_outfits_list.xml for each outfit folder-->
 <!-- All accordion tabs in the My Appearance/My Outfits panel will be created from this one at runtume-->
-<accordion_tab name="Mockup Tab" title="モックアップタブ"/>
+<accordion_tab name="Mockup Tab" title="Mockup Tab"/>

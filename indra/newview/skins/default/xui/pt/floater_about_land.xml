@@ -39,10 +39,10 @@
 				ID do Leilão: [ID]
 			</panel.string>
 			<panel.string name="need_tier_to_modify">
-				Você deve ter sua compra aprovada para modificar este terreno.
+				Sua compra deve ser aprovada para você modificar este terreno.
 			</panel.string>
 			<panel.string name="group_owned_text">
-				(Possuído pelo Grupo)
+				(Propriedade do grupo)
 			</panel.string>
 			<panel.string name="profile_text">
 				Perfil...
@@ -57,11 +57,11 @@
 				(nenhum)
 			</panel.string>
 			<panel.string name="sale_pending_text">
-				(Venda Pendente)
+				(Venda pendendo)
 			</panel.string>
 			<panel.string name="no_selection_text">
 				Nenhum lote selecionado.
-Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar seus detalhes.
+Vá para o menu Mundo &gt; Sobre o terreno ou selecione outro lote para mostrar os detalhes.
 			</panel.string>
 			<text name="Name:">
 				Nome:
@@ -79,7 +79,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 				Classificação:
 			</text>
 			<text name="ContentRatingText">
-				Adult
+				Adulto
 			</text>
 			<text name="Owner:">
 				Proprietário:
@@ -94,14 +94,14 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 				Leyla Linden
 			</text>
 			<button label="Ajustar" name="Set..."/>
-			<check_box label="Permitir posse para o grupo" name="check deed" tool_tip="O gerente do grupo pode acionar essa terra ao grupo, então esta será mantida pelo gestor da ilha"/>
-			<button label="Passar" name="Deed..." tool_tip="Você só pode delegar esta terra se você for um gerente selecionado pelo grupo."/>
-			<check_box label="Proprietário faz contribuição com delegação" name="check contrib" tool_tip="Quando a terra é delegada ao grupo, o proprietário anterior contribui alocando terra suficiente para mantê-la."/>
+			<check_box label="Permitir doação para o grupo" name="check deed" tool_tip="Oficiais do grupo podem doar esse terreno ao grupo, passando a administração para o gestor da ilha"/>
+			<button label="Passar" name="Deed..." tool_tip="Você só pode doar o terreno se você for um dos oficiais do grupo selecionado."/>
+			<check_box label="Proprietário faz contribuição com doação" name="check contrib" tool_tip="Quando o terreno é doado ao grupo, o proprietário anterior contribui alocando terra suficiente para mantê-la."/>
 			<text name="For Sale:">
-				À Venda:
+				À venda:
 			</text>
 			<text name="Not for sale.">
-				Não está à Venda.
+				Não está à venda.
 			</text>
 			<text name="For Sale: Price L$[PRICE].">
 				Preço: L$[PRICE] (L$[PRICE_PER_SQM]/m²).
@@ -111,10 +111,10 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 				À venda para: [BUYER]
 			</text>
 			<text name="Sell with landowners objects in parcel.">
-				À venda (Objetos incluídos).
+				À venda (objetos incluídos).
 			</text>
 			<text name="Selling with no objects in parcel.">
-				À venda (Objetos não incluídos).
+				À venda (objetos não incluídos).
 			</text>
 			<button label="Cancelar venda do terreno" label_selected="Cancelar venda do terreno" left="275" name="Cancel Land Sale" width="165"/>
 			<text name="Claimed:">
@@ -137,7 +137,7 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 			</text>
 			<button label="Comprar terreno..." label_selected="Comprar terreno..." left="130" name="Buy Land..." width="125"/>
 			<button label="Dados do script" name="Scripts..."/>
-			<button label="Comprar para o Grupo" name="Buy For Group..."/>
+			<button label="Comprar para o grupo" name="Buy For Group..."/>
 			<button label="Comprar passe..." label_selected="Comprar passe..." left="130" name="Buy Pass..." tool_tip="Um passe concede a você acesso temporário a este terreno." width="125"/>
 			<button label="Abandonar terreno..." label_selected="Abandonar terreno..." name="Abandon Land..."/>
 			<button label="Pedir terreno" name="Reclaim Land..."/>
@@ -145,24 +145,22 @@ Vá para o menu Mundo &gt; Sobre a Terra ou selecione outro lote para mostrar se
 		</panel>
 		<panel label="CONTRATO" name="land_covenant_panel">
 			<panel.string name="can_resell">
-				Terrenos comprados nesta região podem ser revendidos.
+				Permitido para terrenos comprados nesta região.
 			</panel.string>
 			<panel.string name="can_not_resell">
-				Terrenos comprados nesta região não podem ser revendidos.
+				Proibido para terrenos comprados nesta região.
 			</panel.string>
 			<panel.string name="can_change">
-				Terrenos comprados nesta região podem ser compartilhados
-ou sub-divididos.
+				Permitido subdividir terrenos comprados nesta região.
 			</panel.string>
 			<panel.string name="can_not_change">
-				Terrenos comprados nesta região não podem ser compartilhados
-ou sub-divididos.
+				Proibido compartilhar ou subdividir terrenos comprados nesta região.
 			</panel.string>
 			<text name="estate_section_lbl">
 				Propriedade:
 			</text>
 			<text name="estate_name_text">
-				mainland
+				continente
 			</text>
 			<text name="estate_owner_lbl">
 				Dono:
@@ -174,7 +172,7 @@ ou sub-divididos.
 				Não há corretor para esta Propriedade.
 			</text_editor>
 			<text name="covenant_timestamp_text">
-				Última Alteração: Qua, Dez 31 16:00:00 1969
+				Última modificação: Qua, Dez 31 16:00:00 1969
 			</text>
 			<text name="region_section_lbl">
 				Região:
@@ -192,19 +190,19 @@ ou sub-divididos.
 				Classificação:
 			</text>
 			<text name="region_maturity_text">
-				Adult
+				Adulto
 			</text>
 			<text name="resellable_lbl">
 				Revender:
 			</text>
 			<text name="resellable_clause">
-				Terra nesta região não pode ser revendida.
+				Proibido revender terrenos nesta região.
 			</text>
 			<text name="changeable_lbl">
 				Subdividir:
 			</text>
 			<text name="changeable_clause">
-				Terra nesta região não pode ser unida/sub-dividida.
+				Proibido juntar/subdividir terrenos nesta região.
 			</text>
 		</panel>
 		<panel label="OBJETOS" name="land_objects_panel">
@@ -224,13 +222,13 @@ ou sub-divididos.
 				[COUNT] de [MAX] ([AVAILABLE] disponíveis)
 			</text>
 			<text name="Primitives parcel supports:" width="200">
-				Prims suportadas pelo lote:
+				Prims suportados pelo lote:
 			</text>
 			<text left="214" name="object_contrib_text" width="152">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Prims no Lote:
+				Prims no lote:
 			</text>
 			<text left="214" name="total_objects_text" width="48">
 				[COUNT]
@@ -242,15 +240,15 @@ ou sub-divididos.
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOwner" right="-135" width="60"/>
-			<button label="Retornar" name="ReturnOwner..." right="-10" tool_tip="Retornar os objetos aos seus donos." width="119"/>
+			<button label="Devolver" name="ReturnOwner..." right="-10" tool_tip="Devolver objetos a seus donos." width="119"/>
 			<text left="14" name="Set to group:" width="180">
-				Configurados ao grupo:
+				Reservado para o grupo:
 			</text>
 			<text left="214" name="group_objects_text" width="48">
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowGroup" right="-135" width="60"/>
-			<button label="Retornar" name="ReturnGroup..." right="-10" tool_tip="Retornar os objetos para seus donos." width="119"/>
+			<button label="Devolver" name="ReturnGroup..." right="-10" tool_tip="Devolver objetos a seus donos." width="119"/>
 			<text left="14" name="Owned by others:" width="128">
 				Propriedade de outros:
 			</text>
@@ -258,7 +256,7 @@ ou sub-divididos.
 				[COUNT]
 			</text>
 			<button label="Mostrar" label_selected="Mostrar" name="ShowOther" right="-135" width="60"/>
-			<button label="Retornar" name="ReturnOther..." right="-10" tool_tip="Retornar os objetos aos seus donos." width="119"/>
+			<button label="Devolver" name="ReturnOther..." right="-10" tool_tip="Devolver objetos a seus donos." width="119"/>
 			<text left="14" name="Selected / sat upon:" width="193">
 				Selecionado/Sentado:
 			</text>
@@ -273,7 +271,7 @@ ou sub-divididos.
 				Donos dos objetos:
 			</text>
 			<button label="Atualizar lista" label_selected="Atualizar lista" left="118" name="Refresh List" tool_tip="Refresh Object List"/>
-			<button label="Retornar objetos..." label_selected="Retornar objetos..." left="230" name="Return objects..."/>
+			<button label="Devolver objetos..." label_selected="Devolver objetos..." left="230" name="Return objects..."/>
 			<name_list name="owner list">
 				<name_list.columns label="Tipo" name="type"/>
 				<name_list.columns label="Nome" name="name"/>
@@ -299,32 +297,32 @@ Apenas lotes maiores podem ser listados na busca.
 				Conteúdo Adulto
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
-				A informação do seu lote ou seu conteúdo são considerados adulto.
+				Os dados do seu lote ou seu conteúdo são considerados adulto.
 			</panel.string>
 			<panel.string name="mature_check_adult_tooltip">
-				A informação do seu lote ou seu conteúdo são considerados adulto.
+				Os dados do seu lote ou seu conteúdo são considerados adulto.
 			</panel.string>
 			<panel.string name="landing_point_none">
 				(nenhum)
 			</panel.string>
 			<panel.string name="push_restrict_text">
-				Sem empurrar
+				Proibido empurrar
 			</panel.string>
 			<panel.string name="push_restrict_region_text">
-				Sem empurrar (imposição na região)
+				Proibido empurrar (regulamento da região)
 			</panel.string>
 			<text name="allow_label">
 				Autorizar outros residentes a:
 			</text>
-			<check_box label="Editar Terreno" name="edit land check" tool_tip="Se ativado, qualquer um pode modificar a forma da sua terra. É melhor deixar esta opção desativada, uma vez que você sempre pode editar seu próprio terreno."/>
-			<check_box label="Voar" name="check fly" tool_tip="Se ativado, os Residentes podem voar na sua terra. Se desativado, eles podem voar apenas para dentro e por cima de sua terra."/>
+			<check_box label="Editar terreno" name="edit land check" tool_tip="Se ativado, qualquer um pode modificar o terreno. É melhor deixar esta opção desativada, uma vez que você sempre pode editar seu próprio terreno."/>
+			<check_box label="Voar" name="check fly" tool_tip="Se ativado,  residentes podem voar sobre seu terreno. Se desativado, eles podem voar apenas até chegar ou sobrevoar o seu terreno."/>
 			<text name="allow_label2">
 				Criar objetos:
 			</text>
 			<check_box label="Residentes" name="edit objects check"/>
 			<check_box label="Grupo" name="edit group objects check"/>
 			<text name="allow_label3">
-				Entrada do objeto:
+				Entrada de objetos:
 			</text>
 			<check_box label="Residentes" name="all object entry check"/>
 			<check_box label="Grupo" name="group object entry check"/>
@@ -334,10 +332,10 @@ Apenas lotes maiores podem ser listados na busca.
 			<check_box label="Residentes" name="check other scripts"/>
 			<check_box label="Grupo" name="check group scripts"/>
 			<text name="land_options_label">
-				Opções de terra:
+				Opções do terreno:
 			</text>
-			<check_box label="Salvo (sem dano)" name="check safe" tool_tip="Se ativado, ajusta o terreno para Seguro, desabilitando combate com danos. Se não ativado, o combate com danos é habilitado."/>
-			<check_box label="Sem Empurrar" name="PushRestrictCheck" tool_tip="Evita scripts que empurram. A ativação dessa opção pode ser útil para prevenir comportamentos desordeiros na sua terra."/>
+			<check_box label="Seguro (sem danos)" name="check safe" tool_tip="Se ativado, ajusta o terreno para Seguro, impedindo lutas com danos. Se não ativado, lutas com danos é habilitado."/>
+			<check_box label="Proibido empurrar" name="PushRestrictCheck" tool_tip="Evita scripts que empurram. Ativar essa opção ajuda a prevenir comportamentos desordeiros no seu terreno."/>
 			<check_box label="Mostrar terreno nos resultados de busca (L$30/semana)" name="ShowDirectoryCheck" tool_tip="Permitir que as pessoas vejam este terreno nos resultados de busca"/>
 			<combo_box left="265" name="land category with adult" width="155">
 				<combo_box.item label="Qualquer categoria" name="item0"/>
@@ -348,7 +346,7 @@ Apenas lotes maiores podem ser listados na busca.
 				<combo_box.item label="Educacional" name="item5"/>
 				<combo_box.item label="Jogos" name="item6"/>
 				<combo_box.item label="Moradia" name="item7"/>
-				<combo_box.item label="Amigável a Novos Usuários" name="item8"/>
+				<combo_box.item label="Amigável a novos usuários" name="item8"/>
 				<combo_box.item label="Parques &amp; Natureza" name="item9"/>
 				<combo_box.item label="Residencial" name="item10"/>
 				<combo_box.item label="Compras" name="item11"/>
@@ -362,7 +360,7 @@ Apenas lotes maiores podem ser listados na busca.
 				<combo_box.item label="Educacional" name="item5"/>
 				<combo_box.item label="Jogos" name="item6"/>
 				<combo_box.item label="Moradia" name="item7"/>
-				<combo_box.item label="Amigável a Novos Usuários" name="item8"/>
+				<combo_box.item label="Amigável a novos usuários" name="item8"/>
 				<combo_box.item label="Parques e Natureza" name="item9"/>
 				<combo_box.item label="Residencial" name="item10"/>
 				<combo_box.item label="Compras" name="item11"/>
@@ -376,10 +374,10 @@ Apenas lotes maiores podem ser listados na busca.
 			<text name="landing_point">
 				Ponto de Aterrissagem: [LANDING]
 			</text>
-			<button label="Definir" label_selected="Definir" name="Set" tool_tip="Define o ponto de aterrissagem aonde o visitante chega. Define para o ponto em que seu avatar se encontra neste lote."/>
+			<button label="Definir" label_selected="Definir" name="Set" tool_tip="Define o ponto de aterrissagem de visitantes. Define para o ponto em que seu avatar se encontra neste lote."/>
 			<button label="Limpar" label_selected="Limpar" name="Clear" tool_tip="Limpar o ponto de aterrissagem."/>
 			<text name="Teleport Routing: ">
-				Rota de Teletransporte:
+				Rota de teletransporte:
 			</text>
 			<combo_box left="140" name="landing type" tool_tip="Rota de Teletransporte -- Selecione como tratar os teletransportes no seu lote." width="160">
 				<combo_box.item label="Bloqueado" name="Blocked"/>
@@ -408,7 +406,7 @@ Textura:
 			</text>
 			<texture_picker label="" left="97" name="media texture" tool_tip="Clique para escolher uma imagem"/>
 			<text name="replace_texture_help">
-				Objetos com esta textura vão aparecer no filme ou página da web depois de clicar em Tocar.   Selecione outras texturas clicando nas miniaturas.
+				Objetos com esta textura vão aparecer no filme ou página da web depois de clicar em Tocar. Selecione outras texturas clicando nas miniaturas.
 			</text>
 			<check_box label="Escala automática" left="97" name="media_auto_scale" tool_tip="Marcando esta opção o conteúdo se ajustará ao lote automaticamente. A mídia pode se tornar lenta e com baixa qualidade visual mas nenhum outro ajuste de textura ou alinhamento será necessário."/>
 			<text left="102" name="media_size" tool_tip="Tamanho para desenhar a mídia Web, deixar 0 como padrão." width="115">
@@ -423,7 +421,7 @@ Textura:
 				Opções de
 Mídia:
 			</text>
-			<check_box label="Mídia em Repetição" name="media_loop" tool_tip="Executar a mídia repetidamente. Quando a mídia terminar a execução, ela reiniciará do começo."/>
+			<check_box label="Repetir mídia" name="media_loop" tool_tip="Executar a mídia repetidamente. Quando a mídia chegar ao fim, ela recomeça."/>
 		</panel>
 		<panel label="SOM" name="land_audio_panel">
 			<check_box label="Ocultar URL" name="hide_music_url" tool_tip="Selecionar esta opção oculta o URL de música a visitantes não autorizados aos dados do terreno."/>
