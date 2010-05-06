@@ -286,6 +286,7 @@ void main()
 		float sa = dot(refnormpersp, vary_light.xyz);
 		vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*texture2D(lightFunc, vec2(sa, spec.a)).a;
 
+		/*
 		// screen-space cheap fakey reflection map
 		//
 		vec3 refnorm = normalize(reflect(vec3(0,0,-1), norm.xyz));
@@ -325,6 +326,8 @@ void main()
 		vec3 refprod = vary_SunlitColor * refcol.rgb * refmod;
 		vec3 ssshiny = (refprod * spec.a);
 		ssshiny *= 0.3; // dampen it even more
+		*/
+		vec3 ssshiny = vec3(0,0,0);
 
 		// add the two types of shiny together
 		col += (ssshiny + dumbshiny) * spec.rgb;
