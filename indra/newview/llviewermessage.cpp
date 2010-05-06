@@ -1237,7 +1237,6 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		bool matches(const LLNotificationPtr notification) const
 		{
 			if(notification->getName() == "ObjectGiveItem" 
-				|| notification->getName() == "ObjectGiveItemUnknownUser"
 				|| notification->getName() == "UserGiveItem")
 			{
 				return (notification->getPayload()["from_id"].asUUID() == blocked_id);
@@ -1700,7 +1699,6 @@ void LLOfferInfo::initRespondFunctionMap()
 	if(mRespondFunctions.empty())
 	{
 		mRespondFunctions["ObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
-		mRespondFunctions["ObjectGiveItemUnknownUser"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
 		mRespondFunctions["UserGiveItem"] = boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2);
 	}
 }
@@ -1771,30 +1769,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 		return;
 	}
 
-	// Name cache callbacks don't store userdata, so can't save
-	// off the LLOfferInfo.  Argh.
-	BOOL name_found = FALSE;
-	if (info->mFromGroup)
-	{
-		std::string group_name;
-		if (gCacheName->getGroupName(info->mFromID, group_name))
-		{
-			args["FIRST"] = group_name;
-			args["LAST"] = "";
-			name_found = TRUE;
-		}
-	}
-	else
-	{
-		std::string first_name, last_name;
-		if (gCacheName->getName(info->mFromID, first_name, last_name))
-		{
-			args["FIRST"] = first_name;
-			args["LAST"] = last_name;
-			name_found = TRUE;
-		}
-	}
-
 	// If mObjectID is null then generate the object_id based on msg to prevent
 	// multiple creation of chiclets for same object.
 	LLUUID object_id = info->mObjectID;
@@ -1823,9 +1797,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Note: sets inventory_task_offer_callback as the callback
 		p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
 		info->mPersist = true;
-		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
+		p.name = "ObjectGiveItem";
 		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
-		LLNotifications::instance().add(p);
+	    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, info->mFromGroup == TRUE);
 	}
 	else // Agent -> Agent Inventory Offer
 	{
