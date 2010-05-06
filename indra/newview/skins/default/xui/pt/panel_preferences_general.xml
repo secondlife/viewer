@@ -17,7 +17,7 @@
 		<combo_box.item label="日本語 (Japonês) - Beta" name="(Japanese)"/>
 	</combo_box>
 	<text name="language_textbox2">
-		(Reinicie para mostrar o novo idioma)
+		(Reinicie para trocar de idioma)
 	</text>
 	<text name="maturity_desired_prompt">
 		Quero acessar conteúdo:
