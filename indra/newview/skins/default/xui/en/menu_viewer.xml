@@ -90,7 +90,6 @@
                 <menu_item_call.on_click
                  function="World.SetAway" />
             </menu_item_call>
-          <menu_item_separator/>
             <menu_item_call
              label="Busy"
              name="Set Busy">
