@@ -89,6 +89,15 @@ namespace LLAvatarNameCache
 	void fetch(const LLUUID& agent_id);
 
 	void insert(const LLUUID& agent_id, const LLAvatarName& av_name);
+
+	// Compute name expiration time from HTTP Cache-Control header,
+	// or return default value, in seconds from epoch.
+	F64 nameExpirationFromHeaders(LLSD headers);
 }
+
+// Parse a cache-control header to get the max-age delta-seconds.
+// Returns true if header has max-age param and it parses correctly.
+// Exported here to ease unit testing.
+bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age);
 
 #endif

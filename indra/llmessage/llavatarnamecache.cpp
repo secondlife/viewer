@@ -40,6 +40,8 @@
 #include "llsd.h"
 #include "llsdserialize.h"
 
+#include <boost/tokenizer.hpp>
+
 #include <map>
 #include <set>
 
@@ -185,19 +187,8 @@ public:
 
 	/*virtual*/ void result(const LLSD& content)
 	{
-		const F64 DEFAULT_EXPIRES = 24.0 * 60.0 * 60.0;
-		F64 now = LLFrameTimer::getTotalSeconds();
-
-		// With no expiration info, default to a day
-		F64 expires = now + DEFAULT_EXPIRES;
-
-		// Allow the header to override the default
-		LLSD expires_header = mHeaders["expires"];
-		if (expires_header.isDefined())
-		{
-			LLDate expires_date = expires_header.asDate();
-			expires = expires_date.secondsSinceEpoch();
-		}
+		// Pull expiration out of headers if available
+		F64 expires = LLAvatarNameCache::nameExpirationFromHeaders(mHeaders);
 
 		LLSD agents = content["agents"];
 		LLSD::array_const_iterator it = agents.beginArray();
@@ -209,19 +200,8 @@ public:
 			LLAvatarName av_name;
 			av_name.fromLLSD(row);
 
-			// *TODO: Remove this once People API starts passing "Expires:"
-			// headers.
-			// Prefer per-row data for expiration times
-			LLSD expires_row = row["display_name_expires"];
-			if (expires_row.isDefined())
-			{
-				LLDate expires_date = expires_row.asDate();
-				av_name.mExpires = expires_date.secondsSinceEpoch();
-			}
-			else
-			{
-				av_name.mExpires = expires;
-			}
+			// Use expiration time from header
+			av_name.mExpires = expires;
 
 			// Some avatars don't have explicit display names set
 			if (av_name.mDisplayName.empty())
@@ -700,3 +680,84 @@ void LLAvatarNameCache::insert(const LLUUID& agent_id, const LLAvatarName& av_na
 	// *TODO: update timestamp if zero?
 	sCache[agent_id] = av_name;
 }
+
+F64 LLAvatarNameCache::nameExpirationFromHeaders(LLSD headers)
+{
+	// With no expiration info, default to a day
+	const F64 DEFAULT_EXPIRES = 24.0 * 60.0 * 60.0;
+	F64 now = LLFrameTimer::getTotalSeconds();
+	F64 expires = now + DEFAULT_EXPIRES;
+
+	// Allow the header to override the default
+	LLSD cache_control_header = headers["cache-control"];
+	if (cache_control_header.isDefined())
+	{
+		S32 max_age = 0;
+		std::string cache_control = cache_control_header.asString();
+		if (max_age_from_cache_control(cache_control, &max_age))
+		{
+			expires = now + (F64)max_age;
+		}
+	}
+	return expires;
+}
+
+static const std::string MAX_AGE("max-age");
+static const boost::char_separator<char> EQUALS_SEPARATOR("=");
+static const boost::char_separator<char> COMMA_SEPARATOR(",");
+
+bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age)
+{
+	// Split the string on "," to get a list of directives
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	tokenizer directives(cache_control, COMMA_SEPARATOR);
+
+	tokenizer::iterator token_it = directives.begin();
+	for ( ; token_it != directives.end(); ++token_it)
+	{
+		// Tokens may have leading or trailing whitespace
+		std::string token = *token_it;
+		LLStringUtil::trim(token);
+
+		if (token.compare(0, MAX_AGE.size(), MAX_AGE) == 0)
+		{
+			// ...this token starts with max-age, so let's chop it up by "="
+			tokenizer subtokens(token, EQUALS_SEPARATOR);
+			tokenizer::iterator subtoken_it = subtokens.begin();
+
+			// Must have a token
+			if (subtoken_it == subtokens.end()) return false;
+			std::string subtoken = *subtoken_it;
+
+			// Must exactly equal "max-age"
+			LLStringUtil::trim(subtoken);
+			if (subtoken != MAX_AGE) return false;
+
+			// Must have another token
+			++subtoken_it;
+			if (subtoken_it == subtokens.end()) return false;
+			subtoken = *subtoken_it;
+
+			// Must be a valid integer
+			// *NOTE: atoi() returns 0 for invalid values, so we have to
+			// check the string first.
+			// *TODO: Do servers ever send "0000" for zero?  We don't handle it
+			LLStringUtil::trim(subtoken);
+			if (subtoken == "0")
+			{
+				*max_age = 0;
+				return true;
+			}
+			S32 val = atoi( subtoken.c_str() );
+			if (val > 0 && val < S32_MAX)
+			{
+				*max_age = val;
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
+}
+
+
