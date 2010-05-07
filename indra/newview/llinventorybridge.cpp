@@ -645,10 +645,13 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		disabled_items.push_back(std::string("Paste"));
 	}
 
-	items.push_back(std::string("Paste As Link"));
-	if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
+	if (gSavedSettings.getBOOL("InventoryLinking"))
 	{
-		disabled_items.push_back(std::string("Paste As Link"));
+		items.push_back(std::string("Paste As Link"));
+		if (!isClipboardPasteableAsLink() || (flags & FIRST_SELECTED_ITEM) == 0)
+		{
+			disabled_items.push_back(std::string("Paste As Link"));
+		}
 	}
 
 	items.push_back(std::string("Paste Separator"));
@@ -1421,21 +1424,30 @@ BOOL LLItemBridge::removeItem()
 	LLNotification::Params params("ConfirmItemDeleteHasLinks");
 	params.functor.function(boost::bind(&LLItemBridge::confirmRemoveItem, this, _1, _2));
 	
-	if (!item->getIsLinkType())
+	// Check if this item has any links.  If generic inventory linking is enabled,
+	// we can't do this check because we may have items in a folder somewhere that is
+	// not yet in memory, so we don't want false negatives.  (If disabled, then we 
+	// know we only have links in the Outfits folder which we explicitly fetch.)
+	if (!gSavedSettings.getBOOL("InventoryLinking"))
 	{
-		LLInventoryModel::cat_array_t cat_array;
-		LLInventoryModel::item_array_t item_array;
-		LLLinkedItemIDMatches is_linked_item_match(mUUID);
-		gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-							 cat_array,
-							 item_array,
-							 LLInventoryModel::INCLUDE_TRASH,
-							 is_linked_item_match);
-		U32 num_links = cat_array.size() + item_array.size();
-		if (num_links > 0)
+		if (!item->getIsLinkType())
 		{
-			LLNotifications::instance().add(params);
-			return FALSE;
+			LLInventoryModel::cat_array_t cat_array;
+			LLInventoryModel::item_array_t item_array;
+			LLLinkedItemIDMatches is_linked_item_match(mUUID);
+			gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+											cat_array,
+											item_array,
+											LLInventoryModel::INCLUDE_TRASH,
+											is_linked_item_match);
+
+			const U32 num_links = cat_array.size() + item_array.size();
+			if (num_links > 0)
+			{
+				// Warn if the user is will break any links when deleting this item.
+				LLNotifications::instance().add(params);
+				return FALSE;
+			}
 		}
 	}
 	
@@ -1628,8 +1640,12 @@ BOOL LLFolderBridge::isUpToDate() const
 
 BOOL LLFolderBridge::isItemCopyable() const
 {
-	// Can copy folders to paste-as-link, but not for straight paste.
-	return TRUE;
+	if (gSavedSettings.getBOOL("InventoryLinking"))
+	{
+		// Can copy folders to paste-as-link, but not for straight paste.
+		return TRUE;
+	}
+	return FALSE;
 }
 
 BOOL LLFolderBridge::copyToClipboard() const
