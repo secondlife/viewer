@@ -10,7 +10,7 @@
      name="Me"
      tear_off="true">
         <menu_item_check
-         label="IDEVO Display Name Prototype"
+         label="Display Name Demo"
          name="display_name_prototype">
             <menu_item_check.on_check
              function="IDEVO.CheckDisplayNames" />
