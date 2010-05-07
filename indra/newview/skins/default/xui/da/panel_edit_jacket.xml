@@ -5,7 +5,9 @@
 		<texture_picker label="Stof forneden" name="Lower Fabric" tool_tip="Klik for at vælge et billede"/>
 		<color_swatch label="Farve/nuance" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
 	</panel>
-	<accordion name="wearable_accordion">
-		<accordion_tab name="jacket_main_tab" title="Jakke"/>
-	</accordion>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="jacket_main_tab" title="Jakke"/>
+		</accordion>
+	</panel>
 </panel>

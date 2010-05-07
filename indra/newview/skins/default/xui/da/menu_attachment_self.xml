@@ -9,4 +9,5 @@
 	<menu_item_call label="Venner" name="Friends..."/>
 	<menu_item_call label="Grupper" name="Groups..."/>
 	<menu_item_call label="Profil" name="Profile..."/>
+	<menu_item_call label="Debug teksturer" name="Debug..."/>
 </context_menu>

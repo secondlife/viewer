@@ -199,8 +199,8 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 	//setting callbacks
 	//*TODO move that item panel's inner structure disclosing stuff into the panels
 	item_panel->childSetAction("btn_delete", mCOFCallbacks.mDeleteWearable);
-	item_panel->childSetAction("btn_move_up", mCOFCallbacks.mMoveWearableCloser);
-	item_panel->childSetAction("btn_move_down", mCOFCallbacks.mMoveWearableFurther);
+	item_panel->childSetAction("btn_move_up", mCOFCallbacks.mMoveWearableFurther);
+	item_panel->childSetAction("btn_move_down", mCOFCallbacks.mMoveWearableCloser);
 	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
 	
 	//turning on gray separator line for the last item in the items group of the same wearable type
@@ -243,11 +243,12 @@ void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& 
 
 		LLAppearanceMgr::sortItemsByActualDescription(clothing_by_type[type]);
 
-		for (U32 i = 0; i < size; i++)
+		//clothing items are displayed in reverse order, from furthest ones to closest ones (relatively to the body)
+		for (U32 i = size; i != 0; --i)
 		{
-			LLViewerInventoryItem* item = clothing_by_type[type][i];
+			LLViewerInventoryItem* item = clothing_by_type[type][i-1];
 
-			LLPanelClothingListItem* item_panel = buildClothingListItem(item, i == 0, i == size - 1);
+			LLPanelClothingListItem* item_panel = buildClothingListItem(item, i == size, i == 1);
 			if (!item_panel) continue;
 
 			mClothing->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
