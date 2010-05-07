@@ -57,6 +57,8 @@
 #include "lluictrlfactory.h"
 #include "message.h"
 
+//#include "llsdserialize.h"
+
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 												   BOOL allow_multiple,
 												   BOOL closeOnSelect)
@@ -351,20 +353,26 @@ public:
 
 	LLAvatarPickerResponder(const LLUUID& id) : mQueryID(id) { }
 
-	/*virtual*/ void result(const LLSD& content)
+	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
-		LLFloaterAvatarPicker* floater =
-			LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
-		if (floater)
-		{
-			floater->processResponse(mQueryID, content);
-		}
-	}
+		//std::ostringstream ss;
+		//LLSDSerialize::toPrettyXML(content, ss);
+		//llinfos << ss.str() << llendl;
 
-	/*virtual*/ void error(U32 status, const std::string& reason)
-	{
-		llinfos << "avatar picker failed " << status
-			<< " reason " << reason << llendl;
+		if (isGoodStatus(status))
+		{
+			LLFloaterAvatarPicker* floater =
+				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+			if (floater)
+			{
+				floater->processResponse(mQueryID, content);
+			}
+		}
+		else
+		{
+			llinfos << "avatar picker failed " << status
+				<< " reason " << reason << llendl;
+		}
 	}
 };
 
@@ -390,7 +398,7 @@ void LLFloaterAvatarPicker::find()
 		{
 			url += "/";
 		}
-		url += "?name=";
+		url += "?names=";
 		url += LLURI::escape(text);
 		llinfos << "avatar picker " << url << llendl;
 		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
