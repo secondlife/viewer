@@ -3055,6 +3055,15 @@ Change your display name?
 
   <notification
    icon="alertmodal.tga"
+   name="SetDisplayNameSuccess"
+   type="alertmodal">
+Thanks for updating your name!
+
+Just like in real life, it takes a while for everyone to learn about a new name.  Please allow [HOURS] hours for your name to update in object ownership, scripts, search, etc.
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="SetDisplayNameFailedGeneric"
    type="alertmodal">
     Sorry, we could not set your display name.  Please try again later.
@@ -3062,25 +3071,20 @@ Change your display name?
 
   <notification
    icon="alertmodal.tga"
-   name="AgentDisplayNameSetLindenFailed"
+   name="AgentDisplayNameUpdateThresholdExceeded"
    type="alertmodal">
-Sorry, your display name cannot contain the word 'Linden'.
+Sorry, you can only change your display name once every 24 hours.
 
-Please try a different name.
+Please try again later.
   </notification>
 
   <notification
    icon="alertmodal.tga"
-   name="SetDisplayNameFailedThrottle"
+   name="AgentDisplayNameSetBlocked"
    type="alertmodal">
-    Sorry, you can only change your display name once every [FREQUENCY] hour(s). 
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="SetDisplayNameFailedUnavailable"
-   type="alertmodal">
-    Sorry, we could not set that display name.  Please try a different name.
+ Sorry, we could not set your requested name because it contains a banned word.
+ 
+ Please try a different name.
   </notification>
 
   <notification

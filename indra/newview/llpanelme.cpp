@@ -311,6 +311,14 @@ void LLPanelMyProfileEdit::onCacheSetName(bool success,
 {
 	if (success)
 	{
+		// Inform the user that the change took place, but will take a while
+		// to percolate.
+		LLSD args;
+		// *TODO: get estimated percolation time from service
+		S32 timeout_hours = 72;
+		args["HOURS"] = llformat("%d", timeout_hours);
+		LLNotificationsUtil::add("SetDisplayNameSuccess", args);
+
 		// Re-fetch my name, as it may have been sanitized by the service
 		LLAvatarNameCache::get(getAvatarId(),
 			boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
