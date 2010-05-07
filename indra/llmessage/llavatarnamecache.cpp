@@ -122,6 +122,8 @@ namespace LLAvatarNameCache
 
 	// Erase expired names from cache
 	void eraseExpired();
+
+	bool expirationFromCacheControl(LLSD headers, F64 *expires);
 }
 
 /* Sample response:
@@ -244,34 +246,29 @@ public:
 	// error type and headers.  Return value is seconds-since-epoch.
 	F64 errorRetryTimestamp(S32 status)
 	{
-		LLSD expires = mHeaders["expires"];
-		if (expires.isDefined())
-		{
-			LLDate expires_date = expires.asDate();
-			return expires_date.secondsSinceEpoch();
-		}
+		F64 now = LLFrameTimer::getTotalSeconds();
 
+		// Retry-After takes priority
 		LLSD retry_after = mHeaders["retry-after"];
 		if (retry_after.isDefined())
 		{
-			// does the header use the delta-seconds type?
+			// We only support the delta-seconds type
 			S32 delta_seconds = retry_after.asInteger();
 			if (delta_seconds > 0)
 			{
 				// ...valid delta-seconds
-				F64 now = LLFrameTimer::getTotalSeconds();
 				return now + F64(delta_seconds);
-			}
-			else
-			{
-				// ...it's a date
-				LLDate expires_date = retry_after.asDate();
-				return expires_date.secondsSinceEpoch();
 			}
 		}
 
+		// If no Retry-After, look for Cache-Control max-age
+		F64 expires = 0.0;
+		if (LLAvatarNameCache::expirationFromCacheControl(mHeaders, &expires))
+		{
+			return expires;
+		}
+
 		// No information in header, make a guess
-		F64 now = LLFrameTimer::getTotalSeconds();
 		if (status == 503)
 		{
 			// ...service unavailable, retry soon
@@ -683,11 +680,22 @@ void LLAvatarNameCache::insert(const LLUUID& agent_id, const LLAvatarName& av_na
 
 F64 LLAvatarNameCache::nameExpirationFromHeaders(LLSD headers)
 {
-	// With no expiration info, default to a day
-	const F64 DEFAULT_EXPIRES = 24.0 * 60.0 * 60.0;
-	F64 now = LLFrameTimer::getTotalSeconds();
-	F64 expires = now + DEFAULT_EXPIRES;
+	F64 expires = 0.0;
+	if (expirationFromCacheControl(headers, &expires))
+	{
+		return expires;
+	}
+	else
+	{
+		// With no expiration info, default to a day
+		const F64 DEFAULT_EXPIRES = 24.0 * 60.0 * 60.0;
+		F64 now = LLFrameTimer::getTotalSeconds();
+		return now + DEFAULT_EXPIRES;
+	}
+}
 
+bool LLAvatarNameCache::expirationFromCacheControl(LLSD headers, F64 *expires)
+{
 	// Allow the header to override the default
 	LLSD cache_control_header = headers["cache-control"];
 	if (cache_control_header.isDefined())
@@ -696,10 +704,12 @@ F64 LLAvatarNameCache::nameExpirationFromHeaders(LLSD headers)
 		std::string cache_control = cache_control_header.asString();
 		if (max_age_from_cache_control(cache_control, &max_age))
 		{
-			expires = now + (F64)max_age;
+			F64 now = LLFrameTimer::getTotalSeconds();
+			*expires = now + (F64)max_age;
+			return true;
 		}
 	}
-	return expires;
+	return false;
 }
 
 static const std::string MAX_AGE("max-age");
