@@ -6174,7 +6174,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>60</integer>
+    <integer>200</integer>
   </map>
   <key>RenderSSAOFactor</key>
   <map>
@@ -6549,6 +6549,52 @@
     <real>0.01</real>
   </map>
 
+  <key>RenderShadowBiasError</key>
+  <map>
+    <key>Comment</key>
+    <string>Error scale for shadow bias (based on altitude).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  <key>RenderShadowOffsetError</key>
+  <map>
+    <key>Comment</key>
+    <string>Error scale for shadow offset (based on altitude).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
+  
+  <key>RenderSpotShadowBias</key>
+  <map>
+    <key>Comment</key>
+    <string>Bias value for shadows (prevent shadow acne).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>-0.0005</real>
+  </map>
+  <key>RenderSpotShadowOffset</key>
+  <map>
+    <key>Comment</key>
+    <string>Offset value for shadows (prevent shadow acne).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.01</real>
+  </map>
+
   <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
@@ -6560,8 +6606,6 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-
-
 
   <key>RenderDeferredTreeShadowBias</key>
   <map>
@@ -6698,19 +6742,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-
-  <key>RenderDeferredShadow</key>
-  <map>
-    <key>Comment</key>
-    <string>Enable shadows in deferred renderer.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-
+  
   <key>RenderDeferredGI</key>
   <map>
     <key>Comment</key>
@@ -6721,18 +6753,6 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
-  </map>
-
-  <key>RenderDeferredSunShadow</key>
-  <map>
-    <key>Comment</key>
-    <string>Generate shadows from the sun.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
   </map>
 
   <key>RenderDeferredSun</key>
@@ -6751,6 +6771,18 @@
   <map>
     <key>Comment</key>
     <string>Execute atmospheric shader in deferred renderer.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+
+  <key>RenderDeferredSSAO</key>
+  <map>
+    <key>Comment</key>
+    <string>Execute screen space ambient occlusion shader in deferred renderer.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -7009,16 +7041,27 @@
       <key>Value</key>
       <real>256.0</real>
     </map>
-    <key>RenderFastAlpha</key>
+    <key>RenderAutoMaskAlphaNonDeferred</key>
     <map>
       <key>Comment</key>
-      <string>Use lossy alpha rendering optimization (opaque/nonexistent small alpha faces).</string>
+      <string>Use alpha masks where appropriate, in the non-deferred (non-'Lighting and Shadows') graphics mode</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderAutoMaskAlphaDeferred</key>
+    <map>
+      <key>Comment</key>
+      <string>Use alpha masks where appropriate, in the deferred ('Lighting and Shadows') graphics mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>RenderFastUI</key>
     <map>
@@ -7281,17 +7324,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderLightingDetail</key>
-    <map>
-      <key>Comment</key>
-      <string>Amount of detail for lighting objects/avatars/terrain (0=sun/moon only, 1=enable local lights)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>RenderMaxPartCount</key>
     <map>
       <key>Comment</key>
@@ -7391,7 +7423,19 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>RenderReflectionRes</key>
+    <key>RenderShadowDetail</key>
+    <map>
+      <key>Comment</key>
+      <string>Detail of shadows.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+
+  <key>RenderReflectionRes</key>
     <map>
       <key>Comment</key>
       <string>Reflection map resolution.</string>
@@ -7521,7 +7565,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>RenderUIBuffer</key>
     <map>
@@ -7622,6 +7666,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>RenderUseStreamVBO</key>
+  <map>
+    <key>Comment</key>
+    <string>Use VBO's for stream buffers</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>RenderVolumeLODFactor</key>
     <map>
       <key>Comment</key>
@@ -7665,17 +7720,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>512</integer>
-    </map>
-    <key>RenderWaterReflections</key>
-    <map>
-      <key>Comment</key>
-      <string>Reflect the environment in the water.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>RotateRight</key>
     <map>

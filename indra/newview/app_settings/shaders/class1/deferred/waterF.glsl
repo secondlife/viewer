@@ -115,7 +115,7 @@ void main()
 	vec4 fb = texture2D(screenTex, distort2);
 	
 	//mix with reflection
-	// Note we actually want to use just df1, but multiplying by 0.999999 gets around and nvidia compiler bug
+	// Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
 	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
 	
 	float shadow = 1.0;
@@ -131,11 +131,11 @@ void main()
 	//color.rgb = scaleSoftClip(color.rgb);
 	//color.a = spec * sunAngle2;
 
-	//wavef.z = -0.25f;
-	wavef = normalize(wavef);
-	wavef = (norm_mat*vec4(wavef, 1.0)).xyz;
+	//wavef.z *= 0.1f;
+	//wavef = normalize(wavef);
+	vec3 screenspacewavef = (norm_mat*vec4(wavef, 1.0)).xyz;
 	
-	gl_FragData[0] = vec4(color.rgb, 0.75);
-	gl_FragData[1] = vec4(1,1,1, 0.8);
-	gl_FragData[2] = vec4(wavef*0.5+0.5, 0.0);
+	gl_FragData[0] = vec4(color.rgb, 0.5); // diffuse
+	gl_FragData[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
+	gl_FragData[2] = vec4(screenspacewavef*0.5+0.5, screenspacewavef.z*0.5); // normal, displace
 }
