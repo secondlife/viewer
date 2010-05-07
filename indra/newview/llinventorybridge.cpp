@@ -1405,13 +1405,56 @@ BOOL LLItemBridge::removeItem()
 	{
 		return FALSE;
 	}
+
+	
 	// move it to the trash
 	LLPreview::hide(mUUID, TRUE);
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
-	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	const LLUUID& trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLViewerInventoryItem* item = getItem();
+	if (!item) return FALSE;
 
+	// Already in trash
+	if (model->isObjectDescendentOf(mUUID, trash_id)) return FALSE;
+
+	LLNotification::Params params("ConfirmItemDeleteHasLinks");
+	params.functor.function(boost::bind(&LLItemBridge::confirmRemoveItem, this, _1, _2));
+	
+	if (!item->getIsLinkType())
+	{
+		LLInventoryModel::cat_array_t cat_array;
+		LLInventoryModel::item_array_t item_array;
+		LLLinkedItemIDMatches is_linked_item_match(mUUID);
+		gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+							 cat_array,
+							 item_array,
+							 LLInventoryModel::INCLUDE_TRASH,
+							 is_linked_item_match);
+		U32 num_links = cat_array.size() + item_array.size();
+		if (num_links > 0)
+		{
+			LLNotifications::instance().add(params);
+			return FALSE;
+		}
+	}
+	
+	LLNotifications::instance().forceResponse(params, 0);
+	return TRUE;
+}
+
+BOOL LLItemBridge::confirmRemoveItem(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return FALSE;
+
+	LLInventoryModel* model = getInventoryModel();
+	if (!model) return FALSE;
+
+	LLViewerInventoryItem* item = getItem();
+	if (!item) return FALSE;
+
+	const LLUUID& trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	// if item is not already in trash
 	if(item && !model->isObjectDescendentOf(mUUID, trash_id))
 	{
@@ -1420,11 +1463,7 @@ BOOL LLItemBridge::removeItem()
 		// delete was successful
 		return TRUE;
 	}
-	else
-	{
-		// tried to delete already item in trash (should purge?)
-		return FALSE;
-	}
+	return FALSE;
 }
 
 BOOL LLItemBridge::isItemCopyable() const
