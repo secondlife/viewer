@@ -1495,6 +1495,8 @@ void LLAgent::propagate(const F32 dt)
 		floater_move->mBackwardButton  ->setToggleState( gAgentCamera.getAtKey() < 0 || gAgentCamera.getWalkKey() < 0 );
 		floater_move->mTurnLeftButton  ->setToggleState( gAgentCamera.getYawKey() > 0.f );
 		floater_move->mTurnRightButton ->setToggleState( gAgentCamera.getYawKey() < 0.f );
+		floater_move->mSlideLeftButton  ->setToggleState( gAgentCamera.getLeftKey() > 0.f );
+		floater_move->mSlideRightButton ->setToggleState( gAgentCamera.getLeftKey() < 0.f );
 		floater_move->mMoveUpButton    ->setToggleState( gAgentCamera.getUpKey() > 0 );
 		floater_move->mMoveDownButton  ->setToggleState( gAgentCamera.getUpKey() < 0 );
 	}
