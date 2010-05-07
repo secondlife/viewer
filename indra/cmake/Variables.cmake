@@ -81,13 +81,13 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # otherwise CMAKE_OSX_SYSROOT will be overridden here. We can't just check
   # for it being unset, as it gets set to the system default :(
 
-  # Default to building against the 10.5 SDK if no deployment target is
+  # Default to building against the 10.4u SDK if no deployment target is
   # specified.
   if (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     # NOTE: setting -isysroot is NOT adequate: http://lists.apple.com/archives/Xcode-users/2007/Oct/msg00696.html
     # see http://public.kitware.com/Bug/view.php?id=9959 + poppy
-    set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.5.sdk)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.5)
+    set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.4u.sdk)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.4u)
   endif (NOT CMAKE_OSX_DEPLOYMENT_TARGET)
 
   # GCC 4.2 is incompatible with the MacOSX 10.4 SDK
