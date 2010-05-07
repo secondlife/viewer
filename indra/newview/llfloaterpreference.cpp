@@ -225,6 +225,7 @@ void handleNameTagOptionChanged(const LLSD& newvalue)
 	{
 		gSavedSettings.setBOOL("SmallAvatarNames", TRUE);
 	}
+	LLVOAvatar::invalidateNameTags();
 }
 
 /*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
@@ -321,6 +322,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	sSkin = gSavedSettings.getString("SkinCurrent");
 	
 	gSavedSettings.getControl("AvatarNameTagMode")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
+	gSavedSettings.getControl("NameTagShowSLIDs")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
 }
 
 BOOL LLFloaterPreference::postBuild()
