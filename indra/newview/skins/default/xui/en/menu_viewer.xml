@@ -9,15 +9,6 @@
      layout="topleft"
      name="Me"
      tear_off="true">
-        <menu_item_check
-         label="Display Name Demo"
-         name="display_name_prototype">
-            <menu_item_check.on_check
-             function="IDEVO.CheckDisplayNames" />
-            <menu_item_check.on_click
-             function="IDEVO.ToggleDisplayNames" />
-		</menu_item_check>
-		<menu_item_separator />
         <menu_item_call
          label="Preferences"
          layout="topleft"

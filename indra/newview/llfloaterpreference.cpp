@@ -81,6 +81,7 @@
 #include "llvosky.h"
 
 // linden library includes
+#include "llavatarnamecache.h"
 #include "llerror.h"
 #include "llfontgl.h"
 #include "llrect.h"
@@ -461,6 +462,10 @@ void LLFloaterPreference::apply()
 		}
 	}
 
+	LLUICtrl* display_names_check = getChild<LLUICtrl>("display_names_check");
+	bool use_display_names = display_names_check->getValue().asBoolean();
+	LLAvatarNameCache::setUseDisplayNames(use_display_names);
+
 	applyResolution();
 }
 
@@ -541,6 +546,10 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
 	
+	bool use_display_names = LLAvatarNameCache::useDisplayNames();
+	LLUICtrl* display_names_check = getChild<LLUICtrl>("display_names_check");
+	display_names_check->setValue( LLSD(use_display_names) );
+
 	// Make sure the current state of prefs are saved away when
 	// when the floater is opened.  That will make cancel do its
 	// job

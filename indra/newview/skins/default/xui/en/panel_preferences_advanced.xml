@@ -271,4 +271,12 @@ Automatic position for:
           <button.commit_callback
           function="Pref.VoiceSetMiddleMouse" />
     </button>
+  <check_box
+  follows="top|left"
+  height="15"
+  label="Use Display Names (PLACEHOLDER)"
+  left="30"
+  name="display_names_check"
+  width="237"
+  tool_tip="Check to use display names in chat, IM, name tags, etc."/>
 </panel>
