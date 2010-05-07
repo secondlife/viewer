@@ -32,10 +32,12 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llchathistory.h"
+
+#include "llavatarnamecache.h"
 #include "llinstantmessage.h"
 
 #include "llimview.h"
-#include "llchathistory.h"
 #include "llcommandhandler.h"
 #include "llpanel.h"
 #include "lluictrlfactory.h"
@@ -240,7 +242,12 @@ public:
 		mAvatarID = chat.mFromID;
 		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
-		gCacheName->get(mAvatarID, false, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3));
+		//gCacheName->get(mAvatarID, false, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3));
+		if (mAvatarID.notNull())
+		{
+			LLAvatarNameCache::get(mAvatarID,
+				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
+		}
 
 		//*TODO overly defensive thing, source type should be maintained out there
 		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM)
@@ -323,6 +330,17 @@ public:
 			return;
 		mFrom = full_name;
 	}
+
+	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
+	{
+		if (agent_id != mAvatarID) return;
+
+		// HACK: just update tooltip
+		setToolTip( av_name.mSLID );
+		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		user_name->setToolTip( av_name.mSLID );
+	}
+
 protected:
 	static const S32 PADDING = 20;
 
