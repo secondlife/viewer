@@ -48,13 +48,12 @@ class LLButton;
 class LLCOFWearables;
 class LLTextBox;
 class LLInventoryCategory;
-class LLInventoryLookObserver;
+class LLCOFObserver;
 class LLInventoryPanel;
 class LLSaveFolderState;
 class LLFolderViewItem;
 class LLScrollListCtrl;
 class LLToggleableMenu;
-class LLLookFetchObserver;
 class LLFilterEditor;
 class LLFilteredWearableListManager;
 
@@ -82,11 +81,6 @@ public:
 	/*virtual*/ ~LLPanelOutfitEdit();
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void changed(U32 mask);
-
-	/*virtual*/ void setParcelID(const LLUUID& parcel_id);
-		// Sends a request for data about the given parcel, which will
-		// only update the location if there is none already available.
 
 	void moveWearable(bool closer_to_body);
 
@@ -106,16 +100,12 @@ public:
 
 	void displayCurrentOutfit();
 	
-	void lookFetched(void);
-	
-	void updateLookInfo(void);
+	void update();
 
 private:
 
 	void updateVerbs();
 
-	//*TODO got rid of mCurrentOutfitID
-	LLUUID				mCurrentOutfitID;
 
 	LLTextBox*			mCurrentOutfitName;
 	LLInventoryPanel*	mInventoryItemsPanel;
@@ -127,8 +117,7 @@ private:
 
 	LLFilteredWearableListManager* mWearableListManager;
 
-	LLLookFetchObserver*		mFetchLook;
-	LLInventoryLookObserver*	mLookObserver;
+	LLCOFObserver*	mCOFObserver;
 	std::vector<LLLookItemType> mLookItemTypes;
 
 	LLCOFWearables*		mCOFWearables;

@@ -224,6 +224,9 @@ Er du sikker på at du vil fortsætte?
 		Ikke nok penge til at oprette annonce.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="DeleteAvatarPick">
+		Slet favorit &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
+	</notification>
 	<notification name="CacheWillClear">
 		Cache vil blive tømt ved næste genstart af [APP_NAME].
 	</notification>
@@ -386,6 +389,16 @@ Tilbyd venskab til [NAME]?
 		<form name="form">
 			<input name="message">
 				Vil du være min ven?
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Annullér"/>
+		</form>
+	</notification>
+	<notification label="Gem sæt" name="SaveOutfitAs">
+		Gem det som jeg har på som nyt sæt:
+		<form name="form">
+			<input name="message">
+				[DESC] (ny)
 			</input>
 			<button name="Offer" text="OK"/>
 			<button name="Cancel" text="Annullér"/>
@@ -584,6 +597,10 @@ Chat og personlige beskeder vil blive skjult. Personlige beskeder vil få din &a
 		Teleport til [CLASSIFIED]?
 		<usetemplate ignoretext="Bekræft at du ønsker at teleportere til lokation in annoncer" name="okcancelignore" notext="Annullér" yestext="Teleport"/>
 	</notification>
+	<notification name="TeleportToHistoryEntry">
+		Teleport til [HISTORY_ENTRY]?
+		<usetemplate ignoretext="Bekræft at du ønsker at teleportere til en lokation i din historik" name="okcancelignore" notext="Annullér" yestext="Teleport"/>
+	</notification>
 	<notification label="Change Linden Estate" name="ChangeLindenEstate">
 		Du er i færd med at ændre et Linden ejet estate (mainland, teeen grid, orientation etc.).
 
@@ -618,6 +635,9 @@ Du kan klikke på &apos;Ændre præference&apos; for at ændre din indholdsratin
 			<button name="Cancel" text="Luk"/>
 			<ignore name="ignore" text="Din valgte indholdsrating forhindrer dig i at kommer til en region"/>
 		</form>
+	</notification>
+	<notification name="PreferredMaturityChanged">
+		Din indholdsrating er nu [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		Du kan ikke kræve dette land på grund af din nuværende indholdsrating indstillinge . Dette kan skyldes manglende validering af din alder.
@@ -813,6 +833,9 @@ Henvis til dette fra en hjemmeside for at give andre nem adgang til denne lokati
 	<notification name="SystemMessageTip">
 		[MESSAGE]
 	</notification>
+	<notification name="IMSystemMessageTip">
+		[MESSAGE]
+	</notification>
 	<notification name="Cancelled">
 		Annulléret
 	</notification>
@@ -837,6 +860,11 @@ Henvis til dette fra en hjemmeside for at give andre nem adgang til denne lokati
 	<notification name="UploadingAuctionSnapshot">
 		Uploader billeder fra verdenen og www...
 (Tager omkring 5 minutter.)
+	</notification>
+	<notification name="UploadConfirmation">
+		Omkostninger ved at sende: L$[AMOUNT].
+Ønsker du at fortsætte?
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Send"/>
 	</notification>
 	<notification name="UploadPayment">
 		Du betalte L$[AMOUNT] for at uploade.
@@ -1180,9 +1208,9 @@ Prøv igen om lidt.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] har tilbudt dig en teleport til lokationen:
+		[NAME_SLURL] har tilbudt en teleport til deres lokation:
 
-[MESSAGE]
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
 		<form name="form">
 			<button name="Teleport" text="Teleportér"/>
 			<button name="Cancel" text="Annullér"/>
@@ -1200,9 +1228,11 @@ Prøv igen om lidt.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME] tilbyder venskab.
+		[NAME_SLURL] tilbyder venskab.
 
-Som standard vil du kunne se andres onlinestatus.
+[MESSAGE]
+
+(Som udgangspunkt vil I være i stand til at se hinandens online status.)
 		<form name="form">
 			<button name="Accept" text="Acceptér"/>
 			<button name="Decline" text="Afvis"/>
@@ -1255,6 +1285,9 @@ Fra genstand: [OBJECTNAME], ejer: [NAME]?
 	</notification>
 	<notification name="FailedToFindWearable">
 		Det lykkedes ikke at finde [TYPE] med navnet [DESC] i databasen.
+	</notification>
+	<notification name="ShareToWebFailed">
+		Fejl ved afsendelse af billede til web.
 	</notification>
 	<notification name="InvalidWearable">
 		Den genstand du prøver at tage på benytter en funktion din klient ikke kan forstå. Upgradér venligst din version af [APP_NAME] for at kunne tage denne genstand på.
@@ -1450,6 +1483,12 @@ De vil blive blokeret nogle få sekunder af sikkerhedsmæssige årsager.
 	<notification name="BottomTrayButtonCanNotBeShown">
 		Den valgte knap kan ikke vises lige nu.
 Knappen vil blive vist når der er nok plads til den.
+	</notification>
+	<notification name="ShareNotification">
+		Træk genstande fra beholdning til en person i beboer vælgeren
+	</notification>
+	<notification name="AvatarRezNotification">
+		Avatar &apos;[NAME]&apos; rezzed på [TIME] sekunder.
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Det ser ikke ud til at din hardware opfylder minimumskravene til [APP_NAME]. [APP_NAME] kræver et OpenGL grafikkort som understøter &apos;multitexture&apos;. Check eventuelt om du har de nyeste drivere for grafikkortet, og de nyeste service-packs og patches til dit operativsystem.
