@@ -11,10 +11,19 @@
 			Mini
 		</combo_item>
 	</combo_box>
+	<text name="owner_label">
+		Ejer
+	</text>
 	<check_box initial_value="false" label="Tillad navigation og interaktion" name="perms_owner_interact"/>
 	<check_box initial_value="false" label="Vis kontrol bjælke" name="perms_owner_control"/>
+	<text name="group_label">
+		Gruppe:
+	</text>
 	<check_box initial_value="false" label="Tillad navigation og interaktion" name="perms_group_interact"/>
 	<check_box initial_value="false" label="Vis kontrol bjælke" name="perms_group_control"/>
+	<text name="anyone_label">
+		Enhver
+	</text>
 	<check_box initial_value="false" label="Tillad navigation og interaktion" name="perms_anyone_interact"/>
 	<check_box initial_value="false" label="Vis kontrol bjælke" name="perms_anyone_control"/>
 </panel>

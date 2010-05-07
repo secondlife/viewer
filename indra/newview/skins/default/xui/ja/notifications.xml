@@ -2662,7 +2662,7 @@ M キーを押して変更します。
 		住人選択画面に表示された人に「持ち物」からアイテムをドラッグしてください
 	</notification>
 	<notification name="AvatarRezNotification">
-		アバター名「 [NAME] 」が [TIME] 秒で出現します。
+		アバター「 [NAME] 」が [TIME] 秒で出現します。
 	</notification>
 	<global name="UnsupportedCPU">
 		- あなたの CPU の速度は必須動作環境の条件を満たしていません。

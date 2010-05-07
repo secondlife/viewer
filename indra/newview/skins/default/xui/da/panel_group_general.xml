@@ -45,8 +45,11 @@
 		<check_box label="Tilmeldingsgebyr" name="check_enrollment_fee" tool_tip="Angiver om der kræves et gebyr, for at tilmelde sig gruppen"/>
 		<spinner label="L$" left_delta="130" name="spin_enrollment_fee" tool_tip="Nye medlemmer skal betale dette gebyr for at tilmelde sig gruppen, når &quot;Tilmeldingsgebyr&quot; er valgt." width="60"/>
 		<combo_box name="group_mature_check" tool_tip="Angiver om din gruppes information anses som &apos;mature&apos;." width="150">
-			<combo_box.item label="PG indhold" name="pg"/>
+			<combo_item name="select_mature">
+				- Vælg Mature -
+			</combo_item>
 			<combo_box.item label="Mature indhold" name="mature"/>
+			<combo_box.item label="PG indhold" name="pg"/>
 		</combo_box>
 		<check_box initial_value="true" label="Vis i søgning" name="show_in_group_list" tool_tip="Lad folk se denne gruppe i søgeresultater."/>
 	</panel>
