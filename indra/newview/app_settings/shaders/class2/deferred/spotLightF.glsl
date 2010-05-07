@@ -179,21 +179,6 @@ void main()
 		}
 	}
 	
-	/*if (spec.a > 0.0)
-	{
-		//vec3 ref = reflect(normalize(pos), norm);
-		float sa = dot(normalize(lv-normalize(pos)),norm);;
-		//sa = max(sa, 0.0);
-		//sa = pow(sa, 128.0 * spec.a*spec.a/dist_atten)*min(dist_atten*4.0, 1.0);
-		sa = texture2D(lightFunc, vec2(sa, spec.a)).a * min(dist_atten*4.0, 1.0);
-		sa *= noise;
-		col += da*sa*lcol*spec.rgb;
-	}*/
-	
-	//attenuate point light contribution by SSAO component
-	col *= texture2DRect(lightMap, frag.xy).g;
-	
-
 	gl_FragColor.rgb = col;	
 	gl_FragColor.a = 0.0;
 }

@@ -202,7 +202,7 @@ public:
 		{
 			U32 n = mVector.size();
 			mIndexMap[k] = n;
-			mVector.resize(n+1);
+			mVector.push_back(Type());
 			llassert(mVector.size() == mIndexMap.size());
 			return mVector[n];
 		}

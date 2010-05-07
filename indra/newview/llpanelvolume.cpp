@@ -574,7 +574,7 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
 		LLUUID id = LightTextureCtrl->getImageAssetID();
 		if (id.notNull())
 		{
-			if (volobjp->getLightTextureID().isNull())
+			if (!volobjp->isLightSpotlight())
 			{ //this commit is making this a spot light, set UI to default params
 				volobjp->setLightTextureID(id);
 				LLVector3 spot_params = volobjp->getSpotLightParams();
@@ -591,7 +591,7 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
 				volobjp->setSpotLightParams(spot_params);
 			}
 		}
-		else if (volobjp->getLightTextureID().notNull())
+		else if (volobjp->isLightSpotlight())
 		{ //no longer a spot light
 			volobjp->setLightTextureID(id);
 			//self->childDisable("Light FOV");
