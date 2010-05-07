@@ -532,7 +532,7 @@
      reference="White" />
     <color
      name="NameTagFriend"
-     reference="EmphasisColor" />
+     value="0.447 0.784 0.663 1" />
     <color
      name="NameTagGroup"
      value="1 1 1 1" />
@@ -544,7 +544,7 @@
      reference="White" />
     <color
      name="NameTagMismatch"
-     value="0.984 0.758 0 1" />
+     value="1 0.776 0.212 1" />
     <color
      name="NameTagSLID"
      value="1 1 1 1" />
