@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="godtools floater" title="GOD TOOLS">
 	<tab_container name="GodTools Tabs">
-		<panel label="Grid" name="grid">
-			<button label="Spark alle beboere" label_selected="Spark alle beboere" name="Kick all users"/>
-		</panel>
+		<panel label="Grid" name="grid"/>
 		<panel label="Region" name="region">
+			<text name="Region Name:">
+				Region Name:
+			</text>
 			<check_box label="Reset Home On Teleport" name="check reset home" tool_tip="Når beboere teleporterer væk, så sæt deres hjemmeadresse til deres destinations position."/>
+		</panel>
+		<panel label="Objects" name="objects">
+			<text name="Region Name:">
+				Region navn:
+			</text>
 		</panel>
 	</tab_container>
 </floater>
