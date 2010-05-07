@@ -16,18 +16,7 @@
     name="payee_resident">
         Pay Resident
    </string>
-   <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="18"
-     layout="topleft"
-     left="12"
-     name="payee_label"
-     top="22"
-     width="75">
-        Pay:
-    </text>
+
     <text
      type="string"
      length="1"
@@ -37,7 +26,7 @@
      layout="topleft"
      left="10"
      name="payee_name"
-     top_pad="0" 
+     top="25" 
      width="230">
         Test Name
     </text>
