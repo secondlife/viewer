@@ -33,10 +33,10 @@
 	<!--NO SHADERS-->
 	<WindLightUseAtmosShaders value="TRUE"/>
   <!--Deferred Shading-->
-  <RenderDeferred value="TRUE"/>
+  <RenderDeferred value="FALSE"/>
   <!--SSAO Disabled-->
   <RenderDeferredSSAO value="FALSE"/>
   <!--Sun Shadows-->
-  <RenderShadowDetail value="1"/>
+  <RenderShadowDetail value="0"/>
 
 </settings>
