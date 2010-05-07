@@ -39,9 +39,6 @@
 #include "llanimationstates.h"
 #include "llstring.h"
 
-// Would be nice to be able to toggle at run-time, but not gonna
-// happen while we're using const LLUUIDs as keys.
-
 const LLUUID ANIM_AGENT_AFRAID				= LLUUID("6b61c8e8-4747-0d75-12d7-e49ff207a4ca");
 const LLUUID ANIM_AGENT_AIM_BAZOOKA_R		= LLUUID("b5b4a67d-0aee-30d2-72cd-77b333e932ef");
 const LLUUID ANIM_AGENT_AIM_BOW_L			= LLUUID("46bb4359-de38-4ed8-6a22-f1f52fe8f506");

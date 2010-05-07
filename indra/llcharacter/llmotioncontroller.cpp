@@ -393,8 +393,6 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 //-----------------------------------------------------------------------------
 BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 {
-	llinfos << animationName(id) << llendl;
-	
 	// do we have an instance of this motion for this character?
 	LLMotion *motion = findMotion(id);
 
@@ -453,11 +451,6 @@ BOOL LLMotionController::stopMotionInstance(LLMotion* motion, BOOL stop_immediat
 	// If on active list, stop it
 	if (isMotionActive(motion) && !motion->isStopped())
 	{
-		if (motion->getID() == ANIM_AGENT_FEMALE_WALK_NEW || motion->getID() == ANIM_AGENT_FEMALE_WALK)
-		{
-			llinfos << "stop female walk: " << animationName(motion->getID()) << llendl;
-		}
-
 		motion->setStopTime(mAnimTime);
 		if (stop_immediate)
 		{
@@ -549,26 +542,6 @@ void LLMotionController::updateIdleActiveMotions()
 		motion_list_t::iterator curiter = iter++;
 		LLMotion* motionp = *curiter;
 		updateIdleMotion(motionp);
-	}
-}
-
-
-void breakWalkIf(LLMotion *motionp, BOOL flag)
-{
-	if (
-		(motionp->getID() == ANIM_AGENT_FEMALE_WALK) ||
-		(motionp->getID() == ANIM_AGENT_FEMALE_WALK_NEW) ||
-		(motionp->getID() == ANIM_AGENT_FEMALE_RUN_NEW) ||
-		(motionp->getID() == ANIM_AGENT_WALK) ||
-		(motionp->getID() == ANIM_AGENT_WALK_NEW) ||
-		(motionp->getID() == ANIM_AGENT_RUN) ||
-		(motionp->getID() == ANIM_AGENT_RUN_NEW)
-		)
-	{
-		if (flag)
-		{
-//			llinfos << "break here" << llendl;
-		}
 	}
 }
 
@@ -710,7 +683,6 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 
 			// perform motion update
 			update_result = motionp->onUpdate(mAnimTime - motionp->mActivationTimestamp, last_joint_signature);
-			breakWalkIf(motionp,!update_result);
 		}
 
 		//**********************
@@ -733,9 +705,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			}
 
 			// perform motion update
-			breakWalkIf(motionp,TRUE);
 			update_result = motionp->onUpdate(mAnimTime - motionp->mActivationTimestamp, last_joint_signature);
-			breakWalkIf(motionp,!update_result);
 		}
 
 		//**********************
@@ -758,13 +728,11 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			}
 			// perform motion update
 			update_result = motionp->onUpdate(mAnimTime - motionp->mActivationTimestamp, last_joint_signature);
-			breakWalkIf(motionp,!update_result);
 		}
 		else
 		{
 			posep->setWeight(0.f);
 			update_result = motionp->onUpdate(0.f, last_joint_signature);
-			breakWalkIf(motionp,!update_result);
 		}
 		
 		// allow motions to deactivate themselves 
@@ -838,11 +806,6 @@ void LLMotionController::updateLoadingMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::updateMotions(bool force_update)
 {
-	if (mIsSelf)
-	{
-		//dumpMotions();
-	}
-	
 	BOOL use_quantum = (mTimeStep != 0.f);
 
 	// Always update mPrevTimerElapsed

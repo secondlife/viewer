@@ -2137,23 +2137,26 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Update Avatar");
 static LLFastTimer::DeclareTimer FTM_JOINT_UPDATE("Update Joints");
 
-void dumpAnimationState(LLVOAvatar *self)
+//------------------------------------------------------------------------
+// LLVOAvatar::dumpAnimationState()
+//------------------------------------------------------------------------
+void LLVOAvatar::dumpAnimationState()
 {
 	llinfos << "==============================================" << llendl;
-	for (LLVOAvatar::AnimIterator it = self->mSignaledAnimations.begin(); it != self->mSignaledAnimations.end(); ++it)
+	for (LLVOAvatar::AnimIterator it = mSignaledAnimations.begin(); it != mSignaledAnimations.end(); ++it)
 	{
 		LLUUID id = it->first;
 		std::string playtag = "";
-		if (self->mPlayingAnimations.find(id) != self->mPlayingAnimations.end())
+		if (mPlayingAnimations.find(id) != mPlayingAnimations.end())
 		{
 			playtag = "*";
 		}
 		llinfos << animationName(id) << playtag << llendl;
 	}
-	for (LLVOAvatar::AnimIterator it = self->mPlayingAnimations.begin(); it != self->mPlayingAnimations.end(); ++it)
+	for (LLVOAvatar::AnimIterator it = mPlayingAnimations.begin(); it != mPlayingAnimations.end(); ++it)
 	{
 		LLUUID id = it->first;
-		bool is_signaled = self->mSignaledAnimations.find(id) != self->mSignaledAnimations.end();
+		bool is_signaled = mSignaledAnimations.find(id) != mSignaledAnimations.end();
 		if (!is_signaled)
 		{
 			llinfos << animationName(id) << "!S" << llendl;
@@ -3077,11 +3080,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 				addDebugText(output);
 			}
 		}
-	}
-
-	if (isSelf())
-	{
-		// dumpAnimationState(this);
 	}
 
 	if (gNoRender)
@@ -4491,13 +4489,13 @@ BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
-	llinfos << "motion requested " << id.asString() << " " << animationName(id) << llendl;
+	lldebugs << "motion requested " << id.asString() << " " << animationName(id) << llendl;
 
 	LLUUID remap_id = remapMotionID(id);
 
 	if (remap_id != id)
 	{
-		llinfos << "motion resultant " << remap_id.asString() << " " << animationName(remap_id) << llendl;
+		lldebugs << "motion resultant " << remap_id.asString() << " " << animationName(remap_id) << llendl;
 	}
 
 	if (isSelf() && remap_id == ANIM_AGENT_AWAY)
@@ -4513,17 +4511,18 @@ BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::stopMotion(const LLUUID& id, BOOL stop_immediate)
 {
-	llinfos << "motion requested " << id.asString() << " " << animationName(id) << llendl;
+	lldebugs << "motion requested " << id.asString() << " " << animationName(id) << llendl;
 
 	LLUUID remap_id = remapMotionID(id);
 	
 	if (remap_id != id)
 	{
-		llinfos << "motion resultant " << remap_id.asString() << " " << animationName(remap_id) << llendl;
+		lldebugs << "motion resultant " << remap_id.asString() << " " << animationName(remap_id) << llendl;
 	}
 
 	if (isSelf())
 	{
+		// BAP - was onAnimStop(id) originally - verify fix.
 		gAgent.onAnimStop(remap_id);
 	}
 

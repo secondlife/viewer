@@ -329,25 +329,23 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	{
 		mAnimSpeed = llclamp(mAnimSpeed, -ANIM_SPEED_MAX, -ANIM_SPEED_MIN);
 	}
-	char debug_text[64];
-	sprintf(debug_text, "Foot slip vel: %.2f", footSlipVelocity);
-	mCharacter->addDebugText(debug_text);
-	sprintf(debug_text, "Speed: %.2f", mAvgSpeed);
-	mCharacter->addDebugText(debug_text);
-	sprintf(debug_text, "Speed Adjust: %.2f", mSpeedAdjust);
-	mCharacter->addDebugText(debug_text);
-	sprintf(debug_text, "Animation Playback Speed: %.2f", mAnimSpeed);
-	mCharacter->addDebugText(debug_text);
-	mCharacter->setAnimationData("Walk Speed", &mAnimSpeed);
+// 	char debug_text[64];
+// 	sprintf(debug_text, "Foot slip vel: %.2f", footSlipVelocity);
+// 	mCharacter->addDebugText(debug_text);
+// 	sprintf(debug_text, "Speed: %.2f", mAvgSpeed);
+// 	mCharacter->addDebugText(debug_text);
+// 	sprintf(debug_text, "Speed Adjust: %.2f", mSpeedAdjust);
+// 	mCharacter->addDebugText(debug_text);
+// 	sprintf(debug_text, "Animation Playback Speed: %.2f", mAnimSpeed);
+// 	mCharacter->addDebugText(debug_text);
+ 	mCharacter->setAnimationData("Walk Speed", &mAnimSpeed);
 	if (mCharacter->getMotionController().mIsSelf)
 	{
 		F32 elapsed = mCharacter->getMotionController().getFrameTimer().getElapsedTimeF32();
 		llinfos << "PLOT elapsed: " << elapsed 
-//				<< " footSlipVelocity: " << footSlipVelocity
-//				<< " speed: " << speed
-//				<< " mAvgCorrection: " << mAvgCorrection
+				<< " footSlipVelocity: " << footSlipVelocity
+				<< " mAvgCorrection: " << mAvgCorrection
 				<< " mAvgSpeed: " << mAvgSpeed
-//				<< " mSpeedAdjust: " << mSpeedAdjust
 				<< " mAnimSpeed: " << mAnimSpeed
 				<< " ANIM_SPEED_MAX: " << ANIM_SPEED_MAX
 				<< " ANIM_SPEED_MIN: " << ANIM_SPEED_MIN

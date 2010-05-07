@@ -3243,11 +3243,11 @@ bool LLAppViewer::initCache()
 	{
 		LLVFile::initClass();
 
-		llinfos << "======= Static VFS listing ========" << llendl;
-		gStaticVFS->listFiles();
+		//llinfos << "======= Static VFS listing ========" << llendl;
+		//gStaticVFS->listFiles();
 
-		llinfos << "========= regular VFS listing =====" << llendl;
-		gVFS->listFiles();
+		//llinfos << "========= regular VFS listing =====" << llendl;
+		//gVFS->listFiles();
 		
 		return true;
 	}

@@ -164,6 +164,7 @@ public:
 	virtual void			requestStopMotion(LLMotion* motion);
 	LLMotion*				findMotion(const LLUUID& id) const;
 	void					startDefaultMotions();
+	void					dumpAnimationState();
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	virtual LLJoint*     	getRootJoint() { return &mRoot; }
