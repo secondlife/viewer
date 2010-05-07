@@ -3073,7 +3073,7 @@ Just like in real life, it takes a while for everyone to learn about a new name.
    icon="alertmodal.tga"
    name="AgentDisplayNameUpdateThresholdExceeded"
    type="alertmodal">
-Sorry, you can only change your display name once every 24 hours.
+Sorry, you can only change your name once every 24 hours.
 
 Please try again later.
   </notification>
