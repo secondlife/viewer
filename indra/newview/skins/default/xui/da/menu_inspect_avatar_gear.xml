@@ -11,7 +11,7 @@
 	<menu_item_call label="Rapportér" name="report"/>
 	<menu_item_call label="Frys" name="freeze"/>
 	<menu_item_call label="Smid ud" name="eject"/>
-	<menu_item_call label="Debug" name="debug"/>
+	<menu_item_call label="Debug teksturer" name="debug"/>
 	<menu_item_call label="Find på kort" name="find_on_map"/>
 	<menu_item_call label="Zoom ind" name="zoom_in"/>
 	<menu_item_call label="Betal" name="pay"/>

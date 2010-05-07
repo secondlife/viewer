@@ -246,6 +246,9 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Luk (Ctrl+W)
 	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		Luk
+	</string>
 	<string name="BUTTON_RESTORE">
 		Gendan
 	</string>
@@ -284,6 +287,9 @@
 	</string>
 	<string name="GroupNameNone">
 		(ingen)
+	</string>
+	<string name="AvalineCaller">
+		Avaline opkalder [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Ingen fejl
@@ -880,7 +886,7 @@
 		Tryk ESC for at skift til normalt udsyn
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Ingen matchende genstande fundet i beholdning.  Prøv evt. [secondlife:///app/search/groups &quot;Search&quot;].
+		Fandt du ikke hvad du ledte efter. Prøv [secondlife:///app/search/all Search].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Træk et landemærke hertil for at tilføje den som favorit.
@@ -1539,9 +1545,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		Der er ingen regler for dette estate. Land på dette estate sælges af estate ejeren, ikke af Linden Lab.  Kontakt venligst estate ejeren for detaljer om salg.
 	</string>
-	<string name="covenant_last_modified">
-		Sidst ændret:
-	</string>
+	<string name="covenant_last_modified" value="Sidst rettet:"/>
 	<string name="none_text" value=" (ingen) "/>
 	<string name="never_text" value=" (aldrig) "/>
 	<string name="GroupOwned">
@@ -3218,6 +3222,15 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="LocationCtrlComboBtnTooltip">
 		Min lokationshistorik
 	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		Adult region
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		Moderate region
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		Generel region
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Opdatér
 	</string>
@@ -3248,6 +3261,12 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 		Opstart af klient fejlede
 	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME]: Genstande modtages for hurtigt fra [FROM_NAME], automatisk visning er slået fra i [TIME] sekunder
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME]: Genstande modtages for hurtigt, automatisk visning er slået fra i [TIME] sekunder
+	</string>
 	<string name="IM_logging_string">
 		-- Logning af IM aktiveret --
 	</string>
@@ -3274,6 +3293,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	</string>
 	<string name="IM_moderator_label">
 		(Moderator)
+	</string>
+	<string name="answered_call">
+		Dit opkald er blevet besvaret
 	</string>
 	<string name="started_call">
 		startede et stemme opkald
@@ -3356,11 +3378,17 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="unread_chat_multiple">
 		[SOURCES] har sagt noget nyt
 	</string>
+	<string name="session_initialization_timed_out_error">
+		Initialisering af session er &quot;timed out&quot;
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] betalte dig L$[AMOUNT]
 	</string>
 	<string name="you_paid_ldollars">
 		Du betalte [NAME] L$[AMOUNT] [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		Du betalte L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		Du betalte [NAME] L$[AMOUNT].
@@ -3471,5 +3499,14 @@ Krænkelsesanmeldelse
 	</string>
 	<string name="Contents">
 		Indhold
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		ingen/ingen
+	</string>
+	<string name="texture_load_dimensions_error">
+		Kan ikke hente billeder større end  [WIDTH]*[HEIGHT]
 	</string>
 </strings>

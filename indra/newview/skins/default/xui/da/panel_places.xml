@@ -11,5 +11,6 @@
 		<button label="Gem" name="save_btn"/>
 		<button label="Annullér" name="cancel_btn"/>
 		<button label="Luk" name="close_btn"/>
+		<button label="Profil" name="profile_btn"/>
 	</panel>
 </panel>
