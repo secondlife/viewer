@@ -44,6 +44,7 @@
 #include "llviewerregion.h"
 #include "llcamera.h"
 #include "pipeline.h"
+#include "llmeshrepository.h"
 #include "llrender.h"
 #include "lloctree.h"
 #include "llvoavatar.h"
@@ -2658,6 +2659,46 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 	
 }
 
+void renderPhysicsShape(LLDrawable* drawable)
+{
+	LLVOVolume* volume = drawable->getVOVolume();
+	if (volume)
+	{
+		if (volume->isMesh())
+		{
+			LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
+			const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
+			if (decomp)
+			{
+				gGL.pushMatrix();
+				glLoadMatrixd(gGLModelView);
+				gGL.flush();
+				glPointSize(4.f);
+				gGL.begin(LLRender::POINTS);
+				static std::vector<LLColor4U> color;
+
+				for (U32 i = 0; i < decomp->mHull.size(); ++i)
+				{
+					if (color.size() <= i)
+					{
+						color.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127));
+					}
+					gGL.color4ubv(color[i].mV);
+					for (U32 j = 0; j < decomp->mHull[i].size(); ++j)
+					{
+						LLVector3 v = volume->volumePositionToAgent(decomp->mHull[i][j]);
+						gGL.vertex3fv(v.mV);
+					}
+				}
+				gGL.end();
+				gGL.flush();
+				gGL.popMatrix();
+				glPointSize(1.f);
+			}
+		}
+	}
+}
+
 void renderTexturePriority(LLDrawable* drawable)
 {
 	for (int face=0; face<drawable->getNumFaces(); ++face)
@@ -2974,6 +3015,11 @@ public:
 				renderBoundingBox(drawable);			
 			}
 			
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
+			{
+				renderPhysicsShape(drawable);
+			}
+
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BUILD_QUEUE))
 			{
 				if (drawable->isState(LLDrawable::IN_REBUILD_Q2))
@@ -3173,7 +3219,8 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
 									  LLPipeline::RENDER_DEBUG_AGENT_TARGET |
 									  LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
-									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA)) 
+									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA |
+									  LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES)) 
 	{
 		return;
 	}
