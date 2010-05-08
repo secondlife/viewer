@@ -20,10 +20,10 @@
 			Venta de terreno
 		</text>
 		<text name="by_owner_label">
-			por el propietario
+			por el dueño
 		</text>
 		<text name="auction_label">
-			subasta de terreno
+			subasta
 		</text>
 		<button name="Go Home" tool_tip="Teleportar a mi Base"/>
 		<text name="Home_label">
