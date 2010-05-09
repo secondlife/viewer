@@ -6572,7 +6572,9 @@ void LLPipeline::renderDeferredLighting()
 		if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
 		{
 			mDeferredLight[1].bindTarget();
-			// clear color buffer here?  doesn't seem to matter.
+			// clear color buffer here (GI) - zeroing alpha (glow) is important or it will accumulate against sky
+			glClearColor(0,0,0,0);
+			mScreen.clear(GL_COLOR_BUFFER_BIT);
 		}
 		else
 		{
