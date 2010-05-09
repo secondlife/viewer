@@ -6577,7 +6577,9 @@ void LLPipeline::renderDeferredLighting()
 		else
 		{
 			mScreen.bindTarget();
-			// clear color buffer here?  doesn't seem to matter.
+			// clear color buffer here - zeroing alpha (glow) is important or it will accumulate against sky
+			glClearColor(0,0,0,0);
+			mScreen.clear(GL_COLOR_BUFFER_BIT);
 		}
 
 		if (gSavedSettings.getBOOL("RenderDeferredAtmospheric"))
