@@ -6,15 +6,15 @@
 	<text name="region_text">
 		desconhecido
 	</text>
-	<check_box label="Desabilitar Scripts" name="disable_scripts_check" tool_tip="Desabilitar todos os scripts nesta região"/>
+	<check_box label="Desativar scripts" name="disable_scripts_check" tool_tip="Desativar todos os scripts nesta região"/>
 	<button label="?" name="disable_scripts_help"/>
-	<check_box label="Desabilitar colisões" name="disable_collisions_check" tool_tip="Desabilitar colisões de não-avatares nessa região"/>
+	<check_box label="Desativar colisões" name="disable_collisions_check" tool_tip="Desabilitar colisões de não-avatares nessa região"/>
 	<button label="?" name="disable_collisions_help"/>
-	<check_box label="Desabilitar física" name="disable_physics_check" tool_tip="Desabilitar toda a físíca nesta região"/>
+	<check_box label="Desativar física" name="disable_physics_check" tool_tip="Desativar toda a físíca nesta região"/>
 	<button label="?" name="disable_physics_help"/>
 	<button label="Aplicar" name="apply_btn"/>
 	<text name="objret_text_lbl" width="130">
-		Retornar objeto
+		Devolver objeto
 	</text>
 	<text name="resident_text_lbl">
 		Residente:
@@ -27,14 +27,14 @@
 		Opções:
 	</text>
 	<check_box label="Com scripts" name="return_scripts" tool_tip="Só devolver objetos com scripts"/>
-	<check_box label="No terreno de outra pessoa" name="return_other_land" tool_tip="Retornar apenas objetos que estejam na terra pertencente a alguém"/>
-	<check_box label="Em todas as regiões desta propriedade" name="return_estate_wide" tool_tip="Retornar objetos em todas as regiões que constituem esta propriedade"/>
-	<button label="Retornar" name="return_btn"/>
-	<button label="Pegar os principais colidentes..." name="top_colliders_btn" tool_tip="Lista dos objetos que experimentam as mais potenciais colisões" width="280"/>
+	<check_box label="No terreno de outra pessoa" name="return_other_land" tool_tip="Devolver apenas objetos que estejam em terrenos de outra pessoa"/>
+	<check_box label="Em todas as regiões desta propriedade" name="return_estate_wide" tool_tip="Devolver objetos em todas as regiões que constituem esta propriedade"/>
+	<button label="Devolver" name="return_btn"/>
+	<button label="Principais colidentes..." name="top_colliders_btn" tool_tip="Lista dos objetos com maior potencial de colisão" width="280"/>
 	<button label="?" left="297" name="top_colliders_help"/>
-	<button label="Pegar Principais Scripts..." name="top_scripts_btn" tool_tip="Lista de objetos gastando mais tempo rodando scripts" width="280"/>
+	<button label="Principais scripts..." name="top_scripts_btn" tool_tip="Lista de objetos que mais passam tempo executando scripts" width="280"/>
 	<button label="?" left="297" name="top_scripts_help"/>
-	<button label="Reiniciar a Região" name="restart_btn" tool_tip="Dar 2 minutos de contagem regressiva e reiniciar a região"/>
+	<button label="Reiniciar a região" name="restart_btn" tool_tip="Após 2 minutos de contagem regressiva, reiniciar a região"/>
 	<button label="?" name="restart_help"/>
-	<button label="Atrasar o Reinicio" name="cancel_restart_btn" tool_tip="Atrasar o reinicio da região por uma hora"/>
+	<button label="Adiar reinício" name="cancel_restart_btn" tool_tip="Adiar o reinício da região por uma hora"/>
 </panel>

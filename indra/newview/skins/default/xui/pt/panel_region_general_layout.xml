@@ -18,12 +18,12 @@
 	<text name="region_type">
 		(Desconhecido)
 	</text>
-	<check_box label="Bloquear terraplanagem" name="block_terraform_check"/>
+	<check_box label="Bloquear terraplanagens" name="block_terraform_check"/>
 	<check_box label="Bloquear voos" name="block_fly_check"/>
 	<check_box label="Permitir danos" name="allow_damage_check"/>
 	<check_box label="Limitar empurrões" name="restrict_pushobject"/>
 	<check_box label="Permitir revenda de terrenos" name="allow_land_resell_check"/>
-	<check_box label="Permitir junção e divisão de terrenos" name="allow_parcel_changes_check"/>
+	<check_box label="Permitir união e divisão de terrenos" name="allow_parcel_changes_check"/>
 	<check_box label="Não mostrar nos resultados de pesquisa" name="block_parcel_search_check" tool_tip="Mostrar esta região e lotes nos resultados de pesquisa"/>
 	<spinner label="Limite do agente" name="agent_limit_spin"/>
 	<spinner label="Bônus do objeto" name="object_bonus_spin"/>

@@ -267,6 +267,8 @@ protected:
 	virtual BOOL isItemPermissive() const;
 	static void buildDisplayName(LLInventoryItem* item, std::string& name);
 	mutable std::string mDisplayName;
+
+	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
 };
 
 class LLFolderBridge : public LLInvFVBridge

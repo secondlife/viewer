@@ -145,8 +145,6 @@ BOOL LLPanelGroupRoles::postBuild()
 			llwarns << "Invalid subtab panel: " << panel->getName() << llendl;
 			return FALSE;
 		}
-		// Add click callbacks to all the tabs.
-		mSubTabContainer->setCommitCallback(boost::bind(&LLPanelGroupRoles::handleClickSubTab, this));
 
 		// Hand the subtab a pointer to this LLPanelGroupRoles, so that it can
 		// look around for the widgets it is interested in.
@@ -155,6 +153,8 @@ BOOL LLPanelGroupRoles::postBuild()
 
 		//subtabp->addObserver(this);
 	}
+	// Add click callbacks to all the tabs.
+	mSubTabContainer->setCommitCallback(boost::bind(&LLPanelGroupRoles::handleClickSubTab, this));
 
 	// Set the current tab to whatever is currently being shown.
 	mCurrentTab = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();

@@ -77,11 +77,16 @@ const U64 ALL_ITEMS_MASK = WEARABLE_MASK | ATTACHMENT_MASK;
 static const std::string SAVE_BTN("save_btn");
 static const std::string REVERT_BTN("revert_btn");
 
-class LLInventoryLookObserver : public LLInventoryObserver
+class LLCOFObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryLookObserver(LLPanelOutfitEdit *panel) : mPanel(panel) {}
-	virtual ~LLInventoryLookObserver() 
+	LLCOFObserver(LLPanelOutfitEdit *panel) : mPanel(panel), 
+		mCOFLastVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
+	{
+		gInventory.addObserver(this);
+	}
+
+	virtual ~LLCOFObserver()
 	{
 		if (gInventory.containsObserver(this))
 		{
@@ -91,51 +96,43 @@ public:
 	
 	virtual void changed(U32 mask)
 	{
-		if (mask & (LLInventoryObserver::ADD | LLInventoryObserver::REMOVE))
-		{
-			mPanel->updateLookInfo();
-		}
+		if (!gInventory.isInventoryUsable()) return;
+	
+		LLUUID cof = LLAppearanceMgr::getInstance()->getCOF();
+		if (cof.isNull()) return;
+
+		LLViewerInventoryCategory* cat = gInventory.getCategory(cof);
+		if (!cat) return;
+
+		S32 cof_version = cat->getVersion();
+
+		if (cof_version == mCOFLastVersion) return;
+
+		mCOFLastVersion = cof_version;
+
+		mPanel->update();
 	}
+
 protected:
 	LLPanelOutfitEdit *mPanel;
-};
 
-class LLLookFetchObserver : public LLInventoryFetchDescendentsObserver
-{
-public:
-	LLLookFetchObserver(LLPanelOutfitEdit *panel) :
-	mPanel(panel)
-	{}
-	LLLookFetchObserver() {}
-	virtual void done()
-	{
-		mPanel->lookFetched();
-		if(gInventory.containsObserver(this))
-		{
-			gInventory.removeObserver(this);
-		}
-	}
-private:
-	LLPanelOutfitEdit *mPanel;
+	//last version number of a COF category
+	S32 mCOFLastVersion;
 };
 
 
 
 LLPanelOutfitEdit::LLPanelOutfitEdit()
 :	LLPanel(), 
-	mCurrentOutfitID(),
-	mFetchLook(NULL),
 	mSearchFilter(NULL),
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
-	mLookObserver(NULL)
+	mCOFObserver(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
 	
-	mFetchLook = new LLLookFetchObserver(this);
-	mLookObserver = new LLInventoryLookObserver(this);
-	gInventory.addObserver(mLookObserver);
+	mCOFObserver = new LLCOFObserver(this);
 	
 	mLookItemTypes.reserve(NUM_LOOK_ITEM_TYPES);
 	for (U32 i = 0; i < NUM_LOOK_ITEM_TYPES; i++)
@@ -149,17 +146,8 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 LLPanelOutfitEdit::~LLPanelOutfitEdit()
 {
 	delete mSavedFolderState;
-	if (gInventory.containsObserver(mFetchLook))
-	{
-		gInventory.removeObserver(mFetchLook);
-	}
-	delete mFetchLook;
-	
-	if (gInventory.containsObserver(mLookObserver))
-	{
-		gInventory.removeObserver(mLookObserver);
-	}
-	delete mLookObserver;
+
+	delete mCOFObserver;
 }
 
 BOOL LLPanelOutfitEdit::postBuild()
@@ -242,9 +230,6 @@ void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
 	
 	LLViewerInventoryItem* wearable_to_move = gInventory.getItem(item_id);
 	LLAppearanceMgr::getInstance()->moveWearable(wearable_to_move, closer_to_body);
-
-	//*TODO why not to listen to inventory?
-	updateLookInfo();
 }
 
 void LLPanelOutfitEdit::toggleAddWearablesPanel()
@@ -360,10 +345,7 @@ void LLPanelOutfitEdit::onAddToOutfitClicked(void)
 	LLFolderViewEventListener* listenerp  = curr_item->getListener();
 	if (!listenerp) return;
 
-	if (LLAppearanceMgr::getInstance()->wearItemOnAvatar(listenerp->getUUID()))
-	{
-		updateLookInfo();
-	}
+	LLAppearanceMgr::getInstance()->wearItemOnAvatar(listenerp->getUUID());
 }
 
 
@@ -372,8 +354,6 @@ void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
 	LLUUID id_to_remove = mCOFWearables->getSelectedUUID();
 	
 	LLAppearanceMgr::getInstance()->removeItemFromAvatar(id_to_remove);
-
-	updateLookInfo();
 }
 
 
@@ -465,32 +445,11 @@ void LLPanelOutfitEdit::onOutfitItemSelectionChange(void)
 	}
 }
 
-void LLPanelOutfitEdit::changed(U32 mask)
-{
-}
-
-void LLPanelOutfitEdit::lookFetched(void)
+void LLPanelOutfitEdit::update()
 {
 	mCOFWearables->refresh();
 
 	updateVerbs();
-}
-
-void LLPanelOutfitEdit::updateLookInfo()
-{	
-	if (getVisible())
-	{
-		mFetchLook->setFetchID(mCurrentOutfitID);
-		mFetchLook->startFetch();
-		if (mFetchLook->isFinished())
-		{
-			mFetchLook->done();
-		}
-		else
-		{
-			gInventory.addObserver(mFetchLook);
-		}
-	}
 }
 
 void LLPanelOutfitEdit::displayCurrentOutfit()
@@ -499,8 +458,6 @@ void LLPanelOutfitEdit::displayCurrentOutfit()
 	{
 		setVisible(TRUE);
 	}
-
-	mCurrentOutfitID = LLAppearanceMgr::getInstance()->getCOF();
 
 	std::string current_outfit_name;
 	if (LLAppearanceMgr::getInstance()->getBaseOutfitName(current_outfit_name))
@@ -512,12 +469,15 @@ void LLPanelOutfitEdit::displayCurrentOutfit()
 		mCurrentOutfitName->setText(getString("No Outfit"));
 	}
 
-	updateLookInfo();
+	update();
 }
 
 //private
 void LLPanelOutfitEdit::updateVerbs()
 {
+	//*TODO implement better handling of COF dirtiness
+	LLAppearanceMgr::getInstance()->updateIsDirty();
+
 	bool outfit_is_dirty = LLAppearanceMgr::getInstance()->isOutfitDirty();
 	
 	childSetEnabled(SAVE_BTN, outfit_is_dirty);
