@@ -53,7 +53,8 @@ void main()
 		discard;
 	}
 	
-	vec3 norm = normalize(texture2DRect(normalMap, frag.xy).xyz*2.0-1.0);
+	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
+	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	vec3 diff = texture2DRect(diffuseRect, frag.xy).rgb;
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;

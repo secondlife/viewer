@@ -137,5 +137,5 @@ void main()
 	
 	gl_FragData[0] = vec4(color.rgb, 0.5); // diffuse
 	gl_FragData[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
-	gl_FragData[2] = vec4(screenspacewavef*0.5+0.5, screenspacewavef.z*0.5); // normal, displace
+	gl_FragData[2] = vec4(screenspacewavef.xy*0.5+0.5, screenspacewavef.z, screenspacewavef.z*0.5); // normalxyz, displace
 }
