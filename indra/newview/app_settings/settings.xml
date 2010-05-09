@@ -3819,6 +3819,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+	<key>InventoryLinking</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable ability to create links to folders and items via "Paste as link".</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
     <key>InventorySortOrder</key>
     <map>
       <key>Comment</key>

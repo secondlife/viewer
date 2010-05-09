@@ -6,6 +6,7 @@
 	</menu>
 	<menu label="Hjælp" name="Help">
 		<menu_item_call label="[SECOND_LIFE] hjælp" name="Second Life Help"/>
+		<menu_item_call label="Om [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu_item_check label="Vis debug menu" name="Show Debug Menu"/>
 	<menu label="Debug" name="Debug">

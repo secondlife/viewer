@@ -2124,6 +2124,19 @@ Please enter a higher price.
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmItemDeleteHasLinks"
+   type="alertmodal">
+At least one of the items you has link items that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
+
+Are you sure you want to delete these items?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmObjectDeleteLock"
    type="alertmodal">
 At least one of the items you have selected is locked.

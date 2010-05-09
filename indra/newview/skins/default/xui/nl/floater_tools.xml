@@ -403,7 +403,7 @@
 			<text name="glow label">
 				Gloed
 			</text>
-			<check_box label="Volledige &#10;helderheid" name="checkbox fullbright" bottom_delta="-21"/>
+			<check_box label="Volledige helderheid" name="checkbox fullbright"/>
 			<text name="tex gen">
 				Mapping
 			</text>
