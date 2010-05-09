@@ -129,7 +129,8 @@ void main()
 		shadow = min(sh[proj_shadow_idx]+shadow_fade, 1.0);
 	}
 	
-	vec3 norm = texture2DRect(normalMap, frag.xy).xyz*2.0-1.0;
+	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
+	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	
 	norm = normalize(norm);
 	float l_dist = -dot(lv, proj_n);

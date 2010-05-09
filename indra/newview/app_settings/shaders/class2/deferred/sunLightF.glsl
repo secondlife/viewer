@@ -104,8 +104,9 @@ void main()
 	vec4 pos = getPosition(pos_screen);
 	
 	vec4 nmap4 = texture2DRect(normalMap, pos_screen);
+	nmap4 = vec4((nmap4.xy-0.5)*2.0,nmap4.z,nmap4.w); // unpack norm
 	float displace = nmap4.w;
-	vec3 norm = nmap4.xyz*2.0-1.0;
+	vec3 norm = nmap4.xyz;
 	
 	/*if (pos.z == 0.0) // do nothing for sky *FIX: REMOVE THIS IF/WHEN THE POSITION MAP IS BEING USED AS A STENCIL
 	{

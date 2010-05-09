@@ -259,7 +259,8 @@ void main()
 	vec2 tc = vary_fragcoord.xy;
 	float depth = texture2DRect(depthMap, tc.xy).a;
 	vec3 pos = getPosition_d(tc, depth).xyz;
-	vec3 norm = texture2DRect(normalMap, tc).xyz*2.0-1.0;
+	vec3 norm = texture2DRect(normalMap, tc).xyz;
+	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	//vec3 nz = texture2D(noiseMap, vary_fragcoord.xy/128.0).xyz;
 	
 	float da = max(dot(norm.xyz, vary_light.xyz), 0.0);
@@ -310,7 +311,8 @@ void main()
 				     texture2DRect(diffuseRect, ref2d + vec2(-checkoffset, 0.0)).rgb);
 		float refdepth = texture2DRect(depthMap, ref2d).a;
 		vec3 refpos = getPosition_d(ref2d, refdepth).xyz;
-		vec3 refn = normalize(texture2DRect(normalMap, ref2d).rgb * 2.0 - 1.0);
+		vec3 refn = texture2DRect(normalMap, ref2d).rgb;
+		refn = normalize(vec3((refn.xy-0.5)*2.0,refn.z)); // unpack norm
 		// figure out how appropriate our guess actually was
 		float refapprop = max(0.0, dot(-refnorm, normalize(pos - refpos)));
 		// darken reflections from points which face away from the reflected ray - our guess was a back-face
