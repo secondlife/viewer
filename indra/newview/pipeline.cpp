@@ -635,7 +635,8 @@ void LLPipeline::updateRenderDeferred()
 			 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 			 gSavedSettings.getBOOL("VertexShaderEnable") && 
 			 gSavedSettings.getBOOL("RenderAvatarVP") &&
-			 gSavedSettings.getBOOL("WindLightUseAtmosShaders")) ? TRUE : FALSE;
+			 (gSavedSettings.getBOOL("WindLightUseAtmosShaders")) ? TRUE : FALSE) &&
+		!gUseWireframe;
 	
 	sRenderDeferred = deferred;			
 }
@@ -6571,12 +6572,12 @@ void LLPipeline::renderDeferredLighting()
 		if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 2)
 		{
 			mDeferredLight[1].bindTarget();
-			mDeferredLight[1].clear(GL_COLOR_BUFFER_BIT);
+			// clear color buffer here?  doesn't seem to matter.
 		}
 		else
 		{
 			mScreen.bindTarget();
-			mScreen.clear(GL_COLOR_BUFFER_BIT);
+			// clear color buffer here?  doesn't seem to matter.
 		}
 
 		if (gSavedSettings.getBOOL("RenderDeferredAtmospheric"))
