@@ -165,6 +165,7 @@ void LLTexUnit::enable(eTextureType type)
 	if ( (mCurrTexType != type || gGL.mDirty) && (type != TT_NONE) )
 	{
 		activate();
+
 		if (mCurrTexType != TT_NONE && !gGL.mDirty)
 		{
 			disable(); // Force a disable of a previous texture type if it's enabled.

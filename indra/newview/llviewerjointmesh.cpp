@@ -516,6 +516,8 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 
 	U32 triangle_count = 0;
 
+	S32 diffuse_channel = LLDrawPoolAvatar::sDiffuseChannel;
+
 	stop_glerror();
 	
 	//----------------------------------------------------------------
@@ -541,7 +543,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	LLTexUnit::eTextureAddressMode old_mode = LLTexUnit::TAM_WRAP;
 	if (mTestImageName)
 	{
-		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTestImageName);
+		gGL.getTexUnit(diffuse_channel)->bindManual(LLTexUnit::TT_TEXTURE, mTestImageName);
 
 		if (mIsTransparent)
 		{
@@ -550,18 +552,18 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		else
 		{
 			glColor4f(0.7f, 0.6f, 0.3f, 1.f);
-			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_LERP_TEX_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
+			gGL.getTexUnit(diffuse_channel)->setTextureColorBlend(LLTexUnit::TBO_LERP_TEX_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
 		}
 	}
 	else if( !is_dummy && mLayerSet )
 	{
 		if(	mLayerSet->hasComposite() )
 		{
-			gGL.getTexUnit(0)->bind(mLayerSet->getComposite());
+			gGL.getTexUnit(diffuse_channel)->bind(mLayerSet->getComposite());
 		}
 		else
 		{
-			gGL.getTexUnit(0)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
+			gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 		}
 	}
 	else
@@ -571,25 +573,25 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		{
 			old_mode = mTexture->getAddressMode();
 		}
-		gGL.getTexUnit(0)->bind(mTexture.get());
-		gGL.getTexUnit(0)->bind(mTexture);
-		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+		gGL.getTexUnit(diffuse_channel)->bind(mTexture.get());
+		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
+		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
 	{
-		gGL.getTexUnit(0)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
+		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 	}
 	
 	if (gRenderForSelect)
 	{
 		if (isTransparent())
 		{
-			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
-			gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_CONST_ALPHA);
+			gGL.getTexUnit(diffuse_channel)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+			gGL.getTexUnit(diffuse_channel)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_CONST_ALPHA);
 		}
 		else
 		{
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
 		}
 	}
 	
@@ -626,13 +628,13 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	
 	if (mTestImageName)
 	{
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		gGL.getTexUnit(diffuse_channel)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 
 	if (mTexture.notNull() && !is_dummy)
 	{
-		gGL.getTexUnit(0)->bind(mTexture);
-		gGL.getTexUnit(0)->setTextureAddressMode(old_mode);
+		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
+		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(old_mode);
 	}
 
 	return triangle_count;

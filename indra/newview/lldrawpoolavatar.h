@@ -1,4 +1,4 @@
-/** 
+ /** 
  * @file lldrawpoolavatar.h
  * @brief LLDrawPoolAvatar class definition
  *
@@ -205,6 +205,8 @@ public:
 
 	static BOOL sSkipOpaque;
 	static BOOL sSkipTransparent;
+	static S32 sDiffuseChannel;
+
 	static LLGLSLShader* sVertexProgram;
 };
 
