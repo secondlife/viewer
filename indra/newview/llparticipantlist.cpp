@@ -95,7 +95,7 @@ public:
 	void onChange()
 	{
 		uuid_set_t participant_uuids;
-		LLVoiceClient::getInstance()->getParticipantsUUIDSet(participant_uuids);
+		LLVoiceClient::getInstance()->getParticipantList(participant_uuids);
 
 
 		// check whether Avaline caller exists among voice participants
@@ -558,9 +558,8 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 	}
 	else
 	{
-		LLVoiceClient::participantState *participant = LLVoiceClient::getInstance()->findParticipantByID(avatar_id);
-
-		mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), participant ? participant->mAccountName : LLTrans::getString("AvatarNameWaiting"));
+		std::string display_name = LLVoiceClient::getInstance()->getDisplayName(avatar_id);
+		mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), display_name.empty() ? display_name : LLTrans::getString("AvatarNameWaiting"));
 		mAvalineUpdater->watchAvalineCaller(avatar_id);
 	}
 	adjustParticipant(avatar_id);
@@ -855,7 +854,7 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	else if (item == "can_call")
 	{
 		bool not_agent = mUUIDs.front() != gAgentID;
-		bool can_call = not_agent && LLVoiceClient::voiceEnabled() && LLVoiceClient::getInstance()->voiceWorking();
+		bool can_call = not_agent &&  LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 		return can_call;
 	}
 
