@@ -144,7 +144,6 @@ public:
 
 protected:
 	// Accessed by LLTextureCacheWorker
-	bool updateTextureEntryList(const LLUUID& id, S32 size);
 	std::string getLocalFileName(const LLUUID& id);
 	std::string getTextureFileName(const LLUUID& id);
 	void addCompleted(Responder* responder, bool success);
@@ -162,7 +161,7 @@ private:
 	void readEntriesHeader();
 	void writeEntriesHeader();
 	S32 openAndReadEntry(const LLUUID& id, Entry& entry, bool create);
-	void updateEntry(S32 idx, Entry& entry, S32 new_image_size, S32 new_body_size);
+	bool updateEntry(S32 idx, Entry& entry, S32 new_image_size, S32 new_body_size);
 	void updateEntryTimeStamp(S32 idx, Entry& entry) ;
 	U32 openAndReadEntries(std::vector<Entry>& entries);
 	void writeEntriesAndClose(const std::vector<Entry>& entries);
@@ -170,8 +169,8 @@ private:
 	void writeEntryToHeaderImmediately(S32 idx, Entry& entry, bool write_header = false) ;
 	void removeEntry(S32 idx, Entry& entry, std::string& filename);
 	void removeCachedTexture(const LLUUID& id) ;
-	S32 getHeaderCacheEntry(const LLUUID& id, S32& imagesize);
-	S32 setHeaderCacheEntry(const LLUUID& id, S32 imagesize);
+	S32 getHeaderCacheEntry(const LLUUID& id, Entry& entry);
+	S32 setHeaderCacheEntry(const LLUUID& id, Entry& entry, S32 imagesize, S32 datasize);
 	void writeUpdatedEntries() ;
 	void updatedHeaderEntriesFile() ;
 	void lockHeaders() { mHeaderMutex.lock(); }
