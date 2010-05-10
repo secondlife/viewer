@@ -57,6 +57,7 @@ RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
+RenderUseFBO				1	1
 
 
 //
