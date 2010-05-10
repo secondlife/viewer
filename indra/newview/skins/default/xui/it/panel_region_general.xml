@@ -31,9 +31,9 @@
 		Categoria di accesso:
 	</text>
 	<icons_combo_box label="Mature" left="126" name="access_combo" width="74">
-		<icons_combo_box.item label="Adult" name="Adult" value="42"/>
-		<icons_combo_box.item label="Mature" name="Mature" value="21"/>
-		<icons_combo_box.item label="PG" name="PG" value="13"/>
+		<icons_combo_box.item label="Adulti" name="Adult" value="42"/>
+		<icons_combo_box.item label="Moderato" name="Mature" value="21"/>
+		<icons_combo_box.item label="Generale" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="Applica" name="apply_btn"/>
 	<button label="Teleport a casa un residente..." name="kick_btn"/>

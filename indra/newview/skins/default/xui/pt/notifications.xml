@@ -199,7 +199,7 @@ Convite outros membros dentro de 48 horas.
 Por favor, selecione um indivíduo para realizar a venda se o valor for 0 L$.
 	</notification>
 	<notification name="ConfirmLandSaleChange">
-		[LAND_SIZE] m² selecionados de terra estão sendo configurados para venda.
+		[LAND_SIZE] m² selecionados de terreno estão sendo configurados para venda.
 Seu preço de venda será  L$[SALE_PRICE] e está autorizado para venda para [NAME]. Gostaria de continuar a fazer essa alteração?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Continuar"/>
 	</notification>
@@ -211,24 +211,24 @@ O preço será L$[SALE_PRICE] e [NAME] pode comprar o terreno.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
-		Você tem certeza de que quer retornar todos os objetos compartilhados com o grupo &apos;[NAME]&apos; neste lote de terra, para o inventário do seu antigo Proprietário?
+		Tem certeza de que quer devolver todos os objetos compartilhados com o grupo &apos;[NAME]&apos; neste lote, para o inventário do seu antigo Proprietário?
 
 *AVISO* Isso irá deletar os objetos não transferíveis doados ao grupo!
 
 Objetos: [N]
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Retornar"/>
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Devolver"/>
 	</notification>
 	<notification name="ReturnObjectsOwnedByUser">
-		Você tem certeza de que deseja retornar todos os objetos do residente &apos;[NAME]&apos; neste lote para o inventário dele?
+		Você tem certeza de que deseja devolver todos os objetos do residente &apos;[NAME]&apos; neste lote para o inventário dele?
 
 Objetos: [N]
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Retornar"/>
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Devolver"/>
 	</notification>
 	<notification name="ReturnObjectsOwnedBySelf">
 		Você tem certeza de que deseja retornar todos os objetos de sua propriedade neste lote para seu inventário?
 
 Objetos: [N]
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Retornar"/>
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Devolver"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedBySelf">
 		Você tem certeza de que deseja retornar todos os objetos que NÃO são seus para o inventário de seus proprietários?
@@ -237,7 +237,7 @@ Objetos transferíveis doados ao grupo retornarão para seu proprietários.
 *AVISO* Isso fará com que os objetos não-transferíveis sejam deletados!
 
 Objetos: [N]
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Retornar"/>
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Devolver"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByUser">
 		Você tem certeza de que deseja retornar todos os objetos deste lote NÃO pertencentes a [NAME]  para o inventário do proprietário?
@@ -245,11 +245,11 @@ Objetos: [N]
 *AVISO* Esta ação irá apagar os objetos não transferíveis doados ao grupo!
 
 Objetos: [N]
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Retornar"/>
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Devolver"/>
 	</notification>
 	<notification name="ReturnAllTopObjects">
 		Você tem certeza de que deseja enviar todos os objetos listados de volta aos inventários de seus proprietários?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Retornar"/>
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Devolver"/>
 	</notification>
 	<notification name="DisableAllTopObjects">
 		Você tem certeza que deseja desativar todos os objetos desta região?
@@ -259,10 +259,10 @@ Objetos: [N]
 		Retornar os objetos deste lote que NÃO são compartilhados com o grupo [NAME] de volta para seus proprietários?
 
 Objetos: [N]
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Retornar"/>
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Devolver"/>
 	</notification>
 	<notification name="UnableToDisableOutsideScripts">
-		Não é possível desabilitar scripts externos.
+		Não é possível desativar scripts externos.
 Toda esta região possui dano habilitado.
 Scripts devem ser permitidos para fazer as armas funcionarem.
 	</notification>
@@ -301,7 +301,7 @@ Para colocar a mídia em só uma face, selecione Selecionar face e clique na fac
 		Você deve concordar com os Termos de Serviço para continuar a entrar no [SECOND_LIFE].
 	</notification>
 	<notification name="CouldNotPutOnOutfit">
-		Não foi possível vestir o conjunto. A pasta do conjunto não contém roupas, partes do corpo ou acessórios.
+		Não foi possível vestir o look. A pasta do look não contém roupas, partes do corpo ou acessórios.
 	</notification>
 	<notification name="CannotWearTrash">
 		Não é possível usar roupas ou partes do corpo que estão no lixo.
@@ -311,17 +311,17 @@ Para colocar a mídia em só uma face, selecione Selecionar face e clique na fac
 Ele ultrapassa o limite de anexos, de [MAX_ATTACHMENTS] objetos. Remova um objeto para poder anexar outro.
 	</notification>
 	<notification name="CannotWearInfoNotComplete">
-		Você não pode vestir este item porque ele ainda não carregou. Por favor, tente novamente em um minuto.
+		Você não pode vestir este item porque ele ainda não carregou. Tente novamente em um minuto.
 	</notification>
 	<notification name="MustHaveAccountToLogIn">
 		Oops! Alguma coisa foi deixada em branco.
 Você precisa entrar com ambos os Nome e Sobrenome do seu avatar.
 
-Você precisa de uma conta para entrar no [SECOND_LIFE]. Você gostaria de criar uma conta agora?
+Você precisa de uma conta para entrar no [SECOND_LIFE]. Você gostaria de abrir uma conta agora?
 		<url name="url">
 			https://join.secondlife.com/index.php?lang=pt-BR
 		</url>
-		<usetemplate name="okcancelbuttons" notext="Tentar novamente" yestext="Criar uma nova conta"/>
+		<usetemplate name="okcancelbuttons" notext="Tentar novamente" yestext="Abrir conta"/>
 	</notification>
 	<notification name="AddClassified">
 		Os anúncios serão publicados na seção &apos;Classificados&apos; das buscas e em [http://secondlife.com/community/classifieds secondlife.com] durante uma semana.
@@ -350,7 +350,7 @@ Tem certeza de que quer prosseguir?
 	</notification>
 	<notification name="DeleteAvatarPick">
 		Excluir destaque &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Delete"/>
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Apagar"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
 		Ir até a página web de enventos [SECOND_LIFE] ?
@@ -360,10 +360,10 @@ Tem certeza de que quer prosseguir?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ir à página"/>
 	</notification>
 	<notification name="SelectProposalToView">
-		Por favor, selecione uma proposta para visualizar.
+		Selecione uma proposta para visualizar.
 	</notification>
 	<notification name="SelectHistoryItemToView">
-		Por favor, selecione um item do histórico para exibí-lo.
+		Selecione um item do histórico para exibi-lo.
 	</notification>
 	<notification name="CacheWillClear">
 		O cache será limpo quando o [APP_NAME] for iniciado.
@@ -406,7 +406,7 @@ O objeto pode estar fora de alcance ou foi deletado.
 O objeto pode estar fora de alcance ou foi deletado.
 	</notification>
 	<notification name="SaveNotecardFailReason">
-		Houve um problema em salvar uma nota devido a seguinte razão: [REASON].  Por favor, tente salvar a nota novamente mais tarde.
+		Houve um problema em salvar uma nota devido a seguinte razão: [REASON]. Tente salvar a nota novamente mais tarde.
 	</notification>
 	<notification name="ScriptCannotUndo">
 		Não foi possível desfazer todas as mudanças na sua versão de script.
@@ -415,7 +415,7 @@ Gostaria de carregar a última versão salva?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="SaveScriptFailReason">
-		Houve um problema em salvar um script devido à seguinte razão: [REASON].  Por favor, tente salvar novamente o script mais tarde.
+		Houve um problema em salvar um script devido à seguinte razão: [REASON].  Tente salvar novamente o script mais tarde.
 	</notification>
 	<notification name="SaveScriptFailObjectNotFound">
 		Não foi possível salvar o script pois o objeto em que ele está não pôde ser encontrado.
@@ -500,15 +500,15 @@ Ele ou ela vai ficar temporariamente incapaz de se mover, usar o bate-papo ou in
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Descongelar" yestext="Congelar"/>
 	</notification>
 	<notification name="EjectAvatarFullname">
-		Ejetar [AVATAR_NAME] da sua terra?
+		Ejetar [AVATAR_NAME] do seu terreno?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Ejetar e Banir" yestext="Ejetar"/>
 	</notification>
 	<notification name="EjectAvatarNoBan">
-		Ejetar este avatar da sua terra?
+		Ejetar este avatar do seu terreno?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ejetar"/>
 	</notification>
 	<notification name="EjectAvatarFullnameNoBan">
-		Ejetar [AVATAR_NAME] da sua terra?
+		Ejetar [AVATAR_NAME] do seu terreno?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Ejetar"/>
 	</notification>
 	<notification name="EjectAvatarFromGroup">
@@ -519,7 +519,7 @@ Ele ou ela vai ficar temporariamente incapaz de se mover, usar o bate-papo ou in
 	</notification>
 	<notification name="AcquireErrorObjectSpan">
 		Erro de aquisição: Objetos criados em mais de uma região.
-Por favor, mova todos os objetos a serem adquiridos para uma mesma região.
+Mova todos os objetos a serem adquiridos para uma mesma região.
 	</notification>
 	<notification name="PromptGoToCurrencyPage">
 		[EXTRA]
@@ -766,29 +766,29 @@ Nenhum grupo selecionado.
 A região do terreno não pôde ser localizada.
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
-		Impossibilitado de passar a propriedade da terra:
-Selecionados vários lotes.
+		Não é possível doar o terreno:
+Vários lotes foram selecionados.
 
 Tente selecionar um único lote.
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
-		Impossibilitado de passar a propriedade da terra:
-Esperando pelo servidor informar de quem é a propriedade.
+		Não é possível doar o terreno:
+Esperando o servidor informar de quem é a propriedade.
 
 Por favor, tente novamente.
 	</notification>
 	<notification name="CannotDeedLandNoTransfer">
-		Não é possível transferir posse do terreno:
-A região [REGION] não permite transferência do terreno.
+		Não é possível doar o terreno:
+A região [REGION] não permite transferências de terreno.
 	</notification>
 	<notification name="CannotReleaseLandWatingForServer">
-		Impossibilitado de abandonar a terra:
+		Não é possível abandonar o terreno:
 Esperando o servidor atualizar as informações do lote.
 
 Tente novamente em alguns segundos.
 	</notification>
 	<notification name="CannotReleaseLandSelected">
-		Impossibilitado de abandonar a terra:
+		Não é possível abandonar o terreno:
 Você não é dono de todos os lotes selecionados.
 
 Por favor, selecione um único lote.
@@ -807,25 +807,25 @@ A região do terreno não pôde ser localizada.
 A região [REGION] não permite transferência de terreno.
 	</notification>
 	<notification name="CannotReleaseLandPartialSelection">
-		Impossibilitado de abandonar a terra:
-Você deve selecionar um lote inteiro para liberá-lo.
+		Não é possível abandonar o terreno:
+Selecione um lote inteiro e abra mão dele.
 
 Selecione um lote inteiro ou primeiro divida seu lote.
 	</notification>
 	<notification name="ReleaseLandWarning">
-		Você está para liberar [AREA] m² de terra.
-Liberando este terreno, o liberará de suas posses, mas não lhe concederá quaisquer L$.
+		Você está prestes a abrir mão de [AREA] m².
+Ao abrir mão deste terreno, ele deixa de ser uma propriedade. Note que você não receberá nenhum L$.
 
-Liberar esta terra?
+Abrir mão deste terreno?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Renunciar"/>
 	</notification>
 	<notification name="CannotDivideLandNothingSelected">
-		Impossibilitado de dividir a terra:
+		Não é possível dividir o terreno:
 
-Nenhum lote selecionado.
+Nenhum lote foi selecionado.
 	</notification>
 	<notification name="CannotDivideLandPartialSelection">
-		Impossibilitado de dividir a terra:
+		Não é possível dividir o terreno:
 
 Você selecionou um lote inteiro.
 Tente selecionar uma parte do lote.
@@ -841,34 +841,34 @@ Quer dividir o terreno?
 A região do terreno não pôde ser localizada.
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
-		Houve um problema ao processar a junção dos terrenos: 
+		Houve um problema ao processar a união dos terrenos: 
 A região do terreno não pôde ser localizada.
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
-		Não é possível unir terreno:
+		Não é possível unir os terrenos:
 Nenhum lote selecionado.
 	</notification>
 	<notification name="CannotJoinLandEntireParcelSelected">
-		Impossibilitado de unir a terra:
+		Não é possível unir os terrenos:
 Você selecionou apenas um lote.
 
 Selecione a terra através de ambos os lotes.
 	</notification>
 	<notification name="CannotJoinLandSelection">
-		Impossibilitado de unir a terra:
+		Não é possível unir os terrenos:
 Você deve selecionar mais de um lote.
 
-Selecione a terra através de ambos os lotes.
+Selecione terrenos localizados em dois lotes.
 	</notification>
 	<notification name="JoinLandWarning">
-		Unir esta terra vai criar um grande lote que envolve todos os lotes que intersectam o retângulo selecionado.
+		Unir os terrenos vai criar um grande lote, formado por todos os lotes que intersectam o retângulo selecionado.
 Você vai ter que redefinir nome e as opções do novo lote.
 
-Unir a terra?
+Unir os terrenos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Unir"/>
 	</notification>
 	<notification name="ConfirmNotecardSave">
-		Esta nota precisa ser salva antes do item ser copiado ou visualizado. Salvar nota?
+		Esta anotação precisa ser salva antes de o item ser copiado ou visualizado. Salvar anotação?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Salvar"/>
 	</notification>
 	<notification name="ConfirmItemCopy">
@@ -1027,24 +1027,23 @@ Tem certeza de que deseja pegar estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="CantBuyLandAcrossMultipleRegions">
-		Não foi possível comprar terreno, pois a seleção abrange várias regiões.
+		Não foi possível comprar o terreno, pois a seleção abrange várias regiões.
 
 Por favor, selecione uma área menor e tente novamente.
 	</notification>
 	<notification name="DeedLandToGroup">
-		Na transferência de propriedade deste lote, o grupo deverá ter e manter créditos suficientes de uso da terra.
-O preço de aquisição dos terrenos não é restituído ao o proprietário. Se uma parcela transferida é vendida, o preço de venda é dividido igualmente entre os membros do grupo.
+		No ato da doação deste lote, o grupo deverá ter e manter créditos suficientes para ter o terreno.
+O preço de aquisição dos terrenos não é restituído ao proprietário. Se uma parcela doada for vendida, o preço de venda é dividido igualmente entre os membros do grupo.
 
-Transferir propriedade de [AREA] m² de terra ao grupo &apos;[GROUP_NAME]&apos;?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Acionar"/>
+Doar [AREA] m² ao grupo &apos;[GROUP_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DeedLandToGroupWithContribution">
-		Na transferência de propriedade deste lote, o grupo deverá ter e manter créditos suficientes de uso da terra.
-A Transferência incluirá uma contribuição de terra simultanea para o grupo de &apos;[FIRST_NAME] [LAST_NAME]&apos;.
-O preço da compra não será restituído ao proprietário. Se um lote for vendido, o preço da venda será dividido igualmente entre os membros do grupo.
+		No ato da doação deste lote, o grupo deverá ter e manter créditos suficientes para ter o terreno. A doação inclui uma contribuição simultânea para o grupo de &apos;[FIRST_NAME] [LAST_NAME]&apos;.
+O preço de aquisição dos terrenos não é restituído ao proprietário. Se uma parcela doada for vendida, o preço de venda é dividido igualmente entre os membros do grupo.
 
-Transferir propriedade destes [AREA] m² de terreno para o grupo &apos;[GROUP_NAME]&apos;?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Acionar"/>
+Doar [AREA] m² para o grupo &apos;[GROUP_NAME]&apos;?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="DisplaySetToSafe">
 		Configurações de display foram ajustadas para níveis de segurança porque você especificou -- opção de segurança.
