@@ -836,6 +836,7 @@ void LLFolderViewItem::draw()
 	static LLUIColor sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
 	static LLUIColor sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemColor", DEFAULT_WHITE);
 	static LLUIColor sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
+	static LLUIColor sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
 	static LLUIColor sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
 
 	const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
@@ -965,6 +966,8 @@ void LLFolderViewItem::draw()
 	}
 
 	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
+	const LLViewerInventoryItem *item = getInventoryItem();
+	if (item && item->getIsLinkType()) color = sLinkColor;
 	if (in_library) color = sLibraryColor;
 
 	F32 right_x  = 0;
