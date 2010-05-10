@@ -49,7 +49,14 @@ class LLVoiceClientParticipantObserver
 {
 public:
 	virtual ~LLVoiceClientParticipantObserver() { }
-	virtual void onChange() = 0;
+	virtual void onParticipantsChanged() = 0;
+};
+
+class LLVoiceClientFontsObserver
+{
+public:
+	virtual ~LLVoiceClientFontsObserver() { }
+	virtual void onVoiceFontsChanged() = 0;
 };
 
 class LLVoiceClientStatusObserver
@@ -358,6 +365,8 @@ static	void updatePosition(void);
 			bool		mParticipantsChanged;
 			participantMap mParticipantsByURI;
 			participantUUIDMap mParticipantsByUUID;
+
+			LLUUID		mVoiceFontID;
 		};
 
 		participantState *findParticipantByID(const LLUUID& id);
@@ -429,8 +438,29 @@ static	void updatePosition(void);
 		void deleteAllAutoAcceptRules(void);
 		void addAutoAcceptRule(const std::string &autoAcceptMask, const std::string &autoAddAsBuddy);
 		void accountListBlockRulesResponse(int statusCode, const std::string &statusString);						
-		void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);						
-		
+		void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);
+
+		/////////////////////////////
+		// Voice Fonts
+		bool hasVoiceFonts() const { return !mVoiceFontMap.empty(); };
+		bool setVoiceFont(const LLUUID& id);
+		bool setVoiceFont(const std::string &session_handle, const LLUUID& id);
+		const LLUUID getVoiceFont();
+		const LLUUID getVoiceFont(const std::string &session_handle);
+
+		typedef std::multimap<const std::string*, const LLUUID*, stringMapComparitor> voice_font_list_t;
+
+		const voice_font_list_t &getVoiceFontList() const { return mVoiceFontList; };
+
+		void addVoiceFont(const S32 id,
+						  const std::string &name,
+						  const std::string &description,
+						  const std::string &expiration_date,
+						  const bool has_expired,
+						  const S32 font_type,
+						  const S32 font_status);
+		void accountGetSessionFontsResponse(int statusCode, const std::string &statusString);
+
 		/////////////////////////////
 		// session control messages
 		void connectorCreate();
@@ -452,12 +482,15 @@ static	void updatePosition(void);
 
 		void accountListBlockRulesSendMessage();
 		void accountListAutoAcceptRulesSendMessage();
-		
+
+		void accountGetSessionFontsSendMessage();
+
 		void sessionGroupCreateSendMessage();
 		void sessionCreateSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
 		void sessionGroupAddSessionSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
 		void sessionMediaConnectSendMessage(sessionState *session);		// just joins the audio session
 		void sessionTextConnectSendMessage(sessionState *session);		// just joins the text session
+		void sessionSetVoiceFontSendMessage(sessionState *session);
 		void sessionTerminateSendMessage(sessionState *session);
 		void sessionGroupTerminateSendMessage(sessionState *session);
 		void sessionMediaDisconnectSendMessage(sessionState *session);
@@ -475,6 +508,9 @@ static	void updatePosition(void);
 		void addObserver(LLVoiceClientParticipantObserver* observer);
 		void removeObserver(LLVoiceClientParticipantObserver* observer);
 
+		void addObserver(LLVoiceClientFontsObserver* observer);
+		void removeObserver(LLVoiceClientFontsObserver* observer);
+
 		void addObserver(LLVoiceClientStatusObserver* observer);
 		void removeObserver(LLVoiceClientStatusObserver* observer);
 
@@ -489,7 +525,7 @@ static	void updatePosition(void);
 
 		deviceList *getCaptureDevices();
 		deviceList *getRenderDevices();
-		
+
 		void setNonSpatialChannel(
 			const std::string &uri,
 			const std::string &credentials);
@@ -562,6 +598,8 @@ static	void updatePosition(void);
 			stateNeedsLogin,			// send login request
 			stateLoggingIn,				// waiting for account handle
 			stateLoggedIn,				// account handle received
+			stateVoiceFontsWait,		// Awaiting the list of voice fonts
+			stateVoiceFontsReceived,	// List of voice fonts received
 			stateCreatingSessionGroup,	// Creating the main session group
 			stateNoChannel,				// 
 			stateJoiningSession,		// waiting for session handle
@@ -662,7 +700,48 @@ static	void updatePosition(void);
 		bool mBlockRulesListReceived;
 		bool mAutoAcceptRulesListReceived;
 		buddyListMap mBuddyListMap;
-		
+
+		// Voice Fonts
+
+		S32 getVoiceFontIndex(const LLUUID& id) const;
+		void deleteAllVoiceFonts();
+
+		typedef enum e_voice_font_type
+		{
+			VOICE_FONT_TYPE_NONE = 0,
+			VOICE_FONT_TYPE_ROOT = 1,
+			VOICE_FONT_TYPE_USER = 2,
+			VOICE_FONT_TYPE_UNKNOWN
+		} EVoiceFontType;
+
+		typedef enum e_voice_font_status
+		{
+			VOICE_FONT_STATUS_NONE = 0,
+			VOICE_FONT_STATUS_FREE = 1,
+			VOICE_FONT_STATUS_NOT_FREE = 2,
+			VOICE_FONT_STATUS_UNKNOWN
+		} EVoiceFontStatus;
+
+		struct voiceFontEntry
+		{
+			voiceFontEntry(LLUUID& id);
+			~voiceFontEntry();
+
+			LLUUID		mID;
+			S32			mFontIndex;
+			std::string mName;
+			std::string mExpirationDate;
+			bool		mHasExpired;
+			S32			mFontType;
+			S32			mFontStatus;
+		};
+		typedef std::map<const LLUUID*, voiceFontEntry*, uuidMapComparitor> voice_font_map_t;
+
+		voice_font_map_t	mVoiceFontMap;
+		voice_font_list_t	mVoiceFontList;
+
+		// Audio devices
+
 		deviceList mCaptureDevices;
 		deviceList mRenderDevices;
 
@@ -674,8 +753,8 @@ static	void updatePosition(void);
 		// This should be called when the code detects we have changed parcels.
 		// It initiates the call to the server that gets the parcel channel.
 		void parcelChanged();
-		
-	void switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
+
+		void switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
 		void joinSession(sessionState *session);
 		
 static 	std::string nameFromAvatar(LLVOAvatar *avatar);
@@ -763,6 +842,11 @@ static	std::string nameFromsipURI(const std::string &uri);
 		observer_set_t mParticipantObservers;
 
 		void notifyParticipantObservers();
+
+		typedef std::set<LLVoiceClientFontsObserver*> voice_font_observer_set_t;
+		voice_font_observer_set_t mVoiceFontObservers;
+
+		void notifyVoiceFontObservers();
 
 		typedef std::set<LLVoiceClientStatusObserver*> status_observer_set_t;
 		status_observer_set_t mStatusObservers;

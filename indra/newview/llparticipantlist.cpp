@@ -92,7 +92,7 @@ public:
 		mAvalineCallers.insert(avaline_caller_id);
 	}
 
-	void onChange()
+	void onParticipantsChanged()
 	{
 		uuid_set_t participant_uuids;
 		LLVoiceClient::getInstance()->getParticipantsUUIDSet(participant_uuids);
