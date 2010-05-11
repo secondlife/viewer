@@ -214,6 +214,40 @@ with the same filename but different name
   <texture name="Inv_Underpants" file_name="icons/Inv_Underpants.png" preload="false" />
   <texture name="Inv_Undershirt" file_name="icons/Inv_Undershirt.png" preload="false" />
 
+  <texture name="Inv_Alpha_Link" file_name="icons/Inv_Alpha_Link.png" preload="false" />
+  <texture name="Inv_Animation_Link" file_name="icons/Inv_Animation_Link.png" preload="false" />
+  <texture name="Inv_BodyShape_Link" file_name="icons/Inv_BodyShape_Link.png" preload="false" />
+  <texture name="Inv_CallingCard_Link" file_name="icons/Inv_CallingCard_Link.png" preload="false" />
+  <texture name="Inv_Clothing_Link" file_name="icons/Inv_Clothing_Link.png" preload="false" />
+  <texture name="Inv_Eye_Link" file_name="icons/Inv_Eye_Link.png" preload="false" />
+  <texture name="Inv_FolderClosed_Link" file_name="icons/Inv_FolderClosed_Link.png" preload="false" />
+  <texture name="Inv_FolderOpen_Link" file_name="icons/Inv_FolderOpen_Link.png" preload="false" />
+  <texture name="Inv_Gesture_Link" file_name="icons/Inv_Gesture_Link.png" preload="false" />
+  <texture name="Inv_Gloves_Link" file_name="icons/Inv_Gloves_Link.png" preload="false" />
+  <texture name="Inv_Hair_Link" file_name="icons/Inv_Hair_Link.png" preload="false" />
+  <texture name="Inv_LinkItem_Link" file_name="icons/Inv_LinkItem_Link.png" preload="false" />
+  <texture name="Inv_LinkFolder_Link" file_name="icons/Inv_LinkFolder_Link.png" preload="false" />
+  <texture name="Inv_Jacket_Link" file_name="icons/Inv_Jacket_Link.png" preload="false" />
+  <texture name="Inv_LookFolderOpen_Link" file_name="icons/Inv_LookFolderOpen_Link.png" preload="false" />
+  <texture name="Inv_LookFolderClosed_Link" file_name="icons/Inv_LookFolderClosed_Link.png" preload="false" />
+  <texture name="Inv_Landmark_Link" file_name="icons/Inv_Landmark_Link.png" preload="false" />
+  <texture name="Inv_Notecard_Link" file_name="icons/Inv_Notecard_Link.png" preload="false" />
+  <texture name="Inv_Object_Link" file_name="icons/Inv_Object_Link.png" preload="false" />
+  <texture name="Inv_Object_Multi_Link" file_name="icons/Inv_Object_Multi_Link.png" preload="false" />
+  <texture name="Inv_Pants_Link" file_name="icons/Inv_Pants_Link.png" preload="false" />
+  <texture name="Inv_Script_Link" file_name="icons/Inv_Script_Link.png" preload="false" />
+  <texture name="Inv_Shirt_Link" file_name="icons/Inv_Shirt_Link.png" preload="false" />
+  <texture name="Inv_Shoe_Link" file_name="icons/Inv_Shoe_Link.png" preload="false" />
+  <texture name="Inv_Skin_Link" file_name="icons/Inv_Skin_Link.png" preload="false" />
+  <texture name="Inv_Skirt_Link" file_name="icons/Inv_Skirt_Link.png" preload="false" />
+  <texture name="Inv_Snapshot_Link" file_name="icons/Inv_Snapshot_Link.png" preload="false" />
+  <texture name="Inv_Socks_Link" file_name="icons/Inv_Socks_Link.png" preload="false" />
+  <texture name="Inv_Sound_Link" file_name="icons/Inv_Sound_Link.png" preload="false" />
+  <texture name="Inv_Tattoo_Link" file_name="icons/Inv_Tattoo_Link.png" preload="false" />
+  <texture name="Inv_Texture_Link" file_name="icons/Inv_Texture_Link.png" preload="false" />
+  <texture name="Inv_Underpants_Link" file_name="icons/Inv_Underpants_Link.png" preload="false" />
+  <texture name="Inv_Undershirt_Link" file_name="icons/Inv_Undershirt_Link.png" preload="false" />
+
   <texture name="Linden_Dollar_Alert" file_name="widgets/Linden_Dollar_Alert.png"/>
   <texture name="Linden_Dollar_Background" file_name="widgets/Linden_Dollar_Background.png"/>
 
