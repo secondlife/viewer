@@ -72,9 +72,9 @@ private:
 
 void LLVoiceCallCapResponder::error(U32 status, const std::string& reason)
 {
-	llwarns << "LLVoiceCallCapResponder::error("
+	LL_WARNS("Voice") << "LLVoiceCallCapResponder::error("
 		<< status << ": " << reason << ")"
-		<< llendl;
+		<< LL_ENDL;
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
 	if ( channelp )
 	{
@@ -104,8 +104,8 @@ void LLVoiceCallCapResponder::result(const LLSD& content)
 		LLSD::map_const_iterator iter;
 		for(iter = content.beginMap(); iter != content.endMap(); ++iter)
 		{
-			llinfos << "LLVoiceCallCapResponder::result got " 
-				<< iter->first << llendl;
+			LL_DEBUGS("Voice") << "LLVoiceCallCapResponder::result got " 
+				<< iter->first << LL_ENDL;
 		}
 
 		channelp->setChannelInfo(
@@ -131,10 +131,8 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& sess
 	{
 		// a voice channel already exists for this session id, so this instance will be orphaned
 		// the end result should simply be the failure to make voice calls
-		llwarns << "Duplicate voice channels registered for session_id " << session_id << llendl;
+		LL_WARNS("Voice") << "Duplicate voice channels registered for session_id " << session_id << LL_ENDL;
 	}
-
-	LLVoiceClient::getInstance()->addObserver(this);
 }
 
 LLVoiceChannel::~LLVoiceChannel()
@@ -142,7 +140,7 @@ LLVoiceChannel::~LLVoiceChannel()
 	// Must check instance exists here, the singleton MAY have already been destroyed.
 	if(LLVoiceClient::instanceExists())
 	{
-		LLVoiceClient::instance().removeObserver(this);
+		LLVoiceClient::getInstance()->removeObserver(this);
 	}
 	
 	sVoiceChannelMap.erase(mSessionID);
@@ -162,13 +160,13 @@ void LLVoiceChannel::setChannelInfo(
 		if (mURI.empty())
 		{
 			LLNotificationsUtil::add("VoiceChannelJoinFailed", mNotifyArgs);
-			llwarns << "Received empty URI for channel " << mSessionName << llendl;
+			LL_WARNS("Voice") << "Received empty URI for channel " << mSessionName << LL_ENDL;
 			deactivate();
 		}
 		else if (mCredentials.empty())
 		{
 			LLNotificationsUtil::add("VoiceChannelJoinFailed", mNotifyArgs);
-			llwarns << "Received empty credentials for channel " << mSessionName << llendl;
+			LL_WARNS("Voice") << "Received empty credentials for channel " << mSessionName << LL_ENDL;
 			deactivate();
 		}
 		else
@@ -283,13 +281,14 @@ void LLVoiceChannel::deactivate()
 		//Default mic is OFF when leaving voice calls
 		if (gSavedSettings.getBOOL("AutoDisengageMic") && 
 			sCurrentVoiceChannel == this &&
-			gVoiceClient->getUserPTTState())
+			LLVoiceClient::getInstance()->getUserPTTState())
 		{
 			gSavedSettings.setBOOL("PTTCurrentlyEnabled", true);
-			gVoiceClient->inputUserControlState(true);
+			LLVoiceClient::getInstance()->inputUserControlState(true);
 		}
 	}
-
+	LLVoiceClient::getInstance()->removeObserver(this);
+	
 	if (sCurrentVoiceChannel == this)
 	{
 		// default channel is proximal channel
@@ -329,7 +328,9 @@ void LLVoiceChannel::activate()
 	{
 		setState(STATE_CALL_STARTED);
 	}
-
+	
+	LLVoiceClient::getInstance()->addObserver(this);
+	
 	//do not send earlier, channel should be initialized, should not be in STATE_NO_CHANNEL_INFO state
 	sCurrentVoiceChannelChangedSignal(this->mSessionID);
 }
@@ -369,6 +370,11 @@ LLVoiceChannel* LLVoiceChannel::getChannelByURI(std::string uri)
 	{
 		return found_it->second;
 	}
+}
+
+LLVoiceChannel* LLVoiceChannel::getCurrentVoiceChannel()
+{
+	return sCurrentVoiceChannel;
 }
 
 void LLVoiceChannel::updateSessionID(const LLUUID& new_session_id)
@@ -422,7 +428,6 @@ void LLVoiceChannel::initClass()
 	sCurrentVoiceChannel = LLVoiceChannelProximal::getInstance();
 }
 
-
 //static 
 void LLVoiceChannel::suspend()
 {
@@ -438,7 +443,7 @@ void LLVoiceChannel::resume()
 {
 	if (sSuspended)
 	{
-		if (gVoiceClient->voiceEnabled())
+		if (LLVoiceClient::getInstance()->voiceEnabled())
 		{
 			if (sSuspendedVoiceChannel)
 			{
@@ -508,9 +513,9 @@ void LLVoiceChannelGroup::activate()
 #endif
 
 		//Mic default state is OFF on initiating/joining Ad-Hoc/Group calls
-		if (gVoiceClient->getUserPTTState() && gVoiceClient->getPTTIsToggle())
+		if (LLVoiceClient::getInstance()->getUserPTTState() && LLVoiceClient::getInstance()->getPTTIsToggle())
 		{
-			gVoiceClient->inputUserControlState(true);
+			LLVoiceClient::getInstance()->inputUserControlState(true);
 		}
 		
 	}
@@ -557,7 +562,7 @@ void LLVoiceChannelGroup::setChannelInfo(
 		else
 		{
 			//*TODO: notify user
-			llwarns << "Received invalid credentials for channel " << mSessionName << llendl;
+			LL_WARNS("Voice") << "Received invalid credentials for channel " << mSessionName << LL_ENDL;
 			deactivate();
 		}
 	}
@@ -656,7 +661,6 @@ void LLVoiceChannelGroup::setState(EState state)
 LLVoiceChannelProximal::LLVoiceChannelProximal() : 
 	LLVoiceChannel(LLUUID::null, LLStringUtil::null)
 {
-	activate();
 }
 
 BOOL LLVoiceChannelProximal::isActive()
@@ -668,13 +672,13 @@ void LLVoiceChannelProximal::activate()
 {
 	if (callStarted()) return;
 
-	LLVoiceChannel::activate();
-
-	if (callStarted())
+	if((LLVoiceChannel::sCurrentVoiceChannel != this) && (LLVoiceChannel::getState() == STATE_CONNECTED))
 	{
-		// this implicitly puts you back in the spatial channel
-		LLVoiceClient::getInstance()->leaveNonSpatialChannel();
+		// we're connected to a non-spatial channel, so disconnect.
+		LLVoiceClient::getInstance()->leaveNonSpatialChannel();	
 	}
+	LLVoiceChannel::activate();
+	
 }
 
 void LLVoiceChannelProximal::onChange(EStatusType type, const std::string &channelURI, bool proximal)
@@ -704,7 +708,7 @@ void LLVoiceChannelProximal::handleStatusChange(EStatusType status)
 		return;
 	case STATUS_VOICE_DISABLED:
 		//skip showing "Voice not available at your current location" when agent voice is disabled (EXT-4749)
-		if(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking())
+		if(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking())
 		{
 			//TODO: remove or redirect this call status notification
 //			LLCallInfoDialog::show("unavailable", mNotifyArgs);
@@ -764,7 +768,7 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID& session_id, const std::string
 
 void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 {
-	llinfos << "P2P CALL CHANNEL STATUS CHANGE: incoming=" << int(mReceivedCall) << " newstatus=" << LLVoiceClientStatusObserver::status2string(type) << " (mState=" << mState << ")" << llendl;
+	LL_INFOS("Voice") << "P2P CALL CHANNEL STATUS CHANGE: incoming=" << int(mReceivedCall) << " newstatus=" << LLVoiceClientStatusObserver::status2string(type) << " (mState=" << mState << ")" << LL_ENDL;
 
 	// status updates
 	switch(type)
@@ -838,9 +842,9 @@ void LLVoiceChannelP2P::activate()
 		LLRecentPeople::instance().add(mOtherUserID);
 
 		//Default mic is ON on initiating/joining P2P calls
-		if (!gVoiceClient->getUserPTTState() && gVoiceClient->getPTTIsToggle())
+		if (!LLVoiceClient::getInstance()->getUserPTTState() && LLVoiceClient::getInstance()->getPTTIsToggle())
 		{
-			gVoiceClient->inputUserControlState(true);
+			LLVoiceClient::getInstance()->inputUserControlState(true);
 		}
 	}
 }
@@ -903,7 +907,7 @@ void LLVoiceChannelP2P::setSessionHandle(const std::string& handle, const std::s
 
 void LLVoiceChannelP2P::setState(EState state)
 {
-	llinfos << "P2P CALL STATE CHANGE: incoming=" << int(mReceivedCall) << " oldstate=" << mState << " newstate=" << state << llendl;
+	LL_INFOS("Voice") << "P2P CALL STATE CHANGE: incoming=" << int(mReceivedCall) << " oldstate=" << mState << " newstate=" << state << LL_ENDL;
 
 	if (mReceivedCall) // incoming call
 	{

@@ -36,7 +36,7 @@
 #include "lldictionary.h"
 #include "llinventorydefines.h"
 #include "llui.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 
 struct IconEntry : public LLDictionaryEntry
 {
@@ -136,7 +136,7 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 			idx = (misc_flag != 0) ? ICONNAME_CALLINGCARD_ONLINE : ICONNAME_CALLINGCARD_OFFLINE;
 			break;
 		case LLAssetType::AT_LANDMARK:
-			idx = (misc_flag != 0) ? ICONNAME_LANDMARK_VISITED : idx = ICONNAME_LANDMARK;
+			idx = (misc_flag != 0) ? ICONNAME_LANDMARK_VISITED : ICONNAME_LANDMARK;
 			break;
 		case LLAssetType::AT_SCRIPT:
 		case LLAssetType::AT_LSL_TEXT:
@@ -182,6 +182,6 @@ const std::string& LLInventoryIcon::getIconName(EIconName idx, BOOL item_is_link
 
 LLInventoryIcon::EIconName LLInventoryIcon::assignWearableIcon(U32 misc_flag)
 {
-	const EWearableType wearable_type = EWearableType(LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK & misc_flag);
-	return LLWearableDictionary::instance().getIconName(wearable_type);
+	const LLWearableType::EType wearable_type = LLWearableType::EType(LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK & misc_flag);
+	return LLWearableType::getIconName(wearable_type);
 }

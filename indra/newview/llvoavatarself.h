@@ -272,8 +272,8 @@ protected:
  **/
 
 public:
-	/*virtual*/ BOOL	isWearingWearableType(EWearableType type) const;
-	void				wearableUpdated(EWearableType type, BOOL upload_result);
+	/*virtual*/ BOOL	isWearingWearableType(LLWearableType::EType type) const;
+	void				wearableUpdated(LLWearableType::EType type, BOOL upload_result);
 protected:
 	U32 getNumWearables(LLVOAvatarDefines::ETextureIndex i) const;
 
