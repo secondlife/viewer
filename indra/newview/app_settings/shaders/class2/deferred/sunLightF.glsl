@@ -77,6 +77,7 @@ float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc, float scl)
 
 float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl)
 {
+	stc.z += spot_shadow_offset;
 	stc.xyz /= stc.w;
 	stc.z += spot_shadow_bias*scl;
 	
@@ -182,7 +183,7 @@ void main()
 	gl_FragColor[0] = shadow;
 	gl_FragColor[1] = 1.0;
 	
-	spos.xyz = shadow_pos+offset*spot_shadow_offset;
+	spos = vec4(shadow_pos, 1.0);
 	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;
