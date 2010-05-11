@@ -160,17 +160,6 @@
              parameter="can_moderate_voice" />
         </menu_item_call>
         <menu_item_call
-         label="Mute everyone else"
-         layout="topleft"
-         name="ModerateVoiceMuteOthers">
-            <on_click
-             function="ParticipantList.ModerateVoice"
-             parameter="others" />
-            <on_enable
-             function="ParticipantList.EnableItem.Moderate"
-             parameter="can_moderate_voice" />
-        </menu_item_call>
-        <menu_item_call
          label="Unmute this participant"
          layout="topleft"
          name="ModerateVoiceUnMuteSelected">
@@ -182,12 +171,23 @@
              parameter="can_moderate_voice" />
         </menu_item_call>
         <menu_item_call
-         label="Unmute everyone else"
+         label="Mute everyone"
          layout="topleft"
-         name="ModerateVoiceUnMuteOthers">
+         name="ModerateVoiceMute">
             <on_click
              function="ParticipantList.ModerateVoice"
-             parameter="others" />
+             parameter="mute_all" />
+            <on_enable
+             function="ParticipantList.EnableItem.Moderate"
+             parameter="can_moderate_voice" />
+        </menu_item_call>
+        <menu_item_call
+         label="Unmute everyone"
+         layout="topleft"
+         name="ModerateVoiceUnmute">
+            <on_click
+             function="ParticipantList.ModerateVoice"
+             parameter="unmute_all" />
             <on_enable
              function="ParticipantList.EnableItem.Moderate"
              parameter="can_moderate_voice" />
