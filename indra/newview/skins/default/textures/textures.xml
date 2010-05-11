@@ -241,6 +241,10 @@ with the same filename but different name
   <texture name="Movement_Down_On" file_name="bottomtray/Movement_Down_On.png" preload="false" />
   <texture name="Movement_Forward_Off" file_name="bottomtray/Movement_Forward_Off.png" preload="false" />
   <texture name="Movement_Forward_On" file_name="bottomtray/Movement_Forward_On.png" preload="false" />
+  <texture name="Movement_Left_Off" file_name="bottomtray/Movement_Left_Off.png" preload="false" />
+  <texture name="Movement_Left_On" file_name="bottomtray/Movement_Left_On.png" preload="false" />
+  <texture name="Movement_Right_Off" file_name="bottomtray/Movement_Right_Off.png" preload="false" />
+  <texture name="Movement_Right_On" file_name="bottomtray/Movement_Right_On.png" preload="false" />
   <texture name="Movement_TurnLeft_Off" file_name="bottomtray/Movement_TurnLeft_Off.png" preload="false" />
   <texture name="Movement_TurnLeft_On" file_name="bottomtray/Movement_TurnLeft_On.png" preload="false" />
   <texture name="Movement_TurnRight_Off" file_name="bottomtray/Movement_TurnRight_Off.png" preload="false" />

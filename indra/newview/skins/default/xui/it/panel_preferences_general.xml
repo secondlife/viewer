@@ -20,20 +20,20 @@
 		(Richiede il riavvio)
 	</text>
 	<text name="maturity_desired_prompt">
-		Voglio accedere al contenuto di tipo:
+		Voglio accedere ai contenuti di tipo:
 	</text>
 	<text name="maturity_desired_textbox"/>
 	<combo_box name="maturity_desired_combobox">
-		<combo_box.item label="PG, Mature e Adult" name="Desired_Adult"/>
-		<combo_box.item label="PG e Mature" name="Desired_Mature"/>
-		<combo_box.item label="PG" name="Desired_PG"/>
+		<combo_box.item label="Generale, Moderato e Adulti" name="Desired_Adult"/>
+		<combo_box.item label="Generale e Moderato" name="Desired_Mature"/>
+		<combo_box.item label="Generale" name="Desired_PG"/>
 	</combo_box>
 	<text name="start_location_textbox">
 		Luogo di partenza:
 	</text>
 	<combo_box name="start_location_combo">
-		<combo_box.item label="Ultimo posto visitato" name="MyLastLocation" tool_tip="Vai nell&apos;ultimo posto visitato di default quando fai login."/>
-		<combo_box.item label="Casa mia" name="MyHome" tool_tip="Vai a casa di default quando fai login"/>
+		<combo_box.item label="Ultimo luogo visitato" name="MyLastLocation" tool_tip="Vai automaticamente all&apos;ultimo luogo visitato quando effettui l'accesso."/>
+		<combo_box.item label="Casa mia" name="MyHome" tool_tip="Vai automaticamente a casa quando effettui l'accesso"/>
 	</combo_box>
 	<check_box initial_value="true" label="Mostra con il login" name="show_location_checkbox"/>
 	<text name="name_tags_textbox">
