@@ -47,6 +47,7 @@ public:
 	virtual void onShowOnMap() = 0;
 	virtual void onShowProfile() = 0;
 	virtual void onTeleport() = 0;
+	virtual bool isSingleItemSelected() = 0;
 
 	bool isTabVisible(); // Check if parent TabContainer is visible.
 

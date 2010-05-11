@@ -673,12 +673,10 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 	if (is_muted)
 	{
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceMuteSelected", false);
-		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceMuteOthers", false);
 	}
 	else
 	{
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteSelected", false);
-		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteOthers", false);
 	}
 }
 
@@ -783,16 +781,17 @@ void LLParticipantList::LLParticipantListMenu::moderateVoice(const LLSD& userdat
 	if (!gAgent.getRegion()) return;
 
 	bool moderate_selected = userdata.asString() == "selected";
-	const LLUUID& selected_avatar_id = mUUIDs.front();
-	bool is_muted = isMuted(selected_avatar_id);
 
 	if (moderate_selected)
 	{
+		const LLUUID& selected_avatar_id = mUUIDs.front();
+		bool is_muted = isMuted(selected_avatar_id);
 		moderateVoiceParticipant(selected_avatar_id, is_muted);
 	}
 	else
 	{
-		moderateVoiceOtherParticipants(selected_avatar_id, is_muted);
+		bool unmute_all = userdata.asString() == "unmute_all";
+		moderateVoiceOtherParticipants(LLUUID::null, unmute_all);
 	}
 }
 
