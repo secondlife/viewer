@@ -240,7 +240,9 @@ public:
 	std::string getCPUFamilyName() const { return getInfo(eFamilyName, "Unknown").asString(); }
 	std::string getCPUBrandName() const { return getInfo(eBrandName, "Unknown").asString(); }
 
-	std::string getCPUFeatureDescription() const 
+	// This is virtual to support a different linux format.
+	// *NOTE:Mani - I didn't want to screw up server use of this data...
+	virtual std::string getCPUFeatureDescription() const 
 	{
 		std::ostringstream out;
 		out << std::endl << std::endl;
@@ -671,6 +673,7 @@ private:
 };
 
 #elif LL_LINUX
+const char CPUINFO_FILE[] = "/proc/cpuinfo";
 
 class LLProcessorInfoLinuxImpl : public LLProcessorInfoImpl
 {
@@ -820,6 +823,33 @@ private:
 	
 # endif // LL_X86
 	}
+
+	std::string getCPUFeatureDescription() const 
+	{
+		std::ostringstream s;
+
+		// *NOTE:Mani - This is for linux only.
+		LLFILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "rb");
+		if(cpuinfo)
+		{
+			char line[MAX_STRING];
+			memset(line, 0, MAX_STRING);
+			while(fgets(line, MAX_STRING, cpuinfo))
+			{
+				line[strlen(line)-1] = ' ';
+				s << line;
+				s << std::endl;
+			}
+			fclose(cpuinfo);
+			s << std::endl;
+		}
+		else
+		{
+			s << "Unable to collect processor information" << std::endl;
+		}
+		return s.str();
+	}
+		
 };
 
 
@@ -839,10 +869,12 @@ LLProcessorInfo::LLProcessorInfo() : mImpl(NULL)
 		static LLProcessorInfoDarwinImpl the_impl; 
 		mImpl = &the_impl;
 #else
-	#error "Unimplemented"
+		static LLProcessorInfoLinuxImpl the_impl; 
+		mImpl = &the_impl;		
 #endif // LL_MSVC
 	}
 }
+
 
 LLProcessorInfo::~LLProcessorInfo() {}
 F64 LLProcessorInfo::getCPUFrequency() const { return mImpl->getCPUFrequency(); }
