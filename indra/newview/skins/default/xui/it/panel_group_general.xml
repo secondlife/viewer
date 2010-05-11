@@ -50,8 +50,8 @@ Muovi il tuo mouse sopra le opzioni per maggiore aiuto.
 			<combo_item name="select_mature">
 				- Seleziona categoria di accesso -
 			</combo_item>
-			<combo_box.item label="Contenuto Mature" name="mature"/>
-			<combo_box.item label="Contenuto PG" name="pg"/>
+			<combo_box.item label="Contenuti di tipo Moderato" name="mature"/>
+			<combo_box.item label="Contenuti di tipo Generale" name="pg"/>
 		</combo_box>
 		<check_box initial_value="true" label="Mostra nella ricerca" name="show_in_group_list" tool_tip="Permetti alle persone di vedere questo gruppo nei risultati della ricerca"/>
 	</panel>

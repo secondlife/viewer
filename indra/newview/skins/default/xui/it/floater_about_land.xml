@@ -79,7 +79,7 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 				Categoria di accesso:
 			</text>
 			<text left="119" name="ContentRatingText">
-				Adult
+				Adulti
 			</text>
 			<text name="Owner:">
 				Proprietario:
@@ -139,10 +139,10 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 			<button label="Acquista il terreno..." label_selected="Acquista il terreno..." left="130" name="Buy Land..." width="125"/>
 			<button label="Informazioni script" name="Scripts..."/>
 			<button label="Acquista per il gruppo" name="Buy For Group..."/>
-			<button label="Compra pass..." label_selected="Compra pass..." left="130" name="Buy Pass..." tool_tip="Un pass ti da un accesso temporaneo in questo territorio." width="125"/>
+			<button label="Compra Pass..." label_selected="Compra Pass..." left="130" name="Buy Pass..." tool_tip="Un pass ti da un accesso temporaneo in questo territorio." width="125"/>
 			<button label="Abbandona la terra" name="Abandon Land..."/>
 			<button label="Reclama la terra" name="Reclaim Land..."/>
-			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere posseduta, con contenuto impostato, e non già messa in asta."/>
+			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere di proprietà, con contenuto impostato, e non già messa all'asta."/>
 		</panel>
 		<panel label="REGOLAMENTO" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -193,7 +193,7 @@ o suddivisa.
 				Categoria di accesso:
 			</text>
 			<text left="125" name="region_maturity_text">
-				Adult
+				Adulti
 			</text>
 			<text name="resellable_lbl">
 				Rivendita:
@@ -294,16 +294,16 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Questa opzione è disabilitata perchè tu non puoi modificare le opzioni di questo terreno.
 			</panel.string>
 			<panel.string name="mature_check_mature">
-				Contenuto Mature
+				Contenuto Moderato
 			</panel.string>
 			<panel.string name="mature_check_adult">
-				Contenuto Adult
+				Contenuto Adulti
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
-				Il contenuto o le informazioni del tuo terreno sono considerate Mature.
+				Il contenuto o le informazioni del tuo terreno sono considerate di tipo Moderato.
 			</panel.string>
 			<panel.string name="mature_check_adult_tooltip">
-				Il contenuto o le informazioni del tuo terreno sono considerate Adult.
+				Il contenuto o le informazioni del tuo terreno sono considerate di tipo per Adulti.
 			</panel.string>
 			<panel.string name="landing_point_none">
 				(nessuno)
@@ -343,10 +343,10 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<combo_box left="282" name="land category with adult" width="140">
 				<combo_box.item label="Tutte le categorie" name="item0"/>
 				<combo_box.item label="Luogo dei Linden" name="item1"/>
-				<combo_box.item label="Adult" name="item2"/>
-				<combo_box.item label="Arte &amp; Cultura" name="item3"/>
+				<combo_box.item label="Adulti" name="item2"/>
+				<combo_box.item label="Arte e cultura" name="item3"/>
 				<combo_box.item label="Affari" name="item4"/>
-				<combo_box.item label="Educazione" name="item5"/>
+				<combo_box.item label="Istruzione" name="item5"/>
 				<combo_box.item label="Gioco" name="item6"/>
 				<combo_box.item label="Divertimento" name="item7"/>
 				<combo_box.item label="Accoglienza nuovi residenti" name="item8"/>
@@ -369,7 +369,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				<combo_box.item label="Shopping" name="item11"/>
 				<combo_box.item label="Altro" name="item12"/>
 			</combo_box>
-			<check_box label="Contenuto Mature" name="MatureCheck" tool_tip=" "/>
+			<check_box label="Contenuti di tipo Moderato" name="MatureCheck" tool_tip=" "/>
 			<text name="Snapshot:">
 				Fotografia:
 			</text>

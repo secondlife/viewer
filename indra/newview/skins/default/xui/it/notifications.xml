@@ -341,7 +341,7 @@ Non ci sono rimborsi per la tariffa pagata.
 	<notification name="DeleteMedia">
 		Hai selezionato la cancellazione del media associato a questa faccia.
 Vuoi continuare?
-		<usetemplate ignoretext="Conferma prima di eliminare elemnti multimediali dall&apos;oggetto" name="okcancelignore" notext="No" yestext="Sì"/>
+		<usetemplate ignoretext="Conferma prima di eliminare elementi multimediali dall&apos;oggetto" name="okcancelignore" notext="No" yestext="Sì"/>
 	</notification>
 	<notification name="ClassifiedSave">
 		Salva le modifiche all&apos;annuncio [NAME]?
@@ -625,7 +625,7 @@ Attese [VALIDS]
 Riprova più tardi.
 	</notification>
 	<notification name="LandmarkCreated">
-		Hai aggiunto &quot;[LANDMARK_NAME]&quot; alla tua [FOLDER_NAME] cartella.
+		Hai aggiunto &quot;[LANDMARK_NAME]&quot; alla tua cartella [FOLDER_NAME].
 	</notification>
 	<notification name="LandmarkAlreadyExists">
 		Hai già il punto di riferimento di questo luogo.
@@ -1603,11 +1603,11 @@ Pubblica questo annuncio adesso per [AMOUNT]L$?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="SetClassifiedMature">
-		Queste inserzioni includono contenuto Mature?
+		Queste inserzioni includono contenuti di tipo Moderato?
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="SetGroupMature">
-		Questo gruppo include contenuto Mature?
+		Questo gruppo include contenuti di tipo Moderato?
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="No" yestext="Si"/>
 	</notification>
 	<notification label="Conferma il riavvio" name="ConfirmRestart">
@@ -1622,7 +1622,7 @@ Pubblica questo annuncio adesso per [AMOUNT]L$?
 			<button name="Cancel" text="Annulla"/>
 		</form>
 	</notification>
-	<notification label="Cambiato il contenuto Mature" name="RegionMaturityChange">
+	<notification label="Cambiato il contenuto Moderato" name="RegionMaturityChange">
 		La classificazione di questa regione è stata aggiornata.
 Un periodo di tempo è necessario prima che la modifica venga integrata nella mappa.
 
@@ -2092,7 +2092,7 @@ Prova a selezionare una parte di terreno più piccola.
 		Alcuni termini della ricerca sono stati esclusi a causa delle restrizioni di contenuto come esposto negli Standard della comunità.
 	</notification>
 	<notification name="NoContentToSearch">
-		Seleziona almeno un tipo di contenuto per la ricerca (PG, Mature, o Adult).
+		Seleziona almeno un tipo di contenuto per la ricerca (Generale, Moderato o Adulti).
 	</notification>
 	<notification name="GroupVote">
 		[NAME] ha proposto di votare su:
