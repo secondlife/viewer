@@ -534,9 +534,9 @@ set(viewer_SOURCE_FILES
     llwaterparammanager.cpp
     llwaterparamset.cpp
     llwearable.cpp
-    llwearabledictionary.cpp
     llwearableitemslist.cpp
     llwearablelist.cpp
+    llwearabletype.cpp
     llweb.cpp
     llwind.cpp
     llwlanimator.cpp
@@ -1045,9 +1045,9 @@ set(viewer_HEADER_FILES
     llwaterparammanager.h
     llwaterparamset.h
     llwearable.h
-    llwearabledictionary.h
     llwearableitemslist.h
     llwearablelist.h
+    llwearabletype.h
     llweb.h
     llwind.h
     llwindebug.h

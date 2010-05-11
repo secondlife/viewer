@@ -36,7 +36,7 @@
 #include "lldictionary.h"
 #include "llinventorydefines.h"
 #include "llui.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 
 struct IconEntry : public LLDictionaryEntry
 {

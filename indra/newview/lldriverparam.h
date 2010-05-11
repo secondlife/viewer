@@ -34,7 +34,7 @@
 #define LL_LLDRIVERPARAM_H
 
 #include "llviewervisualparam.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 
 class LLVOAvatar;
 class LLWearable;

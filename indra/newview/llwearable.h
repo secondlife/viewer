@@ -38,7 +38,7 @@
 #include "llpermissions.h"
 #include "llsaleinfo.h"
 #include "llassetstorage.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 #include "llfile.h"
 #include "lllocaltextureobject.h"
 

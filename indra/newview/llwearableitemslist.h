@@ -37,7 +37,7 @@
 // newview
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 
 /**
  * @class LLPanelWearableListItem

@@ -34,7 +34,7 @@
 #define LL_LLAGENTWEARABLESINITIALFETCH_H
 
 #include "llinventoryobserver.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 #include "lluuid.h"
 
 //--------------------------------------------------------------------

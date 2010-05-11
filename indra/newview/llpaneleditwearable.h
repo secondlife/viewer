@@ -36,7 +36,7 @@
 #include "llpanel.h"
 #include "llscrollingpanellist.h"
 #include "llmodaldialog.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 
 class LLWearable;
 class LLTextEditor;
