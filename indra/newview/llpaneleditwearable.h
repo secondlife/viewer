@@ -80,6 +80,8 @@ private:
 	void				onColorSwatchCommit(const LLUICtrl*);
 	void				onTexturePickerCommit(const LLUICtrl*);
 	void				updatePanelPickerControls(EWearableType type);
+	void				toggleTypeSpecificControls(EWearableType type);
+	void				updateTypeSpecificControls(EWearableType type);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;
@@ -91,6 +93,7 @@ private:
 
 	LLTextBox *mPanelTitle;
 	LLTextBox *mDescTitle;
+	LLTextBox *mTxtAvatarHeight;
 
 
 	// This text editor reference will change each time we edit a new wearable - 

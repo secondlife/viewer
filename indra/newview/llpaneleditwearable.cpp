@@ -635,6 +635,8 @@ BOOL LLPanelEditWearable::postBuild()
 	mPanelAlpha = getChild<LLPanel>("edit_alpha_panel");
 	mPanelTattoo = getChild<LLPanel>("edit_tattoo_panel");
 
+	mTxtAvatarHeight = mPanelShape->getChild<LLTextBox>("avatar_height");
+
 	mWearablePtr = NULL;
 
 	return TRUE;
@@ -661,7 +663,9 @@ void LLPanelEditWearable::draw()
 	updateVerbs();
 	if (getWearable())
 	{
-		updatePanelPickerControls(getWearable()->getType());
+		EWearableType type = getWearable()->getType();
+		updatePanelPickerControls(type);
+		updateTypeSpecificControls(type);
 	}
 
 	LLPanel::draw();
@@ -864,6 +868,9 @@ void LLPanelEditWearable::initializePanel()
 	// set name
 	mTextEditor->setText(mWearablePtr->getName());
 
+	// toggle wearable type-specific controls
+	toggleTypeSpecificControls(type);
+
 	// clear and rebuild visual param list
 	const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(type);
 	if (!wearable_entry)
@@ -920,6 +927,28 @@ void LLPanelEditWearable::initializePanel()
 	for_each_picker_ctrl_entry <LLTextureCtrl>     (getPanel(type), type, boost::bind(init_texture_ctrl, this, _1, _2));
 
 	updateVerbs();
+}
+
+void LLPanelEditWearable::toggleTypeSpecificControls(EWearableType type)
+{
+	// Toggle controls specific to shape editing panel.
+	{
+		bool is_shape = (type == WT_SHAPE);
+		childSetVisible("sex_radio", is_shape);
+		childSetVisible("female_icon", is_shape);
+		childSetVisible("male_icon", is_shape);
+	}
+}
+
+void LLPanelEditWearable::updateTypeSpecificControls(EWearableType type)
+{
+	// Update controls specific to shape editing panel.
+	if (type == WT_SHAPE)
+	{
+		// Update avatar height
+		std::string avatar_height_str = llformat("%.2f", gAgentAvatarp->mBodySize.mV[VZ]);
+		mTxtAvatarHeight->setTextArg("[HEIGHT]", avatar_height_str);
+	}
 }
 
 void LLPanelEditWearable::updateScrollingPanelUI()
