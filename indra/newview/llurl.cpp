@@ -286,5 +286,11 @@ const char * LLURL::getFullPath()
 	return(sReturnString);
 }
 
+const char * LLURL::getAuthority()
+{
+	strncpy(LLURL::sReturnString,mAuthority, LL_MAX_PATH -1);               /* Flawfinder: ignore */
+	LLURL::sReturnString[LL_MAX_PATH -1] = '\0';
+	return(sReturnString);
+}
 
 char LLURL::sReturnString[LL_MAX_PATH] = "";

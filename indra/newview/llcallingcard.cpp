@@ -700,6 +700,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 						args["FIRST"] = first;
 						args["LAST"] = last;
 					}
+
 				}
 			}
 			else
