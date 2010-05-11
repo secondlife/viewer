@@ -703,13 +703,13 @@
 		Controllare la tua fotocamera
 	</string>
 	<string name="SIM_ACCESS_PG">
-		PG
+		Generale
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		Mature
+		Moderato
 	</string>
 	<string name="SIM_ACCESS_ADULT">
-		Adult
+		Adulti
 	</string>
 	<string name="SIM_ACCESS_DOWN">
 		Offline

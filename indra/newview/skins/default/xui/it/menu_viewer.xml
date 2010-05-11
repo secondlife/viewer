@@ -30,7 +30,7 @@
 		<menu_item_check label="Mappa del mondo" name="World Map"/>
 		<menu_item_call label="Istantanea" name="Take Snapshot"/>
 		<menu_item_call label="Crea punto di riferimento per questo luogo" name="Create Landmark Here"/>
-		<menu label="Profilo del posto" name="Land">
+		<menu label="Profilo del luogo" name="Land">
 			<menu_item_call label="Profilo del luogo" name="Place Profile"/>
 			<menu_item_call label="Informazioni sui terreni" name="About Land"/>
 			<menu_item_call label="Regione/proprietà immobiliare" name="Region/Estate"/>
