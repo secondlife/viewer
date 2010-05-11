@@ -424,6 +424,9 @@
      name="InventoryItemLibraryColor"
      reference="EmphasisColor" />
     <color
+     name="InventoryItemLinkColor"
+     reference="LtGray_50" />
+    <color
      name="InventorySearchStatusColor"
      reference="EmphasisColor" />
     <color

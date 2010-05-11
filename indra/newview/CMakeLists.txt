@@ -255,6 +255,7 @@ set(viewer_SOURCE_FILES
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
+    llinventoryicon.cpp
     llinventoryitemslist.cpp
     llinventorymodel.cpp
     llinventorymodelbackgroundfetch.cpp
@@ -769,6 +770,7 @@ set(viewer_HEADER_FILES
     llinventoryclipboard.h
     llinventoryfilter.h
     llinventoryfunctions.h
+    llinventoryicon.h
     llinventoryitemslist.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h

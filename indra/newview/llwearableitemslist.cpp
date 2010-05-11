@@ -201,7 +201,7 @@ BOOL LLPanelDummyClothingListItem::postBuild()
 
 	addWidgetToRightSide("btn_add");
 
-	setIconImage(get_item_icon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
+	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
 	updateItem();
 
 	// Make it look loke clothing item - reserve space for 'delete' button
