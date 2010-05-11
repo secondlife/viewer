@@ -296,28 +296,23 @@ RenderUseImpostors			0	0
 list Intel_945GM			
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_945G
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_950
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_965
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
 UseOcclusion				0	0
-RenderUseImpostors			0	0
 
 list Intel_G33
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_G45
 WindLightUseAtmosShaders		0	0
