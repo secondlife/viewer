@@ -3558,7 +3558,7 @@ void LLAgent::sendAgentSetAppearance()
 		const ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
 
 		// if we're not wearing a skirt, we don't need the texture to be baked
-		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(WT_SKIRT))
+		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(LLWearableType::WT_SKIRT))
 		{
 			continue;
 		}
@@ -3581,8 +3581,8 @@ void LLAgent::sendAgentSetAppearance()
 			LLUUID hash;
 			for (U8 i=0; i < baked_dict->mWearables.size(); i++)
 			{
-				// EWearableType wearable_type = gBakedWearableMap[baked_index][wearable_num];
-				const EWearableType wearable_type = baked_dict->mWearables[i];
+				// LLWearableType::EType wearable_type = gBakedWearableMap[baked_index][wearable_num];
+				const LLWearableType::EType wearable_type = baked_dict->mWearables[i];
 				// MULTI-WEARABLE: fixed to 0th - extend to everything once messaging works.
 				const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,0);
 				if (wearable)

@@ -94,7 +94,7 @@ public:
 
 	void					setWearable(LLWearable *wearablep);
 	void					setAvatar(LLVOAvatar *avatarp);
-	void					updateCrossDrivenParams(EWearableType driven_type);
+	void					updateCrossDrivenParams(LLWearableType::EType driven_type);
 
 	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 

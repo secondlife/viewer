@@ -71,7 +71,7 @@ private:
 	void				showWearable(LLWearable* wearable, BOOL show);
 	void				initializePanel();
 	void				updateScrollingPanelUI();
-	LLPanel*			getPanel(EWearableType type);
+	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
 	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab);
 	// update bottom bar buttons ("Save", "Revert", etc)
@@ -79,7 +79,7 @@ private:
 
 	void				onColorSwatchCommit(const LLUICtrl*);
 	void				onTexturePickerCommit(const LLUICtrl*);
-	void				updatePanelPickerControls(EWearableType type);
+	void				updatePanelPickerControls(LLWearableType::EType type);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;

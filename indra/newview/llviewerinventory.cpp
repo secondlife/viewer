@@ -724,8 +724,8 @@ void LLViewerInventoryCategory::determineFolderType()
 				return;
 			if (item->isWearableType())
 			{
-				const EWearableType wearable_type = item->getWearableType();
-				const std::string& wearable_name = LLWearableDictionary::getTypeName(wearable_type);
+				const LLWearableType::EType wearable_type = item->getWearableType();
+				const std::string& wearable_name = LLWearableType::getTypeName(wearable_type);
 				U64 valid_folder_types = LLViewerFolderType::lookupValidFolderTypes(wearable_name);
 				folder_valid |= valid_folder_types;
 				folder_invalid |= ~valid_folder_types;
@@ -909,7 +909,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   const LLUUID& parent, const LLTransactionID& transaction_id,
 						   const std::string& name,
 						   const std::string& desc, LLAssetType::EType asset_type,
-						   LLInventoryType::EType inv_type, EWearableType wtype,
+						   LLInventoryType::EType inv_type, LLWearableType::EType wtype,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb)
 {
@@ -1196,10 +1196,10 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 	else
 	{
 		// Use for all clothing and body parts.  Adding new wearable types requires updating LLWearableDictionary.
-		EWearableType wearable_type = LLWearableDictionary::typeNameToType(type_name);
-		if (wearable_type >= WT_SHAPE && wearable_type < WT_COUNT)
+		LLWearableType::EType wearable_type = LLWearableType::typeNameToType(type_name);
+		if (wearable_type >= LLWearableType::WT_SHAPE && wearable_type < LLWearableType::WT_COUNT)
 		{
-			LLAssetType::EType asset_type = LLWearableDictionary::getAssetType(wearable_type);
+			LLAssetType::EType asset_type = LLWearableType::getAssetType(wearable_type);
 			LLFolderType::EType folder_type = LLFolderType::assetTypeToFolderType(asset_type);
 			const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(folder_type);
 			LLFolderBridge::createWearable(parent_id, wearable_type);
@@ -1537,14 +1537,14 @@ bool LLViewerInventoryItem::isWearableType() const
 	return (getInventoryType() == LLInventoryType::IT_WEARABLE);
 }
 
-EWearableType LLViewerInventoryItem::getWearableType() const
+LLWearableType::EType LLViewerInventoryItem::getWearableType() const
 {
 	if (!isWearableType())
 	{
 		llwarns << "item is not a wearable" << llendl;
-		return WT_INVALID;
+		return LLWearableType::WT_NONE;
 	}
-	return EWearableType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
+	return LLWearableType::EType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
 }
 
 

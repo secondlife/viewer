@@ -317,7 +317,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 {
 	if (!wearable)
 	{
-		wearable = gAgentWearables.getWearable(WT_SHAPE, 0);
+		wearable = gAgentWearables.getWearable(LLWearableType::WT_SHAPE, 0);
 	}
 	if (!mEditWearable || !wearable)
 	{
@@ -389,11 +389,11 @@ void LLSidepanelAppearance::fetchInventory()
 	mNewOutfitBtn->setEnabled(false);
 	uuid_vec_t ids;
 	LLUUID item_id;
-	for(S32 type = (S32)WT_SHAPE; type < (S32)WT_COUNT; ++type)
+	for(S32 type = (S32)LLWearableType::WT_SHAPE; type < (S32)LLWearableType::WT_COUNT; ++type)
 	{
-		for (U32 index = 0; index < gAgentWearables.getWearableCount((EWearableType)type); ++index)
+		for (U32 index = 0; index < gAgentWearables.getWearableCount((LLWearableType::EType)type); ++index)
 		{
-			item_id = gAgentWearables.getWearableItemID((EWearableType)type, index);
+			item_id = gAgentWearables.getWearableItemID((LLWearableType::EType)type, index);
 			if(item_id.notNull())
 			{
 				ids.push_back(item_id);

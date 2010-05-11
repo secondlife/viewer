@@ -534,7 +534,7 @@ void LLDriverParam::resetDrivenParams()
 	mDriven.reserve(getInfo()->mDrivenInfoList.size());
 }
 
-void LLDriverParam::updateCrossDrivenParams(EWearableType driven_type)
+void LLDriverParam::updateCrossDrivenParams(LLWearableType::EType driven_type)
 {
 	bool needs_update = (getWearableType()==driven_type);
 
@@ -551,7 +551,7 @@ void LLDriverParam::updateCrossDrivenParams(EWearableType driven_type)
 
 	if (needs_update)
 	{
-		EWearableType driver_type = (EWearableType)getWearableType();
+		LLWearableType::EType driver_type = (LLWearableType::EType)getWearableType();
 		
 		// If we've gotten here, we've added a new wearable of type "type"
 		// Thus this wearable needs to get updates from the driver wearable.

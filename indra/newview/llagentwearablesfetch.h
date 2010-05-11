@@ -53,10 +53,10 @@ public:
 
 	struct InitialWearableData
 	{
-		EWearableType mType;
+		LLWearableType::EType mType;
 		LLUUID mItemID;
 		LLUUID mAssetID;
-		InitialWearableData(EWearableType type, LLUUID& itemID, LLUUID& assetID) :
+		InitialWearableData(LLWearableType::EType type, LLUUID& itemID, LLUUID& assetID) :
 			mType(type),
 			mItemID(itemID),
 			mAssetID(assetID)

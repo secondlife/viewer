@@ -182,6 +182,6 @@ const std::string& LLInventoryIcon::getIconName(EIconName idx, BOOL item_is_link
 
 LLInventoryIcon::EIconName LLInventoryIcon::assignWearableIcon(U32 misc_flag)
 {
-	const EWearableType wearable_type = EWearableType(LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK & misc_flag);
-	return LLWearableDictionary::instance().getIconName(wearable_type);
+	const LLWearableType::EType wearable_type = LLWearableType::EType(LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK & misc_flag);
+	return LLWearableType::getIconName(wearable_type);
 }
