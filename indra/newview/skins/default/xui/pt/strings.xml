@@ -249,6 +249,9 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Fechar (Ctrl+W)
 	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		Fechar
+	</string>
 	<string name="BUTTON_RESTORE">
 		Restaurar
 	</string>
@@ -287,6 +290,9 @@
 	</string>
 	<string name="GroupNameNone">
 		(nenhum)
+	</string>
+	<string name="AvalineCaller">
+		Interlocutor Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Nenhum erro
@@ -883,7 +889,7 @@
 		Pressione ESC para retornar para visão do mundo
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Nenhum item correspondente foi encontrado no inventário.  Tente fazer uma [secondlife:///app/search/groups &quot;Busca&quot;].
+		Não encontrou o que procura? Tente fazer uma [secondlife:///app/search/groups Busca].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Arraste um marco para adicioná-lo aos seus favoritos.
@@ -1542,9 +1548,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		Não foi definido um contrato para essa Região. O terreno nesta região está sendo vendido pelo Proprietário, não pela Linden Lab. Favor contatar o Proprietário da região para detalhes de venda.
 	</string>
-	<string name="covenant_last_modified">
-		Última modificação:
-	</string>
+	<string name="covenant_last_modified" value="Última modificação:"/>
 	<string name="none_text" value="(nenhum)"/>
 	<string name="never_text" value="(nunca)"/>
 	<string name="GroupOwned">
@@ -3220,6 +3224,15 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="LocationCtrlComboBtnTooltip">
 		Histórico de localizações
 	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		Região Adulta
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		Região Moderada
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		Região em geral
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Atualização
 	</string>
@@ -3250,6 +3263,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 		Falha ao iniciar o visualizador
 	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME]: Entrada de itens rápida demais de [FROM_NAME], visualização automática suspensa por [TIME] segundos
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME]: Entrada de itens rápida demais, visualização automática suspensa por [TIME] segundos
+	</string>
 	<string name="IM_logging_string">
 		-- Log de mensagem instantânea habilitado --
 	</string>
@@ -3276,6 +3295,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="IM_moderator_label">
 		(Moderador)
+	</string>
+	<string name="answered_call">
+		Ligação atendida
 	</string>
 	<string name="started_call">
 		Iniciou uma ligação de voz
@@ -3358,11 +3380,17 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="unread_chat_multiple">
 		[SOURCES] disseram alguma coisa
 	</string>
+	<string name="session_initialization_timed_out_error">
+		A inicialização da sessão expirou
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] lhe pagou L$ [AMOUNT]
 	</string>
 	<string name="you_paid_ldollars">
 		You pagou L$[AMOUNT] por [REASON] a [NAME].
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		Você acaba de pagar L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		You pagou L$[AMOUNT] a [NAME].
@@ -3473,5 +3501,14 @@ Denunciar abuso
 	</string>
 	<string name="Contents">
 		Conteúdo
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		nenhum/nehum
+	</string>
+	<string name="texture_load_dimensions_error">
+		A imagem excede o limite [WIDTH]*[HEIGHT]
 	</string>
 </strings>

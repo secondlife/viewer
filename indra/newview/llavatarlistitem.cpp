@@ -119,8 +119,9 @@ S32 LLAvatarListItem::notifyParent(const LLSD& info)
 	if (info.has("visibility_changed"))
 	{
 		updateChildren();
+		return 1;
 	}
-	return 0;
+	return LLPanel::notifyParent(info);
 }
 
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
@@ -211,21 +212,25 @@ void LLAvatarListItem::setState(EItemState item_style)
 	mAvatarIcon->setColor(item_icon_color_map[item_style]);
 }
 
-void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes)
+void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes/* = false*/, bool is_resident/* = true*/)
 {
 	if (mAvatarId.notNull())
 		LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarId, this);
 
 	mAvatarId = id;
-	mAvatarIcon->setValue(id);
 	mSpeakingIndicator->setSpeakerId(id, session_id);
 
 	// We'll be notified on avatar online status changes
 	if (!ignore_status_changes && mAvatarId.notNull())
 		LLAvatarTracker::instance().addParticularFriendObserver(mAvatarId, this);
 
-	// Set avatar name.
-	gCacheName->get(id, false, boost::bind(&LLAvatarListItem::onNameCache, this, _2));
+	if (is_resident)
+	{
+		mAvatarIcon->setValue(id);
+
+		// Set avatar name.
+		gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2));
+	}
 }
 
 void LLAvatarListItem::showLastInteractionTime(bool show)
@@ -333,6 +338,9 @@ void LLAvatarListItem::setNameInternal(const std::string& name, const std::strin
 void LLAvatarListItem::onNameCache(const std::string& fullname)
 {
 	setName(fullname);
+
+	//requesting the list to resort
+	notifyParent(LLSD().with("sort", LLSD()));
 }
 
 // Convert given number of seconds to a string like "23 minutes", "15 hours" or "3 years",

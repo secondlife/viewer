@@ -2,6 +2,6 @@
 
 CFBundleName = "Second Life";
 
-CFBundleShortVersionString = "Second Life version 2.0.0.200030";
-CFBundleGetInfoString = "Second Life version 2.0.0.200030, Copyright 2004-2009 Linden Research, Inc.";
+CFBundleShortVersionString = "Second Life version 2.0.2.0";
+CFBundleGetInfoString = "Second Life version 2.0.2.0, Copyright 2004-2009 Linden Research, Inc.";
 

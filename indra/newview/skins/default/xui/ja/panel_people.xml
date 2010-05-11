@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray panel -->
 <panel label="人" name="people_panel">
-	<string name="no_people" value="誰もいません"/>
-	<string name="no_one_near" value="近くに誰もいません"/>
+	<string name="no_recent_people" value="最近交流した人はいません。 一緒に何かする仲間をお探しですか？ [secondlife:///app/search/people 検索] か [secondlife:///app/worldmap 世界地図] をお試しください。"/>
+	<string name="no_filtered_recent_people" value="お探しのものは見つかりましたか？ [secondlife:///app/search/people 検索] をお試しください。"/>
+	<string name="no_one_near" value="近くに誰もいません。 一緒に何かする仲間をお探しですか？ [secondlife:///app/search/people 検索] か [secondlife:///app/worldmap 世界地図] をお試しください。"/>
+	<string name="no_one_filtered_near" value="お探しのものは見つかりましたか？ [secondlife:///app/search/people 検索] をお試しください。"/>
 	<string name="no_friends_online" value="オンラインのフレンドはいません"/>
 	<string name="no_friends" value="フレンドはいません"/>
+	<string name="no_friends_msg">
+		友達を見つけるには、[secondlife:///app/search/people 検索] をするか、住人を右クリックしてフレンド登録してください。
+一緒に何かする仲間をお探しですか？ [secondlife:///app/worldmap 世界地図] をお試しください。
+	</string>
+	<string name="no_filtered_friends_msg">
+		お探しのものは見つかりましたか？ [secondlife:///app/search/people 検索] をお試しください。
+	</string>
 	<string name="people_filter_label" value="人をフィルター"/>
 	<string name="groups_filter_label" value="グループをフィルター"/>
-	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups 検索でグループを探してみますか？]"/>
-	<string name="no_groups_msg" value="[secondlife:///app/search/groups 入会するグループを探します。]"/>
+	<string name="no_filtered_groups_msg" value="お探しのものは見つかりましたか？ [secondlife:///app/search/groups 検索] をお試しください。"/>
+	<string name="no_groups_msg" value="グループをお探しですか？ [secondlife:///app/search/groups 検索] をお試しください。"/>
 	<filter_editor label="フィルター" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="近く" name="nearby_panel">
@@ -27,10 +36,6 @@
 				<button name="add_btn" tool_tip="フレンド登録を申し出ます"/>
 				<button name="del_btn" tool_tip="選択した人をフレンドリストから削除します"/>
 			</panel>
-			<text name="no_friends_msg">
-				フレンドを登録するには、[secondlife:///app/search/people グローバル検索] をするか、住人を右クリックしてください。
-誰か一緒に行動をする人をお探しの時は、[secondlife:///app/worldmap 地図をお試しださい]。
-			</text>
 		</panel>
 		<panel label="マイ グループ" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">

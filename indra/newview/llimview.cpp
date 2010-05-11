@@ -37,6 +37,7 @@
 #include "llavatarnamecache.h"	// IDEVO
 #include "llfloaterreg.h"
 #include "llfontgl.h"
+#include "llgl.h"
 #include "llrect.h"
 #include "llerror.h"
 #include "llbutton.h"
@@ -81,6 +82,9 @@ const static std::string ADHOC_NAME_SUFFIX(" Conference");
 const static std::string NEARBY_P2P_BY_OTHER("nearby_P2P_by_other");
 const static std::string NEARBY_P2P_BY_AGENT("nearby_P2P_by_agent");
 
+/** Timeout of outgoing session initialization (in seconds) */
+const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
+
 std::string LLCallDialogManager::sPreviousSessionlName = "";
 LLIMModel::LLIMSession::SType LLCallDialogManager::sPreviousSessionType = LLIMModel::LLIMSession::P2P_SESSION;
 std::string LLCallDialogManager::sCurrentSessionlName = "";
@@ -91,6 +95,19 @@ const LLUUID LLOutgoingCallDialog::OCD_KEY = LLUUID("7CF78E11-0CFE-498D-ADB9-141
 // Globals
 //
 LLIMMgr* gIMMgr = NULL;
+
+
+BOOL LLSessionTimeoutTimer::tick()
+{
+	if (mSessionId.isNull()) return TRUE;
+
+	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionId);
+	if (session && !session->mSessionInitialized)
+	{
+		gIMMgr->showSessionStartError("session_initialization_timed_out_error", mSessionId);
+	}
+	return TRUE;
+}
 
 void toast_callback(const LLSD& msg){
 	// do not show toast in busy mode or it goes from agent
@@ -147,7 +164,7 @@ LLIMModel::LLIMModel()
 	addNewMsgCallback(toast_callback);
 }
 
-LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const std::vector<LLUUID>& ids, bool voice)
+LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice)
 :	mSessionID(session_id),
 	mName(name),
 	mType(type),
@@ -215,6 +232,11 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 		//so we're already initialized
 		mSessionInitialized = true;
 	}
+	else
+	{
+		//tick returns TRUE - timer will be deleted after the tick
+		new LLSessionTimeoutTimer(mSessionID, SESSION_INITIALIZATION_TIMEOUT);
+	}
 
 	if (IM_NOTHING_SPECIAL == type)
 	{
@@ -236,9 +258,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
 void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction)
 {
-	std::string you = LLTrans::getString("You");
-	std::string started_call = LLTrans::getString("started_call");
-	std::string joined_call = LLTrans::getString("joined_call");
+	std::string you_joined_call = LLTrans::getString("you_joined_call");
+	std::string you_started_call = LLTrans::getString("you_started_call");
 	std::string other_avatar_name = "";
 
 	std::string message;
@@ -256,13 +277,15 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				message = other_avatar_name + " " + started_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
-				
-				break;
+				{
+					LLStringUtil::format_map_t string_args;
+					string_args["[NAME]"] = other_avatar_name;
+					message = LLTrans::getString("name_started_call", string_args);
+					LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);				
+					break;
+				}
 			case LLVoiceChannel::STATE_CONNECTED :
-				message = you + " " + joined_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, you_joined_call);
 			default:
 				break;
 			}
@@ -272,11 +295,10 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				message = you + " " + started_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, you_started_call);
 				break;
 			case LLVoiceChannel::STATE_CONNECTED :
-				message = other_avatar_name + " " + joined_call;
+				message = LLTrans::getString("answered_call");
 				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
 			default:
 				break;
@@ -291,8 +313,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CONNECTED :
-				message = you + " " + joined_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, you_joined_call);
 			default:
 				break;
 			}
@@ -302,8 +323,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 			switch(new_state)
 			{
 			case LLVoiceChannel::STATE_CALL_STARTED :
-				message = you + " " + started_call;
-				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, message);
+				LLIMModel::getInstance()->addMessage(mSessionID, SYSTEM_FROM, LLUUID::null, you_started_call);
 				break;
 			default:
 				break;
@@ -424,7 +444,7 @@ LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
 }
 
 //*TODO consider switching to using std::set instead of std::list for holding LLUUIDs across the whole code
-LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const std::vector<LLUUID>& ids)
+LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
 {
 	S32 num = ids.size();
 	if (!num) return NULL;
@@ -441,7 +461,7 @@ LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const std::vector<LLUUID>&
 
 		std::list<LLUUID> tmp_list(session->mInitialTargetIDs.begin(), session->mInitialTargetIDs.end());
 
-		std::vector<LLUUID>::const_iterator iter = ids.begin();
+		uuid_vec_t::const_iterator iter = ids.begin();
 		while (iter != ids.end())
 		{
 			tmp_list.remove(*iter);
@@ -572,7 +592,7 @@ void LLIMModel::testMessages()
 
 //session name should not be empty
 bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, 
-						   const LLUUID& other_participant_id, const std::vector<LLUUID>& ids, bool voice)
+						   const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice)
 {
 	if (name.empty())
 	{
@@ -597,7 +617,7 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 
 bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, bool voice)
 {
-	std::vector<LLUUID> no_ids;
+	uuid_vec_t no_ids;
 	return newSession(session_id, name, type, other_participant_id, no_ids, voice);
 }
 
@@ -1003,7 +1023,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		}
 		else
 		{
-			for(std::vector<LLUUID>::iterator it = session->mInitialTargetIDs.begin();
+			for(uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();
 				it!=session->mInitialTargetIDs.end();++it)
 			{
 				const LLUUID id = *it;
@@ -1135,7 +1155,7 @@ private:
 bool LLIMModel::sendStartSession(
 	const LLUUID& temp_session_id,
 	const LLUUID& other_participant_id,
-	const std::vector<LLUUID>& ids,
+	const uuid_vec_t& ids,
 	EInstantMessage dialog)
 {
 	if ( dialog == IM_SESSION_GROUP_START )
@@ -1438,7 +1458,13 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 	}
 
 	sSession = session;
-	sSession->mVoiceChannel->setStateChangedCallback(boost::bind(LLCallDialogManager::onVoiceChannelStateChanged, _1, _2, _3, _4));
+
+	static boost::signals2::connection prev_channel_state_changed_connection;
+	// disconnect previously connected callback to avoid have invalid sSession in onVoiceChannelStateChanged()
+	prev_channel_state_changed_connection.disconnect();
+	prev_channel_state_changed_connection =
+		sSession->mVoiceChannel->setStateChangedCallback(boost::bind(LLCallDialogManager::onVoiceChannelStateChanged, _1, _2, _3, _4));
+
 	if(sCurrentSessionlName != session->mName)
 	{
 		sPreviousSessionlName = sCurrentSessionlName;
@@ -1539,6 +1565,11 @@ LLCallDialog::LLCallDialog(const LLSD& payload)
 	setDocked(true);
 }
 
+LLCallDialog::~LLCallDialog()
+{
+	LLUI::removePopup(this);
+}
+
 void LLCallDialog::getAllowedRect(LLRect& rect)
 {
 	rect = gViewerWindow->getWorldViewRectScaled();
@@ -1592,7 +1623,7 @@ void LLCallDialog::onOpen(const LLSD& key)
 	LLDockableFloater::onOpen(key);
 
 	// it should be over the all floaters. EXT-5116
-	gFloaterView->bringToFront(this, FALSE);
+	LLUI::addPopup(this);
 }
 
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
@@ -1687,7 +1718,6 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 			channel_name = LLTextUtil::formatPhoneNumber(channel_name);
 		}
 		childSetTextArg("nearby", "[VOICE_CHANNEL_NAME]", channel_name);
-		childSetTextArg("nearby_P2P_by_other", "[VOICE_CHANNEL_NAME]", mPayload["disconnected_channel_name"].asString());
 
 		// skipping "You will now be reconnected to nearby" in notification when call is ended by disabling voice,
 		// so no reconnection to nearby chat happens (EXT-4397)
@@ -1736,6 +1766,8 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 			getChild<LLTextBox>("leaving")->setVisible(true);
 		}
 		break;
+	// STATE_READY is here to show appropriate text for ad-hoc and group calls when floater is shown(EXT-6893)
+	case LLVoiceChannel::STATE_READY :
 	case LLVoiceChannel::STATE_RINGING :
 		if(show_oldchannel)
 		{
@@ -2048,8 +2080,9 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 				// send notification message to the corresponding chat 
 				if (mPayload["notify_box_type"].asString() == "VoiceInviteGroup" || mPayload["notify_box_type"].asString() == "VoiceInviteAdHoc")
 				{
-					std::string started_call = LLTrans::getString("started_call");
-					std::string message = mPayload["caller_name"].asString() + " " + started_call;
+					LLStringUtil::format_map_t string_args;
+					string_args["[NAME]"] = mPayload["caller_name"].asString();
+					std::string message = LLTrans::getString("name_started_call", string_args);
 					LLIMModel::getInstance()->addMessageSilently(session_id, SYSTEM_FROM, LLUUID::null, message);
 				}
 			}
@@ -2726,6 +2759,12 @@ bool LLIMMgr::endCall(const LLUUID& session_id)
 	if (!voice_channel) return false;
 
 	voice_channel->deactivate();
+	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
+	if (im_session)
+	{
+		// need to update speakers' state
+		im_session->mSpeakers->update(FALSE);
+	}
 	return true;
 }
 
@@ -3064,7 +3103,7 @@ public:
 				return;
 			}
 			
-			if(!LLVoiceClient::voiceEnabled())
+			if(!LLVoiceClient::voiceEnabled() || !LLVoiceClient::getInstance()->voiceWorking())
 			{
 				// Don't display voice invites unless the user has voice enabled.
 				return;

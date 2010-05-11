@@ -85,7 +85,7 @@ void LLSpeaker::onNameCache(const LLUUID& id, const std::string& full_name, bool
 
 bool LLSpeaker::isInVoiceChannel()
 {
-	return mStatus == LLSpeaker::STATUS_VOICE_ACTIVE || mStatus == LLSpeaker::STATUS_MUTED;
+	return mStatus <= LLSpeaker::STATUS_VOICE_ACTIVE || mStatus == LLSpeaker::STATUS_MUTED;
 }
 
 LLSpeakerUpdateModeratorEvent::LLSpeakerUpdateModeratorEvent(LLSpeaker* source)
@@ -880,7 +880,7 @@ void LLLocalSpeakerMgr::updateSpeakerList()
 	}
 
 	// pick up non-voice speakers in chat range
-	std::vector<LLUUID> avatar_ids;
+	uuid_vec_t avatar_ids;
 	std::vector<LLVector3d> positions;
 	LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgent.getPositionGlobal(), CHAT_NORMAL_RADIUS);
 	for(U32 i=0; i<avatar_ids.size(); i++)

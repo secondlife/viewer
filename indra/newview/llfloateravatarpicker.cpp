@@ -40,6 +40,8 @@
 #include "lldateutil.h"			// ageFromDate()
 #include "llfocusmgr.h"
 #include "llfloaterreg.h"
+#include "llimview.h"			// for gIMMgr
+#include "lltooldraganddrop.h"	// for LLToolDragAndDrop
 #include "llviewercontrol.h"
 #include "llviewerregion.h"		// getCapability()
 #include "llworld.h"
@@ -165,7 +167,7 @@ void LLFloaterAvatarPicker::onBtnFind()
 	find();
 }
 
-static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std::string>& avatar_names, std::vector<LLUUID>& avatar_ids)
+static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std::string>& avatar_names, uuid_vec_t& avatar_ids)
 {
 	std::vector<LLScrollListItem*> items = from->getAllSelected();
 	for (std::vector<LLScrollListItem*>::iterator iter = items.begin(); iter != items.end(); ++iter)
@@ -211,7 +213,7 @@ void LLFloaterAvatarPicker::onBtnSelect()
 		if(list)
 		{
 			std::vector<std::string>	avatar_names;
-			std::vector<LLUUID>			avatar_ids;
+			uuid_vec_t			avatar_ids;
 			getSelectedAvatarData(list, avatar_names, avatar_ids);
 			mSelectionCallback(avatar_names, avatar_ids);
 		}
@@ -255,7 +257,7 @@ void LLFloaterAvatarPicker::populateNearMe()
 	LLScrollListCtrl* near_me_scroller = getChild<LLScrollListCtrl>("NearMe");
 	near_me_scroller->deleteAllItems();
 
-	std::vector<LLUUID> avatar_ids;
+	uuid_vec_t avatar_ids;
 	LLWorld::getInstance()->getAvatars(&avatar_ids, NULL, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
 	for(U32 i=0; i<avatar_ids.size(); i++)
 	{
@@ -430,6 +432,68 @@ void LLFloaterAvatarPicker::setAllowMultiple(BOOL allow_multiple)
 	getChild<LLScrollListCtrl>("Friends")->setAllowMultipleSelection(allow_multiple);
 }
 
+LLScrollListCtrl* LLFloaterAvatarPicker::getActiveList()
+{
+	std::string acvtive_panel_name;
+	LLScrollListCtrl* list = NULL;
+	LLPanel* active_panel = childGetVisibleTab("ResidentChooserTabs");
+	if(active_panel)
+	{
+		acvtive_panel_name = active_panel->getName();
+	}
+	if(acvtive_panel_name == "SearchPanel")
+	{
+		list = getChild<LLScrollListCtrl>("SearchResults");
+	}
+	else if(acvtive_panel_name == "NearMePanel")
+	{
+		list = getChild<LLScrollListCtrl>("NearMe");
+	}
+	else if (acvtive_panel_name == "FriendsPanel")
+	{
+		list = getChild<LLScrollListCtrl>("Friends");
+	}
+	return list;
+}
+
+BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
+											  BOOL drop, EDragAndDropType cargo_type,
+											  void *cargo_data, EAcceptance *accept,
+											  std::string& tooltip_msg)
+{
+	LLScrollListCtrl* list = getActiveList();
+	if(list)
+	{
+		LLRect rc_list;
+		LLRect rc_point(x,y,x,y);
+		if (localRectToOtherView(rc_point, &rc_list, list))
+		{
+			// Keep selected only one item
+			list->deselectAllItems(TRUE);
+			list->selectItemAt(rc_list.mLeft, rc_list.mBottom, mask);
+			LLScrollListItem* selection = list->getFirstSelected();
+			if (selection)
+			{
+				LLUUID session_id = LLUUID::null;
+				LLUUID dest_agent_id = selection->getUUID();
+				std::string avatar_name = selection->getColumn(0)->getValue().asString();
+				if (dest_agent_id.notNull() && dest_agent_id != gAgentID)
+				{
+					if (drop)
+					{
+						// Start up IM before give the item
+						session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, dest_agent_id);
+					}
+					return LLToolDragAndDrop::handleGiveDragAndDrop(dest_agent_id, session_id, drop,
+																	cargo_type, cargo_data, accept);
+				}
+			}
+		}
+	}
+	*accept = ACCEPT_NO;
+	return TRUE;
+}
+
 // static 
 void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void**)
 {
@@ -447,8 +511,8 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	
 	LLFloaterAvatarPicker* floater = LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
 
-	// these are not results from our last request
-	if (query_id != floater->mQueryID)
+	// floater is closed or these are not results from our last request
+	if (NULL == floater || query_id != floater->mQueryID)
 	{
 		return;
 	}
@@ -613,7 +677,7 @@ bool LLFloaterAvatarPicker::isSelectBtnEnabled()
 
 		if(list)
 		{
-			std::vector<LLUUID> avatar_ids;
+			uuid_vec_t avatar_ids;
 			std::vector<std::string> avatar_names;
 			getSelectedAvatarData(list, avatar_names, avatar_ids);
 			return mOkButtonValidateSignal(avatar_ids);

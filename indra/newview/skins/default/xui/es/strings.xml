@@ -89,7 +89,7 @@
 		Descargando la ropa...
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Error de red: no se ha podido conectar; por favor, revisa tu conexión a internet.
+		Error de red: no se ha podido conectar; por favor, revisa tu conexión a Internet.
 	</string>
 	<string name="LoginFailed">
 		Error en el inicio de sesión.
@@ -101,7 +101,7 @@
 		http://join.secondlife.com/index.php?lang=es-ES
 	</string>
 	<string name="AgentLostConnection">
-		Esta región puede estar teniendo problemas. Por favor, comprueba tu conexión a internet.
+		Esta región puede estar teniendo problemas. Por favor, comprueba tu conexión a Internet.
 	</string>
 	<string name="SavingSettings">
 		Guardando tus configuraciones...
@@ -249,6 +249,9 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Cerrar (Ctrl+W)
 	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		Cerrar
+	</string>
 	<string name="BUTTON_RESTORE">
 		Maximizar
 	</string>
@@ -287,6 +290,9 @@
 	</string>
 	<string name="GroupNameNone">
 		(ninguno)
+	</string>
+	<string name="AvalineCaller">
+		Avaline: [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		No hay ningún error
@@ -883,7 +889,7 @@
 		Pulsa ESC para salir de la vista subjetiva
 	</string>
 	<string name="InventoryNoMatchingItems">
-		No se han encontrado tales ítems en el inventario.  Intenta con [secondlife:///app/search/groups &quot;Buscar&quot;].
+		¿No encontraste lo que buscabas? Prueba en la [secondlife:///app/search/all Búsqueda].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Arrastra aquí un hito para tenerlo en tus favoritos.
@@ -1542,11 +1548,9 @@
 	<string name="RegionNoCovenantOtherOwner">
 		No se ha aportado un contrato para este estado. El terreno de este estado lo vende el propietario del estado, no Linden Lab.  Por favor, contacta con ese propietario para informarte sobre la venta.
 	</string>
-	<string name="covenant_last_modified">
-		Última modificación:
-	</string>
+	<string name="covenant_last_modified" value="Última modificación:"/>
 	<string name="none_text" value="(no hay)"/>
-	<string name="never_text" value="(nunca)"/>
+	<string name="never_text" value=" (nunca)"/>
 	<string name="GroupOwned">
 		Propiedad del grupo
 	</string>
@@ -2013,7 +2017,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 		Puente: ancho
 	</string>
 	<string name="Broad">
-		Ancho
+		Aumentar
 	</string>
 	<string name="Brow Size">
 		Arco ciliar
@@ -3221,6 +3225,15 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="LocationCtrlComboBtnTooltip">
 		Historial de mis localizaciones
 	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		Región Adulta
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		Región Moderada
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		Región General
+	</string>
 	<string name="UpdaterWindowTitle">
 		Actualizar [APP_NAME]
 	</string>
@@ -3251,6 +3264,12 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 		Fallo al iniciar el visor
 	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME]: Los ítems se reciben muy rápido de [FROM_NAME]; desactivada la vista previa automática durante [TIME] sgs.
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME]: Los ítems se reciben muy rápido; desactivada la vista previa automática durante [TIME] sgs.
+	</string>
 	<string name="IM_logging_string">
 		-- Activado el registro de los mensajes instantáneos --
 	</string>
@@ -3277,6 +3296,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="IM_moderator_label">
 		(Moderador)
+	</string>
+	<string name="answered_call">
+		Han respondido a tu llamada
 	</string>
 	<string name="started_call">
 		Llamada de voz iniciada
@@ -3359,11 +3381,17 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="unread_chat_multiple">
 		[SOURCES] ha dicho algo nuevo
 	</string>
+	<string name="session_initialization_timed_out_error">
+		Se ha agotado el tiempo del inicio de sesión
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] te ha pagado [AMOUNT] L$
 	</string>
 	<string name="you_paid_ldollars">
 		Has pagado [AMOUNT] L$ a [NAME] por [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		Has pagado[AMOUNT] L$
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		Has pagado [AMOUNT] L$ a [NAME].
@@ -3474,5 +3502,14 @@ Denuncia de infracción
 	</string>
 	<string name="Contents">
 		Contenidos
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		ninguno/ninguno
+	</string>
+	<string name="texture_load_dimensions_error">
+		No se puede subir imágenes mayores de [WIDTH]*[HEIGHT]
 	</string>
 </strings>

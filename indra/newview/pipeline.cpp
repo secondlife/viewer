@@ -56,6 +56,7 @@
 
 // newview includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "lldrawable.h"
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
@@ -1800,7 +1801,6 @@ void LLPipeline::rebuildPriorityGroups()
 		
 void LLPipeline::rebuildGroups()
 {
-	llpushcallstacks ;
 	// Iterate through some drawables on the non-priority build queue
 	S32 size = (S32) mGroupQ2.size();
 	S32 min_count = llclamp((S32) ((F32) (size * size)/4096*0.25f), 1, size);
@@ -2203,7 +2203,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	//LLVertexBuffer::unbind();
 
 	grabReferences(result);
-
+	llpushcallstacks ;
 	for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
@@ -2221,7 +2221,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			}
 		}
 	}
-
+	llpushcallstacks ;
 	for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
@@ -2237,7 +2237,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 		}
 	}
 	
-
+	llpushcallstacks ;
 	if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
 	{
 		for (LLCullResult::bridge_list_t::iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
@@ -2251,7 +2251,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			}
 		}
 	}
-
+	llpushcallstacks ;
 	{
 		LLFastTimer ftm(FTM_STATESORT_DRAWABLE);
 		for (LLCullResult::drawable_list_t::iterator iter = sCull->beginVisibleList();
@@ -2271,6 +2271,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	}
 
 	postSort(camera);
+	llpushcallstacks ;
 }
 
 void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
@@ -2960,6 +2961,9 @@ void LLPipeline::renderHighlights()
 	}
 }
 
+//debug use
+U32 LLPipeline::sCurRenderPoolType = 0 ;
+
 void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE_RENDER_GEOM);
@@ -3068,6 +3072,9 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 			LLDrawPool *poolp = *iter1;
 			
 			cur_type = poolp->getType();
+
+			//debug use
+			sCurRenderPoolType = cur_type ;
 
 			if (occlude && cur_type >= LLDrawPool::POOL_GRASS)
 			{
@@ -3858,15 +3865,14 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects, BOOL render
 	}
 
 	// pick HUD objects
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
-	if (avatarp && sShowHUDAttachments)
+	if (isAgentAvatarValid() && sShowHUDAttachments)
 	{
 		glh::matrix4f save_proj(glh_get_current_projection());
 		glh::matrix4f save_model(glh_get_current_modelview());
 
 		setup_hud_matrices(screen_rect);
-		for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
-			 iter != avatarp->mAttachmentPoints.end(); )
+		for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
+			 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 		{
 			LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 			LLViewerJointAttachment* attachment = curiter->second;
@@ -3966,9 +3972,9 @@ void LLPipeline::rebuildPools()
 		max_count--;
 	}
 
-	if (gAgent.getAvatarObject())
+	if (isAgentAvatarValid())
 	{
-		gAgent.getAvatarObject()->rebuildHUD();
+		gAgentAvatarp->rebuildHUD();
 	}
 }
 
@@ -4364,7 +4370,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		// mNearbyLight (and all light_set_t's) are sorted such that
 		// begin() == the closest light and rbegin() == the farthest light
 		const S32 MAX_LOCAL_LIGHTS = 6;
-// 		LLVector3 cam_pos = gAgent.getCameraPositionAgent();
+// 		LLVector3 cam_pos = gAgentCamera.getCameraPositionAgent();
 		LLVector3 cam_pos = LLViewerJoystick::getInstance()->getOverrideCamera() ?
 						camera.getOrigin() : 
 						gAgent.getPositionAgent();
@@ -4600,8 +4606,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 	}
 
-	if (gAgent.getAvatarObject() &&
-		gAgent.getAvatarObject()->mSpecialRenderMode == 3)
+	if (isAgentAvatarValid() &&
+		gAgentAvatarp->mSpecialRenderMode == 3)
 	{
 		LLColor4  light_color = LLColor4::white;
 		light_color.mV[3] = 0.0f;
@@ -4710,15 +4716,13 @@ void LLPipeline::enableLightsDynamic()
 		glColor4f(0.f, 0.f, 0.f, 1.f); // no local lighting by default
 	}
 
-	LLVOAvatar* avatarp = gAgent.getAvatarObject();
-
-	if (avatarp && getLightingDetail() <= 0)
+	if (isAgentAvatarValid() && getLightingDetail() <= 0)
 	{
-		if (avatarp->mSpecialRenderMode == 0) // normal
+		if (gAgentAvatarp->mSpecialRenderMode == 0) // normal
 		{
 			gPipeline.enableLightsAvatar();
 		}
-		else if (avatarp->mSpecialRenderMode >= 1)  // anim preview
+		else if (gAgentAvatarp->mSpecialRenderMode >= 1)  // anim preview
 		{
 			gPipeline.enableLightsAvatarEdit(LLColor4(0.7f, 0.6f, 0.3f, 1.f));
 		}
@@ -7101,18 +7105,19 @@ inline float sgn(float a)
 }
 
 void LLPipeline::generateWaterReflection(LLCamera& camera_in)
-{
+{	
 	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
 	{
-		LLVOAvatarSelf* avatar = gAgent.getAvatarObject();
-		if (gAgent.getCameraAnimating() || gAgent.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+		BOOL skip_avatar_update = FALSE;
+		if (gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
 		{
-			avatar = NULL;
+			skip_avatar_update = TRUE;
 		}
 
-		if (avatar)
+		llpushcallstacks ;
+		if (!skip_avatar_update)
 		{
-			avatar->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
+			gAgentAvatarp->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
 		}
 		LLVertexBuffer::unbind();
 
@@ -7197,7 +7202,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			glCullFace(GL_FRONT);
 
-			
 			static LLCullResult ref_result;
 			U32 ref_mask = 0;
 			if (LLDrawPoolWater::sNeedsDistortionUpdate)
@@ -7209,6 +7213,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 										(1 << LLPipeline::RENDER_TYPE_WL_SKY));
 					static LLCullResult result;
 					updateCull(camera, result);
+					llpushcallstacks ;
 					stateSort(camera, result);
 					mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
 										(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
@@ -7243,13 +7248,13 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					LLGLUserClipPlane clip_plane(plane, mat, projection);
 					LLGLDisable cull(GL_CULL_FACE);
 					updateCull(camera, ref_result, 1);
+					llpushcallstacks ;
 					stateSort(camera, ref_result);
 				}
 				
 				ref_mask = mRenderTypeMask;
 				mRenderTypeMask = mask;
 			}
-
 			if (LLDrawPoolWater::sNeedsDistortionUpdate)
 			{
 				mRenderTypeMask = ref_mask;
@@ -7267,7 +7272,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		}
 
 		camera.setOrigin(camera_in.getOrigin());
-
 		//render distortion map
 		static BOOL last_update = TRUE;
 		if (last_update)
@@ -7301,6 +7305,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				LLGLUserClipPlane clip_plane(LLPlane(-pnorm, -(pd+pad)), mat, projection);
 				static LLCullResult result;
 				updateCull(camera, result, water_clip);
+				llpushcallstacks ;
 				stateSort(camera, result);
 
 				gGL.setColorMask(true, true);
@@ -7324,7 +7329,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			glClear(GL_DEPTH_BUFFER_BIT);
 		}
 		glClearColor(0.f, 0.f, 0.f, 0.f);
-
 		gViewerWindow->setup3DViewport();
 		mRenderTypeMask = type_mask;
 		LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
@@ -7336,10 +7340,11 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLGLState::checkTextureChannels();
 		LLGLState::checkClientArrays();
 
-		if (avatar)
+		if (!skip_avatar_update)
 		{
-			avatar->updateAttachmentVisibility(gAgent.getCameraMode());
+			gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
 		}
+		llpushcallstacks ;
 	}
 }
 
@@ -7837,7 +7842,6 @@ void LLPipeline::renderHighlight(const LLViewerObject* obj, F32 fade)
 void LLPipeline::generateHighlight(LLCamera& camera)
 {
 	//render highlighted object as white into offscreen render target
-	
 	if (mHighlightObject.notNull())
 	{
 		mHighlightSet.insert(HighlightItem(mHighlightObject));

@@ -36,6 +36,7 @@
 
 #include "llviewerwindow.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "llsky.h"
 #include "llappviewer.h"
@@ -83,7 +84,7 @@ BOOL LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask) 
 {
-	if( gAgent.cameraMouselook() && mIsSelected )
+	if( gAgentCamera.cameraMouselook() && mIsSelected )
 	{
 		const F32 NOMINAL_MOUSE_SENSITIVITY = 0.0025f;
 

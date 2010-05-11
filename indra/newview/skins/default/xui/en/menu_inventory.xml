@@ -5,6 +5,14 @@
  name="Popup"
  visible="false">
     <menu_item_call
+     label="Share"
+     layout="topleft"
+     name="Share"
+     visible="true">
+        <menu_item_call.on_click
+         function="Inventory.Share" />
+    </menu_item_call>
+    <menu_item_call
      label="Buy"
      layout="topleft"
      name="Task Buy">
@@ -400,6 +408,14 @@
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="open" />
+    </menu_item_call>
+    <menu_item_call
+     label="Open Original"
+     layout="topleft"
+     name="Open Original">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="open_original" />
     </menu_item_call>
     <menu_item_call
      label="Properties"

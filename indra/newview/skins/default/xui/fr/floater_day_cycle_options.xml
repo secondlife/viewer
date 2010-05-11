@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Day Cycle Floater" title="EDITEUR DU CYCLE DU JOUR">
 	<tab_container name="Day Cycle Tabs">
 		<panel label="Cycle du jour" name="Day Cycle">
-			<button label="?" name="WLDayCycleHelp" />
+			<button label="?" name="WLDayCycleHelp"/>
 			<text name="WL12am">
 				Min.
 			</text>
@@ -57,41 +57,38 @@
 			<text name="WL12amHash2">
 				|
 			</text>
-			<button label="Ajouter clé" label_selected="Ajouter clé" name="WLAddKey" width="89" bottom="-45" />
-			<button label="Supprimer clé" label_selected="Supprimer clé" name="WLDeleteKey" width="89" bottom="-70" />
-			<text name="WLCurKeyFrameText" width="170">
+			<button label="Ajouter clé" label_selected="Ajouter clé" name="WLAddKey"/>
+			<button label="Supprimer clé" label_selected="Supprimer clé" name="WLDeleteKey"/>
+			<text name="WLCurKeyFrameText">
 				Réglages des images-clés :
 			</text>
-			<text name="WLCurKeyTimeText" width="170">
+			<text name="WLCurKeyTimeText">
 				Heure de la clé :
 			</text>
-			<spinner label="Heure" name="WLCurKeyHour" label_width="80" width="74"/>
-			<spinner label="Min" name="WLCurKeyMin" label_width="80"/>
+			<spinner label="Heure" name="WLCurKeyHour"/>
+			<spinner label="Min" name="WLCurKeyMin"/>
 			<text name="WLCurKeyTimeText2">
 				Préréglages clés :
 			</text>
-			<combo_box label="Préréglage" name="WLKeyPresets" />
+			<combo_box label="Préréglage" name="WLKeyPresets"/>
 			<text name="DayCycleText">
 				Snap :
 			</text>
-			<combo_box label="5 min" name="WLSnapOptions" />
+			<combo_box label="5 min" name="WLSnapOptions"/>
 			<text name="DayCycleText2">
 				Durée du cycle :
 			</text>
-			<spinner label="Heure" name="WLLengthOfDayHour" label_width="80" width="74" />
-			<spinner label="Min" name="WLLengthOfDayMin" />
-			<spinner label="S" name="WLLengthOfDaySec" label_width="10" width="50" left_delta="95"/>
-			<text name="DayCycleText3" left="280" width="200">
-				Prévisualiser :
+			<spinner label="Heure" name="WLLengthOfDayHour"/>
+			<spinner label="Min" name="WLLengthOfDayMin"/>
+			<spinner label="S" name="WLLengthOfDaySec"/>
+			<text name="DayCycleText3">
+				Aperçu :
 			</text>
-			<button label="Lire" label_selected="Lire" name="WLAnimSky" left_delta="90"/>
-			<button label="Stop !" label_selected="Stop" name="WLStopAnimSky" />
-			<button label="Utiliser heure domaine" label_selected="Aller heure domaine"
-			     name="WLUseLindenTime" />
-			<button label="Enregistrer jour test" label_selected="Enregistrer jour test"
-			     name="WLSaveDayCycle" />
-			<button label="Charger jour test" label_selected="Charger jour test"
-			     name="WLLoadDayCycle" />
+			<button label="Lire" label_selected="Lire" name="WLAnimSky"/>
+			<button label="Stop !" label_selected="Stop" name="WLStopAnimSky"/>
+			<button label="Utiliser heure domaine" label_selected="Aller heure domaine" name="WLUseLindenTime"/>
+			<button label="Enregistrer jour test" label_selected="Enregistrer jour test" name="WLSaveDayCycle"/>
+			<button label="Charger jour test" label_selected="Charger jour test" name="WLLoadDayCycle"/>
 		</panel>
 	</tab_container>
 </floater>

@@ -43,6 +43,7 @@
 #include "llviewertexturelist.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llfontgl.h"
@@ -180,7 +181,7 @@ F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVecto
 	LLVector3 cam_to_reference;
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
-		cam_to_reference = LLVector3(1.f / gAgent.mHUDCurZoom, 0.f, 0.f);
+		cam_to_reference = LLVector3(1.f / gAgentCamera.mHUDCurZoom, 0.f, 0.f);
 	}
 	else
 	{
@@ -265,8 +266,8 @@ BOOL LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVect
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		BOOL result = FALSE;
-		F32 mouse_x = ((F32)x / gViewerWindow->getWorldViewWidthScaled() - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgent.mHUDCurZoom;
-		F32 mouse_y = ((F32)y / gViewerWindow->getWorldViewHeightScaled() - 0.5f) / gAgent.mHUDCurZoom;
+		F32 mouse_x = ((F32)x / gViewerWindow->getWorldViewWidthScaled() - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgentCamera.mHUDCurZoom;
+		F32 mouse_y = ((F32)y / gViewerWindow->getWorldViewHeightScaled() - 0.5f) / gAgentCamera.mHUDCurZoom;
 
 		LLVector3 origin_agent = gAgent.getPosAgentFromGlobal(origin);
 		LLVector3 mouse_pos = LLVector3(0.f, -mouse_x, mouse_y);
@@ -304,15 +305,15 @@ BOOL LLManip::nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, co
 
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
-		F32 mouse_x = (((F32)x / gViewerWindow->getWindowWidthScaled()) - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgent.mHUDCurZoom;
-		F32 mouse_y = (((F32)y / gViewerWindow->getWindowHeightScaled()) - 0.5f) / gAgent.mHUDCurZoom;
+		F32 mouse_x = (((F32)x / gViewerWindow->getWindowWidthScaled()) - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgentCamera.mHUDCurZoom;
+		F32 mouse_y = (((F32)y / gViewerWindow->getWindowHeightScaled()) - 0.5f) / gAgentCamera.mHUDCurZoom;
 		a1 = LLVector3(llmin(b1.mV[VX] - 0.1f, b2.mV[VX] - 0.1f, 0.f), -mouse_x, mouse_y);
 		a2 = a1 + LLVector3(1.f, 0.f, 0.f);
 	}
 	else
 	{
-		a1 = gAgent.getCameraPositionAgent();
-		a2 = gAgent.getCameraPositionAgent() + LLVector3(gViewerWindow->mouseDirectionGlobal(x, y));
+		a1 = gAgentCamera.getCameraPositionAgent();
+		a2 = gAgentCamera.getCameraPositionAgent() + LLVector3(gViewerWindow->mouseDirectionGlobal(x, y));
 	}
 
 	BOOL parallel = TRUE;
@@ -491,7 +492,7 @@ void LLManip::renderTickText(const LLVector3& pos, const std::string& text, cons
 	LLVector3 render_pos = pos;
 	if (hud_selection)
 	{
-		F32 zoom_amt = gAgent.mHUDCurZoom;
+		F32 zoom_amt = gAgentCamera.mHUDCurZoom;
 		F32 inv_zoom_amt = 1.f / zoom_amt;
 		// scale text back up to counter-act zoom level
 		render_pos = pos * zoom_amt;
@@ -549,7 +550,7 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
 	LLVector3 render_pos = pos;
 	if (hud_selection)
 	{
-		F32 zoom_amt = gAgent.mHUDCurZoom;
+		F32 zoom_amt = gAgentCamera.mHUDCurZoom;
 		F32 inv_zoom_amt = 1.f / zoom_amt;
 		// scale text back up to counter-act zoom level
 		render_pos = pos * zoom_amt;

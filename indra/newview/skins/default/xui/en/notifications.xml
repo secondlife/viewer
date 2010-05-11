@@ -800,7 +800,7 @@ Insufficient funds to create classified.
    icon="alertmodal.tga"
    name="DeleteAvatarPick"
    type="alertmodal">
-Delete pick [PICK]?
+Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2024,6 +2024,28 @@ Would you be my friend?
   </notification>
 
   <notification
+ icon="alertmodal.tga"
+ label="Save Outfit"
+ name="SaveOutfitAs"
+ type="alertmodal">
+    Save what I'm wearing as a new Outfit:
+    <form name="form">
+      <input name="message" type="text">
+        [DESC] (new)
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="Offer"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
@@ -2098,6 +2120,19 @@ You must specify a name for your classified.
 Price to pay for listing must be at least L$[MIN_PRICE].
 
 Please enter a higher price.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmItemDeleteHasLinks"
+   type="alertmodal">
+At least one of the items you has link items that point to it.  If you delete this item, its links will permanently stop working.  It is strongly advised to delete the links first.
+
+Are you sure you want to delete these items?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -3173,6 +3208,18 @@ Teleport to [PICK]?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="TeleportToHistoryEntry"
+   type="alertmodal">
+Teleport to [HISTORY_ENTRY]?
+    <usetemplate
+     ignoretext="Confirm that I want to teleport to a history location"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="Teleport"/>
+  </notification>
+
+  <notification
    icon="alert.tga"
    label="Message everyone in your Estate"
    name="MessageEstate"
@@ -3405,6 +3452,13 @@ You can click &apos;Change Preference&apos; to raise your maturity Rating prefer
        text="Close"/>
        <ignore name="ignore" text="My chosen Rating preference prevents me from entering a Region"/>
     </form>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="PreferredMaturityChanged"
+   type="notifytip">
+Your maturity rating preference is now [RATING].
   </notification>
 
   <notification
@@ -4331,6 +4385,13 @@ The string [STRING_NAME] is missing from strings.xml
    type="notifytip">
 [MESSAGE]
   </notification>
+  
+  <notification
+   icon="notifytip.tga"
+   name="IMSystemMessageTip"
+   type="notifytip">
+[MESSAGE]
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -4394,6 +4455,18 @@ Although you&apos;re very nice, you can&apos;t add yourself as a friend.
    type="notifytip">
 Uploading in-world and web site snapshots...
 (Takes about 5 minutes.)
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UploadConfirmation"
+   type="alertmodal">
+Uploading costs L$[AMOUNT].
+Do you wish to proceed?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
   </notification>
 
   <notification
@@ -5068,6 +5141,7 @@ No valid parcel could be found.
   <notification
    icon="notify.tga"
    name="ObjectGiveItem"
+   persist="true"
    type="offer">
 An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -5090,6 +5164,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="UserGiveItem"
+   persist="true"
    type="offer">
 [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -5142,10 +5217,11 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="TeleportOffered"
+   persist="true"
    type="offer">
-[NAME] has offered to teleport you to their location:
+[NAME_SLURL] has offered to teleport you to their location:
 
-[MESSAGE]
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
     <form name="form">
       <button
        index="0"
@@ -5187,8 +5263,9 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="OfferFriendship"
+   persist="true"
    type="offer">
-[NAME] is offering friendship.
+[NAME_SLURL] is offering friendship.
 
 [MESSAGE]
 
@@ -5332,6 +5409,13 @@ Failed to find [TYPE] in database.
 Failed to find [TYPE] named [DESC] in database.
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="ShareToWebFailed"
+   type="notify">
+    Failed to upload image to web.
+  </notification>
+  
   <notification
    icon="notify.tga"
    name="InvalidWearable"
@@ -5934,6 +6018,19 @@ Selected button can not be shown right now.
 The button will be shown when there is enough space for it.
   </notification>
 
+  <notification
+   icon="notifytip.tga"
+   name="ShareNotification"
+   type="notifytip">
+Drag items from inventory onto a person in the resident picker
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezNotification"
+   type="notifytip">
+Avatar '[NAME]' rezzed in [TIME] seconds.
+  </notification>
 
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.

@@ -55,7 +55,8 @@ public:
 	LLVOAvatarSelf(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual 				~LLVOAvatarSelf();
 	virtual void			markDead();
-	virtual void 		initInstance(); // Called after construction to initialize the class.
+	virtual void 			initInstance(); // Called after construction to initialize the class.
+	void					cleanup();
 protected:
 	/*virtual*/ BOOL		loadAvatar();
 	BOOL					loadAvatarSelf();
@@ -77,6 +78,7 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	/*virtual*/ void 		updateRegion(LLViewerRegion *regionp);
+	/*virtual*/ BOOL   	 	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
 	//--------------------------------------------------------------------
 	// LLCharacter interface and related
@@ -120,14 +122,12 @@ public:
 	// Loading state
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ BOOL    updateIsFullyLoaded();
+	/*virtual*/ BOOL    getIsCloud();
 private:
-	BOOL                mIsBaked; // are the stored baked textures up to date?
 
 	//--------------------------------------------------------------------
 	// Region state
 	//--------------------------------------------------------------------
-private:
 	U64				mLastRegionHandle;
 	LLFrameTimer	mRegionCrossingTimer;
 	S32				mRegionCrossingCount;
@@ -332,5 +332,9 @@ public:
  *******************************************************************************/
 
 };
+
+extern LLVOAvatarSelf *gAgentAvatarp;
+
+BOOL isAgentAvatarValid();
 
 #endif // LL_VO_AVATARSELF_H

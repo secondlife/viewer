@@ -5,7 +5,7 @@
  background_opaque="true"
  background_visible="true"
   follows="all"
- height="570"
+ height="575"
  label="Things"
  layout="topleft"
  min_height="350"
@@ -14,7 +14,7 @@
  border="false">
    <tab_container
      follows="all"
-     height="497"
+     height="509"
      layout="topleft"
      left="7"
      name="appearance_tabs"
@@ -22,21 +22,18 @@
      tab_height="30"
      tab_position="top"
      halign="center"
+     top="8"
      width="312">
-         <inventory_panel
-           background_visible="true"
-           background_opaque="true"
-           label="MY OUTFITS"
-           help_topic="my_outfits_tab"
-           allow_multi_select="true"
-           follows="all"
-           border="false"
-           left="0"
-           top="0"
-           width="315"
-           mouse_opaque="true"
+         <panel
+           class="outfits_list"
+           filename="panel_outfits_list.xml"
+           height="490"
            name="outfitslist_tab"
-           start_folder="My Outfits" /> 
+           background_visible="true"
+           follows="all"
+           label="MY OUTFITS"
+           layout="topleft"
+           width="315" />
          <inventory_panel
            follows="all"
            background_visible="true"
@@ -54,11 +51,11 @@
    </tab_container>
 	 <panel
        background_visible="true"
-	  follows="bottom|left"
-	  height="73"
+	  follows="bottom|left|right"
+	  height="57"
 	  layout="topleft"
 	  left="9"
-	  top_pad="3"
+	  top_pad="-1"
 	  visible="true"
 	  name="bottom_panel"
 	  width="310">
@@ -76,7 +73,7 @@
          top="1"
          width="31" />
      <icon
-      follows="bottom|left"
+      follows="bottom|left|right"
       height="25"
       image_name="Toolbar_Middle_Off"
       layout="topleft"
@@ -86,7 +83,7 @@
         />
 
         <dnd_button
-         follows="bottom|left"
+         follows="bottom|right"
          height="25"
          image_hover_unselected="Toolbar_Right_Over"
           image_overlay="TrashItem_Off"
@@ -108,7 +105,7 @@
        left="0"
       width="153" />
      <button
-      follows="bottom|right" 
+      follows="bottom|left|right" 
       height="23" 
       label="Wear"
       layout="topleft"
@@ -116,16 +113,6 @@
       left_pad="3"
       tool_tip="Wear selected outfit"
       width="152" />
-	 <button
-	  follows="bottom|left"
-		height="23" 
-		label="M" 
-		layout="topleft"
-        right="-140"
-		name="look_edit_btn"
-        top="26"
-        visible="false" 
-		width="20" />
 	 </panel>
        
 </panel>

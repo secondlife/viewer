@@ -325,6 +325,7 @@ public:
 	LLTexLayerSetBuffer(LLTexLayerSet* const owner, S32 width, S32 height);
 	virtual ~LLTexLayerSetBuffer();
 
+	/*virtual*/ S8          getType() const ;
 	virtual void			preRender(BOOL clear_depth);
 	virtual void			postRender(BOOL success);
 	virtual BOOL			render();

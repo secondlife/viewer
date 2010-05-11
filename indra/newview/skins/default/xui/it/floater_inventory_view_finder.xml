@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Inventory Finder" title="INVENTARIO_COSE_RECENTI" width="165">
+<floater name="Inventory Finder" title="INVENTARIO_COSE_RECENTI">
 	<check_box label="Animazioni" name="check_animation"/>
 	<check_box label="Biglietti da visita" name="check_calling_card"/>
 	<check_box label="Abiti" name="check_clothing"/>

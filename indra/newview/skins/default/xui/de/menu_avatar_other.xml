@@ -10,7 +10,7 @@
 	<menu_item_call label="Melden" name="abuse"/>
 	<menu_item_call label="Einfrieren" name="Freeze..."/>
 	<menu_item_call label="Hinauswerfen" name="Eject..."/>
-	<menu_item_call label="Debug" name="Debug..."/>
+	<menu_item_call label="Fehler in Texturen beseitigen" name="Debug..."/>
 	<menu_item_call label="Hineinzoomen" name="Zoom In"/>
 	<menu_item_call label="Bezahlen" name="Pay..."/>
 </context_menu>

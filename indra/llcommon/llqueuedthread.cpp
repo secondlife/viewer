@@ -133,7 +133,10 @@ S32 LLQueuedThread::updateQueue(U32 max_time_ms)
 	if (mThreaded)
 	{
 		pending = getPending();
+		if(pending > 0)
+		{
 		unpause();
+	}
 	}
 	else
 	{
@@ -459,7 +462,7 @@ S32 LLQueuedThread::processNextRequest()
 			req->setStatus(STATUS_QUEUED);
 			mRequestQueue.insert(req);
 			unlockData();
-			if (mThreaded && start_priority <= PRIORITY_LOW)
+			if (mThreaded && start_priority < PRIORITY_NORMAL)
 			{
 				ms_sleep(1); // sleep the thread a little
 			}

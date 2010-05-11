@@ -308,7 +308,7 @@ void LLFloaterReporter::onClickSelectAbuser()
 	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLFloaterReporter::callbackAvatarID, this, _1, _2), FALSE, TRUE ));
 }
 
-void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids)
+void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, const uuid_vec_t& ids)
 {
 	if (ids.empty() || names.empty()) return;
 

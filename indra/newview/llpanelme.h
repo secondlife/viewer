@@ -64,7 +64,6 @@ private:
 	void buildEditPanel();
 
 	void onEditProfileClicked();
-	void onEditAppearanceClicked();
 	void onSaveChangesClicked();
 	void onCancelClicked();
 

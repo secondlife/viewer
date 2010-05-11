@@ -35,7 +35,7 @@
 #define LLBOTTOMTRAY_CPP
 #include "llbottomtray.h"
 
-#include "llagent.h"
+#include "llagentcamera.h"
 #include "llchiclet.h"
 #include "llfloaterreg.h"
 #include "llflyoutbutton.h"
@@ -125,7 +125,7 @@ public:
 
 	void onFocusLost()
 	{
-		if (gAgent.cameraMouselook())
+		if (gAgentCamera.cameraMouselook())
 		{
 			LLBottomTray::getInstance()->setVisible(FALSE);
 		}
@@ -160,18 +160,12 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
 
-	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
-
-	mChicletPanel->setChicletClickedCallback(boost::bind(&LLBottomTray::onChicletClick,this,_1));
-
 	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraPresets, _2));
 
 	//this is to fix a crash that occurs because LLBottomTray is a singleton
 	//and thus is deleted at the end of the viewers lifetime, but to be cleanly
 	//destroyed LLBottomTray requires some subsystems that are long gone
 	//LLUI::getRootView()->addChild(this);
-
-	initStateProcessedObjectMap();
 
 	// Necessary for focus movement among child controls
 	setFocusRoot(TRUE);
@@ -188,24 +182,6 @@ LLBottomTray::~LLBottomTray()
 	if (!LLSingleton<LLIMMgr>::destroyed())
 	{
 		LLIMMgr::getInstance()->removeSessionObserver(this);
-	}
-}
-
-void LLBottomTray::onChicletClick(LLUICtrl* ctrl)
-{
-	LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(ctrl);
-	if (chiclet)
-	{
-		// Until you can type into an IM Window and have a conversation,
-		// still show the old communicate window
-		//LLFloaterReg::showInstance("communicate", chiclet->getSessionId());
-
-		// Show after comm window so it is frontmost (and hence will not
-		// auto-hide)
-
-// this logic has been moved to LLIMChiclet::handleMouseDown
-//		LLIMFloater::show(chiclet->getSessionId());
-//		chiclet->setCounter(0);
 	}
 }
 
@@ -371,6 +347,23 @@ void LLBottomTray::setVisible(BOOL visible)
 		gFloaterView->setSnapOffsetBottom(0);
 }
 
+S32 LLBottomTray::notifyParent(const LLSD& info)
+{
+	if(info.has("well_empty")) // implementation of EXT-3397
+	{
+		const std::string chiclet_name = info["well_name"];
+
+		// only "im_well" or "notification_well" names are expected.
+		// They are set in panel_bottomtray.xml in <chiclet_im_well> & <chiclet_notification>
+		llassert("im_well" == chiclet_name || "notification_well" == chiclet_name);
+
+		BOOL should_be_visible = !info["well_empty"];
+		showWellButton("im_well" == chiclet_name ? RS_IM_WELL : RS_NOTIFICATION_WELL, should_be_visible);
+		return 1;
+	}
+	return LLPanel::notifyParent(info);
+}
+
 void LLBottomTray::showBottomTrayContextMenu(S32 x, S32 y, MASK mask)
 {
 	// We should show BottomTrayContextMenu in last  turn
@@ -486,6 +479,14 @@ BOOL LLBottomTray::postBuild()
 	mObjectDefaultWidthMap[RS_BUTTON_SPEAK]	   = mSpeakPanel->getRect().getWidth();
 
 	mNearbyChatBar->getChatBox()->setContextMenu(NULL);
+
+	mChicletPanel = getChild<LLChicletPanel>("chiclet_list");
+
+	initStateProcessedObjectMap();
+
+	// update wells visibility:
+	showWellButton(RS_IM_WELL, !LLIMWellWindow::getInstance()->isWindowEmpty());
+	showWellButton(RS_NOTIFICATION_WELL, !LLNotificationWellWindow::getInstance()->isWindowEmpty());
 
 	return TRUE;
 }
@@ -855,6 +856,7 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* available_width)
 {
 	lldebugs << "Trying to show object type: " << shown_object_type << llendl;
+	llassert(mStateProcessedObjectMap[shown_object_type] != NULL);
 
 	LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
 	if (NULL == panel)
@@ -886,6 +888,7 @@ bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* availa
 void LLBottomTray::processHideButton(EResizeState processed_object_type, S32* required_width, S32* buttons_freed_width)
 {
 	lldebugs << "Trying to hide object type: " << processed_object_type << llendl;
+	llassert(mStateProcessedObjectMap[processed_object_type] != NULL);
 
 	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
 	if (NULL == panel)
@@ -963,6 +966,7 @@ void LLBottomTray::processShrinkButtons(S32* required_width, S32* buttons_freed_
 
 void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32* required_width)
 {
+	llassert(mStateProcessedObjectMap[processed_object_type] != NULL);
 	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
 	if (NULL == panel)
 	{
@@ -1046,6 +1050,7 @@ void LLBottomTray::processExtendButtons(S32* available_width)
 
 void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32* available_width)
 {
+	llassert(mStateProcessedObjectMap[processed_object_type] != NULL);
 	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
 	if (NULL == panel)
 	{
@@ -1126,6 +1131,7 @@ void LLBottomTray::initStateProcessedObjectMap()
 
 void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool visible)
 {
+	llassert(mStateProcessedObjectMap[shown_object_type] != NULL);
 	LLPanel* panel = mStateProcessedObjectMap[shown_object_type];
 	if (NULL == panel)
 	{
@@ -1262,6 +1268,31 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		}
 	}
 	return is_set;
+}
+
+void LLBottomTray::showWellButton(EResizeState object_type, bool visible)
+{
+	llassert( ((RS_NOTIFICATION_WELL | RS_IM_WELL) & object_type) == object_type );
+
+	const std::string panel_name = RS_IM_WELL == object_type ? "im_well_panel" : "notification_well_panel";
+
+	LLView * panel = getChild<LLView>(panel_name);
+
+	// if necessary visibility is set nothing to do here
+	if (panel->getVisible() == (BOOL)visible) return;
+
+	S32 panel_width = panel->getRect().getWidth();
+	panel->setVisible(visible);
+
+	if (visible)
+	{
+		// method assumes that input param is a negative value
+		processWidthDecreased(-panel_width);
+	}
+	else
+	{
+		processWidthIncreased(panel_width);
+	}
 }
 
 //EOF

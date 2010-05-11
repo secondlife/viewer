@@ -6,6 +6,8 @@
 <location_input font="SansSerifSmall"
                 icon_maturity_general="Parcel_PG_Light"
                 icon_maturity_adult="Parcel_R_Light"
+                icon_maturity_moderate="Parcel_M_Light"
+                maturity_help_topic="TODO"
                 add_landmark_image_enabled="Favorite_Star_Active"
                 add_landmark_image_disabled="Favorite_Star_Off"
                 add_landmark_image_hover="Favorite_Star_Over"
@@ -43,7 +45,7 @@
                           scale_image="false"
 			  top="19"
 			  left="-3" />
-  <maturity_icon
+  <maturity_button
     name="maturity_icon"
     width="18"
     height="16"

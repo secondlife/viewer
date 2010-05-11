@@ -52,7 +52,7 @@ public:
 	 *
 	 * @param  uuids - an array of avatar or group ids
 	 */
-	/*virtual*/ void show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y);
+	/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
 
 	virtual void hide();
 
@@ -60,7 +60,7 @@ protected:
 
 	virtual LLContextMenu* createMenu() = 0;
 
-	std::vector<LLUUID>	mUUIDs;
+	uuid_vec_t	mUUIDs;
 	LLContextMenu*		mMenu;
 	LLHandle<LLView>	mMenuHandle;
 };

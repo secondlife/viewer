@@ -141,35 +141,35 @@ Maksimal animations længde er [MAX_LENGTH] sekunder.
 		Ansigtsudtryk
 	</text>
 	<combo_box label="" name="emote_combo" tool_tip="Angiver hvad ansigtet gør under animationen" width="140">
-		<combo_box.item label="(Intet)" name="[None]"/>
-		<combo_box.item label="Aaaaah" name="Aaaaah"/>
-		<combo_box.item label="Bange" name="Afraid"/>
-		<combo_box.item label="Vred" name="Angry"/>
-		<combo_box.item label="Stort smil" name="BigSmile"/>
-		<combo_box.item label="Keder sig" name="Bored"/>
-		<combo_box.item label="Græder" name="Cry"/>
-		<combo_box.item label="Forarget" name="Disdain"/>
-		<combo_box.item label="Flov" name="Embarrassed"/>
-		<combo_box.item label="Skuler" name="Frown"/>
-		<combo_box.item label="Kysser" name="Kiss"/>
-		<combo_box.item label="Griner" name="Laugh"/>
-		<combo_box.item label="Plllppt" name="Plllppt"/>
-		<combo_box.item label="Frastødt" name="Repulsed"/>
-		<combo_box.item label="Ked af det" name="Sad"/>
-		<combo_box.item label="Skuldertræk" name="Shrug"/>
-		<combo_box.item label="Smil" name="Smile"/>
-		<combo_box.item label="Overrasket" name="Surprise"/>
-		<combo_box.item label="Blinker" name="Wink"/>
-		<combo_box.item label="Bekymret" name="Worry"/>
+		<item label="(Intet)" name="[None]" value=""/>
+		<item label="Aaaaah" name="Aaaaah" value="Aaaaah"/>
+		<item label="Bange" name="Afraid" value="Bange"/>
+		<item label="Vred" name="Angry" value="Vred"/>
+		<item label="Stort smil" name="BigSmile" value="Stort smil"/>
+		<item label="Keder sig" name="Bored" value="Keder sig"/>
+		<item label="Græder" name="Cry" value="Grædende"/>
+		<item label="Forarget" name="Disdain" value="Foragt"/>
+		<item label="Flov" name="Embarrassed" value="Embarrassed"/>
+		<item label="Skuler" name="Frown" value="Alvorlig"/>
+		<item label="Kysser" name="Kiss" value="Kys"/>
+		<item label="Griner" name="Laugh" value="Leende"/>
+		<item label="Plllppt" name="Plllppt" value="Plllppt"/>
+		<item label="Frastødt" name="Repulsed" value="Frastødt"/>
+		<item label="Ked af det" name="Sad" value="Ked af det"/>
+		<item label="Skuldertræk" name="Shrug" value="Skuldertræk"/>
+		<item label="Smil" name="Smile" value="Smilende"/>
+		<item label="Overrasket" name="Surprise" value="Overrasket"/>
+		<item label="Blinker" name="Wink" value="Blink"/>
+		<item label="Bekymret" name="Worry" value="Bekymret"/>
 	</combo_box>
 	<text name="preview_label">
 		Vis mens
 	</text>
 	<combo_box label="" name="preview_base_anim" tool_tip="Se hvordan animation ser ud i forskellige typiske avatar-situationer." width="140">
-		<combo_box.item label="Stående" name="Standing"/>
-		<combo_box.item label="Gående" name="Walking"/>
-		<combo_box.item label="Sidder" name="Sitting"/>
-		<combo_box.item label="Flyver" name="Flying"/>
+		<item label="Stående" name="Standing" value="Stående"/>
+		<item label="Gående" name="Walking" value="Gående"/>
+		<item label="Sidder" name="Sitting" value="Siddende"/>
+		<item label="Flyver" name="Flying" value="Flyvende"/>
 	</combo_box>
 	<spinner label="start (sec)" name="ease_in_time" tool_tip="Tid (i sekunder) animationen bruger på at komme i gang."/>
 	<spinner label="Afslut (sec)" name="ease_out_time" tool_tip="Tid (i sekunder) animationen bruger på at afslutte"/>

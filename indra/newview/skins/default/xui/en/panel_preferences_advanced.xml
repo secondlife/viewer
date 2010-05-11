@@ -94,6 +94,16 @@ Automatic position for:
      name="appearance_camera_movement"
      tool_tip="Use automatic camera positioning while in edit mode"
      width="242" />
+    <check_box
+     control_name="SidebarCameraMovement"
+     follows="left|top"
+     height="16"
+     initial_value="1"
+     label="Sidebar"
+     layout="topleft"
+     name="appearance_sidebar_positioning"
+     tool_tip="Use automatic camera positioning for sidebar"
+     width="242" />
      	<icon
 	 follows="left|top"
 	 height="18"
@@ -186,6 +196,32 @@ Automatic position for:
 		     function="Pref.applyUIColor"
 		     parameter="BackgroundChatColor" />
     </color_swatch>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="12"
+   layout="topleft"
+   left="30"
+   name="UI Size:"
+   top_pad="5"
+   width="300">
+    UI size
+  </text>
+  <slider
+   control_name="UIScaleFactor"
+   decimal_digits="2"
+   follows="left|top"
+   height="17"
+   increment="0.025"
+   initial_value="1"
+   layout="topleft"
+   left_delta="52"
+   max_val="1.4"
+   min_val="0.75"
+   name="ui_scale_slider"
+   top_pad="-14"
+   width="180" />
     <check_box
      control_name="ShowScriptErrors"
      follows="left|top"
@@ -193,6 +229,7 @@ Automatic position for:
      label="Show script errors in:"
      layout="topleft"
      left="30"
+     top_pad="10" 
      name="show_script_errors"
      width="256" />
     <radio_group
@@ -247,6 +284,7 @@ Automatic position for:
      top_pad="5"
      width="200" />
     <button
+     layout="topleft" 
      follows="top|left"
      enabled_control="EnableVoiceChat"
      height="23"
@@ -257,8 +295,8 @@ Automatic position for:
           <button.commit_callback
           function="Pref.VoiceSetKey" />
     </button>
-    <button
-     enabled_control="EnableVoiceChat"
+  <button
+   enabled_control="EnableVoiceChat"
      follows="top|left"
      halign="center"
      height="23"
@@ -271,6 +309,17 @@ Automatic position for:
           <button.commit_callback
           function="Pref.VoiceSetMiddleMouse" />
     </button>
+  <button
+ height="23"
+ label="Other Devices"
+ left="30"
+ name="joystick_setup_button"
+ top_pad="12"
+ width="155">
+    <button.commit_callback
+     function="Floater.Show"
+     parameter="pref_joystick" />
+  </button>
   <check_box
   follows="top|left"
   height="15"

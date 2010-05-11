@@ -65,7 +65,7 @@ protected:
 
 	void requestObjectInventories();
 	/*virtual*/ void inventoryChanged(LLViewerObject* obj,
-								 InventoryObjectList* inv,
+								 LLInventoryObject::object_list_t* inv,
 								 S32 serial_num,
 								 void* data);
 

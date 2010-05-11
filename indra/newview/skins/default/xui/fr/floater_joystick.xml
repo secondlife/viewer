@@ -26,7 +26,7 @@
 	<text name="ZScale">
 		Échelle des Z
 	</text>
-	<text left="9" name="PitchScale" width="104">
+	<text name="PitchScale">
 		Échelle du tangage
 	</text>
 	<text name="YawScale">
@@ -44,13 +44,13 @@
 	<text name="ZDeadZone">
 		Zone neutre Z
 	</text>
-	<text left="4" name="PitchDeadZone" width="116">
+	<text name="PitchDeadZone">
 		Zone neutre tangage
 	</text>
-	<text name="YawDeadZone" left="10" width="104">
+	<text name="YawDeadZone">
 		Zone neutre lacet
 	</text>
-	<text name="RollDeadZone" left="10" width="104">
+	<text name="RollDeadZone">
 		Zone neutre roulis
 	</text>
 	<text name="Feathering">
@@ -59,7 +59,7 @@
 	<text name="ZoomScale2">
 		Échelle du zoom
 	</text>
-	<text left="6" name="ZoomDeadZone" width="120">
+	<text name="ZoomDeadZone">
 		Zone neutre du zoom
 	</text>
 	<button label="Options par défaut du joystick" name="SpaceNavigatorDefaults"/>

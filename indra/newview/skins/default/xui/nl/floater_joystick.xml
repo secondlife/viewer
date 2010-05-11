@@ -45,7 +45,7 @@
 	<text name="ZDeadZone">
 		Z dode zone
 	</text>
-	<text name="PitchDeadZone" left="4" width="110">
+	<text name="PitchDeadZone">
 		Stampen dode zone
 	</text>
 	<text name="YawDeadZone">

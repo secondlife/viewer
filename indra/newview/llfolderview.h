@@ -230,6 +230,7 @@ public:
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask) { setShowSelectionContext(FALSE); }
 	virtual void draw();
 	virtual void deleteAllChildren();
 
@@ -279,7 +280,7 @@ protected:
 	LLScrollContainer* mScrollContainer;  // NULL if this is not a child of a scroll container.
 
 	void commitRename( const LLSD& data );
-	static void onRenamerLost( LLFocusableElement* renamer);
+	void onRenamerLost( LLFocusableElement* renamer);
 
 	void finishRenamingItem( void );
 	void closeRenamer( void );

@@ -412,7 +412,7 @@ BOOL LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::strin
 	{
 		first = sCacheName["nobody"];
 		last.clear();
-		return FALSE;
+		return TRUE;
 	}
 
 	LLCacheNameEntry* entry = get_ptr_in_map(mCache, id );
@@ -459,7 +459,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 	if(id.isNull())
 	{
 		group = sCacheName["none"];
-		return FALSE;
+		return TRUE;
 	}
 
 	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache,id);

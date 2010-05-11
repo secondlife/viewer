@@ -56,11 +56,13 @@
 #include "llvolumemessage.h"
 #include "llhudmanager.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llaudioengine.h"
 #include "llhudeffecttrail.h"
 #include "llviewerobjectlist.h"
 #include "llviewercamera.h"
 #include "llviewerstats.h"
+#include "llvoavatarself.h"
 
 // linden library headers
 #include "llprimitive.h"
@@ -120,7 +122,7 @@ BOOL LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 	}
 
 	// Make sure the surface isn't too far away.
-	LLVector3d ray_start_global = gAgent.getCameraPositionGlobal();
+	LLVector3d ray_start_global = gAgentCamera.getCameraPositionGlobal();
 	F32 dist_to_surface_sq = (F32)((surface_pos_global - ray_start_global).magVecSquared());
 	if( dist_to_surface_sq > (max_dist_from_camera * max_dist_from_camera) )
 	{
@@ -432,7 +434,7 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 
 	// VEFFECT: AddObject
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-	effectp->setSourceObject((LLViewerObject*)gAgent.getAvatarObject());
+	effectp->setSourceObject((LLViewerObject*)gAgentAvatarp);
 	effectp->setPositionGlobal(regionp->getPosGlobalFromRegion(ray_end_region));
 	effectp->setDuration(LL_HUD_DUR_SHORT);
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));

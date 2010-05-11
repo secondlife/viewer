@@ -64,6 +64,8 @@ public:
 		LLViewerVisualParam *param,
 		F32 param_weight);	
 
+	/*virtual*/ S8 getType() const ;
+
 	BOOL					needsRender();
 	void					preRender(BOOL clear_depth);
 	BOOL					render();
@@ -107,6 +109,7 @@ protected:
 public:
 	LLVisualParamReset();
 	/*virtual */ BOOL render();
+	/*virtual*/ S8 getType() const ;
 
 	static BOOL sDirty;
 };

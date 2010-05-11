@@ -60,6 +60,10 @@
 #	include <windows.h>
 #endif
 
+#if LL_LINUX
+#include "llsys.h"
+#endif // LL_LINUX
+
 #if !LL_DARWIN && !LL_SOLARIS
 
 #ifdef PROCESSOR_FREQUENCY_MEASURE_AVAILABLE
@@ -116,6 +120,11 @@ CProcessor::CProcessor()
 ////////////////////////////////////////////////////////////////////////////
 F64 CProcessor::GetCPUFrequency(unsigned int uiMeasureMSecs)
 {
+#if LL_LINUX
+	// use the shinier LLCPUInfo interface
+	return 1000000.0F * gSysCPU.getMHz();
+#endif
+
 #ifndef PROCESSOR_FREQUENCY_MEASURE_AVAILABLE
 	return 0;
 #else
@@ -781,7 +790,7 @@ bool CProcessor::AnalyzeAMDProcessor()
 		case 5:			// Family = 5:  K5 / K6 processor family
 			switch (CPUInfo.uiModel)
 			{
-				case 0:			// Model = 0:  K5 SSA 5 (Pentium Rating *ggg* 75, 90 and 100 Mhz)
+				case 0:			// Model = 0:  K5 SSA 5 (Pentium Rating *ggg* 75, 90 and 100 MHz)
 					strcpy(CPUInfo.strModel, "AMD K5 SSA5 (PR75, PR90, PR100)");		/* Flawfinder: ignore */
 					strncat(strCPUName, "AMD K5 SSA5 (PR75, PR90, PR100)", sizeof(strCPUName) - strlen(strCPUName) -1);		/* Flawfinder: ignore */
 					break;

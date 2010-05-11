@@ -442,7 +442,6 @@ void LLRenderPass::renderTexture(U32 type, U32 mask)
 
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture)
 {
-	llpushcallstacks ;
 	for (LLCullResult::drawinfo_list_t::iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
 	{
 		LLDrawInfo* pparams = *i;

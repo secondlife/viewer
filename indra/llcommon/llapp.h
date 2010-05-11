@@ -235,7 +235,7 @@ public:
 	// Child process handling (Unix only for now)
 	//
 	// Set a callback to be run on exit of a child process
-	// WARNING!  This callback is run from the signal handler due to the extreme crappiness of
+	// WARNING!  This callback is run from the signal handler due to
 	// Linux threading requiring waitpid() to be called from the thread that spawned the process.
 	// At some point I will make this more behaved, but I'm not going to fix this right now - djs
 	void setChildCallback(pid_t pid, LLAppChildCallback callback);

@@ -67,7 +67,7 @@ struct LLAvatarData
 	LLUUID		partner_id;
 	std::string	about_text;
 	std::string	fl_about_text;
-	std::string	born_on;
+	LLDate		born_on;
 	std::string	profile_url;
 	U8			caption_index;
 	std::string	caption_text;

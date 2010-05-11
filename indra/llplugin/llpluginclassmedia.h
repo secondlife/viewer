@@ -189,6 +189,7 @@ public:
 	void focus(bool focused);
 	void clear_cache();
 	void clear_cookies();
+	void set_cookies(const std::string &cookies);
 	void enable_cookies(bool enable);
 	void proxy_setup(bool enable, const std::string &host = LLStringUtil::null, int port = 0);
 	void browse_stop();
@@ -372,6 +373,14 @@ protected:
 	F64				mCurrentRate;
 	F64				mLoadedDuration;
 	
+//--------------------------------------
+	//debug use only
+	//
+private:
+	bool  mDeleteOK ;
+public:
+	void setDeleteOK(bool flag) { mDeleteOK = flag ;}
+//--------------------------------------
 };
 
 #endif // LL_LLPLUGINCLASSMEDIA_H

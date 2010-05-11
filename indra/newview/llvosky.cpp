@@ -41,6 +41,7 @@
 #include "timing.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llcubemap.h"
@@ -357,7 +358,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 		mFace[i] = NULL;
 	}
 	
-	mCameraPosAgent = gAgent.getCameraPositionAgent();
+	mCameraPosAgent = gAgentCamera.getCameraPositionAgent();
 	mAtmHeight = ATM_HEIGHT;
 	mEarthCenter = LLVector3(mCameraPosAgent.mV[0], mCameraPosAgent.mV[1], -EARTH_RADIUS);
 
@@ -2034,7 +2035,7 @@ void LLVOSky::updateFog(const F32 distance)
 
 	const F32 water_height = gAgent.getRegion() ? gAgent.getRegion()->getWaterHeight() : 0.f;
 	// LLWorld::getInstance()->getWaterHeight();
-	F32 camera_height = gAgent.getCameraPositionAgent().mV[2];
+	F32 camera_height = gAgentCamera.getCameraPositionAgent().mV[2];
 
 	F32 near_clip_height = LLViewerCamera::getInstance()->getAtAxis().mV[VZ] * LLViewerCamera::getInstance()->getNear();
 	camera_height += near_clip_height;

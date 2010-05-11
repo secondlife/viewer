@@ -47,7 +47,6 @@
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
 #include "llscriptfloater.h"
-#include "llfontgl.h"
 
 #include <algorithm>
 
@@ -480,7 +479,9 @@ void LLScreenChannel::showToastsBottom()
 		}
 
 		toast_rect = (*it).toast->getRect();
-		toast_rect.setOriginAndSize(getRect().mLeft, bottom + toast_margin, toast_rect.getWidth() ,toast_rect.getHeight());
+		toast_rect.setOriginAndSize(getRect().mRight - toast_rect.getWidth(),
+				bottom + toast_margin, toast_rect.getWidth(),
+				toast_rect.getHeight());
 		(*it).toast->setRect(toast_rect);
 
 		if(floater && floater->overlapsScreenChannel())
@@ -580,7 +581,6 @@ void LLScreenChannel::showToastsTop()
 void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 {
 	LLRect toast_rect;
-	LLRect tbox_rect;
 	LLToast::Params p;
 	p.lifetime_secs = timer;
 	p.enable_hide_btn = false;
@@ -591,34 +591,26 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 
 	mStartUpToastPanel->setOnFadeCallback(boost::bind(&LLScreenChannel::onStartUpToastHide, this));
 
+	LLPanel* wrapper_panel = mStartUpToastPanel->getChild<LLPanel>("wrapper_panel");
 	LLTextBox* text_box = mStartUpToastPanel->getChild<LLTextBox>("toast_text");
 
 	std::string	text = LLTrans::getString("StartUpNotifications");
 
-	tbox_rect   = text_box->getRect();
-	S32 tbox_width  = tbox_rect.getWidth();
-	S32 tbox_vpad   = text_box->getVPad();
-	S32 text_width  = text_box->getDefaultFont()->getWidth(text);
-	S32 text_height = text_box->getTextPixelHeight();
-
-	// EXT - 3703 (Startup toast message doesn't fit toast width)
-	// Calculating TextBox HEIGHT needed to include the whole string according to the given WIDTH of the TextBox.
-	S32 new_tbox_height = (text_width/tbox_width + 1) * text_height;
-	// Calculating TOP position of TextBox
-	S32 new_tbox_top = new_tbox_height + tbox_vpad + gSavedSettings.getS32("ToastGap");
-	// Calculating toast HEIGHT according to the new TextBox size
-	S32 toast_height = new_tbox_height + tbox_vpad * 2;
-
-	tbox_rect.setLeftTopAndSize(tbox_rect.mLeft, new_tbox_top, tbox_rect.getWidth(), new_tbox_height);
-	text_box->setRect(tbox_rect);
-
 	toast_rect = mStartUpToastPanel->getRect();
 	mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
-	toast_rect.setLeftTopAndSize(0, toast_height + gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_height);
-	mStartUpToastPanel->setRect(toast_rect);
 
 	text_box->setValue(text);
 	text_box->setVisible(TRUE);
+
+	S32 old_height = text_box->getRect().getHeight();
+	text_box->reshapeToFitText();
+	text_box->setOrigin(text_box->getRect().mLeft, (wrapper_panel->getRect().getHeight() - text_box->getRect().getHeight())/2);
+	S32 new_height = text_box->getRect().getHeight();
+	S32 height_delta = new_height - old_height;
+
+	toast_rect.setLeftTopAndSize(0, toast_rect.getHeight() + height_delta +gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());
+	mStartUpToastPanel->setRect(toast_rect);
+
 	addChild(mStartUpToastPanel);
 	
 	mStartUpToastPanel->setVisible(TRUE);
@@ -711,6 +703,31 @@ void LLScreenChannel::hideToast(const LLUUID& notification_id)
 	{
 		ToastElem te = *it;
 		te.toast->hide();
+	}
+}
+
+void LLScreenChannel::closeHiddenToasts(const Matcher& matcher)
+{
+	// since we can't guarantee that close toast operation doesn't change mToastList
+	// we collect matched toasts that should be closed into separate list
+	std::list<ToastElem> toasts;
+	for (std::vector<ToastElem>::iterator it = mToastList.begin(); it
+			!= mToastList.end(); it++)
+	{
+		LLToast * toast = it->toast;
+		// add to list valid toast that match to provided matcher criteria
+		if (toast != NULL && !toast->isDead() && toast->getNotification() != NULL
+				&& !toast->getVisible() && matcher.matches(toast->getNotification()))
+		{
+			toasts.push_back(*it);
+		}
+	}
+
+	// close collected toasts
+	for (std::list<ToastElem>::iterator it = toasts.begin(); it
+			!= toasts.end(); it++)
+	{
+		it->toast->closeFloater();
 	}
 }
 

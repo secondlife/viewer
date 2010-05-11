@@ -114,6 +114,7 @@
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
 	<string name="BUTTON_CLOSE_WIN">Close (Ctrl+W)</string>
+	<string name="BUTTON_CLOSE_CHROME">Close</string>>
 	<string name="BUTTON_RESTORE">Restore</string>
 	<string name="BUTTON_MINIMIZE">Minimize</string>
 	<string name="BUTTON_TEAR_OFF">Tear Off</string>
@@ -146,6 +147,8 @@
 
 	<!-- Group name: text shown for LLUUID::null -->
 	<string name="GroupNameNone">(none)</string>
+
+	<string name="AvalineCaller">Avaline Caller [ORDER]</string>
 
 	<!-- Asset errors. Used in llassetstorage.cpp, translation from error code to error message. -->
 	<string name="AssetErrorNone">No error</string>
@@ -1799,6 +1802,20 @@ Clears (deletes) the media and all params from the given face.
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
 	<string name="invalid">invalid</string>
+  
+  <!-- Not Worn Wearable Types -->
+	<string name="shirt_not_worn">Shirt not worn</string>
+	<string name="pants_not_worn">Pants not worn</string>
+	<string name="shoes_not_worn">Shoes not worn</string>
+	<string name="socks_not_worn">Socks not worn</string>
+	<string name="jacket_not_worn">Jacket not worn</string>
+	<string name="gloves_not_worn">Gloves not worn</string>
+	<string name="undershirt_not_worn">Undershirt not worn</string>
+	<string name="underpants_not_worn">Underpants not worn</string>
+	<string name="skirt_not_worn">Skirt not worn</string>
+	<string name="alpha_not_worn">Alpha not worn</string>
+	<string name="tattoo_not_worn">Tattoo not worn</string>
+	<string name="invalid_not_worn">invalid</string>
 
   <!-- Wearable List-->
   <string name="NewWearable">New [WEARABLE_ITEM]</string>
@@ -1839,7 +1856,8 @@ Clears (deletes) the media and all params from the given face.
 	<string name="LeaveMouselook">Press ESC to return to World View</string>
 
 	<!-- inventory -->
-	<string name="InventoryNoMatchingItems">No matching items found in inventory.  Try [secondlife:///app/search/groups "Search"].</string>
+	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
+	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
     <!-- use value="" because they have preceding spaces -->
@@ -2145,15 +2163,16 @@ Clears (deletes) the media and all params from the given face.
   <string name="BusyModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
 
 	<!-- Mute -->
-	<string name="MuteByName">(by name)</string>
+	<string name="MuteByName">(By name)</string>
 	<string name="MuteAgent">(Resident)</string>
-	<string name="MuteObject">(object)</string>
-	<string name="MuteGroup">(group)</string>
+	<string name="MuteObject">(Object)</string>
+	<string name="MuteGroup">(Group)</string>
+	<string name="MuteExternal">(External)</string>
 
 	<!-- Region/Estate Covenant -->
 	<string name="RegionNoCovenant">There is no Covenant provided for this Estate.</string>
 	<string name="RegionNoCovenantOtherOwner">There is no Covenant provided for this Estate. The land on this estate is being sold by the Estate owner, not Linden Lab.  Please contact the Estate Owner for sales details.</string>
-	<string name="covenant_last_modified">Last Modified:</string>
+	<string name="covenant_last_modified" value="Last Modified: " /> <!-- use value="" to keep the trailing space -->
 	<string name="none_text"  value=" (none) " />
 	<string name="never_text" value=" (never) " />
 
@@ -2894,6 +2913,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="LocationCtrlBuildTooltip">Building/dropping objects not allowed</string>
   <string name="LocationCtrlScriptsTooltip">Scripts not allowed</string>
   <string name="LocationCtrlDamageTooltip">Health</string>
+  <string name="LocationCtrlAdultIconTooltip">Adult Region</string>
+  <string name="LocationCtrlModerateIconTooltip">Moderate Region</string>
+  <string name="LocationCtrlGeneralIconTooltip">General Region</string>
 
   <!-- Strings used by the (currently Linux) auto-updater app -->
 	<string name="UpdaterWindowTitle">
@@ -2927,6 +2949,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	  Failed to start viewer
 	</string>
 
+	<!-- System Messages -->
+	<string name="ItemsComingInTooFastFrom">[APP_NAME]: Items coming in too fast from [FROM_NAME], automatic preview disabled for [TIME] seconds</string>
+	<string name="ItemsComingInTooFast">[APP_NAME]: Items coming in too fast, automatic preview disabled for [TIME] seconds</string>
+
 	<!-- IM system messages -->
 	<string name="IM_logging_string">-- Instant message logging enabled --</string>
 	<string name="IM_typing_start_string">[NAME] is typing...</string>
@@ -2939,8 +2965,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_moderator_label">(Moderator)</string>
 
 	<!-- voice calls -->
-	<string name="started_call">Started a voice call</string>
-	<string name="joined_call">Joined the voice call</string>
+	<string name="answered_call">Your call has been answered</string>
+	<string name="you_started_call">You started a voice call</string>
+	<string name="you_joined_call">You joined the voice call</string>
+	<string name="name_started_call">[NAME] started a voice call</string>
 
   <string name="ringing-im">
     Joining voice call...
@@ -3048,10 +3076,14 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="unread_chat_multiple">
     [SOURCES] have said something new
   </string>"
+	<string name="session_initialization_timed_out_error">
+		The session initialization is timed out
+	</string>
   
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
   <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>
+  <string name="you_paid_ldollars_no_info">You paid L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_reason">You paid [NAME] L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_name">You paid L$[AMOUNT] [REASON].</string>
   <string name="for item">for [ITEM]</string>
@@ -3096,4 +3128,14 @@ Abuse Report</string>
   <string name="New Script">New Script</string>
   <string name="New Folder">New Folder</string>
   <string name="Contents">Contents</string>
-</strings>
+
+  <!-- birth date format shared by avatar inspector and profile panels -->
+  <string name="AvatarBirthDateFormat">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
+  
+  <string name="DefaultMimeType">none/none</string>
+  <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
+
+  <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
+  <string name="sentences_separator" value=" "></string>
+
+  </strings>

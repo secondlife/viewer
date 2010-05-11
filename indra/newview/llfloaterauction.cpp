@@ -46,6 +46,7 @@
 
 #include "llagent.h"
 #include "llcombobox.h"
+#include "llmimetypes.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llsavedsettingsglue.h"
@@ -351,7 +352,7 @@ void LLFloaterAuction::doResetParcel()
 		body["music_url"] = empty;
 		body["media_url"] = empty;
 		body["media_desc"] = empty;
-		body["media_type"] = std::string("none/none");
+		body["media_type"] = LLMIMETypes::getDefaultMimeType();
 		body["media_width"] = (S32) 0;
 		body["media_height"] = (S32) 0;
 		body["auto_scale"] = (S32) 0;

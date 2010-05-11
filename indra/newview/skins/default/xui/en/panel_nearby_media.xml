@@ -2,34 +2,34 @@
 <panel
 	can_resize="true"
 	can_close="false"
-	mouse_opaque="true"
-	bg_opaque_image="Volume_Background" 
-	bg_alpha_image="Volume_Background" 
-	background_opaque="true"
+ bg_opaque_image="Volume_Background" 
+ bg_alpha_image="Volume_Background" 
+  background_opaque="true"
 	background_visible="true"
 	layout="topleft"
-	width="270"
-	height="235"
+	width="328"
+	height="230"
 	name="nearby_media"
 	help_topic="nearby_media">
+  <string name="media_item_count_format">(%ld media items)</string>
   <string name="empty_item_text">&lt;empty&gt;</string>
   <string name="parcel_media_name">Parcel Streaming Media</string>
   <string name="parcel_audio_name">Parcel Streaming Audio</string>
   <string name="playing_suffix">(playing)</string>
   <panel
 	  bevel_style="in"
-	  background_visible="false" 
+    background_visible="false" 
 	  follows="left|right|top"
 	  top="0"
-	  height="30"
+	  height="35"
 	  name="minimized_controls" 
 	  left="0">
 	<button
 		name="all_nearby_media_disable_btn"
 		follows="left"
 		tool_tip="Turn all nearby media off"
-		left="15"
-		width="60"
+		left="8"
+		width="95"
 		height="22"
 		label="Stop All">
 	  <button.commit_callback
@@ -40,7 +40,7 @@
 		follows="left"
 		tool_tip="Turn all nearby media on"
 		left_pad="4"
-		width="60"
+		width="95"
 		height="22"
 		label="Start All">
 	  <button.commit_callback
@@ -64,19 +64,31 @@
 		  function="MediaListCtrl.GoMediaPrefs" />
 	</button>
 	<button
-		name="more_less_btn"
+		name="more_btn"
 		follows="right"
 		tool_tip="Advanced Controls"
 		top_delta="0"
-		right="-10"
-		width="60"
+		right="-8"
+		width="66"
 		height="22"
-		toggle="true"
 		label="More &gt;&gt;"
 		label_selected="Less &lt;&lt;">
 	  <button.commit_callback
 		  function="MediaListCtrl.MoreLess" />
 	</button>
+  <button
+		name="less_btn"
+		follows="right"
+		tool_tip="Advanced Controls"
+		top_delta="0"
+		right="-8"
+		width="66"
+		height="22"
+		label="More &gt;&gt;"
+		label_selected="Less &lt;&lt;">
+      <button.commit_callback
+        function="MediaListCtrl.MoreLess" />
+  </button>
   </panel>
   <panel
 	  name="nearby_media_panel"
@@ -95,7 +107,6 @@
 		follows="top|left"
 		font="SansSerif"
 		left="10"
-		name="nearby_media"
 		width="100">
 	  Nearby Media
 	</text>
@@ -106,7 +117,6 @@
 		font="SansSerif"
 		top_pad="15"
 		left="10"
-		name="show"
 		width="40">
 	  Show:
 	</text>
@@ -135,7 +145,6 @@
 		  name="OnOthers" />
 	</combo_box>
 	<scroll_list
-		name="media_list"
 		follows="left|top|bottom|right"
 		column_padding="0"
 		height="105"
@@ -144,7 +153,8 @@
 		bg_stripe_color="0.25 0.25 0.25 0.25"
 		top_pad="8"
 		left="10"
-		right="-10">
+		right="-10"
+		name="media_list">
 	  <scroll_list.columns
 		  type="checkbox"
 		  width="-1"
@@ -181,7 +191,6 @@
 		top_pad="5"
 		height="30"
 		left="10"
-		name="media_controls_panel"
 		right="-10">
 	  <layout_stack
 		  name="media_controls"
@@ -190,12 +199,14 @@
 		  height="26"
 		  layout="topleft"
 		  top="4"
-		  left="10"
+		  left="8"
 		  right="-10"
 		  border_size="0"
+		  mouse_opaque="false"
 		  orientation="horizontal">
 		<layout_panel
 			name="stop"
+			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -223,6 +234,7 @@
 		</layout_panel>
 		<layout_panel
 			name="play"
+			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -250,6 +262,7 @@
 		</layout_panel>
 		<layout_panel
 			name="pause"
+			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -276,6 +289,7 @@
 		</layout_panel>
 		<layout_panel
 			name="volume_slider_ctrl"
+			mouse_opaque="false"
 			auto_resize="true"
 			user_resize="false"
 			follows="left|right"
@@ -300,6 +314,7 @@
 		</layout_panel>
 		<layout_panel
 			name="mute"
+			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -328,6 +343,7 @@
 		</layout_panel>
 		<layout_panel
 			name="zoom"
+			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -355,6 +371,7 @@
 		</layout_panel>
 		<layout_panel
 			name="unzoom"
+			mouse_opaque="false"
 			auto_resize="false"
 			user_resize="false"
 			layout="topleft"
@@ -383,6 +400,7 @@
 		<layout_panel
 			name="right_bookend"
 			width="0"
+			mouse_opaque="false"
 			user_resize="false" />
 	  </layout_stack>
 	</panel>

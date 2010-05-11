@@ -272,11 +272,11 @@ bool LLFloaterReg::toggleInstance(const std::string& name, const LLSD& key)
 }
 
 //static
-// returns true if the instance exists and is visible
+// returns true if the instance exists and is visible (doesnt matter minimized or not)
 bool LLFloaterReg::instanceVisible(const std::string& name, const LLSD& key)
 {
 	LLFloater* instance = findInstance(name, key); 
-	return LLFloater::isShown(instance);
+	return LLFloater::isVisible(instance);
 }
 
 //static
@@ -463,3 +463,12 @@ bool LLFloaterReg::floaterInstanceVisible(const LLSD& sdname)
 	return instanceVisible(name, key);
 }
 
+//static
+bool LLFloaterReg::floaterInstanceMinimized(const LLSD& sdname)
+{
+	LLSD key;
+	std::string name = sdname.asString();
+	parse_name_key(name, key);
+	LLFloater* instance = findInstance(name, key); 
+	return LLFloater::isShown(instance);
+}

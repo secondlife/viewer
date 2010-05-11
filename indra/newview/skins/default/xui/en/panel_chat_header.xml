@@ -21,6 +21,7 @@
          top="3"
          width="18" />
     <text
+      allow_html="false"
       allow_scroll="false"
       v_pad = "7"
       read_only = "true"

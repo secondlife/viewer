@@ -79,6 +79,8 @@ namespace
 		{
 			if (mResponder.get())
 			{
+				// Allow clients to parse headers before we attempt to parse
+				// the body and provide completed/result/error calls.
 				mResponder->completedHeader(mStatus, mReason, mHeaderOutput);
 				mResponder->completedRaw(mStatus, mReason, channels, buffer);
 			}

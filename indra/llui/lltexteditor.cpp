@@ -240,7 +240,6 @@ LLTextEditor::Params::Params()
 	prevalidate_callback("prevalidate_callback"),
 	embedded_items("embedded_items", false),
 	ignore_tab("ignore_tab", true),
-	handle_edit_keys_directly("handle_edit_keys_directly", false),
 	show_line_numbers("show_line_numbers", false),
 	default_color("default_color"),
     commit_on_focus_lost("commit_on_focus_lost", false),
@@ -258,7 +257,6 @@ LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	mShowLineNumbers ( p.show_line_numbers ),
 	mCommitOnFocusLost( p.commit_on_focus_lost),
 	mAllowEmbeddedItems( p.embedded_items ),
-	mHandleEditKeysDirectly( p.handle_edit_keys_directly ),
 	mMouseDownX(0),
 	mMouseDownY(0),
 	mTabsToNextField(p.ignore_tab),
@@ -304,12 +302,6 @@ void LLTextEditor::initFromParams( const LLTextEditor::Params& p)
 LLTextEditor::~LLTextEditor()
 {
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit() while LLTextEditor still valid
-
-	// Route menu back to the default
-	if( gEditMenuHandler == this )
-	{
-		gEditMenuHandler = NULL;
-	}
 
 	// Scrollbar is deleted by LLView
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
@@ -507,21 +499,6 @@ void LLTextEditor::getSegmentsInRange(LLTextEditor::segment_vec_t& segments_out,
 	}
 }
 
-// virtual
-BOOL LLTextEditor::canDeselect() const
-{
-	return hasSelection(); 
-}
-
-
-void LLTextEditor::deselect()
-{
-	mSelectionStart = 0;
-	mSelectionEnd = 0;
-	mIsSelecting = FALSE;
-}
-
-
 BOOL LLTextEditor::selectionContainsLineBreaks()
 {
 	if (hasSelection())
@@ -668,6 +645,7 @@ void LLTextEditor::selectAll()
 	mSelectionStart = getLength();
 	mSelectionEnd = 0;
 	setCursorPos(mSelectionEnd);
+	updatePrimary();
 }
 
 BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -735,7 +713,8 @@ BOOL LLTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		setFocus(TRUE);
 	}
-	if (!LLTextBase::handleRightMouseDown(x, y, mask))
+	// Prefer editor menu if it has selection. See EXT-6806.
+	if (hasSelection() || !LLTextBase::handleRightMouseDown(x, y, mask))
 	{
 		if(getShowContextMenu())
 		{
@@ -1025,7 +1004,7 @@ void LLTextEditor::removeCharOrTab()
 	}
 	else
 	{
-		reportBadKeystroke();
+		LLUI::reportBadKeystroke();
 	}
 }
 
@@ -1048,7 +1027,7 @@ void LLTextEditor::removeChar()
 	}
 	else
 	{
-		reportBadKeystroke();
+		LLUI::reportBadKeystroke();
 	}
 }
 
@@ -1198,22 +1177,6 @@ BOOL LLTextEditor::handleSelectionKey(const KEY key, const MASK mask)
 		}
 	}
 
-	if( !handled && mHandleEditKeysDirectly )
-	{
-		if( (MASK_CONTROL & mask) && ('A' == key) )
-		{
-			if( canSelectAll() )
-			{
-				selectAll();
-			}
-			else
-			{
-				reportBadKeystroke();
-			}
-			handled = TRUE;
-		}
-	}
-
 	if( handled )
 	{
 		// take selection to 'primary' clipboard
@@ -1247,6 +1210,7 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 
 		case KEY_DOWN:
 			changeLine( 1 );
+			deselect();
 			break;
 
 		case KEY_PAGE_DOWN:
@@ -1260,7 +1224,7 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 		case KEY_LEFT:
 			if( hasSelection() )
 			{
-				setCursorPos(llmin( mCursorPos - 1, mSelectionStart, mSelectionEnd ));
+				setCursorPos(llmin( mSelectionStart, mSelectionEnd ));
 			}
 			else
 			{
@@ -1270,7 +1234,7 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 				}
 				else
 				{
-					reportBadKeystroke();
+					LLUI::reportBadKeystroke();
 				}
 			}
 			break;
@@ -1278,7 +1242,7 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 		case KEY_RIGHT:
 			if( hasSelection() )
 			{
-				setCursorPos(llmax( mCursorPos + 1, mSelectionStart, mSelectionEnd ));
+				setCursorPos(llmax( mSelectionStart, mSelectionEnd ));
 			}
 			else
 			{
@@ -1288,7 +1252,7 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 				}
 				else
 				{
-					reportBadKeystroke();
+					LLUI::reportBadKeystroke();
 				}
 			}	
 			break;
@@ -1297,6 +1261,11 @@ BOOL LLTextEditor::handleNavigationKey(const KEY key, const MASK mask)
 			handled = FALSE;
 			break;
 		}
+	}
+	
+	if (handled)
+	{
+		deselect();
 	}
 	
 	return handled;
@@ -1551,74 +1520,12 @@ BOOL LLTextEditor::handleControlKey(const KEY key, const MASK mask)
 	return handled;
 }
 
-BOOL LLTextEditor::handleEditKey(const KEY key, const MASK mask)
-{
-	BOOL handled = FALSE;
 
-	// Standard edit keys (Ctrl-X, Delete, etc,) are handled here instead of routed by the menu system.
-	if( KEY_DELETE == key )
+BOOL LLTextEditor::handleSpecialKey(const KEY key, const MASK mask)	
 	{
-		if( canDoDelete() )
-		{
-			doDelete();
-		}
-		else
-		{
-			reportBadKeystroke();
-		}
-		handled = TRUE;
-	}
-	else
-	if( MASK_CONTROL & mask )
-	{
-		if( 'C' == key )
-		{
-			if( canCopy() )
-			{
-				copy();
-			}
-			else
-			{
-				reportBadKeystroke();
-			}
-			handled = TRUE;
-		}
-		else
-		if( 'V' == key )
-		{
-			if( canPaste() )
-			{
-				paste();
-			}
-			else
-			{
-				reportBadKeystroke();
-			}
-			handled = TRUE;
-		}
-		else
-		if( 'X' == key )
-		{
-			if( canCut() )
-			{
-				cut();
-			}
-			else
-			{
-				reportBadKeystroke();
-			}
-			handled = TRUE;
-		}
-	}
-
-	return handled;
-}
-
-	
-BOOL LLTextEditor::handleSpecialKey(const KEY key, const MASK mask, BOOL* return_key_hit)	
-{
-	*return_key_hit = FALSE;
 	BOOL handled = TRUE;
+
+	if (mReadOnly) return FALSE;
 
 	switch( key )
 	{
@@ -1641,7 +1548,7 @@ BOOL LLTextEditor::handleSpecialKey(const KEY key, const MASK mask, BOOL* return
 		}
 		else
 		{
-			reportBadKeystroke();
+			LLUI::reportBadKeystroke();
 		}
 		break;
 
@@ -1694,6 +1601,10 @@ BOOL LLTextEditor::handleSpecialKey(const KEY key, const MASK mask, BOOL* return
 		break;
 	}
 
+	if (handled)
+	{
+		onKeyStroke();
+	}
 	return handled;
 }
 
@@ -1714,9 +1625,6 @@ void LLTextEditor::unindentLineBeforeCloseBrace()
 BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 {
 	BOOL	handled = FALSE;
-	BOOL	selection_modified = FALSE;
-	BOOL	return_key_hit = FALSE;
-	BOOL	text_may_have_changed = TRUE;
 
 	// Special case for TAB.  If want to move to next field, report
 	// not handled and let the parent take care of field movement.
@@ -1724,116 +1632,24 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 	{
 		return FALSE;
 	}
-	/*
-	if (KEY_F10 == key)
-	{
-		LLComboBox::Params cp;
-		cp.name = "combo box";
-		cp.label = "my combo";
-		cp.rect.width = 100;
-		cp.rect.height = 20;
-		cp.items.add().label = "item 1";
-		cp.items.add().label = "item 2";
-		cp.items.add().label = "item 3";
 		
-		appendWidget(LLUICtrlFactory::create<LLComboBox>(cp), "combo", true, false);
-	}
-	if (KEY_F11 == key)
+	if (mReadOnly && mScroller)
 	{
-		LLButton::Params bp;
-		bp.name = "text button";
-		bp.label = "Click me";
-		bp.rect.width = 100;
-		bp.rect.height = 20;
-
-		appendWidget(LLUICtrlFactory::create<LLButton>(bp), "button", true, false);
-	}
-	*/
-	if (mReadOnly)
-	{
-		if(mScroller)
-		{
-			handled = mScroller->handleKeyHere( key, mask );
+		handled = (mScroller && mScroller->handleKeyHere( key, mask ))
+				|| handleSelectionKey(key, mask)
+				|| handleControlKey(key, mask);
 		}
 		else 
 		{
-			handled = handleNavigationKey( key, mask );
-		}
-
-	}
-	else
-	{
-		// handle navigation keys ourself
-		handled = handleNavigationKey( key, mask );
-	}
-
-
-	if( handled )
-	{
-		text_may_have_changed = FALSE;
-	}
-		
-	if( !handled )
-	{
-		handled = handleSelectionKey( key, mask );
-		if( handled )
-		{
-			selection_modified = TRUE;
-		}
-	}
-
-	if( !handled )
-	{
-		handled = handleControlKey( key, mask );
-		if( handled )
-		{
-			selection_modified = TRUE;
-		}
-	}
-
-	if( !handled && mHandleEditKeysDirectly )
-	{
-		handled = handleEditKey( key, mask );
-		if( handled )
-		{
-			selection_modified = TRUE;
-			text_may_have_changed = TRUE;
-		}
-	}
-
-	// Handle most keys only if the text editor is writeable.
-	if( !mReadOnly )
-	{
-		if( !handled )
-		{
-			handled = handleSpecialKey( key, mask, &return_key_hit );
-			if( handled )
-			{
-				selection_modified = TRUE;
-				text_may_have_changed = TRUE;
-			}
-		}
-
+		handled = handleNavigationKey( key, mask )
+				|| handleSelectionKey(key, mask)
+				|| handleControlKey(key, mask)
+				|| handleSpecialKey(key, mask);
 	}
 
 	if( handled )
 	{
 		resetCursorBlink();
-
-		// Most keystrokes will make the selection box go away, but not all will.
-		if( !selection_modified &&
-			KEY_SHIFT != key &&
-			KEY_CONTROL != key &&
-			KEY_ALT != key &&
-			KEY_CAPSLOCK )
-		{
-			deselect();
-		}
-
-		if(text_may_have_changed)
-		{
-			onKeyStroke();
-		}
 		needsScroll();
 	}
 
@@ -2334,7 +2150,7 @@ void LLTextEditor::getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wo
 void LLTextEditor::autoIndent()
 {
 	// Count the number of spaces in the current line
-	S32 line = getLineNumFromDocIndex(mCursorPos);
+	S32 line = getLineNumFromDocIndex(mCursorPos, false);
 	S32 line_start = getLineStart(line);
 	S32 space_count = 0;
 	S32 i;

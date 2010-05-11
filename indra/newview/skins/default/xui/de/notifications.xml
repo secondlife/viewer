@@ -359,7 +359,7 @@ Sind Sie sicher, dass Sie fortfahren wollen?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		Auswahl [PICK] löschen?
+		Auswahl &lt;nolink&gt;[PICK]&lt;/nolink&gt; löschen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -937,6 +937,16 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 			<button name="Cancel" text="Abbrechen"/>
 		</form>
 	</notification>
+	<notification label="Outfit speichern" name="SaveOutfitAs">
+		Mein aktuelles Outfit als neues Outfit speichern:
+		<form name="form">
+			<input name="message">
+				[DESC] (neu)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Abbrechen"/>
+		</form>
+	</notification>
 	<notification name="RemoveFromFriends">
 		Möchten Sie [FIRST_NAME] [LAST_NAME] aus Ihrer Freundesliste entfernen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
@@ -1426,6 +1436,10 @@ Chat und Instant Messages werden ausgeblendet. Instant Messages (Sofortnachricht
 		Zu [CLASSIFIED] teleportieren?
 		<usetemplate ignoretext="Bestätigen, dass ich zu einer Position in Anzeigen teleportieren möchte." name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
 	</notification>
+	<notification name="TeleportToHistoryEntry">
+		Nach [HISTORY_ENTRY] teleportieren?
+		<usetemplate ignoretext="Bestätigen, dass ich zu einem Standort aus der Teleportliste teleportieren möchte" name="okcancelignore" notext="Abbrechen" yestext="Teleportieren"/>
+	</notification>
 	<notification label="Nachricht an alle auf diesem Grundbesitz" name="MessageEstate">
 		Geben Sie eine kurze Nachricht ein, die an jede Person auf Ihrem Grundbesitz gesendet wird.
 		<form name="form">
@@ -1516,6 +1530,9 @@ Klicken Sie auf „Einstellung ändern“, um Ihre Einstellung für Altereinstuf
 			<button name="Cancel" text="Schließen"/>
 			<ignore name="ignore" text="Meine Alterseinstufung lässt nicht zu, dass ich eine Region betrete."/>
 		</form>
+	</notification>
+	<notification name="PreferredMaturityChanged">
+		Ihre Inhaltseinstufung ist jetzt [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		Sie haben aufgrund Ihrer Alterseinstufung keinen Anspruch auf dieses Land. Der Grund hierfür ist möglicherweise, dass Sie nicht altersüberprüft sind.
@@ -1725,7 +1742,7 @@ Inventarobjekt(e) verschieben?
 	<notification name="ClickActionNotPayable">
 		Achtung: Die Klickaktion „Objekt bezahlen&quot; wurde eingestellt. Diese funktioniert jedoch nicht, wenn ein Skript mit einer Geldtransaktion () hinzugefügt wird.
 		<form name="form">
-			<ignore name="ignore" text="I habe die Aktion „Objekt bezahlen&quot; eingestellt, während ich ein Objekt gebaut habe, dass kein Geld()-Skript enthält."/>
+			<ignore name="ignore" text="Ich habe die Aktion „Objekt bezahlen&quot; eingestellt, während ich ein Objekt gebaut habe, dass kein Geld()-Skript enthält."/>
 		</form>
 	</notification>
 	<notification name="OpenObjectCannotCopy">
@@ -1932,6 +1949,9 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 	<notification name="SystemMessageTip">
 		[MESSAGE]
 	</notification>
+	<notification name="IMSystemMessageTip">
+		[MESSAGE]
+	</notification>
 	<notification name="Cancelled">
 		Abgebrochen
 	</notification>
@@ -1959,6 +1979,11 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 	<notification name="UploadingAuctionSnapshot">
 		In-Welt- und Website-Fotos werden hochgeladen...
 (Dauert ca. 5 Minuten.)
+	</notification>
+	<notification name="UploadConfirmation">
+		Kosten für Hochladen: [AMOUNT] L$.
+Möchten Sie fortfahren?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Hochladen"/>
 	</notification>
 	<notification name="UploadPayment">
 		Sie haben für das Hochladen [AMOUNT] L$ bezahlt.
@@ -2304,9 +2329,9 @@ Versuchen Sie es in einigen Minuten erneut.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] hat Ihnen einen Teleport an seine/ihre Position angeboten:
+		[NAME_SLURL] hat Ihnen einen Teleport an seine/ihre Position angeboten:
 
-[MESSAGE]
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
 		<form name="form">
 			<button name="Teleport" text="Teleportieren"/>
 			<button name="Cancel" text="Abbrechen"/>
@@ -2324,11 +2349,11 @@ Versuchen Sie es in einigen Minuten erneut.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME] bietet Ihnen die Freundschaft an.
+		[NAME_SLURL] bietet Ihnen die Freundschaft an.
 
 [MESSAGE]
 
-(Standardmäßig werden Sie gegenseitig ihren Online-Status sehen können.)
+(Standardmäßig können Sie gegenseitig ihren Online-Status sehen.)
 		<form name="form">
 			<button name="Accept" text="Akzeptieren"/>
 			<button name="Decline" text="Ablehnen"/>
@@ -2391,6 +2416,9 @@ Von Objekt: [OBJECTNAME], Eigentümer: [NAME]?
 	<notification name="FailedToFindWearable">
 		[TYPE] namens [DESC] nicht in Datenbank.
 	</notification>
+	<notification name="ShareToWebFailed">
+		Bild aus Internet konnte nicht hochgeladen werden.
+	</notification>
 	<notification name="InvalidWearable">
 		Dieser Artikel verwendet eine Funktion, die Ihr Viewer nicht unterstützt. Bitte aktualisieren Sie Ihre Version von [APP_NAME], um dieses Objekt anziehen zu können.
 	</notification>
@@ -2430,14 +2458,6 @@ Anfrage gestatten?
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="Ignorieren"/>
-		</form>
-	</notification>
-	<notification name="ScriptToast">
-		[FIRST] [LAST]s &apos;[TITLE]&apos; fordert Eingaben vom Benutzer an.
-		<form name="form">
-			<button name="Open" text="Dialog öffnen"/>
-			<button name="Ignore" text="Ignorieren"/>
-			<button name="Block" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2595,6 +2615,12 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 	<notification name="BottomTrayButtonCanNotBeShown">
 		Die ausgewählte Schaltfläche kann zur Zeit nicht angezeigt werden.
 Die Schaltfläche wird angezeigt, wenn genügend Platz vorhanden ist.
+	</notification>
+	<notification name="ShareNotification">
+		Artikel aus Inventar auf eine Person im Fenster „Einwohner auswählen“ ziehen.
+	</notification>
+	<notification name="AvatarRezNotification">
+		Avatar &apos;[NAME]&apos; wurde in [TIME] Sekunden gerezzt.
 	</notification>
 	<global name="UnsupportedCPU">
 		- Ihre CPU-Geschwindigkeit entspricht nicht den Mindestanforderungen.

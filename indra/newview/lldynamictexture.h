@@ -41,6 +41,19 @@
 
 class LLViewerDynamicTexture : public LLViewerTexture
 {
+public:
+	enum
+	{
+		LL_VIEWER_DYNAMIC_TEXTURE = LLViewerTexture::DYNAMIC_TEXTURE,
+		LL_TEX_LAYER_SET_BUFFER = LLViewerTexture::INVALID_TEXTURE_TYPE + 1,
+		LL_VISUAL_PARAM_HINT,
+		LL_VISUAL_PARAM_RESET,
+		LL_PREVIEW_ANIMATION,
+		LL_IMAGE_PREVIEW_SCULPTED,
+		LL_IMAGE_PREVIEW_AVATAR,
+		INVALID_DYNAMIC_TEXTURE
+	};
+
 protected:
 	/*virtual*/ ~LLViewerDynamicTexture();
 

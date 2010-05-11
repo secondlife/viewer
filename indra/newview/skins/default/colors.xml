@@ -61,7 +61,7 @@
 	value="0.26 0.345 0.263 1" />
 	<color
 	 name="Red"
-	 value="0.729 0 0.121 1" />
+	 value="1 0 0 1" />
 	<color
 	 name="Blue"
 	 value="0 0 1 1" />
@@ -194,7 +194,7 @@
      value="0.5 0.5 0.5 1" />
     <color
      name="ColorPaletteEntry03"
-     value="0.3344 0.5456 0.5159 1" />
+     value="0.5 0 0 1" />
     <color
      name="ColorPaletteEntry04"
      value="0.5 0.5 0 1" />
@@ -236,7 +236,7 @@
      reference="LtYellow" />
     <color
      name="ColorPaletteEntry17"
-     reference="LtGreen" />
+     reference="White" />
     <color
      name="ColorPaletteEntry18"
      reference="LtGray" />
@@ -245,7 +245,7 @@
      reference="Red" />
     <color
      name="ColorPaletteEntry20"
-     reference=".5 .5 1 0" />
+     reference="Yellow" />
     <color
      name="ColorPaletteEntry21"
      reference="Green" />
@@ -418,6 +418,9 @@
      name="InventoryItemSuffixColor"
      reference="White_25" />
     <color
+     name="InventoryItemLibraryColor"
+     reference="EmphasisColor" />
+    <color
      name="InventorySearchStatusColor"
      reference="EmphasisColor" />
     <color
@@ -553,7 +556,7 @@
      value="1 1 1 1" />
     <color
      name="NetMapBackgroundColor"
-     value="0 0 0 0.3" />
+     value="0 0 0 0" />
     <color
      name="NetMapGroupOwnAboveWater"
      reference="Purple" />
@@ -763,7 +766,10 @@
     <color
      name="ChatToastAgentNameColor"
      reference="EmphasisColor" />
-  <color
+    <color
     name="ColorSwatchBorderColor"
     value="0.45098 0.517647 0.607843 1"/>
+    <color
+     name="ChatTimestampColor"
+     reference="White" />
 </colors>

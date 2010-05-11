@@ -11,7 +11,7 @@
 	<menu_item_call label="Segnala" name="report"/>
 	<menu_item_call label="Congela" name="freeze"/>
 	<menu_item_call label="Espelli" name="eject"/>
-	<menu_item_call label="Debug" name="debug"/>
+	<menu_item_call label="Debug delle texture" name="debug"/>
 	<menu_item_call label="Trova sulla mappa" name="find_on_map"/>
 	<menu_item_call label="Zoom avanti" name="zoom_in"/>
 	<menu_item_call label="Paga" name="pay"/>

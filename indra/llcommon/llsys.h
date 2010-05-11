@@ -81,7 +81,7 @@ public:
 	bool hasAltivec() const;
 	bool hasSSE() const;
 	bool hasSSE2() const;
-	S32	 getMhz() const;
+	F64 getMHz() const;
 
 	// Family is "AMD Duron" or "Intel Pentium Pro"
 	const std::string& getFamily() const { return mFamily; }
@@ -90,7 +90,7 @@ private:
 	bool mHasSSE;
 	bool mHasSSE2;
 	bool mHasAltivec;
-	S32 mCPUMhz;
+	F64 mCPUMHz;
 	std::string mFamily;
 	std::string mCPUString;
 };

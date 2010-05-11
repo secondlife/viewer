@@ -89,6 +89,13 @@ void LLTeleportHistoryStorage::onTeleportHistoryChange()
 	if (!th)
 		return;
 
+	// Hacky sanity check. (EXT-6798)
+	if (th->getItems().size() == 0)
+	{
+		llassert(!"Inconsistent teleport history state");
+		return;
+	}
+
 	const LLTeleportHistoryItem &item = th->getItems()[th->getCurrentItemIndex()];
 
 	addItem(item.mTitle, item.mGlobalPos);

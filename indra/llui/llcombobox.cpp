@@ -493,7 +493,6 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 		params.max_length_bytes(mMaxChars);
 		params.commit_callback.function(boost::bind(&LLComboBox::onTextCommit, this, _2));
 		params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
-		params.handle_edit_keys_directly(true);
 		params.commit_on_focus_lost(false);
 		params.follows.flags(FOLLOWS_ALL);
 		params.label(mLabel);

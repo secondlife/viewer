@@ -46,17 +46,27 @@
 				 left="0"
 				 name="info_btn"
 				 top="0"
-				 width="153" />
+				 width="102" />
+			<button
+				 enabled="true"
+				 follows="bottom|left"
+				 height="23"
+				 label="Share"
+				 layout="topleft"
+				 left="105"
+				 name="share_btn"
+				 top="0"
+				 width="102" />
 			<button
 				 enabled="false"
 				 follows="bottom|left"
 				 height="23"
 				 label="Wear"
 				 layout="topleft"
-				 left="156"
+				 left="210"
 				 name="wear_btn"
 				 top="0"
-				 width="152" />
+				 width="102" />
 			<button
 				 enabled="false"
 				 follows="bottom|left"
@@ -64,19 +74,19 @@
 				 label="Play"
 				 layout="topleft"
 				 name="play_btn"
-				 left="156"
+				 left="210"
 				 top="0"
-				 width="152" />
+				 width="102" />
 			<button
 				 enabled="false"
 				 follows="bottom|left"
 				 height="23"
 				 label="Teleport"
 				 layout="topleft"
-				 left="156"
+				 left="210"
 				 name="teleport_btn"
 				 top="0"
-				 width="152" />
+				 width="102" />
 		</panel>
 	</panel>
 

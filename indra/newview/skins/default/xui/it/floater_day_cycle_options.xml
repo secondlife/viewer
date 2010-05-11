@@ -57,9 +57,9 @@
 			<text name="WL12amHash2">
 				|
 			</text>
-			<button font="SansSerifSmall" width="96" left="546" label="Aggiungi voce" label_selected="Aggiungi voce" name="WLAddKey"/>
-			<button font="SansSerifSmall" width="96" left="546" label="Cancella voce" label_selected="Cancella voce" name="WLDeleteKey"/>
-			<text name="WLCurKeyFrameText" width="210" left="17">
+			<button label="Aggiungi voce" label_selected="Aggiungi voce" name="WLAddKey"/>
+			<button label_selected="Cancella voce" name="WLDeleteKey"/>
+			<text name="WLCurKeyFrameText">
 				Impostazioni del fotogramma chiave:
 			</text>
 			<text name="WLCurKeyTimeText">
@@ -84,9 +84,9 @@
 			<text name="DayCycleText3">
 				Anteprima:
 			</text>
-			<button width="55" font="SansSerifSmall" label="Avvia" label_selected="Avvia" name="WLAnimSky"/>
-			<button width="55" left_delta="60" font="SansSerifSmall" label="Arresta!" label_selected="Arresta" name="WLStopAnimSky"/>
-			<button left_delta="60" width="150" font="SansSerifSmall" label="Usa l&apos;ora della proprietà" label_selected="Vai all&apos;ora della proprietà" name="WLUseLindenTime"/>
+			<button label="Avvia" label_selected="Avvia" name="WLAnimSky"/>
+			<button label="Arresta!" label_selected="Arresta" name="WLStopAnimSky"/>
+			<button label="Usa l&apos;ora della proprietà" label_selected="Vai all&apos;ora della proprietà" name="WLUseLindenTime"/>
 			<button label="Salva il test del giorno" label_selected="Salva il test del giorno" name="WLSaveDayCycle"/>
 			<button label="Carica il test del giorno" label_selected="Carica il test del giorno" name="WLLoadDayCycle"/>
 		</panel>

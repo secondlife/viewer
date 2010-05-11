@@ -70,7 +70,7 @@ public:
 	class ContextMenu
 	{
 	public:
-		virtual void show(LLView* spawning_view, const std::vector<LLUUID>& selected_uuids, S32 x, S32 y) = 0;
+		virtual void show(LLView* spawning_view, const uuid_vec_t& selected_uuids, S32 x, S32 y) = 0;
 	};
 
 	/**
@@ -100,7 +100,7 @@ public:
 	void setName(const std::string& name);
 	void setHighlight(const std::string& highlight);
 	void setState(EItemState item_style);
-	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false);
+	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false, bool is_resident = true);
 	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
 	void setShowProfileBtn(bool show);

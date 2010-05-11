@@ -15,24 +15,10 @@ include_directories(
 
 set(mac_updater_SOURCE_FILES
     mac_updater.cpp
-    FSCopyObject.c
-    GenLinkedList.c
-    MoreFilesX.c
     )
 
 set(mac_updater_HEADER_FILES
     CMakeLists.txt
-
-    FSCopyObject.h
-    GenLinkedList.h
-    MoreFilesX.h
-    )
-
-set_source_files_properties(
-    FSCopyObject.c
-    MoreFilesX.c
-    PROPERTIES
-    COMPILE_FLAGS -Wno-deprecated-declarations
     )
 
 set_source_files_properties(${mac_updater_HEADER_FILES}

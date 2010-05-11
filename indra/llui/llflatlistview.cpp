@@ -1,10 +1,10 @@
 /** 
  * @file llflatlistview.cpp
- * @brief LLFlatListView base class
+ * @brief LLFlatListView base class and extension to support messages for several cases of an empty list.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2009, Linden Research, Inc.
+ * Copyright (c) 2009-2010, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -243,7 +243,7 @@ LLUUID LLFlatListView::getSelectedUUID() const
 	}
 }
 
-void LLFlatListView::getSelectedUUIDs(std::vector<LLUUID>& selected_uuids) const
+void LLFlatListView::getSelectedUUIDs(uuid_vec_t& selected_uuids) const
 {
 	if (mSelectedItemPairs.empty()) return;
 
@@ -295,6 +295,27 @@ void LLFlatListView::resetSelection(bool no_commit_on_deselection /*= false*/)
 void LLFlatListView::setNoItemsCommentText(const std::string& comment_text)
 {
 	mNoItemsCommentTextbox->setValue(comment_text);
+}
+
+U32 LLFlatListView::size(const bool only_visible_items) const
+{
+	if (only_visible_items)
+	{
+		U32 size = 0;
+		for (pairs_const_iterator_t
+				 iter = mItemPairs.begin(),
+				 iter_end = mItemPairs.end();
+			 iter != iter_end; ++iter)
+		{
+			if ((*iter)->first->getVisible())
+				++size;
+		}
+		return size;
+	}
+	else
+	{
+		return mItemPairs.size();
+	}
 }
 
 void LLFlatListView::clear()
@@ -358,6 +379,7 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
   , mCommitOnSelectionChange(false)
   , mPrevNotifyParentRect(LLRect())
   , mNoItemsCommentTextbox(NULL)
+  , mIsConsecutiveSelection(false)
 {
 	mBorderThickness = getBorderWidth();
 
@@ -426,7 +448,7 @@ void LLFlatListView::rearrangeItems()
 {
 	static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
-	setNoItemsCommentVisible(mItemPairs.empty());
+	setNoItemsCommentVisible(0==size());
 
 	if (mItemPairs.empty()) return;
 
@@ -504,7 +526,80 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 
 	//*TODO find a better place for that enforcing stuff
 	if (mKeepOneItemSelected && numSelected() == 1 && !select_item) return;
-	
+
+	if ( (mask & MASK_SHIFT) && !(mask & MASK_CONTROL)
+		 && mMultipleSelection && !mSelectedItemPairs.empty() )
+	{
+		item_pair_t* last_selected_pair = mSelectedItemPairs.back();
+
+		// If item_pair is already selected - do nothing
+		if (last_selected_pair == item_pair)
+			return;
+
+		bool grab_items = false;
+		bool reverse = false;
+		pairs_list_t pairs_to_select;
+
+		// Pick out items from list between last selected and current clicked item_pair.
+		for (pairs_iterator_t
+				 iter = mItemPairs.begin(),
+				 iter_end = mItemPairs.end();
+			 iter != iter_end; ++iter)
+		{
+			item_pair_t* cur = *iter;
+			if (cur == last_selected_pair || cur == item_pair)
+			{
+				// We've got reverse selection if last grabed item isn't a new selection.
+				reverse = grab_items && (cur != item_pair);
+				grab_items = !grab_items;
+				// Skip last selected and current clicked item pairs.
+				continue;
+			}
+			if (!cur->first->getVisible())
+			{
+				// Skip invisible item pairs.
+				continue;
+			}
+			if (grab_items)
+			{
+				pairs_to_select.push_back(cur);
+			}
+		}
+
+		if (reverse)
+		{
+			pairs_to_select.reverse();
+		}
+
+		pairs_to_select.push_back(item_pair);
+
+		for (pairs_iterator_t
+				 iter = pairs_to_select.begin(),
+				 iter_end = pairs_to_select.end();
+			 iter != iter_end; ++iter)
+		{
+			item_pair_t* pair_to_select = *iter;
+			if (isSelected(pair_to_select))
+			{
+				// Item was already selected but there is a need to keep order from last selected pair to new selection.
+				// Do it here to prevent extra mCommitOnSelectionChange in selectItemPair().
+				mSelectedItemPairs.remove(pair_to_select);
+				mSelectedItemPairs.push_back(pair_to_select);
+			}
+			else
+			{
+				selectItemPair(pair_to_select, true);
+			}
+		}
+
+		if (!select_item)
+		{
+			// Update last selected item border.
+			mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
+		}
+		return;
+	}
+
 	if (!(mask & MASK_CONTROL) || !mMultipleSelection) resetSelection();
 	selectItemPair(item_pair, select_item);
 }
@@ -555,15 +650,6 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 				// If case we are in accordion tab notify parent to go to the next accordion
 				if( notifyParent(LLSD().with("action","select_next")) > 0 ) //message was processed
 					resetSelection();
-			}
-			break;
-		}
-		case 'A':
-		{
-			if(MASK_CONTROL & mask)
-			{
-				selectAll();
-				handled = TRUE;
 			}
 			break;
 		}
@@ -676,6 +762,8 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 
 	// Stretch selected item rect to ensure it won't be clipped
 	mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
+	// By default mark it as not consecutive selection
+	mIsConsecutiveSelection = false;
 
 	return true;
 }
@@ -692,14 +780,44 @@ LLRect LLFlatListView::getLastSelectedItemRect()
 
 void LLFlatListView::selectFirstItem	()
 {
-	selectItemPair(mItemPairs.front(), true);
-	ensureSelectedVisible();
+	// No items - no actions!
+	if (0 == size()) return;
+
+	// Select first visible item
+	for (pairs_iterator_t
+			 iter = mItemPairs.begin(),
+			 iter_end = mItemPairs.end();
+		 iter != iter_end; ++iter)
+	{
+		// skip invisible items
+		if ( (*iter)->first->getVisible() )
+		{
+			selectItemPair(*iter, true);
+			ensureSelectedVisible();
+			break;
+		}
+	}
 }
 
 void LLFlatListView::selectLastItem		()
 {
-	selectItemPair(mItemPairs.back(), true);
-	ensureSelectedVisible();
+	// No items - no actions!
+	if (0 == size()) return;
+
+	// Select last visible item
+	for (pairs_list_t::reverse_iterator
+			 r_iter = mItemPairs.rbegin(),
+			 r_iter_end = mItemPairs.rend();
+		 r_iter != r_iter_end; ++r_iter)
+	{
+		// skip invisible items
+		if ( (*r_iter)->first->getVisible() )
+		{
+			selectItemPair(*r_iter, true);
+			ensureSelectedVisible();
+			break;
+		}
+	}
 }
 
 void LLFlatListView::ensureSelectedVisible()
@@ -717,14 +835,25 @@ void LLFlatListView::ensureSelectedVisible()
 bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selection)
 {
 	// No items - no actions!
-	if ( !mItemPairs.size() )
+	if ( 0 == size() )
 		return false;
 
-	
-	item_pair_t* to_sel_pair = NULL;
-	item_pair_t* cur_sel_pair = NULL;
+	if (!mIsConsecutiveSelection)
+	{
+		// Leave only one item selected if list has not consecutive selection
+		if (mSelectedItemPairs.size() && !reset_selection)
+		{
+			item_pair_t* cur_sel_pair = mSelectedItemPairs.back();
+			resetSelection();
+			selectItemPair (cur_sel_pair, true);
+		}
+	}
+
 	if ( mSelectedItemPairs.size() )
 	{
+		item_pair_t* to_sel_pair = NULL;
+		item_pair_t* cur_sel_pair = NULL;
+
 		// Take the last selected pair
 		cur_sel_pair = mSelectedItemPairs.back();
 		// Bases on given direction choose next item to select
@@ -758,43 +887,52 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 				}
 			}
 		}
+
+		if ( to_sel_pair )
+		{
+			bool select = true;
+			if ( reset_selection )
+			{
+				// Reset current selection if we were asked about it
+				resetSelection();
+			}
+			else
+			{
+				// If item already selected and no reset request than we should deselect last selected item.
+				select = (mSelectedItemPairs.end() == std::find(mSelectedItemPairs.begin(), mSelectedItemPairs.end(), to_sel_pair));
+			}
+			// Select/Deselect next item
+			selectItemPair(select ? to_sel_pair : cur_sel_pair, select);
+			// Mark it as consecutive selection
+			mIsConsecutiveSelection = true;
+			return true;
+		}
 	}
 	else
 	{
 		// If there weren't selected items then choose the first one bases on given direction
-		cur_sel_pair = (is_up_direction) ? mItemPairs.back() : mItemPairs.front();
 		// Force selection to first item
-		to_sel_pair = cur_sel_pair;
-	}
-
-
-	if ( to_sel_pair )
-	{
-		bool select = true;
-
-		if ( reset_selection )
-		{
-			// Reset current selection if we were asked about it
-			resetSelection();
-		}
+		if (is_up_direction)
+			selectLastItem();
 		else
-		{
-			// If item already selected and no reset request than we should deselect last selected item.
-			select = (mSelectedItemPairs.end() == std::find(mSelectedItemPairs.begin(), mSelectedItemPairs.end(), to_sel_pair));
-		}
-
-		// Select/Deselect next item
-		selectItemPair(select ? to_sel_pair : cur_sel_pair, select);
-
+			selectFirstItem();
+		// Mark it as consecutive selection
+		mIsConsecutiveSelection = true;
 		return true;
 	}
+
 	return false;
 }
 
-bool LLFlatListView::selectAll()
+BOOL LLFlatListView::canSelectAll() const
 {
-	if (!mAllowSelection)
-		return false;
+	return 0 != size() && mAllowSelection && mMultipleSelection;
+}
+
+void LLFlatListView::selectAll()
+{
+	if (!mAllowSelection || !mMultipleSelection)
+		return;
 
 	mSelectedItemPairs.clear();
 
@@ -814,8 +952,6 @@ bool LLFlatListView::selectAll()
 
 	// Stretch selected item rect to ensure it won't be clipped
 	mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
-
-	return true;
 }
 
 bool LLFlatListView::isSelected(item_pair_t* item_pair) const
@@ -953,11 +1089,17 @@ void LLFlatListView::getValues(std::vector<LLSD>& values) const
 void LLFlatListView::onFocusReceived()
 {
 	mSelectedItemsBorder->setVisible(TRUE);
+	gEditMenuHandler = this;
 }
 // virtual
 void LLFlatListView::onFocusLost()
 {
 	mSelectedItemsBorder->setVisible(FALSE);
+	// Route menu back to the default
+ 	if( gEditMenuHandler == this )
+	{
+		gEditMenuHandler = NULL;
+	}
 }
 
 //virtual 
@@ -1059,6 +1201,92 @@ void LLFlatListView::detachItems(std::vector<LLPanel*>& detached_items)
 		}
 		notifyParentItemsRectChanged();
 	}
+}
+
+
+/************************************************************************/
+/*             LLFlatListViewEx implementation                          */
+/************************************************************************/
+LLFlatListViewEx::Params::Params()
+: no_items_msg("no_items_msg")
+, no_filtered_items_msg("no_filtered_items_msg")
+{
+
+}
+
+LLFlatListViewEx::LLFlatListViewEx(const Params& p)
+:	LLFlatListView(p)
+, mNoFilteredItemsMsg(p.no_filtered_items_msg)
+, mNoItemsMsg(p.no_items_msg)
+{
+
+}
+
+void LLFlatListViewEx::updateNoItemsMessage(const std::string& filter_string)
+{
+	bool items_filtered = !filter_string.empty();
+	if (items_filtered)
+	{
+		// items were filtered
+		LLStringUtil::format_map_t args;
+		args["[SEARCH_TERM]"] = LLURI::escape(filter_string);
+		std::string text = mNoFilteredItemsMsg;
+		LLStringUtil::format(text, args);
+		setNoItemsCommentText(text);
+	}
+	else
+	{
+		// list does not contain any items at all
+		setNoItemsCommentText(mNoItemsMsg);
+	}
+
+}
+
+void LLFlatListViewEx::setFilterSubString(const std::string& filter_str)
+{
+	if (0 != LLStringUtil::compareInsensitive(filter_str, mFilterSubString))
+	{
+		mFilterSubString = filter_str;
+		updateNoItemsMessage(mFilterSubString);
+		filterItems();
+	}
+}
+
+void LLFlatListViewEx::filterItems()
+{
+	typedef std::vector <LLPanel*> item_panel_list_t;
+
+	std::string cur_filter = mFilterSubString;
+	LLStringUtil::toUpper(cur_filter);
+
+	LLSD action;
+	action.with("match_filter", cur_filter);
+
+	item_panel_list_t items;
+	getItems(items);
+
+	for (item_panel_list_t::iterator
+			 iter = items.begin(),
+			 iter_end = items.end();
+		 iter != iter_end; ++iter)
+	{
+		LLPanel* pItem = (*iter);
+		// 0 signifies that filter is matched,
+		// i.e. we don't hide items that don't support 'match_filter' action, separators etc.
+		if (0 == pItem->notify(action))
+		{
+			pItem->setVisible(true);
+		}
+		else
+		{
+			// TODO: implement (re)storing of current selection.
+			selectItem(pItem, false);
+			pItem->setVisible(false);
+		}
+	}
+
+	rearrangeItems();
+	notifyParentItemsRectChanged();
 }
 
 //EOF

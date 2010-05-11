@@ -824,7 +824,7 @@ void LLButton::draw()
 			x = text_right;
 			break;
 		case LLFontGL::HCENTER:
-			x = getRect().getWidth() / 2;
+			x = text_left + (text_width / 2);
 			break;
 		case LLFontGL::LEFT:
 		default:
@@ -1001,6 +1001,11 @@ void LLButton::setImageDisabledSelected(LLPointer<LLUIImage> image)
 	mImageDisabledSelected = image;
 	mDisabledImageColor = mImageColor;
 	mFadeWhenDisabled = TRUE;
+}
+
+void LLButton::setImagePressed(LLPointer<LLUIImage> image)
+{
+	mImagePressed = image;
 }
 
 void LLButton::setImageHoverSelected(LLPointer<LLUIImage> image)

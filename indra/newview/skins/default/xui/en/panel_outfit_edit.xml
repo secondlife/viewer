@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!-- Side tray Outfit Edit panel -->
+<panel
+ background_visible="true"
+ border="false"
+ height="600"
+ follows="all"
+ label="Outfit Edit"
+ layout="topleft"
+ left="0"
+ min_height="350"
+ name="outfit_edit"
+ top="0"
+ width="320">
+    <string
+     name="No Outfit"
+     value="No Outfit"/>
+	
+	<panel.string
+		name="not_available">
+		(N\A)
+	</panel.string>
+	<panel.string
+		name="unknown">
+		(unknown)
+	</panel.string>
+
+    <!-- Wearables filtering strings -->
+    <string name="Filter.All" value="All"/>
+    <string name="Filter.Clothes/Body" value="Clothes/Body"/>
+    <string name="Filter.Objects" value="Objects"/>
+
+  <!-- 
+  TODO remove this button. Added it temporary for QA to be able to test new edit wearable 
+  panel (see EXT-6564)
+  -->
+				<button
+				  follows="left|top|right"
+				  height="20"
+				  label="edit"
+				  left="0"
+				  top="0"
+				  layout="topleft"
+				  name="edit_wearable_btn"
+				  width="40" /> 
+  
+    <button
+     follows="top|left"
+     height="23"
+     image_overlay="BackArrow_Off"
+     layout="topleft"
+     name="back_btn"
+     left="5"
+     tab_stop="false"
+     top="2"
+     width="23" />
+    <text
+     follows="top|right"
+     font="SansSerifHugeBold"
+     height="26"
+     layout="topleft"
+     left_pad="20"
+     name="title"
+     text_color="LtGray"
+     top="0"
+     value="Edit Outfit"
+     use_ellipses="true"
+     width="275" /> 
+
+<!-- "HEADER WITH ICON, STATUS TEXT AND OUTFIT NAME" -->
+    <panel
+     background_visible="true"
+     bg_alpha_color="DkGray2"
+     bevel_style="none"
+     follows="top|left|right"
+     height="40"
+     label="bottom_panel"
+     layout="topleft"
+     left="6"
+     name="header_panel"
+     top_pad="5" 
+     width="311">
+        <icon
+         follows="left|top"
+         height="40"
+         image_name="TabIcon_Appearance_Off"
+         left="2"
+         mouse_opaque="false"
+         name="outfit_icon"
+         top="1"
+         scale_image="true"
+         visible="true"
+         width="35" />
+            <panel
+             bevel_style="none"
+             follows="top|right"
+             height="38"
+             label="bottom_panel"
+             layout="topleft"
+             left_pad="5"
+             name="outfit_name_and_status"
+             top="2"
+             width="270">
+                <text
+                 follows="top|left|right"
+                 font="SansSerifSmallBold"
+                 height="13"
+                 layout="topleft"
+                 name="status"
+                 text_color="EmphasisColor"
+                 top="2"
+                 value="Now editing..."
+                 use_ellipses="true"
+                 width="270" /> 
+                <text
+                 follows="bottom|left|right"
+                 font="SansSerifLargeBold"
+                 height="26"
+                 layout="topleft"
+                 name="curr_outfit_name"
+                 text_color="LtGray"
+                 top_pad="2"
+                 value="[Current Outfit]"
+                 use_ellipses="true"
+                 width="270" /> 
+            </panel>
+    </panel>
+
+
+<!-- LIST OF WEARABLES (CURRENT OUTFIT/ WEARABLES TO ADD) -->
+    <layout_stack
+     animate="false"
+     default_tab_group="2"
+     follows="all"
+     height="495"
+     width="313"
+     layout="topleft"
+     orientation="vertical"
+     name="im_panels"
+     tab_group="1"
+     top_pad="5"
+     left="5">
+        <layout_panel
+         layout="topleft"
+         height="220"
+         label="IM Control Panel"
+         min_height="100"
+         name="outfit_wearables_panel"
+         width="313"
+         auto_resize="true"
+         user_resize="true">
+
+            <!-- List containing items from the COF and Base outfit -->
+            <panel
+             background_visible="false"
+             class="cof_wearables"
+             filename="panel_cof_wearables.xml"
+             follows="left|top|right|bottom"
+             height="193"
+             layout="topleft"
+             left="1"
+             name="cof_wearables_list"
+             top="0"
+             width="311" />
+
+          <!-- Button bar -->
+          <panel
+             background_visible="true"
+             bevel_style="none"
+             follows="bottom|left|right"
+             height="27"
+             label="bottom_panel"
+             layout="topleft"
+             left="0"
+             name="edit_panel"
+             top="193"
+             width="313">
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Left_Over"
+                 image_overlay="OptionsMenu_Off"
+                 image_selected="Toolbar_Left_Selected"
+                 image_unselected="Toolbar_Left_Off"
+                 layout="topleft"
+                 left="0"
+                 name="gear_menu_btn"
+                 top="1"
+                 width="31" />
+                <icon
+                 follows="bottom|left|right"
+                 height="25"
+                 image_name="Toolbar_Right_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="dummy_right_icon"
+                 width="281" />
+            </panel>
+        </layout_panel>
+
+
+        <layout_panel
+         auto_resize="true"
+         default_tab_group="3"
+         height="210" 
+         min_height="210"
+         name="add_wearables_panel"
+         width="313"
+         tab_group="2"
+         user_resize="true"
+         visible="false">
+
+            <!-- *NOTE is not used, invisible and disabled -->
+            <filter_editor
+             background_image="TextField_Search_Off"
+             enabled="false"
+             follows="left|top|right"
+             font="SansSerif"
+             label="Filter"
+             layout="topleft"
+             left="5"
+             width="290"
+             height="20"
+             name="look_item_filter"
+             text_color="black"
+             text_pad_left="25"
+             visible="false"/>
+
+            <layout_stack
+             animate="true"
+             follows="all"
+             height="25"
+             width="300"
+             layout="topleft"
+             orientation="horizontal"
+             name="filter_panels"
+             top="0"
+             left="0">
+                <layout_panel
+                 layout="topleft"
+                 follows="left|top|right"
+                 height="25"
+                 label="IM Control Panel"
+                 name="filter_button_panel"
+                 width="150"
+                 auto_resize="true"
+                 user_resize="false">
+                    <text
+                     follows="top|left|right"
+                     font="SansSerifBold"
+                     height="13"
+                     layout="topleft"
+                     left="5"
+                     name="add_to_outfit_label"
+                     text_color="LtGray"
+                     top="3"
+                     value="Add to Outfit:"
+                     use_ellipses="true"
+                     width="270" />
+                    <button
+                     follows="top|right"
+                     height="20"
+                     image_hover_unselected="Toolbar_Middle_Over"
+                     image_overlay=""
+                     image_selected="Toolbar_Middle_Selected"
+                     image_unselected="Toolbar_Middle_Off"
+                     is_toggle="true"
+                     label="O"
+                     layout="topleft"
+                     right="-1"
+                     name="filter_button"
+                     top="3"
+                     width="20" />
+                </layout_panel>
+                <layout_panel
+                 auto_resize="true"
+                 height="25"
+                 min_width="130"
+                 name="filter_combobox_panel"
+                 width="150"
+                 user_resize="false"
+                 visible="false">
+                    <combo_box
+                     follows="top|left|right"
+                     height="20"
+                     layout="topleft"
+                     right="-5"
+                     name="filter_wearables_combobox"
+                     top="0"
+                     width="130"/>
+                </layout_panel>
+            </layout_stack>
+
+            <inventory_panel
+             allow_multi_select="false"
+             border="false"
+             follows="left|top|right|bottom"
+             height="155"
+             layout="topleft"
+             left="0"
+             mouse_opaque="false"
+             name="inventory_items"
+             top_pad="5"
+             width="300"/>
+
+            <panel
+             name="filtered_wearables_panel"
+             background_opaque="true"
+             background_visible="true"
+             layout="topleft"
+             follows="left|top|right|bottom"
+             border="false"
+             height="155"
+             left="0"
+             mouse_opaque="false"
+             width="300"
+             top_delta="0"
+             visible="false">
+             <wearable_items_list
+              name="filtered_wearables_list"
+              allow_select="true"
+              layout="topleft"
+              follows="all"
+              width="300"
+              height="155"
+              left="0"
+              top="0" />
+            </panel>
+
+            <panel
+             background_visible="true"
+             bevel_style="none"
+             follows="left|right|bottom"
+             height="27"
+             label="add_wearables_button_bar"
+             layout="topleft"
+             left="0"
+             name="add_wearables_button_bar"
+             top_pad="0"
+             width="300">
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Left_Over"
+                 image_overlay="OptionsMenu_Off"
+                 image_selected="Toolbar_Left_Selected"
+                 image_unselected="Toolbar_Left_Off"
+                 layout="topleft"
+                 left="0"
+                 name="wearables_gear_menu_btn"
+                 top="1"
+                 width="31" />
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay=""
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 label="F"
+                 layout="topleft"
+                 left_pad="1"
+                 name="folder_view_btn"
+                 top="1"
+                 width="31" />
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay=""
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 label="L"
+                 layout="topleft"
+                 left_pad="1"
+                 name="list_view_btn"
+                 top="1"
+                 width="31" />
+                <button
+                 follows="bottom|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="AddItem_Off"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 label=""
+                 layout="topleft"
+                 left_pad="1"
+                 name="add_to_outfit_btn"
+                 top="1"
+                 width="31" />
+            </panel>
+        </layout_panel>
+    </layout_stack>
+
+    <panel
+     follows="left|right|bottom"
+     height="30"
+     layout="topleft"
+     left="4"
+     top_pad="2"
+     name="save_revert_button_bar"
+     width="300">
+        <button
+         follows="bottom|left"
+         height="23"
+         label="Save"
+         left="0"
+         layout="topleft"
+         name="save_btn"
+         top="0"
+         width="155" />
+        <button
+         follows="bottom|left"
+         height="23"
+         name="save_flyout_btn"
+         label=""
+         layout="topleft"
+         left_pad="-20"
+         tab_stop="false"
+         top="0"
+         image_selected="SegmentedBtn_Right_Selected_Press"
+         image_unselected="SegmentedBtn_Right_Off"
+         image_pressed="SegmentedBtn_Right_Press"
+         image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+         image_overlay="Arrow_Small_Up"
+         width="20"/>
+        <button
+         follows="bottom|left|right"
+         height="23"
+         left_pad="12"
+         label="Revert"
+         layout="topleft"
+         name="revert_btn"
+         top="0"
+         width="147" />
+    </panel>
+</panel>

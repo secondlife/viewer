@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="mute by name" title="NEGEER OBJECT OP NAAM">
-	<text name="message" bottom_delta="-40">
-		Negeer op naam heeft alleen invloed op object chat
-en IM, niet op geluiden. U dient de naam van het object 
-exact te typen.
+<floater name="mute by name" title="BLOKKEER VOORWERP BIJ NAAM">
+	<text bottom_delta="-40" name="message">
+		Blokkeer een Voorwerp:
 	</text>
-	<line_editor name="object_name" bottom_delta="-58">
+	<line_editor bottom_delta="-58" name="object_name">
 		Object naam
 	</line_editor>
+	<text name="note">
+		* Blokkeerd alleen object tekst, niet de geluiden
+	</text>
 	<button label="Ok" name="OK"/>
 	<button label="Annuleren" name="Cancel"/>
 </floater>

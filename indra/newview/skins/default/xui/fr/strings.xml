@@ -261,6 +261,9 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Fermer (Ctrl+W)
 	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		Fermer
+	</string>
 	<string name="BUTTON_RESTORE">
 		Restaurer
 	</string>
@@ -302,6 +305,9 @@
 	</string>
 	<string name="GroupNameNone">
 		(aucun)
+	</string>
+	<string name="AvalineCaller">
+		Appelant Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Aucune erreur
@@ -904,7 +910,7 @@
 		Appuyez sur ESC pour quitter la vue subjective
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Objet inexistant dans l&apos;inventaire. Voir [secondlife:///app/search/groups &quot;Rechercher&quot;].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/all Rechercher].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Faites glisser un repère ici pour l&apos;ajouter à vos Favoris.
@@ -1575,9 +1581,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		Il n&apos;y a aucun règlement pour ce domaine. Le terrain sur ce domaine est vendu par le propriétaire, non par Linden Lab.  Pour en savoir plus, veuillez contacter le propriétaire.
 	</string>
-	<string name="covenant_last_modified">
-		Dernière modification :
-	</string>
+	<string name="covenant_last_modified" value="Dernière modification :"/>
 	<string name="none_text" value=" (aucun)"/>
 	<string name="never_text" value=" (jamais)"/>
 	<string name="GroupOwned">
@@ -2085,7 +2089,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Large
 	</string>
 	<string name="Brow Size">
-		Taille
+		Taille du front
 	</string>
 	<string name="Bug Eyes">
 		Yeux globuleux
@@ -2235,7 +2239,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Extrémités
 	</string>
 	<string name="Egg Head">
-		Forme de la tête
+		Proéminence
 	</string>
 	<string name="Eye Bags">
 		Cernes
@@ -2361,7 +2365,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Gants avec doigts
 	</string>
 	<string name="Glove Length">
-		Longueur des gants
+		Longueur
 	</string>
 	<string name="Hair">
 		Cheveux
@@ -2475,7 +2479,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Angle mâchoire
 	</string>
 	<string name="Jaw Jut">
-		Saillie de la mâchoire
+		Saillie mâchoire
 	</string>
 	<string name="Jaw Shape">
 		Mâchoire
@@ -2559,7 +2563,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Fente labiale
 	</string>
 	<string name="Lip Cleft Depth">
-		Fente labiale
+		Prof. fente labiale
 	</string>
 	<string name="Lip Fullness">
 		Volume des lèvres
@@ -2643,7 +2647,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Abaisser
 	</string>
 	<string name="Lower Bridge">
-		Arête plus basse
+		Arête inférieure
 	</string>
 	<string name="Lower Cheeks">
 		Joue inférieure
@@ -2817,19 +2821,19 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Épaisseur du nez
 	</string>
 	<string name="Nose Tip Angle">
-		Bout du nez
+		Angle bout du nez
 	</string>
 	<string name="Nose Tip Shape">
-		Bout du nez
+		Forme bout du nez
 	</string>
 	<string name="Nose Width">
 		Largeur du nez
 	</string>
 	<string name="Nostril Division">
-		Division des narines
+		Division narines
 	</string>
 	<string name="Nostril Width">
-		Largeur des narines
+		Largeur narines
 	</string>
 	<string name="Opaque">
 		Opaque
@@ -2919,10 +2923,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus rose
 	</string>
 	<string name="Platform Height">
-		Plateforme (hauteur)
+		Platef. (hauteur)
 	</string>
 	<string name="Platform Width">
-		Plateforme (largeur)
+		Platef. (largeur)
 	</string>
 	<string name="Pointy">
 		Pointue
@@ -2946,7 +2950,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Plus
 	</string>
 	<string name="Puffy Eyelids">
-		Cernes
+		Paup. gonflées
 	</string>
 	<string name="Rainbow Color">
 		Couleur arc en ciel
@@ -3012,7 +3016,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Vers la gauche
 	</string>
 	<string name="Shift Mouth">
-		Déplacer la bouche
+		Déplacement
 	</string>
 	<string name="Shift Right">
 		Vers la droite
@@ -3210,7 +3214,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Forme de l&apos;orteil
 	</string>
 	<string name="Toe Thickness">
-		Épaisseur de l&apos;orteil
+		Épaisseur orteil
 	</string>
 	<string name="Torso Length">
 		Longueur du torse
@@ -3237,7 +3241,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Arête supérieure
 	</string>
 	<string name="Upper Cheeks">
-		Pommette
+		Joue supérieure
 	</string>
 	<string name="Upper Chin Cleft">
 		Menton supérieur
@@ -3311,6 +3315,15 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="LocationCtrlDamageTooltip">
 		Santé
 	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		Région de type Adulte
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		Région de type Modéré
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		Région de type Général
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] - Mise à jour
 	</string>
@@ -3341,6 +3354,12 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="UpdaterFailStartTitle">
 		Impossible de lancer le client
 	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME] : transfert trop rapide des articles de [FROM_NAME] ; aperçu automatique désactivé pendant [TIME] secondes
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME] : transfert trop rapide des articles ; aperçu automatique désactivé pendant [TIME] secondes
+	</string>
 	<string name="IM_logging_string">
 		-- Archivage des IM activé --
 	</string>
@@ -3367,6 +3386,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="IM_moderator_label">
 		(Modérateur)
+	</string>
+	<string name="answered_call">
+		Votre appel a fait l&apos;objet d&apos;une réponse
 	</string>
 	<string name="started_call">
 		A appelé quelqu&apos;un
@@ -3461,11 +3483,17 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="unread_chat_multiple">
 		[SOURCES] ont dit quelque chose de nouveau
 	</string>
+	<string name="session_initialization_timed_out_error">
+		Expiration du délai d&apos;initialisation de la session
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] vous a payé [AMOUNT] L$
 	</string>
 	<string name="you_paid_ldollars">
 		Vous avez payé à [AMOUNT] L$ [REASON].
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		Vous avez payé [AMOUNT] L$.
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		Vous avez payé à [NAME] [AMOUNT] L$.
@@ -3576,5 +3604,14 @@ de l&apos;infraction signalée
 	</string>
 	<string name="Contents">
 		Contenus
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		aucun/aucun
+	</string>
+	<string name="texture_load_dimensions_error">
+		Impossible de charger des images de taille supérieure à [WIDTH]*[HEIGHT]
 	</string>
 </strings>

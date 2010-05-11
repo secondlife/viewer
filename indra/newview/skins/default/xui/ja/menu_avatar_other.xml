@@ -10,7 +10,7 @@
 	<menu_item_call label="報告" name="abuse"/>
 	<menu_item_call label="フリーズ" name="Freeze..."/>
 	<menu_item_call label="追放" name="Eject..."/>
-	<menu_item_call label="デバッグ" name="Debug..."/>
+	<menu_item_call label="テクスチャのデバッグ" name="Debug..."/>
 	<menu_item_call label="ズームイン" name="Zoom In"/>
 	<menu_item_call label="支払う" name="Pay..."/>
 </context_menu>

@@ -217,6 +217,8 @@ public:
 	static void removePopup(LLView*);
 	static void clearPopups();
 
+	static void reportBadKeystroke();
+
 	// Ensures view does not overlap mouse cursor, but is inside
 	// the view's parent rectangle.  Used for tooltips, inspectors.
 	// Optionally override the view's default X/Y, which are relative to the

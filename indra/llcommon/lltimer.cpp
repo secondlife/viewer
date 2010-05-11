@@ -209,7 +209,7 @@ F64 calc_clock_frequency(U32 uiMeasureMSecs)
 // Both Linux and Mac use gettimeofday for accurate time
 F64 calc_clock_frequency(unsigned int uiMeasureMSecs)
 {
-	return 1000000.0; // microseconds, so 1 Mhz.
+	return 1000000.0; // microseconds, so 1 MHz.
 }
 
 U64 get_clock_count()

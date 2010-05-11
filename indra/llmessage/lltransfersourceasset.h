@@ -84,24 +84,4 @@ protected:
 	S32 mCurPos;
 };
 
-/**
- * @brief Quick check to see if the asset allows direct download.
- *
- * This might not be the right place for this function call, but it
- * originally started life inside the LLTransferSourceAsset code.
- * @param type The type of asset.
- * @return Returns true if the asset can be fetched by id.
- */
-bool is_asset_fetch_by_id_allowed(LLAssetType::EType type);
-
-/**
- * @brief Quick check to see if all asset data can be known by the viewer.
- *
- * This might not be the right place for this function call, but it
- * originally started life inside the LLTransferSourceAsset code.
- * @param type The type of asset.
- * @return Returns true if the asset id can be transmitted to the viewer.
- */
-bool is_asset_id_knowable(LLAssetType::EType type);
-
 #endif // LL_LLTRANSFERSOURCEASSET_H

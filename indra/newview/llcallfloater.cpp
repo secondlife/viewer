@@ -54,7 +54,7 @@
 #include "llvoicechannel.h"
 #include "llviewerparcelmgr.h"
 
-static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids);
+static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids);
 void reshape_floater(LLCallFloater* floater, S32 delta_height);
 
 class LLNonAvatarCaller : public LLAvatarListItem
@@ -131,11 +131,9 @@ LLCallFloater::~LLCallFloater()
 	mAvatarListRefreshConnection.disconnect();
 	mVoiceChannelStateChangeConnection.disconnect();
 
-	// Don't use LLVoiceClient::getInstance() here 
-	// singleton MAY have already been destroyed.
-	if(gVoiceClient)
+	if(LLVoiceClient::instanceExists())
 	{
-		gVoiceClient->removeObserver(this);
+		LLVoiceClient::instance().removeObserver(this);
 	}
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
@@ -191,7 +189,7 @@ void LLCallFloater::draw()
 	// Seems this is a problem somewhere in Voice Client (LLVoiceClient::participantAddedEvent)
 //	onChange();
 
-	bool is_moderator_muted = gVoiceClient->getIsModeratorMuted(gAgentID);
+	bool is_moderator_muted = LLVoiceClient::getInstance()->getIsModeratorMuted(gAgentID);
 
 	if (mIsModeratorMutedVoice != is_moderator_muted)
 	{
@@ -213,9 +211,9 @@ void LLCallFloater::onChange()
 	updateParticipantsVoiceState();
 
 	// Add newly joined participants.
-	std::vector<LLUUID> speakers_uuids;
+	uuid_vec_t speakers_uuids;
 	get_voice_participants_uuids(speakers_uuids);
-	for (std::vector<LLUUID>::const_iterator it = speakers_uuids.begin(); it != speakers_uuids.end(); it++)
+	for (uuid_vec_t::const_iterator it = speakers_uuids.begin(); it != speakers_uuids.end(); it++)
 	{
 		mParticipants->addAvatarIDExceptAgent(*it);
 	}
@@ -230,7 +228,7 @@ void LLCallFloater::leaveCall()
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
 	if (voice_channel)
 	{
-		voice_channel->deactivate();
+		gIMMgr->endCall(voice_channel->getSessionID());
 	}
 }
 
@@ -336,7 +334,7 @@ void LLCallFloater::refreshParticipantList()
 
 	if (!non_avatar_caller)
 	{
-		mParticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT);
+		mParticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT, false);
 		mParticipants->setValidateSpeakerCallback(boost::bind(&LLCallFloater::validateSpeaker, this, _1));
 		mParticipants->setSortOrder(LLParticipantList::E_SORT_BY_RECENT_SPEAKERS);
 
@@ -469,10 +467,10 @@ void LLCallFloater::updateAgentModeratorState()
 	mAgentPanel->childSetValue("user_text", name);
 }
 
-static void get_voice_participants_uuids(std::vector<LLUUID>& speakers_uuids)
+static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)
 {
 	// Get a list of participants from VoiceClient
-	LLVoiceClient::participantMap *voice_map = gVoiceClient->getParticipantList();
+	LLVoiceClient::participantMap *voice_map = LLVoiceClient::getInstance()->getParticipantList();
 	if (voice_map)
 	{
 		for (LLVoiceClient::participantMap::const_iterator iter = voice_map->begin();
@@ -494,7 +492,7 @@ void LLCallFloater::initParticipantsVoiceState()
 		it_end = items.end();
 
 
-	std::vector<LLUUID> speakers_uuids;
+	uuid_vec_t speakers_uuids;
 	get_voice_participants_uuids(speakers_uuids);
 
 	for(; it != it_end; ++it)
@@ -505,7 +503,7 @@ void LLCallFloater::initParticipantsVoiceState()
 		
 		LLUUID speaker_id = item->getAvatarId();
 
-		std::vector<LLUUID>::const_iterator speaker_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), speaker_id);
+		uuid_vec_t::const_iterator speaker_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), speaker_id);
 
 		// If an avatarID assigned to a panel is found in a speakers list
 		// obtained from VoiceClient we assign the JOINED status to the owner
@@ -534,10 +532,10 @@ void LLCallFloater::initParticipantsVoiceState()
 
 void LLCallFloater::updateParticipantsVoiceState()
 {
-	std::vector<LLUUID> speakers_list;
+	uuid_vec_t speakers_list;
 
 	// Get a list of participants from VoiceClient
-	std::vector<LLUUID> speakers_uuids;
+	uuid_vec_t speakers_uuids;
 	get_voice_participants_uuids(speakers_uuids);
 
 	// Updating the status for each participant already in list.
@@ -555,7 +553,7 @@ void LLCallFloater::updateParticipantsVoiceState()
 		const LLUUID participant_id = item->getAvatarId();
 		bool found = false;
 
-		std::vector<LLUUID>::iterator speakers_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), participant_id);
+		uuid_vec_t::iterator speakers_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), participant_id);
 
 		lldebugs << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << llendl;
 
@@ -603,10 +601,13 @@ void LLCallFloater::updateNotInVoiceParticipantState(LLAvatarListItem* item)
 			}
 		}
 		break;
-	case STATE_INVITED:
 	case STATE_LEFT:
 		// nothing to do. These states should not be changed.
 		break;
+	case STATE_INVITED:
+		// If avatar was invited into group chat and went offline it is still exists in mSpeakerStateMap
+		// If it goes online it will be rendered as JOINED via LAvatarListItem.
+		// Lets update its visual representation. See EXT-6660
 	case STATE_UNKNOWN:
 		// If an avatarID is not found in a speakers list from VoiceClient and
 		// a panel with this ID has an UNKNOWN status this means that this person
@@ -665,8 +666,8 @@ void LLCallFloater::setVoiceRemoveTimer(const LLUUID& voice_speaker_id)
 
 bool LLCallFloater::removeVoiceLeftParticipant(const LLUUID& voice_speaker_id)
 {
-	LLAvatarList::uuid_vector_t& speaker_uuids = mAvatarList->getIDs();
-	LLAvatarList::uuid_vector_t::iterator pos = std::find(speaker_uuids.begin(), speaker_uuids.end(), voice_speaker_id);
+	uuid_vec_t& speaker_uuids = mAvatarList->getIDs();
+	uuid_vec_t::iterator pos = std::find(speaker_uuids.begin(), speaker_uuids.end(), voice_speaker_id);
 	if(pos != speaker_uuids.end())
 	{
 		speaker_uuids.erase(pos);
@@ -695,7 +696,7 @@ bool LLCallFloater::validateSpeaker(const LLUUID& speaker_id)
 	case  VC_LOCAL_CHAT:
 		{
 			// A nearby chat speaker is considered valid it it's known to LLVoiceClient (i.e. has enabled voice).
-			std::vector<LLUUID> speakers;
+			uuid_vec_t speakers;
 			get_voice_participants_uuids(speakers);
 			is_valid = std::find(speakers.begin(), speakers.end(), speaker_id) != speakers.end();
 		}
@@ -727,7 +728,7 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
 	// check is voice operational and if it doesn't work hide VCP (EXT-4397)
-	if(LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking())
+	if(LLVoiceClient::voiceEnabled() && LLVoiceClient::getInstance()->voiceWorking())
 	{
 		updateState(new_state);
 	}

@@ -41,15 +41,16 @@
 #include "llagent.h"
 
 LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-										   LLVFS *vfs, const LLHost &upstream_host)
-		: LLAssetStorage(msg, xfer, vfs, upstream_host)
+										   LLVFS *vfs, LLVFS *static_vfs, 
+										   const LLHost &upstream_host)
+		: LLAssetStorage(msg, xfer, vfs, static_vfs, upstream_host)
 {
 }
 
 
 LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-										   LLVFS *vfs)
-		: LLAssetStorage(msg, xfer, vfs)
+										   LLVFS *vfs, LLVFS *static_vfs)
+		: LLAssetStorage(msg, xfer, vfs, static_vfs)
 {
 }
 

@@ -56,13 +56,11 @@ LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(N
 													mChannel(NULL),
 													mMessageList(NULL),
 													mSysWellChiclet(NULL),
-													mSeparator(NULL),
 													NOTIFICATION_WELL_ANCHOR_NAME("notification_well_panel"),
-													IM_WELL_ANCHOR_NAME("im_well_panel")
+													IM_WELL_ANCHOR_NAME("im_well_panel"),
+													mIsReshapedByUser(false)
 
 {
-	mTypedItemsCount[IT_NOTIFICATION] = 0;
-	mTypedItemsCount[IT_INSTANT_MESSAGE] = 0;
 	setOverlapsScreenChannel(true);
 }
 
@@ -73,18 +71,6 @@ BOOL LLSysWellWindow::postBuild()
 
 	// get a corresponding channel
 	initChannel();
-
-	LLPanel::Params params;
-	mSeparator = LLUICtrlFactory::create<LLPanel>(params);
-	LLUICtrlFactory::instance().buildPanel(mSeparator, "panel_separator.xml");
-
-	LLRect rc = mSeparator->getRect();
-	rc.setOriginAndSize(0, 0, mMessageList->getItemsRect().getWidth(), rc.getHeight());
-	mSeparator->setRect(rc);
-	mSeparator->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
-	mSeparator->setVisible(FALSE);
-
-	mMessageList->addItem(mSeparator);
 
 	// click on SysWell Window should clear "new message" state (and 'Lit' status). EXT-3147.
 	// mouse up callback is not called in this case.
@@ -97,6 +83,13 @@ BOOL LLSysWellWindow::postBuild()
 void LLSysWellWindow::setMinimized(BOOL minimize)
 {
 	LLTransientDockableFloater::setMinimized(minimize);
+}
+
+//---------------------------------------------------------------------------------
+void LLSysWellWindow::handleReshape(const LLRect& rect, bool by_user)
+{
+	mIsReshapedByUser |= by_user; // mark floater that it is reshaped by user
+	LLTransientDockableFloater::handleReshape(rect, by_user);
 }
 
 //---------------------------------------------------------------------------------
@@ -122,7 +115,7 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
 {
 	if(mMessageList->removeItemByValue(id))
 	{
-		handleItemRemoved(IT_NOTIFICATION);
+		mSysWellChiclet->updateWidget(isWindowEmpty());
 		reshapeWindow();
 	}
 	else
@@ -211,7 +204,7 @@ void LLSysWellWindow::reshapeWindow()
 	// it includes height from floater top to list top and from floater bottom and list bottom
 	static S32 parent_list_delta_height = getRect().getHeight() - mMessageList->getRect().getHeight();
 
-	if (isDocked()) // Don't reshape undocked Well window. See EXT-5715.
+	if (!mIsReshapedByUser) // Don't reshape Well window, if it ever was reshaped by user. See EXT-5715.
 	{
 		S32 notif_list_height = mMessageList->getItemsRect().getHeight() + 2 * mMessageList->getBorderWidth();
 
@@ -250,76 +243,7 @@ void LLSysWellWindow::releaseNewMessagesState()
 //---------------------------------------------------------------------------------
 bool LLSysWellWindow::isWindowEmpty()
 {
-	// keep in mind, mSeparator is always in the list
-	return mMessageList->size() == 1;
-}
-
-// *TODO: mantipov: probably is deprecated
-void LLSysWellWindow::handleItemAdded(EItemType added_item_type)
-{
-	bool should_be_shown = ++mTypedItemsCount[added_item_type] == 1 && anotherTypeExists(added_item_type);
-
-	if (should_be_shown && !mSeparator->getVisible())
-	{
-		mSeparator->setVisible(TRUE);
-
-		// refresh list to recalculate mSeparator position
-		mMessageList->reshape(mMessageList->getRect().getWidth(), mMessageList->getRect().getHeight());
-	}
-
-	//fix for EXT-3254
-	//set limits for min_height. 
-	S32 parent_list_delta_height = getRect().getHeight() - mMessageList->getRect().getHeight();
-
-	std::vector<LLPanel*> items;
-	mMessageList->getItems(items);
-
-	if(items.size()>1)//first item is separator
-	{
-		S32 min_height;
-		S32 min_width;
-		getResizeLimits(&min_width,&min_height);
-
-		min_height = items[1]->getRect().getHeight() + 2 * mMessageList->getBorderWidth() + parent_list_delta_height;
-
-		setResizeLimits(min_width,min_height);
-	}
-	mSysWellChiclet->updateWidget(isWindowEmpty());
-}
-
-void LLSysWellWindow::handleItemRemoved(EItemType removed_item_type)
-{
-	bool should_be_hidden = --mTypedItemsCount[removed_item_type] == 0;
-
-	if (should_be_hidden && mSeparator->getVisible())
-	{
-		mSeparator->setVisible(FALSE);
-
-		// refresh list to recalculate mSeparator position
-		mMessageList->reshape(mMessageList->getRect().getWidth(), mMessageList->getRect().getHeight());
-	}
-	mSysWellChiclet->updateWidget(isWindowEmpty());
-}
-
-bool LLSysWellWindow::anotherTypeExists(EItemType item_type)
-{
-	bool exists = false;
-	switch(item_type)
-	{
-	case IT_INSTANT_MESSAGE:
-		if (mTypedItemsCount[IT_NOTIFICATION] > 0)
-		{
-			exists = true;
-		}
-		break;
-	case IT_NOTIFICATION:
-		if (mTypedItemsCount[IT_INSTANT_MESSAGE] > 0)
-		{
-			exists = true;
-		}
-		break;
-	}
-	return exists;
+	return mMessageList->size() == 0;
 }
 
 /************************************************************************/
@@ -551,8 +475,7 @@ void LLNotificationWellWindow::addItem(LLSysWellItem::Params p)
 	LLSysWellItem* new_item = new LLSysWellItem(p);
 	if (mMessageList->addItem(new_item, value, ADD_TOP))
 	{
-		handleItemAdded(IT_NOTIFICATION);
-
+		mSysWellChiclet->updateWidget(isWindowEmpty());
 		reshapeWindow();
 
 		new_item->setOnItemCloseCallback(boost::bind(&LLNotificationWellWindow::onItemClose, this, _1));
@@ -747,9 +670,9 @@ void LLIMWellWindow::addIMRow(const LLUUID& sessionId, S32 chicletCounter,
 							   const std::string& name, const LLUUID& otherParticipantId)
 {
 	RowPanel* item = new RowPanel(this, sessionId, chicletCounter, name, otherParticipantId);
-	if (mMessageList->insertItemAfter(mSeparator, item, sessionId))
+	if (mMessageList->addItem(item, sessionId))
 	{
-		handleItemAdded(IT_INSTANT_MESSAGE);
+		mSysWellChiclet->updateWidget(isWindowEmpty());
 	}
 	else
 	{
@@ -774,7 +697,7 @@ void LLIMWellWindow::delIMRow(const LLUUID& sessionId)
 
 	if (mMessageList->removeItemByValue(sessionId))
 	{
-		handleItemRemoved(IT_INSTANT_MESSAGE);
+		mSysWellChiclet->updateWidget(isWindowEmpty());
 	}
 	else
 	{
@@ -802,9 +725,9 @@ void LLIMWellWindow::addObjectRow(const LLUUID& notification_id, bool new_messag
 	if (mMessageList->getItemByValue(notification_id) == NULL)
 	{
 		ObjectRowPanel* item = new ObjectRowPanel(notification_id, new_message);
-		if (mMessageList->insertItemAfter(mSeparator, item, notification_id))
+		if (mMessageList->addItem(item, notification_id))
 		{
-			handleItemAdded(IT_INSTANT_MESSAGE);
+			mSysWellChiclet->updateWidget(isWindowEmpty());
 		}
 		else
 		{
@@ -819,7 +742,7 @@ void LLIMWellWindow::removeObjectRow(const LLUUID& notification_id)
 {
 	if (mMessageList->removeItemByValue(notification_id))
 	{
-		handleItemRemoved(IT_INSTANT_MESSAGE);
+		mSysWellChiclet->updateWidget(isWindowEmpty());
 	}
 	else
 	{

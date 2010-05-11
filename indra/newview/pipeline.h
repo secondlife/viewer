@@ -686,6 +686,9 @@ protected:
 public:
 	static BOOL				sRenderBeacons;
 	static BOOL				sRenderHighlight;
+
+	//debug use
+	static U32              sCurRenderPoolType ;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

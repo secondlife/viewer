@@ -20,6 +20,9 @@
 	<check_box label="Blasen-Chat" name="bubble_text_chat"/>
 	<slider label="Deckkraft" label_width="66" name="bubble_chat_opacity"/>
 	<color_swatch left_pad="35" name="background" tool_tip="Farbe für Blasen-Chat auswählen"/>
+	<text name="UI Size:">
+		UI-Größe
+	</text>
 	<check_box label="Skript-Fehler anzeigen:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Chat in der Nähe" name="0"/>
@@ -29,4 +32,5 @@
 	<line_editor label="Auslöser für Zum-Sprechen-drücken:" name="modifier_combo"/>
 	<button label="Taste festlegen" name="set_voice_hotkey_button"/>
 	<button label="Mittlere Maustaste" name="set_voice_middlemouse_button" tool_tip="Auf mittlere Maustaste zurücksetzen"/>
+	<button label="Andere Geräte" name="joystick_setup_button"/>
 </panel>

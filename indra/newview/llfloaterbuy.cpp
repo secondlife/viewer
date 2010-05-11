@@ -44,6 +44,7 @@
 #include "llinventorymodel.h"	// for gInventory
 #include "llfloaterreg.h"
 #include "llfloaterinventory.h"	// for get_item_icon
+#include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llnotificationsutil.h"
 #include "llselectmgr.h"
@@ -195,7 +196,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 }
 
 void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
-								 InventoryObjectList* inv,
+								 LLInventoryObject::object_list_t* inv,
 								 S32 serial_num,
 								 void* data)
 {
@@ -220,8 +221,8 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 		return;
 	}
 
-	InventoryObjectList::const_iterator it = inv->begin();
-	InventoryObjectList::const_iterator end = inv->end();
+	LLInventoryObject::object_list_t::const_iterator it = inv->begin();
+	LLInventoryObject::object_list_t::const_iterator end = inv->end();
 	for ( ; it != end; ++it )
 	{
 		LLInventoryObject* obj = (LLInventoryObject*)(*it);
@@ -246,8 +247,8 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 
 		// Compute icon for this item
 		BOOL item_is_multi = FALSE;
-		if ( inv_item->getFlags() & LLInventoryItem::II_FLAGS_LANDMARK_VISITED 
-			|| inv_item->getFlags() & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
+		if ( inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_LANDMARK_VISITED 
+			|| inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
 		{
 			item_is_multi = TRUE;
 		}

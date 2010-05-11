@@ -962,7 +962,18 @@ void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight())
 	{
+		//EXT-4288
+		//to keep consistance scrolling behaviour 
+		//when scrolling from top and from bottom...
+		bool is_scrolled_to_end = (mScroller!=NULL) && scrolledToEnd();
+		
 		LLUICtrl::reshape( width, height, called_from_parent );
+	
+		if (is_scrolled_to_end)
+		{
+			deselect();
+			endOfDoc();
+		}		
 
 		// do this first after reshape, because other things depend on
 		// up-to-date mVisibleTextRect
@@ -1046,6 +1057,13 @@ void LLTextBase::setValue(const LLSD& value )
 {
 	setText(value.asString());
 }
+
+//virtual
+BOOL LLTextBase::canDeselect() const 
+{ 
+	return hasSelection(); 
+}
+
 
 //virtual
 void LLTextBase::deselect()
@@ -1489,6 +1507,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
 	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
+	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
 	registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
 	registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
 	registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));

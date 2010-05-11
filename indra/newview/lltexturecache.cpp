@@ -742,7 +742,7 @@ LLTextureCache::LLTextureCache(bool threaded)
 	  mHeaderMutex(NULL),
 	  mListMutex(NULL),
 	  mHeaderAPRFile(NULL),
-	  mReadOnly(FALSE),
+	  mReadOnly(TRUE), //do not allow to change the texture cache until setReadOnly() is called.
 	  mTexturesSizeTotal(0),
 	  mDoPurge(FALSE)
 {
@@ -852,8 +852,8 @@ bool LLTextureCache::updateTextureEntryList(const LLUUID& id, S32 bodysize)
 			}			
 			else if (oldbodysize != entry.mBodySize)
 			{
-				// TODO: change to llwarns
-				llerrs << "Entry mismatch in mTextureSizeMap / mHeaderIDMap"
+				// only happens to 64 bits systems, do not know why.
+				llwarns << "Entry mismatch in mTextureSizeMap / mHeaderIDMap"
 					   << " idx=" << idx << " oldsize=" << oldbodysize << " entrysize=" << entry.mBodySize << llendl;
 			}
 			updateEntry(idx, entry, entry.mImageSize, bodysize);			
@@ -929,13 +929,16 @@ U32 LLTextureCache::sCacheMaxEntries = MAX_REASONABLE_FILE_SIZE / TEXTURE_CACHE_
 S64 LLTextureCache::sCacheMaxTexturesSize = 0; // no limit
 const char* entries_filename = "texture.entries";
 const char* cache_filename = "texture.cache";
-const char* textures_dirname = "textures";
+const char* old_textures_dirname = "textures";
+//change the location of the texture cache to prevent from being deleted by old version viewers.
+const char* textures_dirname = "texturecache";
 
 void LLTextureCache::setDirNames(ELLPath location)
 {
 	std::string delem = gDirUtilp->getDirDelimiter();
-	mHeaderEntriesFileName = gDirUtilp->getExpandedFilename(location, entries_filename);
-	mHeaderDataFileName = gDirUtilp->getExpandedFilename(location, cache_filename);
+
+	mHeaderEntriesFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, entries_filename);
+	mHeaderDataFileName = gDirUtilp->getExpandedFilename(location, textures_dirname, cache_filename);
 	mTexturesDirName = gDirUtilp->getExpandedFilename(location, textures_dirname);
 }
 
@@ -947,16 +950,38 @@ void LLTextureCache::purgeCache(ELLPath location)
 	{
 		setDirNames(location);
 		llassert_always(mHeaderAPRFile == NULL);
-		LLAPRFile::remove(mHeaderEntriesFileName, getLocalAPRFilePool());
-		LLAPRFile::remove(mHeaderDataFileName, getLocalAPRFilePool());
+
+		//remove the legacy cache if exists
+		std::string texture_dir = mTexturesDirName ;
+		mTexturesDirName = gDirUtilp->getExpandedFilename(location, old_textures_dirname);
+		if(LLFile::isdir(mTexturesDirName))
+		{
+			std::string file_name = gDirUtilp->getExpandedFilename(location, entries_filename);
+			LLAPRFile::remove(file_name, getLocalAPRFilePool());
+
+			file_name = gDirUtilp->getExpandedFilename(location, cache_filename);
+			LLAPRFile::remove(file_name, getLocalAPRFilePool());
+
+			purgeAllTextures(true);
+		}
+		mTexturesDirName = texture_dir ;
 	}
+
+	//remove the current texture cache.
 	purgeAllTextures(true);
 }
 
-S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL read_only)
+//is called in the main thread before initCache(...) is called.
+void LLTextureCache::setReadOnly(BOOL read_only)
 {
-	mReadOnly = read_only;
-	
+	mReadOnly = read_only ;
+}
+
+//called in the main thread.
+S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL disable_texture_cache)
+{
+	llassert_always(getPending() == 0) ; //should not start accessing the texture cache before initialized.
+
 	S64 header_size = (max_size * 2) / 10;
 	S64 max_entries = header_size / TEXTURE_CACHE_ENTRY_SIZE;
 	sCacheMaxEntries = (S32)(llmin((S64)sCacheMaxEntries, max_entries));
@@ -968,6 +993,15 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL read_only)
 		sCacheMaxTexturesSize = max_size;
 	max_size -= sCacheMaxTexturesSize;
 	
+	if(disable_texture_cache) //the texture cache is disabled
+	{
+		llinfos << "The texture cache is disabled!" << llendl ;
+		setReadOnly(TRUE) ;
+		purgeAllTextures(true); 
+
+		return max_size ;
+	}
+
 	LL_INFOS("TextureCache") << "Headers: " << sCacheMaxEntries
 			<< " Textures size: " << sCacheMaxTexturesSize/(1024*1024) << " MB" << LL_ENDL;
 
@@ -976,6 +1010,7 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL read_only)
 	if (!mReadOnly)
 	{
 		LLFile::mkdir(mTexturesDirName);
+		
 		const char* subdirs = "0123456789abcdef";
 		for (S32 i=0; i<16; i++)
 		{
@@ -985,6 +1020,8 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL read_only)
 	}
 	readHeaderCache();
 	purgeTextures(true); // calc mTexturesSize and make some room in the texture cache if we need it
+
+	llassert_always(getPending() == 0) ; //should not start accessing the texture cache before initialized.
 
 	return max_size; // unused cache space
 }
@@ -1108,7 +1145,16 @@ S32 LLTextureCache::openAndReadEntry(const LLUUID& id, Entry& entry, bool create
 		{
 			readEntryFromHeaderImmediately(idx, entry) ;
 		}
-		llassert_always(entry.mImageSize > entry.mBodySize);
+		if(entry.mImageSize <= entry.mBodySize)//it happens on 64-bit systems, do not know why
+		{
+			llwarns << "corrupted entry: " << id << " entry image size: " << entry.mImageSize << " entry body size: " << entry.mBodySize << llendl ;
+
+			//erase this entry and the cached texture from the cache.
+			std::string tex_filename = getTextureFileName(id);
+			removeEntry(idx, entry, tex_filename) ;
+			mUpdatedEntryMap.erase(idx) ;
+			idx = -1 ;
+		}
 	}
 	return idx;
 }
@@ -1221,9 +1267,17 @@ U32 LLTextureCache::openAndReadEntries(std::vector<Entry>& entries)
 	mFreeList.clear();
 	mTexturesSizeTotal = 0;
 
-	LLAPRFile* aprfile = openHeaderEntriesFile(true, 0);
-	updatedHeaderEntriesFile() ;
-	aprfile->seek(APR_SET, (S32)sizeof(EntriesInfo));
+	LLAPRFile* aprfile = NULL; 
+	if(mUpdatedEntryMap.empty())
+	{
+		aprfile = openHeaderEntriesFile(true, (S32)sizeof(EntriesInfo));
+	}
+	else //update the header file first.
+	{
+		aprfile = openHeaderEntriesFile(false, 0);
+		updatedHeaderEntriesFile() ;
+		aprfile->seek(APR_SET, (S32)sizeof(EntriesInfo));
+	}
 	for (U32 idx=0; idx<num_entries; idx++)
 	{
 		Entry entry;
@@ -1445,9 +1499,9 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
 		}
 		if (purge_directories)
 		{
-			gDirUtilp->deleteFilesInDir(mTexturesDirName,mask);
+			gDirUtilp->deleteFilesInDir(mTexturesDirName, mask);
 			LLFile::rmdir(mTexturesDirName);
-		}
+		}		
 	}
 	mHeaderIDMap.clear();
 	mTexturesSizeMap.clear();

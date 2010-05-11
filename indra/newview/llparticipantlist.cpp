@@ -39,6 +39,7 @@
 
 #include "llparticipantlist.h"
 #include "llspeakers.h"
+#include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llvoiceclient.h"
 
@@ -49,8 +50,147 @@
 
 static const LLAvatarItemAgentOnTopComparator AGENT_ON_TOP_NAME_COMPARATOR;
 
+// See EXT-4301.
+/**
+ * class LLAvalineUpdater - observe the list of voice participants in session and check
+ *  presence of Avaline Callers among them.
+ *
+ * LLAvalineUpdater is a LLVoiceClientParticipantObserver. It provides two kinds of validation:
+ *	- whether Avaline caller presence among participants;
+ *	- whether watched Avaline caller still exists in voice channel.
+ * Both validations have callbacks which will notify subscriber if any of event occur.
+ *
+ * @see findAvalineCaller()
+ * @see checkIfAvalineCallersExist()
+ */
+class LLAvalineUpdater : public LLVoiceClientParticipantObserver
+{
+public:
+	typedef boost::function<void(const LLUUID& speaker_id)> process_avaline_callback_t;
+
+	LLAvalineUpdater(process_avaline_callback_t found_cb, process_avaline_callback_t removed_cb)
+		: mAvalineFoundCallback(found_cb)
+		, mAvalineRemovedCallback(removed_cb)
+	{
+		LLVoiceClient::getInstance()->addObserver(this);
+	}
+	~LLAvalineUpdater()
+	{
+		if (LLVoiceClient::instanceExists())
+		{
+			LLVoiceClient::getInstance()->removeObserver(this);
+		}
+	}
+
+	/**
+	 * Adds UUID of Avaline caller to watch.
+	 *
+	 * @see checkIfAvalineCallersExist().
+	 */
+	void watchAvalineCaller(const LLUUID& avaline_caller_id)
+	{
+		mAvalineCallers.insert(avaline_caller_id);
+	}
+
+	void onChange()
+	{
+		uuid_set_t participant_uuids;
+		LLVoiceClient::getInstance()->getParticipantsUUIDSet(participant_uuids);
+
+
+		// check whether Avaline caller exists among voice participants
+		// and notify Participant List
+		findAvalineCaller(participant_uuids);
+
+		// check whether watched Avaline callers still present among voice participant
+		// and remove if absents.
+		checkIfAvalineCallersExist(participant_uuids);
+	}
+
+private:
+	typedef std::set<LLUUID> uuid_set_t;
+
+	/**
+	 * Finds Avaline callers among voice participants and calls mAvalineFoundCallback.
+	 *
+	 * When Avatar is in group call with Avaline caller and then ends call Avaline caller stays
+	 * in Group Chat floater (exists in LLSpeakerMgr). If Avatar starts call with that group again
+	 * Avaline caller is added to voice channel AFTER Avatar is connected to group call.
+	 * But Voice Control Panel (VCP) is filled from session LLSpeakerMgr and there is no information
+	 * if a speaker is Avaline caller.
+	 *
+	 * In this case this speaker is created as avatar and will be recreated when it appears in
+	 * Avatar's Voice session.
+	 *
+	 * @see LLParticipantList::onAvalineCallerFound()
+	 */
+	void findAvalineCaller(const uuid_set_t& participant_uuids)
+	{
+		uuid_set_t::const_iterator it = participant_uuids.begin(), it_end = participant_uuids.end();
+
+		for(; it != it_end; ++it)
+		{
+			const LLUUID& participant_id = *it;
+			if (!LLVoiceClient::getInstance()->isParticipantAvatar(participant_id))
+			{
+				LL_DEBUGS("Avaline") << "Avaline caller found among voice participants: " << participant_id << LL_ENDL;
+
+				if (mAvalineFoundCallback)
+				{
+					mAvalineFoundCallback(participant_id);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Finds Avaline callers which are not anymore among voice participants and calls mAvalineRemovedCallback.
+	 *
+	 * The problem is when Avaline caller ends a call it is removed from Voice Client session but
+	 * still exists in LLSpeakerMgr. Server does not send such information.
+	 * This method implements a HUCK to notify subscribers that watched Avaline callers by class
+	 * are not anymore in the call.
+	 *
+	 * @see LLParticipantList::onAvalineCallerRemoved()
+	 */
+	void checkIfAvalineCallersExist(const uuid_set_t& participant_uuids)
+	{
+		uuid_set_t::iterator it = mAvalineCallers.begin();
+		uuid_set_t::const_iterator participants_it_end = participant_uuids.end();
+
+		while (it != mAvalineCallers.end())
+		{
+			const LLUUID participant_id = *it;
+			LL_DEBUGS("Avaline") << "Check avaline caller: " << participant_id << LL_ENDL;
+			bool not_found = participant_uuids.find(participant_id) == participants_it_end;
+			if (not_found)
+			{
+				LL_DEBUGS("Avaline") << "Watched Avaline caller is not found among voice participants: " << participant_id << LL_ENDL;
+
+				// notify Participant List
+				if (mAvalineRemovedCallback)
+				{
+					mAvalineRemovedCallback(participant_id);
+				}
+
+				// remove from the watch list
+				mAvalineCallers.erase(it++);
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
+
+	process_avaline_callback_t mAvalineFoundCallback;
+	process_avaline_callback_t mAvalineRemovedCallback;
+
+	uuid_set_t mAvalineCallers;
+};
+
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* avatar_list,  bool use_context_menu/* = true*/,
-		bool exclude_agent /*= true*/):
+		bool exclude_agent /*= true*/, bool can_toggle_icons /*= true*/):
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
 	mSortOrder(E_SORT_BY_NAME)
@@ -58,6 +198,9 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 ,	mExcludeAgent(exclude_agent)
 ,	mValidateSpeakerCallback(NULL)
 {
+	mAvalineUpdater = new LLAvalineUpdater(boost::bind(&LLParticipantList::onAvalineCallerFound, this, _1),
+		boost::bind(&LLParticipantList::onAvalineCallerRemoved, this, _1));
+
 	mSpeakerAddListener = new SpeakerAddListener(*this);
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
 	mSpeakerClearListener = new SpeakerClearListener(*this);
@@ -87,6 +230,12 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLAvatarList* av
 		mAvatarList->setContextMenu(NULL);
 	}
 
+	if (use_context_menu && can_toggle_icons)
+	{
+		mAvatarList->setShowIcons("ParticipantListShowIcons");
+		mAvatarListToggleIconsConnection = gSavedSettings.getControl("ParticipantListShowIcons")->getSignal()->connect(boost::bind(&LLAvatarList::toggleIcons, mAvatarList));
+	}
+
 	//Lets fill avatarList with existing speakers
 	LLSpeakerMgr::speaker_list_t speaker_list;
 	mSpeakerMgr->getSpeakerList(&speaker_list, true);
@@ -113,6 +262,7 @@ LLParticipantList::~LLParticipantList()
 	mAvatarListDoubleClickConnection.disconnect();
 	mAvatarListRefreshConnection.disconnect();
 	mAvatarListReturnConnection.disconnect();
+	mAvatarListToggleIconsConnection.disconnect();
 
 	// It is possible Participant List will be re-created from LLCallFloater::onCurrentChannelChanged()
 	// See ticket EXT-3427
@@ -129,6 +279,9 @@ LLParticipantList::~LLParticipantList()
 	}
 
 	mAvatarList->setContextMenu(NULL);
+	mAvatarList->setComparator(NULL);
+
+	delete mAvalineUpdater;
 }
 
 void LLParticipantList::setSpeakingIndicatorsVisible(BOOL visible)
@@ -202,6 +355,55 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 	}
 }
 
+/*
+Seems this method is not necessary after onAvalineCallerRemoved was implemented;
+
+It does nothing because list item is always created with correct class type for Avaline caller.
+For now Avaline Caller is removed from the LLSpeakerMgr List when it is removed from the Voice Client
+session.
+This happens in two cases: if Avaline Caller ends call itself or if Resident ends group call.
+
+Probably Avaline caller should be removed from the LLSpeakerMgr list ONLY if it ends call itself.
+Asked in EXT-4301.
+*/
+void LLParticipantList::onAvalineCallerFound(const LLUUID& participant_id)
+{
+	LLPanel* item = mAvatarList->getItemByValue(participant_id);
+
+	if (NULL == item)
+	{
+		LL_WARNS("Avaline") << "Something wrong. Unable to find item for: " << participant_id << LL_ENDL;
+		return;
+	}
+
+	if (typeid(*item) == typeid(LLAvalineListItem))
+	{
+		LL_DEBUGS("Avaline") << "Avaline caller has already correct class type for: " << participant_id << LL_ENDL;
+		// item representing an Avaline caller has a correct type already.
+		return;
+	}
+
+	LL_DEBUGS("Avaline") << "remove item from the list and re-add it: " << participant_id << LL_ENDL;
+
+	// remove UUID from LLAvatarList::mIDs to be able add it again.
+	uuid_vec_t& ids = mAvatarList->getIDs();
+	uuid_vec_t::iterator pos = std::find(ids.begin(), ids.end(), participant_id);
+	ids.erase(pos);
+
+	// remove item directly
+	mAvatarList->removeItem(item);
+
+	// re-add avaline caller with a correct class instance.
+	addAvatarIDExceptAgent(participant_id);
+}
+
+void LLParticipantList::onAvalineCallerRemoved(const LLUUID& participant_id)
+{
+	LL_DEBUGS("Avaline") << "Removing avaline caller from the list: " << participant_id << LL_ENDL;
+
+	mSpeakerMgr->removeAvalineSpeaker(participant_id);
+}
+
 void LLParticipantList::setSortOrder(EParticipantSortOrder order)
 {
 	if ( mSortOrder != order )
@@ -248,8 +450,8 @@ bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, co
 
 bool LLParticipantList::onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
-	LLAvatarList::uuid_vector_t::iterator pos = std::find(group_members.begin(), group_members.end(), event->getValue().asUUID());
+	uuid_vec_t& group_members = mAvatarList->getIDs();
+	uuid_vec_t::iterator pos = std::find(group_members.begin(), group_members.end(), event->getValue().asUUID());
 	if(pos != group_members.end())
 	{
 		group_members.erase(pos);
@@ -260,7 +462,7 @@ bool LLParticipantList::onRemoveItemEvent(LLPointer<LLOldEvents::LLEvent> event,
 
 bool LLParticipantList::onClearListEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
 {
-	LLAvatarList::uuid_vector_t& group_members = mAvatarList->getIDs();
+	uuid_vec_t& group_members = mAvatarList->getIDs();
 	group_members.clear();
 	mAvatarList->setDirty();
 	return true;
@@ -347,8 +549,20 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 	if (mExcludeAgent && gAgent.getID() == avatar_id) return;
 	if (mAvatarList->contains(avatar_id)) return;
 
-	mAvatarList->getIDs().push_back(avatar_id);
-	mAvatarList->setDirty();
+	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(avatar_id);
+
+	if (is_avatar)
+	{
+		mAvatarList->getIDs().push_back(avatar_id);
+		mAvatarList->setDirty();
+	}
+	else
+	{
+		LLVoiceClient::participantState *participant = LLVoiceClient::getInstance()->findParticipantByID(avatar_id);
+
+		mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), participant ? participant->mAccountName : LLTrans::getString("AvatarNameWaiting"));
+		mAvalineUpdater->watchAvalineCaller(avatar_id);
+	}
 	adjustParticipant(avatar_id);
 }
 
@@ -429,6 +643,7 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	registrar.add("ParticipantList.ModerateVoice", boost::bind(&LLParticipantList::LLParticipantListMenu::moderateVoice, this, _2));
 
 	enable_registrar.add("ParticipantList.EnableItem", boost::bind(&LLParticipantList::LLParticipantListMenu::enableContextMenuItem,	this, _2));
+	enable_registrar.add("ParticipantList.EnableItem.Moderate", boost::bind(&LLParticipantList::LLParticipantListMenu::enableModerateContextMenuItem,	this, _2));
 	enable_registrar.add("ParticipantList.CheckItem",  boost::bind(&LLParticipantList::LLParticipantListMenu::checkContextMenuItem,	this, _2));
 
 	// create the context menu from the XUI
@@ -440,18 +655,20 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	main_menu->setItemVisible("SortByName", is_sort_visible);
 	main_menu->setItemVisible("SortByRecentSpeakers", is_sort_visible);
 	main_menu->setItemVisible("Moderator Options", isGroupModerator());
+	main_menu->setItemVisible("View Icons Separator", mParent.mAvatarListToggleIconsConnection.connected());
+	main_menu->setItemVisible("View Icons", mParent.mAvatarListToggleIconsConnection.connected());
 	main_menu->arrangeAndClear();
 
 	return main_menu;
 }
 
-void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const std::vector<LLUUID>& uuids, S32 x, S32 y)
+void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y)
 {
 	LLPanelPeopleMenus::ContextMenu::show(spawning_view, uuids, x, y);
 
 	if (uuids.size() == 0) return;
 
-	const LLUUID speaker_id = mUUIDs.front();
+	const LLUUID& speaker_id = mUUIDs.front();
 	BOOL is_muted = isMuted(speaker_id);
 
 	if (is_muted)
@@ -502,10 +719,26 @@ void LLParticipantList::LLParticipantListMenu::toggleMute(const LLSD& userdata, 
 	{
 		return;
 	}
+	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(mParent.mAvatarList->getItemByValue(speaker_id));
+	if (NULL == item) return;
 
-	name = speakerp->mDisplayName;
+	name = item->getAvatarName();
 
-	LLMute mute(speaker_id, name, speakerp->mType == LLSpeaker::SPEAKER_AGENT ? LLMute::AGENT : LLMute::OBJECT);
+	LLMute::EType mute_type;
+	switch (speakerp->mType)
+	{
+		case LLSpeaker::SPEAKER_AGENT:
+			mute_type = LLMute::AGENT;
+			break;
+		case LLSpeaker::SPEAKER_OBJECT:
+			mute_type = LLMute::OBJECT;
+			break;
+		case LLSpeaker::SPEAKER_EXTERNAL:
+		default:
+			mute_type = LLMute::EXTERNAL;
+			break;
+	}
+	LLMute mute(speaker_id, name, mute_type);
 
 	if (!is_muted)
 	{
@@ -585,27 +818,17 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(co
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
+	const LLUUID& participant_id = mUUIDs.front();
+
+	// For now non of "can_view_profile" action and menu actions listed below except "can_block"
+	// can be performed for Avaline callers.
+	bool is_participant_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(participant_id);
+	if (!is_participant_avatar && "can_block" != item) return false;
+
 	if (item == "can_mute_text" || "can_block" == item || "can_share" == item || "can_im" == item 
 		|| "can_pay" == item)
 	{
 		return mUUIDs.front() != gAgentID;
-	}
-	else if (item == "can_allow_text_chat")
-	{
-		return isGroupModerator();
-	}
-	else if ("can_moderate_voice" == item)
-	{
-		if (isGroupModerator())
-		{
-			LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(mUUIDs.front());
-			if (speakerp.notNull())
-			{
-				// not in voice participants can not be moderated
-				return speakerp->isInVoiceChannel();
-			}
-		}
-		return false;
 	}
 	else if (item == std::string("can_add"))
 	{
@@ -615,7 +838,7 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 
 		bool result = (mUUIDs.size() > 0);
 
-		std::vector<LLUUID>::const_iterator
+		uuid_vec_t::const_iterator
 			id = mUUIDs.begin(),
 			uuids_end = mUUIDs.end();
 
@@ -632,9 +855,39 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	else if (item == "can_call")
 	{
 		bool not_agent = mUUIDs.front() != gAgentID;
-		bool can_call = not_agent && LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
+		bool can_call = not_agent && LLVoiceClient::voiceEnabled() && LLVoiceClient::getInstance()->voiceWorking();
 		return can_call;
 	}
+
+	return true;
+}
+
+/*
+Processed menu items with such parameters:
+	can_allow_text_chat
+	can_moderate_voice
+*/
+bool LLParticipantList::LLParticipantListMenu::enableModerateContextMenuItem(const LLSD& userdata)
+{
+	// only group moderators can perform actions related to this "enable callback"
+	if (!isGroupModerator()) return false;
+
+	const LLUUID& participant_id = mUUIDs.front();
+	LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(participant_id);
+
+	// not in voice participants can not be moderated
+	bool speaker_in_voice = speakerp.notNull() && speakerp->isInVoiceChannel();
+
+	const std::string& item = userdata.asString();
+
+	if ("can_moderate_voice" == item)
+	{
+		return speaker_in_voice;
+	}
+
+	// For now non of menu actions except "can_moderate_voice" can be performed for Avaline callers.
+	bool is_participant_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(participant_id);
+	if (!is_participant_avatar) return false;
 
 	return true;
 }

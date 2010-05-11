@@ -15,7 +15,7 @@
 		<panel name="notes_buttons_panel">
 			<button label="Añadir como amigo" name="add_friend" tool_tip="Ofrecer amistad a este Residente"/>
 			<button label="MI" name="im" tool_tip="Abrir un mensaje instantáneo"/>
-			<button label="Llamada" name="call" tool_tip="Llamar a este Residente"/>
+			<button label="Llamar" name="call" tool_tip="Llamar a este Residente"/>
 			<button label="Mapa" name="show_on_map_btn" tool_tip="Mostrar al Residente en el mapa"/>
 			<button label="Teleportar" name="teleport" tool_tip="Ofrecer teleporte"/>
 		</panel>

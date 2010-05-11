@@ -70,6 +70,7 @@ public:
 	/*virtual*/ void	setDocked(bool docked, bool pop_on_undock = true);
 	// override LLFloater's minimization according to EXT-1216
 	/*virtual*/ void	setMinimized(BOOL minimize);
+	/*virtual*/ void	handleReshape(const LLRect& rect, bool by_user);
 
 	void onStartUpToastClick(S32 x, S32 y, MASK mask);
 
@@ -81,20 +82,12 @@ public:
 
 protected:
 
-	typedef enum{
-		IT_NOTIFICATION,
-		IT_INSTANT_MESSAGE
-	}EItemType; 
-
 	// gets a rect that bounds possible positions for the SysWellWindow on a screen (EXT-1111)
 	void getAllowedRect(LLRect& rect);
 
 
 	// init Window's channel
 	virtual void initChannel();
-	void handleItemAdded(EItemType added_item_type);
-	void handleItemRemoved(EItemType removed_item_type);
-	bool anotherTypeExists(EItemType item_type) ;
 
 	const std::string NOTIFICATION_WELL_ANCHOR_NAME;
 	const std::string IM_WELL_ANCHOR_NAME;
@@ -112,16 +105,7 @@ protected:
 	 */
 	LLSysWellChiclet* mSysWellChiclet;
 
-	/**
-	 *	Special panel which is used as separator of Notifications & IM Rows.
-	 *	It is always presents in the list and shown when it is necessary.
-	 *	It should be taken into account when reshaping and checking list size
-	 */
-	LLPanel* mSeparator;
-
-	typedef std::map<EItemType, S32> typed_items_count_t;
-	typed_items_count_t mTypedItemsCount;
-
+	bool mIsReshapedByUser;
 };
 
 /**

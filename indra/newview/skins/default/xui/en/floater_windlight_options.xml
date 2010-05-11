@@ -1132,7 +1132,7 @@
              layout="topleft"
              left_delta="0"
              name="BHText8"
-             top_pad="5"
+             top_pad="8"
              width="10">
                 X
             </text>
@@ -1145,7 +1145,7 @@
              initial_value="0.5"
              layout="topleft"
              left_pad="3"
-             top_pad="6"
+             top_pad="8"
              name="WLCloudDetailX"
              width="200" />
             <text

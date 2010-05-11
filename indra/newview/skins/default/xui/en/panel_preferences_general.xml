@@ -177,7 +177,7 @@
      layout="topleft"
      left="30"
      name="start_location_textbox"
-     top_pad="10"
+     top_pad="15"
      width="394">
         Start location:
     </text>
@@ -384,7 +384,7 @@
      left="30"
      mouse_opaque="false"
      name="text_box3"
-     top_pad="10"
+     top_pad="15"
      width="240">
        Busy mode response:
     </text>

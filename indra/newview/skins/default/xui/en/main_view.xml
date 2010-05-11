@@ -50,7 +50,7 @@
                name="non_side_tray_view"
                user_resize="false"
                width="500">
-          <view bottom="500"
+          <world_view bottom="500"
                 follows="all"
                 height="500"
                 left="0"
@@ -164,16 +164,7 @@
                    tab_group="-2"
                    width="1024"/>
   <panel top="0"
-         follows="all"
-         height="768"
-         mouse_opaque="true"
-         name="progress_view"
-         filename="panel_progress.xml" 
-         class="progress_view"
-         width="1024"
-         visible="false"/>
-  <panel top="0"
-         follows="all"
+        follows="all"
         mouse_opaque="false"
         left="0"
         name="snapshot_floater_view_holder" 
@@ -190,6 +181,15 @@
                            visible="false"
                            width="1024"/>
   </panel>
+  <panel top="0"
+         follows="all"
+         height="768"
+         mouse_opaque="true"
+         name="progress_view"
+         filename="panel_progress.xml"
+         class="progress_view"
+         width="1024"
+         visible="false"/>
   <panel top="0"
          follows="all"
          height="768"

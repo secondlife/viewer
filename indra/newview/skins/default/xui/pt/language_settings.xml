@@ -3,9 +3,9 @@
 <strings>
 
 	<!-- Locale Information -->
-	<string name="MicrosoftLocale">english</string>
-	<string name="DarwinLocale">C</string>
-	<string name="LinuxLocale">C</string>
+	<string name="MicrosoftLocale">portuguese</string>
+	<string name="DarwinLocale">pt_PT.UTF-8</string>
+	<string name="LinuxLocale">pt_PT.UTF-8</string>
 	
 	<!-- 
 	datetimeToCodes["wkday"]	= "%a";		// Thu

@@ -71,6 +71,8 @@ public:
 	BOOL			getForeground() const		{ return mForeground; }
 	void			setMaxTitleWidth(S32 max_width) {mMaxTitleWidth = llmin(max_width, mMaxTitleWidth); }
 	S32				getMaxTitleWidth() const { return mMaxTitleWidth; }
+	void			setButtonsRect(const LLRect& rect){ mButtonsRect = rect; }
+	LLRect			getButtonsRect() { return mButtonsRect; }
 	void			setTitleVisible(BOOL visible);
 
 	virtual void	setTitle( const std::string& title ) = 0;
@@ -88,6 +90,7 @@ protected:
 	LLTextBox*		mTitleBox;
 	
 private:
+	LLRect			mButtonsRect;
 	S32				mDragLastScreenX;
 	S32				mDragLastScreenY;
 	S32				mLastMouseScreenX;

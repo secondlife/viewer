@@ -23,7 +23,7 @@
 			<menu_item_call label="Réinitialiser les filtres" name="Reset Current"/>
 			<menu_item_call label="Fermer tous les dossiers" name="Close All Folders"/>
 			<menu_item_call label="Vider la corbeille" name="Empty Trash"/>
-			<menu_item_call label="Vider les Objets trouvés" name="Empty Lost And Found"/>
+			<menu_item_call label="Vider les objets trouvés" name="Empty Lost And Found"/>
 		</menu>
 		<menu label="Créer" name="Create">
 			<menu_item_call label="Nouveau dossier" name="New Folder"/>

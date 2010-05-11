@@ -44,7 +44,7 @@
          left_delta="0"
          name="NextOwnerLabel"
          top_pad="5"
-         width="150">
+         width="200">
             Next owner can:
         </text>
         <check_box

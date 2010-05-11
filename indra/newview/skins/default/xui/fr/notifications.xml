@@ -351,7 +351,7 @@ Voulez-vous vraiment continuer ?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		Supprimer le favori [PICK] ?
+		Supprimer la sélection &lt;nolink&gt;[PICK]&lt;/nolink&gt; ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -925,6 +925,16 @@ Proposer à [NAME] de devenir votre ami(e) ?
 			<button name="Cancel" text="Annuler"/>
 		</form>
 	</notification>
+	<notification label="Enregistrer la tenue" name="SaveOutfitAs">
+		Enregistrer ce que je porte comme nouvelle tenue :
+		<form name="form">
+			<input name="message">
+				[DESC] (nouv.)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Annuler"/>
+		</form>
+	</notification>
 	<notification name="RemoveFromFriends">
 		Voulez-vous supprimer [FIRST_NAME] [LAST_NAME] de votre liste d&apos;amis ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
@@ -1407,6 +1417,10 @@ Les chats et les messages instantanés ne s&apos;afficheront pas. Les messages i
 		Vous téléporter vers [CLASSIFIED] ?
 		<usetemplate ignoretext="Confirmer que je veux me téléporter à un endroit dans les Petites annonces" name="okcancelignore" notext="Annuler" yestext="Téléporter"/>
 	</notification>
+	<notification name="TeleportToHistoryEntry">
+		Vous téléporter vers [HISTORY_ENTRY] ?
+		<usetemplate ignoretext="Confirmer que je veux me téléporter à un endroit de l&apos;historique" name="okcancelignore" notext="Annuler" yestext="Téléporter"/>
+	</notification>
 	<notification label="Envoyer un message à tout le monde dans votre domaine" name="MessageEstate">
 		Saisissez un message court qui sera envoyé à tous les résidents se trouvant actuellement sur votre domaine.
 		<form name="form">
@@ -1497,6 +1511,9 @@ En cliquant sur Modifier les préférences, vous pourrez changer votre catégori
 			<button default="true" name="Cancel" text="Fermer"/>
 			<ignore name="ignore" text="La catégorie de contenu que j&apos;ai choisie m&apos;empêche de pénétrer dans une région"/>
 		</form>
+	</notification>
+	<notification name="PreferredMaturityChanged">
+		Votre préférence de catégorie de contenu est désormais [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		Votre catégorie d&apos;accès ne vous permet pas de réclamer cette région. Cela vient peut-être du fait qu&apos;il manquait des informations pour valider votre âge.
@@ -1913,6 +1930,9 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 	<notification name="SystemMessageTip">
 		[MESSAGE]
 	</notification>
+	<notification name="IMSystemMessageTip">
+		[MESSAGE]
+	</notification>
 	<notification name="Cancelled">
 		Annulé
 	</notification>
@@ -1940,6 +1960,11 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 	<notification name="UploadingAuctionSnapshot">
 		Importation de photos SL et Web en cours...
 (prend environ 5 minutes.)
+	</notification>
+	<notification name="UploadConfirmation">
+		Le chargement coûte [AMOUNT] L$.
+Continuer ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Charger"/>
 	</notification>
 	<notification name="UploadPayment">
 		Le chargement a coûté [AMOUNT] L$.
@@ -2286,9 +2311,9 @@ Veuillez réessayer dans quelques minutes.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] vous propose d&apos;être téléporté jusqu&apos;à son emplacement :
+		[NAME_SLURL] propose de vous téléporter à son emplacement :
 
-[MESSAGE]
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
 		<form name="form">
 			<button name="Teleport" text="Téléporter"/>
 			<button name="Cancel" text="Annuler"/>
@@ -2306,11 +2331,11 @@ Veuillez réessayer dans quelques minutes.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME] vous demande de devenir son ami(e).
+		[NAME_SLURL] vous demande de devenir son ami(e).
 
 [MESSAGE]
 
-(Par défaut, vous pourrez voir lorsque vous êtes tous deux connectés.)
+(Par défaut, chacun pourra voir si l&apos;autre est connecté.)
 		<form name="form">
 			<button name="Accept" text="Accepter"/>
 			<button name="Decline" text="Refuser"/>
@@ -2373,6 +2398,9 @@ Venant de l&apos;objet : [OBJECTNAME], appartenant à : [NAME]?
 	<notification name="FailedToFindWearable">
 		La recherche du [TYPE] nommé(e) [DESC] dans la base de données a échoué.
 	</notification>
+	<notification name="ShareToWebFailed">
+		Échec de chargement de l&apos;image sur le Web.
+	</notification>
 	<notification name="InvalidWearable">
 		L&apos;objet que vous essayez de porter utilise une fonctionnalité que le client ne peut lire. Pour porter cet objet, veuillez télécharger une mise à jour de [APP_NAME].
 	</notification>
@@ -2412,14 +2440,6 @@ Accepter cette requête ?
 [MESSAGE]
 		<form name="form">
 			<button name="Ignore" text="Ignorer"/>
-		</form>
-	</notification>
-	<notification name="ScriptToast">
-		Le/La [TITLE] de [FIRST] [LAST] demande la participation du résident.
-		<form name="form">
-			<button name="Open" text="Ouvrir la boîte de dialogue"/>
-			<button name="Ignore" text="Ignorer"/>
-			<button name="Block" text="Ignorer"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2576,6 +2596,12 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	<notification name="BottomTrayButtonCanNotBeShown">
 		Le bouton sélectionné ne peut pas être affiché actuellement.
 Le bouton sera affiché quand il y aura suffisamment de place.
+	</notification>
+	<notification name="ShareNotification">
+		Faire glisser des articles de l&apos;inventaire sur une personne dans le sélecteur de résident
+	</notification>
+	<notification name="AvatarRezNotification">
+		Avatar [NAME] rezzé en [TIME] secondes.
 	</notification>
 	<global name="UnsupportedCPU">
 		- Votre processeur ne remplit pas les conditions minimum requises.

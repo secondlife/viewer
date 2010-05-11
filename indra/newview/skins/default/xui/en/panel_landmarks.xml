@@ -16,7 +16,7 @@
      bg_alpha_color="DkGray2"
      bg_opaque_color="DkGray2"
      follows="all"
-     height="369"
+     height="373"
      layout="topleft"
      left="3"
      name="landmarks_accordion"

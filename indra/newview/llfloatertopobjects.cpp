@@ -316,7 +316,7 @@ void LLFloaterTopObjects::doToObjects(int action, bool all)
 	LLCtrlListInterface *list = childGetListInterface("objects_list");
 	if (!list || list->getItemCount() == 0) return;
 
-	std::vector<LLUUID>::iterator id_itor;
+	uuid_vec_t::iterator id_itor;
 
 	bool start_message = true;
 

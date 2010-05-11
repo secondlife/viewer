@@ -72,7 +72,7 @@ void LLURLLineEditor::cut()
 		if( need_to_rollback )
 		{
 			rollback.doRollback( this );
-			reportBadKeystroke();
+			LLUI::reportBadKeystroke();
 		}
 		else
 		if( mKeystrokeCallback )
@@ -95,9 +95,4 @@ void LLURLLineEditor::copyEscapedURLToClipboard()
 		text_to_copy = utf8str_to_wstring(unescaped_text);
 		
 	gClipboard.copyFromString( text_to_copy );
-}
-// Makes UISndBadKeystroke sound
-void LLURLLineEditor::reportBadKeystroke()
-{
-	make_ui_sound("UISndBadKeystroke");
 }

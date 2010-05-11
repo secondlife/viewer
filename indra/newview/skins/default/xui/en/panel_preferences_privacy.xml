@@ -84,7 +84,7 @@
     </text>
     <check_box
 	 enabled="false"
-     control_name="LogChat"
+     control_name="LogNearbyChat"
      height="16"
      label="Save nearby chat logs on my computer"
      layout="topleft"

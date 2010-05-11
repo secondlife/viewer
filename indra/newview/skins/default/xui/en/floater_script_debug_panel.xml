@@ -15,7 +15,7 @@
      follows="left|top|right|bottom"
      height="176"
      layout="topleft"
-     max_length="10000"
+     max_length="2147483647"
      name="Chat History Editor"
      parse_highlights="true" 
      width="420"

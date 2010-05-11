@@ -206,7 +206,7 @@ void LLFloaterLagMeter::determineNetwork()
 
 	// *FIXME: We can't blame a large ping time on anything in
 	// particular if the frame rate is low, because a low frame
-	// rate is a sure recipe for crappy ping times right now until
+	// rate is a sure recipe for bad ping times right now until
 	// the network handlers are de-synched from the rendering.
 	F32 client_frame_time_ms = 1000.0f * LLViewerStats::getInstance()->mFPSStat.getMeanDuration();
 	

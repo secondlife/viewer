@@ -22,7 +22,7 @@
 		L$ [AMT]
 	</panel.string>
 	<button label="" label_selected="" name="buycurrency" tool_tip="Min balance"/>
-	<button label="Køb" name="buyL" tool_tip="Klik for at købe flere L$"/>
+	<button label="Køb L$" name="buyL" tool_tip="Klik for at købe flere L$"/>
 	<text name="TimeText" tool_tip="Nuværende tid (Pacific)">
 		24:00 PST
 	</text>

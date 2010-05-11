@@ -82,6 +82,8 @@ public:
 
 	void			animateAllWearableParams(F32 delta, BOOL upload_bake);
 	
+	bool			moveWearable(const LLViewerInventoryItem* item, bool closer_to_body);
+
 	//--------------------------------------------------------------------
 	// Accessors
 	//--------------------------------------------------------------------
@@ -89,7 +91,7 @@ public:
 	const LLUUID		getWearableItemID(EWearableType type, U32 index /*= 0*/) const;
 	const LLUUID		getWearableAssetID(EWearableType type, U32 index /*= 0*/) const;
 	const LLWearable*	getWearableFromItemID(const LLUUID& item_id) const;
-	const LLWearable*	getWearableFromAssetID(const LLUUID& asset_id) const;
+	LLWearable*	getWearableFromAssetID(const LLUUID& asset_id);
 	LLInventoryItem*	getWearableInventoryItem(EWearableType type, U32 index /*= 0*/);
 	// MULTI-WEARABLE: assuming one per type.
 	static BOOL			selfHasWearable(EWearableType type);
@@ -169,12 +171,11 @@ public:
 								  const LLDynamicArray<S32>& wearables_to_include,
 								  const LLDynamicArray<S32>& attachments_to_include,
 								  BOOL rename_clothing);
-	
-	LLUUID			makeNewOutfitLinks(const std::string& new_folder_name);
+
 	
 	// Should only be called if we *know* we've never done so before, since users may
 	// not want the Library outfits to stay in their quick outfit selector and can delete them.
-	void			populateMyOutfitsFolder(void);
+	void			populateMyOutfitsFolder();
 
 private:
 	void			makeNewOutfitDone(S32 type, U32 index); 
@@ -193,8 +194,8 @@ public:
 	// Static UI hooks
 	//--------------------------------------------------------------------
 public:
-	// MULTI-WEARABLE: assuming one wearable per type.  Need upstream changes.
-	static void		userRemoveWearable(EWearableType& type);
+	static void		userRemoveWearable(const EWearableType &type, const U32 &index);
+	static void		userRemoveWearablesOfType(const EWearableType &type);
 	static void		userRemoveAllClothes();	
 	
 	typedef std::vector<LLViewerObject*> llvo_vec_t;
@@ -208,6 +209,17 @@ public:
 	U32				itemUpdatePendingCount() const;
 
 	//--------------------------------------------------------------------
+	// Signals
+	//--------------------------------------------------------------------
+public:
+	typedef boost::function<void()>			loaded_callback_t;
+	typedef boost::signals2::signal<void()>	loaded_signal_t;
+	boost::signals2::connection				addLoadedCallback(loaded_callback_t cb);
+
+private:
+	loaded_signal_t							mLoadedSignal; // emitted when all agent wearables get loaded
+
+	//--------------------------------------------------------------------
 	// Member variables
 	//--------------------------------------------------------------------
 private:
@@ -218,7 +230,6 @@ private:
 	static BOOL		mInitialWearablesUpdateReceived;
 	BOOL			mWearablesLoaded;
 	std::set<LLUUID>	mItemsAwaitingWearableUpdate;
-	LLPointer<LLVOAvatarSelf> mAvatarObject; // NULL until avatar object sent down from simulator
 	
 	//--------------------------------------------------------------------------------
 	// Support classes

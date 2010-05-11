@@ -26,7 +26,7 @@ zullen alle regio&apos;s in de estate beïnvloeden.
 	<text name="Only Allow">
 		Beperk toegang tot:
 	</text>
-	<check_box label="Inwoners met betalingsinformatie &#10;opgeslagen" name="limit_payment" tool_tip="Verban ongeïdentificeerde inwoners."/>
+	<check_box label="Inwoners met betalingsinformatie opgeslagen" name="limit_payment" tool_tip="Verban ongeïdentificeerde inwoners."/>
 	<check_box label="Leeftijdgeverifieerde volwassenen" name="limit_age_verified" tool_tip="Verban inwoners die hun leeftijd niet geverifieerd hebben. Zie support.secondlife.com voor meer informatie." bottom_delta="-30"/>
 	<check_box label="Voice chat toestaan" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>

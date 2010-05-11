@@ -241,6 +241,9 @@ LLMediaPluginTest::~LLMediaPluginTest()
 	{
 		remMediaPanel( mMediaPanels[ i ] );
 	};
+	
+	// Stop the plugin read thread if it's running.
+	LLPluginProcessParent::setUseReadThread(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1047,6 +1050,11 @@ void LLMediaPluginTest::gluiCallback( int control_id )
 		}
 	}
 	else
+	if ( control_id == mIdUsePluginReadThread )
+	{
+		LLPluginProcessParent::setUseReadThread(mUsePluginReadThread);
+	}
+	else
 	if ( control_id == mIdControlCrashPlugin )
 	{
 		// send message to plugin and ask it to crash
@@ -1428,6 +1436,12 @@ void LLMediaPluginTest::makeChrome()
 	mIdDisableTimeout = start_id++;
 	mDisableTimeout = 0;
 	glui_window_misc_control->add_checkbox( "Disable plugin timeout", &mDisableTimeout, mIdDisableTimeout, gluiCallbackWrapper );
+	glui_window_misc_control->set_main_gfx_window( mAppWindow );
+	glui_window_misc_control->add_column( true );
+
+	mIdUsePluginReadThread = start_id++;
+	mUsePluginReadThread = 0;
+	glui_window_misc_control->add_checkbox( "Use plugin read thread", &mUsePluginReadThread, mIdUsePluginReadThread, gluiCallbackWrapper );
 	glui_window_misc_control->set_main_gfx_window( mAppWindow );
 	glui_window_misc_control->add_column( true );
 
@@ -1955,7 +1969,7 @@ void LLMediaPluginTest::updateStatusBar()
 		 cached_distance == mDistanceCameraToSelectedGeometry
 	   )
 	{
-		// nothing changed so don't spend time in this shitty function
+		// nothing changed so don't spend time here
 		return;
 	};
 

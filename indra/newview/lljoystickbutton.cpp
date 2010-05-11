@@ -42,6 +42,7 @@
 // Project includes
 #include "llui.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
@@ -482,25 +483,25 @@ void LLJoystickCameraRotate::onHeldDown()
 	// left-right rotation
 	if (dx > mHorizSlopNear)
 	{
-		gAgent.unlockView();
-		gAgent.setOrbitLeftKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setOrbitLeftKey(getOrbitRate());
 	}
 	else if (dx < -mHorizSlopNear)
 	{
-		gAgent.unlockView();
-		gAgent.setOrbitRightKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setOrbitRightKey(getOrbitRate());
 	}
 
 	// over/under rotation
 	if (dy > mVertSlopNear)
 	{
-		gAgent.unlockView();
-		gAgent.setOrbitUpKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setOrbitUpKey(getOrbitRate());
 	}
 	else if (dy < -mVertSlopNear)
 	{
-		gAgent.unlockView();
-		gAgent.setOrbitDownKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setOrbitDownKey(getOrbitRate());
 	}
 }
 
@@ -625,25 +626,25 @@ void LLJoystickCameraTrack::onHeldDown()
 
 	if (dx > mVertSlopNear)
 	{
-		gAgent.unlockView();
-		gAgent.setPanRightKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setPanRightKey(getOrbitRate());
 	}
 	else if (dx < -mVertSlopNear)
 	{
-		gAgent.unlockView();
-		gAgent.setPanLeftKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setPanLeftKey(getOrbitRate());
 	}
 
 	// over/under rotation
 	if (dy > mVertSlopNear)
 	{
-		gAgent.unlockView();
-		gAgent.setPanUpKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setPanUpKey(getOrbitRate());
 	}
 	else if (dy < -mVertSlopNear)
 	{
-		gAgent.unlockView();
-		gAgent.setPanDownKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setPanDownKey(getOrbitRate());
 	}
 }
 
@@ -692,26 +693,26 @@ void LLJoystickCameraZoom::onHeldDown()
 	if (dy > mVertSlopFar)
 	{
 		// Zoom in fast
-		gAgent.unlockView();
-		gAgent.setOrbitInKey(FAST_RATE);
+		gAgentCamera.unlockView();
+		gAgentCamera.setOrbitInKey(FAST_RATE);
 	}
 	else if (dy > mVertSlopNear)
 	{
 		// Zoom in slow
-		gAgent.unlockView();
-		gAgent.setOrbitInKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setOrbitInKey(getOrbitRate());
 	}
 	else if (dy < -mVertSlopFar)
 	{
 		// Zoom out fast
-		gAgent.unlockView();
-		gAgent.setOrbitOutKey(FAST_RATE);
+		gAgentCamera.unlockView();
+		gAgentCamera.setOrbitOutKey(FAST_RATE);
 	}
 	else if (dy < -mVertSlopNear)
 	{
 		// Zoom out slow
-		gAgent.unlockView();
-		gAgent.setOrbitOutKey(getOrbitRate());
+		gAgentCamera.unlockView();
+		gAgentCamera.setOrbitOutKey(getOrbitRate());
 	}
 }
 

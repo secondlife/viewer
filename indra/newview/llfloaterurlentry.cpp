@@ -40,6 +40,7 @@
 #include "llpanelface.h"
 
 #include "llcombobox.h"
+#include "llmimetypes.h"
 #include "llnotificationsutil.h"
 #include "llurlhistory.h"
 #include "lluictrlfactory.h"
@@ -69,16 +70,11 @@ public:
 		  completeAny(status, mime_type);
 	  }
 
-	  virtual void error( U32 status, const std::string& reason )
-	  {
-		  completeAny(status, "none/none");
-	  }
-
 	  void completeAny(U32 status, const std::string& mime_type)
 	  {
 		  // Set empty type to none/none.  Empty string is reserved for legacy parcels
 		  // which have no mime type set.
-		  std::string resolved_mime_type = ! mime_type.empty() ? mime_type : "none/none";
+		  std::string resolved_mime_type = ! mime_type.empty() ? mime_type : LLMIMETypes::getDefaultMimeType();
 		  LLFloaterURLEntry* floater_url_entry = (LLFloaterURLEntry*)mParent.get();
 		  if ( floater_url_entry )
 			  floater_url_entry->headerFetchComplete( status, resolved_mime_type );

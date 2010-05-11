@@ -31,7 +31,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llfavoritesbar.h"
 
 #include "llfloaterreg.h"
@@ -47,6 +46,7 @@
 #include "llclipboard.h"
 #include "llinventoryclipboard.h"
 #include "llinventorybridge.h"
+#include "llinventoryfunctions.h"
 #include "llfloaterworldmap.h"
 #include "lllandmarkactions.h"
 #include "llnotificationsutil.h"
@@ -75,7 +75,9 @@ public:
 		mPosY(0),
 		mPosZ(0),
 		mLoaded(false) 
-	{}
+	{
+		mHandle.bind(this);
+	}
 
 	void setLandmarkID(const LLUUID& id) { mLandmarkID = id; }
 	const LLUUID& getLandmarkId() const { return mLandmarkID; }
@@ -122,17 +124,21 @@ private:
 		if(LLLandmarkActions::getLandmarkGlobalPos(mLandmarkID, g_pos))
 		{
 			LLLandmarkActions::getRegionNameAndCoordsFromPosGlobal(g_pos,
-				boost::bind(&LLLandmarkInfoGetter::landmarkNameCallback, this, _1, _2, _3, _4));
+				boost::bind(&LLLandmarkInfoGetter::landmarkNameCallback, static_cast<LLHandle<LLLandmarkInfoGetter> >(mHandle), _1, _2, _3, _4));
 		}
 	}
 
-	void landmarkNameCallback(const std::string& name, S32 x, S32 y, S32 z)
+	static void landmarkNameCallback(LLHandle<LLLandmarkInfoGetter> handle, const std::string& name, S32 x, S32 y, S32 z)
 	{
-		mPosX = x;
-		mPosY = y;
-		mPosZ = z;
-		mName = name;
-		mLoaded = true;
+		LLLandmarkInfoGetter* getter = handle.get();
+		if (getter)
+		{
+			getter->mPosX = x;
+			getter->mPosY = y;
+			getter->mPosZ = z;
+			getter->mName = name;
+			getter->mLoaded = true;
+		}
 	}
 
 	LLUUID mLandmarkID;
@@ -141,6 +147,7 @@ private:
 	S32 mPosY;
 	S32 mPosZ;
 	bool mLoaded;
+	LLRootHandle<LLLandmarkInfoGetter> mHandle;
 };
 
 /**
@@ -1158,6 +1165,17 @@ void LLFavoritesBarCtrl::pastFromClipboard() const
 
 void LLFavoritesBarCtrl::onButtonMouseDown(LLUUID id, LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
+	// EXT-6997 (Fav bar: Pop-up menu for LM in overflow dropdown is kept after LM was dragged away)
+	// mInventoryItemsPopupMenuHandle.get() - is a pop-up menu (of items) in already opened dropdown menu.
+	// We have to check and set visibility of pop-up menu in such a way instead of using
+	// LLMenuHolderGL::hideMenus() because it will close both menus(dropdown and pop-up), but
+	// we need to close only pop-up menu while dropdown one should be still opened.
+	LLMenuGL* menu = (LLMenuGL*)mInventoryItemsPopupMenuHandle.get();
+	if(menu && menu->getVisible())
+	{
+		menu->setVisible(FALSE);
+	}
+
 	mDragItemId = id;
 	mStartDrag = TRUE;
 

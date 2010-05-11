@@ -64,7 +64,6 @@ width="150">
 </text>
 <line_editor
 follows="left|bottom"
-handle_edit_keys_directly="true"
 height="22"
 label="e.g. bobsmith12 or Stellar Sunshine"
 left_delta="0"
@@ -88,7 +87,6 @@ top_pad="0"
   </text>
 <line_editor
 follows="left|bottom"
-handle_edit_keys_directly="true"
 height="22"
 label="Last"
 max_length="31"
@@ -110,7 +108,6 @@ top="20"
 </text>
 <line_editor
 follows="left|bottom"
-handle_edit_keys_directly="true"
   height="22"
   max_length="16"
 name="password_edit"
@@ -208,7 +205,7 @@ height="16"
 name="forgot_password_text"
 top_pad="12"
 right="-10"
-  width="210">
+  width="215">
        Forgot your name or password?
 </text>
 <text
@@ -220,7 +217,7 @@ height="16"
 name="login_help"
 top_pad="2"
 right="-10"
-    width="190">
+    width="220">
        Need help logging in?   </text>
 <!--  <text
     follows="right|bottom"

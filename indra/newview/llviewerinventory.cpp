@@ -39,11 +39,15 @@
 #include "indra_constants.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewerfoldertype.h"
 #include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
+#include "llinventorydefines.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llgesturemgr.h"
 #include "llsidetray.h"
 
@@ -61,6 +65,40 @@
 #include "llfloatercustomize.h"
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
+
+///----------------------------------------------------------------------------
+/// Helper class to store special inventory item names 
+///----------------------------------------------------------------------------
+class LLLocalizedInventoryItemsDictionary : public LLSingleton<LLLocalizedInventoryItemsDictionary>
+{
+public:
+	std::map<std::string, std::string> mInventoryItemsDict;
+
+	LLLocalizedInventoryItemsDictionary()
+	{
+		mInventoryItemsDict["New Shape"]		= LLTrans::getString("New Shape");
+		mInventoryItemsDict["New Skin"]			= LLTrans::getString("New Skin");
+		mInventoryItemsDict["New Hair"]			= LLTrans::getString("New Hair");
+		mInventoryItemsDict["New Eyes"]			= LLTrans::getString("New Eyes");
+		mInventoryItemsDict["New Shirt"]		= LLTrans::getString("New Shirt");
+		mInventoryItemsDict["New Pants"]		= LLTrans::getString("New Pants");
+		mInventoryItemsDict["New Shoes"]		= LLTrans::getString("New Shoes");
+		mInventoryItemsDict["New Socks"]		= LLTrans::getString("New Socks");
+		mInventoryItemsDict["New Jacket"]		= LLTrans::getString("New Jacket");
+		mInventoryItemsDict["New Gloves"]		= LLTrans::getString("New Gloves");
+		mInventoryItemsDict["New Undershirt"]	= LLTrans::getString("New Undershirt");
+		mInventoryItemsDict["New Underpants"]	= LLTrans::getString("New Underpants");
+		mInventoryItemsDict["New Skirt"]		= LLTrans::getString("New Skirt");
+		mInventoryItemsDict["New Alpha"]		= LLTrans::getString("New Alpha");
+		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
+		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
+
+		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
+		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
+		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
+	}
+};
+
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -101,7 +139,7 @@ public:
 		const std::string verb = params[1].asString();
 		if (verb == "select")
 		{
-			std::vector<LLUUID> items_to_open;
+			uuid_vec_t items_to_open;
 			items_to_open.push_back(inventory_id);
 			//inventory_handler is just a stub, because we don't know from who this offer
 			open_inventory_offer(items_to_open, "inventory_handler");
@@ -312,6 +350,18 @@ BOOL LLViewerInventoryItem::unpackMessage(LLSD item)
 BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
+
+	std::string localized_str;
+
+	std::map<std::string, std::string>::const_iterator dictionary_iter;
+
+	dictionary_iter = LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.find(mName);
+
+	if(dictionary_iter != LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.end())
+	{
+		mName = dictionary_iter->second;
+	}
+
 	mIsComplete = TRUE;
 	return rv;
 }
@@ -512,7 +562,7 @@ void LLViewerInventoryCategory::removeFromServer( void )
 	gAgent.sendReliableMessage();
 }
 
-bool LLViewerInventoryCategory::fetchDescendents()
+bool LLViewerInventoryCategory::fetch()
 {
 	if((VERSION_UNKNOWN == mVersion)
 	   && mDescendentsRequested.hasExpired())	//Expired check prevents multiple downloads.
@@ -537,7 +587,7 @@ bool LLViewerInventoryCategory::fetchDescendents()
 		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
-			gInventory.startBackgroundFetch(mUUID);			
+			LLInventoryModelBackgroundFetch::instance().start(mUUID, false);			
 		}
 		else
 		{	//Deprecated, but if we don't have a capability, use the old system.
@@ -790,8 +840,8 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 
 void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 {
-	LLAppearanceManager::instance().updateAppearanceFromCOF();
-	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgent.getCameraMode() )
+	LLAppearanceMgr::instance().updateAppearanceFromCOF();
+	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
 		if (gFloaterCustomize)
@@ -826,7 +876,7 @@ void ActivateGestureCallback::fire(const LLUUID& inv_item)
 	if (inv_item.isNull())
 		return;
 
-	LLGestureManager::instance().activateGesture(inv_item);
+	LLGestureMgr::instance().activateGesture(inv_item);
 }
 
 void CreateGestureCallback::fire(const LLUUID& inv_item)
@@ -834,7 +884,7 @@ void CreateGestureCallback::fire(const LLUUID& inv_item)
 	if (inv_item.isNull())
 		return;
 
-	LLGestureManager::instance().activateGesture(inv_item);
+	LLGestureMgr::instance().activateGesture(inv_item);
 	
 	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
 	if (!item) return;
@@ -863,6 +913,25 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb)
 {
+	//check if name is equal to one of special inventory items names
+	//EXT-5839
+	std::string server_name = name;
+
+	{
+		std::map<std::string, std::string>::const_iterator dictionary_iter;
+
+		for (dictionary_iter = LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.begin();
+			 dictionary_iter != LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.end();
+			 dictionary_iter++)
+		{
+			const std::string& localized_name = dictionary_iter->second;
+			if(localized_name == name)
+			{
+				server_name = dictionary_iter->first;
+			}
+		}
+	}
+
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_CreateInventoryItem);
 	msg->nextBlock(_PREHASH_AgentData);
@@ -876,7 +945,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
 	msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
 	msg->addU8Fast(_PREHASH_WearableType, (U8)wtype);
-	msg->addStringFast(_PREHASH_Name, name);
+	msg->addStringFast(_PREHASH_Name, server_name);
 	msg->addStringFast(_PREHASH_Description, desc);
 	
 	gAgent.sendReliableMessage();
@@ -919,6 +988,7 @@ void link_inventory_item(
 	const LLUUID& item_id,
 	const LLUUID& parent_id,
 	const std::string& new_name,
+	const std::string& new_description,
 	const LLAssetType::EType asset_type,
 	LLPointer<LLInventoryCallback> cb)
 {
@@ -944,7 +1014,6 @@ void link_inventory_item(
 	}
 	
 	LLUUID transaction_id;
-	std::string desc = "Broken link"; // This should only show if the object can't find its baseobj.
 	LLInventoryType::EType inv_type = LLInventoryType::IT_NONE;
 	if (dynamic_cast<const LLInventoryCategory *>(baseobj))
 	{
@@ -975,7 +1044,7 @@ void link_inventory_item(
 		msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
 		msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
 		msg->addStringFast(_PREHASH_Name, new_name);
-		msg->addStringFast(_PREHASH_Description, desc);
+		msg->addStringFast(_PREHASH_Description, new_description);
 	}
 	gAgent.sendReliableMessage();
 }
@@ -1071,7 +1140,7 @@ const std::string NEW_NOTECARD_NAME = "New Note"; // *TODO:Translate? (probably 
 const std::string NEW_GESTURE_NAME = "New Gesture"; // *TODO:Translate? (probably not)
 
 // ! REFACTOR ! Really need to refactor this so that it's not a bunch of if-then statements...
-void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
+void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, const LLSD& userdata, const LLUUID& default_parent_uuid)
 {
 	std::string type_name = userdata.asString();
 	
@@ -1095,7 +1164,7 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 
 		LLUUID category = gInventory.createNewCategory(parent_id, preferred_type, LLStringUtil::null);
 		gInventory.notifyObservers();
-		folder->setSelectionByID(category, TRUE);
+		root->setSelectionByID(category, TRUE);
 	}
 	else if ("lsl" == type_name)
 	{
@@ -1140,7 +1209,7 @@ void menu_create_inventory_item(LLFolderView* folder, LLFolderBridge *bridge, co
 			llwarns << "Can't create unrecognized type " << type_name << llendl;
 		}
 	}
-	folder->setNeedsAutoRename(TRUE);	
+	root->setNeedsAutoRename(TRUE);	
 }
 
 LLAssetType::EType LLViewerInventoryItem::getType() const
@@ -1475,7 +1544,7 @@ EWearableType LLViewerInventoryItem::getWearableType() const
 		llwarns << "item is not a wearable" << llendl;
 		return WT_INVALID;
 	}
-	return EWearableType(getFlags() & LLInventoryItem::II_FLAGS_WEARABLES_MASK);
+	return EWearableType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
 }
 
 

@@ -435,7 +435,10 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 	std::string* existing_tag = LLWidgetNameRegistry::instance().getValue(param_block_type);
 	if (existing_tag != NULL && *existing_tag != tag)
 	{
-		llerrs << "Duplicate entry for T::Params, try creating empty param block in derived classes that inherit T::Params" << llendl;
+		std::cerr << "Duplicate entry for T::Params, try creating empty param block in derived classes that inherit T::Params" << std::endl;
+		// forcing crash here
+		char* foo = 0;
+		*foo = 1;
 	}
 	LLWidgetNameRegistry ::instance().defaultRegistrar().add(param_block_type, tag);
 	// associate widget type with factory function

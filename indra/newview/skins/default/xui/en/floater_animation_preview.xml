@@ -333,66 +333,86 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left_pad="20"
      name="emote_combo"
      tool_tip="Controls what face does during animation">
-        <combo_box.item
-         label="(None)"
-         name="[None]" />
-        <combo_box.item
-         label="Aaaaah"
-         name="Aaaaah" />
-        <combo_box.item
-         label="Afraid"
-         name="Afraid" />
-        <combo_box.item
-         label="Angry"
-         name="Angry" />
-        <combo_box.item
-         label="Big Smile"
-         name="BigSmile" />
-        <combo_box.item
-         label="Bored"
-         name="Bored" />
-        <combo_box.item
-         label="Cry"
-         name="Cry" />
-        <combo_box.item
-         label="Disdain"
-         name="Disdain" />
-        <combo_box.item
-         label="Embarrassed"
-         name="Embarrassed" />
-        <combo_box.item
-         label="Frown"
-         name="Frown" />
-        <combo_box.item
-         label="Kiss"
-         name="Kiss" />
-        <combo_box.item
-         label="Laugh"
-         name="Laugh" />
-        <combo_box.item
-         label="Plllppt"
-         name="Plllppt" />
-        <combo_box.item
-         label="Repulsed"
-         name="Repulsed" />
-        <combo_box.item
-         label="Sad"
-         name="Sad" />
-        <combo_box.item
-         label="Shrug"
-         name="Shrug" />
-        <combo_box.item
-         label="Smile"
-         name="Smile" />
-        <combo_box.item
-         label="Surprise"
-         name="Surprise" />
-        <combo_box.item
-         label="Wink"
-         name="Wink" />
-        <combo_box.item
-         label="Worry"
-         name="Worry" />
+      <item
+       label="(None)"
+       value=""
+       name="[None]" />
+      <item
+       label="Aaaaah"
+       value="Aaaaah"
+       name="Aaaaah" />
+      <item
+       label="Afraid"
+       value="Afraid"
+       name="Afraid" />
+      <item
+       label="Angry"
+       value="Angry"
+       name="Angry" />
+      <item
+       label="Big Smile"
+       value="Big Smile"
+       name="BigSmile" />
+      <item
+       label="Bored"
+       value="Bored"
+       name="Bored" />
+      <item
+       label="Cry"
+       value="Cry"
+       name="Cry" />
+      <item
+       label="Disdain"
+       value="Disdain"
+       name="Disdain" />
+      <item
+       label="Embarrassed"
+       value="Embarrassed"
+       name="Embarrassed" />
+      <item
+       label="Frown"
+       value="Frown"
+       name="Frown" />
+      <item
+       label="Kiss"
+       value="Kiss"
+       name="Kiss" />
+      <item
+       label="Laugh"
+       value="Laugh"
+       name="Laugh" />
+      <item
+       label="Plllppt"
+       value="Plllppt"
+       name="Plllppt" />
+      <item
+       label="Repulsed"
+       value="Repulsed"
+       name="Repulsed" />
+      <item
+       label="Sad"
+       value="Sad"
+       name="Sad" />
+      <item
+       label="Shrug"
+       value="Shrug"
+       name="Shrug" />
+      <item
+       label="Smile"
+       value="Smile" 
+       name="Smile" />
+      <item
+       label="Surprise"
+       value="Surprise" 
+       name="Surprise" />
+      <item
+       label="Wink"
+       value="Wink"
+       name="Wink" />
+      <item
+       label="Worry"
+       value="Worry"
+       name="Worry" />
     </combo_box>
     <text
      type="string"
@@ -414,17 +434,21 @@ Maximum animation length is [MAX_LENGTH] seconds.
      left_pad="20"
      name="preview_base_anim"
      tool_tip="Use this to test your animation behavior while your avatar performs common actions.">
-        <combo_box.item
+        <item
          label="Standing"
+         value="Standing"
          name="Standing" />
-        <combo_box.item
+        <item
          label="Walking"
+         value="Walking"
          name="Walking" />
-        <combo_box.item
+        <item
          label="Sitting"
+         value="Sitting"
          name="Sitting" />
-        <combo_box.item
+        <item
          label="Flying"
+         value="Flying"
          name="Flying" />
     </combo_box>
     <spinner

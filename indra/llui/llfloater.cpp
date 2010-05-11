@@ -346,7 +346,7 @@ void LLFloater::layoutDragHandle()
 		rect = getLocalRect();
 	}
 	mDragHandle->setRect(rect);
-	updateButtons();
+	updateTitleButtons();
 	applyTitle();
 }
 
@@ -563,6 +563,7 @@ void LLFloater::handleVisibilityChange ( BOOL new_visibility )
 
 void LLFloater::openFloater(const LLSD& key)
 {
+	llinfos << "Opening floater " << getName() << llendl;
 	mKey = key; // in case we need to open ourselves again
 	
 	if (getSoundFlags() != SILENT 
@@ -603,6 +604,7 @@ void LLFloater::openFloater(const LLSD& key)
 
 void LLFloater::closeFloater(bool app_quitting)
 {
+	llinfos << "Closing floater " << getName() << llendl;
 	if (app_quitting)
 	{
 		LLFloater::sQuitting = true;
@@ -1061,11 +1063,10 @@ void LLFloater::setMinimized(BOOL minimize)
 		// Reshape *after* setting mMinimized
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
 	}
-	
-	applyTitle ();
 
 	make_ui_sound("UISndWindowClose");
-	updateButtons();
+	updateTitleButtons();
+	applyTitle ();
 }
 
 void LLFloater::setFocus( BOOL b )
@@ -1121,6 +1122,7 @@ void LLFloater::setIsChrome(BOOL is_chrome)
 		setFocus(FALSE);
 		// can't Ctrl-Tab to "chrome" floaters
 		setFocusRoot(FALSE);
+		mButtons[BUTTON_CLOSE]->setToolTip(LLStringExplicit(getButtonTooltip(Params(), BUTTON_CLOSE, is_chrome)));
 	}
 	
 	// no titles displayed on "chrome" floaters
@@ -1190,7 +1192,7 @@ void LLFloater::setHost(LLMultiFloater* host)
 		mButtonScale = 1.f;
 		//mButtonsEnabled[BUTTON_TEAR_OFF] = FALSE;
 	}
-	updateButtons();
+	updateTitleButtons();
 	if (host)
 	{
 		mHostHandle = host->getHandle();
@@ -1389,7 +1391,7 @@ void LLFloater::setCanDock(bool b)
 			mButtonsEnabled[BUTTON_DOCK] = FALSE;
 		}
 	}
-	updateButtons();
+	updateTitleButtons();
 }
 
 void LLFloater::setDocked(bool docked, bool pop_on_undock)
@@ -1398,7 +1400,7 @@ void LLFloater::setDocked(bool docked, bool pop_on_undock)
 	{
 		mDocked = docked;
 		mButtonsEnabled[BUTTON_DOCK] = !mDocked;
-		updateButtons();
+		updateTitleButtons();
 
 		storeDockStateControl();
 	}
@@ -1451,7 +1453,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		}
 		self->setTornOff(false);
 	}
-	self->updateButtons();
+	self->updateTitleButtons();
 }
 
 // static
@@ -1691,7 +1693,7 @@ void	LLFloater::setCanMinimize(BOOL can_minimize)
 	mButtonsEnabled[BUTTON_MINIMIZE] = can_minimize && !isMinimized();
 	mButtonsEnabled[BUTTON_RESTORE]  = can_minimize &&  isMinimized();
 
-	updateButtons();
+	updateTitleButtons();
 }
 
 void	LLFloater::setCanClose(BOOL can_close)
@@ -1699,7 +1701,7 @@ void	LLFloater::setCanClose(BOOL can_close)
 	mCanClose = can_close;
 	mButtonsEnabled[BUTTON_CLOSE] = can_close;
 
-	updateButtons();
+	updateTitleButtons();
 }
 
 void	LLFloater::setCanTearOff(BOOL can_tear_off)
@@ -1707,7 +1709,7 @@ void	LLFloater::setCanTearOff(BOOL can_tear_off)
 	mCanTearOff = can_tear_off;
 	mButtonsEnabled[BUTTON_TEAR_OFF] = mCanTearOff && !mHostHandle.isDead();
 
-	updateButtons();
+	updateTitleButtons();
 }
 
 
@@ -1731,10 +1733,11 @@ void LLFloater::setCanDrag(BOOL can_drag)
 	}
 }
 
-void LLFloater::updateButtons()
+void LLFloater::updateTitleButtons()
 {
 	static LLUICachedControl<S32> floater_close_box_size ("UIFloaterCloseBoxSize", 0);
 	static LLUICachedControl<S32> close_box_from_top ("UICloseBoxFromTop", 0);
+	LLRect buttons_rect;
 	S32 button_count = 0;
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
@@ -1785,6 +1788,18 @@ void LLFloater::updateButtons()
 					llround((F32)floater_close_box_size * mButtonScale));
 			}
 
+			// first time here, init 'buttons_rect'
+			if(1 == button_count)
+			{
+				buttons_rect = btn_rect;
+			}
+			else
+			{
+				// if mDragOnLeft=true then buttons are on top-left side vertically aligned
+				// title is not displayed in this case, calculating 'buttons_rect' for future use
+				mDragOnLeft ? buttons_rect.mBottom -= btn_rect.mBottom : 
+					buttons_rect.mLeft = btn_rect.mLeft;
+			}
 			mButtons[i]->setRect(btn_rect);
 			mButtons[i]->setVisible(TRUE);
 			// the restore button should have a tab stop so that it takes action when you Ctrl-Tab to a minimized floater
@@ -1796,7 +1811,10 @@ void LLFloater::updateButtons()
 		}
 	}
 	if (mDragHandle)
-		mDragHandle->setMaxTitleWidth(getRect().getWidth() - (button_count * (floater_close_box_size + 1)));
+	{
+		localRectToOtherView(buttons_rect, &buttons_rect, mDragHandle);
+		mDragHandle->setButtonsRect(buttons_rect);
+	}
 }
 
 void LLFloater::buildButtons(const Params& floater_params)
@@ -1844,7 +1862,7 @@ void LLFloater::buildButtons(const Params& floater_params)
 		p.click_callback.function(boost::bind(sButtonCallbacks[i], this));
 		p.tab_stop(false);
 		p.follows.flags(FOLLOWS_TOP|FOLLOWS_RIGHT);
-		p.tool_tip = getButtonTooltip(floater_params, (EFloaterButton)i);
+		p.tool_tip = getButtonTooltip(floater_params, (EFloaterButton)i, getIsChrome());
 		p.scale_image(true);
 		p.chrome(true);
 
@@ -1853,7 +1871,7 @@ void LLFloater::buildButtons(const Params& floater_params)
 		mButtons[i] = buttonp;
 	}
 
-	updateButtons();
+	updateTitleButtons();
 }
 
 // static
@@ -1899,8 +1917,15 @@ LLUIImage* LLFloater::getButtonPressedImage(const Params& p, EFloaterButton e)
 }
 
 // static
-std::string LLFloater::getButtonTooltip(const Params& p, EFloaterButton e)
+std::string LLFloater::getButtonTooltip(const Params& p, EFloaterButton e, bool is_chrome)
 {
+	// EXT-4081 (Lag Meter: Ctrl+W does not close floater)
+	// If floater is chrome set 'Close' text for close button's tooltip
+	if(is_chrome && BUTTON_CLOSE == e)
+	{
+		static std::string close_tooltip_chrome = LLTrans::getString("BUTTON_CLOSE_CHROME");
+		return close_tooltip_chrome;
+	}
 	// TODO: per-floater localizable tooltips set in XML
 	return sButtonToolTips[e];
 }
@@ -2809,4 +2834,16 @@ bool LLFloater::isShown() const
 bool LLFloater::isShown(const LLFloater* floater)
 {
     return floater && floater->isShown();
+}
+
+/* static */
+bool LLFloater::isMinimized(const LLFloater* floater)
+{
+    return floater && floater->isMinimized();
+}
+
+/* static */
+bool LLFloater::isVisible(const LLFloater* floater)
+{
+    return floater && floater->getVisible();
 }

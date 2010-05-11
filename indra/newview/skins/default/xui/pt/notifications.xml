@@ -349,7 +349,7 @@ Tem certeza de que quer prosseguir?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		Apagar pegar [PICK]?
+		Excluir destaque &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Delete"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -426,7 +426,7 @@ O objeto pode estar fora de alcance ou ter sido deletado.
 	</notification>
 	<notification name="StartRegionEmpty">
 		Oops, você ainda não definiu sua região de partida. 
-Digite o nome da região na caixa &apos;Ponto de partida&apos; ou selecione &apos;Última localização&apos; ou &apos;Minha casa&apos; como ponto de partida.
+Digite o nome da região na caixa &apos;Ponto de partida&apos; ou selecione &apos;Última localização&apos; ou &apos;Meu início&apos; como ponto de partida.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CouldNotStartStopScript">
@@ -918,6 +918,16 @@ Oferecer amizade para [NAME]?
 			<button name="Cancel" text="Cancelar"/>
 		</form>
 	</notification>
+	<notification label="Salvar este look" name="SaveOutfitAs">
+		Veja o meu novo visual:
+		<form name="form">
+			<input name="message">
+				[DESC] (novo)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Cancelar"/>
+		</form>
+	</notification>
 	<notification name="RemoveFromFriends">
 		Você quer remover [FIRST_NAME] [LAST_NAME] da sua lista de amigos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Remover"/>
@@ -1057,7 +1067,7 @@ Você chegou a uma região próxima.
 	<notification name="AvatarMovedHome">
 		Esse destino não está disponível no momento. 
 Você chegou a uma região próxima. 
-Pense em usar outra região como casa.
+Pense em usar outra região como seu início.
 	</notification>
 	<notification name="ClothingLoading">
 		As suas roupas estão sendo transferidas. 
@@ -1117,7 +1127,7 @@ Isso é realmente útil apenas para depuração.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="KickUsersFromRegion">
-		Teletransportar para casa todos os residentes nesta região?
+		Teletransportar para o início todos os residentes nesta região?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="EstateObjectReturn">
@@ -1398,6 +1408,10 @@ O bate-papo e MIs não serão exibidos.  MIs enviadas para você receberão sua 
 		Teletransportar para [CLASSIFIED]?
 		<usetemplate ignoretext="Confirmar se eu quero ser teletransportado lugar do anúncio" name="okcancelignore" notext="Cancelar" yestext="Teletransportar"/>
 	</notification>
+	<notification name="TeleportToHistoryEntry">
+		Teletransportar para [HISTORY_ENTRY]?
+		<usetemplate ignoretext="Confirmar se eu quero ser teletransportado para marcos" name="okcancelignore" notext="Cancelar" yestext="Teletransportar"/>
+	</notification>
 	<notification label="Mensagem para todos na sua Propriedade" name="MessageEstate">
 		Digite um breve anúncio que será enviado para todos que estejam atualmente na sua propriedade.
 		<form name="form">
@@ -1488,6 +1502,9 @@ Clique em &apos;Mudar preferência&apos; para aumentar o nível de maturidade e 
 			<button default="true" name="Cancel" text="Fechar"/>
 			<ignore name="ignore" text="Minha preferência de maturidade impede que eu vá a uma região"/>
 		</form>
+	</notification>
+	<notification name="PreferredMaturityChanged">
+		Sua opção de nível de maturidade é [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		Você não pode reclamar esta terra devido à sua Classificação de maturidade. Isto pode ser o resultado de falta de informação na validação de sua idade.
@@ -1904,6 +1921,9 @@ Inclua um link para facilitar o acesso para visitantes. Teste o link na barra de
 	<notification name="SystemMessageTip">
 		[MESSAGE]
 	</notification>
+	<notification name="IMSystemMessageTip">
+		[MESSAGE]
+	</notification>
 	<notification name="Cancelled">
 		Cancelado
 	</notification>
@@ -1931,6 +1951,11 @@ Inclua um link para facilitar o acesso para visitantes. Teste o link na barra de
 	<notification name="UploadingAuctionSnapshot">
 		Fazendo o upload das fotos do site da web e do mundo...
 (Leva cerca de 5 minutos)
+	</notification>
+	<notification name="UploadConfirmation">
+		O upload custa L$ [AMOUNT].
+Deseja continuar?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Upload"/>
 	</notification>
 	<notification name="UploadPayment">
 		Você paga L$[AMOUNT] para fazer o upload.
@@ -2125,7 +2150,7 @@ Objetos não transferíveis dados ao grupo foram deletados.
 	</notification>
 	<notification name="NotSafe">
 		A opção &apos;danos&apos; desta região está ativada. 
-Você pode se dar mal aqui.  Se você morre, você será teletransportado de volta para casa.
+Você pode se dar mal aqui.  Se você morrer, você será teletransportado de volta para seu início.
 	</notification>
 	<notification name="NoFly">
 		Esta área desativou a opção de voar. 
@@ -2270,9 +2295,9 @@ Por favor, tente novamente em alguns instantes.
 		</form>
 	</notification>
 	<notification name="TeleportOffered">
-		[NAME] quer te teletransportar para a região deles:
+		[NAME_SLURL] quer teletransportar você para a região deles:
 
-[MESSAGE]
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
 		<form name="form">
 			<button name="Teleport" text="Teletransporte"/>
 			<button name="Cancel" text="Cancelar"/>
@@ -2290,11 +2315,11 @@ Por favor, tente novamente em alguns instantes.
 		</form>
 	</notification>
 	<notification name="OfferFriendship">
-		[NAME] está lhe oferecendo sua amizade
+		[NAME_SLURL] quer a sua amizade.
 
 [MESSAGE]
 
-(Por definição vocês serão capazes de ver um ao outro online)
+Cada um pode ver o status do outro (definição padrão).
 		<form name="form">
 			<button name="Accept" text="Aceitar"/>
 			<button name="Decline" text="Recusar"/>
@@ -2356,6 +2381,9 @@ Do objeto: [OBJECTNAME], dono: [NAME]?
 	</notification>
 	<notification name="FailedToFindWearable">
 		Falhou ao procurar [TYPE] nomeado [DESC] no banco de dados.
+	</notification>
+	<notification name="ShareToWebFailed">
+		Falha de upload da imagem na web.
 	</notification>
 	<notification name="InvalidWearable">
 		O item que você está tentando usar tem um recurso que seu Visualizador não consegue ler.  Atualize o [APP_NAME] para poder vestir esse item.
@@ -2553,6 +2581,12 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 		O botão selecionado não pode ser exibido no momento. 
 O botão será exibido quando houver espaço suficente.
 	</notification>
+	<notification name="ShareNotification">
+		Arraste itens do inventário para uma pessoa no seletor de residentes
+	</notification>
+	<notification name="AvatarRezNotification">
+		O avatar de &apos;[NAME]&apos; renderizou em [TIME] s.
+	</notification>
 	<global name="UnsupportedCPU">
 		- A velocidade da sua CPU não suporta os requisitos mínimos exigidos.
 	</global>
@@ -2574,7 +2608,7 @@ Se você continuar a receber esta mensagem, consulte o [SUPPORT_SITE].
 		- A memória do seu sistema não suporta os requisitos mínimos exigidos.
 	</global>
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
-		Se você tem um terreno, seu terreno pode ser sua casa. 
+		Se você tem um terreno, seu terreno pode ser seu início. 
 Outra opção é procurar por lugares com a tag &apos;Infohub&apos; no mapa.
 	</global>
 </notifications>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="top|right|left"
+ height="22"
+ layout="topleft"
+ left="0"
+ name="wearable_item"
+ top="0"
+ width="380">
+    <icon
+     follows="top|right|left"
+     height="20"
+     image_name="ListItem_Over"
+     layout="topleft"
+     left="0"
+     name="hovered_icon"
+     top="0"
+     visible="false"
+     width="380" />
+    <icon
+     height="20"
+     follows="top|right|left"
+     image_name="ListItem_Select"
+     layout="topleft"
+     left="0"
+     name="selected_icon"
+     top="0"
+     visible="false"
+     width="380" />
+    <icon
+     height="16"
+     follows="top|left"
+     image_name="Inv_Object"
+     layout="topleft"
+     left="0"
+     name="item_icon"
+     top="2"
+     width="16" />
+    <text
+     follows="left|right"
+     height="16"
+     layout="topleft"
+     left_pad="5"
+     allow_html="false"
+     use_ellipses="true"
+     name="item_name"
+     text_color="white"
+     top="4"
+     value="..."
+     width="359" />
+    <icon 
+     name="btn_lock"
+     layout="topleft"
+     follows="top|right"
+     image_name="Lock2"
+     top="0"
+     left="0"
+     height="20"
+     width="20"
+     tab_stop="false" />
+    <button 
+     name="btn_edit"
+     layout="topleft"
+     follows="top|right"
+     image_unselected="Icon_Gear_Background"
+     image_selected="Icon_Gear_Background"
+     top="0"
+     left_pad="3"
+     height="20"
+     width="20"
+     tab_stop="false" />
+    <panel
+     background_visible="true"
+     bg_alpha_color="0.4 0.4 0.4 1.0"
+     bottom="0"
+     follows="left|right|top"
+     height="1"
+     layout="bottomleft"
+     left="0"
+     name="wearable_type_separator_panel"
+     width="380"/>
+</panel>

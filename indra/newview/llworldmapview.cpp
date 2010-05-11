@@ -44,6 +44,7 @@
 #include "lltooltip.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llcommandhandler.h"
 #include "llviewercontrol.h"
@@ -311,7 +312,7 @@ void LLWorldMapView::draw()
 	const S32 height = getRect().getHeight();
 	const F32 half_width = F32(width) / 2.0f;
 	const F32 half_height = F32(height) / 2.0f;
-	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
+	LLVector3d camera_global = gAgentCamera.getCameraPositionGlobal();
 
 	S32 level = LLWorldMipmap::scaleToLevel(sMapScale);
 
@@ -885,35 +886,61 @@ void LLWorldMapView::drawFrustum()
 	F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2 );
 	F32 half_width_pixels = half_width_meters * meters_to_pixels;
 	
-	F32 ctr_x = getRect().getWidth() * 0.5f + sPanX;
-	F32 ctr_y = getRect().getHeight() * 0.5f + sPanY;
+	F32 ctr_x = getLocalRect().getWidth() * 0.5f + sPanX;
+	F32 ctr_y = getLocalRect().getHeight() * 0.5f + sPanY;
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Since we don't rotate the map, we have to rotate the frustum.
 	gGL.pushMatrix();
+	{
 		gGL.translatef( ctr_x, ctr_y, 0 );
-		glRotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
 
 		// Draw triangle with more alpha in far pixels to make it 
 		// fade out in distance.
 		gGL.begin( LLRender::TRIANGLES  );
+		{
+			// get camera look at and left axes
+			LLVector3 at_axis = LLViewerCamera::instance().getAtAxis();
+			LLVector3 left_axis = LLViewerCamera::instance().getLeftAxis();
+
+			// grab components along XY plane
+			LLVector2 cam_lookat(at_axis.mV[VX], at_axis.mV[VY]);
+			LLVector2 cam_left(left_axis.mV[VX], left_axis.mV[VY]);
+
+			// but, when looking near straight up or down...
+			if (is_approx_zero(cam_lookat.magVecSquared()))
+			{
+				//...just fall back to looking down the x axis
+				cam_lookat = LLVector2(1.f, 0.f); // x axis
+				cam_left = LLVector2(0.f, 1.f); // y axis
+			}
+
+			// normalize to unit length
+			cam_lookat.normVec();
+			cam_left.normVec();
+
 			gGL.color4f(1.f, 1.f, 1.f, 0.25f);
 			gGL.vertex2f( 0, 0 );
 
 			gGL.color4f(1.f, 1.f, 1.f, 0.02f);
-			gGL.vertex2f( -half_width_pixels, far_clip_pixels );
+			
+			// use 2d camera vectors to render frustum triangle
+			LLVector2 vert = cam_lookat * far_clip_pixels + cam_left * half_width_pixels;
+			gGL.vertex2f(vert.mV[VX], vert.mV[VY]);
 
-			gGL.color4f(1.f, 1.f, 1.f, 0.02f);
-			gGL.vertex2f(  half_width_pixels, far_clip_pixels );
+			vert = cam_lookat * far_clip_pixels - cam_left * half_width_pixels;
+			gGL.vertex2f(vert.mV[VX], vert.mV[VY]);
+		}
 		gGL.end();
+	}
 	gGL.popMatrix();
 }
 
 
 LLVector3 LLWorldMapView::globalPosToView( const LLVector3d& global_pos )
 {
-	LLVector3d relative_pos_global = global_pos - gAgent.getCameraPositionGlobal();
+	LLVector3d relative_pos_global = global_pos - gAgentCamera.getCameraPositionGlobal();
 	LLVector3 pos_local;
 	pos_local.setVec(relative_pos_global);  // convert to floats from doubles
 
@@ -1006,7 +1033,7 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
 	
 	LLVector3d pos_global;
 	pos_global.setVec( pos_local );
-	pos_global += gAgent.getCameraPositionGlobal();
+	pos_global += gAgentCamera.getCameraPositionGlobal();
 	if(gAgent.isGodlike())
 	{
 		pos_global.mdV[VZ] = GODLY_TELEPORT_HEIGHT; // Godly height should always be 200.
@@ -1045,18 +1072,10 @@ BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, MASK mask )
 			// zoomed out, so don't display anything about the count. JC
 			if (agent_count > 0)
 			{
-				// Merov: i18n horror!!! Even using gettext(), concatenating strings is not localizable. 
-				// The singular/plural switch form here under might make no sense in some languages. Don't do that.
-				message += llformat("\n%d ", agent_count);
-
-				if (agent_count == 1)
-				{
-					message += "person";
-				}
-				else
-				{
-					message += "people";
-				}
+				LLStringUtil::format_map_t string_args;
+				string_args["[NUMBER]"] = llformat("%d", agent_count);
+				message += '\n';
+				message += getString((agent_count == 1 ? "world_map_person" : "world_map_people") , string_args);
 			}
 		}
 		tooltip_msg.assign( message );
@@ -1638,7 +1657,7 @@ void LLWorldMapView::updateVisibleBlocks()
 	// Load the blocks visible in the current World Map view
 
 	// Get the World Map view coordinates and boundaries
-	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
+	LLVector3d camera_global = gAgentCamera.getCameraPositionGlobal();
 	const S32 width = getRect().getWidth();
 	const S32 height = getRect().getHeight();
 	const F32 half_width = F32(width) / 2.0f;

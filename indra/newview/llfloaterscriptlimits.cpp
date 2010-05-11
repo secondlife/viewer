@@ -641,7 +641,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 	std::string msg_parcels = LLTrans::getString("ScriptLimitsParcelsOwned", args_parcels);
 	childSetValue("parcels_listed", LLSD(msg_parcels));
 
-	std::vector<LLUUID> names_requested;
+	uuid_vec_t names_requested;
 
 	// This makes the assumption that all objects will have the same set
 	// of attributes, ie they will all have, or none will have locations

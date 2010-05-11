@@ -40,6 +40,7 @@
 #include "llhudeffectbeam.h"
 #include "llhudeffecttrail.h"
 #include "llhudeffectlookat.h"
+#include "llhudeffectpointat.h"
 #include "llhudnametag.h"
 #include "llvoicevisualizer.h"
 

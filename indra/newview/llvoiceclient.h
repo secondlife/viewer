@@ -101,6 +101,10 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		
 		static F32 OVERDRIVEN_POWER_LEVEL;
 
+		static const F32 VOLUME_MIN;
+		static const F32 VOLUME_DEFAULT;
+		static const F32 VOLUME_MAX;
+
 		void updateSettings(); // call after loading settings and whenever they change
 	
 		void getCaptureDevicesSendMessage();
@@ -269,7 +273,7 @@ static	void updatePosition(void);
 		public:
 			participantState(const std::string &uri);
 
-			bool updateMuteState();
+			bool updateMuteState();	// true if mute state has changed
 			bool isAvatar();
 
 			std::string mURI;
@@ -279,13 +283,13 @@ static	void updatePosition(void);
 			LLFrameTimer mSpeakingTimeout;
 			F32	mLastSpokeTimestamp;
 			F32 mPower;
-			int mVolume;
+			F32 mVolume;
 			std::string mGroupID;
-			int mUserVolume;
 			bool mPTT;
 			bool mIsSpeaking;
 			bool mIsModeratorMuted;
 			bool mOnMuteList;		// true if this avatar is on the user's mute list (and should be muted)
+			bool mVolumeSet;		// true if incoming volume messages should not change the volume
 			bool mVolumeDirty;		// true if this participant needs a volume command sent (either mOnMuteList or mUserVolume has changed)
 			bool mAvatarIDValid;
 			bool mIsSelf;
@@ -349,6 +353,7 @@ static	void updatePosition(void);
 			// Set to true when the mute state of someone in the participant list changes.
 			// The code will have to walk the list to find the changed participant(s).
 			bool		mVolumeDirty;
+			bool		mMuteDirty;
 
 			bool		mParticipantsChanged;
 			participantMap mParticipantsByURI;

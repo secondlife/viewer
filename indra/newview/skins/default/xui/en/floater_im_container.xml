@@ -11,7 +11,7 @@
  save_visibility="true"
  single_instance="true"
  title="CONVERSATIONS"
- width="392">
+ width="396">
     <tab_container
      follows="left|right|top|bottom"
      height="390"
@@ -27,7 +27,7 @@
      halign="left"
      use_ellipses="true"
      top="0"
-     width="390" />
+     width="394" />
     <icon
      color="DefaultShadowLight"
      enabled="false"
@@ -38,5 +38,5 @@
      left="1"
      name="im_box_tab_container_icon"
      bottom="10"
-     width="390" />
+     width="394" />
 </multi_floater>

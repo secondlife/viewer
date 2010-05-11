@@ -142,36 +142,36 @@ main
 		Expression
 	</text>
 	<combo_box label="" name="emote_combo" tool_tip="Contrôle ce que fait le visage pendant l&apos;animation">
-		<combo_box.item label="(aucun)" name="[None]"/>
-		<combo_box.item label="Aaaaah" name="Aaaaah"/>
-		<combo_box.item label="Effrayé" name="Afraid"/>
-		<combo_box.item label="En colère" name="Angry"/>
-		<combo_box.item label="Grand sourire" name="BigSmile"/>
-		<combo_box.item label="Ennui" name="Bored"/>
-		<combo_box.item label="Pleurer" name="Cry"/>
-		<combo_box.item label="Mépris" name="Disdain"/>
-		<combo_box.item label="Gêne" name="Embarrassed"/>
-		<combo_box.item label="Froncer les sourcils" name="Frown"/>
-		<combo_box.item label="Embrasser" name="Kiss"/>
-		<combo_box.item label="Rire" name="Laugh"/>
-		<combo_box.item label="Plllppt" name="Plllppt"/>
-		<combo_box.item label="Dégoût" name="Repulsed"/>
-		<combo_box.item label="Triste" name="Sad"/>
-		<combo_box.item label="Hausser les épaules" name="Shrug"/>
-		<combo_box.item label="Sourire" name="Smile"/>
-		<combo_box.item label="Surprise" name="Surprise"/>
-		<combo_box.item label="Clin d&apos;œil" name="Wink"/>
-		<combo_box.item label="Soucis" name="Worry"/>
+		<item label="(aucun)" name="[None]" value=""/>
+		<item label="Aaaaah" name="Aaaaah" value="Aaaaah"/>
+		<item label="Effrayé" name="Afraid" value="Effrayé"/>
+		<item label="En colère" name="Angry" value="En colère"/>
+		<item label="Grand sourire" name="BigSmile" value="Grand sourire"/>
+		<item label="Ennui" name="Bored" value="Ennui"/>
+		<item label="Pleurer" name="Cry" value="Pleurer"/>
+		<item label="Mépris" name="Disdain" value="Mépris"/>
+		<item label="Gêne" name="Embarrassed" value="Gêne"/>
+		<item label="Froncer les sourcils" name="Frown" value="Froncer les sourcils"/>
+		<item label="Embrasser" name="Kiss" value="Embrasser"/>
+		<item label="Rire" name="Laugh" value="Rire"/>
+		<item label="Plllppt" name="Plllppt" value="Tirer la langue"/>
+		<item label="Dégoût" name="Repulsed" value="Dégoût"/>
+		<item label="Triste" name="Sad" value="Triste"/>
+		<item label="Hausser les épaules" name="Shrug" value="Hausser les épaules"/>
+		<item label="Sourire" name="Smile" value="Sourire"/>
+		<item label="Surprise" name="Surprise" value="Surprise"/>
+		<item label="Clin d&apos;œil" name="Wink" value="Clin d&apos;œil"/>
+		<item label="Soucis" name="Worry" value="Inquiétude"/>
 	</combo_box>
 	<text name="preview_label">
 		Prévisualiser
 pendant
 	</text>
 	<combo_box label="" name="preview_base_anim" tool_tip="Utilisez cette option pour tester votre animation pendant que votre avatar fait des choses banales.">
-		<combo_box.item label="Debout" name="Standing"/>
-		<combo_box.item label="Marche" name="Walking"/>
-		<combo_box.item label="Assis" name="Sitting"/>
-		<combo_box.item label="Vol" name="Flying"/>
+		<item label="Debout" name="Standing" value="Debout"/>
+		<item label="Marche" name="Walking" value="Marche"/>
+		<item label="Assis" name="Sitting" value="Assis"/>
+		<item label="Vol" name="Flying" value="Vol"/>
 	</combo_box>
 	<spinner label="Transition début (s)" name="ease_in_time" tool_tip="Durée (en secondes) de l&apos;entrée en fondu de l&apos;animation"/>
 	<spinner label="Transition fin (s)" name="ease_out_time" tool_tip="Durée (en secondes) de la sortie en fondu de l&apos;animation"/>

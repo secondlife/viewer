@@ -64,35 +64,45 @@
      name="clothing_type_combo"
      top_delta="3"
      width="160">
-        <combo_box.item
+        <item
          label="Image"
+         value="Image"
          name="Image" />
-        <combo_box.item
+        <item
          label="Hair"
+         value="Hair"
          name="Hair" />
-        <combo_box.item
+        <item
          label="Female Head"
+         value="Female Head"
          name="FemaleHead" />
-        <combo_box.item
+        <item
          label="Female Upper Body"
+         value="Female Upper Body"
          name="FemaleUpperBody" />
-        <combo_box.item
+        <item
          label="Female Lower Body"
+         value="Female Lower Body"
          name="FemaleLowerBody" />
-        <combo_box.item
+        <item
          label="Male Head"
+         value="Male Head"
          name="MaleHead" />
-        <combo_box.item
+        <item
          label="Male Upper Body"
+         value="Male Upper Body"
          name="MaleUpperBody" />
-        <combo_box.item
+        <item
          label="Male Lower Body"
+         value="Male Lower Body"
          name="MaleLowerBody" />
-        <combo_box.item
+        <item
          label="Skirt"
+         value="Skirt"
          name="Skirt" />
-        <combo_box.item
+        <item
          label="Sculpted Prim"
+         value="Sculpted Prim"
          name="SculptedPrim" />
     </combo_box>
     <text

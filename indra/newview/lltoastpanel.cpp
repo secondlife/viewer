@@ -32,14 +32,15 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "lltoastpanel.h"
-
+#include "llpanelgenerictip.h"
+#include "llpanelonlinestatus.h"
 #include "llnotifications.h"
+#include "lltoastpanel.h"
 
 //static
 const S32 LLToastPanel::MIN_PANEL_HEIGHT = 40; // VPAD(4)*2 + ICON_HEIGHT(32)
 
-LLToastPanel::LLToastPanel(LLNotificationPtr& notification) 
+LLToastPanel::LLToastPanel(const LLNotificationPtr& notification)
 {
 	mNotification = notification;
 }
@@ -91,3 +92,30 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 	}
 }
 
+// static
+LLToastPanel* LLToastPanel::buidPanelFromNotification(
+		const LLNotificationPtr& notification)
+{
+	LLToastPanel* res = NULL;
+
+	//process tip toast panels
+	if ("notifytip" == notification->getType())
+	{
+		// if it is online/offline notification
+		if ("FriendOffline" == notification->getName() || "FriendOnline" == notification->getName())
+		{
+			res = new LLPanelOnlineStatus(notification);
+		}
+		// in all other case we use generic tip panel
+		else
+		{
+			res = new LLPanelGenericTip(notification);
+		}
+	}
+	/*
+	 else if(...)
+	 create all other specific non-public toast panel
+	 */
+
+	return res;
+}

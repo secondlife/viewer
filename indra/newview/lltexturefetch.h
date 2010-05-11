@@ -62,7 +62,7 @@ public:
 	void shutDownImageDecodeThread() ;  //called in the main thread after the ImageDecodeThread shuts down.
 
 	bool createRequest(const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
-					   S32 w, S32 h, S32 c, S32 discard, bool needs_aux);
+					   S32 w, S32 h, S32 c, S32 discard, bool needs_aux, bool can_use_http);
 	void deleteRequest(const LLUUID& id, bool cancel);
 	bool getRequestFinished(const LLUUID& id, S32& discard_level,
 							LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux);
@@ -77,7 +77,7 @@ public:
 	// Debug
 	BOOL isFromLocalCache(const LLUUID& id);
 	S32 getFetchState(const LLUUID& id, F32& decode_progress_p, F32& requested_priority_p,
-					  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p);
+					  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p, bool& can_use_http);
 	void dump();
 	S32 getNumRequests() ;
 	S32 getNumHTTPRequests() ;

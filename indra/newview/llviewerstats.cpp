@@ -52,6 +52,7 @@
 #include "llsurface.h"
 #include "llvlmanager.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llviewercontrol.h"
 #include "llfloatertools.h"
 #include "lldebugview.h"
@@ -577,11 +578,11 @@ void update_statistics(U32 frame_count)
 	// make sure we have a valid time delta for this frame
 	if (gFrameIntervalSeconds > 0.f)
 	{
-		if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+		if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 		{
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_MOUSELOOK_SECONDS, gFrameIntervalSeconds);
 		}
-		else if (gAgent.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
+		else if (gAgentCamera.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
 		{
 			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_AVATAR_EDIT_SECONDS, gFrameIntervalSeconds);
 		}

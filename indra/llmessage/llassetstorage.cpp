@@ -283,28 +283,30 @@ LLEstateAssetRequest::~LLEstateAssetRequest()
 // TODO: rework tempfile handling?
 
 
-LLAssetStorage::LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, LLVFS *vfs, const LLHost &upstream_host)
+LLAssetStorage::LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, LLVFS *vfs, LLVFS *static_vfs, const LLHost &upstream_host)
 {
-	_init(msg, xfer, vfs, upstream_host);
+	_init(msg, xfer, vfs, static_vfs, upstream_host);
 }
 
 
 LLAssetStorage::LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-							   LLVFS *vfs)
+							   LLVFS *vfs, LLVFS *static_vfs)
 {
-	_init(msg, xfer, vfs, LLHost::invalid);
+	_init(msg, xfer, vfs, static_vfs, LLHost::invalid);
 }
 
 
 void LLAssetStorage::_init(LLMessageSystem *msg,
 						   LLXferManager *xfer,
 						   LLVFS *vfs,
+						   LLVFS *static_vfs,
 						   const LLHost &upstream_host)
 {
 	mShutDown = FALSE;
 	mMessageSys = msg;
 	mXferManager = xfer;
 	mVFS = vfs;
+	mStaticVFS = static_vfs;
 
 	setUpstream(upstream_host);
 	msg->setHandlerFuncFast(_PREHASH_AssetUploadComplete, processUploadComplete, (void **)this);
@@ -396,7 +398,33 @@ void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
 
 BOOL LLAssetStorage::hasLocalAsset(const LLUUID &uuid, const LLAssetType::EType type)
 {
-	return mVFS->getExists(uuid, type);
+	return mStaticVFS->getExists(uuid, type) || mVFS->getExists(uuid, type);
+}
+
+bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
+													  LLGetAssetCallback callback, void *user_data)
+{
+	BOOL exists = mStaticVFS->getExists(uuid, type);
+	if (exists)
+	{
+		LLVFile file(mStaticVFS, uuid, type);
+		U32 size = file.getSize();
+		if (size > 0)
+		{
+			// we've already got the file
+			if (callback)
+			{
+				callback(mStaticVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+			}
+			return true;
+		}
+		else
+		{
+			llwarns << "Asset vfile " << uuid << ":" << type
+					<< " found in static cache with bad size " << file.getSize() << ", ignoring" << llendl;
+		}
+	}
+	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -404,9 +432,11 @@ BOOL LLAssetStorage::hasLocalAsset(const LLUUID &uuid, const LLAssetType::EType 
 ///////////////////////////////////////////////////////////////////////////
 
 // IW - uuid is passed by value to avoid side effects, please don't re-add &    
-void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat), void *user_data, BOOL is_priority)
+void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LLGetAssetCallback callback, void *user_data, BOOL is_priority)
 {
 	lldebugs << "LLAssetStorage::getAssetData() - " << uuid << "," << LLAssetType::lookup(type) << llendl;
+
+	llinfos << "ASSET_TRACE requesting " << uuid << " type " << LLAssetType::lookup(type) << llendl;
 
 	if (mShutDown)
 	{
@@ -423,11 +453,27 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, vo
 		return;
 	}
 
+	// Try static VFS first.
+	if (findInStaticVFSAndInvokeCallback(uuid,type,callback,user_data))
+	{
+		return;
+	}
+
 	BOOL exists = mVFS->getExists(uuid, type);
 	LLVFile file(mVFS, uuid, type);
 	U32 size = exists ? file.getSize() : 0;
 	
-	if (size < 1)
+	if (size > 0)
+	{
+		// we've already got the file
+		// theoretically, partial files w/o a pending request shouldn't happen
+		// unless there's a weird error
+		if (callback)
+		{
+			callback(mVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+		}
+	}
+	else
 	{
 		if (exists)
 		{
@@ -466,16 +512,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, vo
 		// This can be overridden by subclasses
 		_queueDataRequest(uuid, type, callback, user_data, duplicate, is_priority);	
 	}
-	else
-	{
-		// we've already got the file
-		// theoretically, partial files w/o a pending request shouldn't happen
-		// unless there's a weird error
-		if (callback)
-		{
-			callback(mVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
-		}
-	}
+		llinfos << "ASSET_TRACE asset " << uuid << " found in VFS" << llendl;
+
 }
 
 void LLAssetStorage::_queueDataRequest(const LLUUID& uuid, LLAssetType::EType atype,
@@ -528,6 +566,8 @@ void LLAssetStorage::downloadCompleteCallback(
 	LLAssetType::EType file_type,
 	void* user_data, LLExtStat ext_status)
 {
+	llinfos << "ASSET_TRACE asset " << file_id << " downloadCompleteCallback" << llendl;
+
 	lldebugs << "LLAssetStorage::downloadCompleteCallback() for " << file_id
 		 << "," << LLAssetType::lookup(file_type) << llendl;
 	LLAssetRequest* req = (LLAssetRequest*)user_data;
@@ -616,11 +656,27 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 		return;
 	}
 
+	// Try static VFS first.
+	if (findInStaticVFSAndInvokeCallback(asset_id,atype,callback,user_data))
+	{
+		return;
+	}
+	
 	BOOL exists = mVFS->getExists(asset_id, atype);
 	LLVFile file(mVFS, asset_id, atype);
 	U32 size = exists ? file.getSize() : 0;
 
-	if (size < 1)
+	if (size > 0)
+	{
+		// we've already got the file
+		// theoretically, partial files w/o a pending request shouldn't happen
+		// unless there's a weird error
+		if (callback)
+		{
+			callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+		}
+	}
+	else
 	{
 		if (exists)
 		{
@@ -669,16 +725,6 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 			{
 				callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
 			}
-		}
-	}
-	else
-	{
-		// we've already got the file
-		// theoretically, partial files w/o a pending request shouldn't happen
-		// unless there's a weird error
-		if (callback)
-		{
-			callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
 		}
 	}
 }
@@ -747,6 +793,12 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 
 	if(asset_id.notNull())
 	{
+		// Try static VFS first.
+		if (findInStaticVFSAndInvokeCallback( asset_id, atype, callback, user_data))
+		{
+			return;
+		}
+
 		exists = mVFS->getExists(asset_id, atype);
 		LLVFile file(mVFS, asset_id, atype);
 		size = exists ? file.getSize() : 0;
@@ -758,7 +810,17 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 
 	}
 
-	if (size < 1)
+	if (size > 0)
+	{
+		// we've already got the file
+		// theoretically, partial files w/o a pending request shouldn't happen
+		// unless there's a weird error
+		if (callback)
+		{
+			callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+		}
+	}
+	else
 	{
 		// See whether we should talk to the object's originating sim,
 		// or the upstream provider.
@@ -805,16 +867,6 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 			{
 				callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
 			}
-		}
-	}
-	else
-	{
-		// we've already got the file
-		// theoretically, partial files w/o a pending request shouldn't happen
-		// unless there's a weird error
-		if (callback)
-		{
-			callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
 		}
 	}
 }

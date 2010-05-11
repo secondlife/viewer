@@ -48,7 +48,8 @@
 //static
 void LLAgentUI::buildFullname(std::string& name)
 {
-	if (gAgent.getAvatarObject()) name = gAgent.getAvatarObject()->getFullname();
+	if (isAgentAvatarValid())
+		name = gAgentAvatarp->getFullname();
 }
 
 //static

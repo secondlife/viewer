@@ -38,6 +38,7 @@
 #include "llrender.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "lldrawable.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
@@ -152,7 +153,7 @@ void LLHUDEffectPointAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	mesgsys->getUUIDFast(_PREHASH_Effect, _PREHASH_ID, dataId, blocknum);
 
 	// ignore messages from ourselves
-	if (!gAgent.mPointAt.isNull() && dataId == gAgent.mPointAt->getID())
+	if (!gAgentCamera.mPointAt.isNull() && dataId == gAgentCamera.mPointAt->getID())
 	{
 		return;
 	}

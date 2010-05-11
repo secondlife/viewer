@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Suoni" name="Preference Media panel">
-	<slider label="Comando volume centrale" name="System Volume"/>
-	<check_box initial_value="true" label="Disattiva audio quando minimizzato" name="mute_when_minimized"/>
+	<slider label="Vol. principale" name="System Volume"/>
+	<check_box initial_value="true" label="Disatt. se a icona" name="mute_when_minimized"/>
 	<slider label="Pulsanti" name="UI Volume"/>
 	<slider label="Ambiente" name="Wind Volume"/>
 	<slider label="Effetti sonori" name="SFX Volume"/>

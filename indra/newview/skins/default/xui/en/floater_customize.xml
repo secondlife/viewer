@@ -11,7 +11,7 @@
  save_rect="true"
  title="APPEARANCE"
  top_delta="-185"
- width="524">
+ width="600">
     <tab_container
      height="517"
      layout="topleft"
@@ -21,7 +21,7 @@
      tab_position="left"
      tab_height="50"
      top="26"
-     width="506">
+     width="580">
             <text
              type="string"
              length="1"
@@ -65,15 +65,15 @@
              mouse_opaque="true"
              width="16" />
             <button
-             follows="right|bottom"
+             follows="left|top"
              height="23"
-             label="Revert"
-             label_selected="Revert"
+             label="Create New Shape"
+             label_selected="Create New Shape"
              layout="topleft"
-             right="390"
-             name="Revert"
-             top="477"
-             width="82" />
+             left="10"
+             name="Create New"
+             top="104"
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -280,46 +280,46 @@
              type="string"
              length="1"
              top="488"
-             follows="left|top|right"
+             follows="left|top"
              font="SansSerif"
              halign="right"
              height="23"
              layout="topleft"
+             left="10"
              name="Item Action Label"
-             right="90"
-             width="100">
+             width="130">
                 Shape:
             </text>
             <button
-             follows="left|top"
-             height="23"
-             label="Create New Shape"
-             label_selected="Create New Shape"
-             layout="topleft"
-             left="10"
-             name="Create New"
-             top="104"
-             width="160" />
-            <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
              name="Save"
-             right="186"
+             left_pad="2"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
              name="Save As"
              top="477"
-             right="304"
+             left_pad="3"
              width="115" />
+            <button
+             follows="left|bottom"
+             height="23"
+             label="Revert"
+             label_selected="Revert"
+             layout="topleft"
+             left_pad="3"
+             name="Revert"
+             top="477"
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -349,6 +349,16 @@
              layout="topleft"
              mouse_opaque="true"
              width="16" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Create New Skin"
+             label_selected="Create New Skin"
+             layout="topleft"
+             left_delta="0"
+             name="Create New"
+             top_delta="-249"
+             width="160" />
             <button
              follows="left|top"
              height="23"
@@ -479,20 +489,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             top="488"
-             follows="left|top|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="topleft"
-             name="Item Action Label"
-             right="90"
-             width="100">
-                Skin:
-            </text>
             <texture_picker
              allow_no_texture="true"
              can_apply_immediately="true"
@@ -532,46 +528,50 @@
              tool_tip="Click to choose a picture"
              top_delta="102"
              width="82" />
-            <button
+            <text
+             type="string"
+             length="1"
+             top="488"
              follows="left|top"
+             font="SansSerif"
+             halign="right"
              height="23"
-             label="Create New Skin"
-             label_selected="Create New Skin"
              layout="topleft"
-             left_delta="0"
-             name="Create New"
-             top_delta="-249"
-             width="160" />
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Skin:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -729,20 +729,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             top="488"
-             follows="left|top|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="topleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Hair:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -765,36 +751,50 @@
              name="Create New"
              top_delta="-89"
              width="160" />
+            <text
+             type="string"
+             length="1"
+             top="488"
+             follows="left|top"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="topleft"
+             name="Item Action Label"
+             left="10"
+             width="130">
+                Hair:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -914,20 +914,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Eyes:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -949,36 +935,50 @@
              name="Create New"
              top="66"
              width="160" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             left="10"
+             width="130">
+                Eyes:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
             <text
              type="string"
@@ -1063,36 +1063,50 @@
              name="Create New"
              top="66"
              width="160" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             left="10"
+             width="130">
+                Shirt:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
             <text
              type="string"
              length="1"
@@ -1183,20 +1197,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Shirt:
-            </text>
         </panel>
         <panel
          border="false"
@@ -1266,36 +1266,50 @@
              name="Create New"
              top="66"
              width="160" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             name="Item Action Label"
+             left="10"
+             width="130">
+                Pants:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
             <text
              type="string"
              length="1"
@@ -1385,20 +1399,6 @@
              word_wrap="true"
              width="373">
                 You do not have permission to modify this wearable.
-            </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Pants:
             </text>
         </panel>
         <panel
@@ -1528,20 +1528,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Shoes:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -1573,36 +1559,50 @@
              name="Take Off"
              top_pad="4"
              width="82" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Shoes:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -1731,20 +1731,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Socks:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -1776,36 +1762,50 @@
              name="Take Off"
              top_pad="4"
              width="82" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Socks:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -1934,20 +1934,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Jacket:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -1990,36 +1976,50 @@
              name="Take Off"
              top_pad="4"
              width="82" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Jacket:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -2148,20 +2148,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Gloves:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -2193,36 +2179,50 @@
              name="Take Off"
              top_pad="4"
              width="82" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Gloves:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -2351,20 +2351,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Undershirt:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -2396,36 +2382,50 @@
              name="Take Off"
              top_pad="4"
              width="82" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Undershirt:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -2554,20 +2554,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Underpants:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -2599,36 +2585,50 @@
              name="Take Off"
              top_pad="4"
              width="82" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Underpants:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -2757,20 +2757,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Skirt:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -2802,36 +2788,50 @@
              name="Take Off"
              top_pad="4"
              width="82" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Skirt:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -2960,20 +2960,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Tattoo:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -3018,36 +3004,50 @@
              top_pad="4"
              left="10"
              width="82" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Tattoo:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
         <panel
          border="false"
@@ -3176,20 +3176,6 @@
              width="373">
                 You do not have permission to modify this wearable.
             </text>
-            <text
-             type="string"
-             length="1"
-             bottom="4"
-             follows="left|bottom|right"
-             font="SansSerif"
-             halign="right"
-             height="23"
-             layout="bottomleft"
-             name="Item Action Label"
-             right="90" 
-             width="100">
-                Alpha:
-            </text>
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
@@ -3299,47 +3285,61 @@
              left="10"
              top_pad="20"
              width="82" />
+            <text
+             type="string"
+             length="1"
+             bottom="4"
+             follows="left|bottom"
+             font="SansSerif"
+             halign="right"
+             height="23"
+             layout="bottomleft"
+             left="10"
+             name="Item Action Label"
+             width="130">
+                Alpha:
+            </text>
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save"
              label_selected="Save"
              layout="topleft"
-             right="186"
+             left_pad="2"
              name="Save"
              top="477"
              width="82" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Save As..."
              label_selected="Save As..."
              layout="topleft"
-             right="304"
+             left_pad="3"
              name="Save As"
              top="477"
              width="115" />
             <button
-             follows="right|bottom"
+             follows="left|bottom"
              height="23"
              label="Revert"
              label_selected="Revert"
              layout="topleft"
-             right="390"
+             left_pad="3"
              name="Revert"
              top="477"
-             width="82" />
+             width="120" />
         </panel>
     </tab_container>
     <scroll_container
      follows="left|top|right|bottom"
      height="409"
      layout="topleft"
-     left="211"
+     left="247"
      mouse_opaque="false"
      name="panel_container"
      top="92"
-     width="292">
+     width="330">
         <scrolling_panel_list
          follows="left|bottom"
          layout="topleft"
@@ -3355,7 +3355,7 @@
      name="script_info"
      tool_tip="Show scripts attached to your avatar"
      left="13"
-     width="90" />
+     width="90" ></button>
     <button
      bottom="574"
      follows="right|bottom"
@@ -3365,7 +3365,7 @@
      layout="topleft"
      name="make_outfit_btn"
      right="-218"
-     width="100" />
+     width="120" />
     <button
      bottom="574"
      follows="right|bottom"

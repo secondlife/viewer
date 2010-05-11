@@ -1,10 +1,10 @@
 /** 
  * @file llflatlistview.h
- * @brief LLFlatListView base class
+ * @brief LLFlatListView base class and extension to support messages for several cases of an empty list.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
- * Copyright (c) 2009, Linden Research, Inc.
+ * Copyright (c) 2009-2010, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -58,7 +58,7 @@
  * - Order of returned selected items are not guaranteed
  * - The control assumes that all items being added are unique.
  */
-class LLFlatListView : public LLScrollContainer
+class LLFlatListView : public LLScrollContainer, public LLEditMenuHandler
 {
 public:
 
@@ -114,8 +114,6 @@ public:
 		Params();
 	};
 	
-	virtual ~LLFlatListView() { clear(); };
-
 	/**
 	 * Connects callback to signal called when Return key is pressed.
 	 */
@@ -224,7 +222,7 @@ public:
 	 * Get LLUUIDs associated with selected items
 	 * @param selected_uuids An std::vector being populated with LLUUIDs associated with selected items
 	 */
-	virtual void getSelectedUUIDs(std::vector<LLUUID>& selected_uuids) const;
+	virtual void getSelectedUUIDs(uuid_vec_t& selected_uuids) const;
 
 	/** Get the top selected item */
 	virtual LLPanel* getSelectedItem() const;
@@ -266,9 +264,8 @@ public:
 	/** Get number of selected items in the list */
 	U32 numSelected() const {return mSelectedItemPairs.size(); }
 
-	/** Get number of items in the list */
-	U32 size() const { return mItemPairs.size(); }
-
+	/** Get number of (visible) items in the list */
+	U32 size(const bool only_visible_items = true) const;
 
 	/** Removes all items from the list */
 	virtual void clear();
@@ -344,7 +341,8 @@ protected:
 
 	virtual bool selectNextItemPair(bool is_up_direction, bool reset_selection);
 
-	virtual bool selectAll();
+	virtual BOOL canSelectAll() const;
+	virtual void selectAll();
 
 	virtual bool isSelected(item_pair_t* item_pair) const;
 
@@ -379,10 +377,13 @@ private:
 
 	void setNoItemsCommentVisible(bool visible) const;
 
-private:
+protected:
 
 	/** Comparator to use when sorting the list. */
 	const ItemComparator* mItemComparator;
+
+
+private:
 
 	LLPanel* mItemsPanel;
 
@@ -409,6 +410,8 @@ private:
 
 	bool mKeepOneItemSelected;
 
+	bool mIsConsecutiveSelection;
+
 	/** All pairs of the list */
 	pairs_list_t mItemPairs;
 
@@ -426,6 +429,68 @@ private:
 	LLViewBorder* mSelectedItemsBorder;
 
 	commit_signal_t	mOnReturnSignal;
+};
+
+/**
+ * Extends LLFlatListView functionality to show different messages when there are no items in the
+ * list depend on whether they are filtered or not.
+ *
+ * Class provides one message per case of empty list.
+ * It also provides protected updateNoItemsMessage() method to be called each time when derived list
+ * is changed to update base mNoItemsCommentTextbox value.
+ *
+ * It is implemented to avoid duplication of this functionality in concrete implementations of the
+ * lists. It is intended to be used as a base class for lists which should support two different
+ * messages for empty state. Can be improved to support more than two messages via state-to-message map.
+ */
+class LLFlatListViewEx : public LLFlatListView
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLFlatListView::Params>
+	{
+		/**
+		 * Contains a message for empty list when it does not contain any items at all.
+		 */
+		Optional<std::string>	no_items_msg;
+
+		/**
+		 * Contains a message for empty list when its items are removed by filtering.
+		 */
+		Optional<std::string>	no_filtered_items_msg;
+		Params();
+	};
+
+	// *WORKAROUND: two methods to overload appropriate Params due to localization issue:
+	// no_items_msg & no_filtered_items_msg attributes are not defined as translatable in VLT. See EXT-5931
+	void setNoItemsMsg(const std::string& msg) { mNoItemsMsg = msg; }
+	void setNoFilteredItemsMsg(const std::string& msg) { mNoFilteredItemsMsg = msg; }
+
+	/**
+	 * Sets up new filter string and filters the list.
+	 */
+	void setFilterSubString(const std::string& filter_str);
+	
+	/**
+	 * Filters the list, rearranges and notifies parent about shape changes.
+	 * Derived classes may want to overload rearrangeItems() to exclude repeated separators after filtration.
+	 */
+	void filterItems();
+
+protected:
+	LLFlatListViewEx(const Params& p);
+
+	/**
+	 * Applies a message for empty list depend on passed argument.
+	 *
+	 * @param filter_string - if is not empty, message for filtered items will be set, otherwise for
+	 * completely empty list. Value of filter string will be passed as search_term in SLURL.
+	 */
+	void updateNoItemsMessage(const std::string& filter_string);
+
+private:
+	std::string mNoFilteredItemsMsg;
+	std::string mNoItemsMsg;
+	std::string	mFilterSubString;
 };
 
 #endif

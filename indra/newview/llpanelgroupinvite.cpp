@@ -57,7 +57,7 @@ public:
 	~impl();
 
 	void addUsers(const std::vector<std::string>& names,
-				  const std::vector<LLUUID>& agent_ids);
+				  const uuid_vec_t& agent_ids);
 	void submitInvitations();
 	void addRoleNames(LLGroupMgrGroupData* gdatap);
 	void handleRemove();
@@ -69,7 +69,7 @@ public:
 	static void callbackClickRemove(void* userdata);
 	static void callbackSelect(LLUICtrl* ctrl, void* userdata);
 	static void callbackAddUsers(const std::vector<std::string>& names,
-								 const std::vector<LLUUID>& agent_ids,
+								 const uuid_vec_t& agent_ids,
 								 void* user_data);
 	bool inviteOwnerCallback(const LLSD& notification, const LLSD& response);
 
@@ -111,7 +111,7 @@ LLPanelGroupInvite::impl::~impl()
 }
 
 void LLPanelGroupInvite::impl::addUsers(const std::vector<std::string>& names,
-										const std::vector<LLUUID>& agent_ids)
+										const uuid_vec_t& agent_ids)
 {
 	std::string name;
 	LLUUID id;
@@ -361,7 +361,7 @@ void LLPanelGroupInvite::impl::callbackClickOK(void* userdata)
 
 //static
 void LLPanelGroupInvite::impl::callbackAddUsers(const std::vector<std::string>& names,
-												const std::vector<LLUUID>& ids,
+												const uuid_vec_t& ids,
 												void* user_data)
 {
 	impl* selfp = (impl*) user_data;
@@ -399,7 +399,7 @@ void LLPanelGroupInvite::clear()
 	mImplementation->mOKButton->setEnabled(FALSE);
 }
 
-void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
+void LLPanelGroupInvite::addUsers(uuid_vec_t& agent_ids)
 {
 	std::vector<std::string> names;
 	for (S32 i = 0; i < (S32)agent_ids.size(); i++)
@@ -457,7 +457,7 @@ void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
 void LLPanelGroupInvite::addUserCallback(const LLUUID& id, const std::string& full_name)
 {
 	std::vector<std::string> names;
-	std::vector<LLUUID> agent_ids;
+	uuid_vec_t agent_ids;
 	agent_ids.push_back(id);
 	names.push_back(full_name);
 

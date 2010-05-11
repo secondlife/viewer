@@ -47,6 +47,7 @@ LLUrlRegistry::LLUrlRegistry()
 
 	// Urls are matched in the order that they were registered
 	registerUrl(new LLUrlEntryNoLink());
+	registerUrl(new LLUrlEntryIcon());
 	registerUrl(new LLUrlEntrySLURL());
 	registerUrl(new LLUrlEntryHTTP());
 	registerUrl(new LLUrlEntryHTTPLabel());
@@ -55,8 +56,10 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryParcel());
 	registerUrl(new LLUrlEntryTeleport());
 	registerUrl(new LLUrlEntryWorldMap());
+	registerUrl(new LLUrlEntryObjectIM());
 	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntryInventory());
+	registerUrl(new LLUrlEntryObjectIM());
 	//LLUrlEntrySL and LLUrlEntrySLLabel have more common pattern, 
 	//so it should be registered in the end of list
 	registerUrl(new LLUrlEntrySL());
@@ -138,7 +141,8 @@ static bool stringHasUrl(const std::string &text)
 			text.find(".net") != std::string::npos ||
 			text.find(".edu") != std::string::npos ||
 			text.find(".org") != std::string::npos ||
-			text.find("<nolink>") != std::string::npos);
+			text.find("<nolink>") != std::string::npos ||
+			text.find("<icon") != std::string::npos);
 }
 
 bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb)

@@ -100,7 +100,7 @@ No Answer.  Please try again later.
    top="27"
    width="315"
    word_wrap="true">
-    [VOICE_CHANNEL_NAME] has ended the call.  [RECONNECT_NEARBY]
+    Your call has ended.  [RECONNECT_NEARBY]
   </text>
   <text
    font="SansSerifLarge"
@@ -119,7 +119,7 @@ No Answer.  Please try again later.
      layout="topleft"
      left="77"
      name="leaving"
-     top="52"
+     top="62"
      width="315"
      word_wrap="true">
 Leaving [CURRENT_CHAT].

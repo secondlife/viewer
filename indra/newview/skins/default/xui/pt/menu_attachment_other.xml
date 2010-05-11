@@ -10,7 +10,7 @@
 	<menu_item_call label="Denunciar" name="abuse"/>
 	<menu_item_call label="Congelar" name="Freeze..."/>
 	<menu_item_call label="Ejetar" name="Eject..."/>
-	<menu_item_call label="Depurar" name="Debug..."/>
+	<menu_item_call label="Depurar texturas" name="Debug..."/>
 	<menu_item_call label="Mais zoom" name="Zoom In"/>
 	<menu_item_call label="Pagar" name="Pay..."/>
 	<menu_item_call label="Perfil do objeto" name="Object Inspect"/>

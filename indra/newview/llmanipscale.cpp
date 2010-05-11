@@ -45,6 +45,7 @@
 
 // viewer includes
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llbbox.h"
 #include "llbox.h"
 #include "llviewercontrol.h"
@@ -210,7 +211,7 @@ void LLManipScale::render()
 		glPushMatrix();
 		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
-			F32 zoom = gAgent.mHUDCurZoom;
+			F32 zoom = gAgentCamera.mHUDCurZoom;
 			glScalef(zoom, zoom, zoom);
 		}
 
@@ -227,11 +228,11 @@ void LLManipScale::render()
 		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			mBoxHandleSize = BOX_HANDLE_BASE_SIZE * BOX_HANDLE_BASE_FACTOR / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
-			mBoxHandleSize /= gAgent.mHUDCurZoom;
+			mBoxHandleSize /= gAgentCamera.mHUDCurZoom;
 		}
 		else
 		{
-			range = dist_vec(gAgent.getCameraPositionAgent(), center_agent);
+			range = dist_vec(gAgentCamera.getCameraPositionAgent(), center_agent);
 			range_from_agent = dist_vec(gAgent.getPositionAgent(), center_agent);
 
 			// Don't draw manip if object too far away
@@ -438,7 +439,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 			LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
 			transform *= cfr;
 			LLMatrix4 window_scale;
-			F32 zoom_level = 2.f * gAgent.mHUDCurZoom;
+			F32 zoom_level = 2.f * gAgentCamera.mHUDCurZoom;
 			window_scale.initAll(LLVector3(zoom_level / LLViewerCamera::getInstance()->getAspect(), zoom_level, 0.f),
 				LLQuaternion::DEFAULT,
 				LLVector3::zero);
@@ -635,7 +636,7 @@ void LLManipScale::renderFaces( const LLBBox& bbox )
 	}
 
 	// Find nearest vertex
-	LLVector3 orientWRTHead = bbox.agentToLocalBasis( bbox.getCenterAgent() - gAgent.getCameraPositionAgent() );
+	LLVector3 orientWRTHead = bbox.agentToLocalBasis( bbox.getCenterAgent() - gAgentCamera.getCameraPositionAgent() );
 	U32 nearest = 
 		(orientWRTHead.mV[0] < 0.0f ? 1 : 0) + 
 		(orientWRTHead.mV[1] < 0.0f ? 2 : 0) + 
@@ -825,7 +826,7 @@ void LLManipScale::drag( S32 x, S32 y )
 	}	
 
 	LLSelectMgr::getInstance()->updateSelectionCenter();
-    gAgent.clearFocusObject();
+    gAgentCamera.clearFocusObject();
 }
 
 // Scale around the 
@@ -1364,7 +1365,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 
 	if(mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
-		mSnapRegimeOffset = SNAP_GUIDE_SCREEN_OFFSET / gAgent.mHUDCurZoom;
+		mSnapRegimeOffset = SNAP_GUIDE_SCREEN_OFFSET / gAgentCamera.mHUDCurZoom;
 
 	}
 	else
@@ -1377,7 +1378,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		cam_at_axis.setVec(1.f, 0.f, 0.f);
-		snap_guide_length = SNAP_GUIDE_SCREEN_LENGTH / gAgent.mHUDCurZoom;
+		snap_guide_length = SNAP_GUIDE_SCREEN_LENGTH / gAgentCamera.mHUDCurZoom;
 	}
 	else
 	{

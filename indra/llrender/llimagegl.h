@@ -157,7 +157,7 @@ public:
 	void updatePickMask(S32 width, S32 height, const U8* data_in);
 	BOOL getMask(const LLVector2 &tc);
 
-	void checkTexSize() const ;
+	void checkTexSize(bool forced = false) const ;
 	
 	// Sets the addressing mode used to sample the texture 
 	//  (such as wrapping, mirrored wrapping, and clamp)

@@ -6,7 +6,7 @@
      bg_alpha_color="DkGray">     
     <accordion
      follows="left|top|right|bottom"
-     height="369"
+     height="373"
      layout="topleft"
      left="3"
      top="0"

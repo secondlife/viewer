@@ -131,6 +131,7 @@ Maximum 200 per group daily
             Subject:
         </text>
         <line_editor
+         follows="left|top|right"
          border_style="line"
          border_thickness="1"
          height="16"
@@ -153,6 +154,7 @@ Maximum 200 per group daily
             Message:
         </text>
         <text_editor
+         follows="left|top|right"
          height="90"
          layout="topleft"
          left_pad="3"
@@ -173,6 +175,7 @@ Maximum 200 per group daily
             Attach:
         </text>
         <line_editor
+         follows="left|top|right"
          enabled="false"
          height="19"
          layout="topleft"
@@ -207,9 +210,23 @@ Maximum 200 per group daily
         <button
          follows="left|top"
          layout="topleft"
+         left="20"
+         top_delta="50"
+         height="23"
+         width="100"
+         name="open_inventory"
+         label="Inventory"
+         tool_tip="Open Inventory">
+			<button.init_callback
+				 function="Button.SetFloaterToggle"
+				 parameter="inventory"/>
+		</button>
+        <button
+         follows="left|top"
+         layout="topleft"
          left="140"
          name="remove_attachment"
-         top_delta="50"
+         top_delta="0"
                  height="18"
                  image_selected="TrashItem_Press"
                  image_unselected="TrashItem_Off"
@@ -222,12 +239,12 @@ Maximum 200 per group daily
          label="Send"
          label_selected="Send"
          layout="topleft"
-         right="-10"
+         right="-25"
          top_pad="10"
          name="send_notice"
          width="100" />
       <group_drop_target
-         height="95"
+         height="75"
          top="160"
          left="10"
          layout="topleft"

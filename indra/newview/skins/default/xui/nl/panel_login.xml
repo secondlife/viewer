@@ -6,34 +6,36 @@
 	<panel.string name="forgot_password_url">
 		http://secondlife.com/account/request.php?lang=nl-NL
 	</panel.string>
-<panel name="login_widgets">
-	<text name="first_name_text">
-		Voornaam:
-	</text>
-	<text name="last_name_text">
-		Achternaam:
-	</text>
-	<text name="password_text">
-		Wachtwoord:
-	</text>
-	<text name="start_location_text">
-		Startlocatie:
-	</text>
-	<combo_box name="start_location_combo">
-		<combo_box.item name="MyHome" label="Mijn Thuis"/>
-		<combo_box.item name="MyLastLocation" label="Mijn Laatste Locatie"/>
-		<combo_box.item name="Typeregionname" label="&lt; Type regio naam &gt;"/>
-	</combo_box>
-	<check_box label="Onthoud wachtwoord" name="remember_check"/>
-	<button label="Inloggen" label_selected="Inloggen" name="connect_btn"/>
-	<text name="create_new_account_text">
-		Nieuw account maken
-	</text>
-	<text name="forgot_password_text">
-		Naam of wachtwoord vergeten?
-	</text>
-	<text name="channel_text">
-		[VERSION]
-	</text>
-</panel>
+	<panel name="login_widgets">
+		<text name="first_name_text">
+			Voornaam:
+		</text>
+		<line_editor name="first_name_edit" tool_tip="[SECOND_LIFE] Voornaam"/>
+		<text name="last_name_text">
+			Achternaam:
+		</text>
+		<line_editor name="last_name_edit" tool_tip="[SECOND_LIFE] Achternaam"/>
+		<text name="password_text">
+			Paswoord:
+		</text>
+		<button label="Inloggen" label_selected="Inloggen" name="connect_btn"/>
+		<text name="start_location_text">
+			Start locatie:
+		</text>
+		<combo_box name="start_location_combo">
+			<combo_box.item label="Mijn Laatste Locatie" name="MyLastLocation"/>
+			<combo_box.item label="Mijn Thuis" name="MyHome"/>
+			<combo_box.item label="&lt;Tik regio naam&gt;" name="Typeregionname"/>
+		</combo_box>
+		<check_box label="Onthoud paswoord" name="remember_check"/>
+		<text name="create_new_account_text">
+			Maak een nieuwe account
+		</text>
+		<text name="forgot_password_text">
+			Naam of paswoord vergeten?
+		</text>
+		<text name="channel_text">
+			[VERSION]
+		</text>
+	</panel>
 </panel>

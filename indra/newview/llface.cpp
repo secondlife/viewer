@@ -867,7 +867,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 								const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
 								const U16 &index_offset)
 {
-	llpushcallstacks ;
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
 	S32 num_vertices = (S32)vf.mVertices.size();
 	S32 num_indices = LLPipeline::sUseTriStrips ? (S32)vf.mTriStrip.size() : (S32) vf.mIndices.size();

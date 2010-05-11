@@ -49,7 +49,7 @@
 		Mostrar los MI en: 
 	</text>
 	<text name="requires_restart_label">
-		(requiere reiniciar)
+		 (requiere reiniciar)
 	</text>
 	<radio_group name="chat_window" tool_tip="Muestra tus mensajes instantáneos en varias ventanas flotantes o en una sola con varias pestañas (requiere que reinicies)">
 		<radio_item label="Varias ventanas" name="radio" value="0"/>

@@ -53,13 +53,21 @@ public:
  */
 class LLToastPanel: public LLPanel {
 public:
-	LLToastPanel(LLNotificationPtr&);
+	LLToastPanel(const LLNotificationPtr&);
 	virtual ~LLToastPanel() = 0;
 
 	virtual std::string getTitle();
 	virtual const LLUUID& getID();
 
 	static const S32 MIN_PANEL_HEIGHT;
+
+	/**
+	 * Builder method for constructing notification specific panels.
+	 * Normally type of created panels shouldn't be publicated and should be hidden
+	 * from other functionality.
+	 */
+	static LLToastPanel* buidPanelFromNotification(
+			const LLNotificationPtr& notification);
 protected:
 	LLNotificationPtr mNotification;
 	void snapToMessageHeight(LLTextBase* message, S32 maxLineCount);

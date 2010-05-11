@@ -50,9 +50,7 @@
 # define LL_QTWEBKIT_USES_PIXMAPS 0
 #endif // LL_LINUX
 
-#if LL_LINUX
-# include "linux_volume_catcher.h"
-#endif // LL_LINUX
+# include "volume_catcher.h"
 
 #if LL_WINDOWS
 # include <direct.h>
@@ -89,6 +87,7 @@ private:
 
 	std::string mProfileDir;
 	std::string mHostLanguage;
+	std::string mUserAgent;
 	bool mCookiesEnabled;
 	bool mJavascriptEnabled;
 	bool mPluginsEnabled;
@@ -118,9 +117,7 @@ private:
 	F32 mBackgroundG;
 	F32 mBackgroundB;
 	
-#if LL_LINUX
-	LinuxVolumeCatcher mLinuxVolumeCatcher;
-#endif // LL_LINUX
+	VolumeCatcher mVolumeCatcher;
 
 	void setInitState(int state)
 	{
@@ -134,9 +131,7 @@ private:
 	{
 		LLQtWebKit::getInstance()->pump( milliseconds );
 		
-#if LL_LINUX
-		mLinuxVolumeCatcher.pump();
-#endif // LL_LINUX
+		mVolumeCatcher.pump();
 
 		checkEditState();
 		
@@ -300,7 +295,7 @@ private:
 		LLQtWebKit::getInstance()->addObserver( mBrowserWindowId, this );
 
 		// append details to agent string
-		LLQtWebKit::getInstance()->setBrowserAgentId( "LLPluginMedia Web Browser" );
+		LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 
 #if !LL_QTWEBKIT_USES_PIXMAPS
 		// don't flip bitmap
@@ -507,6 +502,19 @@ private:
 		sendMessage(message);
 	}
 	
+
+	////////////////////////////////////////////////////////////////////////////////
+	// virtual
+	void onCookieChanged(const EventType& event)
+	{
+		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "cookie_set");
+		message.setValue("cookie", event.getStringValue());
+		// These could be passed through as well, but aren't really needed.
+//		message.setValue("uri", event.getEventUri());
+//		message.setValueBoolean("dead", (event.getIntValue() != 0))
+		sendMessage(message);
+	}
+	
 	LLQtWebKit::EKeyboardModifier decodeModifiers(std::string &modifiers)
 	{
 		int result = 0;
@@ -675,6 +683,7 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 	mHostLanguage = "en";		// default to english
 	mJavascriptEnabled = true;	// default to on
 	mPluginsEnabled = true;		// default to on
+	mUserAgent = "LLPluginMedia Web Browser";
 }
 
 MediaPluginWebKit::~MediaPluginWebKit()
@@ -1051,6 +1060,10 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				mJavascriptEnabled = message_in.getValueBoolean("enable");
 				//LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
 			}
+			else if(message_name == "set_cookies")
+			{
+				LLQtWebKit::getInstance()->setCookies(message_in.getValue("cookies"));
+			}
 			else if(message_name == "proxy_setup")
 			{
 				bool val = message_in.getValueBoolean("enable");
@@ -1086,8 +1099,8 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			}
 			else if(message_name == "set_user_agent")
 			{
-				std::string user_agent = message_in.getValue("user_agent");
-				LLQtWebKit::getInstance()->setBrowserAgentId( user_agent );
+				mUserAgent = message_in.getValue("user_agent");
+				LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 			}
 			else if(message_name == "init_history")
 			{
@@ -1120,9 +1133,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 
 void MediaPluginWebKit::setVolume(F32 volume)
 {
-#if LL_LINUX
-	mLinuxVolumeCatcher.setVolume(volume);
-#endif // LL_LINUX
+	mVolumeCatcher.setVolume(volume);
 }
 
 int init_media_plugin(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data, LLPluginInstance::sendMessageFunction *plugin_send_func, void **plugin_user_data)

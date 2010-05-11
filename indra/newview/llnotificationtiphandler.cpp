@@ -41,40 +41,9 @@
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llnotificationmanager.h"
+#include "llpaneltiptoast.h"
 
 using namespace LLNotificationsUI;
-
-class LLOnlineStatusToast : public LLToastPanel
-{
-public:
-
-	struct Params
-	{
-		LLNotificationPtr	notification;
-		LLUUID				avatar_id;
-		std::string			message;
-
-		Params() {}
-	};
-
-	LLOnlineStatusToast(Params& p) : LLToastPanel(p.notification)
-	{
-		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_online_status_toast.xml");
-
-		childSetValue("avatar_icon", p.avatar_id);
-		childSetValue("message", p.message);
-
-		if (p.notification->getPayload().has("respond_on_mousedown") 
-			&& p.notification->getPayload()["respond_on_mousedown"] )
-		{
-			setMouseDownCallback(boost::bind(&LLNotification::respond, p.notification, 
-				p.notification->getResponseTemplate()));
-		}
-
-		// set line max count to 2 in case of a very long name
-		snapToMessageHeight(getChild<LLTextBox>("message"), 2);
-	}
-};
 
 //--------------------------------------------------------------------------
 LLTipHandler::LLTipHandler(e_notification_type type, const LLSD& id)
@@ -156,19 +125,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 			return true;
 		}
 
-		LLToastPanel* notify_box = NULL;
-		if("FriendOffline" == notification->getName() || "FriendOnline" == notification->getName())
-		{
-			LLOnlineStatusToast::Params p;
-			p.notification = notification;
-			p.message = notification->getMessage();
-			p.avatar_id = notification->getPayload()["FROM_ID"];
-			notify_box = new LLOnlineStatusToast(p);
-		}
-		else
-		{
-			notify_box = new LLToastNotifyPanel(notification);
-		}
+		LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
 
 		LLToast::Params p;
 		p.notif_id = notification->getID();

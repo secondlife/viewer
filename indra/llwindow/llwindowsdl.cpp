@@ -2074,6 +2074,9 @@ void LLWindowSDL::initCursors()
 	mSDLCursors[UI_CURSOR_TOOLPAUSE] = makeSDLCursorFromBMP("toolpause.BMP",0,0);
 	mSDLCursors[UI_CURSOR_TOOLMEDIAOPEN] = makeSDLCursorFromBMP("toolmediaopen.BMP",0,0);
 	mSDLCursors[UI_CURSOR_PIPETTE] = makeSDLCursorFromBMP("lltoolpipette.BMP",2,28);
+	mSDLCursors[UI_CURSOR_TOOLSIT] = makeSDLCursorFromBMP("toolsit.BMP",20,15);
+	mSDLCursors[UI_CURSOR_TOOLBUY] = makeSDLCursorFromBMP("toolbuy.BMP",20,15);
+	mSDLCursors[UI_CURSOR_TOOLOPEN] = makeSDLCursorFromBMP("toolopen.BMP",20,15);
 
 	if (getenv("LL_ATI_MOUSE_CURSOR_BUG") != NULL) {
 		llinfos << "Disabling cursor updating due to LL_ATI_MOUSE_CURSOR_BUG" << llendl;
@@ -2465,7 +2468,7 @@ void exec_cmd(const std::string& cmd, const std::string& arg)
 
 // Open a URL with the user's default web browser.
 // Must begin with protocol identifier.
-void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url)
+void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
 {
 	llinfos << "spawn_web_browser: " << escaped_url << llendl;
 	

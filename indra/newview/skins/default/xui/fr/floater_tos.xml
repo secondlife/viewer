@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="modal container" title=" ">
+	<floater.string name="real_url">
+		http://secondlife.com/app/tos/
+	</floater.string>
+	<floater.string name="loading_url">
+		data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E Loading %3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3ETerms%20of%20Service%3C/a%3E...%3C/h2%3E %3C/body%3E %3C/html%3E
+	</floater.string>
 	<button label="Continuer" label_selected="Continuer" name="Continue"/>
 	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
-	<radio_group name="tos_agreement">
-		<radio_item label="Je n&apos;accepte pas les Conditions Générales d&apos;Utilisation" name="radio_disagree"/>
-		<radio_item label="J&apos;accepte les Conditions Générales d&apos;Utilisation" name="radio_agree"/>
-	</radio_group>
-	<text name="tos_title">
-		Acceptation des Conditions Générales d&apos;Utilisation
-	</text>
 	<check_box label="J&apos;accepte les Conditions d&apos;utilisation et le Règlement sur le respect de la vie privée" name="agree_chk"/>
 	<text name="tos_heading">
 		Veuillez lire attentivement les Conditions d&apos;utilisation et le Règlement sur le respect de la vie privée suivants. Vous devez les accepter pour pouvoir vous connecter à [SECOND_LIFE].
-	</text>
-	<text_editor name="tos_text">
-		TOS_TEXT
-	</text_editor>
-	<text name="real_url">
-		http://secondlife.com/app/tos/
 	</text>
 </floater>

@@ -44,7 +44,7 @@
 #include "material_codes.h"
 #include "object_flags.h"
 
-#include "llagent.h"
+#include "llagentcamera.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llviewercamera.h"
@@ -444,7 +444,7 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
 	// Re-calculate mPixelArea accurately
 	
 	// This should be the camera's center, as soon as we move to all region-local.
-	LLVector3 relative_position = getPositionAgent() - agent.getCameraPositionAgent();
+	LLVector3 relative_position = getPositionAgent() - gAgentCamera.getCameraPositionAgent();
 	F32 range = relative_position.length();				// ugh, square root
 
 	F32 max_scale = mBillboardScale * getMaxScale();

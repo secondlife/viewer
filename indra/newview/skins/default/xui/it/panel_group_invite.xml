@@ -13,7 +13,7 @@
 		Puoi selezionare più residenti da invitare nel tuo gruppo. Per iniziare, clicca su Apri il selettore di residenti.
 	</text>
 	<button label="Scelta residenti" name="add_button" tool_tip=""/>
-	<name_list name="invitee_list" tool_tip="Tieni premuto Ctrl e fai clic sui nomi dei residenti per una selezionare più nomi"/>
+	<name_list name="invitee_list" tool_tip="Tieni premuto Ctrl e fai clic sui nomi dei residenti per selezionare più nomi"/>
 	<button label="Rimuovi i selezionati dall&apos;elenco" name="remove_button" tool_tip="Rimuove i residenti selezionati dalla lista degli inviti"/>
 	<text name="role_text">
 		Scegli che ruolo assegnare loro:

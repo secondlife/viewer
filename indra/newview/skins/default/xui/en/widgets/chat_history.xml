@@ -2,7 +2,6 @@
 <chat_history
   message_header="panel_chat_header.xml"
   message_separator="panel_chat_separator.xml"
-  message_plaintext_separator="panel_chat_plaintext_separator.xml"
   left_text_pad="10"
   right_text_pad="15"
   left_widget_pad="0"

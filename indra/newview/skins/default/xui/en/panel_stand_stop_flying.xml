@@ -6,7 +6,7 @@
  name="panel_stand_stop_flying"
  mouse_opaque="false"
  visible="true"
- width="115">
+ width="113">
     <button
      follows="left|bottom"
      height="19"
@@ -16,7 +16,7 @@
      tool_tip="Click here to stand up."
      top="2"
      visible="false"
-     width="115" />
+     width="113" />
     <button
      follows="left|bottom"
      height="19"
@@ -26,5 +26,5 @@
      tool_tip="Stop flying"
      top="2"
      visible="false"
-     width="115" />
+     width="113" />
 </panel>

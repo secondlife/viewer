@@ -261,6 +261,9 @@
 	<string name="BUTTON_CLOSE_WIN">
 		Schließen (Strg+W)
 	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		Schließen
+	</string>
 	<string name="BUTTON_RESTORE">
 		Wiederherstellen
 	</string>
@@ -302,6 +305,9 @@
 	</string>
 	<string name="GroupNameNone">
 		(keiner)
+	</string>
+	<string name="AvalineCaller">
+		Avaline-Anfrufer [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Kein Fehler
@@ -904,7 +910,7 @@
 		ESC drücken, um zur Normalansicht zurückzukehren
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Im Inventar wurden keine passenden Objekte gefunden.  Versuchen Sie es mit [secondlife:///app/search/groups „Suche&quot;].
+		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/all Suche].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Landmarke hier hin ziehen, um diese hinzuzufügen.
@@ -1575,9 +1581,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		Für diesen Grundbesitz liegt kein Vertrag vor. Das Land auf diesem Grundbesitz wird vom Grundbesitzer und nicht von Linden Lab verkauft.  Für Informationen zum Verkauf setzen Sie sich bitte mit dem Grundbesitzer in Verbindung.
 	</string>
-	<string name="covenant_last_modified">
-		Zuletzt geändert:
-	</string>
+	<string name="covenant_last_modified" value="Zuletzt geändert:"/>
 	<string name="none_text" value=" (keiner) "/>
 	<string name="never_text" value=" (nie) "/>
 	<string name="GroupOwned">
@@ -3311,6 +3315,15 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="LocationCtrlDamageTooltip">
 		Gesundheit
 	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		Adult-Region
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		Moderate Region
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		Generelle Region
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] Aktualisierung
 	</string>
@@ -3341,6 +3354,12 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="UpdaterFailStartTitle">
 		Viewer konnte nicht gestartet werden
 	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME]: Zuviele Objekte auf einmal von [FROM_NAME]. Automaitsche Vorschau ist für [TIME] Sekunden nicht verfügbar.
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME]: Zuviele Objekte auf einmal. Automaitsche Vorschau ist für [TIME] Sekunden nicht verfügbar.
+	</string>
 	<string name="IM_logging_string">
 		-- Instant-Message-Protokoll aktiviert --
 	</string>
@@ -3367,6 +3386,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="IM_moderator_label">
 		(Moderator)
+	</string>
+	<string name="answered_call">
+		Ihr Anruf wurde entgegengenommen
 	</string>
 	<string name="started_call">
 		haben/hat einen Anruf initiiert
@@ -3461,11 +3483,17 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="unread_chat_multiple">
 		[SOURCES] haben etwas Neues gesagt
 	</string>
+	<string name="session_initialization_timed_out_error">
+		Die Initialisierung der Sitzung ist fehlgeschlagen
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
 	</string>
 	<string name="you_paid_ldollars">
 		Sie haben [REASON] [AMOUNT] L$ an [NAME] bezahlt.
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		Sie haben [AMOUNT] L$ bezahlt.
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		Sie haben [AMOUNT] L$ an [NAME] bezahlt.
@@ -3576,5 +3604,14 @@ Missbrauchsbericht
 	</string>
 	<string name="Contents">
 		Inhalt
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		Keine/Keiner
+	</string>
+	<string name="texture_load_dimensions_error">
+		Bilder, die größer sind als [WIDTH]*[HEIGHT] können nicht geladen werden
 	</string>
 </strings>

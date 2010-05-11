@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llinventory.h"
+#include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "lltrans.h"
 
@@ -110,8 +111,11 @@ class LLInitialFriendCardsFetch : public LLInventoryFetchDescendentsObserver
 public:
 	typedef boost::function<void()> callback_t;
 
-	LLInitialFriendCardsFetch(callback_t cb)
-		:	mCheckFolderCallback(cb)	{}
+	LLInitialFriendCardsFetch(const LLUUID& folder_id,
+							  callback_t cb) :
+		LLInventoryFetchDescendentsObserver(folder_id),
+		mCheckFolderCallback(cb)	
+	{}
 
 	/* virtual */ void done();
 
@@ -322,7 +326,7 @@ void LLFriendCardsManager::collectFriendsLists(folderid_buddies_map_t& folderBud
 		if (NULL == items)
 			continue;
 
-		std::vector<LLUUID> buddyUUIDs;
+		uuid_vec_t buddyUUIDs;
 		for (itBuddy = items->begin(); itBuddy != items->end(); ++itBuddy)
 		{
 			buddyUUIDs.push_back((*itBuddy)->getCreatorUUID());
@@ -407,13 +411,9 @@ void LLFriendCardsManager::findMatchedFriendCards(const LLUUID& avatarID, LLInve
 void LLFriendCardsManager::fetchAndCheckFolderDescendents(const LLUUID& folder_id,  callback_t cb)
 {
 	// This instance will be deleted in LLInitialFriendCardsFetch::done().
-	LLInitialFriendCardsFetch* fetch = new LLInitialFriendCardsFetch(cb);
-
-	LLInventoryFetchDescendentsObserver::folder_ref_t folders;
-	folders.push_back(folder_id);
-
-	fetch->fetchDescendents(folders);
-	if(fetch->isEverythingComplete())
+	LLInitialFriendCardsFetch* fetch = new LLInitialFriendCardsFetch(folder_id, cb);
+	fetch->startFetch();
+	if(fetch->isFinished())
 	{
 		// everything is already here - call done.
 		fetch->done();

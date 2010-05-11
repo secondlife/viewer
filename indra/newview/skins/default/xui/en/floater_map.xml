@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ bg_alpha_image_overlay="DkGray_66"
  legacy_header_height="18"
  can_minimize="true" 
  can_resize="true"

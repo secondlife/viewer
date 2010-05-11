@@ -456,7 +456,7 @@
      layout="topleft"
      left_delta="0"
      name="dscr_title"
-     top_pad="5"
+     top_pad="6"
      width="50">
         Details:
     </text>
@@ -464,11 +464,12 @@
      type="string"
      length="1"
      follows="left|top"
-     height="16"
+     height="22"
      layout="topleft"
      name="bug_aviso"
      left_pad="10"
-     width="200">
+     word_wrap="true"
+     width="270">
         Please be as specific as possible
     </text>
     <text_editor

@@ -44,6 +44,7 @@
 #include "llviewertexturelist.h"
 #include "llgroupmgr.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
@@ -78,6 +79,7 @@
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
 #include "llvoicechannel.h"
+#include "llvoavatarself.h"
 #include "llsidetray.h"
 
 
@@ -355,7 +357,7 @@ void request_initial_instant_messages()
 	if (!requested
 		&& gMessageSystem
 		&& LLMuteList::getInstance()->isLoaded()
-		&& gAgent.getAvatarObject())
+		&& isAgentAvatarValid())
 	{
 		// Auto-accepted inventory items may require the avatar object
 		// to build a correct name.  Likewise, inventory offers from
@@ -857,7 +859,7 @@ bool LLAppViewer::init()
 			minSpecs += "\n";
 			unsupported = true;
 		}
-		if(gSysCPU.getMhz() < minCPU)
+		if(gSysCPU.getMHz() < minCPU)
 		{
 			minSpecs += LLNotifications::instance().getGlobalString("UnsupportedCPU");
 			minSpecs += "\n";
@@ -1104,12 +1106,15 @@ bool LLAppViewer::mainLoop()
 					ms_sleep(500);
 				}
 
-
+				static const F64 FRAME_SLOW_THRESHOLD = 0.5; //2 frames per seconds				
 				const F64 min_frame_time = 0.0; //(.0333 - .0010); // max video frame rate = 30 fps
 				const F64 min_idle_time = 0.0; //(.0010); // min idle time = 1 ms
 				const F64 max_idle_time = run_multiple_threads ? min_idle_time : llmin(.005*10.0*gFrameTimeSeconds, 0.005); // 5 ms a second
 				idleTimer.reset();
-				while(1)
+				bool is_slow = (frameTimer.getElapsedTimeF64() > FRAME_SLOW_THRESHOLD) ;
+				S32 total_work_pending = 0;
+				S32 total_io_pending = 0;				
+				while(!is_slow)//do not unpause threads if the frame rates are very low.
 				{
 					S32 work_pending = 0;
 					S32 io_pending = 0;
@@ -1140,6 +1145,8 @@ bool LLAppViewer::mainLoop()
 						ms_sleep(llmin(io_pending/100,100)); // give the vfs some time to catch up
 					}
 
+					total_work_pending += work_pending ;
+					total_io_pending += io_pending ;
 					F64 frame_time = frameTimer.getElapsedTimeF64();
 					F64 idle_time = idleTimer.getElapsedTimeF64();
 					if (frame_time >= min_frame_time &&
@@ -1149,25 +1156,32 @@ bool LLAppViewer::mainLoop()
 						break;
 					}
 				}
+
+				 // Prevent the worker threads from running while rendering.
+				// if (LLThread::processorCount()==1) //pause() should only be required when on a single processor client...
+				if (run_multiple_threads == FALSE)
+				{
+					//LLFastTimer ftm(FTM_PAUSE_THREADS); //not necessary.
+	 				
+					if(!total_work_pending) //pause texture fetching threads if nothing to process.
+					{
+						LLAppViewer::getTextureCache()->pause();
+						LLAppViewer::getImageDecodeThread()->pause();
+						LLAppViewer::getTextureFetch()->pause(); 
+					}
+					if(!total_io_pending) //pause file threads if nothing to process.
+					{
+						LLVFSThread::sLocal->pause(); 
+						LLLFSThread::sLocal->pause(); 
+					}
+				}					
+
 				if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
 					(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))
 				{
 					gFrameStalls++;
 				}
 				frameTimer.reset();
-
-				 // Prevent the worker threads from running while rendering.
-				// if (LLThread::processorCount()==1) //pause() should only be required when on a single processor client...
-				if (run_multiple_threads == FALSE)
-				{
-					LLFastTimer ftm(FTM_PAUSE_THREADS);
-	 					
-					LLAppViewer::getTextureCache()->pause();
-					LLAppViewer::getImageDecodeThread()->pause();
-					// LLAppViewer::getTextureFetch()->pause(); // Don't pause the fetch (IO) thread
-				}
-				//LLVFSThread::sLocal->pause(); // Prevent the VFS thread from running while rendering.
-				//LLLFSThread::sLocal->pause(); // Prevent the LFS thread from running while rendering.
 
 				resumeMainloopTimeout();
 	
@@ -1509,6 +1523,11 @@ bool LLAppViewer::cleanup()
 	LLLocationHistory::getInstance()->save();
 
 	LLAvatarIconIDCache::getInstance()->save();
+	
+	LLViewerMedia::saveCookieFile();
+
+	// Stop the plugin read thread if it's running.
+	LLPluginProcessParent::setUseReadThread(false);
 
 	llinfos << "Shutting down Threads" << llendflush;
 
@@ -1629,7 +1648,7 @@ bool LLAppViewer::cleanup()
 		// HACK: Attempt to wait until the screen res. switch is complete.
 		ms_sleep(1000);
 
-		LLWeb::loadURLExternal( gLaunchFileOnQuit );
+		LLWeb::loadURLExternal( gLaunchFileOnQuit, false );
 		llinfos << "File launched." << llendflush;
 	}
 
@@ -2377,7 +2396,7 @@ bool LLAppViewer::initWindow()
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 		
-	if (gSavedSettings.getBOOL("WindowFullScreen"))
+	if (gSavedSettings.getBOOL("FullScreen"))
 	{
 		// request to go full screen... which will be delayed until login
 		gViewerWindow->toggleFullscreen(FALSE);
@@ -2478,9 +2497,9 @@ void LLAppViewer::cleanupSavedSettings()
 	gSavedSettings.setF32("MapScale", LLWorldMapView::sMapScale );
 
 	// Some things are cached in LLAgent.
-	if (gAgent.mInitialized)
+	if (gAgent.isInitialized())
 	{
-		gSavedSettings.setF32("RenderFarClip", gAgent.mDrawDistance);
+		gSavedSettings.setF32("RenderFarClip", gAgentCamera.mDrawDistance);
 	}
 }
 
@@ -2504,7 +2523,7 @@ void LLAppViewer::writeSystemInfo()
 
 	gDebugInfo["CPUInfo"]["CPUString"] = gSysCPU.getCPUString();
 	gDebugInfo["CPUInfo"]["CPUFamily"] = gSysCPU.getFamily();
-	gDebugInfo["CPUInfo"]["CPUMhz"] = gSysCPU.getMhz();
+	gDebugInfo["CPUInfo"]["CPUMhz"] = (S32)gSysCPU.getMHz();
 	gDebugInfo["CPUInfo"]["CPUAltivec"] = gSysCPU.hasAltivec();
 	gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
 	gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
@@ -2517,7 +2536,7 @@ void LLAppViewer::writeSystemInfo()
 	// which may have been the intended grid. This can b
 	gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();
 
-	// *FIX:Mani - move this ddown in llappviewerwin32
+	// *FIX:Mani - move this down in llappviewerwin32
 #ifdef LL_WINDOWS
 	DWORD thread_id = GetCurrentThreadId();
 	gDebugInfo["MainloopThreadID"] = (S32)thread_id;
@@ -2560,6 +2579,8 @@ void LLAppViewer::handleSyncViewerCrash()
 void LLAppViewer::handleViewerCrash()
 {
 	llinfos << "Handle viewer crash entry." << llendl;
+
+	llinfos << "Last render pool type: " << LLPipeline::sCurRenderPoolType << llendl ;
 
 	//print out recorded call stacks if there are any.
 	LLError::LLCallStacks::print();
@@ -2996,41 +3017,59 @@ void LLAppViewer::migrateCacheDirectory()
 #endif // LL_WINDOWS || LL_DARWIN
 }
 
+//static
+S32 LLAppViewer::getCacheVersion() 
+{
+	static const S32 cache_version = 7;
+
+	return cache_version ;
+}
+
 bool LLAppViewer::initCache()
 {
 	mPurgeCache = false;
-	// Purge cache if user requested it
-	if (gSavedSettings.getBOOL("PurgeCacheOnStartup") ||
-		gSavedSettings.getBOOL("PurgeCacheOnNextStartup"))
+	BOOL disable_texture_cache = FALSE ;
+	BOOL read_only = mSecondInstance ? TRUE : FALSE;
+	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
+
+	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getCacheVersion()) 
 	{
-		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", false);
-		mPurgeCache = true;
-	}
-	// Purge cache if it belongs to an old version
-	else
-	{
-		static const S32 cache_version = 6;
-		if (gSavedSettings.getS32("LocalCacheVersion") != cache_version)
+		if(read_only) 
 		{
-			mPurgeCache = true;
-			gSavedSettings.setS32("LocalCacheVersion", cache_version);
+			disable_texture_cache = TRUE ; //if the cache version of this viewer is different from the running one, this viewer can not use the texture cache.
+		}
+		else
+		{
+			mPurgeCache = true; // Purge cache if the version number is different.
+			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getCacheVersion());
 		}
 	}
-	
-	// We have moved the location of the cache directory over time.
-	migrateCacheDirectory();
 
-	// Setup and verify the cache location
-	std::string cache_location = gSavedSettings.getString("CacheLocation");
-	std::string new_cache_location = gSavedSettings.getString("NewCacheLocation");
-	if (new_cache_location != cache_location)
+	if(!read_only)
 	{
-		gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation"));
-		purgeCache(); // purge old cache
-		gSavedSettings.setString("CacheLocation", new_cache_location);
-		gSavedSettings.setString("CacheLocationTopFolder", gDirUtilp->getBaseFileName(new_cache_location));
-	}
+		// Purge cache if user requested it
+		if (gSavedSettings.getBOOL("PurgeCacheOnStartup") ||
+			gSavedSettings.getBOOL("PurgeCacheOnNextStartup"))
+		{
+			gSavedSettings.setBOOL("PurgeCacheOnNextStartup", false);
+		mPurgeCache = true;
+		}
 	
+		// We have moved the location of the cache directory over time.
+		migrateCacheDirectory();
+	
+		// Setup and verify the cache location
+		std::string cache_location = gSavedSettings.getString("CacheLocation");
+		std::string new_cache_location = gSavedSettings.getString("NewCacheLocation");
+		if (new_cache_location != cache_location)
+		{
+			gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation"));
+			purgeCache(); // purge old cache
+			gSavedSettings.setString("CacheLocation", new_cache_location);
+			gSavedSettings.setString("CacheLocationTopFolder", gDirUtilp->getBaseFileName(new_cache_location));
+		}
+	}
+
 	if (!gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation")))
 	{
 		LL_WARNS("AppCache") << "Unable to set cache location" << LL_ENDL;
@@ -3038,7 +3077,7 @@ bool LLAppViewer::initCache()
 		gSavedSettings.setString("CacheLocationTopFolder", "");
 	}
 	
-	if (mPurgeCache)
+	if (mPurgeCache && !read_only)
 	{
 		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
 		purgeCache();
@@ -3047,14 +3086,13 @@ bool LLAppViewer::initCache()
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
 	
 	// Init the texture cache
-	// Allocate 80% of the cache size for textures
-	BOOL read_only = mSecondInstance ? TRUE : FALSE;
+	// Allocate 80% of the cache size for textures	
 	const S32 MB = 1024*1024;
 	S64 cache_size = (S64)(gSavedSettings.getU32("CacheSize")) * MB;
 	const S64 MAX_CACHE_SIZE = 1024*MB;
 	cache_size = llmin(cache_size, MAX_CACHE_SIZE);
 	S64 texture_cache_size = ((cache_size * 8)/10);
-	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, read_only);
+	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, disable_texture_cache);
 	texture_cache_size -= extra;
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
@@ -3203,6 +3241,13 @@ bool LLAppViewer::initCache()
 	else
 	{
 		LLVFile::initClass();
+
+		//llinfos << "Static VFS listing" << llendl;
+		//gStaticVFS->listFiles();
+
+		//llinfos << "regular VFS listing" << llendl;
+		//gVFS->listFiles();
+		
 		return true;
 	}
 }
@@ -3315,10 +3360,10 @@ void LLAppViewer::saveFinalSnapshot()
 {
 	if (!mSavedFinalSnapshot && !gNoRender)
 	{
-		gSavedSettings.setVector3d("FocusPosOnLogout", gAgent.calcFocusPositionTargetGlobal());
-		gSavedSettings.setVector3d("CameraPosOnLogout", gAgent.calcCameraPositionTargetGlobal());
+		gSavedSettings.setVector3d("FocusPosOnLogout", gAgentCamera.calcFocusPositionTargetGlobal());
+		gSavedSettings.setVector3d("CameraPosOnLogout", gAgentCamera.calcCameraPositionTargetGlobal());
 		gViewerWindow->setCursor(UI_CURSOR_WAIT);
-		gAgent.changeCameraToThirdPerson( FALSE );	// don't animate, need immediate switch
+		gAgentCamera.changeCameraToThirdPerson( FALSE );	// don't animate, need immediate switch
 		gSavedSettings.setBOOL("ShowParcelOwners", FALSE);
 		idle();
 
@@ -3610,7 +3655,7 @@ void LLAppViewer::idle()
 		// Handle pending gesture processing
 		static LLFastTimer::DeclareTimer ftm("Agent Position");
 		LLFastTimer t(ftm);
-		LLGestureManager::instance().update();
+		LLGestureMgr::instance().update();
 
 		gAgent.updateAgentPosition(gFrameDTClamped, yaw, current_mouse.mX, current_mouse.mY);
 	}
@@ -3738,7 +3783,7 @@ void LLAppViewer::idle()
 			LLViewerJoystick::getInstance()->moveObjects();
 		}
 
-		gAgent.updateCamera();
+		gAgentCamera.updateCamera();
 	}
 
 	// update media focus
@@ -3968,9 +4013,7 @@ void LLAppViewer::idleNetwork()
 {
 	LLMemType mt_in(LLMemType::MTYPE_IDLE_NETWORK);
 	pingMainloopTimeout("idleNetwork");
-	LLError::LLCallStacks::clear() ;
-	llpushcallstacks ;
-
+	
 	gObjectList.mNumNewObjects = 0;
 	S32 total_decoded = 0;
 
@@ -3978,7 +4021,6 @@ void LLAppViewer::idleNetwork()
 	{
 		LLFastTimer t(FTM_IDLE_NETWORK); // decode
 		
-		llpushcallstacks ;
 		LLTimer check_message_timer;
 		//  Read all available packets from network 
 		const S64 frame_count = gFrameCount;  // U32->S64
@@ -4048,16 +4090,13 @@ void LLAppViewer::idleNetwork()
 			gPrintMessagesThisFrame = FALSE;
 		}
 	}
-	llpushcallstacks ;
 	LLViewerStats::getInstance()->mNumNewObjectsStat.addValue(gObjectList.mNumNewObjects);
 
 	// Retransmit unacknowledged packets.
 	gXferManager->retransmitUnackedPackets();
 	gAssetStorage->checkForTimeouts();
-	llpushcallstacks ;
 	gViewerThrottle.updateDynamicThrottle();
 
-	llpushcallstacks ;
 	// Check that the circuit between the viewer and the agent's current
 	// region is still alive
 	LLViewerRegion *agent_region = gAgent.getRegion();
@@ -4073,7 +4112,6 @@ void LLAppViewer::idleNetwork()
 		mAgentRegionLastID = this_region_id;
 		mAgentRegionLastAlive = this_region_alive;
 	}
-	llpushcallstacks ;
 }
 
 void LLAppViewer::disconnectViewer()
@@ -4124,7 +4162,7 @@ void LLAppViewer::disconnectViewer()
 	LLFloaterInventory::cleanup();
 
 	gAgentWearables.cleanup();
-
+	gAgentCamera.cleanup();
 	// Also writes cached agent settings to gSavedSettings
 	gAgent.cleanup();
 

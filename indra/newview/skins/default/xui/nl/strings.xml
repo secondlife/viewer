@@ -4,9 +4,20 @@
      For example, the strings used in avatar chat bubbles, and strings 
      that are returned from one component and may appear in many places-->
 <strings>
-	<string name="create_account_url">http://join.secondlife.com/index.php?lang=nl-NL</string>
+	<string name="SUPPORT_SITE">
+		Second Life Ondersteunings Portaal
+	</string>
+	<string name="StartupDetectingHardware">
+		Detecteert hardware...
+	</string>
+	<string name="StartupLoading">
+		Laden
+	</string>
 	<string name="LoginInProgress">
 		Inloggen. Het kan lijken dat [APP_NAME] is vastgelopen. Wacht u alstublieft... .
+	</string>
+	<string name="LoginInProgressNoFrozen">
+		Inloggen...
 	</string>
 	<string name="LoginAuthenticating">
 		Authenticeren
@@ -26,11 +37,14 @@
 	<string name="LoginInitializingMultimedia">
 		Multimedia initialiseren...
 	</string>
+	<string name="LoginInitializingFonts">
+		Lettertypen laden...
+	</string>
 	<string name="LoginVerifyingCache">
-		Cache bestanden verifiëren (kan 60-90 seconden duren)...
+		Veriveren cache bestanden (kan 60-90 seconden duren)...
 	</string>
 	<string name="LoginProcessingResponse">
-		Antwoord verwerken...
+		Reactie Verwerken...
 	</string>
 	<string name="LoginInitializingWorld">
 		Wereld initialiseren...
@@ -56,8 +70,14 @@
 	<string name="LoginDownloadingClothing">
 		Kleding downloaden...
 	</string>
+	<string name="LoginFailedNoNetwork">
+		Netwerk Fout: Kon geen verbinding maken, kijk uw nerwerk connectie na alstublieft.
+	</string>
 	<string name="Quit">
 		Afsluiten
+	</string>
+	<string name="create_account_url">
+		http://join.secondlife.com/index.php?lang=nl-NL
 	</string>
 	<string name="AgentLostConnection">
 		Deze regio kan problemen ondervinden. Controleer alstublieft uw verbinding met het internet.
@@ -77,38 +97,8 @@
 	<string name="TooltipIsGroup">
 		(Groep)
 	</string>
-	<string name="TooltipFlagScript">
-		Script
-	</string>
-	<string name="TooltipFlagPhysics">
-		Fysiek
-	</string>
-	<string name="TooltipFlagTouch">
-		Aanraken
-	</string>
-	<string name="TooltipFlagL$">
-		L$
-	</string>
-	<string name="TooltipFlagDropInventory">
-		Deponeer inventaris
-	</string>
-	<string name="TooltipFlagPhantom">
-		Fantoom
-	</string>
-	<string name="TooltipFlagTemporary">
-		Tijdelijk
-	</string>
-	<string name="TooltipFlagRightClickMenu">
-		(Rechtsklikken voor menu)
-	</string>
-	<string name="TooltipFreeToCopy">
-		Vrij te kopiëren
-	</string>
 	<string name="TooltipForSaleL$">
 		Te koop: L$[AMOUNT]
-	</string>
-	<string name="TooltipForSaleMsg">
-		Te koop: [MESSAGE]
 	</string>
 	<string name="TooltipFlagGroupBuild">
 		Groep bouwen
@@ -136,6 +126,76 @@
 	</string>
 	<string name="TooltipMustSingleDrop">
 		Slechts een enkel item kan hier naartoe gesleept worden
+	</string>
+	<string name="TooltipHttpUrl">
+		Klik om deze web pagina te bekijken
+	</string>
+	<string name="TooltipSLURL">
+		Klik om deze locatie informatie te bekijken
+	</string>
+	<string name="TooltipAgentUrl">
+		Klik om deze inwoner zijn profiel te bekijken
+	</string>
+	<string name="TooltipGroupUrl">
+		Klik om deze groeps informatie te bekijken
+	</string>
+	<string name="TooltipEventUrl">
+		Klik om deze evenement informatie te bekijken
+	</string>
+	<string name="TooltipClassifiedUrl">
+		Klik om deze advertentie te bekijken
+	</string>
+	<string name="TooltipParcelUrl">
+		Klik om deze perceel informatie te bekijken
+	</string>
+	<string name="TooltipTeleportUrl">
+		Klik om  naar deze lokatie te teleporteren
+	</string>
+	<string name="TooltipObjectIMUrl">
+		Klik om deze object informatie te bekijken
+	</string>
+	<string name="TooltipMapUrl">
+		Klik om deze locatie op een map te bekijken
+	</string>
+	<string name="TooltipSLAPP">
+		Klik om het secondlife:// commando te starten
+	</string>
+	<string name="CurrentURL" value="HuidigeURL: [HuidigeURL]"/>
+	<string name="SLurlLabelTeleport">
+		Teleporteer naar
+	</string>
+	<string name="SLurlLabelShowOnMap">
+		Toon Map voor
+	</string>
+	<string name="BUTTON_CLOSE_DARWIN">
+		Sluiten (⌘W)
+	</string>
+	<string name="BUTTON_CLOSE_WIN">
+		Sluiten (Ctrl+W)
+	</string>
+	<string name="BUTTON_RESTORE">
+		Restore
+	</string>
+	<string name="BUTTON_MINIMIZE">
+		Minimaliseren
+	</string>
+	<string name="BUTTON_TEAR_OFF">
+		Afscheuren
+	</string>
+	<string name="BUTTON_DOCK">
+		Koppelen
+	</string>
+	<string name="BUTTON_UNDOCK">
+		Loskoppelen
+	</string>
+	<string name="BUTTON_HELP">
+		Toon Help
+	</string>
+	<string name="Searching">
+		Zoeken...
+	</string>
+	<string name="NoneFound">
+		Geen gevonden.
 	</string>
 	<string name="RetrievingData">
 		Ophalen...
@@ -191,8 +251,77 @@
 	<string name="AssetErrorUnknownStatus">
 		Onbekende status
 	</string>
-	<string name="AvatarEditingApparance">
-		(Uiterlijk bewerken)
+	<string name="texture">
+		textuur
+	</string>
+	<string name="sound">
+		geluid
+	</string>
+	<string name="calling card">
+		visitekaart
+	</string>
+	<string name="landmark">
+		landmarkering
+	</string>
+	<string name="legacy script">
+		legacy script
+	</string>
+	<string name="clothing">
+		kleding
+	</string>
+	<string name="object">
+		object
+	</string>
+	<string name="note card">
+		notecard
+	</string>
+	<string name="folder">
+		map
+	</string>
+	<string name="root">
+		root
+	</string>
+	<string name="lsl2 script">
+		LSL2 script
+	</string>
+	<string name="lsl bytecode">
+		LSL bytecode
+	</string>
+	<string name="tga texture">
+		tga textuur
+	</string>
+	<string name="body part">
+		lichaamsdeel
+	</string>
+	<string name="snapshot">
+		foto
+	</string>
+	<string name="lost and found">
+		Verloren en Gevonden
+	</string>
+	<string name="targa image">
+		targa plaatje
+	</string>
+	<string name="trash">
+		Prullenbak
+	</string>
+	<string name="jpeg image">
+		jpeg plaatje
+	</string>
+	<string name="animation">
+		animatie
+	</string>
+	<string name="gesture">
+		gebaar
+	</string>
+	<string name="simstate">
+		simstate
+	</string>
+	<string name="favorite">
+		favorieten
+	</string>
+	<string name="symbolic link">
+		link
 	</string>
 	<string name="AvatarAway">
 		Afwezig
@@ -414,13 +543,76 @@
 		Laden...
 	</string>
 	<string name="worldmap_offline">
-		Offline
+		Off line
+	</string>
+	<string name="worldmap_results_none_found">
+		Geen gevonden.
+	</string>
+	<string name="Ok">
+		OK
+	</string>
+	<string name="Premature end of file">
+		Vroegtijdig eind van bestand
+	</string>
+	<string name="ST_NO_JOINT">
+		Kan niet ROOT of JOINT vinden.
 	</string>
 	<string name="whisper">
 		fluistert:
 	</string>
 	<string name="shout">
 		schreeuwt:
+	</string>
+	<string name="ringing">
+		Verbinden met in-wereld voice chat...
+	</string>
+	<string name="connected">
+		Verbonden
+	</string>
+	<string name="unavailable">
+		Voice is niet beschikbaar op uw huidige locatie
+	</string>
+	<string name="hang_up">
+		Verbinding met in-wereld voicechat verbroken
+	</string>
+	<string name="ScriptQuestionCautionChatGranted">
+		&apos;[OBJECTNAME]&apos;, een object van &apos;[OWNERNAME]&apos;, gevestigd in [REGIONNAME] op [REGIONPOS], is toestemming verleend om te: [PERMISSIONS].
+	</string>
+	<string name="ScriptQuestionCautionChatDenied">
+		&apos;[OBJECTNAME]&apos;, een object van &apos;[OWNERNAME]&apos;, gevestigd in [REGIONNAME] op [REGIONPOS], is toestemming geweigerd om te: [PERMISSIONS].
+	</string>
+	<string name="ScriptTakeMoney">
+		Linden dollars (L$) van u wegnemen
+	</string>
+	<string name="ActOnControlInputs">
+		Acteren op uw bedieningsinvoer
+	</string>
+	<string name="RemapControlInputs">
+		Uw bedieningsinvoer herdefiniëren
+	</string>
+	<string name="AnimateYourAvatar">
+		Animeer uw avatar
+	</string>
+	<string name="AttachToYourAvatar">
+		Bevestig aan uw avatar
+	</string>
+	<string name="ReleaseOwnership">
+		Eigendom vrijgeven en openbaar worden
+	</string>
+	<string name="LinkAndDelink">
+		Koppelen met en ontkoppelen van andere objecten
+	</string>
+	<string name="AddAndRemoveJoints">
+		Toevoegen en verwijderen koppelingen met andere objecten
+	</string>
+	<string name="ChangePermissions">
+		Wijzig zijn permissies
+	</string>
+	<string name="TrackYourCamera">
+		Volg uw camera
+	</string>
+	<string name="ControlYourCamera">
+		Bedien uw camera
 	</string>
 	<string name="SIM_ACCESS_PG">
 		PG
@@ -440,8 +632,6 @@
 	<string name="land_type_unknown">
 		(onbekend)
 	</string>
-	<string name="covenant_never_modified">Laatst gewijzigd: (nooit)</string>
-	<string name="covenant_modified">Laatst gewijzigd: </string>
 	<string name="all_files">
 		Alle bestanden
 	</string>
@@ -487,26 +677,122 @@
 	<string name="choose_the_directory">
 		Kies folder
 	</string>
-	<string name="accel-mac-control">
-		&#8963;
+	<string name="AvatarSetNotAway">
+		Niet Afwezig Instellen
 	</string>
-	<string name="accel-mac-command">
-		&#8984;
+	<string name="AvatarSetAway">
+		Afwezig Instellen
 	</string>
-	<string name="accel-mac-option">
-		&#8997;
+	<string name="AvatarSetNotBusy">
+		Niet Bezig Instellen
 	</string>
-	<string name="accel-mac-shift">
-		&#8679;
+	<string name="AvatarSetBusy">
+		Bezig Instellen
 	</string>
-	<string name="accel-win-control">
-		Ctrl+
+	<string name="shape">
+		Postuur
 	</string>
-	<string name="accel-win-alt">
-		Alt+
+	<string name="skin">
+		Huid
 	</string>
-	<string name="accel-win-shift">
-		Shift+
+	<string name="hair">
+		Haar
+	</string>
+	<string name="eyes">
+		Ogen
+	</string>
+	<string name="shirt">
+		Hemd
+	</string>
+	<string name="pants">
+		Broek
+	</string>
+	<string name="shoes">
+		Schoenen
+	</string>
+	<string name="socks">
+		Sokken
+	</string>
+	<string name="jacket">
+		Jas
+	</string>
+	<string name="gloves">
+		Handschoenen
+	</string>
+	<string name="undershirt">
+		onderhemd
+	</string>
+	<string name="underpants">
+		Onderbroek
+	</string>
+	<string name="skirt">
+		Rok
+	</string>
+	<string name="alpha">
+		Alpha
+	</string>
+	<string name="tattoo">
+		Tattoo
+	</string>
+	<string name="invalid">
+		ongeldig
+	</string>
+	<string name="next">
+		Volgende
+	</string>
+	<string name="ok">
+		OK
+	</string>
+	<string name="GroupNotifyGroupNotice">
+		Groep Mededeling
+	</string>
+	<string name="GroupNotifyGroupNotices">
+		Groep Mededelingen
+	</string>
+	<string name="GroupNotifySentBy">
+		Verzonden Door:
+	</string>
+	<string name="GroupNotifyAttached">
+		Bijgevoegt:
+	</string>
+	<string name="GroupNotifyViewPastNotices">
+		Bekijk alle mededelingen en bijlages van verzonden Mededelingen in het verleden
+	</string>
+	<string name="GroupNotifyOpenAttachment">
+		Open Bijlage
+	</string>
+	<string name="GroupNotifySaveAttachment">
+		Sla Bijlage Op
+	</string>
+	<string name="TeleportOffer">
+		Teleporteer Aanbieding
+	</string>
+	<string name="StartUpNotification">
+		[%d] Nieuwe mededelingen aangekomen terwijl u weg was ...
+	</string>
+	<string name="StartUpNotifications">
+		[%d] Nieuwe mededelingen aangekomen terwijl u weg was ...
+	</string>
+	<string name="OverflowInfoChannelString">
+		U heeft [%d] meer mededelingen
+	</string>
+	<string name="BodyPartsRightArm">
+		Rechter Arm
+	</string>
+	<string name="BodyPartsHead">
+		Hoofd
+	</string>
+	<string name="BodyPartsLeftArm">
+		Linker Arm
+	</string>
+	<string name="BodyPartsLeftLeg">
+		Linker Been
+	</string>
+	<string name="BodyPartsTorso">
+		Torso
+	</string>
+	<string name="BodyPartsRightLeg">
+		Rechter Been
 	</string>
 	<string name="GraphicsQualityLow">
 		Laag
@@ -517,73 +803,2407 @@
 	<string name="GraphicsQualityHigh">
 		Hoog
 	</string>
-	
-	<!-- PARCEL_CATEGORY_UI_STRING -->
-	<string name="Linden Location">Linden locatie</string>
-	<string name="Adult">Adult</string>
-	<string name="Arts&amp;Culture">Kunst &amp; Cultuur</string>
-	<string name="Business">Zakelijk</string>
-	<string name="Educational">Educatief</string>
-	<string name="Gaming">Spelen</string>
-	<string name="Hangout">Ontmoetingsplaats</string>
-	<string name="Newcomer Friendly">Nieuwkomervriendelijk</string>
-	<string name="Parks&amp;Nature">Parken &amp; natuur</string>
-	<string name="Residential">Woongebied</string>
-	<string name="Shopping">Winkelen</string>
-	<string name="Other">Anders</string>
-	
-	<string name="ringing">
-		Verbinden met in-wereld voice chat...
+	<string name="LeaveMouselook">
+		Druk op ESC om terug te keren naar Wereld Zicht
 	</string>
-	<string name="connected">
-		Verbonden
+	<string name="InventoryNoMatchingItems">
+		Geen overeenkomende objecten gevonden in de voorraad.
 	</string>
-	<string name="unavailable">
-		Voice is niet beschikbaar op uw huidige locatie
+	<string name="InventoryNoTexture">
+		Je hebt geen kopie van deze texture in je inventaris
 	</string>
-	<string name="hang_up">
-		Verbinding met in-wereld voicechat verbroken
+	<string name="no_transfer" value="(no transfer)"/>
+	<string name="no_modify" value="(no modify)"/>
+	<string name="no_copy" value="(no copy)"/>
+	<string name="worn" value="(worn)"/>
+	<string name="link" value="(link)"/>
+	<string name="broken_link" value="(broken_link)&quot;"/>
+	<string name="LoadingContents">
+		Loading contents...
 	</string>
-  <string name="ScriptQuestionCautionChatGranted">
-	&apos;[OBJECTNAME]&apos;, een object van &apos;[OWNERNAME]&apos;, gevestigd in [REGIONNAME] op [REGIONPOS], is toestemming verleend om te: [PERMISSIONS].
-  </string>
-  <string name="ScriptQuestionCautionChatDenied">
-	&apos;[OBJECTNAME]&apos;, een object van &apos;[OWNERNAME]&apos;, gevestigd in [REGIONNAME] op [REGIONPOS], is toestemming geweigerd om te: [PERMISSIONS].
-  </string>
-  <string name="ScriptTakeMoney">
-	Linden dollars (L$) van u wegnemen
-  </string>
-  <string name="ActOnControlInputs">
-	Acteren op uw bedieningsinvoer
-  </string>
-  <string name="RemapControlInputs">
-	Uw bedieningsinvoer herdefiniëren
-  </string>
-  <string name="AnimateYourAvatar">
-	Animeer uw avatar
-  </string>
-  <string name="AttachToYourAvatar">
-	Bevestig aan uw avatar
-  </string>
-  <string name="ReleaseOwnership">
-	Eigendom vrijgeven en openbaar worden
-  </string>
-  <string name="LinkAndDelink">
-	Koppelen met en ontkoppelen van andere objecten
-  </string>
-  <string name="AddAndRemoveJoints">
-	Toevoegen en verwijderen koppelingen met andere objecten
-  </string>
-  <string name="ChangePermissions">
-	Wijzig zijn permissies
-  </string>
-  <string name="TrackYourCamera">
-	Volg uw camera
-  </string>
-  <string name="ControlYourCamera">
-	Bedien uw camera
-  </string>
-	
+	<string name="NoContents">
+		No contents
+	</string>
+	<string name="WornOnAttachmentPoint" value="(worn on [ATTACHMENT_POINT])"/>
+	<string name="Chat" value="Chat :"/>
+	<string name="Sound" value="Geluid :"/>
+	<string name="Wait" value="--- Wachten :"/>
+	<string name="AnimFlagStop" value="Stop Animatie :"/>
+	<string name="AnimFlagStart" value="Start Animatie :"/>
+	<string name="Wave" value="Wave"/>
+	<string name="HelloAvatar" value="Hallo, avatar!"/>
+	<string name="ViewAllGestures" value="Bekijk alles &gt;"/>
+	<string name="Animations" value="Animaties,"/>
+	<string name="Calling Cards" value="Calling Cards,"/>
+	<string name="Clothing" value="Kleding,"/>
+	<string name="Gestures" value="Gestures,"/>
+	<string name="Landmarks" value="Landmarks,"/>
+	<string name="Notecards" value="Notecards,"/>
+	<string name="Objects" value="Objecten,"/>
+	<string name="Scripts" value="Scripts,"/>
+	<string name="Sounds" value="Geluiden,"/>
+	<string name="Textures" value="Textures,"/>
+	<string name="Snapshots" value="Snapshots,"/>
+	<string name="No Filters" value="Nee"/>
+	<string name="Since Logoff" value="- Sinds Afmelden"/>
+	<string name="InvFolder My Inventory">
+		Mijn Inventaris
+	</string>
+	<string name="InvFolder My Favorites">
+		Mijn Favorieten
+	</string>
+	<string name="InvFolder Library">
+		Bibliotheek
+	</string>
+	<string name="InvFolder Textures">
+		Textures
+	</string>
+	<string name="InvFolder Sounds">
+		Geluiden
+	</string>
+	<string name="InvFolder Calling Cards">
+		Calling Cards
+	</string>
+	<string name="InvFolder Landmarks">
+		Landmarks
+	</string>
+	<string name="InvFolder Scripts">
+		Scripts
+	</string>
+	<string name="InvFolder Clothing">
+		Kleding
+	</string>
+	<string name="InvFolder Objects">
+		Objecten
+	</string>
+	<string name="InvFolder Notecards">
+		Notecards
+	</string>
+	<string name="InvFolder New Folder">
+		Nieuwe Map
+	</string>
+	<string name="InvFolder Inventory">
+		Inventaris
+	</string>
+	<string name="InvFolder Uncompressed Images">
+		Ongecomprimeerde Afbeeldingen
+	</string>
+	<string name="InvFolder Body Parts">
+		Lichaams Delen
+	</string>
+	<string name="InvFolder Trash">
+		Afval
+	</string>
+	<string name="InvFolder Photo Album">
+		Foto Album
+	</string>
+	<string name="InvFolder Lost And Found">
+		Verloren en Gevonden
+	</string>
+	<string name="InvFolder Uncompressed Sounds">
+		Ongecomprimeerde Geluiden
+	</string>
+	<string name="InvFolder Animations">
+		Animaties
+	</string>
+	<string name="InvFolder Gestures">
+		Gebaren
+	</string>
+	<string name="InvFolder favorite">
+		Favoriten
+	</string>
+	<string name="InvFolder Current Outfit">
+		Huidige Uitrusting
+	</string>
+	<string name="InvFolder My Outfits">
+		Mijn Uitrustingen
+	</string>
+	<string name="InvFolder Friends">
+		Vrienden
+	</string>
+	<string name="InvFolder All">
+		Alles
+	</string>
+	<string name="Buy">
+		Koop
+	</string>
+	<string name="BuyforL$">
+		Koop voor L$
+	</string>
+	<string name="Stone">
+		Steen
+	</string>
+	<string name="Metal">
+		Metaal
+	</string>
+	<string name="Glass">
+		Glas
+	</string>
+	<string name="Wood">
+		Hout
+	</string>
+	<string name="Flesh">
+		Vlees
+	</string>
+	<string name="Plastic">
+		Plastic
+	</string>
+	<string name="Rubber">
+		Rubber
+	</string>
+	<string name="Light">
+		Licht
+	</string>
+	<string name="KBShift">
+		Shift
+	</string>
+	<string name="KBCtrl">
+		Ctrl
+	</string>
+	<string name="Chest">
+		Borstkas
+	</string>
+	<string name="Skull">
+		Schedel
+	</string>
+	<string name="Left Shoulder">
+		Linker Schouder
+	</string>
+	<string name="Right Shoulder">
+		Rechter Schouder
+	</string>
+	<string name="Left Hand">
+		Linker Hand
+	</string>
+	<string name="Right Hand">
+		Rechter Hand
+	</string>
+	<string name="Left Foot">
+		Linker Voet
+	</string>
+	<string name="Right Foot">
+		Rechter Voet
+	</string>
+	<string name="Spine">
+		Ruggegraat
+	</string>
+	<string name="Pelvis">
+		Bekken
+	</string>
+	<string name="Mouth">
+		Mond
+	</string>
+	<string name="Chin">
+		Kin
+	</string>
+	<string name="Left Ear">
+		Linker Oor
+	</string>
+	<string name="Right Ear">
+		Rechter Oor
+	</string>
+	<string name="Left Eyeball">
+		Linker Oogbal
+	</string>
+	<string name="Right Eyeball">
+		Rechter Oogbal
+	</string>
+	<string name="Nose">
+		Neus
+	</string>
+	<string name="R Upper Arm">
+		R Boven Arm
+	</string>
+	<string name="R Forearm">
+		R Onder Arm
+	</string>
+	<string name="L Upper Arm">
+		L Boven Arm
+	</string>
+	<string name="L Forearm">
+		L Onder Arm
+	</string>
+	<string name="Right Hip">
+		Rechter Heup
+	</string>
+	<string name="R Upper Leg">
+		R Boven Been
+	</string>
+	<string name="R Lower Leg">
+		R Onder Been
+	</string>
+	<string name="Left Hip">
+		Linker Heub
+	</string>
+	<string name="L Upper Leg">
+		L Boven Been
+	</string>
+	<string name="L Lower Leg">
+		L Onder Been
+	</string>
+	<string name="Stomach">
+		Maag
+	</string>
+	<string name="Left Pec">
+		Left Pec
+	</string>
+	<string name="Right Pec">
+		Right Pec
+	</string>
+	<string name="YearsMonthsOld">
+		[AGEYEARS] [AGEMONTHS] oud
+	</string>
+	<string name="YearsOld">
+		[AGEYEARS] oud
+	</string>
+	<string name="MonthsOld">
+		[AGEMONTHS] oud
+	</string>
+	<string name="WeeksOld">
+		[AGEWEEKS] oud
+	</string>
+	<string name="DaysOld">
+		[AGEDAYS] oud
+	</string>
+	<string name="TodayOld">
+		Vandaag toegetreden
+	</string>
+	<string name="AgeYearsA">
+		[COUNT] jaar
+	</string>
+	<string name="AgeYearsB">
+		[COUNT] jaar
+	</string>
+	<string name="AgeYearsC">
+		[COUNT] jaar
+	</string>
+	<string name="AgeMonthsA">
+		[COUNT] maand
+	</string>
+	<string name="AgeMonthsB">
+		[COUNT] maanden
+	</string>
+	<string name="AgeMonthsC">
+		[COUNT] maanden
+	</string>
+	<string name="AgeWeeksA">
+		[COUNT] week
+	</string>
+	<string name="AgeWeeksB">
+		[COUNT] weken
+	</string>
+	<string name="AgeWeeksC">
+		[COUNT] weken
+	</string>
+	<string name="AgeDaysA">
+		[COUNT] dag
+	</string>
+	<string name="AgeDaysB">
+		[COUNT] dagen
+	</string>
+	<string name="AgeDaysC">
+		[COUNT] dagen
+	</string>
+	<string name="GroupMembersA">
+		[COUNT] lid
+	</string>
+	<string name="GroupMembersB">
+		[COUNT] leden
+	</string>
+	<string name="GroupMembersC">
+		[COUNT] leden
+	</string>
+	<string name="AcctTypeResident">
+		bewoner
+	</string>
+	<string name="AcctTypeTrial">
+		Trial
+	</string>
+	<string name="AcctTypeCharterMember">
+		Charter Member
+	</string>
+	<string name="AcctTypeEmployee">
+		Linden Lab Werknemer
+	</string>
+	<string name="PaymentInfoUsed">
+		Betalings info gebruikt
+	</string>
+	<string name="PaymentInfoOnFile">
+		Betalings info op bestand
+	</string>
+	<string name="NoPaymentInfoOnFile">
+		Geen betalings info op bestand
+	</string>
+	<string name="AgeVerified">
+		Leeftijd gecontroleerd
+	</string>
+	<string name="NotAgeVerified">
+		Niet leeftijd gecontroleerd
+	</string>
+	<string name="Center 2">
+		Centrum 2
+	</string>
+	<string name="Top Right">
+		Rechts Boven
+	</string>
+	<string name="Top">
+		Boven
+	</string>
+	<string name="Top Left">
+		Links Boven
+	</string>
+	<string name="Center">
+		Centrum
+	</string>
+	<string name="Bottom Left">
+		Links beneden
+	</string>
+	<string name="Bottom">
+		Beneden
+	</string>
+	<string name="Bottom Right">
+		Rechts beneden
+	</string>
+	<string name="CompileQueueDownloadedCompiling">
+		Dedownload, nu samenstellen
+	</string>
+	<string name="CompileQueueScriptNotFound">
+		Script niet gevonden op server.
+	</string>
+	<string name="CompileQueueProblemDownloading">
+		Problem downloading
+	</string>
+	<string name="CompileQueueInsufficientPermDownload">
+		Onvoldoende rechten om een script te downloaden.
+	</string>
+	<string name="CompileQueueInsufficientPermFor">
+		Onvoldoende rechten voor
+	</string>
+	<string name="CompileQueueUnknownFailure">
+		Onbekende fout te downloaden
+	</string>
+	<string name="CompileQueueTitle">
+		Hercompilatie vooruitgang
+	</string>
+	<string name="CompileQueueStart">
+		Hercompilatie
+	</string>
+	<string name="ResetQueueTitle">
+		Reset Vooruitgang
+	</string>
+	<string name="ResetQueueStart">
+		reset
+	</string>
+	<string name="RunQueueTitle">
+		Set Running Progress
+	</string>
+	<string name="RunQueueStart">
+		set running
+	</string>
+	<string name="NotRunQueueTitle">
+		Set Not Running Progress
+	</string>
+	<string name="NotRunQueueStart">
+		set not running
+	</string>
+	<string name="CompileSuccessful">
+		Compileren succesvol!
+	</string>
+	<string name="CompileSuccessfulSaving">
+		Compileren succesvol, opslaan...
+	</string>
+	<string name="SaveComplete">
+		Opslaan gereed.
+	</string>
+	<string name="ObjectOutOfRange">
+		Script (object buiten het bereik)
+	</string>
+	<string name="GodToolsObjectOwnedBy">
+		Object [OBJECT] eigendom van [OWNER]
+	</string>
+	<string name="GroupsNone">
+		geen
+	</string>
+	<string name="Group" value="(group)"/>
+	<string name="Unknown">
+		(Unknown)
+	</string>
+	<string name="SummaryForTheWeek" value="Samenvatting voor deze week, vanaf"/>
+	<string name="NextStipendDay" value="The next stipend day is"/>
+	<string name="GroupIndividualShare" value="Groep       Individueel Aandeel"/>
+	<string name="Balance">
+		Banksaldo
+	</string>
+	<string name="Credits">
+		Credits
+	</string>
+	<string name="Debits">
+		Debiteert
+	</string>
+	<string name="Total">
+		Totaal
+	</string>
+	<string name="NoGroupDataFound">
+		Geen groep gegevens gevonden voor groep
+	</string>
+	<string name="IMParentEstate">
+		parent estate
+	</string>
+	<string name="IMMainland">
+		mainland
+	</string>
+	<string name="IMTeen">
+		tiener
+	</string>
+	<string name="RegionInfoError">
+		fout
+	</string>
+	<string name="RegionInfoAllEstatesOwnedBy">
+		all estates owned by [OWNER]
+	</string>
+	<string name="RegionInfoAllEstatesYouOwn">
+		all estates that you own
+	</string>
+	<string name="RegionInfoAllEstatesYouManage">
+		all estates that you manage for [OWNER]
+	</string>
+	<string name="RegionInfoAllowedResidents">
+		Toegestane bewoners: ([ALLOWEDAGENTS], max [MAXACCESS])
+	</string>
+	<string name="RegionInfoAllowedGroups">
+		Toegestane groepen: ([ALLOWEDGROUPS], max [MAXACCESS])
+	</string>
+	<string name="CursorPos">
+		Lijn [LINE], Column [COLUMN]
+	</string>
+	<string name="PanelDirCountFound">
+		[COUNT] gevonden
+	</string>
+	<string name="PanelContentsNewScript">
+		Nieuw Script
+	</string>
+	<string name="MuteByName">
+		(by name)
+	</string>
+	<string name="MuteAgent">
+		(resident)
+	</string>
+	<string name="MuteObject">
+		(object)
+	</string>
+	<string name="MuteGroup">
+		(group)
+	</string>
+	<string name="RegionNoCovenant">
+		There is no Covenant provided for this Estate.
+	</string>
+	<string name="RegionNoCovenantOtherOwner">
+		There is no Covenant provided for this Estate. The land on this estate is being sold by the Estate owner, not Linden Lab.  Please contact the Estate Owner for sales details.
+	</string>
+	<string name="covenant_last_modified">
+		Laatst bewerkt:
+	</string>
+	<string name="none_text" value="(none)"/>
+	<string name="never_text" value="(never)"/>
+	<string name="GroupOwned">
+		Groep Eigendom
+	</string>
+	<string name="Public">
+		Openbaar
+	</string>
+	<string name="ClassifiedClicksTxt">
+		Klikken: [TELEPORT] teleport, [MAP] map, [PROFILE] profiel
+	</string>
+	<string name="ClassifiedUpdateAfterPublish">
+		(zal bijwerken na publiceren)
+	</string>
+	<string name="MultiPreviewTitle">
+		Preview
+	</string>
+	<string name="MultiPropertiesTitle">
+		Eigenschappen
+	</string>
+	<string name="InvOfferAnObjectNamed">
+		Een object genaamd
+	</string>
+	<string name="InvOfferOwnedByGroup">
+		Eigendom van groep
+	</string>
+	<string name="InvOfferOwnedByUnknownGroup">
+		Eigendom van een onbekende groep
+	</string>
+	<string name="InvOfferOwnedBy">
+		Eigendom van
+	</string>
+	<string name="InvOfferOwnedByUnknownUser">
+		Eigendom van onbekende gebruiker
+	</string>
+	<string name="InvOfferGaveYou">
+		gaf je
+	</string>
+	<string name="InvOfferYouDecline">
+		You decline
+	</string>
+	<string name="InvOfferFrom">
+		van
+	</string>
+	<string name="GroupMoneyTotal">
+		Totaal
+	</string>
+	<string name="GroupMoneyBought">
+		kocht
+	</string>
+	<string name="GroupMoneyPaidYou">
+		betaald u
+	</string>
+	<string name="GroupMoneyPaidInto">
+		gestort
+	</string>
+	<string name="GroupMoneyBoughtPassTo">
+		bought pass to
+	</string>
+	<string name="GroupMoneyPaidFeeForEvent">
+		betaalde vergoeding voor evenement
+	</string>
+	<string name="GroupMoneyPaidPrizeForEvent">
+		betaalde prijs voor evenement
+	</string>
+	<string name="GroupMoneyBalance">
+		Banksaldo
+	</string>
+	<string name="GroupMoneyCredits">
+		Credits
+	</string>
+	<string name="GroupMoneyDebits">
+		Debiteert
+	</string>
+	<string name="ViewerObjectContents">
+		Inhoud
+	</string>
+	<string name="AcquiredItems">
+		Verworven objecten
+	</string>
+	<string name="Cancel">
+		Annuleren
+	</string>
+	<string name="UploadingCosts">
+		Uploading [%s] kosten
+	</string>
+	<string name="UnknownFileExtension">
+		Onbekende extensie [.%s]
+Verwacht .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
+	</string>
+	<string name="AddLandmarkNavBarMenu">
+		Voeg Landmark toe...
+	</string>
+	<string name="EditLandmarkNavBarMenu">
+		Bewerk Landmark...
+	</string>
+	<string name="accel-mac-control">
+		⌃
+	</string>
+	<string name="accel-mac-command">
+		⌘
+	</string>
+	<string name="accel-mac-option">
+		⌥
+	</string>
+	<string name="accel-mac-shift">
+		⇧
+	</string>
+	<string name="accel-win-control">
+		Ctrl+
+	</string>
+	<string name="accel-win-alt">
+		Alt+
+	</string>
+	<string name="accel-win-shift">
+		Shift+
+	</string>
+	<string name="FileSaved">
+		Bestand Opgeslagen
+	</string>
+	<string name="Receiving">
+		Ontvangen
+	</string>
+	<string name="AM">
+		AM
+	</string>
+	<string name="PM">
+		PM
+	</string>
+	<string name="PST">
+		PST
+	</string>
+	<string name="PDT">
+		PDT
+	</string>
+	<string name="Forward">
+		Vooruit
+	</string>
+	<string name="Left">
+		Links
+	</string>
+	<string name="Right">
+		Rechts
+	</string>
+	<string name="Back">
+		Achteruit
+	</string>
+	<string name="North">
+		Noord
+	</string>
+	<string name="South">
+		Zuid
+	</string>
+	<string name="West">
+		West
+	</string>
+	<string name="East">
+		Oost
+	</string>
+	<string name="Up">
+		Omhoog
+	</string>
+	<string name="Down">
+		Omlaag
+	</string>
+	<string name="Any Category">
+		Elke Categorie
+	</string>
+	<string name="Shopping">
+		Boodschappen
+	</string>
+	<string name="Land Rental">
+		Land Verhuur
+	</string>
+	<string name="Property Rental">
+		Verhuur van onroerend goed
+	</string>
+	<string name="Special Attraction">
+		Speciale Attractie
+	</string>
+	<string name="New Products">
+		Nieuwe Producten
+	</string>
+	<string name="Employment">
+		Employment
+	</string>
+	<string name="Wanted">
+		Gezocht
+	</string>
+	<string name="Service">
+		Service
+	</string>
+	<string name="Personal">
+		Personal
+	</string>
+	<string name="None">
+		Geen
+	</string>
+	<string name="Linden Location">
+		Linden locatie
+	</string>
+	<string name="Adult">
+		Adult
+	</string>
+	<string name="Arts&amp;Culture">
+		Kunst &amp; Cultuur
+	</string>
+	<string name="Business">
+		Zakelijk
+	</string>
+	<string name="Educational">
+		Educatief
+	</string>
+	<string name="Gaming">
+		Spelen
+	</string>
+	<string name="Hangout">
+		Ontmoetingsplaats
+	</string>
+	<string name="Newcomer Friendly">
+		Nieuwkomervriendelijk
+	</string>
+	<string name="Parks&amp;Nature">
+		Parken &amp; natuur
+	</string>
+	<string name="Residential">
+		Woongebied
+	</string>
+	<string name="Stage">
+		Stage
+	</string>
+	<string name="Other">
+		Anders
+	</string>
+	<string name="Any">
+		Any
+	</string>
+	<string name="You">
+		Jij
+	</string>
+	<string name="Multiple Media">
+		Meerdere Media
+	</string>
+	<string name="Play Media">
+		Play/Pause Media
+	</string>
+	<string name="MBCmdLineError">
+		An error was found parsing the command line.
+Please see: http://wiki.secondlife.com/wiki/Client_parameters
+Error:
+	</string>
+	<string name="MBCmdLineUsg">
+		[APP_NAME] Command line usage:
+	</string>
+	<string name="MBUnableToAccessFile">
+		[APP_NAME] is unable to access a file that it needs.
+
+This can be because you somehow have multiple copies running, or your system incorrectly thinks a file is open.
+If this message persists, restart your computer and try again.
+If it continues to persist, you may need to completely uninstall [APP_NAME] and reinstall it.
+	</string>
+	<string name="MBFatalError">
+		Fatal Error
+	</string>
+	<string name="MBRequiresAltiVec">
+		[APP_NAME] requires a processor with AltiVec (G4 or later).
+	</string>
+	<string name="MBAlreadyRunning">
+		[APP_NAME] is already running.
+Check your task bar for a minimized copy of the program.
+If this message persists, restart your computer.
+	</string>
+	<string name="MBFrozenCrashed">
+		[APP_NAME] appears to have frozen or crashed on the previous run.
+Would you like to send a crash report?
+	</string>
+	<string name="MBAlert">
+		Alert
+	</string>
+	<string name="MBNoDirectX">
+		[APP_NAME] is unable to detect DirectX 9.0b or greater.
+[APP_NAME] uses DirectX to detect hardware and/or outdated drivers that can cause stability problems, poor performance and crashes.  While you can run [APP_NAME] without it, we highly recommend running with DirectX 9.0b.
+
+Do you wish to continue?
+	</string>
+	<string name="MBWarning">
+		Warning
+	</string>
+	<string name="MBNoAutoUpdate">
+		Automatic updating is not yet implemented for Linux.
+Please download the latest version from www.secondlife.com.
+	</string>
+	<string name="MBRegClassFailed">
+		RegisterClass failed
+	</string>
+	<string name="MBError">
+		Error
+	</string>
+	<string name="MBFullScreenErr">
+		Unable to run fullscreen at [WIDTH] x [HEIGHT].
+Running in window.
+	</string>
+	<string name="MBDestroyWinFailed">
+		Shutdown Error while destroying window (DestroyWindow() failed)
+	</string>
+	<string name="MBShutdownErr">
+		Shutdown Error
+	</string>
+	<string name="MBDevContextErr">
+		Can&apos;t make GL device context
+	</string>
+	<string name="MBPixelFmtErr">
+		Can&apos;t find suitable pixel format
+	</string>
+	<string name="MBPixelFmtDescErr">
+		Can&apos;t get pixel format description
+	</string>
+	<string name="MBTrueColorWindow">
+		[APP_NAME] requires True Color (32-bit) to run.
+Please go to your computer&apos;s display settings and set the color mode to 32-bit.
+	</string>
+	<string name="MBAlpha">
+		[APP_NAME] is unable to run because it can&apos;t get an 8 bit alpha channel.  Usually this is due to video card driver issues.
+Please make sure you have the latest video card drivers installed.
+Also be sure your monitor is set to True Color (32-bit) in Control Panels &gt; Display &gt; Settings.
+If you continue to receive this message, contact the [SUPPORT_SITE].
+	</string>
+	<string name="MBPixelFmtSetErr">
+		Can&apos;t set pixel format
+	</string>
+	<string name="MBGLContextErr">
+		Can&apos;t create GL rendering context
+	</string>
+	<string name="MBGLContextActErr">
+		Can&apos;t activate GL rendering context
+	</string>
+	<string name="MBVideoDrvErr">
+		[APP_NAME] is unable to run because your video card drivers did not install properly, are out of date, or are for unsupported hardware. Please make sure you have the latest video card drivers and even if you do have the latest, try reinstalling them.
+
+If you continue to receive this message, contact the [SUPPORT_SITE].
+	</string>
+	<string name="5 O&apos;Clock Shadow">
+		Stoppels
+	</string>
+	<string name="All White">
+		Alles Wit
+	</string>
+	<string name="Anime Eyes">
+		Ogen Animeren
+	</string>
+	<string name="Arced">
+		Gebogen
+	</string>
+	<string name="Arm Length">
+		Arm Lengte
+	</string>
+	<string name="Attached">
+		Bijgevoegt
+	</string>
+	<string name="Attached Earlobes">
+		Bijgevoegde Oorlellen
+	</string>
+	<string name="Back Bangs">
+		Achterkant Pony
+	</string>
+	<string name="Back Bangs Down">
+		Achterkant Pony Neer
+	</string>
+	<string name="Back Bangs Up">
+		Achterkant Pony Omhoog
+	</string>
+	<string name="Back Fringe">
+		Achterkant Franje
+	</string>
+	<string name="Back Hair">
+		Achterkant Haar
+	</string>
+	<string name="Back Hair Down">
+		Achterkant Haar Neer
+	</string>
+	<string name="Back Hair Up">
+		Achterkant Haar Omhoog
+	</string>
+	<string name="Baggy">
+		Oogwallen
+	</string>
+	<string name="Bangs">
+		Pony
+	</string>
+	<string name="Bangs Down">
+		Pony Neer
+	</string>
+	<string name="Bangs Up">
+		Pony Omhoog
+	</string>
+	<string name="Beady Eyes">
+		Kraaloogjes
+	</string>
+	<string name="Belly Size">
+		Buik Grootte
+	</string>
+	<string name="Big">
+		Groot
+	</string>
+	<string name="Big Butt">
+		Grote Kont
+	</string>
+	<string name="Big Eyeball">
+		Grote Oogbol
+	</string>
+	<string name="Big Hair Back">
+		Haar Volume Achter
+	</string>
+	<string name="Big Hair Front">
+		Haar Volume Voor
+	</string>
+	<string name="Big Hair Top">
+		Haar Volume Boven
+	</string>
+	<string name="Big Head">
+		Groot Hoofd
+	</string>
+	<string name="Big Pectorals">
+		Groote Borstspieren
+	</string>
+	<string name="Big Spikes">
+		Grote Stekels
+	</string>
+	<string name="Black">
+		Zwart
+	</string>
+	<string name="Blonde">
+		Blond
+	</string>
+	<string name="Blonde Hair">
+		Blond Haar
+	</string>
+	<string name="Blush">
+		Blozen
+	</string>
+	<string name="Blush Color">
+		Bloos Kleur
+	</string>
+	<string name="Blush Opacity">
+		Bloos Opaciteit
+	</string>
+	<string name="Body Definition">
+		Lichaam Definitie
+	</string>
+	<string name="Body Fat">
+		Lichaam vet
+	</string>
+	<string name="Body Freckles">
+		Lichaam Sproeten
+	</string>
+	<string name="Body Thick">
+		Lichaam Dik
+	</string>
+	<string name="Body Thickness">
+		Lichaam Dikte
+	</string>
+	<string name="Body Thin">
+		Lichaam Dun
+	</string>
+	<string name="Bow Legged">
+		Boog Benen
+	</string>
+	<string name="Breast Buoyancy">
+		Borst Drijfvermogen
+	</string>
+	<string name="Breast Cleavage">
+		Borst Splijting
+	</string>
+	<string name="Breast Size">
+		Borst Grootte
+	</string>
+	<string name="Bridge Width">
+		Brug Breedte
+	</string>
+	<string name="Broad">
+		Breed
+	</string>
+	<string name="Brow Size">
+		Wenkbrauw Grootte
+	</string>
+	<string name="Bug Eyes">
+		Insect Ogen
+	</string>
+	<string name="Bugged Eyes">
+		Insect Ogen
+	</string>
+	<string name="Bulbous">
+		Bolle
+	</string>
+	<string name="Bulbous Nose">
+		Bolle Neus
+	</string>
+	<string name="Bushy Eyebrows">
+		Borstelige Wenkbrauwen
+	</string>
+	<string name="Bushy Hair">
+		Borstelig Haar
+	</string>
+	<string name="Butt Size">
+		Kont Grootte
+	</string>
+	<string name="bustle skirt">
+		Bustle Skirt
+	</string>
+	<string name="no bustle">
+		No Bustle
+	</string>
+	<string name="more bustle">
+		More Bustle
+	</string>
+	<string name="Chaplin">
+		Smalle Snor
+	</string>
+	<string name="Cheek Bones">
+		Jukbeenderen
+	</string>
+	<string name="Chest Size">
+		Borst Grootte
+	</string>
+	<string name="Chin Angle">
+		Kin Hoek
+	</string>
+	<string name="Chin Cleft">
+		Gespleten Kin
+	</string>
+	<string name="Chin Curtains">
+		Kin Gordijnen
+	</string>
+	<string name="Chin Depth">
+		Kin Diepte
+	</string>
+	<string name="Chin Heavy">
+		Kin Zware
+	</string>
+	<string name="Chin In">
+		Kin In
+	</string>
+	<string name="Chin Out">
+		Kin uit
+	</string>
+	<string name="Chin-Neck">
+		Kin-Nek
+	</string>
+	<string name="Clear">
+		Opschonen
+	</string>
+	<string name="Cleft">
+		Gespleten
+	</string>
+	<string name="Close Set Eyes">
+		Close Set Eyes
+	</string>
+	<string name="Closed">
+		Gesloten
+	</string>
+	<string name="Closed Back">
+		Gesloten Achterkant
+	</string>
+	<string name="Closed Front">
+		Gesloten Voorkant
+	</string>
+	<string name="Closed Left">
+		Gesloten Links
+	</string>
+	<string name="Closed Right">
+		Gesloten Rechts
+	</string>
+	<string name="Coin Purse">
+		Verminder Grootte
+	</string>
+	<string name="Collar Back">
+		Kraag Achterkant
+	</string>
+	<string name="Collar Front">
+		Kraag Voorkant
+	</string>
+	<string name="Corner Down">
+		Hoek Omlaag
+	</string>
+	<string name="Corner Normal">
+		Hoek Normaal
+	</string>
+	<string name="Corner Up">
+		Hoek Omhoog
+	</string>
+	<string name="Creased">
+		Gevouwen
+	</string>
+	<string name="Crooked Nose">
+		Kromte Neus
+	</string>
+	<string name="Cropped Hair">
+		Bijgesneden Haar
+	</string>
+	<string name="Cuff Flare">
+		Cuff Flare
+	</string>
+	<string name="Dark">
+		Donker
+	</string>
+	<string name="Dark Green">
+		Donker Groen
+	</string>
+	<string name="Darker">
+		Donkerder
+	</string>
+	<string name="Deep">
+		Diep
+	</string>
+	<string name="Default Heels">
+		Standaard Hielen
+	</string>
+	<string name="Default Toe">
+		Standaard Teen
+	</string>
+	<string name="Dense">
+		Dicht
+	</string>
+	<string name="Dense hair">
+		Dicht haar
+	</string>
+	<string name="Double Chin">
+		Dubbele Kin
+	</string>
+	<string name="Downturned">
+		Downturned
+	</string>
+	<string name="Duffle Bag">
+		Vergroot Grootte
+	</string>
+	<string name="Ear Angle">
+		Oor Hoek
+	</string>
+	<string name="Ear Size">
+		Oor Grootte
+	</string>
+	<string name="Ear Tips">
+		Oor Punten
+	</string>
+	<string name="Egg Head">
+		Ei Hoofd
+	</string>
+	<string name="Eye Bags">
+		Oog Zakken
+	</string>
+	<string name="Eye Color">
+		Oog Kleur
+	</string>
+	<string name="Eye Depth">
+		Oog Diepte
+	</string>
+	<string name="Eye Lightness">
+		Oog Lichtheid
+	</string>
+	<string name="Eye Opening">
+		Oog Opening
+	</string>
+	<string name="Eye Pop">
+		Asymmetrisch
+	</string>
+	<string name="Eye Size">
+		Oog Grootte
+	</string>
+	<string name="Eye Spacing">
+		Oog Afstand
+	</string>
+	<string name="Eyeball Size">
+		Oogbal Grootte
+	</string>
+	<string name="Eyebrow Arc">
+		Wenkbrauw Boog
+	</string>
+	<string name="Eyebrow Density">
+		Wenkbrauw Dichtheid
+	</string>
+	<string name="Eyebrow Height">
+		Wenkbrauw Hoogte
+	</string>
+	<string name="Eyebrow Points">
+		Wenkbrauw Punten
+	</string>
+	<string name="Eyebrow Size">
+		Eyebrow Grootte
+	</string>
+	<string name="Eyelash Length">
+		Eyelash Lengte
+	</string>
+	<string name="Eyeliner">
+		Eyeliner
+	</string>
+	<string name="Eyeliner Color">
+		Eyeliner Kleur
+	</string>
+	<string name="Eyes Back">
+		Ogen Achteruit
+	</string>
+	<string name="Eyes Bugged">
+		Insect Ogen
+	</string>
+	<string name="Eyes Forward">
+		Ogen Vooruit
+	</string>
+	<string name="Eyes Long Head">
+		Eyes Long Head
+	</string>
+	<string name="Eyes Shear Left Up">
+		Eyes Shear Left Up
+	</string>
+	<string name="Eyes Shear Right Up">
+		Eyes Shear Right Up
+	</string>
+	<string name="Eyes Short Head">
+		Eyes Short Head
+	</string>
+	<string name="Eyes Spread">
+		Eyes Spread
+	</string>
+	<string name="Eyes Sunken">
+		Ingevallen Ogen
+	</string>
+	<string name="Eyes Together">
+		Ogen Bij Elkaar
+	</string>
+	<string name="Face Shear">
+		Gezicht Gelijkheid
+	</string>
+	<string name="Facial Definition">
+		Gezichts Definitie
+	</string>
+	<string name="Far Set Eyes">
+		Ogen Uit Elkaar
+	</string>
+	<string name="Fat">
+		Dik
+	</string>
+	<string name="Fat Head">
+		Dik Hoofd
+	</string>
+	<string name="Fat Lips">
+		Dikke Lippen
+	</string>
+	<string name="Fat Lower">
+		Fat Lower
+	</string>
+	<string name="Fat Lower Lip">
+		Fat Lower Lip
+	</string>
+	<string name="Fat Torso">
+		Fat Torso
+	</string>
+	<string name="Fat Upper">
+		Fat Upper
+	</string>
+	<string name="Fat Upper Lip">
+		Dikke Boven Lip
+	</string>
+	<string name="Female">
+		Vrouw
+	</string>
+	<string name="Fingerless">
+		Vingerloos
+	</string>
+	<string name="Fingers">
+		Vingers
+	</string>
+	<string name="Flared Cuffs">
+		Verbrede Vorm
+	</string>
+	<string name="Flat">
+		Plat
+	</string>
+	<string name="Flat Butt">
+		Platte Kont
+	</string>
+	<string name="Flat Head">
+		Plat Hoofd
+	</string>
+	<string name="Flat Toe">
+		Platte Teen
+	</string>
+	<string name="Foot Size">
+		Voet Grootte
+	</string>
+	<string name="Forehead Angle">
+		Voorhoofd Hoek
+	</string>
+	<string name="Forehead Heavy">
+		Zwaar Voorhoofd
+	</string>
+	<string name="Freckles">
+		Sproeten
+	</string>
+	<string name="Front Bangs Down">
+		Voorkant Pony Omlaag
+	</string>
+	<string name="Front Bangs Up">
+		Voorkant Pony Omhoog
+	</string>
+	<string name="Front Fringe">
+		Voorste Rand
+	</string>
+	<string name="Front Hair">
+		Gezichtshaar
+	</string>
+	<string name="Front Hair Down">
+		Gezichtshaar Omlaag
+	</string>
+	<string name="Front Hair Up">
+		Gezichtshaar Omhoog
+	</string>
+	<string name="Full Back">
+		Volle Achterkant
+	</string>
+	<string name="Full Eyeliner">
+		Volle Eyeliner
+	</string>
+	<string name="Full Front">
+		Volle Voorkant
+	</string>
+	<string name="Full Hair Sides">
+		Full Hair Sides
+	</string>
+	<string name="Full Sides">
+		Volle Zijkanten
+	</string>
+	<string name="Glossy">
+		Glanzend
+	</string>
+	<string name="Glove Fingers">
+		Vinger Handschoenen
+	</string>
+	<string name="Glove Length">
+		Handschoen Lengte
+	</string>
+	<string name="Hair">
+		Haar
+	</string>
+	<string name="Hair Back">
+		Haar: Zwart
+	</string>
+	<string name="Hair Front">
+		Haar: Voorkant
+	</string>
+	<string name="Hair Sides">
+		Haar: Zijkant
+	</string>
+	<string name="Hair Sweep">
+		Hair Sweep
+	</string>
+	<string name="Hair Thickess">
+		Haar Dikheid
+	</string>
+	<string name="Hair Thickness">
+		Hair Dikheid
+	</string>
+	<string name="Hair Tilt">
+		Hair Tilt
+	</string>
+	<string name="Hair Tilted Left">
+		Hair Tilted Left
+	</string>
+	<string name="Hair Tilted Right">
+		Hair Tilted Right
+	</string>
+	<string name="Hair Volume">
+		Haar: Volume
+	</string>
+	<string name="Hand Size">
+		Hand Grootte
+	</string>
+	<string name="Handlebars">
+		Handlebars
+	</string>
+	<string name="Head Length">
+		Hoofd Lengte
+	</string>
+	<string name="Head Shape">
+		Hoofd Vorm
+	</string>
+	<string name="Head Size">
+		Hooft Grootte
+	</string>
+	<string name="Head Stretch">
+		Hoofd Uitrekken
+	</string>
+	<string name="Heel Height">
+		Hiel Hoogte
+	</string>
+	<string name="Heel Shape">
+		Hiel Vorm
+	</string>
+	<string name="Height">
+		Hoogte
+	</string>
+	<string name="High">
+		Hoog
+	</string>
+	<string name="High Heels">
+		Hoge Hielen
+	</string>
+	<string name="High Jaw">
+		Hoge Kaak
+	</string>
+	<string name="High Platforms">
+		High Platforms
+	</string>
+	<string name="High and Tight">
+		Hoog en Strak
+	</string>
+	<string name="Higher">
+		Hoger
+	</string>
+	<string name="Hip Length">
+		Heup Lengte
+	</string>
+	<string name="Hip Width">
+		Heup Breedte
+	</string>
+	<string name="In">
+		Naar Binnen
+	</string>
+	<string name="In Shdw Color">
+		Binnenste Schaduw Kleur
+	</string>
+	<string name="In Shdw Opacity">
+		Binnenste Schaduw Opaciteit
+	</string>
+	<string name="Inner Eye Corner">
+		Binnenste Oog Hoek
+	</string>
+	<string name="Inner Eye Shadow">
+		Binnenste Oog Schaduw
+	</string>
+	<string name="Inner Shadow">
+		Binnenste Schaduw
+	</string>
+	<string name="Jacket Length">
+		Jas Lengte
+	</string>
+	<string name="Jacket Wrinkles">
+		Jas Rimpels
+	</string>
+	<string name="Jaw Angle">
+		Kaak Hoek
+	</string>
+	<string name="Jaw Jut">
+		Jaw Jut
+	</string>
+	<string name="Jaw Shape">
+		Kaak Vorm
+	</string>
+	<string name="Join">
+		Samenvoegen
+	</string>
+	<string name="Jowls">
+		Kaken
+	</string>
+	<string name="Knee Angle">
+		Knie Hoek
+	</string>
+	<string name="Knock Kneed">
+		Knieën Naar binnen
+	</string>
+	<string name="Large">
+		Fors
+	</string>
+	<string name="Large Hands">
+		Grote Handen
+	</string>
+	<string name="Left Part">
+		Linker Deel
+	</string>
+	<string name="Leg Length">
+		Been Lengte
+	</string>
+	<string name="Leg Muscles">
+		Been Spieren
+	</string>
+	<string name="Less">
+		Minder
+	</string>
+	<string name="Less Body Fat">
+		Minder Lichaams Vet
+	</string>
+	<string name="Less Curtains">
+		Less Curtains
+	</string>
+	<string name="Less Freckles">
+		Minder Sproeten
+	</string>
+	<string name="Less Full">
+		Minder Vol
+	</string>
+	<string name="Less Gravity">
+		Minder Zwaartekracht
+	</string>
+	<string name="Less Love">
+		Less Love
+	</string>
+	<string name="Less Muscles">
+		Minder Spieren
+	</string>
+	<string name="Less Muscular">
+		Minder Spieren
+	</string>
+	<string name="Less Rosy">
+		Minder Rooskleurig
+	</string>
+	<string name="Less Round">
+		Minder Rond
+	</string>
+	<string name="Less Saddle">
+		Minder Heupen
+	</string>
+	<string name="Less Square">
+		Minder Vierkant
+	</string>
+	<string name="Less Volume">
+		Minder Volume
+	</string>
+	<string name="Less soul">
+		Minder Ziel
+	</string>
+	<string name="Lighter">
+		Lichter
+	</string>
+	<string name="Lip Cleft">
+		Gespleten Lip
+	</string>
+	<string name="Lip Cleft Depth">
+		Gespleten Lip Diepte
+	</string>
+	<string name="Lip Fullness">
+		Lip Volheid
+	</string>
+	<string name="Lip Pinkness">
+		Rozeheid Lippen
+	</string>
+	<string name="Lip Ratio">
+		Lip Ratio
+	</string>
+	<string name="Lip Thickness">
+		Lip Dikheid
+	</string>
+	<string name="Lip Width">
+		Lip Breedte
+	</string>
+	<string name="Lipgloss">
+		Lipgloss
+	</string>
+	<string name="Lipstick">
+		Lipstick
+	</string>
+	<string name="Lipstick Color">
+		Lipstick Kleur
+	</string>
+	<string name="Long">
+		Lang
+	</string>
+	<string name="Long Head">
+		Lang Hoofd
+	</string>
+	<string name="Long Hips">
+		Lange Heupen
+	</string>
+	<string name="Long Legs">
+		Lange Benen
+	</string>
+	<string name="Long Neck">
+		Lange Nek
+	</string>
+	<string name="Long Pigtails">
+		Long Pigtails
+	</string>
+	<string name="Long Ponytail">
+		Lange Paardenstaart
+	</string>
+	<string name="Long Torso">
+		Lang Torso
+	</string>
+	<string name="Long arms">
+		Lange Armen
+	</string>
+	<string name="Longcuffs">
+		Longcuffs
+	</string>
+	<string name="Loose Pants">
+		Losse Broek
+	</string>
+	<string name="Loose Shirt">
+		Los Shirt
+	</string>
+	<string name="Loose Sleeves">
+		Losse Mouwen
+	</string>
+	<string name="Love Handles">
+		Love Handles
+	</string>
+	<string name="Low">
+		Laag
+	</string>
+	<string name="Low Heels">
+		Lage Hielen
+	</string>
+	<string name="Low Jaw">
+		Lage Kaak
+	</string>
+	<string name="Low Platforms">
+		Lage Platforms
+	</string>
+	<string name="Low and Loose">
+		Laag en Los
+	</string>
+	<string name="Lower">
+		Lager
+	</string>
+	<string name="Lower Bridge">
+		Lagere Brug
+	</string>
+	<string name="Lower Cheeks">
+		Lagere Wangen
+	</string>
+	<string name="Male">
+		Man
+	</string>
+	<string name="Middle Part">
+		Middelste Deel
+	</string>
+	<string name="More">
+		Meer
+	</string>
+	<string name="More Blush">
+		Meer Blozen
+	</string>
+	<string name="More Body Fat">
+		Meer Lichaams Vet
+	</string>
+	<string name="More Curtains">
+		More Curtains
+	</string>
+	<string name="More Eyeshadow">
+		Meer Oogshadow
+	</string>
+	<string name="More Freckles">
+		Meer Sproeten
+	</string>
+	<string name="More Full">
+		Meer Vol
+	</string>
+	<string name="More Gravity">
+		Meer Zwaartekracht
+	</string>
+	<string name="More Lipstick">
+		Meer Lippenstift
+	</string>
+	<string name="More Love">
+		Meer Lovehandels
+	</string>
+	<string name="More Lower Lip">
+		Meer Onder Lip
+	</string>
+	<string name="More Muscles">
+		Meer Spieren
+	</string>
+	<string name="More Muscular">
+		Meer Spieren
+	</string>
+	<string name="More Rosy">
+		More Rosy
+	</string>
+	<string name="More Round">
+		Meer Rond
+	</string>
+	<string name="More Saddle">
+		Meer Heupen
+	</string>
+	<string name="More Sloped">
+		Meer Hellend
+	</string>
+	<string name="More Square">
+		Meer Vierkant
+	</string>
+	<string name="More Upper Lip">
+		Meer Boven Lip
+	</string>
+	<string name="More Vertical">
+		Meer Verticaal
+	</string>
+	<string name="More Volume">
+		Meer Volume
+	</string>
+	<string name="More soul">
+		Meer ziel
+	</string>
+	<string name="Moustache">
+		Snor
+	</string>
+	<string name="Mouth Corner">
+		Mond Hoek
+	</string>
+	<string name="Mouth Position">
+		Mond Positie
+	</string>
+	<string name="Mowhawk">
+		Hanekam
+	</string>
+	<string name="Muscular">
+		Gespiert
+	</string>
+	<string name="Mutton Chops">
+		Mutton Chops
+	</string>
+	<string name="Nail Polish">
+		Nagel Lak
+	</string>
+	<string name="Nail Polish Color">
+		Nagel Lak Kleur
+	</string>
+	<string name="Narrow">
+		Smal
+	</string>
+	<string name="Narrow Back">
+		Smalle Achterkant
+	</string>
+	<string name="Narrow Front">
+		Smalle Voorkant
+	</string>
+	<string name="Narrow Lips">
+		Smalle Lippen
+	</string>
+	<string name="Natural">
+		Natural
+	</string>
+	<string name="Neck Length">
+		Nek Lengte
+	</string>
+	<string name="Neck Thickness">
+		Nek Dikheid
+	</string>
+	<string name="No Blush">
+		Geen Bloos
+	</string>
+	<string name="No Eyeliner">
+		Geen Eyeliner
+	</string>
+	<string name="No Eyeshadow">
+		Geen Oogschaduw
+	</string>
+	<string name="No Heels">
+		Geen Hakken
+	</string>
+	<string name="No Lipgloss">
+		Geen Lipgloss
+	</string>
+	<string name="No Lipstick">
+		Geen Lippenstift
+	</string>
+	<string name="No Part">
+		Geen Deel
+	</string>
+	<string name="No Polish">
+		Geen Glans
+	</string>
+	<string name="No Red">
+		Geen Rood
+	</string>
+	<string name="No Spikes">
+		Geen Stekels
+	</string>
+	<string name="No White">
+		Geen Wit
+	</string>
+	<string name="No Wrinkles">
+		Geen Rimpels
+	</string>
+	<string name="Normal Lower">
+		Normaal Onder
+	</string>
+	<string name="Normal Upper">
+		Normaal Boven
+	</string>
+	<string name="Nose Left">
+		Neus Links
+	</string>
+	<string name="Nose Right">
+		Neus Rechts
+	</string>
+	<string name="Nose Size">
+		Neus Grootte
+	</string>
+	<string name="Nose Thickness">
+		Neus Dickheid
+	</string>
+	<string name="Nose Tip Angle">
+		Neus Top Hoek
+	</string>
+	<string name="Nose Tip Shape">
+		Neus Top Vorm
+	</string>
+	<string name="Nose Width">
+		Neus Breedte
+	</string>
+	<string name="Nostril Division">
+		Nostril Division
+	</string>
+	<string name="Nostril Width">
+		Neusgat Breedte
+	</string>
+	<string name="Old">
+		Oud
+	</string>
+	<string name="Opaque">
+		Ondoorzichtig
+	</string>
+	<string name="Open">
+		Open
+	</string>
+	<string name="Open Back">
+		Open Achterkant
+	</string>
+	<string name="Open Front">
+		Open Voorkant
+	</string>
+	<string name="Open Left">
+		Open Links
+	</string>
+	<string name="Open Right">
+		Open Rechts
+	</string>
+	<string name="Orange">
+		Oranje
+	</string>
+	<string name="Out">
+		Uit
+	</string>
+	<string name="Out Shdw Color">
+		Buitenste Schaduw Kleur
+	</string>
+	<string name="Out Shdw Opacity">
+		Buitenste Schaduw Opaciteit
+	</string>
+	<string name="Outer Eye Corner">
+		Buitenste Oog Hoek
+	</string>
+	<string name="Outer Eye Shadow">
+		Buitenste Oog Schaduw
+	</string>
+	<string name="Outer Shadow">
+		Buitenste Schaduw
+	</string>
+	<string name="Overbite">
+		Overbeet
+	</string>
+	<string name="Package">
+		Genitaliën
+	</string>
+	<string name="Painted Nails">
+		Gelakte Nagels
+	</string>
+	<string name="Pale">
+		Dof
+	</string>
+	<string name="Pants Crotch">
+		Broek Kruis
+	</string>
+	<string name="Pants Fit">
+		Broek Passend
+	</string>
+	<string name="Pants Length">
+		Broek Lengte
+	</string>
+	<string name="Pants Waist">
+		Broek Teille
+	</string>
+	<string name="Pants Wrinkles">
+		Broek Rimpels
+	</string>
+	<string name="Part">
+		Deel
+	</string>
+	<string name="Part Bangs">
+		Part Bangs
+	</string>
+	<string name="Pectorals">
+		Borstspieren
+	</string>
+	<string name="Pigment">
+		Pigment
+	</string>
+	<string name="Pigtails">
+		Pigtails
+	</string>
+	<string name="Pink">
+		Roze
+	</string>
+	<string name="Pinker">
+		Rozer
+	</string>
+	<string name="Platform Height">
+		Platform Hoogte
+	</string>
+	<string name="Platform Width">
+		Platform Breedte
+	</string>
+	<string name="Pointy">
+		Puntig
+	</string>
+	<string name="Pointy Heels">
+		Puntige Hielen
+	</string>
+	<string name="Pointy Toe">
+		Puntige Tenen
+	</string>
+	<string name="Ponytail">
+		Paardenstaard
+	</string>
+	<string name="Poofy Skirt">
+		Poofy Skirt
+	</string>
+	<string name="Pop Left Eye">
+		Asymmetrisch Links
+	</string>
+	<string name="Pop Right Eye">
+		Asymmetrisch Rechts
+	</string>
+	<string name="Puffy">
+		Opgezwollen
+	</string>
+	<string name="Puffy Eyelids">
+		Opgezwollen Oogleden
+	</string>
+	<string name="Rainbow Color">
+		Regenboog Kleur
+	</string>
+	<string name="Red Hair">
+		Rood Haar
+	</string>
+	<string name="Red Skin">
+		Rode Huid
+	</string>
+	<string name="Regular">
+		Normaal
+	</string>
+	<string name="Regular Muscles">
+		Normale Spieren
+	</string>
+	<string name="Right Part">
+		Rechter Deel
+	</string>
+	<string name="Rosy Complexion">
+		Rosy Complexion
+	</string>
+	<string name="Round">
+		Rond
+	</string>
+	<string name="Round Forehead">
+		Rond Voorhoofd
+	</string>
+	<string name="Ruddiness">
+		Rossige kleur
+	</string>
+	<string name="Ruddy">
+		Rossig
+	</string>
+	<string name="Rumpled Hair">
+		Rumpled Hair
+	</string>
+	<string name="Saddle Bags">
+		Saddle Bags
+	</string>
+	<string name="Saddlebags">
+		Saddlebags
+	</string>
+	<string name="Scrawny">
+		Magere
+	</string>
+	<string name="Scrawny Leg">
+		Mager Been
+	</string>
+	<string name="Separate">
+		Scheiden
+	</string>
+	<string name="Shading">
+		Shading
+	</string>
+	<string name="Shadow hair">
+		Schaduw Haar
+	</string>
+	<string name="Shallow">
+		Ondiep
+	</string>
+	<string name="Shear Back">
+		Shear Back
+	</string>
+	<string name="Shear Face">
+		Shear Face
+	</string>
+	<string name="Shear Front">
+		Shear Front
+	</string>
+	<string name="Shear Left">
+		Shear Left
+	</string>
+	<string name="Shear Left Up">
+		Shear Left Up
+	</string>
+	<string name="Shear Right">
+		Shear Right
+	</string>
+	<string name="Shear Right Up">
+		Shear Right Up
+	</string>
+	<string name="Sheared Back">
+		Sheared Back
+	</string>
+	<string name="Sheared Front">
+		Sheared Front
+	</string>
+	<string name="Shift Left">
+		Verplaats Links
+	</string>
+	<string name="Shift Mouth">
+		Verplaats Mond
+	</string>
+	<string name="Shift Right">
+		Verplaats Rechts
+	</string>
+	<string name="Shirt Bottom">
+		Hemd Onderkant
+	</string>
+	<string name="Shirt Fit">
+		Hemd Passend
+	</string>
+	<string name="Shirt Wrinkles">
+		Hemd Rimpels
+	</string>
+	<string name="Shoe Height">
+		Schoen Hoogte
+	</string>
+	<string name="Short">
+		Kort
+	</string>
+	<string name="Short Arms">
+		Korte Armen
+	</string>
+	<string name="Short Legs">
+		Korte Benen
+	</string>
+	<string name="Short Neck">
+		Korte Nek
+	</string>
+	<string name="Short Pigtails">
+		Short Pigtails
+	</string>
+	<string name="Short Ponytail">
+		Korte Paardenstaart
+	</string>
+	<string name="Short Sideburns">
+		Korte Bakkebaarden
+	</string>
+	<string name="Short Torso">
+		Korte Torso
+	</string>
+	<string name="Short hips">
+		Korte Heupen
+	</string>
+	<string name="Shoulders">
+		Shouders
+	</string>
+	<string name="Side Bangs">
+		Side Bangs
+	</string>
+	<string name="Side Bangs Down">
+		Side Bangs Down
+	</string>
+	<string name="Side Bangs Up">
+		Side Bangs Up
+	</string>
+	<string name="Side Fringe">
+		Side Fringe
+	</string>
+	<string name="Sideburns">
+		Bakkebaarden
+	</string>
+	<string name="Sides Hair">
+		Sides Hair
+	</string>
+	<string name="Sides Hair Down">
+		Sides Hair Down
+	</string>
+	<string name="Sides Hair Up">
+		Sides Hair Up
+	</string>
+	<string name="Skinny">
+		Broodmager
+	</string>
+	<string name="Skinny Neck">
+		Smalle Nek
+	</string>
+	<string name="Skirt Fit">
+		Skirt Fit
+	</string>
+	<string name="Skirt Length">
+		Rok Lengte
+	</string>
+	<string name="Slanted Forehead">
+		Schuin voorhoofd
+	</string>
+	<string name="Sleeve Length">
+		Mouw Lengte
+	</string>
+	<string name="Sleeve Looseness">
+		Mouw Losheid
+	</string>
+	<string name="Slit Back">
+		Spleet: Achter
+	</string>
+	<string name="Slit Front">
+		Spleet: Voor
+	</string>
+	<string name="Slit Left">
+		Spleet: Links
+	</string>
+	<string name="Slit Right">
+		Spleet: Rechts
+	</string>
+	<string name="Small">
+		Klein
+	</string>
+	<string name="Small Hands">
+		Kleine Handen
+	</string>
+	<string name="Small Head">
+		Klein Hoofd
+	</string>
+	<string name="Smooth">
+		Glad
+	</string>
+	<string name="Smooth Hair">
+		Glad Haar
+	</string>
+	<string name="Socks Length">
+		Sok Lengte
+	</string>
+	<string name="Some">
+		enkele
+	</string>
+	<string name="Soulpatch">
+		Soulpatch
+	</string>
+	<string name="Sparse">
+		Schaars
+	</string>
+	<string name="Spiked Hair">
+		Puntig Haar
+	</string>
+	<string name="Square">
+		Vierkant
+	</string>
+	<string name="Square Toe">
+		Vierkante Teen
+	</string>
+	<string name="Squash Head">
+		Squash Head
+	</string>
+	<string name="Squash/Stretch Head">
+		Squash/Stretch Head
+	</string>
+	<string name="Stretch Head">
+		Uitgerekt Hoofd
+	</string>
+	<string name="Sunken">
+		Verzonken
+	</string>
+	<string name="Sunken Chest">
+		Verzonken Borstkas
+	</string>
+	<string name="Sunken Eyes">
+		Verzonken Ogen
+	</string>
+	<string name="Sweep Back">
+		Sweep Back
+	</string>
+	<string name="Sweep Forward">
+		Sweep Forward
+	</string>
+	<string name="Swept Back">
+		Swept Back
+	</string>
+	<string name="Swept Back Hair">
+		Swept Back Hair
+	</string>
+	<string name="Swept Forward">
+		Swept Forward
+	</string>
+	<string name="Swept Forward Hair">
+		Swept Forward Hair
+	</string>
+	<string name="Tall">
+		Lang
+	</string>
+	<string name="Taper Back">
+		Spits Achter
+	</string>
+	<string name="Taper Front">
+		Spits Voor
+	</string>
+	<string name="Thick Heels">
+		Dikke Hielen
+	</string>
+	<string name="Thick Neck">
+		Dikke Nek
+	</string>
+	<string name="Thick Toe">
+		Dikke Teen
+	</string>
+	<string name="Thickness">
+		Dikheid
+	</string>
+	<string name="Thin">
+		Dun
+	</string>
+	<string name="Thin Eyebrows">
+		Dunne Wenkbrouwen
+	</string>
+	<string name="Thin Lips">
+		Dunne Lippen
+	</string>
+	<string name="Thin Nose">
+		Dunne Neus
+	</string>
+	<string name="Tight Chin">
+		Strakke Kin
+	</string>
+	<string name="Tight Cuffs">
+		Strakke Manchetten
+	</string>
+	<string name="Tight Pants">
+		Strakke Broek
+	</string>
+	<string name="Tight Shirt">
+		Strak Hemd
+	</string>
+	<string name="Tight Skirt">
+		Strakke Rok
+	</string>
+	<string name="Tight Sleeves">
+		Strakke Mouwen
+	</string>
+	<string name="Tilt Left">
+		Tilt Left
+	</string>
+	<string name="Tilt Right">
+		Tilt Right
+	</string>
+	<string name="Toe Shape">
+		Teen Vorm
+	</string>
+	<string name="Toe Thickness">
+		Teen Dikheid
+	</string>
+	<string name="Torso Length">
+		Borstkas Lengte
+	</string>
+	<string name="Torso Muscles">
+		Borstkas Spieren
+	</string>
+	<string name="Torso Scrawny">
+		Magere Borstkas
+	</string>
+	<string name="Unattached">
+		Niet Verbonden
+	</string>
+	<string name="Uncreased">
+		Uncreased
+	</string>
+	<string name="Underbite">
+		onderbeet
+	</string>
+	<string name="Unnatural">
+		Onnatuurlijk
+	</string>
+	<string name="Upper Bridge">
+		Boven Brug
+	</string>
+	<string name="Upper Cheeks">
+		Bovenste Wangen
+	</string>
+	<string name="Upper Chin Cleft">
+		Bovenste Kin Gespleten
+	</string>
+	<string name="Upper Eyelid Fold">
+		Bovenste Ooglid Gevouwen
+	</string>
+	<string name="Upturned">
+		Omgekeerde
+	</string>
+	<string name="Very Red">
+		Erg Rood
+	</string>
+	<string name="Waist Height">
+		Taille Hoogte
+	</string>
+	<string name="Well-Fed">
+		Goed Gevoed
+	</string>
+	<string name="White Hair">
+		Wit Haar
+	</string>
+	<string name="Wide">
+		Breed
+	</string>
+	<string name="Wide Back">
+		Breede Achterkant
+	</string>
+	<string name="Wide Front">
+		Breed Voorkant
+	</string>
+	<string name="Wide Lips">
+		Breed Lippen
+	</string>
+	<string name="Wild">
+		Wild
+	</string>
+	<string name="Wrinkles">
+		Rimpels
+	</string>
+	<string name="LocationCtrlAddLandmarkTooltip">
+		Add to My Landmarks
+	</string>
+	<string name="LocationCtrlEditLandmarkTooltip">
+		Edit My Landmark
+	</string>
+	<string name="LocationCtrlInfoBtnTooltip">
+		See more info about the current location
+	</string>
+	<string name="LocationCtrlComboBtnTooltip">
+		My location history
+	</string>
+	<string name="UpdaterWindowTitle">
+		[APP_NAME] Update
+	</string>
+	<string name="UpdaterNowUpdating">
+		Now updating [APP_NAME]...
+	</string>
+	<string name="UpdaterNowInstalling">
+		Installing [APP_NAME]...
+	</string>
+	<string name="UpdaterUpdatingDescriptive">
+		Your [APP_NAME] Viewer is being updated to the latest release.  This may take some time, so please be patient.
+	</string>
+	<string name="UpdaterProgressBarTextWithEllipses">
+		Downloading update...
+	</string>
+	<string name="UpdaterProgressBarText">
+		Downloading update
+	</string>
+	<string name="UpdaterFailDownloadTitle">
+		Failed to download update
+	</string>
+	<string name="UpdaterFailUpdateDescriptive">
+		An error occurred while updating [APP_NAME]. Please download the latest version from www.secondlife.com.
+	</string>
+	<string name="UpdaterFailInstallTitle">
+		Failed to install update
+	</string>
+	<string name="UpdaterFailStartTitle">
+		Failed to start viewer
+	</string>
+	<string name="IM_logging_string">
+		-- Instant message logging enabled --
+	</string>
+	<string name="IM_typing_start_string">
+		[NAME] is typing...
+	</string>
+	<string name="Unnamed">
+		(Unnamed)
+	</string>
+	<string name="IM_moderated_chat_label">
+		(Moderated: Voices off by default)
+	</string>
+	<string name="IM_unavailable_text_label">
+		Text chat is not available for this call.
+	</string>
+	<string name="IM_muted_text_label">
+		Your text chat has been disabled by a Group Moderator.
+	</string>
+	<string name="IM_default_text_label">
+		Click here to instant message.
+	</string>
+	<string name="IM_to_label">
+		To
+	</string>
+	<string name="IM_moderator_label">
+		(Moderator)
+	</string>
 	<string name="only_user_message">
 		U bent de enige gebruiker in deze sessie.
 	</string>
@@ -626,31 +3246,4 @@
 	<string name="close_on_no_ability">
 		U heeft niet langer de mogelijkheid om in deze chatsessie te zijn.
 	</string>
-			<string name="AcctTypeResident">
-				Inwoner
-			</string>
-			<string name="AcctTypeTrial">
-				Proef
-			</string>
-			<string name="AcctTypeCharterMember">
-				Charter lid
-			</string>
-			<string name="AcctTypeEmployee">
-				Linden Lab werknemer
-			</string>
-			<string name="PaymentInfoUsed">
-				Betalingsinformatie gebruikt
-			</string>
-			<string name="PaymentInfoOnFile">
-				Betalingsinformatie aanwezig
-			</string>
-			<string name="NoPaymentInfoOnFile">
-				Geen betalingsinfo aanwezig
-			</string>
-			<string name="AgeVerified">
-				Leeftijd geverifieerd
-			</string>
-			<string name="NotAgeVerified">
-				Leeftijd niet geverifieerd
-			</string>
 </strings>

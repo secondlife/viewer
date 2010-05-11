@@ -95,7 +95,7 @@ public:
 		payload["object_id"] = object_id;
 		payload["owner_id"] = query_map["owner"];
 		payload["name"] = query_map["name"];
-		payload["slurl"] = query_map["slurl"];
+		payload["slurl"] = LLWeb::escapeURL(query_map["slurl"]);
 		payload["group_owned"] = query_map["groupowned"];
 		LLFloaterReg::showInstance("inspect_remote_object", payload);
 		return true;
@@ -465,7 +465,6 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 :	LLUICtrl(p),
 	mMessageHeaderFilename(p.message_header),
 	mMessageSeparatorFilename(p.message_separator),
-	mMessagePlaintextSeparatorFilename(p.message_plaintext_separator),
 	mLeftTextPad(p.left_text_pad),
 	mRightTextPad(p.right_text_pad),
 	mLeftWidgetPad(p.left_widget_pad),
@@ -550,12 +549,6 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 LLView* LLChatHistory::getSeparator()
 {
 	LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, NULL, LLPanel::child_registry_t::instance());
-	return separator;
-}
-
-LLView* LLChatHistory::getPlaintextSeparator()
-{
-	LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessagePlaintextSeparatorFilename, NULL, LLPanel::child_registry_t::instance());
 	return separator;
 }
 
@@ -657,17 +650,14 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 	if (use_plain_text_chat_history)
 	{
-		// append plaintext separator
-		LLView* separator = getPlaintextSeparator();
-		LLInlineViewSegment::Params p;
-		p.force_newline = true;
-		p.left_pad = mLeftWidgetPad;
-		p.right_pad = mRightWidgetPad;
-		p.view = separator;
-		//mEditor->appendWidget(p, "\n", false);  // TODO: this is absolute minimal fix for EXT-3818 because it's late for 2.0
-		mEditor->appendWidget(p, "", false);      // This should be properly fixed in 2.1
-
-		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, style_params);
+		LLStyle::Params timestamp_style(style_params);
+		if (!message_from_log)
+		{
+			LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
+			timestamp_style.color(timestamp_color);
+			timestamp_style.readonly_color(timestamp_color);
+		}
+		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, timestamp_style);
 
 		if (utf8str_trim(chat.mFromName).size() != 0)
 		{
@@ -770,7 +760,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		if (notification != NULL)
 		{
 			LLIMToastNotifyPanel* notify_box = new LLIMToastNotifyPanel(
-					notification);
+					notification, chat.mSessionID);
 			//we can't set follows in xml since it broke toasts behavior
 			notify_box->setFollowsLeft();
 			notify_box->setFollowsRight();

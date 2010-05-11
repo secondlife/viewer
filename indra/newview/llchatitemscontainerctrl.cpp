@@ -44,6 +44,8 @@
 #include "llviewercontrol.h"
 #include "llagentdata.h"
 
+#include "llslurl.h"
+
 static const S32 msg_left_offset = 10;
 static const S32 msg_right_offset = 10;
 static const S32 msg_height_pad = 5;
@@ -190,6 +192,8 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 			style_params_name.font.name(font_name);
 			style_params_name.font.size(font_style_size);
 
+			style_params_name.link_href = LLSLURL::buildCommand("agent",mFromID,"about");
+
 			msg_text->appendText(str_sender, FALSE, style_params_name);
 
 		}
@@ -324,6 +328,8 @@ void LLNearbyChatToastPanel::draw()
 			icon->setDrawTooltip(mSourceType == CHAT_SOURCE_AGENT);
 			if(mSourceType == CHAT_SOURCE_AGENT)
 				icon->setValue(mFromID);
+			else if(mSourceType == CHAT_SOURCE_SYSTEM)
+				icon->setValue(LLSD("SL_Logo"));
 			else
 				icon->setValue(LLSD("OBJECT_Icon"));
 		}

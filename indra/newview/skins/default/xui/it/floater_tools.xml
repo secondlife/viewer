@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" short_title="STRUMENTI PER COSTRUZIONE" title="" width="288">
+<floater name="toolbox floater" short_title="STRUMENTI PER COSTRUZIONE">
 	<floater.string name="status_rotate">
 		Sposta le fasce colorate per ruotare l&apos;oggetto
 	</floater.string>
@@ -44,7 +44,7 @@
 	<button label="" label_selected="" name="button edit" tool_tip="Modifica"/>
 	<button label="" label_selected="" name="button create" tool_tip="Crea"/>
 	<button label="" label_selected="" name="button land" tool_tip="Terra"/>
-	<text name="text status" width="280">
+	<text name="text status">
 		Trascina per muovere, trascina+maiuscolo per copiare
 	</text>
 	<radio_group name="focus_radio_group">
@@ -70,7 +70,7 @@
 	<check_box label="Ridimens. simmetricamente" name="checkbox uniform"/>
 	<check_box initial_value="true" label="Ridimensiona le texture" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Posiziona nella griglia" name="checkbox snap to grid"/>
-	<combo_box left_delta="48" name="combobox grid mode" tool_tip="Scegli il tipo di righello per posizionare l&apos;oggetto">
+	<combo_box name="combobox grid mode" tool_tip="Scegli il tipo di righello per posizionare l&apos;oggetto">
 		<combo_box.item label="Rete del mondo" name="World"/>
 		<combo_box.item label="Rete locale" name="Local"/>
 		<combo_box.item label="Griglia di riferimento" name="Reference"/>
@@ -110,18 +110,18 @@
 	<text name="Dozer Size:">
 		Grandezza
 	</text>
-	<slider_bar initial_value="2.0" left="184" name="slider brush size" width="74"/>
+	<slider_bar initial_value="2.0" name="slider brush size"/>
 	<text name="Strength:">
 		Potenza
 	</text>
-	<button label="Applica" label_selected="Applica" left="146" name="button apply to selection" tool_tip="Modifica il terreno selezionato"/>
-	<text left="134" name="obj_count">
+	<button label="Applica" label_selected="Applica" name="button apply to selection" tool_tip="Modifica il terreno selezionato"/>
+	<text name="obj_count">
 		Oggetti: [COUNT]
 	</text>
-	<text left="134" name="prim_count">
+	<text name="prim_count">
 		Prim: [COUNT]
 	</text>
-	<tab_container name="Object Info Tabs" tab_max_width="150" tab_min_width="30" width="288">
+	<tab_container name="Object Info Tabs">
 		<panel label="Generale" name="General">
 			<panel.string name="text deed continued">
 				Cessione
@@ -182,12 +182,12 @@
 			</text>
 			<button label="Imposta..." label_selected="Imposta..." name="button set group" tool_tip="Scegli un gruppo con cui condividere i diritti relativi all&apos;oggetto"/>
 			<name_box initial_value="Caricamento in corso..." name="Group Name Proxy"/>
-			<button label="Cessione" label_selected="Cessione" left_delta="152" name="button deed" tool_tip="Con una cessione si trasferisce il bene con i diritti al proprietario successivo Gli oggetti in proprietà condivisa di gruppo possono essere ceduti soltanto da un funzionario del gruppo." width="98"/>
+			<button label="Cessione" label_selected="Cessione" name="button deed" tool_tip="Con una cessione si trasferisce il bene con i diritti al proprietario successivo Gli oggetti in proprietà condivisa di gruppo possono essere ceduti soltanto da un funzionario del gruppo."/>
 			<check_box label="Condividi" name="checkbox share with group" tool_tip="Consenti a tutti i membri del gruppo selezionato di condividere i tuoi diritti di modifica di questo oggetto. Per attivare le restrizioni per ruolo devi prima effettuare la cessione."/>
-			<text name="label click action" width="220">
+			<text name="label click action">
 				Fai clic per:
 			</text>
-			<combo_box name="clickaction" width="192">
+			<combo_box name="clickaction">
 				<combo_box.item label="Tocca (predefinito)" name="Touch/grab(default)"/>
 				<combo_box.item label="Siediti sull&apos;oggetto" name="Sitonobject"/>
 				<combo_box.item label="Compra l&apos;oggetto" name="Buyobject"/>
@@ -216,8 +216,8 @@
 					Proprietario successivo:
 				</text>
 				<check_box label="Modificare" name="checkbox next owner can modify"/>
-				<check_box label="Copiare" left_delta="80" name="checkbox next owner can copy"/>
-				<check_box label="Trasferisci" left_delta="67" name="checkbox next owner can transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
+				<check_box label="Copiare" name="checkbox next owner can copy"/>
+				<check_box label="Trasferisci" name="checkbox next owner can transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
 				<text name="B:">
 					B:
 				</text>
@@ -318,7 +318,7 @@
 			</text>
 			<spinner label="X" name="Shear X"/>
 			<spinner label="Y" name="Shear Y"/>
-			<text name="advanced_cut" width="149">
+			<text name="advanced_cut">
 				Riduci un bordo (inizio/fine)
 			</text>
 			<text name="advanced_dimple">
@@ -355,29 +355,29 @@
 			</combo_box>
 		</panel>
 		<panel label="Caratteristiche" name="Features">
-			<text name="select_single" width="280">
+			<text name="select_single">
 				Seleziona solo un prim per modificarne le caratteristiche.
 			</text>
 			<text name="edit_object">
 				Modifica le caratteristiche dell&apos;oggetto:
 			</text>
 			<check_box label="Flessibilità" name="Flexible1D Checkbox Ctrl" tool_tip="Consenti all&apos;oggetto di flettersi lungo l&apos;asse Z (solo lato client)"/>
-			<spinner label="Morbidezza" label_width="72" name="FlexNumSections" width="135"/>
-			<spinner label="Gravità" label_width="72" name="FlexGravity" width="135"/>
-			<spinner label="Elasticità" label_width="72" name="FlexFriction" width="135"/>
-			<spinner label="Sventolio" label_width="72" name="FlexWind" width="135"/>
-			<spinner label="Tensione" label_width="72" name="FlexTension" width="135"/>
-			<spinner label="Forza X" label_width="72" name="FlexForceX" width="135"/>
-			<spinner label="Forza Y" label_width="72" name="FlexForceY" width="135"/>
-			<spinner label="Forza Z" label_width="72" name="FlexForceZ" width="135"/>
+			<spinner label="Morbidezza" name="FlexNumSections"/>
+			<spinner label="Gravità" name="FlexGravity"/>
+			<spinner label="Elasticità" name="FlexFriction"/>
+			<spinner label="Sventolio" name="FlexWind"/>
+			<spinner label="Tensione" name="FlexTension"/>
+			<spinner label="Forza X" name="FlexForceX"/>
+			<spinner label="Forza Y" name="FlexForceY"/>
+			<spinner label="Forza Z" name="FlexForceZ"/>
 			<check_box label="Luce" name="Light Checkbox Ctrl" tool_tip="Imposta l&apos;oggetto come sorgente di luce"/>
 			<color_swatch label="" name="colorswatch" tool_tip="Clicca per aprire il selettore dei colori"/>
 			<texture_picker label="" name="light texture control" tool_tip="Clicca per scegliere un&apos;immagine da proiettare (funziona solo con il rendering differito attivato)"/>
-			<spinner label="Intensità" label_width="72" name="Light Intensity" width="135"/>
+			<spinner label="Intensità" name="Light Intensity"/>
 			<spinner label="Angolo di vista" name="Light FOV"/>
-			<spinner label="Raggio" label_width="72" name="Light Radius" width="135"/>
+			<spinner label="Raggio" name="Light Radius"/>
 			<spinner label="Centro focale" name="Light Focus"/>
-			<spinner label="Attenuazione" label_width="72" name="Light Falloff" width="135"/>
+			<spinner label="Attenuazione" name="Light Falloff"/>
 			<spinner label="Atmosfera" name="Light Ambiance"/>
 		</panel>
 		<panel label="Texture" name="Texture">
@@ -395,28 +395,27 @@
 			<text name="glow label">
 				Bagliore
 			</text>
-			<check_box bottom_delta="-21" label="Massima  luminosità" name="checkbox fullbright"/>
+			<check_box label="Massima luminosità" name="checkbox fullbright"/>
 			<text name="tex gen">
-				Applicazione 
-della texture
+				Applicazione della texture
 			</text>
-			<combo_box bottom_delta="-38" name="combobox texgen">
+			<combo_box name="combobox texgen">
 				<combo_box.item label="Default" name="Default"/>
 				<combo_box.item label="Planare" name="Planar"/>
 			</combo_box>
-			<text bottom="-120" name="label shininess">
+			<text name="label shininess">
 				Brillantezza
 			</text>
-			<combo_box bottom_delta="-22" name="combobox shininess">
+			<combo_box name="combobox shininess">
 				<combo_box.item label="Nessuna" name="None"/>
 				<combo_box.item label="Bassa" name="Low"/>
 				<combo_box.item label="Media" name="Medium"/>
 				<combo_box.item label="Alta" name="High"/>
 			</combo_box>
-			<text bottom="-120" name="label bumpiness">
+			<text name="label bumpiness">
 				Rilievo
 			</text>
-			<combo_box bottom_delta="-22" name="combobox bumpiness" width="100">
+			<combo_box name="combobox bumpiness">
 				<combo_box.item label="Nessuna" name="None"/>
 				<combo_box.item label="Luminoso" name="Brightness"/>
 				<combo_box.item label="Scuro" name="Darkness"/>
@@ -443,9 +442,9 @@ della texture
 			<check_box label="Inverti" name="checkbox flip s"/>
 			<spinner label="Verticale (V)" name="TexScaleV"/>
 			<check_box label="Inverti" name="checkbox flip t"/>
-			<spinner label="Rotazione˚" left="120" name="TexRot" width="60"/>
-			<spinner label="Ripetizioni / Metro" left="120" name="rptctrl" width="60"/>
-			<button label="Applica" label_selected="Applica" left_delta="72" name="button apply"/>
+			<spinner label="Rotazione˚" name="TexRot" />
+			<spinner label="Ripetizioni / Metro" name="rptctrl" />
+			<button label="Applica" label_selected="Applica" name="button apply"/>
 			<text name="tex offset">
 				Bilanciamento della texture
 			</text>
@@ -476,17 +475,17 @@ della texture
 		<text name="label_area">
 			Zona: [AREA] m²
 		</text>
-		<button label="Informazioni sui terreni" label_selected="Informazioni sui terreni" name="button about land" width="156"/>
+		<button label="Informazioni sui terreni" label_selected="Informazioni sui terreni" name="button about land"/>
 		<check_box label="Mostra i proprietari" name="checkbox show owners" tool_tip="Colora i terreni in base ai loro proprietari:   Verde = il tuo terreno  Acqua = la terra del tuo gruppo  Rosso = posseduta da altri  Giallo = in vendita  Viola = in asta  Grigia = pubblica"/>
 		<text name="label_parcel_modify">
 			Modifica il terreno
 		</text>
-		<button label="Suddividi" label_selected="Suddividi" name="button subdivide land" width="156"/>
-		<button label="Iscriviti" label_selected="Iscriviti" name="button join land" width="156"/>
+		<button label="Suddividi" label_selected="Suddividi" name="button subdivide land"/>
+		<button label="Iscriviti" label_selected="Iscriviti" name="button join land"/>
 		<text name="label_parcel_trans">
-			Transazioni del territorio
+			Transazioni terreno
 		</text>
-		<button label="Acquista terreno" label_selected="Acquista terreno" name="button buy land" width="156"/>
-		<button label="Abbandona il terreno" label_selected="Abbandona il terreno" name="button abandon land" width="156"/>
+		<button label="Acquista terreno" label_selected="Acquista terreno" name="button buy land"/>
+		<button label="Abbandona il terreno" label_selected="Abbandona il terreno" name="button abandon land"/>
 	</panel>
 </floater>

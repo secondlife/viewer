@@ -139,13 +139,10 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& sess
 
 LLVoiceChannel::~LLVoiceChannel()
 {
-	// Don't use LLVoiceClient::getInstance() here -- this can get called during atexit() time and that singleton MAY have already been destroyed.
-	// Using call of instanceExists() instead of gVoiceClient in check to avoid crash in LLVoiceClient::removeObserver() 
-	// when quitting viewer by closing console window before login (though in case of such quit crash will occur 
-	// later in other destructors anyway). EXT-5524
+	// Must check instance exists here, the singleton MAY have already been destroyed.
 	if(LLVoiceClient::instanceExists())
 	{
-		gVoiceClient->removeObserver(this);
+		LLVoiceClient::instance().removeObserver(this);
 	}
 	
 	sVoiceChannelMap.erase(mSessionID);

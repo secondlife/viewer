@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="40"
+ layout="topleft"
+ left="0"
+ name="panel_generic_tip"
+ top="0"
+ width="305">
+    <text
+     follows="all"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left="10"
+     max_length="350"
+     name="message"
+     text_color="white"
+     top="10"
+     use_ellipses="true"
+     value=""
+     width="285"
+     wrap="true" />
+</panel>

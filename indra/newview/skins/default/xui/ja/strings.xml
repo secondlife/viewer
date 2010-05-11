@@ -261,6 +261,9 @@
 	<string name="BUTTON_CLOSE_WIN">
 		閉じる （Ctrl+W）
 	</string>
+	<string name="BUTTON_CLOSE_CHROME">
+		閉じる
+	</string>
 	<string name="BUTTON_RESTORE">
 		復元
 	</string>
@@ -302,6 +305,9 @@
 	</string>
 	<string name="GroupNameNone">
 		（なし）
+	</string>
+	<string name="AvalineCaller">
+		Avaline コール [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		エラーなし
@@ -904,10 +910,10 @@
 		ESC キーを押してワールドビューに戻ります
 	</string>
 	<string name="InventoryNoMatchingItems">
-		一致するアイテムがありませんでした。[secondlife:///app/search/groups 「検索」]をお試しください。
+		お探しのものは見つかりましたか？ [secondlife:///app/search/all 検索] をお試しください。
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		ここにランドマークをドラッグして、お気に入りに追加します。
+		ここにランドマークをドラッグしてお気に入りに追加します。
 	</string>
 	<string name="InventoryNoTexture">
 		「持ち物」内にこのテクスチャのコピーがありません
@@ -1575,9 +1581,7 @@
 	<string name="RegionNoCovenantOtherOwner">
 		この不動産には約款がありません。 この不動産上の土地は不動産所有者により販売され、Linden Lab は販売しません。  販売に関するお問い合わせは、不動産所有者までお願い致します。
 	</string>
-	<string name="covenant_last_modified">
-		最終修正日：
-	</string>
+	<string name="covenant_last_modified" value="最終修正日："/>
 	<string name="none_text" value=" （なし） "/>
 	<string name="never_text" value=" （無） "/>
 	<string name="GroupOwned">
@@ -3311,6 +3315,15 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="LocationCtrlDamageTooltip">
 		体力
 	</string>
+	<string name="LocationCtrlAdultIconTooltip">
+		Adult リージョン
+	</string>
+	<string name="LocationCtrlModerateIconTooltip">
+		Moderate リージョン
+	</string>
+	<string name="LocationCtrlGeneralIconTooltip">
+		General リージョン
+	</string>
 	<string name="UpdaterWindowTitle">
 		[APP_NAME] アップデート
 	</string>
@@ -3341,6 +3354,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="UpdaterFailStartTitle">
 		ビューワの起動に失敗しました
 	</string>
+	<string name="ItemsComingInTooFastFrom">
+		[APP_NAME] ： アイテムが [FROM_NAME] から同時にたくさん読み込まれているため、自動プレビューが [TIME] 秒間無効となります。
+	</string>
+	<string name="ItemsComingInTooFast">
+		[APP_NAME] ： アイテムが同時にたくさん読み込まれているため、自動プレビューが [TIME] 秒間無効となります。
+	</string>
 	<string name="IM_logging_string">
 		-- インスタントメッセージの保存開始 --
 	</string>
@@ -3367,6 +3386,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="IM_moderator_label">
 		（モデレータ）
+	</string>
+	<string name="answered_call">
+		相手がコールを受けました
 	</string>
 	<string name="started_call">
 		ボイスコールを開始します
@@ -3461,11 +3483,17 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="unread_chat_multiple">
 		[SOURCES] は何か新しいことを言いました。
 	</string>
+	<string name="session_initialization_timed_out_error">
+		セッションの初期化がタイムアウトしました
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] は L$[AMOUNT] 支払いました
 	</string>
 	<string name="you_paid_ldollars">
 		[NAME] に L$ [AMOUNT] を支払いました：[REASON]
+	</string>
+	<string name="you_paid_ldollars_no_info">
+		L$ [AMOUNT] を支払いました。
 	</string>
 	<string name="you_paid_ldollars_no_reason">
 		[NAME] に L$ [AMOUNT] を支払いました。
@@ -3576,5 +3604,14 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Contents">
 		コンテンツ
+	</string>
+	<string name="AvatarBirthDateFormat">
+		[year,datetime,slt]/[mthnum,datetime,slt]/[day,datetime,slt]
+	</string>
+	<string name="DefaultMimeType">
+		なし/なし
+	</string>
+	<string name="texture_load_dimensions_error">
+		[WIDTH]*[HEIGHT] 以上の画像は読み込めません
 	</string>
 </strings>

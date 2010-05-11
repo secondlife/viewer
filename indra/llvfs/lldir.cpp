@@ -91,15 +91,16 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 	S32 result;
 	while (getNextFileInDir(dirname, mask, filename, FALSE))
 	{
-		if ((filename == ".") || (filename == ".."))
+		fullpath = dirname;
+		fullpath += getDirDelimiter();
+		fullpath += filename;
+
+		if(LLFile::isdir(fullpath))
 		{
 			// skipping directory traversal filenames
 			count++;
 			continue;
 		}
-		fullpath = dirname;
-		fullpath += getDirDelimiter();
-		fullpath += filename;
 
 		S32 retry_count = 0;
 		while (retry_count < 5)

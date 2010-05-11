@@ -267,7 +267,7 @@ ou divisé.
 			<text left_delta="214" name="selected_objects_text" width="48">
 				[COUNT]
 			</text>
-			<text left="4" name="Autoreturn" width="440">
+			<text name="Autoreturn">
 				Renvoi automatique des objets d&apos;autres résidents (minutes, 0 pour désactiver) :
 			</text>
 			<line_editor name="clean other time" right="-6" width="36"/>

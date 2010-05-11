@@ -2,12 +2,12 @@
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Er is een probleem opgetreden bij het verwerken van uw verzoek voor een teleport. U dient wellicht opnieuw in te loggen voor uw kunt teleporteren. Wanneer u deze boodschap blijft ontvangen, controleert u dan alstublieft de Tech Support FAQ op:
-www.secondlife.com/support
+			Probleem ondervonden bij het verwerken van uw verzoek voor een teleport. Het kan nodig zijn om opnieuw in te loggen voordat u kunt teleporteren. 
+Als u dit bericht blijft krijgen, controleert u dan alstublieft [SUPPORT_SITE].
 		</message>
 		<message name="invalid_region_handoff">
-			Er is een probleem opgetreden bij het oversteken naar een andere regio. U dient wellicht opnieuw in te loggen voor uw kunt oversteken naar andere regio&apos;s. Wanneer u deze boodschap blijft ontvangen, controleert u dan alstublieft de Tech Support FAQ op:
-www.secondlife.com/support
+			Er is een probleem opgetreden bij het oversteken naar een andere regio. U dient wellicht opnieuw in te loggen voor uw kunt oversteken naar andere regio&apos;s.
+Als u dit bericht blijft krijgen, controleert u dan alstublieft [SUPPORT_SITE].
 		</message>
 		<message name="blocked_tport">
 			Sorry, teleport is momenteel geblokkeerd. Probeer het zo meteen opnieuw. Indien u nog steeds niet kunt teleporteren, log dan alstublieft uit en weer in om het probleem te verhelpen.

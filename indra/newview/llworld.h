@@ -158,7 +158,7 @@ public:
 	// All arguments are optional. Given containers will be emptied and then filled.
 	// Not supplying origin or radius input returns data on all avatars in the known regions.
 	void getAvatars(
-		std::vector<LLUUID>* avatar_ids = NULL,
+		uuid_vec_t* avatar_ids = NULL,
 		std::vector<LLVector3d>* positions = NULL, 
 		const LLVector3d& relative_to = LLVector3d(), F32 radius = FLT_MAX) const;
 

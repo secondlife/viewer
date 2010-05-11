@@ -28,7 +28,7 @@
 		<text name="auction_label">
 			leilão de terrenos
 		</text>
-		<button label="Ir para Casa" label_selected="Ir para casa" name="Go Home" tool_tip="Teletransportar para meu início"/>
+		<button label="Voltar ao meu início" label_selected="Voltar ao meu início" name="Go Home" tool_tip="Teletransportar para meu início"/>
 		<text name="Home_label">
 			Início
 		</text>

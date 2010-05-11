@@ -236,6 +236,7 @@ public:
 
 	std::string mCantViewParcelsText;
 	std::string mCantViewAccountsText;
+	std::string mEmptyParcelsText;
 };
 
 //*******************************************
@@ -452,6 +453,7 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 		// This power was removed to make group roles simpler
 		//if ( !gAgent.hasPowerInGroup(mGroupID, GP_LAND_VIEW_OWNED) ) return;
 		if (!gAgent.isInGroup(mPanel.mGroupID)) return;
+		mGroupParcelsp->setCommentText(mEmptyParcelsText);
 
 		std::string name;
 		std::string desc;
@@ -696,6 +698,7 @@ BOOL LLPanelGroupLandMoney::postBuild()
 
 	mImplementationp->mCantViewParcelsText = getString("cant_view_group_land_text");
 	mImplementationp->mCantViewAccountsText = getString("cant_view_group_accounting_text");
+	mImplementationp->mEmptyParcelsText = getString("epmty_view_group_land_text");
 	
 	if ( mImplementationp->mMapButtonp )
 	{
@@ -1599,6 +1602,8 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 			mImplementationp->mMoneySalesTabEHp = new LLGroupMoneySalesTabEventHandler(earlierp,laterp,textp,tabcp,panelp,loading_text);
 		mImplementationp->mMoneySalesTabEHp->setGroupID(mGroupID);
 	}
+
+	mImplementationp->mBeenActivated = false;
 
 	activate();
 }

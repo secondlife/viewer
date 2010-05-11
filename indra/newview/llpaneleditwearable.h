@@ -41,6 +41,7 @@
 class LLWearable;
 class LLTextEditor;
 class LLTextBox;
+class LLViewerInventoryItem;
 class LLViewerVisualParam;
 class LLVisualParamHint;
 class LLViewerJointMesh;
@@ -73,9 +74,16 @@ private:
 	LLPanel*			getPanel(EWearableType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
 	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab);
+	// update bottom bar buttons ("Save", "Revert", etc)
+	void				updateVerbs();
+
+	void				onColorSwatchCommit(const LLUICtrl*);
+	void				onTexturePickerCommit(const LLUICtrl*);
+	void				updatePanelPickerControls(EWearableType type);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;
+	LLViewerInventoryItem* mWearableItem;
 
 	// these are constant no matter what wearable we're editing
 	LLButton *mBtnRevert;
@@ -108,7 +116,6 @@ private:
 	LLPanel *mPanelSkirt;
 	LLPanel *mPanelAlpha;
 	LLPanel *mPanelTattoo;
-
 };
 
 #endif

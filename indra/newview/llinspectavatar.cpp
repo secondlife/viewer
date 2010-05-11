@@ -59,6 +59,7 @@
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
 #include "lltooltip.h"	// positionViewNearMouse()
+#include "lltrans.h"
 #include "lluictrl.h"
 
 #include "llavatariconctrl.h"
@@ -138,6 +139,7 @@ private:
 	void onVolumeChange(const LLSD& data);
 	bool enableMute();
 	bool enableUnmute();
+	bool enableTeleportOffer();
 
 	// Is used to determine if "Add friend" option should be enabled in gear menu
 	bool isNotFriend();
@@ -236,6 +238,7 @@ LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 		boost::bind(&LLInspectAvatar::onVisibleZoomIn, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.Enable", boost::bind(&LLInspectAvatar::isNotFriend, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.Gear.EnableCall", boost::bind(&LLAvatarActions::canCall));
+	mEnableCallbackRegistrar.add("InspectAvatar.Gear.EnableTeleportOffer", boost::bind(&LLInspectAvatar::enableTeleportOffer, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.EnableMute", boost::bind(&LLInspectAvatar::enableMute, this));
 	mEnableCallbackRegistrar.add("InspectAvatar.EnableUnmute", boost::bind(&LLInspectAvatar::enableUnmute, this));
 
@@ -390,7 +393,11 @@ void LLInspectAvatar::requestUpdate()
 void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 {
 	LLStringUtil::format_map_t args;
-	args["[BORN_ON]"] = data->born_on;
+	{
+		std::string birth_date = LLTrans::getString("AvatarBirthDateFormat");
+		LLStringUtil::format(birth_date, LLSD().with("datetime", (S32) data->born_on.secondsSinceEpoch()));
+		args["[BORN_ON]"] = birth_date;
+	}
 	args["[AGE]"] = LLDateUtil::ageFromDate(data->born_on, LLDate::now());
 	args["[SL_PROFILE]"] = data->about_text;
 	args["[RW_PROFILE"] = data->fl_about_text;
@@ -791,6 +798,11 @@ bool LLInspectAvatar::enableUnmute()
 		{
 			return false;
 		}
+}
+
+bool LLInspectAvatar::enableTeleportOffer()
+{
+	return LLAvatarActions::canOfferTeleport(mAvatarID);
 }
 
 //////////////////////////////////////////////////////////////////////////////
