@@ -615,8 +615,21 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 	}
 	else
 	{
-		if (mActivePanel)
+		if (mActivePanel && mActivePanel->isSingleItemSelected())
+		{
 			mActivePanel->onShowOnMap();
+		}
+		else
+		{
+			LLFloaterWorldMap* worldmap_instance = LLFloaterWorldMap::getInstance();
+			LLVector3d global_pos = gAgent.getPositionGlobal();
+
+			if (!global_pos.isExactlyZero() && worldmap_instance)
+			{
+				worldmap_instance->trackLocation(global_pos);
+				LLFloaterReg::showInstance("world_map", "center");
+			}
+		}
 	}
 }
 
@@ -1072,7 +1085,6 @@ void LLPanelPlaces::updateVerbs()
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
 	mPlaceInfoBtn->setVisible(!is_place_info_visible && !is_create_landmark_visible && !isLandmarkEditModeOn);
 
-	mShowOnMapBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
 	mPlaceInfoBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
 
 	if (is_place_info_visible)
