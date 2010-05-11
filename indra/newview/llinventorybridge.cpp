@@ -951,7 +951,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			{
 				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;
 			}
-			new_listener = new LLWearableBridge(inventory, root, uuid, asset_type, inv_type, (EWearableType)flags);
+			new_listener = new LLWearableBridge(inventory, root, uuid, asset_type, inv_type, (LLWearableType::EType)flags);
 			break;
 		case LLAssetType::AT_CATEGORY:
 			if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
@@ -2943,71 +2943,71 @@ void LLFolderBridge::createNewCategory(void* user_data)
 
 void LLFolderBridge::createNewShirt(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_SHIRT);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_SHIRT);
 }
 
 void LLFolderBridge::createNewPants(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_PANTS);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_PANTS);
 }
 
 void LLFolderBridge::createNewShoes(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_SHOES);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_SHOES);
 }
 
 void LLFolderBridge::createNewSocks(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_SOCKS);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_SOCKS);
 }
 
 void LLFolderBridge::createNewJacket(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_JACKET);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_JACKET);
 }
 
 void LLFolderBridge::createNewSkirt(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_SKIRT);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_SKIRT);
 }
 
 void LLFolderBridge::createNewGloves(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_GLOVES);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_GLOVES);
 }
 
 void LLFolderBridge::createNewUndershirt(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_UNDERSHIRT);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_UNDERSHIRT);
 }
 
 void LLFolderBridge::createNewUnderpants(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_UNDERPANTS);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_UNDERPANTS);
 }
 
 void LLFolderBridge::createNewShape(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_SHAPE);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_SHAPE);
 }
 
 void LLFolderBridge::createNewSkin(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_SKIN);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_SKIN);
 }
 
 void LLFolderBridge::createNewHair(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_HAIR);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_HAIR);
 }
 
 void LLFolderBridge::createNewEyes(void* user_data)
 {
-	LLFolderBridge::createWearable((LLFolderBridge*)user_data, WT_EYES);
+	LLFolderBridge::createWearable((LLFolderBridge*)user_data, LLWearableType::WT_EYES);
 }
 
 // static
-void LLFolderBridge::createWearable(LLFolderBridge* bridge, EWearableType type)
+void LLFolderBridge::createWearable(LLFolderBridge* bridge, LLWearableType::EType type)
 {
 	if(!bridge) return;
 	LLUUID parent_id = bridge->getUUID();
@@ -3017,7 +3017,7 @@ void LLFolderBridge::createWearable(LLFolderBridge* bridge, EWearableType type)
 // Separate function so can be called by global menu as well as right-click
 // menu.
 // static
-void LLFolderBridge::createWearable(const LLUUID &parent_id, EWearableType type)
+void LLFolderBridge::createWearable(const LLUUID &parent_id, LLWearableType::EType type)
 {
 	LLWearable* wearable = LLWearableList::instance().createNewWearable(type);
 	LLAssetType::EType asset_type = wearable->getAssetType();
@@ -4444,7 +4444,7 @@ LLWearableBridge::LLWearableBridge(LLInventoryPanel* inventory,
 								   const LLUUID& uuid, 
 								   LLAssetType::EType asset_type, 
 								   LLInventoryType::EType inv_type, 
-								   EWearableType  wearable_type) :
+								   LLWearableType::EType  wearable_type) :
 	LLItemBridge(inventory, root, uuid),
 	mAssetType( asset_type ),
 	mInvType(inv_type),
@@ -4553,7 +4553,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_
 				if (item->getType() == LLAssetType::AT_BODYPART)
 					continue;
 				if (gAgent.isTeen() && item->isWearableType() &&
-					(item->getWearableType() == WT_UNDERPANTS || item->getWearableType() == WT_UNDERSHIRT))
+					(item->getWearableType() == LLWearableType::WT_UNDERPANTS || item->getWearableType() == LLWearableType::WT_UNDERSHIRT))
 					continue;
 				if (get_is_item_worn(item->getUUID()))
 				{
@@ -4975,10 +4975,10 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 	{
 		if( get_is_item_worn( item_id ) )
 		{
-			EWearableType type = wearable->getType();
+			LLWearableType::EType type = wearable->getType();
 
-			if( !(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR || type==WT_EYES ) ) //&&
-				//!((!gAgent.isTeen()) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
+			if( !(type==LLWearableType::WT_SHAPE || type==LLWearableType::WT_SKIN || type==LLWearableType::WT_HAIR || type==LLWearableType::WT_EYES ) ) //&&
+				//!((!gAgent.isTeen()) && ( type==LLWearableType::WT_UNDERPANTS || type==LLWearableType::WT_UNDERSHIRT )) )
 			{
 				bool do_remove_all = false;
 				U32 index = gAgentWearables.getWearableIndex(wearable);
@@ -4998,14 +4998,14 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 void LLWearableBridge::removeAllClothesFromAvatar()
 {
 	// Remove COF links.
-	for (S32 itype = WT_SHAPE; itype < WT_COUNT; ++itype)
+	for (S32 itype = LLWearableType::WT_SHAPE; itype < LLWearableType::WT_COUNT; ++itype)
 	{
-		if (itype == WT_SHAPE || itype == WT_SKIN || itype == WT_HAIR || itype == WT_EYES)
+		if (itype == LLWearableType::WT_SHAPE || itype == LLWearableType::WT_SKIN || itype == LLWearableType::WT_HAIR || itype == LLWearableType::WT_EYES)
 			continue;
 
 		// MULTI-WEARABLES: fixed to index 0
 		LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(
-			gAgentWearables.getWearableInventoryItem((EWearableType)itype, 0));
+			gAgentWearables.getWearableInventoryItem((LLWearableType::EType)itype, 0));
 		if (!item)
 			continue;
 		const LLUUID &item_id = gInventory.getLinkedItemID(item->getUUID());

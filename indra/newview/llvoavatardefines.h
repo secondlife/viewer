@@ -114,7 +114,7 @@ enum EMeshIndex
 typedef std::vector<ETextureIndex> texture_vec_t;
 typedef std::vector<EBakedTextureIndex> bakedtexture_vec_t;
 typedef std::vector<EMeshIndex> mesh_vec_t;
-typedef std::vector<EWearableType> wearables_vec_t;
+typedef std::vector<LLWearableType::EType> wearables_vec_t;
 
 //------------------------------------------------------------------------
 // LLVOAvatarDictionary
@@ -145,9 +145,9 @@ public:
 					 bool is_local_texture, 
 					 EBakedTextureIndex baked_texture_index = BAKED_NUM_INDICES,
 					 const std::string& default_image_name = "",
-					 EWearableType wearable_type = WT_INVALID);
+					 LLWearableType::EType wearable_type = LLWearableType::WT_NONE);
 		const std::string 	mDefaultImageName;
-		const EWearableType mWearableType;
+		const LLWearableType::EType mWearableType;
 		// It's either a local texture xor baked
 		BOOL 				mIsLocalTexture;
 		BOOL 				mIsBakedTexture;
@@ -225,7 +225,7 @@ public:
 	static const LLUUID			getDefaultTextureImageID(ETextureIndex index);
 
 	// Given a texture entry, determine which wearable type owns it.
-	static EWearableType 		getTEWearableType(ETextureIndex index);
+	static LLWearableType::EType 		getTEWearableType(ETextureIndex index);
 
 }; // End LLVOAvatarDictionary
 
