@@ -101,6 +101,14 @@ class LLFileEnableUploadModel : public view_listener_t
 	}
 };
 
+class LLMeshEnabled : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gSavedSettings.getBOOL("MeshEnabled");
+	}
+};
+
 LLMutex* LLFilePickerThread::sMutex = NULL;
 std::queue<LLFilePickerThread*> LLFilePickerThread::sDeadQ;
 
@@ -1361,6 +1369,7 @@ void init_menu_file()
 
 	view_listener_t::addEnable(new LLFileEnableUpload(), "File.EnableUpload");
 	view_listener_t::addEnable(new LLFileEnableUploadModel(), "File.EnableUploadModel");
-	
+	view_listener_t::addMenu(new LLMeshEnabled(), "File.MeshEnabled");
+
 	// "File.SaveTexture" moved to llpanelmaininventory so that it can be properly handled.
 }

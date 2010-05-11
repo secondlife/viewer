@@ -51,6 +51,8 @@
                  parameter="" />
                 <menu_item_call.on_enable
                  function="File.EnableUploadModel" />
+                <menu_item_call.on_visible
+                function="File.MeshEnabled"/>
                 </menu_item_call>
                 <menu_item_call
                  label="Bulk (L$[COST] per file)..."
