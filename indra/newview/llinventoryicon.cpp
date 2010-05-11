@@ -136,7 +136,7 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 			idx = (misc_flag != 0) ? ICONNAME_CALLINGCARD_ONLINE : ICONNAME_CALLINGCARD_OFFLINE;
 			break;
 		case LLAssetType::AT_LANDMARK:
-			idx = (misc_flag != 0) ? ICONNAME_LANDMARK_VISITED : idx = ICONNAME_LANDMARK;
+			idx = (misc_flag != 0) ? ICONNAME_LANDMARK_VISITED : ICONNAME_LANDMARK;
 			break;
 		case LLAssetType::AT_SCRIPT:
 		case LLAssetType::AT_LSL_TEXT:
