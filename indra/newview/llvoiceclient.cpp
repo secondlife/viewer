@@ -2318,7 +2318,15 @@ void LLVoiceClient::stateMachine()
 
 			// request the set of available voice fonts
 			setState(stateVoiceFontsWait);
-			accountGetSessionFontsSendMessage();
+			// *FIX: Remove this temporary setting, used to test UI without fonts
+			if (gSavedSettings.getBOOL("VoiceFontsAvailable"))
+			{
+				accountGetSessionFontsSendMessage();
+			}
+			else
+			{
+				setState(stateVoiceFontsReceived);
+			}
 			accountGetTemplateFontsSendMessage(); // *TODO: Maybe better to do this when opening preview rather than on login
 
 			// request the current set of block rules (we'll need them when updating the friends list)
