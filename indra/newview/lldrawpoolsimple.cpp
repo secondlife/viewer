@@ -151,7 +151,8 @@ void LLDrawPoolSimple::render(S32 pass)
 		renderTexture(LLRenderPass::PASS_SIMPLE, getVertexDataMask());
 
 		if (LLPipeline::sRenderDeferred)
-		{
+		{ //if deferred rendering is enabled, bump faces aren't reigstered as simple
+			//render bump faces here as simple so bump faces will appear under water
 			renderTexture(LLRenderPass::PASS_BUMP, getVertexDataMask());
 		}
 	}
