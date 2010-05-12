@@ -39,11 +39,11 @@
 	<floater.string name="grid_attachment_text">
 		Accessorio
 	</floater.string>
-	<button label="" label_selected="" name="button focus" tool_tip="Focus"/>
-	<button label="" label_selected="" name="button move" tool_tip="Muoviti"/>
+	<button label="" label_selected="" name="button focus" tool_tip="Ingrandisci"/>
+	<button label="" label_selected="" name="button move" tool_tip="Sposta"/>
 	<button label="" label_selected="" name="button edit" tool_tip="Modifica"/>
 	<button label="" label_selected="" name="button create" tool_tip="Crea"/>
-	<button label="" label_selected="" name="button land" tool_tip="Terra"/>
+	<button label="" label_selected="" name="button land" tool_tip="Terreno"/>
 	<text name="text status">
 		Trascina per muovere, trascina+maiuscolo per copiare
 	</text>
@@ -397,7 +397,7 @@
 			</text>
 			<check_box label="Massima luminosità" name="checkbox fullbright"/>
 			<text name="tex gen">
-				Applicazione della texture
+				Applicazione
 			</text>
 			<combo_box name="combobox texgen">
 				<combo_box.item label="Default" name="Default"/>

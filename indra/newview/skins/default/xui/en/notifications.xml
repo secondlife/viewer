@@ -1207,6 +1207,7 @@ Eject [AVATAR_NAME] from your land?
   <notification
    icon="alertmodal.tga"
    name="EjectAvatarFromGroup"
+   persist="true"
    type="notify">
 You ejected [AVATAR_NAME] from group [GROUP_NAME]
   </notification>
@@ -2512,6 +2513,7 @@ Would you like to trust this authority?
   <notification
    icon="alertmodal.tga"
    name="GrantedModifyRights"
+   persist="true"
    type="notify">
 [NAME] has given you permission to edit their objects.
   </notification>
@@ -2519,6 +2521,7 @@ Would you like to trust this authority?
   <notification
    icon="alertmodal.tga"
    name="RevokedModifyRights"
+   persist="true"
    type="notify">
 Your privilege to modify [NAME]&apos;s objects has been revoked
   </notification>
@@ -4433,6 +4436,7 @@ Replaced missing clothing/body part with default.
   <notification
    icon="groupnotify"
    name="GroupNotice"
+   persist="true"
    type="groupnotify">
 Topic: [SUBJECT], Message: [MESSAGE]
   </notification>
@@ -4481,6 +4485,7 @@ Do you wish to proceed?
   <notification
    icon="notify.tga"
    name="UploadPayment"
+   persist="true"
    type="notify">
 You paid L$[AMOUNT] to upload.
   </notification>
@@ -4768,6 +4773,7 @@ Please select at least one type of content to search (General, Moderate, or Adul
   <notification
    icon="notify.tga"
    name="SystemMessage"
+   persist="true"
    type="notify">
 [MESSAGE]
   </notification>
@@ -4775,10 +4781,13 @@ Please select at least one type of content to search (General, Moderate, or Adul
   <notification
    icon="notify.tga"
    name="PaymentRecived"
+   persist="true"
    type="notify">
 [MESSAGE]
   </notification>
 
+   <!-- EventNotification couldn't be persist since server decide is it necessary to notify 
+   user about subscribed event via LLEventNotifier-->
   <notification
    icon="notify.tga"
    name="EventNotification"
@@ -4806,6 +4815,7 @@ Event Notification:
   <notification
    icon="notify.tga"
    name="TransferObjectsHighlighted"
+   persist="true"
    type="notify">
 All objects on this parcel that will transfer to the purchaser of this parcel are now highlighted.
 
@@ -4821,6 +4831,7 @@ All objects on this parcel that will transfer to the purchaser of this parcel ar
   <notification
    icon="notify.tga"
    name="DeactivatedGesturesTrigger"
+   persist="true"
    type="notify">
 Deactivated gestures with same trigger:
 [NAMES]
@@ -4829,6 +4840,7 @@ Deactivated gestures with same trigger:
   <notification
    icon="notify.tga"
    name="NoQuickTime"
+   persist="true"
    type="notify">
 Apple&apos;s QuickTime software does not appear to be installed on your system.
 If you want to view streaming media on parcels that support it you should go to the [http://www.apple.com/quicktime QuickTime site] and install the QuickTime Player.
@@ -4836,6 +4848,7 @@ If you want to view streaming media on parcels that support it you should go to 
   <notification
    icon="notify.tga"
    name="NoPlugin"
+   persist="true"
    type="notify">
 No Media Plugin was found to handle the "[MIME_TYPE]" mime type.  Media of this type will be unavailable.
   </notification>
@@ -4855,6 +4868,7 @@ Please re-install the plugin or contact the vendor if you continue to experience
   <notification
    icon="notify.tga"
    name="OwnedObjectsReturned"
+   persist="true"
    type="notify">
 The objects you own on the selected parcel of land have been returned back to your inventory.
   </notification>
@@ -4862,6 +4876,7 @@ The objects you own on the selected parcel of land have been returned back to yo
   <notification
    icon="notify.tga"
    name="OtherObjectsReturned"
+   persist="true"
    type="notify">
 The objects on the selected parcel of land that is owned by [FIRST] [LAST] have been returned to his or her inventory.
   </notification>
@@ -4869,6 +4884,7 @@ The objects on the selected parcel of land that is owned by [FIRST] [LAST] have 
   <notification
    icon="notify.tga"
    name="OtherObjectsReturned2"
+   persist="true"
    type="notify">
 The objects on the selected parcel of land owned by the Resident &apos;[NAME]&apos; have been returned to their owner.
   </notification>
@@ -4876,6 +4892,7 @@ The objects on the selected parcel of land owned by the Resident &apos;[NAME]&ap
   <notification
    icon="notify.tga"
    name="GroupObjectsReturned"
+   persist="true"
    type="notify">
 The objects on the selected parcel of land shared with the group [GROUPNAME] have been returned back to their owner&apos;s inventory.
 Transferable deeded objects have been returned to their previous owners.
@@ -4885,6 +4902,7 @@ Non-transferable objects that are deeded to the group have been deleted.
   <notification
    icon="notify.tga"
    name="UnOwnedObjectsReturned"
+   persist="true"
    type="notify">
 The objects on the selected parcel that are NOT owned by you have been returned to their owners.
   </notification>
@@ -4892,6 +4910,7 @@ The objects on the selected parcel that are NOT owned by you have been returned 
   <notification
    icon="notify.tga"
    name="ServerObjectMessage"
+   persist="true"
    type="notify">
 Message from [NAME]:
 &lt;nolink&gt;[MSG]&lt;/nolink&gt;
@@ -4900,6 +4919,7 @@ Message from [NAME]:
   <notification
    icon="notify.tga"
    name="NotSafe"
+   persist="true"
    type="notify">
 This land has damage enabled.
 You can be hurt here. If you die, you will be teleported to your home location.
@@ -4909,6 +4929,7 @@ You can be hurt here. If you die, you will be teleported to your home location.
   <notification
    icon="notify.tga"
    name="NoFly"
+   persist="true"
    type="notify">
 This area has flying disabled.
 You can&apos;t fly here.
@@ -4918,6 +4939,7 @@ You can&apos;t fly here.
   <notification
    icon="notify.tga"
    name="PushRestricted"
+   persist="true"
    type="notify">
 This area does not allow pushing. You can&apos;t push others here unless you own the land.
     <unique/>
@@ -4926,6 +4948,7 @@ This area does not allow pushing. You can&apos;t push others here unless you own
   <notification
    icon="notify.tga"
    name="NoVoice"
+   persist="true"
    type="notify">
 This area has voice chat disabled. You won&apos;t be able to hear anyone talking.
     <unique/>
@@ -4934,6 +4957,7 @@ This area has voice chat disabled. You won&apos;t be able to hear anyone talking
   <notification
    icon="notify.tga"
    name="NoBuild"
+   persist="true"
    type="notify">
 This area has building disabled. You can&apos;t build or rez objects here.
     <unique/>
@@ -4942,6 +4966,7 @@ This area has building disabled. You can&apos;t build or rez objects here.
   <notification
    icon="notify.tga"
    name="ScriptsStopped"
+   persist="true"
    type="notify">
 An administrator has temporarily stopped scripts in this region.
   </notification>
@@ -4949,6 +4974,7 @@ An administrator has temporarily stopped scripts in this region.
   <notification
    icon="notify.tga"
    name="ScriptsNotRunning"
+   persist="true"
    type="notify">
 This region is not running any scripts.
   </notification>
@@ -4956,6 +4982,7 @@ This region is not running any scripts.
   <notification
    icon="notify.tga"
    name="NoOutsideScripts"
+   persist="true"
    type="notify">
 This land has outside scripts disabled.
 
@@ -4965,6 +4992,7 @@ No scripts will work here except those belonging to the land owner.
   <notification
    icon="notify.tga"
    name="ClaimPublicLand"
+   persist="true"
    type="notify">
 You can only claim public land in the Region you&apos;re in.
   </notification>
@@ -4972,6 +5000,7 @@ You can only claim public land in the Region you&apos;re in.
   <notification
    icon="notify.tga"
    name="RegionTPAccessBlocked"
+   persist="true"
    type="notify">
 You aren&apos;t allowed in that Region due to your maturity Rating. You may need to validate your age and/or install the latest Viewer.
 
@@ -4981,6 +5010,7 @@ Please go to the Knowledge Base for details on accessing areas with this maturit
   <notification
 	icon="notify.tga"
 	name="URBannedFromRegion"
+   persist="true"
 	type="notify">
 You are banned from the region.
   </notification>
@@ -4988,6 +5018,7 @@ You are banned from the region.
   <notification
 	icon="notify.tga"
 	name="NoTeenGridAccess"
+   persist="true"
 	type="notify">
 Your account cannot connect to this teen grid region.
   </notification>
@@ -4995,6 +5026,7 @@ Your account cannot connect to this teen grid region.
   <notification
 	icon="notify.tga"
 	name="ImproperPaymentStatus"
+   persist="true"
 	type="notify">
 You do not have proper payment status to enter this region.
   </notification>
@@ -5002,6 +5034,7 @@ You do not have proper payment status to enter this region.
   <notification
 	icon="notify.tga"
 	name="MustGetAgeRgion"
+   persist="true"
 	type="notify">
 You must be age-verified to enter this region.
   </notification>
@@ -5009,6 +5042,7 @@ You must be age-verified to enter this region.
   <notification
 	icon="notify.tga"
 	name="MustGetAgeParcel"
+   persist="true"
 	type="notify">
 You must be age-verified to enter this parcel.
   </notification>
@@ -5016,6 +5050,7 @@ You must be age-verified to enter this parcel.
   <notification
 	icon="notify.tga"
 	name="NoDestRegion"
+   persist="true"
 	type="notify">
 No destination region found.
   </notification>
@@ -5023,6 +5058,7 @@ No destination region found.
   <notification
 	icon="notify.tga"
 	name="NotAllowedInDest"
+   persist="true"
 	type="notify">
 You are not allowed into the destination.
   </notification>
@@ -5030,6 +5066,7 @@ You are not allowed into the destination.
   <notification
 	icon="notify.tga"
 	name="RegionParcelBan"
+   persist="true"
 	type="notify">
 Cannot region cross into banned parcel. Try another way.
   </notification>
@@ -5037,6 +5074,7 @@ Cannot region cross into banned parcel. Try another way.
   <notification
 	icon="notify.tga"
 	name="TelehubRedirect"
+   persist="true"
 	type="notify">
 You have been redirected to a telehub.
   </notification>
@@ -5044,6 +5082,7 @@ You have been redirected to a telehub.
   <notification
 	icon="notify.tga"
 	name="CouldntTPCloser"
+   persist="true"
 	type="notify">
 Could not teleport closer to destination.
   </notification>
@@ -5051,6 +5090,7 @@ Could not teleport closer to destination.
   <notification
 	icon="notify.tga"
 	name="TPCancelled"
+   persist="true"
 	type="notify">
 Teleport cancelled.
   </notification>
@@ -5058,6 +5098,7 @@ Teleport cancelled.
   <notification
 	icon="notify.tga"
 	name="FullRegionTryAgain"
+   persist="true"
 	type="notify">
 The region you are attempting to enter is currently full.
 Please try again in a few moments.
@@ -5066,6 +5107,7 @@ Please try again in a few moments.
   <notification
 	icon="notify.tga"
 	name="GeneralFailure"
+   persist="true"
 	type="notify">
 General failure.
   </notification>
@@ -5073,6 +5115,7 @@ General failure.
   <notification
 	icon="notify.tga"
 	name="RoutedWrongRegion"
+   persist="true"
 	type="notify">
 Routed to wrong region. Please try again.
   </notification>
@@ -5080,6 +5123,7 @@ Routed to wrong region. Please try again.
   <notification
 	icon="notify.tga"
 	name="NoValidAgentID"
+   persist="true"
 	type="notify">
 No valid agent id.
   </notification>
@@ -5087,6 +5131,7 @@ No valid agent id.
   <notification
 	icon="notify.tga"
 	name="NoValidSession"
+   persist="true"
 	type="notify">
 No valid session id.
   </notification>
@@ -5094,6 +5139,7 @@ No valid session id.
   <notification
 	icon="notify.tga"
 	name="NoValidCircuit"
+   persist="true"
 	type="notify">
 No valid circuit code.
   </notification>
@@ -5101,6 +5147,7 @@ No valid circuit code.
   <notification
 	icon="notify.tga"
 	name="NoValidTimestamp"
+   persist="true"
 	type="notify">
 No valid timestamp.
   </notification>
@@ -5108,6 +5155,7 @@ No valid timestamp.
   <notification
 	icon="notify.tga"
 	name="NoPendingConnection"
+   persist="true"
 	type="notify">
 Unable to create pending connection.
   </notification>
@@ -5115,6 +5163,7 @@ Unable to create pending connection.
   <notification
 	icon="notify.tga"
 	name="InternalUsherError"
+   persist="true"
 	type="notify">
 Internal error attempting to connect agent usher.
   </notification>
@@ -5122,6 +5171,7 @@ Internal error attempting to connect agent usher.
   <notification
 	icon="notify.tga"
 	name="NoGoodTPDestination"
+   persist="true"
 	type="notify">
 Unable to find a good teleport destination in this region.
   </notification>
@@ -5129,6 +5179,7 @@ Unable to find a good teleport destination in this region.
   <notification
 	icon="notify.tga"
 	name="InternalErrorRegionResolver"
+   persist="true"
 	type="notify">
 Internal error attempting to activate region resolver.
   </notification>
@@ -5136,6 +5187,7 @@ Internal error attempting to activate region resolver.
   <notification
 	icon="notify.tga"
 	name="NoValidLanding"
+   persist="true"
 	type="notify">
 A valid landing point could not be found.
   </notification>
@@ -5143,6 +5195,7 @@ A valid landing point could not be found.
   <notification
 	icon="notify.tga"
 	name="NoValidParcel"
+   persist="true"
 	type="notify">
 No valid parcel could be found.
   </notification>
@@ -5150,7 +5203,6 @@ No valid parcel could be found.
   <notification
    icon="notify.tga"
    name="ObjectGiveItem"
-   persist="true"
    type="offer">
 An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -5173,7 +5225,6 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="UserGiveItem"
-   persist="true"
    type="offer">
 [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -5196,6 +5247,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="GodMessage"
+   persist="true"
    type="notify">
 [NAME]
 
@@ -5205,6 +5257,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="JoinGroup"
+   persist="true"
    type="notify">
 [MESSAGE]
     <form name="form">
@@ -5226,7 +5279,6 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="TeleportOffered"
-   persist="true"
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
@@ -5254,6 +5306,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="GotoURL"
+   persist="true"
    type="notify">
 [MESSAGE]
 [URL]
@@ -5272,7 +5325,6 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="OfferFriendship"
-   persist="true"
    type="offer">
 [NAME_SLURL] is offering friendship.
 
@@ -5301,6 +5353,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="OfferFriendshipNoMessage"
+   persist="true"
    type="notify">
 [NAME] is offering friendship.
 
@@ -5327,6 +5380,7 @@ An object named [OBJECTFROMNAME] owned by [NAME_SLURL] has given you this [OBJEC
   <notification
    icon="notify.tga"
    name="FriendshipDeclined"
+   persist="true"
    type="notify">
 [NAME] declined your friendship offer.
   </notification>
@@ -5348,6 +5402,7 @@ Friendship offer declined.
   <notification
    icon="notify.tga"
    name="OfferCallingCard"
+   persist="true"
    type="notify">
 [FIRST] [LAST] is offering their calling card.
 This will add a bookmark in your inventory so you can quickly IM this Resident.
@@ -5368,6 +5423,7 @@ This will add a bookmark in your inventory so you can quickly IM this Resident.
    name="RegionRestartMinutes"
    priority="high"
    sound="UISndAlert"
+   persist="true"
    type="notify">
 This region will restart in [MINUTES] minutes.
 If you stay in this region you will be logged out.
@@ -5378,6 +5434,7 @@ If you stay in this region you will be logged out.
    name="RegionRestartSeconds"
    priority="high"
    sound="UISndAlert"
+   persist="true"
    type="notify">
 This region will restart in [SECONDS] seconds.
 If you stay in this region you will be logged out.
@@ -5386,6 +5443,7 @@ If you stay in this region you will be logged out.
   <notification
    icon="notify.tga"
    name="LoadWebPage"
+   persist="true"
    type="notify">
 Load web page [URL]?
 
@@ -5407,6 +5465,7 @@ From object: [OBJECTNAME], owner: [NAME]?
   <notification
    icon="notify.tga"
    name="FailedToFindWearableUnnamed"
+   persist="true"
    type="notify">
 Failed to find [TYPE] in database.
   </notification>
@@ -5414,6 +5473,7 @@ Failed to find [TYPE] in database.
   <notification
    icon="notify.tga"
    name="FailedToFindWearable"
+   persist="true"
    type="notify">
 Failed to find [TYPE] named [DESC] in database.
   </notification>
@@ -5421,6 +5481,7 @@ Failed to find [TYPE] named [DESC] in database.
   <notification
    icon="notify.tga"
    name="ShareToWebFailed"
+   persist="true"
    type="notify">
     Failed to upload image to web.
   </notification>
@@ -5428,6 +5489,7 @@ Failed to find [TYPE] named [DESC] in database.
   <notification
    icon="notify.tga"
    name="InvalidWearable"
+   persist="true"
    type="notify">
 The item you are trying to wear uses a feature that your Viewer can&apos;t read. Please upgrade your version of [APP_NAME] to wear this item.
   </notification>
@@ -5435,6 +5497,7 @@ The item you are trying to wear uses a feature that your Viewer can&apos;t read.
   <notification
    icon="notify.tga"
    name="ScriptQuestion"
+   persist="true"
    type="notify">
 &apos;[OBJECTNAME]&apos;, an object owned by &apos;[NAME]&apos;, would like to:
 
@@ -5460,6 +5523,7 @@ Is this OK?
    icon="notify.tga"
    name="ScriptQuestionCaution"
    priority="high"
+   persist="true"
    type="notify">
 An object named &apos;[OBJECTNAME]&apos;, owned by &apos;[NAME]&apos; would like to:
 
@@ -5487,6 +5551,7 @@ Grant this request?
   <notification
    icon="notify.tga"
    name="ScriptDialog"
+   persist="true"
    type="notify">
 [FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
 [MESSAGE]
@@ -5501,6 +5566,7 @@ Grant this request?
   <notification
    icon="notify.tga"
    name="ScriptDialogGroup"
+   persist="true"
    type="notify">
 [GROUPNAME]&apos;s &apos;[TITLE]&apos;
 [MESSAGE]
@@ -5516,6 +5582,7 @@ Grant this request?
   <notification
    icon="notify.tga"
    name="FirstBalanceIncrease"
+   persist="true"
    type="notify">
 You just received L$[AMOUNT].
 Your L$ balance is shown in the upper-right.
@@ -5524,6 +5591,7 @@ Your L$ balance is shown in the upper-right.
   <notification
    icon="notify.tga"
    name="FirstBalanceDecrease"
+   persist="true"
    type="notify">
 You just paid L$[AMOUNT].
 Your L$ balance is shown in the upper-right.
@@ -5533,6 +5601,7 @@ Your L$ balance is shown in the upper-right.
   <notification
    icon="notify.tga"
    name="BuyLindenDollarSuccess"
+   persist="true"
    type="notify">
 Thank you for your payment!
 
@@ -5545,6 +5614,7 @@ The status of your payment can be checked on your Transaction History page on yo
   <notification
    icon="notify.tga"
    name="FirstSit"
+   persist="true"
    type="notify">
 You are sitting.
 Use your arrow keys (or AWSD) to look around.
@@ -5554,6 +5624,7 @@ Click the &apos;Stand Up&apos; button to stand.
   <notification
    icon="notify.tga"
    name="FirstMap"
+   persist="true"
    type="notify">
 Click and drag the map to look around.
 Double-click to teleport.
@@ -5563,6 +5634,7 @@ Use the controls on the right to find things and display different backgrounds.
   <notification
    icon="notify.tga"
    name="FirstBuild"
+   persist="true"
    type="notify">
 You have opened the Build Tools. Every object you see around you was created using these tools.
   </notification>
@@ -5572,6 +5644,7 @@ You have opened the Build Tools. Every object you see around you was created usi
   <notification
    icon="notify.tga"
    name="FirstLeftClickNoHit"
+   persist="true"
    type="notify">
     Left-clicking interacts with special objects.
     If the mouse pointer changes to a hand, you can interact with the object.
@@ -5581,6 +5654,7 @@ You have opened the Build Tools. Every object you see around you was created usi
   <notification
    icon="notify.tga"
    name="FirstTeleport"
+   persist="true"
    type="notify">
 You can only teleport to certain areas in this region. The arrow points to your specific destination. Click the arrow to dismiss it.
   </notification>
@@ -5590,6 +5664,7 @@ You can only teleport to certain areas in this region. The arrow points to your 
   <notification
    icon="notify.tga"
    name="FirstOverrideKeys"
+   persist="true"
    type="notify">
 Your movement keys are now being handled by an object.
 Try the arrow keys or AWSD to see what they do.
@@ -5601,6 +5676,7 @@ Press &apos;M&apos; to do this.
   <notification
    icon="notify.tga"
    name="FirstAppearance"
+   persist="true"
    type="notify">
 You are editing your Appearance.
 Use the arrow keys to look around.
@@ -5610,6 +5686,7 @@ When you are done, press &apos;Save All&apos;.
   <notification
    icon="notify.tga"
    name="FirstInventory"
+   persist="true"
    type="notify">
 This is your Inventory, which contains items you own.
 
@@ -5622,6 +5699,7 @@ This is your Inventory, which contains items you own.
   <notification
    icon="notify.tga"
    name="FirstSandbox"
+   persist="true"
    type="notify">
 This is a sandbox area, and is meant to help Residents learn how to build.
 
@@ -5632,6 +5710,7 @@ Things you build here will be deleted after you leave, so don&apos;t forget to r
   <notification
    icon="notify.tga"
    name="FirstFlexible"
+   persist="true"
    type="notify">
 This object is flexible. Flexis must be phantom and not physical.
   </notification>
@@ -5639,6 +5718,7 @@ This object is flexible. Flexis must be phantom and not physical.
   <notification
    icon="notify.tga"
    name="FirstDebugMenus"
+   persist="true"
    type="notify">
 You opened the Advanced menu.
 
@@ -5651,6 +5731,7 @@ To toggle this menu,
   <notification
    icon="notify.tga"
    name="FirstSculptedPrim"
+   persist="true"
    type="notify">
 You are editing a Sculpted prim. Sculpties require a special texture to define their shape.
   </notification>
@@ -5660,6 +5741,7 @@ You are editing a Sculpted prim. Sculpties require a special texture to define t
   <notification
    icon="notify.tga"
    name="FirstMedia"
+   persist="true"
    type="notify">
     You have begun playing media.  Media can set to play automatically in the preferences window under Audio / Video. Note that this can be a security risk for media sites you do not trust.
   </notification>
@@ -5700,6 +5782,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
   <notification
    icon="notify.tga"
    name="AutoUnmuteByIM"
+   persist="true"
    type="notify">
 [FIRST] [LAST] was sent an instant message and has been automatically unblocked.
   </notification>
@@ -5707,6 +5790,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
   <notification
    icon="notify.tga"
    name="AutoUnmuteByMoney"
+   persist="true"
    type="notify">
 [FIRST] [LAST] was given money and has been automatically unblocked.
   </notification>
@@ -5714,6 +5798,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
   <notification
    icon="notify.tga"
    name="AutoUnmuteByInventory"
+   persist="true"
    type="notify">
 [FIRST] [LAST] was offered inventory and has been automatically unblocked.
   </notification>

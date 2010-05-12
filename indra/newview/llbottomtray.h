@@ -205,9 +205,6 @@ private:
 	typedef std::map<EResizeState, S32> state_object_width_map_t;
 	state_object_width_map_t mObjectDefaultWidthMap;
 
-	typedef std::map<EResizeState, LLUICtrl*> dummies_map_t;
-	dummies_map_t mDummiesMap;
-
 protected:
 
 	LLBottomTray(const LLSD& key = LLSD());

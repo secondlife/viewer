@@ -1122,11 +1122,6 @@ void LLBottomTray::initStateProcessedObjectMap()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, mMovementPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, mCamPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, mSnapshotPanel));
-
-	mDummiesMap.insert(std::make_pair(RS_BUTTON_GESTURES, getChild<LLUICtrl>("after_gesture_panel")));
-	mDummiesMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, getChild<LLUICtrl>("after_movement_panel")));
-	mDummiesMap.insert(std::make_pair(RS_BUTTON_CAMERA,   getChild<LLUICtrl>("after_cam_panel")));
-	mDummiesMap.insert(std::make_pair(RS_BUTTON_SPEAK,    getChild<LLUICtrl>("after_speak_panel")));
 }
 
 void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool visible)
@@ -1140,12 +1135,6 @@ void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool vis
 	}
 
 	panel->setVisible(visible);
-
-	if (mDummiesMap.count(shown_object_type))
-	{
-		// Hide/show layout panel for dummy icon.
-		mDummiesMap[shown_object_type]->getParent()->setVisible(visible);
-	}
 }
 
 void LLBottomTray::setTrayButtonVisibleIfPossible(EResizeState shown_object_type, bool visible, bool raise_notification)
@@ -1168,20 +1157,13 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		return false;
 	}
 
-	const S32 dummy_width = mDummiesMap.count(object_type)
-		? mDummiesMap[object_type]->getParent()->getRect().getWidth()
-		: 0;
-
 	bool is_set = true;
 
 	if (visible)
 	{
-		// Assume that only chiclet panel can be auto-resized and
-		// don't take into account width of dummy widgets
+		// Assume that only chiclet panel can be auto-resized
 		const S32 available_width =
-			mChicletPanel->getParent()->getRect().getWidth() -
-			mChicletPanel->getMinWidth() -
-			dummy_width;
+			mChicletPanel->getParent()->getRect().getWidth() - mChicletPanel->getMinWidth();
 
 		S32 preferred_width = mObjectDefaultWidthMap[object_type];
 		S32 current_width = cur_panel->getRect().getWidth();
@@ -1249,7 +1231,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		// Shrink buttons if needed
 		if (is_set && decrease_width)
 		{
-			processWidthDecreased( -result_width - dummy_width );
+			processWidthDecreased( -result_width);
 		}
 	}
 	else
@@ -1264,7 +1246,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 		// Extend other buttons if need
 		if (delta_width)
 		{
-			processWidthIncreased(delta_width + dummy_width);
+			processWidthIncreased(delta_width);
 		}
 	}
 	return is_set;
