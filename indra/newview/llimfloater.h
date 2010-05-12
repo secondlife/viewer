@@ -50,6 +50,7 @@ class LLInventoryCategory;
  */
 class LLIMFloater : public LLTransientDockableFloater
 {
+	LOG_CLASS(LLIMFloater);
 public:
 	LLIMFloater(const LLUUID& session_id);
 
@@ -119,6 +120,10 @@ public:
 	static void onIMChicletCreated(const LLUUID& session_id);
 
 	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
+
+protected:
+	/* virtual */
+	void	onClickCloseBtn();
 
 private:
 	// process focus events to set a currently active session

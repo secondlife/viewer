@@ -43,7 +43,7 @@
 #include "llagent.h"			// for agent id
 #include "llinventorymodel.h"	// for gInventory
 #include "llfloaterreg.h"
-#include "llfloaterinventory.h"	// for get_item_icon
+#include "llinventoryicon.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llnotificationsutil.h"
@@ -152,9 +152,8 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	LLSD row;
 
 	// Compute icon for this item
-	std::string icon_name = get_item_icon_name(LLAssetType::AT_OBJECT, 
-									 LLInventoryType::IT_OBJECT,
-									 0x0, FALSE);
+	std::string icon_name = LLInventoryIcon::getIconName(LLAssetType::AT_OBJECT, 
+									 LLInventoryType::IT_OBJECT);
 
 	row["columns"][0]["column"] = "icon";
 	row["columns"][0]["type"] = "icon";
@@ -253,8 +252,9 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 			item_is_multi = TRUE;
 		}
 
-		std::string icon_name = get_item_icon_name(inv_item->getType(), 
+		std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(), 
 							 inv_item->getInventoryType(),
+							 inv_item->getIsLinkType(),
 							 inv_item->getFlags(),
 							 item_is_multi);
 		row["columns"][0]["column"] = "icon";
