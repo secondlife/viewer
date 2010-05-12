@@ -930,9 +930,10 @@ void render_hud_attachments()
 		bool render_particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) && gSavedSettings.getBOOL("RenderHUDParticles");
 		
 		//only render hud objects
-		U32 mask = gPipeline.getRenderTypeMask();
+		gPipeline.pushRenderTypeMask();
+		
 		// turn off everything
-		gPipeline.setRenderTypeMask(0);
+		gPipeline.andRenderTypeMask(LLPipeline::END_RENDER_TYPES);
 		// turn on HUD
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
 		// turn on HUD particles
@@ -986,7 +987,8 @@ void render_hud_attachments()
 		render_hud_elements();
 
 		//restore type mask
-		gPipeline.setRenderTypeMask(mask);
+		gPipeline.popRenderTypeMask();
+
 		if (has_ui)
 		{
 			gPipeline.toggleRenderDebugFeature((void*) LLPipeline::RENDER_DEBUG_FEATURE_UI);

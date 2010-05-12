@@ -329,7 +329,6 @@ LLPipeline::LLPipeline() :
 	mInitialized(FALSE),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
-	mRenderTypeMask(0),
 	mRenderDebugFeatureMask(0),
 	mRenderDebugMask(0),
 	mOldRenderDebugMask(0),
@@ -383,7 +382,11 @@ void LLPipeline::init()
 	LLViewerStats::getInstance()->mTrianglesDrawnStat.reset();
 	resetFrameStats();
 
-	mRenderTypeMask = 0xffffffff;	// All render types start on
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = TRUE; //all rendering types start enabled
+	}
+
 	mRenderDebugFeatureMask = 0xffffffff; // All debugging features on
 	mRenderDebugMask = 0;	// All debug starts off
 
@@ -2205,14 +2208,13 @@ static LLFastTimer::DeclareTimer FTM_RESET_DRAWORDER("Reset Draw Order");
 
 void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 {
-	const U32 face_mask = (1 << LLPipeline::RENDER_TYPE_AVATAR) |
-						  (1 << LLPipeline::RENDER_TYPE_GROUND) |
-						  (1 << LLPipeline::RENDER_TYPE_TERRAIN) |
-						  (1 << LLPipeline::RENDER_TYPE_TREE) |
-						  (1 << LLPipeline::RENDER_TYPE_SKY) |
-						  (1 << LLPipeline::RENDER_TYPE_WATER);
-
-	if (mRenderTypeMask & face_mask)
+	if (hasAnyRenderType(LLPipeline::RENDER_TYPE_AVATAR,
+					  LLPipeline::RENDER_TYPE_GROUND,
+					  LLPipeline::RENDER_TYPE_TERRAIN,
+					  LLPipeline::RENDER_TYPE_TREE,
+					  LLPipeline::RENDER_TYPE_SKY,
+					  LLPipeline::RENDER_TYPE_WATER,
+					  LLPipeline::END_RENDER_TYPES))
 	{
 		//clear faces from face pools
 		LLFastTimer t(FTM_RESET_DRAWORDER);
@@ -4990,8 +4992,7 @@ void LLPipeline::setLight(LLDrawable *drawablep, BOOL is_light)
 //static
 void LLPipeline::toggleRenderType(U32 type)
 {
-	U32 bit = (1<<type);
-	gPipeline.mRenderTypeMask ^= bit;
+	gPipeline.mRenderTypeEnabled[type] = !gPipeline.mRenderTypeEnabled[type];
 }
 
 //static
@@ -6617,15 +6618,16 @@ void LLPipeline::renderDeferredLighting()
 			LLGLDisable stencil(GL_STENCIL_TEST);
 			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-			U32 render_mask = mRenderTypeMask;
-			mRenderTypeMask =	mRenderTypeMask & 
-								((1 << LLPipeline::RENDER_TYPE_SKY) |
-								(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
-								(1 << LLPipeline::RENDER_TYPE_WL_SKY));
+			gPipeline.pushRenderTypeMask();
+			
+			gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
+										LLPipeline::RENDER_TYPE_CLOUDS,
+										LLPipeline::RENDER_TYPE_WL_SKY,
+										LLPipeline::END_RENDER_TYPES);
 								
 			
 			renderGeomPostDeferred(*LLViewerCamera::getInstance());
-			mRenderTypeMask = render_mask;
+			gPipeline.popRenderTypeMask();
 		}
 
 		BOOL render_local = gSavedSettings.getBOOL("RenderDeferredLocalLights");
@@ -6947,29 +6949,30 @@ void LLPipeline::renderDeferredLighting()
 		LLGLDisable blend(GL_BLEND);
 		LLGLDisable stencil(GL_STENCIL_TEST);
 
-		U32 render_mask = mRenderTypeMask;
-		mRenderTypeMask =	mRenderTypeMask & 
-							((1 << LLPipeline::RENDER_TYPE_ALPHA) |
-							(1 << LLPipeline::RENDER_TYPE_FULLBRIGHT) |
-							(1 << LLPipeline::RENDER_TYPE_VOLUME) |
-							(1 << LLPipeline::RENDER_TYPE_GLOW) |
-							(1 << LLPipeline::RENDER_TYPE_BUMP) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_SIMPLE) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_ALPHA) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_ALPHA_MASK) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_BUMP) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_GLOW) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_GRASS) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_SHINY) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_INVISIBLE) |
-							(1 << LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY) |
-							(1 << LLPipeline::RENDER_TYPE_AVATAR));
+		pushRenderTypeMask();
+		andRenderTypeMask(LLPipeline::RENDER_TYPE_ALPHA,
+						 LLPipeline::RENDER_TYPE_FULLBRIGHT,
+						 LLPipeline::RENDER_TYPE_VOLUME,
+						 LLPipeline::RENDER_TYPE_GLOW,
+						 LLPipeline::RENDER_TYPE_BUMP,
+						 LLPipeline::RENDER_TYPE_PASS_SIMPLE,
+						 LLPipeline::RENDER_TYPE_PASS_ALPHA,
+						 LLPipeline::RENDER_TYPE_PASS_ALPHA_MASK,
+						 LLPipeline::RENDER_TYPE_PASS_BUMP,
+						 LLPipeline::RENDER_TYPE_PASS_POST_BUMP,
+						 LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT,
+						 LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK,
+						 LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY,
+						 LLPipeline::RENDER_TYPE_PASS_GLOW,
+						 LLPipeline::RENDER_TYPE_PASS_GRASS,
+						 LLPipeline::RENDER_TYPE_PASS_SHINY,
+						 LLPipeline::RENDER_TYPE_PASS_INVISIBLE,
+						 LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY,
+						 LLPipeline::RENDER_TYPE_AVATAR,
+						 END_RENDER_TYPES);
 		
 		renderGeomPostDeferred(*LLViewerCamera::getInstance());
-		mRenderTypeMask = render_mask;
+		popRenderTypeMask();
 	}
 
 	{
@@ -7224,8 +7227,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 		LLPipeline::sUseOcclusion = llmin(occlusion, 1);
 		
-		U32 type_mask = gPipeline.mRenderTypeMask;
-
+		gPipeline.pushRenderTypeMask();
+		
 		glh::matrix4f projection = glh_get_current_projection();
 		glh::matrix4f mat;
 
@@ -7293,43 +7296,48 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			glCullFace(GL_FRONT);
 
 			static LLCullResult ref_result;
-			U32 ref_mask = 0;
+		
 			if (LLDrawPoolWater::sNeedsDistortionUpdate)
 			{
 				//initial sky pass (no user clip plane)
 				{ //mask out everything but the sky
-					U32 tmp = mRenderTypeMask;
-					mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
-										(1 << LLPipeline::RENDER_TYPE_WL_SKY));
+					gPipeline.pushRenderTypeMask();
+					gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
+												LLPipeline::RENDER_TYPE_WL_SKY,
+												LLPipeline::END_RENDER_TYPES);
 					static LLCullResult result;
 					updateCull(camera, result);
 					llpushcallstacks ;
 					stateSort(camera, result);
-					mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
-										(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
-										(1 << LLPipeline::RENDER_TYPE_WL_SKY));
+					andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
+										LLPipeline::RENDER_TYPE_CLOUDS,
+										LLPipeline::RENDER_TYPE_WL_SKY,
+										LLPipeline::END_RENDER_TYPES);
+
 					renderGeom(camera, TRUE);
-					mRenderTypeMask = tmp;
+					gPipeline.popRenderTypeMask();
 				}
 
-				U32 mask = mRenderTypeMask;
-				mRenderTypeMask &=	~((1<<LLPipeline::RENDER_TYPE_WATER) |
-									  (1<<LLPipeline::RENDER_TYPE_GROUND) |
-									  (1<<LLPipeline::RENDER_TYPE_SKY) |
-									  (1<<LLPipeline::RENDER_TYPE_CLOUDS));	
+				gPipeline.pushRenderTypeMask();
+				
+				clearRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
+									LLPipeline::RENDER_TYPE_GROUND,
+									LLPipeline::RENDER_TYPE_SKY,
+									LLPipeline::RENDER_TYPE_CLOUDS,
+									LLPipeline::END_RENDER_TYPES);	
 
 				S32 detail = gSavedSettings.getS32("RenderReflectionDetail");
 				if (detail > 0)
 				{ //mask out selected geometry based on reflection detail
 					if (detail < 4)
 					{
-						mRenderTypeMask &= ~(1 << LLPipeline::RENDER_TYPE_PARTICLES);
+						clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
 						if (detail < 3)
 						{
-							mRenderTypeMask &= ~(1 << LLPipeline::RENDER_TYPE_AVATAR);
+							clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
 							if (detail < 2)
 							{
-								mRenderTypeMask &= ~(1 << LLPipeline::RENDER_TYPE_VOLUME);
+								clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
 							}
 						}
 					}
@@ -7341,18 +7349,17 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					stateSort(camera, ref_result);
 				}
 				
-				ref_mask = mRenderTypeMask;
-				mRenderTypeMask = mask;
-			}
-			if (LLDrawPoolWater::sNeedsDistortionUpdate)
-			{
-				mRenderTypeMask = ref_mask;
-				if (gSavedSettings.getS32("RenderReflectionDetail") > 0)
+				if (LLDrawPoolWater::sNeedsDistortionUpdate)
 				{
-					gPipeline.grabReferences(ref_result);
-					LLGLUserClipPlane clip_plane(plane, mat, projection);
-					renderGeom(camera);
+					if (gSavedSettings.getS32("RenderReflectionDetail") > 0)
+					{
+						gPipeline.grabReferences(ref_result);
+						LLGLUserClipPlane clip_plane(plane, mat, projection);
+						renderGeom(camera);
+					}
 				}
+
+				gPipeline.popRenderTypeMask();
 			}	
 			glCullFace(GL_BACK);
 			glPopMatrix();
@@ -7366,18 +7373,20 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		if (last_update)
 		{
 			camera.setFar(camera_in.getFar());
-			mRenderTypeMask = type_mask & (~(1<<LLPipeline::RENDER_TYPE_WATER) |
-											(1<<LLPipeline::RENDER_TYPE_GROUND));	
+			clearRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
+								LLPipeline::RENDER_TYPE_GROUND,
+								END_RENDER_TYPES);	
 			stop_glerror();
 
 			LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? FALSE : TRUE;
 
 			if (LLPipeline::sUnderWaterRender)
 			{
-				mRenderTypeMask &=	~((1<<LLPipeline::RENDER_TYPE_GROUND) |
-									  (1<<LLPipeline::RENDER_TYPE_SKY) |
-									  (1<<LLPipeline::RENDER_TYPE_CLOUDS) |
-									  (1<<LLPipeline::RENDER_TYPE_WL_SKY));		
+				clearRenderTypeMask(LLPipeline::RENDER_TYPE_GROUND,
+									LLPipeline::RENDER_TYPE_SKY,
+									LLPipeline::RENDER_TYPE_CLOUDS,
+									LLPipeline::RENDER_TYPE_WL_SKY,
+									END_RENDER_TYPES);		
 			}
 			LLViewerCamera::updateFrustumPlanes(camera);
 
@@ -7419,7 +7428,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		}
 		glClearColor(0.f, 0.f, 0.f, 0.f);
 		gViewerWindow->setup3DViewport();
-		mRenderTypeMask = type_mask;
+		gPipeline.popRenderTypeMask();
 		LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
 		LLDrawPoolWater::sNeedsDistortionUpdate = FALSE;
 		LLViewerCamera::getInstance()->setUserClipPlane(LLPlane(-pnorm, -pd));
@@ -7874,21 +7883,22 @@ void LLPipeline::generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<L
 	sun_cam.ignoreAgentFrustumPlane(LLCamera::AGENT_PLANE_NEAR);
 	static LLCullResult result;
 
-	U32 type_mask = mRenderTypeMask;
+	pushRenderTypeMask();
 
-	mRenderTypeMask = type_mask & ((1<<LLPipeline::RENDER_TYPE_SIMPLE) |
-								   (1<<LLPipeline::RENDER_TYPE_FULLBRIGHT) |
-								   (1<<LLPipeline::RENDER_TYPE_BUMP) |
-								   (1<<LLPipeline::RENDER_TYPE_VOLUME) |
-								   (1<<LLPipeline::RENDER_TYPE_TREE) | 
-								   (1<<LLPipeline::RENDER_TYPE_TERRAIN) |
-								   (1<<LLPipeline::RENDER_TYPE_WATER) |
-								   (1<<LLPipeline::RENDER_TYPE_PASS_ALPHA_SHADOW) |
-								   (1<<LLPipeline::RENDER_TYPE_AVATAR) |
-								   (1 << LLPipeline::RENDER_TYPE_PASS_SIMPLE) |
-									(1 << LLPipeline::RENDER_TYPE_PASS_BUMP) |
-									(1 << LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT) |
-									(1 << LLPipeline::RENDER_TYPE_PASS_SHINY));
+	andRenderTypeMask(LLPipeline::RENDER_TYPE_SIMPLE,
+								 LLPipeline::RENDER_TYPE_FULLBRIGHT,
+								 LLPipeline::RENDER_TYPE_BUMP,
+								 LLPipeline::RENDER_TYPE_VOLUME,
+								 LLPipeline::RENDER_TYPE_TREE, 
+								 LLPipeline::RENDER_TYPE_TERRAIN,
+								 LLPipeline::RENDER_TYPE_WATER,
+								 LLPipeline::RENDER_TYPE_PASS_ALPHA_SHADOW,
+								 LLPipeline::RENDER_TYPE_AVATAR,
+								 LLPipeline::RENDER_TYPE_PASS_SIMPLE,
+								 LLPipeline::RENDER_TYPE_PASS_BUMP,
+								 LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT,
+								 LLPipeline::RENDER_TYPE_PASS_SHINY,
+								 END_RENDER_TYPES);
 
 
 	
@@ -7957,7 +7967,7 @@ void LLPipeline::generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<L
 	LLPipeline::sShadowRender = FALSE;
 	sMinRenderSize = 0.f;
 
-	mRenderTypeMask = type_mask;
+	popRenderTypeMask();
 
 }
 
@@ -8054,23 +8064,24 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		last_projection[i] = gGLLastProjection[i];
 	}
 
-	U32 type_mask = mRenderTypeMask;
-	mRenderTypeMask = type_mask & ((1<<LLPipeline::RENDER_TYPE_SIMPLE) |
-								   (1<<LLPipeline::RENDER_TYPE_ALPHA) |
-								   (1<<LLPipeline::RENDER_TYPE_GRASS) |
-								   (1<<LLPipeline::RENDER_TYPE_FULLBRIGHT) |
-								   (1<<LLPipeline::RENDER_TYPE_BUMP) |
-								   (1<<LLPipeline::RENDER_TYPE_VOLUME) |
-								   (1<<LLPipeline::RENDER_TYPE_AVATAR) |
-								   (1<<LLPipeline::RENDER_TYPE_TREE) | 
-								   (1<<LLPipeline::RENDER_TYPE_TERRAIN) |
-								   (1<<LLPipeline::RENDER_TYPE_WATER) |
-								   (1<<LLPipeline::RENDER_TYPE_PASS_ALPHA_SHADOW) |
-								   (1 << LLPipeline::RENDER_TYPE_PASS_SIMPLE) |
-								   (1 << LLPipeline::RENDER_TYPE_PASS_BUMP) |
-								   (1 << LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT) |
-								   (1 << LLPipeline::RENDER_TYPE_PASS_SHINY) |
-								   (1 << LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY));
+	pushRenderTypeMask();
+	andRenderTypeMask(LLPipeline::RENDER_TYPE_SIMPLE,
+					LLPipeline::RENDER_TYPE_ALPHA,
+					LLPipeline::RENDER_TYPE_GRASS,
+					LLPipeline::RENDER_TYPE_FULLBRIGHT,
+					LLPipeline::RENDER_TYPE_BUMP,
+					LLPipeline::RENDER_TYPE_VOLUME,
+					LLPipeline::RENDER_TYPE_AVATAR,
+					LLPipeline::RENDER_TYPE_TREE, 
+					LLPipeline::RENDER_TYPE_TERRAIN,
+					LLPipeline::RENDER_TYPE_WATER,
+					LLPipeline::RENDER_TYPE_PASS_ALPHA_SHADOW,
+					LLPipeline::RENDER_TYPE_PASS_SIMPLE,
+					LLPipeline::RENDER_TYPE_PASS_BUMP,
+					LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT,
+					LLPipeline::RENDER_TYPE_PASS_SHINY,
+					LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY,
+					END_RENDER_TYPES);
 
 	gGL.setColorMask(false, false);
 
@@ -8147,7 +8158,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 				mShadowFrustPoints[2].clear();
 				mShadowFrustPoints[3].clear();
 			}
-			mRenderTypeMask = type_mask;
+			popRenderTypeMask();
 			return;
 		}
 
@@ -8233,10 +8244,11 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		for (U32 i = 0; i < 4; i++)
 		{
 			LLVector3 delta = frust[i+4]-eye;
+			delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
 			delta.normVec();
 			F32 dp = delta*pn;
-			frust[i] = eye + (delta*dist[j])/dp;
-			frust[i+4] = eye + (delta*dist[j+1])/dp;
+			frust[i] = eye + (delta*dist[j]*0.95f)/dp;
+			frust[i+4] = eye + (delta*dist[j+1]*1.05f)/dp;
 		}
 						
 		shadow_cam.calcAgentFrustumPlanes(frust);
@@ -8748,7 +8760,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		gGLLastProjection[i] = last_projection[i];
 	}
 
-	mRenderTypeMask = type_mask;
+	popRenderTypeMask();
 }
 
 void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture)
@@ -8784,38 +8796,36 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	assertInitialized();
 
-	U32 mask;
 	BOOL muted = LLMuteList::getInstance()->isMuted(avatar->getID());
 
+	pushRenderTypeMask();
+	
 	if (muted)
 	{
-		mask  = 1 << LLPipeline::RENDER_TYPE_AVATAR;
+		andRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
 	}
 	else
 	{
-		mask  = (1<<LLPipeline::RENDER_TYPE_VOLUME) |
-				(1<<LLPipeline::RENDER_TYPE_AVATAR) |
-				(1<<LLPipeline::RENDER_TYPE_BUMP) |
-				(1<<LLPipeline::RENDER_TYPE_GRASS) |
-				(1<<LLPipeline::RENDER_TYPE_SIMPLE) |
-				(1<<LLPipeline::RENDER_TYPE_FULLBRIGHT) |
-				(1<<LLPipeline::RENDER_TYPE_ALPHA) | 
-				(1<<LLPipeline::RENDER_TYPE_INVISIBLE) |
-				(1 << LLPipeline::RENDER_TYPE_PASS_SIMPLE) |
-				(1 << LLPipeline::RENDER_TYPE_PASS_ALPHA) |
-				(1 << LLPipeline::RENDER_TYPE_PASS_ALPHA_MASK) |
-				(1 << LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT) |
-				(1 << LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK) |
-				(1 << LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY) |
-				(1 << LLPipeline::RENDER_TYPE_PASS_SHINY) |
-				(1 << LLPipeline::RENDER_TYPE_PASS_INVISIBLE) |
-				(1 << LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY);
+		andRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME,
+						LLPipeline::RENDER_TYPE_AVATAR,
+						LLPipeline::RENDER_TYPE_BUMP,
+						LLPipeline::RENDER_TYPE_GRASS,
+						LLPipeline::RENDER_TYPE_SIMPLE,
+						LLPipeline::RENDER_TYPE_FULLBRIGHT,
+						LLPipeline::RENDER_TYPE_ALPHA, 
+						LLPipeline::RENDER_TYPE_INVISIBLE,
+						LLPipeline::RENDER_TYPE_PASS_SIMPLE,
+						LLPipeline::RENDER_TYPE_PASS_ALPHA,
+						LLPipeline::RENDER_TYPE_PASS_ALPHA_MASK,
+						LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT,
+						LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK,
+						LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY,
+						LLPipeline::RENDER_TYPE_PASS_SHINY,
+						LLPipeline::RENDER_TYPE_PASS_INVISIBLE,
+						LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY,
+						END_RENDER_TYPES);
 	}
 	
-	mask = mask & gPipeline.getRenderTypeMask();
-	U32 saved_mask = gPipeline.mRenderTypeMask;
-	gPipeline.mRenderTypeMask = mask;
-
 	S32 occlusion = sUseOcclusion;
 	sUseOcclusion = 0;
 	sReflectionRender = sRenderDeferred ? FALSE : TRUE;
@@ -8989,7 +8999,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	sReflectionRender = FALSE;
 	sImpostorRender = FALSE;
 	sShadowRender = FALSE;
-	gPipeline.mRenderTypeMask = saved_mask;
+	popRenderTypeMask();
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -9028,6 +9038,123 @@ LLCullResult::sg_list_t::iterator LLPipeline::beginAlphaGroups()
 LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
 {
 	return sCull->endAlphaGroups();
+}
+
+BOOL LLPipeline::hasRenderType(const U32 type) const
+{
+	return mRenderTypeEnabled[type];
+}
+
+void LLPipeline::setRenderTypeMask(U32 type, ...)
+{
+	va_list args;
+
+	va_start(args, type);
+	while (type < END_RENDER_TYPES)
+	{
+		mRenderTypeEnabled[type] = TRUE;
+		type = va_arg(args, U32);
+	}
+	va_end(args);
+
+	if (type > END_RENDER_TYPES)
+	{
+		llerrs << "Invalid render type." << llendl;
+	}
+}
+
+BOOL LLPipeline::hasAnyRenderType(U32 type, ...) const
+{
+	va_list args;
+
+	va_start(args, type);
+	while (type < END_RENDER_TYPES)
+	{
+		if (mRenderTypeEnabled[type])
+		{
+			return TRUE;
+		}
+		type = va_arg(args, U32);
+	}
+	va_end(args);
+
+	if (type > END_RENDER_TYPES)
+	{
+		llerrs << "Invalid render type." << llendl;
+	}
+
+	return FALSE;
+}
+
+void LLPipeline::pushRenderTypeMask()
+{
+	std::string cur_mask;
+	cur_mask.assign((const char*) mRenderTypeEnabled, sizeof(mRenderTypeEnabled));
+	mRenderTypeEnableStack.push(cur_mask);
+}
+
+void LLPipeline::popRenderTypeMask()
+{
+	if (mRenderTypeEnableStack.empty())
+	{
+		llerrs << "Depleted render type stack." << llendl;
+	}
+
+	memcpy(mRenderTypeEnabled, mRenderTypeEnableStack.top().data(), sizeof(mRenderTypeEnabled));
+	mRenderTypeEnableStack.pop();
+}
+
+void LLPipeline::andRenderTypeMask(U32 type, ...)
+{
+	va_list args;
+
+	BOOL tmp[NUM_RENDER_TYPES];
+	for (U32 i = 0; i < NUM_RENDER_TYPES; ++i)
+	{
+		tmp[i] = FALSE;
+	}
+
+	va_start(args, type);
+	while (type < END_RENDER_TYPES)
+	{
+		if (mRenderTypeEnabled[type]) 
+		{
+			tmp[type] = TRUE;
+		}
+
+		type = va_arg(args, U32);
+	}
+	va_end(args);
+
+	if (type > END_RENDER_TYPES)
+	{
+		llerrs << "Invalid render type." << llendl;
+	}
+
+	for (U32 i = 0; i < LLPipeline::NUM_RENDER_TYPES; ++i)
+	{
+		mRenderTypeEnabled[i] = tmp[i];
+	}
+
+}
+
+void LLPipeline::clearRenderTypeMask(U32 type, ...)
+{
+	va_list args;
+
+	va_start(args, type);
+	while (type < END_RENDER_TYPES)
+	{
+		mRenderTypeEnabled[type] = FALSE;
+		
+		type = va_arg(args, U32);
+	}
+	va_end(args);
+
+	if (type > END_RENDER_TYPES)
+	{
+		llerrs << "Invalid render type." << llendl;
+	}
 }
 
 
