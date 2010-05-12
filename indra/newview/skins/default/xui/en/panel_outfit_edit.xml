@@ -15,6 +15,12 @@
     <string
      name="No Outfit"
      value="No Outfit"/>
+    <string
+     name="unsaved_changes"
+     value="Unsaved Changes"/>
+    <string
+     name="now_editing"
+     value="Now Editing"/>
 	
 	<panel.string
 		name="not_available">
@@ -209,123 +215,119 @@
          tab_group="2"
          user_resize="true"
          visible="false">
-
-            <!-- *NOTE is not used, invisible and disabled -->
-            <filter_editor
-             background_image="TextField_Search_Off"
-             enabled="false"
-             follows="left|top|right"
-             font="SansSerif"
-             label="Filter"
+         	<text
+             follows="top|left|right"
+             font="SansSerifBold"
+             height="13"
              layout="topleft"
              left="5"
-             width="290"
+             name="add_to_outfit_label"
+             text_color="LtGray"
+             top="3"
+             value="Add to Outfit:"
+             use_ellipses="true"
+             width="150" />
+            <button
+             follows="top|left|right"
              height="20"
-             name="look_item_filter"
-             text_color="black"
-             text_pad_left="25"
-             visible="false"/>
+             image_hover_unselected="Toolbar_Middle_Over"
+             image_overlay=""
+             image_selected="Toolbar_Middle_Selected"
+             image_unselected="Toolbar_Middle_Off"
+             is_toggle="true"
+             label="O"
+             layout="topleft"
+             left_pad="5"
+             name="filter_button"
+             top="3"
+             width="20" />
+            <combo_box
+             follows="top|left|right"
+             height="20"
+             layout="topleft"
+             right="-5"
+             name="filter_wearables_combobox"
+             top="2"
+             width="110"/>
 
             <layout_stack
              animate="true"
              follows="all"
-             height="25"
-             width="300"
+             height="155"
+             width="311"
              layout="topleft"
-             orientation="horizontal"
              name="filter_panels"
-             top="0"
+             top_pad="5"
              left="0">
                 <layout_panel
+                 auto_resize="true"
                  layout="topleft"
                  follows="left|top|right"
-                 height="25"
+                 height="30"
                  label="IM Control Panel"
-                 name="filter_button_panel"
-                 width="150"
-                 auto_resize="true"
-                 user_resize="false">
-                    <text
-                     follows="top|left|right"
-                     font="SansSerifBold"
-                     height="13"
-                     layout="topleft"
-                     left="5"
-                     name="add_to_outfit_label"
-                     text_color="LtGray"
-                     top="3"
-                     value="Add to Outfit:"
-                     use_ellipses="true"
-                     width="270" />
-                    <button
-                     follows="top|right"
-                     height="20"
-                     image_hover_unselected="Toolbar_Middle_Over"
-                     image_overlay=""
-                     image_selected="Toolbar_Middle_Selected"
-                     image_unselected="Toolbar_Middle_Off"
-                     is_toggle="true"
-                     label="O"
-                     layout="topleft"
-                     right="-1"
-                     name="filter_button"
-                     top="3"
-                     width="20" />
+                 name="filter_panel"
+                 width="311"
+                 user_resize="false"
+                 visible="false">
+                    <filter_editor
+		             background_image="TextField_Search_Off"
+		             enabled="true"
+		             follows="left|top|right"
+		             font="SansSerif"
+		             label="Filter"
+		             layout="topleft"
+		             left="5"
+		             width="290"
+		             height="25"
+		             name="look_item_filter"
+		             text_color="black"
+		             text_pad_left="25"
+		             visible="true"/>
                 </layout_panel>
                 <layout_panel
                  auto_resize="true"
-                 height="25"
+                 height="145"
                  min_width="130"
-                 name="filter_combobox_panel"
-                 width="150"
-                 user_resize="false"
-                 visible="false">
-                    <combo_box
-                     follows="top|left|right"
-                     height="20"
-                     layout="topleft"
-                     right="-5"
-                     name="filter_wearables_combobox"
-                     top="0"
-                     width="130"/>
+                 name="inventory_panel"
+                 width="311"
+                 user_resize="true">
+                    <inventory_panel
+		             allow_multi_select="false"
+		             border="false"
+		             follows="left|top|right|bottom"
+		             height="130"
+		             layout="topleft"
+		             left="0"
+		             mouse_opaque="false"
+		             name="inventory_items"
+		             top_pad="5"
+		             width="311"
+		             visible="false"/>
+		            <panel
+		             name="filtered_wearables_panel"
+		             background_opaque="true"
+		             background_visible="true"
+		             layout="topleft"
+		             follows="left|top|right|bottom"
+		             border="false"
+		             height="130"
+		             left="0"
+		             mouse_opaque="false"
+		             width="311"
+		             top_delta="0"
+		             visible="true">
+		             <wearable_items_list
+		              name="filtered_wearables_list"
+		              allow_select="true"
+		              layout="topleft"
+		              follows="all"
+		              width="311"
+		              height="130"
+		              left="0"
+		              top="0"/>
+		            </panel>
                 </layout_panel>
             </layout_stack>
-
-            <inventory_panel
-             allow_multi_select="false"
-             border="false"
-             follows="left|top|right|bottom"
-             height="155"
-             layout="topleft"
-             left="0"
-             mouse_opaque="false"
-             name="inventory_items"
-             top_pad="5"
-             width="300"/>
-
-            <panel
-             name="filtered_wearables_panel"
-             background_opaque="true"
-             background_visible="true"
-             layout="topleft"
-             follows="left|top|right|bottom"
-             border="false"
-             height="155"
-             left="0"
-             mouse_opaque="false"
-             width="300"
-             top_delta="0"
-             visible="false">
-             <wearable_items_list
-              name="filtered_wearables_list"
-              allow_select="true"
-              layout="topleft"
-              follows="all"
-              width="300"
-              height="155"
-              left="0"
-              top="0" />
-            </panel>
 
             <panel
              background_visible="true"
@@ -357,6 +359,7 @@
                  image_overlay=""
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
+                 is_toggle="true"
                  label="F"
                  layout="topleft"
                  left_pad="1"
@@ -370,6 +373,7 @@
                  image_overlay=""
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
+                 is_toggle="true"
                  label="L"
                  layout="topleft"
                  left_pad="1"

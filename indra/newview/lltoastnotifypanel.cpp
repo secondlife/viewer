@@ -291,7 +291,10 @@ LLToastNotifyPanel::~LLToastNotifyPanel()
 	{
 		// let reusable notification be deleted
 		mNotification->setReusable(false);
-		LLNotifications::getInstance()->cancel(mNotification);
+		if (!mNotification->isPersistent())
+		{
+			LLNotifications::getInstance()->cancel(mNotification);
+		}
 	}
 }
 

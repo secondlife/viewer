@@ -124,6 +124,29 @@ protected:
 	/*virtual*/ void init();
 };
 
+
+class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
+{
+	LOG_CLASS(LLPanelDeletableWearableListItem);
+public:
+
+	static LLPanelDeletableWearableListItem* create(LLViewerInventoryItem* item);
+
+	virtual ~LLPanelDeletableWearableListItem();
+
+	/*virtual*/ BOOL postBuild();
+
+	/**
+	 * Make button visible during mouse over event.
+	 */
+	inline void setShowDeleteButton(bool show) { setShowWidget("btn_delete", show); }
+
+protected:
+	LLPanelDeletableWearableListItem(LLViewerInventoryItem* item);
+
+	/*virtual*/ void init();
+};
+
 /**
  * @class LLPanelDummyClothingListItem
  *
