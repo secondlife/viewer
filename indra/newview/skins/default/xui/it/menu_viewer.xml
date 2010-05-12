@@ -64,7 +64,7 @@
 			<menu_item_call label="Strumento Ingrandisci" name="Focus"/>
 			<menu_item_call label="Strumento Movimento" name="Move"/>
 			<menu_item_call label="Strumento Modifica" name="Edit"/>
-			<menu_item_call label="Crea strumento" name="Create"/>
+			<menu_item_call label="Strumento Crea" name="Create"/>
 			<menu_item_call label="Strumento Terreno" name="Land"/>
 		</menu>
 		<menu_item_call label="Collegamento" name="Link"/>
@@ -182,7 +182,7 @@
 				<menu_item_call label="Strumento Ingrandisci" name="Focus"/>
 				<menu_item_call label="Strumento Movimento" name="Move"/>
 				<menu_item_call label="Strumento Modifica" name="Edit"/>
-				<menu_item_call label="Crea strumento" name="Create"/>
+				<menu_item_call label="Strumento Crea" name="Create"/>
 				<menu_item_call label="Strumento Terreno" name="Land"/>
 			</menu>
 			<menu_item_call label="Zoom avanti" name="Zoom In"/>
