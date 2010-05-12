@@ -1154,3 +1154,31 @@ void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
 	}
 
 }
+
+void	LLIMFloater::onClickCloseBtn()
+{
+
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+				mSessionID);
+
+	if (session == NULL)
+	{
+		llwarns << "Empty session." << llendl;
+		return;
+	}
+
+	bool is_call_with_chat = session->isGroupSessionType()
+			|| session->isAdHocSessionType() || session->isP2PSessionType();
+
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+	if (is_call_with_chat && voice_channel != NULL && voice_channel->isActive())
+	{
+		LLSD payload;
+		payload["session_id"] = mSessionID;
+		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload);
+		return;
+	}
+
+	LLFloater::onClickCloseBtn();
+}
