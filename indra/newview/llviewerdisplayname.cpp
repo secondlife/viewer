@@ -148,7 +148,6 @@ public:
 	}
 };
 
-#include "llsdserialize.h"
 
 class LLDisplayNameUpdate : public LLHTTPNode
 {
