@@ -5970,6 +5970,19 @@ Drag items from inventory onto a person in the resident picker
 Avatar '[NAME]' rezzed in [TIME] seconds.
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmLeaveCall"
+   type="alert">
+Are you sure you want to leave this call?
+    <usetemplate
+     ignoretext="Confirm before I leave call"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+     <unique/>
+  </notification>
+
   <global name="UnsupportedCPU">
 - Your CPU speed does not meet the minimum requirements.
   </global>
