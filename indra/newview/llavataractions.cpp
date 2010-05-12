@@ -187,33 +187,26 @@ void LLAvatarActions::offerTeleport(const uuid_vec_t& ids)
 	handle_lure(ids);
 }
 
+static void on_avatar_name_cache_start_im(const LLUUID& agent_id,
+										  const LLAvatarName& av_name)
+{
+	std::string name = av_name.getNameAndSLID();
+	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, agent_id);
+	if (session_id != LLUUID::null)
+	{
+		LLIMFloater::show(session_id);
+	}
+	make_ui_sound("UISndStartIM");
+}
+
 // static
 void LLAvatarActions::startIM(const LLUUID& id)
 {
 	if (id.isNull())
 		return;
 
-	std::string name;
-	if (!gCacheName->getFullName(id, name))
-	{
-		gCacheName->get(id, FALSE, boost::bind(&LLAvatarActions::startIM, id));
-		return;
-	}
-
-	// IDEVO
-	LLAvatarName av_name;
-	if (LLAvatarNameCache::useDisplayNames()
-		&& LLAvatarNameCache::get(id, &av_name))
-	{
-		name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
-	}
-
-	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id);
-	if (session_id != LLUUID::null)
-	{
-		LLIMFloater::show(session_id);
-	}
-	make_ui_sound("UISndStartIM");
+	LLAvatarNameCache::get(id,
+		boost::bind(&on_avatar_name_cache_start_im, _1, _2));
 }
 
 // static
@@ -229,6 +222,18 @@ void LLAvatarActions::endIM(const LLUUID& id)
 	}
 }
 
+static void on_avatar_name_cache_start_call(const LLUUID& agent_id,
+											const LLAvatarName& av_name)
+{
+	std::string name = av_name.getNameAndSLID();
+	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, agent_id, true);
+	if (session_id != LLUUID::null)
+	{
+		gIMMgr->startCall(session_id);
+	}
+	make_ui_sound("UISndStartIM");
+}
+
 // static
 void LLAvatarActions::startCall(const LLUUID& id)
 {
@@ -236,22 +241,8 @@ void LLAvatarActions::startCall(const LLUUID& id)
 	{
 		return;
 	}
-
-	std::string name;
-	gCacheName->getFullName(id, name);
-	// IDEVO
-	LLAvatarName av_name;
-	if (LLAvatarNameCache::useDisplayNames()
-		&& LLAvatarNameCache::get(id, &av_name))
-	{
-		name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
-	}
-	LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, id, true);
-	if (session_id != LLUUID::null)
-	{
-		gIMMgr->startCall(session_id);
-	}
-	make_ui_sound("UISndStartIM");
+	LLAvatarNameCache::get(id,
+		boost::bind(&on_avatar_name_cache_start_call, _1, _2));
 }
 
 // static
