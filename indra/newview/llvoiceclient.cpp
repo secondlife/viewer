@@ -507,9 +507,23 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 			}
 			else if (!stricmp("SessionFonts", tag))
 			{
-				LLVoiceClient::getInstance()->deleteAllVoiceFonts();
+				LLVoiceClient::getInstance()->deleteVoiceFonts();
 			}
 			else if (!stricmp("SessionFont", tag))
+			{
+				id = 0;
+				nameString.clear();
+				descriptionString.clear();
+				expirationDateString.clear();
+				hasExpired = false;
+				fontType = 0;
+				fontStatus = 0;
+			}
+			else if (!stricmp("TemplateFonts", tag))
+			{
+				LLVoiceClient::getInstance()->deleteVoiceFontTemplates();
+			}
+			else if (!stricmp("TemplateFont", tag))
 			{
 				id = 0;
 				nameString.clear();
@@ -648,7 +662,11 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 			autoAddAsBuddy = string;
 		else if (!stricmp("SessionFont", tag))
 		{
-			LLVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDateString, hasExpired, fontType, fontStatus);
+			LLVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDateString, hasExpired, fontType, fontStatus, false);
+		}
+		else if (!stricmp("TemplateFont", tag))
+		{
+			LLVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDateString, hasExpired, fontType, fontStatus, true);
 		}
 		else if (!stricmp("ID", tag))
 		{
@@ -947,6 +965,10 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		else if (!stricmp(actionCstr, "Account.GetSessionFonts.1"))
 		{
 			LLVoiceClient::getInstance()->accountGetSessionFontsResponse(statusCode, statusString);
+		}
+		else if (!stricmp(actionCstr, "Account.GetTemplateFonts.1"))
+		{
+			LLVoiceClient::getInstance()->accountGetTemplateFontsResponse(statusCode, statusString);
 		}
 		else if (!stricmp(actionCstr, "Session.Set3DPosition.1"))
 		{
@@ -1859,7 +1881,8 @@ void LLVoiceClient::stateMachine()
 			closeSocket();
 			deleteAllSessions();
 			deleteAllBuddies();
-			deleteAllVoiceFonts();
+			deleteVoiceFonts();
+			deleteVoiceFontTemplates();
 			
 			mConnectorHandle.clear();
 			mAccountHandle.clear();
@@ -2296,6 +2319,7 @@ void LLVoiceClient::stateMachine()
 			// request the set of available voice fonts
 			setState(stateVoiceFontsWait);
 			accountGetSessionFontsSendMessage();
+			accountGetTemplateFontsSendMessage(); // *TODO: Maybe better to do this when opening preview rather than on login
 
 			// request the current set of block rules (we'll need them when updating the friends list)
 			accountListBlockRulesSendMessage();
@@ -2399,6 +2423,7 @@ void LLVoiceClient::stateMachine()
 				sessionState *oldSession = mAudioSession;
 
 				mAudioSession = mNextAudioSession;
+				mAudioSessionChanged = true;
 				if(!mAudioSession->mReconnect)	
 				{
 					mNextAudioSession = NULL;
@@ -2630,7 +2655,8 @@ void LLVoiceClient::stateMachine()
 			mAccountHandle.clear();
 			deleteAllSessions();
 			deleteAllBuddies();
-			deleteAllVoiceFonts();
+			deleteVoiceFonts();
+			deleteVoiceFontTemplates();
 
 			if(mVoiceEnabled && !mRelogRequested)
 			{
@@ -2711,15 +2737,15 @@ void LLVoiceClient::stateMachine()
 
 	}
 	
-	if(mAudioSession && mAudioSession->mParticipantsChanged)
-	{
-		mAudioSession->mParticipantsChanged = false;
-		mAudioSessionChanged = true;
-	}
-	
-	if(mAudioSessionChanged)
+	if (mAudioSessionChanged)
 	{
 		mAudioSessionChanged = false;
+		notifyParticipantObservers();
+		notifyVoiceFontObservers();
+	}
+	else if (mAudioSession && mAudioSession->mParticipantsChanged)
+	{
+		mAudioSession->mParticipantsChanged = false;
 		notifyParticipantObservers();
 	}
 }
@@ -2824,6 +2850,24 @@ void LLVoiceClient::accountGetSessionFontsSendMessage()
 
 		stream
 		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.GetSessionFonts.1\">"
+			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		writeString(stream.str());
+	}
+}
+
+void LLVoiceClient::accountGetTemplateFontsSendMessage()
+{
+	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Requesting voice font template list." << LL_ENDL;
+
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.GetTemplateFonts.1\">"
 			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
 		<< "</Request>"
 		<< "\n\n\n";
@@ -6640,7 +6684,6 @@ LLVoiceClient::sessionState::sessionState() :
 	mMuteDirty(false),
 	mParticipantsChanged(false)
 {
-	mVoiceFontID = LLUUID(gSavedPerAccountSettings.getString("VoiceFontDefault"));
 }
 
 LLVoiceClient::sessionState::~sessionState()
@@ -6757,7 +6800,8 @@ LLVoiceClient::sessionState *LLVoiceClient::addSession(const std::string &uri, c
 		result = new sessionState();
 		result->mSIPURI = uri;
 		result->mHandle = handle;
-		
+		result->mVoiceFontID = LLUUID(gSavedPerAccountSettings.getString("VoiceFontDefault"));
+
 		mSessions.insert(result);
 
 		if(!result->mHandle.empty())
@@ -7166,7 +7210,7 @@ LLVoiceClient::voiceFontEntry::~voiceFontEntry()
 {
 }
 
-void LLVoiceClient::deleteAllVoiceFonts()
+void LLVoiceClient::deleteVoiceFonts()
 {
 	mVoiceFontList.clear();
 
@@ -7178,13 +7222,26 @@ void LLVoiceClient::deleteAllVoiceFonts()
 	mVoiceFontMap.clear();
 }
 
+void LLVoiceClient::deleteVoiceFontTemplates()
+{
+	mVoiceFontTemplateList.clear();
+
+	voice_font_map_t::iterator iter;
+	for (iter = mVoiceFontTemplateMap.begin(); iter != mVoiceFontTemplateMap.end(); ++iter)
+	{
+		delete iter->second;
+	}
+	mVoiceFontTemplateMap.clear();
+}
+
 void LLVoiceClient::addVoiceFont(const S32 font_index,
 								 const std::string &name,
 								 const std::string &description,
 								 const std::string &expiration_date,
 								 const bool has_expired,
 								 const S32 font_type,
-								 const S32 font_status)
+								 const S32 font_status,
+								 const bool template_font)
 {
 	// Vivox SessionFontIDs are not guaranteed to remain the same between
 	// sessions or grids so use a UUID for the name.
@@ -7202,13 +7259,16 @@ void LLVoiceClient::addVoiceFont(const S32 font_index,
 
 	voiceFontEntry *font = NULL;
 
+	voice_font_map_t& font_map = template_font ? mVoiceFontTemplateMap : mVoiceFontMap;
+	voice_font_list_t& font_list = template_font ? mVoiceFontTemplateList : mVoiceFontList;
+
 	// Hopefully won't happen, but behave gracefully if there is a duplicate
 	// by Replacing the previous one unless this one has expired.
 	// *TODO: Should maybe check for the later expiry date if neither has
 	// expired, and favour user fonts over root fonts? But as we shouldn't
 	// have duplicates anyway, it's probably not worth the effort.
-	voice_font_map_t::iterator iter = mVoiceFontMap.find(&font_id);
-	bool duplicate = (iter != mVoiceFontMap.end());
+	voice_font_map_t::iterator iter = font_map.find(&font_id);
+	bool duplicate = (iter != font_map.end());
 	if (duplicate)
 	{
 		LL_DEBUGS("Voice") << "Voice font " << font_index << " duplicates " << iter->second->mFontIndex << "!" << LL_ENDL;
@@ -7234,7 +7294,9 @@ void LLVoiceClient::addVoiceFont(const S32 font_index,
 		font->mFontType = font_type;
 		font->mFontStatus = font_status;
 
-		LL_DEBUGS("Voice") << "Adding voice font : " << font_id << " (" << font_index << ") : " << name << (has_expired?" (Expired)":"") << LL_ENDL;
+		LL_DEBUGS("Voice") << (template_font?"Template":"") << ": " << font_id
+			<< " (" << font_index << ") : " << name << (has_expired?" (Expired)":"")
+			<< LL_ENDL;
 
 		if (font_type < VOICE_FONT_TYPE_NONE || font_type >= VOICE_FONT_TYPE_UNKNOWN)
 		{
@@ -7247,23 +7309,16 @@ void LLVoiceClient::addVoiceFont(const S32 font_index,
 
 		if (!duplicate)
 		{
-			mVoiceFontMap.insert(voice_font_map_t::value_type(&(font->mID), font));
-			mVoiceFontList.insert(voice_font_list_t::value_type(&(font->mName), &(font->mID)));
+			font_map.insert(voice_font_map_t::value_type(&(font->mID), font));
+			font_list.insert(voice_font_list_t::value_type(&(font->mName), &(font->mID)));
 		}
 	}
 }
 
 bool LLVoiceClient::setVoiceFont(const LLUUID& id)
 {
-	return mAudioSession ? setVoiceFont(mAudioSession->mHandle, id) : false;
-}
-
-bool LLVoiceClient::setVoiceFont(const std::string &session_handle, const LLUUID& id)
-{
-	sessionState *session = findSession(session_handle);
-	if (!session)
+	if (!mAudioSession)
 	{
-		LL_DEBUGS("Voice") << "Invalid Session." << LL_ENDL;
 		return false;
 	}
 
@@ -7285,7 +7340,7 @@ bool LLVoiceClient::setVoiceFont(const std::string &session_handle, const LLUUID
 	// *TODO: Separate voice font defaults for spatial chat and IM?
 	gSavedPerAccountSettings.setString("VoiceFontDefault", id.asString());
 
-	sessionSetVoiceFontSendMessage(session);
+	sessionSetVoiceFontSendMessage(mAudioSession);
 	notifyVoiceFontObservers();
 
 	return true;
@@ -7293,13 +7348,7 @@ bool LLVoiceClient::setVoiceFont(const std::string &session_handle, const LLUUID
 
 const LLUUID LLVoiceClient::getVoiceFont()
 {
-	return mAudioSession ? getVoiceFont(mAudioSession->mHandle) : LLUUID::null;
-}
-
-const LLUUID LLVoiceClient::getVoiceFont(const std::string &session_handle)
-{
-	sessionState *session = findSession(session_handle);
-	return session ? session->mVoiceFontID : LLUUID::null;
+	return mAudioSession ? mAudioSession->mVoiceFontID : LLUUID::null;
 }
 
 S32 LLVoiceClient::getVoiceFontIndex(const LLUUID& id) const
@@ -7339,6 +7388,12 @@ void LLVoiceClient::accountGetSessionFontsResponse(int statusCode, const std::st
 	{
 		setState(stateVoiceFontsReceived);
 	}
+	notifyVoiceFontObservers();
+}
+
+void LLVoiceClient::accountGetTemplateFontsResponse(int statusCode, const std::string &statusString)
+{
+	// Voice font list entries were updated via addVoiceFont() during parsing.
 	notifyVoiceFontObservers();
 }
 

@@ -444,13 +444,12 @@ static	void updatePosition(void);
 		// Voice Fonts
 		bool hasVoiceFonts() const { return !mVoiceFontMap.empty(); };
 		bool setVoiceFont(const LLUUID& id);
-		bool setVoiceFont(const std::string &session_handle, const LLUUID& id);
 		const LLUUID getVoiceFont();
-		const LLUUID getVoiceFont(const std::string &session_handle);
 
 		typedef std::multimap<const std::string*, const LLUUID*, stringMapComparitor> voice_font_list_t;
 
 		const voice_font_list_t &getVoiceFontList() const { return mVoiceFontList; };
+		const voice_font_list_t &getVoiceFontTemplateList() const { return mVoiceFontTemplateList; };
 
 		void addVoiceFont(const S32 id,
 						  const std::string &name,
@@ -458,8 +457,10 @@ static	void updatePosition(void);
 						  const std::string &expiration_date,
 						  const bool has_expired,
 						  const S32 font_type,
-						  const S32 font_status);
+						  const S32 font_status,
+						  const bool template_font = false);
 		void accountGetSessionFontsResponse(int statusCode, const std::string &statusString);
+		void accountGetTemplateFontsResponse(int statusCode, const std::string &statusString);
 
 		/////////////////////////////
 		// session control messages
@@ -483,18 +484,20 @@ static	void updatePosition(void);
 		void accountListBlockRulesSendMessage();
 		void accountListAutoAcceptRulesSendMessage();
 
-		void accountGetSessionFontsSendMessage();
-
 		void sessionGroupCreateSendMessage();
 		void sessionCreateSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
 		void sessionGroupAddSessionSendMessage(sessionState *session, bool startAudio = true, bool startText = false);
 		void sessionMediaConnectSendMessage(sessionState *session);		// just joins the audio session
 		void sessionTextConnectSendMessage(sessionState *session);		// just joins the text session
-		void sessionSetVoiceFontSendMessage(sessionState *session);
 		void sessionTerminateSendMessage(sessionState *session);
 		void sessionGroupTerminateSendMessage(sessionState *session);
 		void sessionMediaDisconnectSendMessage(sessionState *session);
 		void sessionTextDisconnectSendMessage(sessionState *session);
+
+		// Voice font messages
+		void accountGetSessionFontsSendMessage();
+		void accountGetTemplateFontsSendMessage();
+		void sessionSetVoiceFontSendMessage(sessionState *session);
 
 		// Pokes the state machine to leave the audio session next time around.
 		void sessionTerminate();	
@@ -704,7 +707,8 @@ static	void updatePosition(void);
 		// Voice Fonts
 
 		S32 getVoiceFontIndex(const LLUUID& id) const;
-		void deleteAllVoiceFonts();
+		void deleteVoiceFonts();
+		void deleteVoiceFontTemplates();
 
 		typedef enum e_voice_font_type
 		{
@@ -739,6 +743,8 @@ static	void updatePosition(void);
 
 		voice_font_map_t	mVoiceFontMap;
 		voice_font_list_t	mVoiceFontList;
+		voice_font_map_t	mVoiceFontTemplateMap;
+		voice_font_list_t	mVoiceFontTemplateList;
 
 		// Audio devices
 
