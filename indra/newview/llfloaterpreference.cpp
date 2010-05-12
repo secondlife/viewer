@@ -186,6 +186,7 @@ void LLVoiceSetKeyDialog::onCancel(void* user_data)
 // a static member and update all our static callbacks
 
 void handleNameTagOptionChanged(const LLSD& newvalue);	
+void handleDisplayNamesOptionChanged(const LLSD& newvalue);	
 bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response);
 
 //bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater);
@@ -225,6 +226,12 @@ void handleNameTagOptionChanged(const LLSD& newvalue)
 {
 	LLVOAvatar::invalidateNameTags();
 }
+
+void handleDisplayNamesOptionChanged(const LLSD& newvalue)
+{
+	LLAvatarNameCache::setUseDisplayNames(newvalue.asBoolean());
+}
+
 
 /*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
 {
@@ -319,7 +326,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
 	
-	gSavedSettings.getControl("NameTagShowSLIDs")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
+	gSavedSettings.getControl("NameTagShowSLIDs")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
 }
 
 BOOL LLFloaterPreference::postBuild()
@@ -456,10 +464,6 @@ void LLFloaterPreference::apply()
 		}
 	}
 
-	LLUICtrl* display_names_check = getChild<LLUICtrl>("display_names_check");
-	bool use_display_names = display_names_check->getValue().asBoolean();
-	LLAvatarNameCache::setUseDisplayNames(use_display_names);
-
 	applyResolution();
 }
 
@@ -542,10 +546,6 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
 	
-	bool use_display_names = LLAvatarNameCache::useDisplayNames();
-	LLUICtrl* display_names_check = getChild<LLUICtrl>("display_names_check");
-	display_names_check->setValue( LLSD(use_display_names) );
-
 	// Make sure the current state of prefs are saved away when
 	// when the floater is opened.  That will make cancel do its
 	// job

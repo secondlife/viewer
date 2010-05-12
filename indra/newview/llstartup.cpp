@@ -2783,6 +2783,7 @@ void LLStartUp::initNameCache()
 	// Start cache in not-running state until we figure out if we have
 	// capabilities for display name lookup
 	LLAvatarNameCache::initClass(false);
+	LLAvatarNameCache::setUseDisplayNames(gSavedSettings.getBOOL("UseDisplayNames"));
 }
 
 void LLStartUp::cleanupNameCache()

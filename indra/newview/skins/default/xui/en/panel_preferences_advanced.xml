@@ -125,7 +125,8 @@ Automatic position for:
      left_pad="30"
      name="first_person_avatar_visible"
      width="256" />
-    <check_box
+   
+<check_box
      control_name="ArrowKeysAlwaysMove"
      follows="left|top"
      height="20"
@@ -322,6 +323,7 @@ Automatic position for:
      parameter="pref_joystick" />
   </button>
   <check_box
+  control_name="UseDisplayNames" 
   follows="top|left"
   height="15"
   label="Use Display Names (PLACEHOLDER)"
@@ -330,5 +332,5 @@ Automatic position for:
   name="display_names_check"
   width="237"
   tool_tip="Check to use display names in chat, IM, name tags, etc."
-  top_pad="5"/>
+  top_pad="5"/> 
 </panel>
