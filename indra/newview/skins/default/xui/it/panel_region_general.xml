@@ -30,7 +30,7 @@
 	<text label="Maturità" name="access_text" width="120">
 		Categoria di accesso:
 	</text>
-	<icons_combo_box label="Mature" left="126" name="access_combo" width="74">
+	<icons_combo_box label="Moderato" left="126" name="access_combo" width="74">
 		<icons_combo_box.item label="Adulti" name="Adult" value="42"/>
 		<icons_combo_box.item label="Moderato" name="Mature" value="21"/>
 		<icons_combo_box.item label="Generale" name="PG" value="13"/>
