@@ -59,9 +59,9 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="105"
+         width="108"
          top_delta="0"
-         min_width="54"
+         min_width="57"
          name="speak_panel"
          user_resize="false">
           <talk_button
@@ -91,17 +91,6 @@
               </show_button>
           </talk_button>
         </layout_panel>
-        <icon
-            auto_resize="false"
-            follows="left|right"
-            height="10"
-            image_name="spacer24.tga"
-            layout="topleft"
-            left="0"
-            name="after_speak_panel"
-            min_width="3"
-            top="0"
-            width="3"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -109,9 +98,9 @@
          height="28"
          layout="topleft"
          min_height="28"
-         width="82"
+         width="85"
          top_delta="0"
-         min_width="62"
+         min_width="65"
          name="gesture_panel"
          user_resize="false">
          <gesture_combo_list
@@ -131,18 +120,6 @@
               page_lines="17" />
          </gesture_combo_list>
         </layout_panel>
-		 <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         min_width="3"
-         name="after_gesture_panel"
-         top="0"
-         width="3"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -152,8 +129,8 @@
          min_height="28"
          name="movement_panel"
          user_resize="false"
-         width="80"
-         min_width="49">
+         width="83"
+         min_width="52">
             <button
                  image_selected="PushButton_Selected_Press"
                  image_pressed="PushButton_Press"
@@ -173,18 +150,6 @@
                  parameter="moveview" />
             </button>
         </layout_panel>
-         <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         min_width="3"
-         name="after_movement_panel"
-         top="0"
-         width="3"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
@@ -192,10 +157,10 @@
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="49"
+         min_width="52"
          name="cam_panel"
          user_resize="false"
-         width="80">
+         width="83">
             <button
                  image_selected="PushButton_Selected_Press"
                  image_pressed="PushButton_Press"
@@ -216,18 +181,6 @@
                  parameter="camera" />
             </button>
         </layout_panel>
-        <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         min_width="3"
-         name="after_cam_panel"
-         top="0"
-         width="3"/>
         <layout_panel
          mouse_opaque="false"
          auto_resize="false"
