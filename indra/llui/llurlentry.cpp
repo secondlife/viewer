@@ -62,7 +62,7 @@ std::string LLUrlEntryBase::getUrl(const std::string &string) const
 }
 
 //virtual
-std::string LLUrlEntryBase::getIcon(const std::string &url) const
+std::string LLUrlEntryBase::getIcon(const std::string &url)
 {
 	return mIcon;
 }
@@ -464,7 +464,7 @@ std::string localize_slapp_label(const std::string& url, const std::string& full
 }
 
 
-std::string LLUrlEntryAgent::getIcon(const std::string &url) const
+std::string LLUrlEntryAgent::getIcon(const std::string &url)
 {
 	// *NOTE: Could look up a badge here by calling getIDStringFromUrl()
 	// and looking up the badge for the agent.

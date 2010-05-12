@@ -80,7 +80,7 @@ public:
 	virtual std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) { return url; }
 
 	/// Return an icon that can be displayed next to Urls of this type
-	virtual std::string getIcon(const std::string &url) const;
+	virtual std::string getIcon(const std::string &url);
 
 	/// Return the color to render the displayed text
 	LLUIColor getColor() const { return mColor; }
@@ -171,7 +171,7 @@ class LLUrlEntryAgent : public LLUrlEntryBase
 public:
 	LLUrlEntryAgent();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	/*virtual*/ std::string getIcon(const std::string &url) const;
+	/*virtual*/ std::string getIcon(const std::string &url);
 	/*virtual*/ std::string getTooltip(const std::string &string) const;
 protected:
 	/*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
@@ -308,7 +308,7 @@ public:
 	LLUrlEntryIcon();
 	/*virtual*/ std::string getUrl(const std::string &string) const;
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	/*virtual*/ std::string getIcon(const std::string &url) const;
+	/*virtual*/ std::string getIcon(const std::string &url);
 };
 
 
