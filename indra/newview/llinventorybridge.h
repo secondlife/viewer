@@ -74,13 +74,19 @@ public:
 									   U32 flags = 0x00);
 	virtual ~LLInvFVBridge() {}
 
-	virtual const LLUUID& getUUID() const { return mUUID; }
+	BOOL isInOutfitsSidePanel() const; // allow context menus to be customized for side panel
+	BOOL canShare() const;
 
+	//--------------------------------------------------------------------
+	// LLInvFVBridge functionality
+	//--------------------------------------------------------------------
+	virtual const LLUUID& getUUID() const { return mUUID; }
+	virtual void clearDisplayName() {}
 	virtual void restoreItem() {}
 	virtual void restoreToWorld() {}
 
 	//--------------------------------------------------------------------
-	// LLFolderViewEventListener functions
+	// Inherited LLFolderViewEventListener functions
 	//--------------------------------------------------------------------
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
@@ -99,7 +105,6 @@ public:
 	virtual BOOL isItemMovable() const;
 	virtual BOOL isItemInTrash() const;
 	virtual BOOL isLink() const;
-
 	//virtual BOOL removeItem() = 0;
 	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch);
 	virtual void move(LLFolderViewEventListener* new_parent_bridge) {}
@@ -118,15 +123,6 @@ public:
 							EDragAndDropType cargo_type,
 							void* cargo_data) { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
-
-	//--------------------------------------------------------------------
-	// LLInvFVBridge functionality
-	//--------------------------------------------------------------------
-	virtual void clearDisplayName() {}
-
-	bool isInOutfitsSidePanel() const; // allow context menus to be customized for side panel
-
-	bool canShare();
 
 	//--------------------------------------------------------------------
 	// Convenience functions for adding various common menu options.
@@ -195,7 +191,6 @@ public:
 		LLInvFVBridge(inventory, root, uuid) {}
 
 	virtual void performAction(LLInventoryModel* model, std::string action);
-
 	virtual void selectItem();
 	virtual void restoreItem();
 	virtual void restoreToWorld();
@@ -214,20 +209,17 @@ public:
 	virtual BOOL hasChildren() const { return FALSE; }
 	virtual BOOL isUpToDate() const { return TRUE; }
 
-	// Override for LLInvFVBridge
-	virtual void clearDisplayName() { mDisplayName.clear(); }
+	/*virtual*/ void clearDisplayName() { mDisplayName.clear(); }
 
 	LLViewerInventoryItem* getItem() const;
-	
 	bool isAddAction(std::string action) const;
 	bool isRemoveAction(std::string action) const;
-
 protected:
+	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
 	virtual BOOL isItemPermissive() const;
 	static void buildDisplayName(LLInventoryItem* item, std::string& name);
-	mutable std::string mDisplayName;
 
-	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
+	mutable std::string mDisplayName;
 };
 
 class LLFolderBridge : public LLInvFVBridge
@@ -240,10 +232,9 @@ public:
 		mCallingCards(FALSE),
 		mWearables(FALSE),
 		mMenu(NULL) {}
-	BOOL dragItemIntoFolder(LLInventoryItem* inv_item,
-							BOOL drop);
-	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category,
-								BOOL drop);
+	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop);
+	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop);
+
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void openItem();
 	virtual void closeItem();
@@ -311,10 +302,15 @@ protected:
 
 	menuentry_vec_t getMenuItems() { return mItems; } // returns a copy of current menu items
 
+
+	//--------------------------------------------------------------------
+	// Messy hacks for handling folder options
+	//--------------------------------------------------------------------
 public:
 	static LLFolderBridge* sSelf;
 	static void staticFolderOptionsMenu();
 	void folderOptionsMenu();
+
 private:
 	BOOL			mCallingCards;
 	BOOL			mWearables;
@@ -330,15 +326,15 @@ public:
 					LLFolderView* root,
 					const LLUUID& uuid, 
 					LLInventoryType::EType type) :
-		LLItemBridge(inventory, root, uuid),
-		mInvType(type) {}
+		LLItemBridge(inventory, root, uuid)
+	{
+		mInvType = type;
+	}
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual void performAction(LLInventoryModel* model, std::string action);
-
 	bool canSaveTexture(void);
-	LLInventoryType::EType mInvType;
 };
 
 class LLSoundBridge : public LLItemBridge
@@ -447,8 +443,7 @@ public:
 	virtual BOOL renameItem(const std::string& new_name);
 	LLInventoryObject* getObject() const;
 protected:
-	static LLUUID	sContextMenuItemID;  // Only valid while the context menu is open.
-	LLInventoryType::EType mInvType;
+	static LLUUID sContextMenuItemID;  // Only valid while the context menu is open.
 	U32 mAttachPt;
 	BOOL mIsMultiObject;
 };
@@ -499,7 +494,6 @@ public:
 	void			removeFromAvatar();
 protected:
 	LLAssetType::EType mAssetType;
-	LLInventoryType::EType mInvType;
 	LLWearableType::EType  mWearableType;
 };
 
@@ -563,47 +557,33 @@ protected:
 	LLInventoryModel* mModel;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Recent Inventory Panel related classes
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-/************************************************************************/
-/* Recent Inventory Panel related classes                               */
-/************************************************************************/
-class LLRecentInventoryBridgeBuilder;
-/**
- * Overridden version of the Inventory-Folder-View-Bridge for Folders
- */
+// Overridden version of the Inventory-Folder-View-Bridge for Folders
 class LLRecentItemsFolderBridge : public LLFolderBridge
 {
-	friend class LLRecentInventoryBridgeBuilder;
-
 public:
-	/**
-	 * Creates context menu for Folders related to Recent Inventory Panel.
-	 *
-	 * It uses base logic and than removes from visible items "New..." menu items.
-	 */
-	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
-
-protected:
+	// Creates context menu for Folders related to Recent Inventory Panel.
+	// Uses base logic and than removes from visible items "New..." menu items.
 	LLRecentItemsFolderBridge(LLInventoryType::EType type,
-						 LLInventoryPanel* inventory,
-						 LLFolderView* root,
-						 const LLUUID& uuid) :
+							  LLInventoryPanel* inventory,
+							  LLFolderView* root,
+							  const LLUUID& uuid) :
 		LLFolderBridge(inventory, root, uuid)
 	{
 		mInvType = type;
 	}
+	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
 };
 
-/**
- * Bridge builder to create Inventory-Folder-View-Bridge for Recent Inventory Panel
- */
+// Bridge builder to create Inventory-Folder-View-Bridge for Recent Inventory Panel
 class LLRecentInventoryBridgeBuilder : public LLInventoryFVBridgeBuilder
 {
-	/**
-	 * Overrides FolderBridge for Recent Inventory Panel.
-	 *
-	 * It use base functionality for bridges other than FolderBridge.
-	 */
+public:
+	// Overrides FolderBridge for Recent Inventory Panel.
+	// It use base functionality for bridges other than FolderBridge.
 	virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
 		LLAssetType::EType actual_asset_type,
 		LLInventoryType::EType inv_type,
@@ -611,10 +591,7 @@ class LLRecentInventoryBridgeBuilder : public LLInventoryFVBridgeBuilder
 		LLFolderView* root,
 		const LLUUID& uuid,
 		U32 flags = 0x00) const;
-
 };
-
-
 
 void wear_inventory_item_on_avatar(LLInventoryItem* item);
 
