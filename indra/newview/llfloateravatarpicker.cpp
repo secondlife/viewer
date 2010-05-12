@@ -604,7 +604,7 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 		S32 year, month, day;
 		account_created.split(&year, &month, &day);
 		std::string age =
-			LLDateUtil::ageFromDate(year, month, day, LLDate::now());
+			LLDateUtil::ageFromDate(account_created, LLDate::now());
 		columns[2]["column"] = "age";
 		columns[2]["value"] = age;
 		search_results->addElement(item);

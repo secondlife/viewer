@@ -59,18 +59,22 @@ static S32 days_from_month(S32 year, S32 month)
 	}
 }
 
-std::string LLDateUtil::ageFromDate(S32 born_year,
-									S32 born_month,
-									S32 born_day,
-									const LLDate& now)
+bool LLDateUtil::dateFromPDTString(LLDate& date, const std::string& str)
 {
-	LLDate born_date;
-	born_date.fromYMDHMS(born_year, born_month, born_day);
-	F64 born_date_secs_since_epoch = born_date.secondsSinceEpoch();
-	// Correct for the fact that account creation dates are in Pacific time,
-	// == UTC - 8
-	born_date_secs_since_epoch += 8.0 * 60.0 * 60.0;
-	born_date.secondsSinceEpoch(born_date_secs_since_epoch);
+	S32 month, day, year;
+	S32 matched = sscanf(str.c_str(), "%d/%d/%d", &month, &day, &year);
+	if (matched != 3) return false;
+	date.fromYMDHMS(year, month, day);
+	F64 secs_since_epoch = date.secondsSinceEpoch();
+	// Correct for the fact that specified date is in Pacific time, == UTC - 8
+	secs_since_epoch += 8.0 * 60.0 * 60.0;
+	date.secondsSinceEpoch(secs_since_epoch);
+	return true;
+}
+
+std::string LLDateUtil::ageFromDate(const LLDate& born_date, const LLDate& now)
+{
+	S32 born_month, born_day, born_year;
 	// explode out to month/day/year again
 	born_date.split(&born_year, &born_month, &born_day);
 
@@ -154,13 +158,14 @@ std::string LLDateUtil::ageFromDate(S32 born_year,
 	return LLTrans::getString("TodayOld");
 }
 
-std::string LLDateUtil::ageFromDate(const std::string& date_string,
-									const LLDate& now)
+std::string LLDateUtil::ageFromDate(const std::string& date_string, const LLDate& now)
 {
-	S32 born_month, born_day, born_year;
-	S32 matched = sscanf(date_string.c_str(), "%d/%d/%d", &born_month, &born_day, &born_year);
-	if (matched != 3) return "???";
-	return ageFromDate(born_year, born_month, born_day, now);
+	LLDate born_date;
+
+	if (!dateFromPDTString(born_date, date_string))
+		return "???";
+
+	return ageFromDate(born_date, now);
 }
 
 std::string LLDateUtil::ageFromDate(const std::string& date_string)
@@ -168,17 +173,22 @@ std::string LLDateUtil::ageFromDate(const std::string& date_string)
 	return ageFromDate(date_string, LLDate::now());
 }
 
-std::string LLDateUtil::ageFromDateISO(const std::string& date_string,
-									   const LLDate& now)
-{
-	S32 born_month, born_day, born_year;
-	S32 matched = sscanf(date_string.c_str(), "%d-%d-%d",
-			&born_year, &born_month, &born_day);
-	if (matched != 3) return "???";
-	return ageFromDate(born_year, born_month, born_day, now);
-}
-
-std::string LLDateUtil::ageFromDateISO(const std::string& date_string)
-{
-	return ageFromDateISO(date_string, LLDate::now());
-}
+//std::string LLDateUtil::ageFromDateISO(const std::string& date_string,
+//									   const LLDate& now)
+//{
+//	S32 born_month, born_day, born_year;
+//	S32 matched = sscanf(date_string.c_str(), "%d-%d-%d",
+//			&born_year, &born_month, &born_day);
+//	if (matched != 3) return "???";
+//	date.fromYMDHMS(year, month, day);
+//	F64 secs_since_epoch = date.secondsSinceEpoch();
+//	// Correct for the fact that specified date is in Pacific time, == UTC - 8
+//	secs_since_epoch += 8.0 * 60.0 * 60.0;
+//	date.secondsSinceEpoch(secs_since_epoch);
+//	return ageFromDate(born_year, born_month, born_day, now);
+//}
+//
+//std::string LLDateUtil::ageFromDateISO(const std::string& date_string)
+//{
+//	return ageFromDateISO(date_string, LLDate::now());
+//}
