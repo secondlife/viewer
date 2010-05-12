@@ -242,12 +242,6 @@ public:
 		mAvatarID = chat.mFromID;
 		mSessionID = chat.mSessionID;
 		mSourceType = chat.mSourceType;
-		//gCacheName->get(mAvatarID, false, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3));
-		if (mAvatarID.notNull())
-		{
-			LLAvatarNameCache::get(mAvatarID,
-				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
-		}
 
 		//*TODO overly defensive thing, source type should be maintained out there
 		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM)
@@ -260,14 +254,19 @@ public:
 		userName->setReadOnlyColor(style_params.readonly_color());
 		userName->setColor(style_params.color());
 		
-		userName->setValue(chat.mFromName);
-		mFrom = chat.mFromName;
-		if (chat.mFromName.empty() || CHAT_SOURCE_SYSTEM == mSourceType)
+		if (chat.mFromName.empty()
+			|| mSourceType == CHAT_SOURCE_SYSTEM
+			|| mAvatarID.isNull())
 		{
 			mFrom = LLTrans::getString("SECOND_LIFE");
 			userName->setValue(mFrom);
 		}
-
+		else
+		{
+			// ...from a normal user, lookup the name and fill in later
+			LLAvatarNameCache::get(mAvatarID,
+				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
+		}
 
 		mMinUserNameWidth = style_params.font()->getWidth(userName->getWText().c_str()) + PADDING;
 
@@ -324,21 +323,15 @@ public:
 		LLPanel::draw();
 	}
 
-	void nameUpdatedCallback(const LLUUID& id,const std::string& full_name, bool is_group)
-	{
-		if (id != mAvatarID)
-			return;
-		mFrom = full_name;
-	}
-
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 	{
-		if (agent_id != mAvatarID) return;
+		mFrom = av_name.mDisplayName;
 
-		// HACK: just update tooltip
-		setToolTip( av_name.mSLID );
 		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		user_name->setValue( LLSD(av_name.mDisplayName ) );
+
 		user_name->setToolTip( av_name.mSLID );
+		setToolTip( av_name.mSLID );
 	}
 
 protected:
