@@ -80,8 +80,8 @@ private:
 	void				onColorSwatchCommit(const LLUICtrl*);
 	void				onTexturePickerCommit(const LLUICtrl*);
 	void				updatePanelPickerControls(LLWearableType::EType type);
-	void				toggleTypeSpecificControls(EWearableType type);
-	void				updateTypeSpecificControls(EWearableType type);
+	void				toggleTypeSpecificControls(LLWearableType::EType type);
+	void				updateTypeSpecificControls(LLWearableType::EType type);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;

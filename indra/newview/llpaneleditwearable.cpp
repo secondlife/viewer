@@ -663,7 +663,7 @@ void LLPanelEditWearable::draw()
 	updateVerbs();
 	if (getWearable())
 	{
-		EWearableType type = getWearable()->getType();
+		LLWearableType::EType type = getWearable()->getType();
 		updatePanelPickerControls(type);
 		updateTypeSpecificControls(type);
 	}
@@ -929,21 +929,21 @@ void LLPanelEditWearable::initializePanel()
 	updateVerbs();
 }
 
-void LLPanelEditWearable::toggleTypeSpecificControls(EWearableType type)
+void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type)
 {
 	// Toggle controls specific to shape editing panel.
 	{
-		bool is_shape = (type == WT_SHAPE);
+		bool is_shape = (type == LLWearableType::WT_SHAPE);
 		childSetVisible("sex_radio", is_shape);
 		childSetVisible("female_icon", is_shape);
 		childSetVisible("male_icon", is_shape);
 	}
 }
 
-void LLPanelEditWearable::updateTypeSpecificControls(EWearableType type)
+void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
 {
 	// Update controls specific to shape editing panel.
-	if (type == WT_SHAPE)
+	if (type == LLWearableType::WT_SHAPE)
 	{
 		// Update avatar height
 		std::string avatar_height_str = llformat("%.2f", gAgentAvatarp->mBodySize.mV[VZ]);
