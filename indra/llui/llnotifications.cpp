@@ -1488,9 +1488,11 @@ std::ostream& operator<<(std::ostream& s, const LLNotification& notification)
 	return s;
 }
 
-void LLPostponedNotification::onCachedNameReceived(const LLUUID& id, const std::string& first,
-		const std::string& last, bool is_group)
+void LLPostponedNotification::onCachedNameReceived(const LLUUID& id,
+												   const std::string& full_name,
+												   bool is_group)
 {
+	// *TODO: This is dumb, just use full_name as given
 	gCacheName->getFullName(id, mName);
 	modifyNotificationParams();
 	LLNotifications::instance().add(mParams);

@@ -1005,12 +1005,11 @@ public:
 
 		gCacheName->get(id, is_group, boost::bind(
 				&LLPostponedNotification::onCachedNameReceived, thiz, _1, _2,
-				_3, _4));
+				_3));
 	}
 
 private:
-	void onCachedNameReceived(const LLUUID& id, const std::string& first,
-			const std::string& last, bool is_group);
+	void onCachedNameReceived(const LLUUID& id, const std::string& full_name, bool is_group);
 
 	void cleanup()
 	{
