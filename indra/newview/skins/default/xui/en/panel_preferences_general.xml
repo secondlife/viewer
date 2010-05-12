@@ -248,17 +248,6 @@
     </radio_group>
     <check_box
 	 enabled_control="AvatarNameTagMode"
-     control_name="SmallAvatarNames"
-     height="16"
-     initial_value="true"
-     label="Small name tags"
-     layout="topleft"
-     left="70"
-     name="small_avatar_names_checkbox"
-	 top_pad="4"
-     width="200" />
-    <check_box
-	 enabled_control="AvatarNameTagMode"
      control_name="RenderNameShowSelf"
      height="16"
      label="Show my name"

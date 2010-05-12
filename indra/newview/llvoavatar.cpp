@@ -2886,9 +2886,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		}
 		else
 		{
-			static LLUICachedControl<bool> small_avatar_names("SmallAvatarNames");
-			const LLFontGL* font =
-				(small_avatar_names ? LLFontGL::getFontSansSerif() : LLFontGL::getFontSansSerifBig() );
+			const LLFontGL* font = LLFontGL::getFontSansSerif();
 			std::string full_name =
 				LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
 			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
