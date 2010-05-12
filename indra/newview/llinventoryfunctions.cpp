@@ -92,39 +92,30 @@ LLUUID LLInventoryState::sWearNewClothingTransactionID;
 ///----------------------------------------------------------------------------
 
 // static
-bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* item)
+bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(const LLInventoryItem* item)
 {
 	if (!item)
 		return false;
 
-	bool allowed = false;
-
 	switch(item->getType())
 	{
 		case LLAssetType::AT_CALLINGCARD:
-			// not allowed
+			return false;
 			break;
-			
 		case LLAssetType::AT_OBJECT:
 			if (isAgentAvatarValid() && !gAgentAvatarp->isWearingAttachment(item->getUUID()))
-			{
-				allowed = true;
-			}
+				return true;
 			break;
-			
 		case LLAssetType::AT_BODYPART:
 		case LLAssetType::AT_CLOTHING:
 			if(!gAgentWearables.isWearingItem(item->getUUID()))
-			{
-				allowed = true;
-			}
+				return true;
 			break;
 		default:
-			allowed = true;
+			return true;
 			break;
 	}
-	
-	return allowed;
+	return false;
 }
 
 bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)

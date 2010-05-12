@@ -997,46 +997,36 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 	}
 }
 
-bool LLInvFVBridge::isInOutfitsSidePanel() const
+BOOL LLInvFVBridge::isInOutfitsSidePanel() const
 {
 	LLInventoryPanel *my_panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
 	LLPanelOutfitsInventory *outfit_panel =
 		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
 	if (!outfit_panel)
-		return false;
+		return FALSE;
 	return outfit_panel->isTabPanel(my_panel);
 }
 
-bool LLInvFVBridge::canShare()
+BOOL LLInvFVBridge::canShare() const
 {
 	const LLInventoryModel* model = getInventoryModel();
-	if(!model)
-	{
-		return false;
-	}
+	if (!model) return FALSE;
 
-	LLViewerInventoryItem *item = model->getItem(mUUID);
+	const LLViewerInventoryItem *item = model->getItem(mUUID);
 	if (item)
 	{
-		bool allowed = false;
-		allowed = LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item);
-		if (allowed &&
-			!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
-		{
-			allowed = false;
-		}
-		if (allowed &&
-			!item->getPermissions().allowCopyBy(gAgent.getID()))
-		{
-			allowed = false;
-		}
-		return allowed;
+		if (!LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item)) 
+			return FALSE;
+		if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+			return FALSE;
+		if (!item->getPermissions().allowCopyBy(gAgent.getID()))
+			return FALSE;
+		return TRUE;
 	}
 
-	LLViewerInventoryCategory* cat = model->getCategory(mUUID);
-
 	// All categories can be given.
-	return cat != NULL;
+	const LLViewerInventoryCategory* cat = model->getCategory(mUUID);
+	return (cat != NULL);
 }
 
 // +=================================================+
@@ -4095,12 +4085,11 @@ LLObjectBridge::LLObjectBridge(LLInventoryPanel* inventory,
 							   const LLUUID& uuid, 
 							   LLInventoryType::EType type, 
 							   U32 flags) :
-	LLItemBridge(inventory, root, uuid), 
-	mInvType(type)
+	LLItemBridge(inventory, root, uuid)
 {
 	mAttachPt = (flags & 0xff); // low bye of inventory flags
-
 	mIsMultiObject = ( flags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  TRUE: FALSE;
+	mInvType = type;
 }
 
 LLUIImagePtr LLObjectBridge::getIcon() const
@@ -4447,9 +4436,9 @@ LLWearableBridge::LLWearableBridge(LLInventoryPanel* inventory,
 								   LLWearableType::EType  wearable_type) :
 	LLItemBridge(inventory, root, uuid),
 	mAssetType( asset_type ),
-	mInvType(inv_type),
 	mWearableType(wearable_type)
 {
+	mInvType = inv_type;
 }
 
 // *NOTE: hack to get from avatar inventory to avatar
