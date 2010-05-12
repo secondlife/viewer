@@ -8882,7 +8882,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	assertInitialized();
 
-	U32 mask;
 	BOOL muted = LLMuteList::getInstance()->isMuted(avatar->getID());
 
 	pushRenderTypeMask();
