@@ -2671,10 +2671,8 @@ void renderPhysicsShape(LLDrawable* drawable)
 			if (decomp)
 			{
 				gGL.pushMatrix();
-				glLoadMatrixd(gGLModelView);
-				gGL.flush();
-				glPointSize(4.f);
-				gGL.begin(LLRender::POINTS);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
 				static std::vector<LLColor4U> color;
 
 				for (U32 i = 0; i < decomp->mHull.size(); ++i)
@@ -2683,17 +2681,15 @@ void renderPhysicsShape(LLDrawable* drawable)
 					{
 						color.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127));
 					}
-					gGL.color4ubv(color[i].mV);
-					for (U32 j = 0; j < decomp->mHull[i].size(); ++j)
-					{
-						LLVector3 v = volume->volumePositionToAgent(decomp->mHull[i][j]);
-						gGL.vertex3fv(v.mV);
-					}
+					glColor4ubv(color[i].mV);
+
+					LLVertexBuffer* buff = decomp->mMesh;
+
+					buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+					buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
 				}
-				gGL.end();
-				gGL.flush();
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				gGL.popMatrix();
-				glPointSize(1.f);
 			}
 		}
 	}
