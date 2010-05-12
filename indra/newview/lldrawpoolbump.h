@@ -145,6 +145,7 @@ public:
 
 	void		init();
 	void		shutdown();
+	void            clear();
 	void		destroyGL();
 	void		restoreGL();
 	void		updateImages();
