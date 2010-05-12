@@ -134,8 +134,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification
 				&LLToastGroupNotifyPanel::onClickAttachment, this));
 
 		LLUIImagePtr attachIconImg = LLInventoryIcon::getIcon(mInventoryOffer->mType,
-												LLInventoryType::IT_TEXTURE,
-												0, FALSE);
+												LLInventoryType::IT_TEXTURE);
 		pAttachIcon->setValue(attachIconImg->getName());
 	}
 

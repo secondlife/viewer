@@ -223,6 +223,7 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 
 		std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(), 
 								 inv_item->getInventoryType(),
+								 inv_item->getIsLinkType(),
 								 inv_item->getFlags(),
 								 item_is_multi);
 		row["columns"][0]["column"] = "icon";
