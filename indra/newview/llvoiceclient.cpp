@@ -7322,16 +7322,18 @@ bool LLVoiceClient::setVoiceFont(const LLUUID& id)
 		return false;
 	}
 
-	if (!hasVoiceFonts())
+	if (!id.isNull())
 	{
-		LL_DEBUGS("Voice") << "Voice fonts not available." << LL_ENDL;
-		return false;
-	}
-
-	if (!id.isNull() && (mVoiceFontMap.find(&id) == mVoiceFontMap.end()))
-	{
-		LL_DEBUGS("Voice") << "Invalid voice font " << id << LL_ENDL;
-		return false;
+		if (!hasVoiceFonts())
+		{
+			LL_DEBUGS("Voice") << "Voice fonts not available." << LL_ENDL;
+			return false;
+		}
+		else if (mVoiceFontMap.find(&id) == mVoiceFontMap.end())
+		{
+			LL_DEBUGS("Voice") << "Invalid voice font " << id << LL_ENDL;
+			return false;
+		}
 	}
 
 	// *TODO: Check for expired fonts?
