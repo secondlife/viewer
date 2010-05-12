@@ -3098,7 +3098,16 @@ Just like in real life, it takes a while for everyone to learn about a new name.
 
 See http://wiki.secondlife.com/wiki/Display_Names for details.
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedLength"
+   type="alertmodal">
+Sorry, that name is too long.  Display names can have a maximum of [LENGTH] characters.
+
+Please try a shorter name.
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="SetDisplayNameFailedGeneric"

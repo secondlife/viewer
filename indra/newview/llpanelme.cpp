@@ -352,8 +352,19 @@ void LLPanelMyProfileEdit::onDialogSetName(const LLSD& notification, const LLSD&
 		LLUUID agent_id = notification["payload"]["agent_id"];
 		if (agent_id.isNull()) return;
 
-		std::string display_name = response["display_name"].asString();
-		LLViewerDisplayName::set(display_name,
+		std::string display_name_utf8 = response["display_name"].asString();
+
+		const U32 DISPLAY_NAME_MAX_LENGTH = 31; // characters, not bytes
+		LLWString display_name_wstr = utf8string_to_wstring(display_name_utf8);
+		if (display_name_wstr.size() > DISPLAY_NAME_MAX_LENGTH)
+		{
+			LLSD args;
+			args["LENGTH"] = llformat("%d", DISPLAY_NAME_MAX_LENGTH);
+			LLNotificationsUtil::add("SetDisplayNameFailedLength", args);
+			return;
+		}
+
+		LLViewerDisplayName::set(display_name_utf8,
 			boost::bind(&LLPanelMyProfileEdit::onCacheSetName, this,
 				_1, _2, _3));
 	}
