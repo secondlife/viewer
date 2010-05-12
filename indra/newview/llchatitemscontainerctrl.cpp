@@ -192,7 +192,7 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 			style_params_name.font.name(font_name);
 			style_params_name.font.size(font_style_size);
 
-			style_params_name.link_href = LLSLURL::buildCommand("agent",mFromID,"about");
+			style_params_name.link_href = LLSLURL("agent",mFromID,"about").getSLURLString();
 
 			msg_text->appendText(str_sender, FALSE, style_params_name);
 

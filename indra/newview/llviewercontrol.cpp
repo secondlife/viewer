@@ -443,7 +443,7 @@ bool handleVelocityInterpolate(const LLSD& newvalue)
 
 bool handleForceShowGrid(const LLSD& newvalue)
 {
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateServer( );
 	return true;
 }
 

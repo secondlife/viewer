@@ -115,7 +115,7 @@ public:
 public:
 	struct WearableEntry : public LLDictionaryEntry
 	{
-		WearableEntry(EWearableType type,
+		WearableEntry(LLWearableType::EType type,
 					  const std::string &title,
 					  const std::string &desc_title,
 					  U8 num_color_swatches,  // number of 'color_swatches'
@@ -123,7 +123,7 @@ public:
 					  U8 num_subparts, ... ); // number of subparts followed by a list of ETextureIndex and ESubparts
 
 
-		const EWearableType mWearableType;
+		const LLWearableType::EType mWearableType;
 		const std::string   mTitle;
 		const std::string	mDescTitle;
 		subpart_vec_t		mSubparts;
@@ -131,12 +131,12 @@ public:
 		texture_vec_t		mTextureCtrls;
 	};
 
-	struct Wearables : public LLDictionary<EWearableType, WearableEntry>
+	struct Wearables : public LLDictionary<LLWearableType::EType, WearableEntry>
 	{
 		Wearables();
 	} mWearables;
 
-	const WearableEntry*	getWearable(EWearableType type) const { return mWearables.lookup(type); }
+	const WearableEntry*	getWearable(LLWearableType::EType type) const { return mWearables.lookup(type); }
 
 	//--------------------------------------------------------------------
 	// Subparts
@@ -212,24 +212,24 @@ LLEditWearableDictionary::~LLEditWearableDictionary()
 
 LLEditWearableDictionary::Wearables::Wearables()
 {
-	addEntry(WT_SHAPE, new WearableEntry(WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,9,	SUBPART_SHAPE_HEAD,	SUBPART_SHAPE_EYES,	SUBPART_SHAPE_EARS,	SUBPART_SHAPE_NOSE,	SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS, SUBPART_SHAPE_WHOLE));
-	addEntry(WT_SKIN, new WearableEntry(WT_SKIN,"edit_skin_title","skin_desc_text",0,3,4, TEX_HEAD_BODYPAINT, TEX_UPPER_BODYPAINT, TEX_LOWER_BODYPAINT, SUBPART_SKIN_COLOR, SUBPART_SKIN_FACEDETAIL, SUBPART_SKIN_MAKEUP, SUBPART_SKIN_BODYDETAIL));
-	addEntry(WT_HAIR, new WearableEntry(WT_HAIR,"edit_hair_title","hair_desc_text",0,1,4, TEX_HAIR, SUBPART_HAIR_COLOR,	SUBPART_HAIR_STYLE,	SUBPART_HAIR_EYEBROWS, SUBPART_HAIR_FACIAL));
-	addEntry(WT_EYES, new WearableEntry(WT_EYES,"edit_eyes_title","eyes_desc_text",0,1,1, TEX_EYES_IRIS, SUBPART_EYES));
-	addEntry(WT_SHIRT, new WearableEntry(WT_SHIRT,"edit_shirt_title","shirt_desc_text",1,1,1, TEX_UPPER_SHIRT, TEX_UPPER_SHIRT, SUBPART_SHIRT));
-	addEntry(WT_PANTS, new WearableEntry(WT_PANTS,"edit_pants_title","pants_desc_text",1,1,1, TEX_LOWER_PANTS, TEX_LOWER_PANTS, SUBPART_PANTS));
-	addEntry(WT_SHOES, new WearableEntry(WT_SHOES,"edit_shoes_title","shoes_desc_text",1,1,1, TEX_LOWER_SHOES, TEX_LOWER_SHOES, SUBPART_SHOES));
-	addEntry(WT_SOCKS, new WearableEntry(WT_SOCKS,"edit_socks_title","socks_desc_text",1,1,1, TEX_LOWER_SOCKS, TEX_LOWER_SOCKS, SUBPART_SOCKS));
-	addEntry(WT_JACKET, new WearableEntry(WT_JACKET,"edit_jacket_title","jacket_desc_text",1,2,1, TEX_UPPER_JACKET, TEX_UPPER_JACKET, TEX_LOWER_JACKET, SUBPART_JACKET));
-	addEntry(WT_GLOVES, new WearableEntry(WT_GLOVES,"edit_gloves_title","gloves_desc_text",1,1,1, TEX_UPPER_GLOVES, TEX_UPPER_GLOVES, SUBPART_GLOVES));
-	addEntry(WT_UNDERSHIRT, new WearableEntry(WT_UNDERSHIRT,"edit_undershirt_title","undershirt_desc_text",1,1,1, TEX_UPPER_UNDERSHIRT, TEX_UPPER_UNDERSHIRT, SUBPART_UNDERSHIRT));
-	addEntry(WT_UNDERPANTS, new WearableEntry(WT_UNDERPANTS,"edit_underpants_title","underpants_desc_text",1,1,1, TEX_LOWER_UNDERPANTS, TEX_LOWER_UNDERPANTS, SUBPART_UNDERPANTS));
-	addEntry(WT_SKIRT, new WearableEntry(WT_SKIRT,"edit_skirt_title","skirt_desc_text",1,1,1, TEX_SKIRT, TEX_SKIRT, SUBPART_SKIRT));
-	addEntry(WT_ALPHA, new WearableEntry(WT_ALPHA,"edit_alpha_title","alpha_desc_text",0,5,1, TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA, SUBPART_ALPHA));
-	addEntry(WT_TATTOO, new WearableEntry(WT_TATTOO,"edit_tattoo_title","tattoo_desc_text",0,3,1, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
+	addEntry(LLWearableType::WT_SHAPE, 		new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,9,	SUBPART_SHAPE_HEAD,	SUBPART_SHAPE_EYES,	SUBPART_SHAPE_EARS,	SUBPART_SHAPE_NOSE,	SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS, SUBPART_SHAPE_WHOLE));
+	addEntry(LLWearableType::WT_SKIN, 		new WearableEntry(LLWearableType::WT_SKIN,"edit_skin_title","skin_desc_text",0,3,4, TEX_HEAD_BODYPAINT, TEX_UPPER_BODYPAINT, TEX_LOWER_BODYPAINT, SUBPART_SKIN_COLOR, SUBPART_SKIN_FACEDETAIL, SUBPART_SKIN_MAKEUP, SUBPART_SKIN_BODYDETAIL));
+	addEntry(LLWearableType::WT_HAIR, 		new WearableEntry(LLWearableType::WT_HAIR,"edit_hair_title","hair_desc_text",0,1,4, TEX_HAIR, SUBPART_HAIR_COLOR,	SUBPART_HAIR_STYLE,	SUBPART_HAIR_EYEBROWS, SUBPART_HAIR_FACIAL));
+	addEntry(LLWearableType::WT_EYES, 		new WearableEntry(LLWearableType::WT_EYES,"edit_eyes_title","eyes_desc_text",0,1,1, TEX_EYES_IRIS, SUBPART_EYES));
+	addEntry(LLWearableType::WT_SHIRT, 		new WearableEntry(LLWearableType::WT_SHIRT,"edit_shirt_title","shirt_desc_text",1,1,1, TEX_UPPER_SHIRT, TEX_UPPER_SHIRT, SUBPART_SHIRT));
+	addEntry(LLWearableType::WT_PANTS, 		new WearableEntry(LLWearableType::WT_PANTS,"edit_pants_title","pants_desc_text",1,1,1, TEX_LOWER_PANTS, TEX_LOWER_PANTS, SUBPART_PANTS));
+	addEntry(LLWearableType::WT_SHOES, 		new WearableEntry(LLWearableType::WT_SHOES,"edit_shoes_title","shoes_desc_text",1,1,1, TEX_LOWER_SHOES, TEX_LOWER_SHOES, SUBPART_SHOES));
+	addEntry(LLWearableType::WT_SOCKS, 		new WearableEntry(LLWearableType::WT_SOCKS,"edit_socks_title","socks_desc_text",1,1,1, TEX_LOWER_SOCKS, TEX_LOWER_SOCKS, SUBPART_SOCKS));
+	addEntry(LLWearableType::WT_JACKET, 	new WearableEntry(LLWearableType::WT_JACKET,"edit_jacket_title","jacket_desc_text",1,2,1, TEX_UPPER_JACKET, TEX_UPPER_JACKET, TEX_LOWER_JACKET, SUBPART_JACKET));
+	addEntry(LLWearableType::WT_GLOVES, 	new WearableEntry(LLWearableType::WT_GLOVES,"edit_gloves_title","gloves_desc_text",1,1,1, TEX_UPPER_GLOVES, TEX_UPPER_GLOVES, SUBPART_GLOVES));
+	addEntry(LLWearableType::WT_UNDERSHIRT, new WearableEntry(LLWearableType::WT_UNDERSHIRT,"edit_undershirt_title","undershirt_desc_text",1,1,1, TEX_UPPER_UNDERSHIRT, TEX_UPPER_UNDERSHIRT, SUBPART_UNDERSHIRT));
+	addEntry(LLWearableType::WT_UNDERPANTS, new WearableEntry(LLWearableType::WT_UNDERPANTS,"edit_underpants_title","underpants_desc_text",1,1,1, TEX_LOWER_UNDERPANTS, TEX_LOWER_UNDERPANTS, SUBPART_UNDERPANTS));
+	addEntry(LLWearableType::WT_SKIRT, 		new WearableEntry(LLWearableType::WT_SKIRT,"edit_skirt_title","skirt_desc_text",1,1,1, TEX_SKIRT, TEX_SKIRT, SUBPART_SKIRT));
+	addEntry(LLWearableType::WT_ALPHA, 		new WearableEntry(LLWearableType::WT_ALPHA,"edit_alpha_title","alpha_desc_text",0,5,1, TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA, SUBPART_ALPHA));
+	addEntry(LLWearableType::WT_TATTOO, 	new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text",0,3,1, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
 }
 
-LLEditWearableDictionary::WearableEntry::WearableEntry(EWearableType type,
+LLEditWearableDictionary::WearableEntry::WearableEntry(LLWearableType::EType type,
 					  const std::string &title,
 					  const std::string &desc_title,
 					  U8 num_color_swatches,
@@ -442,7 +442,7 @@ get_picker_entry<LLTextureCtrl> (const ETextureIndex index)
 
 template <typename CtrlType, class Predicate>
 const LLEditWearableDictionary::PickerControlEntry*
-find_picker_ctrl_entry_if(EWearableType type, const Predicate pred)
+find_picker_ctrl_entry_if(LLWearableType::EType type, const Predicate pred)
 {
 	const LLEditWearableDictionary::WearableEntry *wearable_entry
 		= LLEditWearableDictionary::getInstance()->getWearable(type);
@@ -475,7 +475,7 @@ find_picker_ctrl_entry_if(EWearableType type, const Predicate pred)
 
 template <typename CtrlType>
 void
-for_each_picker_ctrl_entry(LLPanel* panel, EWearableType type, function_t fun)
+for_each_picker_ctrl_entry(LLPanel* panel, LLWearableType::EType type, function_t fun)
 {
 	if (!panel)
 	{
@@ -663,7 +663,7 @@ void LLPanelEditWearable::draw()
 	updateVerbs();
 	if (getWearable())
 	{
-		EWearableType type = getWearable()->getType();
+		LLWearableType::EType type = getWearable()->getType();
 		updatePanelPickerControls(type);
 		updateTypeSpecificControls(type);
 	}
@@ -698,7 +698,7 @@ void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
 
 	if (getWearable())
 	{
-		EWearableType type = getWearable()->getType();
+		LLWearableType::EType type = getWearable()->getType();
 		const PickerControlEntryNamePredicate name_pred(texture_ctrl->getName());
 		const LLEditWearableDictionary::PickerControlEntry* entry
 			= find_picker_ctrl_entry_if<LLTextureCtrl, PickerControlEntryNamePredicate>(type, name_pred);
@@ -729,7 +729,7 @@ void LLPanelEditWearable::onColorSwatchCommit(const LLUICtrl* ctrl)
 {
 	if (getWearable())
 	{
-		EWearableType type = getWearable()->getType();
+		LLWearableType::EType type = getWearable()->getType();
 		const PickerControlEntryNamePredicate name_pred(ctrl->getName());
 		const LLEditWearableDictionary::PickerControlEntry* entry
 			= find_picker_ctrl_entry_if<LLColorSwatchCtrl, PickerControlEntryNamePredicate>(type, name_pred);
@@ -751,7 +751,7 @@ void LLPanelEditWearable::onColorSwatchCommit(const LLUICtrl* ctrl)
 	}
 }
 
-void LLPanelEditWearable::updatePanelPickerControls(EWearableType type)
+void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
 {
 	LLPanel* panel = getPanel(type);
 	if (!panel)
@@ -827,7 +827,7 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 	mWearableItem = gInventory.getItem(mWearablePtr->getItemID());
 	llassert(mWearableItem);
 
-	EWearableType type = wearable->getType();
+	LLWearableType::EType type = wearable->getType();
 	LLPanel *targetPanel = NULL;
 	std::string title;
 	std::string description_title;
@@ -863,7 +863,7 @@ void LLPanelEditWearable::initializePanel()
 		return;
 	}
 
-	EWearableType type = mWearablePtr->getType();
+	LLWearableType::EType type = mWearablePtr->getType();
 
 	// set name
 	mTextEditor->setText(mWearablePtr->getName());
@@ -929,21 +929,21 @@ void LLPanelEditWearable::initializePanel()
 	updateVerbs();
 }
 
-void LLPanelEditWearable::toggleTypeSpecificControls(EWearableType type)
+void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type)
 {
 	// Toggle controls specific to shape editing panel.
 	{
-		bool is_shape = (type == WT_SHAPE);
+		bool is_shape = (type == LLWearableType::WT_SHAPE);
 		childSetVisible("sex_radio", is_shape);
 		childSetVisible("female_icon", is_shape);
 		childSetVisible("male_icon", is_shape);
 	}
 }
 
-void LLPanelEditWearable::updateTypeSpecificControls(EWearableType type)
+void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
 {
 	// Update controls specific to shape editing panel.
-	if (type == WT_SHAPE)
+	if (type == LLWearableType::WT_SHAPE)
 	{
 		// Update avatar height
 		std::string avatar_height_str = llformat("%.2f", gAgentAvatarp->mBodySize.mV[VZ]);
@@ -959,7 +959,7 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 		return;
 	}
 
-	EWearableType type = mWearablePtr->getType();
+	LLWearableType::EType type = mWearablePtr->getType();
 	LLPanel *panel = getPanel(type);
 
 	if(panel && (mWearablePtr->getItemID().notNull()))
@@ -989,67 +989,67 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 	}
 }
 
-LLPanel* LLPanelEditWearable::getPanel(EWearableType type)
+LLPanel* LLPanelEditWearable::getPanel(LLWearableType::EType type)
 {
 	switch (type)
 	{
-		case WT_SHAPE:
+		case LLWearableType::WT_SHAPE:
 			return mPanelShape;
 			break;
 
-		case WT_SKIN:
+		case LLWearableType::WT_SKIN:
 			return mPanelSkin;
 			break;
 
-		case WT_HAIR:
+		case LLWearableType::WT_HAIR:
 			return mPanelHair;
 			break;
 
-		case WT_EYES:
+		case LLWearableType::WT_EYES:
 			return mPanelEyes;
 			break;
 
-		case WT_SHIRT:
+		case LLWearableType::WT_SHIRT:
 			return mPanelShirt;
 			break;
 
-		case WT_PANTS:
+		case LLWearableType::WT_PANTS:
 			return mPanelPants;
 			break;
 
-		case WT_SHOES:
+		case LLWearableType::WT_SHOES:
 			return mPanelShoes;
 			break;
 
-		case WT_SOCKS:
+		case LLWearableType::WT_SOCKS:
 			return mPanelSocks;
 			break;
 
-		case WT_JACKET:
+		case LLWearableType::WT_JACKET:
 			return mPanelJacket;
 			break;
 
-		case WT_GLOVES:
+		case LLWearableType::WT_GLOVES:
 			return mPanelGloves;
 			break;
 
-		case WT_UNDERSHIRT:
+		case LLWearableType::WT_UNDERSHIRT:
 			return mPanelUndershirt;
 			break;
 
-		case WT_UNDERPANTS:
+		case LLWearableType::WT_UNDERPANTS:
 			return mPanelUnderpants;
 			break;
 
-		case WT_SKIRT:
+		case LLWearableType::WT_SKIRT:
 			return mPanelSkirt;
 			break;
 
-		case WT_ALPHA:
+		case LLWearableType::WT_ALPHA:
 			return mPanelAlpha;
 			break;
 
-		case WT_TATTOO:
+		case LLWearableType::WT_TATTOO:
 			return mPanelTattoo;
 			break;
 		default:

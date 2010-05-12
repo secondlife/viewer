@@ -34,7 +34,7 @@
 #define LL_LLAGENTWEARABLESINITIALFETCH_H
 
 #include "llinventoryobserver.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 #include "lluuid.h"
 
 //--------------------------------------------------------------------
@@ -53,10 +53,10 @@ public:
 
 	struct InitialWearableData
 	{
-		EWearableType mType;
+		LLWearableType::EType mType;
 		LLUUID mItemID;
 		LLUUID mAssetID;
-		InitialWearableData(EWearableType type, LLUUID& itemID, LLUUID& assetID) :
+		InitialWearableData(LLWearableType::EType type, LLUUID& itemID, LLUUID& assetID) :
 			mType(type),
 			mItemID(itemID),
 			mAssetID(assetID)
