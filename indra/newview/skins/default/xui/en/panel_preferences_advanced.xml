@@ -301,6 +301,7 @@ Automatic position for:
      halign="center"
      height="23"
      image_overlay="Refresh_Off"
+   layout="topleft" 
      tool_tip="Reset to Middle Mouse Button"
      mouse_opaque="true"
      name="set_voice_middlemouse_button"
@@ -314,7 +315,7 @@ Automatic position for:
  label="Other Devices"
  left="30"
  name="joystick_setup_button"
- top_pad="12"
+ top_pad="5"
  width="155">
     <button.commit_callback
      function="Floater.Show"
@@ -324,8 +325,10 @@ Automatic position for:
   follows="top|left"
   height="15"
   label="Use Display Names (PLACEHOLDER)"
+  layout="topleft" 
   left="30"
   name="display_names_check"
   width="237"
-  tool_tip="Check to use display names in chat, IM, name tags, etc."/>
+  tool_tip="Check to use display names in chat, IM, name tags, etc."
+  top_pad="5"/>
 </panel>
