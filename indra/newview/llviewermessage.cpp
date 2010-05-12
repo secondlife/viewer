@@ -2328,7 +2328,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				LLSD args;
 				args["MESSAGE"] = message;
-				LLNotificationsUtil::add("JoinGroup", args, payload, join_group_response);
+				// we shouldn't pass callback functor since it is registered in LLFunctorRegistration
+				LLNotificationsUtil::add("JoinGroup", args, payload);
 			}
 		}
 		break;
