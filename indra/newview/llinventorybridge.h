@@ -79,16 +79,15 @@ public:
 	virtual void restoreItem() {}
 	virtual void restoreToWorld() {}
 
+	//--------------------------------------------------------------------
 	// LLFolderViewEventListener functions
+	//--------------------------------------------------------------------
 	virtual const std::string& getName() const;
 	virtual const std::string& getDisplayName() const;
 	virtual PermissionMask getPermissionMask() const;
 	virtual LLFolderType::EType getPreferredType() const;
 	virtual time_t getCreationDate() const;
-	virtual LLFontGL::StyleFlags getLabelStyle() const
-	{
-		return LLFontGL::NORMAL;
-	}
+	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
 	virtual void openItem() {}
 	virtual void closeItem() {}
@@ -120,11 +119,12 @@ public:
 							void* cargo_data) { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
 
+	//--------------------------------------------------------------------
 	// LLInvFVBridge functionality
+	//--------------------------------------------------------------------
 	virtual void clearDisplayName() {}
 
-	// Allow context menus to be customized for side panel.
-	bool isInOutfitsSidePanel() const;
+	bool isInOutfitsSidePanel() const; // allow context menus to be customized for side panel
 
 	bool canShare();
 
@@ -147,7 +147,7 @@ protected:
 	BOOL isLinkedObjectMissing() const; // Is this a linked obj whose baseobj is not in inventory?
 
 	BOOL isAgentInventory() const; // false if lost or in the inventory library
-	BOOL isCOFFolder() const; // true if COF or descendent of.
+	BOOL isCOFFolder() const; // true if COF or descendent of
 	virtual BOOL isItemPermissive() const;
 	static void changeItemParent(LLInventoryModel* model,
 								 LLViewerInventoryItem* item,
@@ -168,7 +168,7 @@ protected:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInvFVBridge
+// Class LLInvFVBridgeBuilder
 //
 // This class intended to build Folder View Bridge via LLInvFVBridge::createBridge.
 // It can be overridden with another way of creation necessary Inventory-Folder-View-Bridge.
@@ -214,7 +214,7 @@ public:
 	virtual BOOL hasChildren() const { return FALSE; }
 	virtual BOOL isUpToDate() const { return TRUE; }
 
-	// override for LLInvFVBridge
+	// Override for LLInvFVBridge
 	virtual void clearDisplayName() { mDisplayName.clear(); }
 
 	LLViewerInventoryItem* getItem() const;
@@ -232,8 +232,14 @@ protected:
 
 class LLFolderBridge : public LLInvFVBridge
 {
-	friend class LLInvFVBridge;
 public:
+	LLFolderBridge(LLInventoryPanel* inventory, 
+				   LLFolderView* root,
+				   const LLUUID& uuid) :
+		LLInvFVBridge(inventory, root, uuid),
+		mCallingCards(FALSE),
+		mWearables(FALSE),
+		mMenu(NULL) {}
 	BOOL dragItemIntoFolder(LLInventoryItem* inv_item,
 							BOOL drop);
 	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category,
@@ -278,18 +284,11 @@ public:
 	LLViewerInventoryCategory* getCategory() const;
 
 protected:
-	LLFolderBridge(LLInventoryPanel* inventory, 
-				   LLFolderView* root,
-				   const LLUUID& uuid) :
-		LLInvFVBridge(inventory, root, uuid),
-		mCallingCards(FALSE),
-		mWearables(FALSE),
-		mMenu(NULL) {}
-
-	// menu callbacks
+	//--------------------------------------------------------------------
+	// Menu callbacks
+	//--------------------------------------------------------------------
 	static void pasteClipboard(void* user_data);
 	static void createNewCategory(void* user_data);
-
 	static void createNewShirt(void* user_data);
 	static void createNewPants(void* user_data);
 	static void createNewShoes(void* user_data);
@@ -310,10 +309,7 @@ protected:
 	void modifyOutfit(BOOL append);
 	void determineFolderType();
 
-	/**
-	 * Returns a copy of current menu items.
-	 */
-	menuentry_vec_t getMenuItems() { return mItems; }
+	menuentry_vec_t getMenuItems() { return mItems; } // returns a copy of current menu items
 
 public:
 	static LLFolderBridge* sSelf;
@@ -329,63 +325,57 @@ private:
 
 class LLTextureBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
-	virtual LLUIImagePtr getIcon() const;
-	virtual void openItem();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual void performAction(LLInventoryModel* model, std::string action);
-
-protected:
 	LLTextureBridge(LLInventoryPanel* inventory, 
 					LLFolderView* root,
 					const LLUUID& uuid, 
 					LLInventoryType::EType type) :
 		LLItemBridge(inventory, root, uuid),
-		mInvType(type) 
-	{}
+		mInvType(type) {}
+	virtual LLUIImagePtr getIcon() const;
+	virtual void openItem();
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	virtual void performAction(LLInventoryModel* model, std::string action);
+
 	bool canSaveTexture(void);
 	LLInventoryType::EType mInvType;
 };
 
 class LLSoundBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
+ 	LLSoundBridge(LLInventoryPanel* inventory, 
+				  LLFolderView* root,
+				  const LLUUID& uuid) :
+		LLItemBridge(inventory, root, uuid) {}
 	virtual void openItem();
 	virtual void previewItem();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	static void openSoundPreview(void*);
-
-protected:
-	LLSoundBridge(LLInventoryPanel* inventory, 
-				  LLFolderView* root,
-				  const LLUUID& uuid) :
-		LLItemBridge(inventory, root, uuid) {}
 };
 
 class LLLandmarkBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
+ 	LLLandmarkBridge(LLInventoryPanel* inventory, 
+					 LLFolderView* root,
+					 const LLUUID& uuid, 
+					 U32 flags = 0x00);
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
-
-protected:
-	LLLandmarkBridge(LLInventoryPanel* inventory, 
-					 LLFolderView* root,
-					 const LLUUID& uuid, 
-					 U32 flags = 0x00);
 protected:
 	BOOL mVisited;
 };
 
 class LLCallingCardBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
+	LLCallingCardBridge(LLInventoryPanel* inventory, 
+						LLFolderView* folder,
+						const LLUUID& uuid );
+	~LLCallingCardBridge();
 	virtual std::string getLabelSuffix() const;
 	//virtual const std::string& getDisplayName() const;
 	virtual LLUIImagePtr getIcon() const;
@@ -397,71 +387,57 @@ public:
 							void* cargo_data);
 	void refreshFolderViewItem();
 protected:
-	LLCallingCardBridge(LLInventoryPanel* inventory, 
-						LLFolderView* folder,
-						const LLUUID& uuid );
-	~LLCallingCardBridge();
-protected:
 	LLCallingCardObserver* mObserver;
 };
 
-
 class LLNotecardBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
-	virtual void openItem();
-protected:
 	LLNotecardBridge(LLInventoryPanel* inventory, 
 					 LLFolderView* root,
 					 const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
+	virtual void openItem();
 };
 
 class LLGestureBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
+	LLGestureBridge(LLInventoryPanel* inventory, 
+					LLFolderView* root,
+					const LLUUID& uuid) :
+		LLItemBridge(inventory, root, uuid) {}
 	// Only suffix for gesture items, not task items, because only
 	// gestures in your inventory can be active.
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual std::string getLabelSuffix() const;
-
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void openItem();
 	virtual BOOL removeItem();
-
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-
 	static void playGesture(const LLUUID& item_id);
-
-protected:
-	LLGestureBridge(LLInventoryPanel* inventory, 
-					LLFolderView* root,
-					const LLUUID& uuid)
-	:	LLItemBridge(inventory, root, uuid) {}
 };
 
 class LLAnimationBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
-	virtual void performAction(LLInventoryModel* model, std::string action);
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-
-	virtual void openItem();
-
-protected:
 	LLAnimationBridge(LLInventoryPanel* inventory, 
 					  LLFolderView* root, 
 					  const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
+	virtual void performAction(LLInventoryModel* model, std::string action);
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
+	virtual void openItem();
 };
 
 class LLObjectBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
+	LLObjectBridge(LLInventoryPanel* inventory, 
+				   LLFolderView* root, 
+				   const LLUUID& uuid, 
+				   LLInventoryType::EType type, 
+				   U32 flags);
 	virtual LLUIImagePtr	getIcon() const;
 	virtual void			performAction(LLInventoryModel* model, std::string action);
 	virtual void			openItem();
@@ -469,14 +445,7 @@ public:
 	virtual std::string getLabelSuffix() const;
 	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL renameItem(const std::string& new_name);
-
 	LLInventoryObject* getObject() const;
-protected:
-	LLObjectBridge(LLInventoryPanel* inventory, 
-				   LLFolderView* root, 
-				   const LLUUID& uuid, 
-				   LLInventoryType::EType type, 
-				   U32 flags);
 protected:
 	static LLUUID	sContextMenuItemID;  // Only valid while the context menu is open.
 	LLInventoryType::EType mInvType;
@@ -486,20 +455,23 @@ protected:
 
 class LLLSLTextBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
-	virtual void openItem();
-protected:
 	LLLSLTextBridge(LLInventoryPanel* inventory, 
 					LLFolderView* root, 
 					const LLUUID& uuid ) :
 		LLItemBridge(inventory, root, uuid) {}
+	virtual void openItem();
 };
 
 class LLWearableBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
+	LLWearableBridge(LLInventoryPanel* inventory, 
+					 LLFolderView* root, 
+					 const LLUUID& uuid, 
+					 LLAssetType::EType asset_type, 
+					 LLInventoryType::EType inv_type, 
+					 LLWearableType::EType wearable_type);
 	virtual LLUIImagePtr getIcon() const;
 	virtual void	performAction(LLInventoryModel* model, std::string action);
 	virtual void	openItem();
@@ -525,14 +497,6 @@ public:
 	static void 	removeItemFromAvatar(LLViewerInventoryItem *item);
 	static void 	removeAllClothesFromAvatar();
 	void			removeFromAvatar();
-
-protected:
-	LLWearableBridge(LLInventoryPanel* inventory, 
-					 LLFolderView* root, 
-					 const LLUUID& uuid, 
-					 LLAssetType::EType asset_type, 
-					 LLInventoryType::EType inv_type, 
-					 LLWearableType::EType wearable_type);
 protected:
 	LLAssetType::EType mAssetType;
 	LLInventoryType::EType mInvType;
@@ -541,35 +505,31 @@ protected:
 
 class LLLinkItemBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
-	virtual const std::string& getPrefix() { return sPrefix; }
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-protected:
 	LLLinkItemBridge(LLInventoryPanel* inventory, 
 					 LLFolderView* root,
 					 const LLUUID& uuid) :
 		LLItemBridge(inventory, root, uuid) {}
+	virtual const std::string& getPrefix() { return sPrefix; }
+	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 protected:
 	static std::string sPrefix;
 };
 
 class LLLinkFolderBridge : public LLItemBridge
 {
-	friend class LLInvFVBridge;
 public:
+	LLLinkFolderBridge(LLInventoryPanel* inventory, 
+					   LLFolderView* root,
+					   const LLUUID& uuid) :
+		LLItemBridge(inventory, root, uuid) {}
 	virtual const std::string& getPrefix() { return sPrefix; }
 	virtual LLUIImagePtr getIcon() const;
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void gotoItem();
 protected:
-	LLLinkFolderBridge(LLInventoryPanel* inventory, 
-					   LLFolderView* root,
-					   const LLUUID& uuid) :
-		LLItemBridge(inventory, root, uuid) {}
 	const LLUUID &getFolderID() const;
-protected:
 	static std::string sPrefix;
 };
 
