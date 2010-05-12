@@ -49,6 +49,10 @@ public:
 
 	void fromLLSD(const LLSD& sd);
 
+	// For normal names, returns "James Linden (james.linden)"
+	// When display names are disabled returns just "James Linden"
+	std::string getNameAndSLID() const;
+
 	// "bobsmith123" or "james.linden", US-ASCII only
 	std::string mSLID;
 

@@ -79,3 +79,18 @@ void LLAvatarName::fromLLSD(const LLSD& sd)
 	LLDate expires = sd[DISPLAY_NAME_EXPIRES];
 	mExpires = expires.secondsSinceEpoch();
 }
+
+std::string LLAvatarName::getNameAndSLID() const
+{
+	std::string name;
+	if (!mSLID.empty())
+	{
+		name = mDisplayName + " (" + mSLID + ")";
+	}
+	else
+	{
+		// ...display names are off, legacy name is in mDisplayName
+		name = mDisplayName;
+	}
+	return name;
+}
