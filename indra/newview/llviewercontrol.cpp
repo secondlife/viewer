@@ -43,6 +43,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llconsole.h"
+#include "lldrawpoolbump.h"
 #include "lldrawpoolterrain.h"
 #include "llflexibleobject.h"
 #include "llfeaturemanager.h"
@@ -118,6 +119,9 @@ static bool handleTerrainDetailChanged(const LLSD& newvalue)
 
 static bool handleSetShaderChanged(const LLSD& newvalue)
 {
+	// changing shader level may invalidate existing cached ad-hoc bump maps, as the shader type determines the format of the bump map it expectes - clear the bump cache
+	gBumpImageList.clear();
+
 	LLViewerShaderMgr::instance()->setShaders();
 	return true;
 }

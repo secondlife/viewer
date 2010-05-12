@@ -818,17 +818,22 @@ void LLBumpImageList::init()
 	LLStandardBumpmap::init();
 }
 
-void LLBumpImageList::shutdown()
+void LLBumpImageList::clear()
 {
+	// these will be re-populated on-demand
 	mBrightnessEntries.clear();
 	mDarknessEntries.clear();
+}
+
+void LLBumpImageList::shutdown()
+{
+	clear();
 	LLStandardBumpmap::shutdown();
 }
 
 void LLBumpImageList::destroyGL()
 {
-	mBrightnessEntries.clear();
-	mDarknessEntries.clear();
+	clear();
 	LLStandardBumpmap::destroyGL();
 }
 
@@ -1065,7 +1070,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 	{
 		bump_image_map_t& entries_list(bump_code == BE_BRIGHTNESS ? gBumpImageList.mBrightnessEntries : gBumpImageList.mDarknessEntries );
 		bump_image_map_t::iterator iter = entries_list.find(source_asset_id);
-		if (iter != entries_list.end())
+		if (iter != entries_list.end()) // bump not cached yet
 		{
 			LLPointer<LLImageRaw> dst_image = new LLImageRaw(src->getWidth(), src->getHeight(), 1);
 			U8* dst_data = dst_image->getData();
@@ -1150,8 +1155,11 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 				F32 twice_one_over_range = 2.f / (maximum - minimum);
 				S32 i;
 
-				const F32 ARTIFICIAL_SCALE = 2.f;  // Advantage: exagerates the effect in midrange.  Disadvantage: clamps at the extremes.
-				if( BE_DARKNESS == bump_code )
+				bool bump_polarity_negative = LLPipeline::sRenderDeferred ?
+					(BE_BRIGHTNESS == bump_code) : (BE_DARKNESS == bump_code); // deferred mode likes its normal map values inverted
+
+				const F32 ARTIFICIAL_SCALE = 2.f;  // Advantage: exaggerates the effect in midrange.  Disadvantage: clamps at the extremes.
+				if (bump_polarity_negative)
 				{
 					for( i = minimum; i <= maximum; i++ )
 					{
@@ -1161,7 +1169,6 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 				}
 				else
 				{
-					// BE_LIGHTNESS
 					for( i = minimum; i <= maximum; i++ )
 					{
 						F32 minus_one_to_one = F32(i - minimum) * twice_one_over_range - 1.f;
@@ -1176,9 +1183,9 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			}
 
 			//---------------------------------------------------
-			//immediately assign bump to a global smart pointer in case some local smart pointer
-			//accidently releases it.
-			LLPointer<LLViewerTexture> bump = LLViewerTextureManager::getLocalTexture( TRUE);
+			// immediately assign bump to a global smart pointer in case some local smart pointer
+			// accidentally releases it.
+			LLPointer<LLViewerTexture> bump = LLViewerTextureManager::getLocalTexture( TRUE );
 			
 			if (!LLPipeline::sRenderDeferred)
 			{
@@ -1187,8 +1194,8 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			}
 			else
 			{
-				LLPointer<LLImageRaw> nrm_image = new LLImageRaw(src->getWidth(), src->getHeight(), 4);
-				generateNormalMapFromAlpha(src, nrm_image);
+				LLPointer<LLImageRaw> nrm_image = new LLImageRaw(dst_image->getWidth(), dst_image->getHeight(), 4);
+				generateNormalMapFromAlpha(dst_image, nrm_image);
 				bump->setExplicitFormat(GL_RGBA, GL_RGBA);
 				bump->createGLTexture(0, nrm_image);
 			}
