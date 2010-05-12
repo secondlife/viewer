@@ -102,12 +102,14 @@ public:
 	
 	void update();
 
+	void updateVerbs();
+
 private:
 
-	void updateVerbs();
 
 
 	LLTextBox*			mCurrentOutfitName;
+	LLTextBox*			mStatus;
 	LLInventoryPanel*	mInventoryItemsPanel;
 	LLFilterEditor*		mSearchFilter;
 	LLSaveFolderState*	mSavedFolderState;

@@ -15,6 +15,12 @@
     <string
      name="No Outfit"
      value="No Outfit"/>
+    <string
+     name="unsaved_changes"
+     value="Unsaved Changes"/>
+    <string
+     name="now_editing"
+     value="Now Editing"/>
 	
 	<panel.string
 		name="not_available">
