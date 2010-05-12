@@ -42,6 +42,7 @@
 
 #include "llremoteparcelrequest.h"
 #include "llinventory.h"
+#include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
 
 class LLButton;
@@ -87,6 +88,7 @@ public:
 	void toggleAddWearablesPanel();
 	void showWearablesFilter();
 	void showFilteredWearablesPanel();
+	void showFilteredFolderWearablesPanel();
 	void saveOutfit(bool as_new = false);
 	void showSaveMenu();
 
@@ -103,6 +105,14 @@ public:
 	void update();
 
 	void updateVerbs();
+	/**
+	 * @brief Helper function. Shows one panel instead of another.
+	 *		  If panels already switched does nothing and returns false.
+	 * @param  switch_from_panel panel to hide
+	 * @param  switch_to_panel panel to show
+	 * @retun  returns true if switching happened, false if not.
+	 */
+	bool switchPanels(LLPanel* switch_from_panel, LLPanel* switch_to_panel);
 
 private:
 
@@ -115,9 +125,13 @@ private:
 	LLSaveFolderState*	mSavedFolderState;
 	std::string			mSearchString;
 	LLButton*			mEditWearableBtn;
+	LLButton*			mFolderViewBtn;
+	LLButton*			mListViewBtn;
 	LLToggleableMenu*	mSaveMenu;
 
-	LLFilteredWearableListManager* mWearableListManager;
+	LLFilteredWearableListManager* 	mWearableListManager;
+	LLInventoryItemsList* 			mWearableItemsList;
+	LLPanel*						mWearableItemsPanel;
 
 	LLCOFObserver*	mCOFObserver;
 	std::vector<LLLookItemType> mLookItemTypes;

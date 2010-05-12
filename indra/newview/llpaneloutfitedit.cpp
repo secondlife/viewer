@@ -210,7 +210,11 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mCurrentOutfitName = getChild<LLTextBox>("curr_outfit_name"); 
 	mStatus = getChild<LLTextBox>("status");
 
+	mFolderViewBtn = getChild<LLButton>("folder_view_btn");
+	mListViewBtn = getChild<LLButton>("list_view_btn");
+
 	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
+	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredFolderWearablesPanel, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredWearablesPanel, this), NULL);
 
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
@@ -267,8 +271,9 @@ BOOL LLPanelOutfitEdit::postBuild()
 	save_registar.add("Outfit.SaveAsNew.Action", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, true));
 	mSaveMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_save_outfit.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
-	mWearableListManager = new LLFilteredWearableListManager(
-		getChild<LLInventoryItemsList>("filtered_wearables_list"), ALL_ITEMS_MASK);
+	mWearableItemsPanel = getChild<LLPanel>("filtered_wearables_panel");
+	mWearableItemsList = getChild<LLInventoryItemsList>("filtered_wearables_list");
+	mWearableListManager = new LLFilteredWearableListManager(mWearableItemsList, ALL_ITEMS_MASK);
 
 	return TRUE;
 }
@@ -289,12 +294,33 @@ void LLPanelOutfitEdit::toggleAddWearablesPanel()
 
 void LLPanelOutfitEdit::showWearablesFilter()
 {
-	childSetVisible("filter_combobox_panel", childGetValue("filter_button"));
+	bool filter_visible = childGetValue("filter_button");
+
+	childSetVisible("filter_panel", filter_visible);
+
+	if(!filter_visible)
+	{
+		mSearchFilter->clear();
+		onSearchEdit(LLStringUtil::null);
+	}
 }
 
 void LLPanelOutfitEdit::showFilteredWearablesPanel()
 {
-	childSetVisible("filtered_wearables_panel", !childIsVisible("filtered_wearables_panel"));
+	if(switchPanels(mInventoryItemsPanel, mWearableItemsPanel))
+	{
+		mFolderViewBtn->setToggleState(FALSE);
+	}
+	mListViewBtn->setToggleState(TRUE);
+}
+
+void LLPanelOutfitEdit::showFilteredFolderWearablesPanel()
+{
+	if(switchPanels(mWearableItemsPanel, mInventoryItemsPanel))
+	{
+		mListViewBtn->setToggleState(FALSE);
+	}
+	mFolderViewBtn->setToggleState(TRUE);
 }
 
 void LLPanelOutfitEdit::saveOutfit(bool as_new)
@@ -359,7 +385,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 	if (mSearchString == "")
 	{
 		mInventoryItemsPanel->setFilterSubString(LLStringUtil::null);
-		
+		mWearableItemsList->setFilterSubString(LLStringUtil::null);
 		// re-open folders that were initially open
 		mSavedFolderState->setApply(TRUE);
 		mInventoryItemsPanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
@@ -385,6 +411,8 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 	
 	// set new filter string
 	mInventoryItemsPanel->setFilterSubString(mSearchString);
+	mWearableItemsList->setFilterSubString(mSearchString);
+
 }
 
 void LLPanelOutfitEdit::onAddToOutfitClicked(void)
@@ -538,6 +566,17 @@ void LLPanelOutfitEdit::updateVerbs()
 
 	mStatus->setText(outfit_is_dirty ? getString("unsaved_changes") : getString("now_editing"));
 
+}
+
+bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch_to_panel)
+{
+	if(switch_from_panel && switch_to_panel && !switch_to_panel->getVisible())
+	{
+		switch_from_panel->setVisible(FALSE);
+		switch_to_panel->setVisible(TRUE);
+		return true;
+	}
+	return false;
 }
 
 // EOF
