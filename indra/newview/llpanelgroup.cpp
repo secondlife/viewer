@@ -200,7 +200,7 @@ BOOL LLPanelGroup::postBuild()
 		mJoinText = panel_general->getChild<LLUICtrl>("join_cost_text");
 	}
 
-	gVoiceClient->addObserver(this);
+	LLVoiceClient::getInstance()->addObserver(this);
 	
 	return TRUE;
 }
@@ -321,7 +321,7 @@ void LLPanelGroup::onChange(EStatusType status, const std::string &channelURI, b
 		return;
 	}
 
-	childSetEnabled("btn_call", LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking());
+	childSetEnabled("btn_call", LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking());
 }
 
 void LLPanelGroup::notifyObservers()

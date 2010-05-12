@@ -114,7 +114,7 @@ void LLCOFWearables::refresh()
 	populateAttachmentsAndBodypartsLists(cof_items);
 
 
-	LLAppearanceMgr::wearables_by_type_t clothing_by_type(WT_COUNT);
+	LLAppearanceMgr::wearables_by_type_t clothing_by_type(LLWearableType::WT_COUNT);
 	LLAppearanceMgr::getInstance()->divvyWearablesByType(cof_items, clothing_by_type);
 	
 	populateClothingList(clothing_by_type);
@@ -234,9 +234,9 @@ LLPanelBodyPartsListItem* LLCOFWearables::buildBodypartListItem(LLViewerInventor
 
 void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& clothing_by_type)
 {
-	llassert(clothing_by_type.size() == WT_COUNT);
+	llassert(clothing_by_type.size() == LLWearableType::WT_COUNT);
 
-	for (U32 type = WT_SHIRT; type < WT_COUNT; ++type)
+	for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; ++type)
 	{
 		U32 size = clothing_by_type[type].size();
 		if (!size) continue;
@@ -263,14 +263,14 @@ void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& 
 //adding dummy items for missing wearable types
 void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by_type_t& clothing_by_type)
 {
-	llassert(clothing_by_type.size() == WT_COUNT);
+	llassert(clothing_by_type.size() == LLWearableType::WT_COUNT);
 	
-	for (U32 type = WT_SHIRT; type < WT_COUNT; type++)
+	for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; type++)
 	{
 		U32 size = clothing_by_type[type].size();
 		if (size) continue;
 
-		EWearableType w_type = static_cast<EWearableType>(type);
+		LLWearableType::EType w_type = static_cast<LLWearableType::EType>(type);
 		LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);
 		if(!item_panel) continue;
 		mClothing->addItem(item_panel, LLUUID::null, ADD_BOTTOM, false);

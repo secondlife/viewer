@@ -165,12 +165,59 @@ left="0"
          width="313">
 		 <text
 		 follows="top|left|right"
+		 font="SansSerifSmallBold"
 		 height="16"
 		 layout="topleft"
 		 left="10"
 		 name="description_text"
+		 text_color="white"
+		 top="10"
 		 value="Shape:"
-		 width="303" />
+		 width="150" />
+		 <radio_group
+			 follows="left|top|right"
+			 left="210"
+			 height="20"
+			 layout="topleft"
+			 name="sex_radio"
+			 top="5"
+			 width="110">
+			 <radio_item
+				 follows="all"
+				 height="16"
+				 label=""
+				 layout="topleft"
+				 left="0"
+				 name="sex_male"
+				 tool_tip="Male"
+				 width="40" />
+			 <radio_item
+				 follows="all"
+				 height="16"
+				 label=""
+				 layout="topleft"
+				 left_pad="10"
+				 name="sex_female"
+				 tool_tip="Female"
+				 width="40" />
+		 </radio_group>
+		 <!--  graphical labels for the radio buttons above -->
+		 <icon
+			 height="16"
+			 image_name="icons/Male.png"
+			 left="230"
+			 name="male_icon"
+			 tool_tip="Male"
+			 top="7"
+			 width="16" />
+		 <icon
+			 height="16"
+			 image_name="icons/Female.png"
+			 name="female_icon"
+			 left="280"
+			 tool_tip="Female"
+			 top="7"
+			 width="16" />
 		 <text_editor
 			 follows="all"
 			 height="23"
@@ -178,6 +225,7 @@ left="0"
 			 layout="topleft"
 			 max_length="300"
 			 name="description"
+			 top_pad="3"
 			 width="290" />
 	 </panel>
 	 <panel
@@ -186,8 +234,10 @@ left="0"
 		 layout="topleft"
 		 left="0"
 		 name="edit_subpanel_container"
-		 top_pad="10"
+		 top_pad="2"
 		 width="333">
+		 <!-- the shape editing panel is taller than the others
+		      because it also displays avatar height -->
 		 <panel
 			 filename="panel_edit_shape.xml"
 			 follows="all"
@@ -201,141 +251,141 @@ left="0"
 		 <panel
 			 filename="panel_edit_skin.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_skin_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_hair.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_hair_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_eyes.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_eyes_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_shirt.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_shirt_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_pants.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_pants_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_shoes.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_shoes_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_socks.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_socks_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_jacket.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_jacket_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_skirt.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_skirt_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_gloves.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_gloves_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_undershirt.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_undershirt_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_underpants.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_underpants_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_alpha.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_alpha_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
 			 filename="panel_edit_tattoo.xml"
 			 follows="all"
-			 height="400"
+			 height="392"
 			 layout="topleft"
 			 left="0"
 			 name="edit_tattoo_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 	 </panel>

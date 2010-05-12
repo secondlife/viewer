@@ -41,6 +41,8 @@
 class LLLineEditor;
 class LLUIImage;
 class LLPanelLoginListener;
+class LLSLURL;
+class LLCredential;
 
 class LLPanelLogin:	
 	public LLPanel,
@@ -65,20 +67,15 @@ public:
 		void (*callback)(S32 option, void* user_data), 
 		void* callback_data);
 
-	// Remember password checkbox is set via gSavedSettings "RememberPassword"
-	static void setFields(const std::string& firstname, const std::string& lastname, 
-		const std::string& password);
+	static void setFields(LLPointer<LLCredential> credential, BOOL remember);
 
-	static void addServer(const std::string& server, S32 domain_name);
-	static void refreshLocation( bool force_visible );
-	static void updateLocationUI();
-
-	static void getFields(std::string *firstname, std::string *lastname,
-						  std::string *password);
+	static void getFields(LLPointer<LLCredential>& credential, BOOL& remember);
 
 	static BOOL isGridComboDirty();
-	static void getLocation(std::string &location);
-
+	static BOOL areCredentialFieldsDirty();
+	static void setLocation(const LLSLURL& slurl);
+	
+	static void updateLocationCombo(bool force_visible);  // simply update the combo box
 	static void closePanel();
 
 	void setSiteIsAlive( bool alive );
@@ -86,10 +83,10 @@ public:
 	static void loadLoginPage();	
 	static void giveFocus();
 	static void setAlwaysRefresh(bool refresh); 
-	static void mungePassword(LLUICtrl* caller, void* user_data);
 	
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+	static void updateServer();  // update the combo box, change the login page to the new server, clear the combo
 
 private:
 	friend class LLPanelLoginListener;
@@ -103,6 +100,10 @@ private:
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void onSelectServer(LLUICtrl*, void*);
 	static void onServerComboLostFocus(LLFocusableElement*);
+	static void updateServerCombo();
+	static void updateStartSLURL();
+	
+	static void updateLoginPanelLinks();
 
 private:
 	LLPointer<LLUIImage> mLogoImage;
@@ -111,8 +112,7 @@ private:
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;
 
-	std::string mIncomingPassword;
-	std::string mMungedPassword;
+	BOOL            mPasswordModified;
 
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;

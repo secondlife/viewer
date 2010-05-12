@@ -646,7 +646,7 @@ public:
  **/
 
 public:
-	virtual BOOL			isWearingWearableType(EWearableType type ) const;
+	virtual BOOL			isWearingWearableType(LLWearableType::EType type ) const;
 	
 	//--------------------------------------------------------------------
 	// Attachments

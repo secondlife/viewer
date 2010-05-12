@@ -137,7 +137,7 @@ public:
 class LLFindClothesOfType : public LLInventoryCollectFunctor
 {
 public:
-	LLFindClothesOfType(EWearableType type) : mWearableType(type) {}
+	LLFindClothesOfType(LLWearableType::EType type) : mWearableType(type) {}
 	virtual ~LLFindClothesOfType() {}
 	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	{
@@ -150,7 +150,7 @@ public:
 		return true;
 	}
 
-	const EWearableType mWearableType;
+	const LLWearableType::EType mWearableType;
 };
 
 
@@ -179,14 +179,14 @@ struct LLFoundData
 {
 	LLFoundData() :
 		mAssetType(LLAssetType::AT_NONE),
-		mWearableType(WT_INVALID),
+		mWearableType(LLWearableType::WT_NONE),
 		mWearable(NULL) {}
 
 	LLFoundData(const LLUUID& item_id,
 				const LLUUID& asset_id,
 				const std::string& name,
 				const LLAssetType::EType& asset_type,
-				const EWearableType& wearable_type
+				const LLWearableType::EType& wearable_type
 		) :
 		mItemID(item_id),
 		mAssetID(asset_id),
@@ -199,7 +199,7 @@ struct LLFoundData
 	LLUUID mAssetID;
 	std::string mName;
 	LLAssetType::EType mAssetType;
-	EWearableType mWearableType;
+	LLWearableType::EType mWearableType;
 	LLWearable* mWearable;
 };
 
@@ -218,7 +218,7 @@ public:
 	void checkMissingWearables();
 	bool pollMissingWearables();
 	bool isMissingCompleted();
-	void recoverMissingWearable(EWearableType type);
+	void recoverMissingWearable(LLWearableType::EType type);
 	void clearCOFLinksForMissingWearables();
 	
 	void onWearableAssetFetch(LLWearable *wearable);
@@ -259,18 +259,18 @@ bool LLWearableHoldingPattern::isTimedOut()
 
 void LLWearableHoldingPattern::checkMissingWearables()
 {
-	std::vector<S32> found_by_type(WT_COUNT,0);
-	std::vector<S32> requested_by_type(WT_COUNT,0);
+	std::vector<S32> found_by_type(LLWearableType::WT_COUNT,0);
+	std::vector<S32> requested_by_type(LLWearableType::WT_COUNT,0);
 	for (found_list_t::iterator it = mFoundList.begin(); it != mFoundList.end(); ++it)
 	{
 		LLFoundData &data = *it;
-		if (data.mWearableType < WT_COUNT)
+		if (data.mWearableType < LLWearableType::WT_COUNT)
 			requested_by_type[data.mWearableType]++;
 		if (data.mWearable)
 			found_by_type[data.mWearableType]++;
 	}
 
-	for (S32 type = 0; type < WT_COUNT; ++type)
+	for (S32 type = 0; type < LLWearableType::WT_COUNT; ++type)
 	{
 		llinfos << "type " << type << " requested " << requested_by_type[type] << " found " << found_by_type[type] << llendl;
 		if (found_by_type[type] > 0)
@@ -281,11 +281,11 @@ void LLWearableHoldingPattern::checkMissingWearables()
 			// pants)
 			(requested_by_type[type] > 0) ||  
 			// or if type is a body part and no wearables were found.
-			((type == WT_SHAPE) || (type == WT_SKIN) || (type == WT_HAIR) || (type == WT_EYES)))
+			((type == LLWearableType::WT_SHAPE) || (type == LLWearableType::WT_SKIN) || (type == LLWearableType::WT_HAIR) || (type == LLWearableType::WT_EYES)))
 		{
 			mTypesToRecover.insert(type);
 			mTypesToLink.insert(type);
-			recoverMissingWearable((EWearableType)type);
+			recoverMissingWearable((LLWearableType::EType)type);
 			llwarns << "need to replace " << type << llendl; 
 		}
 	}
@@ -368,7 +368,7 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
 class RecoveredItemLinkCB: public LLInventoryCallback
 {
 public:
-	RecoveredItemLinkCB(EWearableType type, LLWearable *wearable, LLWearableHoldingPattern* holder):
+	RecoveredItemLinkCB(LLWearableType::EType type, LLWearable *wearable, LLWearableHoldingPattern* holder):
 		mHolder(holder),
 		mWearable(wearable),
 		mType(type)
@@ -392,7 +392,7 @@ public:
 						  linked_item->getAssetUUID(),
 						  linked_item->getName(),
 						  linked_item->getType(),
-						  linked_item->isWearableType() ? linked_item->getWearableType() : WT_INVALID
+						  linked_item->isWearableType() ? linked_item->getWearableType() : LLWearableType::WT_NONE
 						  );
 				found.mWearable = mWearable;
 				mHolder->mFoundList.push_front(found);
@@ -410,13 +410,13 @@ public:
 private:
 	LLWearableHoldingPattern* mHolder;
 	LLWearable *mWearable;
-	EWearableType mType;
+	LLWearableType::EType mType;
 };
 
 class RecoveredItemCB: public LLInventoryCallback
 {
 public:
-	RecoveredItemCB(EWearableType type, LLWearable *wearable, LLWearableHoldingPattern* holder):
+	RecoveredItemCB(LLWearableType::EType type, LLWearable *wearable, LLWearableHoldingPattern* holder):
 		mHolder(holder),
 		mWearable(wearable),
 		mType(type)
@@ -444,14 +444,14 @@ public:
 private:
 	LLWearableHoldingPattern* mHolder;
 	LLWearable *mWearable;
-	EWearableType mType;
+	LLWearableType::EType mType;
 };
 
-void LLWearableHoldingPattern::recoverMissingWearable(EWearableType type)
+void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type)
 {
 		// Try to recover by replacing missing wearable with a new one.
 	LLNotificationsUtil::add("ReplacedMissingWearable");
-	lldebugs << "Wearable " << LLWearableDictionary::getTypeLabel(type)
+	lldebugs << "Wearable " << LLWearableType::getTypeLabel(type)
 			 << " could not be downloaded.  Replaced inventory item with default wearable." << llendl;
 	LLWearable* wearable = LLWearableList::instance().createNewWearable(type);
 
@@ -482,7 +482,7 @@ void LLWearableHoldingPattern::clearCOFLinksForMissingWearables()
 	for (found_list_t::iterator it = mFoundList.begin(); it != mFoundList.end(); ++it)
 	{
 		LLFoundData &data = *it;
-		if ((data.mWearableType < WT_COUNT) && (!data.mWearable))
+		if ((data.mWearableType < LLWearableType::WT_COUNT) && (!data.mWearable))
 		{
 			// Wearable link that was never resolved; remove links to it from COF
 			llinfos << "removing link for unresolved item " << data.mItemID.asString() << llendl;
@@ -543,7 +543,7 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLWearable *wearable)
 		{
 			data.mWearable = wearable;
 			// Failing this means inventory or asset server are corrupted in a way we don't handle.
-			llassert((data.mWearableType < WT_COUNT) && (wearable->getType() == data.mWearableType));
+			llassert((data.mWearableType < LLWearableType::WT_COUNT) && (wearable->getType() == data.mWearableType));
 			break;
 		}
 	}
@@ -778,10 +778,10 @@ BOOL LLAppearanceMgr::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
 	// These are the wearable items that are required for considering this
 	// folder as containing a complete outfit.
 	U32 required_wearables = 0;
-	required_wearables |= 1LL << WT_SHAPE;
-	required_wearables |= 1LL << WT_SKIN;
-	required_wearables |= 1LL << WT_HAIR;
-	required_wearables |= 1LL << WT_EYES;
+	required_wearables |= 1LL << LLWearableType::WT_SHAPE;
+	required_wearables |= 1LL << LLWearableType::WT_SKIN;
+	required_wearables |= 1LL << LLWearableType::WT_HAIR;
+	required_wearables |= 1LL << LLWearableType::WT_EYES;
 
 	// These are the wearables that the folder actually contains.
 	U32 folder_wearables = 0;
@@ -795,7 +795,7 @@ BOOL LLAppearanceMgr::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
 		const LLViewerInventoryItem* item = (*iter);
 		if (item->isWearableType())
 		{
-			const EWearableType wearable_type = item->getWearableType();
+			const LLWearableType::EType wearable_type = item->getWearableType();
 			folder_wearables |= 1LL << wearable_type;
 		}
 	}
@@ -851,12 +851,12 @@ void LLAppearanceMgr::filterWearableItems(
 	LLInventoryModel::item_array_t& items, S32 max_per_type)
 {
 	// Divvy items into arrays by wearable type.
-	std::vector<LLInventoryModel::item_array_t> items_by_type(WT_COUNT);
+	std::vector<LLInventoryModel::item_array_t> items_by_type(LLWearableType::WT_COUNT);
 	divvyWearablesByType(items, items_by_type);
 
 	// rebuild items list, retaining the last max_per_type of each array
 	items.clear();
-	for (S32 i=0; i<WT_COUNT; i++)
+	for (S32 i=0; i<LLWearableType::WT_COUNT; i++)
 	{
 		S32 size = items_by_type[i].size();
 		if (size <= 0)
@@ -1001,7 +1001,7 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 
 	// For each wearable type, find the first instance in the category
 	// that we recursed through.
-	for( S32 i = 0; i < WT_COUNT; i++ )
+	for( S32 i = 0; i < LLWearableType::WT_COUNT; i++ )
 	{
 		for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
 			 iter != holder->mFoundList.end(); ++iter)
@@ -1115,14 +1115,14 @@ void LLAppearanceMgr::updateAppearanceFromCOF()
 							  linked_item->getAssetUUID(),
 							  linked_item->getName(),
 							  linked_item->getType(),
-							  linked_item->isWearableType() ? linked_item->getWearableType() : WT_INVALID
+							  linked_item->isWearableType() ? linked_item->getWearableType() : LLWearableType::WT_NONE
 				);
 
 #if 0
 			// Fault injection: uncomment this block to test asset
 			// fetch failures (should be replaced by new defaults in
 			// lost&found).
-			if (found.mWearableType == WT_SHAPE || found.mWearableType == WT_JACKET)
+			if (found.mWearableType == LLWearableType::WT_SHAPE || found.mWearableType == LLWearableType::WT_JACKET)
 			{
 				found.mAssetID.generate(); // Replace with new UUID, guaranteed not to exist in DB
 				
@@ -1654,7 +1654,7 @@ bool LLAppearanceMgr::updateBaseOutfit()
 
 void LLAppearanceMgr::divvyWearablesByType(const LLInventoryModel::item_array_t& items, wearables_by_type_t& items_by_type)
 {
-	items_by_type.reserve(WT_COUNT);
+	items_by_type.reserve(LLWearableType::WT_COUNT);
 	if (items.empty()) return;
 
 	for (S32 i=0; i<items.count(); i++)
@@ -1663,8 +1663,8 @@ void LLAppearanceMgr::divvyWearablesByType(const LLInventoryModel::item_array_t&
 		// Ignore non-wearables.
 		if (!item->isWearableType())
 			continue;
-		EWearableType type = item->getWearableType();
-		if(type < 0 || type >= WT_COUNT)
+		LLWearableType::EType type = item->getWearableType();
+		if(type < 0 || type >= LLWearableType::WT_COUNT)
 		{
 			LL_WARNS("Appearance") << "Invalid wearable type. Inventory type does not match wearable flag bitfield." << LL_ENDL;
 			continue;
@@ -1673,7 +1673,7 @@ void LLAppearanceMgr::divvyWearablesByType(const LLInventoryModel::item_array_t&
 	}
 }
 
-std::string build_order_string(EWearableType type, U32 i)
+std::string build_order_string(LLWearableType::EType type, U32 i)
 {
 		std::ostringstream order_num;
 		order_num << ORDER_NUMBER_SEPARATOR << type * 100 + i;
@@ -1682,7 +1682,7 @@ std::string build_order_string(EWearableType type, U32 i)
 
 struct WearablesOrderComparator
 {
-	WearablesOrderComparator(const EWearableType type)
+	WearablesOrderComparator(const LLWearableType::EType type)
 	{
 		mControlSize = build_order_string(type, 0).size();
 	};
@@ -1720,18 +1720,18 @@ void LLAppearanceMgr::updateClothingOrderingInfo()
 	LLInventoryModel::item_array_t wear_items;
 	getDescendentsOfAssetType(getCOF(), wear_items, LLAssetType::AT_CLOTHING, false);
 
-	wearables_by_type_t items_by_type(WT_COUNT);
+	wearables_by_type_t items_by_type(LLWearableType::WT_COUNT);
 	divvyWearablesByType(wear_items, items_by_type);
 
 	bool inventory_changed = false;
-	for (U32 type = WT_SHIRT; type < WT_COUNT; type++)
+	for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; type++)
 	{
 		
 		U32 size = items_by_type[type].size();
 		if (!size) continue;
 
 		//sinking down invalid items which need reordering
-		std::sort(items_by_type[type].begin(), items_by_type[type].end(), WearablesOrderComparator((EWearableType) type));
+		std::sort(items_by_type[type].begin(), items_by_type[type].end(), WearablesOrderComparator((LLWearableType::EType) type));
 
 		//requesting updates only for those links which don't have "valid" descriptions
 		for (U32 i = 0; i < size; i++)
@@ -1739,7 +1739,7 @@ void LLAppearanceMgr::updateClothingOrderingInfo()
 			LLViewerInventoryItem* item = items_by_type[type][i];
 			if (!item) continue;
 
-			std::string new_order_str = build_order_string((EWearableType)type, i);
+			std::string new_order_str = build_order_string((LLWearableType::EType)type, i);
 			if (new_order_str == item->LLInventoryItem::getDescription()) continue;
 
 			item->setDescription(new_order_str);

@@ -88,7 +88,7 @@ static std::string asset_id_to_filename(const LLUUID &asset_id);
 
 LLWearable::LLWearable(const LLTransactionID& transaction_id) :
 	mDefinitionVersion(LLWearable::sCurrentDefinitionVersion),
-	mType(WT_INVALID)
+	mType(LLWearableType::WT_NONE)
 {
 	mTransactionID = transaction_id;
 	mAssetID = mTransactionID.makeAssetID(gAgent.getSecureSessionID());
@@ -96,7 +96,7 @@ LLWearable::LLWearable(const LLTransactionID& transaction_id) :
 
 LLWearable::LLWearable(const LLAssetID& asset_id) :
 	mDefinitionVersion( LLWearable::sCurrentDefinitionVersion ),
-	mType(WT_INVALID)
+	mType(LLWearableType::WT_NONE)
 {
 	mAssetID = asset_id;
 	mTransactionID.setNull();
@@ -108,17 +108,17 @@ LLWearable::~LLWearable()
 
 const std::string& LLWearable::getTypeLabel() const
 {
-	return LLWearableDictionary::getTypeLabel(mType);
+	return LLWearableType::getTypeLabel(mType);
 }
 
 const std::string& LLWearable::getTypeName() const
 {
-	return LLWearableDictionary::getTypeName(mType);
+	return LLWearableType::getTypeName(mType);
 }
 
 LLAssetType::EType LLWearable::getAssetType() const
 {
-	return LLWearableDictionary::getAssetType(mType);
+	return LLWearableType::getAssetType(mType);
 }
 
 BOOL LLWearable::exportFile(LLFILE* file) const
@@ -363,13 +363,13 @@ BOOL LLWearable::importFile( LLFILE* file )
 		llwarns << "Bad Wearable asset: bad type" << llendl;
 		return FALSE;
 	}
-	if( 0 <= type && type < WT_COUNT )
+	if( 0 <= type && type < LLWearableType::WT_COUNT )
 	{
-		setType((EWearableType)type);
+		setType((LLWearableType::EType)type);
 	}
 	else
 	{
-		mType = WT_COUNT;
+		mType = LLWearableType::WT_COUNT;
 		llwarns << "Bad Wearable asset: bad type #" << type <<  llendl;
 		return FALSE;
 	}
@@ -679,15 +679,15 @@ void LLWearable::writeToAvatar()
 
 // Updates the user's avatar's appearance, replacing this wearables' parameters and textures with default values.
 // static 
-void LLWearable::removeFromAvatar( EWearableType type, BOOL upload_bake )
+void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake )
 {
 	if (!isAgentAvatarValid()) return;
 
 	// You can't just remove body parts.
-	if( (type == WT_SHAPE) ||
-		(type == WT_SKIN) ||
-		(type == WT_HAIR) ||
-		(type == WT_EYES) )
+	if( (type == LLWearableType::WT_SHAPE) ||
+		(type == LLWearableType::WT_SKIN) ||
+		(type == LLWearableType::WT_HAIR) ||
+		(type == LLWearableType::WT_EYES) )
 	{
 		return;
 	}
@@ -789,7 +789,7 @@ const LLUUID& LLWearable::getItemID() const
 	return mItemID;
 }
 
-void LLWearable::setType(EWearableType type) 
+void LLWearable::setType(LLWearableType::EType type) 
 { 
 	mType = type; 
 	createVisualParams();
@@ -1118,7 +1118,7 @@ void LLWearable::refreshName()
 
 struct LLWearableSaveData
 {
-	EWearableType mType;
+	LLWearableType::EType mType;
 };
 
 void LLWearable::saveNewAsset() const
@@ -1181,7 +1181,7 @@ void LLWearable::saveNewAsset() const
 void LLWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userdata, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLWearableSaveData* data = (LLWearableSaveData*)userdata;
-	const std::string& type_name = LLWearableDictionary::getTypeName(data->mType);
+	const std::string& type_name = LLWearableType::getTypeName(data->mType);
 	if(0 == status)
 	{
 		// Success
@@ -1207,7 +1207,7 @@ void LLWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userda
 
 std::ostream& operator<<(std::ostream &s, const LLWearable &w)
 {
-	s << "wearable " << LLWearableDictionary::getTypeName(w.mType) << "\n";
+	s << "wearable " << LLWearableType::getTypeName(w.mType) << "\n";
 	s << "    Name: " << w.mName << "\n";
 	s << "    Desc: " << w.mDescription << "\n";
 	//w.mPermissions

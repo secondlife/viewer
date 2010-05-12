@@ -37,7 +37,7 @@
 // newview
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 
 /**
  * @class LLPanelWearableListItem
@@ -132,20 +132,20 @@ protected:
 class LLPanelDummyClothingListItem : public LLPanelWearableListItem
 {
 public:
-	static LLPanelDummyClothingListItem* create(EWearableType w_type);
+	static LLPanelDummyClothingListItem* create(LLWearableType::EType w_type);
 
 	/*virtual*/ void updateItem();
 	/*virtual*/ BOOL postBuild();
 
 protected:
-	LLPanelDummyClothingListItem(EWearableType w_type);
+	LLPanelDummyClothingListItem(LLWearableType::EType w_type);
 
 	/*virtual*/ void init();
 
-	static std::string wearableTypeToString(EWearableType w_type);
+	static std::string wearableTypeToString(LLWearableType::EType w_type);
 
 private:
-	EWearableType mWearableType;
+	LLWearableType::EType mWearableType;
 };
 
 /**

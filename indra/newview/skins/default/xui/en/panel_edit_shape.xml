@@ -8,54 +8,19 @@
 	 name="edit_shape_panel"
 	 top_pad="10"
 	 width="333" >
-	 <panel
-		 border="false"
-         bg_alpha_color="DkGray2"
-         bg_opaque_color="DkGray2"
-         background_visible="true"
-         background_opaque="true"
+	 <text
 		 follows="top|left|right"
-		 height="50"
-		 left="10"
+		 font="SansSerifSmallBold"
+		 halign="right"
+		 height="12"
 		 layout="topleft"
-		 name="avatar_sex_panel"
+		 left="0"
+		 name="avatar_height"
+		 text_color="EmphasisColor"
 		 top="0"
-		 width="313" >
-   			<text 
-			 follows="top|left"
-			 height="16"
-			 layout="topleft"
-			 left="10"
-			 name="gender_text"
-			 width="313">
-				Gender:
-			</text>
-		   <radio_group
-			 follows="left|top|right"
-			 left="10"
-             height="28"
-             layout="topleft"
-             name="sex_radio"
-			 top_pad="3"
-			 width="303" >
-                <radio_item
-					follows="all"
-                 height="16"
-                 label="Female"
-                 layout="topleft"
-                 left="10"
-                 name="radio"
-                 width="82" />
-                <radio_item
-					follows="all"
-                 height="16"
-                 label="Male"
-                 layout="topleft"
-                 left_pad="10"
-                 name="radio2"
-                 width="82" />
-            </radio_group>
-	 </panel>
+		 width="310">
+		 [HEIGHT] Meters tall
+	 </text>
      <panel
          border="false"
          bg_alpha_color="DkGray2"
@@ -63,17 +28,17 @@
          background_visible="true"
          background_opaque="true"
          follows="all"
-         height="345"
+         height="388"
          label="Shirt"
          layout="topleft"
 		 left="10"
          name="accordion_panel"
-		 top_pad="10"
+		 top_pad="0"
          width="313">
 	 <accordion
         layout="topleft"
 		follows="all"
-		height ="345"
+		height ="388"
 		left="0"
 		name="wearable_accordion"
 		top="0"

@@ -49,6 +49,8 @@
 	<menu_item_call label="Abrir" name="Sound Open"/>
 	<menu_item_call label="Reemplazar el vestuario" name="Replace Outfit"/>
 	<menu_item_call label="Añadir al vestuario" name="Add To Outfit"/>
+	<menu_item_call label="Quitar del vestuario actual" name="Remove From Outfit"/>
+	<menu_item_call label="Encontrar el original" name="Find Original"/>
 	<menu_item_call label="Eliminar el ítem" name="Purge Item"/>
 	<menu_item_call label="Restaurar el ítem" name="Restore Item"/>
 	<menu_item_call label="Abrir" name="Open"/>
@@ -58,6 +60,7 @@
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Pegar" name="Paste"/>
 	<menu_item_call label="Pegar como enlace" name="Paste As Link"/>
+	<menu_item_call label="Quitar el enlace" name="Remove Link"/>
 	<menu_item_call label="Borrar" name="Delete"/>
 	<menu_item_call label="Borrar carpeta del sistema" name="Delete System Folder"/>
 	<menu_item_call label="Empezar multiconferencia" name="Conference Chat Folder"/>
