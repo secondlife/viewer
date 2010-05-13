@@ -183,10 +183,10 @@
 			<name_box initial_value="Carregando..." name="Group Name Proxy"/>
 			<button label="Doar" label_selected="Doar" name="button deed" tool_tip="Ao doar este item, o próximo dono terá permissões de próximo dono.  Objetos de grupos podem ser doados por um oficial do grupo."/>
 			<check_box label="Compartilhar" name="checkbox share with group" tool_tip="Permitir que todos os membros do grupo tenhas suas permissões de modificação para este objeto.  Faça uma doação para ativar restrições de função."/>
-			<text name="label click action" width="220">
+			<text name="label click action">
 				Clique para:
 			</text>
-			<combo_box name="clickaction" width="192">
+			<combo_box name="clickaction">
 				<combo_box.item label="Tocar (padrão)" name="Touch/grab(default)"/>
 				<combo_box.item label="Sentar no objeto" name="Sitonobject"/>
 				<combo_box.item label="Comprar objeto" name="Buyobject"/>
