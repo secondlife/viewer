@@ -212,14 +212,23 @@ public:
 
 	void refreshList(const LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array);
 
+	boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
+
 	/**
-	 * Let list know items need to be refreshed in next draw()
+	 * Let list know items need to be refreshed in next doIdle()
 	 */
 	void setNeedsRefresh(bool needs_refresh){ mNeedsRefresh = needs_refresh; }
 
 	bool getNeedsRefresh(){ return mNeedsRefresh; }
 
-	/*virtual*/ void draw();
+	/**
+	 * Idle routine used to refresh the list regardless of the current list
+	 * visibility, unlike draw() which is called only for the visible list.
+	 * This is needed for example to filter items of the list hidden by closed
+	 * accordion tab.
+	 */
+	void	doIdle();						// Real idle routine
+	static void idle(void* user_data);		// static glue to doIdle()
 
 protected:
 	friend class LLUICtrlFactory;
@@ -229,7 +238,7 @@ protected:
 
 	/**
 	 * Refreshes list items, adds new items and removes deleted items. 
-	 * Called from draw() until all new items are added, ,
+	 * Called from doIdle() until all new items are added,
 	 * maximum 50 items can be added during single call.
 	 */
 	void refresh();
@@ -249,6 +258,10 @@ private:
 	uuid_vec_t mIDs; // IDs of items that were added in refreshList().
 					 // Will be used in refresh() to determine added and removed ids
 	bool mNeedsRefresh;
+
+	bool mPrevVisibility;
+
+	commit_signal_t mRefreshCompleteSignal;
 };
 
 #endif //LL_LLINVENTORYITEMSLIST_H

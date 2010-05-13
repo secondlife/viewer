@@ -40,12 +40,12 @@
 #include "llmenugl.h"
 #include "lltextbox.h"
 #include "lltrans.h"
+#include "lluitextutil.h"
 
 // newview
 #include "llagent.h"
 #include "llgroupactions.h"
 #include "llfloaterreg.h"
-#include "lltextutil.h"
 #include "llviewercontrol.h"	// for gSavedSettings
 #include "llviewermenu.h"		// for gMenuHolder
 #include "llvoiceclient.h"

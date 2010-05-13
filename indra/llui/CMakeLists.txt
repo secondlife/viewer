@@ -101,6 +101,7 @@ set(llui_SOURCE_FILES
     lluictrlfactory.cpp
     lluiimage.cpp
     lluistring.cpp
+    lluitextutil.cpp
     llundo.cpp
     llurlaction.cpp
     llurlentry.cpp
@@ -197,6 +198,7 @@ set(llui_HEADER_FILES
     llui.h
     lluiimage.h
     lluistring.h
+    lluitextutil.h
     llundo.h
     llurlaction.h
     llurlentry.h
