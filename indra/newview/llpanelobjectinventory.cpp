@@ -1489,7 +1489,7 @@ void LLPanelObjectInventory::updateInventory()
 	BOOL inventory_has_focus = FALSE;
 	if (mHaveInventory)
 	{
-		mFolders->getSelectionList(selected_items);
+		selected_items = mFolders->getSelectionList();
 		inventory_has_focus = gFocusMgr.childHasKeyboardFocus(mFolders);
 	}
 
