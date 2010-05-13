@@ -71,9 +71,10 @@ class LLTexGlobalColor;
 class LLVOAvatarBoneInfo;
 class LLVOAvatarSkeletonInfo;
 
-//------------------------------------------------------------------------
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
-//------------------------------------------------------------------------
+// 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLVOAvatar :
 	public LLViewerObject,
 	public LLCharacter
@@ -138,13 +139,13 @@ public:
 	virtual void   	 	 	updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax);
 	virtual void   	 	 	getSpatialExtents(LLVector3& newMin, LLVector3& newMax);
 	virtual BOOL   	 	 	lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
-													 S32 face = -1,                    // which face to check, -1 = ALL_SIDES
-													 BOOL pick_transparent = FALSE,
-													 S32* face_hit = NULL,             // which face was hit
-													 LLVector3* intersection = NULL,   // return the intersection point
-													 LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
-													 LLVector3* normal = NULL,         // return the surface normal at the intersection point
-													 LLVector3* bi_normal = NULL);     // return the surface bi-normal at the intersection point
+												 S32 face = -1,                    // which face to check, -1 = ALL_SIDES
+												 BOOL pick_transparent = FALSE,
+												 S32* face_hit = NULL,             // which face was hit
+												 LLVector3* intersection = NULL,   // return the intersection point
+												 LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
+												 LLVector3* normal = NULL,         // return the surface normal at the intersection point
+												 LLVector3* bi_normal = NULL);     // return the surface bi-normal at the intersection point
 
 	//--------------------------------------------------------------------
 	// LLCharacter interface and related

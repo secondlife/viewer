@@ -87,44 +87,108 @@
 BOOL LLInventoryState::sWearNewClothing = FALSE;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
 
+// Generates a string containing the path to the item specified by
+// item_id.
+void append_path(const LLUUID& id, std::string& path)
+{
+	std::string temp;
+	const LLInventoryObject* obj = gInventory.getObject(id);
+	LLUUID parent_id;
+	if(obj) parent_id = obj->getParentUUID();
+	std::string forward_slash("/");
+	while(obj)
+	{
+		obj = gInventory.getCategory(parent_id);
+		if(obj)
+		{
+			temp.assign(forward_slash + obj->getName() + temp);
+			parent_id = obj->getParentUUID();
+		}
+	}
+	path.append(temp);
+}
+
+void change_item_parent(LLInventoryModel* model,
+						LLViewerInventoryItem* item,
+						const LLUUID& new_parent_id,
+						BOOL restamp)
+{
+	if (item->getParentUUID() != new_parent_id)
+	{
+		LLInventoryModel::update_list_t update;
+		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
+		update.push_back(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+		update.push_back(new_folder);
+		gInventory.accountForUpdate(update);
+
+		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+		new_item->setParent(new_parent_id);
+		new_item->updateParentOnServer(restamp);
+		model->updateItem(new_item);
+		model->notifyObservers();
+	}
+}
+
+
+BOOL get_is_item_worn(const LLUUID& id)
+{
+	const LLViewerInventoryItem* item = gInventory.getItem(id);
+	if (!item)
+		return FALSE;
+	
+	switch(item->getType())
+	{
+		case LLAssetType::AT_OBJECT:
+		{
+			if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getLinkedUUID()))
+				return TRUE;
+			break;
+		}
+		case LLAssetType::AT_BODYPART:
+		case LLAssetType::AT_CLOTHING:
+			if(gAgentWearables.isWearingItem(item->getLinkedUUID()))
+				return TRUE;
+			break;
+		case LLAssetType::AT_GESTURE:
+			if (LLGestureMgr::instance().isGestureActive(item->getLinkedUUID()))
+				return TRUE;
+			break;
+		default:
+			break;
+	}
+	return FALSE;
+}
+
 ///----------------------------------------------------------------------------
 /// LLInventoryCollectFunctor implementations
 ///----------------------------------------------------------------------------
 
 // static
-bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* item)
+bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(const LLInventoryItem* item)
 {
 	if (!item)
 		return false;
 
-	bool allowed = false;
-
 	switch(item->getType())
 	{
 		case LLAssetType::AT_CALLINGCARD:
-			// not allowed
+			return false;
 			break;
-			
 		case LLAssetType::AT_OBJECT:
 			if (isAgentAvatarValid() && !gAgentAvatarp->isWearingAttachment(item->getUUID()))
-			{
-				allowed = true;
-			}
+				return true;
 			break;
-			
 		case LLAssetType::AT_BODYPART:
 		case LLAssetType::AT_CLOTHING:
 			if(!gAgentWearables.isWearingItem(item->getUUID()))
-			{
-				allowed = true;
-			}
+				return true;
 			break;
 		default:
-			allowed = true;
+			return true;
 			break;
 	}
-	
-	return allowed;
+	return false;
 }
 
 bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
@@ -404,56 +468,4 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 	{
 		folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 	}
-}
-
-void change_item_parent(LLInventoryModel* model,
-									 LLViewerInventoryItem* item,
-									 const LLUUID& new_parent_id,
-									 BOOL restamp)
-{
-	if (item->getParentUUID() != new_parent_id)
-	{
-		LLInventoryModel::update_list_t update;
-		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
-		update.push_back(old_folder);
-		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-		update.push_back(new_folder);
-		gInventory.accountForUpdate(update);
-
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->setParent(new_parent_id);
-		new_item->updateParentOnServer(restamp);
-		model->updateItem(new_item);
-		model->notifyObservers();
-	}
-}
-
-
-BOOL get_is_item_worn(const LLUUID& id)
-{
-	const LLViewerInventoryItem* item = gInventory.getItem(id);
-	if (!item)
-		return FALSE;
-	
-	switch(item->getType())
-	{
-		case LLAssetType::AT_OBJECT:
-		{
-			if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getLinkedUUID()))
-				return TRUE;
-			break;
-		}
-		case LLAssetType::AT_BODYPART:
-		case LLAssetType::AT_CLOTHING:
-			if(gAgentWearables.isWearingItem(item->getLinkedUUID()))
-				return TRUE;
-			break;
-		case LLAssetType::AT_GESTURE:
-			if (LLGestureMgr::instance().isGestureActive(item->getLinkedUUID()))
-				return TRUE;
-			break;
-		default:
-			break;
-	}
-	return FALSE;
 }
