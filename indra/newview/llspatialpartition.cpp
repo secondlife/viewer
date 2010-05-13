@@ -2671,24 +2671,36 @@ void renderPhysicsShape(LLDrawable* drawable)
 			if (decomp)
 			{
 				gGL.pushMatrix();
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
 				static std::vector<LLColor4U> color;
+
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 				for (U32 i = 0; i < decomp->mHull.size(); ++i)
 				{
 					if (color.size() <= i)
 					{
-						color.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127));
+						color.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127, 255));
 					}
-					glColor4ubv(color[i].mV);
-
-					LLVertexBuffer* buff = decomp->mMesh;
+					
+					LLVertexBuffer* buff = decomp->mMesh[i];
 
 					buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glColor4ubv(color[i].mV);
 					buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+					{
+						LLGLEnable blend(GL_BLEND);
+						gGL.setSceneBlendType(LLRender::BT_ALPHA);
+						LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+						glColor4ub(color[i].mV[0], color[i].mV[1], color[i].mV[2], 64);
+						buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+					}
 				}
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 				gGL.popMatrix();
 			}
 		}
