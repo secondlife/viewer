@@ -269,7 +269,6 @@ void transition_back_to_login_panel(const std::string& emsg);
 
 void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is_group)
 {
-	LLNameListCtrl::refreshAll(id, full_name, is_group);
 	LLNameBox::refreshAll(id, full_name, is_group);
 	LLNameEditor::refreshAll(id, full_name, is_group);
 	
