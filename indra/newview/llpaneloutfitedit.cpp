@@ -246,15 +246,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mSearchFilter = getChild<LLFilterEditor>("look_item_filter");
 	mSearchFilter->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onSearchEdit, this, _2));
 	
-	/* Removing add to look inline button (not part of mvp for viewer 2)
-	LLButton::Params add_params;
-	add_params.name("add_to_look");
-	add_params.click_callback.function(boost::bind(&LLPanelOutfitEdit::onAddToLookClicked, this));
-	add_params.label("+");
-	
-	mAddToLookBtn = LLUICtrlFactory::create<LLButton>(add_params);
-	mAddToLookBtn->setEnabled(FALSE);
-	mAddToLookBtn->setVisible(FALSE); */
+	childSetAction("add_to_outfit_btn", boost::bind(&LLPanelOutfitEdit::onAddToOutfitClicked, this));
 	
 	mEditWearableBtn = getChild<LLButton>("edit_wearable_btn");
 	mEditWearableBtn->setEnabled(FALSE);

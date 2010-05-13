@@ -135,6 +135,7 @@ with the same filename but different name
   <texture name="ForwardArrow_Press" file_name="icons/ForwardArrow_Press.png" preload="false" />
 
   <texture name="Generic_Group" file_name="icons/Generic_Group.png" preload="false" />
+  <texture name="Generic_Group_Large" file_name="icons/Generic_Group_Large.png" preload="false" />
   <texture name="icon_group.tga" file_name="icons/Generic_Group.png" preload="false" />
   <texture name="Generic_Object_Small" file_name="icons/Generic_Object_Small.png" preload="false" />
   <texture name="Generic_Person" file_name="icons/Generic_Person.png" preload="false" />

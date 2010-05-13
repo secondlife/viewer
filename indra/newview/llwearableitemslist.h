@@ -67,12 +67,35 @@ protected:
 	LLPanelWearableListItem(LLViewerInventoryItem* item);
 };
 
+
+class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
+{
+	LOG_CLASS(LLPanelDeletableWearableListItem);
+public:
+
+	static LLPanelDeletableWearableListItem* create(LLViewerInventoryItem* item);
+
+	virtual ~LLPanelDeletableWearableListItem() {};
+
+	/*virtual*/ BOOL postBuild();
+
+	/**
+	 * Make button visible during mouse over event.
+	 */
+	inline void setShowDeleteButton(bool show) { setShowWidget("btn_delete", show); }
+
+protected:
+	LLPanelDeletableWearableListItem(LLViewerInventoryItem* item);
+
+	/*virtual*/ void init();
+};
+
 /**
  * @class LLPanelClothingListItem
  *
  * Provides buttons for editing, moving, deleting a wearable.
  */
-class LLPanelClothingListItem : public LLPanelWearableListItem
+class LLPanelClothingListItem : public LLPanelDeletableWearableListItem
 {
 	LOG_CLASS(LLPanelClothingListItem);
 public:
@@ -86,7 +109,6 @@ public:
 	/**
 	 * Make button visible during mouse over event.
 	 */
-	inline void setShowDeleteButton(bool show) { setShowWidget("btn_delete", show); }
 	inline void setShowMoveUpButton(bool show) { setShowWidget("btn_move_up", show); }
 
 	inline void setShowMoveDownButton(bool show) { setShowWidget("btn_move_down", show); }
@@ -124,28 +146,6 @@ protected:
 	/*virtual*/ void init();
 };
 
-
-class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
-{
-	LOG_CLASS(LLPanelDeletableWearableListItem);
-public:
-
-	static LLPanelDeletableWearableListItem* create(LLViewerInventoryItem* item);
-
-	virtual ~LLPanelDeletableWearableListItem();
-
-	/*virtual*/ BOOL postBuild();
-
-	/**
-	 * Make button visible during mouse over event.
-	 */
-	inline void setShowDeleteButton(bool show) { setShowWidget("btn_delete", show); }
-
-protected:
-	LLPanelDeletableWearableListItem(LLViewerInventoryItem* item);
-
-	/*virtual*/ void init();
-};
 
 /**
  * @class LLPanelDummyClothingListItem
