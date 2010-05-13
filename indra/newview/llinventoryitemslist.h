@@ -42,6 +42,7 @@
 
 // newview
 #include "llflatlistview.h"
+#include "llviewerinventory.h"
 
 class LLIconCtrl;
 class LLTextBox;
@@ -119,6 +120,9 @@ public:
 	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
 	/* Removes item highlight */
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+
+	/** Get the name of a corresponding inventory item */
+	const std::string& getItemName() const { return mItem->getName(); }
 
 	virtual ~LLPanelInventoryListItemBase(){}
 
