@@ -216,6 +216,8 @@ class LLParticipantList
 			 * @see moderateVoiceParticipant()
 			 */
 			void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute);
+
+			static void confirmMuteAllCallback(const LLSD& notification, const LLSD& response);
 		};
 
 		/**
