@@ -711,26 +711,26 @@ S32 LLBottomTray::processWidthDecreased(S32 delta_width)
 	S32 buttons_freed_width = 0;
 	if (still_should_be_processed)
 	{
-		processShrinkButtons(&delta_width, &buttons_freed_width);
+		processShrinkButtons(delta_width, buttons_freed_width);
 
 		if (delta_width < 0)
 		{
-			processHideButton(RS_BUTTON_SNAPSHOT, &delta_width, &buttons_freed_width);
+			processHideButton(RS_BUTTON_SNAPSHOT, delta_width, buttons_freed_width);
 		}
 
 		if (delta_width < 0)
 		{
-			processHideButton(RS_BUTTON_CAMERA, &delta_width, &buttons_freed_width);
+			processHideButton(RS_BUTTON_CAMERA, delta_width, buttons_freed_width);
 		}
 
 		if (delta_width < 0)
 		{
-			processHideButton(RS_BUTTON_MOVEMENT, &delta_width, &buttons_freed_width);
+			processHideButton(RS_BUTTON_MOVEMENT, delta_width, buttons_freed_width);
 		}
 
 		if (delta_width < 0)
 		{
-			processHideButton(RS_BUTTON_GESTURES, &delta_width, &buttons_freed_width);
+			processHideButton(RS_BUTTON_GESTURES, delta_width, buttons_freed_width);
 		}
 
 		if (delta_width < 0)
@@ -778,25 +778,25 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	S32 available_width = total_available_width;
 	if (available_width > 0)
 	{
-		processShowButton(RS_BUTTON_GESTURES, &available_width);
+		processShowButton(RS_BUTTON_GESTURES, available_width);
 	}
 
 	if (available_width > 0)
 	{
-		processShowButton(RS_BUTTON_MOVEMENT, &available_width);
+		processShowButton(RS_BUTTON_MOVEMENT, available_width);
 	}
 
 	if (available_width > 0)
 	{
-		processShowButton(RS_BUTTON_CAMERA, &available_width);
+		processShowButton(RS_BUTTON_CAMERA, available_width);
 	}
 
 	if (available_width > 0)
 	{
-		processShowButton(RS_BUTTON_SNAPSHOT, &available_width);
+		processShowButton(RS_BUTTON_SNAPSHOT, available_width);
 	}
 
-	processExtendButtons(&available_width);
+	processExtendButtons(available_width);
 
 	// if we have to show/extend some buttons but resized delta width is not enough...
 	S32 processed_width = total_available_width - available_width;
@@ -853,7 +853,7 @@ void LLBottomTray::processWidthIncreased(S32 delta_width)
 	}
 }
 
-bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* available_width)
+bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32& available_width)
 {
 	lldebugs << "Trying to show object type: " << shown_object_type << llendl;
 	llassert(mStateProcessedObjectMap[shown_object_type] != NULL);
@@ -869,15 +869,15 @@ bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* availa
 	{
 		//validate if we have enough room to show this button
 		const S32 required_width = panel->getRect().getWidth();
-		can_be_shown = *available_width >= required_width;
+		can_be_shown = available_width >= required_width;
 		if (can_be_shown)
 		{
-			*available_width -= required_width;
+			available_width -= required_width;
 
 			setTrayButtonVisible(shown_object_type, true);
 
 			lldebugs << "processed object type: " << shown_object_type
-				<< ", rest available width: " << *available_width
+				<< ", rest available width: " << available_width
 				<< llendl;
 			mResizeState &= ~shown_object_type;
 		}
@@ -885,7 +885,7 @@ bool LLBottomTray::processShowButton(EResizeState shown_object_type, S32* availa
 	return can_be_shown;
 }
 
-void LLBottomTray::processHideButton(EResizeState processed_object_type, S32* required_width, S32* buttons_freed_width)
+void LLBottomTray::processHideButton(EResizeState processed_object_type, S32& required_width, S32& buttons_freed_width)
 {
 	lldebugs << "Trying to hide object type: " << processed_object_type << llendl;
 	llassert(mStateProcessedObjectMap[processed_object_type] != NULL);
@@ -899,11 +899,11 @@ void LLBottomTray::processHideButton(EResizeState processed_object_type, S32* re
 
 	if (panel->getVisible())
 	{
-		*required_width += panel->getRect().getWidth();
+		required_width += panel->getRect().getWidth();
 
-		if (*required_width > 0)
+		if (required_width > 0)
 		{
-			*buttons_freed_width += *required_width;
+			buttons_freed_width += required_width;
 		}
 
 		setTrayButtonVisible(processed_object_type, false);
@@ -911,24 +911,24 @@ void LLBottomTray::processHideButton(EResizeState processed_object_type, S32* re
 		mResizeState |= processed_object_type;
 
 		lldebugs << "processing object type: " << processed_object_type
-			<< ", buttons_freed_width: " << *buttons_freed_width
+			<< ", buttons_freed_width: " << buttons_freed_width
 			<< llendl;
 	}
 }
 
-void LLBottomTray::processShrinkButtons(S32* required_width, S32* buttons_freed_width)
+void LLBottomTray::processShrinkButtons(S32& required_width, S32& buttons_freed_width)
 {
 	processShrinkButton(RS_BUTTON_CAMERA, required_width);
 
-	if (*required_width < 0)
+	if (required_width < 0)
 	{
 		processShrinkButton(RS_BUTTON_MOVEMENT, required_width);
 	}
-	if (*required_width < 0)
+	if (required_width < 0)
 	{
 		processShrinkButton(RS_BUTTON_GESTURES, required_width);
 	}
-	if (*required_width < 0)
+	if (required_width < 0)
 	{
 
 		S32 panel_min_width = 0;
@@ -948,23 +948,23 @@ void LLBottomTray::processShrinkButtons(S32* required_width, S32* buttons_freed_
 				mSpeakBtn->setLabelVisible(false);
 				mSpeakPanel->reshape(panel_width - possible_shrink_width, mSpeakPanel->getRect().getHeight());
 
-				*required_width += possible_shrink_width;
+				required_width += possible_shrink_width;
 
-				if (*required_width > 0)
+				if (required_width > 0)
 				{
-					*buttons_freed_width += *required_width;
+					buttons_freed_width += required_width;
 				}
 
 				lldebugs << "Shrunk panel: " << panel_name
 					<< ", shrunk width: " << possible_shrink_width
-					<< ", rest width to process: " << *required_width
+					<< ", rest width to process: " << required_width
 					<< llendl;
 			}
 		}
 	}
 }
 
-void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32* required_width)
+void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32& required_width)
 {
 	llassert(mStateProcessedObjectMap[processed_object_type] != NULL);
 	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
@@ -992,63 +992,63 @@ void LLBottomTray::processShrinkButton(EResizeState processed_object_type, S32* 
 			// let calculate real width to shrink
 
 			// 1. apply all possible width
-			*required_width += possible_shrink_width;
+			required_width += possible_shrink_width;
 
 			// 2. it it is too much... 
-			if (*required_width > 0)
+			if (required_width > 0)
 			{
 				// reduce applied shrunk width to the excessive value.
-				possible_shrink_width -= *required_width;
-				*required_width = 0;
+				possible_shrink_width -= required_width;
+				required_width = 0;
 			}
 			panel->reshape(panel_width - possible_shrink_width, panel->getRect().getHeight());
 
 			lldebugs << "Shrunk panel: " << panel_name
 				<< ", shrunk width: " << possible_shrink_width
-				<< ", rest width to process: " << *required_width
+				<< ", rest width to process: " << required_width
 				<< llendl;
 		}
 	}
 }
 
 
-void LLBottomTray::processExtendButtons(S32* available_width)
+void LLBottomTray::processExtendButtons(S32& available_width)
 {
 	// do not allow extending any buttons if we have some buttons hidden
 	if (mResizeState & RS_BUTTONS_CAN_BE_HIDDEN) return;
 
 	processExtendButton(RS_BUTTON_GESTURES, available_width);
 
-	if (*available_width > 0)
+	if (available_width > 0)
 	{
 		processExtendButton(RS_BUTTON_MOVEMENT, available_width);
 	}
-	if (*available_width > 0)
+	if (available_width > 0)
 	{
 		processExtendButton(RS_BUTTON_CAMERA, available_width);
 	}
-	if (*available_width > 0)
+	if (available_width > 0)
 	{
 		S32 panel_max_width = mObjectDefaultWidthMap[RS_BUTTON_SPEAK];
 		S32 panel_width = mSpeakPanel->getRect().getWidth();
 		S32 possible_extend_width = panel_max_width - panel_width;
-		if (possible_extend_width >= 0 && possible_extend_width <= *available_width)  // HACK: this button doesn't change size so possible_extend_width will be 0
+		if (possible_extend_width >= 0 && possible_extend_width <= available_width)  // HACK: this button doesn't change size so possible_extend_width will be 0
 		{
 			mSpeakBtn->setLabelVisible(true);
 			mSpeakPanel->reshape(panel_max_width, mSpeakPanel->getRect().getHeight());
 			log(mSpeakBtn, "speak button is extended");
 
-			*available_width -= possible_extend_width;
+			available_width -= possible_extend_width;
 
 			lldebugs << "Extending panel: " << mSpeakPanel->getName()
 				<< ", extended width: " << possible_extend_width
-				<< ", rest width to process: " << *available_width
+				<< ", rest width to process: " << available_width
 				<< llendl;
 		}
 	}
 }
 
-void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32* available_width)
+void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32& available_width)
 {
 	llassert(mStateProcessedObjectMap[processed_object_type] != NULL);
 	LLPanel* panel = mStateProcessedObjectMap[processed_object_type];
@@ -1069,20 +1069,20 @@ void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32* 
 		// let calculate real width to extend
 
 		// 1. apply all possible width
-		*available_width -= possible_extend_width;
+		available_width -= possible_extend_width;
 
 		// 2. it it is too much... 
-		if (*available_width < 0)
+		if (available_width < 0)
 		{
 			// reduce applied extended width to the excessive value.
-			possible_extend_width += *available_width;
-			*available_width = 0;
+			possible_extend_width += available_width;
+			available_width = 0;
 		}
 		panel->reshape(panel_width + possible_extend_width, panel->getRect().getHeight());
 
 		lldebugs << "Extending panel: " << panel->getName()
 			<< ", extended width: " << possible_extend_width
-			<< ", rest width to process: " << *available_width
+			<< ", rest width to process: " << available_width
 			<< llendl;
 	}
 }
@@ -1226,7 +1226,7 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 			current_width = result_width;
 		}
 
-		is_set = processShowButton(object_type, &current_width);
+		is_set = processShowButton(object_type, current_width);
 
 		// Shrink buttons if needed
 		if (is_set && decrease_width)
