@@ -352,6 +352,7 @@ set(viewer_SOURCE_FILES
     llpanelprofileview.cpp
     llpanelteleporthistory.cpp
     llpaneltiptoast.cpp
+    llpanelvoiceeffect.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
     llparcelselection.cpp
@@ -863,6 +864,7 @@ set(viewer_HEADER_FILES
     llpanelprofileview.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
+    llpanelvoiceeffect.h
     llpanelvolume.h
     llpanelvolumepulldown.h
     llparcelselection.h
