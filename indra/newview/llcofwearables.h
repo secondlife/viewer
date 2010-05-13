@@ -132,6 +132,7 @@ protected:
 
 	LLPanelClothingListItem* buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last);
 	LLPanelBodyPartsListItem* buildBodypartListItem(LLViewerInventoryItem* item);
+	LLPanelDeletableWearableListItem* buildAttachemntListItem(LLViewerInventoryItem* item);
 
 	LLFlatListView* mAttachments;
 	LLFlatListView* mClothing;

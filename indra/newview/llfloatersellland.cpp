@@ -94,7 +94,6 @@ private:
 	static void doSellLand(void *userdata);
 	bool onConfirmSale(const LLSD& notification, const LLSD& response);
 	static void doShowObjects(void *userdata);
-	static bool callbackHighlightTransferable(const LLSD& notification, const LLSD& response);
 
 	void callbackAvatarPick(const std::vector<std::string>& names, const uuid_vec_t& ids);
 
@@ -102,6 +101,7 @@ public:
 	virtual BOOL postBuild();
 	
 	bool setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel);
+	static bool callbackHighlightTransferable(const LLSD& notification, const LLSD& response);
 };
 
 // static
@@ -423,10 +423,12 @@ void LLFloaterSellLandUI::doShowObjects(void *userdata)
 
 	send_parcel_select_objects(parcel->getLocalID(), RT_SELL);
 
+	// we shouldn't pass callback functor since it is registered in LLFunctorRegistration
 	LLNotificationsUtil::add("TransferObjectsHighlighted",
-						LLSD(), LLSD(),
-						&LLFloaterSellLandUI::callbackHighlightTransferable);
+						LLSD(), LLSD());
 }
+
+static LLNotificationFunctorRegistration tr("TransferObjectsHighlighted", &LLFloaterSellLandUI::callbackHighlightTransferable);
 
 // static
 bool LLFloaterSellLandUI::callbackHighlightTransferable(const LLSD& notification, const LLSD& data)

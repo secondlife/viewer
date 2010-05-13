@@ -60,6 +60,7 @@ public:
 	/*virtual*/ void onShowProfile();
 	/*virtual*/ void onTeleport();
 	/*virtual*/ void updateVerbs();
+	/*virtual*/ bool isSingleItemSelected();
 
 	void onSelectionChange(LLPlacesInventoryPanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();

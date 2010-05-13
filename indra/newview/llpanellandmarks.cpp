@@ -309,6 +309,25 @@ void LLLandmarksPanel::onTeleport()
 }
 
 // virtual
+bool LLLandmarksPanel::isSingleItemSelected()
+{
+	bool result = false;
+
+	if (mCurrentSelectedList != NULL)
+	{
+		LLPlacesFolderView* root_view =
+				static_cast<LLPlacesFolderView*>(mCurrentSelectedList->getRootFolder());
+
+		if (root_view->getSelectedCount() == 1)
+		{
+			result = isLandmarkSelected();
+		}
+	}
+
+	return result;
+}
+
+// virtual
 void LLLandmarksPanel::updateVerbs()
 {
 	if (!isTabVisible()) 
@@ -316,8 +335,8 @@ void LLLandmarksPanel::updateVerbs()
 
 	bool landmark_selected = isLandmarkSelected();
 	mTeleportBtn->setEnabled(landmark_selected && isActionEnabled("teleport"));
-	mShowOnMapBtn->setEnabled(landmark_selected && isActionEnabled("show_on_map"));
 	mShowProfile->setEnabled(landmark_selected && isActionEnabled("more_info"));
+	mShowOnMapBtn->setEnabled(true);
 
 	// TODO: mantipov: Uncomment when mShareBtn is supported
 	// Share button should be enabled when neither a folder nor a landmark is selected
@@ -974,8 +993,8 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	}
 	else if("create_pick" == command_name)
 	{
-		std::set<LLUUID> selection;
-		if ( mCurrentSelectedList && mCurrentSelectedList->getRootFolder()->getSelectionList(selection) )
+		std::set<LLUUID> selection = mCurrentSelectedList->getRootFolder()->getSelectionList();
+		if ( mCurrentSelectedList && !selection.empty() )
 		{
 			return ( 1 == selection.size() && !LLAgentPicksInfo::getInstance()->isPickLimitReached() );
 		}

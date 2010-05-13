@@ -2,7 +2,7 @@
 <floater name="godtools floater" title="FERRAMENTAS DE DEUS">
 	<tab_container name="GodTools Tabs">
 		<panel label="Grade" name="grid">
-			<button label="Limpar os cachês de visibilidade do mapa da região." label_selected="Limpar os cachês de visibilidade do mapa da região." name="Flush This Region&apos;s Map Visibility Caches"/>
+			<button label="Limpar os caches de visibilidade do mapa da região." label_selected="Limpar os caches de visibilidade do mapa da região." name="Flush This Region&apos;s Map Visibility Caches"/>
 		</panel>
 		<panel label="Região" name="region">
 			<text name="Region Name:">
@@ -14,7 +14,7 @@
 			<check_box label="Visível" name="check visible" tool_tip="Ajustar para fazer essa região visível para os não-deuses"/>
 			<check_box label="Dano" name="check damage" tool_tip="Ajustar para permitir dano nesta região"/>
 			<check_box label="Bloquear ratreamento do Tráfego" name="block dwell" tool_tip="Configure isto para fazer a região não computar o tráfego."/>
-			<check_box label="Bloquear Terraform" name="block terraform" tool_tip="Ajustar para desabilitar as pessoas a terraplanarem seus terrenos"/>
+			<check_box label="Bloquear terraplenagens" name="block terraform" tool_tip="Ajustar para desabilitar as pessoas a terraplanarem seus terrenos"/>
 			<check_box label="Sandbox" name="is sandbox" tool_tip="Alterar se esta região for uma sandbox."/>
 			<button label="Nivelar o terreno" label_selected="Nivelar o Terreno" name="Bake Terrain" tool_tip="Salva o terreno atual como padrão."/>
 			<button label="Reverter Terreno" label_selected="Reverter Terreno" name="Revert Terrain" tool_tip="Substituir o terreno atual pelo padrão."/>
@@ -63,9 +63,9 @@
 			<button label="Apagar objetos programados do alvo em outras terras" label_selected="Apagar objetos programados do alvo em outras terras" name="Delete Target&apos;s Scripted Objects On Others Land" tool_tip="Apagar todos os objetos programados possuídos pelo alvo nas terras fora do domínio do alvo. Objetos (sem cópia) irão retornar."/>
 			<button label="Apagar objetos programados do Alvo em qualquer terreno" label_selected="Apagar objetos programados do Alvo em qualquer terreno" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="Apagar todos os objetos programados do alvo nesta região. Objetos (sem cópia) irão retornar."/>
 			<button label="Apagar *TODOS* os objetos do alvo" label_selected="Apagar *TODOS* os objetos do alvo" name="Delete *ALL* Of Target&apos;s Objects" tool_tip="Apagar todos os objetos possuídos pelo alvo nesta região. Objetos (sem cópia) objetos irão retornar."/>
-			<button label="Pegar os maiores colidentes" label_selected="Pegar os maiores colidentes" name="Get Top Colliders" tool_tip="Pega a lista de objetos que estão experimentando as chamadas mais freqüentes."/>
-			<button label="Pegar os scripts principais" label_selected="Pegar os scripts principais" name="Get Top Scripts" tool_tip="Pegar a lista de objetos programados com a maior duração em tempo de execução."/>
-			<button label="Informações de Scripts" label_selected="Informações de Scripts" name="Scripts digest" tool_tip="Pega uma lista de todos os scripts e o número de ocorrências de cada um."/>
+			<button label="Principais colidentes" label_selected="Lista dos maiores colidentes" name="Get Top Colliders" tool_tip="Gera a lista de objetos que estão experimentando as chamadas mais frequentes."/>
+			<button label="Principais scripts" label_selected="Lista dos scripts principais" name="Get Top Scripts" tool_tip="Gera a lista de objetos programados com a maior duração em tempo de execução."/>
+			<button label="Dados dos scripts" label_selected="Dados dos scripts" name="Scripts digest" tool_tip="Gera uma lista de todos os scripts e o número de ocorrências de cada um."/>
 		</panel>
 		<panel label="Requisição" name="request">
 			<text name="Destination:">

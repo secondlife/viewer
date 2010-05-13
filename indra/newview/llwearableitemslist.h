@@ -37,7 +37,7 @@
 // newview
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 
 /**
  * @class LLPanelWearableListItem
@@ -67,12 +67,35 @@ protected:
 	LLPanelWearableListItem(LLViewerInventoryItem* item);
 };
 
+
+class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
+{
+	LOG_CLASS(LLPanelDeletableWearableListItem);
+public:
+
+	static LLPanelDeletableWearableListItem* create(LLViewerInventoryItem* item);
+
+	virtual ~LLPanelDeletableWearableListItem() {};
+
+	/*virtual*/ BOOL postBuild();
+
+	/**
+	 * Make button visible during mouse over event.
+	 */
+	inline void setShowDeleteButton(bool show) { setShowWidget("btn_delete", show); }
+
+protected:
+	LLPanelDeletableWearableListItem(LLViewerInventoryItem* item);
+
+	/*virtual*/ void init();
+};
+
 /**
  * @class LLPanelClothingListItem
  *
  * Provides buttons for editing, moving, deleting a wearable.
  */
-class LLPanelClothingListItem : public LLPanelWearableListItem
+class LLPanelClothingListItem : public LLPanelDeletableWearableListItem
 {
 	LOG_CLASS(LLPanelClothingListItem);
 public:
@@ -86,7 +109,6 @@ public:
 	/**
 	 * Make button visible during mouse over event.
 	 */
-	inline void setShowDeleteButton(bool show) { setShowWidget("btn_delete", show); }
 	inline void setShowMoveUpButton(bool show) { setShowWidget("btn_move_up", show); }
 
 	inline void setShowMoveDownButton(bool show) { setShowWidget("btn_move_down", show); }
@@ -124,6 +146,7 @@ protected:
 	/*virtual*/ void init();
 };
 
+
 /**
  * @class LLPanelDummyClothingListItem
  *
@@ -132,20 +155,20 @@ protected:
 class LLPanelDummyClothingListItem : public LLPanelWearableListItem
 {
 public:
-	static LLPanelDummyClothingListItem* create(EWearableType w_type);
+	static LLPanelDummyClothingListItem* create(LLWearableType::EType w_type);
 
 	/*virtual*/ void updateItem();
 	/*virtual*/ BOOL postBuild();
 
 protected:
-	LLPanelDummyClothingListItem(EWearableType w_type);
+	LLPanelDummyClothingListItem(LLWearableType::EType w_type);
 
 	/*virtual*/ void init();
 
-	static std::string wearableTypeToString(EWearableType w_type);
+	static std::string wearableTypeToString(LLWearableType::EType w_type);
 
 private:
-	EWearableType mWearableType;
+	LLWearableType::EType mWearableType;
 };
 
 /**

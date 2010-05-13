@@ -477,6 +477,12 @@ void LLTeleportHistoryPanel::onSearchEdit(const std::string& string)
 }
 
 // virtual
+bool LLTeleportHistoryPanel::isSingleItemSelected()
+{
+	return mLastSelectedFlatlList && mLastSelectedFlatlList->getSelectedItem();
+}
+
+// virtual
 void LLTeleportHistoryPanel::onShowOnMap()
 {
 	if (!mLastSelectedFlatlList)
@@ -557,7 +563,6 @@ void LLTeleportHistoryPanel::updateVerbs()
 	if (!mLastSelectedFlatlList)
 	{
 		mTeleportBtn->setEnabled(false);
-		mShowOnMapBtn->setEnabled(false);
 		mShowProfile->setEnabled(false);
 		return;
 	}
@@ -565,8 +570,8 @@ void LLTeleportHistoryPanel::updateVerbs()
 	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
 
 	mTeleportBtn->setEnabled(NULL != itemp);
-	mShowOnMapBtn->setEnabled(NULL != itemp);
 	mShowProfile->setEnabled(NULL != itemp);
+	mShowOnMapBtn->setEnabled(true);
 }
 
 void LLTeleportHistoryPanel::getNextTab(const LLDate& item_date, S32& tab_idx, LLDate& tab_date)

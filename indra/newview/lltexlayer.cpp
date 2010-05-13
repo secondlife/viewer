@@ -178,7 +178,7 @@ BOOL LLTexLayerSetBuffer::needsRender()
 	BOOL needs_update = (mNeedsUpdate || upload_now) && !gAgentAvatarp->mAppearanceAnimating;
 	if (needs_update)
 	{
-		BOOL invalid_skirt = gAgentAvatarp->getBakedTE(mTexLayerSet) == LLVOAvatarDefines::TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(WT_SKIRT);
+		BOOL invalid_skirt = gAgentAvatarp->getBakedTE(mTexLayerSet) == LLVOAvatarDefines::TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(LLWearableType::WT_SKIRT);
 		if (invalid_skirt)
 		{
 			// we were trying to create a skirt texture
@@ -1848,7 +1848,7 @@ U32 LLTexLayerTemplate::updateWearableCache()
 		//this isn't a cloneable layer 
 		return 0;
 	}
-	EWearableType wearable_type = LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te);
+	LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType((ETextureIndex)te);
 	U32 num_wearables = gAgentWearables.getWearableCount(wearable_type);
 	U32 added = 0;
 	for (U32 i = 0; i < num_wearables; i++)
