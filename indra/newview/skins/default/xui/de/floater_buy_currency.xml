@@ -60,8 +60,7 @@
 	<button label="Jetzt kaufen" name="buy_btn"/>
 	<button label="Abbrechen" name="cancel_btn"/>
 	<text height="40" left="160" name="info_cannot_buy" width="200">
-		Kauf nicht
-möglich
+		Kauf nicht möglich
 	</text>
-	<button label="Weiter zum Internet" name="error_web"/>
+	<button label="Weiter zur Kontoseite" name="error_web"/>
 </floater>
