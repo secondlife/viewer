@@ -103,7 +103,7 @@ LLPanelClothingListItem* LLPanelClothingListItem::create(LLViewerInventoryItem* 
 }
 
 LLPanelClothingListItem::LLPanelClothingListItem(LLViewerInventoryItem* item)
- : LLPanelWearableListItem(item)
+ : LLPanelDeletableWearableListItem(item)
 {
 }
 
@@ -118,17 +118,12 @@ void LLPanelClothingListItem::init()
 
 BOOL LLPanelClothingListItem::postBuild()
 {
-	LLPanelInventoryListItemBase::postBuild();
+	LLPanelDeletableWearableListItem::postBuild();
 
-	addWidgetToLeftSide("btn_delete");
 	addWidgetToRightSide("btn_move_up");
 	addWidgetToRightSide("btn_move_down");
 	addWidgetToRightSide("btn_lock");
 	addWidgetToRightSide("btn_edit");
-
-	LLButton* delete_btn = getChild<LLButton>("btn_delete");
-	// Reserve space for 'delete' button event if it is invisible.
-	setLeftWidgetsWidth(delete_btn->getRect().mRight);
 
 	setWidgetsVisible(false);
 	reshapeWidgets();
@@ -176,11 +171,51 @@ BOOL LLPanelBodyPartsListItem::postBuild()
 	return TRUE;
 }
 
+
+// static
+LLPanelDeletableWearableListItem* LLPanelDeletableWearableListItem::create(LLViewerInventoryItem* item)
+{
+	LLPanelDeletableWearableListItem* list_item = NULL;
+	if(item)
+	{
+		list_item = new LLPanelDeletableWearableListItem(item);
+		list_item->init();
+	}
+	return list_item;
+}
+
+LLPanelDeletableWearableListItem::LLPanelDeletableWearableListItem(LLViewerInventoryItem* item)
+: LLPanelWearableListItem(item)
+{
+}
+
+void LLPanelDeletableWearableListItem::init()
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_deletable_wearable_list_item.xml");
+}
+
+BOOL LLPanelDeletableWearableListItem::postBuild()
+{
+	LLPanelWearableListItem::postBuild();
+
+	addWidgetToLeftSide("btn_delete");
+
+	LLButton* delete_btn = getChild<LLButton>("btn_delete");
+	// Reserve space for 'delete' button event if it is invisible.
+	setLeftWidgetsWidth(delete_btn->getRect().mRight);
+
+	setWidgetsVisible(false);
+	reshapeWidgets();
+
+	return TRUE;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-LLPanelDummyClothingListItem* LLPanelDummyClothingListItem::create(EWearableType w_type)
+LLPanelDummyClothingListItem* LLPanelDummyClothingListItem::create(LLWearableType::EType w_type)
 {
 	LLPanelDummyClothingListItem* list_item = new LLPanelDummyClothingListItem(w_type);
 	list_item->init();
@@ -201,7 +236,7 @@ BOOL LLPanelDummyClothingListItem::postBuild()
 
 	addWidgetToRightSide("btn_add");
 
-	setIconImage(get_item_icon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
+	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, FALSE, mWearableType, FALSE));
 	updateItem();
 
 	// Make it look loke clothing item - reserve space for 'delete' button
@@ -213,7 +248,7 @@ BOOL LLPanelDummyClothingListItem::postBuild()
 	return TRUE;
 }
 
-LLPanelDummyClothingListItem::LLPanelDummyClothingListItem(EWearableType w_type)
+LLPanelDummyClothingListItem::LLPanelDummyClothingListItem(LLWearableType::EType w_type)
  : LLPanelWearableListItem(NULL)
  , mWearableType(w_type)
 {
@@ -224,26 +259,26 @@ void LLPanelDummyClothingListItem::init()
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_dummy_clothing_list_item.xml");
 }
 
-typedef std::map<EWearableType, std::string> clothing_to_string_map_t;
+typedef std::map<LLWearableType::EType, std::string> clothing_to_string_map_t;
 
 clothing_to_string_map_t init_clothing_string_map()
 {
 	clothing_to_string_map_t w_map;
-	w_map.insert(std::make_pair(WT_SHIRT, "shirt_not_worn"));
-	w_map.insert(std::make_pair(WT_PANTS, "pants_not_worn"));
-	w_map.insert(std::make_pair(WT_SHOES, "shoes_not_worn"));
-	w_map.insert(std::make_pair(WT_SOCKS, "socks_not_worn"));
-	w_map.insert(std::make_pair(WT_JACKET, "jacket_not_worn"));
-	w_map.insert(std::make_pair(WT_GLOVES, "gloves_not_worn"));
-	w_map.insert(std::make_pair(WT_UNDERSHIRT, "undershirt_not_worn"));
-	w_map.insert(std::make_pair(WT_UNDERPANTS, "underpants_not_worn"));
-	w_map.insert(std::make_pair(WT_SKIRT, "skirt_not_worn"));
-	w_map.insert(std::make_pair(WT_ALPHA, "alpha_not_worn"));
-	w_map.insert(std::make_pair(WT_TATTOO, "tattoo_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_SHIRT, "shirt_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_PANTS, "pants_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_SHOES, "shoes_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_SOCKS, "socks_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_JACKET, "jacket_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_GLOVES, "gloves_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_UNDERSHIRT, "undershirt_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_UNDERPANTS, "underpants_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_SKIRT, "skirt_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_ALPHA, "alpha_not_worn"));
+	w_map.insert(std::make_pair(LLWearableType::WT_TATTOO, "tattoo_not_worn"));
 	return w_map;
 }
 
-std::string LLPanelDummyClothingListItem::wearableTypeToString(EWearableType w_type)
+std::string LLPanelDummyClothingListItem::wearableTypeToString(LLWearableType::EType w_type)
 {
 	static const clothing_to_string_map_t w_map = init_clothing_string_map();
 	static const std::string invalid_str = LLTrans::getString("invalid_not_worn");

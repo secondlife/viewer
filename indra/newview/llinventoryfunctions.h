@@ -40,6 +40,27 @@
 
 /********************************************************************************
  **                                                                            **
+ **                    MISCELLANEOUS GLOBAL FUNCTIONS
+ **/
+
+// Is this item or its baseitem is worn, attached, etc...
+BOOL get_is_item_worn(const LLUUID& id);
+
+
+void change_item_parent(LLInventoryModel* model,
+									 LLViewerInventoryItem* item,
+									 const LLUUID& new_parent_id,
+									 BOOL restamp);
+
+// Generates a string containing the path to the item specified by item_id.
+void append_path(const LLUUID& id, std::string& path);
+
+/**                    Miscellaneous global functions
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
  **                    INVENTORY COLLECTOR FUNCTIONS
  **/
 
@@ -58,7 +79,7 @@ public:
 	virtual ~LLInventoryCollectFunctor(){};
 	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item) = 0;
 
-	static bool itemTransferCommonlyAllowed(LLInventoryItem* item);
+	static bool itemTransferCommonlyAllowed(const LLInventoryItem* item);
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -296,25 +317,6 @@ public:
 	virtual void doFolder(LLFolderViewFolder* folder);
 	virtual void doItem(LLFolderViewItem* item);
 };
-
-const std::string& get_item_icon_name(LLAssetType::EType asset_type,
-									  LLInventoryType::EType inventory_type,
-									  U32 attachment_point, 
-									  BOOL item_is_multi );
-
-LLUIImagePtr get_item_icon(LLAssetType::EType asset_type,
-						   LLInventoryType::EType inventory_type,
-						   U32 attachment_point, 
-						   BOOL item_is_multi );
-
-// Is this item or its baseitem is worn, attached, etc...
-BOOL get_is_item_worn(const LLUUID& id);
-
-
-void change_item_parent(LLInventoryModel* model,
-									 LLViewerInventoryItem* item,
-									 const LLUUID& new_parent_id,
-									 BOOL restamp);
 
 #endif // LL_LLINVENTORYFUNCTIONS_H
 

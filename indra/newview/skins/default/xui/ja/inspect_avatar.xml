@@ -20,7 +20,7 @@
 	<button label="IM" name="im_btn"/>
 	<button label="プロフィール" name="view_profile_btn"/>
 	<panel name="moderator_panel">
-		<button label="ボイスを無効にする" name="disable_voice"/>
-		<button label="ボイスを有効にする" name="enable_voice"/>
+		<button label="ボイスを無効" name="disable_voice"/>
+		<button label="ボイスを有効" name="enable_voice"/>
 	</panel>
 </floater>

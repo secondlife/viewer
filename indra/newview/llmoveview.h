@@ -88,7 +88,6 @@ private:
 	void onFlyButtonClick();
 	void initMovementMode();
 	void setMovementMode(const EMovementMode mode);
-	void showFlyControls(bool bShow);
 	void initModeTooltips();
 	void setModeTooltip(const EMovementMode mode);
 	void setModeTitle(const EMovementMode mode);
@@ -102,6 +101,8 @@ public:
 
 	LLJoystickAgentTurn*	mForwardButton;
 	LLJoystickAgentTurn*	mBackwardButton;
+	LLJoystickAgentSlide*	mSlideLeftButton;
+	LLJoystickAgentSlide*	mSlideRightButton;
 	LLButton*				mTurnLeftButton;
 	LLButton*				mTurnRightButton;
 	LLButton*				mMoveUpButton;

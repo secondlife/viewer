@@ -89,7 +89,7 @@ public:
 
 		II_FLAGS_WEARABLES_MASK = 0xff,
 			// Wearables use the low order byte of flags to store the
-			// EWearableType enumeration found in newview/llwearable.h
+			// LLWearableType::EType enumeration found in newview/llwearable.h
 
 		II_FLAGS_PERM_OVERWRITE_MASK = 				(II_FLAGS_OBJECT_SLAM_PERM |
 													 II_FLAGS_OBJECT_SLAM_SALE |
