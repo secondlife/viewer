@@ -163,6 +163,16 @@ private:
 	void log(LLView* panel, const std::string& descr);
 
 	/**
+	 * Tries to show hidden by resize buttons using available width.
+	 *
+	 * Gets buttons visible if there is enough space. Reduces available_width in this case.
+	 *
+	 * @params[in, out] available_width - reference to available width to be used to show buttons.
+	 * @see processShowButton()
+	 */
+	void processShowButtons(S32& available_width);
+
+	/**
 	 * Tries to show panel with specified button using available width.
 	 *
 	 * Shows button specified by type if there is enough space. Reduces available_width in this case.
@@ -173,6 +183,20 @@ private:
 	 * @return true if button can be shown, false otherwise
 	 */
 	bool processShowButton(EResizeState shown_object_type, S32& available_width);
+
+	/**
+	 * Hides visible panels with all buttons that may be hidden by resize if it is necessary.
+	 *
+	 * When button gets hidden some space is released in bottom tray.
+	 * This space is taken into account for several consecutive calls for several buttons.
+	 *
+	 * @params[in, out] required_width - reference to required width to be released. This is a negative value.
+	 *			Its absolute value is decreased by shown panel width.
+	 * @params[in, out] buttons_freed_width - reference to value released over required one.
+	 *			If panel's width is more than required difference is added to buttons_freed_width.
+	 * @see processHideButton()
+	 */
+	void processHideButtons(S32& required_width, S32& buttons_freed_width);
 
 	/**
 	 * Hides panel with specified button if it is visible.
@@ -190,6 +214,8 @@ private:
 
 	/**
 	 * Shrinks shown buttons to reduce total taken space.
+	 *
+	 * Shrinks buttons that may be shrunk smoothly first. Then shrinks Speak button.
 	 *
 	 * @param[in, out] required_width - reference to width value which should be released when buttons are shrunk. It is a negative value.
 	 * It is increased on the value processed by buttons.
@@ -212,6 +238,8 @@ private:
 	/**
 	 * Extends shown buttons to increase total taken space.
 	 *
+	 * Extends buttons that may be extended smoothly first. Then extends Speak button.
+	 *
 	 * @param[in, out] available_width - reference to width value which buttons can use to be extended.
 	 *		It is a positive value. It is decreased on the value processed by buttons.
 	 */
@@ -233,7 +261,15 @@ private:
 	 *   - Gestures, Move, View, Snapshot
 	 */
 	bool canButtonBeShown(EResizeState processed_object_type) const;
-	void initStateProcessedObjectMap();
+
+	/**
+	 * Initializes all containers stored data related to children resize state.
+	 *
+	 * @see mStateProcessedObjectMap
+	 * @see mObjectDefaultWidthMap
+	 * @see mButtonsProcessOrder
+	 */
+	void initResizeStateContainers();
 
 	/**
 	 * Sets passed visibility to object specified by resize type.
@@ -278,6 +314,13 @@ private:
 
 	typedef std::map<EResizeState, S32> state_object_width_map_t;
 	state_object_width_map_t mObjectDefaultWidthMap;
+
+	typedef std::vector<EResizeState> resize_state_vec_t;
+
+	/**
+	 * Contains order in which child buttons should be processed in show/hide, extend/shrink methods.
+	 */
+	resize_state_vec_t mButtonsProcessOrder;
 
 protected:
 
