@@ -825,16 +825,15 @@ void LLPanelLandGeneral::refreshNames()
 		const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
 		if(auth_buyer_id.notNull())
 		{
-		  std::string name;
-		  name = LLSLURL("agent", auth_buyer_id, "inspect").getSLURLString();
-		  mSaleInfoForSale2->setTextArg("[BUYER]", name);
+			std::string name;
+			name = LLSLURL("agent", auth_buyer_id, "inspect").getSLURLString();
+			mSaleInfoForSale2->setTextArg("[BUYER]", name);
 		}
 		else
 		{
 			mSaleInfoForSale2->setTextArg("[BUYER]", getString("anyone"));
 		}
 	}
-}
 }
 
 

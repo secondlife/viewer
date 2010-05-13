@@ -430,12 +430,12 @@ void LLFloaterPay::finishPayUI(const LLUUID& target_id, BOOL is_group)
 	if (is_group)
 	{
 		setTitle(getString("payee_group"));
-		slurl = LLSLURL::buildCommand("group", target_id, "inspect");
+		slurl = LLSLURL("group", target_id, "inspect").getSLURLString();
 	}
 	else
 	{
 		setTitle(getString("payee_resident"));
-		slurl = LLSLURL::buildCommand("agent", target_id, "inspect");
+		slurl = LLSLURL("agent", target_id, "inspect").getSLURLString();
 	}
 	childSetText("payee_name", slurl);
 	

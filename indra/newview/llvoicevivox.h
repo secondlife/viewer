@@ -619,7 +619,7 @@ protected:
 	void leaveAudioSession();
 	
 	void lookupName(const LLUUID &id);
-	static void onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group);
+	static void onAvatarNameLookup(const LLUUID& id, const std::string& name, BOOL is_group);
 	void avatarNameResolved(const LLUUID &id, const std::string &name);
 		
 private:

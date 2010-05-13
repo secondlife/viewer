@@ -79,7 +79,7 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::strin
 	}
 
 	LLSD args;
-	args["NAME"] = LLSLURL::buildCommand("agent", id, "inspect");
+	args["NAME"] = LLSLURL("agent", id, "inspect").getSLURLString();
 	LLSD payload;
 	payload["id"] = id;
 	payload["name"] = name;

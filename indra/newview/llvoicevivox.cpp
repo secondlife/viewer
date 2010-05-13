@@ -6181,11 +6181,9 @@ void LLVivoxVoiceClient::lookupName(const LLUUID &id)
 }
 
 //static
-void LLVivoxVoiceClient::onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
+void LLVivoxVoiceClient::onAvatarNameLookup(const LLUUID& id, const std::string& name, BOOL is_group)
 {
-		std::string name = llformat("%s %s", first.c_str(), last.c_str());
-		LLVivoxVoiceClient::getInstance()->avatarNameResolved(id, name);
-	
+		LLVivoxVoiceClient::getInstance()->avatarNameResolved(id, name);	
 }
 
 void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)

@@ -5008,11 +5008,11 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 
 	const char* source_type = (is_source_group ? "group" : "agent");
 	std::string source_slurl =
-		LLSLURL::buildCommand( source_type, source_id, "about");
+		LLSLURL( source_type, source_id, "about").getSLURLString();
 	
 	const char* dest_type = (is_dest_group ? "group" : "agent");
 	std::string dest_slurl =
-		LLSLURL::buildCommand( dest_type, dest_id, "about");
+		LLSLURL( dest_type, dest_id, "about").getSLURLString();
 
 	//
 	//

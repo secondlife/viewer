@@ -600,7 +600,8 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	LL_INFOS2("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
 	// determine if the username is a first/last form or not.
 	size_t separator_index = username.find_first_of(' ');
-	if (separator_index == username.npos)
+	if (separator_index == username.npos
+		&& !LLGridManager::getInstance()->isSystemGrid())
 	{
 		LL_INFOS2("Credentials", "Authentication") << "account: " << username << LL_ENDL;
 		// single username, so this is a 'clear' identifier
@@ -618,8 +619,19 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	else
 	{
 		std::string first = username.substr(0, separator_index);
-		std::string last = username.substr(separator_index, username.npos);
-		LLStringUtil::trim(last);
+		std::string last;
+		if (separator_index != username.npos)
+		{
+			last = username.substr(separator_index, username.npos);
+			LLStringUtil::trim(last);
+		}
+		else
+		{
+			// ...on Linden grids, single username users as considered to have
+			// last name "Resident"
+			// *TODO: Make login.cgi support "account_name" like above
+			last = "Resident";
+		}
 		
 		if (last.find_first_of(' ') == last.npos)
 		{
