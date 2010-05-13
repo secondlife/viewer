@@ -59,7 +59,7 @@ public:
 		WT_TATTOO	  = 14,
 		WT_COUNT	  = 15,
 
-		WT_NONE	  	  = -1,
+		WT_NONE	  	  = 255,
 	};
 
 	static const std::string& 			getTypeName(EType type);
