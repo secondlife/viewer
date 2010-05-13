@@ -656,6 +656,14 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
 
+class LLObjectCostResponder : public LLCurl::Responder
+{
+public:
+	void result(const LLSD& content)
+	{
+		llinfos << content << llendl;
+	}
+};
 
 void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 {
@@ -750,6 +758,40 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 		{
 			objectp = *kill_iter;
 			killObject(objectp);
+		}
+	}
+
+	//issue http request for stale object physics costs
+	if (!mStaleObjectCost.empty())
+	{
+		LLViewerRegion* regionp = gAgent.getRegion();
+
+		if (regionp)
+		{
+			std::string url; // = regionp->getCapability("GetObjectCost");
+
+			if (!url.empty())
+			{
+				LLSD id_list;
+				U32 idx = 0;
+				for (std::set<LLUUID>::iterator iter = mStaleObjectCost.begin(); iter != mStaleObjectCost.end(); ++iter)
+				{
+					if (mPendingObjectCost.find(*iter) == mPendingObjectCost.end())
+					{
+						mPendingObjectCost.insert(*iter);
+						id_list[idx++] = *iter;
+					}
+				}
+				mPendingObjectCost = mStaleObjectCost;
+				mStaleObjectCost.clear();
+
+				LLHTTPClient::post(url, id_list, new LLObjectCostResponder());
+			}
+			else
+			{
+				mStaleObjectCost.clear();
+				mPendingObjectCost.clear();
+			}
 		}
 	}
 
@@ -1041,7 +1083,10 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 	}
 }
 
-
+void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
+{
+	mStaleObjectCost.insert(object->getID());
+}
 
 void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 {

@@ -232,6 +232,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mState(0),
 	mMedia(NULL),
 	mClickAction(0),
+	mObjectCost(-1),
 	mAttachmentItemID(LLUUID::null)
 {
 	if (!is_global)

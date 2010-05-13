@@ -2670,6 +2670,11 @@ void renderPhysicsShape(LLDrawable* drawable)
 			const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
 			if (decomp)
 			{
+				if (volume->getObjectCost() == -1)
+				{
+					gObjectList.updateObjectCost(volume);
+				}
+
 				gGL.pushMatrix();
 				glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
 				static std::vector<LLColor4U> color;
@@ -2688,7 +2693,7 @@ void renderPhysicsShape(LLDrawable* drawable)
 					buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					glColor4ubv(color[i].mV);
+					glColor3ub(color[i].mV[0], color[i].mV[1], color[i].mV[2]);
 					buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
