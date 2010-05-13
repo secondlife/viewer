@@ -103,7 +103,7 @@ LLPanelClothingListItem* LLPanelClothingListItem::create(LLViewerInventoryItem* 
 }
 
 LLPanelClothingListItem::LLPanelClothingListItem(LLViewerInventoryItem* item)
- : LLPanelWearableListItem(item)
+ : LLPanelDeletableWearableListItem(item)
 {
 }
 
@@ -118,17 +118,12 @@ void LLPanelClothingListItem::init()
 
 BOOL LLPanelClothingListItem::postBuild()
 {
-	LLPanelInventoryListItemBase::postBuild();
+	LLPanelDeletableWearableListItem::postBuild();
 
-	addWidgetToLeftSide("btn_delete");
 	addWidgetToRightSide("btn_move_up");
 	addWidgetToRightSide("btn_move_down");
 	addWidgetToRightSide("btn_lock");
 	addWidgetToRightSide("btn_edit");
-
-	LLButton* delete_btn = getChild<LLButton>("btn_delete");
-	// Reserve space for 'delete' button event if it is invisible.
-	setLeftWidgetsWidth(delete_btn->getRect().mRight);
 
 	setWidgetsVisible(false);
 	reshapeWidgets();
@@ -175,6 +170,46 @@ BOOL LLPanelBodyPartsListItem::postBuild()
 
 	return TRUE;
 }
+
+
+// static
+LLPanelDeletableWearableListItem* LLPanelDeletableWearableListItem::create(LLViewerInventoryItem* item)
+{
+	LLPanelDeletableWearableListItem* list_item = NULL;
+	if(item)
+	{
+		list_item = new LLPanelDeletableWearableListItem(item);
+		list_item->init();
+	}
+	return list_item;
+}
+
+LLPanelDeletableWearableListItem::LLPanelDeletableWearableListItem(LLViewerInventoryItem* item)
+: LLPanelWearableListItem(item)
+{
+}
+
+void LLPanelDeletableWearableListItem::init()
+{
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_deletable_wearable_list_item.xml");
+}
+
+BOOL LLPanelDeletableWearableListItem::postBuild()
+{
+	LLPanelWearableListItem::postBuild();
+
+	addWidgetToLeftSide("btn_delete");
+
+	LLButton* delete_btn = getChild<LLButton>("btn_delete");
+	// Reserve space for 'delete' button event if it is invisible.
+	setLeftWidgetsWidth(delete_btn->getRect().mRight);
+
+	setWidgetsVisible(false);
+	reshapeWidgets();
+
+	return TRUE;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

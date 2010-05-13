@@ -150,7 +150,7 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 		LLPanelInventoryListItemBase* item_panel = NULL;
 		if (item_type == LLAssetType::AT_OBJECT)
 		{
-				item_panel = LLPanelInventoryListItemBase::create(item);
+			item_panel = buildAttachemntListItem(item);
 			mAttachments->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);
 		}
 		else if (item_type == LLAssetType::AT_BODYPART)
@@ -228,6 +228,21 @@ LLPanelBodyPartsListItem* LLCOFWearables::buildBodypartListItem(LLViewerInventor
 	//*TODO move that item panel's inner structure disclosing stuff into the panels
 	item_panel->childSetAction("btn_delete", mCOFCallbacks.mDeleteWearable);
 	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
+
+	return item_panel;
+}
+
+LLPanelDeletableWearableListItem* LLCOFWearables::buildAttachemntListItem(LLViewerInventoryItem* item)
+{
+	llassert(item);
+	if (!item) return NULL;
+
+	LLPanelDeletableWearableListItem* item_panel = LLPanelDeletableWearableListItem::create(item);
+	if (!item_panel) return NULL;
+
+	//setting callbacks
+	//*TODO move that item panel's inner structure disclosing stuff into the panels
+	item_panel->childSetAction("btn_delete", mCOFCallbacks.mDeleteWearable);
 
 	return item_panel;
 }
