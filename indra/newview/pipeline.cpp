@@ -288,6 +288,7 @@ BOOL	LLPipeline::sRenderFrameTest = FALSE;
 BOOL	LLPipeline::sRenderAttachedLights = TRUE;
 BOOL	LLPipeline::sRenderAttachedParticles = TRUE;
 BOOL	LLPipeline::sRenderDeferred = FALSE;
+BOOL    LLPipeline::sAllowRebuildPriorityGroup = FALSE ;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 
@@ -1808,6 +1809,12 @@ void LLPipeline::updateGL()
 
 void LLPipeline::rebuildPriorityGroups()
 {
+	if(!sAllowRebuildPriorityGroup)
+	{
+		return ;
+	}
+	sAllowRebuildPriorityGroup = FALSE ;
+
 	LLTimer update_timer;
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	
