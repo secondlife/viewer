@@ -92,6 +92,7 @@ void LLPanelVoiceEffect::onCommitVoiceEffect()
 	if (value.asInteger() == GET_VOICE_EFFECTS)
 	{
 		LL_DEBUGS("Voice") << "GET VOICE FONTS!" << LL_ENDL;
+		LLWeb::loadURL(getString("get_voice_effects_url"));
 	}
 	else if (value.asInteger() == PREVIEW_VOICE_EFFECTS)
 	{
