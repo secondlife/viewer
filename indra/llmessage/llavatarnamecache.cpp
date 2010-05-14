@@ -214,6 +214,27 @@ public:
 			// cache it and fire signals
 			LLAvatarNameCache::processName(agent_id, av_name, true);
 		}
+
+		// Same logic as error response case
+		LLSD unresolved_agents = content["bad_ids"];
+		if (unresolved_agents.size() > 0)
+		{
+			const std::string DUMMY_NAME("\?\?\?");
+			LLAvatarName av_name;
+			av_name.mSLID = DUMMY_NAME;
+			av_name.mDisplayName = DUMMY_NAME;
+			av_name.mIsDisplayNameDefault = false;
+			av_name.mIsDummy = true;
+			av_name.mExpires = expires;
+
+			it = unresolved_agents.beginArray();
+			for ( ; it != unresolved_agents.endArray(); ++it)
+			{
+				const LLUUID& agent_id = *it;
+				// cache it and fire signals
+				LLAvatarNameCache::processName(agent_id, av_name, true);
+			}
+		}
 	}
 
 	/*virtual*/ void error(U32 status, const std::string& reason)

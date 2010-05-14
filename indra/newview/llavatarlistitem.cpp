@@ -38,6 +38,7 @@
 
 #include "llfloaterreg.h"
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "lloutputmonitorctrl.h"
 #include "llavatariconctrl.h"
 #include "lltextutil.h"
@@ -229,7 +230,8 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, b
 		mAvatarIcon->setValue(id);
 
 		// Set avatar name.
-		gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2));
+		LLAvatarNameCache::get(id,
+			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
 	}
 }
 
@@ -335,9 +337,9 @@ void LLAvatarListItem::setNameInternal(const std::string& name, const std::strin
 	mAvatarName->setToolTip(name);
 }
 
-void LLAvatarListItem::onNameCache(const std::string& fullname)
+void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	setName(fullname);
+	setName(av_name.mDisplayName);
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));

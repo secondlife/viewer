@@ -42,6 +42,7 @@
 #include "llcallingcard.h" // for LLFriendObserver
 
 class LLAvatarIconCtrl;
+class LLAvatarName;
 
 class LLAvatarListItem : public LLPanel, public LLFriendObserver
 {
@@ -151,7 +152,7 @@ private:
 	} EAvatarListItemChildIndex;
 
 	void setNameInternal(const std::string& name, const std::string& highlight);
-	void onNameCache(const std::string& fullname);
+	void onAvatarNameCache(const LLAvatarName& av_name);
 
 	std::string formatSeconds(U32 secs);
 
