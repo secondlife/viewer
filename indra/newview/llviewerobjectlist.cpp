@@ -60,6 +60,7 @@
 #include "llviewercamera.h"
 #include "llselectmgr.h"
 #include "llresmgr.h"
+#include "llsdutil.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
@@ -661,7 +662,14 @@ class LLObjectCostResponder : public LLCurl::Responder
 public:
 	void result(const LLSD& content)
 	{
-		llinfos << content << llendl;
+		for (LLSD::map_const_iterator iter = content.beginMap(); iter != content.endMap(); ++iter)
+		{
+			LLUUID object_id = LLUUID(iter->first);
+			S32 link_cost = iter->second["LinkResourceCost"].asInteger();
+			S32 prim_cost = iter->second["PrimResourceCost"].asInteger();
+
+			gObjectList.updateObjectCost(object_id, prim_cost, link_cost);
+		}
 	}
 };
 
@@ -768,7 +776,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 
 		if (regionp)
 		{
-			std::string url; // = regionp->getCapability("GetObjectCost");
+			std::string url = regionp->getCapability("GetObjectCost");
 
 			if (!url.empty())
 			{
@@ -785,7 +793,10 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 				mPendingObjectCost = mStaleObjectCost;
 				mStaleObjectCost.clear();
 
-				LLHTTPClient::post(url, id_list, new LLObjectCostResponder());
+				if (id_list.size() > 0)
+				{
+					LLHTTPClient::post(url, id_list, new LLObjectCostResponder());
+				}
 			}
 			else
 			{
@@ -1086,6 +1097,17 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 {
 	mStaleObjectCost.insert(object->getID());
+}
+
+void LLViewerObjectList::updateObjectCost(LLUUID object_id, S32 prim_cost, S32 link_cost)
+{
+	mPendingObjectCost.erase(object_id);
+
+	LLViewerObject* object = findObject(object_id);
+	if (object)
+	{
+		object->setObjectCost(prim_cost);
+	}
 }
 
 void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
