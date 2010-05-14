@@ -1545,7 +1545,7 @@ LLWearableType::EType LLViewerInventoryItem::getWearableType() const
 	if (!isWearableType())
 	{
 		llwarns << "item is not a wearable" << llendl;
-		return LLWearableType::WT_NONE;
+		return LLWearableType::WT_INVALID;
 	}
 	return LLWearableType::EType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
 }

@@ -775,8 +775,7 @@ void LLInventoryPanel::doCreate(const LLSD& userdata)
 
 bool LLInventoryPanel::beginIMSession()
 {
-	std::set<LLUUID> selected_items;
-	mFolderRoot->getSelectionList(selected_items);
+	std::set<LLUUID> selected_items = mFolderRoot->getSelectionList();
 
 	std::string name;
 	static int session_num = 1;
@@ -873,8 +872,7 @@ bool LLInventoryPanel::beginIMSession()
 
 bool LLInventoryPanel::attachObject(const LLSD& userdata)
 {
-	std::set<LLUUID> selected_items;
-	mFolderRoot->getSelectionList(selected_items);
+	std::set<LLUUID> selected_items = mFolderRoot->getSelectionList();
 
 	std::string joint_name = userdata.asString();
 	LLViewerJointAttachment* attachmentp = NULL;

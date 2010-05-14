@@ -99,7 +99,7 @@
      name="allowed_label"
      top="366"
      left="10"
-     width="290">
+     width="365">
         Allowed land holdings at current payment plan:
     </text>
     <text
@@ -110,7 +110,7 @@
      layout="topleft"
      name="allowed_text"
      top="366"
-     left="305"
+     left="380"
      width="290">
         [AREA] m²
     </text>
@@ -123,7 +123,7 @@
      top="386"
      left="10"
      name="current_label"
-     width="290">
+     width="365">
         Current land holdings:
     </text>
     <text
@@ -133,7 +133,7 @@
      height="16"
      layout="topleft"
      top="386"
-     left="305"
+     left="380"
      name="current_text"
      width="290">
         [AREA] m²
@@ -148,7 +148,7 @@
      top="406"
      left="10"
      name="available_label"
-     width="290">
+     width="365">
         Available for land purchases:
     </text>
     <text
@@ -160,7 +160,7 @@
      layout="topleft"
      name="available_text"
      top="406"
-     left="305"
+     left="380"
      width="290">
         [AREA] m²
     </text>

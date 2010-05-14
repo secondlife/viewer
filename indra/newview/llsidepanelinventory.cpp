@@ -323,8 +323,7 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 U32 LLSidepanelInventory::getSelectedCount()
 {
 	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
-	std::set<LLUUID> selection_list;
-	panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList(selection_list);
+	std::set<LLUUID> selection_list = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
 	return selection_list.size();
 }
 

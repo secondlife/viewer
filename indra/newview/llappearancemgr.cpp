@@ -179,7 +179,7 @@ struct LLFoundData
 {
 	LLFoundData() :
 		mAssetType(LLAssetType::AT_NONE),
-		mWearableType(LLWearableType::WT_NONE),
+		mWearableType(LLWearableType::WT_INVALID),
 		mWearable(NULL) {}
 
 	LLFoundData(const LLUUID& item_id,
@@ -392,7 +392,7 @@ public:
 						  linked_item->getAssetUUID(),
 						  linked_item->getName(),
 						  linked_item->getType(),
-						  linked_item->isWearableType() ? linked_item->getWearableType() : LLWearableType::WT_NONE
+						  linked_item->isWearableType() ? linked_item->getWearableType() : LLWearableType::WT_INVALID
 						  );
 				found.mWearable = mWearable;
 				mHolder->mFoundList.push_front(found);
@@ -1115,7 +1115,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF()
 							  linked_item->getAssetUUID(),
 							  linked_item->getName(),
 							  linked_item->getType(),
-							  linked_item->isWearableType() ? linked_item->getWearableType() : LLWearableType::WT_NONE
+							  linked_item->isWearableType() ? linked_item->getWearableType() : LLWearableType::WT_INVALID
 				);
 
 #if 0
