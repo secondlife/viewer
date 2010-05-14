@@ -260,7 +260,7 @@
              top_pad="5"
              left="0">
                 <layout_panel
-                 auto_resize="true"
+                 auto_resize="false"
                  layout="topleft"
                  follows="left|top|right"
                  height="30"
