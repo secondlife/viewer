@@ -94,6 +94,12 @@ void LLStandardBumpmap::shutdown()
 // static 
 void LLStandardBumpmap::restoreGL()
 {
+	addstandard();
+}
+
+// static
+void LLStandardBumpmap::addstandard()
+{
 	llassert( LLStandardBumpmap::sStandardBumpmapCount == 0 );
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("None");		// BE_NO_BUMP
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("Brightness");	// BE_BRIGHTNESS
@@ -156,7 +162,7 @@ void LLStandardBumpmap::restoreGL()
 }
 
 // static
-void LLStandardBumpmap::destroyGL()
+void LLStandardBumpmap::clear()
 {
 	for( U32 i = 0; i < LLStandardBumpmap::sStandardBumpmapCount; i++ )
 	{
@@ -164,6 +170,12 @@ void LLStandardBumpmap::destroyGL()
 		gStandardBumpmapList[i].mImage = NULL;
 	}
 	sStandardBumpmapCount = 0;
+}
+
+// static
+void LLStandardBumpmap::destroyGL()
+{
+	clear();
 }
 
 
@@ -1044,8 +1056,8 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 
 			LLVector3 right = LLVector3(norm_scale, 0, (F32) src_data[(j*resX+rX)*src_cmp+src_cmp-1]-cH);
 			LLVector3 left = LLVector3(-norm_scale, 0, (F32) src_data[(j*resX+lX)*src_cmp+src_cmp-1]-cH);
-			LLVector3 up = LLVector3(0, -norm_scale, (F32) src_data[(rY*resX+i)*src_cmp+src_cmp-1]-cH);
-			LLVector3 down = LLVector3(0, norm_scale, (F32) src_data[(lY*resX+i)*src_cmp+src_cmp-1]-cH);
+			LLVector3 up = LLVector3(0, -norm_scale, (F32) src_data[(lY*resX+i)*src_cmp+src_cmp-1]-cH);
+			LLVector3 down = LLVector3(0, norm_scale, (F32) src_data[(rY*resX+i)*src_cmp+src_cmp-1]-cH);
 
 			LLVector3 norm = right%down + down%left + left%up + up%right;
 		
@@ -1155,11 +1167,8 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 				F32 twice_one_over_range = 2.f / (maximum - minimum);
 				S32 i;
 
-				bool bump_polarity_negative = LLPipeline::sRenderDeferred ?
-					(BE_BRIGHTNESS == bump_code) : (BE_DARKNESS == bump_code); // deferred mode likes its normal map values inverted
-
 				const F32 ARTIFICIAL_SCALE = 2.f;  // Advantage: exaggerates the effect in midrange.  Disadvantage: clamps at the extremes.
-				if (bump_polarity_negative)
+				if (BE_DARKNESS == bump_code)
 				{
 					for( i = minimum; i <= maximum; i++ )
 					{
