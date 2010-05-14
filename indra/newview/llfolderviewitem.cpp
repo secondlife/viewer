@@ -387,6 +387,12 @@ void LLFolderViewItem::extendSelectionFromRoot(LLFolderViewItem* selection)
 	getRoot()->extendSelection(selection, NULL, selected_items);
 }
 
+std::set<LLUUID> LLFolderViewItem::getSelectionList() const
+{
+	std::set<LLUUID> selection;
+	return selection;
+}
+
 EInventorySortGroup LLFolderViewItem::getSortGroup()  const
 { 
 	return SG_ITEM; 

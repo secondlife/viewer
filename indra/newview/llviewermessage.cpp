@@ -796,7 +796,7 @@ private:
 		mSelectedItems.clear();
 		if (mActivePanel)
 		{
-			mActivePanel->getRootFolder()->getSelectionList(mSelectedItems);
+			mSelectedItems = mActivePanel->getRootFolder()->getSelectionList();
 		}
 		mSelectedItems.erase(mMoveIntoFolderID);
 	}
@@ -829,8 +829,7 @@ private:
 		}
 
 		// get selected items (without destination folder)
-		selected_items_t selected_items;
-		mActivePanel->getRootFolder()->getSelectionList(selected_items);
+		selected_items_t selected_items = mActivePanel->getRootFolder()->getSelectionList();
 		selected_items.erase(mMoveIntoFolderID);
 
 		// compare stored & current sets of selected items
@@ -6475,18 +6474,3 @@ void LLOfferInfo::forceResponse(InventoryOfferResponse response)
 	LLNotifications::instance().forceResponse(params, response);
 }
 
-static bool confirm_leave_call_callback(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	const LLSD& payload = notification["payload"];
-	LLUUID session_id = payload["session_id"];
-
-	LLFloater* im_floater = LLFloaterReg::findInstance("impanel", session_id);
-	if (option == 0 && im_floater != NULL)
-	{
-		im_floater->closeFloater();
-	}
-
-	return false;
-}
-static LLNotificationFunctorRegistration confirm_leave_call_cb("ConfirmLeaveCall", confirm_leave_call_callback);

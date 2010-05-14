@@ -145,7 +145,7 @@ public:
 					 bool is_local_texture, 
 					 EBakedTextureIndex baked_texture_index = BAKED_NUM_INDICES,
 					 const std::string& default_image_name = "",
-					 LLWearableType::EType wearable_type = LLWearableType::WT_NONE);
+					 LLWearableType::EType wearable_type = LLWearableType::WT_INVALID);
 		const std::string 	mDefaultImageName;
 		const LLWearableType::EType mWearableType;
 		// It's either a local texture xor baked

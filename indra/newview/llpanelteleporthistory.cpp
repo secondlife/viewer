@@ -38,7 +38,7 @@
 #include "llsidetray.h"
 #include "llworldmap.h"
 #include "llteleporthistorystorage.h"
-#include "lltextutil.h"
+#include "lluitextutil.h"
 
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
