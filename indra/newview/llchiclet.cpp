@@ -183,20 +183,6 @@ void LLSysWellChiclet::setCounter(S32 counter)
 
 	mButton->setLabel(s_count);
 
-	setNewMessagesState(counter > mCounter);
-
-	// we have to flash to 'Lit' state each time new unread message is coming.
-	if (counter > mCounter)
-	{
-		mFlashToLitTimer->flash();
-	}
-	else if (counter == 0)
-	{
-		// if notification is resolved while well is flashing it can leave in the 'Lit' state
-		// when flashing finishes itself. Let break flashing here.
-		mFlashToLitTimer->stopFlashing();
-	}
-
 	mCounter = counter;
 }
 
@@ -316,7 +302,26 @@ void LLIMWellChiclet::createMenu()
 
 void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
 {
-	setCounter(LLBottomTray::getInstance()->getTotalUnreadIMCount());
+	const LLUUID& session_id = session_data["session_id"];
+	const S32 counter = LLBottomTray::getInstance()->getTotalUnreadIMCount();
+	const bool im_not_visible = !LLFloaterReg::instanceVisible("im_container")
+		&& !LLFloaterReg::instanceVisible("impanel", session_id);
+
+	setNewMessagesState(counter > mCounter	&& im_not_visible);
+
+	// we have to flash to 'Lit' state each time new unread message is coming.
+	if (counter > mCounter && im_not_visible)
+	{
+		mFlashToLitTimer->flash();
+	}
+	else if (counter == 0)
+	{
+		// if notification is resolved while well is flashing it can leave in the 'Lit' state
+		// when flashing finishes itself. Let break flashing here.
+		mFlashToLitTimer->stopFlashing();
+	}
+
+	setCounter(counter);
 }
 
 /************************************************************************/
