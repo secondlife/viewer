@@ -337,10 +337,10 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mVoiceEnabled(false),
 	mWriteInProgress(false),
 
-	mLipSyncEnabled(false)
+	mLipSyncEnabled(false),
 
-
-
+	mVoiceFontsReceived(false),
+	mVoiceFontsNew(false)
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -1220,13 +1220,12 @@ void LLVivoxVoiceClient::stateMachine()
 			{
 				// request the set of available voice fonts
 				setState(stateVoiceFontsWait);
-				accountGetSessionFontsSendMessage();
+				refreshVoiceEffectLists(true);
 			}
 			else
 			{
 				setState(stateVoiceFontsReceived);
 			}
-			accountGetTemplateFontsSendMessage(); // *TODO: Maybe better to do this only when opening preview rather than on login
 
 			// request the current set of block rules (we'll need them when updating the friends list)
 			accountListBlockRulesSendMessage();
@@ -6317,12 +6316,26 @@ LLVivoxVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
 	mFontIndex(0),
 	mHasExpired(false),
 	mFontType(VOICE_FONT_TYPE_NONE),
-	mFontStatus(VOICE_FONT_STATUS_NONE)
+	mFontStatus(VOICE_FONT_STATUS_NONE),
+	mIsNew(false)
 {
 }
 
 LLVivoxVoiceClient::voiceFontEntry::~voiceFontEntry()
 {
+}
+
+void LLVivoxVoiceClient::refreshVoiceEffectLists(bool clear_lists)
+{
+	if (clear_lists)
+	{
+		mVoiceFontsReceived = false;
+		deleteVoiceFonts();
+		deleteVoiceFontTemplates();
+	}
+
+	accountGetSessionFontsSendMessage();
+	accountGetTemplateFontsSendMessage();
 }
 
 void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
@@ -6337,7 +6350,7 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 	// Vivox SessionFontIDs are not guaranteed to remain the same between
 	// sessions or grids so use a UUID for the name.
 
-	// If received name is not a UUID, fudge one by hashing the name and type
+	// If received name is not a UUID, fudge one by hashing the name and type.
 	LLUUID font_id;
 	if (LLUUID::validate(name))
 	{
@@ -6353,37 +6366,35 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 	voice_font_map_t& font_map = template_font ? mVoiceFontTemplateMap : mVoiceFontMap;
 	voice_effect_list_t& font_list = template_font ? mVoiceFontTemplateList : mVoiceFontList;
 
-	// Hopefully won't happen, but behave gracefully if there is a duplicate
-	// by Replacing the previous one unless this one has expired.
-	// *TODO: Should maybe check for the later expiry date if neither has
-	// expired, and favour user fonts over root fonts? But as we shouldn't
-	// have duplicates anyway, it's probably not worth the effort.
+	// Check whether we've seen this font before and create an entry for it if not.
 	voice_font_map_t::iterator iter = font_map.find(font_id);
-	bool duplicate = (iter != font_map.end());
-	if (duplicate)
+	bool new_font = (iter == font_map.end());
+	if (new_font)
 	{
-		LL_DEBUGS("Voice") << "Voice font " << font_index << " duplicates " << iter->second->mFontIndex << "!" << LL_ENDL;
-
-		if (!has_expired)
-		{
-			font = iter->second;
-		}
+		font = new voiceFontEntry(font_id);
 	}
 	else
 	{
-		font = new voiceFontEntry(font_id);
+		font = iter->second;
 	}
 
 	if (font)
 	{
 		font->mFontIndex = font_index;
 		// Use the description for the human readable name if available, as the
-		// "name" will probably be a UUID.
+		// "name" may be a UUID.
 		font->mName = description.empty() ? name : description;
 		font->mExpirationDate = expiration_date;
 		font->mHasExpired = has_expired;
 		font->mFontType = font_type;
 		font->mFontStatus = font_status;
+
+		 // Only flag it as a new font if we have already seen the font list.
+		if (!template_font && mVoiceFontsReceived && new_font)
+		{
+			font->mIsNew = true;
+			mVoiceFontsNew = true;
+		}
 
 		LL_DEBUGS("Voice") << (template_font?"Template: ":"") << font_id
 			<< " (" << font_index << ") : " << name << (has_expired?" (Expired)":"")
@@ -6398,7 +6409,7 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 			LL_DEBUGS("Voice") << "Unknown voice font status: " << font_status << LL_ENDL;
 		}
 
-		if (!duplicate)
+		if (new_font)
 		{
 			font_map.insert(voice_font_map_t::value_type(font->mID, font));
 			font_list.insert(voice_effect_list_t::value_type(font->mName, font->mID));
@@ -6507,7 +6518,10 @@ void LLVivoxVoiceClient::accountGetSessionFontsResponse(int statusCode, const st
 	{
 		setState(stateVoiceFontsReceived);
 	}
-	notifyVoiceFontObservers();
+	mVoiceFontsReceived = true;
+
+	notifyVoiceFontObservers(mVoiceFontsNew);
+	mVoiceFontsNew = false;
 }
 
 void LLVivoxVoiceClient::accountGetTemplateFontsResponse(int statusCode, const std::string &statusString)
@@ -6525,14 +6539,14 @@ void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
 	mVoiceFontObservers.erase(observer);
 }
 
-void LLVivoxVoiceClient::notifyVoiceFontObservers()
+void LLVivoxVoiceClient::notifyVoiceFontObservers(bool new_fonts)
 {
 	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
 		 it != mVoiceFontObservers.end();
 		 )
 	{
 		LLVoiceEffectObserver* observer = *it;
-		observer->onVoiceEffectChanged();
+		observer->onVoiceEffectChanged(new_fonts);
 		// In case onVoiceEffectChanged() deleted an entry.
 		it = mVoiceFontObservers.upper_bound(observer);
 	}
@@ -6755,10 +6769,6 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 			{
 				LLVivoxVoiceClient::getInstance()->deleteAllAutoAcceptRules();
 			}
-			else if (!stricmp("SessionFonts", tag))
-			{
-				LLVivoxVoiceClient::getInstance()->deleteVoiceFonts();
-			}
 			else if (!stricmp("SessionFont", tag))
 			{
 				id = 0;
@@ -6768,10 +6778,6 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 				hasExpired = false;
 				fontType = 0;
 				fontStatus = 0;
-			}
-			else if (!stricmp("TemplateFonts", tag))
-			{
-				LLVivoxVoiceClient::getInstance()->deleteVoiceFontTemplates();
 			}
 			else if (!stricmp("TemplateFont", tag))
 			{

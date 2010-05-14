@@ -56,7 +56,7 @@ private:
 	void update();
 
 	/// Called by voice effect provider when voice effect list is changed.
-	virtual void onVoiceEffectChanged();
+	virtual void onVoiceEffectChanged(bool new_effects);
 
 	// Fixed entries in the voice effect list
 	typedef enum e_voice_effect_combo_items

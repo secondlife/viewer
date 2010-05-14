@@ -241,6 +241,7 @@ public:
 	virtual bool setVoiceEffect(const LLUUID& id);
 	virtual const LLUUID getVoiceEffect();
 
+	virtual void refreshVoiceEffectLists(bool clear_lists);
 	virtual const voice_effect_list_t &getVoiceEffectList() const { return mVoiceFontList; };
 	virtual const voice_effect_list_t &getVoiceEffectTemplateList() const { return mVoiceFontTemplateList; };
 	//@}
@@ -848,7 +849,7 @@ private:
 	void accountGetTemplateFontsSendMessage();
 	void sessionSetVoiceFontSendMessage(sessionState *session);
 
-	void notifyVoiceFontObservers();
+	void notifyVoiceFontObservers(bool new_fonts = false);
 
 	typedef enum e_voice_font_type
 	{
@@ -878,8 +879,11 @@ private:
 		bool		mHasExpired;
 		S32			mFontType;
 		S32			mFontStatus;
+		bool		mIsNew;
 	};
 
+	bool mVoiceFontsReceived;
+	bool mVoiceFontsNew;
 	voice_effect_list_t	mVoiceFontList;
 	voice_effect_list_t	mVoiceFontTemplateList;
 

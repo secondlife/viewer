@@ -107,7 +107,7 @@ void LLPanelVoiceEffect::onCommitVoiceEffect()
 }
 
 // virtual
-void LLPanelVoiceEffect::onVoiceEffectChanged()
+void LLPanelVoiceEffect::onVoiceEffectChanged(bool new_effects)
 {
 	update();
 }
