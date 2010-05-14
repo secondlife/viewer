@@ -10,7 +10,7 @@
  left="0"
  name="bottom_tray"
  top="28"
- width="1000">
+ width="1310">
     <string
      name="SpeakBtnToolTip"
      value="Turns microphone on/off" />
@@ -28,7 +28,7 @@
      name="toolbar_stack"
      orientation="horizontal"
      top="0"
-     width="1000">
+     width="1310">
         <icon
          auto_resize="false"
          follows="left|right"
@@ -208,6 +208,134 @@
                 <init_callback
                  function="Button.SetFloaterToggle"
                  parameter="snapshot" />
+            </button>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="52"
+         mouse_opaque="false"
+         name="build_btn_panel"
+         user_resize="false"
+         width="83">
+<!--*FIX: Build Floater is not opened with default registration. Will be fixed soon.
+Disabled for now.
+-->
+            <button
+enabled="false"
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Build"
+             layout="topleft"
+             left="0"
+             name="build_btn"
+             tool_tip="Shows/hides Build Tools"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="build" />
+            </button>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="52"
+         mouse_opaque="false"
+         name="search_btn_panel"
+         user_resize="false"
+         width="83">
+            <button
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Search"
+             layout="topleft"
+             left="0"
+             name="search_btn"
+             tool_tip="Shows/hides Search"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="search" />
+            </button>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="52"
+         mouse_opaque="false"
+         name="world_map_btn_panel"
+         user_resize="false"
+         width="83">
+            <button
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Map"
+             layout="topleft"
+             left="0"
+             name="world_map_btn"
+             tool_tip="Shows/hides World Map"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="world_map" />
+            </button>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="52"
+         mouse_opaque="false"
+         name="mini_map_btn_panel"
+         user_resize="false"
+         width="83">
+            <button
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Mini-Map"
+             layout="topleft"
+             left="0"
+             name="mini_map_btn"
+             tool_tip="Shows/hides Mini-Map"
+             top="5"
+             use_ellipses="true"
+             width="80">
+                <init_callback
+                 function="Button.SetFloaterToggle"
+                 parameter="mini_map" />
             </button>
         </layout_panel>
         <layout_panel

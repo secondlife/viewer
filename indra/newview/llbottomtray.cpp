@@ -479,6 +479,10 @@ BOOL LLBottomTray::postBuild()
 
 	initResizeStateContainers();
 
+	setButtonsControlsAndListeners();
+
+	initButtonsVisibility();
+
 	// update wells visibility:
 	showWellButton(RS_IM_WELL, !LLIMWellWindow::getInstance()->isWindowEmpty());
 	showWellButton(RS_NOTIFICATION_WELL, !LLNotificationWellWindow::getInstance()->isWindowEmpty());
@@ -1091,52 +1095,108 @@ void LLBottomTray::processExtendButton(EResizeState processed_object_type, S32& 
 
 bool LLBottomTray::canButtonBeShown(EResizeState processed_object_type) const
 {
+	// 0. Check if passed button was previously hidden on resize
 	bool can_be_shown = mResizeState & processed_object_type;
 	if (can_be_shown)
 	{
-		static MASK MOVEMENT_PREVIOUS_BUTTONS_MASK = RS_BUTTON_GESTURES;
-		static MASK CAMERA_PREVIOUS_BUTTONS_MASK = RS_BUTTON_GESTURES | RS_BUTTON_MOVEMENT;
-		static MASK SNAPSHOT_PREVIOUS_BUTTONS_MASK = RS_BUTTON_GESTURES | RS_BUTTON_MOVEMENT | RS_BUTTON_CAMERA;
+		// Yes, it was. Lets now check that all buttons before it (that can be hidden on resize)
+		// are already shown
 
-		switch(processed_object_type)
+		// process buttons in direct order (from left to right)
+		resize_state_vec_t::const_iterator it = mButtonsProcessOrder.begin();
+		const resize_state_vec_t::const_iterator it_end = mButtonsProcessOrder.end();
+
+		// 1. Find and accumulate all buttons types before one passed into the method.
+		MASK buttons_before_mask = RS_NORESIZE;
+		for (; it != it_end; ++it)
 		{
-		case RS_BUTTON_GESTURES: // Gestures should be shown first
-			break;
-		case RS_BUTTON_MOVEMENT: // Move only if gesture is shown
-			can_be_shown = !(MOVEMENT_PREVIOUS_BUTTONS_MASK & mResizeState);
-			break;
-		case RS_BUTTON_CAMERA:
-			can_be_shown = !(CAMERA_PREVIOUS_BUTTONS_MASK & mResizeState);
-			break;
-		case RS_BUTTON_SNAPSHOT:
-			can_be_shown = !(SNAPSHOT_PREVIOUS_BUTTONS_MASK & mResizeState);
-			break;
-		default: // nothing to do here
-			break;
+			const EResizeState button_type = *it;
+			if (button_type == processed_object_type) break;
+
+			buttons_before_mask |= button_type;
 		}
+
+		// 2. Check if some previous buttons are still hidden on resize
+		can_be_shown = !(buttons_before_mask & mResizeState);
 	}
 	return can_be_shown;
 }
 
 void LLBottomTray::initResizeStateContainers()
 {
+	// *TODO: get rid of mGesturePanel, mMovementPanel, mCamPanel, mSnapshotPanel instance members
 	// init map with objects should be processed for each type
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_GESTURES, mGesturePanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, mMovementPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, mCamPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, mSnapshotPanel));
-
-	// init default widths
-	mObjectDefaultWidthMap[RS_BUTTON_GESTURES] = mGesturePanel->getRect().getWidth();
-	mObjectDefaultWidthMap[RS_BUTTON_MOVEMENT] = mMovementPanel->getRect().getWidth();
-	mObjectDefaultWidthMap[RS_BUTTON_CAMERA]   = mCamPanel->getRect().getWidth();
-	mObjectDefaultWidthMap[RS_BUTTON_SPEAK]	   = mSpeakPanel->getRect().getWidth();
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_BUILD, getChild<LLPanel>("build_btn_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SEARCH, getChild<LLPanel>("search_btn_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_WORLD_MAP, getChild<LLPanel>("world_map_btn_panel")));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MINI_MAP, getChild<LLPanel>("mini_map_btn_panel")));
 
 	// init an order of processed buttons
 	mButtonsProcessOrder.push_back(RS_BUTTON_GESTURES);
 	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
 	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SNAPSHOT);
+	mButtonsProcessOrder.push_back(RS_BUTTON_BUILD);
+	mButtonsProcessOrder.push_back(RS_BUTTON_SEARCH);
+	mButtonsProcessOrder.push_back(RS_BUTTON_WORLD_MAP);
+	mButtonsProcessOrder.push_back(RS_BUTTON_MINI_MAP);
+
+	// init default widths
+
+	// process buttons that can be hidden on resize...
+	resize_state_vec_t::const_iterator it = mButtonsProcessOrder.begin();
+	const resize_state_vec_t::const_iterator it_end = mButtonsProcessOrder.end();
+
+	for (; it != it_end; ++it)
+	{
+		const EResizeState button_type = *it;
+		// is there an appropriate object?
+		if (0 == mStateProcessedObjectMap.count(button_type)) continue;
+
+		// set default width for it.
+		mObjectDefaultWidthMap[button_type] = mStateProcessedObjectMap[button_type]->getRect().getWidth();
+	}
+
+	// ... and add Speak button because it also can be shrunk.
+	mObjectDefaultWidthMap[RS_BUTTON_SPEAK]	   = mSpeakPanel->getRect().getWidth();
+
+}
+
+void LLBottomTray::initButtonsVisibility()
+{
+	// *TODO: move control settings of other buttons here
+	setTrayButtonVisibleIfPossible(RS_BUTTON_BUILD, gSavedSettings.getBOOL("ShowBuildButton"));
+	setTrayButtonVisibleIfPossible(RS_BUTTON_SEARCH, gSavedSettings.getBOOL("ShowSearchButton"));
+	setTrayButtonVisibleIfPossible(RS_BUTTON_WORLD_MAP, gSavedSettings.getBOOL("ShowWorldMapButton"));
+	setTrayButtonVisibleIfPossible(RS_BUTTON_MINI_MAP, gSavedSettings.getBOOL("ShowMiniMapButton"));
+}
+
+void LLBottomTray::setButtonsControlsAndListeners()
+{
+	// *TODO: move control settings of other buttons here
+	gSavedSettings.declareBOOL("ShowBuildButton", TRUE, "Shows/Hides Build button in the bottom tray. (Declared in code)");
+	gSavedSettings.declareBOOL("ShowSearchButton", TRUE, "Shows/Hides Search button in the bottom tray. (Declared in code)");
+	gSavedSettings.declareBOOL("ShowWorldMapButton", TRUE, "Shows/Hides Map button in the bottom tray. (Declared in code)");
+	gSavedSettings.declareBOOL("ShowMiniMapButton", TRUE, "Shows/Hides Mini-Map button in the bottom tray. (Declared in code)");
+
+
+	gSavedSettings.getControl("ShowBuildButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_BUILD, _2));
+	gSavedSettings.getControl("ShowSearchButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SEARCH, _2));
+	gSavedSettings.getControl("ShowWorldMapButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_WORLD_MAP, _2));
+	gSavedSettings.getControl("ShowMiniMapButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_MINI_MAP, _2));
+}
+
+bool LLBottomTray::toggleShowButton(LLBottomTray::EResizeState button_type, const LLSD& new_visibility)
+{
+	if (LLBottomTray::instanceExists())
+	{
+		LLBottomTray::getInstance()->setTrayButtonVisibleIfPossible(button_type, new_visibility.asBoolean());
+	}
+	return true;
 }
 
 void LLBottomTray::setTrayButtonVisible(EResizeState shown_object_type, bool visible)
