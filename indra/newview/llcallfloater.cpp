@@ -33,13 +33,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llcallfloater.h"
+
 #include "llnotificationsutil.h"
 #include "lltrans.h"
 
-#include "llcallfloater.h"
-
 #include "llagent.h"
 #include "llagentdata.h" // for gAgentID
+#include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "llavatarlist.h"
 #include "llbottomtray.h"
@@ -422,9 +423,10 @@ void LLCallFloater::initAgentData()
 	{
 		mAgentPanel->childSetValue("user_icon", gAgentID);
 
-		std::string name;
-		gCacheName->getFullName(gAgentID, name);
-		mAgentPanel->childSetValue("user_text", name);
+		// Just use display name, because it's you
+		LLAvatarName av_name;
+		LLAvatarNameCache::get( gAgentID, &av_name );
+		mAgentPanel->childSetValue("user_text", av_name.mDisplayName);
 
 		mSpeakingIndicator = mAgentPanel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
 		mSpeakingIndicator->setSpeakerId(gAgentID);
@@ -445,7 +447,10 @@ void LLCallFloater::setModeratorMutedVoice(bool moderator_muted)
 void LLCallFloater::updateAgentModeratorState()
 {
 	std::string name;
-	gCacheName->getFullName(gAgentID, name);
+	// Just use display name, because it's you
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(gAgentID, &av_name);
+	name = av_name.mDisplayName;
 
 	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
 	{
