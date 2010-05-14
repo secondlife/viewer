@@ -53,12 +53,12 @@
 #include "llsyswellwindow.h"
 #include "lltrans.h"
 #include "llchathistory.h"
+#include "llnotifications.h"
 #include "llviewerwindow.h"
 #include "llvoicechannel.h"
 #include "lltransientfloatermgr.h"
 #include "llinventorymodel.h"
 #include "llrootview.h"
-
 #include "llspeakers.h"
 
 
@@ -371,6 +371,8 @@ void LLIMFloater::onSlide()
 //static
 LLIMFloater* LLIMFloater::show(const LLUUID& session_id)
 {
+	closeHiddenIMToasts();
+
 	if (!gIMMgr->hasSession(session_id)) return NULL;
 
 	if(!isChatMultiTab())
@@ -1084,6 +1086,41 @@ void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
 }
 
 // static
+void LLIMFloater::closeHiddenIMToasts()
+{
+	class IMToastMatcher: public LLNotificationsUI::LLScreenChannel::Matcher
+	{
+	public:
+		bool matches(const LLNotificationPtr notification) const
+		{
+			// "notifytoast" type of notifications is reserved for IM notifications
+			return "notifytoast" == notification->getType();
+		}
+	};
+
+	LLNotificationsUI::LLScreenChannel* channel = LLNotificationsUI::LLChannelManager::getNotificationScreenChannel();
+	if (channel != NULL)
+	{
+		channel->closeHiddenToasts(IMToastMatcher());
+	}
+}
+// static
+void LLIMFloater::confirmLeaveCallCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	const LLSD& payload = notification["payload"];
+	LLUUID session_id = payload["session_id"];
+
+	LLFloater* im_floater = LLFloaterReg::findInstance("impanel", session_id);
+	if (option == 0 && im_floater != NULL)
+	{
+		im_floater->closeFloater();
+	}
+
+	return;
+}
+
+// static
 bool LLIMFloater::isChatMultiTab()
 {
 	// Restart is required in order to change chat window type.
@@ -1131,4 +1168,32 @@ void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
 		im_box->addFloater(new_tab, FALSE, LLTabContainer::END);
 	}
 
+}
+
+void	LLIMFloater::onClickCloseBtn()
+{
+
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+				mSessionID);
+
+	if (session == NULL)
+	{
+		llwarns << "Empty session." << llendl;
+		return;
+	}
+
+	bool is_call_with_chat = session->isGroupSessionType()
+			|| session->isAdHocSessionType() || session->isP2PSessionType();
+
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+	if (is_call_with_chat && voice_channel != NULL && voice_channel->isActive())
+	{
+		LLSD payload;
+		payload["session_id"] = mSessionID;
+		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
+		return;
+	}
+
+	LLFloater::onClickCloseBtn();
 }

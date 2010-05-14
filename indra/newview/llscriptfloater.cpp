@@ -482,7 +482,7 @@ std::string LLScriptFloaterManager::getObjectName(const LLUUID& notification_id)
 		text = notification->getSubstitutions()["OBJECTNAME"].asString();
 		break;
 	case LLScriptFloaterManager::OBJ_GIVE_INVENTORY:
-		text = notification->getSubstitutions()["NAME"].asString();
+		text = notification->getSubstitutions()["OBJECTFROMNAME"].asString();
 		break;
 	default:
 		text = LLTrans::getString("object");
@@ -537,6 +537,16 @@ bool LLScriptFloaterManager::getFloaterPosition(const LLUUID& object_id, Floater
 		return true;
 	}
 	return false;
+}
+
+void LLScriptFloaterManager::setFloaterVisible(const LLUUID& notification_id, bool visible)
+{
+	LLScriptFloater* floater = LLFloaterReg::findTypedInstance<LLScriptFloater>(
+		"script_floater", notification_id);
+	if(floater)
+	{
+		floater->setVisible(visible);
+	}
 }
 
 // EOF

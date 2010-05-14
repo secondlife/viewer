@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Coisas" name="Outfits">
 	<tab_container name="appearance_tabs">
-		<inventory_panel label="MEUS LOOKS" name="outfitslist_tab"/>
+		<panel label="MEUS LOOKS" name="outfitslist_tab"/>
 		<inventory_panel label="EM USO" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
@@ -9,6 +9,6 @@
 		<dnd_button name="trash_btn" tool_tip="Remover item selecionado"/>
 		<button label="Salvar este look" name="make_outfit_btn" tool_tip="Salvar aparência como um look"/>
 		<button label="Vestir" name="wear_btn" tool_tip="Vestir look selecionado"/>
-		<button label="M" name="look_edit_btn"/>
+		<button label="Editar look" name="edit_current_outfit_btn"/>
 	</panel>
 </panel>

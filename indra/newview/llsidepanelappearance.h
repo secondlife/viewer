@@ -65,12 +65,14 @@ public:
 
 	void showOutfitsInventoryPanel();
 	void showOutfitEditPanel();
+	void setWearablesLoading(bool val);
 
 private:
 	void onFilterEdit(const std::string& search_string);
 
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
+	void onEditOutfitButtonClicked();
 	void onEditButtonClicked();
 	void onEditWearBackClicked();
 
@@ -90,7 +92,7 @@ private:
 	LLPanel*					mCurrOutfitPanel;
 
 	LLTextBox*					mCurrentLookName;
-	LLTextBox*					mOutfitDirtyTag;
+	LLTextBox*					mOutfitStatus;
 
 	// Used to make sure the user's inventory is in memory.
 	LLCurrentlyWornFetchObserver* mFetchWorn;

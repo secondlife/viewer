@@ -108,8 +108,6 @@ extern F32 ANIM_SPEED_MIN;
 
 #include <boost/lexical_cast.hpp>
 
-#define DISPLAY_AVATAR_LOAD_TIMES
-
 using namespace LLVOAvatarDefines;
 
 //-----------------------------------------------------------------------------
@@ -834,7 +832,7 @@ BOOL LLVOAvatar::isFullyBaked()
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		if (!isTextureDefined(mBakedTextureDatas[i].mTextureIndex)
-			&& ( (i != BAKED_SKIRT) || isWearingWearableType(WT_SKIRT) ) )
+			&& ( (i != BAKED_SKIRT) || isWearingWearableType(LLWearableType::WT_SKIRT) ) )
 		{
 			return FALSE;
 		}
@@ -1292,7 +1290,7 @@ void LLVOAvatar::initInstance(void)
 	
 	//VTPause();  // VTune
 	
-	mVoiceVisualizer->setVoiceEnabled( gVoiceClient->getVoiceEnabled( mID ) );
+	mVoiceVisualizer->setVoiceEnabled( LLVoiceClient::getInstance()->getVoiceEnabled( mID ) );
 }
 
 const LLVector3 LLVOAvatar::getRenderPosition() const
@@ -2250,8 +2248,8 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	}
 
 	static LLUICachedControl<bool> visualizers_in_calls("ShowVoiceVisualizersInCalls", false);
-	bool voice_enabled = (visualizers_in_calls || gVoiceClient->inProximalChannel()) &&
-						 gVoiceClient->getVoiceEnabled(mID);
+	bool voice_enabled = (visualizers_in_calls || LLVoiceClient::getInstance()->inProximalChannel()) &&
+						 LLVoiceClient::getInstance()->getVoiceEnabled(mID);
 
 	idleUpdateVoiceVisualizer( voice_enabled );
 	idleUpdateMisc( detailed_update );
@@ -2315,7 +2313,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 		// Notice the calls to "gAwayTimer.reset()". This resets the timer that determines how long the avatar has been
 		// "away", so that the avatar doesn't lapse into away-mode (and slump over) while the user is still talking. 
 		//-----------------------------------------------------------------------------------------------------------------
-		if (gVoiceClient->getIsSpeaking( mID ))
+		if (LLVoiceClient::getInstance()->getIsSpeaking( mID ))
 		{		
 			if (!mVoiceVisualizer->getCurrentlySpeaking())
 			{
@@ -2324,7 +2322,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 				//printf( "gAwayTimer.reset();\n" );
 			}
 			
-			mVoiceVisualizer->setSpeakingAmplitude( gVoiceClient->getCurrentPower( mID ) );
+			mVoiceVisualizer->setSpeakingAmplitude( LLVoiceClient::getInstance()->getCurrentPower( mID ) );
 			
 			if( isSelf() )
 			{
@@ -2553,7 +2551,7 @@ F32 LLVOAvatar::calcMorphAmount()
 void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
 {
 	// Use the Lipsync_Ooh and Lipsync_Aah morphs for lip sync
-	if ( voice_enabled && (gVoiceClient->lipSyncEnabled()) && gVoiceClient->getIsSpeaking( mID ) )
+	if ( voice_enabled && (LLVoiceClient::getInstance()->lipSyncEnabled()) && LLVoiceClient::getInstance()->getIsSpeaking( mID ) )
 	{
 		F32 ooh_morph_amount = 0.0f;
 		F32 aah_morph_amount = 0.0f;
@@ -3732,7 +3730,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			mMeshLOD[MESH_ID_LOWER_BODY]->updateJointGeometry();
 			mMeshLOD[MESH_ID_UPPER_BODY]->updateJointGeometry();
 
-			if( isWearingWearableType( WT_SKIRT ) )
+			if( isWearingWearableType( LLWearableType::WT_SKIRT ) )
 			{
 				mMeshLOD[MESH_ID_SKIRT]->updateJointGeometry();
 			}
@@ -3892,7 +3890,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 {
 	U32 num_indices = 0;
-	if( isWearingWearableType( WT_SKIRT ) && (mIsDummy || isTextureVisible(TEX_SKIRT_BAKED)) )
+	if( isWearingWearableType( LLWearableType::WT_SKIRT ) && (mIsDummy || isTextureVisible(TEX_SKIRT_BAKED)) )
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.25f);
 		num_indices += mMeshLOD[MESH_ID_SKIRT]->render(mAdjustedPixelArea, FALSE);
@@ -4095,7 +4093,7 @@ void LLVOAvatar::updateTextures()
 	mHasGrey = FALSE; // debug
 	for (U32 texture_index = 0; texture_index < getNumTEs(); texture_index++)
 	{
-		EWearableType wearable_type = LLVOAvatarDictionary::getTEWearableType((ETextureIndex)texture_index);
+		LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType((ETextureIndex)texture_index);
 		U32 num_wearables = gAgentWearables.getWearableCount(wearable_type);
 		const LLTextureEntry *te = getTE(texture_index);
 		const F32 texel_area_ratio = fabs(te->mScaleS * te->mScaleT);
@@ -4157,6 +4155,8 @@ void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel
 {
 	mMaxPixelArea = llmax(pixel_area, mMaxPixelArea);
 	mMinPixelArea = llmin(pixel_area, mMinPixelArea);
+	imagep->resetTextureStats();
+	imagep->setCanUseHTTP(false) ; //turn off http fetching for baked textures.
 	imagep->addTextureStats(pixel_area / texel_area_ratio);
 	imagep->setBoostLevel(boost_level);
 }
@@ -5581,6 +5581,14 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 {
 	S32 attachmentID = ATTACHMENT_ID_FROM_STATE(viewer_object->getState());
 
+	// This should never happen unless the server didn't process the attachment point
+	// correctly, but putting this check in here to be safe.
+	if (attachmentID & ATTACHMENT_ADD)
+	{
+		llwarns << "Got an attachment with ATTACHMENT_ADD mask, removing ( attach pt:" << attachmentID << " )" << llendl;
+		attachmentID &= ~ATTACHMENT_ADD;
+	}
+	
 	LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
 
 	if (!attachment)
@@ -5992,16 +6000,17 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	
 	mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > PAUSE);
 
-#ifdef DISPLAY_AVATAR_LOAD_TIMES
-	if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
+	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
-		llinfos << "Avatar '" << getFullname() << "' resolved in " << mRuthDebugTimer.getElapsedTimeF32() << " seconds." << llendl;
-		LLSD args;
-		args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
-		args["NAME"] = getFullname();
-		LLNotificationsUtil::add("AvatarRezNotification",args);
+		if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
+		{
+			llinfos << "Avatar '" << getFullname() << "' resolved in " << mRuthDebugTimer.getElapsedTimeF32() << " seconds." << llendl;
+			LLSD args;
+			args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
+			args["NAME"] = getFullname();
+			LLNotificationsUtil::add("AvatarRezNotification",args);
+		}
 	}
-#endif
 
 	// did our loading state "change" from last call?
 	const S32 UPDATE_RATE = 30;
@@ -6306,7 +6315,7 @@ void LLVOAvatar::releaseComponentTextures()
 		const LLVOAvatarDictionary::BakedEntry * bakedDicEntry = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
 		// skip if this is a skirt and av is not wearing one, or if we don't have a baked texture UUID
 		if (!isTextureDefined(bakedDicEntry->mTextureIndex)
-			&& ( (baked_index != BAKED_SKIRT) || isWearingWearableType(WT_SKIRT) ))
+			&& ( (baked_index != BAKED_SKIRT) || isWearingWearableType(LLWearableType::WT_SKIRT) ))
 		{
 			continue;
 		}
@@ -6454,23 +6463,23 @@ void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 }
 
 // Unlike most wearable functions, this works for both self and other.
-BOOL LLVOAvatar::isWearingWearableType(EWearableType type) const
+BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 {
 	if (mIsDummy) return TRUE;
 
 	switch(type)
 	{
-		case WT_SHAPE:
-		case WT_SKIN:
-		case WT_HAIR:
-		case WT_EYES:
+		case LLWearableType::WT_SHAPE:
+		case LLWearableType::WT_SKIN:
+		case LLWearableType::WT_HAIR:
+		case LLWearableType::WT_EYES:
 			return TRUE;  // everyone has all bodyparts
 		default:
 			break; // Do nothing
 	}
 
 	/* switch(type)
-		case WT_SHIRT:
+		case LLWearableType::WT_SHIRT:
 			indicator_te = TEX_UPPER_SHIRT; */
 	for (LLVOAvatarDictionary::Textures::const_iterator tex_iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
 		 tex_iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
@@ -6987,9 +6996,9 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 	apr_file_printf( file, "\n\t<archetype name=\"???\">\n" );
 
 	// only body parts, not clothing.
-	for (S32 type = WT_SHAPE; type <= WT_EYES; type++)
+	for (S32 type = LLWearableType::WT_SHAPE; type <= LLWearableType::WT_EYES; type++)
 	{
-		const std::string& wearable_name = LLWearableDictionary::getTypeName((EWearableType)type);
+		const std::string& wearable_name = LLWearableType::getTypeName((LLWearableType::EType)type);
 		apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
 		for (LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam())
@@ -7795,7 +7804,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 	{
 		const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
 		ETextureIndex tex_index = baked_dict->mTextureIndex;
-		if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(WT_SKIRT)))
+		if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
 		{
 			if (isTextureVisible(tex_index))
 			{

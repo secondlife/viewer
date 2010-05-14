@@ -264,7 +264,7 @@ werden.
 			<text left="204" name="selected_objects_text" width="48">
 				[COUNT]
 			</text>
-			<text left="4" name="Autoreturn" width="410">
+			<text name="Autoreturn">
 				Objekte anderer Einwohner automatisch zurückgeben (Minuten, 0 für aus):
 			</text>
 			<line_editor name="clean other time" right="-10" width="56"/>
@@ -353,7 +353,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				<combo_box.item label="Shopping" name="item11"/>
 				<combo_box.item label="Sonstige" name="item12"/>
 			</combo_box>
-			<combo_box left="266" name="land category" width="130">
+			<combo_box name="land category">
 				<combo_box.item label="Alle Kategorien" name="item0"/>
 				<combo_box.item label="Lindenort" name="item1"/>
 				<combo_box.item label="Kunst und Kultur" name="item3"/>

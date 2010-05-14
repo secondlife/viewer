@@ -846,16 +846,16 @@ void LLFolderView::clearSelection()
 	mSelectThisID.setNull();
 }
 
-BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection) const
+std::set<LLUUID> LLFolderView::getSelectionList() const
 {
+	std::set<LLUUID> selection;
 	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); 
 		 item_it != mSelectedItems.end(); 
 		 ++item_it)
 	{
 		selection.insert((*item_it)->getListener()->getUUID());
 	}
-
-	return (selection.size() != 0);
+	return selection;
 }
 
 BOOL LLFolderView::startDrag(LLToolDragAndDrop::ESource source)
@@ -946,7 +946,9 @@ void LLFolderView::draw()
 		}
 		else
 		{
-			mStatusText = LLTrans::getString(getFilter()->getEmptyLookupMessage());
+			LLStringUtil::format_map_t args;
+			args["[SEARCH_TERM]"] = LLURI::escape(getFilter()->getFilterSubStringOrig());
+			mStatusText = LLTrans::getString(getFilter()->getEmptyLookupMessage(), args);
 			//font->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL,  LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		mStatusTextBox->setValue(mStatusText);
@@ -2068,8 +2070,7 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 	}
 
 
-	std::set<LLUUID> selected_items;
-	getSelectionList(selected_items);
+	std::set<LLUUID> selected_items = getSelectionList();
 
 	LLMultiPreview* multi_previewp = NULL;
 	LLMultiProperties* multi_propertiesp = NULL;

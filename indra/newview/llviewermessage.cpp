@@ -794,7 +794,10 @@ private:
 
 		// Store selected items (without destination folder)
 		mSelectedItems.clear();
-		mActivePanel->getRootFolder()->getSelectionList(mSelectedItems);
+		if (mActivePanel)
+		{
+			mSelectedItems = mActivePanel->getRootFolder()->getSelectionList();
+		}
 		mSelectedItems.erase(mMoveIntoFolderID);
 	}
 
@@ -826,8 +829,7 @@ private:
 		}
 
 		// get selected items (without destination folder)
-		selected_items_t selected_items;
-		mActivePanel->getRootFolder()->getSelectionList(selected_items);
+		selected_items_t selected_items = mActivePanel->getRootFolder()->getSelectionList();
 		selected_items.erase(mMoveIntoFolderID);
 
 		// compare stored & current sets of selected items
@@ -1032,21 +1034,26 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 			{
 				// Use the name of the last item giver, who is probably the person
 				// spamming you.
-				std::ostringstream message;
-				message << LLAppViewer::instance()->getSecondLifeTitle();
+
+				LLStringUtil::format_map_t arg;
+				std::string log_msg;
+				std::ostringstream time ;
+				time<<OFFER_THROTTLE_TIME;
+
+				arg["APP_NAME"] = LLAppViewer::instance()->getSecondLifeTitle();
+				arg["TIME"] = time.str();
+
 				if (!from_name.empty())
 				{
-					message << ": Items coming in too fast from " << from_name;
+					arg["FROM_NAME"] = from_name;
+					log_msg = LLTrans::getString("ItemsComingInTooFastFrom", arg);
 				}
 				else
 				{
-					message << ": Items coming in too fast";
+					log_msg = LLTrans::getString("ItemsComingInTooFast", arg);
 				}
-				message << ", automatic preview disabled for "
-					<< OFFER_THROTTLE_TIME << " seconds.";
 				
 				//this is kinda important, so actually put it on screen
-				std::string log_msg = message.str();
 				LLSD args;
 				args["MESSAGE"] = log_msg;
 				LLNotificationsUtil::add("SystemMessage", args);
@@ -1083,7 +1090,7 @@ void open_inventory_offer(const uuid_vec_t& items, const std::string& from_name)
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Special handling for various types.
-		const LLAssetType::EType asset_type = item->getType();
+		const LLAssetType::EType asset_type = item->getActualType();
 		if (check_offer_throttle(from_name, false)) // If we are throttled, don't display
 		{
 			LL_DEBUGS("Messaging") << "Highlighting inventory item: " << item->getUUID()  << LL_ENDL;
@@ -1229,7 +1236,6 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		bool matches(const LLNotificationPtr notification) const
 		{
 			if(notification->getName() == "ObjectGiveItem" 
-				|| notification->getName() == "ObjectGiveItemUnknownUser"
 				|| notification->getName() == "UserGiveItem")
 			{
 				return (notification->getPayload()["from_id"].asUUID() == blocked_id);
@@ -1242,6 +1248,16 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 
 	LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
 			gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(blocked_id));
+}
+
+LLOfferInfo::LLOfferInfo()
+ : LLNotificationResponderInterface()
+ , mFromGroup(FALSE)
+ , mFromObject(FALSE)
+ , mIM(IM_NOTHING_SPECIAL)
+ , mType(LLAssetType::AT_NONE)
+ , mPersist(false)
+{
 }
 
 LLOfferInfo::LLOfferInfo(const LLSD& sd)
@@ -1257,6 +1273,7 @@ LLOfferInfo::LLOfferInfo(const LLSD& sd)
 	mFromName = sd["from_name"].asString();
 	mDesc = sd["description"].asString();
 	mHost = LLHost(sd["sender"].asString());
+	mPersist = sd["persist"].asBoolean();
 }
 
 LLOfferInfo::LLOfferInfo(const LLOfferInfo& info)
@@ -1272,6 +1289,7 @@ LLOfferInfo::LLOfferInfo(const LLOfferInfo& info)
 	mFromName = info.mFromName;
 	mDesc = info.mDesc;
 	mHost = info.mHost;
+	mPersist = info.mPersist;
 }
 
 LLSD LLOfferInfo::asLLSD()
@@ -1288,7 +1306,13 @@ LLSD LLOfferInfo::asLLSD()
 	sd["from_name"] = mFromName;
 	sd["description"] = mDesc;
 	sd["sender"] = mHost.getIPandPort();
+	sd["persist"] = mPersist;
 	return sd;
+}
+
+void LLOfferInfo::fromLLSD(const LLSD& params)
+{
+	*this = params;
 }
 
 void LLOfferInfo::send_auto_receive_response(void)
@@ -1328,6 +1352,21 @@ void LLOfferInfo::send_auto_receive_response(void)
 		// add buddy to recent people list
 		LLRecentPeople::instance().add(mFromID);
 	}
+}
+
+void LLOfferInfo::handleRespond(const LLSD& notification, const LLSD& response)
+{
+	initRespondFunctionMap();
+
+	const std::string name = notification["name"].asString();
+	if(mRespondFunctions.find(name) == mRespondFunctions.end())
+	{
+		llwarns << "Unexpected notification name : " << name << llendl;
+		llassert(!"Unexpected notification name");
+		return;
+	}
+
+	mRespondFunctions[name](notification, response);
 }
 
 bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD& response)
@@ -1466,7 +1505,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		gInventory.addObserver(opener);
 	}
 
-	delete this;
+	if(!mPersist)
+	{
+		delete this;
+	}
 	return false;
 }
 
@@ -1632,7 +1674,10 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		gInventory.addObserver(opener);
 	}
 
-	delete this;
+	if(!mPersist)
+	{
+		delete this;
+	}
 	return false;
 }
 
@@ -1647,6 +1692,15 @@ protected:
 		mParams.substitutions = substitutions;
 	}
 };
+
+void LLOfferInfo::initRespondFunctionMap()
+{
+	if(mRespondFunctions.empty())
+	{
+		mRespondFunctions["ObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
+		mRespondFunctions["UserGiveItem"] = boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2);
+	}
+}
 
 void inventory_offer_handler(LLOfferInfo* info)
 {
@@ -1714,30 +1768,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 		return;
 	}
 
-	// Name cache callbacks don't store userdata, so can't save
-	// off the LLOfferInfo.  Argh.
-	BOOL name_found = FALSE;
-	if (info->mFromGroup)
-	{
-		std::string group_name;
-		if (gCacheName->getGroupName(info->mFromID, group_name))
-		{
-			args["FIRST"] = group_name;
-			args["LAST"] = "";
-			name_found = TRUE;
-		}
-	}
-	else
-	{
-		std::string first_name, last_name;
-		if (gCacheName->getName(info->mFromID, first_name, last_name))
-		{
-			args["FIRST"] = first_name;
-			args["LAST"] = last_name;
-			name_found = TRUE;
-		}
-	}
-
 	// If mObjectID is null then generate the object_id based on msg to prevent
 	// multiple creation of chiclets for same object.
 	LLUUID object_id = info->mObjectID;
@@ -1752,9 +1782,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 	payload["give_inventory_notification"] = FALSE;
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
-	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	args["NAME_SLURL"] = LLSLURL("agent", info->mFromID, "about").getSLURLString();
 	std::string verb = "select?name=" + LLURI::escape(msg);
-	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
+	args["ITEM_SLURL"] = LLSLURL("inventory", info->mObjectID, verb.c_str()).getSLURLString();
 
 	LLNotification::Params p("ObjectGiveItem");
 
@@ -1764,10 +1794,11 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Inventory Slurls don't currently work for non agent transfers, so only display the object name.
 		args["ITEM_SLURL"] = msg;
 		// Note: sets inventory_task_offer_callback as the callback
-		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_task_offer_callback, info, _1, _2));
-		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
+		p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
+		info->mPersist = true;
+		p.name = "ObjectGiveItem";
 		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
-		LLNotifications::instance().add(p);
+	    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, info->mFromGroup == TRUE);
 	}
 	else // Agent -> Agent Inventory Offer
 	{
@@ -1776,7 +1807,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// *TODO fix memory leak
 		// inventory_offer_callback() is not invoked if user received notification and 
 		// closes viewer(without responding the notification)
-		p.substitutions(args).payload(payload).functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, info, _1, _2));
+		p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
+		info->mPersist = true;
 		p.name = "UserGiveItem";
 		
 		// Prefetch the item into your local inventory.
@@ -1797,10 +1829,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Inform user that there is a script floater via toast system
 		{
 			payload["give_inventory_notification"] = TRUE;
-		    LLNotification::Params params(p.name);
-		    params.substitutions = p.substitutions;
-		    params.payload = p.payload;
-		    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, info->mFromID, false);
+		    p.payload = payload;
+		    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
 		}
 	}
 }
@@ -1877,7 +1907,7 @@ protected:
 	}
 };
 
-static void parse_lure_bucket(const std::string& bucket,
+static bool parse_lure_bucket(const std::string& bucket,
 							  U64& region_handle,
 							  LLVector3& pos,
 							  LLVector3& look_at,
@@ -1889,15 +1919,25 @@ static void parse_lure_bucket(const std::string& bucket,
 	tokenizer tokens(bucket, sep);
 	tokenizer::iterator iter = tokens.begin();
 
-	S32 gx = boost::lexical_cast<S32>((*(iter)).c_str());
-	S32 gy = boost::lexical_cast<S32>((*(++iter)).c_str());
-	S32 rx = boost::lexical_cast<S32>((*(++iter)).c_str());
-	S32 ry = boost::lexical_cast<S32>((*(++iter)).c_str());
-	S32 rz = boost::lexical_cast<S32>((*(++iter)).c_str());
-	S32 lx = boost::lexical_cast<S32>((*(++iter)).c_str());
-	S32 ly = boost::lexical_cast<S32>((*(++iter)).c_str());
-	S32 lz = boost::lexical_cast<S32>((*(++iter)).c_str());
-
+	S32 gx,gy,rx,ry,rz,lx,ly,lz;
+	try
+	{
+		gx = boost::lexical_cast<S32>((*(iter)).c_str());
+		gy = boost::lexical_cast<S32>((*(++iter)).c_str());
+		rx = boost::lexical_cast<S32>((*(++iter)).c_str());
+		ry = boost::lexical_cast<S32>((*(++iter)).c_str());
+		rz = boost::lexical_cast<S32>((*(++iter)).c_str());
+		lx = boost::lexical_cast<S32>((*(++iter)).c_str());
+		ly = boost::lexical_cast<S32>((*(++iter)).c_str());
+		lz = boost::lexical_cast<S32>((*(++iter)).c_str());
+	}
+	catch( boost::bad_lexical_cast& )
+	{
+		LL_WARNS("parse_lure_bucket")
+			<< "Couldn't parse lure bucket."
+			<< LL_ENDL;
+		return false;
+	}
 	// Grab region access
 	region_access = SIM_ACCESS_MIN;
 	if (++iter != tokens.end())
@@ -1922,6 +1962,7 @@ static void parse_lure_bucket(const std::string& bucket,
 	look_at.setVec((F32)lx, (F32)ly, (F32)lz);
 
 	region_handle = to_region_handle(gx, gy);
+	return true;
 }
 
 void process_improved_im(LLMessageSystem *msg, void **user_data)
@@ -2286,7 +2327,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				LLSD args;
 				args["MESSAGE"] = message;
-				LLNotificationsUtil::add("JoinGroup", args, payload, join_group_response);
+				// we shouldn't pass callback functor since it is registered in LLFunctorRegistration
+				LLNotificationsUtil::add("JoinGroup", args, payload);
 			}
 		}
 		break;
@@ -2472,16 +2514,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				query_string["groupowned"] = "true";
 			}	
 
-			std::ostringstream link;
-			link << "secondlife:///app/objectim/" << session_id << LLURI::mapToQueryString(query_string);
-
-			chat.mURL = link.str();
+			chat.mURL = LLSLURL("objectim", session_id, "").getSLURLString();
 			chat.mText = message;
 
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
 			// IMs from obejcts don't open IM sessions.
 			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-			if(nearby_chat)
+			if(SYSTEM_FROM != name && nearby_chat)
 			{
 				LLSD args;
 				args["owner_id"] = from_id;
@@ -2559,15 +2598,21 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				U64 region_handle;
 				U8 region_access;
 				std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
-				parse_lure_bucket(region_info, region_handle, pos, look_at, region_access);
+				std::string region_access_str = LLStringUtil::null;
+				std::string region_access_icn = LLStringUtil::null;
 
-				std::string region_access_str = LLViewerRegion::accessToString(region_access);
+				if (parse_lure_bucket(region_info, region_handle, pos, look_at, region_access))
+				{
+					region_access_str = LLViewerRegion::accessToString(region_access);
+					region_access_icn = LLViewerRegion::getAccessIcon(region_access);
+				}
 
 				LLSD args;
 				// *TODO: Translate -> [FIRST] [LAST] (maybe)
-				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
+				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
 				args["MESSAGE"] = message;
-				args["MATURITY"] = region_access_str;
+				args["MATURITY_STR"] = region_access_str;
+				args["MATURITY_ICON"] = region_access_icn;
 				LLSD payload;
 				payload["from_id"] = from_id;
 				payload["lure_id"] = session_id;
@@ -2636,7 +2681,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
+				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
 				if(message.empty())
 				{
 					//support for frienship offers from clients before July 2008
@@ -3400,7 +3445,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			// Chat the "back" SLURL. (DEV-4907)
 
-			LLSD substitution = LLSD().with("[T_SLURL]", gAgent.getTeleportSourceSLURL());
+			LLSLURL slurl;
+			gAgent.getTeleportSourceSLURL(slurl);
+			LLSD substitution = LLSD().with("[T_SLURL]", slurl.getSLURLString());
 			std::string completed_from = LLAgent::sTeleportProgressMessages["completed_from"];
 			LLStringUtil::format(completed_from, substitution);
 
@@ -5801,7 +5848,9 @@ void send_group_notice(const LLUUID& group_id,
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string text = response["message"].asString();
-	text.append("\r\n").append(LLAgentUI::buildSLURL());
+	LLSLURL slurl;
+	LLAgentUI::buildSLURL(slurl);
+	text.append("\r\n").append(slurl.getSLURLString());
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(0 == option)
@@ -6244,7 +6293,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	std::string owner_name =
-		LLSLURL::buildCommand("agent", estate_owner_id, "inspect");
+		LLSLURL("agent", estate_owner_id, "inspect").getSLURLString();
 	LLPanelEstateCovenant::updateEstateOwnerName(owner_name);
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
@@ -6424,3 +6473,4 @@ void LLOfferInfo::forceResponse(InventoryOfferResponse response)
 	params.functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2));
 	LLNotifications::instance().forceResponse(params, response);
 }
+

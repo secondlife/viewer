@@ -185,7 +185,7 @@ void LLVOAvatarSelf::markDead()
 		 param;
 		 param = (LLViewerVisualParam*) getNextVisualParam())
 	{
-		if (param->getWearableType() != WT_INVALID)
+		if (param->getWearableType() != LLWearableType::WT_INVALID)
 		{
 			param->setIsDummy(TRUE);
 		}
@@ -681,7 +681,7 @@ BOOL LLVOAvatarSelf::setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL
 
 	if (param->getCrossWearable())
 	{
-		EWearableType type = (EWearableType)param->getWearableType();
+		LLWearableType::EType type = (LLWearableType::EType)param->getWearableType();
 		U32 size = gAgentWearables.getWearableCount(type);
 		for (U32 count = 0; count < size; ++count)
 		{
@@ -709,9 +709,9 @@ void LLVOAvatarSelf::idleUpdateAppearanceAnimation()
 	gAgentWearables.animateAllWearableParams(calcMorphAmount(), FALSE);
 
 	// apply wearable visual params to avatar
-	for (U32 type = 0; type < WT_COUNT; type++)
+	for (U32 type = 0; type < LLWearableType::WT_COUNT; type++)
 	{
-		LLWearable *wearable = gAgentWearables.getTopWearable((EWearableType)type);
+		LLWearable *wearable = gAgentWearables.getTopWearable((LLWearableType::EType)type);
 		if (wearable)
 		{
 			wearable->writeToAvatar();
@@ -945,17 +945,17 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
 	}
 }
 
-/*virtual*/ BOOL LLVOAvatarSelf::isWearingWearableType(EWearableType type ) const
+/*virtual*/ BOOL LLVOAvatarSelf::isWearingWearableType(LLWearableType::EType type ) const
 {
 	return gAgentWearables.getWearableCount(type) > 0;
 }
 
 //-----------------------------------------------------------------------------
-// updatedWearable( EWearableType type )
+// updatedWearable( LLWearableType::EType type )
 // forces an update to any baked textures relevant to type.
 // will force an upload of the resulting bake if the second parameter is TRUE
 //-----------------------------------------------------------------------------
-void LLVOAvatarSelf::wearableUpdated( EWearableType type, BOOL upload_result )
+void LLVOAvatarSelf::wearableUpdated( LLWearableType::EType type, BOOL upload_result )
 {
 	for (LLVOAvatarDictionary::BakedTextures::const_iterator baked_iter = LLVOAvatarDictionary::getInstance()->getBakedTextures().begin();
 		 baked_iter != LLVOAvatarDictionary::getInstance()->getBakedTextures().end();
@@ -976,7 +976,7 @@ void LLVOAvatarSelf::wearableUpdated( EWearableType type, BOOL upload_result )
 				type_iter != baked_dict->mWearables.end();
 				 ++type_iter)
 			{
-				const EWearableType comp_type = *type_iter;
+				const LLWearableType::EType comp_type = *type_iter;
 				if (comp_type == type)
 				{
 					if (mBakedTextureDatas[index].mTexLayerSet)
@@ -1112,7 +1112,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 
 U32 LLVOAvatarSelf::getNumWearables(LLVOAvatarDefines::ETextureIndex i) const
 {
-	EWearableType type = LLVOAvatarDictionary::getInstance()->getTEWearableType(i);
+	LLWearableType::EType type = LLVOAvatarDictionary::getInstance()->getTEWearableType(i);
 	return gAgentWearables.getWearableCount(type);
 }
 
@@ -1240,7 +1240,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLTexLayerSet* layerset) 
 				 ++local_tex_iter)
 			{
 				const ETextureIndex tex_index = *local_tex_iter;
-				const EWearableType wearable_type = LLVOAvatarDictionary::getTEWearableType(tex_index);
+				const LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType(tex_index);
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
@@ -1272,7 +1272,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) cons
 				 ++local_tex_iter)
 			{
 				const ETextureIndex tex_index = *local_tex_iter;
-				const EWearableType wearable_type = LLVOAvatarDictionary::getTEWearableType(tex_index);
+				const LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType(tex_index);
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
@@ -1295,7 +1295,7 @@ BOOL LLVOAvatarSelf::isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32
 	BOOL isDefined = TRUE;
 	if (isIndexLocalTexture(type))
 	{
-		const EWearableType wearable_type = LLVOAvatarDictionary::getTEWearableType(type);
+		const LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType(type);
 		const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 		if (index >= wearable_count)
 		{
@@ -1437,7 +1437,7 @@ void LLVOAvatarSelf::updateComposites()
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		if (mBakedTextureDatas[i].mTexLayerSet 
-			&& ((i != BAKED_SKIRT) || isWearingWearableType(WT_SKIRT)))
+			&& ((i != BAKED_SKIRT) || isWearingWearableType(LLWearableType::WT_SKIRT)))
 		{
 			mBakedTextureDatas[i].mTexLayerSet->updateComposite();
 		}
@@ -1516,7 +1516,7 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 			llerrs << "Tried to set local texture with invalid type: (" << (U32) type << ", " << index << ")" << llendl;
 			return;
 		}
-		EWearableType wearable_type = LLVOAvatarDictionary::getInstance()->getTEWearableType(type);
+		LLWearableType::EType wearable_type = LLVOAvatarDictionary::getInstance()->getTEWearableType(type);
 		if (!gAgentWearables.getWearable(wearable_type,index))
 		{
 			// no wearable is loaded, cannot set the texture.
@@ -1702,10 +1702,10 @@ void LLVOAvatarSelf::dumpTotalLocalTextureByteCount()
 BOOL LLVOAvatarSelf::getIsCloud()
 {
 	// do we have our body parts?
-	if (gAgentWearables.getWearableCount(WT_SHAPE) == 0 ||
-		gAgentWearables.getWearableCount(WT_HAIR) == 0 ||
-		gAgentWearables.getWearableCount(WT_EYES) == 0 ||
-		gAgentWearables.getWearableCount(WT_SKIN) == 0)	
+	if (gAgentWearables.getWearableCount(LLWearableType::WT_SHAPE) == 0 ||
+		gAgentWearables.getWearableCount(LLWearableType::WT_HAIR) == 0 ||
+		gAgentWearables.getWearableCount(LLWearableType::WT_EYES) == 0 ||
+		gAgentWearables.getWearableCount(LLWearableType::WT_SKIN) == 0)	
 	{
 		return TRUE;
 	}
@@ -1731,7 +1731,7 @@ BOOL LLVOAvatarSelf::getIsCloud()
 
 		for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 		{
-			if (i == BAKED_SKIRT && !isWearingWearableType(WT_SKIRT))
+			if (i == BAKED_SKIRT && !isWearingWearableType(LLWearableType::WT_SKIRT))
 				continue;
 
 			const BakedTextureData& texture_data = mBakedTextureDatas[i];
@@ -1854,7 +1854,7 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 
 LLLocalTextureObject* LLVOAvatarSelf::getLocalTextureObject(LLVOAvatarDefines::ETextureIndex i, U32 wearable_index) const
 {
-	EWearableType type = LLVOAvatarDictionary::getInstance()->getTEWearableType(i);
+	LLWearableType::EType type = LLVOAvatarDictionary::getInstance()->getTEWearableType(i);
 	LLWearable* wearable = gAgentWearables.getWearable(type, wearable_index);
 	if (wearable)
 	{
@@ -2240,7 +2240,6 @@ LLGLuint LLVOAvatarSelf::getScratchTexName( LLGLenum format, S32& components, U3
 	{
 		case GL_LUMINANCE:			components = 1; internal_format = GL_LUMINANCE8;		break;
 		case GL_ALPHA:				components = 1; internal_format = GL_ALPHA8;			break;
-		case GL_COLOR_INDEX:		components = 1; internal_format = GL_COLOR_INDEX8_EXT;	break;
 		case GL_LUMINANCE_ALPHA:	components = 2; internal_format = GL_LUMINANCE8_ALPHA8;	break;
 		case GL_RGB:				components = 3; internal_format = GL_RGB8;				break;
 		case GL_RGBA:				components = 4; internal_format = GL_RGBA8;				break;

@@ -94,6 +94,7 @@ public:
 
 	virtual BOOL	handleScrollWheel(S32 x,S32 y,S32 clicks);
 	virtual BOOL	handleKeyHere(KEY key, MASK mask);
+	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 
 	void			onEditorCommit(const LLSD& data);
 	static void		onEditorGainFocus(LLFocusableElement* caller, void *userdata);

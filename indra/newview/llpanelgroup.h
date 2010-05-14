@@ -37,7 +37,7 @@
 #include "lltimer.h"
 #include "llvoiceclient.h"
 
-struct LLOfferInfo;
+class LLOfferInfo;
 
 const S32 UPDATE_MEMBERS_PER_FRAME = 500;
 
@@ -95,9 +95,6 @@ public:
 						   LLOfferInfo* inventory_offer);
 
 
-	bool	notifyChildren		(const LLSD& info);
-	bool	handleNotifyCallback(const LLSD&, const LLSD&);
-
 protected:
 	virtual void update(LLGroupChange gc);
 
@@ -117,9 +114,6 @@ protected:
 
 protected:
 	bool	apply(LLPanelGroupTab* tab);
-	bool	canClose();
-
-	bool	mShowingNotifyDialog;
 
 	LLTimer mRefreshTimer;
 

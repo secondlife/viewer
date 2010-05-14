@@ -44,6 +44,7 @@
 #include "llfoldervieweventlistener.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
+#include "llsidetray.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llviewerregion.h"
@@ -115,6 +116,8 @@ BOOL LLSidepanelAppearance::postBuild()
 	mEditAppearanceBtn = getChild<LLButton>("editappearance_btn");
 	mEditAppearanceBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditAppearanceButtonClicked, this));
 
+	childSetAction("edit_outfit_btn", boost::bind(&LLSidepanelAppearance::onEditOutfitButtonClicked, this));
+
 	mEditBtn = getChild<LLButton>("edit_btn");
 	mEditBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditButtonClicked, this));
 
@@ -154,7 +157,7 @@ BOOL LLSidepanelAppearance::postBuild()
 
 	mCurrentLookName = getChild<LLTextBox>("currentlook_name");
 
-	mOutfitDirtyTag = getChild<LLTextBox>("currentlook_title");
+	mOutfitStatus = getChild<LLTextBox>("currentlook_status");
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
@@ -197,8 +200,7 @@ void LLSidepanelAppearance::onFilterEdit(const std::string& search_string)
 		mFilterSubString = search_string;
 
 		// Searches are case-insensitive
-		LLStringUtil::toUpper(mFilterSubString);
-		LLStringUtil::trimHead(mFilterSubString);
+		// but we don't convert the typed string to upper-case so that it can be fed to the web search as-is.
 
 		mPanelOutfitsInventory->onSearchEdit(mFilterSubString);
 	}
@@ -237,6 +239,13 @@ void LLSidepanelAppearance::onEditAppearanceButtonClicked()
 	{
 		gAgentCamera.changeCameraToCustomizeAvatar();
 	}
+}
+
+void LLSidepanelAppearance::onEditOutfitButtonClicked()
+{
+	LLSD key;
+	key["type"] = "edit_outfit";
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", key);
 }
 
 void LLSidepanelAppearance::onEditButtonClicked()
@@ -308,7 +317,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 {
 	if (!wearable)
 	{
-		wearable = gAgentWearables.getWearable(WT_SHAPE, 0);
+		wearable = gAgentWearables.getWearable(LLWearableType::WT_SHAPE, 0);
 	}
 	if (!mEditWearable || !wearable)
 	{
@@ -329,8 +338,8 @@ void LLSidepanelAppearance::updateVerbs()
 
 	if (mPanelOutfitsInventory && !is_look_info_visible)
 	{
-		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
-		mEditBtn->setEnabled(is_correct_type);
+//		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
+//		mEditBtn->setEnabled(is_correct_type);
 	}
 	else
 	{
@@ -340,7 +349,11 @@ void LLSidepanelAppearance::updateVerbs()
 
 void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 {
-	mOutfitDirtyTag->setVisible(LLAppearanceMgr::getInstance()->isOutfitDirty());
+	// Set current outfit status (wearing/unsaved).
+	bool dirty = LLAppearanceMgr::getInstance()->isOutfitDirty();
+	std::string cof_status_str = getString(dirty ? "Unsaved Changes" : "Now Wearing");
+	mOutfitStatus->setText(cof_status_str);
+
 	if (name == "")
 	{
 		std::string outfit_name;
@@ -376,11 +389,11 @@ void LLSidepanelAppearance::fetchInventory()
 	mNewOutfitBtn->setEnabled(false);
 	uuid_vec_t ids;
 	LLUUID item_id;
-	for(S32 type = (S32)WT_SHAPE; type < (S32)WT_COUNT; ++type)
+	for(S32 type = (S32)LLWearableType::WT_SHAPE; type < (S32)LLWearableType::WT_COUNT; ++type)
 	{
-		for (U32 index = 0; index < gAgentWearables.getWearableCount((EWearableType)type); ++index)
+		for (U32 index = 0; index < gAgentWearables.getWearableCount((LLWearableType::EType)type); ++index)
 		{
-			item_id = gAgentWearables.getWearableItemID((EWearableType)type, index);
+			item_id = gAgentWearables.getWearableItemID((LLWearableType::EType)type, index);
 			if(item_id.notNull())
 			{
 				ids.push_back(item_id);
@@ -425,4 +438,10 @@ void LLSidepanelAppearance::fetchInventory()
 void LLSidepanelAppearance::inventoryFetched()
 {
 	mNewOutfitBtn->setEnabled(true);
+}
+
+void LLSidepanelAppearance::setWearablesLoading(bool val)
+{
+	childSetVisible("wearables_loading_indicator", val);
+	childSetVisible("edit_outfit_btn", !val);
 }

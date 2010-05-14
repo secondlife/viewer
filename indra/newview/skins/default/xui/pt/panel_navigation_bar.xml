@@ -3,7 +3,7 @@
 	<panel name="navigation_panel">
 		<pull_button name="back_btn" tool_tip="Voltar para região anterior"/>
 		<pull_button name="forward_btn" tool_tip="Avançar uma região"/>
-		<button name="home_btn" tool_tip="Teletransportar para minha casa"/>
+		<button name="home_btn" tool_tip="Teletransportar para meu início"/>
 		<location_input label="Onde" name="location_combo"/>
 		<search_combo_box label="Busca" name="search_combo_box" tool_tip="Busca">
 			<combo_editor label="Buscar no [SECOND_LIFE]" name="search_combo_editor"/>

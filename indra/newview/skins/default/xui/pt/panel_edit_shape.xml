@@ -9,15 +9,17 @@
 			<radio_item label="Masculino" name="radio2"/>
 		</radio_group>
 	</panel>
-	<accordion name="wearable_accordion">
-		<accordion_tab name="shape_body_tab" title="Corpo"/>
-		<accordion_tab name="shape_head_tab" title="Cabeça"/>
-		<accordion_tab name="shape_eyes_tab" title="Olhos"/>
-		<accordion_tab name="shape_ears_tab" title="Orelhas"/>
-		<accordion_tab name="shape_nose_tab" title="Nariz"/>
-		<accordion_tab name="shape_mouth_tab" title="Boca"/>
-		<accordion_tab name="shape_chin_tab" title="Queixo"/>
-		<accordion_tab name="shape_torso_tab" title="Tronco"/>
-		<accordion_tab name="shape_legs_tab" title="Pernas"/>
-	</accordion>
+	<panel label="Camisa" name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="shape_body_tab" title="Corpo"/>
+			<accordion_tab name="shape_head_tab" title="Cabeça"/>
+			<accordion_tab name="shape_eyes_tab" title="Olhos"/>
+			<accordion_tab name="shape_ears_tab" title="Orelhas"/>
+			<accordion_tab name="shape_nose_tab" title="Nariz"/>
+			<accordion_tab name="shape_mouth_tab" title="Boca"/>
+			<accordion_tab name="shape_chin_tab" title="Queixo"/>
+			<accordion_tab name="shape_torso_tab" title="Tronco"/>
+			<accordion_tab name="shape_legs_tab" title="Pernas"/>
+		</accordion>
+	</panel>
 </panel>

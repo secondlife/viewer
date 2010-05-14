@@ -36,7 +36,7 @@
 #include "llpanel.h"
 #include "llscrollingpanellist.h"
 #include "llmodaldialog.h"
-#include "llwearabledictionary.h"
+#include "llwearabletype.h"
 
 class LLWearable;
 class LLTextEditor;
@@ -71,11 +71,17 @@ private:
 	void				showWearable(LLWearable* wearable, BOOL show);
 	void				initializePanel();
 	void				updateScrollingPanelUI();
-	LLPanel*			getPanel(EWearableType type);
+	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
 	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab);
 	// update bottom bar buttons ("Save", "Revert", etc)
 	void				updateVerbs();
+
+	void				onColorSwatchCommit(const LLUICtrl*);
+	void				onTexturePickerCommit(const LLUICtrl*);
+	void				updatePanelPickerControls(LLWearableType::EType type);
+	void				toggleTypeSpecificControls(LLWearableType::EType type);
+	void				updateTypeSpecificControls(LLWearableType::EType type);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;
@@ -87,6 +93,7 @@ private:
 
 	LLTextBox *mPanelTitle;
 	LLTextBox *mDescTitle;
+	LLTextBox *mTxtAvatarHeight;
 
 
 	// This text editor reference will change each time we edit a new wearable - 
@@ -112,7 +119,6 @@ private:
 	LLPanel *mPanelSkirt;
 	LLPanel *mPanelAlpha;
 	LLPanel *mPanelTattoo;
-
 };
 
 #endif

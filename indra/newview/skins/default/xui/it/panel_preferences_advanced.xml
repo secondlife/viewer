@@ -13,13 +13,16 @@
 	</text>
 	<check_box label="Costruire/Modificare" name="edit_camera_movement" tool_tip="Utilizza il posizionamento automatico della fotocamera entrando o uscendo dalla modalità modifica"/>
 	<check_box label="Aspetto fisico" name="appearance_camera_movement" tool_tip="Utilizza il posizionamento automatico della camera in modalità modifica"/>
-	<check_box label="Mostra in modalità Mouselook" name="first_person_avatar_visible"/>
+	<check_box label="Visualizzami in modalità soggettiva" name="first_person_avatar_visible"/>
 	<check_box label="Le frecce di direzione mi fanno sempre spostare" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Doppio click e tieni premuto per correre" name="tap_tap_hold_to_run"/>
-	<check_box label="Consente il movimento delle labbra dell&apos;avatar quando parla" name="enable_lip_sync"/>
+	<check_box label="Movimento delle labbra dell&apos;avatar quando parla" name="enable_lip_sync"/>
 	<check_box label="Chat a bolla" name="bubble_text_chat"/>
 	<slider label="Opacità" name="bubble_chat_opacity"/>
 	<color_swatch name="background" tool_tip="Scegli il colore delle vignette della chat"/>
+	<text name="UI Size:">
+		Dimensioni interfaccia utente
+	</text>
 	<check_box label="Mostra errori dello script in:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="Chat nei dintorni" name="0"/>
@@ -29,4 +32,5 @@
 	<line_editor label="Pulsante di comando della funzione Premi per parlare" name="modifier_combo"/>
 	<button label="Imposta tasto" name="set_voice_hotkey_button"/>
 	<button label="Pulsante centrale del mouse" name="set_voice_middlemouse_button" tool_tip="Reimposta sul pulsante centrale del mouse"/>
+	<button label="Altri dispositivi" name="joystick_setup_button"/>
 </panel>

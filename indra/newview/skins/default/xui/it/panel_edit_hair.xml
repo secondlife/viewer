@@ -3,10 +3,12 @@
 	<panel name="avatar_hair_color_panel">
 		<texture_picker label="Texture" name="Texture" tool_tip="Clicca per scegliere una fotografia"/>
 	</panel>
-	<accordion name="wearable_accordion">
-		<accordion_tab name="hair_color_tab" title="Colore"/>
-		<accordion_tab name="hair_style_tab" title="Stile"/>
-		<accordion_tab name="hair_eyebrows_tab" title="Sopracciglia"/>
-		<accordion_tab name="hair_facial_tab" title="Del viso"/>
-	</accordion>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="hair_color_tab" title="Colore"/>
+			<accordion_tab name="hair_style_tab" title="Stile"/>
+			<accordion_tab name="hair_eyebrows_tab" title="Sopracciglia"/>
+			<accordion_tab name="hair_facial_tab" title="Del viso"/>
+		</accordion>
+	</panel>
 </panel>

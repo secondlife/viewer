@@ -846,6 +846,17 @@ void LLPanelGroupGeneral::reset()
 	
 	mInsignia->setEnabled(true);
 
+	LLPointer<LLUIImage> imagep = LLUI::getUIImage(mInsignia->getDefaultImageName());
+	if(imagep)
+	{
+		LLViewerFetchedTexture* pTexture = dynamic_cast<LLViewerFetchedTexture*>(imagep->getImage().get());
+		if(pTexture)
+		{
+			LLUUID id = pTexture->getID();
+			mInsignia->setImageAssetID(id);
+		}
+	}
+
 	{
 		std::string empty_str = "";
 		mEditCharter->setText(empty_str);

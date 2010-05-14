@@ -271,7 +271,7 @@ void LLStreamingAudio_FMOD::setGain(F32 vol)
 
 	if (mFMODInternetStreamChannel != -1)
 	{
-		vol = llclamp(vol, 0.f, 1.f);
+		vol = llclamp(vol * vol, 0.f, 1.f);
 		int vol_int = llround(vol * 255.f);
 		FSOUND_SetVolumeAbsolute(mFMODInternetStreamChannel, vol_int);
 	}

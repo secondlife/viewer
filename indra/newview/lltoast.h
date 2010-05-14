@@ -209,6 +209,7 @@ private:
 	// timer counts a lifetime of a toast
 	std::auto_ptr<LLToastLifeTimer> mTimer;
 
+	F32			mToastLifetime; // in seconds
 	F32			mToastFadingTime; // in seconds
 
 	LLPanel*		mPanel;

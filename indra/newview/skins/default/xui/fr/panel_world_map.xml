@@ -30,6 +30,12 @@
 	<panel.string name="world_map_northwest">
 		NO
 	</panel.string>
+	<panel.string name="world_map_person">
+		1 personne
+	</panel.string>
+	<panel.string name="world_map_people">
+		[NUMBER] personnes
+	</panel.string>
 	<text label="N" name="floater_map_north" text="N">
 		N
 	</text>

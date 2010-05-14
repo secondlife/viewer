@@ -25,7 +25,7 @@
 	<text left="8" name="Current color:">
 		Couleur actuelle :
 	</text>
-	<text left="8" name="(Drag below to save.)" width="220">
-		Enreg. : faire glisser dessous
+	<text name="(Drag below to save.)">
+		Enr. : faire glisser dessous
 	</text>
 </floater>

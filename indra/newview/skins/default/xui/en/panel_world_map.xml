@@ -45,6 +45,14 @@
      name="world_map_northwest">
         NW
     </panel.string>
+    <panel.string
+     name="world_map_person">
+        1 person
+    </panel.string>
+    <panel.string
+     name="world_map_people">
+        [NUMBER] people
+    </panel.string>
     <text
      type="string"
      length="1"

@@ -401,7 +401,8 @@ bool LLTextureCacheRemoteWorker::doRead()
 	// Second state / stage : identify the cache or not...
 	if (!done && (mState == CACHE))
 	{
-		idx = mCache->getHeaderCacheEntry(mID, mImageSize);
+		LLTextureCache::Entry entry ;
+		idx = mCache->getHeaderCacheEntry(mID, entry);
 		if (idx < 0)
 		{
 			// The texture is *not* cached. We're done here...
@@ -410,6 +411,7 @@ bool LLTextureCacheRemoteWorker::doRead()
 		}
 		else
 		{
+			mImageSize = entry.mImageSize ;
 			// If the read offset is bigger than the header cache, we read directly from the body
 			// Note that currently, we *never* read with offset from the cache, so the result is *always* HEADER
 			mState = mOffset < TEXTURE_CACHE_ENTRY_SIZE ? HEADER : BODY;
@@ -531,13 +533,14 @@ bool LLTextureCacheRemoteWorker::doRead()
 bool LLTextureCacheRemoteWorker::doWrite()
 {
 	bool done = false;
-	S32 idx = -1;
+	S32 idx = -1;	
 
 	// First state / stage : check that what we're trying to cache is in an OK shape
 	if (mState == INIT)
 	{
 		llassert_always(mOffset == 0);	// We currently do not support write offsets
 		llassert_always(mDataSize > 0); // Things will go badly wrong if mDataSize is nul or negative...
+		llassert_always(mImageSize >= mDataSize);
 		mState = CACHE;
 	}
 	
@@ -547,14 +550,19 @@ bool LLTextureCacheRemoteWorker::doWrite()
 	if (!done && (mState == CACHE))
 	{
 		bool alreadyCached = false;
-		S32 cur_imagesize = 0;
+		LLTextureCache::Entry entry ;
+
 		// Checks if this image is already in the entry list
-		idx = mCache->getHeaderCacheEntry(mID, cur_imagesize);
-		if (idx >= 0 && (cur_imagesize > 0))
+		idx = mCache->getHeaderCacheEntry(mID, entry);
+		if(idx < 0)
 		{
-			alreadyCached = true;	// already there and non empty
+			idx = mCache->setHeaderCacheEntry(mID, entry, mImageSize, mDataSize); // create the new entry.
 		}
-		idx = mCache->setHeaderCacheEntry(mID, mImageSize); // create or touch the entry
+		else
+		{
+			alreadyCached = mCache->updateEntry(idx, entry, mImageSize, mDataSize); // update the existing entry.
+		}
+
 		if (idx < 0)
 		{
 			llwarns << "LLTextureCacheWorker: "  << mID
@@ -564,10 +572,6 @@ bool LLTextureCacheRemoteWorker::doWrite()
 		}
 		else
 		{
-			if (cur_imagesize > 0 && (mImageSize != cur_imagesize))
-			{
-				alreadyCached = false; // re-write the header if the size changed in all cases
-			}
 			if (alreadyCached && (mDataSize <= TEXTURE_CACHE_ENTRY_SIZE))
 			{
 				// Small texture already cached case: we're done with writing
@@ -630,7 +634,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 	{
 		llassert(mDataSize > TEXTURE_CACHE_ENTRY_SIZE);	// wouldn't make sense to be here otherwise...
 		S32 file_size = mDataSize - TEXTURE_CACHE_ENTRY_SIZE;
-		if ((file_size > 0) && mCache->updateTextureEntryList(mID, file_size))
+		
 		{
 			// build the cache file name from the UUID
 			std::string filename = mCache->getTextureFileName(mID);			
@@ -648,10 +652,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 				done = true;
 			}
 		}
-		else
-		{
-			mDataSize = 0; // no data written
-		}
+		
 		// Nothing else to do at that point...
 		done = true;
 	}
@@ -823,53 +824,6 @@ std::string LLTextureCache::getTextureFileName(const LLUUID& id)
 	std::string delem = gDirUtilp->getDirDelimiter();
 	std::string filename = mTexturesDirName + delem + idstr[0] + delem + idstr + ".texture";
 	return filename;
-}
-
-bool LLTextureCache::updateTextureEntryList(const LLUUID& id, S32 bodysize)
-{
-	bool res = false;
-	bool purge = false;
-	{
-		LLMutexLock lock(&mHeaderMutex);
-		size_map_t::iterator iter1 = mTexturesSizeMap.find(id);
-		if (iter1 == mTexturesSizeMap.end() || iter1->second < bodysize)
-		{
-			llassert_always(bodysize > 0);
-
-			S32 oldbodysize = 0;
-			if (iter1 != mTexturesSizeMap.end())
-			{
-				oldbodysize = iter1->second;
-			}
-						
-			Entry entry;
-			S32 idx = openAndReadEntry(id, entry, false);
-			if (idx < 0)
-			{
-				llwarns << "Failed to open entry: " << id << llendl;
-				removeCachedTexture(id) ;
-				return false;
-			}			
-			else if (oldbodysize != entry.mBodySize)
-			{
-				// only happens to 64 bits systems, do not know why.
-				llwarns << "Entry mismatch in mTextureSizeMap / mHeaderIDMap"
-					   << " idx=" << idx << " oldsize=" << oldbodysize << " entrysize=" << entry.mBodySize << llendl;
-			}
-			updateEntry(idx, entry, entry.mImageSize, bodysize);			
-			
-			if (mTexturesSizeTotal > sCacheMaxTexturesSize)
-			{
-				purge = true;
-			}
-			res = true;
-		}
-	}
-	if (purge)
-	{
-		mDoPurge = TRUE;
-	}
-	return res;
 }
 
 //debug
@@ -1207,55 +1161,64 @@ void LLTextureCache::updateEntryTimeStamp(S32 idx, Entry& entry)
 	{
 		if (!mReadOnly)
 		{
-			llassert_always(entry.mImageSize > entry.mBodySize);
-
 			entry.mTime = time(NULL);			
 			mUpdatedEntryMap[idx] = entry ;
 		}
 	}
 }
 
-//mHeaderMutex is locked before calling this.
 //update an existing entry, write to header file immediately.
-void LLTextureCache::updateEntry(S32 idx, Entry& entry, S32 new_image_size, S32 new_body_size)
+bool LLTextureCache::updateEntry(S32 idx, Entry& entry, S32 new_image_size, S32 new_data_size)
 {
-	llassert_always(new_image_size > -1) ;
-
+	S32 new_body_size = llmax(0, new_data_size - TEXTURE_CACHE_ENTRY_SIZE) ;
+	
 	if(new_image_size == entry.mImageSize && new_body_size == entry.mBodySize)
 	{
-		updateEntryTimeStamp(idx, entry) ; //nothing changed.
+		return true ; //nothing changed.
 	}
-	else if (idx >= 0)
+	else 
 	{
-		if (!mReadOnly)
-		{
-			llassert_always(new_image_size > new_body_size) ;
+		bool purge = false ;
 
-			bool update_header = false ;
-			if(entry.mImageSize < 0) //is a brand-new entry
-			{
-				mHeaderIDMap[entry.mID] = idx;
-				mTexturesSizeMap[entry.mID] = new_body_size ;
-				mTexturesSizeTotal += new_body_size ;
-				
-				// Update Header
-				update_header = true ;
-			}				
-			else if (entry.mBodySize != new_body_size)
-			{
-				//already in mHeaderIDMap.
-				mTexturesSizeMap[entry.mID] = new_body_size ;
-				mTexturesSizeTotal -= entry.mBodySize ;
-				mTexturesSizeTotal += new_body_size ;
-			}
-			entry.mTime = time(NULL);
-			entry.mImageSize = new_image_size ; 
-			entry.mBodySize = new_body_size ;
+		lockHeaders() ;
+
+		bool update_header = false ;
+		if(entry.mImageSize < 0) //is a brand-new entry
+		{
+			mHeaderIDMap[entry.mID] = idx;
+			mTexturesSizeMap[entry.mID] = new_body_size ;
+			mTexturesSizeTotal += new_body_size ;
 			
-// 			llinfos << "Updating TE: " << idx << ": " << id << " Size: " << entry.mBodySize << " Time: " << entry.mTime << llendl;			
-			writeEntryToHeaderImmediately(idx, entry, update_header) ;
+			// Update Header
+			update_header = true ;
+		}				
+		else if (entry.mBodySize != new_body_size)
+		{
+			//already in mHeaderIDMap.
+			mTexturesSizeMap[entry.mID] = new_body_size ;
+			mTexturesSizeTotal -= entry.mBodySize ;
+			mTexturesSizeTotal += new_body_size ;
+		}
+		entry.mTime = time(NULL);
+		entry.mImageSize = new_image_size ; 
+		entry.mBodySize = new_body_size ;
+		
+		writeEntryToHeaderImmediately(idx, entry, update_header) ;
+	
+		if (mTexturesSizeTotal > sCacheMaxTexturesSize)
+		{
+			purge = true;
+		}
+		
+		unlockHeaders() ;
+
+		if (purge)
+		{
+			mDoPurge = TRUE;
 		}
 	}
+
+	return false ;
 }
 
 U32 LLTextureCache::openAndReadEntries(std::vector<Entry>& entries)
@@ -1658,39 +1621,37 @@ LLTextureCacheWorker* LLTextureCache::getWriter(handle_t handle)
 // Called from work thread
 
 // Reads imagesize from the header, updates timestamp
-S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, S32& imagesize)
+S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, Entry& entry)
 {
-	LLMutexLock lock(&mHeaderMutex);
-	Entry entry;
+	LLMutexLock lock(&mHeaderMutex);	
 	S32 idx = openAndReadEntry(id, entry, false);
 	if (idx >= 0)
-	{
-		imagesize = entry.mImageSize;
+	{		
 		updateEntryTimeStamp(idx, entry); // updates time
 	}
 	return idx;
 }
 
 // Writes imagesize to the header, updates timestamp
-S32 LLTextureCache::setHeaderCacheEntry(const LLUUID& id, S32 imagesize)
+S32 LLTextureCache::setHeaderCacheEntry(const LLUUID& id, Entry& entry, S32 imagesize, S32 datasize)
 {
 	mHeaderMutex.lock();
-	llassert_always(imagesize >= 0);
-	Entry entry;
 	S32 idx = openAndReadEntry(id, entry, true);
+	mHeaderMutex.unlock();
+
 	if (idx >= 0)
 	{
-		updateEntry(idx, entry, imagesize, entry.mBodySize);
-		mHeaderMutex.unlock();
+		updateEntry(idx, entry, imagesize, datasize);				
 	}
 	else // retry
 	{
-		mHeaderMutex.unlock();
 		readHeaderCache(); // We couldn't write an entry, so refresh the LRU
+	
 		mHeaderMutex.lock();
 		llassert_always(!mLRU.empty() || mHeaderEntriesInfo.mEntries < sCacheMaxEntries);
 		mHeaderMutex.unlock();
-		idx = setHeaderCacheEntry(id, imagesize); // assert above ensures no inf. recursion
+
+		idx = setHeaderCacheEntry(id, entry, imagesize, datasize); // assert above ensures no inf. recursion
 	}
 	return idx;
 }

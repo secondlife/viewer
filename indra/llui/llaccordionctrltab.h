@@ -113,6 +113,14 @@ public:
 	void		setAccordionView(LLView* panel);
 	LLView*		getAccordionView() { return mContainerPanel; };
 
+	std::string getTitle();
+
+	// Set text and highlight substring in LLAccordionCtrlTabHeader
+	void setTitle(const std::string& title, const std::string& hl = LLStringUtil::null);
+
+	boost::signals2::connection setFocusReceivedCallback(const focus_signal_t::slot_type& cb);
+	boost::signals2::connection setFocusLostCallback(const focus_signal_t::slot_type& cb);
+
 	bool getCollapsible() {return mCollapsible;};
 
 	void setCollapsible(bool collapsible) {mCollapsible = collapsible;};

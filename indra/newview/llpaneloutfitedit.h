@@ -42,19 +42,21 @@
 
 #include "llremoteparcelrequest.h"
 #include "llinventory.h"
+#include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
 
 class LLButton;
+class LLCOFWearables;
 class LLTextBox;
 class LLInventoryCategory;
-class LLInventoryLookObserver;
+class LLCOFObserver;
 class LLInventoryPanel;
 class LLSaveFolderState;
 class LLFolderViewItem;
 class LLScrollListCtrl;
 class LLToggleableMenu;
-class LLLookFetchObserver;
 class LLFilterEditor;
+class LLFilteredWearableListManager;
 
 class LLPanelOutfitEdit : public LLPanel
 {
@@ -80,14 +82,13 @@ public:
 	/*virtual*/ ~LLPanelOutfitEdit();
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void changed(U32 mask);
 
-	/*virtual*/ void setParcelID(const LLUUID& parcel_id);
-		// Sends a request for data about the given parcel, which will
-		// only update the location if there is none already available.
+	void moveWearable(bool closer_to_body);
 
-	void showAddWearablesPanel();
+	void toggleAddWearablesPanel();
 	void showWearablesFilter();
+	void showFilteredWearablesPanel();
+	void showFilteredFolderWearablesPanel();
 	void saveOutfit(bool as_new = false);
 	void showSaveMenu();
 
@@ -98,34 +99,44 @@ public:
 	void onOutfitItemSelectionChange(void);
 	void onRemoveFromOutfitClicked(void);
 	void onEditWearableClicked(void);
-	void onUpClicked(void);
 
 	void displayCurrentOutfit();
 	
-	void lookFetched(void);
-	
-	void updateLookInfo(void);
+	void update();
+
+	void updateVerbs();
+	/**
+	 * @brief Helper function. Shows one panel instead of another.
+	 *		  If panels already switched does nothing and returns false.
+	 * @param  switch_from_panel panel to hide
+	 * @param  switch_to_panel panel to show
+	 * @retun  returns true if switching happened, false if not.
+	 */
+	bool switchPanels(LLPanel* switch_from_panel, LLPanel* switch_to_panel);
 
 private:
 
-	//*TODO got rid of mCurrentOutfitID
-	LLUUID				mCurrentOutfitID;
+
 
 	LLTextBox*			mCurrentOutfitName;
-	LLScrollListCtrl*	mLookContents;
+	LLTextBox*			mStatus;
 	LLInventoryPanel*	mInventoryItemsPanel;
 	LLFilterEditor*		mSearchFilter;
 	LLSaveFolderState*	mSavedFolderState;
 	std::string			mSearchString;
-	LLButton*			mAddToOutfitBtn;
-	LLButton*			mRemoveFromOutfitBtn;
-	LLButton*			mUpBtn;
 	LLButton*			mEditWearableBtn;
+	LLButton*			mFolderViewBtn;
+	LLButton*			mListViewBtn;
 	LLToggleableMenu*	mSaveMenu;
-	
-	LLLookFetchObserver*		mFetchLook;
-	LLInventoryLookObserver*	mLookObserver;
+
+	LLFilteredWearableListManager* 	mWearableListManager;
+	LLInventoryItemsList* 			mWearableItemsList;
+	LLPanel*						mWearableItemsPanel;
+
+	LLCOFObserver*	mCOFObserver;
 	std::vector<LLLookItemType> mLookItemTypes;
+
+	LLCOFWearables*		mCOFWearables;
 };
 
 #endif // LL_LLPANELOUTFITEDIT_H

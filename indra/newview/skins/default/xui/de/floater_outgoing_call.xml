@@ -28,7 +28,7 @@
 		Die Verbindung zu [VOICE_CHANNEL_NAME] wurde abgebrochen.  [RECONNECT_NEARBY]
 	</text>
 	<text name="nearby_P2P_by_other">
-		[VOICE_CHANNEL_NAME] hat den Anruf beendet.  [RECONNECT_NEARBY]
+		Ihr Anfruf wurde beendet.  [RECONNECT_NEARBY]
 	</text>
 	<text name="nearby_P2P_by_agent">
 		Sie haben das Gespräch beendet.  [RECONNECT_NEARBY]

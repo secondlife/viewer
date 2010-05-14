@@ -7,6 +7,7 @@ include(Boost)
 include(BuildVersion)
 include(DBusGlib)
 include(DirectX)
+include(OpenSSL)
 include(DragDrop)
 include(ELFIO)
 include(FMOD)
@@ -104,6 +105,7 @@ set(viewer_SOURCE_FILES
     llclassifiedinfo.cpp
     llclassifiedstatsresponder.cpp
     llcloud.cpp
+    llcofwearables.cpp
     llcolorswatch.cpp
     llcommanddispatcherlistener.cpp
     llcommandhandler.cpp
@@ -142,6 +144,7 @@ set(viewer_SOURCE_FILES
     llfavoritesbar.cpp
     llfeaturemanager.cpp
     llfilepicker.cpp
+    llfilteredwearablelist.cpp
     llfirstuse.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
@@ -252,6 +255,8 @@ set(viewer_SOURCE_FILES
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
+    llinventoryicon.cpp
+    llinventoryitemslist.cpp
     llinventorymodel.cpp
     llinventorymodelbackgroundfetch.cpp
     llinventoryobserver.cpp
@@ -294,7 +299,9 @@ set(viewer_SOURCE_FILES
     llnotificationmanager.cpp
     llnotificationofferhandler.cpp
     llnotificationscripthandler.cpp
+    llnotificationstorage.cpp
     llnotificationtiphandler.cpp
+    lloutfitslist.cpp
     lloutputmonitorctrl.cpp
     llpanelavatar.cpp
     llpanelavatartag.cpp
@@ -327,6 +334,7 @@ set(viewer_SOURCE_FILES
     llpanelnearbymedia.cpp
     llpanelobject.cpp
     llpanelobjectinventory.cpp
+    llpanelonlinestatus.cpp
     llpaneloutfitedit.cpp
     llpaneloutfitsinventory.cpp
     llpanelpeople.cpp
@@ -372,6 +380,8 @@ set(viewer_SOURCE_FILES
     llscrollingpanelparam.cpp
     llsearchcombobox.cpp
     llsearchhistory.cpp
+    llsecapi.cpp
+    llsechandler_basic.cpp
     llselectmgr.cpp
     llsidepanelappearance.cpp
     llsidepanelinventory.cpp
@@ -446,7 +456,6 @@ set(viewer_SOURCE_FILES
     llurldispatcherlistener.cpp
     llurlhistory.cpp
     llurllineeditorctrl.cpp
-    llurlsimstring.cpp
     llurlwhitelist.cpp
     llvectorperfoptions.cpp
     llversioninfo.cpp
@@ -514,6 +523,7 @@ set(viewer_SOURCE_FILES
     llvoicechannel.cpp
     llvoiceclient.cpp
     llvoicevisualizer.cpp
+    llvoicevivox.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -527,8 +537,9 @@ set(viewer_SOURCE_FILES
     llwaterparammanager.cpp
     llwaterparamset.cpp
     llwearable.cpp
-    llwearabledictionary.cpp
+    llwearableitemslist.cpp
     llwearablelist.cpp
+    llwearabletype.cpp
     llweb.cpp
     llwind.cpp
     llwlanimator.cpp
@@ -540,6 +551,7 @@ set(viewer_SOURCE_FILES
     llworldmapmessage.cpp
     llworldmipmap.cpp
     llworldmapview.cpp
+    llworldview.cpp
     llxmlrpclistener.cpp
     llxmlrpctransaction.cpp
     noise.cpp
@@ -608,6 +620,7 @@ set(viewer_HEADER_FILES
     llclassifiedinfo.h
     llclassifiedstatsresponder.h
     llcloud.h
+    llcofwearables.h
     llcolorswatch.h
     llcommanddispatcherlistener.h
     llcommandhandler.h
@@ -647,6 +660,7 @@ set(viewer_HEADER_FILES
     llfavoritesbar.h
     llfeaturemanager.h
     llfilepicker.h
+    llfilteredwearablelist.h
     llfirstuse.h
     llflexibleobject.h
     llfloaterabout.h
@@ -756,6 +770,8 @@ set(viewer_HEADER_FILES
     llinventoryclipboard.h
     llinventoryfilter.h
     llinventoryfunctions.h
+    llinventoryicon.h
+    llinventoryitemslist.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
@@ -795,6 +811,8 @@ set(viewer_HEADER_FILES
     llnetmap.h
     llnotificationhandler.h
     llnotificationmanager.h
+    llnotificationstorage.h
+    lloutfitslist.h
     lloutputmonitorctrl.h
     llpanelavatar.h
     llpanelavatartag.h
@@ -827,6 +845,7 @@ set(viewer_HEADER_FILES
     llpanelnearbymedia.h
     llpanelobject.h
     llpanelobjectinventory.h
+    llpanelonlinestatus.h
     llpaneloutfitedit.h
     llpaneloutfitsinventory.h
     llpanelpeople.h
@@ -874,6 +893,8 @@ set(viewer_HEADER_FILES
     llscrollingpanelparam.h
     llsearchcombobox.h
     llsearchhistory.h
+    llsecapi.h
+    llsechandler_basic.h
     llselectmgr.h
     llsidepanelappearance.h
     llsidepanelinventory.h
@@ -950,7 +971,6 @@ set(viewer_HEADER_FILES
     llurldispatcherlistener.h
     llurlhistory.h
     llurllineeditorctrl.h
-    llurlsimstring.h
     llurlwhitelist.h
     llvectorperfoptions.h
     llversioninfo.h
@@ -1015,6 +1035,7 @@ set(viewer_HEADER_FILES
     llvoicechannel.h
     llvoiceclient.h
     llvoicevisualizer.h
+    llvoicevivox.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -1029,8 +1050,9 @@ set(viewer_HEADER_FILES
     llwaterparammanager.h
     llwaterparamset.h
     llwearable.h
-    llwearabledictionary.h
+    llwearableitemslist.h
     llwearablelist.h
+    llwearabletype.h
     llweb.h
     llwind.h
     llwindebug.h
@@ -1043,6 +1065,7 @@ set(viewer_HEADER_FILES
     llworldmapmessage.h
     llworldmipmap.h
     llworldmapview.h
+    llworldview.h
     llxmlrpclistener.h
     llxmlrpctransaction.h
     macmain.h
@@ -1390,7 +1413,7 @@ if (WINDOWS)
 
     # If adding a file to viewer_manifest.py in the WindowsManifest.construct() method, be sure to add the dependency
     # here.
-    # *NOTE:Mani - This is a crappy hack to have important dependecies for the viewer_manifest copy action
+    # *NOTE:Mani - This is a crappy hack to have important dependencies for the viewer_manifest copy action
     # be met. I'm looking forward to a source-code split-up project next year that will address this kind of thing.
     # In the meantime, if you have any ideas on how to easily maintain one list, either here or in viewer_manifest.py
     # and have the build deps get tracked *please* tell me about it.
@@ -1408,10 +1431,10 @@ if (WINDOWS)
         ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
         ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
         )
-    endif(USE_GOOGLE_PERFTOOLS)
-  
+     endif(USE_GOOGLE_PERFTOOLS)
+ 
 
-    set(COPY_INPUT_DEPENDECIES
+    set(COPY_INPUT_DEPENDENCIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
       #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll => None ... Skipping libtcmalloc_minimal.dll
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
@@ -1445,8 +1468,6 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/dbghelp.dll
       ${CMAKE_CURRENT_SOURCE_DIR}/fmod.dll
-      ${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}/media_plugin_quicktime.dll
-      ${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}/media_plugin_webkit.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtcore4.dll
       ${ARCH_PREBUILT_DIRS_RELEASE}/qtgui4.dll
@@ -1486,6 +1507,7 @@ if (WINDOWS)
       SLPlugin
       media_plugin_quicktime
       media_plugin_webkit
+      winmm_shim
       windows-crash-logger
       windows-updater
       )
@@ -1507,7 +1529,7 @@ if (WINDOWS)
       DEPENDS 
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         stage_third_party_libs
-        ${COPY_INPUT_DEPENDECIES}
+        ${COPY_INPUT_DEPENDENCIES}
       COMMENT "Performing viewer_manifest copy"
       )
     
@@ -1526,8 +1548,6 @@ if (WINDOWS)
         
     add_dependencies(${VIEWER_BINARY_NAME} 
       SLPlugin 
-      media_plugin_quicktime 
-      media_plugin_webkit
       windows-updater 
       windows-crash-logger
       )
@@ -1577,7 +1597,10 @@ if (WINDOWS)
           --login_channel=${VIEWER_LOGIN_CHANNEL}
           --source=${CMAKE_CURRENT_SOURCE_DIR}
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
-        DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        DEPENDS 
+            ${VIEWER_BINARY_NAME} 
+            ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+            ${COPY_INPUT_DEPENDENCIES}
         )
 
       add_custom_target(package ALL DEPENDS 
@@ -1626,6 +1649,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${WINDOWS_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
     ${ELFIO_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
@@ -1802,6 +1827,43 @@ if (LL_TESTS)
     "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
     )
 
+  set(test_libs 
+    ${LLMESSAGE_LIBRARIES} 
+    ${WINDOWS_LIBRARIES} 
+    ${LLVFS_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLCOMMON_LIBRARIES} 
+    ${GOOGLEMOCK_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
+  )
+
+    LL_ADD_INTEGRATION_TEST(llsechandler_basic
+     llsechandler_basic.cpp
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llsecapi
+     llsecapi.cpp
+    "${test_libs}"
+    )
+
+  set(llslurl_test_sources
+      llslurl.cpp
+      llviewernetwork.cpp
+  )
+
+
+  LL_ADD_INTEGRATION_TEST(llslurl
+     "${llslurl_test_sources}"
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llviewernetwork
+     llviewernetwork.cpp
+    "${test_libs}"
+    )
+
   #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
   #ADD_VIEWER_BUILD_TEST(llworldmap viewer)
@@ -1809,6 +1871,7 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
   #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
+
 endif (LL_TESTS)
 
 

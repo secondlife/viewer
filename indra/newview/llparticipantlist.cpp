@@ -37,6 +37,8 @@
 #include "llavataractions.h"
 #include "llagent.h"
 
+#include "llimview.h"
+#include "llnotificationsutil.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
 #include "llviewercontrol.h"
@@ -95,7 +97,7 @@ public:
 	void onChange()
 	{
 		uuid_set_t participant_uuids;
-		LLVoiceClient::getInstance()->getParticipantsUUIDSet(participant_uuids);
+		LLVoiceClient::getInstance()->getParticipantList(participant_uuids);
 
 
 		// check whether Avaline caller exists among voice participants
@@ -558,9 +560,8 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 	}
 	else
 	{
-		LLVoiceClient::participantState *participant = LLVoiceClient::getInstance()->findParticipantByID(avatar_id);
-
-		mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), participant ? participant->mAccountName : LLTrans::getString("AvatarNameWaiting"));
+		std::string display_name = LLVoiceClient::getInstance()->getDisplayName(avatar_id);
+		mAvatarList->addAvalineItem(avatar_id, mSpeakerMgr->getSessionID(), display_name.empty() ? display_name : LLTrans::getString("AvatarNameWaiting"));
 		mAvalineUpdater->watchAvalineCaller(avatar_id);
 	}
 	adjustParticipant(avatar_id);
@@ -674,12 +675,10 @@ void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const
 	if (is_muted)
 	{
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceMuteSelected", false);
-		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceMuteOthers", false);
 	}
 	else
 	{
 		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteSelected", false);
-		LLMenuGL::sMenuContainer->childSetVisible("ModerateVoiceUnMuteOthers", false);
 	}
 }
 
@@ -719,10 +718,26 @@ void LLParticipantList::LLParticipantListMenu::toggleMute(const LLSD& userdata, 
 	{
 		return;
 	}
+	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(mParent.mAvatarList->getItemByValue(speaker_id));
+	if (NULL == item) return;
 
-	name = speakerp->mDisplayName;
+	name = item->getAvatarName();
 
-	LLMute mute(speaker_id, name, speakerp->mType == LLSpeaker::SPEAKER_AGENT ? LLMute::AGENT : LLMute::OBJECT);
+	LLMute::EType mute_type;
+	switch (speakerp->mType)
+	{
+		case LLSpeaker::SPEAKER_AGENT:
+			mute_type = LLMute::AGENT;
+			break;
+		case LLSpeaker::SPEAKER_OBJECT:
+			mute_type = LLMute::OBJECT;
+			break;
+		case LLSpeaker::SPEAKER_EXTERNAL:
+		default:
+			mute_type = LLMute::EXTERNAL;
+			break;
+	}
+	LLMute mute(speaker_id, name, mute_type);
 
 	if (!is_muted)
 	{
@@ -768,16 +783,17 @@ void LLParticipantList::LLParticipantListMenu::moderateVoice(const LLSD& userdat
 	if (!gAgent.getRegion()) return;
 
 	bool moderate_selected = userdata.asString() == "selected";
-	const LLUUID& selected_avatar_id = mUUIDs.front();
-	bool is_muted = isMuted(selected_avatar_id);
 
 	if (moderate_selected)
 	{
+		const LLUUID& selected_avatar_id = mUUIDs.front();
+		bool is_muted = isMuted(selected_avatar_id);
 		moderateVoiceParticipant(selected_avatar_id, is_muted);
 	}
 	else
 	{
-		moderateVoiceOtherParticipants(selected_avatar_id, is_muted);
+		bool unmute_all = userdata.asString() == "unmute_all";
+		moderateVoiceOtherParticipants(LLUUID::null, unmute_all);
 	}
 }
 
@@ -795,9 +811,42 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(co
 	LLIMSpeakerMgr* mgr = dynamic_cast<LLIMSpeakerMgr*>(mParent.mSpeakerMgr);
 	if (mgr)
 	{
+		if (!unmute)
+		{
+			LLSD payload;
+			payload["session_id"] = mgr->getSessionID();
+			payload["excluded_avatar_id"] = excluded_avatar_id;
+			LLNotificationsUtil::add("ConfirmMuteAll", LLSD(), payload, confirmMuteAllCallback);
+			return;
+		}
+
 		mgr->moderateVoiceOtherParticipants(excluded_avatar_id, unmute);
 	}
 }
+
+// static
+void LLParticipantList::LLParticipantListMenu::confirmMuteAllCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 1)
+	{
+		return;
+	}
+
+	const LLSD& payload = notification["payload"];
+	const LLUUID& session_id = payload["session_id"];
+	const LLUUID& excluded_avatar_id = payload["excluded_avatar_id"];
+
+	LLIMSpeakerMgr * speaker_manager = dynamic_cast<LLIMSpeakerMgr*> (
+			LLIMModel::getInstance()->getSpeakerManager(session_id));
+	if (speaker_manager)
+	{
+		speaker_manager->moderateVoiceOtherParticipants(excluded_avatar_id, false);
+	}
+
+	return;
+}
+
 
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
 {
@@ -839,7 +888,7 @@ bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD&
 	else if (item == "can_call")
 	{
 		bool not_agent = mUUIDs.front() != gAgentID;
-		bool can_call = not_agent && LLVoiceClient::voiceEnabled() && LLVoiceClient::getInstance()->voiceWorking();
+		bool can_call = not_agent &&  LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 		return can_call;
 	}
 

@@ -246,6 +246,7 @@ public:
 	void			setImageHoverUnselected(LLPointer<LLUIImage> image);
 	void			setImageDisabled(LLPointer<LLUIImage> image);
 	void			setImageDisabledSelected(LLPointer<LLUIImage> image);
+	void			setImagePressed(LLPointer<LLUIImage> image);
 
 	void			setCommitOnReturn(BOOL commit) { mCommitOnReturn = commit; }
 	BOOL			getCommitOnReturn() const { return mCommitOnReturn; }

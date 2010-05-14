@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="nearby_media">
+	<string name="media_item_count_format">
+		(%ld ítems media)
+	</string>
 	<string name="empty_item_text">
 		&lt;vacío&gt;
 	</string>
@@ -16,15 +19,10 @@
 		<button label="Parar todo" name="all_nearby_media_disable_btn" tool_tip="Apagar todos los media cercanos"/>
 		<button label="Iniciar todo" name="all_nearby_media_enable_btn" tool_tip="Encender todos los media cercanos"/>
 		<button name="open_prefs_btn" tool_tip="Abrir las preferencias de los media"/>
-		<button label="Más &gt;&gt;" label_selected="Menos &lt;&lt;" name="more_less_btn" tool_tip="Controles avanzados"/>
+		<button label="Más &gt;&gt;" label_selected="Menos &lt;&lt;" name="more_btn" tool_tip="Controles avanzados"/>
+		<button label="Más &gt;&gt;" label_selected="Menos &lt;&lt;" name="less_btn" tool_tip="Controles avanzados"/>
 	</panel>
 	<panel name="nearby_media_panel">
-		<text name="nearby_media">
-			Media cercanos
-		</text>
-		<text name="show">
-			Mostrar:
-		</text>
 		<combo_box name="show_combo">
 			<combo_box.item label="Todo" name="All"/>
 			<combo_box.item label="En esta parcela" name="WithinParcel"/>
@@ -38,22 +36,22 @@
 			<scroll_list.columns label="Nombre" name="media_name"/>
 			<scroll_list.columns label="Depurar" name="media_debug"/>
 		</scroll_list>
-		<panel name="media_controls_panel">
+		<panel>
 			<layout_stack name="media_controls">
 				<layout_panel name="stop">
 					<button name="stop_btn" tool_tip="Parar los media seleccionados"/>
 				</layout_panel>
 				<layout_panel name="play">
-					<button name="play_btn" tool_tip="Ejecutar los media seleccionados"/>
+					<button name="play_btn" tool_tip="Ejecutar los media"/>
 				</layout_panel>
 				<layout_panel name="pause">
-					<button name="pause_btn" tool_tip="Pausar los media seleccionados"/>
+					<button name="pause_btn" tool_tip="Pausa los media seleccionados"/>
 				</layout_panel>
 				<layout_panel name="volume_slider_ctrl">
 					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Volumen de los media seleccionados"/>
 				</layout_panel>
 				<layout_panel name="mute">
-					<button name="mute_btn" tool_tip="Silenciar el audio de los media seleccionados"/>
+					<button name="mute_btn" tool_tip="Silencia los media seleccionados"/>
 				</layout_panel>
 				<layout_panel name="zoom">
 					<button name="zoom_btn" tool_tip="Zoom en los media seleccionados"/>

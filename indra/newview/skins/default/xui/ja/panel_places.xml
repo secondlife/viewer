@@ -11,5 +11,6 @@
 		<button label="保存" name="save_btn"/>
 		<button label="キャンセル" name="cancel_btn"/>
 		<button label="閉じる" name="close_btn"/>
+		<button label="プロフィール" name="profile_btn"/>
 	</panel>
 </panel>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu label="Bearbeiten" name="Edit">
+	<menu_item_call label="Rückgängig" name="Undo"/>
+	<menu_item_call label="Wiederherstellen" name="Redo"/>
+	<menu_item_call label="Ausschneiden" name="Cut"/>
+	<menu_item_call label="Kopieren" name="Copy"/>
+	<menu_item_call label="Einfügen" name="Paste"/>
+	<menu_item_call label="Löschen" name="Delete"/>
+	<menu_item_call label="Duplizieren" name="Duplicate"/>
+	<menu_item_call label="Alle auswählen" name="Select All"/>
+	<menu_item_call label="Auswahl aufheben" name="Deselect"/>
+</menu>

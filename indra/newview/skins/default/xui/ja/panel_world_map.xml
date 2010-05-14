@@ -30,6 +30,12 @@
 	<panel.string name="world_map_northwest">
 		北西
 	</panel.string>
+	<panel.string name="world_map_person">
+		1 人
+	</panel.string>
+	<panel.string name="world_map_people">
+		[NUMBER] 人
+	</panel.string>
 	<text label="北" name="floater_map_north" text="北">
 		北
 	</text>

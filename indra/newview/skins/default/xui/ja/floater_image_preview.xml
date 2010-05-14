@@ -10,16 +10,16 @@
 		プレビュー：
 	</text>
 	<combo_box label="服の種類" name="clothing_type_combo">
-		<combo_box.item label="画像" name="Image"/>
-		<combo_box.item label="髪" name="Hair"/>
-		<combo_box.item label="女性の頭" name="FemaleHead"/>
-		<combo_box.item label="女性の上半身" name="FemaleUpperBody"/>
-		<combo_box.item label="女性の下半身" name="FemaleLowerBody"/>
-		<combo_box.item label="男性の頭" name="MaleHead"/>
-		<combo_box.item label="男性の上半身" name="MaleUpperBody"/>
-		<combo_box.item label="男性の下半身" name="MaleLowerBody"/>
-		<combo_box.item label="スカート" name="Skirt"/>
-		<combo_box.item label="スカルプトプリム" name="SculptedPrim"/>
+		<item label="画像" name="Image" value="画像"/>
+		<item label="髪" name="Hair" value="髪"/>
+		<item label="女性の頭" name="FemaleHead" value="女性の頭"/>
+		<item label="女性の上半身" name="FemaleUpperBody" value="女性の上半身"/>
+		<item label="女性の下半身" name="FemaleLowerBody" value="女性の下半身"/>
+		<item label="男性の頭" name="MaleHead" value="男性の頭"/>
+		<item label="男性の上半身" name="MaleUpperBody" value="男性の上半身"/>
+		<item label="男性の下半身" name="MaleLowerBody" value="男性の下半身"/>
+		<item label="スカート" name="Skirt" value="スカート"/>
+		<item label="スカルプトプリム" name="SculptedPrim" value="スカルプトプリム"/>
 	</combo_box>
 	<text name="bad_image_text">
 		イメージを読み取れません。

@@ -48,6 +48,8 @@ class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 	friend class LLSingleton<LLAppearanceMgr>;
 	
 public:
+	typedef std::vector<LLInventoryModel::item_array_t> wearables_by_type_t;
+
 	void updateAppearanceFromCOF();
 	bool needToSaveCOF();
 	void updateCOF(const LLUUID& category, bool append = false);
@@ -138,11 +140,24 @@ public:
 	//Remove clothing or detach an object from the agent (a bodypart cannot be removed)
 	void removeItemFromAvatar(const LLUUID& item_id);
 
+
+	LLUUID makeNewOutfitLinks(const std::string& new_folder_name);
+
+	bool moveWearable(LLViewerInventoryItem* item, bool closer_to_body);
+
+	static void sortItemsByActualDescription(LLInventoryModel::item_array_t& items);
+
+	//Divvy items into arrays by wearable type
+	static void divvyWearablesByType(const LLInventoryModel::item_array_t& items, wearables_by_type_t& items_by_type);
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();
 
 private:
+
+	//Check ordering information on wearables stored in links' descriptions and update if it is invalid
+	void updateClothingOrderingInfo();
 
 	void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
 	

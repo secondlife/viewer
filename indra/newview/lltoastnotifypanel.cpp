@@ -291,7 +291,10 @@ LLToastNotifyPanel::~LLToastNotifyPanel()
 	{
 		// let reusable notification be deleted
 		mNotification->setReusable(false);
-		LLNotifications::getInstance()->cancel(mNotification);
+		if (!mNotification->isPersistent())
+		{
+			LLNotifications::getInstance()->cancel(mNotification);
+		}
 	}
 }
 
@@ -493,7 +496,7 @@ void LLToastNotifyPanel::onClickButton(void* data)
 	{
 		sButtonClickSignal(self->mNotification->getID(), button_name);
 
-		if(new_info)
+		if(new_info && !self->mNotification->isPersistent())
 		{
 			self->mNotification->setResponseFunctor(
 				boost::bind(&LLOfferInfo::inventory_offer_callback, new_info, _1, _2));

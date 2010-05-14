@@ -148,6 +148,7 @@ void LLInventoryCompletionObserver::watchItem(const LLUUID& id)
 
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_id) :
 	LLInventoryFetchObserver(item_id),
+
 	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
 {
 	mIDs.clear();
@@ -155,7 +156,9 @@ LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_
 }
 
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids) :
-	LLInventoryFetchObserver(item_ids)
+	LLInventoryFetchObserver(item_ids),
+
+	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
 {
 }
 
@@ -212,7 +215,7 @@ void LLInventoryFetchItemsObserver::changed(U32 mask)
 
 void fetch_items_from_llsd(const LLSD& items_llsd)
 {
-	if (!items_llsd.size()) return;
+	if (!items_llsd.size() || gDisconnected) return;
 	LLSD body;
 	body[0]["cap_name"] = "FetchInventory";
 	body[1]["cap_name"] = "FetchLib";
@@ -232,6 +235,11 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 		
 	for (S32 i=0; i<body.size(); i++)
 	{
+		if(!gAgent.getRegion())
+		{
+			llwarns<<"Agent's region is null"<<llendl;
+			break;
+		}
 		if (0 >= body[i].size()) continue;
 		std::string url = gAgent.getRegion()->getCapability(body[i]["cap_name"].asString());
 
@@ -646,4 +654,106 @@ void LLInventoryTransactionObserver::changed(U32 mask)
 			}
 		}
 	}
+}
+
+void LLInventoryCategoriesObserver::changed(U32 mask)
+{
+	if (!mCategoryMap.size())
+		return;
+
+	for (category_map_t::iterator iter = mCategoryMap.begin();
+		 iter != mCategoryMap.end();
+		 ++iter)
+	{
+		LLViewerInventoryCategory* category = gInventory.getCategory((*iter).first);
+		if (!category)
+			continue;
+
+		const S32 version = category->getVersion();
+		const S32 expected_num_descendents = category->getDescendentCount();
+		if ((version == LLViewerInventoryCategory::VERSION_UNKNOWN) ||
+			(expected_num_descendents == LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN))
+		{
+			continue;
+		}
+
+		// Check number of known descendents to find out whether it has changed.
+		LLInventoryModel::cat_array_t* cats;
+		LLInventoryModel::item_array_t* items;
+		gInventory.getDirectDescendentsOf((*iter).first, cats, items);
+		if (!cats || !items)
+		{
+			llwarns << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << llendl;
+			// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+			// that the cat just doesn't have any items or subfolders).
+			// Unrecoverable, so just skip this category.
+
+			llassert(cats != NULL && items != NULL);
+
+			continue;
+		}
+
+		const S32 current_num_known_descendents = cats->count() + items->count();
+
+		LLCategoryData cat_data = (*iter).second;
+
+		// If category version or descendents count has changed
+		// update category data in mCategoryMap and fire a callback.
+		if (version != cat_data.mVersion || current_num_known_descendents != cat_data.mDescendentsCount)
+		{
+			cat_data.mVersion = version;
+			cat_data.mDescendentsCount = current_num_known_descendents;
+
+			cat_data.mCallback();
+		}
+	}
+}
+
+bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb)
+{
+	S32 version = LLViewerInventoryCategory::VERSION_UNKNOWN;
+	S32 current_num_known_descendents = LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN;
+	bool can_be_added = true;
+
+	LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
+	// If category could not be retrieved it might mean that
+	// inventory is unusable at the moment so the category is
+	// stored with VERSION_UNKNOWN and DESCENDENT_COUNT_UNKNOWN,
+	// it may be updated later.
+	if (category)
+	{
+		// Inventory category version is used to find out if some changes
+		// to a category have been made.
+		version = category->getVersion();
+
+		LLInventoryModel::cat_array_t* cats;
+		LLInventoryModel::item_array_t* items;
+		gInventory.getDirectDescendentsOf(cat_id, cats, items);
+		if (!cats || !items)
+		{
+			llwarns << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << llendl;
+			// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+			// that the cat just doesn't have any items or subfolders).
+			// Unrecoverable, so just return "false" meaning that the category can't be observed.
+			can_be_added = false;
+
+			llassert(cats != NULL && items != NULL);
+		}
+		else
+		{
+			current_num_known_descendents = cats->count() + items->count();
+		}
+	}
+
+	if (can_be_added)
+	{
+		mCategoryMap.insert(category_map_value_t(cat_id, LLCategoryData(cb, version, current_num_known_descendents)));
+	}
+
+	return can_be_added;
+}
+
+void LLInventoryCategoriesObserver::removeCategory(const LLUUID& cat_id)
+{
+	mCategoryMap.erase(cat_id);
 }

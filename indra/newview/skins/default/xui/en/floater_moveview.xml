@@ -13,7 +13,7 @@
  save_rect="true"
  save_visibility="true"
  save_dock_state="true"
- width="115">
+ width="113">
     <string
      name="walk_forward_tooltip">
         Walk Forward (press Up Arrow or W)
@@ -21,6 +21,14 @@
     <string
      name="walk_back_tooltip">
         Walk Backwards (press Down Arrow or S)
+    </string>
+    <string
+     name="walk_left_tooltip">
+        Walk left (press Shift + Left Arrow or A)
+    </string>
+    <string
+     name="walk_right_tooltip">
+        Walk right (press Shift + Right Arrow or D)
     </string>
     <string
      name="run_forward_tooltip">
@@ -31,12 +39,44 @@
         Run Backwards (press Down Arrow or S)
     </string>
     <string
+     name="run_left_tooltip">
+        Run left (press Shift + Left Arrow or A)
+    </string>
+    <string
+     name="run_right_tooltip">
+        Run right (press Shift + Right Arrow or D)
+    </string>
+    <string
      name="fly_forward_tooltip">
         Fly Forward (press Up Arrow or W)
     </string>
     <string
      name="fly_back_tooltip">
         Fly Backwards (press Down Arrow or S)
+    </string>
+    <string
+     name="fly_left_tooltip">
+        Fly left (press Shift + Left Arrow or A)
+    </string>
+    <string
+     name="fly_right_tooltip">
+        Fly right (press Shift + Right Arrow or D)
+    </string>
+    <string
+     name="fly_up_tooltip">
+        Fly up (press E)
+    </string>
+    <string
+     name="fly_down_tooltip">
+        Fly down (press C)
+    </string>
+    <string
+     name="jump_tooltip">
+        Jump (press E)
+    </string>
+    <string
+     name="crouch_tooltip">
+        Crouch (press C)
     </string>
     <string
      name="walk_title">
@@ -59,59 +99,91 @@
      mouse_opaque="false"
      name="panel_actions"
      top="0"
-     width="115">
+     width="113">
+        <!-- Buttons in panel are organized in 3 columns to enable their easy vertical adjustment via top_pad-->
+        <!-- Left column -->
         <button
          follows="left|bottom"
-         height="25"
-         image_selected="Movement_TurnLeft_On"
-         image_pressed_selected="Movement_TurnLeft_On"
-         image_unselected="Movement_TurnLeft_Off"
-         layout="topleft"
-         left="17"
-         name="turn left btn"
-         scale_image="false"
-         tool_tip="Turn left (press Left Arrow or A)"
-         top="45"
-         width="25" />
-        <button
-         follows="left|bottom"
-         height="25"
-         image_selected="Movement_TurnRight_On"
-         image_pressed_selected="Movement_TurnRight_On"
-         image_unselected="Movement_TurnRight_Off"
-         layout="topleft"
-         left_pad="34"
-         name="turn right btn"
-         scale_image="false"
-         tool_tip="Turn right (press Right Arrow or D)"
-         top_delta="0"
-         width="25" />
-        <button
-         follows="left|bottom"
-         height="25"
+         height="24"
          image_selected="Movement_Up_On"
          image_pressed_selected="Movement_Up_On"
          image_unselected="Movement_Up_Off"
          layout="topleft"
-         left="10"
+         left="23"
          name="move up btn"
          scale_image="false"
-         tool_tip="Fly up, press E"
-         top="14"
-         width="25" />
+         tool_tip="Fly up (press E)"
+         top="18"
+         width="24" />
         <button
          follows="left|bottom"
-         height="25"
+         height="24"
+         image_selected="Movement_TurnLeft_On"
+         image_pressed_selected="Movement_TurnLeft_On"
+         image_unselected="Movement_TurnLeft_Off"
+         layout="topleft"
+         left="15"
+         name="turn left btn"
+         scale_image="false"
+         tool_tip="Turn left (press Left Arrow or A)"
+         top_pad="-3"
+         width="24" />
+        <joystick_slide
+         follows="left|bottom"
+         height="24"
+         image_selected="Movement_Left_On"
+         image_pressed_selected="Movement_Left_On"
+         image_unselected="Movement_Left_Off"
+         layout="topleft"
+         left="18"
+         name="move left btn"
+         quadrant="left"
+         scale_image="false"
+         tool_tip="Walk left (press Shift + Left Arrow or A)"
+         top_pad="-3"
+         width="24" />
+        <!-- Right column -->
+        <button
+         follows="left|bottom"
+         height="24"
          image_selected="Movement_Down_On"
          image_pressed_selected="Movement_Down_On"
          image_unselected="Movement_Down_Off"
          layout="topleft"
-         left_pad="45"
+         right="-21"
          name="move down btn"
          scale_image="false"
-         tool_tip="Fly down, press C"
-         top_delta="0"
-         width="20" />
+         tool_tip="Fly down (press C)"
+         top="18"
+         width="24" />
+        <button
+         follows="left|bottom"
+         height="24"
+         image_selected="Movement_TurnRight_On"
+         image_pressed_selected="Movement_TurnRight_On"
+         image_unselected="Movement_TurnRight_Off"
+         layout="topleft"
+         right="-13"
+         name="turn right btn"
+         scale_image="false"
+         tool_tip="Turn left (press Right Arrow or D)"
+         top_pad="-3"
+         width="24" />
+        <joystick_slide
+         follows="left|bottom"
+         height="24"
+         image_selected="Movement_Right_On"
+         image_pressed_selected="Movement_Right_On"
+         image_unselected="Movement_Right_Off"
+         layout="topleft"
+         name="move right btn"
+         quadrant="right"
+         right="-16"
+         scale_image="false"
+         tool_tip="Walk right (press Shift + Right Arrow or D)"
+         top_pad="-3"
+         width="24" />
+        <!-- Middle column -->
         <joystick_turn
          follows="left|bottom"
          height="25"
@@ -124,7 +196,7 @@
          quadrant="up"
          scale_image="false"
          tool_tip="Walk forward (press up arrow or W)"
-         top_delta="10"
+         top="22"
          width="21" />
         <joystick_turn
          follows="left|bottom"
@@ -138,7 +210,7 @@
          quadrant="down"
          scale_image="false"
          tool_tip="Walk backward (press down arrow or S)"
-         top_delta="30"
+         top_pad="7"
          width="21" />
     </panel>
 <!-- Width and height of this panel should be synchronized with panel_stand_stop_flying.xml -->
@@ -149,7 +221,7 @@
      left="0"
      name="panel_modes"
      top_pad="0"
-     width="115">
+     width="113">
         <button
          follows="left|bottom"
          height="23"

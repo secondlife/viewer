@@ -67,6 +67,7 @@ LLToast::Params::Params()
 LLToast::LLToast(const LLToast::Params& p) 
 :	LLModalDialog(LLSD(), p.is_modal),
 	mPanel(p.panel), 
+	mToastLifetime(p.lifetime_secs),
 	mToastFadingTime(p.fading_time_secs),
 	mNotificationID(p.notif_id),  
 	mSessionID(p.session_id),
@@ -240,6 +241,13 @@ void LLToast::draw()
 		{
 			drawChild(mHideBtn);
 		}
+	}
+
+	// if timer started and remaining time <= fading time
+	if (mTimer->getStarted() && (mToastLifetime
+			- mTimer->getEventTimer().getElapsedTimeF32()) <= mToastFadingTime)
+	{
+		setBackgroundOpaque(FALSE);
 	}
 }
 

@@ -3,14 +3,14 @@
  border="false"
  height="300"
  name="panel_im_control_panel"
- width="110">
+ width="119">
     <avatar_icon
      follows="left|top"
      height="105"
      left_delta="5"
      name="avatar_icon"
      top="-5"
-     width="105"/>
+     width="114"/>
     <layout_stack
      mouse_opaque="false"
      border_size="0"
@@ -22,7 +22,7 @@
      name="button_stack"
      orientation="vertical"
      top_pad="5"
-     width="105">
+     width="114">
         <layout_panel
          mouse_opaque="false"
          auto_resize="true"
@@ -31,7 +31,7 @@
          layout="topleft"
          left="2"
          min_height="0"
-         width="100"
+         width="109"
          top="0"
          name="spacer"
          user_resize="false" />
@@ -41,7 +41,7 @@
          height="20"
          layout="topleft"
          min_height="20"
-         width="100"
+         width="109"
          name="view_profile_btn_panel"
          user_resize="false">
             <button
@@ -50,7 +50,7 @@
              label="Profile"
              name="view_profile_btn"
              top="0"
-             width="100" />
+             width="109" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -58,7 +58,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="100"
+         width="109"
          name="add_friend_btn_panel"
          user_resize="false">
             <button
@@ -67,7 +67,7 @@
              label="Add Friend"
              name="add_friend_btn"
              top="5"
-             width="100" />
+             width="109" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -75,7 +75,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="100"
+         width="109"
          name="teleport_btn_panel"
          user_resize="false">
         <button
@@ -85,7 +85,7 @@
              label="Teleport"
              name="teleport_btn"
              tool_tip = "Offer to teleport this person"
-             width="100" />
+             width="109" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -93,7 +93,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="100"
+         width="109"
          name="share_btn_panel"
          user_resize="false">
            <button
@@ -102,7 +102,7 @@
              height="23"
              label="Share"
              name="share_btn"
-             width="100" />
+             width="109" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -110,7 +110,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="100"
+         width="109"
          name="pay_btn_panel"
          user_resize="false">
            <button
@@ -119,7 +119,7 @@
              height="23"
              label="Pay"
              name="pay_btn"
-             width="100" />
+             width="109" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -127,7 +127,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="100"
+         width="109"
          name="call_btn_panel"
          user_resize="false">
             <button
@@ -135,7 +135,7 @@
              height="23"
              label="Call"
              name="call_btn"
-             width="100" />
+             width="109" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -143,7 +143,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="100"
+         width="109"
          name="end_call_btn_panel"
          user_resize="false"
          visible="false">
@@ -152,7 +152,7 @@
              height="23"
              label="End Call"
              name="end_call_btn"
-             width="100" />
+             width="109" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -160,7 +160,7 @@
          height="25"
          layout="topleft"
          min_height="25"
-         width="100"
+         width="109"
          name="voice_ctrls_btn_panel"
          user_resize="false"
          visible="false">
@@ -169,7 +169,7 @@
              height="23"
              label="Voice Controls"
              name="voice_ctrls_btn"
-             width="100" />
+             width="109" />
         </layout_panel>
     </layout_stack>
 </panel>

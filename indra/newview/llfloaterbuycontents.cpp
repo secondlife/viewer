@@ -48,7 +48,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"	// for gInventory
 #include "llfloaterreg.h"
-#include "llfloaterinventory.h"	// for get_item_icon
+#include "llfloaterinventory.h"	// for LLInventoryIcon::getIcon
 #include "llnotificationsutil.h"
 #include "llselectmgr.h"
 #include "llscrolllistctrl.h"
@@ -221,8 +221,9 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 			item_is_multi = TRUE;
 		}
 
-		std::string icon_name = get_item_icon_name(inv_item->getType(), 
+		std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(), 
 								 inv_item->getInventoryType(),
+								 inv_item->getIsLinkType(),
 								 inv_item->getFlags(),
 								 item_is_multi);
 		row["columns"][0]["column"] = "icon";

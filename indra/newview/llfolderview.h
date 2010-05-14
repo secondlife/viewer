@@ -164,7 +164,7 @@ public:
 
 	virtual S32 extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items);
 
-	virtual BOOL getSelectionList(std::set<LLUUID> &selection) const;
+	virtual std::set<LLUUID> getSelectionList() const;
 
 	// make sure if ancestor is selected, descendents are not
 	void sanitizeSelection();
@@ -230,6 +230,7 @@ public:
 								   EAcceptance* accept,
 								   std::string& tooltip_msg);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask) { setShowSelectionContext(FALSE); }
 	virtual void draw();
 	virtual void deleteAllChildren();
 

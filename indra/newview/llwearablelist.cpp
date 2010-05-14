@@ -121,7 +121,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 			bool res = wearable->importFile( fp );
 			if (!res)
 			{
-				if (wearable->getType() == WT_COUNT)
+				if (wearable->getType() == LLWearableType::WT_COUNT)
 				{
 					isNewWearable = TRUE;
 				}
@@ -228,16 +228,14 @@ LLWearable* LLWearableList::createCopy(const LLWearable* old_wearable, const std
 	return wearable;
 }
 
-LLWearable* LLWearableList::createNewWearable( EWearableType type )
+LLWearable* LLWearableList::createNewWearable( LLWearableType::EType type )
 {
 	lldebugs << "LLWearableList::createNewWearable()" << llendl;
 
 	LLWearable *wearable = generateNewWearable();
 	wearable->setType( type );
 	
-	LLSD item_name = LLSD().with("[WEARABLE_ITEM]", wearable->getTypeLabel());
-	std::string name = LLTrans::getString("NewWearable");
-	LLStringUtil::format(name, item_name);
+	std::string name = LLTrans::getString( LLWearableType::getTypeDefaultNewName(wearable->getType()) );
 	wearable->setName( name );
 
 	LLPermissions perm;

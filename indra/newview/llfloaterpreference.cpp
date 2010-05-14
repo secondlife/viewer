@@ -599,7 +599,7 @@ void LLFloaterPreference::onBtnOK()
 		llinfos << "Can't close preferences!" << llendl;
 	}
 
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateLocationCombo( false );
 }
 
 // static 
@@ -616,7 +616,7 @@ void LLFloaterPreference::onBtnApply( )
 	apply();
 	saveSettings();
 
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateLocationCombo( false );
 }
 
 // static 
@@ -1197,7 +1197,7 @@ void LLFloaterPreference::applyResolution()
 	gSavedSettings.setS32("FullScreenWidth", supported_resolutions[resIndex].mWidth);
 	gSavedSettings.setS32("FullScreenHeight", supported_resolutions[resIndex].mHeight);
 	
-	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("WindowFullScreen"));
+	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("FullScreen"));
 	
 	send_agent_update(TRUE);
 	

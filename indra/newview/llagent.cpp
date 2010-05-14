@@ -1226,7 +1226,10 @@ void LLAgent::startAutoPilotGlobal(const LLVector3d &target_global, const std::s
 	if ( distance > 1.f && heightDelta > (sqrtf(mAutoPilotStopDistance) + 1.f))
 	{
 		setFlying(TRUE);
-		mAutoPilotFlyOnStop = TRUE;
+		// Do not force flying for "Sit" behavior to prevent flying after pressing "Stand"
+		// from an object. See EXT-1655.
+		if ("Sit" != mAutoPilotBehaviorName)
+			mAutoPilotFlyOnStop = TRUE;
 	}
 
 	mAutoPilot = TRUE;
@@ -1492,6 +1495,8 @@ void LLAgent::propagate(const F32 dt)
 		floater_move->mBackwardButton  ->setToggleState( gAgentCamera.getAtKey() < 0 || gAgentCamera.getWalkKey() < 0 );
 		floater_move->mTurnLeftButton  ->setToggleState( gAgentCamera.getYawKey() > 0.f );
 		floater_move->mTurnRightButton ->setToggleState( gAgentCamera.getYawKey() < 0.f );
+		floater_move->mSlideLeftButton  ->setToggleState( gAgentCamera.getLeftKey() > 0.f );
+		floater_move->mSlideRightButton ->setToggleState( gAgentCamera.getLeftKey() < 0.f );
 		floater_move->mMoveUpButton    ->setToggleState( gAgentCamera.getUpKey() > 0 );
 		floater_move->mMoveDownButton  ->setToggleState( gAgentCamera.getUpKey() < 0 );
 	}
@@ -3233,7 +3238,7 @@ bool LLAgent::teleportCore(bool is_local)
 	
 	// MBW -- Let the voice client know a teleport has begun so it can leave the existing channel.
 	// This was breaking the case of teleporting within a single sim.  Backing it out for now.
-//	gVoiceClient->leaveChannel();
+//	LLVoiceClient::getInstance()->leaveChannel();
 	
 	return true;
 }
@@ -3377,7 +3382,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 	if (mTeleportState == TELEPORT_MOVING)
 	{
 		// We're outa here. Save "back" slurl.
-		mTeleportSourceSLURL = LLAgentUI::buildSLURL();
+		LLAgentUI::buildSLURL(mTeleportSourceSLURL);
 	}
 	else if(mTeleportState == TELEPORT_ARRIVING)
 	{
@@ -3553,7 +3558,7 @@ void LLAgent::sendAgentSetAppearance()
 		const ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
 
 		// if we're not wearing a skirt, we don't need the texture to be baked
-		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(WT_SKIRT))
+		if (texture_index == TEX_SKIRT_BAKED && !gAgentAvatarp->isWearingWearableType(LLWearableType::WT_SKIRT))
 		{
 			continue;
 		}
@@ -3576,8 +3581,8 @@ void LLAgent::sendAgentSetAppearance()
 			LLUUID hash;
 			for (U8 i=0; i < baked_dict->mWearables.size(); i++)
 			{
-				// EWearableType wearable_type = gBakedWearableMap[baked_index][wearable_num];
-				const EWearableType wearable_type = baked_dict->mWearables[i];
+				// LLWearableType::EType wearable_type = gBakedWearableMap[baked_index][wearable_num];
+				const LLWearableType::EType wearable_type = baked_dict->mWearables[i];
 				// MULTI-WEARABLE: fixed to 0th - extend to everything once messaging works.
 				const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,0);
 				if (wearable)
