@@ -155,6 +155,8 @@ private:
 
 	static void closeHiddenIMToasts();
 
+	static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
+
 	LLPanelChatControlPanel* mControlPanel;
 	LLUUID mSessionID;
 	S32 mLastMessageIndex;

@@ -32,12 +32,13 @@
 
 #include "linden_common.h"
 
-#include "lluictrl.h"
-#include "llscrollbar.h"
 #include "llaccordionctrltab.h"
-#include "lllocalcliprect.h"
 
+#include "lllocalcliprect.h"
+#include "llscrollbar.h"
 #include "lltextbox.h"
+#include "lluictrl.h"
+#include "lluitextutil.h"
 
 static const std::string DD_BUTTON_NAME = "dd_button";
 static const std::string DD_TEXTBOX_NAME = "dd_textbox";
@@ -72,7 +73,8 @@ public:
 
 	virtual BOOL postBuild();
 
-	void	setTitle(const std::string& title);
+	std::string getTitle();
+	void	setTitle(const std::string& title, const std::string& hl);
 
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
@@ -146,10 +148,28 @@ BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::postBuild()
 	return TRUE;
 }
 
-void	LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitle(const std::string& title)
+std::string LLAccordionCtrlTab::LLAccordionCtrlTabHeader::getTitle()
 {
 	if(mHeaderTextbox)
-		mHeaderTextbox->setText(title);
+	{
+		return mHeaderTextbox->getText();
+	}
+	else
+	{
+		return LLStringUtil::null;
+	}
+}
+
+void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitle(const std::string& title, const std::string& hl)
+{
+	if(mHeaderTextbox)
+	{
+		LLTextUtil::textboxSetHighlightedVal(
+			mHeaderTextbox,
+			LLStyle::Params(),
+			title,
+			hl);
+	}
 }
 
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
@@ -436,12 +456,25 @@ void LLAccordionCtrlTab::setAccordionView(LLView* panel)
 	addChild(panel,0);
 }
 
-void LLAccordionCtrlTab::setTitle(const std::string& title)
+std::string LLAccordionCtrlTab::getTitle()
 {
 	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
 	if (header)
 	{
-		header->setTitle(title);
+		return header->getTitle();
+	}
+	else
+	{
+		return LLStringUtil::null;
+	}
+}
+
+void LLAccordionCtrlTab::setTitle(const std::string& title, const std::string& hl)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		header->setTitle(title, hl);
 	}
 }
 
@@ -903,5 +936,3 @@ BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 	}
 	return LLUICtrl::handleToolTip(x, y, mask);
 }
-
-

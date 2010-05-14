@@ -37,6 +37,8 @@
 #include "llavataractions.h"
 #include "llagent.h"
 
+#include "llimview.h"
+#include "llnotificationsutil.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
 #include "llviewercontrol.h"
@@ -809,9 +811,42 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceOtherParticipants(co
 	LLIMSpeakerMgr* mgr = dynamic_cast<LLIMSpeakerMgr*>(mParent.mSpeakerMgr);
 	if (mgr)
 	{
+		if (!unmute)
+		{
+			LLSD payload;
+			payload["session_id"] = mgr->getSessionID();
+			payload["excluded_avatar_id"] = excluded_avatar_id;
+			LLNotificationsUtil::add("ConfirmMuteAll", LLSD(), payload, confirmMuteAllCallback);
+			return;
+		}
+
 		mgr->moderateVoiceOtherParticipants(excluded_avatar_id, unmute);
 	}
 }
+
+// static
+void LLParticipantList::LLParticipantListMenu::confirmMuteAllCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 1)
+	{
+		return;
+	}
+
+	const LLSD& payload = notification["payload"];
+	const LLUUID& session_id = payload["session_id"];
+	const LLUUID& excluded_avatar_id = payload["excluded_avatar_id"];
+
+	LLIMSpeakerMgr * speaker_manager = dynamic_cast<LLIMSpeakerMgr*> (
+			LLIMModel::getInstance()->getSpeakerManager(session_id));
+	if (speaker_manager)
+	{
+		speaker_manager->moderateVoiceOtherParticipants(excluded_avatar_id, false);
+	}
+
+	return;
+}
+
 
 bool LLParticipantList::LLParticipantListMenu::enableContextMenuItem(const LLSD& userdata)
 {

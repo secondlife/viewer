@@ -6476,18 +6476,3 @@ void LLOfferInfo::forceResponse(InventoryOfferResponse response)
 	LLNotifications::instance().forceResponse(params, response);
 }
 
-static bool confirm_leave_call_callback(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	const LLSD& payload = notification["payload"];
-	LLUUID session_id = payload["session_id"];
-
-	LLFloater* im_floater = LLFloaterReg::findInstance("impanel", session_id);
-	if (option == 0 && im_floater != NULL)
-	{
-		im_floater->closeFloater();
-	}
-
-	return false;
-}
-static LLNotificationFunctorRegistration confirm_leave_call_cb("ConfirmLeaveCall", confirm_leave_call_callback);
