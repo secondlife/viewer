@@ -130,7 +130,7 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	mIconImage = get_item_icon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
+	mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), mItem->getIsLinkType(), mItem->getFlags(), FALSE);
 
 	setNeedsRefresh(true);
 

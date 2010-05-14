@@ -49,6 +49,8 @@
 	<menu_item_call label="Abrir" name="Sound Open"/>
 	<menu_item_call label="Substituir equipamento" name="Replace Outfit"/>
 	<menu_item_call label="Adicionar ao equipamento" name="Add To Outfit"/>
+	<menu_item_call label="Tirar do look atual" name="Remove From Outfit"/>
+	<menu_item_call label="Encontrar original" name="Find Original"/>
 	<menu_item_call label="Remover item" name="Purge Item"/>
 	<menu_item_call label="Restaurar item" name="Restore Item"/>
 	<menu_item_call label="Abrir" name="Open"/>
@@ -58,6 +60,7 @@
 	<menu_item_call label="Copiar" name="Copy"/>
 	<menu_item_call label="Colar" name="Paste"/>
 	<menu_item_call label="Colar como link" name="Paste As Link"/>
+	<menu_item_call label="Remover link" name="Remove Link"/>
 	<menu_item_call label="Apagar" name="Delete"/>
 	<menu_item_call label="Excluir pasta do sistema" name="Delete System Folder"/>
 	<menu_item_call label="Pasta conversa em conferência" name="Conference Chat Folder"/>

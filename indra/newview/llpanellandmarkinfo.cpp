@@ -235,7 +235,7 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
 		// IDEVO
 		LLUUID creator_id = pItem->getCreatorUUID();
 		std::string name =
-			LLSLURL::buildCommand("agent", creator_id, "inspect");
+			LLSLURL("agent", creator_id, "inspect").getSLURLString();
 		//if (!gCacheName->getFullName(creator_id, name))
 		//{
 		//	gCacheName->get(creator_id, FALSE,
@@ -263,7 +263,7 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
 			//	gCacheName->get(group_id, TRUE,
 			//					boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mOwner, _2, _3));
 			//}
-			name = LLSLURL::buildCommand("group", group_id, "inspect");
+			name = LLSLURL("group", group_id, "inspect").getSLURLString();
 		}
 		else
 		{
@@ -274,7 +274,7 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
 			//	gCacheName->get(owner_id, FALSE,
 			//					boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mOwner, _2, _3));
 			//}
-			name = LLSLURL::buildCommand("agent", owner_id, "inspect");
+			name = LLSLURL("agent", owner_id, "inspect").getSLURLString();
 		}
 		mOwner->setText(name);
 	}

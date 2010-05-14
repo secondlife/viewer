@@ -1099,8 +1099,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		if (root)
 		{
 			can_delete = TRUE;
-			std::set<LLUUID> selection_set;
-			root->getSelectionList(selection_set);
+			std::set<LLUUID> selection_set = root->getSelectionList();
 			if (selection_set.empty()) return FALSE;
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();

@@ -700,6 +700,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 						notify = TRUE;
 						args["NAME"] = full_name;
 					}
+
 				}
 			}
 			else

@@ -36,6 +36,7 @@
 
 #include <boost/tokenizer.hpp>
 
+#include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "llfloaterreg.h"
 #include "llinventory.h"
@@ -58,7 +59,8 @@ void LLNameListCtrl::NameTypeNames::declareValues()
 
 LLNameListCtrl::Params::Params()
 :	name_column(""),
-	allow_calling_card_drop("allow_calling_card_drop", false)
+	allow_calling_card_drop("allow_calling_card_drop", false),
+	short_names("short_names", false)
 {
 	name = "name_list";
 }
@@ -67,7 +69,8 @@ LLNameListCtrl::LLNameListCtrl(const LLNameListCtrl::Params& p)
 :	LLScrollListCtrl(p),
 	mNameColumnIndex(p.name_column.column_index),
 	mNameColumn(p.name_column.column_name),
-	mAllowCallingCardDrop(p.allow_calling_card_drop)
+	mAllowCallingCardDrop(p.allow_calling_card_drop),
+	mShortNames(p.short_names)
 {}
 
 // public
@@ -297,10 +300,20 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 		break;
 	case INDIVIDUAL:
 		{
-			std::string name;
-			if (gCacheName->getFullName(id, name))
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::get(id, &av_name))
 			{
-				fullname = name;
+				if (mShortNames)
+					fullname = av_name.mDisplayName;
+				else
+					fullname = av_name.getNameAndSLID();
+			}
+			else
+			{
+				// ...schedule a callback
+				LLAvatarNameCache::get(id,
+					boost::bind(&LLNameListCtrl::onAvatarNameCache,
+						this, _1, _2));
 			}
 			break;
 		}
@@ -355,23 +368,25 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 	}
 }
 
-// public
-void LLNameListCtrl::refresh(const LLUUID& id, const std::string& full_name, bool is_group)
+void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
+									   const LLAvatarName& av_name)
 {
-	//llinfos << "LLNameListCtrl::refresh " << id << " '" << first << " "
-	//	<< last << "'" << llendl;
+	std::string name;
+	if (mShortNames)
+		name = av_name.mDisplayName;
+	else
+		name = av_name.getNameAndSLID();
 
-	// TODO: scan items for that ID, fix if necessary
 	item_list::iterator iter;
 	for (iter = getItemList().begin(); iter != getItemList().end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
-		if (item->getUUID() == id)
+		if (item->getUUID() == agent_id)
 		{
 			LLScrollListCell* cell = item->getColumn(mNameColumnIndex);
 			if (cell)
 			{
-				cell->setValue(full_name);
+				cell->setValue(name);
 			}
 		}
 	}
@@ -379,18 +394,6 @@ void LLNameListCtrl::refresh(const LLUUID& id, const std::string& full_name, boo
 	dirtyColumns();
 }
 
-
-// static
-void LLNameListCtrl::refreshAll(const LLUUID& id, const std::string& full_name, bool is_group)
-{
-	LLInstanceTrackerScopedGuard guard;
-	LLInstanceTracker<LLNameListCtrl>::instance_iter it;
-	for (it = guard.beginInstances(); it != guard.endInstances(); ++it)
-	{
-		LLNameListCtrl& ctrl = *it;
-		ctrl.refresh(id, full_name, is_group);
-	}
-}
 
 void LLNameListCtrl::updateColumns()
 {

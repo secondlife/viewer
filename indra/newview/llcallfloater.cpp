@@ -33,13 +33,14 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llcallfloater.h"
+
 #include "llnotificationsutil.h"
 #include "lltrans.h"
 
-#include "llcallfloater.h"
-
 #include "llagent.h"
 #include "llagentdata.h" // for gAgentID
+#include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "llavatarlist.h"
 #include "llbottomtray.h"
@@ -133,7 +134,7 @@ LLCallFloater::~LLCallFloater()
 
 	if(LLVoiceClient::instanceExists())
 	{
-		LLVoiceClient::instance().removeObserver(this);
+		LLVoiceClient::getInstance()->removeObserver(this);
 	}
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
@@ -207,7 +208,6 @@ void LLCallFloater::draw()
 void LLCallFloater::onChange()
 {
 	if (NULL == mParticipants) return;
-
 	updateParticipantsVoiceState();
 
 	// Add newly joined participants.
@@ -237,11 +237,11 @@ void LLCallFloater::updateSession()
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
 	if (voice_channel)
 	{
-		lldebugs << "Current voice channel: " << voice_channel->getSessionID() << llendl;
+		LL_DEBUGS("Voice") << "Current voice channel: " << voice_channel->getSessionID() << LL_ENDL;
 
 		if (mSpeakerManager && voice_channel->getSessionID() == mSpeakerManager->getSessionID())
 		{
-			lldebugs << "Speaker manager is already set for session: " << voice_channel->getSessionID() << llendl;
+			LL_DEBUGS("Voice") << "Speaker manager is already set for session: " << voice_channel->getSessionID() << LL_ENDL;
 			return;
 		}
 		else
@@ -251,7 +251,6 @@ void LLCallFloater::updateSession()
 	}
 
 	const LLUUID& session_id = voice_channel ? voice_channel->getSessionID() : LLUUID::null;
-	lldebugs << "Set speaker manager for session: " << session_id << llendl;
 
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (im_session)
@@ -291,7 +290,7 @@ void LLCallFloater::updateSession()
 	{
 		// by default let show nearby chat participants
 		mSpeakerManager = LLLocalSpeakerMgr::getInstance();
-		lldebugs << "Set DEFAULT speaker manager" << llendl;
+		LL_DEBUGS("Voice") << "Set DEFAULT speaker manager" << LL_ENDL;
 		mVoiceType = VC_LOCAL_CHAT;
 	}
 
@@ -424,9 +423,10 @@ void LLCallFloater::initAgentData()
 	{
 		mAgentPanel->childSetValue("user_icon", gAgentID);
 
-		std::string name;
-		gCacheName->getFullName(gAgentID, name);
-		mAgentPanel->childSetValue("user_text", name);
+		// Just use display name, because it's you
+		LLAvatarName av_name;
+		LLAvatarNameCache::get( gAgentID, &av_name );
+		mAgentPanel->childSetValue("user_text", av_name.mDisplayName);
 
 		mSpeakingIndicator = mAgentPanel->getChild<LLOutputMonitorCtrl>("speaking_indicator");
 		mSpeakingIndicator->setSpeakerId(gAgentID);
@@ -447,7 +447,10 @@ void LLCallFloater::setModeratorMutedVoice(bool moderator_muted)
 void LLCallFloater::updateAgentModeratorState()
 {
 	std::string name;
-	gCacheName->getFullName(gAgentID, name);
+	// Just use display name, because it's you
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(gAgentID, &av_name);
+	name = av_name.mDisplayName;
 
 	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
 	{
@@ -470,16 +473,15 @@ void LLCallFloater::updateAgentModeratorState()
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)
 {
 	// Get a list of participants from VoiceClient
-	LLVoiceClient::participantMap *voice_map = LLVoiceClient::getInstance()->getParticipantList();
-	if (voice_map)
+       std::set<LLUUID> participants;
+       LLVoiceClient::getInstance()->getParticipantList(participants);
+	
+	for (std::set<LLUUID>::const_iterator iter = participants.begin();
+		 iter != participants.end(); ++iter)
 	{
-		for (LLVoiceClient::participantMap::const_iterator iter = voice_map->begin();
-			iter != voice_map->end(); ++iter)
-		{
-			LLUUID id = (*iter).second->mAvatarID;
-			speakers_uuids.push_back(id);
-		}
+		speakers_uuids.push_back(*iter);
 	}
+
 }
 
 void LLCallFloater::initParticipantsVoiceState()
@@ -555,7 +557,7 @@ void LLCallFloater::updateParticipantsVoiceState()
 
 		uuid_vec_t::iterator speakers_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), participant_id);
 
-		lldebugs << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << llendl;
+		LL_DEBUGS("Voice") << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << LL_ENDL;
 
 		// If an avatarID assigned to a panel is found in a speakers list
 		// obtained from VoiceClient we assign the JOINED status to the owner
@@ -728,7 +730,7 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
 	// check is voice operational and if it doesn't work hide VCP (EXT-4397)
-	if(LLVoiceClient::voiceEnabled() && LLVoiceClient::getInstance()->voiceWorking())
+	if(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking())
 	{
 		updateState(new_state);
 	}

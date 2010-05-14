@@ -448,7 +448,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 			//gCacheName->get(parcel->getOwnerID(), FALSE,
 			//				boost::bind(&LLPanelPlaceInfo::nameUpdatedCallback, mParcelOwner, _2, _3));
 			std::string parcel_owner =
-				LLSLURL::buildCommand("agent", parcel->getOwnerID(), "inspect");
+				LLSLURL("agent", parcel->getOwnerID(), "inspect").getSLURLString();
 			mParcelOwner->setText(parcel_owner);
 			gCacheName->get(region->getOwner(), false,
 							boost::bind(&LLPanelPlaceInfo::onNameCache, mRegionOwnerText, _2));

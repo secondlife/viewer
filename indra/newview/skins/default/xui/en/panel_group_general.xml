@@ -28,6 +28,7 @@ Hover your mouse over the options for more help.
       width="304"
       layout="topleft">
     <texture_picker
+     default_image_name="Generic_Group_Large"
      follows="left|top"
      height="110"
      label=""
@@ -112,6 +113,7 @@ Hover your mouse over the options for more help.
      layout="topleft"
      left="0"
      name="visible_members"
+     short_names="false" 
      top_pad="2">
         <name_list.columns
          label="Member"
