@@ -40,11 +40,13 @@
 // llcommon
 #include "llcommonutils.h"
 
+// llui
 #include "lliconctrl.h"
+#include "lluitextutil.h"
 
+#include "llcallbacklist.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
-#include "lltextutil.h"
 #include "lltrans.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,6 +322,7 @@ LLInventoryItemsList::Params::Params()
 LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p)
 :	LLFlatListViewEx(p)
 ,	mNeedsRefresh(false)
+,	mPrevVisibility(false)
 {
 	// TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
 	// but reset to true in all derived classes. This settings might need to
@@ -327,6 +330,8 @@ LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p
 	setCommitOnSelectionChange(true);
 
 	setNoFilteredItemsMsg(LLTrans::getString("InventoryNoMatchingItems"));
+
+	gIdleCallbacks.addFunction(idle, this);
 }
 
 // virtual
@@ -344,12 +349,31 @@ void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item
 	mNeedsRefresh = true;
 }
 
-void LLInventoryItemsList::draw()
+boost::signals2::connection LLInventoryItemsList::setRefreshCompleteCallback(const commit_signal_t::slot_type& cb)
 {
-	LLFlatListViewEx::draw();
-	if(mNeedsRefresh)
+	return mRefreshCompleteSignal.connect(cb);
+}
+
+void LLInventoryItemsList::doIdle()
+{
+	bool cur_visibility = getVisible();
+	if(cur_visibility != mPrevVisibility || mNeedsRefresh)
 	{
 		refresh();
+
+		mRefreshCompleteSignal(this, LLSD());
+
+		mPrevVisibility = getVisible();
+	}
+}
+
+//static
+void LLInventoryItemsList::idle(void* user_data)
+{
+	LLInventoryItemsList* self = static_cast<LLInventoryItemsList*>(user_data);
+	if ( self )
+	{	// Do the real idle
+		self->doIdle();
 	}
 }
 
