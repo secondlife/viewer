@@ -1856,6 +1856,11 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 	}
 	
 	LLTextureEntry *te = getTE(texture_index);
+	if(!te)
+	{
+		return ;
+	}
+
 	LL_DEBUGS("MediaOnAPrim") << "BEFORE: texture_index = " << texture_index
 		<< " hasMedia = " << te->hasMedia() << " : " 
 		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << llendl;
