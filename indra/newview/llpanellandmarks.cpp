@@ -993,8 +993,8 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	}
 	else if("create_pick" == command_name)
 	{
-		std::set<LLUUID> selection;
-		if ( mCurrentSelectedList && mCurrentSelectedList->getRootFolder()->getSelectionList(selection) )
+		std::set<LLUUID> selection = mCurrentSelectedList->getRootFolder()->getSelectionList();
+		if ( mCurrentSelectedList && !selection.empty() )
 		{
 			return ( 1 == selection.size() && !LLAgentPicksInfo::getInstance()->isPickLimitReached() );
 		}
