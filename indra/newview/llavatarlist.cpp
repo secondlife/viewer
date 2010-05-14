@@ -316,9 +316,7 @@ void LLAvatarList::refresh()
 		}
 
 		// Send refresh_complete signal.
-		std::vector<LLSD> cur_values;
-		getValues(cur_values);
-		mRefreshCompleteSignal(this, LLSD((S32)cur_values.size()));
+		mRefreshCompleteSignal(this, LLSD((S32)size(false)));
 	}
 
 	// Commit if we've added/removed items.
