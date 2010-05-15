@@ -2294,6 +2294,14 @@ void pushVerts(LLFace* face, U32 mask)
 	}
 }
 
+void pushVerts(LLDrawable* drawable, U32 mask)
+{
+	for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+	{
+		pushVerts(drawable->getFace(i), mask);
+	}
+}
+
 void pushBufferVerts(LLVertexBuffer* buffer, U32 mask)
 {
 	if (buffer)
@@ -2664,36 +2672,35 @@ void renderPhysicsShape(LLDrawable* drawable)
 	LLVOVolume* volume = drawable->getVOVolume();
 	if (volume)
 	{
+		F32 threshold = gSavedSettings.getF32("ObjectCostHighThreshold");
+		F32 cost = volume->getObjectCost();
+
+		LLColor4 low = gSavedSettings.getColor4("ObjectCostLowColor");
+		LLColor4 high = gSavedSettings.getColor4("ObjectCostHighColor");
+
+		LLColor4 color = lerp(low, high, cost/threshold);
+
+		U32 data_mask = LLVertexBuffer::MAP_VERTEX;
+
 		if (volume->isMesh())
-		{
+		{			
 			LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
 			const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
 			if (decomp)
 			{
-				if (volume->getObjectCost() == -1)
-				{
-					gObjectList.updateObjectCost(volume);
-				}
-
 				gGL.pushMatrix();
 				glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
-				static std::vector<LLColor4U> color;
-
+				
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 				for (U32 i = 0; i < decomp->mHull.size(); ++i)
-				{
-					if (color.size() <= i)
-					{
-						color.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127, 255));
-					}
-					
+				{		
 					LLVertexBuffer* buff = decomp->mMesh[i];
 
-					buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+					buff->setBuffer(data_mask);
 
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					glColor3ub(color[i].mV[0], color[i].mV[1], color[i].mV[2]);
+					glColor3fv(color.mV);
 					buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -2701,14 +2708,24 @@ void renderPhysicsShape(LLDrawable* drawable)
 						LLGLEnable blend(GL_BLEND);
 						gGL.setSceneBlendType(LLRender::BT_ALPHA);
 						LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-						glColor4ub(color[i].mV[0], color[i].mV[1], color[i].mV[2], 64);
+						glColor4fv(color.mV);
 						buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
 					}
 				}
 
 				gGL.popMatrix();
+
+				return;
 			}
 		}
+
+		//push faces
+		glColor3fv(color.mV);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		pushVerts(drawable, data_mask);
+		glColor4fv(color.mV);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		pushVerts(drawable, data_mask);
 	}
 }
 

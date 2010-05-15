@@ -292,6 +292,9 @@ public:
 
 	// count members
 	S32 getObjectCount(BOOL mesh_adjust = FALSE);
+	F32 getSelectedObjectCost();
+	F32 getSelectedLinksetCost();
+
 	S32 getTECount();
 	S32 getRootObjectCount();
 

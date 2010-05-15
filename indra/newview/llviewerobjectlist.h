@@ -92,7 +92,7 @@ public:
 	void update(LLAgent &agent, LLWorld &world);
 
 	void updateObjectCost(LLViewerObject* object);
-	void updateObjectCost(LLUUID object_id, S32 prim_cost, S32 link_cost);
+	void updateObjectCost(LLUUID object_id, F32 prim_cost, F32 link_cost);
 
 	void shiftObjects(const LLVector3 &offset);
 

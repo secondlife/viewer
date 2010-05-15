@@ -232,7 +232,9 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mState(0),
 	mMedia(NULL),
 	mClickAction(0),
-	mObjectCost(-1),
+	mObjectCost(0.f),
+	mLinksetCost(0.f),
+	mCostStale(true),
 	mAttachmentItemID(LLUUID::null)
 {
 	if (!is_global)
@@ -829,6 +831,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #ifdef DEBUG_UPDATE_TYPE
 				llinfos << "Full:" << getID() << llendl;
 #endif
+				//clear cost and linkset cost
+				mCostStale = true;
+
 				LLUUID audio_uuid;
 				LLUUID owner_id;	// only valid if audio_uuid or particle system is not null
 				F32    gain;
@@ -1394,6 +1399,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #ifdef DEBUG_UPDATE_TYPE
 				llinfos << "CompFull:" << getID() << llendl;
 #endif
+				mCostStale = true;
+
 				dp->unpackU32(crc, "CRC");
 				mTotalCRC = crc;
 				dp->unpackU8(material, "Material");
@@ -2862,6 +2869,39 @@ void LLViewerObject::setScale(const LLVector3 &scale, BOOL damped)
 			}
 		}
 	}
+}
+
+void LLViewerObject::setObjectCost(F32 cost)
+{
+	mObjectCost = cost;
+	mCostStale = false;
+}
+
+void LLViewerObject::setLinksetCost(F32 cost)
+{
+	mLinksetCost = cost;
+	mCostStale = false;
+}
+
+
+F32 LLViewerObject::getObjectCost()
+{
+	if (mCostStale)
+	{
+		gObjectList.updateObjectCost(this);
+	}
+	
+	return mObjectCost;
+}
+
+F32 LLViewerObject::getLinksetCost()
+{
+	if (mCostStale)
+	{
+		gObjectList.updateObjectCost(this);
+	}
+
+	return mLinksetCost;
 }
 
 void LLViewerObject::updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax)
@@ -4970,7 +5010,7 @@ void LLViewerObject::updateFlags()
 
 	if (getPhysicsShapeType() != 0)
 	{
-		llwarns << "sent non default physics rep" << llendl;
+		llwarns << "sent non default physics rep " << (S32) getPhysicsShapeType() << llendl;
 	}
 }
 

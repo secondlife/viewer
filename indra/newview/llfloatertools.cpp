@@ -419,12 +419,12 @@ void LLFloaterTools::refresh()
 
 	// Refresh object and prim count labels
 	LLLocale locale(LLLocale::USER_LOCALE);
-	std::string obj_count_string;
-	LLResMgr::getInstance()->getIntegerString(obj_count_string, LLSelectMgr::getInstance()->getSelection()->getRootObjectCount());
-	childSetTextArg("obj_count",  "[COUNT]", obj_count_string);	
-	std::string prim_count_string;
-	LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount(TRUE));
-	childSetTextArg("prim_count", "[COUNT]", prim_count_string);
+	
+	F32 obj_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectCost();
+	F32 link_cost = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
+
+	childSetTextArg("obj_count",  "[COUNT]", llformat("%.1f", obj_cost));	
+	childSetTextArg("prim_count", "[COUNT]", llformat("%.1f", link_cost));
 
 	// calculate selection rendering cost
 	if (sShowObjectCost)

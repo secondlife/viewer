@@ -665,8 +665,8 @@ public:
 		for (LLSD::map_const_iterator iter = content.beginMap(); iter != content.endMap(); ++iter)
 		{
 			LLUUID object_id = LLUUID(iter->first);
-			S32 link_cost = iter->second["LinkResourceCost"].asInteger();
-			S32 prim_cost = iter->second["PrimResourceCost"].asInteger();
+			F32 link_cost = iter->second["LinksetResourceCost"].asReal();
+			F32 prim_cost = iter->second["PrimResourceCost"].asReal();
 
 			gObjectList.updateObjectCost(object_id, prim_cost, link_cost);
 		}
@@ -1099,7 +1099,7 @@ void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
 	mStaleObjectCost.insert(object->getID());
 }
 
-void LLViewerObjectList::updateObjectCost(LLUUID object_id, S32 prim_cost, S32 link_cost)
+void LLViewerObjectList::updateObjectCost(LLUUID object_id, F32 prim_cost, F32 link_cost)
 {
 	mPendingObjectCost.erase(object_id);
 
@@ -1107,6 +1107,7 @@ void LLViewerObjectList::updateObjectCost(LLUUID object_id, S32 prim_cost, S32 l
 	if (object)
 	{
 		object->setObjectCost(prim_cost);
+		object->setLinksetCost(link_cost);
 	}
 }
 
