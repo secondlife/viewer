@@ -292,7 +292,7 @@
                  width="311"
                  user_resize="true">
                     <inventory_panel
-		             allow_multi_select="false"
+		             allow_multi_select="true"
 		             border="false"
 		             follows="left|top|right|bottom"
 		             height="130"
