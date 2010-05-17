@@ -399,6 +399,15 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+void LLAvatarList::setVisible(BOOL visible)
+{
+	if ( visible == FALSE && mContextMenu )
+	{
+		mContextMenu->hide();
+	}
+	LLFlatListViewEx::setVisible(visible);
+}
+
 void LLAvatarList::computeDifference(
 	const uuid_vec_t& vnew_unsorted,
 	uuid_vec_t& vadded,

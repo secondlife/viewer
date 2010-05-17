@@ -3420,6 +3420,12 @@ BOOL LLMenuHolderGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			
 	if (pMenu)
 	{
+		//eat TAB key - EXT-7000
+		if (key == KEY_TAB && mask == MASK_NONE)
+		{
+			return TRUE;
+		}
+
 		//handle ESCAPE and RETURN key
 		handled = LLPanel::handleKey(key, mask, called_from_parent);
 		if (!handled)
