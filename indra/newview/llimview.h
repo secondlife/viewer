@@ -41,7 +41,7 @@
 #include "llvoicechannel.h"
 
 
-
+class LLAvatarName;
 class LLFriendObserver;
 class LLCallDialogManager;	
 class LLIMSpeakerMgr;
@@ -540,6 +540,13 @@ public:
 	static void onStartIM(void* user_data);
 
 private:
+	void setCallerName(const std::string& ui_title,
+		const std::string& ui_label,
+		const std::string& call_type);
+	void onAvatarNameCache(const LLUUID& agent_id,
+		const LLAvatarName& av_name,
+		const std::string& call_type);
+
 	/*virtual*/ void onLifetimeExpired();
 	void processCallResponse(S32 response);
 };

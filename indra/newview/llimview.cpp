@@ -1915,21 +1915,21 @@ BOOL LLIncomingCallDialog::postBuild()
 	if (caller_name == "anonymous")
 	{
 		caller_name = getString("anonymous");
+		setCallerName(caller_name, caller_name, call_type);
 	}
 	else if (!is_avatar)
 	{
 		caller_name = LLTextUtil::formatPhoneNumber(caller_name);
+		setCallerName(caller_name, caller_name, call_type);
 	}
 	else
 	{
-		// IDEVO
-		caller_name = LLCacheName::cleanFullName(caller_name);
+		// Get the full name information
+		LLAvatarNameCache::get(caller_id,
+			boost::bind(&LLIncomingCallDialog::onAvatarNameCache,
+				this, _1, _2, call_type));
 	}
 
-	setTitle(caller_name + " " + call_type);
-
-	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
-	caller_name_widget->setValue(caller_name + " " + call_type);
 	setIcon(session_id, caller_id);
 
 	childSetAction("Accept", onAccept, this);
@@ -1953,6 +1953,23 @@ BOOL LLIncomingCallDialog::postBuild()
 	return TRUE;
 }
 
+void LLIncomingCallDialog::setCallerName(const std::string& ui_title,
+										 const std::string& ui_label,
+										 const std::string& call_type)
+{
+	setTitle(ui_title + " " + call_type);
+
+	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
+	caller_name_widget->setValue(ui_label + " " + call_type);
+}
+
+void LLIncomingCallDialog::onAvatarNameCache(const LLUUID& agent_id,
+											 const LLAvatarName& av_name,
+											 const std::string& call_type)
+{
+	std::string title = av_name.getNameAndSLID();
+	setCallerName(title, av_name.mDisplayName, call_type);
+}
 
 void LLIncomingCallDialog::onOpen(const LLSD& key)
 {

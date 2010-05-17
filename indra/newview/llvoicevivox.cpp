@@ -37,6 +37,8 @@
 
 #include "llsdutil.h"
 
+// Linden library includes
+#include "llavatarnamecache.h"
 #include "llvoavatarself.h"
 #include "llbufferstream.h"
 #include "llfile.h"
@@ -52,6 +54,8 @@
 #include "llviewercontrol.h"
 #include "llkeyboard.h"
 #include "llappviewer.h"	// for gDisconnected, gDisableVoice
+
+// Viewer includes
 #include "llmutelist.h"  // to check for muted avatars
 #include "llagent.h"
 #include "llcachename.h"
@@ -6178,6 +6182,11 @@ void LLVivoxVoiceClient::lookupName(const LLUUID &id)
 {
 	BOOL is_group = FALSE;
 	gCacheName->get(id, is_group, &LLVivoxVoiceClient::onAvatarNameLookup);
+
+	// Peformance boost:  We're going to need the display name later when
+	// we show the call request floater, so get the request going now
+	LLAvatarName unused;
+	LLAvatarNameCache::get(id, &unused);
 }
 
 //static
