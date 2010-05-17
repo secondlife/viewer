@@ -3726,10 +3726,14 @@ void LLContextMenuBranch::buildDrawLabel( void )
 
 void	LLContextMenuBranch::showSubMenu()
 {
-	S32 center_x;
-	S32 center_y;
-	localPointToScreen(getRect().getWidth(), getRect().getHeight() , &center_x, &center_y);
-	mBranch->show(	center_x, center_y);
+	LLMenuItemGL* menu_item = mBranch->getParentMenuItem();
+	if (menu_item != NULL && menu_item->getVisible())
+	{
+		S32 center_x;
+		S32 center_y;
+		localPointToScreen(getRect().getWidth(), getRect().getHeight() , &center_x, &center_y);
+		mBranch->show(center_x, center_y);
+	}
 }
 
 // onCommit() - do the primary funcationality of the menu item.
