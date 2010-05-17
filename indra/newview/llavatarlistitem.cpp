@@ -170,6 +170,7 @@ void LLAvatarListItem::setOnline(bool online)
 void LLAvatarListItem::setName(const std::string& name)
 {
 	setNameInternal(name, mHighlihtSubstring);
+	mAvatarName->setToolTip(name);
 }
 
 void LLAvatarListItem::setHighlight(const std::string& highlight)
@@ -334,12 +335,12 @@ const std::string LLAvatarListItem::getAvatarName() const
 void LLAvatarListItem::setNameInternal(const std::string& name, const std::string& highlight)
 {
 	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle, name, highlight);
-	mAvatarName->setToolTip(name);
 }
 
 void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
 	setName(av_name.mDisplayName);
+	mAvatarName->setToolTip(av_name.mSLID);
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));
