@@ -1746,8 +1746,19 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	setTitle(callee_name);
 
 	LLSD callee_id = mPayload["other_user_id"];
-	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
-	childSetTextArg("connecting", "[CALLEE_NAME]", callee_name);
+	// Beautification:  Since SLID is in the title bar, and you probably
+	// recognize this person's voice, just show display name
+	std::string final_callee_name = callee_name;
+	if (is_avatar)
+	{
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(callee_id, &av_name))
+		{
+			final_callee_name = av_name.mDisplayName;
+		}
+	}
+	childSetTextArg("calling", "[CALLEE_NAME]", final_callee_name);
+	childSetTextArg("connecting", "[CALLEE_NAME]", final_callee_name);
 
 	// for outgoing group calls callee_id == group id == session id
 	setIcon(callee_id, callee_id);
