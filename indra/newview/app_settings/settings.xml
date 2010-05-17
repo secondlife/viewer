@@ -7340,7 +7340,7 @@
     <key>NameTagShowSLIDs</key>
     <map>
       <key>Comment</key>
-      <string>Show Second Life IDs in name labels</string>
+      <string>Show usernames in avatar name tags</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
