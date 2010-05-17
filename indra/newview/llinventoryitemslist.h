@@ -222,6 +222,12 @@ public:
 	bool getNeedsRefresh(){ return mNeedsRefresh; }
 
 	/**
+	 * Sets the flag indicating that the list needs to be refreshed even if it is
+	 * not currently visible.
+	 */
+	void setForceRefresh(bool force_refresh){ mForceRefresh = force_refresh; }
+
+	/**
 	 * Idle routine used to refresh the list regardless of the current list
 	 * visibility, unlike draw() which is called only for the visible list.
 	 * This is needed for example to filter items of the list hidden by closed
@@ -259,7 +265,7 @@ private:
 					 // Will be used in refresh() to determine added and removed ids
 	bool mNeedsRefresh;
 
-	bool mPrevVisibility;
+	bool mForceRefresh;
 
 	commit_signal_t mRefreshCompleteSignal;
 };
