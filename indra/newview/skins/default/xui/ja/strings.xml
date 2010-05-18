@@ -1630,25 +1630,25 @@
 		が渡しました
 	</string>
 	<string name="InvOfferYouDecline">
-		You decline
+		拒否：
 	</string>
 	<string name="InvOfferFrom">
-		from
+		送信元：
 	</string>
 	<string name="GroupMoneyTotal">
 		合計
 	</string>
 	<string name="GroupMoneyBought">
-		は購入しました
+		購入：
 	</string>
 	<string name="GroupMoneyPaidYou">
-		があなたに支払いました
+		あなたに支払い：
 	</string>
 	<string name="GroupMoneyPaidInto">
 		paid into
 	</string>
 	<string name="GroupMoneyBoughtPassTo">
-		bought pass to
+		入場許可を購入：
 	</string>
 	<string name="GroupMoneyPaidFeeForEvent">
 		がイベント用の費用を支払いました
