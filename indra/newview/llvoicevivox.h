@@ -253,6 +253,18 @@ public:
 	virtual void removeObserver(LLVoiceEffectObserver* observer);
 	//@}
 
+	//////////////////////////////
+	/// @name Effect preview buffer
+	//@{
+	virtual void recordPreviewBuffer(bool enable);
+	virtual void playPreviewBuffer(bool enable, const LLUUID& effect_id = LLUUID::null);
+	virtual void clearPreviewBuffer();
+
+	virtual bool isPreviewRecording();
+	virtual bool isPreviewReady();
+	virtual bool isPreviewPlaying();
+	//@}
+
 	//@}
 
 
@@ -373,6 +385,11 @@ protected:
 		stateMicTuningStart,
 		stateMicTuningRunning,		
 		stateMicTuningStop,
+		stateCaptureBufferPaused,
+		stateCaptureBufferRecStart,
+		stateCaptureBufferRecording,
+		stateCaptureBufferPlayStart,
+		stateCaptureBufferPlaying,
 		stateConnectorStart,		// connector needs to be started
 		stateConnectorStarting,		// waiting for connector handle
 		stateConnectorStarted,		// connector handle received
@@ -891,6 +908,19 @@ private:
 
 	typedef std::set<LLVoiceEffectObserver*> voice_font_observer_set_t;
 	voice_font_observer_set_t mVoiceFontObservers;
+
+	// Audio capture buffer
+
+	void captureBufferRecordStartSendMessage();
+	void captureBufferRecordStopSendMessage();
+	void captureBufferPlayStartSendMessage(const LLUUID& voice_font_id = LLUUID::null);
+	void captureBufferPlayStopSendMessage();
+
+	bool mCaptureBufferRecording;
+	bool mCaptureBufferPlaying;
+	bool mCaptureBufferClear;
+
+	LLUUID mPreviewVoiceFontID;
 };
 
 /** 

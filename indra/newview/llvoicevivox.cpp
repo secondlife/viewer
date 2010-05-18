@@ -340,7 +340,10 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mLipSyncEnabled(false),
 
 	mVoiceFontsReceived(false),
-	mVoiceFontsNew(false)
+	mVoiceFontsNew(false),
+
+	mCaptureBufferRecording(false),
+	mCaptureBufferPlaying(false)
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -643,6 +646,11 @@ std::string LLVivoxVoiceClient::state2string(LLVivoxVoiceClient::state inState)
 		CASE(stateMicTuningStart);
 		CASE(stateMicTuningRunning);
 		CASE(stateMicTuningStop);
+		CASE(stateCaptureBufferPaused);
+		CASE(stateCaptureBufferRecStart);
+		CASE(stateCaptureBufferRecording);
+		CASE(stateCaptureBufferPlayStart);
+		CASE(stateCaptureBufferPlaying);
 		CASE(stateConnectorStart);
 		CASE(stateConnectorStarting);
 		CASE(stateConnectorStarted);
@@ -1119,8 +1127,62 @@ void LLVivoxVoiceClient::stateMachine()
 			
 		}
 		break;
-												
-		//MARK: stateConnectorStart
+
+		//MARK: stateCaptureBufferPaused
+		case stateCaptureBufferPaused:
+			if (mCaptureBufferRecording)
+			{
+				setState(stateCaptureBufferRecStart);
+				// Update UI, should really be separated from the VoiceFont callback
+				notifyVoiceFontObservers();
+			}
+			else if (mCaptureBufferPlaying)
+			{
+				setState(stateCaptureBufferPlayStart);
+				notifyVoiceFontObservers();
+			}
+			else if (mCaptureBufferClear)
+			{
+				mCaptureBufferClear = false;
+				setState(stateNoChannel);
+			}
+		break;
+
+		//MARK: stateCaptureBufferRecStart
+		case stateCaptureBufferRecStart:
+			captureBufferRecordStartSendMessage();
+			setState(stateCaptureBufferRecording);
+		break;
+
+		//MARK: stateCaptureBufferRecording
+		case stateCaptureBufferRecording:
+			if (!mCaptureBufferRecording || mCaptureBufferPlaying || mCaptureBufferClear)
+			{
+				mCaptureBufferRecording = false;
+				captureBufferRecordStopSendMessage();
+				setState(stateCaptureBufferPaused);
+				notifyVoiceFontObservers();
+			}
+		break;
+
+		//MARK: stateCaptureBufferPlayStart
+		case stateCaptureBufferPlayStart:
+			captureBufferPlayStartSendMessage(mPreviewVoiceFontID);
+			setState(stateCaptureBufferPlaying);
+		break;
+
+		//MARK: stateCaptureBufferPlaying
+		case stateCaptureBufferPlaying:
+			if (!mCaptureBufferPlaying || mCaptureBufferRecording || mCaptureBufferClear)
+			{
+				mCaptureBufferPlaying = false;
+				captureBufferPlayStopSendMessage();
+				setState(stateCaptureBufferPaused);
+				notifyVoiceFontObservers();
+			}
+		break;
+
+			//MARK: stateConnectorStart
 		case stateConnectorStart:
 			if(!mVoiceEnabled)
 			{
@@ -1319,6 +1381,11 @@ void LLVivoxVoiceClient::stateMachine()
 			{
 				mTuningExitState = stateNoChannel;
 				setState(stateMicTuningStart);
+			}
+			else if(mCaptureBufferRecording)
+			{
+				mTuningExitState = stateNoChannel;
+				setState(stateCaptureBufferRecStart);
 			}
 			else if(sessionNeedsRelog(mNextAudioSession))
 			{
@@ -6562,6 +6629,163 @@ void LLVivoxVoiceClient::notifyVoiceFontObservers(bool new_fonts)
 	}
 }
 
+void LLVivoxVoiceClient::recordPreviewBuffer(bool enable)
+{
+	if (enable)
+	{
+		mCaptureBufferRecording = true;
+		LL_DEBUGS("Voice") << "Starting recording" << LL_ENDL;
+		if(getState() >= stateNoChannel)
+		{
+			LL_DEBUGS("Voice") << "no channel" << LL_ENDL;
+			sessionTerminate();
+		}
+	}
+	else
+	{
+		mCaptureBufferRecording = false;
+	}
+}
+
+void LLVivoxVoiceClient::playPreviewBuffer(bool enable, const LLUUID& effect_id)
+{
+	if (enable && !isPreviewReady())
+	{
+		LL_DEBUGS("Voice") << "No preview buffer to play" << LL_ENDL;
+		return;
+	}
+
+	mCaptureBufferPlaying = enable;
+	if (mCaptureBufferPlaying)
+	{
+		mPreviewVoiceFontID = effect_id;
+	}
+}
+
+void LLVivoxVoiceClient::clearPreviewBuffer()
+{
+	mCaptureBufferClear = true;
+}
+
+bool LLVivoxVoiceClient::isPreviewRecording()
+{
+	return mCaptureBufferRecording;
+}
+
+bool LLVivoxVoiceClient::isPreviewReady()
+{
+	state preview_state = getState();
+	switch (preview_state)
+	{
+		case stateCaptureBufferPaused:
+		case stateCaptureBufferRecording:
+		case stateCaptureBufferPlaying:
+			return true;
+			break;
+		default:
+			return false;
+			break;
+	}
+}
+
+bool LLVivoxVoiceClient::isPreviewPlaying()
+{
+	return mCaptureBufferPlaying;
+}
+
+void LLVivoxVoiceClient::captureBufferRecordStartSendMessage()
+{	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Starting audio capture to buffer." << LL_ENDL;
+
+		// Start capture
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.StartBufferCapture.1\">"
+			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		// Unmute the mic
+		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
+			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<Value>false</Value>"
+		<< "</Request>\n\n\n";
+
+		// Dirty the PTT state so that it will get reset when we finishing previewing
+		mPTTDirty = true;
+
+		writeString(stream.str());
+	}
+}
+
+void LLVivoxVoiceClient::captureBufferRecordStopSendMessage()
+{
+	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Stopping audio capture to buffer." << LL_ENDL;
+
+		// Mute the mic. PTT state was dirtied at recording start, so will be reset when finished previewing.
+		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
+			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<Value>true</Value>"
+		<< "</Request>\n\n\n";
+
+		// Stop capture
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.CaptureAudioStop.1\">"
+			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		writeString(stream.str());
+	}
+}
+
+void LLVivoxVoiceClient::captureBufferPlayStartSendMessage(const LLUUID& voice_font_id)
+{
+	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Starting audio buffer playback." << LL_ENDL;
+
+		S32 font_index = getVoiceFontIndex(voice_font_id);
+		LL_DEBUGS("Voice") << "With voice font: " << voice_font_id << " (" << font_index << ")" << LL_ENDL;
+
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.PlayAudioBuffer.1\">"
+			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+			<< "<TemplateFontID>" << font_index << "</TemplateFontID>"
+			<< "<FontDelta />"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		writeString(stream.str());
+	}
+}
+
+void LLVivoxVoiceClient::captureBufferPlayStopSendMessage()
+{
+	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Stopping audio buffer playback." << LL_ENDL;
+
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.RenderAudioStop.1\">"
+			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		writeString(stream.str());
+	}
+}
+
 LLVivoxProtocolParser::LLVivoxProtocolParser()
 {
 	parser = NULL;
@@ -7119,6 +7343,9 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		}
 		else if (!stricmp(eventTypeCstr, "AuxAudioPropertiesEvent"))
 		{
+			// These are really spamming in tuning mode
+			squelchDebugOutput = true;
+
 			LLVivoxVoiceClient::getInstance()->auxAudioPropertiesEvent(energy);
 		}
 		else if (!stricmp(eventTypeCstr, "BuddyPresenceEvent"))

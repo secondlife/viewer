@@ -301,6 +301,18 @@ public:
 	virtual void addObserver(LLVoiceEffectObserver* observer) = 0;
 	virtual void removeObserver(LLVoiceEffectObserver* observer) = 0;
 	//@}
+
+	//////////////////////////////
+	/// @name Preview buffer
+	//@{
+	virtual void recordPreviewBuffer(bool enable) = 0;
+	virtual void playPreviewBuffer(bool enable, const LLUUID& effect_id = LLUUID::null) = 0;
+	virtual void clearPreviewBuffer() = 0;
+
+	virtual bool isPreviewRecording() = 0;
+	virtual bool isPreviewReady() = 0;
+	virtual bool isPreviewPlaying() = 0;
+	//@}
 };
 
 
