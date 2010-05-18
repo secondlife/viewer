@@ -36,8 +36,8 @@
 #include "llpanelvoiceeffect.h"
 
 #include "llcombobox.h"
+#include "llfloaterreg.h"
 #include "llpanel.h"
-#include "llvoicechannel.h"
 #include "llvoiceclient.h"
 
 static LLRegisterPanelClassWrapper<LLPanelVoiceEffect> t_panel_voice_effect("panel_voice_effect");
@@ -64,13 +64,14 @@ LLPanelVoiceEffect::~LLPanelVoiceEffect()
 BOOL LLPanelVoiceEffect::postBuild()
 {
 	mVoiceEffectCombo = getChild<LLComboBox>("voice_effect");
-	update();
 
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
 	if (effect_interface)
 	{
 		effect_interface->addObserver(this);
 	}
+
+	update();
 
 	return TRUE;
 }
@@ -91,12 +92,13 @@ void LLPanelVoiceEffect::onCommitVoiceEffect()
 	LLSD value = mVoiceEffectCombo->getValue();
 	if (value.asInteger() == GET_VOICE_EFFECTS)
 	{
-		LL_DEBUGS("Voice") << "GET VOICE FONTS!" << LL_ENDL;
+		// Open the voice morphing info web page
 		LLWeb::loadURL(getString("get_voice_effects_url"));
 	}
 	else if (value.asInteger() == PREVIEW_VOICE_EFFECTS)
 	{
-		LL_DEBUGS("Voice") << "PREVIEW VOICE FONTS!" << LL_ENDL;
+		// Open the voice effects management floater
+		LLFloaterReg::showInstance("voice_effect");
 	}
 	else
 	{
