@@ -6313,6 +6313,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+ 
   <key>RenderAnimateRes</key>
   <map>
     <key>Comment</key>
@@ -6324,7 +6325,31 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
+  <key>RenderBakeSunlight</key>
+  <map>
+    <key>Comment</key>
+    <string>Bake sunlight into vertex buffers for static objects.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
+  <key>RenderNoAlpha</key>
+  <map>
+    <key>Comment</key>
+    <string>Disable rendering of alpha objects (render all alpha objects as alpha masks).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
   <key>RenderAnimateTrees</key>
   <map>
     <key>Comment</key>
@@ -6480,6 +6505,18 @@
     <key>Value</key>
     <real>16.0</real>
    </map>
+
+  <key>RenderMinimumLODTriangleCount</key>
+  <map>
+    <key>Comment</key>
+    <string>Triangle count threshold at which automatic LOD generation stops</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>16</real>
+  </map>
 
   <key>RenderEdgeDepthCutoff</key>
   <map>
