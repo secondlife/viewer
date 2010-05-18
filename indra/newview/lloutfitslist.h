@@ -98,7 +98,7 @@ private:
 	 * Called upon list refresh event to update tab visibility depending on
 	 * the results of applying filter to the title and list items of the tab.
 	 */
-	void onWearableItemsListRefresh(LLUICtrl* ctrl);
+	void onFilteredWearableItemsListRefresh(LLUICtrl* ctrl);
 
 	/**
 	 * Highlights filtered items and hides tabs which haven't passed filter.

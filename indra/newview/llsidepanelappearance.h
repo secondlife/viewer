@@ -60,11 +60,10 @@ public:
 
 	void fetchInventory();
 	void inventoryFetched();
-	void updateVerbs();
 	void onNewOutfitButtonClicked();
 
 	void showOutfitsInventoryPanel();
-	void showOutfitEditPanel();
+	void showOutfitEditPanel(bool update);
 	void setWearablesLoading(bool val);
 
 private:
@@ -73,12 +72,11 @@ private:
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
 	void onEditOutfitButtonClicked();
-	void onEditButtonClicked();
 	void onEditWearBackClicked();
 
 	//@deprecated use showXXX() methods instead
 	void toggleOutfitEditPanel(BOOL visible);
-	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable);
+	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable = NULL);
 
 	LLFilterEditor*			mFilterEditor;
 	LLPanelOutfitsInventory* mPanelOutfitsInventory;
@@ -87,7 +85,6 @@ private:
 
 	LLButton*					mOpenOutfitBtn;
 	LLButton*					mEditAppearanceBtn;
-	LLButton*					mEditBtn;
 	LLButton*					mNewOutfitBtn;
 	LLPanel*					mCurrOutfitPanel;
 
@@ -103,10 +100,6 @@ private:
 	// Search string for filtering landmarks and teleport
 	// history locations
 	std::string					mFilterSubString;
-
-	// Information type currently shown in Look Information panel
-	std::string					mLookInfoType;
-
 };
 
 #endif //LL_LLSIDEPANELAPPEARANCE_H

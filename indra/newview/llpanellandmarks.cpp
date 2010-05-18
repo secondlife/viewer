@@ -993,10 +993,13 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	}
 	else if("create_pick" == command_name)
 	{
-		std::set<LLUUID> selection = mCurrentSelectedList->getRootFolder()->getSelectionList();
-		if ( mCurrentSelectedList && !selection.empty() )
+		if (mCurrentSelectedList)
 		{
-			return ( 1 == selection.size() && !LLAgentPicksInfo::getInstance()->isPickLimitReached() );
+			std::set<LLUUID> selection = mCurrentSelectedList->getRootFolder()->getSelectionList();
+			if (!selection.empty())
+			{
+				return ( 1 == selection.size() && !LLAgentPicksInfo::getInstance()->isPickLimitReached() );
+			}
 		}
 		return false;
 	}

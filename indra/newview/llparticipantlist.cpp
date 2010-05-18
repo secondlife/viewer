@@ -655,6 +655,7 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	bool is_sort_visible = (mParent.mAvatarList && mParent.mAvatarList->size() > 1);
 	main_menu->setItemVisible("SortByName", is_sort_visible);
 	main_menu->setItemVisible("SortByRecentSpeakers", is_sort_visible);
+	main_menu->setItemVisible("Moderator Options Separator", isGroupModerator());
 	main_menu->setItemVisible("Moderator Options", isGroupModerator());
 	main_menu->setItemVisible("View Icons Separator", mParent.mAvatarListToggleIconsConnection.connected());
 	main_menu->setItemVisible("View Icons", mParent.mAvatarListToggleIconsConnection.connected());
