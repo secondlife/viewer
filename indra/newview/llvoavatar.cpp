@@ -764,7 +764,7 @@ LLVOAvatar::~LLVOAvatar()
 	{
 		if (!mFullyLoaded)
 		{
-			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << " left after " << (U32)mRuthDebugTimer.getElapsedTimeF32() << " seconds as cloud." << llendl;
+			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' left after " << (U32)mRuthDebugTimer.getElapsedTimeF32() << " seconds as cloud." << llendl;
 			LLSD args;
 			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
 			args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
@@ -773,7 +773,7 @@ LLVOAvatar::~LLVOAvatar()
 		}
 		else
 		{
-			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << " left." << llendl;
+			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' left." << llendl;
 			LLSD args;
 			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
 			args["NAME"] = getFullname();
@@ -2824,7 +2824,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 						args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
 						args["NAME"] = getFullname();
 						LLNotificationsUtil::add("AvatarRezEnteredAppearanceNotification",args);
-						llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << " entered appearance mode." << llendl;
+						llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' entered appearance mode." << llendl;
 					}
 					else
 					{
@@ -2832,7 +2832,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 						args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
 						args["NAME"] = getFullname();
 						LLNotificationsUtil::add("AvatarRezLeftAppearanceNotification",args);
-						llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << " left appearance mode." << llendl;
+						llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' left appearance mode." << llendl;
 					}
 				}
 			}
