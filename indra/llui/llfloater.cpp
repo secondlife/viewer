@@ -169,6 +169,7 @@ LLFloater::Params::Params()
 	save_rect("save_rect", false),
 	save_visibility("save_visibility", false),
 	can_dock("can_dock", false),
+	open_centered("open_centered", false),
 	header_height("header_height", 0),
 	legacy_header_height("legacy_header_height", 0),
 	close_image("close_image"),
@@ -763,6 +764,13 @@ void    LLFloater::applySavedVariables()
 
 void LLFloater::applyRectControl()
 {
+	// first, center on screen if requested	
+	if (mOpenCentered)
+	{
+		center();
+	}
+
+	// override center if we have saved rect control
 	if (mRectControl.size() > 1)
 	{
 		const LLRect& rect = LLUI::sSettingGroups["floater"]->getRect(mRectControl);
@@ -2711,6 +2719,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;
 	mAutoTile = p.auto_tile;
+	mOpenCentered = p.open_centered;
 
 	if (p.save_rect)
 	{

@@ -580,7 +580,7 @@
          layout="topleft"
          left="0"
          name="radio select land"
-         top="-1"
+         top="-106"
          width="134" />
         <radio_item
          height="19"
