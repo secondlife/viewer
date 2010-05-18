@@ -3516,6 +3516,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					vobj->isMesh() && 
 					gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID());
 
+		bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
+
 		//for each face
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
@@ -3715,7 +3717,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							bump_faces.push_back(facep);
 						}
 						else if ((te->getShiny() && LLPipeline::sRenderBump) ||
-							!te->getFullbright())
+							!(te->getFullbright() || bake_sunlight))
 						{ //needs normal
 							simple_faces.push_back(facep);
 						}
@@ -3925,6 +3927,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			buffer_index = 0;
 		}
 
+		bool bake_sunlight = LLPipeline::sBakeSunlight && facep->getDrawable()->isStatic(); 
+
 		U32 index_count = facep->getIndicesCount();
 		U32 geom_count = facep->getGeomCount();
 
@@ -4030,7 +4034,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				// can we safely treat this as an alpha mask?
 				if (facep->canRenderAsMask())
 				{
-					if (te->getFullbright())
+					if (te->getFullbright() || LLPipeline::sNoAlpha)
 					{
 						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 					}
@@ -4094,7 +4098,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				{ //invisiprim
 					registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
 				}
-				else if (fullbright)
+				else if (fullbright || bake_sunlight)
 				{ //fullbright
 					registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
 					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && te->getBumpmap())

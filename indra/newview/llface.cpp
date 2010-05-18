@@ -896,6 +896,11 @@ void LLFace::updateRebuildFlags()
 
 bool LLFace::canRenderAsMask()
 {
+	if (LLPipeline::sNoAlpha)
+	{
+		return true;
+	}
+
 	const LLTextureEntry* te = getTextureEntry();
 	return (
 		(
@@ -1205,6 +1210,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		mVObjp->getVolume()->genBinormals(f);
 	}
 
+	//if it's not fullbright and has no normals, bake sunlight based on face normal
+	bool bake_sunlight = !getTextureEntry()->getFullbright() &&
+		!mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
+
 	for (S32 i = 0; i < num_vertices; i++)
 	{
 		if (rebuild_tcoord)
@@ -1382,7 +1391,19 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		if (rebuild_color)
 		{
-			*colors++ = color;		
+			if (bake_sunlight)
+			{
+				LLVector3 normal = vf.mVertices[i].mNormal * mat_normal;
+				normal.normVec();
+				
+				F32 da = normal * gPipeline.mSunDir;
+
+				*colors++ = LLColor4U(color.mV[0]*da, color.mV[1]*da, color.mV[2]*da, color.mV[3]);
+			}
+			else
+			{
+				*colors++ = color;		
+			}
 		}
 	}
 
