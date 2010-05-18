@@ -6118,6 +6118,12 @@ The button will be shown when there is enough space for it.
    type="notifytip">
 Drag items from inventory onto a person in the resident picker
   </notification>
+  <notification
+   icon="notifytip.tga"
+   name="DeedToGroupFail"
+   type="notifytip">
+Deed to group failed.
+  </notification>
 
   <notification
    icon="notifytip.tga"
