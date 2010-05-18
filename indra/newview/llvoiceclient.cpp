@@ -35,6 +35,7 @@
 #include "llviewerwindow.h"
 #include "llvoicevivox.h"
 #include "llviewernetwork.h"
+#include "llcommandhandler.h"
 #include "llhttpnode.h"
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
@@ -45,6 +46,39 @@ const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
 const F32 LLVoiceClient::VOLUME_MIN = 0.f;
 const F32 LLVoiceClient::VOLUME_DEFAULT = 0.5f;
 const F32 LLVoiceClient::VOLUME_MAX = 1.0f;
+
+
+// Support for secondlife:///app/voice SLapps
+class LLVoiceHandler : public LLCommandHandler
+{
+public:
+	// requests will be throttled from a non-trusted browser
+	LLVoiceHandler() : LLCommandHandler("voice", UNTRUSTED_THROTTLE) {}
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		if (params[0].asString() == "effects")
+		{
+			LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
+			// If the voice client doesn't support voice effects, we can't handle effects SLapps
+			if (!effect_interface)
+			{
+				return false;
+			}
+
+			// Support secondlife:///app/voice/effects/refresh to update the voice effect list with new effects
+			if (params[1].asString() == "refresh")
+			{
+				effect_interface->refreshVoiceEffectLists(false);
+				return true;
+			}
+		}
+		return false;
+	}
+};
+LLVoiceHandler gVoiceHandler;
+
+
 
 std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserver::EStatusType inStatus)
 {
@@ -74,7 +108,6 @@ std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
 	
 	return result;
 }
-
 
 
 
