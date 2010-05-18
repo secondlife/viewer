@@ -1772,7 +1772,8 @@ void LLVOAvatarSelf::timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *
 	}
 
 	ETextureIndex index = data->mIndex;
-	if (index < 0 || index >= TEX_NUM_INDICES)
+	
+if (index < 0 || index >= TEX_NUM_INDICES)
 	{
 		return;
 	}
@@ -1784,6 +1785,8 @@ void LLVOAvatarSelf::timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *
 	if (final)
 	{
 		delete data;
+		// for debugging, apparently there is a case in which we are keeping old de-allocated structures around in callbacks
+		*data = NULL;
 	}
 }
 
