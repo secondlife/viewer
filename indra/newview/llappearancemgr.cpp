@@ -524,6 +524,7 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 
 	if (done)
 	{
+		gAgentAvatarp->wearablesLoaded();
 		clearCOFLinksForMissingWearables();
 		onAllComplete();
 	}
@@ -1649,6 +1650,7 @@ void LLAppearanceMgr::autopopulateOutfits()
 // Handler for anything that's deferred until avatar de-clouds.
 void LLAppearanceMgr::onFirstFullyVisible()
 {
+	gAgentAvatarp->avatarVisible();
 	autopopulateOutfits();
 }
 
