@@ -5427,7 +5427,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>128.0</real>
+    <real>50.0</real>
   </map>
   <key>ObjectCostLowColor</key>
   <map>
@@ -5443,6 +5443,22 @@
       <real>0.5</real>
       <real>1.0</real>
       <real>0.5</real>
+    </array>
+  </map>
+  <key>ObjectCostMidColor</key>
+  <map>
+    <key>Comment</key>
+    <string>Color for object with a medium object cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>0.75</real>
+      <real>0.0</real>
+      <real>0.65</real>
     </array>
   </map>
   <key>ObjectCostHighColor</key>

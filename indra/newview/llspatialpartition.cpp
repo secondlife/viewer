@@ -2676,9 +2676,20 @@ void renderPhysicsShape(LLDrawable* drawable)
 		F32 cost = volume->getObjectCost();
 
 		LLColor4 low = gSavedSettings.getColor4("ObjectCostLowColor");
+		LLColor4 mid = gSavedSettings.getColor4("ObjectCostMidColor");
 		LLColor4 high = gSavedSettings.getColor4("ObjectCostHighColor");
 
-		LLColor4 color = lerp(low, high, cost/threshold);
+		F32 normalizedCost = 1.f - exp( -(cost / threshold) );
+
+		LLColor4 color;
+		if ( normalizedCost <= 0.5f )
+		{
+			color = lerp( low, mid, 2.f * normalizedCost );
+		}
+		else
+		{
+			color = lerp( mid, high, 2.f * ( normalizedCost - 0.5f ) );
+		}
 
 		U32 data_mask = LLVertexBuffer::MAP_VERTEX;
 
