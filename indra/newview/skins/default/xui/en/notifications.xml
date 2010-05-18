@@ -6123,6 +6123,7 @@ Drag items from inventory onto a person in the resident picker
    icon="notifytip.tga"
    name="AvatarRezNotification"
    type="notifytip">
+( [EXISTENCE] seconds )
 Avatar '[NAME]' rezzed in [TIME] seconds.
   </notification>
 
@@ -6130,6 +6131,7 @@ Avatar '[NAME]' rezzed in [TIME] seconds.
    icon="notifytip.tga"
    name="AvatarRezCloudNotification"
    type="notifytip">
+( [EXISTENCE] seconds )
 Avatar '[NAME]' became cloud.
   </notification>
 
@@ -6137,6 +6139,7 @@ Avatar '[NAME]' became cloud.
    icon="notifytip.tga"
    name="AvatarRezArrivedNotification"
    type="notifytip">
+( [EXISTENCE] seconds )
 Avatar '[NAME]' appeared.
   </notification>
 
@@ -6144,13 +6147,31 @@ Avatar '[NAME]' appeared.
    icon="notifytip.tga"
    name="AvatarRezLeftCloudNotification"
    type="notifytip">
+( [EXISTENCE] seconds )
 Avatar '[NAME]' left after [TIME] seconds as cloud.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezEnteredAppearanceNotification"
+   type="notifytip">
+( [EXISTENCE] seconds )
+Avatar '[NAME]' entered appearance mode.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezLeftAppearanceNotification"
+   type="notifytip">
+( [EXISTENCE] seconds )
+Avatar '[NAME]' left appearance mode.
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="AvatarRezLeftNotification"
    type="notifytip">
+( [EXISTENCE] seconds )
 Avatar '[NAME]' left as fully loaded.
   </notification>
 
