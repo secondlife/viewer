@@ -80,9 +80,11 @@ std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-LLVoiceClient::LLVoiceClient()
+LLVoiceClient::LLVoiceClient() :
+	mVoiceModule(NULL),
+	mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceEffectEnabled")),
+	mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault"))
 {
-	mVoiceModule = NULL;
 }
 
 //---------------------------------------------------
@@ -565,7 +567,7 @@ std::string LLVoiceClient::getDisplayName(const LLUUID& id)
 	}
 }
 
-bool LLVoiceClient::isVoiceWorking()
+bool LLVoiceClient::isVoiceWorking() const
 {
 	if (mVoiceModule) 
 	{
@@ -708,6 +710,10 @@ std::string LLVoiceClient::sipURIFromID(const LLUUID &id)
 	}
 }
 
+LLVoiceEffectInterface* LLVoiceClient::getVoiceEffectInterface() const
+{
+	return getVoiceEffectEnabled() ? dynamic_cast<LLVoiceEffectInterface*>(mVoiceModule) : NULL;
+}
 
 ///////////////////
 // version checking
