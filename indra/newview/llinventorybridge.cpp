@@ -3634,7 +3634,7 @@ void LLCallingCardBridge::performAction(LLInventoryModel* model, std::string act
 			if (LLAvatarNameCache::useDisplayNames()
 				&& LLAvatarNameCache::get(item->getCreatorUUID(), &av_name))
 			{
-				callingcard_name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+				callingcard_name = av_name.mDisplayName + " (" + av_name.mUsername + ")";
 			}
 			LLUUID session_id = gIMMgr->addSession(callingcard_name, IM_NOTHING_SPECIAL, item->getCreatorUUID());
 			if (session_id != LLUUID::null)

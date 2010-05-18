@@ -46,7 +46,7 @@ static const std::string IS_DISPLAY_NAME_DEFAULT("is_display_name_default");
 static const std::string DISPLAY_NAME_EXPIRES("display_name_expires");
 
 LLAvatarName::LLAvatarName()
-:	mSLID(),
+:	mUsername(),
 	mDisplayName(),
 	mIsDisplayNameDefault(false),
 	mIsDummy(false),
@@ -55,16 +55,18 @@ LLAvatarName::LLAvatarName()
 
 bool LLAvatarName::operator<(const LLAvatarName& rhs) const
 {
-	if (mSLID == rhs.mSLID)
+	if (mUsername == rhs.mUsername)
 		return mDisplayName < rhs.mDisplayName;
 	else
-		return mSLID < rhs.mSLID;
+		return mUsername < rhs.mUsername;
 }
 
 LLSD LLAvatarName::asLLSD() const
 {
 	LLSD sd;
-	sd[SL_ID] = mSLID;
+	// Due to a late-breaking change request from Product, we renamed
+	// "SLID" to "Username", but it was too late to change the wire format.
+	sd[SL_ID] = mUsername;
 	sd[DISPLAY_NAME] = mDisplayName;
 	sd[IS_DISPLAY_NAME_DEFAULT] = mIsDisplayNameDefault;
 	sd[DISPLAY_NAME_EXPIRES] = LLDate(mExpires);
@@ -73,7 +75,7 @@ LLSD LLAvatarName::asLLSD() const
 
 void LLAvatarName::fromLLSD(const LLSD& sd)
 {
-	mSLID = sd[SL_ID].asString();
+	mUsername = sd[SL_ID].asString(); // see asLLSD() above
 	mDisplayName = sd[DISPLAY_NAME].asString();
 	mIsDisplayNameDefault = sd[IS_DISPLAY_NAME_DEFAULT].asBoolean();
 	LLDate expires = sd[DISPLAY_NAME_EXPIRES];
@@ -83,9 +85,9 @@ void LLAvatarName::fromLLSD(const LLSD& sd)
 std::string LLAvatarName::getNameAndSLID() const
 {
 	std::string name;
-	if (!mSLID.empty())
+	if (!mUsername.empty())
 	{
-		name = mDisplayName + " (" + mSLID + ")";
+		name = mDisplayName + " (" + mUsername + ")";
 	}
 	else
 	{

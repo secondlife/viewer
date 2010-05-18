@@ -642,7 +642,7 @@ void LLInspectAvatar::onAvatarNameCache(
 	if (agent_id == mAvatarID)
 	{
 		getChild<LLUICtrl>("user_name")->setValue(av_name.mDisplayName);
-		getChild<LLUICtrl>("user_slid")->setValue(av_name.mSLID);
+		getChild<LLUICtrl>("user_slid")->setValue(av_name.mUsername);
 	}
 }
 

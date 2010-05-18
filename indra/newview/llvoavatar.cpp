@@ -2880,7 +2880,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			{
 				// JAMESDEBUG HACK
 				LLColor4 slid_color = name_tag_color * 0.83f;
-				addNameTagLine(av_name.mSLID, slid_color, LLFontGL::NORMAL,
+				addNameTagLine(av_name.mUsername, slid_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerifSmall());
 			}
 		}

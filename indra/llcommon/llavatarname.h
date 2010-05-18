@@ -54,7 +54,7 @@ public:
 	std::string getNameAndSLID() const;
 
 	// "bobsmith123" or "james.linden", US-ASCII only
-	std::string mSLID;
+	std::string mUsername;
 
 	// "Jose' Sanchez" or "James Linden", UTF-8 encoded Unicode
 	// Contains data whether or not user has explicitly set
