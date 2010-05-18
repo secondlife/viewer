@@ -1785,8 +1785,6 @@ if (index < 0 || index >= TEX_NUM_INDICES)
 	if (final)
 	{
 		delete data;
-		// for debugging, apparently there is a case in which we are keeping old de-allocated structures around in callbacks
-		*data = NULL;
 	}
 }
 
