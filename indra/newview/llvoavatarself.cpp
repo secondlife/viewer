@@ -1766,7 +1766,16 @@ void LLVOAvatarSelf::onTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture
 void LLVOAvatarSelf::timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
 	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
+	if (!data)
+	{
+		return;
+	}
+
 	ETextureIndex index = data->mIndex;
+	if (index < 0 || index >= TEX_NUM_INDICES)
+	{
+		return;
+	}
 
 	if (discard_level >=0 && discard_level <= MAX_DISCARD_LEVEL) // ignore discard level -1, as it means we have no data.
 	{
