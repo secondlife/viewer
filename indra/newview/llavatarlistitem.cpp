@@ -38,7 +38,7 @@
 
 #include "llbutton.h"
 #include "llfloaterreg.h"
-#include "lluitextutil.h"
+#include "lltextutil.h"
 
 #include "llagent.h"
 #include "llavatariconctrl.h"
