@@ -322,7 +322,7 @@ LLInventoryItemsList::Params::Params()
 LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p)
 :	LLFlatListViewEx(p)
 ,	mNeedsRefresh(false)
-,	mPrevVisibility(false)
+,	mForceRefresh(false)
 {
 	// TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
 	// but reset to true in all derived classes. This settings might need to
@@ -356,14 +356,13 @@ boost::signals2::connection LLInventoryItemsList::setRefreshCompleteCallback(con
 
 void LLInventoryItemsList::doIdle()
 {
-	bool cur_visibility = getVisible();
-	if(cur_visibility != mPrevVisibility || mNeedsRefresh)
+	if (!mNeedsRefresh) return;
+
+	if (isInVisibleChain() || mForceRefresh)
 	{
 		refresh();
 
 		mRefreshCompleteSignal(this, LLSD());
-
-		mPrevVisibility = getVisible();
 	}
 }
 
@@ -414,6 +413,7 @@ void LLInventoryItemsList::refresh()
 
 	bool needs_refresh = add_limit_exceeded;
 	setNeedsRefresh(needs_refresh);
+	setForceRefresh(needs_refresh);
 }
 
 void LLInventoryItemsList::computeDifference(

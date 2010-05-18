@@ -260,7 +260,7 @@
              top_pad="5"
              left="0">
                 <layout_panel
-                 auto_resize="true"
+                 auto_resize="false"
                  layout="topleft"
                  follows="left|top|right"
                  height="30"
@@ -292,7 +292,7 @@
                  width="311"
                  user_resize="true">
                     <inventory_panel
-		             allow_multi_select="false"
+		             allow_multi_select="true"
 		             border="false"
 		             follows="left|top|right|bottom"
 		             height="130"

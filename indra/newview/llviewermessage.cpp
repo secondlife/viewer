@@ -774,11 +774,11 @@ private:
  * We can't create it each time items are moved because "drop" event is sent separately for each
  * element even while multi-dragging. We have to have the only instance of the observer. See EXT-4347.
  */
-class LLViewerInventoryMoveFromWorldObserver : public LLInventoryMoveFromWorldObserver
+class LLViewerInventoryMoveFromWorldObserver : public LLInventoryAddItemByAssetObserver
 {
 public:
 	LLViewerInventoryMoveFromWorldObserver()
-		: LLInventoryMoveFromWorldObserver()
+		: LLInventoryAddItemByAssetObserver()
 		, mActivePanel(NULL)
 	{
 

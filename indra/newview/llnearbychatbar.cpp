@@ -79,6 +79,7 @@ LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
 :	LLUICtrl(p)
 	, mLabel(p.label)
 	, mViewAllItemIndex(0)
+	, mGetMoreItemIndex(0)
 {
 	LLButton::Params button_params = p.combo_button;
 	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
@@ -260,9 +261,12 @@ void LLGestureComboList::refreshGestures()
 
 	sortByName();
 
-	// store index followed by the last added Gesture and add View All item at bottom
-	mViewAllItemIndex = idx;
-	
+	// store indices for Get More and View All items (idx is the index followed by the last added Gesture)
+	mGetMoreItemIndex = idx;
+	mViewAllItemIndex = idx + 1;
+
+	// add Get More and View All items at the bottom
+	mList->addSimpleElement(LLTrans::getString("GetMoreGestures"), ADD_BOTTOM, LLSD(mGetMoreItemIndex));
 	mList->addSimpleElement(LLTrans::getString("ViewAllGestures"), ADD_BOTTOM, LLSD(mViewAllItemIndex));
 
 	// Insert label after sorting, at top, with separator below it
@@ -315,6 +319,12 @@ void LLGestureComboList::onCommitGesture()
 			// The same behavior as Ctrl+G. EXT-823
 			LLFloaterReg::toggleInstance("gestures");
 			gestures->selectFirstItem();
+			return;
+		}
+
+		if (mGetMoreItemIndex == index)
+		{
+			LLWeb::loadURLExternal(gSavedSettings.getString("GesturesMarketplaceURL"));
 			return;
 		}
 

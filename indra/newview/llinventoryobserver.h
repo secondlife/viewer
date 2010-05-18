@@ -180,10 +180,10 @@ protected:
 // something useful.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLInventoryMoveFromWorldObserver : public LLInventoryObserver
+class LLInventoryAddItemByAssetObserver : public LLInventoryObserver
 {
 public:
-	LLInventoryMoveFromWorldObserver() : mIsDirty(false) {}
+	LLInventoryAddItemByAssetObserver() : mIsDirty(false) {}
 	virtual void changed(U32 mask);
 
 	void watchAsset(const LLUUID& asset_id);

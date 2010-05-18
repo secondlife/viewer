@@ -1137,6 +1137,20 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op)
 	}
 }
 
+void	LLTextureCtrl::setImageAssetName(const std::string& name)
+{
+	LLPointer<LLUIImage> imagep = LLUI::getUIImage(name);
+	if(imagep)
+	{
+		LLViewerFetchedTexture* pTexture = dynamic_cast<LLViewerFetchedTexture*>(imagep->getImage().get());
+		if(pTexture)
+		{
+			LLUUID id = pTexture->getID();
+			setImageAssetID(id);
+		}
+	}
+}
+
 void LLTextureCtrl::setImageAssetID( const LLUUID& asset_id )
 {
 	if( mImageAssetID != asset_id )

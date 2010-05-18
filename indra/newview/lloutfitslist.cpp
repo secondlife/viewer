@@ -170,7 +170,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		list->setCommitCallback(boost::bind(&LLOutfitsList::onSelectionChange, this, _1));
 
 		// Setting list refresh callback to apply filter on list change.
-		list->setRefreshCompleteCallback(boost::bind(&LLOutfitsList::onWearableItemsListRefresh, this, _1));
+		list->setRefreshCompleteCallback(boost::bind(&LLOutfitsList::onFilteredWearableItemsListRefresh, this, _1));
 
 		// Fetch the new outfit contents.
 		cat->fetch();
@@ -178,6 +178,21 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		// Refresh the list of outfit items after fetch().
 		// Further list updates will be triggered by the category observer.
 		list->updateList(cat_id);
+
+		// If filter is currently applied we store the initial tab state and
+		// open it to show matched items if any.
+		if (!mFilterSubString.empty())
+		{
+			tab->notifyChildren(LLSD().with("action","store_state"));
+			tab->setDisplayChildren(true);
+
+			// Setting mForceRefresh flag will make the list refresh its contents
+			// even if it is not currently visible. This is required to apply the
+			// filter to the newly added list.
+			list->setForceRefresh(true);
+
+			list->setFilterSubString(mFilterSubString);
+		}
 	}
 
 	// Handle removed tabs.
@@ -327,7 +342,7 @@ void LLOutfitsList::changeOutfitSelection(LLWearableItemsList* list, const LLUUI
 	mSelectedOutfitUUID = category_id;
 }
 
-void LLOutfitsList::onWearableItemsListRefresh(LLUICtrl* ctrl)
+void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
 {
 	if (!ctrl || mFilterSubString.empty())
 		return;
@@ -338,7 +353,7 @@ void LLOutfitsList::onWearableItemsListRefresh(LLUICtrl* ctrl)
 		 iter != iter_end; ++iter)
 	{
 		LLAccordionCtrlTab* tab = iter->second;
-		if (tab) continue;
+		if (!tab) continue;
 
 		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
 		if (list != ctrl) continue;
@@ -395,8 +410,6 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 
 		if (!new_filter_substring.empty())
 		{
-			tab->setDisplayChildren(true);
-
 			std::string title = tab->getTitle();
 			LLStringUtil::toUpper(title);
 
@@ -412,6 +425,18 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 			else
 			{
 				tab->setTitle(tab->getTitle(), cur_filter);
+			}
+
+			if (tab->getVisible())
+			{
+				// Open tab if it has passed the filter.
+				tab->setDisplayChildren(true);
+			}
+			else
+			{
+				// Set force refresh flag to refresh not visible list
+				// when some changes occur in it.
+				list->setForceRefresh(true);
 			}
 		}
 		else

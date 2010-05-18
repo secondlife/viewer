@@ -118,8 +118,7 @@ LLPanelGroupRoles::LLPanelGroupRoles()
 	mCurrentTab(NULL),
 	mRequestedTab( NULL ),
 	mSubTabContainer( NULL ),
-	mFirstUse( TRUE ),
-	mIgnoreTransition( FALSE )
+	mFirstUse( TRUE )
 {
 }
 
@@ -153,8 +152,8 @@ BOOL LLPanelGroupRoles::postBuild()
 
 		//subtabp->addObserver(this);
 	}
-	// Add click callbacks to all the tabs.
-	mSubTabContainer->setCommitCallback(boost::bind(&LLPanelGroupRoles::handleClickSubTab, this));
+	// Add click callbacks to tab switching.
+	mSubTabContainer->setValidateBeforeCommit(boost::bind(&LLPanelGroupRoles::handleSubTabSwitch, this, _1));
 
 	// Set the current tab to whatever is currently being shown.
 	mCurrentTab = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
@@ -196,30 +195,20 @@ BOOL LLPanelGroupRoles::isVisibleByAgent(LLAgent* agentp)
 								   
 }
 
-void LLPanelGroupRoles::handleClickSubTab()
+bool LLPanelGroupRoles::handleSubTabSwitch(const LLSD& data)
 {
-	// If we are already handling a transition,
-	// ignore this.
-	if (mIgnoreTransition)
+	std::string panel_name = data.asString();
+	
+	LLPanelGroupTab* activating_tab = static_cast<LLPanelGroupTab*>(mSubTabContainer->getPanelByName(panel_name));
+
+	if(activating_tab == mCurrentTab
+		|| activating_tab == mRequestedTab)
 	{
-		return;
+		return true;
 	}
 
-	mRequestedTab = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
-
-	// Make sure they aren't just clicking the same tab...
-	if (mRequestedTab == mCurrentTab)
-	{
-		return;
-	}
-
-	// Try to switch from the current panel to the panel the user selected.
-	attemptTransition();
-}
-
-BOOL LLPanelGroupRoles::attemptTransition()
-{
-	// Check if the current tab needs to be applied.
+	mRequestedTab = activating_tab;
+	
 	std::string mesg;
 	if (mCurrentTab && mCurrentTab->needsApply(mesg))
 	{
@@ -235,16 +224,10 @@ BOOL LLPanelGroupRoles::attemptTransition()
 		LLNotificationsUtil::add("PanelGroupApply", args, LLSD(),
 			boost::bind(&LLPanelGroupRoles::handleNotifyCallback, this, _1, _2));
 		mHasModal = TRUE;
-		// We need to reselect the current tab, since it isn't finished.
-		if (mSubTabContainer)
-		{
-			mIgnoreTransition = TRUE;
-			mSubTabContainer->selectTabPanel( mCurrentTab );
-			mIgnoreTransition = FALSE;
-		}
+		
 		// Returning FALSE will block a close action from finishing until
 		// we get a response back from the user.
-		return FALSE;
+		return false;
 	}
 	else
 	{
@@ -253,7 +236,7 @@ BOOL LLPanelGroupRoles::attemptTransition()
 		{
 			transitionToTab();
 		}
-		return TRUE;
+		return true;
 	}
 }
 
@@ -271,6 +254,7 @@ void LLPanelGroupRoles::transitionToTab()
 		// This is now the current tab;
 		mCurrentTab = mRequestedTab;
 		mCurrentTab->activate();
+		mRequestedTab = 0;
 	}
 }
 
@@ -278,6 +262,7 @@ bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLS
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	mHasModal = FALSE;
+	LLPanelGroupTab* transition_tab = mRequestedTab;
 	switch (option)
 	{
 	case 0: // "Apply Changes"
@@ -297,26 +282,20 @@ bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLS
 			// Skip switching tabs.
 			break;
 		}
-
-		// This panel's info successfully applied.
-		// Switch to the next panel.
-		// No break!  Continue into 'Ignore Changes' which just switches tabs.
-		mIgnoreTransition = TRUE;
-		mSubTabContainer->selectTabPanel( mRequestedTab );
-		mIgnoreTransition = FALSE;
 		transitionToTab();
+		mSubTabContainer->selectTabPanel( transition_tab );
+		
 		break;
 	}
 	case 1: // "Ignore Changes"
 		// Switch to the requested panel without applying changes
 		cancel();
-		mIgnoreTransition = TRUE;
-		mSubTabContainer->selectTabPanel( mRequestedTab );
-		mIgnoreTransition = FALSE;
 		transitionToTab();
+		mSubTabContainer->selectTabPanel( transition_tab );
 		break;
 	case 2: // "Cancel"
 	default:
+		mRequestedTab = NULL;
 		// Do nothing.  The user is canceling the action.
 		break;
 	}

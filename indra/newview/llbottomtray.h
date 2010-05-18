@@ -120,12 +120,24 @@ private:
 		, RS_BUTTON_SPEAK		= 0x0040
 		, RS_IM_WELL			= 0x0080
 		, RS_NOTIFICATION_WELL	= 0x0100
+		, RS_BUTTON_BUILD		= 0x0200
+		, RS_BUTTON_SEARCH		= 0x0400
+		, RS_BUTTON_WORLD_MAP	= 0x0800
+		, RS_BUTTON_MINI_MAP	= 0x1000
+
+		/*
+		Once new button that can be hidden on resize is added don't forget to update related places:
+			- RS_BUTTONS_CAN_BE_HIDDEN enum value below.
+			- initResizeStateContainers(): mStateProcessedObjectMap and mButtonsProcessOrder
+		*/
 
 		/**
 		 * Specifies buttons which can be hidden when bottom tray is shrunk.
 		 * They are: Gestures, Movement (Move), Camera (View), Snapshot
+		 *		new: Build, Search, Map, World Map, Mini-Map.
 		 */
 		, RS_BUTTONS_CAN_BE_HIDDEN = RS_BUTTON_SNAPSHOT | RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
+									| RS_BUTTON_BUILD | RS_BUTTON_SEARCH | RS_BUTTON_WORLD_MAP | RS_BUTTON_MINI_MAP
 	}EResizeState;
 
 	/**
@@ -270,6 +282,28 @@ private:
 	 * @see mButtonsProcessOrder
 	 */
 	void initResizeStateContainers();
+
+	/**
+	 * Initializes buttons' visibility depend on stored Control Settings.
+	 */
+	void initButtonsVisibility();
+
+	/**
+	 * Initializes listeners of Control Settings to toggle appropriate buttons' visibility.
+	 *
+	 * @see toggleShowButton()
+	 */
+	void setButtonsControlsAndListeners();
+
+	/**
+	 * Toggles visibility of specified button depend on passed value.
+	 *
+	 * @param button_type - type of button to be toggled
+	 * @param new_visibility - new visibility of the button
+	 *
+	 * @see setButtonsControlsAndListeners()
+	 */
+	static bool toggleShowButton(EResizeState button_type, const LLSD& new_visibility);
 
 	/**
 	 * Sets passed visibility to object specified by resize type.
