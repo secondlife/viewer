@@ -6127,6 +6127,34 @@ Avatar '[NAME]' rezzed in [TIME] seconds.
   </notification>
 
   <notification
+   icon="notifytip.tga"
+   name="AvatarRezCloudNotification"
+   type="notifytip">
+Avatar '[NAME]' became cloud.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezArrivedNotification"
+   type="notifytip">
+Avatar '[NAME]' appeared.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezLeftCloudNotification"
+   type="notifytip">
+Avatar '[NAME]' left after [TIME] seconds as cloud.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezLeftNotification"
+   type="notifytip">
+Avatar '[NAME]' left as fully loaded.
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="ConfirmLeaveCall"
    type="alert">

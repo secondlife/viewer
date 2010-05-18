@@ -1772,6 +1772,7 @@ void LLVOAvatarSelf::timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *
 	{
 		mTextureLoadTimes[(U32)index][(U32)discard_level] = mSelfLoadTimer.getElapsedTimeF32();
 	}
+	delete data;
 }
 
 void LLVOAvatarSelf::bakedTextureUpload(EBakedTextureIndex index, BOOL finished)
@@ -1956,18 +1957,40 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	{
 		gAgent.sendAgentSetAppearance();
 		F32 final_time = mSelfLoadTimer.getElapsedTimeF32();
-		llinfos << "time from avatar creation to load wearables: " << mTimeWearablesLoaded << llendl;
-		llinfos << "time from avatar creation to de-cloud: " << mTimeAvatarVisible << llendl;
-		llinfos << "time from avatar creation to de-cloud for others: " << final_time << llendl;
-		llinfos << "load time for each texture: " << llendl;
+		llinfos << "AVATARREZTIME: Myself rez stats:" << llendl;
+		llinfos << "\t Time from avatar creation to load wearables: " << (S32)mTimeWearablesLoaded << llendl;
+		llinfos << "\t Time from avatar creation to de-cloud: " << (S32)mTimeAvatarVisible << llendl;
+		llinfos << "\t Time from avatar creation to de-cloud for others: " << (S32)final_time << llendl;
+		llinfos << "\t Load time for each texture: " << llendl;
 		for (U32 i = 0; i < LLVOAvatarDefines::TEX_NUM_INDICES; ++i)
 		{
-			llinfos << "(" << i << "): " << (S32)mTextureLoadTimes[i][0] << "\t" << (S32)mTextureLoadTimes[i][1] << "\t" << (S32)mTextureLoadTimes[i][2] << "\t" << (S32)mTextureLoadTimes[i][3] << "\t" << (S32)mTextureLoadTimes[i][4] << "\t" << (S32)mTextureLoadTimes[i][5] << llendl;
+			std::stringstream out;
+			out << "\t\t (" << i << ") ";
+			U32 j=0;
+			for (j=0; j <= MAX_DISCARD_LEVEL; j++)
+			{
+				out << "\t";
+				S32 load_time = (S32)mTextureLoadTimes[i][j];
+				if (load_time == -1)
+				{
+					out << "*";
+					if (j == 0)
+						break;
+				}
+				else
+				{
+					out << load_time;
+				}
+			}
+
+			// Don't print out non-existent textures.
+			if (j != 0)
+				llinfos << out.str() << llendl;
 		}
-		llinfos << "Time points for each upload (start / finish)" << llendl;
+		llinfos << "\t Time points for each upload (start / finish)" << llendl;
 		for (U32 i = 0; i < LLVOAvatarDefines::BAKED_NUM_INDICES; ++i)
 		{
-			llinfos << "(" << i << "): " << (S32)mBakedTextureTimes[i][0] << " / " << (S32)mBakedTextureTimes[i][1] << llendl;
+			llinfos << "\t\t (" << i << ") \t" << (S32)mBakedTextureTimes[i][0] << " / " << (S32)mBakedTextureTimes[i][1] << llendl;
 		}
 	}
 }
