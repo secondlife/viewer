@@ -3451,7 +3451,7 @@ You are not allowed in that region due to your maturity Rating.
    type="alertmodal">
 You are not allowed in that Region due to your maturity Rating preference.
 
-You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
+Click &apos;Change Preference&apos; to raise your maturity Rating preference for immediate entry. Doing so will allow you to search for and access [REGIONMATURITY] content. If you wish to change this setting later, you may do so from Me &gt; Preferences &gt; General.
 	 <form name="form">
       <button
        index="0"
@@ -3470,7 +3470,7 @@ You can click &apos;Change Preference&apos; to raise your maturity Rating prefer
    icon="notifytip.tga"
    name="PreferredMaturityChanged"
    type="notifytip">
-Your maturity rating preference is now [RATING].
+Your maturity Rating preference is now [RATING].
   </notification>
 
   <notification

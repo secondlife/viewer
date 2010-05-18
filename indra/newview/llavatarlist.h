@@ -70,6 +70,8 @@ public:
 
 	virtual void clear();
 
+	virtual void setVisible(BOOL visible);
+
 	void setNameFilter(const std::string& filter);
 	void setDirty(bool val = true, bool force_refresh = false);
 	uuid_vec_t& getIDs() 							{ return mIDs; }

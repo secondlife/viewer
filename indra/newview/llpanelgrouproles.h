@@ -65,7 +65,7 @@ public:
 	virtual BOOL isVisibleByAgent(LLAgent* agentp);
 
 	
-	void handleClickSubTab();
+	bool handleSubTabSwitch(const LLSD& data);
 
 	// Checks if the current tab needs to be applied, and tries to switch to the requested tab.
 	BOOL attemptTransition();
@@ -93,7 +93,6 @@ protected:
 	LLPanelGroupTab*		mRequestedTab;
 	LLTabContainer*	mSubTabContainer;
 	BOOL					mFirstUse;
-	BOOL					mIgnoreTransition;
 
 	std::string				mDefaultNeedsApplyMesg;
 	std::string				mWantApplyMesg;

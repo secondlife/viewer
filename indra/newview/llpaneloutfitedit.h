@@ -50,6 +50,7 @@ class LLCOFWearables;
 class LLTextBox;
 class LLInventoryCategory;
 class LLCOFObserver;
+class LLCOFDragAndDropObserver;
 class LLInventoryPanel;
 class LLSaveFolderState;
 class LLFolderViewItem;
@@ -114,6 +115,12 @@ public:
 	 */
 	bool switchPanels(LLPanel* switch_from_panel, LLPanel* switch_to_panel);
 
+	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+									  EDragAndDropType cargo_type,
+									  void* cargo_data,
+									  EAcceptance* accept,
+									  std::string& tooltip_msg);
+
 private:
 
 
@@ -134,6 +141,8 @@ private:
 	LLPanel*						mWearableItemsPanel;
 
 	LLCOFObserver*	mCOFObserver;
+	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
+
 	std::vector<LLLookItemType> mLookItemTypes;
 
 	LLCOFWearables*		mCOFWearables;

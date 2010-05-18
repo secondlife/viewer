@@ -212,7 +212,6 @@ void LLPanelGroupGeneral::setupCtrls(LLPanel* panel_group)
 	if (mInsignia)
 	{
 		mInsignia->setCommitCallback(onCommitAny, this);
-		mDefaultIconID = mInsignia->getImageAssetID();
 	}
 	mFounderName = getChild<LLNameBox>("founder_name");
 
@@ -656,7 +655,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		}
 		else
 		{
-			mInsignia->setImageAssetID(mDefaultIconID);
+			mInsignia->setImageAssetName(mInsignia->getDefaultImageName());
 		}
 	}
 
@@ -846,16 +845,7 @@ void LLPanelGroupGeneral::reset()
 	
 	mInsignia->setEnabled(true);
 
-	LLPointer<LLUIImage> imagep = LLUI::getUIImage(mInsignia->getDefaultImageName());
-	if(imagep)
-	{
-		LLViewerFetchedTexture* pTexture = dynamic_cast<LLViewerFetchedTexture*>(imagep->getImage().get());
-		if(pTexture)
-		{
-			LLUUID id = pTexture->getID();
-			mInsignia->setImageAssetID(id);
-		}
-	}
+	mInsignia->setImageAssetName(mInsignia->getDefaultImageName());
 
 	{
 		std::string empty_str = "";
