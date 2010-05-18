@@ -6338,6 +6338,16 @@ void LLVivoxVoiceClient::refreshVoiceEffectLists(bool clear_lists)
 	accountGetTemplateFontsSendMessage();
 }
 
+const voice_effect_list_t& LLVivoxVoiceClient::getVoiceEffectList() const
+{
+	return mVoiceFontList;
+}
+
+const voice_effect_list_t& LLVivoxVoiceClient::getVoiceEffectTemplateList() const
+{
+	return mVoiceFontTemplateList;
+}
+
 void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 								 const std::string &name,
 								 const std::string &description,

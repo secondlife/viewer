@@ -242,8 +242,8 @@ public:
 	virtual const LLUUID getVoiceEffect();
 
 	virtual void refreshVoiceEffectLists(bool clear_lists);
-	virtual const voice_effect_list_t &getVoiceEffectList() const { return mVoiceFontList; };
-	virtual const voice_effect_list_t &getVoiceEffectTemplateList() const { return mVoiceFontTemplateList; };
+	virtual const voice_effect_list_t& getVoiceEffectList() const;
+	virtual const voice_effect_list_t& getVoiceEffectTemplateList() const;
 	//@}
 
 	//////////////////////////////
@@ -454,8 +454,6 @@ protected:
 
 	void tuningCaptureStartSendMessage(int duration);
 	void tuningCaptureStopSendMessage();
-
-	bool inTuningStates();
 
 	//----------------------------------
 	// devices
