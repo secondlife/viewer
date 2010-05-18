@@ -1772,7 +1772,10 @@ void LLVOAvatarSelf::timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *
 	{
 		mTextureLoadTimes[(U32)index][(U32)discard_level] = mSelfLoadTimer.getElapsedTimeF32();
 	}
-	delete data;
+	if (final)
+	{
+		delete data;
+	}
 }
 
 void LLVOAvatarSelf::bakedTextureUpload(EBakedTextureIndex index, BOOL finished)
@@ -1957,7 +1960,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	{
 		gAgent.sendAgentSetAppearance();
 		F32 final_time = mSelfLoadTimer.getElapsedTimeF32();
-		llinfos << "AVATARREZTIME: Myself rez stats:" << llendl;
+		llinfos << "REZTIME: Myself rez stats:" << llendl;
 		llinfos << "\t Time from avatar creation to load wearables: " << (S32)mTimeWearablesLoaded << llendl;
 		llinfos << "\t Time from avatar creation to de-cloud: " << (S32)mTimeAvatarVisible << llendl;
 		llinfos << "\t Time from avatar creation to de-cloud for others: " << (S32)final_time << llendl;
