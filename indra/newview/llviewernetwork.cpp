@@ -108,6 +108,26 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  "https://login.aruna.lindenlab.com/cgi-bin/login.cgi",                   
 				  "http://aruna-secondlife.webdev.lindenlab.com/helpers/",
 				  DEFAULT_LOGIN_PAGE);
+	addSystemGrid("Bharati",                                                                                            
+				  "util.bharati.lindenlab.com",                                              
+				  "https://login.bharati.lindenlab.com/cgi-bin/login.cgi",                   
+				  "http://bharati-secondlife.webdev.lindenlab.com/helpers/",
+				  DEFAULT_LOGIN_PAGE);
+	addSystemGrid("Chandra",                                                                                            
+				  "util.chandra.lindenlab.com",                                              
+				  "https://login.chandra.lindenlab.com/cgi-bin/login.cgi",                   
+				  "http://chandra-secondlife.webdev.lindenlab.com/helpers/",
+				  DEFAULT_LOGIN_PAGE);
+	addSystemGrid("Damballah",                                                                                            
+				  "util.damballah.lindenlab.com",                                              
+				  "https://login.damballah.lindenlab.com/cgi-bin/login.cgi",                   
+				  "http://damballah-secondlife.webdev.lindenlab.com/helpers/",
+				  DEFAULT_LOGIN_PAGE);
+	addSystemGrid("Danu",                                                                                            
+				  "util.danu.lindenlab.com",                                              
+				  "https://login.danu.lindenlab.com/cgi-bin/login.cgi",                   
+				  "http://danu-secondlife.webdev.lindenlab.com/helpers/",
+				  DEFAULT_LOGIN_PAGE);
 	addSystemGrid("Durga",                                                                                            
 				  "util.durga.lindenlab.com",                                              
 				  "https://login.durga.lindenlab.com/cgi-bin/login.cgi",                   
@@ -132,6 +152,11 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  "util.nandi.lindenlab.com",                                              
 				  "https://login.nandi.lindenlab.com/cgi-bin/login.cgi",                   
 				  "http://nandi-secondlife.webdev.lindenlab.com/helpers/",
+				  DEFAULT_LOGIN_PAGE);
+	addSystemGrid("Parvati",                                                                                            
+				  "util.parvati.lindenlab.com",                                              
+				  "https://login.parvati.lindenlab.com/cgi-bin/login.cgi",                   
+				  "http://parvati-secondlife.webdev.lindenlab.com/helpers/",
 				  DEFAULT_LOGIN_PAGE);
 	addSystemGrid("Radha",                                                                                            
 				  "util.radha.lindenlab.com",                                              
@@ -158,7 +183,6 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  "https://login.soma.lindenlab.com/cgi-bin/login.cgi",                    
 				  "http://soma-secondlife.webdev.lindenlab.com/helpers/",
 				  DEFAULT_LOGIN_PAGE);
-	
 	addSystemGrid("Uma",                                                                                              
 				  "util.uma.lindenlab.com",                                                
 				  "https://login.uma.lindenlab.com/cgi-bin/login.cgi",                     
