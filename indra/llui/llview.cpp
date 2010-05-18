@@ -107,8 +107,6 @@ LLView::Params::Params()
 	top_delta("top_delta", S32_MAX),
 	left_pad("left_pad"),
 	left_delta("left_delta", S32_MAX),
-	center_horiz("center_horiz", false),
-	center_vert("center_vert", false),
 	from_xui("from_xui", false),
 	user_resize("user_resize"),
 	auto_resize("auto_resize"),
@@ -2501,7 +2499,6 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 		p.layout = parent->getLayout();
 	}
 
-
 	if (parent)
 	{
 		LLRect parent_rect = parent->getLocalRect();
@@ -2509,59 +2506,20 @@ void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
 		LLRect last_rect = parent->getLocalRect();
 
 		bool layout_topleft = (p.layout() == "topleft");
+
+		// convert negative or centered coordinates to parent relative values
+		// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
+		if (p.rect.left.isProvided() && p.rect.left < 0) p.rect.left = p.rect.left + parent_rect.getWidth();
+		if (p.rect.right.isProvided() && p.rect.right < 0) p.rect.right = p.rect.right + parent_rect.getWidth();
+		if (p.rect.bottom.isProvided() && p.rect.bottom < 0) p.rect.bottom = p.rect.bottom + parent_rect.getHeight();
+		if (p.rect.top.isProvided() && p.rect.top < 0) p.rect.top = p.rect.top + parent_rect.getHeight();
+
 		if (layout_topleft)
 		{
 			//invert top to bottom
 			if (p.rect.top.isProvided()) p.rect.top = parent_rect.getHeight() - p.rect.top;
 			if (p.rect.bottom.isProvided()) p.rect.bottom = parent_rect.getHeight() - p.rect.bottom;
 		}
-
-		// convert negative or centered coordinates to parent relative values
-		// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
-
-		if (p.center_horiz)
-		{
-			if (p.rect.left.isProvided() && p.rect.right.isProvided())
-			{
-				S32 width = p.rect.right - p.rect.left;
-				width = llmax(width, 0);
-				S32 offset = parent_rect.getWidth()/2 - width/2;
-				p.rect.left = p.rect.left + offset;
-				p.rect.right = p.rect.right + offset;
-			}
-			else
-			{
-				p.rect.left = p.rect.left + parent_rect.getWidth()/2 - p.rect.width/2;
-				p.rect.right.setProvided(false); // recalculate the right
-			}
-		}
-		else
-		{
-			if (p.rect.left.isProvided() && p.rect.left < 0) p.rect.left = p.rect.left + parent_rect.getWidth();
-			if (p.rect.right.isProvided() && p.rect.right < 0) p.rect.right = p.rect.right + parent_rect.getWidth();
-		}
-		if (p.center_vert)
-		{
-			if (p.rect.bottom.isProvided() && p.rect.top.isProvided())
-			{
-				S32 height = p.rect.top - p.rect.bottom;
-				height = llmax(height, 0);
-				S32 offset = parent_rect.getHeight()/2 - height/2;
-				p.rect.bottom = p.rect.bottom + offset;
-				p.rect.top = p.rect.top + offset;
-			}
-			else
-			{
-				p.rect.bottom = p.rect.bottom + parent_rect.getHeight()/2 - p.rect.height/2;
-				p.rect.top.setProvided(false); // recalculate the top
-			}
-		}
-		else
-		{
-			if (p.rect.bottom.isProvided() && p.rect.bottom < 0) p.rect.bottom = p.rect.bottom + parent_rect.getHeight();
-			if (p.rect.top.isProvided() && p.rect.top < 0) p.rect.top = p.rect.top + parent_rect.getHeight();
-		}
-
 
 		// DEPRECATE: automatically fall back to height of MIN_WIDGET_HEIGHT pixels
 		if (!p.rect.height.isProvided() && !p.rect.top.isProvided() && p.rect.height == 0)

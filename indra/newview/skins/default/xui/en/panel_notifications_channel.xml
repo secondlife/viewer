@@ -23,7 +23,7 @@
          name="notifications_list"
          sort_ascending="false"
          sort_column="2"
-         top="-78"
+         top="0"
          user_resize="true"
          width="100">
             <scroll_list.columns
@@ -48,7 +48,7 @@
          name="notification_rejects_list"
          sort_ascending="false"
          sort_column="2"
-         top="-78"
+         top="0"
          user_resize="true"
          width="100">
             <scroll_list.columns
