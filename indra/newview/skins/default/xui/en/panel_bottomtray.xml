@@ -375,7 +375,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
                  layout="topleft"
                  name="chicklet_left_scroll_button"
                  tab_stop="false"
-                 top="-4"
+                 top="-28"
                  visible="false"
                  width="7" />
                 <button
@@ -392,7 +392,7 @@ as for parent layout_panel (chiclet_list_panel) to resize bottom tray properly. 
                  layout="topleft"
                  name="chicklet_right_scroll_button"
                  tab_stop="false"
-                 top="-4"
+                 top="-28"
                  visible="false"
                  width="7" />
             </chiclet_panel>

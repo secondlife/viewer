@@ -261,6 +261,7 @@ private:
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
+	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.
 	
 /**                    State
  **                                                                            **
