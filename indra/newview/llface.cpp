@@ -1398,7 +1398,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				
 				F32 da = normal * gPipeline.mSunDir;
 
-				*colors++ = LLColor4U(color.mV[0]*da, color.mV[1]*da, color.mV[2]*da, color.mV[3]);
+				*colors++ = LLColor4U(U8(color.mV[0]*da), U8(color.mV[1]*da), U8(color.mV[2]*da), color.mV[3]);
 			}
 			else
 			{
