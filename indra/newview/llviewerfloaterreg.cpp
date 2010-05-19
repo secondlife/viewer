@@ -102,6 +102,7 @@
 #include "llfloateruipreview.h"
 #include "llfloaterurldisplay.h"
 #include "llfloatervoicedevicesettings.h"
+#include "llfloatervoiceeffect.h"
 #include "llfloaterwater.h"
 #include "llfloaterwhitelistentry.h"
 #include "llfloaterwindlight.h"
@@ -253,7 +254,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("upload_sound", "floater_sound_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundPreview>, "upload");
 	
 	LLFloaterReg::add("voice_controls", "floater_voice_controls.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLCallFloater>);
-	
+	LLFloaterReg::add("voice_effect", "floater_voice_effect.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterVoiceEffect>);
+
 	LLFloaterReg::add("whitelist_entry", "floater_whitelist_entry.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWhiteListEntry>);	
 	LLFloaterWindowSizeUtil::registerFloater();
 	LLFloaterReg::add("world_map", "floater_world_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWorldMap>);	
