@@ -499,6 +499,7 @@ protected:
 	void connectorShutdownResponse(int statusCode, std::string &statusString);
 
 	void accountLoginStateChangeEvent(std::string &accountHandle, int statusCode, std::string &statusString, int state);
+	void mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType);
 	void mediaStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, int statusCode, std::string &statusString, int state, bool incoming);
 	void textStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, bool enabled, int state, bool incoming);
 	void sessionAddedEvent(std::string &uriString, std::string &alias, std::string &sessionHandle, std::string &sessionGroupHandle, bool isChannel, bool incoming, std::string &nameString, std::string &applicationString);
@@ -1015,6 +1016,7 @@ protected:
 	bool			hasExpired;
 	S32				fontType;
 	S32				fontStatus;
+	std::string		mediaCompletionType;
 	
 	// Members for processing text between tags
 	std::string		textBuffer;

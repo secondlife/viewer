@@ -3530,6 +3530,22 @@ void LLVivoxVoiceClient::accountLoginStateChangeEvent(
 	}
 }
 
+void LLVivoxVoiceClient::mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType)
+{
+	if (mediaCompletionType == "AuxBufferAudioCapture")
+	{
+		mCaptureBufferRecording = false;
+	}
+	else if (mediaCompletionType == "AuxBufferAudioRender")
+	{
+		mCaptureBufferPlaying = false;
+	}
+	else
+	{
+		LL_DEBUGS("Voice") << "Unknown MediaCompletionType: " << mediaCompletionType << LL_ENDL;
+	}
+}
+
 void LLVivoxVoiceClient::mediaStreamUpdatedEvent(
 	std::string &sessionHandle, 
 	std::string &sessionGroupHandle, 
@@ -7071,6 +7087,10 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 				fontType = 0;
 				fontStatus = 0;
 			}
+			else if (!stricmp("MediaCompletionType", tag))
+			{
+				mediaCompletionType.clear();
+			}
 		}
 	}
 	responseDepth++;
@@ -7248,7 +7268,11 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		{
 			fontStatus = strtol(string.c_str(), NULL, 10);
 		}
-	
+		else if (!stricmp("MediaCompletionType", tag))
+		{
+			mediaCompletionType = string;;
+		}
+
 		textBuffer.clear();
 		accumulateText= false;
 		
@@ -7330,7 +7354,17 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 			 </Event>
 			 */
 			LLVivoxVoiceClient::getInstance()->mediaStreamUpdatedEvent(sessionHandle, sessionGroupHandle, statusCode, statusString, state, incoming);
-		}		
+		}
+		else if (!stricmp(eventTypeCstr, "MediaCompletionEvent"))
+		{
+			/*
+			<Event type="MediaCompletionEvent">
+			<SessionGroupHandle />
+			<MediaCompletionType>AuxBufferAudioCapture</MediaCompletionType>
+			</Event>
+			*/
+			LLVivoxVoiceClient::getInstance()->mediaCompletionEvent(sessionGroupHandle, mediaCompletionType);
+		}
 		else if (!stricmp(eventTypeCstr, "TextStreamUpdatedEvent"))
 		{
 			/*
