@@ -446,13 +446,25 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitEdit::onAddToOutfitClicked(void)
 {
-	LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
-	if (!curr_item) return;
+	LLUUID selected_id;
+	if (mInventoryItemsPanel->getVisible())
+	{
+		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
+		if (!curr_item) return;
 
-	LLFolderViewEventListener* listenerp  = curr_item->getListener();
-	if (!listenerp) return;
+		LLFolderViewEventListener* listenerp  = curr_item->getListener();
+		if (!listenerp) return;
 
-	LLAppearanceMgr::getInstance()->wearItemOnAvatar(listenerp->getUUID());
+		selected_id = listenerp->getUUID();
+	}
+	else if (mWearableItemsPanel->getVisible())
+	{
+		selected_id = mWearableItemsList->getSelectedUUID();
+	}
+
+	if (selected_id.isNull()) return;
+
+	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id);
 }
 
 
