@@ -160,8 +160,8 @@ width="135"
 <layout_panel
 follows="right|bottom"
 name="links"
-width="200"
-min_width="200"
+width="205"
+min_width="205"
 user_resize="false"
 height="80">
    <text
@@ -173,7 +173,7 @@ height="16"
 top="12"
 right="-10"
 name="create_new_account_text"
-  width="180">
+  width="200">
        Sign up
  </text>
 <text
@@ -185,7 +185,7 @@ height="16"
 name="forgot_password_text"
 top_pad="12"
 right="-10"
-  width="180">
+  width="200">
        Forgot your username or password?
 </text>
 <text
@@ -197,7 +197,7 @@ height="16"
 name="login_help"
 top_pad="2"
 right="-10"
-    width="180">
+    width="200">
        Need help logging in?   </text>
 <!--  <text
     follows="right|bottom"
