@@ -50,6 +50,7 @@
 #include "llnotifications.h"
 #include "llfunctorregistry.h"
 #include "llrootview.h"
+#include "lltransientfloatermgr.h"
 #include "llviewercontrol.h" // for gSavedSettings
 
 const S32 MAX_ALLOWED_MSG_WIDTH = 400;
@@ -324,6 +325,9 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		mDefaultBtnTimer.start();
 		mDefaultBtnTimer.setTimerExpirySec(DEFAULT_BUTTON_DELAY);
 	}
+
+	LLTransientFloaterMgr::instance().addControlView(
+			LLTransientFloaterMgr::GLOBAL, this);
 }
 
 bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::string& check_control )
@@ -377,6 +381,8 @@ void LLToastAlertPanel::setVisible( BOOL visible )
 
 LLToastAlertPanel::~LLToastAlertPanel()
 {
+	LLTransientFloaterMgr::instance().removeControlView(
+			LLTransientFloaterMgr::GLOBAL, this);
 }
 
 BOOL LLToastAlertPanel::hasTitleBar() const

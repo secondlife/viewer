@@ -5540,10 +5540,7 @@ void handle_viewer_disable_message_log(void*)
 
 void handle_customize_avatar()
 {
-	if (gAgentWearables.areWearablesLoaded())
-	{
-		gAgentCamera.changeCameraToCustomizeAvatar();
-	}
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
 }
 
 void handle_report_abuse()

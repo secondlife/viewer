@@ -134,11 +134,6 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 
 void LLPanelOutfitsInventory::updateVerbs()
 {
-	if (mParent)
-	{
-		mParent->updateVerbs();
-	}
-
 	if (mListCommands)
 	{
 		updateListCommands();

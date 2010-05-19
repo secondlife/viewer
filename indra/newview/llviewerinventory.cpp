@@ -95,6 +95,41 @@ public:
 		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
 		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
 		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
+
+		mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
+		mInventoryItemsDict["Male Gestures"]	= LLTrans::getString("Male Gestures");
+		mInventoryItemsDict["Female Gestures"]	= LLTrans::getString("Female Gestures");
+		mInventoryItemsDict["Other Gestures"]	= LLTrans::getString("Other Gestures");
+		mInventoryItemsDict["Speech Gestures"]	= LLTrans::getString("Speech Gestures");
+
+		//predefined gestures
+
+		//male
+		mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
+		mInventoryItemsDict["Male - Get lost"]			= LLTrans::getString("Male - Get lost");
+		mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
+		mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
+		mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
+		mInventoryItemsDict["Male - Hey"]				= LLTrans::getString("Male - Hey");
+		mInventoryItemsDict["Male - Laugh"]				= LLTrans::getString("Male - Laugh");
+		mInventoryItemsDict["Male - Repulsed"]			= LLTrans::getString("Male - Repulsed");
+		mInventoryItemsDict["Male - Shrug"]				= LLTrans::getString("Male - Shrug");
+		mInventoryItemsDict["Male - Stick tougue out"]	= LLTrans::getString("Male - Stick tougue out");
+		mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
+
+		//female
+		mInventoryItemsDict["FeMale - Excuse me"]		= LLTrans::getString("FeMale - Excuse me");
+		mInventoryItemsDict["FeMale - Get lost"]		= LLTrans::getString("FeMale - Get lost");
+		mInventoryItemsDict["FeMale - Blow kiss"]		= LLTrans::getString("FeMale - Blow kiss");
+		mInventoryItemsDict["FeMale - Boo"]				= LLTrans::getString("FeMale - Boo");
+		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
+		mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
+		mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
+		mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
+		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
+		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
+		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
+		
 	}
 };
 
@@ -1651,6 +1686,20 @@ bool LLViewerInventoryItem::checkPermissionsSet(PermissionMask mask) const
 		curr_mask = perm.getMaskEveryone();
 	}
 	return ((curr_mask & mask) == mask);
+}
+
+PermissionMask LLViewerInventoryItem::getPermissionMask() const
+{
+	const LLPermissions& permissions = getPermissions();
+
+	BOOL copy = permissions.allowCopyBy(gAgent.getID());
+	BOOL mod = permissions.allowModifyBy(gAgent.getID());
+	BOOL xfer = permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID());
+	PermissionMask perm_mask = 0;
+	if (copy) perm_mask |= PERM_COPY;
+	if (mod)  perm_mask |= PERM_MODIFY;
+	if (xfer) perm_mask |= PERM_TRANSFER;
+	return perm_mask;
 }
 
 //----------
