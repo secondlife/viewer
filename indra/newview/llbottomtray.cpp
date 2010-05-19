@@ -1169,6 +1169,7 @@ void LLBottomTray::initResizeStateContainers()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, mMovementPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, mCamPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, mSnapshotPanel));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SIDEBAR, getChild<LLPanel>("sidebar_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_BUILD, getChild<LLPanel>("build_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SEARCH, getChild<LLPanel>("search_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_WORLD_MAP, getChild<LLPanel>("world_map_btn_panel")));
@@ -1179,6 +1180,7 @@ void LLBottomTray::initResizeStateContainers()
 	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
 	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SNAPSHOT);
+	mButtonsProcessOrder.push_back(RS_BUTTON_SIDEBAR);
 	mButtonsProcessOrder.push_back(RS_BUTTON_BUILD);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SEARCH);
 	mButtonsProcessOrder.push_back(RS_BUTTON_WORLD_MAP);
@@ -1194,6 +1196,7 @@ void LLBottomTray::initResizeStateContainers()
 	{
 		const EResizeState button_type = *it;
 		// is there an appropriate object?
+		llassert(mStateProcessedObjectMap.count(button_type) > 0);
 		if (0 == mStateProcessedObjectMap.count(button_type)) continue;
 
 		// set default width for it.
@@ -1205,17 +1208,19 @@ void LLBottomTray::initResizeStateContainers()
 
 }
 
+// this method must be called before restoring of the chat entry field on startup
+// because it resets chatbar's width according to resize logic.
 void LLBottomTray::initButtonsVisibility()
 {
-	setTrayButtonVisibleIfPossible(RS_BUTTON_GESTURES, gSavedSettings.getBOOL("ShowGestureButton"));
-	setTrayButtonVisibleIfPossible(RS_BUTTON_MOVEMENT, gSavedSettings.getBOOL("ShowMoveButton"));
-	setTrayButtonVisibleIfPossible(RS_BUTTON_CAMERA, gSavedSettings.getBOOL("ShowCameraButton"));
-	setTrayButtonVisibleIfPossible(RS_BUTTON_SNAPSHOT, gSavedSettings.getBOOL("ShowSnapshotButton"));
-
-	setTrayButtonVisibleIfPossible(RS_BUTTON_BUILD, gSavedSettings.getBOOL("ShowBuildButton"));
-	setTrayButtonVisibleIfPossible(RS_BUTTON_SEARCH, gSavedSettings.getBOOL("ShowSearchButton"));
-	setTrayButtonVisibleIfPossible(RS_BUTTON_WORLD_MAP, gSavedSettings.getBOOL("ShowWorldMapButton"));
-	setTrayButtonVisibleIfPossible(RS_BUTTON_MINI_MAP, gSavedSettings.getBOOL("ShowMiniMapButton"));
+	setVisibleAndFitWidths(RS_BUTTON_GESTURES, gSavedSettings.getBOOL("ShowGestureButton"));
+	setVisibleAndFitWidths(RS_BUTTON_MOVEMENT, gSavedSettings.getBOOL("ShowMoveButton"));
+	setVisibleAndFitWidths(RS_BUTTON_CAMERA, gSavedSettings.getBOOL("ShowCameraButton"));
+	setVisibleAndFitWidths(RS_BUTTON_SNAPSHOT, gSavedSettings.getBOOL("ShowSnapshotButton"));
+	setVisibleAndFitWidths(RS_BUTTON_SIDEBAR, gSavedSettings.getBOOL("ShowSidebarButton"));
+	setVisibleAndFitWidths(RS_BUTTON_BUILD, gSavedSettings.getBOOL("ShowBuildButton"));
+	setVisibleAndFitWidths(RS_BUTTON_SEARCH, gSavedSettings.getBOOL("ShowSearchButton"));
+	setVisibleAndFitWidths(RS_BUTTON_WORLD_MAP, gSavedSettings.getBOOL("ShowWorldMapButton"));
+	setVisibleAndFitWidths(RS_BUTTON_MINI_MAP, gSavedSettings.getBOOL("ShowMiniMapButton"));
 }
 
 void LLBottomTray::setButtonsControlsAndListeners()
@@ -1224,20 +1229,19 @@ void LLBottomTray::setButtonsControlsAndListeners()
 	gSavedSettings.declareBOOL("ShowMoveButton", TRUE, "Shows/Hides Move button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowSnapshotButton", TRUE, "Shows/Hides Snapshot button button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowCameraButton", TRUE, "Show/Hide View button in the bottom tray. (Declared in code)");
+	gSavedSettings.declareBOOL("ShowSidebarButton", TRUE, "Shows/hides Sidebar button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowBuildButton", TRUE, "Shows/Hides Build button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowSearchButton", TRUE, "Shows/Hides Search button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowWorldMapButton", TRUE, "Shows/Hides Map button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowMiniMapButton", TRUE, "Shows/Hides Mini-Map button in the bottom tray. (Declared in code)");
 
-
 	gSavedSettings.declareS32("ChatBarCustomWidth", 0, "Stores customized width of chat bar. (Declared in code)");
-
 
 	gSavedSettings.getControl("ShowGestureButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_GESTURES, _2));
 	gSavedSettings.getControl("ShowMoveButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_MOVEMENT, _2));
 	gSavedSettings.getControl("ShowCameraButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_CAMERA, _2));
 	gSavedSettings.getControl("ShowSnapshotButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SNAPSHOT, _2));
-
+	gSavedSettings.getControl("ShowSidebarButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SIDEBAR, _2));
 	gSavedSettings.getControl("ShowBuildButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_BUILD, _2));
 	gSavedSettings.getControl("ShowSearchButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SEARCH, _2));
 	gSavedSettings.getControl("ShowWorldMapButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_WORLD_MAP, _2));
@@ -1316,18 +1320,18 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 			const S32 chatbar_shrunk_width =
 				mNearbyChatBar->getRect().getWidth() - get_panel_min_width(mToolbarStack, mNearbyChatBar);
 
-			// *TODO: update list of processed buttons to use new buttons;
-			const S32 sum_of_min_widths =
-				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +
-				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_MOVEMENT]) +
-				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_GESTURES]) +
-				get_panel_min_width(mToolbarStack, mSpeakPanel);
+			S32 sum_of_min_widths = get_panel_min_width(mToolbarStack, mSpeakPanel);
+			S32 sum_of_curr_widths = get_curr_width(mSpeakPanel);
 
-			const S32 sum_of_curr_widths =
-				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +
-				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_MOVEMENT]) +
-				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_GESTURES]) +
-				get_curr_width(mSpeakPanel);
+			resize_state_vec_t::const_iterator it = mButtonsProcessOrder.begin();
+			const resize_state_vec_t::const_iterator it_end = mButtonsProcessOrder.end();
+
+			for (; it != it_end; ++it)
+			{
+				LLPanel * cur_panel = mStateProcessedObjectMap[*it];
+				sum_of_min_widths += get_panel_min_width(mToolbarStack, cur_panel);
+				sum_of_curr_widths += get_curr_width(cur_panel);
+			}
 
 			const S32 possible_shrunk_width =
 				chatbar_shrunk_width + (sum_of_curr_widths - sum_of_min_widths);
