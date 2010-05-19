@@ -6378,6 +6378,36 @@ const LLUUID LLVivoxVoiceClient::getVoiceEffect()
 	return mAudioSession ? mAudioSession->mVoiceFontID : LLUUID::null;
 }
 
+LLSD LLVivoxVoiceClient::getVoiceEffectProperties(const LLUUID& id)
+{
+	LLSD sd;
+
+	voice_font_map_t::iterator iter = mVoiceFontMap.find(id);
+	if (iter != mVoiceFontMap.end())
+	{
+		sd["template_only"] = false;
+	}
+	else
+	{
+		// Voice effect is not in the voice font map, see if there is a template
+		iter = mVoiceFontTemplateMap.find(id);
+		if (iter == mVoiceFontTemplateMap.end())
+		{
+			LL_WARNS("Voice") << "Voice effect " << id << "not found." << LL_ENDL;
+			return sd;
+		}
+		sd["template_only"] = true;
+	}
+
+	voiceFontEntry *font = iter->second;
+	sd["name"] = font->mName;
+	sd["expired"] = font->mHasExpired;
+	sd["expiry_date"] = font->mExpirationDate;
+	sd["is_new"] = font->mIsNew;
+
+	return sd;
+}
+
 LLVivoxVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
 	mID(id),
 	mFontIndex(0),
@@ -6531,6 +6561,24 @@ S32 LLVivoxVoiceClient::getVoiceFontIndex(const LLUUID& id) const
 		else
 		{
 			LL_DEBUGS("Voice") << "Selected voice font " << id << " is not available." << LL_ENDL;
+		}
+	}
+	return result;
+}
+
+S32 LLVivoxVoiceClient::getVoiceFontTemplateIndex(const LLUUID& id) const
+{
+	S32 result = 0;
+	if (!id.isNull())
+	{
+		voice_font_map_t::const_iterator it = mVoiceFontTemplateMap.find(id);
+		if (it != mVoiceFontTemplateMap.end())
+		{
+			result = it->second->mFontIndex;
+		}
+		else
+		{
+			LL_DEBUGS("Voice") << "Selected voice font template " << id << " is not available." << LL_ENDL;
 		}
 	}
 	return result;
@@ -6753,7 +6801,7 @@ void LLVivoxVoiceClient::captureBufferPlayStartSendMessage(const LLUUID& voice_f
 
 		LL_DEBUGS("Voice") << "Starting audio buffer playback." << LL_ENDL;
 
-		S32 font_index = getVoiceFontIndex(voice_font_id);
+		S32 font_index = getVoiceFontTemplateIndex(voice_font_id);
 		LL_DEBUGS("Voice") << "With voice font: " << voice_font_id << " (" << font_index << ")" << LL_ENDL;
 
 		stream

@@ -240,6 +240,7 @@ public:
 	//@{
 	virtual bool setVoiceEffect(const LLUUID& id);
 	virtual const LLUUID getVoiceEffect();
+	virtual LLSD getVoiceEffectProperties(const LLUUID& id);
 
 	virtual void refreshVoiceEffectLists(bool clear_lists);
 	virtual const voice_effect_list_t& getVoiceEffectList() const;
@@ -859,6 +860,7 @@ private:
 	void deleteVoiceFontTemplates();
 
 	S32 getVoiceFontIndex(const LLUUID& id) const;
+	S32 getVoiceFontTemplateIndex(const LLUUID& id) const;
 
 	void accountGetSessionFontsSendMessage();
 	void accountGetTemplateFontsSendMessage();
