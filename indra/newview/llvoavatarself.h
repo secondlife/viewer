@@ -201,8 +201,6 @@ public:
 	LLViewerFetchedTexture*	getLocalTextureGL(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	const LLUUID&		getLocalTextureID(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	void				setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index);
-	const LLUUID&		grabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
-	BOOL				canGrabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	/*virtual*/ void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index);
 protected:
 	/*virtual*/ void	setBakedReady(LLVOAvatarDefines::ETextureIndex type, BOOL baked_version_exists, U32 index);
@@ -251,6 +249,10 @@ public:
 	/* virtual */ bool 	isCompositeUpdateEnabled(U32 index);
 	void				setupComposites();
 	void				updateComposites();
+
+	const LLUUID&		grabBakedTexture(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
+	BOOL				canGrabBakedTexture(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
+
 
 	//--------------------------------------------------------------------
 	// Scratch textures (used for compositing)
