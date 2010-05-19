@@ -60,7 +60,8 @@ private:
 
 	void onClickRecord();
 	void onClickPlay();
-// 	void onClickActivate();
+ 	void onClickAdd();
+ 	void onClickActivate();
 
 	LLUUID mSelectedID;
 	LLScrollListCtrl* mVoiceEffectList;

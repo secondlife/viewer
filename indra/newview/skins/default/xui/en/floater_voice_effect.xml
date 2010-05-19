@@ -16,6 +16,9 @@
   <string name="no_voice_effect">
     No Voice Effect
   </string>
+  <string name="get_voice_effects_url">
+    https://secondlife.com/my/account/voice.php
+  </string>
   <string name="new_voice_effect">
     New!
   </string>
@@ -76,10 +79,13 @@
      image_disabled="AddItem_Disabled"
      layout="topleft"
      left="10"
-     name="new_gesture_btn"
-     tool_tip="Make new gesture"
+     name="add_voice_effect_btn"
+     tool_tip="Get more voice effects"
      top="5"
-     width="18" />
+     width="18">
+      <button.commit_callback
+       function="VoiceEffect.Add" />
+    </button>
     <button
      follows="bottom|left"
      font="SansSerifBigBold"

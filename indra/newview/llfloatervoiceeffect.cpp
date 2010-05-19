@@ -36,12 +36,15 @@
 
 #include "llscrolllistctrl.h"
 #include "lltrans.h"
+#include "llweb.h"
 
 LLFloaterVoiceEffect::LLFloaterVoiceEffect(const LLSD& key)
 	: LLFloater(key)
 {
 	mCommitCallbackRegistrar.add("VoiceEffect.Record",	boost::bind(&LLFloaterVoiceEffect::onClickRecord, this));
 	mCommitCallbackRegistrar.add("VoiceEffect.Play",	boost::bind(&LLFloaterVoiceEffect::onClickPlay, this));
+	mCommitCallbackRegistrar.add("VoiceEffect.Add",		boost::bind(&LLFloaterVoiceEffect::onClickAdd, this));
+	mCommitCallbackRegistrar.add("VoiceEffect.Activate", boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
 }
 
 // virtual
@@ -63,6 +66,10 @@ BOOL LLFloaterVoiceEffect::postBuild()
 	setDefaultBtn("record_btn");
 
 	mVoiceEffectList = getChild<LLScrollListCtrl>("voice_effect_list");
+	if (mVoiceEffectList)
+	{
+		mVoiceEffectList->setDoubleClickCallback(boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
+	}
 
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
 	if (effect_interface)
@@ -93,7 +100,7 @@ void LLFloaterVoiceEffect::update()
 	}
 
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (!effect_interface) // || !LLVoiceClient::instance().isVoiceWorking())
+	if (!effect_interface)
 	{
 		mVoiceEffectList->setEnabled(false);
 		return;
@@ -207,7 +214,7 @@ void LLFloaterVoiceEffect::onClickRecord()
 {
 	LL_DEBUGS("Voice") << "Record clicked" << LL_ENDL;
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (effect_interface) // && LLVoiceClient::instance().isVoiceWorking())
+	if (effect_interface)
 	{
 		bool record = !effect_interface->isPreviewRecording();
 		effect_interface->recordPreviewBuffer(record);
@@ -227,11 +234,26 @@ void LLFloaterVoiceEffect::onClickPlay()
 	const LLUUID& effect_id = mVoiceEffectList->getCurrentID();
 
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (effect_interface) // && LLVoiceClient::instance().isVoiceWorking())
+	if (effect_interface)
 	{
 		bool play = !effect_interface->isPreviewPlaying();
 		effect_interface->playPreviewBuffer(play, effect_id);
 		getChild<LLButton>("play_btn")->setVisible(!play);
 		getChild<LLButton>("play_stop_btn")->setVisible(play);
+	}
+}
+
+void LLFloaterVoiceEffect::onClickAdd()
+{
+	// Open the voice morphing info web page
+	LLWeb::loadURL(getString("get_voice_effects_url"));
+}
+
+void LLFloaterVoiceEffect::onClickActivate()
+{
+	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
+	if (effect_interface && mVoiceEffectList)
+	{
+		effect_interface->setVoiceEffect(mVoiceEffectList->getCurrentID());
 	}
 }
