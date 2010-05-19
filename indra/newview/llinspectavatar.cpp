@@ -144,10 +144,6 @@ private:
 	// Is used to determine if "Add friend" option should be enabled in gear menu
 	bool isNotFriend();
 	
-	// Callback for gCacheName to look up avatar name
-	void onNameCache(const LLUUID& id,
-							 const std::string& name,
-							 bool is_group);
 	void onAvatarNameCache(const LLUUID& agent_id,
 						   const LLAvatarName& av_name);
 	
@@ -375,18 +371,9 @@ void LLInspectAvatar::requestUpdate()
 
 	childSetValue("avatar_icon", LLSD(mAvatarID) );
 
-	// JAMESDEBUG HACK: Request via both legacy name system and new
-	// name system to set mLegacyName for use with mute system
-	gCacheName->get(mAvatarID, false,
-		boost::bind(&LLInspectAvatar::onNameCache,
-			this, _1, _2, _3));
-
-	if (LLAvatarNameCache::useDisplayNames())
-	{
-		LLAvatarNameCache::get(mAvatarID,
+	LLAvatarNameCache::get(mAvatarID,
 			boost::bind(&LLInspectAvatar::onAvatarNameCache,
 				this, _1, _2));
-	}
 }
 
 void LLInspectAvatar::processAvatarData(LLAvatarData* data)
@@ -623,18 +610,6 @@ void LLInspectAvatar::onVolumeChange(const LLSD& data)
 	LLVoiceClient::getInstance()->setUserVolume(mAvatarID, volume);
 }
 
-void LLInspectAvatar::onNameCache(
-	const LLUUID& id,
-	const std::string& full_name,
-	bool is_group)
-{
-	if (id == mAvatarID)
-	{
-		// we need the legacy name for the mute list :-(
-		mLegacyName = full_name;
-	}
-}
-
 void LLInspectAvatar::onAvatarNameCache(
 		const LLUUID& agent_id,
 		const LLAvatarName& av_name)
@@ -643,6 +618,7 @@ void LLInspectAvatar::onAvatarNameCache(
 	{
 		getChild<LLUICtrl>("user_name")->setValue(av_name.mDisplayName);
 		getChild<LLUICtrl>("user_slid")->setValue(av_name.mUsername);
+		mLegacyName = av_name.getLegacyName();
 	}
 }
 
