@@ -1977,7 +1977,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 		{
 			LLSD args;
 			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-			args["TIME"] = (U32)mDebugSelfLoadTimer.getElapsedTimeF32();
+			args["TIME"] = llformat("%d",(U32)mDebugSelfLoadTimer.getElapsedTimeF32());
 			LLNotificationsUtil::add("AvatarRezSelfNotification",args);
 		}
 
