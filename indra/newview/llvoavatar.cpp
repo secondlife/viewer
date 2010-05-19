@@ -3072,14 +3072,15 @@ void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 
 LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 {
+	static LLUICachedControl<bool> show_friends("NameTagShowFriends");
 	const char* color_name;
-	if (is_friend)
+	if (show_friends && is_friend)
 	{
 		color_name = "NameTagFriend";
 	}
 	else if (LLAvatarNameCache::useDisplayNames())
 	{
-		// ...color based on whether SLID "matches" a computed display
+		// ...color based on whether username "matches" a computed display
 		// name
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(getID(), &av_name)

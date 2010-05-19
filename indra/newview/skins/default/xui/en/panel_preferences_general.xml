@@ -256,7 +256,16 @@
      name="show_my_name_checkbox1"
 	 top_pad="4"
      width="300" />
-   <text
+  <check_box
+    control_name="NameTagShowFriends"
+    enabled_control="AvatarNameTagMode"
+    height="16"
+    label="Highlight friends"
+    left_delta="0"
+    name="show_friends"
+    tool_tip="Highlight the name tags of your friends"
+    top_pad="2" />
+  <text
     follows="left|top"
     height="15"
 	layout="topleft"

@@ -550,7 +550,7 @@
      reference="White" />
     <color
      name="NameTagMismatch"
-     value="1 0.776 0.212 1" />
+     reference="White" />
     <color
      name="NameTagSLID"
      value="1 1 1 1" />
