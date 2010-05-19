@@ -228,7 +228,7 @@
 Disabled for now.
 -->
             <button
-enabled="false"
+             control_name="SidebarWithButtonsVisibility"
              follows="left|right"
              height="23"
              image_pressed="PushButton_Press"
@@ -243,9 +243,6 @@ enabled="false"
              top="5"
              use_ellipses="true"
              width="80">
-                <init_callback
-                 function=""
-                 parameter="" />
             </button>
         </layout_panel>
         <layout_panel
