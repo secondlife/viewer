@@ -186,7 +186,7 @@ name="forgot_password_text"
 top_pad="12"
 right="-10"
   width="180">
-       Forgot your name or password?
+       Forgot your username or password?
 </text>
 <text
 follows="right|bottom"
