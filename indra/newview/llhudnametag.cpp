@@ -60,7 +60,7 @@ const F32 SPRING_STRENGTH = 0.7f;
 const F32 RESTORATION_SPRING_TIME_CONSTANT = 0.1f;
 const F32 HORIZONTAL_PADDING = 16.f;
 const F32 VERTICAL_PADDING = 12.f;
-const F32 LINE_PADDING = 1;			// aka "leading"
+const F32 LINE_PADDING = 3.f;			// aka "leading"
 const F32 BUFFER_SIZE = 2.f;
 const F32 MIN_EDGE_OVERLAP = 3.f;
 const F32 HUD_TEXT_MAX_WIDTH = 190.f;
@@ -460,7 +460,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 		LLUI::popMatrix();
 	}
 
-	F32 y_offset = (F32)mOffsetY - 2;  // JAMESDEBUG
+	F32 y_offset = (F32)mOffsetY;
 		
 	// Render label
 	{
@@ -805,6 +805,12 @@ void LLHUDNameTag::updateSize()
 		height += LINE_PADDING;
 		width = llmax(width, llmin(iter->getWidth(fontp), HUD_TEXT_MAX_WIDTH));
 		++iter;
+	}
+
+	// Don't want line spacing under the last line
+	if (height > 0.f)
+	{
+		height -= LINE_PADDING;
 	}
 
 	iter = mLabelSegments.begin();

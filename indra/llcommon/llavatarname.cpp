@@ -41,6 +41,7 @@
 // Store these in pre-built std::strings to avoid memory allocations in
 // LLSD map lookups
 static const std::string SL_ID("sl_id");
+static const std::string USERNAME("username");
 static const std::string DISPLAY_NAME("display_name");
 static const std::string LEGACY_FIRST_NAME("legacy_first_name");
 static const std::string LEGACY_LAST_NAME("legacy_last_name");
@@ -68,9 +69,7 @@ bool LLAvatarName::operator<(const LLAvatarName& rhs) const
 LLSD LLAvatarName::asLLSD() const
 {
 	LLSD sd;
-	// Due to a late-breaking change request from Product, we renamed
-	// "SLID" to "Username", but it was too late to change the wire format.
-	sd[SL_ID] = mUsername;
+	sd[USERNAME] = mUsername;
 	sd[DISPLAY_NAME] = mDisplayName;
 	sd[LEGACY_FIRST_NAME] = mLegacyFirstName;
 	sd[LEGACY_LAST_NAME] = mLegacyLastName;
@@ -81,7 +80,17 @@ LLSD LLAvatarName::asLLSD() const
 
 void LLAvatarName::fromLLSD(const LLSD& sd)
 {
-	mUsername = sd[SL_ID].asString(); // see asLLSD() above
+	// *HACK: accept both wire formats for now, as we are transitioning
+	// People API to use "username"
+	if (sd.has(USERNAME))
+	{
+		mUsername = sd[USERNAME].asString();
+	}
+	else
+	{
+		// *TODO: Remove
+		mUsername = sd[SL_ID].asString();
+	}
 	mDisplayName = sd[DISPLAY_NAME].asString();
 	mLegacyFirstName = sd[LEGACY_FIRST_NAME].asString();
 	mLegacyLastName = sd[LEGACY_LAST_NAME].asString();
