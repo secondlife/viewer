@@ -16,6 +16,9 @@
   <string name="no_voice_effect">
     No Voice Effect
   </string>
+  <string name="new_voice_effect">
+    New!
+  </string>
   <scroll_list
    bottom_delta="400"
    draw_heading="true"
@@ -26,23 +29,75 @@
    top="20"
    name="voice_effect_list">
     <scroll_list.columns
-     label="New"
-     name="new"
-     width="48" />
-    <scroll_list.columns
      label="Name"
      name="name"
      width="153" />
+    <scroll_list.columns
+     label="New"
+     name="new"
+     width="48" />
 	<scroll_list.columns
      label="Expires"
      name="expires"
      width="100" />
-    <scroll_list.columns
-     label=""
-     name="key"
-     width="-1" />
   </scroll_list>
-  <panel
+              <panel
+             background_visible="true"
+             bevel_style="none"
+             top_pad="0"
+             follows="left|right|bottom"
+             height="30"
+             label="bottom_panel"
+             layout="topleft"
+             left="0"
+             name="bottom_panel"
+             width="313">
+<!--
+              <menu_button
+               follows="bottom|left"
+               height="18"
+               image_disabled="OptionsMenu_Disabled"
+               image_selected="OptionsMenu_Press"
+               image_unselected="OptionsMenu_Off"
+               layout="topleft"
+               left="10"
+               menu_filename="menu_voice_effect_gear.xml"
+               name="gear_btn"
+               top="5"
+               tool_tip="More options"
+               width="18" />
+-->
+    <button
+     follows="bottom|left"
+     font="SansSerifBigBold"
+     height="18"
+     image_selected="AddItem_Press"
+     image_unselected="AddItem_Off"
+     image_disabled="AddItem_Disabled"
+     layout="topleft"
+     left="10"
+     name="new_gesture_btn"
+     tool_tip="Make new gesture"
+     top="5"
+     width="18" />
+    <button
+     follows="bottom|left"
+     font="SansSerifBigBold"
+     height="10"
+     image_hover_selected="Activate_Checkmark"
+     image_selected="Activate_Checkmark"
+     image_unselected="Activate_Checkmark"
+     layout="topleft"
+     left_pad="5"
+     name="activate_btn"
+     tool_tip="Activate/Deactivate selected voice effect"
+     top="10"
+     width="10">
+      <button.commit_callback
+       function="VoiceEffect.Activate" />
+    </button>
+  </panel>
+<!--  <panel
    background_visible="true"
    bevel_style="none"
    top_pad="0"
@@ -53,7 +108,6 @@
    left="0"
    name="bottom_panel"
    width="313">
-<!--
     <button
      follows="bottom|left"
      font="SansSerifBigBold"
@@ -70,17 +124,16 @@
       <button.commit_callback
        function="VoiceEffect.Activate" />
     </button>
--->
-  </panel>
+  </panel> -->
   <button
    follows="left|bottom"
    height="23"
-   label="Record"
+   label="Record Sample"
    layout="topleft"
    left="6"
    name="record_btn"
    top_pad="5"
-   width="83">
+   width="135">
     <button.commit_callback
      function="VoiceEffect.Record" />
   </button>
@@ -92,19 +145,19 @@
    left_delta="0"
    name="record_stop_btn"
    top_delta="0"
-   width="83">
+   width="135">
     <button.commit_callback
      function="VoiceEffect.Record" />
   </button>
   <button
    follows="left|bottom"
    height="23"
-   label="Play"
+   label="Play Preview"
    layout="topleft"
    left_pad="6"
    name="play_btn"
    top_delta="0"
-   width="83">
+   width="135">
     <button.commit_callback
      function="VoiceEffect.Play" />
   </button>
@@ -116,7 +169,7 @@
    left_delta="0"
    name="play_stop_btn"
    top_delta="0"
-   width="83">
+   width="135">
     <button.commit_callback
      function="VoiceEffect.Play" />
   </button>

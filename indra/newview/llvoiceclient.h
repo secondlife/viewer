@@ -289,6 +289,7 @@ public:
 	//@{
 	virtual bool setVoiceEffect(const LLUUID& id) = 0;
 	virtual const LLUUID getVoiceEffect() = 0;
+	virtual LLSD getVoiceEffectProperties(const LLUUID& id) = 0;
 
 	virtual void refreshVoiceEffectLists(bool clear_lists) = 0;
 	virtual const voice_effect_list_t &getVoiceEffectList() const = 0;

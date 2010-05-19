@@ -99,29 +99,94 @@ void LLFloaterVoiceEffect::update()
 		return;
 	}
 
-	mVoiceEffectList->deleteAllItems();
-	LLSD element;
-	element["id"] = LLUUID::null;
-	element["columns"][1]["column"] = "name";
-	element["columns"][1]["value"] = getString("no_voice_effect");
-	mVoiceEffectList->addElement(element, ADD_BOTTOM);
+	LL_DEBUGS("Voice")<< "Rebuilding voice effect list."<< LL_ENDL;
 
-	const voice_effect_list_t& effect_list = effect_interface->getVoiceEffectList();
-	if (!effect_list.empty())
+	// Preserve selected items and scroll position
+	S32 scroll_pos = mVoiceEffectList->getScrollPos();
+	uuid_vec_t selected_items;
+	std::vector<LLScrollListItem*> items = mVoiceEffectList->getAllSelected();
+	for(std::vector<LLScrollListItem*>::const_iterator it = items.begin(); it != items.end(); it++)
 	{
-		for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+		selected_items.push_back((*it)->getUUID());
+	}
+
+	mVoiceEffectList->deleteAllItems();
+
+	{
+		// Add the "No Voice Effect" entry
+		LLSD element;
+
+		element["id"] = LLUUID::null;
+		element["columns"][0]["column"] = "name";
+		element["columns"][0]["value"] = getString("no_voice_effect");
+		element["columns"][0]["font"]["name"] = "SANSSERIF";
+		element["columns"][0]["font"]["style"] = "BOLD";
+
+		LLScrollListItem* sl_item = mVoiceEffectList->addElement(element, ADD_BOTTOM);
+		// *HACK: Copied from llfloatergesture.cpp : ["font"]["style"] does not affect font style :(
+		if(sl_item)
 		{
-			LLSD element;
-			element["id"] = it->second;
-			element["columns"][1]["column"] = "name";
-			element["columns"][1]["value"] = it->first;
-			mVoiceEffectList->addElement(element, ADD_BOTTOM);
+			((LLScrollListText*)sl_item->getColumn(0))->setFontStyle(LLFontGL::BOLD);
 		}
 	}
+
+	const voice_effect_list_t& template_list = effect_interface->getVoiceEffectTemplateList();
+	if (!template_list.empty())
+	{
+		for (voice_effect_list_t::const_iterator it = template_list.begin(); it != template_list.end(); ++it)
+		{
+			const LLUUID& effect_id = it->second;
+			std::string effect_name = it->first;
+
+			LLSD effect_properties = effect_interface->getVoiceEffectProperties(effect_id);
+			bool is_template_only = effect_properties["template_only"].asBoolean();
+			bool is_new = effect_properties["is_new"].asBoolean();
+			std::string expiry_date = effect_properties["expiry_date"].asString();
+
+			std::string font_style = "NORMAL";
+			if (!is_template_only)
+			{
+				font_style = "BOLD";
+			}
+			LLSD element;
+			element["id"] = effect_id;
+
+			element["columns"][0]["column"] = "name";
+			element["columns"][0]["value"] = effect_name;
+			element["columns"][0]["font"]["name"] = "SANSSERIF";
+			element["columns"][0]["font"]["style"] = font_style;
+			element["columns"][1]["column"] = "new";
+			element["columns"][1]["value"] = is_new ? getString("new_voice_effect") : "";
+			element["columns"][1]["font"]["name"] = "SANSSERIF";
+			element["columns"][1]["font"]["style"] = font_style;
+
+			element["columns"][2]["column"] = "expires";
+			element["columns"][2]["value"] = !is_template_only ? expiry_date : "";
+			element["columns"][2]["font"]["name"] = "SANSSERIF";
+			element["columns"][2]["font"]["style"] = font_style;
+
+			LLScrollListItem* sl_item = mVoiceEffectList->addElement(element, ADD_BOTTOM);
+			// *HACK: Copied from llfloatergesture.cpp : ["font"]["style"] does not affect font style :(
+			if(sl_item)
+			{
+				LLFontGL::StyleFlags style = is_template_only ? LLFontGL::NORMAL : LLFontGL::BOLD;
+				((LLScrollListText*)sl_item->getColumn(0))->setFontStyle(style);
+			}
+		}
+	}
+
+	// Re-select items that were selected before, and restore the scroll position
+	for(uuid_vec_t::iterator it = selected_items.begin(); it != selected_items.end(); it++)
+	{
+		mVoiceEffectList->selectByID(*it);
+	}
+	mVoiceEffectList->setScrollPos(scroll_pos);
 
 	mVoiceEffectList->setValue(effect_interface->getVoiceEffect());
 	mVoiceEffectList->setEnabled(true);
 
+	// Update button states
+	// *TODO: Should separate this from rebuilding the effects list, to avoid rebuilding it unnecessarily
 	bool recording = effect_interface->isPreviewRecording();
 	getChild<LLButton>("record_btn")->setVisible(!recording);
 	getChild<LLButton>("record_stop_btn")->setVisible(recording);
