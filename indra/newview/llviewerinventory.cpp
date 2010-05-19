@@ -1688,6 +1688,20 @@ bool LLViewerInventoryItem::checkPermissionsSet(PermissionMask mask) const
 	return ((curr_mask & mask) == mask);
 }
 
+PermissionMask LLViewerInventoryItem::getPermissionMask() const
+{
+	const LLPermissions& permissions = getPermissions();
+
+	BOOL copy = permissions.allowCopyBy(gAgent.getID());
+	BOOL mod = permissions.allowModifyBy(gAgent.getID());
+	BOOL xfer = permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID());
+	PermissionMask perm_mask = 0;
+	if (copy) perm_mask |= PERM_COPY;
+	if (mod)  perm_mask |= PERM_MODIFY;
+	if (xfer) perm_mask |= PERM_TRANSFER;
+	return perm_mask;
+}
+
 //----------
 
 void LLViewerInventoryItem::onCallingCardNameLookup(const LLUUID& id, const std::string& first_name, const std::string& last_name)

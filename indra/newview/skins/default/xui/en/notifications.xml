@@ -6129,7 +6129,56 @@ Deed to group failed.
    icon="notifytip.tga"
    name="AvatarRezNotification"
    type="notifytip">
+( [EXISTENCE] seconds )
 Avatar '[NAME]' rezzed in [TIME] seconds.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezCloudNotification"
+   type="notifytip">
+( [EXISTENCE] seconds )
+Avatar '[NAME]' became cloud.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezArrivedNotification"
+   type="notifytip">
+( [EXISTENCE] seconds )
+Avatar '[NAME]' appeared.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezLeftCloudNotification"
+   type="notifytip">
+( [EXISTENCE] seconds )
+Avatar '[NAME]' left after [TIME] seconds as cloud.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezEnteredAppearanceNotification"
+   type="notifytip">
+( [EXISTENCE] seconds )
+Avatar '[NAME]' entered appearance mode.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezLeftAppearanceNotification"
+   type="notifytip">
+( [EXISTENCE] seconds )
+Avatar '[NAME]' left appearance mode.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezLeftNotification"
+   type="notifytip">
+( [EXISTENCE] seconds )
+Avatar '[NAME]' left as fully loaded.
   </notification>
 
   <notification

@@ -103,15 +103,7 @@ struct LocalTextureData
 //-----------------------------------------------------------------------------
 // Callback data
 //-----------------------------------------------------------------------------
-struct LLAvatarTexData
-{
-	LLAvatarTexData(const LLUUID& id, ETextureIndex index) : 
-		mAvatarID(id), 
-		mIndex(index) 
-	{}
-	LLUUID			mAvatarID;
-	ETextureIndex	mIndex;
-};
+
 
 /**
  **
@@ -155,6 +147,23 @@ void LLVOAvatarSelf::initInstance()
 
 	// adds attachment points to mScreen among other things
 	LLVOAvatar::initInstance();
+
+	llinfos << "Self avatar object created. Starting timer." << llendl;
+	mSelfLoadTimer.reset();
+	// clear all times to -1 for debugging
+	for (U32 i =0; i < LLVOAvatarDefines::TEX_NUM_INDICES; ++i)
+	{
+		for (U32 j = 0; j <= MAX_DISCARD_LEVEL; ++j)
+		{
+			mTextureLoadTimes[i][j] = -1.0f;
+		}
+	}
+
+	for (U32 i =0; i < LLVOAvatarDefines::BAKED_NUM_INDICES; ++i)
+	{
+		mBakedTextureTimes[i][0] = -1.0f;
+		mBakedTextureTimes[i][1] = -1.0f;
+	}
 
 	status &= buildMenus();
 	if (!status)
@@ -1117,12 +1126,12 @@ U32 LLVOAvatarSelf::getNumWearables(LLVOAvatarDefines::ETextureIndex i) const
 // virtual
 void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {	
-	//llinfos << "onLocalTextureLoaded: " << src_vi->getID() << llendl;
 
 	const LLUUID& src_id = src_vi->getID();
 	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
 	ETextureIndex index = data->mIndex;
 	if (!isIndexLocalTexture(index)) return;
+
 	LLLocalTextureObject *local_tex_obj = getLocalTextureObject(index, 0);
 
 	// fix for EXT-268. Preventing using of NULL pointer
@@ -1748,6 +1757,46 @@ BOOL LLVOAvatarSelf::getIsCloud()
 	return FALSE;
 }
 
+/*static*/
+void LLVOAvatarSelf::onTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+{
+	gAgentAvatarp->timingLocalTexLoaded(success, src_vi, src, aux_src, discard_level, final, userdata);
+}
+
+void LLVOAvatarSelf::timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+{
+	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
+	if (!data)
+	{
+		return;
+	}
+
+	ETextureIndex index = data->mIndex;
+	
+if (index < 0 || index >= TEX_NUM_INDICES)
+	{
+		return;
+	}
+
+	if (discard_level >=0 && discard_level <= MAX_DISCARD_LEVEL) // ignore discard level -1, as it means we have no data.
+	{
+		mTextureLoadTimes[(U32)index][(U32)discard_level] = mSelfLoadTimer.getElapsedTimeF32();
+	}
+	if (final)
+	{
+		delete data;
+	}
+}
+
+void LLVOAvatarSelf::bakedTextureUpload(EBakedTextureIndex index, BOOL finished)
+{
+	U32 done = 0;
+	if (finished)
+	{
+		done = 1;
+	}
+	mBakedTextureTimes[index][done] = mSelfLoadTimer.getElapsedTimeF32();
+}
 
 const LLUUID& LLVOAvatarSelf::grabLocalTexture(ETextureIndex type, U32 index) const
 {
@@ -1907,6 +1956,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(te);
 	if (texture_dict->mIsBakedTexture)
 	{
+		bakedTextureUpload(texture_dict->mBakedTextureIndex, TRUE); // FALSE for start of upload, TRUE for finish.
 		llinfos << "New baked texture: " << texture_dict->mName << " UUID: " << uuid <<llendl;
 	}
 	else
@@ -1919,6 +1969,42 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	if (!hasPendingBakedUploads())
 	{
 		gAgent.sendAgentSetAppearance();
+		F32 final_time = mSelfLoadTimer.getElapsedTimeF32();
+		llinfos << "REZTIME: Myself rez stats:" << llendl;
+		llinfos << "\t Time from avatar creation to load wearables: " << (S32)mTimeWearablesLoaded << llendl;
+		llinfos << "\t Time from avatar creation to de-cloud: " << (S32)mTimeAvatarVisible << llendl;
+		llinfos << "\t Time from avatar creation to de-cloud for others: " << (S32)final_time << llendl;
+		llinfos << "\t Load time for each texture: " << llendl;
+		for (U32 i = 0; i < LLVOAvatarDefines::TEX_NUM_INDICES; ++i)
+		{
+			std::stringstream out;
+			out << "\t\t (" << i << ") ";
+			U32 j=0;
+			for (j=0; j <= MAX_DISCARD_LEVEL; j++)
+			{
+				out << "\t";
+				S32 load_time = (S32)mTextureLoadTimes[i][j];
+				if (load_time == -1)
+				{
+					out << "*";
+					if (j == 0)
+						break;
+				}
+				else
+				{
+					out << load_time;
+				}
+			}
+
+			// Don't print out non-existent textures.
+			if (j != 0)
+				llinfos << out.str() << llendl;
+		}
+		llinfos << "\t Time points for each upload (start / finish)" << llendl;
+		for (U32 i = 0; i < LLVOAvatarDefines::BAKED_NUM_INDICES; ++i)
+		{
+			llinfos << "\t\t (" << i << ") \t" << (S32)mBakedTextureTimes[i][0] << " / " << (S32)mBakedTextureTimes[i][1] << llendl;
+		}
 	}
 }
 
