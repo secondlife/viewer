@@ -37,7 +37,7 @@
 
 #include "llfloaterland.h"
 
-#include "llcachename.h"
+#include "llavatarnamecache.h"
 #include "llfocusmgr.h"
 #include "llnotificationsutil.h"
 #include "llparcel.h"
@@ -585,6 +585,8 @@ void LLPanelLandGeneral::refresh()
 							&& LLViewerParcelMgr::isParcelModifiableByAgent(
 										parcel, GP_LAND_SET_SALE_INFO);
 		BOOL can_be_sold = owner_sellable || estate_manager_sellable;
+
+		can_be_sold = true;
 
 		const LLUUID &owner_id = parcel->getOwnerID();
 		BOOL is_public = parcel->isPublic();
@@ -1387,9 +1389,7 @@ bool LLPanelLandObjects::callbackReturnOwnerObjects(const LLSD& notification, co
 			}
 			else
 			{
-				std::string full_name;
-				gCacheName->getFullName(owner_id, full_name);
-				args["NAME"] = full_name;
+				args["NAME"] = LLSLURL("agent", owner_id, "inspect").getSLURLString();
 				LLNotificationsUtil::add("OtherObjectsReturned", args);
 			}
 			send_return_objects_message(parcel->getLocalID(), RT_OWNER);
@@ -1607,9 +1607,9 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		}
 
 		// Placeholder for name.
-		std::string name;
-		gCacheName->getFullName(owner_id, name);		
-		item_params.columns.add().value(name).font(FONT).column("name");
+		LLAvatarName av_name;
+		LLAvatarNameCache::get(owner_id, &av_name);
+		item_params.columns.add().value(av_name.getNameAndSLID()).font(FONT).column("name");
 
 		object_count_str = llformat("%d", object_count);
 		item_params.columns.add().value(object_count_str).font(FONT).column("count");
@@ -1718,9 +1718,7 @@ void LLPanelLandObjects::onClickReturnOwnerObjects(void* userdata)
 	}
 	else
 	{
-		std::string name;
-		gCacheName->getFullName(owner_id, name);
-		args["NAME"] = name;
+		args["NAME"] = LLSLURL("agent", owner_id, "inspect").getSLURLString();
 		LLNotificationsUtil::add("ReturnObjectsOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
 	}
 }
@@ -1779,10 +1777,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 		}
 		else
 		{
-			std::string name;
-			gCacheName->getFullName(owner_id, name);
-			args["NAME"] = name;
-
+			args["NAME"] = LLSLURL("agent", owner_id, "inspect").getSLURLString();
 			LLNotificationsUtil::add("ReturnObjectsNotOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
 		}
 	}
