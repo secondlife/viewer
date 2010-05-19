@@ -43,6 +43,7 @@
 #include "llhttpclient.h"
 #include "llsdutil_math.h"
 #include "llstring.h"
+#include "lltextutil.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 
@@ -65,7 +66,6 @@
 #include "llnearbychat.h"
 #include "llspeakers.h" //for LLIMSpeakerMgr
 #include "lltextbox.h"
-#include "lltextutil.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 

@@ -537,6 +537,7 @@
     <button
      follows="right|bottom"
      height="23"
+     image_unselected="PushButton_On"
      label="Teleport"
      layout="topleft"
      left="25"

@@ -91,6 +91,7 @@ set(llui_SOURCE_FILES
     lltextbox.cpp
     lltexteditor.cpp
     lltextparser.cpp
+    lltextutil.cpp
     lltextvalidate.cpp
     lltransutil.cpp
     lltoggleablemenu.cpp
@@ -101,7 +102,6 @@ set(llui_SOURCE_FILES
     lluictrlfactory.cpp
     lluiimage.cpp
     lluistring.cpp
-    lluitextutil.cpp
     llundo.cpp
     llurlaction.cpp
     llurlentry.cpp
@@ -186,6 +186,7 @@ set(llui_HEADER_FILES
     lltextbox.h
     lltexteditor.h
     lltextparser.h
+    lltextutil.h
     lltextvalidate.h
     lltoggleablemenu.h
     lltooltip.h
@@ -198,7 +199,6 @@ set(llui_HEADER_FILES
     llui.h
     lluiimage.h
     lluistring.h
-    lluitextutil.h
     llundo.h
     llurlaction.h
     llurlentry.h
