@@ -7337,7 +7337,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>NameTagShowSLIDs</key>
+    <key>NameTagShowUsernames</key>
     <map>
       <key>Comment</key>
       <string>Show usernames in avatar name tags</string>
