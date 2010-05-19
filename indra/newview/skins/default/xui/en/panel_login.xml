@@ -65,13 +65,13 @@ Username:
 <line_editor
 follows="left|bottom"
 height="22"
-label="bobsmith12 or Stellar Sunshine"
+label="bobsmith12 or Steller Sunshine"
 left_delta="0"
 max_length="63"
 name="username_edit"
 prevalidate_callback="ascii" 
 select_on_focus="true"
-tool_tip="[SECOND_LIFE] ID, like bobsmith12 or Stellar Sunshine"
+tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
 top_pad="0"
 width="150" />
 <text
