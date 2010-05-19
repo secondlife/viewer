@@ -337,6 +337,15 @@ public:
 	// Avatar Rez Metrics
 	//--------------------------------------------------------------------
 public:	
+	struct LLAvatarTexData
+	{
+		LLAvatarTexData(const LLUUID& id, LLVOAvatarDefines::ETextureIndex index) : 
+			mAvatarID(id), 
+			mIndex(index) 
+		{}
+		LLUUID			mAvatarID;
+		LLVOAvatarDefines::ETextureIndex	mIndex;
+	};
 	void wearablesLoaded() { mTimeWearablesLoaded = mDebugSelfLoadTimer.getElapsedTimeF32(); }
 	void avatarVisible() { mTimeAvatarVisible = mDebugSelfLoadTimer.getElapsedTimeF32(); }
 	void outputRezDiagnostics() const;
@@ -351,16 +360,6 @@ private:
 /**                    Diagnostics
  **                                                                            **
  *******************************************************************************/
-
-struct LLAvatarTexData
-{
-	LLAvatarTexData(const LLUUID& id, LLVOAvatarDefines::ETextureIndex index) : 
-		mAvatarID(id), 
-		mIndex(index) 
-	{}
-	LLUUID			mAvatarID;
-	LLVOAvatarDefines::ETextureIndex	mIndex;
-};
 
 };
 
