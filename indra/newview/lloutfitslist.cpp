@@ -36,9 +36,6 @@
 // llcommon
 #include "llcommonutils.h"
 
-// llcommon
-#include "llcommonutils.h"
-
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llappearancemgr.h"

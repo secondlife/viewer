@@ -37,8 +37,8 @@
 #include "lllocalcliprect.h"
 #include "llscrollbar.h"
 #include "lltextbox.h"
+#include "lltextutil.h"
 #include "lluictrl.h"
-#include "lluitextutil.h"
 
 static const std::string DD_BUTTON_NAME = "dd_button";
 static const std::string DD_TEXTBOX_NAME = "dd_textbox";

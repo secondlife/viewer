@@ -50,6 +50,7 @@
 #include "llaccordionctrltab.h"
 #include "llagentwearables.h"
 #include "llscrollingpanelparam.h"
+#include "llradiogroup.h"
 
 #include "llcolorswatch.h"
 #include "lltexturectrl.h"
@@ -615,6 +616,8 @@ BOOL LLPanelEditWearable::postBuild()
 	mPanelTitle = getChild<LLTextBox>("edit_wearable_title");
 	mDescTitle = getChild<LLTextBox>("description_text");
 
+	getChild<LLRadioGroup>("sex_radio")->setCommitCallback(boost::bind(&LLPanelEditWearable::onCommitSexChange, this));
+
 	// The following panels will be shown/hidden based on what wearable we're editing
 	// body parts
 	mPanelShape = getChild<LLPanel>("edit_shape_panel");
@@ -685,6 +688,40 @@ void LLPanelEditWearable::onRevertButtonClicked(void* userdata)
 {
 	LLPanelEditWearable *panel = (LLPanelEditWearable*) userdata;
 	panel->revertChanges();
+}
+
+
+void LLPanelEditWearable::onCommitSexChange()
+{
+	if (!isAgentAvatarValid()) return;
+
+	LLWearableType::EType type = mWearablePtr->getType();
+	U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
+
+	if( !gAgentWearables.isWearableModifiable(type, index))
+	{
+		return;
+	}
+
+	LLViewerVisualParam* param = static_cast<LLViewerVisualParam*>(gAgentAvatarp->getVisualParam( "male" ));
+	if( !param )
+	{
+		return;
+	}
+
+	bool is_new_sex_male = (gSavedSettings.getU32("AvatarSex") ? SEX_MALE : SEX_FEMALE) == SEX_MALE;
+	LLWearable*	wearable = gAgentWearables.getWearable(type, index);
+	if (wearable)
+	{
+		wearable->setVisualParamWeight(param->getID(), is_new_sex_male, FALSE);
+	}
+	param->setWeight( is_new_sex_male, FALSE );
+
+	gAgentAvatarp->updateSexDependentLayerSets( FALSE );
+
+	gAgentAvatarp->updateVisualParams();
+
+	updateScrollingPanelUI();
 }
 
 void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
@@ -1118,6 +1155,14 @@ void LLPanelEditWearable::updateVerbs()
 
 	mBtnRevert->setEnabled(is_dirty);
 	childSetEnabled("save_as_button", is_dirty && can_copy);
+
+	if(isAgentAvatarValid())
+	{
+		// Update viewer's radio buttons (of RadioGroup with control_name="AvatarSex") of Avatar's gender
+		// with value from "AvatarSex" setting
+		gSavedSettings.setU32("AvatarSex", (gAgentAvatarp->getSex() == SEX_MALE) );
+	}
+
 }
 
 // EOF
