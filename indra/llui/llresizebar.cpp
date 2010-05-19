@@ -182,6 +182,11 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 				break;
 			}
 
+			notifyParent(LLSD().with("action", "resize")
+				.with("view_name", mResizingView->getName())
+				.with("new_height", new_height)
+				.with("new_width", new_width));
+
 			scaled_rect.mTop = scaled_rect.mBottom + new_height;
 			scaled_rect.mRight = scaled_rect.mLeft + new_width;
 			mResizingView->setRect(scaled_rect);

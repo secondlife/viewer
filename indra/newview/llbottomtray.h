@@ -341,6 +341,17 @@ private:
 	 */
 	void showWellButton(EResizeState object_type, bool visible);
 
+	/**
+	 * Handles a customization of chatbar width.
+	 *
+	 * When chatbar gets wider layout stack will reduce chiclet panel (it is auto-resizable)
+	 *	But once chiclet panel reaches its minimal width Stack will force to reduce buttons width.
+	 *	including Speak button. The similar behavior is when chatbar gets narrowly.
+	 * This methods force resize behavior to resize buttons properly in these cases.
+	 */
+	void processChatbarCustomization(S32 new_width);
+
+
 	MASK mResizeState;
 
 	typedef std::map<EResizeState, LLPanel*> state_object_map_t;

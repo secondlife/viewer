@@ -1664,26 +1664,6 @@ void LLViewerWindow::initWorldUI()
 		navbar->showFavoritesPanel(FALSE);
 	}
 
-	if (!gSavedSettings.getBOOL("ShowCameraButton"))
-	{
-		LLBottomTray::getInstance()->showCameraButton(FALSE);
-	}
-
-	if (!gSavedSettings.getBOOL("ShowSnapshotButton"))
-	{
-		LLBottomTray::getInstance()->showSnapshotButton(FALSE);
-	}
-
-	if (!gSavedSettings.getBOOL("ShowMoveButton"))
-	{
-		LLBottomTray::getInstance()->showMoveButton(FALSE);
-	}
-
-	if (!gSavedSettings.getBOOL("ShowGestureButton"))
-	{
-		LLBottomTray::getInstance()->showGestureButton(FALSE);
-	}
-
 	if ( gHUDView == NULL )
 	{
 		LLRect hud_rect = full_window;
