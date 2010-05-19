@@ -175,6 +175,7 @@ left="0"
 		 value="Shape:"
 		 width="150" />
 		 <radio_group
+			 control_name="AvatarSex"
 			 follows="left|top|right"
 			 left="210"
 			 height="20"
@@ -190,6 +191,7 @@ left="0"
 				 left="0"
 				 name="sex_male"
 				 tool_tip="Male"
+				 value="1"
 				 width="40" />
 			 <radio_item
 				 follows="all"
@@ -199,6 +201,7 @@ left="0"
 				 left_pad="10"
 				 name="sex_female"
 				 tool_tip="Female"
+				 value="0"
 				 width="40" />
 		 </radio_group>
 		 <!--  graphical labels for the radio buttons above -->
