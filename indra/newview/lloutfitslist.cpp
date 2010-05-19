@@ -36,9 +36,6 @@
 // llcommon
 #include "llcommonutils.h"
 
-// llcommon
-#include "llcommonutils.h"
-
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llappearancemgr.h"
@@ -169,12 +166,30 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		// Setting list commit callback to monitor currently selected wearable item.
 		list->setCommitCallback(boost::bind(&LLOutfitsList::onSelectionChange, this, _1));
 
+		// Setting list refresh callback to apply filter on list change.
+		list->setRefreshCompleteCallback(boost::bind(&LLOutfitsList::onFilteredWearableItemsListRefresh, this, _1));
+
 		// Fetch the new outfit contents.
 		cat->fetch();
 
 		// Refresh the list of outfit items after fetch().
 		// Further list updates will be triggered by the category observer.
 		list->updateList(cat_id);
+
+		// If filter is currently applied we store the initial tab state and
+		// open it to show matched items if any.
+		if (!mFilterSubString.empty())
+		{
+			tab->notifyChildren(LLSD().with("action","store_state"));
+			tab->setDisplayChildren(true);
+
+			// Setting mForceRefresh flag will make the list refresh its contents
+			// even if it is not currently visible. This is required to apply the
+			// filter to the newly added list.
+			list->setForceRefresh(true);
+
+			list->setFilterSubString(mFilterSubString);
+		}
 	}
 
 	// Handle removed tabs.
@@ -244,35 +259,9 @@ void LLOutfitsList::performAction(std::string action)
 
 void LLOutfitsList::setFilterSubString(const std::string& string)
 {
+	applyFilter(string);
+
 	mFilterSubString = string;
-
-	for (outfits_map_t::iterator
-			 iter = mOutfitsMap.begin(),
-			 iter_end = mOutfitsMap.end();
-		 iter != iter_end; ++iter)
-	{
-		LLAccordionCtrlTab* tab = iter->second;
-		if (tab)
-		{
-			LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*> (tab->getAccordionView());
-			if (list)
-			{
-				list->setFilterSubString(mFilterSubString);
-			}
-
-			if(!mFilterSubString.empty())
-			{
-				//store accordion tab state when filter is not empty
-				tab->notifyChildren(LLSD().with("action","store_state"));
-				tab->setDisplayChildren(true);
-			}
-			else
-			{
-				//restore accordion state after all those accodrion tab manipulations
-				tab->notifyChildren(LLSD().with("action","restore_state"));
-			}
-		}
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -348,6 +337,114 @@ void LLOutfitsList::changeOutfitSelection(LLWearableItemsList* list, const LLUUI
 
 	mSelectedList = list;
 	mSelectedOutfitUUID = category_id;
+}
+
+void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
+{
+	if (!ctrl || mFilterSubString.empty())
+		return;
+
+	for (outfits_map_t::iterator
+			 iter = mOutfitsMap.begin(),
+			 iter_end = mOutfitsMap.end();
+		 iter != iter_end; ++iter)
+	{
+		LLAccordionCtrlTab* tab = iter->second;
+		if (!tab) continue;
+
+		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
+		if (list != ctrl) continue;
+
+		std::string title = tab->getTitle();
+		LLStringUtil::toUpper(title);
+
+		std::string cur_filter = mFilterSubString;
+		LLStringUtil::toUpper(cur_filter);
+
+		if (std::string::npos == title.find(cur_filter))
+		{
+			// hide tab if its title doesn't pass filter
+			// and it has no visible items
+			tab->setVisible(list->size() != 0);
+		}
+		else
+		{
+			tab->setTitle(tab->getTitle(), cur_filter);
+		}
+	}
+}
+
+void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
+{
+	for (outfits_map_t::iterator
+			 iter = mOutfitsMap.begin(),
+			 iter_end = mOutfitsMap.end();
+		 iter != iter_end; ++iter)
+	{
+		LLAccordionCtrlTab* tab = iter->second;
+		if (!tab) continue;
+
+		bool more_restrictive = mFilterSubString.size() < new_filter_substring.size() && !new_filter_substring.substr(0, mFilterSubString.size()).compare(mFilterSubString);
+
+		// Restore tab visibility in case of less restrictive filter
+		// to compare it with updated string if it was previously hidden.
+		if (!more_restrictive)
+		{
+			tab->setVisible(TRUE);
+		}
+
+		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
+		if (list)
+		{
+			list->setFilterSubString(new_filter_substring);
+		}
+
+		if(mFilterSubString.empty() && !new_filter_substring.empty())
+		{
+			//store accordion tab state when filter is not empty
+			tab->notifyChildren(LLSD().with("action","store_state"));
+		}
+
+		if (!new_filter_substring.empty())
+		{
+			std::string title = tab->getTitle();
+			LLStringUtil::toUpper(title);
+
+			std::string cur_filter = new_filter_substring;
+			LLStringUtil::toUpper(cur_filter);
+
+			if (std::string::npos == title.find(cur_filter))
+			{
+				// hide tab if its title doesn't pass filter
+				// and it has no visible items
+				tab->setVisible(list->size() != 0);
+			}
+			else
+			{
+				tab->setTitle(tab->getTitle(), cur_filter);
+			}
+
+			if (tab->getVisible())
+			{
+				// Open tab if it has passed the filter.
+				tab->setDisplayChildren(true);
+			}
+			else
+			{
+				// Set force refresh flag to refresh not visible list
+				// when some changes occur in it.
+				list->setForceRefresh(true);
+			}
+		}
+		else
+		{
+			// restore tab title when filter is empty
+			tab->setTitle(tab->getTitle());
+
+			//restore accordion state after all those accodrion tab manipulations
+			tab->notifyChildren(LLSD().with("action","restore_state"));
+		}
+	}
 }
 
 // EOF

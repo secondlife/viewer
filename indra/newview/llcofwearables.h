@@ -40,6 +40,53 @@
 
 class LLFlatListView;
 
+
+/** Abstract comparator of wearable list items */
+class LLWearableListItemComparator : public LLFlatListView::ItemComparator
+{
+	LOG_CLASS(LLWearableListItemComparator);
+
+public:
+	LLWearableListItemComparator() {};
+	virtual ~LLWearableListItemComparator() {};
+
+	virtual bool compare(const LLPanel* item1, const LLPanel* item2) const
+	{
+		const LLPanelWearableListItem* wearable_item1 = dynamic_cast<const LLPanelWearableListItem*>(item1);
+		const LLPanelWearableListItem* wearable_item2 = dynamic_cast<const LLPanelWearableListItem*>(item2);
+
+		if (!wearable_item1 || !wearable_item2)
+		{
+			llwarning("item1 and item2 cannot be null", 0);
+			return true;
+		}
+
+		return doCompare(wearable_item1, wearable_item2);
+	}
+
+protected:
+
+	/** 
+	 * Returns true if wearable_item1 < wearable_item2, false otherwise 
+	 * Implement this method in your particular comparator.
+	 */
+	virtual bool doCompare(const LLPanelWearableListItem* wearable_item1, const LLPanelWearableListItem* wearable_item2) const = 0;
+};
+
+
+class LLWearableItemNameComparator : public LLWearableListItemComparator
+{
+	LOG_CLASS(LLWearableItemNameComparator);
+
+public:
+	LLWearableItemNameComparator() {};
+	virtual ~LLWearableItemNameComparator() {};
+
+protected:
+	virtual bool doCompare(const LLPanelWearableListItem* wearable_item1, const LLPanelWearableListItem* wearable_item2) const;
+};
+
+
 /**
  * Adaptor between LLAccordionCtrlTab and LLFlatListView to facilitate communication between them 
  * (notify, notifyParent) regarding size changes of a list and selection changes across accordion tabs.

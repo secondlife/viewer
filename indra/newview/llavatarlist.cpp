@@ -32,20 +32,22 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llavatarlist.h"
+
 // common
 #include "lltrans.h"
 #include "llcommonutils.h"
 
-#include "llavatarlist.h"
-#include "llagentdata.h" // for comparator
+// llui
+#include "lltextutil.h"
 
 // newview
+#include "llagentdata.h" // for comparator
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
 #include "llrecentpeople.h"
-#include "lltextutil.h"
 #include "lluuid.h"
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"	// for gSavedSettings
@@ -322,9 +324,7 @@ void LLAvatarList::refresh()
 		}
 
 		// Send refresh_complete signal.
-		std::vector<LLSD> cur_values;
-		getValues(cur_values);
-		mRefreshCompleteSignal(this, LLSD((S32)cur_values.size()));
+		mRefreshCompleteSignal(this, LLSD((S32)size(false)));
 	}
 
 	// Commit if we've added/removed items.
@@ -405,6 +405,15 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		mContextMenu->show(this, selected_uuids, x, y);
 	}
 	return handled;
+}
+
+void LLAvatarList::setVisible(BOOL visible)
+{
+	if ( visible == FALSE && mContextMenu )
+	{
+		mContextMenu->hide();
+	}
+	LLFlatListViewEx::setVisible(visible);
 }
 
 void LLAvatarList::computeDifference(

@@ -94,6 +94,17 @@ private:
 	 */
 	void changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
 
+	/**
+	 * Called upon list refresh event to update tab visibility depending on
+	 * the results of applying filter to the title and list items of the tab.
+	 */
+	void onFilteredWearableItemsListRefresh(LLUICtrl* ctrl);
+
+	/**
+	 * Highlights filtered items and hides tabs which haven't passed filter.
+	 */
+	void applyFilter(const std::string& new_filter_substring);
+
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 
 	LLAccordionCtrl*				mAccordion;

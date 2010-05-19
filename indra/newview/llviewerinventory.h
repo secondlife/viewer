@@ -159,6 +159,7 @@ public:
 	
 	// Checks the items permissions (for owner, group, or everyone) and returns true if all mask bits are set.
 	bool checkPermissionsSet(PermissionMask mask) const;
+	PermissionMask getPermissionMask() const;
 
 	// callback
 	void onCallingCardNameLookup(const LLUUID& id, const std::string& name, bool is_group);

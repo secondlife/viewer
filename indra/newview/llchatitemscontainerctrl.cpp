@@ -326,12 +326,14 @@ void LLNearbyChatToastPanel::draw()
 		if(icon)
 		{
 			icon->setDrawTooltip(mSourceType == CHAT_SOURCE_AGENT);
-			if(mSourceType == CHAT_SOURCE_AGENT)
-				icon->setValue(mFromID);
+			if(mSourceType == CHAT_SOURCE_OBJECT)
+				icon->setValue(LLSD("OBJECT_Icon"));
 			else if(mSourceType == CHAT_SOURCE_SYSTEM)
 				icon->setValue(LLSD("SL_Logo"));
-			else
-				icon->setValue(LLSD("OBJECT_Icon"));
+			else if(mSourceType == CHAT_SOURCE_AGENT)
+				icon->setValue(mFromID);
+			else if(!mFromID.isNull())
+				icon->setValue(mFromID);
 		}
 		mIsDirty = false;
 	}

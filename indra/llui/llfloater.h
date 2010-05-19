@@ -110,7 +110,8 @@ public:
 								save_rect,
 								save_visibility,
 								save_dock_state,
-								can_dock;
+								can_dock,
+								open_centered;
 		Optional<S32>			header_height,
 								legacy_header_height; // HACK see initFromXML()
 
@@ -373,6 +374,7 @@ private:
 	BOOL			mCanClose;
 	BOOL			mDragOnLeft;
 	BOOL			mResizable;
+	bool			mOpenCentered;
 	
 	S32				mMinWidth;
 	S32				mMinHeight;

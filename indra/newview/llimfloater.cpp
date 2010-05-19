@@ -1128,6 +1128,21 @@ void LLIMFloater::closeHiddenIMToasts()
 		channel->closeHiddenToasts(IMToastMatcher());
 	}
 }
+// static
+void LLIMFloater::confirmLeaveCallCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	const LLSD& payload = notification["payload"];
+	LLUUID session_id = payload["session_id"];
+
+	LLFloater* im_floater = LLFloaterReg::findInstance("impanel", session_id);
+	if (option == 0 && im_floater != NULL)
+	{
+		im_floater->closeFloater();
+	}
+
+	return;
+}
 
 // static
 bool LLIMFloater::isChatMultiTab()
@@ -1200,7 +1215,7 @@ void	LLIMFloater::onClickCloseBtn()
 	{
 		LLSD payload;
 		payload["session_id"] = mSessionID;
-		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload);
+		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
 		return;
 	}
 

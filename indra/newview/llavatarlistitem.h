@@ -72,6 +72,7 @@ public:
 	{
 	public:
 		virtual void show(LLView* spawning_view, const uuid_vec_t& selected_uuids, S32 x, S32 y) = 0;
+		virtual void hide() = 0;
 	};
 
 	/**

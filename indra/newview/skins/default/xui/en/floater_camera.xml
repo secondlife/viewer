@@ -4,7 +4,6 @@
  can_dock="true"
  can_minimize="true"
  can_close="false"
- center_horiz="true"
  follows="bottom"
  height="152"
  layout="topleft"

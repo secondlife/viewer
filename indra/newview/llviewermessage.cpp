@@ -779,11 +779,11 @@ private:
  * We can't create it each time items are moved because "drop" event is sent separately for each
  * element even while multi-dragging. We have to have the only instance of the observer. See EXT-4347.
  */
-class LLViewerInventoryMoveFromWorldObserver : public LLInventoryMoveFromWorldObserver
+class LLViewerInventoryMoveFromWorldObserver : public LLInventoryAddItemByAssetObserver
 {
 public:
 	LLViewerInventoryMoveFromWorldObserver()
-		: LLInventoryMoveFromWorldObserver()
+		: LLInventoryAddItemByAssetObserver()
 		, mActivePanel(NULL)
 	{
 
@@ -6707,18 +6707,3 @@ void LLOfferInfo::forceResponse(InventoryOfferResponse response)
 	LLNotifications::instance().forceResponse(params, response);
 }
 
-static bool confirm_leave_call_callback(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	const LLSD& payload = notification["payload"];
-	LLUUID session_id = payload["session_id"];
-
-	LLFloater* im_floater = LLFloaterReg::findInstance("impanel", session_id);
-	if (option == 0 && im_floater != NULL)
-	{
-		im_floater->closeFloater();
-	}
-
-	return false;
-}
-static LLNotificationFunctorRegistration confirm_leave_call_cb("ConfirmLeaveCall", confirm_leave_call_callback);

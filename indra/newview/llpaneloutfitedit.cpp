@@ -169,14 +169,48 @@ protected:
 	S32 mBaseOutfitLastVersion;
 };
 
+class LLCOFDragAndDropObserver : public LLInventoryAddItemByAssetObserver
+{
+public:
+	LLCOFDragAndDropObserver(LLInventoryModel* model);
 
+	virtual ~LLCOFDragAndDropObserver();
+
+	virtual void done();
+
+private:
+	LLInventoryModel* mModel;
+};
+
+inline LLCOFDragAndDropObserver::LLCOFDragAndDropObserver(LLInventoryModel* model):
+		mModel(model)
+{
+	if (model != NULL)
+	{
+		model->addObserver(this);
+	}
+}
+
+inline LLCOFDragAndDropObserver::~LLCOFDragAndDropObserver()
+{
+	if (mModel != NULL && mModel->containsObserver(this))
+	{
+		mModel->removeObserver(this);
+	}
+}
+
+void LLCOFDragAndDropObserver::done()
+{
+	LLAppearanceMgr::instance().updateAppearanceFromCOF();
+}
 
 LLPanelOutfitEdit::LLPanelOutfitEdit()
 :	LLPanel(), 
 	mSearchFilter(NULL),
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
-	mCOFObserver(NULL)
+	mCOFObserver(NULL),
+	mCOFDragAndDropObserver(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -197,6 +231,7 @@ LLPanelOutfitEdit::~LLPanelOutfitEdit()
 	delete mSavedFolderState;
 
 	delete mCOFObserver;
+	delete mCOFDragAndDropObserver;
 }
 
 BOOL LLPanelOutfitEdit::postBuild()
@@ -234,6 +269,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
 	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
 	
+	mCOFDragAndDropObserver = new LLCOFDragAndDropObserver(mInventoryItemsPanel->getModel());
+
 	LLComboBox* type_filter = getChild<LLComboBox>("filter_wearables_combobox");
 	type_filter->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onTypeFilterChanged, this, _1));
 	type_filter->removeall();
@@ -520,6 +557,56 @@ void LLPanelOutfitEdit::update()
 	mCOFWearables->refresh();
 
 	updateVerbs();
+}
+
+BOOL LLPanelOutfitEdit::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+										  EDragAndDropType cargo_type,
+										  void* cargo_data,
+										  EAcceptance* accept,
+										  std::string& tooltip_msg)
+{
+	if (cargo_data == NULL)
+	{
+		llwarns << "cargo_data is NULL" << llendl;
+		return TRUE;
+	}
+
+	switch (cargo_type)
+	{
+	case DAD_BODYPART:
+	case DAD_CLOTHING:
+	case DAD_OBJECT:
+	case DAD_LINK:
+		*accept = ACCEPT_YES_MULTI;
+		break;
+	default:
+		*accept = ACCEPT_NO;
+	}
+
+	if (drop)
+	{
+		LLInventoryItem* item = static_cast<LLInventoryItem*>(cargo_data);
+
+		if (LLAssetType::lookupIsAssetIDKnowable(item->getType()))
+		{
+			mCOFDragAndDropObserver->watchAsset(item->getAssetUUID());
+
+			/*
+			 * Adding request to wear item. If the item is a link, then getLinkedUUID() will
+			 * return the ID of the linked item. Otherwise it will return the item's ID. The
+			 * second argument is used to delay the appearance update until all dragged items
+			 * are added to optimize user experience.
+			 */
+			LLAppearanceMgr::instance().addCOFItemLink(item->getLinkedUUID(), false);
+		}
+		else
+		{
+			// if asset id is not available for the item we must wear it immediately (attachments only)
+			LLAppearanceMgr::instance().addCOFItemLink(item->getLinkedUUID(), true);
+		}
+	}
+
+	return TRUE;
 }
 
 void LLPanelOutfitEdit::displayCurrentOutfit()

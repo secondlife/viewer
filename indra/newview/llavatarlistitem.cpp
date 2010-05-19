@@ -36,13 +36,14 @@
 #include "llavataractions.h"
 #include "llavatarlistitem.h"
 
+#include "llbutton.h"
 #include "llfloaterreg.h"
+#include "lltextutil.h"
+
 #include "llagent.h"
 #include "llavatarnamecache.h"
-#include "lloutputmonitorctrl.h"
 #include "llavatariconctrl.h"
-#include "lltextutil.h"
-#include "llbutton.h"
+#include "lloutputmonitorctrl.h"
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;

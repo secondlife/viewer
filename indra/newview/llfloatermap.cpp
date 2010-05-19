@@ -232,6 +232,17 @@ void LLFloaterMap::onFocusLost()
 void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLFloater::reshape(width, height, called_from_parent);
+	
+	//fix for ext-7112
+	//by default ctrl can't overlap caption area
+	if(mMap)
+	{
+		LLRect map_rect;
+		map_rect.setLeftTopAndSize( 0, getRect().getHeight(), width, height);
+		mMap->reshape( width, height, 1);
+		mMap->setRect(map_rect);
+	}
+
 	updateMinorDirections();
 }
 

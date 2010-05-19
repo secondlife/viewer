@@ -143,7 +143,7 @@ namespace tut
 		manager->initialize("grid_test.xml");
 		// validate that some of the defaults are available.
 		std::map<std::string, std::string> known_grids = manager->getKnownGrids();
-		ensure_equals("Known grids is a string-string map of size 18", known_grids.size(), 18);
+		ensure_equals("Known grids is a string-string map of size 23", known_grids.size(), 23);
 		ensure_equals("Agni has the right name and label", 
 					  known_grids[std::string("util.agni.lindenlab.com")], std::string("Agni"));
 		ensure_equals("None exists", known_grids[""], "None");
@@ -184,7 +184,7 @@ namespace tut
 		LLGridManager::getInstance()->initialize("grid_test.xml");
 		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();
 		ensure_equals("adding a grid via a grid file increases known grid size", 
-					  known_grids.size(), 19);
+					  known_grids.size(), 24);
 		ensure_equals("Agni is still there after we've added a grid via a grid file", 
 					  known_grids["util.agni.lindenlab.com"], std::string("Agni"));
 	
@@ -250,7 +250,7 @@ namespace tut
 		// with single login uri specified.
 		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();
 		ensure_equals("adding a command line grid increases known grid size", 
-					  known_grids.size(), 19);
+					  known_grids.size(), 24);
 		ensure_equals("Command line grid is added to the list of grids", 
 					  known_grids["my.login.uri"], std::string("my.login.uri"));
 		LLSD grid = LLGridManager::getInstance()->getGridInfo("my.login.uri");
@@ -279,7 +279,7 @@ namespace tut
 		LLGridManager::getInstance()->initialize("grid_test.xml");
 		known_grids = LLGridManager::getInstance()->getKnownGrids();
 		ensure_equals("adding a command line grid with custom name increases known grid size", 
-					  known_grids.size(), 19);
+					  known_grids.size(), 24);
 		ensure_equals("Custom Command line grid is added to the list of grids", 
 					  known_grids["mycustomgridchoice"], std::string("mycustomgridchoice"));
 		grid = LLGridManager::getInstance()->getGridInfo("mycustomgridchoice");

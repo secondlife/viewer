@@ -559,7 +559,7 @@
      value="1 1 1 1" />
     <color
      name="NetMapBackgroundColor"
-     value="0 0 0 0" />
+     value="0 0 0 1" />
     <color
      name="NetMapGroupOwnAboveWater"
      reference="Purple" />

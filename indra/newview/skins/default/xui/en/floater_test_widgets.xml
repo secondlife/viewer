@@ -49,13 +49,10 @@
    name="test_menu_bar"
    top="16">
     <menu
-     height="16"
      label="Menu"
      layout="topleft"
      tear_off="true"
-     left="0"
      name="Menu"
-     top="-32"
      width="128">
       <!-- menu_item_call will trigger a function call in the C++ code -->
       <menu_item_call
