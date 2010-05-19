@@ -64,6 +64,7 @@ public:
 	void				revertChanges();
 
 	static void			onRevertButtonClicked(void* userdata);
+	void				onCommitSexChange();
 
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;

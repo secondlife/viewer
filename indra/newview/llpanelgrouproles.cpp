@@ -199,16 +199,13 @@ bool LLPanelGroupRoles::handleSubTabSwitch(const LLSD& data)
 {
 	std::string panel_name = data.asString();
 	
-	LLPanelGroupTab* activating_tab = static_cast<LLPanelGroupTab*>(mSubTabContainer->getPanelByName(panel_name));
-
-	if(activating_tab == mCurrentTab
-		|| activating_tab == mRequestedTab)
+	if(mRequestedTab != NULL)//we already have tab change request
 	{
-		return true;
+		return false;
 	}
 
-	mRequestedTab = activating_tab;
-	
+	mRequestedTab = static_cast<LLPanelGroupTab*>(mSubTabContainer->getPanelByName(panel_name));
+
 	std::string mesg;
 	if (mCurrentTab && mCurrentTab->needsApply(mesg))
 	{
@@ -229,15 +226,9 @@ bool LLPanelGroupRoles::handleSubTabSwitch(const LLSD& data)
 		// we get a response back from the user.
 		return false;
 	}
-	else
-	{
-		// The current panel didn't have anything it needed to apply.
-		if (mRequestedTab)
-		{
-			transitionToTab();
-		}
-		return true;
-	}
+
+	transitionToTab();
+	return true;
 }
 
 void LLPanelGroupRoles::transitionToTab()
