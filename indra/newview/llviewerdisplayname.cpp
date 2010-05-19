@@ -185,7 +185,7 @@ class LLDisplayNameUpdate : public LLHTTPNode
 		{
 			LLSD args;
 			args["OLD_NAME"] = old_display_name;
-			args["SLID"] = av_name.mSLID;
+			args["SLID"] = av_name.mUsername;
 			args["NEW_NAME"] = av_name.mDisplayName;
 			LLNotificationsUtil::add("DisplayNameUpdate", args);
 		}

@@ -208,7 +208,7 @@ public:
 			// Some avatars don't have explicit display names set
 			if (av_name.mDisplayName.empty())
 			{
-				av_name.mDisplayName = av_name.mSLID;
+				av_name.mDisplayName = av_name.mUsername;
 			}
 
 			// cache it and fire signals
@@ -221,7 +221,7 @@ public:
 		{
 			const std::string DUMMY_NAME("\?\?\?");
 			LLAvatarName av_name;
-			av_name.mSLID = DUMMY_NAME;
+			av_name.mUsername = DUMMY_NAME;
 			av_name.mDisplayName = DUMMY_NAME;
 			av_name.mIsDisplayNameDefault = false;
 			av_name.mIsDummy = true;
@@ -247,7 +247,7 @@ public:
 		// *NOTE: "??" starts trigraphs in C/C++, escape the question marks.
 		const std::string DUMMY_NAME("\?\?\?");
 		LLAvatarName av_name;
-		av_name.mSLID = DUMMY_NAME;
+		av_name.mUsername = DUMMY_NAME;
 		av_name.mDisplayName = DUMMY_NAME;
 		av_name.mIsDisplayNameDefault = false;
 		av_name.mIsDummy = true;
@@ -561,7 +561,7 @@ void LLAvatarNameCache::buildLegacyName(const std::string& full_name,
 										LLAvatarName* av_name)
 {
 	llassert(av_name);
-	av_name->mSLID = "";
+	av_name->mUsername = "";
 	av_name->mDisplayName = full_name;
 	av_name->mIsDisplayNameDefault = true;
 	av_name->mIsDummy = true;

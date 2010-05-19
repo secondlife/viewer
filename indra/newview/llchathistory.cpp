@@ -330,8 +330,8 @@ public:
 		LLTextBox* user_name = getChild<LLTextBox>("user_name");
 		user_name->setValue( LLSD(av_name.mDisplayName ) );
 
-		user_name->setToolTip( av_name.mSLID );
-		setToolTip( av_name.mSLID );
+		user_name->setToolTip( av_name.mUsername );
+		setToolTip( av_name.mUsername );
 	}
 
 protected:

@@ -242,7 +242,7 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 void LLPanelMyProfileEdit::onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
 	getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
-	getChild<LLUICtrl>("user_slid")->setValue( av_name.mSLID );
+	getChild<LLUICtrl>("user_slid")->setValue( av_name.mUsername );
 }
 
 BOOL LLPanelMyProfileEdit::postBuild()

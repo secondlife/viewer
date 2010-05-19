@@ -353,9 +353,9 @@ void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
 {
 	std::string label = av_name.mDisplayName;
-	if (!av_name.mSLID.empty())
+	if (!av_name.mUsername.empty())
 	{
-		label += " (" + av_name.mSLID + ")";
+		label += " (" + av_name.mUsername + ")";
 	}
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), label, mIcon);
@@ -418,9 +418,9 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	if (LLAvatarNameCache::get(agent_id, &av_name))
 	{
 		std::string label = av_name.mDisplayName;
-		if (!av_name.mSLID.empty())
+		if (!av_name.mUsername.empty())
 		{
-			label += " (" + av_name.mSLID + ")";
+			label += " (" + av_name.mUsername + ")";
 		}
 		// handle suffixes like /mute or /offerteleport
 		label = localize_slapp_label(url, label);

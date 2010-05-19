@@ -38,6 +38,7 @@
 
 #include "llagent.h"
 #include "llappviewer.h"
+#include "llavatarnamecache.h"
 #include "llbutton.h"
 #include "llbottomtray.h"
 #include "llchannelmanager.h"
@@ -275,12 +276,6 @@ BOOL LLIMFloater::postBuild()
 	mInputEditor->setReplaceNewlinesWithSpaces( FALSE );
 	mInputEditor->setPassDelete( TRUE );
 
-	std::string session_name(LLIMModel::instance().getName(mSessionID));
-
-	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + session_name);
-
-	setTitle(session_name);
-
 	childSetCommitCallback("chat_editor", onSendMsg, this);
 	
 	mChatHistory = getChild<LLChatHistory>("chat_history");
@@ -298,6 +293,19 @@ BOOL LLIMFloater::postBuild()
 		mInputEditor->setLabel(LLTrans::getString("IM_unavailable_text_label"));
 	}
 
+	if ( im_session && im_session->isP2PSessionType())
+	{
+		// look up display name for window title
+		LLAvatarNameCache::get(im_session->mOtherParticipantID,
+							   boost::bind(&LLIMFloater::onAvatarNameCache,
+										   this, _1, _2));
+	}
+	else
+	{
+		std::string session_name(LLIMModel::instance().getName(mSessionID));
+		updateSessionName(session_name, session_name);
+	}
+	
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
@@ -309,6 +317,22 @@ BOOL LLIMFloater::postBuild()
 	{
 		return LLDockableFloater::postBuild();
 	}
+}
+
+void LLIMFloater::updateSessionName(const std::string& ui_title,
+									const std::string& ui_label)
+{
+	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + ui_label);
+	setTitle(ui_title);	
+}
+
+void LLIMFloater::onAvatarNameCache(const LLUUID& agent_id,
+									const LLAvatarName& av_name)
+{
+	// Use display name only for labels, as the extended name will be in the
+	// floater title
+	std::string ui_title = av_name.getNameAndSLID();
+	updateSessionName(ui_title, av_name.mDisplayName);
 }
 
 // virtual

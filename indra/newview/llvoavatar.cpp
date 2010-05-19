@@ -2856,7 +2856,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		}
 
 		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
-		static LLUICachedControl<bool> show_slids("NameTagShowSLIDs");
+		static LLUICachedControl<bool> show_usernames("NameTagShowUsernames");
 
 		if (LLAvatarNameCache::useDisplayNames())
 		{
@@ -2876,11 +2876,11 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 					LLFontGL::getFontSansSerif());
 			}
 			// Suppress SLID display if display name matches exactly (ugh)
-			if (show_slids && !av_name.mIsDisplayNameDefault)
+			if (show_usernames && !av_name.mIsDisplayNameDefault)
 			{
-				// JAMESDEBUG HACK
-				LLColor4 slid_color = name_tag_color * 0.83f;
-				addNameTagLine(av_name.mSLID, slid_color, LLFontGL::NORMAL,
+				// *HACK: Desaturate the color
+				LLColor4 username_color = name_tag_color * 0.83f;
+				addNameTagLine(av_name.mUsername, username_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerifSmall());
 			}
 		}
@@ -3072,14 +3072,15 @@ void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 
 LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 {
+	static LLUICachedControl<bool> show_friends("NameTagShowFriends");
 	const char* color_name;
-	if (is_friend)
+	if (show_friends && is_friend)
 	{
 		color_name = "NameTagFriend";
 	}
 	else if (LLAvatarNameCache::useDisplayNames())
 	{
-		// ...color based on whether SLID "matches" a computed display
+		// ...color based on whether username "matches" a computed display
 		// name
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(getID(), &av_name)

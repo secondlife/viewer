@@ -8,7 +8,7 @@
  layout="topleft"
  name="incoming call"
  help_topic="incoming_call"
- title="UNKNOWN PERSON IS CALLING"
+ title="Incoming call"
  width="410">
     <floater.string
      name="lifetime">

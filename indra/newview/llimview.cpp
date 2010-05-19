@@ -1746,8 +1746,19 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	setTitle(callee_name);
 
 	LLSD callee_id = mPayload["other_user_id"];
-	childSetTextArg("calling", "[CALLEE_NAME]", callee_name);
-	childSetTextArg("connecting", "[CALLEE_NAME]", callee_name);
+	// Beautification:  Since SLID is in the title bar, and you probably
+	// recognize this person's voice, just show display name
+	std::string final_callee_name = callee_name;
+	if (is_avatar)
+	{
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(callee_id, &av_name))
+		{
+			final_callee_name = av_name.mDisplayName;
+		}
+	}
+	childSetTextArg("calling", "[CALLEE_NAME]", final_callee_name);
+	childSetTextArg("connecting", "[CALLEE_NAME]", final_callee_name);
 
 	// for outgoing group calls callee_id == group id == session id
 	setIcon(callee_id, callee_id);
@@ -1904,21 +1915,21 @@ BOOL LLIncomingCallDialog::postBuild()
 	if (caller_name == "anonymous")
 	{
 		caller_name = getString("anonymous");
+		setCallerName(caller_name, caller_name, call_type);
 	}
 	else if (!is_avatar)
 	{
 		caller_name = LLTextUtil::formatPhoneNumber(caller_name);
+		setCallerName(caller_name, caller_name, call_type);
 	}
 	else
 	{
-		// IDEVO
-		caller_name = LLCacheName::cleanFullName(caller_name);
+		// Get the full name information
+		LLAvatarNameCache::get(caller_id,
+			boost::bind(&LLIncomingCallDialog::onAvatarNameCache,
+				this, _1, _2, call_type));
 	}
 
-	setTitle(caller_name + " " + call_type);
-
-	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
-	caller_name_widget->setValue(caller_name + " " + call_type);
 	setIcon(session_id, caller_id);
 
 	childSetAction("Accept", onAccept, this);
@@ -1942,6 +1953,23 @@ BOOL LLIncomingCallDialog::postBuild()
 	return TRUE;
 }
 
+void LLIncomingCallDialog::setCallerName(const std::string& ui_title,
+										 const std::string& ui_label,
+										 const std::string& call_type)
+{
+	setTitle(ui_title + " " + call_type);
+
+	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
+	caller_name_widget->setValue(ui_label + " " + call_type);
+}
+
+void LLIncomingCallDialog::onAvatarNameCache(const LLUUID& agent_id,
+											 const LLAvatarName& av_name,
+											 const std::string& call_type)
+{
+	std::string title = av_name.getNameAndSLID();
+	setCallerName(title, av_name.mDisplayName, call_type);
+}
 
 void LLIncomingCallDialog::onOpen(const LLSD& key)
 {
@@ -2047,7 +2075,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 							if (LLAvatarNameCache::useDisplayNames()
 								&& LLAvatarNameCache::get(caller_id, &av_name))
 							{
-								correct_session_name = av_name.mDisplayName + " (" + av_name.mSLID + ")";
+								correct_session_name = av_name.mDisplayName + " (" + av_name.mUsername + ")";
 							}
 							correct_session_name.append(ADHOC_NAME_SUFFIX); 
 						}
