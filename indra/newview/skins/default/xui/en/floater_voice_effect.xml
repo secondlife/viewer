@@ -41,31 +41,31 @@
      name="expires"
      width="100" />
   </scroll_list>
-              <panel
-             background_visible="true"
-             bevel_style="none"
-             top_pad="0"
-             follows="left|right|bottom"
-             height="30"
-             label="bottom_panel"
-             layout="topleft"
-             left="0"
-             name="bottom_panel"
-             width="313">
+  <panel
+   background_visible="true"
+   bevel_style="none"
+   top_pad="0"
+   follows="left|right|bottom"
+   height="30"
+   label="bottom_panel"
+   layout="topleft"
+   left="0"
+   name="bottom_panel"
+   width="313">
 <!--
-              <menu_button
-               follows="bottom|left"
-               height="18"
-               image_disabled="OptionsMenu_Disabled"
-               image_selected="OptionsMenu_Press"
-               image_unselected="OptionsMenu_Off"
-               layout="topleft"
-               left="10"
-               menu_filename="menu_voice_effect_gear.xml"
-               name="gear_btn"
-               top="5"
-               tool_tip="More options"
-               width="18" />
+    <menu_button
+     follows="bottom|left"
+     height="18"
+     image_disabled="OptionsMenu_Disabled"
+     image_selected="OptionsMenu_Press"
+     image_unselected="OptionsMenu_Off"
+     layout="topleft"
+     left="10"
+     menu_filename="menu_voice_effect_gear.xml"
+     name="gear_btn"
+     top="5"
+     tool_tip="More options"
+     width="18" />
 -->
     <button
      follows="bottom|left"
