@@ -106,6 +106,18 @@ LLObjectIMHandler gObjectIMHandler;
 class LLChatHistoryHeader: public LLPanel
 {
 public:
+	LLChatHistoryHeader()
+	:	LLPanel(),
+		mPopupMenuHandleAvatar(),
+		mPopupMenuHandleObject(),
+		mAvatarID(),
+		mSourceType(CHAT_SOURCE_UNKNOWN),
+		mFrom(),
+		mSessionID(),
+		mMinUserNameWidth(0),
+		mUserNameFont(NULL)
+	{}
+
 	static LLChatHistoryHeader* createInstance(const std::string& file_name)
 	{
 		LLChatHistoryHeader* pInstance = new LLChatHistoryHeader;
@@ -249,26 +261,28 @@ public:
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
 
-		LLTextBox* userName = getChild<LLTextBox>("user_name");
-
-		userName->setReadOnlyColor(style_params.readonly_color());
-		userName->setColor(style_params.color());
+		mUserNameFont = style_params.font();
+		LLTextBox* user_name = getChild<LLTextBox>("user_name");
+		user_name->setReadOnlyColor(style_params.readonly_color());
+		user_name->setColor(style_params.color());
 		
 		if (chat.mFromName.empty()
 			|| mSourceType == CHAT_SOURCE_SYSTEM
 			|| mAvatarID.isNull())
 		{
 			mFrom = LLTrans::getString("SECOND_LIFE");
-			userName->setValue(mFrom);
+			user_name->setValue(mFrom);
+			updateMinUserNameWidth();
 		}
 		else
 		{
-			// ...from a normal user, lookup the name and fill in later
+			// ...from a normal user, lookup the name and fill in later,
+			// but start with blank so sample data from XUI XML doesn't
+			// flash on the screen
+			user_name->setValue( LLSD() );
 			LLAvatarNameCache::get(mAvatarID,
 				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
 		}
-
-		mMinUserNameWidth = style_params.font()->getWidth(userName->getWText().c_str()) + PADDING;
 
 		setTimeField(chat);
 		
@@ -323,15 +337,26 @@ public:
 		LLPanel::draw();
 	}
 
+	void updateMinUserNameWidth()
+	{
+		if (mUserNameFont)
+		{
+			LLTextBox* user_name = getChild<LLTextBox>("user_name");
+			const LLWString& text = user_name->getWText();
+			mMinUserNameWidth = mUserNameFont->getWidth(text.c_str()) + PADDING;
+		}
+	}
+
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 	{
 		mFrom = av_name.mDisplayName;
 
 		LLTextBox* user_name = getChild<LLTextBox>("user_name");
 		user_name->setValue( LLSD(av_name.mDisplayName ) );
-
 		user_name->setToolTip( av_name.mUsername );
 		setToolTip( av_name.mUsername );
+		// name might have changed, update width
+		updateMinUserNameWidth();
 	}
 
 protected:
@@ -450,6 +475,7 @@ protected:
 	LLUUID				mSessionID;
 
 	S32					mMinUserNameWidth;
+	const LLFontGL*		mUserNameFont;
 };
 
 LLUICtrl* LLChatHistoryHeader::sInfoCtrl = NULL;
