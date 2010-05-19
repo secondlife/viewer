@@ -53,13 +53,30 @@ public:
 	// When display names are disabled returns just "James Linden"
 	std::string getNameAndSLID() const;
 
+	// Returns "James Linden" or "bobsmith123 Resident" for backwards
+	// compatibility with systems like voice and muting
+	// *TODO: Eliminate this in favor of username only
+	std::string getLegacyName() const;
+
 	// "bobsmith123" or "james.linden", US-ASCII only
 	std::string mUsername;
 
 	// "Jose' Sanchez" or "James Linden", UTF-8 encoded Unicode
 	// Contains data whether or not user has explicitly set
-	// a display name; may duplicate their SLID.
+	// a display name; may duplicate their username.
 	std::string mDisplayName;
+
+	// For "James Linden", "James"
+	// For "bobsmith123", "bobsmith123"
+	// Used to communicate with legacy systems like voice and muting which
+	// rely on old-style names.
+	// *TODO: Eliminate this in favor of username only
+	std::string mLegacyFirstName;
+
+	// For "James Linden", "Linden"
+	// For "bobsmith123", "Resident"
+	// see above for rationale
+	std::string mLegacyLastName;
 
 	// If true, both display name and SLID were generated from
 	// a legacy first and last name, like "James Linden (james.linden)"

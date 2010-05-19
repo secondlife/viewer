@@ -42,12 +42,16 @@
 // LLSD map lookups
 static const std::string SL_ID("sl_id");
 static const std::string DISPLAY_NAME("display_name");
+static const std::string LEGACY_FIRST_NAME("legacy_first_name");
+static const std::string LEGACY_LAST_NAME("legacy_last_name");
 static const std::string IS_DISPLAY_NAME_DEFAULT("is_display_name_default");
 static const std::string DISPLAY_NAME_EXPIRES("display_name_expires");
 
 LLAvatarName::LLAvatarName()
 :	mUsername(),
 	mDisplayName(),
+	mLegacyFirstName(),
+	mLegacyLastName(),
 	mIsDisplayNameDefault(false),
 	mIsDummy(false),
 	mExpires(F64_MAX)
@@ -68,6 +72,8 @@ LLSD LLAvatarName::asLLSD() const
 	// "SLID" to "Username", but it was too late to change the wire format.
 	sd[SL_ID] = mUsername;
 	sd[DISPLAY_NAME] = mDisplayName;
+	sd[LEGACY_FIRST_NAME] = mLegacyFirstName;
+	sd[LEGACY_LAST_NAME] = mLegacyLastName;
 	sd[IS_DISPLAY_NAME_DEFAULT] = mIsDisplayNameDefault;
 	sd[DISPLAY_NAME_EXPIRES] = LLDate(mExpires);
 	return sd;
@@ -77,6 +83,8 @@ void LLAvatarName::fromLLSD(const LLSD& sd)
 {
 	mUsername = sd[SL_ID].asString(); // see asLLSD() above
 	mDisplayName = sd[DISPLAY_NAME].asString();
+	mLegacyFirstName = sd[LEGACY_FIRST_NAME].asString();
+	mLegacyLastName = sd[LEGACY_LAST_NAME].asString();
 	mIsDisplayNameDefault = sd[IS_DISPLAY_NAME_DEFAULT].asBoolean();
 	LLDate expires = sd[DISPLAY_NAME_EXPIRES];
 	mExpires = expires.secondsSinceEpoch();
@@ -94,5 +102,15 @@ std::string LLAvatarName::getNameAndSLID() const
 		// ...display names are off, legacy name is in mDisplayName
 		name = mDisplayName;
 	}
+	return name;
+}
+
+std::string LLAvatarName::getLegacyName() const
+{
+	std::string name;
+	name.reserve( mLegacyFirstName.size() + 1 + mLegacyLastName.size() );
+	name = mLegacyFirstName;
+	name += " ";
+	name += mLegacyLastName;
 	return name;
 }
