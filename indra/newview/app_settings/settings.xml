@@ -8140,17 +8140,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>    
-    <key>ShowCameraButton</key>                
-    <map>
-      <key>Comment</key>
-      <string>Show/Hide Camera button in the bottom tray</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>   
-    </map>
 	<key>ShowScriptErrors</key>
     <map>
       <key>Comment</key>
@@ -8172,39 +8161,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>ShowSnapshotButton</key>                
-    <map>
-      <key>Comment</key>
-      <string>Show/Hide Snapshot button button in the bottom tray</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>   
-    </map>
-    <key>ShowMoveButton</key>                
-    <map>
-      <key>Comment</key>
-      <string>Show/Hide Move button in the bottom tray</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>   
-    </map>    
-    <key>ShowGestureButton</key>                
-    <map>
-      <key>Comment</key>
-      <string>Show/Hide Gesture button in the bottom tray</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>   
     </map>
     <key>ShowObjectRenderingCost</key>                
     <map>
@@ -8725,6 +8681,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>SidebarWithButtonsVisibility</key>
+    <map>
+      <key>Comment</key>
+      <string>Sets visibility of sidebar with its tabs' buttons</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>SkinCurrent</key>
     <map>

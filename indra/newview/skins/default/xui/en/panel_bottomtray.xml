@@ -48,29 +48,32 @@
          left="0"
          max_width="320"
          min_height="23"
-         min_width="216"
+         min_width="214"
          mouse_opaque="false"
          name="chat_bar"
          top="4"
-         user_resize="false"
-         width="310" />
+         user_resize="true"
+         width="308" />
+        <!--
+        There is resize bar between chatbar and Speak button. It has 2px width (is is set as 2*UIResizeBarOverlap)
+        -->
         <layout_panel
          auto_resize="false"
          follows="right"
          height="28"
          layout="topleft"
          min_height="28"
-         min_width="57"
+         min_width="59"
          mouse_opaque="false"
          name="speak_panel"
          top_delta="0"
          user_resize="false"
-         width="108">
+         width="110">
             <talk_button
              follows="left|right"
              height="23"
              layout="topleft"
-             left="0"
+             left="2"
              name="talk"
              top="5"
              width="105">
@@ -190,7 +193,7 @@
          min_width="40"
          mouse_opaque="false"
          name="snapshot_panel"
-         width="40">
+         width="39">
             <button
              follows="left|right"
              height="23"
@@ -208,6 +211,38 @@
                 <init_callback
                  function="Button.SetFloaterToggle"
                  parameter="snapshot" />
+            </button>
+        </layout_panel>
+        <layout_panel
+         auto_resize="false"
+         follows="left|right"
+         height="28"
+         layout="topleft"
+         min_height="28"
+         min_width="52"
+         mouse_opaque="false"
+         name="sidebar_btn_panel"
+         user_resize="false"
+         width="83">
+<!--*TODO: Implement toggle of sidebar with buttons
+Disabled for now.
+-->
+            <button
+             control_name="SidebarWithButtonsVisibility"
+             follows="left|right"
+             height="23"
+             image_pressed="PushButton_Press"
+             image_pressed_selected="PushButton_Selected_Press"
+             image_selected="PushButton_Selected_Press"
+             is_toggle="true"
+             label="Sidebar"
+             layout="topleft"
+             left="0"
+             name="sidebar_btn"
+             tool_tip="Shows/hides Sidebar"
+             top="5"
+             use_ellipses="true"
+             width="80">
             </button>
         </layout_panel>
         <layout_panel

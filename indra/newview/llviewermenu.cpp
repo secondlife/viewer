@@ -3633,6 +3633,14 @@ class LLEditEnableCustomizeAvatar : public view_listener_t
 	}
 };
 
+class LLEnableEditShape : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gAgentWearables.isWearableModifiable(LLWearableType::WT_SHAPE, 0);
+	}
+};
+
 bool enable_sit_object()
 {
 	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
@@ -5602,6 +5610,11 @@ void handle_viewer_disable_message_log(void*)
 void handle_customize_avatar()
 {
 	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
+}
+
+void handle_edit_shape()
+{
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_shape"));
 }
 
 void handle_report_abuse()
@@ -7712,7 +7725,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditEnableDuplicate(), "Edit.EnableDuplicate");
 	view_listener_t::addMenu(new LLEditEnableTakeOff(), "Edit.EnableTakeOff");
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
+	view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
 	commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
+	commit.add("EditShape", boost::bind(&handle_edit_shape));
 
 	// View menu
 	view_listener_t::addMenu(new LLViewMouselook(), "View.Mouselook");

@@ -61,7 +61,7 @@ namespace
 	const std::string& PANEL_CAMERA_NAME	= "cam_panel";
 	const std::string& PANEL_GESTURE_NAME	= "gesture_panel";
 
-	S32 get_panel_min_width(LLLayoutStack* stack, LLPanel* panel)
+	S32 get_panel_min_width(LLLayoutStack* stack, LLView* panel)
 	{
 		S32 minimal_width = 0;
 		llassert(stack);
@@ -182,6 +182,13 @@ LLBottomTray::~LLBottomTray()
 	if (!LLSingleton<LLIMMgr>::destroyed())
 	{
 		LLIMMgr::getInstance()->removeSessionObserver(this);
+	}
+
+	if (mNearbyChatBar)
+	{
+		// store custom width of chatbar panel.
+		S32 custom_width = mNearbyChatBar->getRect().getWidth();
+		gSavedSettings.setS32("ChatBarCustomWidth", custom_width);
 	}
 }
 
@@ -360,6 +367,20 @@ S32 LLBottomTray::notifyParent(const LLSD& info)
 		BOOL should_be_visible = !info["well_empty"];
 		showWellButton("im_well" == chiclet_name ? RS_IM_WELL : RS_NOTIFICATION_WELL, should_be_visible);
 		return 1;
+	}
+
+	if (info.has("action") && info["action"] == "resize")
+	{
+		const std::string& name = info["view_name"];
+
+		// expected only resize of nearby chatbar
+		if (mNearbyChatBar->getName() != name) return LLPanel::notifyParent(info);
+
+		const S32 new_width = info["new_width"];
+
+		processChatbarCustomization(new_width);
+
+		return 2;
 	}
 	return LLPanel::notifyParent(info);
 }
@@ -648,6 +669,24 @@ void LLBottomTray::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 	if (mNearbyChatBar)			log(mNearbyChatBar, "after");
 	if (mChicletPanel)			log(mChicletPanel, "after");
+
+
+	// Restore width of the chatbar on first reshape.
+	// we can not to do this from postBuild because reshape is called from parent view on startup
+	// creation after it and reset width according to resize logic.
+	static bool needs_restore_custom_state = true;
+	if (mNearbyChatBar && needs_restore_custom_state)
+	{
+		// restore custom width of chatbar panel.
+		S32 new_width = gSavedSettings.getS32("ChatBarCustomWidth");
+		if (new_width > 0)
+		{
+			processChatbarCustomization(new_width);
+			mNearbyChatBar->reshape(new_width, mNearbyChatBar->getRect().getHeight());
+		}
+		needs_restore_custom_state = false;
+	}
+
 }
 
 S32 LLBottomTray::processWidthDecreased(S32 delta_width)
@@ -1130,6 +1169,7 @@ void LLBottomTray::initResizeStateContainers()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, mMovementPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, mCamPanel));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, mSnapshotPanel));
+	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SIDEBAR, getChild<LLPanel>("sidebar_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_BUILD, getChild<LLPanel>("build_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SEARCH, getChild<LLPanel>("search_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_WORLD_MAP, getChild<LLPanel>("world_map_btn_panel")));
@@ -1140,6 +1180,7 @@ void LLBottomTray::initResizeStateContainers()
 	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
 	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SNAPSHOT);
+	mButtonsProcessOrder.push_back(RS_BUTTON_SIDEBAR);
 	mButtonsProcessOrder.push_back(RS_BUTTON_BUILD);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SEARCH);
 	mButtonsProcessOrder.push_back(RS_BUTTON_WORLD_MAP);
@@ -1155,6 +1196,7 @@ void LLBottomTray::initResizeStateContainers()
 	{
 		const EResizeState button_type = *it;
 		// is there an appropriate object?
+		llassert(mStateProcessedObjectMap.count(button_type) > 0);
 		if (0 == mStateProcessedObjectMap.count(button_type)) continue;
 
 		// set default width for it.
@@ -1166,24 +1208,40 @@ void LLBottomTray::initResizeStateContainers()
 
 }
 
+// this method must be called before restoring of the chat entry field on startup
+// because it resets chatbar's width according to resize logic.
 void LLBottomTray::initButtonsVisibility()
 {
-	// *TODO: move control settings of other buttons here
-	setTrayButtonVisibleIfPossible(RS_BUTTON_BUILD, gSavedSettings.getBOOL("ShowBuildButton"));
-	setTrayButtonVisibleIfPossible(RS_BUTTON_SEARCH, gSavedSettings.getBOOL("ShowSearchButton"));
-	setTrayButtonVisibleIfPossible(RS_BUTTON_WORLD_MAP, gSavedSettings.getBOOL("ShowWorldMapButton"));
-	setTrayButtonVisibleIfPossible(RS_BUTTON_MINI_MAP, gSavedSettings.getBOOL("ShowMiniMapButton"));
+	setVisibleAndFitWidths(RS_BUTTON_GESTURES, gSavedSettings.getBOOL("ShowGestureButton"));
+	setVisibleAndFitWidths(RS_BUTTON_MOVEMENT, gSavedSettings.getBOOL("ShowMoveButton"));
+	setVisibleAndFitWidths(RS_BUTTON_CAMERA, gSavedSettings.getBOOL("ShowCameraButton"));
+	setVisibleAndFitWidths(RS_BUTTON_SNAPSHOT, gSavedSettings.getBOOL("ShowSnapshotButton"));
+	setVisibleAndFitWidths(RS_BUTTON_SIDEBAR, gSavedSettings.getBOOL("ShowSidebarButton"));
+	setVisibleAndFitWidths(RS_BUTTON_BUILD, gSavedSettings.getBOOL("ShowBuildButton"));
+	setVisibleAndFitWidths(RS_BUTTON_SEARCH, gSavedSettings.getBOOL("ShowSearchButton"));
+	setVisibleAndFitWidths(RS_BUTTON_WORLD_MAP, gSavedSettings.getBOOL("ShowWorldMapButton"));
+	setVisibleAndFitWidths(RS_BUTTON_MINI_MAP, gSavedSettings.getBOOL("ShowMiniMapButton"));
 }
 
 void LLBottomTray::setButtonsControlsAndListeners()
 {
-	// *TODO: move control settings of other buttons here
+	gSavedSettings.declareBOOL("ShowGestureButton", TRUE, "Shows/Hides Gesture button in the bottom tray. (Declared in code)");
+	gSavedSettings.declareBOOL("ShowMoveButton", TRUE, "Shows/Hides Move button in the bottom tray. (Declared in code)");
+	gSavedSettings.declareBOOL("ShowSnapshotButton", TRUE, "Shows/Hides Snapshot button button in the bottom tray. (Declared in code)");
+	gSavedSettings.declareBOOL("ShowCameraButton", TRUE, "Show/Hide View button in the bottom tray. (Declared in code)");
+	gSavedSettings.declareBOOL("ShowSidebarButton", TRUE, "Shows/hides Sidebar button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowBuildButton", TRUE, "Shows/Hides Build button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowSearchButton", TRUE, "Shows/Hides Search button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowWorldMapButton", TRUE, "Shows/Hides Map button in the bottom tray. (Declared in code)");
 	gSavedSettings.declareBOOL("ShowMiniMapButton", TRUE, "Shows/Hides Mini-Map button in the bottom tray. (Declared in code)");
 
+	gSavedSettings.declareS32("ChatBarCustomWidth", 0, "Stores customized width of chat bar. (Declared in code)");
 
+	gSavedSettings.getControl("ShowGestureButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_GESTURES, _2));
+	gSavedSettings.getControl("ShowMoveButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_MOVEMENT, _2));
+	gSavedSettings.getControl("ShowCameraButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_CAMERA, _2));
+	gSavedSettings.getControl("ShowSnapshotButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SNAPSHOT, _2));
+	gSavedSettings.getControl("ShowSidebarButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SIDEBAR, _2));
 	gSavedSettings.getControl("ShowBuildButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_BUILD, _2));
 	gSavedSettings.getControl("ShowSearchButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SEARCH, _2));
 	gSavedSettings.getControl("ShowWorldMapButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_WORLD_MAP, _2));
@@ -1262,17 +1320,18 @@ bool LLBottomTray::setVisibleAndFitWidths(EResizeState object_type, bool visible
 			const S32 chatbar_shrunk_width =
 				mNearbyChatBar->getRect().getWidth() - get_panel_min_width(mToolbarStack, mNearbyChatBar);
 
-			const S32 sum_of_min_widths =
-				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +
-				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_MOVEMENT]) +
-				get_panel_min_width(mToolbarStack, mStateProcessedObjectMap[RS_BUTTON_GESTURES]) +
-				get_panel_min_width(mToolbarStack, mSpeakPanel);
+			S32 sum_of_min_widths = get_panel_min_width(mToolbarStack, mSpeakPanel);
+			S32 sum_of_curr_widths = get_curr_width(mSpeakPanel);
 
-			const S32 sum_of_curr_widths =
-				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_CAMERA])   +
-				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_MOVEMENT]) +
-				get_curr_width(mStateProcessedObjectMap[RS_BUTTON_GESTURES]) +
-				get_curr_width(mSpeakPanel);
+			resize_state_vec_t::const_iterator it = mButtonsProcessOrder.begin();
+			const resize_state_vec_t::const_iterator it_end = mButtonsProcessOrder.end();
+
+			for (; it != it_end; ++it)
+			{
+				LLPanel * cur_panel = mStateProcessedObjectMap[*it];
+				sum_of_min_widths += get_panel_min_width(mToolbarStack, cur_panel);
+				sum_of_curr_widths += get_curr_width(cur_panel);
+			}
 
 			const S32 possible_shrunk_width =
 				chatbar_shrunk_width + (sum_of_curr_widths - sum_of_min_widths);
@@ -1349,6 +1408,36 @@ void LLBottomTray::showWellButton(EResizeState object_type, bool visible)
 	else
 	{
 		processWidthIncreased(panel_width);
+	}
+}
+
+void LLBottomTray::processChatbarCustomization(S32 new_width)
+{
+	if (NULL == mNearbyChatBar) return;
+
+	const S32 delta_width = mNearbyChatBar->getRect().getWidth() - new_width;
+
+	if (delta_width == 0) return;
+
+	LLView * chiclet_layout_panel = mChicletPanel->getParent();
+	const S32 chiclet_min_width = get_panel_min_width(mToolbarStack, chiclet_layout_panel);
+	const S32 chiclet_panel_width = chiclet_layout_panel->getRect().getWidth();
+	const S32 available_chiclet_shrink_width = chiclet_panel_width - chiclet_min_width;
+	llassert(available_chiclet_shrink_width >= 0);
+
+	if (delta_width > 0) // panel gets narrowly
+	{
+		S32 total_possible_width = delta_width + available_chiclet_shrink_width;
+		processShowButtons(total_possible_width);
+		processExtendButtons(total_possible_width);
+	}
+	// here (delta_width < 0) // panel gets wider
+	else //if (-delta_width > available_chiclet_shrink_width)
+	{
+		S32 required_width = delta_width + available_chiclet_shrink_width;
+		S32 buttons_freed_width = 0;
+		processShrinkButtons(required_width, buttons_freed_width);
+		processHideButtons(required_width, buttons_freed_width);
 	}
 }
 

@@ -124,6 +124,15 @@ public:
 	/** Get the name of a corresponding inventory item */
 	const std::string& getItemName() const { return mItem->getName(); }
 
+	/** Get the asset type of a corresponding inventory item */
+	LLAssetType::EType getType() const { return mItem->getType(); }
+
+	/** Get the wearable type of a corresponding inventory item */
+	LLWearableType::EType getWearableType() const { return mItem->getWearableType(); }
+
+	/** Get the description of a corresponding inventory item */
+	const std::string& getDescription() const { return mItem->getDescription(); }
+
 	virtual ~LLPanelInventoryListItemBase(){}
 
 protected:
