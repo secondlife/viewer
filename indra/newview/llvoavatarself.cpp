@@ -1766,13 +1766,28 @@ void LLVOAvatarSelf::onTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture
 void LLVOAvatarSelf::timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
 	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
+	if (!data)
+	{
+		return;
+	}
+
 	ETextureIndex index = data->mIndex;
+	
+if (index < 0 || index >= TEX_NUM_INDICES)
+	{
+		return;
+	}
 
 	if (discard_level >=0 && discard_level <= MAX_DISCARD_LEVEL) // ignore discard level -1, as it means we have no data.
 	{
 		mTextureLoadTimes[(U32)index][(U32)discard_level] = mSelfLoadTimer.getElapsedTimeF32();
 	}
-	delete data;
+	if (final)
+	{
+		delete data;
+		// for debugging, apparently there is a case in which we are keeping old de-allocated structures around in callbacks
+		*data = NULL;
+	}
 }
 
 void LLVOAvatarSelf::bakedTextureUpload(EBakedTextureIndex index, BOOL finished)
@@ -1957,7 +1972,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	{
 		gAgent.sendAgentSetAppearance();
 		F32 final_time = mSelfLoadTimer.getElapsedTimeF32();
-		llinfos << "AVATARREZTIME: Myself rez stats:" << llendl;
+		llinfos << "REZTIME: Myself rez stats:" << llendl;
 		llinfos << "\t Time from avatar creation to load wearables: " << (S32)mTimeWearablesLoaded << llendl;
 		llinfos << "\t Time from avatar creation to de-cloud: " << (S32)mTimeAvatarVisible << llendl;
 		llinfos << "\t Time from avatar creation to de-cloud for others: " << (S32)final_time << llendl;
