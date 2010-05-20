@@ -366,6 +366,10 @@ std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
 	// return a tooltip corresponding to the URL type instead of the generic one
 	std::string url = getUrl(string);
 
+	if (LLStringUtil::endsWith(url, "/inspect"))
+	{
+		return LLTrans::getString("TooltipAgentInspect");
+	}
 	if (LLStringUtil::endsWith(url, "/mute"))
 	{
 		return LLTrans::getString("TooltipAgentMute");

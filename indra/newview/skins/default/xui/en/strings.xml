@@ -89,8 +89,9 @@ or.</string>
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
-	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
-	<string name="TooltipAgentMute">Click to mute this Resident</string>
+  <string name="TooltipAgentUrl">Click to view this Resident's profile</string>
+  <string name="TooltipAgentInspect">Learn more about this Resident</string>
+  <string name="TooltipAgentMute">Click to mute this Resident</string>
 	<string name="TooltipAgentUnmute">Click to unmute this Resident</string>
 	<string name="TooltipAgentIM">Click to IM this Resident</string>
 	<string name="TooltipAgentPay">Click to Pay this Resident</string>
