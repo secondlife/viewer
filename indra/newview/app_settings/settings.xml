@@ -5960,7 +5960,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.2</real>
+    <real>0.125</real>
   </map>
   <key>MediaRollOffMin</key>
   <map>
@@ -5971,7 +5971,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>7.0</real>
+    <real>5.0</real>
   </map>
   <key>MediaRollOffMax</key>
   <map>
