@@ -53,7 +53,7 @@
      name="btn_add"
      layout="topleft"
      follows="top|right"
-     label="+"
+     image_overlay="AddItem_Off"
      top="0"
      left="0"
      height="20"
