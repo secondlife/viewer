@@ -618,11 +618,14 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	}
 	else
 	{
+		// Be lenient in terms of what separators we allow for two-word names
+		// and allow legacy users to login with firstname.lastname
+		separator_index = username.find_first_of(" ._");
 		std::string first = username.substr(0, separator_index);
 		std::string last;
 		if (separator_index != username.npos)
 		{
-			last = username.substr(separator_index, username.npos);
+			last = username.substr(separator_index+1, username.npos);
 			LLStringUtil::trim(last);
 		}
 		else
