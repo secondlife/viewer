@@ -11,6 +11,7 @@
  save_rect="true"
  short_title="BUILD TOOLS"
  single_instance="true"
+ save_visibility="true"
  sound_flags="0"
  width="295">
     <floater.string

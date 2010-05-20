@@ -260,7 +260,6 @@ Disabled for now.
 Disabled for now.
 -->
             <button
-enabled="false"
              follows="left|right"
              height="23"
              image_pressed="PushButton_Press"
@@ -275,8 +274,8 @@ enabled="false"
              top="5"
              use_ellipses="true"
              width="80">
-                <init_callback
-                 function="Button.SetFloaterToggle"
+                <commit_callback
+                 function="Build.Toggle"
                  parameter="build" />
             </button>
         </layout_panel>
