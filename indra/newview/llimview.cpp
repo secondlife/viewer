@@ -1749,7 +1749,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	// Beautification:  Since SLID is in the title bar, and you probably
 	// recognize this person's voice, just show display name
 	std::string final_callee_name = callee_name;
-	if (is_avatar)
+	if (mPayload["session_type"].asInteger() == LLIMModel::LLIMSession::P2P_SESSION)
 	{
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(callee_id, &av_name))
@@ -1957,8 +1957,9 @@ void LLIncomingCallDialog::setCallerName(const std::string& ui_title,
 										 const std::string& ui_label,
 										 const std::string& call_type)
 {
-	setTitle(ui_title + " " + call_type);
+	setTitle(ui_title);
 
+	// call_type may be a string like " is calling."
 	LLUICtrl* caller_name_widget = getChild<LLUICtrl>("caller name");
 	caller_name_widget->setValue(ui_label + " " + call_type);
 }
@@ -2068,15 +2069,11 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 					}
 					else
 					{
-						if (gCacheName->getFullName(caller_id, correct_session_name))
+						// *NOTE: really should be using callbacks here
+						LLAvatarName av_name;
+						if (LLAvatarNameCache::get(caller_id, &av_name))
 						{
-							// IDEVO really should be using callbacks here
-							LLAvatarName av_name;
-							if (LLAvatarNameCache::useDisplayNames()
-								&& LLAvatarNameCache::get(caller_id, &av_name))
-							{
-								correct_session_name = av_name.mDisplayName + " (" + av_name.mUsername + ")";
-							}
+							correct_session_name = av_name.mDisplayName + " (" + av_name.mUsername + ")";
 							correct_session_name.append(ADHOC_NAME_SUFFIX); 
 						}
 					}

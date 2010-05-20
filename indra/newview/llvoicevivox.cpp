@@ -6180,19 +6180,18 @@ void LLVivoxVoiceClient::notifyFriendObservers()
 
 void LLVivoxVoiceClient::lookupName(const LLUUID &id)
 {
-	BOOL is_group = FALSE;
-	gCacheName->get(id, is_group, &LLVivoxVoiceClient::onAvatarNameLookup);
-
-	// Peformance boost:  We're going to need the display name later when
-	// we show the call request floater, so get the request going now
-	LLAvatarName unused;
-	LLAvatarNameCache::get(id, &unused);
+	LLAvatarNameCache::get(id,
+		boost::bind(&LLVivoxVoiceClient::onAvatarNameCache,
+			this, _1, _2));
 }
 
-//static
-void LLVivoxVoiceClient::onAvatarNameLookup(const LLUUID& id, const std::string& name, BOOL is_group)
+void LLVivoxVoiceClient::onAvatarNameCache(const LLUUID& agent_id,
+										   const LLAvatarName& av_name)
 {
-		LLVivoxVoiceClient::getInstance()->avatarNameResolved(id, name);	
+	// For Vivox, we use the legacy name because I'm uncertain whether or
+	// not their service can tolerate switching to Username or Display Name
+	std::string legacy_name = av_name.getLegacyName();
+	avatarNameResolved(agent_id, legacy_name);	
 }
 
 void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)
