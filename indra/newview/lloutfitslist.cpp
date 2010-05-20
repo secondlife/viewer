@@ -41,7 +41,25 @@
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "lllistcontextmenu.h"
+#include "lltransutil.h"
+#include "llviewermenu.h"
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llwearableitemslist.h"
+
+//////////////////////////////////////////////////////////////////////////
+
+class OutfitContextMenu : public LLListContextMenu
+{
+protected:
+	/* virtual */ LLContextMenu* createMenu()
+	{
+		return createFromFile("menu_outfit_tab.xml");
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 static LLRegisterPanelClassWrapper<LLOutfitsList> t_outfits_list("outfits_list");
 
@@ -55,10 +73,14 @@ LLOutfitsList::LLOutfitsList()
 	gInventory.addObserver(mCategoriesObserver);
 
 	gInventory.addObserver(this);
+
+	mOutfitMenu = new OutfitContextMenu();
 }
 
 LLOutfitsList::~LLOutfitsList()
 {
+	delete mOutfitMenu;
+
 	if (gInventory.containsObserver(mCategoriesObserver))
 	{
 		gInventory.removeObserver(mCategoriesObserver);
@@ -140,6 +162,8 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
 		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+		tab->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onAccordionTabRightClick, this,
+			_1, _2, _3, cat_id));
 
 		tab->setName(name);
 		tab->setTitle(name);
@@ -443,6 +467,21 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 
 			//restore accordion state after all those accodrion tab manipulations
 			tab->notifyChildren(LLSD().with("action","restore_state"));
+		}
+	}
+}
+
+void LLOutfitsList::onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id)
+{
+	LLAccordionCtrlTab* tab = dynamic_cast<LLAccordionCtrlTab*>(ctrl);
+	if(mOutfitMenu && tab && tab->getHeaderVisible() && cat_id.notNull())
+	{
+		S32 header_bottom = tab->getLocalRect().getHeight() - tab->getHeaderHeight();
+		if(y >= header_bottom)
+		{
+			uuid_vec_t selected_uuids;
+			selected_uuids.push_back(cat_id);
+			mOutfitMenu->show(ctrl, selected_uuids, x, y);
 		}
 	}
 }

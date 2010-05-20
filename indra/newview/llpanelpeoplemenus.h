@@ -33,42 +33,15 @@
 #ifndef LL_LLPANELPEOPLEMENUS_H
 #define LL_LLPANELPEOPLEMENUS_H
 
-#include "llavatarlistitem.h"
+#include "lllistcontextmenu.h"
 
 namespace LLPanelPeopleMenus
 {
 
 /**
- * Base context menu.
- */
-class ContextMenu : public LLAvatarListItem::ContextMenu
-{
-public:
-	ContextMenu();
-	virtual ~ContextMenu();
-
-	/**
-	 * Show the menu at specified coordinates.
-	 *
-	 * @param  uuids - an array of avatar or group ids
-	 */
-	/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
-
-	virtual void hide();
-
-protected:
-
-	virtual LLContextMenu* createMenu() = 0;
-
-	uuid_vec_t	mUUIDs;
-	LLContextMenu*		mMenu;
-	LLHandle<LLView>	mMenuHandle;
-};
-
-/**
  * Menu used in the nearby people list.
  */
-class NearbyMenu : public ContextMenu
+class NearbyMenu : public LLListContextMenu
 {
 public:
 	/*virtual*/ LLContextMenu* createMenu();

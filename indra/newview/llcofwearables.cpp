@@ -35,9 +35,13 @@
 #include "llcofwearables.h"
 
 #include "llagentdata.h"
+#include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
+#include "lllistcontextmenu.h"
+#include "llmenugl.h"
+#include "llviewermenu.h"
 #include "llwearableitemslist.h"
 
 static LLRegisterPanelClassWrapper<LLCOFAccordionListAdaptor> t_cof_accodion_list_adaptor("accordion_list_adaptor");
@@ -49,14 +53,61 @@ const LLSD REARRANGE = LLSD().with("rearrange", LLSD());
 static const LLWearableItemNameComparator WEARABLE_NAME_COMPARATOR;
 
 
+//////////////////////////////////////////////////////////////////////////
+
+class CofAttachmentContextMenu : public LLListContextMenu
+{
+protected:
+
+	/*virtual*/ LLContextMenu* createMenu()
+	{
+		return createFromFile("menu_cof_attachment.xml");
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class CofClothingContextMenu : public LLListContextMenu
+{
+protected:
+
+	/*virtual*/ LLContextMenu* createMenu()
+	{
+		return createFromFile("menu_cof_clothing.xml");
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class CofBodyPartContextMenu : public LLListContextMenu
+{
+protected:
+
+	/*virtual*/ LLContextMenu* createMenu()
+	{
+		return createFromFile("menu_cof_body_part.xml");
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 LLCOFWearables::LLCOFWearables() : LLPanel(),
 	mAttachments(NULL),
 	mClothing(NULL),
 	mBodyParts(NULL),
 	mLastSelectedList(NULL)
 {
+	mClothingMenu = new CofClothingContextMenu();
+	mAttachmentMenu = new CofAttachmentContextMenu();
+	mBodyPartMenu = new CofBodyPartContextMenu();
 };
 
+LLCOFWearables::~LLCOFWearables()
+{
+	delete mClothingMenu;
+	delete mAttachmentMenu;
+	delete mBodyPartMenu;
+}
 
 // virtual
 BOOL LLCOFWearables::postBuild()
@@ -65,6 +116,9 @@ BOOL LLCOFWearables::postBuild()
 	mClothing = getChild<LLFlatListView>("list_clothing");
 	mBodyParts = getChild<LLFlatListView>("list_body_parts");
 
+	mClothing->setRightMouseDownCallback(boost::bind(&LLCOFWearables::onListRightClick, this, _1, _2, _3, mClothingMenu));
+	mAttachments->setRightMouseDownCallback(boost::bind(&LLCOFWearables::onListRightClick, this, _1, _2, _3, mAttachmentMenu));
+	mBodyParts->setRightMouseDownCallback(boost::bind(&LLCOFWearables::onListRightClick, this, _1, _2, _3, mBodyPartMenu));
 
 	//selection across different list/tabs is not supported
 	mAttachments->setCommitCallback(boost::bind(&LLCOFWearables::onSelectionChange, this, mAttachments));
@@ -304,11 +358,31 @@ LLUUID LLCOFWearables::getSelectedUUID()
 	return mLastSelectedList->getSelectedUUID();
 }
 
+bool LLCOFWearables::getSelectedUUIDs(uuid_vec_t& selected_ids)
+{
+	if (!mLastSelectedList) return false;
+
+	mLastSelectedList->getSelectedUUIDs(selected_ids);
+	return selected_ids.size() != 0;
+}
+
 void LLCOFWearables::clear()
 {
 	mAttachments->clear();
 	mClothing->clear();
 	mBodyParts->clear();
+}
+
+void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu)
+{
+	if(menu)
+	{
+		uuid_vec_t selected_uuids;
+		if(getSelectedUUIDs(selected_uuids))
+		{
+			menu->show(ctrl, selected_uuids, x, y);
+		}
+	}
 }
 
 //EOF

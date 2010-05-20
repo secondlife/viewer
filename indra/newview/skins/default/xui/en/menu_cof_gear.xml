@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ layout="topleft"
+ name="Gear COF">
+    <menu_item_call
+     label="Add To Outfit"
+     layout="topleft"
+     name="add">
+        <on_click
+         function="Gear.OnClick"
+         parameter="add"/>
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="add" />
+    </menu_item_call>
+</menu>

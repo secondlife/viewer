@@ -32,11 +32,14 @@
 #ifndef LL_LLWEARABLEITEMSLIST_H
 #define LL_LLWEARABLEITEMSLIST_H
 
+// libs
 #include "llpanel.h"
+#include "llsingleton.h"
 
 // newview
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
+#include "lllistcontextmenu.h"
 #include "llwearabletype.h"
 
 /**
@@ -274,8 +277,23 @@ private:
 class LLWearableItemsList : public LLInventoryItemsList
 {
 public:
+	/**
+	 * Context menu.
+	 * 
+	 * This menu is likely to be used from outside
+	 * (e.g. for items selected across multiple wearable lists),
+	 * so making it a singleton.
+	 */
+	class ContextMenu : public LLListContextMenu, public LLSingleton<ContextMenu>
+	{
+	protected:
+		/* virtual */ LLContextMenu* createMenu();
+	};
+
 	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>
 	{
+		Optional<bool> use_internal_context_menu;
+
 		Params();
 	};
 
@@ -286,6 +304,8 @@ public:
 protected:
 	friend class LLUICtrlFactory;
 	LLWearableItemsList(const LLWearableItemsList::Params& p);
+
+	void onRightClick(S32 x, S32 y);
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H

@@ -32,8 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llevent.h"
-#include "llpanelpeoplemenus.h"
 #include "llavatarlist.h" // for LLAvatarItemRecentSpeakerComparator
+#include "lllistcontextmenu.h"
 
 class LLSpeakerMgr;
 class LLAvatarList;
@@ -148,7 +148,7 @@ class LLParticipantList
 		/**
 		 * Menu used in the participant list.
 		 */
-		class LLParticipantListMenu : public LLPanelPeopleMenus::ContextMenu
+		class LLParticipantListMenu : public LLListContextMenu
 		{
 		public:
 			LLParticipantListMenu(LLParticipantList& parent):mParent(parent){};

@@ -1,6 +1,6 @@
 /** 
  * @file llavatarlistitem.cpp
- * @avatar list item source file
+ * @brief avatar list item source file
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 

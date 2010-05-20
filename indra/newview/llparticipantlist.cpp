@@ -648,8 +648,7 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	enable_registrar.add("ParticipantList.CheckItem",  boost::bind(&LLParticipantList::LLParticipantListMenu::checkContextMenuItem,	this, _2));
 
 	// create the context menu from the XUI
-	LLContextMenu* main_menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
-		"menu_participant_list.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+	LLContextMenu* main_menu = createFromFile("menu_participant_list.xml");
 
 	// Don't show sort options for P2P chat
 	bool is_sort_visible = (mParent.mAvatarList && mParent.mAvatarList->size() > 1);
@@ -666,9 +665,9 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 
 void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y)
 {
-	LLPanelPeopleMenus::ContextMenu::show(spawning_view, uuids, x, y);
-
 	if (uuids.size() == 0) return;
+
+	LLListContextMenu::show(spawning_view, uuids, x, y);
 
 	const LLUUID& speaker_id = mUUIDs.front();
 	BOOL is_muted = isMuted(speaker_id);

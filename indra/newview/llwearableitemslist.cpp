@@ -35,8 +35,10 @@
 
 #include "lliconctrl.h"
 
+#include "llagentwearables.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "llmenugl.h" // for LLContextMenu
 #include "lltransutil.h"
 
 class LLFindOutfitItems : public LLInventoryCollectFunctor
@@ -377,12 +379,17 @@ static const LLWearableItemTypeNameComparator WEARABLE_TYPE_NAME_COMPARATOR;
 static const LLDefaultChildRegistry::Register<LLWearableItemsList> r("wearable_items_list");
 
 LLWearableItemsList::Params::Params()
+:	use_internal_context_menu("use_internal_context_menu", true)
 {}
 
 LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 :	LLInventoryItemsList(p)
 {
 	setComparator(&WEARABLE_TYPE_NAME_COMPARATOR);
+	if (p.use_internal_context_menu)
+	{
+		setRightMouseDownCallback(boost::bind(&LLWearableItemsList::onRightClick, this, _2, _3));
+	}
 }
 
 // virtual
@@ -404,6 +411,29 @@ void LLWearableItemsList::updateList(const LLUUID& category_id)
 		collector);
 
 	refreshList(item_array);
+}
+
+void LLWearableItemsList::onRightClick(S32 x, S32 y)
+{
+	uuid_vec_t selected_uuids;
+
+	getSelectedUUIDs(selected_uuids);
+	if (selected_uuids.empty())
+	{
+		return;
+	}
+
+	ContextMenu::instance().show(this, selected_uuids, x, y);
+}
+
+//////////////////////////////////////////////////////////////////////////
+/// ContextMenu
+//////////////////////////////////////////////////////////////////////////
+
+// virtual
+LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
+{
+	return createFromFile("menu_wearable_list_item.xml");
 }
 
 // EOF
