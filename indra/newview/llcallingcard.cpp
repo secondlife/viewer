@@ -43,6 +43,7 @@
 //#include <iterator>
 
 #include "indra_constants.h"
+#include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "llstl.h"
 #include "lltimer.h"
@@ -96,8 +97,10 @@ const F32 OFFLINE_SECONDS = FIND_FREQUENCY + 8.0f;
 // static
 LLAvatarTracker LLAvatarTracker::sInstance;
 
-
-
+static void on_avatar_name_cache_notify(const LLUUID& agent_id,
+										const LLAvatarName& av_name,
+										bool online,
+										LLSD payload);
 
 ///----------------------------------------------------------------------------
 /// Class LLAvatarTracker
@@ -681,8 +684,6 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 		{
 			tracking_id = mTrackingData->mAvatarID;
 		}
-		BOOL notify = FALSE;
-		LLSD args;
 		LLSD payload;
 		for(S32 i = 0; i < count; ++i)
 		{
@@ -692,16 +693,6 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 			if(info)
 			{
 				setBuddyOnline(agent_id,online);
-				if(chat_notify)
-				{
-					std::string full_name;
-					if(gCacheName->getFullName(agent_id, full_name))
-					{
-						notify = TRUE;
-						args["NAME"] = full_name;
-					}
-
-				}
 			}
 			else
 			{
@@ -717,35 +708,49 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 			// *TODO: get actual inventory id
 			gInventory.addChangedMask(LLInventoryObserver::CALLING_CARD, LLUUID::null);
 		}
-		if(notify)
+		if(chat_notify)
 		{
-			// Popup a notify box with online status of this agent
-			LLNotificationPtr notification;
-
-			if (online)
-			{
-				notification =
-					LLNotificationsUtil::add("FriendOnline",
-											 args,
-											 payload.with("respond_on_mousedown", TRUE),
-											 boost::bind(&LLAvatarActions::startIM, agent_id));
-			}
-			else
-			{
-				notification =
-					LLNotificationsUtil::add("FriendOffline", args, payload);
-			}
-
-			// If there's an open IM session with this agent, send a notification there too.
-			LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, agent_id);
-			std::string notify_msg = notification->getMessage();
-			LLIMModel::instance().proccessOnlineOfflineNotification(session_id, notify_msg);
+			// Look up the name of this agent for the notification
+			LLAvatarNameCache::get(agent_id,
+				boost::bind(&on_avatar_name_cache_notify,
+					_1, _2, online, payload));
 		}
 
 		mModifyMask |= LLFriendObserver::ONLINE;
 		instance().notifyObservers();
 		gInventory.notifyObservers();
 	}
+}
+
+static void on_avatar_name_cache_notify(const LLUUID& agent_id,
+										const LLAvatarName& av_name,
+										bool online,
+										LLSD payload)
+{
+	// Popup a notify box with online status of this agent
+	// Use display name only because this user is your friend
+	LLSD args;
+	args["NAME"] = av_name.mDisplayName;
+
+	LLNotificationPtr notification;
+	if (online)
+	{
+		notification =
+			LLNotificationsUtil::add("FriendOnline",
+									 args,
+									 payload.with("respond_on_mousedown", TRUE),
+									 boost::bind(&LLAvatarActions::startIM, agent_id));
+	}
+	else
+	{
+		notification =
+			LLNotificationsUtil::add("FriendOffline", args, payload);
+	}
+
+	// If there's an open IM session with this agent, send a notification there too.
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, agent_id);
+	std::string notify_msg = notification->getMessage();
+	LLIMModel::instance().proccessOnlineOfflineNotification(session_id, notify_msg);
 }
 
 void LLAvatarTracker::formFriendship(const LLUUID& id)
