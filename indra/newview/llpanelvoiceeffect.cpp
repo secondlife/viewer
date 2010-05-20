@@ -126,7 +126,7 @@ void LLPanelVoiceEffect::update()
 		}
 
 		mVoiceEffectCombo->removeall();
-		mVoiceEffectCombo->add(getString("no_voice_effect"), NO_VOICE_EFFECT);
+		mVoiceEffectCombo->add(getString("no_voice_effect"), LLUUID::null);
 		mVoiceEffectCombo->addSeparator();
 
 		const voice_effect_list_t& effect_list = effect_interface->getVoiceEffectList();
