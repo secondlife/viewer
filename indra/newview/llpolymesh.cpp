@@ -708,15 +708,17 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 		mClothingWeights = reference_mesh->mClothingWeights;
 	}
 	else
-	{
+	{ 	 
 #if 1	// Allocate memory without initializing every vector
 		// NOTE: This makes asusmptions about the size of LLVector[234]
 		int nverts = mSharedData->mNumVertices;
-		int nfloats = nverts * (3*5 + 2 + 4);
-		mVertexData = new F32[nfloats];
+		int nfloats = nverts * (2*4 + 3*3 + 2 + 4);
+
+		//use aligned vertex data to make LLPolyMesh SSE friendly
+		mVertexData = (F32*) _mm_malloc(nfloats*4, 16);
 		int offset = 0;
-		mCoords = 				(LLVector3*)(mVertexData + offset); offset += 3*nverts;
-		mNormals = 				(LLVector3*)(mVertexData + offset); offset += 3*nverts;
+		mCoords = 				(LLVector4*)(mVertexData + offset); offset += 4*nverts;
+		mNormals = 				(LLVector4*)(mVertexData + offset); offset += 4*nverts;
 		mScaledNormals = 		(LLVector3*)(mVertexData + offset); offset += 3*nverts;
 		mBinormals = 			(LLVector3*)(mVertexData + offset); offset += 3*nverts;
 		mScaledBinormals = 		(LLVector3*)(mVertexData + offset); offset += 3*nverts;
@@ -757,7 +759,7 @@ LLPolyMesh::~LLPolyMesh()
 	delete [] mClothingWeights;
 	delete [] mTexCoords;
 #else
-	delete [] mVertexData;
+	_mm_free(mVertexData);
 #endif
 }
 
@@ -864,7 +866,7 @@ void LLPolyMesh::dumpDiagInfo()
 //-----------------------------------------------------------------------------
 // getWritableCoords()
 //-----------------------------------------------------------------------------
-LLVector3 *LLPolyMesh::getWritableCoords()
+LLVector4 *LLPolyMesh::getWritableCoords()
 {
 	return mCoords;
 }
@@ -872,7 +874,7 @@ LLVector3 *LLPolyMesh::getWritableCoords()
 //-----------------------------------------------------------------------------
 // getWritableNormals()
 //-----------------------------------------------------------------------------
-LLVector3 *LLPolyMesh::getWritableNormals()
+LLVector4 *LLPolyMesh::getWritableNormals()
 {
 	return mNormals;
 }
@@ -927,8 +929,12 @@ void LLPolyMesh::initializeForMorph()
 	if (!mSharedData)
 		return;
 
-	memcpy(mCoords, mSharedData->mBaseCoords, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
-	memcpy(mNormals, mSharedData->mBaseNormals, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
+	for (U32 i = 0; i < mSharedData->mNumVertices; ++i)
+	{
+		mCoords[i] = LLVector4(mSharedData->mBaseCoords[i]);
+		mNormals[i] = LLVector4(mSharedData->mBaseNormals[i]);
+	}
+
 	memcpy(mScaledNormals, mSharedData->mBaseNormals, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
 	memcpy(mBinormals, mSharedData->mBaseBinormals, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
 	memcpy(mScaledBinormals, mSharedData->mBaseBinormals, sizeof(LLVector3) * mSharedData->mNumVertices);		/*Flawfinder: ignore*/

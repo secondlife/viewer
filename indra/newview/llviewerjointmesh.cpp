@@ -61,6 +61,7 @@
 #include "v4math.h"
 #include "m3math.h"
 #include "m4math.h"
+#include "llmatrix4a.h"
 
 #if !LL_DARWIN && !LL_LINUX && !LL_SOLARIS
 extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
@@ -382,6 +383,7 @@ const S32 NUM_AXES = 3;
 // pivot parent 0-n -- child = n+1
 
 static LLMatrix4	gJointMatUnaligned[32];
+static LLMatrix4a	gJointMatAligned[32];
 static LLMatrix3	gJointRotUnaligned[32];
 static LLVector4	gJointPivot[32];
 
@@ -466,6 +468,14 @@ void LLViewerJointMesh::uploadJointMatrices()
 		stop_glerror();
 		glUniform4fvARB(gAvatarMatrixParam, 45, mat);
 		stop_glerror();
+	}
+	else
+	{
+		//load gJointMatUnaligned into gJointMatAligned
+		for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.count(); ++joint_num)
+		{
+			gJointMatAligned[joint_num].loadu(gJointMatUnaligned[joint_num]);
+		}
 	}
 }
 
@@ -723,7 +733,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 					v[0] = coords[0]; 
 					v[1] = coords[1]; 
 					v[2] = coords[2];		
-					coords += 3;
+					coords += 4;
 					v += skip;
 				}
 
@@ -732,12 +742,12 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 					n[0] = normals[0]; 
 					n[1] = normals[1];
 					n[2] = normals[2];
-					normals += 3;
+					normals += 4;
 					n += skip;
 				}
 			}
 			else
-				{
+			{
 
 				U32* __restrict tc = (U32*) tex_coordsp.get();
 				U32* __restrict vw = (U32*) vertex_weightsp.get();
@@ -745,18 +755,20 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 				
 				do
 				{
-					v[0] = *(coords++); 
-					v[1] = *(coords++); 
-					v[2] = *(coords++);
+					v[0] = coords[0]; 
+					v[1] = coords[1]; 
+					v[2] = coords[2];		
+					coords += 4;
 					v += skip;
 
 					tc[0] = *(tex_coords++); 
 					tc[1] = *(tex_coords++);
 					tc += skip;
 
-					n[0] = *(normals++); 
-					n[1] = *(normals++);
-					n[2] = *(normals++);
+					n[0] = normals[0]; 
+					n[1] = normals[1];
+					n[2] = normals[2];
+					normals += 4;
 					n += skip;
 
 					vw[0] = *(weights++);
@@ -808,17 +820,17 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 	LLStrider<LLVector3> o_normals;
 
 	//get vertex and normal striders
-	LLVertexBuffer *buffer = mFace->mVertexBuffer;
+	LLVertexBuffer* buffer = mFace->mVertexBuffer;
 	buffer->getVertexStrider(o_vertices,  0);
 	buffer->getNormalStrider(o_normals,   0);
 
-	F32 last_weight = F32_MAX;
-	LLMatrix4 gBlendMat;
-	LLMatrix3 gBlendRotMat;
+	//F32 last_weight = F32_MAX;
+	LLMatrix4a gBlendMat;
 
-	const F32* weights = mMesh->getWeights();
-	const LLVector3* coords = mMesh->getCoords();
-	const LLVector3* normals = mMesh->getNormals();
+	__restrict const F32* weights = mMesh->getWeights();
+	__restrict const LLVector4* coords = mMesh->getCoords();
+	__restrict const LLVector4* normals = mMesh->getNormals();
+
 	for (U32 index = 0; index < mMesh->getNumVertices(); index++)
 	{
 		U32 bidx = index + mMesh->mFaceVertexOffset;
@@ -826,71 +838,54 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 		// blend by first matrix
 		F32 w = weights[index]; 
 		
+		LLVector4a coord;
+		coord.load4a(coords[index].mV);
+
+		LLVector4a norm;
+		norm.load4a(normals[index].mV);
+
 		// Maybe we don't have to change gBlendMat.
 		// Profiles of a single-avatar scene on a Mac show this to be a very
 		// common case.  JC
-		if (w == last_weight)
+		//if (w != last_weight)
 		{
-			o_vertices[bidx] = coords[index] * gBlendMat;
-			o_normals[bidx] = normals[index] * gBlendRotMat;
-			continue;
+			//last_weight = w;
+
+			S32 joint = llfloor(w);
+			w -= joint;
+				
+			
+			if (w >= 0.f)
+			{
+				// Try to keep all the accesses to the matrix data as close
+				// together as possible.  This function is a hot spot on the
+				// Mac. JC
+				gBlendMat.setLerp(gJointMatAligned[joint+0],
+								  gJointMatAligned[joint+1], w);
+
+				LLVector4a res;
+				gBlendMat.affineTransform(coord, res);
+				o_vertices[bidx].setVec(res[0], res[1], res[2]);
+				gBlendMat.rotate(norm, res);
+				o_normals[bidx].setVec(res[0], res[1], res[2]);
+			}
+			else
+			{  // No lerp required in this case.
+				LLVector4a res;
+				gJointMatAligned[joint].affineTransform(coord, res);
+				o_vertices[bidx].setVec(res[0], res[1], res[2]);
+				gJointMatAligned[joint].rotate(norm, res);
+				o_normals[bidx].setVec(res[0], res[1], res[2]);
+			}
 		}
-		
-		last_weight = w;
-
-		S32 joint = llfloor(w);
-		w -= joint;
-		
-		// No lerp required in this case.
-		if (w == 1.0f)
-		{
-			gBlendMat = gJointMatUnaligned[joint+1];
-			o_vertices[bidx] = coords[index] * gBlendMat;
-			gBlendRotMat = gJointRotUnaligned[joint+1];
-			o_normals[bidx] = normals[index] * gBlendRotMat;
-			continue;
-		}
-		
-		// Try to keep all the accesses to the matrix data as close
-		// together as possible.  This function is a hot spot on the
-		// Mac. JC
-		LLMatrix4 &m0 = gJointMatUnaligned[joint+1];
-		LLMatrix4 &m1 = gJointMatUnaligned[joint+0];
-		
-		gBlendMat.mMatrix[VX][VX] = lerp(m1.mMatrix[VX][VX], m0.mMatrix[VX][VX], w);
-		gBlendMat.mMatrix[VX][VY] = lerp(m1.mMatrix[VX][VY], m0.mMatrix[VX][VY], w);
-		gBlendMat.mMatrix[VX][VZ] = lerp(m1.mMatrix[VX][VZ], m0.mMatrix[VX][VZ], w);
-
-		gBlendMat.mMatrix[VY][VX] = lerp(m1.mMatrix[VY][VX], m0.mMatrix[VY][VX], w);
-		gBlendMat.mMatrix[VY][VY] = lerp(m1.mMatrix[VY][VY], m0.mMatrix[VY][VY], w);
-		gBlendMat.mMatrix[VY][VZ] = lerp(m1.mMatrix[VY][VZ], m0.mMatrix[VY][VZ], w);
-
-		gBlendMat.mMatrix[VZ][VX] = lerp(m1.mMatrix[VZ][VX], m0.mMatrix[VZ][VX], w);
-		gBlendMat.mMatrix[VZ][VY] = lerp(m1.mMatrix[VZ][VY], m0.mMatrix[VZ][VY], w);
-		gBlendMat.mMatrix[VZ][VZ] = lerp(m1.mMatrix[VZ][VZ], m0.mMatrix[VZ][VZ], w);
-
-		gBlendMat.mMatrix[VW][VX] = lerp(m1.mMatrix[VW][VX], m0.mMatrix[VW][VX], w);
-		gBlendMat.mMatrix[VW][VY] = lerp(m1.mMatrix[VW][VY], m0.mMatrix[VW][VY], w);
-		gBlendMat.mMatrix[VW][VZ] = lerp(m1.mMatrix[VW][VZ], m0.mMatrix[VW][VZ], w);
-
-		o_vertices[bidx] = coords[index] * gBlendMat;
-		
-		LLMatrix3 &n0 = gJointRotUnaligned[joint+1];
-		LLMatrix3 &n1 = gJointRotUnaligned[joint+0];
-		
-		gBlendRotMat.mMatrix[VX][VX] = lerp(n1.mMatrix[VX][VX], n0.mMatrix[VX][VX], w);
-		gBlendRotMat.mMatrix[VX][VY] = lerp(n1.mMatrix[VX][VY], n0.mMatrix[VX][VY], w);
-		gBlendRotMat.mMatrix[VX][VZ] = lerp(n1.mMatrix[VX][VZ], n0.mMatrix[VX][VZ], w);
-
-		gBlendRotMat.mMatrix[VY][VX] = lerp(n1.mMatrix[VY][VX], n0.mMatrix[VY][VX], w);
-		gBlendRotMat.mMatrix[VY][VY] = lerp(n1.mMatrix[VY][VY], n0.mMatrix[VY][VY], w);
-		gBlendRotMat.mMatrix[VY][VZ] = lerp(n1.mMatrix[VY][VZ], n0.mMatrix[VY][VZ], w);
-
-		gBlendRotMat.mMatrix[VZ][VX] = lerp(n1.mMatrix[VZ][VX], n0.mMatrix[VZ][VX], w);
-		gBlendRotMat.mMatrix[VZ][VY] = lerp(n1.mMatrix[VZ][VY], n0.mMatrix[VZ][VY], w);
-		gBlendRotMat.mMatrix[VZ][VZ] = lerp(n1.mMatrix[VZ][VZ], n0.mMatrix[VZ][VZ], w);
-		
-		o_normals[bidx] = normals[index] * gBlendRotMat;
+		/*else
+		{ //weight didn't change
+			LLVector4a res;
+			gBlendMat.affineTransform(coord, res);
+			o_vertices[bidx].setVec(res[0], res[1], res[2]);
+			gBlendMat.rotate(norm, res);
+			o_normals[bidx].setVec(res[0], res[1], res[2]);
+		}*/
 	}
 
 	buffer->setBuffer(0);
