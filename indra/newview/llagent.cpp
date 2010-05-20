@@ -3583,12 +3583,15 @@ void LLAgent::sendAgentSetAppearance()
 			{
 				// LLWearableType::EType wearable_type = gBakedWearableMap[baked_index][wearable_num];
 				const LLWearableType::EType wearable_type = baked_dict->mWearables[i];
-				// MULTI-WEARABLE: fixed to 0th - extend to everything once messaging works.
-				const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,0);
-				if (wearable)
-				{
-					hash ^= wearable->getAssetID();
-				}
+                                for (U8 wearable_index =0; wearable_index < gAgentWearables.getWearableCount(wearable_type); ++wearable_index)
+                                {
+                                       const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,wearable_index);
+                                       if (wearable)
+                                       {
+                                               // MULTI-WEARABLE: make order-dependent (use MD5 hash)
+						hash ^= wearable->getAssetID();
+                                       }
+                                }
 			}
 			if (hash.notNull())
 			{

@@ -62,7 +62,6 @@ public:
 	void			cleanup();
 	void			dump();
 protected:
-	// MULTI-WEARABLE: assuming one per type.  Type is called index - rename.
 	void			createStandardWearablesDone(S32 type, U32 index/* = 0*/);
 	void			createStandardWearablesAllDone();
 	
@@ -93,7 +92,6 @@ public:
 	const LLWearable*	getWearableFromItemID(const LLUUID& item_id) const;
 	LLWearable*	getWearableFromAssetID(const LLUUID& asset_id);
 	LLInventoryItem*	getWearableInventoryItem(LLWearableType::EType type, U32 index /*= 0*/);
-	// MULTI-WEARABLE: assuming one per type.
 	static BOOL			selfHasWearable(LLWearableType::EType type);
 	LLWearable*			getWearable(const LLWearableType::EType type, U32 index /*= 0*/); 
 	const LLWearable* 	getWearable(const LLWearableType::EType type, U32 index /*= 0*/) const;
@@ -128,7 +126,7 @@ protected:
 												LLWearable* wearable, 
 												const LLUUID& category_id = LLUUID::null,
 												BOOL notify = TRUE);
-	void 			addWearabletoAgentInventoryDone(const S32 type,
+	void 			addWearabletoAgentInventoryDone(const LLWearableType::EType type,
 													const U32 index,
 													const LLUUID& item_id,
 													LLWearable* wearable);
@@ -163,15 +161,6 @@ protected:
 	// Outfits
 	//--------------------------------------------------------------------
 public:
-	void 			getAllWearablesArray(LLDynamicArray<S32>& wearables);
-	
-	// Note:	wearables_to_include should be a list of LLWearableType::EType types
-	//			attachments_to_include should be a list of attachment points
-	void			makeNewOutfit(const std::string& new_folder_name,
-								  const LLDynamicArray<S32>& wearables_to_include,
-								  const LLDynamicArray<S32>& attachments_to_include,
-								  BOOL rename_clothing);
-
 	
 	// Should only be called if we *know* we've never done so before, since users may
 	// not want the Library outfits to stay in their quick outfit selector and can delete them.
@@ -184,7 +173,6 @@ private:
 	// Save Wearables
 	//--------------------------------------------------------------------
 public:	
-    // MULTI-WEARABLE: assumes one per type.
 	void			saveWearableAs(const LLWearableType::EType type, const U32 index, const std::string& new_name, BOOL save_in_lost_and_found);
 	void			saveWearable(const LLWearableType::EType type, const U32 index, BOOL send_update = TRUE);
 	void			saveAllWearables();
@@ -249,7 +237,7 @@ private:
 	class addWearableToAgentInventoryCallback : public LLInventoryCallback
 	{
 	public:
-		enum EType
+		enum ETodo
 		{
 			CALL_NONE = 0,
 			CALL_UPDATE = 1,
@@ -259,16 +247,14 @@ private:
 			CALL_WEARITEM = 16
 		};
 
-		// MULTI-WEARABLE: index is an LLWearableType::EType - more confusing usage.
-		// MULTI-WEARABLE: need to have type and index args both?
 		addWearableToAgentInventoryCallback(LLPointer<LLRefCount> cb,
-											S32 type,
+											LLWearableType::EType type,
 											U32 index,
 											LLWearable* wearable,
 											U32 todo = CALL_NONE);
 		virtual void fire(const LLUUID& inv_item);
 	private:
-		S32 mType;
+		LLWearableType::EType mType;
 		U32 mIndex;
 		LLWearable* mWearable;
 		U32 mTodo;

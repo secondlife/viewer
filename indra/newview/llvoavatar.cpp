@@ -4836,7 +4836,7 @@ BOOL LLVOAvatar::loadAvatar()
 	}
 
 	// Uncomment to enable avatar_lad.xml debugging. 
-/*	std::ofstream file;
+	std::ofstream file;
 	file.open("avatar_lad.log");
 	for( LLViewerVisualParam* param = (LLViewerVisualParam*) getFirstVisualParam(); 
 	param;
@@ -4846,7 +4846,7 @@ BOOL LLVOAvatar::loadAvatar()
 		file << std::endl;
 	}
 
-	file.close();*/
+	file.close();
 	
 	return TRUE;
 }
@@ -6197,6 +6197,14 @@ BOOL LLVOAvatar::teToColorParams( ETextureIndex te, U32 *param_name )
 			param_name[1] = 922; //"skirt_green";
 			param_name[2] = 923; //"skirt_blue";
 			break;
+
+		case TEX_HEAD_TATTOO:
+		case TEX_LOWER_TATTOO:
+		case TEX_UPPER_TATTOO:
+			param_name[0] = 1071; //"tattoo_red";
+			param_name[1] = 1072; //"tattoo_green";
+			param_name[2] = 1073; //"tattoo_blue";
+			break;	
 
 		default:
 			llassert(0);

@@ -260,8 +260,6 @@ private:
 	S32				mFullyLoadedFrameCounter;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
-	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
-	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.
 	
 /**                    State
  **                                                                            **
@@ -894,6 +892,9 @@ private:
  **                    DIAGNOSTICS
  **/
 	
+	//--------------------------------------------------------------------
+	// General
+	//--------------------------------------------------------------------
 public:
 	static void			dumpArchetypeXML(void*);
 	static void			dumpBakedStatus();
@@ -912,6 +913,14 @@ private:
 	F32					mMaxPixelArea;
 	F32					mAdjustedPixelArea;
 	std::string  		mDebugText;
+
+
+	//--------------------------------------------------------------------
+	// Avatar Rez Metrics
+	//--------------------------------------------------------------------
+protected:
+	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
+	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.
 
 /**                    Diagnostics
  **                                                                            **
