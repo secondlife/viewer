@@ -7588,15 +7588,6 @@ class LLWorldToggleCameraControls : public view_listener_t
 	}
 };
 
-// IDEVO JAMESDEBUG temp code for testing
-void toggle_display_names()
-{
-	bool use = LLAvatarNameCache::useDisplayNames();
-	LLAvatarNameCache::setUseDisplayNames(!use);
-
-	LLVOAvatar::invalidateNameTags();
-}
-
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
 	static LLMenuGL*	show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
