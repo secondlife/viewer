@@ -79,6 +79,7 @@ private:
 protected:
 	void 						onInfoButtonClicked();
 	void 						onShareButtonClicked();
+	void 						onShopButtonClicked();
 	void 						onWearButtonClicked();
 	void 						onPlayButtonClicked();
 	void 						onTeleportButtonClicked();
