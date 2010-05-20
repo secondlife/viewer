@@ -532,7 +532,7 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential,
 	    std::string login_id = firstname;
 	    if (!lastname.empty() && lastname != "Resident")
 	    {
-		    // support traditional First Last name slurls
+		    // support traditional First Last name SLURLs
 		    login_id += " ";
 		    login_id += lastname;
 	    }
