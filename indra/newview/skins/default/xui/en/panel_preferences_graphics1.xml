@@ -381,7 +381,7 @@
     max_val="65"
     min_val="1"
     name="MaxAvatarDrawDistance"
-    top_pad="7"
+    top_pad="4"
     width="290" />
     <text
     type="string"
@@ -550,7 +550,7 @@
         layout="topleft"
         left="469"
         name="PostProcessText"
-        top="325"
+        top="60"
         width="128">
            Low
         </text>
@@ -672,7 +672,7 @@
         layout="topleft"
         left_pad="-30"
         name="TerrainDetailText"
-        top="497"
+        top="226"
         width="155">
            Terrain detail:
         </text>
