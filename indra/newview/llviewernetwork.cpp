@@ -257,7 +257,11 @@ void LLGridManager::initialize(const std::string& grid_file)
 	// load a grid from the command line.
 	// if the actual grid name is specified from the command line,
 	// set it as the 'selected' grid.
-	mGrid = gSavedSettings.getString("CmdLineGridChoice");
+	std::string cmd_line_grid = gSavedSettings.getString("CmdLineGridChoice");
+	if(!cmd_line_grid.empty())
+	{
+		mGrid = getGridByLabel(cmd_line_grid);
+	}
 	LL_INFOS("GridManager") << "Grid Name: " << mGrid << LL_ENDL;		
 	
 	// If a command line login URI was passed in, so we should add the command

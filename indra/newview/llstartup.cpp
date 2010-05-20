@@ -3041,7 +3041,7 @@ bool process_login_success_response()
 	// Default male and female avatars allowing the user to choose their avatar on first login.
 	// These may be passed up by SLE to allow choice of enterprise avatars instead of the standard
 	// "new ruth."  Not to be confused with 'initial-outfit' below 
-	LLSD newuser_config = response["newuser-config"];
+	LLSD newuser_config = response["newuser-config"][0];
 	if(newuser_config.has("DefaultFemaleAvatar"))
 	{
 		gSavedSettings.setString("DefaultFemaleAvatar", newuser_config["DefaultFemaleAvatar"].asString()); 		
