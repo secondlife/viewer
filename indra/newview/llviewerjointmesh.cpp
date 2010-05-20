@@ -827,9 +827,9 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 	//F32 last_weight = F32_MAX;
 	LLMatrix4a gBlendMat;
 
-	__restrict const F32* weights = mMesh->getWeights();
-	__restrict const LLVector4* coords = mMesh->getCoords();
-	__restrict const LLVector4* normals = mMesh->getNormals();
+	const F32* __restrict weights = mMesh->getWeights();
+	const LLVector4a* __restrict coords = (LLVector4a*) mMesh->getCoords();
+	const LLVector4a* __restrict normals = (LLVector4a*) mMesh->getNormals();
 
 	for (U32 index = 0; index < mMesh->getNumVertices(); index++)
 	{
@@ -838,54 +838,37 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 		// blend by first matrix
 		F32 w = weights[index]; 
 		
-		LLVector4a coord;
-		coord.load4a(coords[index].mV);
+		//LLVector4a coord;
+		//coord.load4a(coords[index].mV);
 
-		LLVector4a norm;
-		norm.load4a(normals[index].mV);
+		//LLVector4a norm;
+		//norm.load4a(normals[index].mV);
 
-		// Maybe we don't have to change gBlendMat.
-		// Profiles of a single-avatar scene on a Mac show this to be a very
-		// common case.  JC
-		//if (w != last_weight)
-		{
-			//last_weight = w;
-
-			S32 joint = llfloor(w);
-			w -= joint;
+		S32 joint = llfloor(w);
+		w -= joint;
 				
-			
-			if (w >= 0.f)
-			{
-				// Try to keep all the accesses to the matrix data as close
-				// together as possible.  This function is a hot spot on the
-				// Mac. JC
-				gBlendMat.setLerp(gJointMatAligned[joint+0],
-								  gJointMatAligned[joint+1], w);
+		if (w > 0.f)
+		{
+			// Try to keep all the accesses to the matrix data as close
+			// together as possible.  This function is a hot spot on the
+			// Mac. JC
+			gBlendMat.setLerp(gJointMatAligned[joint+0],
+							  gJointMatAligned[joint+1], w);
 
-				LLVector4a res;
-				gBlendMat.affineTransform(coord, res);
-				o_vertices[bidx].setVec(res[0], res[1], res[2]);
-				gBlendMat.rotate(norm, res);
-				o_normals[bidx].setVec(res[0], res[1], res[2]);
-			}
-			else
-			{  // No lerp required in this case.
-				LLVector4a res;
-				gJointMatAligned[joint].affineTransform(coord, res);
-				o_vertices[bidx].setVec(res[0], res[1], res[2]);
-				gJointMatAligned[joint].rotate(norm, res);
-				o_normals[bidx].setVec(res[0], res[1], res[2]);
-			}
-		}
-		/*else
-		{ //weight didn't change
 			LLVector4a res;
-			gBlendMat.affineTransform(coord, res);
+			gBlendMat.affineTransform(coords[index], res);
 			o_vertices[bidx].setVec(res[0], res[1], res[2]);
-			gBlendMat.rotate(norm, res);
+			gBlendMat.rotate(normals[index], res);
 			o_normals[bidx].setVec(res[0], res[1], res[2]);
-		}*/
+		}
+		else
+		{  // No lerp required in this case.
+			LLVector4a res;
+			gJointMatAligned[joint].affineTransform(coords[index], res);
+			o_vertices[bidx].setVec(res[0], res[1], res[2]);
+			gJointMatAligned[joint].rotate(normals[index], res);
+			o_normals[bidx].setVec(res[0], res[1], res[2]);
+		}
 	}
 
 	buffer->setBuffer(0);
