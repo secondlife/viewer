@@ -210,7 +210,8 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
 	mCOFObserver(NULL),
-	mCOFDragAndDropObserver(NULL)
+	mCOFDragAndDropObserver(NULL),
+	mInitialized(false)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -305,6 +306,16 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearableListManager = new LLFilteredWearableListManager(mWearableItemsList, ALL_ITEMS_MASK);
 
 	return TRUE;
+}
+
+// virtual
+void LLPanelOutfitEdit::onOpen(const LLSD& key)
+{
+	if (!mInitialized)
+	{
+		displayCurrentOutfit();
+		mInitialized = true;
+	}
 }
 
 void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
@@ -446,13 +457,25 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitEdit::onAddToOutfitClicked(void)
 {
-	LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
-	if (!curr_item) return;
+	LLUUID selected_id;
+	if (mInventoryItemsPanel->getVisible())
+	{
+		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
+		if (!curr_item) return;
 
-	LLFolderViewEventListener* listenerp  = curr_item->getListener();
-	if (!listenerp) return;
+		LLFolderViewEventListener* listenerp  = curr_item->getListener();
+		if (!listenerp) return;
 
-	LLAppearanceMgr::getInstance()->wearItemOnAvatar(listenerp->getUUID());
+		selected_id = listenerp->getUUID();
+	}
+	else if (mWearableItemsPanel->getVisible())
+	{
+		selected_id = mWearableItemsList->getSelectedUUID();
+	}
+
+	if (selected_id.isNull()) return;
+
+	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id);
 }
 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  bg_alpha_image_overlay="DkGray_66"
- legacy_header_height="18"
+ legacy_header_height="0"
  can_minimize="true" 
  can_resize="true"
  follows="top|right"
@@ -10,7 +10,7 @@
  min_height="174"
  min_width="174"
  name="Map"
- title="Mini Map"
+ title=""
  help_topic="map"
  save_rect="true"
  save_visibility="true"
@@ -62,8 +62,8 @@
      mouse_opaque="false"
      name="Net Map"
      width="200"
-     height="200"
-     top="18"/>
+     height="218"
+     top="0"/>
     <text
      type="string"
      length="1"

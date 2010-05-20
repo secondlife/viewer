@@ -39,8 +39,8 @@
 #include "lliconctrl.h"
 #include "llmenugl.h"
 #include "lltextbox.h"
+#include "lltextutil.h"
 #include "lltrans.h"
-#include "lluitextutil.h"
 
 // newview
 #include "llagent.h"

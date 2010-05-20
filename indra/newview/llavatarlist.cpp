@@ -32,19 +32,21 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llavatarlist.h"
+
 // common
 #include "lltrans.h"
 #include "llcommonutils.h"
 
-#include "llavatarlist.h"
-#include "llagentdata.h" // for comparator
+// llui
+#include "lltextutil.h"
 
 // newview
+#include "llagentdata.h" // for comparator
 #include "llavatariconctrl.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
 #include "llrecentpeople.h"
-#include "lltextutil.h"
 #include "lluuid.h"
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"	// for gSavedSettings

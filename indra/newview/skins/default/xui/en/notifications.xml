@@ -6118,20 +6118,35 @@ The button will be shown when there is enough space for it.
    type="notifytip">
 Drag items from inventory onto a person in the resident picker
   </notification>
+  <notification
+   icon="notifytip.tga"
+   name="DeedToGroupFail"
+   type="notifytip">
+Deed to group failed.
+  </notification>
 
   <notification
    icon="notifytip.tga"
    name="AvatarRezNotification"
    type="notifytip">
-( [EXISTENCE] seconds )
-Avatar '[NAME]' rezzed in [TIME] seconds.
+( [EXISTENCE] seconds alive )
+Avatar '[NAME]' declouded in [TIME] seconds.
   </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You finished baking your outfit in [TIME] seconds.
+  </notification>
+
 
   <notification
    icon="notifytip.tga"
    name="AvatarRezCloudNotification"
    type="notifytip">
-( [EXISTENCE] seconds )
+( [EXISTENCE] seconds alive )
 Avatar '[NAME]' became cloud.
   </notification>
 
@@ -6139,7 +6154,7 @@ Avatar '[NAME]' became cloud.
    icon="notifytip.tga"
    name="AvatarRezArrivedNotification"
    type="notifytip">
-( [EXISTENCE] seconds )
+( [EXISTENCE] seconds alive )
 Avatar '[NAME]' appeared.
   </notification>
 
@@ -6147,7 +6162,7 @@ Avatar '[NAME]' appeared.
    icon="notifytip.tga"
    name="AvatarRezLeftCloudNotification"
    type="notifytip">
-( [EXISTENCE] seconds )
+( [EXISTENCE] seconds alive )
 Avatar '[NAME]' left after [TIME] seconds as cloud.
   </notification>
 
@@ -6155,7 +6170,7 @@ Avatar '[NAME]' left after [TIME] seconds as cloud.
    icon="notifytip.tga"
    name="AvatarRezEnteredAppearanceNotification"
    type="notifytip">
-( [EXISTENCE] seconds )
+( [EXISTENCE] seconds alive )
 Avatar '[NAME]' entered appearance mode.
   </notification>
 
@@ -6163,7 +6178,7 @@ Avatar '[NAME]' entered appearance mode.
    icon="notifytip.tga"
    name="AvatarRezLeftAppearanceNotification"
    type="notifytip">
-( [EXISTENCE] seconds )
+( [EXISTENCE] seconds alive )
 Avatar '[NAME]' left appearance mode.
   </notification>
 
@@ -6171,7 +6186,7 @@ Avatar '[NAME]' left appearance mode.
    icon="notifytip.tga"
    name="AvatarRezLeftNotification"
    type="notifytip">
-( [EXISTENCE] seconds )
+( [EXISTENCE] seconds alive )
 Avatar '[NAME]' left as fully loaded.
   </notification>
 

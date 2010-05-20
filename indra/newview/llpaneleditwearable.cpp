@@ -50,6 +50,7 @@
 #include "llaccordionctrltab.h"
 #include "llagentwearables.h"
 #include "llscrollingpanelparam.h"
+#include "llradiogroup.h"
 
 #include "llcolorswatch.h"
 #include "lltexturectrl.h"
@@ -226,7 +227,7 @@ LLEditWearableDictionary::Wearables::Wearables()
 	addEntry(LLWearableType::WT_UNDERPANTS, new WearableEntry(LLWearableType::WT_UNDERPANTS,"edit_underpants_title","underpants_desc_text",1,1,1, TEX_LOWER_UNDERPANTS, TEX_LOWER_UNDERPANTS, SUBPART_UNDERPANTS));
 	addEntry(LLWearableType::WT_SKIRT, 		new WearableEntry(LLWearableType::WT_SKIRT,"edit_skirt_title","skirt_desc_text",1,1,1, TEX_SKIRT, TEX_SKIRT, SUBPART_SKIRT));
 	addEntry(LLWearableType::WT_ALPHA, 		new WearableEntry(LLWearableType::WT_ALPHA,"edit_alpha_title","alpha_desc_text",0,5,1, TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA, SUBPART_ALPHA));
-	addEntry(LLWearableType::WT_TATTOO, 	new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text",0,3,1, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
+	addEntry(LLWearableType::WT_TATTOO, 	new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text",1,3,1, TEX_HEAD_TATTOO, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
 }
 
 LLEditWearableDictionary::WearableEntry::WearableEntry(LLWearableType::EType type,
@@ -330,6 +331,7 @@ LLEditWearableDictionary::ColorSwatchCtrls::ColorSwatchCtrls()
 	addEntry ( TEX_UPPER_GLOVES, new PickerControlEntry (TEX_UPPER_GLOVES, "Color/Tint" ));
 	addEntry ( TEX_UPPER_UNDERSHIRT, new PickerControlEntry (TEX_UPPER_UNDERSHIRT, "Color/Tint" ));
 	addEntry ( TEX_LOWER_UNDERPANTS, new PickerControlEntry (TEX_LOWER_UNDERPANTS, "Color/Tint" ));
+	addEntry ( TEX_HEAD_TATTOO, new PickerControlEntry(TEX_HEAD_TATTOO, "Color/Tint" ));
 }
 
 LLEditWearableDictionary::TextureCtrls::TextureCtrls()
@@ -615,6 +617,8 @@ BOOL LLPanelEditWearable::postBuild()
 	mPanelTitle = getChild<LLTextBox>("edit_wearable_title");
 	mDescTitle = getChild<LLTextBox>("description_text");
 
+	getChild<LLRadioGroup>("sex_radio")->setCommitCallback(boost::bind(&LLPanelEditWearable::onCommitSexChange, this));
+
 	// The following panels will be shown/hidden based on what wearable we're editing
 	// body parts
 	mPanelShape = getChild<LLPanel>("edit_shape_panel");
@@ -685,6 +689,40 @@ void LLPanelEditWearable::onRevertButtonClicked(void* userdata)
 {
 	LLPanelEditWearable *panel = (LLPanelEditWearable*) userdata;
 	panel->revertChanges();
+}
+
+
+void LLPanelEditWearable::onCommitSexChange()
+{
+	if (!isAgentAvatarValid()) return;
+
+	LLWearableType::EType type = mWearablePtr->getType();
+	U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
+
+	if( !gAgentWearables.isWearableModifiable(type, index))
+	{
+		return;
+	}
+
+	LLViewerVisualParam* param = static_cast<LLViewerVisualParam*>(gAgentAvatarp->getVisualParam( "male" ));
+	if( !param )
+	{
+		return;
+	}
+
+	bool is_new_sex_male = (gSavedSettings.getU32("AvatarSex") ? SEX_MALE : SEX_FEMALE) == SEX_MALE;
+	LLWearable*	wearable = gAgentWearables.getWearable(type, index);
+	if (wearable)
+	{
+		wearable->setVisualParamWeight(param->getID(), is_new_sex_male, FALSE);
+	}
+	param->setWeight( is_new_sex_male, FALSE );
+
+	gAgentAvatarp->updateSexDependentLayerSets( FALSE );
+
+	gAgentAvatarp->updateVisualParams();
+
+	updateScrollingPanelUI();
 }
 
 void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
@@ -1118,6 +1156,14 @@ void LLPanelEditWearable::updateVerbs()
 
 	mBtnRevert->setEnabled(is_dirty);
 	childSetEnabled("save_as_button", is_dirty && can_copy);
+
+	if(isAgentAvatarValid())
+	{
+		// Update viewer's radio buttons (of RadioGroup with control_name="AvatarSex") of Avatar's gender
+		// with value from "AvatarSex" setting
+		gSavedSettings.setU32("AvatarSex", (gAgentAvatarp->getSex() == SEX_MALE) );
+	}
+
 }
 
 // EOF

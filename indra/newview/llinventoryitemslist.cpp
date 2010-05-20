@@ -42,7 +42,7 @@
 
 // llui
 #include "lliconctrl.h"
-#include "lluitextutil.h"
+#include "lltextutil.h"
 
 #include "llcallbacklist.h"
 #include "llinventoryfunctions.h"

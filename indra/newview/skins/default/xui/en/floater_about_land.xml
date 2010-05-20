@@ -108,6 +108,9 @@
              name="no_selection_text">
                 No parcel selected.
             </panel.string>
+            <panel.string name="time_stamp_template">
+				[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+			</panel.string>
             <text
              type="string"
              length="1"

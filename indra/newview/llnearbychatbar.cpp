@@ -69,6 +69,25 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 	{ "/shout"	, CHAT_TYPE_SHOUT}
 };
 
+//ext-7367
+//Problem: gesture list control (actually LLScrollListCtrl) didn't actually process mouse wheel message. 
+// introduce new gesture list subclass to "eat" mouse wheel messages (and probably some other messages)
+class LLGestureScrollListCtrl: public LLScrollListCtrl
+{
+protected:
+	friend class LLUICtrlFactory;
+	LLGestureScrollListCtrl(const LLScrollListCtrl::Params& params)
+		:LLScrollListCtrl(params)
+	{
+	}
+public:
+	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks)
+	{
+		LLScrollListCtrl::handleScrollWheel( x, y, clicks );
+		return TRUE;
+	}
+};
+
 LLGestureComboList::Params::Params()
 :	combo_button("combo_button"),
 	combo_list("combo_list")
@@ -90,13 +109,14 @@ LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
 
 	addChild(mButton);
 
-	LLScrollListCtrl::Params params = p.combo_list;
+	LLGestureScrollListCtrl::Params params(p.combo_list);
+	
 	params.name("GestureComboList");
 	params.commit_callback.function(boost::bind(&LLGestureComboList::onItemSelected, this, _2));
 	params.visible(false);
 	params.commit_on_keyboard_movement(false);
 
-	mList = LLUICtrlFactory::create<LLScrollListCtrl>(params);
+	mList = LLUICtrlFactory::create<LLGestureScrollListCtrl>(params);
 	addChild(mList);
 
 	//****************************Gesture Part********************************/

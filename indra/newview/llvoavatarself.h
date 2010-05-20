@@ -126,25 +126,14 @@ public:
 	/*virtual*/ BOOL    getIsCloud();
 	void bakedTextureUpload(LLVOAvatarDefines::EBakedTextureIndex index, BOOL finished);
 	static void		onTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
-	void wearablesLoaded() { mTimeWearablesLoaded = mSelfLoadTimer.getElapsedTimeF32(); }
-	void avatarVisible() { mTimeAvatarVisible = mSelfLoadTimer.getElapsedTimeF32(); }
-
-private:
 
 	//--------------------------------------------------------------------
 	// Region state
 	//--------------------------------------------------------------------
+private:
 	U64				mLastRegionHandle;
 	LLFrameTimer	mRegionCrossingTimer;
 	S32				mRegionCrossingCount;
-	LLFrameTimer    mSelfLoadTimer;
-	F32				mTimeWearablesLoaded;
-	F32 			mTimeAvatarVisible;
-	F32 			mTextureLoadTimes[LLVOAvatarDefines::TEX_NUM_INDICES][MAX_DISCARD_LEVEL+1]; // stores load time for each texture,
-																		  // at each discard level
-	F32 			mBakedTextureTimes[LLVOAvatarDefines::BAKED_NUM_INDICES][2]; // stores time to start upload and finish upload of each baked texture
-
-	void		timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	
 /**                    State
  **                                                                            **
@@ -201,8 +190,6 @@ public:
 	LLViewerFetchedTexture*	getLocalTextureGL(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	const LLUUID&		getLocalTextureID(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	void				setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index);
-	const LLUUID&		grabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
-	BOOL				canGrabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	/*virtual*/ void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index);
 protected:
 	/*virtual*/ void	setBakedReady(LLVOAvatarDefines::ETextureIndex type, BOOL baked_version_exists, U32 index);
@@ -251,6 +238,10 @@ public:
 	/* virtual */ bool 	isCompositeUpdateEnabled(U32 index);
 	void				setupComposites();
 	void				updateComposites();
+
+	const LLUUID&		grabBakedTexture(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
+	BOOL				canGrabBakedTexture(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
+
 
 	//--------------------------------------------------------------------
 	// Scratch textures (used for compositing)
@@ -336,24 +327,41 @@ public:
  **                    DIAGNOSTICS
  **/
 
+	//--------------------------------------------------------------------
+	// General
+	//--------------------------------------------------------------------
 public:	
 	static void		dumpTotalLocalTextureByteCount();
 	void			dumpLocalTextures() const;
 	static void		dumpScratchTextureByteCount();
 
+	//--------------------------------------------------------------------
+	// Avatar Rez Metrics
+	//--------------------------------------------------------------------
+public:	
+	struct LLAvatarTexData
+	{
+		LLAvatarTexData(const LLUUID& id, LLVOAvatarDefines::ETextureIndex index) : 
+			mAvatarID(id), 
+			mIndex(index) 
+		{}
+		LLUUID			mAvatarID;
+		LLVOAvatarDefines::ETextureIndex	mIndex;
+	};
+	void wearablesLoaded() { mTimeWearablesLoaded = mDebugSelfLoadTimer.getElapsedTimeF32(); }
+	void avatarVisible() { mTimeAvatarVisible = mDebugSelfLoadTimer.getElapsedTimeF32(); }
+	void outputRezDiagnostics() const;
+private:
+	LLFrameTimer    mDebugSelfLoadTimer;
+	F32				mTimeWearablesLoaded;
+	F32 			mTimeAvatarVisible;
+	F32 			mTextureLoadTimes[LLVOAvatarDefines::TEX_NUM_INDICES][MAX_DISCARD_LEVEL+1]; // load time for each texture at each discard level
+	F32 			mBakedTextureTimes[LLVOAvatarDefines::BAKED_NUM_INDICES][2]; // time to start upload and finish upload of each baked texture
+	void			timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+
 /**                    Diagnostics
  **                                                                            **
  *******************************************************************************/
-
-struct LLAvatarTexData
-{
-	LLAvatarTexData(const LLUUID& id, LLVOAvatarDefines::ETextureIndex index) : 
-		mAvatarID(id), 
-		mIndex(index) 
-	{}
-	LLUUID			mAvatarID;
-	LLVOAvatarDefines::ETextureIndex	mIndex;
-};
 
 };
 

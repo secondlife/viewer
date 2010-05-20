@@ -49,18 +49,6 @@ const LLSD REARRANGE = LLSD().with("rearrange", LLSD());
 static const LLWearableItemNameComparator WEARABLE_NAME_COMPARATOR;
 
 
-bool LLWearableItemNameComparator::doCompare(const LLPanelWearableListItem* wearable_item1, const LLPanelWearableListItem* wearable_item2) const
-{
-	std::string name1 = wearable_item1->getItemName();
-	std::string name2 = wearable_item2->getItemName();
-
-	LLStringUtil::toUpper(name1);
-	LLStringUtil::toUpper(name2);
-
-	return name1 < name2;
-}
-
-
 LLCOFWearables::LLCOFWearables() : LLPanel(),
 	mAttachments(NULL),
 	mClothing(NULL),
