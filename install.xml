@@ -595,17 +595,10 @@
         <map>
           <key>darwin</key>
           <map>
-            <key>i386</key>
-            <map>
-              <key>md5sum</key>
-              <string>84139a373314b85e0c27e13a5263dcc6</string>
-              <key>url</key>
-              <uri> http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20100519.tar.bz2</uri>
-            </map>
             <key>md5sum</key>
-            <string>c7b20b28a256a74fb646bd2ddbc3ec32</string>
+            <string>46536b8a3311e71691ba045b8572c9eb</string>
             <key>url</key>
-            <uri> http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20100519a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20100521a.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
