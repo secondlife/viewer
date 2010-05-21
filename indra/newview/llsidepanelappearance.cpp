@@ -47,6 +47,7 @@
 #include "llsidetray.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
+#include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llwearable.h"
@@ -267,14 +268,14 @@ void LLSidepanelAppearance::showOutfitsInventoryPanel()
 void LLSidepanelAppearance::showOutfitEditPanel()
 {
 	togglMyOutfitsPanel(FALSE);
-	toggleWearableEditPanel(FALSE);
+	toggleWearableEditPanel(FALSE, NULL, TRUE); // don't switch out of edit appearance mode
 	toggleOutfitEditPanel(TRUE);
 }
 
 void LLSidepanelAppearance::showWearableEditPanel(LLWearable *wearable /* = NULL*/)
 {
 	togglMyOutfitsPanel(FALSE);
-	toggleOutfitEditPanel(FALSE);
+	toggleOutfitEditPanel(FALSE, TRUE); // don't switch out of edit appearance mode
 	toggleWearableEditPanel(TRUE, wearable);
 }
 
@@ -300,7 +301,7 @@ void LLSidepanelAppearance::togglMyOutfitsPanel(BOOL visible)
 	}
 }
 
-void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible)
+void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch)
 {
 	if (!mOutfitEdit || mOutfitEdit->getVisible() == visible)
 	{
@@ -313,10 +314,18 @@ void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible)
 	if (visible)
 	{
 		mOutfitEdit->onOpen(LLSD());
+		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+		{
+			gAgentCamera.changeCameraToCustomizeAvatar();
+		}
+	}
+	else if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+	{
+		gAgentCamera.changeCameraToDefault();
 	}
 }
 
-void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *wearable)
+void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *wearable, BOOL disable_camera_switch)
 {
 	if (!mEditWearable || mEditWearable->getVisible() == visible)
 	{
@@ -340,11 +349,19 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 	if (visible)
 	{
 		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
+		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+		{
+			gAgentCamera.changeCameraToCustomizeAvatar();
+		}
 	}
 	else
 	{
 		// Save changes if closing.
 		mEditWearable->saveChanges();
+		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+		{
+			gAgentCamera.changeCameraToDefault();
+		}
 	}
 }
 
