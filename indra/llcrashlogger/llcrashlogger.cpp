@@ -274,6 +274,27 @@ void LLCrashLogger::gatherFiles()
 
 		mCrashInfo[(*itr).first] = rawstr_to_utf8(crash_info);
 	}
+	
+	// Add minidump as binary.
+	std::string minidump_path = mDebugLog["MinidumpPath"];
+	if(minidump_path != "")
+	{
+		std::ifstream minidump_stream(minidump_path.c_str(), std::ios_base::in | std::ios_base::binary);
+		if(minidump_stream.is_open())
+		{
+			minidump_stream.seekg(0, std::ios::end);
+			size_t length = minidump_stream.tellg();
+			minidump_stream.seekg(0, std::ios::beg);
+			
+			LLSD::Binary data;
+			data.resize(length);
+			
+			minidump_stream.read(reinterpret_cast<char *>(&(data[0])),length);
+			minidump_stream.close();
+			
+			mCrashInfo["Minidump"] = data;
+		}
+	}
 }
 
 LLSD LLCrashLogger::constructPostData()

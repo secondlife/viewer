@@ -56,6 +56,11 @@ BOOL ConsoleCtrlHandler(DWORD fdwCtrlType);
 # include <unistd.h> // for fork()
 void setup_signals();
 void default_unix_signal_handler(int signum, siginfo_t *info, void *);
+
+// Called by breakpad exception handler after the minidump has been generated.
+bool darwin_post_minidump_callback(const char *dump_dir,
+					  const char *minidump_id,
+					  void *context, bool succeeded);
 # if LL_DARWIN
 /* OSX doesn't support SIGRT* */
 S32 LL_SMACKDOWN_SIGNAL = SIGUSR1;
@@ -123,7 +128,10 @@ void LLApp::commonCtor()
 
 	// Set the application to this instance.
 	sApplication = this;
-
+	
+	mExceptionHandler = 0;
+	
+	memset(minidump_path, 0, MAX_MINDUMP_PATH_LENGTH);
 }
 
 LLApp::LLApp(LLErrorThread *error_thread) :
@@ -152,6 +160,8 @@ LLApp::~LLApp()
 		delete mThreadErrorp;
 		mThreadErrorp = NULL;
 	}
+	
+	if(mExceptionHandler != 0) delete mExceptionHandler;
 
 	LLCommon::cleanupClass();
 }
@@ -285,6 +295,15 @@ void LLApp::setupErrorHandling()
 
 	setup_signals();
 
+	
+#ifdef LL_DARWIN
+	// Add google breakpad exception handler configured for Darwin.
+	if(mExceptionHandler == 0)
+	{
+		std::string dumpPath = "/tmp/";
+		mExceptionHandler = new google_breakpad::ExceptionHandler(dumpPath, 0, &darwin_post_minidump_callback, 0, true);
+	}
+#endif
 #endif
 
 	startErrorThread();
@@ -587,6 +606,7 @@ void setup_signals()
 
 	// Asynchronous signals that result in core
 	sigaction(SIGQUIT, &act, NULL);
+	
 }
 
 void clear_signals()
@@ -766,3 +786,32 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 }
 
 #endif // !WINDOWS
+
+bool darwin_post_minidump_callback(const char *dump_dir,
+					  const char *minidump_id,
+					  void *context, bool succeeded)
+{
+	// Copy minidump file path into fixed buffer in the app instance to avoid
+	// heap allocations in a crash handler.
+	
+	// path format: <dump_dir>/<minidump_id>.dmp
+	int dirPathLength = strlen(dump_dir);
+	int idLength = strlen(minidump_id);
+	
+	// The path must not be truncated.
+	llassert((dirPathLength + idLength + 5) <= LLApp::MAX_MINDUMP_PATH_LENGTH);
+	
+	char * path = LLApp::instance()->minidump_path;
+	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
+	strncpy(path, dump_dir, remaining);
+	remaining -= dirPathLength;
+	path += dirPathLength;
+	strncpy(path, minidump_id, remaining);
+	remaining -= idLength;
+	path += idLength;
+	strncpy(path, ".dmp", remaining);
+	
+	llinfos << "generated minidump: " << LLApp::instance()->minidump_path << llendl;
+	LLApp::runErrorHandler();
+	return true;
+}

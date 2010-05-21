@@ -2587,6 +2587,8 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
 
+	if(pApp->minidump_path[0] != 0) gDebugInfo["MinidumpPath"] = pApp->minidump_path;
+	
 	if(gLogoutInProgress)
 	{
 		gDebugInfo["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;

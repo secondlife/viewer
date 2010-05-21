@@ -259,6 +259,7 @@ endif(LLCOMMON_LINK_SHARED)
 
 target_link_libraries(
     llcommon
+    exception_handler
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
