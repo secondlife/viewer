@@ -3092,7 +3092,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
   
   <!-- Financial operations strings -->
-  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
+  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
+  <string name="paid_you_ldollars_no_reason">[NAME] paid you L$[AMOUNT].</string>
   <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>
   <string name="you_paid_ldollars_no_info">You paid L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_reason">You paid [NAME] L$[AMOUNT].</string>
