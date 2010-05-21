@@ -1542,27 +1542,30 @@ LLVertexBufferAvatar::LLVertexBufferAvatar()
 
 void LLVertexBufferAvatar::setupVertexBuffer(U32 data_mask) const
 {
-/*	if (sRenderingSkinned)
+	if (sRenderingSkinned)
 	{
 		U8* base = useVBOs() ? NULL : mMappedData;
 
-		glVertexPointer(3,GL_FLOAT, mStride, (void*)(base + 0));
-		glNormalPointer(GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_NORMAL]));
-		glTexCoordPointer(2,GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+		glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_VERTEX], (void*)(base + 0));
+		glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
 		
-		set_vertex_weights(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT], mStride, (F32*)(base + mOffsets[TYPE_WEIGHT]));
+		set_vertex_weights(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_WEIGHT], 
+						LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_WEIGHT], (F32*)(base + mOffsets[TYPE_WEIGHT]));
 
 		if (sShaderLevel >= LLDrawPoolAvatar::SHADER_LEVEL_BUMP)
 		{
-			set_binormals(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::BINORMAL], mStride, (LLVector3*)(base + mOffsets[TYPE_BINORMAL]));
+			set_binormals(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::BINORMAL],
+				LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_BINORMAL], (LLVector3*)(base + mOffsets[TYPE_BINORMAL]));
 		}
 	
 		if (sShaderLevel >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH)
 		{
-			set_vertex_clothing_weights(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_CLOTHING], mStride, (LLVector4*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+			set_vertex_clothing_weights(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_CLOTHING], 
+				LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_CLOTHWEIGHT], (LLVector4*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
 		}
 	}
-	else*/
+	else
 	{
 		LLVertexBuffer::setupVertexBuffer(data_mask);
 	}

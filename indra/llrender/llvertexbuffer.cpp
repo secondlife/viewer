@@ -453,6 +453,7 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	mTypeMask = typemask;
 	mStride = stride;
 	mAlignedOffset = 0;
+	mAlignedIndexOffset = 0;
 
 	sCount++;
 }
@@ -642,16 +643,20 @@ void LLVertexBuffer::createGLIndices()
 
 	mEmpty = TRUE;
 
+	//pad by 16 bytes for aligned copies
+	size += 16;
+
 	if (useVBOs())
 	{
+		//pad by another 16 bytes for VBO pointer adjustment
+		size += 16;
 		mMappedIndexData = NULL;
 		genIndices();
 		mResized = TRUE;
 	}
 	else
 	{
-		mMappedIndexData = new U8[size];
-		memset(mMappedIndexData, 0, size);
+		mMappedIndexData = (U8*) _mm_malloc(size, 16);
 		static int gl_buffer_idx = 0;
 		mGLIndices = ++gl_buffer_idx;
 	}
@@ -699,7 +704,7 @@ void LLVertexBuffer::destroyGLIndices()
 		}
 		else
 		{
-			delete [] mMappedIndexData;
+			_mm_free(mMappedIndexData);
 			mMappedIndexData = NULL;
 			mEmpty = TRUE;
 		}
@@ -836,26 +841,10 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			}
 			else
 			{
-				//delete old buffer, keep GL buffer for now
 				if (!useVBOs())
 				{
-					U8* old = mMappedData;
-					mMappedData = new U8[newsize];
-					if (old)
-					{	
-						memcpy(mMappedData, old, llmin(newsize, oldsize));
-						if (newsize > oldsize)
-						{
-							memset(mMappedData+oldsize, 0, newsize-oldsize);
-						}
-
-						delete [] old;
-					}
-					else
-					{
-						memset(mMappedData, 0, newsize);
-						mEmpty = TRUE;
-					}
+					_mm_free(mMappedData);
+					mMappedData = (U8*) _mm_malloc(newsize, 16);
 				}
 				mResized = TRUE;
 			}
@@ -875,24 +864,8 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			{
 				if (!useVBOs())
 				{
-					//delete old buffer, keep GL buffer for now
-					U8* old = mMappedIndexData;
-					mMappedIndexData = new U8[new_index_size];
-					
-					if (old)
-					{	
-						memcpy(mMappedIndexData, old, llmin(new_index_size, old_index_size));
-						if (new_index_size > old_index_size)
-						{
-							memset(mMappedIndexData+old_index_size, 0, new_index_size - old_index_size);
-						}
-						delete [] old;
-					}
-					else
-					{
-						memset(mMappedIndexData, 0, new_index_size);
-						mEmpty = TRUE;
-					}
+					_mm_free(mMappedIndexData);
+					mMappedIndexData = (U8*) _mm_malloc(new_index_size, 16);
 				}
 				mResized = TRUE;
 			}
@@ -958,7 +931,10 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 		}
 		{
 			LLMemType mt_v(LLMemType::MTYPE_VERTEX_MAP_BUFFER_INDICES);
-			mMappedIndexData = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+			U8* src = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+			mMappedIndexData = LL_NEXT_ALIGNED_ADDRESS<U8>(src);
+			mAlignedIndexOffset = mMappedIndexData - src;
+
 			stop_glerror();
 		}
 

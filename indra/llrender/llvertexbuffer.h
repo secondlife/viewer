@@ -187,7 +187,7 @@ public:
 	S32 getRequestedVerts() const			{ return mRequestedNumVerts; }
 	S32 getRequestedIndices() const			{ return mRequestedNumIndices; }
 
-	U8* getIndicesPointer() const			{ return useVBOs() ? NULL : mMappedIndexData; }
+	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
 	U8* getVerticesPointer() const			{ return useVBOs() ? NULL : mMappedData; }
 	S32 getStride() const					{ return mStride; }
 	U32 getTypeMask() const					{ return mTypeMask; }
@@ -214,6 +214,7 @@ protected:
 	S32		mRequestedNumIndices;  // Number of indices requested
 
 	ptrdiff_t mAlignedOffset;
+	ptrdiff_t mAlignedIndexOffset;
 	S32		mStride;
 	U32		mTypeMask;
 	S32		mUsage;			// GL usage
