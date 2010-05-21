@@ -1304,7 +1304,7 @@ void LLTextureCtrl::draw()
 							 LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
 
 			v_offset += 12;
-			tdesc = llformat("  ID  : %s...", (mImageAssetID.asString().substr(0,10)).c_str());
+			tdesc = llformat("  ID  : %s...", (mImageAssetID.asString().substr(0,7)).c_str());
 			font->renderUTF8(tdesc, 0, llfloor(interior.mLeft+3), llfloor(interior.mTop-v_offset),
 							 LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
 		}
