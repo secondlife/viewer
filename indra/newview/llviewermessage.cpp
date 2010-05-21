@@ -55,8 +55,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llcallingcard.h"
-//#include "llfirstuse.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
@@ -283,7 +282,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 	{
 		LLStringUtil::format_map_t args;
 		args["AMOUNT"] = llformat("%d", amount);
-		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("giving", args), amount);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("giving", args), amount );
 	}
 }
 

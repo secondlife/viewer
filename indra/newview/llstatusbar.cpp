@@ -41,6 +41,7 @@
 #include "llcommandhandler.h"
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloaterlagmeter.h"
 #include "llpanelnearbymedia.h"
 #include "llpanelvolumepulldown.h"
@@ -509,7 +510,9 @@ S32 LLStatusBar::getSquareMetersLeft() const
 
 void LLStatusBar::onClickBuyCurrency()
 {
-	LLFloaterBuyCurrency::buyCurrency();
+	// open a currency floater - actual one open depends on 
+	// value specified in settings.xml
+	LLBuyCurrencyHTML::openCurrencyFloater();
 }
 
 static void onClickHealth(void* )
