@@ -1433,6 +1433,7 @@ LLViewerWindow::LLViewerWindow(
 
 	if (LLFeatureManager::getInstance()->isSafe()
 		|| (gSavedSettings.getS32("LastFeatureVersion") != LLFeatureManager::getInstance()->getVersion())
+		|| (gSavedSettings.getS32("LastGPUClass") != LLFeatureManager::getInstance()->getGPUClass())
 		|| (gSavedSettings.getBOOL("ProbeHardwareOnStartup")))
 	{
 		LLFeatureManager::getInstance()->applyRecommendedSettings();
