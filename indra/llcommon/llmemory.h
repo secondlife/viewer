@@ -32,14 +32,33 @@
 #ifndef LLMEMORY_H
 #define LLMEMORY_H
 
+#include <stdlib.h>
 
+inline void* ll_aligned_malloc(size_t size, size_t alignment = 16) // alignment MUST be power-of-two multiple of sizeof(void*).   returned hunk MUST be freed with ll_aligned_free().
+{
+#if defined(LL_WINDOWS)
+	return _mm_malloc(size, alignment);
+#else
+	void *rtn;
+	if (LL_LIKELY(0 == posix_memalign(&rtn, alignment, size)))
+	{
+		return rtn;
+	}
+	else // bad alignment requested, or out of memory
+	{
+		return NULL;
+	}
+#endif
+}
 
-extern S32 gTotalDAlloc;
-extern S32 gTotalDAUse;
-extern S32 gDACount;
-
-extern void* ll_allocate (size_t size);
-extern void ll_release (void *p);
+inline void ll_aligned_free(void *p)
+{
+#if defined(LL_WINDOWS)
+	_mm_free(p);
+#else
+	free(p); // posix_memalign() is compatible with heap deallocator
+#endif
+}
 
 class LL_COMMON_API LLMemory
 {

@@ -35,7 +35,8 @@
 //-----------------------------------------------------------------------------
 #include "llviewerprecompiledheaders.h"
 
-#include "llpolymesh.h"
+#include "llfasttimer.h"
+#include "llmemory.h"
 
 #include "llviewercontrol.h"
 #include "llxmltree.h"
@@ -45,7 +46,7 @@
 #include "llvolume.h"
 #include "llendianswizzle.h"
 
-#include "llfasttimer.h"
+#include "llpolymesh.h"
 
 #define HEADER_ASCII "Linden Mesh 1.0"
 #define HEADER_BINARY "Linden Binary Mesh 1.0"
@@ -715,7 +716,7 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 		int nfloats = nverts * (2*4 + 3*3 + 2 + 4);
 
 		//use aligned vertex data to make LLPolyMesh SSE friendly
-		mVertexData = (F32*) _mm_malloc(nfloats*4, 16);
+		mVertexData = (F32*) ll_aligned_malloc(nfloats*4, 16);
 		int offset = 0;
 		mCoords = 				(LLVector4*)(mVertexData + offset); offset += 4*nverts;
 		mNormals = 				(LLVector4*)(mVertexData + offset); offset += 4*nverts;
@@ -759,7 +760,7 @@ LLPolyMesh::~LLPolyMesh()
 	delete [] mClothingWeights;
 	delete [] mTexCoords;
 #else
-	_mm_free(mVertexData);
+	ll_aligned_free(mVertexData);
 #endif
 }
 
