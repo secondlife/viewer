@@ -198,13 +198,13 @@ o suddivisa.
 			<text name="resellable_lbl">
 				Rivendita:
 			</text>
-			<text left="125" name="resellable_clause">
+			<text name="resellable_clause">
 				La terra in questa regione non può essere rivenduta.
 			</text>
 			<text name="changeable_lbl">
 				Suddividi:
 			</text>
-			<text left="125" name="changeable_clause">
+			<text name="changeable_clause">
 				La terra in questa regione non può essere unita/suddivisa.
 			</text>
 		</panel>
@@ -340,7 +340,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<check_box label="Sicuro (senza danno)" name="check safe" tool_tip="Se spuntato, imposta il terreno su &apos;sicuro&apos;, disabilitando i danni da combattimento. Se non spuntato, viene abilitato il combattimento a morte."/>
 			<check_box label="Nessuna spinta" name="PushRestrictCheck" tool_tip="Previeni i colpi. Selezionare questa opzione può essere utile per prevenire comportamenti dannosi sul tuo terreno."/>
 			<check_box label="Mostra luogo nella ricerca (30 L$/settimana)" name="ShowDirectoryCheck" tool_tip="Lascia che questa terra sia vista dagli altri nei risultati di ricerca"/>
-			<combo_box left="282" name="land category with adult" width="140">
+			<combo_box name="land category with adult">
 				<combo_box.item label="Tutte le categorie" name="item0"/>
 				<combo_box.item label="Luogo dei Linden" name="item1"/>
 				<combo_box.item label="Adulti" name="item2"/>
@@ -355,7 +355,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				<combo_box.item label="Shopping" name="item11"/>
 				<combo_box.item label="Altro" name="item12"/>
 			</combo_box>
-			<combo_box left="282" name="land category" width="140">
+			<combo_box name="land category">
 				<combo_box.item label="Tutte le categorie" name="item0"/>
 				<combo_box.item label="Luogo dei Linden" name="item1"/>
 				<combo_box.item label="Arte &amp; Cultura" name="item3"/>

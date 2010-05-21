@@ -121,7 +121,10 @@ int secapiSSLCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
 	validation_params[CERT_HOSTNAME] = uri.hostName();
 	try
 	{
-		chain->validate(VALIDATION_POLICY_SSL, store, validation_params);
+		// we rely on libcurl to validate the hostname, as libcurl does more extensive validation
+		// leaving our hostname validation call mechanism for future additions with respect to
+		// OS native (Mac keyring, windows CAPI) validation.
+		chain->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), store, validation_params);
 	}
 	catch (LLCertValidationTrustException& cert_exception)
 	{

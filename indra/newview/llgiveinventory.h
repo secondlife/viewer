@@ -61,7 +61,7 @@ public:
 	/**
 	 * Gives passed inventory item to specified avatar in specified session.
 	 */
-	static void LLGiveInventory::doGiveInventoryItem(const LLUUID& to_agent,
+	static void doGiveInventoryItem(const LLUUID& to_agent,
 									const LLInventoryItem* item,
 									const LLUUID& im_session_id = LLUUID::null);
 
