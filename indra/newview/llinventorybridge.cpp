@@ -1017,11 +1017,7 @@ BOOL LLInvFVBridge::canShare() const
 	{
 		if (!LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item)) 
 			return FALSE;
-		if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
-			return FALSE;
-		if (!item->getPermissions().allowCopyBy(gAgent.getID()))
-			return FALSE;
-		return TRUE;
+		return (BOOL)LLGiveInventory::isInventoryGiveAcceptable(item);
 	}
 
 	// All categories can be given.
