@@ -198,13 +198,13 @@ o suddivisa.
 			<text name="resellable_lbl">
 				Rivendita:
 			</text>
-			<text left="125" name="resellable_clause">
+			<text name="resellable_clause">
 				La terra in questa regione non può essere rivenduta.
 			</text>
 			<text name="changeable_lbl">
 				Suddividi:
 			</text>
-			<text left="125" name="changeable_clause">
+			<text name="changeable_clause">
 				La terra in questa regione non può essere unita/suddivisa.
 			</text>
 		</panel>
