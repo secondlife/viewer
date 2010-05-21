@@ -38,7 +38,7 @@
 #include "llsd.h"
 #include "lloptioninterface.h"
 
-#include "exception_handler.h"
+#include "google_breakpad/exception_handler.h"
 
 // Forward declarations
 template <typename Type> class LLAtomic32;
