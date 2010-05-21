@@ -140,7 +140,7 @@ void LLPolyMeshSharedData::freeMeshData()
 		delete [] mDetailTexCoords;
 		mDetailTexCoords = NULL;
 
-		delete [] mWeights;
+		_mm_free(mWeights);
 		mWeights = NULL;
 	}
 
@@ -230,7 +230,7 @@ BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 	mBaseBinormals = new LLVector3[ numVertices ];
 	mTexCoords = new LLVector2[ numVertices ];
 	mDetailTexCoords = new LLVector2[ numVertices ];
-	mWeights = new F32[ numVertices ];
+	mWeights = (F32*) _mm_malloc((numVertices*sizeof(F32)+0xF) & ~0xF, 16);
 	for (i = 0; i < numVertices; i++)
 	{
 		mWeights[i] = 0.f;
@@ -717,13 +717,20 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 		//use aligned vertex data to make LLPolyMesh SSE friendly
 		mVertexData = (F32*) _mm_malloc(nfloats*4, 16);
 		int offset = 0;
-		mCoords = 				(LLVector4*)(mVertexData + offset); offset += 4*nverts;
-		mNormals = 				(LLVector4*)(mVertexData + offset); offset += 4*nverts;
-		mScaledNormals = 		(LLVector3*)(mVertexData + offset); offset += 3*nverts;
-		mBinormals = 			(LLVector3*)(mVertexData + offset); offset += 3*nverts;
-		mScaledBinormals = 		(LLVector3*)(mVertexData + offset); offset += 3*nverts;
-		mTexCoords = 			(LLVector2*)(mVertexData + offset); offset += 2*nverts;
-		mClothingWeights = 	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
+
+		//all members must be 16-byte aligned except the last 3
+		mCoords				= 	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
+		mNormals			=	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
+		mClothingWeights	= 	(LLVector4*)(mVertexData + offset); offset += 4*nverts;
+		mTexCoords			= 	(LLVector2*)(mVertexData + offset); offset += 2*nverts;
+
+		// these members don't need to be 16-byte aligned, but the first one might be
+		// read during an aligned memcpy of mTexCoords
+		mScaledNormals		=	(LLVector3*)(mVertexData + offset); offset += 3*nverts;
+		mBinormals			=	(LLVector3*)(mVertexData + offset); offset += 3*nverts;
+		mScaledBinormals	=	(LLVector3*)(mVertexData + offset); offset += 3*nverts;
+		
+		
 #else
 		mCoords = new LLVector3[mSharedData->mNumVertices];
 		mNormals = new LLVector3[mSharedData->mNumVertices];

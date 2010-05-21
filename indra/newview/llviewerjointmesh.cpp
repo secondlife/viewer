@@ -655,6 +655,9 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 //-----------------------------------------------------------------------------
 void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area)
 {
+	//bump num_vertices to next multiple of 4
+	num_vertices = (num_vertices + 0x3) & ~0x3;
+
 	// Do a pre-alloc pass to determine sizes of data.
 	if (mMesh && mValid)
 	{
@@ -677,12 +680,24 @@ static LLFastTimer::DeclareTimer FTM_AVATAR_FACE("Avatar Face");
 
 void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
 {
+	//IF THIS FUNCTION BREAKS, SEE LLPOLYMESH CONSTRUCTOR AND CHECK ALIGNMENT OF INPUT ARRAYS
+
 	mFace = face;
 
 	if (mFace->mVertexBuffer.isNull())
 	{
 		return;
 	}
+
+	LLDrawPool *poolp = mFace->getPool();
+	BOOL hardware_skinning = (poolp && poolp->getVertexShaderLevel() > 0) ? TRUE : FALSE;
+
+	if (!hardware_skinning && terse_update)
+	{ //no need to do terse updates if we're doing software vertex skinning
+	 // since mMesh is being copied into mVertexBuffer every frame
+		return;
+	}
+
 
 	LLFastTimer t(FTM_AVATAR_FACE);
 
@@ -696,108 +711,52 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 	// Copy data into the faces from the polymesh data.
 	if (mMesh && mValid)
 	{
-		if (mMesh->getNumVertices())
+		const U32 num_verts = mMesh->getNumVertices();
+
+		if (num_verts)
 		{
-			stop_glerror();
 			face->getGeometryAvatar(verticesp, normalsp, tex_coordsp, vertex_weightsp, clothing_weightsp);
-			stop_glerror();
 			face->mVertexBuffer->getIndexStrider(indicesp);
-			stop_glerror();
 
 			verticesp += mMesh->mFaceVertexOffset;
-			tex_coordsp += mMesh->mFaceVertexOffset;
 			normalsp += mMesh->mFaceVertexOffset;
-			vertex_weightsp += mMesh->mFaceVertexOffset;
-			clothing_weightsp += mMesh->mFaceVertexOffset;
-
-			const U32* __restrict coords = (U32*) mMesh->getCoords();
-			const U32* __restrict tex_coords = (U32*) mMesh->getTexCoords();
-			const U32* __restrict normals = (U32*) mMesh->getNormals();
-			const U32* __restrict weights = (U32*) mMesh->getWeights();
-			const U32* __restrict cloth_weights = (U32*) mMesh->getClothingWeights();
-
-			const U32 num_verts = mMesh->getNumVertices();
-
-			U32 i = 0;
-
-			const U32 skip = verticesp.getSkip()/sizeof(U32);
-
-			U32* __restrict v = (U32*) verticesp.get();
-			U32* __restrict n = (U32*) normalsp.get();
 			
-			if (terse_update)
-			{
-				for (S32 i = num_verts; i > 0; --i)
-				{
-					//morph target application only, only update positions and normals
-					v[0] = coords[0]; 
-					v[1] = coords[1]; 
-					v[2] = coords[2];		
-					coords += 4;
-					v += skip;
-				}
+			F32* v = (F32*) verticesp.get();
+			F32* n = (F32*) normalsp.get();
+			
+			U32 words = num_verts*4;
 
-				for (S32 i = num_verts; i > 0; --i)
-				{
-					n[0] = normals[0]; 
-					n[1] = normals[1];
-					n[2] = normals[2];
-					normals += 4;
-					n += skip;
-				}
+			LLVector4a::memcpyNonAliased16(v, (F32*) mMesh->getCoords(), words);
+			LLVector4a::memcpyNonAliased16(n, (F32*) mMesh->getNormals(), words);
+						
+			
+			if (!terse_update)
+			{
+				vertex_weightsp += mMesh->mFaceVertexOffset;
+				clothing_weightsp += mMesh->mFaceVertexOffset;
+				tex_coordsp += mMesh->mFaceVertexOffset;
+		
+				F32* tc = (F32*) tex_coordsp.get();
+				F32* vw = (F32*) vertex_weightsp.get();
+				F32* cw = (F32*) clothing_weightsp.get();	
+
+				LLVector4a::memcpyNonAliased16(tc, (F32*) mMesh->getTexCoords(), num_verts*2);
+				LLVector4a::memcpyNonAliased16(vw, (F32*) mMesh->getWeights(), num_verts);	
+				LLVector4a::memcpyNonAliased16(cw, (F32*) mMesh->getClothingWeights(), num_verts*4);	
 			}
-			else
+
+			const U32 idx_count = mMesh->getNumFaces()*3;
+
+			indicesp += mMesh->mFaceIndexOffset;
+
+			U16* __restrict idx = indicesp.get();
+			S32* __restrict src_idx = (S32*) mMesh->getFaces();	
+
+			const S32 offset = (S32) mMesh->mFaceVertexOffset;
+
+			for (S32 i = 0; i < idx_count; ++i)
 			{
-
-				U32* __restrict tc = (U32*) tex_coordsp.get();
-				U32* __restrict vw = (U32*) vertex_weightsp.get();
-				U32* __restrict cw = (U32*) clothing_weightsp.get();
-				
-				do
-				{
-					v[0] = coords[0]; 
-					v[1] = coords[1]; 
-					v[2] = coords[2];		
-					coords += 4;
-					v += skip;
-
-					tc[0] = *(tex_coords++); 
-					tc[1] = *(tex_coords++);
-					tc += skip;
-
-					n[0] = normals[0]; 
-					n[1] = normals[1];
-					n[2] = normals[2];
-					normals += 4;
-					n += skip;
-
-					vw[0] = *(weights++);
-					vw += skip;
-
-					cw[0] = *(cloth_weights++);
-					cw[1] = *(cloth_weights++);
-					cw[2] = *(cloth_weights++);
-					cw[3] = *(cloth_weights++);
-					cw += skip;
-				}
-				while (++i < num_verts);
-
-				const U32 idx_count = mMesh->getNumFaces()*3;
-
-				indicesp += mMesh->mFaceIndexOffset;
-
-				U16* __restrict idx = indicesp.get();
-				S32* __restrict src_idx = (S32*) mMesh->getFaces();
-
-				i = 0;
-
-				const S32 offset = (S32) mMesh->mFaceVertexOffset;
-
-				do
-				{
-					*(idx++) = *(src_idx++)+offset;
-				}
-				while (++i < idx_count);
+				*(idx++) = *(src_idx++)+offset;
 			}
 		}
 	}
@@ -824,50 +783,44 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 	buffer->getVertexStrider(o_vertices,  0);
 	buffer->getNormalStrider(o_normals,   0);
 
-	//F32 last_weight = F32_MAX;
-	LLMatrix4a gBlendMat;
+	F32* __restrict vert = o_vertices[0].mV;
+	F32* __restrict norm = o_normals[0].mV;
 
 	const F32* __restrict weights = mMesh->getWeights();
 	const LLVector4a* __restrict coords = (LLVector4a*) mMesh->getCoords();
 	const LLVector4a* __restrict normals = (LLVector4a*) mMesh->getNormals();
 
+	U32 offset = mMesh->mFaceVertexOffset*4;
+	vert += offset;
+	norm += offset;
+
 	for (U32 index = 0; index < mMesh->getNumVertices(); index++)
 	{
-		U32 bidx = index + mMesh->mFaceVertexOffset;
-		
-		// blend by first matrix
-		F32 w = weights[index]; 
-		
-		//LLVector4a coord;
-		//coord.load4a(coords[index].mV);
+		// equivalent to joint = floorf(weights[index]);
+		S32 joint = _mm_cvtt_ss2si(_mm_load_ss(weights+index));
+		F32 w = weights[index] - joint;		
 
-		//LLVector4a norm;
-		//norm.load4a(normals[index].mV);
+		LLMatrix4a gBlendMat;
 
-		S32 joint = llfloor(w);
-		w -= joint;
-				
-		if (w > 0.f)
+		if (w != 0.f)
 		{
-			// Try to keep all the accesses to the matrix data as close
-			// together as possible.  This function is a hot spot on the
-			// Mac. JC
+			// blend between matrices and apply
 			gBlendMat.setLerp(gJointMatAligned[joint+0],
 							  gJointMatAligned[joint+1], w);
 
 			LLVector4a res;
 			gBlendMat.affineTransform(coords[index], res);
-			o_vertices[bidx].setVec(res[0], res[1], res[2]);
+			res.store4a(vert+index*4);
 			gBlendMat.rotate(normals[index], res);
-			o_normals[bidx].setVec(res[0], res[1], res[2]);
+			res.store4a(norm+index*4);
 		}
 		else
 		{  // No lerp required in this case.
 			LLVector4a res;
 			gJointMatAligned[joint].affineTransform(coords[index], res);
-			o_vertices[bidx].setVec(res[0], res[1], res[2]);
+			res.store4a(vert+index*4);
 			gJointMatAligned[joint].rotate(normals[index], res);
-			o_normals[bidx].setVec(res[0], res[1], res[2]);
+			res.store4a(norm+index*4);
 		}
 	}
 

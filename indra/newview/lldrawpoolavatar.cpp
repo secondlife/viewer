@@ -1542,7 +1542,7 @@ LLVertexBufferAvatar::LLVertexBufferAvatar()
 
 void LLVertexBufferAvatar::setupVertexBuffer(U32 data_mask) const
 {
-	if (sRenderingSkinned)
+/*	if (sRenderingSkinned)
 	{
 		U8* base = useVBOs() ? NULL : mMappedData;
 
@@ -1562,7 +1562,7 @@ void LLVertexBufferAvatar::setupVertexBuffer(U32 data_mask) const
 			set_vertex_clothing_weights(LLDrawPoolAvatar::sVertexProgram->mAttribute[LLViewerShaderMgr::AVATAR_CLOTHING], mStride, (LLVector4*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
 		}
 	}
-	else
+	else*/
 	{
 		LLVertexBuffer::setupVertexBuffer(data_mask);
 	}
