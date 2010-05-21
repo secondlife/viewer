@@ -257,6 +257,8 @@ public:
 	void handleDeleteRole();
 
 	void saveRoleChanges();
+
+	virtual void setGroupID(const LLUUID& id);
 protected:
 	void handleActionCheck(LLUICtrl* ctrl, bool force);
 	LLSD createRoleItem(const LLUUID& role_id, std::string name, std::string title, S32 members);
@@ -294,6 +296,8 @@ public:
 	virtual void update(LLGroupChange gc);
 
 	void handleActionSelect();
+
+	virtual void setGroupID(const LLUUID& id);
 protected:
 	LLScrollListCtrl*	mActionList;
 	LLScrollListCtrl*	mActionRoles;

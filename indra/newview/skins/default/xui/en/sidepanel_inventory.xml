@@ -58,6 +58,16 @@
 				 top="0"
 				 width="102" />
 			<button
+				 enabled="true"
+				 follows="bottom|left"
+				 height="23"
+				 label="Shop"
+				 layout="topleft"
+				 left="210"
+				 name="shop_btn"
+				 top="0"
+				 width="102" />
+			<button
 				 enabled="false"
 				 follows="bottom|left"
 				 height="23"

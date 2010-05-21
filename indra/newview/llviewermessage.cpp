@@ -2522,8 +2522,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 			if(SYSTEM_FROM != name && nearby_chat)
 			{
+				chat.mOwnerID = from_id;
 				LLSD args;
-				args["owner_id"] = from_id;
 				args["slurl"] = location;
 				args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
 				LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
@@ -3053,7 +3053,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// object inspect for an object that is chatting with you
 		LLSD args;
 		args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
-		args["owner_id"] = owner_id;
+		chat.mOwnerID = owner_id;
 
 		LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 	}
