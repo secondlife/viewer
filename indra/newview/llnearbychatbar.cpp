@@ -86,6 +86,14 @@ public:
 		LLScrollListCtrl::handleScrollWheel( x, y, clicks );
 		return TRUE;
 	}
+	//See EXT-6598
+	//Mouse hover over separator will result in not processing tooltip message
+	//So eat this message
+	BOOL handleToolTip(S32 x, S32 y, MASK mask)
+	{
+		LLScrollListCtrl::handleToolTip( x, y, mask );
+		return TRUE;
+	}
 };
 
 LLGestureComboList::Params::Params()

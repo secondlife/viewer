@@ -35,20 +35,32 @@
 #define LLBOTTOMTRAY_CPP
 #include "llbottomtray.h"
 
-#include "llagentcamera.h"
-#include "llchiclet.h"
+// library includes
 #include "llfloaterreg.h"
 #include "llflyoutbutton.h"
-#include "llimfloater.h" // for LLIMFloater
 #include "lllayoutstack.h"
-#include "llnearbychatbar.h"
+#include "llnotifications.h"
 #include "llnotificationsutil.h"
+#include "lltexteditor.h"
+
+// newview includes
+#include "llagentcamera.h"
+#include "llchiclet.h"
+#include "llfloatercamera.h"
+#include "llimfloater.h" // for LLIMFloater
+#include "llnearbychatbar.h"
 #include "llspeakbutton.h"
 #include "llsplitbutton.h"
 #include "llsyswellwindow.h"
-#include "llfloatercamera.h"
-#include "lltexteditor.h"
-#include "llnotifications.h"
+#include "lltoolmgr.h"
+#include "llviewerparcelmgr.h"
+
+static void update_build_button_enable_state()
+{
+	bool can_edit = LLToolMgr::getInstance()->canEdit();
+
+	LLBottomTray::getInstance()->childSetEnabled("build_btn", can_edit);
+}
 
 // Build time optimization, generate extern template once in .cpp file
 template class LLBottomTray* LLSingleton<class LLBottomTray>::getInstance();
@@ -507,6 +519,8 @@ BOOL LLBottomTray::postBuild()
 	// update wells visibility:
 	showWellButton(RS_IM_WELL, !LLIMWellWindow::getInstance()->isWindowEmpty());
 	showWellButton(RS_NOTIFICATION_WELL, !LLNotificationWellWindow::getInstance()->isWindowEmpty());
+
+	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&update_build_button_enable_state));
 
 	return TRUE;
 }
@@ -1246,6 +1260,13 @@ void LLBottomTray::setButtonsControlsAndListeners()
 	gSavedSettings.getControl("ShowSearchButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SEARCH, _2));
 	gSavedSettings.getControl("ShowWorldMapButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_WORLD_MAP, _2));
 	gSavedSettings.getControl("ShowMiniMapButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_MINI_MAP, _2));
+
+
+	LLButton* build_btn = getChild<LLButton>("build_btn");
+	// set control name for Build button. It is not enough to link it with Button.SetFloaterToggle in xml
+	std::string vis_control_name = LLFloaterReg::declareVisibilityControl("build");
+	// Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
+	build_btn->setControlVariable(LLUI::sSettingGroups["floater"]->getControl(vis_control_name));
 }
 
 bool LLBottomTray::toggleShowButton(LLBottomTray::EResizeState button_type, const LLSD& new_visibility)
