@@ -4591,6 +4591,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>MarketplaceURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+    </map>    
     <key>MaxDragDistance</key>
     <map>
       <key>Comment</key>
