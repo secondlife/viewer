@@ -82,7 +82,7 @@ static S32 bump_channel = -1;
 // static 
 void LLStandardBumpmap::init()
 {
-	LLStandardBumpmap::restoreGL();
+	// do nothing
 }
 
 // static 
@@ -876,6 +876,8 @@ void LLBumpImageList::clear()
 	// these will be re-populated on-demand
 	mBrightnessEntries.clear();
 	mDarknessEntries.clear();
+
+	LLStandardBumpmap::clear();
 }
 
 void LLBumpImageList::shutdown()
@@ -892,8 +894,8 @@ void LLBumpImageList::destroyGL()
 
 void LLBumpImageList::restoreGL()
 {
-	// Images will be recreated as they are needed.
 	LLStandardBumpmap::restoreGL();
+	// Images will be recreated as they are needed.
 }
 
 
