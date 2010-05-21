@@ -224,6 +224,7 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llfriendcard.cpp
     llgesturemgr.cpp
+    llgiveinventory.cpp
     llglsandbox.cpp
     llgroupactions.cpp
     llgroupiconctrl.cpp
@@ -740,6 +741,7 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llfriendcard.h
     llgesturemgr.h
+    llgiveinventory.h
     llgroupactions.h
     llgroupiconctrl.h
     llgrouplist.h
