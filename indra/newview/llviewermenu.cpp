@@ -5612,6 +5612,11 @@ void handle_customize_avatar()
 	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
 }
 
+void handle_edit_outfit()
+{
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+}
+
 void handle_edit_shape()
 {
 	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_shape"));
@@ -7727,6 +7732,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
 	view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
 	commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
+	commit.add("EditOutfit", boost::bind(&handle_edit_outfit));
 	commit.add("EditShape", boost::bind(&handle_edit_shape));
 
 	// View menu
