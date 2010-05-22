@@ -53,7 +53,7 @@
 //#include "llfirstuse.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloatercustomize.h"
 #include "llfloatergodtools.h"
 #include "llfloaterinventory.h"
@@ -3288,7 +3288,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 	{
 		LLStringUtil::format_map_t args;
 		args["AMOUNT"] = llformat("%d", price);
-		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_object_costs", args), price);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_object_costs", args), price );
 		return;
 	}
 
@@ -4430,8 +4430,7 @@ void handle_buy_or_take()
 		{
 			LLStringUtil::format_map_t args;
 			args["AMOUNT"] = llformat("%d", total_price);
-			LLFloaterBuyCurrency::buyCurrency(
-					LLTrans::getString("BuyingCosts", args), total_price);
+			LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString( "BuyingCosts", args ), total_price );
 		}
 	}
 	else
@@ -5631,7 +5630,7 @@ void handle_report_abuse()
 
 void handle_buy_currency()
 {
-	LLFloaterBuyCurrency::buyCurrency();
+	LLBuyCurrencyHTML::openCurrencyFloater();
 }
 
 class LLFloaterVisible : public view_listener_t
