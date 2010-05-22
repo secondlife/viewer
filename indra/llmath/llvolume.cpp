@@ -43,10 +43,12 @@
 #include "v4math.h"
 #include "m4math.h"
 #include "m3math.h"
+#include "llmatrix4a.h"
 #include "lldarray.h"
 #include "llvolume.h"
 #include "llstl.h"
 #include "llsdserialize.h"
+#include "llvector4a.h"
 
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
@@ -1992,11 +1994,10 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			LLVolumeFace& face = mVolumeFaces[i];
 
-			face.mHasBinormals = false;
-
 			//copy out indices
-			face.mIndices.resize(idx.size()/2);
-			if (idx.empty() || face.mIndices.size() < 3)
+			face.resizeIndices(idx.size()/2);
+			
+			if (idx.empty() || face.mNumIndices < 3)
 			{ //why is there an empty index list?
 				llerrs <<"WTF?" << llendl;
 				continue;
@@ -2010,7 +2011,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			//copy out vertices
 			U32 num_verts = pos.size()/(3*2);
-			face.mVertices.resize(num_verts);
+			face.resizeVertices(num_verts);
 
 			if (mdl[i].has("Weights"))
 			{
@@ -2059,7 +2060,6 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			LLVector3 max_pos;
 			LLVector2 min_tc; 
 			LLVector2 max_tc; 
-
 		
 			min_pos.setValue(mdl[i]["PositionDomain"]["Min"]);
 			max_pos.setValue(mdl[i]["PositionDomain"]["Max"]);
@@ -2074,36 +2074,44 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			min = max = LLVector3(0,0,0);
 
+			F32* pos_out = face.mPositions;
+			F32* norm_out = face.mNormals;
+			F32* tc_out = face.mTexCoords;
+
 			for (U32 j = 0; j < num_verts; ++j)
 			{
 				U16* v = (U16*) &(pos[j*3*2]);
 
-				face.mVertices[j].mPosition.setVec(
-					(F32) v[0] / 65535.f * pos_range.mV[0] + min_pos.mV[0],
-					(F32) v[1] / 65535.f * pos_range.mV[1] + min_pos.mV[1],
-					(F32) v[2] / 65535.f * pos_range.mV[2] + min_pos.mV[2]);
+				pos_out[0] = (F32) v[0] / 65535.f * pos_range.mV[0] + min_pos.mV[0];
+				pos_out[1] = (F32) v[1] / 65535.f * pos_range.mV[1] + min_pos.mV[1];
+				pos_out[2] = (F32) v[2] / 65535.f * pos_range.mV[2] + min_pos.mV[2];
+			
 
 				if (j == 0)
 				{
-					min = max = face.mVertices[j].mPosition;
+					min = max = LLVector3(pos_out);
 				}
 				else
 				{
-					update_min_max(min,max,face.mVertices[j].mPosition);
+					update_min_max(min,max,pos_out);
 				}
+
+				pos_out += 4;
 
 				U16* n = (U16*) &(norm[j*3*2]);
 
-				face.mVertices[j].mNormal.setVec(
-					(F32) n[0] / 65535.f * 2.f - 1.f,
-					(F32) n[1] / 65535.f * 2.f - 1.f,
-					(F32) n[2] / 65535.f * 2.f - 1.f);
+				
+				norm_out[0] = (F32) n[0] / 65535.f * 2.f - 1.f;
+				norm_out[1] = (F32) n[1] / 65535.f * 2.f - 1.f;
+				norm_out[2] = (F32) n[2] / 65535.f * 2.f - 1.f;
+				norm_out += 4;
 
 				U16* t = (U16*) &(tc[j*2*2]);
 
-				face.mVertices[j].mTexCoord.setVec(
-					(F32) t[0] / 65535.f * tc_range.mV[0] + min_tc.mV[0],
-					(F32) t[1] / 65535.f * tc_range.mV[1] + min_tc.mV[1]);
+				tc_out[0] = (F32) t[0] / 65535.f * tc_range.mV[0] + min_tc.mV[0];
+				tc_out[1] =	(F32) t[1] / 65535.f * tc_range.mV[1] + min_tc.mV[1];
+
+				tc_out += 8;
 			}
 
 			
@@ -2133,24 +2141,29 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			if (do_reflect_x)
 			{
-				for (S32 i = 0; i < face.mVertices.size(); i++)
+				LLVector4a* p = (LLVector4a*) face.mPositions;
+				LLVector4a* n = (LLVector4a*) face.mNormals;
+				
+				for (S32 i = 0; i < face.mNumVertices; i++)
 				{
-					face.mVertices[i].mPosition.mV[VX] *= -1.0f;
-					face.mVertices[i].mNormal.mV[VX] *= -1.0f;
+					p[i].mul(-1.0f);
+					n[i].mul(-1.0f);
 				}
 			}
 
 			if (do_invert_normals)
 			{
-				for (S32 i = 0; i < face.mVertices.size(); i++)
+				LLVector4a* n = (LLVector4a*) face.mNormals;
+				
+				for (S32 i = 0; i < face.mNumVertices; i++)
 				{
-					face.mVertices[i].mNormal *= -1.0f;
+					n[i].mul(-1.0f);
 				}
 			}
 
 			if (do_reverse_triangles)
 			{
-				for (U32 j = 0; j < face.mIndices.size(); j += 3)
+				for (U32 j = 0; j < face.mNumIndices; j += 3)
 				{
 					// swap the 2nd and 3rd index
 					S32 swap = face.mIndices[j+1];
@@ -2215,9 +2228,28 @@ void LLVolume::makeTetrahedron()
 
 	tetrahedron_set_normal(cv);
 
-	face.mVertices.push_back(cv[0]);
-	face.mVertices.push_back(cv[1]);
-	face.mVertices.push_back(cv[2]);
+	face.resizeVertices(12);
+	face.resizeIndices(12);
+
+	LLVector4a* v = (LLVector4a*) face.mPositions;
+	LLVector4a* n = (LLVector4a*) face.mNormals;
+	LLVector2* tc = (LLVector2*) face.mTexCoords;
+
+	v[0].load3(cv[0].mPosition.mV);
+	v[1].load3(cv[1].mPosition.mV);
+	v[2].load3(cv[2].mPosition.mV);
+	v += 3;
+
+	n[0].load3(cv[0].mNormal.mV);
+	n[1].load3(cv[1].mNormal.mV);
+	n[2].load3(cv[2].mNormal.mV);
+	n += 3;
+
+	tc[0] = cv[0].mTexCoord;
+	tc[1] = cv[1].mTexCoord;
+	tc[2] = cv[2].mTexCoord;
+	tc += 3;
+
 	
 	//side 2
 	cv[0].mPosition = p[3];
@@ -2226,9 +2258,20 @@ void LLVolume::makeTetrahedron()
 
 	tetrahedron_set_normal(cv);
 
-	face.mVertices.push_back(cv[0]);
-	face.mVertices.push_back(cv[1]);
-	face.mVertices.push_back(cv[2]);
+	v[0].load3(cv[0].mPosition.mV);
+	v[1].load3(cv[1].mPosition.mV);
+	v[2].load3(cv[2].mPosition.mV);
+	v += 3;
+
+	n[0].load3(cv[0].mNormal.mV);
+	n[1].load3(cv[1].mNormal.mV);
+	n[2].load3(cv[2].mNormal.mV);
+	n += 3;
+
+	tc[0] = cv[0].mTexCoord;
+	tc[1] = cv[1].mTexCoord;
+	tc[2] = cv[2].mTexCoord;
+	tc += 3;
 	
 	//side 3
 	cv[0].mPosition = p[3];
@@ -2237,9 +2280,20 @@ void LLVolume::makeTetrahedron()
 
 	tetrahedron_set_normal(cv);
 
-	face.mVertices.push_back(cv[0]);
-	face.mVertices.push_back(cv[1]);
-	face.mVertices.push_back(cv[2]);
+	v[0].load3(cv[0].mPosition.mV);
+	v[1].load3(cv[1].mPosition.mV);
+	v[2].load3(cv[2].mPosition.mV);
+	v += 3;
+
+	n[0].load3(cv[0].mNormal.mV);
+	n[1].load3(cv[1].mNormal.mV);
+	n[2].load3(cv[2].mNormal.mV);
+	n += 3;
+
+	tc[0] = cv[0].mTexCoord;
+	tc[1] = cv[1].mTexCoord;
+	tc[2] = cv[2].mTexCoord;
+	tc += 3;
 	
 	//side 4
 	cv[0].mPosition = p[2];
@@ -2248,14 +2302,25 @@ void LLVolume::makeTetrahedron()
 
 	tetrahedron_set_normal(cv);
 
-	face.mVertices.push_back(cv[0]);
-	face.mVertices.push_back(cv[1]);
-	face.mVertices.push_back(cv[2]);
+	v[0].load3(cv[0].mPosition.mV);
+	v[1].load3(cv[1].mPosition.mV);
+	v[2].load3(cv[2].mPosition.mV);
+	v += 3;
+
+	n[0].load3(cv[0].mNormal.mV);
+	n[1].load3(cv[1].mNormal.mV);
+	n[2].load3(cv[2].mNormal.mV);
+	n += 3;
+
+	tc[0] = cv[0].mTexCoord;
+	tc[1] = cv[1].mTexCoord;
+	tc[2] = cv[2].mTexCoord;
+	tc += 3;
 	
 	//set index buffer
-	for (U32 i = 0; i < 12; i++)
+	for (U16 i = 0; i < 12; i++)
 	{
-		face.mIndices.push_back(i);
+		face.mIndices[i] = i;
 	}
 	
 	mVolumeFaces.push_back(face);
@@ -3831,7 +3896,7 @@ S32 LLVolume::getNumTriangles() const
 
 	for (S32 i = 0; i < getNumVolumeFaces(); ++i)
 	{
-		triangle_count += getVolumeFace(i).mIndices.size()/3;
+		triangle_count += getVolumeFace(i).mNumIndices/3;
 	}
 
 	return triangle_count;
@@ -3844,12 +3909,21 @@ S32 LLVolume::getNumTriangles() const
 void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 										  std::vector<LLVector3> &normals,
 										  std::vector<S32> &segments,
-										  const LLVector3& obj_cam_vec,
-										  const LLMatrix4& mat,
-										  const LLMatrix3& norm_mat,
+										  const LLVector3& obj_cam_vec_in,
+										  const LLMatrix4& mat_in,
+										  const LLMatrix3& norm_mat_in,
 										  S32 face_mask)
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
+
+	LLMatrix4a mat;
+	mat.loadu(mat_in);
+
+	LLMatrix4a norm_mat;
+	norm_mat.loadu(norm_mat_in);
+		
+	LLVector4a obj_cam_vec;
+	obj_cam_vec.load3(obj_cam_vec_in.mV);
 
 	vertices.clear();
 	normals.clear();
@@ -3868,7 +3942,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 		LLVolumeFace& face = *iter;
 	
 		if (!(face_mask & (0x1 << cur_index++)) ||
-		     face.mIndices.empty() || face.mEdge.empty())
+		     face.mNumIndices == 0 || face.mEdge.empty())
 		{
 			continue;
 		}
@@ -3885,7 +3959,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 #if DEBUG_SILHOUETTE_EDGE_MAP
 
 			//for each triangle
-			U32 count = face.mIndices.size();
+			U32 count = face.mNumIndices;
 			for (U32 j = 0; j < count/3; j++) {
 				//get vertices
 				S32 v1 = face.mIndices[j*3+0];
@@ -3938,7 +4012,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 #elif DEBUG_SILHOUETTE_NORMALS
 
 			//for each vertex
-			for (U32 j = 0; j < face.mVertices.size(); j++) {
+			for (U32 j = 0; j < face.mNumVertices; j++) {
 				vertices.push_back(face.mVertices[j].mPosition);
 				vertices.push_back(face.mVertices[j].mPosition + face.mVertices[j].mNormal*0.1f);
 				normals.push_back(LLVector3(0,0,1));
@@ -3964,26 +4038,36 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
 			//for each triangle
 			std::vector<U8> fFacing;
-			vector_append(fFacing, face.mIndices.size()/3);
-			for (U32 j = 0; j < face.mIndices.size()/3; j++) 
+			vector_append(fFacing, face.mNumIndices/3);
+
+			LLVector4a* v = (LLVector4a*) face.mPositions;
+			LLVector4a* n = (LLVector4a*) face.mNormals;
+
+			for (U32 j = 0; j < face.mNumIndices/3; j++) 
 			{
 				//approximate normal
 				S32 v1 = face.mIndices[j*3+0];
 				S32 v2 = face.mIndices[j*3+1];
 				S32 v3 = face.mIndices[j*3+2];
 
-				LLVector3 norm = (face.mVertices[v1].mPosition - face.mVertices[v2].mPosition) % 
-					(face.mVertices[v2].mPosition - face.mVertices[v3].mPosition);
-				
-				if (norm.magVecSquared() < 0.00000001f) 
+				LLVector4a c1,c2;
+				c1.setSub(v[v1], v[v2]);
+				c2.setSub(v[v2], v[v3]);
+
+				LLVector4a norm;
+
+				norm.setCross3(c1, c2);
+
+				if (norm.dot3(norm) < 0.00000001f) 
 				{
 					fFacing[j] = AWAY | TOWARDS;
 				}
 				else 
 				{
 					//get view vector
-					LLVector3 view = (obj_cam_vec-face.mVertices[v1].mPosition);
-					bool away = view * norm > 0.0f; 
+					LLVector4a view;
+					view.setSub(obj_cam_vec, v[v1]);
+					bool away = view.dot3(norm) > 0.0f; 
 					if (away) 
 					{
 						fFacing[j] = AWAY;
@@ -3996,7 +4080,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 			}
 			
 			//for each triangle
-			for (U32 j = 0; j < face.mIndices.size()/3; j++) 
+			for (U32 j = 0; j < face.mNumIndices/3; j++) 
 			{
 				if (fFacing[j] == (AWAY | TOWARDS)) 
 				{ //this is a degenerate triangle
@@ -4029,9 +4113,14 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 						S32 v1 = face.mIndices[j*3+k];
 						S32 v2 = face.mIndices[j*3+((k+1)%3)];
 						
-						vertices.push_back(face.mVertices[v1].mPosition*mat);
-						LLVector3 norm1 = face.mVertices[v1].mNormal * norm_mat;
-						norm1.normVec();
+						LLVector4a t;
+						mat.affineTransform(v[v1], t);
+						vertices.push_back(LLVector3(t[0], t[1], t[2]));
+
+						norm_mat.rotate(n[v1], t);
+
+						t.normalize3Fast();
+						LLVector3 norm1 = LLVector3(t[0], t[1], t[2]);
 						normals.push_back(norm1);
 
 						vertices.push_back(face.mVertices[v2].mPosition*mat);
@@ -4088,7 +4177,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 				genBinormals(i);
 			}
 			
-			for (U32 tri = 0; tri < face.mIndices.size()/3; tri++) 
+			for (U32 tri = 0; tri < face.mNumIndices/3; tri++) 
 			{
 				S32 index1 = face.mIndices[tri*3+0];
 				S32 index2 = face.mIndices[tri*3+1];
@@ -4928,7 +5017,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 	VertexMapData::PointMap point_map;
 
 	//remove redundant vertices
-	for (U32 i = 0; i < mIndices.size(); ++i)
+	for (U32 i = 0; i < mNumIndices; ++i)
 	{
 		U16 index = mIndices[i];
 
@@ -4953,7 +5042,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 		if (!found)
 		{
 			new_face.mVertices.push_back(cv);
-			U16 index = (U16) new_face.mVertices.size()-1;
+			U16 index = (U16) new_face.mNumVertices-1;
 			new_face.mIndices.push_back(index);
 
 			VertexMapData d;
@@ -5053,7 +5142,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 		mVertices.clear();
 	}
 
-	S32	vtop = mVertices.size();
+	S32	vtop = mNumVertices;
 	for(int gx = 0;gx<grid_size+1;gx++){
 		for(int gy = 0;gy<grid_size+1;gy++){
 			VertexData newVert;
@@ -5570,7 +5659,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 void LLVolumeFace::makeTriStrip()
 {
 #if GEN_TRI_STRIP
-	for (U32 i = 0; i < mIndices.size(); i+=3)
+	for (U32 i = 0; i < mNumIndices; i+=3)
 	{
 		U16 i0 = mIndices[i];
 		U16 i1 = mIndices[i+1];
@@ -5608,7 +5697,7 @@ void LLVolumeFace::createBinormals()
 	if (!mHasBinormals)
 	{
 		//generate binormals
-		for (U32 i = 0; i < mIndices.size()/3; i++) 
+		for (U32 i = 0; i < mNumIndices/3; i++) 
 		{	//for each triangle
 			const VertexData& v0 = mVertices[mIndices[i*3+0]];
 			const VertexData& v1 = mVertices[mIndices[i*3+1]];
@@ -5636,7 +5725,7 @@ void LLVolumeFace::createBinormals()
 		}
 
 		//normalize binormals
-		for (U32 i = 0; i < mVertices.size(); i++) 
+		for (U32 i = 0; i < mNumVertices; i++) 
 		{
 			mVertices[i].mBinormal.normVec();
 			mVertices[i].mNormal.normVec();
@@ -5646,16 +5735,47 @@ void LLVolumeFace::createBinormals()
 	}
 }
 
+void LLVolumeFace::resizeVertices(S32 num_verts)
+{
+	_mm_free(mPositions);
+	_mm_free(mNormals);
+	_mm_free(mBinormals);
+	_mm_free(mTexCoords);
+
+	mBinormals = NULL;
+
+	mPositions = (F32*) _mm_malloc(num_verts*16, 16);
+	mNormals = (F32*) _mm_malloc(num_verts*16, 16);
+
+	//pad texture coordinate block end to allow for QWORD reads
+	S32 size = ((num_verts*8) + 0xF) & ~0xF;
+	mTexCoords = (F32*) _mm_malloc(size, 16);
+
+	mNumVertices = num_verts;
+}
+
+void LLVolumeFace::resizeIndices(S32 num_indices)
+{
+	_mm_free(mIndices);
+
+	//pad index block end to allow for QWORD reads
+	S32 size = ((num_indices*2) + 0xF) & ~0xF;
+	
+	mIndices = (U16*) _mm_malloc(size);	
+
+	mNumIndices = num_indices;
+}
+
 void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat, LLMatrix4& norm_mat)
 {
-	U16 offset = mVertices.size();
+	U16 offset = mNumVertices;
 
-	if (face.mVertices.size() + mVertices.size() > 65536)
+	if (face.mNumVertices + mNumVertices > 65536)
 	{
 		llerrs << "Cannot append face -- 16-bit overflow will occur." << llendl;
 	}
 	
-	for (U32 i = 0; i < face.mVertices.size(); ++i)
+	for (U32 i = 0; i < face.mNumVertices; ++i)
 	{
 		VertexData v = face.mVertices[i];
 		v.mPosition = v.mPosition*mat;
@@ -5676,7 +5796,7 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat, LLMatrix
 	}
 
 	
-	for (U32 i = 0; i < face.mIndices.size(); ++i)
+	for (U32 i = 0; i < face.mNumIndices; ++i)
 	{
 		mIndices.push_back(face.mIndices[i]+offset);
 	}
@@ -5823,7 +5943,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	mCenter.clearVec();
 
 	face_min = face_max = mVertices[0].mPosition;
-	for (U32 i = 1; i < mVertices.size(); ++i)
+	for (U32 i = 1; i < mNumVertices; ++i)
 	{
 		update_min_max(face_min, face_max, mVertices[i].mPosition);
 	}
@@ -5922,7 +6042,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	}
 
 	//generate normals 
-	for (U32 i = 0; i < mIndices.size()/3; i++) //for each triangle
+	for (U32 i = 0; i < mNumIndices/3; i++) //for each triangle
 	{
 		const U16* idx = &(mIndices[i*3]);
 			

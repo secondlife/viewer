@@ -79,6 +79,7 @@
 #include "llteleporthistory.h"
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
+#include "llvector4a.h"
 #include "llviewermenufile.h"
 #include "llvoicechannel.h"
 #include "llvoavatarself.h"
@@ -611,6 +612,9 @@ bool LLAppViewer::init()
 	// we run the "program crashed last time" error handler below.
 	//
 	LLFastTimer::reset();
+
+	// initialize SSE options
+	LLVector4a::initClass();
 
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API

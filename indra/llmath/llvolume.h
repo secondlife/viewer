@@ -794,19 +794,27 @@ public:
 	LLVolumeFace() : 
 		mID(0),
 		mTypeMask(0),
-		mHasBinormals(FALSE),
 		mBeginS(0),
 		mBeginT(0),
 		mNumS(0),
-		mNumT(0)
+		mNumT(0),
+		mNumVertices(0),
+		mNumIndices(0),
+		mPositions(NULL),
+		mNormals(NULL),
+		mBinormals(NULL),
+		mTexCoords(NULL),
+		mIndices(NULL)
 	{
 	}
 
 	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
 	void createBinormals();
-	void makeTriStrip();
 	
 	void appendFace(const LLVolumeFace& face, LLMatrix4& transform, LLMatrix4& normal_tranform);
+
+	void resizeVertices(S32 num_verts);
+	void resizeIndices(S32 num_indices);
 
 	class VertexData
 	{
@@ -873,7 +881,6 @@ public:
 	S32 mID;
 	U32 mTypeMask;
 	LLVector3 mCenter;
-	BOOL mHasBinormals;
 
 	// Only used for INNER/OUTER faces
 	S32 mBeginS;
@@ -883,9 +890,15 @@ public:
 
 	LLVector3 mExtents[2]; //minimum and maximum point of face
 
-	std::vector<VertexData> mVertices;
-	std::vector<U16>	mIndices;
-	std::vector<U16>	mTriStrip;
+	S32 mNumVertices;
+	S32 mNumIndices;
+
+	F32* mPositions;
+	F32* mNormals;
+	F32* mBinormals;
+	F32* mTexCoords;
+	U16* mIndices;
+
 	std::vector<S32>	mEdge;
 
 	//list of skin weights for rigged volumes

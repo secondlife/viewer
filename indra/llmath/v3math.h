@@ -532,6 +532,21 @@ inline void update_min_max(LLVector3& min, LLVector3& max, const LLVector3& pos)
 	}
 }
 
+inline void update_min_max(LLVector3& min, LLVector3& max, const F32* pos)
+{
+	for (U32 i = 0; i < 3; i++)
+	{
+		if (min.mV[i] > pos[i])
+		{
+			min.mV[i] = pos[i];
+		}
+		if (max.mV[i] < pos[i])
+		{
+			max.mV[i] = pos[i];
+		}
+	}
+}
+
 inline F32 angle_between(const LLVector3& a, const LLVector3& b)
 {
 	LLVector3 an = a;
