@@ -5206,7 +5206,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 	if (!partial_build)
 	{
-		resizeIndices(grid_size*6);
+		resizeIndices(grid_size*grid_size*6);
 
 		U16* out = mIndices;
 
@@ -5689,12 +5689,21 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 
 	mBinormals = NULL;
 
-	mPositions = (F32*) _mm_malloc(num_verts*16, 16);
-	mNormals = (F32*) _mm_malloc(num_verts*16, 16);
+	if (num_verts)
+	{
+		mPositions = (F32*) _mm_malloc(num_verts*16, 16);
+		mNormals = (F32*) _mm_malloc(num_verts*16, 16);
 
-	//pad texture coordinate block end to allow for QWORD reads
-	S32 size = ((num_verts*8) + 0xF) & ~0xF;
-	mTexCoords = (F32*) _mm_malloc(size, 16);
+		//pad texture coordinate block end to allow for QWORD reads
+		S32 size = ((num_verts*8) + 0xF) & ~0xF;
+		mTexCoords = (F32*) _mm_malloc(size, 16);
+	}
+	else
+	{
+		mPositions = NULL;
+		mNormals = NULL;
+		mTexCoords = NULL;
+	}
 
 	mNumVertices = num_verts;
 }
@@ -5710,10 +5719,17 @@ void LLVolumeFace::resizeIndices(S32 num_indices)
 {
 	_mm_free(mIndices);
 
-	//pad index block end to allow for QWORD reads
-	S32 size = ((num_indices*2) + 0xF) & ~0xF;
-	
-	mIndices = (U16*) _mm_malloc(size,16);	
+	if (num_indices)
+	{
+		//pad index block end to allow for QWORD reads
+		S32 size = ((num_indices*2) + 0xF) & ~0xF;
+		
+		mIndices = (U16*) _mm_malloc(size,16);	
+	}
+	else
+	{
+		mIndices = NULL;
+	}
 
 	mNumIndices = num_indices;
 }
@@ -5954,7 +5970,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	LLVector3& face_max = mExtents[1];
 	mCenter.clearVec();
 
-	face_min = face_max = LLVector3((F32*) &(pos[i].mQ));
+	face_min = face_max = LLVector3((F32*) &(pos[0].mQ));
 
 	for (U32 i = 1; i < mNumVertices; ++i)
 	{
