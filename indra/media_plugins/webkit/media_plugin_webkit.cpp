@@ -297,11 +297,17 @@ private:
 		// append details to agent string
 		LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 
+		// TODO: Remove this ifdef when the Linux version of llqtwebkit gets updated with the new WOB constant.
+#if !LL_LINUX
+		// Set up window open behavior
+		LLQtWebKit::getInstance()->setWindowOpenBehavior(mBrowserWindowId, LLQtWebKit::WOB_SIMULATE_BLANK_HREF_CLICK);
+#endif
+		
 #if !LL_QTWEBKIT_USES_PIXMAPS
 		// don't flip bitmap
 		LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
 #endif // !LL_QTWEBKIT_USES_PIXMAPS
-		
+
 		// set background color
 		// convert background color channels from [0.0, 1.0] to [0, 255];
 		LLQtWebKit::getInstance()->setBackgroundColor( mBrowserWindowId, int(mBackgroundR * 255.0f), int(mBackgroundG * 255.0f), int(mBackgroundB * 255.0f) );

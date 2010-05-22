@@ -2795,6 +2795,42 @@ bool LLViewerMediaImpl::isPlayable() const
 	return false;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// static 
+bool LLViewerMediaImpl::onClickLinkExternalTarget(const LLSD& notification, const LLSD& response )
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if ( 0 == option )
+	{
+		LLSD payload = notification["payload"];
+		std::string url = payload["url"].asString();
+		S32 target_type = payload["target_type"].asInteger();
+		clickLinkWithTarget(url, target_type);
+	}
+	return false;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// static 
+void LLViewerMediaImpl::clickLinkWithTarget(const std::string& url, const S32& target_type )
+{
+	if (target_type == LLPluginClassMedia::TARGET_EXTERNAL)
+	{
+		// load target in an external browser
+		LLWeb::loadURLExternal(url);
+	}
+	else if (target_type == LLPluginClassMedia::TARGET_BLANK)
+	{
+		// load target in the user's preferred browser
+		LLWeb::loadURL(url);
+	}
+	else {
+		// unsupported link target - shouldn't happen
+		LL_WARNS("LinkTarget") << "Unsupported link target type" << LL_ENDL;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginClassMediaOwner::EMediaEvent event)
 {
@@ -2807,6 +2843,31 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			LLURLDispatcher::dispatch(url, NULL, mTrustedBrowser);
 
 		}
+		break;
+		case MEDIA_EVENT_CLICK_LINK_HREF:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << plugin->getClickTarget() << "\", uri is " << plugin->getClickURL() << LL_ENDL;
+			// retrieve the event parameters
+			std::string url = plugin->getClickURL();
+			U32 target_type = plugin->getClickTargetType();
+			
+			// is there is a target specified for the link?
+			if (target_type == LLPluginClassMedia::TARGET_EXTERNAL ||
+				target_type == LLPluginClassMedia::TARGET_BLANK )
+			{
+				if (gSavedSettings.getBOOL("UseExternalBrowser"))
+				{
+					LLSD payload;
+					payload["url"] = url;
+					payload["target_type"] = LLSD::Integer(target_type);
+					LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, onClickLinkExternalTarget);
+				}
+				else
+				{
+					clickLinkWithTarget(url, target_type);
+				}
+			}
+		};
 		break;
 		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
 		{
