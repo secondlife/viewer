@@ -5,7 +5,7 @@
  height="465"
  name="voice_effects"
  help_topic="voice_effects"
- title="VOICE EFFECTS"
+ title="PREVIEW VOICE MORPHING"
  background_visible="true"
  follows="all"
  label="Places"

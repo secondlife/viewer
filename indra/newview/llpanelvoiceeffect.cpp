@@ -90,15 +90,15 @@ void LLPanelVoiceEffect::onCommitVoiceEffect()
 	}
 
 	LLSD value = mVoiceEffectCombo->getValue();
-	if (value.asInteger() == GET_VOICE_EFFECTS)
-	{
-		// Open the voice morphing info web page
-		LLWeb::loadURL(getString("get_voice_effects_url"));
-	}
-	else if (value.asInteger() == PREVIEW_VOICE_EFFECTS)
+	if (value.asInteger() == PREVIEW_VOICE_EFFECTS)
 	{
 		// Open the voice effects management floater
 		LLFloaterReg::showInstance("voice_effect");
+	}
+	else if (value.asInteger() == GET_VOICE_EFFECTS)
+	{
+		// Open the voice morphing info web page
+		LLWeb::loadURL(getString("get_voice_effects_url"));
 	}
 	else
 	{
@@ -140,8 +140,8 @@ void LLPanelVoiceEffect::update()
 			mVoiceEffectCombo->addSeparator();
 		}
 
-		mVoiceEffectCombo->add(getString("get_voice_effects"), GET_VOICE_EFFECTS);
 		mVoiceEffectCombo->add(getString("preview_voice_effects"), PREVIEW_VOICE_EFFECTS);
+		mVoiceEffectCombo->add(getString("get_voice_effects"), GET_VOICE_EFFECTS);
 
 		mVoiceEffectCombo->setValue(effect_interface->getVoiceEffect());
 		mVoiceEffectCombo->setEnabled(true);

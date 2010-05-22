@@ -62,8 +62,8 @@ private:
 	typedef enum e_voice_effect_combo_items
 	{
 		NO_VOICE_EFFECT = 0,
-		GET_VOICE_EFFECTS = 1,
-		PREVIEW_VOICE_EFFECTS = 2
+		PREVIEW_VOICE_EFFECTS = 1,
+		GET_VOICE_EFFECTS = 2
 	} EVoiceEffectComboItems;
 	
 	LLComboBox* mVoiceEffectCombo;

@@ -11,11 +11,11 @@
   <string name="get_voice_effects_url">
     http://secondlife.com/landing/v0icem0rphingt3st
   </string>
-  <string name="get_voice_effects">
-    Add voice effects  ▶
-  </string>
   <string name="preview_voice_effects">
-    Preview  ▶
+    Preview Voice Morphing  ▶
+  </string>
+  <string name="get_voice_effects">
+    Get Voice Morphing  ▶
   </string>
   <combo_box
    enabled="false"
