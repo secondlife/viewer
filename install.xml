@@ -600,6 +600,13 @@
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20100521a.tar.bz2</uri>
           </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>29c3e7dad60bbf02c811786436d99523</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-linux-20100521b.tar.bz2</uri>
+          </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>

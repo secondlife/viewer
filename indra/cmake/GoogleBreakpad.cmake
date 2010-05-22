@@ -7,5 +7,8 @@ if (STANDALONE)
 else (STANDALONE)
   use_prebuilt_binary(google_breakpad)
   set(BREAKPAD_EXCEPTION_HANDLER_LIBRARIES exception_handler crash_generation_client common)
+  if (LINUX)
+    set(BREAKPAD_EXCEPTION_HANDLER_LIBRARIES breakpad_client)
+  endif (LINUX)
 endif (STANDALONE)
 

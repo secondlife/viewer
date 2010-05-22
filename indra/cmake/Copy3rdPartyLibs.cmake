@@ -19,7 +19,7 @@ if(WINDOWS)
     set(vivox_src_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-win32")
     set(vivox_files
         SLVoice.exe
-	libsndfile-1.dll
+        libsndfile-1.dll
         vivoxplatform.dll
         vivoxsdk.dll
         ortp.dll
@@ -216,6 +216,7 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
+        libbreakpad_client.so.0
         libcrypto.so.0.9.7
         libdb-4.2.so
         libexpat.so
