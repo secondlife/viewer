@@ -924,6 +924,7 @@ private:
 	bool mCaptureBufferRecorded;	// A voice sample is captured in the buffer ready to play.
 	bool mCaptureBufferPlaying;		// A voice sample is being played.
 
+	LLTimer	mCaptureTimer;
 	LLUUID mPreviewVoiceFontID;
 };
 

@@ -96,6 +96,9 @@ const int MAX_LOGIN_RETRIES = 12;
 // blocked is VERY rare and it's better to sacrifice response time in this situation for the sake of stability.
 const int MAX_NORMAL_JOINING_SPATIAL_NUM = 50;
 
+// Maximum length of capture buffer recordings
+const F32 CAPTURE_BUFFER_MAX_TIME = 15.f;
+
 
 static int scale_mic_volume(float volume)
 {
@@ -1154,12 +1157,15 @@ void LLVivoxVoiceClient::stateMachine()
 		case stateCaptureBufferRecStart:
 			captureBufferRecordStartSendMessage();
 			mCaptureBufferRecorded = true;
+			mCaptureTimer.start();
+			mCaptureTimer.setTimerExpirySec(CAPTURE_BUFFER_MAX_TIME);
 			setState(stateCaptureBufferRecording);
 		break;
 
 		//MARK: stateCaptureBufferRecording
 		case stateCaptureBufferRecording:
-			if (!mCaptureBufferMode || !mCaptureBufferRecording || mCaptureBufferPlaying)
+			if (!mCaptureBufferMode || !mCaptureBufferRecording ||
+				mCaptureBufferPlaying || mCaptureTimer.hasExpired())
 			{
 				mCaptureBufferRecording = false;
 				captureBufferRecordStopSendMessage();
