@@ -75,6 +75,9 @@ BOOL LLFloaterVoiceEffect::postBuild()
 	if (effect_interface)
 	{
 		effect_interface->addObserver(this);
+
+		// Disconnect from the current voice channel ready to record a voice sample for previewing
+		effect_interface->enablePreviewBuffer(true);
 	}
 
 	update();
@@ -88,7 +91,7 @@ void LLFloaterVoiceEffect::onClose(bool app_quitting)
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
 	if (effect_interface)
 	{
-		effect_interface->clearPreviewBuffer();
+		effect_interface->enablePreviewBuffer(false);
 	}
 }
 

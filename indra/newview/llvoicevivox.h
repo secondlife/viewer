@@ -257,9 +257,9 @@ public:
 	//////////////////////////////
 	/// @name Effect preview buffer
 	//@{
-	virtual void recordPreviewBuffer(bool enable);
-	virtual void playPreviewBuffer(bool enable, const LLUUID& effect_id = LLUUID::null);
-	virtual void clearPreviewBuffer();
+	virtual void enablePreviewBuffer(bool enable);
+	virtual void recordPreviewBuffer(bool record);
+	virtual void playPreviewBuffer(bool play, const LLUUID& effect_id = LLUUID::null);
 
 	virtual bool isPreviewRecording();
 	virtual bool isPreviewReady();
@@ -919,9 +919,10 @@ private:
 	void captureBufferPlayStartSendMessage(const LLUUID& voice_font_id = LLUUID::null);
 	void captureBufferPlayStopSendMessage();
 
-	bool mCaptureBufferRecording;
-	bool mCaptureBufferPlaying;
-	bool mCaptureBufferClear;
+	bool mCaptureBufferMode;		// Disconnected from voice channels while using the capture buffer.
+	bool mCaptureBufferRecording;	// A voice sample is being captured.
+	bool mCaptureBufferRecorded;	// A voice sample is captured in the buffer ready to play.
+	bool mCaptureBufferPlaying;		// A voice sample is being played.
 
 	LLUUID mPreviewVoiceFontID;
 };
