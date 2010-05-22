@@ -788,13 +788,14 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 	LLMatrix4 render_mat(vo_volume->getRenderRotation(), LLVector4(vo_volume->getRenderPosition()));
 
 	num_faces = volume->getNumVolumeFaces();
+	//VECTORIZE THIS
 	for (i = 0; i < num_faces; i++)
 	{
 		const LLVolumeFace& face = volume->getVolumeFace(i);
 				
-		for (U32 v = 0; v < face.mVertices.size(); v++)
+		for (U32 v = 0; v < face.mNumVertices; v++)
 		{
-			LLVector4 vec = LLVector4(face.mVertices[v].mPosition) * mat;
+			LLVector4 vec = LLVector4(face.mPositions+v*4) * mat;
 
 			if (drawablep->isActive())
 			{

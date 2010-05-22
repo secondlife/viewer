@@ -271,6 +271,7 @@ BOOL LLHUDIcon::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 	LLVector3 upper_left = icon_position - (x_scale * 0.5f) + y_scale;
 	LLVector3 upper_right = icon_position + (x_scale * 0.5f) + y_scale;
 
+#if 0 //VECTORIZE THIS
 	
 	F32 t = 0.f;
 	LLVector3 dir = end-start;
@@ -284,6 +285,7 @@ BOOL LLHUDIcon::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 		}
 		return TRUE;
 	}
+#endif
 
 	return FALSE;
 }

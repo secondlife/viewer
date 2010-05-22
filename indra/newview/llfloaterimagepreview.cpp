@@ -852,6 +852,7 @@ S8 LLImagePreviewSculpted::getType() const
 
 void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 { 
+#if 0 //VECTORIZE THIS
 	mCameraDistance = distance;
 	mCameraZoom = 1.f;
 	mCameraPitch = 0.f;
@@ -892,6 +893,7 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	{
 		*(index_strider++) = vf.mIndices[i];
 	}
+#endif
 }
 
 
@@ -901,7 +903,7 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 BOOL LLImagePreviewSculpted::render()
 {
 	mNeedsUpdate = FALSE;
-
+#if 0 //VECTORIZE THIS
 	LLGLSUIDefault def;
 	LLGLDisable no_blend(GL_BLEND);
 	LLGLEnable cull(GL_CULL_FACE);
@@ -959,7 +961,7 @@ BOOL LLImagePreviewSculpted::render()
 	mVertexBuffer->draw(LLRender::TRIANGLES, num_indices, 0);
 
 	gGL.popMatrix();
-		
+#endif
 	return TRUE;
 }
 

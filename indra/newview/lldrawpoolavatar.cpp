@@ -1201,14 +1201,14 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLFace* face, const LLMeshSk
 
 	if (!buff || 
 		buff->getTypeMask() != data_mask ||
-		buff->getRequestedVerts() != vol_face.mVertices.size())
+		buff->getRequestedVerts() != vol_face.mNumVertices)
 	{
 		face->setGeomIndex(0);
 		face->setIndicesIndex(0);
-		face->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
+		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
 
 		face->mVertexBuffer = new LLVertexBuffer(data_mask, 0);
-		face->mVertexBuffer->allocateBuffer(vol_face.mVertices.size(), vol_face.mIndices.size(), true);
+		face->mVertexBuffer->allocateBuffer(vol_face.mNumVertices, vol_face.mNumIndices, true);
 
 		U16 offset = 0;
 		

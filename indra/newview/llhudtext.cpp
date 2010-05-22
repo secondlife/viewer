@@ -206,6 +206,8 @@ BOOL LLHUDText::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 			gGL.end();
 		}
 
+#if 0 //VECTORIZE THIS
+
 		LLVector3 dir = end-start;
 		F32 t = 0.f;
 
@@ -218,6 +220,9 @@ BOOL LLHUDText::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 				return TRUE;
 			}
 		}
+
+#endif
+
 	}
 
 	return FALSE;

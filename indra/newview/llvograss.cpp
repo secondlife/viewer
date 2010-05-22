@@ -640,6 +640,7 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 		position.mV[2] += blade_height;
 		v[3]    = v1 = position + mRegionp->getOriginAgent();
 	
+#if 0 //VECTORIZE THIS
 
 		F32 a,b,t;
 
@@ -703,6 +704,7 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 				}
 			}
 		}
+#endif
 	}
 
 	return ret;

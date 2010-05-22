@@ -60,6 +60,7 @@
 #include "llflexibleobject.h"
 #include "llsky.h"
 #include "lltexturefetch.h"
+#include "llvector4a.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
@@ -1601,14 +1602,8 @@ void LLVOVolume::updateFaceSize(S32 idx)
 	else
 	{
 		const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
-		if (LLPipeline::sUseTriStrips)
-		{
-			facep->setSize(vol_face.mVertices.size(), vol_face.mTriStrip.size());
-		}
-		else
-		{
-			facep->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
-		}
+		facep->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
+		
 	}
 }
 
@@ -1863,21 +1858,25 @@ bool LLVOVolume::hasMedia() const
 LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 {
 	LLVolume* volume = getVolume();
-	LLVector3 result;
+	LLVector4a result;
+	result.clear();
+
+	LLVector3 ret;
 
 	if (volume && face_id < volume->getNumVolumeFaces())
 	{
 		const LLVolumeFace& face = volume->getVolumeFace(face_id);
-		for (S32 i = 0; i < (S32)face.mVertices.size(); ++i)
+		for (S32 i = 0; i < (S32)face.mNumVertices; ++i)
 		{
-			result += face.mVertices[i].mNormal;
+			result.add(*((LLVector4a*) face.mNormals+i*4));
 		}
 
-		result = volumeDirectionToAgent(result);
-		result.normVec();
+		LLVector3 ret((F32*) &result.mQ);
+		ret = volumeDirectionToAgent(ret);
+		ret.normVec();
 	}
 	
-	return result;
+	return ret;
 }
 
 void LLVOVolume::requestMediaDataUpdate(bool isNew)
@@ -3032,7 +3031,7 @@ F32 LLVOVolume::getBinRadius()
 			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 			{
 				const LLVolumeFace& face = volume->getVolumeFace(i);
-				vert_count += face.mVertices.size();
+				vert_count += face.mNumVertices;
 			}
 
 			scale = 1.f/llmax(vert_count/1024.f, 1.f);

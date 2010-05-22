@@ -928,8 +928,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 {
 	LLFastTimer t(FTM_FACE_GET_GEOM);
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
-	S32 num_vertices = (S32)vf.mVertices.size();
-	S32 num_indices = LLPipeline::sUseTriStrips ? (S32)vf.mTriStrip.size() : (S32) vf.mIndices.size();
+	S32 num_vertices = (S32)vf.mNumVertices;
+	S32 num_indices = (S32) vf.mNumIndices;
 	
 	if (mVertexBuffer.notNull())
 	{
@@ -1128,19 +1128,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	if (full_rebuild)
 	{
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
-		if (LLPipeline::sUseTriStrips)
+		for (U32 i = 0; i < (U32) num_indices; i++)
 		{
-			for (U32 i = 0; i < (U32) num_indices; i++)
-			{
-				*indicesp++ = vf.mTriStrip[i] + index_offset;
-			}
-		}
-		else
-		{
-			for (U32 i = 0; i < (U32) num_indices; i++)
-			{
-				*indicesp++ = vf.mIndices[i] + index_offset;
-			}
+			*indicesp++ = vf.mIndices[i] + index_offset;
 		}
 	}
 	
@@ -1214,28 +1204,41 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	bool bake_sunlight = !getTextureEntry()->getFullbright() &&
 		!mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
 
+	//VECTORIZE THIS
 	for (S32 i = 0; i < num_vertices; i++)
 	{
+		LLVector3 vf_binormal;
+		if (vf.mBinormals)
+		{
+			vf_binormal.set(vf.mBinormals+i*4);
+		}
+
+		LLVector3 vf_normal;
+		vf_normal.set(vf.mNormals+i*4);
+
+		LLVector3 vf_position;
+		vf_position.set(vf.mPositions+i*4);
+
 		if (rebuild_tcoord)
 		{
-			LLVector2 tc = vf.mVertices[i].mTexCoord;
+			LLVector2 tc(vf.mTexCoords+i*2);
 		
 			if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 			{
-				LLVector3 vec = vf.mVertices[i].mPosition; 
+				LLVector3 vec = vf_position;
 			
 				vec.scaleVec(scale);
 
 				switch (texgen)
 				{
 					case LLTextureEntry::TEX_GEN_PLANAR:
-						planarProjection(tc, vf.mVertices[i].mNormal, vf.mCenter, vec);
+						planarProjection(tc, vf_normal, vf.mCenter, vec);
 						break;
 					case LLTextureEntry::TEX_GEN_SPHERICAL:
-						sphericalProjection(tc, vf.mVertices[i].mNormal, vf.mCenter, vec);
+						sphericalProjection(tc, vf_normal, vf.mCenter, vec);
 						break;
 					case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-						cylindricalProjection(tc, vf.mVertices[i].mNormal, vf.mCenter, vec);
+						cylindricalProjection(tc, vf_normal, vf.mCenter, vec);
 						break;
 					default:
 						break;
@@ -1345,10 +1348,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 			if (bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
 			{
-				LLVector3 tangent = vf.mVertices[i].mBinormal % vf.mVertices[i].mNormal;
+				LLVector3 tangent = vf_binormal % vf_normal;
 
 				LLMatrix3 tangent_to_object;
-				tangent_to_object.setRows(tangent, vf.mVertices[i].mBinormal, vf.mVertices[i].mNormal);
+				tangent_to_object.setRows(tangent, vf_binormal, vf_normal);
 				LLVector3 binormal = binormal_dir * tangent_to_object;
 				binormal = binormal * mat_normal;
 				
@@ -1366,12 +1369,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			
 		if (rebuild_pos)
 		{
-			*vertices++ = vf.mVertices[i].mPosition * mat_vert;
+			*vertices++ = vf_position * mat_vert;
 		}
 		
 		if (rebuild_normal)
 		{
-			LLVector3 normal = vf.mVertices[i].mNormal * mat_normal;
+			LLVector3 normal = vf_normal * mat_normal;
 			normal.normVec();
 			
 			*normals++ = normal;
@@ -1379,21 +1382,21 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		
 		if (rebuild_binormal)
 		{
-			LLVector3 binormal = vf.mVertices[i].mBinormal * mat_normal;
+			LLVector3 binormal = vf_binormal * mat_normal;
 			binormal.normVec();
 			*binormals++ = binormal;
 		}
 		
 		if (rebuild_weights && vf.mWeights.size() > i)
 		{
-			*weights++ = vf.mWeights[i];
+			(*weights++) = vf.mWeights[i];
 		}
 
 		if (rebuild_color)
 		{
 			if (bake_sunlight)
 			{
-				LLVector3 normal = vf.mVertices[i].mNormal * mat_normal;
+				LLVector3 normal = vf_normal * mat_normal;
 				normal.normVec();
 				
 				F32 da = normal * gPipeline.mSunDir;

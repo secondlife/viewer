@@ -40,6 +40,7 @@ class LLPathParams;
 class LLVolumeParams;
 class LLProfile;
 class LLPath;
+class LLVector4a;
 class LLVolumeFace;
 class LLVolume;
 
@@ -791,6 +792,19 @@ public:
 class LLVolumeFace
 {
 public:
+	class VertexData
+	{
+	public:
+		LLVector3 mPosition;
+		LLVector3 mNormal;
+		LLVector3 mBinormal;
+		LLVector2 mTexCoord;
+
+		bool operator<(const VertexData& rhs) const;
+		bool operator==(const VertexData& rhs) const;
+		bool compareNormal(const VertexData& rhs, F32 angle_cutoff) const;
+	};
+
 	LLVolumeFace() : 
 		mID(0),
 		mTypeMask(0),
@@ -808,26 +822,18 @@ public:
 	{
 	}
 
+	~LLVolumeFace();
+
 	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
 	void createBinormals();
 	
 	void appendFace(const LLVolumeFace& face, LLMatrix4& transform, LLMatrix4& normal_tranform);
 
 	void resizeVertices(S32 num_verts);
+	void allocateBinormals(S32 num_verts);
 	void resizeIndices(S32 num_indices);
+	void fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, std::vector<U16>& idx);
 
-	class VertexData
-	{
-	public:
-		LLVector3 mPosition;
-		LLVector3 mNormal;
-		LLVector3 mBinormal;
-		LLVector2 mTexCoord;
-
-		bool operator<(const VertexData& rhs) const;
-		bool operator==(const VertexData& rhs) const;
-		bool compareNormal(const VertexData& rhs, F32 angle_cutoff) const;
-	};
 
 	class VertexMapData : public LLVolumeFace::VertexData
 	{
@@ -1051,7 +1057,8 @@ public:
 
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);
 
-LLVector3 calc_binormal_from_triangle(
+void calc_binormal_from_triangle(
+		LLVector4a& binormal,
 		const LLVector3& pos0,
 		const LLVector2& tex0,
 		const LLVector3& pos1,
@@ -1060,7 +1067,7 @@ LLVector3 calc_binormal_from_triangle(
 		const LLVector2& tex2);
 
 BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
-BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
+BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
 							F32* intersection_a, F32* intersection_b, F32* intersection_t, BOOL two_sided);
 	
 	
