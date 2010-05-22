@@ -306,7 +306,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 				if (mShortNames)
 					fullname = av_name.mDisplayName;
 				else
-					fullname = av_name.getNameAndSLID();
+					fullname = av_name.getCompleteName();
 			}
 			else
 			{
@@ -375,7 +375,7 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 	if (mShortNames)
 		name = av_name.mDisplayName;
 	else
-		name = av_name.getNameAndSLID();
+		name = av_name.getCompleteName();
 
 	item_list::iterator iter;
 	for (iter = getItemList().begin(); iter != getItemList().end(); iter++)

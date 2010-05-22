@@ -1609,7 +1609,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		// Placeholder for name.
 		LLAvatarName av_name;
 		LLAvatarNameCache::get(owner_id, &av_name);
-		item_params.columns.add().value(av_name.getNameAndSLID()).font(FONT).column("name");
+		item_params.columns.add().value(av_name.getCompleteName()).font(FONT).column("name");
 
 		object_count_str = llformat("%d", object_count);
 		item_params.columns.add().value(object_count_str).font(FONT).column("count");

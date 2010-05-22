@@ -242,7 +242,7 @@ void LLFloaterSellLandUI::updateParcelInfo()
 
 void LLFloaterSellLandUI::onBuyerNameCache(const LLAvatarName& av_name)
 {
-	childSetText("sell_to_agent", av_name.getNameAndSLID());
+	childSetText("sell_to_agent", av_name.getCompleteName());
 	childSetToolTip("sell_to_agent", av_name.mUsername);
 }
 

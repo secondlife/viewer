@@ -562,7 +562,7 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	if(mClosestAgentToCursor.notNull()
 	   && LLAvatarNameCache::get(mClosestAgentToCursor, &av_name))
 	{
-		args["[AGENT]"] = av_name.getNameAndSLID() + "\n";
+		args["[AGENT]"] = av_name.getCompleteName() + "\n";
 		have_agent = true;
 	}
 	else
