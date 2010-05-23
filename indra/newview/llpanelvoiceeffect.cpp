@@ -38,6 +38,7 @@
 #include "llcombobox.h"
 #include "llfloaterreg.h"
 #include "llpanel.h"
+#include "lltrans.h"
 #include "llvoiceclient.h"
 
 static LLRegisterPanelClassWrapper<LLPanelVoiceEffect> t_panel_voice_effect("panel_voice_effect");
@@ -98,7 +99,7 @@ void LLPanelVoiceEffect::onCommitVoiceEffect()
 	else if (value.asInteger() == GET_VOICE_EFFECTS)
 	{
 		// Open the voice morphing info web page
-		LLWeb::loadURL(getString("get_voice_effects_url"));
+		LLWeb::loadURL(LLTrans::getString("voice_morphing_url"));
 	}
 	else
 	{

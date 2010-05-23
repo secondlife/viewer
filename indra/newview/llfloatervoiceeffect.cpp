@@ -282,7 +282,7 @@ void LLFloaterVoiceEffect::onClickStop()
 void LLFloaterVoiceEffect::onClickAdd()
 {
 	// Open the voice morphing info web page
-	LLWeb::loadURL(getString("get_voice_effects_url"));
+	LLWeb::loadURL(LLTrans::getString("voice_morphing_url"));
 }
 
 //void LLFloaterVoiceEffect::onClickActivate()
