@@ -14,10 +14,13 @@
  min_width="240"
  width="313">
   <string name="no_voice_effect">
-    No Voice Effect
+    (No Voice Effect)
   </string>
   <string name="get_voice_effects_url">
     http://secondlife.com/landing/v0icem0rphingt3st
+  </string>
+  <string name="active_voice_effect">
+    (Active)
   </string>
   <string name="new_voice_effect">
     New!
@@ -38,8 +41,8 @@
     <scroll_list.columns
      label="New"
      name="new"
-     width="48" />
-	<scroll_list.columns
+     width="64" />
+    <scroll_list.columns
      label="Expires"
      name="expires"
      width="100" />
@@ -86,6 +89,7 @@
       <button.commit_callback
        function="VoiceEffect.Add" />
     </button>
+<!--
     <button
      follows="bottom|left"
      font="SansSerifBigBold"
@@ -102,35 +106,8 @@
       <button.commit_callback
        function="VoiceEffect.Activate" />
     </button>
+-->
   </panel>
-<!--  <panel
-   background_visible="true"
-   bevel_style="none"
-   top_pad="0"
-   follows="left|right|bottom"
-   height="30"
-   label="bottom_panel"
-   layout="topleft"
-   left="0"
-   name="bottom_panel"
-   width="313">
-    <button
-     follows="bottom|left"
-     font="SansSerifBigBold"
-     height="10"
-     image_hover_selected="Activate_Checkmark"
-     image_selected="Activate_Checkmark"
-     image_unselected="Activate_Checkmark"
-     layout="topleft"
-     left="10"
-     name="activate_btn"
-     tool_tip="Activate/Deactivate selected voice effect"
-     top="10"
-     width="10"
-      <button.commit_callback
-       function="VoiceEffect.Activate" />
-    </button>
-  </panel> -->
   <button
    follows="left|bottom"
    height="23"
@@ -155,30 +132,4 @@
     <button.commit_callback
      function="VoiceEffect.Stop" />
   </button>
-<!--
-  <button
-   follows="left|bottom"
-   height="23"
-   label="Play Preview"
-   layout="topleft"
-   left_pad="6"
-   name="play_btn"
-   top_delta="0"
-   width="135">
-    <button.commit_callback
-     function="VoiceEffect.Play" />
-  </button>
-  <button
-   follows="left|bottom"
-   height="23"
-   label="Stop"
-   layout="topleft"
-   left_delta="0"
-   name="play_stop_btn"
-   top_delta="0"
-   width="135">
-    <button.commit_callback
-     function="VoiceEffect.Stop" />
-  </button>
--->
 </floater>

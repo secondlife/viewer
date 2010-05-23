@@ -45,7 +45,7 @@ LLFloaterVoiceEffect::LLFloaterVoiceEffect(const LLSD& key)
 	mCommitCallbackRegistrar.add("VoiceEffect.Play",	boost::bind(&LLFloaterVoiceEffect::onClickPlay, this));
 	mCommitCallbackRegistrar.add("VoiceEffect.Stop",	boost::bind(&LLFloaterVoiceEffect::onClickStop, this));
 	mCommitCallbackRegistrar.add("VoiceEffect.Add",		boost::bind(&LLFloaterVoiceEffect::onClickAdd, this));
-	mCommitCallbackRegistrar.add("VoiceEffect.Activate", boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
+//	mCommitCallbackRegistrar.add("VoiceEffect.Activate", boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
 }
 
 // virtual
@@ -70,7 +70,7 @@ BOOL LLFloaterVoiceEffect::postBuild()
 	if (mVoiceEffectList)
 	{
 		mVoiceEffectList->setCommitCallback(boost::bind(&LLFloaterVoiceEffect::onClickPlay, this));
-		mVoiceEffectList->setDoubleClickCallback(boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
+//		mVoiceEffectList->setDoubleClickCallback(boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
 	}
 
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
@@ -133,7 +133,7 @@ void LLFloaterVoiceEffect::refreshEffectList()
 		element["columns"][0]["column"] = "name";
 		element["columns"][0]["value"] = getString("no_voice_effect");
 		element["columns"][0]["font"]["name"] = "SANSSERIF";
-		element["columns"][0]["font"]["style"] = "BOLD";
+		element["columns"][0]["font"]["style"] = "ITALIC";
 
 		LLScrollListItem* sl_item = mVoiceEffectList->addElement(element, ADD_BOTTOM);
 		// *HACK: Copied from llfloatergesture.cpp : ["font"]["style"] does not affect font style :(
@@ -152,9 +152,16 @@ void LLFloaterVoiceEffect::refreshEffectList()
 			std::string effect_name = it->first;
 
 			LLSD effect_properties = effect_interface->getVoiceEffectProperties(effect_id);
+
+			// Tag the active effect.
+			if (effect_id == LLVoiceClient::instance().getVoiceEffectDefault())
+			{
+				effect_name += " " + getString("active_voice_effect");
+			}
+
+			std::string expiry_date = effect_properties["expiry_date"].asString();
 			bool is_template_only = effect_properties["template_only"].asBoolean();
 			bool is_new = effect_properties["is_new"].asBoolean();
-			std::string expiry_date = effect_properties["expiry_date"].asString();
 
 			std::string font_style = "NORMAL";
 			if (!is_template_only)
@@ -168,6 +175,7 @@ void LLFloaterVoiceEffect::refreshEffectList()
 			element["columns"][0]["value"] = effect_name;
 			element["columns"][0]["font"]["name"] = "SANSSERIF";
 			element["columns"][0]["font"]["style"] = font_style;
+
 			element["columns"][1]["column"] = "new";
 			element["columns"][1]["value"] = is_new ? getString("new_voice_effect") : "";
 			element["columns"][1]["font"]["name"] = "SANSSERIF";
@@ -194,8 +202,6 @@ void LLFloaterVoiceEffect::refreshEffectList()
 		mVoiceEffectList->selectByID(*it);
 	}
 	mVoiceEffectList->setScrollPos(scroll_pos);
-
-	mVoiceEffectList->setValue(effect_interface->getVoiceEffect());
 	mVoiceEffectList->setEnabled(true);
 }
 
@@ -213,16 +219,6 @@ void LLFloaterVoiceEffect::updateControls()
 
 	getChild<LLButton>("record_btn")->setVisible(!recording);
 	getChild<LLButton>("record_stop_btn")->setVisible(recording);
-
-	getChild<LLButton>("play_btn")->setVisible(!playing);
-	getChild<LLButton>("play_stop_btn")->setVisible(playing);
-
-	getChild<LLButton>("play_btn")->setEnabled(effect_interface->isPreviewReady());
-
-	if (!mVoiceEffectList)
-	{
-		mVoiceEffectList->setValue(effect_interface->getVoiceEffect());
-	}
 }
 
 // virtual
@@ -281,11 +277,12 @@ void LLFloaterVoiceEffect::onClickAdd()
 	LLWeb::loadURL(getString("get_voice_effects_url"));
 }
 
-void LLFloaterVoiceEffect::onClickActivate()
-{
-	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
-	if (effect_interface && mVoiceEffectList)
-	{
-		effect_interface->setVoiceEffect(mVoiceEffectList->getCurrentID());
-	}
-}
+//void LLFloaterVoiceEffect::onClickActivate()
+//{
+//	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
+//	if (effect_interface && mVoiceEffectList)
+//	{
+//		effect_interface->setVoiceEffect(mVoiceEffectList->getCurrentID());
+//	}
+//}
+
