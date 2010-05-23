@@ -65,6 +65,8 @@ LLFloaterVoiceEffect::~LLFloaterVoiceEffect()
 BOOL LLFloaterVoiceEffect::postBuild()
 {
 	setDefaultBtn("record_btn");
+	getChild<LLButton>("record_btn")->setFocus(true);
+
 
 	mVoiceEffectList = getChild<LLScrollListCtrl>("voice_effect_list");
 	if (mVoiceEffectList)

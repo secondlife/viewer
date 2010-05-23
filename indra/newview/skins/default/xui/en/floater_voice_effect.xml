@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="465"
+ height="415"
  name="voice_effects"
  help_topic="voice_effects"
  title="PREVIEW VOICE MORPHING"
@@ -26,12 +26,13 @@
     New!
   </string>
   <scroll_list
-   bottom_delta="400"
+   bottom_delta="300"
    draw_heading="true"
    follows="all"
    layout="topleft"
    left="0"
    multi_select="false"
+   tool_tip="Record a sample of your voice, then click an effect to preview."
    top="20"
    name="voice_effect_list">
     <scroll_list.columns
@@ -108,6 +109,21 @@
     </button>
 -->
   </panel>
+  <text
+   height="40"
+   word_wrap="true"
+   use_ellipses="true"
+   type="string"
+   text_color="LabelSelectedDisabledColor"
+   length="1"
+   follows="left|bottom|right"
+   layout="topleft"
+   left="6"
+   name="status_text"
+   top_pad="10"
+   width="300">
+    Record a sample of your voice, and then select an effect to preview. Close this window to return to in-world voice.
+  </text>
   <button
    follows="left|bottom"
    height="23"
@@ -115,6 +131,7 @@
    layout="topleft"
    left="6"
    name="record_btn"
+   tool_tip="Record a sample of your voice."
    top_pad="5"
    width="135">
     <button.commit_callback
