@@ -155,6 +155,7 @@
     <button.commit_callback
      function="VoiceEffect.Stop" />
   </button>
+<!--
   <button
    follows="left|bottom"
    height="23"
@@ -179,4 +180,5 @@
     <button.commit_callback
      function="VoiceEffect.Stop" />
   </button>
+-->
 </floater>
