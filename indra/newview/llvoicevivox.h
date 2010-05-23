@@ -664,7 +664,7 @@ protected:
 	void addVoiceFont(const S32 id,
 					  const std::string &name,
 					  const std::string &description,
-					  const std::string &expiration_date,
+					  const LLDate &expiration_date,
 					  const bool has_expired,
 					  const S32 font_type,
 					  const S32 font_status,
@@ -893,7 +893,7 @@ private:
 		LLUUID		mID;
 		S32			mFontIndex;
 		std::string mName;
-		std::string mExpirationDate;
+		LLDate		mExpirationDate;
 		bool		mHasExpired;
 		S32			mFontType;
 		S32			mFontStatus;
@@ -1016,7 +1016,7 @@ protected:
 	std::string		subscriptionType;
 	S32				id;
 	std::string		descriptionString;
-	std::string		expirationDateString;
+	LLDate			expirationDate;
 	bool			hasExpired;
 	S32				fontType;
 	S32				fontStatus;
@@ -1037,7 +1037,7 @@ protected:
 	void			StartTag(const char *tag, const char **attr);
 	void			EndTag(const char *tag);
 	void			CharData(const char *buffer, int length);
-	
+	LLDate			vivoxTimeStampToLLDate(const std::string& vivox_ts);
 };
 
 

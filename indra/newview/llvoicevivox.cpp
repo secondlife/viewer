@@ -6508,7 +6508,7 @@ const voice_effect_list_t& LLVivoxVoiceClient::getVoiceEffectTemplateList() cons
 void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 								 const std::string &name,
 								 const std::string &description,
-								 const std::string &expiration_date,
+								 const LLDate &expiration_date,
 								 const bool has_expired,
 								 const S32 font_type,
 								 const S32 font_status,
@@ -7112,7 +7112,7 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 				id = 0;
 				nameString.clear();
 				descriptionString.clear();
-				expirationDateString.clear();
+				expirationDate = LLDate();
 				hasExpired = false;
 				fontType = 0;
 				fontStatus = 0;
@@ -7122,7 +7122,7 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 				id = 0;
 				nameString.clear();
 				descriptionString.clear();
-				expirationDateString.clear();
+				expirationDate = LLDate();
 				hasExpired = false;
 				fontType = 0;
 				fontStatus = 0;
@@ -7278,11 +7278,11 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 			subscriptionType = string;
 		else if (!stricmp("SessionFont", tag))
 		{
-			LLVivoxVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDateString, hasExpired, fontType, fontStatus, false);
+			LLVivoxVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDate, hasExpired, fontType, fontStatus, false);
 		}
 		else if (!stricmp("TemplateFont", tag))
 		{
-			LLVivoxVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDateString, hasExpired, fontType, fontStatus, true);
+			LLVivoxVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDate, hasExpired, fontType, fontStatus, true);
 		}
 		else if (!stricmp("ID", tag))
 		{
@@ -7294,7 +7294,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		}
 		else if (!stricmp("ExpirationDate", tag))
 		{
-			expirationDateString = string;
+			expirationDate = vivoxTimeStampToLLDate(string);
 		}
 		else if (!stricmp("Expired", tag))
 		{
@@ -7337,6 +7337,34 @@ void LLVivoxProtocolParser::CharData(const char *buffer, int length)
 	 */
 	if (accumulateText)
 		textBuffer.append(buffer, length);
+}
+
+// --------------------------------------------------------------------------------
+
+LLDate LLVivoxProtocolParser::vivoxTimeStampToLLDate(const std::string& vivox_ts)
+{
+	// First check to see if it actually already is a proper ISO8601 date,
+	// in case the format miraculously changes in future ;)
+	LLDate ts(vivox_ts);
+	if (ts.notNull())
+	{
+		return ts;
+	}
+
+	std::string time_stamp = vivox_ts;
+
+	// Vivox's format is missing a T from being standard ISO 8601,
+	// so add it.  It is the only space in their result.
+	LLStringUtil::replaceChar(time_stamp, ' ', 'T');
+
+	//also need to remove the hours away from GMT to be compatible
+	//with LLDate as well as the fractions of seconds
+	time_stamp = time_stamp.substr(0, time_stamp.length() - 5);
+
+	//it also needs a 'Z' at the end
+	time_stamp += "Z";
+
+	return LLDate(time_stamp);
 }
 
 // --------------------------------------------------------------------------------

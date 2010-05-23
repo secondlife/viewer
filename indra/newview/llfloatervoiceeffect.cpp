@@ -161,7 +161,7 @@ void LLFloaterVoiceEffect::refreshEffectList()
 				effect_name += " " + getString("active_voice_effect");
 			}
 
-			std::string expiry_date = effect_properties["expiry_date"].asString();
+			LLDate expiry_date = effect_properties["expiry_date"].asDate();
 			bool is_template_only = effect_properties["template_only"].asBoolean();
 			bool is_new = effect_properties["is_new"].asBoolean();
 
@@ -184,7 +184,13 @@ void LLFloaterVoiceEffect::refreshEffectList()
 			element["columns"][1]["font"]["style"] = font_style;
 
 			element["columns"][2]["column"] = "expires";
-			element["columns"][2]["value"] = !is_template_only ? expiry_date : "";
+			if (!is_template_only)
+			{
+				element["columns"][2]["value"] = expiry_date;
+			}
+			else {
+				element["columns"][2]["value"] = "";
+			}
 			element["columns"][2]["font"]["name"] = "SANSSERIF";
 			element["columns"][2]["font"]["style"] = font_style;
 
