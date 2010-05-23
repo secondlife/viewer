@@ -53,13 +53,15 @@ public:
 	virtual void onClose(bool app_quitting);
 
 private:
-	void update();
+	void refreshEffectList();
+	void updateControls();
 
 	/// Called by voice effect provider when voice effect list is changed.
 	virtual void onVoiceEffectChanged(bool new_effects);
 
 	void onClickRecord();
 	void onClickPlay();
+	void onClickStop();
  	void onClickAdd();
  	void onClickActivate();
 

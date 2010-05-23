@@ -258,8 +258,9 @@ public:
 	/// @name Effect preview buffer
 	//@{
 	virtual void enablePreviewBuffer(bool enable);
-	virtual void recordPreviewBuffer(bool record);
-	virtual void playPreviewBuffer(bool play, const LLUUID& effect_id = LLUUID::null);
+	virtual void recordPreviewBuffer();
+	virtual void playPreviewBuffer(const LLUUID& effect_id = LLUUID::null);
+	virtual void stopPreviewBuffer();
 
 	virtual bool isPreviewRecording();
 	virtual bool isPreviewReady();
@@ -925,7 +926,9 @@ private:
 	bool mCaptureBufferPlaying;		// A voice sample is being played.
 
 	LLTimer	mCaptureTimer;
-	LLUUID mPreviewVoiceFontID;
+	LLUUID mPreviewVoiceFont;
+	LLUUID mPreviewVoiceFontLast;
+	S32 mPlayRequestCount;
 };
 
 /** 

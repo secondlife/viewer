@@ -43,6 +43,7 @@ LLFloaterVoiceEffect::LLFloaterVoiceEffect(const LLSD& key)
 {
 	mCommitCallbackRegistrar.add("VoiceEffect.Record",	boost::bind(&LLFloaterVoiceEffect::onClickRecord, this));
 	mCommitCallbackRegistrar.add("VoiceEffect.Play",	boost::bind(&LLFloaterVoiceEffect::onClickPlay, this));
+	mCommitCallbackRegistrar.add("VoiceEffect.Stop",	boost::bind(&LLFloaterVoiceEffect::onClickStop, this));
 	mCommitCallbackRegistrar.add("VoiceEffect.Add",		boost::bind(&LLFloaterVoiceEffect::onClickAdd, this));
 	mCommitCallbackRegistrar.add("VoiceEffect.Activate", boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
 }
@@ -68,6 +69,7 @@ BOOL LLFloaterVoiceEffect::postBuild()
 	mVoiceEffectList = getChild<LLScrollListCtrl>("voice_effect_list");
 	if (mVoiceEffectList)
 	{
+		mVoiceEffectList->setCommitCallback(boost::bind(&LLFloaterVoiceEffect::onClickPlay, this));
 		mVoiceEffectList->setDoubleClickCallback(boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
 	}
 
@@ -80,7 +82,8 @@ BOOL LLFloaterVoiceEffect::postBuild()
 		effect_interface->enablePreviewBuffer(true);
 	}
 
-	update();
+	refreshEffectList();
+	updateControls();
 
 	return TRUE;
 }
@@ -95,7 +98,7 @@ void LLFloaterVoiceEffect::onClose(bool app_quitting)
 	}
 }
 
-void LLFloaterVoiceEffect::update()
+void LLFloaterVoiceEffect::refreshEffectList()
 {
 	if (!mVoiceEffectList)
 	{
@@ -194,23 +197,42 @@ void LLFloaterVoiceEffect::update()
 
 	mVoiceEffectList->setValue(effect_interface->getVoiceEffect());
 	mVoiceEffectList->setEnabled(true);
+}
 
-	// Update button states
-	// *TODO: Should separate this from rebuilding the effects list, to avoid rebuilding it unnecessarily
-	bool recording = effect_interface->isPreviewRecording();
+void LLFloaterVoiceEffect::updateControls()
+{
+	bool recording = false;
+	bool playing = false;
+
+	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
+	if (effect_interface)
+	{
+		recording = effect_interface->isPreviewRecording();
+		playing = effect_interface->isPreviewPlaying();
+	}
+
 	getChild<LLButton>("record_btn")->setVisible(!recording);
 	getChild<LLButton>("record_stop_btn")->setVisible(recording);
 
-	getChild<LLButton>("play_btn")->setEnabled(effect_interface->isPreviewReady());
-	bool playing = effect_interface->isPreviewPlaying();
 	getChild<LLButton>("play_btn")->setVisible(!playing);
 	getChild<LLButton>("play_stop_btn")->setVisible(playing);
+
+	getChild<LLButton>("play_btn")->setEnabled(effect_interface->isPreviewReady());
+
+	if (!mVoiceEffectList)
+	{
+		mVoiceEffectList->setValue(effect_interface->getVoiceEffect());
+	}
 }
 
 // virtual
 void LLFloaterVoiceEffect::onVoiceEffectChanged(bool new_effects)
 {
-	update();
+	if (new_effects)
+	{
+		refreshEffectList();
+	}
+	updateControls();
 }
 
 void LLFloaterVoiceEffect::onClickRecord()
@@ -219,11 +241,9 @@ void LLFloaterVoiceEffect::onClickRecord()
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
 	if (effect_interface)
 	{
-		bool record = !effect_interface->isPreviewRecording();
-		effect_interface->recordPreviewBuffer(record);
-		getChild<LLButton>("record_btn")->setVisible(!record);
-		getChild<LLButton>("record_stop_btn")->setVisible(record);
+		effect_interface->recordPreviewBuffer();
 	}
+	updateControls();
 }
 
 void LLFloaterVoiceEffect::onClickPlay()
@@ -239,11 +259,20 @@ void LLFloaterVoiceEffect::onClickPlay()
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
 	if (effect_interface)
 	{
-		bool play = !effect_interface->isPreviewPlaying();
-		effect_interface->playPreviewBuffer(play, effect_id);
-		getChild<LLButton>("play_btn")->setVisible(!play);
-		getChild<LLButton>("play_stop_btn")->setVisible(play);
+		effect_interface->playPreviewBuffer(effect_id);
 	}
+	updateControls();
+}
+
+void LLFloaterVoiceEffect::onClickStop()
+{
+	LL_DEBUGS("Voice") << "Stop clicked" << LL_ENDL;
+	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
+	if (effect_interface)
+	{
+		effect_interface->stopPreviewBuffer();
+	}
+	updateControls();
 }
 
 void LLFloaterVoiceEffect::onClickAdd()

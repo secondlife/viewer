@@ -348,7 +348,8 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mCaptureBufferMode(false),
 	mCaptureBufferRecording(false),
 	mCaptureBufferRecorded(false),
-	mCaptureBufferPlaying(false)
+	mCaptureBufferPlaying(false),
+	mPlayRequestCount(0)
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -1137,28 +1138,39 @@ void LLVivoxVoiceClient::stateMachine()
 		case stateCaptureBufferPaused:
 			if (!mCaptureBufferMode)
 			{
+				// Leaving capture mode.
+
+				mCaptureBufferRecording = false;
 				mCaptureBufferRecorded = false;
+				mCaptureBufferPlaying = false;
+
+				// Return to stateNoChannel to trigger reconnection to a channel.
 				setState(stateNoChannel);
 			}
 			else if (mCaptureBufferRecording)
 			{
 				setState(stateCaptureBufferRecStart);
-				// Update UI, should really be separated from the VoiceFont callback
-				notifyVoiceFontObservers();
 			}
 			else if (mCaptureBufferPlaying)
 			{
 				setState(stateCaptureBufferPlayStart);
-				notifyVoiceFontObservers();
 			}
 		break;
 
 		//MARK: stateCaptureBufferRecStart
 		case stateCaptureBufferRecStart:
 			captureBufferRecordStartSendMessage();
+
+			// Flag that something is recorded to allow playback.
 			mCaptureBufferRecorded = true;
+
+			// Start the timer, recording will be stopped when it expires.
 			mCaptureTimer.start();
 			mCaptureTimer.setTimerExpirySec(CAPTURE_BUFFER_MAX_TIME);
+
+			// Update UI, should really use a separate callback.
+			notifyVoiceFontObservers(false);
+
 			setState(stateCaptureBufferRecording);
 		break;
 
@@ -1167,27 +1179,47 @@ void LLVivoxVoiceClient::stateMachine()
 			if (!mCaptureBufferMode || !mCaptureBufferRecording ||
 				mCaptureBufferPlaying || mCaptureTimer.hasExpired())
 			{
-				mCaptureBufferRecording = false;
+				// Stop recording
 				captureBufferRecordStopSendMessage();
+				mCaptureBufferRecording = false;
+
+				// Update UI, should really use a separate callback.
+				notifyVoiceFontObservers(false);
+
 				setState(stateCaptureBufferPaused);
-				notifyVoiceFontObservers();
 			}
 		break;
 
 		//MARK: stateCaptureBufferPlayStart
 		case stateCaptureBufferPlayStart:
-			captureBufferPlayStartSendMessage(mPreviewVoiceFontID);
+			captureBufferPlayStartSendMessage(mPreviewVoiceFont);
+
+			// Store the voice font being previewed, so that we know to restart if it changes.
+			mPreviewVoiceFontLast = mPreviewVoiceFont;
+
+			// Update UI, should really use a separate callback.
+			notifyVoiceFontObservers(false);
+
 			setState(stateCaptureBufferPlaying);
 		break;
 
 		//MARK: stateCaptureBufferPlaying
 		case stateCaptureBufferPlaying:
-			if (!mCaptureBufferMode || !mCaptureBufferPlaying || mCaptureBufferRecording)
+			if (mCaptureBufferPlaying && mPreviewVoiceFont != mPreviewVoiceFontLast)
 			{
-				mCaptureBufferPlaying = false;
+				// If the preview voice font changes, restart playing with the new font.
+				setState(stateCaptureBufferPlayStart);
+			}
+			else if (!mCaptureBufferMode || !mCaptureBufferPlaying || mCaptureBufferRecording)
+			{
+				// Stop playing.
 				captureBufferPlayStopSendMessage();
+				mCaptureBufferPlaying = false;
+
+				// Update UI, should really use a separate callback.
+				notifyVoiceFontObservers(false);
+
 				setState(stateCaptureBufferPaused);
-				notifyVoiceFontObservers();
 			}
 		break;
 
@@ -1723,7 +1755,7 @@ void LLVivoxVoiceClient::stateMachine()
 	{
 		mAudioSessionChanged = false;
 		notifyParticipantObservers();
-		notifyVoiceFontObservers();
+		notifyVoiceFontObservers(false);
 	}
 	else if (mAudioSession && mAudioSession->mParticipantsChanged)
 	{
@@ -3546,7 +3578,11 @@ void LLVivoxVoiceClient::mediaCompletionEvent(std::string &sessionGroupHandle, s
 	}
 	else if (mediaCompletionType == "AuxBufferAudioRender")
 	{
-		mCaptureBufferPlaying = false;
+		// Ignore all but the last stop event
+		if (--mPlayRequestCount <= 0)
+		{
+			mCaptureBufferPlaying = false;
+		}
 	}
 	else
 	{
@@ -6392,7 +6428,7 @@ bool LLVivoxVoiceClient::setVoiceEffect(const LLUUID& id)
 	gSavedPerAccountSettings.setString("VoiceEffectDefault", id.asString());
 
 	sessionSetVoiceFontSendMessage(mAudioSession);
-	notifyVoiceFontObservers();
+	notifyVoiceFontObservers(false);
 
 	return true;
 }
@@ -6669,14 +6705,13 @@ void LLVivoxVoiceClient::accountGetSessionFontsResponse(int statusCode, const st
 	}
 	mVoiceFontsReceived = true;
 
-	notifyVoiceFontObservers(mVoiceFontsNew);
-	mVoiceFontsNew = false;
+	notifyVoiceFontObservers(true);
 }
 
 void LLVivoxVoiceClient::accountGetTemplateFontsResponse(int statusCode, const std::string &statusString)
 {
 	// Voice font list entries were updated via addVoiceFont() during parsing.
-	notifyVoiceFontObservers();
+	notifyVoiceFontObservers(true);
 }
 void LLVivoxVoiceClient::addObserver(LLVoiceEffectObserver* observer)
 {
@@ -6711,49 +6746,58 @@ void LLVivoxVoiceClient::enablePreviewBuffer(bool enable)
 	}
 }
 
-void LLVivoxVoiceClient::recordPreviewBuffer(bool record)
+void LLVivoxVoiceClient::recordPreviewBuffer()
 {
-	if (record && !mCaptureBufferMode)
+	if (!mCaptureBufferMode)
 	{
-		LL_DEBUGS("Voice") << "Cannot start recording, not in preview mode." << LL_ENDL;
+		LL_DEBUGS("Voice") << "Not in voice effect preview mode, cannot start recording." << LL_ENDL;
+		mCaptureBufferRecording = false;
 		return;
 	}
 
-	mCaptureBufferRecording = record;
+	mCaptureBufferRecording = true;
 }
 
-void LLVivoxVoiceClient::playPreviewBuffer(bool play, const LLUUID& effect_id)
+void LLVivoxVoiceClient::playPreviewBuffer(const LLUUID& effect_id)
 {
-	if (play)
+	if (!mCaptureBufferMode)
 	{
-		if (mCaptureBufferMode && mCaptureBufferRecorded)
-		{
-			mPreviewVoiceFontID = effect_id;
-		}
-		else
-		{
-			LL_DEBUGS("Voice") << "No preview buffer to play." << LL_ENDL;
-			return;
-		}
+		LL_DEBUGS("Voice") << "Not in voice effect preview mode, no buffer to play." << LL_ENDL;
+		mCaptureBufferRecording = false;
+		return;
 	}
 
-	mCaptureBufferPlaying = play;
+	if (!mCaptureBufferRecorded)
+	{
+		// Can't play until we have something recorded!
+		mCaptureBufferPlaying = false;
+		return;
+	}
+
+	mPreviewVoiceFont = effect_id;
+	mCaptureBufferPlaying = true;
+}
+
+void LLVivoxVoiceClient::stopPreviewBuffer()
+{
+	mCaptureBufferRecording = false;
+	mCaptureBufferPlaying = false;
 }
 
 bool LLVivoxVoiceClient::isPreviewRecording()
 {
-	return mCaptureBufferRecording;
+	return (mCaptureBufferMode && mCaptureBufferRecording);
 }
 
 bool LLVivoxVoiceClient::isPreviewReady()
 {
-	return mCaptureBufferRecorded;
+	return (mCaptureBufferMode && mCaptureBufferRecorded);
 
 }
 
 bool LLVivoxVoiceClient::isPreviewPlaying()
 {
-	return mCaptureBufferPlaying;
+	return (mCaptureBufferMode && mCaptureBufferPlaying);
 }
 
 void LLVivoxVoiceClient::captureBufferRecordStartSendMessage()
@@ -6811,6 +6855,10 @@ void LLVivoxVoiceClient::captureBufferPlayStartSendMessage(const LLUUID& voice_f
 {
 	if(!mAccountHandle.empty())
 	{
+		// Track how may play requests are sent, so we know how many stop events to
+		// expect before play actually stops.
+		++mPlayRequestCount;
+
 		std::ostringstream stream;
 
 		LL_DEBUGS("Voice") << "Starting audio buffer playback." << LL_ENDL;

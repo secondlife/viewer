@@ -153,7 +153,7 @@
    top_delta="0"
    width="135">
     <button.commit_callback
-     function="VoiceEffect.Record" />
+     function="VoiceEffect.Stop" />
   </button>
   <button
    follows="left|bottom"
@@ -177,6 +177,6 @@
    top_delta="0"
    width="135">
     <button.commit_callback
-     function="VoiceEffect.Play" />
+     function="VoiceEffect.Stop" />
   </button>
 </floater>

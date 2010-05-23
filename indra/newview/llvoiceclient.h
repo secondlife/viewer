@@ -307,8 +307,9 @@ public:
 	/// @name Preview buffer
 	//@{
 	virtual void enablePreviewBuffer(bool enable) = 0;
-	virtual void recordPreviewBuffer(bool record) = 0;
-	virtual void playPreviewBuffer(bool play, const LLUUID& effect_id = LLUUID::null) = 0;
+	virtual void recordPreviewBuffer() = 0;
+	virtual void playPreviewBuffer(const LLUUID& effect_id = LLUUID::null) = 0;
+	virtual void stopPreviewBuffer() = 0;
 
 	virtual bool isPreviewRecording() = 0;
 	virtual bool isPreviewReady() = 0;
