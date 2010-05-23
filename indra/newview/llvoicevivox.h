@@ -263,7 +263,6 @@ public:
 	virtual void stopPreviewBuffer();
 
 	virtual bool isPreviewRecording();
-	virtual bool isPreviewReady();
 	virtual bool isPreviewPlaying();
 	//@}
 

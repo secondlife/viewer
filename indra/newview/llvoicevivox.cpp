@@ -6789,12 +6789,6 @@ bool LLVivoxVoiceClient::isPreviewRecording()
 	return (mCaptureBufferMode && mCaptureBufferRecording);
 }
 
-bool LLVivoxVoiceClient::isPreviewReady()
-{
-	return (mCaptureBufferMode && mCaptureBufferRecorded);
-
-}
-
 bool LLVivoxVoiceClient::isPreviewPlaying()
 {
 	return (mCaptureBufferMode && mCaptureBufferPlaying);
