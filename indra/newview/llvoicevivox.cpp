@@ -6488,6 +6488,8 @@ LLVivoxVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
 	mFontStatus(VOICE_FONT_STATUS_NONE),
 	mIsNew(false)
 {
+	mExpiryTimer.stop();
+	mExpiryWarningTimer.stop();
 }
 
 LLVivoxVoiceClient::voiceFontEntry::~voiceFontEntry()
@@ -6589,21 +6591,17 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 		font->mFontType = font_type;
 		font->mFontStatus = font_status;
 
-		F64 expiry_time = 0.f;
-
 		// Set the expiry timer to trigger a notification when the voice font can no longer be used.
 		font->mExpiryTimer.start();
-		expiry_time = expiration_date.secondsSinceEpoch() - LLTimer::getTotalSeconds();
-		font->mExpiryTimer.setTimerExpirySec(expiry_time);
+		font->mExpiryTimer.setExpiryAt(expiration_date.secondsSinceEpoch());
 
 		// Set the warning timer to some interval before actual expiry.
 		S32 warning_time = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
-		if (warning_time > 0)
+		if (warning_time != 0)
 		{
 			font->mExpiryWarningTimer.start();
-			expiry_time = (expiration_date.secondsSinceEpoch() - (F64)warning_time)
-							- LLTimer::getTotalSeconds();
-			font->mExpiryWarningTimer.setTimerExpirySec(expiry_time);
+			F64 expiry_time = (expiration_date.secondsSinceEpoch() - (F64)warning_time);
+			font->mExpiryWarningTimer.setExpiryAt(expiry_time);
 		}
 		else
 		{
@@ -6657,8 +6655,8 @@ void LLVivoxVoiceClient::expireVoiceFonts()
 	for (iter = mVoiceFontMap.begin(); iter != mVoiceFontMap.end(); ++iter)
 	{
 		voiceFontEntry* voice_font = iter->second;
-		LLTimer& expiry_timer  = voice_font->mExpiryTimer;
-		LLTimer& warning_timer = voice_font->mExpiryWarningTimer;
+		LLFrameTimer& expiry_timer  = voice_font->mExpiryTimer;
+		LLFrameTimer& warning_timer = voice_font->mExpiryWarningTimer;
 
 		// Check for expired voice fonts
 		if (expiry_timer.getStarted() && expiry_timer.hasExpired())
@@ -7497,10 +7495,11 @@ void LLVivoxProtocolParser::CharData(const char *buffer, int length)
 
 LLDate LLVivoxProtocolParser::vivoxTimeStampToLLDate(const std::string& vivox_ts)
 {
-	// First check to see if it actually already is a proper ISO8601 date,
+	LLDate ts;
+
+	// First check to see if it actually already is a parseable ISO8601 date,
 	// in case the format miraculously changes in future ;)
-	LLDate ts(vivox_ts);
-	if (ts.notNull())
+	if (ts.fromString(vivox_ts))
 	{
 		return ts;
 	}
@@ -7511,14 +7510,22 @@ LLDate LLVivoxProtocolParser::vivoxTimeStampToLLDate(const std::string& vivox_ts
 	// so add it.  It is the only space in their result.
 	LLStringUtil::replaceChar(time_stamp, ' ', 'T');
 
-	//also need to remove the hours away from GMT to be compatible
-	//with LLDate as well as the fractions of seconds
+	// Also need to remove the hours away from GMT to be compatible
+	// with LLDate, as well as the fractions of seconds.
 	time_stamp = time_stamp.substr(0, time_stamp.length() - 5);
 
-	//it also needs a 'Z' at the end
+	// It also needs a 'Z' at the end
 	time_stamp += "Z";
 
-	return LLDate(time_stamp);
+	ts.fromString(time_stamp);
+	if(!ts.fromString(time_stamp))
+	{
+		LL_WARNS_ONCE("Voice") << "Failed to parse Vivox timestamp: " << vivox_ts
+							   << " to ISO 8601 date: " << time_stamp << LL_ENDL;
+		return LLDate();
+	}
+
+	return ts;
 }
 
 // --------------------------------------------------------------------------------

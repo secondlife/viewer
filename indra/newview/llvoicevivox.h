@@ -900,8 +900,8 @@ private:
 		S32			mFontStatus;
 		bool		mIsNew;
 
-		LLTimer		mExpiryTimer;
-		LLTimer		mExpiryWarningTimer;
+		LLFrameTimer	mExpiryTimer;
+		LLFrameTimer	mExpiryWarningTimer;
 	};
 
 	bool mVoiceFontsReceived;
@@ -916,7 +916,7 @@ private:
 	typedef std::set<LLVoiceEffectObserver*> voice_font_observer_set_t;
 	voice_font_observer_set_t mVoiceFontObservers;
 
-	LLTimer	mVoiceFontExpiryTimer;
+	LLFrameTimer	mVoiceFontExpiryTimer;
 
 
 	// Audio capture buffer
