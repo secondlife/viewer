@@ -4618,7 +4618,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
 			glLightf (gllight, GL_LINEAR_ATTENUATION,     linatten);
 			glLightf (gllight, GL_QUADRATIC_ATTENUATION,  0.0f);
-			if (light->isLightSpotlight()) // directional (spot-)light
+			if (light->isLightSpotlight() // directional (spot-)light
+			    && (LLPipeline::sRenderDeferred || gSavedSettings.getBOOL("RenderSpotLightsInNondeferred"))) // these are only rendered as GL spotlights if we're in deferred rendering mode *or* the setting forces them on
 			{
 				LLVector3 spotparams = light->getSpotLightParams();
 				LLQuaternion quat = light->getRenderRotation();
