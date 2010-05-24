@@ -368,10 +368,13 @@ void LLFace::setDrawable(LLDrawable *drawable)
 
 void LLFace::setSize(const S32 num_vertices, const S32 num_indices)
 {
-	if (mGeomCount != num_vertices ||
+	//allocate vertices in blocks of 4 for alignment
+	S32 num_verts = (num_vertices + 0x3) & ~0x3;
+
+	if (mGeomCount != num_verts ||
 		mIndicesCount != num_indices)
 	{
-		mGeomCount    = num_vertices;
+		mGeomCount    = num_verts;
 		mIndicesCount = num_indices;
 		mVertexBuffer = NULL;
 		mLastVertexBuffer = NULL;
