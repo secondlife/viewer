@@ -10595,6 +10595,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>VoiceEffectExpiryWarningTime</key>
+    <map>
+      <key>Comment</key>
+      <string>How much notice to give of voice effect subscriptions expiry, in seconds.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>259200</integer>
+    </map>
+    <key>VoiceMorphingEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to enable Voice Effects and show the UI.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>AutoDisengageMic</key>
     <map>
       <key>Comment</key>
