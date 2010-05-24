@@ -184,7 +184,7 @@ BOOL LLFloaterNotificationConsole::postBuild()
 	addChannel("Ignore");
 	addChannel("Visible", true);
 	// all the ones below attach to the Visible channel
-	addChannel("History");
+	addChannel("Persistent");
 	addChannel("Alerts");
 	addChannel("AlertModal");
 	addChannel("Group Notifications");
