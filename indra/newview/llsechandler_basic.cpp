@@ -1006,7 +1006,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
 									   const LLSD& validation_params)
 {
 
-	if(size() < 1)
+	if(cert_chain->size() < 1)
 	{
 		throw LLCertException(NULL, "No certs in chain");
 	}
@@ -1160,9 +1160,8 @@ void LLBasicCertificateStore::validate(int validation_policy,
 	}
 	if (validation_policy & VALIDATION_POLICY_TRUSTED)
 	{
-		LLPointer<LLCertificate> untrusted_ca_cert = (*this)[size()-1];
 		// we reached the end without finding a trusted cert.
-		throw LLCertValidationTrustException((*this)[size()-1]);
+		throw LLCertValidationTrustException((*cert_chain)[cert_chain->size()-1]);
 
 	}
 	mTrustedCertCache[sha1_hash] = std::pair<LLDate, LLDate>(from_time, to_time);	

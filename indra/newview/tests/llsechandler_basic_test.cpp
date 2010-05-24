@@ -963,8 +963,15 @@ namespace tut
 
 		// basic failure cases
 		test_chain = new LLBasicCertificateChain(NULL);
-		//validate with only the child cert
+		//validate with only the child cert in chain, but child cert was previously
+		// trusted
 		test_chain->add(new LLBasicCertificate(mX509ChildCert));
+		
+		// validate without the trust flag.
+		test_store->validate(VALIDATION_POLICY_TRUSTED, test_chain, validation_params);	
+		
+		// Validate with child cert but no parent, and no parent in CA store
+		test_store = new LLBasicCertificateStore("mycertstore.pem");
 		ensure_throws("no CA, with only a child cert", 
 					  LLCertValidationTrustException, 
 					  (*test_chain)[0],
@@ -1033,6 +1040,7 @@ namespace tut
 		test_chain = new LLBasicCertificateChain(NULL);
 		test_chain->add(new LLBasicCertificate(mX509TestCert));
 
+		test_store = new LLBasicCertificateStore("mycertstore.pem");		
 		ensure_throws("Cert doesn't have ku", 
 					  LLCertKeyUsageValidationException, 
 					  (*test_chain)[0],
