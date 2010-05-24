@@ -621,107 +621,112 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
 
-	if (down)
-	{
-		buttonstatestr = "down" ;
-	}
-	else
-	{
-		buttonstatestr = "up" ;
-	}
-	
-	switch (clicktype)
-	{
-	case LLMouseHandler::CLICK_LEFT:
-		mLeftMouseDown = down;
-		buttonname = "Left";
-		break;
-	case LLMouseHandler::CLICK_RIGHT:
-		mRightMouseDown = down;
-		buttonname = "Right";
-		break;
-	case LLMouseHandler::CLICK_MIDDLE:
-		mMiddleMouseDown = down;
-		buttonname = "Middle";
-		break;
-	case LLMouseHandler::CLICK_DOUBLELEFT:
-		mLeftMouseDown = down;
-		buttonname = "Left Double Click";
-		break;
-	}
-	
-	LLView::sMouseHandlerMessage.clear();
-
-	if (gMenuBarView)
-	{
-		// stop ALT-key access to menu
-		gMenuBarView->resetMenuTrigger();
-	}
-
-	if (gDebugClicks)
+	// only send mouse clicks to UI if UI is visible
+	if(gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{	
-		llinfos << "ViewerWindow " << buttonname << " mouse " << buttonstatestr << " at " << x << "," << y << llendl;
-	}
 
-	// Make sure we get a corresponding mouseup event, even if the mouse leaves the window
-	if (down)
-		mWindow->captureMouse();
-	else
-		mWindow->releaseMouse();
-
-	// Indicate mouse was active
-	LLUI::resetMouseIdleTimer();
-
-	// Don't let the user move the mouse out of the window until mouse up.
-	if( LLToolMgr::getInstance()->getCurrentTool()->clipMouseWhenDown() )
-	{
-		mWindow->setMouseClipping(down);
-	}
-
-	LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
-	if( mouse_captor )
-	{
-		S32 local_x;
-		S32 local_y;
-		mouse_captor->screenPointToLocal( x, y, &local_x, &local_y );
-		if (LLView::sDebugMouseHandling)
+		if (down)
 		{
-			llinfos << buttonname << " Mouse " << buttonstatestr << " handled by captor " << mouse_captor->getName() << llendl;
+			buttonstatestr = "down" ;
 		}
-		return mouse_captor->handleAnyMouseClick(local_x, local_y, mask, clicktype, down);
-	}
-
-	// Topmost view gets a chance before the hierarchy
-	//LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
-	//if (top_ctrl)
-	//{
-	//	S32 local_x, local_y;
-	//	top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
-	//		if (top_ctrl->pointInView(local_x, local_y))
-	//		{
-	//			return top_ctrl->handleAnyMouseClick(local_x, local_y, mask, clicktype, down)	;
-	//		}
-	//		else
-	//		{
-	//		if (down)
-	//		{
-	//			gFocusMgr.setTopCtrl(NULL);
-	//		}
-	//	}
-	//}
-
-	// Give the UI views a chance to process the click
-	if( mRootView->handleAnyMouseClick(x, y, mask, clicktype, down) )
-	{
-		if (LLView::sDebugMouseHandling)
+		else
 		{
-			llinfos << buttonname << " Mouse " << buttonstatestr << " " << LLView::sMouseHandlerMessage << llendl;
+			buttonstatestr = "up" ;
 		}
-		return TRUE;
-	}
-	else if (LLView::sDebugMouseHandling)
-	{
-		llinfos << buttonname << " Mouse " << buttonstatestr << " not handled by view" << llendl;
+		
+		switch (clicktype)
+		{
+		case LLMouseHandler::CLICK_LEFT:
+			mLeftMouseDown = down;
+			buttonname = "Left";
+			break;
+		case LLMouseHandler::CLICK_RIGHT:
+			mRightMouseDown = down;
+			buttonname = "Right";
+			break;
+		case LLMouseHandler::CLICK_MIDDLE:
+			mMiddleMouseDown = down;
+			buttonname = "Middle";
+			break;
+		case LLMouseHandler::CLICK_DOUBLELEFT:
+			mLeftMouseDown = down;
+			buttonname = "Left Double Click";
+			break;
+		}
+		
+		LLView::sMouseHandlerMessage.clear();
+
+		if (gMenuBarView)
+		{
+			// stop ALT-key access to menu
+			gMenuBarView->resetMenuTrigger();
+		}
+
+		if (gDebugClicks)
+		{	
+			llinfos << "ViewerWindow " << buttonname << " mouse " << buttonstatestr << " at " << x << "," << y << llendl;
+		}
+
+		// Make sure we get a corresponding mouseup event, even if the mouse leaves the window
+		if (down)
+			mWindow->captureMouse();
+		else
+			mWindow->releaseMouse();
+
+		// Indicate mouse was active
+		LLUI::resetMouseIdleTimer();
+
+		// Don't let the user move the mouse out of the window until mouse up.
+		if( LLToolMgr::getInstance()->getCurrentTool()->clipMouseWhenDown() )
+		{
+			mWindow->setMouseClipping(down);
+		}
+
+		LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
+		if( mouse_captor )
+		{
+			S32 local_x;
+			S32 local_y;
+			mouse_captor->screenPointToLocal( x, y, &local_x, &local_y );
+			if (LLView::sDebugMouseHandling)
+			{
+				llinfos << buttonname << " Mouse " << buttonstatestr << " handled by captor " << mouse_captor->getName() << llendl;
+			}
+			return mouse_captor->handleAnyMouseClick(local_x, local_y, mask, clicktype, down);
+		}
+
+		// Topmost view gets a chance before the hierarchy
+		//LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
+		//if (top_ctrl)
+		//{
+		//	S32 local_x, local_y;
+		//	top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
+		//		if (top_ctrl->pointInView(local_x, local_y))
+		//		{
+		//			return top_ctrl->handleAnyMouseClick(local_x, local_y, mask, clicktype, down)	;
+		//		}
+		//		else
+		//		{
+		//		if (down)
+		//		{
+		//			gFocusMgr.setTopCtrl(NULL);
+		//		}
+		//	}
+		//}
+
+		// Give the UI views a chance to process the click
+		if( mRootView->handleAnyMouseClick(x, y, mask, clicktype, down) )
+		{
+			if (LLView::sDebugMouseHandling)
+			{
+				llinfos << buttonname << " Mouse " << buttonstatestr << " " << LLView::sMouseHandlerMessage << llendl;
+			}
+			return TRUE;
+		}
+		else if (LLView::sDebugMouseHandling)
+		{
+			llinfos << buttonname << " Mouse " << buttonstatestr << " not handled by view" << llendl;
+		}
 	}
 
 	// Do not allow tool manager to handle mouseclicks if we have disconnected	
@@ -1664,26 +1669,6 @@ void LLViewerWindow::initWorldUI()
 		navbar->showFavoritesPanel(FALSE);
 	}
 
-	if (!gSavedSettings.getBOOL("ShowCameraButton"))
-	{
-		LLBottomTray::getInstance()->showCameraButton(FALSE);
-	}
-
-	if (!gSavedSettings.getBOOL("ShowSnapshotButton"))
-	{
-		LLBottomTray::getInstance()->showSnapshotButton(FALSE);
-	}
-
-	if (!gSavedSettings.getBOOL("ShowMoveButton"))
-	{
-		LLBottomTray::getInstance()->showMoveButton(FALSE);
-	}
-
-	if (!gSavedSettings.getBOOL("ShowGestureButton"))
-	{
-		LLBottomTray::getInstance()->showGestureButton(FALSE);
-	}
-
 	if ( gHUDView == NULL )
 	{
 		LLRect hud_rect = full_window;
@@ -2458,7 +2443,9 @@ void LLViewerWindow::updateUI()
 	// animate layout stacks so we have up to date rect for world view
 	LLLayoutStack::updateClass();
 
-	updateWorldViewRect();
+	// use full window for world view when not rendering UI
+	bool world_view_uses_full_window = !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+	updateWorldViewRect(world_view_uses_full_window);
 
 	LLView::sMouseHandlerMessage.clear();
 
@@ -2508,28 +2495,55 @@ void LLViewerWindow::updateUI()
 		root_view = mRootView;
 	}
 
-	// include all ancestors of captor_view as automatically having mouse
-	if (captor_view)
+	// only update mouse hover set when UI is visible (since we shouldn't send hover events to invisible UI
+	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
-		LLView* captor_parent_view = captor_view->getParent();
-		while(captor_parent_view)
+		// include all ancestors of captor_view as automatically having mouse
+		if (captor_view)
 		{
-			mouse_hover_set.insert(captor_parent_view->getHandle());
-			captor_parent_view = captor_parent_view->getParent();
+			LLView* captor_parent_view = captor_view->getParent();
+			while(captor_parent_view)
+			{
+				mouse_hover_set.insert(captor_parent_view->getHandle());
+				captor_parent_view = captor_parent_view->getParent();
+			}
 		}
-	}
 
-	// aggregate visible views that contain mouse cursor in display order
-	LLPopupView::popup_list_t popups = mPopupView->getCurrentPopups();
+		// aggregate visible views that contain mouse cursor in display order
+		LLPopupView::popup_list_t popups = mPopupView->getCurrentPopups();
 
-	for(LLPopupView::popup_list_t::iterator popup_it = popups.begin(); popup_it != popups.end(); ++popup_it)
-	{
-		LLView* popup = popup_it->get();
-		if (popup && popup->calcScreenBoundingRect().pointInRect(x, y))
+		for(LLPopupView::popup_list_t::iterator popup_it = popups.begin(); popup_it != popups.end(); ++popup_it)
+		{
+			LLView* popup = popup_it->get();
+			if (popup && popup->calcScreenBoundingRect().pointInRect(x, y))
+			{
+				// iterator over contents of top_ctrl, and throw into mouse_hover_set
+				for (LLView::tree_iterator_t it = popup->beginTreeDFS();
+					it != popup->endTreeDFS();
+					++it)
+				{
+					LLView* viewp = *it;
+					if (viewp->getVisible()
+						&& viewp->calcScreenBoundingRect().pointInRect(x, y))
+					{
+						// we have a view that contains the mouse, add it to the set
+						mouse_hover_set.insert(viewp->getHandle());
+					}
+					else
+					{
+						// skip this view and all of its children
+						it.skipDescendants();
+					}
+				}
+			}
+		}
+
+		// while the top_ctrl contains the mouse cursor, only it and its descendants will receive onMouseEnter events
+		if (top_ctrl && top_ctrl->calcScreenBoundingRect().pointInRect(x, y))
 		{
 			// iterator over contents of top_ctrl, and throw into mouse_hover_set
-			for (LLView::tree_iterator_t it = popup->beginTreeDFS();
-				it != popup->endTreeDFS();
+			for (LLView::tree_iterator_t it = top_ctrl->beginTreeDFS();
+				it != top_ctrl->endTreeDFS();
 				++it)
 			{
 				LLView* viewp = *it;
@@ -2546,57 +2560,34 @@ void LLViewerWindow::updateUI()
 				}
 			}
 		}
-	}
-
-	// while the top_ctrl contains the mouse cursor, only it and its descendants will receive onMouseEnter events
-	if (top_ctrl && top_ctrl->calcScreenBoundingRect().pointInRect(x, y))
-	{
-		// iterator over contents of top_ctrl, and throw into mouse_hover_set
-		for (LLView::tree_iterator_t it = top_ctrl->beginTreeDFS();
-			it != top_ctrl->endTreeDFS();
-			++it)
+		else
 		{
-			LLView* viewp = *it;
-			if (viewp->getVisible()
-				&& viewp->calcScreenBoundingRect().pointInRect(x, y))
+			// walk UI tree in depth-first order
+			for (LLView::tree_iterator_t it = root_view->beginTreeDFS();
+				it != root_view->endTreeDFS();
+				++it)
 			{
-				// we have a view that contains the mouse, add it to the set
-				mouse_hover_set.insert(viewp->getHandle());
-			}
-			else
-			{
-				// skip this view and all of its children
-				it.skipDescendants();
-			}
-		}
-	}
-	else
-	{
-		// walk UI tree in depth-first order
-		for (LLView::tree_iterator_t it = root_view->beginTreeDFS();
-			it != root_view->endTreeDFS();
-			++it)
-		{
-			LLView* viewp = *it;
-			// calculating the screen rect involves traversing the parent, so this is less than optimal
-			if (viewp->getVisible()
-				&& viewp->calcScreenBoundingRect().pointInRect(x, y))
-			{
-
-				// if this view is mouse opaque, nothing behind it should be in mouse_hover_set
-				if (viewp->getMouseOpaque())
+				LLView* viewp = *it;
+				// calculating the screen rect involves traversing the parent, so this is less than optimal
+				if (viewp->getVisible()
+					&& viewp->calcScreenBoundingRect().pointInRect(x, y))
 				{
-					// constrain further iteration to children of this widget
-					it = viewp->beginTreeDFS();
+
+					// if this view is mouse opaque, nothing behind it should be in mouse_hover_set
+					if (viewp->getMouseOpaque())
+					{
+						// constrain further iteration to children of this widget
+						it = viewp->beginTreeDFS();
+					}
+		
+					// we have a view that contains the mouse, add it to the set
+					mouse_hover_set.insert(viewp->getHandle());
 				}
-	
-				// we have a view that contains the mouse, add it to the set
-				mouse_hover_set.insert(viewp->getHandle());
-			}
-			else
-			{
-				// skip this view and all of its children
-				it.skipDescendants();
+				else
+				{
+					// skip this view and all of its children
+					it.skipDescendants();
+				}
 			}
 		}
 	}
@@ -2640,156 +2631,170 @@ void LLViewerWindow::updateUI()
 	// store resulting hover set for next frame
 	swap(mMouseHoverViews, mouse_hover_set);
 
-	if( mouse_captor )
-	{
-		// Pass hover events to object capturing mouse events.
-		S32 local_x;
-		S32 local_y; 
-		mouse_captor->screenPointToLocal( x, y, &local_x, &local_y );
-		handled = mouse_captor->handleHover(local_x, local_y, mask);
-		if (LLView::sDebugMouseHandling)
+	// only handle hover events when UI is enabled
+	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+	{	
+
+		if( mouse_captor )
 		{
-			llinfos << "Hover handled by captor " << mouse_captor->getName() << llendl;
+			// Pass hover events to object capturing mouse events.
+			S32 local_x;
+			S32 local_y; 
+			mouse_captor->screenPointToLocal( x, y, &local_x, &local_y );
+			handled = mouse_captor->handleHover(local_x, local_y, mask);
+			if (LLView::sDebugMouseHandling)
+			{
+				llinfos << "Hover handled by captor " << mouse_captor->getName() << llendl;
+			}
+
+			if( !handled )
+			{
+				lldebugst(LLERR_USER_INPUT) << "hover not handled by mouse captor" << llendl;
+			}
+		}
+		else
+		{
+			if (top_ctrl)
+			{
+				S32 local_x, local_y;
+				top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
+				handled = top_ctrl->pointInView(local_x, local_y) && top_ctrl->handleHover(local_x, local_y, mask);
+				handled_by_top_ctrl = TRUE;
+			}
+
+			if ( !handled )
+			{
+				// x and y are from last time mouse was in window
+				// mMouseInWindow tracks *actual* mouse location
+				if (mMouseInWindow && mRootView->handleHover(x, y, mask) )
+				{
+					if (LLView::sDebugMouseHandling && LLView::sMouseHandlerMessage != last_handle_msg)
+					{
+						last_handle_msg = LLView::sMouseHandlerMessage;
+						llinfos << "Hover" << LLView::sMouseHandlerMessage << llendl;
+					}
+					handled = TRUE;
+				}
+				else if (LLView::sDebugMouseHandling)
+				{
+					if (last_handle_msg != LLStringUtil::null)
+					{
+						last_handle_msg.clear();
+						llinfos << "Hover not handled by view" << llendl;
+					}
+				}
+			}
+		
+			if (!handled)
+			{
+				LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
+
+				if(mMouseInWindow && tool)
+				{
+					handled = tool->handleHover(x, y, mask);
+				}
+			}
 		}
 
-		if( !handled )
+		// Show a new tool tip (or update one that is already shown)
+		BOOL tool_tip_handled = FALSE;
+		std::string tool_tip_msg;
+		if( handled 
+			&& !mWindow->isCursorHidden())
 		{
-			lldebugst(LLERR_USER_INPUT) << "hover not handled by mouse captor" << llendl;
-		}
+			LLRect screen_sticky_rect = mRootView->getLocalRect();
+			S32 local_x, local_y;
+
+			if (gSavedSettings.getBOOL("DebugShowXUINames"))
+			{
+				LLToolTip::Params params;
+
+				LLView* tooltip_view = mRootView;
+				LLView::tree_iterator_t end_it = mRootView->endTreeDFS();
+				for (LLView::tree_iterator_t it = mRootView->beginTreeDFS(); it != end_it; ++it)
+				{
+					LLView* viewp = *it;
+					LLRect screen_rect;
+					viewp->localRectToScreen(viewp->getLocalRect(), &screen_rect);
+					if (!(viewp->getVisible()
+						 && screen_rect.pointInRect(x, y)))
+					{
+						it.skipDescendants();
+					}
+					// only report xui names for LLUICtrls, 
+					// and blacklist the various containers we don't care about
+					else if (dynamic_cast<LLUICtrl*>(viewp) 
+							&& viewp != gMenuHolder
+							&& viewp != gFloaterView
+							&& viewp != gConsole) 
+					{
+						if (dynamic_cast<LLFloater*>(viewp))
+						{
+							// constrain search to descendants of this (frontmost) floater
+							// by resetting iterator
+							it = viewp->beginTreeDFS();
+						}
+
+						// if we are in a new part of the tree (not a descendent of current tooltip_view)
+						// then push the results for tooltip_view and start with a new potential view
+						// NOTE: this emulates visiting only the leaf nodes that meet our criteria
+						if (!viewp->hasAncestor(tooltip_view))
+						{
+							append_xui_tooltip(tooltip_view, params);
+							screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
+						}
+						tooltip_view = viewp;
+					}
+				}
+
+				append_xui_tooltip(tooltip_view, params);
+				screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
+				
+				params.sticky_rect = screen_sticky_rect;
+				params.max_width = 400;
+
+				LLToolTipMgr::instance().show(params);
+			}
+			// if there is a mouse captor, nothing else gets a tooltip
+			else if (mouse_captor)
+			{
+				mouse_captor->screenPointToLocal(x, y, &local_x, &local_y);
+				tool_tip_handled = mouse_captor->handleToolTip(local_x, local_y, mask);
+			}
+			else 
+			{
+				// next is top_ctrl
+				if (!tool_tip_handled && top_ctrl)
+				{
+					top_ctrl->screenPointToLocal(x, y, &local_x, &local_y);
+					tool_tip_handled = top_ctrl->handleToolTip(local_x, local_y, mask );
+				}
+				
+				if (!tool_tip_handled)
+				{
+					local_x = x; local_y = y;
+					tool_tip_handled = mRootView->handleToolTip(local_x, local_y, mask );
+				}
+
+				LLTool* current_tool = LLToolMgr::getInstance()->getCurrentTool();
+				if (!tool_tip_handled && current_tool)
+				{
+					current_tool->screenPointToLocal(x, y, &local_x, &local_y);
+					tool_tip_handled = current_tool->handleToolTip(local_x, local_y, mask );
+				}
+			}
+		}		
 	}
 	else
-	{
-		if (top_ctrl)
-		{
-			S32 local_x, local_y;
-			top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
-			handled = top_ctrl->pointInView(local_x, local_y) && top_ctrl->handleHover(local_x, local_y, mask);
-			handled_by_top_ctrl = TRUE;
-		}
+	{	// just have tools handle hover when UI is turned off
+		LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 
-		if ( !handled )
+		if(mMouseInWindow && tool)
 		{
-			// x and y are from last time mouse was in window
-			// mMouseInWindow tracks *actual* mouse location
-			if (mMouseInWindow && mRootView->handleHover(x, y, mask) )
-			{
-				if (LLView::sDebugMouseHandling && LLView::sMouseHandlerMessage != last_handle_msg)
-				{
-					last_handle_msg = LLView::sMouseHandlerMessage;
-					llinfos << "Hover" << LLView::sMouseHandlerMessage << llendl;
-				}
-				handled = TRUE;
-			}
-			else if (LLView::sDebugMouseHandling)
-			{
-				if (last_handle_msg != LLStringUtil::null)
-				{
-					last_handle_msg.clear();
-					llinfos << "Hover not handled by view" << llendl;
-				}
-			}
-		}
-
-		if (!handled)
-		{
-			LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
-
-			if(mMouseInWindow && tool)
-			{
-				handled = tool->handleHover(x, y, mask);
-			}
+			handled = tool->handleHover(x, y, mask);
 		}
 	}
 
-	// Show a new tool tip (or update one that is already shown)
-	BOOL tool_tip_handled = FALSE;
-	std::string tool_tip_msg;
-	if( handled 
-		&& !mWindow->isCursorHidden())
-	{
-		LLRect screen_sticky_rect = mRootView->getLocalRect();
-		S32 local_x, local_y;
-
-		if (gSavedSettings.getBOOL("DebugShowXUINames"))
-		{
-			LLToolTip::Params params;
-
-			LLView* tooltip_view = mRootView;
-			LLView::tree_iterator_t end_it = mRootView->endTreeDFS();
-			for (LLView::tree_iterator_t it = mRootView->beginTreeDFS(); it != end_it; ++it)
-			{
-				LLView* viewp = *it;
-				LLRect screen_rect;
-				viewp->localRectToScreen(viewp->getLocalRect(), &screen_rect);
-				if (!(viewp->getVisible()
-					 && screen_rect.pointInRect(x, y)))
-				{
-					it.skipDescendants();
-				}
-				// only report xui names for LLUICtrls, 
-				// and blacklist the various containers we don't care about
-				else if (dynamic_cast<LLUICtrl*>(viewp) 
-						&& viewp != gMenuHolder
-						&& viewp != gFloaterView
-						&& viewp != gConsole) 
-				{
-					if (dynamic_cast<LLFloater*>(viewp))
-					{
-						// constrain search to descendants of this (frontmost) floater
-						// by resetting iterator
-						it = viewp->beginTreeDFS();
-					}
-
-					// if we are in a new part of the tree (not a descendent of current tooltip_view)
-					// then push the results for tooltip_view and start with a new potential view
-					// NOTE: this emulates visiting only the leaf nodes that meet our criteria
-					if (!viewp->hasAncestor(tooltip_view))
-					{
-						append_xui_tooltip(tooltip_view, params);
-						screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
-					}
-					tooltip_view = viewp;
-				}
-			}
-
-			append_xui_tooltip(tooltip_view, params);
-			screen_sticky_rect.intersectWith(tooltip_view->calcScreenRect());
-			
-			params.sticky_rect = screen_sticky_rect;
-			params.max_width = 400;
-
-			LLToolTipMgr::instance().show(params);
-		}
-		// if there is a mouse captor, nothing else gets a tooltip
-		else if (mouse_captor)
-		{
-			mouse_captor->screenPointToLocal(x, y, &local_x, &local_y);
-			tool_tip_handled = mouse_captor->handleToolTip(local_x, local_y, mask);
-		}
-		else 
-		{
-			// next is top_ctrl
-			if (!tool_tip_handled && top_ctrl)
-			{
-				top_ctrl->screenPointToLocal(x, y, &local_x, &local_y);
-				tool_tip_handled = top_ctrl->handleToolTip(local_x, local_y, mask );
-			}
-			
-			if (!tool_tip_handled)
-			{
-				local_x = x; local_y = y;
-				tool_tip_handled = mRootView->handleToolTip(local_x, local_y, mask );
-			}
-
-			LLTool* current_tool = LLToolMgr::getInstance()->getCurrentTool();
-			if (!tool_tip_handled && current_tool)
-			{
-				current_tool->screenPointToLocal(x, y, &local_x, &local_y);
-				tool_tip_handled = current_tool->handleToolTip(local_x, local_y, mask );
-			}
-		}
-	}		
-	
 	updateLayout();
 
 	mLastMousePoint = mCurrentMousePoint;
@@ -2905,6 +2910,11 @@ void LLViewerWindow::updateMouseDelta()
 
 void LLViewerWindow::updateKeyboardFocus()
 {
+	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+	{
+		gFocusMgr.setKeyboardFocus(NULL);
+	}
+
 	// clean up current focus
 	LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
 	if (cur_focus)
@@ -3977,9 +3987,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	// PRE SNAPSHOT
 	gDisplaySwapBuffers = FALSE;
 	
-	// if not showing ui, use full window to render world view
-	updateWorldViewRect(!show_ui);
-
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	setCursor(UI_CURSOR_WAIT);
 
@@ -4052,6 +4059,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		//else: keep the current scene scale, re-scale it if necessary after reading out.
 	}
 	
+	// if not showing ui, use full window to render world view
+	updateWorldViewRect(!show_ui);
+
 	S32 buffer_x_offset = llfloor(((window_width - snapshot_width) * scale_factor) / 2.f);
 	S32 buffer_y_offset = llfloor(((window_height - snapshot_height) * scale_factor) / 2.f);
 

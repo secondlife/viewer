@@ -179,6 +179,16 @@ private:
 			LLSideTray::getInstance()->setEnabled(FALSE);
 	}
 	
+	/**
+	 * Initializes listener of SidebarWithButtonsVisibility setting and updates state according to it.
+	 */
+	void initControlSettings();
+
+	/**
+	 * Updates Sidebar and its Tab Buttons visibility according to passed value.
+	 */
+	void toggleSidetrayAndTabButtonsVisibility(const LLSD::Boolean& new_visibility);
+
 private:
 
 	LLPanel*						mButtonsPanel;

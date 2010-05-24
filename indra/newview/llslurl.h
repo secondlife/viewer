@@ -65,7 +65,7 @@ public:
 	};
 		
 	
-	LLSLURL(): mType(LAST_LOCATION)  { }
+	LLSLURL(): mType(INVALID)  { }
 	LLSLURL(const std::string& slurl);
 	LLSLURL(const std::string& grid, const std::string& region);
 	LLSLURL(const std::string& region, const LLVector3& position);

@@ -57,6 +57,20 @@
         tool_tip="Click to choose a picture"
         top_pad="10"
         width="94" />
+       <color_swatch
+        can_apply_immediately="true"
+        follows="left|top"
+        height="80"
+        label="Color/Tint"
+        layout="topleft"
+        left_pad="20"
+        name="Color/Tint"
+        tool_tip="Click to open color picker"
+        top="10"
+        width="64" >
+         <color_swatch.commit_callback
+             function="ColorSwatch.Commit" />
+       </color_swatch>
 	 </panel>
 </panel>
 

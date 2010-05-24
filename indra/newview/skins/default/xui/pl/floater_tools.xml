@@ -67,7 +67,10 @@
 	<text name="RenderingCost" tool_tip="Pokazuje koszt renderowania tego obiektu">
 		þ: [COUNT]
 	</text>
-	<check_box label="Rozciągnij 2 Strony" name="checkbox uniform"/>
+	<check_box name="checkbox uniform"/>
+	<text name="checkbox uniform label">
+		Rozciągnij 2 Strony
+	</text>
 	<check_box initial_value="true" label="Rozciągnij Teksturę" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Użyj siatki" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Wybierz rodzaj linijki siatki dla pozycjonowania obiektu">

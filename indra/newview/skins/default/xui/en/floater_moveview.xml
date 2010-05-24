@@ -165,7 +165,7 @@
          right="-13"
          name="turn right btn"
          scale_image="false"
-         tool_tip="Turn left (press Right Arrow or D)"
+         tool_tip="Turn right (press Right Arrow or D)"
          top_pad="-3"
          width="24" />
         <joystick_slide

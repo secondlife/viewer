@@ -87,7 +87,7 @@ width="333">
       <button
       follows="left|top"
       height="20"
-      image_overlay="windows/Icon_Gear_Over.png"
+      image_overlay="Edit_Wrench"
       label=""
       layout="topleft"
       left="265"
@@ -120,6 +120,7 @@ width="333">
    height="493"
    min_height="410"
    width="320"
+   visible="false"
    left="0"
    tab_group="1"
    top_pad="6"

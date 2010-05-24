@@ -67,7 +67,10 @@
 	<text name="RenderingCost" tool_tip="Hvis beregnede rendering omkostninger for dette objekt">
 		þ: [COUNT]
 	</text>
-	<check_box label="Stræk begge sider" name="checkbox uniform"/>
+	<check_box name="checkbox uniform"/>
+	<text name="checkbox uniform label">
+		Stræk begge sider
+	</text>
 	<check_box initial_value="true" label="Stræk teksturer" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Benyt gitter" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Vælg hvilken type lineal der skal bruges til positionering af objekt">

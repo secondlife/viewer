@@ -791,6 +791,12 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 		}
 		mIgnoreNextSessionLeave = FALSE;
 		return;
+	case STATUS_JOINING:
+		// because we join session we expect to process session leave event in the future. EXT-7371
+		// may be this should be done in the LLVoiceChannel::handleStatusChange.
+		mIgnoreNextSessionLeave = FALSE;
+		break;
+
 	default:
 		break;
 	}

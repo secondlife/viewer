@@ -1801,21 +1801,31 @@ void LLVOAvatarSelf::bakedTextureUpload(EBakedTextureIndex index, BOOL finished)
 	mBakedTextureTimes[index][done] = mDebugSelfLoadTimer.getElapsedTimeF32();
 }
 
-const LLUUID& LLVOAvatarSelf::grabLocalTexture(ETextureIndex type, U32 index) const
+const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) const
 {
-	if (canGrabLocalTexture(type, index))
+	if (canGrabBakedTexture(baked_index))
 	{
-		return getTEImage( type )->getID();
+		ETextureIndex tex_index = LLVOAvatarDictionary::bakedToLocalTextureIndex(baked_index);
+		if (tex_index == TEX_NUM_INDICES)
+		{
+			return LLUUID::null;
+		}
+		return getTEImage( tex_index )->getID();
 	}
 	return LLUUID::null;
 }
 
-BOOL LLVOAvatarSelf::canGrabLocalTexture(ETextureIndex type, U32 index) const
+BOOL LLVOAvatarSelf::canGrabBakedTexture(EBakedTextureIndex baked_index) const
 {
-	// Check if the texture hasn't been baked yet.
-	if (!isTextureDefined(type, index))
+	ETextureIndex tex_index = LLVOAvatarDictionary::bakedToLocalTextureIndex(baked_index);
+	if (tex_index == TEX_NUM_INDICES)
 	{
-		lldebugs << "getTEImage( " << (U32) type << ", " << index << " )->getID() == IMG_DEFAULT_AVATAR" << llendl;
+		return FALSE;
+	}
+	// Check if the texture hasn't been baked yet.
+	if (!isTextureDefined(tex_index, 0))
+	{
+		lldebugs << "getTEImage( " << (U32) tex_index << " )->getID() == IMG_DEFAULT_AVATAR" << llendl;
 		return FALSE;
 	}
 
@@ -1825,13 +1835,7 @@ BOOL LLVOAvatarSelf::canGrabLocalTexture(ETextureIndex type, U32 index) const
 	// Check permissions of textures that show up in the
 	// baked texture.  We don't want people copying people's
 	// work via baked textures.
-	/* switch(type)
-		case TEX_EYES_BAKED:
-			textures.push_back(TEX_EYES_IRIS); */
-	const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(type);
-	if (!texture_dict->mIsUsedByBakedTexture) return FALSE;
 
-	const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
 	const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_index);
 	for (texture_vec_t::const_iterator iter = baked_dict->mLocalTextures.begin();
 		 iter != baked_dict->mLocalTextures.end();
