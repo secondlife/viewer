@@ -4126,14 +4126,14 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
 						norm_mat.rotate(n[v1], t);
 
-						t.normalize3Fast();
+						t.normalize3fast();
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
 
 						mat.affineTransform(v[v2], t);
 						vertices.push_back(LLVector3(t[0], t[1], t[2]));
 						
 						norm_mat.rotate(n[v2], t);
-						t.normalize3Fast();
+						t.normalize3fast();
 						normals.push_back(LLVector3(t[0], t[1], t[2]));
 
 						segments.push_back(vertices.size());
@@ -5349,7 +5349,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 		mCenter, cuv,
 		mesh[0+offset].mPos, tc[0],
 		mesh[1+offset].mPos, tc[1]);
-	binormal.normalize3Fast();
+	binormal.normalize3fast();
 
 	LLVector4a normal;
 	LLVector4a d0, d1;
@@ -5369,7 +5369,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 		normal.setCross3(d1, d0);
 	}
 
-	normal.normalize3Fast();
+	normal.normalize3fast();
 
 	VertexData vd;
 	vd.mPosition = mCenter;
@@ -5675,7 +5675,7 @@ void LLVolumeFace::createBinormals()
 		//normalize binormals
 		for (U32 i = 0; i < mNumVertices; i++) 
 		{
-			binorm[i].normalize3Fast();
+			binorm[i].normalize3fast();
 		}
 	}
 }
@@ -5803,7 +5803,7 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	{
 		mat.affineTransform(src_pos[i], dst_pos[i]);
 		norm_mat.rotate(src_norm[i], dst_norm[i]);
-		dst_norm[i].normalize3Fast();
+		dst_norm[i].normalize3fast();
 
 		dst_tc[i] = src_tc[i];
 

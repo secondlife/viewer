@@ -1241,6 +1241,16 @@ void LLPanelObject::sendIsPhantom()
 	}
 }
 
+#include "llsdutil.h"
+class CostResponder : public LLHTTPClient::Responder
+{
+public:
+	CostResponder(U32 id) { mID = id; }
+	virtual void result(const LLSD& content) { llinfos << ll_pretty_print_sd(content) << llendl; }
+
+	U32 mID;
+};
+
 void LLPanelObject::sendPhysicsShapeType()
 {
 	U8 value = (U8)mComboPhysicsShapeType->getCurrentIndex();
@@ -1255,6 +1265,13 @@ void LLPanelObject::sendPhysicsShapeType()
 	{
 		llinfos << "update physics shape type not changed" << llendl;
 	}
+
+	std::string url = gAgent.getRegion()->getCapability("GetObjectCost");
+	LLSD body = LLSD::emptyArray();
+	
+	body.append(LLSelectMgr::getInstance()->getSelection()->getFirstObject()->getID());
+	
+	LLHTTPClient::post( url, body, new CostResponder(body[0].asInteger()) );
 }
 
 void LLPanelObject::sendCastShadows()

@@ -62,6 +62,8 @@ set(llmath_HEADER_FILES
     llv4matrix3.h
     llv4matrix4.h
     llv4vector3.h
+    llvector4a.h
+    llmatrix4a.h
     llvolume.h
     llvolumemgr.h
     llsdutil_math.h
