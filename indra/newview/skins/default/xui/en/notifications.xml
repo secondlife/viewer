@@ -257,7 +257,7 @@ Save all changes to clothing/body parts?
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.
-Do you want to grant modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to grant modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -280,7 +280,7 @@ Do you want to grant modify rights for the selected Residents?
    icon="alertmodal.tga"
    name="RevokeModifyRights"
    type="alertmodal">
-Do you want to revoke modify rights for [FIRST_NAME] [LAST_NAME]?
+Do you want to revoke modify rights for [NAME]?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -2070,7 +2070,7 @@ Would you be my friend?
    icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
-Do you want to remove [FIRST_NAME] [LAST_NAME] from your Friends List?
+Do you want to remove [NAME] from your Friends List?
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
@@ -2323,7 +2323,7 @@ Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
    name="DeedLandToGroupWithContribution"
    type="alertmodal">
 By deeding this parcel, the group will be required to have and maintain sufficient land use credits.
-The deed will include a simultaneous land contribution to the group from &apos;[FIRST_NAME] [LAST_NAME]&apos;.
+The deed will include a simultaneous land contribution to the group from &apos;[NAME]&apos;.
 The purchase price of the land is not refunded to the owner. If a deeded parcel is sold, the sale price will be divided evenly among group members.
 
 Deed this [AREA] m² of land to the group &apos;[GROUP_NAME]&apos;?
@@ -3139,6 +3139,79 @@ You are no longer frozen.
        name="Cancel"
        text="Cancel"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayName"
+   type="alertmodal">
+Change your display name?
+    <form name="form">
+      <input name="display_name" type="text">
+[DISPLAY_NAME]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="Change"
+       text="Change"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameSuccess"
+   type="alertmodal">
+Thanks for updating your name!
+
+Just like in real life, it takes a while for everyone to learn about a new name.  Please allow [HOURS] hours for your name to update in object ownership, scripts, search, etc.
+
+See http://wiki.secondlife.com/wiki/Setting_your_display_name for details.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedLength"
+   type="alertmodal">
+Sorry, that name is too long.  Display names can have a maximum of [LENGTH] characters.
+
+Please try a shorter name.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedGeneric"
+   type="alertmodal">
+    Sorry, we could not set your display name.  Please try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AgentDisplayNameUpdateThresholdExceeded"
+   type="alertmodal">
+Sorry, you can only change your name once every 24 hours.
+
+Please try again later.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AgentDisplayNameSetBlocked"
+   type="alertmodal">
+ Sorry, we could not set your requested name because it contains a banned word.
+ 
+ Please try a different name.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="DisplayNameUpdate"
+   type="notifytip">
+    [OLD_NAME] ([SLID]) is now known as [NEW_NAME].
   </notification>
 
   <notification
@@ -4445,14 +4518,14 @@ Topic: [SUBJECT], Message: [MESSAGE]
    icon="notifytip.tga"
    name="FriendOnline"
    type="notifytip">
-[FIRST] [LAST] is Online
+[NAME] is Online
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="FriendOffline"
    type="notifytip">
-[FIRST] [LAST] is Offline
+[NAME] is Offline
   </notification>
 
   <notification
@@ -4620,13 +4693,6 @@ You cannot remove protected categories.
 
   <notification
    icon="notifytip.tga"
-   name="OfferedCard"
-   type="notifytip">
-You have offered a calling card to [FIRST] [LAST]
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
    name="UnableToBuyWhileDownloading"
    type="notifytip">
 Unable to buy while downloading object data.
@@ -4780,7 +4846,15 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
-   name="PaymentRecived"
+   name="PaymentReceived"
+   persist="true"
+   type="notify">
+[MESSAGE]
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="PaymentSent"
    persist="true"
    type="notify">
 [MESSAGE]
@@ -4878,7 +4952,7 @@ The objects you own on the selected parcel of land have been returned back to yo
    name="OtherObjectsReturned"
    persist="true"
    type="notify">
-The objects on the selected parcel of land that is owned by [FIRST] [LAST] have been returned to his or her inventory.
+The objects on the selected parcel of land that is owned by [NAME] have been returned to his or her inventory.
   </notification>
 
   <notification
@@ -5553,7 +5627,7 @@ Grant this request?
    name="ScriptDialog"
    persist="true"
    type="notify">
-[FIRST] [LAST]&apos;s &apos;[TITLE]&apos;
+[NAME]&apos;s &apos;[TITLE]&apos;
 [MESSAGE]
     <form name="form">
       <button
@@ -5784,7 +5858,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="AutoUnmuteByIM"
    persist="true"
    type="notify">
-[FIRST] [LAST] was sent an instant message and has been automatically unblocked.
+[NAME] was sent an instant message and has been automatically unblocked.
   </notification>
 
   <notification
@@ -5792,7 +5866,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="AutoUnmuteByMoney"
    persist="true"
    type="notify">
-[FIRST] [LAST] was given money and has been automatically unblocked.
+[NAME] was given money and has been automatically unblocked.
   </notification>
 
   <notification
@@ -5800,7 +5874,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
    name="AutoUnmuteByInventory"
    persist="true"
    type="notify">
-[FIRST] [LAST] was offered inventory and has been automatically unblocked.
+[NAME] was offered inventory and has been automatically unblocked.
   </notification>
 
   <notification

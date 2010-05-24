@@ -244,7 +244,8 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 		LLIconCtrl::setValue(value);
 	}
 
-	gCacheName->get(mAvatarId, FALSE, boost::bind(&LLAvatarIconCtrl::nameUpdatedCallback, this, _1, _2, _3, _4));
+	gCacheName->get(mAvatarId, false,
+		boost::bind(&LLAvatarIconCtrl::nameUpdatedCallback, this, _1, _2, _3));
 }
 
 bool LLAvatarIconCtrl::updateFromCache()
@@ -289,22 +290,20 @@ void LLAvatarIconCtrl::processProperties(void* data, EAvatarProcessorType type)
 
 void LLAvatarIconCtrl::nameUpdatedCallback(
 	const LLUUID& id,
-	const std::string& first,
-	const std::string& last,
-	BOOL is_group)
+	const std::string& name,
+	bool is_group)
 {
 	if (id == mAvatarId)
 	{
-		mFirstName = first;
-		mLastName = last;
+		mFullName = name;
 
 		if (mDrawTooltip)
 		{
-			setToolTip(mFirstName + " " + mLastName);
+			setToolTip(name);
 		}
 		else
 		{
-			setToolTip(std::string(""));
+			setToolTip(std::string());
 		}
 	}
 }

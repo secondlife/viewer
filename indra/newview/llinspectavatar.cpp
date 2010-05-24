@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llagentdata.h"
 #include "llavataractions.h"
+#include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
 #include "lldateutil.h"
@@ -143,17 +144,13 @@ private:
 	// Is used to determine if "Add friend" option should be enabled in gear menu
 	bool isNotFriend();
 	
-	// Callback for gCacheName to look up avatar name
-	void nameUpdatedCallback(
-							 const LLUUID& id,
-							 const std::string& first,
-							 const std::string& last,
-							 BOOL is_group);
+	void onAvatarNameCache(const LLUUID& agent_id,
+						   const LLAvatarName& av_name);
 	
 private:
 	LLUUID				mAvatarID;
 	// Need avatar name information to spawn friend add request
-	std::string			mAvatarName;
+	std::string			mLegacyName;
 	// an in-flight request for avatar properties from LLAvatarPropertiesProcessor
 	// is represented by this object
 	LLFetchAvatarData*	mPropertiesRequest;
@@ -208,7 +205,7 @@ public:
 LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 :	LLInspect( LLSD() ),	// single_instance, doesn't really need key
 	mAvatarID(),			// set in onOpen()  *Note: we used to show partner's name but we dont anymore --angela 3rd Dec* 
-	mAvatarName(),
+	mLegacyName(),
 	mPropertiesRequest(NULL)
 {
 	mCommitCallbackRegistrar.add("InspectAvatar.ViewProfile",	boost::bind(&LLInspectAvatar::onClickViewProfile, this));	
@@ -336,6 +333,7 @@ void LLInspectAvatar::requestUpdate()
 
 	// Clear out old data so it doesn't flash between old and new
 	getChild<LLUICtrl>("user_name")->setValue("");
+	getChild<LLUICtrl>("user_slid")->setValue("");
 	getChild<LLUICtrl>("user_subtitle")->setValue("");
 	getChild<LLUICtrl>("user_details")->setValue("");
 	
@@ -373,9 +371,9 @@ void LLInspectAvatar::requestUpdate()
 
 	childSetValue("avatar_icon", LLSD(mAvatarID) );
 
-	gCacheName->get(mAvatarID, FALSE,
-		boost::bind(&LLInspectAvatar::nameUpdatedCallback,
-			this, _1, _2, _3, _4));
+	LLAvatarNameCache::get(mAvatarID,
+			boost::bind(&LLInspectAvatar::onAvatarNameCache,
+				this, _1, _2));
 }
 
 void LLInspectAvatar::processAvatarData(LLAvatarData* data)
@@ -562,7 +560,7 @@ void LLInspectAvatar::updateVolumeSlider()
 
 		LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
 
-		bool is_linden = LLStringUtil::endsWith(mAvatarName, " Linden");
+		bool is_linden = LLStringUtil::endsWith(mLegacyName, " Linden");
 
 		mute_btn->setEnabled( !is_linden);
 		mute_btn->setValue( is_muted );
@@ -593,7 +591,7 @@ void LLInspectAvatar::onClickMuteVolume()
 	LLMuteList* mute_list = LLMuteList::getInstance();
 	bool is_muted = mute_list->isMuted(mAvatarID, LLMute::flagVoiceChat);
 
-	LLMute mute(mAvatarID, mAvatarName, LLMute::AGENT);
+	LLMute mute(mAvatarID, mLegacyName, LLMute::AGENT);
 	if (!is_muted)
 	{
 		mute_list->add(mute, LLMute::flagVoiceChat);
@@ -612,22 +610,21 @@ void LLInspectAvatar::onVolumeChange(const LLSD& data)
 	LLVoiceClient::getInstance()->setUserVolume(mAvatarID, volume);
 }
 
-void LLInspectAvatar::nameUpdatedCallback(
-	const LLUUID& id,
-	const std::string& first,
-	const std::string& last,
-	BOOL is_group)
+void LLInspectAvatar::onAvatarNameCache(
+		const LLUUID& agent_id,
+		const LLAvatarName& av_name)
 {
-	if (id == mAvatarID)
+	if (agent_id == mAvatarID)
 	{
-		mAvatarName = first + " " + last;
-		childSetValue("user_name", LLSD(mAvatarName) );
+		getChild<LLUICtrl>("user_name")->setValue(av_name.mDisplayName);
+		getChild<LLUICtrl>("user_slid")->setValue(av_name.mUsername);
+		mLegacyName = av_name.getLegacyName();
 	}
 }
 
 void LLInspectAvatar::onClickAddFriend()
 {
-	LLAvatarActions::requestFriendshipDialog(mAvatarID, mAvatarName);
+	LLAvatarActions::requestFriendshipDialog(mAvatarID, mLegacyName);
 	closeFloater();
 }
 
@@ -695,7 +692,7 @@ void LLInspectAvatar::onClickShare()
 
 void LLInspectAvatar::onToggleMute()
 {
-	LLMute mute(mAvatarID, mAvatarName, LLMute::AGENT);
+	LLMute mute(mAvatarID, mLegacyName, LLMute::AGENT);
 
 	if (LLMuteList::getInstance()->isMuted(mute.mID, mute.mName))
 	{
@@ -712,7 +709,7 @@ void LLInspectAvatar::onToggleMute()
 
 void LLInspectAvatar::onClickReport()
 {
-	LLFloaterReporter::showFromAvatar(mAvatarID, mAvatarName);
+	LLFloaterReporter::showFromAvatar(mAvatarID, mLegacyName);
 	closeFloater();
 }
 
@@ -736,17 +733,17 @@ void LLInspectAvatar::onClickZoomIn()
 
 void LLInspectAvatar::onClickFindOnMap()
 {
-	gFloaterWorldMap->trackAvatar(mAvatarID, mAvatarName);
+	gFloaterWorldMap->trackAvatar(mAvatarID, mLegacyName);
 	LLFloaterReg::showInstance("world_map");
 }
 
 
 bool LLInspectAvatar::enableMute()
 {
-		bool is_linden = LLStringUtil::endsWith(mAvatarName, " Linden");
+		bool is_linden = LLStringUtil::endsWith(mLegacyName, " Linden");
 		bool is_self = mAvatarID == gAgent.getID();
 
-		if (!is_linden && !is_self && !LLMuteList::getInstance()->isMuted(mAvatarID, mAvatarName))
+		if (!is_linden && !is_self && !LLMuteList::getInstance()->isMuted(mAvatarID, mLegacyName))
 		{
 			return true;
 		}
@@ -758,10 +755,10 @@ bool LLInspectAvatar::enableMute()
 
 bool LLInspectAvatar::enableUnmute()
 {
-		bool is_linden = LLStringUtil::endsWith(mAvatarName, " Linden");
+		bool is_linden = LLStringUtil::endsWith(mLegacyName, " Linden");
 		bool is_self = mAvatarID == gAgent.getID();
 
-		if (!is_linden && !is_self && LLMuteList::getInstance()->isMuted(mAvatarID, mAvatarName))
+		if (!is_linden && !is_self && LLMuteList::getInstance()->isMuted(mAvatarID, mLegacyName))
 		{
 			return true;
 		}

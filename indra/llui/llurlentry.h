@@ -41,8 +41,11 @@
 #include <string>
 #include <map>
 
+class LLAvatarName;
+
 typedef boost::signals2::signal<void (const std::string& url,
-									  const std::string& label)> LLUrlLabelSignal;
+									  const std::string& label,
+									  const std::string& icon)> LLUrlLabelSignal;
 typedef LLUrlLabelSignal::slot_type LLUrlLabelCallback;
 
 ///
@@ -77,7 +80,7 @@ public:
 	virtual std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb) { return url; }
 
 	/// Return an icon that can be displayed next to Urls of this type
-	virtual std::string getIcon(const std::string &url) { return mIcon; }
+	virtual std::string getIcon(const std::string &url);
 
 	/// Return the color to render the displayed text
 	LLUIColor getColor() const { return mColor; }
@@ -101,7 +104,7 @@ protected:
 	std::string getLabelFromWikiLink(const std::string &url) const;
 	std::string getUrlFromWikiLink(const std::string &string) const;
 	void addObserver(const std::string &id, const std::string &url, const LLUrlLabelCallback &cb); 
-	void callObservers(const std::string &id, const std::string &label);
+	virtual void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 
 	typedef struct {
 		std::string url;
@@ -163,16 +166,17 @@ public:
 ///
 /// LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
 /// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-///
 class LLUrlEntryAgent : public LLUrlEntryBase
 {
 public:
 	LLUrlEntryAgent();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getIcon(const std::string &url);
 	/*virtual*/ std::string getTooltip(const std::string &string) const;
+protected:
+	/*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 private:
-	void onAgentNameReceived(const LLUUID& id, const std::string& first,
-							 const std::string& last, BOOL is_group);
+	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 };
 
 ///
@@ -185,8 +189,7 @@ public:
 	LLUrlEntryGroup();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 private:
-	void onGroupNameReceived(const LLUUID& id, const std::string& first,
-							 const std::string& last, BOOL is_group);
+	void onGroupNameReceived(const LLUUID& id, const std::string& name, bool is_group);
 };
 
 ///

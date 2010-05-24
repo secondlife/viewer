@@ -113,6 +113,7 @@ Hover your mouse over the options for more help.
      layout="topleft"
      left="0"
      name="visible_members"
+     short_names="false" 
      top_pad="2">
         <name_list.columns
          label="Member"

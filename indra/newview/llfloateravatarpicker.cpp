@@ -36,15 +36,21 @@
 // Viewer includes
 #include "llagent.h"
 #include "llcallingcard.h"
+#include "lldate.h"				// split()
+#include "lldateutil.h"			// ageFromDate()
 #include "llfocusmgr.h"
 #include "llfloaterreg.h"
 #include "llimview.h"			// for gIMMgr
 #include "lltooldraganddrop.h"	// for LLToolDragAndDrop
 #include "llviewercontrol.h"
+#include "llviewerregion.h"		// getCapability()
 #include "llworld.h"
 
 // Linden libraries
+#include "llavatarnamecache.h"	// IDEVO
 #include "llbutton.h"
+#include "llcachename.h"
+#include "llhttpclient.h"		// IDEVO
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -52,6 +58,8 @@
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
 #include "message.h"
+
+//#include "llsdserialize.h"
 
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 												   BOOL allow_multiple,
@@ -352,23 +360,75 @@ BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
 	return FALSE;
 }
 
+class LLAvatarPickerResponder : public LLHTTPClient::Responder
+{
+public:
+	LLUUID mQueryID;
+
+	LLAvatarPickerResponder(const LLUUID& id) : mQueryID(id) { }
+
+	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		//std::ostringstream ss;
+		//LLSDSerialize::toPrettyXML(content, ss);
+		//llinfos << ss.str() << llendl;
+
+		if (isGoodStatus(status))
+		{
+			LLFloaterAvatarPicker* floater =
+				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+			if (floater)
+			{
+				floater->processResponse(mQueryID, content);
+			}
+		}
+		else
+		{
+			llinfos << "avatar picker failed " << status
+				<< " reason " << reason << llendl;
+		}
+	}
+};
+
 void LLFloaterAvatarPicker::find()
 {
 	std::string text = childGetValue("Edit").asString();
 
 	mQueryID.generate();
 
-	LLMessageSystem* msg = gMessageSystem;
+	std::string url;
+	url.reserve(128); // avoid a memory allocation or two
 
-	msg->newMessage("AvatarPickerRequest");
-	msg->nextBlock("AgentData");
-	msg->addUUID("AgentID", gAgent.getID());
-	msg->addUUID("SessionID", gAgent.getSessionID());
-	msg->addUUID("QueryID", mQueryID);	// not used right now
-	msg->nextBlock("Data");
-	msg->addString("Name", text);
-
-	gAgent.sendReliableMessage();
+	LLViewerRegion* region = gAgent.getRegion();
+	url = region->getCapability("AvatarPickerSearch");
+	// Prefer use of capabilities to search on both SLID and display name
+	// but allow display name search to be manually turned off for test
+	if (!url.empty()
+		&& LLAvatarNameCache::useDisplayNames())
+	{
+		// capability urls don't end in '/', but we need one to parse
+		// query parameters correctly
+		if (url.size() > 0 && url[url.size()-1] != '/')
+		{
+			url += "/";
+		}
+		url += "?names=";
+		url += LLURI::escape(text);
+		llinfos << "avatar picker " << url << llendl;
+		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
+	}
+	else
+	{
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessage("AvatarPickerRequest");
+		msg->nextBlock("AgentData");
+		msg->addUUID("AgentID", gAgent.getID());
+		msg->addUUID("SessionID", gAgent.getSessionID());
+		msg->addUUID("QueryID", mQueryID);	// not used right now
+		msg->nextBlock("Data");
+		msg->addString("Name", text);
+		gAgent.sendReliableMessage();
+	}
 
 	getChild<LLScrollListCtrl>("SearchResults")->deleteAllItems();
 	getChild<LLScrollListCtrl>("SearchResults")->setCommentText(getString("searching"));
@@ -496,12 +556,13 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		}
 		else
 		{
-			avatar_name = first_name + " " + last_name;
+			avatar_name = LLCacheName::buildFullName(first_name, last_name);
 			search_results->setEnabled(TRUE);
 			found_one = TRUE;
 		}
 		LLSD element;
 		element["id"] = avatar_id; // value
+		element["columns"][0]["column"] = "name";
 		element["columns"][0]["value"] = avatar_name;
 		search_results->addElement(element);
 	}
@@ -515,10 +576,63 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	}
 }
 
+void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& content)
+{
+	// Check for out-of-date query
+	if (query_id != mQueryID) return;
+
+	LLScrollListCtrl* search_results = getChild<LLScrollListCtrl>("SearchResults");
+
+	LLSD agents = content["agents"];
+	if (agents.size() == 0)
+	{
+		LLStringUtil::format_map_t map;
+		map["[TEXT]"] = childGetText("Edit");
+		LLSD item;
+		item["id"] = LLUUID::null;
+		item["columns"][0]["column"] = "name";
+		item["columns"][0]["value"] = getString("not_found", map);
+		search_results->addElement(item);
+		search_results->setEnabled(FALSE);
+		childDisable("ok_btn");
+		return;
+	}
+
+	// clear "Searching" label on first results
+	search_results->deleteAllItems();
+
+	LLSD item;
+	LLSD::array_const_iterator it = agents.beginArray();
+	for ( ; it != agents.endArray(); ++it)
+	{
+		const LLSD& row = *it;
+		item["id"] = row["agent_id"];
+		LLSD& columns = item["columns"];
+		columns[0]["column"] = "name";
+		columns[0]["value"] = row["display_name"];
+		columns[1]["column"] = "slid";
+		columns[1]["value"] = row["sl_id"];
+		LLDate account_created = row["account_created"].asDate();
+		S32 year, month, day;
+		account_created.split(&year, &month, &day);
+		std::string age =
+			LLDateUtil::ageFromDate(account_created, LLDate::now());
+		columns[2]["column"] = "age";
+		columns[2]["value"] = age;
+		search_results->addElement(item);
+	}
+
+	childEnable("ok_btn");
+	search_results->setEnabled(true);
+	search_results->selectFirstItem();
+	onList();
+	search_results->setFocus(TRUE);
+}
+
 //static
 void LLFloaterAvatarPicker::editKeystroke(LLLineEditor* caller, void* user_data)
 {
-	childSetEnabled("Find", caller->getText().size() >= 3);
+	childSetEnabled("Find", caller->getText().size() > 0);
 }
 
 // virtual

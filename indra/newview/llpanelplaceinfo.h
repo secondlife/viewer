@@ -102,9 +102,7 @@ public:
 	void createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel);
 
 protected:
-	static void nameUpdatedCallback(LLTextBox* text,
-									const std::string& first,
-									const std::string& last);
+	static void onNameCache(LLTextBox* text, const std::string& full_name);
 
 	/**
 	 * mParcelID is valid only for remote places, in other cases it's null. See resetLocation() 

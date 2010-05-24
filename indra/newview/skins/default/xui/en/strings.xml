@@ -89,8 +89,9 @@ or.</string>
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
-	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
-	<string name="TooltipAgentMute">Click to mute this Resident</string>
+  <string name="TooltipAgentUrl">Click to view this Resident's profile</string>
+  <string name="TooltipAgentInspect">Learn more about this Resident</string>
+  <string name="TooltipAgentMute">Click to mute this Resident</string>
 	<string name="TooltipAgentUnmute">Click to unmute this Resident</string>
 	<string name="TooltipAgentIM">Click to IM this Resident</string>
 	<string name="TooltipAgentPay">Click to Pay this Resident</string>
@@ -104,7 +105,7 @@ or.</string>
 	<string name="TooltipObjectIMUrl">Click to view this object's description</string>
 	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
-	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />	
+	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
   <string name="TooltipPrice" value=" L$[PRICE]-" />
   
 
@@ -3007,7 +3008,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     You are the only user in this session.
   </string>
   <string name="offline_message">
-    [FIRST] [LAST] is offline.
+    [NAME] is offline.
   </string>
   <string name="invite_message">
     Click the [BUTTON NAME] button to accept/connect to this voice chat.
@@ -3091,11 +3092,13 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
   
   <!-- Financial operations strings -->
-  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
+  <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
+  <string name="paid_you_ldollars_no_reason">[NAME] paid you L$[AMOUNT].</string>
   <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>
   <string name="you_paid_ldollars_no_info">You paid L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_reason">You paid [NAME] L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_name">You paid L$[AMOUNT] [REASON].</string>
+  <string name="for item">for [ITEM]</string>
   <string name="for a parcel of land">for a parcel of land</string>
   <string name="for a land access pass">for a land access pass</string>
   <string name="for deeding land">for deeding land</string>

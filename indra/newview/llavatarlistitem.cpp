@@ -41,6 +41,7 @@
 #include "lltextutil.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
 
@@ -170,6 +171,7 @@ void LLAvatarListItem::setOnline(bool online)
 void LLAvatarListItem::setName(const std::string& name)
 {
 	setNameInternal(name, mHighlihtSubstring);
+	mAvatarName->setToolTip(name);
 }
 
 void LLAvatarListItem::setHighlight(const std::string& highlight)
@@ -230,7 +232,8 @@ void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, b
 		mAvatarIcon->setValue(id);
 
 		// Set avatar name.
-		gCacheName->get(id, FALSE, boost::bind(&LLAvatarListItem::onNameCache, this, _2, _3));
+		LLAvatarNameCache::get(id,
+			boost::bind(&LLAvatarListItem::onAvatarNameCache, this, _2));
 	}
 }
 
@@ -333,13 +336,12 @@ const std::string LLAvatarListItem::getAvatarName() const
 void LLAvatarListItem::setNameInternal(const std::string& name, const std::string& highlight)
 {
 	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle, name, highlight);
-	mAvatarName->setToolTip(name);
 }
 
-void LLAvatarListItem::onNameCache(const std::string& first_name, const std::string& last_name)
+void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	std::string name = first_name + " " + last_name;
-	setName(name);
+	setName(av_name.mDisplayName);
+	mAvatarName->setToolTip(av_name.mUsername);
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));

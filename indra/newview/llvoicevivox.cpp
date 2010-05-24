@@ -37,6 +37,8 @@
 
 #include "llsdutil.h"
 
+// Linden library includes
+#include "llavatarnamecache.h"
 #include "llvoavatarself.h"
 #include "llbufferstream.h"
 #include "llfile.h"
@@ -52,6 +54,8 @@
 #include "llviewercontrol.h"
 #include "llkeyboard.h"
 #include "llappviewer.h"	// for gDisconnected, gDisableVoice
+
+// Viewer includes
 #include "llmutelist.h"  // to check for muted avatars
 #include "llagent.h"
 #include "llcachename.h"
@@ -6176,16 +6180,18 @@ void LLVivoxVoiceClient::notifyFriendObservers()
 
 void LLVivoxVoiceClient::lookupName(const LLUUID &id)
 {
-	BOOL is_group = FALSE;
-	gCacheName->get(id, is_group, &LLVivoxVoiceClient::onAvatarNameLookup);
+	LLAvatarNameCache::get(id,
+		boost::bind(&LLVivoxVoiceClient::onAvatarNameCache,
+			this, _1, _2));
 }
 
-//static
-void LLVivoxVoiceClient::onAvatarNameLookup(const LLUUID& id, const std::string& first, const std::string& last, BOOL is_group)
+void LLVivoxVoiceClient::onAvatarNameCache(const LLUUID& agent_id,
+										   const LLAvatarName& av_name)
 {
-		std::string name = llformat("%s %s", first.c_str(), last.c_str());
-		LLVivoxVoiceClient::getInstance()->avatarNameResolved(id, name);
-	
+	// For Vivox, we use the legacy name because I'm uncertain whether or
+	// not their service can tolerate switching to Username or Display Name
+	std::string legacy_name = av_name.getLegacyName();
+	avatarNameResolved(agent_id, legacy_name);	
 }
 
 void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)

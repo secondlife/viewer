@@ -113,8 +113,11 @@ void LLSysHandler::removeExclusiveNotifications(const LLNotificationPtr& notif)
 }
 
 const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
-		REVOKED_MODIFY_RIGHTS("RevokedModifyRights"), OBJECT_GIVE_ITEM(
-				"ObjectGiveItem"), PAYMENT_RECIVED("PaymentRecived"),
+		REVOKED_MODIFY_RIGHTS("RevokedModifyRights"),
+		OBJECT_GIVE_ITEM("ObjectGiveItem"),
+		OBJECT_GIVE_ITEM_UNKNOWN_USER("ObjectGiveItemUnknownUser"),
+						PAYMENT_RECEIVED("PaymentReceived"),
+						PAYMENT_SENT("PaymentSent"),
 						ADD_FRIEND_WITH_MESSAGE("AddFriendWithMessage"),
 						USER_GIVE_ITEM("UserGiveItem"),
 						INVENTORY_ACCEPTED("InventoryAccepted"),
@@ -136,7 +139,8 @@ bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
 {
 	return GRANTED_MODIFY_RIGHTS == notification->getName()
 			|| REVOKED_MODIFY_RIGHTS == notification->getName()
-			|| PAYMENT_RECIVED == notification->getName()
+			|| PAYMENT_RECEIVED == notification->getName()
+			|| PAYMENT_SENT == notification->getName()
 			|| OFFER_FRIENDSHIP == notification->getName()
 			|| FRIENDSHIP_OFFERED == notification->getName()
 			|| FRIENDSHIP_ACCEPTED == notification->getName()

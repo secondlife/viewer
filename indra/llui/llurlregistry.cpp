@@ -37,12 +37,14 @@
 #include <boost/regex.hpp>
 
 // default dummy callback that ignores any label updates from the server
-void LLUrlRegistryNullCallback(const std::string &url, const std::string &label)
+void LLUrlRegistryNullCallback(const std::string &url, const std::string &label, const std::string& icon)
 {
 }
 
 LLUrlRegistry::LLUrlRegistry()
 {
+	mUrlEntry.reserve(16);
+
 	// Urls are matched in the order that they were registered
 	registerUrl(new LLUrlEntryNoLink());
 	registerUrl(new LLUrlEntryIcon());
@@ -77,10 +79,13 @@ LLUrlRegistry::~LLUrlRegistry()
 	}
 }
 
-void LLUrlRegistry::registerUrl(LLUrlEntryBase *url)
+void LLUrlRegistry::registerUrl(LLUrlEntryBase *url, bool force_front)
 {
 	if (url)
 	{
+		if (force_front)  // IDEVO
+			mUrlEntry.insert(mUrlEntry.begin(), url);
+		else
 		mUrlEntry.push_back(url);
 	}
 }

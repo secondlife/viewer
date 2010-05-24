@@ -253,7 +253,7 @@
      height="28"
 	 control_name="EditLinkedParts"
      label="Edit linked"
-     layout="topleft"     
+     layout="topleft"
      name="checkbox edit linked parts"
      top_pad="0">
 		  <check_box.commit_callback
@@ -771,7 +771,7 @@
 	 name="General"
 	 top="16"
 	 width="295">
-<panel.string
+	 <panel.string
 	  name="text deed continued">
 		Deed
 	 </panel.string>

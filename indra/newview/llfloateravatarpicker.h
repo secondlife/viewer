@@ -60,6 +60,7 @@ public:
 	void setOkBtnEnableCb(validate_callback_t cb);
 
 	static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
+	void processResponse(const LLUUID& query_id, const LLSD& content);
 
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,

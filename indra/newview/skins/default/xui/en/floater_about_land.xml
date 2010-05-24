@@ -1895,7 +1895,7 @@ Only large parcels can be listed in search.
 			 name="access_estate_defined">
 				(Defined by the Estate)
 			</panel.string>
-      <panel.string
+            <panel.string
        name="allow_public_access">
         Allow Public Access ([MATURITY])
       </panel.string>

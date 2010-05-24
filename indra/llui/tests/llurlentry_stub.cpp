@@ -22,10 +22,27 @@
 
 #include "llstring.h"
 #include "llfile.h"
+#include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "lluuid.h"
 
 #include <string>
+
+// Stub for LLAvatarNameCache
+bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
+{
+	return false;
+}
+
+void LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
+{
+	return;
+}
+
+bool LLAvatarNameCache::useDisplayNames()
+{
+	return false;
+}
 
 //
 // Stub implementation for LLCacheName
@@ -42,7 +59,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 	return TRUE;
 }
 
-boost::signals2::connection LLCacheName::get(const LLUUID& id, BOOL is_group, const LLCacheNameCallback& callback)
+boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, const LLCacheNameCallback& callback)
 {
 	return boost::signals2::connection();
 }

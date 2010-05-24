@@ -44,6 +44,7 @@
 // newview
 #include "llagentdata.h" // for comparator
 #include "llavatariconctrl.h"
+#include "llavatarnamecache.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
 #include "llrecentpeople.h"
@@ -241,12 +242,15 @@ void LLAvatarList::refresh()
 
 	// Handle added items.
 	unsigned nadded = 0;
+	const std::string waiting_str = LLTrans::getString("AvatarNameWaiting");
+
 	for (uuid_vec_t::const_iterator it=added.begin(); it != added.end(); it++)
 	{
-		std::string name;
 		const LLUUID& buddy_id = *it;
-		have_names &= (bool)gCacheName->getFullName(buddy_id, name);
-		if (!have_filter || findInsensitive(name, mNameFilter))
+		LLAvatarName av_name;
+		have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
+
+		if (!have_filter || findInsensitive(av_name.mDisplayName, mNameFilter))
 		{
 			if (nadded >= ADD_LIMIT)
 			{
@@ -255,7 +259,9 @@ void LLAvatarList::refresh()
 			}
 			else
 			{
-				addNewItem(buddy_id, name, LLAvatarTracker::instance().isBuddyOnline(buddy_id));
+				addNewItem(buddy_id, 
+					       av_name.mDisplayName.empty() ? waiting_str : av_name.mDisplayName, 
+						   LLAvatarTracker::instance().isBuddyOnline(buddy_id));
 				modified = true;
 				nadded++;
 			}

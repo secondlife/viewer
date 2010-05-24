@@ -37,11 +37,15 @@
 #include "llurlmatch.h"
 #include "llurlregistry.h"
 
+#include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
 
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
+
+// Utility functions
+std::string localize_slapp_label(const std::string& url, const std::string& full_name);
 
 
 LLUrlEntryBase::LLUrlEntryBase() :
@@ -57,6 +61,12 @@ LLUrlEntryBase::~LLUrlEntryBase()
 std::string LLUrlEntryBase::getUrl(const std::string &string) const
 {
 	return escapeUrl(string);
+}
+
+//virtual
+std::string LLUrlEntryBase::getIcon(const std::string &url)
+{
+	return mIcon;
 }
 
 std::string LLUrlEntryBase::getIDStringFromUrl(const std::string &url) const
@@ -136,8 +146,11 @@ void LLUrlEntryBase::addObserver(const std::string &id,
 		mObservers.insert(std::pair<std::string, LLUrlEntryObserver>(id, observer));
 	}
 }
- 
-void LLUrlEntryBase::callObservers(const std::string &id, const std::string &label)
+
+// *NOTE: See also LLUrlEntryAgent::callObservers()
+void LLUrlEntryBase::callObservers(const std::string &id,
+								   const std::string &label,
+								   const std::string &icon)
 {
 	// notify all callbacks waiting on the given uuid
 	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
@@ -145,7 +158,7 @@ void LLUrlEntryBase::callObservers(const std::string &id, const std::string &lab
 	{
 		// call the callback - give it the new label
 		LLUrlEntryObserver &observer = it->second;
-		(*observer.signal)(it->second.url, label);
+		(*observer.signal)(it->second.url, label, icon);
 		// then remove the signal - we only need to call it once
 		delete observer.signal;
 		mObservers.erase(it++);
@@ -317,13 +330,35 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
-void LLUrlEntryAgent::onAgentNameReceived(const LLUUID& id,
-										  const std::string& first,
-										  const std::string& last,
-										  BOOL is_group)
+// virtual
+void LLUrlEntryAgent::callObservers(const std::string &id,
+								    const std::string &label,
+								    const std::string &icon)
 {
+	// notify all callbacks waiting on the given uuid
+	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
+	for (it = mObservers.find(id); it != mObservers.end();)
+	{
+		// call the callback - give it the new label
+		LLUrlEntryObserver &observer = it->second;
+		std::string final_label = localize_slapp_label(observer.url, label);
+		(*observer.signal)(observer.url, final_label, icon);
+		// then remove the signal - we only need to call it once
+		delete observer.signal;
+		mObservers.erase(it++);
+	}
+}
+
+void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
+										const LLAvatarName& av_name)
+{
+	std::string label = av_name.mDisplayName;
+	if (!av_name.mUsername.empty())
+	{
+		label += " (" + av_name.mUsername + ")";
+	}
 	// received the agent name from the server - tell our observers
-	callObservers(id.asString(), first + " " + last);
+	callObservers(id.asString(), label, mIcon);
 }
 
 std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
@@ -331,6 +366,10 @@ std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
 	// return a tooltip corresponding to the URL type instead of the generic one
 	std::string url = getUrl(string);
 
+	if (LLStringUtil::endsWith(url, "/inspect"))
+	{
+		return LLTrans::getString("TooltipAgentInspect");
+	}
 	if (LLStringUtil::endsWith(url, "/mute"))
 	{
 		return LLTrans::getString("TooltipAgentMute");
@@ -374,48 +413,69 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 
 	LLUUID agent_id(agent_id_string);
-	std::string full_name;
 	if (agent_id.isNull())
 	{
 		return LLTrans::getString("AvatarNameNobody");
 	}
-	else if (gCacheName->getFullName(agent_id, full_name))
+
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::get(agent_id, &av_name))
 	{
-		// customize label string based on agent SLapp suffix
-		if (LLStringUtil::endsWith(url, "/mute"))
+		std::string label = av_name.mDisplayName;
+		if (!av_name.mUsername.empty())
 		{
-			return LLTrans::getString("SLappAgentMute") + " " + full_name;
+			label += " (" + av_name.mUsername + ")";
 		}
-		if (LLStringUtil::endsWith(url, "/unmute"))
-		{
-			return LLTrans::getString("SLappAgentUnmute") + " " + full_name;
-		}
-		if (LLStringUtil::endsWith(url, "/im"))
-		{
-			return LLTrans::getString("SLappAgentIM") + " " + full_name;
-		}
-		if (LLStringUtil::endsWith(url, "/pay"))
-		{
-			return LLTrans::getString("SLappAgentPay") + " " + full_name;
-		}
-		if (LLStringUtil::endsWith(url, "/offerteleport"))
-		{
-			return LLTrans::getString("SLappAgentOfferTeleport") + " " + full_name;
-		}
-		if (LLStringUtil::endsWith(url, "/requestfriend"))
-		{
-			return LLTrans::getString("SLappAgentRequestFriend") + " " + full_name;
-		}
-		return full_name;
+		// handle suffixes like /mute or /offerteleport
+		label = localize_slapp_label(url, label);
+		return label;
 	}
 	else
 	{
-		gCacheName->get(agent_id, FALSE,
-			boost::bind(&LLUrlEntryAgent::onAgentNameReceived,
-				this, _1, _2, _3, _4));
+		LLAvatarNameCache::get(agent_id,
+			boost::bind(&LLUrlEntryAgent::onAvatarNameCache,
+				this, _1, _2));
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}
+}
+
+std::string localize_slapp_label(const std::string& url, const std::string& full_name)
+{
+	// customize label string based on agent SLapp suffix
+	if (LLStringUtil::endsWith(url, "/mute"))
+	{
+		return LLTrans::getString("SLappAgentMute") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/unmute"))
+	{
+		return LLTrans::getString("SLappAgentUnmute") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/im"))
+	{
+		return LLTrans::getString("SLappAgentIM") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/pay"))
+	{
+		return LLTrans::getString("SLappAgentPay") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/offerteleport"))
+	{
+		return LLTrans::getString("SLappAgentOfferTeleport") + " " + full_name;
+	}
+	if (LLStringUtil::endsWith(url, "/requestfriend"))
+	{
+		return LLTrans::getString("SLappAgentRequestFriend") + " " + full_name;
+	}
+	return full_name;
+}
+
+
+std::string LLUrlEntryAgent::getIcon(const std::string &url)
+{
+	// *NOTE: Could look up a badge here by calling getIDStringFromUrl()
+	// and looking up the badge for the agent.
+	return mIcon;
 }
 
 //
@@ -435,12 +495,11 @@ LLUrlEntryGroup::LLUrlEntryGroup()
 }
 
 void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
-										  const std::string& first,
-										  const std::string& last,
-										  BOOL is_group)
+										  const std::string& name,
+										  bool is_group)
 {
 	// received the group name from the server - tell our observers
-	callObservers(id.asString(), first);
+	callObservers(id.asString(), name, mIcon);
 }
 
 std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
@@ -470,9 +529,9 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		gCacheName->get(group_id, TRUE,
+		gCacheName->get(group_id, true,
 			boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
-				this, _1, _2, _3, _4));
+				this, _1, _2, _3));
 		addObserver(group_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}

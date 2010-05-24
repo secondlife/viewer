@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="220"
+ height="225"
  layout="topleft"
  name="Give Money"
  help_topic="give_money"
@@ -16,27 +16,15 @@
      name="payee_resident">
         Pay Resident
     </string>
-   <icon
-     height="16"
-     width="16"
-     image_name="Generic_Person"
-     mouse_opaque="true"
-     name="icon_person"
-     tool_tip="Person"
-     top_pad="24"
-     left="10"
-     />
     <text
-     type="string"
-     length="1"
      follows="left|top"
      height="16"
      layout="topleft"
-     left_pad="7"
-     top_delta="3"
+     left="10"
+     top_pad="24"
      name="payee_name"
-     width="184">
-      [FIRST] [LAST]
+     width="200">
+      Ericacita Moostopolison
     </text>
     <text
      type="string"
@@ -45,9 +33,9 @@
      halign="left"
      height="14"
      layout="topleft"
-     left="34"
+     left="10"
      name="object_name_label"
-     top_pad="0"
+     top_pad="5"
      width="180">
         Via object:
     </text>
@@ -58,7 +46,7 @@
      mouse_opaque="true"
      name="icon_object"
      tool_tip="Objects"
-     top_pad="0"
+     top_pad="5"
      left="10"
      />
     <text
