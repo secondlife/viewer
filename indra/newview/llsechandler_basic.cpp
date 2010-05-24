@@ -1153,7 +1153,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
 		previous_cert = (*current_cert);
 		current_cert++;
 		depth++;
-		if(current_cert != current_cert != cert_chain->end())
+		if(current_cert != cert_chain->end())
 		{
 			(*current_cert)->getLLSD(current_cert_info);
 		}

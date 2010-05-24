@@ -328,7 +328,8 @@ namespace tut
 		
 		ensure_equals("Der Format is correct", memcmp(buffer, mDerFormat.c_str(), mDerFormat.length()), 0);
 		
-		LLSD llsd_cert = test_cert->getLLSD();
+		LLSD llsd_cert;
+		test_cert->getLLSD(llsd_cert);
 		std::ostringstream llsd_value;
 		llsd_value << LLSDOStreamer<LLSDNotationFormatter>(llsd_cert) << std::endl;
 		std::string llsd_cert_str = llsd_value.str();
@@ -988,10 +989,11 @@ namespace tut
 					  test_chain, 
 					  validation_params);
 		// validate without the trust flag
-		test_chain->validate(0, test_store, validation_params);
+		test_store->validate(0, test_chain, validation_params);
 
 		// Test time validity
-		LLSD child_info = (*test_chain)[0]->getLLSD();
+		LLSD child_info;
+		((*test_chain)[0])->getLLSD(child_info);
 		validation_params = LLSD::emptyMap();
 		validation_params[CERT_VALIDATION_DATE] = LLDate(child_info[CERT_VALID_FROM].asDate().secondsSinceEpoch() + 1.0);  
 		test_store->validate(VALIDATION_POLICY_TIME, test_chain, validation_params);
