@@ -3095,6 +3095,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 			if (texture_entry)
 			{
 				EBakedTextureIndex baked_index = texture_entry->mBakedTextureIndex;
+
 				if (gAgentQueryManager.mActiveCacheQueries[baked_index] == query_id)
 				{
 					if (texture_id.notNull())
