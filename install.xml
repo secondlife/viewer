@@ -610,9 +610,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>e2c282513dd20f3198fb6d83d9cfd709</string>
+            <string>0859d47242990125f17eaab30bece2ff</string>
             <key>url</key>
-            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/google_breakpad-0.0.0-rev599-windows-20100521h.tar.bz2</uri>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/google_breakpad-0.0.0-rev599-windows-20100524.tar.bz2</uri>
           </map>
         </map>
       </map>
