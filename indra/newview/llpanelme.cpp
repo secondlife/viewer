@@ -347,12 +347,22 @@ void LLPanelMyProfileEdit::onCacheSetName(bool success,
 void LLPanelMyProfileEdit::onDialogSetName(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
+	if (option == 0 || option == 1)
 	{
 		LLUUID agent_id = notification["payload"]["agent_id"];
 		if (agent_id.isNull()) return;
 
-		std::string display_name_utf8 = response["display_name"].asString();
+		std::string display_name_utf8;
+		if (option == 0)
+		{
+			// user gave us a name
+			display_name_utf8 = response["display_name"].asString();
+		}
+		else
+		{
+			// reset back to People API default
+			display_name_utf8 = "";
+		}
 
 		const U32 DISPLAY_NAME_MAX_LENGTH = 31; // characters, not bytes
 		LLWString display_name_wstr = utf8string_to_wstring(display_name_utf8);
