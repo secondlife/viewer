@@ -1565,37 +1565,18 @@ void LLAgentWearables::queryWearableCache()
 	S32 num_queries = 0;
 	for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 	{
-		const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
-		LLMD5 hash;
-		bool hash_computed = false;
-		for (U8 i=0; i < baked_dict->mWearables.size(); i++)
+		LLUUID hash_id = computeBakedTextureHash((EBakedTextureIndex) baked_index);
+		if (hash_id.notNull())
 		{
-			const LLWearableType::EType baked_type = baked_dict->mWearables[i];
-			const U32 num_wearables = getWearableCount(baked_type);
-			for (U32 index = 0; index < num_wearables; ++index)
-			{
-				const LLWearable* wearable = getWearable(baked_type,index);
-				if (wearable)
-				{
-					LLUUID asset_id = wearable->getAssetID();
-					hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
-					hash_computed = true;
-				}
-			}
-		}
-		hash.finalize();
-		if (hash_computed)
-		{
-			LLUUID hash_id;
-			hash.raw_digest(hash_id.mData);
-			hash_id ^= baked_dict->mWearablesHashID;
 			num_queries++;
 			// *NOTE: make sure at least one request gets packed
+
+			ETextureIndex te_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
 
 			//llinfos << "Requesting texture for hash " << hash << " in baked texture slot " << baked_index << llendl;
 			gMessageSystem->nextBlockFast(_PREHASH_WearableData);
 			gMessageSystem->addUUIDFast(_PREHASH_ID, hash_id);
-			gMessageSystem->addU8Fast(_PREHASH_TextureIndex, (U8)baked_index);
+			gMessageSystem->addU8Fast(_PREHASH_TextureIndex, (U8)te_index);
 		}
 
 		gAgentQueryManager.mActiveCacheQueries[baked_index] = gAgentQueryManager.mWearablesCacheQueryID;
@@ -1605,6 +1586,39 @@ void LLAgentWearables::queryWearableCache()
 	gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
 	gAgentQueryManager.mNumPendingQueries++;
 	gAgentQueryManager.mWearablesCacheQueryID++;
+}
+
+LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextureIndex index)
+{
+	LLUUID hash_id;
+	bool hash_computed = false;
+	LLMD5 hash;
+
+	const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture(index);
+
+	for (U8 i=0; i < baked_dict->mWearables.size(); i++)
+	{
+		const LLWearableType::EType baked_type = baked_dict->mWearables[i];
+		const U32 num_wearables = getWearableCount(baked_type);
+		for (U32 index = 0; index < num_wearables; ++index)
+		{
+			const LLWearable* wearable = getWearable(baked_type,index);
+			if (wearable)
+			{
+				LLUUID asset_id = wearable->getAssetID();
+				hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
+				hash_computed = true;
+			}
+		}
+	}
+	if (hash_computed)
+	{
+		hash.update((const unsigned char*)baked_dict->mWearablesHashID.mData, UUID_BYTES);
+		hash.finalize();
+		hash.raw_digest(hash_id.mData);
+	}
+
+	return hash_id;
 }
 
 // User has picked "remove from avatar" from a menu.
