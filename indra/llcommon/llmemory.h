@@ -34,13 +34,15 @@
 
 #include <stdlib.h>
 
-inline void* ll_aligned_malloc(size_t size, size_t alignment = 16) // alignment MUST be power-of-two multiple of sizeof(void*).   returned hunk MUST be freed with ll_aligned_free().
+inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free().
 {
 #if defined(LL_WINDOWS)
-	return _mm_malloc(size, alignment);
+	return _mm_malloc(size, 16);
+#elif defined(LL_DARWIN)
+	return malloc(size); // default osx malloc is 16 byte aligned.
 #else
 	void *rtn;
-	if (LL_LIKELY(0 == posix_memalign(&rtn, alignment, size)))
+	if (LL_LIKELY(0 == posix_memalign(&rtn, alignment, 16)))
 	{
 		return rtn;
 	}
@@ -51,10 +53,12 @@ inline void* ll_aligned_malloc(size_t size, size_t alignment = 16) // alignment 
 #endif
 }
 
-inline void ll_aligned_free(void *p)
+inline void ll_aligned_free_16(void *p)
 {
 #if defined(LL_WINDOWS)
 	_mm_free(p);
+#elif defined(LL_DARWIN)
+	return free(p);
 #else
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif

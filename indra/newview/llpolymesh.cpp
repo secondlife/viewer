@@ -141,7 +141,7 @@ void LLPolyMeshSharedData::freeMeshData()
 		delete [] mDetailTexCoords;
 		mDetailTexCoords = NULL;
 
-		_mm_free(mWeights);
+		ll_aligned_free_16(mWeights);
 		mWeights = NULL;
 	}
 
@@ -231,7 +231,7 @@ BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 	mBaseBinormals = new LLVector3[ numVertices ];
 	mTexCoords = new LLVector2[ numVertices ];
 	mDetailTexCoords = new LLVector2[ numVertices ];
-	mWeights = (F32*) _mm_malloc((numVertices*sizeof(F32)+0xF) & ~0xF, 16);
+	mWeights = (F32*) ll_aligned_malloc_16((numVertices*sizeof(F32)+0xF) & ~0xF);
 	for (i = 0; i < numVertices; i++)
 	{
 		mWeights[i] = 0.f;
@@ -716,7 +716,7 @@ LLPolyMesh::LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_
 		int nfloats = nverts * (2*4 + 3*3 + 2 + 4);
 
 		//use aligned vertex data to make LLPolyMesh SSE friendly
-		mVertexData = (F32*) ll_aligned_malloc(nfloats*4, 16);
+		mVertexData = (F32*) ll_aligned_malloc_16(nfloats*4);
 		int offset = 0;
 
 		//all members must be 16-byte aligned except the last 3
@@ -767,7 +767,7 @@ LLPolyMesh::~LLPolyMesh()
 	delete [] mClothingWeights;
 	delete [] mTexCoords;
 #else
-	ll_aligned_free(mVertexData);
+	ll_aligned_free_16(mVertexData);
 #endif
 }
 
