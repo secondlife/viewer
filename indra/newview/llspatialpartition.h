@@ -75,6 +75,8 @@ public:
 				BOOL fullbright = FALSE, U8 bump = 0, BOOL particle = FALSE, F32 part_size = 0);
 	
 
+	void validate();
+
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLViewerTexture>     mTexture;
 	LLColor4U mGlowColor;
@@ -675,8 +677,6 @@ public:
 	LLHUDPartition();
 	virtual void shift(const LLVector3 &offset);
 };
-
-void validate_draw_info(LLDrawInfo& params);
 
 extern const F32 SG_BOX_SIDE;
 extern const F32 SG_BOX_OFFSET;
