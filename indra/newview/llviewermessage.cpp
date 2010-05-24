@@ -110,10 +110,6 @@
 #include <boost/algorithm/string/split.hpp> //
 #include <boost/regex.hpp>
 
-#if LL_WINDOWS // For Windows specific error handler
-#include "llwindebug.h"	// For the invalid message handler
-#endif
-
 #include "llnotificationmanager.h" //
 
 #if LL_MSVC

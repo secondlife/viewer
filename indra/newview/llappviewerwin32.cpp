@@ -57,8 +57,6 @@
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 
-#include "llwindebug.h"
-
 #include "llviewernetwork.h"
 #include "llmd5.h"
 #include "llfindlocale.h"
@@ -80,51 +78,6 @@ extern "C" {
 #endif
 
 const std::string LLAppViewerWin32::sWindowClass = "Second Life";
-
-LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop)
-{
-    // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
-	//OSMessageBox("Attach Debugger Now", "Error", OSMB_OK);
-    // *TODO: Translate the signals/exceptions into cross-platform stuff
-	// Windows implementation
-    _tprintf( _T("Entering Windows Exception Handler...\n") );
-	llinfos << "Entering Windows Exception Handler..." << llendl;
-
-	// Make sure the user sees something to indicate that the app crashed.
-	LONG retval;
-
-	if (LLApp::isError())
-	{
-	    _tprintf( _T("Got another fatal signal while in the error handler, die now!\n") );
-		llwarns << "Got another fatal signal while in the error handler, die now!" << llendl;
-
-		retval = EXCEPTION_EXECUTE_HANDLER;
-		return retval;
-	}
-
-	// Generate a minidump if we can.
-	// Before we wake the error thread...
-	// Which will start the crash reporting.
-	LLWinDebug::generateCrashStacks(exception_infop);
-	
-	// Flag status to error, so thread_error starts its work
-	LLApp::setError();
-
-	// Block in the exception handler until the app has stopped
-	// This is pretty sketchy, but appears to work just fine
-	while (!LLApp::isStopped())
-	{
-		ms_sleep(10);
-	}
-
-	//
-	// At this point, we always want to exit the app.  There's no graceful
-	// recovery for an unhandled exception.
-	// 
-	// Just kill the process.
-	retval = EXCEPTION_EXECUTE_HANDLER;	
-	return retval;
-}
 
 // Create app mutex creates a unique global windows object. 
 // If the object can be created it returns true, otherwise
@@ -191,8 +144,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
 
 	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(lpCmdLine);
-
-	LLWinDebug::initExceptionHandler(viewer_windows_exception_handler); 
 	
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
 
@@ -405,12 +356,6 @@ bool LLAppViewerWin32::cleanup()
 
 bool LLAppViewerWin32::initLogging()
 {
-	// Remove the crash stack log from previous executions.
-	// Since we've started logging a new instance of the app, we can assume 
-	// *NOTE: This should happen before the we send a 'previous instance froze'
-	// crash report, but it must happen after we initialize the DirUtil.
-	LLWinDebug::clearCrashStacks();
-
 	return LLAppViewer::initLogging();
 }
 

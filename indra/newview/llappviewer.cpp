@@ -104,7 +104,6 @@
 #include <boost/bind.hpp>
 
 #if LL_WINDOWS
-	#include "llwindebug.h"
 #	include <share.h> // For _SH_DENYWR in initMarkerFile
 #else
 #   include <sys/file.h> // For initMarkerFile support
@@ -3288,10 +3287,6 @@ void LLAppViewer::badNetworkHandler()
 
 	mPurgeOnExit = TRUE;
 
-#if LL_WINDOWS
-	// Generates the minidump.
-	LLWinDebug::generateCrashStacks(NULL);
-#endif
 	LLAppViewer::handleSyncViewerCrash();
 	LLAppViewer::handleViewerCrash();
 
