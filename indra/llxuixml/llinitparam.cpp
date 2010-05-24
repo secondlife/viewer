@@ -139,7 +139,7 @@ namespace LLInitParam
 
 	bool BaseBlock::validateBlock(bool emit_errors) const
 	{
-		const BlockDescriptor& block_data = getBlockDescriptor();
+		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
 		for (BlockDescriptor::param_validation_list_t::const_iterator it = block_data.mValidationList.begin(); it != block_data.mValidationList.end(); ++it)
 		{
 			const Param* param = getParamFromHandle(it->first);
@@ -159,7 +159,7 @@ namespace LLInitParam
 	{
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
-		const BlockDescriptor& block_data = getBlockDescriptor();
+		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
 
 		for (BlockDescriptor::param_list_t::const_iterator it = block_data.mUnnamedParams.begin(); 
 			it != block_data.mUnnamedParams.end(); 
@@ -230,7 +230,7 @@ namespace LLInitParam
 	{
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
-		const BlockDescriptor& block_data = getBlockDescriptor();
+		const BlockDescriptor& block_data = mostDerivedBlockDescriptor();
 
 		for (BlockDescriptor::param_list_t::const_iterator it = block_data.mUnnamedParams.begin(); 
 			it != block_data.mUnnamedParams.end(); 
@@ -301,7 +301,7 @@ namespace LLInitParam
 
 	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack)
 	{
-		BlockDescriptor& block_data = getBlockDescriptor();
+		BlockDescriptor& block_data = mostDerivedBlockDescriptor();
 		bool names_left = name_stack.first != name_stack.second;
 
 		if (names_left)
@@ -386,7 +386,7 @@ namespace LLInitParam
 
 	void BaseBlock::addSynonym(Param& param, const std::string& synonym)
 	{
-		BlockDescriptor& block_data = getBlockDescriptor();
+		BlockDescriptor& block_data = mostDerivedBlockDescriptor();
 		if (block_data.mInitializationState == BlockDescriptor::INITIALIZING)
 		{
 			param_handle_t handle = getHandleFromParam(&param);
@@ -445,7 +445,7 @@ namespace LLInitParam
 
 	ParamDescriptor* BaseBlock::findParamDescriptor(param_handle_t handle)
 	{
-		BlockDescriptor& descriptor = getBlockDescriptor();
+		BlockDescriptor& descriptor = mostDerivedBlockDescriptor();
 		BlockDescriptor::all_params_list_t::iterator end_it = descriptor.mAllParams.end();
 		for (BlockDescriptor::all_params_list_t::iterator it = descriptor.mAllParams.begin();
 			it != end_it;
