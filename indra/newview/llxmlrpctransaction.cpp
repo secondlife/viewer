@@ -247,7 +247,8 @@ int LLXMLRPCTransaction::Impl::_sslCertVerifyCallback(X509_STORE_CTX *ctx, void 
 	validation_params[CERT_HOSTNAME] = uri.hostName();
 	try
 	{
-		chain->validate(VALIDATION_POLICY_SSL, store, validation_params);
+		// don't validate hostname.  Let libcurl do it instead.  That way, it'll handle redirects
+		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
 	}
 	catch (LLCertValidationTrustException& cert_exception)
 	{
