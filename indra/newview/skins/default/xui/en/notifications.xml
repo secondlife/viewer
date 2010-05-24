@@ -5988,6 +5988,17 @@ Voice Effects will expire in less than [INTERVAL] days.
 [[URL] Renew your subscription] or they will be removed.
     <unique/>
   </notification>
+		LLNotificationsUtil::add("VoiceEffectsNew");
+
+  <notification
+   icon="notify.tga"
+   name="VoiceEffectsNew"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+New Voice Effects are available!
+    <unique/>
+  </notification>
 
   <notification
    icon="notifytip.tga"

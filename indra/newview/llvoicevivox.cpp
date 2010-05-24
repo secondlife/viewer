@@ -6857,6 +6857,13 @@ void LLVivoxVoiceClient::accountGetSessionFontsResponse(int statusCode, const st
 	}
 	mVoiceFontsReceived = true;
 
+	// If new Voice Fonts have been found notify the user.
+	if (mVoiceFontsNew)
+	{
+		LLNotificationsUtil::add("VoiceEffectsNew");
+		mVoiceFontsNew = false;
+	}
+
 	notifyVoiceFontObservers(true);
 }
 

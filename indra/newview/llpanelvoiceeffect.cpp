@@ -72,7 +72,7 @@ BOOL LLPanelVoiceEffect::postBuild()
 		effect_interface->addObserver(this);
 	}
 
-	update();
+	update(true);
 
 	return TRUE;
 }
@@ -112,39 +112,49 @@ void LLPanelVoiceEffect::onCommitVoiceEffect()
 // virtual
 void LLPanelVoiceEffect::onVoiceEffectChanged(bool effect_list_updated)
 {
-	update();
+	update(effect_list_updated);
 }
 
-void LLPanelVoiceEffect::update()
+void LLPanelVoiceEffect::update(bool list_updated)
 {
 	if (mVoiceEffectCombo)
 	{
 		LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
-		if (!effect_interface || !LLVoiceClient::instance().isVoiceWorking())
+		if (list_updated)
 		{
-			mVoiceEffectCombo->setEnabled(false);
-			return;
-		}
+			// Add the default "No Voice Effect" entry.
+			mVoiceEffectCombo->removeall();
+			mVoiceEffectCombo->add(getString("no_voice_effect"), LLUUID::null);
+			mVoiceEffectCombo->addSeparator();
 
-		mVoiceEffectCombo->removeall();
-		mVoiceEffectCombo->add(getString("no_voice_effect"), LLUUID::null);
-		mVoiceEffectCombo->addSeparator();
-
-		const voice_effect_list_t& effect_list = effect_interface->getVoiceEffectList();
-		if (!effect_list.empty())
-		{
-			for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+			// Add entries for each Voice Effect.
+			const voice_effect_list_t& effect_list = effect_interface->getVoiceEffectList();
+			if (!effect_list.empty())
 			{
-				mVoiceEffectCombo->add(it->first, it->second, ADD_BOTTOM);
+				for (voice_effect_list_t::const_iterator it = effect_list.begin(); it != effect_list.end(); ++it)
+				{
+					mVoiceEffectCombo->add(it->first, it->second, ADD_BOTTOM);
+				}
+
+				mVoiceEffectCombo->addSeparator();
 			}
 
-			mVoiceEffectCombo->addSeparator();
+			// Add the fixed entries to go to the preview floater or marketing page.
+			mVoiceEffectCombo->add(getString("preview_voice_effects"), PREVIEW_VOICE_EFFECTS);
+			mVoiceEffectCombo->add(getString("get_voice_effects"), GET_VOICE_EFFECTS);
 		}
 
-		mVoiceEffectCombo->add(getString("preview_voice_effects"), PREVIEW_VOICE_EFFECTS);
-		mVoiceEffectCombo->add(getString("get_voice_effects"), GET_VOICE_EFFECTS);
-
-		mVoiceEffectCombo->setValue(effect_interface->getVoiceEffect());
-		mVoiceEffectCombo->setEnabled(true);
+		if (effect_interface && LLVoiceClient::instance().isVoiceWorking())
+		{
+			// Select the current voice effect.
+			mVoiceEffectCombo->setValue(effect_interface->getVoiceEffect());
+			mVoiceEffectCombo->setEnabled(true);
+		}
+		else
+		{
+			// If voice isn't working or Voice Effects are not supported disable the control.
+			mVoiceEffectCombo->setValue(LLUUID::null);
+			mVoiceEffectCombo->setEnabled(false);
+		}
 	}
 }
