@@ -310,13 +310,13 @@
 		             allow_multi_select="true"
 		             border="false"
 		             follows="left|top|right|bottom"
-		             height="130"
+		             height="140"
 		             layout="topleft"
 		             left="0"
 		             mouse_opaque="false"
 		             name="inventory_items"
 		             top_pad="5"
-		             width="311"
+		             width="310"
 		             visible="false"/>
 		            <panel
 		             name="filtered_wearables_panel"
@@ -325,7 +325,7 @@
 		             layout="topleft"
 		             follows="left|top|right|bottom"
 		             border="false"
-		             height="130"
+		             height="140"
 		             left="0"
 		             mouse_opaque="false"
 		             width="311"
@@ -336,8 +336,8 @@
 		              allow_select="true"
 		              layout="topleft"
 		              follows="all"
-		              width="311"
-		              height="130"
+		              width="310"
+		              height="140"
 		              left="0"
 		              top="0"/>
 		            </panel>
@@ -354,7 +354,7 @@
              left="0"
              name="add_wearables_button_bar"
              top_pad="0"
-             width="300">
+             width="313">
                 <button
                  follows="bottom|left"
                  height="25"
@@ -406,6 +406,15 @@
                  name="add_to_outfit_btn"
                  top="1"
                  width="31" />
+                <icon
+                 follows="bottom|left|right"
+                 height="25"
+                 image_name="Toolbar_Right_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="dummy_right_icon"
+                 width="184" >
+                 </icon>
             </panel>
         </layout_panel>
     </layout_stack>

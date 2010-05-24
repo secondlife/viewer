@@ -336,7 +336,9 @@ LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p
 
 // virtual
 LLInventoryItemsList::~LLInventoryItemsList()
-{}
+{
+	gIdleCallbacks.deleteFunction(idle, this);
+}
 
 void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item_array)
 {

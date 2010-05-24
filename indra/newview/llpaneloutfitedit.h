@@ -104,7 +104,8 @@ public:
 	void onEditWearableClicked(void);
 
 	void displayCurrentOutfit();
-	
+	void updateCurrentOutfitName();
+
 	void update();
 
 	void updateVerbs();
