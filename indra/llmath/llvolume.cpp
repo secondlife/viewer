@@ -4173,7 +4173,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 
 	for (S32 i = start_face; i <= end_face; i++)
 	{
-		const LLVolumeFace &face = getVolumeFace((U32)i);
+		LLVolumeFace &face = mVolumeFaces[i];
 
 		LLVector3 box_center = (face.mExtents[0] + face.mExtents[1]) / 2.f;
 		LLVector3 box_size   = face.mExtents[1] - face.mExtents[0];
@@ -4235,6 +4235,10 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 
 						if (bi_normal != NULL)
 						{
+							if (!face.mBinormals)
+							{
+								face.createBinormals();
+							}
 							LLVector4* binormal = (LLVector4*) face.mBinormals;
 							if (binormal)
 							{
@@ -5174,7 +5178,6 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	LLVector4a* binorm = (LLVector4a*) mBinormals;
 	LLVector2* tc = (LLVector2*) mTexCoords;
 
-	S32	vtop = mNumVertices;
 	for(int gx = 0;gx<grid_size+1;gx++){
 		for(int gy = 0;gy<grid_size+1;gy++){
 			VertexData newVert;
@@ -5220,14 +5223,14 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 				{
 					for(S32 i=5;i>=0;i--)
 					{
-						*out++ = (vtop+(gy*(grid_size+1))+gx+idxs[i]);
+						*out++ = ((gy*(grid_size+1))+gx+idxs[i]);
 					}		
 				}
 				else
 				{
 					for(S32 i=0;i<6;i++)
 					{
-						*out++ = (vtop+(gy*(grid_size+1))+gx+idxs[i]);
+						*out++ = ((gy*(grid_size+1))+gx+idxs[i]);
 					}
 				}
 			}
