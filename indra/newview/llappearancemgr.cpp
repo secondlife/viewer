@@ -1483,7 +1483,7 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 		// Are these links to different items of the same body part
 		// type? If so, new item will replace old.
 		// TODO: MULTI-WEARABLE: check for wearable limit for clothing types
-		else if (is_body_part)
+		else if (is_body_part && (vitem->getWearableType() == wearable_type))
 		{
 			if (inv_item->getIsLinkType())
 			{
