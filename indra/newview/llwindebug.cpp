@@ -718,7 +718,8 @@ BOOL PreventSetUnhandledExceptionFilter()
 // static
 void  LLWinDebug::initExceptionHandler(LPTOP_LEVEL_EXCEPTION_FILTER filter_func)
 {
-
+	return;
+#if 0
 	static bool s_first_run = true;
 	// Load the dbghelp dll now, instead of waiting for the crash.
 	// Less potential for stack mangling
@@ -762,34 +763,27 @@ void  LLWinDebug::initExceptionHandler(LPTOP_LEVEL_EXCEPTION_FILTER filter_func)
 	Module32First_ = (MODULE32_FIRST)GetProcAddress(hKernel32, "Module32FirstW");
 	Module32Next_ = (MODULE32_NEST)GetProcAddress(hKernel32, "Module32NextW");
 
-    LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
-	prev_filter = SetUnhandledExceptionFilter(filter_func);
+    PVOID added_filter = 
+		AddVectoredExceptionHandler(0, filter_func);
 
-	// *REMOVE:Mani
-	//PreventSetUnhandledExceptionFilter();
-
-	if(prev_filter != gFilterFunc)
+	if(added_filter == 0)
 	{
 		LL_WARNS("AppInit") 
-			<< "Replacing unknown exception (" << (void *)prev_filter << ") with (" << (void *)filter_func << ") !" << LL_ENDL;
+			<< "Failed to add exception handler (" << added_filter << ") !" << LL_ENDL;
 	}
 	
 	gFilterFunc = filter_func;
+#endif
 }
 
 bool LLWinDebug::checkExceptionHandler()
 {
 	bool ok = true;
-	LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
-	prev_filter = SetUnhandledExceptionFilter(gFilterFunc);
 
-	if (prev_filter != gFilterFunc)
-	{
-		LL_WARNS("AppInit") << "Our exception handler (" << (void *)gFilterFunc << ") replaced with " << prev_filter << "!" << LL_ENDL;
-		ok = false;
-	}
+	RemoveVectoredExceptionHandler(gFilterFunc);
+	PVOID filter = AddVectoredExceptionHandler(0, gFilterFunc);
 
-	if (prev_filter == NULL)
+	if (filter == NULL)
 	{
 		ok = FALSE;
 		if (gFilterFunc == NULL)
@@ -798,7 +792,7 @@ bool LLWinDebug::checkExceptionHandler()
 		}
 		else
 		{
-			LL_WARNS("AppInit") << "Our exception handler (" << (void *)gFilterFunc << ") replaced with NULL!" << LL_ENDL;
+			LL_WARNS("AppInit") << "Failed to add exception handler (" << (void *)gFilterFunc << ")!" << LL_ENDL;
 		}
 	}
 

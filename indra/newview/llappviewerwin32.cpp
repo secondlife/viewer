@@ -529,8 +529,9 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 }
 
 bool LLAppViewerWin32::restoreErrorTrap()
-{
-	return LLWinDebug::checkExceptionHandler();
+{	
+	return true;
+	//return LLWinDebug::checkExceptionHandler();
 }
 
 void LLAppViewerWin32::handleSyncCrashTrace()

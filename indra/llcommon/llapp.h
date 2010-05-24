@@ -38,8 +38,6 @@
 #include "llsd.h"
 #include "lloptioninterface.h"
 
-#include "google_breakpad/exception_handler.h"
-
 // Forward declarations
 template <typename Type> class LLAtomic32;
 typedef LLAtomic32<U32> LLAtomicU32;
@@ -67,6 +65,10 @@ public:
 	LLAppChildCallback mCallback;
 };
 #endif
+
+namespace google_breakpad {
+	class ExceptionHandler; // See exception_handler.h
+}
 
 class LL_COMMON_API LLApp : public LLOptionInterface
 {

@@ -30,6 +30,8 @@
  * $/LicenseInfo$
  */
 
+#include <cstdlib>
+
 #include "linden_common.h"
 #include "llapp.h"
 
@@ -43,6 +45,8 @@
 #include "llstl.h" // for DeletePointer()
 #include "lleventtimer.h"
 
+#include "google_breakpad/exception_handler.h"
+
 //
 // Signal handling
 //
@@ -51,6 +55,12 @@
 #if LL_WINDOWS
 LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop);
 BOOL ConsoleCtrlHandler(DWORD fdwCtrlType);
+bool windows_post_minidump_callback(const wchar_t* dump_path,
+									const wchar_t* minidump_id,
+									void* context,
+									EXCEPTION_POINTERS* exinfo,
+									MDRawAssertionInfo* assertion,
+									bool succeeded);
 #else
 # include <signal.h>
 # include <unistd.h> // for fork()
@@ -284,6 +294,13 @@ void LLApp::setupErrorHandling()
 	// This sets a callback to handle w32 signals to the console window.
 	// The viewer shouldn't be affected, sicne its a windowed app.
 	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ConsoleCtrlHandler, TRUE);
+
+	if(mExceptionHandler == 0)
+	{
+		llwarns << "adding breakpad exception handler" << llendl;
+		mExceptionHandler = new google_breakpad::ExceptionHandler(
+			L"C:\\Temp\\", 0, windows_post_minidump_callback, 0, google_breakpad::ExceptionHandler::HANDLER_ALL);
+	}
 
 #else
 	//
@@ -813,5 +830,55 @@ bool darwin_post_minidump_callback(const char *dump_dir,
 	
 	llinfos << "generated minidump: " << LLApp::instance()->minidump_path << llendl;
 	LLApp::runErrorHandler();
+	return true;
+}
+
+bool windows_post_minidump_callback(const wchar_t* dump_path,
+									const wchar_t* minidump_id,
+									void* context,
+									EXCEPTION_POINTERS* exinfo,
+									MDRawAssertionInfo* assertion,
+									bool succeeded)
+{
+	char * path = LLApp::instance()->minidump_path;
+	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
+	size_t bytesUsed;
+
+	bytesUsed = wcstombs(path, dump_path, static_cast<size_t>(remaining));
+	remaining -= bytesUsed;
+	path += bytesUsed;
+	if(remaining > 0)
+	{
+		bytesUsed = wcstombs(path, minidump_id, static_cast<size_t>(remaining));
+		remaining -= bytesUsed;
+		path += bytesUsed;
+	}
+	if(remaining > 0)
+	{
+		strncpy(path, ".dmp", remaining);
+	}
+
+	llinfos << "generated minidump: " << LLApp::instance()->minidump_path << llendl;
+    // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
+	//OSMessageBox("Attach Debugger Now", "Error", OSMB_OK);
+    // *TODO: Translate the signals/exceptions into cross-platform stuff
+	// Windows implementation
+	llinfos << "Entering Windows Exception Handler..." << llendl;
+
+	if (LLApp::isError())
+	{
+		llwarns << "Got another fatal signal while in the error handler, die now!" << llendl;
+	}
+
+	// Flag status to error, so thread_error starts its work
+	LLApp::setError();
+
+	// Block in the exception handler until the app has stopped
+	// This is pretty sketchy, but appears to work just fine
+	while (!LLApp::isStopped())
+	{
+		ms_sleep(10);
+	}
+
 	return true;
 }
