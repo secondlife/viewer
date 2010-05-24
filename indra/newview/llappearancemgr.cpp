@@ -190,7 +190,9 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 
 void LLUpdateAppearanceOnDestroy::fire(const LLUUID& inv_item)
 {
-	llinfos << "callback fired" << llendl;
+	LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(inv_item);
+	const std::string item_name = item ? item->getName() : "ITEM NOT FOUND";
+	llinfos << "callback fired [ name:" << item_name << " UUID:" << inv_item << " count:" << mFireCount << " ] " << llendl;
 	mFireCount++;
 }
 
@@ -890,7 +892,7 @@ void LLAppearanceMgr::filterWearableItems(
 }
 
 // Create links to all listed items.
-void LLAppearanceMgr::linkAll(const LLUUID& category,
+void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
 								  LLInventoryModel::item_array_t& items,
 								  LLPointer<LLInventoryCallback> cb)
 {
@@ -899,11 +901,16 @@ void LLAppearanceMgr::linkAll(const LLUUID& category,
 		const LLInventoryItem* item = items.get(i).get();
 		link_inventory_item(gAgent.getID(),
 							item->getLinkedUUID(),
-							category,
+							cat_uuid,
 							item->getName(),
 							item->LLInventoryItem::getDescription(),
 							LLAssetType::AT_LINK,
 							cb);
+
+		const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_uuid);
+		const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND";
+
+		llinfos << "Linking Item [ name:" << item->getName() << " UUID:" << item->getUUID() << " ] to Category [ name:" << cat_name << " UUID:" << cat_uuid << " ] " << llendl;
 	}
 }
 
@@ -972,9 +979,13 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	llinfos << "creating LLUpdateAppearanceOnDestroy" << llendl;
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 
+	llinfos << "Linking body items" << llendl;
 	linkAll(cof, body_items, link_waiter);
+	llinfos << "Linking wear items" << llendl;
 	linkAll(cof, wear_items, link_waiter);
+	llinfos << "Linking obj items" << llendl;
 	linkAll(cof, obj_items, link_waiter);
+	llinfos << "Linking gesture items" << llendl;
 	linkAll(cof, gest_items, link_waiter);
 
 	// Add link to outfit if category is an outfit. 
@@ -1030,8 +1041,7 @@ void LLAppearanceMgr::updateAgentWearables(LLWearableHoldingPattern* holder, boo
 			LLWearable* wearable = data.mWearable;
 			if( wearable && ((S32)wearable->getType() == i) )
 			{
-				LLViewerInventoryItem* item;
-				item = (LLViewerInventoryItem*)gInventory.getItem(data.mItemID);
+				LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(data.mItemID);
 				if( item && (item->getAssetUUID() == wearable->getAssetID()) )
 				{
 					items.put(item);
