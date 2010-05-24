@@ -804,6 +804,7 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 
 #endif // !WINDOWS
 
+#ifdef LL_DARWIN
 bool darwin_post_minidump_callback(const char *dump_dir,
 					  const char *minidump_id,
 					  void *context, bool succeeded)
@@ -832,7 +833,9 @@ bool darwin_post_minidump_callback(const char *dump_dir,
 	LLApp::runErrorHandler();
 	return true;
 }
+#endif
 
+#ifdef LL_WINDOWS
 bool windows_post_minidump_callback(const wchar_t* dump_path,
 									const wchar_t* minidump_id,
 									void* context,
@@ -882,3 +885,4 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 
 	return true;
 }
+#endif
