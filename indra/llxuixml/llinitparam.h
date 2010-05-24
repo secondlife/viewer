@@ -477,7 +477,7 @@ namespace LLInitParam
 
 		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack);
 		bool serializeBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), const BaseBlock* diff_block = NULL) const;
-		virtual bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t()) const;
+		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t()) const;
 
 		const BlockDescriptor& getBlockDescriptor() const { return *mBlockDescriptor; }
 		BlockDescriptor& getBlockDescriptor() { return *mBlockDescriptor; }
@@ -584,6 +584,7 @@ namespace LLInitParam
 			{
 				if (parser.readValue<T>(typed_param.mData.mValue))
 				{
+					typed_param.mData.clearKey();
 					typed_param.setProvided(true);
 					typed_param.enclosingBlock().setLastChangedParam(param, true);
 					return true;
@@ -690,7 +691,7 @@ namespace LLInitParam
 				&& (overwrite || !dst_typed_param.isProvided()))
 			{
 				dst_typed_param.mData.clearKey();
-				dst_typed_param = src_typed_param;
+				dst_typed_param.set(src_typed_param.get());
 				return true;
 			}
 			return false;
@@ -741,6 +742,7 @@ namespace LLInitParam
 			// attempt to parse block...
 			if(typed_param.deserializeBlock(parser, name_stack))
 			{
+				typed_param.mData.clearKey();
 				typed_param.enclosingBlock().setLastChangedParam(param, true);
 				return true;
 			}
@@ -856,21 +858,10 @@ namespace LLInitParam
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
-			if (overwrite)
+			if (dst_typed_param.T::merge(dst_typed_param.BaseBlock::getBlockDescriptor(), src_typed_param, overwrite))
 			{
-				if (dst_typed_param.T::overwriteFrom(src_typed_param))
-				{
-					dst_typed_param.mData.clearKey();
-					return true;
-				}
-			}
-			else
-			{
-				if (dst_typed_param.T::fillFrom(src_typed_param))
-				{			
-					dst_typed_param.mData.clearKey();
-					return true;
-				}
+				dst_typed_param.mData.clearKey();
+				return true;
 			}
 			return false;
 		}
@@ -1060,9 +1051,9 @@ namespace LLInitParam
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
 
 			if (src_typed_param.isProvided()
-				&& (overwrite || !isProvided()))
+				&& (overwrite || !dst_typed_param.isProvided()))
 			{
-				dst_typed_param = src_typed_param;
+				dst_typed_param.set(src_typed_param.get());
 				return true;
 			}
 			return false;
@@ -1252,7 +1243,7 @@ namespace LLInitParam
 			if (src_typed_param.isProvided()
 				&& (overwrite || !dst_typed_param.isProvided()))
 			{
-				dst_typed_param = src_typed_param;
+				dst_typed_param.set(src_typed_param.get());
 				return true;
 			}
 			return false;
@@ -1282,13 +1273,25 @@ namespace LLInitParam
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const self_t& other)
 		{
-			mCurChoice = other.mCurChoice;
-			return BaseBlock::merge(blockDescriptor(), other, true);
+			return merge(blockDescriptor(), other, true);
 		}
 
 		// take all provided params that are not already provided, and apply to self
 		bool fillFrom(const self_t& other)
 		{
+			return merge(blockDescriptor(), other, false);
+		}
+
+		// merge with other block
+		bool merge(BlockDescriptor& block_data, const self_t& other, bool overwrite)
+		{
+			// only merge a choice if we are overwriting with other's contents
+			// or we have never specified a choice locally, other than the default
+			if (overwrite || getLastChangeVersion() == 0)
+			{
+				mCurChoice = other.mCurChoice;
+				return BaseBlock::merge(blockDescriptor(), other, overwrite);
+			}
 			return false;
 		}
 
@@ -1574,6 +1577,13 @@ namespace LLInitParam
 		public Param
 	{
 	public:
+		typedef enum e_value_valid
+		{
+			OLDER_THAN_BLOCK,	// mData.mValue needs to be refreshed from the block parameters
+			NEWER_THAN_BLOCK,	// mData.mValue holds the authoritative value (which has been replicated to the block parameters via setBlockFromValue)
+			SAME_AS_BLOCK		// mData.mValue is derived from the block parameters, which are authoritative
+		} EValueValid;
+
 		typedef BlockValue<T>										self_t;
 		typedef Block<TypedParam<T, TypeValues<T>, false> >			block_t;
 		typedef const T&											value_const_ref_t;
@@ -1604,7 +1614,7 @@ namespace LLInitParam
 
 		static bool deserializeParam(Param& param, Parser& parser, const Parser::name_stack_range_t& name_stack, S32 generation)
 		{
-			self_t& typed_param = static_cast<self_t&>(param);
+			DERIVED& typed_param = static_cast<DERIVED&>(param);
 			// type to apply parse direct value T
 			if (name_stack.first == name_stack.second)
 			{
@@ -1612,7 +1622,10 @@ namespace LLInitParam
 				{
 					typed_param.enclosingBlock().setLastChangedParam(param, true);
 					typed_param.setProvided(true);
-					typed_param.mData.mLastParamVersion = typed_param.BaseBlock::getLastChangeVersion();
+					typed_param.mData.clearKey();
+					typed_param.mData.mValueAge = NEWER_THAN_BLOCK;
+					typed_param.setBlockFromValue();
+
 					return true;
 				}
 
@@ -1628,7 +1641,9 @@ namespace LLInitParam
 							typed_param.mData.setKey(name);
 							typed_param.enclosingBlock().setLastChangedParam(param, true);
 							typed_param.setProvided(true);
-							typed_param.mData.mLastParamVersion = typed_param.BaseBlock::getLastChangeVersion();
+							typed_param.mData.mValueAge = NEWER_THAN_BLOCK;
+							typed_param.setBlockFromValue();
+
 							return true;
 						}
 					}
@@ -1703,16 +1718,18 @@ namespace LLInitParam
 
 		bool isProvided() const 
 		{
-			// either param value provided directly or block is sufficiently filled in
+			if (!Param::getProvided()) return false;
+
+			// block has an updated parameter
 			// if cached value is stale, regenerate from params
-			if (Param::getProvided() && mData.mLastParamVersion < BaseBlock::getLastChangeVersion())
+			if (mData.mValueAge == OLDER_THAN_BLOCK)
 			{
 				if (block_t::validateBlock(false))
 				{
 					static_cast<const DERIVED*>(this)->setValueFromBlock();
 					// clear stale keyword associated with old value
 					mData.clearKey();
-					mData.mLastParamVersion = BaseBlock::getLastChangeVersion();
+					mData.mValueAge = SAME_AS_BLOCK;
 					return true;
 				}
 				else
@@ -1722,8 +1739,11 @@ namespace LLInitParam
 					return false;  
 				}
 			}
-			// either no data provided, or we have a valid value in hand
-			return Param::getProvided();
+			else
+			{
+				// we have a valid value in hand
+				return true;
+			}
 		}
 
 		void set(value_assignment_t val, bool flag_as_provided = true)
@@ -1731,7 +1751,7 @@ namespace LLInitParam
 			Param::enclosingBlock().setLastChangedParam(*this, flag_as_provided);
 			
 			// set param version number to be up to date, so we ignore block contents
-			mData.mLastParamVersion = BaseBlock::getLastChangeVersion();
+			mData.mValueAge = NEWER_THAN_BLOCK;
 
 			mData.mValue = val;
 			mData.clearKey();
@@ -1756,6 +1776,8 @@ namespace LLInitParam
 			if (user_provided)
 			{
 				setProvided(true);  // some component provided
+				// a parameter changed, so our value is out of date
+				mData.mValueAge = OLDER_THAN_BLOCK;
 			}
 		}
 
@@ -1763,54 +1785,54 @@ namespace LLInitParam
 		value_assignment_t get() const
 		{
 			// if some parameters were provided, issue warnings on invalid blocks
-			if (Param::getProvided() && (mData.mLastParamVersion < BaseBlock::getLastChangeVersion()))
+			if (Param::getProvided() && (mData.mValueAge == OLDER_THAN_BLOCK))
 			{
 				// go ahead and issue warnings at this point if any param is invalid
 				if(block_t::validateBlock(true))
 				{
 					static_cast<const DERIVED*>(this)->setValueFromBlock();
 					mData.clearKey();
-					mData.mLastParamVersion = BaseBlock::getLastChangeVersion();
+					mData.mValueAge = SAME_AS_BLOCK;
 				}
 			}
 
 			return mData.mValue;
 		}
 
-		// mutable to allow lazy updates on get
+
 		struct Data : public key_cache_t
 		{
 			Data(const T& value) 
 			:	mValue(value),
-				mLastParamVersion(0)
+				mValueAge(SAME_AS_BLOCK)
 			{}
 
 			T		mValue;
-			S32		mLastParamVersion;
+			EValueValid		mValueAge;
 		};
 
+		// mutable to allow lazy updates on get
 		mutable Data		mData;
 
 	private:
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
-			const self_t& src_typed_param = static_cast<const self_t&>(src);
-			self_t& dst_typed_param = static_cast<self_t&>(dst);
+			const DERIVED& src_typed_param = static_cast<const DERIVED&>(src);
+			DERIVED& dst_typed_param = static_cast<DERIVED&>(dst);
 
 			if (src_typed_param.isProvided()
 				&& (overwrite || !dst_typed_param.isProvided()))
 			{
-				// assign individual parameters
-				dst_typed_param.BaseBlock::merge(block_t::blockDescriptor(), src_typed_param, overwrite);
-
-				// then copy actual value
-				dst_typed_param.mData.mValue = src_typed_param.get();
-				dst_typed_param.mData.clearKey();
-				dst_typed_param.setProvided(true);
-
-				// Propagate value back to block params since the value was updated during this merge.
-				// This will result in mData.mValue and the block params being in sync.
-				static_cast<DERIVED&>(dst_typed_param).setBlockFromValue();
+				if (src_typed_param.mData.mValueAge == NEWER_THAN_BLOCK)
+				{
+					// copy value over
+					dst_typed_param.set(src_typed_param.get());
+				}
+				else
+				{
+					// merge individual parameters into destination
+					dst_typed_param.merge(block_t::blockDescriptor(), src_typed_param, overwrite);
+				}
 				return true;
 			}
 			return false;

@@ -417,8 +417,8 @@ namespace LLInitParam
 	{ 
 		if (user_provided)
 		{
-		mChangeVersion++;
-	}
+			mChangeVersion++;
+		}
 	}
 
 	const std::string& BaseBlock::getParamName(const BlockDescriptor& block_data, const Param* paramp) const
@@ -460,7 +460,7 @@ namespace LLInitParam
 	// NOTE: this requires that "other" is of the same derived type as this
 	bool BaseBlock::merge(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
 	{
-		bool param_changed = false;
+		bool some_param_changed = false;
 		BlockDescriptor::all_params_list_t::const_iterator end_it = block_data.mAllParams.end();
 		for (BlockDescriptor::all_params_list_t::const_iterator it = block_data.mAllParams.begin();
 			it != end_it;
@@ -471,10 +471,10 @@ namespace LLInitParam
 			if (merge_func)
 			{
 				Param* paramp = getParamFromHandle(it->mParamHandle);
-				param_changed |= merge_func(*paramp, *other_paramp, overwrite);
+				some_param_changed |= merge_func(*paramp, *other_paramp, overwrite);
 			}
 		}
-		return param_changed;
+		return some_param_changed;
 	}
 
 	bool ParamCompare<LLSD, false>::equals(const LLSD &a, const LLSD &b)
