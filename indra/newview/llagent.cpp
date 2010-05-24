@@ -3088,21 +3088,29 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 		mesgsys->getUUIDFast(_PREHASH_WearableData, _PREHASH_TextureID, texture_id, texture_block);
 		mesgsys->getU8Fast(_PREHASH_WearableData, _PREHASH_TextureIndex, texture_index, texture_block);
 
-		if ((S32)texture_index < BAKED_NUM_INDICES 
-			&& gAgentQueryManager.mActiveCacheQueries[texture_index] == query_id)
-		{
-			if (texture_id.notNull())
+
+		if ((S32)texture_index < TEX_NUM_INDICES )
+		{	
+			const LLVOAvatarDictionary::TextureEntry *texture_entry = LLVOAvatarDictionary::instance().getTexture((ETextureIndex)texture_index);
+			if (texture_entry)
 			{
-				//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
-				gAgentAvatarp->setCachedBakedTexture(LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)texture_index), texture_id);
-				//gAgentAvatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
-				gAgentQueryManager.mActiveCacheQueries[texture_index] = 0;
-				num_results++;
-			}
-			else
-			{
-				// no cache of this bake. request upload.
-				gAgentAvatarp->requestLayerSetUpload((EBakedTextureIndex)texture_index);
+				EBakedTextureIndex baked_index = texture_entry->mBakedTextureIndex;
+				if (gAgentQueryManager.mActiveCacheQueries[baked_index] == query_id)
+				{
+					if (texture_id.notNull())
+					{
+						//llinfos << "Received cached texture " << (U32)texture_index << ": " << texture_id << llendl;
+						gAgentAvatarp->setCachedBakedTexture((ETextureIndex)texture_index, texture_id);
+						//gAgentAvatarp->setTETexture( LLVOAvatar::sBakedTextureIndices[texture_index], texture_id );
+						gAgentQueryManager.mActiveCacheQueries[baked_index] = 0;
+						num_results++;
+					}
+					else
+					{
+						// no cache of this bake. request upload.
+						gAgentAvatarp->requestLayerSetUpload(baked_index);
+					}
+				}
 			}
 		}
 	}
@@ -3526,7 +3534,6 @@ void LLAgent::sendAgentSetAppearance()
 		return;
 	}
 
-
 	llinfos << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << llendl;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
@@ -3577,32 +3584,15 @@ void LLAgent::sendAgentSetAppearance()
 		llinfos << "TAT: Sending cached texture data" << llendl;
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
-			const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
-			LLUUID hash;
-			for (U8 i=0; i < baked_dict->mWearables.size(); i++)
-			{
-				// LLWearableType::EType wearable_type = gBakedWearableMap[baked_index][wearable_num];
-				const LLWearableType::EType wearable_type = baked_dict->mWearables[i];
-                                for (U8 wearable_index =0; wearable_index < gAgentWearables.getWearableCount(wearable_type); ++wearable_index)
-                                {
-                                       const LLWearable* wearable = gAgentWearables.getWearable(wearable_type,wearable_index);
-                                       if (wearable)
-                                       {
-                                               // MULTI-WEARABLE: make order-dependent (use MD5 hash)
-						hash ^= wearable->getAssetID();
-                                       }
-                                }
-			}
+			LLUUID hash = gAgentWearables.computeBakedTextureHash((EBakedTextureIndex) baked_index);
+
 			if (hash.notNull())
 			{
-				hash ^= baked_dict->mWearablesHashID;
+				ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex) baked_index);
+				msg->nextBlockFast(_PREHASH_WearableData);
+				msg->addUUIDFast(_PREHASH_CacheID, hash);
+				msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);
 			}
-
-			const ETextureIndex texture_index = LLVOAvatarDictionary::bakedToLocalTextureIndex((EBakedTextureIndex)baked_index);
-
-			msg->nextBlockFast(_PREHASH_WearableData);
-			msg->addUUIDFast(_PREHASH_CacheID, hash);
-			msg->addU8Fast(_PREHASH_TextureIndex, (U8)texture_index);
 		}
 		msg->nextBlockFast(_PREHASH_ObjectData);
 		gAgentAvatarp->sendAppearanceMessage( gMessageSystem );
