@@ -5957,6 +5957,39 @@ We are creating a voice channel for you. This may take up to one minute.
   </notification>
 
   <notification
+   icon="notify.tga"
+   name="VoiceEffectsExpired"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+Subscribed Voice Effects have expired.
+[[URL] Renew your subscription] to reactivate them.
+    <unique/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="VoiceEffectsExpiredInUse"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+The active Voice Effect has expired, your normal voice settings have been applied.
+[[URL] Renew your subscription] to reactivate it.
+    <unique/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="VoiceEffectsWillExpire"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+Voice Effects will expire in less than [INTERVAL] days.
+[[URL] Renew your subscription] or they will be removed.
+    <unique/>
+  </notification>
+
+  <notification
    icon="notifytip.tga"
    name="Cannot enter parcel: not a group member"
    type="notifytip">

@@ -266,7 +266,7 @@ class LLVoiceEffectObserver
 {
 public:
 	virtual ~LLVoiceEffectObserver() { }
-	virtual void onVoiceEffectChanged(bool new_effects) = 0;
+	virtual void onVoiceEffectChanged(bool effect_list_updated) = 0;
 };
 
 typedef std::multimap<const std::string, const LLUUID, LLDictionaryLess> voice_effect_list_t;

@@ -60,6 +60,7 @@
 #include "llviewerparcelmgr.h"
 //#include "llfirstuse.h"
 #include "llspeakers.h"
+#include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 
@@ -95,6 +96,9 @@ const int MAX_LOGIN_RETRIES = 12;
 // to make sure we don't make mistake when slight connection problems happen- situation when connection to server is 
 // blocked is VERY rare and it's better to sacrifice response time in this situation for the sake of stability.
 const int MAX_NORMAL_JOINING_SPATIAL_NUM = 50;
+
+// How often to check for expired voice fonts
+const F32 VOICE_FONT_EXPIRY_INTERVAL = 1.f;
 
 // Maximum length of capture buffer recordings
 const F32 CAPTURE_BUFFER_MAX_TIME = 15.f;
@@ -781,7 +785,7 @@ void LLVivoxVoiceClient::stateMachine()
 			closeSocket();
 			deleteAllSessions();
 			deleteAllBuddies();
-			deleteVoiceFonts();
+			deleteAllVoiceFonts();
 			deleteVoiceFontTemplates();
 
 			mConnectorHandle.clear();
@@ -1372,6 +1376,10 @@ void LLVivoxVoiceClient::stateMachine()
 			
 		//MARK: stateVoiceFontsReceived
 		case stateVoiceFontsReceived:	// Voice font list received
+			// Set up the timer to check for expiring voice fonts
+			mVoiceFontExpiryTimer.start();
+			mVoiceFontExpiryTimer.setTimerExpirySec(VOICE_FONT_EXPIRY_INTERVAL);
+
 #if USE_SESSION_GROUPS			
 			// create the main session group
 			setState(stateCreatingSessionGroup);
@@ -1600,6 +1608,13 @@ void LLVivoxVoiceClient::stateMachine()
 					enforceTether();
 				}
 				
+				// Do notifications for expiring Voice Fonts.
+				if (mVoiceFontExpiryTimer.hasExpired())
+				{
+					expireVoiceFonts();
+					mVoiceFontExpiryTimer.setTimerExpirySec(VOICE_FONT_EXPIRY_INTERVAL);
+				}
+
 				// Send an update only if the ptt or mute state has changed (which shouldn't be able to happen that often
 				// -- the user can only click so fast) or every 10hz, whichever is sooner.
 				// Sending for every volume update causes an excessive flood of messages whenever a volume slider is dragged.
@@ -1669,7 +1684,7 @@ void LLVivoxVoiceClient::stateMachine()
 			mAccountHandle.clear();
 			deleteAllSessions();
 			deleteAllBuddies();
-			deleteVoiceFonts();
+			deleteAllVoiceFonts();
 			deleteVoiceFontTemplates();
 
 			if(mVoiceEnabled && !mRelogRequested)
@@ -6461,7 +6476,6 @@ LLSD LLVivoxVoiceClient::getVoiceEffectProperties(const LLUUID& id)
 
 	voiceFontEntry *font = iter->second;
 	sd["name"] = font->mName;
-	sd["expired"] = font->mHasExpired;
 	sd["expiry_date"] = font->mExpirationDate;
 	sd["is_new"] = font->mIsNew;
 
@@ -6471,7 +6485,6 @@ LLSD LLVivoxVoiceClient::getVoiceEffectProperties(const LLUUID& id)
 LLVivoxVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
 	mID(id),
 	mFontIndex(0),
-	mHasExpired(false),
 	mFontType(VOICE_FONT_TYPE_NONE),
 	mFontStatus(VOICE_FONT_STATUS_NONE),
 	mIsNew(false)
@@ -6487,7 +6500,7 @@ void LLVivoxVoiceClient::refreshVoiceEffectLists(bool clear_lists)
 	if (clear_lists)
 	{
 		mVoiceFontsReceived = false;
-		deleteVoiceFonts();
+		deleteAllVoiceFonts();
 		deleteVoiceFontTemplates();
 	}
 
@@ -6533,12 +6546,23 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 	voice_font_map_t& font_map = template_font ? mVoiceFontTemplateMap : mVoiceFontMap;
 	voice_effect_list_t& font_list = template_font ? mVoiceFontTemplateList : mVoiceFontList;
 
-	// Check whether we've seen this font before and create an entry for it if not.
+	// Check whether we've seen this font before.
 	voice_font_map_t::iterator iter = font_map.find(font_id);
 	bool new_font = (iter == font_map.end());
+
+	// If it is a new (unexpired) font create a new entry, otherwise update the existing one.
 	if (new_font)
 	{
-		font = new voiceFontEntry(font_id);
+		if (!has_expired)
+		{
+			font = new voiceFontEntry(font_id);
+		}
+		else
+		{
+			LL_DEBUGS("Voice") << (template_font?"Template: ":"") << font_id
+			<< " (" << font_index << ") : " << name << " has expired." << LL_ENDL;
+		}
+
 	}
 	else
 	{
@@ -6547,14 +6571,46 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 
 	if (font)
 	{
+		// Remove fonts that have expired since we last saw them.
+		if (has_expired)
+		{
+			LL_DEBUGS("Voice") << (template_font?"Template: ":"") << font_id
+			<< " (" << font_index << ") : " << name << " has expired, removing."
+			<< LL_ENDL;
+
+			deleteVoiceFont(font_id);
+			return;
+		}
+
 		font->mFontIndex = font_index;
 		// Use the description for the human readable name if available, as the
 		// "name" may be a UUID.
 		font->mName = description.empty() ? name : description;
 		font->mExpirationDate = expiration_date;
-		font->mHasExpired = has_expired;
 		font->mFontType = font_type;
 		font->mFontStatus = font_status;
+
+		F64 expiry_time = 0.f;
+
+		// Set the expiry timer to trigger a notification when the voice font can no longer be used.
+		font->mExpiryTimer.start();
+		expiry_time = expiration_date.secondsSinceEpoch() - LLTimer::getTotalSeconds();
+		font->mExpiryTimer.setTimerExpirySec(expiry_time);
+
+		// Set the warning timer to some interval before actual expiry.
+		F64 warning_time = (F64)gSavedSettings.getF32("VoiceEffectExpiryWarningTime");
+		if (warning_time > 0.f)
+		{
+			font->mExpiryWarningTimer.start();
+			expiry_time = (expiration_date.secondsSinceEpoch() - warning_time)
+							- LLTimer::getTotalSeconds();
+			font->mExpiryWarningTimer.setTimerExpirySec(expiry_time);
+		}
+		else
+		{
+			// Disable the warning timer.
+			font->mExpiryWarningTimer.stop();
+		}
 
 		 // Only flag it as a new font if we have already seen the font list.
 		if (!template_font && mVoiceFontsReceived && new_font)
@@ -6563,9 +6619,16 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 			mVoiceFontsNew = true;
 		}
 
+		if (new_font)
+		{
+			font_map.insert(voice_font_map_t::value_type(font->mID, font));
+			font_list.insert(voice_effect_list_t::value_type(font->mName, font->mID));
+		}
+
+		// Debugging stuff
+
 		LL_DEBUGS("Voice") << (template_font?"Template: ":"") << font_id
-			<< " (" << font_index << ") : " << name << (has_expired?" (Expired)":"")
-			<< LL_ENDL;
+		<< " (" << font_index << ") : " << name << LL_ENDL;
 
 		if (font_type < VOICE_FONT_TYPE_NONE || font_type >= VOICE_FONT_TYPE_UNKNOWN)
 		{
@@ -6575,16 +6638,108 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 		{
 			LL_DEBUGS("Voice") << "Unknown voice font status: " << font_status << LL_ENDL;
 		}
-
-		if (new_font)
-		{
-			font_map.insert(voice_font_map_t::value_type(font->mID, font));
-			font_list.insert(voice_effect_list_t::value_type(font->mName, font->mID));
-		}
 	}
 }
 
-void LLVivoxVoiceClient::deleteVoiceFonts()
+void LLVivoxVoiceClient::expireVoiceFonts()
+{
+	// *TODO: If we are selling voice fonts in packs, there are probably
+	// going to be a number of fonts with the same expiration time, so would
+	// be more efficient to just keep a list of expiration times rather
+	// than checking each font individually.
+
+	bool have_expired = false;
+	bool will_expire = false;
+	bool expired_in_use = false;
+
+	LLUUID current_effect = LLVoiceClient::instance().getVoiceEffectDefault();
+
+	voice_font_map_t::iterator iter;
+	for (iter = mVoiceFontMap.begin(); iter != mVoiceFontMap.end(); ++iter)
+	{
+		voiceFontEntry* voice_font = iter->second;
+		LLTimer& expiry_timer  = voice_font->mExpiryTimer;
+		LLTimer& warning_timer = voice_font->mExpiryWarningTimer;
+
+		// Check for expired voice fonts
+		if (expiry_timer.getStarted() && expiry_timer.hasExpired())
+		{
+			// Check whether it is the active voice font
+			if (voice_font->mID == current_effect)
+			{
+				// Reset to no voice effect.
+				setVoiceEffect(LLUUID::null);
+				expired_in_use = true;
+			}
+			deleteVoiceFont(voice_font->mID);
+			have_expired = true;
+		}
+
+		// Check for voice fonts that will expire in less that the warning time
+		if (warning_timer.getStarted() && warning_timer.hasExpired())
+		{
+			will_expire = true;
+			warning_timer.stop();
+		}
+	}
+
+	LLSD args;
+	args["URL"] = LLTrans::getString("voice_morphing_url");
+
+	// Give a notification if any voice fonts have expired.
+	if (have_expired)
+	{
+		if (expired_in_use)
+		{
+			LLNotificationsUtil::add("VoiceEffectsExpiredInUse", args);
+		}
+		else
+		{
+			LLNotificationsUtil::add("VoiceEffectsExpired", args);
+		}
+
+		// Refresh voice font lists in the UI.
+		notifyVoiceFontObservers(true);
+	}
+
+	// Give a warning notification if any voice fonts are due to expire.
+	if (will_expire)
+	{
+		S32 seconds = gSavedSettings.getF32("VoiceEffectExpiryWarningTime");
+		args["INTERVAL"] = llformat("%d", (seconds / SEC_PER_DAY));
+
+		LLNotificationsUtil::add("VoiceEffectsWillExpire", args);
+	}
+}
+
+void LLVivoxVoiceClient::deleteVoiceFont(const LLUUID& id)
+{
+	// Remove the entry from the voice font list.
+	voice_effect_list_t::iterator list_iter = mVoiceFontList.begin();
+	while (list_iter != mVoiceFontList.end())
+	{
+		if (list_iter->second == id)
+		{
+			mVoiceFontList.erase(list_iter++);
+		}
+		else
+		{
+			++list_iter;
+		}
+	}
+
+	// Find the entry in the voice font map and erase its data.
+	voice_font_map_t::iterator map_iter = mVoiceFontMap.find(id);
+	if (map_iter != mVoiceFontMap.end())
+	{
+		delete map_iter->second;
+	}
+
+	// Remove the entry from the voice font map.
+	mVoiceFontMap.erase(map_iter);
+}
+
+void LLVivoxVoiceClient::deleteAllVoiceFonts()
 {
 	mVoiceFontList.clear();
 
@@ -6723,14 +6878,14 @@ void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
 	mVoiceFontObservers.erase(observer);
 }
 
-void LLVivoxVoiceClient::notifyVoiceFontObservers(bool new_fonts)
+void LLVivoxVoiceClient::notifyVoiceFontObservers(bool lists_changed)
 {
 	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
 		 it != mVoiceFontObservers.end();
 		 )
 	{
 		LLVoiceEffectObserver* observer = *it;
-		observer->onVoiceEffectChanged(new_fonts);
+		observer->onVoiceEffectChanged(lists_changed);
 		// In case onVoiceEffectChanged() deleted an entry.
 		it = mVoiceFontObservers.upper_bound(observer);
 	}

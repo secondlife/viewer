@@ -10606,6 +10606,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>VoiceEffectExpiryWarningTime</key>
+    <map>
+      <key>Comment</key>
+      <string>How much notice to give of voice effect subscriptions expiry, in seconds.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>259200.0</real>
+    </map>
     <key>AutoDisengageMic</key>
     <map>
       <key>Comment</key>

@@ -857,7 +857,9 @@ private:
 
 	// Voice Fonts
 
-	void deleteVoiceFonts();
+	void expireVoiceFonts();
+	void deleteVoiceFont(const LLUUID& id);
+	void deleteAllVoiceFonts();
 	void deleteVoiceFontTemplates();
 
 	S32 getVoiceFontIndex(const LLUUID& id) const;
@@ -867,7 +869,7 @@ private:
 	void accountGetTemplateFontsSendMessage();
 	void sessionSetVoiceFontSendMessage(sessionState *session);
 
-	void notifyVoiceFontObservers(bool new_fonts = false);
+	void notifyVoiceFontObservers(bool lists_changed = false);
 
 	typedef enum e_voice_font_type
 	{
@@ -894,10 +896,12 @@ private:
 		S32			mFontIndex;
 		std::string mName;
 		LLDate		mExpirationDate;
-		bool		mHasExpired;
 		S32			mFontType;
 		S32			mFontStatus;
 		bool		mIsNew;
+
+		LLTimer		mExpiryTimer;
+		LLTimer		mExpiryWarningTimer;
 	};
 
 	bool mVoiceFontsReceived;
@@ -911,6 +915,9 @@ private:
 
 	typedef std::set<LLVoiceEffectObserver*> voice_font_observer_set_t;
 	voice_font_observer_set_t mVoiceFontObservers;
+
+	LLTimer	mVoiceFontExpiryTimer;
+
 
 	// Audio capture buffer
 

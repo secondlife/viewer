@@ -230,9 +230,9 @@ void LLFloaterVoiceEffect::updateControls()
 }
 
 // virtual
-void LLFloaterVoiceEffect::onVoiceEffectChanged(bool new_effects)
+void LLFloaterVoiceEffect::onVoiceEffectChanged(bool effect_list_updated)
 {
-	if (new_effects)
+	if (effect_list_updated)
 	{
 		refreshEffectList();
 	}
