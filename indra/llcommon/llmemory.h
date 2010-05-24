@@ -42,7 +42,7 @@ inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed wi
 	return malloc(size); // default osx malloc is 16 byte aligned.
 #else
 	void *rtn;
-	if (LL_LIKELY(0 == posix_memalign(&rtn, alignment, 16)))
+	if (LL_LIKELY(0 == posix_memalign(&rtn, 16, size)))
 	{
 		return rtn;
 	}
