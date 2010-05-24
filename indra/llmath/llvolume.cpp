@@ -4187,6 +4187,9 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 			
 			LLVector4a starta, dira;
 
+			starta.load3(start.mV);
+			dira.load3(dir.mV);
+
 			LLVector4a* p = (LLVector4a*) face.mPositions;
 
 			for (U32 tri = 0; tri < face.mNumIndices/3; tri++) 
@@ -4235,17 +4238,10 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 
 						if (bi_normal != NULL)
 						{
-							if (!face.mBinormals)
-							{
-								face.createBinormals();
-							}
 							LLVector4* binormal = (LLVector4*) face.mBinormals;
-							if (binormal)
-							{
-								*bi_normal = ((1.f - a - b)  * LLVector3(binormal[index1]) + 
+							*bi_normal = ((1.f - a - b)  * LLVector3(binormal[index1]) + 
 									a              * LLVector3(binormal[index2]) +
 									b              * LLVector3(binormal[index3]));
-							}
 						}
 
 					}
