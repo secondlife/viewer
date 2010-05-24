@@ -910,7 +910,7 @@ void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
 		const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_uuid);
 		const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND";
 
-		llinfos << "Linking Item [ name:" << item->getName() << " UUID:" << item->getUUID() << " ] to Category [ name:" << cat_name << " UUID:" << cat_uuid << " ] " << llendl;
+		llinfos << "Linking Item [ name:" << item->getName() << " UUID:" << item->getUUID() << " ] to Category [ name:" << cat_name << " UUID:" << cat_uuid << " ] " << llendl; // Seraph remove for 2.1
 	}
 }
 
@@ -979,13 +979,13 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	llinfos << "creating LLUpdateAppearanceOnDestroy" << llendl;
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 
-	llinfos << "Linking body items" << llendl;
+	llinfos << "Linking body items" << llendl; // Seraph remove for 2.1
 	linkAll(cof, body_items, link_waiter);
-	llinfos << "Linking wear items" << llendl;
+	llinfos << "Linking wear items" << llendl; // Seraph remove for 2.1
 	linkAll(cof, wear_items, link_waiter);
-	llinfos << "Linking obj items" << llendl;
+	llinfos << "Linking obj items" << llendl; // Seraph remove for 2.1
 	linkAll(cof, obj_items, link_waiter);
-	llinfos << "Linking gesture items" << llendl;
+	llinfos << "Linking gesture items" << llendl; // Seraph remove for 2.1
 	linkAll(cof, gest_items, link_waiter);
 
 	// Add link to outfit if category is an outfit. 
@@ -1495,7 +1495,7 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 		// TODO: MULTI-WEARABLE: check for wearable limit for clothing types
 		else if (is_body_part)
 		{
-			if (inv_item->getIsLinkType())
+			if (inv_item->getIsLinkType()  && (vitem->getWearableType() == wearable_type))
 			{
 				gInventory.purgeObject(inv_item->getUUID());
 			}
