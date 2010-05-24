@@ -148,6 +148,8 @@ protected:
 		else
 		{
 			mBaseOutfitId = baseoutfit_id;
+			mPanel->updateCurrentOutfitName();
+
 			if (baseoutfit_id.isNull()) return;
 
 			mBaseOutfitLastVersion = getCategoryVersion(mBaseOutfitId);
@@ -643,6 +645,13 @@ void LLPanelOutfitEdit::displayCurrentOutfit()
 		setVisible(TRUE);
 	}
 
+	updateCurrentOutfitName();
+
+	update();
+}
+
+void LLPanelOutfitEdit::updateCurrentOutfitName()
+{
 	std::string current_outfit_name;
 	if (LLAppearanceMgr::getInstance()->getBaseOutfitName(current_outfit_name))
 	{
@@ -652,8 +661,6 @@ void LLPanelOutfitEdit::displayCurrentOutfit()
 	{
 		mCurrentOutfitName->setText(getString("No Outfit"));
 	}
-
-	update();
 }
 
 //private

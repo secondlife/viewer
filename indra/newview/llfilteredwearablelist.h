@@ -36,7 +36,7 @@
 
 class LLInventoryItemsList;
 
-// Class that fills LLInventoryItemsList with filtered data.
+// Class that fills LLInventoryItemsList with filtered data (original items only (non-links)).
 class LLFilteredWearableListManager : public LLInventoryObserver
 {
 	LOG_CLASS(LLFilteredWearableListManager);
