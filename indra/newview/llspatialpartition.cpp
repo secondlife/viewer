@@ -512,50 +512,6 @@ void LLSpatialGroup::checkStates()
 #endif
 }
 
-void validate_draw_info(LLDrawInfo& params)
-{
-#if LL_OCTREE_PARANOIA_CHECK
-	if (params.mVertexBuffer.isNull())
-	{
-		llerrs << "Draw batch has no vertex buffer." << llendl;
-	}
-	
-	//bad range
-	if (params.mStart >= params.mEnd)
-	{
-		llerrs << "Draw batch has invalid range." << llendl;
-	}
-	
-	if (params.mEnd >= (U32) params.mVertexBuffer->getNumVerts())
-	{
-		llerrs << "Draw batch has buffer overrun error." << llendl;
-	}
-	
-	if (params.mOffset + params.mCount > (U32) params.mVertexBuffer->getNumIndices())
-	{
-		llerrs << "Draw batch has index buffer ovverrun error." << llendl;
-	}
-	
-	//bad indices
-	U16* indicesp = (U16*) params.mVertexBuffer->getIndicesPointer();
-	if (indicesp)
-	{
-		for (U32 i = params.mOffset; i < params.mOffset+params.mCount; i++)
-		{
-			if (indicesp[i] < (U16)params.mStart)
-			{
-				llerrs << "Draw batch has vertex buffer index out of range error (index too low)." << llendl;
-			}
-			
-			if (indicesp[i] > (U16)params.mEnd)
-			{
-				llerrs << "Draw batch has vertex buffer index out of range error (index too high)." << llendl;
-			}
-		}
-	}
-#endif
-}
-
 void LLSpatialGroup::validateDrawMap()
 {
 #if LL_OCTREE_PARANOIA_CHECK
@@ -565,8 +521,8 @@ void LLSpatialGroup::validateDrawMap()
 		for (drawmap_elem_t::iterator j = draw_vec.begin(); j != draw_vec.end(); ++j)
 		{
 			LLDrawInfo& params = **j;
-			
-			validate_draw_info(params);
+		
+			params.validate();
 		}
 	}
 #endif
@@ -3379,18 +3335,9 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mDistance(0.f),
 	mDrawMode(LLRender::TRIANGLES)
 {
-	mDebugColor = (rand() << 16) + rand();
-	if (mStart >= mVertexBuffer->getRequestedVerts() ||
-		mEnd >= mVertexBuffer->getRequestedVerts())
-	{
-		llerrs << "Invalid draw info vertex range." << llendl;
-	}
+	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 
-	if (mOffset >= (U32) mVertexBuffer->getRequestedIndices() ||
-		mOffset + mCount > (U32) mVertexBuffer->getRequestedIndices())
-	{
-		llerrs << "Invalid draw info index range." << llendl;
-	}
+	mDebugColor = (rand() << 16) + rand();
 }
 
 LLDrawInfo::~LLDrawInfo()	
@@ -3404,6 +3351,11 @@ LLDrawInfo::~LLDrawInfo()
 	{
 		mFace->setDrawInfo(NULL);
 	}
+}
+
+void LLDrawInfo::validate()
+{
+	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 }
 
 LLVertexBuffer* LLGeometryManager::createVertexBuffer(U32 type_mask, U32 usage)

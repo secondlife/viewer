@@ -207,6 +207,11 @@ public:
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
 	void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
 
+	//for debugging, validate data in given range is valid
+	void validateRange(U32 start, U32 end, U32 count, U32 offset) const;
+
+	
+
 protected:	
 	S32		mNumVerts;		// Number of vertices allocated
 	S32		mNumIndices;	// Number of indices allocated

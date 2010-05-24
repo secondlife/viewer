@@ -261,10 +261,8 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 	}
 }
 
-void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
+void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_offset) const
 {
-	llassert(mRequestedNumVerts >= 0);
-
 	if (start >= (U32) mRequestedNumVerts ||
 	    end >= (U32) mRequestedNumVerts)
 	{
@@ -278,6 +276,25 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	{
 		llerrs << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << llendl;
 	}
+
+	if (gDebugGL && !useVBOs())
+	{
+		U16* idx = ((U16*) getIndicesPointer())+indices_offset;
+		for (U32 i = 0; i < count; ++i)
+		{
+			if (idx[i] < start || idx[i] > end)
+			{
+				llerrs << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << llendl;
+			}
+		}
+	}
+}
+
+void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
+{
+	validateRange(start, end, count, indices_offset);
+
+	llassert(mRequestedNumVerts >= 0);
 
 	if (mGLIndices != sGLRenderIndices)
 	{
@@ -296,17 +313,6 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	}
 
 	U16* idx = ((U16*) getIndicesPointer())+indices_offset;
-
-	if (gDebugGL && !useVBOs())
-	{
-		for (U32 i = 0; i < count; ++i)
-		{
-			if (idx[i] < start || idx[i] > end)
-			{
-				llerrs << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << llendl;
-			}
-		}
-	}
 
 	stop_glerror();
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
