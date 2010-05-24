@@ -6597,11 +6597,11 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 		font->mExpiryTimer.setTimerExpirySec(expiry_time);
 
 		// Set the warning timer to some interval before actual expiry.
-		F64 warning_time = (F64)gSavedSettings.getF32("VoiceEffectExpiryWarningTime");
-		if (warning_time > 0.f)
+		S32 warning_time = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
+		if (warning_time > 0)
 		{
 			font->mExpiryWarningTimer.start();
-			expiry_time = (expiration_date.secondsSinceEpoch() - warning_time)
+			expiry_time = (expiration_date.secondsSinceEpoch() - (F64)warning_time)
 							- LLTimer::getTotalSeconds();
 			font->mExpiryWarningTimer.setTimerExpirySec(expiry_time);
 		}
@@ -6704,8 +6704,8 @@ void LLVivoxVoiceClient::expireVoiceFonts()
 	// Give a warning notification if any voice fonts are due to expire.
 	if (will_expire)
 	{
-		S32 seconds = gSavedSettings.getF32("VoiceEffectExpiryWarningTime");
-		args["INTERVAL"] = llformat("%d", (seconds / SEC_PER_DAY));
+		S32 seconds = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
+		args["INTERVAL"] = llformat("%d", seconds / SEC_PER_DAY);
 
 		LLNotificationsUtil::add("VoiceEffectsWillExpire", args);
 	}

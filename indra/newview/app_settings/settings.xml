@@ -10591,9 +10591,9 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
+      <string>S32</string>
       <key>Value</key>
-      <real>259200.0</real>
+      <integer>259200</integer>
     </map>
     <key>VoiceMorphingEnabled</key>
     <map>
