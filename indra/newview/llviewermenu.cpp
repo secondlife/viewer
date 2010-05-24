@@ -2051,9 +2051,9 @@ class LLAdvancedEnableRenderDeferred: public view_listener_t
 };
 
 /////////////////////////////////////
-// Enable Global Illumination 	  ///
+// Enable Deferred Rendering sub-options
 /////////////////////////////////////
-class LLAdvancedEnableRenderDeferredGI: public view_listener_t
+class LLAdvancedEnableRenderDeferredOptions: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
@@ -6543,7 +6543,7 @@ void handle_dump_attachments(void*)
 }
 
 
-// these are used in the gl menus to set control values.
+// these are used in the gl menus to set control values, generically.
 class LLToggleControl : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -6562,8 +6562,44 @@ class LLCheckControl : public view_listener_t
 		std::string callback_data = userdata.asString();
 		bool new_value = gSavedSettings.getBOOL(callback_data);
 		return new_value;
-}
+	}
+};
 
+// not so generic
+
+class LLAdvancedCheckRenderShadowOption: public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string control_name = userdata.asString();
+		S32 current_shadow_level = gSavedSettings.getS32(control_name);
+		if (current_shadow_level == 0) // is off
+		{
+			return false;
+		}
+		else // is on
+		{
+			return true;
+		}
+	}
+};
+
+class LLAdvancedClickRenderShadowOption: public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string control_name = userdata.asString();
+		S32 current_shadow_level = gSavedSettings.getS32(control_name);
+		if (current_shadow_level == 0) // upgrade to level 2
+		{
+			gSavedSettings.setS32(control_name, 2);
+		}
+		else // downgrade to level 0
+		{
+			gSavedSettings.setS32(control_name, 0);
+		}
+		return true;
+	}
 };
 
 void menu_toggle_attached_lights(void* user_data)
@@ -7821,7 +7857,7 @@ void initialize_menus()
 	// Help menu
 	// most items use the ShowFloater method
 
-	// Advance menu
+	// Advanced menu
 	view_listener_t::addMenu(new LLAdvancedToggleConsole(), "Advanced.ToggleConsole");
 	view_listener_t::addMenu(new LLAdvancedCheckConsole(), "Advanced.CheckConsole");
 	view_listener_t::addMenu(new LLAdvancedDumpInfoToConsole(), "Advanced.DumpInfoToConsole");
@@ -7848,12 +7884,13 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedSelectedTextureInfo(), "Advanced.SelectedTextureInfo");
 	view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
+	// Develop > Render
 	view_listener_t::addMenu(new LLAdvancedToggleTextureAtlas(), "Advanced.ToggleTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedCheckTextureAtlas(), "Advanced.CheckTextureAtlas");
 	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");
 	view_listener_t::addMenu(new LLAdvancedEnableRenderFBO(), "Advanced.EnableRenderFBO");
 	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferred(), "Advanced.EnableRenderDeferred");
-	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferredGI(), "Advanced.EnableRenderDeferredGI");
+	view_listener_t::addMenu(new LLAdvancedEnableRenderDeferredOptions(), "Advanced.EnableRenderDeferredOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleRandomizeFramerate(), "Advanced.ToggleRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedCheckRandomizeFramerate(), "Advanced.CheckRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedTogglePeriodicSlowFrame(), "Advanced.TogglePeriodicSlowFrame");
@@ -7862,6 +7899,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleFrameTest(), "Advanced.ToggleFrameTest");
 	view_listener_t::addMenu(new LLAdvancedCheckFrameTest(), "Advanced.CheckFrameTest");
 	view_listener_t::addMenu(new LLAdvancedHandleAttachedLightParticles(), "Advanced.HandleAttachedLightParticles");
+	view_listener_t::addMenu(new LLAdvancedCheckRenderShadowOption(), "Advanced.CheckRenderShadowOption");
+	view_listener_t::addMenu(new LLAdvancedClickRenderShadowOption(), "Advanced.ClickRenderShadowOption");
 	
 
 	#ifdef TOGGLE_HACKED_GODLIKE_VIEWER

@@ -211,6 +211,7 @@
 			<check_box.commit_callback
 			function="Pref.VertexShaderEnable" />
 		</check_box>
+<!-- DISABLED UNTIL WE REALLY WANT TO SUPPORT THIS
     <check_box
 		control_name="RenderDeferred"
 		height="16"
@@ -272,7 +273,7 @@
         name="2"
         value="2"/>
       </combo_box>
-
+-->
       <text
   type="string"
   length="1"
