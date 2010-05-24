@@ -822,9 +822,6 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 	{
 		sAllocatedBytes -= getSize() + getIndicesSize();
 		
-		S32 oldsize = getSize();
-		S32 old_index_size = getIndicesSize();
-
 		updateNumVerts(newnverts);		
 		updateNumIndices(newnindices);
 		
