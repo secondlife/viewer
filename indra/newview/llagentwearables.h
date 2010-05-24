@@ -150,6 +150,8 @@ protected:
 public:
 	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
+	LLUUID			computeBakedTextureHash(LLVOAvatarDefines::EBakedTextureIndex index);
+
 protected:
 	void			sendAgentWearablesUpdate();
 	void			sendAgentWearablesRequest();
