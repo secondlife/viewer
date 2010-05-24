@@ -596,7 +596,7 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 	LLVector3 v[4];
 	// LLVector3 n[4]; // unused!
 
-	F32 closest_t = 1.f;
+	// F32 closest_t = 1.f; // unused!
 
 	for (S32 i = 0;  i < mNumBlades; i++)
 	{
