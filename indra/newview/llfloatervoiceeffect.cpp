@@ -216,13 +216,11 @@ void LLFloaterVoiceEffect::refreshEffectList()
 void LLFloaterVoiceEffect::updateControls()
 {
 	bool recording = false;
-	bool playing = false;
 
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
 	if (effect_interface)
 	{
 		recording = effect_interface->isPreviewRecording();
-		playing = effect_interface->isPreviewPlaying();
 	}
 
 	getChild<LLButton>("record_btn")->setVisible(!recording);
