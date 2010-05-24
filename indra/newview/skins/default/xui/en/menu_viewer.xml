@@ -82,7 +82,8 @@
         </menu_item_check>
         <menu_item_check
          label="My Voice"
-         name="ShowVoice">
+         name="ShowVoice"
+         visibility_control="VoiceMorphingEnabled">
             <menu_item_check.on_check
              function="Floater.Visible"
              parameter="voice_effect" />

@@ -10584,28 +10584,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>VoiceFontsAvailable</key>
-    <map>
-      <key>Comment</key>
-      <string>Temporary debug setting to test UI with no voice effects available.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>VoiceEffectEnabled</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether or not to use Voice Effects and show the UI.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>VoiceEffectExpiryWarningTime</key>
     <map>
       <key>Comment</key>
@@ -10616,6 +10594,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>259200.0</real>
+    </map>
+    <key>VoiceMorphingEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to enable Voice Effects and show the UI.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>AutoDisengageMic</key>
     <map>

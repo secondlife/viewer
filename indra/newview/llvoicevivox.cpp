@@ -1322,8 +1322,7 @@ void LLVivoxVoiceClient::stateMachine()
 
 			notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
 
-			// *FIX: Remove VoiceFontsAvailable temporary setting (only used to test UI behaviour with no fonts)
-			if (LLVoiceClient::instance().getVoiceEffectEnabled() && gSavedSettings.getBOOL("VoiceFontsAvailable"))
+			if (LLVoiceClient::instance().getVoiceEffectEnabled())
 			{
 				// request the set of available voice fonts
 				setState(stateVoiceFontsWait);

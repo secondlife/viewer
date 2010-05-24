@@ -99,7 +99,7 @@
           <panel
            class="panel_voice_effect"
            name="panel_voice_effect"
-           visiblity_control="VoiceEffectEnabled"
+           visiblity_control="VoiceMorphingEnabled"
            filename="panel_voice_effect.xml" />
           <layout_panel
            auto_resize="false"
