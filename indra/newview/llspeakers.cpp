@@ -529,6 +529,7 @@ BOOL LLSpeakerMgr::isVoiceActive()
 // LLIMSpeakerMgr
 //
 LLIMSpeakerMgr::LLIMSpeakerMgr(LLVoiceChannel* channel) : LLSpeakerMgr(channel)
+, mVoiceModerated(false)
 {
 }
 
@@ -783,21 +784,33 @@ void LLIMSpeakerMgr::moderateVoiceOtherParticipants(const LLUUID& excluded_avata
 	*/
 
 	mReverseVoiceModeratedAvatarID = excluded_avatar_id;
-	moderateVoiceSession(getSessionID(), !unmute_everyone_else);
+
+
+	if (mVoiceModerated == !unmute_everyone_else)
+	{
+		// session already in requested state. Just force participants which do not match it.
+		forceVoiceModeratedMode(mVoiceModerated);
+	}
+	else
+	{
+		// otherwise set moderated mode for a whole session.
+		moderateVoiceSession(getSessionID(), !unmute_everyone_else);
+	}
 }
 
 void LLIMSpeakerMgr::processSessionUpdate(const LLSD& session_update)
 {
-	if (mReverseVoiceModeratedAvatarID.isNull()) return;
-
 	if (session_update.has("moderated_mode") &&
 		session_update["moderated_mode"].has("voice"))
 	{
-		BOOL voice_moderated = session_update["moderated_mode"]["voice"];
+		mVoiceModerated = session_update["moderated_mode"]["voice"];
 
-		moderateVoiceParticipant(mReverseVoiceModeratedAvatarID, voice_moderated);
+		if (mReverseVoiceModeratedAvatarID.notNull())
+		{
+			moderateVoiceParticipant(mReverseVoiceModeratedAvatarID, mVoiceModerated);
 
-		mReverseVoiceModeratedAvatarID = LLUUID::null;
+			mReverseVoiceModeratedAvatarID = LLUUID::null;
+		}
 	}
 }
 
@@ -817,6 +830,20 @@ void LLIMSpeakerMgr::moderateVoiceSession(const LLUUID& session_id, bool disallo
 	LLHTTPClient::post(url, data, new ModerationResponder(session_id));
 }
 
+void LLIMSpeakerMgr::forceVoiceModeratedMode(bool should_be_muted)
+{
+	for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); ++speaker_it)
+	{
+		LLUUID speaker_id = speaker_it->first;
+		LLSpeaker* speakerp = speaker_it->second;
+
+		// participant does not match requested state
+		if (should_be_muted != (bool)speakerp->mModeratorMutedVoice)
+		{
+			moderateVoiceParticipant(speaker_id, !should_be_muted);
+		}
+	}
+}
 
 //
 // LLActiveSpeakerMgr
