@@ -89,7 +89,7 @@
 	<spinner left="205" name="BuildAxisDeadZone3" width="50"/>
 	<spinner left="275" name="FlycamAxisDeadZone3" width="50"/>
 	<text name="Feathering">
-		羽毛
+		感度調整
 	</text>
 	<slider label="" left="126" name="AvatarFeathering" width="67"/>
 	<slider label="" left="196" name="BuildFeathering" width="67"/>

@@ -66,6 +66,8 @@ public:
 	static void			onRevertButtonClicked(void* userdata);
 	void				onCommitSexChange();
 
+	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
+
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
