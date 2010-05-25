@@ -308,10 +308,10 @@
 				（なし）
 			</panel.string>
 			<panel.string name="push_restrict_text">
-				プッシングを制限
+				プッシュ禁止
 			</panel.string>
 			<panel.string name="push_restrict_region_text">
-				プッシングを制限 （地域設定優先）
+				プッシュ禁止 （地域設定優先）
 			</panel.string>
 			<text name="allow_label">
 				他の住人への許可：
@@ -337,7 +337,7 @@
 				土地オプション：
 			</text>
 			<check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。"/>
-			<check_box label="プッシングを制限" name="PushRestrictCheck" tool_tip="スクリプトによるプッシングを制限します。 このオプションを選択することにより、あなたの土地での破壊的行動を防ぐことができます。"/>
+			<check_box label="プッシュ禁止" name="PushRestrictCheck" tool_tip="スクリプトによるプッシュを禁止します。 このオプションを選択することにより、あなたの土地での破壊的行動を防ぐことができます。"/>
 			<check_box label="検索に区画を表示（週 L$ 30）" name="ShowDirectoryCheck" tool_tip="この区画を検索結果に表示します"/>
 			<combo_box name="land category with adult">
 				<combo_box.item label="全カテゴリ" name="item0"/>
@@ -355,7 +355,7 @@
 				<combo_box.item label="その他" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
-				<combo_box.item label="全カテゴリー" name="item0"/>
+				<combo_box.item label="全カテゴリ" name="item0"/>
 				<combo_box.item label="Linden 所在地" name="item1"/>
 				<combo_box.item label="アート&amp;カルチャー" name="item3"/>
 				<combo_box.item label="ビジネス" name="item4"/>
@@ -379,7 +379,7 @@
 			<button label="設定" label_selected="設定" name="Set" tool_tip="訪問者の着地点の設定を行います。この区画内に立って行ってください。"/>
 			<button label="クリア" label_selected="クリア" name="Clear" tool_tip="着地点をクリア"/>
 			<text name="Teleport Routing: ">
-				テレポート制限：
+				テレポート経路：
 			</text>
 			<combo_box name="landing type" tool_tip="テレポート経路 -- あなたの土地へのテレポート経路を選択">
 				<combo_box.item label="不可" name="Blocked"/>
