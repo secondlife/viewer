@@ -38,6 +38,7 @@
 
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
+#include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -55,6 +56,20 @@ class OutfitContextMenu : public LLListContextMenu
 protected:
 	/* virtual */ LLContextMenu* createMenu()
 	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+		LLUUID selected_id = mUUIDs.front();
+
+		registrar.add("Outfit.WearReplace",
+			boost::bind(&LLAppearanceMgr::replaceCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+		registrar.add("Outfit.WearAdd",
+			boost::bind(&LLAppearanceMgr::addCategoryToCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+		registrar.add("Outfit.TakeOff",
+				boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
+		// *TODO: implement this
+		// registrar.add("Outfit.Rename", boost::bind());
+		// registrar.add("Outfit.Delete", boost::bind());
+
 		return createFromFile("menu_outfit_tab.xml");
 	}
 };

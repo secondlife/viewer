@@ -287,7 +287,16 @@ public:
 	class ContextMenu : public LLListContextMenu, public LLSingleton<ContextMenu>
 	{
 	protected:
+		enum {
+			MASK_CLOTHING		= 0x01,
+			MASK_BODYPART		= 0x02,
+			MASK_ATTACHMENT		= 0x04,
+		};
+
 		/* virtual */ LLContextMenu* createMenu();
+		void updateItemsVisibility(LLContextMenu* menu);
+		void setMenuItemVisible(LLContextMenu* menu, const std::string& name, bool val);
+		void updateMask(U32& mask, LLAssetType::EType at);
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>

@@ -174,11 +174,7 @@ LLInventoryItem* LLTaskInvFVBridge::findItem() const
 
 void LLTaskInvFVBridge::showProperties()
 {
-	LLSD key;
-	key["object"] = mPanel->getTaskUUID();
-	key["id"] = mUUID;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
-
+	show_item_profile(mUUID);
 
 	// Disable old properties floater; this is replaced by the sidepanel.
 	/*

@@ -46,6 +46,9 @@
 // Is this item or its baseitem is worn, attached, etc...
 BOOL get_is_item_worn(const LLUUID& id);
 
+void show_item_profile(const LLUUID& item_uuid);
+
+void show_item_original(const LLUUID& item_uuid);
 
 void change_item_parent(LLInventoryModel* model,
 									 LLViewerInventoryItem* item,
@@ -260,6 +263,17 @@ public:
 	virtual ~LLFindWearables() {}
 	virtual bool operator()(LLInventoryCategory* cat,
 							LLInventoryItem* item);
+};
+
+//Inventory collect functor collecting wearables of a specific wearable type
+class LLFindWearablesOfType : public LLInventoryCollectFunctor
+{
+public:
+	LLFindWearablesOfType(LLWearableType::EType type) : mWearableType(type) {}
+	virtual ~LLFindWearablesOfType() {}
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+
+	const LLWearableType::EType mWearableType;
 };
 
 /**                    Inventory Collector Functions

@@ -61,6 +61,11 @@ protected:
 
 	/*virtual*/ LLContextMenu* createMenu()
 	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
+		registrar.add("Attachment.Detach", boost::bind(handleMultiple, take_off, mUUIDs));
+
 		return createFromFile("menu_cof_attachment.xml");
 	}
 };
@@ -73,8 +78,49 @@ protected:
 
 	/*virtual*/ LLContextMenu* createMenu()
 	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+		LLUUID selected_id = mUUIDs.back();
+		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
+
+		registrar.add("Clothing.TakeOff", boost::bind(handleMultiple, take_off, mUUIDs));
+		registrar.add("Clothing.MoveUp", boost::bind(moveWearable, selected_id, false));
+		registrar.add("Clothing.MoveDown", boost::bind(moveWearable, selected_id, true));
+		registrar.add("Clothing.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
+
+		enable_registrar.add("Clothing.OnEnable", boost::bind(&CofClothingContextMenu::onEnable, this, _2));
+
 		return createFromFile("menu_cof_clothing.xml");
 	}
+
+	bool onEnable(const LLSD& data)
+	{
+		std::string param = data.asString();
+		LLUUID selected_id = mUUIDs.back();
+
+		if ("move_up" == param)
+		{
+			return gAgentWearables.canMoveWearable(selected_id, false);
+		}
+		else if ("move_down" == param)
+		{
+			return gAgentWearables.canMoveWearable(selected_id, true);
+		}
+		else if ("edit" == param)
+		{
+			return gAgentWearables.isWearableModifiable(selected_id);
+		}
+		return true;
+	}
+
+	// We don't use LLAppearanceMgr::moveWearable() directly because
+	// the item may be invalidated between setting the callback and calling it.
+	static bool moveWearable(const LLUUID& item_id, bool closer_to_body)
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(item_id);
+		return LLAppearanceMgr::instance().moveWearable(item, closer_to_body);
+	}
+
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -85,7 +131,30 @@ protected:
 
 	/*virtual*/ LLContextMenu* createMenu()
 	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+		LLUUID selected_id = mUUIDs.back();
+
+		registrar.add("BodyPart.Replace", boost::bind(&LLAppearanceMgr::wearItemOnAvatar,
+			LLAppearanceMgr::getInstance(), selected_id, true, true));
+		registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
+
+		enable_registrar.add("BodyPart.OnEnable", boost::bind(&CofBodyPartContextMenu::onEnable, this, _2));
+
 		return createFromFile("menu_cof_body_part.xml");
+	}
+
+	bool onEnable(const LLSD& data)
+	{
+		std::string param = data.asString();
+		LLUUID selected_id = mUUIDs.back();
+
+		if ("edit" == param)
+		{
+			return gAgentWearables.isWearableModifiable(selected_id);
+		}
+
+		return true;
 	}
 };
 
