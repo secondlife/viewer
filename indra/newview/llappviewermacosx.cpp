@@ -384,38 +384,6 @@ void LLAppViewerMacOSX::handleCrashReporting(bool reportFreeze)
 		}
 		
 	}
-
-	if(!reportFreeze)
-	{
-		_exit(1);
-	}
-	
-	// TODO from palmer: Find a better way to handle managing old crash logs
-	// when this is a separate imbedable module.  Ideally just sort crash stack
-	// logs based on date, and grab the latest one as opposed to deleting them
-	// for thoughts on what the module would look like.
-	// See: https://wiki.lindenlab.com/wiki/Viewer_Crash_Reporter_Round_4
-	
-	// Remove the crash stack log from previous executions.
-	// Since we've started logging a new instance of the app, we can assume 
-	// The old crash stack is invalid for the next crash report.
-	char path[MAX_PATH];		
-	FSRef folder;
-	if(FSFindFolder(kUserDomain, kLogsFolderType, false, &folder) == noErr)
-	{
-		// folder is an FSRef to ~/Library/Logs/
-		if(FSRefMakePath(&folder, (UInt8*)&path, sizeof(path)) == noErr)
-		{
-			std::string pathname = std::string(path) + std::string("/CrashReporter/");
-			std::string mask = "Second Life*";
-			std::string file_name;
-			while(gDirUtilp->getNextFileInDir(pathname, mask, file_name, false))
-			{
-				LLFile::remove(pathname + file_name);
-			}
-		}
-	}
-	
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()

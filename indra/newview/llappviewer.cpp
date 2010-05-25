@@ -102,6 +102,8 @@
 
 // Third party library includes
 #include <boost/bind.hpp>
+#include <google_breakpad/exception_handler.h>
+
 
 #if LL_WINDOWS
 #	include <share.h> // For _SH_DENYWR in initMarkerFile
@@ -2281,17 +2283,7 @@ void LLAppViewer::checkForCrash(void)
 {
     
 #if LL_SEND_CRASH_REPORTS
-	//*NOTE:Mani The current state of the crash handler has the MacOSX
-	// sending all crash reports as freezes, in order to let 
-	// the MacOSX CrashRepoter generate stacks before spawning the 
-	// SL crash logger.
-	// The Linux and Windows clients generate their own stacks and
-	// spawn the SL crash logger immediately. This may change in the future. 
-#if LL_DARWIN
-	if(gLastExecEvent != LAST_EXEC_NORMAL)
-#else		
 	if (gLastExecEvent == LAST_EXEC_FROZE)
-#endif
     {
         llinfos << "Last execution froze, requesting to send crash report." << llendl;
         //
@@ -2552,9 +2544,6 @@ void LLAppViewer::handleViewerCrash()
 		return;
 	}
 	pApp->mReportedCrash = TRUE;
-
-	// Make sure the watchdog gets turned off...
-// 	pApp->destroyMainloopTimeout(); // SJB: Bah. This causes the crash handler to hang, not sure why.
 	
 	//We already do this in writeSystemInfo(), but we do it again here to make /sure/ we have a version
 	//to check against no matter what
@@ -2665,10 +2654,6 @@ void LLAppViewer::handleViewerCrash()
 
 	LLError::logToFile("");
 
-// On Mac, we send the report on the next run, since we need macs crash report
-// for a stack trace, so we have to let it the app fail.
-#if !LL_DARWIN
-
 	// Remove the marker file, since otherwise we'll spawn a process that'll keep it locked
 	if(gDebugInfo["LastExecEvent"].asInteger() == LAST_EXEC_LOGOUT_CRASH)
 	{
@@ -2681,8 +2666,6 @@ void LLAppViewer::handleViewerCrash()
 	
 	// Call to pure virtual, handled by platform specific llappviewer instance.
 	pApp->handleCrashReporting(); 
-
-#endif //!LL_DARWIN
     
 	return;
 }
@@ -3287,9 +3270,6 @@ void LLAppViewer::badNetworkHandler()
 
 	mPurgeOnExit = TRUE;
 
-	LLAppViewer::handleSyncViewerCrash();
-	LLAppViewer::handleViewerCrash();
-
 	std::ostringstream message;
 	message <<
 		"The viewer has detected mangled network data indicative\n"
@@ -3302,6 +3282,8 @@ void LLAppViewer::badNetworkHandler()
 		"If the problem continues, see the Tech Support FAQ at: \n"
 		"www.secondlife.com/support";
 	forceDisconnect(message.str());
+	
+	LLApp::instance()->getExceptionHandler()->WriteMinidump();
 }
 
 // This routine may get called more than once during the shutdown process.

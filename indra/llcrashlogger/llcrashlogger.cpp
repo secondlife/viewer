@@ -155,25 +155,6 @@ std::string getStartupStateFromLog(std::string& sllog)
 
 void LLCrashLogger::gatherFiles()
 {
-
-	/*
-	//TODO:This function needs to be reimplemented somewhere in here...
-	if(!previous_crash && is_crash_log)
-	{
-		// Make sure the file isn't too old.
-		double age = difftime(gLaunchTime, stat_data.st_mtimespec.tv_sec);
-		
-		//			llinfos << "age is " << age << llendl;
-		
-		if(age > 60.0)
-		{
-				// The file was last modified more than 60 seconds before the crash reporter was launched.  Assume it's stale.
-			llwarns << "File " << mFilename << " is too old!" << llendl;
-			return;
-		}
-	}
-	*/
-
 	updateApplication("Gathering logs...");
 
 	// Figure out the filename of the debug log
@@ -209,18 +190,12 @@ void LLCrashLogger::gatherFiles()
 		mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
 
-#if !LL_DARWIN
-	if(mCrashInPreviousExec)
-#else
-#endif
-	{
-		// Replace the log file ext with .old, since the 
-		// instance that launched this process has overwritten
-		// SecondLife.log
-		std::string log_filename = mFileMap["SecondLifeLog"];
-		log_filename.replace(log_filename.size() - 4, 4, ".old");
-		mFileMap["SecondLifeLog"] = log_filename;
-	}
+	// Replace the log file ext with .old, since the 
+	// instance that launched this process has overwritten
+	// SecondLife.log
+	std::string log_filename = mFileMap["SecondLifeLog"];
+	log_filename.replace(log_filename.size() - 4, 4, ".old");
+	mFileMap["SecondLifeLog"] = log_filename;
 
 	gatherPlatformSpecificFiles();
 
@@ -295,6 +270,7 @@ void LLCrashLogger::gatherFiles()
 			mCrashInfo["Minidump"] = data;
 		}
 	}
+	mCrashInfo["DebugLog"].erase("MinidumpPath");
 }
 
 LLSD LLCrashLogger::constructPostData()

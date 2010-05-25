@@ -235,6 +235,11 @@ public:
 	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
 	static void runSyncErrorHandler(); // run IMMEDIATELY when we get an error, ran in the context of the faulting thread.
 	//@}
+	
+	//
+	// Expose exception handler.
+	//
+	google_breakpad::ExceptionHandler * getExceptionHandler(void) { return mExceptionHandler; }
 
 #if !LL_WINDOWS
 	//
