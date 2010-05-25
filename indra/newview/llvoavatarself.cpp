@@ -157,14 +157,14 @@ void LLVOAvatarSelf::initInstance()
 	{
 		for (U32 j = 0; j <= MAX_DISCARD_LEVEL; ++j)
 		{
-			mTextureLoadTimes[i][j] = -1.0f;
+			mDebugTextureLoadTimes[i][j] = -1.0f;
 		}
 	}
 
 	for (U32 i =0; i < LLVOAvatarDefines::BAKED_NUM_INDICES; ++i)
 	{
-		mBakedTextureTimes[i][0] = -1.0f;
-		mBakedTextureTimes[i][1] = -1.0f;
+		mDebugBakedTextureTimes[i][0] = -1.0f;
+		mDebugBakedTextureTimes[i][1] = -1.0f;
 	}
 
 	status &= buildMenus();
@@ -1271,6 +1271,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLTexLayerSet* layerset) 
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) const
 {
+	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		if (layerset == mBakedTextureDatas[i].mTexLayerSet)
@@ -1285,7 +1287,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) cons
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
-					if (getLocalDiscardLevel(*local_tex_iter, wearable_index) != 0)
+					if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(override_tex_discard_level))
 					{
 						return FALSE;
 					}
@@ -1761,12 +1763,12 @@ BOOL LLVOAvatarSelf::getIsCloud()
 }
 
 /*static*/
-void LLVOAvatarSelf::onTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLVOAvatarSelf::debugOnTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
-	gAgentAvatarp->timingLocalTexLoaded(success, src_vi, src, aux_src, discard_level, final, userdata);
+	gAgentAvatarp->debugTimingLocalTexLoaded(success, src_vi, src, aux_src, discard_level, final, userdata);
 }
 
-void LLVOAvatarSelf::timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLVOAvatarSelf::debugTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
 	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
 	if (!data)
@@ -1776,14 +1778,14 @@ void LLVOAvatarSelf::timingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *
 
 	ETextureIndex index = data->mIndex;
 	
-if (index < 0 || index >= TEX_NUM_INDICES)
+	if (index < 0 || index >= TEX_NUM_INDICES)
 	{
 		return;
 	}
 
 	if (discard_level >=0 && discard_level <= MAX_DISCARD_LEVEL) // ignore discard level -1, as it means we have no data.
 	{
-		mTextureLoadTimes[(U32)index][(U32)discard_level] = mDebugSelfLoadTimer.getElapsedTimeF32();
+		mDebugTextureLoadTimes[(U32)index][(U32)discard_level] = mDebugSelfLoadTimer.getElapsedTimeF32();
 	}
 	if (final)
 	{
@@ -1791,14 +1793,14 @@ if (index < 0 || index >= TEX_NUM_INDICES)
 	}
 }
 
-void LLVOAvatarSelf::bakedTextureUpload(EBakedTextureIndex index, BOOL finished)
+void LLVOAvatarSelf::debugBakedTextureUpload(EBakedTextureIndex index, BOOL finished)
 {
 	U32 done = 0;
 	if (finished)
 	{
 		done = 1;
 	}
-	mBakedTextureTimes[index][done] = mDebugSelfLoadTimer.getElapsedTimeF32();
+	mDebugBakedTextureTimes[index][done] = mDebugSelfLoadTimer.getElapsedTimeF32();
 }
 
 const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) const
@@ -1963,7 +1965,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(te);
 	if (texture_dict->mIsBakedTexture)
 	{
-		bakedTextureUpload(texture_dict->mBakedTextureIndex, TRUE); // FALSE for start of upload, TRUE for finish.
+		debugBakedTextureUpload(texture_dict->mBakedTextureIndex, TRUE); // FALSE for start of upload, TRUE for finish.
 		llinfos << "New baked texture: " << texture_dict->mName << " UUID: " << uuid <<llendl;
 	}
 	else
@@ -1993,8 +1995,8 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 {
 	const F32 final_time = mDebugSelfLoadTimer.getElapsedTimeF32();
 	llinfos << "REZTIME: Myself rez stats:" << llendl;
-	llinfos << "\t Time from avatar creation to load wearables: " << (S32)mTimeWearablesLoaded << llendl;
-	llinfos << "\t Time from avatar creation to de-cloud: " << (S32)mTimeAvatarVisible << llendl;
+	llinfos << "\t Time from avatar creation to load wearables: " << (S32)mDebugTimeWearablesLoaded << llendl;
+	llinfos << "\t Time from avatar creation to de-cloud: " << (S32)mDebugTimeAvatarVisible << llendl;
 	llinfos << "\t Time from avatar creation to de-cloud for others: " << (S32)final_time << llendl;
 	llinfos << "\t Load time for each texture: " << llendl;
 	for (U32 i = 0; i < LLVOAvatarDefines::TEX_NUM_INDICES; ++i)
@@ -2005,7 +2007,7 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 		for (j=0; j <= MAX_DISCARD_LEVEL; j++)
 		{
 			out << "\t";
-			S32 load_time = (S32)mTextureLoadTimes[i][j];
+			S32 load_time = (S32)mDebugTextureLoadTimes[i][j];
 			if (load_time == -1)
 			{
 				out << "*";
@@ -2025,7 +2027,7 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 	llinfos << "\t Time points for each upload (start / finish)" << llendl;
 	for (U32 i = 0; i < LLVOAvatarDefines::BAKED_NUM_INDICES; ++i)
 	{
-		llinfos << "\t\t (" << i << ") \t" << (S32)mBakedTextureTimes[i][0] << " / " << (S32)mBakedTextureTimes[i][1] << llendl;
+		llinfos << "\t\t (" << i << ") \t" << (S32)mDebugBakedTextureTimes[i][0] << " / " << (S32)mDebugBakedTextureTimes[i][1] << llendl;
 	}
 }
 

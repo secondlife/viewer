@@ -1893,6 +1893,12 @@ bool LLViewerFetchedTexture::updateFetch()
 			h = mGLTexturep->getHeight(0);
 			c = mComponents;
 		}
+
+		const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+		if (override_tex_discard_level != 0)
+		{
+			desired_discard = override_tex_discard_level;
+		}
 		
 		// bypass texturefetch directly by pulling from LLTextureCache
 		bool fetch_request_created = false;
