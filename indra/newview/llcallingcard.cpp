@@ -51,6 +51,7 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "llavatarnamecache.h"
 #include "llbutton.h"
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
@@ -873,8 +874,9 @@ bool LLCollectProxyBuddies::operator()(const LLUUID& buddy_id, LLRelationship* b
 
 bool LLCollectMappableBuddies::operator()(const LLUUID& buddy_id, LLRelationship* buddy)
 {
-	gCacheName->getFullName(buddy_id, mFullName);
-	buddy_map_t::value_type value(mFullName, buddy_id);
+	LLAvatarName av_name;
+	LLAvatarNameCache::get( buddy_id, &av_name);
+	buddy_map_t::value_type value(av_name.mDisplayName, buddy_id);
 	if(buddy->isOnline() && buddy->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION))
 	{
 		mMappable.insert(value);
