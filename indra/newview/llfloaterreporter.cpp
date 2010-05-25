@@ -39,6 +39,7 @@
 
 // linden library includes
 #include "llassetstorage.h"
+#include "llavatarnamecache.h"
 #include "llcachename.h"
 #include "llfontgl.h"
 #include "llimagej2c.h"
@@ -183,9 +184,8 @@ BOOL LLFloaterReporter::postBuild()
 	childSetAction("cancel_btn", onClickCancel, this);
 	
 	// grab the user's name
-	std::string fullname;
-	LLAgentUI::buildFullname(fullname);
-	childSetText("reporter_field", fullname);
+	std::string reporter = LLSLURL("agent", gAgent.getID(), "inspect").getSLURLString();
+	childSetText("reporter_field", reporter);
 	
 	center();
 
@@ -268,21 +268,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 	
 			if (objectp->isAvatar())
 			{
-				// we have the information we need
-				std::string object_owner;
-
-				LLNameValue* firstname = objectp->getNVPair("FirstName");
-				LLNameValue* lastname =  objectp->getNVPair("LastName");
-				if (firstname && lastname)
-				{
-					object_owner = LLCacheName::buildFullName(
-						firstname->getString(), lastname->getString());
-				}
-				else
-				{
-					object_owner.append("Unknown");
-				}
-				setFromAvatar(mObjectID, object_owner);
+				setFromAvatarID(mObjectID);
 			}
 			else
 			{
@@ -309,11 +295,11 @@ void LLFloaterReporter::onClickSelectAbuser()
 	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLFloaterReporter::callbackAvatarID, this, _1, _2), FALSE, TRUE ));
 }
 
-void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLFloaterReporter::callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (ids.empty() || names.empty()) return;
 
-	childSetText("abuser_name_edit", names[0] );
+	childSetText("abuser_name_edit", names[0].getCompleteName());
 
 	mAbuserID = ids[0];
 
@@ -321,17 +307,26 @@ void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, 
 
 }
 
-void LLFloaterReporter::setFromAvatar(const LLUUID& avatar_id, const std::string& avatar_name)
+void LLFloaterReporter::setFromAvatarID(const LLUUID& avatar_id)
 {
 	mAbuserID = mObjectID = avatar_id;
-	mOwnerName = avatar_name;
-
-	std::string avatar_link =
-	  LLSLURL("agent", mObjectID, "inspect").getSLURLString();
+	std::string avatar_link = LLSLURL("agent", mObjectID, "inspect").getSLURLString();
 	childSetText("owner_name", avatar_link);
-	childSetText("object_name", avatar_name);
-	childSetText("abuser_name_edit", avatar_name);
+
+	LLAvatarNameCache::get(avatar_id, boost::bind(&LLFloaterReporter::onAvatarNameCache, this, _1, _2));
 }
+
+void LLFloaterReporter::onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name)
+{
+	if (mObjectID == avatar_id)
+	{
+		mOwnerName = av_name.getCompleteName();
+		childSetText("object_name", av_name.getCompleteName());
+		childSetToolTip("object_name", av_name.getCompleteName());
+		childSetText("abuser_name_edit", av_name.getCompleteName());
+	}
+}
+
 
 // static
 void LLFloaterReporter::onClickSend(void *userdata)
@@ -472,16 +467,11 @@ void LLFloaterReporter::show(const LLUUID& object_id, const std::string& avatar_
 {
 	LLFloaterReporter* f = LLFloaterReg::showTypedInstance<LLFloaterReporter>("reporter");
 
-	// grab the user's name
-	std::string fullname;
-	LLAgentUI::buildFullname(fullname);
-	f->childSetText("reporter_field", fullname);
-
 	if (avatar_name.empty())
 		// Request info for this object
 		f->getObjectInfo(object_id);
 	else
-		f->setFromAvatar(object_id, avatar_name);
+		f->setFromAvatarID(object_id);
 
 	// Need to deselect on close
 	f->mDeselectOnClose = TRUE;

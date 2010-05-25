@@ -36,8 +36,6 @@
 // Viewer includes
 #include "llagent.h"
 #include "llcallingcard.h"
-#include "lldate.h"				// split()
-#include "lldateutil.h"			// ageFromDate()
 #include "llfocusmgr.h"
 #include "llfloaterreg.h"
 #include "llimview.h"			// for gIMMgr
@@ -60,6 +58,9 @@
 #include "message.h"
 
 //#include "llsdserialize.h"
+
+//put it back as a member once the legacy path is out?
+static std::map<LLUUID, LLAvatarName> sAvatarNameMap;
 
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 												   BOOL allow_multiple,
@@ -167,7 +168,7 @@ void LLFloaterAvatarPicker::onBtnFind()
 	find();
 }
 
-static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std::string>& avatar_names, uuid_vec_t& avatar_ids)
+static void getSelectedAvatarData(const LLScrollListCtrl* from, uuid_vec_t& avatar_ids, std::vector<LLAvatarName>& avatar_names)
 {
 	std::vector<LLScrollListItem*> items = from->getAllSelected();
 	for (std::vector<LLScrollListItem*>::iterator iter = items.begin(); iter != items.end(); ++iter)
@@ -175,8 +176,8 @@ static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std:
 		LLScrollListItem* item = *iter;
 		if (item->getUUID().notNull())
 		{
-			avatar_names.push_back(item->getColumn(0)->getValue().asString());
 			avatar_ids.push_back(item->getUUID());
+			avatar_names.push_back(sAvatarNameMap[item->getUUID()]);
 		}
 	}
 }
@@ -212,10 +213,10 @@ void LLFloaterAvatarPicker::onBtnSelect()
 
 		if(list)
 		{
-			std::vector<std::string>	avatar_names;
 			uuid_vec_t			avatar_ids;
-			getSelectedAvatarData(list, avatar_names, avatar_ids);
-			mSelectionCallback(avatar_names, avatar_ids);
+			std::vector<LLAvatarName>	avatar_names;
+			getSelectedAvatarData(list, avatar_ids, avatar_names);
+			mSelectionCallback(avatar_ids, avatar_names);
 		}
 	}
 	getChild<LLScrollListCtrl>("SearchResults")->deselectAllItems(TRUE);
@@ -392,6 +393,9 @@ public:
 
 void LLFloaterAvatarPicker::find()
 {
+	//clear our stored LLAvatarNames
+	sAvatarNameMap.clear();
+
 	std::string text = childGetValue("Edit").asString();
 
 	mQueryID.generate();
@@ -559,6 +563,14 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 			avatar_name = LLCacheName::buildFullName(first_name, last_name);
 			search_results->setEnabled(TRUE);
 			found_one = TRUE;
+
+			LLAvatarName av_name;
+			av_name.mLegacyFirstName = first_name;
+			av_name.mLegacyLastName = last_name;
+			av_name.mDisplayName = avatar_name;
+			const LLUUID& agent_id = avatar_id;
+			sAvatarNameMap[agent_id] = av_name;
+
 		}
 		LLSD element;
 		element["id"] = avatar_id; // value
@@ -606,20 +618,18 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 	for ( ; it != agents.endArray(); ++it)
 	{
 		const LLSD& row = *it;
-		item["id"] = row["agent_id"];
+		item["id"] = row["id"];
 		LLSD& columns = item["columns"];
 		columns[0]["column"] = "name";
 		columns[0]["value"] = row["display_name"];
-		columns[1]["column"] = "slid";
-		columns[1]["value"] = row["sl_id"];
-		LLDate account_created = row["account_created"].asDate();
-		S32 year, month, day;
-		account_created.split(&year, &month, &day);
-		std::string age =
-			LLDateUtil::ageFromDate(account_created, LLDate::now());
-		columns[2]["column"] = "age";
-		columns[2]["value"] = age;
+		columns[1]["column"] = "username";
+		columns[1]["value"] = row["username"];
 		search_results->addElement(item);
+
+		// add the avatar name to our list
+		LLAvatarName avatar_name;
+		avatar_name.fromLLSD(row);
+		sAvatarNameMap[row["id"].asUUID()] = avatar_name;
 	}
 
 	childEnable("ok_btn");
@@ -690,8 +700,8 @@ bool LLFloaterAvatarPicker::isSelectBtnEnabled()
 		if(list)
 		{
 			uuid_vec_t avatar_ids;
-			std::vector<std::string> avatar_names;
-			getSelectedAvatarData(list, avatar_names, avatar_ids);
+			std::vector<LLAvatarName> avatar_names;
+			getSelectedAvatarData(list, avatar_ids, avatar_names);
 			return mOkButtonValidateSignal(avatar_ids);
 		}
 	}

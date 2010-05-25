@@ -98,7 +98,7 @@ private:
 	bool onConfirmSale(const LLSD& notification, const LLSD& response);
 	static void doShowObjects(void *userdata);
 
-	void callbackAvatarPick(const std::vector<std::string>& names, const uuid_vec_t& ids);
+	void callbackAvatarPick(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
 
 	void onBuyerNameCache(const LLAvatarName& av_name);
 
@@ -401,7 +401,7 @@ void LLFloaterSellLandUI::doSelectAgent()
 	addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), FALSE, TRUE));
 }
 
-void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLFloaterSellLandUI::callbackAvatarPick(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {	
 	LLParcel* parcel = mParcelSelection->getParcel();
 
@@ -412,7 +412,7 @@ void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& nam
 
 	mAuthorizedBuyer = ids[0];
 
-	childSetText("sell_to_agent", names[0]);
+	childSetText("sell_to_agent", names[0].getCompleteName());
 
 	refreshUI();
 }

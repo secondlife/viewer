@@ -97,12 +97,8 @@
               name="name"
               width="100" />
             <columns
-              label="SL ID"
-              name="slid"
-              width="100" />
-            <columns
-              label="Age"
-              name="age"
+              label="Username"
+              name="username"
               width="100" />
           </scroll_list>
         </panel>
