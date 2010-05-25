@@ -9053,6 +9053,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureDiscardLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Specify texture resolution (0 = highest, 5 = lowest)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>TextureLoadFullRes</key>
     <map>
       <key>Comment</key>
