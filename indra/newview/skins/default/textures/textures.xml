@@ -110,6 +110,8 @@ with the same filename but different name
   <texture name="DisclosureArrow_Opened_Off" file_name="widgets/DisclosureArrow_Opened_Off.png" preload="true" />
 
   <texture name="DownArrow" file_name="bottomtray/DownArrow.png" preload="false" />
+  <texture name="DownArrow_Off" file_name="icons/DownArrow_off.png" preload="false" />
+  <texture name="Dragbar" file_name="icons/Dragbar.png" preload="false" />
 
   <texture name="DropDown_Disabled" file_name="widgets/DropDown_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
   <texture name="DropDown_Press" file_name="widgets/DropDown_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
@@ -119,6 +121,7 @@ with the same filename but different name
   <texture name="DropTarget" file_name="widgets/DropTarget.png" preload="false" />
 
   <texture name="ExternalBrowser_Off" file_name="icons/ExternalBrowser_Off.png" preload="false" />
+  <texture name="Edit_Wrench" file_name="icons/Edit_Wrench.png" preload="false" />
 
   <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
@@ -144,6 +147,9 @@ with the same filename but different name
   <texture name="Health" file_name="icons/Health.png" preload="false" />
 
   <texture name="Help_Press" file_name="navbar/Help_Press.png" preload="false" />
+
+  <texture name="Hierarchy_View_Disabled" file_name="icons/Hierarchy_View_Disabled.png" preload="false" />
+  <texture name="Hierarchy_View_On" file_name="icons/Hierarchy_View_On.png" preload="false" />
 
 
   <texture name="Home_Off" file_name="navbar/Home_Off.png" preload="false" />
@@ -255,8 +261,13 @@ with the same filename but different name
   <texture name="ListItem_Select" file_name="widgets/ListItem_Select.png" preload="true" scale.left="2" scale.bottom="2" scale.top="22" scale.right="278" />
   <texture name="ListItem_Over" file_name="widgets/ListItem_Over.png" preload="true" scale.left="2" scale.bottom="2" scale.top="22" scale.right="278" />
 
+  <texture name="List_View_Disabled" file_name="icons/List_View_Disabled.png" preload="false" />
+  <texture name="List_View_On" file_name="icons/List_View_On.png" preload="false" />
+
   <texture name="Lock" file_name="icons/Lock.png" preload="false" />
   <texture name="Lock2" file_name="navbar/Lock.png" preload="false" />
+
+  <texture name="Locked_Icon" file_name="icons/Locked_Icon.png" preload="false" />
 
 
   <texture name="Microphone_On" file_name="icons/Microphone_On.png" preload="false" />
@@ -413,6 +424,8 @@ with the same filename but different name
 
   <texture name="Search" file_name="navbar/Search.png" preload="false" />
 
+  <texture name="Search_Icon" file_name="icons/Search_Icon.png" preload="false" />
+
   <texture name="SegmentedBtn_Left_Off" file_name="widgets/SegmentedBtn_Left_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Over" file_name="widgets/SegmentedBtn_Left_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Left_Press" file_name="widgets/SegmentedBtn_Left_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
@@ -434,6 +447,8 @@ with the same filename but different name
   <texture name="SegmentedBtn_Right_Selected" file_name="widgets/SegmentedBtn_Right_Selected.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Right_Selected_Press" file_name="widgets/SegmentedBtn_Right_Selected_Press.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
   <texture name="SegmentedBtn_Right_Selected_Disabled" file_name="widgets/SegmentedBtn_Right_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
+
+  <texture name="Shirt_Large" file_name="icons/Shirt_Large.png" preload="false" />
 
   <texture name="SkipBackward_Off" file_name="icons/SkipBackward_Off.png" preload="false" />
   <texture name="SkipForward_Off" file_name="icons/SkipForward_Off.png" preload="false" />
@@ -525,6 +540,8 @@ with the same filename but different name
 
   <texture name="Unread_Chiclet" file_name="bottomtray/Unread_Chiclet.png" preload="false" />
   <texture name="Unread_IM" file_name="bottomtray/Unread_IM.png" preload="false" />
+
+  <texture name="UpArrow_Off" file_name="icons/UpArrow_Off.png" preload="false" />
 
     <texture name="Volume_Background" file_name="windows/Volume_Background.png" preload="false"
            scale.left="6" scale.top="33" scale.right="63" scale.bottom="10" />

@@ -269,20 +269,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	web_browser->setTabStop(FALSE);
 	// web_browser->navigateToLocalPage( "loading", "loading.html" );
 
-	if (gSavedSettings.getBOOL("RegInClient"))
-	{
-		// need to follow links in the internal browser
-		web_browser->setOpenInExternalBrowser( false );
-
-		getChild<LLView>("login_widgets")->setVisible(false);
-	}
-	else
-	{
-		// make links open in external browser
-		web_browser->setOpenInExternalBrowser( true );
-
-		reshapeBrowser();
-	}
+	reshapeBrowser();
 
 	// kick off a request to grab the url manually
 	gResponsePtr = LLIamHereLogin::build( this );
@@ -486,7 +473,6 @@ void LLPanelLogin::showLoginWidgets()
 {
 	sInstance->childSetVisible("login_widgets", true);
 	LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-	web_browser->setOpenInExternalBrowser( true );
 	sInstance->reshapeBrowser();
 	// *TODO: Append all the usual login parameters, like first_login=Y etc.
 	std::string splash_screen_url = sInstance->getString("real_url");

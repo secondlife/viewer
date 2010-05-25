@@ -322,6 +322,18 @@ void LLFloaterAvatarPicker::populateFriend()
 
 void LLFloaterAvatarPicker::draw()
 {
+	// sometimes it is hard to determine when Select/Ok button should be disabled (see LLAvatarActions::shareWithAvatars).
+	// lets check this via mOkButtonValidateSignal callback periodically.
+	static LLFrameTimer timer;
+	if (timer.hasExpired())
+	{
+		timer.setTimerExpirySec(0.33f); // three times per second should be enough.
+
+		// simulate list changes.
+		onList();
+		timer.start();
+	}
+
 	LLFloater::draw();
 	if (!mNearMeListComplete && childGetVisibleTab("ResidentChooserTabs") == getChild<LLPanel>("NearMePanel"))
 	{

@@ -7,7 +7,7 @@
  name="regioninfo"
  save_rect="true"
  title="REGION/ESTATE"
- width="480">
+ width="530">
     <tab_container
      bottom="555"
      follows="left|right|top|bottom"

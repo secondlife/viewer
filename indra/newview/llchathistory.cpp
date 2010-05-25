@@ -686,7 +686,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// for object IMs, create a secondlife:///app/objectim SLapp
 				std::string url = LLSLURL("objectim", chat.mFromID, "").getSLURLString();
 				url += "?name=" + chat.mFromName;
-				url += "&owner=" + args["owner_id"].asString();
+				url += "&owner=" + chat.mOwnerID.asString();
 
 				std::string slurl = args["slurl"].asString();
 				if (slurl.empty())

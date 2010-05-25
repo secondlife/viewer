@@ -11,6 +11,7 @@
  save_rect="true"
  short_title="BUILD TOOLS"
  single_instance="true"
+ save_visibility="true"
  sound_flags="0"
  width="295">
     <floater.string
@@ -219,8 +220,8 @@
 	</radio_group>
 	<radio_group
      follows="left|top"
-	 left="10"
-	 top="54"
+	 left="5"
+	 top="59"
 	 height="70"
      layout="topleft"
 	 name="edit_radio_group">
@@ -253,7 +254,8 @@
 	 control_name="EditLinkedParts"
      label="Edit linked"
      layout="topleft"
-     name="checkbox edit linked parts" >
+     name="checkbox edit linked parts"
+     top_pad="0">
 		  <check_box.commit_callback
 			function="BuildTool.selectComponent"/>
 	</check_box>
@@ -273,20 +275,31 @@
 	<check_box
      control_name="ScaleUniform"
      height="19"
-     label="Stretch Both Sides"
+     label=""
      layout="topleft"
      left="143"
      name="checkbox uniform"
 	 top="50"
-     width="134" />
+     width="20" />
+    <text
+     height="19"
+     label="Stretch Both Sides"
+     left="163"
+     name="checkbox uniform label"
+     top="55"
+     width="120"
+     wrap="true">
+     	Stretch Both Sides
+    </text>
     <check_box
      control_name="ScaleStretchTextures"
      height="19"
      initial_value="true"
      label="Stretch Textures"
      layout="topleft"
+     left="143"
      name="checkbox stretch textures"
-     top_pad="0"
+     top_pad="7"
      width="134" />
    <check_box
      control_name="SnapEnabled"
@@ -294,7 +307,7 @@
      initial_value="true"
      label="Snap to grid"
      layout="topleft"
-     top_pad="7"
+     top_pad="0"
      name="checkbox snap to grid"
      width="134" />
     <combo_box
@@ -303,6 +316,7 @@
      follows="left|top"
      name="combobox grid mode"
      tool_tip="Choose the type of grid ruler for positioning the object"
+     top_pad="0"
      width="108">
         <combo_box.item
          label="World grid"
@@ -2329,7 +2343,7 @@ even though the user gets a free copy.
              height="19"
              label="Full Bright"
              layout="topleft"
-             left_delta="0"
+             left_delta="-5"
              name="checkbox fullbright"
              top_pad="4"
              width="81" />

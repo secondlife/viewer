@@ -648,9 +648,12 @@ void LLPanelLandGeneral::refresh()
 			}
 
 			// Display claim date
-			// *TODO:Localize (Time format may need Translating)
 			time_t claim_date = parcel->getClaimDate();
-			mTextClaimDate->setText(formatted_time(claim_date));
+			std::string claim_date_str = getString("time_stamp_template");
+			LLSD substitution;
+			substitution["datetime"] = (S32) claim_date;
+			LLStringUtil::format (claim_date_str, substitution);
+			mTextClaimDate->setText(claim_date_str);
 			mTextClaimDate->setEnabled(is_leased);
 
 			BOOL enable_auction = (gAgent.getGodLevel() >= GOD_LIAISON)

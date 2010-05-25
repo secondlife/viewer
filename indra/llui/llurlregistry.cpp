@@ -51,6 +51,11 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntrySLURL());
 	registerUrl(new LLUrlEntryHTTP());
 	registerUrl(new LLUrlEntryHTTPLabel());
+	registerUrl(new LLUrlEntryAgentCompleteName());
+	registerUrl(new LLUrlEntryAgentDisplayName());
+	registerUrl(new LLUrlEntryAgentUserName());
+	// LLUrlEntryAgent*Name must appear before LLUrlEntryAgent since 
+	// LLUrlEntryAgent is a less specific (catchall for agent urls)
 	registerUrl(new LLUrlEntryAgent());
 	registerUrl(new LLUrlEntryGroup());
 	registerUrl(new LLUrlEntryParcel());
@@ -185,10 +190,9 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
 						match_entry->getLabel(url, cb),
 						match_entry->getTooltip(url),
 						match_entry->getIcon(url),
-						match_entry->getColor(),
+						match_entry->getStyle(),
 						match_entry->getMenuName(),
-						match_entry->getLocation(url),
-						match_entry->isLinkDisabled());
+						match_entry->getLocation(url));
 		return true;
 	}
 
@@ -219,10 +223,9 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
 						match.getLabel(),
 						match.getTooltip(),
 						match.getIcon(),
-						match.getColor(),
+						match.getStyle(),
 						match.getMenuName(),
-						match.getLocation(),
-						match.isLinkDisabled());
+						match.getLocation());
 		return true;
 	}
 	return false;

@@ -152,6 +152,7 @@ public:
 	};
 
 	static F32 sTreeFactor;			// Tree level of detail factor
+	static const S32 sMAX_NUM_TREE_LOD_LEVELS ;
 
 	friend class LLDrawPoolTree;
 protected:

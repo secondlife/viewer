@@ -79,9 +79,6 @@ BOOL LLFloaterHUD::postBuild()
 	mWebBrowser = getChild<LLMediaCtrl>("floater_hud_browser" );
 	if (mWebBrowser)
 	{
-		// Open links in internal browser
-		mWebBrowser->setOpenInExternalBrowser(false);
-		
 		// This is a "chrome" floater, so we don't want anything to
 		// take focus (as the user needs to be able to walk with 
 		// arrow keys during tutorial).

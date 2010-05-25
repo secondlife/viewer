@@ -101,6 +101,7 @@ public:
 		mInventoryItemsDict["Female Gestures"]	= LLTrans::getString("Female Gestures");
 		mInventoryItemsDict["Other Gestures"]	= LLTrans::getString("Other Gestures");
 		mInventoryItemsDict["Speech Gestures"]	= LLTrans::getString("Speech Gestures");
+		mInventoryItemsDict["Common Gestures"]	= LLTrans::getString("Common Gestures");
 
 		//predefined gestures
 

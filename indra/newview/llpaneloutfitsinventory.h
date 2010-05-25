@@ -49,6 +49,7 @@ class LLTabContainer;
 
 class LLPanelOutfitsInventory : public LLPanel
 {
+	LOG_CLASS(LLPanelOutfitsInventory);
 public:
 	LLPanelOutfitsInventory();
 	virtual ~LLPanelOutfitsInventory();
@@ -72,6 +73,7 @@ public:
 	void setParent(LLSidepanelAppearance *parent);
 
 	LLFolderView* getRootFolder();
+	LLSidepanelAppearance* getAppearanceSP();
 
 	static LLPanelOutfitsInventory* findInstance();
 
@@ -132,6 +134,8 @@ private:
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////
 	///
+
+	bool mInitialized;
 };
 
 #endif //LL_LLPANELOUTFITSINVENTORY_H

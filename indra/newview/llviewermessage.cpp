@@ -57,8 +57,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llcallingcard.h"
-//#include "llfirstuse.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
@@ -287,7 +286,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 	{
 		LLStringUtil::format_map_t args;
 		args["AMOUNT"] = llformat("%d", amount);
-		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("giving", args), amount);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("giving", args), amount );
 	}
 }
 
@@ -2613,8 +2612,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 			if(SYSTEM_FROM != name && nearby_chat)
 			{
+				chat.mOwnerID = from_id;
 				LLSD args;
-				args["owner_id"] = from_id;
 				args["slurl"] = location;
 				args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
 				LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
@@ -3162,7 +3161,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// object inspect for an object that is chatting with you
 		LLSD args;
 		args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
-		args["owner_id"] = owner_id;
+		chat.mOwnerID = owner_id;
 
 		LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 	}

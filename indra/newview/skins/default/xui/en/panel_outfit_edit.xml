@@ -21,6 +21,22 @@
     <string
      name="now_editing"
      value="Now Editing"/>
+    <string
+     name="folder_view_off"
+     value="Hierarchy_View_Disabled"
+     translate="false"/>
+    <string
+     name="folder_view_on"
+     value="Hierarchy_View_On"
+     translate="false"/>
+    <string
+     name="list_view_off"
+     value="List_View_Disabled"
+     translate="false"/>
+    <string
+     name="list_view_on"
+     value="List_View_On"
+     translate="false"/>
 	
 	<panel.string
 		name="not_available">
@@ -88,15 +104,15 @@
      width="311">
         <icon
          follows="left|top"
-         height="40"
-         image_name="TabIcon_Appearance_Off"
+         height="31"
+         image_name="Shirt_Large"
          left="2"
          mouse_opaque="false"
          name="outfit_icon"
-         top="1"
+         top="2"
          scale_image="true"
          visible="true"
-         width="35" />
+         width="31" />
             <panel
              bevel_style="none"
              follows="top|right"
@@ -231,11 +247,10 @@
              follows="top|left|right"
              height="20"
              image_hover_unselected="Toolbar_Middle_Over"
-             image_overlay=""
+             image_overlay="Search_Icon"
              image_selected="Toolbar_Middle_Selected"
              image_unselected="Toolbar_Middle_Off"
              is_toggle="true"
-             label="O"
              layout="topleft"
              left_pad="5"
              name="filter_button"
@@ -295,13 +310,13 @@
 		             allow_multi_select="true"
 		             border="false"
 		             follows="left|top|right|bottom"
-		             height="130"
+		             height="140"
 		             layout="topleft"
 		             left="0"
 		             mouse_opaque="false"
 		             name="inventory_items"
 		             top_pad="5"
-		             width="311"
+		             width="310"
 		             visible="false"/>
 		            <panel
 		             name="filtered_wearables_panel"
@@ -310,7 +325,7 @@
 		             layout="topleft"
 		             follows="left|top|right|bottom"
 		             border="false"
-		             height="130"
+		             height="140"
 		             left="0"
 		             mouse_opaque="false"
 		             width="311"
@@ -321,8 +336,8 @@
 		              allow_select="true"
 		              layout="topleft"
 		              follows="all"
-		              width="311"
-		              height="130"
+		              width="310"
+		              height="140"
 		              left="0"
 		              top="0"/>
 		            </panel>
@@ -339,7 +354,7 @@
              left="0"
              name="add_wearables_button_bar"
              top_pad="0"
-             width="300">
+             width="313">
                 <button
                  follows="bottom|left"
                  height="25"
@@ -356,11 +371,10 @@
                  follows="bottom|left"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay=""
+                 image_overlay="Hierarchy_View_Disabled"
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  is_toggle="true"
-                 label="F"
                  layout="topleft"
                  left_pad="1"
                  name="folder_view_btn"
@@ -370,11 +384,10 @@
                  follows="bottom|left"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay=""
+                 image_overlay="List_View_On"
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  is_toggle="true"
-                 label="L"
                  layout="topleft"
                  left_pad="1"
                  name="list_view_btn"
@@ -393,6 +406,15 @@
                  name="add_to_outfit_btn"
                  top="1"
                  width="31" />
+                <icon
+                 follows="bottom|left|right"
+                 height="25"
+                 image_name="Toolbar_Right_Off"
+                 layout="topleft"
+                 left_pad="1"
+                 name="dummy_right_icon"
+                 width="184" >
+                 </icon>
             </panel>
         </layout_panel>
     </layout_stack>

@@ -45,7 +45,6 @@
 #include "llfloaterinventory.h"
 #include "llagent.h"
 #include "llagentui.h"
-#include "lltooldraganddrop.h"
 
 #include "lllineeditor.h"
 #include "lltexteditor.h"
@@ -61,6 +60,7 @@
 #include "llviewerwindow.h"
 #include "llviewermessage.h"
 #include "llnotificationsutil.h"
+#include "llgiveinventory.h"
 
 static LLRegisterPanelClassWrapper<LLPanelGroupNotices> t_panel_group_notices("panel_group_notices");
 
@@ -163,7 +163,7 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		{
 			LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
 			if(gInventory.getItem(inv_item->getUUID())
-				&& LLToolDragAndDrop::isInventoryGroupGiveAcceptable(inv_item))
+				&& LLGiveInventory::isInventoryGroupGiveAcceptable(inv_item))
 			{
 				// *TODO: get multiple object transfers working
 				*accept = ACCEPT_YES_COPY_SINGLE;

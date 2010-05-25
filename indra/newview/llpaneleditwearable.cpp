@@ -57,6 +57,8 @@
 #include "lltextureentry.h"
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewertexturelist.h"
+#include "llagentcamera.h"
+#include "llmorphview.h"
 
 // register panel with appropriate XML
 static LLRegisterPanelClassWrapper<LLPanelEditWearable> t_edit_wearable("panel_edit_wearable");
@@ -227,7 +229,7 @@ LLEditWearableDictionary::Wearables::Wearables()
 	addEntry(LLWearableType::WT_UNDERPANTS, new WearableEntry(LLWearableType::WT_UNDERPANTS,"edit_underpants_title","underpants_desc_text",1,1,1, TEX_LOWER_UNDERPANTS, TEX_LOWER_UNDERPANTS, SUBPART_UNDERPANTS));
 	addEntry(LLWearableType::WT_SKIRT, 		new WearableEntry(LLWearableType::WT_SKIRT,"edit_skirt_title","skirt_desc_text",1,1,1, TEX_SKIRT, TEX_SKIRT, SUBPART_SKIRT));
 	addEntry(LLWearableType::WT_ALPHA, 		new WearableEntry(LLWearableType::WT_ALPHA,"edit_alpha_title","alpha_desc_text",0,5,1, TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA, SUBPART_ALPHA));
-	addEntry(LLWearableType::WT_TATTOO, 	new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text",0,3,1, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
+	addEntry(LLWearableType::WT_TATTOO, 	new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text",1,3,1, TEX_HEAD_TATTOO, TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO, SUBPART_TATTOO));
 }
 
 LLEditWearableDictionary::WearableEntry::WearableEntry(LLWearableType::EType type,
@@ -331,6 +333,7 @@ LLEditWearableDictionary::ColorSwatchCtrls::ColorSwatchCtrls()
 	addEntry ( TEX_UPPER_GLOVES, new PickerControlEntry (TEX_UPPER_GLOVES, "Color/Tint" ));
 	addEntry ( TEX_UPPER_UNDERSHIRT, new PickerControlEntry (TEX_UPPER_UNDERSHIRT, "Color/Tint" ));
 	addEntry ( TEX_LOWER_UNDERPANTS, new PickerControlEntry (TEX_LOWER_UNDERPANTS, "Color/Tint" ));
+	addEntry ( TEX_HEAD_TATTOO, new PickerControlEntry(TEX_HEAD_TATTOO, "Color/Tint" ));
 }
 
 LLEditWearableDictionary::TextureCtrls::TextureCtrls()
@@ -950,6 +953,9 @@ void LLPanelEditWearable::initializePanel()
 		// what edit group do we want to extract params for?
 		const std::string edit_group = subpart_entry->mEditGroup;
 
+		// initialize callback to ensure camera view changes appropriately.
+		tab->setDropDownStateChangedCallback(boost::bind(&LLPanelEditWearable::onTabExpandedCollapsed,this,_2,index));
+
 		// storage for ordered list of visual params
 		value_map_t sorted_params;
 		getSortedParams(sorted_params, edit_group);
@@ -985,6 +991,52 @@ void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
 		// Update avatar height
 		std::string avatar_height_str = llformat("%.2f", gAgentAvatarp->mBodySize.mV[VZ]);
 		mTxtAvatarHeight->setTextArg("[HEIGHT]", avatar_height_str);
+	}
+}
+
+void LLPanelEditWearable::onTabExpandedCollapsed(const LLSD& param, U8 index)
+{
+	bool expanded = param.asBoolean();
+
+	if (!mWearablePtr || !gAgentCamera.cameraCustomizeAvatar())
+	{
+		// we don't have a valid wearable we're editing, or we've left the wearable editor
+		return;
+	}
+
+	if (expanded)
+	{
+		const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(mWearablePtr->getType());
+		if (!wearable_entry)
+		{
+			llinfos << "could not get wearable dictionary entry for wearable type: " << mWearablePtr->getType() << llendl;
+			return;
+		}
+
+		if (index >= wearable_entry->mSubparts.size())
+		{
+			llinfos << "accordion tab expanded for invalid subpart. Wearable type: " << mWearablePtr->getType() << " subpart num: " << index << llendl;
+			return;
+		}
+
+		ESubpart subpart_e = wearable_entry->mSubparts[index];
+		const LLEditWearableDictionary::SubpartEntry *subpart_entry = LLEditWearableDictionary::getInstance()->getSubpart(subpart_e);
+
+		if (!subpart_entry)
+		{
+			llwarns << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << llendl;
+			return;
+		}
+
+		// Update the camera
+		gMorphView->setCameraTargetJoint( gAgentAvatarp->getJoint( subpart_entry->mTargetJoint ) );
+		gMorphView->setCameraTargetOffset( subpart_entry->mTargetOffset );
+		gMorphView->setCameraOffset( subpart_entry->mCameraOffset );
+		gMorphView->setCameraDistToDefault();
+		if (gSavedSettings.getBOOL("AppearanceCameraMovement"))
+		{
+			gMorphView->updateCamera();
+		}
 	}
 }
 

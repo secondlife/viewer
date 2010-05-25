@@ -61,6 +61,7 @@ class LLFilteredWearableListManager;
 
 class LLPanelOutfitEdit : public LLPanel
 {
+	LOG_CLASS(LLPanelOutfitEdit);
 public:
 	
 	// NOTE: initialize mLookItemTypes at the index of any new enum you add in the LLPanelOutfitEdit() constructor
@@ -83,6 +84,7 @@ public:
 	/*virtual*/ ~LLPanelOutfitEdit();
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	void moveWearable(bool closer_to_body);
 
@@ -102,7 +104,8 @@ public:
 	void onEditWearableClicked(void);
 
 	void displayCurrentOutfit();
-	
+	void updateCurrentOutfitName();
+
 	void update();
 
 	void updateVerbs();
@@ -146,6 +149,7 @@ private:
 	std::vector<LLLookItemType> mLookItemTypes;
 
 	LLCOFWearables*		mCOFWearables;
+	bool				mInitialized;
 };
 
 #endif // LL_LLPANELOUTFITEDIT_H

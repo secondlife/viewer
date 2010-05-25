@@ -48,11 +48,8 @@
 std::string localize_slapp_label(const std::string& url, const std::string& full_name);
 
 
-LLUrlEntryBase::LLUrlEntryBase() :
-	mColor(LLUIColorTable::instance().getColor("HTMLLinkColor")),
-	mDisabledLink(false)
-{
-}
+LLUrlEntryBase::LLUrlEntryBase()
+{}
 
 LLUrlEntryBase::~LLUrlEntryBase()
 {
@@ -68,6 +65,16 @@ std::string LLUrlEntryBase::getIcon(const std::string &url)
 {
 	return mIcon;
 }
+
+LLStyle::Params LLUrlEntryBase::getStyle() const
+{
+	LLStyle::Params style_params;
+	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	style_params.font.style = "UNDERLINE";
+	return style_params;
+}
+
 
 std::string LLUrlEntryBase::getIDStringFromUrl(const std::string &url) const
 {
@@ -327,7 +334,6 @@ LLUrlEntryAgent::LLUrlEntryAgent()
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_agent.xml";
 	mIcon = "Generic_Person";
-	mColor = LLUIColorTable::instance().getColor("AgentLinkColor");
 }
 
 // virtual
@@ -352,11 +358,8 @@ void LLUrlEntryAgent::callObservers(const std::string &id,
 void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
 {
-	std::string label = av_name.mDisplayName;
-	if (!av_name.mUsername.empty())
-	{
-		label += " (" + av_name.mUsername + ")";
-	}
+	std::string label = av_name.getCompleteName();
+
 	// received the agent name from the server - tell our observers
 	callObservers(id.asString(), label, mIcon);
 }
@@ -421,11 +424,8 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	LLAvatarName av_name;
 	if (LLAvatarNameCache::get(agent_id, &av_name))
 	{
-		std::string label = av_name.mDisplayName;
-		if (!av_name.mUsername.empty())
-		{
-			label += " (" + av_name.mUsername + ")";
-		}
+		std::string label = av_name.getCompleteName();
+
 		// handle suffixes like /mute or /offerteleport
 		label = localize_slapp_label(url, label);
 		return label;
@@ -438,6 +438,14 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}
+}
+
+LLStyle::Params LLUrlEntryAgent::getStyle() const
+{
+	LLStyle::Params style_params = LLUrlEntryBase::getStyle();
+	style_params.color = LLUIColorTable::instance().getColor("AgentLinkColor");
+	style_params.readonly_color = LLUIColorTable::instance().getColor("AgentLinkColor");
+	return style_params;
 }
 
 std::string localize_slapp_label(const std::string& url, const std::string& full_name)
@@ -479,6 +487,135 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 }
 
 //
+// LLUrlEntryAgentName describes a Second Life agent name Url, e.g.,
+// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
+// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
+//
+LLUrlEntryAgentName::LLUrlEntryAgentName()
+{
+}
+
+// virtual
+void LLUrlEntryAgentName::callObservers(const std::string &id,
+								    const std::string &label,
+								    const std::string &icon)
+{
+	// notify all callbacks waiting on the given uuid
+	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
+	for (it = mObservers.find(id); it != mObservers.end();)
+	{
+		// call the callback - give it the new label
+		LLUrlEntryObserver &observer = it->second;
+		(*observer.signal)(observer.url, label, icon);
+		// then remove the signal - we only need to call it once
+		delete observer.signal;
+		mObservers.erase(it++);
+	}
+}
+
+void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
+										const LLAvatarName& av_name)
+{
+	std::string label = getName(av_name);
+	// received the agent name from the server - tell our observers
+	callObservers(id.asString(), label, mIcon);
+}
+
+std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	if (!gCacheName)
+	{
+		// probably at the login screen, use short string for layout
+		return LLTrans::getString("LoadingData");
+	}
+
+	std::string agent_id_string = getIDStringFromUrl(url);
+	if (agent_id_string.empty())
+	{
+		// something went wrong, just give raw url
+		return unescapeUrl(url);
+	}
+
+	LLUUID agent_id(agent_id_string);
+	if (agent_id.isNull())
+	{
+		return LLTrans::getString("AvatarNameNobody");
+	}
+
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::get(agent_id, &av_name))
+	{
+		return getName(av_name);
+	}
+	else
+	{
+		LLAvatarNameCache::get(agent_id,
+			boost::bind(&LLUrlEntryAgentCompleteName::onAvatarNameCache,
+				this, _1, _2));
+		addObserver(agent_id_string, url, cb);
+		return LLTrans::getString("LoadingData");
+	}
+}
+
+std::string LLUrlEntryAgentName::getUrl(const std::string &url) const
+{
+	return LLStringUtil::null;
+}
+
+LLStyle::Params LLUrlEntryAgentName::getStyle() const
+{
+	return LLStyle::Params();
+}
+
+//
+// LLUrlEntryAgentCompleteName describes a Second Life agent complete name Url, e.g.,
+// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/completename
+// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/completename
+//
+LLUrlEntryAgentCompleteName::LLUrlEntryAgentCompleteName()
+{
+	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/completename",
+							boost::regex::perl|boost::regex::icase);
+}
+
+std::string LLUrlEntryAgentCompleteName::getName(const LLAvatarName& avatar_name)
+{
+	return avatar_name.getCompleteName();
+}
+
+//
+// LLUrlEntryAgentDisplayName describes a Second Life agent display name Url, e.g.,
+// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/displayname
+// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/displayname
+//
+LLUrlEntryAgentDisplayName::LLUrlEntryAgentDisplayName()
+{
+	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/displayname",
+							boost::regex::perl|boost::regex::icase);
+}
+
+std::string LLUrlEntryAgentDisplayName::getName(const LLAvatarName& avatar_name)
+{
+	return avatar_name.mDisplayName;
+}
+
+//
+// LLUrlEntryAgentUserName describes a Second Life agent user name Url, e.g.,
+// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/username
+// x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/username
+//
+LLUrlEntryAgentUserName::LLUrlEntryAgentUserName()
+{
+	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/username",
+							boost::regex::perl|boost::regex::icase);
+}
+
+std::string LLUrlEntryAgentUserName::getName(const LLAvatarName& avatar_name)
+{
+	return avatar_name.mUsername.empty() ? avatar_name.getLegacyName() : avatar_name.mUsername;
+}
+
+//
 // LLUrlEntryGroup Describes a Second Life group Url, e.g.,
 // secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/about
 // secondlife:///app/group/00005ff3-4044-c79f-9de8-fb28ae0df991/inspect
@@ -491,7 +628,6 @@ LLUrlEntryGroup::LLUrlEntryGroup()
 	mMenuName = "menu_url_group.xml";
 	mIcon = "Generic_Group";
 	mTooltip = LLTrans::getString("TooltipGroupUrl");
-	mColor = LLUIColorTable::instance().getColor("GroupLinkColor");
 }
 
 void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
@@ -536,6 +672,15 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 		return LLTrans::getString("LoadingData");
 	}
 }
+
+LLStyle::Params LLUrlEntryGroup::getStyle() const
+{
+	LLStyle::Params style_params = LLUrlEntryBase::getStyle();
+	style_params.color = LLUIColorTable::instance().getColor("GroupLinkColor");
+	style_params.readonly_color = LLUIColorTable::instance().getColor("GroupLinkColor");
+	return style_params;
+}
+
 
 //
 // LLUrlEntryInventory Describes a Second Life inventory Url, e.g.,
@@ -824,7 +969,6 @@ LLUrlEntryNoLink::LLUrlEntryNoLink()
 {
 	mPattern = boost::regex("<nolink>[^<]*</nolink>",
 							boost::regex::perl|boost::regex::icase);
-	mDisabledLink = true;
 }
 
 std::string LLUrlEntryNoLink::getUrl(const std::string &url) const
@@ -838,6 +982,12 @@ std::string LLUrlEntryNoLink::getLabel(const std::string &url, const LLUrlLabelC
 	return getUrl(url);
 }
 
+LLStyle::Params LLUrlEntryNoLink::getStyle() const 
+{ 
+	return LLStyle::Params(); 
+}
+
+
 //
 // LLUrlEntryIcon describes an icon with <icon>...</icon> tags
 //
@@ -845,7 +995,6 @@ LLUrlEntryIcon::LLUrlEntryIcon()
 {
 	mPattern = boost::regex("<icon\\s*>\\s*([^<]*)?\\s*</icon\\s*>",
 							boost::regex::perl|boost::regex::icase);
-	mDisabledLink = true;
 }
 
 std::string LLUrlEntryIcon::getUrl(const std::string &url) const

@@ -148,6 +148,8 @@ protected:
 		else
 		{
 			mBaseOutfitId = baseoutfit_id;
+			mPanel->updateCurrentOutfitName();
+
 			if (baseoutfit_id.isNull()) return;
 
 			mBaseOutfitLastVersion = getCategoryVersion(mBaseOutfitId);
@@ -210,7 +212,8 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
 	mCOFObserver(NULL),
-	mCOFDragAndDropObserver(NULL)
+	mCOFDragAndDropObserver(NULL),
+	mInitialized(false)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -307,6 +310,16 @@ BOOL LLPanelOutfitEdit::postBuild()
 	return TRUE;
 }
 
+// virtual
+void LLPanelOutfitEdit::onOpen(const LLSD& key)
+{
+	if (!mInitialized)
+	{
+		displayCurrentOutfit();
+		mInitialized = true;
+	}
+}
+
 void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
 {
 	LLUUID item_id = mCOFWearables->getSelectedUUID();
@@ -339,6 +352,8 @@ void LLPanelOutfitEdit::showFilteredWearablesPanel()
 	if(switchPanels(mInventoryItemsPanel, mWearableItemsPanel))
 	{
 		mFolderViewBtn->setToggleState(FALSE);
+		mFolderViewBtn->setImageOverlay(getString("folder_view_off"), mFolderViewBtn->getImageOverlayHAlign());
+		mListViewBtn->setImageOverlay(getString("list_view_on"), mListViewBtn->getImageOverlayHAlign());
 	}
 	mListViewBtn->setToggleState(TRUE);
 }
@@ -348,6 +363,8 @@ void LLPanelOutfitEdit::showFilteredFolderWearablesPanel()
 	if(switchPanels(mWearableItemsPanel, mInventoryItemsPanel))
 	{
 		mListViewBtn->setToggleState(FALSE);
+		mListViewBtn->setImageOverlay(getString("list_view_off"), mListViewBtn->getImageOverlayHAlign());
+		mFolderViewBtn->setImageOverlay(getString("folder_view_on"), mFolderViewBtn->getImageOverlayHAlign());
 	}
 	mFolderViewBtn->setToggleState(TRUE);
 }
@@ -446,13 +463,25 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitEdit::onAddToOutfitClicked(void)
 {
-	LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
-	if (!curr_item) return;
+	LLUUID selected_id;
+	if (mInventoryItemsPanel->getVisible())
+	{
+		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
+		if (!curr_item) return;
 
-	LLFolderViewEventListener* listenerp  = curr_item->getListener();
-	if (!listenerp) return;
+		LLFolderViewEventListener* listenerp  = curr_item->getListener();
+		if (!listenerp) return;
 
-	LLAppearanceMgr::getInstance()->wearItemOnAvatar(listenerp->getUUID());
+		selected_id = listenerp->getUUID();
+	}
+	else if (mWearableItemsPanel->getVisible())
+	{
+		selected_id = mWearableItemsList->getSelectedUUID();
+	}
+
+	if (selected_id.isNull()) return;
+
+	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id);
 }
 
 
@@ -616,6 +645,13 @@ void LLPanelOutfitEdit::displayCurrentOutfit()
 		setVisible(TRUE);
 	}
 
+	updateCurrentOutfitName();
+
+	update();
+}
+
+void LLPanelOutfitEdit::updateCurrentOutfitName()
+{
 	std::string current_outfit_name;
 	if (LLAppearanceMgr::getInstance()->getBaseOutfitName(current_outfit_name))
 	{
@@ -625,8 +661,6 @@ void LLPanelOutfitEdit::displayCurrentOutfit()
 	{
 		mCurrentOutfitName->setText(getString("No Outfit"));
 	}
-
-	update();
 }
 
 //private
