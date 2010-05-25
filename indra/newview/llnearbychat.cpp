@@ -301,8 +301,12 @@ void LLNearbyChat::loadHistory()
 		const LLSD& msg = *it;
 
 		std::string from = msg[IM_FROM];
-		LLUUID from_id = LLUUID::null;
-		if (msg[IM_FROM_ID].isUndefined())
+		LLUUID from_id;
+		if (msg[IM_FROM_ID].isDefined())
+		{
+			from_id = msg[IM_FROM_ID].asUUID();
+		}
+		else
 		{
 			gCacheName->getUUID(from, from_id);
 		}

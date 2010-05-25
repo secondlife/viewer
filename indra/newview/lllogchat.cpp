@@ -426,6 +426,12 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 		return;
 	}
 
+	if (im[IM_FROM_ID].isDefined())
+	{
+		LLUUID from_id = im[IM_FROM_ID].asUUID();
+		ostr << '{' << from_id.asString() << '}';
+	}
+
 	if (im[IM_TIME].isDefined())
 	{
 		std::string timestamp = im[IM_TIME].asString();
@@ -456,15 +462,32 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 	}
 }
 
-bool LLChatLogParser::parse(std::string& raw, LLSD& im)
+bool LLChatLogParser::parse(const std::string& raw, LLSD& im)
 {
 	if (!raw.length()) return false;
 	
 	im = LLSD::emptyMap();
 
+	// In Viewer 2.1 we added UUID to chat/IM logging so we can look up
+	// display names
+	std::string line = raw;
+	if (raw[0] == '{')
+	{
+		const S32 UUID_LEN = 36;
+		size_t pos = line.find_first_of('}');
+		// If it matches, pos will be 37
+		if (pos != line.npos && pos > UUID_LEN)
+		{
+			std::string uuid_string = line.substr(1, UUID_LEN);
+			LLUUID from_id(uuid_string);
+			im[IM_FROM_ID] = from_id;
+			line = line.substr(pos + 1);
+		}
+	}
+
 	//matching a timestamp
 	boost::match_results<std::string::const_iterator> matches;
-	if (!boost::regex_match(raw, matches, TIMESTAMP_AND_STUFF)) return false;
+	if (!boost::regex_match(line, matches, TIMESTAMP_AND_STUFF)) return false;
 	
 	bool has_timestamp = matches[IDX_TIMESTAMP].matched;
 	if (has_timestamp)

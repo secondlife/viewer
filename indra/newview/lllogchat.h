@@ -106,7 +106,7 @@ public:
 	 *
 	 * @return false if failed to parse mandatory data - message text
 	 */
-	static bool parse(std::string& raw, LLSD& im);
+	static bool parse(const std::string& raw, LLSD& im);
 
 protected:
 	LLChatLogParser();

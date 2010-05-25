@@ -270,7 +270,7 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 		// no text notifications
 		break;
 	case P2P_SESSION:
-		gCacheName->getFullName(mOtherParticipantID, other_avatar_name);
+		gCacheName->getFullName(mOtherParticipantID, other_avatar_name); // voice
 
 		if(direction == LLVoiceChannel::INCOMING_CALL)
 		{
@@ -405,12 +405,16 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 		const LLSD& msg = *it;
 
 		std::string from = msg[IM_FROM];
-		LLUUID from_id = LLUUID::null;
-		if (msg[IM_FROM_ID].isUndefined())
+		LLUUID from_id;
+		if (msg[IM_FROM_ID].isDefined())
 		{
+			from_id = msg[IM_FROM_ID].asUUID();
+		}
+		else
+		{
+			// Legacy chat logs only wrote the legacy name, not the agent_id
 			gCacheName->getUUID(from, from_id);
 		}
-
 
 		std::string timestamp = msg[IM_TIME];
 		std::string text = msg[IM_TEXT];
@@ -2582,7 +2586,7 @@ void LLIMMgr::inviteToSession(
 	{
 		if (caller_name.empty())
 		{
-			gCacheName->get(caller_id, false,
+			gCacheName->get(caller_id, false,  // voice
 				boost::bind(&LLIMMgr::onInviteNameLookup, payload, _1, _2, _3));
 		}
 		else
@@ -2816,12 +2820,14 @@ void LLIMMgr::noteOfflineUsers(
 		for(S32 i = 0; i < count; ++i)
 		{
 			info = at.getBuddyInfo(ids.get(i));
-			std::string full_name;
-			if(info && !info->isOnline()
-			   && gCacheName->getFullName(ids.get(i), full_name))
+			LLAvatarName av_name;
+			if (info
+				&& !info->isOnline()
+				&& LLAvatarNameCache::get(ids.get(i), &av_name))
 			{
 				LLUIString offline = LLTrans::getString("offline_message");
-				offline.setArg("[NAME]", full_name);
+				// Use display name only because this user is your friend
+				offline.setArg("[NAME]", av_name.mDisplayName);
 				im_model.proccessOnlineOfflineNotification(session_id, offline);
 			}
 		}
