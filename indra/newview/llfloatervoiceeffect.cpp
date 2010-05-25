@@ -189,19 +189,20 @@ void LLFloaterVoiceEffect::refreshEffectList()
 			if (!is_template_only)
 			{
 				element["columns"][1]["value"] = expiry_date;
+				element["columns"][1]["type"] = "date";
 			}
 			else {
 				element["columns"][1]["value"] = "";
 			}
 			element["columns"][1]["font"]["name"] = "SANSSERIF";
-			element["columns"][1]["font"]["style"] = font_style;
+			element["columns"][1]["font"]["style"] = "NORMAL";
 
 			LLScrollListItem* sl_item = mVoiceEffectList->addElement(element, ADD_BOTTOM);
 			// *HACK: Copied from llfloatergesture.cpp : ["font"]["style"] does not affect font style :(
 			if(sl_item)
 			{
 				LLFontGL::StyleFlags style = is_template_only ? LLFontGL::NORMAL : LLFontGL::BOLD;
-				((LLScrollListText*)sl_item->getColumn(0))->setFontStyle(style);
+				dynamic_cast<LLScrollListText*>(sl_item->getColumn(0))->setFontStyle(style);
 			}
 		}
 	}

@@ -11,8 +11,8 @@
  label="Places"
  layout="topleft"
  min_height="350"
- min_width="240"
- width="300">
+ min_width="300"
+ width="455">
   <string name="no_voice_effect">
     (No Voice Effect)
   </string>
@@ -33,18 +33,19 @@
    name="status_text"
    right="-10"
    top="25">
-    Record a sample of your voice, and then select an effect to preview. Close this window to return to in-world voice.
+Record a sample of your voice, and then select an effect to preview.
+Close this window to return to in-world voice.
   </text>
   <button
    follows="left|top"
    height="23"
    label="Record Sample"
    layout="topleft"
-   left="5"
+   left="10"
    name="record_btn"
    tool_tip="Record a sample of your voice."
    top_pad="5"
-   width="135">
+   width="150">
     <button.commit_callback
      function="VoiceEffect.Record" />
   </button>
@@ -56,41 +57,41 @@
    left_delta="0"
    name="record_stop_btn"
    top_delta="0"
-   width="135">
+   width="150">
     <button.commit_callback
      function="VoiceEffect.Stop" />
   </button>
+  <text
+   height="18"
+   halign="right"
+   use_ellipses="true"
+   type="string"
+   follows="left|top|right"
+   layout="topleft"
+   left_pad="10"
+   name="voice_morphing_link"
+   right="-10"
+   top_delta="5">
+    [[URL] Get Voice Morphing]
+  </text>
   <scroll_list
-   bottom_delta="280"
+   bottom="-10"
    draw_heading="true"
    follows="all"
    layout="topleft"
-   left_delta="0"
+   left="10"
    multi_select="false"
    name="voice_effect_list"
-   right="-5"
+   right="-10"
    tool_tip="Record a sample of your voice, then click an effect to preview."
    top="100">
     <scroll_list.columns
-     dynamic_width="true"
      label="Voice Effect"
-     name="name"/>
+     name="name" relative_width="0.41"/>
     <scroll_list.columns
+     dynamic_width="true"
      label="Expires"
      name="expires"
-     width="110" />
+	 relative_width="0.59" />
   </scroll_list>
-  <text
-   height="20"
-   word_wrap="true"
-   use_ellipses="true"
-   type="string"
-   follows="left|bottom|right"
-   layout="topleft"
-   left="10"
-   name="voice_morphing_link"
-   right="-10"
-   top_pad="5">
-    [[URL] Get Voice Morphing]
-  </text>
 </floater>
