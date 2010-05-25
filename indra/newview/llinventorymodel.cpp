@@ -1244,7 +1244,9 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 
 void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 {
-	//llinfos << "LLInventoryModel::addItem()" << llendl;
+	const LLViewerInventoryCategory* cat = gInventory.getCategory(item->getParentUUID()); // Seraph remove for 2.1
+	const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND"; // Seraph remove for 2.1
+	llinfos << "Added item [ name:" << item->getName() << " UUID:" << item->getUUID() << " type:" << item->getActualType() << " ] to folder [ name:" << cat_name << " uuid:" << item->getParentUUID() << " ]" << llendl; // Seraph remove for 2.1
 
 	llassert(item);
 	if(item)
