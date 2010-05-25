@@ -39,6 +39,7 @@
 #include "llfloaterreg.h"
 #include "llpanel.h"
 #include "lltrans.h"
+#include "lltransientfloatermgr.h"
 #include "llvoiceclient.h"
 
 static LLRegisterPanelClassWrapper<LLPanelVoiceEffect> t_panel_voice_effect("panel_voice_effect");
@@ -51,6 +52,9 @@ LLPanelVoiceEffect::LLPanelVoiceEffect()
 
 LLPanelVoiceEffect::~LLPanelVoiceEffect()
 {
+	LLView* combo_list_view = mVoiceEffectCombo->getChildView("ComboBox");
+	LLTransientFloaterMgr::getInstance()->removeControlView(combo_list_view);
+
 	if(LLVoiceClient::instanceExists())
 	{
 		LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
@@ -65,6 +69,11 @@ LLPanelVoiceEffect::~LLPanelVoiceEffect()
 BOOL LLPanelVoiceEffect::postBuild()
 {
 	mVoiceEffectCombo = getChild<LLComboBox>("voice_effect");
+
+	// Need to tell LLTransientFloaterMgr about the combo list, otherwise it can't
+	// be clicked while in a docked floater as it extends outside the floater area.
+	LLView* combo_list_view = mVoiceEffectCombo->getChildView("ComboBox");
+	LLTransientFloaterMgr::getInstance()->addControlView(combo_list_view);
 
 	LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
 	if (effect_interface)
