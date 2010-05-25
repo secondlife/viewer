@@ -20,7 +20,7 @@
     (Active)
   </string>
   <string name="new_voice_effect">
-    New!
+    (New!)
   </string>
   <text
    height="40"
@@ -72,13 +72,9 @@
    tool_tip="Record a sample of your voice, then click an effect to preview."
    top="100">
     <scroll_list.columns
-     label="Name"
-     name="name"
-     width="120" />
-    <scroll_list.columns
-     label="New"
-     name="new"
-     width="60" />
+     dynamic_width="true"
+     label="Voice Effect"
+     name="name"/>
     <scroll_list.columns
      label="Expires"
      name="expires"
