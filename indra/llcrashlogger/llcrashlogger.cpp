@@ -200,7 +200,12 @@ void LLCrashLogger::gatherFiles()
 	gatherPlatformSpecificFiles();
 
 	//Use the debug log to reconstruct the URL to send the crash report to
-	if(mDebugLog.has("CurrentSimHost"))
+	if(mDebugLog.has("CrashHostUrl"))
+	{
+		// Crash log receiver has been manually configured.
+		mCrashHost = mDebugLog["CrashHostUrl"].asString();
+	}
+	else if(mDebugLog.has("CurrentSimHost"))
 	{
 		mCrashHost = "https://";
 		mCrashHost += mDebugLog["CurrentSimHost"].asString();

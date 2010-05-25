@@ -2545,6 +2545,13 @@ void LLAppViewer::handleViewerCrash()
 	}
 	pApp->mReportedCrash = TRUE;
 	
+	// Insert crash host url (url to post crash log to) if configured.
+	std::string crashHostUrl = gSavedSettings.get<std::string>("CrashHostUrl");
+	if(crashHostUrl != "")
+	{
+		gDebugInfo["CrashHostUrl"] = crashHostUrl;
+	}
+	
 	//We already do this in writeSystemInfo(), but we do it again here to make /sure/ we have a version
 	//to check against no matter what
 	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
