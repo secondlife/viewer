@@ -3400,7 +3400,7 @@ openSoundPreview((void*)this);
 //send_uuid_sound_trigger(item->getAssetUUID(), 1.0);
 }
 */
-		}
+}
 
 void LLSoundBridge::previewItem()
 {
@@ -4187,21 +4187,9 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 
 void LLObjectBridge::openItem()
 {
-	LLViewerInventoryItem* item = getItem();
-
-	if (item)
-	{
-		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
-	}
-
-	LLSD key;
-	key["id"] = mUUID;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
-
-	// Disable old properties floater; this is replaced by the sidepanel.
-	/*
-	  LLFloaterReg::showInstance("properties", mUUID);
-	*/
+	// object double-click action is to wear/unwear object
+	performAction(getInventoryModel(),
+		      get_is_item_worn(mUUID) ? "detach" : "attach");
 }
 
 LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
