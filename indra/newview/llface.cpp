@@ -371,7 +371,7 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 	if (align)
 	{
 		//allocate vertices in blocks of 4 for alignment
-		S32 num_vertices = (num_vertices + 0x3) & ~0x3;
+		num_vertices = (num_vertices + 0x3) & ~0x3;
 	}
 
 	if (mGeomCount != num_vertices ||
