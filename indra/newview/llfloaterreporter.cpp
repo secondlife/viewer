@@ -299,7 +299,7 @@ void LLFloaterReporter::callbackAvatarID(const uuid_vec_t& ids, const std::vecto
 {
 	if (ids.empty() || names.empty()) return;
 
-	childSetText("abuser_name_edit", names[0].getNameAndSLID());
+	childSetText("abuser_name_edit", names[0].getCompleteName());
 
 	mAbuserID = ids[0];
 
@@ -320,10 +320,10 @@ void LLFloaterReporter::onAvatarNameCache(const LLUUID& avatar_id, const LLAvata
 {
 	if (mObjectID == avatar_id)
 	{
-		mOwnerName = av_name.getNameAndSLID();
-		childSetText("object_name", av_name.getNameAndSLID());
-		childSetToolTip("object_name", av_name.getNameAndSLID());
-		childSetText("abuser_name_edit", av_name.getNameAndSLID());
+		mOwnerName = av_name.getCompleteName();
+		childSetText("object_name", av_name.getCompleteName());
+		childSetToolTip("object_name", av_name.getCompleteName());
+		childSetText("abuser_name_edit", av_name.getCompleteName());
 	}
 }
 

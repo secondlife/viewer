@@ -242,7 +242,7 @@ void LLFloaterSellLandUI::updateParcelInfo()
 
 void LLFloaterSellLandUI::onBuyerNameCache(const LLAvatarName& av_name)
 {
-	childSetText("sell_to_agent", av_name.getNameAndSLID());
+	childSetText("sell_to_agent", av_name.getCompleteName());
 	childSetToolTip("sell_to_agent", av_name.mUsername);
 }
 
@@ -412,7 +412,7 @@ void LLFloaterSellLandUI::callbackAvatarPick(const uuid_vec_t& ids, const std::v
 
 	mAuthorizedBuyer = ids[0];
 
-	childSetText("sell_to_agent", names[0].getNameAndSLID());
+	childSetText("sell_to_agent", names[0].getCompleteName());
 
 	refreshUI();
 }

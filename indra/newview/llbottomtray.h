@@ -124,6 +124,7 @@ private:
 		, RS_BUTTON_SEARCH		= 0x0400
 		, RS_BUTTON_WORLD_MAP	= 0x0800
 		, RS_BUTTON_MINI_MAP	= 0x1000
+		, RS_BUTTON_SIDEBAR		= 0x2000
 
 		/*
 		Once new button that can be hidden on resize is added don't forget to update related places:
@@ -138,6 +139,7 @@ private:
 		 */
 		, RS_BUTTONS_CAN_BE_HIDDEN = RS_BUTTON_SNAPSHOT | RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
 									| RS_BUTTON_BUILD | RS_BUTTON_SEARCH | RS_BUTTON_WORLD_MAP | RS_BUTTON_MINI_MAP
+									| RS_BUTTON_SIDEBAR
 	}EResizeState;
 
 	/**
@@ -340,6 +342,17 @@ private:
 	 * @param[in] visible - flag specified whether button should be shown or hidden.
 	 */
 	void showWellButton(EResizeState object_type, bool visible);
+
+	/**
+	 * Handles a customization of chatbar width.
+	 *
+	 * When chatbar gets wider layout stack will reduce chiclet panel (it is auto-resizable)
+	 *	But once chiclet panel reaches its minimal width Stack will force to reduce buttons width.
+	 *	including Speak button. The similar behavior is when chatbar gets narrowly.
+	 * This methods force resize behavior to resize buttons properly in these cases.
+	 */
+	void processChatbarCustomization(S32 new_width);
+
 
 	MASK mResizeState;
 

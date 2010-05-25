@@ -3145,7 +3145,9 @@ You are no longer frozen.
    icon="alertmodal.tga"
    name="SetDisplayName"
    type="alertmodal">
-Change your display name?
+Change your display name (used for name tags, chat, etc.)?
+
+You can also reset it back to your original username.
     <form name="form">
       <input name="display_name" type="text">
 [DISPLAY_NAME]
@@ -3157,6 +3159,10 @@ Change your display name?
        text="Change"/>
       <button
        index="1"
+       name="Reset"
+       text="Reset"/>
+      <button
+       index="2"
        name="Cancel"
        text="Cancel"/>
     </form>

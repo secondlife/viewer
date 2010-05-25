@@ -709,7 +709,7 @@ void LLInspectAvatar::onToggleMute()
 
 void LLInspectAvatar::onClickReport()
 {
-	LLFloaterReporter::showFromAvatar(mAvatarID, mAvatarName.getNameAndSLID());
+	LLFloaterReporter::showFromAvatar(mAvatarID, mAvatarName.getCompleteName());
 	closeFloater();
 }
 

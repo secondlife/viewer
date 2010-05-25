@@ -303,7 +303,7 @@
      left_delta="0"
      name="show_slids"
      tool_tip="Show username, like bobsmith123"
-     top_pad="5" />
+     top_pad="2" />
     <text
      type="string"
      length="1"
@@ -324,6 +324,7 @@
       layout="topleft"
       left_pad="5"
       name="title_afk_text"
+      top_delta="0" 
       width="190">
     Away timeout:
     </text>
@@ -394,7 +395,7 @@
       hover="false"
      commit_on_focus_lost = "true"
      follows="left|top"
-     height="60"
+     height="42"
      layout="topleft"
      left="50"
      name="busy_response"

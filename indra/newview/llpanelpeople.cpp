@@ -1165,7 +1165,7 @@ void LLPanelPeople::onActivateButtonClicked()
 void LLPanelPeople::onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (!names.empty() && !ids.empty())
-		LLAvatarActions::requestFriendshipDialog(ids[0], names[0].getNameAndSLID());
+		LLAvatarActions::requestFriendshipDialog(ids[0], names[0].getCompleteName());
 }
 
 void LLPanelPeople::onGroupPlusButtonClicked()

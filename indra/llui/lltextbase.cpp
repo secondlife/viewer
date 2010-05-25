@@ -1582,11 +1582,8 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 			start = match.getStart();
 			end = match.getEnd()+1;
 
-			LLStyle::Params link_params = style_params;
-			link_params.color = match.getColor();
-			link_params.readonly_color =  match.getColor();
-			link_params.font.style("UNDERLINE");
-			link_params.link_href = match.getUrl();
+			LLStyle::Params link_params(style_params);
+			link_params.overwriteFrom(match.getStyle());
 
 			// output the text before the Url
 			if (start > 0)
@@ -1624,26 +1621,20 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 				}
 			}
 
-			// output the styled Url (unless we've been asked to suppress hyperlinking)
-			if (match.isLinkDisabled())
-			{
-				appendAndHighlightText(match.getLabel(), prepend_newline, part, style_params);
-			}
-			else
-			{
-				appendAndHighlightText(match.getLabel(), prepend_newline, part, link_params);
+			// output the styled Url 
+			appendAndHighlightText(match.getLabel(), prepend_newline, part, link_params);
 
-				// set the tooltip for the Url label
-				if (! match.getTooltip().empty())
-				{
-					segment_set_t::iterator it = getSegIterContaining(getLength()-1);
-					if (it != mSegments.end())
-						{
-							LLTextSegmentPtr segment = *it;
-							segment->setToolTip(match.getTooltip());
-						}
-				}
+			// set the tooltip for the Url label
+			if (! match.getTooltip().empty())
+			{
+				segment_set_t::iterator it = getSegIterContaining(getLength()-1);
+				if (it != mSegments.end())
+					{
+						LLTextSegmentPtr segment = *it;
+						segment->setToolTip(match.getTooltip());
+					}
 			}
+			
 			prepend_newline = false;
 
 			// move on to the rest of the text after the Url

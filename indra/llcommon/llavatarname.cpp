@@ -99,7 +99,7 @@ void LLAvatarName::fromLLSD(const LLSD& sd)
 	mExpires = expires.secondsSinceEpoch();
 }
 
-std::string LLAvatarName::getNameAndSLID() const
+std::string LLAvatarName::getCompleteName() const
 {
 	std::string name;
 	if (!mUsername.empty())

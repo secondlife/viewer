@@ -1285,7 +1285,7 @@ void LLFlatListViewEx::filterItems()
 		}
 	}
 
-	rearrangeItems();
+	sort();
 	notifyParentItemsRectChanged();
 }
 

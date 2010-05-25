@@ -646,9 +646,12 @@ void LLPanelLandGeneral::refresh()
 			}
 
 			// Display claim date
-			// *TODO:Localize (Time format may need Translating)
 			time_t claim_date = parcel->getClaimDate();
-			mTextClaimDate->setText(formatted_time(claim_date));
+			std::string claim_date_str = getString("time_stamp_template");
+			LLSD substitution;
+			substitution["datetime"] = (S32) claim_date;
+			LLStringUtil::format (claim_date_str, substitution);
+			mTextClaimDate->setText(claim_date_str);
 			mTextClaimDate->setEnabled(is_leased);
 
 			BOOL enable_auction = (gAgent.getGodLevel() >= GOD_LIAISON)
@@ -1607,7 +1610,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		// Placeholder for name.
 		LLAvatarName av_name;
 		LLAvatarNameCache::get(owner_id, &av_name);
-		item_params.columns.add().value(av_name.getNameAndSLID()).font(FONT).column("name");
+		item_params.columns.add().value(av_name.getCompleteName()).font(FONT).column("name");
 
 		object_count_str = llformat("%d", object_count);
 		item_params.columns.add().value(object_count_str).font(FONT).column("count");

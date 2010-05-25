@@ -67,7 +67,10 @@
 	<text name="RenderingCost" tool_tip="Muestra cuánto se calcula que cuesta renderizar este objeto">
 		þ: [COUNT]
 	</text>
-	<check_box label="Estirar ambos lados" name="checkbox uniform"/>
+	<check_box name="checkbox uniform"/>
+	<text name="checkbox uniform label">
+		Estirar ambos lados
+	</text>
 	<check_box initial_value="true" label="Estirar las texturas" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Usar la cuadrícula" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Elige qué cuadricula usar para posicionar el objeto" width="82">

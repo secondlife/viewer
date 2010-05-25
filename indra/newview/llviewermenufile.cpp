@@ -39,7 +39,7 @@
 #include "llagentcamera.h"
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloatersnapshot.h"
 #include "llimage.h"
 #include "llimagebmp.h"
@@ -811,7 +811,7 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 					LLStringUtil::format_map_t args;
 					args["NAME"] = data->mAssetInfo.getName();
 					args["AMOUNT"] = llformat("%d", expected_upload_cost);
-					LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("UploadingCosts", args), expected_upload_cost);
+					LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("UploadingCosts", args), expected_upload_cost );
 					is_balance_sufficient = FALSE;
 				}
 				else if(region)

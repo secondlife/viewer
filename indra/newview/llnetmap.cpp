@@ -37,6 +37,7 @@
 
 // Library includes (should move below)
 #include "indra_constants.h"
+#include "llavatarnamecache.h"
 #include "llmath.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
@@ -555,11 +556,14 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	
 	// mToolTipMsg = "[AGENT][REGION](Double-click to open Map)"
 	
+	bool have_agent = false;
 	LLStringUtil::format_map_t args;
-	std::string fullname;
-	if(mClosestAgentToCursor.notNull() && gCacheName->getFullName(mClosestAgentToCursor, fullname))
+	LLAvatarName av_name;
+	if(mClosestAgentToCursor.notNull()
+	   && LLAvatarNameCache::get(mClosestAgentToCursor, &av_name))
 	{
-		args["[AGENT]"] = fullname + "\n";
+		args["[AGENT]"] = av_name.getCompleteName() + "\n";
+		have_agent = true;
 	}
 	else
 	{
@@ -567,7 +571,7 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 	}
 	
 	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
-	if( region )
+	if( region && !have_agent)
 	{
 		args["[REGION]"] = region->getName() + "\n";
 	}

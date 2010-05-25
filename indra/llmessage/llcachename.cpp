@@ -582,6 +582,12 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, co
 	return res;
 }
 
+boost::signals2::connection LLCacheName::getGroup(const LLUUID& group_id,
+												  const LLCacheNameCallback& callback)
+{
+	return get(group_id, true, callback);
+}
+
 boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, old_callback_t callback, void* user_data)
 {
 	return get(id, is_group, boost::bind(callback, _1, _2, _3, user_data));

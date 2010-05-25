@@ -42,6 +42,7 @@
 #include "llsidepaneltaskinfo.h"
 #include "lltabcontainer.h"
 #include "llselectmgr.h"
+#include "llweb.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
@@ -70,6 +71,9 @@ BOOL LLSidepanelInventory::postBuild()
 		mShareBtn = mInventoryPanel->getChild<LLButton>("share_btn");
 		mShareBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShareButtonClicked, this));
 		
+		LLButton* shop_btn = mInventoryPanel->getChild<LLButton>("shop_btn");
+		shop_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShopButtonClicked, this));
+
 		mWearBtn = mInventoryPanel->getChild<LLButton>("wear_btn");
 		mWearBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onWearButtonClicked, this));
 		
@@ -153,6 +157,11 @@ void LLSidepanelInventory::onInfoButtonClicked()
 void LLSidepanelInventory::onShareButtonClicked()
 {
 	LLAvatarActions::shareWithAvatars();
+}
+
+void LLSidepanelInventory::onShopButtonClicked()
+{
+	LLWeb::loadURLExternal(gSavedSettings.getString("MarketplaceURL"));
 }
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)

@@ -48,6 +48,7 @@
 #include "llfloaterworldmap.h"
 #include "llfriendcard.h"
 #include "llgesturemgr.h"
+#include "llgiveinventory.h"
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventoryclipboard.h"
@@ -1017,11 +1018,7 @@ BOOL LLInvFVBridge::canShare() const
 	{
 		if (!LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item)) 
 			return FALSE;
-		if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
-			return FALSE;
-		if (!item->getPermissions().allowCopyBy(gAgent.getID()))
-			return FALSE;
-		return TRUE;
+		return (BOOL)LLGiveInventory::isInventoryGiveAcceptable(item);
 	}
 
 	// All categories can be given.
@@ -3763,7 +3760,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 					rv = TRUE;
 					if(drop)
 					{
-						LLToolDragAndDrop::giveInventory(item->getCreatorUUID(),
+						LLGiveInventory::doGiveInventoryItem(item->getCreatorUUID(),
 														 (LLInventoryItem*)cargo_data);
 					}
 				}
@@ -3784,7 +3781,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 					rv = TRUE;
 					if(drop)
 					{
-						LLToolDragAndDrop::giveInventoryCategory(
+						LLGiveInventory::doGiveInventoryCategory(
 							item->getCreatorUUID(),
 							inv_cat);
 					}
@@ -4988,18 +4985,20 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 		if (itype == LLWearableType::WT_SHAPE || itype == LLWearableType::WT_SKIN || itype == LLWearableType::WT_HAIR || itype == LLWearableType::WT_EYES)
 			continue;
 
-		// MULTI-WEARABLES: fixed to index 0
-		LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(
-			gAgentWearables.getWearableInventoryItem((LLWearableType::EType)itype, 0));
-		if (!item)
-			continue;
-		const LLUUID &item_id = gInventory.getLinkedItemID(item->getUUID());
-		const LLWearable *wearable = gAgentWearables.getWearableFromItemID(item_id);
-		if (!wearable)
-			continue;
-
-		// Find and remove this item from the COF.
-		LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
+		for (S32 index = gAgentWearables.getWearableCount(itype)-1; index >= 0 ; --index)
+		{
+			LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(
+				gAgentWearables.getWearableInventoryItem((LLWearableType::EType)itype, index));
+			if (!item)
+				continue;
+			const LLUUID &item_id = gInventory.getLinkedItemID(item->getUUID());
+			const LLWearable *wearable = gAgentWearables.getWearableFromItemID(item_id);
+			if (!wearable)
+				continue;
+	
+			// Find and remove this item from the COF.
+			LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
+		}
 	}
 	gInventory.notifyObservers();
 

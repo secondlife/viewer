@@ -296,6 +296,84 @@ std::string LLPanelDummyClothingListItem::wearableTypeToString(LLWearableType::E
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+/*virtual*/
+bool LLWearableItemNameComparator::doCompare(const LLPanelInventoryListItemBase* wearable_item1, const LLPanelInventoryListItemBase* wearable_item2) const
+{
+	std::string name1 = wearable_item1->getItemName();
+	std::string name2 = wearable_item2->getItemName();
+
+	LLStringUtil::toUpper(name1);
+	LLStringUtil::toUpper(name2);
+
+	return name1 < name2;
+}
+
+/*virtual*/
+bool LLWearableItemTypeNameComparator::doCompare(const LLPanelInventoryListItemBase* wearable_item1, const LLPanelInventoryListItemBase* wearable_item2) const
+{
+	const LLAssetType::EType item_type1 = wearable_item1->getType();
+	const LLAssetType::EType item_type2 = wearable_item2->getType();
+
+	LLWearableItemTypeNameComparator::ETypeListOrder item_type_order1 = getTypeListOrder(item_type1);
+	LLWearableItemTypeNameComparator::ETypeListOrder item_type_order2 = getTypeListOrder(item_type2);
+
+	if (item_type_order1 != item_type_order2)
+	{
+		// If items are of different asset types we can compare them
+		// by types order in the list.
+		return item_type_order1 < item_type_order2;
+	}
+
+	if (item_type_order1 & TLO_NOT_CLOTHING)
+	{
+		// If both items are of the same asset type except AT_CLOTHING
+		// we can compare them by name.
+		return LLWearableItemNameComparator::doCompare(wearable_item1, wearable_item2);
+	}
+
+	const LLWearableType::EType item_wearable_type1 = wearable_item1->getWearableType();
+	const LLWearableType::EType item_wearable_type2 = wearable_item2->getWearableType();
+
+	if (item_wearable_type1 != item_wearable_type2)
+	{
+		// If items are of different clothing types they are compared
+		// by clothing types order determined in LLWearableType::EType.
+		return item_wearable_type1 < item_wearable_type2;
+	}
+	else
+	{
+		// If both items are of the same clothing type they are compared
+		// by description and place in reverse order i.e. outer layer item
+		// on top.
+		return wearable_item1->getDescription() > wearable_item2->getDescription();
+	}
+}
+
+// static
+LLWearableItemTypeNameComparator::ETypeListOrder LLWearableItemTypeNameComparator::getTypeListOrder(LLAssetType::EType item_type)
+{
+	switch (item_type)
+	{
+	case LLAssetType::AT_OBJECT:
+		return TLO_ATTACHMENT;
+
+	case LLAssetType::AT_CLOTHING:
+		return TLO_CLOTHING;
+
+	case LLAssetType::AT_BODYPART:
+		return TLO_BODYPART;
+
+	default:
+		return TLO_UNKNOWN;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+static const LLWearableItemTypeNameComparator WEARABLE_TYPE_NAME_COMPARATOR;
+
 static const LLDefaultChildRegistry::Register<LLWearableItemsList> r("wearable_items_list");
 
 LLWearableItemsList::Params::Params()
@@ -303,7 +381,9 @@ LLWearableItemsList::Params::Params()
 
 LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 :	LLInventoryItemsList(p)
-{}
+{
+	setComparator(&WEARABLE_TYPE_NAME_COMPARATOR);
+}
 
 // virtual
 LLWearableItemsList::~LLWearableItemsList()

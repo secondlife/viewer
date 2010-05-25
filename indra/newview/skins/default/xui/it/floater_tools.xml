@@ -67,7 +67,10 @@
 	<text name="RenderingCost" tool_tip="Mostra il costo di rendering calcolato per questo oggetto">
 		þ: [COUNT]
 	</text>
-	<check_box label="Ridimens. simmetricamente" name="checkbox uniform"/>
+	<check_box name="checkbox uniform"/>
+	<text name="checkbox uniform label">
+		Ridimens. simmetricamente
+	</text>
 	<check_box initial_value="true" label="Ridimensiona le texture" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Posiziona nella griglia" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Scegli il tipo di righello per posizionare l&apos;oggetto">

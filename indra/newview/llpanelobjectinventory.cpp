@@ -48,7 +48,7 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llcallbacklist.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloaterreg.h"
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
@@ -616,7 +616,7 @@ void LLTaskInvFVBridge::performAction(LLInventoryModel* model, std::string actio
 			{
 				LLStringUtil::format_map_t args;
 				args["AMOUNT"] = llformat("%d", price);
-				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_costs", args), price);
+				LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_costs", args), price );
 			}
 			else
 			{

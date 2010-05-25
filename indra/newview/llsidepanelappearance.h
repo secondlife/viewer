@@ -47,6 +47,7 @@ class LLPanelOutfitsInventory;
 
 class LLSidepanelAppearance : public LLPanel
 {
+	LOG_CLASS(LLSidepanelAppearance);
 public:
 	LLSidepanelAppearance();
 	virtual ~LLSidepanelAppearance();
@@ -56,14 +57,15 @@ public:
 
 	void refreshCurrentOutfitName(const std::string& name = "");
 
-	static void editWearable(LLWearable *wearable, void *data);
+	static void editWearable(LLWearable *wearable, LLView *data);
 
 	void fetchInventory();
 	void inventoryFetched();
 	void onNewOutfitButtonClicked();
 
 	void showOutfitsInventoryPanel();
-	void showOutfitEditPanel(bool update);
+	void showOutfitEditPanel();
+	void showWearableEditPanel(LLWearable *wearable = NULL);
 	void setWearablesLoading(bool val);
 
 private:
@@ -71,12 +73,10 @@ private:
 
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
-	void onEditOutfitButtonClicked();
-	void onEditWearBackClicked();
 
-	//@deprecated use showXXX() methods instead
-	void toggleOutfitEditPanel(BOOL visible);
-	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable = NULL);
+	void togglMyOutfitsPanel(BOOL visible);
+	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
+	void toggleWearableEditPanel(BOOL visible, LLWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
 
 	LLFilterEditor*			mFilterEditor;
 	LLPanelOutfitsInventory* mPanelOutfitsInventory;
@@ -100,6 +100,9 @@ private:
 	// Search string for filtering landmarks and teleport
 	// history locations
 	std::string					mFilterSubString;
+
+	// Gets set to true when we're opened for the first time.
+	bool mOpened;
 };
 
 #endif //LL_LLSIDEPANELAPPEARANCE_H

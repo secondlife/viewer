@@ -230,6 +230,7 @@ void handleNameTagOptionChanged(const LLSD& newvalue)
 void handleDisplayNamesOptionChanged(const LLSD& newvalue)
 {
 	LLAvatarNameCache::setUseDisplayNames(newvalue.asBoolean());
+	LLVOAvatar::invalidateNameTags();
 }
 
 

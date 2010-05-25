@@ -37,23 +37,21 @@
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
 
-class LLFindItemsByMask : public LLInventoryCollectFunctor
+class LLFindNonLinksByMask : public LLInventoryCollectFunctor
 {
 public:
-	LLFindItemsByMask(U64 mask)
+	LLFindNonLinksByMask(U64 mask)
 		: mFilterMask(mask)
 	{}
 
 	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 	{
-		if(item)
+		if(item && !item->getIsLinkType() && (mFilterMask & (1LL << item->getInventoryType())) )
 		{
-			if( mFilterMask & (1LL << item->getInventoryType()) )
-			{
-				return TRUE;
-			}
+			return true;
 		}
-		return FALSE;
+
+		return false;
 	}
 
 private:
@@ -96,7 +94,7 @@ void LLFilteredWearableListManager::populateList()
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
-	LLFindItemsByMask collector(mFilterMask);
+	LLFindNonLinksByMask collector(mFilterMask);
 
 	gInventory.collectDescendentsIf(
 		gInventory.getRootFolderID(),

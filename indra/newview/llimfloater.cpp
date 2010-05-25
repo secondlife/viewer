@@ -331,7 +331,7 @@ void LLIMFloater::onAvatarNameCache(const LLUUID& agent_id,
 {
 	// Use display name only for labels, as the extended name will be in the
 	// floater title
-	std::string ui_title = av_name.getNameAndSLID();
+	std::string ui_title = av_name.getCompleteName();
 	updateSessionName(ui_title, av_name.mDisplayName);
 }
 

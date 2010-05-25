@@ -1156,7 +1156,7 @@ void LLPanelObjectTools::callbackAvatarID(const uuid_vec_t& ids, const std::vect
 {
 	if (ids.empty() || names.empty()) return;
 	mTargetAvatar = ids[0];
-	childSetValue("target_avatar_name", names[0].getNameAndSLID());
+	childSetValue("target_avatar_name", names[0].getCompleteName());
 	refresh();
 }
 

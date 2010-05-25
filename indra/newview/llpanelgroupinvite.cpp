@@ -389,7 +389,7 @@ void LLPanelGroupInvite::impl::onAvatarNameCache(const LLUUID& agent_id,
 		std::vector<std::string> names;
 		uuid_vec_t agent_ids;
 		agent_ids.push_back(agent_id);
-		names.push_back(av_name.getNameAndSLID());
+		names.push_back(av_name.getCompleteName());
 		
 		selfp->addUsers(names, agent_ids);
 	}
