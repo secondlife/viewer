@@ -53,7 +53,7 @@
 //#include "llfirstuse.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloatercustomize.h"
 #include "llfloatergodtools.h"
 #include "llfloaterinventory.h"
@@ -3288,7 +3288,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 	{
 		LLStringUtil::format_map_t args;
 		args["AMOUNT"] = llformat("%d", price);
-		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_object_costs", args), price);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_object_costs", args), price );
 		return;
 	}
 
@@ -4430,8 +4430,7 @@ void handle_buy_or_take()
 		{
 			LLStringUtil::format_map_t args;
 			args["AMOUNT"] = llformat("%d", total_price);
-			LLFloaterBuyCurrency::buyCurrency(
-					LLTrans::getString("BuyingCosts", args), total_price);
+			LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString( "BuyingCosts", args ), total_price );
 		}
 	}
 	else
@@ -5612,6 +5611,11 @@ void handle_customize_avatar()
 	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
 }
 
+void handle_edit_outfit()
+{
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+}
+
 void handle_edit_shape()
 {
 	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_shape"));
@@ -5626,7 +5630,7 @@ void handle_report_abuse()
 
 void handle_buy_currency()
 {
-	LLFloaterBuyCurrency::buyCurrency();
+	LLBuyCurrencyHTML::openCurrencyFloater();
 }
 
 class LLFloaterVisible : public view_listener_t
@@ -7727,6 +7731,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
 	view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
 	commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
+	commit.add("EditOutfit", boost::bind(&handle_edit_outfit));
 	commit.add("EditShape", boost::bind(&handle_edit_shape));
 
 	// View menu
