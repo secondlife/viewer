@@ -60,27 +60,77 @@ public:
 		LLVertexBuffer(MAP_VERTEX | MAP_NORMAL | MAP_TEXCOORD0 | MAP_TEXCOORD1 | MAP_COLOR, GL_DYNAMIC_DRAW_ARB)
 	{
 		//texture coordinates 2 and 3 exist, but use the same data as texture coordinate 1
-		mOffsets[TYPE_TEXCOORD3] = mOffsets[TYPE_TEXCOORD2] = mOffsets[TYPE_TEXCOORD1];
-		mTypeMask |= MAP_TEXCOORD2 | MAP_TEXCOORD3;
 	};
 
-	/*// virtual
+	// virtual
 	void setupVertexBuffer(U32 data_mask) const
-	{		
-		if (LLDrawPoolTerrain::getDetailMode() == 0 || LLPipeline::sShadowRender)
+	{	
+		U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
+
+		//assume tex coords 2 and 3 are present
+		U32 type_mask = mTypeMask | MAP_TEXCOORD2 | MAP_TEXCOORD3;
+
+		if ((data_mask & type_mask) != data_mask)
 		{
-			LLVertexBuffer::setupVertexBuffer(data_mask);
+			llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
 		}
-		else if (data_mask & LLVertexBuffer::MAP_TEXCOORD1)
+
+		if (data_mask & MAP_NORMAL)
 		{
-			LLVertexBuffer::setupVertexBuffer(data_mask);
+			glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
 		}
-		else
+		if (data_mask & MAP_TEXCOORD3)
+		{ //substitute tex coord 0 for tex coord 3
+			glClientActiveTextureARB(GL_TEXTURE3_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+		if (data_mask & MAP_TEXCOORD2)
+		{ //substitute tex coord 0 for tex coord 2
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+		if (data_mask & MAP_TEXCOORD1)
 		{
-			LLVertexBuffer::setupVertexBuffer(data_mask);
+			glClientActiveTextureARB(GL_TEXTURE1_ARB);
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
-		llglassertok();		
-	}*/
+		if (data_mask & MAP_BINORMAL)
+		{
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+		if (data_mask & MAP_TEXCOORD0)
+		{
+			glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+		}
+		if (data_mask & MAP_COLOR)
+		{
+			glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeOffsets[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+		}
+		
+		if (data_mask & MAP_WEIGHT)
+		{
+			glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeOffsets[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
+		}
+
+		if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
+		{
+			glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeOffsets[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
+		}
+
+		if (data_mask & MAP_CLOTHWEIGHT)
+		{
+			glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeOffsets[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+		}
+		if (data_mask & MAP_VERTEX)
+		{
+			glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_VERTEX], (void*)(base + 0));
+		}
+	}
 };
 
 //============================================================================

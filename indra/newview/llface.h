@@ -166,7 +166,7 @@ public:
 	S32 getColors(LLStrider<LLColor4U> &colors);
 	S32 getIndices(LLStrider<U16> &indices);
 
-	void		setSize(const S32 numVertices, const S32 num_indices = 0);
+	void		setSize(S32 numVertices, S32 num_indices = 0, bool align = false);
 	
 	BOOL		genVolumeBBoxes(const LLVolume &volume, S32 f,
 								   const LLMatrix4& mat, const LLMatrix3& inv_trans_mat, BOOL global_volume = FALSE);

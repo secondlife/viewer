@@ -366,15 +366,18 @@ void LLFace::setDrawable(LLDrawable *drawable)
 	mXform      = &drawable->mXform;
 }
 
-void LLFace::setSize(const S32 num_vertices, const S32 num_indices)
+void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 {
-	//allocate vertices in blocks of 4 for alignment
-	S32 num_verts = (num_vertices + 0x3) & ~0x3;
+	if (align)
+	{
+		//allocate vertices in blocks of 4 for alignment
+		S32 num_vertices = (num_vertices + 0x3) & ~0x3;
+	}
 
-	if (mGeomCount != num_verts ||
+	if (mGeomCount != num_vertices ||
 		mIndicesCount != num_indices)
 	{
-		mGeomCount    = num_verts;
+		mGeomCount    = num_vertices;
 		mIndicesCount = num_indices;
 		mVertexBuffer = NULL;
 		mLastVertexBuffer = NULL;

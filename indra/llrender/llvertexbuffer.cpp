@@ -1372,7 +1372,6 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 		llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
 	}
 
-
 	if (data_mask & MAP_NORMAL)
 	{
 		glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
