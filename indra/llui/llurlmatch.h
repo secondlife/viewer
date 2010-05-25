@@ -38,7 +38,7 @@
 
 #include <string>
 #include <vector>
-#include "lluicolor.h"
+#include "llstyle.h"
 
 ///
 /// LLUrlMatch describes a single Url that was matched within a string by 
@@ -75,7 +75,7 @@ public:
 	std::string getIcon() const { return mIcon; }
 
 	/// Return the color to render the displayed text
-	LLUIColor getColor() const { return mColor; }
+	LLStyle::Params getStyle() const { return mStyle; }
 
 	/// Return the name of a XUI file containing the context menu items
 	std::string getMenuName() const { return mMenuName; }
@@ -89,7 +89,7 @@ public:
 	/// Change the contents of this match object (used by LLUrlRegistry)
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
 	               const std::string &tooltip, const std::string &icon,
-				   const LLUIColor& color, const std::string &menu, 
+				   const LLStyle::Params& style, const std::string &menu, 
 				   const std::string &location, bool disabled_link);
 
 private:
@@ -101,7 +101,7 @@ private:
 	std::string mIcon;
 	std::string mMenuName;
 	std::string mLocation;
-	LLUIColor	mColor;
+	LLStyle::Params mStyle;
 	bool        mDisabledLink;
 };
 

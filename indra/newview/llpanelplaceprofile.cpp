@@ -50,7 +50,7 @@
 #include "llagentui.h"
 #include "llappviewer.h"
 #include "llcallbacklist.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
 #include "llviewercontrol.h"

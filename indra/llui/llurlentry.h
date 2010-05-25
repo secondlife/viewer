@@ -36,6 +36,7 @@
 
 #include "lluuid.h"
 #include "lluicolor.h"
+#include "llstyle.h"
 #include <boost/signals2.hpp>
 #include <boost/regex.hpp>
 #include <string>
@@ -82,8 +83,8 @@ public:
 	/// Return an icon that can be displayed next to Urls of this type
 	virtual std::string getIcon(const std::string &url);
 
-	/// Return the color to render the displayed text
-	LLUIColor getColor() const { return mColor; }
+	/// Return the style to render the displayed text
+	LLStyle::Params getStyle() const { return mStyle; }
 
 	/// Given a matched Url, return a tooltip string for the hyperlink
 	virtual std::string getTooltip(const std::string &string) const { return mTooltip; }
@@ -115,7 +116,7 @@ protected:
 	std::string                                    	mIcon;
 	std::string                                    	mMenuName;
 	std::string                                    	mTooltip;
-	LLUIColor										mColor;
+	LLStyle::Params									mStyle;
 	std::multimap<std::string, LLUrlEntryObserver>	mObservers;
 	bool                                            mDisabledLink;
 };
@@ -177,6 +178,65 @@ protected:
 	/*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 private:
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
+};
+
+///
+/// LLUrlEntryAgentName Describes a Second Life agent name Url, e.g.,
+/// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
+/// that displays various forms of user name
+/// This is a base class for the various implementations of name display
+class LLUrlEntryAgentName : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryAgentName();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getUrl(const std::string &string) const;
+protected:
+	/*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
+	// override this to pull out relevant name fields
+	virtual std::string getName(const LLAvatarName& avatar_name) = 0;
+private:
+	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
+};
+
+
+///
+/// LLUrlEntryAgentCompleteName Describes a Second Life agent name Url, e.g.,
+/// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/completename
+/// that displays the full display name + user name for an avatar
+/// such as "James Linden (james.linden)"
+class LLUrlEntryAgentCompleteName : public LLUrlEntryAgentName
+{
+public:
+	LLUrlEntryAgentCompleteName();
+private:
+	/*virtual*/ std::string getName(const LLAvatarName& avatar_name);
+};
+
+///
+/// LLUrlEntryAgentDisplayName Describes a Second Life agent display name Url, e.g.,
+/// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/displayname
+/// that displays the just the display name for an avatar
+/// such as "James Linden"
+class LLUrlEntryAgentDisplayName : public LLUrlEntryAgentName
+{
+public:
+	LLUrlEntryAgentDisplayName();
+private:
+	/*virtual*/ std::string getName(const LLAvatarName& avatar_name);
+};
+
+///
+/// LLUrlEntryAgentUserName Describes a Second Life agent username Url, e.g.,
+/// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/username
+/// that displays the just the display name for an avatar
+/// such as "james.linden"
+class LLUrlEntryAgentUserName : public LLUrlEntryAgentName
+{
+public:
+	LLUrlEntryAgentUserName();
+private:
+	/*virtual*/ std::string getName(const LLAvatarName& avatar_name);
 };
 
 ///

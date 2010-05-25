@@ -1583,9 +1583,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 			end = match.getEnd()+1;
 
 			LLStyle::Params link_params = style_params;
-			link_params.color = match.getColor();
-			link_params.readonly_color =  match.getColor();
-			link_params.font.style("UNDERLINE");
+			link_params.overwriteFrom(match.getStyle());
 			link_params.link_href = match.getUrl();
 
 			// output the text before the Url
