@@ -43,7 +43,7 @@
 		name="wearable_accordion"
 		top="0"
         single_expansion="true"
-        fit_parent="false"
+        fit_parent="true"
 		width="313">
 		<accordion_tab
 			layout="topleft"
