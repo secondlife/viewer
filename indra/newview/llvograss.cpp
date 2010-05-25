@@ -594,7 +594,7 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 
 	LLVector2 tc[4];
 	LLVector3 v[4];
-	LLVector3 n[4];
+	//LLVector3 n[4];
 
 	F32 closest_t = 1.f;
 
