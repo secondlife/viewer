@@ -858,7 +858,7 @@ namespace LLInitParam
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
 			self_t& dst_typed_param = static_cast<self_t&>(dst);
-			if (dst_typed_param.T::merge(selfBlockDescriptor(), src_typed_param, overwrite || !dst_typed_param.isProvided()))
+			if (dst_typed_param.T::merge(T::selfBlockDescriptor(), src_typed_param, overwrite || !dst_typed_param.isProvided()))
 			{
 				dst_typed_param.mData.clearKey();
 				return true;

@@ -168,10 +168,14 @@ void LLAvatarListItem::setOnline(bool online)
 	setState(online ? IS_ONLINE : IS_OFFLINE);
 }
 
-void LLAvatarListItem::setName(const std::string& name)
+void LLAvatarListItem::setAvatarName(const std::string& name)
 {
 	setNameInternal(name, mHighlihtSubstring);
-	mAvatarName->setToolTip(name);
+}
+
+void LLAvatarListItem::setAvatarToolTip(const std::string& tooltip)
+{
+	mAvatarName->setToolTip(tooltip);
 }
 
 void LLAvatarListItem::setHighlight(const std::string& highlight)
@@ -326,9 +330,14 @@ const LLUUID& LLAvatarListItem::getAvatarId() const
 	return mAvatarId;
 }
 
-const std::string LLAvatarListItem::getAvatarName() const
+std::string LLAvatarListItem::getAvatarName() const
 {
 	return mAvatarName->getValue();
+}
+
+std::string LLAvatarListItem::getAvatarToolTip() const
+{
+	return mAvatarName->getToolTip();
 }
 
 //== PRIVATE SECITON ==========================================================
@@ -340,8 +349,8 @@ void LLAvatarListItem::setNameInternal(const std::string& name, const std::strin
 
 void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
-	setName(av_name.mDisplayName);
-	mAvatarName->setToolTip(av_name.mUsername);
+	setAvatarName(av_name.mDisplayName);
+	setAvatarToolTip(av_name.mUsername);
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));
