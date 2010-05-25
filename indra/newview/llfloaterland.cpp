@@ -586,8 +586,6 @@ void LLPanelLandGeneral::refresh()
 										parcel, GP_LAND_SET_SALE_INFO);
 		BOOL can_be_sold = owner_sellable || estate_manager_sellable;
 
-		can_be_sold = true;
-
 		const LLUUID &owner_id = parcel->getOwnerID();
 		BOOL is_public = parcel->isPublic();
 
