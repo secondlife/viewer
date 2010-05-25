@@ -224,7 +224,7 @@ void LLInspectGroup::requestUpdate()
 	mPropertiesRequest = new LLFetchGroupData(mGroupID, this);
 
 	// Name lookup will be faster out of cache, use that
-	gCacheName->get(mGroupID, true,
+	gCacheName->getGroup(mGroupID,
 		boost::bind(&LLInspectGroup::nameUpdatedCallback,
 			this, _1, _2, _3));
 }

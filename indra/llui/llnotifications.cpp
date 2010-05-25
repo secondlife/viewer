@@ -1497,7 +1497,7 @@ void LLPostponedNotification::lookupName(LLPostponedNotification* thiz,
 {
 	if (is_group)
 	{
-		gCacheName->get(id, is_group,
+		gCacheName->getGroup(id,
 			boost::bind(&LLPostponedNotification::onGroupNameCache,
 				thiz, _1, _2, _3));
 	}

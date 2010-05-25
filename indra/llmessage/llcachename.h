@@ -102,7 +102,12 @@ public:
 	// otherwise, will request the data, and will call the callback when
 	// available.  There is no garuntee the callback will ever be called.
 	boost::signals2::connection get(const LLUUID& id, bool is_group, const LLCacheNameCallback& callback);
-	
+
+	// Convenience method for looking up a group name, so you can
+	// tell the difference between avatar lookup and group lookup
+	// in global searches
+	boost::signals2::connection getGroup(const LLUUID& group_id, const LLCacheNameCallback& callback);
+
 	// LEGACY
 	boost::signals2::connection get(const LLUUID& id, bool is_group, old_callback_t callback, void* user_data);
 	// This method needs to be called from time to time to send out

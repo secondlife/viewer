@@ -5070,7 +5070,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	// the user sees a "Loading..." message
 	if (is_name_group)
 	{
-		gCacheName->get(name_id, true,
+		gCacheName->getGroup(name_id,
 						boost::bind(&money_balance_group_notify,
 									_1, _2, _3,
 									notification, final_args, payload));

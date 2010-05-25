@@ -529,7 +529,7 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		gCacheName->get(group_id, true,
+		gCacheName->getGroup(group_id,
 			boost::bind(&LLUrlEntryGroup::onGroupNameReceived,
 				this, _1, _2, _3));
 		addObserver(group_id_string, url, cb);

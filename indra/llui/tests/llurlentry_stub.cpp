@@ -64,6 +64,11 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, co
 	return boost::signals2::connection();
 }
 
+boost::signals2::connection LLCacheName::getGroup(const LLUUID& id, const LLCacheNameCallback& callback)
+{
+	return boost::signals2::connection();
+}
+
 LLCacheName* gCacheName = NULL;
 
 //
