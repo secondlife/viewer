@@ -1895,7 +1895,7 @@ Only large parcels can be listed in search.
 			 name="access_estate_defined">
 				(Defined by the Estate)
 			</panel.string>
-            <panel.string
+      <panel.string
        name="allow_public_access">
         Allow Public Access ([MATURITY])
       </panel.string>
@@ -1933,7 +1933,7 @@ Only large parcels can be listed in search.
              left_delta="20"
              name="Only Allow"
              top="49"
-             width="278">
+             width="325">
                 Restrict Access to Residents verified by:
             </text>
             <check_box
