@@ -490,26 +490,24 @@ namespace action_give_inventory
 	 * @param avatar_names - avatar names request to be sent.
 	 * @param avatar_uuids - avatar names request to be sent.
 	 */
-	static void give_inventory(const std::vector<std::string>& avatar_names, const uuid_vec_t& avatar_uuids)
+	static void give_inventory(const uuid_vec_t& avatar_uuids, const std::vector<LLAvatarName> avatar_names)
 	{
-		llassert(avatar_names.size() == avatar_uuids.size());
-
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 		if (NULL == active_panel) return;
 
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
 		if (inventory_selected_uuids.empty()) return;
 
-		S32 count = llmin(avatar_names.size(), avatar_uuids.size());
+		S32 count = avatar_uuids.size();
 
 		// iterate through avatars
 		for(S32 i = 0; i < count; ++i)
 		{
-			const std::string& avatar_name = avatar_names[i];
+			LLAvatarName av_name = avatar_names[i];
 			const LLUUID& avatar_uuid = avatar_uuids[i];
 
 			// Start up IM before give the item
-			const LLUUID session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, avatar_uuid);
+			const LLUUID session_id = gIMMgr->addSession(av_name.getCompleteName(), IM_NOTHING_SPECIAL, avatar_uuid);
 
 			uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
 			const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
