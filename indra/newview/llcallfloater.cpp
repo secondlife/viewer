@@ -84,7 +84,8 @@ public:
 	void setName(const std::string& name)
 	{
 		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
-		LLAvatarListItem::setName(formatted_phone);
+		LLAvatarListItem::setAvatarName(formatted_phone);
+		LLAvatarListItem::setAvatarToolTip(formatted_phone);
 	}
 
 	void setSpeakerId(const LLUUID& id) { mSpeakingIndicator->setSpeakerId(id); }

@@ -99,7 +99,8 @@ public:
 	virtual void changed(U32 mask); // from LLFriendObserver
 
 	void setOnline(bool online);
-	void setName(const std::string& name);
+	void setAvatarName(const std::string& name);
+	void setAvatarToolTip(const std::string& tooltip);
 	void setHighlight(const std::string& highlight);
 	void setState(EItemState item_style);
 	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false, bool is_resident = true);
@@ -112,7 +113,8 @@ public:
 	void setAvatarIconVisible(bool visible);
 	
 	const LLUUID& getAvatarId() const;
-	const std::string getAvatarName() const;
+	std::string getAvatarName() const;
+	std::string getAvatarToolTip() const;
 
 	void onInfoBtnClick();
 	void onProfileBtnClick();

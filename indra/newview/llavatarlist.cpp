@@ -379,7 +379,7 @@ S32 LLAvatarList::notifyParent(const LLSD& info)
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
-	item->setName(name);
+	// This sets the name as a side effect
 	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
@@ -545,11 +545,13 @@ void LLAvalineListItem::setName(const std::string& name)
 		std::string hidden_name = LLTrans::getString("AvalineCaller", args);
 
 		LL_DEBUGS("Avaline") << "Avaline caller: " << uuid << ", name: " << hidden_name << LL_ENDL;
-		LLAvatarListItem::setName(hidden_name);
+		LLAvatarListItem::setAvatarName(hidden_name);
+		LLAvatarListItem::setAvatarToolTip(hidden_name);
 	}
 	else
 	{
 		const std::string& formatted_phone = LLTextUtil::formatPhoneNumber(name);
-		LLAvatarListItem::setName(formatted_phone);
+		LLAvatarListItem::setAvatarName(formatted_phone);
+		LLAvatarListItem::setAvatarToolTip(formatted_phone);
 	}
 }
