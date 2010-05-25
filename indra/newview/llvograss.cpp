@@ -594,9 +594,9 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 
 	LLVector2 tc[4];
 	LLVector3 v[4];
-	// LLVector3 n[4]; // unused!
+	LLVector3 n[4];
 
-	// F32 closest_t = 1.f; // unused!
+	F32 closest_t = 1.f;
 
 	for (S32 i = 0;  i < mNumBlades; i++)
 	{
@@ -640,8 +640,6 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 		position.mV[2] += blade_height;
 		v[3]    = v1 = position + mRegionp->getOriginAgent();
 	
-#if 0 //VECTORIZE THIS
-
 		F32 a,b,t;
 
 		BOOL hit = FALSE;
@@ -704,7 +702,6 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector3& start, const LLVector3& en
 				}
 			}
 		}
-#endif
 	}
 
 	return ret;

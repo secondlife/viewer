@@ -1216,18 +1216,18 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		LLVector3 vf_binormal;
 		if (vf.mBinormals)
 		{
-			vf_binormal.set(vf.mBinormals+i*4);
+			vf_binormal.setVec(vf.mBinormals[i].getF32());
 		}
 
 		LLVector3 vf_normal;
-		vf_normal.set(vf.mNormals+i*4);
+		vf_normal.set(vf.mNormals[i].getF32());
 
 		LLVector3 vf_position;
-		vf_position.set(vf.mPositions+i*4);
+		vf_position.set(vf.mPositions[i].getF32());
 
 		if (rebuild_tcoord)
 		{
-			LLVector2 tc(vf.mTexCoords+i*2);
+			LLVector2 tc(vf.mTexCoords[i]);
 		
 			if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 			{

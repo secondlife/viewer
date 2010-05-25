@@ -38,6 +38,7 @@
 // Viewer includes
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llmatrix4a.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
@@ -787,22 +788,29 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 	
 	LLMatrix4 render_mat(vo_volume->getRenderRotation(), LLVector4(vo_volume->getRenderPosition()));
 
+	LLMatrix4a render_mata;
+	render_mata.loadu(render_mat);
+	LLMatrix4a mata;
+	mata.loadu(mat);
+
 	num_faces = volume->getNumVolumeFaces();
-	//VECTORIZE THIS
 	for (i = 0; i < num_faces; i++)
 	{
 		const LLVolumeFace& face = volume->getVolumeFace(i);
 				
 		for (U32 v = 0; v < face.mNumVertices; v++)
 		{
-			LLVector4 vec = LLVector4(face.mPositions+v*4) * mat;
+			const LLVector4a& src_vec = face.mPositions[v];
+			LLVector4a vec;
+			mata.affineTransform(src_vec, vec);
 
 			if (drawablep->isActive())
 			{
-				vec = vec * render_mat;	
+				LLVector4a t = vec;
+				render_mata.affineTransform(t, vec);
 			}
 
-			BOOL in_frustum = pointInFrustum(LLVector3(vec)) > 0;
+			BOOL in_frustum = pointInFrustum(LLVector3(vec.getF32())) > 0;
 
 			if (( !in_frustum && all_verts) ||
 				 (in_frustum && !all_verts))

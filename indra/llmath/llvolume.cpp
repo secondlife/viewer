@@ -237,6 +237,21 @@ BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, co
 	return TRUE;
 } 
 
+//helper for non-aligned vectors
+BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
+							F32* intersection_a, F32* intersection_b, F32* intersection_t, BOOL two_sided)
+{
+	LLVector4a vert0a, vert1a, vert2a, origa, dira;
+	vert0a.load3(vert0.mV);
+	vert1a.load3(vert1.mV);
+	vert2a.load3(vert2.mV);
+	origa.load3(orig.mV);
+	dira.load3(dir.mV);
+
+	return LLTriangleRayIntersect(vert0a, vert1a, vert2a, origa, dira, 
+			intersection_a, intersection_b, intersection_t, two_sided);
+}
+
 
 //-------------------------------------------------------------------
 // statics
@@ -1889,15 +1904,15 @@ bool LLVolumeFace::VertexData::operator==(const LLVolumeFace::VertexData& rhs)co
 bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs, F32 angle_cutoff) const
 {
 	bool retval = false;
-	if (rhs.mPosition == mPosition && rhs.mTexCoord == mTexCoord)
+	if (rhs.mData[POSITION].equal3(mData[POSITION]) && rhs.mTexCoord == mTexCoord)
 	{
 		if (angle_cutoff > 1.f)
 		{
-			retval = (mNormal == rhs.mNormal);
+			retval = (mData[NORMAL].equal3(rhs.mData[NORMAL]));
 		}
 		else
 		{
-			F32 cur_angle = rhs.mNormal*mNormal;
+			F32 cur_angle = rhs.mData[NORMAL].dot3(mData[NORMAL]);
 			retval = cur_angle > angle_cutoff;
 		}
 	}
@@ -2081,9 +2096,9 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			min = max = LLVector3(0,0,0);
 
-			F32* pos_out = face.mPositions;
-			F32* norm_out = face.mNormals;
-			F32* tc_out = face.mTexCoords;
+			F32* pos_out = (F32*) face.mPositions;
+			F32* norm_out = (F32*) face.mNormals;
+			F32* tc_out = (F32*) face.mTexCoords;
 
 			for (U32 j = 0; j < num_verts; ++j)
 			{
@@ -2188,13 +2203,15 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 void tetrahedron_set_normal(LLVolumeFace::VertexData* cv)
 {
-	LLVector3 nrm = (cv[1].mPosition-cv[0].mPosition)%(cv[2].mPosition-cv[0].mPosition);
-
-	nrm.normVec();
-
-	cv[0].mNormal = nrm;
-	cv[1].mNormal = nrm;
-	cv[2].mNormal = nrm;
+	LLVector4a v0;
+	v0.setSub(cv[1].getPosition(), cv[0].getNormal());
+	LLVector4a v1;
+	v1.setSub(cv[2].getNormal(), cv[0].getPosition());
+	
+	cv[0].getNormal().setCross3(v0,v1);
+	cv[0].getNormal().normalize3fast();
+	cv[1].setNormal(cv[0].getNormal());
+	cv[2].setNormal(cv[1].getNormal());
 }
 
 BOOL LLVolume::isTetrahedron()
@@ -2209,12 +2226,12 @@ void LLVolume::makeTetrahedron()
 	LLVolumeFace face;
 
 	F32 x = 0.25f;
-	LLVector3 p[] = 
+	LLVector4a p[] = 
 	{ //unit tetrahedron corners
-		LLVector3(x,x,x),
-		LLVector3(-x,-x,x),
-		LLVector3(-x,x,-x),
-		LLVector3(x,-x,-x)
+		LLVector4a(x,x,x),
+		LLVector4a(-x,-x,x),
+		LLVector4a(-x,x,-x),
+		LLVector4a(x,-x,-x)
 	};
 
 	face.mExtents[0].setVec(-x,-x,-x);
@@ -2229,9 +2246,9 @@ void LLVolume::makeTetrahedron()
 
 
 	//side 1
-	cv[0].mPosition = p[1];
-	cv[1].mPosition = p[0];
-	cv[2].mPosition = p[2];
+	cv[0].setPosition(p[1]);
+	cv[1].setPosition(p[0]);
+	cv[2].setPosition(p[2]);
 
 	tetrahedron_set_normal(cv);
 
@@ -2242,14 +2259,14 @@ void LLVolume::makeTetrahedron()
 	LLVector4a* n = (LLVector4a*) face.mNormals;
 	LLVector2* tc = (LLVector2*) face.mTexCoords;
 
-	v[0].load3(cv[0].mPosition.mV);
-	v[1].load3(cv[1].mPosition.mV);
-	v[2].load3(cv[2].mPosition.mV);
+	v[0] = cv[0].getPosition();
+	v[1] = cv[1].getPosition();
+	v[2] = cv[2].getPosition();
 	v += 3;
 
-	n[0].load3(cv[0].mNormal.mV);
-	n[1].load3(cv[1].mNormal.mV);
-	n[2].load3(cv[2].mNormal.mV);
+	n[0] = cv[0].getNormal();
+	n[1] = cv[1].getNormal();
+	n[2] = cv[2].getNormal();
 	n += 3;
 
 	tc[0] = cv[0].mTexCoord;
@@ -2259,20 +2276,20 @@ void LLVolume::makeTetrahedron()
 
 	
 	//side 2
-	cv[0].mPosition = p[3];
-	cv[1].mPosition = p[0];
-	cv[2].mPosition = p[1];
+	cv[0].setPosition(p[3]);
+	cv[1].setPosition(p[0]);
+	cv[2].setPosition(p[1]);
 
 	tetrahedron_set_normal(cv);
 
-	v[0].load3(cv[0].mPosition.mV);
-	v[1].load3(cv[1].mPosition.mV);
-	v[2].load3(cv[2].mPosition.mV);
+	v[0] = cv[0].getPosition();
+	v[1] = cv[1].getPosition();
+	v[2] = cv[2].getPosition();
 	v += 3;
 
-	n[0].load3(cv[0].mNormal.mV);
-	n[1].load3(cv[1].mNormal.mV);
-	n[2].load3(cv[2].mNormal.mV);
+	n[0] = cv[0].getNormal();
+	n[1] = cv[1].getNormal();
+	n[2] = cv[2].getNormal();
 	n += 3;
 
 	tc[0] = cv[0].mTexCoord;
@@ -2281,20 +2298,20 @@ void LLVolume::makeTetrahedron()
 	tc += 3;
 	
 	//side 3
-	cv[0].mPosition = p[3];
-	cv[1].mPosition = p[1];
-	cv[2].mPosition = p[2];
+	cv[0].setPosition(p[3]);
+	cv[1].setPosition(p[1]);
+	cv[2].setPosition(p[2]);
 
 	tetrahedron_set_normal(cv);
 
-	v[0].load3(cv[0].mPosition.mV);
-	v[1].load3(cv[1].mPosition.mV);
-	v[2].load3(cv[2].mPosition.mV);
+	v[0] = cv[0].getPosition();
+	v[1] = cv[1].getPosition();
+	v[2] = cv[2].getPosition();
 	v += 3;
 
-	n[0].load3(cv[0].mNormal.mV);
-	n[1].load3(cv[1].mNormal.mV);
-	n[2].load3(cv[2].mNormal.mV);
+	n[0] = cv[0].getNormal();
+	n[1] = cv[1].getNormal();
+	n[2] = cv[2].getNormal();
 	n += 3;
 
 	tc[0] = cv[0].mTexCoord;
@@ -2303,20 +2320,20 @@ void LLVolume::makeTetrahedron()
 	tc += 3;
 	
 	//side 4
-	cv[0].mPosition = p[2];
-	cv[1].mPosition = p[0];
-	cv[2].mPosition = p[3];
+	cv[0].setPosition(p[2]);
+	cv[1].setPosition(p[0]);
+	cv[2].setPosition(p[3]);
 
 	tetrahedron_set_normal(cv);
 
-	v[0].load3(cv[0].mPosition.mV);
-	v[1].load3(cv[1].mPosition.mV);
-	v[2].load3(cv[2].mPosition.mV);
+	v[0] = cv[0].getPosition();
+	v[1] = cv[1].getPosition();
+	v[2] = cv[2].getPosition();
 	v += 3;
 
-	n[0].load3(cv[0].mNormal.mV);
-	n[1].load3(cv[1].mNormal.mV);
-	n[2].load3(cv[2].mNormal.mV);
+	n[0] = cv[0].getNormal();
+	n[1] = cv[1].getNormal();
+	n[2] = cv[2].getNormal();
 	n += 3;
 
 	tc[0] = cv[0].mTexCoord;
@@ -3974,9 +3991,9 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 				S32 v3 = face.mIndices[j*3+2];
 
 				//get current face center
-				LLVector3 cCenter = (face.mVertices[v1].mPosition + 
-									face.mVertices[v2].mPosition + 
-									face.mVertices[v3].mPosition) / 3.0f;
+				LLVector3 cCenter = (face.mVertices[v1].getPosition() + 
+									face.mVertices[v2].getPosition() + 
+									face.mVertices[v3].getPosition()) / 3.0f;
 
 				//for each edge
 				for (S32 k = 0; k < 3; k++) {
@@ -3994,9 +4011,9 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 					v3 = face.mIndices[nIndex*3+2];
 
 					//get neighbor face center
-					LLVector3 nCenter = (face.mVertices[v1].mPosition + 
-									face.mVertices[v2].mPosition + 
-									face.mVertices[v3].mPosition) / 3.0f;
+					LLVector3 nCenter = (face.mVertices[v1].getPosition() + 
+									face.mVertices[v2].getPosition() + 
+									face.mVertices[v3].getPosition()) / 3.0f;
 
 					//draw line
 					vertices.push_back(cCenter);
@@ -4020,14 +4037,14 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 
 			//for each vertex
 			for (U32 j = 0; j < face.mNumVertices; j++) {
-				vertices.push_back(face.mVertices[j].mPosition);
-				vertices.push_back(face.mVertices[j].mPosition + face.mVertices[j].mNormal*0.1f);
+				vertices.push_back(face.mVertices[j].getPosition());
+				vertices.push_back(face.mVertices[j].getPosition() + face.mVertices[j].getNormal()*0.1f);
 				normals.push_back(LLVector3(0,0,1));
 				normals.push_back(LLVector3(0,0,1));
 				segments.push_back(vertices.size());
 #if DEBUG_SILHOUETTE_BINORMALS
-				vertices.push_back(face.mVertices[j].mPosition);
-				vertices.push_back(face.mVertices[j].mPosition + face.mVertices[j].mBinormal*0.1f);
+				vertices.push_back(face.mVertices[j].getPosition());
+				vertices.push_back(face.mVertices[j].getPosition() + face.mVertices[j].mBinormal*0.1f);
 				normals.push_back(LLVector3(0,0,1));
 				normals.push_back(LLVector3(0,0,1));
 				segments.push_back(vertices.size());
@@ -5038,9 +5055,15 @@ BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 	}
 }
 
+void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv)
+{
+	cv.setPosition(mPositions[index]);
+	cv.setNormal(mNormals[index]);
+	cv.mTexCoord = mTexCoords[index];
+}
+
 void LLVolumeFace::optimize(F32 angle_cutoff)
 {
-#if 0 //disabling until a vectorized version is available
 	LLVolumeFace new_face;
 
 	VertexMapData::PointMap point_map;
@@ -5050,10 +5073,11 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 	{
 		U16 index = mIndices[i];
 
-		LLVolumeFace::VertexData cv = mVertices[index];
-
+		LLVolumeFace::VertexData cv;
+		getVertexData(index, cv);
+		
 		BOOL found = FALSE;
-		VertexMapData::PointMap::iterator point_iter = point_map.find(cv.mPosition);
+		VertexMapData::PointMap::iterator point_iter = point_map.find(cv.getPosition());
 		if (point_iter != point_map.end())
 		{ //duplicate point might exist
 			for (U32 j = 0; j < point_iter->second.size(); ++j)
@@ -5062,7 +5086,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 				if (tv.compareNormal(cv, angle_cutoff))
 				{
 					found = TRUE;
-					new_face.mIndices.push_back((point_iter->second)[j].mIndex);
+					new_face.pushIndex((point_iter->second)[j].mIndex);
 					break;
 				}
 			}
@@ -5070,14 +5094,14 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 
 		if (!found)
 		{
-			new_face.mVertices.push_back(cv);
+			new_face.pushVertex(cv);
 			U16 index = (U16) new_face.mNumVertices-1;
-			new_face.mIndices.push_back(index);
+			new_face.pushIndex(index);
 
 			VertexMapData d;
-			d.mPosition = cv.mPosition;
+			d.setPosition(cv.getPosition());
 			d.mTexCoord = cv.mTexCoord;
-			d.mNormal = cv.mNormal;
+			d.setNormal(cv.getNormal());
 			d.mIndex = index;
 			if (point_iter != point_map.end())
 			{
@@ -5085,14 +5109,23 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 			}
 			else
 			{
-				point_map[d.mPosition].push_back(d);
+				point_map[d.getPosition()].push_back(d);
 			}
 		}
 	}
 
-	mVertices = new_face.mVertices;
-	mIndices = new_face.mIndices;
-#endif 
+	swapData(new_face);
+}
+
+void LLVolumeFace::swapData(LLVolumeFace& rhs)
+{
+	llswap(rhs.mPositions, mPositions);
+	llswap(rhs.mNormals, mNormals);
+	llswap(rhs.mBinormals, mBinormals);
+	llswap(rhs.mTexCoords, mTexCoords);
+	llswap(rhs.mIndices,mIndices);
+	llswap(rhs.mNumVertices, mNumVertices);
+	llswap(rhs.mNumIndices, mNumIndices);
 }
 
 void	LerpPlanarVertex(LLVolumeFace::VertexData& v0,
@@ -5102,10 +5135,21 @@ void	LerpPlanarVertex(LLVolumeFace::VertexData& v0,
 				   F32	coef01,
 				   F32	coef02)
 {
-	vout.mPosition = v0.mPosition + ((v1.mPosition-v0.mPosition)*coef01)+((v2.mPosition-v0.mPosition)*coef02);
+
+	LLVector4a lhs;
+	lhs.setSub(v1.getPosition(), v0.getPosition());
+	lhs.mul(coef01);
+	LLVector4a rhs;
+	rhs.setSub(v2.getPosition(), v0.getPosition());
+	rhs.mul(coef02);
+
+	rhs.add(lhs);
+	rhs.add(v0.getPosition());
+
+	vout.setPosition(rhs);
+		
 	vout.mTexCoord = v0.mTexCoord + ((v1.mTexCoord-v0.mTexCoord)*coef01)+((v2.mTexCoord-v0.mTexCoord)*coef02);
-	vout.mNormal = v0.mNormal;
-	vout.mBinormal = v0.mBinormal;
+	vout.setNormal(v0.getNormal());
 }
 
 BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
@@ -5137,16 +5181,22 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	VertexData	corners[4];
 	VertexData baseVert;
 	for(int t = 0; t < 4; t++){
-		corners[t].mPosition = mesh[offset + (grid_size*t)].mPos;
+		corners[t].getPosition().load3( mesh[offset + (grid_size*t)].mPos.mV);
 		corners[t].mTexCoord.mV[0] = profile[grid_size*t].mV[0]+0.5f;
 		corners[t].mTexCoord.mV[1] = 0.5f - profile[grid_size*t].mV[1];
 	}
-	baseVert.mNormal = 
-		((corners[1].mPosition-corners[0].mPosition) % 
-		(corners[2].mPosition-corners[1].mPosition));
-	baseVert.mNormal.normVec();
+
+	{
+		LLVector4a lhs;
+		lhs.setSub(corners[1].getPosition(), corners[0].getPosition());
+		LLVector4a rhs;
+		rhs.setSub(corners[2].getPosition(), corners[1].getPosition());
+		baseVert.getNormal().setCross3(lhs, rhs); 
+		baseVert.getNormal().normalize3fast();
+	}
+
 	if(!(mTypeMask & TOP_MASK)){
-		baseVert.mNormal *= -1.0f;
+		baseVert.getNormal().mul(-1.0f);
 	}else{
 		//Swap the UVs on the U(X) axis for top face
 		LLVector2 swap;
@@ -5161,9 +5211,9 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	LLVector4a binormal;
 	
 	calc_binormal_from_triangle( binormal,
-		corners[0].mPosition, corners[0].mTexCoord,
-		corners[1].mPosition, corners[1].mTexCoord,
-		corners[2].mPosition, corners[2].mTexCoord);
+		corners[0].getPosition(), corners[0].mTexCoord,
+		corners[1].getPosition(), corners[1].mTexCoord,
+		corners[2].getPosition(), corners[2].mTexCoord);
 
 	S32 size = (grid_size+1)*(grid_size+1);
 	resizeVertices(size);
@@ -5185,18 +5235,18 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 				(F32)gx/(F32)grid_size,
 				(F32)gy/(F32)grid_size);
 
-			(*pos++).load3(newVert.mPosition.mV);
-			(*norm++).load3(baseVert.mNormal.mV);
-			(*tc++) = newVert.mTexCoord;
-			(*binorm++).load4a((F32*) &binormal.mQ);
+			*pos++ = newVert.getPosition();
+			*norm++ = baseVert.getNormal();
+			*tc++ = newVert.mTexCoord;
+			*binorm++ = binormal;
 
 			if (gx == 0 && gy == 0)
 			{
-				min = max = newVert.mPosition;
+				min = max = LLVector3(newVert.getPosition().getF32());
 			}
 			else
 			{
-				update_min_max(min,max,newVert.mPosition);
+				update_min_max(min,max,newVert.getPosition().getF32());
 			}
 		}
 	}
@@ -5343,18 +5393,19 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	mCenter = (min+max)*0.5f;
 	cuv = (min_uv + max_uv)*0.5f;
 
+	LLVector4a center;
+	center.load3(mCenter.mV);
+
 	LLVector4a binormal;
 	calc_binormal_from_triangle(binormal,
-		mCenter, cuv,
-		mesh[0+offset].mPos, tc[0],
-		mesh[1+offset].mPos, tc[1]);
+		center, cuv,
+		pos[0], tc[0],
+		pos[1], tc[1]);
 	binormal.normalize3fast();
 
 	LLVector4a normal;
 	LLVector4a d0, d1;
-	LLVector4a center;
-
-	center.load3(mCenter.mV);
+	
 
 	d0.setSub(center, pos[0]);
 	d1.setSub(center, pos[1]);
@@ -5371,7 +5422,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	normal.normalize3fast();
 
 	VertexData vd;
-	vd.mPosition = mCenter;
+	vd.getPosition().load3(mCenter.mV);
 	vd.mTexCoord = cuv;
 	
 	if (!(mTypeMask & HOLLOW_MASK) && !(mTypeMask & OPEN_MASK))
@@ -5634,10 +5685,7 @@ void LLVolumeFace::createBinormals()
 		allocateBinormals(mNumVertices);
 
 		//generate binormals
-		LLStrider<LLVector3> pos;
-		pos = (LLVector3*) mPositions;
-		pos.setStride(16);
-
+		LLVector4a* pos = mPositions;
 		LLVector2* tc = (LLVector2*) mTexCoords;
 		LLVector4a* binorm = (LLVector4a*) mBinormals;
 
@@ -5690,12 +5738,12 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 
 	if (num_verts)
 	{
-		mPositions = (F32*) _mm_malloc(num_verts*16, 16);
-		mNormals = (F32*) _mm_malloc(num_verts*16, 16);
+		mPositions = (LLVector4a*) _mm_malloc(num_verts*16, 16);
+		mNormals = (LLVector4a*) _mm_malloc(num_verts*16, 16);
 
 		//pad texture coordinate block end to allow for QWORD reads
 		S32 size = ((num_verts*8) + 0xF) & ~0xF;
-		mTexCoords = (F32*) _mm_malloc(size, 16);
+		mTexCoords = (LLVector2*) _mm_malloc(size, 16);
 	}
 	else
 	{
@@ -5707,10 +5755,61 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 	mNumVertices = num_verts;
 }
 
+void LLVolumeFace::pushVertex(const LLVolumeFace::VertexData& cv)
+{
+	pushVertex(cv.getPosition(), cv.getNormal(), cv.mTexCoord);
+}
+
+void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, const LLVector2& tc)
+{
+	S32 new_verts = mNumVertices+1;
+	S32 new_size = new_verts*16;
+	
+	//positions
+	LLVector4a* dst = (LLVector4a*) _mm_malloc(new_size, 16);
+	if (mPositions)
+	{
+		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mPositions, new_size/4);
+		_mm_free(mPositions);
+	}
+	mPositions = dst;
+
+	//normals
+	dst = (LLVector4a*) _mm_malloc(new_size, 16);
+	if (mNormals)
+	{
+		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mNormals, new_size/4);
+		_mm_free(mNormals);
+	}
+	mNormals = dst;
+
+	//tex coords
+	new_size = ((new_verts*8)+0xF) & ~0xF;
+
+	{
+		LLVector2* dst = (LLVector2*) _mm_malloc(new_size, 16);
+		if (mTexCoords)
+		{
+			LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mTexCoords, new_size/4);
+			_mm_free(mTexCoords);
+		}
+	}
+
+	//just clear binormals
+	_mm_free(mBinormals);
+	mBinormals = NULL;
+
+	mPositions[mNumVertices] = pos;
+	mNormals[mNumVertices] = norm;
+	mTexCoords[mNumVertices] = tc;
+
+	mNumVertices++;	
+}
+
 void LLVolumeFace::allocateBinormals(S32 num_verts)
 {
 	_mm_free(mBinormals);
-	mBinormals = (F32*) _mm_malloc(num_verts*16, 16);
+	mBinormals = (LLVector4a*) _mm_malloc(num_verts*16, 16);
 }
 
 
@@ -5733,6 +5832,23 @@ void LLVolumeFace::resizeIndices(S32 num_indices)
 	mNumIndices = num_indices;
 }
 
+void LLVolumeFace::pushIndex(const U16& idx)
+{
+	S32 new_count = mNumIndices + 1;
+	S32 new_size = ((new_count*2)+0xF) & ~0xF;
+
+	S32 old_size = (mNumIndices+0xF) & ~0xF;
+	if (new_size != old_size)
+	{
+		U16* dst = (U16*) _mm_malloc(new_size, 16);
+		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mIndices, new_size/4);
+		_mm_free(mIndices);
+		mIndices = dst;
+	}
+	
+	mIndices[mNumIndices++] = idx;
+}
+
 void LLVolumeFace::fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, std::vector<U16>& idx)
 {
 	resizeVertices(v.size());
@@ -5740,14 +5856,9 @@ void LLVolumeFace::fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, 
 
 	for (U32 i = 0; i < v.size(); ++i)
 	{
-		for (U32 j = 0; j < 3; ++j)
-		{
-			mPositions[i*4+j] = v[i].mPosition[j];
-			mNormals[i*4+j] = v[i].mNormal[j];
-		}
-
-		mTexCoords[i*2+0] = v[i].mTexCoord.mV[0];
-		mTexCoords[i*2+1] = v[i].mTexCoord.mV[1];
+		mPositions[i] = v[i].getPosition();
+		mNormals[i] = v[i].getNormal();
+		mTexCoords[i] = v[i].mTexCoord;
 	}
 
 	for (U32 i = 0; i < idx.size(); ++i)
@@ -5768,13 +5879,13 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	}
 	
 	
-	F32* new_pos = (F32*) _mm_malloc(new_count*16, 16);
-	F32* new_norm = (F32*) _mm_malloc(new_count*16, 16);
-	F32* new_tc = (F32*) _mm_malloc((new_count*8+0xF) & ~0xF, 16);
+	LLVector4a* new_pos = (LLVector4a*) _mm_malloc(new_count*16, 16);
+	LLVector4a* new_norm = (LLVector4a*) _mm_malloc(new_count*16, 16);
+	LLVector2* new_tc = (LLVector2*) _mm_malloc((new_count*8+0xF) & ~0xF, 16);
 
-	LLVector4a::memcpyNonAliased16(new_pos, mPositions, new_count*4);
-	LLVector4a::memcpyNonAliased16(new_norm, mNormals, new_count*4);
-	LLVector4a::memcpyNonAliased16(new_tc, mTexCoords, new_count*2);
+	LLVector4a::memcpyNonAliased16((F32*) new_pos, (F32*) mPositions, new_count*4);
+	LLVector4a::memcpyNonAliased16((F32*) new_norm, (F32*) mNormals, new_count*4);
+	LLVector4a::memcpyNonAliased16((F32*) new_tc, (F32*) mTexCoords, new_count*2);
 
 	_mm_free(mPositions);
 	_mm_free(mNormals);
@@ -6205,24 +6316,24 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 // Fills in dummy values if the triangle has degenerate texture coordinates.
 void calc_binormal_from_triangle(LLVector4a& binormal,
 
-	const LLVector3& pos0,
+	const LLVector4a& pos0,
 	const LLVector2& tex0,
-	const LLVector3& pos1,
+	const LLVector4a& pos1,
 	const LLVector2& tex1,
-	const LLVector3& pos2,
+	const LLVector4a& pos2,
 	const LLVector2& tex2)
 {
-	LLVector4a rx0; rx0.set( pos0.mV[VX], tex0.mV[VX], tex0.mV[VY] );
-	LLVector4a rx1; rx1.set( pos1.mV[VX], tex1.mV[VX], tex1.mV[VY] );
-	LLVector4a rx2; rx2.set( pos2.mV[VX], tex2.mV[VX], tex2.mV[VY] );
+	LLVector4a rx0( pos0[VX], tex0.mV[VX], tex0.mV[VY] );
+	LLVector4a rx1( pos1[VX], tex1.mV[VX], tex1.mV[VY] );
+	LLVector4a rx2( pos2[VX], tex2.mV[VX], tex2.mV[VY] );
 	
-	LLVector4a ry0; ry0.set( pos0.mV[VY], tex0.mV[VX], tex0.mV[VY] );
-	LLVector4a ry1; ry1.set( pos1.mV[VY], tex1.mV[VX], tex1.mV[VY] );
-	LLVector4a ry2; ry2.set( pos2.mV[VY], tex2.mV[VX], tex2.mV[VY] );
+	LLVector4a ry0( pos0[VY], tex0.mV[VX], tex0.mV[VY] );
+	LLVector4a ry1( pos1[VY], tex1.mV[VX], tex1.mV[VY] );
+	LLVector4a ry2( pos2[VY], tex2.mV[VX], tex2.mV[VY] );
 
-	LLVector4a rz0; rz0.set( pos0.mV[VZ], tex0.mV[VX], tex0.mV[VY] );
-	LLVector4a rz1; rz1.set( pos1.mV[VZ], tex1.mV[VX], tex1.mV[VY] );
-	LLVector4a rz2; rz2.set( pos2.mV[VZ], tex2.mV[VX], tex2.mV[VY] );
+	LLVector4a rz0( pos0[VZ], tex0.mV[VX], tex0.mV[VY] );
+	LLVector4a rz1( pos1[VZ], tex1.mV[VX], tex1.mV[VY] );
+	LLVector4a rz2( pos2[VZ], tex2.mV[VX], tex2.mV[VY] );
 	
 	LLVector4a lhs, rhs;
 
