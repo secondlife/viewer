@@ -150,7 +150,7 @@ private:
 private:
 	LLUUID				mAvatarID;
 	// Need avatar name information to spawn friend add request
-	std::string			mLegacyName;
+	LLAvatarName		mAvatarName;
 	// an in-flight request for avatar properties from LLAvatarPropertiesProcessor
 	// is represented by this object
 	LLFetchAvatarData*	mPropertiesRequest;
@@ -205,7 +205,7 @@ public:
 LLInspectAvatar::LLInspectAvatar(const LLSD& sd)
 :	LLInspect( LLSD() ),	// single_instance, doesn't really need key
 	mAvatarID(),			// set in onOpen()  *Note: we used to show partner's name but we dont anymore --angela 3rd Dec* 
-	mLegacyName(),
+	mAvatarName(),
 	mPropertiesRequest(NULL)
 {
 	mCommitCallbackRegistrar.add("InspectAvatar.ViewProfile",	boost::bind(&LLInspectAvatar::onClickViewProfile, this));	
@@ -560,7 +560,7 @@ void LLInspectAvatar::updateVolumeSlider()
 
 		LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
 
-		bool is_linden = LLStringUtil::endsWith(mLegacyName, " Linden");
+		bool is_linden = LLStringUtil::endsWith(mAvatarName.getLegacyName(), " Linden");
 
 		mute_btn->setEnabled( !is_linden);
 		mute_btn->setValue( is_muted );
@@ -591,7 +591,7 @@ void LLInspectAvatar::onClickMuteVolume()
 	LLMuteList* mute_list = LLMuteList::getInstance();
 	bool is_muted = mute_list->isMuted(mAvatarID, LLMute::flagVoiceChat);
 
-	LLMute mute(mAvatarID, mLegacyName, LLMute::AGENT);
+	LLMute mute(mAvatarID, mAvatarName.getLegacyName(), LLMute::AGENT);
 	if (!is_muted)
 	{
 		mute_list->add(mute, LLMute::flagVoiceChat);
@@ -618,13 +618,13 @@ void LLInspectAvatar::onAvatarNameCache(
 	{
 		getChild<LLUICtrl>("user_name")->setValue(av_name.mDisplayName);
 		getChild<LLUICtrl>("user_slid")->setValue(av_name.mUsername);
-		mLegacyName = av_name.getLegacyName();
+		mAvatarName = av_name;
 	}
 }
 
 void LLInspectAvatar::onClickAddFriend()
 {
-	LLAvatarActions::requestFriendshipDialog(mAvatarID, mLegacyName);
+	LLAvatarActions::requestFriendshipDialog(mAvatarID, mAvatarName.getLegacyName());
 	closeFloater();
 }
 
@@ -692,7 +692,7 @@ void LLInspectAvatar::onClickShare()
 
 void LLInspectAvatar::onToggleMute()
 {
-	LLMute mute(mAvatarID, mLegacyName, LLMute::AGENT);
+	LLMute mute(mAvatarID, mAvatarName.getLegacyName(), LLMute::AGENT);
 
 	if (LLMuteList::getInstance()->isMuted(mute.mID, mute.mName))
 	{
@@ -709,7 +709,7 @@ void LLInspectAvatar::onToggleMute()
 
 void LLInspectAvatar::onClickReport()
 {
-	LLFloaterReporter::showFromAvatar(mAvatarID, mLegacyName);
+	LLFloaterReporter::showFromAvatar(mAvatarID, mAvatarName.getNameAndSLID());
 	closeFloater();
 }
 
@@ -733,17 +733,17 @@ void LLInspectAvatar::onClickZoomIn()
 
 void LLInspectAvatar::onClickFindOnMap()
 {
-	gFloaterWorldMap->trackAvatar(mAvatarID, mLegacyName);
+	gFloaterWorldMap->trackAvatar(mAvatarID, mAvatarName.getLegacyName());
 	LLFloaterReg::showInstance("world_map");
 }
 
 
 bool LLInspectAvatar::enableMute()
 {
-		bool is_linden = LLStringUtil::endsWith(mLegacyName, " Linden");
+		bool is_linden = LLStringUtil::endsWith(mAvatarName.getLegacyName(), " Linden");
 		bool is_self = mAvatarID == gAgent.getID();
 
-		if (!is_linden && !is_self && !LLMuteList::getInstance()->isMuted(mAvatarID, mLegacyName))
+		if (!is_linden && !is_self && !LLMuteList::getInstance()->isMuted(mAvatarID, mAvatarName.getLegacyName()))
 		{
 			return true;
 		}
@@ -755,10 +755,10 @@ bool LLInspectAvatar::enableMute()
 
 bool LLInspectAvatar::enableUnmute()
 {
-		bool is_linden = LLStringUtil::endsWith(mLegacyName, " Linden");
+		bool is_linden = LLStringUtil::endsWith(mAvatarName.getLegacyName(), " Linden");
 		bool is_self = mAvatarID == gAgent.getID();
 
-		if (!is_linden && !is_self && LLMuteList::getInstance()->isMuted(mAvatarID, mLegacyName))
+		if (!is_linden && !is_self && LLMuteList::getInstance()->isMuted(mAvatarID, mAvatarName.getLegacyName()))
 		{
 			return true;
 		}
