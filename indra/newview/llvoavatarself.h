@@ -213,8 +213,11 @@ public:
 	void				setCachedBakedTexture(LLVOAvatarDefines::ETextureIndex i, const LLUUID& uuid);
 	void				forceBakeAllTextures(bool slam_for_debug = false);
 	static void			processRebakeAvatarTextures(LLMessageSystem* msg, void**);
+	BOOL
 protected:
 	/*virtual*/ void	removeMissingBakedTextures();
+private:
+	LLFrameTimer    	mBakeTimeoutTimer;
 
 	//--------------------------------------------------------------------
 	// Layers
