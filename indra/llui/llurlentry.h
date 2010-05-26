@@ -95,6 +95,9 @@ public:
 	/// Return the name of a SL location described by this Url, if any
 	virtual std::string getLocation(const std::string &url) const { return ""; }
 
+	/// is this a match for a URL that should not be hyperlinked?
+	bool isLinkDisabled() const { return mDisabledLink; }
+
 protected:
 	std::string getIDStringFromUrl(const std::string &url) const;
 	std::string escapeUrl(const std::string &url) const;
@@ -114,6 +117,7 @@ protected:
 	std::string                                    	mMenuName;
 	std::string                                    	mTooltip;
 	std::multimap<std::string, LLUrlEntryObserver>	mObservers;
+	bool											mDisabledLink;
 };
 
 ///
@@ -186,10 +190,8 @@ class LLUrlEntryAgentName : public LLUrlEntryBase
 public:
 	LLUrlEntryAgentName();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	/*virtual*/ std::string getUrl(const std::string &string) const;
 	/*virtual*/ LLStyle::Params getStyle() const;
 protected:
-	/*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 	// override this to pull out relevant name fields
 	virtual std::string getName(const LLAvatarName& avatar_name) = 0;
 private:

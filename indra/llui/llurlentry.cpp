@@ -49,6 +49,7 @@ std::string localize_slapp_label(const std::string& url, const std::string& full
 
 
 LLUrlEntryBase::LLUrlEntryBase()
+: mDisabledLink(false)
 {}
 
 LLUrlEntryBase::~LLUrlEntryBase()
@@ -493,24 +494,7 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 //
 LLUrlEntryAgentName::LLUrlEntryAgentName()
 {
-}
-
-// virtual
-void LLUrlEntryAgentName::callObservers(const std::string &id,
-								    const std::string &label,
-								    const std::string &icon)
-{
-	// notify all callbacks waiting on the given uuid
-	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
-	for (it = mObservers.find(id); it != mObservers.end();)
-	{
-		// call the callback - give it the new label
-		LLUrlEntryObserver &observer = it->second;
-		(*observer.signal)(observer.url, label, icon);
-		// then remove the signal - we only need to call it once
-		delete observer.signal;
-		mObservers.erase(it++);
-	}
+	mDisabledLink = true;
 }
 
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
@@ -557,13 +541,9 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 	}
 }
 
-std::string LLUrlEntryAgentName::getUrl(const std::string &url) const
-{
-	return LLStringUtil::null;
-}
-
 LLStyle::Params LLUrlEntryAgentName::getStyle() const
 {
+	// don't override default colors
 	return LLStyle::Params();
 }
 
@@ -969,6 +949,7 @@ LLUrlEntryNoLink::LLUrlEntryNoLink()
 {
 	mPattern = boost::regex("<nolink>[^<]*</nolink>",
 							boost::regex::perl|boost::regex::icase);
+	mDisabledLink = true;
 }
 
 std::string LLUrlEntryNoLink::getUrl(const std::string &url) const
@@ -995,6 +976,7 @@ LLUrlEntryIcon::LLUrlEntryIcon()
 {
 	mPattern = boost::regex("<icon\\s*>\\s*([^<]*)?\\s*</icon\\s*>",
 							boost::regex::perl|boost::regex::icase);
+	mDisabledLink = true;
 }
 
 std::string LLUrlEntryIcon::getUrl(const std::string &url) const
