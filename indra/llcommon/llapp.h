@@ -237,9 +237,9 @@ public:
 	//@}
 	
 	//
-	// Expose exception handler.
+	// Write out a Google Breakpad minidump file.
 	//
-	google_breakpad::ExceptionHandler * getExceptionHandler(void) { return mExceptionHandler; }
+	void writeMiniDump();
 
 #if !LL_WINDOWS
 	//

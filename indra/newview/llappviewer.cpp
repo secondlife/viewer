@@ -102,7 +102,6 @@
 
 // Third party library includes
 #include <boost/bind.hpp>
-#include <google_breakpad/exception_handler.h>
 
 
 #if LL_WINDOWS
@@ -2582,7 +2581,10 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
 
-	if(pApp->minidump_path[0] != 0) gDebugInfo["MinidumpPath"] = pApp->minidump_path;
+	if(pApp->minidump_path[0] != 0)
+	{
+		gDebugInfo["MinidumpPath"] = pApp->minidump_path;
+	}
 	
 	if(gLogoutInProgress)
 	{
@@ -3290,7 +3292,7 @@ void LLAppViewer::badNetworkHandler()
 		"www.secondlife.com/support";
 	forceDisconnect(message.str());
 	
-	LLApp::instance()->getExceptionHandler()->WriteMinidump();
+	LLApp::instance()->writeMiniDump();
 }
 
 // This routine may get called more than once during the shutdown process.

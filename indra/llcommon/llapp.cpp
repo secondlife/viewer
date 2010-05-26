@@ -68,7 +68,7 @@ void setup_signals();
 void default_unix_signal_handler(int signum, siginfo_t *info, void *);
 
 // Called by breakpad exception handler after the minidump has been generated.
-bool darwin_post_minidump_callback(const char *dump_dir,
+bool unix_post_minidump_callback(const char *dump_dir,
 					  const char *minidump_id,
 					  void *context, bool succeeded);
 # if LL_DARWIN
@@ -282,19 +282,11 @@ void LLApp::setupErrorHandling()
 	// occasionally checks to see if the app is in an error state, and sees if it needs to be run.
 
 #if LL_WINDOWS
-	// Windows doesn't have the same signal handling mechanisms as UNIX, thus APR doesn't provide
-	// a signal handling thread implementation.
-	// What we do is install an unhandled exception handler, which will try to do the right thing
-	// in the case of an error (generate a minidump)
-
-	// Disable this until the viewer gets ported so server crashes can be JIT debugged.
-	//LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
-	//prev_filter = SetUnhandledExceptionFilter(default_windows_exception_handler);
-
 	// This sets a callback to handle w32 signals to the console window.
 	// The viewer shouldn't be affected, sicne its a windowed app.
 	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ConsoleCtrlHandler, TRUE);
 
+	// Install the Google Breakpad crash handler for Windows
 	if(mExceptionHandler == 0)
 	{
 		llwarns << "adding breakpad exception handler" << llendl;
@@ -309,18 +301,14 @@ void LLApp::setupErrorHandling()
 	// There are two different classes of signals.  Synchronous signals are delivered to a specific
 	// thread, asynchronous signals can be delivered to any thread (in theory)
 	//
-
 	setup_signals();
-
 	
-#ifdef LL_DARWIN
-	// Add google breakpad exception handler configured for Darwin.
+	// Add google breakpad exception handler configured for Darwin/Linux.
 	if(mExceptionHandler == 0)
 	{
 		std::string dumpPath = "/tmp/";
-		mExceptionHandler = new google_breakpad::ExceptionHandler(dumpPath, 0, &darwin_post_minidump_callback, 0, true);
+		mExceptionHandler = new google_breakpad::ExceptionHandler(dumpPath, 0, &unix_post_minidump_callback, 0, true);
 	}
-#endif
 #endif
 
 	startErrorThread();
@@ -373,7 +361,6 @@ void LLApp::runErrorHandler()
 	LLApp::setStopped();
 }
 
-
 // static
 void LLApp::setStatus(EAppStatus status)
 {
@@ -393,6 +380,10 @@ void LLApp::setError()
 	}
 }
 
+void LLApp::writeMiniDump()
+{
+	mExceptionHandler->WriteMinidump();
+}
 
 // static
 void LLApp::setQuitting()
@@ -802,10 +793,7 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 	}
 }
 
-#endif // !WINDOWS
-
-#ifdef LL_DARWIN
-bool darwin_post_minidump_callback(const char *dump_dir,
+bool unix_post_minidump_callback(const char *dump_dir,
 					  const char *minidump_id,
 					  void *context, bool succeeded)
 {
@@ -833,7 +821,7 @@ bool darwin_post_minidump_callback(const char *dump_dir,
 	LLApp::runErrorHandler();
 	return true;
 }
-#endif
+#endif // !WINDOWS
 
 #ifdef LL_WINDOWS
 bool windows_post_minidump_callback(const wchar_t* dump_path,
