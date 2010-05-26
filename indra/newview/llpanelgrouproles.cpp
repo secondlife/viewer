@@ -1749,8 +1749,7 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	mRoleTitle->setKeystrokeCallback(onPropertiesKey, this);
 
 	mRoleDescription->setCommitOnFocusLost(TRUE);
-	mRoleDescription->setCommitCallback(onDescriptionCommit, this);
-	mRoleDescription->setFocusReceivedCallback(boost::bind(onDescriptionFocus, _1, this));
+	mRoleDescription->setKeystrokeCallback(boost::bind(&LLPanelGroupRolesSubTab::onDescriptionKeyStroke, this, _1));
 
 	setFooterEnabled(FALSE);
 
@@ -2214,6 +2213,12 @@ void LLPanelGroupRolesSubTab::onDescriptionFocus(LLFocusableElement* ctrl, void*
 
 	self->mHasRoleChange = TRUE;
 	self->notifyObservers();
+}
+
+void LLPanelGroupRolesSubTab::onDescriptionKeyStroke(LLTextEditor* caller)
+{
+	mHasRoleChange = TRUE;
+	notifyObservers();
 }
 
 // static 
