@@ -8238,7 +8238,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>ShowObjectRenderingCost</key>                
     <map>
@@ -9106,6 +9106,17 @@
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureDiscardLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Specify texture resolution (0 = highest, 5 = lowest)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>

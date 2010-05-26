@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ layout="topleft"
+ name="Gear Outfit">
+    <menu_item_call
+     label="Wear - Replace Current Outfit"
+     layout="topleft"
+     name="wear">
+        <on_click
+         function="Gear.OnClick"
+         parameter="wear"/>
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="wear" />
+    </menu_item_call>
+    <menu_item_call
+     label="Take Off - Remove Current Outfit"
+     layout="topleft"
+     name="take_off">
+        <on_click
+         function="Gear.OnClick"
+         parameter="take_off"/>
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="take_off" />
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_call
+     label="Rename"
+     layout="topleft"
+     name="rename">
+        <on_click
+         function="Gear.OnClick"
+         parameter="rename"/>
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="rename" />
+    </menu_item_call>
+    <menu_item_call
+     label="Delete Outfit"
+     layout="topleft"
+     name="delete_outfit">
+        <on_click
+         function="Gear.OnClick"
+         parameter="delete_outfit"/>
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="delete_outfit" />
+    </menu_item_call>
+</menu>

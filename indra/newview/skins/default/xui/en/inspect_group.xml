@@ -79,7 +79,7 @@ L$123 to join
    height="23"
    label="Join"
    left="8"
-   top="286"
+   top="125"
    name="join_btn"
    width="103"
    commit_callback.function="InspectGroup.Join"/>
@@ -88,7 +88,7 @@ L$123 to join
    height="23"
    label="Leave"
    left="8"
-   top="286"
+   top="125"
    name="leave_btn"
    width="103"
    commit_callback.function="InspectGroup.Leave"/>
@@ -97,7 +97,7 @@ L$123 to join
      height="23"
      label="View Profile"
      name="view_profile_btn"
-     top="286"
+     top="125"
      left="117"
      width="103"
      commit_callback.function="InspectGroup.ViewProfile" />

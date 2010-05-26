@@ -3176,5 +3176,11 @@ Abuse Report</string>
 
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value=" "></string>
+  
+  <string name="server_is_down">
+	Despite our best efforts, something unexpected has gone wrong.
+
+	Please check secondlife.com/status to see if there is a known problem with the service.
+  </string>
 
   </strings>

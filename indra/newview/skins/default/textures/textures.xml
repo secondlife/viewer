@@ -649,4 +649,9 @@ with the same filename but different name
   <texture name="Progress_11" file_name="icons/Progress_11.png" preload="true" />
   <texture name="Progress_12" file_name="icons/Progress_12.png" preload="true" />
 
+  <texture name="bevel_background" file_name="widgets/bevel_background.png" preload="true" scale.left="12" scale.top="15" scale.right="120" scale.bottom="2"/>
+  <texture name="buy_off" file_name="widgets/buy_off.png" preload="true" scale.left="2" scale.top="15" scale.right="67" scale.bottom="4"/>
+  <texture name="buy_over" file_name="widgets/buy_over.png" preload="true" scale.left="2" scale.top="15" scale.right="67" scale.bottom="4"/>
+  <texture name="buy_press" file_name="widgets/buy_press.png" preload="true" scale.left="2" scale.top="15" scale.right="67" scale.bottom="4"/>
+  
 </textures>
