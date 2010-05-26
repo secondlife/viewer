@@ -7601,6 +7601,16 @@ class LLWorldToggleCameraControls : public view_listener_t
 	}
 };
 
+void handle_flush_name_caches()
+{
+	// Toggle display names on and off to flush
+	bool use_display_names = LLAvatarNameCache::useDisplayNames();
+	LLAvatarNameCache::setUseDisplayNames(!use_display_names);
+	LLAvatarNameCache::setUseDisplayNames(use_display_names);
+
+	if (gCacheName) gCacheName->clear();
+}
+
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
 	static LLMenuGL*	show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
@@ -7849,6 +7859,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
 	view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
+	commit.add("Advanced.FlushNameCaches", boost::bind(&handle_flush_name_caches));
 
 	// Advanced > Character > Grab Baked Texture
 	view_listener_t::addMenu(new LLAdvancedGrabBakedTexture(), "Advanced.GrabBakedTexture");
