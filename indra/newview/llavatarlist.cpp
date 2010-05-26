@@ -47,6 +47,7 @@
 #include "llavatarnamecache.h"
 #include "llcallingcard.h" // for LLAvatarTracker
 #include "llcachename.h"
+#include "lllistcontextmenu.h"
 #include "llrecentpeople.h"
 #include "lluuid.h"
 #include "llvoiceclient.h"

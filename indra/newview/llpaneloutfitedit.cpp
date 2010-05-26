@@ -212,6 +212,7 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
 	mCOFObserver(NULL),
+	mGearMenu(NULL),
 	mCOFDragAndDropObserver(NULL),
 	mInitialized(false)
 {
@@ -254,6 +255,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
 	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredFolderWearablesPanel, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredWearablesPanel, this), NULL);
+	childSetCommitCallback("gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
+	childSetCommitCallback("wearables_gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onOutfitItemSelectionChange, this));
@@ -690,6 +693,33 @@ bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch
 		return true;
 	}
 	return false;
+}
+
+void LLPanelOutfitEdit::onGearButtonClick(LLUICtrl* clicked_button)
+{
+	if(!mGearMenu)
+	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+		registrar.add("Gear.OnClick", boost::bind(&LLPanelOutfitEdit::onGearMenuItemClick, this, _2));
+
+		mGearMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+			"menu_cof_gear.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+		mGearMenu->buildDrawLabels();
+		mGearMenu->updateParent(LLMenuGL::sMenuContainer);
+	}
+
+	S32 menu_y = mGearMenu->getRect().getHeight() + clicked_button->getRect().getHeight();
+	LLMenuGL::showPopup(clicked_button, mGearMenu, 0, menu_y);
+}
+
+void LLPanelOutfitEdit::onGearMenuItemClick(const LLSD& data)
+{
+	std::string param = data.asString();
+	if("add" == param)
+	{
+		// TODO
+	}
 }
 
 // EOF

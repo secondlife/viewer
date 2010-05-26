@@ -223,9 +223,7 @@ void LLInvFVBridge::cutToClipboard()
 // *TODO: make sure this does the right thing
 void LLInvFVBridge::showProperties()
 {
-	LLSD key;
-	key["id"] = mUUID;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+	show_item_profile(mUUID);
 
 	// Disable old properties floater; this is replaced by the sidepanel.
 	/*
@@ -4430,7 +4428,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceMgr::instance().addCOFItemLink(item);
+		LLAppearanceMgr::getInstance()->wearItemOnAvatar(item->getUUID(), true, false);
 	}
 }
 
@@ -4888,8 +4886,7 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	LLUUID linked_id = gInventory.getLinkedItemID(mUUID);
-	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(linked_id);
+	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
 	if( wearable )
 	{
 		// Set the tab to the right wearable.
@@ -4979,7 +4976,7 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 				gAgentWearables.getWearableInventoryItem((LLWearableType::EType)itype, index));
 			if (!item)
 				continue;
-			const LLUUID &item_id = gInventory.getLinkedItemID(item->getUUID());
+			const LLUUID &item_id = item->getUUID();
 			const LLWearable *wearable = gAgentWearables.getWearableFromItemID(item_id);
 			if (!wearable)
 				continue;

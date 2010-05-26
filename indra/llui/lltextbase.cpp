@@ -1116,8 +1116,19 @@ void LLTextBase::reflow()
 
 	updateSegments();
 
+	S32 reflow_count = 0;
 	while(mReflowIndex < S32_MAX)
 	{
+		// we can get into an infinite loop if the document height does not monotonically increase
+		// with decreasing width (embedded ui elements with alternate layouts).  In that case, 
+		// we want to stop reflowing after 2 iterations.  We use 2, since we need to handle the case
+		// of introducing a vertical scrollbar causing a reflow with less width.  We should also always
+		// use an even number of iterations to avoid user visible oscillation of the layout
+		if(++reflow_count > 2)
+		{
+			lldebugs << "Breaking out of reflow due to possible infinite loop in " << getName() << llendl;
+			break;
+		}
 		S32 start_index = mReflowIndex;
 		mReflowIndex = S32_MAX;
 
