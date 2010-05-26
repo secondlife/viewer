@@ -179,6 +179,9 @@ public:
 	BOOL				isLocalTextureDataFinal(const LLTexLayerSet* layerset) const;
 	// If you want to check all textures of a given type, pass gAgentWearables.getWearableCount() for index
 	/*virtual*/ BOOL    isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
+	/*virtual*/ BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
+	/*virtual*/ BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const;
+
 
 	//--------------------------------------------------------------------
 	// Local Textures

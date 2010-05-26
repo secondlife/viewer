@@ -63,10 +63,14 @@ public:
 	void				saveChanges();
 	void				revertChanges();
 
+	void				showDefaultSubpart();
+	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
+
+	void 				updateScrollingPanelList();
+
 	static void			onRevertButtonClicked(void* userdata);
 	void				onCommitSexChange();
 
-	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
 
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
@@ -85,6 +89,9 @@ private:
 	void				updatePanelPickerControls(LLWearableType::EType type);
 	void				toggleTypeSpecificControls(LLWearableType::EType type);
 	void				updateTypeSpecificControls(LLWearableType::EType type);
+
+	// changes camera angle to default for selected subpart
+	void				changeCamera(U8 subpart);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;

@@ -883,9 +883,10 @@ void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
-		if (gFloaterCustomize)
+		LLSidepanelAppearance *panel = dynamic_cast<LLSidePanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+		if (panel)
 		{
-			gFloaterCustomize->switchToDefaultSubpart();
+			panel->showDefaultSubpart();
 		}
 	}
 }

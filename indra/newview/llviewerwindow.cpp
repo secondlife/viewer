@@ -4545,7 +4545,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		
 		gResizeScreenTexture = TRUE;
 
-		if (gFloaterCustomize && gFloaterCustomize->getVisible())
+		if (gAgentCamera.cameraCustomizeAvatar())
 		{
 			LLVisualParamHint::requestHintUpdates();
 		}
