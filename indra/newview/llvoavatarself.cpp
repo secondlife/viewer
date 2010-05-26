@@ -1333,11 +1333,11 @@ BOOL LLVOAvatarSelf::isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32
 }
 
 //virtual
-BOOL LLVOAvatarSelf::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const
+BOOL LLVOAvatarSelf::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index) const
 {
 	if (isIndexBakedTexture(type))
 	{
-		return LLVOAvatar::isTextureVisible(type,0);
+		return LLVOAvatar::isTextureVisible(type, (U32)0);
 	}
 
 	LLUUID tex_id = getLocalTextureID(type,index);

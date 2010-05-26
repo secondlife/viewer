@@ -4879,12 +4879,12 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
+	LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
 	if( wearable )
 	{
 		LLPanel * panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
 
-		LLSidePanelAppearance::editWearable(wearable, panel);
+		LLSidepanelAppearance::editWearable(wearable, panel);
 	}
 }
 
