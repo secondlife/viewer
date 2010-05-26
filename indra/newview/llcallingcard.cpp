@@ -897,7 +897,9 @@ bool LLCollectOnlineBuddies::operator()(const LLUUID& buddy_id, LLRelationship* 
 
 bool LLCollectAllBuddies::operator()(const LLUUID& buddy_id, LLRelationship* buddy)
 {
-	gCacheName->getFullName(buddy_id, mFullName);
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(buddy_id, &av_name);
+	mFullName = av_name.mDisplayName;
 	buddy_map_t::value_type value(mFullName, buddy_id);
 	if(buddy->isOnline())
 	{

@@ -266,15 +266,20 @@ void LLFloaterAvatarPicker::populateNearMe()
 		if(av == gAgent.getID()) continue;
 		LLSD element;
 		element["id"] = av; // value
-		std::string fullname;
-		if(!gCacheName->getFullName(av, fullname))
+		LLAvatarName av_name;
+
+		if (!LLAvatarNameCache::get(av, &av_name))
 		{
+			element["columns"][0]["column"] = "name";
 			element["columns"][0]["value"] = LLCacheName::getDefaultName();
 			all_loaded = FALSE;
 		}			
 		else
 		{
-			element["columns"][0]["value"] = fullname;
+			element["columns"][0]["column"] = "name";
+			element["columns"][0]["value"] = av_name.mDisplayName;
+			element["columns"][1]["column"] = "username";
+			element["columns"][1]["value"] = av_name.mUsername;
 		}
 		near_me_scroller->addElement(element);
 		empty = FALSE;
