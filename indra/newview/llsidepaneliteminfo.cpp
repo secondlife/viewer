@@ -283,8 +283,9 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 
 	if (item->getCreatorUUID().notNull())
 	{
-		std::string name;
-		gCacheName->getFullName(item->getCreatorUUID(), name);
+		LLUUID creator_id = item->getCreatorUUID();
+		std::string name =
+			LLSLURL("agent", creator_id, "completename").getSLURLString();
 		childSetEnabled("BtnCreator",TRUE);
 		childSetEnabled("LabelCreatorTitle",TRUE);
 		childSetEnabled("LabelCreatorName",TRUE);
@@ -310,7 +311,8 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		}
 		else
 		{
-			gCacheName->getFullName(perm.getOwner(), name);
+			LLUUID owner_id = perm.getOwner();
+			name = LLSLURL("agent", owner_id, "completename").getSLURLString();
 		}
 		childSetEnabled("BtnOwner",TRUE);
 		childSetEnabled("LabelOwnerTitle",TRUE);
