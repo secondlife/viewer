@@ -21,6 +21,7 @@
  */
 
 #include "../llurlmatch.h"
+//#include "../lluiimage.h"
 #include "lltut.h"
 
 // link seams
@@ -31,6 +32,26 @@ LLUIColor::LLUIColor()
 
 LLStyle::Params::Params()
 {
+}
+
+LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
+{
+}
+
+LLUIImage::~LLUIImage()
+{
+}
+
+//virtual
+S32 LLUIImage::getWidth() const
+{
+	return 0;
+}
+
+//virtual
+S32 LLUIImage::getHeight() const
+{
+	return 0;
 }
 
 namespace LLInitParam
@@ -105,7 +126,6 @@ namespace LLInitParam
 	
 	void TypedParam<LLUIImage*>::setBlockFromValue()
 	{}
-
 	
 	bool ParamCompare<LLUIImage*, false>::equals(
 		LLUIImage* const &a,
