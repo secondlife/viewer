@@ -336,6 +336,7 @@
 		              allow_select="true"
 		              layout="topleft"
 		              follows="all"
+		              multi_select="true"
 		              width="310"
 		              height="140"
 		              left="0"

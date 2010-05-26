@@ -108,6 +108,7 @@
 #include "lluilistener.h"
 #include "llappearancemgr.h"
 #include "lltrans.h"
+#include "lleconomy.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -7694,6 +7695,42 @@ class LLWorldToggleCameraControls : public view_listener_t
 	}
 };
 
+class LLUploadCostCalculator : public view_listener_t
+{
+	std::string mCostStr;
+
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string menu_name = userdata.asString();
+		gMenuHolder->childSetLabelArg(menu_name, "[COST]", mCostStr);
+
+		return true;
+	}
+
+	void calculateCost();
+
+public:
+	LLUploadCostCalculator()
+	{
+		calculateCost();
+	}
+};
+
+void LLUploadCostCalculator::calculateCost()
+{
+	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+
+	// getPriceUpload() returns -1 if no data available yet.
+	if(upload_cost >= 0)
+	{
+		mCostStr = llformat("%d", upload_cost);
+	}
+	else
+	{
+		mCostStr = llformat("%d", gSavedSettings.getU32("DefaultUploadCost"));
+	}
+}
+
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
 	static LLMenuGL*	show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
@@ -7734,6 +7771,8 @@ void initialize_menus()
 	// Don't prepend MenuName.Foo because these can be used in any menu.
 	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
 	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
+
+	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));

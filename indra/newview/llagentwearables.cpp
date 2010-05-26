@@ -49,6 +49,7 @@
 #include "llmd5.h"
 #include "llnotificationsutil.h"
 #include "llpaneloutfitsinventory.h"
+#include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltexlayer.h"
 #include "llviewerregion.h"
@@ -539,9 +540,15 @@ void LLAgentWearables::setWearableName(const LLUUID& item_id, const std::string&
 BOOL LLAgentWearables::isWearableModifiable(LLWearableType::EType type, U32 index) const
 {
 	LLUUID item_id = getWearableItemID(type, index);
-	if (!item_id.isNull())
+	return item_id.notNull() ? isWearableModifiable(item_id) : FALSE;
+}
+
+BOOL LLAgentWearables::isWearableModifiable(const LLUUID& item_id) const
+{
+	const LLUUID& linked_id = gInventory.getLinkedItemID(item_id);
+	if (linked_id.notNull())
 	{
-		LLInventoryItem* item = gInventory.getItem(item_id);
+		LLInventoryItem* item = gInventory.getItem(linked_id);
 		if (item && item->getPermissions().allowModifyBy(gAgent.getID(),
 														 gAgent.getGroupID()))
 		{
@@ -595,12 +602,13 @@ LLInventoryItem* LLAgentWearables::getWearableInventoryItem(LLWearableType::ETyp
 
 const LLWearable* LLAgentWearables::getWearableFromItemID(const LLUUID& item_id) const
 {
+	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 	for (S32 i=0; i < LLWearableType::WT_COUNT; i++)
 	{
 		for (U32 j=0; j < getWearableCount((LLWearableType::EType)i); j++)
 		{
 			const LLWearable * curr_wearable = getWearable((LLWearableType::EType)i, j);
-			if (curr_wearable && (curr_wearable->getItemID() == item_id))
+			if (curr_wearable && (curr_wearable->getItemID() == base_item_id))
 			{
 				return curr_wearable;
 			}
@@ -812,6 +820,16 @@ LLWearable* LLAgentWearables::getTopWearable(const LLWearableType::EType type)
 	return getWearable(type, count-1);
 }
 
+LLWearable* LLAgentWearables::getBottomWearable(const LLWearableType::EType type)
+{
+	if (getWearableCount(type) == 0)
+	{
+		return NULL;
+	}
+
+	return getWearable(type, 0);
+}
+
 U32 LLAgentWearables::getWearableCount(const LLWearableType::EType type) const
 {
 	wearableentry_map_t::const_iterator wearable_iter = mWearableDatas.find(type);
@@ -860,12 +878,7 @@ const LLUUID LLAgentWearables::getWearableAssetID(LLWearableType::EType type, U3
 
 BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
 {
-	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
-	if (getWearableFromItemID(base_item_id) != NULL) 
-	{
-		return TRUE;
-	}
-	return FALSE;
+	return getWearableFromItemID(item_id) != NULL;
 }
 
 // MULTI-WEARABLE: DEPRECATED (see backwards compatibility)
@@ -1862,6 +1875,20 @@ void LLAgentWearables::checkWearablesLoaded() const
 #endif
 }
 
+// Returns false if the given wearable is already topmost/bottommost
+// (depending on closer_to_body parameter).
+bool LLAgentWearables::canMoveWearable(const LLUUID& item_id, bool closer_to_body)
+{
+	const LLWearable* wearable = getWearableFromItemID(item_id);
+	if (!wearable) return false;
+
+	LLWearableType::EType wtype = wearable->getType();
+	const LLWearable* marginal_wearable = closer_to_body ? getBottomWearable(wtype) : getTopWearable(wtype);
+	if (!marginal_wearable) return false;
+
+	return wearable != marginal_wearable;
+}
+
 BOOL LLAgentWearables::areWearablesLoaded() const
 {
 	checkWearablesLoaded();
@@ -1930,6 +1957,23 @@ bool LLAgentWearables::moveWearable(const LLViewerInventoryItem* item, bool clos
 	}
 
 	return false;
+}
+
+// static
+void LLAgentWearables::editWearable(const LLUUID& item_id)
+{
+	LLViewerInventoryItem* item;
+	LLWearable* wearable;
+
+	if ((item = gInventory.getLinkedItem(item_id)) &&
+		(wearable = gAgentWearables.getWearableFromAssetID(item->getAssetUUID())) &&
+		gAgentWearables.isWearableModifiable(item->getUUID()) &&
+		item->isFinished())
+	{
+		LLPanel* panel = LLSideTray::getInstance()->showPanel("panel_outfit_edit", LLSD());
+		// copied from LLPanelOutfitEdit::onEditWearableClicked()
+		LLSidepanelAppearance::editWearable(wearable, panel->getParent());
+	}
 }
 
 void LLAgentWearables::updateServer()

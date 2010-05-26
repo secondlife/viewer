@@ -385,10 +385,6 @@ protected:
 	LLNearbyChatBar*	mNearbyChatBar;
 	LLLayoutStack*		mToolbarStack;
 	LLMenuGL*			mBottomTrayContextMenu;
-	LLPanel*			mMovementPanel;
-	LLPanel*			mCamPanel;
-	LLPanel*			mSnapshotPanel;
-	LLPanel*			mGesturePanel;
 	LLButton*			mCamButton;
 	LLButton*			mMovementButton;
 	LLBottomTrayLite*   mBottomTrayLite;
