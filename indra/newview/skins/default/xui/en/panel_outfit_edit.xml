@@ -238,7 +238,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          width="313"
          tab_group="2"
          user_resize="true"
-         visible="true">
+         visible="false">
           <icon
            follows="left|top|right"
            height="10"
