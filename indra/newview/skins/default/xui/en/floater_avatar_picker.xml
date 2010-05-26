@@ -95,11 +95,11 @@
             <columns
               label="Name"
               name="name"
-              width="100" />
+              width="150" />
             <columns
               label="Username"
               name="username"
-              width="100" />
+              width="150" />
           </scroll_list>
         </panel>
         <panel
@@ -138,7 +138,7 @@
             </button>
             <scroll_list
              follows="all"
-             height="100"
+             height="120"
              border="false"
              layout="topleft"
              left="0"
@@ -204,7 +204,8 @@
              width="28"
              name="Refresh"
              image_overlay="Refresh_Off" />
-            <scroll_list
+          <scroll_list
+             draw_heading="true"
              follows="all"
              height="100"
              border="false"
@@ -212,8 +213,17 @@
              left="0"
              name="NearMe"
              sort_column="0"
-             top="50"
-             width="132" />
+             top="52"
+             width="132">
+            <columns
+              label="Name"
+              name="name"
+              width="150" />
+            <columns
+              label="Username"
+              name="username"
+              width="150" />
+          </scroll_list>
         </panel>
     </tab_container>
     <button

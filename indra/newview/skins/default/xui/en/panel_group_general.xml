@@ -54,17 +54,15 @@ Hover your mouse over the options for more help.
      top_delta="0">
       Founder:
     </text>
-    <name_box
-     follows="left|top"
+     <text
+      follows="left|top"
      height="16"
-     initial_value="(retrieving)"
      layout="topleft"
      left_delta="0"
-     link="true"
      name="founder_name"
      top_pad="2"
      use_ellipses="true"
-     width="190" />
+     width="185" />
     <text
     font="SansSerifMedium"
     text_color="EmphasisColor"

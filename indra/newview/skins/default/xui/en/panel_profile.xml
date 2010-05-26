@@ -263,7 +263,7 @@
              name="partner_data_panel"
              top_pad="0"
              width="300">
-              <name_box
+              <text
                follows="left|top"
                height="10"
                initial_value="(retrieving)"

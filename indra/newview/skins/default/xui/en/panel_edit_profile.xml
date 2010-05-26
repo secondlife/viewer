@@ -328,7 +328,7 @@
          left="10"
          name="partner_data_panel"
          width="200">
-            <name_box
+            <text
              follows="left|top|right"
              height="30"
              initial_value="(retrieving)"
