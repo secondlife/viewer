@@ -1019,7 +1019,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	bool rebuild_weights = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_WEIGHT4);
 
 	const LLTextureEntry *tep = mVObjp->getTE(f);
-	U8  bump_code = tep ? tep->getBumpmap() : 0;
+	const U8 bump_code = tep ? tep->getBumpmap() : 0;
 
 	if (rebuild_pos)
 	{
@@ -1161,7 +1161,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 
-    // INDICES
+	// INDICES
 	if (full_rebuild)
 	{
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
@@ -1173,9 +1173,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 	
 	//bump setup
-	LLVector4a binormal_dir( -sin_ang, cos_ang, 0 );
-	LLVector4a bump_s_primary_light_ray;
-	LLVector4a bump_t_primary_light_ray;
+	LLVector4a binormal_dir( -sin_ang, cos_ang, 0.f );
+	LLVector4a bump_s_primary_light_ray(0.f, 0.f, 0.f);
+	LLVector4a bump_t_primary_light_ray(0.f, 0.f, 0.f);
 
 	LLQuaternion bump_quat;
 	if (mDrawablep->isActive())
@@ -1227,7 +1227,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		LLVector3   moon_ray = gSky.getMoonDirection();
 		LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
 
-		bump_s_primary_light_ray;
 		bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
 		bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
 	}
@@ -1239,15 +1238,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	}
 
 	LLMatrix4a mat_normal;
-
-	if (rebuild_normal || rebuild_binormal || rebuild_tcoord)
-	{
-		mat_normal.loadu(mat_norm_in);
-	}
+	mat_normal.loadu(mat_norm_in);
 	
 	//if it's not fullbright and has no normals, bake sunlight based on face normal
-	bool bake_sunlight = !getTextureEntry()->getFullbright() &&
-		!mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
+	//bool bake_sunlight = !getTextureEntry()->getFullbright() &&
+	//  !mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
 
 	if (rebuild_tcoord)
 	{
