@@ -45,6 +45,7 @@
 #include <xmlrpc-epi/xmlrpc.h>
 
 #include "llappviewer.h"
+#include "lltrans.h"
 
 // Static instance of LLXMLRPCListener declared here so that every time we
 // bring in this code, we instantiate a listener. If we put the static
@@ -510,11 +511,7 @@ void LLXMLRPCTransaction::Impl::setStatus(EStatus status,
 			default:
 				// Usually this means that there's a problem with the login server,
 				// not with the client.  Direct user to status page.
-				mStatusMessage =
-					"Despite our best efforts, something unexpected has gone wrong. \n"
-					" \n"
-					"Please check secondlife.com/status \n"
-					"to see if there is a known problem with the service.";
+				mStatusMessage = LLTrans::getString("server_is_down");
 
 				mStatusURI = "http://secondlife.com/status/";
 		}

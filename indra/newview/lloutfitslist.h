@@ -41,6 +41,7 @@
 class LLAccordionCtrl;
 class LLAccordionCtrlTab;
 class LLWearableItemsList;
+class LLListContextMenu;
 
 /**
  * @class LLOutfitsList
@@ -105,6 +106,8 @@ private:
 	 */
 	void applyFilter(const std::string& new_filter_substring);
 
+	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
+
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 
 	LLAccordionCtrl*				mAccordion;
@@ -118,6 +121,8 @@ private:
 	typedef	std::map<LLUUID, LLAccordionCtrlTab*>		outfits_map_t;
 	typedef outfits_map_t::value_type					outfits_map_value_t;
 	outfits_map_t					mOutfitsMap;
+
+	LLListContextMenu*			mOutfitMenu;
 };
 
 #endif //LL_LLOUTFITSLIST_H

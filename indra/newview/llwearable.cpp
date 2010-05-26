@@ -442,7 +442,7 @@ BOOL LLWearable::importFile( LLFILE* file )
 			delete mSavedTEMap[te];
 		}
 
-		image->setLoadedCallback(LLVOAvatarSelf::onTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te));
+		image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te));
 
 
 		LLUUID textureid(text_buffer);
@@ -759,12 +759,12 @@ void LLWearable::copyDataFrom(const LLWearable* src)
 			LLViewerFetchedTexture *image = NULL;
 			if(iter != src->mTEMap.end())
 			{
-				image = src->getConstLocalTextureObject(te)->getImage();
-				image_id = src->getConstLocalTextureObject(te)->getID();
+				image = src->getLocalTextureObject(te)->getImage();
+				image_id = src->getLocalTextureObject(te)->getID();
 				mTEMap[te] = new LLLocalTextureObject(image, image_id);
 				mSavedTEMap[te] = new LLLocalTextureObject(image, image_id);
-				mTEMap[te]->setBakedReady(src->getConstLocalTextureObject(te)->getBakedReady());
-				mTEMap[te]->setDiscard(src->getConstLocalTextureObject(te)->getDiscard());
+				mTEMap[te]->setBakedReady(src->getLocalTextureObject(te)->getBakedReady());
+				mTEMap[te]->setDiscard(src->getLocalTextureObject(te)->getDiscard());
 			}
 			else
 			{
@@ -809,7 +809,7 @@ LLLocalTextureObject* LLWearable::getLocalTextureObject(S32 index)
 	return NULL;
 }
 
-const LLLocalTextureObject* LLWearable::getConstLocalTextureObject(S32 index) const
+const LLLocalTextureObject* LLWearable::getLocalTextureObject(S32 index) const
 {
 	te_map_t::const_iterator iter = mTEMap.find(index);
 	if( iter != mTEMap.end() )

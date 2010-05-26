@@ -222,9 +222,7 @@ void LLInvFVBridge::cutToClipboard()
 // *TODO: make sure this does the right thing
 void LLInvFVBridge::showProperties()
 {
-	LLSD key;
-	key["id"] = mUUID;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+	show_item_profile(mUUID);
 
 	// Disable old properties floater; this is replaced by the sidepanel.
 	/*
@@ -4143,21 +4141,9 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 
 void LLObjectBridge::openItem()
 {
-	LLViewerInventoryItem* item = getItem();
-
-	if (item)
-	{
-		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
-	}
-
-	LLSD key;
-	key["id"] = mUUID;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
-
-	// Disable old properties floater; this is replaced by the sidepanel.
-	/*
-	  LLFloaterReg::showInstance("properties", mUUID);
-	*/
+	// object double-click action is to wear/unwear object
+	performAction(getInventoryModel(),
+		      get_is_item_worn(mUUID) ? "detach" : "attach");
 }
 
 LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
@@ -4434,7 +4420,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceMgr::instance().addCOFItemLink(item);
+		LLAppearanceMgr::getInstance()->wearItemOnAvatar(item->getUUID(), true, false);
 	}
 }
 
@@ -4892,8 +4878,7 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	LLUUID linked_id = gInventory.getLinkedItemID(mUUID);
-	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(linked_id);
+	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
 	if( wearable )
 	{
 		// Set the tab to the right wearable.
@@ -4983,7 +4968,7 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 				gAgentWearables.getWearableInventoryItem((LLWearableType::EType)itype, index));
 			if (!item)
 				continue;
-			const LLUUID &item_id = gInventory.getLinkedItemID(item->getUUID());
+			const LLUUID &item_id = item->getUUID();
 			const LLWearable *wearable = gAgentWearables.getWearableFromItemID(item_id);
 			if (!wearable)
 				continue;

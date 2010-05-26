@@ -955,16 +955,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>a90135a68d2821eef742d15cb06b15b9</string>
+            <string>7a5e02d252b76ab41bdca58506fa4147</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100407-cookie-api.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100521.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>d682ed6232193b4eab3170657a54ebf9</string>
+            <string>1d9697fed57084eea7b3dc250e9c66f7</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20100519.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20100525.tar.bz2</uri>
           </map>
         </map>
       </map>

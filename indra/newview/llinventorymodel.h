@@ -258,6 +258,7 @@ public:
 
 	// Get the inventoryID or item that this item points to, else just return object_id
 	const LLUUID& getLinkedItemID(const LLUUID& object_id) const;
+	LLViewerInventoryItem* getLinkedItem(const LLUUID& object_id) const;
 private:
 	mutable LLPointer<LLViewerInventoryItem> mLastItem; // cache recent lookups	
 

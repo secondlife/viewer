@@ -57,6 +57,8 @@
 #include "lltextureentry.h"
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewertexturelist.h"
+#include "llagentcamera.h"
+#include "llmorphview.h"
 
 // register panel with appropriate XML
 static LLRegisterPanelClassWrapper<LLPanelEditWearable> t_edit_wearable("panel_edit_wearable");
@@ -951,6 +953,9 @@ void LLPanelEditWearable::initializePanel()
 		// what edit group do we want to extract params for?
 		const std::string edit_group = subpart_entry->mEditGroup;
 
+		// initialize callback to ensure camera view changes appropriately.
+		tab->setDropDownStateChangedCallback(boost::bind(&LLPanelEditWearable::onTabExpandedCollapsed,this,_2,index));
+
 		// storage for ordered list of visual params
 		value_map_t sorted_params;
 		getSortedParams(sorted_params, edit_group);
@@ -986,6 +991,52 @@ void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
 		// Update avatar height
 		std::string avatar_height_str = llformat("%.2f", gAgentAvatarp->mBodySize.mV[VZ]);
 		mTxtAvatarHeight->setTextArg("[HEIGHT]", avatar_height_str);
+	}
+}
+
+void LLPanelEditWearable::onTabExpandedCollapsed(const LLSD& param, U8 index)
+{
+	bool expanded = param.asBoolean();
+
+	if (!mWearablePtr || !gAgentCamera.cameraCustomizeAvatar())
+	{
+		// we don't have a valid wearable we're editing, or we've left the wearable editor
+		return;
+	}
+
+	if (expanded)
+	{
+		const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(mWearablePtr->getType());
+		if (!wearable_entry)
+		{
+			llinfos << "could not get wearable dictionary entry for wearable type: " << mWearablePtr->getType() << llendl;
+			return;
+		}
+
+		if (index >= wearable_entry->mSubparts.size())
+		{
+			llinfos << "accordion tab expanded for invalid subpart. Wearable type: " << mWearablePtr->getType() << " subpart num: " << index << llendl;
+			return;
+		}
+
+		ESubpart subpart_e = wearable_entry->mSubparts[index];
+		const LLEditWearableDictionary::SubpartEntry *subpart_entry = LLEditWearableDictionary::getInstance()->getSubpart(subpart_e);
+
+		if (!subpart_entry)
+		{
+			llwarns << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << llendl;
+			return;
+		}
+
+		// Update the camera
+		gMorphView->setCameraTargetJoint( gAgentAvatarp->getJoint( subpart_entry->mTargetJoint ) );
+		gMorphView->setCameraTargetOffset( subpart_entry->mTargetOffset );
+		gMorphView->setCameraOffset( subpart_entry->mCameraOffset );
+		gMorphView->setCameraDistToDefault();
+		if (gSavedSettings.getBOOL("AppearanceCameraMovement"))
+		{
+			gMorphView->updateCamera();
+		}
 	}
 }
 

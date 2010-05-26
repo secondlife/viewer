@@ -566,6 +566,11 @@ const LLUUID& LLInventoryModel::getLinkedItemID(const LLUUID& object_id) const
 	return item->getLinkedUUID();
 }
 
+LLViewerInventoryItem* LLInventoryModel::getLinkedItem(const LLUUID& object_id) const
+{
+	return object_id.notNull() ? getItem(getLinkedItemID(object_id)) : NULL;
+}
+
 LLInventoryModel::item_array_t LLInventoryModel::collectLinkedItems(const LLUUID& id,
 																	const LLUUID& start_folder_id)
 {
@@ -1244,7 +1249,11 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 
 void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 {
-	//llinfos << "LLInventoryModel::addItem()" << llendl;
+	/*
+	const LLViewerInventoryCategory* cat = gInventory.getCategory(item->getParentUUID()); // Seraph remove for 2.1
+	const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND"; // Seraph remove for 2.1
+	llinfos << "Added item [ name:" << item->getName() << " UUID:" << item->getUUID() << " type:" << item->getActualType() << " ] to folder [ name:" << cat_name << " uuid:" << item->getParentUUID() << " ]" << llendl; // Seraph remove for 2.1
+	*/
 
 	llassert(item);
 	if(item)
