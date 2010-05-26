@@ -107,22 +107,27 @@ BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLV
 
 BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size)
 {
-	float fAWdU[3];
-	LLVector3 dir;
-	LLVector3 diff;
+	return LLLineSegmentBoxIntersect(start.mV, end.mV, center.mV, size.mV);
+}
+
+BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size)
+{
+	F32 fAWdU[3];
+	F32 dir[3];
+	F32 diff[3];
 
 	for (U32 i = 0; i < 3; i++)
 	{
-		dir.mV[i] = 0.5f * (end.mV[i] - start.mV[i]);
-		diff.mV[i] = (0.5f * (end.mV[i] + start.mV[i])) - center.mV[i];
-		fAWdU[i] = fabsf(dir.mV[i]);
-		if(fabsf(diff.mV[i])>size.mV[i] + fAWdU[i]) return false;
+		dir[i] = 0.5f * (end[i] - start[i]);
+		diff[i] = (0.5f * (end[i] + start[i])) - center[i];
+		fAWdU[i] = fabsf(dir[i]);
+		if(fabsf(diff[i])>size[i] + fAWdU[i]) return false;
 	}
 
 	float f;
-	f = dir.mV[1] * diff.mV[2] - dir.mV[2] * diff.mV[1];    if(fabsf(f)>size.mV[1]*fAWdU[2] + size.mV[2]*fAWdU[1])  return false;
-	f = dir.mV[2] * diff.mV[0] - dir.mV[0] * diff.mV[2];    if(fabsf(f)>size.mV[0]*fAWdU[2] + size.mV[2]*fAWdU[0])  return false;
-	f = dir.mV[0] * diff.mV[1] - dir.mV[1] * diff.mV[0];    if(fabsf(f)>size.mV[0]*fAWdU[1] + size.mV[1]*fAWdU[0])  return false;
+	f = dir[1] * diff[2] - dir[2] * diff[1];    if(fabsf(f)>size[1]*fAWdU[2] + size[2]*fAWdU[1])  return false;
+	f = dir[2] * diff[0] - dir[0] * diff[2];    if(fabsf(f)>size[0]*fAWdU[2] + size[2]*fAWdU[0])  return false;
+	f = dir[0] * diff[1] - dir[1] * diff[0];    if(fabsf(f)>size[0]*fAWdU[1] + size[1]*fAWdU[0])  return false;
 	
 	return true;
 }
@@ -1869,6 +1874,59 @@ BOOL LLVolume::generate()
 	return FALSE;
 }
 
+void LLVolumeFace::VertexData::init()
+{
+	mData = (LLVector4a*) _mm_malloc(32, 16);
+}
+
+LLVolumeFace::VertexData::VertexData()
+{
+	init();
+}
+	
+LLVolumeFace::VertexData::VertexData(const VertexData& rhs)
+{
+	init();
+	LLVector4a::memcpyNonAliased16((F32*) mData, (F32*) rhs.mData, 8);
+	mTexCoord = rhs.mTexCoord;
+}
+
+LLVolumeFace::VertexData::~VertexData()
+{
+	_mm_free(mData);
+}
+
+LLVector4a& LLVolumeFace::VertexData::getPosition()
+{
+	return mData[POSITION];
+}
+
+LLVector4a& LLVolumeFace::VertexData::getNormal()
+{
+	return mData[NORMAL];
+}
+
+const LLVector4a& LLVolumeFace::VertexData::getPosition() const
+{
+	return mData[POSITION];
+}
+
+const LLVector4a& LLVolumeFace::VertexData::getNormal() const
+{
+	return mData[NORMAL];
+}
+
+
+void LLVolumeFace::VertexData::setPosition(const LLVector4a& pos)
+{
+	mData[POSITION] = pos;
+}
+
+void LLVolumeFace::VertexData::setNormal(const LLVector4a& norm)
+{
+	mData[NORMAL] = norm;
+}
+
 bool LLVolumeFace::VertexData::operator<(const LLVolumeFace::VertexData& rhs)const
 {
 	const U8* l = (const U8*) this;
@@ -2037,7 +2095,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			if (mdl[i].has("Weights"))
 			{
-				face.mWeights.resize(num_verts);
+				face.allocateWeights(num_verts);
 
 				LLSD::Binary weights = mdl[i]["Weights"];
 
@@ -2050,13 +2108,15 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 					U8 joint = weights[idx++];
 
 					U32 cur_influence = 0;
+					LLVector4 wght(0,0,0,0);
+
 					while (joint != END_INFLUENCES)
 					{
 						U16 influence = weights[idx++];
 						influence |= ((U16) weights[idx++] << 8);
 
 						F32 w = llmin((F32) influence / 65535.f, 0.99999f);
-						face.mWeights[cur_vertex].mV[cur_influence++] = (F32) joint + w;
+						wght.mV[cur_influence++] = (F32) joint + w;
 
 						if (cur_influence >= 4)
 						{
@@ -2068,6 +2128,8 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 						}
 					}
 
+					face.mWeights[cur_vertex].loadua(wght.mV);
+
 					cur_vertex++;
 				}
 
@@ -2078,62 +2140,70 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 					
 			}
 
-			LLVector3 min_pos;
-			LLVector3 max_pos;
+			LLVector3 minp;
+			LLVector3 maxp;
 			LLVector2 min_tc; 
 			LLVector2 max_tc; 
 		
-			min_pos.setValue(mdl[i]["PositionDomain"]["Min"]);
-			max_pos.setValue(mdl[i]["PositionDomain"]["Max"]);
+			minp.setValue(mdl[i]["PositionDomain"]["Min"]);
+			maxp.setValue(mdl[i]["PositionDomain"]["Max"]);
+			LLVector4a min_pos, max_pos;
+			min_pos.load3(minp.mV);
+			max_pos.load3(maxp.mV);
+
 			min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
 			max_tc.setValue(mdl[i]["TexCoord0Domain"]["Max"]);
 
-			LLVector3 pos_range = max_pos - min_pos;
+			LLVector4a pos_range;
+			pos_range.setSub(max_pos, min_pos);
 			LLVector2 tc_range = max_tc - min_tc;
 
-			LLVector3& min = face.mExtents[0];
-			LLVector3& max = face.mExtents[1];
+			LLVector4a& min = face.mExtents[0];
+			LLVector4a& max = face.mExtents[1];
 
-			min = max = LLVector3(0,0,0);
-
-			F32* pos_out = (F32*) face.mPositions;
-			F32* norm_out = (F32*) face.mNormals;
-			F32* tc_out = (F32*) face.mTexCoords;
+			min.clear();
+			max.clear();
+			
+			LLVector4a* pos_out = face.mPositions;
+			LLVector4a* norm_out = face.mNormals;
+			LLVector2* tc_out = face.mTexCoords;
 
 			for (U32 j = 0; j < num_verts; ++j)
 			{
 				U16* v = (U16*) &(pos[j*3*2]);
 
-				pos_out[0] = (F32) v[0] / 65535.f * pos_range.mV[0] + min_pos.mV[0];
-				pos_out[1] = (F32) v[1] / 65535.f * pos_range.mV[1] + min_pos.mV[1];
-				pos_out[2] = (F32) v[2] / 65535.f * pos_range.mV[2] + min_pos.mV[2];
-			
+				pos_out->set((F32) v[0], (F32) v[1], (F32) v[2]);
+				pos_out->div(65535.f);
+				pos_out->mul(pos_range);
+				pos_out->add(min_pos);
 
 				if (j == 0)
 				{
-					min = max = LLVector3(pos_out);
+					min = *pos_out;
+					max = min;
 				}
 				else
 				{
-					update_min_max(min,max,pos_out);
+					min.setMin(*pos_out);
+					max.setMax(*pos_out);
 				}
 
-				pos_out += 4;
+				pos_out++;
 
 				U16* n = (U16*) &(norm[j*3*2]);
 
-				
-				norm_out[0] = (F32) n[0] / 65535.f * 2.f - 1.f;
-				norm_out[1] = (F32) n[1] / 65535.f * 2.f - 1.f;
-				norm_out[2] = (F32) n[2] / 65535.f * 2.f - 1.f;
-				norm_out += 4;
+				norm_out->set((F32) n[0], (F32) n[1], (F32) n[2]);
+				norm_out->div(65535.f);
+				norm_out->mul(2.f);
+				norm_out->sub(1.f);
+				norm_out++;
 
 				U16* t = (U16*) &(tc[j*2*2]);
 
-				tc_out[0] = (F32) t[0] / 65535.f * tc_range.mV[0] + min_tc.mV[0];
-				tc_out[1] =	(F32) t[1] / 65535.f * tc_range.mV[1] + min_tc.mV[1];
+				tc_out->mV[0] = (F32) t[0] / 65535.f * tc_range.mV[0] + min_tc.mV[0];
+				tc_out->mV[1] =	(F32) t[1] / 65535.f * tc_range.mV[1] + min_tc.mV[1];
 
-				tc_out += 8;
+				tc_out++;
 			}
 
 			
@@ -2234,8 +2304,8 @@ void LLVolume::makeTetrahedron()
 		LLVector4a(x,-x,-x)
 	};
 
-	face.mExtents[0].setVec(-x,-x,-x);
-	face.mExtents[1].setVec(x,x,x);
+	face.mExtents[0].splat(-x);
+	face.mExtents[1].splat(x);
 	
 	LLVolumeFace::VertexData cv[3];
 
@@ -4166,6 +4236,18 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 								   S32 face,
 								   LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
 {
+	LLVector4a starta, enda;
+	starta.load3(start.mV);
+	enda.load3(end.mV);
+
+	return lineSegmentIntersect(starta, enda, face, intersection, tex_coord, normal, bi_normal);
+
+}
+
+S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
+								   S32 face,
+								   LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
+{
 	S32 hit_face = -1;
 	
 	S32 start_face;
@@ -4182,7 +4264,8 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 		end_face = face;
 	}
 
-	LLVector3 dir = end - start;
+	LLVector4a dir;
+	dir.setSub(end, start);
 
 	F32 closest_t = 2.f; // must be larger than 1
 	
@@ -4192,21 +4275,20 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 	{
 		LLVolumeFace &face = mVolumeFaces[i];
 
-		LLVector3 box_center = (face.mExtents[0] + face.mExtents[1]) / 2.f;
-		LLVector3 box_size   = face.mExtents[1] - face.mExtents[0];
+		LLVector4a box_center;
+		box_center.setAdd(face.mExtents[0], face.mExtents[1]);
+		box_center.mul(0.5f);
 
-        if (LLLineSegmentBoxIntersect(start, end, box_center, box_size))
+		LLVector4a box_size;
+		box_size.setSub(face.mExtents[1], face.mExtents[0]);
+
+        if (LLLineSegmentBoxIntersect(start.getF32(), end.getF32(), box_center.getF32(), box_size.getF32()))
 		{
 			if (bi_normal != NULL) // if the caller wants binormals, we may need to generate them
 			{
 				genBinormals(i);
 			}
 			
-			LLVector4a starta, dira;
-
-			starta.load3(start.mV);
-			dira.load3(dir.mV);
-
 			LLVector4a* p = (LLVector4a*) face.mPositions;
 
 			for (U32 tri = 0; tri < face.mNumIndices/3; tri++) 
@@ -4220,7 +4302,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 				if (LLTriangleRayIntersect(p[index1],
 					p[index2],
 					p[index3],
-					starta, dira, &a, &b, &t, FALSE))
+					start, dir, &a, &b, &t, FALSE))
 				{
 					if ((t >= 0.f) &&      // if hit is after start
 						(t <= 1.f) &&      // and before end
@@ -4231,7 +4313,10 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 
 						if (intersection != NULL)
 						{
-							*intersection = start + dir * closest_t;
+							LLVector4a intersect = dir;
+							intersect.mul(closest_t);
+							intersect.add(start);
+							intersection->set(intersect.getF32());
 						}
 
 
@@ -5029,6 +5114,107 @@ std::ostream& operator<<(std::ostream &s, const LLVolume *volumep)
 	return s;
 }
 
+LLVolumeFace::LLVolumeFace() : 
+	mID(0),
+	mTypeMask(0),
+	mBeginS(0),
+	mBeginT(0),
+	mNumS(0),
+	mNumT(0),
+	mNumVertices(0),
+	mNumIndices(0),
+	mPositions(NULL),
+	mNormals(NULL),
+	mBinormals(NULL),
+	mTexCoords(NULL),
+	mIndices(NULL),
+	mWeights(NULL)
+{
+	mExtents = (LLVector4a*) _mm_malloc(48, 16);
+	mCenter = mExtents+2;
+}
+
+LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
+{ 
+	mExtents = (LLVector4a*) _mm_malloc(48, 16);
+	mCenter = mExtents+2;
+	*this = src;
+}
+
+LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
+{
+	if (&src == this)
+	{ //self assignment, do nothing
+		return *this;
+	}
+
+	mID = src.mID;
+	mTypeMask = src.mTypeMask;
+	mBeginS = src.mBeginS;
+	mBeginT = src.mBeginT;
+	mNumS = src.mNumS;
+	mNumT = src.mNumT;
+
+	mNumVertices = 0;
+	mNumIndices = 0;
+	mPositions = NULL;
+	mNormals = NULL;
+	mBinormals = NULL;
+	mTexCoords = NULL;
+	mWeights = NULL;
+	mIndices = NULL;
+
+	LLVector4a::memcpyNonAliased16((F32*) mExtents, (F32*) src.mExtents, 12);
+
+	resizeVertices(src.mNumVertices);
+	resizeIndices(src.mNumIndices);
+
+	if (mNumVertices)
+	{
+		S32 vert_size = mNumVertices*4;
+		S32 tc_size = (mNumVertices*8+0xF) & ~0xF;
+		tc_size /= 4;
+			
+		LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) src.mPositions, vert_size);
+		LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) src.mNormals, vert_size);
+		LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) src.mTexCoords, vert_size);
+
+		if (src.mBinormals)
+		{
+			allocateBinormals(src.mNumVertices);
+			LLVector4a::memcpyNonAliased16((F32*) mBinormals, (F32*) src.mBinormals, vert_size);
+		}
+		else
+		{
+			_mm_free(mBinormals);
+			mBinormals = NULL;
+		}
+
+		if (src.mWeights)
+		{
+			allocateWeights(src.mNumVertices);
+			LLVector4a::memcpyNonAliased16((F32*) mWeights, (F32*) src.mWeights, vert_size);
+		}
+		else
+		{
+			_mm_free(mWeights);
+			mWeights = NULL;
+		}
+	}
+
+	if (mNumIndices)
+	{
+		S32 idx_size = (mNumIndices*2+0xF) & ~0xF;
+		idx_size /= 4;
+
+		LLVector4a::memcpyNonAliased16((F32*) mIndices, (F32*) src.mIndices, idx_size);
+	}
+	
+
+	//delete 
+	return *this;
+}
+
 LLVolumeFace::~LLVolumeFace()
 {
 	_mm_free(mPositions);
@@ -5036,6 +5222,8 @@ LLVolumeFace::~LLVolumeFace()
 	_mm_free(mTexCoords);
 	_mm_free(mIndices);
 	_mm_free(mBinormals);
+	_mm_free(mWeights);
+	_mm_free(mExtents);
 }
 
 BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
@@ -5169,8 +5357,8 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 	num_vertices = (grid_size+1)*(grid_size+1);
 	num_indices = quad_count * 4;
 
-	LLVector3& min = mExtents[0];
-	LLVector3& max = mExtents[1];
+	LLVector4a& min = mExtents[0];
+	LLVector4a& max = mExtents[1];
 
 	S32 offset = 0;
 	if (mTypeMask & TOP_MASK)
@@ -5242,16 +5430,18 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 			if (gx == 0 && gy == 0)
 			{
-				min = max = LLVector3(newVert.getPosition().getF32());
+				min = max = newVert.getPosition();
 			}
 			else
 			{
-				update_min_max(min,max,newVert.getPosition().getF32());
+				min.setMin(newVert.getPosition());
+				max.setMax(newVert.getPosition());
 			}
 		}
 	}
 	
-	mCenter = (min + max) * 0.5f;
+	mCenter->setAdd(min, max);
+	mCenter->mul(0.5f); 
 
 	if (!partial_build)
 	{
@@ -5335,7 +5525,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	S32 max_s = volume->getProfile().getTotal();
 	S32 max_t = volume->getPath().mPath.size();
 
-	mCenter.clearVec();
+	mCenter->clear();
 
 	S32 offset = 0;
 	if (mTypeMask & TOP_MASK)
@@ -5353,8 +5543,8 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	LLVector2 cuv;
 	LLVector2 min_uv, max_uv;
 
-	LLVector3& min = mExtents[0];
-	LLVector3& max = mExtents[1];
+	LLVector4a& min = mExtents[0];
+	LLVector4a& max = mExtents[1];
 
 	LLVector2* tc = (LLVector2*) mTexCoords;
 	LLVector4a* pos = (LLVector4a*) mPositions;
@@ -5380,25 +5570,24 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 		
 		if (i == 0)
 		{
-			min = max = mesh[i+offset].mPos;
+			min = max = pos[i];
 			min_uv = max_uv = tc[i];
 		}
 		else
 		{
-			update_min_max(min,max, mesh[i+offset].mPos);
+			update_min_max(min,max,pos[i]);
 			update_min_max(min_uv, max_uv, tc[i]);
 		}
 	}
 
-	mCenter = (min+max)*0.5f;
-	cuv = (min_uv + max_uv)*0.5f;
+	mCenter->setAdd(min, max);
+	mCenter->mul(0.5f); 
 
-	LLVector4a center;
-	center.load3(mCenter.mV);
+	cuv = (min_uv + max_uv)*0.5f;
 
 	LLVector4a binormal;
 	calc_binormal_from_triangle(binormal,
-		center, cuv,
+		*mCenter, cuv,
 		pos[0], tc[0],
 		pos[1], tc[1]);
 	binormal.normalize3fast();
@@ -5407,8 +5596,8 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	LLVector4a d0, d1;
 	
 
-	d0.setSub(center, pos[0]);
-	d1.setSub(center, pos[1]);
+	d0.setSub(*mCenter, pos[0]);
+	d1.setSub(*mCenter, pos[1]);
 
 	if (mTypeMask & TOP_MASK)
 	{
@@ -5422,12 +5611,12 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	normal.normalize3fast();
 
 	VertexData vd;
-	vd.getPosition().load3(mCenter.mV);
+	vd.setPosition(*mCenter);
 	vd.mTexCoord = cuv;
 	
 	if (!(mTypeMask & HOLLOW_MASK) && !(mTypeMask & OPEN_MASK))
 	{
-		pos[num_vertices].load4a((F32*) &center.mQ);
+		pos[num_vertices] = *mCenter;
 		tc[num_vertices] = cuv;
 		num_vertices++;
 	}
@@ -5812,6 +6001,11 @@ void LLVolumeFace::allocateBinormals(S32 num_verts)
 	mBinormals = (LLVector4a*) _mm_malloc(num_verts*16, 16);
 }
 
+void LLVolumeFace::allocateWeights(S32 num_verts)
+{
+	_mm_free(mWeights);
+	mWeights = (LLVector4a*) _mm_malloc(num_verts*16, 16);
+}
 
 void LLVolumeFace::resizeIndices(S32 num_indices)
 {
@@ -5919,11 +6113,11 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 		if (offset == 0 && i == 0)
 		{
-			mExtents[0] = mExtents[1] = LLVector3((F32*) &(dst_pos[i].mQ));
+			mExtents[0] = mExtents[1] = dst_pos[i];
 		}
 		else
 		{
-			update_min_max(mExtents[0], mExtents[1], (F32*) &(dst_pos[i].mQ));
+			update_min_max(mExtents[0], mExtents[1], dst_pos[i]);
 		}
 	}
 
@@ -6076,18 +6270,19 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	
 
 	//get bounding box for this side
-	LLVector3& face_min = mExtents[0];
-	LLVector3& face_max = mExtents[1];
-	mCenter.clearVec();
+	LLVector4a& face_min = mExtents[0];
+	LLVector4a& face_max = mExtents[1];
+	mCenter->clear();
 
-	face_min = face_max = LLVector3((F32*) &(pos[0].mQ));
+	face_min = face_max = pos[0];
 
 	for (U32 i = 1; i < mNumVertices; ++i)
 	{
-		update_min_max(face_min, face_max, (F32*) &(pos[i].mQ));
+		update_min_max(face_min, face_max, pos[i]);
 	}
 
-	mCenter = (face_min + face_max) * 0.5f;
+	mCenter->setAdd(face_min, face_max);
+	mCenter->mul(0.5f);
 
 	S32 cur_index = 0;
 	S32 cur_edge = 0;
