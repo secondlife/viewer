@@ -160,8 +160,9 @@ void LLUrlEntryBase::callObservers(const std::string &id,
 								   const std::string &icon)
 {
 	// notify all callbacks waiting on the given uuid
-	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
-	for (it = mObservers.find(id); it != mObservers.end();)
+	typedef std::multimap<std::string, LLUrlEntryObserver>::iterator observer_it;
+	std::pair<observer_it, observer_it> matching_range = mObservers.equal_range(id);
+	for (observer_it it = matching_range.first; it != matching_range.second;)
 	{
 		// call the callback - give it the new label
 		LLUrlEntryObserver &observer = it->second;
@@ -342,8 +343,9 @@ void LLUrlEntryAgent::callObservers(const std::string &id,
 								    const std::string &icon)
 {
 	// notify all callbacks waiting on the given uuid
-	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
-	for (it = mObservers.find(id); it != mObservers.end();)
+	typedef std::multimap<std::string, LLUrlEntryObserver>::iterator observer_it;
+	std::pair<observer_it, observer_it> matching_range = mObservers.equal_range(id);
+	for (observer_it it = matching_range.first; it != matching_range.second;)
 	{
 		// call the callback - give it the new label
 		LLUrlEntryObserver &observer = it->second;
