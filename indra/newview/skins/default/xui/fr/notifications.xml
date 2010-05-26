@@ -283,7 +283,7 @@ Pour ne placer le média que sur une seule face, choisissez Sélectionner une fa
 		Veuillez saisir votre adresse e-mail.
 	</notification>
 	<notification name="PromptMissingSubjMsg">
-		Envoyer la photo avec le sujet ou le message par défaut ?
+		Envoyer la photo avec l'objet ou le message par défaut ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ErrorProcessingSnapshot">
