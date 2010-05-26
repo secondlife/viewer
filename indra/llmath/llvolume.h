@@ -50,12 +50,13 @@ class LLVolume;
 #include "v2math.h"
 #include "v3math.h"
 #include "v4math.h"
+#include "llvector4a.h"
 #include "llquaternion.h"
 #include "llstrider.h"
 #include "v4coloru.h"
 #include "llrefcount.h"
 #include "llfile.h"
-#include "llvector4a.h"
+
 
 //============================================================================
 
@@ -801,58 +802,18 @@ public:
 		};
 
 	private:
-		void init()
-		{
-			mData = (LLVector4a*) _mm_malloc(32, 16);
-		}
+		void init();
 	public:
-		VertexData()
-		{
-			init();
-		}
-			
-		VertexData(const VertexData& rhs)
-		{
-			init();
-			LLVector4a::memcpyNonAliased16((F32*) mData, (F32*) rhs.mData, 8);
-			mTexCoord = rhs.mTexCoord;
-		}
-
-		~VertexData()
-		{
-			_mm_free(mData);
-		}
-
-		LLVector4a& getPosition()
-		{
-			return mData[POSITION];
-		}
-
-		LLVector4a& getNormal()
-		{
-			return mData[NORMAL];
-		}
-
-		const LLVector4a& getPosition() const
-		{
-			return mData[POSITION];
-		}
-
-		const LLVector4a& getNormal() const
-		{
-			return mData[NORMAL];
-		}
+		VertexData();
+		VertexData(const VertexData& rhs);
+		~VertexData();
+		LLVector4a& getPosition();
+		LLVector4a& getNormal();
+		const LLVector4a& getPosition() const;
+		const LLVector4a& getNormal() const;
+		void setPosition(const LLVector4a& pos);
+		void setNormal(const LLVector4a& norm);
 		
-
-		void setPosition(const LLVector4a& pos)
-		{
-			mData[POSITION] = pos;
-		}
-
-		void setNormal(const LLVector4a& norm)
-		{
-			mData[NORMAL] = norm;
-		}
 
 		LLVector2 mTexCoord;
 
@@ -864,22 +825,9 @@ public:
 		LLVector4a* mData;
 	};
 
-	LLVolumeFace() : 
-		mID(0),
-		mTypeMask(0),
-		mBeginS(0),
-		mBeginT(0),
-		mNumS(0),
-		mNumT(0),
-		mNumVertices(0),
-		mNumIndices(0),
-		mPositions(NULL),
-		mNormals(NULL),
-		mBinormals(NULL),
-		mTexCoords(NULL),
-		mIndices(NULL)
-	{
-	}
+	LLVolumeFace();
+	LLVolumeFace(const LLVolumeFace& src);
+	LLVolumeFace& operator=(const LLVolumeFace& rhs);
 
 	~LLVolumeFace();
 
@@ -890,6 +838,7 @@ public:
 
 	void resizeVertices(S32 num_verts);
 	void allocateBinormals(S32 num_verts);
+	void allocateWeights(S32 num_verts);
 	void resizeIndices(S32 num_indices);
 	void fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, std::vector<U16>& idx);
 
@@ -944,15 +893,15 @@ public:
 public:
 	S32 mID;
 	U32 mTypeMask;
-	LLVector3 mCenter;
-
+	
 	// Only used for INNER/OUTER faces
 	S32 mBeginS;
 	S32 mBeginT;
 	S32 mNumS;
 	S32 mNumT;
 
-	LLVector3 mExtents[2]; //minimum and maximum point of face
+	LLVector4a* mExtents; //minimum and maximum point of face
+	LLVector4a* mCenter;
 
 	S32 mNumVertices;
 	S32 mNumIndices;
@@ -968,7 +917,7 @@ public:
 	//list of skin weights for rigged volumes
 	// format is mWeights[vertex_index].mV[influence] = <joint_index>.<weight>
 	// mWeights.size() should be empty or match mVertices.size()  
-	std::vector<LLVector4> mWeights;
+	LLVector4a* mWeights;
 
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
@@ -1051,6 +1000,13 @@ public:
 							 LLVector3* normal = NULL,               // return the surface normal at the intersection point
 							 LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
 		);
+
+	S32 lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
+								   S32 face = 1,
+								   LLVector3* intersection = NULL,
+								   LLVector2* tex_coord = NULL,
+								   LLVector3* normal = NULL,
+								   LLVector3* bi_normal = NULL);
 	
 	// The following cleans up vertices and triangles,
 	// getting rid of degenerate triangles and duplicate vertices,
@@ -1124,6 +1080,7 @@ void calc_binormal_from_triangle(
 		const LLVector4a& pos2,
 		const LLVector2& tex2);
 
+BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
 BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
 
 BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,

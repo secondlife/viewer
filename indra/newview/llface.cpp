@@ -39,6 +39,7 @@
 #include "llviewercontrol.h"
 #include "llvolume.h"
 #include "m3math.h"
+#include "llmatrix4a.h"
 #include "v3color.h"
 
 #include "lldrawpoolavatar.h"
@@ -74,35 +75,43 @@ The resulting texture coordinate <u,v> is:
 	u = 2(B dot P)
 	v = 2(T dot P)
 */
-void planarProjection(LLVector2 &tc, const LLVector3& normal,
-					  const LLVector3 &mCenter, const LLVector3& vec)
-{	//DONE!
-	LLVector3 binormal;
-	float d = normal * LLVector3(1,0,0);
+void planarProjection(LLVector2 &tc, const LLVector4a& normal,
+					  const LLVector4a &center, const LLVector4a& vec)
+{	
+	LLVector4a binormal;
+	F32 d = normal[0];
+
 	if (d >= 0.5f || d <= -0.5f)
 	{
-		binormal = LLVector3(0,1,0);
-		if (normal.mV[0] < 0)
+		if (d < 0)
 		{
-			binormal = -binormal;
+			binormal.set(0,-1,0);
+		}
+		else
+		{
+			binormal.set(0, 1, 0);
 		}
 	}
 	else
 	{
-        binormal = LLVector3(1,0,0);
-		if (normal.mV[1] > 0)
+        if (normal[1] > 0)
 		{
-			binormal = -binormal;
+			binormal.set(-1,0,0);
+		}
+		else
+		{
+			binormal.set(1,0,0);
 		}
 	}
-	LLVector3 tangent = binormal % normal;
+	LLVector4a tangent;
+	tangent.setCross3(binormal,normal);
 
-	tc.mV[1] = -((tangent*vec)*2 - 0.5f);
-	tc.mV[0] = 1.0f+((binormal*vec)*2 - 0.5f);
+	tc.mV[1] = -((tangent.dot3(vec))*2 - 0.5f);
+	tc.mV[0] = 1.0f+((binormal.dot3(vec))*2 - 0.5f);
 }
 
-void sphericalProjection(LLVector2 &tc, const LLVector3& normal,
-						 const LLVector3 &mCenter, const LLVector3& vec)
+void sphericalProjection(LLVector2 &tc, const LLVector4a& normal,
+						 const LLVector4a &mCenter, const LLVector4a& vec)
 {	//BROKEN
 	/*tc.mV[0] = acosf(vd.mNormal * LLVector3(1,0,0))/3.14159f;
 	
@@ -113,7 +122,7 @@ void sphericalProjection(LLVector2 &tc, const LLVector3& normal,
 	}*/
 }
 
-void cylindricalProjection(LLVector2 &tc, const LLVector3& normal, const LLVector3 &mCenter, const LLVector3& vec)
+void cylindricalProjection(LLVector2 &tc, const LLVector4a& normal, const LLVector4a &mCenter, const LLVector4a& vec)
 {	//BROKEN
 	/*LLVector3 binormal;
 	float d = vd.mNormal * LLVector3(1,0,0);
@@ -371,7 +380,14 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 	if (align)
 	{
 		//allocate vertices in blocks of 4 for alignment
-		S32 num_vertices = (num_vertices + 0x3) & ~0x3;
+		num_vertices = (num_vertices + 0x3) & ~0x3;
+	}
+	else
+	{
+		if (mDrawablep->getVOVolume())
+		{
+			llerrs << "WTF?" << llendl;
+		}
 	}
 
 	if (mGeomCount != num_vertices ||
@@ -722,6 +738,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		//	mLastVertexBuffer = NULL;
 		//}
 
+		//VECTORIZE THIS
 		LLVector3 min,max;
 	
 		if (f >= volume.getNumVolumeFaces())
@@ -732,8 +749,8 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		else
 		{
 			const LLVolumeFace &face = volume.getVolumeFace(f);
-			min = face.mExtents[0];
-			max = face.mExtents[1];
+			min.set(face.mExtents[0].getF32());
+			max.set(face.mExtents[1].getF32());
 		}
 
 		//min, max are in volume space, convert to drawable render space
@@ -824,18 +841,26 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, LLVector3 position, 
 		return surface_coord;
 	}
 
+	//VECTORIZE THIS
 	// see if we have a non-default mapping
     U8 texgen = getTextureEntry()->getTexGen();
 	if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 	{
-		LLVector3 center = mDrawablep->getVOVolume()->getVolume()->getVolumeFace(mTEOffset).mCenter;
+		LLVector4a& center = *(mDrawablep->getVOVolume()->getVolume()->getVolumeFace(mTEOffset).mCenter);
 		
-		LLVector3 scale  = (mDrawablep->getVOVolume()->isVolumeGlobal()) ? LLVector3(1,1,1) : mVObjp->getScale();
-		LLVector3 volume_position = mDrawablep->getVOVolume()->agentPositionToVolume(position);
-		volume_position.scaleVec(scale);
+		LLVector4a volume_position;
+		volume_position.load3(mDrawablep->getVOVolume()->agentPositionToVolume(position).mV);
 		
-		LLVector3 volume_normal   = mDrawablep->getVOVolume()->agentDirectionToVolume(normal);
-		volume_normal.normalize();
+		if (!mDrawablep->getVOVolume()->isVolumeGlobal())
+		{
+			LLVector4a scale;
+			scale.load3(mVObjp->getScale().mV);
+			volume_position.mul(scale);
+		}
+		
+		LLVector4a volume_normal;
+		volume_normal.load3(mDrawablep->getVOVolume()->agentDirectionToVolume(normal).mV);
+		volume_normal.normalize3fast();
 		
 		switch (texgen)
 		{
@@ -928,7 +953,7 @@ static LLFastTimer::DeclareTimer FTM_FACE_GET_GEOM("Face Geom");
 
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 							   const S32 &f,
-								const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
+								const LLMatrix4& mat_vert_in, const LLMatrix3& mat_norm_in,
 								const U16 &index_offset,
 								bool force_rebuild)
 {
@@ -960,14 +985,18 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 
-	LLStrider<LLVector3> vertices;
+	LLStrider<LLVector3> vert;
+	LLVector4a* vertices = NULL;
 	LLStrider<LLVector2> tex_coords;
 	LLStrider<LLVector2> tex_coords2;
-	LLStrider<LLVector3> normals;
+	LLVector4a* normals = NULL;
+	LLStrider<LLVector3> norm;
 	LLStrider<LLColor4U> colors;
-	LLStrider<LLVector3> binormals;
+	LLVector4a* binormals = NULL;
+	LLStrider<LLVector3> binorm;
 	LLStrider<U16> indicesp;
-	LLStrider<LLVector4> weights;
+	LLVector4a* weights = NULL;
+	LLStrider<LLVector4> wght;
 
 	BOOL full_rebuild = force_rebuild || mDrawablep->isState(LLDrawable::REBUILD_VOLUME);
 	
@@ -982,11 +1011,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		scale = mVObjp->getScale();
 	}
 	
-	BOOL rebuild_pos = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_POSITION);
-	BOOL rebuild_color = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_COLOR);
-	BOOL rebuild_tcoord = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
-	BOOL rebuild_normal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
-	BOOL rebuild_binormal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_BINORMAL);
+	bool rebuild_pos = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_POSITION);
+	bool rebuild_color = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_COLOR);
+	bool rebuild_tcoord = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
+	bool rebuild_normal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
+	bool rebuild_binormal = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_BINORMAL);
 	bool rebuild_weights = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_WEIGHT4);
 
 	const LLTextureEntry *tep = mVObjp->getTE(f);
@@ -994,19 +1023,23 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	if (rebuild_pos)
 	{
-		mVertexBuffer->getVertexStrider(vertices, mGeomIndex);
+		mVertexBuffer->getVertexStrider(vert, mGeomIndex);
+		vertices = (LLVector4a*) vert.get();
 	}
 	if (rebuild_normal)
 	{
-		mVertexBuffer->getNormalStrider(normals, mGeomIndex);
+		mVertexBuffer->getNormalStrider(norm, mGeomIndex);
+		normals = (LLVector4a*) norm.get();
 	}
 	if (rebuild_binormal)
 	{
-		mVertexBuffer->getBinormalStrider(binormals, mGeomIndex);
+		mVertexBuffer->getBinormalStrider(binorm, mGeomIndex);
+		binormals = (LLVector4a*) binorm.get();
 	}
 	if (rebuild_weights)
 	{
-		mVertexBuffer->getWeight4Strider(weights, mGeomIndex);
+		mVertexBuffer->getWeight4Strider(wght, mGeomIndex);
+		weights = (LLVector4a*) wght.get();
 	}
 	
 	F32 tcoord_xoffset = 0.f ;
@@ -1058,8 +1091,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	LLVector2 tmin, tmax;
 	
-	
-
 	if (rebuild_tcoord)
 	{
 		if (tep)
@@ -1142,9 +1173,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 	
 	//bump setup
-	LLVector3 binormal_dir( -sin_ang, cos_ang, 0 );
-	LLVector3 bump_s_primary_light_ray;
-	LLVector3 bump_t_primary_light_ray;
+	LLVector4a binormal_dir( -sin_ang, cos_ang, 0 );
+	LLVector4a bump_s_primary_light_ray;
+	LLVector4a bump_t_primary_light_ray;
 
 	LLQuaternion bump_quat;
 	if (mDrawablep->isActive())
@@ -1196,8 +1227,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		LLVector3   moon_ray = gSky.getMoonDirection();
 		LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
 
-		bump_s_primary_light_ray = offset_multiple * s_scale * primary_light_ray;
-		bump_t_primary_light_ray = offset_multiple * t_scale * primary_light_ray;
+		bump_s_primary_light_ray;
+		bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
+		bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
 	}
 		
 	U8 texgen = getTextureEntry()->getTexGen();
@@ -1206,45 +1238,47 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		mVObjp->getVolume()->genBinormals(f);
 	}
 
+	LLMatrix4a mat_normal;
+
+	if (rebuild_normal || rebuild_binormal || rebuild_tcoord)
+	{
+		mat_normal.loadu(mat_norm_in);
+	}
+	
 	//if it's not fullbright and has no normals, bake sunlight based on face normal
 	bool bake_sunlight = !getTextureEntry()->getFullbright() &&
 		!mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
 
-	//VECTORIZE THIS
-	for (S32 i = 0; i < num_vertices; i++)
+	if (rebuild_tcoord)
 	{
-		LLVector3 vf_binormal;
-		if (vf.mBinormals)
-		{
-			vf_binormal.setVec(vf.mBinormals[i].getF32());
-		}
+		LLVector4a scalea;
+		scalea.load3(scale.mV);
 
-		LLVector3 vf_normal;
-		vf_normal.set(vf.mNormals[i].getF32());
 
-		LLVector3 vf_position;
-		vf_position.set(vf.mPositions[i].getF32());
-
-		if (rebuild_tcoord)
-		{
+		for (S32 i = 0; i < num_vertices; i++)
+		{	
 			LLVector2 tc(vf.mTexCoords[i]);
 		
+			LLVector4a& norm = vf.mNormals[i];
+			
+			LLVector4a& center = *(vf.mCenter);
+
 			if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 			{
-				LLVector3 vec = vf_position;
+				LLVector4a vec = vf.mPositions[i];
 			
-				vec.scaleVec(scale);
+				vec.mul(scalea);
 
 				switch (texgen)
 				{
 					case LLTextureEntry::TEX_GEN_PLANAR:
-						planarProjection(tc, vf_normal, vf.mCenter, vec);
+						planarProjection(tc, norm, center, vec);
 						break;
 					case LLTextureEntry::TEX_GEN_SPHERICAL:
-						sphericalProjection(tc, vf_normal, vf.mCenter, vec);
+						sphericalProjection(tc, norm, center, vec);
 						break;
 					case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-						cylindricalProjection(tc, vf_normal, vf.mCenter, vec);
+						cylindricalProjection(tc, norm, center, vec);
 						break;
 					default:
 						break;
@@ -1351,68 +1385,84 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			
 
 			*tex_coords++ = tc;
-		
+			
 			if (bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
 			{
-				LLVector3 tangent = vf_binormal % vf_normal;
+				LLVector4a tangent;
+				tangent.setCross3(vf.mBinormals[i], vf.mNormals[i]);
 
-				LLMatrix3 tangent_to_object;
-				tangent_to_object.setRows(tangent, vf_binormal, vf_normal);
-				LLVector3 binormal = binormal_dir * tangent_to_object;
-				binormal = binormal * mat_normal;
-				
+				LLMatrix4a tangent_to_object;
+				tangent_to_object.setRows(tangent, vf.mBinormals[i], vf.mNormals[i]);
+				LLVector4a t;
+				tangent_to_object.rotate(binormal_dir, t);
+				LLVector4a binormal;
+				mat_normal.rotate(t, binormal);
+					
+				//VECTORIZE THIS
 				if (mDrawablep->isActive())
 				{
-					binormal *= bump_quat;
+					LLVector3 t;
+					t.set(binormal.getF32());
+					t *= bump_quat;
+					binormal.load3(t.mV);
 				}
 
-				binormal.normVec();
-				tc += LLVector2( bump_s_primary_light_ray * tangent, bump_t_primary_light_ray * binormal );
+				binormal.normalize3fast();
+				tc += LLVector2( bump_s_primary_light_ray.dot3(tangent), bump_t_primary_light_ray.dot3(binormal) );
 				
 				*tex_coords2++ = tc;
 			}	
 		}
-			
-		if (rebuild_pos)
-		{
-			*vertices++ = vf_position * mat_vert;
-		}
-		
-		if (rebuild_normal)
-		{
-			LLVector3 normal = vf_normal * mat_normal;
-			normal.normVec();
-			
-			*normals++ = normal;
-		}
-		
-		if (rebuild_binormal)
-		{
-			LLVector3 binormal = vf_binormal * mat_normal;
-			binormal.normVec();
-			*binormals++ = binormal;
-		}
-		
-		if (rebuild_weights && vf.mWeights.size() > i)
-		{
-			(*weights++) = vf.mWeights[i];
-		}
+	}
 
-		if (rebuild_color)
-		{
-			if (bake_sunlight)
-			{
-				LLVector3 normal = vf_normal * mat_normal;
-				normal.normVec();
-				
-				F32 da = normal * gPipeline.mSunDir;
+	if (rebuild_pos)
+	{
+		LLMatrix4a mat_vert;
+		mat_vert.loadu(mat_vert_in);
 
-				*colors++ = LLColor4U(U8(color.mV[0]*da), U8(color.mV[1]*da), U8(color.mV[2]*da), color.mV[3]);
-			}
-			else
-			{
-				*colors++ = color;		
-			}
+		for (S32 i = 0; i < num_vertices; i++)
+		{	
+			mat_vert.affineTransform(vf.mPositions[i], vertices[i]);
+		}
+	}
+		
+	if (rebuild_normal)
+	{
+		for (S32 i = 0; i < num_vertices; i++)
+		{	
+			LLVector4a normal;
+			mat_normal.rotate(vf.mNormals[i], normal);
+			normal.normalize3fast();
+			normals[i] = normal;
+		}
+	}
+		
+	if (rebuild_binormal)
+	{
+		for (S32 i = 0; i < num_vertices; i++)
+		{	
+			LLVector4a binormal;
+			mat_normal.rotate(vf.mBinormals[i], binormal);
+			binormal.normalize3fast();
+			binormals[i] = binormal;
+		}
+	}
+	
+	if (rebuild_weights && vf.mWeights)
+	{
+		LLVector4a::memcpyNonAliased16((F32*) weights, (F32*) vf.mWeights, num_vertices/4);
+	}
+
+	if (rebuild_color)
+	{
+		LLVector4a src;
+
+		src.splat(reinterpret_cast<F32&>(color.mAll));
+
+		F32* dst = (F32*) colors.get();
+		for (S32 i = 0; i < num_vertices; i+=4)
+		{	
+			LLVector4a::copy4a(dst+i, (F32*) &src);
 		}
 	}
 

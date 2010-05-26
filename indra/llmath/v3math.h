@@ -36,7 +36,6 @@
 #include "llerror.h"
 #include "llmath.h"
 
-
 #include "llsd.h"
 class LLVector2;
 class LLVector4;

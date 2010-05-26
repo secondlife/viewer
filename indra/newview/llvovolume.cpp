@@ -1602,7 +1602,8 @@ void LLVOVolume::updateFaceSize(S32 idx)
 	else
 	{
 		const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
-		facep->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
+		facep->setSize(vol_face.mNumVertices, vol_face.mNumIndices, 
+						true); // <--- volume faces should be padded for 16-byte alignment
 		
 	}
 }
