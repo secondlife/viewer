@@ -1794,7 +1794,7 @@ void LLTextBase::replaceUrl(const std::string &url,
 		seg->setEnd(seg_start + seg_length);
 
 		// if we find a link with our Url, then replace the label
-		if (style->isLink() && style->getLinkHREF() == url)
+		if (style->getLinkHREF() == url)
 		{
 			S32 start = seg->getStart();
 			S32 end = seg->getEnd();

@@ -49,7 +49,6 @@ std::string localize_slapp_label(const std::string& url, const std::string& full
 
 
 LLUrlEntryBase::LLUrlEntryBase()
-: mDisabledLink(false)
 {}
 
 LLUrlEntryBase::~LLUrlEntryBase()
@@ -493,9 +492,7 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 // x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
 //
 LLUrlEntryAgentName::LLUrlEntryAgentName()
-{
-	mDisabledLink = true;
-}
+{}
 
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
@@ -544,7 +541,7 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 LLStyle::Params LLUrlEntryAgentName::getStyle() const
 {
 	// don't override default colors
-	return LLStyle::Params();
+	return LLStyle::Params().is_link(false);
 }
 
 //
@@ -949,7 +946,6 @@ LLUrlEntryNoLink::LLUrlEntryNoLink()
 {
 	mPattern = boost::regex("<nolink>[^<]*</nolink>",
 							boost::regex::perl|boost::regex::icase);
-	mDisabledLink = true;
 }
 
 std::string LLUrlEntryNoLink::getUrl(const std::string &url) const
@@ -976,7 +972,6 @@ LLUrlEntryIcon::LLUrlEntryIcon()
 {
 	mPattern = boost::regex("<icon\\s*>\\s*([^<]*)?\\s*</icon\\s*>",
 							boost::regex::perl|boost::regex::icase);
-	mDisabledLink = true;
 }
 
 std::string LLUrlEntryIcon::getUrl(const std::string &url) const

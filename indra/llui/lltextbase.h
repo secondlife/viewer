@@ -315,6 +315,7 @@ protected:
 	void							updateRects();
 	void							needsScroll() { mScrollNeeded = TRUE; }
 
+	struct URLLabelCallback;
 	// Replace a URL with a new icon and label, for example, when
 	// avatar names are looked up.
 	void replaceUrl(const std::string &url, const std::string &label, const std::string& icon);
