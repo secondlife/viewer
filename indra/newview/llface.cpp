@@ -1165,9 +1165,21 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	if (full_rebuild)
 	{
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
-		for (U32 i = 0; i < (U32) num_indices; i++)
+		__m128i* dst = (__m128i*) indicesp.get();
+		__m128i* src = (__m128i*) vf.mIndices;
+		__m128i offset = _mm_set1_epi16(index_offset);
+
+		S32 end = num_indices/8;
+		
+		for (S32 i = 0; i < end; i++)
 		{
-			*indicesp++ = vf.mIndices[i] + index_offset;
+			__m128i res = _mm_add_epi16(src[i], offset);
+			_mm_storeu_si128(dst+i, res);
+		}
+
+		for (S32 i = end*8; i < num_indices; ++i)
+		{
+			indicesp[i] = vf.mIndices[i]+index_offset;
 		}
 	}
 	
