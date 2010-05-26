@@ -348,6 +348,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 
 	mVoiceFontsReceived(false),
 	mVoiceFontsNew(false),
+	mVoiceFontListDirty(false),
 
 	mCaptureBufferMode(false),
 	mCaptureBufferRecording(false),
@@ -1173,7 +1174,7 @@ void LLVivoxVoiceClient::stateMachine()
 			mCaptureTimer.setTimerExpirySec(CAPTURE_BUFFER_MAX_TIME);
 
 			// Update UI, should really use a separate callback.
-			notifyVoiceFontObservers(false);
+			notifyVoiceFontObservers();
 
 			setState(stateCaptureBufferRecording);
 		break;
@@ -1188,7 +1189,7 @@ void LLVivoxVoiceClient::stateMachine()
 				mCaptureBufferRecording = false;
 
 				// Update UI, should really use a separate callback.
-				notifyVoiceFontObservers(false);
+				notifyVoiceFontObservers();
 
 				setState(stateCaptureBufferPaused);
 			}
@@ -1202,7 +1203,7 @@ void LLVivoxVoiceClient::stateMachine()
 			mPreviewVoiceFontLast = mPreviewVoiceFont;
 
 			// Update UI, should really use a separate callback.
-			notifyVoiceFontObservers(false);
+			notifyVoiceFontObservers();
 
 			setState(stateCaptureBufferPlaying);
 		break;
@@ -1221,7 +1222,7 @@ void LLVivoxVoiceClient::stateMachine()
 				mCaptureBufferPlaying = false;
 
 				// Update UI, should really use a separate callback.
-				notifyVoiceFontObservers(false);
+				notifyVoiceFontObservers();
 
 				setState(stateCaptureBufferPaused);
 			}
@@ -1769,7 +1770,7 @@ void LLVivoxVoiceClient::stateMachine()
 	{
 		mAudioSessionChanged = false;
 		notifyParticipantObservers();
-		notifyVoiceFontObservers(false);
+		notifyVoiceFontObservers();
 	}
 	else if (mAudioSession && mAudioSession->mParticipantsChanged)
 	{
@@ -6442,7 +6443,7 @@ bool LLVivoxVoiceClient::setVoiceEffect(const LLUUID& id)
 	gSavedPerAccountSettings.setString("VoiceEffectDefault", id.asString());
 
 	sessionSetVoiceFontSendMessage(mAudioSession);
-	notifyVoiceFontObservers(false);
+	notifyVoiceFontObservers();
 
 	return true;
 }
@@ -6551,15 +6552,26 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 	voice_font_map_t::iterator iter = font_map.find(font_id);
 	bool new_font = (iter == font_map.end());
 
+	if (has_expired)
+	{
+		// Remove existing session fonts that have expired since we last saw them.
+		if (!new_font)
+		{
+			LL_DEBUGS("Voice") << "Expired " << (template_font ? "Template " : "")
+			<< expiration_date.asString() << " " << font_id
+			<< " (" << font_index << ") " << name << LL_ENDL;
+
+			if (!template_font)
+			{
+				deleteVoiceFont(font_id);
+			}
+		}
+		return;
+	}
+
 	if (new_font)
 	{
-		if (has_expired)
-		{
-			// If it's new and already marked expired, ignore it.
-			return;
-		}
-
-		// If it is a new (unexpired) font create a new entry.
+		// If it is a new font create a new entry.
 		font = new voiceFontEntry(font_id);
 	}
 	else
@@ -6570,20 +6582,6 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 
 	if (font)
 	{
-		// Remove existing fonts that have expired since we last saw them.
-		if (has_expired)
-		{
-			LL_DEBUGS("Voice") << "Expired " << (template_font ? "Template: " : ":")
-				<< font->mExpirationDate.asString() << font_id
-				<< " (" << font_index << ") " << name << LL_ENDL;
-
-			if (!template_font)
-			{
-				deleteVoiceFont(font_id);
-			}
-			return;
-		}
-
 		font->mFontIndex = font_index;
 		// Use the description for the human readable name if available, as the
 		// "name" may be a UUID.
@@ -6592,8 +6590,8 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 		font->mFontType = font_type;
 		font->mFontStatus = font_status;
 
-		LL_DEBUGS("Voice") << (template_font ? "Template: " : "")
-			<< font->mExpirationDate.asString() << font->mID
+		LL_DEBUGS("Voice") << (template_font ? "Template " : "")
+			<< font->mExpirationDate.asString() << " " << font->mID
 			<< " (" << font->mFontIndex << ") " << name << LL_ENDL;
 
 		// Set the expiry timer to trigger a notification when the voice font can no longer be used.
@@ -6622,7 +6620,7 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 			font->mExpiryWarningTimer.stop();
 		}
 
-		 // Only flag it as a new font if we have already seen the font list.
+		 // Only flag new session fonts.
 		if (!template_font && mVoiceFontsReceived && new_font)
 		{
 			font->mIsNew = true;
@@ -6634,6 +6632,8 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 			font_map.insert(voice_font_map_t::value_type(font->mID, font));
 			font_list.insert(voice_effect_list_t::value_type(font->mName, font->mID));
 		}
+
+		mVoiceFontListDirty = true;
 
 		// Debugging stuff
 
@@ -6706,7 +6706,7 @@ void LLVivoxVoiceClient::expireVoiceFonts()
 		}
 
 		// Refresh voice font lists in the UI.
-		notifyVoiceFontObservers(true);
+		notifyVoiceFontObservers();
 	}
 
 	// Give a warning notification if any voice fonts are due to expire.
@@ -6729,6 +6729,7 @@ void LLVivoxVoiceClient::deleteVoiceFont(const LLUUID& id)
 		{
 			LL_DEBUGS("Voice") << "Removing " << id << " from the voice font list." << LL_ENDL;
 			mVoiceFontList.erase(list_iter++);
+			mVoiceFontListDirty = true;
 		}
 		else
 		{
@@ -6866,22 +6867,15 @@ void LLVivoxVoiceClient::accountGetSessionFontsResponse(int statusCode, const st
 	{
 		setState(stateVoiceFontsReceived);
 	}
+
+	notifyVoiceFontObservers();
 	mVoiceFontsReceived = true;
-
-	// If new Voice Fonts have been found notify the user.
-	if (mVoiceFontsNew)
-	{
-		LLNotificationsUtil::add("VoiceEffectsNew");
-		mVoiceFontsNew = false;
-	}
-
-	notifyVoiceFontObservers(true);
 }
 
 void LLVivoxVoiceClient::accountGetTemplateFontsResponse(int statusCode, const std::string &statusString)
 {
 	// Voice font list entries were updated via addVoiceFont() during parsing.
-	notifyVoiceFontObservers(true);
+	notifyVoiceFontObservers();
 }
 void LLVivoxVoiceClient::addObserver(LLVoiceEffectObserver* observer)
 {
@@ -6893,18 +6887,29 @@ void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
 	mVoiceFontObservers.erase(observer);
 }
 
-void LLVivoxVoiceClient::notifyVoiceFontObservers(bool lists_changed)
+void LLVivoxVoiceClient::notifyVoiceFontObservers()
 {
-	LL_DEBUGS("Voice") << "Notifying voice effect observers. Lists changed: " << lists_changed << LL_ENDL;
+	LL_DEBUGS("Voice") << "Notifying voice effect observers. Lists changed: " << mVoiceFontListDirty << LL_ENDL;
 
 	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
 		 it != mVoiceFontObservers.end();
 		 )
 	{
 		LLVoiceEffectObserver* observer = *it;
-		observer->onVoiceEffectChanged(lists_changed);
+		observer->onVoiceEffectChanged(mVoiceFontListDirty);
 		// In case onVoiceEffectChanged() deleted an entry.
 		it = mVoiceFontObservers.upper_bound(observer);
+	}
+	mVoiceFontListDirty = false;
+
+	// If new Voice Fonts have been added notify the user.
+	if (mVoiceFontsNew)
+	{
+		if(mVoiceFontsReceived)
+		{
+			LLNotificationsUtil::add("VoiceEffectsNew");
+		}
+		mVoiceFontsNew = false;
 	}
 }
 
@@ -7528,14 +7533,11 @@ LLDate LLVivoxProtocolParser::vivoxTimeStampToLLDate(const std::string& vivox_ts
 	std::string time_stamp = vivox_ts;
 
 	// Vivox's format is missing a T from being standard ISO 8601,
-	// so add it.  It is the only space in their result.
+	// so add it instead of the only space after the date.
 	LLStringUtil::replaceChar(time_stamp, ' ', 'T');
 
-	// Also need to remove the hours away from GMT to be compatible
-	// with LLDate, as well as the fractions of seconds.
-	time_stamp = time_stamp.substr(0, time_stamp.length() - 5);
-
-	// It also needs a 'Z' at the end
+	// LLDate can't handle offsets from UTC, so remove it, and add a Z
+	time_stamp = time_stamp.substr(0, time_stamp.length() - 3);
 	time_stamp += "Z";
 
 	ts.fromString(time_stamp);

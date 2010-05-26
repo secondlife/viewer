@@ -869,7 +869,7 @@ private:
 	void accountGetTemplateFontsSendMessage();
 	void sessionSetVoiceFontSendMessage(sessionState *session);
 
-	void notifyVoiceFontObservers(bool lists_changed = false);
+	void notifyVoiceFontObservers();
 
 	typedef enum e_voice_font_type
 	{
@@ -906,6 +906,7 @@ private:
 
 	bool mVoiceFontsReceived;
 	bool mVoiceFontsNew;
+	bool mVoiceFontListDirty;
 	voice_effect_list_t	mVoiceFontList;
 	voice_effect_list_t	mVoiceFontTemplateList;
 
