@@ -82,7 +82,7 @@ static S32 bump_channel = -1;
 // static 
 void LLStandardBumpmap::init()
 {
-	// do nothing
+	LLStandardBumpmap::restoreGL();
 }
 
 // static 
