@@ -5971,7 +5971,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.2</real>
+    <real>0.125</real>
   </map>
   <key>MediaRollOffMin</key>
   <map>
@@ -5982,7 +5982,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>7.0</real>
+    <real>5.0</real>
   </map>
   <key>MediaRollOffMax</key>
   <map>
@@ -9050,6 +9050,17 @@
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureDiscardLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Specify texture resolution (0 = highest, 5 = lowest)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
