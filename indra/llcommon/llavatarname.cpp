@@ -40,7 +40,6 @@
 
 // Store these in pre-built std::strings to avoid memory allocations in
 // LLSD map lookups
-static const std::string SL_ID("sl_id");
 static const std::string USERNAME("username");
 static const std::string DISPLAY_NAME("display_name");
 static const std::string LEGACY_FIRST_NAME("legacy_first_name");
@@ -80,17 +79,7 @@ LLSD LLAvatarName::asLLSD() const
 
 void LLAvatarName::fromLLSD(const LLSD& sd)
 {
-	// *HACK: accept both wire formats for now, as we are transitioning
-	// People API to use "username"
-	if (sd.has(USERNAME))
-	{
-		mUsername = sd[USERNAME].asString();
-	}
-	else
-	{
-		// *TODO: Remove
-		mUsername = sd[SL_ID].asString();
-	}
+	mUsername = sd[USERNAME].asString();
 	mDisplayName = sd[DISPLAY_NAME].asString();
 	mLegacyFirstName = sd[LEGACY_FIRST_NAME].asString();
 	mLegacyLastName = sd[LEGACY_LAST_NAME].asString();
