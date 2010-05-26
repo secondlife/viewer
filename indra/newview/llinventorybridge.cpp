@@ -62,6 +62,7 @@
 #include "llpreviewgesture.h"
 #include "llpreviewtexture.h"
 #include "llselectmgr.h"
+#include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
@@ -4884,15 +4885,9 @@ void LLWearableBridge::editOnAvatar()
 	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(linked_id);
 	if( wearable )
 	{
-		// Set the tab to the right wearable.
-		if (gFloaterCustomize)
-			gFloaterCustomize->setCurrentWearableType( wearable->getType() );
+		LLPanel * panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
 
-		if( CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() )
-		{
-			// Start Avatar Customization
-			gAgentCamera.changeCameraToCustomizeAvatar();
-		}
+		LLSidePanelAppearance::editWearable(wearable, panel);
 	}
 }
 

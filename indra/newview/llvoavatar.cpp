@@ -7887,3 +7887,26 @@ BOOL LLVOAvatar::isTextureDefined(LLVOAvatarDefines::ETextureIndex te, U32 index
 			getImage(te, index)->getID() != IMG_DEFAULT);
 }
 
+//virtual
+BOOL LLVOAvatar::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const
+{
+	if (isIndexLocalTexture(type))
+	{
+		return isTextureDefined(type, index);
+	}
+	else
+	{
+		// baked textures can use TE images directly
+		return ((isTextureDefined(type) || isSelf())
+				&& (getTEImage(type)->getID() != IMG_INVISIBLE 
+					|| LLDrawPoolAlpha::sShowDebugAlpha));
+	}
+}
+
+//virtual
+BOOL LLVOAvatar::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const
+{
+	// non-self avatars don't have wearables
+	return FALSE;
+}
+
