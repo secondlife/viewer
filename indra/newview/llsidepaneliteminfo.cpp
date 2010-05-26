@@ -288,7 +288,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 			LLSLURL("agent", creator_id, "completename").getSLURLString();
 		childSetEnabled("BtnCreator",TRUE);
 		childSetEnabled("LabelCreatorTitle",TRUE);
-		childSetEnabled("LabelCreatorName",TRUE);
+		childSetEnabled("LabelCreatorName",FALSE);
 		childSetText("LabelCreatorName",name);
 	}
 	else
@@ -316,7 +316,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		}
 		childSetEnabled("BtnOwner",TRUE);
 		childSetEnabled("LabelOwnerTitle",TRUE);
-		childSetEnabled("LabelOwnerName",TRUE);
+		childSetEnabled("LabelOwnerName",FALSE);
 		childSetText("LabelOwnerName",name);
 	}
 	else
