@@ -150,8 +150,14 @@
 
 
 <!-- LIST OF WEARABLES (CURRENT OUTFIT/ WEARABLES TO ADD) -->
+<!-- *NOTE: border_size is used to calculate space between layout panel and for resize bar height
+required height for dragbar is 10, so resizebar height should be 10 px.
+It is calculated as border_size + 2*UIResizeBarOverlap
+-->
     <layout_stack
      animate="false"
+     border_size="8"
+     clip="false"
      default_tab_group="2"
      follows="all"
      height="495"
@@ -222,15 +228,24 @@
 
 
         <layout_panel
+         background_visible="true"
+         bg_alpha_color="DkGray2"
          auto_resize="true"
          default_tab_group="3"
-         height="210" 
+         height="211"
          min_height="210"
          name="add_wearables_panel"
          width="313"
          tab_group="2"
          user_resize="true"
-         visible="false">
+         visible="true">
+          <icon
+           follows="left|top|right"
+           height="10"
+           image_name="Dragbar"
+           left="0"
+           top_pad="-9"
+           width="313" />
          	<text
              follows="top|left|right"
              font="SansSerifBold"
@@ -239,22 +254,19 @@
              left="5"
              name="add_to_outfit_label"
              text_color="LtGray"
-             top="3"
+             top="4"
              value="Add to Outfit:"
              use_ellipses="true"
              width="150" />
             <button
-             follows="top|left|right"
+             follows="top|right"
              height="20"
-             image_hover_unselected="Toolbar_Middle_Over"
              image_overlay="Search_Icon"
-             image_selected="Toolbar_Middle_Selected"
-             image_unselected="Toolbar_Middle_Off"
              is_toggle="true"
              layout="topleft"
              left_pad="5"
              name="filter_button"
-             top="3"
+             top_delta="0"
              width="20" />
             <combo_box
              follows="top|left|right"
@@ -262,14 +274,14 @@
              layout="topleft"
              right="-5"
              name="filter_wearables_combobox"
-             top="2"
+             top_delta="0"
              width="110"/>
 
             <layout_stack
              animate="true"
              follows="all"
              height="155"
-             width="311"
+             width="313"
              layout="topleft"
              name="filter_panels"
              top_pad="5"
@@ -301,6 +313,8 @@
                 </layout_panel>
                 <layout_panel
                  auto_resize="true"
+                 background_visible="true"
+                 bg_alpha_color="0.107 0.107 0.107 1"
                  height="145"
                  min_width="130"
                  name="inventory_panel"
@@ -308,6 +322,7 @@
                  user_resize="true">
                     <inventory_panel
 		             allow_multi_select="true"
+		             background_visible="false"
 		             border="false"
 		             follows="left|top|right|bottom"
 		             height="140"
@@ -321,7 +336,7 @@
 		            <panel
 		             name="filtered_wearables_panel"
 		             background_opaque="true"
-		             background_visible="true"
+		             background_visible="false"
 		             layout="topleft"
 		             follows="left|top|right|bottom"
 		             border="false"
@@ -332,6 +347,7 @@
 		             top_delta="0"
 		             visible="true">
 		             <wearable_items_list
+		              color="0.107 0.107 0.107 1"
 		              name="filtered_wearables_list"
 		              allow_select="true"
 		              layout="topleft"
