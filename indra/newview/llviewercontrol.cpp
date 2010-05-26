@@ -119,10 +119,9 @@ static bool handleTerrainDetailChanged(const LLSD& newvalue)
 
 static bool handleSetShaderChanged(const LLSD& newvalue)
 {
-	// changing shader level may invalidate existing cached bump maps, as the shader type determines the format of the bump map it expects - clear the bump cache
-	gBumpImageList.clear();
-	LLStandardBumpmap::clear();
-	LLStandardBumpmap::addstandard();
+	// changing shader level may invalidate existing cached bump maps, as the shader type determines the format of the bump map it expects - clear and repopulate the bump cache
+	gBumpImageList.destroyGL();
+	gBumpImageList.restoreGL();
 
 	LLViewerShaderMgr::instance()->setShaders();
 	return true;
