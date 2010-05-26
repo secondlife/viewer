@@ -705,9 +705,9 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 		}
 	}
 
-	if( gFloaterCustomize )
+	if( gAgentCamera.cameraCustomizeAvatar() )
 	{
-		gFloaterCustomize->setWearable(type, NULL, PERM_ALL, TRUE);
+		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
 	}
 
 	gAgentAvatarp->updateVisualParams();
@@ -976,9 +976,11 @@ void LLWearable::revertValues()
 
 	syncImages(mSavedTEMap, mTEMap);
 
-	if( gFloaterCustomize )
+
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	if( panel )
 	{
-		gFloaterCustomize->updateScrollingPanelList(TRUE);
+		panel->updateScrollingPanelList();
 	}
 }
 
@@ -1015,9 +1017,11 @@ void LLWearable::saveValues()
 	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
 	syncImages(mTEMap, mSavedTEMap);
 
-	if( gFloaterCustomize )
+
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	if( panel )
 	{
-		gFloaterCustomize->updateScrollingPanelList(TRUE);
+		panel->updateScrollingPanelList();
 	}
 }
 

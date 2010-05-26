@@ -465,3 +465,19 @@ void LLSidepanelAppearance::setWearablesLoading(bool val)
 	childSetVisible("wearables_loading_indicator", val);
 	childSetVisible("edit_outfit_btn", !val);
 }
+
+void LLSidepanelAppearance::showDefaultSubpart()
+{
+	if (mEditWearable->getVisible())
+	{
+		mEditWearable->showDefaultSubpart();
+	}
+}
+
+void LLSidepanelAppearance::updateScrollingPanelList()
+{
+	if (mEditWearable->getVisible())
+	{
+		mEditWearable->updateScrollingPanelList();
+	}
+}

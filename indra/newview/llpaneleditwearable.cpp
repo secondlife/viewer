@@ -956,6 +956,10 @@ void LLPanelEditWearable::changeCamera(U8 subpart)
 	}
 }
 
+void LLPanelEditWearable::updateScrollingPanelList()
+{
+	updateScrollingPanelUI();
+}
 
 void LLPanelEditWearable::initializePanel()
 {

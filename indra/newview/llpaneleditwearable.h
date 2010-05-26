@@ -66,6 +66,8 @@ public:
 	void				showDefaultSubpart();
 	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
 
+	void 				updateScrollingPanelList();
+
 	static void			onRevertButtonClicked(void* userdata);
 	void				onCommitSexChange();
 
