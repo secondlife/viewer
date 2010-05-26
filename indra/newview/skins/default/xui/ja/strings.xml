@@ -892,7 +892,7 @@
 		左脚
 	</string>
 	<string name="BodyPartsTorso">
-		頭
+		上半身
 	</string>
 	<string name="BodyPartsRightLeg">
 		右脚
@@ -2416,7 +2416,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		頭の大きさ
 	</string>
 	<string name="Head Stretch">
-		頭の伸び
+		縦横の長さ
 	</string>
 	<string name="Heel Height">
 		ヒールの高さ
@@ -3244,7 +3244,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ほおの上部
 	</string>
 	<string name="Upper Chin Cleft">
-		あご上部の割れ具合
+		あご上部の割れ
 	</string>
 	<string name="Upper Eyelid Fold">
 		二重の幅
