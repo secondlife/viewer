@@ -64,6 +64,7 @@
 #include "llfloatercustomize.h"
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
+#include "llsidepanelappearance.h"
 
 ///----------------------------------------------------------------------------
 /// Helper class to store special inventory item names 
@@ -883,9 +884,10 @@ void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
-		if (gFloaterCustomize)
+		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+		if (panel)
 		{
-			gFloaterCustomize->switchToDefaultSubpart();
+			panel->showDefaultSubpart();
 		}
 	}
 }

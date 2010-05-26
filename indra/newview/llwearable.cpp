@@ -33,23 +33,26 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
+#include "lldictionary.h"
 #include "llfloatercustomize.h"
 #include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
 #include "llviewertexturelist.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
+#include "llsidepanelappearance.h"
+#include "llsidetray.h"
+#include "lltexlayer.h"
+#include "lltexglobalcolor.h"
+#include "lltrans.h"
 #include "llviewerregion.h"
+#include "llvisualparam.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llvoavatardefines.h"
 #include "llwearable.h"
-#include "lldictionary.h"
-#include "lltrans.h"
-#include "lltexlayer.h"
-#include "llvisualparam.h"
-#include "lltexglobalcolor.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -576,14 +579,6 @@ BOOL LLWearable::isDirty() const
 		}
 	}
 
-	//if( gFloaterCustomize )
-	//{
-	//	if( mDescription != gFloaterCustomize->getWearableDescription( mType ) )
-	//	{
-	//		return TRUE;
-	//	}
-	//}
-
 	return FALSE;
 }
 
@@ -705,9 +700,9 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 		}
 	}
 
-	if( gFloaterCustomize )
+	if( gAgentCamera.cameraCustomizeAvatar() )
 	{
-		gFloaterCustomize->setWearable(type, NULL, PERM_ALL, TRUE);
+		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
 	}
 
 	gAgentAvatarp->updateVisualParams();
@@ -976,9 +971,11 @@ void LLWearable::revertValues()
 
 	syncImages(mSavedTEMap, mTEMap);
 
-	if( gFloaterCustomize )
+
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	if( panel )
 	{
-		gFloaterCustomize->updateScrollingPanelList(TRUE);
+		panel->updateScrollingPanelList();
 	}
 }
 
@@ -1015,9 +1012,11 @@ void LLWearable::saveValues()
 	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
 	syncImages(mTEMap, mSavedTEMap);
 
-	if( gFloaterCustomize )
+
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	if( panel )
 	{
-		gFloaterCustomize->updateScrollingPanelList(TRUE);
+		panel->updateScrollingPanelList();
 	}
 }
 

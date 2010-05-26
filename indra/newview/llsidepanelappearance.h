@@ -67,6 +67,8 @@ public:
 	void showOutfitEditPanel();
 	void showWearableEditPanel(LLWearable *wearable = NULL);
 	void setWearablesLoading(bool val);
+	void showDefaultSubpart();
+	void updateScrollingPanelList();
 
 private:
 	void onFilterEdit(const std::string& search_string);
