@@ -6551,35 +6551,36 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 	voice_font_map_t::iterator iter = font_map.find(font_id);
 	bool new_font = (iter == font_map.end());
 
-	// If it is a new (unexpired) font create a new entry, otherwise update the existing one.
 	if (new_font)
 	{
-		if (!has_expired)
+		if (has_expired)
 		{
-			font = new voiceFontEntry(font_id);
-		}
-		else
-		{
-			LL_DEBUGS("Voice") << (template_font?"Template: ":"") << font_id
-			<< " (" << font_index << ") : " << name << " has expired." << LL_ENDL;
+			// If it's new and already marked expired, ignore it.
+			return;
 		}
 
+		// If it is a new (unexpired) font create a new entry.
+		font = new voiceFontEntry(font_id);
 	}
 	else
 	{
+		// Not a new font, update the existing entry
 		font = iter->second;
 	}
 
 	if (font)
 	{
-		// Remove fonts that have expired since we last saw them.
+		// Remove existing fonts that have expired since we last saw them.
 		if (has_expired)
 		{
-			LL_DEBUGS("Voice") << (template_font?"Template: ":"") << font_id
-			<< " (" << font_index << ") : " << name << " has expired, removing."
-			<< LL_ENDL;
+			LL_DEBUGS("Voice") << "Expired " << (template_font ? "Template: " : ":")
+				<< font->mExpirationDate.asString() << font_id
+				<< " (" << font_index << ") " << name << LL_ENDL;
 
-			deleteVoiceFont(font_id);
+			if (!template_font)
+			{
+				deleteVoiceFont(font_id);
+			}
 			return;
 		}
 
@@ -6591,9 +6592,21 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 		font->mFontType = font_type;
 		font->mFontStatus = font_status;
 
+		LL_DEBUGS("Voice") << (template_font ? "Template: " : "")
+			<< font->mExpirationDate.asString() << font->mID
+			<< " (" << font->mFontIndex << ") " << name << LL_ENDL;
+
 		// Set the expiry timer to trigger a notification when the voice font can no longer be used.
 		font->mExpiryTimer.start();
 		font->mExpiryTimer.setExpiryAt(expiration_date.secondsSinceEpoch());
+
+		if (font->mExpiryTimer.hasExpired())
+		{
+			// Should never happen, but check anyway.
+			LL_DEBUGS("Voice") << "Voice font " << font->mID
+				<< " expired " << font->mExpirationDate.asString()
+				<< " but is not marked expired!" << LL_ENDL;
+		}
 
 		// Set the warning timer to some interval before actual expiry.
 		S32 warning_time = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
@@ -6623,9 +6636,6 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 		}
 
 		// Debugging stuff
-
-		LL_DEBUGS("Voice") << (template_font?"Template: ":"") << font_id
-		<< " (" << font_index << ") : " << name << LL_ENDL;
 
 		if (font_type < VOICE_FONT_TYPE_NONE || font_type >= VOICE_FONT_TYPE_UNKNOWN)
 		{
@@ -6717,6 +6727,7 @@ void LLVivoxVoiceClient::deleteVoiceFont(const LLUUID& id)
 	{
 		if (list_iter->second == id)
 		{
+			LL_DEBUGS("Voice") << "Removing " << id << " from the voice font list." << LL_ENDL;
 			mVoiceFontList.erase(list_iter++);
 		}
 		else
@@ -6884,6 +6895,8 @@ void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
 
 void LLVivoxVoiceClient::notifyVoiceFontObservers(bool lists_changed)
 {
+	LL_DEBUGS("Voice") << "Notifying voice effect observers. Lists changed: " << lists_changed << LL_ENDL;
+
 	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
 		 it != mVoiceFontObservers.end();
 		 )
@@ -7504,8 +7517,9 @@ LLDate LLVivoxProtocolParser::vivoxTimeStampToLLDate(const std::string& vivox_ts
 {
 	LLDate ts;
 
-	// First check to see if it actually already is a parseable ISO8601 date,
-	// in case the format miraculously changes in future ;)
+	// First check to see if it actually already is an ISO 8601 date that
+	// LLDate::fromString() can parse.
+	// In case the format miraculously changes in future ;)
 	if (ts.fromString(vivox_ts))
 	{
 		return ts;
@@ -7527,8 +7541,8 @@ LLDate LLVivoxProtocolParser::vivoxTimeStampToLLDate(const std::string& vivox_ts
 	ts.fromString(time_stamp);
 	if(!ts.fromString(time_stamp))
 	{
-		LL_WARNS_ONCE("Voice") << "Failed to parse Vivox timestamp: " << vivox_ts
-							   << " to ISO 8601 date: " << time_stamp << LL_ENDL;
+		LL_WARNS_ONCE("VivoxProtocolParser") << "Failed to parse Vivox timestamp: "
+					<< vivox_ts << " to ISO 8601 date: " << time_stamp << LL_ENDL;
 		return LLDate();
 	}
 
