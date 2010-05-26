@@ -579,14 +579,6 @@ BOOL LLWearable::isDirty() const
 		}
 	}
 
-	//if( gFloaterCustomize )
-	//{
-	//	if( mDescription != gFloaterCustomize->getWearableDescription( mType ) )
-	//	{
-	//		return TRUE;
-	//	}
-	//}
-
 	return FALSE;
 }
 

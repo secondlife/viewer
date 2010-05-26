@@ -1676,14 +1676,12 @@ void LLAgentWearables::userRemoveWearablesOfType(const LLWearableType::EType &ty
 void LLAgentWearables::userRemoveAllClothes()
 {
 	// We have to do this up front to avoid having to deal with the case of multiple wearables being dirty.
-	if (gFloaterCustomize)
+	if (gAgentCamera.cameraCustomizeAvatar())
 	{
-		gFloaterCustomize->askToSaveIfDirty(userRemoveAllClothesStep2);
+		// switching to outfit editor should automagically save any currently edited wearable
+		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
 	}
-	else
-	{
-		userRemoveAllClothesStep2(TRUE);
-	}
+	userRemoveAllClothesStep2(TRUE);
 }
 
 // static

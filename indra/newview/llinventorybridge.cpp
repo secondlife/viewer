@@ -4447,15 +4447,13 @@ void remove_inventory_category_from_avatar( LLInventoryCategory* category )
 			 << " )" << llendl;
 
 
-	if( gFloaterCustomize )
+	if (gAgentCamera.cameraCustomizeAvatar())
 	{
-		gFloaterCustomize->askToSaveIfDirty(
-			boost::bind(remove_inventory_category_from_avatar_step2, _1, category->getUUID()));
+		// switching to outfit editor should automagically save any currently edited wearable
+		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
 	}
-	else
-	{
-		remove_inventory_category_from_avatar_step2(TRUE, category->getUUID() );
-	}
+
+	remove_inventory_category_from_avatar_step2(TRUE, category->getUUID() );
 }
 
 struct OnRemoveStruct
