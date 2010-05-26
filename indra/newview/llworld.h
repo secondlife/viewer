@@ -184,6 +184,8 @@ private:
 
 	U64 mSpaceTimeUSec;
 
+	BOOL mClassicCloudsEnabled;
+
 	////////////////////////////
 	//
 	// Data for "Fake" objects
