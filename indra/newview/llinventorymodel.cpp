@@ -566,6 +566,11 @@ const LLUUID& LLInventoryModel::getLinkedItemID(const LLUUID& object_id) const
 	return item->getLinkedUUID();
 }
 
+LLViewerInventoryItem* LLInventoryModel::getLinkedItem(const LLUUID& object_id) const
+{
+	return object_id.notNull() ? getItem(getLinkedItemID(object_id)) : NULL;
+}
+
 LLInventoryModel::item_array_t LLInventoryModel::collectLinkedItems(const LLUUID& id,
 																	const LLUUID& start_folder_id)
 {

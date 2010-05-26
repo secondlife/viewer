@@ -51,6 +51,7 @@ public:
 		Optional<const LLFontGL*>		font;
 		Optional<LLUIImage*>			image;
 		Optional<std::string>			link_href;
+		Optional<bool>					is_link;
 		Params();
 	};
 	LLStyle(const Params& p = Params());
@@ -113,6 +114,7 @@ private:
 	std::string	mFontName;
 	const LLFontGL*   mFont;		// cached for performance
 	std::string	mLink;
+	bool		mIsLink;
 	LLUIImagePtr mImagep;
 };
 

@@ -160,8 +160,9 @@ void LLUrlEntryBase::callObservers(const std::string &id,
 								   const std::string &icon)
 {
 	// notify all callbacks waiting on the given uuid
-	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
-	for (it = mObservers.find(id); it != mObservers.end();)
+	typedef std::multimap<std::string, LLUrlEntryObserver>::iterator observer_it;
+	std::pair<observer_it, observer_it> matching_range = mObservers.equal_range(id);
+	for (observer_it it = matching_range.first; it != matching_range.second;)
 	{
 		// call the callback - give it the new label
 		LLUrlEntryObserver &observer = it->second;
@@ -342,8 +343,9 @@ void LLUrlEntryAgent::callObservers(const std::string &id,
 								    const std::string &icon)
 {
 	// notify all callbacks waiting on the given uuid
-	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
-	for (it = mObservers.find(id); it != mObservers.end();)
+	typedef std::multimap<std::string, LLUrlEntryObserver>::iterator observer_it;
+	std::pair<observer_it, observer_it> matching_range = mObservers.equal_range(id);
+	for (observer_it it = matching_range.first; it != matching_range.second;)
 	{
 		// call the callback - give it the new label
 		LLUrlEntryObserver &observer = it->second;
@@ -492,26 +494,7 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 // x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
 //
 LLUrlEntryAgentName::LLUrlEntryAgentName()
-{
-}
-
-// virtual
-void LLUrlEntryAgentName::callObservers(const std::string &id,
-								    const std::string &label,
-								    const std::string &icon)
-{
-	// notify all callbacks waiting on the given uuid
-	std::multimap<std::string, LLUrlEntryObserver>::iterator it;
-	for (it = mObservers.find(id); it != mObservers.end();)
-	{
-		// call the callback - give it the new label
-		LLUrlEntryObserver &observer = it->second;
-		(*observer.signal)(observer.url, label, icon);
-		// then remove the signal - we only need to call it once
-		delete observer.signal;
-		mObservers.erase(it++);
-	}
-}
+{}
 
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
@@ -557,14 +540,10 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 	}
 }
 
-std::string LLUrlEntryAgentName::getUrl(const std::string &url) const
-{
-	return LLStringUtil::null;
-}
-
 LLStyle::Params LLUrlEntryAgentName::getStyle() const
 {
-	return LLStyle::Params();
+	// don't override default colors
+	return LLStyle::Params().is_link(false);
 }
 
 //

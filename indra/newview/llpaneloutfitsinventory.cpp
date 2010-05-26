@@ -383,11 +383,8 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 				   ,       _7 // EAcceptance* accept
 				   ));
 
-	mCommitCallbackRegistrar.add("panel_outfits_inventory_gear_default.Custom.Action",
-								 boost::bind(&LLPanelOutfitsInventory::onCustomAction, this, _2));
-	mEnableCallbackRegistrar.add("panel_outfits_inventory_gear_default.Enable",
-								 boost::bind(&LLPanelOutfitsInventory::isActionEnabled, this, _2));
-	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("panel_outfits_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_outfit_gear.xml",
+		gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
 void LLPanelOutfitsInventory::updateListCommands()

@@ -40,6 +40,7 @@
 #include "llappearancemgr.h"
 #include "llinventorymodel.h"
 
+class LLListContextMenu;
 class LLPanelClothingListItem;
 class LLPanelBodyPartsListItem;
 class LLPanelDeletableWearableListItem;
@@ -115,11 +116,12 @@ public:
 
 
 	LLCOFWearables();
-	virtual ~LLCOFWearables() {};
+	virtual ~LLCOFWearables();
 
 	/*virtual*/ BOOL postBuild();
 	
 	LLUUID getSelectedUUID();
+	bool getSelectedUUIDs(uuid_vec_t& selected_ids);
 
 	void refresh();
 	void clear();
@@ -138,6 +140,8 @@ protected:
 	LLPanelBodyPartsListItem* buildBodypartListItem(LLViewerInventoryItem* item);
 	LLPanelDeletableWearableListItem* buildAttachemntListItem(LLViewerInventoryItem* item);
 
+	void onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu);
+
 	LLFlatListView* mAttachments;
 	LLFlatListView* mClothing;
 	LLFlatListView* mBodyParts;
@@ -146,6 +150,9 @@ protected:
 
 	LLCOFCallbacks mCOFCallbacks;
 
+	LLListContextMenu* mClothingMenu;
+	LLListContextMenu* mAttachmentMenu;
+	LLListContextMenu* mBodyPartMenu;
 };
 
 

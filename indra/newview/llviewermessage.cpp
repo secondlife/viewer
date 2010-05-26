@@ -4948,6 +4948,13 @@ static std::string reason_from_transaction_type(S32 transaction_type,
 		case TRANS_UPLOAD_CHARGE:
 			return LLTrans::getString("to upload");
 			
+		// These have no reason to display, but are expected and should not
+		// generate warnings
+		case TRANS_GIFT:
+		case TRANS_PAY_OBJECT:
+		case TRANS_OBJECT_PAYS:
+			return std::string();
+
 		default:
 			llwarns << "Unknown transaction type " 
 				<< transaction_type << llendl;

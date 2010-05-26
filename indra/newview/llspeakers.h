@@ -303,7 +303,15 @@ protected:
 
 	void moderateVoiceSession(const LLUUID& session_id, bool disallow_voice);
 
+	/**
+	 * Process all participants to mute/unmute them according to passed voice session state.
+	 */
+	void forceVoiceModeratedMode(bool should_be_muted);
+
+private:
 	LLUUID mReverseVoiceModeratedAvatarID;
+	bool mVoiceModerated;
+
 };
 
 class LLActiveSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLActiveSpeakerMgr>

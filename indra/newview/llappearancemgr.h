@@ -58,6 +58,9 @@ public:
 	void wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append);
 	void wearOutfitByName(const std::string& name);
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
+	void replaceCurrentOutfit(const LLUUID& new_outfit);
+	void takeOffOutfit(const LLUUID& cat_id);
+	void addCategoryToCurrentOutfit(const LLUUID& cat_id);
 
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
@@ -81,7 +84,7 @@ public:
 	const LLUUID getBaseOutfitUUID();
 
 	// Wear/attach an item (from a user's inventory) on the agent
-	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true);
+	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true, bool replace = false);
 
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
@@ -111,6 +114,7 @@ public:
 
 	// Remove COF entries
 	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);
+	void removeCOFLinksOfType(LLWearableType::EType type, bool do_update = true);
 
 	// Add COF link to ensemble folder.
 	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);

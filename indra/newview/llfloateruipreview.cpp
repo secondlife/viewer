@@ -266,11 +266,12 @@ private:
 class LLPreviewedFloater : public LLFloater
 {
 public:
-	LLPreviewedFloater(LLFloaterUIPreview* floater)
-		: LLFloater(LLSD()),
+	LLPreviewedFloater(LLFloaterUIPreview* floater, const Params& params)
+		: LLFloater(LLSD(), params),
 		  mFloaterUIPreview(floater)
 	{
 	}
+
 	virtual void draw();
 	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleToolTip(S32 x, S32 y, MASK mask);
@@ -428,6 +429,7 @@ BOOL LLFloaterUIPreview::postBuild()
 	// Double-click opens the floater, for convenience
 	mFileList->setDoubleClickCallback(boost::bind(&LLFloaterUIPreview::onClickDisplayFloater, this, PRIMARY_FLOATER));
 
+	setDefaultBtn("display_floater");
 	// get pointers to buttons and link to callbacks
 	mLanguageSelection = main_panel_tmp->getChild<LLComboBox>("language_select_combo");
 	mLanguageSelection->setCommitCallback(boost::bind(&LLFloaterUIPreview::onLanguageComboSelect, this, mLanguageSelection));
@@ -824,7 +826,11 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		return;															// ignore click (this can only happen with empty list; otherwise an item is always selected)
 	}
 
-	*floaterp = new LLPreviewedFloater(this);
+	LLFloater::Params p(LLFloater::getDefaultParams());
+	p.min_height=p.header_height;
+	p.min_width=10;
+
+	*floaterp = new LLPreviewedFloater(this, p);
 
 	if(!strncmp(path.c_str(),"floater_",8)
 		|| !strncmp(path.c_str(), "inspect_", 8))		// if it's a floater
@@ -874,6 +880,8 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 	}
 	else																// if it is a panel...
 	{
+		(*floaterp)->setCanResize(true);
+
 		const LLFloater::Params& floater_params = LLFloater::getDefaultParams();
 		S32 floater_header_size = floater_params.header_height;
 

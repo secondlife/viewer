@@ -186,10 +186,8 @@ class LLUrlEntryAgentName : public LLUrlEntryBase
 public:
 	LLUrlEntryAgentName();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
-	/*virtual*/ std::string getUrl(const std::string &string) const;
 	/*virtual*/ LLStyle::Params getStyle() const;
 protected:
-	/*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 	// override this to pull out relevant name fields
 	virtual std::string getName(const LLAvatarName& avatar_name) = 0;
 private:

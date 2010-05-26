@@ -269,6 +269,7 @@ set(viewer_SOURCE_FILES
     lllandmarkactions.cpp
     lllandmarklist.cpp
     lllistbrowser.cpp
+    lllistcontextmenu.cpp
     lllistview.cpp
     lllocaltextureobject.cpp
     lllocationhistory.cpp
@@ -789,6 +790,7 @@ set(viewer_HEADER_FILES
     lllandmarklist.h
     lllightconstants.h
     lllistbrowser.h
+    lllistcontextmenu.h
     lllistview.h
     lllocaltextureobject.h
     lllocationhistory.h

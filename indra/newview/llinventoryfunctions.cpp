@@ -74,6 +74,7 @@
 #include "llscrollbar.h"
 #include "llscrollcontainer.h"
 #include "llselectmgr.h"
+#include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
 #include "lluictrlfactory.h"
@@ -158,6 +159,19 @@ BOOL get_is_item_worn(const LLUUID& id)
 			break;
 	}
 	return FALSE;
+}
+
+void show_item_profile(const LLUUID& item_uuid)
+{
+	LLUUID linked_uuid = gInventory.getLinkedItemID(item_uuid);
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD().with("id", linked_uuid));
+}
+
+void show_item_original(const LLUUID& item_uuid)
+{
+	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
+	if (!active_panel) return;
+	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_NO);
 }
 
 ///----------------------------------------------------------------------------
@@ -341,6 +355,21 @@ bool LLFindWearables::operator()(LLInventoryCategory* cat,
 		}
 	}
 	return FALSE;
+}
+
+bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if (!item) return false;
+	if (item->getType() != LLAssetType::AT_CLOTHING &&
+		item->getType() != LLAssetType::AT_BODYPART)
+	{
+		return false;
+	}
+
+	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+	if (!vitem || vitem->getWearableType() != mWearableType) return false;
+
+	return true;
 }
 
 ///----------------------------------------------------------------------------
