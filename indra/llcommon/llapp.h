@@ -231,9 +231,7 @@ public:
 	void setupErrorHandling();
 
 	void setErrorHandler(LLAppErrorHandler handler);
-	void setSyncErrorHandler(LLAppErrorHandler handler);
 	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
-	static void runSyncErrorHandler(); // run IMMEDIATELY when we get an error, ran in the context of the faulting thread.
 	//@}
 	
 	//
@@ -306,7 +304,6 @@ private:
 	// their own purposes
 	typedef int(*signal_handler_func)(int signum);
 	static LLAppErrorHandler sErrorHandler;
-	static LLAppErrorHandler sSyncErrorHandler;
 
 	// Default application threads
 	LLErrorThread* mThreadErrorp;		// Waits for app to go to status ERROR, then runs the error callback

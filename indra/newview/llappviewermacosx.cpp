@@ -264,11 +264,6 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	return reset_count == 0;
 }
 
-void LLAppViewerMacOSX::handleSyncCrashTrace()
-{
-	// do nothing
-}
-
 static OSStatus CarbonEventHandler(EventHandlerCallRef inHandlerCallRef, 
 								   EventRef inEvent, 
 								   void* inUserData)

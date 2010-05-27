@@ -2513,13 +2513,6 @@ void LLAppViewer::writeSystemInfo()
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
 }
 
-void LLAppViewer::handleSyncViewerCrash()
-{
-	LLAppViewer* pApp = LLAppViewer::instance();
-	// Call to pure virtual, handled by platform specific llappviewer instance.
-	pApp->handleSyncCrashTrace(); 
-}
-
 void LLAppViewer::handleViewerCrash()
 {
 	llinfos << "Handle viewer crash entry." << llendl;

@@ -479,11 +479,6 @@ bool LLAppViewerWin32::restoreErrorTrap()
 	//return LLWinDebug::checkExceptionHandler();
 }
 
-void LLAppViewerWin32::handleSyncCrashTrace()
-{
-	// do nothing
-}
-
 void LLAppViewerWin32::handleCrashReporting(bool reportFreeze)
 {
 	const char* logger_name = "win_crash_logger.exe";
