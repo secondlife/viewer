@@ -2205,16 +2205,6 @@ void LLPanelGroupRolesSubTab::onPropertiesKey(LLLineEditor* ctrl, void* user_dat
 	self->notifyObservers();
 }
 
-// static 
-void LLPanelGroupRolesSubTab::onDescriptionFocus(LLFocusableElement* ctrl, void* user_data)
-{
-	LLPanelGroupRolesSubTab* self = static_cast<LLPanelGroupRolesSubTab*>(user_data);
-	if (!self) return;
-
-	self->mHasRoleChange = TRUE;
-	self->notifyObservers();
-}
-
 void LLPanelGroupRolesSubTab::onDescriptionKeyStroke(LLTextEditor* caller)
 {
 	mHasRoleChange = TRUE;
