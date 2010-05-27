@@ -8,18 +8,15 @@
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
-			<text name="first_name_text">
-				Nombre:
+			<text name="username_text">
+				Nombre de usuario:
 			</text>
-			<line_editor label="Nombre" name="first_name_edit" tool_tip="[SECOND_LIFE] First Name"/>
-			<text name="last_name_text">
-				Apellido:
-			</text>
-			<line_editor label="Apellido" name="last_name_edit" tool_tip="[SECOND_LIFE] Last Name"/>
+			<line_editor label="Nombre de usuario" name="username_edit" tool_tip="Nombre de usuario de [SECOND_LIFE]"/>
 			<text name="password_text">
 				Contraseña:
 			</text>
 			<check_box label="Recordar la contraseña" name="remember_check"/>
+			<button label="Iniciar sesión" name="connect_btn"/>
 			<text name="start_location_text">
 				Empezar en:
 			</text>
@@ -27,7 +24,6 @@
 				<combo_box.item label="Mi última posición" name="MyLastLocation"/>
 				<combo_box.item label="Mi Base" name="MyHome"/>
 			</combo_box>
-			<button label="Iniciar sesión" name="connect_btn"/>
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_new_account_text">

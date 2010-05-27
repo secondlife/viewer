@@ -18,7 +18,7 @@
 			<accordion_tab name="shape_nose_tab" title="鼻"/>
 			<accordion_tab name="shape_mouth_tab" title="口"/>
 			<accordion_tab name="shape_chin_tab" title="あご"/>
-			<accordion_tab name="shape_torso_tab" title="頭"/>
+			<accordion_tab name="shape_torso_tab" title="上半身"/>
 			<accordion_tab name="shape_legs_tab" title="脚"/>
 		</accordion>
 	</panel>

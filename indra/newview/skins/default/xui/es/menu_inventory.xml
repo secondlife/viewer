@@ -54,6 +54,7 @@
 	<menu_item_call label="Eliminar el ítem" name="Purge Item"/>
 	<menu_item_call label="Restaurar el ítem" name="Restore Item"/>
 	<menu_item_call label="Abrir" name="Open"/>
+	<menu_item_call label="Abrir original" name="Open Original"/>
 	<menu_item_call label="Propiedades" name="Properties"/>
 	<menu_item_call label="Renombrar" name="Rename"/>
 	<menu_item_call label="Copiar la UUID" name="Copy Asset UUID"/>
