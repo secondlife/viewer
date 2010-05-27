@@ -462,6 +462,8 @@ bool LLAppViewerLinux::beingDebugged()
 bool LLAppViewerLinux::initLogging()
 {
 	// Remove the last stack trace, if any
+	// This file is no longer created, since the move to Google Breakpad
+	// The code is left here to clean out any old state in the log dir
 	std::string old_stack_file =
 		gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	LLFile::remove(old_stack_file);

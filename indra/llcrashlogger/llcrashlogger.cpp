@@ -227,7 +227,6 @@ void LLCrashLogger::gatherFiles()
 
 	mCrashInfo["DebugLog"] = mDebugLog;
 	mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stats.log");
-	mFileMap["StackTrace"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	
 	updateApplication("Encoding files...");
 
