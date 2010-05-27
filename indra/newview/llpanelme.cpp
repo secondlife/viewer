@@ -305,11 +305,7 @@ void LLPanelMyProfileEdit::onCacheSetName(bool success,
 	{
 		// Inform the user that the change took place, but will take a while
 		// to percolate.
-		LLSD args;
-		// *TODO: get estimated percolation time from service
-		S32 timeout_hours = 72;
-		args["HOURS"] = llformat("%d", timeout_hours);
-		LLNotificationsUtil::add("SetDisplayNameSuccess", args);
+		LLNotificationsUtil::add("SetDisplayNameSuccess");
 
 		// Re-fetch my name, as it may have been sanitized by the service
 		LLAvatarNameCache::get(getAvatarId(),
@@ -322,6 +318,7 @@ void LLPanelMyProfileEdit::onCacheSetName(bool success,
 	llinfos << "set name failure error_tag " << error_tag << llendl;
 
 	// We might have a localized string for this message
+	// error_args will usually be empty from the server.
 	if (!error_tag.empty()
 		&& LLNotifications::getInstance()->templateExists(error_tag))
 	{
@@ -382,29 +379,46 @@ void LLPanelMyProfileEdit::onDialogSetName(const LLSD& notification, const LLSD&
 
 void LLPanelMyProfileEdit::onClickSetName()
 {
-	// IDEVO
 	LLUUID agent_id = getAvatarId();
 	std::string display_name;
 	LLAvatarName av_name;
-	if (LLAvatarNameCache::useDisplayNames()
-		&& LLAvatarNameCache::get(agent_id, &av_name))
+	if (!LLAvatarNameCache::get(agent_id, &av_name))
 	{
-		display_name = av_name.mDisplayName;
+		// something is wrong, tell user to try again later
+		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+		return;
 	}
-	else
+		
+	display_name = av_name.mDisplayName;
+	if (display_name.empty())
 	{
-		gCacheName->getFullName(agent_id, display_name);
+		// something is wrong, tell user to try again later
+		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+		return;		
 	}
 
-	if (!display_name.empty())
+	F64 now_secs = LLDate::now().secondsSinceEpoch();
+	if (now_secs < av_name.mNextUpdate)
 	{
+		// ...can't update until some time in the future
+		F64 next_update_local_secs =
+			av_name.mNextUpdate - LLStringOps::getLocalTimeOffset();
+		LLDate next_update_local(next_update_local_secs);
+		// display as "July 18 12:17 PM"
+		std::string next_update_string =
+		next_update_local.toHTTPDateString("%B %d %I:%M %p");
 		LLSD args;
-		args["DISPLAY_NAME"] = display_name;
-		LLSD payload;
-		payload["agent_id"] = agent_id;
-		LLNotificationsUtil::add("SetDisplayName", args, payload, 
-			boost::bind(&LLPanelMyProfileEdit::onDialogSetName, this, _1, _2));
+		args["TIME"] = next_update_string;
+		LLNotificationsUtil::add("SetDisplayNameFailedLockout", args);
+		return;
 	}
+	
+	LLSD args;
+	args["DISPLAY_NAME"] = display_name;
+	LLSD payload;
+	payload["agent_id"] = agent_id;
+	LLNotificationsUtil::add("SetDisplayName", args, payload, 
+		boost::bind(&LLPanelMyProfileEdit::onDialogSetName, this, _1, _2));
 }
 
 void LLPanelMyProfileEdit::enableEditing(bool enable)

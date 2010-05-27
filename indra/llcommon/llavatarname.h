@@ -91,6 +91,11 @@ public:
 	// last checked.
 	// Unix time-from-epoch seconds for efficiency
 	F64 mExpires;
+	
+	// You can only change your name every N hours, so record
+	// when the next update is allowed
+	// Unix time-from-epoch seconds
+	F64 mNextUpdate;
 };
 
 #endif

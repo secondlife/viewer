@@ -46,6 +46,7 @@ static const std::string LEGACY_FIRST_NAME("legacy_first_name");
 static const std::string LEGACY_LAST_NAME("legacy_last_name");
 static const std::string IS_DISPLAY_NAME_DEFAULT("is_display_name_default");
 static const std::string DISPLAY_NAME_EXPIRES("display_name_expires");
+static const std::string DISPLAY_NAME_NEXT_UPDATE("display_name_next_update");
 
 LLAvatarName::LLAvatarName()
 :	mUsername(),
@@ -54,7 +55,8 @@ LLAvatarName::LLAvatarName()
 	mLegacyLastName(),
 	mIsDisplayNameDefault(false),
 	mIsDummy(false),
-	mExpires(F64_MAX)
+	mExpires(F64_MAX),
+	mNextUpdate(0.0)
 { }
 
 bool LLAvatarName::operator<(const LLAvatarName& rhs) const
@@ -74,6 +76,7 @@ LLSD LLAvatarName::asLLSD() const
 	sd[LEGACY_LAST_NAME] = mLegacyLastName;
 	sd[IS_DISPLAY_NAME_DEFAULT] = mIsDisplayNameDefault;
 	sd[DISPLAY_NAME_EXPIRES] = LLDate(mExpires);
+	sd[DISPLAY_NAME_NEXT_UPDATE] = LLDate(mNextUpdate);
 	return sd;
 }
 
@@ -86,6 +89,8 @@ void LLAvatarName::fromLLSD(const LLSD& sd)
 	mIsDisplayNameDefault = sd[IS_DISPLAY_NAME_DEFAULT].asBoolean();
 	LLDate expires = sd[DISPLAY_NAME_EXPIRES];
 	mExpires = expires.secondsSinceEpoch();
+	LLDate next_update = sd[DISPLAY_NAME_NEXT_UPDATE];
+	mNextUpdate = next_update.secondsSinceEpoch();
 }
 
 std::string LLAvatarName::getCompleteName() const
