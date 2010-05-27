@@ -579,7 +579,7 @@
       <key>Comment</key>
       <string>Specifes whether to send your baked textures for avatar appearance even before textures are fully ressed in case of timeout</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
