@@ -584,7 +584,7 @@ private:
 				value =  (uint64_t)(( uint8_t *)&value); 
 			else
 			{
-				LL_ERRS("Unknown type returned from sysctl!") << LL_ENDL;
+				LL_WARNS("Unknown type returned from sysctl!") << LL_ENDL;
 			}
 		}
 				
