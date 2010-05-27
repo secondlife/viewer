@@ -11217,5 +11217,19 @@
       <key>Value</key>
       <integer>178</integer>
     </map>
+    <key>always_showable_floaters</key>
+    <map>
+      <key>Comment</key>
+      <string>Floaters that can be shown despite mouselook mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+	      <string>snapshot</string>
+	      <string>mini_map</string>
+      </array>
+    </map>
 </map>
 </llsd>
