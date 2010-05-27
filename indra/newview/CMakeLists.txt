@@ -1807,7 +1807,7 @@ if (PACKAGE)
       "${CMAKE_CFG_INTDIR}/${VIEWER_SYMBOL_FILE}"
     DEPENDS generate_breakpad_symbols.py
   )
-  add_custom_target(generate_breakpad_symbols ALL DEPENDS "${VIEWER_SYMBOL_FILE}")
+  add_custom_target(generate_breakpad_symbols ALL DEPENDS "${CMAKE_CFG_INTDIR}/${VIEWER_SYMBOL_FILE}")
   add_dependencies(generate_breakpad_symbols viewer)
   add_dependencies(package generate_breakpad_symbols)
 endif (PACKAGE)
