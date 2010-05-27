@@ -1,6 +1,6 @@
 /** 
- * @file llfloatercustomize.h
- * @brief The customize avatar floater, triggered by "Appearance..."
+ * @file llpaneleditwearable.h
+ * @brief A LLPanel dedicated to the editing of wearables.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 

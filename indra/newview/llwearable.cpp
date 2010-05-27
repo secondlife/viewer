@@ -36,7 +36,6 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "lldictionary.h"
-#include "llfloatercustomize.h"
 #include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
 #include "llviewertexturelist.h"

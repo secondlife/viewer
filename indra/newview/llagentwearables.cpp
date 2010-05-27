@@ -39,7 +39,6 @@
 #include "llagentwearablesfetch.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
-#include "llfloatercustomize.h"
 #include "llfolderview.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"

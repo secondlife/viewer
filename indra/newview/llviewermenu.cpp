@@ -54,7 +54,6 @@
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llbuycurrencyhtml.h"
-#include "llfloatercustomize.h"
 #include "llfloatergodtools.h"
 #include "llfloaterinventory.h"
 #include "llfloaterland.h"
@@ -3738,7 +3737,7 @@ void handle_reset_view()
 {
 	if (gAgentCamera.cameraCustomizeAvatar())
 	{
-		// switching to outfit editor should automagically save any currently edited wearable
+		// switching to outfit selector should automagically save any currently edited wearable
 		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
 	}
 

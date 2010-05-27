@@ -61,7 +61,6 @@
 #include "llviewerwindow.h"
 #include "lltrans.h"
 #include "llappearancemgr.h"
-#include "llfloatercustomize.h"
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
 #include "llsidepanelappearance.h"
@@ -881,7 +880,8 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 {
 	LLAppearanceMgr::instance().updateAppearanceFromCOF();
-	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
+	// TODO: camera mode may not be changed if a debug setting is tweaked
+	if( gAgentCamera.cameraCustomizeAvatar() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
 		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));

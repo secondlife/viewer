@@ -106,7 +106,6 @@
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
-#include "llfloatercustomize.h"
 #include "llfloaterland.h"
 #include "llfloaterinspect.h"
 #include "llfloatermap.h"

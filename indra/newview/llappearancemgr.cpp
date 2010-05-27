@@ -38,7 +38,6 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llcommandhandler.h"
-#include "llfloatercustomize.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"

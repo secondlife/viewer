@@ -217,6 +217,7 @@ LLEditWearableDictionary::Wearables::Wearables()
 {
 	// note the subpart that is listed first is treated as "default", regardless of what order is in enum.
 	// Please match the order presented in XUI. -Nyx
+	// this will affect what camera angle is shown when first editing a wearable
 	addEntry(LLWearableType::WT_SHAPE, 		new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,9,	SUBPART_SHAPE_WHOLE, SUBPART_SHAPE_HEAD,	SUBPART_SHAPE_EYES,	SUBPART_SHAPE_EARS,	SUBPART_SHAPE_NOSE,	SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS ));
 	addEntry(LLWearableType::WT_SKIN, 		new WearableEntry(LLWearableType::WT_SKIN,"edit_skin_title","skin_desc_text",0,3,4, TEX_HEAD_BODYPAINT, TEX_UPPER_BODYPAINT, TEX_LOWER_BODYPAINT, SUBPART_SKIN_COLOR, SUBPART_SKIN_FACEDETAIL, SUBPART_SKIN_MAKEUP, SUBPART_SKIN_BODYDETAIL));
 	addEntry(LLWearableType::WT_HAIR, 		new WearableEntry(LLWearableType::WT_HAIR,"edit_hair_title","hair_desc_text",0,1,4, TEX_HAIR, SUBPART_HAIR_COLOR,	SUBPART_HAIR_STYLE,	SUBPART_HAIR_EYEBROWS, SUBPART_HAIR_FACIAL));
