@@ -86,7 +86,7 @@ width="333">
       </text>
       <button
       follows="left|top"
-      height="20"
+      height="23"
       image_overlay="Edit_Wrench"
       label=""
       layout="topleft"

@@ -453,6 +453,7 @@ with the same filename but different name
   <texture name="SegmentedBtn_Right_Selected_Disabled" file_name="widgets/SegmentedBtn_Right_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
 
   <texture name="Shirt_Large" file_name="icons/Shirt_Large.png" preload="false" />
+  <texture name="Shop" file_name="icons/Shop.png" preload="false" />
 
   <texture name="SkipBackward_Off" file_name="icons/SkipBackward_Off.png" preload="false" />
   <texture name="SkipForward_Off" file_name="icons/SkipForward_Off.png" preload="false" />
