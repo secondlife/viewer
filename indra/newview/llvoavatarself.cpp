@@ -1332,6 +1332,32 @@ BOOL LLVOAvatarSelf::isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32
 	return isDefined;
 }
 
+//virtual
+BOOL LLVOAvatarSelf::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index) const
+{
+	if (isIndexBakedTexture(type))
+	{
+		return LLVOAvatar::isTextureVisible(type);
+	}
+
+	LLUUID tex_id = getLocalTextureID(type,index);
+	return (tex_id != IMG_INVISIBLE) 
+			|| (LLDrawPoolAlpha::sShowDebugAlpha);
+}
+
+//virtual
+BOOL LLVOAvatarSelf::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const
+{
+	if (isIndexBakedTexture(type))
+	{
+		return LLVOAvatar::isTextureVisible(type);
+	}
+
+	U32 index = gAgentWearables.getWearableIndex(wearable);
+	return isTextureVisible(type,index);
+}
+
+
 //-----------------------------------------------------------------------------
 // requestLayerSetUploads()
 //-----------------------------------------------------------------------------

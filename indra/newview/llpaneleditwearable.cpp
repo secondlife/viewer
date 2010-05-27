@@ -645,6 +645,12 @@ BOOL LLPanelEditWearable::postBuild()
 
 	mWearablePtr = NULL;
 
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_LOWER_ALPHA, "lower alpha texture invisible");
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_UPPER_ALPHA, "upper alpha texture invisible");
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_HEAD_ALPHA, "head alpha texture invisible");
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_EYES_ALPHA, "eye alpha texture invisible");
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_HAIR_ALPHA, "hair alpha texture invisible");
+
 	return TRUE;
 }
 
@@ -667,11 +673,10 @@ BOOL LLPanelEditWearable::isDirty() const
 void LLPanelEditWearable::draw()
 {
 	updateVerbs();
-	if (getWearable())
+	if (getWearable() && getWearable()->getType() == LLWearableType::WT_SHAPE)
 	{
-		LLWearableType::EType type = getWearable()->getType();
-		updatePanelPickerControls(type);
-		updateTypeSpecificControls(type);
+		//updating avatar height
+		updateTypeSpecificControls(LLWearableType::WT_SHAPE);
 	}
 
 	LLPanel::draw();
@@ -970,6 +975,13 @@ void LLPanelEditWearable::initializePanel()
 	for_each_picker_ctrl_entry <LLTextureCtrl>     (getPanel(type), type, boost::bind(init_texture_ctrl, this, _1, _2));
 
 	updateVerbs();
+
+	if (getWearable())
+	{
+		LLWearableType::EType type = getWearable()->getType();
+		updatePanelPickerControls(type);
+		updateTypeSpecificControls(type);
+	}
 }
 
 void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type)
@@ -991,6 +1003,13 @@ void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
 		// Update avatar height
 		std::string avatar_height_str = llformat("%.2f", gAgentAvatarp->mBodySize.mV[VZ]);
 		mTxtAvatarHeight->setTextArg("[HEIGHT]", avatar_height_str);
+	}
+
+	if (LLWearableType::WT_ALPHA == type)
+	{
+		updateAlphaCheckboxes();
+
+		initPreviousAlphaTextures();
 	}
 }
 
@@ -1215,6 +1234,85 @@ void LLPanelEditWearable::updateVerbs()
 		gSavedSettings.setU32("AvatarSex", (gAgentAvatarp->getSex() == SEX_MALE) );
 	}
 
+}
+
+void LLPanelEditWearable::configureAlphaCheckbox(LLVOAvatarDefines::ETextureIndex te, const std::string& name)
+{
+	LLCheckBoxCtrl* checkbox = mPanelAlpha->getChild<LLCheckBoxCtrl>(name);
+	checkbox->setCommitCallback(boost::bind(&LLPanelEditWearable::onInvisibilityCommit, this, checkbox, te));
+
+	mAlphaCheckbox2Index[name] = te;
+}
+
+void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLVOAvatarDefines::ETextureIndex te)
+{
+	if (!checkbox_ctrl) return;
+	if (!getWearable()) return;
+
+	llinfos << "onInvisibilityCommit, self " << this << " checkbox_ctrl " << checkbox_ctrl << llendl;
+
+	bool new_invis_state = checkbox_ctrl->get();
+	if (new_invis_state)
+	{
+		LLLocalTextureObject *lto = getWearable()->getLocalTextureObject(te);
+		mPreviousAlphaTexture[te] = lto->getID();
+		
+		LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture( IMG_INVISIBLE );
+		U32 index = gAgentWearables.getWearableIndex(getWearable());
+		gAgentAvatarp->setLocalTexture(te, image, FALSE, index);
+		gAgentAvatarp->wearableUpdated(getWearable()->getType(), FALSE);
+	}
+	else
+	{
+		// Try to restore previous texture, if any.
+		LLUUID prev_id = mPreviousAlphaTexture[te];
+		if (prev_id.isNull() || (prev_id == IMG_INVISIBLE))
+		{
+			prev_id = LLUUID( gSavedSettings.getString( "UIImgDefaultAlphaUUID" ) );
+		}
+		if (prev_id.isNull()) return;
+		
+		LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(prev_id);
+		if (!image) return;
+
+		U32 index = gAgentWearables.getWearableIndex(getWearable());
+		gAgentAvatarp->setLocalTexture(te, image, FALSE, index);
+		gAgentAvatarp->wearableUpdated(getWearable()->getType(), FALSE);
+	}
+
+	updatePanelPickerControls(getWearable()->getType());
+}
+
+void LLPanelEditWearable::updateAlphaCheckboxes()
+{
+	for(string_texture_index_map_t::iterator iter = mAlphaCheckbox2Index.begin();
+		iter != mAlphaCheckbox2Index.end(); ++iter )
+	{
+		LLVOAvatarDefines::ETextureIndex te = (LLVOAvatarDefines::ETextureIndex)iter->second;
+		LLCheckBoxCtrl* ctrl = mPanelAlpha->getChild<LLCheckBoxCtrl>(iter->first);
+		if (ctrl)
+		{
+			ctrl->set(!gAgentAvatarp->isTextureVisible(te, mWearablePtr));
+		}
+	}
+}
+
+void LLPanelEditWearable::initPreviousAlphaTextures()
+{
+	initPreviousAlphaTextureEntry(TEX_LOWER_ALPHA);
+	initPreviousAlphaTextureEntry(TEX_UPPER_ALPHA);
+	initPreviousAlphaTextureEntry(TEX_HEAD_ALPHA);
+	initPreviousAlphaTextureEntry(TEX_EYES_ALPHA);
+	initPreviousAlphaTextureEntry(TEX_LOWER_ALPHA);
+}
+
+void LLPanelEditWearable::initPreviousAlphaTextureEntry(LLVOAvatarDefines::ETextureIndex te)
+{
+	LLLocalTextureObject *lto = getWearable()->getLocalTextureObject(te);
+	if (lto)
+	{
+		mPreviousAlphaTexture[te] = lto->getID();
+	}
 }
 
 // EOF
