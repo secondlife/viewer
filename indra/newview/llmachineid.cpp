@@ -33,12 +33,13 @@
 #include "llviewerprecompiledheaders.h"
 #include "lluuid.h"
 #include "llmachineid.h"
+#if	LL_WINDOWS
 #define _WIN32_DCOM
 #include <iostream>
 using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
-
+#endif
 unsigned char static_unique_id[] =  {0,0,0,0,0,0};
 bool static has_static_unique_id = false;
 
