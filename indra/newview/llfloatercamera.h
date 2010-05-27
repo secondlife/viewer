@@ -34,6 +34,9 @@
 #define LLFLOATERCAMERA_H
 
 #include "lltransientdockablefloater.h"
+#include "lliconctrl.h"
+#include "lltextbox.h"
+#include "llflatlistview.h"
 
 class LLJoystickCameraRotate;
 class LLJoystickCameraZoom;
@@ -43,10 +46,10 @@ class LLPanelCameraZoom;
 
 enum ECameraControlMode
 {
-	CAMERA_CTRL_MODE_ORBIT,
+	CAMERA_CTRL_MODE_MODES,
 	CAMERA_CTRL_MODE_PAN,
 	CAMERA_CTRL_MODE_FREE_CAMERA,
-	CAMERA_CTRL_MODE_AVATAR_VIEW
+	CAMERA_CTRL_MODE_PRESETS
 };
 
 class LLFloaterCamera
@@ -58,8 +61,8 @@ public:
 
 	/* whether in free camera mode */
 	static bool inFreeCameraMode();
-	/* callback for camera presets changing */
-	static void onClickCameraPresets(const LLSD& param);
+	/* callback for camera items selection changing */
+	static void onClickCameraItem(const LLSD& param);
 
 	static void onLeavingMouseLook();
 
@@ -68,7 +71,14 @@ public:
 
 	/* determines actual mode and updates ui */
 	void update();
-	
+
+	/*switch to one of the camera presets (front, rear, side)*/
+	static void switchToPreset(const std::string& name);
+
+	/* move to CAMERA_CTRL_MODE_PRESETS from CAMERA_CTRL_MODE_FREE_CAMERA if we are on presets panel and
+	   are not in free camera mode*/
+	void fromFreeToPresets();
+
 	virtual void onOpen(const LLSD& key);
 	virtual void onClose(bool app_quitting);
 
@@ -88,9 +98,6 @@ private:
 
 	ECameraControlMode determineMode();
 
-	/* whether in avatar view (first person) mode */
-	bool inAvatarViewMode();
-
 	/* resets to the previous mode */
 	void toPrevMode();
 
@@ -106,18 +113,59 @@ private:
 	/* updates the state (UI) according to the current mode */
 	void updateState();
 
-	/* update camera preset buttons toggle state according to the currently selected preset */
-	void updateCameraPresetButtons();
+	/* update camera modes items selection and camera preset items selection according to the currently selected preset */
+	void updateItemsSelection();
 
 	void onClickBtn(ECameraControlMode mode);
 	void assignButton2Mode(ECameraControlMode mode, const std::string& button_name);
 	
+	// fills flatlist with items from given panel
+	void fillFlatlistFromPanel (LLFlatListView* list, LLPanel* panel);
 
+	// set to true when free camera mode is selected in modes list
+	// remains true until preset camera mode is chosen, or pan button is clicked, or escape pressed
+	static bool sFreeCamera;
 	BOOL mClosed;
 	ECameraControlMode mPrevMode;
 	ECameraControlMode mCurrMode;
 	std::map<ECameraControlMode, LLButton*> mMode2Button;
+};
 
+/**
+ * Class used to represent widgets from panel_camera_item.xml- 
+ * panels that contain pictures and text. Pictures are different
+ * for selected and unselected state (this state is nor stored- icons
+ * are changed in setValue()). This class doesn't implement selection logic-
+ * it's items are used inside of flatlist.
+ */
+class LLPanelCameraItem 
+	: public LLPanel
+{
+public:
+	struct Params :	public LLInitParam::Block<Params, LLPanel::Params>
+	{
+		Optional<LLIconCtrl::Params> icon_over;
+		Optional<LLIconCtrl::Params> icon_selected;
+		Optional<LLIconCtrl::Params> picture;
+		Optional<LLIconCtrl::Params> selected_picture;
+
+		Optional<LLTextBox::Params> text;
+		Optional<CommitCallbackParam> mousedown_callback;
+		Params();
+	};
+	/*virtual*/ BOOL postBuild();
+	/** setting on/off background icon to indicate selected state */
+	/*virtual*/ void setValue(const LLSD& value);
+	// sends commit signal
+	void onAnyMouseClick();
+protected:
+	friend class LLUICtrlFactory;
+	LLPanelCameraItem(const Params&);
+	LLIconCtrl* mIconOver;
+	LLIconCtrl* mIconSelected;
+	LLIconCtrl* mPicture;
+	LLIconCtrl* mPictureSelected;
+	LLTextBox* mText;
 };
 
 #endif
