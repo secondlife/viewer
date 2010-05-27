@@ -665,7 +665,7 @@ protected:
 					  const std::string &name,
 					  const std::string &description,
 					  const LLDate &expiration_date,
-					  const bool has_expired,
+					  bool  has_expired,
 					  const S32 font_type,
 					  const S32 font_status,
 					  const bool template_font = false);
@@ -1045,7 +1045,7 @@ protected:
 	void			StartTag(const char *tag, const char **attr);
 	void			EndTag(const char *tag);
 	void			CharData(const char *buffer, int length);
-	LLDate			vivoxTimeStampToLLDate(const std::string& vivox_ts);
+	LLDate			expiryTimeStampToLLDate(const std::string& vivox_ts);
 };
 
 

@@ -97,11 +97,14 @@ const int MAX_LOGIN_RETRIES = 12;
 // blocked is VERY rare and it's better to sacrifice response time in this situation for the sake of stability.
 const int MAX_NORMAL_JOINING_SPATIAL_NUM = 50;
 
-// How often to check for expired voice fonts
-const F32 VOICE_FONT_EXPIRY_INTERVAL = 1.f;
+// How often to check for expired voice fonts in seconds
+const F32 VOICE_FONT_EXPIRY_INTERVAL = 10.f;
+// Time of day at which Vivox expires voice font subscriptions.
+// Used to replace the time portion of received expiry timestamps.
+static const std::string VOICE_FONT_EXPIRY_TIME = "T05:00:00Z";
 
-// Maximum length of capture buffer recordings
-const F32 CAPTURE_BUFFER_MAX_TIME = 15.f;
+// Maximum length of capture buffer recordings in seconds.
+const F32 CAPTURE_BUFFER_MAX_TIME = 10.f;
 
 
 static int scale_mic_volume(float volume)
@@ -6524,7 +6527,7 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 								 const std::string &name,
 								 const std::string &description,
 								 const LLDate &expiration_date,
-								 const bool has_expired,
+								 bool has_expired,
 								 const S32 font_type,
 								 const S32 font_status,
 								 const bool template_font)
@@ -6552,19 +6555,22 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 	voice_font_map_t::iterator iter = font_map.find(font_id);
 	bool new_font = (iter == font_map.end());
 
+	// Override the has_expired flag if we have passed the expiration_date as a double check.
+	if (expiration_date.secondsSinceEpoch() < (LLDate::now().secondsSinceEpoch() + VOICE_FONT_EXPIRY_INTERVAL))
+	{
+		has_expired = true;
+	}
+
 	if (has_expired)
 	{
-		// Remove existing session fonts that have expired since we last saw them.
-		if (!new_font)
-		{
-			LL_DEBUGS("Voice") << "Expired " << (template_font ? "Template " : "")
-			<< expiration_date.asString() << " " << font_id
-			<< " (" << font_index << ") " << name << LL_ENDL;
+		LL_DEBUGS("Voice") << "Expired " << (template_font ? "Template " : "")
+		<< expiration_date.asString() << " " << font_id
+		<< " (" << font_index << ") " << name << LL_ENDL;
 
-			if (!template_font)
-			{
-				deleteVoiceFont(font_id);
-			}
+		// Remove existing session fonts that have expired since we last saw them.
+		if (!new_font && !template_font)
+		{
+			deleteVoiceFont(font_id);
 		}
 		return;
 	}
@@ -6586,46 +6592,43 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
 		// Use the description for the human readable name if available, as the
 		// "name" may be a UUID.
 		font->mName = description.empty() ? name : description;
-		font->mExpirationDate = expiration_date;
 		font->mFontType = font_type;
 		font->mFontStatus = font_status;
+
+		// If the font is new or the expiration date has changed the expiry timers need updating.
+		if (!template_font && (new_font || font->mExpirationDate != expiration_date))
+		{
+			font->mExpirationDate = expiration_date;
+
+			// Set the expiry timer to trigger a notification when the voice font can no longer be used.
+			font->mExpiryTimer.start();
+			font->mExpiryTimer.setExpiryAt(expiration_date.secondsSinceEpoch() - VOICE_FONT_EXPIRY_INTERVAL);
+
+			// Set the warning timer to some interval before actual expiry.
+			S32 warning_time = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
+			if (warning_time != 0)
+			{
+				font->mExpiryWarningTimer.start();
+				F64 expiry_time = (expiration_date.secondsSinceEpoch() - (F64)warning_time);
+				font->mExpiryWarningTimer.setExpiryAt(expiry_time - VOICE_FONT_EXPIRY_INTERVAL);
+			}
+			else
+			{
+				// Disable the warning timer.
+				font->mExpiryWarningTimer.stop();
+			}
+
+			 // Only flag new session fonts after the first time we have fetched the list.
+			if (mVoiceFontsReceived)
+			{
+				font->mIsNew = true;
+				mVoiceFontsNew = true;
+			}
+		}
 
 		LL_DEBUGS("Voice") << (template_font ? "Template " : "")
 			<< font->mExpirationDate.asString() << " " << font->mID
 			<< " (" << font->mFontIndex << ") " << name << LL_ENDL;
-
-		// Set the expiry timer to trigger a notification when the voice font can no longer be used.
-		font->mExpiryTimer.start();
-		font->mExpiryTimer.setExpiryAt(expiration_date.secondsSinceEpoch());
-
-		if (font->mExpiryTimer.hasExpired())
-		{
-			// Should never happen, but check anyway.
-			LL_DEBUGS("Voice") << "Voice font " << font->mID
-				<< " expired " << font->mExpirationDate.asString()
-				<< " but is not marked expired!" << LL_ENDL;
-		}
-
-		// Set the warning timer to some interval before actual expiry.
-		S32 warning_time = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
-		if (warning_time != 0)
-		{
-			font->mExpiryWarningTimer.start();
-			F64 expiry_time = (expiration_date.secondsSinceEpoch() - (F64)warning_time);
-			font->mExpiryWarningTimer.setExpiryAt(expiry_time);
-		}
-		else
-		{
-			// Disable the warning timer.
-			font->mExpiryWarningTimer.stop();
-		}
-
-		 // Only flag new session fonts.
-		if (!template_font && mVoiceFontsReceived && new_font)
-		{
-			font->mIsNew = true;
-			mVoiceFontsNew = true;
-		}
 
 		if (new_font)
 		{
@@ -6678,6 +6681,8 @@ void LLVivoxVoiceClient::expireVoiceFonts()
 				setVoiceEffect(LLUUID::null);
 				expired_in_use = true;
 			}
+
+			LL_DEBUGS("Voice") << "Voice Font " << voice_font->mName << " has expired." << LL_ENDL;
 			deleteVoiceFont(voice_font->mID);
 			have_expired = true;
 		}
@@ -6685,6 +6690,7 @@ void LLVivoxVoiceClient::expireVoiceFonts()
 		// Check for voice fonts that will expire in less that the warning time
 		if (warning_timer.getStarted() && warning_timer.hasExpired())
 		{
+			LL_DEBUGS("Voice") << "Voice Font " << voice_font->mName << " will expire soon." << LL_ENDL;
 			will_expire = true;
 			warning_timer.stop();
 		}
@@ -7471,7 +7477,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		}
 		else if (!stricmp("ExpirationDate", tag))
 		{
-			expirationDate = vivoxTimeStampToLLDate(string);
+			expirationDate = expiryTimeStampToLLDate(string);
 		}
 		else if (!stricmp("Expired", tag))
 		{
@@ -7518,37 +7524,17 @@ void LLVivoxProtocolParser::CharData(const char *buffer, int length)
 
 // --------------------------------------------------------------------------------
 
-LLDate LLVivoxProtocolParser::vivoxTimeStampToLLDate(const std::string& vivox_ts)
+LLDate LLVivoxProtocolParser::expiryTimeStampToLLDate(const std::string& vivox_ts)
 {
-	LLDate ts;
+	// *HACK: Vivox reports the time incorrectly. LLDate also only parses a
+	// subset of valid ISO 8601 dates (only handles Z, not offsets).
+	// So just use the date portion and fix the time here.
+	std::string time_stamp = vivox_ts.substr(0, 10);
+	time_stamp += VOICE_FONT_EXPIRY_TIME;
 
-	// First check to see if it actually already is an ISO 8601 date that
-	// LLDate::fromString() can parse.
-	// In case the format miraculously changes in future ;)
-	if (ts.fromString(vivox_ts))
-	{
-		return ts;
-	}
+	LL_DEBUGS("VivoxProtocolParser") << "Vivox timestamp " << vivox_ts << " modified to: " << time_stamp << LL_ENDL;
 
-	std::string time_stamp = vivox_ts;
-
-	// Vivox's format is missing a T from being standard ISO 8601,
-	// so add it instead of the only space after the date.
-	LLStringUtil::replaceChar(time_stamp, ' ', 'T');
-
-	// LLDate can't handle offsets from UTC, so remove it, and add a Z
-	time_stamp = time_stamp.substr(0, time_stamp.length() - 3);
-	time_stamp += "Z";
-
-	ts.fromString(time_stamp);
-	if(!ts.fromString(time_stamp))
-	{
-		LL_WARNS_ONCE("VivoxProtocolParser") << "Failed to parse Vivox timestamp: "
-					<< vivox_ts << " to ISO 8601 date: " << time_stamp << LL_ENDL;
-		return LLDate();
-	}
-
-	return ts;
+	return LLDate(time_stamp);
 }
 
 // --------------------------------------------------------------------------------
