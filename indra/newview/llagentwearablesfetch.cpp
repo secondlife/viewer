@@ -37,6 +37,7 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
+#include "llstartup.h"
 #include "llvoavatarself.h"
 
 LLInitialWearablesFetch::LLInitialWearablesFetch(const LLUUID& cof_id) :
@@ -260,8 +261,11 @@ void LLLibraryOutfitsFetch::folderDone()
 	LLInventoryModel::item_array_t wearable_array;
 	gInventory.collectDescendents(mMyOutfitsID, cat_array, wearable_array, 
 								  LLInventoryModel::EXCLUDE_TRASH);
-	// Early out if we already have items in My Outfits.
-	if (cat_array.count() > 0 || wearable_array.count() > 0)
+	
+	// Early out if we already have items in My Outfits
+	// except the case when My Outfits contains just initial outfit
+	if (cat_array.count() > 1 ||
+		cat_array.count() == 1 && cat_array[0]->getUUID() != LLAppearanceMgr::getInstance()->getBaseOutfitUUID())
 	{
 		mOutfitsPopulated = true;
 		return;
@@ -272,6 +276,7 @@ void LLLibraryOutfitsFetch::folderDone()
 
 	// If Library->Clothing->Initial Outfits exists, use that.
 	LLNameCategoryCollector matchFolderFunctor("Initial Outfits");
+	cat_array.clear();
 	gInventory.collectDescendentsIf(mLibraryClothingID,
 									cat_array, wearable_array, 
 									LLInventoryModel::EXCLUDE_TRASH,
@@ -489,6 +494,9 @@ void LLLibraryOutfitsFetch::contentsDone()
 			llwarns << "Library folder import for uuid:" << folder_id << " failed to find folder." << llendl;
 			continue;
 		}
+
+		//initial outfit should be already in My Outfits
+		if (cat->getName() == LLStartUp::getInitialOutfitName()) continue;
 		
 		// First, make a folder in the My Outfits directory.
 		LLUUID new_outfit_folder_id = gInventory.createNewCategory(mMyOutfitsID, LLFolderType::FT_OUTFIT, cat->getName());
