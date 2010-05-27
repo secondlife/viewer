@@ -2191,7 +2191,7 @@ void LLVOAvatar::dumpAnimationState()
 		{
 			playtag = "*";
 		}
-		llinfos << animationName(id) << playtag << llendl;
+		llinfos << gAnimLibrary.animationName(id) << playtag << llendl;
 	}
 	for (LLVOAvatar::AnimIterator it = mPlayingAnimations.begin(); it != mPlayingAnimations.end(); ++it)
 	{
@@ -2199,7 +2199,7 @@ void LLVOAvatar::dumpAnimationState()
 		bool is_signaled = mSignaledAnimations.find(id) != mSignaledAnimations.end();
 		if (!is_signaled)
 		{
-			llinfos << animationName(id) << "!S" << llendl;
+			llinfos << gAnimLibrary.animationName(id) << "!S" << llendl;
 		}
 	}
 }
@@ -4542,13 +4542,13 @@ BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
-	lldebugs << "motion requested " << id.asString() << " " << animationName(id) << llendl;
+	lldebugs << "motion requested " << id.asString() << " " << gAnimLibrary.animationName(id) << llendl;
 
 	LLUUID remap_id = remapMotionID(id);
 
 	if (remap_id != id)
 	{
-		lldebugs << "motion resultant " << remap_id.asString() << " " << animationName(remap_id) << llendl;
+		lldebugs << "motion resultant " << remap_id.asString() << " " << gAnimLibrary.animationName(remap_id) << llendl;
 	}
 
 	if (isSelf() && remap_id == ANIM_AGENT_AWAY)
@@ -4564,18 +4564,17 @@ BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::stopMotion(const LLUUID& id, BOOL stop_immediate)
 {
-	lldebugs << "motion requested " << id.asString() << " " << animationName(id) << llendl;
+	lldebugs << "motion requested " << id.asString() << " " << gAnimLibrary.animationName(id) << llendl;
 
 	LLUUID remap_id = remapMotionID(id);
 	
 	if (remap_id != id)
 	{
-		lldebugs << "motion resultant " << remap_id.asString() << " " << animationName(remap_id) << llendl;
+		lldebugs << "motion resultant " << remap_id.asString() << " " << gAnimLibrary.animationName(remap_id) << llendl;
 	}
 
 	if (isSelf())
 	{
-		// BAP - was onAnimStop(id) originally - verify fix.
 		gAgent.onAnimStop(remap_id);
 	}
 

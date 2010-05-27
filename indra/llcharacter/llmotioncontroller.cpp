@@ -1054,7 +1054,7 @@ void LLMotionController::dumpMotions()
 			state_string += std::string("A");
 		if (mDeprecatedMotions.find(motion) != mDeprecatedMotions.end())
 			state_string += std::string("D");
-		llinfos << animationName(id) << " " << state_string << llendl;
+		llinfos << gAnimLibrary.animationName(id) << " " << state_string << llendl;
 		
 	}
 }

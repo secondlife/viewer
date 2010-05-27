@@ -341,7 +341,7 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
  	mCharacter->setAnimationData("Walk Speed", &mAnimSpeed);
 	if (mCharacter->getMotionController().mIsSelf)
 	{
-		F32 elapsed = mCharacter->getMotionController().getFrameTimer().getElapsedTimeF32();
+//		F32 elapsed = mCharacter->getMotionController().getFrameTimer().getElapsedTimeF32();
 // 		llinfos << "PLOT elapsed: " << elapsed 
 // 				<< " footSlipVelocity: " << footSlipVelocity
 // 				<< " mAvgCorrection: " << mAvgCorrection

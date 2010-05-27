@@ -412,6 +412,15 @@ void LLAnimationLibrary::animStateSetString( const LLUUID& state, const std::str
 	mAnimMap[state] = mAnimStringTable.addString(name);
 }
 
+std::string LLAnimationLibrary::animationName( const LLUUID& id ) const
+{
+	const char *cptr = gAnimLibrary.animStateToString(id); 
+	if (cptr)
+		return std::string(cptr);
+	else
+		return std::string("[") + id.asString() + std::string("]");
+}
+
 // Animation states that the user can trigger as part of a gesture
 // See struct LLAnimStateEntry in header for label location information
 const LLAnimStateEntry gUserAnimStates[] = {
@@ -488,15 +497,6 @@ const LLAnimStateEntry gUserAnimStates[] = {
 
 const S32 gUserAnimStatesCount = LL_ARRAY_SIZE(gUserAnimStates);
 
-
-std::string animationName( const LLUUID& id )
-{
-	const char *cptr = gAnimLibrary.animStateToString(id); 
-	if (cptr)
-		return std::string(cptr);
-	else
-		return std::string("[") + id.asString() + std::string("]");
-}
 
 // End
 

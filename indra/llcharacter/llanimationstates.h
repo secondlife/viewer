@@ -232,6 +232,11 @@ public:
 	// Associate an anim state with a name
 	//-----------------------------------------------------------------------------
 	void animStateSetString( const LLUUID& state, const std::string& name);
+
+	//-----------------------------------------------------------------------------
+	// Find the name for a given animation, or UUID string if none defined.
+	//-----------------------------------------------------------------------------
+	std::string animationName( const LLUUID& id ) const;
 };
 
 struct LLAnimStateEntry
@@ -256,8 +261,6 @@ struct LLAnimStateEntry
 extern const LLAnimStateEntry gUserAnimStates[];
 extern const S32 gUserAnimStatesCount;
 extern LLAnimationLibrary gAnimLibrary;
-
-std::string animationName( const LLUUID& id );
 
 #endif // LL_LLANIMATIONSTATES_H
 
