@@ -5017,7 +5017,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	
 	const char* dest_type = (is_dest_group ? "group" : "agent");
 	std::string dest_slurl =
-		LLSLURL( dest_type, dest_id, "inspect").getSLURLString();
+		LLSLURL( dest_type, dest_id, "completename").getSLURLString();
 
 	std::string reason =
 		reason_from_transaction_type(transaction_type, item_description);
