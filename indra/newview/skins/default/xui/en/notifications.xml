@@ -3145,9 +3145,11 @@ You are no longer frozen.
    icon="alertmodal.tga"
    name="SetDisplayName"
    type="alertmodal">
-Change your display name (used for name tags, chat, etc.)?
+Your new display name will be used for name tags, chat, friends lists, etc. You can also reset it back to your original username. There will be a delay before you can change your display name again, so choose wisely.
 
-You can also reset it back to your original username.
+See http://wiki.secondlife.com/wiki/Setting_your_display_name
+
+Change your display name?
     <form name="form">
       <input name="display_name" type="text">
 [DISPLAY_NAME]
@@ -3174,9 +3176,19 @@ You can also reset it back to your original username.
    type="alertmodal">
 Thanks for updating your name!
 
-Just like in real life, it takes a while for everyone to learn about a new name.  Please allow [HOURS] hours for your name to update in object ownership, scripts, search, etc.
+Just like in real life, it takes a while for everyone to learn about a new name.  Please allow several days for your name to update in object ownership, scripts, search, etc.
 
-See http://wiki.secondlife.com/wiki/Setting_your_display_name for details.
+See http://wiki.secondlife.com/wiki/Setting_your_display_name
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SetDisplayNameFailedLockout"
+   type="alertmodal">
+Sorry, you cannot change your display name until:
+[TIME]
+
+See http://wiki.secondlife.com/wiki/Setting_your_display_name
   </notification>
 
   <notification
@@ -3195,11 +3207,14 @@ Please try a shorter name.
     Sorry, we could not set your display name.  Please try again later.
   </notification>
 
+<!-- *NOTE: This should never happen, users should see SetDisplayNameFailedLockout above -->
   <notification
    icon="alertmodal.tga"
    name="AgentDisplayNameUpdateThresholdExceeded"
    type="alertmodal">
-Sorry, you can only change your name once every 24 hours.
+Sorry, you have to wait longer before you can change your display name.
+
+See http://wiki.secondlife.com/wiki/Setting_your_display_name for details.
 
 Please try again later.
   </notification>
