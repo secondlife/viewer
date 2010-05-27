@@ -190,7 +190,7 @@ void LLFloaterVoiceEffect::refreshEffectList()
 				element["columns"][DATE_COLUMN]["type"] = "date";
 			}
 			else {
-				element["columns"][DATE_COLUMN]["value"] = "";
+				element["columns"][DATE_COLUMN]["value"] = getString("unsubscribed_voice_effect");
 			}
 //			element["columns"][DATE_COLUMN]["font"]["style"] = "NORMAL";
 

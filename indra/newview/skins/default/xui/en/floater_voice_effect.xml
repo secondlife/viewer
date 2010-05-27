@@ -19,6 +19,9 @@
   <string name="active_voice_effect">
     (Active)
   </string>
+  <string name="unsubscribed_voice_effect">
+    (Unsubscribed)
+  </string>
   <string name="new_voice_effect">
     (New!)
   </string>
