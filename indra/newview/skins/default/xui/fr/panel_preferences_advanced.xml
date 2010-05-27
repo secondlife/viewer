@@ -13,6 +13,7 @@
 	</text>
 	<check_box label="Construire/Éditer" name="edit_camera_movement" tool_tip="Utilisez le positionnement automatique de la caméra quand vous accédez au mode de modification et quand vous le quittez"/>
 	<check_box label="Apparence" name="appearance_camera_movement" tool_tip="Utiliser le positionnement automatique de la caméra quand je suis en mode Édition"/>
+	<check_box initial_value="1" label="Panneau latéral" name="appearance_sidebar_positioning" tool_tip="Positionnement auto de la caméra pour le panneau latéral"/>
 	<check_box label="Afficher en vue subjective" name="first_person_avatar_visible"/>
 	<check_box label="Les touches de direction me font toujours me déplacer" name="arrow_keys_move_avatar_check"/>
 	<check_box label="Appuyer deux fois et maintenir enfoncé pour courir" name="tap_tap_hold_to_run"/>

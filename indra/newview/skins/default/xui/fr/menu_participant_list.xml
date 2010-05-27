@@ -14,8 +14,8 @@
 	<context_menu label="Options du modérateur &gt;" name="Moderator Options">
 		<menu_item_check label="Autoriser les chats écrits" name="AllowTextChat"/>
 		<menu_item_call label="Ignorer ce participant" name="ModerateVoiceMuteSelected"/>
-		<menu_item_call label="Ignorer tous les autres" name="ModerateVoiceMuteOthers"/>
 		<menu_item_call label="Ne plus ignorer ce participant" name="ModerateVoiceUnMuteSelected"/>
-		<menu_item_call label="Ne plus ignorer tous les autres" name="ModerateVoiceUnMuteOthers"/>
+		<menu_item_call label="Ignorer les autres" name="ModerateVoiceMute"/>
+		<menu_item_call label="Ne plus ignorer les autres" name="ModerateVoiceUnmute"/>
 	</context_menu>
 </context_menu>
