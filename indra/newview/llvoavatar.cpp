@@ -7994,7 +7994,7 @@ BOOL LLVOAvatar::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 ind
 		// baked textures can use TE images directly
 		return ((isTextureDefined(type) || isSelf())
 				&& (getTEImage(type)->getID() != IMG_INVISIBLE 
-					|| LLDrawPoolAlpha::sShowDebugAlpha));
+				|| LLDrawPoolAlpha::sShowDebugAlpha));
 	}
 }
 

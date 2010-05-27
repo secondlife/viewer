@@ -6,6 +6,9 @@
 	<panel.string name="cant_view_group_land_text">
 		No tienes permiso para ver el terreno propiedad del grupo
 	</panel.string>
+	<panel.string name="epmty_view_group_land_text">
+		No hay entradas
+	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
 		No tienes permiso para ver la información de la cuenta del grupo.
 	</panel.string>
