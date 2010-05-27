@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="400"
+ height="420"
  name="voice_effects"
  help_topic="voice_effects"
  title="PREVIEW VOICE MORPHING"
@@ -11,10 +11,10 @@
  label="Places"
  layout="topleft"
  min_height="350"
- min_width="300"
+ min_width="330"
  width="455">
   <string name="no_voice_effect">
-    (No Voice Effect)
+    (No Voice Morph)
   </string>
   <string name="active_voice_effect">
     (Active)
@@ -23,7 +23,7 @@
     (New!)
   </string>
   <text
-   height="40"
+   height="68"
    word_wrap="true"
    use_ellipses="true"
    type="string"
@@ -33,8 +33,9 @@
    name="status_text"
    right="-10"
    top="25">
-Record a sample of your voice, and then select an effect to preview.
-Close this window to return to in-world voice.
+To preview any of the Voice Morphing effects, click the Record button to record a short snippet of voice, then click any Voice Morph in the list to hear how it will sound.
+
+To reconnect to Nearby Voice simply close this window.
   </text>
   <button
    follows="left|top"
@@ -84,9 +85,9 @@ Close this window to return to in-world voice.
    name="voice_effect_list"
    right="-10"
    tool_tip="Record a sample of your voice, then click an effect to preview."
-   top="100">
+   top="128">
     <scroll_list.columns
-     label="Voice Effect"
+     label="Voice Morph"
      name="name" relative_width="0.41"/>
     <scroll_list.columns
      dynamic_width="true"

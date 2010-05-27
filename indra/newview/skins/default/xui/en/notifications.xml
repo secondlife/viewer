@@ -5962,8 +5962,8 @@ We are creating a voice channel for you. This may take up to one minute.
    sound="UISndAlert"
    persist="true"
    type="notify">
-Subscribed Voice Effects have expired.
-[[URL] Renew your subscription] to reactivate them.
+One or more of your subscribed Voice Morphs has expired.
+[[URL] Click here] to renew your subscription.
     <unique/>
   </notification>
 
@@ -5973,8 +5973,8 @@ Subscribed Voice Effects have expired.
    sound="UISndAlert"
    persist="true"
    type="notify">
-The active Voice Effect has expired, your normal voice settings have been applied.
-[[URL] Renew your subscription] to reactivate it.
+The active Voice Morph has expired, your normal voice settings have been applied.
+[[URL] Click here] to renew your subscription.
     <unique/>
   </notification>
 
@@ -5984,8 +5984,8 @@ The active Voice Effect has expired, your normal voice settings have been applie
    sound="UISndAlert"
    persist="true"
    type="notify">
-Voice Effects will expire in less than [INTERVAL] days.
-[[URL] Renew your subscription] or they will be removed.
+One or more of your Voice Morphs will expire in less than [INTERVAL] days.
+[[URL] Click here] to renew your subscription.
     <unique/>
   </notification>
 		LLNotificationsUtil::add("VoiceEffectsNew");
@@ -5996,7 +5996,7 @@ Voice Effects will expire in less than [INTERVAL] days.
    sound="UISndAlert"
    persist="true"
    type="notify">
-New Voice Effects are available!
+New Voice Morphs are available!
     <unique/>
   </notification>
 

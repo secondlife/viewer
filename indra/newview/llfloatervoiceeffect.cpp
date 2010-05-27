@@ -114,7 +114,7 @@ void LLFloaterVoiceEffect::refreshEffectList()
 		return;
 	}
 
-	LL_DEBUGS("Voice")<< "Rebuilding voice effect list."<< LL_ENDL;
+	LL_DEBUGS("Voice")<< "Rebuilding Voice Morph list."<< LL_ENDL;
 
 	// Preserve selected items and scroll position
 	S32 scroll_pos = mVoiceEffectList->getScrollPos();
@@ -128,7 +128,7 @@ void LLFloaterVoiceEffect::refreshEffectList()
 	mVoiceEffectList->deleteAllItems();
 
 	{
-		// Add the "No Voice Effect" entry
+		// Add the "No Voice Morph" entry
 		LLSD element;
 
 		element["id"] = LLUUID::null;
@@ -145,7 +145,7 @@ void LLFloaterVoiceEffect::refreshEffectList()
 		}
 	}
 
-	// Add each Voice Effect template, if there are any (template list includes all usable effects)
+	// Add each Voice Morph template, if there are any (template list includes all usable effects)
 	const voice_effect_list_t& template_list = effect_interface->getVoiceEffectTemplateList();
 	if (!template_list.empty())
 	{

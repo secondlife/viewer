@@ -10609,7 +10609,7 @@
     <key>VoiceEffectExpiryWarningTime</key>
     <map>
       <key>Comment</key>
-      <string>How much notice to give of voice effect subscriptions expiry, in seconds.</string>
+      <string>How much notice to give of Voice Morph subscriptions expiry, in seconds.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -10620,7 +10620,7 @@
     <key>VoiceMorphingEnabled</key>
     <map>
       <key>Comment</key>
-      <string>Whether or not to enable Voice Effects and show the UI.</string>
+      <string>Whether or not to enable Voice Morphs and show the UI.</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>

@@ -1,7 +1,7 @@
 /** 
  * @file llpanelvoiceeffect.cpp
  * @author Aimee
- * @brief Panel to select Voice Effects.
+ * @brief Panel to select Voice Morphs.
  *
  * $LicenseInfo:firstyear=2010&license=viewergpl$
  * 
@@ -102,7 +102,7 @@ void LLPanelVoiceEffect::onCommitVoiceEffect()
 	LLSD value = mVoiceEffectCombo->getValue();
 	if (value.asInteger() == PREVIEW_VOICE_EFFECTS)
 	{
-		// Open the voice effects management floater
+		// Open the Voice Morph preview floater
 		LLFloaterReg::showInstance("voice_effect");
 	}
 	else if (value.asInteger() == GET_VOICE_EFFECTS)
@@ -131,12 +131,12 @@ void LLPanelVoiceEffect::update(bool list_updated)
 		LLVoiceEffectInterface* effect_interface = LLVoiceClient::instance().getVoiceEffectInterface();
 		if (list_updated)
 		{
-			// Add the default "No Voice Effect" entry.
+			// Add the default "No Voice Morph" entry.
 			mVoiceEffectCombo->removeall();
 			mVoiceEffectCombo->add(getString("no_voice_effect"), LLUUID::null);
 			mVoiceEffectCombo->addSeparator();
 
-			// Add entries for each Voice Effect.
+			// Add entries for each Voice Morph.
 			const voice_effect_list_t& effect_list = effect_interface->getVoiceEffectList();
 			if (!effect_list.empty())
 			{
@@ -155,7 +155,7 @@ void LLPanelVoiceEffect::update(bool list_updated)
 
 		if (effect_interface && LLVoiceClient::instance().isVoiceWorking())
 		{
-			// Select the current voice effect.
+			// Select the current Voice Morph.
 			mVoiceEffectCombo->setValue(effect_interface->getVoiceEffect());
 			mVoiceEffectCombo->setEnabled(true);
 		}
