@@ -3103,18 +3103,6 @@ void LLVOAvatar::slamPosition()
 //------------------------------------------------------------------------
 BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 {
- 	if (!LLApp::isExiting())
- 	{
-		BOOL show_walk_sliders = gSavedSettings.getBOOL("ShowWalkSliders");
-		if (show_walk_sliders)
-		{
-			LLDebugVarMessageBox::show("Adj Max", &SPEED_ADJUST_MAX, 5.0f, 0.1f);
-			LLDebugVarMessageBox::show("Adj Max Sec", &SPEED_ADJUST_MAX_SEC, 5.0f, 0.1f);
-			LLDebugVarMessageBox::show("Anim Max", &ANIM_SPEED_MAX, 10.0f, 0.1f);
-			LLDebugVarMessageBox::show("Anim Min", &ANIM_SPEED_MIN, 10.0f, 0.1f);
-		}
- 	}
-
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
 	// clear debug text

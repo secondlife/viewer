@@ -342,14 +342,14 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	if (mCharacter->getMotionController().mIsSelf)
 	{
 		F32 elapsed = mCharacter->getMotionController().getFrameTimer().getElapsedTimeF32();
-		llinfos << "PLOT elapsed: " << elapsed 
-				<< " footSlipVelocity: " << footSlipVelocity
-				<< " mAvgCorrection: " << mAvgCorrection
-				<< " mAvgSpeed: " << mAvgSpeed
-				<< " mAnimSpeed: " << mAnimSpeed
-				<< " ANIM_SPEED_MAX: " << ANIM_SPEED_MAX
-				<< " ANIM_SPEED_MIN: " << ANIM_SPEED_MIN
-				<< llendl;
+// 		llinfos << "PLOT elapsed: " << elapsed 
+// 				<< " footSlipVelocity: " << footSlipVelocity
+// 				<< " mAvgCorrection: " << mAvgCorrection
+// 				<< " mAvgSpeed: " << mAvgSpeed
+// 				<< " mAnimSpeed: " << mAnimSpeed
+// 				<< " ANIM_SPEED_MAX: " << ANIM_SPEED_MAX
+// 				<< " ANIM_SPEED_MIN: " << ANIM_SPEED_MIN
+// 				<< llendl;
 	}
 
 	// clamp pelvis offset to a 90 degree arc behind the nominal position

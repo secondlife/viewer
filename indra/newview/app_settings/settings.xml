@@ -2676,6 +2676,17 @@
       <key>Value</key>
       <integer>4</integer>
     </map>
+    <key>DumpVFSCaches</key>
+    <map>
+      <key>Comment</key>
+      <string>Dump VFS caches on startup.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DynamicCameraStrength</key>
     <map>
       <key>Comment</key>
@@ -10355,28 +10366,6 @@
     <map>
       <key>Comment</key>
       <string>Replace standard walk/run animations with new ones.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowWalkSliders</key>
-    <map>
-      <key>Comment</key>
-      <string>Allow walk params to be adjusted on the fly.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>DumpVFSCaches</key>
-    <map>
-      <key>Comment</key>
-      <string>Dump VFS caches on startup.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

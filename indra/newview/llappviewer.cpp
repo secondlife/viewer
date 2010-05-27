@@ -2981,9 +2981,10 @@ S32 LLAppViewer::getCacheVersion()
 
 void dumpVFSCaches()
 {
-	llinfos << "======= Dumping Static VFS ========" << llendl;
+	llinfos << "======= Static VFS ========" << llendl;
 	gStaticVFS->listFiles();
 #if LL_WINDOWS
+	llinfos << "======= Dumping static VFS to StaticVFSDump ========" << llendl;
 	WCHAR w_str[MAX_PATH];
 	GetCurrentDirectory(MAX_PATH, w_str);
 	S32 res = LLFile::mkdir("StaticVFSDump");
@@ -2991,7 +2992,7 @@ void dumpVFSCaches()
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create StaticVFSDump" << llendl;
+			llwarns << "Couldn't create dir StaticVFSDump" << llendl;
 		}
 	}
 	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
@@ -2999,15 +3000,16 @@ void dumpVFSCaches()
 	SetCurrentDirectory(w_str);
 #endif
 						
-	llinfos << "========= Dumping regular VFS ====" << llendl;
+	llinfos << "========= Dynamic VFS ====" << llendl;
 	gVFS->listFiles();
 #if LL_WINDOWS
+	llinfos << "========= Dumping dynamic VFS to VFSDump ====" << llendl;
 	res = LLFile::mkdir("VFSDump");
 	if (res == -1)
 	{
 		if (errno != EEXIST)
 		{
-			llwarns << "Couldn't create VFSDump" << llendl;
+			llwarns << "Couldn't create dir VFSDump" << llendl;
 		}
 	}
 	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
@@ -3232,11 +3234,12 @@ bool LLAppViewer::initCache()
 	{
 		LLVFile::initClass();
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		if (gSavedSettings.getBOOL("DumpVFSCaches"))
 		{
 			dumpVFSCaches();
-			
 		}
+#endif
 		
 		return true;
 	}
