@@ -49,7 +49,6 @@
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
 #include "llface.h"
-#include "llfloatercustomize.h"
 #include "llmorphview.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
