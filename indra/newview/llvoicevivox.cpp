@@ -3698,9 +3698,15 @@ void LLVivoxVoiceClient::participantUpdatedEvent(
 				if (speaker_manager)
 				{
 					speaker_manager->update(true);
+
+					// also initialize voice moderate_mode depend on Agent's participant. See EXT-6937.
+					// *TODO: remove once a way to request the current voice channel moderation mode is implemented.
+					if (gAgentID == participant->mAvatarID)
+					{
+						speaker_manager->initVoiceModerateMode();
+					}
 				}
 			}
-			
 		}
 		else
 		{

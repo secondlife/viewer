@@ -1597,6 +1597,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ChatBarCustomWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Stores customized width of chat bar.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>CreateToolCopyCenters</key>
     <map>
       <key>Comment</key>
@@ -8063,6 +8074,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ShowBuildButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Build button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowCameraButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide View button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowConsoleWindow</key>
     <map>
       <key>Comment</key>
@@ -8140,6 +8173,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowGestureButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Gesture button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowHoverTips</key>
     <map>
       <key>Comment</key>
@@ -8162,6 +8206,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>    
+    <key>ShowMiniMapButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Mini-Map button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowMoveButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Move button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
 	<key>ShowScriptErrors</key>
     <map>
       <key>Comment</key>
@@ -8181,6 +8247,39 @@
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowSearchButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Search button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowSidebarButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides Sidebar button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowSnapshotButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Snapshot button button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
@@ -8216,6 +8315,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>   
+    </map>
+    <key>ShowWorldMapButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Map button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>SidebarCameraMovement</key>
     <map>
