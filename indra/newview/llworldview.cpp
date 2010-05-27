@@ -44,6 +44,7 @@ static LLDefaultChildRegistry::Register<LLWorldView> r("world_view");
 LLWorldView::LLWorldView(const Params& p)
 :	LLUICtrl (p)
 {
+	gSavedSettings.getControl("SidebarCameraMovement")->getSignal()->connect(boost::bind(&LLWorldView::toggleSidebarCameraMovement, this, _2));
 }
 
 void LLWorldView::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -59,3 +60,8 @@ void LLWorldView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	
 	LLUICtrl::reshape(width, height, called_from_parent);
 }
+void LLWorldView::toggleSidebarCameraMovement(const LLSD::Boolean& new_visibility)
+{
+	reshape(getParent()->getRect().getWidth(),getRect().getHeight());
+}
+

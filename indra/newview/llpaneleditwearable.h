@@ -36,8 +36,10 @@
 #include "llpanel.h"
 #include "llscrollingpanellist.h"
 #include "llmodaldialog.h"
+#include "llvoavatardefines.h"
 #include "llwearabletype.h"
 
+class LLCheckBoxCtrl;
 class LLWearable;
 class LLTextEditor;
 class LLTextBox;
@@ -86,6 +88,13 @@ private:
 	void				toggleTypeSpecificControls(LLWearableType::EType type);
 	void				updateTypeSpecificControls(LLWearableType::EType type);
 
+	//alpha mask checkboxes
+	void configureAlphaCheckbox(LLVOAvatarDefines::ETextureIndex te, const std::string& name);
+	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLVOAvatarDefines::ETextureIndex te);
+	void updateAlphaCheckboxes();
+	void initPreviousAlphaTextures();
+	void initPreviousAlphaTextureEntry(LLVOAvatarDefines::ETextureIndex te);
+
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;
 	LLViewerInventoryItem* mWearableItem;
@@ -122,6 +131,12 @@ private:
 	LLPanel *mPanelSkirt;
 	LLPanel *mPanelAlpha;
 	LLPanel *mPanelTattoo;
+
+	typedef std::map<std::string, LLVOAvatarDefines::ETextureIndex> string_texture_index_map_t;
+	string_texture_index_map_t mAlphaCheckbox2Index;
+
+	typedef std::map<LLVOAvatarDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
+	s32_uuid_map_t mPreviousAlphaTexture;
 };
 
 #endif

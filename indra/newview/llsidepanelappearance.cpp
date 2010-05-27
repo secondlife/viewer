@@ -344,10 +344,10 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 
 	// Toggle panel visibility.
 	mEditWearable->setVisible(visible);
-	mEditWearable->setWearable(wearable);
 
 	if (visible)
 	{
+		mEditWearable->setWearable(wearable);
 		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
 		{
