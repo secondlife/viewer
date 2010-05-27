@@ -1776,6 +1776,42 @@ if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
 
+if (PACKAGE)
+  if (WINDOWS)
+    set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
+    set(VIEWER_SYMBOL_FILE "secondlife-windows.breakpad.bz2")
+    set(VIEWER_EXE_GLOBS "SecondLife*.exe SLPlugin.exe")
+    set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
+  endif (WINDOWS)
+  if (DARWIN)
+    set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
+    set(VIEWER_SYMBOL_FILE "secondlife-darwin.breakpad.bz2")
+    set(VIEWER_EXE_GLOBS "Second?Life SLPlugin")
+    set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
+  endif (DARWIN)
+  if (LINUX)
+    set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/packaged")
+    set(VIEWER_SYMBOL_FILE "secondlife-linux.breakpad.bz2")
+    set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin SLPlugin")
+    set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
+  endif (LINUX)
+
+  add_custom_command(OUTPUT "${CMAKE_CFG_INTDIR}/${VIEWER_SYMBOL_FILE}"
+    COMMAND "${PYTHON_EXECUTABLE}"
+    ARGS
+      "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
+      "${VIEWER_DIST_DIR}"
+      "${VIEWER_EXE_GLOBS}"
+      "${VIEWER_LIB_GLOB}"
+      "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
+      "${CMAKE_CFG_INTDIR}/${VIEWER_SYMBOL_FILE}"
+    DEPENDS generate_breakpad_symbols.py
+  )
+  add_custom_target(generate_breakpad_symbols ALL DEPENDS "${VIEWER_SYMBOL_FILE}")
+  add_dependencies(generate_breakpad_symbols viewer)
+  add_dependencies(package generate_breakpad_symbols)
+endif (PACKAGE)
+
 if (LL_TESTS)
   # To add a viewer unit test, just add the test .cpp file below
   # This creates a separate test project per file listed.
