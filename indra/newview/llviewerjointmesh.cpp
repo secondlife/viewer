@@ -667,7 +667,9 @@ void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32
 //-----------------------------------------------------------------------------
 // updateFaceData()
 //-----------------------------------------------------------------------------
-void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind)
+static LLFastTimer::DeclareTimer FTM_AVATAR_FACE("Avatar Face");
+
+void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
 {
 	mFace = face;
 
@@ -675,6 +677,8 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 	{
 		return;
 	}
+
+	LLFastTimer t(FTM_AVATAR_FACE);
 
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
@@ -694,29 +698,98 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 			face->mVertexBuffer->getIndexStrider(indicesp);
 			stop_glerror();
 
-			for (U16 i = 0; i < mMesh->getNumVertices(); i++)
+			verticesp += mMesh->mFaceVertexOffset;
+			tex_coordsp += mMesh->mFaceVertexOffset;
+			normalsp += mMesh->mFaceVertexOffset;
+			vertex_weightsp += mMesh->mFaceVertexOffset;
+			clothing_weightsp += mMesh->mFaceVertexOffset;
+
+			const U32* __restrict coords = (U32*) mMesh->getCoords();
+			const U32* __restrict tex_coords = (U32*) mMesh->getTexCoords();
+			const U32* __restrict normals = (U32*) mMesh->getNormals();
+			const U32* __restrict weights = (U32*) mMesh->getWeights();
+			const U32* __restrict cloth_weights = (U32*) mMesh->getClothingWeights();
+
+			const U32 num_verts = mMesh->getNumVertices();
+
+			U32 i = 0;
+
+			const U32 skip = verticesp.getSkip()/sizeof(U32);
+
+			U32* __restrict v = (U32*) verticesp.get();
+			U32* __restrict n = (U32*) normalsp.get();
+			
+			if (terse_update)
 			{
-				verticesp[mMesh->mFaceVertexOffset + i] = *(mMesh->getCoords() + i);
-				tex_coordsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getTexCoords() + i);
-				normalsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getNormals() + i);
-				vertex_weightsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getWeights() + i);
-				if (damp_wind)
+				for (S32 i = num_verts; i > 0; --i)
 				{
-					clothing_weightsp[mMesh->mFaceVertexOffset + i] = LLVector4(0,0,0,0);
+					//morph target application only, only update positions and normals
+					v[0] = coords[0]; 
+					v[1] = coords[1]; 
+					v[2] = coords[2];		
+					coords += 3;
+					v += skip;
 				}
-				else
+
+				for (S32 i = num_verts; i > 0; --i)
 				{
-					clothing_weightsp[mMesh->mFaceVertexOffset + i] = (*(mMesh->getClothingWeights() + i));
+					n[0] = normals[0]; 
+					n[1] = normals[1];
+					n[2] = normals[2];
+					normals += 3;
+					n += skip;
 				}
 			}
-
-			for (S32 i = 0; i < mMesh->getNumFaces(); i++)
-			{
-				for (U32 j = 0; j < 3; j++)
+			else
 				{
-					U32 k = i*3+j+mMesh->mFaceIndexOffset;
-					indicesp[k] = mMesh->getFaces()[i][j] + mMesh->mFaceVertexOffset;
+
+				U32* __restrict tc = (U32*) tex_coordsp.get();
+				U32* __restrict vw = (U32*) vertex_weightsp.get();
+				U32* __restrict cw = (U32*) clothing_weightsp.get();
+				
+				do
+				{
+					v[0] = *(coords++); 
+					v[1] = *(coords++); 
+					v[2] = *(coords++);
+					v += skip;
+
+					tc[0] = *(tex_coords++); 
+					tc[1] = *(tex_coords++);
+					tc += skip;
+
+					n[0] = *(normals++); 
+					n[1] = *(normals++);
+					n[2] = *(normals++);
+					n += skip;
+
+					vw[0] = *(weights++);
+					vw += skip;
+
+					cw[0] = *(cloth_weights++);
+					cw[1] = *(cloth_weights++);
+					cw[2] = *(cloth_weights++);
+					cw[3] = *(cloth_weights++);
+					cw += skip;
 				}
+				while (++i < num_verts);
+
+				const U32 idx_count = mMesh->getNumFaces()*3;
+
+				indicesp += mMesh->mFaceIndexOffset;
+
+				U16* __restrict idx = indicesp.get();
+				S32* __restrict src_idx = (S32*) mMesh->getFaces();
+
+				i = 0;
+
+				const S32 offset = (S32) mMesh->mFaceVertexOffset;
+
+				do
+				{
+					*(idx++) = *(src_idx++)+offset;
+				}
+				while (++i < idx_count);
 			}
 		}
 	}
