@@ -18,8 +18,8 @@
  width="228">
   <string name="Creator">By [CREATOR]</string>
   <string name="CreatorAndOwner">
-by [CREATOR]
-owner [OWNER]
+By [CREATOR]
+Owner [OWNER]
   </string>
   <string name="Price">L$[AMOUNT]</string>
   <string name="PriceFree">Free!</string>
@@ -29,61 +29,52 @@ owner [OWNER]
      allow_html="false"
      follows="all"
      font="SansSerifLarge"
-     height="16"
+     height="30"
      left="8"
      name="object_name"
      text_color="White"
-     top="10"
+     top="6"
      use_ellipses="true"
-     value="Test Object Name That Is Really Long"
+     word_wrap="true"
+     value="Test Object Name That Is actually two lines and Really Long"
      width="220" />
   <text
    follows="all"
-   height="33"
+   height="50"
    left="8"
    name="object_creator"
-   top_pad="0"
+   top_pad="6"
    use_ellipses="true"
    width="220">
     by secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
   </text>
-  <!-- *TODO: Replace this icon -->
-  <icon
-  name="price_icon"
-  image_name="Icon_For_Sale"
-  right="-5"
-  width="16"
-  height="16"
-  top="56"
-  follows="left|top"
-  />
   <text
    follows="all"
    font="SansSerifSmall"
    font.style="BOLD"
-   height="16"
+   height="14"
    halign="right"
-   left="5"
+   right="-5"
    name="price_text"
    text_color="white"
-   top="58"
+   top="60"
    font_shadow="none"
-   width="196">
-L$300,000
+   width="60">
+L$30,000
   </text>
   <text
-   clip_partial="true" 
+   clip_partial="true"
    follows="all"
    font="SansSerifSmall"
-   height="37"
+   height="25"
    left="8"
    name="object_description"
-   top_pad="0"
-   use_ellipses="true" 
+   top="76"
+   use_ellipses="true"
    width="220"
    word_wrap="true">
-This is a really long description for an object being as how it is at least 80 characters in length and maybe more like 120 at this point. Who knows, really?
+This is a really long description for an object being as how it is at least 80 characters in length and so but maybe more like 120 at this point. Who knows, really?
   </text>
   <!-- Overlapping buttons for all default actions.  Show "Buy" if
   for sale, "Sit" if can sit, etc. -->
@@ -91,10 +82,9 @@ This is a really long description for an object being as how it is at least 80 c
    follows="all"
    font="SansSerifSmall"
    height="13"
-   left_delta="0"
    name="object_media_url"
-   bottom_pad="2"
-   width="200"
+   width="220"
+   top_pad="0"
    max_length = "50"
    use_ellipses="true">
    http://www.superdupertest.com
