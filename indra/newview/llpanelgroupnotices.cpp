@@ -36,7 +36,7 @@
 
 #include "llview.h"
 
-#include "llcachename.h"
+#include "llavatarnamecache.h"
 #include "llinventory.h"
 #include "llviewerinventory.h"
 #include "llinventorydefines.h"
@@ -549,7 +549,10 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		msg->getU32("Data","Timestamp",timestamp,i);
 
 		// we only have the legacy name here, convert it to a username
-		name = LLCacheName::buildUsername(name);
+		if (LLAvatarNameCache::useDisplayNames())
+		{
+			name = LLCacheName::buildUsername(name);
+		}
 
 		LLSD row;
 		row["id"] = id;
