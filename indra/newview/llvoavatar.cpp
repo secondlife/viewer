@@ -5940,10 +5940,9 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 		mRuthDebugTimer.reset();
 	}
 	
-	const F32 LOADING_TIMEOUT = 120.f;
-	if (mRuthTimer.getElapsedTimeF32() > LOADING_TIMEOUT)
+	const F32 LOADING_TIMEOUT__SECONDS = 120.f;
+	if (mRuthTimer.getElapsedTimeF32() > LOADING_TIMEOUT__SECONDS)
 	{
-		
 		llinfos << "Ruth Timer timeout: Missing texture data for '" << getFullname() << "' "
 				<< "( Params loaded : " << !visualParamWeightsAreDefault() << " ) "
 				<< "( Lower : " << isTextureDefined(TEX_LOWER_BAKED) << " ) "
