@@ -25,6 +25,7 @@
 							<string>AppCache</string>
 							<string>Window</string>
 							<string>RenderInit</string>
+							<string>GridManager</string>								
 						</array>
 				</map>
 				<map>
@@ -40,6 +41,7 @@
 						</array>
 					<key>tags</key>
 						<array>
+							<string>GridManager</string>						
 						</array>
 				</map>
 			</array>

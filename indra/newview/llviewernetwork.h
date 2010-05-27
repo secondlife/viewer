@@ -127,7 +127,7 @@ public:
 	
 	LLSD getGridInfo() { return mGridList[mGrid]; }
 	
-	std::string getGridByLabel( const std::string &grid_label);
+	std::string getGridByLabel( const std::string &grid_label, bool case_sensitive = false);
 	
 	bool isSystemGrid(const std::string& grid) 
 	{ 
