@@ -1744,6 +1744,8 @@ BOOL LLFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
 
 	mParentPanel->setFocus(TRUE);
 
+	LLEditMenuHandler::gEditMenuHandler = this;
+
 	return LLView::handleMouseDown( x, y, mask );
 }
 

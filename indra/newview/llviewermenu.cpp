@@ -53,7 +53,7 @@
 //#include "llfirstuse.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloatercustomize.h"
 #include "llfloatergodtools.h"
 #include "llfloaterinventory.h"
@@ -108,6 +108,7 @@
 #include "lluilistener.h"
 #include "llappearancemgr.h"
 #include "lltrans.h"
+#include "lleconomy.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -292,8 +293,8 @@ void handle_toggle_pg(void*);
 void handle_dump_attachments(void *);
 void handle_dump_avatar_local_textures(void*);
 void handle_debug_avatar_textures(void*);
-void handle_grab_texture(void*);
-BOOL enable_grab_texture(void*);
+void handle_grab_baked_texture(void*);
+BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
 
 BOOL enable_save_into_inventory(void*);
@@ -1460,28 +1461,28 @@ class LLAdvancedGrabBakedTexture : public view_listener_t
 		std::string texture_type = userdata.asString();
 		if ("iris" == texture_type)
 		{
-			handle_grab_texture( (void*)TEX_EYES_BAKED );
+			handle_grab_baked_texture( (void*)BAKED_EYES );
 		}
 		else if ("head" == texture_type)
 		{
-			handle_grab_texture( (void*)TEX_HEAD_BAKED );
+			handle_grab_baked_texture( (void*)BAKED_HEAD );
 		}
 		else if ("upper" == texture_type)
 		{
-			handle_grab_texture( (void*)TEX_UPPER_BAKED );
+			handle_grab_baked_texture( (void*)BAKED_UPPER );
 		}
 		else if ("lower" == texture_type)
 		{
-			handle_grab_texture( (void*)TEX_SKIRT_BAKED );
+			handle_grab_baked_texture( (void*)BAKED_LOWER );
 		}
 		else if ("skirt" == texture_type)
 		{
-			handle_grab_texture( (void*)TEX_SKIRT_BAKED );
+			handle_grab_baked_texture( (void*)BAKED_SKIRT );
 		}
 		else if ("hair" == texture_type)
 		{
-			handle_grab_texture( (void*)TEX_HAIR_BAKED );
-}
+			handle_grab_baked_texture( (void*)BAKED_HAIR );
+		}
 
 		return true;
 	}
@@ -1496,23 +1497,27 @@ class LLAdvancedEnableGrabBakedTexture : public view_listener_t
 
 		if ("iris" == texture_type)
 		{
-			new_value = enable_grab_texture( (void*)TEX_EYES_BAKED );
+			new_value = enable_grab_baked_texture( (void*)BAKED_EYES );
 		}
 		else if ("head" == texture_type)
 		{
-			new_value = enable_grab_texture( (void*)TEX_HEAD_BAKED );
+			new_value = enable_grab_baked_texture( (void*)BAKED_HEAD );
 		}
 		else if ("upper" == texture_type)
 		{
-			new_value = enable_grab_texture( (void*)TEX_UPPER_BAKED );
+			new_value = enable_grab_baked_texture( (void*)BAKED_UPPER );
 		}
 		else if ("lower" == texture_type)
 		{
-			new_value = enable_grab_texture( (void*)TEX_LOWER_BAKED );
+			new_value = enable_grab_baked_texture( (void*)BAKED_LOWER );
 		}
 		else if ("skirt" == texture_type)
 		{
-			new_value = enable_grab_texture( (void*)TEX_SKIRT_BAKED );
+			new_value = enable_grab_baked_texture( (void*)BAKED_SKIRT );
+		}
+		else if ("hair" == texture_type)
+		{
+			new_value = enable_grab_baked_texture( (void*)BAKED_HAIR );
 		}
 	
 		return new_value;
@@ -3284,7 +3289,7 @@ void handle_buy_object(LLSaleInfo sale_info)
 	{
 		LLStringUtil::format_map_t args;
 		args["AMOUNT"] = llformat("%d", price);
-		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_object_costs", args), price);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_object_costs", args), price );
 		return;
 	}
 
@@ -3626,6 +3631,14 @@ class LLEditEnableCustomizeAvatar : public view_listener_t
 	{
 		bool new_value = gAgentWearables.areWearablesLoaded();
 		return new_value;
+	}
+};
+
+class LLEnableEditShape : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gAgentWearables.isWearableModifiable(LLWearableType::WT_SHAPE, 0);
 	}
 };
 
@@ -4418,8 +4431,7 @@ void handle_buy_or_take()
 		{
 			LLStringUtil::format_map_t args;
 			args["AMOUNT"] = llformat("%d", total_price);
-			LLFloaterBuyCurrency::buyCurrency(
-					LLTrans::getString("BuyingCosts", args), total_price);
+			LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString( "BuyingCosts", args ), total_price );
 		}
 	}
 	else
@@ -5597,10 +5609,17 @@ void handle_viewer_disable_message_log(void*)
 
 void handle_customize_avatar()
 {
-	if (gAgentWearables.areWearablesLoaded())
-	{
-		gAgentCamera.changeCameraToCustomizeAvatar();
-	}
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
+}
+
+void handle_edit_outfit()
+{
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+}
+
+void handle_edit_shape()
+{
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_shape"));
 }
 
 void handle_report_abuse()
@@ -5612,7 +5631,7 @@ void handle_report_abuse()
 
 void handle_buy_currency()
 {
-	LLFloaterBuyCurrency::buyCurrency();
+	LLBuyCurrencyHTML::openCurrencyFloater();
 }
 
 class LLFloaterVisible : public view_listener_t
@@ -6936,27 +6955,20 @@ void handle_debug_avatar_textures(void*)
 	}
 }
 
-void handle_grab_texture(void* data)
+void handle_grab_baked_texture(void* data)
 {
-	ETextureIndex tex_index = (ETextureIndex)((intptr_t)data);
+	EBakedTextureIndex baked_tex_index = (EBakedTextureIndex)((intptr_t)data);
 	if (!isAgentAvatarValid()) return;
 
-	// MULTI-WEARABLE: change to support an index
-	const LLUUID& asset_id = gAgentAvatarp->grabLocalTexture(tex_index, 0);
+	const LLUUID& asset_id = gAgentAvatarp->grabBakedTexture(baked_tex_index);
 	LL_INFOS("texture") << "Adding baked texture " << asset_id << " to inventory." << llendl;
 	LLAssetType::EType asset_type = LLAssetType::AT_TEXTURE;
 	LLInventoryType::EType inv_type = LLInventoryType::IT_TEXTURE;
 	const LLUUID folder_id = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(asset_type));
 	if(folder_id.notNull())
 	{
-		std::string name = "Unknown";
-		const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(tex_index);
-		if (texture_dict->mIsBakedTexture)
-		{
-			EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
-			name = "Baked " + LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_index)->mNameCapitalized;
-		}
-		name += " Texture";
+		std::string name;
+		name = "Baked " + LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_tex_index)->mNameCapitalized + " Texture";
 
 		LLUUID item_id;
 		item_id.generate();
@@ -7009,13 +7021,12 @@ void handle_grab_texture(void* data)
 	}
 }
 
-BOOL enable_grab_texture(void* data)
+BOOL enable_grab_baked_texture(void* data)
 {
-	ETextureIndex index = (ETextureIndex)((intptr_t)data);
+	EBakedTextureIndex index = (EBakedTextureIndex)((intptr_t)data);
 	if (isAgentAvatarValid())
 	{
-		// MULTI-WEARABLE:
-		return gAgentAvatarp->canGrabLocalTexture(index,0);
+		return gAgentAvatarp->canGrabBakedTexture(index);
 	}
 	return FALSE;
 }
@@ -7648,6 +7659,42 @@ class LLWorldToggleCameraControls : public view_listener_t
 	}
 };
 
+class LLUploadCostCalculator : public view_listener_t
+{
+	std::string mCostStr;
+
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string menu_name = userdata.asString();
+		gMenuHolder->childSetLabelArg(menu_name, "[COST]", mCostStr);
+
+		return true;
+	}
+
+	void calculateCost();
+
+public:
+	LLUploadCostCalculator()
+	{
+		calculateCost();
+	}
+};
+
+void LLUploadCostCalculator::calculateCost()
+{
+	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+
+	// getPriceUpload() returns -1 if no data available yet.
+	if(upload_cost >= 0)
+	{
+		mCostStr = llformat("%d", upload_cost);
+	}
+	else
+	{
+		mCostStr = llformat("%d", gSavedSettings.getU32("DefaultUploadCost"));
+	}
+}
+
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
 	static LLMenuGL*	show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
@@ -7689,6 +7736,8 @@ void initialize_menus()
 	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
 	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
 
+	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
+
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
 	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
@@ -7719,7 +7768,10 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditEnableDuplicate(), "Edit.EnableDuplicate");
 	view_listener_t::addMenu(new LLEditEnableTakeOff(), "Edit.EnableTakeOff");
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
+	view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
 	commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
+	commit.add("EditOutfit", boost::bind(&handle_edit_outfit));
+	commit.add("EditShape", boost::bind(&handle_edit_shape));
 
 	// View menu
 	view_listener_t::addMenu(new LLViewMouselook(), "View.Mouselook");

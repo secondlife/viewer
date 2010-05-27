@@ -359,7 +359,7 @@
      reference="White"/>
     <color
      name="GroupNotifyDimmedTextColor"
-     reference="DkGray" />
+     reference="LtGray" />
     <color
      name="GroupOverTierColor"
      value="0.43 0.06 0.06 1" />
@@ -530,7 +530,7 @@
      reference="Unused?" />
     <color
      name="NetMapBackgroundColor"
-     value="0 0 0 0" />
+     value="0 0 0 1" />
     <color
      name="NetMapGroupOwnAboveWater"
      reference="Purple" />

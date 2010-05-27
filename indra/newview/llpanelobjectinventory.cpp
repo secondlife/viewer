@@ -48,7 +48,7 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llcallbacklist.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloaterreg.h"
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
@@ -174,11 +174,7 @@ LLInventoryItem* LLTaskInvFVBridge::findItem() const
 
 void LLTaskInvFVBridge::showProperties()
 {
-	LLSD key;
-	key["object"] = mPanel->getTaskUUID();
-	key["id"] = mUUID;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
-
+	show_item_profile(mUUID);
 
 	// Disable old properties floater; this is replaced by the sidepanel.
 	/*
@@ -616,7 +612,7 @@ void LLTaskInvFVBridge::performAction(LLInventoryModel* model, std::string actio
 			{
 				LLStringUtil::format_map_t args;
 				args["AMOUNT"] = llformat("%d", price);
-				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("this_costs", args), price);
+				LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_costs", args), price );
 			}
 			else
 			{

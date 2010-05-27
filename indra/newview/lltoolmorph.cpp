@@ -79,6 +79,7 @@ LLVisualParamHint::LLVisualParamHint(
 	S32 width, S32 height, 
 	LLViewerJointMesh *mesh, 
 	LLViewerVisualParam *param,
+	LLWearable *wearable,
 	F32 param_weight)
 	:
 	LLViewerDynamicTexture(width, height, 3, LLViewerDynamicTexture::ORDER_MIDDLE, TRUE ),
@@ -86,6 +87,7 @@ LLVisualParamHint::LLVisualParamHint(
 	mIsVisible( FALSE ),
 	mJointMesh( mesh ),
 	mVisualParam( param ),
+	mWearablePtr( wearable ),
 	mVisualParamWeight( param_weight ),
 	mAllowsUpdates( TRUE ),
 	mDelayFrames( 0 ),
@@ -151,7 +153,7 @@ BOOL LLVisualParamHint::needsRender()
 void LLVisualParamHint::preRender(BOOL clear_depth)
 {
 	mLastParamWeight = mVisualParam->getWeight();
-	mVisualParam->setWeight(mVisualParamWeight, FALSE);
+	mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mVisualParamWeight, FALSE);
 	gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mVisualParamWeight, FALSE);
 	gAgentAvatarp->setVisualParamWeight("Blink_Left", 0.f);
 	gAgentAvatarp->setVisualParamWeight("Blink_Right", 0.f);
@@ -250,10 +252,12 @@ BOOL LLVisualParamHint::render()
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 	gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
-	mVisualParam->setWeight(mLastParamWeight, FALSE);
+	mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight, FALSE);
+	gAgentAvatarp->updateVisualParams();
 	gGL.color4f(1,1,1,1);
 	mGLTexturep->setGLTextureCreated(true);
 	gGL.popUIMatrix();
+
 	return TRUE;
 }
 

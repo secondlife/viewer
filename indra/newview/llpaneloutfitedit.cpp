@@ -148,6 +148,8 @@ protected:
 		else
 		{
 			mBaseOutfitId = baseoutfit_id;
+			mPanel->updateCurrentOutfitName();
+
 			if (baseoutfit_id.isNull()) return;
 
 			mBaseOutfitLastVersion = getCategoryVersion(mBaseOutfitId);
@@ -169,14 +171,50 @@ protected:
 	S32 mBaseOutfitLastVersion;
 };
 
+class LLCOFDragAndDropObserver : public LLInventoryAddItemByAssetObserver
+{
+public:
+	LLCOFDragAndDropObserver(LLInventoryModel* model);
 
+	virtual ~LLCOFDragAndDropObserver();
+
+	virtual void done();
+
+private:
+	LLInventoryModel* mModel;
+};
+
+inline LLCOFDragAndDropObserver::LLCOFDragAndDropObserver(LLInventoryModel* model):
+		mModel(model)
+{
+	if (model != NULL)
+	{
+		model->addObserver(this);
+	}
+}
+
+inline LLCOFDragAndDropObserver::~LLCOFDragAndDropObserver()
+{
+	if (mModel != NULL && mModel->containsObserver(this))
+	{
+		mModel->removeObserver(this);
+	}
+}
+
+void LLCOFDragAndDropObserver::done()
+{
+	LLAppearanceMgr::instance().updateAppearanceFromCOF();
+}
 
 LLPanelOutfitEdit::LLPanelOutfitEdit()
 :	LLPanel(), 
 	mSearchFilter(NULL),
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
-	mCOFObserver(NULL)
+	mCOFObserver(NULL),
+	mGearMenu(NULL),
+	mCOFDragAndDropObserver(NULL),
+	mInitialized(false)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -197,6 +235,7 @@ LLPanelOutfitEdit::~LLPanelOutfitEdit()
 	delete mSavedFolderState;
 
 	delete mCOFObserver;
+	delete mCOFDragAndDropObserver;
 }
 
 BOOL LLPanelOutfitEdit::postBuild()
@@ -216,6 +255,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
 	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredFolderWearablesPanel, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredWearablesPanel, this), NULL);
+	childSetCommitCallback("gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
+	childSetCommitCallback("wearables_gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onOutfitItemSelectionChange, this));
@@ -234,6 +275,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
 	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
 	
+	mCOFDragAndDropObserver = new LLCOFDragAndDropObserver(mInventoryItemsPanel->getModel());
+
 	LLComboBox* type_filter = getChild<LLComboBox>("filter_wearables_combobox");
 	type_filter->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onTypeFilterChanged, this, _1));
 	type_filter->removeall();
@@ -270,6 +313,16 @@ BOOL LLPanelOutfitEdit::postBuild()
 	return TRUE;
 }
 
+// virtual
+void LLPanelOutfitEdit::onOpen(const LLSD& key)
+{
+	if (!mInitialized)
+	{
+		displayCurrentOutfit();
+		mInitialized = true;
+	}
+}
+
 void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
 {
 	LLUUID item_id = mCOFWearables->getSelectedUUID();
@@ -302,6 +355,8 @@ void LLPanelOutfitEdit::showFilteredWearablesPanel()
 	if(switchPanels(mInventoryItemsPanel, mWearableItemsPanel))
 	{
 		mFolderViewBtn->setToggleState(FALSE);
+		mFolderViewBtn->setImageOverlay(getString("folder_view_off"), mFolderViewBtn->getImageOverlayHAlign());
+		mListViewBtn->setImageOverlay(getString("list_view_on"), mListViewBtn->getImageOverlayHAlign());
 	}
 	mListViewBtn->setToggleState(TRUE);
 }
@@ -311,6 +366,8 @@ void LLPanelOutfitEdit::showFilteredFolderWearablesPanel()
 	if(switchPanels(mWearableItemsPanel, mInventoryItemsPanel))
 	{
 		mListViewBtn->setToggleState(FALSE);
+		mListViewBtn->setImageOverlay(getString("list_view_off"), mListViewBtn->getImageOverlayHAlign());
+		mFolderViewBtn->setImageOverlay(getString("folder_view_on"), mFolderViewBtn->getImageOverlayHAlign());
 	}
 	mFolderViewBtn->setToggleState(TRUE);
 }
@@ -409,13 +466,25 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitEdit::onAddToOutfitClicked(void)
 {
-	LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
-	if (!curr_item) return;
+	LLUUID selected_id;
+	if (mInventoryItemsPanel->getVisible())
+	{
+		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
+		if (!curr_item) return;
 
-	LLFolderViewEventListener* listenerp  = curr_item->getListener();
-	if (!listenerp) return;
+		LLFolderViewEventListener* listenerp  = curr_item->getListener();
+		if (!listenerp) return;
 
-	LLAppearanceMgr::getInstance()->wearItemOnAvatar(listenerp->getUUID());
+		selected_id = listenerp->getUUID();
+	}
+	else if (mWearableItemsPanel->getVisible())
+	{
+		selected_id = mWearableItemsList->getSelectedUUID();
+	}
+
+	if (selected_id.isNull()) return;
+
+	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id);
 }
 
 
@@ -522,6 +591,56 @@ void LLPanelOutfitEdit::update()
 	updateVerbs();
 }
 
+BOOL LLPanelOutfitEdit::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+										  EDragAndDropType cargo_type,
+										  void* cargo_data,
+										  EAcceptance* accept,
+										  std::string& tooltip_msg)
+{
+	if (cargo_data == NULL)
+	{
+		llwarns << "cargo_data is NULL" << llendl;
+		return TRUE;
+	}
+
+	switch (cargo_type)
+	{
+	case DAD_BODYPART:
+	case DAD_CLOTHING:
+	case DAD_OBJECT:
+	case DAD_LINK:
+		*accept = ACCEPT_YES_MULTI;
+		break;
+	default:
+		*accept = ACCEPT_NO;
+	}
+
+	if (drop)
+	{
+		LLInventoryItem* item = static_cast<LLInventoryItem*>(cargo_data);
+
+		if (LLAssetType::lookupIsAssetIDKnowable(item->getType()))
+		{
+			mCOFDragAndDropObserver->watchAsset(item->getAssetUUID());
+
+			/*
+			 * Adding request to wear item. If the item is a link, then getLinkedUUID() will
+			 * return the ID of the linked item. Otherwise it will return the item's ID. The
+			 * second argument is used to delay the appearance update until all dragged items
+			 * are added to optimize user experience.
+			 */
+			LLAppearanceMgr::instance().addCOFItemLink(item->getLinkedUUID(), false);
+		}
+		else
+		{
+			// if asset id is not available for the item we must wear it immediately (attachments only)
+			LLAppearanceMgr::instance().addCOFItemLink(item->getLinkedUUID(), true);
+		}
+	}
+
+	return TRUE;
+}
+
 void LLPanelOutfitEdit::displayCurrentOutfit()
 {
 	if (!getVisible())
@@ -529,6 +648,13 @@ void LLPanelOutfitEdit::displayCurrentOutfit()
 		setVisible(TRUE);
 	}
 
+	updateCurrentOutfitName();
+
+	update();
+}
+
+void LLPanelOutfitEdit::updateCurrentOutfitName()
+{
 	std::string current_outfit_name;
 	if (LLAppearanceMgr::getInstance()->getBaseOutfitName(current_outfit_name))
 	{
@@ -538,8 +664,6 @@ void LLPanelOutfitEdit::displayCurrentOutfit()
 	{
 		mCurrentOutfitName->setText(getString("No Outfit"));
 	}
-
-	update();
 }
 
 //private
@@ -569,6 +693,33 @@ bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch
 		return true;
 	}
 	return false;
+}
+
+void LLPanelOutfitEdit::onGearButtonClick(LLUICtrl* clicked_button)
+{
+	if(!mGearMenu)
+	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+		registrar.add("Gear.OnClick", boost::bind(&LLPanelOutfitEdit::onGearMenuItemClick, this, _2));
+
+		mGearMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+			"menu_cof_gear.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+		mGearMenu->buildDrawLabels();
+		mGearMenu->updateParent(LLMenuGL::sMenuContainer);
+	}
+
+	S32 menu_y = mGearMenu->getRect().getHeight() + clicked_button->getRect().getHeight();
+	LLMenuGL::showPopup(clicked_button, mGearMenu, 0, menu_y);
+}
+
+void LLPanelOutfitEdit::onGearMenuItemClick(const LLSD& data)
+{
+	std::string param = data.asString();
+	if("add" == param)
+	{
+		// TODO
+	}
 }
 
 // EOF

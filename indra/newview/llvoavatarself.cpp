@@ -49,12 +49,14 @@
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
+#include "llnotificationsutil.h"
 #include "llselectmgr.h"
 #include "lltoolgrab.h"	// for needsRenderBeam
 #include "lltoolmgr.h" // for needsRenderBeam
 #include "lltoolmorph.h"
 #include "lltrans.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerstats.h"
@@ -103,15 +105,7 @@ struct LocalTextureData
 //-----------------------------------------------------------------------------
 // Callback data
 //-----------------------------------------------------------------------------
-struct LLAvatarTexData
-{
-	LLAvatarTexData(const LLUUID& id, ETextureIndex index) : 
-		mAvatarID(id), 
-		mIndex(index) 
-	{}
-	LLUUID			mAvatarID;
-	ETextureIndex	mIndex;
-};
+
 
 /**
  **
@@ -157,6 +151,23 @@ void LLVOAvatarSelf::initInstance()
 
 	// adds attachment points to mScreen among other things
 	LLVOAvatar::initInstance();
+
+	llinfos << "Self avatar object created. Starting timer." << llendl;
+	mDebugSelfLoadTimer.reset();
+	// clear all times to -1 for debugging
+	for (U32 i =0; i < LLVOAvatarDefines::TEX_NUM_INDICES; ++i)
+	{
+		for (U32 j = 0; j <= MAX_DISCARD_LEVEL; ++j)
+		{
+			mDebugTextureLoadTimes[i][j] = -1.0f;
+		}
+	}
+
+	for (U32 i =0; i < LLVOAvatarDefines::BAKED_NUM_INDICES; ++i)
+	{
+		mDebugBakedTextureTimes[i][0] = -1.0f;
+		mDebugBakedTextureTimes[i][1] = -1.0f;
+	}
 
 	status &= buildMenus();
 	if (!status)
@@ -1119,12 +1130,12 @@ U32 LLVOAvatarSelf::getNumWearables(LLVOAvatarDefines::ETextureIndex i) const
 // virtual
 void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {	
-	//llinfos << "onLocalTextureLoaded: " << src_vi->getID() << llendl;
 
 	const LLUUID& src_id = src_vi->getID();
 	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
 	ETextureIndex index = data->mIndex;
 	if (!isIndexLocalTexture(index)) return;
+
 	LLLocalTextureObject *local_tex_obj = getLocalTextureObject(index, 0);
 
 	// fix for EXT-268. Preventing using of NULL pointer
@@ -1262,6 +1273,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLTexLayerSet* layerset) 
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) const
 {
+	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		if (layerset == mBakedTextureDatas[i].mTexLayerSet)
@@ -1276,7 +1289,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) cons
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
-					if (getLocalDiscardLevel(*local_tex_iter, wearable_index) != 0)
+					if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(override_tex_discard_level))
 					{
 						return FALSE;
 					}
@@ -1320,6 +1333,32 @@ BOOL LLVOAvatarSelf::isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32
 	
 	return isDefined;
 }
+
+//virtual
+BOOL LLVOAvatarSelf::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index) const
+{
+	if (isIndexBakedTexture(type))
+	{
+		return LLVOAvatar::isTextureVisible(type);
+	}
+
+	LLUUID tex_id = getLocalTextureID(type,index);
+	return (tex_id != IMG_INVISIBLE) 
+			|| (LLDrawPoolAlpha::sShowDebugAlpha);
+}
+
+//virtual
+BOOL LLVOAvatarSelf::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const
+{
+	if (isIndexBakedTexture(type))
+	{
+		return LLVOAvatar::isTextureVisible(type);
+	}
+
+	U32 index = gAgentWearables.getWearableIndex(wearable);
+	return isTextureVisible(type,index);
+}
+
 
 //-----------------------------------------------------------------------------
 // requestLayerSetUploads()
@@ -1389,6 +1428,7 @@ void LLVOAvatarSelf::invalidateAll()
 	{
 		invalidateComposite(mBakedTextureDatas[i].mTexLayerSet, TRUE);
 	}
+	mDebugSelfLoadTimer.reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -1750,22 +1790,72 @@ BOOL LLVOAvatarSelf::getIsCloud()
 	return FALSE;
 }
 
-
-const LLUUID& LLVOAvatarSelf::grabLocalTexture(ETextureIndex type, U32 index) const
+/*static*/
+void LLVOAvatarSelf::debugOnTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
-	if (canGrabLocalTexture(type, index))
+	gAgentAvatarp->debugTimingLocalTexLoaded(success, src_vi, src, aux_src, discard_level, final, userdata);
+}
+
+void LLVOAvatarSelf::debugTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+{
+	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
+	if (!data)
 	{
-		return getTEImage( type )->getID();
+		return;
+	}
+
+	ETextureIndex index = data->mIndex;
+	
+	if (index < 0 || index >= TEX_NUM_INDICES)
+	{
+		return;
+	}
+
+	if (discard_level >=0 && discard_level <= MAX_DISCARD_LEVEL) // ignore discard level -1, as it means we have no data.
+	{
+		mDebugTextureLoadTimes[(U32)index][(U32)discard_level] = mDebugSelfLoadTimer.getElapsedTimeF32();
+	}
+	if (final)
+	{
+		delete data;
+	}
+}
+
+void LLVOAvatarSelf::debugBakedTextureUpload(EBakedTextureIndex index, BOOL finished)
+{
+	U32 done = 0;
+	if (finished)
+	{
+		done = 1;
+	}
+	mDebugBakedTextureTimes[index][done] = mDebugSelfLoadTimer.getElapsedTimeF32();
+}
+
+const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) const
+{
+	if (canGrabBakedTexture(baked_index))
+	{
+		ETextureIndex tex_index = LLVOAvatarDictionary::bakedToLocalTextureIndex(baked_index);
+		if (tex_index == TEX_NUM_INDICES)
+		{
+			return LLUUID::null;
+		}
+		return getTEImage( tex_index )->getID();
 	}
 	return LLUUID::null;
 }
 
-BOOL LLVOAvatarSelf::canGrabLocalTexture(ETextureIndex type, U32 index) const
+BOOL LLVOAvatarSelf::canGrabBakedTexture(EBakedTextureIndex baked_index) const
 {
-	// Check if the texture hasn't been baked yet.
-	if (!isTextureDefined(type, index))
+	ETextureIndex tex_index = LLVOAvatarDictionary::bakedToLocalTextureIndex(baked_index);
+	if (tex_index == TEX_NUM_INDICES)
 	{
-		lldebugs << "getTEImage( " << (U32) type << ", " << index << " )->getID() == IMG_DEFAULT_AVATAR" << llendl;
+		return FALSE;
+	}
+	// Check if the texture hasn't been baked yet.
+	if (!isTextureDefined(tex_index, 0))
+	{
+		lldebugs << "getTEImage( " << (U32) tex_index << " )->getID() == IMG_DEFAULT_AVATAR" << llendl;
 		return FALSE;
 	}
 
@@ -1775,13 +1865,7 @@ BOOL LLVOAvatarSelf::canGrabLocalTexture(ETextureIndex type, U32 index) const
 	// Check permissions of textures that show up in the
 	// baked texture.  We don't want people copying people's
 	// work via baked textures.
-	/* switch(type)
-		case TEX_EYES_BAKED:
-			textures.push_back(TEX_EYES_IRIS); */
-	const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(type);
-	if (!texture_dict->mIsUsedByBakedTexture) return FALSE;
 
-	const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
 	const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_index);
 	for (texture_vec_t::const_iterator iter = baked_dict->mLocalTextures.begin();
 		 iter != baked_dict->mLocalTextures.end();
@@ -1909,6 +1993,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	const LLVOAvatarDictionary::TextureEntry *texture_dict = LLVOAvatarDictionary::getInstance()->getTexture(te);
 	if (texture_dict->mIsBakedTexture)
 	{
+		debugBakedTextureUpload(texture_dict->mBakedTextureIndex, TRUE); // FALSE for start of upload, TRUE for finish.
 		llinfos << "New baked texture: " << texture_dict->mName << " UUID: " << uuid <<llendl;
 	}
 	else
@@ -1921,6 +2006,56 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	if (!hasPendingBakedUploads())
 	{
 		gAgent.sendAgentSetAppearance();
+
+		if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
+		{
+			LLSD args;
+			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
+			args["TIME"] = llformat("%d",(U32)mDebugSelfLoadTimer.getElapsedTimeF32());
+			LLNotificationsUtil::add("AvatarRezSelfNotification",args);
+		}
+
+		outputRezDiagnostics();
+	}
+}
+
+void LLVOAvatarSelf::outputRezDiagnostics() const
+{
+	const F32 final_time = mDebugSelfLoadTimer.getElapsedTimeF32();
+	llinfos << "REZTIME: Myself rez stats:" << llendl;
+	llinfos << "\t Time from avatar creation to load wearables: " << (S32)mDebugTimeWearablesLoaded << llendl;
+	llinfos << "\t Time from avatar creation to de-cloud: " << (S32)mDebugTimeAvatarVisible << llendl;
+	llinfos << "\t Time from avatar creation to de-cloud for others: " << (S32)final_time << llendl;
+	llinfos << "\t Load time for each texture: " << llendl;
+	for (U32 i = 0; i < LLVOAvatarDefines::TEX_NUM_INDICES; ++i)
+	{
+		std::stringstream out;
+		out << "\t\t (" << i << ") ";
+		U32 j=0;
+		for (j=0; j <= MAX_DISCARD_LEVEL; j++)
+		{
+			out << "\t";
+			S32 load_time = (S32)mDebugTextureLoadTimes[i][j];
+			if (load_time == -1)
+			{
+				out << "*";
+				if (j == 0)
+					break;
+			}
+			else
+			{
+				out << load_time;
+			}
+		}
+
+		// Don't print out non-existent textures.
+		if (j != 0)
+			llinfos << out.str() << llendl;
+	}
+	llinfos << "\t Time points for each upload (start / finish)" << llendl;
+	for (U32 i = 0; i < LLVOAvatarDefines::BAKED_NUM_INDICES; ++i)
+	{
+		llinfos << "\t\t (" << i << ") \t" << (S32)mDebugBakedTextureTimes[i][0] << " / " << (S32)mDebugBakedTextureTimes[i][1] << llendl;
 	}
 }
 

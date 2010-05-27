@@ -67,7 +67,10 @@
 	<text name="RenderingCost" tool_tip="Affiche le coût du rendu calculé pour cet objet">
 		þ : [COUNT]
 	</text>
-	<check_box label="Étirer les deux côtés" name="checkbox uniform"/>
+	<check_box label="" name="checkbox uniform"/>
+	<text label="Étirer les deux côtés" name="checkbox uniform label">
+		Étirer les deux côtés
+	</text>
 	<check_box initial_value="true" label="Étirer les textures" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Fixer sur la grille" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Choisissez le type d&apos;axe de grille pour le positionnement de l&apos;objet">
@@ -441,7 +444,7 @@
 			<check_box label="Inverser" name="checkbox flip s"/>
 			<spinner label="Vertical (V)" name="TexScaleV"/>
 			<check_box label="Inverser" name="checkbox flip t"/>
-			<spinner label="Rotation˚" name="TexRot" />
+			<spinner label="Rotation˚" name="TexRot"/>
 			<spinner label="Répétitions / Mètre" name="rptctrl"/>
 			<button label="Appliquer" label_selected="Appliquer" name="button apply"/>
 			<text name="tex offset">

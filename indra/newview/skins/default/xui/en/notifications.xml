@@ -3451,7 +3451,7 @@ You are not allowed in that region due to your maturity Rating.
    type="alertmodal">
 You are not allowed in that Region due to your maturity Rating preference.
 
-Click &apos;Change Preference&apos; to raise your maturity Rating preference for immediate entry. Doing so will allow you to search for and access [REGIONMATURITY] content. If you wish to change this setting later, you may do so from Me &gt; Preferences &gt; General.
+To enter the desired region, please change your maturity Rating preference. This will allow you to search for and access [REGIONMATURITY] content. To undo any changes, go to Me &gt; Preferences &gt; General.
 	 <form name="form">
       <button
        index="0"
@@ -6118,12 +6118,76 @@ The button will be shown when there is enough space for it.
    type="notifytip">
 Drag items from inventory onto a person in the resident picker
   </notification>
+  <notification
+   icon="notifytip.tga"
+   name="DeedToGroupFail"
+   type="notifytip">
+Deed to group failed.
+  </notification>
 
   <notification
    icon="notifytip.tga"
    name="AvatarRezNotification"
    type="notifytip">
-Avatar '[NAME]' rezzed in [TIME] seconds.
+( [EXISTENCE] seconds alive )
+Avatar '[NAME]' declouded in [TIME] seconds.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You finished baking your outfit in [TIME] seconds.
+  </notification>
+
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezCloudNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+Avatar '[NAME]' became cloud.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezArrivedNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+Avatar '[NAME]' appeared.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezLeftCloudNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+Avatar '[NAME]' left after [TIME] seconds as cloud.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezEnteredAppearanceNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+Avatar '[NAME]' entered appearance mode.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezLeftAppearanceNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+Avatar '[NAME]' left appearance mode.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezLeftNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+Avatar '[NAME]' left as fully loaded.
   </notification>
 
   <notification

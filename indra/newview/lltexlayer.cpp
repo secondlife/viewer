@@ -237,6 +237,7 @@ BOOL LLTexLayerSetBuffer::render()
 		{
 			if (mTexLayerSet->isVisible())
 			{
+				mTexLayerSet->getAvatar()->debugBakedTextureUpload(mTexLayerSet->getBakedTexIndex(), FALSE); // FALSE for start of upload, TRUE for finish.
 				readBackAndUpload();
 			}
 			else

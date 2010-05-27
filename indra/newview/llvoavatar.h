@@ -262,7 +262,6 @@ private:
 	S32				mFullyLoadedFrameCounter;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
-	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
 	
 /**                    State
  **                                                                            **
@@ -465,7 +464,9 @@ public:
 	//--------------------------------------------------------------------
 public:
 	virtual BOOL    isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
-	BOOL			isTextureVisible(LLVOAvatarDefines::ETextureIndex index) const;
+	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
+	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const;
+
 protected:
 	BOOL			isFullyBaked();
 	static BOOL		areAllNearbyInstancesBaked(S32& grey_avatars);
@@ -895,6 +896,9 @@ private:
  **                    DIAGNOSTICS
  **/
 	
+	//--------------------------------------------------------------------
+	// General
+	//--------------------------------------------------------------------
 public:
 	static void			dumpArchetypeXML(void*);
 	static void			dumpBakedStatus();
@@ -913,6 +917,14 @@ private:
 	F32					mMaxPixelArea;
 	F32					mAdjustedPixelArea;
 	std::string  		mDebugText;
+
+
+	//--------------------------------------------------------------------
+	// Avatar Rez Metrics
+	//--------------------------------------------------------------------
+protected:
+	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
+	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.
 
 /**                    Diagnostics
  **                                                                            **
@@ -1030,15 +1042,5 @@ protected: // Shared with LLVOAvatarSelf
  *******************************************************************************/
 
 }; // LLVOAvatar
-
-//------------------------------------------------------------------------
-// Inlines
-//------------------------------------------------------------------------
-inline BOOL LLVOAvatar::isTextureVisible(LLVOAvatarDefines::ETextureIndex te) const
-{
-	return ((isTextureDefined(te) || isSelf())
-			&& (getTEImage(te)->getID() != IMG_INVISIBLE 
-				|| LLDrawPoolAlpha::sShowDebugAlpha));
-}
 
 #endif // LL_VO_AVATAR_H

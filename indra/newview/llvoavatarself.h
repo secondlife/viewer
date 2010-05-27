@@ -124,11 +124,11 @@ public:
 	//--------------------------------------------------------------------
 public:
 	/*virtual*/ BOOL    getIsCloud();
-private:
 
 	//--------------------------------------------------------------------
 	// Region state
 	//--------------------------------------------------------------------
+private:
 	U64				mLastRegionHandle;
 	LLFrameTimer	mRegionCrossingTimer;
 	S32				mRegionCrossingCount;
@@ -179,6 +179,9 @@ public:
 	BOOL				isLocalTextureDataFinal(const LLTexLayerSet* layerset) const;
 	// If you want to check all textures of a given type, pass gAgentWearables.getWearableCount() for index
 	/*virtual*/ BOOL    isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
+	/*virtual*/ BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
+	/*virtual*/ BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const;
+
 
 	//--------------------------------------------------------------------
 	// Local Textures
@@ -188,8 +191,6 @@ public:
 	LLViewerFetchedTexture*	getLocalTextureGL(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	const LLUUID&		getLocalTextureID(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	void				setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index);
-	const LLUUID&		grabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
-	BOOL				canGrabLocalTexture(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	/*virtual*/ void	setLocalTexture(LLVOAvatarDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index);
 protected:
 	/*virtual*/ void	setBakedReady(LLVOAvatarDefines::ETextureIndex type, BOOL baked_version_exists, U32 index);
@@ -217,6 +218,8 @@ public:
 	static void			processRebakeAvatarTextures(LLMessageSystem* msg, void**);
 protected:
 	/*virtual*/ void	removeMissingBakedTextures();
+private:
+	LLFrameTimer    	mBakeTimeoutTimer;
 
 	//--------------------------------------------------------------------
 	// Layers
@@ -238,6 +241,10 @@ public:
 	/* virtual */ bool 	isCompositeUpdateEnabled(U32 index);
 	void				setupComposites();
 	void				updateComposites();
+
+	const LLUUID&		grabBakedTexture(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
+	BOOL				canGrabBakedTexture(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
+
 
 	//--------------------------------------------------------------------
 	// Scratch textures (used for compositing)
@@ -323,10 +330,39 @@ public:
  **                    DIAGNOSTICS
  **/
 
+	//--------------------------------------------------------------------
+	// General
+	//--------------------------------------------------------------------
 public:	
 	static void		dumpTotalLocalTextureByteCount();
 	void			dumpLocalTextures() const;
 	static void		dumpScratchTextureByteCount();
+
+	//--------------------------------------------------------------------
+	// Avatar Rez Metrics
+	//--------------------------------------------------------------------
+public:	
+	struct LLAvatarTexData
+	{
+		LLAvatarTexData(const LLUUID& id, LLVOAvatarDefines::ETextureIndex index) : 
+			mAvatarID(id), 
+			mIndex(index) 
+		{}
+		LLUUID			mAvatarID;
+		LLVOAvatarDefines::ETextureIndex	mIndex;
+	};
+	void debugWearablesLoaded() { mDebugTimeWearablesLoaded = mDebugSelfLoadTimer.getElapsedTimeF32(); }
+	void debugAvatarVisible() { mDebugTimeAvatarVisible = mDebugSelfLoadTimer.getElapsedTimeF32(); }
+	void outputRezDiagnostics() const;
+	void debugBakedTextureUpload(LLVOAvatarDefines::EBakedTextureIndex index, BOOL finished);
+	static void		debugOnTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+private:
+	LLFrameTimer    mDebugSelfLoadTimer;
+	F32				mDebugTimeWearablesLoaded;
+	F32 			mDebugTimeAvatarVisible;
+	F32 			mDebugTextureLoadTimes[LLVOAvatarDefines::TEX_NUM_INDICES][MAX_DISCARD_LEVEL+1]; // load time for each texture at each discard level
+	F32 			mDebugBakedTextureTimes[LLVOAvatarDefines::BAKED_NUM_INDICES][2]; // time to start upload and finish upload of each baked texture
+	void			debugTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 
 /**                    Diagnostics
  **                                                                            **

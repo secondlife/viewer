@@ -4,6 +4,7 @@
 		<panel name="button_panel">
 			<button label="Profil" name="info_btn"/>
 			<button label="Partager" name="share_btn"/>
+			<button label="Acheter" name="shop_btn"/>
 			<button label="Porter" name="wear_btn"/>
 			<button label="Jouer" name="play_btn"/>
 			<button label="Téléporter" name="teleport_btn"/>

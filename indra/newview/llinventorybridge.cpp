@@ -47,6 +47,7 @@
 #include "llfloaterworldmap.h"
 #include "llfriendcard.h"
 #include "llgesturemgr.h"
+#include "llgiveinventory.h"
 #include "llimfloater.h"
 #include "llimview.h"
 #include "llinventoryclipboard.h"
@@ -143,7 +144,6 @@ const std::string& LLInvFVBridge::getDisplayName() const
 // Folders have full perms
 PermissionMask LLInvFVBridge::getPermissionMask() const
 {
-
 	return PERM_ALL;
 }
 
@@ -222,9 +222,7 @@ void LLInvFVBridge::cutToClipboard()
 // *TODO: make sure this does the right thing
 void LLInvFVBridge::showProperties()
 {
-	LLSD key;
-	key["id"] = mUUID;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+	show_item_profile(mUUID);
 
 	// Disable old properties floater; this is replaced by the sidepanel.
 	/*
@@ -1017,11 +1015,7 @@ BOOL LLInvFVBridge::canShare() const
 	{
 		if (!LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item)) 
 			return FALSE;
-		if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
-			return FALSE;
-		if (!item->getPermissions().allowCopyBy(gAgent.getID()))
-			return FALSE;
-		return TRUE;
+		return (BOOL)LLGiveInventory::isInventoryGiveAcceptable(item);
 	}
 
 	// All categories can be given.
@@ -1219,18 +1213,7 @@ PermissionMask LLItemBridge::getPermissionMask() const
 {
 	LLViewerInventoryItem* item = getItem();
 	PermissionMask perm_mask = 0;
-	if(item)
-	{
-		BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
-		BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
-		BOOL xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
-															gAgent.getID());
-
-		if (copy) perm_mask |= PERM_COPY;
-		if (mod)  perm_mask |= PERM_MODIFY;
-		if (xfer) perm_mask |= PERM_TRANSFER;
-
-	}
+	if (item) perm_mask = item->getPermissionMask();
 	return perm_mask;
 }
 
@@ -3767,7 +3750,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 					rv = TRUE;
 					if(drop)
 					{
-						LLToolDragAndDrop::giveInventory(item->getCreatorUUID(),
+						LLGiveInventory::doGiveInventoryItem(item->getCreatorUUID(),
 														 (LLInventoryItem*)cargo_data);
 					}
 				}
@@ -3788,7 +3771,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 					rv = TRUE;
 					if(drop)
 					{
-						LLToolDragAndDrop::giveInventoryCategory(
+						LLGiveInventory::doGiveInventoryCategory(
 							item->getCreatorUUID(),
 							inv_cat);
 					}
@@ -4158,21 +4141,9 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 
 void LLObjectBridge::openItem()
 {
-	LLViewerInventoryItem* item = getItem();
-
-	if (item)
-	{
-		LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
-	}
-
-	LLSD key;
-	key["id"] = mUUID;
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
-
-	// Disable old properties floater; this is replaced by the sidepanel.
-	/*
-	  LLFloaterReg::showInstance("properties", mUUID);
-	*/
+	// object double-click action is to wear/unwear object
+	performAction(getInventoryModel(),
+		      get_is_item_worn(mUUID) ? "detach" : "attach");
 }
 
 LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
@@ -4449,7 +4420,7 @@ void wear_inventory_item_on_avatar( LLInventoryItem* item )
 		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
 				 << " )" << llendl;
 
-		LLAppearanceMgr::instance().addCOFItemLink(item);
+		LLAppearanceMgr::getInstance()->wearItemOnAvatar(item->getUUID(), true, false);
 	}
 }
 
@@ -4907,8 +4878,7 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	LLUUID linked_id = gInventory.getLinkedItemID(mUUID);
-	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(linked_id);
+	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
 	if( wearable )
 	{
 		// Set the tab to the right wearable.
@@ -4992,18 +4962,20 @@ void LLWearableBridge::removeAllClothesFromAvatar()
 		if (itype == LLWearableType::WT_SHAPE || itype == LLWearableType::WT_SKIN || itype == LLWearableType::WT_HAIR || itype == LLWearableType::WT_EYES)
 			continue;
 
-		// MULTI-WEARABLES: fixed to index 0
-		LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(
-			gAgentWearables.getWearableInventoryItem((LLWearableType::EType)itype, 0));
-		if (!item)
-			continue;
-		const LLUUID &item_id = gInventory.getLinkedItemID(item->getUUID());
-		const LLWearable *wearable = gAgentWearables.getWearableFromItemID(item_id);
-		if (!wearable)
-			continue;
-
-		// Find and remove this item from the COF.
-		LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
+		for (S32 index = gAgentWearables.getWearableCount(itype)-1; index >= 0 ; --index)
+		{
+			LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(
+				gAgentWearables.getWearableInventoryItem((LLWearableType::EType)itype, index));
+			if (!item)
+				continue;
+			const LLUUID &item_id = item->getUUID();
+			const LLWearable *wearable = gAgentWearables.getWearableFromItemID(item_id);
+			if (!wearable)
+				continue;
+	
+			// Find and remove this item from the COF.
+			LLAppearanceMgr::instance().removeCOFItemLinks(item_id,false);
+		}
 	}
 	gInventory.notifyObservers();
 

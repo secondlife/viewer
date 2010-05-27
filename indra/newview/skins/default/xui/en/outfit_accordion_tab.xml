@@ -15,6 +15,7 @@
      allow_select="true"
      follows="all"
      keep_one_selected="true"
+     multi_select="true"
      name="wearable_items_list"
      translate="false"
     />

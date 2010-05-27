@@ -248,6 +248,11 @@ void LLInventoryPanel::setHoursAgo(U32 hours)
 	getFilter()->setHoursAgo(hours);
 }
 
+void LLInventoryPanel::setIncludeLinks(BOOL include_links)
+{
+	getFilter()->setIncludeLinks(include_links);
+}
+
 void LLInventoryPanel::setShowFolderState(LLInventoryFilter::EFolderShow show)
 {
 	getFilter()->setShowFolderState(show);

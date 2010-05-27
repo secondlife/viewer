@@ -108,6 +108,9 @@
              name="no_selection_text">
                 No parcel selected.
             </panel.string>
+            <panel.string name="time_stamp_template">
+				[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+			</panel.string>
             <text
              type="string"
              length="1"
@@ -1930,7 +1933,7 @@ Only large parcels can be listed in search.
              left_delta="20"
              name="Only Allow"
              top="49"
-             width="278">
+             width="325">
                 Restrict Access to Residents verified by:
             </text>
             <check_box

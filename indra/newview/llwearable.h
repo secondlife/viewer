@@ -81,7 +81,6 @@ public:
 	const std::string&			getTypeLabel() const;
 	const std::string&			getTypeName() const;
 	LLAssetType::EType			getAssetType() const;
-	LLLocalTextureObject*		getLocalTextureObject(S32 index) const;
 	S32							getDefinitionVersion() const { return mDefinitionVersion; }
 	void						setDefinitionVersion( S32 new_version ) { mDefinitionVersion = new_version; }
 
@@ -112,7 +111,7 @@ public:
 	void				setItemID(const LLUUID& item_id);
 
 	LLLocalTextureObject* getLocalTextureObject(S32 index);
-	const LLLocalTextureObject* getConstLocalTextureObject(S32 index) const;
+	const LLLocalTextureObject* getLocalTextureObject(S32 index) const;
 
 	void				setLocalTextureObject(S32 index, LLLocalTextureObject &lto);
 	void				addVisualParam(LLVisualParam *param);

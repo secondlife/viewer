@@ -225,6 +225,7 @@ extern S32 gStartImageHeight;
 static bool gGotUseCircuitCodeAck = false;
 static std::string sInitialOutfit;
 static std::string sInitialOutfitGender;	// "male" or "female"
+static boost::signals2::connection sWearablesLoadedCon;
 
 static bool gUseCircuitCallbackCalled = false;
 
@@ -2430,6 +2431,8 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 	else
 	{
+		sWearablesLoadedCon = gAgentWearables.addLoadedCallback(LLStartUp::saveInitialOutfit);
+
 		bool do_copy = true;
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
@@ -2473,6 +2476,24 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	// an outfit/shape that will give the avatar a gender eventually. JC
 	gAgent.setGenderChosen(TRUE);
 
+}
+
+//static
+void LLStartUp::saveInitialOutfit()
+{
+	if (sInitialOutfit.empty()) return;
+	
+	if (sWearablesLoadedCon.connected())
+	{
+		sWearablesLoadedCon.disconnect();
+	}
+
+	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit);
+}
+
+std::string& LLStartUp::getInitialOutfitName()
+{
+	return sInitialOutfit;
 }
 
 // Loads a bitmap to display during load
@@ -3041,7 +3062,7 @@ bool process_login_success_response()
 	// Default male and female avatars allowing the user to choose their avatar on first login.
 	// These may be passed up by SLE to allow choice of enterprise avatars instead of the standard
 	// "new ruth."  Not to be confused with 'initial-outfit' below 
-	LLSD newuser_config = response["newuser-config"];
+	LLSD newuser_config = response["newuser-config"][0];
 	if(newuser_config.has("DefaultFemaleAvatar"))
 	{
 		gSavedSettings.setString("DefaultFemaleAvatar", newuser_config["DefaultFemaleAvatar"].asString()); 		

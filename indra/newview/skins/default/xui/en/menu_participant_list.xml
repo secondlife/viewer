@@ -127,7 +127,8 @@
          parameter="can_mute_text" />
     </menu_item_check>
     <menu_item_separator
-     layout="topleft" />
+     layout="topleft" 
+     name="Moderator Options Separator"/>
     <context_menu
      label="Moderator Options &gt;"
      layout="topleft"

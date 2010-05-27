@@ -73,7 +73,8 @@ static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_o
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),
 	mCurrentOutfitPanel(NULL),
-	mParent(NULL)
+	mParent(NULL),
+	mInitialized(false)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -106,6 +107,18 @@ BOOL LLPanelOutfitsInventory::postBuild()
 // virtual
 void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 {
+	if (!mInitialized)
+	{
+		LLSidepanelAppearance* panel_appearance = getAppearanceSP();
+		if (panel_appearance)
+		{
+			// *TODO: move these methods to LLPanelOutfitsInventory?
+			panel_appearance->fetchInventory();
+			panel_appearance->refreshCurrentOutfitName();
+		}
+		mInitialized = true;
+	}
+
 	// Make sure we know which tab is selected, update the filter,
 	// and update verbs.
 	onTabChange();
@@ -134,11 +147,6 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 
 void LLPanelOutfitsInventory::updateVerbs()
 {
-	if (mParent)
-	{
-		mParent->updateVerbs();
-	}
-
 	if (mListCommands)
 	{
 		updateListCommands();
@@ -254,8 +262,7 @@ bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD&
 		{
 			LLUUID outfit_folder = LLAppearanceMgr::getInstance()->makeNewOutfitLinks(outfit_name);
 
-			LLSidepanelAppearance* panel_appearance =
-				dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+			LLSidepanelAppearance* panel_appearance = getAppearanceSP();
 			if (panel_appearance)
 			{
 				panel_appearance->showOutfitsInventoryPanel();
@@ -376,11 +383,8 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 				   ,       _7 // EAcceptance* accept
 				   ));
 
-	mCommitCallbackRegistrar.add("panel_outfits_inventory_gear_default.Custom.Action",
-								 boost::bind(&LLPanelOutfitsInventory::onCustomAction, this, _2));
-	mEnableCallbackRegistrar.add("panel_outfits_inventory_gear_default.Enable",
-								 boost::bind(&LLPanelOutfitsInventory::isActionEnabled, this, _2));
-	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("panel_outfits_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_outfit_gear.xml",
+		gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -665,4 +669,12 @@ void LLPanelOutfitsInventory::setWearablesLoading(bool val)
 void LLPanelOutfitsInventory::onWearablesLoaded()
 {
 	setWearablesLoading(false);
+}
+
+LLSidepanelAppearance* LLPanelOutfitsInventory::getAppearanceSP()
+{
+	static LLSidepanelAppearance* panel_appearance =
+		dynamic_cast<LLSidepanelAppearance*>
+		(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	return panel_appearance;
 }

@@ -69,6 +69,33 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 	{ "/shout"	, CHAT_TYPE_SHOUT}
 };
 
+//ext-7367
+//Problem: gesture list control (actually LLScrollListCtrl) didn't actually process mouse wheel message. 
+// introduce new gesture list subclass to "eat" mouse wheel messages (and probably some other messages)
+class LLGestureScrollListCtrl: public LLScrollListCtrl
+{
+protected:
+	friend class LLUICtrlFactory;
+	LLGestureScrollListCtrl(const LLScrollListCtrl::Params& params)
+		:LLScrollListCtrl(params)
+	{
+	}
+public:
+	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks)
+	{
+		LLScrollListCtrl::handleScrollWheel( x, y, clicks );
+		return TRUE;
+	}
+	//See EXT-6598
+	//Mouse hover over separator will result in not processing tooltip message
+	//So eat this message
+	BOOL handleToolTip(S32 x, S32 y, MASK mask)
+	{
+		LLScrollListCtrl::handleToolTip( x, y, mask );
+		return TRUE;
+	}
+};
+
 LLGestureComboList::Params::Params()
 :	combo_button("combo_button"),
 	combo_list("combo_list")
@@ -79,6 +106,7 @@ LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
 :	LLUICtrl(p)
 	, mLabel(p.label)
 	, mViewAllItemIndex(0)
+	, mGetMoreItemIndex(0)
 {
 	LLButton::Params button_params = p.combo_button;
 	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
@@ -89,13 +117,14 @@ LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
 
 	addChild(mButton);
 
-	LLScrollListCtrl::Params params = p.combo_list;
+	LLGestureScrollListCtrl::Params params(p.combo_list);
+	
 	params.name("GestureComboList");
 	params.commit_callback.function(boost::bind(&LLGestureComboList::onItemSelected, this, _2));
 	params.visible(false);
 	params.commit_on_keyboard_movement(false);
 
-	mList = LLUICtrlFactory::create<LLScrollListCtrl>(params);
+	mList = LLUICtrlFactory::create<LLGestureScrollListCtrl>(params);
 	addChild(mList);
 
 	//****************************Gesture Part********************************/
@@ -260,9 +289,12 @@ void LLGestureComboList::refreshGestures()
 
 	sortByName();
 
-	// store index followed by the last added Gesture and add View All item at bottom
-	mViewAllItemIndex = idx;
-	
+	// store indices for Get More and View All items (idx is the index followed by the last added Gesture)
+	mGetMoreItemIndex = idx;
+	mViewAllItemIndex = idx + 1;
+
+	// add Get More and View All items at the bottom
+	mList->addSimpleElement(LLTrans::getString("GetMoreGestures"), ADD_BOTTOM, LLSD(mGetMoreItemIndex));
 	mList->addSimpleElement(LLTrans::getString("ViewAllGestures"), ADD_BOTTOM, LLSD(mViewAllItemIndex));
 
 	// Insert label after sorting, at top, with separator below it
@@ -315,6 +347,12 @@ void LLGestureComboList::onCommitGesture()
 			// The same behavior as Ctrl+G. EXT-823
 			LLFloaterReg::toggleInstance("gestures");
 			gestures->selectFirstItem();
+			return;
+		}
+
+		if (mGetMoreItemIndex == index)
+		{
+			LLWeb::loadURLExternal(gSavedSettings.getString("GesturesMarketplaceURL"));
 			return;
 		}
 
