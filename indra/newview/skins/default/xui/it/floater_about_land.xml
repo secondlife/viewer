@@ -142,7 +142,7 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 			<button label="Compra Pass..." label_selected="Compra Pass..." left="130" name="Buy Pass..." tool_tip="Un pass ti da un accesso temporaneo in questo territorio." width="125"/>
 			<button label="Abbandona la terra" name="Abandon Land..."/>
 			<button label="Reclama la terra" name="Reclaim Land..."/>
-			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere di proprietà, con contenuto impostato, e non già messa all'asta."/>
+			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere di proprietà, con contenuto impostato, e non già messa all&apos;asta."/>
 		</panel>
 		<panel label="REGOLAMENTO" name="land_covenant_panel">
 			<panel.string name="can_resell">
@@ -427,7 +427,17 @@ Media:
 			<check_box label="Fai ripetere il video" left="265" name="media_loop" tool_tip="Fai ripetere il video continuamente. Quando il video è finito, reinizierà dal principio."/>
 		</panel>
 		<panel label="SUONO" name="land_audio_panel">
+			<text name="MusicURL:">
+				URL musica:
+			</text>
 			<check_box label="Nascondi URL" name="hide_music_url" tool_tip="Questa opzione consente di nascondere l&apos;url della musica a chi non è autorizzato a visionare le informazioni di questo parcel."/>
+			<text name="Sound:">
+				Audio:
+			</text>
+			<check_box label="Limita l&apos;audio per oggetti e gesture a questo lotto" name="check sound local"/>
+			<text name="Voice settings:">
+				Voce:
+			</text>
 			<check_box label="Attiva voce" name="parcel_enable_voice_channel"/>
 			<check_box label="Attiva voce (stabilito dalla proprietà)" name="parcel_enable_voice_channel_is_estate_disabled"/>
 			<check_box label="Limita il chat vocale a questo lotto" name="parcel_enable_voice_channel_local"/>
@@ -460,7 +470,20 @@ Media:
 			<spinner label="Prezzo in L$:" name="PriceSpin"/>
 			<spinner label="Ore di accesso:" name="HoursSpin"/>
 			<panel name="Allowed_layout_panel">
+				<text label="Consenti sempre" name="AllowedText">
+					Residenti consentiti
+				</text>
 				<name_list name="AccessList" tool_tip="([LISTED] in lista, [MAX] max)"/>
+				<button label="Aggiungi" name="add_allowed"/>
+				<button label="Rimuovi" label_selected="Rimuovi" name="remove_allowed"/>
+			</panel>
+			<panel name="Banned_layout_panel">
+				<text label="Espelli" name="BanCheck">
+					Residenti con divieto
+				</text>
+				<name_list name="BannedList" tool_tip="([LISTED] in lista, [MAX] max)"/>
+				<button label="Aggiungi" name="add_banned"/>
+				<button label="Rimuovi" label_selected="Rimuovi" name="remove_banned"/>
 			</panel>
 		</panel>
 	</tab_container>

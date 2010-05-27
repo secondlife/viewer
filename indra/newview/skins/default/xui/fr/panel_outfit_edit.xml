@@ -2,6 +2,8 @@
 <!-- Side tray Outfit Edit panel -->
 <panel label="Modification de la tenue" name="outfit_edit">
 	<string name="No Outfit" value="Pas de tenue"/>
+	<string name="unsaved_changes" value="Modifications non enregistrées"/>
+	<string name="now_editing" value="Modification"/>
 	<panel.string name="not_available">
 		(s/o)
 	</panel.string>
@@ -21,18 +23,13 @@
 	</panel>
 	<layout_stack name="im_panels">
 		<layout_panel label="Panneau de contrôle IM" name="outfit_wearables_panel">
-			<scroll_list name="look_items_list">
-				<scroll_list.columns label="Article de la tenue" name="look_item"/>
-				<scroll_list.columns label="Tri des articles de la tenue" name="look_item_sort"/>
-			</scroll_list>
 			<panel label="bottom_panel" name="edit_panel"/>
 		</layout_panel>
 		<layout_panel name="add_wearables_panel">
-			<filter_editor label="Filtre" name="look_item_filter"/>
+			<text name="add_to_outfit_label" value="Ajouter à la tenue :"/>
 			<layout_stack name="filter_panels">
-				<layout_panel label="Panneau de contrôle IM" name="filter_button_panel">
-					<text name="add_to_outfit_label" value="Ajouter à la tenue :"/>
-					<button label="F" name="filter_button"/>
+				<layout_panel label="Panneau de contrôle IM" name="filter_panel">
+					<filter_editor label="Filtre" name="look_item_filter"/>
 				</layout_panel>
 			</layout_stack>
 			<panel label="add_wearables_button_bar" name="add_wearables_button_bar">
