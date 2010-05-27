@@ -57,7 +57,6 @@ protected:
 
 	virtual bool restoreErrorTrap();
 	virtual void handleCrashReporting(bool reportFreeze); 
-	virtual void handleSyncCrashTrace();
 
 	virtual bool sendURLToOtherInstance(const std::string& url);
 

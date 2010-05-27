@@ -66,6 +66,10 @@ public:
 };
 #endif
 
+namespace google_breakpad {
+	class ExceptionHandler; // See exception_handler.h
+}
+
 class LL_COMMON_API LLApp : public LLOptionInterface
 {
 	friend class LLErrorThread;
@@ -227,8 +231,13 @@ public:
 	void setupErrorHandling();
 
 	void setErrorHandler(LLAppErrorHandler handler);
-	void setSyncErrorHandler(LLAppErrorHandler handler);
+	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
 	//@}
+	
+	//
+	// Write out a Google Breakpad minidump file.
+	//
+	void writeMiniDump();
 
 #if !LL_WINDOWS
 	//
@@ -265,6 +274,9 @@ public:
 	typedef std::map<std::string, std::string> string_map;
 	string_map mOptionMap;	// Contains all command-line options and arguments in a map
 
+	// Contains the path to minidump file after a crash.
+	static const U32 MAX_MINDUMP_PATH_LENGTH = 256;
+	char minidump_path[MAX_MINDUMP_PATH_LENGTH];
 protected:
 
 	static void setStatus(EAppStatus status);		// Use this to change the application status.
@@ -286,15 +298,12 @@ protected:
 private:
 	void startErrorThread();
 	
-	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
-	static void runSyncErrorHandler(); // run IMMEDIATELY when we get an error, ran in the context of the faulting thread.
 
 	// *NOTE: On Windows, we need a routine to reset the structured
 	// exception handler when some evil driver has taken it over for
 	// their own purposes
 	typedef int(*signal_handler_func)(int signum);
 	static LLAppErrorHandler sErrorHandler;
-	static LLAppErrorHandler sSyncErrorHandler;
 
 	// Default application threads
 	LLErrorThread* mThreadErrorp;		// Waits for app to go to status ERROR, then runs the error callback
@@ -315,6 +324,8 @@ private:
 private:
 	// the static application instance if it was created.
 	static LLApp* sApplication;
+	
+	google_breakpad::ExceptionHandler * mExceptionHandler;
 
 
 #if !LL_WINDOWS
