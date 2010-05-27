@@ -50,10 +50,10 @@ bool static has_static_unique_id = false;
 S32 LLMachineID::init()
 {
     memset(static_unique_id,0,sizeof(static_unique_id));
-    size_t len = sizeof(static_unique_id);
     S32 ret_code = 0;
 #if	LL_WINDOWS
 # pragma comment(lib, "wbemuuid.lib")
+        size_t len = sizeof(static_unique_id);
 
         // algorithm to detect BIOS serial number found at:
         // http://msdn.microsoft.com/en-us/library/aa394077%28VS.85%29.aspx
@@ -245,7 +245,8 @@ S32 LLMachineID::init()
         CoUninitialize();
         ret_code=0;
 #else
-        ret_code = LLUUID::getNodeID(&static_unique_id);
+        unsigned char * staticPtr = (unsigned char *)(&static_unique_id[0]);
+        ret_code = LLUUID::getNodeID(staticPtr);
 #endif
         has_static_unique_id = true;
         return ret_code;
