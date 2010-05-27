@@ -47,15 +47,15 @@ class LLSpeakerMgr;
 class LLSpeakersDelayActionsStorage;
 
 /**
- * The Voice Control Panel is an ambient window summoned by clicking the flyout chevron on the Speak button.
- * It can be torn-off and freely positioned onscreen.
+ * The Voice Control Panel is an ambient window summoned by clicking the flyout chevron
+ * on the Speak button. It can be torn-off and freely positioned onscreen.
  *
- * When the Resident is engaged in Nearby Voice Chat, the Voice Control Panel provides control over 
- * the Resident's own microphone input volume, the audible volume of each of the other participants,
- * the Resident's own Voice Morphing settings (if she has subscribed to enable the feature), and Voice Recording.
+ * When the Resident is engaged in Voice Chat, the Voice Control Panel provides control
+ * over the audible volume of each of the other participants, the Resident's own Voice
+ * Morphing settings (if she has subscribed to enable the feature), and Voice Recording.
  *
- * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel also provides an 
- * 'Leave Call' button to allow the Resident to leave that voice channel.
+ * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel
+ * also provides a 'Leave Call' button to allow the Resident to leave that voice channel.
  */
 class LLCallFloater : public LLTransientDockableFloater, LLVoiceClientParticipantObserver
 {
@@ -75,7 +75,7 @@ public:
 	 *
 	 * Refreshes list to display participants not in voice as disabled.
 	 */
-	/*virtual*/ void onChange();
+	/*virtual*/ void onParticipantsChanged();
 
 	static void sOnCurrentChannelChanged(const LLUUID& session_id);
 
@@ -259,7 +259,7 @@ private:
 	 *
 	 * @see sOnCurrentChannelChanged()
 	 */
-	static LLVoiceChannel* sCurrentVoiceCanel;
+	static LLVoiceChannel* sCurrentVoiceChannel;
 
 	/* virtual */
 	LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
