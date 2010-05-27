@@ -1,5 +1,6 @@
 /** 
  * @file llfloatervoiceeffect.h
+ * @author Aimee
  * @brief Selection and preview of voice effects.
  *
  * $LicenseInfo:firstyear=2010&license=viewergpl$
@@ -62,9 +63,8 @@ private:
 	void onClickRecord();
 	void onClickPlay();
 	void onClickStop();
- 	void onClickAdd();
-// 	void onClickActivate();
-
+//	void onClickActivate();
+	
 	LLUUID mSelectedID;
 	LLScrollListCtrl* mVoiceEffectList;
 };

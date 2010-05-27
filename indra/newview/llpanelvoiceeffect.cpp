@@ -1,6 +1,6 @@
 /** 
  * @file llpanelvoiceeffect.cpp
- * @author Aimee Walton
+ * @author Aimee
  * @brief Panel to select Voice Effects.
  *
  * $LicenseInfo:firstyear=2010&license=viewergpl$

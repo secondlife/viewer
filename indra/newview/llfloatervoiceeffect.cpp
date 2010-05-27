@@ -1,5 +1,6 @@
 /** 
  * @file llfloatervoiceeffect.cpp
+ * @author Aimee
  * @brief Selection and preview of voice effect.
  *
  * $LicenseInfo:firstyear=2010&license=viewergpl$
@@ -44,7 +45,6 @@ LLFloaterVoiceEffect::LLFloaterVoiceEffect(const LLSD& key)
 	mCommitCallbackRegistrar.add("VoiceEffect.Record",	boost::bind(&LLFloaterVoiceEffect::onClickRecord, this));
 	mCommitCallbackRegistrar.add("VoiceEffect.Play",	boost::bind(&LLFloaterVoiceEffect::onClickPlay, this));
 	mCommitCallbackRegistrar.add("VoiceEffect.Stop",	boost::bind(&LLFloaterVoiceEffect::onClickStop, this));
-	mCommitCallbackRegistrar.add("VoiceEffect.Add",		boost::bind(&LLFloaterVoiceEffect::onClickAdd, this));
 //	mCommitCallbackRegistrar.add("VoiceEffect.Activate", boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
 }
 
@@ -278,12 +278,6 @@ void LLFloaterVoiceEffect::onClickStop()
 		effect_interface->stopPreviewBuffer();
 	}
 	updateControls();
-}
-
-void LLFloaterVoiceEffect::onClickAdd()
-{
-	// Open the voice morphing info web page
-	LLWeb::loadURL(LLTrans::getString("voice_morphing_url"));
 }
 
 //void LLFloaterVoiceEffect::onClickActivate()
