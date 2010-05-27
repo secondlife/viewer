@@ -60,7 +60,9 @@ static BOOL deferred_render = FALSE;
 
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), current_shader(NULL), target_shader(NULL),
-		simple_shader(NULL), fullbright_shader(NULL)
+		simple_shader(NULL), fullbright_shader(NULL),
+		mColorSFactor(LLRender::BF_UNDEF), mColorDFactor(LLRender::BF_UNDEF),
+		mAlphaSFactor(LLRender::BF_UNDEF), mAlphaDFactor(LLRender::BF_UNDEF)
 {
 
 }
@@ -178,9 +180,16 @@ void LLDrawPoolAlpha::render(S32 pass)
 
 	LLGLSPipelineAlpha gls_pipeline_alpha;
 
-	if (LLPipeline::sFastAlpha && !deferred_render)
+	gGL.setColorMask(true, true);
+
+	if (LLPipeline::sAutoMaskAlphaNonDeferred && !deferred_render)
 	{
-		LLGLDisable blend_disable(GL_BLEND);
+		mColorSFactor = LLRender::BF_ONE;  // }
+		mColorDFactor = LLRender::BF_ZERO; // } these are like disabling blend on the color channels, but we're still blending on the alpha channel so that we can suppress glow
+		mAlphaSFactor = LLRender::BF_ZERO;
+		mAlphaDFactor = LLRender::BF_ZERO; // block (zero-out) glow where the alpha test succeeds
+		gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.33f);
 		if (mVertexShaderLevel > 0)
 		{
@@ -204,7 +213,16 @@ void LLDrawPoolAlpha::render(S32 pass)
 	}
 
 	LLGLDepthTest depth(GL_TRUE, LLDrawPoolWater::sSkipScreenCopy ? GL_TRUE : GL_FALSE);
+
+	mColorSFactor = LLRender::BF_SOURCE_ALPHA;           // } regular alpha blend
+	mColorDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA; // }
+	mAlphaSFactor = LLRender::BF_ZERO;                         // } glow suppression
+	mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
+	gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+
 	renderAlpha(getVertexDataMask());
+
+	gGL.setColorMask(true, false);
 
 	if (deferred_render && current_shader != NULL)
 	{
@@ -283,9 +301,18 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
+		llassert(group);
+		llassert(group->mSpatialPartition);
+
 		if (group->mSpatialPartition->mRenderByGroup &&
-			!group->isDead())
+		    !group->isDead())
 		{
+			bool draw_glow_for_this_partition = mVertexShaderLevel > 0 && // no shaders = no glow.
+				// All particle systems seem to come off the wire with texture entries which claim that they glow.  This is probably a bug in the data.  Suppress.
+				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_PARTICLE &&
+				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_CLOUD &&
+				group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD_PARTICLE;
+
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
 			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
@@ -294,96 +321,118 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask)
 
 				LLRenderPass::applyModelMatrix(params);
 
-				if (params.mFullbright)
 				{
-					// Turn off lighting if it hasn't already been so.
-					if (light_enabled || !initialized_lighting)
+					if (params.mFullbright)
+					{
+						// Turn off lighting if it hasn't already been so.
+						if (light_enabled || !initialized_lighting)
+						{
+							initialized_lighting = TRUE;
+							if (use_shaders) 
+							{
+								target_shader = fullbright_shader;
+							}
+							else
+							{
+								gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+							}
+							light_enabled = FALSE;
+						}
+					}
+					// Turn on lighting if it isn't already.
+					else if (!light_enabled || !initialized_lighting)
 					{
 						initialized_lighting = TRUE;
 						if (use_shaders) 
 						{
-							target_shader = fullbright_shader;
+							target_shader = simple_shader;
 						}
 						else
 						{
-							gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+							gPipeline.enableLightsDynamic();
 						}
-						light_enabled = FALSE;
+						light_enabled = TRUE;
 					}
-				}
-				// Turn on lighting if it isn't already.
-				else if (!light_enabled || !initialized_lighting)
-				{
-					initialized_lighting = TRUE;
-					if (use_shaders) 
-					{
-						target_shader = simple_shader;
-					}
-					else
-					{
-						gPipeline.enableLightsDynamic();
-					}
-					light_enabled = TRUE;
-				}
 
-				// If we need shaders, and we're not ALREADY using the proper shader, then bind it
-				// (this way we won't rebind shaders unnecessarily).
-				if(use_shaders && (current_shader != target_shader))
-				{
-					llassert(target_shader != NULL);
-					if (deferred_render && current_shader != NULL)
+					// If we need shaders, and we're not ALREADY using the proper shader, then bind it
+					// (this way we won't rebind shaders unnecessarily).
+					if(use_shaders && (current_shader != target_shader))
 					{
-						gPipeline.unbindDeferredShader(*current_shader);
-						diffuse_channel = 0;
+						llassert(target_shader != NULL);
+						if (deferred_render && current_shader != NULL)
+						{
+							gPipeline.unbindDeferredShader(*current_shader);
+							diffuse_channel = 0;
+						}
+						current_shader = target_shader;
+						if (deferred_render)
+						{
+							gPipeline.bindDeferredShader(*current_shader);
+							diffuse_channel = current_shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+						}
+						else
+						{
+							current_shader->bind();
+						}
 					}
-					current_shader = target_shader;
-					if (deferred_render)
+					else if (!use_shaders && current_shader != NULL)
 					{
-						gPipeline.bindDeferredShader(*current_shader);
-						diffuse_channel = current_shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+						if (deferred_render)
+						{
+							gPipeline.unbindDeferredShader(*current_shader);
+							diffuse_channel = 0;
+						}
+						LLGLSLShader::bindNoShader();
+						current_shader = NULL;
 					}
-					else
-					{
-						current_shader->bind();
-					}
-				}
-				else if (!use_shaders && current_shader != NULL)
-				{
-					if (deferred_render)
-					{
-						gPipeline.unbindDeferredShader(*current_shader);
-						diffuse_channel = 0;
-					}
-					LLGLSLShader::bindNoShader();
-					current_shader = NULL;
-				}
 
-				if (params.mGroup)
-				{
-					params.mGroup->rebuildMesh();
-				}
-
-				
-				if (params.mTexture.notNull())
-				{
-					gGL.getTexUnit(diffuse_channel)->bind(params.mTexture.get());
-					if(params.mTexture.notNull())
+					if (params.mGroup)
 					{
-						params.mTexture->addTextureStats(params.mVSize);
+						params.mGroup->rebuildMesh();
 					}
-					if (params.mTextureMatrix)
+
+					
+					if (params.mTexture.notNull())
 					{
-						gGL.getTexUnit(0)->activate();
-						glMatrixMode(GL_TEXTURE);
-						glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
-						gPipeline.mTextureMatrixOps++;
+						gGL.getTexUnit(diffuse_channel)->bind(params.mTexture.get());
+						if(params.mTexture.notNull())
+						{
+							params.mTexture->addTextureStats(params.mVSize);
+						}
+						if (params.mTextureMatrix)
+						{
+							gGL.getTexUnit(0)->activate();
+							glMatrixMode(GL_TEXTURE);
+							glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+							gPipeline.mTextureMatrixOps++;
+						}
 					}
 				}
 
 				params.mVertexBuffer->setBuffer(mask);
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+				
+				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
+				if (draw_glow_for_this_partition &&
+				    params.mGlowColor.mV[3] > 0)
+				{
+					// install glow-accumulating blend mode
+					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
+						      LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
 
+					// glow doesn't use vertex colors from the mesh data
+					params.mVertexBuffer->setBuffer(mask & ~LLVertexBuffer::MAP_COLOR);
+					glColor4ubv(params.mGlowColor.mV);
+
+					// do the actual drawing, again
+					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+
+					// restore our alpha blend mode
+					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+				}
+			
 				if (params.mTextureMatrix && params.mTexture.notNull())
 				{
 					gGL.getTexUnit(0)->activate();

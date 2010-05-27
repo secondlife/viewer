@@ -799,7 +799,7 @@ void LLFloaterPreference::buildPopupLists()
 
 void LLFloaterPreference::refreshEnabledState()
 {	
-	LLCheckBoxCtrl* ctrl_reflections = getChild<LLCheckBoxCtrl>("Reflections");
+	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
 	LLRadioGroup* radio_reflection_detail = getChild<LLRadioGroup>("ReflectionDetailRadio");
 	
 	// Reflections
@@ -812,7 +812,7 @@ void LLFloaterPreference::refreshEnabledState()
 	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
 	getChild<LLCheckBoxCtrl>("BumpShiny")->setEnabled(bumpshiny ? TRUE : FALSE);
 	
-	radio_reflection_detail->setEnabled(ctrl_reflections->get() && reflections);
+	radio_reflection_detail->setEnabled(reflections);
 	
 	// Avatar Mode
 	// Enable Avatar Shaders
@@ -858,6 +858,30 @@ void LLFloaterPreference::refreshEnabledState()
 	// *HACK just checks to see if we can use shaders... 
 	// maybe some cards that use shaders, but don't support windlight
 	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
+
+	//Deferred/SSAO/Shadows
+	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
+	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseFBO") &&
+	    LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+		shaders)
+	{
+		BOOL enabled = (ctrl_wind_light->get()) ? TRUE : FALSE;
+
+		ctrl_deferred->setEnabled(enabled);
+	
+		LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
+		LLComboBox* ctrl_shadow = getChild<LLComboBox>("ShadowDetail");
+
+		enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
+		
+		ctrl_ssao->setEnabled(enabled);
+
+		enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
+
+		ctrl_shadow->setEnabled(enabled);
+	}
+
+
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
 
@@ -866,12 +890,15 @@ void LLFloaterPreference::refreshEnabledState()
 
 void LLFloaterPreference::disableUnavailableSettings()
 {	
-	LLCheckBoxCtrl* ctrl_reflections   = getChild<LLCheckBoxCtrl>("Reflections");
+	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
 	LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
 	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
 	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
 	LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
 	LLCheckBoxCtrl* ctrl_avatar_impostors = getChild<LLCheckBoxCtrl>("AvatarImpostors");
+	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
+	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
+	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 
 	// if vertex shaders off, disable all shader related products
 	if(!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
@@ -883,13 +910,22 @@ void LLFloaterPreference::disableUnavailableSettings()
 		ctrl_wind_light->setValue(FALSE);
 		
 		ctrl_reflections->setEnabled(FALSE);
-		ctrl_reflections->setValue(FALSE);
+		ctrl_reflections->setValue(0);
 		
 		ctrl_avatar_vp->setEnabled(FALSE);
 		ctrl_avatar_vp->setValue(FALSE);
 		
 		ctrl_avatar_cloth->setEnabled(FALSE);
 		ctrl_avatar_cloth->setValue(FALSE);
+
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
 	}
 	
 	// disabled windlight
@@ -897,10 +933,47 @@ void LLFloaterPreference::disableUnavailableSettings()
 	{
 		ctrl_wind_light->setEnabled(FALSE);
 		ctrl_wind_light->setValue(FALSE);
+
+		//deferred needs windlight, disable deferred
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
+	}
+
+	// disabled deferred
+	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"))
+	{
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
 	}
 	
+	// disabled deferred SSAO
+	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO"))
+	{
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+	}
+	
+	// disabled deferred shadows
+	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
+	{
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+	}
+
 	// disabled reflections
-	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderWaterReflections"))
+	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
 	{
 		ctrl_reflections->setEnabled(FALSE);
 		ctrl_reflections->setValue(FALSE);
@@ -914,13 +987,25 @@ void LLFloaterPreference::disableUnavailableSettings()
 		
 		ctrl_avatar_cloth->setEnabled(FALSE);
 		ctrl_avatar_cloth->setValue(FALSE);
+
+		//deferred needs AvatarVP, disable deferred
+		ctrl_shadows->setEnabled(FALSE);
+		ctrl_shadows->setValue(0);
+		
+		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setValue(FALSE);
+
+		ctrl_deferred->setEnabled(FALSE);
+		ctrl_deferred->setValue(FALSE);
 	}
+
 	// disabled cloth
 	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarCloth"))
 	{
 		ctrl_avatar_cloth->setEnabled(FALSE);
 		ctrl_avatar_cloth->setValue(FALSE);
 	}
+
 	// disabled impostors
 	if(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderUseImpostors"))
 	{

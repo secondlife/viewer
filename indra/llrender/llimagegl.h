@@ -91,7 +91,7 @@ public:
 protected:
 	virtual ~LLImageGL();
 
-	void analyzeAlpha(const void* data_in, S32 w, S32 h);
+	void analyzeAlpha(const void* data_in, U32 w, U32 h);
 	void calcAlphaChannelOffsetAndStride();
 
 public:
