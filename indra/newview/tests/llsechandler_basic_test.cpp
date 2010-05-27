@@ -54,7 +54,7 @@
 #include <openssl/asn1.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
-
+#include "../llmachineid.h"
 
 #define ensure_throws(str, exc_type, cert, func, ...) \
 try \
@@ -129,6 +129,7 @@ namespace tut
 
 		sechandler_basic_test()
 		{
+            LLMachineID::init();
 			OpenSSL_add_all_algorithms();
 			OpenSSL_add_all_ciphers();
 			OpenSSL_add_all_digests();	
@@ -376,8 +377,6 @@ namespace tut
 	void sechandler_basic_test_object::test<2>()
 
 	{
-		unsigned char MACAddress[MAC_ADDRESS_BYTES];
-		LLUUID::getNodeID(MACAddress);
 		
 		std::string protected_data = "sUSh3wj77NG9oAMyt3XIhaej3KLZhLZWFZvI6rIGmwUUOmmelrRg0NI9rkOj8ZDpTPxpwToaBT5u"
 		"GQhakdaGLJznr9bHr4/6HIC1bouKj4n2rs4TL6j2WSjto114QdlNfLsE8cbbE+ghww58g8SeyLQO"
@@ -390,7 +389,9 @@ namespace tut
 
 		LLXORCipher cipher(gMACAddress, MAC_ADDRESS_BYTES);
 		cipher.decrypt(&binary_data[0], 16);
-		LLXORCipher cipher2(MACAddress, MAC_ADDRESS_BYTES);
+		unsigned char unique_id[MAC_ADDRESS_BYTES];
+        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+		LLXORCipher cipher2(unique_id, sizeof(unique_id));
 		cipher2.encrypt(&binary_data[0], 16);
 		std::ofstream temp_file("sechandler_settings.tmp", std::ofstream::binary);
 		temp_file.write((const char *)&binary_data[0], binary_data.size());
@@ -571,11 +572,11 @@ namespace tut
 		int length = apr_base64_decode_len(hashed_password.c_str());
 		std::vector<char> decoded_password(length);
 		apr_base64_decode(&decoded_password[0], hashed_password.c_str());
-		unsigned char MACAddress[MAC_ADDRESS_BYTES];
-		LLUUID::getNodeID(MACAddress);
 		LLXORCipher cipher(gMACAddress, MAC_ADDRESS_BYTES);
 		cipher.decrypt((U8*)&decoded_password[0], length);
-		LLXORCipher cipher2(MACAddress, MAC_ADDRESS_BYTES);
+		unsigned char unique_id[MAC_ADDRESS_BYTES];
+		LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+		LLXORCipher cipher2(unique_id, sizeof(unique_id));
 		cipher2.encrypt((U8*)&decoded_password[0], length);
 		llofstream password_file("test_password.dat", std::ofstream::binary);
 		password_file.write(&decoded_password[0], length); 

@@ -514,7 +514,9 @@ void LLXMLRPCTransaction::Impl::setStatus(EStatus status,
 					"Despite our best efforts, something unexpected has gone wrong. \n"
 					" \n"
 					"Please check secondlife.com/status \n"
-					"to see if there is a known problem with the service.";
+					"to see if there is a known problem with the service.\n"
+					"If you continue to experience problems,"
+					"Please check your network and firewall setup.\n";
 
 				mStatusURI = "http://secondlife.com/status/";
 		}
@@ -550,7 +552,7 @@ void LLXMLRPCTransaction::Impl::setCurlStatus(CURLcode code)
 				"Often this means that your computer\'s clock is set incorrectly.\n"
 				"Please go to Control Panels and make sure the time and date\n"
 				"are set correctly.\n"
-				"\n"
+				"Also check that your network and firewall are setup correctly.\n"
 				"If you continue to receive this error, please go\n"
 				"to the Support section of the SecondLife.com web site\n"
 				"and report the problem.";

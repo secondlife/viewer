@@ -52,6 +52,7 @@ LLS * By copying, modifying or distributing this software, you acknowledge
 #include <iostream>
 #include <iomanip>
 #include <time.h>
+#include "llmachineid.h"
 
 
 
@@ -1195,9 +1196,9 @@ void LLSecAPIBasicHandler::_readProtectedData()
 		U8 buffer[BUFFER_READ_SIZE];
 		U8 decrypted_buffer[BUFFER_READ_SIZE];
 		int decrypted_length;	
-		unsigned char MACAddress[MAC_ADDRESS_BYTES];
-		LLUUID::getNodeID(MACAddress);
-		LLXORCipher cipher(MACAddress, MAC_ADDRESS_BYTES);
+		unsigned char unique_id[MAC_ADDRESS_BYTES];
+        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+		LLXORCipher cipher(unique_id, sizeof(unique_id));
 
 		// read in the salt and key
 		protected_data_stream.read((char *)salt, STORE_SALT_SIZE);
@@ -1281,9 +1282,9 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 		EVP_CIPHER_CTX ctx;
 		EVP_CIPHER_CTX_init(&ctx);
 		EVP_EncryptInit(&ctx, EVP_rc4(), salt, NULL);
-		unsigned char MACAddress[MAC_ADDRESS_BYTES];
-		LLUUID::getNodeID(MACAddress);
-		LLXORCipher cipher(MACAddress, MAC_ADDRESS_BYTES);
+		unsigned char unique_id[MAC_ADDRESS_BYTES];
+        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+		LLXORCipher cipher(unique_id, sizeof(unique_id));
 		cipher.encrypt(salt, STORE_SALT_SIZE);
 		protected_data_stream.write((const char *)salt, STORE_SALT_SIZE);
 
@@ -1501,9 +1502,9 @@ std::string LLSecAPIBasicHandler::_legacyLoadPassword()
 	}
 	
 	// Decipher with MAC address
-	unsigned char MACAddress[MAC_ADDRESS_BYTES];
-	LLUUID::getNodeID(MACAddress);
-	LLXORCipher cipher(MACAddress, 6);
+	unsigned char unique_id[MAC_ADDRESS_BYTES];
+    LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+	LLXORCipher cipher(unique_id, sizeof(unique_id));
 	cipher.decrypt(&buffer[0], buffer.size());
 	
 	return std::string((const char*)&buffer[0], buffer.size());
