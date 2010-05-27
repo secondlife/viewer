@@ -54,6 +54,12 @@ public:
 	virtual void onClose(bool app_quitting);
 
 private:
+	enum ColumnIndex
+	{
+		NAME_COLUMN = 0,
+		DATE_COLUMN = 1,
+	};
+
 	void refreshEffectList();
 	void updateControls();
 

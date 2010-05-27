@@ -132,10 +132,9 @@ void LLFloaterVoiceEffect::refreshEffectList()
 		LLSD element;
 
 		element["id"] = LLUUID::null;
-		element["columns"][0]["column"] = "name";
-		element["columns"][0]["value"] = getString("no_voice_effect");
-		element["columns"][0]["font"]["name"] = "SANSSERIF";
-		element["columns"][0]["font"]["style"] = "ITALIC";
+		element["columns"][NAME_COLUMN]["column"] = "name";
+		element["columns"][NAME_COLUMN]["value"] = getString("no_voice_effect");
+		element["columns"][NAME_COLUMN]["font"]["style"] = "BOLD";
 
 		LLScrollListItem* sl_item = mVoiceEffectList->addElement(element, ADD_BOTTOM);
 		// *HACK: Copied from llfloatergesture.cpp : ["font"]["style"] does not affect font style :(
@@ -180,22 +179,20 @@ void LLFloaterVoiceEffect::refreshEffectList()
 			LLSD element;
 			element["id"] = effect_id;
 
-			element["columns"][0]["column"] = "name";
-			element["columns"][0]["value"] = effect_name;
-			element["columns"][0]["font"]["name"] = "SANSSERIF";
-			element["columns"][0]["font"]["style"] = font_style;
+			element["columns"][NAME_COLUMN]["column"] = "name";
+			element["columns"][NAME_COLUMN]["value"] = effect_name;
+			element["columns"][NAME_COLUMN]["font"]["style"] = font_style;
 
 			element["columns"][1]["column"] = "expires";
 			if (!is_template_only)
 			{
-				element["columns"][1]["value"] = expiry_date;
-				element["columns"][1]["type"] = "date";
+				element["columns"][DATE_COLUMN]["value"] = expiry_date;
+				element["columns"][DATE_COLUMN]["type"] = "date";
 			}
 			else {
-				element["columns"][1]["value"] = "";
+				element["columns"][DATE_COLUMN]["value"] = "";
 			}
-			element["columns"][1]["font"]["name"] = "SANSSERIF";
-			element["columns"][1]["font"]["style"] = "NORMAL";
+//			element["columns"][DATE_COLUMN]["font"]["style"] = "NORMAL";
 
 			LLScrollListItem* sl_item = mVoiceEffectList->addElement(element, ADD_BOTTOM);
 			// *HACK: Copied from llfloatergesture.cpp : ["font"]["style"] does not affect font style :(
