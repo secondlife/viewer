@@ -548,8 +548,8 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		msg->getU8("Data","AssetType",asset_type,i);
 		msg->getU32("Data","Timestamp",timestamp,i);
 
-		// IDEVO clean up legacy "Resident" names
-		name = LLCacheName::cleanFullName(name);
+		// we only have the legacy name here, convert it to a username
+		name = LLCacheName::buildUsername(name);
 
 		LLSD row;
 		row["id"] = id;

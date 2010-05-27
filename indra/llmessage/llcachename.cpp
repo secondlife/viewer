@@ -527,6 +527,30 @@ std::string LLCacheName::cleanFullName(const std::string& full_name)
 	return full_name.substr(0, full_name.find(" Resident"));
 }
 
+//static 
+std::string LLCacheName::buildUsername(const std::string& full_name)
+{
+	std::string::size_type index = full_name.find(' ');
+
+	if (index != std::string::npos)
+	{
+		std::string username;
+		username = full_name.substr(0, index);
+		std::string lastname = full_name.substr(index+1);
+
+		if (lastname != "Resident")
+		{
+			username = username + "." + lastname;
+		}
+		
+		LLStringUtil::toLower(username);
+		return username;
+	}
+
+	// if the input wasn't a correctly formatted legacy name just return it unchanged
+	return full_name;
+}
+
 // This is a little bit kludgy. LLCacheNameCallback is a slot instead of a function pointer.
 //  The reason it is a slot is so that the legacy get() function below can bind an old callback
 //  and pass it as a slot. The reason it isn't a boost::function is so that trackable behavior

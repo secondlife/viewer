@@ -91,6 +91,11 @@ public:
 	// If name does not contain "Resident" returns it unchanged.
 	static std::string cleanFullName(const std::string& full_name);
 	
+	// Converts a standard legacy name to a username
+	// "bobsmith123 Resident" -> "bobsmith"
+	// "Random Linden" -> "random.linden"
+	static std::string buildUsername(const std::string& name);
+	
 	// If available, this method copies the group name into the string
 	// provided. The caller must allocate at least
 	// DB_GROUP_NAME_BUF_SIZE characters. If not available, this
