@@ -1337,7 +1337,7 @@ BOOL LLVOAvatarSelf::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32
 {
 	if (isIndexBakedTexture(type))
 	{
-		return LLVOAvatar::isTextureVisible(type);
+		return LLVOAvatar::isTextureVisible(type, (U32)0);
 	}
 
 	LLUUID tex_id = getLocalTextureID(type,index);
