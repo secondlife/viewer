@@ -3017,6 +3017,12 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 		new_world_rect.mTop = llround((F32)new_world_rect.mTop * mDisplayScale.mV[VY]);
 	}
 
+	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE)
+	{
+		// use right edge of window, ignoring sidebar
+		new_world_rect.mRight = mWindowRectRaw.mRight;
+	}
+
 	if (mWorldViewRectRaw != new_world_rect)
 	{
 		mWorldViewRectRaw = new_world_rect;

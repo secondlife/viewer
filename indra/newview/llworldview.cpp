@@ -48,14 +48,14 @@ LLWorldView::LLWorldView(const Params& p)
 
 void LLWorldView::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	if (FALSE == gSavedSettings.getBOOL("SidebarCameraMovement") )
-	{
-		LLView* main_view = LLUI::getRootView()->findChild<LLView>("main_view");
-		if(main_view)
-		{
-			width = main_view->getRect().getWidth();
-		}
-	}
+	//if (FALSE == gSavedSettings.getBOOL("SidebarCameraMovement") )
+	//{
+	//	LLView* main_view = LLUI::getRootView()->findChild<LLView>("main_view");
+	//	if(main_view)
+	//	{
+	//		width = main_view->getRect().getWidth();
+	//	}
+	//}
 	
 	LLUICtrl::reshape(width, height, called_from_parent);
 }
