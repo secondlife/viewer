@@ -44,7 +44,7 @@ def usage():
     print >>sys.stderr, "usage: %s viewer_dir viewer_exes libs_suffix dump_syms_tool viewer_symbol_file" % sys.argv[0]
 
 def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
-    print "generate_breakpad_symbols: %s" % str((viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
+    # print "generate_breakpad_symbols: %s" % str((viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
 
     def matches(f):
         return f in viewer_exes or fnmatch.fnmatch(f, libs_suffix)
