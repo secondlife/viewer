@@ -92,6 +92,11 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::strin
 	LLRecentPeople::instance().add(id);
 }
 
+void on_avatar_name_friendship(const LLUUID& id, const LLAvatarName av_name)
+{
+	LLAvatarActions::requestFriendshipDialog(id, av_name.getCompleteName());
+}
+
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id)
 {
@@ -100,9 +105,7 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id)
 		return;
 	}
 
-	std::string full_name;
-	gCacheName->getFullName(id, full_name);
-	requestFriendshipDialog(id, full_name);
+	LLAvatarNameCache::get(id, boost::bind(&on_avatar_name_friendship, _1, _2));
 }
 
 // static
@@ -127,10 +130,10 @@ void LLAvatarActions::removeFriendsDialog(const uuid_vec_t& ids)
 	if(ids.size() == 1)
 	{
 		LLUUID agent_id = ids[0];
-		std::string full_name;
-		if(gCacheName->getFullName(agent_id, full_name))
+		LLAvatarName av_name;
+		if(LLAvatarNameCache::get(agent_id, &av_name))
 		{
-			args["NAME"] = full_name;
+			args["NAME"] = av_name.mDisplayName;
 		}
 
 		msgType = "RemoveFromFriends";
@@ -157,14 +160,6 @@ void LLAvatarActions::offerTeleport(const LLUUID& invitee)
 {
 	if (invitee.isNull())
 		return;
-
-	//waiting until Name Cache gets updated with corresponding avatar name
-	std::string just_to_request_name;
-	if (!gCacheName->getFullName(invitee, just_to_request_name))
-	{
-		gCacheName->get(invitee, FALSE, boost::bind((void (*)(const LLUUID&)) &LLAvatarActions::offerTeleport, invitee));
-		return;
-	}
 
 	LLDynamicArray<LLUUID> ids;
 	ids.push_back(invitee);
@@ -331,14 +326,14 @@ void LLAvatarActions::showProfile(const LLUUID& id)
 // static
 void LLAvatarActions::showOnMap(const LLUUID& id)
 {
-	std::string name;
-	if (!gCacheName->getFullName(id, name))
+	LLAvatarName av_name;
+	if (!LLAvatarNameCache::get(id, &av_name))
 	{
-		gCacheName->get(id, FALSE, boost::bind(&LLAvatarActions::showOnMap, id));
+		LLAvatarNameCache::get(id, boost::bind(&LLAvatarActions::showOnMap, id));
 		return;
 	}
 
-	gFloaterWorldMap->trackAvatar(id, name);
+	gFloaterWorldMap->trackAvatar(id, av_name.mDisplayName);
 	LLFloaterReg::showInstance("world_map");
 }
 
@@ -535,7 +530,7 @@ void LLAvatarActions::toggleBlock(const LLUUID& id)
 {
 	std::string name;
 
-	gCacheName->getFullName(id, name);
+	gCacheName->getFullName(id, name); // needed for mute
 	LLMute mute(id, name, LLMute::AGENT);
 
 	if (LLMuteList::getInstance()->isMuted(mute.mID, mute.mName))
@@ -739,7 +734,7 @@ bool LLAvatarActions::isFriend(const LLUUID& id)
 bool LLAvatarActions::isBlocked(const LLUUID& id)
 {
 	std::string name;
-	gCacheName->getFullName(id, name);
+	gCacheName->getFullName(id, name); // needed for mute
 	return LLMuteList::getInstance()->isMuted(id, name);
 }
 
@@ -747,7 +742,7 @@ bool LLAvatarActions::isBlocked(const LLUUID& id)
 bool LLAvatarActions::canBlock(const LLUUID& id)
 {
 	std::string full_name;
-	gCacheName->getFullName(id, full_name);
+	gCacheName->getFullName(id, full_name); // needed for mute
 	bool is_linden = (full_name.find("Linden") != std::string::npos);
 	bool is_self = id == gAgentID;
 	return !is_self && !is_linden;
