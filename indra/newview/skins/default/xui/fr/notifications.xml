@@ -1831,7 +1831,7 @@ Linden Lab
 		Les composantes requises suivantes ne se trouvent pas dans [FLOATER]:
 [COMPONENTS]
 	</notification>
-	<notification label="Remplacer la pièce-jointe existante" name="ReplaceAttachment">
+	<notification label="Remplacer la pièce jointe existante" name="ReplaceAttachment">
 		Vous avez déjà un objet sur cette partie du corps.
 Voulez-vous le remplacer par l&apos;objet sélectionné ?
 		<form name="form">

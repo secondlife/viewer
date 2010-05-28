@@ -54,6 +54,11 @@
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 #include "llvovolume.h"
+
+// For avatar texture view
+#include "llvoavatarself.h"
+#include "lltexlayer.h"
+
 extern F32 texmem_lower_bound_scale;
 
 LLTextureView *gTextureView = NULL;
@@ -375,6 +380,84 @@ LLRect LLTextureBar::getRequiredRect()
 
 ////////////////////////////////////////////////////////////////////////////
 
+class LLAvatarTexBar : public LLView
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLView::Params>
+	{
+		Mandatory<LLTextureView*>	texture_view;
+		Params()
+		:	texture_view("texture_view")
+		{
+			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+			rect(LLRect(0,0,100,line_height * 4));
+		}
+	};
+
+	LLAvatarTexBar(const Params& p)
+	:	LLView(p),
+		mTextureView(p.texture_view)
+	{}
+
+	virtual void draw();	
+	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual LLRect getRequiredRect();	// Return the height of this object, given the set options.
+
+private:
+	LLTextureView* mTextureView;
+};
+
+void LLAvatarTexBar::draw()
+{	
+	if (!gSavedSettings.getBOOL("DebugAvatarRezTime")) return;
+
+	LLVOAvatarSelf* avatarp = gAgentAvatarp;
+	if (!avatarp) return;
+
+	const S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+	const S32 v_offset = (S32)((texture_bar_height + 2.5f) * mTextureView->mNumTextureBars + 2.5f);
+	//----------------------------------------------------------------------------
+	LLGLSUIDefault gls_ui;
+	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
+	LLColor4 color;
+	
+	U32 line_num = 6;
+	for (LLVOAvatarDefines::LLVOAvatarDictionary::BakedTextures::const_iterator baked_iter = LLVOAvatarDefines::LLVOAvatarDictionary::getInstance()->getBakedTextures().begin();
+		 baked_iter != LLVOAvatarDefines::LLVOAvatarDictionary::getInstance()->getBakedTextures().end();
+		 ++baked_iter)
+	{
+		const LLVOAvatarDefines::EBakedTextureIndex baked_index = baked_iter->first;
+		const LLTexLayerSet *layerset = avatarp->debugGetLayerSet(baked_index);
+		if (!layerset) continue;
+		const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
+		if (!layerset_buffer) continue;
+		std::string text = layerset_buffer->dumpTextureInfo();
+		LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*line_num,
+												 text_color, LLFontGL::LEFT, LLFontGL::TOP);
+		line_num++;
+	}
+	/*
+	std::string text = "Baked Textures:";
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*line_num,
+											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
+	*/
+
+}
+
+BOOL LLAvatarTexBar::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	return FALSE;
+}
+
+LLRect LLAvatarTexBar::getRequiredRect()
+{
+	LLRect rect;
+	rect.mTop = 8;
+	return rect;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 class LLGLTexMemBar : public LLView
 {
 public:
@@ -412,13 +495,17 @@ void LLGLTexMemBar::draw()
 	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
 	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
 	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-	S32 v_offset = (S32)((texture_bar_height + 2.5f) * mTextureView->mNumTextureBars + 2.5f);
+	S32 v_offset = (S32)((texture_bar_height + 2.5f) * mTextureView->mNumTextureBars + 5.0f);
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
 	LLColor4 color;
 	
-	std::string text;
+	std::string text = "";
+
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
+											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
+
 	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
 					total_mem,
 					max_total_mem,
@@ -640,6 +727,7 @@ LLTextureView::LLTextureView(const LLTextureView::Params& p)
 	
 	setDisplayChildren(TRUE);
 	mGLTexMemBar = 0;
+	mAvatarTexBar = 0;
 }
 
 LLTextureView::~LLTextureView()
@@ -647,6 +735,9 @@ LLTextureView::~LLTextureView()
 	// Children all cleaned up by default view destructor.
 	delete mGLTexMemBar;
 	mGLTexMemBar = 0;
+	
+	delete mAvatarTexBar;
+	mAvatarTexBar = 0;
 }
 
 typedef std::pair<F32,LLViewerFetchedTexture*> decode_pair_t;
@@ -682,6 +773,13 @@ void LLTextureView::draw()
 			removeChild(mGLTexMemBar);
 			mGLTexMemBar->die();
 			mGLTexMemBar = 0;
+		}
+
+		if (mAvatarTexBar)
+		{
+			removeChild(mAvatarTexBar);
+			mAvatarTexBar->die();
+			mAvatarTexBar = 0;
 		}
 
 		typedef std::multiset<decode_pair_t, compare_decode_pair > display_list_t;
@@ -851,7 +949,14 @@ void LLTextureView::draw()
 		tmbp.texture_view(this);
 		mGLTexMemBar = LLUICtrlFactory::create<LLGLTexMemBar>(tmbp);
 		addChild(mGLTexMemBar);
-	
+
+		LLAvatarTexBar::Params atbp;
+		atbp.name("gl avatartex bar");
+		atbp.texture_view(this);
+		mAvatarTexBar = LLUICtrlFactory::create<LLAvatarTexBar>(atbp);
+		addChild(mAvatarTexBar);
+
+
 		reshape(getRect().getWidth(), getRect().getHeight(), TRUE);
 
 		/*

@@ -218,8 +218,6 @@ public:
 	static void			processRebakeAvatarTextures(LLMessageSystem* msg, void**);
 protected:
 	/*virtual*/ void	removeMissingBakedTextures();
-private:
-	LLFrameTimer    	mBakeTimeoutTimer;
 
 	//--------------------------------------------------------------------
 	// Layers
@@ -356,6 +354,9 @@ public:
 	void outputRezDiagnostics() const;
 	void debugBakedTextureUpload(LLVOAvatarDefines::EBakedTextureIndex index, BOOL finished);
 	static void		debugOnTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+
+	const LLTexLayerSet*  debugGetLayerSet(LLVOAvatarDefines::EBakedTextureIndex index) const { return mBakedTextureDatas[index].mTexLayerSet; }
+	std::string		debugDumpLocalTextureDataInfo(const LLTexLayerSet* layerset) const;
 private:
 	LLFrameTimer    mDebugSelfLoadTimer;
 	F32				mDebugTimeWearablesLoaded;
