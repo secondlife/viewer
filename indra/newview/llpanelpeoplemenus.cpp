@@ -115,6 +115,12 @@ bool NearbyMenu::enableContextMenuItem(const LLSD& userdata)
 		// - there are selected people
 		// - and there are no friends among selection yet.
 
+		//EXT-7389 - disable for more than 1
+		if(mUUIDs.size() > 1)
+		{
+			return false;
+		}
+
 		bool result = (mUUIDs.size() > 0);
 
 		uuid_vec_t::const_iterator

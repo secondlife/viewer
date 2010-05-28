@@ -2,6 +2,8 @@
 <!-- Side tray Outfit Edit panel -->
 <panel label="Editar el vestuario" name="outfit_edit">
 	<string name="No Outfit" value="No hay vestuario"/>
+	<string name="unsaved_changes" value="Cambios sin guardar"/>
+	<string name="now_editing" value="Editando"/>
 	<panel.string name="not_available">
 		(No disp.)
 	</panel.string>
@@ -21,18 +23,13 @@
 	</panel>
 	<layout_stack name="im_panels">
 		<layout_panel label="Panel de control de los MI" name="outfit_wearables_panel">
-			<scroll_list name="look_items_list">
-				<scroll_list.columns label="Vestuario" name="look_item"/>
-				<scroll_list.columns label="Orden de los ítems del vestuario" name="look_item_sort"/>
-			</scroll_list>
 			<panel label="bottom_panel" name="edit_panel"/>
 		</layout_panel>
 		<layout_panel name="add_wearables_panel">
-			<filter_editor label="Filtrar" name="look_item_filter"/>
+			<text name="add_to_outfit_label" value="Añadir a vestuario:"/>
 			<layout_stack name="filter_panels">
-				<layout_panel label="Panel de control de los MI" name="filter_button_panel">
-					<text name="add_to_outfit_label" value="Añadir al vestuario:"/>
-					<button label="o" name="filter_button"/>
+				<layout_panel label="Panel de control de MI" name="filter_panel">
+					<filter_editor label="Filtrar" name="look_item_filter"/>
 				</layout_panel>
 			</layout_stack>
 			<panel label="add_wearables_button_bar" name="add_wearables_button_bar">

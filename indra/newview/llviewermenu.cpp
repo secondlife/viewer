@@ -54,7 +54,6 @@
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
 #include "llbuycurrencyhtml.h"
-#include "llfloatercustomize.h"
 #include "llfloatergodtools.h"
 #include "llfloaterinventory.h"
 #include "llfloaterland.h"
@@ -3736,17 +3735,15 @@ void reset_view_final( BOOL proceed );
 
 void handle_reset_view()
 {
-	if( (CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode()) && gFloaterCustomize )
+	if (gAgentCamera.cameraCustomizeAvatar())
 	{
-		// Show dialog box if needed.
-		gFloaterCustomize->askToSaveIfDirty( reset_view_final );
+		// switching to outfit selector should automagically save any currently edited wearable
+		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
 	}
-	else
-	{
-		gAgentCamera.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
-		reset_view_final( TRUE );
-		LLFloaterCamera::resetCameraMode();
-	}
+
+	gAgentCamera.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
+	reset_view_final( TRUE );
+	LLFloaterCamera::resetCameraMode();
 }
 
 class LLViewResetView : public view_listener_t

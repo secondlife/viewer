@@ -1597,6 +1597,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ChatBarCustomWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Stores customized width of chat bar.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>CreateToolCopyCenters</key>
     <map>
       <key>Comment</key>
@@ -2675,6 +2686,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>4</integer>
+    </map>
+    <key>DumpVFSCaches</key>
+    <map>
+      <key>Comment</key>
+      <string>Dump VFS caches on startup.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>DynamicCameraStrength</key>
     <map>
@@ -4150,6 +4172,17 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+    <key>LastGPUClass</key>
+    <map>
+      <key>Comment</key>
+      <string>[DO NOT MODIFY] previous GPU class for tracking hardware changes</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
     <key>LastFeatureVersion</key>
     <map>
       <key>Comment</key>
@@ -8119,6 +8152,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ShowBuildButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Build button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowCameraButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide View button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowConsoleWindow</key>
     <map>
       <key>Comment</key>
@@ -8196,6 +8251,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowGestureButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Gesture button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowHoverTips</key>
     <map>
       <key>Comment</key>
@@ -8218,6 +8284,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>    
+    <key>ShowMiniMapButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Mini-Map button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowMoveButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Move button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
 	<key>ShowScriptErrors</key>
     <map>
       <key>Comment</key>
@@ -8237,6 +8325,39 @@
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowSearchButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Search button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowSidebarButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides Sidebar button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowSnapshotButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Snapshot button button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
@@ -8272,6 +8393,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>   
+    </map>
+    <key>ShowWorldMapButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Map button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>SidebarCameraMovement</key>
     <map>
@@ -10407,7 +10539,17 @@
       <key>Value</key>
       <real>10.0</real>
     </map>
-
+    <key>UseNewWalkRun</key>
+    <map>
+      <key>Comment</key>
+      <string>Replace standard walk/run animations with new ones.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>
@@ -11272,6 +11414,20 @@
       <string>S32</string>
       <key>Value</key>
       <integer>178</integer>
+    </map>
+    <key>always_showable_floaters</key>
+    <map>
+      <key>Comment</key>
+      <string>Floaters that can be shown despite mouselook mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+	      <string>snapshot</string>
+	      <string>mini_map</string>
+      </array>
     </map>
 </map>
 </llsd>
