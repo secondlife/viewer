@@ -1390,7 +1390,7 @@ bool LLPanelLandObjects::callbackReturnOwnerObjects(const LLSD& notification, co
 			}
 			else
 			{
-				args["NAME"] = LLSLURL("agent", owner_id, "inspect").getSLURLString();
+				args["NAME"] = LLSLURL("agent", owner_id, "completename").getSLURLString();
 				LLNotificationsUtil::add("OtherObjectsReturned", args);
 			}
 			send_return_objects_message(parcel->getLocalID(), RT_OWNER);
@@ -1719,7 +1719,7 @@ void LLPanelLandObjects::onClickReturnOwnerObjects(void* userdata)
 	}
 	else
 	{
-		args["NAME"] = LLSLURL("agent", owner_id, "inspect").getSLURLString();
+		args["NAME"] = LLSLURL("agent", owner_id, "completename").getSLURLString();
 		LLNotificationsUtil::add("ReturnObjectsOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOwnerObjects, panelp, _1, _2));
 	}
 }
@@ -1778,7 +1778,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 		}
 		else
 		{
-			args["NAME"] = LLSLURL("agent", owner_id, "inspect").getSLURLString();
+			args["NAME"] = LLSLURL("agent", owner_id, "completename").getSLURLString();
 			LLNotificationsUtil::add("ReturnObjectsNotOwnedByUser", args, LLSD(), boost::bind(&LLPanelLandObjects::callbackReturnOtherObjects, panelp, _1, _2));
 		}
 	}

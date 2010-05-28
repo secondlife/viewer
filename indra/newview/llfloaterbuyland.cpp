@@ -829,8 +829,7 @@ void LLFloaterBuyLandUI::updateNames()
 	}
 	else
 	{
-		mParcelSellerName =
-			LLSLURL("agent", parcelp->getOwnerID(), "inspect").getSLURLString();
+		mParcelSellerName = LLSLURL("agent", parcelp->getOwnerID(), "completename").getSLURLString();
 	}
 }
 
