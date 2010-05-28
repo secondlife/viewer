@@ -2723,7 +2723,8 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 {
 	LLSD args = LLSD::emptyMap();
 	std::string value;
-	LLSD cert_info = cert->getLLSD();
+	LLSD cert_info;
+	cert->getLLSD(cert_info);
 	// convert all of the elements in the cert into                                        
 	// args for the xml dialog, so we have flexability to                                  
 	// display various parts of the cert by only modifying                                 

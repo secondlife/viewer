@@ -154,7 +154,7 @@ public:
 	
 	// return an LLSD object containing information about the certificate
 	// such as its name, signature, expiry time, serial number
-	virtual LLSD getLLSD() const=0; 
+	virtual void getLLSD(LLSD& llsd)=0; 
 	
 	// return an openSSL X509 struct for the certificate
 	virtual X509* getOpenSSLX509() const=0;
@@ -231,6 +231,18 @@ public:
 	virtual LLPointer<LLCertificate> erase(iterator cert)=0;	
 };
 
+// class LLCertificateChain
+// Class representing a chain of certificates in order, with the 
+// first element being the child cert.
+class LLCertificateChain : virtual public LLCertificateVector
+{	
+	
+public:
+	LLCertificateChain() {}
+	
+	virtual ~LLCertificateChain() {}
+	
+};
 
 // class LLCertificateStore
 // represents a store of certificates, typically a store of root CA
@@ -250,28 +262,15 @@ public:
 	
 	// return the store id
 	virtual std::string storeId() const=0;
-};
-
-// class LLCertificateChain
-// Class representing a chain of certificates in order, with the 
-// first element being the child cert.
-class LLCertificateChain : virtual public LLCertificateVector
-{	
-
-public:
-	LLCertificateChain() {}
 	
-	virtual ~LLCertificateChain() {}
-
 	// validate a certificate chain given the params.
 	// Will throw exceptions on error
 	
 	virtual void validate(int validation_policy,
-						  LLPointer<LLCertificateStore> ca_store,
+						  LLPointer<LLCertificateChain> cert_chain,
 						  const LLSD& validation_params) =0;
+	
 };
-
-
 
 
 inline
