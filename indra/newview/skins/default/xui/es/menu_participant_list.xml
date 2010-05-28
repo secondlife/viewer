@@ -14,8 +14,8 @@
 	<context_menu label="Opciones del moderador &gt;" name="Moderator Options">
 		<menu_item_check label="Permitir el chat de texto" name="AllowTextChat"/>
 		<menu_item_call label="Ignorar a este participante" name="ModerateVoiceMuteSelected"/>
-		<menu_item_call label="Silenciar a todos los demás" name="ModerateVoiceMuteOthers"/>
 		<menu_item_call label="Quitar el silencio a este participante" name="ModerateVoiceUnMuteSelected"/>
-		<menu_item_call label="Quitar el silencio a todos los demás" name="ModerateVoiceUnMuteOthers"/>
+		<menu_item_call label="Silenciar a todos" name="ModerateVoiceMute"/>
+		<menu_item_call label="Quitar el silencio a todos" name="ModerateVoiceUnmute"/>
 	</context_menu>
 </context_menu>

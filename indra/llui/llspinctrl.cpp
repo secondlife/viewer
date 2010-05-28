@@ -127,7 +127,16 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
 	}
 	params.max_length_bytes(MAX_STRING_LENGTH);
 	params.commit_callback.function((boost::bind(&LLSpinCtrl::onEditorCommit, this, _2)));
-	params.prevalidate_callback(&LLTextValidate::validateFloat);
+	
+	if( mPrecision>0 )//should accept float numbers
+	{
+		params.prevalidate_callback(&LLTextValidate::validateFloat);
+	}
+	else //should accept int numbers
+	{
+		params.prevalidate_callback(&LLTextValidate::validateNonNegativeS32);
+	}
+	
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
 	mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
 	mEditor->setFocusReceivedCallback( boost::bind(&LLSpinCtrl::onEditorGainFocus, _1, this ));

@@ -1286,8 +1286,8 @@ void LLTextureCtrl::draw()
 				LLFontGL::DROP_SHADOW);
 		}
 
-		// Show more detailed information if this agent is god.
-		if (gAgent.isGodlike())
+		// Optionally show more detailed information.
+		if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 		{
 			LLFontGL* font = LLFontGL::getFontSansSerif();
 			std::string tdesc;

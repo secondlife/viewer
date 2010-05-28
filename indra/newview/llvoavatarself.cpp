@@ -137,7 +137,9 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	mRegionCrossingCount(0)
 {
 	gAgentWearables.setAvatarObject(this);
-	
+
+	mMotionController.mIsSelf = TRUE;
+
 	lldebugs << "Marking avatar as self " << id << llendl;
 }
 
@@ -1337,7 +1339,7 @@ BOOL LLVOAvatarSelf::isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32
 {
 	if (isIndexBakedTexture(type))
 	{
-		return LLVOAvatar::isTextureVisible(type);
+		return LLVOAvatar::isTextureVisible(type, (U32)0);
 	}
 
 	LLUUID tex_id = getLocalTextureID(type,index);
@@ -1372,7 +1374,7 @@ void LLVOAvatarSelf::requestLayerSetUploads()
 void LLVOAvatarSelf::requestLayerSetUpload(LLVOAvatarDefines::EBakedTextureIndex i)
 {
 	ETextureIndex tex_index = mBakedTextureDatas[i].mTextureIndex;
-	bool  layer_baked = isTextureDefined(tex_index, gAgentWearables.getWearableCount(tex_index));
+	const BOOL layer_baked = isTextureDefined(tex_index, gAgentWearables.getWearableCount(tex_index));
 	if (!layer_baked && mBakedTextureDatas[i].mTexLayerSet)
 	{
 		mBakedTextureDatas[i].mTexLayerSet->requestUpload();
@@ -1389,8 +1391,8 @@ bool LLVOAvatarSelf::hasPendingBakedUploads() const
 {
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
-		BOOL upload_pending = (mBakedTextureDatas[i].mTexLayerSet && mBakedTextureDatas[i].mTexLayerSet->getComposite()->uploadPending());
-		if (upload_pending)
+		LLTexLayerSet* layerset = mBakedTextureDatas[i].mTexLayerSet;
+		if (layerset && layerset->getComposite() && layerset->getComposite()->uploadPending())
 		{
 			return true;
 		}
@@ -1404,7 +1406,7 @@ void LLVOAvatarSelf::invalidateComposite( LLTexLayerSet* layerset, BOOL upload_r
 	{
 		return;
 	}
-	// llinfos << "LLVOAvatar::invalidComposite() " << layerset->getBodyRegion() << llendl;
+	// llinfos << "LLVOAvatar::invalidComposite() " << layerset->getBodyRegionName() << llendl;
 
 	layerset->requestUpdate();
 	layerset->invalidateMorphMasks();
@@ -1829,6 +1831,47 @@ void LLVOAvatarSelf::debugBakedTextureUpload(EBakedTextureIndex index, BOOL fini
 	mDebugBakedTextureTimes[index][done] = mDebugSelfLoadTimer.getElapsedTimeF32();
 }
 
+std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLTexLayerSet* layerset) const
+{
+	std::string text="";
+
+	text = llformat("[Final:%d Avail:%d] ",isLocalTextureDataFinal(layerset), isLocalTextureDataAvailable(layerset));
+
+	/* if (layerset == mBakedTextureDatas[BAKED_HEAD].mTexLayerSet)
+	   return getLocalDiscardLevel(TEX_HEAD_BODYPAINT) >= 0; */
+	for (LLVOAvatarDictionary::BakedTextures::const_iterator baked_iter = LLVOAvatarDictionary::getInstance()->getBakedTextures().begin();
+		 baked_iter != LLVOAvatarDictionary::getInstance()->getBakedTextures().end();
+		 ++baked_iter)
+	{
+		const EBakedTextureIndex baked_index = baked_iter->first;
+		if (layerset == mBakedTextureDatas[baked_index].mTexLayerSet)
+		{
+			const LLVOAvatarDictionary::BakedEntry *baked_dict = baked_iter->second;
+			text += llformat("[%d] '%s' ",baked_index, baked_dict->mName.c_str());
+			for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
+				 local_tex_iter != baked_dict->mLocalTextures.end();
+				 ++local_tex_iter)
+			{
+				const ETextureIndex tex_index = *local_tex_iter;
+				const LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType(tex_index);
+				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
+				if (wearable_count > 0)
+				{
+					text += LLWearableType::getTypeName(wearable_type) + ":";
+					for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
+					{
+						const U32 discard_level = getLocalDiscardLevel(tex_index, wearable_index);
+						std::string discard_str = llformat("%d ",discard_level);
+						text += llformat("%d ",discard_level);
+					}
+				}
+			}
+			break;
+		}
+	}
+	return text;
+}
+
 const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) const
 {
 	if (canGrabBakedTexture(baked_index))
@@ -2055,6 +2098,18 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 	{
 		llinfos << "\t\t (" << i << ") \t" << (S32)mDebugBakedTextureTimes[i][0] << " / " << (S32)mDebugBakedTextureTimes[i][1] << llendl;
 	}
+
+	for (LLVOAvatarDefines::LLVOAvatarDictionary::BakedTextures::const_iterator baked_iter = LLVOAvatarDefines::LLVOAvatarDictionary::getInstance()->getBakedTextures().begin();
+		 baked_iter != LLVOAvatarDefines::LLVOAvatarDictionary::getInstance()->getBakedTextures().end();
+		 ++baked_iter)
+	{
+		const LLVOAvatarDefines::EBakedTextureIndex baked_index = baked_iter->first;
+		const LLTexLayerSet *layerset = debugGetLayerSet(baked_index);
+		if (!layerset) continue;
+		const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
+		if (!layerset_buffer) continue;
+		llinfos << layerset_buffer->dumpTextureInfo() << llendl;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2153,7 +2208,6 @@ void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 
 	// Don't know if this is needed
 	updateMeshTextures();
-
 }
 
 //-----------------------------------------------------------------------------

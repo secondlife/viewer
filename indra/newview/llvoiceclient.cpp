@@ -113,7 +113,10 @@ std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-LLVoiceClient::LLVoiceClient() :
+LLVoiceClient::LLVoiceClient()
+	:
+	mVoiceModule(NULL),
+	m_servicePump(NULL),
 	mVoiceModule(NULL),
 	mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled")),
 	mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault"))

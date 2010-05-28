@@ -41,7 +41,6 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llavataractions.h"
-#include "llfloatercustomize.h"
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
@@ -62,9 +61,11 @@
 #include "llpreviewgesture.h"
 #include "llpreviewtexture.h"
 #include "llselectmgr.h"
+#include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
+#include "llviewermenu.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
@@ -4446,15 +4447,13 @@ void remove_inventory_category_from_avatar( LLInventoryCategory* category )
 			 << " )" << llendl;
 
 
-	if( gFloaterCustomize )
+	if (gAgentCamera.cameraCustomizeAvatar())
 	{
-		gFloaterCustomize->askToSaveIfDirty(
-			boost::bind(remove_inventory_category_from_avatar_step2, _1, category->getUUID()));
+		// switching to outfit editor should automagically save any currently edited wearable
+		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
 	}
-	else
-	{
-		remove_inventory_category_from_avatar_step2(TRUE, category->getUUID() );
-	}
+
+	remove_inventory_category_from_avatar_step2(TRUE, category->getUUID() );
 }
 
 struct OnRemoveStruct
@@ -4878,18 +4877,12 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	const LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
+	LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
 	if( wearable )
 	{
-		// Set the tab to the right wearable.
-		if (gFloaterCustomize)
-			gFloaterCustomize->setCurrentWearableType( wearable->getType() );
+		LLPanel * panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
 
-		if( CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() )
-		{
-			// Start Avatar Customization
-			gAgentCamera.changeCameraToCustomizeAvatar();
-		}
+		LLSidepanelAppearance::editWearable(wearable, panel);
 	}
 }
 

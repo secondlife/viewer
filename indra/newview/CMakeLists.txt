@@ -164,7 +164,6 @@ set(viewer_SOURCE_FILES
     llfloaterbuyland.cpp
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
-    llfloatercustomize.cpp
     llfloaterdaycycle.cpp
     llfloaterenvsettings.cpp
     llfloaterevent.cpp
@@ -684,7 +683,6 @@ set(viewer_HEADER_FILES
     llfloaterbuyland.h
     llfloatercamera.h
     llfloatercolorpicker.h
-    llfloatercustomize.h
     llfloaterdaycycle.h
     llfloaterenvsettings.h
     llfloaterevent.h

@@ -168,7 +168,7 @@ LLBottomTray::LLBottomTray(const LLSD&)
 
 	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_bottomtray.xml");
 
-	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraPresets, _2));
+	LLUICtrl::CommitCallbackRegistry::defaultRegistrar().add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
 
 	//this is to fix a crash that occurs because LLBottomTray is a singleton
 	//and thus is deleted at the end of the viewers lifetime, but to be cleanly
@@ -1220,18 +1220,6 @@ void LLBottomTray::initButtonsVisibility()
 
 void LLBottomTray::setButtonsControlsAndListeners()
 {
-	gSavedSettings.declareBOOL("ShowGestureButton", TRUE, "Shows/Hides Gesture button in the bottom tray. (Declared in code)");
-	gSavedSettings.declareBOOL("ShowMoveButton", TRUE, "Shows/Hides Move button in the bottom tray. (Declared in code)");
-	gSavedSettings.declareBOOL("ShowSnapshotButton", TRUE, "Shows/Hides Snapshot button button in the bottom tray. (Declared in code)");
-	gSavedSettings.declareBOOL("ShowCameraButton", TRUE, "Show/Hide View button in the bottom tray. (Declared in code)");
-	gSavedSettings.declareBOOL("ShowSidebarButton", TRUE, "Shows/hides Sidebar button in the bottom tray. (Declared in code)");
-	gSavedSettings.declareBOOL("ShowBuildButton", TRUE, "Shows/Hides Build button in the bottom tray. (Declared in code)");
-	gSavedSettings.declareBOOL("ShowSearchButton", TRUE, "Shows/Hides Search button in the bottom tray. (Declared in code)");
-	gSavedSettings.declareBOOL("ShowWorldMapButton", TRUE, "Shows/Hides Map button in the bottom tray. (Declared in code)");
-	gSavedSettings.declareBOOL("ShowMiniMapButton", TRUE, "Shows/Hides Mini-Map button in the bottom tray. (Declared in code)");
-
-	gSavedSettings.declareS32("ChatBarCustomWidth", 0, "Stores customized width of chat bar. (Declared in code)");
-
 	gSavedSettings.getControl("ShowGestureButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_GESTURES, _2));
 	gSavedSettings.getControl("ShowMoveButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_MOVEMENT, _2));
 	gSavedSettings.getControl("ShowCameraButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_CAMERA, _2));

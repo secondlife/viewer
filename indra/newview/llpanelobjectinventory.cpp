@@ -1249,29 +1249,30 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 {
 	LLTaskInvFVBridge* new_bridge = NULL;
 	const LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(object);
+	const U32 itemflags = ( NULL == item ? 0 : item->getFlags() );
 	LLAssetType::EType type = object->getType();
 
 	switch(type)
 	{
 	case LLAssetType::AT_TEXTURE:
 		new_bridge = new LLTaskTextureBridge(panel,
-											 object->getUUID(),
-											 object->getName());
+						     object->getUUID(),
+						     object->getName());
 		break;
 	case LLAssetType::AT_SOUND:
 		new_bridge = new LLTaskSoundBridge(panel,
-										   object->getUUID(),
-										   object->getName());
+						   object->getUUID(),
+						   object->getName());
 		break;
 	case LLAssetType::AT_LANDMARK:
 		new_bridge = new LLTaskLandmarkBridge(panel,
-											  object->getUUID(),
-											  object->getName());
+						      object->getUUID(),
+						      object->getName());
 		break;
 	case LLAssetType::AT_CALLINGCARD:
 		new_bridge = new LLTaskCallingCardBridge(panel,
-												 object->getUUID(),
-												 object->getName());
+							 object->getUUID(),
+							 object->getName());
 		break;
 	case LLAssetType::AT_SCRIPT:
 		// OLD SCRIPTS DEPRECATED - JC
@@ -1281,45 +1282,42 @@ LLTaskInvFVBridge* LLTaskInvFVBridge::createObjectBridge(LLPanelObjectInventory*
 		//									   object->getName());
 		break;
 	case LLAssetType::AT_OBJECT:
-		{
-			U32 flags = ( NULL == item ? 0 : item->getFlags() );
-			new_bridge = new LLTaskObjectBridge(panel,
-												object->getUUID(),
-												object->getName(),
-												flags);
-		}
+		new_bridge = new LLTaskObjectBridge(panel,
+						    object->getUUID(),
+						    object->getName(),
+						    itemflags);
 		break;
 	case LLAssetType::AT_NOTECARD:
 		new_bridge = new LLTaskNotecardBridge(panel,
-											  object->getUUID(),
-											  object->getName());
+						      object->getUUID(),
+						      object->getName());
 		break;
 	case LLAssetType::AT_ANIMATION:
 		new_bridge = new LLTaskAnimationBridge(panel,
-											  object->getUUID(),
-											  object->getName());
+						       object->getUUID(),
+						       object->getName());
 		break;
 	case LLAssetType::AT_GESTURE:
 		new_bridge = new LLTaskGestureBridge(panel,
-											  object->getUUID(),
-											  object->getName());
+						     object->getUUID(),
+						     object->getName());
 		break;
 	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_BODYPART:
 		new_bridge = new LLTaskWearableBridge(panel,
-											  object->getUUID(),
-											  object->getName(),
-											  item->getFlags());
+						      object->getUUID(),
+						      object->getName(),
+						      itemflags);
 		break;
 	case LLAssetType::AT_CATEGORY:
 		new_bridge = new LLTaskCategoryBridge(panel,
-											  object->getUUID(),
-											  object->getName());
+						      object->getUUID(),
+						      object->getName());
 		break;
 	case LLAssetType::AT_LSL_TEXT:
 		new_bridge = new LLTaskLSLBridge(panel,
-										 object->getUUID(),
-										 object->getName());
+						 object->getUUID(),
+						 object->getName());
 		break;
 	default:
 		llinfos << "Unhandled inventory type (llassetstorage.h): "

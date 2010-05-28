@@ -9,9 +9,6 @@
 	<floater.string name="Title">
 		ノートカード： [NAME]
 	</floater.string>
-	<floater.string label="保存" label_selected="保存" name="Save">
-		保存
-	</floater.string>
 	<text name="desc txt">
 		説明：
 	</text>
@@ -19,4 +16,5 @@
 		ローディング．．．
 	</text_editor>
 	<button label="保存" label_selected="保存" name="Save"/>
+	<button label="削除" label_selected="削除" name="Delete"/>
 </floater>

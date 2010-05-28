@@ -7,7 +7,7 @@
 		</menu_item_call>
 		<menu_item_call label="Comprar L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Mi perfil" name="Profile"/>
-		<menu_item_call label="Mi apariencia" name="Appearance"/>
+		<menu_item_call label="Cambiar vestuario" name="ChangeOutfit"/>
 		<menu_item_check label="Mi Inventario" name="Inventory"/>
 		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mis gestos" name="Gestures"/>
@@ -162,6 +162,7 @@
 			<menu_item_check label="Objetos flexibles" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="Ejecutar múltiples temas" name="Run Multiple Threads"/>
+		<menu_item_check label="Usar Plugin Read Thread" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Vaciar la caché de grupo" name="ClearGroupCache"/>
 		<menu_item_check label="Vista subjetiva suavizada" name="Mouse Smoothing"/>
 		<menu label="Atajos de teclado" name="Shortcuts">
@@ -188,7 +189,6 @@
 			<menu_item_call label="Acercar el zoom" name="Zoom In"/>
 			<menu_item_call label="Zoom por defecto" name="Zoom Default"/>
 			<menu_item_call label="Alejar el zoom" name="Zoom Out"/>
-			<menu_item_call label="Pantalla completa" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="Mostrar las configuraciones del depurador" name="Debug Settings"/>
 		<menu_item_check label="Mostrar el menú &apos;Develop&apos;" name="Debug Mode"/>
