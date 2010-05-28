@@ -43,6 +43,7 @@
 #include "lllivefile.h"
 #include "llmemory.h"
 #include "llstl.h" // for DeletePointer()
+#include "llstring.h"
 #include "lleventtimer.h"
 
 #include "google_breakpad/exception_handler.h"
@@ -364,7 +365,11 @@ void LLApp::setError()
 void LLApp::setMiniDumpDir(const std::string &path)
 {
 	llassert(mExceptionHandler);
+#ifdef LL_WINDOWS
+	mExceptionHandler->set_dump_path(utf8str_to_wstring(path));
+#else
 	mExceptionHandler->set_dump_path(path);
+#endif
 }
 
 void LLApp::writeMiniDump()
