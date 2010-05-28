@@ -102,6 +102,9 @@ public:
 	U32				getWearableCount(const LLWearableType::EType type) const;
 	U32				getWearableCount(const U32 tex_index) const;
 
+	static const U32 MAX_CLOTHING_PER_TYPE = 5; 
+
+
 	//--------------------------------------------------------------------
 	// Setters
 	//--------------------------------------------------------------------
@@ -273,8 +276,6 @@ private:
 		U32 mTodo;
 		LLPointer<LLRefCount> mCB;
 	};
-
-	static const U32 MAX_WEARABLES_PER_TYPE = 1; 
 
 }; // LLAgentWearables
 

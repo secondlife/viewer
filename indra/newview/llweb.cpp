@@ -54,6 +54,10 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
+#include "llnotificationsutil.h"
+
+bool on_load_url_external_response(const LLSD& notification, const LLSD& response, bool async );
+
 
 class URLLoader : public LLToastAlertPanel::URLLoader
 {
@@ -110,11 +114,26 @@ void LLWeb::loadURLExternal(const std::string& url)
 // static
 void LLWeb::loadURLExternal(const std::string& url, bool async)
 {
-	std::string escaped_url = escapeURL(url);
-	if (gViewerWindow)
+	LLSD payload;
+	payload["url"] = url;
+	LLNotificationsUtil::add( "WebLaunchExternalTarget", LLSD(), payload, boost::bind(on_load_url_external_response, _1, _2, async));
+}
+
+// static 
+bool on_load_url_external_response(const LLSD& notification, const LLSD& response, bool async )
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if ( 0 == option )
 	{
-		gViewerWindow->getWindow()->spawnWebBrowser(escaped_url, async);
+		LLSD payload = notification["payload"];
+		std::string url = payload["url"].asString();
+		std::string escaped_url = LLWeb::escapeURL(url);
+		if (gViewerWindow)
+		{
+			gViewerWindow->getWindow()->spawnWebBrowser(escaped_url, async);
+		}
 	}
+	return false;
 }
 
 

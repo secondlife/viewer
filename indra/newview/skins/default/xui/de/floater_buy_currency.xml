@@ -59,7 +59,7 @@
 	</text>
 	<button label="Jetzt kaufen" name="buy_btn"/>
 	<button label="Abbrechen" name="cancel_btn"/>
-	<text height="40" left="160" name="info_cannot_buy" width="200">
+	<text name="info_cannot_buy">
 		Kauf nicht möglich
 	</text>
 	<button label="Weiter zur Kontoseite" name="error_web"/>

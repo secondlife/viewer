@@ -76,6 +76,10 @@ private:
 	static build_map_t sBuildMap;
 	static std::map<std::string,std::string> sGroupMap;
 	static bool sBlockShowFloaters;
+	/**
+	 * Defines list of floater names that can be shown despite state of sBlockShowFloaters.
+	 */
+	static std::set<std::string> sAlwaysShowableList;
 	
 public:
 	// Registration

@@ -6191,6 +6191,14 @@ Avatar '[NAME]' left as fully loaded.
   </notification>
 
   <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfBakeNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="ConfirmLeaveCall"
    type="alert">
