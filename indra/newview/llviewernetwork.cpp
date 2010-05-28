@@ -296,7 +296,6 @@ void LLGridManager::initialize(const std::string& grid_file)
 	// any grid list entries with.
 	LLSD grid = LLSD::emptyMap();	
 	
-	bool grid_dirty = false;
 	if(mGridList.has(mGrid))
 	{
 		grid = mGridList[mGrid];
@@ -304,40 +303,11 @@ void LLGridManager::initialize(const std::string& grid_file)
 	else
 	{
 		grid[GRID_VALUE] = mGrid;
-		grid_dirty = true;
-	}
-	
-	LLSD cmd_line_login_uri = gSavedSettings.getLLSD("CmdLineLoginURI");
-	if (cmd_line_login_uri.isString())
-	{
-		grid_dirty = true;				
-		grid[GRID_LOGIN_URI_VALUE] = LLSD::emptyArray();
-		grid[GRID_LOGIN_URI_VALUE].append(cmd_line_login_uri);
-	}
-	
-	// override the helper uri if it was passed in
-	std::string cmd_line_helper_uri = gSavedSettings.getString("CmdLineHelperURI");
-	if(!cmd_line_helper_uri.empty())
-	{
-		grid[GRID_HELPER_URI_VALUE] = cmd_line_helper_uri;
-		grid_dirty = true;		
-	}
-	
-	// override the login page if it was passed in
-	std::string cmd_line_login_page = gSavedSettings.getString("LoginPage");
-	if(!cmd_line_login_page.empty())
-	{
-		grid[GRID_LOGIN_PAGE_VALUE] = cmd_line_login_page;
-		grid_dirty = true;		
-	}
-	
-
-	if(grid_dirty)
-	{
 		// add the grid with the additional values, or update the
 		// existing grid if it exists with the given values
-		addGrid(grid);
+		addGrid(grid);		
 	}
+
 	LL_DEBUGS("GridManager") << "Selected grid is " << mGrid << LL_ENDL;		
 	setGridChoice(mGrid);
 	if(mGridList[mGrid][GRID_LOGIN_URI_VALUE].isArray())
@@ -350,6 +320,36 @@ LLGridManager::~LLGridManager()
 {
 	saveFavorites();
 }
+
+void LLGridManager::getGridInfo(const std::string &grid, LLSD& grid_info)
+{
+	
+	grid_info = mGridList[grid]; 
+	
+	// override any grid data with the command line info.
+	
+	LLSD cmd_line_login_uri = gSavedSettings.getLLSD("CmdLineLoginURI");
+	if (cmd_line_login_uri.isString())
+	{	
+		grid_info[GRID_LOGIN_URI_VALUE] = LLSD::emptyArray();
+		grid_info[GRID_LOGIN_URI_VALUE].append(cmd_line_login_uri);
+	}
+	
+	// override the helper uri if it was passed in
+	std::string cmd_line_helper_uri = gSavedSettings.getString("CmdLineHelperURI");
+	if(!cmd_line_helper_uri.empty())
+	{
+		grid_info[GRID_HELPER_URI_VALUE] = cmd_line_helper_uri;	
+	}
+	
+	// override the login page if it was passed in
+	std::string cmd_line_login_page = gSavedSettings.getString("LoginPage");
+	if(!cmd_line_login_page.empty())
+	{
+		grid_info[GRID_LOGIN_PAGE_VALUE] = cmd_line_login_page;
+	}	
+}
+
 
 //
 // LLGridManager::addGrid - add a grid to the grid list, populating the needed values
@@ -523,6 +523,12 @@ std::string LLGridManager::getGridByLabel( const std::string &grid_label, bool c
 void LLGridManager::getLoginURIs(std::vector<std::string>& uris)
 {
 	uris.clear();
+	LLSD cmd_line_login_uri = gSavedSettings.getLLSD("CmdLineLoginURI");
+	if (cmd_line_login_uri.isString())
+	{	
+		uris.push_back(cmd_line_login_uri);
+		return;
+	}
 	for (LLSD::array_iterator llsd_uri = mGridList[mGrid][GRID_LOGIN_URI_VALUE].beginArray();
 		 llsd_uri != mGridList[mGrid][GRID_LOGIN_URI_VALUE].endArray();
 		 llsd_uri++)
@@ -531,7 +537,29 @@ void LLGridManager::getLoginURIs(std::vector<std::string>& uris)
 	}
 }
 
-bool LLGridManager::isInProductionGrid()
+std::string LLGridManager::getHelperURI() 
+{
+	std::string cmd_line_helper_uri = gSavedSettings.getString("CmdLineHelperURI");
+	if(!cmd_line_helper_uri.empty())
+	{
+		return cmd_line_helper_uri;	
+	}
+	return mGridList[mGrid][GRID_HELPER_URI_VALUE];
+}
+
+std::string LLGridManager::getLoginPage() 
+{
+	// override the login page if it was passed in
+	std::string cmd_line_login_page = gSavedSettings.getString("LoginPage");
+	if(!cmd_line_login_page.empty())
+	{
+		return cmd_line_login_page;
+	}	
+	
+	return mGridList[mGrid][GRID_LOGIN_PAGE_VALUE];
+}
+
+bool LLGridManager::LLGridManager::isInProductionGrid()
 {
 	// *NOTE:Mani This used to compare GRID_INFO_AGNI to gGridChoice,
 	// but it seems that loginURI trumps that.

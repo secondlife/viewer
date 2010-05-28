@@ -89,17 +89,7 @@ public:
 	// by default only return the user visible grids
 	std::map<std::string, std::string> getKnownGrids(bool favorites_only=FALSE);
 	
-	LLSD getGridInfo(const std::string& grid)
-	{
-		if(mGridList.has(grid))
-		{
-			return mGridList[grid];
-		}
-		else
-		{
-			return LLSD();
-		}
-	}
+	void getGridInfo(const std::string& grid, LLSD &grid_info);
 	
 	// current grid management
 
@@ -112,8 +102,8 @@ public:
 	std::string getGridLabel() { return mGridList[mGrid][GRID_LABEL_VALUE]; } 	
 	std::string getGrid() const { return mGrid; }
 	void getLoginURIs(std::vector<std::string>& uris);
-	std::string getHelperURI() {return mGridList[mGrid][GRID_HELPER_URI_VALUE];}
-	std::string getLoginPage() {return mGridList[mGrid][GRID_LOGIN_PAGE_VALUE];}
+	std::string getHelperURI();
+	std::string getLoginPage();
 	std::string getGridLoginID() { return mGridList[mGrid][GRID_ID_VALUE]; }	
 	std::string getLoginPage(const std::string& grid) { return mGridList[grid][GRID_LOGIN_PAGE_VALUE]; }
 	void        getLoginIdentifierTypes(LLSD& idTypes) { idTypes = mGridList[mGrid][GRID_LOGIN_IDENTIFIER_TYPES]; }
@@ -125,7 +115,7 @@ public:
 	std::string getAppSLURLBase(const std::string& grid);
 	std::string getAppSLURLBase() { return getAppSLURLBase(mGrid); }	
 	
-	LLSD getGridInfo() { return mGridList[mGrid]; }
+	void getGridInfo(LLSD &grid_info) { getGridInfo(mGrid, grid_info); }
 	
 	std::string getGridByLabel( const std::string &grid_label, bool case_sensitive = false);
 	

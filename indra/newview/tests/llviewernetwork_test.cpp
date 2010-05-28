@@ -148,7 +148,8 @@ namespace tut
 					  known_grids[std::string("util.agni.lindenlab.com")], std::string("Agni"));
 		ensure_equals("None exists", known_grids[""], "None");
 		
-		LLSD grid = LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com");
+		LLSD grid;
+		LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com", grid);
 		ensure("Grid info for agni is a map", grid.isMap());
 		ensure_equals("name is correct for agni", 
 					  grid[GRID_VALUE].asString(), std::string("util.agni.lindenlab.com"));
@@ -190,7 +191,8 @@ namespace tut
 	
 		
 		// assure Agni doesn't get overwritten
-		LLSD grid = LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com");
+		LLSD grid;
+		LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com", grid);
 
 		ensure_equals("Agni grid label was not modified by grid file", 
 					  grid[GRID_LABEL_VALUE].asString(), std::string("Agni"));
@@ -215,7 +217,7 @@ namespace tut
 		
 		ensure_equals("Grid file adds to name<->label map", 
 					  known_grids["grid1"], std::string("mylabel"));
-		grid = LLGridManager::getInstance()->getGridInfo("grid1");
+		LLGridManager::getInstance()->getGridInfo("grid1", grid);
 		ensure_equals("grid file grid name is set",
 					  grid[GRID_VALUE].asString(), std::string("grid1"));
 		ensure_equals("grid file label is set", 
@@ -267,7 +269,7 @@ namespace tut
 					  known_grids.size(), 24);
 		ensure_equals("Custom Command line grid is added to the list of grids", 
 					  known_grids["mycustomgridchoice"], std::string("mycustomgridchoice"));
-		grid = LLGridManager::getInstance()->getGridInfo("mycustomgridchoice");
+		LLGridManager::getInstance()->getGridInfo("mycustomgridchoice", grid);
 		ensure_equals("Custom Command line grid name is set",
 					  grid[GRID_VALUE].asString(), std::string("mycustomgridchoice"));
 		ensure_equals("Custom Command line grid label is set", 
@@ -298,7 +300,7 @@ namespace tut
 		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();		
 		ensure_equals("Override known grid login uri: No grids are added", 
 					  known_grids.size(), 23);
-		grid = LLGridManager::getInstance()->getGridInfo();
+		LLGridManager::getInstance()->getGridInfo(grid);
 		ensure("Override known grid login uri: login uri is an array",
 			   grid[GRID_LOGIN_URI_VALUE].isArray());
 		ensure_equals("Override known grid login uri: Command line grid login uri is set",
@@ -317,7 +319,7 @@ namespace tut
 		gCmdLineLoginURI = "https://my.login.uri/cgi-bin/login.cgi";		
 		LLGridManager::getInstance()->initialize("grid_test.xml");		
 		known_grids = LLGridManager::getInstance()->getKnownGrids();
-		grid = LLGridManager::getInstance()->getGridInfo();
+		LLGridManager::getInstance()->getGridInfo(grid);
 		ensure_equals("Override custom grid login uri: Grid is added", 
 					  known_grids.size(), 24);		
 		ensure("Override custom grid login uri: login uri is an array",
@@ -347,7 +349,7 @@ namespace tut
 		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();		
 		ensure_equals("Override known grid helper uri: No grids are added", 
 					  known_grids.size(), 23);
-		grid = LLGridManager::getInstance()->getGridInfo();
+		LLGridManager::getInstance()->getGridInfo(grid);
 		ensure("Override known known helper uri: login uri is an array",
 			   grid[GRID_LOGIN_URI_VALUE].isArray());
 		ensure_equals("Override known grid helper uri: login uri is not changed",
@@ -368,7 +370,7 @@ namespace tut
 		known_grids = LLGridManager::getInstance()->getKnownGrids();
 		ensure_equals("Override custom grid helper uri: grids is added", 
 					  known_grids.size(), 24);
-		grid = LLGridManager::getInstance()->getGridInfo();
+		LLGridManager::getInstance()->getGridInfo(grid);
 		ensure("Override custom helper uri: login uri is an array",
 			   grid[GRID_LOGIN_URI_VALUE].isArray());
 		ensure_equals("Override custom grid helper uri: login uri is not changed",
@@ -396,7 +398,7 @@ namespace tut
 		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();				
 		ensure_equals("Override known grid login page: No grids are added", 
 					  known_grids.size(), 23);
-		grid = LLGridManager::getInstance()->getGridInfo();
+		LLGridManager::getInstance()->getGridInfo(grid);
 		ensure("Override known grid login page: Command line grid login uri is an array",
 			   grid[GRID_LOGIN_URI_VALUE].isArray());
 		ensure_equals("Override known grid login page: login uri is not changed",
@@ -417,7 +419,7 @@ namespace tut
 		known_grids = LLGridManager::getInstance()->getKnownGrids();
 		ensure_equals("Override custom grid login page: grids are added", 
 					  known_grids.size(), 24);
-		grid = LLGridManager::getInstance()->getGridInfo();
+		LLGridManager::getInstance()->getGridInfo(grid);
 		ensure("Override custom grid login page: Command line grid login uri is an array",
 			   grid[GRID_LOGIN_URI_VALUE].isArray());
 		ensure_equals("Override custom grid login page: login uri is not changed",
@@ -464,7 +466,7 @@ namespace tut
 		ensure("Is myaddedgrid a production grid", !LLGridManager::getInstance()->isInProductionGrid());
 		
 		LLGridManager::getInstance()->setFavorite();
-		grid = LLGridManager::getInstance()->getGridInfo("myaddedgrid");
+		LLGridManager::getInstance()->getGridInfo("myaddedgrid", grid);
 		ensure("setting favorite", grid.has(GRID_IS_FAVORITE_VALUE));
 	}
 	
@@ -477,7 +479,7 @@ namespace tut
 		// adding a grid with simply a name will populate the values.
 		grid[GRID_VALUE] = "myaddedgrid";
 		LLGridManager::getInstance()->addGrid(grid);
-		grid = LLGridManager::getInstance()->getGridInfo("myaddedgrid");
+		LLGridManager::getInstance()->getGridInfo("myaddedgrid", grid);
 		
 		ensure_equals("name based grid has name value", 
 					  grid[GRID_VALUE].asString(),
