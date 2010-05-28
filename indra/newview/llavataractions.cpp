@@ -81,22 +81,13 @@ void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::strin
 	}
 
 	LLSD args;
-	args["NAME"] = LLSLURL("agent", id, "inspect").getSLURLString();
+	args["NAME"] = LLSLURL("agent", id, "completename").getSLURLString();
 	LLSD payload;
 	payload["id"] = id;
 	payload["name"] = name;
-    // Look for server versions like: Second Life Server 1.24.4.95600
-	if (gLastVersionChannel.find(" 1.24.") != std::string::npos)
-	{
-		// Old and busted server version, doesn't support friend
-		// requests with messages.
-    	LLNotificationsUtil::add("AddFriend", args, payload, &callbackAddFriend);
-	}
-	else
-	{
-    	LLNotificationsUtil::add("AddFriendWithMessage", args, payload, &callbackAddFriendWithMessage);
-	}
-
+    
+	LLNotificationsUtil::add("AddFriendWithMessage", args, payload, &callbackAddFriendWithMessage);
+	
 	// add friend to recent people list
 	LLRecentPeople::instance().add(id);
 }
@@ -715,23 +706,6 @@ bool LLAvatarActions::handleUnfreeze(const LLSD& notification, const LLSD& respo
 		gAgent.sendReliableMessage();
 	}
 	return false;
-}
-// static
-bool LLAvatarActions::callbackAddFriend(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option == 0)
-	{
-		// Servers older than 1.25 require the text of the message to be the
-		// calling card folder ID for the offering user. JC
-		LLUUID calling_card_folder_id = 
-			gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
-		std::string message = calling_card_folder_id.asString();
-		requestFriendship(notification["payload"]["id"].asUUID(), 
-		    notification["payload"]["name"].asString(),
-		    message);
-	}
-    return false;
 }
 
 // static
