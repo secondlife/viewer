@@ -163,6 +163,8 @@ BOOL LLSidepanelAppearance::postBuild()
 	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
 	gInventory.addObserver(mOutfitRenameWatcher);
 
+	setVisibleCallback(boost::bind(&LLSidepanelAppearance::onVisibilityChange,this,_2));
+
 	return TRUE;
 }
 
@@ -199,6 +201,27 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	}
 
 	mOpened = true;
+}
+
+void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
+{
+	if (new_visibility.asBoolean())
+	{
+		if ((mOutfitEdit && mOutfitEdit->getVisible()) || (mEditWearable && mEditWearable->getVisible()))
+		{
+			if (!gAgentCamera.cameraCustomizeAvatar())
+			{
+				gAgentCamera.changeCameraToCustomizeAvatar();
+			}
+		}
+	}
+	else
+	{
+		if (gAgentCamera.cameraCustomizeAvatar())
+		{
+			gAgentCamera.changeCameraToDefault();
+		}
+	}
 }
 
 void LLSidepanelAppearance::onFilterEdit(const std::string& search_string)
