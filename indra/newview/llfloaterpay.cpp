@@ -424,8 +424,6 @@ void LLFloaterPay::payDirectly(money_callback callback,
 	
 void LLFloaterPay::finishPayUI(const LLUUID& target_id, BOOL is_group)
 {
-	// IDEVO
-	//gCacheName->get(target_id, is_group, boost::bind(&LLFloaterPay::onCacheOwnerName, this, _1, _2, _3, _4));
 	std::string slurl;
 	if (is_group)
 	{

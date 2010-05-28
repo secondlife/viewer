@@ -260,6 +260,8 @@ void LLAvatarList::refresh()
 			}
 			else
 			{
+				// *NOTE: If you change the UI to show a different string,
+				// be sure to change the filter code below.
 				addNewItem(buddy_id, 
 					       av_name.mDisplayName.empty() ? waiting_str : av_name.mDisplayName, 
 						   LLAvatarTracker::instance().isBuddyOnline(buddy_id));
@@ -284,10 +286,10 @@ void LLAvatarList::refresh()
 
 		for (std::vector<LLSD>::const_iterator it=cur_values.begin(); it != cur_values.end(); it++)
 		{
-			std::string name;
 			const LLUUID& buddy_id = it->asUUID();
-			have_names &= (bool)gCacheName->getFullName(buddy_id, name);
-			if (!findInsensitive(name, mNameFilter))
+			LLAvatarName av_name;
+			have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
+			if (!findInsensitive(av_name.mDisplayName, mNameFilter))
 			{
 				removeItemByUUID(buddy_id);
 				modified = true;
@@ -339,14 +341,14 @@ bool LLAvatarList::filterHasMatches()
 
 	for (uuid_vec_t::const_iterator it=values.begin(); it != values.end(); it++)
 	{
-		std::string name;
 		const LLUUID& buddy_id = *it;
-		BOOL have_name = gCacheName->getFullName(buddy_id, name);
+		LLAvatarName av_name;
+		bool have_name = LLAvatarNameCache::get(buddy_id, &av_name);
 
 		// If name has not been loaded yet we consider it as a match.
 		// When the name will be loaded the filter will be applied again(in refresh()).
 
-		if (have_name && !findInsensitive(name, mNameFilter))
+		if (have_name && !findInsensitive(av_name.mDisplayName, mNameFilter))
 		{
 			continue;
 		}
