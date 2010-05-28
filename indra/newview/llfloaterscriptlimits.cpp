@@ -730,8 +730,8 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 					if(std::find(names_requested.begin(), names_requested.end(), owner_id) == names_requested.end())
 					{
 						names_requested.push_back(owner_id);
-						gCacheName->get(owner_id, is_group_owned,
-						boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
+						gCacheName->get(owner_id, is_group_owned,  // username
+							boost::bind(&LLPanelScriptLimitsRegionMemory::onNameCache,
 							    this, _1, _2));
 					}
 				}

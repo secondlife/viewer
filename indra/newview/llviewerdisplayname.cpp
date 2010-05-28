@@ -166,9 +166,13 @@ class LLDisplayNameUpdate : public LLHTTPNode
 		LLAvatarName av_name;
 		av_name.fromLLSD( name_data );
 
+		llinfos << "name-update now " << LLDate::now()
+			<< " next_update " << LLDate(av_name.mNextUpdate)
+			<< llendl;
+
 		// Name expiration time may be provided in headers, or we may use a
 		// default value
-		// JAMESDEBUG TODO: get actual headers out of ResponsePtr
+		// *TODO: get actual headers out of ResponsePtr
 		//LLSD headers = response->mHeaders;
 		LLSD headers;
 		av_name.mExpires = 

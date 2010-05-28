@@ -71,7 +71,7 @@ private:
 private:
 	LLUUID		 mObjectID;
 	LLUUID		 mOwnerID;
-	std::string  mOwner;
+	std::string  mOwnerLegacyName;
 	std::string  mSLurl;
 	std::string  mName;
 	bool         mGroupOwned;
@@ -81,7 +81,7 @@ LLInspectRemoteObject::LLInspectRemoteObject(const LLSD& sd) :
 	LLInspect(LLSD()),
 	mObjectID(NULL),
 	mOwnerID(NULL),
-	mOwner(""),
+	mOwnerLegacyName(),
 	mSLurl(""),
 	mName(""),
 	mGroupOwned(false)
@@ -118,10 +118,10 @@ void LLInspectRemoteObject::onOpen(const LLSD& data)
 	mSLurl      = data["slurl"].asString();
 
 	// work out the owner's name
-	mOwner = "";
+	mOwnerLegacyName = "";
 	if (gCacheName)
 	{
-		gCacheName->get(mOwnerID, mGroupOwned,
+		gCacheName->get(mOwnerID, mGroupOwned,  // muting
 			boost::bind(&LLInspectRemoteObject::onNameCache, this, _1, _2, _3));
 	}
 
@@ -142,7 +142,7 @@ void LLInspectRemoteObject::onClickMap()
 void LLInspectRemoteObject::onClickBlock()
 {
 	LLMute::EType mute_type = mGroupOwned ? LLMute::GROUP : LLMute::AGENT;
-	LLMute mute(mOwnerID, mOwner, mute_type);
+	LLMute mute(mOwnerID, mOwnerLegacyName, mute_type);
 	LLMuteList::getInstance()->add(mute);
 	LLPanelBlockedList::showPanelAndSelect(mute.mID);
 	closeFloater();
@@ -155,7 +155,7 @@ void LLInspectRemoteObject::onClickClose()
 
 void LLInspectRemoteObject::onNameCache(const LLUUID& id, const std::string& name, bool is_group)
 {
-	mOwner = name;
+	mOwnerLegacyName = name;
 	update();
 }
 
@@ -166,7 +166,7 @@ void LLInspectRemoteObject::update()
 	getChild<LLUICtrl>("object_name")->setValue("<nolink>" + mName + "</nolink>");
 
 	// show the object's owner - click it to show profile
-	std::string owner = mOwner;
+	std::string owner;
 	if (! mOwnerID.isNull())
 	{
 		if (mGroupOwned)

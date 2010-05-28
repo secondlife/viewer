@@ -390,6 +390,8 @@ void LLPanelMyProfileEdit::onClickSetName()
 		return;		
 	}
 
+	llinfos << "name-change now " << LLDate::now() << " next_update "
+		<< LLDate(av_name.mNextUpdate) << llendl;
 	F64 now_secs = LLDate::now().secondsSinceEpoch();
 	if (now_secs < av_name.mNextUpdate)
 	{
