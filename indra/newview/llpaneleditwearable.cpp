@@ -1095,6 +1095,8 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 	if(panel && (mWearablePtr->getItemID().notNull()))
 	{
 		const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(type);
+		llassert(wearable_entry);
+		if (!wearable_entry) return;
 		U8 num_subparts = wearable_entry->mSubparts.size();
 
 		LLScrollingPanelParam::sUpdateDelayFrames = 0;
