@@ -17,7 +17,7 @@
 			<button label="IM" name="im" width="30" tool_tip="Ouvrir une session IM"/>
 			<button label="Appeler" name="call" width="60" tool_tip="Appeler ce résident"/>
 			<button label="Carte" name="show_on_map_btn" tool_tip="Afficher le résident sur la carte"/>
-			<button label="Téléporter" name="teleport" tool_tip="Proposez une téléportation"/>
+			<button label="Téléporter" name="teleport" tool_tip="Proposer une téléportation"/>
 		</layout_panel>
 	</layout_stack>
 </panel>
