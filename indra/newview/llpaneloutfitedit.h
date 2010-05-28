@@ -59,6 +59,8 @@ class LLToggleableMenu;
 class LLFilterEditor;
 class LLFilteredWearableListManager;
 class LLMenuGL;
+class LLFindNonLinksByMask;
+class LLFindWearablesOfType;
 
 class LLPanelOutfitEdit : public LLPanel
 {
@@ -103,6 +105,8 @@ public:
 	void onOutfitItemSelectionChange(void);
 	void onRemoveFromOutfitClicked(void);
 	void onEditWearableClicked(void);
+	void onAddWearableClicked(void);
+	void onReplaceBodyPartMenuItemClicked(LLUUID selected_item_id);
 
 	void displayCurrentOutfit();
 	void updateCurrentOutfitName();
@@ -129,6 +133,7 @@ private:
 
 	void onGearButtonClick(LLUICtrl* clicked_button);
 	void onGearMenuItemClick(const LLSD& data);
+	void showFilteredWearableItemsList(LLWearableType::EType type);
 
 
 	LLTextBox*			mCurrentOutfitName;
@@ -141,6 +146,10 @@ private:
 	LLButton*			mFolderViewBtn;
 	LLButton*			mListViewBtn;
 	LLToggleableMenu*	mSaveMenu;
+	LLPanel*			mAddWearablesPanel;
+
+	LLFindNonLinksByMask*  mWearableListMaskCollector;
+	LLFindWearablesOfType* mWearableListTypeCollector;
 
 	LLFilteredWearableListManager* 	mWearableListManager;
 	LLInventoryItemsList* 			mWearableItemsList;

@@ -252,6 +252,37 @@ public:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindNonLinksByMask
+//
+//
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindNonLinksByMask : public LLInventoryCollectFunctor
+{
+public:
+	LLFindNonLinksByMask(U64 mask)
+		: mFilterMask(mask)
+	{}
+
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		if(item && !item->getIsLinkType() && (mFilterMask & (1LL << item->getInventoryType())) )
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	void setFilterMask(U64 mask)
+	{
+		mFilterMask = mask;
+	}
+
+private:
+	U64 mFilterMask;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFindWearables
 //
 // Collects wearables based on item type.
@@ -272,8 +303,10 @@ public:
 	LLFindWearablesOfType(LLWearableType::EType type) : mWearableType(type) {}
 	virtual ~LLFindWearablesOfType() {}
 	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	void setType(LLWearableType::EType type);
 
-	const LLWearableType::EType mWearableType;
+private:
+	LLWearableType::EType mWearableType;
 };
 
 /**                    Inventory Collector Functions

@@ -67,6 +67,7 @@
 #include "llsidepanelappearance.h"
 #include "lltoggleablemenu.h"
 #include "llwearablelist.h"
+#include "llwearableitemslist.h"
 
 static LLRegisterPanelClassWrapper<LLPanelOutfitEdit> t_outfit_edit("panel_outfit_edit");
 
@@ -214,7 +215,10 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mCOFObserver(NULL),
 	mGearMenu(NULL),
 	mCOFDragAndDropObserver(NULL),
-	mInitialized(false)
+	mInitialized(false),
+	mAddWearablesPanel(NULL),
+	mWearableListMaskCollector(NULL),
+	mWearableListTypeCollector(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -236,6 +240,9 @@ LLPanelOutfitEdit::~LLPanelOutfitEdit()
 
 	delete mCOFObserver;
 	delete mCOFDragAndDropObserver;
+
+	delete mWearableListMaskCollector;
+	delete mWearableListTypeCollector;
 }
 
 BOOL LLPanelOutfitEdit::postBuild()
@@ -261,6 +268,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onOutfitItemSelectionChange, this));
 
+	mCOFWearables->getCOFCallbacks().mAddWearable = boost::bind(&LLPanelOutfitEdit::onAddWearableClicked, this);
 	mCOFWearables->getCOFCallbacks().mEditWearable = boost::bind(&LLPanelOutfitEdit::onEditWearableClicked, this);
 	mCOFWearables->getCOFCallbacks().mDeleteWearable = boost::bind(&LLPanelOutfitEdit::onRemoveFromOutfitClicked, this);
 	mCOFWearables->getCOFCallbacks().mMoveWearableCloser = boost::bind(&LLPanelOutfitEdit::moveWearable, this, true);
@@ -268,6 +276,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mCOFWearables->childSetAction("add_btn", boost::bind(&LLPanelOutfitEdit::toggleAddWearablesPanel, this));
 
+	mAddWearablesPanel = getChild<LLPanel>("add_wearables_panel");
 
 	mInventoryItemsPanel = getChild<LLInventoryPanel>("inventory_items");
 	mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
@@ -306,9 +315,12 @@ BOOL LLPanelOutfitEdit::postBuild()
 	save_registar.add("Outfit.SaveAsNew.Action", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, true));
 	mSaveMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_save_outfit.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
+	mWearableListMaskCollector = new LLFindNonLinksByMask(ALL_ITEMS_MASK);
+	mWearableListTypeCollector = new LLFindWearablesOfType(LLWearableType::WT_NONE);
+
 	mWearableItemsPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLInventoryItemsList>("filtered_wearables_list");
-	mWearableListManager = new LLFilteredWearableListManager(mWearableItemsList, ALL_ITEMS_MASK);
+	mWearableListManager = new LLFilteredWearableListManager(mWearableItemsList, mWearableListMaskCollector);
 
 	return TRUE;
 }
@@ -334,7 +346,8 @@ void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
 
 void LLPanelOutfitEdit::toggleAddWearablesPanel()
 {
-	childSetVisible("add_wearables_panel", !childIsVisible("add_wearables_panel"));
+	BOOL current_visibility = mAddWearablesPanel->getVisible();
+	mAddWearablesPanel->setVisible(!current_visibility);
 }
 
 void LLPanelOutfitEdit::showWearablesFilter()
@@ -407,7 +420,9 @@ void LLPanelOutfitEdit::onTypeFilterChanged(LLUICtrl* ctrl)
 	{
 		U32 curr_filter_type = type_filter->getCurrentIndex();
 		mInventoryItemsPanel->setFilterTypes(mLookItemTypes[curr_filter_type].inventoryMask);
-		mWearableListManager->setFilterMask(mLookItemTypes[curr_filter_type].inventoryMask);
+
+		mWearableListMaskCollector->setFilterMask(mLookItemTypes[curr_filter_type].inventoryMask);
+		mWearableListManager->setFilterCollector(mWearableListMaskCollector);
 	}
 	
 	mSavedFolderState->setApply(TRUE);
@@ -487,6 +502,25 @@ void LLPanelOutfitEdit::onAddToOutfitClicked(void)
 	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id);
 }
 
+void LLPanelOutfitEdit::onAddWearableClicked(void)
+{
+	LLPanelDummyClothingListItem* item = dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem());
+
+	if(item)
+	{
+		showFilteredWearableItemsList(item->getWearableType());
+	}
+}
+
+void LLPanelOutfitEdit::onReplaceBodyPartMenuItemClicked(LLUUID selected_item_id)
+{
+	LLViewerInventoryItem* item = gInventory.getLinkedItem(selected_item_id);
+
+	if (item && item->getType() == LLAssetType::AT_BODYPART)
+	{
+		showFilteredWearableItemsList(item->getWearableType());
+	}
+}
 
 void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
 {
@@ -720,6 +754,13 @@ void LLPanelOutfitEdit::onGearMenuItemClick(const LLSD& data)
 	{
 		// TODO
 	}
+}
+
+void LLPanelOutfitEdit::showFilteredWearableItemsList(LLWearableType::EType type)
+{
+	mWearableListTypeCollector->setType(type);
+	mWearableListManager->setFilterCollector(mWearableListTypeCollector);
+	mAddWearablesPanel->setVisible(TRUE);
 }
 
 // EOF
