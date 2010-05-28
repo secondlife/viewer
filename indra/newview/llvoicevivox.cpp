@@ -5538,6 +5538,7 @@ LLVivoxVoiceClient::sessionState::sessionState() :
 	mVoiceEnabled(false),
 	mReconnect(false),
 	mVolumeDirty(false),
+	mMuteDirty(false),
 	mParticipantsChanged(false)
 {
 }
