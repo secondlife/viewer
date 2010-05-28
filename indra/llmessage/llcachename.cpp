@@ -530,6 +530,12 @@ std::string LLCacheName::cleanFullName(const std::string& full_name)
 //static 
 std::string LLCacheName::buildUsername(const std::string& full_name)
 {
+	// rare, but handle hard-coded error names returned from server
+	if (full_name == "(\?\?\?) (\?\?\?)")
+	{
+		return "(\?\?\?)";
+	}
+	
 	std::string::size_type index = full_name.find(' ');
 
 	if (index != std::string::npos)
