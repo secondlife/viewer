@@ -559,7 +559,7 @@ std::string LLGridManager::getLoginPage()
 	return mGridList[mGrid][GRID_LOGIN_PAGE_VALUE];
 }
 
-bool LLGridManager::LLGridManager::isInProductionGrid()
+bool LLGridManager::isInProductionGrid()
 {
 	// *NOTE:Mani This used to compare GRID_INFO_AGNI to gGridChoice,
 	// but it seems that loginURI trumps that.
