@@ -823,7 +823,7 @@ void LLFloaterBuyLandUI::updateNames()
 	}
 	else if (parcelp->getIsGroupOwned())
 	{
-		gCacheName->get(parcelp->getGroupID(), true,
+		gCacheName->getGroup(parcelp->getGroupID(),
 			boost::bind(&LLFloaterBuyLandUI::updateGroupName, this,
 				_1, _2, _3));
 	}

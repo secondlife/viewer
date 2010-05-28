@@ -228,13 +228,6 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 
 	childSetValue("show_in_search_checkbox", (BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
 
-	// IDEVO - These fields do not seem to exist any more.
-	//std::string full_name;
-	//BOOL found = gCacheName->getFullName(avatar_data->avatar_id, full_name);
-	//if (found)
-	//{
-	//	childSetTextArg("name_text", "[NAME]", full_name);
-	//}
 	LLAvatarNameCache::get(avatar_data->avatar_id,
 		boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
 }

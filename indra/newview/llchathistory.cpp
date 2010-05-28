@@ -274,7 +274,7 @@ public:
 			user_name->setValue(mFrom);
 			updateMinUserNameWidth();
 		}
-		else
+		else if (mSourceType == CHAT_SOURCE_AGENT)
 		{
 			// ...from a normal user, lookup the name and fill in later,
 			// but start with blank so sample data from XUI XML doesn't
@@ -283,6 +283,13 @@ public:
 			LLAvatarNameCache::get(mAvatarID,
 				boost::bind(&LLChatHistoryHeader::onAvatarNameCache, this, _1, _2));
 		}
+		else {
+			// ...from an object, just use name as given
+			mFrom = chat.mFromName;
+			user_name->setValue(mFrom);
+			updateMinUserNameWidth();
+		}
+
 
 		setTimeField(chat);
 		

@@ -417,7 +417,7 @@ void LLAvatarNameCache::requestNamesViaLegacy()
 		// invoked below.  This should never happen in practice.
 		sPendingQueue[agent_id] = now;
 
-		gCacheName->get(agent_id, false,
+		gCacheName->get(agent_id, false,  // legacy compatibility
 			boost::bind(&LLAvatarNameCache::legacyNameCallback,
 				_1, _2, _3));
 	}
