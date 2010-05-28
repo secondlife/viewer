@@ -38,6 +38,7 @@
 class LLViewerFetchedTexture;
 class LLTextureBar;
 class LLGLTexMemBar;
+class LLAvatarTexBar;
 
 class LLTextureView : public LLContainerView
 {
