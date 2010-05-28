@@ -3183,4 +3183,19 @@ Abuse Report</string>
 	Please check secondlife.com/status to see if there is a known problem with the service.
   </string>
 
+  <!-- overriding datetime formating. 
+	leave emtpy in for current localization this is not needed 
+	list of values should be separated with ':'
+        example:
+	<string name="dateTimeWeekdaysShortNames">
+	Son:Mon:Tue:Wed:Thu:Fri:Sat
+	</string>  	
+  -->
+  <string name="dateTimeWeekdaysNames"></string>
+  <string name="dateTimeWeekdaysShortNames"></string>
+  <string name="dateTimeMonthNames"></string>
+  <string name="dateTimeMonthShortNames"></string>
+  <string name="dateTimeDayFormat"></string>
+  <string name="dateTimeAM"></string>
+  <string name="dateTimePM"></string>
   </strings>
