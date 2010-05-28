@@ -34,6 +34,8 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterscriptlimits.h"
 
+// library includes
+#include "llavatarnamecache.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
 #include "message.h"
@@ -599,7 +601,7 @@ void LLPanelScriptLimitsRegionMemory::setErrorStatus(U32 status, const std::stri
 // callback from the name cache with an owner name to add to the list
 void LLPanelScriptLimitsRegionMemory::onNameCache(
 						 const LLUUID& id,
-						 const std::string& name)
+						 const std::string& full_name)
 {
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("scripts_list");	
 	if(!list)
@@ -607,6 +609,16 @@ void LLPanelScriptLimitsRegionMemory::onNameCache(
 		return;
 	}
 	
+	std::string name;
+	if (LLAvatarNameCache::useDisplayNames())
+	{
+		name = LLCacheName::buildUsername(full_name);
+	}
+	else
+	{
+		name = full_name;
+	}
+
 	std::vector<LLSD>::iterator id_itor;
 	for (id_itor = mObjectListItems.begin(); id_itor != mObjectListItems.end(); ++id_itor)
 	{
@@ -707,7 +719,11 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
 				}
 				else
 				{
-					name_is_cached = gCacheName->getFullName(owner_id, owner_buf);
+					name_is_cached = gCacheName->getFullName(owner_id, owner_buf);  // username
+					if (LLAvatarNameCache::useDisplayNames())
+					{
+						owner_buf = LLCacheName::buildUsername(owner_buf);
+					}
 				}
 				if(!name_is_cached)
 				{
