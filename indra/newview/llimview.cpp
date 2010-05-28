@@ -109,6 +109,20 @@ BOOL LLSessionTimeoutTimer::tick()
 	return TRUE;
 }
 
+static void on_avatar_name_cache_toast(const LLUUID& agent_id,
+									   const LLAvatarName& av_name,
+									   LLSD msg)
+{
+	LLSD args;
+	args["MESSAGE"] = msg["message"];
+	args["TIME"] = msg["time"];
+	// *TODO: Can this ever be an object name or group name?
+	args["FROM"] = av_name.getCompleteName();
+	args["FROM_ID"] = msg["from_id"];
+	args["SESSION_ID"] = msg["session_id"];
+	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::show, msg["session_id"].asUUID()));
+}
+
 void toast_callback(const LLSD& msg){
 	// do not show toast in busy mode or it goes from agent
 	if (gAgent.getBusy() || gAgent.getID() == msg["from_id"])
@@ -136,14 +150,9 @@ void toast_callback(const LLSD& msg){
 		return;
 	}
 
-	LLSD args;
-	args["MESSAGE"] = msg["message"];
-	args["TIME"] = msg["time"];
-	args["FROM"] = msg["from"];
-	args["FROM_ID"] = msg["from_id"];
-	args["SESSION_ID"] = msg["session_id"];
-
-	LLNotificationsUtil::add("IMToast", args, LLSD(), boost::bind(&LLIMFloater::show, msg["session_id"].asUUID()));
+	LLAvatarNameCache::get(msg["from_id"].asUUID(),
+		boost::bind(&on_avatar_name_cache_toast,
+			_1, _2, msg));
 }
 
 void LLIMModel::setActiveSessionID(const LLUUID& session_id)
