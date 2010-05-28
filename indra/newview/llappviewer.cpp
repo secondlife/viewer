@@ -607,9 +607,6 @@ bool LLAppViewer::init()
 	logdir += gDirUtilp->getDirDelimiter();
 	setMiniDumpDir(logdir);
 
-	// remove any old minidump files from the log directory
-	gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
-
 	// Although initLogging() is the right place to mess with
 	// setFatalFunction(), we can't query gSavedSettings until after
 	// initConfiguration().
@@ -1233,6 +1230,14 @@ bool LLAppViewer::cleanup()
 {
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
+
+	// remove any old breakpad minidump files from the log directory
+	if (! isError())
+	{
+		std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+		logdir += gDirUtilp->getDirDelimiter();
+		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
+	}
 
 	// *TODO - generalize this and move DSO wrangling to a helper class -brad
 	std::set<struct apr_dso_handle_t *>::const_iterator i;
