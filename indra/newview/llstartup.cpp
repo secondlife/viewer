@@ -385,13 +385,22 @@ bool idle_startup()
 		{
 			LLNotificationsUtil::add("DisplaySetToRecommended");
 		}
+		else if ((gSavedSettings.getS32("LastGPUClass") != LLFeatureManager::getInstance()->getGPUClass()) &&
+				 (gSavedSettings.getS32("LastGPUClass") != -1))
+		{
+			LLNotificationsUtil::add("DisplaySetToRecommended");
+		}
 		else if (!gViewerWindow->getInitAlert().empty())
 		{
 			LLNotificationsUtil::add(gViewerWindow->getInitAlert());
 		}
 			
 		gSavedSettings.setS32("LastFeatureVersion", LLFeatureManager::getInstance()->getVersion());
+		gSavedSettings.setS32("LastGPUClass", LLFeatureManager::getInstance()->getGPUClass());
 
+		// load dynamic GPU/feature tables from website (S3)
+		LLFeatureManager::getInstance()->fetchHTTPTables();
+		
 		std::string xml_file = LLUI::locateSkin("xui_version.xml");
 		LLXMLNodePtr root;
 		bool xml_ok = false;
