@@ -4161,6 +4161,17 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+    <key>LastGPUClass</key>
+    <map>
+      <key>Comment</key>
+      <string>[DO NOT MODIFY] previous GPU class for tracking hardware changes</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
     <key>LastFeatureVersion</key>
     <map>
       <key>Comment</key>
