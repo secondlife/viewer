@@ -541,7 +541,7 @@ LLBasicCertificateVector::iterator LLBasicCertificateVector::find(const LLSD& pa
 // Insert a certificate into the store.  If the certificate already 
 // exists in the store, nothing is done.
 void  LLBasicCertificateVector::insert(iterator _iter, 
-									   LLPointer<LLCertificate> cert)
+				       LLPointer<LLCertificate> cert)
 {
 	LLSD cert_info = cert->getLLSD();
 	if (cert_info.isMap() && cert_info.has(CERT_SHA1_DIGEST))
@@ -551,7 +551,11 @@ void  LLBasicCertificateVector::insert(iterator _iter,
 		if(find(existing_cert_info) == end())
 		{
 			BasicIteratorImpl *basic_iter = dynamic_cast<BasicIteratorImpl*>(_iter.mImpl.get());
-			mCerts.insert(basic_iter->mIter, cert);
+			llassert(basic_iter);
+			if (basic_iter)
+			{
+				mCerts.insert(basic_iter->mIter, cert);
+			}
 		}
 	}
 }
