@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Modifier la préférence" name="panel_edit_pick">
+<panel label="Modifier le favori" name="panel_edit_pick">
 	<panel.string name="location_notice">
 		(mise à jour après enregistrement)
 	</panel.string>
 	<text name="title">
-		Modifier la préférence
+		Modifier le favori
 	</text>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">

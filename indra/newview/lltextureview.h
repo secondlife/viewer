@@ -38,11 +38,13 @@
 class LLViewerFetchedTexture;
 class LLTextureBar;
 class LLGLTexMemBar;
+class LLAvatarTexBar;
 
 class LLTextureView : public LLContainerView
 {
 	friend class LLTextureBar;
 	friend class LLGLTexMemBar;
+	friend class LLAvatarTexBar;
 protected:
 	LLTextureView(const Params&);
 	friend class LLUICtrlFactory;
@@ -73,7 +75,7 @@ private:
 	U32 mNumTextureBars;
 
 	LLGLTexMemBar* mGLTexMemBar;
-	
+	LLAvatarTexBar* mAvatarTexBar;
 public:
 	static std::set<LLViewerFetchedTexture*> sDebugImages;
 };
