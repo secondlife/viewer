@@ -116,6 +116,8 @@ public:
 		virtual bool equals(const LLPointer<iterator_impl>& _iter) const
 		{
 			const BasicIteratorImpl *rhs_iter = dynamic_cast<const BasicIteratorImpl *>(_iter.get());
+			llassert(rhs_iter);
+			if (!rhs_iter) return 0;
 			return (mIter == rhs_iter->mIter);
 		}
 		virtual LLPointer<LLCertificate> get()
