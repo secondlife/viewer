@@ -1792,10 +1792,16 @@ struct WearablesOrderComparator
 	U32 mControlSize;
 };
 
-void LLAppearanceMgr::updateClothingOrderingInfo()
+void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id)
 {
+	if (cat_id.isNull())
+	{
+		cat_id = getCOF();
+	}
+
+	// COF is processed if cat_id is not specified
 	LLInventoryModel::item_array_t wear_items;
-	getDescendentsOfAssetType(getCOF(), wear_items, LLAssetType::AT_CLOTHING, false);
+	getDescendentsOfAssetType(cat_id, wear_items, LLAssetType::AT_CLOTHING, false);
 
 	wearables_by_type_t items_by_type(LLWearableType::WT_COUNT);
 	divvyWearablesByType(wear_items, items_by_type);
