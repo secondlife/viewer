@@ -34,10 +34,10 @@
 
 #include "llaccordionctrltab.h"
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llcommandhandler.h"
-#include "llfloatercustomize.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -1362,16 +1362,13 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
 	llinfos << "wearInventoryCategoryOnAvatar( " << category->getName()
 			 << " )" << llendl;
 			 	
-	if( gFloaterCustomize )
+	if (gAgentCamera.cameraCustomizeAvatar())
 	{
-		gFloaterCustomize->askToSaveIfDirty(boost::bind(&LLAppearanceMgr::changeOutfit,
-														&LLAppearanceMgr::instance(),
-														_1, category->getUUID(), append));
+		// switching to outfit editor should automagically save any currently edited wearable
+		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
 	}
-	else
-	{
-		LLAppearanceMgr::changeOutfit(TRUE, category->getUUID(), append);
-	}
+
+	LLAppearanceMgr::changeOutfit(TRUE, category->getUUID(), append);
 }
 
 void LLAppearanceMgr::wearOutfitByName(const std::string& name)

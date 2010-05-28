@@ -278,6 +278,9 @@ with the same filename but different name
 
   <texture name="menu_separator" file_name="navbar/FileMenu_Divider.png" scale.left="4" scale.top="166" scale.right="0" scale.bottom="0" />
 
+  <texture name="MouseLook_View_Off" file_name="bottomtray/MouseLook_view_off.png" preload="false" />
+  <texture name="MouseLook_View_On" file_name="bottomtray/MouseLook_view_on.png" preload="false" />
+
   <texture name="Move_Fly_Off" file_name="bottomtray/Move_Fly_Off.png" preload="false" />
   <texture name="Move_Run_Off" file_name="bottomtray/Move_Run_Off.png" preload="false" />
   <texture name="Move_Walk_Off" file_name="bottomtray/Move_Walk_Off.png" preload="false" />
@@ -338,10 +341,14 @@ with the same filename but different name
   <texture name="Object_Tube" file_name="build/Object_Tube.png" preload="false" />
   <texture name="Object_Tube_Selected" file_name="build/Object_Tube_Selected.png" preload="false" />
 
+  <texture name="Object_View_Off" file_name="bottomtray/Object_View_Off.png" preload="false" />
+  <texture name="Object_View_On" file_name="bottomtray/Object_View_On.png" preload="false" />
+
   <texture name="OptionsMenu_Disabled" file_name="icons/OptionsMenu_Disabled.png" preload="false" />
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
   <texture name="OptionsMenu_Press" file_name="icons/OptionsMenu_Press.png" preload="false" />
 
+  <texture name="PanOrbit_Off" file_name="bottomtray/PanOrbit_Off.png" preload="false" />
 
   <texture name="Parcel_Exp_Color" file_name="icons/Parcel_Exp_Color.png" preload="false" />
 
@@ -446,6 +453,7 @@ with the same filename but different name
   <texture name="SegmentedBtn_Right_Selected_Disabled" file_name="widgets/SegmentedBtn_Right_Selected_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
 
   <texture name="Shirt_Large" file_name="icons/Shirt_Large.png" preload="false" />
+  <texture name="Shop" file_name="icons/Shop.png" preload="false" />
 
   <texture name="SkipBackward_Off" file_name="icons/SkipBackward_Off.png" preload="false" />
   <texture name="SkipForward_Off" file_name="icons/SkipForward_Off.png" preload="false" />
