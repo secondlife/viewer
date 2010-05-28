@@ -602,6 +602,14 @@ bool LLAppViewer::init()
 	if (!initConfiguration())
 		return false;
 
+	// write Google Breakpad minidump files to our log directory
+	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+	logdir += gDirUtilp->getDirDelimiter();
+	setMiniDumpDir(logdir);
+
+	// remove any old minidump files from the log directory
+	gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
+
 	// Although initLogging() is the right place to mess with
 	// setFatalFunction(), we can't query gSavedSettings until after
 	// initConfiguration().
@@ -2574,9 +2582,10 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
 
-	if(pApp->minidump_path[0] != 0)
+	char *minidump_file = pApp->getMiniDumpFilename();
+	if(minidump_file && minidump_file[0] != 0)
 	{
-		gDebugInfo["MinidumpPath"] = pApp->minidump_path;
+		gDebugInfo["MinidumpPath"] = minidump_file;
 	}
 	
 	if(gLogoutInProgress)

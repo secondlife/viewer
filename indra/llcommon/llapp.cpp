@@ -140,6 +140,8 @@ void LLApp::commonCtor()
 	
 	mExceptionHandler = 0;
 	
+	// initialize the buffer to write the minidump filename to
+	// (this is used to avoid allocating memory in the crash handler)
 	memset(minidump_path, 0, MAX_MINDUMP_PATH_LENGTH);
 }
 
@@ -359,8 +361,15 @@ void LLApp::setError()
 	setStatus(APP_STATUS_ERROR);
 }
 
+void LLApp::setMiniDumpDir(const std::string &path)
+{
+	llassert(mExceptionHandler);
+	mExceptionHandler->set_dump_path(path);
+}
+
 void LLApp::writeMiniDump()
 {
+	llassert(mExceptionHandler);
 	mExceptionHandler->WriteMinidump();
 }
 
@@ -786,17 +795,25 @@ bool unix_post_minidump_callback(const char *dump_dir,
 	// The path must not be truncated.
 	llassert((dirPathLength + idLength + 5) <= LLApp::MAX_MINDUMP_PATH_LENGTH);
 	
-	char * path = LLApp::instance()->minidump_path;
+	char * path = LLApp::instance()->getMiniDumpFilename();
 	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
 	strncpy(path, dump_dir, remaining);
 	remaining -= dirPathLength;
 	path += dirPathLength;
-	strncpy(path, minidump_id, remaining);
-	remaining -= idLength;
-	path += idLength;
-	strncpy(path, ".dmp", remaining);
+	if (remaining > 0 && dirPathLength > 0 && path[-1] != '/')
+	{
+		*path++ = '/';
+		--remaining;
+	}
+	if (remaining > 0)
+	{
+		strncpy(path, minidump_id, remaining);
+		remaining -= idLength;
+		path += idLength;
+		strncpy(path, ".dmp", remaining);
+	}
 	
-	llinfos << "generated minidump: " << LLApp::instance()->minidump_path << llendl;
+	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
 	LLApp::runErrorHandler();
 	return true;
 }
@@ -810,13 +827,18 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 									MDRawAssertionInfo* assertion,
 									bool succeeded)
 {
-	char * path = LLApp::instance()->minidump_path;
+	char * path = LLApp::instance()->getMiniDumpFilename();
 	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
 	size_t bytesUsed;
 
 	bytesUsed = wcstombs(path, dump_path, static_cast<size_t>(remaining));
 	remaining -= bytesUsed;
 	path += bytesUsed;
+	if(remaining > 0 && bytesUsed > 0 && path[-1] != '\\')
+	{
+		*path++ = '\\';
+		--remaining;
+	}
 	if(remaining > 0)
 	{
 		bytesUsed = wcstombs(path, minidump_id, static_cast<size_t>(remaining));
@@ -828,7 +850,7 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 		strncpy(path, ".dmp", remaining);
 	}
 
-	llinfos << "generated minidump: " << LLApp::instance()->minidump_path << llendl;
+	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
     // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
 	//OSMessageBox("Attach Debugger Now", "Error", OSMB_OK);
     // *TODO: Translate the signals/exceptions into cross-platform stuff

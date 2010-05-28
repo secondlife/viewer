@@ -234,9 +234,16 @@ public:
 	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
 	//@}
 	
-	//
+	// the maximum length of the minidump filename returned by getMiniDumpFilename()
+	static const U32 MAX_MINDUMP_PATH_LENGTH = 256;
+
+	// change the directory where Breakpad minidump files are written to
+	void setMiniDumpDir(const std::string &path);
+
+	// Return the Google Breakpad minidump filename after a crash.
+	char *getMiniDumpFilename() { return minidump_path; }
+
 	// Write out a Google Breakpad minidump file.
-	//
 	void writeMiniDump();
 
 #if !LL_WINDOWS
@@ -274,9 +281,6 @@ public:
 	typedef std::map<std::string, std::string> string_map;
 	string_map mOptionMap;	// Contains all command-line options and arguments in a map
 
-	// Contains the path to minidump file after a crash.
-	static const U32 MAX_MINDUMP_PATH_LENGTH = 256;
-	char minidump_path[MAX_MINDUMP_PATH_LENGTH];
 protected:
 
 	static void setStatus(EAppStatus status);		// Use this to change the application status.
@@ -298,6 +302,8 @@ protected:
 private:
 	void startErrorThread();
 	
+	// Contains the filename of the minidump file after a crash.
+	char minidump_path[MAX_MINDUMP_PATH_LENGTH];
 
 	// *NOTE: On Windows, we need a routine to reset the structured
 	// exception handler when some evil driver has taken it over for
