@@ -9,7 +9,7 @@
  width="380">
     <icon
      follows="top|right|left"
-     height="20"
+     height="23"
      image_name="ListItem_Over"
      layout="topleft"
      left="0"
@@ -18,7 +18,7 @@
      visible="false"
      width="380" />
     <icon
-     height="20"
+     height="23"
      follows="top|right|left"
      image_name="ListItem_Select"
      layout="topleft"
@@ -66,8 +66,8 @@
      image_overlay="UpArrow_Off"
      top="0"
      left="0"
-     height="20"
-     width="20"
+     height="23"
+     width="23"
      tab_stop="false" />
     <button 
      name="btn_move_down"
@@ -76,18 +76,31 @@
      image_overlay="DownArrow_Off"
      top="0"
      left_pad="3"
-     height="20"
-     width="20"
+     height="23"
+     width="23"
      tab_stop="false" />
-    <icon
+    <panel
+     background_visible="false"
      name="btn_lock"
      layout="topleft"
      follows="top|right"
      image_name="Locked_Icon"
-     top="2"
-     left_pad="1"
-     height="13"
-     width="9" />
+     top="0"
+     left="0"
+     height="23"
+     width="23"
+     tab_stop="false">
+        <icon 
+         name="btn_lock1"
+         layout="topleft"
+         follows="top|right"
+         image_name="Locked_Icon"
+         top="2"
+         left="5"
+         height="13"
+         width="9"
+         tab_stop="false" />
+    </panel>
     <button 
      name="btn_edit"
      layout="topleft"
@@ -95,8 +108,8 @@
      image_overlay="Edit_Wrench"
      top="0"
      left_pad="3"
-     height="20"
-     width="20"
+     height="23"
+     width="23"
      tab_stop="false" />
     <panel
      background_visible="true"
