@@ -138,21 +138,22 @@ void LLTexLayerSetBuffer::requestUpdate()
 
 void LLTexLayerSetBuffer::requestUpload()
 {
-	// New upload request
-	if (!mNeedsUpload)
+	// If we requested a new upload but haven't even uploaded
+	// a low res version of our last upload request, then
+	// keep the timer ticking instead of resetting it.
+	if (mNeedsUpload && mNeedsLowResUpload)
 	{
-		mNeedsUploadTimer.start();
+		mNeedsUploadTimer.reset();
 	}
-
 	mNeedsUpload = TRUE;
 	mNeedsLowResUpload = TRUE;
 	mUploadPending = TRUE;
+	mNeedsUploadTimer.unpause();
 }
 
 void LLTexLayerSetBuffer::cancelUpload()
 {
 	mNeedsUpload = FALSE;
-	mNeedsLowResUpload = FALSE;
 	mUploadPending = FALSE;
 	mNeedsUploadTimer.pause();
 }
@@ -254,7 +255,6 @@ BOOL LLTexLayerSetBuffer::render()
 			{
 				mUploadPending = FALSE;
 				mNeedsUpload = FALSE;
-				mNeedsLowResUpload = FALSE;
 				mNeedsUploadTimer.pause();
 				mTexLayerSet->getAvatar()->setNewBakedTexture(mTexLayerSet->getBakedTexIndex(),IMG_INVISIBLE);
 			}
@@ -286,12 +286,13 @@ BOOL LLTexLayerSetBuffer::isReadyToUpload() const
 	const BOOL can_highest_lod = mTexLayerSet->isLocalTextureDataFinal();
 	if (can_highest_lod) return TRUE;
 
-	if (gSavedSettings.getBOOL("AvatarUseBakedTextureTimeout"))
+	const U32 texture_timeout = gSavedSettings.getU32("AvatarBakedTextureTimeout");
+	if (texture_timeout)
 	{
 		// If we hit our timeout and have textures available at even lower resolution, then upload.
-		const BOOL is_upload_textures_timeout = isUploadTimeout();
-		const BOOL can_lower_lod = mTexLayerSet->isLocalTextureDataAvailable();
-		if (can_lower_lod && is_upload_textures_timeout && mNeedsLowResUpload) return TRUE; 
+		const BOOL is_upload_textures_timeout = mNeedsUploadTimer.getElapsedTimeF32() >= texture_timeout;
+		const BOOL has_lower_lod = mTexLayerSet->isLocalTextureDataAvailable();
+		if (has_lower_lod && is_upload_textures_timeout && mNeedsLowResUpload) return TRUE; 
 	}
 	return FALSE;
 }
@@ -437,7 +438,9 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 					mNeedsUploadTimer.pause();
 				}
 				else
+				{
 					mNeedsLowResUpload = FALSE;
+				}
 			}
 			else
 			{
@@ -2225,14 +2228,6 @@ BOOL LLTexLayerStaticImageList::loadImageRaw(const std::string& file_name, LLIma
 	}
 
 	return success;
-}
-
-BOOL LLTexLayerSetBuffer::isUploadTimeout() const
-{
-	//const F32 BAKED_TEXTURES_TIMEOUT_THRESHOLD__SECONDS = 20.f;
-	const F32 UPLOAD_TEXTURES_TIMEOUT_THRESHOLD__SECONDS = 5.f; // SERAPH Reduced timeout for testing.
-
-	return (mNeedsUploadTimer.getElapsedTimeF32() >= UPLOAD_TEXTURES_TIMEOUT_THRESHOLD__SECONDS);
 }
 
 const std::string LLTexLayerSetBuffer::dumpTextureInfo() const

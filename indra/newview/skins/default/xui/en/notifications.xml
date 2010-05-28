@@ -6130,15 +6130,24 @@ Deed to group failed.
    name="AvatarRezNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-Avatar '[NAME]' declouded in [TIME] seconds.
+Avatar '[NAME]' declouded after [TIME] seconds.
   </notification>
 
   <notification
    icon="notifytip.tga"
-   name="AvatarRezSelfNotification"
+   name="AvatarRezSelfBakedDoneNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-You finished baking your outfit in [TIME] seconds.
+You finished baking your outfit after [TIME] seconds.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfBakedUpdateNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You sent out an update of your appearance after [TIME] seconds.
+[STATUS]
   </notification>
 
 
