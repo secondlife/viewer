@@ -2241,7 +2241,7 @@ const std::string LLTexLayerSetBuffer::dumpTextureInfo() const
 
 	const BOOL is_high_res = !mNeedsUpload;
 	const BOOL is_low_res = !mNeedsLowResUpload;
-	const U32 upload_time = mNeedsUploadTimer.getElapsedTimeF32();
+	const U32 upload_time = (U32)mNeedsUploadTimer.getElapsedTimeF32();
 	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(mTexLayerSet);
 	std::string text = llformat("[ HiRes:%d LoRes:%d Timer:%d ] %s",
 								is_high_res, is_low_res, upload_time, 
