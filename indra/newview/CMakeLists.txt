@@ -275,6 +275,7 @@ set(viewer_SOURCE_FILES
     lllogchat.cpp
     llloginhandler.cpp
     lllogininstance.cpp
+    llmachineid.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -792,6 +793,7 @@ set(viewer_HEADER_FILES
     lllogchat.h
     llloginhandler.h
     lllogininstance.h
+    llmachineid.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -1841,7 +1843,7 @@ if (LL_TESTS)
   )
 
     LL_ADD_INTEGRATION_TEST(llsechandler_basic
-     llsechandler_basic.cpp
+    llsechandler_basic.cpp
     "${test_libs}"
     )
 

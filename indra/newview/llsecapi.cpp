@@ -124,7 +124,7 @@ int secapiSSLCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
 		// we rely on libcurl to validate the hostname, as libcurl does more extensive validation
 		// leaving our hostname validation call mechanism for future additions with respect to
 		// OS native (Mac keyring, windows CAPI) validation.
-		chain->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), store, validation_params);
+		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
 	}
 	catch (LLCertValidationTrustException& cert_exception)
 	{

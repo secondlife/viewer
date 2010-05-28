@@ -36,6 +36,7 @@
 
 // *TODO: reorder includes to match the coding standard
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llcofwearables.h"
