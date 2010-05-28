@@ -2024,7 +2024,8 @@ static std::string clean_name_from_im(const std::string& name, EInstantMessage t
 	}
 }
 
-static std::string clean_name_from_task_im(const std::string& msg)
+static std::string clean_name_from_task_im(const std::string& msg,
+										   BOOL from_group)
 {
 	boost::smatch match;
 	static const boost::regex returned_exp(
@@ -2034,7 +2035,20 @@ static std::string clean_name_from_task_im(const std::string& msg)
 		// match objects are 1-based for groups
 		std::string final = match[1].str();
 		std::string name = match[2].str();
-		final += LLCacheName::cleanFullName(name);
+		// Don't try to clean up group names
+		if (!from_group)
+		{
+			if (LLAvatarNameCache::useDisplayNames())
+			{
+				// ...just convert to username
+				final += LLCacheName::buildUsername(name);
+			}
+			else
+			{
+				// ...strip out legacy "Resident" name
+				final += LLCacheName::cleanFullName(name);
+			}
+		}
 		final += match[3].str();
 		return final;
 	}
@@ -2593,7 +2607,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 
 			// IDEVO Some messages have embedded resident names
-			message = clean_name_from_task_im(message);
+			message = clean_name_from_task_im(message, from_group);
 
 			LLSD query_string;
 			query_string["owner"] = from_id;
