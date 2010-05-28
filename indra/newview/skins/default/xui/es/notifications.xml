@@ -2658,7 +2658,7 @@ El avatar &apos;[NAME]&apos; tardó [TIME] segundos en dejar de aparecer como nu
 	</notification>
 	<notification name="AvatarRezSelfNotification">
 		( [EXISTENCE] segundos vivo)
-Has terminado de predeterminar tu vestuario en [TIME] segundos.
+Has terminado de texturizar tu vestuario en [TIME] segundos.
 	</notification>
 	<notification name="AvatarRezCloudNotification">
 		( [EXISTENCE] segundos vivo)

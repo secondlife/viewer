@@ -388,7 +388,7 @@ void LLInventoryItemsList::refresh()
 	computeDifference(getIDs(), added_items, removed_items);
 
 	bool add_limit_exceeded = false;
-	unsigned nadded = 0;
+	unsigned int nadded = 0;
 
 	uuid_vec_t::const_iterator it = added_items.begin();
 	for( ; added_items.end() != it; ++it)
@@ -400,8 +400,12 @@ void LLInventoryItemsList::refresh()
 		}
 		LLViewerInventoryItem* item = gInventory.getItem(*it);
 		// Do not rearrange items on each adding, let's do that on filter call
-		addNewItem(item, false);
-		++nadded;
+		llassert(item);
+		if (item)
+		{
+			addNewItem(item, false);
+			++nadded;
+		}
 	}
 
 	it = removed_items.begin();

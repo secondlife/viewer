@@ -6,7 +6,7 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="label">
-				Texturas predeterminadas
+				Texturas obtenidas mediante bake
 			</text>
 			<text name="composite_label">
 				Texturas compuestas
