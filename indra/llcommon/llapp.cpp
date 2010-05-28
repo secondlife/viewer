@@ -366,7 +366,9 @@ void LLApp::setMiniDumpDir(const std::string &path)
 {
 	llassert(mExceptionHandler);
 #ifdef LL_WINDOWS
-	mExceptionHandler->set_dump_path(utf8str_to_wstring(path));
+	wchar_t buffer[MAX_MINDUMP_PATH_LENGTH];
+	mbstowcs(buffer, path.c_str(), MAX_MINDUMP_PATH_LENGTH);
+	mExceptionHandler->set_dump_path(std::wstring(buffer));
 #else
 	mExceptionHandler->set_dump_path(path);
 #endif
