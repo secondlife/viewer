@@ -13,7 +13,7 @@
 				合成
 テクスチャ
 			</text>
-			<button label="テクスチャ ID 一覧をコンソールに書き込む" label_selected="ダンプ" name="Dump"/>
+			<button label="ID をコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
 			<panel name="scroll_content_panel">
 				<texture_picker label="髪" name="hair-baked"/>
 				<texture_picker label="髪" name="hair_grain"/>

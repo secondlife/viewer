@@ -18,7 +18,7 @@
 	<text left_delta="70" name="region_type">
 		不明
 	</text>
-	<check_box label="土地整備をブロック" name="block_terraform_check"/>
+	<check_box label="地形編集をブロック" name="block_terraform_check"/>
 	<check_box label="飛行をブロック" name="block_fly_check"/>
 	<check_box label="ダメージを許可" name="allow_damage_check"/>
 	<check_box label="プッシュを制限" name="restrict_pushobject"/>
