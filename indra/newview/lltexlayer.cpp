@@ -1092,7 +1092,7 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 			}
 			if (mLocalTexture == TEX_NUM_INDICES)
 			{
-				llwarns << "<texture> element has invalid local_texure attribute: " << mName << " " << local_texture_name << llendl;
+				llwarns << "<texture> element has invalid local_texture attribute: " << mName << " " << local_texture_name << llendl;
 				return FALSE;
 			}
 		}
