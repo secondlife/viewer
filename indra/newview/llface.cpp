@@ -1073,8 +1073,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		mVertexBuffer->getColorStrider(colors, mGeomIndex);
 	}
 
-	F32 r = 0, os = 0, ot = 0, ms = 0, mt = 0, cos_ang = 0, sin_ang = 0;
-	
 	BOOL is_static = mDrawablep->isStatic();
 	BOOL is_global = is_static;
 
@@ -1087,57 +1085,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	else
 	{
 		clearState(GLOBAL);
-	}
-
-	LLVector2 tmin, tmax;
-	
-	if (rebuild_tcoord)
-	{
-		if (tep)
-		{
-			r  = tep->getRotation();
-			os = tep->mOffsetS;
-			ot = tep->mOffsetT;
-			ms = tep->mScaleS;
-			mt = tep->mScaleT;
-			cos_ang = cos(r);
-			sin_ang = sin(r);
-		}
-		else
-		{
-			cos_ang = 1.0f;
-			sin_ang = 0.0f;
-			os = 0.0f;
-			ot = 0.0f;
-			ms = 1.0f;
-			mt = 1.0f;
-		}
-	}
-
-	U8 tex_mode = 0;
-	
-	if (isState(TEXTURE_ANIM))
-	{
-		LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
-		tex_mode = vobj->mTexAnimMode;
-
-		if (!tex_mode)
-		{
-			clearState(TEXTURE_ANIM);
-		}
-		else
-		{
-			os = ot = 0.f;
-			r = 0.f;
-			cos_ang = 1.f;
-			sin_ang = 0.f;
-			ms = mt = 1.f;
-		}
-
-		if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
-		{ //don't override texture transform during tc bake
-			tex_mode = 0;
-		}
 	}
 
 	LLColor4U color = tep->getColor();
@@ -1183,72 +1130,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 	
-	
-	//bump setup
-	LLVector4a binormal_dir( -sin_ang, cos_ang, 0.f );
-	LLVector4a bump_s_primary_light_ray(0.f, 0.f, 0.f);
-	LLVector4a bump_t_primary_light_ray(0.f, 0.f, 0.f);
-
-	LLQuaternion bump_quat;
-	if (mDrawablep->isActive())
-	{
-		bump_quat = LLQuaternion(mDrawablep->getRenderMatrix());
-	}
-	
-	if (bump_code)
-	{
-		mVObjp->getVolume()->genBinormals(f);
-		F32 offset_multiple; 
-		switch( bump_code )
-		{
-			case BE_NO_BUMP:
-			offset_multiple = 0.f;
-			break;
-			case BE_BRIGHTNESS:
-			case BE_DARKNESS:
-			if( mTexture.notNull() && mTexture->hasGLTexture())
-			{
-				// Offset by approximately one texel
-				S32 cur_discard = mTexture->getDiscardLevel();
-				S32 max_size = llmax( mTexture->getWidth(), mTexture->getHeight() );
-				max_size <<= cur_discard;
-				const F32 ARTIFICIAL_OFFSET = 2.f;
-				offset_multiple = ARTIFICIAL_OFFSET / (F32)max_size;
-			}
-			else
-			{
-				offset_multiple = 1.f/256;
-			}
-			break;
-
-			default:  // Standard bumpmap textures.  Assumed to be 256x256
-			offset_multiple = 1.f / 256;
-			break;
-		}
-
-		F32 s_scale = 1.f;
-		F32 t_scale = 1.f;
-		if( tep )
-		{
-			tep->getScale( &s_scale, &t_scale );
-		}
-		// Use the nudged south when coming from above sun angle, such
-		// that emboss mapping always shows up on the upward faces of cubes when 
-		// it's noon (since a lot of builders build with the sun forced to noon).
-		LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
-		LLVector3   moon_ray = gSky.getMoonDirection();
-		LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
-
-		bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
-		bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
-	}
-		
-	U8 texgen = getTextureEntry()->getTexGen();
-	if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
-	{ //planar texgen needs binormals
-		mVObjp->getVolume()->genBinormals(f);
-	}
-
 	LLMatrix4a mat_normal;
 	mat_normal.loadu(mat_norm_in);
 	
@@ -1256,169 +1137,375 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	//bool bake_sunlight = !getTextureEntry()->getFullbright() &&
 	//  !mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL);
 
+	F32 r = 0, os = 0, ot = 0, ms = 0, mt = 0, cos_ang = 0, sin_ang = 0;
+
 	if (rebuild_tcoord)
 	{
-		LLVector4a scalea;
-		scalea.load3(scale.mV);
-
-
-		for (S32 i = 0; i < num_vertices; i++)
-		{	
-			LLVector2 tc(vf.mTexCoords[i]);
-		
-			LLVector4a& norm = vf.mNormals[i];
+		bool do_xform;
 			
-			LLVector4a& center = *(vf.mCenter);
+		if (tep)
+		{
+			r  = tep->getRotation();
+			os = tep->mOffsetS;
+			ot = tep->mOffsetT;
+			ms = tep->mScaleS;
+			mt = tep->mScaleT;
+			cos_ang = cos(r);
+			sin_ang = sin(r);
 
-			if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+			if (cos_ang != 1.f || 
+				sin_ang != 0.f ||
+				os != 0.f ||
+				ot != 0.f ||
+				ms != 1.f ||
+				mt != 1.f)
 			{
-				LLVector4a vec = vf.mPositions[i];
-			
-				vec.mul(scalea);
-
-				switch (texgen)
-				{
-					case LLTextureEntry::TEX_GEN_PLANAR:
-						planarProjection(tc, norm, center, vec);
-						break;
-					case LLTextureEntry::TEX_GEN_SPHERICAL:
-						sphericalProjection(tc, norm, center, vec);
-						break;
-					case LLTextureEntry::TEX_GEN_CYLINDRICAL:
-						cylindricalProjection(tc, norm, center, vec);
-						break;
-					default:
-						break;
-				}		
-			}
-
-			if (tex_mode && mTextureMatrix)
-			{
-				LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-				tmp = tmp * *mTextureMatrix;
-				tc.mV[0] = tmp.mV[0];
-				tc.mV[1] = tmp.mV[1];
+				do_xform = true;
 			}
 			else
 			{
-				xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
-			}
-
-			if(in_atlas)
-			{
-				//
-				//manually calculate tex-coord per vertex for varying address modes.
-				//should be removed if shader can handle this.
-				//
-
-				S32 int_part = 0 ;
-				switch(mTexture->getAddressMode())
-				{
-				case LLTexUnit::TAM_CLAMP:
-					if(tc.mV[0] < 0.f)
-					{
-						tc.mV[0] = 0.f ;
-					}
-					else if(tc.mV[0] > 1.f)
-					{
-						tc.mV[0] = 1.f;
-					}
-
-					if(tc.mV[1] < 0.f)
-					{
-						tc.mV[1] = 0.f ;
-					}
-					else if(tc.mV[1] > 1.f)
-					{
-						tc.mV[1] = 1.f;
-					}
-					break;
-				case LLTexUnit::TAM_MIRROR:
-					if(tc.mV[0] < 0.f)
-					{
-						tc.mV[0] = -tc.mV[0] ;
-					}
-					int_part = (S32)tc.mV[0] ;
-					if(int_part & 1) //odd number
-					{
-						tc.mV[0] = int_part + 1 - tc.mV[0] ;
-					}
-					else //even number
-					{
-						tc.mV[0] -= int_part ;
-					}
-
-					if(tc.mV[1] < 0.f)
-					{
-						tc.mV[1] = -tc.mV[1] ;
-					}
-					int_part = (S32)tc.mV[1] ;
-					if(int_part & 1) //odd number
-					{
-						tc.mV[1] = int_part + 1 - tc.mV[1] ;
-					}
-					else //even number
-					{
-						tc.mV[1] -= int_part ;
-					}
-					break;
-				case LLTexUnit::TAM_WRAP:
-					if(tc.mV[0] > 1.f)
-						tc.mV[0] -= (S32)(tc.mV[0] - 0.00001f) ;
-					else if(tc.mV[0] < -1.f)
-						tc.mV[0] -= (S32)(tc.mV[0] + 0.00001f) ;
-
-					if(tc.mV[1] > 1.f)
-						tc.mV[1] -= (S32)(tc.mV[1] - 0.00001f) ;
-					else if(tc.mV[1] < -1.f)
-						tc.mV[1] -= (S32)(tc.mV[1] + 0.00001f) ;
-
-					if(tc.mV[0] < 0.f)
-					{
-						tc.mV[0] = 1.0f + tc.mV[0] ;
-					}
-					if(tc.mV[1] < 0.f)
-					{
-						tc.mV[1] = 1.0f + tc.mV[1] ;
-					}
-					break;
-				default:
-					break;
-				}
-			
-				tc.mV[0] = tcoord_xoffset + tcoord_xscale * tc.mV[0] ;
-				tc.mV[1] = tcoord_yoffset + tcoord_yscale * tc.mV[1] ;
-			}
-			
-
-			*tex_coords++ = tc;
-			
-			if (bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
-			{
-				LLVector4a tangent;
-				tangent.setCross3(vf.mBinormals[i], vf.mNormals[i]);
-
-				LLMatrix4a tangent_to_object;
-				tangent_to_object.setRows(tangent, vf.mBinormals[i], vf.mNormals[i]);
-				LLVector4a t;
-				tangent_to_object.rotate(binormal_dir, t);
-				LLVector4a binormal;
-				mat_normal.rotate(t, binormal);
-					
-				//VECTORIZE THIS
-				if (mDrawablep->isActive())
-				{
-					LLVector3 t;
-					t.set(binormal.getF32());
-					t *= bump_quat;
-					binormal.load3(t.mV);
-				}
-
-				binormal.normalize3fast();
-				tc += LLVector2( bump_s_primary_light_ray.dot3(tangent), bump_t_primary_light_ray.dot3(binormal) );
-				
-				*tex_coords2++ = tc;
+				do_xform = false;
 			}	
+		}
+		else
+		{
+			do_xform = false;
+		}
+						
+		//bump setup
+		LLVector4a binormal_dir( -sin_ang, cos_ang, 0.f );
+		LLVector4a bump_s_primary_light_ray(0.f, 0.f, 0.f);
+		LLVector4a bump_t_primary_light_ray(0.f, 0.f, 0.f);
+
+		LLQuaternion bump_quat;
+		if (mDrawablep->isActive())
+		{
+			bump_quat = LLQuaternion(mDrawablep->getRenderMatrix());
+		}
+		
+		if (bump_code)
+		{
+			mVObjp->getVolume()->genBinormals(f);
+			F32 offset_multiple; 
+			switch( bump_code )
+			{
+				case BE_NO_BUMP:
+				offset_multiple = 0.f;
+				break;
+				case BE_BRIGHTNESS:
+				case BE_DARKNESS:
+				if( mTexture.notNull() && mTexture->hasGLTexture())
+				{
+					// Offset by approximately one texel
+					S32 cur_discard = mTexture->getDiscardLevel();
+					S32 max_size = llmax( mTexture->getWidth(), mTexture->getHeight() );
+					max_size <<= cur_discard;
+					const F32 ARTIFICIAL_OFFSET = 2.f;
+					offset_multiple = ARTIFICIAL_OFFSET / (F32)max_size;
+				}
+				else
+				{
+					offset_multiple = 1.f/256;
+				}
+				break;
+
+				default:  // Standard bumpmap textures.  Assumed to be 256x256
+				offset_multiple = 1.f / 256;
+				break;
+			}
+
+			F32 s_scale = 1.f;
+			F32 t_scale = 1.f;
+			if( tep )
+			{
+				tep->getScale( &s_scale, &t_scale );
+			}
+			// Use the nudged south when coming from above sun angle, such
+			// that emboss mapping always shows up on the upward faces of cubes when 
+			// it's noon (since a lot of builders build with the sun forced to noon).
+			LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
+			LLVector3   moon_ray = gSky.getMoonDirection();
+			LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
+
+			bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
+			bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
+		}
+
+		U8 texgen = getTextureEntry()->getTexGen();
+		if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+		{ //planar texgen needs binormals
+			mVObjp->getVolume()->genBinormals(f);
+		}
+
+		U8 tex_mode = 0;
+	
+		if (isState(TEXTURE_ANIM))
+		{
+			LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
+			tex_mode = vobj->mTexAnimMode;
+
+			if (!tex_mode)
+			{
+				clearState(TEXTURE_ANIM);
+			}
+			else
+			{
+				os = ot = 0.f;
+				r = 0.f;
+				cos_ang = 1.f;
+				sin_ang = 0.f;
+				ms = mt = 1.f;
+
+				do_xform = false;
+			}
+
+			if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
+			{ //don't override texture transform during tc bake
+				tex_mode = 0;
+			}
+		}
+
+		LLVector4a scalea;
+		scalea.load3(scale.mV);
+
+		bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
+		bool do_tex_mat = tex_mode && mTextureMatrix;
+
+		if (!in_atlas && !do_bump)
+		{ //not in atlas or not bump mapped, might be able to do a cheap update
+			if (texgen != LLTextureEntry::TEX_GEN_PLANAR)
+			{
+				if (!do_tex_mat)
+				{
+					if (!do_xform)
+					{
+						LLVector4a::memcpyNonAliased16((F32*) tex_coords.get(), (F32*) vf.mTexCoords, num_vertices*2);
+					}
+					else
+					{
+						for (S32 i = 0; i < num_vertices; i++)
+						{	
+							LLVector2 tc(vf.mTexCoords[i]);
+							xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+							*tex_coords++ = tc;	
+						}
+					}
+				}
+				else
+				{ //do tex mat, no texgen, no atlas, no bump
+					for (S32 i = 0; i < num_vertices; i++)
+					{	
+						LLVector2 tc(vf.mTexCoords[i]);
+						LLVector4a& norm = vf.mNormals[i];
+						LLVector4a& center = *(vf.mCenter);
+
+						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+						tmp = tmp * *mTextureMatrix;
+						tc.mV[0] = tmp.mV[0];
+						tc.mV[1] = tmp.mV[1];
+						*tex_coords++ = tc;	
+					}
+				}
+			}
+			else
+			{ //no bump, no atlas, tex gen planar
+				if (do_tex_mat)
+				{
+					for (S32 i = 0; i < num_vertices; i++)
+					{	
+						LLVector2 tc(vf.mTexCoords[i]);
+						LLVector4a& norm = vf.mNormals[i];
+						LLVector4a& center = *(vf.mCenter);
+						LLVector4a vec = vf.mPositions[i];	
+						vec.mul(scalea);
+						planarProjection(tc, norm, center, vec);
+						
+						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+						tmp = tmp * *mTextureMatrix;
+						tc.mV[0] = tmp.mV[0];
+						tc.mV[1] = tmp.mV[1];
+				
+						*tex_coords++ = tc;	
+					}
+				}
+				else
+				{
+					for (S32 i = 0; i < num_vertices; i++)
+					{	
+						LLVector2 tc(vf.mTexCoords[i]);
+						LLVector4a& norm = vf.mNormals[i];
+						LLVector4a& center = *(vf.mCenter);
+						LLVector4a vec = vf.mPositions[i];	
+						vec.mul(scalea);
+						planarProjection(tc, norm, center, vec);
+						
+						xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+
+						*tex_coords++ = tc;	
+					}
+				}
+			}
+		}
+		else
+		{ //either bump mapped or in atlas, just do the whole expensive loop
+			for (S32 i = 0; i < num_vertices; i++)
+			{	
+				LLVector2 tc(vf.mTexCoords[i]);
+			
+				LLVector4a& norm = vf.mNormals[i];
+				
+				LLVector4a& center = *(vf.mCenter);
+
+				if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+				{
+					LLVector4a vec = vf.mPositions[i];
+				
+					vec.mul(scalea);
+
+					switch (texgen)
+					{
+						case LLTextureEntry::TEX_GEN_PLANAR:
+							planarProjection(tc, norm, center, vec);
+							break;
+						case LLTextureEntry::TEX_GEN_SPHERICAL:
+							sphericalProjection(tc, norm, center, vec);
+							break;
+						case LLTextureEntry::TEX_GEN_CYLINDRICAL:
+							cylindricalProjection(tc, norm, center, vec);
+							break;
+						default:
+							break;
+					}		
+				}
+
+				if (tex_mode && mTextureMatrix)
+				{
+					LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+					tmp = tmp * *mTextureMatrix;
+					tc.mV[0] = tmp.mV[0];
+					tc.mV[1] = tmp.mV[1];
+				}
+				else
+				{
+					xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+				}
+
+				if(in_atlas)
+				{
+					//
+					//manually calculate tex-coord per vertex for varying address modes.
+					//should be removed if shader can handle this.
+					//
+
+					S32 int_part = 0 ;
+					switch(mTexture->getAddressMode())
+					{
+					case LLTexUnit::TAM_CLAMP:
+						if(tc.mV[0] < 0.f)
+						{
+							tc.mV[0] = 0.f ;
+						}
+						else if(tc.mV[0] > 1.f)
+						{
+							tc.mV[0] = 1.f;
+						}
+
+						if(tc.mV[1] < 0.f)
+						{
+							tc.mV[1] = 0.f ;
+						}
+						else if(tc.mV[1] > 1.f)
+						{
+							tc.mV[1] = 1.f;
+						}
+						break;
+					case LLTexUnit::TAM_MIRROR:
+						if(tc.mV[0] < 0.f)
+						{
+							tc.mV[0] = -tc.mV[0] ;
+						}
+						int_part = (S32)tc.mV[0] ;
+						if(int_part & 1) //odd number
+						{
+							tc.mV[0] = int_part + 1 - tc.mV[0] ;
+						}
+						else //even number
+						{
+							tc.mV[0] -= int_part ;
+						}
+
+						if(tc.mV[1] < 0.f)
+						{
+							tc.mV[1] = -tc.mV[1] ;
+						}
+						int_part = (S32)tc.mV[1] ;
+						if(int_part & 1) //odd number
+						{
+							tc.mV[1] = int_part + 1 - tc.mV[1] ;
+						}
+						else //even number
+						{
+							tc.mV[1] -= int_part ;
+						}
+						break;
+					case LLTexUnit::TAM_WRAP:
+						if(tc.mV[0] > 1.f)
+							tc.mV[0] -= (S32)(tc.mV[0] - 0.00001f) ;
+						else if(tc.mV[0] < -1.f)
+							tc.mV[0] -= (S32)(tc.mV[0] + 0.00001f) ;
+
+						if(tc.mV[1] > 1.f)
+							tc.mV[1] -= (S32)(tc.mV[1] - 0.00001f) ;
+						else if(tc.mV[1] < -1.f)
+							tc.mV[1] -= (S32)(tc.mV[1] + 0.00001f) ;
+
+						if(tc.mV[0] < 0.f)
+						{
+							tc.mV[0] = 1.0f + tc.mV[0] ;
+						}
+						if(tc.mV[1] < 0.f)
+						{
+							tc.mV[1] = 1.0f + tc.mV[1] ;
+						}
+						break;
+					default:
+						break;
+					}
+				
+					tc.mV[0] = tcoord_xoffset + tcoord_xscale * tc.mV[0] ;
+					tc.mV[1] = tcoord_yoffset + tcoord_yscale * tc.mV[1] ;
+				}
+				
+
+				*tex_coords++ = tc;
+				
+				if (bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1))
+				{
+					LLVector4a tangent;
+					tangent.setCross3(vf.mBinormals[i], vf.mNormals[i]);
+
+					LLMatrix4a tangent_to_object;
+					tangent_to_object.setRows(tangent, vf.mBinormals[i], vf.mNormals[i]);
+					LLVector4a t;
+					tangent_to_object.rotate(binormal_dir, t);
+					LLVector4a binormal;
+					mat_normal.rotate(t, binormal);
+						
+					//VECTORIZE THIS
+					if (mDrawablep->isActive())
+					{
+						LLVector3 t;
+						t.set(binormal.getF32());
+						t *= bump_quat;
+						binormal.load3(t.mV);
+					}
+
+					binormal.normalize3fast();
+					tc += LLVector2( bump_s_primary_light_ray.dot3(tangent), bump_t_primary_light_ray.dot3(binormal) );
+					
+					*tex_coords2++ = tc;
+				}	
+			}
 		}
 	}
 
