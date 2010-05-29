@@ -366,10 +366,6 @@ private:
 
 	static S32				sGLByteCount;
 	
-	// Low res upload methods
-protected:
-	BOOL					isUploadTimeout() const;
-private:
 	LLFrameTimer    		mNeedsUploadTimer; // Tracks time since upload was requested
 
 };
