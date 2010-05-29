@@ -100,7 +100,10 @@ void LLStandardBumpmap::restoreGL()
 // static
 void LLStandardBumpmap::addstandard()
 {
-	llassert( LLStandardBumpmap::sStandardBumpmapCount == 0 );
+	// can't assert; we destroyGL and restoreGL a lot during *first* startup, which populates this list already, THEN we explicitly init the list as part of *normal* startup.  Sigh.  So clear the list every time before we (re-)add the standard bumpmaps.
+	//llassert( LLStandardBumpmap::sStandardBumpmapCount == 0 );
+	clear();
+	llinfos << "Adding standard bumpmaps." << llendl;
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("None");		// BE_NO_BUMP
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("Brightness");	// BE_BRIGHTNESS
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("Darkness");	// BE_DARKNESS
@@ -164,6 +167,7 @@ void LLStandardBumpmap::addstandard()
 // static
 void LLStandardBumpmap::clear()
 {
+	llinfos << "Clearing standard bumpmaps." << llendl;
 	for( U32 i = 0; i < LLStandardBumpmap::sStandardBumpmapCount; i++ )
 	{
 		gStandardBumpmapList[i].mLabel.assign("");
@@ -817,7 +821,7 @@ void LLDrawPoolBump::renderPostDeferred(S32 pass)
 }
 
 ////////////////////////////////////////////////////////////////
-// List of one-component bump-maps created from other texures.
+// List of bump-maps created from other textures.
 
 
 //const LLUUID TEST_BUMP_ID("3d33eaf2-459c-6f97-fd76-5fce3fc29447");
@@ -832,6 +836,7 @@ void LLBumpImageList::init()
 
 void LLBumpImageList::clear()
 {
+	llinfos << "Clearing dynamic bumpmaps." << llendl;
 	// these will be re-populated on-demand
 	mBrightnessEntries.clear();
 	mDarknessEntries.clear();
