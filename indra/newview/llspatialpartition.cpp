@@ -2769,6 +2769,19 @@ void renderLights(LLDrawable* drawablep)
 	}
 }
 
+class LLRenderOctree : public LLOctreeTraveler<LLVolumeFace::Triangle>
+{
+public:
+	void visit(const LLOctreeNode<LLVolumeFace::Triangle>* branch)
+	{
+		const LLVector3d& c = branch->getCenter();
+		const LLVector3d& s = branch->getSize();
+
+		LLVector3 pos((F32) c.mdV[0], (F32) c.mdV[1], (F32) c.mdV[2]);
+		LLVector3 size((F32) s.mdV[0], (F32) s.mdV[1], (F32) s.mdV[2]);
+		drawBoxOutline(pos, size);
+	}
+};
 
 void renderRaycast(LLDrawable* drawablep)
 {
@@ -2787,6 +2800,23 @@ void renderRaycast(LLDrawable* drawablep)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			pushVerts(drawablep->getFace(gDebugRaycastFaceHit), LLVertexBuffer::MAP_VERTEX);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+			LLVOVolume* vobj = drawablep->getVOVolume();
+			LLVolume* volume = vobj->getVolume();
+			if (volume && volume->getNumVolumeFaces() > gDebugRaycastFaceHit)
+			{
+				const LLVolumeFace& face = volume->getVolumeFace(gDebugRaycastFaceHit);
+				if (!face.mOctree)
+				{
+					((LLVolumeFace*) &face)->createOctree(); 
+				}
+
+				gGL.pushMatrix();
+				glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
+				LLRenderOctree render;
+				render.traverse(face.mOctree);
+				gGL.popMatrix();		
+			}
 		}
 		else if (drawablep->isAvatar())
 		{

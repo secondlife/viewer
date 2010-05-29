@@ -73,6 +73,13 @@ public:
 };
 
 template <class T>
+class LLOctreeTravelerDepthFirst : public LLOctreeTraveler<T>
+{
+public:
+	virtual void traverse(const LLOctreeNode<T>* node);
+};
+
+template <class T>
 class LLOctreeNode : public LLTreeNode<T>
 {
 public:
@@ -710,4 +717,15 @@ void LLOctreeTraveler<T>::traverse(const LLOctreeNode<T>* node)
 		traverse(node->getChild(i));
 	}
 }
+
+template <class T>
+void LLOctreeTravelerDepthFirst<T>::traverse(const LLOctreeNode<T>* node)
+{
+	for (U32 i = 0; i < node->getChildCount(); i++)
+	{
+		traverse(node->getChild(i));
+	}
+	node->accept(this);
+}
+
 #endif
