@@ -1302,6 +1302,32 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) cons
 	return FALSE;
 }
 
+BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
+{
+	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+
+	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+	{
+		const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)i);
+		for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
+			 local_tex_iter != baked_dict->mLocalTextures.end();
+			 ++local_tex_iter)
+		{
+			const ETextureIndex tex_index = *local_tex_iter;
+			const LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType(tex_index);
+			const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
+			for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
+			{
+				if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(override_tex_discard_level))
+				{
+					return FALSE;
+				}
+			}
+		}
+	}
+	return TRUE;
+}
+
 BOOL LLVOAvatarSelf::isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index) const
 {
 	LLUUID id;
@@ -1831,7 +1857,7 @@ void LLVOAvatarSelf::debugBakedTextureUpload(EBakedTextureIndex index, BOOL fini
 	mDebugBakedTextureTimes[index][done] = mDebugSelfLoadTimer.getElapsedTimeF32();
 }
 
-std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLTexLayerSet* layerset) const
+const std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLTexLayerSet* layerset) const
 {
 	std::string text="";
 
@@ -1847,7 +1873,7 @@ std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLTexLayerSet* l
 		if (layerset == mBakedTextureDatas[baked_index].mTexLayerSet)
 		{
 			const LLVOAvatarDictionary::BakedEntry *baked_dict = baked_iter->second;
-			text += llformat("[%d] '%s' ",baked_index, baked_dict->mName.c_str());
+			text += llformat("[%d] '%s' ( ",baked_index, baked_dict->mName.c_str());
 			for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
 				 local_tex_iter != baked_dict->mLocalTextures.end();
 				 ++local_tex_iter)
@@ -1866,8 +1892,35 @@ std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLTexLayerSet* l
 					}
 				}
 			}
+			text += ")";
 			break;
 		}
+	}
+	return text;
+}
+
+const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
+{
+	std::string text;
+	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+
+	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+	{
+		const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)i);
+		BOOL is_texture_final = TRUE;
+		for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
+			 local_tex_iter != baked_dict->mLocalTextures.end();
+			 ++local_tex_iter)
+		{
+			const ETextureIndex tex_index = *local_tex_iter;
+			const LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType(tex_index);
+			const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
+			for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
+			{
+				is_texture_final &= (getLocalDiscardLevel(*local_tex_iter, wearable_index) <= (S32)(override_tex_discard_level));
+			}
+		}
+		text += llformat("%s:%d ",baked_dict->mName.c_str(),is_texture_final);
 	}
 	return text;
 }
@@ -2053,7 +2106,15 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 			LLSD args;
 			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
 			args["TIME"] = llformat("%d",(U32)mDebugSelfLoadTimer.getElapsedTimeF32());
-			LLNotificationsUtil::add("AvatarRezSelfNotification",args);
+			if (isAllLocalTextureDataFinal())
+			{
+				LLNotificationsUtil::add("AvatarRezSelfBakedDoneNotification",args);
+			}
+			else
+			{
+				args["STATUS"] = debugDumpAllLocalTextureDataInfo();
+				LLNotificationsUtil::add("AvatarRezSelfBakedUpdateNotification",args);
+			}
 		}
 
 		outputRezDiagnostics();

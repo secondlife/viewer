@@ -59,12 +59,13 @@ public:
 	
 	virtual std::string getPem() const;
 	virtual std::vector<U8> getBinary() const;
-	virtual LLSD getLLSD() const;
+	virtual void getLLSD(LLSD &llsd);
 
 	virtual X509* getOpenSSLX509() const;
 	
 	// set llsd elements for testing
 	void setLLSD(const std::string name, const LLSD& value) { mLLSDInfo[name] = value; }
+
 protected:
 
 	// certificates are stored as X509 objects, as validation and
@@ -175,8 +176,21 @@ public:
 	// return the store id
 	virtual std::string storeId() const;
 	
+	// validate a certificate chain against a certificate store, using the
+	// given validation policy.
+	virtual void validate(int validation_policy,
+						  LLPointer<LLCertificateChain> ca_chain,
+						  const LLSD& validation_params);
+	
 protected:
-	std::vector<LLPointer<LLCertificate> >mCerts;
+	std::vector<LLPointer<LLCertificate> >            mCerts;
+	
+	// cache of cert sha1 hashes to from/to date pairs, to improve
+	// performance of cert trust.  Note, these are not the CA certs,
+	// but the certs that have been validated against this store.
+	typedef std::map<std::string, std::pair<LLDate, LLDate> > t_cert_cache;
+	t_cert_cache mTrustedCertCache;
+	
 	std::string mFilename;
 };
 
@@ -191,11 +205,6 @@ public:
 	
 	virtual ~LLBasicCertificateChain() {}
 	
-	// validate a certificate chain against a certificate store, using the
-	// given validation policy.
-	virtual void validate(int validation_policy,
-						  LLPointer<LLCertificateStore> ca_store,
-						  const LLSD& validation_params);
 };
 
 
