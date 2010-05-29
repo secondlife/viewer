@@ -330,6 +330,7 @@ void LLFloater::addDragHandle()
 		addChild(mDragHandle);
 	}
 	layoutDragHandle();
+	applyTitle();
 }
 
 void LLFloater::layoutDragHandle()
@@ -348,7 +349,6 @@ void LLFloater::layoutDragHandle()
 	}
 	mDragHandle->setRect(rect);
 	updateTitleButtons();
-	applyTitle();
 }
 
 void LLFloater::addResizeCtrls()
