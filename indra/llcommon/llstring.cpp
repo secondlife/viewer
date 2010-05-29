@@ -874,6 +874,10 @@ namespace LLStringFn
 
 ////////////////////////////////////////////////////////////
 
+// Forward specialization of LLStringUtil::format before use in LLStringUtil::formatDatetime.
+template<>
+S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions);
+
 //static
 template<> 
 void LLStringUtil::getTokens(const std::string& instr, std::vector<std::string >& tokens, const std::string& delims)
