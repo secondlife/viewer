@@ -42,6 +42,7 @@ class LLProfile;
 class LLPath;
 
 template <class T> class LLOctreeNode;
+
 class LLVector4a;
 class LLVolumeFace;
 class LLVolume;
@@ -1095,6 +1096,7 @@ void calc_binormal_from_triangle(
 
 BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
 BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
+BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size);
 
 BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
 							F32& intersection_a, F32& intersection_b, F32& intersection_t, BOOL two_sided);

@@ -38,6 +38,7 @@
 #include "llviewerobjectlist.h"
 #include "llvovolume.h"
 #include "llvolume.h"
+#include "llvolumeoctree.h"
 #include "llviewercamera.h"
 #include "llface.h"
 #include "llviewercontrol.h"
@@ -2769,17 +2770,26 @@ void renderLights(LLDrawable* drawablep)
 	}
 }
 
-class LLRenderOctree : public LLOctreeTraveler<LLVolumeFace::Triangle>
+class LLRenderOctreeRaycast : public LLOctreeTriangleRayIntersect
 {
 public:
+	
+	LLRenderOctreeRaycast(const LLVector3& start, const LLVector3& end)
+	{
+		mStart.load3(start.mV);
+		mEnd.load3(end.mV);
+		mDir.setSub(mEnd, mStart);
+	}
+
 	void visit(const LLOctreeNode<LLVolumeFace::Triangle>* branch)
 	{
-		const LLVector3d& c = branch->getCenter();
-		const LLVector3d& s = branch->getSize();
+		LLVolumeOctreeListener* vl = (LLVolumeOctreeListener*) branch->getListener(0);
 
-		LLVector3 pos((F32) c.mdV[0], (F32) c.mdV[1], (F32) c.mdV[2]);
-		LLVector3 size((F32) s.mdV[0], (F32) s.mdV[1], (F32) s.mdV[2]);
-		drawBoxOutline(pos, size);
+		LLVector3 center, size;
+		center.set(vl->mBounds[0].getF32());
+		size.set(vl->mBounds[1].getF32());
+
+		drawBoxOutline(center, size);
 	}
 };
 
@@ -2813,7 +2823,11 @@ void renderRaycast(LLDrawable* drawablep)
 
 				gGL.pushMatrix();
 				glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
-				LLRenderOctree render;
+				LLVector3 start, end;
+				start = vobj->agentPositionToVolume(gDebugRaycastStart);
+				end = vobj->agentPositionToVolume(gDebugRaycastEnd);
+
+				LLRenderOctreeRaycast render(start, end);
 				render.traverse(face.mOctree);
 				gGL.popMatrix();		
 			}

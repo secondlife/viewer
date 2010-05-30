@@ -231,6 +231,8 @@ LLVector2       gDebugRaycastTexCoord;
 LLVector3       gDebugRaycastNormal;
 LLVector3       gDebugRaycastBinormal;
 S32				gDebugRaycastFaceHit;
+LLVector3		gDebugRaycastStart;
+LLVector3		gDebugRaycastEnd;
 
 // HUD display lines in lower right
 BOOL				gDisplayWindInfo = FALSE;
@@ -2529,7 +2531,9 @@ void LLViewerWindow::updateUI()
 											  &gDebugRaycastIntersection,
 											  &gDebugRaycastTexCoord,
 											  &gDebugRaycastNormal,
-											  &gDebugRaycastBinormal);
+											  &gDebugRaycastBinormal,
+											  &gDebugRaycastStart,
+											  &gDebugRaycastEnd);
 	}
 
 	updateMouseDelta();
@@ -3445,7 +3449,9 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 												LLVector3 *intersection,
 												LLVector2 *uv,
 												LLVector3 *normal,
-												LLVector3 *binormal)
+												LLVector3 *binormal,
+												LLVector3* start,
+												LLVector3* end)
 {
 	S32 x = mouse_x;
 	S32 y = mouse_y;
@@ -3477,7 +3483,16 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 	LLVector3 mouse_world_start = mouse_point_global;
 	LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
-	
+	if (start)
+	{
+		*start = mouse_world_start;
+	}
+
+	if (end)
+	{
+		*end = mouse_world_end;
+	}
+
 	LLViewerObject* found = NULL;
 
 	if (this_object)  // check only this object
