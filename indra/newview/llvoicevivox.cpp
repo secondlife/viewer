@@ -4088,7 +4088,9 @@ LLVivoxVoiceClient::participantState::participantState(const std::string &uri) :
 	 mLastSpokeTimestamp(0.f), 
 	 mPower(0.f), 
 	 mVolume(LLVoiceClient::VOLUME_DEFAULT), 
+	 mUserVolume(0),
 	 mOnMuteList(false), 
+	 mVolumeSet(false),
 	 mVolumeDirty(false), 
 	 mAvatarIDValid(false),
 	 mIsSelf(false)
@@ -5538,6 +5540,7 @@ LLVivoxVoiceClient::sessionState::sessionState() :
 	mVoiceEnabled(false),
 	mReconnect(false),
 	mVolumeDirty(false),
+	mMuteDirty(false),
 	mParticipantsChanged(false)
 {
 }

@@ -108,12 +108,17 @@ private:
 
 	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 
+	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 
 	LLAccordionCtrl*				mAccordion;
 	LLPanel*						mListCommands;
 
-	LLWearableItemsList*			mSelectedList;
+	typedef	std::map<LLUUID, LLWearableItemsList*>		wearables_lists_map_t;
+	typedef wearables_lists_map_t::value_type			wearables_lists_map_value_t;
+	wearables_lists_map_t			mSelectedListsMap;
+
 	LLUUID							mSelectedOutfitUUID;
 
 	std::string 					mFilterSubString;

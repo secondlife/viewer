@@ -42,7 +42,6 @@
 #include "lldrawpoolavatar.h"
 #include "llface.h"
 //#include "llfirstuse.h"
-#include "llfloatercustomize.h"
 #include "llfloatertools.h"
 #include "llresmgr.h"
 #include "lltoolmgr.h"

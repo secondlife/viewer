@@ -158,12 +158,14 @@ public:
 	virtual LLJoint*		getCharacterJoint(U32 num);
 	virtual BOOL			allocateCharacterJoints(U32 num);
 
+	virtual LLUUID			remapMotionID(const LLUUID& id);
 	virtual BOOL			startMotion(const LLUUID& id, F32 time_offset = 0.f);
 	virtual BOOL			stopMotion(const LLUUID& id, BOOL stop_immediate = FALSE);
 	virtual void			stopMotionFromSource(const LLUUID& source_id);
 	virtual void			requestStopMotion(LLMotion* motion);
 	LLMotion*				findMotion(const LLUUID& id) const;
 	void					startDefaultMotions();
+	void					dumpAnimationState();
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	virtual LLJoint*     	getRootJoint() { return &mRoot; }
@@ -920,6 +922,8 @@ private:
 	//--------------------------------------------------------------------
 	// Avatar Rez Metrics
 	//--------------------------------------------------------------------
+public:
+	F32				debugGetExistenceTimeElapsedF32() const { return mDebugExistenceTimer.getElapsedTimeF32(); }
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
 	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.

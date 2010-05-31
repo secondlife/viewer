@@ -48,12 +48,10 @@
 	<string name="LoginDownloadingClothing">Downloading clothing...</string>
         <string name="InvalidCertificate">The server returned an invalid or corrupt certificate. Please contact the Grid administrator.</string>
         <string name="CertInvalidHostname">An invalid hostname was used to access the server, please check your SLURL or Grid hostname.</string>
-        <string name="CertExpired">The certificate returned by the Grid appears to be expired.  Please check your system clock, or contact your Grid administr\
-ator.</string>
+        <string name="CertExpired">The certificate returned by the Grid appears to be expired.  Please check your system clock, or contact your Grid administrator.</string>
         <string name="CertKeyUsage">The certificate returned by the server could not be used for SSL.  Please contact your Grid administrator.</string>
         <string name="CertBasicConstraints">Too many certificates were in the servers Certificate chain.  Please contact your Grid administrator.</string>
-        <string name="CertInvalidSignature">The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrat
-or.</string>
+        <string name="CertInvalidSignature">The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrator.</string>
 
 	<string name="LoginFailedNoNetwork">Network Error: Could not establish connection, please check your network connection.</string>
 	<string name="LoginFailed">Login failed.</string>
@@ -3180,7 +3178,8 @@ Abuse Report</string>
   <string name="server_is_down">
 	Despite our best efforts, something unexpected has gone wrong.
 
-	Please check secondlife.com/status to see if there is a known problem with the service.
+	Please check secondlife.com/status to see if there is a known problem with the service.  
+        If you continue to experience problems, please check your network and firewall setup.
   </string>
 
   <!-- overriding datetime formating. 

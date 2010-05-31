@@ -195,6 +195,7 @@
 
 // Include for security api initialization
 #include "llsecapi.h"
+#include "llmachineid.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -619,6 +620,7 @@ bool LLAppViewer::init()
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass();
+    LLMachineID::init();
 
     initThreads();
     writeSystemInfo();
@@ -2988,6 +2990,44 @@ S32 LLAppViewer::getCacheVersion()
 	return cache_version ;
 }
 
+void dumpVFSCaches()
+{
+	llinfos << "======= Static VFS ========" << llendl;
+	gStaticVFS->listFiles();
+#if LL_WINDOWS
+	llinfos << "======= Dumping static VFS to StaticVFSDump ========" << llendl;
+	WCHAR w_str[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, w_str);
+	S32 res = LLFile::mkdir("StaticVFSDump");
+	if (res == -1)
+	{
+		if (errno != EEXIST)
+		{
+			llwarns << "Couldn't create dir StaticVFSDump" << llendl;
+		}
+	}
+	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
+	gStaticVFS->dumpFiles();
+	SetCurrentDirectory(w_str);
+#endif
+						
+	llinfos << "========= Dynamic VFS ====" << llendl;
+	gVFS->listFiles();
+#if LL_WINDOWS
+	llinfos << "========= Dumping dynamic VFS to VFSDump ====" << llendl;
+	res = LLFile::mkdir("VFSDump");
+	if (res == -1)
+	{
+		if (errno != EEXIST)
+		{
+			llwarns << "Couldn't create dir VFSDump" << llendl;
+		}
+	}
+	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
+	gVFS->dumpFiles();
+	SetCurrentDirectory(w_str);
+#endif
+}
 bool LLAppViewer::initCache()
 {
 	mPurgeCache = false;
@@ -3205,11 +3245,12 @@ bool LLAppViewer::initCache()
 	{
 		LLVFile::initClass();
 
-		//llinfos << "Static VFS listing" << llendl;
-		//gStaticVFS->listFiles();
-
-		//llinfos << "regular VFS listing" << llendl;
-		//gVFS->listFiles();
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+		if (gSavedSettings.getBOOL("DumpVFSCaches"))
+		{
+			dumpVFSCaches();
+		}
+#endif
 		
 		return true;
 	}

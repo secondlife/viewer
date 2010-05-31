@@ -45,7 +45,7 @@
 	</text>
 	<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
 	<check_box label="オフライン時に受け取った IM をメールで受信" name="send_im_to_email"/>
-	<check_box label="チャット履歴に文字だけ表示する" name="plain_text_chat_history"/>
+	<check_box label="IM とチャット履歴に文字だけ表示する" name="plain_text_chat_history"/>
 	<text name="show_ims_in_label">
 		IM の表示方法：
 	</text>

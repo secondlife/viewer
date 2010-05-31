@@ -312,13 +312,15 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last)
 {
 	llassert(item);
-
+	if (!item) return NULL;
 	LLPanelClothingListItem* item_panel = LLPanelClothingListItem::create(item);
 	if (!item_panel) return NULL;
 
 	//updating verbs
 	//we don't need to use permissions of a link but of an actual/linked item
 	if (item->getLinkedItem()) item = item->getLinkedItem();
+	llassert(item);
+	if (!item) return NULL;
 
 	bool allow_modify = item->getPermissions().allowModifyBy(gAgentID);
 	
@@ -344,14 +346,15 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 LLPanelBodyPartsListItem* LLCOFWearables::buildBodypartListItem(LLViewerInventoryItem* item)
 {
 	llassert(item);
-
+	if (!item) return NULL;
 	LLPanelBodyPartsListItem* item_panel = LLPanelBodyPartsListItem::create(item);
 	if (!item_panel) return NULL;
 
 	//updating verbs
 	//we don't need to use permissions of a link but of an actual/linked item
 	if (item->getLinkedItem()) item = item->getLinkedItem();
-
+	llassert(item);
+	if (!item) return NULL;
 	bool allow_modify = item->getPermissions().allowModifyBy(gAgentID);
 	item_panel->setShowLockButton(!allow_modify);
 	item_panel->setShowEditButton(allow_modify);

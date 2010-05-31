@@ -130,6 +130,7 @@ private:
 	bool			mFitParent;
 	bool			mAutoScrolling;
 	F32				mAutoScrollRate;
+	LLAccordionCtrlTab* mSelectedTab;
 };
 
 

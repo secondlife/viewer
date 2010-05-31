@@ -56,7 +56,7 @@ Pour rechercher des résidents avec qui passer du temps, utilisez [secondlife://
 		<button label="IM" name="im_btn" tool_tip="Ouvrir une session IM"/>
 		<button label="Appeler" name="call_btn" tool_tip="Appeler ce résident"/>
 		<button label="Partager" name="share_btn" tool_tip="Partager un article d&apos;inventaire"/>
-		<button label="Téléporter" name="teleport_btn" tool_tip="Proposez une téléportation"/>
+		<button label="Téléporter" name="teleport_btn" tool_tip="Proposer une téléportation"/>
 		<button label="Profil" name="group_info_btn" tool_tip="Voir le profil du groupe"/>
 		<button label="Chat" name="chat_btn" tool_tip="Ouvrir une session de chat"/>
 		<button label="Appel" name="group_call_btn" tool_tip="Appeler ce groupe"/>

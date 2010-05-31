@@ -35,7 +35,6 @@
 #include "llappearancemgr.h"
 #include "llpaneloutfitsinventory.h"
 #include "llsaveoutfitcombobtn.h"
-#include "lltoggleablemenu.h"
 #include "llviewermenu.h"
 
 static const std::string SAVE_BTN("save_btn");
@@ -54,9 +53,9 @@ LLSaveOutfitComboBtn::LLSaveOutfitComboBtn(LLPanel* parent, bool saveAsDefaultAc
 	mParent->childSetAction(SAVE_BTN, boost::bind(&LLSaveOutfitComboBtn::saveOutfit, this, mSaveAsDefaultAction));
 	mParent->childSetAction(SAVE_FLYOUT_BTN, boost::bind(&LLSaveOutfitComboBtn::showSaveMenu, this));
 
-	mSaveMenu.reset(LLUICtrlFactory::getInstance()->createFromFile<
+	mSaveMenu = LLUICtrlFactory::getInstance()->createFromFile<
 			LLToggleableMenu> ("menu_save_outfit.xml", gMenuHolder,
-			LLViewerMenuHolderGL::child_registry_t::instance()));
+			LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
 void LLSaveOutfitComboBtn::showSaveMenu()
@@ -65,7 +64,7 @@ void LLSaveOutfitComboBtn::showSaveMenu()
 	LLUI::getMousePositionLocal(mParent, &x, &y);
 
 	mSaveMenu->updateParent(LLMenuGL::sMenuContainer);
-	LLMenuGL::showPopup(mParent, mSaveMenu.get(), x, y);
+	LLMenuGL::showPopup(mParent, mSaveMenu, x, y);
 }
 
 void LLSaveOutfitComboBtn::saveOutfit(bool as_new)
