@@ -14,9 +14,9 @@
         </menu_item_call>
     <menu_item_call 
      name="save_as_new_outfit" 
-     label="Save As New">
+     label="Save As">
         <menu_item_call.on_click 
-         function="Outfit.SaveAsNew.Action"
+         function="Outfit.SaveAs.Action"
          userdata="" />
     </menu_item_call>
 </toggleable_menu>
