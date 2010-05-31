@@ -60,6 +60,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llpaneloutfitsinventory.h"
 #include "lluiconstants.h"
+#include "llsaveoutfitcombobtn.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
@@ -75,7 +76,6 @@ const U64 WEARABLE_MASK = (1LL << LLInventoryType::IT_WEARABLE);
 const U64 ATTACHMENT_MASK = (1LL << LLInventoryType::IT_ATTACHMENT) | (1LL << LLInventoryType::IT_OBJECT);
 const U64 ALL_ITEMS_MASK = WEARABLE_MASK | ATTACHMENT_MASK;
 
-static const std::string SAVE_BTN("save_btn");
 static const std::string REVERT_BTN("revert_btn");
 
 class LLCOFObserver : public LLInventoryObserver
@@ -307,14 +307,6 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetAction(REVERT_BTN, boost::bind(&LLAppearanceMgr::wearBaseOutfit, LLAppearanceMgr::getInstance()));
 
-	childSetAction(SAVE_BTN, boost::bind(&LLPanelOutfitEdit::saveOutfit, this, false));
-	childSetAction("save_flyout_btn", boost::bind(&LLPanelOutfitEdit::showSaveMenu, this));
-
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar save_registar;
-	save_registar.add("Outfit.Save.Action", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, false));
-	save_registar.add("Outfit.SaveAsNew.Action", boost::bind(&LLPanelOutfitEdit::saveOutfit, this, true));
-	mSaveMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_save_outfit.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-
 	mWearableListMaskCollector = new LLFindNonLinksByMask(ALL_ITEMS_MASK);
 	mWearableListTypeCollector = new LLFindWearablesOfType(LLWearableType::WT_NONE);
 
@@ -322,6 +314,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearableItemsList = getChild<LLInventoryItemsList>("filtered_wearables_list");
 	mWearableListManager = new LLFilteredWearableListManager(mWearableItemsList, mWearableListMaskCollector);
 
+	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;
 }
 
@@ -383,33 +376,6 @@ void LLPanelOutfitEdit::showFilteredFolderWearablesPanel()
 		mFolderViewBtn->setImageOverlay(getString("folder_view_on"), mFolderViewBtn->getImageOverlayHAlign());
 	}
 	mFolderViewBtn->setToggleState(TRUE);
-}
-
-void LLPanelOutfitEdit::saveOutfit(bool as_new)
-{
-	if (!as_new && LLAppearanceMgr::getInstance()->updateBaseOutfit())
-	{
-		// we don't need to ask for an outfit name, and updateBaseOutfit() successfully saved.
-		// If updateBaseOutfit fails, ask for an outfit name anyways
-		return;
-	}
-
-	LLPanelOutfitsInventory* panel_outfits_inventory = LLPanelOutfitsInventory::findInstance();
-	if (panel_outfits_inventory)
-	{
-		panel_outfits_inventory->onSave();
-	}
-
-	//*TODO how to get to know when base outfit is updated or new outfit is created?
-}
-
-void LLPanelOutfitEdit::showSaveMenu()
-{
-	S32 x, y;
-	LLUI::getMousePositionLocal(this, &x, &y);
-
-	mSaveMenu->updateParent(LLMenuGL::sMenuContainer);
-	LLMenuGL::showPopup(this, mSaveMenu, x, y);
 }
 
 void LLPanelOutfitEdit::onTypeFilterChanged(LLUICtrl* ctrl)
@@ -709,10 +675,10 @@ void LLPanelOutfitEdit::updateVerbs()
 	bool outfit_is_dirty = LLAppearanceMgr::getInstance()->isOutfitDirty();
 	bool has_baseoutfit = LLAppearanceMgr::getInstance()->getBaseOutfitUUID().notNull();
 
-	childSetEnabled(SAVE_BTN, outfit_is_dirty);
+	mSaveComboBtn->setSaveBtnEnabled(outfit_is_dirty);
 	childSetEnabled(REVERT_BTN, outfit_is_dirty && has_baseoutfit);
 
-	mSaveMenu->setItemEnabled("save_outfit", outfit_is_dirty);
+	mSaveComboBtn->setMenuItemEnabled("save_outfit", outfit_is_dirty);
 
 	mStatus->setText(outfit_is_dirty ? getString("unsaved_changes") : getString("now_editing"));
 
