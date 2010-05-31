@@ -727,6 +727,7 @@ void LLPanelOutfitEdit::showFilteredWearableItemsList(LLWearableType::EType type
 	mWearableListTypeCollector->setType(type);
 	mWearableListManager->setFilterCollector(mWearableListTypeCollector);
 	mAddWearablesPanel->setVisible(TRUE);
+	showFilteredWearablesPanel();
 }
 
 // EOF
