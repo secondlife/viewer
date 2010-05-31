@@ -37,7 +37,7 @@
 		Référence
 	</floater.string>
 	<floater.string name="grid_attachment_text">
-		Pièce-jointe
+		Pièce jointe
 	</floater.string>
 	<button label="" label_selected="" name="button focus" tool_tip="Mise au point"/>
 	<button label="" label_selected="" name="button move" tool_tip="Déplacer"/>

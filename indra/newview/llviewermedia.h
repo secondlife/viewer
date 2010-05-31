@@ -391,8 +391,6 @@ private:
 	bool shouldShowBasedOnClass() const;
 	static bool isObjectAttachedToAnotherAvatar(LLVOVolume *obj);
 	static bool isObjectInAgentParcel(LLVOVolume *obj);
-	static bool onClickLinkExternalTarget( const LLSD&, const LLSD& );
-	static void clickLinkWithTarget(const std::string& url, const S32& target_type );
 	
 private:
 	// a single media url with some data and an impl.

@@ -14,7 +14,7 @@
 			<check_box label="可視" name="check visible" tool_tip="この設定により、この地域をゴッド・モード以外でも可視にします。"/>
 			<check_box label="ダメージ" name="check damage" tool_tip="この設定により、この地域内でダメージを有効化します。"/>
 			<check_box label="トラフィック・トラッキングをブロック" name="block dwell" tool_tip="この設定により、この地域内のトラフィック計算をオフにします。"/>
-			<check_box label="土地整備をブロック" name="block terraform" tool_tip="この設定により、この地域内での土地整備を禁止"/>
+			<check_box label="地形編集をブロック" name="block terraform" tool_tip="この設定により、この地域内での土地整備を禁止"/>
 			<check_box label="サンドボックス" name="is sandbox" tool_tip="これがサンドボックス地域でも切り替え"/>
 			<button label="地形を構築する" label_selected="地形を構築する" name="Bake Terrain" tool_tip="現在の地形をデフォルトとして保存します。"/>
 			<button label="地形を元に戻す" label_selected="地形を元に戻す" name="Revert Terrain" tool_tip="現在の地形をデフォルトに置換します。"/>

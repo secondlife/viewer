@@ -260,6 +260,7 @@ private:
 	BOOL mHaveAllData;
 	BOOL mInLocalCache;
 	bool mCanUseHTTP ;
+	bool mCanUseNET ; //can get from asset server.
 	S32 mHTTPFailCount;
 	S32 mRetryAttempt;
 	S32 mActiveCount;
@@ -426,6 +427,8 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mTotalPackets(0),
 	  mImageCodec(IMG_CODEC_INVALID)
 {
+	mCanUseNET = mUrl.empty() ;
+
 	calcWorkPriority();
 	mType = host.isOk() ? LLImageBase::TYPE_AVATAR_BAKE : LLImageBase::TYPE_NORMAL;
 // 	llinfos << "Create: " << mID << " mHost:" << host << " Discard=" << discard << llendl;
@@ -904,13 +907,16 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				if (mGetStatus == HTTP_NOT_FOUND)
 				{
 					mHTTPFailCount = max_attempts = 1; // Don't retry
-					//llinfos << "Texture missing from server (404): " << mUrl << llendl;
+					//llwarns << "Texture missing from server (404): " << mUrl << llendl;
 
 					//roll back to try UDP
-					mState = INIT ;
-					mCanUseHTTP = false ;
-					setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-					return false ;
+					if(mCanUseNET)
+					{
+						mState = INIT ;
+						mCanUseHTTP = false ;
+						setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+						return false ;
+					}
 				}
 				else if (mGetStatus == HTTP_SERVICE_UNAVAILABLE)
 				{

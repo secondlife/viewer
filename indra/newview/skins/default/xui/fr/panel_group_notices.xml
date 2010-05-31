@@ -36,14 +36,14 @@ Vous pouvez désactiver la réception des notices dans l&apos;onglet Général.
 		</text>
 		<text_editor name="create_message"/>
 		<text name="lbl5">
-			Pièce-jointe :
+			Pièce jointe :
 		</text>
 		<line_editor name="create_inventory_name"/>
 		<text name="string">
 			Faire glisser l&apos;objet et le déposer ici pour le joindre :
 		</text>
 		<button label="Inventaire" name="open_inventory" tool_tip="Ouvrir l&apos;inventaire"/>
-		<button label="Supprimer" label_selected="Supprimer pièce-jointe" name="remove_attachment" tool_tip="Supprimer la pièce jointe de votre notification"/>
+		<button label="Supprimer" label_selected="Supprimer pièce jointe" name="remove_attachment" tool_tip="Supprimer la pièce jointe de votre notification"/>
 		<button label="Envoyer" label_selected="Envoyer" left="200" name="send_notice" width="100"/>
 		<group_drop_target name="drop_target" tool_tip="Faites glisser un objet de l&apos;inventaire jusqu&apos;à cette case pour l&apos;envoyer avec la notice. Vous devez avoir l&apos;autorisation de copier et transférer l&apos;objet pour pouvoir le joindre."/>
 	</panel>
@@ -61,6 +61,6 @@ Vous pouvez désactiver la réception des notices dans l&apos;onglet Général.
 			Message :
 		</text>
 		<line_editor left="128" name="view_inventory_name" width="256"/>
-		<button label="Ouvrir la pièce jointe" label_selected="Ouvrir pièce-jointe" name="open_attachment" width="118"/>
+		<button label="Ouvrir pièce jointe" label_selected="Ouvrir pièce jointe" name="open_attachment" width="118"/>
 	</panel>
 </panel>

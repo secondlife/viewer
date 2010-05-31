@@ -100,6 +100,24 @@
 	<string name="LoginDownloadingClothing">
 		衣類をダウンロードしています...
 	</string>
+	<string name="InvalidCertificate">
+		証明書が無効または壊れています。 グリッド管理者にご連絡ください。
+	</string>
+	<string name="CertInvalidHostname">
+		無効なホストネームがサーバーにアクセスしていました。SLURL かグリッドのホストネームをご確認ください。
+	</string>
+	<string name="CertExpired">
+		証明書の有効期限が切れています。  システムの時計を確認するかグリッド管理者にご連絡ください。
+	</string>
+	<string name="CertKeyUsage">
+		SSL 証明書のエラーが発生しました。  グリッド管理者にご連絡ください。
+	</string>
+	<string name="CertBasicConstraints">
+		サーバーの証明書チェーンに証明書が多すぎます。  グリッド管理者にご連絡ください。
+	</string>
+	<string name="CertInvalidSignature">
+		証明書署名を認証できませんでした。  グリッド管理者にご連絡ください。
+	</string>
 	<string name="LoginFailedNoNetwork">
 		ネットワークエラー： 接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
 	</string>
@@ -840,6 +858,42 @@
 	<string name="invalid">
 		無効
 	</string>
+	<string name="shirt_not_worn">
+		シャツ未着用
+	</string>
+	<string name="pants_not_worn">
+		パンツ未着用
+	</string>
+	<string name="shoes_not_worn">
+		靴未着用
+	</string>
+	<string name="socks_not_worn">
+		靴下未着用
+	</string>
+	<string name="jacket_not_worn">
+		ジャケット未着用
+	</string>
+	<string name="gloves_not_worn">
+		手袋未着用
+	</string>
+	<string name="undershirt_not_worn">
+		下着（上）未着用
+	</string>
+	<string name="underpants_not_worn">
+		下着（下）未着用
+	</string>
+	<string name="skirt_not_worn">
+		スカート未着用
+	</string>
+	<string name="alpha_not_worn">
+		アルファ未着用
+	</string>
+	<string name="tattoo_not_worn">
+		タトゥー未着用
+	</string>
+	<string name="invalid_not_worn">
+		無効
+	</string>
 	<string name="NewWearable">
 		新しい [WEARABLE_ITEM]
 	</string>
@@ -910,7 +964,10 @@
 		ESC キーを押してワールドビューに戻ります
 	</string>
 	<string name="InventoryNoMatchingItems">
-		お探しのものは見つかりましたか？ [secondlife:///app/search/all 検索] をお試しください。
+		お探しのものは見つかりましたか？ [secondlife:///app/search/all/[SEARCH_TERM] 検索] をお試しください。
+	</string>
+	<string name="PlacesNoMatchingItems">
+		お探しのものは見つかりましたか？ [secondlife:///app/search/places/[SEARCH_TERM] 検索] をお試しください。
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		ここにランドマークをドラッグしてお気に入りに追加します。
@@ -946,6 +1003,7 @@
 	<string name="Wave" value=" 手を振る"/>
 	<string name="HelloAvatar" value=" やあ、アバター！"/>
 	<string name="ViewAllGestures" value="  すべて表示 &gt;&gt;"/>
+	<string name="GetMoreGestures" value="ショッピング &gt;&gt;"/>
 	<string name="Animations" value="アニメーション、"/>
 	<string name="Calling Cards" value="コーリングカード、"/>
 	<string name="Clothing" value="衣類、"/>
@@ -1574,6 +1632,9 @@
 	</string>
 	<string name="MuteGroup">
 		（グループ）
+	</string>
+	<string name="MuteExternal">
+		（外部）
 	</string>
 	<string name="RegionNoCovenant">
 		この不動産には約款がありません。
@@ -3390,11 +3451,14 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="answered_call">
 		相手がコールを受けました
 	</string>
-	<string name="started_call">
+	<string name="you_started_call">
 		ボイスコールを開始します
 	</string>
-	<string name="joined_call">
+	<string name="you_joined_call">
 		ボイスコールに参加しました
+	</string>
+	<string name="name_started_call">
+		[NAME] はボイスコールを開始します
 	</string>
 	<string name="ringing-im">
 		ボイスコールに参加...
@@ -3604,6 +3668,90 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Contents">
 		コンテンツ
+	</string>
+	<string name="Gesture">
+		ジェスチャー
+	</string>
+	<string name="Male Gestures">
+		男性用ジェスチャー
+	</string>
+	<string name="Female Gestures">
+		女性用ジェスチャー
+	</string>
+	<string name="Other Gestures">
+		その他のジェスチャー
+	</string>
+	<string name="Speech Gestures">
+		会話ジェスチャー
+	</string>
+	<string name="Common Gestures">
+		一般的ジェスチャー
+	</string>
+	<string name="Male - Excuse me">
+		男性 - すみません
+	</string>
+	<string name="Male - Get lost">
+		男性 - Get lost
+	</string>
+	<string name="Male - Blow kiss">
+		男性 - 投げキッス
+	</string>
+	<string name="Male - Boo">
+		男性 - Boo
+	</string>
+	<string name="Male - Bored">
+		男性 - 退屈
+	</string>
+	<string name="Male - Hey">
+		男性 - Hey
+	</string>
+	<string name="Male - Laugh">
+		男性 - 笑う
+	</string>
+	<string name="Male - Repulsed">
+		男性 - 拒絶
+	</string>
+	<string name="Male - Shrug">
+		男性 - 肩をすくめる
+	</string>
+	<string name="Male - Stick tougue out">
+		男性 - 舌を出す
+	</string>
+	<string name="Male - Wow">
+		男性 - Wow
+	</string>
+	<string name="FeMale - Excuse me">
+		女性 - すみません
+	</string>
+	<string name="FeMale - Get lost">
+		女性 - Get lost
+	</string>
+	<string name="FeMale - Blow kiss">
+		女性 - 投げキッス
+	</string>
+	<string name="FeMale - Boo">
+		女性 - Boo
+	</string>
+	<string name="Female - Bored">
+		女性 - 退屈
+	</string>
+	<string name="Female - Hey">
+		女性 - Hey
+	</string>
+	<string name="Female - Laugh">
+		女性 - 笑う
+	</string>
+	<string name="Female - Repulsed">
+		女性 - 拒絶
+	</string>
+	<string name="Female - Shrug">
+		女性 - 肩をすくめる
+	</string>
+	<string name="Female - Stick tougue out">
+		女性 - 舌を出す
+	</string>
+	<string name="Female - Wow">
+		女性 - Wow
 	</string>
 	<string name="AvatarBirthDateFormat">
 		[year,datetime,slt]/[mthnum,datetime,slt]/[day,datetime,slt]

@@ -38,7 +38,6 @@
 #include "llagent.h"
 #include "llanimationstates.h"
 #include "llfloatercamera.h"
-#include "llfloatercustomize.h"
 #include "llfloaterreg.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
@@ -48,6 +47,7 @@
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
 #include "llviewerjoystick.h"
+#include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -1538,26 +1538,6 @@ F32 LLAgentCamera::calcCustomizeAvatarUIOffset(const LLVector3d& camera_pos_glob
 {
 	F32 ui_offset = 0.f;
 
-	if (gFloaterCustomize)
-	{
-		const LLRect& rect = gFloaterCustomize->getRect();
-
-		// Move the camera so that the avatar isn't covered up by this floater.
-		F32 fraction_of_fov = 0.5f - (0.5f * (1.f - llmin(1.f, ((F32)rect.getWidth() / (F32)gViewerWindow->getWindowWidthScaled()))));
-		F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();  // radians
-		F32 offset = tan(apparent_angle);
-
-		if( rect.mLeft < (gViewerWindow->getWindowWidthScaled() - rect.mRight) )
-		{
-			// Move the avatar to the right (camera to the left)
-			ui_offset = offset;
-		}
-		else
-		{
-			// Move the avatar to the left (camera to the right)
-			ui_offset = -offset;
-		}
-	}
 	F32 range = (F32)dist_vec(camera_pos_global, getFocusGlobal());
 	mUIOffset = lerp(mUIOffset, ui_offset, LLCriticalDamp::getInterpolant(0.05f));
 	return mUIOffset * range;

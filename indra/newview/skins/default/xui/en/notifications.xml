@@ -6130,15 +6130,24 @@ Deed to group failed.
    name="AvatarRezNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-Avatar '[NAME]' declouded in [TIME] seconds.
+Avatar '[NAME]' declouded after [TIME] seconds.
   </notification>
 
   <notification
    icon="notifytip.tga"
-   name="AvatarRezSelfNotification"
+   name="AvatarRezSelfBakedDoneNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-You finished baking your outfit in [TIME] seconds.
+You finished baking your outfit after [TIME] seconds.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfBakedUpdateNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You sent out an update of your appearance after [TIME] seconds.
+[STATUS]
   </notification>
 
 
@@ -6182,12 +6191,51 @@ Avatar '[NAME]' entered appearance mode.
 Avatar '[NAME]' left appearance mode.
   </notification>
 
+    <notification
+   icon="alertmodal.tga"
+   name="NoConnect"
+   type="alertmodal">
+        We're having trouble connecting using [PROTOCOL] [HOSTID].
+        Please check your network and firewall setup.
+        <form name="form">
+            <button
+               default="true"
+               index="0"
+               name="OK"
+               text="OK"/>
+        </form>
+    </notification>
+
+    <notification
+          icon="alertmodal.tga"
+          name="NoVoiceConnect"
+          type="alertmodal">
+        We're having trouble connecting your voiceserver using [HOSTID].
+        Voice communications will not be available.
+        Please check your network and firewall setup.
+        <form name="form">
+            <button
+               default="true"
+               index="0"
+               name="OK"
+               text="OK"/>
+        </form>
+    </notification>
+
   <notification
    icon="notifytip.tga"
    name="AvatarRezLeftNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
 Avatar '[NAME]' left as fully loaded.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfBakeNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
 
   <notification
