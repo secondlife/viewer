@@ -54,7 +54,7 @@ public:
 private:
 	bool mSaveAsDefaultAction;
 	LLPanel* mParent;
-	std::auto_ptr<LLToggleableMenu>	mSaveMenu;
+	LLToggleableMenu* mSaveMenu;
 };
 
 #endif // LL_LLSAVEOUTFITCOMBOBTN_H
