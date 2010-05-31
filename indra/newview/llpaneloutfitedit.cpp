@@ -259,11 +259,11 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mFolderViewBtn = getChild<LLButton>("folder_view_btn");
 	mListViewBtn = getChild<LLButton>("list_view_btn");
+	mAddToOutfitBtn = getChild<LLButton>("add_to_outfit_btn");
 
 	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
 	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredFolderWearablesPanel, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showFilteredWearablesPanel, this), NULL);
-	childSetCommitCallback("gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 	childSetCommitCallback("wearables_gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
@@ -342,6 +342,14 @@ void LLPanelOutfitEdit::toggleAddWearablesPanel()
 {
 	BOOL current_visibility = mAddWearablesPanel->getVisible();
 	mAddWearablesPanel->setVisible(!current_visibility);
+
+	mFolderViewBtn->setVisible(!current_visibility);
+	mListViewBtn->setVisible(!current_visibility);
+	mAddToOutfitBtn->setVisible(!current_visibility);
+
+	// Change right dummy icon to fill the toggled buttons space.
+	childSetVisible("add_wearables_dummy_icon", !current_visibility);
+	childSetVisible("dummy_right_icon", current_visibility);
 }
 
 void LLPanelOutfitEdit::showWearablesFilter()

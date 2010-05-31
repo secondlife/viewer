@@ -144,6 +144,7 @@ private:
 	LLButton*			mEditWearableBtn;
 	LLButton*			mFolderViewBtn;
 	LLButton*			mListViewBtn;
+	LLButton*			mAddToOutfitBtn;
 	LLPanel*			mAddWearablesPanel;
 
 	LLFindNonLinksByMask*  mWearableListMaskCollector;
