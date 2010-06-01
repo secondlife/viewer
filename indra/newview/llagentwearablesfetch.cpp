@@ -40,6 +40,50 @@
 #include "llstartup.h"
 #include "llvoavatarself.h"
 
+
+class LLOrderMyOutfitsOnDestroy: public LLInventoryCallback
+{
+public:
+	LLOrderMyOutfitsOnDestroy() {};
+
+	virtual ~LLOrderMyOutfitsOnDestroy()
+	{
+		const LLUUID& my_outfits_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+		if (my_outfits_id.isNull()) return;
+
+		LLInventoryModel::cat_array_t* cats;
+		LLInventoryModel::item_array_t* items;
+		gInventory.getDirectDescendentsOf(my_outfits_id, cats, items);
+		if (!cats) return;
+
+		//My Outfits should at least contain saved initial outfit and one another outfit
+		if (cats->size() < 2)
+		{
+			llwarning("My Outfits category was not populated properly", 0);
+			return;
+		}
+
+		llinfos << "Starting updating My Outfits with wearables ordering information" << llendl;
+
+		for (LLInventoryModel::cat_array_t::iterator outfit_iter = cats->begin();
+			outfit_iter != cats->end(); ++outfit_iter)
+		{
+			const LLUUID& cat_id = (*outfit_iter)->getUUID();
+			if (cat_id.isNull()) continue;
+
+			// saved initial outfit already contains wearables ordering information
+			if (cat_id == LLAppearanceMgr::getInstance()->getBaseOutfitUUID()) continue;
+
+			LLAppearanceMgr::getInstance()->updateClothingOrderingInfo(cat_id);
+		}
+
+		llinfos << "Finished updating My Outfits with wearables ordering information" << llendl;
+	}
+
+	/* virtual */ void fire(const LLUUID& inv_item) {};
+};
+
+
 LLInitialWearablesFetch::LLInitialWearablesFetch(const LLUUID& cof_id) :
 	LLInventoryFetchDescendentsObserver(cof_id)
 {
@@ -483,6 +527,8 @@ void LLLibraryOutfitsFetch::contentsDone()
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;
 	
+	LLPointer<LLOrderMyOutfitsOnDestroy> order_myoutfits_on_destroy = new LLOrderMyOutfitsOnDestroy;
+
 	for (uuid_vec_t::const_iterator folder_iter = mImportedClothingFolders.begin();
 		 folder_iter != mImportedClothingFolders.end();
 		 ++folder_iter)
@@ -518,7 +564,7 @@ void LLLibraryOutfitsFetch::contentsDone()
 								item->getName(),
 								item->getDescription(),
 								LLAssetType::AT_LINK,
-								NULL);
+								order_myoutfits_on_destroy);
 		}
 	}
 

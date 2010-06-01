@@ -892,7 +892,16 @@ bool LLAppViewer::init()
 	}
 	
 	LLViewerMedia::initClass();
-	
+
+	LLStringOps::setupWeekDaysNames(LLTrans::getString("dateTimeWeekdaysNames"));
+	LLStringOps::setupWeekDaysShortNames(LLTrans::getString("dateTimeWeekdaysShortNames"));
+	LLStringOps::setupMonthNames(LLTrans::getString("dateTimeMonthNames"));
+	LLStringOps::setupMonthShortNames(LLTrans::getString("dateTimeMonthShortNames"));
+	LLStringOps::setupDayFormat(LLTrans::getString("dateTimeDayFormat"));
+
+	LLStringOps::sAM = LLTrans::getString("dateTimeAM");
+	LLStringOps::sPM = LLTrans::getString("dateTimePM");
+
 	return true;
 }
 

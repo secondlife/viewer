@@ -27,7 +27,14 @@
      halign="left"
      use_ellipses="true"
      top="0"
-     width="394" />
+     width="394">
+      <first_tab
+       tab_bottom_image_flash="Toolbar_Left_Flash"/>
+      <middle_tab
+       tab_bottom_image_flash="Toolbar_Middle_Flash"/>
+      <last_tab
+       tab_bottom_image_flash="Toolbar_Right_Flash"/>
+    </tab_container>
     <icon
      color="DefaultShadowLight"
      enabled="false"

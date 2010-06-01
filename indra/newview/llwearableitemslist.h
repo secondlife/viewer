@@ -162,6 +162,7 @@ public:
 
 	/*virtual*/ void updateItem();
 	/*virtual*/ BOOL postBuild();
+	LLWearableType::EType getWearableType() const;
 
 protected:
 	LLPanelDummyClothingListItem(LLWearableType::EType w_type);

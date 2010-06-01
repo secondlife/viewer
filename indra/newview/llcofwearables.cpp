@@ -43,6 +43,8 @@
 #include "llmenugl.h"
 #include "llviewermenu.h"
 #include "llwearableitemslist.h"
+#include "llpaneloutfitedit.h"
+#include "llsidetray.h"
 
 static LLRegisterPanelClassWrapper<LLCOFAccordionListAdaptor> t_cof_accodion_list_adaptor("accordion_list_adaptor");
 
@@ -135,8 +137,10 @@ protected:
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 		LLUUID selected_id = mUUIDs.back();
 
-		registrar.add("BodyPart.Replace", boost::bind(&LLAppearanceMgr::wearItemOnAvatar,
-			LLAppearanceMgr::getInstance(), selected_id, true, true));
+		// *HACK* need to pass pointer to LLPanelOutfitEdit instead of LLSideTray::getInstance()->getPanel().
+		// LLSideTray::getInstance()->getPanel() is rather slow variant
+		LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
+		registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceBodyPartMenuItemClicked, panel_oe, selected_id));
 		registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
 
 		enable_registrar.add("BodyPart.OnEnable", boost::bind(&CofBodyPartContextMenu::onEnable, this, _2));
@@ -419,6 +423,7 @@ void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by
 		LLWearableType::EType w_type = static_cast<LLWearableType::EType>(type);
 		LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);
 		if(!item_panel) continue;
+		item_panel->childSetAction("btn_add", mCOFCallbacks.mAddWearable);
 		mClothing->addItem(item_panel, LLUUID::null, ADD_BOTTOM, false);
 	}
 }
@@ -436,6 +441,13 @@ bool LLCOFWearables::getSelectedUUIDs(uuid_vec_t& selected_ids)
 
 	mLastSelectedList->getSelectedUUIDs(selected_ids);
 	return selected_ids.size() != 0;
+}
+
+LLPanel* LLCOFWearables::getSelectedItem()
+{
+	if (!mLastSelectedList) return NULL;
+
+	return mLastSelectedList->getSelectedItem();
 }
 
 void LLCOFWearables::clear()

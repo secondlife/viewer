@@ -34,6 +34,7 @@
 
 #include "message.h"
 
+#include "llappviewer.h"
 #include "llfloaterreg.h"
 #include "lltrans.h"
 
@@ -388,6 +389,7 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setCommitCallback(boost::bind(&LLNearbyChatBar::onChatBoxCommit, this));
 	mChatBox->setKeystrokeCallback(&onChatBoxKeystroke, this);
 	mChatBox->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));
+	mChatBox->setFocusReceivedCallback(boost::bind(&LLNearbyChatBar::onChatBoxFocusReceived, this));
 
 	mChatBox->setIgnoreArrowKeys( FALSE ); 
 	mChatBox->setCommitOnFocusLost( FALSE );
@@ -543,6 +545,11 @@ void LLNearbyChatBar::onChatBoxFocusLost(LLFocusableElement* caller, void* userd
 {
 	// stop typing animation
 	gAgent.stopTyping();
+}
+
+void LLNearbyChatBar::onChatBoxFocusReceived()
+{
+	mChatBox->setEnabled(!gDisconnected);
 }
 
 EChatType LLNearbyChatBar::processChatTypeTriggers(EChatType type, std::string &str)
