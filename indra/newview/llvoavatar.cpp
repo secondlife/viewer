@@ -6686,6 +6686,42 @@ void LLVOAvatar::onFirstTEMessageReceived()
 }
 
 //-----------------------------------------------------------------------------
+// bool visualParamWeightsAreDefault()
+//-----------------------------------------------------------------------------
+bool LLVOAvatar::visualParamWeightsAreDefault()
+{
+	bool rtn = true;
+
+	bool is_wearing_skirt = isWearingWearableType(LLWearableType::WT_SKIRT);
+	for (LLVisualParam *param = getFirstVisualParam(); 
+	     param;
+	     param = getNextVisualParam())
+	{
+		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+		{
+			if (param->getWeight() != param->getDefaultWeight() &&
+			    // we have to not care whether skirt weights are default, if we're not actually wearing a skirt
+			    (is_wearing_skirt ||
+			     (param->getName() != "skirt length" &&
+			      param->getName() != "slit front" &&
+			      param->getName() != "slit back" &&
+			      param->getName() != "slit left" &&
+			      param->getName() != "slit right")))
+			{
+				//llinfos << "param '" << param->getName() << "'=" << param->getWeight() << " which differs from default=" << param->getDefaultWeight() << llendl;
+				rtn = false;
+				break;
+			}
+		}
+	}
+
+	//llinfos << "params are default ? " << int(rtn) << llendl;
+
+	return rtn;
+}
+
+
+//-----------------------------------------------------------------------------
 // processAvatarAppearance()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
@@ -6753,16 +6789,17 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	{
 		releaseComponentTextures();
 	}
-	
-	
+		
 	// parse visual params
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
-	if( num_blocks > 1 )
+	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (random()%2)!=0; // pretend that ~50% of AvatarAppearance messages arrived without a VisualParam block, for testing
+	if( num_blocks > 1 && !drop_visual_params_debug)
 	{
 		BOOL params_changed = FALSE;
 		BOOL interp_params = FALSE;
 		
-		LLVisualParam* param = getFirstVisualParam();
+		LLVisualParam* param = getFirstVisualParam(); // why do we peel away and ignore the first VisualParam?
+		llassert(param); // if this ever fires, we should do the same as when num_blocks<=1
 		if (!param)
 		{
 			llwarns << "No visual params!" << llendl;
@@ -6778,8 +6815,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 						
 				if( !param )
 				{
-					llwarns << "Number of params in AvatarAppearance msg does not match number of params in avatar xml file." << llendl;
-					return;
+					// more visual params supplied than expected - just process what we know about
+					break;
 				}
 
 				U8 value;
@@ -6804,14 +6841,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			}
 		}
 
-		while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) )
+		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE);
+		if (num_blocks != expected_tweakable_count)
 		{
-			param = getNextVisualParam();
-		}
-		if( param )
-		{
-			llwarns << "Number of params in AvatarAppearance msg does not match number of params in avatar xml file." << llendl;
-			return;
+			llwarns << "Number of params in AvatarAppearance msg (" << num_blocks << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
 		}
 
 		if (params_changed)
@@ -6828,15 +6861,36 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 				updateSexDependentLayerSets( FALSE );
 			}	
 		}
+
+		llassert( getSex() == ((getVisualParamWeight( "male" ) > 0.5f) ? SEX_MALE : SEX_FEMALE) );
 	}
 	else
 	{
-		llwarns << "AvatarAppearance msg received without any parameters, object: " << getID() << llendl;
+		// AvatarAppearance message arrived without visual params
+		if (drop_visual_params_debug)
+		{
+			llinfos << "Debug-faked lack of parameters on AvatarAppearance for object: "  << getID() << llendl;
+		}
+		else
+		{
+			llinfos << "AvatarAppearance msg received without any parameters, object: " << getID() << llendl;
+		}
+
+		// this isn't really a problem if we already have a non-default shape
+		if (visualParamWeightsAreDefault())
+		{
+			// re-request appearance, hoping that it comes back with a shape next time
+			llinfos << "Re-requesting AvatarAppearance for object: "  << getID() << llendl;
+			LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
+		}
+		else
+		{
+			llinfos << "That's okay, we already have a non-default shape for object: "  << getID() << llendl;
+			// we don't really care.
+		}
 	}
 
 	setCompositeUpdatesEnabled( TRUE );
-
-	llassert( getSex() == ((getVisualParamWeight( "male" ) > 0.5f) ? SEX_MALE : SEX_FEMALE) );
 
 	// If all of the avatars are completely baked, release the global image caches to conserve memory.
 	LLVOAvatar::cullAvatarsByPixelArea();
