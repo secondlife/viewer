@@ -192,15 +192,16 @@ bool LLGiveInventory::isInventoryGroupGiveAcceptable(const LLInventoryItem* item
 }
 
 // static
-void LLGiveInventory::doGiveInventoryItem(const LLUUID& to_agent,
+bool LLGiveInventory::doGiveInventoryItem(const LLUUID& to_agent,
 									  const LLInventoryItem* item,
 									  const LLUUID& im_session_id/* = LLUUID::null*/)
 
 {
+	bool res = true;
 	llinfos << "LLGiveInventory::giveInventory()" << llendl;
 	if (!isInventoryGiveAcceptable(item))
 	{
-		return;
+		return false;
 	}
 	if (item->getPermissions().allowCopyBy(gAgentID))
 	{
@@ -210,12 +211,19 @@ void LLGiveInventory::doGiveInventoryItem(const LLUUID& to_agent,
 	else
 	{
 		// ask if the agent is sure.
+		LLSD substitutions;
+		substitutions["ITEMS"] = item->getName();
 		LLSD payload;
 		payload["agent_id"] = to_agent;
-		payload["item_id"] = item->getUUID();
-		LLNotificationsUtil::add("CannotCopyWarning", LLSD(), payload,
+		LLSD items = LLSD::emptyArray();
+		items.append(item->getUUID());
+		payload["items"] = items;
+		LLNotificationsUtil::add("CannotCopyWarning", substitutions, payload,
 			&LLGiveInventory::handleCopyProtectedItem);
+		res = false;
 	}
+
+	return res;
 }
 
 void LLGiveInventory::doGiveInventoryCategory(const LLUUID& to_agent,
@@ -318,25 +326,29 @@ void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im
 bool LLGiveInventory::handleCopyProtectedItem(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	LLSD itmes = notification["payload"]["items"];
 	LLInventoryItem* item = NULL;
 	switch(option)
 	{
 	case 0:  // "Yes"
-		item = gInventory.getItem(notification["payload"]["item_id"].asUUID());
-		if (item)
+		for (LLSD::array_iterator it = itmes.beginArray(); it != itmes.endArray(); it++)
 		{
-			LLGiveInventory::commitGiveInventoryItem(notification["payload"]["agent_id"].asUUID(),
-				item);
-			// delete it for now - it will be deleted on the server
-			// quickly enough.
-			gInventory.deleteObject(notification["payload"]["item_id"].asUUID());
-			gInventory.notifyObservers();
+			item = gInventory.getItem((*it).asUUID());
+			if (item)
+			{
+				LLGiveInventory::commitGiveInventoryItem(notification["payload"]["agent_id"].asUUID(),
+					item);
+				// delete it for now - it will be deleted on the server
+				// quickly enough.
+				gInventory.deleteObject(item->getUUID());
+				gInventory.notifyObservers();
+			}
+			else
+			{
+				LLNotificationsUtil::add("CannotGiveItem");
+			}
+			break;
 		}
-		else
-		{
-			LLNotificationsUtil::add("CannotGiveItem");
-		}
-		break;
 
 	default: // no, cancel, whatever, who cares, not yes.
 		LLNotificationsUtil::add("TransactionCancelled");

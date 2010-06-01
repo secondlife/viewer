@@ -1090,7 +1090,9 @@ The region [REGION] does not allow terraforming.
    icon="alertmodal.tga"
    name="CannotCopyWarning"
    type="alertmodal">
-You do not have permission to copy this item and will lose it from your inventory if you give it away. Do you really want to offer this item?
+You do not have permission to copy the following items:
+[ITEMS]
+and will lose it from your inventory if you give it away. Do you really want to offer these items?
     <usetemplate
      name="okcancelbuttons"
      notext="No"
@@ -6117,6 +6119,28 @@ The button will be shown when there is enough space for it.
    name="ShareNotification"
    type="notifytip">
 Drag items from inventory onto a person in the resident picker
+  </notification>
+  <notification
+   icon="notifytip.tga"
+   name="ShareItemsConfirmation"
+   type="alertmodal">
+Are you sure you want to share the following items:
+
+[ITEMS]
+
+With the following Residents:
+
+[RESIDENTS]
+	<usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Ok"/>
+  </notification>
+  <notification
+   icon="notifytip.tga"
+   name="ItemsShared"
+   type="notifytip">
+Items are successfully shared.
   </notification>
   <notification
    icon="notifytip.tga"

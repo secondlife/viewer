@@ -48,7 +48,7 @@
 #include "llgiveinventory.h"
 #include "llhudmanager.h"
 #include "llhudeffecttrail.h"
-//#include "llimview.h"
+#include "llimview.h"
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
@@ -1422,12 +1422,42 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 }
 
 
+static void give_inventory_cb(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	// if Cancel pressed
+	if (option == 1)
+	{
+		return;
+	}
+
+	LLSD payload = notification["payload"];
+	const LLUUID& session_id = payload["session_id"];
+	const LLUUID& agent_id = payload["agent_id"];
+	LLViewerInventoryItem * inv_item =  gInventory.getItem(payload["item_id"]);
+	if (NULL == inv_item)
+	{
+		llassert(NULL != inv_item);
+		return;
+	}
+
+	if (LLGiveInventory::doGiveInventoryItem(agent_id, inv_item, session_id))
+	{
+		if ("avatarpicker" == payload["d&d_dest"].asString())
+		{
+			LLFloaterReg::hideInstance("avatar_picker");
+		}
+		LLNotificationsUtil::add("ItemsShared");
+	}
+}
+
 // function used as drag-and-drop handler for simple agent give inventory requests
 //static
 bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_id, BOOL drop,
 											  EDragAndDropType cargo_type,
 											  void* cargo_data,
-											  EAcceptance* accept)
+											  EAcceptance* accept,
+											  const LLSD& dest)
 {
 	// check the type
 	switch(cargo_type)
@@ -1452,7 +1482,21 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 			*accept = ACCEPT_YES_COPY_SINGLE;
 			if (drop)
 			{
-				LLGiveInventory::doGiveInventoryItem(dest_agent, inv_item, session_id);
+				LLIMModel::LLIMSession * session = LLIMModel::instance().findIMSession(session_id);
+				if (NULL == session)
+				{
+					llassert(NULL != session);
+					return false;
+				}
+				LLSD substitutions;
+				substitutions["RESIDENTS"] = session->mName;
+				substitutions["ITEMS"] = inv_item->getName();
+				LLSD payload;
+				payload["agent_id"] = dest_agent;
+				payload["item_id"] = inv_item->getUUID();
+				payload["session_id"] = session_id;
+				payload["d&d_dest"] = dest.asString();
+				LLNotificationsUtil::add("ShareItemsConfirmation", substitutions, payload, &give_inventory_cb);
 			}
 		}
 		else

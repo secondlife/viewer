@@ -246,7 +246,8 @@ public:
 	static bool handleGiveDragAndDrop(LLUUID agent, LLUUID session, BOOL drop,
 									  EDragAndDropType cargo_type,
 									  void* cargo_data,
-									  EAcceptance* accept);
+									  EAcceptance* accept,
+									  const LLSD& dest = LLSD());
 
 	// Classes used for determining 3d drag and drop types.
 private:
