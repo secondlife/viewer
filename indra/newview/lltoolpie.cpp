@@ -860,7 +860,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			|| !existing_inspector->getVisible()
 			|| existing_inspector->getKey()["avatar_id"].asUUID() != hover_object->getID())
 		{
-			// IDEVO JAMESDEBUG try to get display name + SLID
+			// IDEVO: try to get display name + username
 			std::string final_name;
 			std::string full_name;
 			if (!gCacheName->getFullName(hover_object->getID(), full_name))
