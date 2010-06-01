@@ -329,16 +329,7 @@ void LLCloudLayer::setRegion(LLViewerRegion *regionp)
 
 void LLCloudLayer::destroy()
 {
-	// Kill all of the existing puffs
-	S32 i, j;
-	
-	for (i = 0; i < CLOUD_GROUPS_PER_EDGE; i++)
-	{
-		for (j = 0; j < CLOUD_GROUPS_PER_EDGE; j++)
-		{
-			mCloudGroups[i][j].cleanup();
-		}
-	}
+	reset();
 
 	delete [] mDensityp;
 	mDensityp = NULL;
@@ -348,8 +339,17 @@ void LLCloudLayer::destroy()
 
 void LLCloudLayer::reset()
 {
-}
+	// Kill all of the existing puffs
+	S32 i, j;
 
+	for (i = 0; i < CLOUD_GROUPS_PER_EDGE; i++)
+	{
+		for (j = 0; j < CLOUD_GROUPS_PER_EDGE; j++)
+		{
+			mCloudGroups[i][j].cleanup();
+		}
+	}
+}
 
 void LLCloudLayer::setWindPointer(LLWind *windp)
 {

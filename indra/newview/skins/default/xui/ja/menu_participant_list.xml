@@ -14,8 +14,8 @@
 	<context_menu label="モデレーターのオプション &gt;" name="Moderator Options">
 		<menu_item_check label="文字チャットを許可" name="AllowTextChat"/>
 		<menu_item_call label="この参加者をミュートする" name="ModerateVoiceMuteSelected"/>
-		<menu_item_call label="他の人全員をミュートする" name="ModerateVoiceMuteOthers"/>
 		<menu_item_call label="この参加者のミュートを解除する" name="ModerateVoiceUnMuteSelected"/>
-		<menu_item_call label="他の人全員のミュートを解除する" name="ModerateVoiceUnMuteOthers"/>
+		<menu_item_call label="全員をミュート" name="ModerateVoiceMute"/>
+		<menu_item_call label="全員のミュート解除" name="ModerateVoiceUnmute"/>
 	</context_menu>
 </context_menu>

@@ -1,19 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Graphiques" name="Display panel">
-	<text name="WindowSizeLabel">
-		Taille de la fenêtre :
-	</text>
-	<check_box label="Utiliser le plein écran" name="windowed mode"/>
-	<combo_box name="windowsize combo">
-		<combo_box.item label="640 x 480" name="640x480"/>
-		<combo_box.item label="800 x 600" name="800x600"/>
-		<combo_box.item label="720 x 480 (NTSC)" name="720x480"/>
-		<combo_box.item label="768 x 576 (PAL)" name="768x576"/>
-		<combo_box.item label="1024 x 768" name="1024x768"/>
-	</combo_box>
-	<text name="UI Size:">
-		Taille de l&apos;interface :
-	</text>
 	<text name="QualitySpeed">
 		Qualité et vitesse :
 	</text>
@@ -63,6 +49,10 @@
 			m
 		</text>
 		<slider label="Nombre de particules max. :" label_width="147" name="MaxParticleCount"/>
+		<slider label="Limite d&apos;affichage max des avatars :" name="MaxAvatarDrawDistance"/>
+		<text name="DrawDistanceMeterText3">
+			m
+		</text>
 		<slider label="Qualité post-traitement :" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Détails des rendus :
@@ -98,8 +88,8 @@
 			Sources lumineuses :
 		</text>
 		<radio_group name="LightingDetailRadio">
-			<radio_item label="Soleil et lune uniquement" name="SunMoon"/>
-			<radio_item label="Lumières à proximité" name="LocalLights"/>
+			<radio_item label="Soleil et lune uniquement" name="SunMoon" value="0"/>
+			<radio_item label="Lumières à proximité" name="LocalLights" value="1"/>
 		</radio_group>
 		<text left="380" name="TerrainDetailText">
 			Rendu du terrain :

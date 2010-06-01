@@ -22,6 +22,6 @@
 		<button name="del_btn" tool_tip="Supprimer ce geste"/>
 	</panel>
 	<button label="Modifier" name="edit_btn"/>
-	<button label="Jouer" name="play_btn"/>
+	<button label="Lire" name="play_btn"/>
 	<button label="Stop" name="stop_btn"/>
 </floater>

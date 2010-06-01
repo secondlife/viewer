@@ -253,6 +253,7 @@ public:
 
 	BOOL					isBodyRegion(const std::string& region) const;
 	LLTexLayerSetBuffer*	getComposite();
+	const LLTexLayerSetBuffer* getComposite() const; // Do not create one if it doesn't exist.
 	void					requestUpdate();
 	void					requestUpload();
 	void					cancelUpload();
@@ -272,7 +273,7 @@ public:
 	void					cloneTemplates(LLLocalTextureObject *lto, LLVOAvatarDefines::ETextureIndex tex_index, LLWearable* wearable);
 	
 	LLVOAvatarSelf*		    getAvatar()	const { return mAvatar; }
-	const std::string		getBodyRegion() const;
+	const std::string		getBodyRegionName() const;
 	BOOL					hasComposite() const { return (mComposite.notNull()); }
 	LLVOAvatarDefines::EBakedTextureIndex getBakedTexIndex() { return mBakedTexIndex; }
 	void					setBakedTexIndex( LLVOAvatarDefines::EBakedTextureIndex index) { mBakedTexIndex = index; }
@@ -344,22 +345,29 @@ public:
 													S32 result, LLExtStat ext_status);
 	static void				dumpTotalByteCount();
 
+	const std::string		dumpTextureInfo() const;
+
 	virtual void restoreGLTexture();
 	virtual void destroyGLTexture();
 
-private:
+protected:
 	void					pushProjection() const;
 	void					popProjection() const;
-
+	BOOL					isReadyToUpload() const;
+	
 private:
 	LLTexLayerSet* const    mTexLayerSet;
 
-	BOOL					mNeedsUpdate;
-	BOOL					mNeedsUpload;
-	BOOL					mUploadPending;
-	LLUUID					mUploadID; // Identifys the current upload process (null if none).  Used to avoid overlaps (eg, when the user rapidly makes two changes outside of Face Edit)
+	BOOL					mNeedsUpdate; // Whether we need to update our baked textures
+	BOOL					mNeedsUpload; // Whether we need to send our baked textures to the server
+	U32						mDebugNumLowresUploads; // Number of times we've sent a lowres version of our baked textures to the server
+	BOOL					mUploadPending; // Whether we have received back the new baked textures
+	LLUUID					mUploadID; // Identifies the current upload process (null if none).  Used to avoid overlaps (eg, when the user rapidly makes two changes outside of Face Edit)
 
 	static S32				sGLByteCount;
+	
+	LLFrameTimer    		mNeedsUploadTimer; // Tracks time since upload was requested
+
 };
 
 //
@@ -404,13 +412,18 @@ private:
 class LLBakedUploadData
 {
 public:
-	LLBakedUploadData(const LLVOAvatarSelf* avatar, LLTexLayerSet* layerset, const LLUUID& id);
+	LLBakedUploadData(const LLVOAvatarSelf* avatar, 
+					  LLTexLayerSet* layerset, 
+					  const LLUUID& id,
+					  BOOL highest_lod);
 	~LLBakedUploadData() {}
 
 	const LLUUID				mID;
 	const LLVOAvatarSelf*		mAvatar;	 // just backlink, don't LLPointer 
 	LLTexLayerSet*				mTexLayerSet;
    	const U64					mStartTime;		// Used to measure time baked texture upload requires
+	BOOL						mHighestLOD;
+
 };
 
 

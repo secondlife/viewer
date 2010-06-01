@@ -3531,7 +3531,7 @@ You are not allowed in that region due to your maturity Rating.
    type="alertmodal">
 You are not allowed in that Region due to your maturity Rating preference.
 
-Click &apos;Change Preference&apos; to raise your maturity Rating preference for immediate entry. Doing so will allow you to search for and access [REGIONMATURITY] content. If you wish to change this setting later, you may do so from Me &gt; Preferences &gt; General.
+To enter the desired region, please change your maturity Rating preference. This will allow you to search for and access [REGIONMATURITY] content. To undo any changes, go to Me &gt; Preferences &gt; General.
 	 <form name="form">
       <button
        index="0"
@@ -6211,15 +6211,24 @@ Deed to group failed.
    name="AvatarRezNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-Avatar '[NAME]' declouded in [TIME] seconds.
+Avatar '[NAME]' declouded after [TIME] seconds.
   </notification>
 
   <notification
    icon="notifytip.tga"
-   name="AvatarRezSelfNotification"
+   name="AvatarRezSelfBakedDoneNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
-You finished baking your outfit in [TIME] seconds.
+You finished baking your outfit after [TIME] seconds.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfBakedUpdateNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You sent out an update of your appearance after [TIME] seconds.
+[STATUS]
   </notification>
 
 
@@ -6263,12 +6272,51 @@ Avatar '[NAME]' entered appearance mode.
 Avatar '[NAME]' left appearance mode.
   </notification>
 
+    <notification
+   icon="alertmodal.tga"
+   name="NoConnect"
+   type="alertmodal">
+        We're having trouble connecting using [PROTOCOL] [HOSTID].
+        Please check your network and firewall setup.
+        <form name="form">
+            <button
+               default="true"
+               index="0"
+               name="OK"
+               text="OK"/>
+        </form>
+    </notification>
+
+    <notification
+          icon="alertmodal.tga"
+          name="NoVoiceConnect"
+          type="alertmodal">
+        We're having trouble connecting your voiceserver using [HOSTID].
+        Voice communications will not be available.
+        Please check your network and firewall setup.
+        <form name="form">
+            <button
+               default="true"
+               index="0"
+               name="OK"
+               text="OK"/>
+        </form>
+    </notification>
+
   <notification
    icon="notifytip.tga"
    name="AvatarRezLeftNotification"
    type="notifytip">
 ( [EXISTENCE] seconds alive )
 Avatar '[NAME]' left as fully loaded.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="AvatarRezSelfBakeNotification"
+   type="notifytip">
+( [EXISTENCE] seconds alive )
+You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
 
   <notification

@@ -6,6 +6,9 @@
 	<panel.string name="cant_view_group_land_text">
 		グループ所有地を確認する権限がありません。
 	</panel.string>
+	<panel.string name="epmty_view_group_land_text">
+		なし
+	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
 		グループの会計情報を確認する権限がありません。
 	</panel.string>

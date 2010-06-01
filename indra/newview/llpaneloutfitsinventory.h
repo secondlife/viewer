@@ -46,6 +46,7 @@ class LLButton;
 class LLMenuGL;
 class LLSidepanelAppearance;
 class LLTabContainer;
+class LLSaveOutfitComboBtn;
 
 class LLPanelOutfitsInventory : public LLPanel
 {
@@ -86,7 +87,7 @@ private:
 	LLSaveFolderState*		mSavedFolderState;
 	LLTabContainer*			mAppearanceTabs;
 	std::string 			mFilterSubString;
-
+	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
 public:
 	//////////////////////////////////////////////////////////////////////////////////
 	// tab panels
@@ -117,7 +118,6 @@ protected:
 	void updateListCommands();
 	void onGearButtonClick();
 	void onWearButtonClick();
-	void onAddButtonClick();
 	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
 	void onTrashButtonClick();
 	void onClipboardAction(const LLSD& userdata);

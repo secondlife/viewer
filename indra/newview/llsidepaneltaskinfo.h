@@ -54,7 +54,7 @@ public:
 	virtual ~LLSidepanelTaskInfo();
 
 	/*virtual*/	BOOL postBuild();
-	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void handleVisibilityChange ( BOOL new_visibility );
 
 	void setObjectSelection(LLObjectSelectionHandle selection);
 

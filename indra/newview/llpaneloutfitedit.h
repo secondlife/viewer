@@ -59,6 +59,9 @@ class LLToggleableMenu;
 class LLFilterEditor;
 class LLFilteredWearableListManager;
 class LLMenuGL;
+class LLFindNonLinksByMask;
+class LLFindWearablesOfType;
+class LLSaveOutfitComboBtn;
 
 class LLPanelOutfitEdit : public LLPanel
 {
@@ -93,8 +96,6 @@ public:
 	void showWearablesFilter();
 	void showFilteredWearablesPanel();
 	void showFilteredFolderWearablesPanel();
-	void saveOutfit(bool as_new = false);
-	void showSaveMenu();
 
 	void onTypeFilterChanged(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
@@ -103,6 +104,8 @@ public:
 	void onOutfitItemSelectionChange(void);
 	void onRemoveFromOutfitClicked(void);
 	void onEditWearableClicked(void);
+	void onAddWearableClicked(void);
+	void onReplaceBodyPartMenuItemClicked(LLUUID selected_item_id);
 
 	void displayCurrentOutfit();
 	void updateCurrentOutfitName();
@@ -129,6 +132,7 @@ private:
 
 	void onGearButtonClick(LLUICtrl* clicked_button);
 	void onGearMenuItemClick(const LLSD& data);
+	void showFilteredWearableItemsList(LLWearableType::EType type);
 
 
 	LLTextBox*			mCurrentOutfitName;
@@ -140,7 +144,11 @@ private:
 	LLButton*			mEditWearableBtn;
 	LLButton*			mFolderViewBtn;
 	LLButton*			mListViewBtn;
-	LLToggleableMenu*	mSaveMenu;
+	LLButton*			mAddToOutfitBtn;
+	LLPanel*			mAddWearablesPanel;
+
+	LLFindNonLinksByMask*  mWearableListMaskCollector;
+	LLFindWearablesOfType* mWearableListTypeCollector;
 
 	LLFilteredWearableListManager* 	mWearableListManager;
 	LLInventoryItemsList* 			mWearableItemsList;
@@ -154,6 +162,8 @@ private:
 	LLCOFWearables*		mCOFWearables;
 	LLMenuGL*			mGearMenu;
 	bool				mInitialized;
+	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
+
 };
 
 #endif // LL_LLPANELOUTFITEDIT_H

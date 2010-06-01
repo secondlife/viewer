@@ -143,7 +143,8 @@ LLMotionController::LLMotionController()
 	  mPauseTime(0.f),
 	  mTimeStep(0.f),
 	  mTimeStepCount(0),
-	  mLastInterp(0.f)
+	  mLastInterp(0.f),
+	  mIsSelf(FALSE)
 {
 }
 
@@ -446,6 +447,7 @@ BOOL LLMotionController::stopMotionInstance(LLMotion* motion, BOOL stop_immediat
 		return FALSE;
 	}
 
+	
 	// If on active list, stop it
 	if (isMotionActive(motion) && !motion->isStopped())
 	{
@@ -1029,6 +1031,31 @@ LLMotion* LLMotionController::findMotion(const LLUUID& id) const
 	else
 	{
 		return iter->second;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// dumpMotions()
+//-----------------------------------------------------------------------------
+void LLMotionController::dumpMotions()
+{
+	llinfos << "=====================================" << llendl;
+	for (motion_map_t::iterator iter = mAllMotions.begin();
+		 iter != mAllMotions.end(); iter++)
+	{
+		LLUUID id = iter->first;
+		std::string state_string;
+		LLMotion *motion = iter->second;
+		if (mLoadingMotions.find(motion) != mLoadingMotions.end())
+			state_string += std::string("l");
+		if (mLoadedMotions.find(motion) != mLoadedMotions.end())
+			state_string += std::string("L");
+		if (std::find(mActiveMotions.begin(), mActiveMotions.end(), motion)!=mActiveMotions.end())
+			state_string += std::string("A");
+		if (mDeprecatedMotions.find(motion) != mDeprecatedMotions.end())
+			state_string += std::string("D");
+		llinfos << gAnimLibrary.animationName(id) << " " << state_string << llendl;
+		
 	}
 }
 

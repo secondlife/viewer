@@ -125,10 +125,8 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	return TRUE;
 }
 
-// virtual
-void LLSidepanelTaskInfo::setVisible(BOOL visible)
+/*virtual*/ void LLSidepanelTaskInfo::handleVisibilityChange ( BOOL visible )
 {
-	LLPanel::setVisible(visible);
 	if (visible)
 	{
 		sActivePanel = this;
@@ -137,8 +135,11 @@ void LLSidepanelTaskInfo::setVisible(BOOL visible)
 	else
 	{
 		sActivePanel = NULL;
+		// drop selection reference
+		mObjectSelection = NULL;
 	}
 }
+
 
 void LLSidepanelTaskInfo::disableAll()
 {

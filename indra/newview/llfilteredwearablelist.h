@@ -32,6 +32,7 @@
 #ifndef LL_LLFILTEREDWEARABLELIST_H
 #define LL_LLFILTEREDWEARABLELIST_H
 
+#include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 
 class LLInventoryItemsList;
@@ -42,7 +43,7 @@ class LLFilteredWearableListManager : public LLInventoryObserver
 	LOG_CLASS(LLFilteredWearableListManager);
 public:
 
-	LLFilteredWearableListManager(LLInventoryItemsList* list, U64 filter_mask);
+	LLFilteredWearableListManager(LLInventoryItemsList* list, LLInventoryCollectFunctor* collector);
 	~LLFilteredWearableListManager();
 
 	/** LLInventoryObserver implementation
@@ -51,9 +52,9 @@ public:
 	/*virtual*/ void changed(U32 mask);
 
 	/**
-	 * Sets new filter and applies it immediately
+	 * Sets new collector and applies it immediately
 	 */
-	void setFilterMask(U64 mask);
+	void setFilterCollector(LLInventoryCollectFunctor* collector);
 
 	/**
 	 * Populates wearable list with filtered data.
@@ -62,7 +63,7 @@ public:
 
 private:
 	LLInventoryItemsList* mWearableList;
-	U64 mFilterMask;
+	LLInventoryCollectFunctor* mCollector;
 };
 
 #endif //LL_LLFILTEREDWEARABLELIST_H

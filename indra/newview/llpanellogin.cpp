@@ -1186,7 +1186,8 @@ void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe)
 
 void LLPanelLogin::updateLoginPanelLinks()
 {
-	LLSD grid_data = LLGridManager::getInstance()->getGridInfo();
+	LLSD grid_data;
+	LLGridManager::getInstance()->getGridInfo(grid_data);
 	bool system_grid = grid_data.has(GRID_IS_SYSTEM_GRID_VALUE);
 	
 	// need to call through sInstance, as it's called from onSelectServer, which

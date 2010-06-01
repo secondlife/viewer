@@ -148,7 +148,8 @@ namespace tut
 					  known_grids[std::string("util.agni.lindenlab.com")], std::string("Agni"));
 		ensure_equals("None exists", known_grids[""], "None");
 		
-		LLSD grid = LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com");
+		LLSD grid;
+		LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com", grid);
 		ensure("Grid info for agni is a map", grid.isMap());
 		ensure_equals("name is correct for agni", 
 					  grid[GRID_VALUE].asString(), std::string("util.agni.lindenlab.com"));
@@ -190,7 +191,8 @@ namespace tut
 	
 		
 		// assure Agni doesn't get overwritten
-		LLSD grid = LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com");
+		LLSD grid;
+		LLGridManager::getInstance()->getGridInfo("util.agni.lindenlab.com", grid);
 
 		ensure_equals("Agni grid label was not modified by grid file", 
 					  grid[GRID_LABEL_VALUE].asString(), std::string("Agni"));
@@ -215,7 +217,7 @@ namespace tut
 		
 		ensure_equals("Grid file adds to name<->label map", 
 					  known_grids["grid1"], std::string("mylabel"));
-		grid = LLGridManager::getInstance()->getGridInfo("grid1");
+		LLGridManager::getInstance()->getGridInfo("grid1", grid);
 		ensure_equals("grid file grid name is set",
 					  grid[GRID_VALUE].asString(), std::string("grid1"));
 		ensure_equals("grid file label is set", 
@@ -244,35 +246,20 @@ namespace tut
 	template<> template<>
 	void viewerNetworkTestObject::test<3>()
 	{	
-		gCmdLineLoginURI = "https://my.login.uri/cgi-bin/login.cgi";
-		
+		// USE --grid command line
+		// initialize with a known grid
+		LLSD grid;
+		gCmdLineGridChoice = "Aditi";
 		LLGridManager::getInstance()->initialize("grid_test.xml");
 		// with single login uri specified.
 		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();
-		ensure_equals("adding a command line grid increases known grid size", 
-					  known_grids.size(), 24);
-		ensure_equals("Command line grid is added to the list of grids", 
-					  known_grids["my.login.uri"], std::string("my.login.uri"));
-		LLSD grid = LLGridManager::getInstance()->getGridInfo("my.login.uri");
-		ensure_equals("Command line grid name is set",
-					  grid[GRID_VALUE].asString(), std::string("my.login.uri"));
-		ensure_equals("Command line grid label is set", 
-					  grid[GRID_LABEL_VALUE].asString(), std::string("my.login.uri"));
-		ensure("Command line grid login uri is an array",
-			   grid[GRID_LOGIN_URI_VALUE].isArray());
-		ensure_equals("Command line grid login uri is set",
-					  grid[GRID_LOGIN_URI_VALUE][0].asString(), 
-					  std::string("https://my.login.uri/cgi-bin/login.cgi"));
-		ensure_equals("Command line grid helper uri is set",
-					  grid[GRID_HELPER_URI_VALUE].asString(), 
-					  std::string("https://my.login.uri/helpers/"));
-		ensure_equals("Command line grid login page is set",
-					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
-					  std::string("http://my.login.uri/app/login/"));
-		ensure("Command line grid favorite is set",
-			   !grid.has(GRID_IS_FAVORITE_VALUE));
-		ensure("Command line grid isn't a system grid",
-			   !grid.has(GRID_IS_SYSTEM_GRID_VALUE));		
+		ensure_equals("Using a known grid via command line doesn't increase number of known grids", 
+					  known_grids.size(), 23);
+		ensure_equals("getGridLabel", LLGridManager::getInstance()->getGridLabel(), std::string("Aditi"));
+		// initialize with a known grid in lowercase
+		gCmdLineGridChoice = "agni";
+		LLGridManager::getInstance()->initialize("grid_test.xml");
+		ensure_equals("getGridLabel", LLGridManager::getInstance()->getGridLabel(), std::string("Agni"));		
 		
 		// now try a command line with a custom grid identifier
 		gCmdLineGridChoice = "mycustomgridchoice";		
@@ -282,7 +269,7 @@ namespace tut
 					  known_grids.size(), 24);
 		ensure_equals("Custom Command line grid is added to the list of grids", 
 					  known_grids["mycustomgridchoice"], std::string("mycustomgridchoice"));
-		grid = LLGridManager::getInstance()->getGridInfo("mycustomgridchoice");
+		LLGridManager::getInstance()->getGridInfo("mycustomgridchoice", grid);
 		ensure_equals("Custom Command line grid name is set",
 					  grid[GRID_VALUE].asString(), std::string("mycustomgridchoice"));
 		ensure_equals("Custom Command line grid label is set", 
@@ -291,26 +278,165 @@ namespace tut
 			   grid[GRID_LOGIN_URI_VALUE].isArray());
 		ensure_equals("Custom Command line grid login uri is set",
 					  grid[GRID_LOGIN_URI_VALUE][0].asString(), 
+					  std::string("https://mycustomgridchoice/cgi-bin/login.cgi"));
+		ensure_equals("Custom Command line grid helper uri is set",
+					  grid[GRID_HELPER_URI_VALUE].asString(), 
+					  std::string("https://mycustomgridchoice/helpers/"));
+		ensure_equals("Custom Command line grid login page is set",
+					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
+					  std::string("http://mycustomgridchoice/app/login/"));
+	}
+	
+	// validate override of login uri with cmd line
+	template<> template<>
+	void viewerNetworkTestObject::test<4>()
+	{			
+		// Override with loginuri
+		// override known grid
+		LLSD grid;
+		gCmdLineGridChoice = "Aditi";
+		gCmdLineLoginURI = "https://my.login.uri/cgi-bin/login.cgi";		
+		LLGridManager::getInstance()->initialize("grid_test.xml");		
+		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();		
+		ensure_equals("Override known grid login uri: No grids are added", 
+					  known_grids.size(), 23);
+		LLGridManager::getInstance()->getGridInfo(grid);
+		ensure("Override known grid login uri: login uri is an array",
+			   grid[GRID_LOGIN_URI_VALUE].isArray());
+		ensure_equals("Override known grid login uri: Command line grid login uri is set",
+					  grid[GRID_LOGIN_URI_VALUE][0].asString(), 
 					  std::string("https://my.login.uri/cgi-bin/login.cgi"));
+		ensure_equals("Override known grid login uri: helper uri is not changed",
+					  grid[GRID_HELPER_URI_VALUE].asString(), 
+					  std::string("http://aditi-secondlife.webdev.lindenlab.com/helpers/"));
+		ensure_equals("Override known grid login uri: login page is not set",
+					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
+					  std::string("http://secondlife.com/app/login/"));		
 		
-		// add a helperuri
-		gCmdLineHelperURI = "myhelperuri";
-		LLGridManager::getInstance()->initialize("grid_test.xml");
-		grid = LLGridManager::getInstance()->getGridInfo("mycustomgridchoice");		
-		ensure_equals("Validate command line helper uri", 
-					  grid[GRID_HELPER_URI_VALUE].asString(), std::string("myhelperuri"));		
+		// Override with loginuri
+		// override custom grid
+		gCmdLineGridChoice = "mycustomgridchoice";
+		gCmdLineLoginURI = "https://my.login.uri/cgi-bin/login.cgi";		
+		LLGridManager::getInstance()->initialize("grid_test.xml");		
+		known_grids = LLGridManager::getInstance()->getKnownGrids();
+		LLGridManager::getInstance()->getGridInfo(grid);
+		ensure_equals("Override custom grid login uri: Grid is added", 
+					  known_grids.size(), 24);		
+		ensure("Override custom grid login uri: login uri is an array",
+			   grid[GRID_LOGIN_URI_VALUE].isArray());
+		ensure_equals("Override custom grid login uri: login uri is set",
+					  grid[GRID_LOGIN_URI_VALUE][0].asString(), 
+					  std::string("https://my.login.uri/cgi-bin/login.cgi"));
+		ensure_equals("Override custom grid login uri: Helper uri is not set",
+					  grid[GRID_HELPER_URI_VALUE].asString(), 
+					  std::string("https://mycustomgridchoice/helpers/"));
+		ensure_equals("Override custom grid login uri: Login page is not set",
+					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
+					  std::string("http://mycustomgridchoice/app/login/"));
+	}
+	
+	// validate override of helper uri with cmd line
+	template<> template<>
+	void viewerNetworkTestObject::test<5>()
+	{	
+		// Override with helperuri
+		// override known grid
+		LLSD grid;
+		gCmdLineGridChoice = "Aditi";
+		gCmdLineLoginURI = "";
+		gCmdLineHelperURI = "https://my.helper.uri/mycustomhelpers";		
+		LLGridManager::getInstance()->initialize("grid_test.xml");		
+		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();		
+		ensure_equals("Override known grid helper uri: No grids are added", 
+					  known_grids.size(), 23);
+		LLGridManager::getInstance()->getGridInfo(grid);
+		ensure("Override known known helper uri: login uri is an array",
+			   grid[GRID_LOGIN_URI_VALUE].isArray());
+		ensure_equals("Override known grid helper uri: login uri is not changed",
+					  grid[GRID_LOGIN_URI_VALUE][0].asString(), 
+					  std::string("https://login.aditi.lindenlab.com/cgi-bin/login.cgi"));
+		ensure_equals("Override known grid helper uri: helper uri is changed",
+					  grid[GRID_HELPER_URI_VALUE].asString(), 
+					  std::string("https://my.helper.uri/mycustomhelpers"));
+		ensure_equals("Override known grid helper uri: login page is not changed",
+					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
+					  std::string("http://secondlife.com/app/login/"));		
 		
-		// add a login page
+		// Override with helperuri
+		// override custom grid
+		gCmdLineGridChoice = "mycustomgridchoice";
+		gCmdLineHelperURI = "https://my.helper.uri/mycustomhelpers";		
+		LLGridManager::getInstance()->initialize("grid_test.xml");	
+		known_grids = LLGridManager::getInstance()->getKnownGrids();
+		ensure_equals("Override custom grid helper uri: grids is added", 
+					  known_grids.size(), 24);
+		LLGridManager::getInstance()->getGridInfo(grid);
+		ensure("Override custom helper uri: login uri is an array",
+			   grid[GRID_LOGIN_URI_VALUE].isArray());
+		ensure_equals("Override custom grid helper uri: login uri is not changed",
+					  grid[GRID_LOGIN_URI_VALUE][0].asString(), 
+					  std::string("https://mycustomgridchoice/cgi-bin/login.cgi"));
+		ensure_equals("Override custom grid helper uri: helper uri is changed",
+					  grid[GRID_HELPER_URI_VALUE].asString(), 
+					  std::string("https://my.helper.uri/mycustomhelpers"));
+		ensure_equals("Override custom grid helper uri: login page is not changed",
+					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
+					  std::string("http://mycustomgridchoice/app/login/"));
+	}
+	
+	// validate overriding of login page via cmd line
+	template<> template<>
+	void viewerNetworkTestObject::test<6>()
+	{	
+		// Override with login page
+		// override known grid
+		LLSD grid;
+		gCmdLineGridChoice = "Aditi";
+		gCmdLineHelperURI = "";
+		gLoginPage = "myloginpage";		
+		LLGridManager::getInstance()->initialize("grid_test.xml");		
+		std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();				
+		ensure_equals("Override known grid login page: No grids are added", 
+					  known_grids.size(), 23);
+		LLGridManager::getInstance()->getGridInfo(grid);
+		ensure("Override known grid login page: Command line grid login uri is an array",
+			   grid[GRID_LOGIN_URI_VALUE].isArray());
+		ensure_equals("Override known grid login page: login uri is not changed",
+					  grid[GRID_LOGIN_URI_VALUE][0].asString(), 
+					  std::string("https://login.aditi.lindenlab.com/cgi-bin/login.cgi"));
+		ensure_equals("Override known grid login page: helper uri is not changed",
+					  grid[GRID_HELPER_URI_VALUE].asString(), 
+					  std::string("http://aditi-secondlife.webdev.lindenlab.com/helpers/"));
+		ensure_equals("Override known grid login page: login page is changed",
+					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
+					  std::string("myloginpage"));		
+		
+		// Override with login page
+		// override custom grid
+		gCmdLineGridChoice = "mycustomgridchoice";
 		gLoginPage = "myloginpage";
-		LLGridManager::getInstance()->initialize("grid_test.xml");
-		grid = LLGridManager::getInstance()->getGridInfo("mycustomgridchoice");		
-		ensure_equals("Validate command line helper uri", 
-					  grid[GRID_LOGIN_PAGE_VALUE].asString(), std::string("myloginpage"));			
+		LLGridManager::getInstance()->initialize("grid_test.xml");		
+		known_grids = LLGridManager::getInstance()->getKnownGrids();
+		ensure_equals("Override custom grid login page: grids are added", 
+					  known_grids.size(), 24);
+		LLGridManager::getInstance()->getGridInfo(grid);
+		ensure("Override custom grid login page: Command line grid login uri is an array",
+			   grid[GRID_LOGIN_URI_VALUE].isArray());
+		ensure_equals("Override custom grid login page: login uri is not changed",
+					  grid[GRID_LOGIN_URI_VALUE][0].asString(), 
+					  std::string("https://mycustomgridchoice/cgi-bin/login.cgi"));
+		ensure_equals("Override custom grid login page: helper uri is not changed",
+					  grid[GRID_HELPER_URI_VALUE].asString(), 
+					  std::string("https://mycustomgridchoice/helpers/"));
+		ensure_equals("Override custom grid login page: login page is changed",
+					  grid[GRID_LOGIN_PAGE_VALUE].asString(), 
+					  std::string("myloginpage"));	
+		
 	}
 	
 	// validate grid selection
 	template<> template<>
-	void viewerNetworkTestObject::test<4>()
+	void viewerNetworkTestObject::test<7>()
 	{	
 		LLSD loginURI = LLSD::emptyArray();
 		LLSD grid = LLSD::emptyMap();
@@ -340,20 +466,20 @@ namespace tut
 		ensure("Is myaddedgrid a production grid", !LLGridManager::getInstance()->isInProductionGrid());
 		
 		LLGridManager::getInstance()->setFavorite();
-		grid = LLGridManager::getInstance()->getGridInfo("myaddedgrid");
+		LLGridManager::getInstance()->getGridInfo("myaddedgrid", grid);
 		ensure("setting favorite", grid.has(GRID_IS_FAVORITE_VALUE));
 	}
 	
 	// name based grid population
 	template<> template<>
-	void viewerNetworkTestObject::test<5>()
+	void viewerNetworkTestObject::test<8>()
 	{
 		LLGridManager::getInstance()->initialize("grid_test.xml");
 		LLSD grid = LLSD::emptyMap();
 		// adding a grid with simply a name will populate the values.
 		grid[GRID_VALUE] = "myaddedgrid";
 		LLGridManager::getInstance()->addGrid(grid);
-		grid = LLGridManager::getInstance()->getGridInfo("myaddedgrid");
+		LLGridManager::getInstance()->getGridInfo("myaddedgrid", grid);
 		
 		ensure_equals("name based grid has name value", 
 					  grid[GRID_VALUE].asString(),
@@ -386,7 +512,7 @@ namespace tut
 	
 	// persistence of the grid list with an empty gridfile.
 	template<> template<>
-	void viewerNetworkTestObject::test<6>()
+	void viewerNetworkTestObject::test<9>()
 	{
 		// try with initial grid list without a grid file,
 		// without setting the grid to a saveable favorite.
@@ -420,7 +546,7 @@ namespace tut
 	
 	// persistence of the grid file with existing gridfile
 	template<> template<>
-	void viewerNetworkTestObject::test<7>()
+	void viewerNetworkTestObject::test<10>()
 	{
 		
 		llofstream gridfile("grid_test.xml");
