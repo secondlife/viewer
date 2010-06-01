@@ -52,20 +52,7 @@
     <string name="Filter.Clothes/Body" value="Clothes/Body"/>
     <string name="Filter.Objects" value="Objects"/>
 
-  <!-- 
-  TODO remove this button. Added it temporary for QA to be able to test new edit wearable 
-  panel (see EXT-6564)
-  -->
-				<button
-				  follows="left|top|right"
-				  height="20"
-				  label="edit"
-				  left="0"
-				  top="0"
-				  layout="topleft"
-				  name="edit_wearable_btn"
-				  width="40" /> 
-  
+
     <button
      follows="top|left"
      height="23"
@@ -160,7 +147,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
      clip="false"
      default_tab_group="2"
      follows="all"
-     height="468"
+     height="465"
      width="313"
      layout="topleft"
      orientation="vertical"
@@ -170,7 +157,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
      left="5">
         <layout_panel
          layout="topleft"
-         height="193"
+         height="187"
          label="IM Control Panel"
          min_height="100"
          name="outfit_wearables_panel"
@@ -178,96 +165,89 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          auto_resize="true"
          user_resize="true">
 
-            <!-- List containing items from the COF and Base outfit -->
-            <panel
-             background_visible="false"
-             class="cof_wearables"
-             filename="panel_cof_wearables.xml"
-             follows="left|top|right|bottom"
-             height="193"
-             layout="topleft"
-             left="1"
-             name="cof_wearables_list"
-             top="0"
-             width="311" />
-        </layout_panel>
-
-
-        <layout_panel
-         background_visible="true"
-         bg_alpha_color="DkGray2"
-         auto_resize="true"
-         default_tab_group="3"
-         height="184"
-         min_height="210"
-         name="add_wearables_panel"
-         width="313"
-         tab_group="2"
-         user_resize="true"
-         visible="false">
-          <!-- this icon represent dragbar between layout panels.
-          This is a workaround implemented in EXT-7255 becouse of an issue with layout stack (EXT-7471) -->
-          <icon
-           follows="left|top|right"
-           height="10"
-           image_name="Dragbar"
-           left="0"
-           top_pad="-9"
-           width="313" />
-         	<text
-             follows="top|left|right"
-             font="SansSerifBold"
-             height="13"
-             layout="topleft"
-             left="5"
-             name="add_to_outfit_label"
-             text_color="LtGray"
-             top="4"
-             value="Add to Outfit:"
-             use_ellipses="true"
-             width="150" />
-            <button
-             follows="top|right"
-             height="20"
-             image_overlay="Search_Icon"
-             is_toggle="true"
-             layout="topleft"
-             left_pad="5"
-             name="filter_button"
-             top_delta="0"
-             width="20" />
-            <combo_box
-             follows="top|left|right"
-             height="20"
-             layout="topleft"
-             right="-5"
-             name="filter_wearables_combobox"
-             top_delta="0"
-             width="110"/>
-
             <layout_stack
              animate="true"
+             border_size="0"
              follows="all"
-             height="155"
+             height="185"
              width="313"
              layout="topleft"
              name="filter_panels"
-             top_pad="5"
+             top="0"
              left="0">
                 <layout_panel
-                 auto_resize="false"
+                 auto_resize="true" 
+                 background_visible="true"
+                 bg_alpha_color="DkGray2"
                  layout="topleft"
-                 follows="left|top|right"
-                 height="30"
-                 label="IM Control Panel"
-                 name="filter_panel"
+                 height="154"
+                 label="add_button_and_combobox"
+                 name="add_button_and_combobox"
                  width="311"
                  user_resize="false"
-                 visible="false">
+                 visible="true">
+
+                    <!-- List containing items from the COF and Base outfit -->
+                    <panel
+                     background_visible="false"
+                     class="cof_wearables"
+                     filename="panel_cof_wearables.xml"
+                     follows="all" 
+                     height="129"
+                     layout="topleft"
+                     left="1"
+                     name="cof_wearables_list"
+                     top="0"
+                     width="311" />
+                    
+                    <button
+                     follows="left|bottom" 
+                     height="22"
+                     is_toggle="true"
+                     label="Add More..."
+                     layout="topleft"
+                     left="2"
+                     name="show_add_wearables_btn"
+                     top_pad="2"
+                     width="125" />
+
+                    <combo_box
+                     follows="left|right|bottom"
+                     height="22"
+                     layout="topleft"
+                     left_pad="5"
+                     name="filter_wearables_combobox"
+                     top_delta="0"
+                     visible="false"
+                     width="152"/>
+
+                    <button
+                     follows="bottom|right"
+                     height="22"
+                     image_overlay="Search_Icon"
+                     is_toggle="true"
+                     layout="topleft"
+                     name="filter_button"
+                     right="-5"
+                     top_delta="0"
+                     visible="false"
+                     width="20" />
+                </layout_panel>
+
+                <layout_panel
+                 auto_resize="false"
+                 background_visible="true"
+                 bg_alpha_color="DkGray2"
+                 height="30"
+                 name="filter_panel"
+                 width="311"
+                 visible="false"
+                 user_resize="false">
+
                     <filter_editor
 		             background_image="TextField_Search_Off"
 		             enabled="true"
-		             follows="left|top|right"
+		             follows="left|right|top"
 		             font="SansSerif"
 		             label="Filter"
 		             layout="topleft"
@@ -278,60 +258,114 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 		             text_color="black"
 		             text_pad_left="25"
 		             visible="true"/>
-                </layout_panel>
-                <layout_panel
-                 auto_resize="true"
-                 background_visible="true"
-                 bg_alpha_color="0.107 0.107 0.107 1"
-                 height="145"
-                 min_width="130"
-                 name="inventory_panel"
-                 width="311"
-                 user_resize="true">
-                    <inventory_panel
-		             allow_multi_select="true"
-		             background_visible="false"
-		             border="false"
-		             follows="left|top|right|bottom"
-		             height="140"
-		             layout="topleft"
-		             left="0"
-		             mouse_opaque="false"
-		             name="inventory_items"
-		             top_pad="5"
-		             width="310"
-		             visible="false"/>
-		            <panel
-		             name="filtered_wearables_panel"
-		             background_opaque="true"
-		             background_visible="false"
-		             layout="topleft"
-		             follows="left|top|right|bottom"
-		             border="false"
-		             height="140"
-		             left="0"
-		             mouse_opaque="false"
-		             width="311"
-		             top_delta="0"
-		             visible="true">
-		             <wearable_items_list
-		              color="0.107 0.107 0.107 1"
-		              name="filtered_wearables_list"
-		              allow_select="true"
-		              layout="topleft"
-		              follows="all"
-		              multi_select="true"
-		              width="310"
-		              height="140"
-		              left="0"
-		              top="0"/>
-		            </panel>
+                    
                 </layout_panel>
             </layout_stack>
-       </layout_panel>
+        </layout_panel>
+
+
+        <layout_panel
+         background_visible="true"
+         bg_alpha_color="DkGray2"
+         auto_resize="true"
+         default_tab_group="3"
+         height="211"
+         min_height="210"
+         name="add_wearables_panel"
+         width="313"
+         tab_group="2"
+         user_resize="true"
+         visible="false">
+
+			<!-- this icon represent dragbar between layout panels.
+          	 This is a workaround implemented in EXT-7255 becouse of an issue with layout stack (EXT-7471) -->
+            <icon
+             follows="left|top|right"
+             height="10"
+             image_name="Dragbar"
+             left="0"
+             top_pad="-9"
+             width="313" />
+
+            <inventory_panel
+             allow_multi_select="true"
+             background_visible="false"
+             border="false"
+             follows="left|top|right|bottom"
+             height="210"
+             layout="topleft"
+             left="0"
+             mouse_opaque="false"
+             name="inventory_items"
+             top_pad="5"
+             width="310"
+             visible="false"/>
+            <panel
+             name="filtered_wearables_panel"
+             background_opaque="true"
+             background_visible="false"
+             layout="topleft"
+             follows="left|top|right|bottom"
+             border="false"
+             height="210"
+             left="0"
+             mouse_opaque="false"
+             width="311"
+             top_delta="0"
+             visible="true">
+                <wearable_items_list
+                 color="0.107 0.107 0.107 1"
+                 name="filtered_wearables_list"
+                 allow_select="true"
+                 layout="topleft"
+                 follows="all"
+                 multi_select="true"
+                 width="310"
+                 height="210"
+                 left="0"
+                 top="0"/>
+            </panel>
+
+        </layout_panel>
     </layout_stack>
 
-    <!-- Button bar -->
+
+    <!-- BUTTON BAR -->
+    <panel
+     background_visible="true"
+     bevel_style="none"
+     follows="bottom|left|right"
+     height="27"
+     label="bottom_panel"
+     layout="topleft"
+     left="5"
+     name="no_add_wearables_button_bar"
+     top_pad="0"
+     width="313">
+        <button
+         follows="bottom|left"
+         height="25"
+         image_hover_unselected="Toolbar_Left_Over"
+         image_overlay="OptionsMenu_Off"
+         image_selected="Toolbar_Left_Selected"
+         image_unselected="Toolbar_Left_Off"
+         layout="topleft"
+         left="0"
+         name="gear_menu_btn"
+         top="1"
+         width="31" />
+        <icon
+         follows="bottom|left|right"
+         height="25"
+         image_name="Toolbar_Right_Off"
+         layout="topleft"
+         left_pad="1"
+         name="dummy_right_icon"
+         width="281" />
+    </panel>
+    
+    
+    <!-- BUTTON BAR - WEARABLES ADDING MODE -->
     <panel
      background_visible="true"
      bevel_style="none"
@@ -339,9 +373,10 @@ It is calculated as border_size + 2*UIResizeBarOverlap
      height="27"
      label="add_wearables_button_bar"
      layout="topleft"
-     left="4"
+     left="5"
      name="add_wearables_button_bar"
-     top_pad="0"
+     top_delta="0"
+     visible="false"
      width="313">
         <button
          follows="bottom|left"
@@ -367,7 +402,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          left_pad="1"
          name="folder_view_btn"
          top="1"
-         visible="false"
          width="31" />
         <button
          follows="bottom|left"
@@ -381,7 +415,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          left_pad="1"
          name="list_view_btn"
          top="1"
-         visible="false"
          width="31" />
         <button
          follows="bottom|left"
@@ -395,31 +428,19 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          left_pad="1"
          name="add_to_outfit_btn"
          top="1"
-         visible="false"
          width="31" />
-       <icon
-        follows="bottom|left|right"
-        height="25"
-        image_name="Toolbar_Right_Off"
-        layout="topleft"
-        left_pad="1"
-        name="add_wearables_dummy_icon"
-        top="1"
-        visible="false"
-        width="184" >
-       </icon>
-       <icon
-        follows="bottom|left|right"
-        height="25"
-        image_name="Toolbar_Right_Off"
-        layout="topleft"
-        left="32"
-        name="dummy_right_icon"
-        top="1"
-        width="281" >
-       </icon>
+        <icon
+         follows="bottom|left|right"
+         height="25"
+         image_name="Toolbar_Right_Off"
+         layout="topleft"
+         left_pad="1"
+         name="dummy_right_icon"
+         width="184" >
+        </icon>
     </panel>
-
+    
+    <!-- SAVE AND REVERT BUTTONS -->
     <panel
      follows="left|right|bottom"
      height="30"

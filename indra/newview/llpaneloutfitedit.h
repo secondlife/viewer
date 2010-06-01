@@ -93,6 +93,7 @@ public:
 	void moveWearable(bool closer_to_body);
 
 	void toggleAddWearablesPanel();
+	void showAddWearablesPanel(bool show__add_wearables);
 	void showWearablesFilter();
 	void showFilteredWearablesPanel();
 	void showFilteredFolderWearablesPanel();
@@ -144,7 +145,6 @@ private:
 	LLButton*			mEditWearableBtn;
 	LLButton*			mFolderViewBtn;
 	LLButton*			mListViewBtn;
-	LLButton*			mAddToOutfitBtn;
 	LLPanel*			mAddWearablesPanel;
 
 	LLFindNonLinksByMask*  mWearableListMaskCollector;

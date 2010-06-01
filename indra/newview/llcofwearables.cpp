@@ -46,8 +46,6 @@
 #include "llpaneloutfitedit.h"
 #include "llsidetray.h"
 
-static LLRegisterPanelClassWrapper<LLCOFAccordionListAdaptor> t_cof_accodion_list_adaptor("accordion_list_adaptor");
-
 static LLRegisterPanelClassWrapper<LLCOFWearables> t_cof_wearables("cof_wearables");
 
 const LLSD REARRANGE = LLSD().with("rearrange", LLSD());
