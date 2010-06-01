@@ -7,6 +7,7 @@
         image_selected="PushButton_Selected"
         image_disabled_selected="PushButton_Selected_Disabled"
         image_disabled="PushButton_Disabled"
+        image_flash="FlashIconAbsent"
         image_top_pad="0"
         image_bottom_pad="0"
         imgoverlay_label_space="1"

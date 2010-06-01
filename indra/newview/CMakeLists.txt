@@ -379,6 +379,7 @@ set(viewer_SOURCE_FILES
     llregionposition.cpp
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
+    llsaveoutfitcombobtn.cpp
     llscreenchannel.cpp
     llscriptfloater.cpp
     llscrollingpanelparam.cpp
@@ -894,6 +895,7 @@ set(viewer_HEADER_FILES
     llresourcedata.h
     llrootview.h
     llsavedsettingsglue.h
+    llsaveoutfitcombobtn.h
     llscreenchannel.h
     llscriptfloater.h
     llscrollingpanelparam.h
