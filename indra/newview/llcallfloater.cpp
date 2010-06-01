@@ -377,9 +377,31 @@ void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 	call_floater->connectToChannel(channel);
 }
 
+void LLCallFloater::onAvatarNameCache(const LLUUID& agent_id,
+									  const LLAvatarName& av_name)
+{
+	LLStringUtil::format_map_t args;
+	args["[NAME]"] = av_name.getCompleteName();
+	std::string title = getString("title_peer_2_peer", args);
+	setTitle(title);
+}
+
 void LLCallFloater::updateTitle()
 {
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
+	if (mVoiceType == VC_PEER_TO_PEER)
+	{
+		LLUUID session_id = voice_channel->getSessionID();
+		LLIMModel::LLIMSession* im_session =
+			LLIMModel::getInstance()->findIMSession(session_id);
+		if (im_session)
+		{
+			LLAvatarNameCache::get(im_session->mOtherParticipantID,
+				boost::bind(&LLCallFloater::onAvatarNameCache,
+					this, _1, _2));
+			return;
+		}
+	}
 	std::string title;
 	switch (mVoiceType)
 	{

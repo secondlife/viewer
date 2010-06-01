@@ -1756,11 +1756,9 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		callee_name = LLTextUtil::formatPhoneNumber(callee_name);
 	}
 	
-	setTitle(callee_name);
-
 	LLSD callee_id = mPayload["other_user_id"];
-	// Beautification:  Since SLID is in the title bar, and you probably
-	// recognize this person's voice, just show display name
+	// Beautification:  Since you know who you called, just show display name
+	std::string title = callee_name;
 	std::string final_callee_name = callee_name;
 	if (mPayload["session_type"].asInteger() == LLIMModel::LLIMSession::P2P_SESSION)
 	{
@@ -1768,10 +1766,13 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		if (LLAvatarNameCache::get(callee_id, &av_name))
 		{
 			final_callee_name = av_name.mDisplayName;
+			title = av_name.getCompleteName();
 		}
 	}
 	childSetTextArg("calling", "[CALLEE_NAME]", final_callee_name);
 	childSetTextArg("connecting", "[CALLEE_NAME]", final_callee_name);
+
+	setTitle(title);
 
 	// for outgoing group calls callee_id == group id == session id
 	setIcon(callee_id, callee_id);
