@@ -120,7 +120,6 @@ LLCrashLoggerLinux::~LLCrashLoggerLinux(void)
 
 void LLCrashLoggerLinux::gatherPlatformSpecificFiles()
 {
-	mFileMap["CrashLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log").c_str();
 }
 
 bool LLCrashLoggerLinux::mainLoop()
