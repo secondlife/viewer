@@ -150,8 +150,8 @@
 
 
 <!-- LIST OF WEARABLES (CURRENT OUTFIT/ WEARABLES TO ADD) -->
-<!-- *NOTE: border_size is used to calculate space between layout panel and for resize bar height
-required height for dragbar is 10, so resizebar height should be 10 px.
+<!-- *NOTE: border_size is used to calculate space between layout panels and also to calculate resize bar's height.
+Required height for dragbar (icon in spec) is 10, so resizebar height should be 10 px.
 It is calculated as border_size + 2*UIResizeBarOverlap
 -->
     <layout_stack
@@ -205,6 +205,8 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          tab_group="2"
          user_resize="true"
          visible="false">
+          <!-- this icon represent dragbar between layout panels.
+          This is a workaround implemented in EXT-7255 becouse of an issue with layout stack (EXT-7471) -->
           <icon
            follows="left|top|right"
            height="10"
