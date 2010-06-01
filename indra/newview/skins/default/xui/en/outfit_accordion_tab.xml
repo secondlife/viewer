@@ -8,6 +8,7 @@
  height="45"
  layout="topleft"
  name="Mockup Tab"
+ selection_enabled="true"
  title="Mockup Tab"
  translate="false"
  width="0">
@@ -18,5 +19,6 @@
      multi_select="true"
      name="wearable_items_list"
      translate="false"
+     use_internal_context_menu="false"
     />
 </accordion_tab>

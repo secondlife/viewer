@@ -154,9 +154,19 @@ private:
 	static long sPacificTimeOffset;
 	static long sLocalTimeOffset;
 	static bool sPacificDaylightTime;
+
 	static std::map<std::string, std::string> datetimeToCodes;
 
 public:
+	static std::vector<std::string> sWeekDayList;
+	static std::vector<std::string> sWeekDayShortList;
+	static std::vector<std::string> sMonthList;
+	static std::vector<std::string> sMonthShortList;
+	static std::string sDayFormat;
+
+	static std::string sAM;
+	static std::string sPM;
+
 	static char toUpper(char elem) { return toupper((unsigned char)elem); }
 	static llwchar toUpper(llwchar elem) { return towupper(elem); }
 	
@@ -185,6 +195,14 @@ public:
 	static S32	collate(const llwchar* a, const llwchar* b);
 
 	static void setupDatetimeInfo(bool pacific_daylight_time);
+
+	static void setupWeekDaysNames(const std::string& data);
+	static void setupWeekDaysShortNames(const std::string& data);
+	static void setupMonthNames(const std::string& data);
+	static void setupMonthShortNames(const std::string& data);
+	static void setupDayFormat(const std::string& data);
+
+
 	static long getPacificTimeOffset(void) { return sPacificTimeOffset;}
 	static long getLocalTimeOffset(void) { return sLocalTimeOffset;}
 	// Is the Pacific time zone (aka server time zone)

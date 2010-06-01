@@ -82,7 +82,6 @@ LLOutfitsList::LLOutfitsList()
 	:	LLPanel()
 	,	mAccordion(NULL)
 	,	mListCommands(NULL)
-	,	mSelectedList(NULL)
 {
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
 	gInventory.addObserver(mCategoriesObserver);
@@ -208,6 +207,8 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		// Setting list refresh callback to apply filter on list change.
 		list->setRefreshCompleteCallback(boost::bind(&LLOutfitsList::onFilteredWearableItemsListRefresh, this, _1));
 
+		list->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onWearableItemsListRightClick, this, _1, _2, _3));
+
 		// Fetch the new outfit contents.
 		cat->fetch();
 
@@ -237,23 +238,27 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		outfits_map_t::iterator outfits_iter = mOutfitsMap.find((*iter));
 		if (outfits_iter != mOutfitsMap.end())
 		{
-			// An outfit is removed from the list. Do the following:
-			// 1. Remove outfit accordion tab from accordion.
-			mAccordion->removeCollapsibleCtrl(outfits_iter->second);
-
 			const LLUUID& outfit_id = outfits_iter->first;
+			LLAccordionCtrlTab* tab = outfits_iter->second;
 
-			// 2. Remove outfit category from observer to stop monitoring its changes.
+			// An outfit is removed from the list. Do the following:
+			// 1. Remove outfit category from observer to stop monitoring its changes.
 			mCategoriesObserver->removeCategory(outfit_id);
 
-			// 3. Reset selection if selected outfit is being removed.
-			if (mSelectedOutfitUUID == outfit_id)
+			// 2. Remove selected lists map entry.
+			mSelectedListsMap.erase(outfit_id);
+
+			// 3. Reset currently selected outfit id if it is being removed.
+			if (outfit_id == mSelectedOutfitUUID)
 			{
-				changeOutfitSelection(NULL, LLUUID());
+				mSelectedOutfitUUID = LLUUID();
 			}
 
 			// 4. Remove category UUID to accordion tab mapping.
 			mOutfitsMap.erase(outfits_iter);
+
+			// 5. Remove outfit tab from accordion.
+			mAccordion->removeCollapsibleCtrl(tab);
 		}
 	}
 
@@ -283,6 +288,8 @@ void LLOutfitsList::onSelectionChange(LLUICtrl* ctrl)
 
 void LLOutfitsList::performAction(std::string action)
 {
+	if (mSelectedOutfitUUID.isNull()) return;
+
 	LLViewerInventoryCategory* cat = gInventory.getCategory(mSelectedOutfitUUID);
 	if (!cat) return;
 
@@ -367,14 +374,28 @@ void LLOutfitsList::updateOutfitTab(const LLUUID& category_id)
 
 void LLOutfitsList::changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
 {
-	// Reset selection in previously selected tab
-	// if a new one is selected.
-	if (list && mSelectedList && mSelectedList != list)
+	MASK mask = gKeyboard->currentMask(TRUE);
+
+	// Reset selection in all previously selected tabs except for the current
+	// if new selection is started.
+	if (list && !(mask & MASK_CONTROL))
 	{
-		mSelectedList->resetSelection();
+		for (wearables_lists_map_t::iterator iter = mSelectedListsMap.begin();
+				iter != mSelectedListsMap.end();
+				++iter)
+		{
+			LLWearableItemsList* selected_list = (*iter).second;
+			if (selected_list != list)
+			{
+				selected_list->resetSelection();
+			}
+		}
+
+		// Clear current selection.
+		mSelectedListsMap.clear();
 	}
 
-	mSelectedList = list;
+	mSelectedListsMap.insert(wearables_lists_map_value_t(category_id, list));
 	mSelectedOutfitUUID = category_id;
 }
 
@@ -494,6 +515,13 @@ void LLOutfitsList::onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const
 		S32 header_bottom = tab->getLocalRect().getHeight() - tab->getHeaderHeight();
 		if(y >= header_bottom)
 		{
+			// Focus tab header to trigger tab selection change.
+			LLUICtrl* header = tab->findChild<LLUICtrl>("dd_header");
+			if (header)
+			{
+				header->setFocus(TRUE);
+			}
+
 			uuid_vec_t selected_uuids;
 			selected_uuids.push_back(cat_id);
 			mOutfitMenu->show(ctrl, selected_uuids, x, y);
@@ -501,4 +529,26 @@ void LLOutfitsList::onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const
 	}
 }
 
+void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
+{
+	LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(ctrl);
+	if (!list) return;
+
+	uuid_vec_t selected_uuids;
+
+	// Collect seleted items from all selected lists.
+	for (wearables_lists_map_t::iterator iter = mSelectedListsMap.begin();
+			iter != mSelectedListsMap.end();
+			++iter)
+	{
+		uuid_vec_t uuids;
+		(*iter).second->getSelectedUUIDs(uuids);
+
+		S32 prev_size = selected_uuids.size();
+		selected_uuids.resize(prev_size + uuids.size());
+		std::copy(uuids.begin(), uuids.end(), selected_uuids.begin() + prev_size);
+	}
+
+	LLWearableItemsList::ContextMenu::instance().show(list, selected_uuids, x, y);
+}
 // EOF

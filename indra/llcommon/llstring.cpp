@@ -676,6 +676,17 @@ long LLStringOps::sLocalTimeOffset = 0;
 bool LLStringOps::sPacificDaylightTime = 0;
 std::map<std::string, std::string> LLStringOps::datetimeToCodes;
 
+std::vector<std::string> LLStringOps::sWeekDayList;
+std::vector<std::string> LLStringOps::sWeekDayShortList;
+std::vector<std::string> LLStringOps::sMonthList;
+std::vector<std::string> LLStringOps::sMonthShortList;
+
+
+std::string LLStringOps::sDayFormat;
+std::string LLStringOps::sAM;
+std::string LLStringOps::sPM;
+
+
 S32	LLStringOps::collate(const llwchar* a, const llwchar* b)
 { 
 	#if LL_WINDOWS
@@ -723,6 +734,50 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
 	datetimeToCodes["second"]	= "%S";		// 59
 	datetimeToCodes["timezone"]	= "%Z";		// PST
 }
+
+void tokenizeStringToArray(const std::string& data, std::vector<std::string>& output)
+{
+	output.clear();
+	size_t length = data.size();
+	
+	// tokenize it and put it in the array
+	std::string cur_word;
+	for(size_t i = 0; i < length; ++i)
+	{
+		if(data[i] == ':')
+		{
+			output.push_back(cur_word);
+			cur_word.clear();
+		}
+		else
+		{
+			cur_word.append(1, data[i]);
+		}
+	}
+	output.push_back(cur_word);
+}
+
+void LLStringOps::setupWeekDaysNames(const std::string& data)
+{
+	tokenizeStringToArray(data,sWeekDayList);
+}
+void LLStringOps::setupWeekDaysShortNames(const std::string& data)
+{
+	tokenizeStringToArray(data,sWeekDayShortList);
+}
+void LLStringOps::setupMonthNames(const std::string& data)
+{
+	tokenizeStringToArray(data,sMonthList);
+}
+void LLStringOps::setupMonthShortNames(const std::string& data)
+{
+	tokenizeStringToArray(data,sMonthShortList);
+}
+void LLStringOps::setupDayFormat(const std::string& data)
+{
+	sDayFormat = data;
+}
+
 
 std::string LLStringOps::getDatetimeCode (std::string key)
 {
@@ -818,6 +873,10 @@ namespace LLStringFn
 }
 
 ////////////////////////////////////////////////////////////
+
+// Forward specialization of LLStringUtil::format before use in LLStringUtil::formatDatetime.
+template<>
+S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions);
 
 //static
 template<> 
@@ -998,7 +1057,53 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 		}
 		return true;
 	}
-	replacement = datetime.toHTTPDateString(code);
+
+	//EXT-7013
+	//few codes are not suppotred by strtime function (example - weekdays for Japanise)
+	//so use predefined ones
+	
+	//if sWeekDayList is not empty than current locale doesn't support
+        //weekday name.
+	time_t loc_seconds = (time_t) secFromEpoch;
+	if(LLStringOps::sWeekDayList.size() == 7 && code == "%A")
+	{
+		struct tm * gmt = gmtime (&loc_seconds);
+		replacement = LLStringOps::sWeekDayList[gmt->tm_wday];
+	}
+	else if(LLStringOps::sWeekDayShortList.size() == 7 && code == "%a")
+	{
+		struct tm * gmt = gmtime (&loc_seconds);
+		replacement = LLStringOps::sWeekDayShortList[gmt->tm_wday];
+	}
+	else if(LLStringOps::sMonthList.size() == 12 && code == "%B")
+	{
+		struct tm * gmt = gmtime (&loc_seconds);
+		replacement = LLStringOps::sWeekDayList[gmt->tm_mon];
+	}
+	else if( !LLStringOps::sDayFormat.empty() && code == "%d" )
+	{
+		struct tm * gmt = gmtime (&loc_seconds);
+		LLStringUtil::format_map_t args;
+		args["[MDAY]"] = llformat ("%d", gmt->tm_mday);
+		replacement = LLStringOps::sDayFormat;
+		LLStringUtil::format(replacement, args);
+	}
+	else if( !LLStringOps::sAM.empty() && !LLStringOps::sPM.empty() && code == "%p" )
+	{
+		struct tm * gmt = gmtime (&loc_seconds);
+		if(gmt->tm_hour<12)
+		{
+			replacement = LLStringOps::sAM;
+		}
+		else
+		{
+			replacement = LLStringOps::sPM;
+		}
+	}
+	else
+	{
+		replacement = datetime.toHTTPDateString(code);
+	}
 
 	// *HACK: delete leading zero from hour string in case 'hour12' (code = %I) time format
 	// to show time without leading zero, e.g. 08:16 -> 8:16 (EXT-2738).
