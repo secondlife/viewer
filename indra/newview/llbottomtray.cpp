@@ -198,6 +198,12 @@ LLBottomTray::~LLBottomTray()
 		S32 custom_width = mNearbyChatBar->getRect().getWidth();
 		gSavedSettings.setS32("ChatBarCustomWidth", custom_width);
 	}
+
+	// emulate previous floater behavior to be hidden on startup.
+	// override effect of save_visibility=true.
+	// this attribute is necessary to button.initial_callback=Button.SetFloaterToggle works properly:
+	//		i.g when floater changes its visibility - button changes its toggle state.
+	getChild<LLUICtrl>("search_btn")->setControlValue(false);
 }
 
 // *TODO Vadim: why void* ?
