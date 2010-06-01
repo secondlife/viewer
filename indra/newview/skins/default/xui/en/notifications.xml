@@ -3130,10 +3130,10 @@ You are no longer frozen.
   <notification
    icon="alertmodal.tga"
    name="SetDisplayName"
-   type="alertmodal">
-Your new display name will be used for name tags, chat, friends lists, etc. You can also reset it back to your original username. There will be a delay before you can change your display name again, so choose wisely.
+   type="alert">
+The name above your avatar's head is called a [http://wiki.secondlife.com/wiki/Setting_your_display_name display name]. You can change it periodically.
 
-See http://wiki.secondlife.com/wiki/Setting_your_display_name
+Press reset to make it the same as your username.
 
 Change your display name?
     <form name="form">
@@ -3159,22 +3159,18 @@ Change your display name?
   <notification
    icon="alertmodal.tga"
    name="SetDisplayNameSuccess"
-   type="alertmodal">
-Thanks for updating your name!
+   type="alert">
+Hi [DISPLAY_NAME]!
 
-Just like in real life, it takes a while for everyone to learn about a new name.  Please allow several days for your name to update in object ownership, scripts, search, etc.
-
-See http://wiki.secondlife.com/wiki/Setting_your_display_name
+Just like in real life, it takes a while for everyone to learn about a new name.  Please allow several days for [http://wiki.secondlife.com/wiki/Setting_your_display_name your name to update] in objects, scripts, search, etc.
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="SetDisplayNameFailedLockout"
-   type="alertmodal">
-Sorry, you cannot change your display name until:
+   type="alert">
+Sorry, you cannot [http://wiki.secondlife.com/wiki/Setting_your_display_name change your display name] until:
 [TIME]
-
-See http://wiki.secondlife.com/wiki/Setting_your_display_name
   </notification>
 
   <notification

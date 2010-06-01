@@ -298,7 +298,9 @@ void LLPanelMyProfileEdit::onCacheSetName(bool success,
 	{
 		// Inform the user that the change took place, but will take a while
 		// to percolate.
-		LLNotificationsUtil::add("SetDisplayNameSuccess");
+		LLSD args;
+		args["DISPLAY_NAME"] = content["display_name"];
+		LLNotificationsUtil::add("SetDisplayNameSuccess", args);
 
 		// Re-fetch my name, as it may have been sanitized by the service
 		LLAvatarNameCache::get(getAvatarId(),
