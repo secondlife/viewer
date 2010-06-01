@@ -360,7 +360,7 @@ private:
 
 	BOOL					mNeedsUpdate; // Whether we need to update our baked textures
 	BOOL					mNeedsUpload; // Whether we need to send our baked textures to the server
-	BOOL					mNeedsLowResUpload; // Whether we have sent a lowres version of our baked textures to the server
+	U32						mDebugNumLowresUploads; // Number of times we've sent a lowres version of our baked textures to the server
 	BOOL					mUploadPending; // Whether we have received back the new baked textures
 	LLUUID					mUploadID; // Identifies the current upload process (null if none).  Used to avoid overlaps (eg, when the user rapidly makes two changes outside of Face Edit)
 
