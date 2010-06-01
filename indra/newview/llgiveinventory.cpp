@@ -347,8 +347,8 @@ bool LLGiveInventory::handleCopyProtectedItem(const LLSD& notification, const LL
 			{
 				LLNotificationsUtil::add("CannotGiveItem");
 			}
-			break;
 		}
+		break;
 
 	default: // no, cancel, whatever, who cares, not yes.
 		LLNotificationsUtil::add("TransactionCancelled");
