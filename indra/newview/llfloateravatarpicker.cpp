@@ -177,7 +177,20 @@ static void getSelectedAvatarData(const LLScrollListCtrl* from, uuid_vec_t& avat
 		if (item->getUUID().notNull())
 		{
 			avatar_ids.push_back(item->getUUID());
-			avatar_names.push_back(sAvatarNameMap[item->getUUID()]);
+
+			std::map<LLUUID, LLAvatarName>::iterator iter = sAvatarNameMap.find(item->getUUID());
+			if (iter != sAvatarNameMap.end())
+			{
+				avatar_names.push_back(iter->second);
+			}
+			else
+			{
+				// the only case where it isn't in the name map is friends
+				// but it should be in the name cache
+				LLAvatarName av_name;
+				LLAvatarNameCache::get(item->getUUID(), &av_name);
+				avatar_names.push_back(av_name);
+			}
 		}
 	}
 }
@@ -280,6 +293,8 @@ void LLFloaterAvatarPicker::populateNearMe()
 			element["columns"][0]["value"] = av_name.mDisplayName;
 			element["columns"][1]["column"] = "username";
 			element["columns"][1]["value"] = av_name.mUsername;
+
+			sAvatarNameMap[av] = av_name;
 		}
 		near_me_scroller->addElement(element);
 		empty = FALSE;
@@ -313,7 +328,6 @@ void LLFloaterAvatarPicker::populateFriend()
 	LLCollectAllBuddies collector;
 	LLAvatarTracker::instance().applyFunctor(collector);
 	LLCollectAllBuddies::buddy_map_t::iterator it;
-	
 	
 	for(it = collector.mOnline.begin(); it!=collector.mOnline.end(); it++)
 	{

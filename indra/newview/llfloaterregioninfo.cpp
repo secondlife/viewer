@@ -1538,7 +1538,7 @@ void LLPanelEstateInfo::onKickUserCommit(const uuid_vec_t& ids)
 	
 	//Bring up a confirmation dialog
 	LLSD args;
-	args["EVIL_USER"] = LLSLURL("agent", ids[0], "inspect").getSLURLString();
+	args["EVIL_USER"] = LLSLURL("agent", ids[0], "completename").getSLURLString();
 	LLSD payload;
 	payload["agent_id"] = ids[0];
 	LLNotificationsUtil::add("EstateKickUser", args, payload, boost::bind(&LLPanelEstateInfo::kickUserConfirm, this, _1, _2));

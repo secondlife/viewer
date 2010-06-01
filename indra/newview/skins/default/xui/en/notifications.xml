@@ -2009,20 +2009,6 @@ You do not have permission to buy land for your active group.
   <notification
    icon="alertmodal.tga"
    label="Add Friend"
-   name="AddFriend"
-   type="alertmodal">
-Friends can give permissions to track each other on the map and receive online status updates.
-
-Offer friendship to [NAME]?
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   label="Add Friend"
    name="AddFriendWithMessage"
    type="alertmodal">
 Friends can give permissions to track each other on the map and receive online status updates.

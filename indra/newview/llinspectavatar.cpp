@@ -733,7 +733,7 @@ void LLInspectAvatar::onClickZoomIn()
 
 void LLInspectAvatar::onClickFindOnMap()
 {
-	gFloaterWorldMap->trackAvatar(mAvatarID, mAvatarName.getLegacyName());
+	gFloaterWorldMap->trackAvatar(mAvatarID, mAvatarName.mDisplayName);
 	LLFloaterReg::showInstance("world_map");
 }
 
