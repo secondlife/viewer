@@ -318,6 +318,10 @@
 	<!-- For use when we do not have land type back from the server -->
 	<string name="land_type_unknown">(unknown)</string>
 
+	<!-- For land type back from the simulator -->
+	<string name="Estate / Full Region">Estate / Full Region</string>
+	<string name="Mainland / Full Region">Mainland / Full Region</string>
+
 	<!-- File load/save dialogs -->
 	<string name="all_files">All Files</string>
 	<string name="sound_files">Sounds</string>
