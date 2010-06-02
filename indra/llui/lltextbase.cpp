@@ -1707,7 +1707,7 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 	if (mParseHighlights)
 	{
 		LLStyle::Params highlight_params(style_params);
-.
+
 		LLSD pieces = LLTextParser::instance().parsePartialLineHighlights(new_text, highlight_params.color(), (LLTextParser::EHighlightPosition)highlight_part);
 		for (S32 i = 0; i < pieces.size(); i++)
 		{
