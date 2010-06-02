@@ -1717,6 +1717,7 @@ if (LINUX)
     )
     
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched) 
+  add_dependencies(copy_l_viewer_manifest "${VIEWER_BINARY_NAME}")
 endif (LINUX)
 
 if (DARWIN)
