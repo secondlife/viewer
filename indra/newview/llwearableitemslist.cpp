@@ -41,6 +41,7 @@
 #include "llinventorymodel.h"
 #include "llmenugl.h" // for LLContextMenu
 #include "lltransutil.h"
+#include "llviewerattachmenu.h"
 
 class LLFindOutfitItems : public LLInventoryCollectFunctor
 {
@@ -85,6 +86,47 @@ void LLPanelWearableListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item)
+: LLPanelInventoryListItemBase(item)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// static
+LLPanelWearableOutfitItem* LLPanelWearableOutfitItem::create(LLViewerInventoryItem* item)
+{
+	LLPanelWearableOutfitItem* list_item = NULL;
+	if (item)
+	{
+		list_item = new LLPanelWearableOutfitItem(item);
+		list_item->init();
+	}
+	return list_item;
+}
+
+BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	LLViewerInventoryItem* item = getItem();
+	if (item)
+	{
+		LLUUID id = item->getUUID();
+
+		if (get_is_item_worn(id))
+		{
+			LLAppearanceMgr::getInstance()->removeItemFromAvatar(id);
+		}
+		else
+		{
+			LLAppearanceMgr::getInstance()->wearItemOnAvatar(id, true, false);
+		}
+	}
+
+	return LLUICtrl::handleDoubleClick(x, y, mask);
+}
+
+LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item)
 : LLPanelInventoryListItemBase(item)
 {
 }
@@ -402,6 +444,27 @@ LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 LLWearableItemsList::~LLWearableItemsList()
 {}
 
+// virtual
+void LLWearableItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrange /*= true*/)
+{
+	if (!item)
+	{
+		llwarns << "No inventory item. Couldn't create flat list item." << llendl;
+		llassert(item != NULL);
+	}
+
+	LLPanelWearableOutfitItem *list_item = LLPanelWearableOutfitItem::create(item);
+	if (!list_item)
+		return;
+
+	bool is_item_added = addItem(list_item, item->getUUID(), ADD_BOTTOM, rearrange);
+	if (!is_item_added)
+	{
+		llwarns << "Couldn't add flat list item." << llendl;
+		llassert(is_item_added);
+	}
+}
+
 void LLWearableItemsList::updateList(const LLUUID& category_id)
 {
 	LLInventoryModel::cat_array_t cat_array;
@@ -449,7 +512,9 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 	// Register handlers common for all wearable types.
 	registrar.add("Wearable.Wear", boost::bind(handleMultiple, wear, ids));
 	registrar.add("Wearable.Edit", boost::bind(handleMultiple, LLAgentWearables::editWearable, ids));
+	registrar.add("Wearable.CreateNew", boost::bind(createNewWearable, selected_id));
 	registrar.add("Wearable.ShowOriginal", boost::bind(show_item_original, selected_id));
+	registrar.add("Wearable.TakeOffDetach", boost::bind(handleMultiple, take_off, ids));
 
 	// Register handlers for clothing.
 	registrar.add("Clothing.TakeOff", boost::bind(handleMultiple, take_off, ids));
@@ -459,12 +524,16 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 	// Register handlers for attachments.
 	registrar.add("Attachment.Detach", boost::bind(handleMultiple, take_off, ids));
 	registrar.add("Attachment.Profile", boost::bind(show_item_profile, selected_id));
+	registrar.add("Object.Attach", boost::bind(LLViewerAttachMenu::attachObjects, ids, _2));
 
 	// Create the menu.
 	LLContextMenu* menu = createFromFile("menu_wearable_list_item.xml");
 
 	// Determine which items should be visible/enabled.
 	updateItemsVisibility(menu);
+
+	// Update labels for the items requiring that.
+	updateItemsLabels(menu);
 	return menu;
 }
 
@@ -478,10 +547,10 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
 	const uuid_vec_t& ids = mUUIDs;	// selected items IDs
 	U32 mask = 0;					// mask of selected items' types
-	U32 nitems = ids.size();		// number of selected items
-	U32 nworn = 0;					// number of worn items among the selected ones
-	U32 nwornlinks = 0;				// number of worn links among the selected items
-	U32 neditable = 0;				// number of editable items among the selected ones
+	U32 n_items = ids.size();		// number of selected items
+	U32 n_worn = 0;					// number of worn items among the selected ones
+	U32 n_links = 0;				// number of links among the selected items
+	U32 n_editable = 0;				// number of editable items among the selected ones
 
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
@@ -503,38 +572,82 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
 		if (is_worn)
 		{
-			++nworn;
-
-			if (is_link)
-			{
-				++nwornlinks;
-			}
+			++n_worn;
 		}
 		if (is_editable)
 		{
-			++neditable;
+			++n_editable;
+		}
+		if (is_link)
+		{
+			++n_links;
 		}
 	} // for
 
 	// *TODO: eliminate multiple traversals over the menu items
-	// *TODO: try disabling items rather than hiding them
-	// *FIX:  we may hide *all* items and thus get an ugly empty menu
-	setMenuItemVisible(menu, "wear",			nworn == 0);
-	setMenuItemVisible(menu, "edit",			mask & (MASK_CLOTHING|MASK_BODYPART) && nitems == 1 && neditable == 1);
-	setMenuItemVisible(menu, "show_original",	nitems == 1 && nwornlinks == nitems);
-	setMenuItemVisible(menu, "take_off",		mask == MASK_CLOTHING && nworn == nitems); // selected only worn clothes
-	setMenuItemVisible(menu, "detach",			mask == MASK_ATTACHMENT && nworn == nitems);
-	setMenuItemVisible(menu, "object_profile",	mask == MASK_ATTACHMENT && nitems == 1);
+	setMenuItemVisible(menu, "wear",				n_worn == 0);
+	setMenuItemVisible(menu, "edit",				mask & (MASK_CLOTHING|MASK_BODYPART) && n_items == 1);
+	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1);
+	setMenuItemVisible(menu, "create_new",			mask & (MASK_CLOTHING|MASK_BODYPART) && n_items == 1);
+	setMenuItemEnabled(menu, "show_original",		n_items == 1 && n_links == n_items);
+	setMenuItemVisible(menu, "take_off",			mask == MASK_CLOTHING && n_worn == n_items);
+	setMenuItemVisible(menu, "detach",				mask == MASK_ATTACHMENT && n_worn == n_items);
+	setMenuItemVisible(menu, "take_off_or_detach",	mask == (MASK_ATTACHMENT|MASK_CLOTHING));
+	setMenuItemEnabled(menu, "take_off_or_detach",	n_worn == n_items);
+	setMenuItemVisible(menu, "object_profile",		mask & (MASK_ATTACHMENT|MASK_CLOTHING));
+	setMenuItemEnabled(menu, "object_profile",		n_items == 1);
+
+	// Populate or hide the "Attach to..." / "Attach to HUD..." submenus.
+	if (mask == MASK_ATTACHMENT && n_worn == 0)
+	{
+		LLViewerAttachMenu::populateMenus("wearable_attach_to", "wearable_attach_to_hud");
+	}
+	else
+	{
+		setMenuItemVisible(menu, "wearable_attach_to",			false);
+		setMenuItemVisible(menu, "wearable_attach_to_hud",		false);
+	}
+
+	if (mask & MASK_UNKNOWN)
+	{
+		llwarns << "Non-wearable items passed." << llendl;
+	}
+}
+
+void LLWearableItemsList::ContextMenu::updateItemsLabels(LLContextMenu* menu)
+{
+	llassert(menu);
+	if (!menu) return;
+
+	// Set proper label for the "Create new <WEARABLE_TYPE>" menu item.
+	LLViewerInventoryItem* item = gInventory.getLinkedItem(mUUIDs.back());
+	if (!item || !item->isWearableType()) return;
+
+	LLStringUtil::format_map_t args;
+	LLWearableType::EType w_type = item->getWearableType();
+	args["[WEARABLE_TYPE]"] = LLWearableType::getTypeDefaultNewName(w_type);
+	std::string new_label = LLTrans::getString("CreateNewWearable", args);
+
+	LLMenuItemGL* menu_item = menu->getChild<LLMenuItemGL>("create_new");
+	menu_item->setLabel(new_label);
 }
 
 // We need this method to convert non-zero BOOL values to exactly 1 (TRUE).
 // Otherwise code relying on a BOOL value being TRUE may fail
 // (I experienced a weird assert in LLView::drawChildren() because of that.
+// static
 void LLWearableItemsList::ContextMenu::setMenuItemVisible(LLContextMenu* menu, const std::string& name, bool val)
 {
 	menu->setItemVisible(name, val);
 }
 
+// static
+void LLWearableItemsList::ContextMenu::setMenuItemEnabled(LLContextMenu* menu, const std::string& name, bool val)
+{
+	menu->setItemEnabled(name, val);
+}
+
+// static
 void LLWearableItemsList::ContextMenu::updateMask(U32& mask, LLAssetType::EType at)
 {
 	if (at == LLAssetType::AT_CLOTHING)
@@ -551,8 +664,17 @@ void LLWearableItemsList::ContextMenu::updateMask(U32& mask, LLAssetType::EType 
 	}
 	else
 	{
-		llwarns << "Unsupported asset type: " << at << llendl;
+		mask |= MASK_UNKNOWN;
 	}
+}
+
+// static
+void LLWearableItemsList::ContextMenu::createNewWearable(const LLUUID& item_id)
+{
+	LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
+	if (!item || !item->isWearableType()) return;
+
+	LLAgentWearables::createWearable(item->getWearableType(), true);
 }
 
 // EOF

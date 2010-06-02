@@ -639,7 +639,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		次のファイルのエンコードができません： [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		あなたの保護されたデータを読みとることが出来ないためリセットされます。
+		保護されているデータを読みとることが出来ないためリセットされます。
    ネットワーク設定を変更すると起こることがあります。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>

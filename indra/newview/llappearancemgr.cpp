@@ -704,6 +704,40 @@ void LLAppearanceMgr::replaceCurrentOutfit(const LLUUID& new_outfit)
 	wearInventoryCategory(cat, false, false);
 }
 
+// Open outfit renaming dialog.
+void LLAppearanceMgr::renameOutfit(const LLUUID& outfit_id)
+{
+	LLViewerInventoryCategory* cat = gInventory.getCategory(outfit_id);
+	if (!cat)
+	{
+		return;
+	}
+
+	LLSD args;
+	args["NAME"] = cat->getName();
+
+	LLSD payload;
+	payload["cat_id"] = outfit_id;
+
+	LLNotificationsUtil::add("RenameOutfit", args, payload, boost::bind(onOutfitRename, _1, _2));
+}
+
+// User typed new outfit name.
+// static
+void LLAppearanceMgr::onOutfitRename(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return; // canceled
+
+	std::string outfit_name = response["new_name"].asString();
+	LLStringUtil::trim(outfit_name);
+	if (!outfit_name.empty())
+	{
+		LLUUID cat_id = notification["payload"]["cat_id"].asUUID();
+		rename_category(&gInventory, cat_id, outfit_name);
+	}
+}
+
 void LLAppearanceMgr::addCategoryToCurrentOutfit(const LLUUID& cat_id)
 {
 	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
@@ -714,7 +748,7 @@ void LLAppearanceMgr::takeOffOutfit(const LLUUID& cat_id)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLFindWearables collector;
+	LLFindWorn collector;
 
 	gInventory.collectDescendentsIf(cat_id, cats, items, FALSE, collector);
 
@@ -842,6 +876,41 @@ BOOL LLAppearanceMgr::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
 	return ((required_wearables & folder_wearables) == required_wearables);
 }
 
+bool LLAppearanceMgr::getCanRemoveOutfit(const LLUUID& outfit_cat_id)
+{
+	// Disallow removing the base outfit.
+	if (outfit_cat_id == getBaseOutfitUUID())
+	{
+		return false;
+	}
+
+	// Check if the outfit folder itself is removable.
+	if (!get_is_category_removable(&gInventory, outfit_cat_id))
+	{
+		return false;
+	}
+
+	// Check if the folder contains worn items.
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWorn filter_worn;
+	gInventory.collectDescendentsIf(outfit_cat_id, cats, items, false, filter_worn);
+	if (!items.empty())
+	{
+		return false;
+	}
+
+	// Check for the folder's non-removable descendants.
+	LLFindNonRemovableObjects filter_non_removable;
+	LLInventoryModel::item_array_t::const_iterator it;
+	gInventory.collectDescendentsIf(outfit_cat_id, cats, items, false, filter_non_removable);
+	if (!cats.empty() || !items.empty())
+	{
+		return false;
+	}
+
+	return true;
+}
 
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
 {

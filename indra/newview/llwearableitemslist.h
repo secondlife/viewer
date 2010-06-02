@@ -70,6 +70,29 @@ protected:
 	LLPanelWearableListItem(LLViewerInventoryItem* item);
 };
 
+/**
+ * @class LLPanelWearableOutfitItem
+ *
+ * Outfit item for "My Outfits" list.
+ * Extends LLPanelInventoryListItemBase with handling
+ * double click to wear the item.
+ */
+class LLPanelWearableOutfitItem : public LLPanelInventoryListItemBase
+{
+	LOG_CLASS(LLPanelWearableOutfitItem);
+public:
+	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item);
+
+	/**
+	* Puts item on if it is not worn by agent
+	* otherwise takes it off on double click.
+	*/
+	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+
+protected:
+
+	LLPanelWearableOutfitItem(LLViewerInventoryItem* item);
+};
 
 class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
 {
@@ -292,12 +315,16 @@ public:
 			MASK_CLOTHING		= 0x01,
 			MASK_BODYPART		= 0x02,
 			MASK_ATTACHMENT		= 0x04,
+			MASK_UNKNOWN		= 0x08,
 		};
 
 		/* virtual */ LLContextMenu* createMenu();
 		void updateItemsVisibility(LLContextMenu* menu);
-		void setMenuItemVisible(LLContextMenu* menu, const std::string& name, bool val);
-		void updateMask(U32& mask, LLAssetType::EType at);
+		void updateItemsLabels(LLContextMenu* menu);
+		static void setMenuItemVisible(LLContextMenu* menu, const std::string& name, bool val);
+		static void setMenuItemEnabled(LLContextMenu* menu, const std::string& name, bool val);
+		static void updateMask(U32& mask, LLAssetType::EType at);
+		static void createNewWearable(const LLUUID& item_id);
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>
@@ -308,6 +335,8 @@ public:
 	};
 
 	virtual ~LLWearableItemsList();
+
+	/*virtual*/ void addNewItem(LLViewerInventoryItem* item, bool rearrange = true);
 
 	void updateList(const LLUUID& category_id);
 

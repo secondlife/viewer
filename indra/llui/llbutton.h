@@ -314,8 +314,7 @@ private:
 
 	/* There are two ways an image can flash- by making changes in color according to flash_color attribute
 	   or by changing icon from current to the one specified in image_flash. Second way is used only if
-	   the name of flash icon is different from "FlashIconAbsent" which is there by default. First way is used 
-	   otherwise. */
+	   flash icon name is set in attributes(by default it isn't). First way is used otherwise. */
 	LLPointer<LLUIImage>		mImageFlash;
 
 	LLUIColor					mHighlightColor;

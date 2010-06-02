@@ -49,6 +49,7 @@
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
 #include "llscrollcontainer.h"
+#include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
 
@@ -877,48 +878,19 @@ bool LLInventoryPanel::beginIMSession()
 
 bool LLInventoryPanel::attachObject(const LLSD& userdata)
 {
+	// Copy selected item UUIDs to a vector.
 	std::set<LLUUID> selected_items = mFolderRoot->getSelectionList();
-
-	std::string joint_name = userdata.asString();
-	LLViewerJointAttachment* attachmentp = NULL;
-	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
-		 iter != gAgentAvatarp->mAttachmentPoints.end(); )
-	{
-		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
-		LLViewerJointAttachment* attachment = curiter->second;
-		if (attachment->getName() == joint_name)
-		{
-			attachmentp = attachment;
-			break;
-		}
-	}
-	if (attachmentp == NULL)
-	{
-		return true;
-	}
-
+	uuid_vec_t items;
 	for (std::set<LLUUID>::const_iterator set_iter = selected_items.begin(); 
 		 set_iter != selected_items.end(); 
 		 ++set_iter)
 	{
-		const LLUUID &id = *set_iter;
-		LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(id);
-		if(item && gInventory.isObjectDescendentOf(id, gInventory.getRootFolderID()))
-		{
-			rez_attachment(item, attachmentp);
-		}
-		else if(item && item->isFinished())
-		{
-			// must be in library. copy it to our inventory and put it on.
-			LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(attachmentp);
-			copy_inventory_item(gAgent.getID(),
-								item->getPermissions().getOwner(),
-								item->getUUID(),
-								LLUUID::null,
-								std::string(),
-								cb);
-		}
+		items.push_back(*set_iter);
 	}
+
+	// Attach selected items.
+	LLViewerAttachMenu::attachObjects(items, userdata.asString());
+
 	gFocusMgr.setKeyboardFocus(NULL);
 
 	return true;

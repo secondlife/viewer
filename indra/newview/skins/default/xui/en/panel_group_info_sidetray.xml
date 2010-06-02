@@ -36,14 +36,16 @@ background_visible="true"
       layout="topleft">
     <button
      follows="top|right"
-     height="23"
-     image_overlay="BackArrow_Off"
+     height="24"
+     image_hover_unselected="BackButton_Over"
+     image_pressed="BackButton_Press"
+     image_unselected="BackButton_Off"
      layout="topleft"
      name="back"
-     left="8"
+     left="7"
      tab_stop="false"
      top="2"
-     width="23" />
+     width="30" />
     <text_editor
      allow_scroll="false"
      bg_visible="false"
