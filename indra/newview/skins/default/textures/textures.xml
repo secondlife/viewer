@@ -67,6 +67,10 @@ with the same filename but different name
   <texture name="Avaline_Icon" file_name="icons/avaline_default_icon.jpg" preload="true" />
 
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
+  
+  <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" />
+  <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" />
+  <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" />
 
   <texture name="Blank" file_name="Blank.png" preload="false" />
 

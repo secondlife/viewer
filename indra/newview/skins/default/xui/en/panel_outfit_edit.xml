@@ -55,14 +55,16 @@
 
     <button
      follows="top|left"
-     height="23"
-     image_overlay="BackArrow_Off"
+     height="24"
+     image_hover_unselected="BackButton_Over"
+     image_pressed="BackButton_Press"
+     image_unselected="BackButton_Off"
      layout="topleft"
      name="back_btn"
      left="5"
      tab_stop="false"
      top="2"
-     width="23" />
+     width="30" />
     <text
      follows="top|right"
      font="SansSerifHugeBold"
