@@ -180,6 +180,49 @@ namespace
 		"Altivec"
 	};
 
+	std::string intel_CPUFamilyName(int composed_family) 
+	{
+		switch(composed_family)
+		{
+		case 3: return "Intel i386";
+		case 4: return "Intel i486";
+		case 5: return "Intel Pentium";
+		case 6: return "Intel Pentium Pro/2/3, Core";
+		case 7: return "Intel Itanium (IA-64)";
+		case 0xF: return "Intel Pentium 4";
+		case 0x10: return "Intel Itanium 2 (IA-64)";
+		}
+		return "Unknown";
+	}
+	
+	std::string amd_CPUFamilyName(int composed_family) 
+	{
+		switch(composed_family)
+		{
+		case 4: return "AMD 80486/5x86";
+		case 5: return "AMD K5/K6";
+		case 6: return "AMD K7";
+		case 0xF: return "AMD K8";
+		case 0x10: return "AMD K8L";
+		}
+   		return "Unknown";
+	}
+
+	std::string compute_CPUFamilyName(const char* cpu_vendor, int composed_family) 
+	{
+		const char* intel_string = "GenuineIntel";
+		const char* amd_string = "AuthenticAMD";
+		if(!strncmp(cpu_vendor, intel_string, strlen(intel_string)))
+		{
+			return intel_CPUFamilyName(composed_family);
+		}
+		else if(!strncmp(cpu_vendor, amd_string, strlen(amd_string)))
+		{
+			return amd_CPUFamilyName(composed_family);
+		}
+		return "Unknown";
+	}
+
 	std::string compute_CPUFamilyName(const char* cpu_vendor, int family, int ext_family) 
 	{
 		const char* intel_string = "GenuineIntel";
@@ -187,35 +230,18 @@ namespace
 		if(!strncmp(cpu_vendor, intel_string, strlen(intel_string)))
 		{
 			U32 composed_family = family + ext_family;
-			switch(composed_family)
-			{
-			case 3: return "Intel i386";
-			case 4: return "Intel i486";
-			case 5: return "Intel Pentium";
-			case 6: return "Intel Pentium Pro/2/3, Core";
-			case 7: return "Intel Itanium (IA-64)";
-			case 0xF: return "Intel Pentium 4";
-			case 0x10: return "Intel Itanium 2 (IA-64)";
-			default: return "Unknown";
-			}
+			return intel_CPUFamilyName(composed_family);
 		}
 		else if(!strncmp(cpu_vendor, amd_string, strlen(amd_string)))
 		{
 			U32 composed_family = (family == 0xF) 
 				? family + ext_family
 				: family;
-			switch(composed_family)
-			{
-			case 4: return "AMD 80486/5x86";
-			case 5: return "AMD K5/K6";
-			case 6: return "AMD K7";
-			case 0xF: return "AMD K8";
-			case 0x10: return "AMD K8L";
-			default: return "Unknown";
-			}
+			return amd_CPUFamilyName(composed_family);
 		}
 		return "Unknown";
 	}
+
 } // end unnamed namespace
 
 // The base class for implementations.
@@ -322,13 +348,16 @@ private:
 	void setInfo(const std::string& name, const LLSD& value) { mProcessorInfo["info"][name]=value; }
 	LLSD getInfo(const std::string& name, const LLSD& defaultVal) const
 	{ 
-		LLSD r = mProcessorInfo["info"].get(name); 
-		return r.isDefined() ? r : defaultVal;
+		if(mProcessorInfo["info"].has(name))
+		{
+			return mProcessorInfo["info"][name];
+		}
+		return defaultVal;
 	}
 	void setConfig(const std::string& name, const LLSD& value) { mProcessorInfo["config"][name]=value; }
 	LLSD getConfig(const std::string& name, const LLSD& defaultVal) const
 	{ 
-		LLSD r = mProcessorInfo["config"].get(name); 
+		LLSD r = mProcessorInfo["config"].get(name);
 		return r.isDefined() ? r : defaultVal;
 	}
 
@@ -736,11 +765,17 @@ private:
 
 // *NOTE:Mani - eww, macros! srry.
 #define LLPI_SET_INFO_STRING(llpi_id, cpuinfo_id) \
-		if (!cpuinfo[cpuinfo_id].empty()) { setInfo(llpi_id, cpuinfo[cpuinfo_id]);}
+		if (!cpuinfo[cpuinfo_id].empty()) \
+		{ setInfo(llpi_id, cpuinfo[cpuinfo_id]);}
 
 #define LLPI_SET_INFO_INT(llpi_id, cpuinfo_id) \
-		if (!cpuinfo[cpuinfo_id].empty()) { setInfo(llpi_id, LLStringUtil::convertToS32(cpuinfo[cpuinfo_id]));}
-
+		{\
+			S32 result; \
+			if (!cpuinfo[cpuinfo_id].empty() \
+				&& LLStringUtil::convertToS32(cpuinfo[cpuinfo_id], result))	\
+		    { setInfo(llpi_id, result);} \
+		}
+		
 		F64 mhz;
 		if (LLStringUtil::convertToF64(cpuinfo["cpu mhz"], mhz)
 			&& 200.0 < mhz && mhz < 10000.0)
@@ -753,11 +788,17 @@ private:
 
 		LLPI_SET_INFO_INT(eStepping, "stepping");
 		LLPI_SET_INFO_INT(eModel, "model");
-		int family = LLStringUtil::convertTos32getSysctlInt("machdep.cpu.family");
-		int ext_family = getSysctlInt("machdep.cpu.extfamily");
-		LLPI_SET_INFO_INT(eFamily, "cpu family");
-		//LLPI_SET_INFO_INT(eExtendedFamily, ext_family);
-		// setInfo(eFamilyName, compute_CPUFamilyName(cpu_vendor, family, ext_family));
+
+		
+		S32 family;							 
+		if (!cpuinfo["cpu family"].empty() 
+			&& LLStringUtil::convertToS32(cpuinfo["cpu family"], family))	
+		{ 
+			setInfo(eFamily, family);
+		}
+ 
+		setInfo(eFamilyName, compute_CPUFamilyName(cpuinfo["vendor_id"].c_str(), family));
+
 		// setInfo(eExtendedModel, getSysctlInt("machdep.cpu.extmodel"));
 		// setInfo(eBrandID, getSysctlInt("machdep.cpu.brand"));
 		// setInfo(eType, 0); // ? where to find this?
@@ -774,12 +815,12 @@ private:
 
 		if( flags.find( " sse " ) != std::string::npos )
 		{
-			setExtension(eSSE_Ext); 
+			setExtension(cpu_feature_names[eSSE_Ext]); 
 		}
 
 		if( flags.find( " sse2 " ) != std::string::npos )
 		{
-			setExtension(eSSE2_Ext);
+			setExtension(cpu_feature_names[eSSE2_Ext]);
 		}
 	
 # endif // LL_X86
