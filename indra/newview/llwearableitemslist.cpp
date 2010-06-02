@@ -94,6 +94,47 @@ LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item)
 //////////////////////////////////////////////////////////////////////////
 
 // static
+LLPanelWearableOutfitItem* LLPanelWearableOutfitItem::create(LLViewerInventoryItem* item)
+{
+	LLPanelWearableOutfitItem* list_item = NULL;
+	if (item)
+	{
+		list_item = new LLPanelWearableOutfitItem(item);
+		list_item->init();
+	}
+	return list_item;
+}
+
+BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	LLViewerInventoryItem* item = getItem();
+	if (item)
+	{
+		LLUUID id = item->getUUID();
+
+		if (get_is_item_worn(id))
+		{
+			LLAppearanceMgr::getInstance()->removeItemFromAvatar(id);
+		}
+		else
+		{
+			LLAppearanceMgr::getInstance()->wearItemOnAvatar(id, true, false);
+		}
+	}
+
+	return LLUICtrl::handleDoubleClick(x, y, mask);
+}
+
+LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item)
+: LLPanelInventoryListItemBase(item)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// static
 LLPanelClothingListItem* LLPanelClothingListItem::create(LLViewerInventoryItem* item)
 {
 	LLPanelClothingListItem* list_item = NULL;
@@ -401,6 +442,27 @@ LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 // virtual
 LLWearableItemsList::~LLWearableItemsList()
 {}
+
+// virtual
+void LLWearableItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrange /*= true*/)
+{
+	if (!item)
+	{
+		llwarns << "No inventory item. Couldn't create flat list item." << llendl;
+		llassert(item != NULL);
+	}
+
+	LLPanelWearableOutfitItem *list_item = LLPanelWearableOutfitItem::create(item);
+	if (!list_item)
+		return;
+
+	bool is_item_added = addItem(list_item, item->getUUID(), ADD_BOTTOM, rearrange);
+	if (!is_item_added)
+	{
+		llwarns << "Couldn't add flat list item." << llendl;
+		llassert(is_item_added);
+	}
+}
 
 void LLWearableItemsList::updateList(const LLUUID& category_id)
 {

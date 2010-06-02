@@ -2333,10 +2333,20 @@ LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type, BOOL is
 		else 
 			return LLUI::getUIImage("Inv_FolderClosed_Link");
 	}
-	if (preferred_type == LLFolderType::FT_OUTFIT)
+
+	switch (preferred_type)
+	{
+	case LLFolderType::FT_OUTFIT:
 		return LLUI::getUIImage("Inv_LookFolderClosed");
-	else
+	case LLFolderType::FT_LOST_AND_FOUND:
+		return LLUI::getUIImage("Inv_LostClosed");
+	case LLFolderType::FT_TRASH:
+		return LLUI::getUIImage("Inv_TrashClosed");
+	case LLFolderType::FT_NONE:
 		return LLUI::getUIImage("Inv_FolderClosed");
+	default:
+		return LLUI::getUIImage("Inv_SysClosed");
+	}
 }
 
 LLUIImagePtr LLFolderBridge::getOpenIcon() const
@@ -2350,10 +2360,21 @@ LLUIImagePtr LLFolderBridge::getOpenIcon() const
 		else 
 			return LLUI::getUIImage("Inv_FolderOpen_Link");
 	}
-	if (getPreferredType() == LLFolderType::FT_OUTFIT)
+
+	switch (getPreferredType())
+	{
+	case LLFolderType::FT_OUTFIT:
 		return LLUI::getUIImage("Inv_LookFolderOpen");
-	else
+	case LLFolderType::FT_LOST_AND_FOUND:
+		return LLUI::getUIImage("Inv_LostOpen");
+	case LLFolderType::FT_TRASH:
+		return LLUI::getUIImage("Inv_TrashOpen");
+	case LLFolderType::FT_NONE:
 		return LLUI::getUIImage("Inv_FolderOpen");
+	default:
+		return LLUI::getUIImage("Inv_SysOpen");
+	}
+
 }
 
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
