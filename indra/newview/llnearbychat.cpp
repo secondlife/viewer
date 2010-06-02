@@ -62,12 +62,6 @@
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
-const static std::string IM_TIME("time");
-const static std::string IM_TEXT("message");
-const static std::string IM_FROM("from");
-const static std::string IM_FROM_ID("from_id");
-
-
 LLNearbyChat::LLNearbyChat(const LLSD& key) 
 	: LLDockableFloater(NULL, false, false, key)
 	,mChatHistory(NULL)
@@ -211,7 +205,7 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 
 	if (gSavedPerAccountSettings.getBOOL("LogNearbyChat"))
 	{
-		LLLogChat::saveHistory("chat", chat.mFromName, chat.mFromID, chat.mText);
+		LLLogChat::saveHistory("chat", chat);
 	}
 }
 
@@ -318,11 +312,14 @@ void LLNearbyChat::loadHistory()
 		chat.mTimeStr = msg[IM_TIME].asString();
 		chat.mChatStyle = CHAT_STYLE_HISTORY;
 
-		chat.mSourceType = CHAT_SOURCE_AGENT;
-		if (from_id.isNull() && SYSTEM_FROM == from)
+		if (msg.has(IM_SOURCE_TYPE))
+		{
+			S32 source_type = msg[IM_SOURCE_TYPE].asInteger();
+			chat.mSourceType = (EChatSourceType)source_type;
+		}
+		else if (from_id.isNull() && SYSTEM_FROM == from)
 		{	
 			chat.mSourceType = CHAT_SOURCE_SYSTEM;
-			
 		}
 		else if (from_id.isNull())
 		{

@@ -4974,6 +4974,9 @@ static std::string reason_from_transaction_type(S32 transaction_type,
 			
 		case TRANS_UPLOAD_CHARGE:
 			return LLTrans::getString("to upload");
+
+		case TRANS_CLASSIFIED_CHARGE:
+			return LLTrans::getString("to publish a classified ad");
 			
 		// These have no reason to display, but are expected and should not
 		// generate warnings
@@ -5038,6 +5041,12 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		<< " type " << transaction_type
 		<< " item " << item_description << LL_ENDL;
 
+	if (source_id.isNull() && dest_id.isNull())
+	{
+		// this is a pure balance update, no notification required
+		return;
+	}
+
 	const char* source_type = (is_source_group ? "group" : "agent");
 	std::string source_slurl =
 		LLSLURL( source_type, source_id, "inspect").getSLURLString();
@@ -5070,11 +5079,27 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		name_id = dest_id;
 		if (!reason.empty())
 		{
-			message = LLTrans::getString("you_paid_ldollars", args);
+			if (dest_id.notNull())
+			{
+				message = LLTrans::getString("you_paid_ldollars", args);
+			}
+			else
+			{
+				// transaction fee to the system, eg, to create a group
+				message = LLTrans::getString("you_paid_ldollars_no_name", args);
+			}
 		}
 		else
 		{
-			message = LLTrans::getString("you_paid_ldollars_no_reason", args);
+			if (dest_id.notNull())
+			{
+				message = LLTrans::getString("you_paid_ldollars_no_reason", args);
+			}
+			else
+			{
+				// no target, no reason, you just paid money
+				message = LLTrans::getString("you_paid_ldollars_no_info", args);
+			}
 		}
 		final_args["MESSAGE"] = message;
 		notification = "PaymentSent";
