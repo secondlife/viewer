@@ -517,7 +517,7 @@ LLCPUInfo::LLCPUInfo()
 	mHasSSE = proc.hasSSE();
 	mHasSSE2 = proc.hasSSE2();
 	mHasAltivec = proc.hasAltivec();
-	mCPUMHz = (F64)(proc.getCPUFrequency()/1000000.0);
+	mCPUMHz = (F64)proc.getCPUFrequency();
 	mFamily = proc.getCPUFamilyName();
 	mCPUString = "Unknown";
 

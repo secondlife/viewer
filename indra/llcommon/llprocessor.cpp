@@ -289,7 +289,7 @@ public:
 		out << "// CPU General Information" << std::endl;
 		out << "//////////////////////////" << std::endl;
 		out << "Processor Name:   " << getCPUBrandName() << std::endl;
-		out << "Frequency:        " << getCPUFrequency() / (F64)1000000 << " MHz" << std::endl;
+		out << "Frequency:        " << getCPUFrequency() << " MHz" << std::endl;
 		out << "Vendor:			  " << getInfo(eVendor, "Unknown").asString() << std::endl;
 		out << "Family:           " << getCPUFamilyName() << " (" << getInfo(eFamily, 0) << ")" << std::endl;
 		out << "Extended family:  " << getInfo(eExtendedFamily, 0) << std::endl;
@@ -460,8 +460,8 @@ static F64 calculate_cpu_frequency(U32 measure_msecs)
 	F64 frequency = (F64)dif / (((F64)timedif) / freq);
 
 	// At last we just return the frequency that is also stored in the call
-	// member var uqwFrequency
-	return frequency;
+	// member var uqwFrequency - converted to MHz
+	return frequency  / (F64)1000000;
 }
 
 // Windows implementation
@@ -596,7 +596,7 @@ public:
 	{
 		getCPUIDInfo();
 		uint64_t frequency = getSysctlInt64("hw.cpufrequency");
-		setInfo(eFrequency, (F64)frequency);
+		setInfo(eFrequency, (F64)frequency  / (F64)1000000);
 	}
 
 	virtual ~LLProcessorInfoDarwinImpl() {}

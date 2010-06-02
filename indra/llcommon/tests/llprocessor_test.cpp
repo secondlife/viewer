@@ -62,6 +62,6 @@ namespace tut
 
 		ensure_not_equals("Unknown Brand name", brand, "Unknown"); 
 		ensure_not_equals("Unknown Family name", family, "Unknown"); 
-		ensure_not_equals("Undetected Frequency", freq, LLSD(0).asReal());
+		ensure("Reasonable CPU Frequency > 100 && < 10000", freq > 100 && freq < 10000);
 	}
 }
