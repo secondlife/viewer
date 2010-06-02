@@ -321,34 +321,35 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
 	logToIMP2P(notification, false);
 }
 
+void log_name_callback(const std::string& full_name, const std::string& from_name, 
+					   const std::string& message, const LLUUID& from_id)
+
+{
+	LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, full_name, from_name, message,
+					from_id, LLUUID());
+}
+
 // static
 void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_file_only)
 {
-	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
-
-	const std::string& session_name = notification->getPayload().has(
-			"SESSION_NAME") ? notification->getPayload()["SESSION_NAME"].asString() : name;
-
 	// don't create IM p2p session with objects, it's necessary condition to log
 	if (notification->getName() != OBJECT_GIVE_ITEM)
 	{
 		LLUUID from_id = notification->getPayload()["from_id"];
 
-		//there still appears a log history file with weird name " .txt"
-		if (" " == session_name || "{waiting}" == session_name || "{nobody}" == session_name)
+		if (from_id.isNull())
 		{
-			llwarning("Weird session name (" + session_name + ") for notification " + notification->getName(), 666)
+			llwarns << " from_id for notification " << notification->getName() << " is null " << llendl;
+			return;
 		}
 
 		if(to_file_only)
 		{
-			logToIM(IM_NOTHING_SPECIAL, session_name, "", notification->getMessage(),
-					LLUUID(), LLUUID());
+			gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, "", notification->getMessage(), LLUUID()));
 		}
 		else
 		{
-			logToIM(IM_NOTHING_SPECIAL, session_name, INTERACTIVE_SYSTEM_FROM, notification->getMessage(),
-					from_id, LLUUID());
+			gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, notification->getMessage(), from_id));
 		}
 	}
 }

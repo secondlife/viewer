@@ -1909,7 +1909,6 @@ protected:
 	void modifyNotificationParams()
 	{
 		LLSD payload = mParams.payload;
-		payload["SESSION_NAME"] = mName;
 		mParams.payload = payload;
 	}
 };
@@ -2142,7 +2141,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_CONSOLE_AND_CHAT_HISTORY:
 	  	// *TODO: Translate
 		args["MESSAGE"] = message;
-		payload["SESSION_NAME"] = name;
 		payload["from_id"] = from_id;
 		LLNotificationsUtil::add("IMSystemMessageTip",args, payload);
 		break;
@@ -6096,7 +6094,6 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 				
 				//*TODO please rewrite all keys to the same case, lower or upper
 				payload["from_id"] = target_id;
-				payload["SESSION_NAME"] = target_name;
 				payload["SUPPRESS_TOAST"] = true;
 				LLNotificationsUtil::add("TeleportOfferSent", args, payload);
 			}
