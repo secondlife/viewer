@@ -81,8 +81,10 @@ std::string LLVoiceClientStatusObserver::status2string(LLVoiceClientStatusObserv
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 LLVoiceClient::LLVoiceClient()
+	:
+	mVoiceModule(NULL),
+	m_servicePump(NULL)
 {
-	mVoiceModule = NULL;
 }
 
 //---------------------------------------------------

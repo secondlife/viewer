@@ -91,6 +91,7 @@ public:
 	const LLUUID		getWearableItemID(LLWearableType::EType type, U32 index /*= 0*/) const;
 	const LLUUID		getWearableAssetID(LLWearableType::EType type, U32 index /*= 0*/) const;
 	const LLWearable*	getWearableFromItemID(const LLUUID& item_id) const;
+	LLWearable*	getWearableFromItemID(const LLUUID& item_id);
 	LLWearable*	getWearableFromAssetID(const LLUUID& asset_id);
 	LLInventoryItem*	getWearableInventoryItem(LLWearableType::EType type, U32 index /*= 0*/);
 	static BOOL			selfHasWearable(LLWearableType::EType type);
@@ -100,6 +101,9 @@ public:
 	LLWearable*		getBottomWearable(const LLWearableType::EType type);
 	U32				getWearableCount(const LLWearableType::EType type) const;
 	U32				getWearableCount(const U32 tex_index) const;
+
+	static const U32 MAX_CLOTHING_PER_TYPE = 5; 
+
 
 	//--------------------------------------------------------------------
 	// Setters
@@ -272,8 +276,6 @@ private:
 		U32 mTodo;
 		LLPointer<LLRefCount> mCB;
 	};
-
-	static const U32 MAX_WEARABLES_PER_TYPE = 1; 
 
 }; // LLAgentWearables
 

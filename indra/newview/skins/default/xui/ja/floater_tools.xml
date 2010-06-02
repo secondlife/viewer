@@ -67,9 +67,9 @@
 	<text name="RenderingCost" tool_tip="このオブジェクトにかかるレンダリングコストを表示">
 		þ: [COUNT]
 	</text>
-	<check_box left="116" name="checkbox uniform"/>
-	<text name="checkbox uniform label">
-		両側を引き延ばす
+	<check_box label="" left="116" name="checkbox uniform"/>
+	<text label="両側を延ばす" name="checkbox uniform label">
+		両側を延ばす
 	</text>
 	<check_box initial_value="true" label="テクスチャを引き延ばす" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="グリッドにスナップ" left_delta="27" name="checkbox snap to grid"/>

@@ -215,7 +215,10 @@ LLEditWearableDictionary::~LLEditWearableDictionary()
 
 LLEditWearableDictionary::Wearables::Wearables()
 {
-	addEntry(LLWearableType::WT_SHAPE, 		new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,9,	SUBPART_SHAPE_HEAD,	SUBPART_SHAPE_EYES,	SUBPART_SHAPE_EARS,	SUBPART_SHAPE_NOSE,	SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS, SUBPART_SHAPE_WHOLE));
+	// note the subpart that is listed first is treated as "default", regardless of what order is in enum.
+	// Please match the order presented in XUI. -Nyx
+	// this will affect what camera angle is shown when first editing a wearable
+	addEntry(LLWearableType::WT_SHAPE, 		new WearableEntry(LLWearableType::WT_SHAPE,"edit_shape_title","shape_desc_text",0,0,9,	SUBPART_SHAPE_WHOLE, SUBPART_SHAPE_HEAD,	SUBPART_SHAPE_EYES,	SUBPART_SHAPE_EARS,	SUBPART_SHAPE_NOSE,	SUBPART_SHAPE_MOUTH, SUBPART_SHAPE_CHIN, SUBPART_SHAPE_TORSO, SUBPART_SHAPE_LEGS ));
 	addEntry(LLWearableType::WT_SKIN, 		new WearableEntry(LLWearableType::WT_SKIN,"edit_skin_title","skin_desc_text",0,3,4, TEX_HEAD_BODYPAINT, TEX_UPPER_BODYPAINT, TEX_LOWER_BODYPAINT, SUBPART_SKIN_COLOR, SUBPART_SKIN_FACEDETAIL, SUBPART_SKIN_MAKEUP, SUBPART_SKIN_BODYDETAIL));
 	addEntry(LLWearableType::WT_HAIR, 		new WearableEntry(LLWearableType::WT_HAIR,"edit_hair_title","hair_desc_text",0,1,4, TEX_HAIR, SUBPART_HAIR_COLOR,	SUBPART_HAIR_STYLE,	SUBPART_HAIR_EYEBROWS, SUBPART_HAIR_FACIAL));
 	addEntry(LLWearableType::WT_EYES, 		new WearableEntry(LLWearableType::WT_EYES,"edit_eyes_title","eyes_desc_text",0,1,1, TEX_EYES_IRIS, SUBPART_EYES));
@@ -645,6 +648,12 @@ BOOL LLPanelEditWearable::postBuild()
 
 	mWearablePtr = NULL;
 
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_LOWER_ALPHA, "lower alpha texture invisible");
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_UPPER_ALPHA, "upper alpha texture invisible");
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_HEAD_ALPHA, "head alpha texture invisible");
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_EYES_ALPHA, "eye alpha texture invisible");
+	configureAlphaCheckbox(LLVOAvatarDefines::TEX_HAIR_ALPHA, "hair alpha texture invisible");
+
 	return TRUE;
 }
 
@@ -667,11 +676,10 @@ BOOL LLPanelEditWearable::isDirty() const
 void LLPanelEditWearable::draw()
 {
 	updateVerbs();
-	if (getWearable())
+	if (getWearable() && getWearable()->getType() == LLWearableType::WT_SHAPE)
 	{
-		LLWearableType::EType type = getWearable()->getType();
-		updatePanelPickerControls(type);
-		updateTypeSpecificControls(type);
+		//updating avatar height
+		updateTypeSpecificControls(LLWearableType::WT_SHAPE);
 	}
 
 	LLPanel::draw();
@@ -893,6 +901,70 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 	// Update picker controls state
 	for_each_picker_ctrl_entry <LLColorSwatchCtrl> (targetPanel, type, boost::bind(set_enabled_color_swatch_ctrl, show, _1, _2));
 	for_each_picker_ctrl_entry <LLTextureCtrl>     (targetPanel, type, boost::bind(set_enabled_texture_ctrl, show, _1, _2));
+
+	showDefaultSubpart();
+}
+
+void LLPanelEditWearable::showDefaultSubpart()
+{
+	changeCamera(0);
+}
+
+void LLPanelEditWearable::onTabExpandedCollapsed(const LLSD& param, U8 index)
+{
+	bool expanded = param.asBoolean();
+
+	if (!mWearablePtr || !gAgentCamera.cameraCustomizeAvatar())
+	{
+		// we don't have a valid wearable we're editing, or we've left the wearable editor
+		return;
+	}
+
+	if (expanded)
+	{
+		changeCamera(index);
+	}
+
+}
+
+void LLPanelEditWearable::changeCamera(U8 subpart)
+{
+	const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(mWearablePtr->getType());
+	if (!wearable_entry)
+	{
+		llinfos << "could not get wearable dictionary entry for wearable type: " << mWearablePtr->getType() << llendl;
+		return;
+	}
+
+	if (subpart >= wearable_entry->mSubparts.size())
+	{
+		llinfos << "accordion tab expanded for invalid subpart. Wearable type: " << mWearablePtr->getType() << " subpart num: " << subpart << llendl;
+		return;
+	}
+
+	ESubpart subpart_e = wearable_entry->mSubparts[subpart];
+	const LLEditWearableDictionary::SubpartEntry *subpart_entry = LLEditWearableDictionary::getInstance()->getSubpart(subpart_e);
+
+	if (!subpart_entry)
+	{
+		llwarns << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << llendl;
+		return;
+	}
+
+	// Update the camera
+	gMorphView->setCameraDistToDefault();
+	gMorphView->setCameraTargetJoint( gAgentAvatarp->getJoint( subpart_entry->mTargetJoint ) );
+	gMorphView->setCameraTargetOffset( subpart_entry->mTargetOffset );
+	gMorphView->setCameraOffset( subpart_entry->mCameraOffset );
+	if (gSavedSettings.getBOOL("AppearanceCameraMovement"))
+	{
+		gMorphView->updateCamera();
+	}
+}
+
+void LLPanelEditWearable::updateScrollingPanelList()
+{
+	updateScrollingPanelUI();
 }
 
 void LLPanelEditWearable::initializePanel()
@@ -969,7 +1041,15 @@ void LLPanelEditWearable::initializePanel()
 	for_each_picker_ctrl_entry <LLColorSwatchCtrl> (getPanel(type), type, boost::bind(init_color_swatch_ctrl, this, _1, _2));
 	for_each_picker_ctrl_entry <LLTextureCtrl>     (getPanel(type), type, boost::bind(init_texture_ctrl, this, _1, _2));
 
+	showDefaultSubpart();
 	updateVerbs();
+
+	if (getWearable())
+	{
+		LLWearableType::EType type = getWearable()->getType();
+		updatePanelPickerControls(type);
+		updateTypeSpecificControls(type);
+	}
 }
 
 void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type)
@@ -992,51 +1072,12 @@ void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
 		std::string avatar_height_str = llformat("%.2f", gAgentAvatarp->mBodySize.mV[VZ]);
 		mTxtAvatarHeight->setTextArg("[HEIGHT]", avatar_height_str);
 	}
-}
 
-void LLPanelEditWearable::onTabExpandedCollapsed(const LLSD& param, U8 index)
-{
-	bool expanded = param.asBoolean();
-
-	if (!mWearablePtr || !gAgentCamera.cameraCustomizeAvatar())
+	if (LLWearableType::WT_ALPHA == type)
 	{
-		// we don't have a valid wearable we're editing, or we've left the wearable editor
-		return;
-	}
+		updateAlphaCheckboxes();
 
-	if (expanded)
-	{
-		const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(mWearablePtr->getType());
-		if (!wearable_entry)
-		{
-			llinfos << "could not get wearable dictionary entry for wearable type: " << mWearablePtr->getType() << llendl;
-			return;
-		}
-
-		if (index >= wearable_entry->mSubparts.size())
-		{
-			llinfos << "accordion tab expanded for invalid subpart. Wearable type: " << mWearablePtr->getType() << " subpart num: " << index << llendl;
-			return;
-		}
-
-		ESubpart subpart_e = wearable_entry->mSubparts[index];
-		const LLEditWearableDictionary::SubpartEntry *subpart_entry = LLEditWearableDictionary::getInstance()->getSubpart(subpart_e);
-
-		if (!subpart_entry)
-		{
-			llwarns << "could not get wearable subpart dictionary entry for subpart: " << subpart_e << llendl;
-			return;
-		}
-
-		// Update the camera
-		gMorphView->setCameraTargetJoint( gAgentAvatarp->getJoint( subpart_entry->mTargetJoint ) );
-		gMorphView->setCameraTargetOffset( subpart_entry->mTargetOffset );
-		gMorphView->setCameraOffset( subpart_entry->mCameraOffset );
-		gMorphView->setCameraDistToDefault();
-		if (gSavedSettings.getBOOL("AppearanceCameraMovement"))
-		{
-			gMorphView->updateCamera();
-		}
+		initPreviousAlphaTextures();
 	}
 }
 
@@ -1054,6 +1095,8 @@ void LLPanelEditWearable::updateScrollingPanelUI()
 	if(panel && (mWearablePtr->getItemID().notNull()))
 	{
 		const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(type);
+		llassert(wearable_entry);
+		if (!wearable_entry) return;
 		U8 num_subparts = wearable_entry->mSubparts.size();
 
 		LLScrollingPanelParam::sUpdateDelayFrames = 0;
@@ -1215,6 +1258,85 @@ void LLPanelEditWearable::updateVerbs()
 		gSavedSettings.setU32("AvatarSex", (gAgentAvatarp->getSex() == SEX_MALE) );
 	}
 
+}
+
+void LLPanelEditWearable::configureAlphaCheckbox(LLVOAvatarDefines::ETextureIndex te, const std::string& name)
+{
+	LLCheckBoxCtrl* checkbox = mPanelAlpha->getChild<LLCheckBoxCtrl>(name);
+	checkbox->setCommitCallback(boost::bind(&LLPanelEditWearable::onInvisibilityCommit, this, checkbox, te));
+
+	mAlphaCheckbox2Index[name] = te;
+}
+
+void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLVOAvatarDefines::ETextureIndex te)
+{
+	if (!checkbox_ctrl) return;
+	if (!getWearable()) return;
+
+	llinfos << "onInvisibilityCommit, self " << this << " checkbox_ctrl " << checkbox_ctrl << llendl;
+
+	bool new_invis_state = checkbox_ctrl->get();
+	if (new_invis_state)
+	{
+		LLLocalTextureObject *lto = getWearable()->getLocalTextureObject(te);
+		mPreviousAlphaTexture[te] = lto->getID();
+		
+		LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture( IMG_INVISIBLE );
+		U32 index = gAgentWearables.getWearableIndex(getWearable());
+		gAgentAvatarp->setLocalTexture(te, image, FALSE, index);
+		gAgentAvatarp->wearableUpdated(getWearable()->getType(), FALSE);
+	}
+	else
+	{
+		// Try to restore previous texture, if any.
+		LLUUID prev_id = mPreviousAlphaTexture[te];
+		if (prev_id.isNull() || (prev_id == IMG_INVISIBLE))
+		{
+			prev_id = LLUUID( gSavedSettings.getString( "UIImgDefaultAlphaUUID" ) );
+		}
+		if (prev_id.isNull()) return;
+		
+		LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(prev_id);
+		if (!image) return;
+
+		U32 index = gAgentWearables.getWearableIndex(getWearable());
+		gAgentAvatarp->setLocalTexture(te, image, FALSE, index);
+		gAgentAvatarp->wearableUpdated(getWearable()->getType(), FALSE);
+	}
+
+	updatePanelPickerControls(getWearable()->getType());
+}
+
+void LLPanelEditWearable::updateAlphaCheckboxes()
+{
+	for(string_texture_index_map_t::iterator iter = mAlphaCheckbox2Index.begin();
+		iter != mAlphaCheckbox2Index.end(); ++iter )
+	{
+		LLVOAvatarDefines::ETextureIndex te = (LLVOAvatarDefines::ETextureIndex)iter->second;
+		LLCheckBoxCtrl* ctrl = mPanelAlpha->getChild<LLCheckBoxCtrl>(iter->first);
+		if (ctrl)
+		{
+			ctrl->set(!gAgentAvatarp->isTextureVisible(te, mWearablePtr));
+		}
+	}
+}
+
+void LLPanelEditWearable::initPreviousAlphaTextures()
+{
+	initPreviousAlphaTextureEntry(TEX_LOWER_ALPHA);
+	initPreviousAlphaTextureEntry(TEX_UPPER_ALPHA);
+	initPreviousAlphaTextureEntry(TEX_HEAD_ALPHA);
+	initPreviousAlphaTextureEntry(TEX_EYES_ALPHA);
+	initPreviousAlphaTextureEntry(TEX_LOWER_ALPHA);
+}
+
+void LLPanelEditWearable::initPreviousAlphaTextureEntry(LLVOAvatarDefines::ETextureIndex te)
+{
+	LLLocalTextureObject *lto = getWearable()->getLocalTextureObject(te);
+	if (lto)
+	{
+		mPreviousAlphaTexture[te] = lto->getID();
+	}
 }
 
 // EOF

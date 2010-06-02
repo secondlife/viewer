@@ -1,6 +1,6 @@
 /** 
- * @file llfloatercustomize.h
- * @brief The customize avatar floater, triggered by "Appearance..."
+ * @file llpaneleditwearable.h
+ * @brief A LLPanel dedicated to the editing of wearables.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
@@ -36,8 +36,10 @@
 #include "llpanel.h"
 #include "llscrollingpanellist.h"
 #include "llmodaldialog.h"
+#include "llvoavatardefines.h"
 #include "llwearabletype.h"
 
+class LLCheckBoxCtrl;
 class LLWearable;
 class LLTextEditor;
 class LLTextBox;
@@ -63,10 +65,14 @@ public:
 	void				saveChanges();
 	void				revertChanges();
 
+	void				showDefaultSubpart();
+	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
+
+	void 				updateScrollingPanelList();
+
 	static void			onRevertButtonClicked(void* userdata);
 	void				onCommitSexChange();
 
-	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
 
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
@@ -85,6 +91,16 @@ private:
 	void				updatePanelPickerControls(LLWearableType::EType type);
 	void				toggleTypeSpecificControls(LLWearableType::EType type);
 	void				updateTypeSpecificControls(LLWearableType::EType type);
+
+	// changes camera angle to default for selected subpart
+	void				changeCamera(U8 subpart);
+
+	//alpha mask checkboxes
+	void configureAlphaCheckbox(LLVOAvatarDefines::ETextureIndex te, const std::string& name);
+	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLVOAvatarDefines::ETextureIndex te);
+	void updateAlphaCheckboxes();
+	void initPreviousAlphaTextures();
+	void initPreviousAlphaTextureEntry(LLVOAvatarDefines::ETextureIndex te);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;
@@ -122,6 +138,12 @@ private:
 	LLPanel *mPanelSkirt;
 	LLPanel *mPanelAlpha;
 	LLPanel *mPanelTattoo;
+
+	typedef std::map<std::string, LLVOAvatarDefines::ETextureIndex> string_texture_index_map_t;
+	string_texture_index_map_t mAlphaCheckbox2Index;
+
+	typedef std::map<LLVOAvatarDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
+	s32_uuid_map_t mPreviousAlphaTexture;
 };
 
 #endif

@@ -65,6 +65,7 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mFitParent(params.fit_parent)
  , mAutoScrolling( false )
  , mAutoScrollRate( 0.f )
+ , mSelectedTab( NULL )
 {
   mSingleExpansion = params.single_expansion;
 	if(mFitParent && !mSingleExpansion)
@@ -76,6 +77,7 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
 LLAccordionCtrl::LLAccordionCtrl() : LLPanel()
  , mAutoScrolling( false )
  , mAutoScrollRate( 0.f )
+ , mSelectedTab( NULL )
 {
 	mSingleExpansion = false;
 	mFitParent = false;
@@ -685,6 +687,28 @@ S32	LLAccordionCtrl::notifyParent(const LLSD& info)
 						return 1;
 					}
 					break;
+				}
+			}
+			return 0;
+		}
+		else if(str_action == "select_current")
+		{
+			for(size_t i=0;i<mAccordionTabs.size();++i)
+			{
+				// Set selection to the currently focused tab.
+				if(mAccordionTabs[i]->hasFocus())
+				{
+					if (mAccordionTabs[i] != mSelectedTab)
+					{
+						if (mSelectedTab)
+						{
+							mSelectedTab->setSelected(false);
+						}
+						mSelectedTab = mAccordionTabs[i];
+						mSelectedTab->setSelected(true);
+					}
+
+					return 1;
 				}
 			}
 			return 0;

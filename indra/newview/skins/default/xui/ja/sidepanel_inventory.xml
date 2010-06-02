@@ -4,6 +4,7 @@
 		<panel name="button_panel">
 			<button label="プロフィール" name="info_btn"/>
 			<button label="共有" name="share_btn"/>
+			<button label="ショッピング" name="shop_btn"/>
 			<button label="装着" name="wear_btn"/>
 			<button label="プレイ" name="play_btn"/>
 			<button label="テレポート" name="teleport_btn"/>
