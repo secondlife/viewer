@@ -2,6 +2,7 @@
 <!-- Additional attributes:
   image_pressed
 	image_pressed_selected
+  image_flash
    -->
 <button image_unselected="PushButton_Off"
         image_selected="PushButton_Selected"
