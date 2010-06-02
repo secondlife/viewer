@@ -3103,7 +3103,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="to create a group">to create a group</string>
   <string name="to join a group">to join a group</string>
   <string name="to upload">to upload</string>
-  
+  <string name="to publish a classified ad">to publish a classified ad</string>
+
   <string name="giving">Giving L$ [AMOUNT]</string>
   <string name="uploading_costs">Uploading costs L$ [AMOUNT]</string>
   <string name="this_costs">This costs L$ [AMOUNT]</string>
