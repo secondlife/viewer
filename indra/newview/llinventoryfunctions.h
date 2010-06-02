@@ -46,6 +46,12 @@
 // Is this item or its baseitem is worn, attached, etc...
 BOOL get_is_item_worn(const LLUUID& id);
 
+BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id);
+
+BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id);
+
+BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id);
+
 void show_item_profile(const LLUUID& item_uuid);
 
 void show_item_original(const LLUUID& item_uuid);
@@ -54,6 +60,15 @@ void change_item_parent(LLInventoryModel* model,
 									 LLViewerInventoryItem* item,
 									 const LLUUID& new_parent_id,
 									 BOOL restamp);
+
+void change_category_parent(LLInventoryModel* model,
+	LLViewerInventoryCategory* cat,
+	const LLUUID& new_parent_id,
+	BOOL restamp);
+
+void remove_category(LLInventoryModel* model, const LLUUID& cat_id);
+
+void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name);
 
 // Generates a string containing the path to the item specified by item_id.
 void append_path(const LLUUID& id, std::string& path);
@@ -308,6 +323,16 @@ public:
 private:
 	LLWearableType::EType mWearableType;
 };
+
+// Find worn items.
+class LLFindWorn : public LLInventoryCollectFunctor
+{
+public:
+	LLFindWorn() {}
+	virtual ~LLFindWorn() {}
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+};
+
 
 /**                    Inventory Collector Functions
  **                                                                            **

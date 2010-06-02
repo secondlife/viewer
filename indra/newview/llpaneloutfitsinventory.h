@@ -129,7 +129,7 @@ protected:
 	void onWearablesLoaded();
 private:
 	LLPanel*					mListCommands;
-	LLMenuGL*					mMenuGearDefault;
+	LLMenuGL*					mGearMenu;
 	LLMenuGL*					mMenuAdd;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////

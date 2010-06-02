@@ -315,12 +315,16 @@ public:
 			MASK_CLOTHING		= 0x01,
 			MASK_BODYPART		= 0x02,
 			MASK_ATTACHMENT		= 0x04,
+			MASK_UNKNOWN		= 0x08,
 		};
 
 		/* virtual */ LLContextMenu* createMenu();
 		void updateItemsVisibility(LLContextMenu* menu);
-		void setMenuItemVisible(LLContextMenu* menu, const std::string& name, bool val);
-		void updateMask(U32& mask, LLAssetType::EType at);
+		void updateItemsLabels(LLContextMenu* menu);
+		static void setMenuItemVisible(LLContextMenu* menu, const std::string& name, bool val);
+		static void setMenuItemEnabled(LLContextMenu* menu, const std::string& name, bool val);
+		static void updateMask(U32& mask, LLAssetType::EType at);
+		static void createNewWearable(const LLUUID& item_id);
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>

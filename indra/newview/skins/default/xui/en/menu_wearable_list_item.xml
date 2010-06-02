@@ -9,22 +9,27 @@
          function="Wearable.Wear" />
     </menu_item_call>
     <menu_item_call
+     label="Take Off / Detach"
+     layout="topleft"
+     name="take_off_or_detach">
+        <on_click
+         function="Wearable.TakeOffDetach" />
+    </menu_item_call>
+    <menu_item_call
      label="Detach"
      layout="topleft"
      name="detach">
         <on_click
          function="Attachment.Detach" />
     </menu_item_call>
-<!-- *TODO: implement the submenus
-    <menu
-     label="Attach to"
+    <context_menu
+     label="Attach to  ▶"
      layout="topleft"
-     name="attach_to" />
-    <menu
-     label="Attach to HUD"
+     name="wearable_attach_to" />
+    <context_menu
+     label="Attach to HUD  ▶"
      layout="topleft"
-     name="attach_to_hud" />
--->
+     name="wearable_attach_to_hud" />
     <menu_item_call
      label="Object Profile"
      layout="topleft"
@@ -37,16 +42,14 @@
      layout="topleft"
      name="take_off">
         <on_click
-         function="Clothing.TakeOff"
-         parameter="take_off"/>
+         function="Clothing.TakeOff" />
     </menu_item_call>
     <menu_item_call
      label="Edit"
      layout="topleft"
      name="edit">
         <on_click
-         function="Wearable.Edit"
-         parameter="edit"/>
+         function="Wearable.Edit" />
     </menu_item_call>
     <menu_item_call
      label="Show Original"
@@ -54,5 +57,12 @@
      name="show_original">
         <on_click
          function="Wearable.ShowOriginal" />
+    </menu_item_call>
+    <menu_item_call
+     label="Create New"
+     layout="topleft"
+     name="create_new">
+        <on_click
+         function="Wearable.CreateNew" />
     </menu_item_call>
 </context_menu>

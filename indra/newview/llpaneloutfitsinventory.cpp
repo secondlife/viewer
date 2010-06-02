@@ -42,6 +42,7 @@
 #include "llfloaterworldmap.h"
 #include "llfloaterinventory.h"
 #include "llfoldervieweventlistener.h"
+#include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
@@ -70,6 +71,89 @@ static const std::string COF_TAB_NAME = "cof_tab";
 
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
+// Context-dependent menu actions are not implemented
+// because accordions don't properly support selection yet.
+class LLOutfitListGearMenu
+{
+public:
+	static LLMenuGL* createMenu()
+	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+
+		registrar.add("Gear.Wear", boost::bind(onWear));
+		registrar.add("Gear.TakeOff", boost::bind(onTakeOff));
+		registrar.add("Gear.Rename", boost::bind(onRename));
+		registrar.add("Gear.Delete", boost::bind(onDelete));
+		registrar.add("Gear.Create", boost::bind(onCreate, _2));
+
+		enable_registrar.add("Gear.OnEnable", boost::bind(onEnable, _2));
+
+		return LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+			"menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	}
+
+private:
+	static void onWear()
+	{
+		// *TODO: not implemented
+	}
+
+	static void onTakeOff()
+	{
+		// *TODO: not implemented
+	}
+
+	static void onRename()
+	{
+		// *TODO: not implemented
+	}
+
+	static void onDelete()
+	{
+		// *TODO: not implemented
+	}
+
+	static void onCreate(const LLSD& data)
+	{
+		LLWearableType::EType type = LLWearableType::typeNameToType(data.asString());
+		if (type == LLWearableType::WT_NONE)
+		{
+			llwarns << "Invalid wearable type" << llendl;
+			return;
+		}
+
+		LLAgentWearables::createWearable(type, true);
+	}
+
+	static bool onEnable(const LLSD& data)
+	{
+		std::string param = data.asString();
+
+		if ("wear" == param)
+		{
+			// *TODO: not implemented
+			return false;
+		}
+		else if ("take_off" == param)
+		{
+			// *TODO: not implemented
+			return false;
+		}
+		else if ("rename" == param)
+		{
+			// *TODO: not implemented
+			return false;
+		}
+		else if ("delete" == param)
+		{
+			// *TODO: not implemented
+			return false;
+		}
+
+		return true;
+	}
+};
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),
@@ -385,8 +469,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 				   ,       _7 // EAcceptance* accept
 				   ));
 
-	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_outfit_gear.xml",
-		gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mGearMenu = LLOutfitListGearMenu::createMenu();
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -403,7 +486,7 @@ void LLPanelOutfitsInventory::updateListCommands()
 
 void LLPanelOutfitsInventory::onGearButtonClick()
 {
-	showActionMenu(mMenuGearDefault,"options_gear_btn");
+	showActionMenu(mGearMenu, "options_gear_btn");
 }
 
 void LLPanelOutfitsInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)

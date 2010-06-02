@@ -1974,6 +1974,32 @@ bool LLAgentWearables::moveWearable(const LLViewerInventoryItem* item, bool clos
 }
 
 // static
+void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, const LLUUID& parent_id)
+{
+	LLWearable* wearable = LLWearableList::instance().createNewWearable(type);
+	LLAssetType::EType asset_type = wearable->getAssetType();
+	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
+	LLPointer<LLInventoryCallback> cb = wear ? new WearOnAvatarCallback : NULL;
+	LLUUID folder_id;
+
+	if (parent_id.notNull())
+	{
+		folder_id = parent_id;
+	}
+	else
+	{
+		LLFolderType::EType folder_type = LLFolderType::assetTypeToFolderType(asset_type);
+		folder_id = gInventory.findCategoryUUIDForType(folder_type);
+	}
+
+	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
+						  folder_id, wearable->getTransactionID(), wearable->getName(),
+						  wearable->getDescription(), asset_type, inv_type, wearable->getType(),
+						  wearable->getPermissions().getMaskNextOwner(),
+						  cb);
+}
+
+// static
 void LLAgentWearables::editWearable(const LLUUID& item_id)
 {
 	LLViewerInventoryItem* item;

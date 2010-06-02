@@ -164,38 +164,7 @@ time_t LLInvFVBridge::getCreationDate() const
 // Can be destroyed (or moved to trash)
 BOOL LLInvFVBridge::isItemRemovable() const
 {
-	const LLInventoryModel* model = getInventoryModel();
-	if(!model) 
-	{
-		return FALSE;
-	}
-
-	// Can't delete an item that's in the library.
-	if(!model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID()))
-	{
-		return FALSE;
-	}
-
-	// Disable delete from COF folder; have users explicitly choose "detach/take off",
-	// unless the item is not worn but in the COF (i.e. is bugged).
-	if (LLAppearanceMgr::instance().getIsProtectedCOFItem(mUUID))
-	{
-		if (get_is_item_worn(mUUID))
-		{
-			return FALSE;
-		}
-	}
-
-	const LLInventoryObject *obj = model->getItem(mUUID);
-	if (obj && obj->getIsLinkType())
-	{
-		return TRUE;
-	}
-	if (get_is_item_worn(mUUID))
-	{
-		return FALSE;
-	}
-	return TRUE;
+	return get_is_item_removable(getInventoryModel(), mUUID);
 }
 
 // Can be moved to another folder
@@ -833,24 +802,7 @@ void LLInvFVBridge::changeCategoryParent(LLInventoryModel* model,
 										 const LLUUID& new_parent_id,
 										 BOOL restamp)
 {
-	// Can't move a folder into a child of itself.
-	if (model->isObjectDescendentOf(new_parent_id, cat->getUUID()))
-	{
-		return;
-	}
-
-	LLInventoryModel::update_list_t update;
-	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
-	update.push_back(old_folder);
-	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-	update.push_back(new_folder);
-	model->accountForUpdate(update);
-	
-	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
-	new_cat->setParent(new_parent_id);
-	new_cat->updateParentOnServer(restamp);
-	model->updateCategory(new_cat);
-	model->notifyObservers();
+	change_category_parent(model, cat, new_parent_id, restamp);
 }
 
 LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
@@ -1538,26 +1490,7 @@ public:
 // Can be destroyed (or moved to trash)
 BOOL LLFolderBridge::isItemRemovable() const
 {
-	LLInventoryModel* model = getInventoryModel();
-	if(!model)
-	{
-		return FALSE;
-	}
-
-	if(!model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID()))
-	{
-		return FALSE;
-	}
-
-	if (!isAgentAvatarValid()) return FALSE;
-
-	LLInventoryCategory* category = model->getCategory(mUUID);
-	if(!category)
-	{
-		return FALSE;
-	}
-
-	if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+	if (!get_is_category_removable(getInventoryModel(), mUUID))
 	{
 		return FALSE;
 	}
@@ -1573,6 +1506,7 @@ BOOL LLFolderBridge::isItemRemovable() const
 			return FALSE;
 		}
 	}
+
 	return TRUE;
 }
 
@@ -2379,21 +2313,8 @@ LLUIImagePtr LLFolderBridge::getOpenIcon() const
 
 BOOL LLFolderBridge::renameItem(const std::string& new_name)
 {
-	if(!isItemRenameable())
-		return FALSE;
-	LLInventoryModel* model = getInventoryModel();
-	if(!model)
-		return FALSE;
-	LLViewerInventoryCategory* cat = getCategory();
-	if(cat && (cat->getName() != new_name))
-	{
-		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
-		new_cat->rename(new_name);
-		new_cat->updateServer(FALSE);
-		model->updateCategory(new_cat);
+	rename_category(getInventoryModel(), mUUID, new_name);
 
-		model->notifyObservers();
-	}
 	// return FALSE because we either notified observers (& therefore
 	// rebuilt) or we didn't update.
 	return FALSE;
@@ -2447,36 +2368,7 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 	{
 		// move it to the trash
 		LLPreview::hide(mUUID);
-		LLInventoryModel* model = getInventoryModel();
-		if(!model) return FALSE;
-		
-		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		
-		// Look for any gestures and deactivate them
-		LLInventoryModel::cat_array_t	descendent_categories;
-		LLInventoryModel::item_array_t	descendent_items;
-		gInventory.collectDescendents( mUUID, descendent_categories, descendent_items, FALSE );
-		
-		for (LLInventoryModel::item_array_t::const_iterator iter = descendent_items.begin();
-			 iter != descendent_items.end();
-			 ++iter)
-		{
-			const LLViewerInventoryItem* item = (*iter);
-			const LLUUID& item_id = item->getUUID();
-			if (item->getType() == LLAssetType::AT_GESTURE
-				&& LLGestureMgr::instance().isGestureActive(item_id))
-			{
-				LLGestureMgr::instance().deactivateGesture(item_id);
-			}
-		}
-		
-		// go ahead and do the normal remove if no 'last calling
-		// cards' are being removed.
-		LLViewerInventoryCategory* cat = getCategory();
-		if(cat)
-		{
-			LLInvFVBridge::changeCategoryParent(model, cat, trash_id, TRUE);
-		}
+		remove_category(getInventoryModel(), mUUID);
 		return TRUE;
 	}
 	return FALSE;
@@ -2671,22 +2563,6 @@ BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInv
 								is_type);
 	return ((item_array.count() > 0) ? TRUE : FALSE );
 }
-
-class LLFindWorn : public LLInventoryCollectFunctor
-{
-public:
-	LLFindWorn() {}
-	virtual ~LLFindWorn() {}
-	virtual bool operator()(LLInventoryCategory* cat,
-							LLInventoryItem* item)
-	{
-		if (item && get_is_item_worn(item->getUUID()))
-		{
-			return TRUE;
-		}
-		return FALSE;
-	}
-};
 
 BOOL LLFolderBridge::areAnyContentsWorn(LLInventoryModel* model) const
 {
@@ -3006,22 +2882,7 @@ void LLFolderBridge::createWearable(LLFolderBridge* bridge, LLWearableType::ETyp
 {
 	if(!bridge) return;
 	LLUUID parent_id = bridge->getUUID();
-	createWearable(parent_id, type);
-}
-
-// Separate function so can be called by global menu as well as right-click
-// menu.
-// static
-void LLFolderBridge::createWearable(const LLUUID &parent_id, LLWearableType::EType type)
-{
-	LLWearable* wearable = LLWearableList::instance().createNewWearable(type);
-	LLAssetType::EType asset_type = wearable->getAssetType();
-	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-						  parent_id, wearable->getTransactionID(), wearable->getName(),
-						  wearable->getDescription(), asset_type, inv_type, wearable->getType(),
-						  wearable->getPermissions().getMaskNextOwner(),
-						  LLPointer<LLInventoryCallback>(NULL));
+	LLAgentWearables::createWearable(type, false, parent_id);
 }
 
 void LLFolderBridge::modifyOutfit(BOOL append)
@@ -4898,13 +4759,7 @@ void LLWearableBridge::onEditOnAvatar(void* user_data)
 
 void LLWearableBridge::editOnAvatar()
 {
-	LLWearable* wearable = gAgentWearables.getWearableFromItemID(mUUID);
-	if( wearable )
-	{
-		LLPanel * panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
-
-		LLSidepanelAppearance::editWearable(wearable, panel);
-	}
+	LLAgentWearables::editWearable(mUUID);
 }
 
 // static

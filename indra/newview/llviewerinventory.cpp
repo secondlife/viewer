@@ -39,6 +39,7 @@
 
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llagentwearables.h"
 #include "llviewerfoldertype.h"
 #include "llfolderview.h"
 #include "llviewercontrol.h"
@@ -880,6 +881,14 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 {
 	LLAppearanceMgr::instance().updateAppearanceFromCOF();
+
+	if (LLSideTray::getInstance()->isPanelActive("sidepanel_appearance"))
+	{
+		// *HACK: Edit the wearable that has just been worn
+		//        only if the Appearance SP is currently opened.
+		LLAgentWearables::editWearable(inv_item);
+	}
+
 	// TODO: camera mode may not be changed if a debug setting is tweaked
 	if( gAgentCamera.cameraCustomizeAvatar() )
 	{
@@ -1240,10 +1249,8 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 		LLWearableType::EType wearable_type = LLWearableType::typeNameToType(type_name);
 		if (wearable_type >= LLWearableType::WT_SHAPE && wearable_type < LLWearableType::WT_COUNT)
 		{
-			LLAssetType::EType asset_type = LLWearableType::getAssetType(wearable_type);
-			LLFolderType::EType folder_type = LLFolderType::assetTypeToFolderType(asset_type);
-			const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(folder_type);
-			LLFolderBridge::createWearable(parent_id, wearable_type);
+			const LLUUID parent_id = bridge ? bridge->getUUID() : LLUUID::null;
+			LLAgentWearables::createWearable(wearable_type, false, parent_id);
 		}
 		else
 		{
