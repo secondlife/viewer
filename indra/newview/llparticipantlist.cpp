@@ -827,7 +827,8 @@ void LLParticipantList::LLParticipantListMenu::moderateVoiceAllParticipants(bool
 void LLParticipantList::LLParticipantListMenu::confirmMuteAllCallback(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (option != 1)
+	// if Cancel pressed
+	if (option == 1)
 	{
 		return;
 	}

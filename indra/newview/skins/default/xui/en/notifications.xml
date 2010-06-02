@@ -6287,8 +6287,8 @@ Mute everyone?
     <usetemplate
      ignoretext="Confirm before I mute all participants in a group call"
      name="okcancelignore"
-     notext="Ok"
-     yestext="Cancel"/>
+     yestext="Ok"
+     notext="Cancel"/>
      <unique/>
   </notification>
 
