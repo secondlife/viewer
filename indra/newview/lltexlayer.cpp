@@ -87,7 +87,7 @@ LLTexLayerSetBuffer::LLTexLayerSetBuffer(LLTexLayerSet* const owner,
 	mNeedsUpdate(TRUE),
 	mNeedsUpload(FALSE),
 	mUploadPending(FALSE), // Not used for any logic here, just to sync sending of updates
-	mDebugNumLowresUploads(0),
+	mNumLowresUploads(0),
 	mTexLayerSet(owner)
 {
 	LLTexLayerSetBuffer::sGLByteCount += getSize();
@@ -141,12 +141,12 @@ void LLTexLayerSetBuffer::requestUpload()
 	// If we requested a new upload but haven't even uploaded
 	// a low res version of our last upload request, then
 	// keep the timer ticking instead of resetting it.
-	if (mNeedsUpload && (mDebugNumLowresUploads == 0))
+	if (mNeedsUpload && (mNumLowresUploads == 0))
 	{
 		mNeedsUploadTimer.reset();
 	}
 	mNeedsUpload = TRUE;
-	mDebugNumLowresUploads = 0;
+	mNumLowresUploads = 0;
 	mUploadPending = TRUE;
 	mNeedsUploadTimer.unpause();
 }
@@ -289,8 +289,12 @@ BOOL LLTexLayerSetBuffer::isReadyToUpload() const
 	const U32 texture_timeout = gSavedSettings.getU32("AvatarBakedTextureTimeout");
 	if (texture_timeout)
 	{
+		// The timeout period increases exponentially between every lowres upload in order to prevent
+		// spamming the server with frequent uploads.
+		const U32 texture_timeout_threshold = texture_timeout*pow((F32)2.0,(F32)mNumLowresUploads);
+
 		// If we hit our timeout and have textures available at even lower resolution, then upload.
-		const BOOL is_upload_textures_timeout = mNeedsUploadTimer.getElapsedTimeF32() >= texture_timeout;
+		const BOOL is_upload_textures_timeout = mNeedsUploadTimer.getElapsedTimeF32() >= texture_timeout_threshold;
 		const BOOL has_lower_lod = mTexLayerSet->isLocalTextureDataAvailable();
 		if (has_lower_lod && is_upload_textures_timeout) return TRUE; 
 	}
@@ -443,7 +447,7 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 				{
 					// Sending a lower level LOD for the baked texture.
 					// Restart the upload timer.
-					mDebugNumLowresUploads++;
+					mNumLowresUploads++;
 					mNeedsUploadTimer.unpause();
 					mNeedsUploadTimer.reset();
 				}
@@ -2241,7 +2245,7 @@ const std::string LLTexLayerSetBuffer::dumpTextureInfo() const
 	if (!isAgentAvatarValid()) return "";
 
 	const BOOL is_high_res = !mNeedsUpload;
-	const U32 num_low_res = mDebugNumLowresUploads;
+	const U32 num_low_res = mNumLowresUploads;
 	const U32 upload_time = (U32)mNeedsUploadTimer.getElapsedTimeF32();
 	const BOOL is_uploaded = !mUploadPending;
 	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(mTexLayerSet);
