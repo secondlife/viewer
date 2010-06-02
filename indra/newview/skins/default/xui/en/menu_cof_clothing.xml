@@ -8,6 +8,9 @@
      name="take_off">
         <on_click
          function="Clothing.TakeOff" />
+        <on_enable
+         function="Clothing.OnEnable"
+         parameter="take_off" />
     </menu_item_call>
     <menu_item_call
      label="Move Up a Layer"
@@ -38,5 +41,16 @@
         <on_enable
          function="Clothing.OnEnable"
          parameter="edit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Create New"
+     layout="topleft"
+     name="create_new"
+     translate="false">
+        <on_click
+         function="Clothing.Create"/>
+        <on_enable
+         function="Clothing.OnEnable"
+         parameter="create" />
     </menu_item_call>
 </context_menu>

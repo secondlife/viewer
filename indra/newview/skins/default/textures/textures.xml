@@ -67,6 +67,10 @@ with the same filename but different name
   <texture name="Avaline_Icon" file_name="icons/avaline_default_icon.jpg" preload="true" />
 
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
+  
+  <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" />
+  <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" />
+  <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" />
 
   <texture name="Blank" file_name="Blank.png" preload="false" />
 
@@ -203,6 +207,8 @@ with the same filename but different name
   <texture name="Inv_Jacket" file_name="icons/Inv_Jacket.png" preload="false" />
   <texture name="Inv_LookFolderOpen" file_name="icons/Inv_LookFolderOpen.png" preload="false" />
   <texture name="Inv_LookFolderClosed" file_name="icons/Inv_LookFolderClosed.png" preload="false" />
+  <texture name="Inv_LostClosed" file_name="icons/Inv_LostClosed.png" preload="false" />
+  <texture name="Inv_LostOpen" file_name="icons/Inv_LostOpen.png" preload="false" />
   <texture name="Inv_Landmark" file_name="icons/Inv_Landmark.png" preload="false" />
   <texture name="Inv_Notecard" file_name="icons/Inv_Notecard.png" preload="false" />
   <texture name="Inv_Object" file_name="icons/Inv_Object.png" preload="false" />
@@ -216,8 +222,12 @@ with the same filename but different name
   <texture name="Inv_Snapshot" file_name="icons/Inv_Snapshot.png" preload="false" />
   <texture name="Inv_Socks" file_name="icons/Inv_Socks.png" preload="false" />
   <texture name="Inv_Sound" file_name="icons/Inv_Sound.png" preload="false" />
+  <texture name="Inv_SysClosed" file_name="icons/Inv_SysClosed.png" preload="false" />
+  <texture name="Inv_SysOpen" file_name="icons/Inv_SysOpen.png" preload="false" />
   <texture name="Inv_Tattoo" file_name="icons/Inv_Tattoo.png" preload="false" />
   <texture name="Inv_Texture" file_name="icons/Inv_Texture.png" preload="false" />
+  <texture name="Inv_TrashClosed" file_name="icons/Inv_TrashClosed.png" preload="false" />
+  <texture name="Inv_TrashOpen" file_name="icons/Inv_TrashOpen.png" preload="false" />
   <texture name="Inv_Underpants" file_name="icons/Inv_Underpants.png" preload="false" />
   <texture name="Inv_Undershirt" file_name="icons/Inv_Undershirt.png" preload="false" />
 

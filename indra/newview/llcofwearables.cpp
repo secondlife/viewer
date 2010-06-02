@@ -45,8 +45,7 @@
 #include "llwearableitemslist.h"
 #include "llpaneloutfitedit.h"
 #include "llsidetray.h"
-
-static LLRegisterPanelClassWrapper<LLCOFAccordionListAdaptor> t_cof_accodion_list_adaptor("accordion_list_adaptor");
+#include "lltrans.h"
 
 static LLRegisterPanelClassWrapper<LLCOFWearables> t_cof_wearables("cof_wearables");
 
@@ -54,6 +53,39 @@ const LLSD REARRANGE = LLSD().with("rearrange", LLSD());
 
 static const LLWearableItemNameComparator WEARABLE_NAME_COMPARATOR;
 
+//////////////////////////////////////////////////////////////////////////
+
+class CofContextMenu : public LLListContextMenu
+{
+protected:
+	static void updateCreateWearableLabel(LLMenuGL* menu, const LLUUID& item_id)
+	{
+		LLMenuItemGL* menu_item = menu->getChild<LLMenuItemGL>("create_new");
+
+		// Hide the "Create new <WEARABLE_TYPE>" if it's irrelevant.
+		LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
+		if (!item || !item->isWearableType())
+		{
+			menu_item->setVisible(FALSE);
+			return;
+		}
+
+		// Set proper label for the "Create new <WEARABLE_TYPE>" menu item.
+		LLStringUtil::format_map_t args;
+		LLWearableType::EType w_type = item->getWearableType();
+		args["[WEARABLE_TYPE]"] = LLWearableType::getTypeDefaultNewName(w_type);
+		std::string new_label = LLTrans::getString("CreateNewWearable", args);
+		menu_item->setLabel(new_label);
+	}
+
+	static void createNew(const LLUUID& item_id)
+	{
+		LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
+		if (!item || !item->isWearableType()) return;
+
+		LLAgentWearables::createWearable(item->getWearableType(), true);
+	}
+};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +106,7 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////
 
-class CofClothingContextMenu : public LLListContextMenu
+class CofClothingContextMenu : public CofContextMenu
 {
 protected:
 
@@ -89,10 +121,17 @@ protected:
 		registrar.add("Clothing.MoveUp", boost::bind(moveWearable, selected_id, false));
 		registrar.add("Clothing.MoveDown", boost::bind(moveWearable, selected_id, true));
 		registrar.add("Clothing.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
+		registrar.add("Clothing.Create", boost::bind(createNew, selected_id));
 
 		enable_registrar.add("Clothing.OnEnable", boost::bind(&CofClothingContextMenu::onEnable, this, _2));
 
-		return createFromFile("menu_cof_clothing.xml");
+		LLContextMenu* menu = createFromFile("menu_cof_clothing.xml");
+		llassert(menu);
+		if (menu)
+		{
+			updateCreateWearableLabel(menu, selected_id);
+		}
+		return menu;
 	}
 
 	bool onEnable(const LLSD& data)
@@ -108,6 +147,10 @@ protected:
 		{
 			return gAgentWearables.canMoveWearable(selected_id, true);
 		}
+		else if ("take_off" == param)
+		{
+			return get_is_item_worn(selected_id);
+		}
 		else if ("edit" == param)
 		{
 			return gAgentWearables.isWearableModifiable(selected_id);
@@ -122,12 +165,11 @@ protected:
 		LLViewerInventoryItem* item = gInventory.getItem(item_id);
 		return LLAppearanceMgr::instance().moveWearable(item, closer_to_body);
 	}
-
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class CofBodyPartContextMenu : public LLListContextMenu
+class CofBodyPartContextMenu : public CofContextMenu
 {
 protected:
 
@@ -142,10 +184,17 @@ protected:
 		LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
 		registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceBodyPartMenuItemClicked, panel_oe, selected_id));
 		registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
+		registrar.add("BodyPart.Create", boost::bind(createNew, selected_id));
 
 		enable_registrar.add("BodyPart.OnEnable", boost::bind(&CofBodyPartContextMenu::onEnable, this, _2));
 
-		return createFromFile("menu_cof_body_part.xml");
+		LLContextMenu* menu = createFromFile("menu_cof_body_part.xml");
+		llassert(menu);
+		if (menu)
+		{
+			updateCreateWearableLabel(menu, selected_id);
+		}
+		return menu;
 	}
 
 	bool onEnable(const LLSD& data)

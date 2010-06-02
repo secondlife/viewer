@@ -221,8 +221,6 @@ BOOL LLLandmarksPanel::postBuild()
 	// mast be called before any other initXXX methods to init Gear menu
 	initListCommandsHandlers();
 
-	U32 sort_order = gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER);
-	mSortByDate = sort_order & LLInventoryFilter::SO_DATE;
 	initFavoritesInventoryPanel();
 	initLandmarksInventoryPanel();
 	initMyInventoryPanel();
@@ -607,7 +605,8 @@ void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list
 	inventory_list->setSelectCallback(boost::bind(&LLLandmarksPanel::onSelectionChange, this, inventory_list, _1, _2));
 
 	inventory_list->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	updateSortOrder(inventory_list, mSortByDate);
+	bool sorting_order = gSavedSettings.getBOOL("LandmarksSortedByDate");
+	updateSortOrder(inventory_list, sorting_order);
 
 	LLPlacesFolderView* root_folder = dynamic_cast<LLPlacesFolderView*>(inventory_list->getRootFolder());
 	if (root_folder)
@@ -875,10 +874,12 @@ void LLLandmarksPanel::onFoldingAction(const LLSD& userdata)
 	}
 	else if ("sort_by_date" == command_name)
 	{
-		mSortByDate = !mSortByDate;
-		updateSortOrder(mLandmarksInventoryPanel, mSortByDate);
-		updateSortOrder(mMyInventoryPanel, mSortByDate);
-		updateSortOrder(mLibraryInventoryPanel, mSortByDate);
+		bool sorting_order = gSavedSettings.getBOOL("LandmarksSortedByDate");
+		sorting_order=!sorting_order;
+		gSavedSettings.setBOOL("LandmarksSortedByDate",sorting_order);
+		updateSortOrder(mLandmarksInventoryPanel, sorting_order);
+		updateSortOrder(mMyInventoryPanel, sorting_order);
+		updateSortOrder(mLibraryInventoryPanel, sorting_order);
 	}
 	else
 	{
@@ -895,7 +896,8 @@ bool LLLandmarksPanel::isActionChecked(const LLSD& userdata) const
 
 	if ( "sort_by_date" == command_name)
 	{
-		return  mSortByDate;
+		bool sorting_order = gSavedSettings.getBOOL("LandmarksSortedByDate");
+		return  sorting_order;
 	}
 
 	return false;

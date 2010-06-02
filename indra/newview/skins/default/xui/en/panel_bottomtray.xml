@@ -222,38 +222,6 @@
          min_height="28"
          min_width="52"
          mouse_opaque="false"
-         name="sidebar_btn_panel"
-         user_resize="false"
-         width="83">
-<!--*TODO: Implement toggle of sidebar with buttons
-Disabled for now.
--->
-            <button
-             control_name="SidebarWithButtonsVisibility"
-             follows="left|right"
-             height="23"
-             image_pressed="PushButton_Press"
-             image_pressed_selected="PushButton_Selected_Press"
-             image_selected="PushButton_Selected_Press"
-             is_toggle="true"
-             label="Sidebar"
-             layout="topleft"
-             left="0"
-             name="sidebar_btn"
-             tool_tip="Shows/hides Sidebar"
-             top="5"
-             use_ellipses="true"
-             width="80">
-            </button>
-        </layout_panel>
-        <layout_panel
-         auto_resize="false"
-         follows="left|right"
-         height="28"
-         layout="topleft"
-         min_height="28"
-         min_width="52"
-         mouse_opaque="false"
          name="build_btn_panel"
          user_resize="false"
          width="83">

@@ -167,7 +167,6 @@ private:
 	LLInventoryObserver*		mInventoryObserver;
 
 	LLPanel*					mListCommands;
-	bool 						mSortByDate;
 	
 	typedef	std::vector<LLAccordionCtrlTab*> accordion_tabs_t;
 	accordion_tabs_t			mAccordionTabs;

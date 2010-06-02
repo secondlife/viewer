@@ -636,8 +636,8 @@ void LLButton::draw()
 
 	if (mFlashing)
 	{
-		// if we have icon for flashing, use it as image for button
-		if(flash && mImageFlash->getName() != "FlashIconAbsent")
+		// if button should flash and we have icon for flashing, use it as image for button
+		if(flash && mImageFlash)
 		{
 			// setting flash to false to avoid its further influence on glow
 			flash = false;
