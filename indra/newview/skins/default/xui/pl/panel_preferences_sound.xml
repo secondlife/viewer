@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+va<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Dźwięki" name="Preference Media panel">
 	<slider label="Główny" name="System Volume"/>
-	<check_box initial_value="true" label="Wycisz podczas minimalizacji" name="mute_when_minimized"/>
+	<check_box label="Wycisz podczas minimalizacji" name="mute_when_minimized"/>
 	<slider label="Interfejs" name="UI Volume"/>
 	<slider label="Otoczenie" name="Wind Volume"/>
 	<slider label="Efekty dźwiękowe" name="SFX Volume"/>
@@ -11,8 +11,8 @@
 	<check_box label="Odtwarzaj media" name="enable_media"/>
 	<slider label="Komunikacja Głosowa" name="Voice Volume"/>
 	<check_box label="Pozwól na rozmowy głosowe" name="enable_voice_check"/>
-	<check_box label="Automatycznie odtwarzaj media" name="media_auto_play_btn" tool_tip="Zaznacz tę funkcję by uruchomić automatyczne uruchamianie mediów" value="prawda"/>
-	<check_box label="Uruchom media załączone do innych awatarów" name="media_show_on_others_btn" tool_tip="Odznacz tę funkcję by ukryć media załączone to awatarów w publiżu" value="prawda"/>
+	<check_box label="Automatycznie odtwarzaj media" name="media_auto_play_btn" tool_tip="Zaznacz tę funkcję by uruchomić automatyczne uruchamianie mediów"/>
+	<check_box label="Uruchom media załączone do innych awatarów" name="media_show_on_others_btn" tool_tip="Odznacz tę funkcję by ukryć media załączone to awatarów w publiżu"/>
 	<text name="voice_chat_settings">
 		Ustawienia Komunikacji Głosowej
 	</text>
