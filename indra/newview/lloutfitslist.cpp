@@ -432,6 +432,10 @@ void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
 			// hide tab if its title doesn't pass filter
 			// and it has no visible items
 			tab->setVisible(list->size() != 0);
+
+			// remove title highlighting because it might
+			// have been previously highlighted by less restrictive filter
+			tab->setTitle(tab->getTitle());
 		}
 		else
 		{
@@ -484,6 +488,10 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 				// hide tab if its title doesn't pass filter
 				// and it has no visible items
 				tab->setVisible(list->size() != 0);
+
+				// remove title highlighting because it might
+				// have been previously highlighted by less restrictive filter
+				tab->setTitle(tab->getTitle());
 			}
 			else
 			{
