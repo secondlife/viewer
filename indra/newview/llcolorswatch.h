@@ -60,7 +60,7 @@ public:
 
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Optional<LLColor4>				color;
+		Optional<LLUIColor>				color;
 		Optional<bool>					can_apply_immediately;
 		Optional<LLUIImage*>			alpha_background_image;
 		Optional<commit_callback_t> 	cancel_callback;
