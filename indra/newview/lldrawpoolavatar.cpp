@@ -634,7 +634,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	if (!single_avatar && !avatarp->isFullyLoaded() )
 	{
-		if (pass==1 && (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) || LLViewerPartSim::getMaxPartCount() <= 0))
+		if (pass==0 && (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) || LLViewerPartSim::getMaxPartCount() <= 0))
 		{
 			// debug code to draw a sphere in place of avatar
 			gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
@@ -646,8 +646,10 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			gGL.translatef((F32)(pos.mV[VX]),	 
 						   (F32)(pos.mV[VY]),	 
 							(F32)(pos.mV[VZ]));	 
-			 gGL.scalef(0.15f, 0.15f, 0.3f);	 
-			 gSphere.render();	 
+			 gGL.scalef(0.15f, 0.15f, 0.3f);
+
+			 gSphere.renderGGL();
+				 
 			 gGL.popMatrix();
 			 gGL.setColorMask(true, false);
 		}
