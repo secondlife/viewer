@@ -140,15 +140,17 @@
      value="Parcel_DamageNo_Dark" />
     <button
      follows="top|right"
-     height="23"
-     image_overlay="BackArrow_Off"
+     height="24"
+     image_hover_unselected="BackButton_Over"
+     image_pressed="BackButton_Press"
+     image_unselected="BackButton_Off"
      layout="topleft"
-     left="11"
+     left="7"
      name="back_btn"
      tool_tip="Back"
      tab_stop="false"
      top="4"
-     width="23" />
+     width="30" />
     <text
      follows="top|left|right"
      font="SansSerifHugeBold"
@@ -318,6 +320,7 @@
              value="unknown"
              width="268" />
             <accordion
+             fit_parent="true"
              follows="all"
              height="223"
              layout="topleft"

@@ -318,6 +318,10 @@
 	<!-- For use when we do not have land type back from the server -->
 	<string name="land_type_unknown">(unknown)</string>
 
+	<!-- For land type back from the simulator -->
+	<string name="Estate / Full Region">Estate / Full Region</string>
+	<string name="Mainland / Full Region">Mainland / Full Region</string>
+
 	<!-- File load/save dialogs -->
 	<string name="all_files">All Files</string>
 	<string name="sound_files">Sounds</string>
@@ -1826,6 +1830,7 @@ Clears (deletes) the media and all params from the given face.
 
   <!-- Wearable List-->
   <string name="NewWearable">New [WEARABLE_ITEM]</string>
+  <string name="CreateNewWearable">Create [WEARABLE_TYPE]</string>
   
 	<!-- LLGroupNotify -->
 	<!-- used in the construction of a Group Notice blue dialog box, buttons, tooltip etc. Seems to be no longer utilized by code in Viewer 2.0 -->
@@ -3154,10 +3159,10 @@ Abuse Report</string>
   <string name="Male - Stick tougue out">Male - Stick tougue out</string>
   <string name="Male - Wow">Male - Wow</string>
 
-  <string name="FeMale - Excuse me">FeMale - Excuse me</string>
-  <string name="FeMale - Get lost">FeMale - Get lost</string>
-  <string name="FeMale - Blow kiss">FeMale - Blow kiss</string>
-  <string name="FeMale - Boo">FeMale - Boo</string>
+  <string name="Female - Excuse me">Female - Excuse me</string>
+  <string name="Female - Get lost">Female - Get lost</string>
+  <string name="Female - Blow kiss">Female - Blow kiss</string>
+  <string name="Female - Boo">Female - Boo</string>
   <string name="Female - Bored">Female - Bored</string>
   <string name="Female - Hey">Female - Hey</string>
   <string name="Female - Laugh">Female - Laugh</string>
@@ -3174,6 +3179,7 @@ Abuse Report</string>
 
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value=" "></string>
+  <string name="words_separator">, </string>
   
   <string name="server_is_down">
 	Despite our best efforts, something unexpected has gone wrong.

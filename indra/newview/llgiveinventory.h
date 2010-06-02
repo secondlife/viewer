@@ -61,7 +61,7 @@ public:
 	/**
 	 * Gives passed inventory item to specified avatar in specified session.
 	 */
-	static void doGiveInventoryItem(const LLUUID& to_agent,
+	static bool doGiveInventoryItem(const LLUUID& to_agent,
 									const LLInventoryItem* item,
 									const LLUUID& im_session_id = LLUUID::null);
 
@@ -71,6 +71,9 @@ public:
 	static void doGiveInventoryCategory(const LLUUID& to_agent,
 									const LLInventoryCategory* item,
 									const LLUUID &session_id = LLUUID::null);
+
+	// give inventory item functionality
+	static bool handleCopyProtectedItem(const LLSD& notification, const LLSD& response);
 
 private:
 	// this class is not intended to be instantiated.
@@ -82,8 +85,6 @@ private:
 	static void logInventoryOffer(const LLUUID& to_agent,
 									const LLUUID &im_session_id = LLUUID::null);
 
-	// give inventory item functionality
-	static bool handleCopyProtectedItem(const LLSD& notification, const LLSD& response);
 	static void commitGiveInventoryItem(const LLUUID& to_agent,
 									const LLInventoryItem* item,
 									const LLUUID &im_session_id = LLUUID::null);

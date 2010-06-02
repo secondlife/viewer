@@ -330,6 +330,7 @@ void LLFloater::addDragHandle()
 		addChild(mDragHandle);
 	}
 	layoutDragHandle();
+	applyTitle();
 }
 
 void LLFloater::layoutDragHandle()
@@ -348,7 +349,6 @@ void LLFloater::layoutDragHandle()
 	}
 	mDragHandle->setRect(rect);
 	updateTitleButtons();
-	applyTitle();
 }
 
 void LLFloater::addResizeCtrls()
@@ -2519,7 +2519,7 @@ LLFloater *LLFloaterView::getBackmost() const
 
 void LLFloaterView::syncFloaterTabOrder()
 {
-	// look for a visible modal dialog, starting from first (should be only one)
+	// look for a visible modal dialog, starting from first
 	LLModalDialog* modal_dialog = NULL;
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{

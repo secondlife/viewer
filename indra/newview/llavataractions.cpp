@@ -475,6 +475,138 @@ namespace action_give_inventory
 		return acceptable;
 	}
 
+	static void build_residents_string(const std::vector<std::string>& avatar_names, std::string& residents_string)
+	{
+		llassert(avatar_names.size() > 0);
+
+		const std::string& separator = LLTrans::getString("words_separator");
+		for (std::vector<std::string>::const_iterator it = avatar_names.begin(); ; )
+		{
+			residents_string.append(*it);
+			if	(++it == avatar_names.end())
+			{
+				break;
+			}
+			residents_string.append(separator);
+		}
+	}
+
+	static void build_items_string(const uuid_set_t& inventory_selected_uuids , std::string& items_string)
+	{
+		llassert(inventory_selected_uuids.size() > 0);
+
+		const std::string& separator = LLTrans::getString("words_separator");
+		for (uuid_set_t::const_iterator it = inventory_selected_uuids.begin(); ; )
+		{
+			LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
+			if (NULL != inv_cat)
+			{
+				items_string = inv_cat->getName();
+				break;
+			}
+			LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
+			if (NULL != inv_item)
+			{
+				items_string.append(inv_item->getName());
+			}
+			if(++it == inventory_selected_uuids.end())
+			{
+				break;
+			}
+			items_string.append(separator);
+		}
+	}
+
+	struct LLShareInfo : public LLSingleton<LLShareInfo>
+	{
+		std::vector<std::string> mAvatarNames;
+		uuid_vec_t mAvatarUuids;
+	};
+
+	static void give_inventory_cb(const LLSD& notification, const LLSD& response)
+	{
+		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+		// if Cancel pressed
+		if (option == 1)
+		{
+			return;
+		}
+
+		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+		if (NULL == active_panel)
+		{
+			return;
+		}
+
+		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
+		if (inventory_selected_uuids.empty())
+		{
+			return;
+		}
+
+		S32 count = LLShareInfo::instance().mAvatarNames.size();
+		bool shared = false;
+
+		// iterate through avatars
+		for(S32 i = 0; i < count; ++i)
+		{
+			const std::string& avatar_name = LLShareInfo::instance().mAvatarNames[i];
+			const LLUUID& avatar_uuid = LLShareInfo::instance().mAvatarUuids[i];
+
+			// Start up IM before give the item
+			const LLUUID session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, avatar_uuid);
+
+			uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
+			const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
+
+			const std::string& separator = LLTrans::getString("words_separator");
+			std::string noncopy_item_names;
+			LLSD noncopy_items = LLSD::emptyArray();
+			// iterate through selected inventory objects
+			for (; it != it_end; ++it)
+			{
+				LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
+				if (inv_cat)
+				{
+					LLGiveInventory::doGiveInventoryCategory(avatar_uuid, inv_cat, session_id);
+					shared = true;
+					break;
+				}
+				LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
+				if (!inv_item->getPermissions().allowCopyBy(gAgentID))
+				{
+					if (!noncopy_item_names.empty())
+					{
+						noncopy_item_names.append(separator);
+					}
+					noncopy_item_names.append(inv_item->getName());
+					noncopy_items.append(*it);
+				}
+				else
+				{
+					LLGiveInventory::doGiveInventoryItem(avatar_uuid, inv_item, session_id);
+					shared = true;
+				}
+			}
+			if (noncopy_items.beginArray() != noncopy_items.endArray())
+			{
+				LLSD substitutions;
+				substitutions["ITEMS"] = noncopy_item_names;
+				LLSD payload;
+				payload["agent_id"] = avatar_uuid;
+				payload["items"] = noncopy_items;
+				LLNotificationsUtil::add("CannotCopyWarning", substitutions, payload,
+					&LLGiveInventory::handleCopyProtectedItem);
+				break;
+			}
+		}
+		if (shared)
+		{
+			LLFloaterReg::hideInstance("avatar_picker");
+			LLNotificationsUtil::add("ItemsShared");
+		}
+	}
+
 	/**
 	 * Performs "give inventory" operations for provided avatars.
 	 *
@@ -488,39 +620,31 @@ namespace action_give_inventory
 	{
 		llassert(avatar_names.size() == avatar_uuids.size());
 
+
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (NULL == active_panel) return;
+		if (NULL == active_panel)
+		{
+			return;
+		}
 
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
-		if (inventory_selected_uuids.empty()) return;
-
-		S32 count = llmin(avatar_names.size(), avatar_uuids.size());
-
-		// iterate through avatars
-		for(S32 i = 0; i < count; ++i)
+		if (inventory_selected_uuids.empty())
 		{
-			const std::string& avatar_name = avatar_names[i];
-			const LLUUID& avatar_uuid = avatar_uuids[i];
-
-			// Start up IM before give the item
-			const LLUUID session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, avatar_uuid);
-
-			uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
-			const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
-
-			// iterate through selected inventory objects
-			for (; it != it_end; ++it)
-			{
-				LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
-				if (inv_cat)
-				{
-					LLGiveInventory::doGiveInventoryCategory(avatar_uuid, inv_cat, session_id);
-					break;
-				}
-				LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
-				LLGiveInventory::doGiveInventoryItem(avatar_uuid, inv_item, session_id);
-			}
+			return;
 		}
+
+		std::string residents;
+		build_residents_string(avatar_names, residents);
+
+		std::string items;
+		build_items_string(inventory_selected_uuids, items);
+
+		LLSD substitutions;
+		substitutions["RESIDENTS"] = residents;
+		substitutions["ITEMS"] = items;
+		LLShareInfo::instance().mAvatarNames = avatar_names;
+		LLShareInfo::instance().mAvatarUuids = avatar_uuids;
+		LLNotificationsUtil::add("ShareItemsConfirmation", substitutions, LLSD(), &give_inventory_cb);
 	}
 }
 
@@ -532,7 +656,6 @@ void LLAvatarActions::shareWithAvatars()
 	LLFloaterAvatarPicker* picker =
 		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE);
 	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
-	LLNotificationsUtil::add("ShareNotification");
 }
 
 // static

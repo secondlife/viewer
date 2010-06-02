@@ -106,6 +106,8 @@ BOOL LLFloaterMap::postBuild()
 		mPopupMenu->setItemEnabled ("Stop Tracking", false);
 	}
 
+	stretchMiniMap(getRect().getWidth(),getRect().getHeight());
+
 	updateMinorDirections();
 
 	// Get the drag handle all the way in back
@@ -229,10 +231,8 @@ void LLFloaterMap::onFocusLost()
 	LLPanel::onFocusLost();
 }
 
-void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLFloaterMap::stretchMiniMap(S32 width,S32 height)
 {
-	LLFloater::reshape(width, height, called_from_parent);
-	
 	//fix for ext-7112
 	//by default ctrl can't overlap caption area
 	if(mMap)
@@ -242,6 +242,13 @@ void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 		mMap->reshape( width, height, 1);
 		mMap->setRect(map_rect);
 	}
+}
+
+void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLFloater::reshape(width, height, called_from_parent);
+	
+	stretchMiniMap(width, height);
 
 	updateMinorDirections();
 }

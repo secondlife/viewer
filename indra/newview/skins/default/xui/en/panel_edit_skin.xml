@@ -85,6 +85,7 @@
          width="313">    
 	 <accordion
         layout="topleft"
+		fit_parent="true"
 		follows="all"
 		height ="300"
 		left="0"
