@@ -13,7 +13,7 @@
          parameter="wear" />
     </menu_item_call>
     <menu_item_call
-     label="Take Off - Remove Current Outfit"
+     label="Take Off - Remove from Current Outfit"
      layout="topleft"
      name="take_off">
         <on_click

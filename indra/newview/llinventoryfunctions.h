@@ -333,6 +333,12 @@ public:
 	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 };
 
+// Collect non-removable folders and items.
+class LLFindNonRemovableObjects : public LLInventoryCollectFunctor
+{
+public:
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+};
 
 /**                    Inventory Collector Functions
  **                                                                            **

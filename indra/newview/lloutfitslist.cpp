@@ -55,28 +55,6 @@ static bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y);
 
 //////////////////////////////////////////////////////////////////////////
 
-// Collect non-removable folders and items.
-class LLFindNonRemovableObjects : public LLInventoryCollectFunctor
-{
-public:
-	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-	{
-		if (item)
-		{
-			return !get_is_item_removable(&gInventory, item->getUUID());
-		}
-		if (cat)
-		{
-			return !get_is_category_removable(&gInventory, cat->getUUID());
-		}
-
-		llwarns << "Not a category and not an item?" << llendl;
-		return false;
-	}
-};
-
-//////////////////////////////////////////////////////////////////////////
-
 class OutfitContextMenu : public LLListContextMenu
 {
 protected:
@@ -129,7 +107,7 @@ protected:
 		}
 		else if ("delete" == param)
 		{
-			return canDeleteOutfit(outfit_cat_id);
+			return LLAppearanceMgr::instance().getCanRemoveOutfit(outfit_cat_id);
 		}
 
 		return true;
@@ -142,68 +120,7 @@ protected:
 
 	static void renameOutfit(const LLUUID& outfit_cat_id)
 	{
-		LLViewerInventoryCategory* outfit_cat = gInventory.getCategory(outfit_cat_id);
-		llassert(outfit_cat);
-		if (!outfit_cat) return;
-
-		LLSD args;
-		args["NAME"] = outfit_cat->getName();
-
-		LLSD payload;
-		payload["cat_id"] = outfit_cat_id;
-
-		LLNotificationsUtil::add("RenameOutfit", args, payload, boost::bind(onRename, _1, _2));
-	}
-
-	// User typed new outfit name.
-	static void onRename(const LLSD& notification, const LLSD& response)
-	{
-		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-		if (option != 0) return; // canceled
-
-		std::string outfit_name = response["new_name"].asString();
-		LLStringUtil::trim(outfit_name);
-		if (!outfit_name.empty())
-		{
-			LLUUID cat_id = notification["payload"]["cat_id"].asUUID();
-			rename_category(&gInventory, cat_id, outfit_name);
-		}
-	}
-
-	static bool canDeleteOutfit(const LLUUID& outfit_cat_id)
-	{
-		// Disallow removing the base outfit.
-		if (outfit_cat_id == LLAppearanceMgr::instance().getBaseOutfitUUID())
-		{
-			return false;
-		}
-
-		// Check if the outfit folder itself is removable.
-		if (!get_is_category_removable(&gInventory, outfit_cat_id))
-		{
-			return false;
-		}
-
-		// Check if the folder contains worn items.
-		LLInventoryModel::cat_array_t cats;
-		LLInventoryModel::item_array_t items;
-		LLFindWorn filter_worn;
-		gInventory.collectDescendentsIf(outfit_cat_id, cats, items, false, filter_worn);
-		if (!items.empty())
-		{
-			return false;
-		}
-
-		// Check for the folder's non-removable descendants.
-		LLFindNonRemovableObjects filter_non_removable;
-		LLInventoryModel::item_array_t::const_iterator it;
-		gInventory.collectDescendentsIf(outfit_cat_id, cats, items, false, filter_non_removable);
-		if (!cats.empty() || !items.empty())
-		{
-			return false;
-		}
-
-		return true;
+		LLAppearanceMgr::instance().renameOutfit(outfit_cat_id);
 	}
 
 	static void deleteOutfit(const LLUUID& outfit_cat_id)
@@ -442,6 +359,10 @@ void LLOutfitsList::performAction(std::string action)
 	else if ("addtooutfit" == action)
 	{
 		LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, TRUE );
+	}
+	else if ("rename_outfit" == action)
+	{
+		LLAppearanceMgr::instance().renameOutfit(mSelectedOutfitUUID);
 	}
 }
 
@@ -717,4 +638,5 @@ bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y)
 	S32 header_bottom = tab->getLocalRect().getHeight() - tab->getHeaderHeight();
 	return y >= header_bottom;
 }
+
 // EOF

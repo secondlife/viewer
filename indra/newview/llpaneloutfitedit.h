@@ -132,7 +132,6 @@ public:
 private:
 
 	void onGearButtonClick(LLUICtrl* clicked_button);
-	void onGearMenuItemClick(const LLSD& data);
 	void showFilteredWearableItemsList(LLWearableType::EType type);
 
 

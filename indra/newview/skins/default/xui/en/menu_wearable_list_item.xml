@@ -61,7 +61,8 @@
     <menu_item_call
      label="Create New"
      layout="topleft"
-     name="create_new">
+     name="create_new"
+     translate="false">
         <on_click
          function="Wearable.CreateNew" />
     </menu_item_call>

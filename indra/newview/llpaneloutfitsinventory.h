@@ -47,6 +47,7 @@ class LLMenuGL;
 class LLSidepanelAppearance;
 class LLTabContainer;
 class LLSaveOutfitComboBtn;
+class LLOutfitListGearMenu;
 
 class LLPanelOutfitsInventory : public LLPanel
 {
@@ -116,9 +117,8 @@ private:
 protected:
 	void initListCommandsHandlers();
 	void updateListCommands();
-	void onGearButtonClick();
 	void onWearButtonClick();
-	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
+	void showGearMenu();
 	void onTrashButtonClick();
 	void onClipboardAction(const LLSD& userdata);
 	BOOL isActionEnabled(const LLSD& command_name);
@@ -129,7 +129,7 @@ protected:
 	void onWearablesLoaded();
 private:
 	LLPanel*					mListCommands;
-	LLMenuGL*					mGearMenu;
+	LLOutfitListGearMenu*		mGearMenu;
 	LLMenuGL*					mMenuAdd;
 	// List Commands                                                              //
 	////////////////////////////////////////////////////////////////////////////////

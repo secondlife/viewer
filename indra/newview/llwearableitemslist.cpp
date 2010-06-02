@@ -671,7 +671,6 @@ void LLWearableItemsList::ContextMenu::updateMask(U32& mask, LLAssetType::EType 
 // static
 void LLWearableItemsList::ContextMenu::createNewWearable(const LLUUID& item_id)
 {
-	// *TODO: proper implementation of creating new wearables.
 	LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
 	if (!item || !item->isWearableType()) return;
 

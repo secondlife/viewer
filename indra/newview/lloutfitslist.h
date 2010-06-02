@@ -66,11 +66,11 @@ public:
 
 	void refreshList(const LLUUID& category_id);
 
-	void onSelectionChange(LLUICtrl* ctrl);
-
 	void performAction(std::string action);
 
 	void setFilterSubString(const std::string& string);
+
+	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
 
 private:
 	/**
@@ -109,6 +109,10 @@ private:
 	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onAccordionTabDoubleClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+
+	void onSelectionChange(LLUICtrl* ctrl);
+
+	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 

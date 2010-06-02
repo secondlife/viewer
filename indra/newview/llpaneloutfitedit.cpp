@@ -79,6 +79,70 @@ const U64 ALL_ITEMS_MASK = WEARABLE_MASK | ATTACHMENT_MASK;
 
 static const std::string REVERT_BTN("revert_btn");
 
+class LLPanelOutfitEditGearMenu
+{
+public:
+	static LLMenuGL* create()
+	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+		registrar.add("Wearable.Create", boost::bind(onCreate, _2));
+
+		LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+			"menu_cof_gear.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
+		llassert(menu);
+		if (menu)
+		{
+			populateCreateWearableSubmenus(menu);
+			menu->buildDrawLabels();
+		}
+
+		return menu;
+	}
+
+private:
+	static void onCreate(const LLSD& param)
+	{
+		LLWearableType::EType type = LLWearableType::typeNameToType(param.asString());
+		if (type == LLWearableType::WT_NONE)
+		{
+			llwarns << "Invalid wearable type" << llendl;
+			return;
+		}
+
+		LLAgentWearables::createWearable(type, true);
+	}
+
+	// Populate the menu with items like "New Skin", "New Pants", etc.
+	static void populateCreateWearableSubmenus(LLMenuGL* menu)
+	{
+		LLView* menu_clothes	= gMenuHolder->findChildView("COF.Gear.New_Clothes", FALSE);
+		LLView* menu_bp			= gMenuHolder->findChildView("COF.Geear.New_Body_Parts", FALSE);
+
+		if (!menu_clothes || !menu_bp)
+		{
+			llassert(menu_clothes && menu_bp);
+			return;
+		}
+
+		for (U8 i = LLWearableType::WT_SHAPE; i != (U8) LLWearableType::WT_COUNT; ++i)
+		{
+			LLWearableType::EType type = (LLWearableType::EType) i;
+			const std::string& type_name = LLWearableType::getTypeName(type);
+
+			LLMenuItemCallGL::Params p;
+			p.name = type_name;
+			p.label = LLWearableType::getTypeDefaultNewName(type);
+			p.on_click.function_name = "Wearable.Create";
+			p.on_click.parameter = LLSD(type_name);
+
+			LLView* parent = LLWearableType::getAssetType(type) == LLAssetType::AT_CLOTHING ?
+				menu_clothes : menu_bp;
+			LLUICtrlFactory::create<LLMenuItemCallGL>(p, parent);
+		}
+	}
+};
+
 class LLCOFObserver : public LLInventoryObserver
 {
 public:
@@ -719,27 +783,11 @@ void LLPanelOutfitEdit::onGearButtonClick(LLUICtrl* clicked_button)
 {
 	if(!mGearMenu)
 	{
-		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-
-		registrar.add("Gear.OnClick", boost::bind(&LLPanelOutfitEdit::onGearMenuItemClick, this, _2));
-
-		mGearMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
-			"menu_cof_gear.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
-		mGearMenu->buildDrawLabels();
-		mGearMenu->updateParent(LLMenuGL::sMenuContainer);
+		mGearMenu = LLPanelOutfitEditGearMenu::create();
 	}
 
 	S32 menu_y = mGearMenu->getRect().getHeight() + clicked_button->getRect().getHeight();
 	LLMenuGL::showPopup(clicked_button, mGearMenu, 0, menu_y);
-}
-
-void LLPanelOutfitEdit::onGearMenuItemClick(const LLSD& data)
-{
-	std::string param = data.asString();
-	if("add" == param)
-	{
-		// TODO
-	}
 }
 
 void LLPanelOutfitEdit::showFilteredWearableItemsList(LLWearableType::EType type)

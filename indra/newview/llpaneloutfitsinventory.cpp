@@ -71,50 +71,89 @@ static const std::string COF_TAB_NAME = "cof_tab";
 
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
-// Context-dependent menu actions are not implemented
-// because accordions don't properly support selection yet.
 class LLOutfitListGearMenu
 {
 public:
-	static LLMenuGL* createMenu()
+	LLOutfitListGearMenu(LLOutfitsList* olist)
+	:	mOutfitList(olist),
+		mMenu(NULL)
 	{
+		llassert_always(mOutfitList);
+
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-		registrar.add("Gear.Wear", boost::bind(onWear));
-		registrar.add("Gear.TakeOff", boost::bind(onTakeOff));
-		registrar.add("Gear.Rename", boost::bind(onRename));
-		registrar.add("Gear.Delete", boost::bind(onDelete));
-		registrar.add("Gear.Create", boost::bind(onCreate, _2));
+		registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenu::onWear, this));
+		registrar.add("Gear.TakeOff", boost::bind(&LLOutfitListGearMenu::onTakeOff, this));
+		registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenu::onRename, this));
+		registrar.add("Gear.Delete", boost::bind(&LLOutfitListGearMenu::onDelete, this));
+		registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenu::onCreate, this, _2));
 
-		enable_registrar.add("Gear.OnEnable", boost::bind(onEnable, _2));
+		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenu::onEnable, this, _2));
 
-		return LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
 			"menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+		llassert(mMenu);
 	}
+
+	LLMenuGL* getMenu() { return mMenu; }
 
 private:
-	static void onWear()
+	const LLUUID& getSelectedOutfitID()
 	{
-		// *TODO: not implemented
+		return mOutfitList->getSelectedOutfitUUID();
 	}
 
-	static void onTakeOff()
+	LLViewerInventoryCategory* getSelectedOutfit()
 	{
-		// *TODO: not implemented
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.isNull())
+		{
+			return NULL;
+		}
+
+		LLViewerInventoryCategory* cat = gInventory.getCategory(selected_outfit_id);
+		return cat;
 	}
 
-	static void onRename()
+	void onWear()
 	{
-		// *TODO: not implemented
+		LLViewerInventoryCategory* selected_outfit = getSelectedOutfit();
+		if (selected_outfit)
+		{
+			LLAppearanceMgr::instance().wearInventoryCategory(
+				selected_outfit, /*copy=*/ FALSE, /*append=*/ FALSE);
+		}
 	}
 
-	static void onDelete()
+	void onTakeOff()
 	{
-		// *TODO: not implemented
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
+		}
 	}
 
-	static void onCreate(const LLSD& data)
+	void onRename()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			LLAppearanceMgr::instance().renameOutfit(selected_outfit_id);
+		}
+	}
+
+	void onDelete()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			remove_category(&gInventory, selected_outfit_id);
+		}
+	}
+
+	void onCreate(const LLSD& data)
 	{
 		LLWearableType::EType type = LLWearableType::typeNameToType(data.asString());
 		if (type == LLWearableType::WT_NONE)
@@ -126,39 +165,40 @@ private:
 		LLAgentWearables::createWearable(type, true);
 	}
 
-	static bool onEnable(const LLSD& data)
+	bool onEnable(LLSD::String param)
 	{
-		std::string param = data.asString();
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		bool is_worn = LLAppearanceMgr::instance().getBaseOutfitUUID() == selected_outfit_id;
 
 		if ("wear" == param)
 		{
-			// *TODO: not implemented
-			return false;
+			return !is_worn;
 		}
 		else if ("take_off" == param)
 		{
-			// *TODO: not implemented
-			return false;
+			return is_worn;
 		}
 		else if ("rename" == param)
 		{
-			// *TODO: not implemented
-			return false;
+			return get_is_category_renameable(&gInventory, selected_outfit_id);
 		}
 		else if ("delete" == param)
 		{
-			// *TODO: not implemented
-			return false;
+			return LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit_id);
 		}
 
 		return true;
 	}
+
+	LLOutfitsList*	mOutfitList;
+	LLMenuGL*		mMenu;
 };
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),
 	mCurrentOutfitPanel(NULL),
 	mParent(NULL),
+	mGearMenu(NULL),
 	mInitialized(false)
 {
 	mSavedFolderState = new LLSaveFolderState();
@@ -168,6 +208,7 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 {
+	delete mGearMenu;
 	delete mSavedFolderState;
 }
 
@@ -458,7 +499,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 {
 	mListCommands = getChild<LLPanel>("bottom_panel");
 
-	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::onGearButtonClick, this));
+	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::showGearMenu, this));
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
 
@@ -469,7 +510,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 				   ,       _7 // EAcceptance* accept
 				   ));
 
-	mGearMenu = LLOutfitListGearMenu::createMenu();
+	mGearMenu = new LLOutfitListGearMenu(mMyOutfitsPanel);
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -484,18 +525,14 @@ void LLPanelOutfitsInventory::updateListCommands()
 	mSaveComboBtn->setSaveBtnEnabled(make_outfit_enabled);
 }
 
-void LLPanelOutfitsInventory::onGearButtonClick()
+void LLPanelOutfitsInventory::showGearMenu()
 {
-	showActionMenu(mGearMenu, "options_gear_btn");
-}
-
-void LLPanelOutfitsInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
-{
+	LLMenuGL* menu = mGearMenu ? mGearMenu->getMenu() : NULL;
 	if (menu)
 	{
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
-		LLView* spawning_view = getChild<LLView> (spawning_view_name);
+		LLView* spawning_view = getChild<LLView>("options_gear_btn");
 		S32 menu_x, menu_y;
 		//show menu in co-ordinates of panel
 		spawning_view->localPointToOtherView(0, spawning_view->getRect().getHeight(), &menu_x, &menu_y, this);
