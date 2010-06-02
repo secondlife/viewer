@@ -1695,6 +1695,28 @@ if (LINUX)
     add_dependencies(package linux-updater-target)
     check_message_template(package)
   endif (NOT INSTALL)
+
+  add_custom_command(
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched
+    COMMAND ${PYTHON_EXECUTABLE}
+    ARGS
+      ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      --arch=${ARCH}
+      --actions=copy
+      --artwork=${ARTWORK_DIR}
+      --build=${CMAKE_CURRENT_BINARY_DIR}
+      --buildtype=${CMAKE_BUILD_TYPE}
+      --configuration=${CMAKE_CFG_INTDIR}
+      --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
+      --grid=${GRID}
+      --source=${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS 
+      ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      ${COPY_INPUT_DEPENDENCIES}
+    COMMENT "Performing viewer_manifest copy"
+    )
+    
+  add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched) 
 endif (LINUX)
 
 if (DARWIN)
@@ -1786,20 +1808,22 @@ if (PACKAGE)
   if (WINDOWS)
     set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-windows.breakpad.bz2")
-    set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME} SLPlugin.exe")
+    set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
+    set(VIEWER_COPY_MANIFEST copy_w_viewer_manifest)
   endif (WINDOWS)
   if (DARWIN)
     set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-darwin.breakpad.bz2")
-    set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME} SLPlugin")
-    set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
+    set(VIEWER_EXE_GLOBS "'Second Life' SLPlugin")
+    set(VIEWER_LIB_GLOB "*.dylib")
   endif (DARWIN)
   if (LINUX)
     set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/packaged")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-linux.breakpad.bz2")
     set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin SLPlugin")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
+    set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
 
   add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
@@ -1812,9 +1836,10 @@ if (PACKAGE)
       "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
       "${VIEWER_SYMBOL_FILE}"
     DEPENDS generate_breakpad_symbols.py
+    VERBATIM
   )
   add_custom_target(generate_breakpad_symbols ALL DEPENDS "${VIEWER_SYMBOL_FILE}")
-  add_dependencies(generate_breakpad_symbols viewer)
+  add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
   add_dependencies(package generate_breakpad_symbols)
 endif (PACKAGE)
 

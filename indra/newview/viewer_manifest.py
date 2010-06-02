@@ -930,7 +930,8 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
 
-        if self.args['buildtype'].lower() == 'release':
+        # *TODO switch this to use self.is_packaging_viewer() once I understand all the consequences -brad
+        if self.args['buildtype'].lower() == 'release' and 'package' in self.args['actions']:
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
             self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
