@@ -2,9 +2,9 @@
 <!-- Side tray panel -->
 <panel label="Résidents" name="people_panel">
 	<string name="no_recent_people" value="Personne de récent. Pour rechercher des résidents avec qui passer du temps, voir [secondlife:///app/search/people Rechercher] ou [secondlife:///app/worldmap Carte du monde]."/>
-	<string name="no_filtered_recent_people" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/people Rechercher]."/>
+	<string name="no_filtered_recent_people" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/people/Rechercher [SEARCH_TERM]]."/>
 	<string name="no_one_near" value="Personne près de vous. Pour rechercher des résidents avec qui passer du temps, voir [secondlife:///app/search/people Rechercher] ou [secondlife:///app/worldmap Carte du monde]."/>
-	<string name="no_one_filtered_near" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/people Rechercher]."/>
+	<string name="no_one_filtered_near" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/people/Rechercher [SEARCH_TERM]]."/>
 	<string name="no_friends_online" value="Pas d&apos;amis connectés"/>
 	<string name="no_friends" value="Pas d&apos;amis"/>
 	<string name="no_friends_msg">
@@ -12,11 +12,11 @@
 Pour rechercher des résidents avec qui passer du temps, utilisez [secondlife:///app/worldmap Carte du monde].
 	</string>
 	<string name="no_filtered_friends_msg">
-		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/people Rechercher].
+		Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/people/Rechercher [SEARCH_TERM]].
 	</string>
 	<string name="people_filter_label" value="Filtrer les personnes"/>
 	<string name="groups_filter_label" value="Filtrer les groupes"/>
-	<string name="no_filtered_groups_msg" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Utilisez [secondlife:///app/search/groups Rechercher]."/>
+	<string name="no_filtered_groups_msg" value="Vous n&apos;avez pas trouvé ce que vous cherchiez ? Essayez [secondlife:///app/search/groups/Rechercher [SEARCH_TERM]]."/>
 	<string name="no_groups_msg" value="Vous souhaitez trouver des groupes à rejoindre ? Utilisez [secondlife:///app/search/groups Rechercher]."/>
 	<filter_editor label="Filtre" name="filter_input"/>
 	<tab_container name="tabs">
@@ -55,8 +55,8 @@ Pour rechercher des résidents avec qui passer du temps, utilisez [secondlife://
 		<button label="Profil" name="view_profile_btn" tool_tip="Afficher la photo, les groupes et autres infos des résidents"/>
 		<button label="IM" name="im_btn" tool_tip="Ouvrir une session IM"/>
 		<button label="Appeler" name="call_btn" tool_tip="Appeler ce résident"/>
-		<button label="Partager" name="share_btn"/>
-		<button label="Téléporter" name="teleport_btn" tool_tip="Proposez une téléportation"/>
+		<button label="Partager" name="share_btn" tool_tip="Partager un article d&apos;inventaire"/>
+		<button label="Téléporter" name="teleport_btn" tool_tip="Proposer une téléportation"/>
 		<button label="Profil" name="group_info_btn" tool_tip="Voir le profil du groupe"/>
 		<button label="Chat" name="chat_btn" tool_tip="Ouvrir une session de chat"/>
 		<button label="Appel" name="group_call_btn" tool_tip="Appeler ce groupe"/>

@@ -85,7 +85,7 @@ LLWearableDictionary::LLWearableDictionary()
 	addEntry(LLWearableType::WT_TATTOO,       new WearableEntry("tattoo",      "New Tattoo",		LLAssetType::AT_CLOTHING, 	LLInventoryIcon::ICONNAME_CLOTHING_TATTOO));
 	addEntry(LLWearableType::WT_INVALID,      new WearableEntry("invalid",     "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryIcon::ICONNAME_NONE));
 	addEntry(LLWearableType::WT_NONE,      	  new WearableEntry("none",        "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryIcon::ICONNAME_NONE));
-	addEntry(LLWearableType::WT_COUNT,        NULL);
+	addEntry(LLWearableType::WT_COUNT,        new WearableEntry("count",        "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryIcon::ICONNAME_NONE));
 }
 
 // static

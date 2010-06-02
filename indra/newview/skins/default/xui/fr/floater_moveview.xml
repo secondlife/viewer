@@ -6,17 +6,47 @@
 	<string name="walk_back_tooltip">
 		Marcher en arrière (appuyer sur la flèche vers le bas ou S)
 	</string>
+	<string name="walk_left_tooltip">
+		Marcher vers la gauche (Maj+Flèche gauche ou touche A)
+	</string>
+	<string name="walk_right_tooltip">
+		Marcher vers la droite (Maj+Flèche droite ou touche D)
+	</string>
 	<string name="run_forward_tooltip">
 		Courir vers l&apos;avant (appuyer sur la flèche vers le haut ou W)
 	</string>
 	<string name="run_back_tooltip">
 		Courir en arrière (appuyer sur la flèche vers le bas ou S)
 	</string>
+	<string name="run_left_tooltip">
+		Courir vers la gauche (Maj+Flèche gauche ou touche A)
+	</string>
+	<string name="run_right_tooltip">
+		Courir vers la droite (Maj+Flèche droite ou touche D)
+	</string>
 	<string name="fly_forward_tooltip">
 		Voler vers l&apos;avant (appuyer sur la flèche vers le haut ou W)
 	</string>
 	<string name="fly_back_tooltip">
 		Voler vers l&apos;arrière (appuyer sur la flèche vers le bas ou S)
+	</string>
+	<string name="fly_left_tooltip">
+		Voler vers la gauche (Maj+Flèche gauche ou touche A)
+	</string>
+	<string name="fly_right_tooltip">
+		Voler vers la droite (Maj+Flèche droite ou touche D)
+	</string>
+	<string name="fly_up_tooltip">
+		Voler vers le haut (touche E)
+	</string>
+	<string name="fly_down_tooltip">
+		Voler vers le bas (touche C)
+	</string>
+	<string name="jump_tooltip">
+		Sauter (touche E)
+	</string>
+	<string name="crouch_tooltip">
+		S&apos;accroupir (touche C)
 	</string>
 	<string name="walk_title">
 		Marcher
@@ -28,10 +58,12 @@
 		Voler
 	</string>
 	<panel name="panel_actions">
+		<button label="" label_selected="" name="move up btn" tool_tip="Voler vers le haut (touche E)"/>
 		<button label="" label_selected="" name="turn left btn" tool_tip="Tourner à gauche (appuyer sur la flèche de gauche ou sur A)"/>
+		<joystick_slide name="move left btn" tool_tip="Marcher vers la gauche (Maj+Flèche gauche ou touche A)"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Voler vers le bas (touche C)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Tourner à droite (appuyer sur la flèche de droite ou sur D)"/>
-		<button label="" label_selected="" name="move up btn" tool_tip="Voler vers le haut, appuyer sur E"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Voler vers le bas, appuyer sur C"/>
+		<joystick_slide name="move right btn" tool_tip="Marcher vers la droite (Maj+Flèche droite ou touche D)"/>
 		<joystick_turn name="forward btn" tool_tip="Marcher en avant (appuyer sur la flèche vers le haut ou W)"/>
 		<joystick_turn name="backward btn" tool_tip="Marcher en arrière (appuyer sur la flèche vers le bas ou S)"/>
 	</panel>

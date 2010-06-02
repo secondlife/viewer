@@ -215,7 +215,8 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const LLSLURL&
 		LLSD args;
 		args["SLURL"] = slurl.getLocationString();
 		args["CURRENT_GRID"] = LLGridManager::getInstance()->getGridLabel();
-		LLSD grid_info = LLGridManager::getInstance()->getGridInfo(slurl.getGrid());
+		LLSD grid_info;
+		LLGridManager::getInstance()->getGridInfo(slurl.getGrid(), grid_info);
 		
 		if(grid_info.has(GRID_LABEL_VALUE))
 		{

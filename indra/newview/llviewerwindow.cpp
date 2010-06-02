@@ -106,7 +106,6 @@
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
-#include "llfloatercustomize.h"
 #include "llfloaterland.h"
 #include "llfloaterinspect.h"
 #include "llfloatermap.h"
@@ -1430,6 +1429,7 @@ LLViewerWindow::LLViewerWindow(
 
 	if (LLFeatureManager::getInstance()->isSafe()
 		|| (gSavedSettings.getS32("LastFeatureVersion") != LLFeatureManager::getInstance()->getVersion())
+		|| (gSavedSettings.getS32("LastGPUClass") != LLFeatureManager::getInstance()->getGPUClass())
 		|| (gSavedSettings.getBOOL("ProbeHardwareOnStartup")))
 	{
 		LLFeatureManager::getInstance()->applyRecommendedSettings();
@@ -3014,6 +3014,12 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 		new_world_rect.mTop = llround((F32)new_world_rect.mTop * mDisplayScale.mV[VY]);
 	}
 
+	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE)
+	{
+		// use right edge of window, ignoring sidebar
+		new_world_rect.mRight = mWindowRectRaw.mRight;
+	}
+
 	if (mWorldViewRectRaw != new_world_rect)
 	{
 		mWorldViewRectRaw = new_world_rect;
@@ -4542,7 +4548,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		
 		gResizeScreenTexture = TRUE;
 
-		if (gFloaterCustomize && gFloaterCustomize->getVisible())
+		if (gAgentCamera.cameraCustomizeAvatar())
 		{
 			LLVisualParamHint::requestHintUpdates();
 		}

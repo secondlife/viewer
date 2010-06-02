@@ -323,6 +323,9 @@ Necesitas una cuenta para entrar en [SECOND_LIFE]. ¿Quieres crear una ahora?
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Volver a intentarlo" yestext="Crear una cuenta nueva"/>
 	</notification>
+	<notification name="InvalidCredentialFormat">
+		Escribe el nombre y apellido de tu avatar en el campo Nombre de usuario e inicia sesión otra vez.
+	</notification>
 	<notification name="AddClassified">
 		Los anuncios clasificados aparecen durante una semana en la sección &apos;Clasificados&apos; de la búsqueda y en [http://secondlife.com/community/classifieds secondlife.com].
 Rellena tu anuncio y pulsa &apos;Publicar...&apos; para añadirlo al directorio.
@@ -610,6 +613,11 @@ Podría ser [VALIDS]
 	</notification>
 	<notification name="CannotEncodeFile">
 		No se puede codificar el archivo: [FILE]
+	</notification>
+	<notification name="CorruptedProtectedDataStore">
+		No se pueden leer los datos protegidos, por lo que se están restaurando.
+   Esto puede deberse a un cambio de configuración de la red.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
 		Archivo con los recursos corruptos: [FILE]
@@ -973,6 +981,12 @@ en TODO EL TERRENO de este sim?
 
 Por favor, elige un pago mayor.
 	</notification>
+	<notification name="ConfirmItemDeleteHasLinks">
+		Por lo menos uno  de los elementos seleccionados contiene vínculos que le señalan. Si eliminas este elemento, los vínculos dejarán de funcionar permanentemente. Lo más recomendable es eliminar primero los vínculos.
+
+¿Estás seguro de que quieres eliminar los elementos?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmObjectDeleteLock">
 		Al menos uno de los ítems que has seleccionado está bloqueado.
 
@@ -1123,6 +1137,42 @@ En cualquier momento, puedes pulsar la tecla F1 para conseguir ayuda o para apre
 Por favor, elige el avatar masculino o femenino.
 Puedes cambiar más adelante tu elección.
 		<usetemplate name="okcancelbuttons" notext="Mujer" yestext="Varón"/>
+	</notification>
+	<notification name="CantTeleportToGrid">
+		No se puede hacer el teleporte a [SLURL] porque se encuentra en una cuadrícula ([GRID]) diferente de la actual ([CURRENT_GRID]). Cierra el visor y vuelve a intentarlo.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GeneralCertificateError">
+		No se puede establecer la conexión con el servidor.
+[REASON]
+
+Nombre del asunto: [SUBJECT_NAME_STRING]
+Nombre del emisor: [ISSUER_NAME_STRING]
+Válido desde: [VALID_FROM]
+Válido hasta: [VALID_TO]
+Huella digital MD5: [SHA1_DIGEST]
+Huella digital SHA1: [MD5_DIGEST]
+Uso de la clave: [KEYUSAGE]
+Uso de clave extendida: [EXTENDEDKEYUSAGE]
+Identificador de clave de asunto: [SUBJECTKEYIDENTIFIER]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TrustCertificateError">
+		La autoridad de certificación de este servidor se desconoce.
+
+Información del certificado:
+Nombre del asunto: [SUBJECT_NAME_STRING]
+Nombre del emisor: [ISSUER_NAME_STRING]
+Válido desde: [VALID_FROM]
+Válido hasta: [VALID_TO]
+Huella digital MD5: [SHA1_DIGEST]
+Huella digital SHA1: [MD5_DIGEST]
+Uso de la clave: [KEYUSAGE]
+Uso de clave extendida: [EXTENDEDKEYUSAGE]
+Identificador de clave de asunto: [SUBJECTKEYIDENTIFIER]
+
+¿Deseas confiar en esta autoridad?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Confiar"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] cuesta [PRICE] L$. No tienes suficientes L$ para hacer eso.
@@ -1519,7 +1569,7 @@ Por favor, comprueba que tienes instalado el último visor, y dirígete a la Bas
 	<notification name="RegionEntryAccessBlocked_Change">
 		No estás autorizado en esta región por tus preferencias sobre el nivel de calificación.
 
-Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferencias del nivel de calificación y, así, poder entrar. En adelante, podrás buscar y acceder a contenido [REGIONMATURITY]. Si más adelante quieres deshacer este cambio, ve a Yo &gt; Preferencias &gt; General.
+Pulsa &apos;Cambiar las preferencias&apos; para incrementar las preferencias del nivel de calificación y obtener acceso inmediato. Esto te permitirá buscar contenidos [REGIONMATURITY] y tener acceso a ellos. Si prefieres cambiar esta opción más adelante, puedes hacerlo desde Yo &gt; Preferencias &gt; General.
 		<form name="form">
 			<button name="OK" text="Cambiar las preferencias"/>
 			<button default="true" name="Cancel" text="Cerrar"/>
@@ -1527,7 +1577,7 @@ Puedes pulsar &apos;Cambiar las Preferencias&apos; para incrementar las preferen
 		</form>
 	</notification>
 	<notification name="PreferredMaturityChanged">
-		Tu preferencia actual de calificación es [RATING].
+		Tu preferencia de nivel de calificación actual es [RATING].
 	</notification>
 	<notification name="LandClaimAccessBlocked">
 		No puedes reclamar este terreno por su nivel de calificación. Puede deberse a que no hay información validada de tu edad.
@@ -2288,15 +2338,6 @@ Por favor, vuelve a intentarlo en unos momentos.
 			<button name="Mute" text="Ignorar"/>
 		</form>
 	</notification>
-	<notification name="ObjectGiveItemUnknownUser">
-		Un objeto de nombre [OBJECTFROMNAME] propiedad de (un Residente desconocido) te ha dado este [OBJECTTYPE]:
-[ITEM_SLURL]
-		<form name="form">
-			<button name="Keep" text="Guardar"/>
-			<button name="Discard" text="Descartar"/>
-			<button name="Mute" text="Ignorar"/>
-		</form>
-	</notification>
 	<notification name="UserGiveItem">
 		[NAME_SLURL] te ha dado este [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -2608,8 +2649,51 @@ Se mostrará cuando haya suficiente espacio.
 	<notification name="ShareNotification">
 		Arrastrar ítems desde el inventario hasta una persona en el perfil del residente.
 	</notification>
+	<notification name="DeedToGroupFail">
+		Error de transferencia a grupo.
+	</notification>
 	<notification name="AvatarRezNotification">
-		Avatar de &apos;[NAME]&apos; obtenido en [TIME] segs.
+		( [EXISTENCE] segundos vivo)
+El avatar &apos;[NAME]&apos; tardó [TIME] segundos en dejar de aparecer como nube.
+	</notification>
+	<notification name="AvatarRezSelfNotification">
+		( [EXISTENCE] segundos vivo)
+Has terminado de texturizar tu vestuario en [TIME] segundos.
+	</notification>
+	<notification name="AvatarRezCloudNotification">
+		( [EXISTENCE] segundos vivo)
+El avatar &apos;[NAME]&apos; se convirtió en nube.
+	</notification>
+	<notification name="AvatarRezArrivedNotification">
+		( [EXISTENCE] segundos vivo)
+Apareció el avatar &apos;[NAME]&apos;.
+	</notification>
+	<notification name="AvatarRezLeftCloudNotification">
+		( [EXISTENCE] segundos vivo)
+El avatar &apos;[NAME]&apos; salió al cabo de [TIME] segundos como nube.
+	</notification>
+	<notification name="AvatarRezEnteredAppearanceNotification">
+		( [EXISTENCE] segundos vivo)
+El avatar &apos;[NAME]&apos; ya está en modo de edición de apariencia.
+	</notification>
+	<notification name="AvatarRezLeftAppearanceNotification">
+		( [EXISTENCE] segundos vivo)
+El avatar &apos;[NAME]&apos; desactivó el modo de apariencia.
+	</notification>
+	<notification name="AvatarRezLeftNotification">
+		( [EXISTENCE] segundos vivo)
+El avatar &apos;[NAME]&apos; ya estaba totalmente cargado al salir.
+	</notification>
+	<notification name="ConfirmLeaveCall">
+		¿Estás seguro de que deseas salir de esta multiconferencia?
+		<usetemplate ignoretext="Confirma antes de salir de la llamada" name="okcancelignore" notext="No" yestext="Sí"/>
+	</notification>
+	<notification name="ConfirmMuteAll">
+		Has seleccionado silenciar a todos los participantes en una multiconferencia.
+Si lo haces, todos los residentes que se unan posteriormente a la llamada también serán silenciados, incluso cuando abandones la conferencia.
+
+¿Deseas silenciar a todos?
+		<usetemplate ignoretext="Confirma que deseas silenciar a todos los participantes en una multiconferencia." name="okcancelignore" notext="OK" yestext="Cancelar"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- La velocidad de tu CPU no cumple los requerimientos mínimos.

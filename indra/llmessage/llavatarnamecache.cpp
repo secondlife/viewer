@@ -495,13 +495,14 @@ void LLAvatarNameCache::idle()
 	// By convention, start running at first idle() call
 	sRunning = true;
 
+	// *TODO: Possibly re-enabled this based on People API load measurements
 	// 100 ms is the threshold for "user speed" operations, so we can
 	// stall for about that long to batch up requests.
-	const F32 SECS_BETWEEN_REQUESTS = 0.1f;
-	if (!sRequestTimer.checkExpirationAndReset(SECS_BETWEEN_REQUESTS))
-	{
-		return;
-	}
+	//const F32 SECS_BETWEEN_REQUESTS = 0.1f;
+	//if (!sRequestTimer.checkExpirationAndReset(SECS_BETWEEN_REQUESTS))
+	//{
+	//	return;
+	//}
 
 	// Must be large relative to above
 	const F32 ERASE_EXPIRED_TIMEOUT = 60.f; // seconds

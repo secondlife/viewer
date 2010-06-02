@@ -50,6 +50,7 @@
 #include "llmodaldialog.h"
 #include "llnotificationsutil.h"
 #include "lloutfitslist.h"
+#include "llsaveoutfitcombobtn.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltabcontainer.h"
@@ -101,6 +102,8 @@ BOOL LLPanelOutfitsInventory::postBuild()
 		LLInventoryModelBackgroundFetch::instance().start(outfits_cat);
 	}
 	
+	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this, true));
+
 	return TRUE;
 }
 
@@ -373,7 +376,6 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 
 	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::onGearButtonClick, this));
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
-	mListCommands->childSetAction("make_outfit_btn", boost::bind(&LLPanelOutfitsInventory::onAddButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
 
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
@@ -396,17 +398,12 @@ void LLPanelOutfitsInventory::updateListCommands()
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
 	mListCommands->childSetVisible("wear_btn", wear_enabled);
-	mListCommands->childSetEnabled("make_outfit_btn", make_outfit_enabled);
+	mSaveComboBtn->setSaveBtnEnabled(make_outfit_enabled);
 }
 
 void LLPanelOutfitsInventory::onGearButtonClick()
 {
 	showActionMenu(mMenuGearDefault,"options_gear_btn");
-}
-
-void LLPanelOutfitsInventory::onAddButtonClick()
-{
-	onSave();
 }
 
 void LLPanelOutfitsInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)

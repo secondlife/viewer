@@ -37,32 +37,10 @@
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
 
-class LLFindNonLinksByMask : public LLInventoryCollectFunctor
-{
-public:
-	LLFindNonLinksByMask(U64 mask)
-		: mFilterMask(mask)
-	{}
 
-	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-	{
-		if(item && !item->getIsLinkType() && (mFilterMask & (1LL << item->getInventoryType())) )
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-private:
-	U64 mFilterMask;
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-LLFilteredWearableListManager::LLFilteredWearableListManager(LLInventoryItemsList* list, U64 filter_mask)
+LLFilteredWearableListManager::LLFilteredWearableListManager(LLInventoryItemsList* list, LLInventoryCollectFunctor* collector)
 : mWearableList(list)
-, mFilterMask(filter_mask)
+, mCollector(collector)
 {
 	llassert(mWearableList);
 	gInventory.addObserver(this);
@@ -84,9 +62,9 @@ void LLFilteredWearableListManager::changed(U32 mask)
 	populateList();
 }
 
-void LLFilteredWearableListManager::setFilterMask(U64 mask)
+void LLFilteredWearableListManager::setFilterCollector(LLInventoryCollectFunctor* collector)
 {
-	mFilterMask = mask;
+	mCollector = collector;
 	populateList();
 }
 
@@ -94,14 +72,16 @@ void LLFilteredWearableListManager::populateList()
 {
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t item_array;
-	LLFindNonLinksByMask collector(mFilterMask);
 
-	gInventory.collectDescendentsIf(
-		gInventory.getRootFolderID(),
-		cat_array,
-		item_array,
-		LLInventoryModel::EXCLUDE_TRASH,
-		collector);
+	if(mCollector)
+	{
+		gInventory.collectDescendentsIf(
+				gInventory.getRootFolderID(),
+				cat_array,
+				item_array,
+				LLInventoryModel::EXCLUDE_TRASH,
+				*mCollector);
+	}
 
 	// Probably will also need to get items from Library (waiting for reply in EXT-6724).
 

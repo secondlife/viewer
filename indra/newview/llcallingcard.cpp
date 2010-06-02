@@ -264,7 +264,7 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 		{
 			++new_buddy_count;
 			mBuddyInfo[agent_id] = (*itr).second;
-			// IDEVO JAMESDEBUG is this necessary?  name is unused?
+			// IDEVO: is this necessary?  name is unused?
 			gCacheName->getFullName(agent_id, full_name);
 			addChangedMask(LLFriendObserver::ADD, agent_id);
 			lldebugs << "Added buddy " << agent_id

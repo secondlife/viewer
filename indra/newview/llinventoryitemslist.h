@@ -133,6 +133,9 @@ public:
 	/** Get the description of a corresponding inventory item */
 	const std::string& getDescription() const { return mItem->getDescription(); }
 
+	/** Get the associated inventory item */
+	LLViewerInventoryItem* getItem() const { return mItem; }
+
 	virtual ~LLPanelInventoryListItemBase(){}
 
 protected:

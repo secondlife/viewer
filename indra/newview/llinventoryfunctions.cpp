@@ -52,7 +52,6 @@
 #include "llappearancemgr.h"
 #include "llappviewer.h"
 //#include "llfirstuse.h"
-#include "llfloatercustomize.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
 #include "llgesturemgr.h"
@@ -370,6 +369,11 @@ bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem
 	if (!vitem || vitem->getWearableType() != mWearableType) return false;
 
 	return true;
+}
+
+void LLFindWearablesOfType::setType(LLWearableType::EType type)
+{
+	mWearableType = type;
 }
 
 ///----------------------------------------------------------------------------

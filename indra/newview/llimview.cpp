@@ -1756,11 +1756,9 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		callee_name = LLTextUtil::formatPhoneNumber(callee_name);
 	}
 	
-	setTitle(callee_name);
-
 	LLSD callee_id = mPayload["other_user_id"];
-	// Beautification:  Since SLID is in the title bar, and you probably
-	// recognize this person's voice, just show display name
+	// Beautification:  Since you know who you called, just show display name
+	std::string title = callee_name;
 	std::string final_callee_name = callee_name;
 	if (mPayload["session_type"].asInteger() == LLIMModel::LLIMSession::P2P_SESSION)
 	{
@@ -1768,10 +1766,13 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		if (LLAvatarNameCache::get(callee_id, &av_name))
 		{
 			final_callee_name = av_name.mDisplayName;
+			title = av_name.getCompleteName();
 		}
 	}
 	childSetTextArg("calling", "[CALLEE_NAME]", final_callee_name);
 	childSetTextArg("connecting", "[CALLEE_NAME]", final_callee_name);
+
+	setTitle(title);
 
 	// for outgoing group calls callee_id == group id == session id
 	setIcon(callee_id, callee_id);
@@ -1989,15 +1990,24 @@ void LLIncomingCallDialog::onOpen(const LLSD& key)
 {
 	LLCallDialog::onOpen(key);
 
+	LLStringUtil::format_map_t args;
+	LLGroupData data;
+	// if it's a group call, retrieve group name to use it in question
+	if (gAgent.getGroupData(key["session_id"].asUUID(), data))
+	{
+		args["[GROUP]"] = data.mName;
+	}
 	// tell the user which voice channel they would be leaving
 	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
 	if (voice && !voice->getSessionName().empty())
 	{
-		childSetTextArg("question", "[CURRENT_CHAT]", voice->getSessionName());
+		args["[CURRENT_CHAT]"] = voice->getSessionName();
+		childSetText("question", getString(key["question_type"].asString(), args));
 	}
 	else
 	{
-		childSetTextArg("question", "[CURRENT_CHAT]", getString("localchat"));
+		args["[CURRENT_CHAT]"] = getString("localchat");
+		childSetText("question", getString(key["question_type"].asString(), args));
 	}
 }
 
@@ -2531,6 +2541,8 @@ void LLIMMgr::inviteToSession(
 	}
 
 	std::string notify_box_type;
+	// voice invite question is different from default only for group call (EXT-7118)
+	std::string question_type = "VoiceInviteQuestionDefault";
 
 	BOOL ad_hoc_invite = FALSE;
 	if(type == IM_SESSION_P2P_INVITE)
@@ -2542,6 +2554,7 @@ void LLIMMgr::inviteToSession(
 	{
 		//only really old school groups have voice invitations
 		notify_box_type = "VoiceInviteGroup";
+		question_type = "VoiceInviteQuestionGroup";
 	}
 	else if ( inv_type == INVITATION_TYPE_VOICE )
 	{
@@ -2566,6 +2579,7 @@ void LLIMMgr::inviteToSession(
 	payload["session_handle"] = session_handle;
 	payload["session_uri"] = session_uri;
 	payload["notify_box_type"] = notify_box_type;
+	payload["question_type"] = question_type;
 	
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(session_id);
 	if (channelp && channelp->callStarted())

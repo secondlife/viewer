@@ -286,7 +286,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	LLColor4 bg_color = LLUIColorTable::instance().getColor("NameTagBackground");
 	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
 
-	// JAMESDEBUG - maybe a no-op
+	// maybe a no-op?
 	//const S32 border_height = 16;
 	//const S32 border_width = 16;
 	const S32 border_height = 8;
@@ -523,7 +523,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 			{
 				x_offset = -0.5f * mWidth + (HORIZONTAL_PADDING / 2.f);
 
-				// JAMESDEBUG HACK
+				// *HACK
 				x_offset += 1;
 			}
 

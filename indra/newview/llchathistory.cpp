@@ -274,10 +274,14 @@ public:
 			user_name->setValue(mFrom);
 			updateMinUserNameWidth();
 		}
-		else if (mSourceType == CHAT_SOURCE_AGENT)
+		else if (mSourceType == CHAT_SOURCE_AGENT
+				 && chat.mChatStyle != CHAT_STYLE_HISTORY)
 		{
-			// ...from a normal user, lookup the name and fill in later,
-			// but start with blank so sample data from XUI XML doesn't
+			// ...from a normal user, lookup the name and fill in later.
+			// *NOTE: Do not do this for chat history logs, otherwise the viewer
+			// will flood the People API with lookup requests on startup
+			
+			// Start with blank so sample data from XUI XML doesn't
 			// flash on the screen
 			user_name->setValue( LLSD() );
 			LLAvatarNameCache::get(mAvatarID,

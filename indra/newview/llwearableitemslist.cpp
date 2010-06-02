@@ -251,6 +251,11 @@ BOOL LLPanelDummyClothingListItem::postBuild()
 	return TRUE;
 }
 
+LLWearableType::EType LLPanelDummyClothingListItem::getWearableType() const
+{
+	return mWearableType;
+}
+
 LLPanelDummyClothingListItem::LLPanelDummyClothingListItem(LLWearableType::EType w_type)
  : LLPanelWearableListItem(NULL)
  , mWearableType(w_type)

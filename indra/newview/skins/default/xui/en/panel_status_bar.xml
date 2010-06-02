@@ -44,6 +44,7 @@
     <button
      auto_resize="true"
      halign="center"
+	 enabled="false"
      font="SansSerifSmall"
      follows="right|top"
      image_overlay=""
@@ -54,6 +55,8 @@
      right="-275"
      label_shadow="false"
      name="buycurrency"
+     label_color_disabled="ButtonLabelColor"
+     image_color_disabled="White"
      tool_tip="My Balance"
      pad_left="12"
      pad_right="12" 

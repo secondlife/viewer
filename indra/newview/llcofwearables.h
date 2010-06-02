@@ -107,6 +107,7 @@ public:
 		
 		typedef boost::function<void (void*)> cof_callback_t;
 
+		cof_callback_t mAddWearable;
 		cof_callback_t mMoveWearableCloser;
 		cof_callback_t mMoveWearableFurther;
 		cof_callback_t mEditWearable;
@@ -122,6 +123,8 @@ public:
 	
 	LLUUID getSelectedUUID();
 	bool getSelectedUUIDs(uuid_vec_t& selected_ids);
+
+	LLPanel* getSelectedItem();
 
 	void refresh();
 	void clear();
