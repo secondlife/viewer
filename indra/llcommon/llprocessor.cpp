@@ -46,6 +46,20 @@
 
 #include "llsd.h"
 
+#if LL_MSVC && _M_X64
+#      define LL_X86_64 1
+#      define LL_X86 1
+#elif LL_MSVC && _M_IX86
+#      define LL_X86 1
+#elif LL_GNUC && ( defined(__amd64__) || defined(__x86_64__) )
+#      define LL_X86_64 1
+#      define LL_X86 1
+#elif LL_GNUC && ( defined(__i386__) )
+#      define LL_X86 1
+#elif LL_GNUC && ( defined(__powerpc__) || defined(__ppc__) )
+#      define LL_PPC 1
+#endif
+
 class LLProcessorInfoImpl; // foward declaration for the mImpl;
 
 namespace 
@@ -680,66 +694,13 @@ class LLProcessorInfoLinuxImpl : public LLProcessorInfoImpl
 public:
 	LLProcessorInfoLinuxImpl() 
 	{
-		std::map< std::string, std::string > cpuinfo;
-		LLFILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, "rb");
-		if(cpuinfo_fp)
-		{
-			char line[MAX_STRING];
-			memset(line, 0, MAX_STRING);
-			while(fgets(line, MAX_STRING, cpuinfo_fp))
-			{
-				// /proc/cpuinfo on Linux looks like:
-				// name\t*: value\n
-				char* tabspot = strchr( line, '\t' );
-				if (tabspot == NULL)
-					continue;
-				char* colspot = strchr( tabspot, ':' );
-				if (colspot == NULL)
-					continue;
-				char* spacespot = strchr( colspot, ' ' );
-				if (spacespot == NULL)
-					continue;
-				char* nlspot = strchr( line, '\n' );
-				if (nlspot == NULL)
-					nlspot = line + strlen( line ); // Fallback to terminating NUL
-				std::string linename( line, tabspot );
-				std::string llinename(linename);
-				LLStringUtil::toLower(llinename);
-				std::string lineval( spacespot + 1, nlspot );
-				cpuinfo[ llinename ] = lineval;
-			}
-			fclose(cpuinfo_fp);
-		}
-# if LL_X86
-		std::string flags = " " + cpuinfo["flags"] + " ";
-		LLStringUtil::toLower(flags);
-
-		if( flags.find( " sse " ) != std::string::npos )
-		{
-			setExtension(eSSE_Ext); 
-		}
-
-		if( flags.find( " sse2 " ) != std::string::npos )
-		{
-			setExtension(eSSE2_Ext);
-		}
-	
-		F64 mhz;
-		if (LLStringUtil::convertToF64(cpuinfo["cpu mhz"], mhz)
-			&& 200.0 < mhz && mhz < 10000.0)
-		{
-		    setInfo(eFrequency,(F64)(mhz));
-		}
-
-		if (!cpuinfo["model name"].empty())
-			mCPUString = cpuinfo["model name"];
-# endif // LL_X86
+		get_proc_cpuinfo();
 	}
 
 	virtual ~LLProcessorInfoLinuxImpl() {}
 private:
 
-	void getCPUIDInfo()
+	void get_proc_cpuinfo()
 	{
 		std::map< std::string, std::string > cpuinfo;
 		LLFILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, "rb");
