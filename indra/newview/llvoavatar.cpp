@@ -68,6 +68,7 @@
 #include "llmoveview.h"
 #include "llnotificationsutil.h"
 #include "llquantize.h"
+#include "llrand.h"
 #include "llregionhandle.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -6791,7 +6792,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		
 	// parse visual params
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
-	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (random()%2)==0; // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
+	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
 	if( num_blocks > 1 && !drop_visual_params_debug)
 	{
 		BOOL params_changed = FALSE;
