@@ -49,6 +49,8 @@
 #include "llvoavatarself.h"
 #include "llwearableitemslist.h"
 
+static bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y);
+
 //////////////////////////////////////////////////////////////////////////
 
 class OutfitContextMenu : public LLListContextMenu
@@ -176,8 +178,6 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
 		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
-		tab->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onAccordionTabRightClick, this,
-			_1, _2, _3, cat_id));
 
 		tab->setName(name);
 		tab->setTitle(name);
@@ -197,6 +197,12 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		// Map the new tab with outfit category UUID.
 		mOutfitsMap.insert(LLOutfitsList::outfits_map_value_t(cat_id, tab));
+
+		tab->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onAccordionTabRightClick, this,
+			_1, _2, _3, cat_id));
+
+		tab->setDoubleClickCallback(boost::bind(&LLOutfitsList::onAccordionTabDoubleClick, this,
+			_1, _2, _3, cat_id));
 
 		// Setting tab focus callback to monitor currently selected outfit.
 		tab->setFocusReceivedCallback(boost::bind(&LLOutfitsList::changeOutfitSelection, this, list, cat_id));
@@ -510,22 +516,30 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 void LLOutfitsList::onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id)
 {
 	LLAccordionCtrlTab* tab = dynamic_cast<LLAccordionCtrlTab*>(ctrl);
-	if(mOutfitMenu && tab && tab->getHeaderVisible() && cat_id.notNull())
+	if(mOutfitMenu && is_tab_header_clicked(tab, y) && cat_id.notNull())
 	{
-		S32 header_bottom = tab->getLocalRect().getHeight() - tab->getHeaderHeight();
-		if(y >= header_bottom)
+		// Focus tab header to trigger tab selection change.
+		LLUICtrl* header = tab->findChild<LLUICtrl>("dd_header");
+		if (header)
 		{
-			// Focus tab header to trigger tab selection change.
-			LLUICtrl* header = tab->findChild<LLUICtrl>("dd_header");
-			if (header)
-			{
-				header->setFocus(TRUE);
-			}
-
-			uuid_vec_t selected_uuids;
-			selected_uuids.push_back(cat_id);
-			mOutfitMenu->show(ctrl, selected_uuids, x, y);
+			header->setFocus(TRUE);
 		}
+
+		uuid_vec_t selected_uuids;
+		selected_uuids.push_back(cat_id);
+		mOutfitMenu->show(ctrl, selected_uuids, x, y);
+	}
+}
+
+void LLOutfitsList::onAccordionTabDoubleClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id)
+{
+	LLAccordionCtrlTab* tab = dynamic_cast<LLAccordionCtrlTab*>(ctrl);
+	if(is_tab_header_clicked(tab, y) && cat_id.notNull())
+	{
+		LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+		if (!cat) return;
+
+		LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, FALSE );
 	}
 }
 
@@ -550,5 +564,13 @@ void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
 	}
 
 	LLWearableItemsList::ContextMenu::instance().show(list, selected_uuids, x, y);
+}
+
+bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y)
+{
+	if(!tab || !tab->getHeaderVisible()) return false;
+
+	S32 header_bottom = tab->getLocalRect().getHeight() - tab->getHeaderHeight();
+	return y >= header_bottom;
 }
 // EOF

@@ -70,6 +70,29 @@ protected:
 	LLPanelWearableListItem(LLViewerInventoryItem* item);
 };
 
+/**
+ * @class LLPanelWearableOutfitItem
+ *
+ * Outfit item for "My Outfits" list.
+ * Extends LLPanelInventoryListItemBase with handling
+ * double click to wear the item.
+ */
+class LLPanelWearableOutfitItem : public LLPanelInventoryListItemBase
+{
+	LOG_CLASS(LLPanelWearableOutfitItem);
+public:
+	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item);
+
+	/**
+	* Puts item on if it is not worn by agent
+	* otherwise takes it off on double click.
+	*/
+	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+
+protected:
+
+	LLPanelWearableOutfitItem(LLViewerInventoryItem* item);
+};
 
 class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
 {
@@ -308,6 +331,8 @@ public:
 	};
 
 	virtual ~LLWearableItemsList();
+
+	/*virtual*/ void addNewItem(LLViewerInventoryItem* item, bool rearrange = true);
 
 	void updateList(const LLUUID& category_id);
 
