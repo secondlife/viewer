@@ -2949,7 +2949,6 @@ BOOL LLScrollListCtrl::operateOnAll(EOperation op)
 //virtual 
 void LLScrollListCtrl::setFocus(BOOL b)
 {
-	mSearchString.clear();
 	// for tabbing into pristine scroll lists (Finder)
 	if (!getFirstSelected())
 	{
@@ -2994,6 +2993,9 @@ void LLScrollListCtrl::onFocusLost()
 	{
 		gFocusMgr.setMouseCapture(NULL);
 	}
+
+	mSearchString.clear();
+
 	LLUICtrl::onFocusLost();
 }
 
