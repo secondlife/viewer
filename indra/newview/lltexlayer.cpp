@@ -434,14 +434,14 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 		
 				if (highest_lod)
 				{
-					// Got the final LOD for the baked texture.
+					// Sending the final LOD for the baked texture.
 					// All done, pause the upload timer so we know how long it took.
 					mNeedsUpload = FALSE;
 					mNeedsUploadTimer.pause();
 				}
 				else
 				{
-					// Got a lower level LOD for the baked texture.
+					// Sending a lower level LOD for the baked texture.
 					// Restart the upload timer.
 					mDebugNumLowresUploads++;
 					mNeedsUploadTimer.unpause();
@@ -2243,9 +2243,11 @@ const std::string LLTexLayerSetBuffer::dumpTextureInfo() const
 	const BOOL is_high_res = !mNeedsUpload;
 	const U32 num_low_res = mDebugNumLowresUploads;
 	const U32 upload_time = (U32)mNeedsUploadTimer.getElapsedTimeF32();
+	const BOOL is_uploaded = !mUploadPending;
 	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(mTexLayerSet);
-	std::string text = llformat("[ HiRes:%d LoRes:%d Timer:%d ] %s",
-								is_high_res, num_low_res, upload_time, 
+	std::string text = llformat("[ HiRes:%d LoRes:%d Uploaded:%d ] [ Timer:%d ] %s",
+								is_high_res, num_low_res, is_uploaded,
+								upload_time, 
 								local_texture_info.c_str());
 	return text;
 }

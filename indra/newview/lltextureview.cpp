@@ -443,7 +443,7 @@ void LLAvatarTexBar::draw()
 	const std::string override_tex_discard_level_str = override_tex_discard_level ? llformat("%d",override_tex_discard_level) : "Disabled";
 	std::string header_text = llformat("[ Timeout('AvatarBakedTextureTimeout'):%s ] [ LOD_Override('TextureDiscardLevel'):%s ]", texture_timeout_str.c_str(), override_tex_discard_level_str.c_str());
 	LLFontGL::getFontMonospace()->renderUTF8(header_text, 0, 0, v_offset + line_height*line_num,
-											 text_color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
+											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 }
 
 BOOL LLAvatarTexBar::handleMouseDown(S32 x, S32 y, MASK mask)
