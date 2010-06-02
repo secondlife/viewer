@@ -119,10 +119,10 @@ public:
 		mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
 
 		//female
-		mInventoryItemsDict["FeMale - Excuse me"]		= LLTrans::getString("FeMale - Excuse me");
-		mInventoryItemsDict["FeMale - Get lost"]		= LLTrans::getString("FeMale - Get lost");
-		mInventoryItemsDict["FeMale - Blow kiss"]		= LLTrans::getString("FeMale - Blow kiss");
-		mInventoryItemsDict["FeMale - Boo"]				= LLTrans::getString("FeMale - Boo");
+		mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
+		mInventoryItemsDict["Female - Get lost"]		= LLTrans::getString("Female - Get lost");
+		mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
+		mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
 		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
 		mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
 		mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
