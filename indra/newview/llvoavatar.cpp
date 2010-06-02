@@ -6699,14 +6699,13 @@ bool LLVOAvatar::visualParamWeightsAreDefault()
 	{
 		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
 		{
+			LLViewerVisualParam* vparam = dynamic_cast<LLViewerVisualParam*>(param);
+			llassert(vparam);
+			bool is_skirt_param = vparam &&
+				LLWearableType::WT_SKIRT == vparam->getWearableType();
 			if (param->getWeight() != param->getDefaultWeight() &&
 			    // we have to not care whether skirt weights are default, if we're not actually wearing a skirt
-			    (is_wearing_skirt ||
-			     (param->getName() != "skirt length" &&
-			      param->getName() != "slit front" &&
-			      param->getName() != "slit back" &&
-			      param->getName() != "slit left" &&
-			      param->getName() != "slit right")))
+			    (is_wearing_skirt || !is_skirt_param))
 			{
 				//llinfos << "param '" << param->getName() << "'=" << param->getWeight() << " which differs from default=" << param->getDefaultWeight() << llendl;
 				rtn = false;
@@ -6792,13 +6791,13 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		
 	// parse visual params
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
-	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (random()%2)!=0; // pretend that ~50% of AvatarAppearance messages arrived without a VisualParam block, for testing
+	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (random()%2)==0; // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
 	if( num_blocks > 1 && !drop_visual_params_debug)
 	{
 		BOOL params_changed = FALSE;
 		BOOL interp_params = FALSE;
 		
-		LLVisualParam* param = getFirstVisualParam(); // why do we peel away and ignore the first VisualParam?
+		LLVisualParam* param = getFirstVisualParam();
 		llassert(param); // if this ever fires, we should do the same as when num_blocks<=1
 		if (!param)
 		{
@@ -6844,7 +6843,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE);
 		if (num_blocks != expected_tweakable_count)
 		{
-			llwarns << "Number of params in AvatarAppearance msg (" << num_blocks << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
+			llinfos << "Number of params in AvatarAppearance msg (" << num_blocks << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
 		}
 
 		if (params_changed)
