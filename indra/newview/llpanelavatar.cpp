@@ -224,12 +224,8 @@ void LLPanelAvatarNotes::rightsConfirmationCallback(const LLSD& notification,
 
 void LLPanelAvatarNotes::confirmModifyRights(bool grant, S32 rights)
 {
-	std::string full_name;
 	LLSD args;
-	if (gCacheName->getFullName(getAvatarId(), full_name))
-	{
-		args["NAME"] = full_name;
-	}
+	args["NAME"] = LLSLURL("agent", getAvatarId(), "displayname").getSLURLString();
 
 	if (grant)
 	{

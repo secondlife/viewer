@@ -638,12 +638,9 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 			{
 				if((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS)
 				{
-					std::string name;
 					LLSD args;
-					if(gCacheName->getFullName(agent_id, name))
-					{
-						args["NAME"] = name;
-					}
+					args["NAME"] = LLSLURL("agent", agent_id, "displayname").getSLURLString();
+					
 					LLSD payload;
 					payload["from_id"] = agent_id;
 					if(LLRelationship::GRANT_MODIFY_OBJECTS & new_rights)

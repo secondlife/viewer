@@ -2075,9 +2075,7 @@ void LLViewerParcelMgr::deedLandToGroup()
 	args["GROUP_NAME"] = group_name;
 	if(mCurrentParcel->getContributeWithDeed())
 	{
-		std::string full_name;
-		gCacheName->getFullName(mCurrentParcel->getOwnerID(), full_name);
-		args["NAME"] = full_name;
+		args["NAME"] = LLSLURL("agent", mCurrentParcel->getOwnerID(), "completename").getSLURLString();
 		LLNotificationsUtil::add("DeedLandToGroupWithContribution",args, LLSD(), deedAlertCB);
 	}
 	else
