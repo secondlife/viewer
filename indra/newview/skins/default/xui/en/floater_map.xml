@@ -5,7 +5,7 @@
  can_minimize="true" 
  can_resize="true"
  follows="top|right"
- height="218"
+ height="174"
  layout="topleft"
  min_height="174"
  min_width="174"
