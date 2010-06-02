@@ -67,7 +67,7 @@ with the same filename but different name
   <texture name="Avaline_Icon" file_name="icons/avaline_default_icon.jpg" preload="true" />
 
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
-  
+
   <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" />
   <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" />
   <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" />
@@ -147,8 +147,6 @@ with the same filename but different name
   <texture name="Generic_Object_Small" file_name="icons/Generic_Object_Small.png" preload="false" />
   <texture name="Generic_Person" file_name="icons/Generic_Person.png" preload="false" />
   <texture name="Generic_Person_Large" file_name="icons/Generic_Person_Large.png" preload="false" />
-
-  <texture name="Health" file_name="icons/Health.png" preload="false" />
 
   <texture name="Help_Press" file_name="navbar/Help_Press.png" preload="false" />
 
@@ -242,7 +240,6 @@ with the same filename but different name
   <texture name="Inv_Gesture_Link" file_name="icons/Inv_Gesture_Link.png" preload="false" />
   <texture name="Inv_Gloves_Link" file_name="icons/Inv_Gloves_Link.png" preload="false" />
   <texture name="Inv_Hair_Link" file_name="icons/Inv_Hair_Link.png" preload="false" />
-  <texture name="Inv_LinkItem_Link" file_name="icons/Inv_LinkItem_Link.png" preload="false" />
   <texture name="Inv_LinkFolder_Link" file_name="icons/Inv_LinkFolder_Link.png" preload="false" />
   <texture name="Inv_Jacket_Link" file_name="icons/Inv_Jacket_Link.png" preload="false" />
   <texture name="Inv_LookFolderOpen_Link" file_name="icons/Inv_LookFolderOpen_Link.png" preload="false" />
@@ -633,7 +630,7 @@ with the same filename but different name
   <texture name="icon_avatar_online.tga" />
   <texture name="icon_day_cycle.tga" />
   <texture name="icon_diurnal.tga" />
-  <texture name="icon_for_sale.tga" />
+  <texture name="icon_for_sale.tga" file_name="icons/Icon_For_Sale.png" />
   <texture name="icon_top_pick.tga" />
 
   <texture name="lag_status_critical.tga" />
