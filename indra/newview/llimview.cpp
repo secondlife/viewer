@@ -71,11 +71,6 @@
 #include "llviewerparcelmgr.h"
 
 
-const static std::string IM_TIME("time");
-const static std::string IM_TEXT("message");
-const static std::string IM_FROM("from");
-const static std::string IM_FROM_ID("from_id");
-
 const static std::string NO_SESSION("(IM Session Doesn't Exist)");
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
