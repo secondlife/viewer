@@ -41,6 +41,7 @@
 class LLAccordionCtrl;
 class LLAccordionCtrlTab;
 class LLWearableItemsList;
+class LLListContextMenu;
 
 /**
  * @class LLOutfitsList
@@ -94,12 +95,30 @@ private:
 	 */
 	void changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
 
+	/**
+	 * Called upon list refresh event to update tab visibility depending on
+	 * the results of applying filter to the title and list items of the tab.
+	 */
+	void onFilteredWearableItemsListRefresh(LLUICtrl* ctrl);
+
+	/**
+	 * Highlights filtered items and hides tabs which haven't passed filter.
+	 */
+	void applyFilter(const std::string& new_filter_substring);
+
+	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
+
+	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 
 	LLAccordionCtrl*				mAccordion;
 	LLPanel*						mListCommands;
 
-	LLWearableItemsList*			mSelectedList;
+	typedef	std::map<LLUUID, LLWearableItemsList*>		wearables_lists_map_t;
+	typedef wearables_lists_map_t::value_type			wearables_lists_map_value_t;
+	wearables_lists_map_t			mSelectedListsMap;
+
 	LLUUID							mSelectedOutfitUUID;
 
 	std::string 					mFilterSubString;
@@ -107,6 +126,8 @@ private:
 	typedef	std::map<LLUUID, LLAccordionCtrlTab*>		outfits_map_t;
 	typedef outfits_map_t::value_type					outfits_map_value_t;
 	outfits_map_t					mOutfitsMap;
+
+	LLListContextMenu*			mOutfitMenu;
 };
 
 #endif //LL_LLOUTFITSLIST_H

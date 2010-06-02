@@ -248,6 +248,11 @@ void LLInventoryPanel::setHoursAgo(U32 hours)
 	getFilter()->setHoursAgo(hours);
 }
 
+void LLInventoryPanel::setIncludeLinks(BOOL include_links)
+{
+	getFilter()->setIncludeLinks(include_links);
+}
+
 void LLInventoryPanel::setShowFolderState(LLInventoryFilter::EFolderShow show)
 {
 	getFilter()->setShowFolderState(show);
@@ -775,8 +780,7 @@ void LLInventoryPanel::doCreate(const LLSD& userdata)
 
 bool LLInventoryPanel::beginIMSession()
 {
-	std::set<LLUUID> selected_items;
-	mFolderRoot->getSelectionList(selected_items);
+	std::set<LLUUID> selected_items = mFolderRoot->getSelectionList();
 
 	std::string name;
 	static int session_num = 1;
@@ -873,8 +877,7 @@ bool LLInventoryPanel::beginIMSession()
 
 bool LLInventoryPanel::attachObject(const LLSD& userdata)
 {
-	std::set<LLUUID> selected_items;
-	mFolderRoot->getSelectionList(selected_items);
+	std::set<LLUUID> selected_items = mFolderRoot->getSelectionList();
 
 	std::string joint_name = userdata.asString();
 	LLViewerJointAttachment* attachmentp = NULL;
@@ -1001,3 +1004,30 @@ BOOL LLInventoryPanel::getIsHiddenFolderType(LLFolderType::EType folder_type) co
 {
 	return (std::find(mHiddenFolderTypes.begin(), mHiddenFolderTypes.end(), folder_type) != mHiddenFolderTypes.end());
 }
+
+
+/************************************************************************/
+/* Recent Inventory Panel related class                                 */
+/************************************************************************/
+class LLInventoryRecentItemsPanel;
+static LLDefaultChildRegistry::Register<LLInventoryRecentItemsPanel> t_recent_inventory_panel("recent_inventory_panel");
+
+static const LLRecentInventoryBridgeBuilder RECENT_ITEMS_BUILDER;
+class LLInventoryRecentItemsPanel : public LLInventoryPanel
+{
+public:
+	struct Params :	public LLInitParam::Block<Params, LLInventoryPanel::Params>
+	{};
+
+protected:
+	LLInventoryRecentItemsPanel (const Params&);
+	friend class LLUICtrlFactory;
+};
+
+LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
+: LLInventoryPanel(params)
+{
+	// replace bridge builder to have necessary View bridges.
+	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
+}
+

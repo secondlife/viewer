@@ -47,6 +47,7 @@ class LLFlatListView;
 class LLTeleportHistoryPanel : public LLPanelPlacesTab
 {
 public:
+	// *TODO: derive from LLListContextMenu?
 	class ContextMenu
 	{
 	public:
@@ -77,6 +78,7 @@ public:
 	/*virtual*/ void onTeleport();
 	///*virtual*/ void onCopySLURL();
 	/*virtual*/ void updateVerbs();
+	/*virtual*/ bool isSingleItemSelected();
 
 private:
 
@@ -122,5 +124,7 @@ private:
 	LLContextMenu*			mAccordionTabMenu;
 	LLHandle<LLView>		mGearMenuHandle;
 };
+
+
 
 #endif //LL_LLPANELTELEPORTHISTORY_H

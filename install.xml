@@ -118,9 +118,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>946c2e106f14f7a1e521d4a14e0e146f</string>
+            <string>91694429e391efeea1de974df26032a2</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.4.0-linux-20081202.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-linux-20100527.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -240,9 +240,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>0f366e421ae9c72d9659bd20a2a326d6</string>
+            <string>a20e73f2e7d6a032ff25a5161b1b7394</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4a-linux-20090303a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-linux-20100527.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
@@ -948,23 +948,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>1956228a93537f250b92f2929fa4ea40</string>
+            <string>1417e04ca4bec1ed281c43d37b613845</string>
             <key>url</key>
-             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6+cookies-darwin-20100415.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6+cookies-darwin-20100519.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>a90135a68d2821eef742d15cb06b15b9</string>
+            <string>7a5e02d252b76ab41bdca58506fa4147</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100407-cookie-api.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100521.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>b873755dff5f4221b5a3ba63129435a7</string>
+            <string>1d9697fed57084eea7b3dc250e9c66f7</string>
             <key>url</key>
-            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.6-cookies-20100402.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20100525.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -1112,9 +1112,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>a7b49e0f3eedbd5de117a3524c414b3a</string>
+            <string>11d2be4f2b172430747b7d4a6739e3d8</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.7c-darwin-20080812.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openSSL-0.9.8l-darwin-20100428.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -1386,23 +1386,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>3b7fa3a7ac07034a747759f22956b6d5</string>
+            <string>aa144917d0e33453d3c2cc2c05c6c47c</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8385-darwin-20100412.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-darwin-20100529.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>3f834e00fa06e636814f22ad8685e407</string>
+            <string>98f7945755f3ee8e52f685a3eff4d7be</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8385-linux-20100412.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-linux-20100529.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>089a715a33cb48e030c9206966dfe31b</string>
+            <string>e8fdd46cb026c2ec72c4489eb3bf39c1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8385-windows-20100412.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/vivox-3.1.0001.8821-windows-20100529.tar.bz2</uri>
           </map>
         </map>
       </map>

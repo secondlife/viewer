@@ -846,16 +846,16 @@ void LLFolderView::clearSelection()
 	mSelectThisID.setNull();
 }
 
-BOOL LLFolderView::getSelectionList(std::set<LLUUID> &selection) const
+std::set<LLUUID> LLFolderView::getSelectionList() const
 {
+	std::set<LLUUID> selection;
 	for (selected_items_t::const_iterator item_it = mSelectedItems.begin(); 
 		 item_it != mSelectedItems.end(); 
 		 ++item_it)
 	{
 		selection.insert((*item_it)->getListener()->getUUID());
 	}
-
-	return (selection.size() != 0);
+	return selection;
 }
 
 BOOL LLFolderView::startDrag(LLToolDragAndDrop::ESource source)
@@ -1744,6 +1744,8 @@ BOOL LLFolderView::handleMouseDown( S32 x, S32 y, MASK mask )
 
 	mParentPanel->setFocus(TRUE);
 
+	LLEditMenuHandler::gEditMenuHandler = this;
+
 	return LLView::handleMouseDown( x, y, mask );
 }
 
@@ -2070,8 +2072,7 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 	}
 
 
-	std::set<LLUUID> selected_items;
-	getSelectionList(selected_items);
+	std::set<LLUUID> selected_items = getSelectionList();
 
 	LLMultiPreview* multi_previewp = NULL;
 	LLMultiProperties* multi_propertiesp = NULL;

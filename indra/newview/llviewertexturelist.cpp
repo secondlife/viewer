@@ -478,7 +478,7 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 	}
 	else
 	{
-		//by default, the texure can not be removed from memory even if it is not used.
+		//by default, the texture can not be removed from memory even if it is not used.
 		//here turn this off
 		//if this texture should be set to NO_DELETE, call setNoDelete() afterwards.
 		imagep->forceActive() ;

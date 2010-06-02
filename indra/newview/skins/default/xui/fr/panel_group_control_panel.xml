@@ -11,7 +11,7 @@
 			<button label="Quitter l&apos;appel" name="end_call_btn"/>
 		</layout_panel>
 		<layout_panel name="voice_ctrls_btn_panel">
-			<button label="Ouvrir les contrôles vocaux" name="voice_ctrls_btn"/>
+			<button label="Ouvrir contrôles vocaux" name="voice_ctrls_btn"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

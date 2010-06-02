@@ -107,7 +107,7 @@ left="0"
 		Jacket:
 	</string>
 	<string
-		name="skirt_skirt_desc_text">
+		name="skirt_desc_text">
 		Skirt:
 	</string>
 	<string
@@ -165,12 +165,62 @@ left="0"
          width="313">
 		 <text
 		 follows="top|left|right"
+		 font="SansSerifSmallBold"
 		 height="16"
 		 layout="topleft"
 		 left="10"
 		 name="description_text"
+		 text_color="white"
+		 top="10"
 		 value="Shape:"
-		 width="303" />
+		 width="150" />
+		 <radio_group
+			 control_name="AvatarSex"
+			 follows="left|top|right"
+			 left="210"
+			 height="20"
+			 layout="topleft"
+			 name="sex_radio"
+			 top="5"
+			 width="110">
+			 <radio_item
+				 follows="all"
+				 height="16"
+				 label=""
+				 layout="topleft"
+				 left="0"
+				 name="sex_male"
+				 tool_tip="Male"
+				 value="1"
+				 width="40" />
+			 <radio_item
+				 follows="all"
+				 height="16"
+				 label=""
+				 layout="topleft"
+				 left_pad="10"
+				 name="sex_female"
+				 tool_tip="Female"
+				 value="0"
+				 width="40" />
+		 </radio_group>
+		 <!--  graphical labels for the radio buttons above -->
+		 <icon
+			 height="16"
+			 image_name="icons/Male.png"
+			 left="230"
+			 name="male_icon"
+			 tool_tip="Male"
+			 top="7"
+			 width="16" />
+		 <icon
+			 height="16"
+			 image_name="icons/Female.png"
+			 name="female_icon"
+			 left="280"
+			 tool_tip="Female"
+			 top="7"
+			 width="16" />
 		 <text_editor
 			 follows="all"
 			 height="23"
@@ -178,20 +228,23 @@ left="0"
 			 layout="topleft"
 			 max_length="300"
 			 name="description"
+			 top_pad="3"
 			 width="290" />
 	 </panel>
 	 <panel
 		 follows="all"
-		 height="400"
+		 height="408"
 		 layout="topleft"
 		 left="0"
 		 name="edit_subpanel_container"
-		 top_pad="10"
+		 top_pad="2"
 		 width="333">
+		 <!-- the shape editing panel is taller than the others
+		      because it also displays avatar height -->
 		 <panel
 			 filename="panel_edit_shape.xml"
 			 follows="all"
-			 height="400"
+			 height="408"
 			 layout="topleft"
 			 left="0"
 			 name="edit_shape_panel"
@@ -205,7 +258,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_skin_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -215,7 +268,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_hair_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -225,7 +278,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_eyes_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -235,7 +288,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_shirt_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -245,7 +298,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_pants_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -255,7 +308,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_shoes_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -265,7 +318,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_socks_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -275,7 +328,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_jacket_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -285,7 +338,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_skirt_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -295,7 +348,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_gloves_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -305,7 +358,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_undershirt_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -315,7 +368,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_underpants_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -325,7 +378,7 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_alpha_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 		 <panel
@@ -335,63 +388,76 @@ left="0"
 			 layout="topleft"
 			 left="0"
 			 name="edit_tattoo_panel"
-			 top="0"
+			 top="8"
 			 visible="false"
 			 width="333" />
 	 </panel>
      <panel
-        follows="left|right|bottom"
-        height="38"
+        follows="bottom|left|right"
+        height="25"
         label="gear_buttom_panel"
-        layout="bottom|left|right"
+        layout="topleft"
         left="0"
-        bottom="25"
         name="gear_buttom_panel"
+        top_pad="0"
         width="333">
         <button
             follows="bottom|left"
             tool_tip="Options"
-            height="18"
+            height="25"
+            image_hover_unselected="Toolbar_Left_Over"
             image_disabled="OptionsMenu_Disabled"
-            image_selected="OptionsMenu_Press"
-            image_unselected="OptionsMenu_Off"
+            image_overlay="OptionsMenu_Off"
+            image_selected="Toolbar_Left_Selected"
+            image_unselected="Toolbar_Left_Off"
             layout="topleft"
             left="10"
             name="friends_viewsort_btn"
-            top="10"
-            width="18" />
+            top="0"
+            width="31" />
         <button
             follows="bottom|left"
-            height="18"
-            image_selected="AddItem_Press"
-            image_unselected="AddItem_Off"
+            height="25"
+            image_hover_unselected="Toolbar_Middle_Over"
+            image_overlay="AddItem_Off"
+            image_selected="Toolbar_Middle_Selected"
+            image_unselected="Toolbar_Middle_Off"
             image_disabled="AddItem_Disabled"
             layout="topleft"
-            left_pad="10"
+            left_pad="1"
             name="add_btn"
             tool_tip="TODO"
-            width="18" />
+            width="31" />
+        <icon
+            follows="bottom|left|right"
+            height="25"
+            image_name="Toolbar_Middle_Off"
+            layout="topleft"
+            left_pad="1"
+            name="dummy_right_icon"
+            width="218" >
+        </icon>
         <button
-            follows="bottom|left"
-            height="18"
-            image_selected="TrashItem_Press"
-            image_unselected="TrashItem_Off"
+            follows="bottom|right"
+            height="25"
+            image_hover_unselected="Toolbar_Right_Over"
+            image_overlay="TrashItem_Off"
+            image_selected="Toolbar_Right_Selected"
+            image_unselected="Toolbar_Right_Off"
             image_disabled="TrashItem_Disabled"
             layout="topleft"
-            left_pad="10"
-            right="-10"
+            left_pad="1"
             name="del_btn"
             tool_tip="TODO"
-            top_delta="0"
-            width="18" />
+            width="31" />
      </panel>
 	 <panel
 		 follows="bottom|left|right"
-		 height="25"
-		 layout="bottom|left|right"
-		 left="0"
+		 height="23"
+		 layout="topleft"
+		 left="2"
 		 name="button_panel"
-		 bottom="5"
+		 top_pad="6"
 		 width="333" >
 		 <button
 			 follows="bottomleft"
@@ -409,6 +475,6 @@ left="0"
 			 label="Revert"
 			 left_pad="7"
 			 name="revert_button"
-			 width="153" />
+			 width="152" />
 	 </panel>
 </panel>

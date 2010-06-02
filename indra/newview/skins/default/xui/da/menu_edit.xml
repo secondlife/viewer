@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu label="Redigér" name="Edit">
+	<menu_item_call label="Fortryd" name="Undo"/>
+	<menu_item_call label="Gendan" name="Redo"/>
+	<menu_item_call label="Klip" name="Cut"/>
+	<menu_item_call label="Kopiér" name="Copy"/>
+	<menu_item_call label="Sæt ind" name="Paste"/>
+	<menu_item_call label="Slet" name="Delete"/>
+	<menu_item_call label="Duplikér" name="Duplicate"/>
+	<menu_item_call label="Marker alt" name="Select All"/>
+	<menu_item_call label="Fjern markering" name="Deselect"/>
+</menu>

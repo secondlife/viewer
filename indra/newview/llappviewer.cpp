@@ -153,7 +153,7 @@
 #include "llworld.h"
 #include "llhudeffecttrail.h"
 #include "llvectorperfoptions.h"
-#include "llurlsimstring.h"
+#include "llslurl.h"
 #include "llwatchdog.h"
 
 // Included so that constants/settings might be initialized
@@ -192,6 +192,10 @@
 #include "llviewerthrottle.h"
 #include "llparcel.h"
 #include "llavatariconctrl.h"
+
+// Include for security api initialization
+#include "llsecapi.h"
+#include "llmachineid.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -503,35 +507,6 @@ public:
 	}
 };
 
-void LLAppViewer::initGridChoice()
-{
-	// Load	up the initial grid	choice from:
-	//	- hard coded defaults...
-	//	- command line settings...
-	//	- if dev build,	persisted settings...
-
-	// Set the "grid choice", this is specified	by command line.
-	std::string	grid_choice	= gSavedSettings.getString("CmdLineGridChoice");
-	LLViewerLogin::getInstance()->setGridChoice(grid_choice);
-
-	// Load last server choice by default 
-	// ignored if the command line grid	choice has been	set
-	if(grid_choice.empty())
-	{
-		S32	server = gSavedSettings.getS32("ServerChoice");
-		server = llclamp(server, 0,	(S32)GRID_INFO_COUNT - 1);
-		if(server == GRID_INFO_OTHER)
-		{
-			std::string custom_server = gSavedSettings.getString("CustomServer");
-			LLViewerLogin::getInstance()->setGridChoice(custom_server);
-		}
-		else if(server != (S32)GRID_INFO_NONE)
-		{
-			LLViewerLogin::getInstance()->setGridChoice((EGridInfo)server);
-		}
-	}
-}
-
 //virtual
 bool LLAppViewer::initSLURLHandler()
 {
@@ -641,9 +616,9 @@ bool LLAppViewer::init()
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass();
+    LLMachineID::init();
 
     initThreads();
-
     writeSystemInfo();
 
 	// Build a string representing the current version number.
@@ -773,10 +748,6 @@ bool LLAppViewer::init()
 		return false;
 	}
 
-	// Always fetch the Ethernet MAC address, needed both for login
-	// and password load.
-	LLUUID::getNodeID(gMACAddress);
-
 	// Prepare for out-of-memory situations, during which we will crash on
 	// purpose and save a dump.
 #if LL_WINDOWS && LL_RELEASE_FOR_DOWNLOAD && LL_USE_SMARTHEAP
@@ -888,6 +859,7 @@ bool LLAppViewer::init()
 		}
 	}
 
+
 	// save the graphics card
 	gDebugInfo["GraphicsCard"] = LLFeatureManager::getInstance()->getGPUString();
 
@@ -898,6 +870,17 @@ bool LLAppViewer::init()
 	gSimFrames = (F32)gFrameCount;
 
 	LLViewerJoystick::getInstance()->init(false);
+
+	try {
+		initializeSecHandler();
+	}
+	catch (LLProtectedDataException ex)
+	{
+	  LLNotificationsUtil::add("CorruptedProtectedDataStore");
+	}
+	LLHTTPClient::setCertVerifyCallback(secapiSSLCertVerifyCallback);
+
+
 	gGLActive = FALSE;
 	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
 	{
@@ -905,7 +888,16 @@ bool LLAppViewer::init()
 	}
 	
 	LLViewerMedia::initClass();
-	
+
+	LLStringOps::setupWeekDaysNames(LLTrans::getString("dateTimeWeekdaysNames"));
+	LLStringOps::setupWeekDaysShortNames(LLTrans::getString("dateTimeWeekdaysShortNames"));
+	LLStringOps::setupMonthNames(LLTrans::getString("dateTimeMonthNames"));
+	LLStringOps::setupMonthShortNames(LLTrans::getString("dateTimeMonthShortNames"));
+	LLStringOps::setupDayFormat(LLTrans::getString("dateTimeDayFormat"));
+
+	LLStringOps::sAM = LLTrans::getString("dateTimeAM");
+	LLStringOps::sPM = LLTrans::getString("dateTimePM");
+
 	return true;
 }
 
@@ -932,13 +924,11 @@ bool LLAppViewer::mainLoop()
 	gServicePump = new LLPumpIO(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
 	LLCurl::setCAFile(gDirUtilp->getCAFile());
-	LLCurl::setSSLVerify(! gSavedSettings.getBOOL("NoVerifySSLCert"));
-	
+
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
 	LLVoiceChannel::initClass();
-	LLVoiceClient::init(gServicePump);
-
+	LLVoiceClient::getInstance()->init(gServicePump);
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
@@ -1269,7 +1259,7 @@ bool LLAppViewer::cleanup()
 	// to ensure shutdown order
 	LLMortician::setZealous(TRUE);
 
-	LLVoiceClient::terminate();
+	LLVoiceClient::getInstance()->terminate();
 	
 	disconnectViewer();
 
@@ -1467,13 +1457,6 @@ bool LLAppViewer::cleanup()
 	LLVFile::cleanupClass();
 
 	llinfos << "Saving Data" << llendflush;
-	
-	// Quitting with "Remember Password" turned off should always stomp your
-	// saved password, whether or not you successfully logged in.  JC
-	if (!gSavedSettings.getBOOL("RememberPassword"))
-	{
-		LLStartUp::deletePasswordFromDisk();
-	}
 	
 	// Store the time of our current logoff
 	gSavedPerAccountSettings.setU32("LastLogoff", time_corrected());
@@ -2046,7 +2029,6 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
-    initGridChoice();
 
 	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
 	if(clp.hasOption("crashonstartup"))
@@ -2140,30 +2122,17 @@ bool LLAppViewer::initConfiguration()
     // injection and steal passwords. Phoenix. SL-55321
     if(clp.hasOption("url"))
     {
-        std::string slurl = clp.getOption("url")[0];
-        if (LLSLURL::isSLURLCommand(slurl))
-        {
-	        LLStartUp::sSLURLCommand = slurl;
-        }
-        else
-        {
-	        LLURLSimString::setString(slurl);
-        }
+		LLStartUp::setStartSLURL(LLSLURL(clp.getOption("url")[0]));
+		if(LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION) 
+		{  
+			LLGridManager::getInstance()->setGridChoice(LLStartUp::getStartSLURL().getGrid());
+			
+		}  
     }
     else if(clp.hasOption("slurl"))
     {
-        std::string slurl = clp.getOption("slurl")[0];
-        if(LLSLURL::isSLURL(slurl))
-        {
-            if (LLSLURL::isSLURLCommand(slurl))
-            {
-	            LLStartUp::sSLURLCommand = slurl;
-            }
-            else
-            {
-	            LLURLSimString::setString(slurl);
-            }
-        }
+		LLSLURL start_slurl(clp.getOption("slurl")[0]);
+		LLStartUp::setStartSLURL(start_slurl);
     }
 
     const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
@@ -2244,18 +2213,10 @@ bool LLAppViewer::initConfiguration()
 	// don't call anotherInstanceRunning() when doing URL handoff, as
 	// it relies on checking a marker file which will not work when running
 	// out of different directories
-	std::string slurl;
-	if (!LLStartUp::sSLURLCommand.empty())
+
+	if (LLStartUp::getStartSLURL().isValid())
 	{
-		slurl = LLStartUp::sSLURLCommand;
-	}
-	else if (LLURLSimString::parse())
-	{
-		slurl = LLURLSimString::getURL();
-	}
-	if (!slurl.empty())
-	{
-		if (sendURLToOtherInstance(slurl))
+		if (sendURLToOtherInstance(LLStartUp::getStartSLURL().getSLURLString()))
 		{
 			// successfully handed off URL to existing instance, exit
 			return false;
@@ -2311,9 +2272,9 @@ bool LLAppViewer::initConfiguration()
 
    	// need to do this here - need to have initialized global settings first
 	std::string nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
-	if ( nextLoginLocation.length() )
+	if ( !nextLoginLocation.empty() )
 	{
-		LLURLSimString::setString( nextLoginLocation );
+		LLStartUp::setStartSLURL(LLSLURL(nextLoginLocation));
 	};
 
 	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
@@ -2396,7 +2357,7 @@ bool LLAppViewer::initWindow()
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 		
-	if (gSavedSettings.getBOOL("WindowFullScreen"))
+	if (gSavedSettings.getBOOL("FullScreen"))
 	{
 		// request to go full screen... which will be delayed until login
 		gViewerWindow->toggleFullscreen(FALSE);
@@ -2534,7 +2495,7 @@ void LLAppViewer::writeSystemInfo()
 
 	// The user is not logged on yet, but record the current grid choice login url
 	// which may have been the intended grid. This can b
-	gDebugInfo["GridName"] = LLViewerLogin::getInstance()->getGridLabel();
+	gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridLabel();
 
 	// *FIX:Mani - move this down in llappviewerwin32
 #ifdef LL_WINDOWS
@@ -3025,6 +2986,44 @@ S32 LLAppViewer::getCacheVersion()
 	return cache_version ;
 }
 
+void dumpVFSCaches()
+{
+	llinfos << "======= Static VFS ========" << llendl;
+	gStaticVFS->listFiles();
+#if LL_WINDOWS
+	llinfos << "======= Dumping static VFS to StaticVFSDump ========" << llendl;
+	WCHAR w_str[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, w_str);
+	S32 res = LLFile::mkdir("StaticVFSDump");
+	if (res == -1)
+	{
+		if (errno != EEXIST)
+		{
+			llwarns << "Couldn't create dir StaticVFSDump" << llendl;
+		}
+	}
+	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
+	gStaticVFS->dumpFiles();
+	SetCurrentDirectory(w_str);
+#endif
+						
+	llinfos << "========= Dynamic VFS ====" << llendl;
+	gVFS->listFiles();
+#if LL_WINDOWS
+	llinfos << "========= Dumping dynamic VFS to VFSDump ====" << llendl;
+	res = LLFile::mkdir("VFSDump");
+	if (res == -1)
+	{
+		if (errno != EEXIST)
+		{
+			llwarns << "Couldn't create dir VFSDump" << llendl;
+		}
+	}
+	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
+	gVFS->dumpFiles();
+	SetCurrentDirectory(w_str);
+#endif
+}
 bool LLAppViewer::initCache()
 {
 	mPurgeCache = false;
@@ -3242,11 +3241,12 @@ bool LLAppViewer::initCache()
 	{
 		LLVFile::initClass();
 
-		//llinfos << "Static VFS listing" << llendl;
-		//gStaticVFS->listFiles();
-
-		//llinfos << "regular VFS listing" << llendl;
-		//gVFS->listFiles();
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+		if (gSavedSettings.getBOOL("DumpVFSCaches"))
+		{
+			dumpVFSCaches();
+		}
+#endif
 		
 		return true;
 	}
@@ -3911,7 +3911,7 @@ void LLAppViewer::sendLogoutRequest()
 		gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 		mLogoutRequestSent = TRUE;
 		
-		gVoiceClient->leaveChannel();
+		LLVoiceClient::getInstance()->leaveChannel();
 
 		//Set internal status variables and marker files
 		gLogoutInProgress = TRUE;
@@ -4324,7 +4324,7 @@ void LLAppViewer::launchUpdater()
 #endif
 	// *TODO change userserver to be grid on both viewer and sim, since
 	// userserver no longer exists.
-	query_map["userserver"] = LLViewerLogin::getInstance()->getGridLabel();
+	query_map["userserver"] = LLGridManager::getInstance()->getGridLabel();
 	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
 	// *TODO constantize this guy
 	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
@@ -4337,10 +4337,10 @@ void LLAppViewer::launchUpdater()
 	LLAppViewer::sUpdaterInfo = new LLAppViewer::LLUpdaterInfo() ;
 
 	// if a sim name was passed in via command line parameter (typically through a SLURL)
-	if ( LLURLSimString::sInstance.mSimString.length() )
+	if ( LLStartUp::getStartSLURL().getType() == LLSLURL::LOCATION )
 	{
 		// record the location to start at next time
-		gSavedSettings.setString( "NextLoginLocation", LLURLSimString::sInstance.mSimString ); 
+		gSavedSettings.setString( "NextLoginLocation", LLStartUp::getStartSLURL().getSLURLString()); 
 	};
 
 #if LL_WINDOWS

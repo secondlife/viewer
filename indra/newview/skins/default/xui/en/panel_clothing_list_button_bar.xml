@@ -26,12 +26,12 @@
      follows="top|right"
      height="25"
      image_hover_unselected="Toolbar_Middle_Over"
+     image_overlay="Shop"
      image_selected="Toolbar_Middle_Selected"
      image_unselected="Toolbar_Middle_Off"
-     label="Shop >" 
      layout="topleft"
      right="-5"
      name="clothing_shop_btn"
      top="5"
-     width="61" />
+     width="45" />
 </panel>

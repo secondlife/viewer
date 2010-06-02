@@ -91,7 +91,8 @@ LLWorld::LLWorld() :
 	mLastPacketsIn(0),
 	mLastPacketsOut(0),
 	mLastPacketsLost(0),
-	mSpaceTimeUSec(0)
+	mSpaceTimeUSec(0),
+	mClassicCloudsEnabled(TRUE)
 {
 	for (S32 i = 0; i < 8; i++)
 	{
@@ -133,10 +134,11 @@ void LLWorld::destroyClass()
 LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
 	LLMemType mt(LLMemType::MTYPE_REGIONS);
-	
+	llinfos << "Add region with handle: " << region_handle << " on host " << host << llendl;
 	LLViewerRegion *regionp = getRegionFromHandle(region_handle);
 	if (regionp)
 	{
+		llinfos << "Region exists, removing it " << llendl;
 		LLHost old_host = regionp->getHost();
 		// region already exists!
 		if (host == old_host && regionp->isAlive())
@@ -661,16 +663,41 @@ void LLWorld::updateClouds(const F32 dt)
 	static LLFastTimer::DeclareTimer ftm("World Clouds");
 	LLFastTimer t(ftm);
 
-	if (gSavedSettings.getBOOL("FreezeTime") ||
-		!gSavedSettings.getBOOL("SkyUseClassicClouds"))
+	if ( gSavedSettings.getBOOL("FreezeTime") )
 	{
 		// don't move clouds in snapshot mode
 		return;
 	}
+
+	if (
+		mClassicCloudsEnabled !=
+		gSavedSettings.getBOOL("SkyUseClassicClouds") )
+	{
+		// The classic cloud toggle has been flipped
+		// gotta update all of the cloud layers
+		mClassicCloudsEnabled =
+			gSavedSettings.getBOOL("SkyUseClassicClouds");
+
+		if ( !mClassicCloudsEnabled && mActiveRegionList.size() )
+		{
+			// We've transitioned to having classic clouds disabled
+			// reset all cloud layers.
+			for (
+				region_list_t::iterator iter = mActiveRegionList.begin();
+				iter != mActiveRegionList.end();
+				++iter)
+			{
+				LLViewerRegion* regionp = *iter;
+				regionp->mCloudLayer.reset();
+			}
+
+			return;
+		}
+	}
+	else if ( !mClassicCloudsEnabled ) return;
+
 	if (mActiveRegionList.size())
 	{
-		// Update all the cloud puff positions, and timer based stuff
-		// such as death decay
 		for (region_list_t::iterator iter = mActiveRegionList.begin();
 			 iter != mActiveRegionList.end(); ++iter)
 		{

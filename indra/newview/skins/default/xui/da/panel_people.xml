@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray panel -->
 <panel label="Personer" name="people_panel">
-	<string name="no_people" value="Ingen personer"/>
-	<string name="no_one_near" value="Ingen tæt på"/>
+	<string name="no_recent_people" value="Ingen tidligere personer. Leder du efter nogen at være sammen med? Prøv [secondlife:///app/search/people Search] eller [secondlife:///app/worldmap World Map]."/>
+	<string name="no_filtered_recent_people" value="Fandt du ikke hvad du ledte efter? Prøv [secondlife:///app/search/people Search]."/>
+	<string name="no_one_near" value="Ingen i nærheden. Leder du efter nogen at være sammen med? Prøv [secondlife:///app/search/people Search] eller [secondlife:///app/worldmap World Map]."/>
+	<string name="no_one_filtered_near" value="Fandt du ikke hvad du ledte efter? Prøv [secondlife:///app/search/people Search]."/>
 	<string name="no_friends_online" value="Ingen venner online"/>
 	<string name="no_friends" value="Ingen venner"/>
+	<string name="no_friends_msg">
+		Find venner via [secondlife:///app/search/people Search] eller højre-klik på en beboer og tilføj dem som venner.
+Leder du efter nogen at være sammen med? Prøv [secondlife:///app/worldmap World Map].
+	</string>
+	<string name="no_filtered_friends_msg">
+		Fandt du ikke hvad du ledte efter? Prøv [secondlife:///app/search/people Search].
+	</string>
 	<string name="people_filter_label" value="Filtrér personer"/>
 	<string name="groups_filter_label" value="Filtrér grupper"/>
-	<string name="no_filtered_groups_msg" value="[secondlife:///app/search/groups Try finding the group in search?]"/>
-	<string name="no_groups_msg" value="[secondlife:///app/search/groups Try searching for some groups to join.]"/>
+	<string name="no_filtered_groups_msg" value="Fandt du ikke hvad du ledte efter? Prøv [secondlife:///app/search/groups Search]."/>
+	<string name="no_groups_msg" value="Leder du efter grupper at være med i? Prøv [secondlife:///app/search/groups Search]."/>
 	<filter_editor label="Filtrér" name="filter_input"/>
 	<tab_container name="tabs">
 		<panel label="TÆT PÅ" name="nearby_panel">
@@ -27,10 +36,6 @@
 				<button name="add_btn" tool_tip="Tilbyd venskab til en beboer"/>
 				<button name="del_btn" tool_tip="Fjern valgte person fra din venneliste"/>
 			</panel>
-			<text name="no_friends_msg">
-				For at tilføje venner prøv [secondlife:///app/search/people global search] eller klik på en bruger for at tilføje dem som ven.
-Hvis du leder efter beboere at være sammen med, [secondlife:///app/worldmap prøv kortet].
-			</text>
 		</panel>
 		<panel label="MINE GRUPPER" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">

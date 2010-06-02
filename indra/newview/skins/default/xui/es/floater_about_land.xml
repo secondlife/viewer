@@ -63,6 +63,9 @@
 				No se ha seleccionado una parcela.
 Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver sus características.
 			</panel.string>
+			<panel.string name="time_stamp_template">
+				[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+			</panel.string>
 			<text name="Name:">
 				Nombre:
 			</text>

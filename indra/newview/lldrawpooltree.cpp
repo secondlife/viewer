@@ -113,9 +113,12 @@ void LLDrawPoolTree::render(S32 pass)
 			 iter != mDrawFace.end(); iter++)
 		{
 			LLFace *face = *iter;
-			face->mVertexBuffer->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
-			face->mVertexBuffer->drawRange(LLRender::TRIANGLES, 0, face->mVertexBuffer->getRequestedVerts()-1, face->mVertexBuffer->getRequestedIndices(), 0); 
-			gPipeline.addTrianglesDrawn(face->mVertexBuffer->getRequestedIndices());
+			if(face->mVertexBuffer.notNull())
+			{
+				face->mVertexBuffer->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
+				face->mVertexBuffer->drawRange(LLRender::TRIANGLES, 0, face->mVertexBuffer->getRequestedVerts()-1, face->mVertexBuffer->getRequestedIndices(), 0); 
+				gPipeline.addTrianglesDrawn(face->mVertexBuffer->getRequestedIndices());
+			}
 		}
 	}
 }
@@ -333,7 +336,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 			S32 stop_depth = 0;
 			F32 app_angle = treep->getAppAngle()*LLVOTree::sTreeFactor;
 			F32 alpha = 1.0;
-			S32 trunk_LOD = 0;
+			S32 trunk_LOD = LLVOTree::sMAX_NUM_TREE_LOD_LEVELS;
 
 			for (S32 j = 0; j < 4; j++)
 			{
@@ -344,6 +347,10 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 					break;
 				}
 			} 
+			if(trunk_LOD >= LLVOTree::sMAX_NUM_TREE_LOD_LEVELS)
+			{
+				continue ; //do not render.
+			}
 
 			if (app_angle < (THRESH_ANGLE_FOR_BILLBOARD - BLEND_RANGE_FOR_BILLBOARD))
 			{

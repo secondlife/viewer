@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="アウトフィット" name="appearance panel">
 	<string name="No Outfit" value="アウトフィットなし"/>
+	<string name="Unsaved Changes" value="保存されていない変更"/>
+	<string name="Now Wearing" value="着用しています..."/>
 	<panel name="panel_currentlook">
-		<button label="編集" name="editappearance_btn"/>
-		<text name="currentlook_title">
-			（保存されていません）
+		<button label="E" name="editappearance_btn"/>
+		<button label="O" name="openoutfit_btn"/>
+		<text name="currentlook_status">
+			（状態）
 		</text>
 		<text name="currentlook_name">
 			MyOutfit With a really Long Name like MOOSE
 		</text>
 	</panel>
 	<filter_editor label="アウトフィットをフィルター" name="Filter"/>
-	<button label="装着" name="wear_btn"/>
-	<button label="新しいアウトフィット" name="newlook_btn"/>
 </panel>

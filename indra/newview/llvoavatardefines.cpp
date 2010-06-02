@@ -46,31 +46,31 @@ using namespace LLVOAvatarDefines;
 
 LLVOAvatarDictionary::Textures::Textures()
 {
-	addEntry(TEX_HEAD_BODYPAINT,              new TextureEntry("head_bodypaint",   TRUE,  BAKED_NUM_INDICES, "",                          WT_SKIN));
-	addEntry(TEX_UPPER_SHIRT,                 new TextureEntry("upper_shirt",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultShirtUUID",     WT_SHIRT));
-	addEntry(TEX_LOWER_PANTS,                 new TextureEntry("lower_pants",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultPantsUUID",     WT_PANTS));
-	addEntry(TEX_EYES_IRIS,                   new TextureEntry("eyes_iris",        TRUE,  BAKED_NUM_INDICES, "UIImgDefaultEyesUUID",      WT_EYES));
-	addEntry(TEX_HAIR,                        new TextureEntry("hair_grain",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultHairUUID",      WT_HAIR));
-	addEntry(TEX_UPPER_BODYPAINT,             new TextureEntry("upper_bodypaint",  TRUE,  BAKED_NUM_INDICES, "",                          WT_SKIN));
-	addEntry(TEX_LOWER_BODYPAINT,             new TextureEntry("lower_bodypaint",  TRUE,  BAKED_NUM_INDICES, "",                          WT_SKIN));
-	addEntry(TEX_LOWER_SHOES,                 new TextureEntry("lower_shoes",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultShoesUUID",     WT_SHOES));
-	addEntry(TEX_LOWER_SOCKS,                 new TextureEntry("lower_socks",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultSocksUUID",     WT_SOCKS));
-	addEntry(TEX_UPPER_JACKET,                new TextureEntry("upper_jacket",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultJacketUUID",    WT_JACKET));
-	addEntry(TEX_LOWER_JACKET,                new TextureEntry("lower_jacket",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultJacketUUID",    WT_JACKET));
-	addEntry(TEX_UPPER_GLOVES,                new TextureEntry("upper_gloves",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultGlovesUUID",    WT_GLOVES));
-	addEntry(TEX_UPPER_UNDERSHIRT,            new TextureEntry("upper_undershirt", TRUE,  BAKED_NUM_INDICES, "UIImgDefaultUnderwearUUID", WT_UNDERSHIRT));
-	addEntry(TEX_LOWER_UNDERPANTS,            new TextureEntry("lower_underpants", TRUE,  BAKED_NUM_INDICES, "UIImgDefaultUnderwearUUID", WT_UNDERPANTS));
-	addEntry(TEX_SKIRT,                       new TextureEntry("skirt",            TRUE,  BAKED_NUM_INDICES, "UIImgDefaultSkirtUUID",     WT_SKIRT));
+	addEntry(TEX_HEAD_BODYPAINT,              new TextureEntry("head_bodypaint",   TRUE,  BAKED_NUM_INDICES, "",                          LLWearableType::WT_SKIN));
+	addEntry(TEX_UPPER_SHIRT,                 new TextureEntry("upper_shirt",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultShirtUUID",     LLWearableType::WT_SHIRT));
+	addEntry(TEX_LOWER_PANTS,                 new TextureEntry("lower_pants",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultPantsUUID",     LLWearableType::WT_PANTS));
+	addEntry(TEX_EYES_IRIS,                   new TextureEntry("eyes_iris",        TRUE,  BAKED_NUM_INDICES, "UIImgDefaultEyesUUID",      LLWearableType::WT_EYES));
+	addEntry(TEX_HAIR,                        new TextureEntry("hair_grain",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultHairUUID",      LLWearableType::WT_HAIR));
+	addEntry(TEX_UPPER_BODYPAINT,             new TextureEntry("upper_bodypaint",  TRUE,  BAKED_NUM_INDICES, "",                          LLWearableType::WT_SKIN));
+	addEntry(TEX_LOWER_BODYPAINT,             new TextureEntry("lower_bodypaint",  TRUE,  BAKED_NUM_INDICES, "",                          LLWearableType::WT_SKIN));
+	addEntry(TEX_LOWER_SHOES,                 new TextureEntry("lower_shoes",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultShoesUUID",     LLWearableType::WT_SHOES));
+	addEntry(TEX_LOWER_SOCKS,                 new TextureEntry("lower_socks",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultSocksUUID",     LLWearableType::WT_SOCKS));
+	addEntry(TEX_UPPER_JACKET,                new TextureEntry("upper_jacket",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultJacketUUID",    LLWearableType::WT_JACKET));
+	addEntry(TEX_LOWER_JACKET,                new TextureEntry("lower_jacket",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultJacketUUID",    LLWearableType::WT_JACKET));
+	addEntry(TEX_UPPER_GLOVES,                new TextureEntry("upper_gloves",     TRUE,  BAKED_NUM_INDICES, "UIImgDefaultGlovesUUID",    LLWearableType::WT_GLOVES));
+	addEntry(TEX_UPPER_UNDERSHIRT,            new TextureEntry("upper_undershirt", TRUE,  BAKED_NUM_INDICES, "UIImgDefaultUnderwearUUID", LLWearableType::WT_UNDERSHIRT));
+	addEntry(TEX_LOWER_UNDERPANTS,            new TextureEntry("lower_underpants", TRUE,  BAKED_NUM_INDICES, "UIImgDefaultUnderwearUUID", LLWearableType::WT_UNDERPANTS));
+	addEntry(TEX_SKIRT,                       new TextureEntry("skirt",            TRUE,  BAKED_NUM_INDICES, "UIImgDefaultSkirtUUID",     LLWearableType::WT_SKIRT));
 
-	addEntry(TEX_LOWER_ALPHA,                 new TextureEntry("lower_alpha",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
-	addEntry(TEX_UPPER_ALPHA,                 new TextureEntry("upper_alpha",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
-	addEntry(TEX_HEAD_ALPHA,                  new TextureEntry("head_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
-	addEntry(TEX_EYES_ALPHA,                  new TextureEntry("eyes_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
-	addEntry(TEX_HAIR_ALPHA,                  new TextureEntry("hair_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     WT_ALPHA));
+	addEntry(TEX_LOWER_ALPHA,                 new TextureEntry("lower_alpha",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     LLWearableType::WT_ALPHA));
+	addEntry(TEX_UPPER_ALPHA,                 new TextureEntry("upper_alpha",      TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     LLWearableType::WT_ALPHA));
+	addEntry(TEX_HEAD_ALPHA,                  new TextureEntry("head_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     LLWearableType::WT_ALPHA));
+	addEntry(TEX_EYES_ALPHA,                  new TextureEntry("eyes_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     LLWearableType::WT_ALPHA));
+	addEntry(TEX_HAIR_ALPHA,                  new TextureEntry("hair_alpha",       TRUE,  BAKED_NUM_INDICES, "UIImgDefaultAlphaUUID",     LLWearableType::WT_ALPHA));
 
-	addEntry(TEX_HEAD_TATTOO,                 new TextureEntry("head_tattoo",      TRUE,  BAKED_NUM_INDICES, "",     WT_TATTOO));
-	addEntry(TEX_UPPER_TATTOO,                new TextureEntry("upper_tattoo",     TRUE,  BAKED_NUM_INDICES, "",     WT_TATTOO));
-	addEntry(TEX_LOWER_TATTOO,                new TextureEntry("lower_tattoo",     TRUE,  BAKED_NUM_INDICES, "",     WT_TATTOO));
+	addEntry(TEX_HEAD_TATTOO,                 new TextureEntry("head_tattoo",      TRUE,  BAKED_NUM_INDICES, "",     LLWearableType::WT_TATTOO));
+	addEntry(TEX_UPPER_TATTOO,                new TextureEntry("upper_tattoo",     TRUE,  BAKED_NUM_INDICES, "",     LLWearableType::WT_TATTOO));
+	addEntry(TEX_LOWER_TATTOO,                new TextureEntry("lower_tattoo",     TRUE,  BAKED_NUM_INDICES, "",     LLWearableType::WT_TATTOO));
 
 	addEntry(TEX_HEAD_BAKED,                  new TextureEntry("head-baked",       FALSE, BAKED_HEAD));
 	addEntry(TEX_UPPER_BAKED,                 new TextureEntry("upper-baked",      FALSE, BAKED_UPPER));
@@ -86,34 +86,34 @@ LLVOAvatarDictionary::BakedTextures::BakedTextures()
 	addEntry(BAKED_HEAD,       new BakedEntry(TEX_HEAD_BAKED,  
 											  "head", "a4b9dc38-e13b-4df9-b284-751efb0566ff", 
 											  3, TEX_HEAD_BODYPAINT, TEX_HEAD_TATTOO, TEX_HEAD_ALPHA,
-											  5, WT_SHAPE, WT_SKIN, WT_HAIR, WT_TATTOO, WT_ALPHA));
+											  5, LLWearableType::WT_SHAPE, LLWearableType::WT_SKIN, LLWearableType::WT_HAIR, LLWearableType::WT_TATTOO, LLWearableType::WT_ALPHA));
 
 	addEntry(BAKED_UPPER,      new BakedEntry(TEX_UPPER_BAKED, 
 											  "upper_body", "5943ff64-d26c-4a90-a8c0-d61f56bd98d4", 
 											  7, TEX_UPPER_SHIRT,TEX_UPPER_BODYPAINT, TEX_UPPER_JACKET,
 											  TEX_UPPER_GLOVES, TEX_UPPER_UNDERSHIRT, TEX_UPPER_TATTOO, TEX_UPPER_ALPHA,
-											  8, WT_SHAPE, WT_SKIN,	WT_SHIRT, WT_JACKET, WT_GLOVES, WT_UNDERSHIRT, WT_TATTOO, WT_ALPHA));											  
+											  8, LLWearableType::WT_SHAPE, LLWearableType::WT_SKIN,	LLWearableType::WT_SHIRT, LLWearableType::WT_JACKET, LLWearableType::WT_GLOVES, LLWearableType::WT_UNDERSHIRT, LLWearableType::WT_TATTOO, LLWearableType::WT_ALPHA));											  
 
 	addEntry(BAKED_LOWER,      new BakedEntry(TEX_LOWER_BAKED, 
 											  "lower_body", "2944ee70-90a7-425d-a5fb-d749c782ed7d",
 											  8, TEX_LOWER_PANTS,TEX_LOWER_BODYPAINT,TEX_LOWER_SHOES, TEX_LOWER_SOCKS,
 											  TEX_LOWER_JACKET, TEX_LOWER_UNDERPANTS, TEX_LOWER_TATTOO, TEX_LOWER_ALPHA,
-											  9, WT_SHAPE, WT_SKIN,	WT_PANTS, WT_SHOES,	 WT_SOCKS,  WT_JACKET, WT_UNDERPANTS, WT_TATTOO, WT_ALPHA));
+											  9, LLWearableType::WT_SHAPE, LLWearableType::WT_SKIN,	LLWearableType::WT_PANTS, LLWearableType::WT_SHOES,	 LLWearableType::WT_SOCKS,  LLWearableType::WT_JACKET, LLWearableType::WT_UNDERPANTS, LLWearableType::WT_TATTOO, LLWearableType::WT_ALPHA));
 
 	addEntry(BAKED_EYES,       new BakedEntry(TEX_EYES_BAKED,  
 											  "eyes", "27b1bc0f-979f-4b13-95fe-b981c2ba9788",
 											  2, TEX_EYES_IRIS, TEX_EYES_ALPHA,
-											  2, WT_EYES, WT_ALPHA));
+											  2, LLWearableType::WT_EYES, LLWearableType::WT_ALPHA));
 
 	addEntry(BAKED_SKIRT,      new BakedEntry(TEX_SKIRT_BAKED,
 											  "skirt", "03e7e8cb-1368-483b-b6f3-74850838ba63", 
 											  1, TEX_SKIRT,
-											  1, WT_SKIRT));
+											  1, LLWearableType::WT_SKIRT));
 
 	addEntry(BAKED_HAIR,       new BakedEntry(TEX_HAIR_BAKED,
 											  "hair", "a60e85a9-74e8-48d8-8a2d-8129f28d9b61", 
 											  2, TEX_HAIR, TEX_HAIR_ALPHA,
-											  2, WT_HAIR, WT_ALPHA));
+											  2, LLWearableType::WT_HAIR, LLWearableType::WT_ALPHA));
 }
 
 LLVOAvatarDictionary::Meshes::Meshes()
@@ -170,7 +170,7 @@ LLVOAvatarDictionary::TextureEntry::TextureEntry(const std::string &name,
 												 bool is_local_texture, 
 												 EBakedTextureIndex baked_texture_index,
 												 const std::string &default_image_name,
-												 EWearableType wearable_type) :
+												 LLWearableType::EType wearable_type) :
 	LLDictionaryEntry(name),
 	mIsLocalTexture(is_local_texture),
 	mIsBakedTexture(!is_local_texture),
@@ -216,7 +216,7 @@ LLVOAvatarDictionary::BakedEntry::BakedEntry(ETextureIndex tex_index,
 	// Read in wearables
 	for (U8 i=0; i < num_wearables; i++)
 	{
-		EWearableType t = (EWearableType)va_arg(argp,int);
+		LLWearableType::EType t = (LLWearableType::EType)va_arg(argp,int);
 		mWearables.push_back(t);
 	}
 }
@@ -261,7 +261,7 @@ const LLUUID LLVOAvatarDictionary::getDefaultTextureImageID(ETextureIndex index)
 }
 
 // static
-EWearableType LLVOAvatarDictionary::getTEWearableType(ETextureIndex index )
+LLWearableType::EType LLVOAvatarDictionary::getTEWearableType(ETextureIndex index )
 {
 	return getInstance()->getTexture(index)->mWearableType;
 }

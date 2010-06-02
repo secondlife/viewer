@@ -29,6 +29,7 @@
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Opret landemærke for dette sted" name="Create Landmark Here"/>
 		<menu label="Profil for sted" name="Land">
+			<menu_item_call label="Profil for sted" name="Place Profile"/>
 			<menu_item_call label="Om land" name="About Land"/>
 			<menu_item_call label="Region/Estate" name="Region/Estate"/>
 		</menu>
@@ -63,17 +64,6 @@
 			<menu_item_call label="Redigeringsværktøj" name="Edit"/>
 			<menu_item_call label="Byg værktøj" name="Create"/>
 			<menu_item_call label="Land værktøj" name="Land"/>
-		</menu>
-		<menu label="Redigér" name="Edit">
-			<menu_item_call label="Fortryd" name="Undo"/>
-			<menu_item_call label="Gendan" name="Redo"/>
-			<menu_item_call label="Klip" name="Cut"/>
-			<menu_item_call label="Kopiér" name="Copy"/>
-			<menu_item_call label="Sæt ind" name="Paste"/>
-			<menu_item_call label="Slet" name="Delete"/>
-			<menu_item_call label="Duplikér" name="Duplicate"/>
-			<menu_item_call label="Vælg alt" name="Select All"/>
-			<menu_item_call label="Fravælg" name="Deselect"/>
 		</menu>
 		<menu_item_call label="Sammenkæd" name="Link"/>
 		<menu_item_call label="Adskil" name="Unlink"/>
@@ -122,6 +112,7 @@
 		<menu_item_call label="Om [APP_NAME]" name="About Second Life"/>
 	</menu>
 	<menu label="Avanceret" name="Advanced">
+		<menu_item_check label="Vis avanceret menu" name="Show Advanced Menu"/>
 		<menu_item_call label="Stop animering af min avatar" name="Stop Animating My Avatar"/>
 		<menu_item_call label="Gendan teksturer" name="Rebake Texture"/>
 		<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
@@ -143,7 +134,6 @@
 			<menu_item_check label="Fremhæv gennemsigtigt" name="Highlight Transparent"/>
 			<menu_item_check label="Vis HUD vedhæftninger" name="Show HUD Attachments"/>
 			<menu_item_check label="Vis muse-sigte" name="ShowCrosshairs"/>
-			<menu_item_check label="Vis tips om land" name="Land Tips"/>
 		</menu>
 		<menu label="Gengivelsestyper" name="Rendering Types">
 			<menu_item_check label="Simpel" name="Simple"/>
@@ -169,7 +159,7 @@
 			<menu_item_check label="Tåge" name="Fog"/>
 			<menu_item_check label="Fleksible objekter" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="Kør flere 'threats'" name="Run Multiple Threads"/>
+		<menu_item_check label="Kør flere &apos;threats&apos;" name="Run Multiple Threads"/>
 		<menu_item_call label="Tøm gruppe cache" name="ClearGroupCache"/>
 		<menu_item_check label="Muse udjævning" name="Mouse Smoothing"/>
 		<menu label="Shortcuts" name="Shortcuts">

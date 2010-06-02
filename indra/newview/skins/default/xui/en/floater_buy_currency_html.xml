@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="false"
+ height="280"
+ layout="topleft"
+ min_height="280"
+ min_width="450"
+ name="floater_buy_currency_html"
+ help_topic="floater_buy_currency_html"
+ save_rect="true"
+ single_instance="true"
+ title="BUY CURRENCY"
+ width="452">
+ <floater.string
+      name="buy_currency_url" translate="false">
+        https://quick-buy-www.jeff.ooze.lindenlab.com/en/display
+ </floater.string>
+    <web_browser
+     bottom="278"
+     follows="left|right|top|bottom"
+     layout="topleft"
+     left="2"
+     name="browser"
+     top="18"
+     width="450" />
+</floater>

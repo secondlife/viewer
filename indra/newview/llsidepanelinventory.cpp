@@ -42,6 +42,7 @@
 #include "llsidepaneltaskinfo.h"
 #include "lltabcontainer.h"
 #include "llselectmgr.h"
+#include "llweb.h"
 
 static LLRegisterPanelClassWrapper<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
@@ -70,6 +71,9 @@ BOOL LLSidepanelInventory::postBuild()
 		mShareBtn = mInventoryPanel->getChild<LLButton>("share_btn");
 		mShareBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShareButtonClicked, this));
 		
+		LLButton* shop_btn = mInventoryPanel->getChild<LLButton>("shop_btn");
+		shop_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShopButtonClicked, this));
+
 		mWearBtn = mInventoryPanel->getChild<LLButton>("wear_btn");
 		mWearBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onWearButtonClicked, this));
 		
@@ -153,6 +157,11 @@ void LLSidepanelInventory::onInfoButtonClicked()
 void LLSidepanelInventory::onShareButtonClicked()
 {
 	LLAvatarActions::shareWithAvatars();
+}
+
+void LLSidepanelInventory::onShopButtonClicked()
+{
+	LLWeb::loadURLExternal(gSavedSettings.getString("MarketplaceURL"));
 }
 
 void LLSidepanelInventory::performActionOnSelection(const std::string &action)
@@ -323,8 +332,7 @@ LLInventoryItem *LLSidepanelInventory::getSelectedItem()
 U32 LLSidepanelInventory::getSelectedCount()
 {
 	LLPanelMainInventory *panel_main_inventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
-	std::set<LLUUID> selection_list;
-	panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList(selection_list);
+	std::set<LLUUID> selection_list = panel_main_inventory->getActivePanel()->getRootFolder()->getSelectionList();
 	return selection_list.size();
 }
 

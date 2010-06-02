@@ -55,8 +55,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llcallingcard.h"
-//#include "llfirstuse.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
@@ -283,7 +282,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 	{
 		LLStringUtil::format_map_t args;
 		args["AMOUNT"] = llformat("%d", amount);
-		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("giving", args), amount);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("giving", args), amount );
 	}
 }
 
@@ -774,11 +773,11 @@ private:
  * We can't create it each time items are moved because "drop" event is sent separately for each
  * element even while multi-dragging. We have to have the only instance of the observer. See EXT-4347.
  */
-class LLViewerInventoryMoveFromWorldObserver : public LLInventoryMoveFromWorldObserver
+class LLViewerInventoryMoveFromWorldObserver : public LLInventoryAddItemByAssetObserver
 {
 public:
 	LLViewerInventoryMoveFromWorldObserver()
-		: LLInventoryMoveFromWorldObserver()
+		: LLInventoryAddItemByAssetObserver()
 		, mActivePanel(NULL)
 	{
 
@@ -796,7 +795,7 @@ private:
 		mSelectedItems.clear();
 		if (mActivePanel)
 		{
-			mActivePanel->getRootFolder()->getSelectionList(mSelectedItems);
+			mSelectedItems = mActivePanel->getRootFolder()->getSelectionList();
 		}
 		mSelectedItems.erase(mMoveIntoFolderID);
 	}
@@ -829,8 +828,7 @@ private:
 		}
 
 		// get selected items (without destination folder)
-		selected_items_t selected_items;
-		mActivePanel->getRootFolder()->getSelectionList(selected_items);
+		selected_items_t selected_items = mActivePanel->getRootFolder()->getSelectionList();
 		selected_items.erase(mMoveIntoFolderID);
 
 		// compare stored & current sets of selected items
@@ -1237,7 +1235,6 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		bool matches(const LLNotificationPtr notification) const
 		{
 			if(notification->getName() == "ObjectGiveItem" 
-				|| notification->getName() == "ObjectGiveItemUnknownUser"
 				|| notification->getName() == "UserGiveItem")
 			{
 				return (notification->getPayload()["from_id"].asUUID() == blocked_id);
@@ -1700,7 +1697,6 @@ void LLOfferInfo::initRespondFunctionMap()
 	if(mRespondFunctions.empty())
 	{
 		mRespondFunctions["ObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
-		mRespondFunctions["ObjectGiveItemUnknownUser"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
 		mRespondFunctions["UserGiveItem"] = boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2);
 	}
 }
@@ -1771,30 +1767,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 		return;
 	}
 
-	// Name cache callbacks don't store userdata, so can't save
-	// off the LLOfferInfo.  Argh.
-	BOOL name_found = FALSE;
-	if (info->mFromGroup)
-	{
-		std::string group_name;
-		if (gCacheName->getGroupName(info->mFromID, group_name))
-		{
-			args["FIRST"] = group_name;
-			args["LAST"] = "";
-			name_found = TRUE;
-		}
-	}
-	else
-	{
-		std::string first_name, last_name;
-		if (gCacheName->getName(info->mFromID, first_name, last_name))
-		{
-			args["FIRST"] = first_name;
-			args["LAST"] = last_name;
-			name_found = TRUE;
-		}
-	}
-
 	// If mObjectID is null then generate the object_id based on msg to prevent
 	// multiple creation of chiclets for same object.
 	LLUUID object_id = info->mObjectID;
@@ -1809,9 +1781,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 	payload["give_inventory_notification"] = FALSE;
 	args["OBJECTFROMNAME"] = info->mFromName;
 	args["NAME"] = info->mFromName;
-	args["NAME_SLURL"] = LLSLURL::buildCommand("agent", info->mFromID, "about");
+	args["NAME_SLURL"] = LLSLURL("agent", info->mFromID, "about").getSLURLString();
 	std::string verb = "select?name=" + LLURI::escape(msg);
-	args["ITEM_SLURL"] = LLSLURL::buildCommand("inventory", info->mObjectID, verb.c_str());
+	args["ITEM_SLURL"] = LLSLURL("inventory", info->mObjectID, verb.c_str()).getSLURLString();
 
 	LLNotification::Params p("ObjectGiveItem");
 
@@ -1823,9 +1795,9 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Note: sets inventory_task_offer_callback as the callback
 		p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
 		info->mPersist = true;
-		p.name = name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser";
+		p.name = "ObjectGiveItem";
 		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
-		LLNotifications::instance().add(p);
+	    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, info->mFromGroup == TRUE);
 	}
 	else // Agent -> Agent Inventory Offer
 	{
@@ -2354,7 +2326,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				LLSD args;
 				args["MESSAGE"] = message;
-				LLNotificationsUtil::add("JoinGroup", args, payload, join_group_response);
+				// we shouldn't pass callback functor since it is registered in LLFunctorRegistration
+				LLNotificationsUtil::add("JoinGroup", args, payload);
 			}
 		}
 		break;
@@ -2540,10 +2513,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				query_string["groupowned"] = "true";
 			}	
 
-			std::ostringstream link;
-			link << "secondlife:///app/objectim/" << session_id << LLURI::mapToQueryString(query_string);
-
-			chat.mURL = link.str();
+			chat.mURL = LLSLURL("objectim", session_id, "").getSLURLString();
 			chat.mText = message;
 
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
@@ -2551,8 +2521,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 			if(SYSTEM_FROM != name && nearby_chat)
 			{
+				chat.mOwnerID = from_id;
 				LLSD args;
-				args["owner_id"] = from_id;
 				args["slurl"] = location;
 				args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
 				LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
@@ -2638,7 +2608,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 				LLSD args;
 				// *TODO: Translate -> [FIRST] [LAST] (maybe)
-				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
+				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
 				args["MESSAGE"] = message;
 				args["MATURITY_STR"] = region_access_str;
 				args["MATURITY_ICON"] = region_access_icn;
@@ -2710,7 +2680,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				args["NAME_SLURL"] = LLSLURL::buildCommand("agent", from_id, "about");
+				args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
 				if(message.empty())
 				{
 					//support for frienship offers from clients before July 2008
@@ -3082,7 +3052,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// object inspect for an object that is chatting with you
 		LLSD args;
 		args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
-		args["owner_id"] = owner_id;
+		chat.mOwnerID = owner_id;
 
 		LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
 	}
@@ -3474,7 +3444,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		{
 			// Chat the "back" SLURL. (DEV-4907)
 
-			LLSD substitution = LLSD().with("[T_SLURL]", gAgent.getTeleportSourceSLURL());
+			LLSLURL slurl;
+			gAgent.getTeleportSourceSLURL(slurl);
+			LLSD substitution = LLSD().with("[T_SLURL]", slurl.getSLURLString());
 			std::string completed_from = LLAgent::sTeleportProgressMessages["completed_from"];
 			LLStringUtil::format(completed_from, substitution);
 
@@ -5875,7 +5847,9 @@ void send_group_notice(const LLUUID& group_id,
 bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string text = response["message"].asString();
-	text.append("\r\n").append(LLAgentUI::buildSLURL());
+	LLSLURL slurl;
+	LLAgentUI::buildSLURL(slurl);
+	text.append("\r\n").append(slurl.getSLURLString());
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
 	if(0 == option)
@@ -6318,7 +6292,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	std::string owner_name =
-		LLSLURL::buildCommand("agent", estate_owner_id, "inspect");
+		LLSLURL("agent", estate_owner_id, "inspect").getSLURLString();
 	LLPanelEstateCovenant::updateEstateOwnerName(owner_name);
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
@@ -6498,3 +6472,4 @@ void LLOfferInfo::forceResponse(InventoryOfferResponse response)
 	params.functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2));
 	LLNotifications::instance().forceResponse(params, response);
 }
+

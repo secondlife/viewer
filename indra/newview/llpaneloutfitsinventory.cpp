@@ -50,6 +50,7 @@
 #include "llmodaldialog.h"
 #include "llnotificationsutil.h"
 #include "lloutfitslist.h"
+#include "llsaveoutfitcombobtn.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltabcontainer.h"
@@ -73,10 +74,12 @@ static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_o
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),
 	mCurrentOutfitPanel(NULL),
-	mParent(NULL)
+	mParent(NULL),
+	mInitialized(false)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
+	gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
 }
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
@@ -90,12 +93,35 @@ BOOL LLPanelOutfitsInventory::postBuild()
 	initTabPanels();
 	initListCommandsHandlers();
 
+	// Fetch your outfits folder so that the links are in memory.
+	// ( This is only necessary if we want to show a warning if a user deletes an item that has a
+	// a link in an outfit, see "ConfirmItemDeleteHasLinks". )
+	const LLUUID &outfits_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTFIT, false);
+	if (outfits_cat.notNull())
+	{
+		LLInventoryModelBackgroundFetch::instance().start(outfits_cat);
+	}
+	
+	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this, true));
+
 	return TRUE;
 }
 
 // virtual
 void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 {
+	if (!mInitialized)
+	{
+		LLSidepanelAppearance* panel_appearance = getAppearanceSP();
+		if (panel_appearance)
+		{
+			// *TODO: move these methods to LLPanelOutfitsInventory?
+			panel_appearance->fetchInventory();
+			panel_appearance->refreshCurrentOutfitName();
+		}
+		mInitialized = true;
+	}
+
 	// Make sure we know which tab is selected, update the filter,
 	// and update verbs.
 	onTabChange();
@@ -124,11 +150,6 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 
 void LLPanelOutfitsInventory::updateVerbs()
 {
-	if (mParent)
-	{
-		mParent->updateVerbs();
-	}
-
 	if (mListCommands)
 	{
 		updateListCommands();
@@ -190,6 +211,7 @@ void LLPanelOutfitsInventory::onWearButtonClick()
 	if (!isCOFPanelActive())
 	{
 		mMyOutfitsPanel->performAction("replaceoutfit");
+		setWearablesLoading(true);
 	}
 	else
 	{
@@ -243,8 +265,7 @@ bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD&
 		{
 			LLUUID outfit_folder = LLAppearanceMgr::getInstance()->makeNewOutfitLinks(outfit_name);
 
-			LLSidepanelAppearance* panel_appearance =
-				dynamic_cast<LLSidepanelAppearance *>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+			LLSidepanelAppearance* panel_appearance = getAppearanceSP();
 			if (panel_appearance)
 			{
 				panel_appearance->showOutfitsInventoryPanel();
@@ -355,7 +376,6 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 
 	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::onGearButtonClick, this));
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
-	mListCommands->childSetAction("make_outfit_btn", boost::bind(&LLPanelOutfitsInventory::onAddButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
 
 	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
@@ -365,11 +385,8 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 				   ,       _7 // EAcceptance* accept
 				   ));
 
-	mCommitCallbackRegistrar.add("panel_outfits_inventory_gear_default.Custom.Action",
-								 boost::bind(&LLPanelOutfitsInventory::onCustomAction, this, _2));
-	mEnableCallbackRegistrar.add("panel_outfits_inventory_gear_default.Enable",
-								 boost::bind(&LLPanelOutfitsInventory::isActionEnabled, this, _2));
-	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("panel_outfits_inventory_gear_default.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_outfit_gear.xml",
+		gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -381,17 +398,12 @@ void LLPanelOutfitsInventory::updateListCommands()
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
 	mListCommands->childSetVisible("wear_btn", wear_enabled);
-	mListCommands->childSetEnabled("make_outfit_btn", make_outfit_enabled);
+	mSaveComboBtn->setSaveBtnEnabled(make_outfit_enabled);
 }
 
 void LLPanelOutfitsInventory::onGearButtonClick()
 {
 	showActionMenu(mMenuGearDefault,"options_gear_btn");
-}
-
-void LLPanelOutfitsInventory::onAddButtonClick()
-{
-	onSave();
 }
 
 void LLPanelOutfitsInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
@@ -482,8 +494,7 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 			LLFolderView* root = getActivePanel()->getRootFolder();
 			if (root)
 			{
-				std::set<LLUUID> selection_set;
-				root->getSelectionList(selection_set);
+				std::set<LLUUID> selection_set = root->getSelectionList();
 				can_delete = (selection_set.size() > 0);
 				for (std::set<LLUUID>::iterator iter = selection_set.begin();
 					 iter != selection_set.end();
@@ -504,8 +515,7 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		LLFolderView* root = getActivePanel()->getRootFolder();
 		if (root)
 		{
-			std::set<LLUUID> selection_set;
-			root->getSelectionList(selection_set);
+			std::set<LLUUID> selection_set = root->getSelectionList();
 			can_delete = (selection_set.size() > 0);
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
@@ -557,8 +567,7 @@ bool LLPanelOutfitsInventory::hasItemsSelected()
 		LLFolderView* root = getActivePanel()->getRootFolder();
 		if (root)
 		{
-			std::set<LLUUID> selection_set;
-			root->getSelectionList(selection_set);
+			std::set<LLUUID> selection_set = root->getSelectionList();
 			has_items_selected = (selection_set.size() > 0);
 		}
 	}
@@ -641,4 +650,28 @@ BOOL LLPanelOutfitsInventory::isTabPanel(LLInventoryPanel *panel) const
 BOOL LLPanelOutfitsInventory::isCOFPanelActive() const
 {
 	return (childGetVisibleTab("appearance_tabs")->getName() == COF_TAB_NAME);
+}
+
+void LLPanelOutfitsInventory::setWearablesLoading(bool val)
+{
+	mListCommands->childSetEnabled("wear_btn", !val);
+
+	llassert(mParent);
+	if (mParent)
+	{
+		mParent->setWearablesLoading(val);
+	}
+}
+
+void LLPanelOutfitsInventory::onWearablesLoaded()
+{
+	setWearablesLoading(false);
+}
+
+LLSidepanelAppearance* LLPanelOutfitsInventory::getAppearanceSP()
+{
+	static LLSidepanelAppearance* panel_appearance =
+		dynamic_cast<LLSidepanelAppearance*>
+		(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	return panel_appearance;
 }

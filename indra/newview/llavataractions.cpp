@@ -54,7 +54,9 @@
 #include "llfloaterreg.h"
 #include "llfloaterpay.h"
 #include "llfloaterworldmap.h"
+#include "llgiveinventory.h"
 #include "llinventorymodel.h"	// for gInventory.findCategoryUUIDForType
+#include "llinventorypanel.h"
 #include "llimview.h"			// for gIMMgr
 #include "llmutelist.h"
 #include "llnotificationsutil.h"	// for LLNotificationsUtil
@@ -286,7 +288,7 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
 //static
 bool LLAvatarActions::canCall()
 {
-		return LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
+		return LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 }
 
 // static
@@ -429,13 +431,107 @@ void LLAvatarActions::share(const LLUUID& id)
 	}
 }
 
+namespace action_give_inventory
+{
+	typedef std::set<LLUUID> uuid_set_t;
+
+	/**
+	 * Checks My Inventory visibility.
+	 */
+	static bool is_give_inventory_acceptable()
+	{
+		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+		if (NULL == active_panel) return false;
+
+		// check selection in the panel
+		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
+		if (inventory_selected_uuids.empty()) return false; // nothing selected
+
+		bool acceptable = false;
+		uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
+		const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
+		for (; it != it_end; ++it)
+		{
+			LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
+			// any category can be offered.
+			if (inv_cat)
+			{
+				acceptable = true;
+				continue;
+			}
+
+			LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
+			// check if inventory item can be given
+			if (LLGiveInventory::isInventoryGiveAcceptable(inv_item))
+			{
+				acceptable = true;
+				continue;
+			}
+
+			// there are neither item nor category in inventory
+			acceptable = false;
+			break;
+		}
+		return acceptable;
+	}
+
+	/**
+	 * Performs "give inventory" operations for provided avatars.
+	 *
+	 * Sends one requests to give all selected inventory items for each passed avatar.
+	 * Avatars are represent by two vectors: names and UUIDs which must be sychronized with each other.
+	 *
+	 * @param avatar_names - avatar names request to be sent.
+	 * @param avatar_uuids - avatar names request to be sent.
+	 */
+	static void give_inventory(const std::vector<std::string>& avatar_names, const uuid_vec_t& avatar_uuids)
+	{
+		llassert(avatar_names.size() == avatar_uuids.size());
+
+		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+		if (NULL == active_panel) return;
+
+		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
+		if (inventory_selected_uuids.empty()) return;
+
+		S32 count = llmin(avatar_names.size(), avatar_uuids.size());
+
+		// iterate through avatars
+		for(S32 i = 0; i < count; ++i)
+		{
+			const std::string& avatar_name = avatar_names[i];
+			const LLUUID& avatar_uuid = avatar_uuids[i];
+
+			// Start up IM before give the item
+			const LLUUID session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, avatar_uuid);
+
+			uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
+			const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
+
+			// iterate through selected inventory objects
+			for (; it != it_end; ++it)
+			{
+				LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
+				if (inv_cat)
+				{
+					LLGiveInventory::doGiveInventoryCategory(avatar_uuid, inv_cat, session_id);
+					break;
+				}
+				LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
+				LLGiveInventory::doGiveInventoryItem(avatar_uuid, inv_item, session_id);
+			}
+		}
+	}
+}
+
 //static
 void LLAvatarActions::shareWithAvatars()
 {
-	LLFloaterAvatarPicker* picker =
-		LLFloaterAvatarPicker::show(NULL, FALSE, TRUE);
-	picker->setOkBtnEnableCb(boost::lambda::constant(false));
+	using namespace action_give_inventory;
 
+	LLFloaterAvatarPicker* picker =
+		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE);
+	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
 	LLNotificationsUtil::add("ShareNotification");
 }
 

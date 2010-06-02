@@ -36,7 +36,6 @@
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "message.h"
-#include "indra_constants.h"
 
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -62,9 +61,9 @@
 #include "llviewerwindow.h"
 #include "lltrans.h"
 #include "llappearancemgr.h"
-#include "llfloatercustomize.h"
 #include "llcommandhandler.h"
 #include "llviewermessage.h"
+#include "llsidepanelappearance.h"
 
 ///----------------------------------------------------------------------------
 /// Helper class to store special inventory item names 
@@ -96,6 +95,42 @@ public:
 		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
 		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
 		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
+
+		mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
+		mInventoryItemsDict["Male Gestures"]	= LLTrans::getString("Male Gestures");
+		mInventoryItemsDict["Female Gestures"]	= LLTrans::getString("Female Gestures");
+		mInventoryItemsDict["Other Gestures"]	= LLTrans::getString("Other Gestures");
+		mInventoryItemsDict["Speech Gestures"]	= LLTrans::getString("Speech Gestures");
+		mInventoryItemsDict["Common Gestures"]	= LLTrans::getString("Common Gestures");
+
+		//predefined gestures
+
+		//male
+		mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
+		mInventoryItemsDict["Male - Get lost"]			= LLTrans::getString("Male - Get lost");
+		mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
+		mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
+		mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
+		mInventoryItemsDict["Male - Hey"]				= LLTrans::getString("Male - Hey");
+		mInventoryItemsDict["Male - Laugh"]				= LLTrans::getString("Male - Laugh");
+		mInventoryItemsDict["Male - Repulsed"]			= LLTrans::getString("Male - Repulsed");
+		mInventoryItemsDict["Male - Shrug"]				= LLTrans::getString("Male - Shrug");
+		mInventoryItemsDict["Male - Stick tougue out"]	= LLTrans::getString("Male - Stick tougue out");
+		mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
+
+		//female
+		mInventoryItemsDict["FeMale - Excuse me"]		= LLTrans::getString("FeMale - Excuse me");
+		mInventoryItemsDict["FeMale - Get lost"]		= LLTrans::getString("FeMale - Get lost");
+		mInventoryItemsDict["FeMale - Blow kiss"]		= LLTrans::getString("FeMale - Blow kiss");
+		mInventoryItemsDict["FeMale - Boo"]				= LLTrans::getString("FeMale - Boo");
+		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
+		mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
+		mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
+		mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
+		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
+		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
+		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
+		
 	}
 };
 
@@ -299,10 +334,14 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 		// we have to check region. It can be null after region was destroyed. See EXT-245
 		if (region)
 		{
-			if( ALEXANDRIA_LINDEN_ID.getString() == mPermissions.getOwner().getString())
-				url = region->getCapability("FetchLib");
-			else	
-				url = region->getCapability("FetchInventory");
+		  if(gAgent.getID() != mPermissions.getOwner())
+		    {
+		      url = region->getCapability("FetchLib");
+		    }
+		  else
+		    {	
+		      url = region->getCapability("FetchInventory");
+		    }
 		}
 		else
 		{
@@ -587,7 +626,7 @@ bool LLViewerInventoryCategory::fetch()
 		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
-			LLInventoryModelBackgroundFetch::instance().start(mUUID);			
+			LLInventoryModelBackgroundFetch::instance().start(mUUID, false);			
 		}
 		else
 		{	//Deprecated, but if we don't have a capability, use the old system.
@@ -724,8 +763,8 @@ void LLViewerInventoryCategory::determineFolderType()
 				return;
 			if (item->isWearableType())
 			{
-				const EWearableType wearable_type = item->getWearableType();
-				const std::string& wearable_name = LLWearableDictionary::getTypeName(wearable_type);
+				const LLWearableType::EType wearable_type = item->getWearableType();
+				const std::string& wearable_name = LLWearableType::getTypeName(wearable_type);
 				U64 valid_folder_types = LLViewerFolderType::lookupValidFolderTypes(wearable_name);
 				folder_valid |= valid_folder_types;
 				folder_invalid |= ~valid_folder_types;
@@ -841,12 +880,14 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 {
 	LLAppearanceMgr::instance().updateAppearanceFromCOF();
-	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
+	// TODO: camera mode may not be changed if a debug setting is tweaked
+	if( gAgentCamera.cameraCustomizeAvatar() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
-		if (gFloaterCustomize)
+		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+		if (panel)
 		{
-			gFloaterCustomize->switchToDefaultSubpart();
+			panel->showDefaultSubpart();
 		}
 	}
 }
@@ -909,7 +950,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   const LLUUID& parent, const LLTransactionID& transaction_id,
 						   const std::string& name,
 						   const std::string& desc, LLAssetType::EType asset_type,
-						   LLInventoryType::EType inv_type, EWearableType wtype,
+						   LLInventoryType::EType inv_type, LLWearableType::EType wtype,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb)
 {
@@ -1196,10 +1237,10 @@ void menu_create_inventory_item(LLFolderView* root, LLFolderBridge *bridge, cons
 	else
 	{
 		// Use for all clothing and body parts.  Adding new wearable types requires updating LLWearableDictionary.
-		EWearableType wearable_type = LLWearableDictionary::typeNameToType(type_name);
-		if (wearable_type >= WT_SHAPE && wearable_type < WT_COUNT)
+		LLWearableType::EType wearable_type = LLWearableType::typeNameToType(type_name);
+		if (wearable_type >= LLWearableType::WT_SHAPE && wearable_type < LLWearableType::WT_COUNT)
 		{
-			LLAssetType::EType asset_type = LLWearableDictionary::getAssetType(wearable_type);
+			LLAssetType::EType asset_type = LLWearableType::getAssetType(wearable_type);
 			LLFolderType::EType folder_type = LLFolderType::assetTypeToFolderType(asset_type);
 			const LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(folder_type);
 			LLFolderBridge::createWearable(parent_id, wearable_type);
@@ -1537,14 +1578,13 @@ bool LLViewerInventoryItem::isWearableType() const
 	return (getInventoryType() == LLInventoryType::IT_WEARABLE);
 }
 
-EWearableType LLViewerInventoryItem::getWearableType() const
+LLWearableType::EType LLViewerInventoryItem::getWearableType() const
 {
 	if (!isWearableType())
 	{
-		llwarns << "item is not a wearable" << llendl;
-		return WT_INVALID;
+		return LLWearableType::WT_INVALID;
 	}
-	return EWearableType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
+	return LLWearableType::EType(getFlags() & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
 }
 
 
@@ -1648,6 +1688,20 @@ bool LLViewerInventoryItem::checkPermissionsSet(PermissionMask mask) const
 		curr_mask = perm.getMaskEveryone();
 	}
 	return ((curr_mask & mask) == mask);
+}
+
+PermissionMask LLViewerInventoryItem::getPermissionMask() const
+{
+	const LLPermissions& permissions = getPermissions();
+
+	BOOL copy = permissions.allowCopyBy(gAgent.getID());
+	BOOL mod = permissions.allowModifyBy(gAgent.getID());
+	BOOL xfer = permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID());
+	PermissionMask perm_mask = 0;
+	if (copy) perm_mask |= PERM_COPY;
+	if (mod)  perm_mask |= PERM_MODIFY;
+	if (xfer) perm_mask |= PERM_TRANSFER;
+	return perm_mask;
 }
 
 //----------

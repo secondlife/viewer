@@ -36,15 +36,45 @@
 // llcommon
 #include "llcommonutils.h"
 
-// llcommon
-#include "llcommonutils.h"
-
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
+#include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
+#include "lllistcontextmenu.h"
+#include "lltransutil.h"
+#include "llviewermenu.h"
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llwearableitemslist.h"
+
+//////////////////////////////////////////////////////////////////////////
+
+class OutfitContextMenu : public LLListContextMenu
+{
+protected:
+	/* virtual */ LLContextMenu* createMenu()
+	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+		LLUUID selected_id = mUUIDs.front();
+
+		registrar.add("Outfit.WearReplace",
+			boost::bind(&LLAppearanceMgr::replaceCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+		registrar.add("Outfit.WearAdd",
+			boost::bind(&LLAppearanceMgr::addCategoryToCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
+		registrar.add("Outfit.TakeOff",
+				boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
+		// *TODO: implement this
+		// registrar.add("Outfit.Rename", boost::bind());
+		// registrar.add("Outfit.Delete", boost::bind());
+
+		return createFromFile("menu_outfit_tab.xml");
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 static LLRegisterPanelClassWrapper<LLOutfitsList> t_outfits_list("outfits_list");
 
@@ -52,16 +82,19 @@ LLOutfitsList::LLOutfitsList()
 	:	LLPanel()
 	,	mAccordion(NULL)
 	,	mListCommands(NULL)
-	,	mSelectedList(NULL)
 {
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
 	gInventory.addObserver(mCategoriesObserver);
 
 	gInventory.addObserver(this);
+
+	mOutfitMenu = new OutfitContextMenu();
 }
 
 LLOutfitsList::~LLOutfitsList()
 {
+	delete mOutfitMenu;
+
 	if (gInventory.containsObserver(mCategoriesObserver))
 	{
 		gInventory.removeObserver(mCategoriesObserver);
@@ -143,6 +176,8 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		static LLXMLNodePtr accordionXmlNode = getAccordionTabXMLNode();
 		LLAccordionCtrlTab* tab = LLUICtrlFactory::defaultBuilder<LLAccordionCtrlTab>(accordionXmlNode, NULL, NULL);
+		tab->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onAccordionTabRightClick, this,
+			_1, _2, _3, cat_id));
 
 		tab->setName(name);
 		tab->setTitle(name);
@@ -169,12 +204,32 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		// Setting list commit callback to monitor currently selected wearable item.
 		list->setCommitCallback(boost::bind(&LLOutfitsList::onSelectionChange, this, _1));
 
+		// Setting list refresh callback to apply filter on list change.
+		list->setRefreshCompleteCallback(boost::bind(&LLOutfitsList::onFilteredWearableItemsListRefresh, this, _1));
+
+		list->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onWearableItemsListRightClick, this, _1, _2, _3));
+
 		// Fetch the new outfit contents.
 		cat->fetch();
 
 		// Refresh the list of outfit items after fetch().
 		// Further list updates will be triggered by the category observer.
 		list->updateList(cat_id);
+
+		// If filter is currently applied we store the initial tab state and
+		// open it to show matched items if any.
+		if (!mFilterSubString.empty())
+		{
+			tab->notifyChildren(LLSD().with("action","store_state"));
+			tab->setDisplayChildren(true);
+
+			// Setting mForceRefresh flag will make the list refresh its contents
+			// even if it is not currently visible. This is required to apply the
+			// filter to the newly added list.
+			list->setForceRefresh(true);
+
+			list->setFilterSubString(mFilterSubString);
+		}
 	}
 
 	// Handle removed tabs.
@@ -183,23 +238,27 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		outfits_map_t::iterator outfits_iter = mOutfitsMap.find((*iter));
 		if (outfits_iter != mOutfitsMap.end())
 		{
-			// An outfit is removed from the list. Do the following:
-			// 1. Remove outfit accordion tab from accordion.
-			mAccordion->removeCollapsibleCtrl(outfits_iter->second);
-
 			const LLUUID& outfit_id = outfits_iter->first;
+			LLAccordionCtrlTab* tab = outfits_iter->second;
 
-			// 2. Remove outfit category from observer to stop monitoring its changes.
+			// An outfit is removed from the list. Do the following:
+			// 1. Remove outfit category from observer to stop monitoring its changes.
 			mCategoriesObserver->removeCategory(outfit_id);
 
-			// 3. Reset selection if selected outfit is being removed.
-			if (mSelectedOutfitUUID == outfit_id)
+			// 2. Remove selected lists map entry.
+			mSelectedListsMap.erase(outfit_id);
+
+			// 3. Reset currently selected outfit id if it is being removed.
+			if (outfit_id == mSelectedOutfitUUID)
 			{
-				changeOutfitSelection(NULL, LLUUID());
+				mSelectedOutfitUUID = LLUUID();
 			}
 
 			// 4. Remove category UUID to accordion tab mapping.
 			mOutfitsMap.erase(outfits_iter);
+
+			// 5. Remove outfit tab from accordion.
+			mAccordion->removeCollapsibleCtrl(tab);
 		}
 	}
 
@@ -229,6 +288,8 @@ void LLOutfitsList::onSelectionChange(LLUICtrl* ctrl)
 
 void LLOutfitsList::performAction(std::string action)
 {
+	if (mSelectedOutfitUUID.isNull()) return;
+
 	LLViewerInventoryCategory* cat = gInventory.getCategory(mSelectedOutfitUUID);
 	if (!cat) return;
 
@@ -244,35 +305,9 @@ void LLOutfitsList::performAction(std::string action)
 
 void LLOutfitsList::setFilterSubString(const std::string& string)
 {
+	applyFilter(string);
+
 	mFilterSubString = string;
-
-	for (outfits_map_t::iterator
-			 iter = mOutfitsMap.begin(),
-			 iter_end = mOutfitsMap.end();
-		 iter != iter_end; ++iter)
-	{
-		LLAccordionCtrlTab* tab = iter->second;
-		if (tab)
-		{
-			LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*> (tab->getAccordionView());
-			if (list)
-			{
-				list->setFilterSubString(mFilterSubString);
-			}
-
-			if(!mFilterSubString.empty())
-			{
-				//store accordion tab state when filter is not empty
-				tab->notifyChildren(LLSD().with("action","store_state"));
-				tab->setDisplayChildren(true);
-			}
-			else
-			{
-				//restore accordion state after all those accodrion tab manipulations
-				tab->notifyChildren(LLSD().with("action","restore_state"));
-			}
-		}
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -339,15 +374,181 @@ void LLOutfitsList::updateOutfitTab(const LLUUID& category_id)
 
 void LLOutfitsList::changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
 {
-	// Reset selection in previously selected tab
-	// if a new one is selected.
-	if (list && mSelectedList && mSelectedList != list)
+	MASK mask = gKeyboard->currentMask(TRUE);
+
+	// Reset selection in all previously selected tabs except for the current
+	// if new selection is started.
+	if (list && !(mask & MASK_CONTROL))
 	{
-		mSelectedList->resetSelection();
+		for (wearables_lists_map_t::iterator iter = mSelectedListsMap.begin();
+				iter != mSelectedListsMap.end();
+				++iter)
+		{
+			LLWearableItemsList* selected_list = (*iter).second;
+			if (selected_list != list)
+			{
+				selected_list->resetSelection();
+			}
+		}
+
+		// Clear current selection.
+		mSelectedListsMap.clear();
 	}
 
-	mSelectedList = list;
+	mSelectedListsMap.insert(wearables_lists_map_value_t(category_id, list));
 	mSelectedOutfitUUID = category_id;
 }
 
+void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
+{
+	if (!ctrl || mFilterSubString.empty())
+		return;
+
+	for (outfits_map_t::iterator
+			 iter = mOutfitsMap.begin(),
+			 iter_end = mOutfitsMap.end();
+		 iter != iter_end; ++iter)
+	{
+		LLAccordionCtrlTab* tab = iter->second;
+		if (!tab) continue;
+
+		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
+		if (list != ctrl) continue;
+
+		std::string title = tab->getTitle();
+		LLStringUtil::toUpper(title);
+
+		std::string cur_filter = mFilterSubString;
+		LLStringUtil::toUpper(cur_filter);
+
+		if (std::string::npos == title.find(cur_filter))
+		{
+			// hide tab if its title doesn't pass filter
+			// and it has no visible items
+			tab->setVisible(list->size() != 0);
+		}
+		else
+		{
+			tab->setTitle(tab->getTitle(), cur_filter);
+		}
+	}
+}
+
+void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
+{
+	for (outfits_map_t::iterator
+			 iter = mOutfitsMap.begin(),
+			 iter_end = mOutfitsMap.end();
+		 iter != iter_end; ++iter)
+	{
+		LLAccordionCtrlTab* tab = iter->second;
+		if (!tab) continue;
+
+		bool more_restrictive = mFilterSubString.size() < new_filter_substring.size() && !new_filter_substring.substr(0, mFilterSubString.size()).compare(mFilterSubString);
+
+		// Restore tab visibility in case of less restrictive filter
+		// to compare it with updated string if it was previously hidden.
+		if (!more_restrictive)
+		{
+			tab->setVisible(TRUE);
+		}
+
+		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
+		if (list)
+		{
+			list->setFilterSubString(new_filter_substring);
+		}
+
+		if(mFilterSubString.empty() && !new_filter_substring.empty())
+		{
+			//store accordion tab state when filter is not empty
+			tab->notifyChildren(LLSD().with("action","store_state"));
+		}
+
+		if (!new_filter_substring.empty())
+		{
+			std::string title = tab->getTitle();
+			LLStringUtil::toUpper(title);
+
+			std::string cur_filter = new_filter_substring;
+			LLStringUtil::toUpper(cur_filter);
+
+			if (std::string::npos == title.find(cur_filter))
+			{
+				// hide tab if its title doesn't pass filter
+				// and it has no visible items
+				tab->setVisible(list->size() != 0);
+			}
+			else
+			{
+				tab->setTitle(tab->getTitle(), cur_filter);
+			}
+
+			if (tab->getVisible())
+			{
+				// Open tab if it has passed the filter.
+				tab->setDisplayChildren(true);
+			}
+			else
+			{
+				// Set force refresh flag to refresh not visible list
+				// when some changes occur in it.
+				list->setForceRefresh(true);
+			}
+		}
+		else
+		{
+			// restore tab title when filter is empty
+			tab->setTitle(tab->getTitle());
+
+			//restore accordion state after all those accodrion tab manipulations
+			tab->notifyChildren(LLSD().with("action","restore_state"));
+		}
+	}
+}
+
+void LLOutfitsList::onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id)
+{
+	LLAccordionCtrlTab* tab = dynamic_cast<LLAccordionCtrlTab*>(ctrl);
+	if(mOutfitMenu && tab && tab->getHeaderVisible() && cat_id.notNull())
+	{
+		S32 header_bottom = tab->getLocalRect().getHeight() - tab->getHeaderHeight();
+		if(y >= header_bottom)
+		{
+			// Focus tab header to trigger tab selection change.
+			LLUICtrl* header = tab->findChild<LLUICtrl>("dd_header");
+			if (header)
+			{
+				header->setFocus(TRUE);
+			}
+
+			uuid_vec_t selected_uuids;
+			selected_uuids.push_back(cat_id);
+			mOutfitMenu->show(ctrl, selected_uuids, x, y);
+		}
+	}
+}
+
+void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
+{
+	LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(ctrl);
+	if (!list) return;
+
+	uuid_vec_t selected_uuids;
+
+	// Collect seleted items from all selected lists.
+	for (wearables_lists_map_t::iterator iter = mSelectedListsMap.begin();
+			iter != mSelectedListsMap.end();
+			++iter)
+	{
+		uuid_vec_t uuids;
+		(*iter).second->getSelectedUUIDs(uuids);
+
+		S32 prev_size = selected_uuids.size();
+		selected_uuids.resize(prev_size + uuids.size());
+		std::copy(uuids.begin(), uuids.end(), selected_uuids.begin() + prev_size);
+	}
+
+	LLWearableItemsList::ContextMenu::instance().show(list, selected_uuids, x, y);
+}
 // EOF

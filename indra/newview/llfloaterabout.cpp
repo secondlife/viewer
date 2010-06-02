@@ -266,8 +266,18 @@ LLSD LLFloaterAbout::getInfo()
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
-	info["VIVOX_VERSION"] = gVoiceClient ? gVoiceClient->getAPIVersion() : LLTrans::getString("NotConnected");
-
+	if(LLVoiceClient::getInstance()->voiceEnabled())
+	{
+		LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+		std::ostringstream version_string;
+		version_string << version.serverType << " " << version.serverVersion << std::endl;
+		info["VOICE_VERSION"] = version_string.str();
+	}
+	else 
+	{
+		info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
+	}
+	
 	// TODO: Implement media plugin version query
 	info["QT_WEBKIT_VERSION"] = "4.6 (version number hard-coded)";
 

@@ -7,7 +7,7 @@
 		</menu_item_call>
 		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
 		<menu_item_call label="プロフィール" name="Profile"/>
-		<menu_item_call label="容姿" name="Appearance"/>
+		<menu_item_call label="アウトフィットを変更" name="ChangeOutfit"/>
 		<menu_item_check label="持ち物" name="Inventory"/>
 		<menu_item_check label="持ち物" name="ShowSidetrayInventory"/>
 		<menu_item_check label="ジェスチャー" name="Gestures"/>
@@ -163,6 +163,7 @@
 			<menu_item_check label="フレキシブルオブジェクト" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="マルチスレッド処理" name="Run Multiple Threads"/>
+		<menu_item_check label="Use Plugin Read Thread" name="Use Plugin Read Thread"/>
 		<menu_item_call label="グループキャッシュのクリア" name="ClearGroupCache"/>
 		<menu_item_check label="マウスの平滑化" name="Mouse Smoothing"/>
 		<menu label="ショートカット" name="Shortcuts">
@@ -189,7 +190,6 @@
 			<menu_item_call label="ズームイン" name="Zoom In"/>
 			<menu_item_call label="ズーム（デフォルト）" name="Zoom Default"/>
 			<menu_item_call label="ズームアウト" name="Zoom Out"/>
-			<menu_item_call label="全画面表示" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="デバッグ設定を表示する" name="Debug Settings"/>
 		<menu_item_check label="開発メニューを表示する" name="Debug Mode"/>

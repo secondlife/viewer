@@ -43,6 +43,7 @@
 #include "llhttpclient.h"
 #include "llsdutil_math.h"
 #include "llstring.h"
+#include "lltextutil.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 
@@ -65,7 +66,6 @@
 #include "llnearbychat.h"
 #include "llspeakers.h" //for LLIMSpeakerMgr
 #include "lltextbox.h"
-#include "lltextutil.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 
@@ -342,13 +342,13 @@ LLIMModel::LLIMSession::~LLIMSession()
 	mSpeakers = NULL;
 
 	// End the text IM session if necessary
-	if(gVoiceClient && mOtherParticipantID.notNull())
+	if(LLVoiceClient::getInstance() && mOtherParticipantID.notNull())
 	{
 		switch(mType)
 		{
 		case IM_NOTHING_SPECIAL:
 		case IM_SESSION_P2P_INVITE:
-			gVoiceClient->endUserIMSession(mOtherParticipantID);
+			LLVoiceClient::getInstance()->endUserIMSession(mOtherParticipantID);
 			break;
 
 		default:
@@ -923,7 +923,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 	if((offline == IM_OFFLINE) && (LLVoiceClient::getInstance()->isOnlineSIP(other_participant_id)))
 	{
 		// User is online through the OOW connector, but not with a regular viewer.  Try to send the message via SLVoice.
-		sent = gVoiceClient->sendTextMessage(other_participant_id, utf8_text);
+		sent = LLVoiceClient::getInstance()->sendTextMessage(other_participant_id, utf8_text);
 	}
 	
 	if(!sent)
@@ -1720,7 +1720,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 
 		// skipping "You will now be reconnected to nearby" in notification when call is ended by disabling voice,
 		// so no reconnection to nearby chat happens (EXT-4397)
-		bool voice_works = LLVoiceClient::voiceEnabled() && gVoiceClient->voiceWorking();
+		bool voice_works = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 		std::string reconnect_nearby = voice_works ? LLTrans::getString("reconnect_nearby") : std::string();
 		childSetTextArg("nearby", "[RECONNECT_NEARBY]", reconnect_nearby);
 
@@ -1847,8 +1847,8 @@ LLCallDialog(payload)
 
 void LLIncomingCallDialog::onLifetimeExpired()
 {
-	// check whether a call is valid or not
-	if (LLVoiceClient::getInstance()->findSession(mPayload["caller_id"].asUUID()))
+	std::string session_handle = mPayload["session_handle"].asString();
+	if (LLVoiceClient::getInstance()->isValidChannel(session_handle))
 	{
 		// restart notification's timer if call is still valid
 		mLifetimeTimer.start();
@@ -1941,15 +1941,24 @@ void LLIncomingCallDialog::onOpen(const LLSD& key)
 {
 	LLCallDialog::onOpen(key);
 
+	LLStringUtil::format_map_t args;
+	LLGroupData data;
+	// if it's a group call, retrieve group name to use it in question
+	if (gAgent.getGroupData(key["session_id"].asUUID(), data))
+	{
+		args["[GROUP]"] = data.mName;
+	}
 	// tell the user which voice channel they would be leaving
 	LLVoiceChannel *voice = LLVoiceChannel::getCurrentVoiceChannel();
 	if (voice && !voice->getSessionName().empty())
 	{
-		childSetTextArg("question", "[CURRENT_CHAT]", voice->getSessionName());
+		args["[CURRENT_CHAT]"] = voice->getSessionName();
+		childSetText("question", getString(key["question_type"].asString(), args));
 	}
 	else
 	{
-		childSetTextArg("question", "[CURRENT_CHAT]", getString("localchat"));
+		args["[CURRENT_CHAT]"] = getString("localchat");
+		childSetText("question", getString(key["question_type"].asString(), args));
 	}
 }
 
@@ -2083,10 +2092,10 @@ void LLIncomingCallDialog::processCallResponse(S32 response)
 	{
 		if (type == IM_SESSION_P2P_INVITE)
 		{
-			if(gVoiceClient)
+			if(LLVoiceClient::getInstance())
 			{
 				std::string s = mPayload["session_handle"].asString();
-				gVoiceClient->declineInvite(s);
+				LLVoiceClient::getInstance()->declineInvite(s);
 			}
 		}
 		else
@@ -2174,11 +2183,8 @@ bool inviteUserResponse(const LLSD& notification, const LLSD& response)
 	{
 		if (type == IM_SESSION_P2P_INVITE)
 		{
-			if(gVoiceClient)
-			{
-				std::string s = payload["session_handle"].asString();
-				gVoiceClient->declineInvite(s);
-			}
+		  std::string s = payload["session_handle"].asString();
+		  LLVoiceClient::getInstance()->declineInvite(s);
 		}
 		else
 		{
@@ -2483,6 +2489,8 @@ void LLIMMgr::inviteToSession(
 	}
 
 	std::string notify_box_type;
+	// voice invite question is different from default only for group call (EXT-7118)
+	std::string question_type = "VoiceInviteQuestionDefault";
 
 	BOOL ad_hoc_invite = FALSE;
 	if(type == IM_SESSION_P2P_INVITE)
@@ -2494,6 +2502,7 @@ void LLIMMgr::inviteToSession(
 	{
 		//only really old school groups have voice invitations
 		notify_box_type = "VoiceInviteGroup";
+		question_type = "VoiceInviteQuestionGroup";
 	}
 	else if ( inv_type == INVITATION_TYPE_VOICE )
 	{
@@ -2518,6 +2527,7 @@ void LLIMMgr::inviteToSession(
 	payload["session_handle"] = session_handle;
 	payload["session_uri"] = session_uri;
 	payload["notify_box_type"] = notify_box_type;
+	payload["question_type"] = question_type;
 	
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(session_id);
 	if (channelp && channelp->callStarted())
@@ -3090,7 +3100,7 @@ public:
 				return;
 			}
 			
-			if(!LLVoiceClient::voiceEnabled() || !LLVoiceClient::getInstance()->voiceWorking())
+			if(!LLVoiceClient::getInstance()->voiceEnabled() || !LLVoiceClient::getInstance()->isVoiceWorking())
 			{
 				// Don't display voice invites unless the user has voice enabled.
 				return;

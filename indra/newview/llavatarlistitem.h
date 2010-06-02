@@ -1,6 +1,6 @@
 /** 
  * @file llavatarlistitem.h
- * @avatar list item header file
+ * @brief avatar list item header file
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
@@ -66,12 +66,6 @@ public:
 		IS_ONLINE,
 		IS_OFFLINE,
 	} EItemState;
-
-	class ContextMenu
-	{
-	public:
-		virtual void show(LLView* spawning_view, const uuid_vec_t& selected_uuids, S32 x, S32 y) = 0;
-	};
 
 	/**
 	 * Creates an instance of LLAvatarListItem.
