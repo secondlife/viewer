@@ -9,6 +9,7 @@
  name="cof_wearables"
  width="311">
     <accordion
+     fit_parent="true"
      follows="all"
      height="200"
      layout="topleft"

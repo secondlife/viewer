@@ -320,6 +320,7 @@
              value="unknown"
              width="268" />
             <accordion
+             fit_parent="true"
              follows="all"
              height="223"
              layout="topleft"
