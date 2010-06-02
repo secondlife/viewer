@@ -1,4 +1,4 @@
-va<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Dźwięki" name="Preference Media panel">
 	<slider label="Główny" name="System Volume"/>
 	<check_box label="Wycisz podczas minimalizacji" name="mute_when_minimized"/>
