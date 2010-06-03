@@ -467,14 +467,15 @@ namespace action_give_inventory
 		return acceptable;
 	}
 
-	static void build_residents_string(const std::vector<std::string>& avatar_names, std::string& residents_string)
+	static void build_residents_string(const std::vector<LLAvatarName> avatar_names, std::string& residents_string)
 	{
 		llassert(avatar_names.size() > 0);
 
 		const std::string& separator = LLTrans::getString("words_separator");
-		for (std::vector<std::string>::const_iterator it = avatar_names.begin(); ; )
+		for (std::vector<LLAvatarName>::const_iterator it = avatar_names.begin(); ; )
 		{
-			residents_string.append(*it);
+			LLAvatarName av_name = *it;
+			residents_string.append(av_name.mDisplayName);
 			if	(++it == avatar_names.end())
 			{
 				break;
@@ -511,7 +512,7 @@ namespace action_give_inventory
 
 	struct LLShareInfo : public LLSingleton<LLShareInfo>
 	{
-		std::vector<std::string> mAvatarNames;
+		std::vector<LLAvatarName> mAvatarNames;
 		uuid_vec_t mAvatarUuids;
 	};
 
@@ -542,7 +543,7 @@ namespace action_give_inventory
 		// iterate through avatars
 		for(S32 i = 0; i < count; ++i)
 		{
-			const std::string& avatar_name = LLShareInfo::instance().mAvatarNames[i];
+			const std::string& avatar_name = LLShareInfo::instance().mAvatarNames[i].getLegacyName();
 			const LLUUID& avatar_uuid = LLShareInfo::instance().mAvatarUuids[i];
 
 			// Start up IM before give the item
@@ -608,16 +609,15 @@ namespace action_give_inventory
 	 * @param avatar_names - avatar names request to be sent.
 	 * @param avatar_uuids - avatar names request to be sent.
 	 */
-	static void give_inventory(const std::vector<std::string>& avatar_names, const uuid_vec_t& avatar_uuids)
+	static void give_inventory(const uuid_vec_t& avatar_uuids, const std::vector<LLAvatarName> avatar_names)
 	{
 		llassert(avatar_names.size() == avatar_uuids.size());
-
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 		if (NULL == active_panel)
 		{
 			return;
-			}
+		}
 
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
 		if (inventory_selected_uuids.empty())
