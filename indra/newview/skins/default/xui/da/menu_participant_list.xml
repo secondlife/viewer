@@ -14,8 +14,8 @@
 	<context_menu label="Moderator muligheder &gt;" name="Moderator Options">
 		<menu_item_check label="Tillad tekst chat" name="AllowTextChat"/>
 		<menu_item_call label="Sluk for denne deltager" name="ModerateVoiceMuteSelected"/>
-		<menu_item_call label="Sluk for alle andre" name="ModerateVoiceMuteOthers"/>
 		<menu_item_call label="Fjern slukning for denne deltager" name="ModerateVoiceUnMuteSelected"/>
-		<menu_item_call label="Fjern slukning for alle andre" name="ModerateVoiceUnMuteOthers"/>
+		<menu_item_call label="Sluk lyd for alle" name="ModerateVoiceMute"/>
+		<menu_item_call label="Tænd lyd for alle" name="ModerateVoiceUnmute"/>
 	</context_menu>
 </context_menu>

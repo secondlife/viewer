@@ -6,17 +6,47 @@
 	<string name="walk_back_tooltip">
 		Gå baglæns (Tryk på Ned piletast eller S)
 	</string>
+	<string name="walk_left_tooltip">
+		Gå til venstre (tryk Shift + venstre pil eller A)
+	</string>
+	<string name="walk_right_tooltip">
+		Gå til højre (tryk Shift + højre pil eller D)
+	</string>
 	<string name="run_forward_tooltip">
 		Løb forlæns (Tryk på Op piletast eller W)
 	</string>
 	<string name="run_back_tooltip">
 		Løb baglæns (Tryk på Ned piletast eller S)
 	</string>
+	<string name="run_left_tooltip">
+		Løb til venstre (tryk Shift + venstre pil eller A)
+	</string>
+	<string name="run_right_tooltip">
+		Løb til højre (tryk Shift + højre pil eller D)
+	</string>
 	<string name="fly_forward_tooltip">
 		Flyv frem (Tryk på Op piletast eller W)
 	</string>
 	<string name="fly_back_tooltip">
 		Flyv baglæns (Tryk på Ned piletast eller S)
+	</string>
+	<string name="fly_left_tooltip">
+		Flyv til venstre (tryk Shift + venstre pil eller A)
+	</string>
+	<string name="fly_right_tooltip">
+		Flyv til højre (tryk Shift + højre pil eller D)
+	</string>
+	<string name="fly_up_tooltip">
+		Flyv op (tryk E)
+	</string>
+	<string name="fly_down_tooltip">
+		Flyv ned (tryk C)
+	</string>
+	<string name="jump_tooltip">
+		Hop (tryk E)
+	</string>
+	<string name="crouch_tooltip">
+		Kryb (tryk C)
 	</string>
 	<string name="walk_title">
 		Gå
@@ -28,10 +58,12 @@
 		Flyv
 	</string>
 	<panel name="panel_actions">
+		<button label="" label_selected="" name="move up btn" tool_tip="Flyv op (tryk E)"/>
 		<button label="" label_selected="" name="turn left btn" tool_tip="xxx     Drej til venstre (Tryk på venstre piletast eller A)"/>
+		<joystick_slide name="move left btn" tool_tip="Gå til venstre (tryk Shift + venstre pil eller A)"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Flyv ned (tryk C)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Drej til højre (Tryk på højre piletast eller D)"/>
-		<button label="" label_selected="" name="move up btn" tool_tip="Flyv op, tryk E"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Flyv ned, tryk C"/>
+		<joystick_slide name="move right btn" tool_tip="Gå til højre (tryk Shift + højre pil eller D)"/>
 		<joystick_turn name="forward btn" tool_tip="Gå frem (Tryk på Op piletast eller W)"/>
 		<joystick_turn name="backward btn" tool_tip="Gå tilbage (Tryk på Ned piletast eller S)"/>
 	</panel>
