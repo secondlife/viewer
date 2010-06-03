@@ -1562,7 +1562,7 @@ std::string LLTextBase::getText() const
 	return getViewModel()->getValue().asString();
 }
 
-void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
+void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
 	LLStyle::Params style_params(input_params);
 	style_params.fillFrom(getDefaultStyleParams());
@@ -1598,8 +1598,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 					part = (S32)LLTextParser::MIDDLE;
 				}
 				std::string subtext=text.substr(0,start);
-				appendAndHighlightText(subtext, prepend_newline, part, style_params); 
-				prepend_newline = false;
+				appendAndHighlightTextImpl(subtext, part, style_params); 
 			}
 
 			// output an optional icon before the Url
@@ -1613,19 +1612,18 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 					// Text will be replaced during rendering with the icon,
 					// but string cannot be empty or the segment won't be
 					// added (or drawn).
-					appendAndHighlightText(" ", prepend_newline, part, icon);
-					prepend_newline = false;
+					appendImageSegment(part, icon);
 				}
 			}
 
 			// output the styled Url (unless we've been asked to suppress hyperlinking)
 			if (match.isLinkDisabled())
 			{
-				appendAndHighlightText(match.getLabel(), prepend_newline, part, style_params);
+				appendAndHighlightTextImpl(match.getLabel(), part, style_params);
 			}
 			else
 			{
-				appendAndHighlightText(match.getLabel(), prepend_newline, part, link_params);
+				appendAndHighlightTextImpl(match.getLabel(), part, link_params);
 
 				// set the tooltip for the Url label
 				if (! match.getTooltip().empty())
@@ -1638,8 +1636,6 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 						}
 				}
 			}
-			prepend_newline = false;
-
 			// move on to the rest of the text after the Url
 			if (end < (S32)text.length()) 
 			{
@@ -1652,13 +1648,41 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 				break;
 			}
 		}
-		if (part != (S32)LLTextParser::WHOLE) part=(S32)LLTextParser::END;
-		if (end < (S32)text.length()) appendAndHighlightText(text, prepend_newline, part, style_params);		
+		if (part != (S32)LLTextParser::WHOLE) 
+			part=(S32)LLTextParser::END;
+		if (end < (S32)text.length()) 
+			appendAndHighlightTextImpl(text, part, style_params);		
 	}
 	else
 	{
-		appendAndHighlightText(new_text, prepend_newline, part, style_params);
+		appendAndHighlightTextImpl(new_text, part, style_params);
 	}
+}
+
+void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
+{
+	if (new_text.empty()) 
+		return;
+
+	if(prepend_newline)
+		appendLineBreakSegment(input_params);
+	std::string::size_type start = 0;
+	std::string::size_type pos = new_text.find("\n",start);
+	
+	while(pos!=-1)
+	{
+		if(pos!=start)
+		{
+			std::string str = std::string(new_text,start,pos-start);
+			appendTextImpl(str,input_params);
+		}
+		appendLineBreakSegment(input_params);
+		start = pos+1;
+		pos = new_text.find("\n",start);
+	}
+
+	std::string str = std::string(new_text,start,new_text.length()-start);
+	appendTextImpl(str,input_params);
 }
 
 void LLTextBase::needsReflow(S32 index)
@@ -1667,10 +1691,28 @@ void LLTextBase::needsReflow(S32 index)
 	mReflowIndex = llmin(mReflowIndex, index);
 }
 
-void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepend_newline, S32 highlight_part, const LLStyle::Params& style_params)
+void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 {
-	if (new_text.empty()) return;                                                                                 
+	segment_vec_t segments;
+	LLStyleConstSP sp(new LLStyle(style_params));
+	segments.push_back(new LLLineBreakTextSegment(sp, getLength()));
 
+	insertStringNoUndo(getLength(), utf8str_to_wstring("\n"), &segments);
+}
+
+void LLTextBase::appendImageSegment(S32 highlight_part, const LLStyle::Params& style_params)
+{
+	segment_vec_t segments;
+	LLStyleConstSP sp(new LLStyle(style_params));
+	segments.push_back(new LLImageTextSegment(sp, getLength(),*this));
+
+	insertStringNoUndo(getLength(), utf8str_to_wstring(" "), &segments);
+}
+
+
+
+void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params)
+{
 	// Save old state
 	S32 selection_start = mSelectionStart;
 	S32 selection_end = mSelectionEnd;
@@ -1698,14 +1740,8 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 			highlight_params.color = lcolor;
 
 			LLWString wide_text;
-			if (prepend_newline && (i == 0 || pieces.size() <= 1 )) 
-			{
-				wide_text = utf8str_to_wstring(std::string("\n") + pieces[i]["text"].asString());
-			}
-			else
-			{
-				wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
-			}
+			wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
+
 			S32 cur_length = getLength();
 			LLStyleConstSP sp(new LLStyle(highlight_params));
 			LLTextSegmentPtr segmentp = new LLNormalTextSegment(sp, cur_length, cur_length + wide_text.size(), *this);
@@ -1717,17 +1753,7 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 	else
 	{
 		LLWString wide_text;
-
-		// Add carriage return if not first line
-		if (getLength() != 0
-			&& prepend_newline)
-		{
-			wide_text = utf8str_to_wstring(std::string("\n") + new_text);
-		}
-		else
-		{
-			wide_text = utf8str_to_wstring(new_text);
-		}
+		wide_text = utf8str_to_wstring(new_text);
 
 		segment_vec_t segments;
 		S32 segment_start = old_length;
@@ -1755,11 +1781,32 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 	{
 		setCursorPos(cursor_pos);
 	}
+}
 
-	//if( !allow_undo )
-	//{
-	//	blockUndo();
-	//}
+void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepend_newline, S32 highlight_part, const LLStyle::Params& style_params)
+{
+	if (new_text.empty()) return; 
+
+	if(prepend_newline)
+		appendLineBreakSegment(style_params);
+
+	std::string::size_type start = 0;
+	std::string::size_type pos = new_text.find("\n",start);
+	
+	while(pos!=-1)
+	{
+		if(pos!=start)
+		{
+			std::string str = std::string(new_text,start,pos-start);
+			appendAndHighlightTextImpl(str,highlight_part, style_params);
+		}
+		appendLineBreakSegment(style_params);
+		start = pos+1;
+		pos = new_text.find("\n",start);
+	}
+
+	std::string str = std::string(new_text,start,new_text.length()-start);
+	appendAndHighlightTextImpl(str,highlight_part, style_params);
 }
 
 
@@ -1852,14 +1899,19 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 		S32 text_width, text_height;
 		bool newline = segmentp->getDimensions(line_seg_offset, segment_line_length, text_width, text_height);
 
+		if(newline)
+		{
+			pos = segment_line_start + segmentp->getOffset(local_x - start_x, line_seg_offset, segment_line_length, round);
+			break;
+		}
+
 		// if we've reached a line of text *below* the mouse cursor, doc index is first character on that line
 		if (hit_past_end_of_line && local_y - mVisibleTextRect.mBottom + visible_region.mBottom > line_iter->mRect.mTop)
 		{
 			pos = segment_line_start;
 			break;
 		}
-		if (local_x < start_x + text_width			// cursor to left of right edge of text
-			|| newline)								// or this line ends with a newline, set doc pos to newline char
+		if (local_x < start_x + text_width)			// cursor to left of right edge of text
 		{
 			// Figure out which character we're nearest to.
 			S32 offset;
@@ -1883,13 +1935,13 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 			pos = segment_line_start + offset;
 			break;
 		}
-		else if (hit_past_end_of_line && segmentp->getEnd() >= line_iter->mDocIndexEnd - 1)	
+		else if (hit_past_end_of_line && segmentp->getEnd() > line_iter->mDocIndexEnd - 1)	
 		{
-			// segment wraps to next line, so just set doc pos to start of next line (represented by mDocIndexEnd)
-			pos = llmin(getLength(), line_iter->mDocIndexEnd);
+			// segment wraps to next line, so just set doc pos to the end of the line
+ 			// segment wraps to next line, so just set doc pos to start of next line (represented by mDocIndexEnd)
+ 			pos = llmin(getLength(), line_iter->mDocIndexEnd);
 			break;
 		}
-
 		start_x += text_width;
 	}
 
@@ -2346,25 +2398,6 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 {
 	if( end - start > 0 )
 	{
-		if ( mStyle->isImage() && (start >= 0) && (end <= mEnd - mStart))
-		{
-			// ...for images, only render the image, not the underlying text,
-			// which is only a placeholder space
-			LLColor4 color = LLColor4::white % mEditor.getDrawContext().mAlpha;
-			LLUIImagePtr image = mStyle->getImage();
-			S32 style_image_height = image->getHeight();
-			S32 style_image_width = image->getWidth();
-			// Text is drawn from the top of the draw_rect downward
-			S32 text_center = draw_rect.mTop - (mFontHeight / 2);
-			// Align image to center of text
-			S32 image_bottom = text_center - (style_image_height / 2);
-			image->draw(draw_rect.mLeft, image_bottom, 
-				style_image_width, style_image_height, color);
-			
-			const S32 IMAGE_HPAD = 3;
-			return draw_rect.mLeft + style_image_width + IMAGE_HPAD;
-		}
-
 		return drawClippedSegment( getStart() + start, getStart() + end, selection_start, selection_end, draw_rect);
 	}
 	return draw_rect.mLeft;
@@ -2376,11 +2409,6 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 	F32 alpha = LLViewDrawContext::getCurrentContext().mAlpha;
 
 	const LLWString &text = mEditor.getWText();
-
-	if ( text[seg_end-1] == '\n' )
-	{
-		--seg_end;
-	}
 
 	F32 right_x = rect.mLeft;
 	if (!mStyle->isVisible())
@@ -2540,33 +2568,14 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 {
 	height = 0;
 	width = 0;
-	bool force_newline = false;
 	if (num_chars > 0)
 	{
 		height = mFontHeight;
 		const LLWString &text = mEditor.getWText();
 		// if last character is a newline, then return true, forcing line break
-		llwchar last_char = text[mStart + first_char + num_chars - 1];
-		if (last_char == '\n')
-		{
-			force_newline = true;
-			// don't count newline in font width
-			width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars - 1);
-		}
-		else
-		{
-			width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
-		}
+		width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
 	}
-
-	LLUIImagePtr image = mStyle->getImage();
-	if( image.notNull())
-	{
-		width += image->getWidth();
-		height = llmax(height, image->getHeight());
-	}
-
-	return force_newline;
+	return false;
 }
 
 S32	LLNormalTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
@@ -2589,15 +2598,7 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 		num_pixels = llmax(0, num_pixels - image->getWidth());
 	}
 
-	// search for newline and if found, truncate there
-	S32 last_char = mStart + segment_offset;
-	for (; last_char != mEnd; ++last_char)
-	{
-		if (text[last_char] == '\n') 
-		{
-			break;
-		}
-	}
+	S32 last_char = mEnd;
 
 	// set max characters to length of segment, or to first newline
 	max_chars = llmin(max_chars, last_char - (mStart + segment_offset));
@@ -2625,8 +2626,7 @@ S32	LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 	S32 last_char_in_run = mStart + segment_offset + num_chars;
 	// check length first to avoid indexing off end of string
 	if (last_char_in_run < mEnd 
-		&& (last_char_in_run >= mEditor.getLength() 
-			|| text[last_char_in_run] == '\n'))
+		&& (last_char_in_run >= mEditor.getLength() ))
 	{
 		num_chars++;
 	}
@@ -2721,3 +2721,87 @@ void LLInlineViewSegment::linkToDocument(LLTextBase* editor)
 {
 	editor->addDocumentChild(mView);
 }
+
+LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLTextSegment(pos,pos+1)
+{
+	mFontHeight = llceil(style->getFont()->getLineHeight());
+}
+LLLineBreakTextSegment::~LLLineBreakTextSegment()
+{
+}
+bool LLLineBreakTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+{
+	width = 0;
+	height = mFontHeight;
+
+	return true;
+}
+S32	LLLineBreakTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
+{
+	return 1;
+}
+F32	LLLineBreakTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+{
+	return  draw_rect.mLeft;
+}
+
+LLImageTextSegment::LLImageTextSegment(LLStyleConstSP style,S32 pos,class LLTextBase& editor)
+	:LLTextSegment(pos,pos+1)
+	,mStyle( style )
+	,mEditor(editor)
+{
+}
+
+LLImageTextSegment::~LLImageTextSegment()
+{
+}
+
+static const S32 IMAGE_HPAD = 3;
+
+bool LLImageTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
+{
+	width = 0;
+	height = llceil(mStyle->getFont()->getLineHeight());;
+
+	LLUIImagePtr image = mStyle->getImage();
+	if( image.notNull())
+	{
+		width += image->getWidth() + IMAGE_HPAD;
+		height = llmax(height, image->getHeight() + IMAGE_HPAD );
+	}
+	return false;
+}
+
+S32	 LLImageTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const
+{
+	LLUIImagePtr image = mStyle->getImage();
+	S32 image_width = image->getWidth();
+	if(num_pixels>image_width + IMAGE_HPAD)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+{
+	if ( (start >= 0) && (end <= mEnd - mStart))
+	{
+		LLColor4 color = LLColor4::white % mEditor.getDrawContext().mAlpha;
+		LLUIImagePtr image = mStyle->getImage();
+		S32 style_image_height = image->getHeight();
+		S32 style_image_width = image->getWidth();
+		// Text is drawn from the top of the draw_rect downward
+		
+		S32 text_center = draw_rect.mTop - (draw_rect.getHeight() / 2);
+		// Align image to center of draw rect
+		S32 image_bottom = text_center - (style_image_height / 2);
+		image->draw(draw_rect.mLeft, image_bottom, 
+			style_image_width, style_image_height, color);
+		
+		const S32 IMAGE_HPAD = 3;
+		return draw_rect.mLeft + style_image_width + IMAGE_HPAD;
+	}
+	return 0.0;
+}
+

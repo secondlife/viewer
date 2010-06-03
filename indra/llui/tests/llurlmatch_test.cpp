@@ -54,7 +54,7 @@ namespace tut
 		LLUrlMatch match;
 		ensure("empty()", match.empty());
 
-		match.setValues(0, 1, "http://secondlife.com", "Second Life", "", "", LLUIColor(), "", "", false);
+		match.setValues(0, 1, "http://secondlife.com", "Second Life", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure("! empty()", ! match.empty());
 	}
 
@@ -67,7 +67,7 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getStart() == 0", match.getStart(), 0);
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getStart() == 10", match.getStart(), 10);
 	}
 
@@ -80,7 +80,7 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getEnd() == 0", match.getEnd(), 0);
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getEnd() == 20", match.getEnd(), 20);
 	}
 
@@ -93,10 +93,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getUrl() == ''", match.getUrl(), "");
 
-		match.setValues(10, 20, "http://slurl.com/", "", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "http://slurl.com/", "", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getUrl() == 'http://slurl.com/'", match.getUrl(), "http://slurl.com/");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getUrl() == '' (2)", match.getUrl(), "");
 	}
 
@@ -109,10 +109,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getLabel() == ''", match.getLabel(), "");
 
-		match.setValues(10, 20, "", "Label", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "Label", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getLabel() == 'Label'", match.getLabel(), "Label");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getLabel() == '' (2)", match.getLabel(), "");
 	}
 
@@ -125,10 +125,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getTooltip() == ''", match.getTooltip(), "");
 
-		match.setValues(10, 20, "", "", "Info", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "Info", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getTooltip() == 'Info'", match.getTooltip(), "Info");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getTooltip() == '' (2)", match.getTooltip(), "");
 	}
 
@@ -141,10 +141,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure_equals("getIcon() == ''", match.getIcon(), "");
 
-		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getIcon() == 'Icon'", match.getIcon(), "Icon");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure_equals("getIcon() == '' (2)", match.getIcon(), "");
 	}
 
@@ -157,10 +157,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure("getMenuName() empty", match.getMenuName().empty());
 
-		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "xui_file.xml", "", false);
+		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "xui_file.xml", "", false,LLUUID::null);
 		ensure_equals("getMenuName() == \"xui_file.xml\"", match.getMenuName(), "xui_file.xml");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure("getMenuName() empty (2)", match.getMenuName().empty());
 	}
 
@@ -173,10 +173,10 @@ namespace tut
 		LLUrlMatch match;
 		ensure("getLocation() empty", match.getLocation().empty());
 
-		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "xui_file.xml", "Paris", false);
+		match.setValues(10, 20, "", "", "", "Icon", LLUIColor(), "xui_file.xml", "Paris", false,LLUUID::null);
 		ensure_equals("getLocation() == \"Paris\"", match.getLocation(), "Paris");
 
-		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false);
+		match.setValues(10, 20, "", "", "", "", LLUIColor(), "", "", false,LLUUID::null);
 		ensure("getLocation() empty (2)", match.getLocation().empty());
 	}
 }
