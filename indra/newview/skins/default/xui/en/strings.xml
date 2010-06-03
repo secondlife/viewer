@@ -3093,6 +3093,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		The session initialization is timed out
 	</string>
   
+  <string name="voice_morphing_url">http://secondlife.com/landing/v0icem0rphingt3st</string>
+
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
   <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>

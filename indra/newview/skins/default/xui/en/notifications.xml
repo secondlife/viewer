@@ -5981,6 +5981,50 @@ We are creating a voice channel for you. This may take up to one minute.
   </notification>
 
   <notification
+   icon="notify.tga"
+   name="VoiceEffectsExpired"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+One or more of your subscribed Voice Morphs has expired.
+[[URL] Click here] to renew your subscription.
+    <unique/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="VoiceEffectsExpiredInUse"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+The active Voice Morph has expired, your normal voice settings have been applied.
+[[URL] Click here] to renew your subscription.
+    <unique/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="VoiceEffectsWillExpire"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+One or more of your Voice Morphs will expire in less than [INTERVAL] days.
+[[URL] Click here] to renew your subscription.
+    <unique/>
+  </notification>
+		LLNotificationsUtil::add("VoiceEffectsNew");
+
+  <notification
+   icon="notify.tga"
+   name="VoiceEffectsNew"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+New Voice Morphs are available!
+    <unique/>
+  </notification>
+
+  <notification
    icon="notifytip.tga"
    name="Cannot enter parcel: not a group member"
    type="notifytip">
