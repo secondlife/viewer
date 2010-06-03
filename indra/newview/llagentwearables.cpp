@@ -1445,6 +1445,8 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	queryWearableCache();
 	updateServer();
 
+	gAgentAvatarp->dumpAvatarTEs("setWearableOutfit");
+
 	lldebugs << "setWearableOutfit() end" << llendl;
 }
 
