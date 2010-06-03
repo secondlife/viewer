@@ -276,12 +276,14 @@ void LLWearableHoldingPattern::checkMissingWearables()
 		if (found_by_type[type] > 0)
 			continue;
 		if (
-			// Need to recover if at least one wearable of that type
-			// was requested but none was found (prevent missing
-			// pants)
-			(requested_by_type[type] > 0) ||  
-			// or if type is a body part and no wearables were found.
-			((type == LLWearableType::WT_SHAPE) || (type == LLWearableType::WT_SKIN) || (type == LLWearableType::WT_HAIR) || (type == LLWearableType::WT_EYES)))
+			// If at least one wearable of certain types (pants/shirt/skirt)
+			// was requested but none was found, create a default asset as a replacement.
+			// In all other cases, don't do anything.
+			// For critical types (shape/hair/skin/eyes), this will keep the avatar as a cloud 
+			// due to logic in LLVOAvatarSelf::getIsCloud().
+			// For non-critical types (tatoo, socks, etc.) the wearable will just be missing.
+			(requested_by_type[type] > 0) &&  
+			((type == LLWearableType::WT_PANTS) || (type == LLWearableType::WT_SHIRT) || (type == LLWearableType::WT_SKIRT)))
 		{
 			mTypesToRecover.insert(type);
 			mTypesToLink.insert(type);
