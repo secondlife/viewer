@@ -59,7 +59,7 @@ void initializeSecHandler()
 	gSecAPIHandler = gHandlerMap[BASIC_SECHANDLER];
 
 	// initialize all SecAPIHandlers
-	LLProtectedDataException ex = LLProtectedDataException("");
+	std::string exception_msg;
 	std::map<std::string, LLPointer<LLSecAPIHandler> >::const_iterator itr;
 	for(itr = gHandlerMap.begin(); itr != gHandlerMap.end(); ++itr)
 	{
@@ -70,12 +70,12 @@ void initializeSecHandler()
 		}
 		catch (LLProtectedDataException e)
 		{
-			ex = e;
+			exception_msg = e.getMessage();
 		}
 	}
-	if (ex.getMessage().length() > 0 )  // an exception was thrown.
+	if (!exception_msg.empty())  // an exception was thrown.
 	{
-		throw ex;
+		throw LLProtectedDataException(exception_msg.c_str());
 	}
 
 }

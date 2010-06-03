@@ -632,7 +632,18 @@
     <key>BlockAvatarAppearanceMessages</key>
         <map>
         <key>Comment</key>
-            <string>Ignore's appearance messages (for simulating Ruth)</string>
+            <string>Ignores appearance messages (for simulating Ruth)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>BlockSomeAvatarAppearanceVisualParams</key>
+        <map>
+        <key>Comment</key>
+            <string>Drop around 50% of VisualParam occurances in appearance messages (for simulating Ruth)</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>

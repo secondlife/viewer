@@ -962,18 +962,19 @@ void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	if (width != getRect().getWidth() || height != getRect().getHeight())
 	{
-		//EXT-4288
-		//to keep consistance scrolling behaviour 
-		//when scrolling from top and from bottom...
-		bool is_scrolled_to_end = (mScroller!=NULL) && scrolledToEnd();
-		
+		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
+
 		LLUICtrl::reshape( width, height, called_from_parent );
-	
-		if (is_scrolled_to_end)
+
+		if (mScroller && scrolled_to_bottom && mTrackEnd)
 		{
-			deselect();
-			endOfDoc();
-		}		
+			// keep bottom of text buffer visible
+			// do this here as well as in reflow to handle case
+			// where shrinking from top, which causes buffer to temporarily 
+			// not be scrolled to the bottom, since the scroll index
+			// specified the _top_ of the visible document region
+			mScroller->goToBottom();
+		}
 
 		// do this first after reshape, because other things depend on
 		// up-to-date mVisibleTextRect
@@ -1116,6 +1117,34 @@ void LLTextBase::reflow()
 
 	updateSegments();
 
+	if (mReflowIndex == S32_MAX)
+	{
+		return;
+	}
+
+	bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
+
+	LLRect cursor_rect = getLocalRectFromDocIndex(mCursorPos);
+	bool follow_selection = getLocalRect().overlaps(cursor_rect); // cursor is (potentially) visible
+
+	// store in top-left relative coordinates to avoid issues with horizontal scrollbar appearing and disappearing
+	cursor_rect.mTop = mVisibleTextRect.mTop - cursor_rect.mTop;
+	cursor_rect.mBottom = mVisibleTextRect.mTop - cursor_rect.mBottom;
+
+	S32 first_line = getFirstVisibleLine();
+
+	// if scroll anchor not on first line, update it to first character of first line
+	if (!mLineInfoList.empty()
+		&&	(mScrollIndex <  mLineInfoList[first_line].mDocIndexStart
+			||	mScrollIndex >= mLineInfoList[first_line].mDocIndexEnd))
+	{
+		mScrollIndex = mLineInfoList[first_line].mDocIndexStart;
+	}
+	LLRect first_char_rect = getLocalRectFromDocIndex(mScrollIndex);
+	// store in top-left relative coordinates to avoid issues with horizontal scrollbar appearing and disappearing
+	first_char_rect.mTop = mVisibleTextRect.mTop - first_char_rect.mTop;
+	first_char_rect.mBottom = mVisibleTextRect.mTop - first_char_rect.mBottom;
+
 	S32 reflow_count = 0;
 	while(mReflowIndex < S32_MAX)
 	{
@@ -1129,31 +1158,13 @@ void LLTextBase::reflow()
 			lldebugs << "Breaking out of reflow due to possible infinite loop in " << getName() << llendl;
 			break;
 		}
+	
 		S32 start_index = mReflowIndex;
 		mReflowIndex = S32_MAX;
 
 		// shrink document to minimum size (visible portion of text widget)
 		// to force inlined widgets with follows set to shrink
 		mDocumentView->reshape(mVisibleTextRect.getWidth(), mDocumentView->getRect().getHeight());
-
-		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
-
-		LLRect old_cursor_rect = getLocalRectFromDocIndex(mCursorPos);
-		bool follow_selection = mVisibleTextRect.overlaps(old_cursor_rect); // cursor is visible
-		old_cursor_rect.translate(-mVisibleTextRect.mLeft, -mVisibleTextRect.mBottom);
-
-		S32 first_line = getFirstVisibleLine();
-
-		// if scroll anchor not on first line, update it to first character of first line
-		if (!mLineInfoList.empty()
-			&&	(mScrollIndex <  mLineInfoList[first_line].mDocIndexStart
-				||	mScrollIndex >= mLineInfoList[first_line].mDocIndexEnd))
-		{
-			mScrollIndex = mLineInfoList[first_line].mDocIndexStart;
-		}
-		LLRect first_char_rect = getLocalRectFromDocIndex(mScrollIndex);
-		// subtract off effect of horizontal scrollbar from local position of first char
-		first_char_rect.translate(-mVisibleTextRect.mLeft, -mVisibleTextRect.mBottom);
 
 		S32 cur_top = 0;
 
@@ -1275,32 +1286,42 @@ void LLTextBase::reflow()
 			segmentp->updateLayout(*this);
 
 		}
-
-		// apply scroll constraints after reflowing text
-		if (!hasMouseCapture() && mScroller)
-		{
-			if (scrolled_to_bottom && mTrackEnd)
-			{
-				// keep bottom of text buffer visible
-				endOfDoc();
-			}
-			else if (hasSelection() && follow_selection)
-			{
-				// keep cursor in same vertical position on screen when selecting text
-				LLRect new_cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
-				mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect);
-			}
-			else
-			{
-				// keep first line of text visible
-				LLRect new_first_char_rect = getDocRectFromDocIndex(mScrollIndex);
-				mScroller->scrollToShowRect(new_first_char_rect, first_char_rect);
-			}
-		}
-
-		// reset desired x cursor position
-		updateCursorXPos();
 	}
+
+	// apply scroll constraints after reflowing text
+	if (!hasMouseCapture() && mScroller)
+	{
+		if (scrolled_to_bottom && mTrackEnd)
+		{
+			// keep bottom of text buffer visible
+			endOfDoc();
+		}
+		else if (hasSelection() && follow_selection)
+		{
+			// keep cursor in same vertical position on screen when selecting text
+			LLRect new_cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
+			LLRect old_cursor_rect = cursor_rect;
+			old_cursor_rect.mTop = mVisibleTextRect.mTop - cursor_rect.mTop;
+			old_cursor_rect.mBottom = mVisibleTextRect.mTop - cursor_rect.mBottom;
+
+			mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect);
+		}
+		else
+		{
+			// keep first line of text visible
+			LLRect new_first_char_rect = getDocRectFromDocIndex(mScrollIndex);
+
+			// pass in desired rect in the coordinate frame of the document viewport
+			LLRect old_first_char_rect = first_char_rect;
+			old_first_char_rect.mTop = mVisibleTextRect.mTop - first_char_rect.mTop;
+			old_first_char_rect.mBottom = mVisibleTextRect.mTop - first_char_rect.mBottom;
+
+			mScroller->scrollToShowRect(new_first_char_rect, old_first_char_rect);
+		}
+	}
+
+	// reset desired x cursor position
+	updateCursorXPos();
 }
 
 LLRect LLTextBase::getTextBoundingRect()
@@ -1725,13 +1746,11 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 
 	setCursorPos(old_length);
 
-	LLTextParser* highlight = LLTextParser::getInstance();
-	
-	if (mParseHighlights && highlight)
+	if (mParseHighlights)
 	{
 		LLStyle::Params highlight_params(style_params);
 
-		LLSD pieces = highlight->parsePartialLineHighlights(new_text, highlight_params.color(), (LLTextParser::EHighlightPosition)highlight_part);
+		LLSD pieces = LLTextParser::instance().parsePartialLineHighlights(new_text, highlight_params.color(), (LLTextParser::EHighlightPosition)highlight_part);
 		for (S32 i = 0; i < pieces.size(); i++)
 		{
 			LLSD color_llsd = pieces[i]["color"];
@@ -2010,11 +2029,18 @@ LLRect LLTextBase::getDocRectFromDocIndex(S32 pos) const
 
 LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 {
+	LLRect content_window_rect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
+	if (mBorderVisible)
+	{
+		content_window_rect.stretch(-1);
+	}
+
 	LLRect local_rect;
+
 	if (mLineInfoList.empty()) 
 	{ 
 		// return default height rect in upper left
-		local_rect = mVisibleTextRect;
+		local_rect = content_window_rect;
 		local_rect.mBottom = local_rect.mTop - (S32)(mDefaultFont->getLineHeight());
 		return local_rect;
 	}
@@ -2025,8 +2051,8 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 	// compensate for scrolled, inset view of doc
 	LLRect scrolled_view_rect = getVisibleDocumentRect();
 	local_rect = doc_rect;
-	local_rect.translate(mVisibleTextRect.mLeft - scrolled_view_rect.mLeft, 
-						mVisibleTextRect.mBottom - scrolled_view_rect.mBottom);
+	local_rect.translate(content_window_rect.mLeft - scrolled_view_rect.mLeft, 
+						content_window_rect.mBottom - scrolled_view_rect.mBottom);
 
 	return local_rect;
 }

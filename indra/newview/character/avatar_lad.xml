@@ -4782,7 +4782,7 @@
      group="1"
      name="Saddlebags"
      wearable="shape"
-     edit_grouo="driven"
+     edit_group="driven"
      value_min="-.5"
      value_max="3">
       <param_morph>

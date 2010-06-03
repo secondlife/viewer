@@ -736,6 +736,8 @@ bool idle_startup()
 			// Make sure the process dialog doesn't hide things
 			gViewerWindow->setShowProgress(FALSE);
 
+			initialize_edit_menu();
+
 			// Show the login dialog
 			login_show();
 			// connect dialog is already shown, so fill in the names

@@ -87,7 +87,7 @@ LLTexLayerSetBuffer::LLTexLayerSetBuffer(LLTexLayerSet* const owner,
 	mNeedsUpdate(TRUE),
 	mNeedsUpload(FALSE),
 	mUploadPending(FALSE), // Not used for any logic here, just to sync sending of updates
-	mNeedsLowResUpload(TRUE),
+	mDebugNumLowresUploads(0),
 	mTexLayerSet(owner)
 {
 	LLTexLayerSetBuffer::sGLByteCount += getSize();
@@ -141,12 +141,12 @@ void LLTexLayerSetBuffer::requestUpload()
 	// If we requested a new upload but haven't even uploaded
 	// a low res version of our last upload request, then
 	// keep the timer ticking instead of resetting it.
-	if (mNeedsUpload && mNeedsLowResUpload)
+	if (mNeedsUpload && (mDebugNumLowresUploads == 0))
 	{
 		mNeedsUploadTimer.reset();
 	}
 	mNeedsUpload = TRUE;
-	mNeedsLowResUpload = TRUE;
+	mDebugNumLowresUploads = 0;
 	mUploadPending = TRUE;
 	mNeedsUploadTimer.unpause();
 }
@@ -292,7 +292,7 @@ BOOL LLTexLayerSetBuffer::isReadyToUpload() const
 		// If we hit our timeout and have textures available at even lower resolution, then upload.
 		const BOOL is_upload_textures_timeout = mNeedsUploadTimer.getElapsedTimeF32() >= texture_timeout;
 		const BOOL has_lower_lod = mTexLayerSet->isLocalTextureDataAvailable();
-		if (has_lower_lod && is_upload_textures_timeout && mNeedsLowResUpload) return TRUE; 
+		if (has_lower_lod && is_upload_textures_timeout) return TRUE; 
 	}
 	return FALSE;
 }
@@ -434,12 +434,18 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 		
 				if (highest_lod)
 				{
+					// Got the final LOD for the baked texture.
+					// All done, pause the upload timer so we know how long it took.
 					mNeedsUpload = FALSE;
 					mNeedsUploadTimer.pause();
 				}
 				else
 				{
-					mNeedsLowResUpload = FALSE;
+					// Got a lower level LOD for the baked texture.
+					// Restart the upload timer.
+					mDebugNumLowresUploads++;
+					mNeedsUploadTimer.unpause();
+					mNeedsUploadTimer.reset();
 				}
 			}
 			else
@@ -2235,11 +2241,11 @@ const std::string LLTexLayerSetBuffer::dumpTextureInfo() const
 	if (!isAgentAvatarValid()) return "";
 
 	const BOOL is_high_res = !mNeedsUpload;
-	const BOOL is_low_res = !mNeedsLowResUpload;
+	const U32 num_low_res = mDebugNumLowresUploads;
 	const U32 upload_time = (U32)mNeedsUploadTimer.getElapsedTimeF32();
 	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(mTexLayerSet);
 	std::string text = llformat("[ HiRes:%d LoRes:%d Timer:%d ] %s",
-								is_high_res, is_low_res, upload_time, 
+								is_high_res, num_low_res, upload_time, 
 								local_texture_info.c_str());
 	return text;
 }
