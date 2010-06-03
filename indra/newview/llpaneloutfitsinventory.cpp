@@ -632,6 +632,7 @@ void LLPanelOutfitsInventory::onTabChange()
 	else
 	{
 		mMyOutfitsPanel->setFilterSubString(mFilterSubString);
+		mMyOutfitsPanel->onOpen(LLSD());
 	}
 
 	updateVerbs();

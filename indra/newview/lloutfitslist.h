@@ -49,12 +49,10 @@ class LLListContextMenu;
  * A list of agents's outfits from "My Outfits" inventory category
  * which displays each outfit in an accordion tab with a flat list
  * of items inside it.
- * Uses LLInventoryCategoriesObserver to monitor changes to "My Outfits"
- * inventory category and refresh the outfits listed in it.
- * This class is derived from LLInventoryObserver to know when inventory
- * becomes usable and it is safe to request data from inventory model.
+ *
+ * Starts fetching nevessary inventory content on first openning.
  */
-class LLOutfitsList : public LLPanel, public LLInventoryObserver
+class LLOutfitsList : public LLPanel
 {
 public:
 	LLOutfitsList();
@@ -62,7 +60,7 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void changed(U32 mask);
+	/*virtual*/ void onOpen(const LLSD& info);
 
 	void refreshList(const LLUUID& category_id);
 
@@ -128,6 +126,8 @@ private:
 	outfits_map_t					mOutfitsMap;
 
 	LLListContextMenu*			mOutfitMenu;
+
+	bool							mIsInitialized;
 };
 
 #endif //LL_LLOUTFITSLIST_H
