@@ -1328,6 +1328,15 @@ BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 	return TRUE;
 }
 
+BOOL LLVOAvatarSelf::isBakedTextureFinal(const LLVOAvatarDefines::EBakedTextureIndex index) const
+{
+	const LLTexLayerSet *layerset = mBakedTextureDatas[index].mTexLayerSet;
+	if (!layerset) return FALSE;
+	const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
+	if (!layerset_buffer) return FALSE;
+	return !layerset_buffer->uploadPending();
+}
+
 BOOL LLVOAvatarSelf::isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index) const
 {
 	LLUUID id;

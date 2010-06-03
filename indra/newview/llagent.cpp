@@ -3585,7 +3585,13 @@ void LLAgent::sendAgentSetAppearance()
 		llinfos << "TAT: Sending cached texture data" << llendl;
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
-			LLUUID hash = gAgentWearables.computeBakedTextureHash((EBakedTextureIndex) baked_index);
+			BOOL generate_valid_hash = TRUE;
+			if (isAgentAvatarValid() && !gAgentAvatarp->isBakedTextureFinal((LLVOAvatarDefines::EBakedTextureIndex)baked_index))
+			{
+				generate_valid_hash = FALSE;
+			}
+
+			LLUUID hash = gAgentWearables.computeBakedTextureHash((EBakedTextureIndex) baked_index, generate_valid_hash);
 
 			if (hash.notNull())
 			{
