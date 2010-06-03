@@ -388,6 +388,7 @@ void LLPanelOutfitEdit::onOpen(const LLSD& key)
 		// *TODO: this method is called even panel is not visible to user because its parent layout panel is hidden.
 		// So, we can defer initializing a bit.
 		mWearableListManager = new LLFilteredWearableListManager(mWearableItemsList, mWearableListMaskCollector);
+		mWearableListManager->populateList();
 		displayCurrentOutfit();
 		mInitialized = true;
 	}
