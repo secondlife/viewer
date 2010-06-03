@@ -74,6 +74,17 @@
                    mouse_opaque="false"
                 name="hud container"
                    width="500">
+            <panel auto_resize="false"
+                   follows="left|top"
+                   height="19"
+                   left="0"
+                   mouse_opaque="false"
+                   name="topinfo_bar_container"
+                   tab_stop="false"
+                   top="0"
+                   user_resize="false"
+                   visible="false"
+                   width="1024"/>
               <panel follows="right|top|bottom"
                      height="500"
                      mouse_opaque="false"
