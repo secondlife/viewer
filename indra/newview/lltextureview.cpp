@@ -65,6 +65,8 @@ LLTextureView *gTextureView = NULL;
 LLTextureSizeView *gTextureSizeView = NULL;
 LLTextureSizeView *gTextureCategoryView = NULL;
 
+#define HIGH_PRIORITY 100000000.f
+
 //static
 std::set<LLViewerFetchedTexture*> LLTextureView::sDebugImages;
 
@@ -415,13 +417,14 @@ void LLAvatarTexBar::draw()
 	if (!avatarp) return;
 
 	const S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-	const S32 v_offset = (S32)((texture_bar_height + 2.5f) * mTextureView->mNumTextureBars + 2.5f);
+	const S32 v_offset = 0;
+
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 1.f);
 	LLColor4 color;
 	
-	U32 line_num = 6;
+	U32 line_num = 1;
 	for (LLVOAvatarDefines::LLVOAvatarDictionary::BakedTextures::const_iterator baked_iter = LLVOAvatarDefines::LLVOAvatarDictionary::getInstance()->getBakedTextures().begin();
 		 baked_iter != LLVOAvatarDefines::LLVOAvatarDictionary::getInstance()->getBakedTextures().end();
 		 ++baked_iter)
@@ -433,7 +436,7 @@ void LLAvatarTexBar::draw()
 		if (!layerset_buffer) continue;
 		std::string text = layerset_buffer->dumpTextureInfo();
 		LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*line_num,
-												 text_color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
+												 text_color, LLFontGL::LEFT, LLFontGL::TOP); //, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
 		line_num++;
 	}
 	const U32 texture_timeout = gSavedSettings.getU32("AvatarBakedTextureTimeout");
@@ -443,7 +446,7 @@ void LLAvatarTexBar::draw()
 	const std::string override_tex_discard_level_str = override_tex_discard_level ? llformat("%d",override_tex_discard_level) : "Disabled";
 	std::string header_text = llformat("[ Timeout('AvatarBakedTextureTimeout'):%s ] [ LOD_Override('TextureDiscardLevel'):%s ]", texture_timeout_str.c_str(), override_tex_discard_level_str.c_str());
 	LLFontGL::getFontMonospace()->renderUTF8(header_text, 0, 0, v_offset + line_height*line_num,
-											 text_color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
+											 text_color, LLFontGL::LEFT, LLFontGL::TOP); //, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
 }
 
 BOOL LLAvatarTexBar::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -454,7 +457,8 @@ BOOL LLAvatarTexBar::handleMouseDown(S32 x, S32 y, MASK mask)
 LLRect LLAvatarTexBar::getRequiredRect()
 {
 	LLRect rect;
-	rect.mTop = 8;
+	rect.mTop = 85;
+	if (!gSavedSettings.getBOOL("DebugAvatarRezTime")) rect.mTop = 0;
 	return rect;
 }
 
@@ -497,7 +501,7 @@ void LLGLTexMemBar::draw()
 	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
 	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
 	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-	S32 v_offset = (S32)((texture_bar_height + 2.5f) * mTextureView->mNumTextureBars + 5.0f);
+	S32 v_offset = (S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
@@ -649,7 +653,8 @@ BOOL LLGLTexMemBar::handleMouseDown(S32 x, S32 y, MASK mask)
 LLRect LLGLTexMemBar::getRequiredRect()
 {
 	LLRect rect;
-	rect.mTop = 8;
+	//rect.mTop = 50;
+	rect.mTop = 0;
 	return rect;
 }
 
@@ -808,7 +813,7 @@ void LLTextureView::draw()
 			{
 				S32 tex_mem = imagep->hasGLTexture() ? imagep->getTextureMemory() : 0 ;
 				llinfos << imagep->getID()
-					<< "\t" << tex_mem
+						<< "\t" << tex_mem
 						<< "\t" << imagep->getBoostLevel()
 						<< "\t" << imagep->getDecodePriority()
 						<< "\t" << imagep->getWidth()
@@ -823,19 +828,6 @@ void LLTextureView::draw()
 				++debug_count; // for breakpoints
 			}
 			
-#if 0
-			if (imagep->getDontDiscard())
-			{
-				continue;
-			}
-
-			if (imagep->isMissingAsset())
-			{
-				continue;
-			}
-#endif
-
-#define HIGH_PRIORITY 100000000.f
 			F32 pri;
 			if (mOrderFetch)
 			{
@@ -854,58 +846,54 @@ void LLTextureView::draw()
 
 			if (!mOrderFetch)
 			{
-#if 1
-			if (pri < HIGH_PRIORITY && LLSelectMgr::getInstance())
-			{
-				struct f : public LLSelectedTEFunctor
+				if (pri < HIGH_PRIORITY && LLSelectMgr::getInstance())
 				{
-					LLViewerFetchedTexture* mImage;
-					f(LLViewerFetchedTexture* image) : mImage(image) {}
-					virtual bool apply(LLViewerObject* object, S32 te)
+					struct f : public LLSelectedTEFunctor
 					{
-						return (mImage == object->getTEImage(te));
-					}
-				} func(imagep);
-				const bool firstonly = true;
-				bool match = LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, firstonly);
-				if (match)
-				{
-					pri += 3*HIGH_PRIORITY;
-				}
-			}
-#endif
-#if 1
-			if (pri < HIGH_PRIORITY && (cur_discard< 0 || desired_discard < cur_discard))
-			{
-				LLSelectNode* hover_node = LLSelectMgr::instance().getHoverNode();
-				if (hover_node)
-				{
-					LLViewerObject *objectp = hover_node->getObject();
-					if (objectp)
-					{
-						S32 tex_count = objectp->getNumTEs();
-						for (S32 i = 0; i < tex_count; i++)
+						LLViewerFetchedTexture* mImage;
+						f(LLViewerFetchedTexture* image) : mImage(image) {}
+						virtual bool apply(LLViewerObject* object, S32 te)
 						{
-							if (imagep == objectp->getTEImage(i))
+							return (mImage == object->getTEImage(te));
+						}
+					} func(imagep);
+					const bool firstonly = true;
+					bool match = LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, firstonly);
+					if (match)
+					{
+						pri += 3*HIGH_PRIORITY;
+					}
+				}
+
+				if (pri < HIGH_PRIORITY && (cur_discard< 0 || desired_discard < cur_discard))
+				{
+					LLSelectNode* hover_node = LLSelectMgr::instance().getHoverNode();
+					if (hover_node)
+					{
+						LLViewerObject *objectp = hover_node->getObject();
+						if (objectp)
+						{
+							S32 tex_count = objectp->getNumTEs();
+							for (S32 i = 0; i < tex_count; i++)
 							{
-								pri += 2*HIGH_PRIORITY;
-								break;
+								if (imagep == objectp->getTEImage(i))
+								{
+									pri += 2*HIGH_PRIORITY;
+									break;
+								}
 							}
 						}
 					}
 				}
-			}
-#endif
-#if 1
-			if (pri > 0.f && pri < HIGH_PRIORITY)
-			{
-				if (imagep->mLastPacketTimer.getElapsedTimeF32() < 1.f ||
-					imagep->mFetchDeltaTime < 0.25f)
+
+				if (pri > 0.f && pri < HIGH_PRIORITY)
 				{
-					pri += 1*HIGH_PRIORITY;
+					if (imagep->mLastPacketTimer.getElapsedTimeF32() < 1.f ||
+						imagep->mFetchDeltaTime < 0.25f)
+					{
+						pri += 1*HIGH_PRIORITY;
+					}
 				}
-			}
-#endif
 			}
 			
 	 		if (pri > 0.0f)
@@ -947,17 +935,20 @@ void LLTextureView::draw()
 			sortChildren(LLTextureBar::sort());
 
 		LLGLTexMemBar::Params tmbp;
+		LLRect tmbr;
 		tmbp.name("gl texmem bar");
+		tmbp.rect(tmbr);
 		tmbp.texture_view(this);
 		mGLTexMemBar = LLUICtrlFactory::create<LLGLTexMemBar>(tmbp);
-		addChild(mGLTexMemBar);
+		addChildInBack(mGLTexMemBar);
 
 		LLAvatarTexBar::Params atbp;
+		LLRect atbr;
 		atbp.name("gl avatartex bar");
 		atbp.texture_view(this);
+		atbp.rect(atbr);
 		mAvatarTexBar = LLUICtrlFactory::create<LLAvatarTexBar>(atbp);
 		addChild(mAvatarTexBar);
-
 
 		reshape(getRect().getWidth(), getRect().getHeight(), TRUE);
 
