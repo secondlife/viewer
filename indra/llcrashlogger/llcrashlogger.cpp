@@ -255,7 +255,7 @@ void LLCrashLogger::gatherFiles()
 			trimSLLog(crash_info);
 		}
 
-		mCrashInfo[(*itr).first] = rawstr_to_utf8(crash_info);
+		mCrashInfo[(*itr).first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
 	}
 	
 	// Add minidump as binary.
