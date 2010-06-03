@@ -893,14 +893,20 @@ bool LLAppViewer::init()
 	
 	LLViewerMedia::initClass();
 
-	LLStringOps::setupWeekDaysNames(LLTrans::getString("dateTimeWeekdaysNames"));
-	LLStringOps::setupWeekDaysShortNames(LLTrans::getString("dateTimeWeekdaysShortNames"));
-	LLStringOps::setupMonthNames(LLTrans::getString("dateTimeMonthNames"));
-	LLStringOps::setupMonthShortNames(LLTrans::getString("dateTimeMonthShortNames"));
-	LLStringOps::setupDayFormat(LLTrans::getString("dateTimeDayFormat"));
+	//EXT-7013 - On windows for some locale (Japanese) standard 
+	//datetime formatting functions didn't support some parameters such as "weekday".
+	std::string language = LLControlGroup::getInstance(sGlobalSettingsName)->getString("Language");
+	if(language == "ja")
+	{
+		LLStringOps::setupWeekDaysNames(LLTrans::getString("dateTimeWeekdaysNames"));
+		LLStringOps::setupWeekDaysShortNames(LLTrans::getString("dateTimeWeekdaysShortNames"));
+		LLStringOps::setupMonthNames(LLTrans::getString("dateTimeMonthNames"));
+		LLStringOps::setupMonthShortNames(LLTrans::getString("dateTimeMonthShortNames"));
+		LLStringOps::setupDayFormat(LLTrans::getString("dateTimeDayFormat"));
 
-	LLStringOps::sAM = LLTrans::getString("dateTimeAM");
-	LLStringOps::sPM = LLTrans::getString("dateTimePM");
+		LLStringOps::sAM = LLTrans::getString("dateTimeAM");
+		LLStringOps::sPM = LLTrans::getString("dateTimePM");
+	}
 
 	return true;
 }
