@@ -90,7 +90,10 @@ public:
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
 	               const std::string &tooltip, const std::string &icon,
 				   const LLUIColor& color, const std::string &menu, 
-				   const std::string &location, bool disabled_link);
+				   const std::string &location, bool disabled_link
+				   , const LLUUID& id );
+
+	const LLUUID& getID() const { return mID;}
 
 private:
 	U32         mStart;
@@ -101,6 +104,8 @@ private:
 	std::string mIcon;
 	std::string mMenuName;
 	std::string mLocation;
+
+	LLUUID		mID;
 	LLUIColor	mColor;
 	bool        mDisabledLink;
 };

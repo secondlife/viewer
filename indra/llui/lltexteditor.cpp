@@ -1083,6 +1083,28 @@ void LLTextEditor::addChar(llwchar wc)
 
 	setCursorPos(mCursorPos + addChar( mCursorPos, wc ));
 }
+void LLTextEditor::addLineBreakChar()
+{
+	if( !getEnabled() )
+	{
+		return;
+	}
+	if( hasSelection() )
+	{
+		deleteSelection(TRUE);
+	}
+	else if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+	{
+		removeChar(mCursorPos);
+	}
+
+	LLStyleConstSP sp(new LLStyle(LLStyle::Params()));
+	LLTextSegmentPtr segment = new LLLineBreakTextSegment(sp, mCursorPos);
+
+	S32 pos = execute(new TextCmdAddChar(mCursorPos, FALSE, '\n', segment));
+	
+	setCursorPos(mCursorPos + pos);
+}
 
 
 BOOL LLTextEditor::handleSelectionKey(const KEY key, const MASK mask)
@@ -1404,7 +1426,27 @@ void LLTextEditor::pasteHelper(bool is_primary)
 	}
 
 	// Insert the new text into the existing text.
-	setCursorPos(mCursorPos + insert(mCursorPos, clean_string, FALSE, LLTextSegmentPtr()));
+
+	//paste text with linebreaks.
+	std::basic_string<llwchar>::size_type start = 0;
+	std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);
+	
+	while(pos!=-1)
+	{
+		if(pos!=start)
+		{
+			std::basic_string<llwchar> str = std::basic_string<llwchar>(clean_string,start,pos-start);
+			setCursorPos(mCursorPos + insert(mCursorPos, str, FALSE, LLTextSegmentPtr()));
+		}
+		addLineBreakChar();
+		
+		start = pos+1;
+		pos = clean_string.find('\n',start);
+	}
+
+	std::basic_string<llwchar> str = std::basic_string<llwchar>(clean_string,start,clean_string.length()-start);
+	setCursorPos(mCursorPos + insert(mCursorPos, str, FALSE, LLTextSegmentPtr()));
+
 	deselect();
 
 	onKeyStroke();
@@ -2169,7 +2211,10 @@ void LLTextEditor::autoIndent()
 	}
 
 	// Insert that number of spaces on the new line
-	addChar( '\n' );
+
+	//appendLineBreakSegment(LLStyle::Params());//addChar( '\n' );
+	addLineBreakChar();
+
 	for( i = 0; i < space_count; i++ )
 	{
 		addChar( ' ' );
