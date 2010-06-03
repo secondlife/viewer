@@ -437,7 +437,7 @@ BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
 						session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, dest_agent_id);
 					}
 					return LLToolDragAndDrop::handleGiveDragAndDrop(dest_agent_id, session_id, drop,
-																	cargo_type, cargo_data, accept);
+																	cargo_type, cargo_data, accept, getName());
 				}
 			}
 		}

@@ -18,14 +18,16 @@
     </string>
     <button
      follows="top|right"
-     height="23"
-     image_overlay="BackArrow_Off"
+     height="24"
+     image_hover_unselected="BackButton_Over"
+     image_pressed="BackButton_Press"
+     image_unselected="BackButton_Off"
      layout="topleft"
      name="back"
-     left="12"
+     left="9"
      tab_stop="false"
      top="2"
-     width="23" />
+     width="30" />
     <text_editor
     	h_pad="0"
     	v_pad="0"

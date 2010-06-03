@@ -11,8 +11,8 @@
 	<check_box label="Ativado" name="enable_media"/>
 	<slider label="Bate-papo de voz" name="Voice Volume"/>
 	<check_box label="Ativado" name="enable_voice_check"/>
-	<check_box label="Autorizar auto-play de mídias" name="media_auto_play_btn" tool_tip="Marque esta opção para auto-executar mídias, se elas quiserem" value="verdadeiro"/>
-	<check_box label="Tocar mídia anexada em outros avatares" name="media_show_on_others_btn" tool_tip="Desmarque esta opção para ocultar mídias anexadas em avatares por perto" value="verdadeiro"/>
+	<check_box label="Autorizar auto-play de mídias" name="media_auto_play_btn" tool_tip="Marque esta opção para auto-executar mídias, se elas quiserem"/>
+	<check_box label="Tocar mídia anexada em outros avatares" name="media_show_on_others_btn" tool_tip="Desmarque esta opção para ocultar mídias anexadas em avatares por perto"/>
 	<text name="voice_chat_settings">
 		Configuração de bate-papo de voz
 	</text>

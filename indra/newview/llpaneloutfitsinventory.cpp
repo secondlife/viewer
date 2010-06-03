@@ -42,6 +42,7 @@
 #include "llfloaterworldmap.h"
 #include "llfloaterinventory.h"
 #include "llfoldervieweventlistener.h"
+#include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
@@ -70,11 +71,134 @@ static const std::string COF_TAB_NAME = "cof_tab";
 
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
+class LLOutfitListGearMenu
+{
+public:
+	LLOutfitListGearMenu(LLOutfitsList* olist)
+	:	mOutfitList(olist),
+		mMenu(NULL)
+	{
+		llassert_always(mOutfitList);
+
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+
+		registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenu::onWear, this));
+		registrar.add("Gear.TakeOff", boost::bind(&LLOutfitListGearMenu::onTakeOff, this));
+		registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenu::onRename, this));
+		registrar.add("Gear.Delete", boost::bind(&LLOutfitListGearMenu::onDelete, this));
+		registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenu::onCreate, this, _2));
+
+		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenu::onEnable, this, _2));
+
+		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+			"menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+		llassert(mMenu);
+	}
+
+	LLMenuGL* getMenu() { return mMenu; }
+
+private:
+	const LLUUID& getSelectedOutfitID()
+	{
+		return mOutfitList->getSelectedOutfitUUID();
+	}
+
+	LLViewerInventoryCategory* getSelectedOutfit()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.isNull())
+		{
+			return NULL;
+		}
+
+		LLViewerInventoryCategory* cat = gInventory.getCategory(selected_outfit_id);
+		return cat;
+	}
+
+	void onWear()
+	{
+		LLViewerInventoryCategory* selected_outfit = getSelectedOutfit();
+		if (selected_outfit)
+		{
+			LLAppearanceMgr::instance().wearInventoryCategory(
+				selected_outfit, /*copy=*/ FALSE, /*append=*/ FALSE);
+		}
+	}
+
+	void onTakeOff()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
+		}
+	}
+
+	void onRename()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			LLAppearanceMgr::instance().renameOutfit(selected_outfit_id);
+		}
+	}
+
+	void onDelete()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			remove_category(&gInventory, selected_outfit_id);
+		}
+	}
+
+	void onCreate(const LLSD& data)
+	{
+		LLWearableType::EType type = LLWearableType::typeNameToType(data.asString());
+		if (type == LLWearableType::WT_NONE)
+		{
+			llwarns << "Invalid wearable type" << llendl;
+			return;
+		}
+
+		LLAgentWearables::createWearable(type, true);
+	}
+
+	bool onEnable(LLSD::String param)
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		bool is_worn = LLAppearanceMgr::instance().getBaseOutfitUUID() == selected_outfit_id;
+
+		if ("wear" == param)
+		{
+			return !is_worn;
+		}
+		else if ("take_off" == param)
+		{
+			return is_worn;
+		}
+		else if ("rename" == param)
+		{
+			return get_is_category_renameable(&gInventory, selected_outfit_id);
+		}
+		else if ("delete" == param)
+		{
+			return LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit_id);
+		}
+
+		return true;
+	}
+
+	LLOutfitsList*	mOutfitList;
+	LLMenuGL*		mMenu;
+};
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),
 	mCurrentOutfitPanel(NULL),
 	mParent(NULL),
+	mGearMenu(NULL),
 	mInitialized(false)
 {
 	mSavedFolderState = new LLSaveFolderState();
@@ -84,6 +208,7 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 {
+	delete mGearMenu;
 	delete mSavedFolderState;
 }
 
@@ -374,7 +499,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 {
 	mListCommands = getChild<LLPanel>("bottom_panel");
 
-	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::onGearButtonClick, this));
+	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::showGearMenu, this));
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
 
@@ -385,8 +510,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 				   ,       _7 // EAcceptance* accept
 				   ));
 
-	mMenuGearDefault = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_outfit_gear.xml",
-		gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mGearMenu = new LLOutfitListGearMenu(mMyOutfitsPanel);
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -401,18 +525,14 @@ void LLPanelOutfitsInventory::updateListCommands()
 	mSaveComboBtn->setSaveBtnEnabled(make_outfit_enabled);
 }
 
-void LLPanelOutfitsInventory::onGearButtonClick()
+void LLPanelOutfitsInventory::showGearMenu()
 {
-	showActionMenu(mMenuGearDefault,"options_gear_btn");
-}
-
-void LLPanelOutfitsInventory::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
-{
+	LLMenuGL* menu = mGearMenu ? mGearMenu->getMenu() : NULL;
 	if (menu)
 	{
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
-		LLView* spawning_view = getChild<LLView> (spawning_view_name);
+		LLView* spawning_view = getChild<LLView>("options_gear_btn");
 		S32 menu_x, menu_y;
 		//show menu in co-ordinates of panel
 		spawning_view->localPointToOtherView(0, spawning_view->getRect().getHeight(), &menu_x, &menu_y, this);
@@ -632,6 +752,7 @@ void LLPanelOutfitsInventory::onTabChange()
 	else
 	{
 		mMyOutfitsPanel->setFilterSubString(mFilterSubString);
+		mMyOutfitsPanel->onOpen(LLSD());
 	}
 
 	updateVerbs();

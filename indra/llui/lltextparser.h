@@ -35,12 +35,13 @@
 #define LL_LLTEXTPARSER_H
 
 #include "llsd.h"
+#include "llsingleton.h"
 
 class LLUUID;
 class LLVector3d;
 class LLColor4;
 
-class LLTextParser
+class LLTextParser : public LLSingleton<LLTextParser>
 {
 public:
 	typedef enum e_condition_type { CONTAINS, MATCHES, STARTS_WITH, ENDS_WITH } EConditionType;
@@ -48,22 +49,20 @@ public:
 	typedef enum e_highlight_position { WHOLE, START, MIDDLE, END } EHighlightPosition;
 	typedef enum e_dialog_action { ACTION_NONE, ACTION_CLOSE, ACTION_ADD, ACTION_COPY, ACTION_UPDATE } EDialogAction;
 
-	static LLTextParser* getInstance();
-	LLTextParser(){};
-	~LLTextParser();
+	LLTextParser();
 
-	S32  findPattern(const std::string &text, LLSD highlight);
 	LLSD parsePartialLineHighlights(const std::string &text,const LLColor4 &color, EHighlightPosition part=WHOLE, S32 index=0);
 	bool parseFullLineHighlights(const std::string &text, LLColor4 *color);
 
+private:
+	S32  findPattern(const std::string &text, LLSD highlight);
 	std::string getFileName();
-	LLSD loadFromDisk();
+	void loadKeywords();
 	bool saveToDisk(LLSD highlights);
 
 public:
 	LLSD	mHighlights;
-private:
-	static LLTextParser* sInstance;
+	bool	mLoaded;
 };
 
 #endif

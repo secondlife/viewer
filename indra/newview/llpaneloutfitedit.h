@@ -93,6 +93,7 @@ public:
 	void moveWearable(bool closer_to_body);
 
 	void toggleAddWearablesPanel();
+	void showAddWearablesPanel(bool show__add_wearables);
 	void showWearablesFilter();
 	void showFilteredWearablesPanel();
 	void showFilteredFolderWearablesPanel();
@@ -131,7 +132,6 @@ public:
 private:
 
 	void onGearButtonClick(LLUICtrl* clicked_button);
-	void onGearMenuItemClick(const LLSD& data);
 	void showFilteredWearableItemsList(LLWearableType::EType type);
 
 
@@ -144,7 +144,6 @@ private:
 	LLButton*			mEditWearableBtn;
 	LLButton*			mFolderViewBtn;
 	LLButton*			mListViewBtn;
-	LLButton*			mAddToOutfitBtn;
 	LLPanel*			mAddWearablesPanel;
 
 	LLFindNonLinksByMask*  mWearableListMaskCollector;

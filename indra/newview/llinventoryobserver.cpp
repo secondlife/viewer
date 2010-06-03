@@ -68,7 +68,7 @@
 // you're fetching an item and a notification gets triggered because
 // you renamed some other item).  This counter is to specify how many
 // notification to wait for before giving up.
-static const U32 MAX_NUM_NOTIFICATIONS_TO_PROCESS = 20;
+static const U32 MAX_NUM_NOTIFICATIONS_TO_PROCESS = 127;
 
 LLInventoryObserver::LLInventoryObserver()
 {

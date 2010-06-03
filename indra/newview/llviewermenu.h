@@ -44,6 +44,7 @@ class LLParcelSelection;
 class LLObjectSelection;
 class LLSelectNode;
 
+void initialize_edit_menu();
 void init_menus();
 void cleanup_menus();
 
