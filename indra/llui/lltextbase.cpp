@@ -1597,7 +1597,7 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 	}
 }
 
-void LLTextBase::appendTextImpl(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
+void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
 	LLStyle::Params style_params(input_params);
 	style_params.fillFrom(getDefaultStyleParams());
@@ -1647,7 +1647,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, bool prepend_newlin
 					// Text will be replaced during rendering with the icon,
 					// but string cannot be empty or the segment won't be
 					// added (or drawn).
-					appendImageSegment(part, icon);
+					appendImageSegment(part, icon_params);
 				}
 			}
 

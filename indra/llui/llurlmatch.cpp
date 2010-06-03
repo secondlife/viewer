@@ -48,9 +48,9 @@ LLUrlMatch::LLUrlMatch() :
 
 void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url,
 						   const std::string &label, const std::string &tooltip,
-						   const std::string &icon, const LLUIColor& color,
+						   const std::string &icon, const LLStyle::Params& style,
 						   const std::string &menu, const std::string &location,
-						   bool disabled_link)
+						   const LLUUID& id)
 {
 	mStart = start;
 	mEnd = end;

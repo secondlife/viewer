@@ -86,7 +86,7 @@ public:
 	/// Change the contents of this match object (used by LLUrlRegistry)
 	void setValues(U32 start, U32 end, const std::string &url, const std::string &label,
 	               const std::string &tooltip, const std::string &icon,
-				   const LLUIColor& color, const std::string &menu, 
+				   const LLStyle::Params& style, const std::string &menu, 
 				   const std::string &location, const LLUUID& id);
 
 	const LLUUID& getID() const { return mID; }
