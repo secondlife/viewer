@@ -1717,7 +1717,7 @@ if (LINUX)
     )
     
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched) 
-  add_dependencies(copy_l_viewer_manifest "${VIEWER_BINARY_NAME}")
+  add_dependencies(copy_l_viewer_manifest "${VIEWER_BINARY_NAME}" linux-crash-logger-target linux-updater-target)
 endif (LINUX)
 
 if (DARWIN)
