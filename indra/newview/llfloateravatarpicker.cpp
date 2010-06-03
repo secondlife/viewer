@@ -41,10 +41,14 @@
 #include "llimview.h"			// for gIMMgr
 #include "lltooldraganddrop.h"	// for LLToolDragAndDrop
 #include "llviewercontrol.h"
+#include "llviewerregion.h"		// getCapability()
 #include "llworld.h"
 
 // Linden libraries
+#include "llavatarnamecache.h"	// IDEVO
 #include "llbutton.h"
+#include "llcachename.h"
+#include "llhttpclient.h"		// IDEVO
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
@@ -52,6 +56,11 @@
 #include "lltabcontainer.h"
 #include "lluictrlfactory.h"
 #include "message.h"
+
+//#include "llsdserialize.h"
+
+//put it back as a member once the legacy path is out?
+static std::map<LLUUID, LLAvatarName> sAvatarNameMap;
 
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 												   BOOL allow_multiple,
@@ -159,7 +168,7 @@ void LLFloaterAvatarPicker::onBtnFind()
 	find();
 }
 
-static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std::string>& avatar_names, uuid_vec_t& avatar_ids)
+static void getSelectedAvatarData(const LLScrollListCtrl* from, uuid_vec_t& avatar_ids, std::vector<LLAvatarName>& avatar_names)
 {
 	std::vector<LLScrollListItem*> items = from->getAllSelected();
 	for (std::vector<LLScrollListItem*>::iterator iter = items.begin(); iter != items.end(); ++iter)
@@ -167,8 +176,21 @@ static void getSelectedAvatarData(const LLScrollListCtrl* from, std::vector<std:
 		LLScrollListItem* item = *iter;
 		if (item->getUUID().notNull())
 		{
-			avatar_names.push_back(item->getColumn(0)->getValue().asString());
 			avatar_ids.push_back(item->getUUID());
+
+			std::map<LLUUID, LLAvatarName>::iterator iter = sAvatarNameMap.find(item->getUUID());
+			if (iter != sAvatarNameMap.end())
+			{
+				avatar_names.push_back(iter->second);
+			}
+			else
+			{
+				// the only case where it isn't in the name map is friends
+				// but it should be in the name cache
+				LLAvatarName av_name;
+				LLAvatarNameCache::get(item->getUUID(), &av_name);
+				avatar_names.push_back(av_name);
+			}
 		}
 	}
 }
@@ -204,10 +226,10 @@ void LLFloaterAvatarPicker::onBtnSelect()
 
 		if(list)
 		{
-			std::vector<std::string>	avatar_names;
 			uuid_vec_t			avatar_ids;
-			getSelectedAvatarData(list, avatar_names, avatar_ids);
-			mSelectionCallback(avatar_names, avatar_ids);
+			std::vector<LLAvatarName>	avatar_names;
+			getSelectedAvatarData(list, avatar_ids, avatar_names);
+			mSelectionCallback(avatar_ids, avatar_names);
 		}
 	}
 	getChild<LLScrollListCtrl>("SearchResults")->deselectAllItems(TRUE);
@@ -257,15 +279,22 @@ void LLFloaterAvatarPicker::populateNearMe()
 		if(av == gAgent.getID()) continue;
 		LLSD element;
 		element["id"] = av; // value
-		std::string fullname;
-		if(!gCacheName->getFullName(av, fullname))
+		LLAvatarName av_name;
+
+		if (!LLAvatarNameCache::get(av, &av_name))
 		{
+			element["columns"][0]["column"] = "name";
 			element["columns"][0]["value"] = LLCacheName::getDefaultName();
 			all_loaded = FALSE;
 		}			
 		else
 		{
-			element["columns"][0]["value"] = fullname;
+			element["columns"][0]["column"] = "name";
+			element["columns"][0]["value"] = av_name.mDisplayName;
+			element["columns"][1]["column"] = "username";
+			element["columns"][1]["value"] = av_name.mUsername;
+
+			sAvatarNameMap[av] = av_name;
 		}
 		near_me_scroller->addElement(element);
 		empty = FALSE;
@@ -299,7 +328,6 @@ void LLFloaterAvatarPicker::populateFriend()
 	LLCollectAllBuddies collector;
 	LLAvatarTracker::instance().applyFunctor(collector);
 	LLCollectAllBuddies::buddy_map_t::iterator it;
-	
 	
 	for(it = collector.mOnline.begin(); it!=collector.mOnline.end(); it++)
 	{
@@ -352,14 +380,69 @@ BOOL LLFloaterAvatarPicker::visibleItemsSelected() const
 	return FALSE;
 }
 
+class LLAvatarPickerResponder : public LLHTTPClient::Responder
+{
+public:
+	LLUUID mQueryID;
+
+	LLAvatarPickerResponder(const LLUUID& id) : mQueryID(id) { }
+
+	/*virtual*/ void completed(U32 status, const std::string& reason, const LLSD& content)
+	{
+		//std::ostringstream ss;
+		//LLSDSerialize::toPrettyXML(content, ss);
+		//llinfos << ss.str() << llendl;
+
+		if (isGoodStatus(status))
+		{
+			LLFloaterAvatarPicker* floater =
+				LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+			if (floater)
+			{
+				floater->processResponse(mQueryID, content);
+			}
+		}
+		else
+		{
+			llinfos << "avatar picker failed " << status
+				<< " reason " << reason << llendl;
+		}
+	}
+};
+
 void LLFloaterAvatarPicker::find()
 {
+	//clear our stored LLAvatarNames
+	sAvatarNameMap.clear();
+
 	std::string text = childGetValue("Edit").asString();
 
 	mQueryID.generate();
 
-	LLMessageSystem* msg = gMessageSystem;
+	std::string url;
+	url.reserve(128); // avoid a memory allocation or two
 
+	LLViewerRegion* region = gAgent.getRegion();
+	url = region->getCapability("AvatarPickerSearch");
+	// Prefer use of capabilities to search on both SLID and display name
+	// but allow display name search to be manually turned off for test
+	if (!url.empty()
+		&& LLAvatarNameCache::useDisplayNames())
+	{
+		// capability urls don't end in '/', but we need one to parse
+		// query parameters correctly
+		if (url.size() > 0 && url[url.size()-1] != '/')
+		{
+			url += "/";
+		}
+		url += "?names=";
+		url += LLURI::escape(text);
+		llinfos << "avatar picker " << url << llendl;
+		LLHTTPClient::get(url, new LLAvatarPickerResponder(mQueryID));
+	}
+	else
+	{
+	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessage("AvatarPickerRequest");
 	msg->nextBlock("AgentData");
 	msg->addUUID("AgentID", gAgent.getID());
@@ -367,8 +450,8 @@ void LLFloaterAvatarPicker::find()
 	msg->addUUID("QueryID", mQueryID);	// not used right now
 	msg->nextBlock("Data");
 	msg->addString("Name", text);
-
 	gAgent.sendReliableMessage();
+	}
 
 	getChild<LLScrollListCtrl>("SearchResults")->deleteAllItems();
 	getChild<LLScrollListCtrl>("SearchResults")->setCommentText(getString("searching"));
@@ -496,12 +579,21 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 		}
 		else
 		{
-			avatar_name = first_name + " " + last_name;
+			avatar_name = LLCacheName::buildFullName(first_name, last_name);
 			search_results->setEnabled(TRUE);
 			found_one = TRUE;
+
+			LLAvatarName av_name;
+			av_name.mLegacyFirstName = first_name;
+			av_name.mLegacyLastName = last_name;
+			av_name.mDisplayName = avatar_name;
+			const LLUUID& agent_id = avatar_id;
+			sAvatarNameMap[agent_id] = av_name;
+
 		}
 		LLSD element;
 		element["id"] = avatar_id; // value
+		element["columns"][0]["column"] = "name";
 		element["columns"][0]["value"] = avatar_name;
 		search_results->addElement(element);
 	}
@@ -515,10 +607,61 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	}
 }
 
+void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& content)
+{
+	// Check for out-of-date query
+	if (query_id != mQueryID) return;
+
+	LLScrollListCtrl* search_results = getChild<LLScrollListCtrl>("SearchResults");
+
+	LLSD agents = content["agents"];
+	if (agents.size() == 0)
+	{
+		LLStringUtil::format_map_t map;
+		map["[TEXT]"] = childGetText("Edit");
+		LLSD item;
+		item["id"] = LLUUID::null;
+		item["columns"][0]["column"] = "name";
+		item["columns"][0]["value"] = getString("not_found", map);
+		search_results->addElement(item);
+		search_results->setEnabled(FALSE);
+		childDisable("ok_btn");
+		return;
+	}
+
+	// clear "Searching" label on first results
+	search_results->deleteAllItems();
+
+	LLSD item;
+	LLSD::array_const_iterator it = agents.beginArray();
+	for ( ; it != agents.endArray(); ++it)
+	{
+		const LLSD& row = *it;
+		item["id"] = row["id"];
+		LLSD& columns = item["columns"];
+		columns[0]["column"] = "name";
+		columns[0]["value"] = row["display_name"];
+		columns[1]["column"] = "username";
+		columns[1]["value"] = row["username"];
+		search_results->addElement(item);
+
+		// add the avatar name to our list
+		LLAvatarName avatar_name;
+		avatar_name.fromLLSD(row);
+		sAvatarNameMap[row["id"].asUUID()] = avatar_name;
+	}
+
+	childEnable("ok_btn");
+	search_results->setEnabled(true);
+	search_results->selectFirstItem();
+	onList();
+	search_results->setFocus(TRUE);
+}
+
 //static
 void LLFloaterAvatarPicker::editKeystroke(LLLineEditor* caller, void* user_data)
 {
-	childSetEnabled("Find", caller->getText().size() >= 3);
+	childSetEnabled("Find", caller->getText().size() > 0);
 }
 
 // virtual
@@ -576,8 +719,8 @@ bool LLFloaterAvatarPicker::isSelectBtnEnabled()
 		if(list)
 		{
 			uuid_vec_t avatar_ids;
-			std::vector<std::string> avatar_names;
-			getSelectedAvatarData(list, avatar_names, avatar_ids);
+			std::vector<LLAvatarName> avatar_names;
+			getSelectedAvatarData(list, avatar_ids, avatar_names);
 			return mOkButtonValidateSignal(avatar_ids);
 		}
 	}

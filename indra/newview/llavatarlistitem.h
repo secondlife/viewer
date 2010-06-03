@@ -42,6 +42,7 @@
 #include "llcallingcard.h" // for LLFriendObserver
 
 class LLAvatarIconCtrl;
+class LLAvatarName;
 
 class LLAvatarListItem : public LLPanel, public LLFriendObserver
 {
@@ -91,7 +92,8 @@ public:
 	virtual void changed(U32 mask); // from LLFriendObserver
 
 	void setOnline(bool online);
-	void setName(const std::string& name);
+	void setAvatarName(const std::string& name);
+	void setAvatarToolTip(const std::string& tooltip);
 	void setHighlight(const std::string& highlight);
 	void setState(EItemState item_style);
 	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false, bool is_resident = true);
@@ -104,7 +106,8 @@ public:
 	void setAvatarIconVisible(bool visible);
 	
 	const LLUUID& getAvatarId() const;
-	const std::string getAvatarName() const;
+	std::string getAvatarName() const;
+	std::string getAvatarToolTip() const;
 
 	void onInfoBtnClick();
 	void onProfileBtnClick();
@@ -145,7 +148,7 @@ private:
 	} EAvatarListItemChildIndex;
 
 	void setNameInternal(const std::string& name, const std::string& highlight);
-	void onNameCache(const std::string& first_name, const std::string& last_name);
+	void onAvatarNameCache(const LLAvatarName& av_name);
 
 	std::string formatSeconds(U32 secs);
 

@@ -87,6 +87,7 @@
 #include "llsecondlifeurls.h"
 
 // Linden library includes
+#include "llavatarnamecache.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
 #include "llprimitive.h"
@@ -159,7 +160,6 @@
 // Included so that constants/settings might be initialized
 // in save_settings_to_globals()
 #include "llbutton.h"
-#include "llcombobox.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
 #include "llvosky.h"
@@ -404,9 +404,6 @@ static void settings_to_globals()
 
 	MENU_BAR_HEIGHT		= gSavedSettings.getS32("MenuBarHeight");
 	MENU_BAR_WIDTH		= gSavedSettings.getS32("MenuBarWidth");
-
-	LLCOMBOBOX_HEIGHT	= BTN_HEIGHT - 2;
-	LLCOMBOBOX_WIDTH	= 128;
 
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
@@ -1302,8 +1299,7 @@ bool LLAppViewer::cleanup()
 
 	LLPolyMesh::freeAllMeshes();
 
-	delete gCacheName;
-	gCacheName = NULL;
+	LLStartUp::cleanupNameCache();
 
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be deleted.
 
@@ -3382,6 +3378,15 @@ void LLAppViewer::saveFinalSnapshot()
 
 void LLAppViewer::loadNameCache()
 {
+	// display names cache
+	std::string filename =
+		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+	llifstream name_cache_stream(filename);
+	if(name_cache_stream.is_open())
+	{
+		LLAvatarNameCache::importFile(name_cache_stream);
+	}
+
 	if (!gCacheName) return;
 
 	std::string name_cache;
@@ -3391,19 +3396,19 @@ void LLAppViewer::loadNameCache()
 	{
 		if(gCacheName->importFile(cache_file)) return;
 	}
-
-	// Try to load from the legacy format. This should go away after a
-	// while. Phoenix 2008-01-30
-	LLFILE* name_cache_fp = LLFile::fopen(name_cache, "r");		// Flawfinder: ignore
-	if (name_cache_fp)
-	{
-		gCacheName->importFile(name_cache_fp);
-		fclose(name_cache_fp);
-	}
 }
 
 void LLAppViewer::saveNameCache()
-{
+	{
+	// display names cache
+	std::string filename =
+		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "avatar_name_cache.xml");
+	llofstream name_cache_stream(filename);
+	if(name_cache_stream.is_open())
+	{
+		LLAvatarNameCache::exportFile(name_cache_stream);
+}
+
 	if (!gCacheName) return;
 
 	std::string name_cache;
@@ -3599,6 +3604,7 @@ void LLAppViewer::idle()
 	    // NOTE: Starting at this point, we may still have pointers to "dead" objects
 	    // floating throughout the various object lists.
 	    //
+		idleNameCache();
     
 		idleNetwork();
 	    	        
@@ -3936,6 +3942,60 @@ void LLAppViewer::sendLogoutRequest()
 	}
 }
 
+void LLAppViewer::idleNameCache()
+{
+	// Neither old nor new name cache can function before agent has a region
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region) return;
+
+	// deal with any queued name requests and replies.
+	gCacheName->processPending();
+
+	// Can't run the new cache until we have the list of capabilities
+	// for the agent region, and can therefore decide whether to use
+	// display names or fall back to the old name system.
+	if (!region->capabilitiesReceived()) return;
+
+	// Agent may have moved to a different region, so need to update cap URL
+	// for name lookups.  Can't do this in the cap grant code, as caps are
+	// granted to neighbor regions before the main agent gets there.  Can't
+	// do it in the move-into-region code because cap not guaranteed to be
+	// granted yet, for example on teleport.
+	bool had_capability = LLAvatarNameCache::hasNameLookupURL();
+	std::string name_lookup_url;
+	name_lookup_url.reserve(128); // avoid a memory allocation below
+	name_lookup_url = region->getCapability("GetDisplayNames");
+	bool have_capability = !name_lookup_url.empty();
+	if (have_capability)
+	{
+		// we have support for display names, use it
+	    U32 url_size = name_lookup_url.size();
+	    // capabilities require URLs with slashes before query params:
+	    // https://<host>:<port>/cap/<uuid>/?ids=<blah>
+	    // but the caps are granted like:
+	    // https://<host>:<port>/cap/<uuid>
+	    if (url_size > 0 && name_lookup_url[url_size-1] != '/')
+	    {
+		    name_lookup_url += '/';
+	    }
+		LLAvatarNameCache::setNameLookupURL(name_lookup_url);
+	}
+	else
+	{
+		// Display names not available on this region
+		LLAvatarNameCache::setNameLookupURL( std::string() );
+	}
+
+	// Error recovery - did we change state?
+	if (had_capability != have_capability)
+	{
+		// name tags are persistant on screen, so make sure they refresh
+		LLVOAvatar::invalidateNameTags();
+	}
+
+	LLAvatarNameCache::idle();
+}
+
 //
 // Handle messages, and all message related stuff
 //
@@ -3961,8 +4021,6 @@ void LLAppViewer::idleNetwork()
 	{
 		LLFastTimer t(FTM_IDLE_NETWORK); // decode
 		
-		// deal with any queued name requests and replies.
-		gCacheName->processPending();
 		LLTimer check_message_timer;
 		//  Read all available packets from network 
 		const S64 frame_count = gFrameCount;  // U32->S64

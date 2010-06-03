@@ -39,6 +39,7 @@
 #include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llgl.h"
+#include "llhudtext.h"
 #include "llrender.h"
 #include "llvoavatar.h"
 #include "llvolume.h"

@@ -69,6 +69,7 @@
 #include "llface.h"
 #include "llfloaterproperties.h"
 #include "llfollowcam.h"
+#include "llhudtext.h"
 #include "llselectmgr.h"
 #include "llrendersphere.h"
 #include "lltooldraganddrop.h"
@@ -1080,7 +1081,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					// alpha was flipped so that it zero encoded better
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
-					mText->setStringUTF8(temp_string);
+					mText->setString(temp_string);
 					
 					if (mDrawable.notNull())
 					{
@@ -1472,7 +1473,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					dp->unpackBinaryDataFixed(coloru.mV, 4, "Color");
 					coloru.mV[3] = 255 - coloru.mV[3];
 					mText->setColor(LLColor4(coloru));
-					mText->setStringUTF8(temp_string);
+					mText->setString(temp_string);
 
 					setChanged(TEXTURE);
 				}
@@ -4132,7 +4133,7 @@ void LLViewerObject::setDebugText(const std::string &utf8text)
 		mText->setOnHUDAttachment(isHUDAttachment());
 	}
 	mText->setColor(LLColor4::white);
-	mText->setStringUTF8(utf8text);
+	mText->setString(utf8text);
 	mText->setZCompare(FALSE);
 	mText->setDoFade(FALSE);
 	updateText();

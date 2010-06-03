@@ -40,7 +40,7 @@
 				</layout_panel>
 				<layout_panel name="descr_layout_panel">
 					<text name="classified_desc_label" value="Beskrivelse:"/>
-					<text_editor name="classified_desc" value="[description]"/>
+			<text_editor name="classified_desc" value="[description]"/>
 				</layout_panel>
 			</layout_stack>
 		</panel>

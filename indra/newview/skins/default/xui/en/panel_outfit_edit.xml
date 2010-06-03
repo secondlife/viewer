@@ -52,7 +52,7 @@
     <string name="Filter.Clothes/Body" value="Clothes/Body"/>
     <string name="Filter.Objects" value="Objects"/>
 
-
+  
     <button
      follows="top|left"
      height="24"
@@ -189,19 +189,19 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                  user_resize="false"
                  visible="true">
 
-                    <!-- List containing items from the COF and Base outfit -->
-                    <panel
-                     background_visible="false"
-                     class="cof_wearables"
-                     filename="panel_cof_wearables.xml"
+            <!-- List containing items from the COF and Base outfit -->
+            <panel
+             background_visible="false"
+             class="cof_wearables"
+             filename="panel_cof_wearables.xml"
                      follows="all" 
                      height="129"
-                     layout="topleft"
-                     left="1"
-                     name="cof_wearables_list"
-                     top="0"
-                     width="311" />
-                    
+             layout="topleft"
+             left="1"
+             name="cof_wearables_list"
+             top="0"
+             width="311" />
+
                     <button
                      follows="left|bottom" 
                      height="22"
@@ -216,24 +216,24 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                     <combo_box
                      follows="left|right|bottom"
                      height="22"
-                     layout="topleft"
+             layout="topleft"
                      left_pad="5"
                      name="filter_wearables_combobox"
                      top_delta="0"
                      visible="false"
                      width="152"/>
 
-                    <button
+            <button
                      follows="bottom|right"
                      height="22"
-                     image_overlay="Search_Icon"
-                     is_toggle="true"
-                     layout="topleft"
-                     name="filter_button"
+             image_overlay="Search_Icon"
+             is_toggle="true"
+             layout="topleft"
+             name="filter_button"
                      right="-5"
-                     top_delta="0"
+             top_delta="0"
                      visible="false"
-                     width="20" />
+             width="20" />
                 </layout_panel>
 
                 <layout_panel
@@ -263,13 +263,13 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                     
                 </layout_panel>
             </layout_stack>
-        </layout_panel>
+                </layout_panel>
 
 
-        <layout_panel
+                <layout_panel
          background_visible="true"
          bg_alpha_color="DkGray2"
-         auto_resize="true"
+                 auto_resize="true"
          default_tab_group="3"
          height="211"
          min_height="210"
@@ -289,46 +289,46 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              top_pad="-9"
              width="313" />
 
-            <inventory_panel
-             allow_multi_select="true"
-             background_visible="false"
-             border="false"
-             follows="left|top|right|bottom"
+                    <inventory_panel
+		             allow_multi_select="true"
+		             background_visible="false"
+		             border="false"
+		             follows="left|top|right|bottom"
              height="210"
-             layout="topleft"
-             left="0"
-             mouse_opaque="false"
-             name="inventory_items"
-             top_pad="5"
-             width="310"
-             visible="false"/>
-            <panel
-             name="filtered_wearables_panel"
-             background_opaque="true"
-             background_visible="false"
-             layout="topleft"
-             follows="left|top|right|bottom"
-             border="false"
+		             layout="topleft"
+		             left="0"
+		             mouse_opaque="false"
+		             name="inventory_items"
+		             top_pad="5"
+		             width="310"
+		             visible="false"/>
+		            <panel
+		             name="filtered_wearables_panel"
+		             background_opaque="true"
+		             background_visible="false"
+		             layout="topleft"
+		             follows="left|top|right|bottom"
+		             border="false"
              height="210"
-             left="0"
-             mouse_opaque="false"
-             width="311"
-             top_delta="0"
-             visible="true">
-                <wearable_items_list
-                 color="0.107 0.107 0.107 1"
-                 name="filtered_wearables_list"
-                 allow_select="true"
-                 layout="topleft"
-                 follows="all"
-                 multi_select="true"
-                 width="310"
+		             left="0"
+		             mouse_opaque="false"
+		             width="311"
+		             top_delta="0"
+		             visible="true">
+		             <wearable_items_list
+		              color="0.107 0.107 0.107 1"
+		              name="filtered_wearables_list"
+		              allow_select="true"
+		              layout="topleft"
+		              follows="all"
+		              multi_select="true"
+		              width="310"
                  height="210"
-                 left="0"
-                 top="0"/>
-            </panel>
+		              left="0"
+		              top="0"/>
+		            </panel>
 
-        </layout_panel>
+       </layout_panel>
     </layout_stack>
 
 
@@ -431,17 +431,17 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          name="add_to_outfit_btn"
          top="1"
          width="31" />
-        <icon
-         follows="bottom|left|right"
-         height="25"
-         image_name="Toolbar_Right_Off"
-         layout="topleft"
-         left_pad="1"
+       <icon
+        follows="bottom|left|right"
+        height="25"
+        image_name="Toolbar_Right_Off"
+        layout="topleft"
+        left_pad="1"
          name="dummy_right_icon"
-         width="184" >
-        </icon>
+        width="184" >
+       </icon>
     </panel>
-    
+
     <!-- SAVE AND REVERT BUTTONS -->
     <panel
      follows="left|right|bottom"

@@ -50,7 +50,7 @@
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llvoiceclient.h"
-#include "llnamebox.h"
+#include "lltextbox.h"
 #include "lltrans.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -224,13 +224,8 @@ void LLPanelAvatarNotes::rightsConfirmationCallback(const LLSD& notification,
 
 void LLPanelAvatarNotes::confirmModifyRights(bool grant, S32 rights)
 {
-	std::string first, last;
 	LLSD args;
-	if (gCacheName->getName(getAvatarId(), first, last))
-	{
-		args["FIRST_NAME"] = first;
-		args["LAST_NAME"] = last;
-	}
+	args["NAME"] = LLSLURL("agent", getAvatarId(), "displayname").getSLURLString();
 
 	if (grant)
 	{
@@ -574,8 +569,7 @@ void LLPanelAvatarProfile::resetData()
 	childSetValue("homepage_edit",LLStringUtil::null);
 	childSetValue("register_date",LLStringUtil::null);
 	childSetValue("acc_status_text",LLStringUtil::null);
-	childSetTextArg("partner_text", "[FIRST]", LLStringUtil::null);
-	childSetTextArg("partner_text", "[LAST]", LLStringUtil::null);
+	childSetValue("partner_text", LLStringUtil::null);
 }
 
 void LLPanelAvatarProfile::processProperties(void* data, EAvatarProcessorType type)
@@ -666,15 +660,14 @@ void LLPanelAvatarProfile::fillCommonData(const LLAvatarData* avatar_data)
 
 void LLPanelAvatarProfile::fillPartnerData(const LLAvatarData* avatar_data)
 {
-	LLNameBox* name_box = getChild<LLNameBox>("partner_text");
+	LLTextBox* partner_text = getChild<LLTextBox>("partner_text");
 	if (avatar_data->partner_id.notNull())
 	{
-		name_box->setNameID(avatar_data->partner_id, FALSE);
+		partner_text->setText(LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString());
 	}
 	else
 	{
-		name_box->setNameID(LLUUID::null, FALSE);
-		name_box->setText(getString("no_partner_text"));
+		partner_text->setText(getString("no_partner_text"));
 	}
 }
 

@@ -33,6 +33,7 @@
 
 #include "llfloatersellland.h"
 
+#include "llavatarnamecache.h"
 #include "llfloateravatarpicker.h"
 #include "llfloaterreg.h"
 #include "llfloaterland.h"
@@ -46,6 +47,8 @@
 #include "llviewerparcelmgr.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
+
+class LLAvatarName;
 
 // defined in llfloaterland.cpp
 void send_parcel_select_objects(S32 parcel_local_id, U32 return_type,
@@ -95,7 +98,9 @@ private:
 	bool onConfirmSale(const LLSD& notification, const LLSD& response);
 	static void doShowObjects(void *userdata);
 
-	void callbackAvatarPick(const std::vector<std::string>& names, const uuid_vec_t& ids);
+	void callbackAvatarPick(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
+
+	void onBuyerNameCache(const LLAvatarName& av_name);
 
 public:
 	virtual BOOL postBuild();
@@ -230,10 +235,15 @@ void LLFloaterSellLandUI::updateParcelInfo()
 
 	if(mSellToBuyer)
 	{
-		std::string name;
-		gCacheName->getFullName(mAuthorizedBuyer, name);
-		childSetText("sell_to_agent", name);
+		LLAvatarNameCache::get(mAuthorizedBuyer, 
+			boost::bind(&LLFloaterSellLandUI::onBuyerNameCache, this, _2));
 	}
+}
+
+void LLFloaterSellLandUI::onBuyerNameCache(const LLAvatarName& av_name)
+{
+	childSetText("sell_to_agent", av_name.getCompleteName());
+	childSetToolTip("sell_to_agent", av_name.mUsername);
 }
 
 void LLFloaterSellLandUI::setBadge(const char* id, Badge badge)
@@ -391,7 +401,7 @@ void LLFloaterSellLandUI::doSelectAgent()
 	addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), FALSE, TRUE));
 }
 
-void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& names, const uuid_vec_t& ids)
+void LLFloaterSellLandUI::callbackAvatarPick(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {	
 	LLParcel* parcel = mParcelSelection->getParcel();
 
@@ -402,7 +412,7 @@ void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& nam
 
 	mAuthorizedBuyer = ids[0];
 
-	childSetText("sell_to_agent", names[0]);
+	childSetText("sell_to_agent", names[0].getCompleteName());
 
 	refreshUI();
 }

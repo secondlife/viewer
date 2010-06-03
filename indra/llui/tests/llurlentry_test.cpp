@@ -25,6 +25,7 @@
 #include "llurlentry_stub.cpp"
 #include "lltut.h"
 #include "../lluicolortable.h"
+#include "../lluiimage.h"
 
 #include <boost/regex.hpp>
 
@@ -34,6 +35,26 @@ LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& defa
 }
 
 LLUIColor::LLUIColor() : mColorPtr(NULL) {}
+
+LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
+{
+}
+
+LLUIImage::~LLUIImage()
+{
+}
+
+//virtual
+S32 LLUIImage::getWidth() const
+{
+	return 0;
+}
+
+//virtual
+S32 LLUIImage::getHeight() const
+{
+	return 0;
+}
 
 namespace tut
 {

@@ -963,9 +963,9 @@ void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 	if (width != getRect().getWidth() || height != getRect().getHeight())
 	{
 		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
-
+		
 		LLUICtrl::reshape( width, height, called_from_parent );
-
+	
 		if (mScroller && scrolled_to_bottom && mTrackEnd)
 		{
 			// keep bottom of text buffer visible
@@ -974,7 +974,7 @@ void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 			// not be scrolled to the bottom, since the scroll index
 			// specified the _top_ of the visible document region
 			mScroller->goToBottom();
-		}
+		}		
 
 		// do this first after reshape, because other things depend on
 		// up-to-date mVisibleTextRect
@@ -1288,28 +1288,28 @@ void LLTextBase::reflow()
 		}
 	}
 
-	// apply scroll constraints after reflowing text
-	if (!hasMouseCapture() && mScroller)
-	{
-		if (scrolled_to_bottom && mTrackEnd)
+		// apply scroll constraints after reflowing text
+		if (!hasMouseCapture() && mScroller)
 		{
-			// keep bottom of text buffer visible
-			endOfDoc();
-		}
-		else if (hasSelection() && follow_selection)
-		{
-			// keep cursor in same vertical position on screen when selecting text
-			LLRect new_cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
+			if (scrolled_to_bottom && mTrackEnd)
+			{
+				// keep bottom of text buffer visible
+				endOfDoc();
+			}
+			else if (hasSelection() && follow_selection)
+			{
+				// keep cursor in same vertical position on screen when selecting text
+				LLRect new_cursor_rect_doc = getDocRectFromDocIndex(mCursorPos);
 			LLRect old_cursor_rect = cursor_rect;
 			old_cursor_rect.mTop = mVisibleTextRect.mTop - cursor_rect.mTop;
 			old_cursor_rect.mBottom = mVisibleTextRect.mTop - cursor_rect.mBottom;
 
-			mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect);
-		}
-		else
-		{
-			// keep first line of text visible
-			LLRect new_first_char_rect = getDocRectFromDocIndex(mScrollIndex);
+				mScroller->scrollToShowRect(new_cursor_rect_doc, old_cursor_rect);
+			}
+			else
+			{
+				// keep first line of text visible
+				LLRect new_first_char_rect = getDocRectFromDocIndex(mScrollIndex);
 
 			// pass in desired rect in the coordinate frame of the document viewport
 			LLRect old_first_char_rect = first_char_rect;
@@ -1317,12 +1317,12 @@ void LLTextBase::reflow()
 			old_first_char_rect.mBottom = mVisibleTextRect.mTop - first_char_rect.mBottom;
 
 			mScroller->scrollToShowRect(new_first_char_rect, old_first_char_rect);
+			}
 		}
-	}
 
-	// reset desired x cursor position
-	updateCursorXPos();
-}
+		// reset desired x cursor position
+		updateCursorXPos();
+	}
 
 LLRect LLTextBase::getTextBoundingRect()
 {
@@ -1583,7 +1583,21 @@ std::string LLTextBase::getText() const
 	return getViewModel()->getValue().asString();
 }
 
-void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
+// IDEVO - icons can be UI image names or UUID sent from
+// server with avatar display name
+static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
+{
+	if (LLUUID::validate(icon_name))
+	{
+		return LLUI::getUIImageByID( LLUUID(icon_name) );
+	}
+	else
+	{
+		return LLUI::getUIImage(icon_name);
+	}
+}
+
+void LLTextBase::appendTextImpl(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
 {
 	LLStyle::Params style_params(input_params);
 	style_params.fillFrom(getDefaultStyleParams());
@@ -1595,16 +1609,13 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		LLUrlMatch match;
 		std::string text = new_text;
 		while ( LLUrlRegistry::instance().findUrl(text, match,
-		        boost::bind(&LLTextBase::replaceUrlLabel, this, _1, _2)) )
+		        boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3)) )
 		{
 			start = match.getStart();
 			end = match.getEnd()+1;
 
-			LLStyle::Params link_params = style_params;
-			link_params.color = match.getColor();
-			link_params.readonly_color =  match.getColor();
-			link_params.font.style("UNDERLINE");
-			link_params.link_href = match.getUrl();
+			LLStyle::Params link_params(style_params);
+			link_params.overwriteFrom(match.getStyle());
 
 			// output the text before the Url
 			if (start > 0)
@@ -1625,11 +1636,14 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			// output an optional icon before the Url
 			if (! match.getIcon().empty())
 			{
-				LLUIImagePtr image = LLUI::getUIImage(match.getIcon());
+				LLUIImagePtr image = image_from_icon_name( match.getIcon() );
 				if (image)
 				{
-					LLStyle::Params icon;
-					icon.image = image;
+					LLStyle::Params icon_params;
+					icon_params.image = image;
+					// must refer to our link so we can update the icon later
+					// after name/group data is looked up
+					icon_params.link_href = match.getUrl();
 					// Text will be replaced during rendering with the icon,
 					// but string cannot be empty or the segment won't be
 					// added (or drawn).
@@ -1637,26 +1651,20 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 				}
 			}
 
-			// output the styled Url (unless we've been asked to suppress hyperlinking)
-			if (match.isLinkDisabled())
-			{
-				appendAndHighlightTextImpl(match.getLabel(), part, style_params);
-			}
-			else
-			{
-				appendAndHighlightTextImpl(match.getLabel(), part, link_params);
+			// output the styled Url
+			appendAndHighlightTextImpl(match.getLabel(), part, link_params);
 
-				// set the tooltip for the Url label
-				if (! match.getTooltip().empty())
-				{
-					segment_set_t::iterator it = getSegIterContaining(getLength()-1);
-					if (it != mSegments.end())
-						{
-							LLTextSegmentPtr segment = *it;
-							segment->setToolTip(match.getTooltip());
-						}
-				}
+			// set the tooltip for the Url label
+			if (! match.getTooltip().empty())
+			{
+				segment_set_t::iterator it = getSegIterContaining(getLength()-1);
+				if (it != mSegments.end())
+					{
+						LLTextSegmentPtr segment = *it;
+						segment->setToolTip(match.getTooltip());
+					}
 			}
+
 			// move on to the rest of the text after the Url
 			if (end < (S32)text.length()) 
 			{
@@ -1759,7 +1767,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 			highlight_params.color = lcolor;
 
 			LLWString wide_text;
-			wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
+				wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
 
 			S32 cur_length = getLength();
 			LLStyleConstSP sp(new LLStyle(highlight_params));
@@ -1772,7 +1780,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 	else
 	{
 		LLWString wide_text;
-		wide_text = utf8str_to_wstring(new_text);
+			wide_text = utf8str_to_wstring(new_text);
 
 		segment_vec_t segments;
 		S32 segment_start = old_length;
@@ -1829,8 +1837,9 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepen
 }
 
 
-void LLTextBase::replaceUrlLabel(const std::string &url,
-								   const std::string &label)
+void LLTextBase::replaceUrl(const std::string &url,
+							const std::string &label,
+							const std::string &icon)
 {
 	// get the full (wide) text for the editor so we can change it
 	LLWString text = getWText();
@@ -1851,13 +1860,28 @@ void LLTextBase::replaceUrlLabel(const std::string &url,
 		seg->setEnd(seg_start + seg_length);
 
 		// if we find a link with our Url, then replace the label
-		if (style->isLink() && style->getLinkHREF() == url)
+		if (style->getLinkHREF() == url)
 		{
 			S32 start = seg->getStart();
 			S32 end = seg->getEnd();
 			text = text.substr(0, start) + wlabel + text.substr(end, text.size() - end + 1);
 			seg->setEnd(start + wlabel.size());
 			modified = true;
+		}
+
+		// Icon might be updated when more avatar or group info
+		// becomes available
+		if (style->isImage() && style->getLinkHREF() == url)
+		{
+			LLUIImagePtr image = image_from_icon_name( icon );
+			if (image)
+			{
+				LLStyle::Params icon_params;
+				icon_params.image = image;
+				LLStyleConstSP new_style(new LLStyle(icon_params));
+				seg->setStyle(new_style);
+				modified = true;
+			}
 		}
 
 		// work out the character offset for the next segment
@@ -1957,8 +1981,8 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 		else if (hit_past_end_of_line && segmentp->getEnd() > line_iter->mDocIndexEnd - 1)	
 		{
 			// segment wraps to next line, so just set doc pos to the end of the line
- 			// segment wraps to next line, so just set doc pos to start of next line (represented by mDocIndexEnd)
- 			pos = llmin(getLength(), line_iter->mDocIndexEnd);
+			// segment wraps to next line, so just set doc pos to start of next line (represented by mDocIndexEnd)
+			pos = llmin(getLength(), line_iter->mDocIndexEnd);
 			break;
 		}
 		start_x += text_width;
@@ -2599,8 +2623,8 @@ bool LLNormalTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& widt
 		height = mFontHeight;
 		const LLWString &text = mEditor.getWText();
 		// if last character is a newline, then return true, forcing line break
-		width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
-	}
+			width = mStyle->getFont()->getWidth(text.c_str(), mStart + first_char, num_chars);
+		}
 	return false;
 }
 

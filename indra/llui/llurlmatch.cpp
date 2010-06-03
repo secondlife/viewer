@@ -42,8 +42,7 @@ LLUrlMatch::LLUrlMatch() :
 	mTooltip(""),
 	mIcon(""),
 	mMenuName(""),
-	mLocation(""),
-	mDisabledLink(false)
+	mLocation("")
 {
 }
 
@@ -51,7 +50,7 @@ void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url,
 						   const std::string &label, const std::string &tooltip,
 						   const std::string &icon, const LLUIColor& color,
 						   const std::string &menu, const std::string &location,
-						   bool disabled_link, const LLUUID& id)
+						   bool disabled_link)
 {
 	mStart = start;
 	mEnd = end;
@@ -59,9 +58,9 @@ void LLUrlMatch::setValues(U32 start, U32 end, const std::string &url,
 	mLabel = label;
 	mTooltip = tooltip;
 	mIcon = icon;
-	mColor = color;
+	mStyle = style;
+	mStyle.link_href = url;
 	mMenuName = menu;
 	mLocation = location;
-	mDisabledLink = disabled_link;
 	mID = id;
 }

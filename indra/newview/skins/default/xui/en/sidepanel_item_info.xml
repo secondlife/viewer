@@ -158,7 +158,7 @@
      left_pad="5"
 		     name="LabelCreatorName"
 		     top_delta="6"
-		     width="140">
+		     width="180">
 	        Nicole Linden
 	     </text>
 	     <button
@@ -201,7 +201,7 @@
 			   left_pad="5"
 			 name="LabelOwnerName"
 			 top_delta="6"
-			 width="140">
+			 width="180">
 			    Thrax Linden
 	     </text>
 	     <button

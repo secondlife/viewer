@@ -32,17 +32,25 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanelme.h"
+
+// Viewer includes
 #include "llpanelprofile.h"
 #include "llavatarconstants.h"
-#include "llpanelme.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
-#include "lliconctrl.h"
 #include "llsidetray.h"
+#include "llviewercontrol.h"
+#include "llviewerdisplayname.h"
+
+// Linden libraries
+#include "llavatarnamecache.h"		// IDEVO
+#include "lliconctrl.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"	// IDEVO
 #include "lltabcontainer.h"
 #include "lltexturectrl.h"
-#include "llviewercontrol.h"
 
 #define PICKER_SECOND_LIFE "2nd_life_pic"
 #define PICKER_FIRST_LIFE "real_world_pic"
@@ -180,6 +188,13 @@ void LLPanelMyProfileEdit::onOpen(const LLSD& key)
 	// Disable editing until data is loaded, or edited fields will be overwritten when data
 	// is loaded.
 	enableEditing(false);
+
+	// Only allow changing name if this region/grid supports it
+	bool use_display_names = LLAvatarNameCache::useDisplayNames();
+	LLUICtrl* set_name = getChild<LLUICtrl>("set_name");
+	set_name->setVisible(use_display_names);
+	set_name->setEnabled(use_display_names);
+
 	LLPanelMyProfile::onOpen(getAvatarId());
 }
 
@@ -213,13 +228,14 @@ void LLPanelMyProfileEdit::processProfileProperties(const LLAvatarData* avatar_d
 
 	childSetValue("show_in_search_checkbox", (BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
 
-	std::string first, last;
-	BOOL found = gCacheName->getName(avatar_data->avatar_id, first, last);
-	if (found)
-	{
-		childSetTextArg("name_text", "[FIRST]", first);
-		childSetTextArg("name_text", "[LAST]", last);
-	}
+	LLAvatarNameCache::get(avatar_data->avatar_id,
+		boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
+}
+
+void LLPanelMyProfileEdit::onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
+{
+	getChild<LLUICtrl>("user_name")->setValue( av_name.mDisplayName );
+	getChild<LLUICtrl>("user_slid")->setValue( av_name.mUsername );
 }
 
 BOOL LLPanelMyProfileEdit::postBuild()
@@ -228,6 +244,9 @@ BOOL LLPanelMyProfileEdit::postBuild()
 
 	childSetTextArg("partner_edit_link", "[URL]", getString("partner_edit_link_url"));
 	childSetTextArg("my_account_link", "[URL]", getString("my_account_link_url"));
+
+	getChild<LLUICtrl>("set_name")->setCommitCallback(
+		boost::bind(&LLPanelMyProfileEdit::onClickSetName, this));
 
 	return LLPanelAvatarProfile::postBuild();
 }
@@ -256,8 +275,10 @@ void LLPanelMyProfileEdit::resetData()
 {
 	LLPanelMyProfile::resetData();
 
-	childSetTextArg("name_text", "[FIRST]", LLStringUtil::null);
-	childSetTextArg("name_text", "[LAST]", LLStringUtil::null);
+	//childSetTextArg("name_text", "[FIRST]", LLStringUtil::null);
+	//childSetTextArg("name_text", "[LAST]", LLStringUtil::null);
+	getChild<LLUICtrl>("user_name")->setValue( LLSD() );
+	getChild<LLUICtrl>("user_slid")->setValue( LLSD() );
 }
 
 void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
@@ -267,6 +288,134 @@ void LLPanelMyProfileEdit::onTexturePickerMouseEnter(LLUICtrl* ctrl)
 void LLPanelMyProfileEdit::onTexturePickerMouseLeave(LLUICtrl* ctrl)
 {
 	mTextureEditIconMap[ctrl->getName()]->setVisible(FALSE);
+}
+
+void LLPanelMyProfileEdit::onCacheSetName(bool success,
+										  const std::string& reason,
+										  const LLSD& content)
+{
+	if (success)
+	{
+		// Inform the user that the change took place, but will take a while
+		// to percolate.
+		LLSD args;
+		args["DISPLAY_NAME"] = content["display_name"];
+		LLNotificationsUtil::add("SetDisplayNameSuccess", args);
+
+		// Re-fetch my name, as it may have been sanitized by the service
+		LLAvatarNameCache::get(getAvatarId(),
+			boost::bind(&LLPanelMyProfileEdit::onNameCache, this, _1, _2));
+		return;
+	}
+
+	// Request failed, notify the user
+	std::string error_tag = content["error_tag"].asString();
+	llinfos << "set name failure error_tag " << error_tag << llendl;
+
+	// We might have a localized string for this message
+	// error_args will usually be empty from the server.
+	if (!error_tag.empty()
+		&& LLNotifications::getInstance()->templateExists(error_tag))
+	{
+		LLNotificationsUtil::add(error_tag);
+		return;
+	}
+
+	// The server error might have a localized message for us
+	std::string lang_code = LLUI::getLanguage();
+	LLSD error_desc = content["error_description"];
+	if (error_desc.has( lang_code ))
+	{
+		LLSD args;
+		args["MESSAGE"] = error_desc[lang_code].asString();
+		LLNotificationsUtil::add("GenericAlert", args);
+		return;
+	}
+
+	// No specific error, throw a generic one
+	LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+}
+
+void LLPanelMyProfileEdit::onDialogSetName(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0 || option == 1)
+	{
+		LLUUID agent_id = notification["payload"]["agent_id"];
+		if (agent_id.isNull()) return;
+
+		std::string display_name_utf8;
+		if (option == 0)
+		{
+			// user gave us a name
+			display_name_utf8 = response["display_name"].asString();
+		}
+		else
+		{
+			// reset back to People API default
+			display_name_utf8 = "";
+		}
+
+		const U32 DISPLAY_NAME_MAX_LENGTH = 31; // characters, not bytes
+		LLWString display_name_wstr = utf8string_to_wstring(display_name_utf8);
+		if (display_name_wstr.size() > DISPLAY_NAME_MAX_LENGTH)
+		{
+			LLSD args;
+			args["LENGTH"] = llformat("%d", DISPLAY_NAME_MAX_LENGTH);
+			LLNotificationsUtil::add("SetDisplayNameFailedLength", args);
+			return;
+		}
+
+		LLViewerDisplayName::set(display_name_utf8,
+			boost::bind(&LLPanelMyProfileEdit::onCacheSetName, this,
+				_1, _2, _3));
+	}
+}
+
+void LLPanelMyProfileEdit::onClickSetName()
+{
+	LLUUID agent_id = getAvatarId();
+	std::string display_name;
+	LLAvatarName av_name;
+	if (!LLAvatarNameCache::get(agent_id, &av_name))
+	{
+		// something is wrong, tell user to try again later
+		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+		return;
+	}
+		
+	display_name = av_name.mDisplayName;
+	if (display_name.empty())
+	{
+		// something is wrong, tell user to try again later
+		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
+		return;		
+	}
+
+	llinfos << "name-change now " << LLDate::now() << " next_update "
+		<< LLDate(av_name.mNextUpdate) << llendl;
+	F64 now_secs = LLDate::now().secondsSinceEpoch();
+	if (now_secs < av_name.mNextUpdate)
+	{
+		// ...can't update until some time in the future
+		F64 next_update_local_secs =
+			av_name.mNextUpdate - LLStringOps::getLocalTimeOffset();
+		LLDate next_update_local(next_update_local_secs);
+		// display as "July 18 12:17 PM"
+		std::string next_update_string =
+		next_update_local.toHTTPDateString("%B %d %I:%M %p");
+		LLSD args;
+		args["TIME"] = next_update_string;
+		LLNotificationsUtil::add("SetDisplayNameFailedLockout", args);
+		return;
+	}
+	
+	LLSD args;
+	args["DISPLAY_NAME"] = display_name;
+	LLSD payload;
+	payload["agent_id"] = agent_id;
+	LLNotificationsUtil::add("SetDisplayName", args, payload, 
+		boost::bind(&LLPanelMyProfileEdit::onDialogSetName, this, _1, _2));
 }
 
 void LLPanelMyProfileEdit::enableEditing(bool enable)
