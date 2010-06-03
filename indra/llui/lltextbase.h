@@ -316,6 +316,13 @@ protected:
 	void							needsScroll() { mScrollNeeded = TRUE; }
 	void							replaceUrlLabel(const std::string &url, const std::string &label);
 
+	void							appendLineBreakSegment(const LLStyle::Params& style_params);
+	void							appendImageSegment(S32 highlight_part, const LLStyle::Params& style_params);
+	
+	void							appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
+	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params);
+	
+
 protected:
 	// text segmentation and flow
 	segment_set_t       		mSegments;
@@ -507,5 +514,32 @@ private:
 	bool	mForceNewLine;
 };
 
+class LLLineBreakTextSegment : public LLTextSegment
+{
+public:
+
+	LLLineBreakTextSegment(LLStyleConstSP style,S32 pos);
+	~LLLineBreakTextSegment();
+	bool		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
+	S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
+	F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
+
+private:
+	S32			mFontHeight;
+};
+
+class LLImageTextSegment : public LLTextSegment
+{
+public:
+	LLImageTextSegment(LLStyleConstSP style,S32 pos,class LLTextBase& editor);
+	~LLImageTextSegment();
+	bool		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
+	S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
+	F32			draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect);
+
+private:
+	class LLTextBase&	mEditor;
+	LLStyleConstSP	mStyle;
+};
 
 #endif

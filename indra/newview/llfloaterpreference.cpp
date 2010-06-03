@@ -1051,7 +1051,7 @@ void LLFloaterPreference::cleanupBadSetting()
 {
 	if (gSavedPerAccountSettings.getString("BusyModeResponse2") == "|TOKEN COPY BusyModeResponse|")
 	{
-		llwarns << "cleaning old BusyModeResponse" << llendl;
+		llinfos << "cleaning old BusyModeResponse" << llendl;
 		//LLTrans::getString("BusyModeResponseDefault") is used here for localization (EXT-5885)
 		gSavedPerAccountSettings.setString("BusyModeResponse2", LLTrans::getString("BusyModeResponseDefault"));
 	}
