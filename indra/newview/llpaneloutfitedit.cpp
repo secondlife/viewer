@@ -311,7 +311,6 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mWearableItemsPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLInventoryItemsList>("filtered_wearables_list");
-	mWearableListManager = new LLFilteredWearableListManager(mWearableItemsList, mWearableListMaskCollector);
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;
@@ -322,6 +321,9 @@ void LLPanelOutfitEdit::onOpen(const LLSD& key)
 {
 	if (!mInitialized)
 	{
+		// *TODO: this method is called even panel is not visible to user because its parent layout panel is hidden.
+		// So, we can defer initializing a bit.
+		mWearableListManager = new LLFilteredWearableListManager(mWearableItemsList, mWearableListMaskCollector);
 		displayCurrentOutfit();
 		mInitialized = true;
 	}

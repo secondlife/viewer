@@ -112,6 +112,8 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& cat_id, BOOL recursive
 {
 	if (!mAllFoldersFetched)
 	{
+		LL_DEBUGS("InventoryFetch") << "Start fetching category: " << cat_id << ", recursive: " << recursive << LL_ENDL;
+
 		mBackgroundFetchActive = TRUE;
 		if (cat_id.isNull())
 		{
