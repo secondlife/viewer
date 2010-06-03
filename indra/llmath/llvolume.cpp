@@ -295,7 +295,7 @@ BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, cons
 	}
 }
 
-class LLVolumeOctreeRebound : public LLOctreeTravelerDepthFirst<LLVolumeFace::Triangle>
+class LLVolumeOctreeRebound : public LLOctreeTravelerDepthFirst<LLVolumeTriangle>
 {
 public:
 	const LLVolumeFace* mFace;
@@ -305,7 +305,7 @@ public:
 		mFace = face;
 	}
 
-	virtual void visit(const LLOctreeNode<LLVolumeFace::Triangle>* branch)
+	virtual void visit(const LLOctreeNode<LLVolumeTriangle>* branch)
 	{
 		LLVolumeOctreeListener* node = (LLVolumeOctreeListener*) branch->getListener(0);
 
@@ -314,12 +314,12 @@ public:
 
 		if (branch->getElementCount() != 0)
 		{
-			const LLVolumeFace::Triangle* tri = *(branch->getData().begin());
+			const LLVolumeTriangle* tri = *(branch->getData().begin());
 						
 			min = *(tri->mV[0]);
 			max = *(tri->mV[0]);
 			
-			for (LLOctreeNode<LLVolumeFace::Triangle>::const_element_iter iter = 
+			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = 
 				branch->getData().begin(); iter != branch->getData().end(); ++iter)
 			{
 				//stretch by triangles in node
@@ -4394,7 +4394,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 		LLVector4a box_size;
 		box_size.setSub(face.mExtents[1], face.mExtents[0]);
 
-        if (LLLineSegmentBoxIntersect(start.getF32(), end.getF32(), box_center.getF32(), box_size.getF32()))
+        if (LLLineSegmentBoxIntersect(start, end, box_center, box_size))
 		{
 			if (bi_normal != NULL) // if the caller wants binormals, we may need to generate them
 			{
@@ -5418,12 +5418,17 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 
 void LLVolumeFace::createOctree()
 {
-	mOctree = new LLOctreeRoot<Triangle>(LLVector3d(0,0,0), LLVector3d(1,1,1), NULL);
+	LLVector4a center;
+	LLVector4a size;
+	center.splat(0.f);
+	size.splat(1.f);
+
+	mOctree = new LLOctreeRoot<LLVolumeTriangle>(center, size, NULL);
 	new LLVolumeOctreeListener(mOctree);
 
 	for (U32 i = 0; i < mNumIndices; i+= 3)
 	{
-		Triangle* tri = new Triangle();
+		LLPointer<LLVolumeTriangle> tri = new LLVolumeTriangle();
 				
 		const LLVector4a& v0 = mPositions[mIndices[i]];
 		const LLVector4a& v1 = mPositions[mIndices[i+1]];
@@ -5449,8 +5454,7 @@ void LLVolumeFace::createOctree()
 		center.setAdd(min, max);
 		center.mul(0.5f);
 
-
-		tri->mPositionGroup.setVec(center[0], center[1], center[2]);
+		*tri->mPositionGroup = center;
 
 		LLVector4a size;
 		size.setSub(max,min);
@@ -5464,15 +5468,6 @@ void LLVolumeFace::createOctree()
 	rebound.traverse(mOctree);
 }
 
-const LLVector3d& LLVolumeFace::Triangle::getPositionGroup() const
-{
-	return mPositionGroup;
-}
-
-const F64& LLVolumeFace::Triangle::getBinRadius() const
-{
-	return mRadius;
-}
 
 void LLVolumeFace::swapData(LLVolumeFace& rhs)
 {

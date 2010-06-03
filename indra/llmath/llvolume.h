@@ -46,6 +46,7 @@ template <class T> class LLOctreeNode;
 class LLVector4a;
 class LLVolumeFace;
 class LLVolume;
+class LLVolumeTriangle;
 
 #include "lldarray.h"
 #include "lluuid.h"
@@ -918,20 +919,7 @@ public:
 	// mWeights.size() should be empty or match mVertices.size()  
 	LLVector4a* mWeights;
 
-	class Triangle : public LLRefCount
-	{
-	public:
-		const LLVector4a* mV[3];
-		U16 mIndex[3];
-
-		LLVector3d mPositionGroup;
-		F64 mRadius;
-
-		virtual const LLVector3d& getPositionGroup() const;
-		virtual const F64& getBinRadius() const;
-	};
-
-	LLOctreeNode<Triangle>* mOctree;
+	LLOctreeNode<LLVolumeTriangle>* mOctree;
 
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);

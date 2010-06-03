@@ -995,7 +995,13 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector3& start, const LLVect
 
 	//step one meter at a time until intersection point found
 
-	const LLVector3* ext = mDrawable->getSpatialExtents();
+	//VECTORIZE THIS
+	const LLVector4a* exta = mDrawable->getSpatialExtents();
+
+	LLVector3 ext[2];
+	ext[0].set(exta[0].getF32());
+	ext[1].set(exta[1].getF32());
+
 	F32 rad = (delta*tdelta).magVecSquared();
 
 	F32 t = 0.f;
@@ -1057,13 +1063,16 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector3& start, const LLVect
 	return FALSE;
 }
 
-void LLVOSurfacePatch::updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax)
+void LLVOSurfacePatch::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
 	LLVector3 posAgent = getPositionAgent();
 	LLVector3 scale = getScale();
-	newMin = posAgent-scale*0.5f; // Changing to 2.f makes the culling a -little- better, but still wrong
-	newMax = posAgent+scale*0.5f;
-	mDrawable->setPositionGroup((newMin+newMax)*0.5f);
+	newMin.load3( (posAgent-scale*0.5f).mV); // Changing to 2.f makes the culling a -little- better, but still wrong
+	newMax.load3( (posAgent+scale*0.5f).mV);
+	LLVector4a pos;
+	pos.setAdd(newMin,newMax);
+	pos.mul(0.5f);
+	mDrawable->setPositionGroup(pos);
 }
 
 U32 LLVOSurfacePatch::getPartitionType() const

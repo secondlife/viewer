@@ -65,6 +65,17 @@ class LLFace
 {
 public:
 
+	LLFace(const LLFace& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLFace& operator=(const LLFace& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
 	enum EMasks
 	{
 		LIGHT			= 0x0001,
@@ -221,7 +232,9 @@ public:
 	
 	LLVector3		mCenterLocal;
 	LLVector3		mCenterAgent;
-	LLVector3		mExtents[2];
+	
+	LLVector4a*		mExtents;
+	
 	LLVector2		mTexExtents[2];
 	F32				mDistance;
 	LLPointer<LLVertexBuffer> mVertexBuffer;

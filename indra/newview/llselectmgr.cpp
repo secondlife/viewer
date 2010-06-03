@@ -1100,8 +1100,8 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		mGridRotation = first_grid_object->getRenderRotation();
 		LLVector3 first_grid_obj_pos = first_grid_object->getRenderPosition();
 
-		LLVector3 min_extents(F32_MAX, F32_MAX, F32_MAX);
-		LLVector3 max_extents(-F32_MAX, -F32_MAX, -F32_MAX);
+		LLVector4a min_extents(F32_MAX);
+		LLVector4a max_extents(-F32_MAX);
 		BOOL grid_changed = FALSE;
 		for (LLObjectSelection::iterator iter = mGridObjects.begin();
 			 iter != mGridObjects.end(); ++iter)
@@ -1110,7 +1110,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 			LLDrawable* drawable = object->mDrawable;
 			if (drawable)
 			{
-				const LLVector3* ext = drawable->getSpatialExtents();
+				const LLVector4a* ext = drawable->getSpatialExtents();
 				update_min_max(min_extents, max_extents, ext[0]);
 				update_min_max(min_extents, max_extents, ext[1]);
 				grid_changed = TRUE;
@@ -1118,13 +1118,19 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		}
 		if (grid_changed)
 		{
-			mGridOrigin = lerp(min_extents, max_extents, 0.5f);
+			LLVector4a center, size;
+			center.setAdd(min_extents, max_extents);
+			center.mul(0.5f);
+			size.setSub(max_extents, min_extents);
+			size.mul(0.5f);
+
+			mGridOrigin.set(center.getF32());
 			LLDrawable* drawable = first_grid_object->mDrawable;
 			if (drawable && drawable->isActive())
 			{
 				mGridOrigin = mGridOrigin * first_grid_object->getRenderMatrix();
 			}
-			mGridScale = (max_extents - min_extents) * 0.5f;
+			mGridScale.set(size.getF32());
 		}
 	}
 	else // GRID_MODE_WORLD or just plain default

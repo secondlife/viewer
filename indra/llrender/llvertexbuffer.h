@@ -79,6 +79,17 @@ protected:
 class LLVertexBuffer : public LLRefCount
 {
 public:
+	LLVertexBuffer(const LLVertexBuffer& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLVertexBuffer& operator=(const LLVertexBuffer& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
 	static LLVBOPool sStreamVBOPool;
 	static LLVBOPool sDynamicVBOPool;
 	static LLVBOPool sStreamIBOPool;
