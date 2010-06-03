@@ -54,6 +54,15 @@ LLFilteredWearableListManager::~LLFilteredWearableListManager()
 
 void LLFilteredWearableListManager::changed(U32 mask)
 {
+	if (LLInventoryObserver::CALLING_CARD == mask
+			|| LLInventoryObserver::GESTURE == mask
+			|| LLInventoryObserver::SORT == mask
+			)
+	{
+		// skip non-related changes
+		return;
+	}
+
 	if(!gInventory.isInventoryUsable())
 	{
 		return;

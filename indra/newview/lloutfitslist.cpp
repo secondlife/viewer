@@ -137,11 +137,9 @@ LLOutfitsList::LLOutfitsList()
 	:	LLPanel()
 	,	mAccordion(NULL)
 	,	mListCommands(NULL)
+	,	mIsInitialized(false)
 {
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
-	gInventory.addObserver(mCategoriesObserver);
-
-	gInventory.addObserver(this);
 
 	mOutfitMenu = new OutfitContextMenu();
 }
@@ -155,11 +153,6 @@ LLOutfitsList::~LLOutfitsList()
 		gInventory.removeObserver(mCategoriesObserver);
 		delete mCategoriesObserver;
 	}
-
-	if (gInventory.containsObserver(this))
-	{
-		gInventory.removeObserver(this);
-	}
 }
 
 BOOL LLOutfitsList::postBuild()
@@ -170,32 +163,36 @@ BOOL LLOutfitsList::postBuild()
 }
 
 //virtual
-void LLOutfitsList::changed(U32 mask)
+void LLOutfitsList::onOpen(const LLSD& /*info*/)
 {
-	if (!gInventory.isInventoryUsable())
-		return;
+	if (!mIsInitialized)
+	{
+		// *TODO: I'm not sure is this check necessary but it never match while developing.
+		if (!gInventory.isInventoryUsable())
+			return;
 
-	const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	LLViewerInventoryCategory* category = gInventory.getCategory(outfits);
-	if (!category)
-		return;
+		const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
-	// Start observing changes in "My Outfits" category.
-	mCategoriesObserver->addCategory(outfits,
+		// *TODO: I'm not sure is this check necessary but it never match while developing.
+		LLViewerInventoryCategory* category = gInventory.getCategory(outfits);
+		if (!category)
+			return;
+
+		gInventory.addObserver(mCategoriesObserver);
+
+		// Start observing changes in "My Outfits" category.
+		mCategoriesObserver->addCategory(outfits,
 			boost::bind(&LLOutfitsList::refreshList, this, outfits));
 
-	// Fetch "My Outfits" contents and refresh the list to display
-	// initially fetched items. If not all items are fetched now
-	// the observer will refresh the list as soon as the new items
-	// arrive.
-	category->fetch();
-	refreshList(outfits);
+		// Fetch "My Outfits" contents and refresh the list to display
+		// initially fetched items. If not all items are fetched now
+		// the observer will refresh the list as soon as the new items
+		// arrive.
+		category->fetch();
+		refreshList(outfits);
 
-	// This observer is used to start the initial outfits fetch
-	// when inventory becomes usable. It is no longer needed because
-	// "My Outfits" category is now observed by
-	// LLInventoryCategoriesObserver.
-	gInventory.removeObserver(this);
+		mIsInitialized = true;
+	}
 }
 
 void LLOutfitsList::refreshList(const LLUUID& category_id)
