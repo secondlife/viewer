@@ -78,7 +78,6 @@ private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
 	void				showWearable(LLWearable* wearable, BOOL show);
-	void				initializePanel();
 	void				updateScrollingPanelUI();
 	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
