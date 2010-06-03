@@ -45,8 +45,10 @@
 #include "m4math.h"
 #include "m3math.h"
 #include "llmatrix4a.h"
+#include "lloctree.h"
 #include "lldarray.h"
 #include "llvolume.h"
+#include "llvolumeoctree.h"
 #include "llstl.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
@@ -133,13 +135,84 @@ BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* cent
 }
 
 
+
 // intersect test between triangle vert0, vert1, vert2 and a ray from orig in direction dir.
 // returns TRUE if intersecting and returns barycentric coordinates in intersection_a, intersection_b,
 // and returns the intersection point along dir in intersection_t.
 
 // Moller-Trumbore algorithm
 BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
-							F32* intersection_a, F32* intersection_b, F32* intersection_t, BOOL two_sided)
+							F32& intersection_a, F32& intersection_b, F32& intersection_t)
+{
+	
+	/* find vectors for two edges sharing vert0 */
+	LLVector4a edge1;
+	edge1.setSub(vert1, vert0);
+	
+	LLVector4a edge2;
+	edge2.setSub(vert2, vert0);
+
+	/* begin calculating determinant - also used to calculate U parameter */
+	LLVector4a pvec;
+	pvec.setCross3(dir, edge2);
+
+	/* if determinant is near zero, ray lies in plane of triangle */
+	LLVector4a det;
+	det.setAllDot3(edge1, pvec);
+	
+	if (det.greaterEqual4(LLVector4a::getApproximatelyZero()).getComparisonMask() & 0x7)
+	{
+		/* calculate distance from vert0 to ray origin */
+		LLVector4a tvec;
+		tvec.setSub(orig, vert0);
+
+		/* calculate U parameter and test bounds */
+		LLVector4a u;
+		u.setAllDot3(tvec,pvec);
+
+		if ((u.greaterEqual4(LLVector4a::getZero()).getComparisonMask() & 0x7) &&
+			(u.lessEqual4(det).getComparisonMask() & 0x7))
+		{
+			/* prepare to test V parameter */
+			LLVector4a qvec;
+			qvec.setCross3(tvec, edge1);
+			
+			/* calculate V parameter and test bounds */
+			LLVector4a v;
+			v.setAllDot3(dir, qvec);
+
+			
+			//if (!(v < 0.f || u + v > det))
+
+			LLVector4a sum_uv;
+			sum_uv.setAdd(u, v);
+
+			S32 v_gequal = v.greaterEqual4(LLVector4a::getZero()).getComparisonMask() & 0x7;
+			S32 sum_lequal = sum_uv.lessEqual4(det).getComparisonMask() & 0x7;
+
+			if (v_gequal  && sum_lequal)
+			{
+				/* calculate t, scale parameters, ray intersects triangle */
+				LLVector4a t;
+				t.setAllDot3(edge2,qvec);
+
+				t.div(det);
+				u.div(det);
+				v.div(det);
+				
+				intersection_a = u[0];
+				intersection_b = v[0];
+				intersection_t = t[0];
+				return TRUE;
+			}
+		}
+	}
+		
+	return FALSE;
+} 
+
+BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+							F32& intersection_a, F32& intersection_b, F32& intersection_t)
 {
 	F32 u, v, t;
 	
@@ -158,85 +231,42 @@ BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, co
 	/* if determinant is near zero, ray lies in plane of triangle */
 	F32 det = edge1.dot3(pvec);
 
-	if (!two_sided)
+	
+	if (det > -F_APPROXIMATELY_ZERO && det < F_APPROXIMATELY_ZERO)
 	{
-		if (det < F_APPROXIMATELY_ZERO)
-		{
-			return FALSE;
-		}
-
-		/* calculate distance from vert0 to ray origin */
-		LLVector4a tvec;
-		tvec.setSub(orig, vert0);
-
-		/* calculate U parameter and test bounds */
-		u = tvec.dot3(pvec);	
-
-		if (u < 0.f || u > det)
-		{
-			return FALSE;
-		}
-	
-		/* prepare to test V parameter */
-		LLVector4a qvec;
-		qvec.setCross3(tvec, edge1);
-		
-		/* calculate V parameter and test bounds */
-		v = dir.dot3(qvec);
-		if (v < 0.f || u + v > det)
-		{
-			return FALSE;
-		}
-
-		/* calculate t, scale parameters, ray intersects triangle */
-		t = edge2.dot3(qvec);
-		F32 inv_det = 1.0 / det;
-		t *= inv_det;
-		u *= inv_det;
-		v *= inv_det;
+		return FALSE;
 	}
+
+	F32 inv_det = 1.f / det;
+
+	/* calculate distance from vert0 to ray origin */
+	LLVector4a tvec;
+	tvec.setSub(orig, vert0);
 	
-	else // two sided
-			{
-		if (det > -F_APPROXIMATELY_ZERO && det < F_APPROXIMATELY_ZERO)
-				{
-			return FALSE;
-				}
-		F32 inv_det = 1.0 / det;
-
-		/* calculate distance from vert0 to ray origin */
-		LLVector4a tvec;
-		tvec.setSub(orig, vert0);
-		
-		/* calculate U parameter and test bounds */
-		u = (tvec.dot3(pvec)) * inv_det;
-		if (u < 0.f || u > 1.f)
-		{
-			return FALSE;
-			}
-
-		/* prepare to test V parameter */
-		LLVector4a qvec;
-		qvec.setSub(tvec, edge1);
-		
-		/* calculate V parameter and test bounds */
-		v = (dir.dot3(qvec)) * inv_det;
-		
-		if (v < 0.f || u + v > 1.f)
-		{
-			return FALSE;
-		}
-
-		/* calculate t, ray intersects triangle */
-		t = (edge2.dot3(qvec)) * inv_det;
+	/* calculate U parameter and test bounds */
+	u = (tvec.dot3(pvec)) * inv_det;
+	if (u < 0.f || u > 1.f)
+	{
+		return FALSE;
 	}
+
+	/* prepare to test V parameter */
+	tvec.sub(edge1);
+		
+	/* calculate V parameter and test bounds */
+	v = (dir.dot3(tvec)) * inv_det;
 	
-	if (intersection_a != NULL)
-		*intersection_a = u;
-	if (intersection_b != NULL)
-		*intersection_b = v;
-	if (intersection_t != NULL)
-		*intersection_t = t;
+	if (v < 0.f || u + v > 1.f)
+	{
+		return FALSE;
+	}
+
+	/* calculate t, ray intersects triangle */
+	t = (edge2.dot3(tvec)) * inv_det;
+	
+	intersection_a = u;
+	intersection_b = v;
+	intersection_t = t;
 	
 	
 	return TRUE;
@@ -244,7 +274,7 @@ BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, co
 
 //helper for non-aligned vectors
 BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
-							F32* intersection_a, F32* intersection_b, F32* intersection_t, BOOL two_sided)
+							F32& intersection_a, F32& intersection_b, F32& intersection_t, BOOL two_sided)
 {
 	LLVector4a vert0a, vert1a, vert2a, origa, dira;
 	vert0a.load3(vert0.mV);
@@ -253,9 +283,90 @@ BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, cons
 	origa.load3(orig.mV);
 	dira.load3(dir.mV);
 
-	return LLTriangleRayIntersect(vert0a, vert1a, vert2a, origa, dira, 
-			intersection_a, intersection_b, intersection_t, two_sided);
+	if (two_sided)
+	{
+		return LLTriangleRayIntersectTwoSided(vert0a, vert1a, vert2a, origa, dira, 
+				intersection_a, intersection_b, intersection_t);
+	}
+	else
+	{
+		return LLTriangleRayIntersect(vert0a, vert1a, vert2a, origa, dira, 
+				intersection_a, intersection_b, intersection_t);
+	}
 }
+
+class LLVolumeOctreeRebound : public LLOctreeTravelerDepthFirst<LLVolumeTriangle>
+{
+public:
+	const LLVolumeFace* mFace;
+
+	LLVolumeOctreeRebound(const LLVolumeFace* face)
+	{
+		mFace = face;
+	}
+
+	virtual void visit(const LLOctreeNode<LLVolumeTriangle>* branch)
+	{
+		LLVolumeOctreeListener* node = (LLVolumeOctreeListener*) branch->getListener(0);
+
+		LLVector4a& min = node->mExtents[0];
+		LLVector4a& max = node->mExtents[1];
+
+		if (branch->getElementCount() != 0)
+		{
+			const LLVolumeTriangle* tri = *(branch->getData().begin());
+						
+			min = *(tri->mV[0]);
+			max = *(tri->mV[0]);
+			
+			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = 
+				branch->getData().begin(); iter != branch->getData().end(); ++iter)
+			{
+				//stretch by triangles in node
+				tri = *iter;
+				
+				min.setMin(*tri->mV[0]);
+				min.setMin(*tri->mV[1]);
+				min.setMin(*tri->mV[2]);
+
+				max.setMax(*tri->mV[0]);
+				max.setMax(*tri->mV[1]);
+				max.setMax(*tri->mV[2]);
+			}
+
+			for (S32 i = 0; i < branch->getChildCount(); ++i)
+			{  //stretch by child extents
+				LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
+				min.setMin(child->mExtents[0]);
+				max.setMax(child->mExtents[1]);
+			}
+		}
+		else if (branch->getChildCount() != 0)
+		{
+			LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(0)->getListener(0);
+
+			min = child->mExtents[0];
+			max = child->mExtents[1];
+
+			for (S32 i = 1; i < branch->getChildCount(); ++i)
+			{  //stretch by child extents
+				child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
+				min.setMin(child->mExtents[0]);
+				max.setMax(child->mExtents[1]);
+			}
+		}
+		else
+		{
+			llerrs << "WTF? Empty leaf" << llendl;
+		}
+		
+		node->mBounds[0].setAdd(min, max);
+		node->mBounds[0].mul(0.5f);
+
+		node->mBounds[1].setSub(max,min);
+		node->mBounds[1].mul(0.5f);
+	}
+};
 
 
 //-------------------------------------------------------------------
@@ -4244,6 +4355,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& end,
 
 }
 
+
 S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
 								   S32 face,
 								   LLVector3* intersection,LLVector2* tex_coord, LLVector3* normal, LLVector3* bi_normal)
@@ -4282,72 +4394,25 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 		LLVector4a box_size;
 		box_size.setSub(face.mExtents[1], face.mExtents[0]);
 
-        if (LLLineSegmentBoxIntersect(start.getF32(), end.getF32(), box_center.getF32(), box_size.getF32()))
+        if (LLLineSegmentBoxIntersect(start, end, box_center, box_size))
 		{
 			if (bi_normal != NULL) // if the caller wants binormals, we may need to generate them
 			{
 				genBinormals(i);
 			}
+
+			if (!face.mOctree)
+			{
+				face.createOctree();
+			}
 			
 			LLVector4a* p = (LLVector4a*) face.mPositions;
 
-			for (U32 tri = 0; tri < face.mNumIndices/3; tri++) 
+			LLOctreeTriangleRayIntersect intersect(start, dir, &face, &closest_t, intersection, tex_coord, normal, bi_normal);
+			intersect.traverse(face.mOctree);
+			if (intersect.mHitFace)
 			{
-				S32 index1 = face.mIndices[tri*3+0];
-				S32 index2 = face.mIndices[tri*3+1];
-				S32 index3 = face.mIndices[tri*3+2];
-
-				F32 a, b, t;
-			
-				if (LLTriangleRayIntersect(p[index1],
-					p[index2],
-					p[index3],
-					start, dir, &a, &b, &t, FALSE))
-				{
-					if ((t >= 0.f) &&      // if hit is after start
-						(t <= 1.f) &&      // and before end
-						(t < closest_t))   // and this hit is closer
-					{
-						closest_t = t;
-						hit_face = i;
-
-						if (intersection != NULL)
-						{
-							LLVector4a intersect = dir;
-							intersect.mul(closest_t);
-							intersect.add(start);
-							intersection->set(intersect.getF32());
-						}
-
-
-						if (tex_coord != NULL)
-						{
-							LLVector2* tc = (LLVector2*) face.mTexCoords;
-							*tex_coord = ((1.f - a - b)  * tc[index1] +
-								a              * tc[index2] +
-								b              * tc[index3]);
-
-						}
-
-						if (normal != NULL)
-						{
-							LLVector4* norm = (LLVector4*) face.mNormals;
-
-							*normal    = ((1.f - a - b)  * LLVector3(norm[index1]) + 
-								a              * LLVector3(norm[index2]) +
-								b              * LLVector3(norm[index3]));
-						}
-
-						if (bi_normal != NULL)
-						{
-							LLVector4* binormal = (LLVector4*) face.mBinormals;
-							*bi_normal = ((1.f - a - b)  * LLVector3(binormal[index1]) + 
-									a              * LLVector3(binormal[index2]) +
-									b              * LLVector3(binormal[index3]));
-						}
-
-					}
-				}
+				hit_face = i;
 			}
 		}		
 	}
@@ -5128,13 +5193,29 @@ LLVolumeFace::LLVolumeFace() :
 	mBinormals(NULL),
 	mTexCoords(NULL),
 	mIndices(NULL),
-	mWeights(NULL)
+	mWeights(NULL),
+	mOctree(NULL)
 {
 	mExtents = (LLVector4a*) _mm_malloc(48, 16);
 	mCenter = mExtents+2;
 }
 
 LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
+:	mID(0),
+	mTypeMask(0),
+	mBeginS(0),
+	mBeginT(0),
+	mNumS(0),
+	mNumT(0),
+	mNumVertices(0),
+	mNumIndices(0),
+	mPositions(NULL),
+	mNormals(NULL),
+	mBinormals(NULL),
+	mTexCoords(NULL),
+	mIndices(NULL),
+	mWeights(NULL),
+	mOctree(NULL)
 { 
 	mExtents = (LLVector4a*) _mm_malloc(48, 16);
 	mCenter = mExtents+2;
@@ -5157,13 +5238,9 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 
 	mNumVertices = 0;
 	mNumIndices = 0;
-	mPositions = NULL;
-	mNormals = NULL;
-	mBinormals = NULL;
-	mTexCoords = NULL;
-	mWeights = NULL;
-	mIndices = NULL;
 
+	freeData();
+	
 	LLVector4a::memcpyNonAliased16((F32*) mExtents, (F32*) src.mExtents, 12);
 
 	resizeVertices(src.mNumVertices);
@@ -5178,6 +5255,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) src.mPositions, vert_size);
 		LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) src.mNormals, vert_size);
 		LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) src.mTexCoords, vert_size);
+
 
 		if (src.mBinormals)
 		{
@@ -5217,17 +5295,37 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 
 LLVolumeFace::~LLVolumeFace()
 {
-	_mm_free(mPositions);
-	_mm_free(mNormals);
-	_mm_free(mTexCoords);
-	_mm_free(mIndices);
-	_mm_free(mBinormals);
-	_mm_free(mWeights);
 	_mm_free(mExtents);
+	mExtents = NULL;
+
+	freeData();
+}
+
+void LLVolumeFace::freeData()
+{
+	_mm_free(mPositions);
+	mPositions = NULL;
+	_mm_free(mNormals);
+	mNormals = NULL;
+	_mm_free(mTexCoords);
+	mTexCoords = NULL;
+	_mm_free(mIndices);
+	mIndices = NULL;
+	_mm_free(mBinormals);
+	mBinormals = NULL;
+	_mm_free(mWeights);
+	mWeights = NULL;
+
+	delete mOctree;
+	mOctree = NULL;
 }
 
 BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 {
+	//tree for this face is no longer valid
+	delete mOctree;
+	mOctree = NULL;
+
 	if (mTypeMask & CAP_MASK)
 	{
 		return createCap(volume, partial_build);
@@ -5248,6 +5346,18 @@ void LLVolumeFace::getVertexData(U16 index, LLVolumeFace::VertexData& cv)
 	cv.setPosition(mPositions[index]);
 	cv.setNormal(mNormals[index]);
 	cv.mTexCoord = mTexCoords[index];
+}
+
+bool LLVolumeFace::VertexMapData::operator==(const LLVolumeFace::VertexData& rhs) const
+{
+	return getPosition().equal3(rhs.getPosition()) &&
+		mTexCoord == rhs.mTexCoord &&
+		getNormal().equal3(rhs.getNormal());
+}
+
+bool LLVolumeFace::VertexMapData::ComparePosition::operator()(const LLVector4a& a, const LLVector4a& b) const
+{
+	return a.less3(b);			
 }
 
 void LLVolumeFace::optimize(F32 angle_cutoff)
@@ -5304,6 +5414,60 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 
 	swapData(new_face);
 }
+
+
+void LLVolumeFace::createOctree()
+{
+	LLVector4a center;
+	LLVector4a size;
+	center.splat(0.f);
+	size.splat(1.f);
+
+	mOctree = new LLOctreeRoot<LLVolumeTriangle>(center, size, NULL);
+	new LLVolumeOctreeListener(mOctree);
+
+	for (U32 i = 0; i < mNumIndices; i+= 3)
+	{
+		LLPointer<LLVolumeTriangle> tri = new LLVolumeTriangle();
+				
+		const LLVector4a& v0 = mPositions[mIndices[i]];
+		const LLVector4a& v1 = mPositions[mIndices[i+1]];
+		const LLVector4a& v2 = mPositions[mIndices[i+2]];
+
+		tri->mV[0] = &v0;
+		tri->mV[1] = &v1;
+		tri->mV[2] = &v2;
+
+		tri->mIndex[0] = mIndices[i];
+		tri->mIndex[1] = mIndices[i+1];
+		tri->mIndex[2] = mIndices[i+2];
+
+		LLVector4a min = v0;
+		min.setMin(v1);
+		min.setMin(v2);
+
+		LLVector4a max = v0;
+		max.setMax(v1);
+		max.setMax(v2);
+
+		LLVector4a center;
+		center.setAdd(min, max);
+		center.mul(0.5f);
+
+		*tri->mPositionGroup = center;
+
+		LLVector4a size;
+		size.setSub(max,min);
+		
+		tri->mRadius = size.length3() * 0.5f;
+		
+		mOctree->insert(tri);
+	}
+
+	LLVolumeOctreeRebound rebound(this);
+	rebound.traverse(mOctree);
+}
+
 
 void LLVolumeFace::swapData(LLVolumeFace& rhs)
 {

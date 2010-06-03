@@ -65,6 +65,7 @@
 #include "llweb.h"
 #include "llwindow.h"
 #include "llfloatertools.h"  // to enable hide if build tools are up
+#include "llvector4a.h"
 
 // Functions pulled from pipeline.cpp
 glh::matrix4f glh_get_current_modelview();

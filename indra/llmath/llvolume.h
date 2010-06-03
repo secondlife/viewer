@@ -40,8 +40,13 @@ class LLPathParams;
 class LLVolumeParams;
 class LLProfile;
 class LLPath;
+
+template <class T> class LLOctreeNode;
+
+class LLVector4a;
 class LLVolumeFace;
 class LLVolume;
+class LLVolumeTriangle;
 
 #include "lldarray.h"
 #include "lluuid.h"
@@ -49,14 +54,13 @@ class LLVolume;
 //#include "vmath.h"
 #include "v2math.h"
 #include "v3math.h"
+#include "v3dmath.h"
 #include "v4math.h"
-#include "llvector4a.h"
 #include "llquaternion.h"
 #include "llstrider.h"
 #include "v4coloru.h"
 #include "llrefcount.h"
 #include "llfile.h"
-
 
 //============================================================================
 
@@ -830,6 +834,9 @@ public:
 	LLVolumeFace& operator=(const LLVolumeFace& rhs);
 
 	~LLVolumeFace();
+private:
+	void freeData();
+public:
 
 	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
 	void createBinormals();
@@ -855,26 +862,19 @@ public:
 	public:
 		U16 mIndex;
 
-		bool operator==(const LLVolumeFace::VertexData& rhs) const
-		{
-			return getPosition().equal3(rhs.getPosition()) &&
-				mTexCoord == rhs.mTexCoord &&
-				getNormal().equal3(rhs.getNormal());
-		}
+		bool operator==(const LLVolumeFace::VertexData& rhs) const;
 
 		struct ComparePosition
 		{
-			bool operator()(const LLVector4a& a, const LLVector4a& b) const
-			{
-				return a.less3(b);			
-			}
+			bool operator()(const LLVector4a& a, const LLVector4a& b) const;
 		};
 
 		typedef std::map<LLVector4a, std::vector<VertexMapData>, VertexMapData::ComparePosition > PointMap;
 	};
 
 	void optimize(F32 angle_cutoff = 2.f);
-	
+	void createOctree();
+
 	enum
 	{
 		SINGLE_MASK =	0x0001,
@@ -918,6 +918,8 @@ public:
 	// format is mWeights[vertex_index].mV[influence] = <joint_index>.<weight>
 	// mWeights.size() should be empty or match mVertices.size()  
 	LLVector4a* mWeights;
+
+	LLOctreeNode<LLVolumeTriangle>* mOctree;
 
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
@@ -1082,12 +1084,15 @@ void calc_binormal_from_triangle(
 
 BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
 BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
+BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size);
 
 BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
-							F32* intersection_a, F32* intersection_b, F32* intersection_t, BOOL two_sided);
+							F32& intersection_a, F32& intersection_b, F32& intersection_t, BOOL two_sided);
 
 BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
-							F32* intersection_a, F32* intersection_b, F32* intersection_t, BOOL two_sided);
+							F32& intersection_a, F32& intersection_b, F32& intersection_t);
+BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+							F32& intersection_a, F32& intersection_b, F32& intersection_t);
 	
 	
 

@@ -48,9 +48,9 @@ LLCamera::LLCamera() :
 	mPlaneCount(6),
 	mFrustumCornerDist(0.f)
 {
+	alignPlanes();
 	calculateFrustumPlanes();
 } 
-
 
 LLCamera::LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane) :
 	LLCoordFrame(),
@@ -59,6 +59,7 @@ LLCamera::LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_p
 	mPlaneCount(6),
 	mFrustumCornerDist(0.f)
 {
+	alignPlanes();
 	mAspect = llclamp(aspect_ratio, MIN_ASPECT_RATIO, MAX_ASPECT_RATIO);
 	mNearPlane = llclamp(near_plane, MIN_NEAR_PLANE, MAX_NEAR_PLANE);
 	if(far_plane < 0) far_plane = DEFAULT_FAR_PLANE;
@@ -67,6 +68,23 @@ LLCamera::LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_p
 	setView(vertical_fov_rads);
 } 
 
+LLCamera::~LLCamera()
+{
+
+}
+
+const LLCamera& LLCamera::operator=(const LLCamera& rhs)
+{
+	memcpy(this, &rhs, sizeof(LLCamera));
+	alignPlanes();
+	LLVector4a::memcpyNonAliased16((F32*) mAgentPlanes, (F32*) rhs.mAgentPlanes, 4*7);
+	return *this;
+}
+
+void LLCamera::alignPlanes()
+{
+	mAgentPlanes = (LLPlane*) LL_NEXT_ALIGNED_ADDRESS<U8>(mAgentPlaneBuffer);
+}
 
 // ---------------- LLCamera::getFoo() member functions ----------------
 
@@ -91,8 +109,8 @@ F32 LLCamera::getMaxView() const
 void LLCamera::setUserClipPlane(LLPlane plane)
 {
 	mPlaneCount = 7;
-	mAgentPlanes[6].p = plane;
-	mAgentPlanes[6].mask = calcPlaneMask(plane);
+	mAgentPlanes[6] = plane;
+	mPlaneMask[6] = calcPlaneMask(plane);
 }
 
 void LLCamera::disableUserClipPlane()
@@ -164,129 +182,66 @@ size_t LLCamera::readFrustumFromBuffer(const char *buffer)
 
 // ---------------- test methods  ---------------- 
 
-S32 LLCamera::AABBInFrustum(const LLVector3 &center, const LLVector3& radius) 
+S32 LLCamera::AABBInFrustum(const LLVector4a &center, const LLVector4a& radius) 
 {
-	static const LLVector3 scaler[] = {
-		LLVector3(-1,-1,-1),
-		LLVector3( 1,-1,-1),
-		LLVector3(-1, 1,-1),
-		LLVector3( 1, 1,-1),
-		LLVector3(-1,-1, 1),
-		LLVector3( 1,-1, 1),
-		LLVector3(-1, 1, 1),
-		LLVector3( 1, 1, 1)
+	static const LLVector4a scaler[] = {
+		LLVector4a(-1,-1,-1),
+		LLVector4a( 1,-1,-1),
+		LLVector4a(-1, 1,-1),
+		LLVector4a( 1, 1,-1),
+		LLVector4a(-1,-1, 1),
+		LLVector4a( 1,-1, 1),
+		LLVector4a(-1, 1, 1),
+		LLVector4a( 1, 1, 1)
 	};
 
 	U8 mask = 0;
 	S32 result = 2;
 
-	/*if (mFrustumCornerDist > 0.f && radius.magVecSquared() > mFrustumCornerDist * mFrustumCornerDist)
-	{ //box is larger than frustum, check frustum quads against box planes
-
-		static const LLVector3 dir[] = 
+	for (U32 i = 0; i < mPlaneCount; i++)
+	{
+		mask = mPlaneMask[i];
+		if (mask == 0xff)
 		{
-			LLVector3(1, 0, 0),
-			LLVector3(-1, 0, 0),
-			LLVector3(0, 1, 0),
-			LLVector3(0, -1, 0),
-			LLVector3(0, 0, 1),
-			LLVector3(0, 0, -1)
-		};
-
-		U32 quads[] = 
-		{
-			0, 1, 2, 3,
-			0, 1, 5, 4,
-			2, 3, 7, 6,
-			3, 0, 7, 4,
-			1, 2, 6, 4,
-			4, 5, 6, 7
-		};
-
-		result = 0;
-
-		BOOL total_inside = TRUE;
-		for (U32 i = 0; i < 6; i++)
-		{ 
-			LLVector3 p = center + radius.scaledVec(dir[i]);
-			F32 d = -p*dir[i];
-
-			for (U32 j = 0; j <	6; j++)
-			{ //for each quad
-				F32 dist = mAgentFrustum[quads[j*4+0]]*dir[i] + d;
-				if (dist > 0)
-				{ //at least one frustum point is outside the AABB
-					total_inside = FALSE;
-					for (U32 k = 1; k < 4; k++)
-					{ //for each other point on quad
-						if ( mAgentFrustum[quads[j*4+k]]*dir[i]+d  <= 0.f)
-						{ //quad is straddling some plane of AABB
-							return 1;
-						}
-					}
-				}
-				else
-				{
-					for (U32 k = 1; k < 4; k++)
-					{
-						if (mAgentFrustum[quads[j*4+k]]*dir[i]+d > 0.f)
-						{
-							return 1;
-						}
-					}
-				}
-			}
+			continue;
 		}
 
-		if (total_inside)
+		const LLPlane& p = mAgentPlanes[i];
+		const LLVector4a& n = reinterpret_cast<const LLVector4a&>(p);
+		float d = p.mV[3];
+		LLVector4a rscale;
+		rscale.setMul(radius, scaler[mask]);
+
+		LLVector4a minp, maxp;
+		minp.setSub(center, rscale);
+		maxp.setAdd(center, rscale);
+
+		if (n.dot3(minp) > -d) 
+		{
+			return 0;
+		}
+	
+		if (n.dot3(maxp) > -d)
 		{
 			result = 1;
 		}
 	}
-	else*/
-	{
-		for (U32 i = 0; i < mPlaneCount; i++)
-		{
-			mask = mAgentPlanes[i].mask;
-			if (mask == 0xff)
-			{
-				continue;
-			}
-			LLPlane p = mAgentPlanes[i].p;
-			LLVector3 n = LLVector3(p);
-			float d = p.mV[3];
-			LLVector3 rscale = radius.scaledVec(scaler[mask]);
 
-			LLVector3 minp = center - rscale;
-			LLVector3 maxp = center + rscale;
-
-			if (n * minp > -d) 
-			{
-				return 0;
-			}
-		
-			if (n * maxp > -d)
-			{
-				result = 1;
-			}
-		}
-	}
-
-	
 	return result;
 }
 
-S32 LLCamera::AABBInFrustumNoFarClip(const LLVector3 &center, const LLVector3& radius) 
+
+S32 LLCamera::AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius) 
 {
-	static const LLVector3 scaler[] = {
-		LLVector3(-1,-1,-1),
-		LLVector3( 1,-1,-1),
-		LLVector3(-1, 1,-1),
-		LLVector3( 1, 1,-1),
-		LLVector3(-1,-1, 1),
-		LLVector3( 1,-1, 1),
-		LLVector3(-1, 1, 1),
-		LLVector3( 1, 1, 1)
+	static const LLVector4a scaler[] = {
+		LLVector4a(-1,-1,-1),
+		LLVector4a( 1,-1,-1),
+		LLVector4a(-1, 1,-1),
+		LLVector4a( 1, 1,-1),
+		LLVector4a(-1,-1, 1),
+		LLVector4a( 1,-1, 1),
+		LLVector4a(-1, 1, 1),
+		LLVector4a( 1, 1, 1)
 	};
 
 	U8 mask = 0;
@@ -299,25 +254,28 @@ S32 LLCamera::AABBInFrustumNoFarClip(const LLVector3 &center, const LLVector3& r
 			continue;
 		}
 
-		mask = mAgentPlanes[i].mask;
+		mask = mPlaneMask[i];
 		if (mask == 0xff)
 		{
 			continue;
 		}
-		LLPlane p = mAgentPlanes[i].p;
-		LLVector3 n = LLVector3(p);
+
+		const LLPlane& p = mAgentPlanes[i];
+		const LLVector4a& n = reinterpret_cast<const LLVector4a&>(p);
 		float d = p.mV[3];
-		LLVector3 rscale = radius.scaledVec(scaler[mask]);
+		LLVector4a rscale;
+		rscale.setMul(radius, scaler[mask]);
 
-		LLVector3 minp = center - rscale;
-		LLVector3 maxp = center + rscale;
+		LLVector4a minp, maxp;
+		minp.setSub(center, rscale);
+		maxp.setAdd(center, rscale);
 
-		if (n * minp > -d) 
+		if (n.dot3(minp) > -d) 
 		{
 			return 0;
 		}
 	
-		if (n * maxp > -d)
+		if (n.dot3(maxp) > -d)
 		{
 			result = 1;
 		}
@@ -447,12 +405,12 @@ int LLCamera::sphereInFrustum(const LLVector3 &sphere_center, const F32 radius) 
 	int res = 2;
 	for (int i = 0; i < 6; i++)
 	{
-		if (mAgentPlanes[i].mask == 0xff)
+		if (mPlaneMask[i] == 0xff)
 		{
 			continue;
 		}
 
-		float d = mAgentPlanes[i].p.dist(sphere_center);
+		float d = mAgentPlanes[i].dist(sphere_center);
 
 		if (d > radius) 
 		{
@@ -644,12 +602,14 @@ void LLCamera::ignoreAgentFrustumPlane(S32 idx)
 		return;
 	}
 
-	mAgentPlanes[idx].mask = 0xff;
-	mAgentPlanes[idx].p.clearVec();
+	mPlaneMask[idx] = 0xff;
+	mAgentPlanes[idx].clearVec();
 }
 
 void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
 {
+	alignPlanes();
+
 	for (int i = 0; i < 8; i++)
 	{
 		mAgentFrustum[i] = frust[i];
@@ -662,27 +622,27 @@ void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
 	//order of planes is important, keep most likely to fail in the front of the list
 
 	//near - frust[0], frust[1], frust[2]
-	mAgentPlanes[2].p = planeFromPoints(frust[0], frust[1], frust[2]);
+	mAgentPlanes[2] = planeFromPoints(frust[0], frust[1], frust[2]);
 
 	//far  
-	mAgentPlanes[5].p = planeFromPoints(frust[5], frust[4], frust[6]);
+	mAgentPlanes[5] = planeFromPoints(frust[5], frust[4], frust[6]);
 
 	//left  
-	mAgentPlanes[0].p = planeFromPoints(frust[4], frust[0], frust[7]);
+	mAgentPlanes[0] = planeFromPoints(frust[4], frust[0], frust[7]);
 
 	//right  
-	mAgentPlanes[1].p = planeFromPoints(frust[1], frust[5], frust[6]);
+	mAgentPlanes[1] = planeFromPoints(frust[1], frust[5], frust[6]);
 
 	//top  
-	mAgentPlanes[4].p = planeFromPoints(frust[3], frust[2], frust[6]);
+	mAgentPlanes[4] = planeFromPoints(frust[3], frust[2], frust[6]);
 
 	//bottom  
-	mAgentPlanes[3].p = planeFromPoints(frust[1], frust[0], frust[4]);
+	mAgentPlanes[3] = planeFromPoints(frust[1], frust[0], frust[4]);
 
 	//cache plane octant facing mask for use in AABBInFrustum
 	for (U32 i = 0; i < mPlaneCount; i++)
 	{
-		mAgentPlanes[i].mask = calcPlaneMask(mAgentPlanes[i].p);
+		mPlaneMask[i] = calcPlaneMask(mAgentPlanes[i]);
 	}
 }
 

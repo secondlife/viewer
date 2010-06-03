@@ -22,6 +22,7 @@ set(llmath_SOURCE_FILES
     llsphere.cpp
     llvolume.cpp
     llvolumemgr.cpp
+    llvolumeoctree.cpp
     llsdutil_math.cpp
     m3math.cpp
     m4math.cpp
@@ -66,6 +67,7 @@ set(llmath_HEADER_FILES
     llmatrix4a.h
     llvolume.h
     llvolumemgr.h
+    llvolumeoctree.h
     llsdutil_math.h
     m3math.h
     m4math.h

@@ -2863,21 +2863,26 @@ void LLViewerObject::setScale(const LLVector3 &scale, BOOL damped)
 	}
 }
 
-void LLViewerObject::updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax)
+void LLViewerObject::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
-	LLVector3 center = getRenderPosition();
-	LLVector3 size = getScale();
-	newMin.setVec(center-size);
-	newMax.setVec(center+size);
-	mDrawable->setPositionGroup((newMin + newMax) * 0.5f);
+	LLVector4a center;
+	center.load3(getRenderPosition().mV);
+	LLVector4a size;
+	size.load3(getScale().mV);
+	newMin.setSub(center, size);
+	newMax.setAdd(center, size);
+	
+	mDrawable->setPositionGroup(center);
 }
 
 F32 LLViewerObject::getBinRadius()
 {
 	if (mDrawable.notNull())
 	{
-		const LLVector3* ext = mDrawable->getSpatialExtents();
-		return (ext[1]-ext[0]).magVec();
+		const LLVector4a* ext = mDrawable->getSpatialExtents();
+		LLVector4a diff;
+		diff.setSub(ext[1], ext[0]);
+		return diff.length3();
 	}
 	
 	return getScale().magVec();
@@ -3469,12 +3474,21 @@ BOOL LLViewerObject::lineSegmentBoundingBox(const LLVector3& start, const LLVect
 		return FALSE;
 	}
 
-	const LLVector3* ext = mDrawable->getSpatialExtents();
+	const LLVector4a* ext = mDrawable->getSpatialExtents();
 
-	LLVector3 center = (ext[1]+ext[0])*0.5f;
-	LLVector3 size = (ext[1]-ext[0])*0.5f;
+	//VECTORIZE THIS
+	LLVector4a center;
+	center.setAdd(ext[1], ext[0]);
+	center.mul(0.5f);
+	LLVector4a size;
+	size.setSub(ext[1], ext[0]);
+	size.mul(0.5f);
 
-	return LLLineSegmentBoxIntersect(start, end, center, size);
+	LLVector4a starta, enda;
+	starta.load3(start.mV);
+	enda.load3(end.mV);
+
+	return LLLineSegmentBoxIntersect(starta, enda, center, size);
 }
 
 U8 LLViewerObject::getMediaType() const

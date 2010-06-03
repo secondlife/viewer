@@ -52,6 +52,7 @@ class LLCubeMap;
 class LLImageGL;
 class LLRenderTarget;
 class LLTexture ;
+class LLVector4a;
 
 class LLTexUnit
 {
@@ -360,9 +361,10 @@ private:
 	F32				mCurrAlphaFuncVal;
 
 	LLPointer<LLVertexBuffer>	mBuffer;
-	LLStrider<LLVector3>		mVerticesp;
-	LLStrider<LLVector2>		mTexcoordsp;
-	LLStrider<LLColor4U>		mColorsp;
+	LLVector4a*					mVerticesp;
+	LLVector2*					mTexcoordsp;
+	LLColor4U*					mColorsp;
+
 	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
 
@@ -372,9 +374,10 @@ private:
 	eBlendFactor mCurrBlendAlphaDFactor;
 	F32				mMaxAnisotropy;
 
-	std::list<LLVector3> mUIOffset;
-	std::list<LLVector3> mUIScale;
+	LLVector4a* mUIOffset;
+	LLVector4a* mUIScale;
 
+	U32 mUIStackDepth;
 };
 
 extern F64 gGLModelView[16];

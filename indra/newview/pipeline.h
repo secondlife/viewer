@@ -217,6 +217,7 @@ public:
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
+	static F32 calcPixelArea(const LLVector4a& center, const LLVector4a& size, LLCamera &camera);
 
 	void stateSort(LLCamera& camera, LLCullResult& result);
 	void stateSort(LLSpatialGroup* group, LLCamera& camera);
@@ -229,6 +230,14 @@ public:
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture);
 
 	void grabReferences(LLCullResult& result);
+	void clearReferences();
+
+	//check references will assert that there are no references in sCullResult to the provided data
+	void checkReferences(LLFace* face);
+	void checkReferences(LLDrawable* drawable);
+	void checkReferences(LLDrawInfo* draw_info);
+	void checkReferences(LLSpatialGroup* group);
+
 
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
 	void renderGeomDeferred(LLCamera& camera);
