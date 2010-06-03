@@ -81,7 +81,7 @@
 #include "llvoicechannel.h"
 #include "llvoavatarself.h"
 #include "llsidetray.h"
-
+#include "lldate.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -102,6 +102,7 @@
 
 // Third party library includes
 #include <boost/bind.hpp>
+#include <boost/regex.hpp>
 
 
 #if LL_WINDOWS
@@ -1242,12 +1243,37 @@ bool LLAppViewer::cleanup()
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
 
-	// remove any old breakpad minidump files from the log directory
 	if (! isError())
 	{
+		// remove any old breakpad minidump files from the log directory
 		std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 		logdir += gDirUtilp->getDirDelimiter();
 		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
+
+		// remove any old log files saved from old crash reports.
+		const static std::string mask = "*.*.log";
+		std::string filename;
+		while (gDirUtilp->getNextFileInDir(logdir, mask, filename, false))
+		{
+			static const boost::regex
+				file_regex(".*\\.(.*)\\.log", boost::regex::extended);
+			boost::smatch match;
+			if(boost::regex_match(filename, match, file_regex) && match.size() > 1)
+			{				
+				F64 date = LLDate(match[1]).secondsSinceEpoch();
+				F64 age = LLDate::now().secondsSinceEpoch() - date;
+				if( date > 0.0 && age > 604800.0 )
+				{
+					// Clean up files older than 1 week.
+					llinfos << "removing old log file " << filename << llendl;
+					LLFile::remove(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, filename));
+				}
+			}
+			else 
+			{
+				// ignore;
+			}
+		}
 	}
 
 	// *TODO - generalize this and move DSO wrangling to a helper class -brad
