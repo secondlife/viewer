@@ -38,7 +38,8 @@ import itertools
 import os
 import sys
 import subprocess
-import bz2
+import tarfile
+import StringIO
 
 def usage():
     print >>sys.stderr, "usage: %s viewer_dir viewer_exes libs_suffix dump_syms_tool viewer_symbol_file" % sys.argv[0]
@@ -59,12 +60,26 @@ def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_fil
         print "dumping module '%s' with '%s'..." % (m, dump_syms_tool)
         child = subprocess.Popen([dump_syms_tool, m] , stdout=subprocess.PIPE)
         out, err = child.communicate()
-        return out
+        return (m,child.returncode, out, err)
 
-    out = bz2.BZ2File(viewer_symbol_file, 'w')
+    out = tarfile.open(viewer_symbol_file, 'w:bz2')
 
-    for symbols in map(dump_module, list_files()):
-        out.writelines(symbols)
+    for (filename,status,symbols,err) in itertools.imap(dump_module, list_files()):
+        if status == 0:
+            module_line = symbols[:symbols.index('\n')]
+            module_line = module_line.split()
+            hash_id = module_line[3]
+            module = ' '.join(module_line[4:])
+            if sys.platform in ['win32', 'cygwin']:
+                mod_name = module[:module.rindex('.pdb')]
+            else:
+                mod_name = module
+            symbolfile = StringIO.StringIO(symbols)
+            info = tarfile.TarInfo("%(module)s/%(hash_id)s/%(mod_name)s.sym" % dict(module=module, hash_id=hash_id, mod_name=mod_name))
+            info.size = symbolfile.len
+            out.addfile(info, symbolfile)
+        else:
+            print >>sys.stderr, "warning: failed to dump symbols for '%s': %s" % (filename, err)
 
     out.close()
 
