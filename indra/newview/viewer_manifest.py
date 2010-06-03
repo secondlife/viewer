@@ -41,9 +41,12 @@ from llmanifest import LLManifest, main, proper_windows_path, path_ancestors
 
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):
-        # This is overridden by the WindowsManifest sub-class,
-        # which has different behavior if it is not packaging the viewer.
-        return True
+        # Some commands, files will only be included
+        # if we are packaging the viewer on windows.
+        # This manifest is also used to copy
+        # files during the build (see copy_w_viewer_manifest
+        # and copy_l_viewer_manifest targets)
+        return 'package' in self.args['actions']
     
     def construct(self):
         super(ViewerManifest, self).construct()
@@ -168,13 +171,6 @@ class WindowsManifest(ViewerManifest):
                 return "SecondLifePreview.exe"
         else:
             return ''.join(self.channel().split()) + '.exe'
-
-    def is_packaging_viewer(self):
-        # Some commands, files will only be included
-        # if we are packaging the viewer on windows.
-        # This manifest is also used to copy
-        # files during the build.
-        return 'package' in self.args['actions']
 
     def test_msvcrt_and_copy_action(self, src, dst):
         # This is used to test a dll manifest.
@@ -930,8 +926,7 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
 
-        # *TODO switch this to use self.is_packaging_viewer() once I understand all the consequences -brad
-        if self.args['buildtype'].lower() == 'release' and 'package' in self.args['actions']:
+        if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
             self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
