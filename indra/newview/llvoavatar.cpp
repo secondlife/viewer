@@ -6498,16 +6498,13 @@ LLColor4 LLVOAvatar::getDummyColor()
 
 void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 {	
-	/* const char* te_name[] = {
-			"TEX_HEAD_BODYPAINT   ",
-			"TEX_UPPER_SHIRT      ", */
 	llinfos << (isSelf() ? "Self: " : "Other: ") << context << llendl;
 	for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
 		 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
 		 ++iter)
 	{
 		const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
-		// TODO: handle multiple textures for self
+		// TODO: MULTI-WEARABLE: handle multiple textures for self
 		const LLViewerTexture* te_image = getImage(iter->first,0);
 		if( !te_image )
 		{
@@ -7909,9 +7906,12 @@ void LLVOAvatar::idleUpdateRenderCost()
 			}
 		}
 	}
-	// print any attachment textures we didn't already know about.
+	// Diagnostic output to identify all avatar-related textures.
+	// Does not affect rendering cost calculation.
+	// Could be wrapped in a debug option if output becomes problematic.
 	if (isSelf())
 	{
+		// print any attachment textures we didn't already know about.
 		for (std::set<LLUUID>::iterator it = textures.begin(); it != textures.end(); ++it)
 		{
 			LLUUID image_id = *it;
@@ -7931,7 +7931,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 			 ++iter)
 		{
 			const LLVOAvatarDictionary::TextureEntry *texture_dict = iter->second;
-			// TODO: handle multiple textures for self
+			// TODO: MULTI-WEARABLE: handle multiple textures for self
 			const LLViewerTexture* te_image = getImage(iter->first,0);
 			if (!te_image)
 				continue;
