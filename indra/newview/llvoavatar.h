@@ -249,6 +249,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
+	bool visualParamWeightsAreDefault();
 protected:
 	virtual BOOL	getIsCloud();
 	BOOL			updateIsFullyLoaded();
@@ -922,6 +923,8 @@ private:
 	//--------------------------------------------------------------------
 	// Avatar Rez Metrics
 	//--------------------------------------------------------------------
+public:
+	F32				debugGetExistenceTimeElapsedF32() const { return mDebugExistenceTimer.getElapsedTimeF32(); }
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
 	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.

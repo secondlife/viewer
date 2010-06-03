@@ -52,6 +52,7 @@ LLS * By copying, modifying or distributing this software, you acknowledge
 #include <iostream>
 #include <iomanip>
 #include <time.h>
+#include "llmachineid.h"
 
 
 
@@ -85,7 +86,6 @@ LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert)
 	{
 		throw LLInvalidCertificate(this);
 	}
-	_initLLSD();
 }
 
 
@@ -96,7 +96,6 @@ LLBasicCertificate::LLBasicCertificate(X509* pCert)
 		throw LLInvalidCertificate(this);
 	}	
 	mCert = X509_dup(pCert);
-	_initLLSD();
 }
 
 LLBasicCertificate::~LLBasicCertificate() 
@@ -150,9 +149,13 @@ std::vector<U8> LLBasicCertificate::getBinary() const
 }
 
 
-LLSD LLBasicCertificate::getLLSD() const
+void LLBasicCertificate::getLLSD(LLSD &llsd)
 {
-	return mLLSDInfo;
+	if (mLLSDInfo.isUndefined())
+	{
+		_initLLSD();
+	}
+	llsd = mLLSDInfo;
 }
 
 // Initialize the LLSD info for the certificate
@@ -516,8 +519,9 @@ LLBasicCertificateVector::iterator LLBasicCertificateVector::find(const LLSD& pa
 		cert++)
 	{
 
-			found= TRUE;
-		LLSD cert_info = (*cert)->getLLSD();
+		found= TRUE;
+		LLSD cert_info;
+		(*cert)->getLLSD(cert_info);
 			for (LLSD::map_const_iterator param = params.beginMap();
 			 param != params.endMap();
 			 param++)
@@ -543,7 +547,8 @@ LLBasicCertificateVector::iterator LLBasicCertificateVector::find(const LLSD& pa
 void  LLBasicCertificateVector::insert(iterator _iter, 
 				       LLPointer<LLCertificate> cert)
 {
-	LLSD cert_info = cert->getLLSD();
+	LLSD cert_info;
+	cert->getLLSD(cert_info);
 	if (cert_info.isMap() && cert_info.has(CERT_SHA1_DIGEST))
 	{
 		LLSD existing_cert_info = LLSD::emptyMap();
@@ -695,7 +700,8 @@ LLBasicCertificateChain::LLBasicCertificateChain(const X509_STORE_CTX* store)
 		while(untrusted_certs.size() > 0)
 		{
 			LLSD find_data = LLSD::emptyMap();
-			LLSD cert_data = current->getLLSD();
+			LLSD cert_data;
+			current->getLLSD(cert_data);
 			// we simply build the chain via subject/issuer name as the
 			// client should not have passed in multiple CA's with the same 
 			// subject name.  If they did, it'll come out in the wash during
@@ -854,12 +860,13 @@ bool _LLSDArrayIncludesValue(const LLSD& llsd_set, LLSD llsd_value)
 }
 
 void _validateCert(int validation_policy,
-				  const LLPointer<LLCertificate> cert,
+				  LLPointer<LLCertificate> cert,
 				  const LLSD& validation_params,
 				  int depth)
 {
 
-	LLSD current_cert_info = cert->getLLSD();		
+	LLSD current_cert_info;
+	cert->getLLSD(current_cert_info);		
 	// check basic properties exist in the cert
 	if(!current_cert_info.has(CERT_SUBJECT_NAME) || !current_cert_info.has(CERT_SUBJECT_NAME_STRING))
 	{
@@ -947,8 +954,9 @@ bool _verify_signature(LLPointer<LLCertificate> parent,
 					   LLPointer<LLCertificate> child)
 {
 	bool verify_result = FALSE; 
-	LLSD cert1 = parent->getLLSD();
-	LLSD cert2 = child->getLLSD();
+	LLSD cert1, cert2;
+	parent->getLLSD(cert1);
+	child->getLLSD(cert2);
 	X509 *signing_cert = parent->getOpenSSLX509();
 	X509 *child_cert = child->getOpenSSLX509();
 	if((signing_cert != NULL) && (child_cert != NULL))
@@ -983,6 +991,7 @@ bool _verify_signature(LLPointer<LLCertificate> parent,
 	return verify_result;
 }
 
+
 // validate the certificate chain against a store.
 // There are many aspects of cert validatioin policy involved in
 // trust validation.  The policies in this validation algorithm include
@@ -997,17 +1006,17 @@ bool _verify_signature(LLPointer<LLCertificate> parent,
 // and verify the last cert is in the certificate store, or points
 // to a cert in the store.  It validates whether any cert in the chain
 // is trusted in the store, even if it's not the last one.
-void LLBasicCertificateChain::validate(int validation_policy,
-									   LLPointer<LLCertificateStore> ca_store,
+void LLBasicCertificateStore::validate(int validation_policy,
+									   LLPointer<LLCertificateChain> cert_chain,
 									   const LLSD& validation_params)
 {
 
-	if(size() < 1)
+	if(cert_chain->size() < 1)
 	{
 		throw LLCertException(NULL, "No certs in chain");
 	}
-	iterator current_cert = begin();
-	LLSD 	current_cert_info = (*current_cert)->getLLSD();
+	iterator current_cert = cert_chain->begin();
+	LLSD 	current_cert_info;
 	LLSD validation_date;
 	if (validation_params.has(CERT_VALIDATION_DATE))
 	{
@@ -1016,6 +1025,7 @@ void LLBasicCertificateChain::validate(int validation_policy,
 
 	if (validation_policy & VALIDATION_POLICY_HOSTNAME)
 	{
+		(*current_cert)->getLLSD(current_cert_info);
 		if(!validation_params.has(CERT_HOSTNAME))
 		{
 			throw LLCertException((*current_cert), "No hostname passed in for validation");			
@@ -1025,7 +1035,7 @@ void LLBasicCertificateChain::validate(int validation_policy,
 			throw LLInvalidCertificate((*current_cert));				
 		}
 		
-		LL_INFOS("SECAPI") << "Validating the hostname " << validation_params[CERT_HOSTNAME].asString() << 
+		LL_DEBUGS("SECAPI") << "Validating the hostname " << validation_params[CERT_HOSTNAME].asString() << 
 		     "against the cert CN " << current_cert_info[CERT_SUBJECT_NAME][CERT_NAME_CN].asString() << LL_ENDL;
 		if(!_cert_hostname_wildcard_match(validation_params[CERT_HOSTNAME].asString(),
 										  current_cert_info[CERT_SUBJECT_NAME][CERT_NAME_CN].asString()))
@@ -1034,16 +1044,50 @@ void LLBasicCertificateChain::validate(int validation_policy,
 													(*current_cert));
 		}
 	}
-	
 
+	// check the cache of already validated certs
+	X509* cert_x509 = (*current_cert)->getOpenSSLX509();
+	if(!cert_x509)
+	{
+		throw LLInvalidCertificate((*current_cert));			
+	}
+	std::string sha1_hash((const char *)cert_x509->sha1_hash, SHA_DIGEST_LENGTH);
+	t_cert_cache::iterator cache_entry = mTrustedCertCache.find(sha1_hash);
+	if(cache_entry != mTrustedCertCache.end())
+	{
+		LL_DEBUGS("SECAPI") << "Found cert in cache" << LL_ENDL;	
+		// this cert is in the cache, so validate the time.
+		if (validation_policy & VALIDATION_POLICY_TIME)
+		{
+			LLDate validation_date(time(NULL));
+			if(validation_params.has(CERT_VALIDATION_DATE))
+			{
+				validation_date = validation_params[CERT_VALIDATION_DATE];
+			}
+			
+			if((validation_date < cache_entry->second.first) ||
+			   (validation_date > cache_entry->second.second))
+			{
+				throw LLCertValidationExpirationException((*current_cert), validation_date);
+			}
+		}
+		// successfully found in cache
+		return;
+	}
+	if(current_cert_info.isUndefined())
+	{
+		(*current_cert)->getLLSD(current_cert_info);
+	}
+	LLDate from_time = current_cert_info[CERT_VALID_FROM].asDate();
+	LLDate to_time = current_cert_info[CERT_VALID_TO].asDate();
 	int depth = 0;
 	LLPointer<LLCertificate> previous_cert;
 	// loop through the cert chain, validating the current cert against the next one.
-	while(current_cert != end())
+	while(current_cert != cert_chain->end())
 	{
 		
 		int local_validation_policy = validation_policy;
-		if(current_cert == begin())
+		if(current_cert == cert_chain->begin())
 		{
 			// for the child cert, we don't validate CA stuff
 			local_validation_policy &= ~(VALIDATION_POLICY_CA_KU | 
@@ -1065,23 +1109,23 @@ void LLBasicCertificateChain::validate(int validation_policy,
 					  depth);
 		
 		// look for a CA in the CA store that may belong to this chain.
-		LLSD cert_llsd = (*current_cert)->getLLSD();
 		LLSD cert_search_params = LLSD::emptyMap();		
 		// is the cert itself in the store?
-		cert_search_params[CERT_SHA1_DIGEST] = cert_llsd[CERT_SHA1_DIGEST];
-		LLCertificateStore::iterator found_store_cert = ca_store->find(cert_search_params);
-		if(found_store_cert != ca_store->end())
+		cert_search_params[CERT_SHA1_DIGEST] = current_cert_info[CERT_SHA1_DIGEST];
+		LLCertificateStore::iterator found_store_cert = find(cert_search_params);
+		if(found_store_cert != end())
 		{
+			mTrustedCertCache[sha1_hash] = std::pair<LLDate, LLDate>(from_time, to_time);
 			return;
 		}
 		
 		// is the parent in the cert store?
 			
 		cert_search_params = LLSD::emptyMap();
-		cert_search_params[CERT_SUBJECT_NAME_STRING] = cert_llsd[CERT_ISSUER_NAME_STRING];
-		if (cert_llsd.has(CERT_AUTHORITY_KEY_IDENTIFIER))
+		cert_search_params[CERT_SUBJECT_NAME_STRING] = current_cert_info[CERT_ISSUER_NAME_STRING];
+		if (current_cert_info.has(CERT_AUTHORITY_KEY_IDENTIFIER))
 		{
-			LLSD cert_aki = cert_llsd[CERT_AUTHORITY_KEY_IDENTIFIER];
+			LLSD cert_aki = current_cert_info[CERT_AUTHORITY_KEY_IDENTIFIER];
 			if(cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_ID))
 			{
 				cert_search_params[CERT_SUBJECT_KEY_IDENTFIER] = cert_aki[CERT_AUTHORITY_KEY_IDENTIFIER_ID];
@@ -1091,11 +1135,10 @@ void LLBasicCertificateChain::validate(int validation_policy,
 				cert_search_params[CERT_SERIAL_NUMBER] = cert_aki[CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL];
 			}
 		}
-		found_store_cert = ca_store->find(cert_search_params);
+		found_store_cert = find(cert_search_params);
 		
-		if(found_store_cert != ca_store->end())
+		if(found_store_cert != end())
 		{
-			LLSD foo = (*found_store_cert)->getLLSD();
 			// validate the store cert against the depth
 			_validateCert(validation_policy & VALIDATION_POLICY_CA_BASIC_CONSTRAINTS,
 						  (*found_store_cert),
@@ -1109,19 +1152,24 @@ void LLBasicCertificateChain::validate(int validation_policy,
 				throw LLCertValidationInvalidSignatureException(*current_cert);
 			}			
 			// successfully validated.
+			mTrustedCertCache[sha1_hash] = std::pair<LLDate, LLDate>(from_time, to_time);		
 			return;
 		}
 		previous_cert = (*current_cert);
 		current_cert++;
-			   depth++;
+		depth++;
+		if(current_cert != cert_chain->end())
+		{
+			(*current_cert)->getLLSD(current_cert_info);
+		}
 	}
 	if (validation_policy & VALIDATION_POLICY_TRUSTED)
 	{
-		LLPointer<LLCertificate> untrusted_ca_cert = (*this)[size()-1];
 		// we reached the end without finding a trusted cert.
-		throw LLCertValidationTrustException((*this)[size()-1]);
+		throw LLCertValidationTrustException((*cert_chain)[cert_chain->size()-1]);
 
 	}
+	mTrustedCertCache[sha1_hash] = std::pair<LLDate, LLDate>(from_time, to_time);	
 }
 
 
@@ -1159,7 +1207,7 @@ void LLSecAPIBasicHandler::init()
 														"CA.pem");
 		
 		
-		LL_INFOS("SECAPI") << "Loading certificate store from " << store_file << LL_ENDL;
+		LL_DEBUGS("SECAPI") << "Loading certificate store from " << store_file << LL_ENDL;
 		mStore = new LLBasicCertificateStore(store_file);
 		
 		// grab the application CA.pem file that contains the well-known certs shipped
@@ -1199,9 +1247,9 @@ void LLSecAPIBasicHandler::_readProtectedData()
 		U8 buffer[BUFFER_READ_SIZE];
 		U8 decrypted_buffer[BUFFER_READ_SIZE];
 		int decrypted_length;	
-		unsigned char MACAddress[MAC_ADDRESS_BYTES];
-		LLUUID::getNodeID(MACAddress);
-		LLXORCipher cipher(MACAddress, MAC_ADDRESS_BYTES);
+		unsigned char unique_id[MAC_ADDRESS_BYTES];
+        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+		LLXORCipher cipher(unique_id, sizeof(unique_id));
 
 		// read in the salt and key
 		protected_data_stream.read((char *)salt, STORE_SALT_SIZE);
@@ -1285,9 +1333,9 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 		EVP_CIPHER_CTX ctx;
 		EVP_CIPHER_CTX_init(&ctx);
 		EVP_EncryptInit(&ctx, EVP_rc4(), salt, NULL);
-		unsigned char MACAddress[MAC_ADDRESS_BYTES];
-		LLUUID::getNodeID(MACAddress);
-		LLXORCipher cipher(MACAddress, MAC_ADDRESS_BYTES);
+		unsigned char unique_id[MAC_ADDRESS_BYTES];
+        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+		LLXORCipher cipher(unique_id, sizeof(unique_id));
 		cipher.encrypt(salt, STORE_SALT_SIZE);
 		protected_data_stream.write((const char *)salt, STORE_SALT_SIZE);
 
@@ -1469,7 +1517,7 @@ void LLSecAPIBasicHandler::saveCredential(LLPointer<LLCredential> cred, bool sav
 	{
 		credential["authenticator"] = cred->getAuthenticator();
 	}
-	LL_INFOS("SECAPI") << "Saving Credential " << cred->getGrid() << ":" << cred->userID() << " " << save_authenticator << LL_ENDL;
+	LL_DEBUGS("SECAPI") << "Saving Credential " << cred->getGrid() << ":" << cred->userID() << " " << save_authenticator << LL_ENDL;
 	setProtectedData("credential", cred->getGrid(), credential);
 	//*TODO: If we're saving Agni credentials, should we write the
 	// credentials to the legacy password.dat/etc?
@@ -1505,9 +1553,9 @@ std::string LLSecAPIBasicHandler::_legacyLoadPassword()
 	}
 	
 	// Decipher with MAC address
-	unsigned char MACAddress[MAC_ADDRESS_BYTES];
-	LLUUID::getNodeID(MACAddress);
-	LLXORCipher cipher(MACAddress, 6);
+	unsigned char unique_id[MAC_ADDRESS_BYTES];
+    LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+	LLXORCipher cipher(unique_id, sizeof(unique_id));
 	cipher.decrypt(&buffer[0], buffer.size());
 	
 	return std::string((const char*)&buffer[0], buffer.size());

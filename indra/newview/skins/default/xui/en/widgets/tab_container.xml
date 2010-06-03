@@ -11,6 +11,12 @@ label_pad_left - padding to the left of tab button labels
                tab_height="21"
                label_pad_bottom="2"
                label_pad_left="4">
+  <!--
+  Possible additional attributes for tabs:
+  tab_bottom_image_flash
+  tab_left_image_flash
+  tab_top_image_flash
+  -->
   <first_tab tab_top_image_unselected="TabTop_Left_Off"
                tab_top_image_selected="TabTop_Left_Selected"
                tab_bottom_image_unselected="Toolbar_Left_Off"

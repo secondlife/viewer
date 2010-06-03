@@ -846,12 +846,3 @@ void LLChatHistory::draw()
 
 	LLUICtrl::draw();
 }
-
-void LLChatHistory::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-	bool is_scrolled_to_end = mEditor->scrolledToEnd();
-	LLUICtrl::reshape( width, height, called_from_parent );
-	// update scroll
-	if (is_scrolled_to_end)
-		mEditor->setCursorAndScrollToEnd();
-}

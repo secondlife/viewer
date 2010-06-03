@@ -195,6 +195,7 @@
 
 // Include for security api initialization
 #include "llsecapi.h"
+#include "llmachineid.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -619,6 +620,7 @@ bool LLAppViewer::init()
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass();
+    LLMachineID::init();
 
     initThreads();
     writeSystemInfo();
@@ -890,7 +892,16 @@ bool LLAppViewer::init()
 	}
 	
 	LLViewerMedia::initClass();
-	
+
+	LLStringOps::setupWeekDaysNames(LLTrans::getString("dateTimeWeekdaysNames"));
+	LLStringOps::setupWeekDaysShortNames(LLTrans::getString("dateTimeWeekdaysShortNames"));
+	LLStringOps::setupMonthNames(LLTrans::getString("dateTimeMonthNames"));
+	LLStringOps::setupMonthShortNames(LLTrans::getString("dateTimeMonthShortNames"));
+	LLStringOps::setupDayFormat(LLTrans::getString("dateTimeDayFormat"));
+
+	LLStringOps::sAM = LLTrans::getString("dateTimeAM");
+	LLStringOps::sPM = LLTrans::getString("dateTimePM");
+
 	return true;
 }
 
@@ -1806,7 +1817,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			}
 			else
 			{
-				llwarns << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+				llinfos << "Cannot load " << full_settings_path << " - No settings found." << llendl;
 			}
 		}
 		else

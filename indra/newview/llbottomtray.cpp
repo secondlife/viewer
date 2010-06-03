@@ -198,6 +198,12 @@ LLBottomTray::~LLBottomTray()
 		S32 custom_width = mNearbyChatBar->getRect().getWidth();
 		gSavedSettings.setS32("ChatBarCustomWidth", custom_width);
 	}
+
+	// emulate previous floater behavior to be hidden on startup.
+	// override effect of save_visibility=true.
+	// this attribute is necessary to button.initial_callback=Button.SetFloaterToggle works properly:
+	//		i.g when floater changes its visibility - button changes its toggle state.
+	getChild<LLUICtrl>("search_btn")->setControlValue(false);
 }
 
 // *TODO Vadim: why void* ?
@@ -1164,7 +1170,6 @@ void LLBottomTray::initResizeStateContainers()
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_MOVEMENT, getChild<LLPanel>("movement_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_CAMERA, getChild<LLPanel>("cam_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SNAPSHOT, getChild<LLPanel>("snapshot_panel")));
-	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SIDEBAR, getChild<LLPanel>("sidebar_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_BUILD, getChild<LLPanel>("build_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_SEARCH, getChild<LLPanel>("search_btn_panel")));
 	mStateProcessedObjectMap.insert(std::make_pair(RS_BUTTON_WORLD_MAP, getChild<LLPanel>("world_map_btn_panel")));
@@ -1175,7 +1180,6 @@ void LLBottomTray::initResizeStateContainers()
 	mButtonsProcessOrder.push_back(RS_BUTTON_MOVEMENT);
 	mButtonsProcessOrder.push_back(RS_BUTTON_CAMERA);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SNAPSHOT);
-	mButtonsProcessOrder.push_back(RS_BUTTON_SIDEBAR);
 	mButtonsProcessOrder.push_back(RS_BUTTON_BUILD);
 	mButtonsProcessOrder.push_back(RS_BUTTON_SEARCH);
 	mButtonsProcessOrder.push_back(RS_BUTTON_WORLD_MAP);
@@ -1211,7 +1215,6 @@ void LLBottomTray::initButtonsVisibility()
 	setVisibleAndFitWidths(RS_BUTTON_MOVEMENT, gSavedSettings.getBOOL("ShowMoveButton"));
 	setVisibleAndFitWidths(RS_BUTTON_CAMERA, gSavedSettings.getBOOL("ShowCameraButton"));
 	setVisibleAndFitWidths(RS_BUTTON_SNAPSHOT, gSavedSettings.getBOOL("ShowSnapshotButton"));
-	setVisibleAndFitWidths(RS_BUTTON_SIDEBAR, gSavedSettings.getBOOL("ShowSidebarButton"));
 	setVisibleAndFitWidths(RS_BUTTON_BUILD, gSavedSettings.getBOOL("ShowBuildButton"));
 	setVisibleAndFitWidths(RS_BUTTON_SEARCH, gSavedSettings.getBOOL("ShowSearchButton"));
 	setVisibleAndFitWidths(RS_BUTTON_WORLD_MAP, gSavedSettings.getBOOL("ShowWorldMapButton"));
@@ -1224,7 +1227,6 @@ void LLBottomTray::setButtonsControlsAndListeners()
 	gSavedSettings.getControl("ShowMoveButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_MOVEMENT, _2));
 	gSavedSettings.getControl("ShowCameraButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_CAMERA, _2));
 	gSavedSettings.getControl("ShowSnapshotButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SNAPSHOT, _2));
-	gSavedSettings.getControl("ShowSidebarButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SIDEBAR, _2));
 	gSavedSettings.getControl("ShowBuildButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_BUILD, _2));
 	gSavedSettings.getControl("ShowSearchButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_SEARCH, _2));
 	gSavedSettings.getControl("ShowWorldMapButton")->getSignal()->connect(boost::bind(&LLBottomTray::toggleShowButton, RS_BUTTON_WORLD_MAP, _2));

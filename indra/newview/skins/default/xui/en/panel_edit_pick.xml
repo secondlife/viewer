@@ -18,14 +18,16 @@
  </panel.string>
   <button
      follows="top|right"
-     height="23"
-     image_overlay="BackArrow_Off"
+     height="24"
+     image_hover_unselected="BackButton_Over"
+     image_pressed="BackButton_Press"
+     image_unselected="BackButton_Off"
      layout="topleft"
      name="back_btn"
-     left="12"
+     left="7"
      tab_stop="false"
      top="2"
-     width="23" />
+     width="30" />
    <text
      type="string"
      length="1"

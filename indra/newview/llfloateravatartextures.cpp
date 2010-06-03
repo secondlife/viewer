@@ -160,8 +160,7 @@ void LLFloaterAvatarTextures::onClickDump(void* data)
 {
 	if (gAgent.isGodlike())
 	{
-		LLFloaterAvatarTextures* self = (LLFloaterAvatarTextures*)data;
-		LLVOAvatar* avatarp = find_avatar(self->mID);
+		const LLVOAvatarSelf* avatarp = gAgentAvatarp;
 		if (!avatarp) return;
 		for (S32 i = 0; i < avatarp->getNumTEs(); i++)
 		{

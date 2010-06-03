@@ -130,6 +130,90 @@ void change_item_parent(LLInventoryModel* model,
 	}
 }
 
+void change_category_parent(LLInventoryModel* model,
+	LLViewerInventoryCategory* cat,
+	const LLUUID& new_parent_id,
+	BOOL restamp)
+{
+	if (!model || !cat)
+	{
+		return;
+	}
+
+	// Can't move a folder into a child of itself.
+	if (model->isObjectDescendentOf(new_parent_id, cat->getUUID()))
+	{
+		return;
+	}
+
+	LLInventoryModel::update_list_t update;
+	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
+	update.push_back(old_folder);
+	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+	update.push_back(new_folder);
+	model->accountForUpdate(update);
+
+	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
+	new_cat->setParent(new_parent_id);
+	new_cat->updateParentOnServer(restamp);
+	model->updateCategory(new_cat);
+	model->notifyObservers();
+}
+
+void remove_category(LLInventoryModel* model, const LLUUID& cat_id)
+{
+	if (!model || !get_is_category_removable(model, cat_id))
+	{
+		return;
+	}
+
+	// Look for any gestures and deactivate them
+	LLInventoryModel::cat_array_t	descendent_categories;
+	LLInventoryModel::item_array_t	descendent_items;
+	gInventory.collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
+
+	for (LLInventoryModel::item_array_t::const_iterator iter = descendent_items.begin();
+		 iter != descendent_items.end();
+		 ++iter)
+	{
+		const LLViewerInventoryItem* item = (*iter);
+		const LLUUID& item_id = item->getUUID();
+		if (item->getType() == LLAssetType::AT_GESTURE
+			&& LLGestureMgr::instance().isGestureActive(item_id))
+		{
+			LLGestureMgr::instance().deactivateGesture(item_id);
+		}
+	}
+
+	// go ahead and do the normal remove if no 'last calling
+	// cards' are being removed.
+	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+	if (cat)
+	{
+		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		change_category_parent(model, cat, trash_id, TRUE);
+	}
+}
+
+void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name)
+{
+	LLViewerInventoryCategory* cat;
+
+	if (!model ||
+		!get_is_category_renameable(model, cat_id) ||
+		(cat = model->getCategory(cat_id)) == NULL ||
+		cat->getName() == new_name)
+	{
+		return;
+	}
+
+	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
+	new_cat->rename(new_name);
+	new_cat->updateServer(FALSE);
+	model->updateCategory(new_cat);
+
+	model->notifyObservers();
+}
 
 BOOL get_is_item_worn(const LLUUID& id)
 {
@@ -156,6 +240,83 @@ BOOL get_is_item_worn(const LLUUID& id)
 			break;
 		default:
 			break;
+	}
+	return FALSE;
+}
+
+BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
+{
+	if (!model)
+	{
+		return FALSE;
+	}
+
+	// Can't delete an item that's in the library.
+	if (!model->isObjectDescendentOf(id, gInventory.getRootFolderID()))
+	{
+		return FALSE;
+	}
+
+	// Disable delete from COF folder; have users explicitly choose "detach/take off",
+	// unless the item is not worn but in the COF (i.e. is bugged).
+	if (LLAppearanceMgr::instance().getIsProtectedCOFItem(id))
+	{
+		if (get_is_item_worn(id))
+		{
+			return FALSE;
+		}
+	}
+
+	const LLInventoryObject *obj = model->getItem(id);
+	if (obj && obj->getIsLinkType())
+	{
+		return TRUE;
+	}
+	if (get_is_item_worn(id))
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
+{
+	// This function doesn't check the folder's children.
+
+	if (!model)
+	{
+		return FALSE;
+	}
+
+	if (!model->isObjectDescendentOf(id, gInventory.getRootFolderID()))
+	{
+		return FALSE;
+	}
+
+	if (!isAgentAvatarValid()) return FALSE;
+
+	LLInventoryCategory* category = model->getCategory(id);
+	if (!category)
+	{
+		return FALSE;
+	}
+
+	if (LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
+{
+	LLViewerInventoryCategory* cat = model->getCategory(id);
+
+	if (cat && !LLFolderType::lookupIsProtectedType(cat->getPreferredType()) &&
+		cat->getOwnerID() == gAgent.getID())
+	{
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -369,6 +530,31 @@ bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem
 	if (!vitem || vitem->getWearableType() != mWearableType) return false;
 
 	return true;
+}
+
+void LLFindWearablesOfType::setType(LLWearableType::EType type)
+{
+	mWearableType = type;
+}
+
+bool LLFindWorn::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	return item && get_is_item_worn(item->getUUID());
+}
+
+bool LLFindNonRemovableObjects::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if (item)
+	{
+		return !get_is_item_removable(&gInventory, item->getUUID());
+	}
+	if (cat)
+	{
+		return !get_is_category_removable(&gInventory, cat->getUUID());
+	}
+
+	llwarns << "Not a category and not an item?" << llendl;
+	return false;
 }
 
 ///----------------------------------------------------------------------------

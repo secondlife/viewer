@@ -54,7 +54,7 @@
 #include <openssl/asn1.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
-
+#include "../llmachineid.h"
 
 #define ensure_throws(str, exc_type, cert, func, ...) \
 try \
@@ -115,6 +115,15 @@ void LLCredential::authenticatorType(std::string &idType)
 LLControlGroup gSavedSettings("test");
 unsigned char gMACAddress[MAC_ADDRESS_BYTES] = {77,21,46,31,89,2};
 
+
+S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
+{
+	memcpy(unique_id, gMACAddress, len);
+	return 1;
+}
+S32 LLMachineID::init() { return 1; }
+	
+
 // -------------------------------------------------------------------------------------------
 // TUT
 // -------------------------------------------------------------------------------------------
@@ -129,6 +138,7 @@ namespace tut
 
 		sechandler_basic_test()
 		{
+            LLMachineID::init();
 			OpenSSL_add_all_algorithms();
 			OpenSSL_add_all_ciphers();
 			OpenSSL_add_all_digests();	
@@ -328,7 +338,8 @@ namespace tut
 		
 		ensure_equals("Der Format is correct", memcmp(buffer, mDerFormat.c_str(), mDerFormat.length()), 0);
 		
-		LLSD llsd_cert = test_cert->getLLSD();
+		LLSD llsd_cert;
+		test_cert->getLLSD(llsd_cert);
 		std::ostringstream llsd_value;
 		llsd_value << LLSDOStreamer<LLSDNotationFormatter>(llsd_cert) << std::endl;
 		std::string llsd_cert_str = llsd_value.str();
@@ -376,8 +387,6 @@ namespace tut
 	void sechandler_basic_test_object::test<2>()
 
 	{
-		unsigned char MACAddress[MAC_ADDRESS_BYTES];
-		LLUUID::getNodeID(MACAddress);
 		
 		std::string protected_data = "sUSh3wj77NG9oAMyt3XIhaej3KLZhLZWFZvI6rIGmwUUOmmelrRg0NI9rkOj8ZDpTPxpwToaBT5u"
 		"GQhakdaGLJznr9bHr4/6HIC1bouKj4n2rs4TL6j2WSjto114QdlNfLsE8cbbE+ghww58g8SeyLQO"
@@ -390,7 +399,9 @@ namespace tut
 
 		LLXORCipher cipher(gMACAddress, MAC_ADDRESS_BYTES);
 		cipher.decrypt(&binary_data[0], 16);
-		LLXORCipher cipher2(MACAddress, MAC_ADDRESS_BYTES);
+		unsigned char unique_id[MAC_ADDRESS_BYTES];
+        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+		LLXORCipher cipher2(unique_id, sizeof(unique_id));
 		cipher2.encrypt(&binary_data[0], 16);
 		std::ofstream temp_file("sechandler_settings.tmp", std::ofstream::binary);
 		temp_file.write((const char *)&binary_data[0], binary_data.size());
@@ -571,11 +582,11 @@ namespace tut
 		int length = apr_base64_decode_len(hashed_password.c_str());
 		std::vector<char> decoded_password(length);
 		apr_base64_decode(&decoded_password[0], hashed_password.c_str());
-		unsigned char MACAddress[MAC_ADDRESS_BYTES];
-		LLUUID::getNodeID(MACAddress);
 		LLXORCipher cipher(gMACAddress, MAC_ADDRESS_BYTES);
 		cipher.decrypt((U8*)&decoded_password[0], length);
-		LLXORCipher cipher2(MACAddress, MAC_ADDRESS_BYTES);
+		unsigned char unique_id[MAC_ADDRESS_BYTES];
+		LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+		LLXORCipher cipher2(unique_id, sizeof(unique_id));
 		cipher2.encrypt((U8*)&decoded_password[0], length);
 		llofstream password_file("test_password.dat", std::ofstream::binary);
 		password_file.write(&decoded_password[0], length); 
@@ -950,31 +961,38 @@ namespace tut
 
 		test_chain->add(new LLBasicCertificate(mX509IntermediateCert));
 
-		test_chain->validate(0, test_store, validation_params);
+		test_store->validate(0, test_chain, validation_params);
 
 		// add the root certificate to the chain and revalidate
 		test_chain->add(new LLBasicCertificate(mX509RootCert));	
-		test_chain->validate(0, test_store, validation_params);
+		test_store->validate(0, test_chain, validation_params);
 
 		// add the child cert at the head of the chain, and revalidate (3 deep chain)
 		test_chain->insert(test_chain->begin(), new LLBasicCertificate(mX509ChildCert));
-		test_chain->validate(0, test_store, validation_params);
+		test_store->validate(0, test_chain, validation_params);
 
 		// basic failure cases
 		test_chain = new LLBasicCertificateChain(NULL);
-		//validate with only the child cert
+		//validate with only the child cert in chain, but child cert was previously
+		// trusted
 		test_chain->add(new LLBasicCertificate(mX509ChildCert));
+		
+		// validate without the trust flag.
+		test_store->validate(VALIDATION_POLICY_TRUSTED, test_chain, validation_params);	
+		
+		// Validate with child cert but no parent, and no parent in CA store
+		test_store = new LLBasicCertificateStore("mycertstore.pem");
 		ensure_throws("no CA, with only a child cert", 
 					  LLCertValidationTrustException, 
 					  (*test_chain)[0],
-					  test_chain->validate, 
+					  test_store->validate, 
 					  VALIDATION_POLICY_TRUSTED, 
-					  test_store, 
+					  test_chain, 
 					  validation_params);
 
 
 		// validate without the trust flag.
-		test_chain->validate(0, test_store, validation_params);		
+		test_store->validate(0, test_chain, validation_params);		
 
 		// clear out the store
 		test_store = new LLBasicCertificateStore("mycertstore.pem");
@@ -983,18 +1001,19 @@ namespace tut
 		ensure_throws("no CA, with child and intermediate certs", 
 					  LLCertValidationTrustException, 
 					  (*test_chain)[1],
-					  test_chain->validate, 
+					  test_store->validate, 
 					  VALIDATION_POLICY_TRUSTED, 
-					  test_store, 
+					  test_chain, 
 					  validation_params);
 		// validate without the trust flag
-		test_chain->validate(0, test_store, validation_params);
+		test_store->validate(0, test_chain, validation_params);
 
 		// Test time validity
-		LLSD child_info = (*test_chain)[0]->getLLSD();
+		LLSD child_info;
+		((*test_chain)[0])->getLLSD(child_info);
 		validation_params = LLSD::emptyMap();
 		validation_params[CERT_VALIDATION_DATE] = LLDate(child_info[CERT_VALID_FROM].asDate().secondsSinceEpoch() + 1.0);  
-		test_chain->validate(VALIDATION_POLICY_TIME, test_store, validation_params);
+		test_store->validate(VALIDATION_POLICY_TIME, test_chain, validation_params);
 
 		validation_params = LLSD::emptyMap();		
 		validation_params[CERT_VALIDATION_DATE] = child_info[CERT_VALID_FROM].asDate();
@@ -1005,9 +1024,9 @@ namespace tut
 		ensure_throws("Child cert not yet valid" , 
 					  LLCertValidationExpirationException, 
 					  (*test_chain)[0],
-					  test_chain->validate, 
+					  test_store->validate, 
 					  VALIDATION_POLICY_TIME, 
-					  test_store, 
+					  test_chain, 
 					  validation_params);	
 		validation_params = LLSD::emptyMap();		
 		validation_params[CERT_VALIDATION_DATE] = LLDate(child_info[CERT_VALID_TO].asDate().secondsSinceEpoch() + 1.0);
@@ -1016,9 +1035,9 @@ namespace tut
 		ensure_throws("Child cert expired", 
 					  LLCertValidationExpirationException, 
 					  (*test_chain)[0],
-					  test_chain->validate, 
+					  test_store->validate, 
 					  VALIDATION_POLICY_TIME, 
-					  test_store, 
+					  test_chain, 
 					  validation_params);
 
 		// test SSL KU
@@ -1026,17 +1045,18 @@ namespace tut
 		test_chain = new LLBasicCertificateChain(NULL);
 		test_chain->add(new LLBasicCertificate(mX509ChildCert));
 		test_chain->add(new LLBasicCertificate(mX509IntermediateCert));
-		test_chain->validate(VALIDATION_POLICY_SSL_KU, test_store, validation_params);	
+		test_store->validate(VALIDATION_POLICY_SSL_KU, test_chain, validation_params);	
 
 		test_chain = new LLBasicCertificateChain(NULL);
 		test_chain->add(new LLBasicCertificate(mX509TestCert));
 
+		test_store = new LLBasicCertificateStore("mycertstore.pem");		
 		ensure_throws("Cert doesn't have ku", 
 					  LLCertKeyUsageValidationException, 
 					  (*test_chain)[0],
-					  test_chain->validate, 
+					  test_store->validate, 
 					  VALIDATION_POLICY_SSL_KU, 
-					  test_store, 
+					  test_chain, 
 					  validation_params);
 		
 		// test sha1RSA validation
@@ -1044,7 +1064,7 @@ namespace tut
 		test_chain->add(new LLBasicCertificate(mSha1RSATestCert));	
 		test_chain->add(new LLBasicCertificate(mSha1RSATestCA));
 
-		test_chain->validate(0, test_store, validation_params);	
+		test_store->validate(0, test_chain, validation_params);	
 	}
 	
 };

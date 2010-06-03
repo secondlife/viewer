@@ -80,6 +80,7 @@
          top_pad="10"
          width="313">
      <accordion
+        fit_parent="true"
         follows="all"
         height ="300"
         layout="topleft"

@@ -215,7 +215,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	getChild<LLLineEditor>("password_edit")->setKeystrokeCallback(onPassKey, this);
 
 	// change z sort of clickable text to be behind buttons
-	sendChildToBack(getChildView("channel_text"));
+	//sendChildToBack(getChildView("channel_text"));
 	sendChildToBack(getChildView("forgot_password_text"));
 
 	LLLineEditor* edit = getChild<LLLineEditor>("password_edit");
@@ -241,10 +241,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	std::string version = llformat("%s (%d)",
 								   LLVersionInfo::getShortVersion().c_str(),
 								   LLVersionInfo::getBuild());
-	LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
-	channel_text->setTextArg("[CHANNEL]", channel); // though not displayed
-	channel_text->setTextArg("[VERSION]", version);
-	channel_text->setClickedCallback(onClickVersion, this);
+	//LLTextBox* channel_text = getChild<LLTextBox>("channel_text");
+	//channel_text->setTextArg("[CHANNEL]", channel); // though not displayed
+	//channel_text->setTextArg("[VERSION]", version);
+	//channel_text->setClickedCallback(onClickVersion, this);
 	
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
@@ -1164,7 +1164,8 @@ void LLPanelLogin::onServerComboLostFocus(LLFocusableElement* fe)
 
 void LLPanelLogin::updateLoginPanelLinks()
 {
-	LLSD grid_data = LLGridManager::getInstance()->getGridInfo();
+	LLSD grid_data;
+	LLGridManager::getInstance()->getGridInfo(grid_data);
 	bool system_grid = grid_data.has(GRID_IS_SYSTEM_GRID_VALUE);
 	
 	// need to call through sInstance, as it's called from onSelectServer, which

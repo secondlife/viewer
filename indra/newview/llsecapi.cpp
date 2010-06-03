@@ -59,7 +59,7 @@ void initializeSecHandler()
 	gSecAPIHandler = gHandlerMap[BASIC_SECHANDLER];
 
 	// initialize all SecAPIHandlers
-	LLProtectedDataException ex = LLProtectedDataException("");
+	std::string exception_msg;
 	std::map<std::string, LLPointer<LLSecAPIHandler> >::const_iterator itr;
 	for(itr = gHandlerMap.begin(); itr != gHandlerMap.end(); ++itr)
 	{
@@ -70,12 +70,12 @@ void initializeSecHandler()
 		}
 		catch (LLProtectedDataException e)
 		{
-			ex = e;
+			exception_msg = e.getMessage();
 		}
 	}
-	if (ex.getMessage().length() > 0 )  // an exception was thrown.
+	if (!exception_msg.empty())  // an exception was thrown.
 	{
-		throw ex;
+		throw LLProtectedDataException(exception_msg.c_str());
 	}
 
 }
@@ -124,7 +124,7 @@ int secapiSSLCertVerifyCallback(X509_STORE_CTX *ctx, void *param)
 		// we rely on libcurl to validate the hostname, as libcurl does more extensive validation
 		// leaving our hostname validation call mechanism for future additions with respect to
 		// OS native (Mac keyring, windows CAPI) validation.
-		chain->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), store, validation_params);
+		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
 	}
 	catch (LLCertValidationTrustException& cert_exception)
 	{
