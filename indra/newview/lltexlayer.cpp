@@ -326,7 +326,7 @@ BOOL LLTexLayerSetBuffer::isReadyToUpload() const
 	{
 		// The timeout period increases exponentially between every lowres upload in order to prevent
 		// spamming the server with frequent uploads.
-		const U32 texture_timeout_threshold = texture_timeout*pow((F32)2.0,(F32)mNumLowresUploads);
+		const U32 texture_timeout_threshold = (U32)texture_timeout*pow((F32)2.0,(F32)mNumLowresUploads);
 
 		// If we hit our timeout and have textures available at even lower resolution, then upload.
 		const BOOL is_upload_textures_timeout = mNeedsUploadTimer.getElapsedTimeF32() >= texture_timeout_threshold;
