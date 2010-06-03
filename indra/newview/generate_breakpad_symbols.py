@@ -37,6 +37,7 @@ import fnmatch
 import itertools
 import os
 import sys
+import shlex
 import subprocess
 import tarfile
 import StringIO
@@ -44,11 +45,27 @@ import StringIO
 def usage():
     print >>sys.stderr, "usage: %s viewer_dir viewer_exes libs_suffix dump_syms_tool viewer_symbol_file" % sys.argv[0]
 
+class MissingModuleError(Exception):
+    def __init__(self, modules):
+        Exception.__init__(self, "Failed to find required modules: %r" % modules)
+        self.modules = modules
+
 def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
     # print "generate_breakpad_symbols: %s" % str((viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
 
+    # split up list of viewer_exes
+    # "'Second Life' SLPlugin" becomes ['Second Life', 'SLPlugin']
+    viewer_exes = shlex.split(viewer_exes)
+
+    found_required = dict()
+    for required in viewer_exes:
+        found_required[required] = False
+
     def matches(f):
-        return f in viewer_exes or fnmatch.fnmatch(f, libs_suffix)
+        if f in viewer_exes:
+            found_required[f] = True
+            return True
+        return fnmatch.fnmatch(f, libs_suffix)
 
     def list_files():
         for (dirname, subdirs, filenames) in os.walk(viewer_dir):
@@ -80,6 +97,12 @@ def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_fil
             out.addfile(info, symbolfile)
         else:
             print >>sys.stderr, "warning: failed to dump symbols for '%s': %s" % (filename, err)
+
+    missing_modules = [m for (m,_) in
+        itertools.ifilter(lambda (k,v): not v, found_required.iteritems())
+    ]
+    if missing_modules:
+        raise MissingModuleError(missing_modules)
 
     out.close()
 
