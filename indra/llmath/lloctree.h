@@ -102,7 +102,7 @@ public:
 	:	mParent((oct_node*)parent), 
 		mOctant(octant) 
 	{ 
-		mD = (LLVector4a*) _mm_malloc(sizeof(LLVector4a)*4, 16);
+		mD = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*4);
 
 		mD[CENTER] = center;
 		mD[SIZE] = size;
@@ -125,7 +125,7 @@ public:
 			delete getChild(i);
 		} 
 
-		_mm_free(mD);
+		ll_aligned_free_16(mD);
 	}
 
 	inline const BaseType* getParent()	const			{ return mParent; }

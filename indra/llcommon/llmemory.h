@@ -34,7 +34,7 @@
 
 #include <stdlib.h>
 
-inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free().
+inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
 #if defined(LL_WINDOWS)
 	return _mm_malloc(size, 16);

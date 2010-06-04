@@ -1987,7 +1987,7 @@ BOOL LLVolume::generate()
 
 void LLVolumeFace::VertexData::init()
 {
-	mData = (LLVector4a*) _mm_malloc(32, 16);
+	mData = (LLVector4a*) ll_aligned_malloc_16(32);
 }
 
 LLVolumeFace::VertexData::VertexData()
@@ -2004,7 +2004,7 @@ LLVolumeFace::VertexData::VertexData(const VertexData& rhs)
 
 LLVolumeFace::VertexData::~VertexData()
 {
-	_mm_free(mData);
+	ll_aligned_free_16(mData);
 }
 
 LLVector4a& LLVolumeFace::VertexData::getPosition()
@@ -5196,7 +5196,7 @@ LLVolumeFace::LLVolumeFace() :
 	mWeights(NULL),
 	mOctree(NULL)
 {
-	mExtents = (LLVector4a*) _mm_malloc(48, 16);
+	mExtents = (LLVector4a*) ll_aligned_malloc_16(48);
 	mCenter = mExtents+2;
 }
 
@@ -5217,7 +5217,7 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
 	mWeights(NULL),
 	mOctree(NULL)
 { 
-	mExtents = (LLVector4a*) _mm_malloc(48, 16);
+	mExtents = (LLVector4a*) ll_aligned_malloc_16(48);
 	mCenter = mExtents+2;
 	*this = src;
 }
@@ -5264,7 +5264,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		}
 		else
 		{
-			_mm_free(mBinormals);
+			ll_aligned_free_16(mBinormals);
 			mBinormals = NULL;
 		}
 
@@ -5275,7 +5275,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		}
 		else
 		{
-			_mm_free(mWeights);
+			ll_aligned_free_16(mWeights);
 			mWeights = NULL;
 		}
 	}
@@ -5295,7 +5295,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 
 LLVolumeFace::~LLVolumeFace()
 {
-	_mm_free(mExtents);
+	ll_aligned_free_16(mExtents);
 	mExtents = NULL;
 
 	freeData();
@@ -5303,17 +5303,17 @@ LLVolumeFace::~LLVolumeFace()
 
 void LLVolumeFace::freeData()
 {
-	_mm_free(mPositions);
+	ll_aligned_free_16(mPositions);
 	mPositions = NULL;
-	_mm_free(mNormals);
+	ll_aligned_free_16(mNormals);
 	mNormals = NULL;
-	_mm_free(mTexCoords);
+	ll_aligned_free_16(mTexCoords);
 	mTexCoords = NULL;
-	_mm_free(mIndices);
+	ll_aligned_free_16(mIndices);
 	mIndices = NULL;
-	_mm_free(mBinormals);
+	ll_aligned_free_16(mBinormals);
 	mBinormals = NULL;
-	_mm_free(mWeights);
+	ll_aligned_free_16(mWeights);
 	mWeights = NULL;
 
 	delete mOctree;
@@ -6082,21 +6082,21 @@ void LLVolumeFace::createBinormals()
 
 void LLVolumeFace::resizeVertices(S32 num_verts)
 {
-	_mm_free(mPositions);
-	_mm_free(mNormals);
-	_mm_free(mBinormals);
-	_mm_free(mTexCoords);
+	ll_aligned_free_16(mPositions);
+	ll_aligned_free_16(mNormals);
+	ll_aligned_free_16(mBinormals);
+	ll_aligned_free_16(mTexCoords);
 
 	mBinormals = NULL;
 
 	if (num_verts)
 	{
-		mPositions = (LLVector4a*) _mm_malloc(num_verts*16, 16);
-		mNormals = (LLVector4a*) _mm_malloc(num_verts*16, 16);
+		mPositions = (LLVector4a*) ll_aligned_malloc_16(num_verts*16);
+		mNormals = (LLVector4a*) ll_aligned_malloc_16(num_verts*16);
 
 		//pad texture coordinate block end to allow for QWORD reads
 		S32 size = ((num_verts*8) + 0xF) & ~0xF;
-		mTexCoords = (LLVector2*) _mm_malloc(size, 16);
+		mTexCoords = (LLVector2*) ll_aligned_malloc_16(size);
 	}
 	else
 	{
@@ -6119,20 +6119,20 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 	S32 new_size = new_verts*16;
 	
 	//positions
-	LLVector4a* dst = (LLVector4a*) _mm_malloc(new_size, 16);
+	LLVector4a* dst = (LLVector4a*) ll_aligned_malloc_16(new_size);
 	if (mPositions)
 	{
 		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mPositions, new_size/4);
-		_mm_free(mPositions);
+		ll_aligned_free_16(mPositions);
 	}
 	mPositions = dst;
 
 	//normals
-	dst = (LLVector4a*) _mm_malloc(new_size, 16);
+	dst = (LLVector4a*) ll_aligned_malloc_16(new_size);
 	if (mNormals)
 	{
 		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mNormals, new_size/4);
-		_mm_free(mNormals);
+		ll_aligned_free_16(mNormals);
 	}
 	mNormals = dst;
 
@@ -6140,16 +6140,16 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 	new_size = ((new_verts*8)+0xF) & ~0xF;
 
 	{
-		LLVector2* dst = (LLVector2*) _mm_malloc(new_size, 16);
+		LLVector2* dst = (LLVector2*) ll_aligned_malloc_16(new_size);
 		if (mTexCoords)
 		{
 			LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mTexCoords, new_size/4);
-			_mm_free(mTexCoords);
+			ll_aligned_free_16(mTexCoords);
 		}
 	}
 
 	//just clear binormals
-	_mm_free(mBinormals);
+	ll_aligned_free_16(mBinormals);
 	mBinormals = NULL;
 
 	mPositions[mNumVertices] = pos;
@@ -6161,26 +6161,26 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 
 void LLVolumeFace::allocateBinormals(S32 num_verts)
 {
-	_mm_free(mBinormals);
-	mBinormals = (LLVector4a*) _mm_malloc(num_verts*16, 16);
+	ll_aligned_free_16(mBinormals);
+	mBinormals = (LLVector4a*) ll_aligned_malloc_16(num_verts*16);
 }
 
 void LLVolumeFace::allocateWeights(S32 num_verts)
 {
-	_mm_free(mWeights);
-	mWeights = (LLVector4a*) _mm_malloc(num_verts*16, 16);
+	ll_aligned_free_16(mWeights);
+	mWeights = (LLVector4a*) ll_aligned_malloc_16(num_verts*16);
 }
 
 void LLVolumeFace::resizeIndices(S32 num_indices)
 {
-	_mm_free(mIndices);
+	ll_aligned_free_16(mIndices);
 
 	if (num_indices)
 	{
 		//pad index block end to allow for QWORD reads
 		S32 size = ((num_indices*2) + 0xF) & ~0xF;
 		
-		mIndices = (U16*) _mm_malloc(size,16);	
+		mIndices = (U16*) ll_aligned_malloc_16(size);	
 	}
 	else
 	{
@@ -6198,9 +6198,9 @@ void LLVolumeFace::pushIndex(const U16& idx)
 	S32 old_size = (mNumIndices+0xF) & ~0xF;
 	if (new_size != old_size)
 	{
-		U16* dst = (U16*) _mm_malloc(new_size, 16);
+		U16* dst = (U16*) ll_aligned_malloc_16(new_size);
 		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mIndices, new_size/4);
-		_mm_free(mIndices);
+		ll_aligned_free_16(mIndices);
 		mIndices = dst;
 	}
 	
@@ -6237,17 +6237,17 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	}
 	
 	
-	LLVector4a* new_pos = (LLVector4a*) _mm_malloc(new_count*16, 16);
-	LLVector4a* new_norm = (LLVector4a*) _mm_malloc(new_count*16, 16);
-	LLVector2* new_tc = (LLVector2*) _mm_malloc((new_count*8+0xF) & ~0xF, 16);
+	LLVector4a* new_pos = (LLVector4a*) ll_aligned_malloc_16(new_count*16);
+	LLVector4a* new_norm = (LLVector4a*) ll_aligned_malloc_16(new_count*16);
+	LLVector2* new_tc = (LLVector2*) ll_aligned_malloc_16((new_count*8+0xF) & ~0xF);
 
 	LLVector4a::memcpyNonAliased16((F32*) new_pos, (F32*) mPositions, new_count*4);
 	LLVector4a::memcpyNonAliased16((F32*) new_norm, (F32*) mNormals, new_count*4);
 	LLVector4a::memcpyNonAliased16((F32*) new_tc, (F32*) mTexCoords, new_count*2);
 
-	_mm_free(mPositions);
-	_mm_free(mNormals);
-	_mm_free(mTexCoords);
+	ll_aligned_free_16(mPositions);
+	ll_aligned_free_16(mNormals);
+	ll_aligned_free_16(mTexCoords);
 
 	mPositions = new_pos;
 	mNormals = new_norm;
@@ -6287,9 +6287,9 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 
 	new_count = mNumIndices + face.mNumIndices;
-	U16* new_indices = (U16*) _mm_malloc((new_count*2+0xF) & ~0xF, 16);
+	U16* new_indices = (U16*) ll_aligned_malloc_16((new_count*2+0xF) & ~0xF);
 	LLVector4a::memcpyNonAliased16((F32*) new_indices, (F32*) mIndices, new_count/2);
-	_mm_free(mIndices);
+	ll_aligned_free_16(mIndices);
 	mIndices = new_indices;
 	mNumIndices = new_count;
 
