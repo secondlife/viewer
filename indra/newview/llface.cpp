@@ -1546,10 +1546,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		LLMatrix4a mat_vert;
 		mat_vert.loadu(mat_vert_in);
 
-		for (S32 i = 0; i < num_vertices; i++)
+		LLVector4a* src = vf.mPositions;
+		LLVector4a* dst = vertices;
+
+		LLVector4a* end = dst+num_vertices;
+		do
 		{	
-			mat_vert.affineTransform(vf.mPositions[i], vertices[i]);
+			mat_vert.affineTransform(*src++, *dst++);
 		}
+		while(dst < end);
 	}
 		
 	if (rebuild_normal)
