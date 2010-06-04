@@ -954,7 +954,12 @@ namespace LLError
 		
 		std::string class_name = className(site.mClassInfo);
 		std::string function_name = functionName(site.mFunction);
+#if LL_LINUX
+		// gross, but typeid comparison seems to always fail here with gcc4.1
+		if (0 != strcmp(site.mClassInfo.name(), typeid(NoClassInfo).name()))
+#else
 		if (site.mClassInfo != typeid(NoClassInfo))
+#endif // LL_LINUX
 		{
 			function_name = class_name + "::" + function_name;
 		}
@@ -1079,7 +1084,12 @@ namespace LLError
 	#if LL_WINDOWS
 		// DevStudio: __FUNCTION__ already includes the full class name
 	#else
+                #if LL_LINUX
+		// gross, but typeid comparison seems to always fail here with gcc4.1
+		if (0 != strcmp(site.mClassInfo.name(), typeid(NoClassInfo).name()))
+                #else
 		if (site.mClassInfo != typeid(NoClassInfo))
+                #endif // LL_LINUX
 		{
 			prefix << className(site.mClassInfo) << "::";
 		}
