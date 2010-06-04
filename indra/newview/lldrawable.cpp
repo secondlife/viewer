@@ -95,7 +95,7 @@ void LLDrawable::incrementVisible()
 
 void LLDrawable::init()
 {
-	mExtents = (LLVector4a*) ll_aligned_malloc_32(sizeof(LLVector4a)*3, 32);
+	mExtents = (LLVector4a*) ll_aligned_malloc_32(sizeof(LLVector4a)*3);
 	mPositionGroup = mExtents + 2;
 
 	// mXform
