@@ -7497,8 +7497,9 @@ class LLEditTakeOff : public view_listener_t
 			LLWearableType::EType type = LLWearableType::typeNameToType(clothing);
 			if (type >= LLWearableType::WT_SHAPE && type < LLWearableType::WT_COUNT)
 			{
-				// MULTI-WEARABLES
-				LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(gAgentWearables.getWearableInventoryItem(type,0));
+				// MULTI-WEARABLES: assuming user wanted to remove top shirt.
+				U32 wearable_index = gAgentWearables.getWearableCount(type) - 1;
+				LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(gAgentWearables.getWearableInventoryItem(type,wearable_index));
 				LLWearableBridge::removeItemFromAvatar(item);
 			}
 				
