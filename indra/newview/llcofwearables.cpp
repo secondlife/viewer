@@ -427,7 +427,7 @@ LLPanelDeletableWearableListItem* LLCOFWearables::buildAttachemntListItem(LLView
 	llassert(item);
 	if (!item) return NULL;
 
-	LLPanelDeletableWearableListItem* item_panel = LLPanelDeletableWearableListItem::create(item);
+	LLPanelAttachmentListItem* item_panel = LLPanelAttachmentListItem::create(item);
 	if (!item_panel) return NULL;
 
 	//setting callbacks

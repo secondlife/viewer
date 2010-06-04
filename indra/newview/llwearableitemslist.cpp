@@ -42,6 +42,7 @@
 #include "llmenugl.h" // for LLContextMenu
 #include "lltransutil.h"
 #include "llviewerattachmenu.h"
+#include "llvoavatarself.h"
 
 class LLFindOutfitItems : public LLInventoryCollectFunctor
 {
@@ -257,6 +258,31 @@ BOOL LLPanelDeletableWearableListItem::postBuild()
 	return TRUE;
 }
 
+
+// static
+LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryItem* item)
+{
+	LLPanelAttachmentListItem* list_item = NULL;
+	if(item)
+	{
+		list_item = new LLPanelAttachmentListItem(item);
+		list_item->init();
+	}
+	return list_item;
+}
+
+void LLPanelAttachmentListItem::setTitle(const std::string& title, const std::string& highlit_text)
+{
+	std::string title_joint = title;
+
+	if (mItem && isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(mItem->getLinkedUUID()))
+	{
+		std::string joint = LLTrans::getString(gAgentAvatarp->getAttachedPointName(mItem->getLinkedUUID()));
+		title_joint = title + " (" + joint + ")";
+	}
+
+	LLPanelDeletableWearableListItem::setTitle(title_joint, highlit_text);
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
