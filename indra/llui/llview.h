@@ -295,7 +295,7 @@ public:
 	void 	setAllChildrenEnabled(BOOL b);
 
 	virtual void	setVisible(BOOL visible);
-	BOOL			getVisible() const			{ return mVisible; }
+	const BOOL&		getVisible() const			{ return mVisible; }
 	virtual void	setEnabled(BOOL enabled);
 	BOOL			getEnabled() const			{ return mEnabled; }
 	/// 'available' in this context means 'visible and enabled': in other
@@ -555,11 +555,13 @@ private:
 	LLView*		mParentView;
 	child_list_t mChildList;
 
-	std::string	mName;
 	// location in pixels, relative to surrounding structure, bottom,left=0,0
+	BOOL		mVisible;
 	LLRect		mRect;
 	LLRect		mBoundingRect;
+	
 	std::string mLayout;
+	std::string	mName;
 	
 	U32			mReshapeFlags;
 
@@ -580,8 +582,6 @@ private:
 
 	LLRootHandle<LLView> mHandle;
 	BOOL		mLastVisible;
-
-	BOOL		mVisible;
 
 	S32			mNextInsertionOrdinal;
 
