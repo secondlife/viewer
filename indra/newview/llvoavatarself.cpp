@@ -1273,7 +1273,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLTexLayerSet* layerset) 
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) const
 {
-	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+	//const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
+	const U32 desired_tex_discard_level = 0; // SERAPH hack to not bake textures on lower discard levels.
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
@@ -1289,7 +1290,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) cons
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
-					if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(override_tex_discard_level))
+					if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(desired_tex_discard_level))
 					{
 						return FALSE;
 					}
@@ -1304,7 +1305,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) cons
 
 BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 {
-	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+	// const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
+	const U32 desired_tex_discard_level = 0; // SERAPH hack to not bake textures on lower discard levels
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
@@ -1318,7 +1320,7 @@ BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 			const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 			for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 			{
-				if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(override_tex_discard_level))
+				if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(desired_tex_discard_level))
 				{
 					return FALSE;
 				}
