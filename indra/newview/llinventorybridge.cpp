@@ -103,7 +103,6 @@ void dec_busy_count()
 }
 
 // Function declarations
-void wear_add_inventory_item_on_avatar(LLInventoryItem* item);
 void remove_inventory_category_from_avatar(LLInventoryCategory* category);
 void remove_inventory_category_from_avatar_step2( BOOL proceed, LLUUID category_id);
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, LLMoveInv*);
@@ -4295,33 +4294,6 @@ LLWearableBridge::LLWearableBridge(LLInventoryPanel* inventory,
 	mInvType = inv_type;
 }
 
-// *NOTE: hack to get from avatar inventory to avatar
-void wear_inventory_item_on_avatar( LLInventoryItem* item )
-{
-	if(item)
-	{
-		lldebugs << "wear_inventory_item_on_avatar( " << item->getName()
-				 << " )" << llendl;
-
-		LLAppearanceMgr::getInstance()->wearItemOnAvatar(item->getUUID(), true, false);
-	}
-}
-
-void wear_add_inventory_item_on_avatar( LLInventoryItem* item )
-{
-	if(item)
-	{
-		lldebugs << "wear_add_inventory_item_on_avatar( " << item->getName()
-				 << " )" << llendl;
-
-		LLWearableList::instance().getAsset(item->getAssetUUID(),
-											item->getName(),
-											item->getType(),
-											LLWearableBridge::onWearAddOnAvatarArrived,
-											new LLUUID(item->getUUID()));
-	}
-}
-
 void remove_inventory_category_from_avatar( LLInventoryCategory* category )
 {
 	if(!category) return;
@@ -4637,21 +4609,7 @@ void LLWearableBridge::wearOnAvatar()
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
-		if(!isAgentInventory())
-		{
-			LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback();
-			copy_inventory_item(
-				gAgent.getID(),
-				item->getPermissions().getOwner(),
-				item->getUUID(),
-				LLUUID::null,
-				std::string(),
-				cb);
-		}
-		else
-		{
-			wear_inventory_item_on_avatar(item);
-		}
+		LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(), true, true);
 	}
 }
 
@@ -4668,21 +4626,7 @@ void LLWearableBridge::wearAddOnAvatar()
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
-		if(!isAgentInventory())
-		{
-			LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback();
-			copy_inventory_item(
-				gAgent.getID(),
-				item->getPermissions().getOwner(),
-				item->getUUID(),
-				LLUUID::null,
-				std::string(),
-				cb);
-		}
-		else
-		{
-			wear_add_inventory_item_on_avatar(item);
-		}
+		LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(), true, false);
 	}
 }
 
@@ -5207,41 +5151,7 @@ class LLWearableBridgeAction: public LLInvFVBridgeAction
 public:
 	virtual void doIt()
 	{
-		if(isItemInTrash())
-		{
-			LLNotificationsUtil::add("CannotWearTrash");
-		}
-		else if(isAgentInventory())
-		{
-			if(!get_is_item_worn(mUUID))
-			{
-				wearOnAvatar();
-			}
-		}
-		else
-		{
-			// must be in the inventory library. copy it to our inventory
-			// and put it on right away.
-			LLViewerInventoryItem* item = getItem();
-			if(item && item->isFinished())
-			{
-				LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback();
-				copy_inventory_item(
-					gAgent.getID(),
-					item->getPermissions().getOwner(),
-					item->getUUID(),
-					LLUUID::null,
-					std::string(),
-					cb);
-			}
-			else if(item)
-			{
-				// *TODO: We should fetch the item details, and then do
-				// the operation above.
-				LLNotificationsUtil::add("CannotWearInfoNotComplete");
-			}
-		}
-		LLInvFVBridgeAction::doIt();
+		wearOnAvatar();
 	}
 	virtual ~LLWearableBridgeAction(){}
 protected:
@@ -5280,21 +5190,7 @@ void LLWearableBridgeAction::wearOnAvatar()
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
-		if(!isAgentInventory())
-		{
-			LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback();
-			copy_inventory_item(
-				gAgent.getID(),
-				item->getPermissions().getOwner(),
-				item->getUUID(),
-				LLUUID::null,
-				std::string(),
-				cb);
-		}
-		else
-		{
-			wear_inventory_item_on_avatar(item);
-		}
+		LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(), true, true);
 	}
 }
 
