@@ -88,6 +88,8 @@ void LLPanelWearableListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item)
 : LLPanelInventoryListItemBase(item)
 {
+	// icons should not be shown for this type of items (EXT-7511)
+	mForceNoLinksOnIcons = true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -168,7 +170,7 @@ BOOL LLPanelClothingListItem::postBuild()
 	addWidgetToRightSide("btn_move_up");
 	addWidgetToRightSide("btn_move_down");
 	addWidgetToRightSide("btn_lock");
-	addWidgetToRightSide("btn_edit");
+	addWidgetToRightSide("btn_edit_panel");
 
 	setWidgetsVisible(false);
 	reshapeWidgets();
@@ -211,7 +213,7 @@ BOOL LLPanelBodyPartsListItem::postBuild()
 	LLPanelInventoryListItemBase::postBuild();
 
 	addWidgetToRightSide("btn_lock");
-	addWidgetToRightSide("btn_edit");
+	addWidgetToRightSide("btn_edit_panel");
 
 	return TRUE;
 }

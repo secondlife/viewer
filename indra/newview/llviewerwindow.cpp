@@ -201,6 +201,7 @@
 
 #include "llnearbychat.h"
 #include "llviewerwindowlistener.h"
+#include "llpaneltopinfobar.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
@@ -1667,6 +1668,20 @@ void LLViewerWindow::initWorldUI()
 	if (!gSavedSettings.getBOOL("ShowNavbarFavoritesPanel"))
 	{
 		navbar->showFavoritesPanel(FALSE);
+	}
+
+	// Top Info bar
+	LLPanel* topinfo_bar_container = getRootView()->getChild<LLPanel>("topinfo_bar_container");
+	LLPanelTopInfoBar* topinfo_bar = LLPanelTopInfoBar::getInstance();
+
+	topinfo_bar->setShape(topinfo_bar_container->getLocalRect());
+
+	topinfo_bar_container->addChild(topinfo_bar);
+	topinfo_bar_container->setVisible(TRUE);
+
+	if (!gSavedSettings.getBOOL("ShowMiniLocationPanel"))
+	{
+		topinfo_bar->setVisible(FALSE);
 	}
 
 	if ( gHUDView == NULL )

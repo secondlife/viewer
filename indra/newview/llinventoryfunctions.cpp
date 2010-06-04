@@ -185,8 +185,6 @@ void remove_category(LLInventoryModel* model, const LLUUID& cat_id)
 		}
 	}
 
-	// go ahead and do the normal remove if no 'last calling
-	// cards' are being removed.
 	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
 	if (cat)
 	{
