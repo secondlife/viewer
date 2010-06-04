@@ -7495,7 +7495,9 @@ class LLEditTakeOff : public view_listener_t
 		else
 		{
 			LLWearableType::EType type = LLWearableType::typeNameToType(clothing);
-			if (type >= LLWearableType::WT_SHAPE && type < LLWearableType::WT_COUNT)
+			if (type >= LLWearableType::WT_SHAPE 
+				&& type < LLWearableType::WT_COUNT
+				&& (gAgentWearables.getWearableCount(type) > 0))
 			{
 				// MULTI-WEARABLES: assuming user wanted to remove top shirt.
 				U32 wearable_index = gAgentWearables.getWearableCount(type) - 1;

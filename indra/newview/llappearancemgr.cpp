@@ -659,12 +659,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 	LLViewerInventoryItem* item_to_wear = gInventory.getItem(item_id_to_wear);
 	if (!item_to_wear) return false;
 
-	if (!item_to_wear->isFinished())
-	{
-		LLNotificationsUtil::add("CannotWearInfoNotComplete");
-		return false;
-	}
-	else if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.getLibraryRootFolderID()))
+	if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.getLibraryRootFolderID()))
 	{
 		LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback(replace);
 		copy_inventory_item(gAgent.getID(), item_to_wear->getPermissions().getOwner(), item_to_wear->getUUID(), LLUUID::null, std::string(),cb);
@@ -677,6 +672,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 	else if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH)))
 	{
 		LLNotificationsUtil::add("CannotWearTrash");
+		return false;
 	}
 
 	switch (item_to_wear->getType())
@@ -1605,15 +1601,14 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 		// type? If so, new item will replace old.
 		else if ((vitem->isWearableType()) && (vitem->getWearableType() == wearable_type))
 		{
+			++count;
 			if (is_body_part && inv_item->getIsLinkType()  && (vitem->getWearableType() == wearable_type))
 			{
 				gInventory.purgeObject(inv_item->getUUID());
 			}
-			++count;
-
-			// MULTI-WEARABLES: make sure we don't go over MAX_CLOTHING_PER_TYPE
-			if (count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE)
+			else if (count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE)
 			{
+				// MULTI-WEARABLES: make sure we don't go over MAX_CLOTHING_PER_TYPE
 				gInventory.purgeObject(inv_item->getUUID());
 			}
 		}
