@@ -34,6 +34,7 @@
 #define LL_ACCORDIONCTRL_H
 
 #include "llpanel.h"
+#include "lltextbox.h"
 #include "llscrollbar.h"
 
 #include <vector>
@@ -64,10 +65,12 @@ public:
 								accordion tabs are responsible for scrolling their content.
 								*NOTE fit_parent works best when combined with single_expansion.
 								Accordion view should implement getRequiredRect() and provide valid height*/
+		Optional<LLTextBox::Params>	empty_accordion_text;
 
 		Params()
 			: single_expansion("single_expansion",false)
 			, fit_parent("fit_parent", false)
+			, empty_accordion_text("empty_accordion_text")
 		{};
 	};
 
@@ -105,7 +108,15 @@ public:
 
 	void	reset		();
 
+	/**
+	 * Sets filter substring as a search_term for help text when there are no any visible tabs.
+	 */
+	void	setFilterSubString(const std::string& filter_string);
+
 private:
+	void	initNoTabsWidget(const LLTextBox::Params& tb_params);
+	void	updateNoTabsHelpTextVisibility();
+
 	void	arrangeSinge();
 	void	arrangeMultiple();
 
@@ -131,6 +142,8 @@ private:
 	bool			mAutoScrolling;
 	F32				mAutoScrollRate;
 	LLAccordionCtrlTab* mSelectedTab;
+	LLTextBox*		mNoVisibleTabsHelpText;
+	std::string		mNoVisibleTabsOrigString;
 };
 
 
