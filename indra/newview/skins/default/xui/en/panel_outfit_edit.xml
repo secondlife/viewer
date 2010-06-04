@@ -205,6 +205,9 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                     <button
                      follows="left|bottom" 
                      height="22"
+                     image_pressed="PushButton_Press"
+                     image_pressed_selected="PushButton_Selected_Press"
+                     image_selected="PushButton_Selected_Press"
                      is_toggle="true"
                      label="Add More..."
                      layout="topleft"
@@ -227,6 +230,9 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                      follows="bottom|right"
                      height="22"
                      image_overlay="Search_Icon"
+                     image_pressed="PushButton_Press"
+                     image_pressed_selected="PushButton_Selected_Press"
+                     image_selected="PushButton_Selected_Press"
                      is_toggle="true"
                      layout="topleft"
                      name="filter_button"
@@ -294,7 +300,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              background_visible="false"
              border="false"
              follows="left|top|right|bottom"
-             height="210"
+             height="203"
              layout="topleft"
              left="0"
              mouse_opaque="false"
@@ -312,7 +318,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              height="210"
              left="0"
              mouse_opaque="false"
-             width="311"
+             width="310"
              top_delta="0"
              visible="true">
                 <wearable_items_list
