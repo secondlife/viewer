@@ -3,41 +3,48 @@
 	<floater.string name="InvalidAvatar">
 		UGYLDING AVATAR
 	</floater.string>
-	<text name="composite_label">
-		Blandede teksturer
-	</text>
-	<button label="Drop" label_selected="Dump" name="Dump"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<texture_picker label="Hår" name="hair-baked"/>
-			<texture_picker label="Hår" name="hair_grain"/>
-			<texture_picker label="Alpha - hår" name="hair_alpha"/>
-			<texture_picker label="Hoved" name="head-baked"/>
-			<texture_picker label="Makeup" name="head_bodypaint"/>
-			<texture_picker label="Alpha - hoved" name="head_alpha"/>
-			<texture_picker label="Tatovering - hoved" name="head_tattoo"/>
-			<texture_picker label="Eyes" name="eyes-baked"/>
-			<texture_picker label="Øje" name="eyes_iris"/>
-			<texture_picker label="Alpha - øjne" name="eyes_alpha"/>
-			<texture_picker label="Overkrop" name="upper-baked"/>
-			<texture_picker label="Bodypaint - overkrop" name="upper_bodypaint"/>
-			<texture_picker label="Undertrøje" name="upper_undershirt"/>
-			<texture_picker label="Handsker" name="upper_gloves"/>
-			<texture_picker label="Trøje" name="upper_shirt"/>
-			<texture_picker label="Jakke - foroven" name="upper_jacket"/>
-			<texture_picker label="Alpha - øvre" name="upper_alpha"/>
-			<texture_picker label="Tatovering - øvre" name="upper_tattoo"/>
-			<texture_picker label="Ben" name="lower-baked"/>
-			<texture_picker label="Bodypaint - ben" name="lower_bodypaint"/>
-			<texture_picker label="Underbukser" name="lower_underpants"/>
-			<texture_picker label="Strømper" name="lower_socks"/>
-			<texture_picker label="Sko" name="lower_shoes"/>
-			<texture_picker label="Bukser" name="lower_pants"/>
-			<texture_picker label="Jakke" name="lower_jacket"/>
-			<texture_picker label="Alpha - nedre" name="lower_alpha"/>
-			<texture_picker label="Tatovering - nedre" name="lower_tattoo"/>
-			<texture_picker label="Nederdel" name="skirt-baked"/>
-			<texture_picker label="Nederdel" name="skirt"/>
+			<text name="label">
+				Gemte
+teksturer
+			</text>
+			<text name="composite_label">
+				Sammensatte
+teksturer
+			</text>
+			<button label="Vis IDs på skærm" label_selected="Dump" name="Dump"/>
+			<panel name="scroll_content_panel">
+				<texture_picker label="Hår" name="hair-baked"/>
+				<texture_picker label="Hår" name="hair_grain"/>
+				<texture_picker label="Alpha - hår" name="hair_alpha"/>
+				<texture_picker label="Hoved" name="head-baked"/>
+				<texture_picker label="Makeup" name="head_bodypaint"/>
+				<texture_picker label="Alpha - hoved" name="head_alpha"/>
+				<texture_picker label="Tatovering - hovede" name="head_tattoo"/>
+				<texture_picker label="Øjne" name="eyes-baked"/>
+				<texture_picker label="Øje" name="eyes_iris"/>
+				<texture_picker label="Alpha øjne" name="eyes_alpha"/>
+				<texture_picker label="Overkrop" name="upper-baked"/>
+				<texture_picker label="Øverste bodyPaint" name="upper_bodypaint"/>
+				<texture_picker label="Undertrøje" name="upper_undershirt"/>
+				<texture_picker label="Handsker" name="upper_gloves"/>
+				<texture_picker label="Trøje" name="upper_shirt"/>
+				<texture_picker label="Jakke øverst" name="upper_jacket"/>
+				<texture_picker label="Alpha - øverst" name="upper_alpha"/>
+				<texture_picker label="Tatovering - øverst" name="upper_tattoo"/>
+				<texture_picker label="Underkrop" name="lower-baked"/>
+				<texture_picker label="BodyPaint - nederst" name="lower_bodypaint"/>
+				<texture_picker label="Underbukser" name="lower_underpants"/>
+				<texture_picker label="Strømper" name="lower_socks"/>
+				<texture_picker label="Sko" name="lower_shoes"/>
+				<texture_picker label="Bukser" name="lower_pants"/>
+				<texture_picker label="Jakke" name="lower_jacket"/>
+				<texture_picker label="Alpha - nederst" name="lower_alpha"/>
+				<texture_picker label="Tatovering - nederst" name="lower_tattoo"/>
+				<texture_picker label="Nederdel" name="skirt-baked"/>
+				<texture_picker label="Nederdel" name="skirt"/>
+			</panel>
 		</panel>
 	</scroll_container>
 </floater>

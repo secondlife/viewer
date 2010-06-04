@@ -2,9 +2,9 @@
 <!-- Side tray panel -->
 <panel label="Personer" name="people_panel">
 	<string name="no_recent_people" value="Ingen tidligere personer. Leder du efter nogen at være sammen med? Prøv [secondlife:///app/search/people Search] eller [secondlife:///app/worldmap World Map]."/>
-	<string name="no_filtered_recent_people" value="Fandt du ikke hvad du ledte efter? Prøv [secondlife:///app/search/people Search]."/>
+	<string name="no_filtered_recent_people" value="Fandt du ikke det du søgte? Prøv [secondlife:///app/search/people/[SEARCH_TERM] Search]."/>
 	<string name="no_one_near" value="Ingen i nærheden. Leder du efter nogen at være sammen med? Prøv [secondlife:///app/search/people Search] eller [secondlife:///app/worldmap World Map]."/>
-	<string name="no_one_filtered_near" value="Fandt du ikke hvad du ledte efter? Prøv [secondlife:///app/search/people Search]."/>
+	<string name="no_one_filtered_near" value="Fandt du ikke det du søgte? Prøv [secondlife:///app/search/people/[SEARCH_TERM] Search]."/>
 	<string name="no_friends_online" value="Ingen venner online"/>
 	<string name="no_friends" value="Ingen venner"/>
 	<string name="no_friends_msg">
@@ -12,11 +12,11 @@
 Leder du efter nogen at være sammen med? Prøv [secondlife:///app/worldmap World Map].
 	</string>
 	<string name="no_filtered_friends_msg">
-		Fandt du ikke hvad du ledte efter? Prøv [secondlife:///app/search/people Search].
+		Fandt du ikke det du søgte? Prøv [secondlife:///app/search/people/[SEARCH_TERM] Search].
 	</string>
 	<string name="people_filter_label" value="Filtrér personer"/>
 	<string name="groups_filter_label" value="Filtrér grupper"/>
-	<string name="no_filtered_groups_msg" value="Fandt du ikke hvad du ledte efter? Prøv [secondlife:///app/search/groups Search]."/>
+	<string name="no_filtered_groups_msg" value="Fandt du ikke det du søgte? Prøv [secondlife:///app/search/groups/[SEARCH_TERM] Search]."/>
 	<string name="no_groups_msg" value="Leder du efter grupper at være med i? Prøv [secondlife:///app/search/groups Search]."/>
 	<filter_editor label="Filtrér" name="filter_input"/>
 	<tab_container name="tabs">
@@ -55,7 +55,7 @@ Leder du efter nogen at være sammen med? Prøv [secondlife:///app/worldmap Worl
 		<button label="Profil" name="view_profile_btn" tool_tip="Vis billede, gruppe og anden information om beboer"/>
 		<button label="IM" name="im_btn" tool_tip="Chat privat med denne person"/>
 		<button label="Opkald" name="call_btn" tool_tip="Opkald til denne beboer"/>
-		<button label="Del" name="share_btn"/>
+		<button label="Del" name="share_btn" tool_tip="Del en genstand i beholdning"/>
 		<button label="Teleport" name="teleport_btn" tool_tip="Tilbyd teleport"/>
 		<button label="Group profil" name="group_info_btn" tool_tip="Vis gruppe information"/>
 		<button label="Gruppe chat" name="chat_btn" tool_tip="Åben chat session"/>
