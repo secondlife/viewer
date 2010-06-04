@@ -2516,6 +2516,15 @@ void LLAppViewer::writeSystemInfo()
 	// If the crash is handled by LLAppViewer::handleViewerCrash, ie not a freeze,
 	// then the value of "CrashNotHandled" will be set to true.
 	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
+
+	// Insert crash host url (url to post crash log to) if configured. This insures
+	// that the crash report will go to the proper location in the case of a 
+	// prior freeze.
+	std::string crashHostUrl = gSavedSettings.get<std::string>("CrashHostUrl");
+	if(crashHostUrl != "")
+	{
+		gDebugInfo["CrashHostUrl"] = crashHostUrl;
+	}
 	
 	// Dump some debugging info
 	LL_INFOS("SystemInfo") << LLTrans::getString("APP_NAME")
