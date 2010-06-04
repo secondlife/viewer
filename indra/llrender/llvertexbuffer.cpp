@@ -813,7 +813,7 @@ BOOL LLVertexBuffer::useVBOs() const
 		return FALSE;
 	}
 #endif
-	return sEnableVBOs;
+	return TRUE;
 }
 
 //----------------------------------------------------------------------------
@@ -1177,7 +1177,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 	{		
 		if (mGLBuffer)
 		{
-			if (sEnableVBOs && sVBOActive)
+			if (useVBOs() && sVBOActive)
 			{
 				glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 				sBindCount++;
@@ -1189,7 +1189,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 				setup = TRUE; // ... or a client memory pointer changed
 			}
 		}
-		if (sEnableVBOs && mGLIndices && sIBOActive)
+		if (useVBOs() && mGLIndices && sIBOActive)
 		{
 			/*if (sMapped)
 			{
