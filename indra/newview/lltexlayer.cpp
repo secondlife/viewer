@@ -2289,8 +2289,8 @@ const std::string LLTexLayerSetBuffer::dumpTextureInfo() const
 	const U32 upload_time = (U32)mNeedsUploadTimer.getElapsedTimeF32();
 	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(mTexLayerSet);
 	std::string status 			= "CREATING ";
-	if (mUploadPending) status 	= "UPLOADING";
 	if (!mNeedsUpload) status 	= "  DONE   ";
+	if (mUploadPending) status 	= "UPLOADING";
 	std::string text = llformat("[ %s ] [ HiRes:%d LoRes:%d ] [ Timer:%d ] %s",
 								status.c_str(),
 								is_high_res, num_low_res,
