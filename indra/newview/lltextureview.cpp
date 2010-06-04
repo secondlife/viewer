@@ -421,7 +421,6 @@ void LLAvatarTexBar::draw()
 
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
-	LLColor4 text_color(1.f, 1.f, 1.f, 1.f);
 	LLColor4 color;
 	
 	U32 line_num = 1;
@@ -434,6 +433,17 @@ void LLAvatarTexBar::draw()
 		if (!layerset) continue;
 		const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
 		if (!layerset_buffer) continue;
+
+		LLColor4 text_color = LLColor4::white;
+		
+		if (layerset_buffer->uploadNeeded())
+		{
+			text_color = LLColor4::red;
+		}
+ 		if (layerset_buffer->uploadPending())
+		{
+			text_color = LLColor4::magenta;
+		}
 		std::string text = layerset_buffer->dumpTextureInfo();
 		LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*line_num,
 												 text_color, LLFontGL::LEFT, LLFontGL::TOP); //, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
@@ -442,11 +452,13 @@ void LLAvatarTexBar::draw()
 	const U32 texture_timeout = gSavedSettings.getU32("AvatarBakedTextureTimeout");
 	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
 	
+	LLColor4 header_color(1.f, 1.f, 1.f, 0.9f);
+
 	const std::string texture_timeout_str = texture_timeout ? llformat("%d",texture_timeout) : "Disabled";
 	const std::string override_tex_discard_level_str = override_tex_discard_level ? llformat("%d",override_tex_discard_level) : "Disabled";
 	std::string header_text = llformat("[ Timeout('AvatarBakedTextureTimeout'):%s ] [ LOD_Override('TextureDiscardLevel'):%s ]", texture_timeout_str.c_str(), override_tex_discard_level_str.c_str());
 	LLFontGL::getFontMonospace()->renderUTF8(header_text, 0, 0, v_offset + line_height*line_num,
-											 text_color, LLFontGL::LEFT, LLFontGL::TOP); //, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
+											 header_color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
 }
 
 BOOL LLAvatarTexBar::handleMouseDown(S32 x, S32 y, MASK mask)

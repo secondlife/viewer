@@ -275,12 +275,15 @@ public:
 	virtual void			postRender(BOOL success);
 	virtual BOOL			render();
 	BOOL					updateImmediate();
-	bool					isInitialized(void) const;
+
+	BOOL					isInitialized(void) const;
+	BOOL					uploadPending() const { return mUploadPending; }
+	BOOL					uploadNeeded() const { return mNeedsUpload; }
+
 	/*virtual*/ BOOL		needsRender();
 	void					requestUpdate();
 	void					requestUpload();
 	void					cancelUpload();
-	BOOL					uploadPending() const { return mUploadPending; }
 	BOOL					render(S32 x, S32 y, S32 width, S32 height);
 	void					readBackAndUpload();
 	static void				onTextureUploadComplete(const LLUUID& uuid,
@@ -290,6 +293,8 @@ public:
 	const std::string		dumpTextureInfo() const;
 	virtual void 			restoreGLTexture();
 	virtual void 			destroyGLTexture();
+
+
 protected:
 	void					pushProjection() const;
 	void					popProjection() const;

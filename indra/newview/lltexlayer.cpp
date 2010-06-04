@@ -317,7 +317,7 @@ BOOL LLTexLayerSetBuffer::render()
 	return success;
 }
 
-bool LLTexLayerSetBuffer::isInitialized(void) const
+BOOL LLTexLayerSetBuffer::isInitialized(void) const
 {
 	return mGLTexturep.notNull() && mGLTexturep->isGLTextureCreated();
 }
@@ -2287,10 +2287,13 @@ const std::string LLTexLayerSetBuffer::dumpTextureInfo() const
 	const BOOL is_high_res = !mNeedsUpload;
 	const U32 num_low_res = mNumLowresUploads;
 	const U32 upload_time = (U32)mNeedsUploadTimer.getElapsedTimeF32();
-	const BOOL is_uploaded = !mUploadPending;
 	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(mTexLayerSet);
-	std::string text = llformat("[ HiRes:%d LoRes:%d Done:%d ] [ Timer:%d ] %s",
-								is_high_res, num_low_res, is_uploaded,
+	std::string status 			= "CREATING ";
+	if (mUploadPending) status 	= "UPLOADING";
+	if (!mNeedsUpload) status 	= "  DONE   ";
+	std::string text = llformat("[ %s ] [ HiRes:%d LoRes:%d ] [ Timer:%d ] %s",
+								status.c_str(),
+								is_high_res, num_low_res,
 								upload_time, 
 								local_texture_info.c_str());
 	return text;
