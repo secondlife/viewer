@@ -640,7 +640,7 @@ public:
 		const LLVector4a& v = data->getPositionGroup();
 
 		LLVector4a val;
-		val.setSub(v, mD[CENTER]);
+		val.setSub(v, BaseType::mD[BaseType::CENTER]);
 		val.setAbs(val);
 		S32 lt = val.lessThan4(MAX_MAG).getComparisonMask() & 0x7;
 

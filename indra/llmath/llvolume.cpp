@@ -4406,7 +4406,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 				face.createOctree();
 			}
 			
-			LLVector4a* p = (LLVector4a*) face.mPositions;
+			//LLVector4a* p = (LLVector4a*) face.mPositions;
 
 			LLOctreeTriangleRayIntersect intersect(start, dir, &face, &closest_t, intersection, tex_coord, normal, bi_normal);
 			intersect.traverse(face.mOctree);
