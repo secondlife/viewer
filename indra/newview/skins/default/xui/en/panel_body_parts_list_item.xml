@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="top|right|left"
- height="25"
+ height="23"
  layout="topleft"
  left="0"
  name="wearable_item"
@@ -45,7 +45,7 @@
      use_ellipses="true"
      name="item_name"
      text_color="white"
-     top="4"
+     top="5"
      value="..."
      width="359" />
     <panel
@@ -74,10 +74,10 @@
      name="btn_edit_panel"
      layout="topleft"
      follows="top|right"
-     top="0"
+     top="1"
      left_pad="3"
-     height="24"
-     width="27"
+     height="23"
+     width="26"
      tab_stop="false">
          <button 
           name="btn_edit"
@@ -86,8 +86,8 @@
           image_overlay="Edit_Wrench"
           top="0"
           left="0"
-          height="24"
-          width="24"
+          height="23"
+          width="23"
           tab_stop="false" />
       </panel>
     <icon
@@ -97,7 +97,7 @@
      layout="bottomleft"
      left="0"
      name="wearable_type_separator_icon"
-     top="3"
+     top="0"
      visible="true"
      width="380"/>
 </panel>

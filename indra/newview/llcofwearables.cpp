@@ -387,13 +387,7 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
 	
 	//turning on gray separator line for the last item in the items group of the same wearable type
-	if (last)
-	{
-		LLRect rect = item_panel->getRect();
-		item_panel->reshape(rect.getWidth(), rect.getHeight() +
-		item_panel->getChild<LLView>("wearable_type_separator_icon")->getRect().getHeight());
-		item_panel->childSetVisible("wearable_type_separator_icon", true);
-	}
+	item_panel->childSetVisible("wearable_type_separator_icon", last);
 
 	return item_panel;
 }
