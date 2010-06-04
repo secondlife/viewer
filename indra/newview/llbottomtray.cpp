@@ -203,7 +203,9 @@ LLBottomTray::~LLBottomTray()
 	// override effect of save_visibility=true.
 	// this attribute is necessary to button.initial_callback=Button.SetFloaterToggle works properly:
 	//		i.g when floater changes its visibility - button changes its toggle state.
+	getChild<LLUICtrl>("build_btn")->setControlValue(false);
 	getChild<LLUICtrl>("search_btn")->setControlValue(false);
+	getChild<LLUICtrl>("world_map_btn")->setControlValue(false);
 }
 
 // *TODO Vadim: why void* ?
