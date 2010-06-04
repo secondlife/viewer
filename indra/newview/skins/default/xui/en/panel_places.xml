@@ -89,6 +89,7 @@ background_visible="true"
          layout="topleft"
          left_pad="3"
          name="map_btn"
+         tool_tip="Show the corresponding area on the World Map"
          width="85" />
         <button
          follows="bottom|left"
@@ -141,6 +142,7 @@ background_visible="true"
          layout="topleft"
          name="profile_btn"
          right="-1"
+         tool_tip="Show place profile"
          top="1"
          width="111" />
     </panel>
