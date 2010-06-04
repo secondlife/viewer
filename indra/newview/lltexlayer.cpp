@@ -322,6 +322,21 @@ BOOL LLTexLayerSetBuffer::isInitialized(void) const
 	return mGLTexturep.notNull() && mGLTexturep->isGLTextureCreated();
 }
 
+BOOL LLTexLayerSetBuffer::uploadPending() const
+{
+	return mUploadPending;
+}
+
+BOOL LLTexLayerSetBuffer::uploadNeeded() const
+{
+	return mNeedsUpload;
+}
+
+BOOL LLTexLayerSetBuffer::uploadInProgress() const
+{
+	return !mUploadID.isNull();
+}
+
 BOOL LLTexLayerSetBuffer::isReadyToUpload() const
 {
 	if (!mNeedsUpload) return FALSE; // Don't need to upload if we haven't requested one.
@@ -2288,10 +2303,12 @@ const std::string LLTexLayerSetBuffer::dumpTextureInfo() const
 	const U32 num_low_res = mNumLowresUploads;
 	const U32 upload_time = (U32)mNeedsUploadTimer.getElapsedTimeF32();
 	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(mTexLayerSet);
-	std::string status 			= "CREATING ";
-	if (!mNeedsUpload) status 	= "  DONE   ";
-	if (mUploadPending) status 	= "UPLOADING";
-	std::string text = llformat("[ %s ] [ HiRes:%d LoRes:%d ] [ Timer:%d ] %s",
+
+	std::string status 				= "CREATING ";
+	if (!uploadNeeded()) status 	= "DONE     ";
+	if (uploadInProgress()) status 	= "UPLOADING";
+
+	std::string text = llformat("[%s] [HiRes:%d LoRes:%d] [Elapsed:%d] %s",
 								status.c_str(),
 								is_high_res, num_low_res,
 								upload_time, 

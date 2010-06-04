@@ -277,8 +277,9 @@ public:
 	BOOL					updateImmediate();
 
 	BOOL					isInitialized(void) const;
-	BOOL					uploadPending() const { return mUploadPending; }
-	BOOL					uploadNeeded() const { return mNeedsUpload; }
+	BOOL					uploadPending() const; // We are expecting a new texture to be uploaded at some point
+	BOOL					uploadNeeded() const; // We need to upload a new texture
+	BOOL					uploadInProgress() const; // We have started uploading a new texture and are awaiting the result
 
 	/*virtual*/ BOOL		needsRender();
 	void					requestUpdate();
@@ -305,7 +306,7 @@ private:
 	LLTexLayerSet* const    mTexLayerSet;
 	BOOL					mNeedsUpdate; // whether we need to update our baked textures
 	BOOL					mNeedsUpload; // whether we need to send our baked textures to the server
-	U32						mNumLowresUploads; // mumber of times we've sent a lowres version of our baked textures to the server
+	U32						mNumLowresUploads; // number of times we've sent a lowres version of our baked textures to the server
 	BOOL					mUploadPending; // whether we have received back the new baked textures
 	LLUUID					mUploadID; // the current upload process (null if none).  Used to avoid overlaps, e.g. when the user rapidly makes two changes outside of Face Edit.
 	static S32				sGLByteCount;
