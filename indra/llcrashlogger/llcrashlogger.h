@@ -48,7 +48,6 @@ public:
 	S32 loadCrashBehaviorSetting();
 	void gatherFiles();
 	virtual void gatherPlatformSpecificFiles() {}
-	void findAndRenameLogFiles();
 	bool saveCrashBehaviorSetting(S32 crash_behavior);
 	bool sendCrashLogs();
 	LLSD constructPostData();

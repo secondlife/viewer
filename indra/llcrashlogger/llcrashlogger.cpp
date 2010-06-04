@@ -36,8 +36,6 @@
 
 #include "llcrashlogger.h"
 #include "linden_common.h"
-#include "lldate.h"
-#include "llfile.h"
 #include "llstring.h"
 #include "indra_constants.h"	// CRASH_BEHAVIOR_ASK, CRASH_SETTING_NAME
 #include "llerror.h"
@@ -155,79 +153,54 @@ std::string getStartupStateFromLog(std::string& sllog)
 	return startup_state;
 }
 
-void LLCrashLogger::findAndRenameLogFiles()
+void LLCrashLogger::gatherFiles()
 {
-	// Find and rename the relevant log files so they won't be stomped on if 
-	// SL is restarted before user sends crash report.
-	
-	std::string now = "." + LLDate::now().asString();
-	
-	std::string stats_log_original = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stats.log");
-	std::string stats_log = stats_log_original;
-	stats_log.insert(stats_log.length() - 4, now);
-	if(LLFile::rename(stats_log_original, stats_log) == 0)
-	{
-		mFileMap["StatsLog"] = stats_log;
-	}
-	
-	std::string second_life_log_original;
-	std::string settings_file_original;
+	updateApplication("Gathering logs...");
 
-	std::string db_file_name_original = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"debug_info.log");
-	std::string db_file_name = db_file_name_original;
-	db_file_name.insert(db_file_name.length() - 4, now);
-	LLFile::rename(db_file_name_original, db_file_name);
+	// Figure out the filename of the debug log
+	std::string db_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"debug_info.log");
 	std::ifstream debug_log_file(db_file_name.c_str());
+
+	// Look for it in the debug_info.log file
 	if (debug_log_file.is_open())
 	{		
-		LLSDSerialize::fromXML(mDebugLog, debug_log_file);		
+		LLSDSerialize::fromXML(mDebugLog, debug_log_file);
+
 		mCrashInPreviousExec = mDebugLog["CrashNotHandled"].asBoolean();
-		second_life_log_original = mDebugLog["SLLog"].asString();
-		settings_file_original = mDebugLog["SettingsFilename"].asString();
+
+		mFileMap["SecondLifeLog"] = mDebugLog["SLLog"].asString();
+		mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
+		if(mDebugLog.has("CAFilename"))
+		{
+			LLCurl::setCAFile(mDebugLog["CAFilename"].asString());
+		}
+		else
+		{
+			LLCurl::setCAFile(gDirUtilp->getCAFile());
+		}
+
+		llinfos << "Using log file from debug log " << mFileMap["SecondLifeLog"] << llendl;
+		llinfos << "Using settings file from debug log " << mFileMap["SettingsXml"] << llendl;
 	}
 	else
 	{
 		// Figure out the filename of the second life log
-		second_life_log_original = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
-		settings_file_original = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
+		LLCurl::setCAFile(gDirUtilp->getCAFile());
+		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
+		mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
-	
+
 	if(mCrashInPreviousExec)
 	{
 		// Restarting after freeze.
 		// Replace the log file ext with .old, since the 
 		// instance that launched this process has overwritten
 		// SecondLife.log
-		second_life_log_original.replace(second_life_log_original.size() - 4, 4, ".old");
+		std::string log_filename = mFileMap["SecondLifeLog"];
+		log_filename.replace(log_filename.size() - 4, 4, ".old");
+		mFileMap["SecondLifeLog"] = log_filename;
 	}
-	
-	std::string second_life_log = second_life_log_original;
-	std::string settings_file = settings_file_original;
-	second_life_log.insert(second_life_log.length() - 4, now);
-	settings_file.insert(settings_file.length() - 4, now);
-	if(LLFile::rename(second_life_log_original, second_life_log) == 0)
-	{
-		mFileMap["SecondLifeLog"] = second_life_log;
-	}
-	if(LLFile::rename(settings_file_original, settings_file) == 0)
-	{
-		mFileMap["SettingsXml"] = settings_file;
-	}
-}
 
-void LLCrashLogger::gatherFiles()
-{
-	updateApplication("Gathering logs...");
-
-	if(mDebugLog.has("CAFilename"))
-	{
-		LLCurl::setCAFile(mDebugLog["CAFilename"].asString());
-	}
-	else
-	{
-		LLCurl::setCAFile(gDirUtilp->getCAFile());
-	}
-	
 	gatherPlatformSpecificFiles();
 
 	//Use the debug log to reconstruct the URL to send the crash report to
@@ -257,6 +230,7 @@ void LLCrashLogger::gatherFiles()
 	mAltCrashHost = "https://login.agni.lindenlab.com:12043/crash/report";
 
 	mCrashInfo["DebugLog"] = mDebugLog;
+	mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stats.log");
 	
 	updateApplication("Encoding files...");
 
@@ -430,8 +404,6 @@ bool LLCrashLogger::init()
 		std::string marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.exec_marker");
 		LLAPRFile::remove( marker_file );
 	}
-	
-	findAndRenameLogFiles();
 	
 	return true;
 }
