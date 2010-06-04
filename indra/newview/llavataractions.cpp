@@ -643,11 +643,12 @@ namespace action_give_inventory
 //static
 void LLAvatarActions::shareWithAvatars()
 {
-	using namespace action_give_inventory;
-
-	LLFloaterAvatarPicker* picker =
-		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE);
-	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
+	llerrs << "Needs to be fixed to work with LLAvatarName" << llendl;
+//	using namespace action_give_inventory;
+//
+//	LLFloaterAvatarPicker* picker =
+//		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE);
+//	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
 }
 
 // static
