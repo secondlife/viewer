@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Grafik" name="Display panel">
-	<text name="UI Size:">
-		UI størrelse:
-	</text>
 	<text name="QualitySpeed">
 		Kvalitet og hastighed:
 	</text>
@@ -53,6 +50,10 @@
 			m
 		</text>
 		<slider label="Maks. antal partikler:" name="MaxParticleCount"/>
+		<slider label="Maks. avatar optegningsafstand:" name="MaxAvatarDrawDistance"/>
+		<text name="DrawDistanceMeterText3">
+			m
+		</text>
 		<slider label="Efterbehandlingskvalitet:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Netmaske detaljer:

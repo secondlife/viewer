@@ -6,6 +6,9 @@
 	<panel.string name="cant_view_group_land_text">
 		Du har ikke tilladelse til at se gruppeejet land.
 	</panel.string>
+	<panel.string name="epmty_view_group_land_text">
+		Intet indhold
+	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
 		Du har ikke tilladelse til at se gruppens økonomiinformationer.
 	</panel.string>
