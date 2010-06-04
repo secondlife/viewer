@@ -2360,7 +2360,6 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 				mAnimationDuration = gSavedSettings.getF32("ZoomTime");
 			}
 		}
-		setFocusGlobal(LLVector3d::zero);
 	}
 	else
 	{
