@@ -53,6 +53,20 @@
 
 static bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y);
 
+static const LLOutfitTabNameComparator OUTFIT_TAB_NAME_COMPARATOR;
+
+/*virtual*/
+bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const
+{
+	std::string name1 = tab1->getTitle();
+	std::string name2 = tab2->getTitle();
+
+	LLStringUtil::toUpper(name1);
+	LLStringUtil::toUpper(name2);
+
+	return name1 < name2;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 class OutfitContextMenu : public LLListContextMenu
@@ -158,6 +172,7 @@ LLOutfitsList::~LLOutfitsList()
 BOOL LLOutfitsList::postBuild()
 {
 	mAccordion = getChild<LLAccordionCtrl>("outfits_accordion");
+	mAccordion->setComparator(&OUTFIT_TAB_NAME_COMPARATOR);
 
 	return TRUE;
 }
@@ -328,7 +343,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		updateOutfitTab(*items_iter);
 	}
 
-	mAccordion->arrange();
+	mAccordion->sort();
 }
 
 void LLOutfitsList::onSelectionChange(LLUICtrl* ctrl)

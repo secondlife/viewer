@@ -57,6 +57,19 @@ private:
 
 
 public:
+	/**
+	 * Abstract comparator for accordion tabs.
+	 */
+	class LLTabComparator
+	{
+	public:
+		LLTabComparator() {};
+		virtual ~LLTabComparator() {};
+
+		/** Returns true if tab1 < tab2, false otherwise */
+		virtual bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const = 0;
+	};
+
 	struct Params 
 		: public LLInitParam::Block<Params, LLPanel::Params>
 	{
@@ -108,6 +121,9 @@ public:
 
 	void	reset		();
 
+	void	setComparator(const LLTabComparator* comp) { mTabComparator = comp; }
+	void	sort();
+
 	/**
 	 * Sets filter substring as a search_term for help text when there are no any visible tabs.
 	 */
@@ -134,6 +150,21 @@ private:
 
 	BOOL	autoScroll				(S32 x, S32 y);
 
+	/**
+	 * An adaptor for LLTabComparator
+	 */
+	struct LLComparatorAdaptor
+	{
+		LLComparatorAdaptor(const LLTabComparator& comparator) : mComparator(comparator) {};
+
+		bool operator()(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2)
+		{
+			return mComparator.compare(tab1, tab2);
+		}
+
+		const LLTabComparator& mComparator;
+	};
+
 private:
 	LLRect			mInnerRect;
 	LLScrollbar*	mScrollbar;
@@ -141,9 +172,11 @@ private:
 	bool			mFitParent;
 	bool			mAutoScrolling;
 	F32				mAutoScrollRate;
-	LLAccordionCtrlTab* mSelectedTab;
 	LLTextBox*		mNoVisibleTabsHelpText;
 	std::string		mNoVisibleTabsOrigString;
+
+	LLAccordionCtrlTab*		mSelectedTab;
+	const LLTabComparator*	mTabComparator;
 };
 
 

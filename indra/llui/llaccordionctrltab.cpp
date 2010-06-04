@@ -473,7 +473,7 @@ void LLAccordionCtrlTab::setAccordionView(LLView* panel)
 	addChild(panel,0);
 }
 
-std::string LLAccordionCtrlTab::getTitle()
+std::string LLAccordionCtrlTab::getTitle() const
 {
 	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
 	if (header)

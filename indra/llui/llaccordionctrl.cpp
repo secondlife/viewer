@@ -66,6 +66,7 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mAutoScrolling( false )
  , mAutoScrollRate( 0.f )
  , mSelectedTab( NULL )
+ , mTabComparator( NULL )
  , mNoVisibleTabsHelpText(NULL)
 {
 	initNoTabsWidget(params.empty_accordion_text);
@@ -797,6 +798,18 @@ void	LLAccordionCtrl::reset		()
 {
 	if(mScrollbar)
 		mScrollbar->setDocPos(0);
+}
+
+void LLAccordionCtrl::sort()
+{
+	if (!mTabComparator)
+	{
+		llwarns << "No comparator specified for sorting accordion tabs." << llendl;
+		return;
+	}
+
+	std::sort(mAccordionTabs.begin(), mAccordionTabs.end(), LLComparatorAdaptor(*mTabComparator));
+	arrange();
 }
 
 void	LLAccordionCtrl::setFilterSubString(const std::string& filter_string)
