@@ -42,6 +42,7 @@
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
 #include "llfoldervieweventlistener.h"
+#include "lloutfitobserver.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
 #include "llsidetray.h"
@@ -73,26 +74,6 @@ private:
 	LLSidepanelAppearance *mPanel;
 };
 
-class LLWatchForOutfitRenameObserver : public LLInventoryObserver
-{
-public:
-	LLWatchForOutfitRenameObserver(LLSidepanelAppearance *panel) :
-		mPanel(panel)
-	{}
-	virtual void changed(U32 mask);
-	
-private:
-	LLSidepanelAppearance *mPanel;
-};
-
-void LLWatchForOutfitRenameObserver::changed(U32 mask)
-{
-	if (mask & LABEL)
-	{
-		mPanel->refreshCurrentOutfitName();
-	}
-}
-
 LLSidepanelAppearance::LLSidepanelAppearance() :
 	LLPanel(),
 	mFilterSubString(LLStringUtil::null),
@@ -101,12 +82,13 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	mCurrOutfitPanel(NULL),
 	mOpened(false)
 {
+	LLOutfitObserver& outfit_observer =  LLOutfitObserver::instance();
+	outfit_observer.addBOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
+	outfit_observer.addCOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
 }
 
 LLSidepanelAppearance::~LLSidepanelAppearance()
 {
-	gInventory.removeObserver(mOutfitRenameWatcher);
-	delete mOutfitRenameWatcher;
 }
 
 // virtual
@@ -160,8 +142,6 @@ BOOL LLSidepanelAppearance::postBuild()
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
-	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
-	gInventory.addObserver(mOutfitRenameWatcher);
 
 	setVisibleCallback(boost::bind(&LLSidepanelAppearance::onVisibilityChange,this,_2));
 
