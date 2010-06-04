@@ -11,7 +11,7 @@
     <accordion
      fit_parent="true"
      follows="all"
-     height="200"
+     height="198"
      layout="topleft"
      left="0"
      single_expansion="true"
