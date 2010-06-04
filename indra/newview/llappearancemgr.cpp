@@ -656,15 +656,40 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 {
 	if (item_id_to_wear.isNull()) return false;
 
-	//only the item from a user's inventory is allowed
-	if (!gInventory.isObjectDescendentOf(item_id_to_wear, gInventory.getRootFolderID())) return false;
-
 	LLViewerInventoryItem* item_to_wear = gInventory.getItem(item_id_to_wear);
 	if (!item_to_wear) return false;
+
+	if (!item_to_wear->isFinished())
+	{
+		LLNotificationsUtil::add("CannotWearInfoNotComplete");
+		return false;
+	}
+	else if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.getLibraryRootFolderID()))
+	{
+		LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback(replace);
+		copy_inventory_item(gAgent.getID(), item_to_wear->getPermissions().getOwner(), item_to_wear->getUUID(), LLUUID::null, std::string(),cb);
+		return false;
+	} 
+	else if (!gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.getRootFolderID()))
+	{
+		return false; // not in library and not in agent's inventory
+	}
+	else if (gInventory.isObjectDescendentOf(item_to_wear->getUUID(), gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH)))
+	{
+		LLNotificationsUtil::add("CannotWearTrash");
+	}
 
 	switch (item_to_wear->getType())
 	{
 	case LLAssetType::AT_CLOTHING:
+		if (replace && gAgentWearables.areWearablesLoaded())
+		{
+			S32 wearable_count = gAgentWearables.getWearableCount(item_to_wear->getWearableType());
+			if (wearable_count != 0)
+			{
+				removeCOFItemLinks(gAgentWearables.getWearableItemID(item_to_wear->getWearableType(), wearable_count-1), false);
+			}
+		}
 	case LLAssetType::AT_BODYPART:
 		// Don't wear anything until initial wearables are loaded, can
 		// destroy clothing items.
@@ -676,7 +701,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 
 		// Remove the existing wearables of the same type.
 		// Remove existing body parts anyway because we must not be able to wear e.g. two skins.
-		if (replace || item_to_wear->getType() == LLAssetType::AT_BODYPART)
+		if (item_to_wear->getType() == LLAssetType::AT_BODYPART)
 		{
 			removeCOFLinksOfType(item_to_wear->getWearableType(), false);
 		}
