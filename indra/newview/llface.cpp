@@ -1328,8 +1328,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					for (S32 i = 0; i < num_vertices; i++)
 					{	
 						LLVector2 tc(vf.mTexCoords[i]);
-						LLVector4a& norm = vf.mNormals[i];
-						LLVector4a& center = *(vf.mCenter);
+						//LLVector4a& norm = vf.mNormals[i];
+						//LLVector4a& center = *(vf.mCenter);
 
 						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
 						tmp = tmp * *mTextureMatrix;
