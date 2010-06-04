@@ -1884,7 +1884,7 @@ const std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLTexLayer
 		if (layerset == mBakedTextureDatas[baked_index].mTexLayerSet)
 		{
 			const LLVOAvatarDictionary::BakedEntry *baked_dict = baked_iter->second;
-			text += llformat("[%d] '%s' ( ",baked_index, baked_dict->mName.c_str());
+			text += llformat("%d-%s ( ",baked_index, baked_dict->mName.c_str());
 			for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
 				 local_tex_iter != baked_dict->mLocalTextures.end();
 				 ++local_tex_iter)
