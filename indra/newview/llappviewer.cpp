@@ -1823,7 +1823,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			}
 			else
 			{
-				llwarns << "Cannot load " << full_settings_path << " - No settings found." << llendl;
+				llinfos << "Cannot load " << full_settings_path << " - No settings found." << llendl;
 			}
 		}
 		else

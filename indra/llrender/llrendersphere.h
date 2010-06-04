@@ -52,6 +52,10 @@ public:
 	void cleanupGL();
 	void render(F32 pixel_area);		// of a box of size 1.0 at that position
 	void render();						// render at highest LOD
+	void renderGGL();                   // render using LLRender
+
+private:
+	std::vector< std::vector<LLVector3> > mSpherePoints;
 };
 
 extern LLRenderSphere gSphere;

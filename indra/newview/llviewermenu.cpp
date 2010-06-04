@@ -2403,18 +2403,14 @@ void handle_object_touch()
 		msg->sendMessage(object->getRegion()->getHost());
 }
 
-bool enable_object_touch()
-{
-	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-	return obj && obj->flagHandleTouch();
-}
-
 // One object must have touch sensor
 class LLObjectEnableTouch : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = enable_object_touch();
+		LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+		
+		bool new_value = obj && obj->flagHandleTouch();
 
 		// Update label based on the node touch name if available.
 		std::string touch_text;
@@ -7705,6 +7701,30 @@ void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 	LLMenuGL::showPopup(ctrl, show_navbar_context_menu, x, y);
 }
 
+void initialize_edit_menu()
+{
+	view_listener_t::addMenu(new LLEditUndo(), "Edit.Undo");
+	view_listener_t::addMenu(new LLEditRedo(), "Edit.Redo");
+	view_listener_t::addMenu(new LLEditCut(), "Edit.Cut");
+	view_listener_t::addMenu(new LLEditCopy(), "Edit.Copy");
+	view_listener_t::addMenu(new LLEditPaste(), "Edit.Paste");
+	view_listener_t::addMenu(new LLEditDelete(), "Edit.Delete");
+	view_listener_t::addMenu(new LLEditSelectAll(), "Edit.SelectAll");
+	view_listener_t::addMenu(new LLEditDeselect(), "Edit.Deselect");
+	view_listener_t::addMenu(new LLEditDuplicate(), "Edit.Duplicate");
+	view_listener_t::addMenu(new LLEditTakeOff(), "Edit.TakeOff");
+	view_listener_t::addMenu(new LLEditEnableUndo(), "Edit.EnableUndo");
+	view_listener_t::addMenu(new LLEditEnableRedo(), "Edit.EnableRedo");
+	view_listener_t::addMenu(new LLEditEnableCut(), "Edit.EnableCut");
+	view_listener_t::addMenu(new LLEditEnableCopy(), "Edit.EnableCopy");
+	view_listener_t::addMenu(new LLEditEnablePaste(), "Edit.EnablePaste");
+	view_listener_t::addMenu(new LLEditEnableDelete(), "Edit.EnableDelete");
+	view_listener_t::addMenu(new LLEditEnableSelectAll(), "Edit.EnableSelectAll");
+	view_listener_t::addMenu(new LLEditEnableDeselect(), "Edit.EnableDeselect");
+	view_listener_t::addMenu(new LLEditEnableDuplicate(), "Edit.EnableDuplicate");
+
+}
+
 void initialize_menus()
 {
 	// A parameterized event handler used as ctrl-8/9/0 zoom controls below.
@@ -7731,7 +7751,6 @@ void initialize_menus()
 	// Generic enable and visible
 	// Don't prepend MenuName.Foo because these can be used in any menu.
 	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
-	enable.add("IsGodCustomerService", boost::bind(&is_god_customer_service));
 
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
@@ -7742,27 +7761,6 @@ void initialize_menus()
 	// File menu
 	init_menu_file();
 
-	// Edit menu
-	view_listener_t::addMenu(new LLEditUndo(), "Edit.Undo");
-	view_listener_t::addMenu(new LLEditRedo(), "Edit.Redo");
-	view_listener_t::addMenu(new LLEditCut(), "Edit.Cut");
-	view_listener_t::addMenu(new LLEditCopy(), "Edit.Copy");
-	view_listener_t::addMenu(new LLEditPaste(), "Edit.Paste");
-	view_listener_t::addMenu(new LLEditDelete(), "Edit.Delete");
-	view_listener_t::addMenu(new LLEditSelectAll(), "Edit.SelectAll");
-	view_listener_t::addMenu(new LLEditDeselect(), "Edit.Deselect");
-	view_listener_t::addMenu(new LLEditDuplicate(), "Edit.Duplicate");
-	view_listener_t::addMenu(new LLEditTakeOff(), "Edit.TakeOff");
-
-	view_listener_t::addMenu(new LLEditEnableUndo(), "Edit.EnableUndo");
-	view_listener_t::addMenu(new LLEditEnableRedo(), "Edit.EnableRedo");
-	view_listener_t::addMenu(new LLEditEnableCut(), "Edit.EnableCut");
-	view_listener_t::addMenu(new LLEditEnableCopy(), "Edit.EnableCopy");
-	view_listener_t::addMenu(new LLEditEnablePaste(), "Edit.EnablePaste");
-	view_listener_t::addMenu(new LLEditEnableDelete(), "Edit.EnableDelete");
-	view_listener_t::addMenu(new LLEditEnableSelectAll(), "Edit.EnableSelectAll");
-	view_listener_t::addMenu(new LLEditEnableDeselect(), "Edit.EnableDeselect");
-	view_listener_t::addMenu(new LLEditEnableDuplicate(), "Edit.EnableDuplicate");
 	view_listener_t::addMenu(new LLEditEnableTakeOff(), "Edit.EnableTakeOff");
 	view_listener_t::addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
 	view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
@@ -8048,7 +8046,6 @@ void initialize_menus()
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
 	enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
-	enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
 
 	// Object pie menu
 	view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
@@ -8070,7 +8067,6 @@ void initialize_menus()
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
-	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch));
 	view_listener_t::addMenu(new LLObjectEnableTouch(), "Object.EnableTouch");
 	view_listener_t::addMenu(new LLObjectEnableSitOrStand(), "Object.EnableSitOrStand");
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));

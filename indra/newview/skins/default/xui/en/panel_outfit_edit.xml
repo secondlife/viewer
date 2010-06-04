@@ -300,7 +300,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              background_visible="false"
              border="false"
              follows="left|top|right|bottom"
-             height="210"
+             height="203"
              layout="topleft"
              left="0"
              mouse_opaque="false"
@@ -318,7 +318,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              height="210"
              left="0"
              mouse_opaque="false"
-             width="311"
+             width="310"
              top_delta="0"
              visible="true">
                 <wearable_items_list

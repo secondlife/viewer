@@ -11,8 +11,8 @@
 	<check_box label="Abilitato" name="enable_media"/>
 	<slider label="Chat vocale" name="Voice Volume"/>
 	<check_box label="Abilitato" name="enable_voice_check"/>
-	<check_box label="Consenti riproduzione multimediale automatica" name="media_auto_play_btn" tool_tip="Seleziona qui per consentire la riproduzione multimediale automatica" value="vero"/>
-	<check_box label="Riproduci media in uso da altri avatar" name="media_show_on_others_btn" tool_tip="Deseleziona qui per nascondere i media in uso dagli altri avatar nei dintorni" value="vero"/>
+	<check_box label="Consenti riproduzione multimediale automatica" name="media_auto_play_btn" tool_tip="Seleziona qui per consentire la riproduzione multimediale automatica"/>
+	<check_box label="Riproduci media in uso da altri avatar" name="media_show_on_others_btn" tool_tip="Deseleziona qui per nascondere i media in uso dagli altri avatar nei dintorni"/>
 	<text name="voice_chat_settings">
 		Impostazioni Chat vocale
 	</text>

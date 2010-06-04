@@ -66,8 +66,11 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mAutoScrolling( false )
  , mAutoScrollRate( 0.f )
  , mSelectedTab( NULL )
+ , mNoVisibleTabsHelpText(NULL)
 {
-  mSingleExpansion = params.single_expansion;
+	initNoTabsWidget(params.empty_accordion_text);
+
+	mSingleExpansion = params.single_expansion;
 	if(mFitParent && !mSingleExpansion)
 	{
 		llinfos << "fit_parent works best when combined with single_expansion" << llendl;
@@ -78,7 +81,10 @@ LLAccordionCtrl::LLAccordionCtrl() : LLPanel()
  , mAutoScrolling( false )
  , mAutoScrollRate( 0.f )
  , mSelectedTab( NULL )
+ , mNoVisibleTabsHelpText(NULL)
 {
+	initNoTabsWidget(LLTextBox::Params());
+
 	mSingleExpansion = false;
 	mFitParent = false;
 	LLUICtrlFactory::getInstance()->buildPanel(this, "accordion_parent.xml");	
@@ -168,6 +174,8 @@ BOOL LLAccordionCtrl::postBuild()
 		}
 	}
 
+	updateNoTabsHelpTextVisibility();
+
 	return TRUE;
 }
 
@@ -187,7 +195,14 @@ void LLAccordionCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 	rcLocal.mRight = rcLocal.mLeft + width;
 	rcLocal.mTop = rcLocal.mBottom + height;
 
+	// get textbox a chance to reshape its content
+	mNoVisibleTabsHelpText->reshape(width, height, called_from_parent);
+
 	setRect(rcLocal);
+
+	// assume that help text is always fit accordion.
+	// necessary text paddings can be set via h_pad and v_pad
+	mNoVisibleTabsHelpText->setRect(getLocalRect());
 
 	arrange();
 }
@@ -357,6 +372,31 @@ void LLAccordionCtrl::removeCollapsibleCtrl(LLView* view)
 			break;
 		}
 	}
+}
+
+void	LLAccordionCtrl::initNoTabsWidget(const LLTextBox::Params& tb_params)
+{
+	LLTextBox::Params tp = tb_params;
+	tp.rect(getLocalRect());
+	mNoVisibleTabsOrigString = tp.initial_value().asString();
+	mNoVisibleTabsHelpText = LLUICtrlFactory::create<LLTextBox>(tp, this);
+}
+
+void	LLAccordionCtrl::updateNoTabsHelpTextVisibility()
+{
+	bool visible_exists = false;
+	std::vector<LLAccordionCtrlTab*>::const_iterator it = mAccordionTabs.begin();
+	const std::vector<LLAccordionCtrlTab*>::const_iterator it_end = mAccordionTabs.end();
+	for (; it != it_end; ++it)
+	{
+		if ((*it)->getVisible())
+		{
+			visible_exists = true;
+			break;
+		}
+	}
+
+	mNoVisibleTabsHelpText->setVisible(!visible_exists);
 }
 
 void	LLAccordionCtrl::arrangeSinge()
@@ -737,12 +777,36 @@ S32	LLAccordionCtrl::notifyParent(const LLSD& info)
 		}
 		return 1;
 	}
+	else if (info.has("child_visibility_change"))
+	{
+		BOOL new_visibility = info["child_visibility_change"];
+		if (new_visibility)
+		{
+			// there is at least one visible tab
+			mNoVisibleTabsHelpText->setVisible(FALSE);
+		}
+		else
+		{
+			// it could be the latest visible tab, check all of them
+			updateNoTabsHelpTextVisibility();
+		}
+	}
 	return LLPanel::notifyParent(info);
 }
 void	LLAccordionCtrl::reset		()
 {
 	if(mScrollbar)
 		mScrollbar->setDocPos(0);
+}
+
+void	LLAccordionCtrl::setFilterSubString(const std::string& filter_string)
+{
+	LLStringUtil::format_map_t args;
+	args["[SEARCH_TERM]"] = LLURI::escape(filter_string);
+	std::string text = mNoVisibleTabsOrigString;
+	LLStringUtil::format(text, args);
+
+	mNoVisibleTabsHelpText->setValue(text);
 }
 
 S32 LLAccordionCtrl::calcExpandedTabHeight(S32 tab_index /* = 0 */, S32 available_height /* = 0 */)

@@ -1194,18 +1194,18 @@ void LLItemBridge::buildDisplayName(LLInventoryItem* item, std::string& name)
 LLFontGL::StyleFlags LLItemBridge::getLabelStyle() const
 {
 	U8 font = LLFontGL::NORMAL;
+	const LLViewerInventoryItem* item = getItem();
 
 	if (get_is_item_worn(mUUID))
 	{
 		// llinfos << "BOLD" << llendl;
 		font |= LLFontGL::BOLD;
 	}
-
-	const LLViewerInventoryItem* item = getItem();
-	if (item && item->getIsLinkType())
+	else if(item && item->getIsLinkType())
 	{
 		font |= LLFontGL::ITALIC;
 	}
+
 	return (LLFontGL::StyleFlags)font;
 }
 
@@ -4027,24 +4027,6 @@ void LLObjectBridge::openItem()
 	// object double-click action is to wear/unwear object
 	performAction(getInventoryModel(),
 		      get_is_item_worn(mUUID) ? "detach" : "attach");
-}
-
-LLFontGL::StyleFlags LLObjectBridge::getLabelStyle() const
-{
-	U8 font = LLFontGL::NORMAL;
-
-	if(get_is_item_worn( mUUID ) )
-	{
-		font |= LLFontGL::BOLD;
-	}
-
-	LLInventoryItem* item = getItem();
-	if (item && item->getIsLinkType())
-	{
-		font |= LLFontGL::ITALIC;
-	}
-
-	return (LLFontGL::StyleFlags)font;
 }
 
 std::string LLObjectBridge::getLabelSuffix() const

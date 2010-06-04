@@ -249,6 +249,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
+	bool visualParamWeightsAreDefault();
 protected:
 	virtual BOOL	getIsCloud();
 	BOOL			updateIsFullyLoaded();

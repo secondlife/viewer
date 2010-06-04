@@ -409,6 +409,13 @@ void LLAccordionCtrlTab::changeOpenClose(bool is_open)
 	}
 }
 
+void LLAccordionCtrlTab::handleVisibilityChange(BOOL new_visibility)
+{
+	LLUICtrl::handleVisibilityChange(new_visibility);
+
+	notifyParent(LLSD().with("child_visibility_change", new_visibility));
+}
+
 BOOL LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if(mCollapsible && mHeaderVisible && mCanOpenClose)

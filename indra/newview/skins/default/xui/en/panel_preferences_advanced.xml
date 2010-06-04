@@ -98,7 +98,7 @@ Automatic position for:
      control_name="SidebarCameraMovement"
      follows="left|top"
      height="16"
-     initial_value="1"
+     initial_value="true"
      label="Sidebar"
      layout="topleft"
      name="appearance_sidebar_positioning"

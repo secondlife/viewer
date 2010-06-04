@@ -178,29 +178,6 @@
      width="90">
         Land Sale
     </text>
-    <icon
-     color="1 1 0.25 1"
-     follows="top|right"
-     height="16"
-     image_name="legend.tga"
-     layout="topleft"
-     mouse_opaque="true"
-     name="square2"
-     left="41"
-     top_pad="-2"
-     width="16" />
-    <text
-     type="string"
-     length="1"
-     follows="top|right"
-     height="16"
-     layout="topleft"
-     left_pad="0"
-     name="by_owner_label"
-     top_delta="3"
-     width="100">
-       by owner
-    </text>
         <icon
      color="0.5 0.25 1 1"
      follows="top|right"
@@ -209,8 +186,8 @@
      layout="topleft"
      mouse_opaque="true"
      name="square2"
-     left="41"
-     top_pad="-3"
+     left="20"
+     top_pad="2"
      width="16" />
     <text
      type="string"
@@ -223,6 +200,29 @@
      top_delta="3"
      width="170">
         land auction
+    </text>
+    <icon
+     color="1 1 0.25 1"
+     follows="top|right"
+     height="16"
+     image_name="legend.tga"
+     layout="topleft"
+     mouse_opaque="true"
+     name="square2"
+     left="20"
+     top_pad="-5"
+     width="16" />
+    <text
+     type="string"
+     length="1"
+     follows="top|right"
+     height="16"
+     layout="topleft"
+     left_pad="0"
+     name="by_owner_label"
+     top_delta="3"
+     width="100">
+       by owner
     </text>
 
     <button

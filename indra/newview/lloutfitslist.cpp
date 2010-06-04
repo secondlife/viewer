@@ -500,6 +500,8 @@ void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
 
 void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 {
+	mAccordion->setFilterSubString(new_filter_substring);
+
 	for (outfits_map_t::iterator
 			 iter = mOutfitsMap.begin(),
 			 iter_end = mOutfitsMap.end();
