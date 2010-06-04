@@ -35,6 +35,7 @@
 import collections
 import fnmatch
 import itertools
+import operator
 import os
 import sys
 import shlex
@@ -51,15 +52,13 @@ class MissingModuleError(Exception):
         self.modules = modules
 
 def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file):
-    # print "generate_breakpad_symbols: %s" % str((viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
+    print "generate_breakpad_symbols run with args: %s" % str((viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_file))
 
     # split up list of viewer_exes
     # "'Second Life' SLPlugin" becomes ['Second Life', 'SLPlugin']
     viewer_exes = shlex.split(viewer_exes)
 
-    found_required = dict()
-    for required in viewer_exes:
-        found_required[required] = False
+    found_required = dict([(module, False) for module in viewer_exes])
 
     def matches(f):
         if f in viewer_exes:
@@ -98,13 +97,28 @@ def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_fil
         else:
             print >>sys.stderr, "warning: failed to dump symbols for '%s': %s" % (filename, err)
 
+    out.close()
+
     missing_modules = [m for (m,_) in
         itertools.ifilter(lambda (k,v): not v, found_required.iteritems())
     ]
     if missing_modules:
+        print >> sys.stderr, "failed to generate %s" % viewer_symbol_file
+        os.remove(viewer_symbol_file)
         raise MissingModuleError(missing_modules)
 
-    out.close()
+    symbols = tarfile.open(viewer_symbol_file, 'r:bz2')
+    tarfile_members = symbols.getnames()
+    def match_module_basename(m):
+        return os.path.splitext(required_module)[0] == os.path.splitext(os.path.basename(m))[0]
+    for required_module in viewer_exes:
+        # there must be at least one .sym file in tarfile_members that matches each required module (ignoring file extensions)
+        if not reduce(operator.or_, itertools.imap(match_module_basename, tarfile_members)):
+            print >> sys.stderr, "failed to find required %s in generated %s" % (required_module, viewer_symbol_file)
+            os.remove(viewer_symbol_file)
+            raise MissingModuleError([required_module])
+
+    print "successfully generated %s including required modules '%s'" % (viewer_symbol_file, viewer_exes)
 
     return 0
 
