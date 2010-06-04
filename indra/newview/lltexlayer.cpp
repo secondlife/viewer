@@ -165,6 +165,7 @@ void LLTexLayerSetBuffer::dumpTotalByteCount()
 
 void LLTexLayerSetBuffer::requestUpdate()
 {
+	conditionalRestartUploadTimer();
 	mNeedsUpdate = TRUE;
 	// If we're in the middle of uploading a baked texture, we don't care about it any more.
 	// When it's downloaded, ignore it.
@@ -173,17 +174,26 @@ void LLTexLayerSetBuffer::requestUpdate()
 
 void LLTexLayerSetBuffer::requestUpload()
 {
+	conditionalRestartUploadTimer();
+	mNeedsUpload = TRUE;
+	mNumLowresUploads = 0;
+	mUploadPending = TRUE;
+}
+
+void LLTexLayerSetBuffer::conditionalRestartUploadTimer()
+{
 	// If we requested a new upload but haven't even uploaded
 	// a low res version of our last upload request, then
 	// keep the timer ticking instead of resetting it.
 	if (mNeedsUpload && (mNumLowresUploads == 0))
 	{
-		mNeedsUploadTimer.reset();
+		mNeedsUploadTimer.unpause();
 	}
-	mNeedsUpload = TRUE;
-	mNumLowresUploads = 0;
-	mUploadPending = TRUE;
-	mNeedsUploadTimer.unpause();
+	else
+	{
+		mNeedsUploadTimer.reset();
+		mNeedsUploadTimer.start();
+	}
 }
 
 void LLTexLayerSetBuffer::cancelUpload()
