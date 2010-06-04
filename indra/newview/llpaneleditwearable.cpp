@@ -51,6 +51,7 @@
 #include "llagentwearables.h"
 #include "llscrollingpanelparam.h"
 #include "llradiogroup.h"
+#include "llnotificationsutil.h"
 
 #include "llcolorswatch.h"
 #include "lltexturectrl.h"
@@ -624,6 +625,7 @@ BOOL LLPanelEditWearable::postBuild()
 	mDescTitle = getChild<LLTextBox>("description_text");
 
 	getChild<LLRadioGroup>("sex_radio")->setCommitCallback(boost::bind(&LLPanelEditWearable::onCommitSexChange, this));
+	getChild<LLButton>("save_as_button")->setCommitCallback(boost::bind(&LLPanelEditWearable::onSaveAsButtonClicked, this));
 
 	// The following panels will be shown/hidden based on what wearable we're editing
 	// body parts
@@ -744,6 +746,28 @@ void LLPanelEditWearable::onRevertButtonClicked(void* userdata)
 	panel->revertChanges();
 }
 
+void LLPanelEditWearable::onSaveAsButtonClicked()
+{
+	LLSD args;
+	args["DESC"] = mTextEditor->getText();
+
+	LLNotificationsUtil::add("SaveWearableAs", args, LLSD(), boost::bind(&LLPanelEditWearable::saveAsCallback, this, _1, _2));
+}
+
+void LLPanelEditWearable::saveAsCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option)
+	{
+		std::string wearable_name = response["message"].asString();
+		LLStringUtil::trim(wearable_name);
+		if( !wearable_name.empty() )
+		{
+			mTextEditor->setText(wearable_name);
+			saveChanges();
+		}
+	}
+}
 
 void LLPanelEditWearable::onCommitSexChange()
 {

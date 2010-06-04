@@ -72,6 +72,8 @@ public:
 
 	static void			onRevertButtonClicked(void* userdata);
 	void				onCommitSexChange();
+	void				onSaveAsButtonClicked();
+	void				saveAsCallback(const LLSD& notification, const LLSD& response);
 
 
 private:
