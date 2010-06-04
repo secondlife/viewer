@@ -857,6 +857,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_BBOXES;
 	}
+	else if ("normals" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_NORMALS;
+	}
 	else if ("points" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_POINTS;

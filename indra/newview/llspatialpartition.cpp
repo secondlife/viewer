@@ -2704,7 +2704,56 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 	{
 		drawBoxOutline(pos,size);
 	}
-	
+}
+
+void renderNormals(LLDrawable* drawablep)
+{
+	LLVertexBuffer::unbind();
+
+	LLVOVolume* vol = drawablep->getVOVolume();
+	if (vol)
+	{
+		LLVolume* volume = vol->getVolume();
+		gGL.pushMatrix();
+		glMultMatrixf((F32*) vol->getRelativeXform().mMatrix);
+		
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+		LLVector4a scale(gSavedSettings.getF32("RenderDebugNormalScale"));
+
+		for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+		{
+			const LLVolumeFace& face = volume->getVolumeFace(i);
+
+			gGL.begin(LLRender::LINES);
+			
+			for (S32 j = 0; j < face.mNumVertices; ++j)
+			{
+				LLVector4a n,p;
+				
+				n.setMul(face.mNormals[j], scale);
+				p.setAdd(face.mPositions[j], n);
+				
+				gGL.color4f(1,1,1,1);
+				gGL.vertex3fv(face.mPositions[j].getF32());
+				gGL.vertex3fv(p.getF32());
+				
+				if (face.mBinormals)
+				{
+					n.setMul(face.mBinormals[j], scale);
+					p.setAdd(face.mPositions[j], n);
+				
+					gGL.color4f(0,1,1,1);
+					gGL.vertex3fv(face.mPositions[j].getF32());
+					gGL.vertex3fv(p.getF32());
+				}	
+			}
+
+			gGL.end();
+		}
+
+		gGL.popMatrix();
+	}
 }
 
 void renderTexturePriority(LLDrawable* drawable)
@@ -3081,6 +3130,11 @@ public:
 			{
 				renderBoundingBox(drawable);			
 			}
+
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_NORMALS))
+			{
+				renderNormals(drawable);
+			}
 			
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BUILD_QUEUE))
 			{
@@ -3280,6 +3334,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_LIGHTS |
 									  LLPipeline::RENDER_DEBUG_BATCH_SIZE |
 									  LLPipeline::RENDER_DEBUG_BBOXES |
+									  LLPipeline::RENDER_DEBUG_NORMALS |
 									  LLPipeline::RENDER_DEBUG_POINTS |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM |

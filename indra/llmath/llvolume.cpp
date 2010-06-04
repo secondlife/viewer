@@ -6076,6 +6076,8 @@ void LLVolumeFace::createBinormals()
 		for (U32 i = 0; i < mNumVertices; i++) 
 		{
 			binorm[i].normalize3fast();
+			//bump map/planar projection code requires normals to be normalized
+			mNormals[i].normalize3fast();
 		}
 	}
 }

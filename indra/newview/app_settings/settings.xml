@@ -6280,7 +6280,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderDebugPipeline</key>
+  <key>RenderDebugNormalScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Scale of normals in debug display.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.03</real>
+  </map>
+  <key>RenderDebugPipeline</key>
     <map>
       <key>Comment</key>
       <string>Enable strict pipeline debugging.</string>
