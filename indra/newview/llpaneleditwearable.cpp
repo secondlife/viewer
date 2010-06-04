@@ -1015,8 +1015,14 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 			// storage for ordered list of visual params
 			value_map_t sorted_params;
 			getSortedParams(sorted_params, edit_group);
-	
-			buildParamList(panel_list, sorted_params, tab);
+
+			LLJoint* jointp = gAgentAvatarp->getJoint( subpart_entry->mTargetJoint );
+			if (!jointp)
+			{
+				jointp = gAgentAvatarp->getJoint("mHead");
+			}
+
+			buildParamList(panel_list, sorted_params, tab, jointp);
 	
 			updateScrollingPanelUI();
 		}
@@ -1253,7 +1259,7 @@ void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std:
 	}
 }
 
-void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab)
+void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab, LLJoint* jointp)
 {
 	// sorted_params is sorted according to magnitude of effect from
 	// least to greatest.  Adding to the front of the child list
@@ -1267,7 +1273,7 @@ void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value
 		{
 			LLPanel::Params p;
 			p.name("LLScrollingPanelParam");
-			LLScrollingPanelParam* panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable());
+			LLScrollingPanelParam* panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable(), jointp);
 			height = panel_list->addPanel( panel_param );
 		}
 	}

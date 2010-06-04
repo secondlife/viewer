@@ -42,12 +42,13 @@ class LLViewerVisualParam;
 class LLWearable;
 class LLVisualParamHint;
 class LLViewerVisualParam;
+class LLJoint;
 
 class LLScrollingPanelParam : public LLScrollingPanel
 {
 public:
 	LLScrollingPanelParam( const LLPanel::Params& panel_params,
-						   LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable );
+						   LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp );
 	virtual ~LLScrollingPanelParam();
 
 	virtual void		draw();
