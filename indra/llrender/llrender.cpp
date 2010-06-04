@@ -777,8 +777,8 @@ LLRender::LLRender()
 	mTexcoordsp = tc.get();
 	mColorsp = color.get();
 
-	mUIOffset = (LLVector4a*) _mm_malloc(LL_MAX_UI_STACK_DEPTH*sizeof(LLVector4a), 16);
-	mUIScale = (LLVector4a*) _mm_malloc(LL_MAX_UI_STACK_DEPTH*sizeof(LLVector4a), 16);
+	mUIOffset = (LLVector4a*) ll_aligned_malloc_16(LL_MAX_UI_STACK_DEPTH*sizeof(LLVector4a));
+	mUIScale = (LLVector4a*) ll_aligned_malloc_16(LL_MAX_UI_STACK_DEPTH*sizeof(LLVector4a));
 		
 	mTexUnits.reserve(LL_NUM_TEXTURE_LAYERS);
 	for (U32 i = 0; i < LL_NUM_TEXTURE_LAYERS; i++)
@@ -816,9 +816,9 @@ void LLRender::shutdown()
 	delete mDummyTexUnit;
 	mDummyTexUnit = NULL;
 
-	_mm_free(mUIOffset);
+	ll_aligned_free_16(mUIOffset);
 	mUIOffset = NULL;
-	_mm_free(mUIScale);
+	ll_aligned_free_16(mUIScale);
 	mUIScale = NULL;
 }
 

@@ -239,7 +239,7 @@ void LLSpatialGroup::buildOcclusion()
 {
 	if (!mOcclusionVerts)
 	{
-		mOcclusionVerts = (LLVector4a*) _mm_malloc(sizeof(LLVector4a)*8, 16);
+		mOcclusionVerts = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*8);
 	}
 
 	LLVector4a fudge;
@@ -342,13 +342,13 @@ LLSpatialGroup::~LLSpatialGroup()
 		sQueryPool.release(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 	}
 
-	_mm_free(mOcclusionVerts);
+	ll_aligned_free_16(mOcclusionVerts);
 
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	clearDrawMap();
 	clearAtlasList() ;
 
-	_mm_free(mBounds);
+	ll_aligned_free_16(mBounds);
 }
 
 BOOL LLSpatialGroup::hasAtlas(LLTextureAtlas* atlasp)
@@ -1163,7 +1163,7 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
 	sNodeCount++;
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
-	mBounds = (LLVector4a*) _mm_malloc(sizeof(LLVector4a) * V4_COUNT, 16);
+	mBounds = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a) * V4_COUNT);
 	mExtents = mBounds + EXTENTS;
 	mObjectBounds = mBounds + OBJECT_BOUNDS;
 	mObjectExtents = mBounds + OBJECT_EXTENTS;
@@ -1434,7 +1434,7 @@ void LLSpatialGroup::destroyGL()
 		}
 	}
 
-	_mm_free(mOcclusionVerts);
+	ll_aligned_free_16(mOcclusionVerts);
 	mOcclusionVerts = NULL;
 
 	for (LLSpatialGroup::element_iter i = getData().begin(); i != getData().end(); ++i)
@@ -3502,7 +3502,7 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mDrawMode(LLRender::TRIANGLES)
 {
 	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
-	mExtents = (LLVector4a*) _mm_malloc(sizeof(LLVector4a)*2, 16);
+	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*2);
 
 	mDebugColor = (rand() << 16) + rand();
 }
@@ -3524,7 +3524,7 @@ LLDrawInfo::~LLDrawInfo()
 		gPipeline.checkReferences(this);
 	}
 
-	_mm_free(mExtents);
+	ll_aligned_free_16(mExtents);
 }
 
 void LLDrawInfo::validate()

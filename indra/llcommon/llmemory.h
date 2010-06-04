@@ -43,13 +43,9 @@ inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed wi
 #else
 	void *rtn;
 	if (LL_LIKELY(0 == posix_memalign(&rtn, 16, size)))
-	{
 		return rtn;
-	}
 	else // bad alignment requested, or out of memory
-	{
 		return NULL;
-	}
 #endif
 }
 
@@ -59,6 +55,32 @@ inline void ll_aligned_free_16(void *p)
 	_mm_free(p);
 #elif defined(LL_DARWIN)
 	return free(p);
+#else
+	free(p); // posix_memalign() is compatible with heap deallocator
+#endif
+}
+
+inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed with ll_aligned_free_32().
+{
+#if defined(LL_WINDOWS)
+	return _mm_malloc(size, 32);
+#elif defined(LL_DARWIN)
+# error implement me.
+#else
+	void *rtn;
+	if (LL_LIKELY(0 == posix_memalign(&rtn, 32, size)))
+		return rtn;
+	else // bad alignment requested, or out of memory
+		return NULL;
+#endif
+}
+
+inline void ll_aligned_free_32(void *p)
+{
+#if defined(LL_WINDOWS)
+	_mm_free(p);
+#elif defined(LL_DARWIN)
+# error implement me.
 #else
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
