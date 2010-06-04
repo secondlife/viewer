@@ -31,6 +31,7 @@
  */
 
 #include "linden_common.h"
+#include "llmemory.h"
 
 #include <boost/static_assert.hpp>
 
