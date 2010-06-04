@@ -1975,37 +1975,47 @@ BOOL LLVOAvatarSelf::canGrabBakedTexture(EBakedTextureIndex baked_index) const
 		 ++iter)
 	{
 		const ETextureIndex t_index = (*iter);
-		lldebugs << "Checking index " << (U32) t_index << llendl;
-		// MULTI-WEARABLE: old method. replace.
-		const LLUUID& texture_id = getTEImage( t_index )->getID();
-		if (texture_id != IMG_DEFAULT_AVATAR)
+		LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType(t_index);
+		U32 count = gAgentWearables.getWearableCount(wearable_type);
+		lldebugs << "Checking index " << (U32) t_index << " count: " << count << llendl;
+		
+		for (U32 wearable_index = 0; wearable_index < count; ++wearable_index)
 		{
-			// Search inventory for this texture.
-			LLViewerInventoryCategory::cat_array_t cats;
-			LLViewerInventoryItem::item_array_t items;
-			LLAssetIDMatches asset_id_matches(texture_id);
-			gInventory.collectDescendentsIf(LLUUID::null,
-											cats,
-											items,
-											LLInventoryModel::INCLUDE_TRASH,
-											asset_id_matches);
-
-			BOOL can_grab = FALSE;
-			lldebugs << "item count for asset " << texture_id << ": " << items.count() << llendl;
-			if (items.count())
+			LLWearable *wearable = gAgentWearables.getWearable(wearable_type, wearable_index);
+			if (wearable)
 			{
-				// search for full permissions version
-				for (S32 i = 0; i < items.count(); i++)
+				const LLLocalTextureObject *texture = wearable->getLocalTextureObject((S32)t_index);
+				const LLUUID& texture_id = texture->getID();
+				if (texture_id != IMG_DEFAULT_AVATAR)
 				{
-					LLViewerInventoryItem* itemp = items[i];
-                                        if (itemp->getIsFullPerm())
+					// Search inventory for this texture.
+					LLViewerInventoryCategory::cat_array_t cats;
+					LLViewerInventoryItem::item_array_t items;
+					LLAssetIDMatches asset_id_matches(texture_id);
+					gInventory.collectDescendentsIf(LLUUID::null,
+													cats,
+													items,
+													LLInventoryModel::INCLUDE_TRASH,
+													asset_id_matches);
+
+					BOOL can_grab = FALSE;
+					lldebugs << "item count for asset " << texture_id << ": " << items.count() << llendl;
+					if (items.count())
 					{
-						can_grab = TRUE;
-						break;
+						// search for full permissions version
+						for (S32 i = 0; i < items.count(); i++)
+						{
+							LLViewerInventoryItem* itemp = items[i];
+												if (itemp->getIsFullPerm())
+							{
+								can_grab = TRUE;
+								break;
+							}
+						}
 					}
+					if (!can_grab) return FALSE;
 				}
 			}
-			if (!can_grab) return FALSE;
 		}
 	}
 

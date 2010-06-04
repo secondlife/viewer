@@ -682,14 +682,15 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 	switch (item_to_wear->getType())
 	{
 	case LLAssetType::AT_CLOTHING:
-		if (replace && gAgentWearables.areWearablesLoaded())
+		if (gAgentWearables.areWearablesLoaded())
 		{
 			S32 wearable_count = gAgentWearables.getWearableCount(item_to_wear->getWearableType());
-			if (wearable_count != 0)
+			if ((replace && wearable_count != 0) ||
+				(wearable_count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE) )
 			{
 				removeCOFItemLinks(gAgentWearables.getWearableItemID(item_to_wear->getWearableType(), wearable_count-1), false);
 			}
-		}
+		} 
 	case LLAssetType::AT_BODYPART:
 		// Don't wear anything until initial wearables are loaded, can
 		// destroy clothing items.
@@ -1584,6 +1585,7 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 								  item_array,
 								  LLInventoryModel::EXCLUDE_TRASH);
 	bool linked_already = false;
+	U32 count = 0;
 	for (S32 i=0; i<item_array.count(); i++)
 	{
 		// Are these links to the same object?
@@ -1601,15 +1603,22 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 		}
 		// Are these links to different items of the same body part
 		// type? If so, new item will replace old.
-		// TODO: MULTI-WEARABLE: check for wearable limit for clothing types
-		else if (is_body_part && (vitem->isWearableType()) && (vitem->getWearableType() == wearable_type))
+		else if ((vitem->isWearableType()) && (vitem->getWearableType() == wearable_type))
 		{
-			if (inv_item->getIsLinkType()  && (vitem->getWearableType() == wearable_type))
+			if (is_body_part && inv_item->getIsLinkType()  && (vitem->getWearableType() == wearable_type))
+			{
+				gInventory.purgeObject(inv_item->getUUID());
+			}
+			++count;
+
+			// MULTI-WEARABLES: make sure we don't go over MAX_CLOTHING_PER_TYPE
+			if (count >= LLAgentWearables::MAX_CLOTHING_PER_TYPE)
 			{
 				gInventory.purgeObject(inv_item->getUUID());
 			}
 		}
 	}
+
 	if (linked_already)
 	{
 		if (do_update)
