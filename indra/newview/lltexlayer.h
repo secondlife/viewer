@@ -294,6 +294,8 @@ protected:
 	void					pushProjection() const;
 	void					popProjection() const;
 	BOOL					isReadyToUpload() const;
+	void					conditionalRestartUploadTimer();
+	
 private:
 	LLTexLayerSet* const    mTexLayerSet;
 	BOOL					mNeedsUpdate; // whether we need to update our baked textures
