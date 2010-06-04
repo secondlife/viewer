@@ -78,7 +78,7 @@ public:
 	boost::function<void(const LLUUID& uuid)> mCallback;
 };
 
-class LLBakedUploadData;
+struct LLBakedUploadData;
 class LLSendTexLayerResponder : public LLAssetUploadResponder
 {
 public:

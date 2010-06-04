@@ -63,6 +63,9 @@
 				Pacel ikke valgt.
 Gå til &apos;Verden&apos; &gt; &apos;Om land&apos; eller vælg en anden parcel for at se detaljer.
 			</panel.string>
+			<panel.string name="time_stamp_template">
+				[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+			</panel.string>
 			<text name="Name:">
 				Navn:
 			</text>

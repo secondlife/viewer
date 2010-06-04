@@ -2,7 +2,7 @@
 <menu_bar name="Login Menu">
 	<menu label="Mig" name="File">
 		<menu_item_call label="Indstillinger" name="Preferences..."/>
-		<menu_item_call label="Afslut" name="Quit"/>
+		<menu_item_call label="Afslut [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Hjælp" name="Help">
 		<menu_item_call label="[SECOND_LIFE] hjælp" name="Second Life Help"/>

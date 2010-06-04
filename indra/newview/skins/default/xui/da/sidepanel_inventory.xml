@@ -4,6 +4,7 @@
 		<panel name="button_panel">
 			<button label="Profil" name="info_btn"/>
 			<button label="Del" name="share_btn"/>
+			<button label="Køb ind" name="shop_btn"/>
 			<button label="Bær" name="wear_btn"/>
 			<button label="Afspil" name="play_btn"/>
 			<button label="Teleportér" name="teleport_btn"/>

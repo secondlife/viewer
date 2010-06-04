@@ -208,6 +208,9 @@ Du skal skrive både fornavn og efternavn på din figur.
 Du har brug for en konto for at logge ind i [SECOND_LIFE]. Vil du oprette en nu?
 		<usetemplate name="okcancelbuttons" notext="Prøv igen" yestext="Lav ny konto"/>
 	</notification>
+	<notification name="InvalidCredentialFormat">
+		Du skal indtaste både fornavn og efternavn i din avatars brugernavn felt og derefter logge på igen.
+	</notification>
 	<notification name="AddClassified">
 		Annoncer vil vises i &apos;Annoncer&apos; sektionen i søge biblioteket og på [http://secondlife.com/community/classifieds secondlife.com] i en uge.
 Udfyld din annonce og klik på &apos;Udgiv...&apos; for at tilf&apos;je den til biblioteket.				
@@ -278,6 +281,11 @@ Gå til [_URL] for information om køb af L$?
 	</notification>
 	<notification name="CannotEncodeFile">
 		Kunne ikke &apos;forstå&apos; filen: [FILE]
+	</notification>
+	<notification name="CorruptedProtectedDataStore">
+		Vi kan ikke læse dine beskyttede data så de nulstilles.
+   Dette kan ske hvis du ændrer din netværksopsætning.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
 		[APP_NAME] understøtter p.t. ikke at send flere animationsfiler ad gangen.
@@ -404,6 +412,12 @@ Tilbyd venskab til [NAME]?
 			<button name="Cancel" text="Annullér"/>
 		</form>
 	</notification>
+	<notification name="ConfirmItemDeleteHasLinks">
+		Mindst en af genstandene har lænkede genstande der peger på den. Hvis du sletter denne genstand, vil lænkninger ikke virke mere.  Det anbefales kraftigt at fjerne lænkninger først.
+
+Er du sikker på at du vil slette disse genstande?
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="OK"/>
+	</notification>
 	<notification name="ErrorMessage">
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
@@ -437,6 +451,42 @@ Vend tilbage til [http://join.secondlife.com secondlife.com] for at oprette en n
 		Der er problemer med at koble på.  Der kan være et problem med din Internet forbindelse eller [SECOND_LIFE_GRID].
 
 Du kan enten checke din Internet forbindelse og prøve igen om lidt, klikke på Hjælp for at se [SUPPORT_SITE] siden, eller klikke på Teleport for at forsøge at teleportere hjem.
+	</notification>
+	<notification name="CantTeleportToGrid">
+		Kunne ikke teleportere til [SLURL] da den er på et andet net ([GRID]) end det nuværende net ([CURRENT_GRID]).  Luk venligst din klient og prøv igen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GeneralCertificateError">
+		Kunne ikke opnå forbindelse til server.
+[REASON]
+
+Vedrørende: [SUBJECT_NAME_STRING]
+Fra: [ISSUER_NAME_STRING]
+Valid fra: [VALID_FROM]
+Valid til: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TrustCertificateError">
+		Certifikationsmyndighed for denne server er ikke kendt.
+
+Certifikat information:
+Vedrørende: [SUBJECT_NAME_STRING]
+Fra: [ISSUER_NAME_STRING]
+Valid fra: [VALID_FROM]
+Valid til: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+SHA1 Fingerprint: [MD5_DIGEST]
+Key Usage: [KEYUSAGE]
+Extended Key Usage: [EXTENDEDKEYUSAGE]
+Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
+
+Ønsker du at stole på denne myndighed?
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Stol på"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] L$ [PRICE] Du har ikke nok L$ til dette.
@@ -627,9 +677,9 @@ Gå til &apos;Knowledge Base&apos; for mere information om indholdsratings.
 		Du har ikke adgang til denne region på grund af din valgte indholdsrating.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		Du har ikke adgang til denne region på grund af din indholdsrating præferencer.
+		Du har ikke adgang til den region, da din indholdsrating ikke tillader dette.
 
-Du kan klikke på &apos;Ændre præference&apos; for at ændre din indholdsrating nu og dermed opnå adgang. Du vil så få mulighed for at søge og tilgå [REGIONMATURITY] fra da af. Hvis du senere ønsker at ændre denne opsætning tilbage, gå til Mig &gt; Indstillinger &gt; Generelt.
+Klik på &quot;Ændre præference&quot; for at forhøje din indholdsrating for direkte adgang nu. Ved at gøre dette vil du få lov til at søge og få adgang til [REGIONMATURITY] indhold. Hvis du ønsker at ændre denne opsætning senere, kan du gøre dette fra Mig &gt; Indstillinger &gt; Generelt.
 		<form name="form">
 			<button name="OK" text="Ændre indstillinger"/>
 			<button name="Cancel" text="Luk"/>
@@ -1176,15 +1226,6 @@ Prøv igen om lidt.
 			<button name="Mute" text="Blokér"/>
 		</form>
 	</notification>
-	<notification name="ObjectGiveItemUnknownUser">
-		Et objekt med navnet [OBJECTFROMNAME] ejet af (en ukendt beboer) har givet dig denne/dette [OBJECTTYPE]:
-[ITEM_SLURL]
-		<form name="form">
-			<button name="Keep" text="Behold"/>
-			<button name="Discard" text="Smid væk"/>
-			<button name="Mute" text="Blokér"/>
-		</form>
-	</notification>
 	<notification name="UserGiveItem">
 		[NAME_SLURL] har givet dig denne/dette [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -1487,8 +1528,53 @@ Knappen vil blive vist når der er nok plads til den.
 	<notification name="ShareNotification">
 		Træk genstande fra beholdning til en person i beboer vælgeren
 	</notification>
+	<notification name="DeedToGroupFail">
+		Dedikering til gruppe fejlede.
+	</notification>
 	<notification name="AvatarRezNotification">
-		Avatar &apos;[NAME]&apos; rezzed på [TIME] sekunder.
+		( [EXISTENCE] sekunder i live )
+Avatar &apos;[NAME]&apos; declouded in [TIME] seconds.
+	</notification>
+	<notification name="AvatarRezSelfNotification">
+		( [EXISTENCE] sekunder i live )
+Du afsluttede klargøring af dit sæt på [TIME] sekunder.
+	</notification>
+	<notification name="AvatarRezCloudNotification">
+		( [EXISTENCE] sekunder i live )
+Avatar &apos;[NAME]&apos; blev til &quot;sky&quot;.
+	</notification>
+	<notification name="AvatarRezArrivedNotification">
+		( [EXISTENCE] sekunder i live )
+Avatar &apos;[NAME]&apos; appeared.
+	</notification>
+	<notification name="AvatarRezLeftCloudNotification">
+		( [EXISTENCE] sekunder i live )
+Avatar &apos;[NAME]&apos; forsvandt efter [TIME] sekunder som &quot;sky&quot;.
+	</notification>
+	<notification name="AvatarRezEnteredAppearanceNotification">
+		( [EXISTENCE] sekunder i live )
+Avatar &apos;[NAME]&apos; skiftede til udseende modus.
+	</notification>
+	<notification name="AvatarRezLeftAppearanceNotification">
+		( [EXISTENCE] sekunder i live )
+Avatar &apos;[NAME]&apos; har forladt udseende modus.
+	</notification>
+	<notification name="AvatarRezLeftNotification">
+		( [EXISTENCE] sekunder i live )
+Avatar &apos;[NAME]&apos; forsvandt helt &quot;uploaded&quot;.
+	</notification>
+	<notification name="ConfirmLeaveCall">
+		Er du sikker på at du vil forlade dette opkald?
+		<usetemplate ignoretext="Bekræft før jeg forlader opkald" name="okcancelignore" notext="Nej" yestext="Ja"/>
+	</notification>
+	<notification name="ConfirmMuteAll">
+		Du har valgt at slukke for lyden for alle deltagere i gruppeopkaldet.
+Dette vil også betyde, at alle beboere der slutter sig til opkaldet
+vil have lyden slukket - selv efter de har forladt kaldet.
+
+
+Sluk for alles lyd?
+		<usetemplate ignoretext="Bekræft før jeg slukker for alle deltageres lyd i gruppe-kald" name="okcancelignore" notext="OK" yestext="Annullér"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Det ser ikke ud til at din hardware opfylder minimumskravene til [APP_NAME]. [APP_NAME] kræver et OpenGL grafikkort som understøter &apos;multitexture&apos;. Check eventuelt om du har de nyeste drivere for grafikkortet, og de nyeste service-packs og patches til dit operativsystem.

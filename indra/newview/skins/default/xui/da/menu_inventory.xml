@@ -52,6 +52,7 @@
 	<menu_item_call label="Slet ting" name="Purge Item"/>
 	<menu_item_call label="Genskab ting" name="Restore Item"/>
 	<menu_item_call label="åben" name="Open"/>
+	<menu_item_call label="Åben original" name="Open Original"/>
 	<menu_item_call label="Egenskaber" name="Properties"/>
 	<menu_item_call label="Omdøb" name="Rename"/>
 	<menu_item_call label="Kopiér asset UUID" name="Copy Asset UUID"/>

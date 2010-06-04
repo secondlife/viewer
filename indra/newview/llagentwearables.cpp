@@ -1445,6 +1445,8 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	queryWearableCache();
 	updateServer();
 
+	gAgentAvatarp->dumpAvatarTEs("setWearableOutfit");
+
 	lldebugs << "setWearableOutfit() end" << llendl;
 }
 
@@ -1617,13 +1619,13 @@ void LLAgentWearables::queryWearableCache()
 	gAgentQueryManager.mWearablesCacheQueryID++;
 }
 
-LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextureIndex index)
+LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextureIndex baked_index,
+												 BOOL generate_valid_hash) // Set to false if you want to upload the baked texture w/o putting it in the cache
 {
 	LLUUID hash_id;
 	bool hash_computed = false;
 	LLMD5 hash;
-
-	const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture(index);
+	const LLVOAvatarDictionary::BakedEntry *baked_dict = LLVOAvatarDictionary::getInstance()->getBakedTexture(baked_index);
 
 	for (U8 i=0; i < baked_dict->mWearables.size(); i++)
 	{
@@ -1636,6 +1638,10 @@ LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextur
 			{
 				LLUUID asset_id = wearable->getAssetID();
 				hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
+				if (!generate_valid_hash)
+				{
+					hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
+				}
 				hash_computed = true;
 			}
 		}
