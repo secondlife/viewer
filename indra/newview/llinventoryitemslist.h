@@ -179,6 +179,9 @@ protected:
 	/** Set item title - inventory item name usually */
 	void setTitle(const std::string& title, const std::string& highlit_text);
 
+	// force not showing link icon on item's icon
+	bool mForceNoLinksOnIcons;
+
 private:
 
 	/** reshape left side widgets

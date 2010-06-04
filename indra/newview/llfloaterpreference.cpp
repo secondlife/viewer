@@ -501,7 +501,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	if (can_choose_maturity)
 	{		
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
-		if (!gAgent.isAdult() && !gAgent.isGodlike())
+		if (!gAgent.isAdult() && !gAgent.isGodlikeWithoutAdminMenuFakery())
 		{
 			// we're going to remove the adult entry from the combo
 			LLScrollListCtrl* maturity_list = maturity_combo->findChild<LLScrollListCtrl>("ComboBox");

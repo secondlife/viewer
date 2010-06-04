@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="top|right|left"
- height="23"
+ height="25"
  layout="topleft"
  left="0"
  name="wearable_item"
@@ -9,22 +9,22 @@
  width="380">
     <icon
      follows="top|right|left"
-     height="23"
+     height="22"
      image_name="ListItem_Over"
      layout="topleft"
      left="0"
      name="hovered_icon"
-     top="0"
+     top="1"
      visible="false"
      width="380" />
     <icon
-     height="23"
+     height="22"
      follows="top|right|left"
      image_name="ListItem_Select"
      layout="topleft"
      left="0"
      name="selected_icon"
-     top="0"
+     top="1"
      visible="false"
      width="380" />
     <icon
@@ -53,7 +53,6 @@
      name="btn_lock"
      layout="topleft"
      follows="top|right"
-     image_name="Locked_Icon"
      top="0"
      left="0"
      height="23"
@@ -70,24 +69,35 @@
          width="9"
          tab_stop="false" />
     </panel>
-    <button 
-     name="btn_edit"
+    <panel
+     background_visible="false"
+     name="btn_edit_panel"
      layout="topleft"
      follows="top|right"
-     image_overlay="Edit_Wrench"
      top="0"
      left_pad="3"
-     height="23"
-     width="23"
-     tab_stop="false" />
-    <panel
-     background_visible="true"
-     bg_alpha_color="0.4 0.4 0.4 1.0"
-     bottom="0"
+     height="24"
+     width="27"
+     tab_stop="false">
+         <button 
+          name="btn_edit"
+          layout="topleft"
+          follows="top|right"
+          image_overlay="Edit_Wrench"
+          top="0"
+          left="0"
+          height="24"
+          width="24"
+          tab_stop="false" />
+      </panel>
+    <icon
      follows="left|right|top"
-     height="1"
+     height="3"
+     image_name="Wearables_Divider"
      layout="bottomleft"
      left="0"
-     name="wearable_type_separator_panel"
+     name="wearable_type_separator_icon"
+     top="3"
+     visible="true"
      width="380"/>
 </panel>

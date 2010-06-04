@@ -436,7 +436,6 @@ public:
 	virtual LLUIImagePtr	getIcon() const;
 	virtual void			performAction(LLInventoryModel* model, std::string action);
 	virtual void			openItem();
-	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual std::string getLabelSuffix() const;
 	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL renameItem(const std::string& new_name);

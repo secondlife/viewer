@@ -583,7 +583,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>180</integer>
     </map>
     <key>AvatarSex</key>
     <map>
@@ -8353,6 +8353,17 @@
     <map>
       <key>Comment</key>
       <string>Shows/Hides Map button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowMiniLocationPanel</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Mini-Location Panel</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

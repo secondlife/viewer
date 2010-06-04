@@ -249,7 +249,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Static Utility functions that operate on std::strings
 
-	static std::basic_string<T> null;
+	static const std::basic_string<T> null;
 	
 	typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
 	LL_COMMON_API static void getTokens(const std::basic_string<T>& instr, std::vector<std::basic_string<T> >& tokens, const std::basic_string<T>& delims);
@@ -371,7 +371,7 @@ private:
 	LL_COMMON_API static size_type getSubstitution(const std::basic_string<T>& instr, size_type& start, std::vector<std::basic_string<T> >& tokens);
 };
 
-template<class T> std::basic_string<T> LLStringUtilBase<T>::null;
+template<class T> const std::basic_string<T> LLStringUtilBase<T>::null;
 template<class T> std::string LLStringUtilBase<T>::sLocale;
 
 typedef LLStringUtilBase<char> LLStringUtil;
