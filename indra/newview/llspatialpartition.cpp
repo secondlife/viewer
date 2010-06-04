@@ -207,20 +207,20 @@ typedef enum
 //gives you a triangle fan index array
 static U8 sOcclusionIndices[] =
 {
-	 // 000
+	 //000
 		b111, b110, b010, b011, b001, b101, b100, b110,
-	//001 
-		b110, b000, b010, b011, b111, b101, b100, b000,
+	 //001 
+		b011, b010, b000, b001, b101, b111, b110, b010,
 	 //010
 		b101, b100, b110, b111, b011, b001, b000, b100,
 	 //011 
-		b100, b010, b110, b111, b101, b001, b000, b010,
-	//100 
-		b011, b010, b000, b001, b101, b111, b110, b010,
+		b001, b000, b100, b101, b111, b011, b010, b000,
+	 //100 
+		b110, b000, b010, b011, b111, b101, b100, b000,
 	 //101 
 		b010, b100, b000, b001, b011, b111, b110, b100,
 	 //110
-		b001, b000, b100, b101, b111, b011, b010, b000,
+		b100, b010, b110, b111, b101, b001, b000, b010,
 	 //111
 		b000, b110, b100, b101, b001, b011, b010, b110,
 };
@@ -2045,6 +2045,8 @@ public:
 
 void drawBox(const LLVector3& c, const LLVector3& r)
 {
+	LLVertexBuffer::unbind();
+
 	gGL.begin(LLRender::TRIANGLE_STRIP);
 	//left front
 	gGL.vertex3fv((c+r.scaledVec(LLVector3(-1,1,-1))).mV);
