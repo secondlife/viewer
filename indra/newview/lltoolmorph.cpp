@@ -79,7 +79,8 @@ LLVisualParamHint::LLVisualParamHint(
 	LLViewerJointMesh *mesh, 
 	LLViewerVisualParam *param,
 	LLWearable *wearable,
-	F32 param_weight)
+	F32 param_weight,
+	LLJoint* jointp)
 	:
 	LLViewerDynamicTexture(width, height, 3, LLViewerDynamicTexture::ORDER_MIDDLE, TRUE ),
 	mNeedsUpdate( TRUE ),
@@ -91,11 +92,11 @@ LLVisualParamHint::LLVisualParamHint(
 	mAllowsUpdates( TRUE ),
 	mDelayFrames( 0 ),
 	mRect( pos_x, pos_y + height, pos_x + width, pos_y ),
-	mLastParamWeight(0.f)
+	mLastParamWeight(0.f),
+	mCamTargetJoint(jointp)
 {
 	LLVisualParamHint::sInstances.insert( this );
 	mBackgroundp = LLUI::getUIImage("avatar_thumb_bkgrnd.j2c");
-
 
 	llassert(width != 0);
 	llassert(height != 0);
@@ -196,21 +197,6 @@ BOOL LLVisualParamHint::render()
 	mNeedsUpdate = FALSE;
 	mIsVisible = TRUE;
 
-	LLViewerJointMesh* cam_target_joint = NULL;
-	const std::string& cam_target_mesh_name = mVisualParam->getCameraTargetName();
-	if( !cam_target_mesh_name.empty() )
-	{
-		cam_target_joint = (LLViewerJointMesh*)gAgentAvatarp->getJoint( cam_target_mesh_name );
-	}
-	if( !cam_target_joint )
-	{
-		cam_target_joint = (LLViewerJointMesh*)gMorphView->getCameraTargetJoint();
-	}
-	if( !cam_target_joint )
-	{
-		cam_target_joint = (LLViewerJointMesh*)gAgentAvatarp->getJoint("mHead");
-	}
-
 	LLQuaternion avatar_rotation;
 	LLJoint* root_joint = gAgentAvatarp->getRootJoint();
 	if( root_joint )
@@ -218,7 +204,7 @@ BOOL LLVisualParamHint::render()
 		avatar_rotation = root_joint->getWorldRotation();
 	}
 
-	LLVector3 target_joint_pos = cam_target_joint->getWorldPosition();
+	LLVector3 target_joint_pos = mCamTargetJoint->getWorldPosition();
 
 	LLVector3 target_offset( 0, 0, mVisualParam->getCameraElevation() );
 	LLVector3 target_pos = target_joint_pos + (target_offset * avatar_rotation);
@@ -234,9 +220,9 @@ BOOL LLVisualParamHint::render()
 	
 	LLViewerCamera::getInstance()->setAspect((F32)mFullWidth / (F32)mFullHeight);
 	LLViewerCamera::getInstance()->setOriginAndLookAt(
-		camera_pos,		// camera
-		LLVector3(0.f, 0.f, 1.f),						// up
-		target_pos );	// point of interest
+		camera_pos,			// camera
+		LLVector3::z_axis,	// up
+		target_pos );		// point of interest
 
 	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
 

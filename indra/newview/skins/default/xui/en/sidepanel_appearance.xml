@@ -111,6 +111,7 @@ width="333">
    label="Filter Outfits"
    max_length="300"
    name="Filter"
+   search_button_visible="true"
    top_pad="10"
    width="303" />
    <panel

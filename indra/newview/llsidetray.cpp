@@ -469,6 +469,9 @@ void LLSideTray::reflectCollapseChange()
 	}
 
 	gFloaterView->refresh();
+	
+	LLSD new_value = mCollapsed;
+	mCollapseSignal(this,new_value);
 }
 
 void LLSideTray::arrange()

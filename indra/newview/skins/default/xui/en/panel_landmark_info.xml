@@ -46,12 +46,15 @@
     <!-- Texture names for rating icons -->
     <string
      name="icon_PG"
+     translate="false"
      value="Parcel_PG_Dark" />
     <string
      name="icon_M"
+     translate="false"
      value="Parcel_M_Dark" />
     <string
      name="icon_R"
+     translate="false"
      value="Parcel_R_Dark" />
     <button
      follows="top|right"

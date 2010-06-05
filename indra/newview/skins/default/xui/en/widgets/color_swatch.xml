@@ -4,5 +4,6 @@
               name="color_swatch">
   <color_swatch.caption_text name="caption"
                              halign="center"
-                             follows="left|right|bottom"/>
+                             follows="left|right|bottom"
+                             v_pad="2"/>
 </color_swatch>

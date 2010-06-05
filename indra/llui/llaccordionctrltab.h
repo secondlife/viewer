@@ -115,7 +115,7 @@ public:
 	void		setAccordionView(LLView* panel);
 	LLView*		getAccordionView() { return mContainerPanel; };
 
-	std::string getTitle();
+	std::string getTitle() const;
 
 	// Set text and highlight substring in LLAccordionCtrlTabHeader
 	void setTitle(const std::string& title, const std::string& hl = LLStringUtil::null);
@@ -153,6 +153,11 @@ public:
 
 	// Call reshape after changing size
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
+	/**
+	 * Raises notifyParent event with "child_visibility_change" = new_visibility
+	 */
+	void handleVisibilityChange(BOOL new_visibility);
 
 	// Changes expand/collapse state and triggers expand/collapse callbacks
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);

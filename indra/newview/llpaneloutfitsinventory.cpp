@@ -50,6 +50,7 @@
 #include "lllineeditor.h"
 #include "llmodaldialog.h"
 #include "llnotificationsutil.h"
+#include "lloutfitobserver.h"
 #include "lloutfitslist.h"
 #include "llsaveoutfitcombobtn.h"
 #include "llsidepanelappearance.h"
@@ -204,6 +205,10 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
 	gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
+
+	LLOutfitObserver& observer = LLOutfitObserver::instance();
+	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+	observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 }
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
@@ -522,7 +527,7 @@ void LLPanelOutfitsInventory::updateListCommands()
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
 	mListCommands->childSetVisible("wear_btn", wear_enabled);
-	mSaveComboBtn->setSaveBtnEnabled(make_outfit_enabled);
+	mSaveComboBtn->setMenuItemEnabled("save_outfit", make_outfit_enabled);
 }
 
 void LLPanelOutfitsInventory::showGearMenu()
@@ -665,7 +670,7 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	}
 	if (command_name == "make_outfit")
 	{
-		return TRUE;
+		return LLAppearanceMgr::getInstance()->isOutfitDirty();
 	}
    
 	if (command_name == "edit" || 
@@ -789,6 +794,7 @@ void LLPanelOutfitsInventory::onWearablesLoaded()
 	setWearablesLoading(false);
 }
 
+// static
 LLSidepanelAppearance* LLPanelOutfitsInventory::getAppearanceSP()
 {
 	static LLSidepanelAppearance* panel_appearance =
