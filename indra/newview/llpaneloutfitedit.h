@@ -49,7 +49,7 @@ class LLButton;
 class LLCOFWearables;
 class LLTextBox;
 class LLInventoryCategory;
-class LLCOFObserver;
+class LLOutfitObserver;
 class LLCOFDragAndDropObserver;
 class LLInventoryPanel;
 class LLSaveFolderState;
@@ -153,7 +153,6 @@ private:
 	LLInventoryItemsList* 			mWearableItemsList;
 	LLPanel*						mWearableItemsPanel;
 
-	LLCOFObserver*	mCOFObserver;
 	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
 
 	std::vector<LLLookItemType> mLookItemTypes;

@@ -33,7 +33,7 @@
      follows="top|left"
      image_unselected="Toast_CloseBtn"
      image_selected="Toast_CloseBtn"
-     top="2"
+     top="3"
      left="0"
      height="18"
      width="18"
@@ -56,7 +56,7 @@
      use_ellipses="true"
      name="item_name"
      text_color="white"
-     top="4"
+     top="5"
      value="..."
      width="359" />
     <button 
@@ -64,20 +64,20 @@
      layout="topleft"
      follows="top|right"
      image_overlay="UpArrow_Off"
-     top="0"
+     top="1"
      left="0"
-     height="24"
-     width="24"
+     height="23"
+     width="23"
      tab_stop="false" />
     <button 
      name="btn_move_down"
      layout="topleft"
      follows="top|right"
      image_overlay="DownArrow_Off"
-     top="0"
+     top="1"
      left_pad="3"
-     height="24"
-     width="24"
+     height="23"
+     width="23"
      tab_stop="false" />
     <panel
      background_visible="false"
@@ -107,18 +107,18 @@
      follows="top|right"
      top="0"
      left_pad="3"
-     height="24"
-     width="27"
+     height="23"
+     width="26"
      tab_stop="false">
         <button 
          name="btn_edit"
          layout="topleft"
          follows="top|right"
          image_overlay="Edit_Wrench"
-         top="0"
+         top="1"
          left="0"
-         height="24"
-         width="24"
+         height="23"
+         width="23"
          tab_stop="false" />
       </panel>
     <icon

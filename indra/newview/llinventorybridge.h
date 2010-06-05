@@ -591,8 +591,6 @@ public:
 		U32 flags = 0x00) const;
 };
 
-void wear_inventory_item_on_avatar(LLInventoryItem* item);
-
 void rez_attachment(LLViewerInventoryItem* item, 
 					LLViewerJointAttachment* attachment);
 

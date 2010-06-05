@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="top|right|left"
- height="25"
+ height="23"
  layout="topleft"
  left="0"
  name="deletable_wearable_item"
@@ -33,7 +33,7 @@
      follows="top|left"
      image_unselected="Toast_CloseBtn"
      image_selected="Toast_CloseBtn"
-     top="2"
+     top="3"
      left="0"
      height="18"
      width="18"
@@ -56,7 +56,7 @@
      use_ellipses="true"
      name="item_name"
      text_color="white"
-     top="4"
+     top="5"
      value="..."
      width="359" />
     <icon
@@ -66,7 +66,7 @@
      layout="bottomleft"
      left="0"
      name="wearable_type_separator_icon"
-     top="3"
+     top="0"
      visible="true"
      width="380"/>
 </panel>

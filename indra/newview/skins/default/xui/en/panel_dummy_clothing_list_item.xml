@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
  follows="top|right|left"
- height="25"
+ height="23"
  layout="topleft"
  left="0"
  name="dummy_clothing_item"
@@ -56,8 +56,8 @@
      image_overlay="AddItem_Off"
      top="0"
      left="0"
-     height="24"
-     width="24"
+     height="23"
+     width="23"
      tab_stop="false" />
     <icon
      follows="left|right|top"
@@ -66,7 +66,7 @@
      layout="bottomleft"
      left="0"
      name="wearable_type_separator_icon"
-     top="3"
+     top="0"
      visible="true"
      width="380"/>
 </panel>

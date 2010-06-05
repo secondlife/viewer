@@ -177,7 +177,10 @@ protected:
 	void setIconImage(const LLUIImagePtr& image);
 
 	/** Set item title - inventory item name usually */
-	void setTitle(const std::string& title, const std::string& highlit_text);
+	virtual void setTitle(const std::string& title, const std::string& highlit_text);
+
+
+	LLViewerInventoryItem* mItem;
 
 	// force not showing link icon on item's icon
 	bool mForceNoLinksOnIcons;
@@ -196,7 +199,6 @@ private:
 	/** reshape remaining widgets */
 	void reshapeMiddleWidgets();
 
-	LLViewerInventoryItem* mItem;
 
 	LLIconCtrl*		mIconCtrl;
 	LLTextBox*		mTitleCtrl;

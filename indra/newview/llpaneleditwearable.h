@@ -48,6 +48,7 @@ class LLViewerVisualParam;
 class LLVisualParamHint;
 class LLViewerJointMesh;
 class LLAccordionCtrlTab;
+class LLJoint;
 
 class LLPanelEditWearable : public LLPanel
 {
@@ -72,6 +73,8 @@ public:
 
 	static void			onRevertButtonClicked(void* userdata);
 	void				onCommitSexChange();
+	void				onSaveAsButtonClicked();
+	void				saveAsCallback(const LLSD& notification, const LLSD& response);
 
 
 private:
@@ -81,7 +84,7 @@ private:
 	void				updateScrollingPanelUI();
 	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
-	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab);
+	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab, LLJoint* jointp);
 	// update bottom bar buttons ("Save", "Revert", etc)
 	void				updateVerbs();
 
