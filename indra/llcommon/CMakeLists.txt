@@ -9,6 +9,7 @@ include(Linking)
 include(Boost)
 include(Pth)
 include(LLSharedLibs)
+include(GoogleBreakpad)
 include(GooglePerfTools)
 include(Copy3rdPartyLibs)
 
@@ -259,6 +260,7 @@ endif(LLCOMMON_LINK_SHARED)
 
 target_link_libraries(
     llcommon
+    ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
