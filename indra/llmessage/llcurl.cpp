@@ -365,6 +365,13 @@ U32 LLCurl::Easy::report(CURLcode code)
 		responseReason = strerror(code) + " : " + mErrorBuffer;
 	}
 		
+	if(responseCode >= 300 && responseCode < 400) //redirect
+	{
+		char new_url[512] ;
+		curl_easy_getinfo(mCurlEasyHandle, CURLINFO_REDIRECT_URL, new_url);
+		responseReason = new_url ; //get the new URL.
+	}
+
 	if (mResponder)
 	{	
 		mResponder->completedRaw(responseCode, responseReason, mChannels, mOutput);
