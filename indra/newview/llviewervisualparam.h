@@ -60,7 +60,6 @@ protected:
 	F32			mCamDist;
 	F32			mCamAngle;		// degrees
 	F32			mCamElevation;
-	std::string	mCamTargetName;
 	F32			mEditGroupDisplayOrder;
 	BOOL		mShowSimple;	// show edit controls when in "simple ui" mode?
 	F32			mSimpleMin;		// when in simple UI, apply this minimum, range 0.f to 100.f
@@ -104,7 +103,6 @@ public:
 	F32					getCameraDistance()	const	{ return getInfo()->mCamDist; } 
 	F32					getCameraAngle() const		{ return getInfo()->mCamAngle; }  // degrees
 	F32					getCameraElevation() const	{ return getInfo()->mCamElevation; } 
-	const std::string&	getCameraTargetName() const { return getInfo()->mCamTargetName; }
 	
 	BOOL				getShowSimple() const		{ return getInfo()->mShowSimple; }
 	F32					getSimpleMin() const		{ return getInfo()->mSimpleMin; }

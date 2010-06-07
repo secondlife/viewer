@@ -47,6 +47,7 @@
 class LLViewerJointMesh;
 class LLPolyMesh;
 class LLViewerObject;
+class LLJoint;
 
 //-----------------------------------------------------------------------------
 // LLVisualParamHint
@@ -63,7 +64,8 @@ public:
 		LLViewerJointMesh *mesh, 
 		LLViewerVisualParam *param,
 		LLWearable *wearable,
-		F32 param_weight);	
+		F32 param_weight, 
+		LLJoint* jointp);	
 
 	/*virtual*/ S8 getType() const ;
 
@@ -96,6 +98,7 @@ protected:
 	S32						mDelayFrames;		// updates are blocked for this many frames
 	LLRect					mRect;
 	F32						mLastParamWeight;
+	LLJoint*				mCamTargetJoint;	// joint to target with preview camera
 
 	LLUIImagePtr mBackgroundp;
 

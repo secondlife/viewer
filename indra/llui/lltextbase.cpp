@@ -1101,7 +1101,7 @@ S32 LLTextBase::getLeftOffset(S32 width)
 	case LLFontGL::LEFT:
 		return mHPad;
 	case LLFontGL::HCENTER:
-		return mHPad + (mVisibleTextRect.getWidth() - width - mHPad) / 2;
+		return mHPad + llmax(0, (mVisibleTextRect.getWidth() - width - mHPad) / 2);
 	case LLFontGL::RIGHT:
 		return mVisibleTextRect.getWidth() - width;
 	default:
@@ -1207,11 +1207,6 @@ void LLTextBase::reflow()
 			// grow line height as necessary based on reported height of this segment
 			line_height = llmax(line_height, segment_height);
 			remaining_pixels -= segment_width;
-			if (remaining_pixels < 0)
-			{
-				// getNumChars() and getDimensions() should return consistent results
-				remaining_pixels = 0;
-			}
 
 			seg_offset += character_count;
 
@@ -1893,7 +1888,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 {
 	// Figure out which line we're nearest to.
 	LLRect visible_region = getVisibleDocumentRect();
-
+	
 	// binary search for line that starts before local_y
 	line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), local_y - mVisibleTextRect.mBottom + visible_region.mBottom, compare_bottom());
 
@@ -1903,7 +1898,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 	}
 	
 	S32 pos = getLength();
-	S32 start_x = mVisibleTextRect.mLeft + line_iter->mRect.mLeft;
+	S32 start_x = mVisibleTextRect.mLeft + line_iter->mRect.mLeft - visible_region.mLeft;
 
 	segment_set_t::iterator line_seg_iter;
 	S32 line_seg_offset;
