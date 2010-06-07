@@ -275,12 +275,16 @@ public:
 	virtual void			postRender(BOOL success);
 	virtual BOOL			render();
 	BOOL					updateImmediate();
-	bool					isInitialized(void) const;
+
+	BOOL					isInitialized(void) const;
+	BOOL					uploadPending() const; // We are expecting a new texture to be uploaded at some point
+	BOOL					uploadNeeded() const; // We need to upload a new texture
+	BOOL					uploadInProgress() const; // We have started uploading a new texture and are awaiting the result
+
 	/*virtual*/ BOOL		needsRender();
 	void					requestUpdate();
 	void					requestUpload();
 	void					cancelUpload();
-	BOOL					uploadPending() const { return mUploadPending; }
 	BOOL					render(S32 x, S32 y, S32 width, S32 height);
 	void					readBackAndUpload();
 	static void				onTextureUploadComplete(const LLUUID& uuid,
@@ -290,15 +294,19 @@ public:
 	const std::string		dumpTextureInfo() const;
 	virtual void 			restoreGLTexture();
 	virtual void 			destroyGLTexture();
+
+
 protected:
 	void					pushProjection() const;
 	void					popProjection() const;
 	BOOL					isReadyToUpload() const;
+	void					conditionalRestartUploadTimer();
+	
 private:
 	LLTexLayerSet* const    mTexLayerSet;
 	BOOL					mNeedsUpdate; // whether we need to update our baked textures
 	BOOL					mNeedsUpload; // whether we need to send our baked textures to the server
-	U32						mNumLowresUploads; // mumber of times we've sent a lowres version of our baked textures to the server
+	U32						mNumLowresUploads; // number of times we've sent a lowres version of our baked textures to the server
 	BOOL					mUploadPending; // whether we have received back the new baked textures
 	LLUUID					mUploadID; // the current upload process (null if none).  Used to avoid overlaps, e.g. when the user rapidly makes two changes outside of Face Edit.
 	static S32				sGLByteCount;

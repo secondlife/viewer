@@ -35,6 +35,7 @@
 
 #include "llagent.h"
 #include "llagentwearables.h"
+#include "llappearancemgr.h"
 #include "llinventorypanel.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -2561,7 +2562,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 		{
 			LLViewerInventoryItem* wearable_item;
 			wearable_item = gInventory.getItem(wearable_ids[i]);
-			wear_inventory_item_on_avatar(wearable_item);
+			LLAppearanceMgr::instance().wearItemOnAvatar(wearable_item->getUUID(), true, true);
 		}
 	}
 

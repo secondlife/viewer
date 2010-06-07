@@ -875,7 +875,7 @@ void WearOnAvatarCallback::fire(const LLUUID& inv_item)
 	LLViewerInventoryItem *item = gInventory.getItem(inv_item);
 	if (item)
 	{
-		wear_inventory_item_on_avatar(item);
+		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item, true, mReplace);
 	}
 }
 

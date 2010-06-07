@@ -1638,10 +1638,6 @@ LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextur
 			{
 				LLUUID asset_id = wearable->getAssetID();
 				hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
-				if (!generate_valid_hash)
-				{
-					hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
-				}
 				hash_computed = true;
 			}
 		}
@@ -1649,6 +1645,15 @@ LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextur
 	if (hash_computed)
 	{
 		hash.update((const unsigned char*)baked_dict->mWearablesHashID.mData, UUID_BYTES);
+
+		// Add some garbage into the hash so that it becomes invalid.
+		if (!generate_valid_hash)
+		{
+			if (isAgentAvatarValid())
+			{
+				hash.update((const unsigned char*)gAgentAvatarp->getID().mData, UUID_BYTES);
+			}
+		}
 		hash.finalize();
 		hash.raw_digest(hash_id.mData);
 	}

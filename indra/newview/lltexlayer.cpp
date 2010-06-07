@@ -165,6 +165,7 @@ void LLTexLayerSetBuffer::dumpTotalByteCount()
 
 void LLTexLayerSetBuffer::requestUpdate()
 {
+	conditionalRestartUploadTimer();
 	mNeedsUpdate = TRUE;
 	// If we're in the middle of uploading a baked texture, we don't care about it any more.
 	// When it's downloaded, ignore it.
@@ -173,17 +174,26 @@ void LLTexLayerSetBuffer::requestUpdate()
 
 void LLTexLayerSetBuffer::requestUpload()
 {
+	conditionalRestartUploadTimer();
+	mNeedsUpload = TRUE;
+	mNumLowresUploads = 0;
+	mUploadPending = TRUE;
+}
+
+void LLTexLayerSetBuffer::conditionalRestartUploadTimer()
+{
 	// If we requested a new upload but haven't even uploaded
 	// a low res version of our last upload request, then
 	// keep the timer ticking instead of resetting it.
 	if (mNeedsUpload && (mNumLowresUploads == 0))
 	{
-		mNeedsUploadTimer.reset();
+		mNeedsUploadTimer.unpause();
 	}
-	mNeedsUpload = TRUE;
-	mNumLowresUploads = 0;
-	mUploadPending = TRUE;
-	mNeedsUploadTimer.unpause();
+	else
+	{
+		mNeedsUploadTimer.reset();
+		mNeedsUploadTimer.start();
+	}
 }
 
 void LLTexLayerSetBuffer::cancelUpload()
@@ -307,9 +317,24 @@ BOOL LLTexLayerSetBuffer::render()
 	return success;
 }
 
-bool LLTexLayerSetBuffer::isInitialized(void) const
+BOOL LLTexLayerSetBuffer::isInitialized(void) const
 {
 	return mGLTexturep.notNull() && mGLTexturep->isGLTextureCreated();
+}
+
+BOOL LLTexLayerSetBuffer::uploadPending() const
+{
+	return mUploadPending;
+}
+
+BOOL LLTexLayerSetBuffer::uploadNeeded() const
+{
+	return mNeedsUpload;
+}
+
+BOOL LLTexLayerSetBuffer::uploadInProgress() const
+{
+	return !mUploadID.isNull();
 }
 
 BOOL LLTexLayerSetBuffer::isReadyToUpload() const
@@ -2277,10 +2302,15 @@ const std::string LLTexLayerSetBuffer::dumpTextureInfo() const
 	const BOOL is_high_res = !mNeedsUpload;
 	const U32 num_low_res = mNumLowresUploads;
 	const U32 upload_time = (U32)mNeedsUploadTimer.getElapsedTimeF32();
-	const BOOL is_uploaded = !mUploadPending;
 	const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(mTexLayerSet);
-	std::string text = llformat("[ HiRes:%d LoRes:%d Uploaded:%d ] [ Timer:%d ] %s",
-								is_high_res, num_low_res, is_uploaded,
+
+	std::string status 				= "CREATING ";
+	if (!uploadNeeded()) status 	= "DONE     ";
+	if (uploadInProgress()) status 	= "UPLOADING";
+
+	std::string text = llformat("[%s] [HiRes:%d LoRes:%d] [Elapsed:%d] %s",
+								status.c_str(),
+								is_high_res, num_low_res,
 								upload_time, 
 								local_texture_info.c_str());
 	return text;

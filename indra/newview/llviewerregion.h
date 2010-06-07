@@ -291,6 +291,7 @@ public:
 	friend std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region);
     /// implements LLCapabilityProvider
     virtual std::string getDescription() const;
+	std::string getHttpUrl() const { return mHttpUrl ;}
 
 	LLSpatialPartition* getSpatialPartition(U32 type);
 public:
@@ -383,6 +384,7 @@ private:
 	std::string mColoName;
 	std::string mProductSKU;
 	std::string mProductName;
+	std::string mHttpUrl ;
 	
 	
 	// Maps local ids to cache entries.

@@ -41,21 +41,6 @@
 	<string name="acquired_date">
 		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</string>
-	<string name="icon_PG" value="parcel_drk_PG"/>
-	<string name="icon_M" value="parcel_drk_M"/>
-	<string name="icon_R" value="parcel_drk_R"/>
-	<string name="icon_Voice" value="parcel_drk_Voice"/>
-	<string name="icon_VoiceNo" value="parcel_drk_VoiceNo"/>
-	<string name="icon_Fly" value="parcel_drk_Fly"/>
-	<string name="icon_FlyNo" value="parcel_drk_FlyNo"/>
-	<string name="icon_Push" value="parcel_drk_Push"/>
-	<string name="icon_PushNo" value="parcel_drk_PushNo"/>
-	<string name="icon_Build" value="parcel_drk_Build"/>
-	<string name="icon_BuildNo" value="parcel_drk_BuildNo"/>
-	<string name="icon_Scripts" value="parcel_drk_Scripts"/>
-	<string name="icon_ScriptsNo" value="parcel_drk_ScriptsNo"/>
-	<string name="icon_Damage" value="parcel_drk_Damage"/>
-	<string name="icon_DamageNo" value="parcel_drk_DamageNo"/>
 	<button name="back_btn" tool_tip="戻る"/>
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
