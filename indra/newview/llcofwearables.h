@@ -45,53 +45,6 @@ class LLPanelClothingListItem;
 class LLPanelBodyPartsListItem;
 class LLPanelDeletableWearableListItem;
 
-/**
- * Adaptor between LLAccordionCtrlTab and LLFlatListView to facilitate communication between them 
- * (notify, notifyParent) regarding size changes of a list and selection changes across accordion tabs.
- * Besides that it acts as a container for the LLFlatListView and a button bar on top of it.
- */
-class LLCOFAccordionListAdaptor : public LLPanel
-{
-public:
-	LLCOFAccordionListAdaptor() : LLPanel() {};
-	~LLCOFAccordionListAdaptor() {};
-
-	S32 notifyParent(const LLSD& info)
-	{
-		LLView* parent = getParent();
-		if (!parent) return -1;
-		
-		if (!(info.has("action") && "size_changes" == info["action"].asString()))
-		{
-			return parent->notifyParent(info);
-		}
-
-		LLRect rc;
-		childGetRect("button_bar", rc);
-
-		LLSD params;
-		params["action"] = "size_changes";
-		params["width"] = info["width"];
-		params["height"] = info["height"].asInteger() + rc.getHeight();
-
-		return parent->notifyParent(params);
-	}
-
-
-	S32 notify(const LLSD& info)
-	{
-		for (child_list_const_iter_t iter = beginChild(); iter != endChild(); iter++)
-		{
-			if (dynamic_cast<LLFlatListView*>(*iter))
-			{
-				return (*iter)->notify(info);
-			}
-		}
-		return LLPanel::notify(info);
-	};
-};
-
-
 class LLCOFWearables : public LLPanel
 {
 public:

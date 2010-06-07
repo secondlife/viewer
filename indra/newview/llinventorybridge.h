@@ -270,7 +270,6 @@ public:
 	virtual BOOL copyToClipboard() const;
 	
 	static void createWearable(LLFolderBridge* bridge, LLWearableType::EType type);
-	static void createWearable(const LLUUID &parent_folder_id, LLWearableType::EType type);
 
 	LLViewerInventoryCategory* getCategory() const;
 

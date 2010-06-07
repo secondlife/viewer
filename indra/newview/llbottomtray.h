@@ -124,7 +124,6 @@ private:
 		, RS_BUTTON_SEARCH		= 0x0400
 		, RS_BUTTON_WORLD_MAP	= 0x0800
 		, RS_BUTTON_MINI_MAP	= 0x1000
-		, RS_BUTTON_SIDEBAR		= 0x2000
 
 		/*
 		Once new button that can be hidden on resize is added don't forget to update related places:
@@ -139,7 +138,6 @@ private:
 		 */
 		, RS_BUTTONS_CAN_BE_HIDDEN = RS_BUTTON_SNAPSHOT | RS_BUTTON_CAMERA | RS_BUTTON_MOVEMENT | RS_BUTTON_GESTURES
 									| RS_BUTTON_BUILD | RS_BUTTON_SEARCH | RS_BUTTON_WORLD_MAP | RS_BUTTON_MINI_MAP
-									| RS_BUTTON_SIDEBAR
 	}EResizeState;
 
 	/**

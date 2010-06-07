@@ -632,7 +632,18 @@
     <key>BlockAvatarAppearanceMessages</key>
         <map>
         <key>Comment</key>
-            <string>Ignore's appearance messages (for simulating Ruth)</string>
+            <string>Ignores appearance messages (for simulating Ruth)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>BlockSomeAvatarAppearanceVisualParams</key>
+        <map>
+        <key>Comment</key>
+            <string>Drop around 50% of VisualParam occurances in appearance messages (for simulating Ruth)</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
@@ -8294,17 +8305,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowSidebarButton</key>
-    <map>
-      <key>Comment</key>
-      <string>Shows/hides Sidebar button in the bottom tray.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ShowSnapshotButton</key>
     <map>
       <key>Comment</key>
@@ -8846,17 +8846,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>SidebarWithButtonsVisibility</key>
-    <map>
-      <key>Comment</key>
-      <string>Sets visibility of sidebar with its tabs' buttons</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>SkinCurrent</key>
     <map>
@@ -11383,6 +11372,17 @@
 	      <string>snapshot</string>
 	      <string>mini_map</string>
       </array>
+    </map>
+    <key>LandmarksSortedByDate</key>
+    <map>
+      <key>Comment</key>
+      <string>Reflects landmarks panel sorting order.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
 </map>
 </llsd>

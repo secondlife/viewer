@@ -144,6 +144,7 @@ protected:
 	//--------------------------------------------------------------------
 
 public:
+	static void		createWearable(LLWearableType::EType type, bool wear = false, const LLUUID& parent_id = LLUUID::null);
 	static void		editWearable(const LLUUID& item_id);
 	bool			moveWearable(const LLViewerInventoryItem* item, bool closer_to_body);
 
