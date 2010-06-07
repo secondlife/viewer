@@ -2748,6 +2748,12 @@ void LLInlineViewSegment::linkToDocument(LLTextBase* editor)
 	editor->addDocumentChild(mView);
 }
 
+LLLineBreakTextSegment::LLLineBreakTextSegment(S32 pos):LLTextSegment(pos,pos+1)
+{
+	LLStyleSP s( new LLStyle(LLStyle::Params().visible(true)));
+
+	mFontHeight = llceil(s->getFont()->getLineHeight());
+}
 LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLTextSegment(pos,pos+1)
 {
 	mFontHeight = llceil(style->getFont()->getLineHeight());

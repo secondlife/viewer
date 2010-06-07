@@ -519,6 +519,7 @@ class LLLineBreakTextSegment : public LLTextSegment
 public:
 
 	LLLineBreakTextSegment(LLStyleConstSP style,S32 pos);
+	LLLineBreakTextSegment(S32 pos);
 	~LLLineBreakTextSegment();
 	bool		getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 	S32			getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const;
