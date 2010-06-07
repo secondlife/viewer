@@ -5112,6 +5112,7 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 			LLVoiceChannel::getCurrentVoiceChannel()->deactivate();
 			status = LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED;
 		}
+		notifyStatusObservers(status);		
 	}
 }
 
