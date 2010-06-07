@@ -166,6 +166,7 @@ public:
 
 	void addTextureStats(F32 virtual_size, BOOL needs_gltexture = TRUE) const;
 	void resetTextureStats();	
+	void setResetMaxVirtualSizeFlag(bool flag) ;
 
 	virtual F32  getMaxVirtualSize() ;
 
