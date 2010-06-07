@@ -3883,6 +3883,8 @@ void LLPipeline::renderDebug()
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
 	{
+		LLVertexBuffer::unbind();
+
 		LLGLEnable blend(GL_BLEND);
 		LLGLDepthTest depth(TRUE, FALSE);
 		LLGLDisable cull(GL_CULL_FACE);
@@ -3946,7 +3948,7 @@ void LLPipeline::renderDebug()
 			if (i < 4)
 			{
 
-				if (i == 0 || !mShadowFrustPoints[i].empty())
+				//if (i == 0 || !mShadowFrustPoints[i].empty())
 				{
 					//render visible point cloud
 					gGL.flush();

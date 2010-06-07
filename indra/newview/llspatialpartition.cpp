@@ -2195,7 +2195,7 @@ BOOL LLSpatialPartition::getVisibleExtents(LLCamera& camera, LLVector3& visMin, 
 	vis.traverse(mOctree);
 
 	visMin.set(visMina.getF32());
-	visMax.set(visMina.getF32());
+	visMax.set(visMaxa.getF32());
 	return vis.mEmpty;
 }
 
