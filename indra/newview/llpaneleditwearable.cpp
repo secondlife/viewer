@@ -51,6 +51,7 @@
 #include "llagentwearables.h"
 #include "llscrollingpanelparam.h"
 #include "llradiogroup.h"
+#include "llnotificationsutil.h"
 
 #include "llcolorswatch.h"
 #include "lltexturectrl.h"
@@ -624,6 +625,7 @@ BOOL LLPanelEditWearable::postBuild()
 	mDescTitle = getChild<LLTextBox>("description_text");
 
 	getChild<LLRadioGroup>("sex_radio")->setCommitCallback(boost::bind(&LLPanelEditWearable::onCommitSexChange, this));
+	getChild<LLButton>("save_as_button")->setCommitCallback(boost::bind(&LLPanelEditWearable::onSaveAsButtonClicked, this));
 
 	// The following panels will be shown/hidden based on what wearable we're editing
 	// body parts
@@ -744,6 +746,28 @@ void LLPanelEditWearable::onRevertButtonClicked(void* userdata)
 	panel->revertChanges();
 }
 
+void LLPanelEditWearable::onSaveAsButtonClicked()
+{
+	LLSD args;
+	args["DESC"] = mTextEditor->getText();
+
+	LLNotificationsUtil::add("SaveWearableAs", args, LLSD(), boost::bind(&LLPanelEditWearable::saveAsCallback, this, _1, _2));
+}
+
+void LLPanelEditWearable::saveAsCallback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (0 == option)
+	{
+		std::string wearable_name = response["message"].asString();
+		LLStringUtil::trim(wearable_name);
+		if( !wearable_name.empty() )
+		{
+			mTextEditor->setText(wearable_name);
+			saveChanges();
+		}
+	}
+}
 
 void LLPanelEditWearable::onCommitSexChange()
 {
@@ -991,8 +1015,14 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 			// storage for ordered list of visual params
 			value_map_t sorted_params;
 			getSortedParams(sorted_params, edit_group);
-	
-			buildParamList(panel_list, sorted_params, tab);
+
+			LLJoint* jointp = gAgentAvatarp->getJoint( subpart_entry->mTargetJoint );
+			if (!jointp)
+			{
+				jointp = gAgentAvatarp->getJoint("mHead");
+			}
+
+			buildParamList(panel_list, sorted_params, tab, jointp);
 	
 			updateScrollingPanelUI();
 		}
@@ -1229,7 +1259,7 @@ void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std:
 	}
 }
 
-void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab)
+void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab, LLJoint* jointp)
 {
 	// sorted_params is sorted according to magnitude of effect from
 	// least to greatest.  Adding to the front of the child list
@@ -1243,7 +1273,7 @@ void LLPanelEditWearable::buildParamList(LLScrollingPanelList *panel_list, value
 		{
 			LLPanel::Params p;
 			p.name("LLScrollingPanelParam");
-			LLScrollingPanelParam* panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable());
+			LLScrollingPanelParam* panel_param = new LLScrollingPanelParam( p, NULL, (*it).second, TRUE, this->getWearable(), jointp);
 			height = panel_list->addPanel( panel_param );
 		}
 	}

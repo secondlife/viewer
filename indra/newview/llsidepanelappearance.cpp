@@ -209,7 +209,7 @@ void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 	{
 		if ((mOutfitEdit && mOutfitEdit->getVisible()) || (mEditWearable && mEditWearable->getVisible()))
 		{
-			if (!gAgentCamera.cameraCustomizeAvatar())
+			if (!gAgentCamera.cameraCustomizeAvatar() && gSavedSettings.getBOOL("AppearanceCameraMovement"))
 			{
 				gAgentCamera.changeCameraToCustomizeAvatar();
 			}
@@ -217,9 +217,10 @@ void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 	}
 	else
 	{
-		if (gAgentCamera.cameraCustomizeAvatar())
+		if (gAgentCamera.cameraCustomizeAvatar() && gSavedSettings.getBOOL("AppearanceCameraMovement"))
 		{
 			gAgentCamera.changeCameraToDefault();
+			gAgentCamera.resetView();
 		}
 	}
 }
@@ -345,6 +346,7 @@ void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible, BOOL disable_cam
 	else if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
 	{
 		gAgentCamera.changeCameraToDefault();
+		gAgentCamera.resetView();
 	}
 }
 
@@ -384,6 +386,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
 		{
 			gAgentCamera.changeCameraToDefault();
+			gAgentCamera.resetView();
 		}
 	}
 }
