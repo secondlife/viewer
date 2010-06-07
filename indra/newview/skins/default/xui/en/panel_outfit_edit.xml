@@ -256,15 +256,14 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 		             background_image="TextField_Search_Off"
 		             enabled="true"
 		             follows="left|right|top"
-		             font="SansSerif"
-		             label="Filter"
+		             label="Filter Inventory Wearables"
 		             layout="topleft"
 		             left="5"
 		             width="290"
 		             height="25"
 		             name="look_item_filter"
+		             search_button_visible="true"
 		             text_color="black"
-		             text_pad_left="25"
 		             visible="true"/>
                     
                 </layout_panel>

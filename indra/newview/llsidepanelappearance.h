@@ -40,7 +40,6 @@
 
 class LLFilterEditor;
 class LLCurrentlyWornFetchObserver;
-class LLWatchForOutfitRenameObserver;
 class LLPanelEditWearable;
 class LLWearable;
 class LLPanelOutfitsInventory;
@@ -96,9 +95,6 @@ private:
 
 	// Used to make sure the user's inventory is in memory.
 	LLCurrentlyWornFetchObserver* mFetchWorn;
-
-	// Used to update title when currently worn outfit gets renamed.
-	LLWatchForOutfitRenameObserver* mOutfitRenameWatcher;
 
 	// Search string for filtering landmarks and teleport
 	// history locations

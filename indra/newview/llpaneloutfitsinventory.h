@@ -75,7 +75,7 @@ public:
 	void setParent(LLSidepanelAppearance *parent);
 
 	LLFolderView* getRootFolder();
-	LLSidepanelAppearance* getAppearanceSP();
+	static LLSidepanelAppearance* getAppearanceSP();
 
 	static LLPanelOutfitsInventory* findInstance();
 

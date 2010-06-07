@@ -34,6 +34,7 @@
 
 #include "llappearancemgr.h"
 #include "llpaneloutfitsinventory.h"
+#include "llsidepanelappearance.h"
 #include "llsaveoutfitcombobtn.h"
 #include "llviewermenu.h"
 

@@ -116,6 +116,21 @@ protected:
 	/*virtual*/ void init();
 };
 
+/** Outfit list item for an attachment */
+class LLPanelAttachmentListItem : public LLPanelDeletableWearableListItem
+{
+	LOG_CLASS(LLPanelAttachmentListItem);
+public:
+	static LLPanelAttachmentListItem* create(LLViewerInventoryItem* item);
+	virtual ~LLPanelAttachmentListItem() {};
+
+	/** Set item title. Joint name is added to the title in parenthesis */
+	/*virtual*/ void setTitle(const std::string& title, const std::string& highlit_text);
+
+protected:
+	LLPanelAttachmentListItem(LLViewerInventoryItem* item) : LLPanelDeletableWearableListItem(item) {};
+};
+
 /**
  * @class LLPanelClothingListItem
  *

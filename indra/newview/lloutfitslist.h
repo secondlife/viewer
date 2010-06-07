@@ -32,16 +32,32 @@
 #ifndef LL_LLOUTFITSLIST_H
 #define LL_LLOUTFITSLIST_H
 
+#include "llaccordionctrl.h"
 #include "llpanel.h"
 
 // newview
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 
-class LLAccordionCtrl;
 class LLAccordionCtrlTab;
 class LLWearableItemsList;
 class LLListContextMenu;
+
+/**
+ * @class LLOutfitTabNameComparator
+ *
+ * Comparator of outfit tabs.
+ */
+class LLOutfitTabNameComparator : public LLAccordionCtrl::LLTabComparator
+{
+	LOG_CLASS(LLOutfitTabNameComparator);
+
+public:
+	LLOutfitTabNameComparator() {};
+	virtual ~LLOutfitTabNameComparator() {};
+
+	/*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
+};
 
 /**
  * @class LLOutfitsList
