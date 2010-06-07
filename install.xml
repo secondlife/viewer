@@ -111,9 +111,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>d9ce3ace9235249b7edf6f564de83395</string>
+            <string>cdb2f5c4a5a1f9ecd75bc1dbdd4db8e9</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.4.0-darwin-20080731b.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-darwin-20100606.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -233,9 +233,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>1bece4ebdc5fc3818854bc3df14b511b</string>
+            <string>752e295ccb17f0dcb7c0167db3ad1e69</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4a-darwin-20090304.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-darwin-20100606.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
