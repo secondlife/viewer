@@ -68,14 +68,6 @@
          function="Inventory.GearDefault.Custom.Action"
          parameter="empty_trash" />
     </menu_item_call>
-    <menu_item_call
-     label="Empty Lost and Found"
-     layout="topleft"
-     name="empty_lostnfound">
-        <on_click
-         function="Inventory.GearDefault.Custom.Action"
-         parameter="empty_lostnfound" />
-    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
     <menu_item_call 
@@ -111,4 +103,14 @@
 			 function="Inventory.GearDefault.Enable"
 			 parameter="find_links" />
         </menu_item_call>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_call
+     label="Empty Lost and Found"
+     layout="topleft"
+     name="empty_lostnfound">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="empty_lostnfound" />
+    </menu_item_call>
 </menu>
