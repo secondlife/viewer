@@ -6304,36 +6304,39 @@ Avatar '[NAME]' entered appearance mode.
 Avatar '[NAME]' left appearance mode.
   </notification>
 
-    <notification
+  <notification
    icon="alertmodal.tga"
    name="NoConnect"
    type="alertmodal">
-        We're having trouble connecting using [PROTOCOL] [HOSTID].
-        Please check your network and firewall setup.
-        <form name="form">
-            <button
-               default="true"
-               index="0"
-               name="OK"
-               text="OK"/>
-        </form>
-    </notification>
+We're having trouble connecting using [PROTOCOL] [HOSTID].
+Please check your network and firewall setup.
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+    </form>
+  </notification>
 
-    <notification
-          icon="alertmodal.tga"
-          name="NoVoiceConnect"
-          type="alertmodal">
-        We're having trouble connecting your voiceserver using [HOSTID].
-        Voice communications will not be available.
-        Please check your network and firewall setup.
-        <form name="form">
-            <button
-               default="true"
-               index="0"
-               name="OK"
-               text="OK"/>
-        </form>
-    </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="NoVoiceConnect"
+   type="alertmodal">
+We're having trouble connecting to your voice server:
+
+[HOSTID]
+
+Voice communications will not be available.
+Please check your network and firewall setup.
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+    </form>
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -6361,7 +6364,7 @@ Are you sure you want to leave this call?
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
-     <unique/>
+    <unique/>
   </notification>
 
   <notification
@@ -6378,7 +6381,7 @@ Mute everyone?
      name="okcancelignore"
      yestext="Ok"
      notext="Cancel"/>
-     <unique/>
+    <unique/>
   </notification>
 
   <global name="UnsupportedCPU">
