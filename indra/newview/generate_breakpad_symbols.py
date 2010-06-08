@@ -109,12 +109,17 @@ def main(viewer_dir, viewer_exes, libs_suffix, dump_syms_tool, viewer_symbol_fil
 
     symbols = tarfile.open(viewer_symbol_file, 'r:bz2')
     tarfile_members = symbols.getnames()
-    def match_module_basename(m):
-        return os.path.splitext(required_module)[0] == os.path.splitext(os.path.basename(m))[0]
+    symbols.close()
+
     for required_module in viewer_exes:
-        # there must be at least one .sym file in tarfile_members that matches each required module (ignoring file extensions)
+        def match_module_basename(m):
+            return os.path.splitext(required_module)[0].lower() \
+                   == os.path.splitext(os.path.basename(m))[0].lower()
+        # there must be at least one .sym file in tarfile_members that matches
+        # each required module (ignoring file extensions)
         if not reduce(operator.or_, itertools.imap(match_module_basename, tarfile_members)):
-            print >> sys.stderr, "failed to find required %s in generated %s" % (required_module, viewer_symbol_file)
+            print >> sys.stderr, "failed to find required %s in generated %s" \
+                    % (required_module, viewer_symbol_file)
             os.remove(viewer_symbol_file)
             raise MissingModuleError([required_module])
 
