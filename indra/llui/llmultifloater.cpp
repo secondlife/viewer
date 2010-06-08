@@ -238,6 +238,16 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	moveResizeHandlesToFront();
 }
 
+void LLMultiFloater::updateFloaterTitle(LLFloater* floaterp)
+{
+	S32 index = mTabContainer->getIndexForPanel(floaterp);
+	if (index != -1)
+	{
+		mTabContainer->setPanelTitle(index, floaterp->getShortTitle());
+	}
+}
+
+
 /**
 	BOOL selectFloater(LLFloater* floaterp)
 
