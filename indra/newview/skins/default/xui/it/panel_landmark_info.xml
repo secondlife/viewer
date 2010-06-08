@@ -19,7 +19,7 @@
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="Indietro"/>
-	<text name="title" value="Profilo del posto"/>
+	<text name="title" value="Profilo del luogo"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
 			<text name="maturity_value" value="sconosciuto"/>

@@ -154,9 +154,19 @@ private:
 	static long sPacificTimeOffset;
 	static long sLocalTimeOffset;
 	static bool sPacificDaylightTime;
+
 	static std::map<std::string, std::string> datetimeToCodes;
 
 public:
+	static std::vector<std::string> sWeekDayList;
+	static std::vector<std::string> sWeekDayShortList;
+	static std::vector<std::string> sMonthList;
+	static std::vector<std::string> sMonthShortList;
+	static std::string sDayFormat;
+
+	static std::string sAM;
+	static std::string sPM;
+
 	static char toUpper(char elem) { return toupper((unsigned char)elem); }
 	static llwchar toUpper(llwchar elem) { return towupper(elem); }
 	
@@ -185,6 +195,14 @@ public:
 	static S32	collate(const llwchar* a, const llwchar* b);
 
 	static void setupDatetimeInfo(bool pacific_daylight_time);
+
+	static void setupWeekDaysNames(const std::string& data);
+	static void setupWeekDaysShortNames(const std::string& data);
+	static void setupMonthNames(const std::string& data);
+	static void setupMonthShortNames(const std::string& data);
+	static void setupDayFormat(const std::string& data);
+
+
 	static long getPacificTimeOffset(void) { return sPacificTimeOffset;}
 	static long getLocalTimeOffset(void) { return sLocalTimeOffset;}
 	// Is the Pacific time zone (aka server time zone)
@@ -231,7 +249,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Static Utility functions that operate on std::strings
 
-	static std::basic_string<T> null;
+	static const std::basic_string<T> null;
 	
 	typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
 	LL_COMMON_API static void getTokens(const std::basic_string<T>& instr, std::vector<std::basic_string<T> >& tokens, const std::basic_string<T>& delims);
@@ -353,7 +371,7 @@ private:
 	LL_COMMON_API static size_type getSubstitution(const std::basic_string<T>& instr, size_type& start, std::vector<std::basic_string<T> >& tokens);
 };
 
-template<class T> std::basic_string<T> LLStringUtilBase<T>::null;
+template<class T> const std::basic_string<T> LLStringUtilBase<T>::null;
 template<class T> std::string LLStringUtilBase<T>::sLocale;
 
 typedef LLStringUtilBase<char> LLStringUtil;

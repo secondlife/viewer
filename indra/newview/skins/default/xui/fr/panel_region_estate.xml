@@ -73,6 +73,6 @@ domaine.
 	<button label="?" name="ban_resident_help"/>
 	<button label="Ajouter..." name="add_banned_avatar_btn"/>
 	<button label="Supprimer..." name="remove_banned_avatar_btn"/>
-	<button label="Envoyer un message au domaine..." name="message_estate_btn"/>
-	<button label="Éjecter un résident du domaine..." name="kick_user_from_estate_btn"/>
+	<button label="Message au domaine..." name="message_estate_btn"/>
+	<button label="Éjecter du domaine..." name="kick_user_from_estate_btn"/>
 </panel>

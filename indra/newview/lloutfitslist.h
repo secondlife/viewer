@@ -41,6 +41,7 @@
 class LLAccordionCtrl;
 class LLAccordionCtrlTab;
 class LLWearableItemsList;
+class LLListContextMenu;
 
 /**
  * @class LLOutfitsList
@@ -48,12 +49,10 @@ class LLWearableItemsList;
  * A list of agents's outfits from "My Outfits" inventory category
  * which displays each outfit in an accordion tab with a flat list
  * of items inside it.
- * Uses LLInventoryCategoriesObserver to monitor changes to "My Outfits"
- * inventory category and refresh the outfits listed in it.
- * This class is derived from LLInventoryObserver to know when inventory
- * becomes usable and it is safe to request data from inventory model.
+ *
+ * Starts fetching nevessary inventory content on first openning.
  */
-class LLOutfitsList : public LLPanel, public LLInventoryObserver
+class LLOutfitsList : public LLPanel
 {
 public:
 	LLOutfitsList();
@@ -61,15 +60,15 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void changed(U32 mask);
+	/*virtual*/ void onOpen(const LLSD& info);
 
 	void refreshList(const LLUUID& category_id);
-
-	void onSelectionChange(LLUICtrl* ctrl);
 
 	void performAction(std::string action);
 
 	void setFilterSubString(const std::string& string);
+
+	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
 
 private:
 	/**
@@ -94,12 +93,34 @@ private:
 	 */
 	void changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
 
+	/**
+	 * Called upon list refresh event to update tab visibility depending on
+	 * the results of applying filter to the title and list items of the tab.
+	 */
+	void onFilteredWearableItemsListRefresh(LLUICtrl* ctrl);
+
+	/**
+	 * Highlights filtered items and hides tabs which haven't passed filter.
+	 */
+	void applyFilter(const std::string& new_filter_substring);
+
+	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
+	void onAccordionTabDoubleClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
+	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+
+	void onSelectionChange(LLUICtrl* ctrl);
+
+	static void onOutfitRename(const LLSD& notification, const LLSD& response);
+
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 
 	LLAccordionCtrl*				mAccordion;
 	LLPanel*						mListCommands;
 
-	LLWearableItemsList*			mSelectedList;
+	typedef	std::map<LLUUID, LLWearableItemsList*>		wearables_lists_map_t;
+	typedef wearables_lists_map_t::value_type			wearables_lists_map_value_t;
+	wearables_lists_map_t			mSelectedListsMap;
+
 	LLUUID							mSelectedOutfitUUID;
 
 	std::string 					mFilterSubString;
@@ -107,6 +128,10 @@ private:
 	typedef	std::map<LLUUID, LLAccordionCtrlTab*>		outfits_map_t;
 	typedef outfits_map_t::value_type					outfits_map_value_t;
 	outfits_map_t					mOutfitsMap;
+
+	LLListContextMenu*			mOutfitMenu;
+
+	bool							mIsInitialized;
 };
 
 #endif //LL_LLOUTFITSLIST_H

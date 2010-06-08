@@ -71,11 +71,11 @@
 #include "llvosurfacepatch.h"
 #include "llvowlsky.h"
 #include "llrender.h"
-#include "llbottomtray.h"
 #include "llnavigationbar.h"
 #include "llfloatertools.h"
 #include "llpaneloutfitsinventory.h"
 #include "llpanellogin.h"
+#include "llpaneltopinfobar.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -439,7 +439,7 @@ bool handleVelocityInterpolate(const LLSD& newvalue)
 
 bool handleForceShowGrid(const LLSD& newvalue)
 {
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateServer( );
 	return true;
 }
 
@@ -456,30 +456,6 @@ bool toggle_agent_pause(const LLSD& newvalue)
 	return true;
 }
 
-bool toggle_show_gesture_button(const LLSD& newvalue)
-{
-	LLBottomTray::getInstance()->showGestureButton(newvalue.asBoolean());
-	return true;
-}
-
-bool toggle_show_move_button(const LLSD& newvalue)
-{
-	LLBottomTray::getInstance()->showMoveButton(newvalue.asBoolean());
-	return true;
-}
-
-bool toggle_show_camera_button(const LLSD& newvalue)
-{
-	LLBottomTray::getInstance()->showCameraButton(newvalue.asBoolean());
-	return true;
-}
-
-bool toggle_show_snapshot_button(const LLSD& newvalue)
-{
-	LLBottomTray::getInstance()->showSnapshotButton(newvalue.asBoolean());
-	return true;
-}
-
 bool toggle_show_navigation_panel(const LLSD& newvalue)
 {
 	LLNavigationBar::getInstance()->showNavigationPanel(newvalue.asBoolean());
@@ -489,6 +465,12 @@ bool toggle_show_navigation_panel(const LLSD& newvalue)
 bool toggle_show_favorites_panel(const LLSD& newvalue)
 {
 	LLNavigationBar::getInstance()->showFavoritesPanel(newvalue.asBoolean());
+	return true;
+}
+
+bool toggle_show_mini_location_panel(const LLSD& newvalue)
+{
+	LLPanelTopInfoBar::getInstance()->setVisible(newvalue.asBoolean());
 	return true;
 }
 
@@ -642,12 +624,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("QAMode")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("UseDebugMenus")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("AgentPause")->getSignal()->connect(boost::bind(&toggle_agent_pause, _2));
-	gSavedSettings.getControl("ShowGestureButton")->getSignal()->connect(boost::bind(&toggle_show_gesture_button, _2));
-	gSavedSettings.getControl("ShowMoveButton")->getSignal()->connect(boost::bind(&toggle_show_move_button, _2));
-	gSavedSettings.getControl("ShowCameraButton")->getSignal()->connect(boost::bind(&toggle_show_camera_button, _2));
-	gSavedSettings.getControl("ShowSnapshotButton")->getSignal()->connect(boost::bind(&toggle_show_snapshot_button, _2));
 	gSavedSettings.getControl("ShowNavbarNavigationPanel")->getSignal()->connect(boost::bind(&toggle_show_navigation_panel, _2));
 	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
+	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
 }

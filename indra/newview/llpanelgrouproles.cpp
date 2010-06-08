@@ -118,8 +118,7 @@ LLPanelGroupRoles::LLPanelGroupRoles()
 	mCurrentTab(NULL),
 	mRequestedTab( NULL ),
 	mSubTabContainer( NULL ),
-	mFirstUse( TRUE ),
-	mIgnoreTransition( FALSE )
+	mFirstUse( TRUE )
 {
 }
 
@@ -145,8 +144,6 @@ BOOL LLPanelGroupRoles::postBuild()
 			llwarns << "Invalid subtab panel: " << panel->getName() << llendl;
 			return FALSE;
 		}
-		// Add click callbacks to all the tabs.
-		mSubTabContainer->setCommitCallback(boost::bind(&LLPanelGroupRoles::handleClickSubTab, this));
 
 		// Hand the subtab a pointer to this LLPanelGroupRoles, so that it can
 		// look around for the widgets it is interested in.
@@ -155,6 +152,8 @@ BOOL LLPanelGroupRoles::postBuild()
 
 		//subtabp->addObserver(this);
 	}
+	// Add click callbacks to tab switching.
+	mSubTabContainer->setValidateBeforeCommit(boost::bind(&LLPanelGroupRoles::handleSubTabSwitch, this, _1));
 
 	// Set the current tab to whatever is currently being shown.
 	mCurrentTab = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
@@ -196,30 +195,17 @@ BOOL LLPanelGroupRoles::isVisibleByAgent(LLAgent* agentp)
 								   
 }
 
-void LLPanelGroupRoles::handleClickSubTab()
+bool LLPanelGroupRoles::handleSubTabSwitch(const LLSD& data)
 {
-	// If we are already handling a transition,
-	// ignore this.
-	if (mIgnoreTransition)
+	std::string panel_name = data.asString();
+	
+	if(mRequestedTab != NULL)//we already have tab change request
 	{
-		return;
+		return false;
 	}
 
-	mRequestedTab = (LLPanelGroupTab*) mSubTabContainer->getCurrentPanel();
+	mRequestedTab = static_cast<LLPanelGroupTab*>(mSubTabContainer->getPanelByName(panel_name));
 
-	// Make sure they aren't just clicking the same tab...
-	if (mRequestedTab == mCurrentTab)
-	{
-		return;
-	}
-
-	// Try to switch from the current panel to the panel the user selected.
-	attemptTransition();
-}
-
-BOOL LLPanelGroupRoles::attemptTransition()
-{
-	// Check if the current tab needs to be applied.
 	std::string mesg;
 	if (mCurrentTab && mCurrentTab->needsApply(mesg))
 	{
@@ -235,26 +221,14 @@ BOOL LLPanelGroupRoles::attemptTransition()
 		LLNotificationsUtil::add("PanelGroupApply", args, LLSD(),
 			boost::bind(&LLPanelGroupRoles::handleNotifyCallback, this, _1, _2));
 		mHasModal = TRUE;
-		// We need to reselect the current tab, since it isn't finished.
-		if (mSubTabContainer)
-		{
-			mIgnoreTransition = TRUE;
-			mSubTabContainer->selectTabPanel( mCurrentTab );
-			mIgnoreTransition = FALSE;
-		}
+		
 		// Returning FALSE will block a close action from finishing until
 		// we get a response back from the user.
-		return FALSE;
+		return false;
 	}
-	else
-	{
-		// The current panel didn't have anything it needed to apply.
-		if (mRequestedTab)
-		{
-			transitionToTab();
-		}
-		return TRUE;
-	}
+
+	transitionToTab();
+	return true;
 }
 
 void LLPanelGroupRoles::transitionToTab()
@@ -271,6 +245,7 @@ void LLPanelGroupRoles::transitionToTab()
 		// This is now the current tab;
 		mCurrentTab = mRequestedTab;
 		mCurrentTab->activate();
+		mRequestedTab = 0;
 	}
 }
 
@@ -278,6 +253,7 @@ bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLS
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	mHasModal = FALSE;
+	LLPanelGroupTab* transition_tab = mRequestedTab;
 	switch (option)
 	{
 	case 0: // "Apply Changes"
@@ -297,26 +273,20 @@ bool LLPanelGroupRoles::handleNotifyCallback(const LLSD& notification, const LLS
 			// Skip switching tabs.
 			break;
 		}
-
-		// This panel's info successfully applied.
-		// Switch to the next panel.
-		// No break!  Continue into 'Ignore Changes' which just switches tabs.
-		mIgnoreTransition = TRUE;
-		mSubTabContainer->selectTabPanel( mRequestedTab );
-		mIgnoreTransition = FALSE;
 		transitionToTab();
+		mSubTabContainer->selectTabPanel( transition_tab );
+		
 		break;
 	}
 	case 1: // "Ignore Changes"
 		// Switch to the requested panel without applying changes
 		cancel();
-		mIgnoreTransition = TRUE;
-		mSubTabContainer->selectTabPanel( mRequestedTab );
-		mIgnoreTransition = FALSE;
 		transitionToTab();
+		mSubTabContainer->selectTabPanel( transition_tab );
 		break;
 	case 2: // "Cancel"
 	default:
+		mRequestedTab = NULL;
 		// Do nothing.  The user is canceling the action.
 		break;
 	}
@@ -827,8 +797,37 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 
 void LLPanelGroupMembersSubTab::setGroupID(const LLUUID& id)
 {
-	LLPanelGroupSubTab::setGroupID(id);
+	//clear members list
+	if(mMembersList) mMembersList->deleteAllItems();
+	if(mAssignedRolesList) mAssignedRolesList->deleteAllItems();
+	if(mAllowedActionsList) mAllowedActionsList->deleteAllItems();
 
+	LLPanelGroupSubTab::setGroupID(id);
+}
+
+void LLPanelGroupRolesSubTab::setGroupID(const LLUUID& id)
+{
+	if(mRolesList) mRolesList->deleteAllItems();
+	if(mAssignedMembersList) mAssignedMembersList->deleteAllItems();
+	if(mAllowedActionsList) mAllowedActionsList->deleteAllItems();
+
+	if(mRoleName) mRoleName->clear();
+	if(mRoleDescription) mRoleDescription->clear();
+	if(mRoleTitle) mRoleTitle->clear();
+
+	setFooterEnabled(FALSE);
+
+	LLPanelGroupSubTab::setGroupID(id);
+}
+void LLPanelGroupActionsSubTab::setGroupID(const LLUUID& id)
+{
+	if(mActionList) mActionList->deleteAllItems();
+	if(mActionRoles) mActionRoles->deleteAllItems();
+	if(mActionMembers) mActionMembers->deleteAllItems();
+
+	if(mActionDescription) mActionDescription->clear();
+
+	LLPanelGroupSubTab::setGroupID(id);
 }
 
 
@@ -1750,8 +1749,7 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	mRoleTitle->setKeystrokeCallback(onPropertiesKey, this);
 
 	mRoleDescription->setCommitOnFocusLost(TRUE);
-	mRoleDescription->setCommitCallback(onDescriptionCommit, this);
-	mRoleDescription->setFocusReceivedCallback(boost::bind(onDescriptionFocus, _1, this));
+	mRoleDescription->setKeystrokeCallback(boost::bind(&LLPanelGroupRolesSubTab::onDescriptionKeyStroke, this, _1));
 
 	setFooterEnabled(FALSE);
 
@@ -2207,14 +2205,10 @@ void LLPanelGroupRolesSubTab::onPropertiesKey(LLLineEditor* ctrl, void* user_dat
 	self->notifyObservers();
 }
 
-// static 
-void LLPanelGroupRolesSubTab::onDescriptionFocus(LLFocusableElement* ctrl, void* user_data)
+void LLPanelGroupRolesSubTab::onDescriptionKeyStroke(LLTextEditor* caller)
 {
-	LLPanelGroupRolesSubTab* self = static_cast<LLPanelGroupRolesSubTab*>(user_data);
-	if (!self) return;
-
-	self->mHasRoleChange = TRUE;
-	self->notifyObservers();
+	mHasRoleChange = TRUE;
+	notifyObservers();
 }
 
 // static 

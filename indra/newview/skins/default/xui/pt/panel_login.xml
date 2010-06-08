@@ -25,7 +25,7 @@
 			</text>
 			<combo_box name="start_location_combo">
 				<combo_box.item label="Última posição" name="MyLastLocation"/>
-				<combo_box.item label="Minha casa" name="MyHome"/>
+				<combo_box.item label="Meu início" name="MyHome"/>
 			</combo_box>
 			<button label="conectar" name="connect_btn"/>
 		</layout_panel>

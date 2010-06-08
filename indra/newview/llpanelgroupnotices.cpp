@@ -44,7 +44,6 @@
 #include "llfloaterinventory.h"
 #include "llagent.h"
 #include "llagentui.h"
-#include "lltooldraganddrop.h"
 
 #include "lllineeditor.h"
 #include "lltexteditor.h"
@@ -60,6 +59,7 @@
 #include "llviewerwindow.h"
 #include "llviewermessage.h"
 #include "llnotificationsutil.h"
+#include "llgiveinventory.h"
 
 static LLRegisterPanelClassWrapper<LLPanelGroupNotices> t_panel_group_notices("panel_group_notices");
 
@@ -163,7 +163,7 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		{
 			LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
 			if(gInventory.getItem(inv_item->getUUID())
-				&& LLToolDragAndDrop::isInventoryGroupGiveAcceptable(inv_item))
+				&& LLGiveInventory::isInventoryGroupGiveAcceptable(inv_item))
 			{
 				// *TODO: get multiple object transfers working
 				*accept = ACCEPT_YES_COPY_SINGLE;
@@ -336,9 +336,10 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 		item_is_multi = TRUE;
 	};
 
-	std::string icon_name = get_item_icon_name(inv_item->getType(),
+	std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(),
 										inv_item->getInventoryType(),
 										inv_item->getFlags(),
+										inv_item->getIsLinkType(),
 										item_is_multi );
 
 	mCreateInventoryIcon->setValue(icon_name);
@@ -553,9 +554,9 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][0]["column"] = "icon";
 		if (has_attachment)
 		{
-			std::string icon_name = get_item_icon_name(
+			std::string icon_name = LLInventoryIcon::getIconName(
 									(LLAssetType::EType)asset_type,
-									LLInventoryType::IT_NONE,FALSE, FALSE);
+									LLInventoryType::IT_NONE);
 			row["columns"][0]["type"] = "icon";
 			row["columns"][0]["value"] = icon_name;
 		}
@@ -621,9 +622,8 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 	{
 		mInventoryOffer = inventory_offer;
 
-		std::string icon_name = get_item_icon_name(mInventoryOffer->mType,
-												LLInventoryType::IT_TEXTURE,
-												0, FALSE);
+		std::string icon_name = LLInventoryIcon::getIconName(mInventoryOffer->mType,
+												LLInventoryType::IT_TEXTURE);
 
 		mViewInventoryIcon->setValue(icon_name);
 		mViewInventoryIcon->setVisible(TRUE);

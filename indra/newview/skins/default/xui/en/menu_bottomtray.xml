@@ -52,6 +52,50 @@
              function="CheckControl"
              parameter="ShowSnapshotButton" />
     </menu_item_check>        
+    <menu_item_check
+     label="Build button"
+     layout="topleft"
+     name="ShowBuildButton">
+        <menu_item_check.on_click
+         function="ToggleControl"
+         parameter="ShowBuildButton" />
+        <menu_item_check.on_check
+         function="CheckControl"
+         parameter="ShowBuildButton" />
+    </menu_item_check>
+    <menu_item_check
+     label="Search button"
+     layout="topleft"
+     name="ShowSearchButton">
+        <menu_item_check.on_click
+         function="ToggleControl"
+         parameter="ShowSearchButton" />
+        <menu_item_check.on_check
+         function="CheckControl"
+         parameter="ShowSearchButton" />
+    </menu_item_check>
+    <menu_item_check
+     label="Map button"
+     layout="topleft"
+     name="ShowWorldMapButton">
+        <menu_item_check.on_click
+         function="ToggleControl"
+         parameter="ShowWorldMapButton" />
+        <menu_item_check.on_check
+         function="CheckControl"
+         parameter="ShowWorldMapButton" />
+    </menu_item_check>
+    <menu_item_check
+     label="Mini-Map button"
+     layout="topleft"
+     name="ShowMiniMapButton">
+        <menu_item_check.on_click
+         function="ToggleControl"
+         parameter="ShowMiniMapButton" />
+        <menu_item_check.on_check
+         function="CheckControl"
+         parameter="ShowMiniMapButton" />
+    </menu_item_check>
     <menu_item_separator
      name="Separator" />
     <menu_item_call

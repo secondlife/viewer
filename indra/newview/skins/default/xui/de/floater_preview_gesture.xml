@@ -7,7 +7,7 @@
 		Sound abspielen:
 	</floater.string>
 	<floater.string name="step_chat">
-		Chat sprechen:
+		Im Chat anzeigen:
 	</floater.string>
 	<floater.string name="step_wait">
 		Warten:

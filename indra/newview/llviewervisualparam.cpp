@@ -45,7 +45,7 @@
 //-----------------------------------------------------------------------------
 LLViewerVisualParamInfo::LLViewerVisualParamInfo()
 	:
-	mWearableType( WT_INVALID ),
+	mWearableType( LLWearableType::WT_INVALID ),
 	mCrossWearable(FALSE),
 	mCamDist( 0.5f ),
 	mCamAngle( 0.f ),
@@ -77,7 +77,7 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	static LLStdStringHandle wearable_string = LLXmlTree::addAttributeString("wearable");
 	if( node->getFastAttributeString( wearable_string, wearable) )
 	{
-		mWearableType = LLWearableDictionary::typeNameToType( wearable );
+		mWearableType = LLWearableType::typeNameToType( wearable );
 	}
 
 	static LLStdStringHandle edit_group_string = LLXmlTree::addAttributeString("edit_group");
@@ -99,8 +99,6 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	node->getFastAttributeF32( camera_angle_string, mCamAngle );	// in degrees
 	static LLStdStringHandle camera_elevation_string = LLXmlTree::addAttributeString("camera_elevation");
 	node->getFastAttributeF32( camera_elevation_string, mCamElevation );
-	static LLStdStringHandle camera_target_string = LLXmlTree::addAttributeString("camera_target");
-	node->getFastAttributeString( camera_target_string, mCamTargetName );
 
 	mCamAngle += 180;
 

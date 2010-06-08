@@ -10,7 +10,7 @@
 	<menu_item_call label="Rapportér" name="abuse"/>
 	<menu_item_call label="Frys" name="Freeze..."/>
 	<menu_item_call label="Smid ud" name="Eject..."/>
-	<menu_item_call label="Debug" name="Debug..."/>
+	<menu_item_call label="Debug Teksturer" name="Debug..."/>
 	<menu_item_call label="Zoom ind" name="Zoom In"/>
 	<menu_item_call label="Betal" name="Pay..."/>
 </context_menu>

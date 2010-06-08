@@ -68,7 +68,7 @@
 // you're fetching an item and a notification gets triggered because
 // you renamed some other item).  This counter is to specify how many
 // notification to wait for before giving up.
-static const U32 MAX_NUM_NOTIFICATIONS_TO_PROCESS = 20;
+static const U32 MAX_NUM_NOTIFICATIONS_TO_PROCESS = 127;
 
 LLInventoryObserver::LLInventoryObserver()
 {
@@ -493,7 +493,7 @@ void LLInventoryExistenceObserver::changed(U32 mask)
 	}
 }
 
-void LLInventoryMoveFromWorldObserver::changed(U32 mask)
+void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 {
 	if(!(mask & LLInventoryObserver::ADD))
 	{
@@ -535,7 +535,7 @@ void LLInventoryMoveFromWorldObserver::changed(U32 mask)
 	}
 }
 
-void LLInventoryMoveFromWorldObserver::watchAsset(const LLUUID& asset_id)
+void LLInventoryAddItemByAssetObserver::watchAsset(const LLUUID& asset_id)
 {
 	if(asset_id.notNull())
 	{
@@ -551,7 +551,7 @@ void LLInventoryMoveFromWorldObserver::watchAsset(const LLUUID& asset_id)
 	}
 }
 
-bool LLInventoryMoveFromWorldObserver::isAssetWatched( const LLUUID& asset_id )
+bool LLInventoryAddItemByAssetObserver::isAssetWatched( const LLUUID& asset_id )
 {
 	return std::find(mWatchedAssets.begin(), mWatchedAssets.end(), asset_id) != mWatchedAssets.end();
 }

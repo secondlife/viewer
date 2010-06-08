@@ -43,29 +43,14 @@
 #include "v4color.h"
 #include "lldir.h"
 
-// Routines used for parsing text for TextParsers and html
-
-LLTextParser* LLTextParser::sInstance = NULL;
-
 //
 // Member Functions
 //
 
-LLTextParser::~LLTextParser()
-{
-	sInstance=NULL;
-}
+LLTextParser::LLTextParser()
+:	mLoaded(false)
+{}
 
-// static
-LLTextParser* LLTextParser::getInstance()
-{
-	if (!sInstance)
-	{
-		sInstance = new LLTextParser();
-		sInstance->loadFromDisk();
-	}
-	return sInstance;
-}
 
 // Moved triggerAlerts() to llfloaterchat.cpp to break llui/llaudio library dependency.
 
@@ -105,6 +90,8 @@ S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
 
 LLSD LLTextParser::parsePartialLineHighlights(const std::string &text, const LLColor4 &color, EHighlightPosition part, S32 index)
 {
+	loadKeywords();
+
 	//evil recursive string atomizer.
 	LLSD ret_llsd, start_llsd, middle_llsd, end_llsd;
 
@@ -195,6 +182,8 @@ LLSD LLTextParser::parsePartialLineHighlights(const std::string &text, const LLC
 
 bool LLTextParser::parseFullLineHighlights(const std::string &text, LLColor4 *color)
 {
+	loadKeywords();
+
 	for (S32 i=0;i<mHighlights.size();i++)
 	{
 		if ((S32)mHighlights[i]["highlight"]==ALL || (S32)mHighlights[i]["condition"]==MATCHES)
@@ -221,14 +210,14 @@ std::string LLTextParser::getFileName()
 	return path;  
 }
 
-LLSD LLTextParser::loadFromDisk()
+void LLTextParser::loadKeywords()
 {
-	std::string filename=getFileName();
-	if (filename.empty())
-	{
-		llwarns << "LLTextParser::loadFromDisk() no valid user directory." << llendl; 
+	if (mLoaded)
+	{// keywords already loaded
+		return;
 	}
-	else
+	std::string filename=getFileName();
+	if (!filename.empty())
 	{
 		llifstream file;
 		file.open(filename.c_str());
@@ -237,9 +226,8 @@ LLSD LLTextParser::loadFromDisk()
 			LLSDSerialize::fromXML(mHighlights, file);
 		}
 		file.close();
+		mLoaded = true;
 	}
-
-	return mHighlights;
 }
 
 bool LLTextParser::saveToDisk(LLSD highlights)

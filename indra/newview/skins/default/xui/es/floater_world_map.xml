@@ -20,10 +20,10 @@
 			Venta de terreno
 		</text>
 		<text name="by_owner_label">
-			por el propietario
+			por el dueño
 		</text>
 		<text name="auction_label">
-			subasta de terreno
+			subasta
 		</text>
 		<button name="Go Home" tool_tip="Teleportar a mi Base"/>
 		<text name="Home_label">
@@ -35,7 +35,7 @@
 		<text name="pg_label">
 			General
 		</text>
-		<check_box initial_value="verdadero" name="event_mature_chk"/>
+		<check_box name="event_mature_chk"/>
 		<text name="mature_label">
 			Moderado
 		</text>

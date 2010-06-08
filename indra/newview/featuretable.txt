@@ -26,6 +26,7 @@ list all
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
+RenderAvatarMaxVisible      1   35
 RenderAvatarVP				1	1
 RenderCubeMap				1	1
 RenderDelayVBUpdate			1	0
@@ -55,10 +56,10 @@ Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
 RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
+SkyUseClassicClouds			1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderUseFBO				1	1
-
 
 //
 // Low Graphics Settings
@@ -66,23 +67,25 @@ RenderUseFBO				1	1
 list Low
 RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
-RenderAvatarLODFactor		1	0.5
+RenderAvatarLODFactor		1	0
+RenderAvatarMaxVisible      1   3
 RenderAvatarVP				1	0
 RenderFarClip				1	64
-RenderFlexTimeFactor		1	0.5
+RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
-RenderMaxPartCount			1	1024
+RenderMaxPartCount			1	0
 RenderObjectBump			1	0
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
-RenderTreeLODFactor			1	0.5
+RenderTreeLODFactor			1	0
 RenderUseImpostors			1	1
-RenderVolumeLODFactor		1	1.125
+RenderVolumeLODFactor		1	0
 VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
 RenderDeferred				1	0
+SkyUseClassicClouds			1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 
@@ -314,28 +317,23 @@ RenderUseImpostors			0	0
 list Intel_945GM			
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_945G
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_950
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_965
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
 UseOcclusion				0	0
-RenderUseImpostors			0	0
 
 list Intel_G33
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
-RenderUseImpostors			0	0
 
 list Intel_G45
 WindLightUseAtmosShaders		0	0

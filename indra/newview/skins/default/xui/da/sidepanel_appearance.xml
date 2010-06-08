@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Sæt" name="appearance panel">
 	<string name="No Outfit" value="Intet sæt"/>
+	<string name="Unsaved Changes" value="Ikke gemte ændringer"/>
+	<string name="Now Wearing" value="Bærer nu..."/>
 	<panel name="panel_currentlook">
-		<text name="currentlook_title">
-			(ikke gemt)
+		<button label="E" name="editappearance_btn"/>
+		<button label="O" name="openoutfit_btn"/>
+		<text name="currentlook_status">
+			(Status)
 		</text>
 	</panel>
 	<filter_editor label="Filtrér sæt" name="Filter"/>

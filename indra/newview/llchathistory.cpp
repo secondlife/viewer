@@ -647,20 +647,19 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			if ( chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
 			{
 				// for object IMs, create a secondlife:///app/objectim SLapp
-				std::string url = LLSLURL::buildCommand("objectim", chat.mFromID, "");
+				std::string url = LLSLURL("objectim", chat.mFromID, "").getSLURLString();
 				url += "?name=" + chat.mFromName;
-				url += "&owner=" + args["owner_id"].asString();
+				url += "&owner=" + chat.mOwnerID.asString();
 
 				std::string slurl = args["slurl"].asString();
 				if (slurl.empty())
 				{
-					LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
-					if (region)
-					{
-						S32 x, y, z;
-						LLSLURL::globalPosToXYZ(LLVector3d(chat.mPosAgent), x, y, z);
-						slurl = region->getName() + llformat("/%d/%d/%d", x, y, z);
-					}
+				    LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
+				    if(region)
+				      {
+					LLSLURL region_slurl(region->getName(), chat.mPosAgent);
+					slurl = region_slurl.getLocationString();
+				      }
 				}
 				url += "&slurl=" + slurl;
 
@@ -846,13 +845,4 @@ void LLChatHistory::draw()
 	}
 
 	LLUICtrl::draw();
-}
-
-void LLChatHistory::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-	bool is_scrolled_to_end = mEditor->scrolledToEnd();
-	LLUICtrl::reshape( width, height, called_from_parent );
-	// update scroll
-	if (is_scrolled_to_end)
-		mEditor->setCursorAndScrollToEnd();
 }

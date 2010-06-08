@@ -88,6 +88,8 @@ public:
 
 		Optional<bool>			fit_panel;
 
+		Optional<bool>			selection_enabled;
+
 		Optional<S32>			padding_left;
 		Optional<S32>			padding_right;
 		Optional<S32>			padding_top;
@@ -113,11 +115,15 @@ public:
 	void		setAccordionView(LLView* panel);
 	LLView*		getAccordionView() { return mContainerPanel; };
 
-	// Set text in LLAccordionCtrlTabHeader
-	void setTitle(const std::string& title);
+	std::string getTitle();
+
+	// Set text and highlight substring in LLAccordionCtrlTabHeader
+	void setTitle(const std::string& title, const std::string& hl = LLStringUtil::null);
 
 	boost::signals2::connection setFocusReceivedCallback(const focus_signal_t::slot_type& cb);
 	boost::signals2::connection setFocusLostCallback(const focus_signal_t::slot_type& cb);
+
+	void setSelected(bool is_selected);
 
 	bool getCollapsible() {return mCollapsible;};
 
@@ -197,6 +203,9 @@ protected:
 	void drawChild(const LLRect& root_rect,LLView* child);
 
 	LLView* findContainerView	();
+
+	void selectOnFocusReceived();
+
 private:
 
 	class LLAccordionCtrlTabHeader;

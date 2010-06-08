@@ -124,9 +124,6 @@
 	<floater.string name="no_parcel_selected">
 		(区画が選定されていません)
 	</floater.string>
-	<floater.string name="icon_PG" value="Parcel_PG_Dark"/>
-	<floater.string name="icon_M" value="Parcel_M_Dark"/>
-	<floater.string name="icon_R" value="Parcel_R_Dark"/>
 	<text name="region_name_label">
 		地域：
 	</text>

@@ -343,7 +343,7 @@
 		top_delta="0"
 		width="128">
 			m
-		</text>
+		</text>    
 		<slider
 		control_name="RenderMaxPartCount"
 		decimal_digits="0"
@@ -359,6 +359,34 @@
 		name="MaxParticleCount"
 		top_pad="7"
 		width="303" />
+    <slider
+    control_name="RenderAvatarMaxVisible"
+    decimal_digits="0"
+    follows="left|top"
+    height="16"
+    increment="2"
+    initial_value="35"
+    label="Max. avatar draw distance:"
+    label_width="185"
+    layout="topleft"
+    left_delta="0"
+    max_val="65"
+    min_val="1"
+    name="MaxAvatarDrawDistance"
+    top_pad="4"
+    width="290" />
+    <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="12"
+    layout="topleft"
+    left_delta="291"
+    name="DrawDistanceMeterText3"
+    top_delta="0"
+    width="128">
+      m
+    </text>
 		<slider
 		control_name="RenderGlowResolutionPow"
 		decimal_digits="0"

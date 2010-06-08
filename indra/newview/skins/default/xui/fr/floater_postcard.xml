@@ -13,10 +13,10 @@
 	</text>
 	<line_editor left="143" name="name_form" width="130" left_delta="146"/>
 	<text name="subject_label">
-		Sujet :
+		Objet :
 	</text>
 	<line_editor left="143" name="subject_form" width="130" left_delta="146"/>
-	<line_editor label="Saisissez votre sujet ici." name="subject_form"/>
+	<line_editor label="Saisissez votre objet ici." name="subject_form"/>
 	<text name="msg_label">
 		Message :
 	</text>

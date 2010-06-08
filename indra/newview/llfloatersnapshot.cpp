@@ -1147,7 +1147,7 @@ void LLSnapshotLivePreview::saveWeb(std::string url)
 
 void LLSnapshotLivePreview::regionNameCallback(std::string url, LLSD body, const std::string& name, S32 x, S32 y, S32 z)
 {
-	body["slurl"] = LLSLURL::buildSLURL(name, x, y, z);
+	body["slurl"] = LLSLURL(name, LLVector3d(x, y, z)).getSLURLString();
 
 	LLHTTPClient::post(url, body,
 		new LLSendWebResponder());
@@ -2198,7 +2198,7 @@ bool LLFloaterSnapshot::updateButtons(ESnapshotMode mode)
 	childSetVisible("save", mode == SNAPSHOT_MAIN);
 	childSetVisible("set_profile_pic", mode == SNAPSHOT_MAIN);
 
-	childSetVisible("share_to_web", mode == SNAPSHOT_SHARE);
+//	childSetVisible("share_to_web", mode == SNAPSHOT_SHARE);
 	childSetVisible("share_to_email", mode == SNAPSHOT_SHARE);
 
 	childSetVisible("save_to_inventory", mode == SNAPSHOT_SAVE);

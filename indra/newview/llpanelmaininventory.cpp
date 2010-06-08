@@ -167,7 +167,7 @@ BOOL LLPanelMainInventory::postBuild()
 	// Now load the stored settings from disk, if available.
 	std::ostringstream filterSaveName;
 	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);
-	llinfos << "LLPanelMainInventory::init: reading from " << filterSaveName << llendl;
+	llinfos << "LLPanelMainInventory::init: reading from " << filterSaveName.str() << llendl;
 	llifstream file(filterSaveName.str());
 	LLSD savedFilterState;
 	if (file.is_open())
@@ -492,6 +492,10 @@ void LLPanelMainInventory::onFilterSelected()
 	{
 		return;
 	}
+
+	BOOL recent_active = ("Recent Items" == mActivePanel->getName());
+	childSetVisible("add_btn_panel", !recent_active);
+
 	setFilterSubString(mFilterSubString);
 	LLInventoryFilter* filter = mActivePanel->getFilter();
 	LLFloaterInventoryFinder *finder = getFinder();
@@ -896,14 +900,12 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 
 void LLPanelMainInventory::initListCommandsHandlers()
 {
-	mListCommands = getChild<LLPanel>("bottom_panel");
+	childSetAction("options_gear_btn", boost::bind(&LLPanelMainInventory::onGearButtonClick, this));
+	childSetAction("trash_btn", boost::bind(&LLPanelMainInventory::onTrashButtonClick, this));
+	childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
 
-	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelMainInventory::onGearButtonClick, this));
-	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelMainInventory::onTrashButtonClick, this));
-	mListCommands->childSetAction("add_btn", boost::bind(&LLPanelMainInventory::onAddButtonClick, this));
-
-	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>("trash_btn");
-	trash_btn->setDragAndDropHandler(boost::bind(&LLPanelMainInventory::handleDragAndDropToTrash, this
+	mTrashButton = getChild<LLDragAndDropButton>("trash_btn");
+	mTrashButton->setDragAndDropHandler(boost::bind(&LLPanelMainInventory::handleDragAndDropToTrash, this
 			,	_4 // BOOL drop
 			,	_5 // EDragAndDropType cargo_type
 			,	_7 // EAcceptance* accept
@@ -919,7 +921,7 @@ void LLPanelMainInventory::updateListCommands()
 {
 	bool trash_enabled = isActionEnabled("delete");
 
-	mListCommands->childSetEnabled("trash_btn", trash_enabled);
+	mTrashButton->setEnabled(trash_enabled);
 }
 
 void LLPanelMainInventory::onGearButtonClick()
@@ -1095,8 +1097,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 		if (root)
 		{
 			can_delete = TRUE;
-			std::set<LLUUID> selection_set;
-			root->getSelectionList(selection_set);
+			std::set<LLUUID> selection_set = root->getSelectionList();
 			if (selection_set.empty()) return FALSE;
 			for (std::set<LLUUID>::iterator iter = selection_set.begin();
 				 iter != selection_set.end();
@@ -1186,7 +1187,7 @@ void LLPanelMainInventory::setUploadCostIfNeeded()
 		LLMenuItemBranchGL* upload_menu = mMenuAdd->findChild<LLMenuItemBranchGL>("upload");
 		if(upload_menu)
 		{
-			S32 upload_cost = -1;//LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+			S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 			std::string cost_str;
 
 			// getPriceUpload() returns -1 if no data available yet.

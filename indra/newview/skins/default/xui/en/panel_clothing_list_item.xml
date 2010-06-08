@@ -9,22 +9,22 @@
  width="380">
     <icon
      follows="top|right|left"
-     height="20"
+     height="22"
      image_name="ListItem_Over"
      layout="topleft"
      left="0"
      name="hovered_icon"
-     top="0"
+     top="1"
      visible="false"
      width="380" />
     <icon
-     height="20"
+     height="22"
      follows="top|right|left"
      image_name="ListItem_Select"
      layout="topleft"
      left="0"
      name="selected_icon"
-     top="0"
+     top="1"
      visible="false"
      width="380" />
     <button 
@@ -33,10 +33,10 @@
      follows="top|left"
      image_unselected="Toast_CloseBtn"
      image_selected="Toast_CloseBtn"
-     top="0"
+     top="2"
      left="0"
-     height="20"
-     width="20"
+     height="18"
+     width="18"
      tab_stop="false" />
     <icon
      height="16"
@@ -63,53 +63,72 @@
      name="btn_move_up"
      layout="topleft"
      follows="top|right"
-     image_unselected="Movement_Up_Off"
-     image_selected="Movement_Up_Off"
+     image_overlay="UpArrow_Off"
      top="0"
      left="0"
-     height="20"
-     width="20"
+     height="24"
+     width="24"
      tab_stop="false" />
     <button 
      name="btn_move_down"
      layout="topleft"
      follows="top|right"
-     image_unselected="Movement_Down_Off"
-     image_selected="Movement_Down_Off"
+     image_overlay="DownArrow_Off"
      top="0"
      left_pad="3"
-     height="20"
-     width="20"
+     height="24"
+     width="24"
      tab_stop="false" />
-    <icon
+    <panel
+     background_visible="false"
      name="btn_lock"
      layout="topleft"
      follows="top|right"
-     image_name="Lock2"
      top="0"
-     left_pad="3"
-     height="20"
-     width="20" />
-    <button 
-     name="btn_edit"
+     left="0"
+     height="23"
+     width="23"
+     tab_stop="false">
+        <icon 
+         name="btn_lock1"
+         layout="topleft"
+         follows="top|right"
+         image_name="Locked_Icon"
+         top="2"
+         left="5"
+         height="13"
+         width="9"
+         tab_stop="false" />
+    </panel>
+    <panel
+     background_visible="false"
+     name="btn_edit_panel"
      layout="topleft"
      follows="top|right"
-     image_unselected="Icon_Gear_Background"
-     image_selected="Icon_Gear_Background"
      top="0"
      left_pad="3"
-     height="20"
-     width="20"
-     tab_stop="false" />
-    <panel
-     background_visible="true"
-     bg_alpha_color="0.4 0.4 0.4 1.0"
-     bottom="0"
+     height="24"
+     width="27"
+     tab_stop="false">
+        <button 
+         name="btn_edit"
+         layout="topleft"
+         follows="top|right"
+         image_overlay="Edit_Wrench"
+         top="0"
+         left="0"
+         height="24"
+         width="24"
+         tab_stop="false" />
+      </panel>
+    <icon
      follows="left|right|top"
-     height="1"
+     height="3"
+     image_name="Wearables_Divider"
      layout="bottomleft"
      left="0"
-     name="wearable_type_separator_panel"
+     name="wearable_type_separator_icon"
+     top="0"
      visible="false"
      width="380"/>
 </panel>

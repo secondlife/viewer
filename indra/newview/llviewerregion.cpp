@@ -216,6 +216,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mColoName("unknown"),
 	mProductSKU("unknown"),
 	mProductName("unknown"),
+	mHttpUrl(""),
 	mCacheLoaded(FALSE),
 	mCacheEntriesCount(0),
 	mCacheID(),
@@ -1561,6 +1562,10 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	else
 	{
 		mCapabilities[name] = url;
+		if(name == "GetTexture")
+		{
+			mHttpUrl = url ;
+		}
 	}
 }
 

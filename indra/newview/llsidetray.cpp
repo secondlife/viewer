@@ -546,7 +546,6 @@ void LLSideTray::collapseSideBar()
 	//mActiveTab->setVisible(FALSE);
 	reflectCollapseChange();
 	setFocus( FALSE );
-
 }
 
 void LLSideTray::expandSideBar()
@@ -571,7 +570,6 @@ void LLSideTray::expandSideBar()
 		LLButton* btn = btn_it->second;
 		btn->setImageOverlay( mActiveTab->mImageSelected  );
 	}
-
 }
 
 void LLSideTray::highlightFocused()
@@ -638,6 +636,7 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 			{
 				panel->onOpen(params);
 			}
+
 			return panel;
 		}
 	}
@@ -719,11 +718,6 @@ bool		LLSideTray::isPanelActive(const std::string& panel_name)
 	if (!panel) return false;
 	return (panel->getName() == panel_name);
 }
-
-
-// *TODO: Eliminate magic constants.
-static const S32	fake_offset = 132;
-static const S32	fake_top_offset = 18;
 
 void	LLSideTray::updateSidetrayVisibility()
 {

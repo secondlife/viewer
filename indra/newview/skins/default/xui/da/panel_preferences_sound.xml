@@ -11,8 +11,8 @@
 	<check_box label="Aktiveret" name="enable_media"/>
 	<slider label="Stemme chat" name="Voice Volume"/>
 	<check_box label="Aktiveret" name="enable_voice_check"/>
-	<check_box label="Tillad media at afspilles automatisk" name="media_auto_play_btn" tool_tip="Vælg dette for at media afspille automatisk hvis det ønsker det" value="sandt"/>
-	<check_box label="Afspil media vedhæftet andre avatarer" name="media_show_on_others_btn" tool_tip="Deaktiver dette for at skjule vedhæftet media for avatarer i nærheden" value="sandt"/>
+	<check_box label="Tillad media at afspilles automatisk" name="media_auto_play_btn" tool_tip="Vælg dette for at media afspille automatisk hvis det ønsker det" />
+	<check_box label="Afspil media vedhæftet andre avatarer" name="media_show_on_others_btn" tool_tip="Deaktiver dette for at skjule vedhæftet media for avatarer i nærheden" />
 	<text name="voice_chat_settings">
 		Stemme chat opsætning
 	</text>

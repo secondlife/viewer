@@ -105,6 +105,12 @@ class ViewerManifest(LLManifest):
                             self.end_prefix("*/html")
                     self.end_prefix("skins")
 
+            # local_assets dir (for pre-cached textures)
+            if self.prefix(src="local_assets"):
+                self.path("*.j2c")
+                self.path("*.tga")
+                self.end_prefix("local_assets")
+
             # Files in the newview/ directory
             self.path("gpu_table.txt")
 

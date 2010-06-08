@@ -32,7 +32,15 @@
     </floater.string>
     <floater.string
      name="VoiceInviteGroup">
-        has joined a Voice Chat call with the group [GROUP].
+      just joined '[GROUP]' voice channel.
+    </floater.string>
+    <floater.string
+     name="VoiceInviteQuestionGroup">
+      Would you like to leave [CURRENT_CHAT] and join the call with '[GROUP]'?
+    </floater.string>
+    <floater.string
+     name="VoiceInviteQuestionDefault">
+      Do you want to leave [CURRENT_CHAT] and join this voice chat?
     </floater.string>
     <avatar_icon
      enabled="false"

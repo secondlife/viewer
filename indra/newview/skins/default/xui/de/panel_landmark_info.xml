@@ -18,9 +18,6 @@
 	<string name="acquired_date">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</string>
-	<string name="icon_PG" value="parcel_drk_PG"/>
-	<string name="icon_M" value="parcel_drk_M"/>
-	<string name="icon_R" value="parcel_drk_R"/>
 	<button name="back_btn" tool_tip="Hinten"/>
 	<text name="title" value="Ortsprofil"/>
 	<scroll_container name="place_scroll">

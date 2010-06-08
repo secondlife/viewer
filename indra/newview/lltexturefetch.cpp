@@ -260,6 +260,7 @@ private:
 	BOOL mHaveAllData;
 	BOOL mInLocalCache;
 	bool mCanUseHTTP ;
+	bool mCanUseNET ; //can get from asset server.
 	S32 mHTTPFailCount;
 	S32 mRetryAttempt;
 	S32 mActiveCount;
@@ -328,11 +329,7 @@ public:
 					partial = true;
 				}
 			}
-			else
-			{
-				worker->setGetStatus(status, reason);
-// 				llwarns << status << ": " << reason << llendl;
-			}
+
 			if (!success)
 			{
 				worker->setGetStatus(status, reason);
@@ -426,6 +423,8 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mTotalPackets(0),
 	  mImageCodec(IMG_CODEC_INVALID)
 {
+	mCanUseNET = mUrl.empty() ;
+
 	calcWorkPriority();
 	mType = host.isOk() ? LLImageBase::TYPE_AVATAR_BAKE : LLImageBase::TYPE_NORMAL;
 // 	llinfos << "Create: " << mID << " mHost:" << host << " Discard=" << discard << llendl;
@@ -750,17 +749,22 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 			if (region)
 			{
-				std::string http_url = region->getCapability("GetTexture");
+				std::string http_url = region->getHttpUrl() ;
 				if (!http_url.empty())
 				{
 					mUrl = http_url + "/?texture_id=" + mID.asString().c_str();
 					mWriteToCacheState = CAN_WRITE ; //because this texture has a fixed texture id.
+				}
+				else
+				{
+					mCanUseHTTP = false ;
 				}
 			}
 			else
 			{
 				// This will happen if not logged in or if a region deoes not have HTTP Texture enabled
 				//llwarns << "Region not found for host: " << mHost << llendl;
+				mCanUseHTTP = false;
 			}
 		}
 		if (mCanUseHTTP && !mUrl.empty())
@@ -904,13 +908,16 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				if (mGetStatus == HTTP_NOT_FOUND)
 				{
 					mHTTPFailCount = max_attempts = 1; // Don't retry
-					//llinfos << "Texture missing from server (404): " << mUrl << llendl;
+					llwarns << "Texture missing from server (404): " << mUrl << llendl;
 
 					//roll back to try UDP
-					mState = INIT ;
-					mCanUseHTTP = false ;
-					setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-					return false ;
+					if(mCanUseNET)
+					{
+						mState = INIT ;
+						mCanUseHTTP = false ;
+						setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
+						return false ;
+					}
 				}
 				else if (mGetStatus == HTTP_SERVICE_UNAVAILABLE)
 				{
@@ -921,6 +928,17 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					max_attempts = mHTTPFailCount+1; // Keep retrying
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
 				}
+				else if(mGetStatus >= HTTP_MULTIPLE_CHOICES && mGetStatus < HTTP_BAD_REQUEST) //http re-direct
+				{
+					++mHTTPFailCount;
+					max_attempts = 5 ; //try at most 5 times to avoid infinite redirection loop.
+
+					llwarns << "HTTP GET failed because of redirection: "  << mUrl
+							<< " Status: " << mGetStatus << " Reason: '" << mGetReason << llendl ;
+
+					//assign to the new url
+					mUrl = mGetReason ;
+				}
 				else
 				{
 					const S32 HTTP_MAX_RETRY_COUNT = 3;
@@ -930,6 +948,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 							<< " Status: " << mGetStatus << " Reason: '" << mGetReason << "'"
 							<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
 				}
+
 				if (mHTTPFailCount >= max_attempts)
 				{
 					if (cur_size > 0)

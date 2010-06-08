@@ -49,7 +49,6 @@
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
 #include "llface.h"
-#include "llfloatercustomize.h"
 #include "llmorphview.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -79,22 +78,25 @@ LLVisualParamHint::LLVisualParamHint(
 	S32 width, S32 height, 
 	LLViewerJointMesh *mesh, 
 	LLViewerVisualParam *param,
-	F32 param_weight)
+	LLWearable *wearable,
+	F32 param_weight,
+	LLJoint* jointp)
 	:
 	LLViewerDynamicTexture(width, height, 3, LLViewerDynamicTexture::ORDER_MIDDLE, TRUE ),
 	mNeedsUpdate( TRUE ),
 	mIsVisible( FALSE ),
 	mJointMesh( mesh ),
 	mVisualParam( param ),
+	mWearablePtr( wearable ),
 	mVisualParamWeight( param_weight ),
 	mAllowsUpdates( TRUE ),
 	mDelayFrames( 0 ),
 	mRect( pos_x, pos_y + height, pos_x + width, pos_y ),
-	mLastParamWeight(0.f)
+	mLastParamWeight(0.f),
+	mCamTargetJoint(jointp)
 {
 	LLVisualParamHint::sInstances.insert( this );
 	mBackgroundp = LLUI::getUIImage("avatar_thumb_bkgrnd.j2c");
-
 
 	llassert(width != 0);
 	llassert(height != 0);
@@ -151,7 +153,7 @@ BOOL LLVisualParamHint::needsRender()
 void LLVisualParamHint::preRender(BOOL clear_depth)
 {
 	mLastParamWeight = mVisualParam->getWeight();
-	mVisualParam->setWeight(mVisualParamWeight, FALSE);
+	mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mVisualParamWeight, FALSE);
 	gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mVisualParamWeight, FALSE);
 	gAgentAvatarp->setVisualParamWeight("Blink_Left", 0.f);
 	gAgentAvatarp->setVisualParamWeight("Blink_Right", 0.f);
@@ -195,21 +197,6 @@ BOOL LLVisualParamHint::render()
 	mNeedsUpdate = FALSE;
 	mIsVisible = TRUE;
 
-	LLViewerJointMesh* cam_target_joint = NULL;
-	const std::string& cam_target_mesh_name = mVisualParam->getCameraTargetName();
-	if( !cam_target_mesh_name.empty() )
-	{
-		cam_target_joint = (LLViewerJointMesh*)gAgentAvatarp->getJoint( cam_target_mesh_name );
-	}
-	if( !cam_target_joint )
-	{
-		cam_target_joint = (LLViewerJointMesh*)gMorphView->getCameraTargetJoint();
-	}
-	if( !cam_target_joint )
-	{
-		cam_target_joint = (LLViewerJointMesh*)gAgentAvatarp->getJoint("mHead");
-	}
-
 	LLQuaternion avatar_rotation;
 	LLJoint* root_joint = gAgentAvatarp->getRootJoint();
 	if( root_joint )
@@ -217,7 +204,7 @@ BOOL LLVisualParamHint::render()
 		avatar_rotation = root_joint->getWorldRotation();
 	}
 
-	LLVector3 target_joint_pos = cam_target_joint->getWorldPosition();
+	LLVector3 target_joint_pos = mCamTargetJoint->getWorldPosition();
 
 	LLVector3 target_offset( 0, 0, mVisualParam->getCameraElevation() );
 	LLVector3 target_pos = target_joint_pos + (target_offset * avatar_rotation);
@@ -233,9 +220,9 @@ BOOL LLVisualParamHint::render()
 	
 	LLViewerCamera::getInstance()->setAspect((F32)mFullWidth / (F32)mFullHeight);
 	LLViewerCamera::getInstance()->setOriginAndLookAt(
-		camera_pos,		// camera
-		LLVector3(0.f, 0.f, 1.f),						// up
-		target_pos );	// point of interest
+		camera_pos,			// camera
+		LLVector3::z_axis,	// up
+		target_pos );		// point of interest
 
 	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
 
@@ -250,10 +237,12 @@ BOOL LLVisualParamHint::render()
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
 	gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
-	mVisualParam->setWeight(mLastParamWeight, FALSE);
+	mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight, FALSE);
+	gAgentAvatarp->updateVisualParams();
 	gGL.color4f(1,1,1,1);
 	mGLTexturep->setGLTextureCreated(true);
 	gGL.popUIMatrix();
+
 	return TRUE;
 }
 

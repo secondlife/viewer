@@ -1,5 +1,5 @@
 /** 
- * @file llfloaterinventory.cpp
+ * @file llinventoryfunctions.cpp
  * @brief Implementation of the inventory view and associated stuff.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
@@ -52,7 +52,6 @@
 #include "llappearancemgr.h"
 #include "llappviewer.h"
 //#include "llfirstuse.h"
-#include "llfloatercustomize.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
 #include "llgesturemgr.h"
@@ -74,6 +73,7 @@
 #include "llscrollbar.h"
 #include "llscrollcontainer.h"
 #include "llselectmgr.h"
+#include "llsidetray.h"
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
 #include "lluictrlfactory.h"
@@ -87,45 +87,280 @@
 BOOL LLInventoryState::sWearNewClothing = FALSE;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
 
+// Generates a string containing the path to the item specified by
+// item_id.
+void append_path(const LLUUID& id, std::string& path)
+{
+	std::string temp;
+	const LLInventoryObject* obj = gInventory.getObject(id);
+	LLUUID parent_id;
+	if(obj) parent_id = obj->getParentUUID();
+	std::string forward_slash("/");
+	while(obj)
+	{
+		obj = gInventory.getCategory(parent_id);
+		if(obj)
+		{
+			temp.assign(forward_slash + obj->getName() + temp);
+			parent_id = obj->getParentUUID();
+		}
+	}
+	path.append(temp);
+}
+
+void change_item_parent(LLInventoryModel* model,
+						LLViewerInventoryItem* item,
+						const LLUUID& new_parent_id,
+						BOOL restamp)
+{
+	if (item->getParentUUID() != new_parent_id)
+	{
+		LLInventoryModel::update_list_t update;
+		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
+		update.push_back(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+		update.push_back(new_folder);
+		gInventory.accountForUpdate(update);
+
+		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+		new_item->setParent(new_parent_id);
+		new_item->updateParentOnServer(restamp);
+		model->updateItem(new_item);
+		model->notifyObservers();
+	}
+}
+
+void change_category_parent(LLInventoryModel* model,
+	LLViewerInventoryCategory* cat,
+	const LLUUID& new_parent_id,
+	BOOL restamp)
+{
+	if (!model || !cat)
+	{
+		return;
+	}
+
+	// Can't move a folder into a child of itself.
+	if (model->isObjectDescendentOf(new_parent_id, cat->getUUID()))
+	{
+		return;
+	}
+
+	LLInventoryModel::update_list_t update;
+	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
+	update.push_back(old_folder);
+	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+	update.push_back(new_folder);
+	model->accountForUpdate(update);
+
+	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
+	new_cat->setParent(new_parent_id);
+	new_cat->updateParentOnServer(restamp);
+	model->updateCategory(new_cat);
+	model->notifyObservers();
+}
+
+void remove_category(LLInventoryModel* model, const LLUUID& cat_id)
+{
+	if (!model || !get_is_category_removable(model, cat_id))
+	{
+		return;
+	}
+
+	// Look for any gestures and deactivate them
+	LLInventoryModel::cat_array_t	descendent_categories;
+	LLInventoryModel::item_array_t	descendent_items;
+	gInventory.collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
+
+	for (LLInventoryModel::item_array_t::const_iterator iter = descendent_items.begin();
+		 iter != descendent_items.end();
+		 ++iter)
+	{
+		const LLViewerInventoryItem* item = (*iter);
+		const LLUUID& item_id = item->getUUID();
+		if (item->getType() == LLAssetType::AT_GESTURE
+			&& LLGestureMgr::instance().isGestureActive(item_id))
+		{
+			LLGestureMgr::instance().deactivateGesture(item_id);
+		}
+	}
+
+	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+	if (cat)
+	{
+		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		change_category_parent(model, cat, trash_id, TRUE);
+	}
+}
+
+void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name)
+{
+	LLViewerInventoryCategory* cat;
+
+	if (!model ||
+		!get_is_category_renameable(model, cat_id) ||
+		(cat = model->getCategory(cat_id)) == NULL ||
+		cat->getName() == new_name)
+	{
+		return;
+	}
+
+	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
+	new_cat->rename(new_name);
+	new_cat->updateServer(FALSE);
+	model->updateCategory(new_cat);
+
+	model->notifyObservers();
+}
+
+BOOL get_is_item_worn(const LLUUID& id)
+{
+	const LLViewerInventoryItem* item = gInventory.getItem(id);
+	if (!item)
+		return FALSE;
+	
+	switch(item->getType())
+	{
+		case LLAssetType::AT_OBJECT:
+		{
+			if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getLinkedUUID()))
+				return TRUE;
+			break;
+		}
+		case LLAssetType::AT_BODYPART:
+		case LLAssetType::AT_CLOTHING:
+			if(gAgentWearables.isWearingItem(item->getLinkedUUID()))
+				return TRUE;
+			break;
+		case LLAssetType::AT_GESTURE:
+			if (LLGestureMgr::instance().isGestureActive(item->getLinkedUUID()))
+				return TRUE;
+			break;
+		default:
+			break;
+	}
+	return FALSE;
+}
+
+BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
+{
+	if (!model)
+	{
+		return FALSE;
+	}
+
+	// Can't delete an item that's in the library.
+	if (!model->isObjectDescendentOf(id, gInventory.getRootFolderID()))
+	{
+		return FALSE;
+	}
+
+	// Disable delete from COF folder; have users explicitly choose "detach/take off",
+	// unless the item is not worn but in the COF (i.e. is bugged).
+	if (LLAppearanceMgr::instance().getIsProtectedCOFItem(id))
+	{
+		if (get_is_item_worn(id))
+		{
+			return FALSE;
+		}
+	}
+
+	const LLInventoryObject *obj = model->getItem(id);
+	if (obj && obj->getIsLinkType())
+	{
+		return TRUE;
+	}
+	if (get_is_item_worn(id))
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
+{
+	// This function doesn't check the folder's children.
+
+	if (!model)
+	{
+		return FALSE;
+	}
+
+	if (!model->isObjectDescendentOf(id, gInventory.getRootFolderID()))
+	{
+		return FALSE;
+	}
+
+	if (!isAgentAvatarValid()) return FALSE;
+
+	LLInventoryCategory* category = model->getCategory(id);
+	if (!category)
+	{
+		return FALSE;
+	}
+
+	if (LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
+{
+	LLViewerInventoryCategory* cat = model->getCategory(id);
+
+	if (cat && !LLFolderType::lookupIsProtectedType(cat->getPreferredType()) &&
+		cat->getOwnerID() == gAgent.getID())
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void show_item_profile(const LLUUID& item_uuid)
+{
+	LLUUID linked_uuid = gInventory.getLinkedItemID(item_uuid);
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD().with("id", linked_uuid));
+}
+
+void show_item_original(const LLUUID& item_uuid)
+{
+	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
+	if (!active_panel) return;
+	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_NO);
+}
 
 ///----------------------------------------------------------------------------
 /// LLInventoryCollectFunctor implementations
 ///----------------------------------------------------------------------------
 
 // static
-bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(LLInventoryItem* item)
+bool LLInventoryCollectFunctor::itemTransferCommonlyAllowed(const LLInventoryItem* item)
 {
 	if (!item)
 		return false;
 
-	bool allowed = false;
-
 	switch(item->getType())
 	{
 		case LLAssetType::AT_CALLINGCARD:
-			// not allowed
+			return false;
 			break;
-			
 		case LLAssetType::AT_OBJECT:
 			if (isAgentAvatarValid() && !gAgentAvatarp->isWearingAttachment(item->getUUID()))
-			{
-				allowed = true;
-			}
+				return true;
 			break;
-			
 		case LLAssetType::AT_BODYPART:
 		case LLAssetType::AT_CLOTHING:
 			if(!gAgentWearables.isWearingItem(item->getUUID()))
-			{
-				allowed = true;
-			}
+				return true;
 			break;
 		default:
-			allowed = true;
+			return true;
 			break;
 	}
-	
-	return allowed;
+	return false;
 }
 
 bool LLIsType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
@@ -280,6 +515,46 @@ bool LLFindWearables::operator()(LLInventoryCategory* cat,
 	return FALSE;
 }
 
+bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if (!item) return false;
+	if (item->getType() != LLAssetType::AT_CLOTHING &&
+		item->getType() != LLAssetType::AT_BODYPART)
+	{
+		return false;
+	}
+
+	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+	if (!vitem || vitem->getWearableType() != mWearableType) return false;
+
+	return true;
+}
+
+void LLFindWearablesOfType::setType(LLWearableType::EType type)
+{
+	mWearableType = type;
+}
+
+bool LLFindWorn::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	return item && get_is_item_worn(item->getUUID());
+}
+
+bool LLFindNonRemovableObjects::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	if (item)
+	{
+		return !get_is_item_removable(&gInventory, item->getUUID());
+	}
+	if (cat)
+	{
+		return !get_is_category_removable(&gInventory, cat->getUUID());
+	}
+
+	llwarns << "Not a category and not an item?" << llendl;
+	return false;
+}
+
 ///----------------------------------------------------------------------------
 /// LLAssetIDMatches 
 ///----------------------------------------------------------------------------
@@ -407,204 +682,6 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
-static void assign_clothing_bodypart_icon(EInventoryIcon &idx, U32 attachment_point)
-{
-	const EWearableType wearable_type = EWearableType(LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK & attachment_point);
-	switch(wearable_type)
-	{
-		case WT_SHAPE:
-			idx = BODYPART_SHAPE_ICON_NAME;
-			break;
-		case WT_SKIN:
-			idx = BODYPART_SKIN_ICON_NAME;
-			break;
-		case WT_HAIR:
-			idx = BODYPART_HAIR_ICON_NAME;
-			break;
-		case WT_EYES:
-			idx = BODYPART_EYES_ICON_NAME;
-			break;
-		case WT_SHIRT:
-			idx = CLOTHING_SHIRT_ICON_NAME;
-			break;
-		case WT_PANTS:
-			idx = CLOTHING_PANTS_ICON_NAME;
-			break;
-		case WT_SHOES:
-			idx = CLOTHING_SHOES_ICON_NAME;
-			break;
-		case WT_SOCKS:
-			idx = CLOTHING_SOCKS_ICON_NAME;
-			break;
-		case WT_JACKET:
-			idx = CLOTHING_JACKET_ICON_NAME;
-			break;
-		case WT_GLOVES:
-			idx = CLOTHING_GLOVES_ICON_NAME;
-			break;
-		case WT_UNDERSHIRT:
-			idx = CLOTHING_UNDERSHIRT_ICON_NAME;
-			break;
-		case WT_UNDERPANTS:
-			idx = CLOTHING_UNDERPANTS_ICON_NAME;
-			break;
-		case WT_SKIRT:
-			idx = CLOTHING_SKIRT_ICON_NAME;
-			break;
-		case WT_ALPHA:
-			idx = CLOTHING_ALPHA_ICON_NAME;
-			break;
-		case WT_TATTOO:
-			idx = CLOTHING_TATTOO_ICON_NAME;
-			break;
-		default:
-			break;
-	}
-}
-										  
-
-const std::string& get_item_icon_name(LLAssetType::EType asset_type,
-							 LLInventoryType::EType inventory_type,
-							 U32 attachment_point,
-							 BOOL item_is_multi )
-{
-	EInventoryIcon idx = OBJECT_ICON_NAME;
-	if ( item_is_multi )
-	{
-		idx = OBJECT_MULTI_ICON_NAME;
-	}
-	
-	switch(asset_type)
-	{
-	case LLAssetType::AT_TEXTURE:
-		if(LLInventoryType::IT_SNAPSHOT == inventory_type)
-		{
-			idx = SNAPSHOT_ICON_NAME;
-		}
-		else
-		{
-			idx = TEXTURE_ICON_NAME;
-		}
-		break;
-
-	case LLAssetType::AT_SOUND:
-		idx = SOUND_ICON_NAME;
-		break;
-	case LLAssetType::AT_CALLINGCARD:
-		if(attachment_point!= 0)
-		{
-			idx = CALLINGCARD_ONLINE_ICON_NAME;
-		}
-		else
-		{
-			idx = CALLINGCARD_OFFLINE_ICON_NAME;
-		}
-		break;
-	case LLAssetType::AT_LANDMARK:
-		if(attachment_point!= 0)
-		{
-			idx = LANDMARK_VISITED_ICON_NAME;
-		}
-		else
-		{
-			idx = LANDMARK_ICON_NAME;
-		}
-		break;
-	case LLAssetType::AT_SCRIPT:
-	case LLAssetType::AT_LSL_TEXT:
-	case LLAssetType::AT_LSL_BYTECODE:
-		idx = SCRIPT_ICON_NAME;
-		break;
-	case LLAssetType::AT_CLOTHING:
-		idx = CLOTHING_ICON_NAME;
-		assign_clothing_bodypart_icon(idx, attachment_point);
-		break;
-	case LLAssetType::AT_BODYPART:
-		idx = BODYPART_ICON_NAME;
-		assign_clothing_bodypart_icon(idx, attachment_point);
-		break;
-	case LLAssetType::AT_NOTECARD:
-		idx = NOTECARD_ICON_NAME;
-		break;
-	case LLAssetType::AT_ANIMATION:
-		idx = ANIMATION_ICON_NAME;
-		break;
-	case LLAssetType::AT_GESTURE:
-		idx = GESTURE_ICON_NAME;
-		break;
-	case LLAssetType::AT_LINK:
-		idx = LINKITEM_ICON_NAME;
-		break;
-	case LLAssetType::AT_LINK_FOLDER:
-		idx = LINKFOLDER_ICON_NAME;
-		break;
 	case LLAssetType::AT_MESH:
 		idx = MESH_ICON_NAME;
 		break;
-	default:
-		break;
-	}
-	
-	return ICON_NAME[idx];
-}
-
-LLUIImagePtr get_item_icon(LLAssetType::EType asset_type,
-							 LLInventoryType::EType inventory_type,
-							 U32 attachment_point,
-							 BOOL item_is_multi)
-{
-	const std::string& icon_name = get_item_icon_name(asset_type, inventory_type, attachment_point, item_is_multi );
-	return LLUI::getUIImage(icon_name);
-}
-
-BOOL get_is_item_worn(const LLUUID& id)
-{
-	const LLViewerInventoryItem* item = gInventory.getItem(id);
-	if (!item)
-		return FALSE;
-	
-	switch(item->getType())
-	{
-		case LLAssetType::AT_OBJECT:
-		{
-			if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getLinkedUUID()))
-				return TRUE;
-			break;
-		}
-		case LLAssetType::AT_BODYPART:
-		case LLAssetType::AT_CLOTHING:
-			if(gAgentWearables.isWearingItem(item->getLinkedUUID()))
-				return TRUE;
-			break;
-		case LLAssetType::AT_GESTURE:
-			if (LLGestureMgr::instance().isGestureActive(item->getLinkedUUID()))
-				return TRUE;
-			break;
-		default:
-			break;
-	}
-	return FALSE;
-}
-
-
-void change_item_parent(LLInventoryModel* model,
-									 LLViewerInventoryItem* item,
-									 const LLUUID& new_parent_id,
-									 BOOL restamp)
-{
-	if (item->getParentUUID() != new_parent_id)
-	{
-		LLInventoryModel::update_list_t update;
-		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
-		update.push_back(old_folder);
-		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-		update.push_back(new_folder);
-		gInventory.accountForUpdate(update);
-
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->setParent(new_parent_id);
-		new_item->updateParentOnServer(restamp);
-		model->updateItem(new_item);
-		model->notifyObservers();
-	}
-}

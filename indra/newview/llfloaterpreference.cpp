@@ -501,7 +501,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	if (can_choose_maturity)
 	{		
 		// if they're not adult or a god, they shouldn't see the adult selection, so delete it
-		if (!gAgent.isAdult() && !gAgent.isGodlike())
+		if (!gAgent.isAdult() && !gAgent.isGodlikeWithoutAdminMenuFakery())
 		{
 			// we're going to remove the adult entry from the combo
 			LLScrollListCtrl* maturity_list = maturity_combo->findChild<LLScrollListCtrl>("ComboBox");
@@ -599,7 +599,7 @@ void LLFloaterPreference::onBtnOK()
 		llinfos << "Can't close preferences!" << llendl;
 	}
 
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateLocationCombo( false );
 }
 
 // static 
@@ -616,7 +616,7 @@ void LLFloaterPreference::onBtnApply( )
 	apply();
 	saveSettings();
 
-	LLPanelLogin::refreshLocation( false );
+	LLPanelLogin::updateLocationCombo( false );
 }
 
 // static 
@@ -1051,7 +1051,7 @@ void LLFloaterPreference::cleanupBadSetting()
 {
 	if (gSavedPerAccountSettings.getString("BusyModeResponse2") == "|TOKEN COPY BusyModeResponse|")
 	{
-		llwarns << "cleaning old BusyModeResponse" << llendl;
+		llinfos << "cleaning old BusyModeResponse" << llendl;
 		//LLTrans::getString("BusyModeResponseDefault") is used here for localization (EXT-5885)
 		gSavedPerAccountSettings.setString("BusyModeResponse2", LLTrans::getString("BusyModeResponseDefault"));
 	}
@@ -1282,7 +1282,7 @@ void LLFloaterPreference::applyResolution()
 	gSavedSettings.setS32("FullScreenWidth", supported_resolutions[resIndex].mWidth);
 	gSavedSettings.setS32("FullScreenHeight", supported_resolutions[resIndex].mHeight);
 	
-	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("WindowFullScreen"));
+	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("FullScreen"));
 	
 	send_agent_update(TRUE);
 	

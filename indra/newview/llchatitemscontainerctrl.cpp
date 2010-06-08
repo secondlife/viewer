@@ -192,7 +192,7 @@ void LLNearbyChatToastPanel::init(LLSD& notification)
 			style_params_name.font.name(font_name);
 			style_params_name.font.size(font_style_size);
 
-			style_params_name.link_href = LLSLURL::buildCommand("agent",mFromID,"about");
+			style_params_name.link_href = LLSLURL("agent",mFromID,"about").getSLURLString();
 
 			msg_text->appendText(str_sender, FALSE, style_params_name);
 
@@ -326,12 +326,14 @@ void LLNearbyChatToastPanel::draw()
 		if(icon)
 		{
 			icon->setDrawTooltip(mSourceType == CHAT_SOURCE_AGENT);
-			if(mSourceType == CHAT_SOURCE_AGENT)
-				icon->setValue(mFromID);
+			if(mSourceType == CHAT_SOURCE_OBJECT)
+				icon->setValue(LLSD("OBJECT_Icon"));
 			else if(mSourceType == CHAT_SOURCE_SYSTEM)
 				icon->setValue(LLSD("SL_Logo"));
-			else
-				icon->setValue(LLSD("OBJECT_Icon"));
+			else if(mSourceType == CHAT_SOURCE_AGENT)
+				icon->setValue(mFromID);
+			else if(!mFromID.isNull())
+				icon->setValue(mFromID);
 		}
 		mIsDirty = false;
 	}

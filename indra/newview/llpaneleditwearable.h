@@ -1,6 +1,6 @@
 /** 
- * @file llfloatercustomize.h
- * @brief The customize avatar floater, triggered by "Appearance..."
+ * @file llpaneleditwearable.h
+ * @brief A LLPanel dedicated to the editing of wearables.
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
@@ -36,8 +36,10 @@
 #include "llpanel.h"
 #include "llscrollingpanellist.h"
 #include "llmodaldialog.h"
-#include "llwearabledictionary.h"
+#include "llvoavatardefines.h"
+#include "llwearabletype.h"
 
+class LLCheckBoxCtrl;
 class LLWearable;
 class LLTextEditor;
 class LLTextBox;
@@ -46,6 +48,7 @@ class LLViewerVisualParam;
 class LLVisualParamHint;
 class LLViewerJointMesh;
 class LLAccordionCtrlTab;
+class LLJoint;
 
 class LLPanelEditWearable : public LLPanel
 {
@@ -63,23 +66,43 @@ public:
 	void				saveChanges();
 	void				revertChanges();
 
+	void				showDefaultSubpart();
+	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
+
+	void 				updateScrollingPanelList();
+
 	static void			onRevertButtonClicked(void* userdata);
+	void				onCommitSexChange();
+	void				onSaveAsButtonClicked();
+	void				saveAsCallback(const LLSD& notification, const LLSD& response);
+
 
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
 	void				showWearable(LLWearable* wearable, BOOL show);
-	void				initializePanel();
 	void				updateScrollingPanelUI();
-	LLPanel*			getPanel(EWearableType type);
+	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
-	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab);
+	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab, LLJoint* jointp);
 	// update bottom bar buttons ("Save", "Revert", etc)
 	void				updateVerbs();
 
 	void				onColorSwatchCommit(const LLUICtrl*);
 	void				onTexturePickerCommit(const LLUICtrl*);
-	void				updatePanelPickerControls(EWearableType type);
+	void				updatePanelPickerControls(LLWearableType::EType type);
+	void				toggleTypeSpecificControls(LLWearableType::EType type);
+	void				updateTypeSpecificControls(LLWearableType::EType type);
+
+	// changes camera angle to default for selected subpart
+	void				changeCamera(U8 subpart);
+
+	//alpha mask checkboxes
+	void configureAlphaCheckbox(LLVOAvatarDefines::ETextureIndex te, const std::string& name);
+	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLVOAvatarDefines::ETextureIndex te);
+	void updateAlphaCheckboxes();
+	void initPreviousAlphaTextures();
+	void initPreviousAlphaTextureEntry(LLVOAvatarDefines::ETextureIndex te);
 
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;
@@ -91,6 +114,7 @@ private:
 
 	LLTextBox *mPanelTitle;
 	LLTextBox *mDescTitle;
+	LLTextBox *mTxtAvatarHeight;
 
 
 	// This text editor reference will change each time we edit a new wearable - 
@@ -116,6 +140,12 @@ private:
 	LLPanel *mPanelSkirt;
 	LLPanel *mPanelAlpha;
 	LLPanel *mPanelTattoo;
+
+	typedef std::map<std::string, LLVOAvatarDefines::ETextureIndex> string_texture_index_map_t;
+	string_texture_index_map_t mAlphaCheckbox2Index;
+
+	typedef std::map<LLVOAvatarDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
+	s32_uuid_map_t mPreviousAlphaTexture;
 };
 
 #endif

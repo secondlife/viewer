@@ -31,7 +31,7 @@
 		Categoria:
 	</text>
 	<combo_box label="Moderato" name="access_combo">
-		<combo_box.item label="Adulto" name="Adult"/>
+		<combo_box.item label="Adulti" name="Adult"/>
 		<combo_box.item label="Moderato" name="Mature"/>
 		<combo_box.item label="Generale" name="PG"/>
 	</combo_box>

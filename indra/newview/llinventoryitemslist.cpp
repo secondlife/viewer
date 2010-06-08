@@ -40,11 +40,13 @@
 // llcommon
 #include "llcommonutils.h"
 
+// llui
 #include "lliconctrl.h"
+#include "lltextutil.h"
 
+#include "llcallbacklist.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
-#include "lltextutil.h"
 #include "lltrans.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -130,7 +132,8 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	mIconImage = get_item_icon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
+	BOOL show_links = mForceNoLinksOnIcons ? FALSE : mItem->getIsLinkType();
+	mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), show_links, mItem->getFlags(), FALSE);
 
 	setNeedsRefresh(true);
 
@@ -196,6 +199,7 @@ LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem
 , mLeftWidgetsWidth(0)
 , mRightWidgetsWidth(0)
 , mNeedsRefresh(false)
+, mForceNoLinksOnIcons(false)
 {
 }
 
@@ -320,6 +324,7 @@ LLInventoryItemsList::Params::Params()
 LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p)
 :	LLFlatListViewEx(p)
 ,	mNeedsRefresh(false)
+,	mForceRefresh(false)
 {
 	// TODO: mCommitOnSelectionChange is set to "false" in LLFlatListView
 	// but reset to true in all derived classes. This settings might need to
@@ -327,11 +332,15 @@ LLInventoryItemsList::LLInventoryItemsList(const LLInventoryItemsList::Params& p
 	setCommitOnSelectionChange(true);
 
 	setNoFilteredItemsMsg(LLTrans::getString("InventoryNoMatchingItems"));
+
+	gIdleCallbacks.addFunction(idle, this);
 }
 
 // virtual
 LLInventoryItemsList::~LLInventoryItemsList()
-{}
+{
+	gIdleCallbacks.deleteFunction(idle, this);
+}
 
 void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item_array)
 {
@@ -344,12 +353,30 @@ void LLInventoryItemsList::refreshList(const LLInventoryModel::item_array_t item
 	mNeedsRefresh = true;
 }
 
-void LLInventoryItemsList::draw()
+boost::signals2::connection LLInventoryItemsList::setRefreshCompleteCallback(const commit_signal_t::slot_type& cb)
 {
-	LLFlatListViewEx::draw();
-	if(mNeedsRefresh)
+	return mRefreshCompleteSignal.connect(cb);
+}
+
+void LLInventoryItemsList::doIdle()
+{
+	if (!mNeedsRefresh) return;
+
+	if (isInVisibleChain() || mForceRefresh)
 	{
 		refresh();
+
+		mRefreshCompleteSignal(this, LLSD());
+	}
+}
+
+//static
+void LLInventoryItemsList::idle(void* user_data)
+{
+	LLInventoryItemsList* self = static_cast<LLInventoryItemsList*>(user_data);
+	if ( self )
+	{	// Do the real idle
+		self->doIdle();
 	}
 }
 
@@ -363,7 +390,7 @@ void LLInventoryItemsList::refresh()
 	computeDifference(getIDs(), added_items, removed_items);
 
 	bool add_limit_exceeded = false;
-	unsigned nadded = 0;
+	unsigned int nadded = 0;
 
 	uuid_vec_t::const_iterator it = added_items.begin();
 	for( ; added_items.end() != it; ++it)
@@ -375,8 +402,12 @@ void LLInventoryItemsList::refresh()
 		}
 		LLViewerInventoryItem* item = gInventory.getItem(*it);
 		// Do not rearrange items on each adding, let's do that on filter call
-		addNewItem(item, false);
-		++nadded;
+		llassert(item);
+		if (item)
+		{
+			addNewItem(item, false);
+			++nadded;
+		}
 	}
 
 	it = removed_items.begin();
@@ -390,6 +421,7 @@ void LLInventoryItemsList::refresh()
 
 	bool needs_refresh = add_limit_exceeded;
 	setNeedsRefresh(needs_refresh);
+	setForceRefresh(needs_refresh);
 }
 
 void LLInventoryItemsList::computeDifference(

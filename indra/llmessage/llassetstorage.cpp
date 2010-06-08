@@ -440,6 +440,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 
 	if (mShutDown)
 	{
+		llinfos << "ASSET_TRACE cancelled " << uuid << " type " << LLAssetType::lookup(type) << " shutting down" << llendl;
 		return; // don't get the asset or do any callbacks, we are shutting down
 	}
 		
@@ -456,6 +457,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 	// Try static VFS first.
 	if (findInStaticVFSAndInvokeCallback(uuid,type,callback,user_data))
 	{
+		llinfos << "ASSET_TRACE asset " << uuid << " found in static VFS" << llendl;
 		return;
 	}
 
@@ -472,6 +474,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 		{
 			callback(mVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
 		}
+
+		llinfos << "ASSET_TRACE asset " << uuid << " found in VFS" << llendl;
 	}
 	else
 	{
@@ -512,7 +516,6 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, LL
 		// This can be overridden by subclasses
 		_queueDataRequest(uuid, type, callback, user_data, duplicate, is_priority);	
 	}
-		llinfos << "ASSET_TRACE asset " << uuid << " found in VFS" << llendl;
 
 }
 

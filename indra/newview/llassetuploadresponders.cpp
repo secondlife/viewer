@@ -37,7 +37,7 @@
 // viewer includes
 #include "llagent.h"
 #include "llcompilequeue.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfilepicker.h"
 #include "llinventorydefines.h"
 #include "llinventoryobserver.h"
@@ -290,7 +290,7 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 		S32 price = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 		LLStringUtil::format_map_t args;
 		args["AMOUNT"] = llformat("%d", price);
-		LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("uploading_costs", args), price);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("uploading_costs", args), price );
 	}
 	else
 	{

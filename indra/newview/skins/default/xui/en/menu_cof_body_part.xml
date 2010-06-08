@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ layout="topleft"
+ name="COF Body">
+    <menu_item_call
+     label="Replace"
+     layout="topleft"
+     name="replace">
+        <on_click
+         function="BodyPart.Replace"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="edit">
+        <on_click
+         function="BodyPart.Edit"/>
+        <on_enable
+         function="BodyPart.OnEnable"
+         parameter="edit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Create New"
+     layout="topleft"
+     name="create_new"
+     translate="false">
+        <on_click
+         function="BodyPart.Create"/>
+        <on_enable
+         function="BodyPart.OnEnable"
+         parameter="create" />
+    </menu_item_call>
+</context_menu>
