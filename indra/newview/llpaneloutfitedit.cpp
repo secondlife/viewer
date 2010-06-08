@@ -198,6 +198,7 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	LLOutfitObserver& observer = LLOutfitObserver::instance();
 	observer.addBOFReplacedCallback(boost::bind(&LLPanelOutfitEdit::updateCurrentOutfitName, this));
 	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitEdit::updateVerbs, this));
+	observer.addOutfitLockChangedCallback(boost::bind(&LLPanelOutfitEdit::updateVerbs, this));
 	observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitEdit::update, this));
 	
 	mLookItemTypes.reserve(NUM_LOOK_ITEM_TYPES);
@@ -666,12 +667,13 @@ void LLPanelOutfitEdit::updateCurrentOutfitName()
 void LLPanelOutfitEdit::updateVerbs()
 {
 	bool outfit_is_dirty = LLAppearanceMgr::getInstance()->isOutfitDirty();
+	bool outfit_locked = LLAppearanceMgr::getInstance()->isOutfitLocked();
 	bool has_baseoutfit = LLAppearanceMgr::getInstance()->getBaseOutfitUUID().notNull();
 
-	mSaveComboBtn->setSaveBtnEnabled(outfit_is_dirty);
+	mSaveComboBtn->setSaveBtnEnabled(!outfit_locked && outfit_is_dirty);
 	childSetEnabled(REVERT_BTN, outfit_is_dirty && has_baseoutfit);
 
-	mSaveComboBtn->setMenuItemEnabled("save_outfit", outfit_is_dirty);
+	mSaveComboBtn->setMenuItemEnabled("save_outfit", !outfit_locked && outfit_is_dirty);
 
 	mStatus->setText(outfit_is_dirty ? getString("unsaved_changes") : getString("now_editing"));
 
