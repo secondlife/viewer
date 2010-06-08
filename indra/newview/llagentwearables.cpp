@@ -751,7 +751,7 @@ U32 LLAgentWearables::pushWearable(const LLWearableType::EType type, LLWearable 
 
 void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 {
-	gAgentAvatarp->wearableUpdated(wearable->getType(), TRUE);
+	gAgentAvatarp->wearableUpdated(wearable->getType(), FALSE);
 	wearable->refreshName();
 	wearable->setLabelUpdated();
 
@@ -795,7 +795,7 @@ void LLAgentWearables::popWearable(const LLWearableType::EType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
-		gAgentAvatarp->wearableUpdated(wearable->getType(), TRUE);
+		gAgentAvatarp->wearableUpdated(wearable->getType(), FALSE);
 		wearable->setLabelUpdated();
 	}
 }
