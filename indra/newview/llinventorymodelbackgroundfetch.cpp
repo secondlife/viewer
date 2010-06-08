@@ -33,15 +33,14 @@
 #include "llviewerprecompiledheaders.h"
 #include "llinventorymodelbackgroundfetch.h"
 
-// Seraph clean this up
 #include "llagent.h"
+#include "llappviewer.h"
+#include "llcallbacklist.h"
 #include "llinventorypanel.h"
 #include "llviewercontrol.h"
 #include "llviewermessage.h"
-#include "llviewerwindow.h"
-#include "llappviewer.h"
 #include "llviewerregion.h"
-#include "llcallbacklist.h"
+#include "llviewerwindow.h"
 
 const F32 MAX_TIME_FOR_SINGLE_FETCH = 10.f;
 const S32 MAX_FETCH_RETRIES = 10;
@@ -63,47 +62,47 @@ LLInventoryModelBackgroundFetch::~LLInventoryModelBackgroundFetch()
 {
 }
 
-bool LLInventoryModelBackgroundFetch::isBulkFetchProcessingComplete()
+bool LLInventoryModelBackgroundFetch::isBulkFetchProcessingComplete() const
 {
 	return mFetchQueue.empty() && mBulkFetchCount<=0;
 }
 
-bool LLInventoryModelBackgroundFetch::libraryFetchStarted()
+bool LLInventoryModelBackgroundFetch::libraryFetchStarted() const
 {
 	return mRecursiveLibraryFetchStarted;
 }
 
-bool LLInventoryModelBackgroundFetch::libraryFetchCompleted()
+bool LLInventoryModelBackgroundFetch::libraryFetchCompleted() const
 {
 	return libraryFetchStarted() && fetchQueueContainsNoDescendentsOf(gInventory.getLibraryRootFolderID());
 }
 
-bool LLInventoryModelBackgroundFetch::libraryFetchInProgress()
+bool LLInventoryModelBackgroundFetch::libraryFetchInProgress() const
 {
 	return libraryFetchStarted() && !libraryFetchCompleted();
 }
 	
-bool LLInventoryModelBackgroundFetch::inventoryFetchStarted()
+bool LLInventoryModelBackgroundFetch::inventoryFetchStarted() const
 {
 	return mRecursiveInventoryFetchStarted;
 }
 
-bool LLInventoryModelBackgroundFetch::inventoryFetchCompleted()
+bool LLInventoryModelBackgroundFetch::inventoryFetchCompleted() const
 {
 	return inventoryFetchStarted() && fetchQueueContainsNoDescendentsOf(gInventory.getRootFolderID());
 }
 
-bool LLInventoryModelBackgroundFetch::inventoryFetchInProgress()
+bool LLInventoryModelBackgroundFetch::inventoryFetchInProgress() const
 {
 	return inventoryFetchStarted() && !inventoryFetchCompleted();
 }
 
-bool LLInventoryModelBackgroundFetch::isEverythingFetched()
+bool LLInventoryModelBackgroundFetch::isEverythingFetched() const
 {
 	return mAllFoldersFetched;
 }
 
-BOOL LLInventoryModelBackgroundFetch::backgroundFetchActive()
+BOOL LLInventoryModelBackgroundFetch::backgroundFetchActive() const
 {
 	return mBackgroundFetchActive;
 }
@@ -132,7 +131,7 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& cat_id, BOOL recursive
 		}
 		else
 		{
-			// specific folder requests go to front of queue
+			// Specific folder requests go to front of queue.
 			if (mFetchQueue.empty() || mFetchQueue.front().mCatUUID != cat_id)
 			{
 				mFetchQueue.push_front(FetchQueueInfo(cat_id, recursive));
@@ -187,7 +186,7 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 {
 	if (mBackgroundFetchActive && gAgent.getRegion())
 	{
-		//If we'll be using the capability, we'll be sending batches and the background thing isn't as important.
+		// If we'll be using the capability, we'll be sending batches and the background thing isn't as important.
 		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");   
 		if (!url.empty()) 
 		{
@@ -195,8 +194,12 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 			return;
 		}
 		
-		//DEPRECATED OLD CODE FOLLOWS.
-		// no more categories to fetch, stop fetch process
+#if 1
+		//--------------------------------------------------------------------------------
+		// DEPRECATED OLD CODE
+		//
+
+		// No more categories to fetch, stop fetch process.
 		if (mFetchQueue.empty())
 		{
 			llinfos << "Inventory fetch completed" << llendl;
@@ -209,11 +212,11 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 		F32 slow_fetch_time = lerp(mMinTimeBetweenFetches, mMaxTimeBetweenFetches, 0.5f);
 		if (mTimelyFetchPending && mFetchTimer.getElapsedTimeF32() > slow_fetch_time)
 		{
-			// double timeouts on failure
+			// Double timeouts on failure.
 			mMinTimeBetweenFetches = llmin(mMinTimeBetweenFetches * 2.f, 10.f);
 			mMaxTimeBetweenFetches = llmin(mMaxTimeBetweenFetches * 2.f, 120.f);
 			llinfos << "Inventory fetch times grown to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
-			// fetch is no longer considered "timely" although we will wait for full time-out
+			// fetch is no longer considered "timely" although we will wait for full time-out.
 			mTimelyFetchPending = FALSE;
 		}
 
@@ -226,14 +229,14 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 
 			if(gDisconnected)
 			{
-				// just bail if we are disconnected.
+				// Just bail if we are disconnected.
 				break;
 			}
 
 			const FetchQueueInfo info = mFetchQueue.front();
 			LLViewerInventoryCategory* cat = gInventory.getCategory(info.mCatUUID);
 
-			// category has been deleted, remove from queue.
+			// Category has been deleted, remove from queue.
 			if (!cat)
 			{
 				mFetchQueue.pop_front();
@@ -243,8 +246,8 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 			if (mFetchTimer.getElapsedTimeF32() > mMinTimeBetweenFetches && 
 				LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
 			{
-				// category exists but has no children yet, fetch the descendants
-				// for now, just request every time and rely on retry timer to throttle
+				// Category exists but has no children yet, fetch the descendants
+				// for now, just request every time and rely on retry timer to throttle.
 				if (cat->fetch())
 				{
 					mFetchTimer.reset();
@@ -258,13 +261,13 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 					break;
 				}
 			}
-			// do I have all my children?
+			// Do I have all my children?
 			else if (gInventory.isCategoryComplete(info.mCatUUID))
 			{
-				// finished with this category, remove from queue
+				// Finished with this category, remove from queue.
 				mFetchQueue.pop_front();
 
-				// add all children to queue
+				// Add all children to queue.
 				LLInventoryModel::cat_array_t* categories;
 				LLInventoryModel::item_array_t* items;
 				gInventory.getDirectDescendentsOf(cat->getUUID(), categories, items);
@@ -275,10 +278,10 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 					mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(),info.mRecursive));
 				}
 
-				// we received a response in less than the fast time
+				// We received a response in less than the fast time.
 				if (mTimelyFetchPending && mFetchTimer.getElapsedTimeF32() < fast_fetch_time)
 				{
-					// shrink timeouts based on success
+					// Shrink timeouts based on success.
 					mMinTimeBetweenFetches = llmax(mMinTimeBetweenFetches * 0.8f, 0.3f);
 					mMaxTimeBetweenFetches = llmax(mMaxTimeBetweenFetches * 0.8f, 10.f);
 					//llinfos << "Inventory fetch times shrunk to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
@@ -289,8 +292,8 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 			}
 			else if (mFetchTimer.getElapsedTimeF32() > mMaxTimeBetweenFetches)
 			{
-				// received first packet, but our num descendants does not match db's num descendants
-				// so try again later
+				// Received first packet, but our num descendants does not match db's num descendants
+				// so try again later.
 				mFetchQueue.pop_front();
 
 				if (mNumFetchRetries++ < MAX_FETCH_RETRIES)
@@ -303,9 +306,14 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 				break;
 			}
 
-			// not enough time has elapsed to do a new fetch
+			// Not enough time has elapsed to do a new fetch
 			break;
 		}
+
+		//
+		// DEPRECATED OLD CODE
+		//--------------------------------------------------------------------------------
+#endif
 	}
 }
 
@@ -333,10 +341,10 @@ protected:
 	BOOL getIsRecursive(const LLUUID& cat_id) const;
 private:
 	LLSD mRequestSD;
-	uuid_vec_t mRecursiveCatUUIDs; // Hack for storing away which cat fetches are recursive.
+	uuid_vec_t mRecursiveCatUUIDs; // hack for storing away which cat fetches are recursive
 };
 
-//If we get back a normal response, handle it here
+// If we get back a normal response, handle it here.
 void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 {
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
@@ -428,7 +436,7 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 				gInventory.updateItem(titem);
 			}
 
-			// set version and descendentcount according to message.
+			// Set version and descendentcount according to message.
 			LLViewerInventoryCategory* cat = gInventory.getCategory(parent_id);
 			if(cat)
 			{
@@ -448,7 +456,7 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 		{	
 			LLSD folder_sd = *folder_it;
 			
-			//These folders failed on the dataserver.  We probably don't want to retry them.
+			// These folders failed on the dataserver.  We probably don't want to retry them.
 			llinfos << "Folder " << folder_sd["folder_id"].asString() 
 					<< "Error: " << folder_sd["error"].asString() << llendl;
 		}
@@ -465,7 +473,7 @@ void LLInventoryModelFetchDescendentsResponder::result(const LLSD& content)
 	gInventory.notifyObservers("fetchDescendents");
 }
 
-//If we get back an error (not found, etc...), handle it here
+// If we get back an error (not found, etc...), handle it here.
 void LLInventoryModelFetchDescendentsResponder::error(U32 status, const std::string& reason)
 {
 	LLInventoryModelBackgroundFetch *fetcher = LLInventoryModelBackgroundFetch::getInstance();
@@ -475,7 +483,7 @@ void LLInventoryModelFetchDescendentsResponder::error(U32 status, const std::str
 						
 	fetcher->incrBulkFetch(-1);
 
-	if (status==499) // Timed out.
+	if (status==499) // timed out
 	{
 		for(LLSD::array_const_iterator folder_it = mRequestSD["folders"].beginArray();
 			folder_it != mRequestSD["folders"].endArray();
@@ -502,7 +510,8 @@ BOOL LLInventoryModelFetchDescendentsResponder::getIsRecursive(const LLUUID& cat
 	return (std::find(mRecursiveCatUUIDs.begin(),mRecursiveCatUUIDs.end(), cat_id) != mRecursiveCatUUIDs.end());
 }
 
-//static   Bundle up a bunch of requests to send all at once.
+// Bundle up a bunch of requests to send all at once.
+// static   
 void LLInventoryModelBackgroundFetch::bulkFetch(std::string url)
 {
 	//Background fetch is called from gIdleCallbacks in a loop until background fetch is stopped.
@@ -521,7 +530,7 @@ void LLInventoryModelBackgroundFetch::bulkFetch(std::string url)
 		(mBulkFetchCount > max_concurrent_fetches) ||
 		(mFetchTimer.getElapsedTimeF32() < mMinTimeBetweenFetches))
 	{
-		return; // just bail if we are disconnected.
+		return; // just bail if we are disconnected
 	}	
 
 	U32 folder_count=0;
