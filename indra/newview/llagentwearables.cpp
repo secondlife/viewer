@@ -64,6 +64,25 @@ BOOL LLAgentWearables::mInitialWearablesUpdateReceived = FALSE;
 
 using namespace LLVOAvatarDefines;
 
+///////////////////////////////////////////////////////////////////////////////
+
+// Callback to wear and start editing an item that has just been created.
+class LLWearAndEditCallback : public LLInventoryCallback
+{
+	void fire(const LLUUID& inv_item)
+	{
+		if (inv_item.isNull()) return;
+
+		// Request editing the item after it gets worn.
+		gAgentWearables.requestEditingWearable(inv_item);
+
+		// Wear it.
+		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item);
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 // HACK: For EXT-3923: Pants item shows in inventory with skin icon and messes with "current look"
 // Some db items are corrupted, have inventory flags = 0, implying wearable type = shape, even though
 // wearable type stored in asset is some other value.
@@ -1990,7 +2009,7 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 	LLWearable* wearable = LLWearableList::instance().createNewWearable(type);
 	LLAssetType::EType asset_type = wearable->getAssetType();
 	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
-	LLPointer<LLInventoryCallback> cb = wear ? new WearOnAvatarCallback : NULL;
+	LLPointer<LLInventoryCallback> cb = wear ? new LLWearAndEditCallback : NULL;
 	LLUUID folder_id;
 
 	if (parent_id.notNull())
@@ -2013,17 +2032,44 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 // static
 void LLAgentWearables::editWearable(const LLUUID& item_id)
 {
-	LLViewerInventoryItem* item;
-	LLWearable* wearable;
-
-	if ((item = gInventory.getLinkedItem(item_id)) &&
-		(wearable = gAgentWearables.getWearableFromAssetID(item->getAssetUUID())) &&
-		gAgentWearables.isWearableModifiable(item->getUUID()) &&
-		item->isFinished())
+	LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
+	if (!item)
 	{
-		LLPanel* panel = LLSideTray::getInstance()->showPanel("panel_outfit_edit", LLSD());
-		// copied from LLPanelOutfitEdit::onEditWearableClicked()
-		LLSidepanelAppearance::editWearable(wearable, panel->getParent());
+		llwarns << "Failed to get linked item" << llendl;
+		return;
+	}
+
+	LLWearable* wearable = gAgentWearables.getWearableFromItemID(item_id);
+	if (!wearable)
+	{
+		llwarns << "Cannot get wearable" << llendl;
+		return;
+	}
+
+	if (!gAgentWearables.isWearableModifiable(item->getUUID()))
+	{
+		llwarns << "Cannot modify wearable" << llendl;
+		return;
+	}
+
+	LLPanel* panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
+	LLSidepanelAppearance::editWearable(wearable, panel);
+}
+
+// Request editing the item after it gets worn.
+void LLAgentWearables::requestEditingWearable(const LLUUID& item_id)
+{
+	mItemToEdit = gInventory.getLinkedItemID(item_id);
+}
+
+// Start editing the item if previously requested.
+void LLAgentWearables::editWearableIfRequested(const LLUUID& item_id)
+{
+	if (mItemToEdit.notNull() &&
+		mItemToEdit == gInventory.getLinkedItemID(item_id))
+	{
+		LLAgentWearables::editWearable(item_id);
+		mItemToEdit.setNull();
 	}
 }
 
