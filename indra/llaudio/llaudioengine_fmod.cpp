@@ -54,13 +54,12 @@ extern "C" {
 	void * F_CALLBACKAPI windCallback(void *originalbuffer, void *newbuffer, int length, void* userdata);
 }
 
-FSOUND_DSPUNIT *gWindDSP = NULL;
-
 
 LLAudioEngine_FMOD::LLAudioEngine_FMOD()
 {
 	mInited = false;
 	mWindGen = NULL;
+	mWindDSP = NULL;
 }
 
 
@@ -258,10 +257,10 @@ void LLAudioEngine_FMOD::allocateListener(void)
 
 void LLAudioEngine_FMOD::shutdown()
 {
-	if (gWindDSP)
+	if (mWindDSP)
 	{
-		FSOUND_DSP_SetActive(gWindDSP,false);
-		FSOUND_DSP_Free(gWindDSP);
+		FSOUND_DSP_SetActive(mWindDSP,false);
+		FSOUND_DSP_Free(mWindDSP);
 	}
 
 	stopInternetStream();
@@ -289,29 +288,66 @@ LLAudioChannel * LLAudioEngine_FMOD::createChannel()
 }
 
 
-void LLAudioEngine_FMOD::initWind()
+bool LLAudioEngine_FMOD::initWind()
 {
-	mWindGen = new LLWindGen<MIXBUFFERFORMAT>;
+	if (!mWindGen)
+	{
+		bool enable;
+		
+		switch (FSOUND_GetMixer())
+		{
+			case FSOUND_MIXER_MMXP5:
+			case FSOUND_MIXER_MMXP6:
+			case FSOUND_MIXER_QUALITY_MMXP5:
+			case FSOUND_MIXER_QUALITY_MMXP6:
+				enable = (typeid(MIXBUFFERFORMAT) == typeid(S16));
+				break;
+			case FSOUND_MIXER_BLENDMODE:
+				enable = (typeid(MIXBUFFERFORMAT) == typeid(S32));
+				break;
+			case FSOUND_MIXER_QUALITY_FPU:
+				enable = (typeid(MIXBUFFERFORMAT) == typeid(F32));
+				break;
+			default:
+				// FSOUND_GetMixer() does not return a valid mixer type on Darwin
+				LL_INFOS("AppInit") << "Unknown FMOD mixer type, assuming default" << LL_ENDL;
+				enable = true;
+				break;
+		}
+		
+		if (enable)
+		{
+			mWindGen = new LLWindGen<MIXBUFFERFORMAT>(FSOUND_GetOutputRate());
+		}
+		else
+		{
+			LL_WARNS("AppInit") << "Incompatible FMOD mixer type, wind noise disabled" << LL_ENDL;
+		}
+	}
 
-	if (!gWindDSP)
-	{
-		gWindDSP = FSOUND_DSP_Create(&windCallback, FSOUND_DSP_DEFAULTPRIORITY_CLEARUNIT + 20, mWindGen);
-	}
-	if (gWindDSP)
-	{
-		FSOUND_DSP_SetActive(gWindDSP, true);
-	}
 	mNextWindUpdate = 0.0;
+
+	if (mWindGen && !mWindDSP)
+	{
+		mWindDSP = FSOUND_DSP_Create(&windCallback, FSOUND_DSP_DEFAULTPRIORITY_CLEARUNIT + 20, mWindGen);
+	}
+	if (mWindDSP)
+	{
+		FSOUND_DSP_SetActive(mWindDSP, true);
+		return true;
+	}
+	
+	return false;
 }
 
 
 void LLAudioEngine_FMOD::cleanupWind()
 {
-	if (gWindDSP)
+	if (mWindDSP)
 	{
-		FSOUND_DSP_SetActive(gWindDSP, false);
-		FSOUND_DSP_Free(gWindDSP);
-		gWindDSP = NULL;
+		FSOUND_DSP_SetActive(mWindDSP, false);
+		FSOUND_DSP_Free(mWindDSP);
+		mWindDSP = NULL;
 	}
 
 	delete mWindGen;
@@ -740,30 +776,12 @@ void * F_CALLBACKAPI windCallback(void *originalbuffer, void *newbuffer, int len
 	// originalbuffer = fmod's original mixbuffer.
 	// newbuffer = the buffer passed from the previous DSP unit.
 	// length = length in samples at this mix time.
-	// param = user parameter passed through in FSOUND_DSP_Create.
-	//
-	// modify the buffer in some fashion
+	// userdata = user parameter passed through in FSOUND_DSP_Create.
 
 	LLWindGen<LLAudioEngine_FMOD::MIXBUFFERFORMAT> *windgen =
 		(LLWindGen<LLAudioEngine_FMOD::MIXBUFFERFORMAT> *)userdata;
-	U8 stride;
-
-#if LL_DARWIN
-	stride = sizeof(LLAudioEngine_FMOD::MIXBUFFERFORMAT);
-#else
-	int mixertype = FSOUND_GetMixer();
-	if (mixertype == FSOUND_MIXER_BLENDMODE ||
-	    mixertype == FSOUND_MIXER_QUALITY_FPU)
-	{
-		stride = 4;
-	}
-	else
-	{
-		stride = 2;
-	}
-#endif
-
-	newbuffer = windgen->windGenerate((LLAudioEngine_FMOD::MIXBUFFERFORMAT *)newbuffer, length, stride);
+	
+	newbuffer = windgen->windGenerate((LLAudioEngine_FMOD::MIXBUFFERFORMAT *)newbuffer, length);
 
 	return newbuffer;
 }
