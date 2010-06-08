@@ -682,6 +682,3 @@ void LLOpenFoldersWithSelection::doFolder(LLFolderViewFolder* folder)
 	}
 }
 
-	case LLAssetType::AT_MESH:
-		idx = MESH_ICON_NAME;
-		break;
