@@ -56,9 +56,9 @@ void LLOutfitObserver::changed(U32 mask)
 	if (!gInventory.isInventoryUsable())
 		return;
 
-	bool panel_updated = checkCOF();
+	bool COF_changed = checkCOF();
 
-	if (!panel_updated)
+	if (!COF_changed)
 	{
 		checkBaseOutfit();
 	}
@@ -87,6 +87,7 @@ bool LLOutfitObserver::checkCOF()
 
 	mCOFLastVersion = cof_version;
 
+	// dirtiness state should be updated before sending signal
 	LLAppearanceMgr::getInstance()->updateIsDirty();
 	mCOFChanged();
 
@@ -120,6 +121,16 @@ void LLOutfitObserver::checkBaseOutfit()
 	}
 
 	LLAppearanceMgr& app_mgr = LLAppearanceMgr::instance();
+	// dirtiness state should be updated before sending signal
 	app_mgr.updateIsDirty();
 	mBOFChanged();
+
+	if (mLastOutfitDirtiness != app_mgr.isOutfitDirty())
+	{
+		if(!app_mgr.isOutfitDirty())
+		{
+			mCOFSaved();
+		}
+		mLastOutfitDirtiness = app_mgr.isOutfitDirty();
+	}
 }

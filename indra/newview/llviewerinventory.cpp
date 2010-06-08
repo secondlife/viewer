@@ -883,12 +883,8 @@ void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 {
 	LLAppearanceMgr::instance().updateAppearanceFromCOF();
 
-	if (LLSideTray::getInstance()->isPanelActive("sidepanel_appearance"))
-	{
-		// *HACK: Edit the wearable that has just been worn
-		//        only if the Appearance SP is currently opened.
-		LLAgentWearables::editWearable(inv_item);
-	}
+	// Start editing the item if previously requested.
+	gAgentWearables.editWearableIfRequested(inv_item);
 
 	// TODO: camera mode may not be changed if a debug setting is tweaked
 	if( gAgentCamera.cameraCustomizeAvatar() )

@@ -11417,5 +11417,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>OutfitOperationsTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Timeout for outfit related operations.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>180</integer>
+    </map>
 </map>
 </llsd>
