@@ -173,6 +173,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
        		 background_visible="true"
        		 bg_alpha_color="DkGray2"
        		 bg_opaque_color="DkGray2"
+             empty_accordion_text.value=""
              follows="all"
              height="356"
              layout="topleft"
