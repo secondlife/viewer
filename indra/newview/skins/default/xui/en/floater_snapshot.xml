@@ -38,91 +38,129 @@
     left="20"
     top_pad="-30"
     name="new_snapshot_btn"
-    width="23" />
+    width="23"
+    commit_callback.function="Snapshot.Refresh"/>
   <line_editor
     border_style="line"
     border_thickness="1"
-	  follows="left|top"
-	  height="20"
-		layout="topleft"
+    follows="left|top"
+    height="20"
+    layout="topleft"
     left="10"
-		max_length="500"
+    max_length="500"
     name="description"
-	  top_pad="15"
-	  width="230"
+    top_pad="15"
+    width="230"
     label="Description"/>
+  <panel
+   top_pad="20"
+   left="10"
+   height="83"
+   name="panel_snapshot_main"
+   width="130">
+    <button
+     label="Share Snapshot"
+     name="share"
+     top="0"
+     left="0"
+     width="130"
+     commit_callback.function="Snapshot.ShowButtons"
+     commit_callback.parameter="share"/>
+    <button
+     label="Save Snapshot"
+     name="save"
+     top_pad="7"
+     left_delta="0"
+     width="130"
+     commit_callback.function="Snapshot.ShowButtons"
+     commit_callback.parameter="save"/>
+    <button
+     label="Set As Profile Pic"
+     name="set_profile_pic"
+     top_pad="7"
+     left_delta="0"
+     width="130"/>
+  </panel>
+  <panel
+   top_delta="0"
+   left_delta="0"
+   height="83"
+   name="panel_snapshot_share"
+   width="130">
+    <button
+     label="Share to Web"
+     name="share_to_web"
+     top="0"
+     left="0"
+     visible="false"
+     width="130"/>
+    <button
+     label="Email Snapshot"
+     name="share_to_email"
+     top_pad="7"
+     left_delta="0"
+     width="130"/>
+    <button
+     label="Back"
+     name="cancel_share"
+     top_pad="7"
+     left_delta="0"
+     width="130"
+     commit_callback.function="Snapshot.ShowButtons"
+     commit_callback.parameter="main"/>
+  </panel>
+  <panel
+   top_delta="0"
+   left_delta="0"
+   height="83"
+   name="panel_snapshot_save"
+   width="130">
+    <button
+     label="Save to My Inventory"
+     name="save_to_inventory"
+     top="0"
+     left="0"
+     width="130"/>
+    <button
+     label="Save to My Computer"
+     name="save_to_computer"
+     top_pad="7"
+     left_delta="0"
+     width="130"/>
+    <button
+     label="Back"
+     name="cancel_save"
+     top_pad="7"
+     left_delta="0"
+     width="130"
+     commit_callback.function="Snapshot.ShowButtons"
+     commit_callback.parameter="main"/>
+  </panel>
   <button
-   label="Share Snapshot" 
-   name="share" 
-   top_pad="20" 
-   left="10" 
-   width="130"/>
+   follows="left"
+   height="22"
+   layout="topleft"
+   left="210"
+   name="show_advanced"
+   image_overlay="TabIcon_Close_Off"
+   bottom_delta="0"
+   width="30"
+   commit_callback.function="Snapshot.ShowAdvanced"/>
   <button
-   label="Share to Web" 
-   name="share_to_web" 
-   top_delta="0" 
-   left="10" 
+   follows="left"
+   height="22"
+   layout="topleft"
+   left="210"
+   name="hide_advanced"
+   image_overlay="TabIcon_Open_Off"
+   top_delta="0"
    visible="false"
-   width="130"/>
-  <button
-   label="Save to My Inventory" 
-   name="save_to_inventory" 
-   top_delta="0" 
-   left="10" 
-   width="130"/>
-  <button
-   label="Save Snapshot" 
-   name="save" 
-   top_pad="7" 
-   left="10" 
-   width="130"/>
-  <button
-   label="Email Snapshot" 
-   name="share_to_email" 
-   top_delta="0" 
-   left="10" 
-   width="130"/>
-  <button
-   label="Save to My Computer" 
-   name="save_to_computer" 
-   top_delta="0" 
-   left="10" 
-   width="130"/>
-  <button
-   label="Set As Profile Pic" 
-   name="set_profile_pic" 
-   top_pad="7" 
-   left="10" 
-   width="130"/>
-  <button
-   label="Back" 
-   name="cancel" 
-   top_delta="0" 
-   left="10" 
-   width="130"/>
-  <button
-     follows="left"
-     height="22"
-     layout="topleft"
-     left="210"
-    name="show_advanced"
-    image_overlay="TabIcon_Close_Off"
-    top_delta="1"
-    width="30"/>
-  <button
-     follows="left"
-     height="22"
-     layout="topleft"
-     left="210"
-     visible="false" 
-     name="hide_advanced"
-     image_overlay="TabIcon_Open_Off"
-     top_delta="0"
-     width="30"/>
+   width="30"
+   commit_callback.function="Snapshot.HideAdvanced"/>
   <panel 
-    visible="false" 
-    left="250" 
-    top="17"    
-    name="snapshot_advanced" 
-    filename="panel_snapshot_advanced.xml"/>
+   visible="false"
+   left="250"
+   top="17"
+   name="snapshot_advanced"
+   filename="panel_snapshot_advanced.xml"/>
 </floater>
