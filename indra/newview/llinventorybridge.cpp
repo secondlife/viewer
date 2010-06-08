@@ -109,7 +109,6 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
 
-	"Inv_Mesh",
 // +=================================================+
 // |        LLInvFVBridge                            |
 // +=================================================+
@@ -918,7 +917,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			// Only should happen for broken links.
 			new_listener = new LLLinkItemBridge(inventory, root, uuid);
 			break;
-	        case LLAssetType::AT_MESH:
+	    case LLAssetType::AT_MESH:
 			if(!(inv_type == LLInventoryType::IT_MESH))
 			{
 				llwarns << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << llendl;

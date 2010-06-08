@@ -1268,7 +1268,7 @@ LLTaskMeshBridge::LLTaskMeshBridge(
 
 LLUIImagePtr LLTaskMeshBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_MESH, LLInventoryType::IT_MESH, 0, FALSE);
+	return LLInventoryIcon::getIcon(LLAssetType::AT_MESH, LLInventoryType::IT_MESH, 0, FALSE);
 }
 
 void LLTaskMeshBridge::openItem()

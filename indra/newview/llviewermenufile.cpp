@@ -66,6 +66,7 @@
 #include "llappviewer.h"
 #include "lluploaddialog.h"
 #include "lltrans.h"
+#include "llfloaterbuycurrency.h"
 #include "llfloaterimportcollada.h"
 
 // linden libraries

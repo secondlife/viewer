@@ -183,7 +183,6 @@ public:
 										U32 flags = 0x00) const;
 };
 
-	MESH_ICON_NAME,
 class LLItemBridge : public LLInvFVBridge
 {
 public:
