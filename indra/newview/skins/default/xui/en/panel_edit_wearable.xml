@@ -7,6 +7,7 @@
  label="Wearable"
  layout="topleft"
 left="0"
+ help_topic="edit_wearable"
  name="panel_edit_wearable"
 	top="0"
  width="333">

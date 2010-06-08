@@ -7,6 +7,7 @@
  follows="all"
  label="Outfit Edit"
  layout="topleft"
+ help_topic="edit_outfit"
  left="0"
  min_height="350"
  name="outfit_edit"
