@@ -1181,7 +1181,7 @@ public:
 	static void onCommitCustomResolution(LLUICtrl *ctrl, void* data);
 	static void onCommitSnapshot(LLFloaterSnapshot* view, LLSnapshotLivePreview::ESnapshotType type);
 	static void onCommitProfilePic(LLFloaterSnapshot* view);
-	static void showAdvanced(LLFloaterSnapshot* view, const bool visible);
+	static void showAdvanced(LLFloaterSnapshot* view, const BOOL visible);
 	static void resetSnapshotSizeOnUI(LLFloaterSnapshot *view, S32 width, S32 height) ;
 	static BOOL checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL isWidthChanged, S32 max_value);
 
@@ -1649,7 +1649,7 @@ void LLFloaterSnapshot::Impl::onCommitLayerTypes(LLUICtrl* ctrl, void*data)
 }
 
 //static 
-void LLFloaterSnapshot::Impl::showAdvanced(LLFloaterSnapshot* view, const bool visible)
+void LLFloaterSnapshot::Impl::showAdvanced(LLFloaterSnapshot* view, const BOOL visible)
 {
 	LLPanel* advanced_panel = view->getChild<LLPanel>("snapshot_advanced");
 
