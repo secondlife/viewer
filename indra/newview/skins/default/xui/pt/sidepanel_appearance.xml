@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Looks" name="appearance panel">
 	<string name="No Outfit" value="Nenhum"/>
+	<string name="Unsaved Changes" value="Mudanças não salvas"/>
+	<string name="Now Wearing" value="Look atual..."/>
 	<panel name="panel_currentlook">
-		<text name="currentlook_title">
-			(não salvo)
+		<button label="E" name="editappearance_btn"/>
+		<button label="O" name="openoutfit_btn"/>
+		<text name="currentlook_status">
+			(Status)
 		</text>
 	</panel>
 	<filter_editor label="Filtrar looks" name="Filter"/>

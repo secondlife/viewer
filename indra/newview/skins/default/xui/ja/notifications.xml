@@ -349,7 +349,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		<usetemplate name="okcancelbuttons" notext="もう一度試す" yestext="新しいアカウントを作成"/>
 	</notification>
 	<notification name="InvalidCredentialFormat">
-		「ユーザー名」欄にアバターのファーストネームとラストネーム両方を入力してからログインしてください。
+		「ユーザーネーム」欄にアバターのファーストネームとラストネーム両方を入力してからログインしてください。
 	</notification>
 	<notification name="AddClassified">
 		クラシファイド広告は、検索ディレクトリと [http://secondlife.com/community/classifieds secondlife.com] の「クラシファイド広告」セクションに一週間掲載されます。
