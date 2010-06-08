@@ -74,16 +74,14 @@ Maximum 200 per group daily
     </text>
       <button
        follows="top|left"
-       height="18"
-       image_selected="AddItem_Press"
-       image_unselected="AddItem_Off"
-       image_disabled="AddItem_Disabled"
+       height="23"
+       image_overlay="AddItem_Off"
        layout="topleft"
        left="5"
        name="create_new_notice"
        tool_tip="Create a new notice"
-     top_delta="-3"
-       width="18" />
+       top_delta="-3"
+       width="23" />
      <button
      follows="top|left"
      height="23"
