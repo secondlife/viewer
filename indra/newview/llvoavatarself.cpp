@@ -2030,7 +2030,11 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 			F32 desired_pixels;
 			desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
 			imagep->setBoostLevel(getAvatarBoostLevel());
+
+			imagep->resetTextureStats();
+			imagep->setResetMaxVirtualSizeFlag(false) ;
 			imagep->addTextureStats( desired_pixels / texel_area_ratio );
+			imagep->setAdditionalDecodePriority(1.0f) ;
 			imagep->forceUpdateBindStats() ;
 			if (imagep->getDiscardLevel() < 0)
 			{

@@ -541,11 +541,6 @@ void LLViewerTexture::setBoostLevel(S32 level)
 		if(mBoostLevel != LLViewerTexture::BOOST_NONE)
 		{
 			setNoDelete() ;		
-
-			if(LLViewerTexture::BOOST_AVATAR_BAKED_SELF == mBoostLevel || LLViewerTexture::BOOST_AVATAR_BAKED == mBoostLevel)
-			{
-				mCanResetMaxVirtualSize = false ;
-			}
 		}
 		if(gAuditTexture)
 		{
@@ -594,6 +589,11 @@ BOOL LLViewerTexture::isMissingAsset()const
 //virtual 
 void LLViewerTexture::forceImmediateUpdate() 
 {
+}
+
+void LLViewerTexture::setResetMaxVirtualSizeFlag(bool flag) 
+{
+	mCanResetMaxVirtualSize = flag ;
 }
 
 void LLViewerTexture::addTextureStats(F32 virtual_size, BOOL needs_gltexture) const 
