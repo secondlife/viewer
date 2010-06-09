@@ -49,12 +49,10 @@ class LLListContextMenu;
  * A list of agents's outfits from "My Outfits" inventory category
  * which displays each outfit in an accordion tab with a flat list
  * of items inside it.
- * Uses LLInventoryCategoriesObserver to monitor changes to "My Outfits"
- * inventory category and refresh the outfits listed in it.
- * This class is derived from LLInventoryObserver to know when inventory
- * becomes usable and it is safe to request data from inventory model.
+ *
+ * Starts fetching nevessary inventory content on first openning.
  */
-class LLOutfitsList : public LLPanel, public LLInventoryObserver
+class LLOutfitsList : public LLPanel
 {
 public:
 	LLOutfitsList();
@@ -62,15 +60,15 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void changed(U32 mask);
+	/*virtual*/ void onOpen(const LLSD& info);
 
 	void refreshList(const LLUUID& category_id);
-
-	void onSelectionChange(LLUICtrl* ctrl);
 
 	void performAction(std::string action);
 
 	void setFilterSubString(const std::string& string);
+
+	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
 
 private:
 	/**
@@ -107,8 +105,12 @@ private:
 	void applyFilter(const std::string& new_filter_substring);
 
 	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
-
+	void onAccordionTabDoubleClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+
+	void onSelectionChange(LLUICtrl* ctrl);
+
+	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 
@@ -128,6 +130,8 @@ private:
 	outfits_map_t					mOutfitsMap;
 
 	LLListContextMenu*			mOutfitMenu;
+
+	bool							mIsInitialized;
 };
 
 #endif //LL_LLOUTFITSLIST_H

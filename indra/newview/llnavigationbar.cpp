@@ -48,6 +48,7 @@
 #include "lllandmarkactions.h"
 #include "lllocationhistory.h"
 #include "lllocationinputctrl.h"
+#include "llpaneltopinfobar.h"
 #include "llteleporthistory.h"
 #include "llsearchcombobox.h"
 #include "llsidetray.h"
@@ -713,6 +714,8 @@ void LLNavigationBar::onNavigationButtonHeldUp(LLButton* nav_button)
 
 void LLNavigationBar::handleLoginComplete()
 {
+	LLTeleportHistory::getInstance()->handleLoginComplete();
+	LLPanelTopInfoBar::instance().handleLoginComplete();
 	mCmbLocation->handleLoginComplete();
 }
 

@@ -204,8 +204,8 @@ NVIDIA GeForce 7200				.*NVIDIA.*GeForce 72.*				1		1
 NVIDIA GeForce 7300				.*NVIDIA.*GeForce 73.*				1		1
 NVIDIA GeForce 7500				.*NVIDIA.*GeForce 75.*				1		1
 NVIDIA GeForce 7600				.*NVIDIA.*GeForce 76.*				1		1
-NVIDIA GeForce 7800				.*NVIDIA.*GeForce.*78.*				1		1
-NVIDIA GeForce 7900				.*NVIDIA.*GeForce.*79.*				1		1
+NVIDIA GeForce 7800				.*NVIDIA.*GeForce 78.*				1		1
+NVIDIA GeForce 7900				.*NVIDIA.*GeForce 79.*				1		1
 NVIDIA GeForce 8100				.*NVIDIA.*GeForce 81.*				1		1
 NVIDIA GeForce 8200				.*NVIDIA.*GeForce 82.*				1		1
 NVIDIA GeForce 8300				.*NVIDIA.*GeForce 83.*				1		1
@@ -259,6 +259,7 @@ NVIDIA G84						.*G84.*								1		1
 NVIDIA G92						.*G92.*								3		1
 NVIDIA G94						.*G94.*								3		1
 NVIDIA GeForce Go 6				.*GeForce Go 6.*					1		1
+NVIDIA ION						.*NVIDIA ION.*						1		1
 NVIDIA NB9M						.*GeForce NB9M.*					1		1
 NVIDIA NB9P						.*GeForce NB9P.*					1		1
 NVIDIA GeForce PCX				.*GeForce PCX.*						0		1

@@ -66,21 +66,6 @@ static const std::string TAB_PANEL_CAPTION_TITLE_BOX = "sidetray_tab_title";
 
 LLSideTray* LLSideTray::sInstance = 0;
 
-/**
- * Updates visibility of sidetray tabs buttons according to "SidebarWithButtonsVisibility" setting
- *
- * @param force_set_visible if true method ignores setting value and set buttons visible.
- */
-static void update_tabs_buttons_visibility(bool force_set_visible = false)
-{
-	LLView* side_bar_tabs = gViewerWindow->getRootView()->getChildView("side_bar_tabs");
-	if (side_bar_tabs)
-	{
-		BOOL visible = LLUI::sSettingGroups["config"]->getBOOL("SidebarWithButtonsVisibility");
-		side_bar_tabs->setVisible(force_set_visible || visible);
-	}
-}
-
 LLSideTray* LLSideTray::getInstance()
 {
 	if (!sInstance)
@@ -273,8 +258,6 @@ LLSideTray::LLSideTray(Params& params)
 	p.name = "buttons_panel";
 	p.mouse_opaque = false;
 	mButtonsPanel = LLUICtrlFactory::create<LLPanel>(p);
-
-	initControlSettings();
 }
 
 
@@ -563,8 +546,6 @@ void LLSideTray::collapseSideBar()
 	//mActiveTab->setVisible(FALSE);
 	reflectCollapseChange();
 	setFocus( FALSE );
-
-	update_tabs_buttons_visibility();
 }
 
 void LLSideTray::expandSideBar()
@@ -589,8 +570,6 @@ void LLSideTray::expandSideBar()
 		LLButton* btn = btn_it->second;
 		btn->setImageOverlay( mActiveTab->mImageSelected  );
 	}
-
-	update_tabs_buttons_visibility(true);
 }
 
 void LLSideTray::highlightFocused()
@@ -657,8 +636,6 @@ LLPanel*	LLSideTray::showPanel		(const std::string& panel_name, const LLSD& para
 			{
 				panel->onOpen(params);
 			}
-
-			update_tabs_buttons_visibility(true);
 
 			return panel;
 		}
@@ -749,37 +726,5 @@ void	LLSideTray::updateSidetrayVisibility()
 	{
 		getParent()->setVisible(!mCollapsed && !gAgentCamera.cameraMouselook());
 	}
-}
-
-void LLSideTray::initControlSettings()
-{
-	// set listeners to process runtime setting changes
-	LLUI::sSettingGroups["config"]->getControl("SidebarWithButtonsVisibility")->getSignal()->connect(boost::bind(&LLSideTray::toggleSidetrayAndTabButtonsVisibility, this, _2));
-
-	// update visibility according to current value
-	toggleSidetrayAndTabButtonsVisibility(LLUI::sSettingGroups["config"]->getBOOL("SidebarWithButtonsVisibility"));
-}
-
-// sidebar visibility is implemented via its expanding/collapsing
-void LLSideTray::toggleSidetrayAndTabButtonsVisibility(const LLSD::Boolean& new_visibility)
-{
-	// If new_visibility==FALSE it gets invisible but still can be expanded in other ways (Ctrl+I to see My Inventory)
-
-	// store collapsed state to restore it properly on next call
-	static bool was_collapsed = false;
-
-	if (!new_visibility && !mCollapsed)
-	{
-		collapseSideBar();
-		was_collapsed = true;
-	}
-	// should be visible: expand only if it was expanded when has been collapsed on previous call
-	else if (new_visibility && was_collapsed)
-	{
-		if (mCollapsed) expandSideBar();
-		was_collapsed = false;
-	}
-
-	update_tabs_buttons_visibility(new_visibility);
 }
 

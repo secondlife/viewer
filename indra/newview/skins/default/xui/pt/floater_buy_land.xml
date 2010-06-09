@@ -124,9 +124,6 @@ contribuídas para cobrir este lote antes da aquisição se completar.
 	<floater.string name="no_parcel_selected">
 		(nenhum lote selecionado)
 	</floater.string>
-	<floater.string name="icon_PG" value="Parcel_PG_Dark"/>
-	<floater.string name="icon_M" value="Parcel_M_Dark"/>
-	<floater.string name="icon_R" value="Parcel_R_Dark"/>
 	<text name="region_name_label">
 		Região:
 	</text>

@@ -356,6 +356,7 @@ set(viewer_SOURCE_FILES
     llpanelprofileview.cpp
     llpanelteleporthistory.cpp
     llpaneltiptoast.cpp
+    llpaneltopinfobar.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
     llparcelselection.cpp
@@ -466,6 +467,7 @@ set(viewer_SOURCE_FILES
     llviewchildren.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
+    llviewerattachmenu.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
     llviewerchat.cpp
@@ -870,6 +872,7 @@ set(viewer_HEADER_FILES
     llpanelprofileview.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
+    llpaneltopinfobar.h
     llpanelvolume.h
     llpanelvolumepulldown.h
     llparcelselection.h
@@ -984,6 +987,7 @@ set(viewer_HEADER_FILES
     llviewchildren.h
     llviewerassetstorage.h
     llviewerassettype.h
+    llviewerattachmenu.h
     llvieweraudio.h
     llviewercamera.h
     llviewerchat.h

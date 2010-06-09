@@ -46,24 +46,29 @@
     <!-- Texture names for rating icons -->
     <string
      name="icon_PG"
+     translate="false"
      value="Parcel_PG_Dark" />
     <string
      name="icon_M"
+     translate="false"
      value="Parcel_M_Dark" />
     <string
      name="icon_R"
+     translate="false"
      value="Parcel_R_Dark" />
     <button
      follows="top|right"
-     height="23"
-     image_overlay="BackArrow_Off"
+     height="24"
+     image_hover_unselected="BackButton_Over"
+     image_pressed="BackButton_Press"
+     image_unselected="BackButton_Off"
      layout="topleft"
-     left="11"
+     left="8"
      name="back_btn"
      tool_tip="Back"
      tab_stop="false"
      top="4"
-     width="23" />
+     width="30" />
     <text
      follows="top|left|right"
      font="SansSerifHugeBold"

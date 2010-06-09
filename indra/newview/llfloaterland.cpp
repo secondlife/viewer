@@ -572,7 +572,7 @@ void LLPanelLandGeneral::refresh()
 		if (regionp)
 		{
 			insert_maturity_into_textbox(mContentRating, gFloaterView->getParentFloater(this), MATURITY);
-			mLandType->setText(regionp->getSimProductName());
+			mLandType->setText(LLTrans::getString(regionp->getSimProductName()));
 		}
 
 		// estate owner/manager cannot edit other parts of the parcel

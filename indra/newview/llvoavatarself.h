@@ -177,6 +177,7 @@ public:
 	bool				areTexturesCurrent() const;
 	BOOL				isLocalTextureDataAvailable(const LLTexLayerSet* layerset) const;
 	BOOL				isLocalTextureDataFinal(const LLTexLayerSet* layerset) const;
+	BOOL				isBakedTextureFinal(const LLVOAvatarDefines::EBakedTextureIndex index) const;
 	// If you want to check all textures of a given type, pass gAgentWearables.getWearableCount() for index
 	/*virtual*/ BOOL    isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index) const;
 	/*virtual*/ BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;

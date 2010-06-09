@@ -144,6 +144,7 @@ protected:
 	//--------------------------------------------------------------------
 
 public:
+	static void		createWearable(LLWearableType::EType type, bool wear = false, const LLUUID& parent_id = LLUUID::null);
 	static void		editWearable(const LLUUID& item_id);
 	bool			moveWearable(const LLViewerInventoryItem* item, bool closer_to_body);
 
@@ -164,7 +165,8 @@ protected:
 public:
 	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
 	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
-	LLUUID			computeBakedTextureHash(LLVOAvatarDefines::EBakedTextureIndex index);
+	LLUUID			computeBakedTextureHash(LLVOAvatarDefines::EBakedTextureIndex baked_index,
+											BOOL generate_valid_hash = TRUE);
 
 protected:
 	void			sendAgentWearablesUpdate();

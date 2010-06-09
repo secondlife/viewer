@@ -11,14 +11,16 @@
  width="280">
         <button
      follows="top|left"
-     height="25"
-     image_overlay="BackArrow_Off"
+     height="24"
+     image_hover_unselected="BackButton_Over"
+     image_pressed="BackButton_Press"
+     image_unselected="BackButton_Off"
      layout="topleft"
      name="back"
-     left="10"
+     left="4"
      tab_stop="false"
-     top="0"
-     width="25"/>
+     top="1"
+     width="30"/>
     <text
      follows="top|left|right"
      font="SansSerifLargeBold"

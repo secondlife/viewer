@@ -10,12 +10,4 @@
          function="Attachment.Detach"
          parameter="detach"/>
     </menu_item_call>
-    <context_menu
-     label="Attach to"
-     layout="topleft"
-     name="attach_to" />
-    <context_menu
-     label="Attach to HUD"
-     layout="topleft"
-     name="attach_to_hud" />
 </context_menu>

@@ -6,7 +6,7 @@
 		</text>
 	</panel>
 	<panel name="layout_panel_2">
-		<button font="SansSerifSmall" label="Mostra minha localização" label_selected="Mostra minha localização" left_delta="91" name="Show My Location" tool_tip="Centrar o mapa na localização do meu avatar" width="135"/>
+		<button font="SansSerifSmall" label="Mostra minha localização" label_selected="Mostra minha localização" left_delta="91" name="Show My Location" tool_tip="Centrar o mapa na localização do meu avatar" />
 		<text name="me_label">
 			Eu
 		</text>
@@ -39,7 +39,7 @@
 		<text name="pg_label">
 			Público geral
 		</text>
-		<check_box initial_value="verdadeiro" label="Mature" name="event_mature_chk"/>
+		<check_box label="Mature" name="event_mature_chk"/>
 		<text name="mature_label">
 			Moderado
 		</text>
