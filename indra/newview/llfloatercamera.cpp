@@ -49,6 +49,9 @@
 
 static LLDefaultChildRegistry::Register<LLPanelCameraItem> r("panel_camera_item");
 
+const F32 NUDGE_TIME = 0.25f;		// in seconds
+const F32 ORBIT_NUDGE_RATE = 0.05f; // fraction of normal speed
+
 // Constants
 const F32 CAMERA_BUTTON_DELAY = 0.0f;
 
@@ -75,6 +78,7 @@ protected:
 	void	onZoomPlusHeldDown();
 	void	onZoomMinusHeldDown();
 	void	onSliderValueChanged();
+	F32		getOrbitRate(F32 time);
 
 private:
 	LLButton*	mPlusBtn;
@@ -155,8 +159,8 @@ LLPanelCameraZoom::LLPanelCameraZoom()
 	mMinusBtn( NULL ),
 	mSlider( NULL )
 {
-	mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
-	mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
+	mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
+	mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
 	mCommitCallbackRegistrar.add("Slider.value_changed", boost::bind(&LLPanelCameraZoom::onSliderValueChanged, this));
 }
 
@@ -179,9 +183,9 @@ void LLPanelCameraZoom::onZoomPlusHeldDown()
 	F32 val = mSlider->getValueF32();
 	F32 inc = mSlider->getIncrement();
 	mSlider->setValue(val - inc);
-	// commit only if value changed
-	if (val != mSlider->getValueF32())
-		mSlider->onCommit();
+	F32 time = mPlusBtn->getHeldDownTime();
+	gAgentCamera.unlockView();
+	gAgentCamera.setOrbitInKey(getOrbitRate(time));
 }
 
 void LLPanelCameraZoom::onZoomMinusHeldDown()
@@ -189,9 +193,22 @@ void LLPanelCameraZoom::onZoomMinusHeldDown()
 	F32 val = mSlider->getValueF32();
 	F32 inc = mSlider->getIncrement();
 	mSlider->setValue(val + inc);
-	// commit only if value changed
-	if (val != mSlider->getValueF32())
-		mSlider->onCommit();
+	F32 time = mMinusBtn->getHeldDownTime();
+	gAgentCamera.unlockView();
+	gAgentCamera.setOrbitOutKey(getOrbitRate(time));
+}
+
+F32 LLPanelCameraZoom::getOrbitRate(F32 time)
+{
+	if( time < NUDGE_TIME )
+	{
+		F32 rate = ORBIT_NUDGE_RATE + time * (1 - ORBIT_NUDGE_RATE)/ NUDGE_TIME;
+		return rate;
+	}
+	else
+	{
+		return 1;
+	}
 }
 
 void  LLPanelCameraZoom::onSliderValueChanged()
