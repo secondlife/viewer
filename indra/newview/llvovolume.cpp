@@ -36,6 +36,8 @@
 
 #include "llvovolume.h"
 
+#include <sstream>
+
 #include "llviewercontrol.h"
 #include "lldir.h"
 #include "llflexibleobject.h"
@@ -50,6 +52,7 @@
 #include "object_flags.h"
 #include "llagentconstants.h"
 #include "lldrawable.h"
+#include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
 #include "llface.h"
 #include "llspatialpartition.h"
@@ -57,8 +60,10 @@
 #include "llflexibleobject.h"
 #include "llsky.h"
 #include "lltexturefetch.h"
+#include "llvector4a.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
+#include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewertextureanim.h"
 #include "llworld.h"
@@ -67,8 +72,11 @@
 #include "llsdutil.h"
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
+#include "llmeshrepository.h"
 #include "llagent.h"
 #include "llviewermediafocus.h"
+#include "llvoavatar.h"
+
 
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
@@ -88,6 +96,12 @@ LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = 
 
 static LLFastTimer::DeclareTimer FTM_GEN_TRIANGLES("Generate Triangles");
 static LLFastTimer::DeclareTimer FTM_GEN_VOLUME("Generate Volumes");
+static LLFastTimer::DeclareTimer FTM_BUILD_MESH("Mesh");
+static LLFastTimer::DeclareTimer FTM_MESH_VFS("VFS");
+static LLFastTimer::DeclareTimer FTM_MESH_STREAM("Stream");
+static LLFastTimer::DeclareTimer FTM_MESH_FACES("Faces");
+static LLFastTimer::DeclareTimer FTM_VOLUME_TEXTURES("Volume Textures");
+
 
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
@@ -653,6 +667,7 @@ void LLVOVolume::updateTextures()
 
 void LLVOVolume::updateTextureVirtualSize()
 {
+	LLFastTimer ftm(FTM_VOLUME_TEXTURES);
 	// Update the pixel area of all faces
 
 	if(mDrawable.isNull() || !mDrawable->isVisible())
@@ -686,7 +701,7 @@ void LLVOVolume::updateTextureVirtualSize()
 		const LLTextureEntry *te = face->getTextureEntry();
 		LLViewerTexture *imagep = face->getTexture();
 		if (!imagep || !te ||			
-			face->mExtents[0] == face->mExtents[1])
+			face->mExtents[0].equal3(face->mExtents[1]))
 		{
 			continue;
 		}
@@ -745,10 +760,12 @@ void LLVOVolume::updateTextureVirtualSize()
 	if (isSculpted())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-		LLUUID id =  sculpt_params->getSculptTexture(); 
+		LLUUID id =  sculpt_params->getSculptTexture();
 		
 		updateSculptTexture();
 		
+		
+
 		if (mSculptTexture.notNull())
 		{
 			mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
@@ -789,6 +806,7 @@ void LLVOVolume::updateTextureVirtualSize()
 										  mSculptTexture->getHeight(), mSculptTexture->getWidth()));
 			}
 		}
+
 	}
 
 	if (getLightTextureID().notNull())
@@ -804,7 +822,7 @@ void LLVOVolume::updateTextureVirtualSize()
 																	*camera));
 		}	
 	}
-
+	
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 	{
 		setDebugText(llformat("%.0f:%.0f", fsqrtf(min_vsize),fsqrtf(max_vsize)));
@@ -900,8 +918,34 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-BOOL LLVOVolume::setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume)
+BOOL LLVOVolume::setVolume(const LLVolumeParams &params, const S32 detail, bool unique_volume)
 {
+	LLVolumeParams volume_params = params;
+
+	S32 lod = mLOD;
+
+	BOOL is404 = FALSE;
+
+	if (isSculpted())
+	{
+		// if it's a mesh
+		if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
+		{ //meshes might not have all LODs, get the force detail to best existing LOD
+
+			LLUUID mesh_id = params.getSculptID();
+
+			//profile and path params don't matter for meshes
+			volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+
+			lod = gMeshRepo.getActualMeshLOD(volume_params, lod);
+			if (lod == -1)
+			{
+				is404 = TRUE;
+				lod = 0;
+			}
+		}
+	}
+
 	// Check if we need to change implementations
 	bool is_flexible = (volume_params.getPathParams().getCurveType() == LL_PCODE_PATH_FLEXIBLE);
 	if (is_flexible)
@@ -929,13 +973,18 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &volume_params, const S32 detail
 		}
 	}
 	
-	if ((LLPrimitive::setVolume(volume_params, mLOD, (mVolumeImpl && mVolumeImpl->isVolumeUnique()))) || mSculptChanged)
+	if (is404)
+	{
+		setIcon(LLViewerTextureManager::getFetchedTextureFromFile("icons/Inv_Mesh.png", TRUE, LLViewerTexture::BOOST_UI));
+	}
+
+	if ((LLPrimitive::setVolume(volume_params, lod, (mVolumeImpl && mVolumeImpl->isVolumeUnique()))) || mSculptChanged)
 	{
 		mFaceMappingChanged = TRUE;
 		
 		if (mVolumeImpl)
 		{
-			mVolumeImpl->onSetVolume(volume_params, detail);
+			mVolumeImpl->onSetVolume(volume_params, mLOD);
 		}
 	
 		updateSculptTexture();
@@ -944,9 +993,26 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &volume_params, const S32 detail
 		{
 			updateSculptTexture();
 
-			if (mSculptTexture.notNull())
+			// if it's a mesh
+			if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 			{
-				sculpt();
+				if (getVolume()->getNumVolumeFaces() == 0 || getVolume()->isTetrahedron())
+				{ 
+					//load request not yet issued, request pipeline load this mesh
+					LLUUID asset_id = volume_params.getSculptID();
+					S32 available_lod = gMeshRepo.loadMesh(this, volume_params, lod);
+					if (available_lod != lod)
+					{
+						LLPrimitive::setVolume(volume_params, available_lod);
+					}
+				}
+			}
+			else // otherwise is sculptie
+			{
+				if (mSculptTexture.notNull())
+				{
+					sculpt();
+				}
 			}
 		}
 
@@ -959,7 +1025,7 @@ void LLVOVolume::updateSculptTexture()
 {
 	LLPointer<LLViewerFetchedTexture> old_sculpt = mSculptTexture;
 
-	if (isSculpted())
+	if (isSculpted() && !isMesh())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID id =  sculpt_params->getSculptTexture();
@@ -985,6 +1051,15 @@ void LLVOVolume::updateSculptTexture()
 		}
 	}
 	
+}
+
+
+
+void LLVOVolume::notifyMeshLoaded()
+{ 
+	mSculptChanged = TRUE;
+	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
+	dirtySpatialGroup(TRUE);
 }
 
 // sculpt replaces generate() for sculpted surfaces
@@ -1173,6 +1248,11 @@ void LLVOVolume::updateFaceFlags()
 	for (S32 i = 0; i < getVolume()->getNumFaces(); i++)
 	{
 		LLFace *face = mDrawable->getFace(i);
+		if (!face)
+		{
+			return;
+		}
+
 		BOOL fullbright = getTE(i)->getFullbright();
 		face->clearState(LLFace::FULLBRIGHT | LLFace::HUD_RENDER | LLFace::LIGHT);
 
@@ -1252,13 +1332,17 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 {
 	BOOL res = TRUE;
 
-	LLVector3 min,max;
+	LLVector4a min,max;
 
 	BOOL rebuild = mDrawable->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION);
 
-	for (S32 i = 0; i < getVolume()->getNumFaces(); i++)
+	for (S32 i = 0; i < getVolume()->getNumVolumeFaces(); i++)
 	{
 		LLFace *face = mDrawable->getFace(i);
+		if (!face)
+		{
+			continue;
+		}
 		res &= face->genVolumeBBoxes(*getVolume(), i,
 										mRelativeXform, mRelativeXformInvTrans,
 										(mVolumeImpl && mVolumeImpl->isVolumeGlobal()) || force_global);
@@ -1272,17 +1356,8 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 			}
 			else
 			{
-				for (U32 i = 0; i < 3; i++)
-				{
-					if (face->mExtents[0].mV[i] < min.mV[i])
-					{
-						min.mV[i] = face->mExtents[0].mV[i];
-					}
-					if (face->mExtents[1].mV[i] > max.mV[i])
-					{
-						max.mV[i] = face->mExtents[1].mV[i];
-					}
-				}
+				min.setMin(face->mExtents[0]);
+				max.setMax(face->mExtents[1]);
 			}
 		}
 	}
@@ -1290,7 +1365,9 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 	if (rebuild)
 	{
 		mDrawable->setSpatialExtents(min,max);
-		mDrawable->setPositionGroup((min+max)*0.5f);	
+		min.add(max);
+		min.mul(0.5f);
+		mDrawable->setPositionGroup(min);	
 	}
 
 	updateRadius();
@@ -1518,14 +1595,9 @@ void LLVOVolume::updateFaceSize(S32 idx)
 	else
 	{
 		const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
-		if (LLPipeline::sUseTriStrips)
-		{
-			facep->setSize(vol_face.mVertices.size(), vol_face.mTriStrip.size());
-		}
-		else
-		{
-			facep->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
-		}
+		facep->setSize(vol_face.mNumVertices, vol_face.mNumIndices, 
+						true); // <--- volume faces should be padded for 16-byte alignment
+		
 	}
 }
 
@@ -1780,21 +1852,25 @@ bool LLVOVolume::hasMedia() const
 LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 {
 	LLVolume* volume = getVolume();
-	LLVector3 result;
+	LLVector4a result;
+	result.clear();
+
+	LLVector3 ret;
 
 	if (volume && face_id < volume->getNumVolumeFaces())
 	{
 		const LLVolumeFace& face = volume->getVolumeFace(face_id);
-		for (S32 i = 0; i < (S32)face.mVertices.size(); ++i)
+		for (S32 i = 0; i < (S32)face.mNumVertices; ++i)
 		{
-			result += face.mVertices[i].mNormal;
+			result.add(face.mNormals[i]);
 		}
 
-		result = volumeDirectionToAgent(result);
-		result.normVec();
+		LLVector3 ret((F32*) &result.mQ);
+		ret = volumeDirectionToAgent(ret);
+		ret.normVec();
 	}
 	
-	return result;
+	return ret;
 }
 
 void LLVOVolume::requestMediaDataUpdate(bool isNew)
@@ -2456,6 +2532,17 @@ void LLVOVolume::updateSpotLightPriority()
 }
 
 
+bool LLVOVolume::isLightSpotlight() const
+{
+	LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+	if (params)
+	{
+		return params->isLightSpotlight();
+	}
+	return false;
+}
+
+
 LLViewerTexture* LLVOVolume::getLightTexture()
 {
 	LLUUID id = getLightTextureID();
@@ -2563,6 +2650,23 @@ BOOL LLVOVolume::isSculpted() const
 		return TRUE;
 	}
 	
+	return FALSE;
+}
+
+BOOL LLVOVolume::isMesh() const
+{
+	if (isSculpted())
+	{
+		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		U8 sculpt_type = sculpt_params->getSculptType();
+
+		if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
+			// mesh is a mesh
+		{
+			return TRUE;	
+		}
+	}
+
 	return FALSE;
 }
 
@@ -2896,7 +3000,7 @@ void LLVOVolume::setSelected(BOOL sel)
 	}
 }
 
-void LLVOVolume::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
+void LLVOVolume::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {		
 }
 
@@ -2904,7 +3008,31 @@ F32 LLVOVolume::getBinRadius()
 {
 	F32 radius;
 	
-	const LLVector3* ext = mDrawable->getSpatialExtents();
+	F32 scale = 1.f;
+
+	if (isSculpted())
+	{
+		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLUUID id =  sculpt_params->getSculptTexture();
+		U8 sculpt_type = sculpt_params->getSculptType();
+
+		if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
+			// mesh is a mesh
+		{
+			LLVolume* volume = getVolume();
+			U32 vert_count = 0;
+
+			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+			{
+				const LLVolumeFace& face = volume->getVolumeFace(i);
+				vert_count += face.mNumVertices;
+			}
+
+			scale = 1.f/llmax(vert_count/1024.f, 1.f);
+		}
+	}
+
+	const LLVector4a* ext = mDrawable->getSpatialExtents();
 	
 	BOOL shrink_wrap = mDrawable->isAnimating();
 	BOOL alpha_wrap = FALSE;
@@ -2915,9 +3043,7 @@ F32 LLVOVolume::getBinRadius()
 		{
 			LLFace* face = mDrawable->getFace(i);
 			if (face->getPoolType() == LLDrawPool::POOL_ALPHA &&
-				(!LLPipeline::sFastAlpha || 
-				face->getFaceColor().mV[3] != 1.f ||
-				!face->getTexture()->getIsAlphaMask()))
+			    !face->canRenderAsMask())
 			{
 				alpha_wrap = TRUE;
 				break;
@@ -2938,7 +3064,10 @@ F32 LLVOVolume::getBinRadius()
 	}
 	else if (shrink_wrap)
 	{
-		radius = (ext[1]-ext[0]).length()*0.5f;
+		LLVector4a rad;
+		rad.setSub(ext[1], ext[0]);
+		
+		radius = rad.length3()*0.5f;
 	}
 	else if (mDrawable->isStatic())
 	{
@@ -2962,7 +3091,7 @@ F32 LLVOVolume::getBinRadius()
 		radius = 8.f;
 	}
 
-	return llclamp(radius, 0.5f, 256.f);
+	return llclamp(radius*scale, 0.5f, 256.f);
 }
 
 const LLVector3 LLVOVolume::getPivotPositionAgent() const
@@ -2974,7 +3103,7 @@ const LLVector3 LLVOVolume::getPivotPositionAgent() const
 	return LLViewerObject::getPivotPositionAgent();
 }
 
-void LLVOVolume::onShift(const LLVector3 &shift_vector)
+void LLVOVolume::onShift(const LLVector4a &shift_vector)
 {
 	if (mVolumeImpl)
 	{
@@ -3193,11 +3322,10 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	S32 idx = draw_vec.size()-1;
 
-
 	BOOL fullbright = (type == LLRenderPass::PASS_FULLBRIGHT) ||
-					  (type == LLRenderPass::PASS_INVISIBLE) ||
-					  (type == LLRenderPass::PASS_ALPHA ? facep->isState(LLFace::FULLBRIGHT) : FALSE);
-
+		(type == LLRenderPass::PASS_INVISIBLE) ||
+		(type == LLRenderPass::PASS_ALPHA && facep->isState(LLFace::FULLBRIGHT));
+	
 	if (!fullbright && type != LLRenderPass::PASS_GLOW && !facep->mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_NORMAL))
 	{
 		llwarns << "Non fullbright face has no normals!" << llendl;
@@ -3222,16 +3350,11 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		model_mat = &(drawable->getRegion()->mRenderMatrix);
 	}
 
-	U8 bump = (type == LLRenderPass::PASS_BUMP ? facep->getTextureEntry()->getBumpmap() : 0);
+	U8 bump = (type == LLRenderPass::PASS_BUMP || type == LLRenderPass::PASS_POST_BUMP) ? facep->getTextureEntry()->getBumpmap() : 0;
 	
 	LLViewerTexture* tex = facep->getTexture();
 
-	U8 glow = 0;
-		
-	if (type == LLRenderPass::PASS_GLOW)
-	{
-		glow = (U8) (facep->getTextureEntry()->getGlow() * 255);
-	}
+	U8 glow = (U8) (facep->getTextureEntry()->getGlow() * 255);
 
 	if (facep->mVertexBuffer.isNull())
 	{
@@ -3255,7 +3378,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mCount += facep->getIndicesCount();
 		draw_vec[idx]->mEnd += facep->getGeomCount();
 		draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, facep->getVirtualSize());
-		validate_draw_info(*draw_vec[idx]);
+		draw_vec[idx]->validate();
 		update_min_max(draw_vec[idx]->mExtents[0], draw_vec[idx]->mExtents[1], facep->mExtents[0]);
 		update_min_max(draw_vec[idx]->mExtents[0], draw_vec[idx]->mExtents[1], facep->mExtents[1]);
 	}
@@ -3279,12 +3402,13 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		}
 		draw_info->mExtents[0] = facep->mExtents[0];
 		draw_info->mExtents[1] = facep->mExtents[1];
-		validate_draw_info(*draw_info);
 
 		if (LLPipeline::sUseTriStrips)
 		{
 			draw_info->mDrawMode = LLRender::TRIANGLE_STRIP;
 		}
+
+		draw_info->validate();
 	}
 }
 
@@ -3295,6 +3419,34 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
 static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
+
+static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
+{
+	LLVOAvatar* avatar = vobj->getAvatar();
+					
+	if (avatar)
+	{
+		LLDrawable* drawable = avatar->mDrawable;
+		if (drawable && drawable->getNumFaces() > 0)
+		{
+			LLFace* face = drawable->getFace(0);
+			if (face)
+			{
+				LLDrawPool* drawpool = face->getPool();
+				if (drawpool)
+				{
+					if (drawpool->getType() == LLDrawPool::POOL_AVATAR)
+					{
+						return (LLDrawPoolAvatar*) drawpool;
+					}
+				}
+			}
+		}
+	}
+
+	return NULL;
+}
+		
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
@@ -3361,12 +3513,115 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 		drawablep->clearState(LLDrawable::HAS_ALPHA);
 
+		bool rigged = vobj->isAttachment() && 
+					vobj->isMesh() && 
+					gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID());
+
+		bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
+
 		//for each face
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
 			//sum up face verts and indices
 			drawablep->updateFaceSize(i);
 			LLFace* facep = drawablep->getFace(i);
+
+			if (rigged) 
+			{
+				if (!facep->isState(LLFace::RIGGED))
+				{
+					facep->mVertexBuffer = NULL;
+					facep->mLastVertexBuffer = NULL;
+					facep->setState(LLFace::RIGGED);
+					
+					//get drawpool of avatar with rigged face
+					LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
+					
+					if (pool)
+					{
+						const LLTextureEntry* te = facep->getTextureEntry();
+
+						//remove face from old pool if it exists
+						LLDrawPool* old_pool = facep->getPool();
+						if (old_pool && old_pool->getType() == LLDrawPool::POOL_AVATAR)
+						{
+							((LLDrawPoolAvatar*) old_pool)->removeRiggedFace(facep);
+						}
+
+						//add face to new pool
+						LLViewerTexture* tex = facep->getTexture();
+						U32 type = gPipeline.getPoolTypeFromTE(te, tex);
+
+						if (type == LLDrawPool::POOL_ALPHA)
+						{
+							if (te->getFullbright())
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA);
+							}
+							else
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_ALPHA);
+							}
+						}
+						else if (te->getShiny())
+						{
+							if (te->getFullbright())
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY);
+							}
+							else
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
+							}
+						}
+						else
+						{
+							if (te->getFullbright())
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
+							}
+							else
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
+							}
+						}
+
+						if (te->getGlow())
+						{
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_GLOW);
+						}
+
+						if (LLPipeline::sRenderDeferred)
+						{
+							if (type != LLDrawPool::POOL_ALPHA && !te->getFullbright())
+							{
+								if (te->getBumpmap())
+								{
+									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_BUMP);
+								}
+								else
+								{
+									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_SIMPLE);
+								}
+							}
+						}
+					}
+				}
+
+				continue;
+			}
+			else
+			{
+				if (facep->isState(LLFace::RIGGED))
+				{ //face is not rigged but used to be, remove from rigged face pool
+					LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*) facep->getPool();
+					if (pool)
+					{
+						pool->removeRiggedFace(facep);
+					}
+					facep->clearState(LLFace::RIGGED);
+				}
+			}
 
 			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
 			{
@@ -3421,10 +3676,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 				if (type == LLDrawPool::POOL_ALPHA)
 				{
-					if (LLPipeline::sFastAlpha &&
-					    (te->getColor().mV[VW] == 1.0f) &&
-					    (!te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible, need to figure out why - for now, avoid
-					    facep->getTexture()->getIsAlphaMask())
+					if (facep->canRenderAsMask())
 					{ //can be treated as alpha mask
 						simple_faces.push_back(facep);
 					}
@@ -3465,7 +3717,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							bump_faces.push_back(facep);
 						}
 						else if ((te->getShiny() && LLPipeline::sRenderBump) ||
-							!te->getFullbright())
+							!(te->getFullbright() || bake_sunlight))
 						{ //needs normal
 							simple_faces.push_back(facep);
 						}
@@ -3526,6 +3778,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 }
 
 static LLFastTimer::DeclareTimer FTM_VOLUME_GEOM("Volume Geometry");
+static LLFastTimer::DeclareTimer FTM_VOLUME_GEOM_PARTIAL("Terse Rebuild");
+
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 {
 	llassert(group);
@@ -3538,6 +3792,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		
 		for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
 		{
+			LLFastTimer t(FTM_VOLUME_GEOM_PARTIAL);
 			LLDrawable* drawablep = *drawable_iter;
 
 			if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
@@ -3557,6 +3812,11 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					{
 						face->getGeometryVolume(*volume, face->getTEOffset(), 
 							vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex());
+					}
+
+					if (!face)
+					{
+						llerrs << "WTF?" << llendl;
 					}
 				}
 
@@ -3667,6 +3927,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			buffer_index = 0;
 		}
 
+		bool bake_sunlight = LLPipeline::sBakeSunlight && facep->getDrawable()->isStatic(); 
+
 		U32 index_count = facep->getIndicesCount();
 		U32 geom_count = facep->getGeomCount();
 
@@ -3765,17 +4027,14 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 			const LLTextureEntry* te = facep->getTextureEntry();
 
-			BOOL is_alpha = facep->getPoolType() == LLDrawPool::POOL_ALPHA ? TRUE : FALSE;
+			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
 			if (is_alpha)
 			{
 				// can we safely treat this as an alpha mask?
-				if (LLPipeline::sFastAlpha &&
-				    (te->getColor().mV[VW] == 1.0f) &&
-				    (!te->getFullbright()) && // hack: alpha masking renders fullbright faces invisible, need to figure out why - for now, avoid
-				    facep->getTexture()->getIsAlphaMask())
+				if (facep->canRenderAsMask())
 				{
-					if (te->getFullbright())
+					if (te->getFullbright() || LLPipeline::sNoAlpha)
 					{
 						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 					}
@@ -3798,66 +4057,76 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				&& group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD 
 				&& LLPipeline::sRenderBump 
 				&& te->getShiny())
-			{
+			{ //shiny
 				if (tex->getPrimaryFormat() == GL_ALPHA)
-				{
+				{ //invisiprim+shiny
 					registerFace(group, facep, LLRenderPass::PASS_INVISI_SHINY);
 					registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
 				}
 				else if (LLPipeline::sRenderDeferred)
-				{
-					if (te->getBumpmap())
-					{
+				{ //deferred rendering
+					if (te->getFullbright())
+					{ //register in post deferred fullbright shiny pass
+						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_SHINY);
+						if (te->getBumpmap())
+						{ //register in post deferred bump pass
+							registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
+						}
+					}
+					else if (te->getBumpmap())
+					{ //register in deferred bump pass
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
-					else if (te->getFullbright())
-					{
-						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_SHINY);
-					}
 					else
-					{
+					{ //register in deferred simple pass (deferred simple includes shiny)
 						llassert(mask & LLVertexBuffer::MAP_NORMAL);
 						registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
 					}
 				}
 				else if (fullbright)
-				{						
+				{	//not deferred, register in standard fullbright shiny pass					
 					registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_SHINY);
 				}
 				else
-				{
+				{ //not deferred or fullbright, register in standard shiny pass
 					registerFace(group, facep, LLRenderPass::PASS_SHINY);
 				}
 			}
 			else
-			{
+			{ //not alpha and not shiny
 				if (!is_alpha && tex->getPrimaryFormat() == GL_ALPHA)
-				{
+				{ //invisiprim
 					registerFace(group, facep, LLRenderPass::PASS_INVISIBLE);
 				}
-				else if (fullbright)
-				{
+				else if (fullbright || bake_sunlight)
+				{ //fullbright
 					registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && te->getBumpmap())
+					{ //if this is the deferred render and a bump map is present, register in post deferred bump
+						registerFace(group, facep, LLRenderPass::PASS_POST_BUMP);
+					}
 				}
 				else
 				{
-					if (LLPipeline::sRenderDeferred && te->getBumpmap())
-					{
+					if (LLPipeline::sRenderDeferred && LLPipeline::sRenderBump && te->getBumpmap())
+					{ //non-shiny or fullbright deferred bump
 						registerFace(group, facep, LLRenderPass::PASS_BUMP);
 					}
 					else
-					{
+					{ //all around simple
 						llassert(mask & LLVertexBuffer::MAP_NORMAL);
 						registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
 					}
 				}
 				
+				//not sure why this is here -- shiny HUD attachments maybe?  -- davep 5/11/2010
 				if (!is_alpha && te->getShiny() && LLPipeline::sRenderBump)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_SHINY);
 				}
 			}
 			
+			//not sure why this is here, and looks like it might cause bump mapped objects to get rendered redundantly -- davep 5/11/2010
 			if (!is_alpha && !LLPipeline::sRenderDeferred)
 			{
 				llassert((mask & LLVertexBuffer::MAP_NORMAL) || fullbright);
@@ -3869,7 +4138,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 			}
 
-			if (LLPipeline::sRenderGlow && te->getGlow() > 0.f)
+			if (!is_alpha && LLPipeline::sRenderGlow && te->getGlow() > 0.f)
 			{
 				registerFace(group, facep, LLRenderPass::PASS_GLOW);
 			}
@@ -3943,7 +4212,7 @@ LLHUDPartition::LLHUDPartition()
 	mLODPeriod = 1;
 }
 
-void LLHUDPartition::shift(const LLVector3 &offset)
+void LLHUDPartition::shift(const LLVector4a &offset)
 {
 	//HUD objects don't shift with region crossing.  That would be silly.
 }

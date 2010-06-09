@@ -53,6 +53,7 @@
 #include "llprimitive.h"
 #include "llquantize.h"
 #include "llregionhandle.h"
+#include "llsdserialize.h"
 #include "lltree_common.h"
 #include "llxfermanager.h"
 #include "message.h"
@@ -199,6 +200,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mGLName(0),
 	mbCanSelect(TRUE),
 	mFlags(0),
+	mPhysicsShapeType(0),
 	mDrawable(),
 	mCreateSelected(FALSE),
 	mRenderMedia(FALSE),
@@ -2861,21 +2863,26 @@ void LLViewerObject::setScale(const LLVector3 &scale, BOOL damped)
 	}
 }
 
-void LLViewerObject::updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax)
+void LLViewerObject::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
-	LLVector3 center = getRenderPosition();
-	LLVector3 size = getScale();
-	newMin.setVec(center-size);
-	newMax.setVec(center+size);
-	mDrawable->setPositionGroup((newMin + newMax) * 0.5f);
+	LLVector4a center;
+	center.load3(getRenderPosition().mV);
+	LLVector4a size;
+	size.load3(getScale().mV);
+	newMin.setSub(center, size);
+	newMax.setAdd(center, size);
+	
+	mDrawable->setPositionGroup(center);
 }
 
 F32 LLViewerObject::getBinRadius()
 {
 	if (mDrawable.notNull())
 	{
-		const LLVector3* ext = mDrawable->getSpatialExtents();
-		return (ext[1]-ext[0]).magVec();
+		const LLVector4a* ext = mDrawable->getSpatialExtents();
+		LLVector4a diff;
+		diff.setSub(ext[1], ext[0]);
+		return diff.length3();
 	}
 	
 	return getScale().magVec();
@@ -2941,7 +2948,7 @@ void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
  		getTEImage(i)->setBoostLevel(LLViewerTexture::BOOST_SELECTED);
 	}
 
-	if (isSculpted())
+	if (isSculpted() && !isMesh())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		LLUUID sculpt_id = sculpt_params->getSculptTexture();
@@ -3467,12 +3474,21 @@ BOOL LLViewerObject::lineSegmentBoundingBox(const LLVector3& start, const LLVect
 		return FALSE;
 	}
 
-	const LLVector3* ext = mDrawable->getSpatialExtents();
+	const LLVector4a* ext = mDrawable->getSpatialExtents();
 
-	LLVector3 center = (ext[1]+ext[0])*0.5f;
-	LLVector3 size = (ext[1]-ext[0])*0.5f;
+	//VECTORIZE THIS
+	LLVector4a center;
+	center.setAdd(ext[1], ext[0]);
+	center.mul(0.5f);
+	LLVector4a size;
+	size.setSub(ext[1], ext[0]);
+	size.mul(0.5f);
 
-	return LLLineSegmentBoxIntersect(start, end, center, size);
+	LLVector4a starta, enda;
+	starta.load3(start.mV);
+	enda.load3(end.mV);
+
+	return LLLineSegmentBoxIntersect(starta, enda, center, size);
 }
 
 U8 LLViewerObject::getMediaType() const
@@ -4961,7 +4977,14 @@ void LLViewerObject::updateFlags()
 	gMessageSystem->addBOOL("IsTemporary", flagTemporaryOnRez() );
 	gMessageSystem->addBOOL("IsPhantom", flagPhantom() );
 	gMessageSystem->addBOOL("CastsShadows", flagCastShadows() );
+	gMessageSystem->nextBlock("ExtraPhysics");
+	gMessageSystem->addU8("PhysicsShapeType", getPhysicsShapeType() );
 	gMessageSystem->sendReliable( regionp->getHost() );
+
+	if (getPhysicsShapeType() != 0)
+	{
+		llwarns << "sent non default physics rep" << llendl;
+	}
 }
 
 BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
@@ -4991,6 +5014,12 @@ BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
 		updateFlags();
 	}
 	return setit;
+}
+
+void LLViewerObject::setPhysicsShapeType(U8 type)
+{
+	mPhysicsShapeType = type;
+	updateFlags();
 }
 
 void LLViewerObject::applyAngularVelocity(F32 dt)
@@ -5203,4 +5232,68 @@ void LLViewerObject::resetChildrenPosition(const LLVector3& offset, BOOL simplif
 
 	return ;
 }
+
+//virtual
+LLVOAvatar* LLViewerObject::getAvatar() const
+{
+	if (isAttachment())
+	{
+		LLViewerObject* vobj = (LLViewerObject*) getParent();
+
+		while (vobj && !vobj->asAvatar())
+		{
+			vobj = (LLViewerObject*) vobj->getParent();
+		}
+
+		return (LLVOAvatar*) vobj;
+	}
+
+	return NULL;
+}
+
+
+class ObjectPhysicsProperties : public LLHTTPNode
+{
+public:
+	virtual void post(
+		ResponsePtr responder,
+		const LLSD& context,
+		const LLSD& input) const
+	{
+		LLSD objectData = input["body"]["ObjectData"];
+		S32 numEntries = objectData.size();
+		
+		for ( S32 i = 0; i < numEntries; i++ )
+		{
+			LLSD& currObjectData = objectData[i];
+			U32 localID = currObjectData["LocalID"].asInteger();
+
+			// Iterate through nodes at end, since it can be on both the regular AND hover list
+			struct f : public LLSelectedNodeFunctor
+			{
+				U32 mID;
+				f(const U32& id) : mID(id) {}
+				virtual bool apply(LLSelectNode* node)
+				{
+					return (node->getObject() && node->getObject()->mLocalID == mID );
+				}
+			} func(localID);
+
+			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(&func);
+
+			if (node)
+			{
+				// The LLSD message builder doesn't know how to handle U8, so we need to send as S8 and cast
+				U8 physicsShapeType = (U8)currObjectData["PhysicsShapeType"].asInteger();
+
+				node->getObject()->setPhysicsShapeType(physicsShapeType);
+			}	
+		}
+		
+		dialog_refresh_all();
+	};
+};
+
+LLHTTPRegistration<ObjectPhysicsProperties>
+	gHTTPRegistrationObjectPhysicsProperties("/message/ObjectPhysicsProperties");
 

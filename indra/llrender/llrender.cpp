@@ -39,6 +39,7 @@
 #include "llimagegl.h"
 #include "llrendertarget.h"
 #include "lltexture.h"
+#include "llvector4a.h"
 
 LLRender gGL;
 
@@ -53,6 +54,7 @@ U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;
 
 static const U32 LL_NUM_TEXTURE_LAYERS = 16; 
+static const U32 LL_MAX_UI_STACK_DEPTH = 32;
 
 static GLenum sGLTextureType[] =
 {
@@ -165,6 +167,7 @@ void LLTexUnit::enable(eTextureType type)
 	if ( (mCurrTexType != type || gGL.mDirty) && (type != TT_NONE) )
 	{
 		activate();
+
 		if (mCurrTexType != TT_NONE && !gGL.mDirty)
 		{
 			disable(); // Force a disable of a previous texture type if it's enabled.
@@ -756,14 +759,27 @@ LLRender::LLRender()
     mCount(0),
     mMode(LLRender::TRIANGLES),
     mCurrTextureUnitIndex(0),
-    mMaxAnisotropy(0.f) 
+    mMaxAnisotropy(0.f),
+	mUIStackDepth(0)
 {
 	mBuffer = new LLVertexBuffer(immediate_mask, 0);
 	mBuffer->allocateBuffer(4096, 0, TRUE);
-	mBuffer->getVertexStrider(mVerticesp);
-	mBuffer->getTexCoord0Strider(mTexcoordsp);
-	mBuffer->getColorStrider(mColorsp);
-	
+
+	LLStrider<LLVector3> vert;
+	LLStrider<LLVector2> tc;
+	LLStrider<LLColor4U> color;
+
+	mBuffer->getVertexStrider(vert);
+	mBuffer->getTexCoord0Strider(tc);
+	mBuffer->getColorStrider(color);
+
+	mVerticesp = (LLVector4a*) vert.get();
+	mTexcoordsp = tc.get();
+	mColorsp = color.get();
+
+	mUIOffset = (LLVector4a*) ll_aligned_malloc_16(LL_MAX_UI_STACK_DEPTH*sizeof(LLVector4a));
+	mUIScale = (LLVector4a*) ll_aligned_malloc_16(LL_MAX_UI_STACK_DEPTH*sizeof(LLVector4a));
+		
 	mTexUnits.reserve(LL_NUM_TEXTURE_LAYERS);
 	for (U32 i = 0; i < LL_NUM_TEXTURE_LAYERS; i++)
 	{
@@ -778,8 +794,11 @@ LLRender::LLRender()
 
 	mCurrAlphaFunc = CF_DEFAULT;
 	mCurrAlphaFuncVal = 0.01f;
-	mCurrBlendSFactor = BF_UNDEF;
-	mCurrBlendDFactor = BF_UNDEF;
+
+	mCurrBlendColorSFactor = BF_UNDEF;
+	mCurrBlendAlphaSFactor = BF_UNDEF;
+	mCurrBlendColorDFactor = BF_UNDEF;
+	mCurrBlendAlphaDFactor = BF_UNDEF;
 }
 
 LLRender::~LLRender()
@@ -796,6 +815,11 @@ void LLRender::shutdown()
 	mTexUnits.clear();
 	delete mDummyTexUnit;
 	mDummyTexUnit = NULL;
+
+	ll_aligned_free_16(mUIOffset);
+	mUIOffset = NULL;
+	ll_aligned_free_16(mUIScale);
+	mUIScale = NULL;
 }
 
 void LLRender::refreshState(void)
@@ -844,84 +868,83 @@ void LLRender::popMatrix()
 
 void LLRender::translateUI(F32 x, F32 y, F32 z)
 {
-	if (mUIOffset.empty())
+	if (mUIStackDepth == 0)
 	{
 		llerrs << "Need to push a UI translation frame before offsetting" << llendl;
 	}
 
-	mUIOffset.front().mV[0] += x;
-	mUIOffset.front().mV[1] += y;
-	mUIOffset.front().mV[2] += z;
+	LLVector4a trans(x,y,z);
+	mUIOffset[mUIStackDepth-1].add(trans);
 }
 
 void LLRender::scaleUI(F32 x, F32 y, F32 z)
 {
-	if (mUIScale.empty())
+	if (mUIStackDepth == 0)
 	{
 		llerrs << "Need to push a UI transformation frame before scaling." << llendl;
 	}
 
-	mUIScale.front().scaleVec(LLVector3(x,y,z));
+	LLVector4a scale(x,y,z);
+	mUIScale[mUIStackDepth-1].mul(scale);
 }
 
 void LLRender::pushUIMatrix()
 {
-	if (mUIOffset.empty())
+	if (mUIStackDepth == 0)
 	{
-		mUIOffset.push_front(LLVector3(0,0,0));
+		mUIOffset[0].clear();
+		mUIScale[0].splat(1.f);
+	}
+	else if (mUIStackDepth < LL_MAX_UI_STACK_DEPTH)
+	{
+		mUIOffset[mUIStackDepth] = mUIOffset[mUIStackDepth-1];
+		mUIScale[mUIStackDepth] = mUIScale[mUIStackDepth-1];
 	}
 	else
 	{
-		mUIOffset.push_front(mUIOffset.front());
+		llerrs << "Blown UI matrix stack." << llendl;
 	}
 	
-	if (mUIScale.empty())
-	{
-		mUIScale.push_front(LLVector3(1,1,1));
-	}
-	else
-	{
-		mUIScale.push_front(mUIScale.front());
-	}
+	++mUIStackDepth;
+	
 }
 
 void LLRender::popUIMatrix()
 {
-	if (mUIOffset.empty())
+	if (mUIStackDepth == 0)
 	{
 		llerrs << "UI offset stack blown." << llendl;
 	}
-	mUIOffset.pop_front();
-	mUIScale.pop_front();
+	--mUIStackDepth;
 }
 
 LLVector3 LLRender::getUITranslation()
 {
-	if (mUIOffset.empty())
+	if (mUIStackDepth == 0)
 	{
 		llerrs << "UI offset stack empty." << llendl;
 	}
-	return mUIOffset.front();
+	return LLVector3(mUIOffset[mUIStackDepth-1].getF32());
 }
 
 LLVector3 LLRender::getUIScale()
 {
-	if (mUIScale.empty())
+	if (mUIStackDepth == 0)
 	{
 		llerrs << "UI scale stack empty." << llendl;
 	}
-	return mUIScale.front();
+	return LLVector3(mUIScale[mUIStackDepth-1].getF32());
 }
 
 
 void LLRender::loadUIIdentity()
 {
-	if (mUIOffset.empty())
+	if (mUIStackDepth == 0)
 	{
 		llerrs << "Need to push UI translation frame before clearing offset." << llendl;
 	}
-	mUIOffset.front().setVec(0,0,0);
-	mUIScale.front().setVec(1,1,1);
+	mUIOffset[mUIStackDepth-1].clear();
+	mUIScale[mUIStackDepth-1].splat(1.f);
 }
 
 void LLRender::setColorMask(bool writeColor, bool writeAlpha)
@@ -995,12 +1018,41 @@ void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 {
 	llassert(sfactor < BF_UNDEF);
 	llassert(dfactor < BF_UNDEF);
-	if (mCurrBlendSFactor != sfactor || mCurrBlendDFactor != dfactor)
+	if (mCurrBlendColorSFactor != sfactor || mCurrBlendColorDFactor != dfactor ||
+	    mCurrBlendAlphaSFactor != sfactor || mCurrBlendAlphaDFactor != dfactor)
 	{
-		mCurrBlendSFactor = sfactor;
-		mCurrBlendDFactor = dfactor;
+		mCurrBlendColorSFactor = sfactor;
+		mCurrBlendAlphaSFactor = sfactor;
+		mCurrBlendColorDFactor = dfactor;
+		mCurrBlendAlphaDFactor = dfactor;
 		flush();
 		glBlendFunc(sGLBlendFactor[sfactor], sGLBlendFactor[dfactor]);
+	}
+}
+
+void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
+			 eBlendFactor alpha_sfactor, eBlendFactor alpha_dfactor)
+{
+	llassert(color_sfactor < BF_UNDEF);
+	llassert(color_dfactor < BF_UNDEF);
+	llassert(alpha_sfactor < BF_UNDEF);
+	llassert(alpha_dfactor < BF_UNDEF);
+	if (!gGLManager.mHasBlendFuncSeparate)
+	{
+		LL_WARNS_ONCE("render") << "no glBlendFuncSeparateEXT(), using color-only blend func" << llendl;
+		blendFunc(color_sfactor, color_dfactor);
+		return;
+	}
+	if (mCurrBlendColorSFactor != color_sfactor || mCurrBlendColorDFactor != color_dfactor ||
+	    mCurrBlendAlphaSFactor != alpha_sfactor || mCurrBlendAlphaDFactor != alpha_dfactor)
+	{
+		mCurrBlendColorSFactor = color_sfactor;
+		mCurrBlendAlphaSFactor = alpha_sfactor;
+		mCurrBlendColorDFactor = color_dfactor;
+		mCurrBlendAlphaDFactor = alpha_dfactor;
+		flush();
+		glBlendFuncSeparateEXT(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
+				       sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);
 	}
 }
 
@@ -1121,7 +1173,7 @@ void LLRender::flush()
 		}
 #endif
 				
-		if (!mUIOffset.empty())
+		if (mUIStackDepth > 0)
 		{
 			sUICalls++;
 			sUIVerts += mCount;
@@ -1173,24 +1225,22 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 		return;
 	}
 
-	if (mUIOffset.empty())
+	LLVector3& v = reinterpret_cast<LLVector3&>(mVerticesp[mCount]);
+	v.set(x,y,z);
+	if (mUIStackDepth != 0)
 	{
-		mVerticesp[mCount] = LLVector3(x,y,z);
-	}
-	else
-	{
-		LLVector3 vert = (LLVector3(x,y,z)+mUIOffset.front()).scaledVec(mUIScale.front());
-		mVerticesp[mCount] = vert;
+		v += reinterpret_cast<LLVector3&>(mUIOffset[mUIStackDepth-1]);
+		v.scaleVec(reinterpret_cast<LLVector3&>(mUIScale[mUIStackDepth-1]));
 	}
 
 	mCount++;
 	if (mCount < 4096)
 	{
-		mVerticesp[mCount] = mVerticesp[mCount-1];
 		mColorsp[mCount] = mColorsp[mCount-1];
 		mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
 	}
 }
+
 void LLRender::vertex2i(const GLint& x, const GLint& y)
 {
 	vertex3f((GLfloat) x, (GLfloat) y, 0);	

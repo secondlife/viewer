@@ -70,6 +70,7 @@
 #include "llhudmanager.h"
 #include "llinventorymodel.h"
 #include "llmenugl.h"
+#include "llmeshrepository.h"
 #include "llmutelist.h"
 #include "llsidepaneltaskinfo.h"
 #include "llslurl.h"
@@ -181,7 +182,6 @@ LLObjectSelection *get_null_object_selection()
 
 // Build time optimization, generate this function once here
 template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
-
 //-----------------------------------------------------------------------------
 // LLSelectMgr()
 //-----------------------------------------------------------------------------
@@ -1100,8 +1100,8 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		mGridRotation = first_grid_object->getRenderRotation();
 		LLVector3 first_grid_obj_pos = first_grid_object->getRenderPosition();
 
-		LLVector3 min_extents(F32_MAX, F32_MAX, F32_MAX);
-		LLVector3 max_extents(-F32_MAX, -F32_MAX, -F32_MAX);
+		LLVector4a min_extents(F32_MAX);
+		LLVector4a max_extents(-F32_MAX);
 		BOOL grid_changed = FALSE;
 		for (LLObjectSelection::iterator iter = mGridObjects.begin();
 			 iter != mGridObjects.end(); ++iter)
@@ -1110,7 +1110,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 			LLDrawable* drawable = object->mDrawable;
 			if (drawable)
 			{
-				const LLVector3* ext = drawable->getSpatialExtents();
+				const LLVector4a* ext = drawable->getSpatialExtents();
 				update_min_max(min_extents, max_extents, ext[0]);
 				update_min_max(min_extents, max_extents, ext[1]);
 				grid_changed = TRUE;
@@ -1118,13 +1118,19 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		}
 		if (grid_changed)
 		{
-			mGridOrigin = lerp(min_extents, max_extents, 0.5f);
+			LLVector4a center, size;
+			center.setAdd(min_extents, max_extents);
+			center.mul(0.5f);
+			size.setSub(max_extents, min_extents);
+			size.mul(0.5f);
+
+			mGridOrigin.set(center.getF32());
 			LLDrawable* drawable = first_grid_object->mDrawable;
 			if (drawable && drawable->isActive())
 			{
 				mGridOrigin = mGridOrigin * first_grid_object->getRenderMatrix();
 			}
-			mGridScale = (max_extents - min_extents) * 0.5f;
+			mGridScale.set(size.getF32());
 		}
 	}
 	else // GRID_MODE_WORLD or just plain default
@@ -3931,6 +3937,28 @@ void LLSelectMgr::selectionUpdateCastShadows(BOOL cast_shadows)
 	getSelection()->applyToObjects(&func);	
 }
 
+struct LLSelectMgrApplyPhysicsShapeType : public LLSelectedObjectFunctor
+{
+	LLSelectMgrApplyPhysicsShapeType(U8 value) : mValue(value) {}
+	U8 mValue;
+	virtual bool apply(LLViewerObject* object)
+	{
+		if ( object->permModify() ) 	// preemptive permissions check
+		{
+			object->setPhysicsShapeType( mValue );
+			object->updateFlags();
+		}
+		return true;
+	}
+};
+
+
+void LLSelectMgr::selectionUpdatePhysicsShapeType(U8 type)
+{
+	llwarns << "physics shape type ->" << (U32)type << llendl;
+	LLSelectMgrApplyPhysicsShapeType func(type);
+	getSelection()->applyToObjects(&func);	
+}
 
 //----------------------------------------------------------------------
 // Helpful packing functions for sendObjectMessage()
@@ -4619,7 +4647,6 @@ void LLSelectMgr::processForceObjectSelect(LLMessageSystem* msg, void**)
 	// Don't select, just highlight
 	LLSelectMgr::getInstance()->highlightObjectAndFamily(objects);
 }
-
 
 extern LLGLdouble	gGLModelView[16];
 
@@ -5348,6 +5375,78 @@ BOOL LLSelectNode::allowOperationOnNode(PermissionBit op, U64 group_proxy_power)
 	return (mPermissions->allowOperationBy(op, proxy_agent_id, group_id));
 }
 
+void LLSelectNode::renderOneWireframe(const LLColor4& color)
+{
+	LLViewerObject* objectp = getObject();
+	if (!objectp)
+	{
+		return;
+	}
+
+	LLDrawable* drawable = objectp->mDrawable;
+	if(!drawable)
+	{
+		return;
+	}
+
+	glMatrixMode(GL_MODELVIEW);
+	gGL.pushMatrix();
+
+	BOOL is_hud_object = objectp->isHUDAttachment();
+
+	if (!is_hud_object)
+	{
+		glLoadIdentity();
+		glMultMatrixd(gGLModelView);
+	}
+	
+	if (drawable->isActive())
+	{
+		glMultMatrixf((F32*) objectp->getRenderMatrix().mMatrix);
+	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
+	if (LLSelectMgr::sRenderHiddenSelections) // && gFloaterTools && gFloaterTools->getVisible())
+	{
+		gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
+		LLGLEnable fog(GL_FOG);
+		glFogi(GL_FOG_MODE, GL_LINEAR);
+		float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
+		LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgentCamera.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
+		glFogf(GL_FOG_START, d);
+		glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
+		glFogfv(GL_FOG_COLOR, fogCol.mV);
+
+		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		{
+			glColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+			for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+			{
+				LLFace* face = drawable->getFace(i);
+				pushVerts(face, LLVertexBuffer::MAP_VERTEX);
+			}
+		}
+	}
+
+	gGL.flush();
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+	glColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
+	glPolygonOffset(3.f, 2.f);
+	glLineWidth(3.f);
+	for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+	{
+		LLFace* face = drawable->getFace(i);
+		pushVerts(face, LLVertexBuffer::MAP_VERTEX);
+	}
+	glLineWidth(1.f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	gGL.popMatrix();
+}
+
 //-----------------------------------------------------------------------------
 // renderOneSilhouette()
 //-----------------------------------------------------------------------------
@@ -5362,6 +5461,13 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 	LLDrawable* drawable = objectp->mDrawable;
 	if(!drawable)
 	{
+		return;
+	}
+
+	LLVOVolume* vobj = drawable->getVOVolume();
+	if (vobj && vobj->isMesh())
+	{
+		renderOneWireframe(color);
 		return;
 	}
 
@@ -6054,10 +6160,32 @@ BOOL LLObjectSelection::isEmpty() const
 //-----------------------------------------------------------------------------
 // getObjectCount() - returns number of non null objects
 //-----------------------------------------------------------------------------
-S32 LLObjectSelection::getObjectCount()
+S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
 {
 	cleanupNodes();
 	S32 count = mList.size();
+
+	if (mesh_adjust)
+	{
+		for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+		{
+			LLSelectNode* node = *iter;
+			LLViewerObject* object = node->getObject();
+			
+			if (object && object->getVolume())
+			{
+				LLVOVolume* vobj = (LLVOVolume*) object;
+				if (vobj->isMesh())
+				{
+					LLUUID mesh_id = vobj->getVolume()->getParams().getSculptID();
+					U32 cost = gMeshRepo.getResourceCost(mesh_id);
+					count += cost-1;
+				}
+			}
+
+		}
+	}
+
 	return count;
 }
 

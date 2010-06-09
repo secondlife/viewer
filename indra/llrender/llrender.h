@@ -45,6 +45,7 @@
 #include "v4coloru.h"
 #include "llstrider.h"
 #include "llpointer.h"
+#include "llmemory.h"
 #include "llglheaders.h"
 
 class LLVertexBuffer;
@@ -52,6 +53,7 @@ class LLCubeMap;
 class LLImageGL;
 class LLRenderTarget;
 class LLTexture ;
+class LLVector4a;
 
 class LLTexUnit
 {
@@ -323,7 +325,11 @@ public:
 
 	void setAlphaRejectSettings(eCompareFunc func, F32 value = 0.01f);
 
+	// applies blend func to both color and alpha
 	void blendFunc(eBlendFactor sfactor, eBlendFactor dfactor);
+	// applies separate blend functions to color and alpha
+	void blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
+		       eBlendFactor alpha_sfactor, eBlendFactor alpha_dfactor);
 
 	LLTexUnit* getTexUnit(U32 index);
 
@@ -356,20 +362,23 @@ private:
 	F32				mCurrAlphaFuncVal;
 
 	LLPointer<LLVertexBuffer>	mBuffer;
-	LLStrider<LLVector3>		mVerticesp;
-	LLStrider<LLVector2>		mTexcoordsp;
-	LLStrider<LLColor4U>		mColorsp;
+	LLVector4a*					mVerticesp;
+	LLVector2*					mTexcoordsp;
+	LLColor4U*					mColorsp;
+
 	std::vector<LLTexUnit*>		mTexUnits;
 	LLTexUnit*			mDummyTexUnit;
 
-	eBlendFactor mCurrBlendSFactor;
-	eBlendFactor mCurrBlendDFactor;
-
+	eBlendFactor mCurrBlendColorSFactor;
+	eBlendFactor mCurrBlendColorDFactor;
+	eBlendFactor mCurrBlendAlphaSFactor;
+	eBlendFactor mCurrBlendAlphaDFactor;
 	F32				mMaxAnisotropy;
 
-	std::list<LLVector3> mUIOffset;
-	std::list<LLVector3> mUIScale;
+	LLVector4a* mUIOffset;
+	LLVector4a* mUIScale;
 
+	U32 mUIStackDepth;
 };
 
 extern F64 gGLModelView[16];

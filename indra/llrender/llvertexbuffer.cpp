@@ -31,6 +31,7 @@
  */
 
 #include "linden_common.h"
+#include "llmemory.h"
 
 #include <boost/static_assert.hpp>
 
@@ -39,6 +40,7 @@
 #include "llglheaders.h"
 #include "llmemtype.h"
 #include "llrender.h"
+#include "llvector4a.h"
 
 //============================================================================
 
@@ -61,8 +63,31 @@ BOOL LLVertexBuffer::sVBOActive = FALSE;
 BOOL LLVertexBuffer::sIBOActive = FALSE;
 U32 LLVertexBuffer::sAllocatedBytes = 0;
 BOOL LLVertexBuffer::sMapped = FALSE;
+BOOL LLVertexBuffer::sUseStreamDraw = TRUE;
+S32	LLVertexBuffer::sWeight4Loc = -1;
 
 std::vector<U32> LLVertexBuffer::sDeleteList;
+
+#define LL_ALIGNED_VB 1
+
+#if LL_ALIGNED_VB
+
+S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
+{
+	sizeof(LLVector4), // TYPE_VERTEX,
+	sizeof(LLVector4), // TYPE_NORMAL,
+	sizeof(LLVector2), // TYPE_TEXCOORD0,
+	sizeof(LLVector2), // TYPE_TEXCOORD1,
+	sizeof(LLVector2), // TYPE_TEXCOORD2,
+	sizeof(LLVector2), // TYPE_TEXCOORD3,
+	sizeof(LLColor4U), // TYPE_COLOR,
+	sizeof(LLVector4), // TYPE_BINORMAL,
+	sizeof(F32),	   // TYPE_WEIGHT,
+	sizeof(LLVector4), // TYPE_WEIGHT4,
+	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
+};
+
+#else
 
 S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
 {
@@ -75,8 +100,11 @@ S32 LLVertexBuffer::sTypeOffsets[LLVertexBuffer::TYPE_MAX] =
 	sizeof(LLColor4U), // TYPE_COLOR,
 	sizeof(LLVector3), // TYPE_BINORMAL,
 	sizeof(F32),	   // TYPE_WEIGHT,
+	sizeof(LLVector4), // TYPE_WEIGHT4,
 	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
 };
+
+#endif
 
 U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] = 
 {
@@ -209,14 +237,33 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 			glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		}
 	
+		if (sLastMask & MAP_WEIGHT4)
+		{
+			if (sWeight4Loc < 0)
+			{
+				llerrs << "Weighting disabled but vertex buffer still bound!" << llendl;
+			}
+
+			if (!(data_mask & MAP_WEIGHT4))
+			{ //disable 4-component skin weight			
+				glDisableVertexAttribArrayARB(sWeight4Loc);
+			}
+		}
+		else if (data_mask & MAP_WEIGHT4)
+		{
+			if (sWeight4Loc >= 0)
+			{ //enable 4-component skin weight
+				glEnableVertexAttribArrayARB(sWeight4Loc);
+			}
+		}
+				
+
 		sLastMask = data_mask;
 	}
 }
 
-void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
+void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_offset) const
 {
-	llassert(mRequestedNumVerts >= 0);
-
 	if (start >= (U32) mRequestedNumVerts ||
 	    end >= (U32) mRequestedNumVerts)
 	{
@@ -230,6 +277,25 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	{
 		llerrs << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << llendl;
 	}
+
+	if (gDebugGL && !useVBOs())
+	{
+		U16* idx = ((U16*) getIndicesPointer())+indices_offset;
+		for (U32 i = 0; i < count; ++i)
+		{
+			if (idx[i] < start || idx[i] > end)
+			{
+				llerrs << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << llendl;
+			}
+		}
+	}
+}
+
+void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
+{
+	validateRange(start, end, count, indices_offset);
+
+	llassert(mRequestedNumVerts >= 0);
 
 	if (mGLIndices != sGLRenderIndices)
 	{
@@ -247,9 +313,11 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 		return;
 	}
 
+	U16* idx = ((U16*) getIndicesPointer())+indices_offset;
+
 	stop_glerror();
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
-		((U16*) getIndicesPointer()) + indices_offset);
+		idx);
 	stop_glerror();
 }
 
@@ -381,16 +449,52 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	{
 		mUsage = 0 ; 
 	}
+
+	if (mUsage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
+	{
+		mUsage = 0;
+	}
 	
 	S32 stride = calcStride(typemask, mOffsets);
 
 	mTypeMask = typemask;
 	mStride = stride;
+	mAlignedOffset = 0;
+	mAlignedIndexOffset = 0;
+
 	sCount++;
 }
 
+#if LL_ALIGNED_VB
 //static
-S32 LLVertexBuffer::calcStride(const U32& typemask, S32* offsets)
+S32 LLVertexBuffer::calcStride(const U32& typemask, S32* offsets, S32 num_vertices)
+{
+	S32 offset = 0;
+	for (S32 i=0; i<TYPE_MAX; i++)
+	{
+		U32 mask = 1<<i;
+		if (typemask & mask)
+		{
+			if (offsets)
+			{
+				offsets[i] = offset;
+				offset += LLVertexBuffer::sTypeOffsets[i]*num_vertices;
+				offset = (offset + 0xF) & ~0xF;
+			}
+		}
+	}
+
+	return offset+16;
+}
+
+S32 LLVertexBuffer::getSize() const
+{
+	return mStride;
+}
+
+#else
+//static
+S32 LLVertexBuffer::calcStride(const U32& typemask, S32* offsets, S32 num_vertices)
 {
 	S32 stride = 0;
 	for (S32 i=0; i<TYPE_MAX; i++)
@@ -409,6 +513,12 @@ S32 LLVertexBuffer::calcStride(const U32& typemask, S32* offsets)
 	return stride;
 }
 
+S32 LLVertexBuffer::getSize() const
+{ 
+	return mNumVerts*mStride; 
+}
+
+#endif
 // protected, use unref()
 //virtual
 LLVertexBuffer::~LLVertexBuffer()
@@ -518,7 +628,7 @@ void LLVertexBuffer::createGLBuffer()
 	{
 		static int gl_buffer_idx = 0;
 		mGLBuffer = ++gl_buffer_idx;
-		mMappedData = new U8[size];
+		mMappedData = (U8*) ll_aligned_malloc_16(size);
 		memset(mMappedData, 0, size);
 	}
 }
@@ -540,16 +650,20 @@ void LLVertexBuffer::createGLIndices()
 
 	mEmpty = TRUE;
 
+	//pad by 16 bytes for aligned copies
+	size += 16;
+
 	if (useVBOs())
 	{
+		//pad by another 16 bytes for VBO pointer adjustment
+		size += 16;
 		mMappedIndexData = NULL;
 		genIndices();
 		mResized = TRUE;
 	}
 	else
 	{
-		mMappedIndexData = new U8[size];
-		memset(mMappedIndexData, 0, size);
+		mMappedIndexData = (U8*) ll_aligned_malloc_16(size);
 		static int gl_buffer_idx = 0;
 		mGLIndices = ++gl_buffer_idx;
 	}
@@ -570,7 +684,7 @@ void LLVertexBuffer::destroyGLBuffer()
 		}
 		else
 		{
-			delete [] mMappedData;
+			ll_aligned_free_16(mMappedData);
 			mMappedData = NULL;
 			mEmpty = TRUE;
 		}
@@ -579,7 +693,7 @@ void LLVertexBuffer::destroyGLBuffer()
 	}
 	
 	mGLBuffer = 0;
-	unbind();
+	//unbind();
 }
 
 void LLVertexBuffer::destroyGLIndices()
@@ -597,7 +711,7 @@ void LLVertexBuffer::destroyGLIndices()
 		}
 		else
 		{
-			delete [] mMappedIndexData;
+			ll_aligned_free_16(mMappedIndexData);
 			mMappedIndexData = NULL;
 			mEmpty = TRUE;
 		}
@@ -606,7 +720,7 @@ void LLVertexBuffer::destroyGLIndices()
 	}
 
 	mGLIndices = 0;
-	unbind();
+	//unbind();
 }
 
 void LLVertexBuffer::updateNumVerts(S32 nverts)
@@ -622,7 +736,7 @@ void LLVertexBuffer::updateNumVerts(S32 nverts)
 	}
 
 	mRequestedNumVerts = nverts;
-	
+
 	if (!mDynamicSize)
 	{
 		mNumVerts = nverts;
@@ -637,6 +751,9 @@ void LLVertexBuffer::updateNumVerts(S32 nverts)
 		}
 		mNumVerts = nverts;
 	}
+#if LL_ALIGNED_VB
+	mStride = calcStride(mTypeMask, mOffsets, mNumVerts);
+#endif
 
 }
 
@@ -668,6 +785,12 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_ALLOCATE_BUFFER);
 		
+	if (nverts < 0 || nindices < 0 ||
+		nverts > 65536)
+	{
+		llerrs << "Bad vertex buffer allocation: " << nverts << " : " << nindices << llendl;
+	}
+
 	updateNumVerts(nverts);
 	updateNumIndices(nindices);
 	
@@ -706,9 +829,6 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 	{
 		sAllocatedBytes -= getSize() + getIndicesSize();
 		
-		S32 oldsize = getSize();
-		S32 old_index_size = getIndicesSize();
-
 		updateNumVerts(newnverts);		
 		updateNumIndices(newnindices);
 		
@@ -725,26 +845,10 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			}
 			else
 			{
-				//delete old buffer, keep GL buffer for now
 				if (!useVBOs())
 				{
-					U8* old = mMappedData;
-					mMappedData = new U8[newsize];
-					if (old)
-					{	
-						memcpy(mMappedData, old, llmin(newsize, oldsize));
-						if (newsize > oldsize)
-						{
-							memset(mMappedData+oldsize, 0, newsize-oldsize);
-						}
-
-						delete [] old;
-					}
-					else
-					{
-						memset(mMappedData, 0, newsize);
-						mEmpty = TRUE;
-					}
+					ll_aligned_free_16(mMappedData);
+					mMappedData = (U8*) ll_aligned_malloc_16(newsize);
 				}
 				mResized = TRUE;
 			}
@@ -764,24 +868,8 @@ void LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 			{
 				if (!useVBOs())
 				{
-					//delete old buffer, keep GL buffer for now
-					U8* old = mMappedIndexData;
-					mMappedIndexData = new U8[new_index_size];
-					
-					if (old)
-					{	
-						memcpy(mMappedIndexData, old, llmin(new_index_size, old_index_size));
-						if (new_index_size > old_index_size)
-						{
-							memset(mMappedIndexData+old_index_size, 0, new_index_size - old_index_size);
-						}
-						delete [] old;
-					}
-					else
-					{
-						memset(mMappedIndexData, 0, new_index_size);
-						mEmpty = TRUE;
-					}
+					ll_aligned_free_16(mMappedIndexData);
+					mMappedIndexData = (U8*) ll_aligned_malloc_16(new_index_size);
 				}
 				mResized = TRUE;
 			}
@@ -813,7 +901,7 @@ BOOL LLVertexBuffer::useVBOs() const
 		return FALSE;
 	}
 #endif
-	return sEnableVBOs;
+	return TRUE;
 }
 
 //----------------------------------------------------------------------------
@@ -838,12 +926,19 @@ U8* LLVertexBuffer::mapBuffer(S32 access)
 			setBuffer(0);
 			mLocked = TRUE;
 			stop_glerror();	
-			mMappedData = (U8*) glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+
+			U8* src = (U8*) glMapBufferARB(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+			mMappedData = LL_NEXT_ALIGNED_ADDRESS<U8>(src);
+			mAlignedOffset = mMappedData - src;
+			
 			stop_glerror();
 		}
 		{
 			LLMemType mt_v(LLMemType::MTYPE_VERTEX_MAP_BUFFER_INDICES);
-			mMappedIndexData = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+			U8* src = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+			mMappedIndexData = LL_NEXT_ALIGNED_ADDRESS<U8>(src);
+			mAlignedIndexOffset = mMappedIndexData - src;
+
 			stop_glerror();
 		}
 
@@ -927,6 +1022,45 @@ void LLVertexBuffer::unmapBuffer()
 
 //----------------------------------------------------------------------------
 
+#if LL_ALIGNED_VB
+
+template <class T,S32 type> struct VertexBufferStrider
+{
+	typedef LLStrider<T> strider_t;
+	static bool get(LLVertexBuffer& vbo, 
+					strider_t& strider, 
+					S32 index)
+	{
+		if (vbo.mapBuffer() == NULL)
+		{
+			llwarns << "mapBuffer failed!" << llendl;
+			return FALSE;
+		}
+
+		if (type == LLVertexBuffer::TYPE_INDEX)
+		{
+			S32 stride = sizeof(T);
+			strider = (T*)(vbo.getMappedIndices() + index*stride);
+			strider.setStride(0);
+			return TRUE;
+		}
+		else if (vbo.hasDataType(type))
+		{
+			S32 stride = LLVertexBuffer::sTypeOffsets[type];
+			strider = (T*)(vbo.getMappedData() + vbo.getOffset(type)+index*stride);
+			strider.setStride(stride);
+			return TRUE;
+		}
+		else
+		{
+			llerrs << "VertexBufferStrider could not find valid vertex data." << llendl;
+		}
+		return FALSE;
+	}
+};
+
+#else
+
 template <class T,S32 type> struct VertexBufferStrider
 {
 	typedef LLStrider<T> strider_t;
@@ -962,6 +1096,7 @@ template <class T,S32 type> struct VertexBufferStrider
 	}
 };
 
+#endif
 
 bool LLVertexBuffer::getVertexStrider(LLStrider<LLVector3>& strider, S32 index)
 {
@@ -1003,6 +1138,12 @@ bool LLVertexBuffer::getWeightStrider(LLStrider<F32>& strider, S32 index)
 {
 	return VertexBufferStrider<F32,TYPE_WEIGHT>::get(*this, strider, index);
 }
+
+bool LLVertexBuffer::getWeight4Strider(LLStrider<LLVector4>& strider, S32 index)
+{
+	return VertexBufferStrider<LLVector4,TYPE_WEIGHT4>::get(*this, strider, index);
+}
+
 bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index)
 {
 	return VertexBufferStrider<LLVector4,TYPE_CLOTHWEIGHT>::get(*this, strider, index);
@@ -1177,7 +1318,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 	{		
 		if (mGLBuffer)
 		{
-			if (sEnableVBOs && sVBOActive)
+			if (useVBOs() && sVBOActive)
 			{
 				glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 				sBindCount++;
@@ -1189,7 +1330,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 				setup = TRUE; // ... or a client memory pointer changed
 			}
 		}
-		if (sEnableVBOs && mGLIndices && sIBOActive)
+		if (useVBOs() && mGLIndices && sIBOActive)
 		{
 			/*if (sMapped)
 			{
@@ -1217,6 +1358,81 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 		}
 	}
 }
+
+#if LL_ALIGNED_VB
+
+// virtual (default)
+void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
+{
+	LLMemType mt2(LLMemType::MTYPE_VERTEX_SETUP_VERTEX_BUFFER);
+	stop_glerror();
+	U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
+
+	if ((data_mask & mTypeMask) != data_mask)
+	{
+		llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
+	}
+
+	if (data_mask & MAP_NORMAL)
+	{
+		glNormalPointer(GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_NORMAL], (void*)(base + mOffsets[TYPE_NORMAL]));
+	}
+	if (data_mask & MAP_TEXCOORD3)
+	{
+		glClientActiveTextureARB(GL_TEXTURE3_ARB);
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD3], (void*)(base + mOffsets[TYPE_TEXCOORD3]));
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	}
+	if (data_mask & MAP_TEXCOORD2)
+	{
+		glClientActiveTextureARB(GL_TEXTURE2_ARB);
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD2], (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	}
+	if (data_mask & MAP_TEXCOORD1)
+	{
+		glClientActiveTextureARB(GL_TEXTURE1_ARB);
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD1], (void*)(base + mOffsets[TYPE_TEXCOORD1]));
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	}
+	if (data_mask & MAP_BINORMAL)
+	{
+		glClientActiveTextureARB(GL_TEXTURE2_ARB);
+		glTexCoordPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_BINORMAL], (void*)(base + mOffsets[TYPE_BINORMAL]));
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+	}
+	if (data_mask & MAP_TEXCOORD0)
+	{
+		glTexCoordPointer(2,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_TEXCOORD0], (void*)(base + mOffsets[TYPE_TEXCOORD0]));
+	}
+	if (data_mask & MAP_COLOR)
+	{
+		glColorPointer(4, GL_UNSIGNED_BYTE, LLVertexBuffer::sTypeOffsets[TYPE_COLOR], (void*)(base + mOffsets[TYPE_COLOR]));
+	}
+	
+	if (data_mask & MAP_WEIGHT)
+	{
+		glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, LLVertexBuffer::sTypeOffsets[TYPE_WEIGHT], (void*)(base + mOffsets[TYPE_WEIGHT]));
+	}
+
+	if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
+	{
+		glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, LLVertexBuffer::sTypeOffsets[TYPE_WEIGHT4], (void*)(base+mOffsets[TYPE_WEIGHT4]));
+	}
+
+	if (data_mask & MAP_CLOTHWEIGHT)
+	{
+		glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  LLVertexBuffer::sTypeOffsets[TYPE_CLOTHWEIGHT], (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+	}
+	if (data_mask & MAP_VERTEX)
+	{
+		glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeOffsets[TYPE_VERTEX], (void*)(base + 0));
+	}
+
+	llglassertok();
+}
+
+#else
 
 // virtual (default)
 void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
@@ -1272,6 +1488,12 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 	{
 		glVertexAttribPointerARB(1, 1, GL_FLOAT, FALSE, stride, (void*)(base + mOffsets[TYPE_WEIGHT]));
 	}
+
+	if (data_mask & MAP_WEIGHT4 && sWeight4Loc != -1)
+	{
+		glVertexAttribPointerARB(sWeight4Loc, 4, GL_FLOAT, FALSE, stride, (void*)(base+mOffsets[TYPE_WEIGHT4]));
+	}
+
 	if (data_mask & MAP_CLOTHWEIGHT)
 	{
 		glVertexAttribPointerARB(4, 4, GL_FLOAT, TRUE,  stride, (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
@@ -1283,6 +1505,8 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask) const
 
 	llglassertok();
 }
+
+#endif
 
 void LLVertexBuffer::markDirty(U32 vert_index, U32 vert_count, U32 indices_index, U32 indices_count)
 {
