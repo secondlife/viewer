@@ -2208,13 +2208,7 @@ void LLFolderBridge::determineFolderType()
 
 BOOL LLFolderBridge::isItemRenameable() const
 {
-	LLViewerInventoryCategory* cat = (LLViewerInventoryCategory*)getCategory();
-	if(cat && !LLFolderType::lookupIsProtectedType(cat->getPreferredType())
-	   && (cat->getOwnerID() == gAgent.getID()))
-	{
-		return TRUE;
-	}
-	return FALSE;
+	return get_is_category_renameable(getInventoryModel(), mUUID);
 }
 
 void LLFolderBridge::restoreItem()

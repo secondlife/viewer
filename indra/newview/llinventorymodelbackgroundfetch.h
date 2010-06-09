@@ -33,39 +33,15 @@
 #ifndef LL_LLINVENTORYMODELBACKGROUNDFETCH_H
 #define LL_LLINVENTORYMODELBACKGROUNDFETCH_H
 
-// Seraph clean this up
-#include "llassettype.h"
-#include "llfoldertype.h"
-#include "lldarray.h"
-#include "llframetimer.h"
-#include "llhttpclient.h"
+#include "llsingleton.h"
 #include "lluuid.h"
-#include "llpermissionsflags.h"
-#include "llstring.h"
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
-
-// Seraph clean this up
-class LLInventoryObserver;
-class LLInventoryObject;
-class LLInventoryItem;
-class LLInventoryCategory;
-class LLViewerInventoryItem;
-class LLViewerInventoryCategory;
-class LLViewerInventoryItem;
-class LLViewerInventoryCategory;
-class LLMessageSystem;
-class LLInventoryCollectFunctor;
-
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryModelBackgroundFetch
 //
-// This class handles background fetch.
+// This class handles background fetches, which are fetches of
+// inventory folder.  Fetches can be recursive or not.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 class LLInventoryModelBackgroundFetch : public LLSingleton<LLInventoryModelBackgroundFetch>
 {
 	friend class LLInventoryModelFetchDescendentsResponder;
@@ -75,48 +51,37 @@ public:
 	~LLInventoryModelBackgroundFetch();
 
 	// Start and stop background breadth-first fetching of inventory contents.
-	// This gets triggered when performing a filter-search
+	// This gets triggered when performing a filter-search.
 	void start(const LLUUID& cat_id = LLUUID::null, BOOL recursive = TRUE);
-	BOOL backgroundFetchActive();
-	bool isEverythingFetched();
-	void incrBulkFetch(S16 fetching);
-	void stopBackgroundFetch(); // stop fetch process
-	bool isBulkFetchProcessingComplete();
 
-	// Add categories to a list to be fetched in bulk.
+	BOOL backgroundFetchActive() const;
+	bool isEverythingFetched() const; // completing the fetch once per session should be sufficient
+
+	bool libraryFetchStarted() const;
+	bool libraryFetchCompleted() const;
+	bool libraryFetchInProgress() const;
+	
+	bool inventoryFetchStarted() const;
+	bool inventoryFetchCompleted() const;
+	bool inventoryFetchInProgress() const;
+
+    void findLostItems();	
+protected:
+	void incrBulkFetch(S16 fetching);
+	bool isBulkFetchProcessingComplete() const;
 	void bulkFetch(std::string url);
 
-	bool libraryFetchStarted();
-	bool libraryFetchCompleted();
-	bool libraryFetchInProgress();
-	
-	bool inventoryFetchStarted();
-	bool inventoryFetchCompleted();
-	bool inventoryFetchInProgress();
-    void findLostItems();
+	void backgroundFetch();
+	static void backgroundFetchCB(void*); // background fetch idle function
+	void stopBackgroundFetch(); // stop fetch process
 
 	void setAllFoldersFetched();
-
-	static void backgroundFetchCB(void*); // background fetch idle function
-	void backgroundFetch();
-	
-	struct FetchQueueInfo
-	{
-		FetchQueueInfo(const LLUUID& id, BOOL recursive) :
-			mCatUUID(id), mRecursive(recursive)
-		{
-		}
-		LLUUID mCatUUID;
-		BOOL mRecursive;
-	};
-protected:
 	bool fetchQueueContainsNoDescendentsOf(const LLUUID& cat_id) const;
 private:
  	BOOL mRecursiveInventoryFetchStarted;
 	BOOL mRecursiveLibraryFetchStarted;
 	BOOL mAllFoldersFetched;
 
-	// completing the fetch once per session should be sufficient
 	BOOL mBackgroundFetchActive;
 	S16 mBulkFetchCount;
 	BOOL mTimelyFetchPending;
@@ -126,6 +91,15 @@ private:
 	F32 mMinTimeBetweenFetches;
 	F32 mMaxTimeBetweenFetches;
 
+	struct FetchQueueInfo
+	{
+		FetchQueueInfo(const LLUUID& id, BOOL recursive) :
+			mCatUUID(id), mRecursive(recursive)
+		{
+		}
+		LLUUID mCatUUID;
+		BOOL mRecursive;
+	};
 	typedef std::deque<FetchQueueInfo> fetch_queue_t;
 	fetch_queue_t mFetchQueue;
 };

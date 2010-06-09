@@ -26,9 +26,9 @@ Placa gráfica: [GRAPHICS_CARD]
 
 Versão libcurl: [LIBCURL_VERSION]
 Versão J2C Decoder: [J2C_VERSION]
-Versão do driver de áudio: [AUDIO_DRIVER_VERSION] 
+Versão do driver de áudio: [AUDIO_DRIVER_VERSION]
 Versão Qt Webkit: [QT_WEBKIT_VERSION]
-Versão Vivox: [VIVOX_VERSION]
+Versão do servidor de voz: [VOICE_VERSION]
 	</floater.string>
 	<floater.string name="none">
 		(nenhum)
