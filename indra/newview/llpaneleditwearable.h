@@ -104,6 +104,15 @@ private:
 	void initPreviousAlphaTextures();
 	void initPreviousAlphaTextureEntry(LLVOAvatarDefines::ETextureIndex te);
 
+	// callback for HeightUnits parameter.
+	bool changeHeightUnits(const LLSD& new_value);
+
+	// updates current metric and replacemet metric label text
+	void updateMetricLayout(BOOL new_value);
+
+	// updates avatar height label
+	void updateAvatarHeightLabel();
+
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;
 	LLViewerInventoryItem* mWearableItem;
@@ -116,6 +125,18 @@ private:
 	LLTextBox *mDescTitle;
 	LLTextBox *mTxtAvatarHeight;
 
+
+	// localized and parametrized strings that used to build avatar_height_label
+	std::string mMeters;
+	std::string mFeet;
+	std::string mHeigth;
+	LLUIString  mHeigthValue;
+	LLUIString  mReplacementMetricUrl;
+
+	// color for mHeigth string
+	LLUIColor mAvatarHeigthLabelColor;
+	// color for mHeigthValue string
+	LLUIColor mAvatarHeigthValueLabelColor;
 
 	// This text editor reference will change each time we edit a new wearable - 
 	// it will be grabbed from the currently visible panel
