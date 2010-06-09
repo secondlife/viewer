@@ -351,7 +351,7 @@ LLUIImagePtr LLTaskInvFVBridge::getIcon() const
 {
 	const BOOL item_is_multi = (mFlags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS);
 
-	return LLInventoryIcon::getIcon(mAssetType, mInventoryType, FALSE, 0, item_is_multi );
+	return LLInventoryIcon::getIcon(mAssetType, mInventoryType, 0, item_is_multi );
 }
 
 void LLTaskInvFVBridge::openItem()
@@ -1236,7 +1236,7 @@ public:
 
 LLUIImagePtr LLTaskWearableBridge::getIcon() const
 {
-	return LLInventoryIcon::getIcon(mAssetType, mInventoryType, FALSE, mFlags, FALSE );
+	return LLInventoryIcon::getIcon(mAssetType, mInventoryType, mFlags, FALSE );
 }
 
 

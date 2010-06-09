@@ -89,8 +89,6 @@ void LLPanelWearableListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item)
 : LLPanelInventoryListItemBase(item)
 {
-	// icons should not be shown for this type of items (EXT-7511)
-	mForceNoLinksOnIcons = true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -309,7 +307,7 @@ BOOL LLPanelDummyClothingListItem::postBuild()
 
 	addWidgetToRightSide("btn_add");
 
-	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, FALSE, mWearableType, FALSE));
+	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
 	updateItem();
 
 	// Make it look loke clothing item - reserve space for 'delete' button

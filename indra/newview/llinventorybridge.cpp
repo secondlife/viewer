@@ -2255,18 +2255,8 @@ LLUIImagePtr LLFolderBridge::getIcon() const
 }
 
 // static
-LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type, BOOL is_link)
+LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
 {
-	// Bypassing LLViewerFolderType::lookup() since
-	// we aren't using different system folder icons
-	if (is_link)
-	{
-		if (preferred_type == LLFolderType::FT_OUTFIT)
-			return LLUI::getUIImage("Inv_LookFolderClosed_Link");
-		else 
-			return LLUI::getUIImage("Inv_FolderClosed_Link");
-	}
-
 	switch (preferred_type)
 	{
 	case LLFolderType::FT_OUTFIT:
@@ -2286,14 +2276,6 @@ LLUIImagePtr LLFolderBridge::getOpenIcon() const
 {
 	// Bypassing LLViewerFolderType::lookup() since
 	// we aren't using different system folder icons
-	if (isLink())
-	{
-		if (getPreferredType() == LLFolderType::FT_OUTFIT)
-			return LLUI::getUIImage("Inv_LookFolderOpen_Link");
-		else 
-			return LLUI::getUIImage("Inv_FolderOpen_Link");
-	}
-
 	switch (getPreferredType())
 	{
 	case LLFolderType::FT_OUTFIT:
@@ -3176,7 +3158,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 LLUIImagePtr LLTextureBridge::getIcon() const
 {
-	return LLInventoryIcon::getIcon(LLAssetType::AT_TEXTURE, mInvType, mIsLink);
+	return LLInventoryIcon::getIcon(LLAssetType::AT_TEXTURE, mInvType);
 }
 
 void LLTextureBridge::openItem()
@@ -3328,7 +3310,7 @@ LLLandmarkBridge::LLLandmarkBridge(LLInventoryPanel* inventory,
 
 LLUIImagePtr LLLandmarkBridge::getIcon() const
 {
-	return LLInventoryIcon::getIcon(LLAssetType::AT_LANDMARK, LLInventoryType::IT_LANDMARK, mIsLink, mVisited, FALSE);
+	return LLInventoryIcon::getIcon(LLAssetType::AT_LANDMARK, LLInventoryType::IT_LANDMARK, mVisited, FALSE);
 }
 
 void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
@@ -3520,7 +3502,7 @@ LLUIImagePtr LLCallingCardBridge::getIcon() const
 	{
 		online = LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID());
 	}
-	return LLInventoryIcon::getIcon(LLAssetType::AT_CALLINGCARD, LLInventoryType::IT_CALLINGCARD, mIsLink, online, FALSE);
+	return LLInventoryIcon::getIcon(LLAssetType::AT_CALLINGCARD, LLInventoryType::IT_CALLINGCARD, online, FALSE);
 }
 
 std::string LLCallingCardBridge::getLabelSuffix() const
@@ -3959,7 +3941,7 @@ LLObjectBridge::LLObjectBridge(LLInventoryPanel* inventory,
 
 LLUIImagePtr LLObjectBridge::getIcon() const
 {
-	return LLInventoryIcon::getIcon(LLAssetType::AT_OBJECT, mInvType, mIsLink, mAttachPt, mIsMultiObject);
+	return LLInventoryIcon::getIcon(LLAssetType::AT_OBJECT, mInvType, mAttachPt, mIsMultiObject);
 }
 
 LLInventoryObject* LLObjectBridge::getObject() const
@@ -4426,7 +4408,7 @@ std::string LLWearableBridge::getLabelSuffix() const
 
 LLUIImagePtr LLWearableBridge::getIcon() const
 {
-	return LLInventoryIcon::getIcon(mAssetType, mInvType, mIsLink, mWearableType, FALSE);
+	return LLInventoryIcon::getIcon(mAssetType, mInvType, mWearableType, FALSE);
 }
 
 // virtual
@@ -4851,7 +4833,7 @@ LLUIImagePtr LLLinkFolderBridge::getIcon() const
 			}
 		}
 	}
-	return LLFolderBridge::getIcon(folder_type, TRUE);
+	return LLFolderBridge::getIcon(folder_type);
 }
 
 void LLLinkFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
