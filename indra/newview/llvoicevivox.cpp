@@ -396,19 +396,16 @@ void LLVivoxVoiceClient::init(LLPumpIO *pump)
 
 void LLVivoxVoiceClient::terminate()
 {
-
-//	leaveAudioSession();
-	logout();
-	// As of SDK version 4885, this should no longer be necessary.  It will linger after the socket close if it needs to.
-	// ms_sleep(2000);
-	connectorShutdown();
-	closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.
-	
-	// This will do unpleasant things on windows.
-//	killGateway();
-	
-
-
+	if(mConnected)
+	{
+		logout();
+		connectorShutdown();
+		closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.	
+	}
+	else
+	{
+		killGateway();
+	}
 }
 
 const LLVoiceVersionInfo& LLVivoxVoiceClient::getVersion()
