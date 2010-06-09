@@ -287,7 +287,7 @@ void LLNearbyChatScreenChannel::showToastsBottom()
 		toast_rect.setLeftTopAndSize(getRect().mLeft , bottom + toast_rect.getHeight(), toast_rect.getWidth() ,toast_rect.getHeight());
 
 		toast->setRect(toast_rect);
-		bottom += toast_rect.getHeight() + margin;
+		bottom += toast_rect.getHeight() - toast->getTopPad() + margin;
 	}
 	
 	// use reverse order to provide correct z-order and avoid toast blinking

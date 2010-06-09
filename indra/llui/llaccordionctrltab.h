@@ -190,6 +190,7 @@ public:
 	void showAndFocusHeader();
 
 	void setFitPanel( bool fit ) { mFitPanel = true; }
+	bool getFitParent() const { return mFitPanel; }
 
 protected:
 	void adjustContainerPanel	(const LLRect& child_rect);

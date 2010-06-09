@@ -8,19 +8,22 @@
 	 name="edit_shape_panel"
 	 top_pad="10"
 	 width="333" >
-	 <text
-		 follows="top|left|right"
-		 font="SansSerifSmallBold"
-		 halign="right"
-		 height="12"
-		 layout="topleft"
-		 left="0"
-		 name="avatar_height"
-		 text_color="EmphasisColor"
-		 top="0"
-		 width="310">
-		 [HEIGHT] Meters tall
-	 </text>
+     <string name="meters">Meters</string>
+     <string name="feet">Feet</string>
+     <string name="height">Height:</string>
+     <string name="heigth_label_color" translate="false">White_50</string>
+     <string name="heigth_value_label_color" translate="false">White</string>
+     <text
+         follows="top|left|right"
+         font="SansSerifSmallBold"
+         halign="right"
+         height="12"
+         layout="topleft"
+         left="0"
+         name="avatar_height"
+         top="0"
+         width="310">
+     </text>
      <panel
          border="false"
          bg_alpha_color="DkGray2"
