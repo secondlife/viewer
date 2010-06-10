@@ -44,6 +44,7 @@
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llnotificationsutil.h"
+#include "lloutfitobserver.h"
 #include "llsidetray.h"
 #include "lltransutil.h"
 #include "llviewermenu.h"
@@ -198,6 +199,9 @@ void LLOutfitsList::onOpen(const LLSD& /*info*/)
 		// Start observing changes in "My Outfits" category.
 		mCategoriesObserver->addCategory(outfits,
 			boost::bind(&LLOutfitsList::refreshList, this, outfits));
+
+		// Start observing changes in Current Outfit to update items worn state.
+		LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLOutfitsList::onCOFChanged, this));
 
 		// Fetch "My Outfits" contents and refresh the list to display
 		// initially fetched items. If not all items are fetched now
@@ -643,6 +647,43 @@ void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
 	}
 
 	LLWearableItemsList::ContextMenu::instance().show(list, selected_uuids, x, y);
+}
+
+void LLOutfitsList::onCOFChanged()
+{
+	LLInventoryModel::changed_items_t changed_linked_items;
+
+	const LLInventoryModel::changed_items_t& changed_items = gInventory.getChangedIDs();
+	for (LLInventoryModel::changed_items_t::const_iterator iter = changed_items.begin();
+		 iter != changed_items.end();
+		 ++iter)
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(*iter);
+		if (item)
+		{
+			// From gInventory we get the UUIDs of new links added to COF
+			// or removed from COF. These links UUIDs are not the same UUIDs
+			// that we have in each wearable items list. So we collect base items
+			// UUIDs to find all items or links that point to same base items in wearable
+			// items lists and update their worn state there.
+			changed_linked_items.insert(item->getLinkedUUID());
+		}
+	}
+
+	for (outfits_map_t::iterator iter = mOutfitsMap.begin();
+			iter != mOutfitsMap.end();
+			++iter)
+	{
+		LLAccordionCtrlTab* tab = iter->second;
+		if (!tab) continue;
+
+		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
+		if (!list) continue;
+
+		// Every list updates the labels of changed items  or
+		// the links that point to these items.
+		list->updateChangedItems(changed_linked_items);
+	}
 }
 
 bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y)
