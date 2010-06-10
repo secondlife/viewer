@@ -132,8 +132,7 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	BOOL show_links = mForceNoLinksOnIcons ? FALSE : mItem->getIsLinkType();
-	mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), show_links, mItem->getFlags(), FALSE);
+	mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
 
 	setNeedsRefresh(true);
 
@@ -199,7 +198,6 @@ LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem
 , mLeftWidgetsWidth(0)
 , mRightWidgetsWidth(0)
 , mNeedsRefresh(false)
-, mForceNoLinksOnIcons(false)
 {
 }
 
