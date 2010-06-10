@@ -74,6 +74,16 @@ S32 LLOutfitObserver::getCategoryVersion(const LLUUID& cat_id)
 	return cat->getVersion();
 }
 
+// static
+const std::string& LLOutfitObserver::getCategoryName(const LLUUID& cat_id)
+{
+	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
+	if (!cat)
+		return LLStringUtil::null;
+
+	return cat->getName();
+}
+
 bool LLOutfitObserver::checkCOF()
 {
 	LLUUID cof = LLAppearanceMgr::getInstance()->getCOF();
@@ -105,8 +115,11 @@ void LLOutfitObserver::checkBaseOutfit()
 			return;
 
 		const S32 baseoutfit_ver = getCategoryVersion(baseoutfit_id);
+		const std::string& baseoutfit_name = getCategoryName(baseoutfit_id);
 
-		if (baseoutfit_ver == mBaseOutfitLastVersion)
+		if (baseoutfit_ver == mBaseOutfitLastVersion
+				// renaming category doesn't change version, so it's need to check it
+				&& baseoutfit_name == mLastBaseOutfitName)
 			return;
 	}
 	else
@@ -116,9 +129,10 @@ void LLOutfitObserver::checkBaseOutfit()
 
 		if (baseoutfit_id.isNull())
 			return;
-
-		mBaseOutfitLastVersion = getCategoryVersion(mBaseOutfitId);
 	}
+
+	mBaseOutfitLastVersion = getCategoryVersion(mBaseOutfitId);
+	mLastBaseOutfitName = getCategoryName(baseoutfit_id);
 
 	LLAppearanceMgr& app_mgr = LLAppearanceMgr::instance();
 	// dirtiness state should be updated before sending signal

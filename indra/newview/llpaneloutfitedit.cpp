@@ -707,6 +707,7 @@ void LLPanelOutfitEdit::updateVerbs()
 
 	mStatus->setText(outfit_is_dirty ? getString("unsaved_changes") : getString("now_editing"));
 
+	updateCurrentOutfitName();
 }
 
 bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch_to_panel)
