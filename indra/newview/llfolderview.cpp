@@ -2310,7 +2310,7 @@ void LLFolderView::updateRenamerPosition()
 bool LLFolderView::selectFirstItem()
 {
 	for (folders_t::iterator iter = mFolders.begin();
-		 iter != mFolders.end();)
+		 iter != mFolders.end();++iter)
 	{
 		LLFolderViewFolder* folder = (*iter );
 		if (folder->getVisible())
@@ -2347,7 +2347,7 @@ bool LLFolderView::selectLastItem()
 		}
 	}
 	for (folders_t::reverse_iterator iter = mFolders.rbegin();
-		 iter != mFolders.rend();)
+		 iter != mFolders.rend();++iter)
 	{
 		LLFolderViewFolder* folder = (*iter);
 		if (folder->getVisible())
