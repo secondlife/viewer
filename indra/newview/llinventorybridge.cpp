@@ -65,6 +65,7 @@
 #include "llsidetray.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
+#include "llviewerfoldertype.h"
 #include "llviewermenu.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
@@ -2257,38 +2258,12 @@ LLUIImagePtr LLFolderBridge::getIcon() const
 // static
 LLUIImagePtr LLFolderBridge::getIcon(LLFolderType::EType preferred_type)
 {
-	switch (preferred_type)
-	{
-	case LLFolderType::FT_OUTFIT:
-		return LLUI::getUIImage("Inv_LookFolderClosed");
-	case LLFolderType::FT_LOST_AND_FOUND:
-		return LLUI::getUIImage("Inv_LostClosed");
-	case LLFolderType::FT_TRASH:
-		return LLUI::getUIImage("Inv_TrashClosed");
-	case LLFolderType::FT_NONE:
-		return LLUI::getUIImage("Inv_FolderClosed");
-	default:
-		return LLUI::getUIImage("Inv_SysClosed");
-	}
+	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(preferred_type, FALSE));
 }
 
 LLUIImagePtr LLFolderBridge::getOpenIcon() const
 {
-	// Bypassing LLViewerFolderType::lookup() since
-	// we aren't using different system folder icons
-	switch (getPreferredType())
-	{
-	case LLFolderType::FT_OUTFIT:
-		return LLUI::getUIImage("Inv_LookFolderOpen");
-	case LLFolderType::FT_LOST_AND_FOUND:
-		return LLUI::getUIImage("Inv_LostOpen");
-	case LLFolderType::FT_TRASH:
-		return LLUI::getUIImage("Inv_TrashOpen");
-	case LLFolderType::FT_NONE:
-		return LLUI::getUIImage("Inv_FolderOpen");
-	default:
-		return LLUI::getUIImage("Inv_SysOpen");
-	}
+	return LLUI::getUIImage(LLViewerFolderType::lookupIconName(getPreferredType(), TRUE));
 
 }
 
