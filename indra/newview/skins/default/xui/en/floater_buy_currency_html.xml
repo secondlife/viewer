@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- legacy_header_height="18"
  can_resize="false"
- height="280"
+ can_close="true"
+ width="422"
+ height="202"
  layout="topleft"
- min_height="280"
- min_width="450"
  name="floater_buy_currency_html"
  help_topic="floater_buy_currency_html"
  save_rect="true"
  single_instance="true"
  title="BUY CURRENCY"
- width="452">
- <floater.string
-      name="buy_currency_url" translate="false">
-        https://quick-buy-www.jeff.ooze.lindenlab.com/en/display
- </floater.string>
-    <web_browser
-     bottom="278"
-     follows="left|right|top|bottom"
-     layout="topleft"
-     left="2"
-     name="browser"
-     top="18"
-     width="450" />
+>
+  <floater.string
+    name="buy_currency_url" translate="false">
+    https://quick-buy-www.quick-b.ooze.lindenlab.com/[LANGUAGE]/display/?sa=[SPECIFIC_AMOUNT]&amp;sum=[SUM]&amp;msg=[MSG]&amp;bal=[BAL]
+  </floater.string>
+  <web_browser
+    follows="all"
+    layout="topleft"
+    left="1"
+    right="-1" 
+    top="1"
+    bottom="-1" 
+    ignore_ui_scale="false"
+    name="browser"/>
 </floater>
