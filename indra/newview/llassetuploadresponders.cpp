@@ -305,6 +305,7 @@ void LLAssetUploadResponder::uploadComplete(const LLSD& content)
 {
 }
 
+#if LL_MESH_ENABLED
 LLNewAgentInventoryResponder::LLNewAgentInventoryResponder(
 	const LLSD& post_data,
 	const LLUUID& vfile_id,
@@ -426,6 +427,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 
 	LLImportColladaAssetCache::getInstance()->assetUploaded(mVFileID, content["new_asset"], TRUE);
 }
+#endif
 
 LLSendTexLayerResponder::LLSendTexLayerResponder(const LLSD& post_data,
 												 const LLUUID& vfile_id,
@@ -675,6 +677,7 @@ void LLUpdateTaskInventoryResponder::uploadComplete(const LLSD& content)
 }
 
 
+#if LL_MESH_ENABLED
 /////////////////////////////////////////////////////
 // LLNewAgentInventoryVariablePriceResponder::Impl //
 /////////////////////////////////////////////////////
@@ -1142,3 +1145,5 @@ void LLNewAgentInventoryVariablePriceResponder::showConfirmationDialog(
 				boost::intrusive_ptr<LLNewAgentInventoryVariablePriceResponder>(this)));
 	}
 }
+#endif
+

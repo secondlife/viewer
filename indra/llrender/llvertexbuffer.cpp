@@ -1318,7 +1318,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 	{		
 		if (mGLBuffer)
 		{
-			if (useVBOs() && sVBOActive)
+			if (sVBOActive)
 			{
 				glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 				sBindCount++;
@@ -1330,7 +1330,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 				setup = TRUE; // ... or a client memory pointer changed
 			}
 		}
-		if (useVBOs() && mGLIndices && sIBOActive)
+		if (mGLIndices && sIBOActive)
 		{
 			/*if (sMapped)
 			{

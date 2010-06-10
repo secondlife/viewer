@@ -74,6 +74,7 @@ void upload_new_resource(
 	S32 expected_upload_cost,
 	void *userdata);
 
+#if LL_MESH_ENABLED
 // TODO* : Move all uploads to use this new function
 // since at some point, that upload path will be deprecated and no longer
 // used
@@ -91,6 +92,7 @@ BOOL upload_new_variable_price_resource(
 	U32 everyone_perms,
 	const std::string& display_name,
 	const LLSD& asset_resources);
+#endif
 
 LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid);
 void increase_new_upload_stats(LLAssetType::EType asset_type);

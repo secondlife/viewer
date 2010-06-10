@@ -917,6 +917,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			// Only should happen for broken links.
 			new_listener = new LLLinkItemBridge(inventory, root, uuid);
 			break;
+#if LL_MESH_ENABLED
 	    case LLAssetType::AT_MESH:
 			if(!(inv_type == LLInventoryType::IT_MESH))
 			{
@@ -924,6 +925,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			}
 			new_listener = new LLMeshBridge(inventory, root, uuid);
 			break;
+#endif
 
 		default:
 			llinfos << "Unhandled asset type (llassetstorage.h): "
@@ -2765,7 +2767,9 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_ANIMATION:
 		case DAD_GESTURE:
 		case DAD_LINK:
+#if LL_MESH_ENABLED
 		case DAD_MESH:
+#endif
 			accept = dragItemIntoFolder((LLInventoryItem*)cargo_data,
 										drop);
 			break;
@@ -3635,7 +3639,9 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 			case DAD_BODYPART:
 			case DAD_ANIMATION:
 			case DAD_GESTURE:
-		case DAD_MESH:
+#if LL_MESH_ENABLED
+			case DAD_MESH:
+#endif
 			{
 				LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 				const LLPermissions& perm = inv_item->getPermissions();
@@ -4843,6 +4849,7 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
+#if LL_MESH_ENABLED
 // +=================================================+
 // |        LLMeshBridge                             |
 // +=================================================+
@@ -4899,6 +4906,7 @@ void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
+#endif
 
 // +=================================================+
 // |        LLLinkBridge                             |

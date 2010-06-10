@@ -6165,6 +6165,7 @@ S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
 	cleanupNodes();
 	S32 count = mList.size();
 
+#if LL_MESH_ENABLED
 	if (mesh_adjust)
 	{
 		for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
@@ -6185,6 +6186,7 @@ S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
 
 		}
 	}
+#endif
 
 	return count;
 }

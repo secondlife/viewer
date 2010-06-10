@@ -224,11 +224,13 @@ void LLFace::destroy()
 	{
 		LLFastTimer t(FTM_DESTROY_DRAWPOOL);
 
+#if LL_MESH_ENABLED
 		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
 		{
 			((LLDrawPoolAvatar*) mDrawPoolp)->removeRiggedFace(this);
 		}
 		else
+#endif
 		{
 			mDrawPoolp->removeFace(this);
 		}

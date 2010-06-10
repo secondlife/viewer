@@ -591,8 +591,10 @@ public:
 
 		if (gSavedSettings.getBOOL("DebugShowUploadCost"))
 		{
+#if LL_MESH_ENABLED
 			addText(xpos, ypos, llformat("       Meshes: L$%d", gPipeline.mDebugMeshUploadCost));
 			ypos += y_inc/2;
+#endif
 			addText(xpos, ypos, llformat("    Sculpties: L$%d", gPipeline.mDebugSculptUploadCost));
 			ypos += y_inc/2;
 			addText(xpos, ypos, llformat("     Textures: L$%d", gPipeline.mDebugTextureUploadCost));
@@ -602,6 +604,7 @@ public:
 			ypos += y_inc;
 		}
 
+#if LL_MESH_ENABLED
 		//temporary hack to give feedback on mesh upload progress
 		if (!gMeshRepo.mUploads.empty())
 		{
@@ -631,6 +634,7 @@ public:
 
 			ypos += y_inc;
 		}
+#endif
 	}
 
 	void draw()

@@ -2546,10 +2546,12 @@ S32	LLVolume::getNumFaces() const
 {
 	U8 sculpt_type = (mParams.getSculptType() & LL_SCULPT_TYPE_MASK);
 
+#if LL_MESH_ENABLED
 	if (sculpt_type == LL_SCULPT_TYPE_MESH)
 	{
 		return LL_SCULPT_MESH_MAX_FACES;
 	}
+#endif
 
 	return (S32)mProfilep->mFaces.size();
 }
@@ -2921,11 +2923,6 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 {
 	LLMemType m1(LLMemType::MTYPE_VOLUME);
     U8 sculpt_type = mParams.getSculptType();
-
-	if (sculpt_type & LL_SCULPT_TYPE_MASK == LL_SCULPT_TYPE_MESH)
-	{
-		llerrs << "WTF?" << llendl;
-	}
 
 	BOOL data_is_empty = FALSE;
 
@@ -4135,10 +4132,12 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 	normals.clear();
 	segments.clear();
 
+#if LL_MESH_ENABLED
 	if ((mParams.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 	{
 		return;
 	}
+#endif
 	
 	S32 cur_index = 0;
 	//for each face
@@ -6335,10 +6334,14 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 		resizeVertices(num_vertices);
 		resizeIndices(num_indices);
 
+#if LL_MESH_ENABLED
 		if ((volume->getParams().getSculptType() & LL_SCULPT_TYPE_MASK) != LL_SCULPT_TYPE_MESH)
 		{
 			mEdge.resize(num_indices);
 		}
+#else
+		mEdge.resize(num_indices);
+#endif
 	}
 
 	LLVector4a* pos = (LLVector4a*) mPositions;

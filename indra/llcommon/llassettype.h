@@ -114,9 +114,10 @@ public:
 
 		AT_LINK_FOLDER = 25,
 			// Inventory folder link
-
+#if LL_MESH_ENABLED
 		AT_MESH = 49,
 		    // Mesh data in our proprietary SLM format
+#endif
 
 		AT_COUNT = 50,
 

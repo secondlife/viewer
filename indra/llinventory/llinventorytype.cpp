@@ -89,7 +89,9 @@ LLInventoryDictionary::LLInventoryDictionary()
 	addEntry(LLInventoryType::IT_WEARABLE,            new InventoryEntry("wearable",  "wearable",      2, LLAssetType::AT_CLOTHING, LLAssetType::AT_BODYPART));
 	addEntry(LLInventoryType::IT_ANIMATION,           new InventoryEntry("animation", "animation",     1, LLAssetType::AT_ANIMATION));  
 	addEntry(LLInventoryType::IT_GESTURE,             new InventoryEntry("gesture",   "gesture",       1, LLAssetType::AT_GESTURE)); 
+#if LL_MESH_ENABLED
 	addEntry(LLInventoryType::IT_MESH,                new InventoryEntry("mesh",      "mesh",          1, LLAssetType::AT_MESH));
+#endif
 
 }
 
@@ -150,8 +152,9 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_NONE,			// AT_NONE
 	LLInventoryType::IT_NONE,			// AT_NONE
 	LLInventoryType::IT_NONE,			// AT_NONE
-	
+#if LL_MESH_ENABLED
 	LLInventoryType::IT_MESH            // AT_MESH
+#endif
 };
 
 // static

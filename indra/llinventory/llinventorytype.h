@@ -68,7 +68,9 @@ public:
 		IT_ANIMATION = 19,
 		IT_GESTURE = 20,
 
+#if LL_MESH_ENABLED
 		IT_MESH = 22,
+#endif
 		IT_COUNT = 23,
 
 		IT_NONE = -1

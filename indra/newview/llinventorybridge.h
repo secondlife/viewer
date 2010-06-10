@@ -527,7 +527,7 @@ protected:
 };
 
 
-
+#if LL_MESH_ENABLED
 class LLMeshBridge : public LLItemBridge
 {
 	friend class LLInvFVBridge;
@@ -543,7 +543,7 @@ protected:
 		     const LLUUID& uuid) :
                        LLItemBridge(inventory, root, uuid) {}
 };
-
+#endif
 
 
 

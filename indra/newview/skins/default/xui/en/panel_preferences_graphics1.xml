@@ -160,7 +160,7 @@
      layout="topleft"
      left="5"
      name="CustomGraphics Panel"
-     top="101"
+     top="76"
      width="485">
 		<text
 		type="string"
@@ -397,7 +397,7 @@
 		label="Post process quality:"
 		label_width="185"
 		layout="topleft"
-		left_delta="0"
+		left="200"
 		max_val="9"
 		min_val="8"
 		name="RenderPostProcess"
@@ -542,7 +542,7 @@
         layout="topleft"
         left="469"
         name="PostProcessText"
-        top="328"
+        top="60"
         width="128">
            Low
         </text>
@@ -625,7 +625,7 @@
       follows="left|top"
       height="12"
       layout="topleft"
-      left_delta="-260"
+      left="200"
       name="AvatarRenderingText"
       top_pad="8"
       width="128">
@@ -673,7 +673,7 @@
         left="358"
         left_pad="-30"
         name="TerrainDetailText"
-        top="488"
+        top="226"
         width="155">
            Terrain detail:
         </text>

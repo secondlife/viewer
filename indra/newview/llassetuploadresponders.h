@@ -61,7 +61,7 @@ protected:
 	std::string mFileName;
 };
 
-
+#if LL_MESH_ENABLED
 // TODO*: Remove this once deprecated
 class LLNewAgentInventoryResponder : public LLAssetUploadResponder
 {
@@ -116,6 +116,7 @@ private:
 	class Impl;
 	Impl* mImpl;
 };
+#endif
 
 struct LLBakedUploadData;
 class LLSendTexLayerResponder : public LLAssetUploadResponder
