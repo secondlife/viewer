@@ -306,7 +306,7 @@ BOOL LLPanelDummyClothingListItem::postBuild()
 	setIconCtrl(icon);
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	addWidgetToRightSide("btn_add");
+	addWidgetToRightSide("btn_add_panel");
 
 	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, FALSE, mWearableType, FALSE));
 	updateItem();
