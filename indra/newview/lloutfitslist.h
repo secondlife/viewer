@@ -71,6 +71,9 @@ public:
 class LLOutfitsList : public LLPanel
 {
 public:
+	typedef boost::function<void (const LLUUID&)> selection_change_callback_t;
+	typedef boost::signals2::signal<void (const LLUUID&)> selection_change_signal_t;
+
 	LLOutfitsList();
 	virtual ~LLOutfitsList();
 
@@ -85,6 +88,8 @@ public:
 	void setFilterSubString(const std::string& string);
 
 	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
+
+	boost::signals2::connection addSelectionChangeCallback(selection_change_callback_t cb);
 
 private:
 	/**
@@ -108,6 +113,11 @@ private:
 	 * Resets previous selection and stores newly selected list and outfit id.
 	 */
 	void changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
+
+	/**
+	 * Saves newly selected outfit ID.
+	 */
+	void setSelectedOutfitUUID(const LLUUID& category_id);
 
 	/**
 	 * Called upon list refresh event to update tab visibility depending on
@@ -139,6 +149,7 @@ private:
 	wearables_lists_map_t			mSelectedListsMap;
 
 	LLUUID							mSelectedOutfitUUID;
+	selection_change_signal_t		mSelectionChangeSignal;
 
 	std::string 					mFilterSubString;
 

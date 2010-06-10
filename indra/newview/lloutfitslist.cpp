@@ -326,7 +326,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 			// 3. Reset currently selected outfit id if it is being removed.
 			if (outfit_id == mSelectedOutfitUUID)
 			{
-				mSelectedOutfitUUID = LLUUID();
+				setSelectedOutfitUUID(LLUUID());
 			}
 
 			// 4. Remove category UUID to accordion tab mapping.
@@ -387,6 +387,11 @@ void LLOutfitsList::setFilterSubString(const std::string& string)
 	applyFilter(string);
 
 	mFilterSubString = string;
+}
+
+boost::signals2::connection LLOutfitsList::addSelectionChangeCallback(selection_change_callback_t cb)
+{
+	return mSelectionChangeSignal.connect(cb);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -475,7 +480,12 @@ void LLOutfitsList::changeOutfitSelection(LLWearableItemsList* list, const LLUUI
 	}
 
 	mSelectedListsMap.insert(wearables_lists_map_value_t(category_id, list));
-	mSelectedOutfitUUID = category_id;
+	setSelectedOutfitUUID(category_id);
+}
+
+void LLOutfitsList::setSelectedOutfitUUID(const LLUUID& category_id)
+{
+	mSelectionChangeSignal(mSelectedOutfitUUID = category_id);
 }
 
 void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
