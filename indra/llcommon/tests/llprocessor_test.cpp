@@ -1,10 +1,10 @@
 /** 
- * @file llprocessor.h
- * @brief Code to figure out the processor. Originally by Benjamin Jurke.
+ * @file llprocessor_test.cpp
+ * @date 2010-06-01
  *
- * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
  * 
- * Copyright (c) 2002-2009, Linden Research, Inc.
+ * Copyright (c) 2010, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -30,26 +30,38 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+#include "../test/lltut.h"
 
-#ifndef LLPROCESSOR_H
-#define LLPROCESSOR_H
-class LLProcessorInfoImpl;
+#include "../llprocessor.h"
 
-class LL_COMMON_API LLProcessorInfo
+
+namespace tut
 {
-public:
-	LLProcessorInfo(); 
- 	~LLProcessorInfo();
+	struct processor
+	{
+	};
 
-	F64 getCPUFrequency() const;
-	bool hasSSE() const;
-	bool hasSSE2() const;
-	bool hasAltivec() const;
-	std::string getCPUFamilyName() const;
-	std::string getCPUBrandName() const;
-	std::string getCPUFeatureDescription() const;
-private:
-	LLProcessorInfoImpl* mImpl;
-};
+	typedef test_group<processor> processor_t;
+	typedef processor_t::object processor_object_t;
+	tut::processor_t tut_processor("processor");
 
-#endif // LLPROCESSOR_H
+	template<> template<>
+	void processor_object_t::test<1>()
+	{
+		set_test_name("LLProcessorInfo regression test");
+
+		LLProcessorInfo pi;
+		F64 freq =  pi.getCPUFrequency();
+		//bool sse =  pi.hasSSE();
+		//bool sse2 = pi.hasSSE2();
+		//bool alitvec = pi.hasAltivec();
+		std::string family = pi.getCPUFamilyName();
+		std::string brand =  pi.getCPUBrandName();
+		//std::string steam =  pi.getCPUFeatureDescription();
+
+		ensure_not_equals("Unknown Brand name", brand, "Unknown"); 
+		ensure_not_equals("Unknown Family name", family, "Unknown"); 
+		ensure("Reasonable CPU Frequency > 100 && < 10000", freq > 100 && freq < 10000);
+	}
+}

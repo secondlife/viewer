@@ -36,6 +36,7 @@
 
 #include "llbottomtray.h"
 #include "llchatitemscontainerctrl.h"
+#include "llfloaterscriptdebug.h"
 #include "llnearbychat.h"
 #include "llrecentpeople.h"
 
@@ -358,6 +359,29 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 		//if(tmp_chat.mFromName.empty() && tmp_chat.mFromID!= LLUUID::null)
 		//	tmp_chat.mFromName = tmp_chat.mFromID.asString();
 	}
+
+	// don't show toast and add message to chat history on receive debug message
+	// with disabled setting showing script errors or enabled setting to show script
+	// errors in separate window.
+	if (chat_msg.mChatType == CHAT_TYPE_DEBUG_MSG)
+	{
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
+			return;
+		if (gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)// show error in window //("ScriptErrorsAsChat"))
+		{
+
+			LLColor4 txt_color;
+
+			LLViewerChat::getChatColor(chat_msg,txt_color);
+
+			LLFloaterScriptDebug::addScriptLine(chat_msg.mText,
+												chat_msg.mFromName,
+												txt_color,
+												chat_msg.mFromID);
+			return;
+		}
+	}
+
 	nearby_chat->addMessage(chat_msg, true, args);
 	if( nearby_chat->getVisible()
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT

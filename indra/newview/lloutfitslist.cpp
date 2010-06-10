@@ -44,6 +44,7 @@
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llnotificationsutil.h"
+#include "lloutfitobserver.h"
 #include "llsidetray.h"
 #include "lltransutil.h"
 #include "llviewermenu.h"
@@ -199,6 +200,9 @@ void LLOutfitsList::onOpen(const LLSD& /*info*/)
 		mCategoriesObserver->addCategory(outfits,
 			boost::bind(&LLOutfitsList::refreshList, this, outfits));
 
+		// Start observing changes in Current Outfit to update items worn state.
+		LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLOutfitsList::onCOFChanged, this));
+
 		// Fetch "My Outfits" contents and refresh the list to display
 		// initially fetched items. If not all items are fetched now
 		// the observer will refresh the list as soon as the new items
@@ -322,7 +326,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 			// 3. Reset currently selected outfit id if it is being removed.
 			if (outfit_id == mSelectedOutfitUUID)
 			{
-				mSelectedOutfitUUID = LLUUID();
+				setSelectedOutfitUUID(LLUUID());
 			}
 
 			// 4. Remove category UUID to accordion tab mapping.
@@ -383,6 +387,11 @@ void LLOutfitsList::setFilterSubString(const std::string& string)
 	applyFilter(string);
 
 	mFilterSubString = string;
+}
+
+boost::signals2::connection LLOutfitsList::addSelectionChangeCallback(selection_change_callback_t cb)
+{
+	return mSelectionChangeSignal.connect(cb);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -471,7 +480,12 @@ void LLOutfitsList::changeOutfitSelection(LLWearableItemsList* list, const LLUUI
 	}
 
 	mSelectedListsMap.insert(wearables_lists_map_value_t(category_id, list));
-	mSelectedOutfitUUID = category_id;
+	setSelectedOutfitUUID(category_id);
+}
+
+void LLOutfitsList::setSelectedOutfitUUID(const LLUUID& category_id)
+{
+	mSelectionChangeSignal(mSelectedOutfitUUID = category_id);
 }
 
 void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
@@ -643,6 +657,43 @@ void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
 	}
 
 	LLWearableItemsList::ContextMenu::instance().show(list, selected_uuids, x, y);
+}
+
+void LLOutfitsList::onCOFChanged()
+{
+	LLInventoryModel::changed_items_t changed_linked_items;
+
+	const LLInventoryModel::changed_items_t& changed_items = gInventory.getChangedIDs();
+	for (LLInventoryModel::changed_items_t::const_iterator iter = changed_items.begin();
+		 iter != changed_items.end();
+		 ++iter)
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(*iter);
+		if (item)
+		{
+			// From gInventory we get the UUIDs of new links added to COF
+			// or removed from COF. These links UUIDs are not the same UUIDs
+			// that we have in each wearable items list. So we collect base items
+			// UUIDs to find all items or links that point to same base items in wearable
+			// items lists and update their worn state there.
+			changed_linked_items.insert(item->getLinkedUUID());
+		}
+	}
+
+	for (outfits_map_t::iterator iter = mOutfitsMap.begin();
+			iter != mOutfitsMap.end();
+			++iter)
+	{
+		LLAccordionCtrlTab* tab = iter->second;
+		if (!tab) continue;
+
+		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
+		if (!list) continue;
+
+		// Every list updates the labels of changed items  or
+		// the links that point to these items.
+		list->updateChangedItems(changed_linked_items);
+	}
 }
 
 bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y)
