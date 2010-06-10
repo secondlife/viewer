@@ -124,9 +124,12 @@ public:
 
 	static	U32 sStandardBumpmapCount;  // Number of valid values in gStandardBumpmapList[]
 
+	static void clear();
+	static void addstandard();
+
 	static void init();
 	static void shutdown();
-	static void	restoreGL();
+	static void restoreGL();
 	static void destroyGL();
 };
 

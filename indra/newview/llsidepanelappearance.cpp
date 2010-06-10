@@ -42,11 +42,13 @@
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
 #include "llfoldervieweventlistener.h"
+#include "lloutfitobserver.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
 #include "llsidetray.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
+#include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llwearable.h"
@@ -72,39 +74,21 @@ private:
 	LLSidepanelAppearance *mPanel;
 };
 
-class LLWatchForOutfitRenameObserver : public LLInventoryObserver
-{
-public:
-	LLWatchForOutfitRenameObserver(LLSidepanelAppearance *panel) :
-		mPanel(panel)
-	{}
-	virtual void changed(U32 mask);
-	
-private:
-	LLSidepanelAppearance *mPanel;
-};
-
-void LLWatchForOutfitRenameObserver::changed(U32 mask)
-{
-	if (mask & LABEL)
-	{
-		mPanel->refreshCurrentOutfitName();
-	}
-}
-
 LLSidepanelAppearance::LLSidepanelAppearance() :
 	LLPanel(),
 	mFilterSubString(LLStringUtil::null),
 	mFilterEditor(NULL),
 	mOutfitEdit(NULL),
-	mCurrOutfitPanel(NULL)
+	mCurrOutfitPanel(NULL),
+	mOpened(false)
 {
+	LLOutfitObserver& outfit_observer =  LLOutfitObserver::instance();
+	outfit_observer.addBOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
+	outfit_observer.addCOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
 }
 
 LLSidepanelAppearance::~LLSidepanelAppearance()
 {
-	gInventory.removeObserver(mOutfitRenameWatcher);
-	delete mOutfitRenameWatcher;
 }
 
 // virtual
@@ -116,10 +100,7 @@ BOOL LLSidepanelAppearance::postBuild()
 	mEditAppearanceBtn = getChild<LLButton>("editappearance_btn");
 	mEditAppearanceBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditAppearanceButtonClicked, this));
 
-	childSetAction("edit_outfit_btn", boost::bind(&LLSidepanelAppearance::onEditOutfitButtonClicked, this));
-
-	mEditBtn = getChild<LLButton>("edit_btn");
-	mEditBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditButtonClicked, this));
+	childSetAction("edit_outfit_btn", boost::bind(&LLSidepanelAppearance::showOutfitEditPanel, this));
 
 	mNewOutfitBtn = getChild<LLButton>("newlook_btn");
 	mNewOutfitBtn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onNewOutfitButtonClicked, this));
@@ -151,7 +132,7 @@ BOOL LLSidepanelAppearance::postBuild()
 		LLButton* edit_wearable_back_btn = mEditWearable->getChild<LLButton>("back_btn");
 		if (edit_wearable_back_btn)
 		{
-			edit_wearable_back_btn->setClickedCallback(boost::bind(&LLSidepanelAppearance::onEditWearBackClicked, this));
+			edit_wearable_back_btn->setClickedCallback(boost::bind(&LLSidepanelAppearance::showOutfitEditPanel, this));
 		}
 	}
 
@@ -161,8 +142,8 @@ BOOL LLSidepanelAppearance::postBuild()
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
-	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
-	gInventory.addObserver(mOutfitRenameWatcher);
+
+	setVisibleCallback(boost::bind(&LLSidepanelAppearance::onVisibilityChange,this,_2));
 
 	return TRUE;
 }
@@ -170,26 +151,57 @@ BOOL LLSidepanelAppearance::postBuild()
 // virtual
 void LLSidepanelAppearance::onOpen(const LLSD& key)
 {
-	fetchInventory();
-	refreshCurrentOutfitName();
-	updateVerbs();
-
-	if (mPanelOutfitsInventory)
+	if (!key.has("type"))
 	{
-		mPanelOutfitsInventory->onOpen(key);
+		// No specific panel requested.
+		// If we're opened for the first time then show My Outfits.
+		// Else do nothing.
+		if (!mOpened)
+		{
+			showOutfitsInventoryPanel();
+		}
+	}
+	else
+	{
+		// Switch to the requested panel.
+		// *TODO: replace this crap with LLSideTrayPanelContainer
+		std::string type = key["type"].asString();
+		if (type == "my_outfits")
+		{
+			showOutfitsInventoryPanel();
+		}
+		else if (type == "edit_outfit")
+		{
+			showOutfitEditPanel();
+		}
+		else if (type == "edit_shape")
+		{
+			showWearableEditPanel();
+		}
 	}
 
-	if(key.size() == 0)
-		return;
-	
-	toggleOutfitEditPanel(TRUE);
-	updateVerbs();
-	
-	mLookInfoType = key["type"].asString();
+	mOpened = true;
+}
 
-	if (mLookInfoType == "edit_outfit")
+void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
+{
+	if (new_visibility.asBoolean())
 	{
-		mOutfitEdit->displayCurrentOutfit();
+		if ((mOutfitEdit && mOutfitEdit->getVisible()) || (mEditWearable && mEditWearable->getVisible()))
+		{
+			if (!gAgentCamera.cameraCustomizeAvatar() && gSavedSettings.getBOOL("AppearanceCameraMovement"))
+			{
+				gAgentCamera.changeCameraToCustomizeAvatar();
+			}
+		}
+	}
+	else
+	{
+		if (gAgentCamera.cameraCustomizeAvatar() && gSavedSettings.getBOOL("AppearanceCameraMovement"))
+		{
+			gAgentCamera.changeCameraToDefault();
+			gAgentCamera.resetView();
+		}
 	}
 }
 
@@ -233,32 +245,13 @@ void LLSidepanelAppearance::onOpenOutfitButtonClicked()
 	}
 }
 
+// *TODO: obsolete?
 void LLSidepanelAppearance::onEditAppearanceButtonClicked()
 {
 	if (gAgentWearables.areWearablesLoaded())
 	{
 		gAgentCamera.changeCameraToCustomizeAvatar();
 	}
-}
-
-void LLSidepanelAppearance::onEditOutfitButtonClicked()
-{
-	LLSD key;
-	key["type"] = "edit_outfit";
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", key);
-}
-
-void LLSidepanelAppearance::onEditButtonClicked()
-{
-	toggleOutfitEditPanel(FALSE);
-	toggleWearableEditPanel(TRUE, NULL);
-	/*if (mOutfitEdit->getVisible())
-	  {
-	  }
-	  else
-	  {
-	  mPanelOutfitsInventory->onEdit();
-	  }*/
 }
 
 void LLSidepanelAppearance::onNewOutfitButtonClicked()
@@ -269,81 +262,112 @@ void LLSidepanelAppearance::onNewOutfitButtonClicked()
 	}
 }
 
-void LLSidepanelAppearance::onEditWearBackClicked()
-{
-	mEditWearable->saveChanges();
-	toggleWearableEditPanel(FALSE, NULL);
-	toggleOutfitEditPanel(TRUE);
-}
-
 void LLSidepanelAppearance::showOutfitsInventoryPanel()
 {
-	mOutfitEdit->setVisible(FALSE);
-
-	mPanelOutfitsInventory->setVisible(TRUE);
-
-	mFilterEditor->setVisible(TRUE);
-	mEditBtn->setVisible(TRUE);
-	mNewOutfitBtn->setVisible(TRUE);
-	mCurrOutfitPanel->setVisible(TRUE);
+	toggleWearableEditPanel(FALSE);
+	toggleOutfitEditPanel(FALSE);
+	togglMyOutfitsPanel(TRUE);
 }
 
 void LLSidepanelAppearance::showOutfitEditPanel()
 {
-	mOutfitEdit->setVisible(TRUE);
-	
-	mPanelOutfitsInventory->setVisible(FALSE);
-
-	mFilterEditor->setVisible(FALSE);
-	mEditBtn->setVisible(FALSE);
-	mNewOutfitBtn->setVisible(FALSE);
-	mCurrOutfitPanel->setVisible(FALSE);
+	togglMyOutfitsPanel(FALSE);
+	toggleWearableEditPanel(FALSE, NULL, TRUE); // don't switch out of edit appearance mode
+	toggleOutfitEditPanel(TRUE);
 }
 
-void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible)
+void LLSidepanelAppearance::showWearableEditPanel(LLWearable *wearable /* = NULL*/)
 {
-	if (!mOutfitEdit)
+	togglMyOutfitsPanel(FALSE);
+	toggleOutfitEditPanel(FALSE, TRUE); // don't switch out of edit appearance mode
+	toggleWearableEditPanel(TRUE, wearable);
+}
+
+void LLSidepanelAppearance::togglMyOutfitsPanel(BOOL visible)
+{
+	if (!mPanelOutfitsInventory || mPanelOutfitsInventory->getVisible() == visible)
+	{
+		// visibility isn't changing, hence nothing to do
 		return;
+	}
+
+	mPanelOutfitsInventory->setVisible(visible);
+
+	// *TODO: Move these controls to panel_outfits_inventory.xml
+	// so that we don't need to toggle them explicitly.
+	mFilterEditor->setVisible(visible);
+	mNewOutfitBtn->setVisible(visible);
+	mCurrOutfitPanel->setVisible(visible);
+
+	if (visible)
+	{
+		mPanelOutfitsInventory->onOpen(LLSD());
+	}
+}
+
+void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch)
+{
+	if (!mOutfitEdit || mOutfitEdit->getVisible() == visible)
+	{
+		// visibility isn't changing, hence nothing to do
+		return;
+	}
 
 	mOutfitEdit->setVisible(visible);
-	if (mPanelOutfitsInventory) mPanelOutfitsInventory->setVisible(!visible);
-	mFilterEditor->setVisible(!visible);
-	mEditBtn->setVisible(!visible);
-	mNewOutfitBtn->setVisible(!visible);
-	mCurrOutfitPanel->setVisible(!visible);
+
+	if (visible)
+	{
+		mOutfitEdit->onOpen(LLSD());
+		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+		{
+			gAgentCamera.changeCameraToCustomizeAvatar();
+		}
+	}
+	else if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+	{
+		gAgentCamera.changeCameraToDefault();
+		gAgentCamera.resetView();
+	}
 }
 
-void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *wearable)
+void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *wearable, BOOL disable_camera_switch)
 {
+	if (!mEditWearable || mEditWearable->getVisible() == visible)
+	{
+		// visibility isn't changing, hence nothing to do
+		return;
+	}
+
 	if (!wearable)
 	{
-		wearable = gAgentWearables.getWearable(WT_SHAPE, 0);
+		wearable = gAgentWearables.getWearable(LLWearableType::WT_SHAPE, 0);
 	}
-	if (!mEditWearable || !wearable)
+	if (!wearable)
 	{
 		return;
 	}
 
-	mCurrOutfitPanel->setVisible(!visible);
-
+	// Toggle panel visibility.
 	mEditWearable->setVisible(visible);
-	mEditWearable->setWearable(wearable);
-	mFilterEditor->setVisible(!visible);
-	mPanelOutfitsInventory->setVisible(!visible);
-}
 
-void LLSidepanelAppearance::updateVerbs()
-{
-	bool is_look_info_visible = mOutfitEdit->getVisible();
-
-	if (mPanelOutfitsInventory && !is_look_info_visible)
+	if (visible)
 	{
-//		const bool is_correct_type = (mPanelOutfitsInventory->getCorrectListenerForAction() != NULL);
-//		mEditBtn->setEnabled(is_correct_type);
+		mEditWearable->setWearable(wearable);
+		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
+		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+		{
+			gAgentCamera.changeCameraToCustomizeAvatar();
+		}
 	}
 	else
 	{
-		mEditBtn->setEnabled(FALSE);
+		// Save changes if closing.
+		mEditWearable->saveChanges();
+		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
+		{
+			gAgentCamera.changeCameraToDefault();
+			gAgentCamera.resetView();
+		}
 	}
 }
 
@@ -374,11 +398,13 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 }
 
 //static
-void LLSidepanelAppearance::editWearable(LLWearable *wearable, void *data)
+void LLSidepanelAppearance::editWearable(LLWearable *wearable, LLView *data)
 {
-	LLSidepanelAppearance *panel = (LLSidepanelAppearance*) data;
-	panel->toggleOutfitEditPanel(FALSE);
-	panel->toggleWearableEditPanel(TRUE, wearable);
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(data);
+	if (panel)
+	{
+		panel->showWearableEditPanel(wearable);
+	}
 }
 
 // Fetch currently worn items and only enable the New Look button after everything's been
@@ -389,11 +415,11 @@ void LLSidepanelAppearance::fetchInventory()
 	mNewOutfitBtn->setEnabled(false);
 	uuid_vec_t ids;
 	LLUUID item_id;
-	for(S32 type = (S32)WT_SHAPE; type < (S32)WT_COUNT; ++type)
+	for(S32 type = (S32)LLWearableType::WT_SHAPE; type < (S32)LLWearableType::WT_COUNT; ++type)
 	{
-		for (U32 index = 0; index < gAgentWearables.getWearableCount((EWearableType)type); ++index)
+		for (U32 index = 0; index < gAgentWearables.getWearableCount((LLWearableType::EType)type); ++index)
 		{
-			item_id = gAgentWearables.getWearableItemID((EWearableType)type, index);
+			item_id = gAgentWearables.getWearableItemID((LLWearableType::EType)type, index);
 			if(item_id.notNull())
 			{
 				ids.push_back(item_id);
@@ -438,4 +464,26 @@ void LLSidepanelAppearance::fetchInventory()
 void LLSidepanelAppearance::inventoryFetched()
 {
 	mNewOutfitBtn->setEnabled(true);
+}
+
+void LLSidepanelAppearance::setWearablesLoading(bool val)
+{
+	childSetVisible("wearables_loading_indicator", val);
+	childSetVisible("edit_outfit_btn", !val);
+}
+
+void LLSidepanelAppearance::showDefaultSubpart()
+{
+	if (mEditWearable->getVisible())
+	{
+		mEditWearable->showDefaultSubpart();
+	}
+}
+
+void LLSidepanelAppearance::updateScrollingPanelList()
+{
+	if (mEditWearable->getVisible())
+	{
+		mEditWearable->updateScrollingPanelList();
+	}
 }

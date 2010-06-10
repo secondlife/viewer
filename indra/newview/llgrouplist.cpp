@@ -39,13 +39,13 @@
 #include "lliconctrl.h"
 #include "llmenugl.h"
 #include "lltextbox.h"
+#include "lltextutil.h"
 #include "lltrans.h"
 
 // newview
 #include "llagent.h"
 #include "llgroupactions.h"
 #include "llfloaterreg.h"
-#include "lltextutil.h"
 #include "llviewercontrol.h"	// for gSavedSettings
 #include "llviewermenu.h"		// for gMenuHolder
 #include "llvoiceclient.h"
@@ -273,7 +273,7 @@ bool LLGroupList::onContextMenuItemEnable(const LLSD& userdata)
 		return gAgent.getGroupID() != selected_group_id;
 
 	if (userdata.asString() == "call")
-		return real_group_selected && LLVoiceClient::voiceEnabled()&&gVoiceClient->voiceWorking();
+	  return real_group_selected && LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 
 	return real_group_selected;
 }

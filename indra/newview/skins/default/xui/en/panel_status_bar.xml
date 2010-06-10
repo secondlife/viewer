@@ -41,41 +41,50 @@
      name="buycurrencylabel">
         L$ [AMT]
     </panel.string>
-    <button
+  <panel
+    height="18"
+    left="-315"
+    width="95"
+    top="1"
+    follows="right|top" 
+    name="balance_bg" 
+    bg_visible="true"
+    background_opaque="true" 
+    bg_opaque_image="bevel_background">
+    <text
      auto_resize="true"
-     halign="right"
+     halign="center"
      font="SansSerifSmall"
-     follows="right|top"
-     image_overlay=""
-     image_selected="spacer35.tga"
-     image_unselected="spacer35.tga"
-     image_pressed="spacer35.tga"
-     height="16"
-     right="-230"
-     label_shadow="false"
-     name="buycurrency"
+     follows="all"
+     height="18"
+     left="0" 
+     name="balance"
      tool_tip="My Balance"
-     top="3"
-     width="120" />
+     v_pad="4"
+     top="0"
+     wrap="false" 
+     value="L$20" 
+     width="40" />
     <button
      auto_resize="true"
-     halign="right"
+     halign="center"
      font="SansSerifSmall"
-     follows="right|top"
-     image_selected="spacer35.tga"
-     image_unselected="spacer35.tga"
-     image_pressed="spacer35.tga"
-     height="16"
-     label="Buy L$"
-     label_color="EmphasisColor"
+     follows="right|top|bottom"
+     image_hover_unselected="buy_over"
+     image_unselected="buy_off"
+     image_pressed="buy_press"
+     height="18"
+     label="BUY L$"
+     label_color="White"
      left_pad="0"
-     label_shadow="false"
+     label_shadow="true"
      name="buyL"
-     pad_right="20"
+     pad_right="0"
      pad_bottom="2"
      tool_tip="Click to buy more L$"
-     top="2"
+     top="0"
      width="55" />
+  </panel>
     <text
      type="string"
      font="SansSerifSmall"
@@ -88,7 +97,7 @@
      left_pad="0"
      name="TimeText"
      tool_tip="Current time (Pacific)"
-     width="100">
+     width="145">
         24:00 AM PST
     </text>
     <button

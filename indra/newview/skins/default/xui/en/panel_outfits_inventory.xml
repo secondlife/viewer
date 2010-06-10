@@ -30,6 +30,7 @@
            height="490"
            name="outfitslist_tab"
            background_visible="true"
+           help_topic="my_outfits_tab"
            follows="all"
            label="MY OUTFITS"
            layout="topleft"
@@ -93,17 +94,30 @@
          left_pad="1"
          name="trash_btn"
          tool_tip="Remove selected item"
-         width="31"/>
-	 <button
-	  follows="bottom|left"
-		height="23" 
-      label="Save Outfit" 
-      layout="topleft"
-      name="make_outfit_btn"
-      tool_tip="Save appearance as an outfit"
+         width="31"/>         
+     <button
+       follows="bottom|left"
+       height="23"
+       label="Save As"
+       left="0"         
+       layout="topleft"
+       name="save_btn"
        top_pad="6"
-       left="0"
-      width="153" />
+       width="155" />
+     <button
+       follows="bottom|left"
+       height="23"
+       name="save_flyout_btn"
+       label=""
+       layout="topleft"
+       left_pad="-20"
+       tab_stop="false"
+       image_selected="SegmentedBtn_Right_Selected_Press"
+       image_unselected="SegmentedBtn_Right_Off"
+       image_pressed="SegmentedBtn_Right_Press"
+       image_pressed_selected="SegmentedBtn_Right_Selected_Press"
+       image_overlay="Arrow_Small_Up"
+       width="20"/>
      <button
       follows="bottom|left|right" 
       height="23" 

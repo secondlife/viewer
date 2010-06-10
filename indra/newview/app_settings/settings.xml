@@ -574,6 +574,17 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
+    <key>AvatarBakedTextureTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifes the maximum time in seconds to wait before sending your baked textures for avatar appearance.  Set to 0 to disable and wait until all baked textures are at highest resolution.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>120</integer>
+    </map>
     <key>AvatarSex</key>
     <map>
       <key>Comment</key>
@@ -621,7 +632,18 @@
     <key>BlockAvatarAppearanceMessages</key>
         <map>
         <key>Comment</key>
-            <string>Ignore's appearance messages (for simulating Ruth)</string>
+            <string>Ignores appearance messages (for simulating Ruth)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>BlockSomeAvatarAppearanceVisualParams</key>
+        <map>
+        <key>Comment</key>
+            <string>Drop around 50% of VisualParam occurances in appearance messages (for simulating Ruth)</string>
         <key>Persist</key>
             <integer>1</integer>
         <key>Type</key>
@@ -1265,6 +1287,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CertStore</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies the Certificate Store for certificate trust verification</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>default</string>
+    </map>
     <key>ChatBarStealsFocus</key>
     <map>
       <key>Comment</key>
@@ -1586,6 +1619,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ChatBarCustomWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Stores customized width of chat bar.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>CreateToolCopyCenters</key>
     <map>
       <key>Comment</key>
@@ -1640,6 +1684,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>CurrentGrid</key>
+    <map>
+      <key>Comment</key>
+      <string>Currently Selected Grid</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
     </map>
     <key>CustomServer</key>
     <map>
@@ -2389,6 +2444,29 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>DefaultFemaleAvatar</key>
+	<map>
+	  <key>Comment</key>
+	  <string>Default Female Avatar</string>
+	  <key>Persist</key>
+	  <integer>1</integer>
+	  <key>Type</key>
+	  <string>String</string>
+	  <key>Value</key>
+	  <string>Female Shape &amp; Outfit</string>
+	</map>
+	<key>DefaultMaleAvatar</key>
+	<map>
+	  <key>Comment</key>
+	  <string>Default Male Avatar</string>
+	  <key>Persist</key>
+	  <integer>1</integer>
+	  <key>Type</key>
+	  <string>String</string>
+	  <key>Value</key>
+	  <string>Male Shape &amp; Outfit</string>
+	</map>
+
     <key>DefaultObjectTexture</key>
     <map>
       <key>Comment</key>
@@ -2641,6 +2719,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>4</integer>
+    </map>
+    <key>DumpVFSCaches</key>
+    <map>
+      <key>Comment</key>
+      <string>Dump VFS caches on startup.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>DynamicCameraStrength</key>
     <map>
@@ -3489,6 +3578,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>FullScreen</key>
+    <map>
+      <key>Comment</key>
+      <string>Run SL in fullscreen mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>FullScreenAspectRatio</key>
     <map>
       <key>Comment</key>
@@ -3532,6 +3632,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>1024</integer>
+    </map>
+    <key>GesturesMarketplaceURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Gestures Marketplace</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://www.xstreetsl.com/modules.php?name=Marketplace&amp;CategoryID=233</string>
     </map>
     <key>GridCrossSections</key>
     <map>
@@ -3762,7 +3873,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>InBandwidth</key>
     <map>
@@ -3819,6 +3930,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+	<key>InventoryLinking</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable ability to create links to folders and items via "Paste as link".</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
     <key>InventorySortOrder</key>
     <map>
       <key>Comment</key>
@@ -4083,6 +4205,17 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+    <key>LastGPUClass</key>
+    <map>
+      <key>Comment</key>
+      <string>[DO NOT MODIFY] previous GPU class for tracking hardware changes</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
+    </map>
     <key>LastFeatureVersion</key>
     <map>
       <key>Comment</key>
@@ -4447,6 +4580,17 @@
       <key>Value</key>
       <real>128.0</real>
     </map>
+    <key>MapServerURL</key>
+    <map>
+      <key>Comment</key>
+      <string>World map URL template for locating map tiles</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://map.secondlife.com.s3.amazonaws.com/</string>
+    </map>
     <key>MapShowEvents</key>
     <map>
       <key>Comment</key>
@@ -4513,6 +4657,17 @@
       <key>Value</key>
       <string />
     </map>
+    <key>MarketplaceURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+    </map>    
     <key>MaxDragDistance</key>
     <map>
       <key>Comment</key>
@@ -5953,7 +6108,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.2</real>
+    <real>0.125</real>
   </map>
   <key>MediaRollOffMin</key>
   <map>
@@ -5964,7 +6119,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>7.0</real>
+    <real>5.0</real>
   </map>
   <key>MediaRollOffMax</key>
   <map>
@@ -6003,6 +6158,17 @@
     <map>
       <key>Comment</key>
       <string>Experimental: Embed registration in login screen</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>QuickBuyCurrency</key>
+    <map>
+      <key>Comment</key>
+      <string>Toggle between HTML based currency purchase floater and legacy XUI version</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6340,7 +6506,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderDebugPipeline</key>
+  <key>RenderDebugNormalScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Scale of normals in debug display.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.03</real>
+  </map>
+  <key>RenderDebugPipeline</key>
     <map>
       <key>Comment</key>
       <string>Enable strict pipeline debugging.</string>
@@ -6373,6 +6550,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+ 
   <key>RenderAnimateRes</key>
   <map>
     <key>Comment</key>
@@ -6384,7 +6562,31 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
+  <key>RenderBakeSunlight</key>
+  <map>
+    <key>Comment</key>
+    <string>Bake sunlight into vertex buffers for static objects.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
+  <key>RenderNoAlpha</key>
+  <map>
+    <key>Comment</key>
+    <string>Disable rendering of alpha objects (render all alpha objects as alpha masks).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
   <key>RenderAnimateTrees</key>
   <map>
     <key>Comment</key>
@@ -6541,6 +6743,18 @@
     <real>16.0</real>
    </map>
 
+  <key>RenderMinimumLODTriangleCount</key>
+  <map>
+    <key>Comment</key>
+    <string>Triangle count threshold at which automatic LOD generation stops</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <real>16</real>
+  </map>
+
   <key>RenderEdgeDepthCutoff</key>
   <map>
     <key>Comment</key>
@@ -6664,7 +6878,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.0</real>
+    <real>-0.001</real>
   </map>
   <key>RenderSpotShadowOffset</key>
   <map>
@@ -7937,6 +8151,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SecondLifeEnterprise</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables Second Life Enterprise features</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>	
     <key>SelectMovableOnly</key>
     <map>
       <key>Comment</key>
@@ -8113,6 +8338,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ShowBuildButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Build button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowCameraButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide View button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowConsoleWindow</key>
     <map>
       <key>Comment</key>
@@ -8146,6 +8393,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowBetaGrids</key>
+    <map>
+      <key>Comment</key>
+      <string>Display the beta grids in the grid selection control.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>	
     <key>ShowCrosshairs</key>
     <map>
       <key>Comment</key>
@@ -8179,6 +8437,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ShowGestureButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Gesture button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowHoverTips</key>
     <map>
       <key>Comment</key>
@@ -8201,16 +8470,27 @@
       <key>Value</key>
       <integer>0</integer>
     </map>    
-    <key>ShowCameraButton</key>                
+    <key>ShowMiniMapButton</key>
     <map>
       <key>Comment</key>
-      <string>Show/Hide Camera button in the bottom tray</string>
+      <string>Shows/Hides Mini-Map button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>   
+      <integer>0</integer>
+    </map>
+    <key>ShowMoveButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Move button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
 	<key>ShowScriptErrors</key>
     <map>
@@ -8232,40 +8512,29 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ShowSearchButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Search button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>ShowSnapshotButton</key>                
+    <key>ShowSnapshotButton</key>
     <map>
       <key>Comment</key>
-      <string>Show/Hide Snapshot button button in the bottom tray</string>
+      <string>Shows/Hides Snapshot button button in the bottom tray.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>   
-    </map>
-    <key>ShowMoveButton</key>                
-    <map>
-      <key>Comment</key>
-      <string>Show/Hide Move button in the bottom tray</string>
-      <key>Persist</key>
       <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>   
-    </map>    
-    <key>ShowGestureButton</key>                
-    <map>
-      <key>Comment</key>
-      <string>Show/Hide Gesture button in the bottom tray</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>   
     </map>
     <key>ShowObjectRenderingCost</key>                
     <map>
@@ -8299,6 +8568,39 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>   
+    </map>
+    <key>ShowWorldMapButton</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/Hides Map button in the bottom tray.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ShowMiniLocationPanel</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/Hide Mini-Location Panel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>SidebarCameraMovement</key>
+    <map>
+      <key>Comment</key>
+      <string>Reflects world rect changing while changing sidebar visibility.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>GroupListShowIcons</key>
     <map>
@@ -9111,6 +9413,17 @@
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureDiscardLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Specify texture resolution (0 = highest, 5 = lowest)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -10401,7 +10714,17 @@
       <key>Value</key>
       <real>10.0</real>
     </map>
-
+    <key>UseNewWalkRun</key>
+    <map>
+      <key>Comment</key>
+      <string>Replace standard walk/run animations with new ones.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>UseStartScreen</key>
     <map>
       <key>Comment</key>
@@ -10601,6 +10924,17 @@
       <key>Value</key>
       <string></string>
     </map>
+    <key>VivoxDebugSIPURIHostName</key>
+    <map>
+      <key>Comment</key>
+      <string>Hostname portion of vivox SIP URIs (empty string for the default).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
     <key>VivoxDebugVoiceAccountServerURI</key>
     <map>
       <key>Comment</key>
@@ -10612,6 +10946,28 @@
       <key>Value</key>
       <string></string>
     </map>
+    <key>VivoxVoiceHost</key>
+    <map>
+      <key>Comment</key>
+      <string>Client SLVoice host to connect to</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>127.0.0.1</string>
+    </map>
+    <key>VivoxVoicePort</key>
+    <map>
+      <key>Comment</key>
+      <string>Client SLVoice port to connect to</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>44125</integer>
+    </map>
     <key>VoiceCallsFriendsOnly</key>
     <map>
       <key>Comment</key>
@@ -10622,6 +10978,28 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>VoiceEffectExpiryWarningTime</key>
+    <map>
+      <key>Comment</key>
+      <string>How much notice to give of Voice Morph subscriptions expiry, in seconds.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>259200</integer>
+    </map>
+    <key>VoiceMorphingEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to enable Voice Morphs and show the UI.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>AutoDisengageMic</key>
     <map>
@@ -10744,6 +11122,17 @@
       <key>Value</key>
       <string>Default</string>
     </map>
+    <key>VoiceLogFile</key>
+    <map>
+      <key>Comment</key>
+      <string>Log file to use when launching the voice daemon</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
     <key>VoiceOutputAudioDevice</key>
     <map>
       <key>Comment</key>
@@ -10787,6 +11176,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>VoiceServerType</key>
+    <map>
+      <key>Comment</key>
+      <string>The type of voice server to connect to.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>vivox</string>
     </map>
     <key>WLSkyDetail</key>
     <map>
@@ -10886,17 +11286,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>WindowFullScreen</key>
-    <map>
-      <key>Comment</key>
-      <string>Run SL in fullscreen mode</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>WindowHeight</key>
     <map>
@@ -11222,6 +11611,42 @@
       <string>S32</string>
       <key>Value</key>
       <integer>178</integer>
+    </map>
+    <key>always_showable_floaters</key>
+    <map>
+      <key>Comment</key>
+      <string>Floaters that can be shown despite mouselook mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+	      <string>snapshot</string>
+	      <string>mini_map</string>
+      </array>
+    </map>
+    <key>LandmarksSortedByDate</key>
+    <map>
+      <key>Comment</key>
+      <string>Reflects landmarks panel sorting order.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>OutfitOperationsTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Timeout for outfit related operations.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>180</integer>
     </map>
 </map>
 </llsd>

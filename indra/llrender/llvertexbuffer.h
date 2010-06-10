@@ -79,6 +79,17 @@ protected:
 class LLVertexBuffer : public LLRefCount
 {
 public:
+	LLVertexBuffer(const LLVertexBuffer& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLVertexBuffer& operator=(const LLVertexBuffer& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
 	static LLVBOPool sStreamVBOPool;
 	static LLVBOPool sDynamicVBOPool;
 	static LLVBOPool sStreamIBOPool;
@@ -98,7 +109,7 @@ public:
 	//if offsets is not NULL, its contents will be filled
 	//with the offset of each vertex component in the buffer, 
 	// indexed by the following enum
-	static S32 calcStride(const U32& typemask, S32* offsets = NULL); 										
+	static S32 calcStride(const U32& typemask, S32* offsets = NULL, S32 num_vertices = 0); 										
 
 	enum {
 		TYPE_VERTEX,
@@ -187,12 +198,12 @@ public:
 	S32 getRequestedVerts() const			{ return mRequestedNumVerts; }
 	S32 getRequestedIndices() const			{ return mRequestedNumIndices; }
 
-	U8* getIndicesPointer() const			{ return useVBOs() ? NULL : mMappedIndexData; }
+	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
 	U8* getVerticesPointer() const			{ return useVBOs() ? NULL : mMappedData; }
 	S32 getStride() const					{ return mStride; }
 	U32 getTypeMask() const					{ return mTypeMask; }
 	BOOL hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()) ? TRUE : FALSE; }
-	S32 getSize() const						{ return mNumVerts*mStride; }
+	S32 getSize() const;
 	S32 getIndicesSize() const				{ return mNumIndices * sizeof(U16); }
 	U8* getMappedData() const				{ return mMappedData; }
 	U8* getMappedIndices() const			{ return mMappedIndexData; }
@@ -207,12 +218,19 @@ public:
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
 	void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
 
+	//for debugging, validate data in given range is valid
+	void validateRange(U32 start, U32 end, U32 count, U32 offset) const;
+
+	
+
 protected:	
 	S32		mNumVerts;		// Number of vertices allocated
 	S32		mNumIndices;	// Number of indices allocated
 	S32		mRequestedNumVerts;  // Number of vertices requested
 	S32		mRequestedNumIndices;  // Number of indices requested
 
+	ptrdiff_t mAlignedOffset;
+	ptrdiff_t mAlignedIndexOffset;
 	S32		mStride;
 	U32		mTypeMask;
 	S32		mUsage;			// GL usage
@@ -227,7 +245,7 @@ protected:
 	S32		mOffsets[TYPE_MAX];
 	BOOL	mResized;		// if TRUE, client buffer has been resized and GL buffer has not
 	BOOL	mDynamicSize;	// if TRUE, buffer has been resized at least once (and should be padded)
-
+	
 	class DirtyRegion
 	{
 	public:

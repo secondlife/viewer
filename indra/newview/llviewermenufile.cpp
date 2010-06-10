@@ -39,7 +39,7 @@
 #include "llagentcamera.h"
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
-#include "llfloaterbuycurrency.h"
+#include "llbuycurrencyhtml.h"
 #include "llfloaterimportcollada.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatersnapshot.h"
@@ -66,6 +66,7 @@
 #include "llappviewer.h"
 #include "lluploaddialog.h"
 #include "lltrans.h"
+#include "llfloaterbuycurrency.h"
 #include "llfloaterimportcollada.h"
 
 // linden libraries
@@ -349,6 +350,7 @@ class LLFileUploadImage : public view_listener_t
 	}
 };
 
+#if LL_MESH_ENABLED
 class LLFileUploadScene : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -375,6 +377,7 @@ class LLFileUploadModel : public view_listener_t
 		return TRUE;
 	}
 };
+#endif
 	
 class LLFileUploadSound : public view_listener_t
 {
@@ -962,7 +965,7 @@ void upload_done_callback(
 					LLStringUtil::format_map_t args;
 					args["NAME"] = data->mAssetInfo.getName();
 					args["AMOUNT"] = llformat("%d", expected_upload_cost);
-					LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("UploadingCosts", args), expected_upload_cost);
+					LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("UploadingCosts", args), expected_upload_cost );
 					is_balance_sufficient = FALSE;
 				}
 				else if(region)
@@ -1143,6 +1146,7 @@ void upload_new_resource(
 	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType((destination_folder_type == LLFolderType::FT_NONE) ? LLFolderType::assetTypeToFolderType(asset_type) : destination_folder_type) << llendl;
 	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
 
+#if LL_MESH_ENABLED
 	std::string url = gAgent.getRegion()->getCapability(
 		"NewFileAgentInventory");
 
@@ -1170,8 +1174,8 @@ void upload_new_resource(
 				asset_type));
 	}
 	else
+#endif
 	{
-		llinfos << "NewAgentInventory capability not found, new agent inventory via asset system." << llendl;
 		// check for adequate funds
 		// TODO: do this check on the sim
 		if (LLAssetType::AT_SOUND == asset_type ||
@@ -1216,6 +1220,7 @@ void upload_new_resource(
 	}
 }
 
+#if LL_MESH_ENABLED
 BOOL upload_new_variable_price_resource(
 	const LLTransactionID &tid, 
 	LLAssetType::EType asset_type,
@@ -1287,6 +1292,7 @@ BOOL upload_new_variable_price_resource(
 		return FALSE;
 	}
 }
+#endif
 
 LLAssetID generate_asset_id_for_new_upload(const LLTransactionID& tid)
 {
@@ -1357,8 +1363,10 @@ void init_menu_file()
 	view_listener_t::addCommit(new LLFileUploadImage(), "File.UploadImage");
 	view_listener_t::addCommit(new LLFileUploadSound(), "File.UploadSound");
 	view_listener_t::addCommit(new LLFileUploadAnim(), "File.UploadAnim");
+#if LL_MESH_ENABLED
 	view_listener_t::addCommit(new LLFileUploadModel(), "File.UploadModel");
 	view_listener_t::addCommit(new LLFileUploadScene(), "File.UploadScene");
+#endif
 	view_listener_t::addCommit(new LLFileUploadBulk(), "File.UploadBulk");
 	view_listener_t::addCommit(new LLFileCloseWindow(), "File.CloseWindow");
 	view_listener_t::addCommit(new LLFileCloseAllWindows(), "File.CloseAllWindows");

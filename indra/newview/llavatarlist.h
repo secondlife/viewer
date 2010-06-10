@@ -38,6 +38,7 @@
 #include "llavatarlistitem.h"
 
 class LLTimer;
+class LLListContextMenu;
 
 /**
  * Generic list of avatars.
@@ -70,12 +71,14 @@ public:
 
 	virtual void clear();
 
+	virtual void setVisible(BOOL visible);
+
 	void setNameFilter(const std::string& filter);
 	void setDirty(bool val = true, bool force_refresh = false);
 	uuid_vec_t& getIDs() 							{ return mIDs; }
 	bool contains(const LLUUID& id);
 
-	void setContextMenu(LLAvatarListItem::ContextMenu* menu) { mContextMenu = menu; }
+	void setContextMenu(LLListContextMenu* menu) { mContextMenu = menu; }
 	void setSessionID(const LLUUID& session_id) { mSessionID = session_id; }
 	const LLUUID& getSessionID() { return mSessionID; }
 
@@ -125,7 +128,7 @@ private:
 	uuid_vec_t				mIDs;
 	LLUUID					mSessionID;
 
-	LLAvatarListItem::ContextMenu* mContextMenu;
+	LLListContextMenu*	mContextMenu;
 
 	commit_signal_t mRefreshCompleteSignal;
 	mouse_signal_t mItemDoubleClickSignal;

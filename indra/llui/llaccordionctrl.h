@@ -34,6 +34,7 @@
 #define LL_ACCORDIONCTRL_H
 
 #include "llpanel.h"
+#include "lltextbox.h"
 #include "llscrollbar.h"
 
 #include <vector>
@@ -56,6 +57,19 @@ private:
 
 
 public:
+	/**
+	 * Abstract comparator for accordion tabs.
+	 */
+	class LLTabComparator
+	{
+	public:
+		LLTabComparator() {};
+		virtual ~LLTabComparator() {};
+
+		/** Returns true if tab1 < tab2, false otherwise */
+		virtual bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const = 0;
+	};
+
 	struct Params 
 		: public LLInitParam::Block<Params, LLPanel::Params>
 	{
@@ -64,10 +78,12 @@ public:
 								accordion tabs are responsible for scrolling their content.
 								*NOTE fit_parent works best when combined with single_expansion.
 								Accordion view should implement getRequiredRect() and provide valid height*/
+		Optional<LLTextBox::Params>	empty_accordion_text;
 
 		Params()
 			: single_expansion("single_expansion",false)
 			, fit_parent("fit_parent", false)
+			, empty_accordion_text("empty_accordion_text")
 		{};
 	};
 
@@ -105,7 +121,18 @@ public:
 
 	void	reset		();
 
+	void	setComparator(const LLTabComparator* comp) { mTabComparator = comp; }
+	void	sort();
+
+	/**
+	 * Sets filter substring as a search_term for help text when there are no any visible tabs.
+	 */
+	void	setFilterSubString(const std::string& filter_string);
+
 private:
+	void	initNoTabsWidget(const LLTextBox::Params& tb_params);
+	void	updateNoTabsHelpTextVisibility();
+
 	void	arrangeSinge();
 	void	arrangeMultiple();
 
@@ -123,6 +150,21 @@ private:
 
 	BOOL	autoScroll				(S32 x, S32 y);
 
+	/**
+	 * An adaptor for LLTabComparator
+	 */
+	struct LLComparatorAdaptor
+	{
+		LLComparatorAdaptor(const LLTabComparator& comparator) : mComparator(comparator) {};
+
+		bool operator()(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2)
+		{
+			return mComparator.compare(tab1, tab2);
+		}
+
+		const LLTabComparator& mComparator;
+	};
+
 private:
 	LLRect			mInnerRect;
 	LLScrollbar*	mScrollbar;
@@ -130,6 +172,11 @@ private:
 	bool			mFitParent;
 	bool			mAutoScrolling;
 	F32				mAutoScrollRate;
+	LLTextBox*		mNoVisibleTabsHelpText;
+	std::string		mNoVisibleTabsOrigString;
+
+	LLAccordionCtrlTab*		mSelectedTab;
+	const LLTabComparator*	mTabComparator;
 };
 
 

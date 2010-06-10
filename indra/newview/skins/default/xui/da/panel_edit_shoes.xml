@@ -4,7 +4,9 @@
 		<texture_picker label="Stof" name="Fabric" tool_tip="Klik for at vælge et billede"/>
 		<color_swatch label="Farve/nuance" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
 	</panel>
-	<accordion name="wearable_accordion">
-		<accordion_tab name="shoes_main_tab" title="Sko"/>
-	</accordion>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="shoes_main_tab" title="Shoes"/>
+		</accordion>
+	</panel>
 </panel>

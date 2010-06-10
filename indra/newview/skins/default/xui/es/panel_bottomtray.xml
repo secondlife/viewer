@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="bottom_tray">
-	<string name="SpeakBtnToolTip">
-		Activa/Desactiva el micrófono
-	</string>
-	<string name="VoiceControlBtnToolTip">
-		Muestra/Oculta el panel del control de voz
-	</string>
+	<string name="SpeakBtnToolTip" value="Activa/Desactiva el micrófono"/>
+	<string name="VoiceControlBtnToolTip" value="Muestra/Oculta el panel del control de voz"/>
 	<layout_stack name="toolbar_stack">
 		<layout_panel name="speak_panel">
 			<talk_button name="talk">
@@ -23,6 +19,21 @@
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
 			<button label="" name="snapshots" tool_tip="Hacer una foto"/>
+		</layout_panel>
+		<layout_panel name="sidebar_btn_panel">
+			<button label="Barra lateral" name="sidebar_btn" tool_tip="Muestra/Oculta la barra lateral"/>
+		</layout_panel>
+		<layout_panel name="build_btn_panel">
+			<button label="Construir" name="build_btn" tool_tip="Muestra/Oculta las herramientas de construcción"/>
+		</layout_panel>
+		<layout_panel name="search_btn_panel">
+			<button label="Buscar" name="search_btn" tool_tip="Muestra/Oculta la búsqueda"/>
+		</layout_panel>
+		<layout_panel name="world_map_btn_panel">
+			<button label="Mapa" name="world_map_btn" tool_tip="Muestra/Oculta el mapa del mundo"/>
+		</layout_panel>
+		<layout_panel name="mini_map_btn_panel">
+			<button label="Minimapa" name="mini_map_btn" tool_tip="Muestra/Oculta el minimapa"/>
 		</layout_panel>
 		<layout_panel name="im_well_panel">
 			<chiclet_im_well name="im_well">

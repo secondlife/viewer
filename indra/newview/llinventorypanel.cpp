@@ -49,6 +49,7 @@
 #include "llsidepanelinventory.h"
 #include "llsidetray.h"
 #include "llscrollcontainer.h"
+#include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
 
@@ -246,6 +247,11 @@ void LLInventoryPanel::setSinceLogoff(BOOL sl)
 void LLInventoryPanel::setHoursAgo(U32 hours)
 {
 	getFilter()->setHoursAgo(hours);
+}
+
+void LLInventoryPanel::setIncludeLinks(BOOL include_links)
+{
+	getFilter()->setIncludeLinks(include_links);
 }
 
 void LLInventoryPanel::setShowFolderState(LLInventoryFilter::EFolderShow show)
@@ -775,8 +781,7 @@ void LLInventoryPanel::doCreate(const LLSD& userdata)
 
 bool LLInventoryPanel::beginIMSession()
 {
-	std::set<LLUUID> selected_items;
-	mFolderRoot->getSelectionList(selected_items);
+	std::set<LLUUID> selected_items = mFolderRoot->getSelectionList();
 
 	std::string name;
 	static int session_num = 1;
@@ -873,49 +878,19 @@ bool LLInventoryPanel::beginIMSession()
 
 bool LLInventoryPanel::attachObject(const LLSD& userdata)
 {
-	std::set<LLUUID> selected_items;
-	mFolderRoot->getSelectionList(selected_items);
-
-	std::string joint_name = userdata.asString();
-	LLViewerJointAttachment* attachmentp = NULL;
-	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
-		 iter != gAgentAvatarp->mAttachmentPoints.end(); )
-	{
-		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
-		LLViewerJointAttachment* attachment = curiter->second;
-		if (attachment->getName() == joint_name)
-		{
-			attachmentp = attachment;
-			break;
-		}
-	}
-	if (attachmentp == NULL)
-	{
-		return true;
-	}
-
+	// Copy selected item UUIDs to a vector.
+	std::set<LLUUID> selected_items = mFolderRoot->getSelectionList();
+	uuid_vec_t items;
 	for (std::set<LLUUID>::const_iterator set_iter = selected_items.begin(); 
 		 set_iter != selected_items.end(); 
 		 ++set_iter)
 	{
-		const LLUUID &id = *set_iter;
-		LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(id);
-		if(item && gInventory.isObjectDescendentOf(id, gInventory.getRootFolderID()))
-		{
-			rez_attachment(item, attachmentp);
-		}
-		else if(item && item->isFinished())
-		{
-			// must be in library. copy it to our inventory and put it on.
-			LLPointer<LLInventoryCallback> cb = new RezAttachmentCallback(attachmentp);
-			copy_inventory_item(gAgent.getID(),
-								item->getPermissions().getOwner(),
-								item->getUUID(),
-								LLUUID::null,
-								std::string(),
-								cb);
-		}
+		items.push_back(*set_iter);
 	}
+
+	// Attach selected items.
+	LLViewerAttachMenu::attachObjects(items, userdata.asString());
+
 	gFocusMgr.setKeyboardFocus(NULL);
 
 	return true;
@@ -1001,3 +976,30 @@ BOOL LLInventoryPanel::getIsHiddenFolderType(LLFolderType::EType folder_type) co
 {
 	return (std::find(mHiddenFolderTypes.begin(), mHiddenFolderTypes.end(), folder_type) != mHiddenFolderTypes.end());
 }
+
+
+/************************************************************************/
+/* Recent Inventory Panel related class                                 */
+/************************************************************************/
+class LLInventoryRecentItemsPanel;
+static LLDefaultChildRegistry::Register<LLInventoryRecentItemsPanel> t_recent_inventory_panel("recent_inventory_panel");
+
+static const LLRecentInventoryBridgeBuilder RECENT_ITEMS_BUILDER;
+class LLInventoryRecentItemsPanel : public LLInventoryPanel
+{
+public:
+	struct Params :	public LLInitParam::Block<Params, LLInventoryPanel::Params>
+	{};
+
+protected:
+	LLInventoryRecentItemsPanel (const Params&);
+	friend class LLUICtrlFactory;
+};
+
+LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
+: LLInventoryPanel(params)
+{
+	// replace bridge builder to have necessary View bridges.
+	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
+}
+

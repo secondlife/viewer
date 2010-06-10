@@ -94,7 +94,7 @@ public:
 	 * if no such tab - return NULL, otherwise a pointer to the panel
 	 * Pass params as array, or they may be overwritten(example - params["name"]="nearby")
 	 */
-	LLPanel*	showPanel		(const std::string& panel_name, const LLSD& params);
+	LLPanel*	showPanel		(const std::string& panel_name, const LLSD& params = LLSD());
 
 	/**
 	 * Toggling Side Tray tab which contains "sub_panel" child of "panel_name" panel.
@@ -102,7 +102,7 @@ public:
 	 * otherwise Side Tray is collapsed.
 	 * params are passed to "panel_name" panel onOpen().
 	 */
-	void		togglePanel		(LLPanel* &sub_panel, const std::string& panel_name, const LLSD& params);
+	void		togglePanel		(LLPanel* &sub_panel, const std::string& panel_name, const LLSD& params = LLSD());
 
 	/*
 	 * get the panel (don't show it or do anything else with it)
@@ -159,6 +159,8 @@ public:
 	
 	void		updateSidetrayVisibility();
 
+	commit_signal_t& getCollapseSignal() { return mCollapseSignal; }
+
 protected:
 	LLSideTrayTab* getTab		(const std::string& name);
 
@@ -187,6 +189,8 @@ private:
 	child_vector_t					mTabs;
 	LLSideTrayTab*					mActiveTab;	
 	
+	commit_signal_t					mCollapseSignal;
+
 	LLButton*						mCollapseButton;
 	bool							mCollapsed;
 	

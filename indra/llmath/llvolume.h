@@ -40,8 +40,15 @@ class LLPathParams;
 class LLVolumeParams;
 class LLProfile;
 class LLPath;
+
+#define LL_MESH_ENABLED 1
+
+template <class T> class LLOctreeNode;
+
+class LLVector4a;
 class LLVolumeFace;
 class LLVolume;
+class LLVolumeTriangle;
 
 #include "lldarray.h"
 #include "lluuid.h"
@@ -49,6 +56,7 @@ class LLVolume;
 //#include "vmath.h"
 #include "v2math.h"
 #include "v3math.h"
+#include "v3dmath.h"
 #include "v4math.h"
 #include "llquaternion.h"
 #include "llstrider.h"
@@ -184,10 +192,15 @@ const U8 LL_SCULPT_TYPE_SPHERE    = 1;
 const U8 LL_SCULPT_TYPE_TORUS     = 2;
 const U8 LL_SCULPT_TYPE_PLANE     = 3;
 const U8 LL_SCULPT_TYPE_CYLINDER  = 4;
+#if LL_MESH_ENABLED
 const U8 LL_SCULPT_TYPE_MESH      = 5;
 
 const U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE |
 	LL_SCULPT_TYPE_CYLINDER | LL_SCULPT_TYPE_MESH;
+#else
+const U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE |
+	LL_SCULPT_TYPE_CYLINDER;
+#endif
 
 const U8 LL_SCULPT_FLAG_INVERT    = 64;
 const U8 LL_SCULPT_FLAG_MIRROR    = 128;
@@ -791,69 +804,84 @@ public:
 class LLVolumeFace
 {
 public:
-	LLVolumeFace() : 
-		mID(0),
-		mTypeMask(0),
-		mHasBinormals(FALSE),
-		mBeginS(0),
-		mBeginT(0),
-		mNumS(0),
-		mNumT(0)
-	{
-	}
-
-	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
-	void createBinormals();
-	void makeTriStrip();
-	
-	void appendFace(const LLVolumeFace& face, LLMatrix4& transform, LLMatrix4& normal_tranform);
-
 	class VertexData
 	{
+		enum 
+		{
+			POSITION = 0,
+			NORMAL = 1
+		};
+
+	private:
+		void init();
 	public:
-		LLVector3 mPosition;
-		LLVector3 mNormal;
-		LLVector3 mBinormal;
+		VertexData();
+		VertexData(const VertexData& rhs);
+		~VertexData();
+		LLVector4a& getPosition();
+		LLVector4a& getNormal();
+		const LLVector4a& getPosition() const;
+		const LLVector4a& getNormal() const;
+		void setPosition(const LLVector4a& pos);
+		void setNormal(const LLVector4a& norm);
+		
+
 		LLVector2 mTexCoord;
 
 		bool operator<(const VertexData& rhs) const;
 		bool operator==(const VertexData& rhs) const;
 		bool compareNormal(const VertexData& rhs, F32 angle_cutoff) const;
+
+	private:
+		LLVector4a* mData;
 	};
+
+	LLVolumeFace();
+	LLVolumeFace(const LLVolumeFace& src);
+	LLVolumeFace& operator=(const LLVolumeFace& rhs);
+
+	~LLVolumeFace();
+private:
+	void freeData();
+public:
+
+	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
+	void createBinormals();
+	
+	void appendFace(const LLVolumeFace& face, LLMatrix4& transform, LLMatrix4& normal_tranform);
+
+	void resizeVertices(S32 num_verts);
+	void allocateBinormals(S32 num_verts);
+	void allocateWeights(S32 num_verts);
+	void resizeIndices(S32 num_indices);
+	void fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, std::vector<U16>& idx);
+
+	void pushVertex(const VertexData& cv);
+	void pushVertex(const LLVector4a& pos, const LLVector4a& norm, const LLVector2& tc);
+	void pushIndex(const U16& idx);
+
+	void swapData(LLVolumeFace& rhs);
+
+	void getVertexData(U16 indx, LLVolumeFace::VertexData& cv);
 
 	class VertexMapData : public LLVolumeFace::VertexData
 	{
 	public:
 		U16 mIndex;
 
-		bool operator==(const LLVolumeFace::VertexData& rhs) const
-		{
-			return mPosition == rhs.mPosition &&
-				mTexCoord == rhs.mTexCoord &&
-				mNormal == rhs.mNormal;
-		}
+		bool operator==(const LLVolumeFace::VertexData& rhs) const;
 
 		struct ComparePosition
 		{
-			bool operator()(const LLVector3& a, const LLVector3& b) const
-			{
-				if (a.mV[0] != b.mV[0])
-				{
-					return a.mV[0] < b.mV[0];
-				}
-				if (a.mV[1] != b.mV[1])
-				{
-					return a.mV[1] < b.mV[1];
-				}
-				return a.mV[2] < b.mV[2];
-			}
+			bool operator()(const LLVector4a& a, const LLVector4a& b) const;
 		};
 
-		typedef std::map<LLVector3, std::vector<VertexMapData>, VertexMapData::ComparePosition > PointMap;
+		typedef std::map<LLVector4a, std::vector<VertexMapData>, VertexMapData::ComparePosition > PointMap;
 	};
 
 	void optimize(F32 angle_cutoff = 2.f);
-	
+	void createOctree();
+
 	enum
 	{
 		SINGLE_MASK =	0x0001,
@@ -872,26 +900,33 @@ public:
 public:
 	S32 mID;
 	U32 mTypeMask;
-	LLVector3 mCenter;
-	BOOL mHasBinormals;
-
+	
 	// Only used for INNER/OUTER faces
 	S32 mBeginS;
 	S32 mBeginT;
 	S32 mNumS;
 	S32 mNumT;
 
-	LLVector3 mExtents[2]; //minimum and maximum point of face
+	LLVector4a* mExtents; //minimum and maximum point of face
+	LLVector4a* mCenter;
 
-	std::vector<VertexData> mVertices;
-	std::vector<U16>	mIndices;
-	std::vector<U16>	mTriStrip;
+	S32 mNumVertices;
+	S32 mNumIndices;
+
+	LLVector4a* mPositions;
+	LLVector4a* mNormals;
+	LLVector4a* mBinormals;
+	LLVector2* mTexCoords;
+	U16* mIndices;
+
 	std::vector<S32>	mEdge;
 
 	//list of skin weights for rigged volumes
 	// format is mWeights[vertex_index].mV[influence] = <joint_index>.<weight>
 	// mWeights.size() should be empty or match mVertices.size()  
-	std::vector<LLVector4> mWeights;
+	LLVector4a* mWeights;
+
+	LLOctreeNode<LLVolumeTriangle>* mOctree;
 
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
@@ -974,6 +1009,13 @@ public:
 							 LLVector3* normal = NULL,               // return the surface normal at the intersection point
 							 LLVector3* bi_normal = NULL             // return the surface bi-normal at the intersection point
 		);
+
+	S32 lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
+								   S32 face = 1,
+								   LLVector3* intersection = NULL,
+								   LLVector2* tex_coord = NULL,
+								   LLVector3* normal = NULL,
+								   LLVector3* bi_normal = NULL);
 	
 	// The following cleans up vertices and triangles,
 	// getting rid of degenerate triangles and duplicate vertices,
@@ -1038,17 +1080,26 @@ public:
 
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);
 
-LLVector3 calc_binormal_from_triangle(
-		const LLVector3& pos0,
+void calc_binormal_from_triangle(
+		LLVector4a& binormal,
+		const LLVector4a& pos0,
 		const LLVector2& tex0,
-		const LLVector3& pos1,
+		const LLVector4a& pos1,
 		const LLVector2& tex1,
-		const LLVector3& pos2,
+		const LLVector4a& pos2,
 		const LLVector2& tex2);
 
+BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
 BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
+BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size);
+
 BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
-							F32* intersection_a, F32* intersection_b, F32* intersection_t, BOOL two_sided);
+							F32& intersection_a, F32& intersection_b, F32& intersection_t, BOOL two_sided);
+
+BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+							F32& intersection_a, F32& intersection_b, F32& intersection_t);
+BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+							F32& intersection_a, F32& intersection_b, F32& intersection_t);
 	
 	
 

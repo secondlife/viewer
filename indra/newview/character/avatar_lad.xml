@@ -4782,7 +4782,7 @@
      group="1"
      name="Saddlebags"
      wearable="shape"
-     edit_grouo="driven"
+     edit_group="driven"
      value_min="-.5"
      value_max="3">
       <param_morph>
@@ -6623,6 +6623,60 @@ render_pass="bump">
        name="head_tattoo">
       <texture
          local_texture="head_tattoo" />
+      <param
+       id="1062"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="tattoo"
+       name="tattoo_head_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1063"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="tattoo"
+       name="tattoo_head_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1064"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="tattoo"
+       name="tattoo_head_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
     </layer>
 
 
@@ -6745,6 +6799,61 @@ render_pass="bump">
      name="upper_tattoo">
       <texture
          local_texture="upper_tattoo" />
+
+      <param
+       id="1065"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="tattoo"
+       name="tattoo_upper_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1066"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="tattoo"
+       name="tattoo_upper_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1067"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="tattoo"
+       name="tattoo_upper_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
     </layer>
 
 
@@ -7942,6 +8051,61 @@ render_pass="bump">
      name="lower_tattoo">
       <texture
        local_texture="lower_tattoo" />
+
+      <param
+       id="1068"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="tattoo"
+       name="tattoo_lower_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1069"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="tattoo"
+       name="tattoo_lower_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1070"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="tattoo"
+       name="tattoo_lower_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
     </layer>
 
     <layer
@@ -11367,6 +11531,106 @@ render_pass="bump">
       </param_driver>
     </param>
       
+    <param
+     id="1071"
+     group="0"
+     wearable="tattoo"
+     edit_group="colorpicker"
+     name="tattoo_red"
+     value_min="0"
+     value_max="1"
+     value_default="1">
+      <param_driver>
+        <driven
+         id="1062"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1065"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1068"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+      </param_driver>
+    </param>
+
+    <param
+     id="1072"
+     group="0"
+     wearable="tattoo"
+     edit_group="colorpicker"
+     name="tattoo_green"
+     value_min="0"
+     value_max="1"
+     value_default="1">
+      <param_driver>
+        <driven
+         id="1063"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1066"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+         
+        <driven
+         id="1069"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+      </param_driver>
+    </param>
+
+    <param
+     id="1073"
+     group="0"
+     wearable="tattoo"
+     edit_group="colorpicker"
+     name="tattoo_blue"
+     value_min="0"
+     value_max="1"
+     value_default="1">
+      <param_driver>
+        <driven
+         id="1064"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1067"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1070"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+      </param_driver>
+    </param>
+
 
   </driver_parameters>
 

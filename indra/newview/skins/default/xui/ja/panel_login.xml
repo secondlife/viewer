@@ -8,18 +8,15 @@
 	</panel.string>
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
-			<text name="first_name_text">
-				ファーストネーム：
+			<text name="username_text">
+				ユーザーネーム：
 			</text>
-			<line_editor label="最初" name="first_name_edit" tool_tip="[SECOND_LIFE] ファーストネーム"/>
-			<text name="last_name_text">
-				ラストネーム：
-			</text>
-			<line_editor label="最後" name="last_name_edit" tool_tip="[SECOND_LIFE] ラストネーム"/>
+			<line_editor label="ユーザーネーム" name="username_edit" tool_tip="[SECOND_LIFE] ユーザーネーム"/>
 			<text name="password_text">
 				パスワード：
 			</text>
 			<check_box label="パスワードを記憶" name="remember_check"/>
+			<button label="ログイン" left_pad="30" name="connect_btn" width="60"/>
 			<text name="start_location_text">
 				開始地点：
 			</text>
@@ -28,7 +25,6 @@
 				<combo_box.item label="ホーム" name="MyHome"/>
 				<combo_box.item label="＜地域名を入力＞" name="Typeregionname"/>
 			</combo_box>
-			<button label="ログイン" left_pad="30" name="connect_btn" width="60"/>
 		</layout_panel>
 		<layout_panel name="links">
 			<text name="create_new_account_text">

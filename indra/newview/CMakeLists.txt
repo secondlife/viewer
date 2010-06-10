@@ -7,6 +7,7 @@ include(Boost)
 include(BuildVersion)
 include(DBusGlib)
 include(DirectX)
+include(OpenSSL)
 include(DragDrop)
 include(ELFIO)
 include(FMOD)
@@ -94,6 +95,7 @@ set(viewer_SOURCE_FILES
     llbottomtray.cpp
     llbox.cpp
     llbreadcrumbview.cpp
+    llbuycurrencyhtml.cpp
     llcallbacklist.cpp
     llcallfloater.cpp
     llcallingcard.cpp
@@ -162,10 +164,10 @@ set(viewer_SOURCE_FILES
     llfloaterbuy.cpp
     llfloaterbuycontents.cpp
     llfloaterbuycurrency.cpp
+    llfloaterbuycurrencyhtml.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
     llfloatercolorpicker.cpp
-    llfloatercustomize.cpp
     llfloaterdaycycle.cpp
     llfloaterenvsettings.cpp
     llfloaterevent.cpp
@@ -219,6 +221,7 @@ set(viewer_SOURCE_FILES
     llfloaterurldisplay.cpp
     llfloaterurlentry.cpp
     llfloatervoicedevicesettings.cpp
+    llfloatervoiceeffect.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
@@ -229,6 +232,7 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llfriendcard.cpp
     llgesturemgr.cpp
+    llgiveinventory.cpp
     llglsandbox.cpp
     llgroupactions.cpp
     llgroupiconctrl.cpp
@@ -260,6 +264,7 @@ set(viewer_SOURCE_FILES
     llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
+    llinventoryicon.cpp
     llinventoryitemslist.cpp
     llinventorymodel.cpp
     llinventorymodelbackgroundfetch.cpp
@@ -269,6 +274,7 @@ set(viewer_SOURCE_FILES
     lllandmarkactions.cpp
     lllandmarklist.cpp
     lllistbrowser.cpp
+    lllistcontextmenu.cpp
     lllistview.cpp
     lllocaltextureobject.cpp
     lllocationhistory.cpp
@@ -276,6 +282,7 @@ set(viewer_SOURCE_FILES
     lllogchat.cpp
     llloginhandler.cpp
     lllogininstance.cpp
+    llmachineid.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -308,6 +315,7 @@ set(viewer_SOURCE_FILES
     llnotificationstorage.cpp
     llnotificationtiphandler.cpp
     lloutfitslist.cpp
+    lloutfitobserver.cpp
     lloutputmonitorctrl.cpp
     llpanelavatar.cpp
     llpanelavatartag.cpp
@@ -358,6 +366,8 @@ set(viewer_SOURCE_FILES
     llpanelprofileview.cpp
     llpanelteleporthistory.cpp
     llpaneltiptoast.cpp
+    llpanelvoiceeffect.cpp
+    llpaneltopinfobar.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
     llparcelselection.cpp
@@ -381,11 +391,14 @@ set(viewer_SOURCE_FILES
     llregionposition.cpp
     llremoteparcelrequest.cpp
     llsavedsettingsglue.cpp
+    llsaveoutfitcombobtn.cpp
     llscreenchannel.cpp
     llscriptfloater.cpp
     llscrollingpanelparam.cpp
     llsearchcombobox.cpp
     llsearchhistory.cpp
+    llsecapi.cpp
+    llsechandler_basic.cpp
     llselectmgr.cpp
     llsidepanelappearance.cpp
     llsidepanelinventory.cpp
@@ -425,7 +438,6 @@ set(viewer_SOURCE_FILES
     lltexturestats.cpp
     lltexturestatsuploader.cpp
     lltextureview.cpp
-    lltextutil.cpp
     lltoast.cpp
     lltoastalertpanel.cpp
     lltoastgroupnotifypanel.cpp
@@ -460,13 +472,13 @@ set(viewer_SOURCE_FILES
     llurldispatcherlistener.cpp
     llurlhistory.cpp
     llurllineeditorctrl.cpp
-    llurlsimstring.cpp
     llurlwhitelist.cpp
     llvectorperfoptions.cpp
     llversioninfo.cpp
     llviewchildren.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
+    llviewerattachmenu.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
     llviewerchat.cpp
@@ -528,6 +540,7 @@ set(viewer_SOURCE_FILES
     llvoicechannel.cpp
     llvoiceclient.cpp
     llvoicevisualizer.cpp
+    llvoicevivox.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -541,9 +554,9 @@ set(viewer_SOURCE_FILES
     llwaterparammanager.cpp
     llwaterparamset.cpp
     llwearable.cpp
-    llwearabledictionary.cpp
     llwearableitemslist.cpp
     llwearablelist.cpp
+    llwearabletype.cpp
     llweb.cpp
     llwind.cpp
     llwlanimator.cpp
@@ -608,6 +621,7 @@ set(viewer_HEADER_FILES
     llbottomtray.h
     llbox.h
     llbreadcrumbview.h
+    llbuycurrencyhtml.h
     llcallbacklist.h
     llcallfloater.h
     llcallingcard.h
@@ -678,10 +692,10 @@ set(viewer_HEADER_FILES
     llfloaterbuy.h
     llfloaterbuycontents.h
     llfloaterbuycurrency.h
+    llfloaterbuycurrencyhtml.h
     llfloaterbuyland.h
     llfloatercamera.h
     llfloatercolorpicker.h
-    llfloatercustomize.h
     llfloaterdaycycle.h
     llfloaterenvsettings.h
     llfloaterevent.h
@@ -735,6 +749,7 @@ set(viewer_HEADER_FILES
     llfloaterurldisplay.h
     llfloaterurlentry.h
     llfloatervoicedevicesettings.h
+    llfloatervoiceeffect.h
     llfloaterwater.h
     llfloaterwhitelistentry.h
     llfloaterwindlight.h
@@ -746,6 +761,7 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llfriendcard.h
     llgesturemgr.h
+    llgiveinventory.h
     llgroupactions.h
     llgroupiconctrl.h
     llgrouplist.h
@@ -775,6 +791,7 @@ set(viewer_HEADER_FILES
     llinventoryclipboard.h
     llinventoryfilter.h
     llinventoryfunctions.h
+    llinventoryicon.h
     llinventoryitemslist.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
@@ -785,6 +802,7 @@ set(viewer_HEADER_FILES
     lllandmarklist.h
     lllightconstants.h
     lllistbrowser.h
+    lllistcontextmenu.h
     lllistview.h
     lllocaltextureobject.h
     lllocationhistory.h
@@ -792,6 +810,7 @@ set(viewer_HEADER_FILES
     lllogchat.h
     llloginhandler.h
     lllogininstance.h
+    llmachineid.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -819,6 +838,7 @@ set(viewer_HEADER_FILES
     llnotificationmanager.h
     llnotificationstorage.h
     lloutfitslist.h
+    lloutfitobserver.h
     lloutputmonitorctrl.h
     llpanelavatar.h
     llpanelavatartag.h
@@ -869,6 +889,8 @@ set(viewer_HEADER_FILES
     llpanelprofileview.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
+    llpanelvoiceeffect.h
+    llpaneltopinfobar.h
     llpanelvolume.h
     llpanelvolumepulldown.h
     llparcelselection.h
@@ -894,11 +916,14 @@ set(viewer_HEADER_FILES
     llresourcedata.h
     llrootview.h
     llsavedsettingsglue.h
+    llsaveoutfitcombobtn.h
     llscreenchannel.h
     llscriptfloater.h
     llscrollingpanelparam.h
     llsearchcombobox.h
     llsearchhistory.h
+    llsecapi.h
+    llsechandler_basic.h
     llselectmgr.h
     llsidepanelappearance.h
     llsidepanelinventory.h
@@ -939,7 +964,6 @@ set(viewer_HEADER_FILES
     lltexturestats.h
     lltexturestatsuploader.h
     lltextureview.h
-    lltextutil.h
     lltoast.h
     lltoastalertpanel.h
     lltoastgroupnotifypanel.h
@@ -975,13 +999,13 @@ set(viewer_HEADER_FILES
     llurldispatcherlistener.h
     llurlhistory.h
     llurllineeditorctrl.h
-    llurlsimstring.h
     llurlwhitelist.h
     llvectorperfoptions.h
     llversioninfo.h
     llviewchildren.h
     llviewerassetstorage.h
     llviewerassettype.h
+    llviewerattachmenu.h
     llvieweraudio.h
     llviewercamera.h
     llviewerchat.h
@@ -1040,6 +1064,7 @@ set(viewer_HEADER_FILES
     llvoicechannel.h
     llvoiceclient.h
     llvoicevisualizer.h
+    llvoicevivox.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -1054,9 +1079,9 @@ set(viewer_HEADER_FILES
     llwaterparammanager.h
     llwaterparamset.h
     llwearable.h
-    llwearabledictionary.h
     llwearableitemslist.h
     llwearablelist.h
+    llwearabletype.h
     llweb.h
     llwind.h
     llwindebug.h
@@ -1435,8 +1460,8 @@ if (WINDOWS)
         ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
         ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
         )
-    endif(USE_GOOGLE_PERFTOOLS)
-  
+     endif(USE_GOOGLE_PERFTOOLS)
+ 
 
     set(COPY_INPUT_DEPENDENCIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
@@ -1654,6 +1679,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${WINDOWS_LIBRARIES}
     ${XMLRPCEPI_LIBRARIES}
     ${ELFIO_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     )
@@ -1830,6 +1857,43 @@ if (LL_TESTS)
     "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
     )
 
+  set(test_libs 
+    ${LLMESSAGE_LIBRARIES} 
+    ${WINDOWS_LIBRARIES} 
+    ${LLVFS_LIBRARIES}
+    ${LLMATH_LIBRARIES}
+    ${LLCOMMON_LIBRARIES} 
+    ${GOOGLEMOCK_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
+  )
+
+    LL_ADD_INTEGRATION_TEST(llsechandler_basic
+    llsechandler_basic.cpp
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llsecapi
+     llsecapi.cpp
+    "${test_libs}"
+    )
+
+  set(llslurl_test_sources
+      llslurl.cpp
+      llviewernetwork.cpp
+  )
+
+
+  LL_ADD_INTEGRATION_TEST(llslurl
+     "${llslurl_test_sources}"
+    "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llviewernetwork
+     llviewernetwork.cpp
+    "${test_libs}"
+    )
+
   #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
   #ADD_VIEWER_BUILD_TEST(llworldmap viewer)
@@ -1837,6 +1901,7 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
   #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
+
 endif (LL_TESTS)
 
 

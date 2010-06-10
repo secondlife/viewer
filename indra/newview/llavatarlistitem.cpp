@@ -1,6 +1,6 @@
 /** 
  * @file llavatarlistitem.cpp
- * @avatar list item source file
+ * @brief avatar list item source file
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
@@ -36,12 +36,13 @@
 #include "llavataractions.h"
 #include "llavatarlistitem.h"
 
-#include "llfloaterreg.h"
-#include "llagent.h"
-#include "lloutputmonitorctrl.h"
-#include "llavatariconctrl.h"
-#include "lltextutil.h"
 #include "llbutton.h"
+#include "llfloaterreg.h"
+#include "lltextutil.h"
+
+#include "llagent.h"
+#include "llavatariconctrl.h"
+#include "lloutputmonitorctrl.h"
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;

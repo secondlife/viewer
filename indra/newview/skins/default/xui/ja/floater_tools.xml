@@ -49,7 +49,7 @@
 	</text>
 	<radio_group name="focus_radio_group">
 		<radio_item label="ズーム" name="radio zoom"/>
-		<radio_item label="軌跡（Ctrl）" name="radio orbit"/>
+		<radio_item label="旋回（Ctrl）" name="radio orbit"/>
 		<radio_item label="水平・垂直移動 (Ctrl + Shift)" name="radio pan"/>
 	</radio_group>
 	<radio_group name="move_radio_group">
@@ -67,8 +67,11 @@
 	<text name="RenderingCost" tool_tip="このオブジェクトにかかるレンダリングコストを表示">
 		þ: [COUNT]
 	</text>
-	<check_box label="両側を引伸ばす" left="116" name="checkbox uniform"/>
-	<check_box initial_value="true" label="テクスチャを引伸ばす" name="checkbox stretch textures"/>
+	<check_box label="" left="116" name="checkbox uniform"/>
+	<text label="両側を延ばす" name="checkbox uniform label">
+		両側を延ばす
+	</text>
+	<check_box initial_value="true" label="テクスチャを引き延ばす" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="グリッドにスナップ" left_delta="27" name="checkbox snap to grid"/>
 	<combo_box left_delta="60" name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラを選択します" width="76">
 		<combo_box.item label="インワールドグリッド" name="World"/>
@@ -84,7 +87,7 @@
 	<button label="" label_selected="" name="ToolHemiCylinder" tool_tip="半円柱"/>
 	<button label="" label_selected="" name="ToolCone" tool_tip="円錐"/>
 	<button label="" label_selected="" name="ToolHemiCone" tool_tip="半円錐"/>
-	<button label="" label_selected="" name="ToolSphere" tool_tip="球形"/>
+	<button label="" label_selected="" name="ToolSphere" tool_tip="球体"/>
 	<button label="" label_selected="" name="ToolHemiSphere" tool_tip="半球"/>
 	<button label="" label_selected="" name="ToolTorus" tool_tip="トーラス"/>
 	<button label="" label_selected="" name="ToolTube" tool_tip="チューブ"/>
@@ -264,7 +267,7 @@
 				<combo_box.item label="ボックス" name="Box"/>
 				<combo_box.item label="シリンダー" name="Cylinder"/>
 				<combo_box.item label="プリズム" name="Prism"/>
-				<combo_box.item label="球形" name="Sphere"/>
+				<combo_box.item label="球体" name="Sphere"/>
 				<combo_box.item label="トーラス" name="Torus"/>
 				<combo_box.item label="チューブ" name="Tube"/>
 				<combo_box.item label="リング" name="Ring"/>
@@ -347,7 +350,7 @@
 			</text>
 			<combo_box name="sculpt type control">
 				<combo_box.item label="（なし）" name="None"/>
-				<combo_box.item label="球形" name="Sphere"/>
+				<combo_box.item label="球体" name="Sphere"/>
 				<combo_box.item label="トーラス" name="Torus"/>
 				<combo_box.item label="平面" name="Plane"/>
 				<combo_box.item label="シリンダー" name="Cylinder"/>

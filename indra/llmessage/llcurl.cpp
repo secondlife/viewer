@@ -90,10 +90,6 @@ S32 gCurlMultiCount = 0;
 std::vector<LLMutex*> LLCurl::sSSLMutex;
 std::string LLCurl::sCAPath;
 std::string LLCurl::sCAFile;
-// Verify SSL certificates by default (matches libcurl default). The ability
-// to alter this flag is only to allow us to suppress verification if it's
-// broken for some reason.
-bool LLCurl::sSSLVerify = true;
 
 //static
 void LLCurl::setCAPath(const std::string& path)
@@ -105,18 +101,6 @@ void LLCurl::setCAPath(const std::string& path)
 void LLCurl::setCAFile(const std::string& file)
 {
 	sCAFile = file;
-}
-
-//static
-void LLCurl::setSSLVerify(bool verify)
-{
-	sSSLVerify = verify;
-}
-
-//static
-bool LLCurl::getSSLVerify()
-{
-	return sSSLVerify;
 }
 
 //static
@@ -444,6 +428,13 @@ U32 LLCurl::Easy::report(CURLcode code)
 		setopt(CURLOPT_FRESH_CONNECT, TRUE);
 	}
 		
+	if(responseCode >= 300 && responseCode < 400) //redirect
+	{
+		char new_url[512] ;
+		curl_easy_getinfo(mCurlEasyHandle, CURLINFO_REDIRECT_URL, new_url);
+		responseReason = new_url ; //get the new URL.
+	}
+
 	if (mResponder)
 	{	
 		mResponder->completedRaw(responseCode, responseReason, mChannels, mOutput);
@@ -544,8 +535,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	setErrorBuffer();
 	setCA();
 
-	setopt(CURLOPT_SSL_VERIFYPEER, LLCurl::getSSLVerify());
-	//setopt(CURLOPT_SSL_VERIFYHOST, LLCurl::getSSLVerify()? 2 : 0);
+	setopt(CURLOPT_SSL_VERIFYPEER, true);
 	
 	//don't verify host name so urls with scrubbed host names will work (improves DNS performance)
 	setopt(CURLOPT_SSL_VERIFYHOST, 0);
@@ -1012,6 +1002,15 @@ void LLCurlEasyRequest::setReadCallback(curl_read_callback callback, void* userd
 	{
 		mEasy->setopt(CURLOPT_READFUNCTION, (void*)callback);
 		mEasy->setopt(CURLOPT_READDATA, userdata);
+	}
+}
+
+void LLCurlEasyRequest::setSSLCtxCallback(curl_ssl_ctx_callback callback, void* userdata)
+{
+	if (mEasy)
+	{
+		mEasy->setopt(CURLOPT_SSL_CTX_FUNCTION, (void*)callback);
+		mEasy->setopt(CURLOPT_SSL_CTX_DATA, userdata);
 	}
 }
 

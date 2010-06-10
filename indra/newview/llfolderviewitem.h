@@ -231,7 +231,7 @@ public:
 	virtual S32 extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items){ return FALSE; }
 
 	// gets multiple-element selection
-	virtual BOOL getSelectionList(std::set<LLUUID> &selection) const {return TRUE;}
+	virtual std::set<LLUUID> getSelectionList() const;
 
 	// Returns true is this object and all of its children can be removed (deleted by user)
 	virtual BOOL isRemovable();

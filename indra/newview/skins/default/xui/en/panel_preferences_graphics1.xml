@@ -160,7 +160,7 @@
      layout="topleft"
      left="5"
      name="CustomGraphics Panel"
-     top="101"
+     top="76"
      width="485">
 		<text
 		type="string"
@@ -343,7 +343,7 @@
 		top_delta="0"
 		width="128">
 			m
-		</text>
+		</text>    
 		<slider
 		control_name="RenderMaxPartCount"
 		decimal_digits="0"
@@ -359,6 +359,34 @@
 		name="MaxParticleCount"
 		top_pad="7"
 		width="303" />
+    <slider
+    control_name="RenderAvatarMaxVisible"
+    decimal_digits="0"
+    follows="left|top"
+    height="16"
+    increment="2"
+    initial_value="35"
+    label="Max. avatar draw distance:"
+    label_width="185"
+    layout="topleft"
+    left_delta="0"
+    max_val="65"
+    min_val="1"
+    name="MaxAvatarDrawDistance"
+    top_pad="4"
+    width="290" />
+    <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="12"
+    layout="topleft"
+    left_delta="291"
+    name="DrawDistanceMeterText3"
+    top_delta="0"
+    width="128">
+      m
+    </text>
 		<slider
 		control_name="RenderGlowResolutionPow"
 		decimal_digits="0"
@@ -369,7 +397,7 @@
 		label="Post process quality:"
 		label_width="185"
 		layout="topleft"
-		left_delta="0"
+		left="200"
 		max_val="9"
 		min_val="8"
 		name="RenderPostProcess"
@@ -514,7 +542,7 @@
         layout="topleft"
         left="469"
         name="PostProcessText"
-        top="328"
+        top="60"
         width="128">
            Low
         </text>
@@ -597,7 +625,7 @@
       follows="left|top"
       height="12"
       layout="topleft"
-      left_delta="-260"
+      left="200"
       name="AvatarRenderingText"
       top_pad="8"
       width="128">
@@ -645,7 +673,7 @@
         left="358"
         left_pad="-30"
         name="TerrainDetailText"
-        top="488"
+        top="226"
         width="155">
            Terrain detail:
         </text>

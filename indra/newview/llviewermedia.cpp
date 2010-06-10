@@ -1934,13 +1934,13 @@ void LLViewerMediaImpl::updateVolume()
 			}
 			else if (mProximityCamera > gSavedSettings.getF32("MediaRollOffMin"))
 			{
-				// attenuated_volume = v / ( 1 + (roll_off_rate * (d - min))^2
+				// attenuated_volume = 1 / (roll_off_rate * (d - min))^2
 				// the +1 is there so that for distance 0 the volume stays the same
 				F64 adjusted_distance = mProximityCamera - gSavedSettings.getF32("MediaRollOffMin");
-				F64 attenuation = gSavedSettings.getF32("MediaRollOffRate") * adjusted_distance;
-				attenuation = attenuation * attenuation;
+				F64 attenuation = 1.0 + (gSavedSettings.getF32("MediaRollOffRate") * adjusted_distance);
+				attenuation = 1.0 / (attenuation * attenuation);
 				// the attenuation multiplier should never be more than one since that would increase volume
-				volume = volume * llmin(1.0, 1 /(attenuation + 1));
+				volume = volume * llmin(1.0, attenuation);
 			}
 		}
 
@@ -2807,6 +2807,33 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			LLURLDispatcher::dispatch(url, NULL, mTrustedBrowser);
 
 		}
+		break;
+		case MEDIA_EVENT_CLICK_LINK_HREF:
+		{
+			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << plugin->getClickTarget() << "\", uri is " << plugin->getClickURL() << LL_ENDL;
+			// retrieve the event parameters
+			std::string url = plugin->getClickURL();
+			U32 target_type = plugin->getClickTargetType();
+			
+			switch (target_type)
+			{
+			case LLPluginClassMedia::TARGET_EXTERNAL:
+				// force url to external browser
+				LLWeb::loadURLExternal(url);
+				break;
+			case LLPluginClassMedia::TARGET_BLANK:
+				// open in SL media browser or external browser based on user pref
+				LLWeb::loadURL(url);
+				break;
+			case LLPluginClassMedia::TARGET_NONE:
+				// ignore this click and let media plugin handle it
+				break;
+			case LLPluginClassMedia::TARGET_OTHER:
+				LL_WARNS("LinkTarget") << "Unsupported link target type" << LL_ENDL;
+				break;
+			default: break;
+			}
+		};
 		break;
 		case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
 		{

@@ -86,14 +86,22 @@ width="333">
       </text>
       <button
       follows="left|top"
-      height="20"
-      image_overlay="windows/Icon_Gear_Over.png"
+      height="23"
+      image_overlay="Edit_Wrench"
       label=""
       layout="topleft"
       left="265"
       name="edit_outfit_btn"
       top="7"
       width="30" />
+      <loading_indicator
+      follows="left|top"
+      height="24"
+      layout="topleft"
+      left="268"
+      name="wearables_loading_indicator"
+      top="6"
+      width="24" />
    </panel>
    <filter_editor
    height="23"
@@ -103,6 +111,7 @@ width="333">
    label="Filter Outfits"
    max_length="300"
    name="Filter"
+   search_button_visible="true"
    top_pad="10"
    width="303" />
    <panel
@@ -112,6 +121,7 @@ width="333">
    height="493"
    min_height="410"
    width="320"
+   visible="false"
    left="0"
    tab_group="1"
    top_pad="6"

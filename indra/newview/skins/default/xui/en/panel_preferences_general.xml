@@ -352,7 +352,6 @@
       text_readonly_color="LabelDisabledColor"
       bg_writeable_color="LtGray"
       use_ellipses="false"
-      hover="false"
      commit_on_focus_lost = "true"
      follows="left|top|right"
      height="60"

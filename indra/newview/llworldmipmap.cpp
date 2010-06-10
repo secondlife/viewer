@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llworldmipmap.h"
+#include "llviewercontrol.h"		// LLControlGroup
 
 #include "llviewertexturelist.h"
 #include "math.h"	// log()
@@ -186,8 +187,8 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 
 LLPointer<LLViewerFetchedTexture> LLWorldMipmap::loadObjectsTile(U32 grid_x, U32 grid_y, S32 level)
 {
 	// Get the grid coordinates
-	std::string imageurl = llformat("http://map.secondlife.com.s3.amazonaws.com/map-%d-%d-%d-objects.jpg",
-									level, grid_x, grid_y);
+	std::string imageurl = gSavedSettings.getString("MapServerURL") + llformat("map-%d-%d-%d-objects.jpg", level, grid_x, grid_y);
+
 
 	// DO NOT COMMIT!! DEBUG ONLY!!!
 	// Use a local jpeg for every tile to test map speed without S3 access

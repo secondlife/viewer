@@ -891,7 +891,7 @@ void LLToolGrab::handleHoverInactive(S32 x, S32 y, MASK mask)
 
 	// Look for cursor against the edge of the screen
 	// Only works in fullscreen
-	if (gSavedSettings.getBOOL("WindowFullScreen"))
+	if (gSavedSettings.getBOOL("FullScreen"))
 	{
 		if (gAgentCamera.cameraThirdPerson() )
 		{

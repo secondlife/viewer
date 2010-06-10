@@ -36,7 +36,6 @@
 #include "llerror.h"
 #include "llmath.h"
 
-
 #include "llsd.h"
 class LLVector2;
 class LLVector4;
@@ -528,6 +527,21 @@ inline void update_min_max(LLVector3& min, LLVector3& max, const LLVector3& pos)
 		if (max.mV[i] < pos.mV[i])
 		{
 			max.mV[i] = pos.mV[i];
+		}
+	}
+}
+
+inline void update_min_max(LLVector3& min, LLVector3& max, const F32* pos)
+{
+	for (U32 i = 0; i < 3; i++)
+	{
+		if (min.mV[i] > pos[i])
+		{
+			min.mV[i] = pos[i];
+		}
+		if (max.mV[i] < pos[i])
+		{
+			max.mV[i] = pos[i];
 		}
 	}
 }

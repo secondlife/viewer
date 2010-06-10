@@ -94,6 +94,8 @@ public:
 	/// is this a match for a URL that should not be hyperlinked?
 	bool isLinkDisabled() const { return mDisabledLink; }
 
+	virtual LLUUID	getID(const std::string &string) const { return LLUUID::null; }
+
 protected:
 	std::string getIDStringFromUrl(const std::string &url) const;
 	std::string escapeUrl(const std::string &url) const;

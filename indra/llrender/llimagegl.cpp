@@ -1813,7 +1813,7 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 		{
 			LL_WARNS_ONCE("render") << "Ugh, non-finite u/v in mask pick" << LL_ENDL;
 			u = v = 0.f;
-			llassert(false);
+			//llassert(false);
 		}
 
 		if (LL_UNLIKELY(u < 0.f || u > 1.f ||
@@ -1821,7 +1821,7 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 		{
 			LL_WARNS_ONCE("render") << "Ugh, u/v out of range in image mask pick" << LL_ENDL;
 			u = v = 0.f;
-			llassert(false);
+			//llassert(false);
 		}
 
 		S32 x = llfloor(u * mPickMaskWidth);

@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_shape_panel">
-	<panel name="avatar_sex_panel">
-		<text name="gender_text">
-			Sexo:
-		</text>
-		<radio_group name="sex_radio">
-			<radio_item label="Feminino" name="radio"/>
-			<radio_item label="Masculino" name="radio2"/>
-		</radio_group>
-	</panel>
+	<text name="avatar_height">
+		[HEIGHT] metros de altura
+	</text>
 	<panel label="Camisa" name="accordion_panel">
 		<accordion name="wearable_accordion">
 			<accordion_tab name="shape_body_tab" title="Corpo"/>

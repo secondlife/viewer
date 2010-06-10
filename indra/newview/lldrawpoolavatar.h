@@ -96,6 +96,23 @@ public:
 	void beginRigid();
 	void beginImpostor();
 	void beginSkinned();
+	
+	void endRigid();
+	void endImpostor();
+	void endSkinned();
+
+	void beginDeferredImpostor();
+	void beginDeferredRigid();
+	void beginDeferredSkinned();
+	
+	void endDeferredImpostor();
+	void endDeferredRigid();
+	void endDeferredSkinned();
+	
+	void beginPostDeferredAlpha();
+	void endPostDeferredAlpha();
+
+#if LL_MESH_ENABLED
 	void beginRiggedSimple();
 	void beginRiggedFullbright();
 	void beginRiggedFullbrightShiny();
@@ -103,12 +120,8 @@ public:
 	void beginRiggedAlpha();
 	void beginRiggedFullbrightAlpha();
 	void beginRiggedGlow();
-	void beginPostDeferredAlpha();
 	void beginDeferredRiggedAlpha();
 
-	void endRigid();
-	void endImpostor();
-	void endSkinned();
 	void endRiggedSimple();
 	void endRiggedFullbright();
 	void endRiggedFullbrightShiny();
@@ -116,18 +129,11 @@ public:
 	void endRiggedAlpha();
 	void endRiggedFullbrightAlpha();
 	void endRiggedGlow();
-	void endPostDeferredAlpha();
 	void endDeferredRiggedAlpha();
 
-	void beginDeferredImpostor();
-	void beginDeferredRigid();
-	void beginDeferredSkinned();
 	void beginDeferredRiggedSimple();
 	void beginDeferredRiggedBump();
 	
-	void endDeferredImpostor();
-	void endDeferredRigid();
-	void endDeferredSkinned();
 	void endDeferredRiggedSimple();
 	void endDeferredRiggedBump();
 		
@@ -146,11 +152,6 @@ public:
 	void renderRiggedGlow(LLVOAvatar* avatar);
 	void renderDeferredRiggedSimple(LLVOAvatar* avatar);
 	void renderDeferredRiggedBump(LLVOAvatar* avatar);
-
-	/*virtual*/ LLViewerTexture *getDebugTexture();
-	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
-
-	void renderAvatars(LLVOAvatar *single_avatar, S32 pass = -1); // renders only one avatar if single_avatar is not null.
 
 	typedef enum
 	{
@@ -202,6 +203,13 @@ public:
 	void removeRiggedFace(LLFace* facep); 
 
 	std::vector<LLFace*> mRiggedFace[NUM_RIGGED_PASSES];
+#endif
+
+	/*virtual*/ LLViewerTexture *getDebugTexture();
+	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
+
+	void renderAvatars(LLVOAvatar *single_avatar, S32 pass = -1); // renders only one avatar if single_avatar is not null.
+
 
 	static BOOL sSkipOpaque;
 	static BOOL sSkipTransparent;

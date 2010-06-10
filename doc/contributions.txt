@@ -25,6 +25,7 @@ Aimee Trescothick
 	VWR-3903
 	VWR-4083
 	VWR-4106
+	VWR-5308
 	VWR-6348
 	VWR-6358
 	VWR-6360
@@ -252,6 +253,7 @@ Gigs Taggart
 	VWR-2491
 	VWR-2502
 	VWR-2331
+	VWR-5308
 	VWR-8781
 	VWR-8783
 Ginko Bayliss
@@ -323,6 +325,8 @@ Khyota Wulluf
 	VWR-8885
 	VWR-9256
 	VWR-9966
+Kitty Barnett
+	VWR-19699
 Kunnis Basiat
 	VWR-82
 	VWR-102
@@ -608,6 +612,7 @@ tenebrous pau
 Tharax Ferraris
 	VWR-605
 Thickbrick Sleaford
+	SNOW-207
 	VWR-7109
 	VWR-9287
 	VWR-13483

@@ -98,7 +98,8 @@ public:
 
 	static LLVoiceChannel* getChannelByID(const LLUUID& session_id);
 	static LLVoiceChannel* getChannelByURI(std::string uri);
-	static LLVoiceChannel* getCurrentVoiceChannel() { return sCurrentVoiceChannel; }
+	static LLVoiceChannel* getCurrentVoiceChannel();
+	
 	static void initClass();
 	
 	static void suspend();
@@ -112,7 +113,7 @@ protected:
 	void doSetState(const EState& state);
 	void setURI(std::string uri);
 
-	// there can be two directions ICOMING and OUTGOING
+	// there can be two directions INCOMING and OUTGOING
 	EDirection mCallDirection;
 
 	std::string	mURI;

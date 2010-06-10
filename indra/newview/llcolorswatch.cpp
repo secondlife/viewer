@@ -68,7 +68,7 @@ LLColorSwatchCtrl::Params::Params()
 LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)
 :	LLUICtrl(p),
 	mValid( TRUE ),
-	mColor(p.color),
+	mColor(p.color()),
 	mCanApplyImmediately(p.can_apply_immediately),
 	mAlphaGradientImage(p.alpha_background_image),
 	mOnCancelCallback(p.cancel_callback()),

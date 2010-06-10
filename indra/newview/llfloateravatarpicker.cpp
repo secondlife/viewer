@@ -314,6 +314,18 @@ void LLFloaterAvatarPicker::populateFriend()
 
 void LLFloaterAvatarPicker::draw()
 {
+	// sometimes it is hard to determine when Select/Ok button should be disabled (see LLAvatarActions::shareWithAvatars).
+	// lets check this via mOkButtonValidateSignal callback periodically.
+	static LLFrameTimer timer;
+	if (timer.hasExpired())
+	{
+		timer.setTimerExpirySec(0.33f); // three times per second should be enough.
+
+		// simulate list changes.
+		onList();
+		timer.start();
+	}
+
 	LLFloater::draw();
 	if (!mNearMeListComplete && childGetVisibleTab("ResidentChooserTabs") == getChild<LLPanel>("NearMePanel"))
 	{
@@ -425,7 +437,7 @@ BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
 						session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, dest_agent_id);
 					}
 					return LLToolDragAndDrop::handleGiveDragAndDrop(dest_agent_id, session_id, drop,
-																	cargo_type, cargo_data, accept);
+																	cargo_type, cargo_data, accept, getName());
 				}
 			}
 		}

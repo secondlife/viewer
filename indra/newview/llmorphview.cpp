@@ -42,7 +42,6 @@
 #include "lldrawpoolavatar.h"
 #include "llface.h"
 //#include "llfirstuse.h"
-#include "llfloatercustomize.h"
 #include "llfloatertools.h"
 #include "llresmgr.h"
 #include "lltoolmgr.h"
@@ -131,14 +130,7 @@ void LLMorphView::setVisible(BOOL visible)
 
 		if (visible)
 		{
-			llassert( !gFloaterCustomize );
-			gFloaterCustomize = new LLFloaterCustomize();
-			gFloaterCustomize->fetchInventory();
-			gFloaterCustomize->openFloater();
-
-			// Must do this _after_ gFloaterView is initialized.
-			gFloaterCustomize->switchToDefaultSubpart();
-
+			// TODO: verify some user action has already opened outfit editor? - Nyx
 			initialize();
 
 			// First run dialog
@@ -146,13 +138,7 @@ void LLMorphView::setVisible(BOOL visible)
 		}
 		else
 		{
-			if( gFloaterCustomize )
-			{
-				gFloaterView->removeChild( gFloaterCustomize );
-				delete gFloaterCustomize;
-				gFloaterCustomize = NULL;
-			}
-
+			// TODO: verify some user action has already closed outfit editor ? - Nyx
 			shutdown();
 		}
 	}

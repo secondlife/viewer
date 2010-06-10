@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Gráficos" name="Display panel">
-	<text name="UI Size:">
-		Tamaño de la UI:
-	</text>
 	<text name="QualitySpeed">
 		Calidad y velocidad:
 	</text>
@@ -52,6 +49,10 @@
 			m
 		</text>
 		<slider label="Núm. máx. de partículas:" name="MaxParticleCount"/>
+		<slider label="Distancia de dibujo máxima del avatar:" name="MaxAvatarDrawDistance"/>
+		<text name="DrawDistanceMeterText3">
+			m
+		</text>
 		<slider label="Calidad de procesamiento:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Detalle de la malla:
@@ -87,8 +88,8 @@
 			Detalles de iluminación:
 		</text>
 		<radio_group name="LightingDetailRadio">
-			<radio_item label="Sólo el Sol y la Luna" name="SunMoon"/>
-			<radio_item label="Puntos de luz cercanos" name="LocalLights"/>
+			<radio_item label="Sólo el Sol y la Luna" name="SunMoon" value="0"/>
+			<radio_item label="Puntos de luz cercanos" name="LocalLights" value="1"/>
 		</radio_group>
 		<text name="TerrainDetailText">
 			Detalle del terreno:

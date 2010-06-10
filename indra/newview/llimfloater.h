@@ -50,6 +50,7 @@ class LLInventoryCategory;
  */
 class LLIMFloater : public LLTransientDockableFloater
 {
+	LOG_CLASS(LLIMFloater);
 public:
 	LLIMFloater(const LLUUID& session_id);
 
@@ -120,6 +121,10 @@ public:
 
 	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
 
+protected:
+	/* virtual */
+	void	onClickCloseBtn();
+
 private:
 	// process focus events to set a currently active session
 	/* virtual */ void onFocusLost();
@@ -149,6 +154,12 @@ private:
 	void removeTypingIndicator(const LLIMInfo* im_info = NULL);
 
 	static void closeHiddenIMToasts();
+
+	static bool resetAllowedRectPadding(const LLSD& newvalue);
+	//need to keep this static for performance issues
+	static S32 sAllowedRectRightPadding;
+
+	static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
 
 	LLPanelChatControlPanel* mControlPanel;
 	LLUUID mSessionID;

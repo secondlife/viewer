@@ -1100,8 +1100,8 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		mGridRotation = first_grid_object->getRenderRotation();
 		LLVector3 first_grid_obj_pos = first_grid_object->getRenderPosition();
 
-		LLVector3 min_extents(F32_MAX, F32_MAX, F32_MAX);
-		LLVector3 max_extents(-F32_MAX, -F32_MAX, -F32_MAX);
+		LLVector4a min_extents(F32_MAX);
+		LLVector4a max_extents(-F32_MAX);
 		BOOL grid_changed = FALSE;
 		for (LLObjectSelection::iterator iter = mGridObjects.begin();
 			 iter != mGridObjects.end(); ++iter)
@@ -1110,7 +1110,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 			LLDrawable* drawable = object->mDrawable;
 			if (drawable)
 			{
-				const LLVector3* ext = drawable->getSpatialExtents();
+				const LLVector4a* ext = drawable->getSpatialExtents();
 				update_min_max(min_extents, max_extents, ext[0]);
 				update_min_max(min_extents, max_extents, ext[1]);
 				grid_changed = TRUE;
@@ -1118,13 +1118,19 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		}
 		if (grid_changed)
 		{
-			mGridOrigin = lerp(min_extents, max_extents, 0.5f);
+			LLVector4a center, size;
+			center.setAdd(min_extents, max_extents);
+			center.mul(0.5f);
+			size.setSub(max_extents, min_extents);
+			size.mul(0.5f);
+
+			mGridOrigin.set(center.getF32());
 			LLDrawable* drawable = first_grid_object->mDrawable;
 			if (drawable && drawable->isActive())
 			{
 				mGridOrigin = mGridOrigin * first_grid_object->getRenderMatrix();
 			}
-			mGridScale = (max_extents - min_extents) * 0.5f;
+			mGridScale.set(size.getF32());
 		}
 	}
 	else // GRID_MODE_WORLD or just plain default
@@ -2435,7 +2441,7 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, std::string& name)
 	
 	if (identical)
 	{
-		name = LLSLURL::buildCommand("agent", first_id, "inspect");
+		name = LLSLURL("agent", first_id, "inspect").getSLURLString();
 	}
 	else
 	{
@@ -2494,11 +2500,11 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, std::string& name)
 		BOOL public_owner = (first_id.isNull() && !first_group_owned);
 		if (first_group_owned)
 		{
-			name = LLSLURL::buildCommand("group", first_id, "inspect");
+			name = LLSLURL("group", first_id, "inspect").getSLURLString();
 		}
 		else if(!public_owner)
 		{
-			name = LLSLURL::buildCommand("agent", first_id, "inspect");
+			name = LLSLURL("agent", first_id, "inspect").getSLURLString();
 		}
 		else
 		{
@@ -2558,7 +2564,7 @@ BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, std::string& name)
 		BOOL public_owner = (first_id.isNull());
 		if(!public_owner)
 		{
-			name = LLSLURL::buildCommand("agent", first_id, "inspect");
+			name = LLSLURL("agent", first_id, "inspect").getSLURLString();
 		}
 		else
 		{
@@ -6159,6 +6165,7 @@ S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
 	cleanupNodes();
 	S32 count = mList.size();
 
+#if LL_MESH_ENABLED
 	if (mesh_adjust)
 	{
 		for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
@@ -6179,6 +6186,7 @@ S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
 
 		}
 	}
+#endif
 
 	return count;
 }

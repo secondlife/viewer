@@ -45,6 +45,7 @@
 #include "llgl.h"
 #include "lldrawable.h"
 #include "llrendertarget.h"
+#include "llmodel.h" //for LL_MESH_ENaBLED
 
 #include <stack>
 
@@ -61,7 +62,10 @@ class LLCullResult;
 class LLVOAvatar;
 class LLGLSLShader;
 class LLCurlRequest;
+
+#if LL_MESH_ENABLED
 class LLMeshResponder;
+#endif
 
 typedef enum e_avatar_skinning_method
 {
@@ -217,6 +221,7 @@ public:
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
+	static F32 calcPixelArea(const LLVector4a& center, const LLVector4a& size, LLCamera &camera);
 
 	void stateSort(LLCamera& camera, LLCullResult& result);
 	void stateSort(LLSpatialGroup* group, LLCamera& camera);
@@ -229,6 +234,14 @@ public:
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture);
 
 	void grabReferences(LLCullResult& result);
+	void clearReferences();
+
+	//check references will assert that there are no references in sCullResult to the provided data
+	void checkReferences(LLFace* face);
+	void checkReferences(LLDrawable* drawable);
+	void checkReferences(LLDrawInfo* draw_info);
+	void checkReferences(LLSpatialGroup* group);
+
 
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
 	void renderGeomDeferred(LLCamera& camera);
@@ -432,6 +445,7 @@ public:
 		RENDER_DEBUG_BUILD_QUEUE		= 0x0200000,
 		RENDER_DEBUG_AGENT_TARGET       = 0x0400000,
 		RENDER_DEBUG_PHYSICS_SHAPES     = 0x0800000,
+		RENDER_DEBUG_NORMALS	        = 0x1000000,
 	};
 
 public:
@@ -456,7 +470,9 @@ public:
 
 	S32						 mDebugTextureUploadCost;
 	S32						 mDebugSculptUploadCost;
+#if LL_MESH_ENABLED
 	S32						 mDebugMeshUploadCost;
+#endif
 
 	S32						 mLightingChanges;
 	S32						 mGeometryChanges;
@@ -473,6 +489,8 @@ public:
 	static BOOL				sAutoMaskAlphaNonDeferred;
 	static BOOL				sDisableShaders; // if TRUE, rendering will be done without shaders
 	static BOOL				sRenderBump;
+	static BOOL				sBakeSunlight;
+	static BOOL				sNoAlpha;
 	static BOOL				sUseTriStrips;
 	static BOOL				sUseFarClip;
 	static BOOL				sShadowRender;
@@ -488,6 +506,7 @@ public:
 	static BOOL				sRenderAttachedLights;
 	static BOOL				sRenderAttachedParticles;
 	static BOOL				sRenderDeferred;
+	static BOOL             sAllowRebuildPriorityGroup;
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;
 
@@ -699,13 +718,6 @@ public:
 	std::vector<LLFace*>		mHighlightFaces;	// highlight faces on physical objects
 protected:
 	std::vector<LLFace*>		mSelectedFaces;
-
-
-	typedef std::map<LLUUID, std::set<LLUUID> > mesh_load_map;
-	mesh_load_map mLoadingMeshes[4];
-	
-	typedef std::list<LLMeshResponder*> mesh_response_list;
-	mesh_response_list			mMeshResponseList;
 
 	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
 	

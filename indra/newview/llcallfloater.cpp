@@ -95,7 +95,7 @@ static void* create_non_avatar_caller(void*)
 	return new LLNonAvatarCaller;
 }
 
-LLVoiceChannel* LLCallFloater::sCurrentVoiceCanel = NULL;
+LLVoiceChannel* LLCallFloater::sCurrentVoiceChannel = NULL;
 
 LLCallFloater::LLCallFloater(const LLSD& key)
 : LLTransientDockableFloater(NULL, false, key)
@@ -113,7 +113,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 	mSpeakerDelayRemover = new LLSpeakersDelayActionsStorage(boost::bind(&LLCallFloater::removeVoiceLeftParticipant, this, _1), voice_left_remove_delay);
 
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
-	LLVoiceClient::getInstance()->addObserver(this);
+	LLVoiceClient::instance().addObserver(this);
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
 
 	// force docked state since this floater doesn't save it between recreations
@@ -133,7 +133,7 @@ LLCallFloater::~LLCallFloater()
 
 	if(LLVoiceClient::instanceExists())
 	{
-		LLVoiceClient::instance().removeObserver(this);
+		LLVoiceClient::getInstance()->removeObserver(this);
 	}
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
@@ -157,7 +157,6 @@ BOOL LLCallFloater::postBuild()
 		getDockTongue(), LLDockControl::TOP));
 
 	initAgentData();
-
 
 	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
 
@@ -204,10 +203,9 @@ void LLCallFloater::draw()
 }
 
 // virtual
-void LLCallFloater::onChange()
+void LLCallFloater::onParticipantsChanged()
 {
 	if (NULL == mParticipants) return;
-
 	updateParticipantsVoiceState();
 
 	// Add newly joined participants.
@@ -237,11 +235,11 @@ void LLCallFloater::updateSession()
 	LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
 	if (voice_channel)
 	{
-		lldebugs << "Current voice channel: " << voice_channel->getSessionID() << llendl;
+		LL_DEBUGS("Voice") << "Current voice channel: " << voice_channel->getSessionID() << LL_ENDL;
 
 		if (mSpeakerManager && voice_channel->getSessionID() == mSpeakerManager->getSessionID())
 		{
-			lldebugs << "Speaker manager is already set for session: " << voice_channel->getSessionID() << llendl;
+			LL_DEBUGS("Voice") << "Speaker manager is already set for session: " << voice_channel->getSessionID() << LL_ENDL;
 			return;
 		}
 		else
@@ -251,7 +249,6 @@ void LLCallFloater::updateSession()
 	}
 
 	const LLUUID& session_id = voice_channel ? voice_channel->getSessionID() : LLUUID::null;
-	lldebugs << "Set speaker manager for session: " << session_id << llendl;
 
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (im_session)
@@ -289,22 +286,22 @@ void LLCallFloater::updateSession()
 
 	if (NULL == mSpeakerManager)
 	{
-		// by default let show nearby chat participants
+		// By default show nearby chat participants
 		mSpeakerManager = LLLocalSpeakerMgr::getInstance();
-		lldebugs << "Set DEFAULT speaker manager" << llendl;
+		LL_DEBUGS("Voice") << "Set DEFAULT speaker manager" << LL_ENDL;
 		mVoiceType = VC_LOCAL_CHAT;
 	}
 
 	updateTitle();
-	
-	//hide "Leave Call" button for nearby chat
+
+	// Hide "Leave Call" button for nearby chat
 	bool is_local_chat = mVoiceType == VC_LOCAL_CHAT;
 	childSetVisible("leave_call_btn_panel", !is_local_chat);
 
 	refreshParticipantList();
 	updateAgentModeratorState();
 
-	//show floater for voice calls & only in CONNECTED to voice channel state
+	// Show floater for voice calls & only in CONNECTED to voice channel state
 	if (!is_local_chat &&
 	    voice_channel &&
 	    LLVoiceChannel::STATE_CONNECTED == voice_channel->getState())
@@ -370,7 +367,7 @@ void LLCallFloater::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 	// *NOTE: if signal was sent for voice channel with LLVoiceChannel::STATE_NO_CHANNEL_INFO
 	// it sill be sent for the same channel again (when state is changed).
 	// So, lets ignore this call.
-	if (channel == sCurrentVoiceCanel) return;
+	if (channel == sCurrentVoiceChannel) return;
 
 	LLCallFloater* call_floater = LLFloaterReg::getTypedInstance<LLCallFloater>("voice_controls");
 
@@ -470,16 +467,15 @@ void LLCallFloater::updateAgentModeratorState()
 static void get_voice_participants_uuids(uuid_vec_t& speakers_uuids)
 {
 	// Get a list of participants from VoiceClient
-	LLVoiceClient::participantMap *voice_map = LLVoiceClient::getInstance()->getParticipantList();
-	if (voice_map)
+       std::set<LLUUID> participants;
+       LLVoiceClient::getInstance()->getParticipantList(participants);
+	
+	for (std::set<LLUUID>::const_iterator iter = participants.begin();
+		 iter != participants.end(); ++iter)
 	{
-		for (LLVoiceClient::participantMap::const_iterator iter = voice_map->begin();
-			iter != voice_map->end(); ++iter)
-		{
-			LLUUID id = (*iter).second->mAvatarID;
-			speakers_uuids.push_back(id);
-		}
+		speakers_uuids.push_back(*iter);
 	}
+
 }
 
 void LLCallFloater::initParticipantsVoiceState()
@@ -555,7 +551,7 @@ void LLCallFloater::updateParticipantsVoiceState()
 
 		uuid_vec_t::iterator speakers_iter = std::find(speakers_uuids.begin(), speakers_uuids.end(), participant_id);
 
-		lldebugs << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << llendl;
+		LL_DEBUGS("Voice") << "processing speaker: " << item->getAvatarName() << ", " << item->getAvatarId() << LL_ENDL;
 
 		// If an avatarID assigned to a panel is found in a speakers list
 		// obtained from VoiceClient we assign the JOINED status to the owner
@@ -718,9 +714,9 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 {
 	mVoiceChannelStateChangeConnection.disconnect();
 
-	sCurrentVoiceCanel = channel;
+	sCurrentVoiceChannel = channel;
 
-	mVoiceChannelStateChangeConnection = sCurrentVoiceCanel->setStateChangedCallback(boost::bind(&LLCallFloater::onVoiceChannelStateChanged, this, _1, _2));
+	mVoiceChannelStateChangeConnection = sCurrentVoiceChannel->setStateChangedCallback(boost::bind(&LLCallFloater::onVoiceChannelStateChanged, this, _1, _2));
 
 	updateState(channel->getState());
 }
@@ -728,7 +724,7 @@ void LLCallFloater::connectToChannel(LLVoiceChannel* channel)
 void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
 {
 	// check is voice operational and if it doesn't work hide VCP (EXT-4397)
-	if(LLVoiceClient::voiceEnabled() && LLVoiceClient::getInstance()->voiceWorking())
+	if(LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking())
 	{
 		updateState(new_state);
 	}
@@ -740,7 +736,7 @@ void LLCallFloater::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old
 
 void LLCallFloater::updateState(const LLVoiceChannel::EState& new_state)
 {
-	LL_DEBUGS("Voice") << "Updating state: " << new_state << ", session name: " << sCurrentVoiceCanel->getSessionName() << LL_ENDL;
+	LL_DEBUGS("Voice") << "Updating state: " << new_state << ", session name: " << sCurrentVoiceChannel->getSessionName() << LL_ENDL;
 	if (LLVoiceChannel::STATE_CONNECTED == new_state)
 	{
 		updateSession();

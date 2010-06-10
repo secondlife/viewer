@@ -33,7 +33,10 @@
 		<combo_box.item name="Reference" label="Referentie"
 		/>
 	</combo_box>
-	<check_box left="136" label="Beide zijden uitrekken" name="checkbox uniform"/>
+	<check_box left="136" name="checkbox uniform"/>
+	<text name="checkbox uniform label">
+		Beide zijden uitrekken
+	</text>
 	<check_box left="136" label="Texturen uitrekken" name="checkbox stretch textures"/>
 	<check_box left="136" label="Gebruik grid" name="checkbox snap to grid"/>
 	<button label="Opties..." label_selected="Opties..." name="Options..." height="18" bottom_delta="-15"/>
@@ -403,7 +406,7 @@
 			<text name="glow label">
 				Gloed
 			</text>
-			<check_box label="Volledige &#10;helderheid" name="checkbox fullbright" bottom_delta="-21"/>
+			<check_box label="Volledige helderheid" name="checkbox fullbright"/>
 			<text name="tex gen">
 				Mapping
 			</text>

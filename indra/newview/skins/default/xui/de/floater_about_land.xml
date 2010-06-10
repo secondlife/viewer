@@ -353,7 +353,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				<combo_box.item label="Shopping" name="item11"/>
 				<combo_box.item label="Sonstige" name="item12"/>
 			</combo_box>
-			<combo_box left="266" name="land category" width="130">
+			<combo_box name="land category">
 				<combo_box.item label="Alle Kategorien" name="item0"/>
 				<combo_box.item label="Lindenort" name="item1"/>
 				<combo_box.item label="Kunst und Kultur" name="item3"/>

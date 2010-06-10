@@ -42,10 +42,12 @@
 class LLWearable;
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
+class LLOutfitUnLockTimer;
 
 class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 {
 	friend class LLSingleton<LLAppearanceMgr>;
+	friend class LLOutfitUnLockTimer;
 	
 public:
 	typedef std::vector<LLInventoryModel::item_array_t> wearables_by_type_t;
@@ -58,6 +60,10 @@ public:
 	void wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append);
 	void wearOutfitByName(const std::string& name);
 	void changeOutfit(bool proceed, const LLUUID& category, bool append);
+	void replaceCurrentOutfit(const LLUUID& new_outfit);
+	void renameOutfit(const LLUUID& outfit_id);
+	void takeOffOutfit(const LLUUID& cat_id);
+	void addCategoryToCurrentOutfit(const LLUUID& cat_id);
 
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
@@ -65,6 +71,9 @@ public:
 
 	// Return whether this folder contains minimal contents suitable for making a full outfit.
 	BOOL getCanMakeFolderIntoOutfit(const LLUUID& folder_id);
+
+	// Determine whether a given outfit can be removed.
+	bool getCanRemoveOutfit(const LLUUID& outfit_cat_id);
 
 	// Copy all items in a category.
 	void shallowCopyCategoryContents(const LLUUID& src_id, const LLUUID& dst_id,
@@ -81,7 +90,7 @@ public:
 	const LLUUID getBaseOutfitUUID();
 
 	// Wear/attach an item (from a user's inventory) on the agent
-	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true);
+	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true, bool replace = false);
 
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
@@ -111,6 +120,7 @@ public:
 
 	// Remove COF entries
 	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);
+	void removeCOFLinksOfType(LLWearableType::EType type, bool do_update = true);
 
 	// Add COF link to ensemble folder.
 	void addEnsembleLink(LLInventoryCategory* item, bool do_update = true);
@@ -150,14 +160,17 @@ public:
 	//Divvy items into arrays by wearable type
 	static void divvyWearablesByType(const LLInventoryModel::item_array_t& items, wearables_by_type_t& items_by_type);
 
+	//Check ordering information on wearables stored in links' descriptions and update if it is invalid
+	// COF is processed if cat_id is not specified
+	void updateClothingOrderingInfo(LLUUID cat_id = LLUUID::null);
+
+	bool isOutfitLocked() { return mOutfitLocked; }
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();
 
 private:
-
-	//Check ordering information on wearables stored in links' descriptions and update if it is invalid
-	void updateClothingOrderingInfo();
 
 	void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type);
 	
@@ -175,9 +188,21 @@ private:
 	void purgeCategory(const LLUUID& category, bool keep_outfit_links);
 	void purgeBaseOutfitLink(const LLUUID& category);
 
+	static void onOutfitRename(const LLSD& notification, const LLSD& response);
+
+	void setOutfitLocked(bool locked);
+
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
+
+	/**
+	 * Lock for blocking operations on outfit until server reply or timeout exceed
+	 * to avoid unsynchronized outfit state or performing duplicate operations.
+	 */
+	bool mOutfitLocked;
+
+	std::auto_ptr<LLOutfitUnLockTimer> mUnlockOutfitTimer;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Item-specific convenience functions 

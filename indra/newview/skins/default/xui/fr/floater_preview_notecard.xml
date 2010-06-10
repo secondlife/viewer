@@ -9,9 +9,6 @@
 	<floater.string name="Title">
 		Note : [NAME]
 	</floater.string>
-	<floater.string label="Enregistrer" label_selected="Enregistrer" name="Save">
-		Enregistrer
-	</floater.string>
 	<text name="desc txt">
 		Description :
 	</text>
@@ -19,4 +16,5 @@
 		Chargement...
 	</text_editor>
 	<button label="Enregistrer" label_selected="Enregistrer" name="Save"/>
+	<button label="Supprimer" label_selected="Supprimer" name="Delete"/>
 </floater>

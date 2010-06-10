@@ -128,7 +128,7 @@ public:
 	virtual void	clear();
 
 	// Takes a UUID, wraps get/setImageAssetID
-	virtual void	setValue(const LLSD& value );
+	virtual void	setValue(const LLSD& value);
 	virtual LLSD	getValue() const;
 
 	// LLTextureCtrl interface
@@ -142,6 +142,8 @@ public:
 
 	const LLUUID&	getImageItemID() { return mImageItemID; }
 
+	virtual void	setImageAssetName(const std::string& name);
+	
 	void			setImageAssetID(const LLUUID &image_asset_id);
 	const LLUUID&	getImageAssetID() const						{ return mImageAssetID; }
 

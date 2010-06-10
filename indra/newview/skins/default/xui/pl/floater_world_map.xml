@@ -35,7 +35,7 @@
 		<text name="pg_label">
 			Ogólne
 		</text>
-		<check_box initial_value="prawda" name="event_mature_chk"/>
+		<check_box name="event_mature_chk"/>
 		<text name="mature_label">
 			Moderuj
 		</text>

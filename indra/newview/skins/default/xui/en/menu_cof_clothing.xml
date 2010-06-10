@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ layout="topleft"
+ name="COF Clothing">
+    <menu_item_call
+     label="Take Off"
+     layout="topleft"
+     name="take_off">
+        <on_click
+         function="Clothing.TakeOff" />
+        <on_enable
+         function="Clothing.OnEnable"
+         parameter="take_off" />
+    </menu_item_call>
+    <menu_item_call
+     label="Move Up a Layer"
+     layout="topleft"
+     name="move_up">
+        <on_click
+         function="Clothing.MoveUp" />
+        <on_enable
+         function="Clothing.OnEnable"
+         parameter="move_up" />
+    </menu_item_call>
+    <menu_item_call
+     label="Move Down a Layer"
+     layout="topleft"
+     name="move_down">
+        <on_click
+         function="Clothing.MoveDown" />
+        <on_enable
+         function="Clothing.OnEnable"
+         parameter="move_down" />
+    </menu_item_call>
+    <menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="edit">
+        <on_click
+         function="Clothing.Edit" />
+        <on_enable
+         function="Clothing.OnEnable"
+         parameter="edit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Create New"
+     layout="topleft"
+     name="create_new"
+     translate="false">
+        <on_click
+         function="Clothing.Create"/>
+        <on_enable
+         function="Clothing.OnEnable"
+         parameter="create" />
+    </menu_item_call>
+</context_menu>

@@ -112,8 +112,8 @@ void LLPersistentNotificationStorage::saveNotifications()
 		LLNotificationPtr notification = *it;
 
 		// After a notification was placed in Persist channel, it can become
-		// responded, expired - in this case we are should not save it
-		if(notification->isRespondedTo()
+		// responded, expired or canceled - in this case we are should not save it
+		if(notification->isRespondedTo() || notification->isCancelled()
 			|| notification->isExpired())
 		{
 			continue;
@@ -208,7 +208,6 @@ LLNotificationResponderInterface* LLResponderRegistry::createResponder(const std
 	build_map_t::const_iterator it = sBuildMap.find(notification_name);
 	if(sBuildMap.end() == it)
 	{
-		llwarns << "Responder for notification \'" << notification_name << "\' is not registered" << llendl;
 		return NULL;
 	}
 	responder_constructor_t ctr = it->second;

@@ -107,7 +107,7 @@ private:
 	 * So, method does not calculate difference between these list it only switches off already 
 	 * switched on indicators and switches on indicators of voice channel participants
 	 */
-	void onChange();
+	void onParticipantsChanged();
 
 	/**
 	 * Changes state of indicators specified by LLUUIDs
@@ -158,7 +158,7 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
 	mSpeakingIndicators.insert(value_type);
 
 	speaker_ids_t speakers_uuids;
-	BOOL is_in_same_voice = LLVoiceClient::getInstance()->findParticipantByID(speaker_id) != NULL;
+	BOOL is_in_same_voice = LLVoiceClient::getInstance()->isParticipant(speaker_id);
 
 	speakers_uuids.insert(speaker_id);
 	switchSpeakerIndicators(speakers_uuids, is_in_same_voice);
@@ -205,12 +205,12 @@ void SpeakingIndicatorManager::sOnCurrentChannelChanged(const LLUUID& /*session_
 	mSwitchedIndicatorsOn.clear();
 }
 
-void SpeakingIndicatorManager::onChange()
+void SpeakingIndicatorManager::onParticipantsChanged()
 {
 	LL_DEBUGS("SpeakingIndicator") << "Voice participant list was changed, updating indicators" << LL_ENDL;
 
 	speaker_ids_t speakers_uuids;
-	LLVoiceClient::getInstance()->getParticipantsUUIDSet(speakers_uuids);
+	LLVoiceClient::getInstance()->getParticipantList(speakers_uuids);
 
 	LL_DEBUGS("SpeakingIndicator") << "Switching all OFF, count: " << mSwitchedIndicatorsOn.size() << LL_ENDL;
 	// switch all indicators off

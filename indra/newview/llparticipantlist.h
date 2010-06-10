@@ -32,8 +32,8 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llevent.h"
-#include "llpanelpeoplemenus.h"
 #include "llavatarlist.h" // for LLAvatarItemRecentSpeakerComparator
+#include "lllistcontextmenu.h"
 
 class LLSpeakerMgr;
 class LLAvatarList;
@@ -148,7 +148,7 @@ class LLParticipantList
 		/**
 		 * Menu used in the participant list.
 		 */
-		class LLParticipantListMenu : public LLPanelPeopleMenus::ContextMenu
+		class LLParticipantListMenu : public LLListContextMenu
 		{
 		public:
 			LLParticipantListMenu(LLParticipantList& parent):mParent(parent){};
@@ -187,7 +187,7 @@ class LLParticipantList
 			 * @param userdata can be "selected" or "others".
 			 *
 			 * @see moderateVoiceParticipant()
-			 * @see moderateVoiceOtherParticipants()
+			 * @see moderateVoiceAllParticipants()
 			 */
 			void moderateVoice(const LLSD& userdata);
 
@@ -200,22 +200,22 @@ class LLParticipantList
 			 * @param[in] avatar_id UUID of avatar to be processed
 			 * @param[in] unmute if true - specified avatar will be muted, otherwise - unmuted.
 			 *
-			 * @see moderateVoiceOtherParticipants()
+			 * @see moderateVoiceAllParticipants()
 			 */
 			void moderateVoiceParticipant(const LLUUID& avatar_id, bool unmute);
 
 			/**
-			 * Mutes/Unmutes all avatars except specified for current group voice chat.
+			 * Mutes/Unmutes all avatars for current group voice chat.
 			 *
 			 * It only marks avatars as muted for session and does not use local Agent's Block list.
-			 * It based call moderateVoiceParticipant() for each avatar should be muted/unmuted.
 			 *
-			 * @param[in] excluded_avatar_id UUID of avatar NOT to be processed
 			 * @param[in] unmute if true - avatars will be muted, otherwise - unmuted.
 			 *
 			 * @see moderateVoiceParticipant()
 			 */
-			void moderateVoiceOtherParticipants(const LLUUID& excluded_avatar_id, bool unmute);
+			void moderateVoiceAllParticipants(bool unmute);
+
+			static void confirmMuteAllCallback(const LLSD& notification, const LLSD& response);
 		};
 
 		/**

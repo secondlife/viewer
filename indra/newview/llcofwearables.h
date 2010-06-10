@@ -33,59 +33,17 @@
 #ifndef LL_LLCOFWEARABLES_H
 #define LL_LLCOFWEARABLES_H
 
+// llui
+#include "llflatlistview.h"
 #include "llpanel.h"
-#include "llinventorymodel.h"
+
 #include "llappearancemgr.h"
-#include "llwearableitemslist.h"
+#include "llinventorymodel.h"
 
-class LLFlatListView;
-
-/**
- * Adaptor between LLAccordionCtrlTab and LLFlatListView to facilitate communication between them 
- * (notify, notifyParent) regarding size changes of a list and selection changes across accordion tabs.
- * Besides that it acts as a container for the LLFlatListView and a button bar on top of it.
- */
-class LLCOFAccordionListAdaptor : public LLPanel
-{
-public:
-	LLCOFAccordionListAdaptor() : LLPanel() {};
-	~LLCOFAccordionListAdaptor() {};
-
-	S32 notifyParent(const LLSD& info)
-	{
-		LLView* parent = getParent();
-		if (!parent) return -1;
-		
-		if (!(info.has("action") && "size_changes" == info["action"].asString()))
-		{
-			return parent->notifyParent(info);
-		}
-
-		LLRect rc;
-		childGetRect("button_bar", rc);
-
-		LLSD params;
-		params["action"] = "size_changes";
-		params["width"] = info["width"];
-		params["height"] = info["height"].asInteger() + rc.getHeight();
-
-		return parent->notifyParent(params);
-	}
-
-
-	S32 notify(const LLSD& info)
-	{
-		for (child_list_const_iter_t iter = beginChild(); iter != endChild(); iter++)
-		{
-			if (dynamic_cast<LLFlatListView*>(*iter))
-			{
-				return (*iter)->notify(info);
-			}
-		}
-		return LLPanel::notify(info);
-	};
-};
-
+class LLListContextMenu;
+class LLPanelClothingListItem;
+class LLPanelBodyPartsListItem;
+class LLPanelDeletableWearableListItem;
 
 class LLCOFWearables : public LLPanel
 {
@@ -102,6 +60,7 @@ public:
 		
 		typedef boost::function<void (void*)> cof_callback_t;
 
+		cof_callback_t mAddWearable;
 		cof_callback_t mMoveWearableCloser;
 		cof_callback_t mMoveWearableFurther;
 		cof_callback_t mEditWearable;
@@ -111,11 +70,14 @@ public:
 
 
 	LLCOFWearables();
-	virtual ~LLCOFWearables() {};
+	virtual ~LLCOFWearables();
 
 	/*virtual*/ BOOL postBuild();
 	
 	LLUUID getSelectedUUID();
+	bool getSelectedUUIDs(uuid_vec_t& selected_ids);
+
+	LLPanel* getSelectedItem();
 
 	void refresh();
 	void clear();
@@ -132,6 +94,9 @@ protected:
 
 	LLPanelClothingListItem* buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last);
 	LLPanelBodyPartsListItem* buildBodypartListItem(LLViewerInventoryItem* item);
+	LLPanelDeletableWearableListItem* buildAttachemntListItem(LLViewerInventoryItem* item);
+
+	void onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu);
 
 	LLFlatListView* mAttachments;
 	LLFlatListView* mClothing;
@@ -141,6 +106,9 @@ protected:
 
 	LLCOFCallbacks mCOFCallbacks;
 
+	LLListContextMenu* mClothingMenu;
+	LLListContextMenu* mAttachmentMenu;
+	LLListContextMenu* mBodyPartMenu;
 };
 
 

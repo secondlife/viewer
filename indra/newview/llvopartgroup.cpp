@@ -79,12 +79,14 @@ F32 LLVOPartGroup::getBinRadius()
 	return mScale.mV[0]*2.f;
 }
 
-void LLVOPartGroup::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
+void LLVOPartGroup::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {		
 	const LLVector3& pos_agent = getPositionAgent();
-	newMin = pos_agent - mScale;
-	newMax = pos_agent + mScale;
-	mDrawable->setPositionGroup(pos_agent);
+	newMin.load3( (pos_agent - mScale).mV);
+	newMax.load3( (pos_agent + mScale).mV);
+	LLVector4a pos;
+	pos.load3(pos_agent.mV);
+	mDrawable->setPositionGroup(pos);
 }
 
 BOOL LLVOPartGroup::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)

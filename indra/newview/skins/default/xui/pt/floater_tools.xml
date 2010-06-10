@@ -67,8 +67,11 @@
 	<text name="RenderingCost" tool_tip="Mostra o cálculo do custo de renderização do objeto">
 		þ: [COUNT]
 	</text>
-	<check_box label="Esticar ambos os lados" name="checkbox uniform"/>
-	<check_box initial_value="true" label="Esticar Texturas" name="checkbox stretch textures"/>
+	<check_box label="" name="checkbox uniform"/>
+	<text label="Esticar ambos lados" name="checkbox uniform label">
+		Esticar ambos lados
+	</text>
+	<check_box initial_value="true" label="Esticar texturas" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Mostrar na grade" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Selecione o tipo de régua da grade onde o objeto será colocado">
 		<combo_box.item label="Grid SL" name="World"/>
@@ -115,7 +118,7 @@
 	</text>
 	<button label="Aplicar" label_selected="Aplicar" name="button apply to selection" tool_tip="Modificar a terra selecionada"/>
 	<text left="134" name="obj_count">
-		Objects: [COUNT]
+		Objetos: [COUNT]
 	</text>
 	<text left="134" name="prim_count">
 		Prims: [COUNT]
@@ -183,10 +186,10 @@
 			<name_box initial_value="Carregando..." name="Group Name Proxy"/>
 			<button label="Doar" label_selected="Doar" name="button deed" tool_tip="Ao doar este item, o próximo dono terá permissões de próximo dono.  Objetos de grupos podem ser doados por um oficial do grupo."/>
 			<check_box label="Compartilhar" name="checkbox share with group" tool_tip="Permitir que todos os membros do grupo tenhas suas permissões de modificação para este objeto.  Faça uma doação para ativar restrições de função."/>
-			<text name="label click action" width="220">
+			<text name="label click action">
 				Clique para:
 			</text>
-			<combo_box name="clickaction" width="192">
+			<combo_box name="clickaction">
 				<combo_box.item label="Tocar (padrão)" name="Touch/grab(default)"/>
 				<combo_box.item label="Sentar no objeto" name="Sitonobject"/>
 				<combo_box.item label="Comprar objeto" name="Buyobject"/>

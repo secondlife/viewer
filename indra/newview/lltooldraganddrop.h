@@ -154,8 +154,10 @@ protected:
 							   MASK mask, BOOL drop);
 	EAcceptance dad3dTextureObject(LLViewerObject* obj, S32 face,
 								   MASK mask, BOOL drop);
+#if LL_MESH_ENABLED
 	EAcceptance dad3dMeshObject(LLViewerObject* obj, S32 face,
 								   MASK mask, BOOL drop);
+#endif
 //	EAcceptance dad3dTextureSelf(LLViewerObject* obj, S32 face,
 //								 MASK mask, BOOL drop);
 	EAcceptance dad3dWearItem(LLViewerObject* obj, S32 face,
@@ -221,31 +223,9 @@ protected:
 						 LLToolDragAndDrop::ESource source,
 						 const LLUUID& src_id);
 
-
-	// give inventory item functionality
-	static bool handleCopyProtectedItem(const LLSD& notification, const LLSD& response);
-	static void commitGiveInventoryItem(const LLUUID& to_agent,
-										LLInventoryItem* item,
-										const LLUUID &im_session_id = LLUUID::null);
-
-	// give inventory category functionality
-	static bool handleCopyProtectedCategory(const LLSD& notification, const LLSD& response);
-	static void commitGiveInventoryCategory(const LLUUID& to_agent,
-											LLInventoryCategory* cat,
-											const LLUUID &im_session_id = LLUUID::null);
-
-	// log "Inventory item offered" to IM
-	static void logInventoryOffer(const LLUUID& to_agent, 
-									const LLUUID &im_session_id = LLUUID::null);
-
 public:
 	// helper functions
 	static BOOL isInventoryDropAcceptable(LLViewerObject* obj, LLInventoryItem* item) { return (ACCEPT_YES_COPY_SINGLE <= willObjectAcceptInventory(obj, item)); }
-
-	// This simple helper function assumes you are attempting to
-	// transfer item. returns true if you can give, otherwise false.
-	static BOOL isInventoryGiveAcceptable(LLInventoryItem* item);
-	static BOOL isInventoryGroupGiveAcceptable(LLInventoryItem* item);
 
 	BOOL dadUpdateInventory(LLViewerObject* obj, BOOL drop);
 	BOOL dadUpdateInventoryCategory(LLViewerObject* obj, BOOL drop);
@@ -264,10 +244,12 @@ public:
 									LLInventoryItem* item,
 									ESource source,
 									const LLUUID& src_id);
+#if LL_MESH_ENABLED
 	static void dropMesh(LLViewerObject* hit_obj,
 						 LLInventoryItem* item,
 						 ESource source,
 						 const LLUUID& src_id);
+#endif
 	
 	//static void	dropTextureOneFaceAvatar(LLVOAvatar* avatar,S32 hit_face,
 	//									 LLInventoryItem* item)
@@ -277,17 +259,11 @@ public:
 							  ESource source,
 							  const LLUUID& src_id);
 
-	static void giveInventory(const LLUUID& to_agent, 
-							  LLInventoryItem* item,
-							  const LLUUID &session_id = LLUUID::null);
-	static void giveInventoryCategory(const LLUUID& to_agent,
-									  LLInventoryCategory* item,
-									  const LLUUID &session_id = LLUUID::null);
-
 	static bool handleGiveDragAndDrop(LLUUID agent, LLUUID session, BOOL drop,
 									  EDragAndDropType cargo_type,
 									  void* cargo_data,
-									  EAcceptance* accept);
+									  EAcceptance* accept,
+									  const LLSD& dest = LLSD());
 
 	// Classes used for determining 3d drag and drop types.
 private:

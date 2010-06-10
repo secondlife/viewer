@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="clothing_list_button_bar_panel">
+	<button label="Ajout +" name="add_btn"/>
+	<button label="Acheter &gt;" name="clothing_shop_btn"/>
+</panel>

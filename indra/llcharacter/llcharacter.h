@@ -212,11 +212,8 @@ public:
 	F32 getVisualParamWeight(const char* param_name);
 	F32 getVisualParamWeight(S32 index);
 
-	// set all morph weights to 0
+	// set all morph weights to defaults
 	void clearVisualParamWeights();
-
-	// see if all the weights are default
-	BOOL visualParamWeightsAreDefault();
 
 	// visual parameter accessors
 	LLVisualParam*	getFirstVisualParam()
@@ -229,6 +226,21 @@ public:
 		if (mCurIterator == mVisualParamIndexMap.end())
 			return 0;
 		return (mCurIterator++)->second;
+	}
+
+	S32 getVisualParamCountInGroup(const EVisualParamGroup group) const
+	{
+		S32 rtn = 0;
+		for (visual_param_index_map_t::const_iterator iter = mVisualParamIndexMap.begin();
+		     iter != mVisualParamIndexMap.end();
+		     /**/ )
+		{
+			if ((iter++)->second->getGroup() == group)
+			{
+				++rtn;
+			}
+		}
+		return rtn;
 	}
 
 	LLVisualParam*	getVisualParam(S32 id) const

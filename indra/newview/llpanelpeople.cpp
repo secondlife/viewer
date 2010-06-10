@@ -624,7 +624,7 @@ BOOL LLPanelPeople::postBuild()
 	if(recent_view_sort)
 		mRecentViewSortMenuHandle  = recent_view_sort->getHandle();
 
-	gVoiceClient->addObserver(this);
+	LLVoiceClient::getInstance()->addObserver(this);
 
 	// call this method in case some list is empty and buttons can be in inconsistent state
 	updateButtons();
@@ -825,7 +825,7 @@ void LLPanelPeople::updateButtons()
 		}
 	}
 
-	bool enable_calls = gVoiceClient->voiceWorking() && gVoiceClient->voiceEnabled();
+	bool enable_calls = LLVoiceClient::getInstance()->isVoiceWorking() && LLVoiceClient::getInstance()->voiceEnabled();
 
 	buttonSetEnabled("teleport_btn",		friends_tab_active && item_selected && isFriendOnline(selected_uuids.front()));
 	buttonSetEnabled("view_profile_btn",	item_selected);
@@ -1450,6 +1450,8 @@ void LLPanelPeople::showFriendsAccordionsIfNeeded()
 		LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
 		accordion->arrange();
 
+		// *TODO: new empty_accordion_text attribute was implemented in accordion (EXT-7368).
+		// this code should be refactored to use it
 		// keep help text in a synchronization with accordions visibility.
 		updateFriendListHelpText();
 	}

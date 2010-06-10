@@ -32,12 +32,13 @@
 
 #include "linden_common.h"
 
-#include "lluictrl.h"
-#include "llscrollbar.h"
 #include "llaccordionctrltab.h"
-#include "lllocalcliprect.h"
 
+#include "lllocalcliprect.h"
+#include "llscrollbar.h"
 #include "lltextbox.h"
+#include "lltextutil.h"
+#include "lluictrl.h"
 
 static const std::string DD_BUTTON_NAME = "dd_button";
 static const std::string DD_TEXTBOX_NAME = "dd_textbox";
@@ -72,7 +73,10 @@ public:
 
 	virtual BOOL postBuild();
 
-	void	setTitle(const std::string& title);
+	std::string getTitle();
+	void	setTitle(const std::string& title, const std::string& hl);
+
+	void	setSelected(bool is_selected) { mIsSelected = is_selected; }
 
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
@@ -101,6 +105,7 @@ private:
 	LLUIColor mHeaderBGColor;
 
 	bool mNeedsHighlight;
+	bool mIsSelected;
 
 	LLFrameTimer mAutoOpenTimer;
 };
@@ -113,7 +118,8 @@ LLAccordionCtrlTab::LLAccordionCtrlTabHeader::LLAccordionCtrlTabHeader(
 	const LLAccordionCtrlTabHeader::Params& p)
 : LLUICtrl(p)
 , mHeaderBGColor(p.header_bg_color())
-,mNeedsHighlight(false),
+, mNeedsHighlight(false)
+, mIsSelected(false),
 	mImageCollapsed(p.header_collapse_img),
 	mImageCollapsedPressed(p.header_collapse_img_pressed),
 	mImageExpanded(p.header_expand_img),
@@ -146,10 +152,28 @@ BOOL LLAccordionCtrlTab::LLAccordionCtrlTabHeader::postBuild()
 	return TRUE;
 }
 
-void	LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitle(const std::string& title)
+std::string LLAccordionCtrlTab::LLAccordionCtrlTabHeader::getTitle()
 {
 	if(mHeaderTextbox)
-		mHeaderTextbox->setText(title);
+	{
+		return mHeaderTextbox->getText();
+	}
+	else
+	{
+		return LLStringUtil::null;
+	}
+}
+
+void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitle(const std::string& title, const std::string& hl)
+{
+	if(mHeaderTextbox)
+	{
+		LLTextUtil::textboxSetHighlightedVal(
+			mHeaderTextbox,
+			LLStyle::Params(),
+			title,
+			hl);
+	}
 }
 
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
@@ -167,7 +191,7 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
 	// Only show green "focus" background image if the accordion is open,
 	// because the user's mental model of focus is that it goes away after
 	// the accordion is closed.
-	if (getParent()->hasFocus()
+	if (getParent()->hasFocus() || mIsSelected
 		/*&& !(collapsible && !expanded)*/ // WHY??
 		)
 	{
@@ -281,6 +305,7 @@ LLAccordionCtrlTab::Params::Params()
 	,header_image_focused("header_image_focused")
 	,header_text_color("header_text_color")
 	,fit_panel("fit_panel",true)
+	,selection_enabled("selection_enabled", false)
 {
 	mouse_opaque(false);
 }
@@ -310,6 +335,11 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
 	headerParams.title(p.title);
 	mHeader = LLUICtrlFactory::create<LLAccordionCtrlTabHeader>(headerParams);
 	addChild(mHeader, 1);
+
+	if (p.selection_enabled)
+	{
+		LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLAccordionCtrlTab::selectOnFocusReceived, this));
+	}
 
 	reshape(100, 200,FALSE);
 }
@@ -379,6 +409,13 @@ void LLAccordionCtrlTab::changeOpenClose(bool is_open)
 	}
 }
 
+void LLAccordionCtrlTab::handleVisibilityChange(BOOL new_visibility)
+{
+	LLUICtrl::handleVisibilityChange(new_visibility);
+
+	notifyParent(LLSD().with("child_visibility_change", new_visibility));
+}
+
 BOOL LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if(mCollapsible && mHeaderVisible && mCanOpenClose)
@@ -436,12 +473,25 @@ void LLAccordionCtrlTab::setAccordionView(LLView* panel)
 	addChild(panel,0);
 }
 
-void LLAccordionCtrlTab::setTitle(const std::string& title)
+std::string LLAccordionCtrlTab::getTitle() const
 {
 	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
 	if (header)
 	{
-		header->setTitle(title);
+		return header->getTitle();
+	}
+	else
+	{
+		return LLStringUtil::null;
+	}
+}
+
+void LLAccordionCtrlTab::setTitle(const std::string& title, const std::string& hl)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		header->setTitle(title, hl);
 	}
 }
 
@@ -465,6 +515,15 @@ boost::signals2::connection LLAccordionCtrlTab::setFocusLostCallback(const focus
 	return boost::signals2::connection();
 }
 
+void LLAccordionCtrlTab::setSelected(bool is_selected)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		header->setSelected(is_selected);
+	}
+}
+
 LLView*	LLAccordionCtrlTab::findContainerView()
 {
 	for(child_list_const_iter_t it = getChildList()->begin(); 
@@ -480,6 +539,11 @@ LLView*	LLAccordionCtrlTab::findContainerView()
 	return NULL;
 }
 
+void LLAccordionCtrlTab::selectOnFocusReceived()
+{
+	if (getParent()) // A parent may not be set if tabs are added dynamically.
+		getParent()->notifyParent(LLSD().with("action", "select_current"));
+}
 
 S32 LLAccordionCtrlTab::getHeaderHeight()
 {
@@ -680,6 +744,7 @@ void LLAccordionCtrlTab::showAndFocusHeader()
 {
 	LLAccordionCtrlTabHeader* header = getChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);	
 	header->setFocus(true);
+	header->setSelected(true);
 
 	LLRect screen_rc;
 	LLRect selected_rc = header->getRect();
@@ -903,5 +968,3 @@ BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 	}
 	return LLUICtrl::handleToolTip(x, y, mask);
 }
-
-

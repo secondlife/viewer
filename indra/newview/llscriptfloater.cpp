@@ -482,7 +482,7 @@ std::string LLScriptFloaterManager::getObjectName(const LLUUID& notification_id)
 		text = notification->getSubstitutions()["OBJECTNAME"].asString();
 		break;
 	case LLScriptFloaterManager::OBJ_GIVE_INVENTORY:
-		text = notification->getSubstitutions()["NAME"].asString();
+		text = notification->getSubstitutions()["OBJECTFROMNAME"].asString();
 		break;
 	default:
 		text = LLTrans::getString("object");

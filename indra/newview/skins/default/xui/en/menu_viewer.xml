@@ -38,8 +38,8 @@
              parameter="agent" />
         </menu_item_call>
         <menu_item_call
-         label="My Appearance"
-         name="Appearance">
+         label="Change Outfit"
+         name="ChangeOutfit">
             <menu_item_call.on_click
              function="CustomizeAvatar" />
             <menu_item_call.on_enable
@@ -80,6 +80,17 @@
              function="Floater.Toggle"
              parameter="gestures" />
         </menu_item_check>
+        <menu_item_check
+         label="My Voice"
+         name="ShowVoice"
+         visibility_control="VoiceMorphingEnabled">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="voice_effect" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="voice_effect" />
+        </menu_item_check>
         <menu
          label="My Status"
          name="Status"
@@ -90,7 +101,6 @@
                 <menu_item_call.on_click
                  function="World.SetAway" />
             </menu_item_call>
-          <menu_item_separator/>
             <menu_item_call
              label="Busy"
              name="Set Busy">
@@ -116,7 +126,7 @@
         </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
-         label="Quit [APP_NAME]"
+         label="Exit [APP_NAME]"
          name="Quit"
          shortcut="control|Q">
             <menu_item_call.on_click
@@ -522,6 +532,52 @@
                 <menu_item_check.on_enable
                  function="Tools.EnableToolNotPie" />
             </menu_item_check>
+        <menu
+         create_jump_keys="true"
+         label="Select Linked Parts"
+         name="Select Linked Parts"
+         tear_off="true">
+            <menu_item_call
+             label="Select Next Part"
+             name="Select Next Part"
+	     shortcut="control|.">
+                <menu_item_call.on_click
+                 function="Tools.SelectNextPart"
+                 parameter="next" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableSelectNextPart" />
+            </menu_item_call>
+            <menu_item_call
+             label="Select Previous Part"
+             name="Select Previous Part"
+	     shortcut="control|,">
+                <menu_item_call.on_click
+                 function="Tools.SelectNextPart"
+                 parameter="previous" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableSelectNextPart" />
+            </menu_item_call>
+            <menu_item_call
+             label="Include Next Part"
+             name="Include Next Part"
+	     shortcut="control|shift|.">
+                <menu_item_call.on_click
+                 function="Tools.SelectNextPart"
+                 parameter="includenext" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableSelectNextPart" />
+            </menu_item_call>
+            <menu_item_call
+             label="Include Previous Part"
+             name="Include Previous Part"
+	     shortcut="control|shift|,">
+                <menu_item_call.on_click
+                 function="Tools.SelectNextPart"
+                 parameter="includeprevious" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableSelectNextPart" />
+            </menu_item_call>
+        </menu>
         <menu_item_separator/>
         <menu_item_call
            label="Focus on Selection"
@@ -765,49 +821,60 @@
         </menu>
         <menu
          create_jump_keys="true"
-         label="Select Linked Parts"
-         name="Select Linked Parts"
+         label="Upload"
+         layout="topleft"
+         name="Upload"
          tear_off="true">
             <menu_item_call
-             label="Select Next Part"
-             name="Select Next Part"
-	     shortcut="control|.">
+             label="Image (L$[COST])..."
+             layout="topleft"
+             name="Upload Image"
+             shortcut="control|U">
                 <menu_item_call.on_click
-                 function="Tools.SelectNextPart"
-                 parameter="next" />
+                 function="File.UploadImage"
+                 parameter="" />
                 <menu_item_call.on_enable
-                 function="Tools.EnableSelectNextPart" />
+                 function="File.EnableUpload" />
+                <menu_item_call.on_visible
+                 function="Upload.CalculateCosts"
+                 parameter="Upload Image" />
             </menu_item_call>
             <menu_item_call
-             label="Select Previous Part"
-             name="Select Previous Part"
-	     shortcut="control|,">
+             label="Sound (L$[COST])..."
+             layout="topleft"
+             name="Upload Sound">
                 <menu_item_call.on_click
-                 function="Tools.SelectNextPart"
-                 parameter="previous" />
+                 function="File.UploadSound"
+                 parameter="" />
                 <menu_item_call.on_enable
-                 function="Tools.EnableSelectNextPart" />
+                 function="File.EnableUpload" />
+                <menu_item_call.on_visible
+                 function="Upload.CalculateCosts"
+                 parameter="Upload Sound" />
             </menu_item_call>
             <menu_item_call
-             label="Include Next Part"
-             name="Include Next Part"
-	     shortcut="control|shift|.">
+             label="Animation (L$[COST])..."
+             layout="topleft"
+             name="Upload Animation">
                 <menu_item_call.on_click
-                 function="Tools.SelectNextPart"
-                 parameter="includenext" />
+                 function="File.UploadAnim"
+                 parameter="" />
                 <menu_item_call.on_enable
-                 function="Tools.EnableSelectNextPart" />
+                 function="File.EnableUpload" />
+                <menu_item_call.on_visible
+                 function="Upload.CalculateCosts"
+                 parameter="Upload Animation" />
             </menu_item_call>
             <menu_item_call
-             label="Include Previous Part"
-             name="Include Previous Part"
-	     shortcut="control|shift|,">
+             label="Bulk (L$[COST] per file)..."
+             layout="topleft"
+             name="Bulk Upload">
                 <menu_item_call.on_click
-                 function="Tools.SelectNextPart"
-                 parameter="includeprevious" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableSelectNextPart" />
+                 function="File.UploadBulk"
+                 parameter="" />
             </menu_item_call>
+            <menu_item_separator
+             layout="topleft" />
         </menu>
     </menu>
     <menu
@@ -1924,6 +1991,16 @@
         <menu_item_check.on_click
          function="Advanced.ToggleInfoDisplay"
          parameter="bboxes" />
+        </menu_item_check>
+        <menu_item_check
+         label="Normals"
+         name="Normals">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="normals" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="normals" />
         </menu_item_check>
         <menu_item_check
          label="Octree"

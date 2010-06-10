@@ -25,6 +25,7 @@
 							<string>AppCache</string>
 							<string>Window</string>
 							<string>RenderInit</string>
+							<string>MediaAuth</string>
 						</array>
 				</map>
 				<map>
@@ -40,6 +41,8 @@
 						</array>
 					<key>tags</key>
 						<array>
+							<!-- sample entry for debugging a specific item	-->
+<!--						<string>Voice</string>							-->
 						</array>
 				</map>
 			</array>
