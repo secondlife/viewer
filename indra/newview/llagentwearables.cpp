@@ -2006,6 +2006,8 @@ bool LLAgentWearables::moveWearable(const LLViewerInventoryItem* item, bool clos
 // static
 void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, const LLUUID& parent_id)
 {
+	if (type == LLWearableType::WT_INVALID || type == LLWearableType::WT_NONE) return;
+
 	LLWearable* wearable = LLWearableList::instance().createNewWearable(type);
 	LLAssetType::EType asset_type = wearable->getAssetType();
 	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;

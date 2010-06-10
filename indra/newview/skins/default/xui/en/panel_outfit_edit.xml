@@ -51,6 +51,7 @@
     <string name="Filter.All" value="All"/>
     <string name="Filter.Clothes/Body" value="Clothes/Body"/>
     <string name="Filter.Objects" value="Objects"/>
+    <string name="Filter.Custom" value="Custom filter"/>
 
 
     <button
