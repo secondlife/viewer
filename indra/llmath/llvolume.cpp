@@ -5566,6 +5566,8 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 		corners[0].getPosition(), corners[0].mTexCoord,
 		corners[1].getPosition(), corners[1].mTexCoord,
 		corners[2].getPosition(), corners[2].mTexCoord);
+	
+	binormal.normalize3fast();
 
 	S32 size = (grid_size+1)*(grid_size+1);
 	resizeVertices(size);
