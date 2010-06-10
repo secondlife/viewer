@@ -238,7 +238,7 @@ U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 #else // windows or x86-mac or x86-linux or x86-solaris
 U64 LLFastTimer::countsPerSecond() // counts per second for the *32-bit* timer
 {
-	static U64 sCPUClockFrequency = U64(CProcessor().GetCPUFrequency(50));
+	static U64 sCPUClockFrequency = U64(LLProcessorInfo().getCPUFrequency());
 
 	// we drop the low-order byte in our timers, so report a lower frequency
 	return sCPUClockFrequency >> 8;

@@ -232,7 +232,6 @@ set(llcommon_HEADER_FILES
     metaclasst.h
     metaproperty.h
     metapropertyt.h
-    processor.h
     reflective.h
     reflectivet.h
     roles_constants.h
@@ -290,6 +289,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llframetimer "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llinstancetracker "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llprocessor "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
