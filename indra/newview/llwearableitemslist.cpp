@@ -528,7 +528,7 @@ void LLWearableItemsList::updateChangedItems(const LLInventoryModel::changed_ite
 
 		LLUUID linked_uuid = inv_item->getLinkedUUID();
 
-		for (LLInventoryModel::changed_items_t::iterator iter = changed_items_uuids.begin();
+		for (LLInventoryModel::changed_items_t::const_iterator iter = changed_items_uuids.begin();
 				iter != changed_items_uuids.end();
 				++iter)
 		{
