@@ -372,30 +372,18 @@
     decimal_digits="0"
     follows="left|top"
     height="16"
-    increment="2"
-    initial_value="35"
-    label="Max. avatar draw distance:"
+    increment="1"
+    initial_value="12"
+    label="Max. # of non-impostor avatars:"
     label_width="185"
     layout="topleft"
     left_delta="0"
     max_val="65"
     min_val="1"
-    name="MaxAvatarDrawDistance"
+    name="MaxNumberAvatarDrawn"
     top_pad="4"
     width="290" />
-    <text
-    type="string"
-    length="1"
-    follows="left|top"
-    height="12"
-    layout="topleft"
-    left_delta="291"
-    name="DrawDistanceMeterText3"
-    top_delta="0"
-    width="128">
-      m
-    </text>
-		<slider
+    <slider
 		control_name="RenderGlowResolutionPow"
 		decimal_digits="0"
 		follows="left|top"
