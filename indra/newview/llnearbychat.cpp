@@ -49,7 +49,6 @@
 #include "llchannelmanager.h"
 
 #include "llagent.h" 			// gAgent
-#include "llfloaterscriptdebug.h"
 #include "llchathistory.h"
 #include "llstylemap.h"
 
@@ -163,25 +162,6 @@ std::string appendTime()
 
 void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 {
-	if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
-	{
-		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
-			return;
-		if (gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)// show error in window //("ScriptErrorsAsChat"))
-		{
-
-			LLColor4 txt_color;
-
-			LLViewerChat::getChatColor(chat,txt_color);
-			
-			LLFloaterScriptDebug::addScriptLine(chat.mText,
-												chat.mFromName, 
-												txt_color, 
-												chat.mFromID);
-			return;
-		}
-	}
-
 	LLChat& tmp_chat = const_cast<LLChat&>(chat);
 
 	if(tmp_chat.mTimeStr.empty())
