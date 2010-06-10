@@ -121,7 +121,6 @@ private:
 	void applyFilter(const std::string& new_filter_substring);
 
 	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
-	void onAccordionTabDoubleClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
 
 	void onSelectionChange(LLUICtrl* ctrl);
