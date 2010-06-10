@@ -169,6 +169,11 @@ private:
 	bool onEnable(LLSD::String param)
 	{
 		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.isNull()) // no selection or invalid outfit selected
+		{
+			return false;
+		}
+
 		bool is_worn = LLAppearanceMgr::instance().getBaseOutfitUUID() == selected_outfit_id;
 
 		if ("wear" == param)
