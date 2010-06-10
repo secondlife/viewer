@@ -41,7 +41,11 @@
 #	define WIN32_LEAN_AND_MEAN
 #	include <winsock2.h>
 #	include <windows.h>
-#   include <intrin.h>
+#	define _interlockedbittestandset _renamed_interlockedbittestandset
+#	define _interlockedbittestandreset _renamed_interlockedbittestandreset
+#	include <intrin.h>
+#	undef _interlockedbittestandset
+#	undef _interlockedbittestandreset
 #endif
 
 #include "llsd.h"
