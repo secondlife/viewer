@@ -266,9 +266,6 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		tab->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onAccordionTabRightClick, this,
 			_1, _2, _3, cat_id));
 
-		tab->setDoubleClickCallback(boost::bind(&LLOutfitsList::onAccordionTabDoubleClick, this,
-			_1, _2, _3, cat_id));
-
 		// Setting tab focus callback to monitor currently selected outfit.
 		tab->setFocusReceivedCallback(boost::bind(&LLOutfitsList::changeOutfitSelection, this, list, cat_id));
 
@@ -607,18 +604,6 @@ void LLOutfitsList::onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const
 		uuid_vec_t selected_uuids;
 		selected_uuids.push_back(cat_id);
 		mOutfitMenu->show(ctrl, selected_uuids, x, y);
-	}
-}
-
-void LLOutfitsList::onAccordionTabDoubleClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id)
-{
-	LLAccordionCtrlTab* tab = dynamic_cast<LLAccordionCtrlTab*>(ctrl);
-	if(is_tab_header_clicked(tab, y) && cat_id.notNull())
-	{
-		LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-		if (!cat) return;
-
-		LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, FALSE );
 	}
 }
 

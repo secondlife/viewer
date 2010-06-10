@@ -83,14 +83,7 @@ class LLPanelWearableOutfitItem : public LLPanelInventoryListItemBase
 public:
 	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item);
 
-	/**
-	* Puts item on if it is not worn by agent
-	* otherwise takes it off on double click.
-	*/
-	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-
 protected:
-
 	LLPanelWearableOutfitItem(LLViewerInventoryItem* item);
 };
 
