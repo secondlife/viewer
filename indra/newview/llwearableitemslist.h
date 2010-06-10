@@ -56,13 +56,13 @@ class LLPanelWearableListItem : public LLPanelInventoryListItemBase
 public:
 
 	/**
-	* Shows buttons when mouse is over
-	*/
+	 * Shows buttons when mouse is over
+	 */
 	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
 
 	/**
-	* Hides buttons when mouse is out
-	*/
+	 * Hides buttons when mouse is out
+	 */
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
 protected:
@@ -84,10 +84,15 @@ public:
 	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item);
 
 	/**
-	* Puts item on if it is not worn by agent
-	* otherwise takes it off on double click.
-	*/
+	 * Puts item on if it is not worn by agent
+	 * otherwise takes it off on double click.
+	 */
 	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+
+	/**
+	 * Updates item name and (worn) suffix.
+	 */
+	/*virtual*/ void updateItem(const std::string& name);
 
 protected:
 
@@ -198,7 +203,6 @@ class LLPanelDummyClothingListItem : public LLPanelWearableListItem
 public:
 	static LLPanelDummyClothingListItem* create(LLWearableType::EType w_type);
 
-	/*virtual*/ void updateItem();
 	/*virtual*/ BOOL postBuild();
 	LLWearableType::EType getWearableType() const;
 

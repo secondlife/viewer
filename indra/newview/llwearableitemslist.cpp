@@ -126,6 +126,19 @@ BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 	return LLUICtrl::handleDoubleClick(x, y, mask);
 }
 
+// virtual
+void LLPanelWearableOutfitItem::updateItem(const std::string& name)
+{
+	std::string search_label = name;
+
+	if (mItem && get_is_item_worn(mItem->getUUID()))
+	{
+		search_label += LLTrans::getString("worn");
+	}
+
+	LLPanelInventoryListItemBase::updateItem(search_label);
+}
+
 LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item)
 : LLPanelInventoryListItemBase(item)
 {
@@ -292,12 +305,6 @@ LLPanelDummyClothingListItem* LLPanelDummyClothingListItem::create(LLWearableTyp
 	return list_item;
 }
 
-void LLPanelDummyClothingListItem::updateItem()
-{
-	std::string title = wearableTypeToString(mWearableType);
-	setTitle(title, LLStringUtil::null);
-}
-
 BOOL LLPanelDummyClothingListItem::postBuild()
 {
 	LLIconCtrl* icon = getChild<LLIconCtrl>("item_icon");
@@ -307,7 +314,7 @@ BOOL LLPanelDummyClothingListItem::postBuild()
 	addWidgetToRightSide("btn_add_panel");
 
 	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
-	updateItem();
+	updateItem(wearableTypeToString(mWearableType));
 
 	// Make it look loke clothing item - reserve space for 'delete' button
 	setLeftWidgetsWidth(icon->getRect().mLeft);
