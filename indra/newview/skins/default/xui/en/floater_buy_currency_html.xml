@@ -13,7 +13,7 @@
 >
   <floater.string
     name="buy_currency_url" translate="false">
-    https://quick-buy-www.quick-b.ooze.lindenlab.com/[LANGUAGE]/display/?sa=[SPECIFIC_AMOUNT]&amp;sum=[SUM]&amp;msg=[MSG]&amp;bal=[BAL]
+    https://quick-buy.secondlife.com/[LANGUAGE]/display/?sa=[SPECIFIC_AMOUNT]&amp;sum=[SUM]&amp;msg=[MSG]&amp;bal=[BAL]
   </floater.string>
   <web_browser
     follows="all"
