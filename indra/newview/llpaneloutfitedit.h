@@ -47,6 +47,7 @@
 
 class LLButton;
 class LLCOFWearables;
+class LLComboBox;
 class LLTextBox;
 class LLInventoryCategory;
 class LLOutfitObserver;
@@ -94,15 +95,27 @@ public:
 
 	void toggleAddWearablesPanel();
 	void showAddWearablesPanel(bool show__add_wearables);
+
+	//following methods operate with "add wearables" panel
 	void showWearablesFilter();
-	void showFilteredWearablesPanel();
-	void showFilteredFolderWearablesPanel();
+	void showWearablesListView();
+	void showWearablesFolderView();
 
 	void onTypeFilterChanged(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
 	void onInventorySelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onAddToOutfitClicked(void);
-	void onOutfitItemSelectionChange(void);
+
+	void applyFilter(e_look_item_type type);
+
+	/**
+	 * Filter items in views of Add Wearables Panel and show appropriate view depending on currently selected COF item(s)
+	 * No COF items selected - shows the folder view, reset filter
+	 * 1 COF item selected - shows the list view and filters wearables there by a wearable type of the selected item
+	 * More than 1 COF item selected - shows the list view and filters it by a type of the selected item (attachment or clothing)
+	 */
+	void filterWearablesBySelectedItem(void);
+
 	void onRemoveFromOutfitClicked(void);
 	void onEditWearableClicked(void);
 	void onAddWearableClicked(void);
@@ -132,7 +145,8 @@ public:
 private:
 
 	void onGearButtonClick(LLUICtrl* clicked_button);
-	void showFilteredWearableItemsList(LLWearableType::EType type);
+	void onAddMoreButtonClicked();
+	void showFilteredWearablesListView(LLWearableType::EType type);
 
 
 	LLTextBox*			mCurrentOutfitName;
@@ -145,6 +159,7 @@ private:
 	LLButton*			mFolderViewBtn;
 	LLButton*			mListViewBtn;
 	LLPanel*			mAddWearablesPanel;
+	LLComboBox*			mFilterComboBox;
 
 	LLFindNonLinksByMask*  mWearableListMaskCollector;
 	LLFindWearablesOfType* mWearableListTypeCollector;
@@ -161,6 +176,8 @@ private:
 	LLMenuGL*			mGearMenu;
 	bool				mInitialized;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
+
+
 
 };
 

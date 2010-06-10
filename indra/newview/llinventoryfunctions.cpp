@@ -309,6 +309,11 @@ BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
 
 BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
 {
+	if (!model)
+	{
+		return FALSE;
+	}
+
 	LLViewerInventoryCategory* cat = model->getCategory(id);
 
 	if (cat && !LLFolderType::lookupIsProtectedType(cat->getPreferredType()) &&

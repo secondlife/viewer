@@ -3181,7 +3181,7 @@ Abuse Report</string>
 
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value=" "></string>
-  <string name="words_separator">, </string>
+  <string name="words_separator" value=", "/>
   
   <string name="server_is_down">
 	Despite our best efforts, something unexpected has gone wrong.
