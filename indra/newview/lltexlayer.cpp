@@ -378,40 +378,33 @@ BOOL LLTexLayerSetBuffer::updateImmediate()
 
 void LLTexLayerSetBuffer::readBackAndUpload()
 {
-	// pointers for storing data to upload
+	llinfos << "Uploading baked " << mTexLayerSet->getBodyRegionName() << llendl;
+	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_BAKES);
+
+	// Don't need caches since we're baked now.  (note: we won't *really* be baked 
+	// until this image is sent to the server and the Avatar Appearance message is received.)
+	mTexLayerSet->deleteCaches();
+
+	// Get the COLOR information from our texture
 	U8* baked_color_data = new U8[ mFullWidth * mFullHeight * 4 ];
-	
 	glReadPixels(mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, GL_RGBA, GL_UNSIGNED_BYTE, baked_color_data );
 	stop_glerror();
 
-	llinfos << "Baked " << mTexLayerSet->getBodyRegionName() << llendl;
-	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_BAKES);
-
-	// We won't need our caches since we're baked now.  (Techically, we won't 
-	// really be baked until this image is sent to the server and the Avatar
-	// Appearance message is received.)
-	mTexLayerSet->deleteCaches();
-
+	// Get the MASK information from our texture
 	LLGLSUIDefault gls_ui;
-
 	LLPointer<LLImageRaw> baked_mask_image = new LLImageRaw(mFullWidth, mFullHeight, 1 );
 	U8* baked_mask_data = baked_mask_image->getData(); 
-	
 	mTexLayerSet->gatherMorphMaskAlpha(baked_mask_data, mFullWidth, mFullHeight);
 
-	// writes into baked_color_data
-	const char* comment_text = NULL;
 
-	S32 baked_image_components = 5; // red green blue [bump] clothing
+	// Create the baked image from our color and mask information
+	const S32 baked_image_components = 5; // red green blue [bump] clothing
 	LLPointer<LLImageRaw> baked_image = new LLImageRaw( mFullWidth, mFullHeight, baked_image_components );
 	U8* baked_image_data = baked_image->getData();
-	
-	comment_text = LINDEN_J2C_COMMENT_PREFIX "RGBHM"; // 5 channels: rgb, heightfield/alpha, mask
-
 	S32 i = 0;
-	for( S32 u = 0; u < mFullWidth; u++ )
+	for (S32 u=0; u < mFullWidth; u++)
 	{
-		for( S32 v = 0; v < mFullHeight; v++ )
+		for (S32 v=0; v < mFullHeight; v++)
 		{
 			baked_image_data[5*i + 0] = baked_color_data[4*i + 0];
 			baked_image_data[5*i + 1] = baked_color_data[4*i + 1];
@@ -424,21 +417,19 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 	
 	LLPointer<LLImageJ2C> compressedImage = new LLImageJ2C;
 	compressedImage->setRate(0.f);
-	LLTransactionID tid;
-	LLAssetID asset_id;
-	tid.generate();
-	asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-
-	BOOL res = false;
-	if( compressedImage->encode(baked_image, comment_text))
+	const char* comment_text = LINDEN_J2C_COMMENT_PREFIX "RGBHM"; // writes into baked_color_data. 5 channels (rgb, heightfield/alpha, mask)
+	if (compressedImage->encode(baked_image, comment_text))
 	{
-		res = LLVFile::writeFile(compressedImage->getData(), compressedImage->getDataSize(),
-								 gVFS, asset_id, LLAssetType::AT_TEXTURE);
-		if (res)
+		LLTransactionID tid;
+		tid.generate();
+		const LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+		if (LLVFile::writeFile(compressedImage->getData(), compressedImage->getDataSize(),
+							   gVFS, asset_id, LLAssetType::AT_TEXTURE))
 		{
-			LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
+			// Read back the file and validate.
 			BOOL valid = FALSE;
-			S32 file_size;
+			LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
+			S32 file_size = 0;
 			U8* data = LLVFile::readFile(gVFS, asset_id, LLAssetType::AT_TEXTURE, &file_size);
 			if (data)
 			{
@@ -449,31 +440,26 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 				integrity_test->setLastError("Unable to read entire file");
 			}
 			
-			if( valid )
+			if (valid)
 			{
-				// baked_upload_data is owned by the responder and deleted after the request completes
+				// Baked_upload_data is owned by the responder and deleted after the request completes.
 				LLBakedUploadData* baked_upload_data = new LLBakedUploadData(gAgentAvatarp, 
 																			 this->mTexLayerSet, 
 																			 asset_id);
 				mUploadID = asset_id;
-				const BOOL highest_lod = mTexLayerSet->isLocalTextureDataFinal();	
 
-				// upload the image
-				std::string url = gAgent.getRegion()->getCapability("UploadBakedTexture");
-
+				// Upload the image
+				const std::string url = gAgent.getRegion()->getCapability("UploadBakedTexture");
 				if(!url.empty()
-					&& !LLPipeline::sForceOldBakedUpload) // Toggle the debug setting UploadBakedTexOld to change between the new caps method and old method
+					&& !LLPipeline::sForceOldBakedUpload) // toggle debug setting UploadBakedTexOld to change between the new caps method and old method
 				{
-					llinfos << "Baked texture upload via capability of " << mUploadID << " to " << url << llendl;
-
 					LLSD body = LLSD::emptyMap();
+					// The responder will call LLTexLayerSetBuffer::onTextureUploadComplete()
 					LLHTTPClient::post(url, body, new LLSendTexLayerResponder(body, mUploadID, LLAssetType::AT_TEXTURE, baked_upload_data));
-					// Responder will call LLTexLayerSetBuffer::onTextureUploadComplete()
+					llinfos << "Baked texture upload via capability of " << mUploadID << " to " << url << llendl;
 				} 
 				else
 				{
-					llinfos << "Baked texture upload via Asset Store." <<  llendl;
-					// gAssetStorage->storeAssetData(mTransactionID, LLAssetType::AT_IMAGE_JPEG, &uploadCallback, (void *)this, FALSE);
 					gAssetStorage->storeAssetData(tid,
 												  LLAssetType::AT_TEXTURE,
 												  LLTexLayerSetBuffer::onTextureUploadComplete,
@@ -481,8 +467,26 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 												  TRUE,		// temp_file
 												  TRUE,		// is_priority
 												  TRUE);	// store_local
+					llinfos << "Baked texture upload via Asset Store." <<  llendl;
 				}
 
+				const BOOL highest_lod = mTexLayerSet->isLocalTextureDataFinal();	
+				if (highest_lod)
+				{
+					// Sending the final LOD for the baked texture.  All done, pause 
+					// the upload timer so we know how long it took.
+					mNeedsUpload = FALSE;
+					mNeedsUploadTimer.pause();
+				}
+				else
+				{
+					// Sending a lower level LOD for the baked texture.  Restart the upload timer.
+					mNumLowresUploads++;
+					mNeedsUploadTimer.unpause();
+					mNeedsUploadTimer.reset();
+				}
+
+				// Print out notification that we uploaded this texture.
 				if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 				{
 					std::string lod_str = highest_lod ? "HighRes" : "LowRes";
@@ -494,36 +498,22 @@ void LLTexLayerSetBuffer::readBackAndUpload()
 					LLNotificationsUtil::add("AvatarRezSelfBakeNotification",args);
 					llinfos << "Uploading [ name: " << mTexLayerSet->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUploadTimer.getElapsedTimeF32() << " ]" << llendl;
 				}
-
-				if (highest_lod)
-				{
-					// Sending the final LOD for the baked texture.
-					// All done, pause the upload timer so we know how long it took.
-					mNeedsUpload = FALSE;
-					mNeedsUploadTimer.pause();
-				}
-				else
-				{
-					// Sending a lower level LOD for the baked texture.
-					// Restart the upload timer.
-					mNumLowresUploads++;
-					mNeedsUploadTimer.unpause();
-					mNeedsUploadTimer.reset();
-				}
 			}
 			else
 			{
+				// The read back and validate operation failed.  Remove the uploaded file.
 				mUploadPending = FALSE;
-				llinfos << "unable to create baked upload file: corrupted" << llendl;
 				LLVFile file(gVFS, asset_id, LLAssetType::AT_TEXTURE, LLVFile::WRITE);
 				file.remove();
+				llinfos << "Unable to create baked upload file (reason: corrupted)." << llendl;
 			}
 		}
 	}
-	if (!res)
+	else
 	{
+		// The VFS write file operation failed.
 		mUploadPending = FALSE;
-		llinfos << "unable to create baked upload file" << llendl;
+		llinfos << "Unable to create baked upload file (reason: failed to write file)" << llendl;
 	}
 
 	delete [] baked_color_data;

@@ -2360,6 +2360,7 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 				mAnimationDuration = gSavedSettings.getF32("ZoomTime");
 			}
 		}
+		gAgentAvatarp->updateMeshTextures();
 	}
 	else
 	{
