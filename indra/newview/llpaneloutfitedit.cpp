@@ -280,7 +280,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetAction(REVERT_BTN, boost::bind(&LLAppearanceMgr::wearBaseOutfit, LLAppearanceMgr::getInstance()));
 
 	mWearableListMaskCollector = new LLFindNonLinksByMask(ALL_ITEMS_MASK);
-	mWearableListTypeCollector = new LLFindWearablesOfType(LLWearableType::WT_NONE);
+	mWearableListTypeCollector = new LLFindActualWearablesOfType(LLWearableType::WT_NONE);
 
 	mWearableItemsPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLInventoryItemsList>("filtered_wearables_list");
