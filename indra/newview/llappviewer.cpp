@@ -103,8 +103,8 @@
 // Third party library includes
 #include <boost/bind.hpp>
 
+
 #if LL_WINDOWS
-	#include "llwindebug.h"
 #	include <share.h> // For _SH_DENYWR in initMarkerFile
 #else
 #   include <sys/file.h> // For initMarkerFile support
@@ -598,6 +598,11 @@ bool LLAppViewer::init()
 	
 	if (!initConfiguration())
 		return false;
+
+	// write Google Breakpad minidump files to our log directory
+	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+	logdir += gDirUtilp->getDirDelimiter();
+	setMiniDumpDir(logdir);
 
 	// Although initLogging() is the right place to mess with
 	// setFatalFunction(), we can't query gSavedSettings until after
@@ -1238,6 +1243,14 @@ bool LLAppViewer::cleanup()
 {
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
+
+	// remove any old breakpad minidump files from the log directory
+	if (! isError())
+	{
+		std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+		logdir += gDirUtilp->getDirDelimiter();
+		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
+	}
 
 	// *TODO - generalize this and move DSO wrangling to a helper class -brad
 	std::set<struct apr_dso_handle_t *>::const_iterator i;
@@ -2295,17 +2308,7 @@ void LLAppViewer::checkForCrash(void)
 {
     
 #if LL_SEND_CRASH_REPORTS
-	//*NOTE:Mani The current state of the crash handler has the MacOSX
-	// sending all crash reports as freezes, in order to let 
-	// the MacOSX CrashRepoter generate stacks before spawning the 
-	// SL crash logger.
-	// The Linux and Windows clients generate their own stacks and
-	// spawn the SL crash logger immediately. This may change in the future. 
-#if LL_DARWIN
-	if(gLastExecEvent != LAST_EXEC_NORMAL)
-#else		
 	if (gLastExecEvent == LAST_EXEC_FROZE)
-#endif
     {
         llinfos << "Last execution froze, requesting to send crash report." << llendl;
         //
@@ -2515,6 +2518,15 @@ void LLAppViewer::writeSystemInfo()
 	// If the crash is handled by LLAppViewer::handleViewerCrash, ie not a freeze,
 	// then the value of "CrashNotHandled" will be set to true.
 	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
+
+	// Insert crash host url (url to post crash log to) if configured. This insures
+	// that the crash report will go to the proper location in the case of a 
+	// prior freeze.
+	std::string crashHostUrl = gSavedSettings.get<std::string>("CrashHostUrl");
+	if(crashHostUrl != "")
+	{
+		gDebugInfo["CrashHostUrl"] = crashHostUrl;
+	}
 	
 	// Dump some debugging info
 	LL_INFOS("SystemInfo") << LLTrans::getString("APP_NAME")
@@ -2534,13 +2546,6 @@ void LLAppViewer::writeSystemInfo()
 	LL_INFOS("SystemInfo") << "OS info: " << getOSInfo() << LL_ENDL;
 
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
-}
-
-void LLAppViewer::handleSyncViewerCrash()
-{
-	LLAppViewer* pApp = LLAppViewer::instance();
-	// Call to pure virtual, handled by platform specific llappviewer instance.
-	pApp->handleSyncCrashTrace(); 
 }
 
 void LLAppViewer::handleViewerCrash()
@@ -2566,9 +2571,13 @@ void LLAppViewer::handleViewerCrash()
 		return;
 	}
 	pApp->mReportedCrash = TRUE;
-
-	// Make sure the watchdog gets turned off...
-// 	pApp->destroyMainloopTimeout(); // SJB: Bah. This causes the crash handler to hang, not sure why.
+	
+	// Insert crash host url (url to post crash log to) if configured.
+	std::string crashHostUrl = gSavedSettings.get<std::string>("CrashHostUrl");
+	if(crashHostUrl != "")
+	{
+		gDebugInfo["CrashHostUrl"] = crashHostUrl;
+	}
 	
 	//We already do this in writeSystemInfo(), but we do it again here to make /sure/ we have a version
 	//to check against no matter what
@@ -2600,6 +2609,12 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
 
+	char *minidump_file = pApp->getMiniDumpFilename();
+	if(minidump_file && minidump_file[0] != 0)
+	{
+		gDebugInfo["MinidumpPath"] = minidump_file;
+	}
+	
 	if(gLogoutInProgress)
 	{
 		gDebugInfo["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;
@@ -2677,10 +2692,6 @@ void LLAppViewer::handleViewerCrash()
 
 	LLError::logToFile("");
 
-// On Mac, we send the report on the next run, since we need macs crash report
-// for a stack trace, so we have to let it the app fail.
-#if !LL_DARWIN
-
 	// Remove the marker file, since otherwise we'll spawn a process that'll keep it locked
 	if(gDebugInfo["LastExecEvent"].asInteger() == LAST_EXEC_LOGOUT_CRASH)
 	{
@@ -2693,8 +2704,6 @@ void LLAppViewer::handleViewerCrash()
 	
 	// Call to pure virtual, handled by platform specific llappviewer instance.
 	pApp->handleCrashReporting(); 
-
-#endif //!LL_DARWIN
     
 	return;
 }
@@ -3338,13 +3347,6 @@ void LLAppViewer::badNetworkHandler()
 
 	mPurgeOnExit = TRUE;
 
-#if LL_WINDOWS
-	// Generates the minidump.
-	LLWinDebug::generateCrashStacks(NULL);
-#endif
-	LLAppViewer::handleSyncViewerCrash();
-	LLAppViewer::handleViewerCrash();
-
 	std::ostringstream message;
 	message <<
 		"The viewer has detected mangled network data indicative\n"
@@ -3357,6 +3359,8 @@ void LLAppViewer::badNetworkHandler()
 		"If the problem continues, see the Tech Support FAQ at: \n"
 		"www.secondlife.com/support";
 	forceDisconnect(message.str());
+	
+	LLApp::instance()->writeMiniDump();
 }
 
 // This routine may get called more than once during the shutdown process.
