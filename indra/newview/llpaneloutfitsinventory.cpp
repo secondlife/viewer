@@ -528,11 +528,12 @@ void LLPanelOutfitsInventory::updateListCommands()
 {
 	bool trash_enabled = isActionEnabled("delete");
 	bool wear_enabled = isActionEnabled("wear");
+	bool wear_visible = !isCOFPanelActive();
 	bool make_outfit_enabled = isActionEnabled("save_outfit");
 
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
-	mListCommands->childSetVisible("wear_btn", wear_enabled);
+	mListCommands->childSetVisible("wear_btn", wear_visible);
 	mSaveComboBtn->setMenuItemEnabled("save_outfit", make_outfit_enabled);
 }
 
@@ -691,6 +692,7 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		{
 			return FALSE;
 		}
+		return hasItemsSelected();
 	}
 	if (command_name == "save_outfit")
 	{
@@ -713,7 +715,6 @@ bool LLPanelOutfitsInventory::hasItemsSelected()
 {
 	bool has_items_selected = false;
 
-	// TODO: add handling "My Outfits" tab.
 	if (isCOFPanelActive())
 	{
 		LLFolderView* root = getActivePanel()->getRootFolder();
@@ -722,6 +723,10 @@ bool LLPanelOutfitsInventory::hasItemsSelected()
 			std::set<LLUUID> selection_set = root->getSelectionList();
 			has_items_selected = (selection_set.size() > 0);
 		}
+	}
+	else // My Outfits Tab is active
+	{
+		has_items_selected = mMyOutfitsPanel->getSelectedOutfitUUID().notNull();
 	}
 	return has_items_selected;
 }
