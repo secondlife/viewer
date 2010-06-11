@@ -33,104 +33,149 @@
 #define WINDGEN_H
 
 #include "llcommon.h"
-#include "llrand.h"
 
 template <class MIXBUFFERFORMAT_T>
 class LLWindGen
 {
 public:
-	LLWindGen() :
+	LLWindGen(const U32 sample_rate = 44100) :
 		mTargetGain(0.f),
 		mTargetFreq(100.f),
 		mTargetPanGainR(0.5f),
-		mbuf0(0.0),
-		mbuf1(0.0),
-		mbuf2(0.0),
-		mbuf3(0.0),
-		mbuf4(0.0),
-		mbuf5(0.0),
-		mY0(0.0),
-		mY1(0.0),
+		mInputSamplingRate(sample_rate),
+		mSubSamples(2),
+		mFilterBandWidth(50.f),
+		mBuf0(0.0f),
+		mBuf1(0.0f),
+		mBuf2(0.0f),
+		mY0(0.0f),
+		mY1(0.0f),
 		mCurrentGain(0.f),
 		mCurrentFreq(100.f),
-		mCurrentPanGainR(0.5f) {};
+		mCurrentPanGainR(0.5f)
+	{
+		mSamplePeriod = (F32)mSubSamples / (F32)mInputSamplingRate;
+		mB2 = expf(-F_TWO_PI * mFilterBandWidth * mSamplePeriod);
+	}
 
-	static const U32 getInputSamplingRate() {return mInputSamplingRate;}
-
+	const U32 getInputSamplingRate() { return mInputSamplingRate; }
+	
 	// newbuffer = the buffer passed from the previous DSP unit.
 	// numsamples = length in samples-per-channel at this mix time.
-	// stride = number of bytes between start of each sample.
 	// NOTE: generates L/R interleaved stereo
-	MIXBUFFERFORMAT_T* windGenerate(MIXBUFFERFORMAT_T *newbuffer, int numsamples, int stride)
+	MIXBUFFERFORMAT_T* windGenerate(MIXBUFFERFORMAT_T *newbuffer, int numsamples)
 	{
-		U8 *cursamplep = (U8*)newbuffer;
+		MIXBUFFERFORMAT_T *cursamplep = newbuffer;
 		
-		double bandwidth = 50.0F;
-		double a0,b1,b2;
+		// Filter coefficients
+		F32 a0 = 0.0f, b1 = 0.0f;
 		
-		// calculate resonant filter coeffs
-		b2 = exp(-(F_TWO_PI) * (bandwidth / mInputSamplingRate));
+		// No need to clip at normal volumes
+		bool clip = mCurrentGain > 2.0f;
 		
-		while (numsamples--)
+		bool interp_freq = false; 
+		
+		//if the frequency isn't changing much, we don't need to interpolate in the inner loop
+		if (llabs(mTargetFreq - mCurrentFreq) < (mCurrentFreq * 0.112))
 		{
-			mCurrentFreq = (float)((0.999 * mCurrentFreq) + (0.001 * mTargetFreq));
-			mCurrentGain = (float)((0.999 * mCurrentGain) + (0.001 * mTargetGain));
-			mCurrentPanGainR = (float)((0.999 * mCurrentPanGainR) + (0.001 * mTargetPanGainR));
-			b1 = (-4.0 * b2) / (1.0 + b2) * cos(F_TWO_PI * (mCurrentFreq / mInputSamplingRate));
-			a0 = (1.0 - b2) * sqrt(1.0 - (b1 * b1) / (4.0 * b2));
-			double nextSample;
+			// calculate resonant filter coefficients
+			mCurrentFreq = mTargetFreq;
+			b1 = (-4.0f * mB2) / (1.0f + mB2) * cosf(F_TWO_PI * (mCurrentFreq * mSamplePeriod));
+			a0 = (1.0f - mB2) * sqrtf(1.0f - (b1 * b1) / (4.0f * mB2));
+		}
+		else
+		{
+			interp_freq = true;
+		}
+		
+		while (numsamples)
+		{
+			F32 next_sample;
 			
-			// start with white noise
-			nextSample = ll_frand(2.0f) - 1.0f;
+			// Start with white noise
+			// This expression is fragile, rearrange it and it will break!
+			next_sample = (F32)rand() * (1.0f / (F32)(RAND_MAX / (U16_MAX / 8))) + (F32)(S16_MIN / 8);
 			
-			// apply pinking filter
-			mbuf0 = 0.997f * mbuf0 + 0.0126502f * nextSample; 
-			mbuf1 = 0.985f * mbuf1 + 0.0139083f * nextSample;
-			mbuf2 = 0.950f * mbuf2 + 0.0205439f * nextSample;
-			mbuf3 = 0.850f * mbuf3 + 0.0387225f * nextSample;
-			mbuf4 = 0.620f * mbuf4 + 0.0465932f * nextSample;
-			mbuf5 = 0.250f * mbuf5 + 0.1093477f * nextSample;
+			// Apply a pinking filter
+			// Magic numbers taken from PKE method at http://www.firstpr.com.au/dsp/pink-noise/
+			mBuf0 = mBuf0 * 0.99765f + next_sample * 0.0990460f;
+			mBuf1 = mBuf1 * 0.96300f + next_sample * 0.2965164f;
+			mBuf2 = mBuf2 * 0.57000f + next_sample * 1.0526913f;
 			
-			nextSample = mbuf0 + mbuf1 + mbuf2 + mbuf3 + mbuf4 + mbuf5;
+			next_sample = mBuf0 + mBuf1 + mBuf2 + next_sample * 0.1848f;
 			
-			// do a resonant filter on the noise
-			nextSample = (double)( a0 * nextSample - b1 * mY0 - b2 * mY1 );
+			if (interp_freq)
+			{
+				// calculate and interpolate resonant filter coefficients
+				mCurrentFreq = (0.999f * mCurrentFreq) + (0.001f * mTargetFreq);
+				b1 = (-4.0f * mB2) / (1.0f + mB2) * cosf(F_TWO_PI * (mCurrentFreq * mSamplePeriod));
+				a0 = (1.0f - mB2) * sqrtf(1.0f - (b1 * b1) / (4.0f * mB2));
+			}
+			
+			// Apply a resonant low-pass filter on the pink noise
+	        next_sample = a0 * next_sample - b1 * mY0 - mB2 * mY1;
 			mY1 = mY0;
-			mY0 = nextSample;
+			mY0 = next_sample;
 			
-			nextSample *= mCurrentGain;
+			mCurrentGain = (0.999f * mCurrentGain) + (0.001f * mTargetGain);
+			mCurrentPanGainR = (0.999f * mCurrentPanGainR) + (0.001f * mTargetPanGainR);
 			
-			MIXBUFFERFORMAT_T	sample;
+			// For a 3dB pan law use:
+			// next_sample *= mCurrentGain * ((mCurrentPanGainR*(mCurrentPanGainR-1)*1.652+1.413);
+		    next_sample *= mCurrentGain;
 			
-			sample = llfloor(((F32)nextSample*32768.f*(1.0f - mCurrentPanGainR))+0.5f);
-			*(MIXBUFFERFORMAT_T*)cursamplep = llclamp(sample, (MIXBUFFERFORMAT_T)-32768, (MIXBUFFERFORMAT_T)32767);
-			cursamplep += stride;
-
-			sample = llfloor(((F32)nextSample*32768.f*mCurrentPanGainR)+0.5f);
-			*(MIXBUFFERFORMAT_T*)cursamplep = llclamp(sample, (MIXBUFFERFORMAT_T)-32768, (MIXBUFFERFORMAT_T)32767);
-			cursamplep += stride;
+			// delta is used to interpolate between synthesized samples
+			F32 delta = (next_sample - mLastSample) / (F32)mSubSamples;
+			
+			// Fill the audio buffer, clipping if necessary
+			for (U8 i=mSubSamples; i && numsamples; --i, --numsamples) 
+			{
+				mLastSample = mLastSample + delta;
+				S32	sample_right = (S32)(mLastSample * mCurrentPanGainR);
+				S32	sample_left = (S32)mLastSample - sample_right;
+				
+				if (!clip)
+				{
+					*cursamplep = (MIXBUFFERFORMAT_T)sample_left;
+					++cursamplep;
+					*cursamplep = (MIXBUFFERFORMAT_T)sample_right;
+					++cursamplep;
+				}
+				else
+				{
+					*cursamplep = (MIXBUFFERFORMAT_T)llclamp(sample_left, (S32)S16_MIN, (S32)S16_MAX);
+					++cursamplep;
+					*cursamplep = (MIXBUFFERFORMAT_T)llclamp(sample_right, (S32)S16_MIN, (S32)S16_MAX);
+					++cursamplep;
+				}
+			}
 		}
 		
 		return newbuffer;
 	}
-
+	
+public:
 	F32 mTargetGain;
 	F32 mTargetFreq;
 	F32 mTargetPanGainR;
-
+	
 private:
-	static const U32 mInputSamplingRate = 44100;
-	F64 mbuf0;
-	F64 mbuf1;
-	F64 mbuf2;
-	F64 mbuf3;
-	F64 mbuf4;
-	F64 mbuf5;
-	F64 mY0;
-	F64 mY1;
+	U32 mInputSamplingRate;
+	U8  mSubSamples;
+	F32 mSamplePeriod;
+	F32 mFilterBandWidth;
+	F32 mB2;
+	
+	F32 mBuf0;
+	F32 mBuf1;
+	F32 mBuf2;
+	F32 mY0;
+	F32 mY1;
+	
 	F32 mCurrentGain;
 	F32 mCurrentFreq;
 	F32 mCurrentPanGainR;
+	F32 mLastSample;
 };
 
 #endif

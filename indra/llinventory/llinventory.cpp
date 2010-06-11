@@ -85,10 +85,7 @@ LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
 	mType(type),
 	mName(name)
 {
-	LLStringUtil::replaceNonstandardASCII(mName, ' ');
-	LLStringUtil::replaceChar(mName, '|', ' ');
-	LLStringUtil::trim(mName);
-	LLStringUtil::truncate(mName, DB_INV_ITEM_NAME_STR_LEN);
+	correctInventoryName(mName);
 }
 
 LLInventoryObject::LLInventoryObject() :
@@ -155,12 +152,8 @@ void LLInventoryObject::setUUID(const LLUUID& new_uuid)
 void LLInventoryObject::rename(const std::string& n)
 {
 	std::string new_name(n);
-	LLStringUtil::replaceNonstandardASCII(new_name, ' ');
-	LLStringUtil::replaceChar(new_name, '|', ' ');
-	LLStringUtil::trim(new_name);
-	LLStringUtil::truncate(new_name, DB_INV_ITEM_NAME_STR_LEN);
-
-	if( new_name != mName )
+	correctInventoryName(new_name);
+	if( !new_name.empty() && new_name != mName )
 	{
 		mName = new_name;
 	}
@@ -221,10 +214,7 @@ BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
 				" %254s %254[^|]",
 				keyword, valuestr);
 			mName.assign(valuestr);
-			LLStringUtil::replaceNonstandardASCII(mName, ' ');
-			LLStringUtil::replaceChar(mName, '|', ' ');
-			LLStringUtil::trim(mName);
-			LLStringUtil::truncate(mName, DB_INV_ITEM_NAME_STR_LEN);
+			correctInventoryName(mName);
 		}
 		else
 		{
@@ -282,6 +272,15 @@ void LLInventoryObject::updateServer(BOOL) const
 {
 	// don't do nothin'
 	llwarns << "LLInventoryObject::updateServer() called.  Doesn't do anything." << llendl;
+}
+
+inline
+void LLInventoryObject::correctInventoryName(std::string& name)
+{
+	LLStringUtil::replaceNonstandardASCII(name, ' ');
+	LLStringUtil::replaceChar(name, '|', ' ');
+	LLStringUtil::trim(name);
+	LLStringUtil::truncate(name, DB_INV_ITEM_NAME_STR_LEN);
 }
 
 

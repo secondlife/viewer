@@ -564,6 +564,7 @@ void LLTeleportHistoryPanel::updateVerbs()
 	{
 		mTeleportBtn->setEnabled(false);
 		mShowProfile->setEnabled(false);
+		mShowOnMapBtn->setEnabled(false);
 		return;
 	}
 
@@ -571,7 +572,7 @@ void LLTeleportHistoryPanel::updateVerbs()
 
 	mTeleportBtn->setEnabled(NULL != itemp);
 	mShowProfile->setEnabled(NULL != itemp);
-	mShowOnMapBtn->setEnabled(true);
+	mShowOnMapBtn->setEnabled(NULL != itemp);
 }
 
 void LLTeleportHistoryPanel::getNextTab(const LLDate& item_date, S32& tab_idx, LLDate& tab_date)

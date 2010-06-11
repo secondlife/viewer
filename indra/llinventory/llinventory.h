@@ -92,9 +92,13 @@ public:
 	void setParent(const LLUUID& new_parent);
 	void setType(LLAssetType::EType type);
 
+private:
+	// in place correction for inventory name string
+	void correctInventoryName(std::string& name);
+
 	//--------------------------------------------------------------------
 	// File Support
-	//   Implemented here so that a minimal information set can be transmitted 
+	//   Implemented here so that a minimal information set can be transmitted
 	//   between simulator and viewer.
 	//--------------------------------------------------------------------
 public:

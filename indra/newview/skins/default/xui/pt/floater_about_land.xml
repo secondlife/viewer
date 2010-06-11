@@ -63,6 +63,9 @@
 				Nenhum lote selecionado.
 Vá para o menu Mundo &gt; Sobre o terreno ou selecione outro lote para mostrar os detalhes.
 			</panel.string>
+			<panel.string name="time_stamp_template">
+				[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+			</panel.string>
 			<text name="Name:">
 				Nome:
 			</text>

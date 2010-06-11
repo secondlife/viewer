@@ -109,10 +109,6 @@
 #include <boost/algorithm/string/split.hpp> //
 #include <boost/regex.hpp>
 
-#if LL_WINDOWS // For Windows specific error handler
-#include "llwindebug.h"	// For the invalid message handler
-#endif
-
 #include "llnotificationmanager.h" //
 
 #if LL_MSVC
@@ -2063,7 +2059,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				// initiated by the other party) then...
 				std::string my_name;
 				LLAgentUI::buildFullname(my_name);
-				std::string response = gSavedPerAccountSettings.getString("BusyModeResponse2");
+				std::string response = gSavedPerAccountSettings.getString("BusyModeResponse");
 				pack_instant_message(
 					gMessageSystem,
 					gAgent.getID(),
@@ -2736,7 +2732,7 @@ void busy_message (LLMessageSystem* msg, LLUUID from_id)
 	{
 		std::string my_name;
 		LLAgentUI::buildFullname(my_name);
-		std::string response = gSavedPerAccountSettings.getString("BusyModeResponse2");
+		std::string response = gSavedPerAccountSettings.getString("BusyModeResponse");
 		pack_instant_message(
 			gMessageSystem,
 			gAgent.getID(),

@@ -810,6 +810,11 @@ void LLFloater::applyTitle()
 	{
 		mDragHandle->setTitle ( mTitle );
 	}
+
+	if (getHost())
+	{
+		getHost()->updateFloaterTitle(this);	
+	}
 }
 
 std::string LLFloater::getCurrentTitle() const

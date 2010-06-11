@@ -1330,7 +1330,7 @@ BOOL LLVOAvatarSelf::isBakedTextureFinal(const LLVOAvatarDefines::EBakedTextureI
 	if (!layerset) return FALSE;
 	const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
 	if (!layerset_buffer) return FALSE;
-	return !layerset_buffer->uploadPending();
+	return !layerset_buffer->uploadNeeded();
 }
 
 BOOL LLVOAvatarSelf::isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index) const
@@ -2036,7 +2036,6 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 			imagep->addTextureStats( desired_pixels / texel_area_ratio );
 			imagep->setAdditionalDecodePriority(1.0f) ;
 			imagep->forceUpdateBindStats() ;
-			
 			if (imagep->getDiscardLevel() < 0)
 			{
 				mHasGrey = TRUE; // for statistics gathering
