@@ -71,6 +71,9 @@ public:
 class LLOutfitsList : public LLPanel
 {
 public:
+	typedef boost::function<void (const LLUUID&)> selection_change_callback_t;
+	typedef boost::signals2::signal<void (const LLUUID&)> selection_change_signal_t;
+
 	LLOutfitsList();
 	virtual ~LLOutfitsList();
 
@@ -85,6 +88,8 @@ public:
 	void setFilterSubString(const std::string& string);
 
 	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
+
+	boost::signals2::connection addSelectionChangeCallback(selection_change_callback_t cb);
 
 private:
 	/**
@@ -110,6 +115,11 @@ private:
 	void changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
 
 	/**
+	 * Saves newly selected outfit ID.
+	 */
+	void setSelectedOutfitUUID(const LLUUID& category_id);
+
+	/**
 	 * Called upon list refresh event to update tab visibility depending on
 	 * the results of applying filter to the title and list items of the tab.
 	 */
@@ -123,6 +133,7 @@ private:
 	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onAccordionTabDoubleClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+	void onCOFChanged();
 
 	void onSelectionChange(LLUICtrl* ctrl);
 
@@ -138,6 +149,7 @@ private:
 	wearables_lists_map_t			mSelectedListsMap;
 
 	LLUUID							mSelectedOutfitUUID;
+	selection_change_signal_t		mSelectionChangeSignal;
 
 	std::string 					mFilterSubString;
 

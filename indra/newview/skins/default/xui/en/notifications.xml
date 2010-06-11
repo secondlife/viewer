@@ -2066,6 +2066,7 @@ Would you be my friend?
        name="Cancel"
        text="Cancel"/>
     </form>
+    <unique/>
   </notification>
 
   <notification

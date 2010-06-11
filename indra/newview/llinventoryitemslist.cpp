@@ -79,7 +79,15 @@ void LLPanelInventoryListItemBase::draw()
 void LLPanelInventoryListItemBase::updateItem()
 {
 	setIconImage(mIconImage);
-	setTitle(mItem->getName(), mHighlightedText);
+
+	std::string name = mItem->getName();
+
+	if (get_is_item_worn(mItem->getUUID()))
+	{
+		name += LLTrans::getString("worn");
+	}
+
+	setTitle(name, mHighlightedText);
 }
 
 void LLPanelInventoryListItemBase::addWidgetToLeftSide(const std::string& name, bool show_widget/* = true*/)

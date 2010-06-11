@@ -68,6 +68,8 @@ protected:
 	/** Get a version of an inventory category specified by its UUID */
 	static S32 getCategoryVersion(const LLUUID& cat_id);
 
+	static const std::string& getCategoryName(const LLUUID& cat_id);
+
 	bool checkCOF();
 
 	void checkBaseOutfit();
@@ -78,6 +80,7 @@ protected:
 	LLUUID mBaseOutfitId;
 
 	S32 mBaseOutfitLastVersion;
+	std::string mLastBaseOutfitName;
 
 	bool mLastOutfitDirtiness;
 
