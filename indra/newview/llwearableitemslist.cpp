@@ -95,19 +95,22 @@ LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item)
 //////////////////////////////////////////////////////////////////////////
 
 // static
-LLPanelWearableOutfitItem* LLPanelWearableOutfitItem::create(LLViewerInventoryItem* item)
+LLPanelWearableOutfitItem* LLPanelWearableOutfitItem::create(LLViewerInventoryItem* item,
+															 bool worn_indication_enabled)
 {
 	LLPanelWearableOutfitItem* list_item = NULL;
 	if (item)
 	{
-		list_item = new LLPanelWearableOutfitItem(item);
+		list_item = new LLPanelWearableOutfitItem(item, worn_indication_enabled);
 		list_item->init();
 	}
 	return list_item;
 }
 
-LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item)
+LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item,
+													 bool worn_indication_enabled)
 : LLPanelInventoryListItemBase(item)
+, mWornIndicationEnabled(worn_indication_enabled)
 {
 }
 
@@ -117,7 +120,7 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
 {
 	std::string search_label = name;
 
-	if (get_is_item_worn(mInventoryItemUUID))
+	if (mWornIndicationEnabled && get_is_item_worn(mInventoryItemUUID))
 	{
 		search_label += LLTrans::getString("worn");
 		item_state = IS_WORN;
@@ -444,6 +447,7 @@ static const LLDefaultChildRegistry::Register<LLWearableItemsList> r("wearable_i
 
 LLWearableItemsList::Params::Params()
 :	standalone("standalone", true)
+,	worn_indication_enabled("worn_indication_enabled", true)
 {}
 
 LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
@@ -456,6 +460,7 @@ LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 		// Use built-in context menu.
 		setRightMouseDownCallback(boost::bind(&LLWearableItemsList::onRightClick, this, _2, _3));
 	}
+	mWornIndicationEnabled = p.worn_indication_enabled;
 }
 
 // virtual
@@ -471,7 +476,7 @@ void LLWearableItemsList::addNewItem(LLViewerInventoryItem* item, bool rearrange
 		llassert(item != NULL);
 	}
 
-	LLPanelWearableOutfitItem *list_item = LLPanelWearableOutfitItem::create(item);
+	LLPanelWearableOutfitItem *list_item = LLPanelWearableOutfitItem::create(item, mWornIndicationEnabled);
 	if (!list_item)
 		return;
 

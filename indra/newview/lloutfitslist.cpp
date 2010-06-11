@@ -162,7 +162,7 @@ protected:
 static LLRegisterPanelClassWrapper<LLOutfitsList> t_outfits_list("outfits_list");
 
 LLOutfitsList::LLOutfitsList()
-	:	LLPanel()
+	:	LLPanelAppearanceTab()
 	,	mAccordion(NULL)
 	,	mListCommands(NULL)
 	,	mIsInitialized(false)
@@ -313,7 +313,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 		// If filter is currently applied we store the initial tab state and
 		// open it to show matched items if any.
-		if (!mFilterSubString.empty())
+		if (!sFilterSubString.empty())
 		{
 			tab->notifyChildren(LLSD().with("action","store_state"));
 			tab->setDisplayChildren(true);
@@ -323,7 +323,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 			// filter to the newly added list.
 			list->setForceRefresh(true);
 
-			list->setFilterSubString(mFilterSubString);
+			list->setFilterSubString(sFilterSubString);
 		}
 	}
 
@@ -415,14 +415,74 @@ void LLOutfitsList::performAction(std::string action)
 	}
 }
 
+void LLOutfitsList::removeSelected()
+{
+	if (mSelectedOutfitUUID.notNull())
+	{
+		remove_category(&gInventory, mSelectedOutfitUUID);
+	}
+}
+
+void LLOutfitsList::setSelectedOutfitByUUID(const LLUUID& outfit_uuid)
+{
+	for (outfits_map_t::iterator iter = mOutfitsMap.begin();
+			iter != mOutfitsMap.end();
+			++iter)
+	{
+		if (outfit_uuid == iter->first)
+		{
+			LLAccordionCtrlTab* tab = iter->second;
+			if (!tab) continue;
+
+			LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
+			if (!list) continue;
+
+			tab->setFocus(TRUE);
+			changeOutfitSelection(list, outfit_uuid);
+
+			tab->setDisplayChildren(true);
+		}
+	}
+}
+
+// virtual
 void LLOutfitsList::setFilterSubString(const std::string& string)
 {
 	applyFilter(string);
 
-	mFilterSubString = string;
+	sFilterSubString = string;
 }
 
-boost::signals2::connection LLOutfitsList::addSelectionChangeCallback(selection_change_callback_t cb)
+bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
+{
+	const std::string command_name = userdata.asString();
+	if (command_name == "delete")
+	{
+		return !mItemSelected && LLAppearanceMgr::instance().getCanRemoveOutfit(mSelectedOutfitUUID);
+	}
+	if (command_name == "rename")
+	{
+		return get_is_category_renameable(&gInventory, mSelectedOutfitUUID);
+	}
+	if (command_name == "save_outfit")
+	{
+		bool outfit_locked = LLAppearanceMgr::getInstance()->isOutfitLocked();
+		bool outfit_dirty = LLAppearanceMgr::getInstance()->isOutfitDirty();
+		// allow save only if outfit isn't locked and is dirty
+		return !outfit_locked && outfit_dirty;
+	}
+	if (command_name == "wear")
+	{
+		return mSelectedOutfitUUID.notNull();
+	}
+	if (command_name == "take_off")
+	{
+		return LLAppearanceMgr::getInstance()->getBaseOutfitUUID() == mSelectedOutfitUUID;
+	}
+	return false;
+}
+
+boost::signals2::connection LLOutfitsList::setSelectionChangeCallback(selection_change_callback_t cb)
 {
 	return mSelectionChangeSignal.connect(cb);
 }
@@ -558,7 +618,7 @@ void LLOutfitsList::restoreOutfitSelection(LLAccordionCtrlTab* tab, const LLUUID
 
 void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
 {
-	if (!ctrl || mFilterSubString.empty())
+	if (!ctrl || sFilterSubString.empty())
 		return;
 
 	for (outfits_map_t::iterator
@@ -572,7 +632,7 @@ void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
 		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
 		if (list != ctrl) continue;
 
-		applyFilterToTab(iter->first, tab, mFilterSubString);
+		applyFilterToTab(iter->first, tab, sFilterSubString);
 	}
 }
 
@@ -588,7 +648,7 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 		LLAccordionCtrlTab* tab = iter->second;
 		if (!tab) continue;
 
-		bool more_restrictive = mFilterSubString.size() < new_filter_substring.size() && !new_filter_substring.substr(0, mFilterSubString.size()).compare(mFilterSubString);
+		bool more_restrictive = sFilterSubString.size() < new_filter_substring.size() && !new_filter_substring.substr(0, sFilterSubString.size()).compare(sFilterSubString);
 
 		// Restore tab visibility in case of less restrictive filter
 		// to compare it with updated string if it was previously hidden.
@@ -603,7 +663,7 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 			list->setFilterSubString(new_filter_substring);
 		}
 
-		if(mFilterSubString.empty() && !new_filter_substring.empty())
+		if(sFilterSubString.empty() && !new_filter_substring.empty())
 		{
 			//store accordion tab state when filter is not empty
 			tab->notifyChildren(LLSD().with("action","store_state"));

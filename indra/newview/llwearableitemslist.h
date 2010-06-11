@@ -82,7 +82,8 @@ class LLPanelWearableOutfitItem : public LLPanelInventoryListItemBase
 {
 	LOG_CLASS(LLPanelWearableOutfitItem);
 public:
-	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item);
+	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item,
+											 bool worn_indication_enabled);
 
 	/**
 	 * Updates item name and (worn) suffix.
@@ -91,7 +92,11 @@ public:
 								EItemState item_state = IS_DEFAULT);
 
 protected:
-	LLPanelWearableOutfitItem(LLViewerInventoryItem* item);
+	LLPanelWearableOutfitItem(LLViewerInventoryItem* item,
+							  bool worn_indication_enabled);
+
+private:
+	bool	mWornIndicationEnabled;
 };
 
 class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
@@ -352,6 +357,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>
 	{
 		Optional<bool> standalone;
+		Optional<bool> worn_indication_enabled;
 
 		Params();
 	};
@@ -377,6 +383,7 @@ protected:
 	void onRightClick(S32 x, S32 y);
 
 	bool mIsStandalone;
+	bool mWornIndicationEnabled;
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H

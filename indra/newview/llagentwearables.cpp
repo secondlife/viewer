@@ -48,7 +48,6 @@
 #include "llmd5.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
-#include "llpaneloutfitsinventory.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltexlayer.h"
@@ -1231,45 +1230,6 @@ void LLAgentWearables::createStandardWearablesAllDone()
 	// Treat this as the first texture entry message, if none received yet
 	gAgentAvatarp->onFirstTEMessageReceived();
 }
-
-
-class LLShowCreatedOutfit: public LLInventoryCallback
-{
-public:
-	LLShowCreatedOutfit(LLUUID& folder_id):
-		mFolderID(folder_id)
-	{
-	}
-
-	virtual ~LLShowCreatedOutfit()
-	{
-		LLSD key;
-		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
-		LLPanelOutfitsInventory *outfit_panel =
-			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-		// TODO: add handling "My Outfits" tab.
-		if (outfit_panel && outfit_panel->isCOFPanelActive())
-		{
-			outfit_panel->getRootFolder()->clearSelection();
-			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
-		}
-		LLAccordionCtrlTab* tab_outfits = outfit_panel ? outfit_panel->findChild<LLAccordionCtrlTab>("tab_outfits") : 0;
-		if (tab_outfits && !tab_outfits->getDisplayChildren())
-		{
-			tab_outfits->changeOpenClose(tab_outfits->getDisplayChildren());
-		}
-
-		LLAppearanceMgr::instance().updateIsDirty();
-		LLAppearanceMgr::instance().updatePanelOutfitName("");
-	}
-	
-	virtual void fire(const LLUUID&)
-	{
-	}
-	
-private:
-	LLUUID mFolderID;
-};
 
 void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 {

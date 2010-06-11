@@ -45,7 +45,7 @@
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
-#include "llpaneloutfitsinventory.h"
+#include "lloutfitslist.h"
 #include "llselectmgr.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
@@ -2306,18 +2306,11 @@ public:
 		{
 			LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
 		}
-		LLPanelOutfitsInventory *outfit_panel =
-			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-		if (outfit_panel)
+		LLOutfitsList *outfits_list =
+			dynamic_cast<LLOutfitsList*>(LLSideTray::getInstance()->getPanel("outfitslist_tab"));
+		if (outfits_list)
 		{
-			outfit_panel->getRootFolder()->clearSelection();
-			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
-		}
-		
-		LLAccordionCtrlTab* tab_outfits = outfit_panel ? outfit_panel->findChild<LLAccordionCtrlTab>("tab_outfits") : 0;
-		if (tab_outfits && !tab_outfits->getDisplayChildren())
-		{
-			tab_outfits->changeOpenClose(tab_outfits->getDisplayChildren());
+			outfits_list->setSelectedOutfitByUUID(mFolderID);
 		}
 
 		LLAppearanceMgr::getInstance()->updateIsDirty();
