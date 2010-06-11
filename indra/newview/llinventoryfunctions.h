@@ -324,6 +324,19 @@ private:
 	LLWearableType::EType mWearableType;
 };
 
+/** Filter out wearables-links */
+class LLFindActualWearablesOfType : public LLFindWearablesOfType
+{
+public:
+	LLFindActualWearablesOfType(LLWearableType::EType type) : LLFindWearablesOfType(type) {}
+	virtual ~LLFindActualWearablesOfType() {}
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		if (item && item->getIsLinkType()) return false;
+		return LLFindWearablesOfType::operator()(cat, item);
+	}
+};
+
 // Find worn items.
 class LLFindWorn : public LLInventoryCollectFunctor
 {
