@@ -41,9 +41,12 @@ from llmanifest import LLManifest, main, proper_windows_path, path_ancestors
 
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):
-        # This is overridden by the WindowsManifest sub-class,
-        # which has different behavior if it is not packaging the viewer.
-        return True
+        # Some commands, files will only be included
+        # if we are packaging the viewer on windows.
+        # This manifest is also used to copy
+        # files during the build (see copy_w_viewer_manifest
+        # and copy_l_viewer_manifest targets)
+        return 'package' in self.args['actions']
     
     def construct(self):
         super(ViewerManifest, self).construct()
@@ -174,13 +177,6 @@ class WindowsManifest(ViewerManifest):
                 return "SecondLifePreview.exe"
         else:
             return ''.join(self.channel().split()) + '.exe'
-
-    def is_packaging_viewer(self):
-        # Some commands, files will only be included
-        # if we are packaging the viewer on windows.
-        # This manifest is also used to copy
-        # files during the build.
-        return 'package' in self.args['actions']
 
     def test_msvcrt_and_copy_action(self, src, dst):
         # This is used to test a dll manifest.
@@ -641,7 +637,9 @@ class DarwinManifest(ViewerManifest):
                 if dylibs["llcommon"]:
                     for libfile in ("libapr-1.0.3.7.dylib",
                                     "libaprutil-1.0.3.8.dylib",
-                                    "libexpat.0.5.0.dylib"):
+                                    "libexpat.0.5.0.dylib",
+                                    "libexception_handler.dylib",
+                                    ):
                         self.path(os.path.join(libdir, libfile), libfile)
 
                 #libfmodwrapper.dylib
@@ -662,7 +660,9 @@ class DarwinManifest(ViewerManifest):
                     for libfile in ("libllcommon.dylib",
                                     "libapr-1.0.3.7.dylib",
                                     "libaprutil-1.0.3.8.dylib",
-                                    "libexpat.0.5.0.dylib"):
+                                    "libexpat.0.5.0.dylib",
+                                    "libexception_handler.dylib",
+                                    ):
                         target_lib = os.path.join('../../..', libfile)
                         self.run_command("ln -sf %(target)r %(link)r" % 
                                          {'target': target_lib,
@@ -893,6 +893,7 @@ class Linux_i686Manifest(LinuxManifest):
         if self.prefix("../../libraries/i686-linux/lib_release_client", dst="lib"):
             self.path("libapr-1.so.0")
             self.path("libaprutil-1.so.0")
+            self.path("libbreakpad_client.so.0.0.0", "libbreakpad_client.so.0")
             self.path("libdb-4.2.so")
             self.path("libcrypto.so.0.9.7")
             self.path("libexpat.so.1")
@@ -930,7 +931,7 @@ class Linux_i686Manifest(LinuxManifest):
                     self.path("libvivoxplatform.so")
                     self.end_prefix("lib")
 
-        if self.args['buildtype'].lower() == 'release':
+        if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
             self.run_command("find %(d)r/bin %(d)r/lib -type f | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
 
