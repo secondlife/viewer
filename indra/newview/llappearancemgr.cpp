@@ -965,18 +965,10 @@ bool LLAppearanceMgr::getCanRemoveOutfit(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
-	// Check if the folder contains worn items.
-	LLInventoryModel::cat_array_t cats;
-	LLInventoryModel::item_array_t items;
-	LLFindWorn filter_worn;
-	gInventory.collectDescendentsIf(outfit_cat_id, cats, items, false, filter_worn);
-	if (!items.empty())
-	{
-		return false;
-	}
-
 	// Check for the folder's non-removable descendants.
 	LLFindNonRemovableObjects filter_non_removable;
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
 	LLInventoryModel::item_array_t::const_iterator it;
 	gInventory.collectDescendentsIf(outfit_cat_id, cats, items, false, filter_non_removable);
 	if (!cats.empty() || !items.empty())
