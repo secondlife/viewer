@@ -2,25 +2,31 @@
  * @file llviewerjointmesh.cpp
  * @brief Implementation of LLViewerJointMesh class
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -661,7 +667,9 @@ void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32
 //-----------------------------------------------------------------------------
 // updateFaceData()
 //-----------------------------------------------------------------------------
-void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind)
+static LLFastTimer::DeclareTimer FTM_AVATAR_FACE("Avatar Face");
+
+void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
 {
 	mFace = face;
 
@@ -669,6 +677,8 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 	{
 		return;
 	}
+
+	LLFastTimer t(FTM_AVATAR_FACE);
 
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
@@ -688,29 +698,98 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 			face->mVertexBuffer->getIndexStrider(indicesp);
 			stop_glerror();
 
-			for (U16 i = 0; i < mMesh->getNumVertices(); i++)
+			verticesp += mMesh->mFaceVertexOffset;
+			tex_coordsp += mMesh->mFaceVertexOffset;
+			normalsp += mMesh->mFaceVertexOffset;
+			vertex_weightsp += mMesh->mFaceVertexOffset;
+			clothing_weightsp += mMesh->mFaceVertexOffset;
+
+			const U32* __restrict coords = (U32*) mMesh->getCoords();
+			const U32* __restrict tex_coords = (U32*) mMesh->getTexCoords();
+			const U32* __restrict normals = (U32*) mMesh->getNormals();
+			const U32* __restrict weights = (U32*) mMesh->getWeights();
+			const U32* __restrict cloth_weights = (U32*) mMesh->getClothingWeights();
+
+			const U32 num_verts = mMesh->getNumVertices();
+
+			U32 i = 0;
+
+			const U32 skip = verticesp.getSkip()/sizeof(U32);
+
+			U32* __restrict v = (U32*) verticesp.get();
+			U32* __restrict n = (U32*) normalsp.get();
+			
+			if (terse_update)
 			{
-				verticesp[mMesh->mFaceVertexOffset + i] = *(mMesh->getCoords() + i);
-				tex_coordsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getTexCoords() + i);
-				normalsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getNormals() + i);
-				vertex_weightsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getWeights() + i);
-				if (damp_wind)
+				for (S32 i = num_verts; i > 0; --i)
 				{
-					clothing_weightsp[mMesh->mFaceVertexOffset + i] = LLVector4(0,0,0,0);
+					//morph target application only, only update positions and normals
+					v[0] = coords[0]; 
+					v[1] = coords[1]; 
+					v[2] = coords[2];		
+					coords += 3;
+					v += skip;
 				}
-				else
+
+				for (S32 i = num_verts; i > 0; --i)
 				{
-					clothing_weightsp[mMesh->mFaceVertexOffset + i] = (*(mMesh->getClothingWeights() + i));
+					n[0] = normals[0]; 
+					n[1] = normals[1];
+					n[2] = normals[2];
+					normals += 3;
+					n += skip;
 				}
 			}
-
-			for (S32 i = 0; i < mMesh->getNumFaces(); i++)
-			{
-				for (U32 j = 0; j < 3; j++)
+			else
 				{
-					U32 k = i*3+j+mMesh->mFaceIndexOffset;
-					indicesp[k] = mMesh->getFaces()[i][j] + mMesh->mFaceVertexOffset;
+
+				U32* __restrict tc = (U32*) tex_coordsp.get();
+				U32* __restrict vw = (U32*) vertex_weightsp.get();
+				U32* __restrict cw = (U32*) clothing_weightsp.get();
+				
+				do
+				{
+					v[0] = *(coords++); 
+					v[1] = *(coords++); 
+					v[2] = *(coords++);
+					v += skip;
+
+					tc[0] = *(tex_coords++); 
+					tc[1] = *(tex_coords++);
+					tc += skip;
+
+					n[0] = *(normals++); 
+					n[1] = *(normals++);
+					n[2] = *(normals++);
+					n += skip;
+
+					vw[0] = *(weights++);
+					vw += skip;
+
+					cw[0] = *(cloth_weights++);
+					cw[1] = *(cloth_weights++);
+					cw[2] = *(cloth_weights++);
+					cw[3] = *(cloth_weights++);
+					cw += skip;
 				}
+				while (++i < num_verts);
+
+				const U32 idx_count = mMesh->getNumFaces()*3;
+
+				indicesp += mMesh->mFaceIndexOffset;
+
+				U16* __restrict idx = indicesp.get();
+				S32* __restrict src_idx = (S32*) mMesh->getFaces();
+
+				i = 0;
+
+				const S32 offset = (S32) mMesh->mFaceVertexOffset;
+
+				do
+				{
+					*(idx++) = *(src_idx++)+offset;
+				}
+				while (++i < idx_count);
 			}
 		}
 	}

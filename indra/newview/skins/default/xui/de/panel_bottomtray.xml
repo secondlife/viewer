@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="bottom_tray">
-	<string name="SpeakBtnToolTip" value="Schaltet Mikrofon ein/aus"/>
-	<string name="VoiceControlBtnToolTip" value="Voice-Chat-Steuerung anzeigen/ausblenden"/>
+	<string name="SpeakBtnToolTip">
+		Schaltet Mikrofon ein/aus
+	</string>
+	<string name="VoiceControlBtnToolTip">
+		Voice-Chat-Steuerung anzeigen/ausblenden
+	</string>
 	<layout_stack name="toolbar_stack">
 		<layout_panel name="speak_panel">
 			<talk_button name="talk">
-				<speak_button label="Sprechen" label_selected="Sprechen" name="speak_btn"/>
+				<speak_button label="Sprechen" label_selected="Sprechen" name="speak_btn" />
 			</talk_button>
 		</layout_panel>
 		<layout_panel name="gesture_panel">
@@ -19,21 +23,6 @@
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
 			<button label="" name="snapshots" tool_tip="Foto machen"/>
-		</layout_panel>
-		<layout_panel name="sidebar_btn_panel">
-			<button label="Seitenleiste" name="sidebar_btn" tool_tip="Seitenleiste anzeigen/ausblenden"/>
-		</layout_panel>
-		<layout_panel name="build_btn_panel">
-			<button label="Bauen" name="build_btn" tool_tip="Bauwerkzeuge ein-/ausblenden"/>
-		</layout_panel>
-		<layout_panel name="search_btn_panel">
-			<button label="Suche" name="search_btn" tool_tip="Suche anzeigen/ausblenden"/>
-		</layout_panel>
-		<layout_panel name="world_map_btn_panel">
-			<button label="Karte" name="world_map_btn" tool_tip="Karte ein-/ausblenden"/>
-		</layout_panel>
-		<layout_panel name="mini_map_btn_panel">
-			<button label="Minikarte" name="mini_map_btn" tool_tip="Minikarte ein-/ausblenden"/>
 		</layout_panel>
 		<layout_panel name="im_well_panel">
 			<chiclet_im_well name="im_well">

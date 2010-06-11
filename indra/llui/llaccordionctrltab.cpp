@@ -2,32 +2,37 @@
  * @file LLAccordionCtrlTab.cpp
  * @brief Collapsible control implementation
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
 #include "linden_common.h"
 
 #include "llaccordionctrltab.h"
-#include "llaccordionctrl.h"
 
 #include "lllocalcliprect.h"
 #include "llscrollbar.h"
@@ -39,7 +44,7 @@ static const std::string DD_BUTTON_NAME = "dd_button";
 static const std::string DD_TEXTBOX_NAME = "dd_textbox";
 static const std::string DD_HEADER_NAME = "dd_header";
 
-static const S32 HEADER_HEIGHT = 23;
+static const S32 HEADER_HEIGHT = 20;
 static const S32 HEADER_IMAGE_LEFT_OFFSET = 5;
 static const S32 HEADER_TEXT_LEFT_OFFSET = 30;
 static const F32 AUTO_OPEN_TIME = 1.f;
@@ -71,10 +76,6 @@ public:
 	std::string getTitle();
 	void	setTitle(const std::string& title, const std::string& hl);
 
-	void	setTitleFontStyle(std::string style);
-
-	void	setTitleColor(LLUIColor);
-
 	void	setSelected(bool is_selected) { mIsSelected = is_selected; }
 
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
@@ -100,9 +101,6 @@ private:
 	LLPointer<LLUIImage> mImageHeaderOver;
 	LLPointer<LLUIImage> mImageHeaderPressed;
 	LLPointer<LLUIImage> mImageHeaderFocused;
-
-	// style saved when applying it in setTitleFontStyle
-	LLStyle::Params			mStyleParams;
 
 	LLUIColor mHeaderBGColor;
 
@@ -172,28 +170,9 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitle(const std::string& t
 	{
 		LLTextUtil::textboxSetHighlightedVal(
 			mHeaderTextbox,
-			mStyleParams,
+			LLStyle::Params(),
 			title,
 			hl);
-	}
-}
-
-void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleFontStyle(std::string style)
-{
-	if (mHeaderTextbox)
-	{
-		std::string text = mHeaderTextbox->getText();
-		mStyleParams.font(mHeaderTextbox->getDefaultFont());
-		mStyleParams.font.style(style);
-		mHeaderTextbox->setText(text, mStyleParams);
-	}
-}
-
-void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleColor(LLUIColor color)
-{
-	if(mHeaderTextbox)
-	{
-		mHeaderTextbox->setColor(color);
 	}
 }
 
@@ -254,15 +233,6 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::reshape(S32 width, S32 height
 	LLRect textboxRect(HEADER_TEXT_LEFT_OFFSET,(height+header_height)/2 ,width,(height-header_height)/2);
 	mHeaderTextbox->reshape(textboxRect.getWidth(), textboxRect.getHeight());
 	mHeaderTextbox->setRect(textboxRect);
-
-	if (mHeaderTextbox->getTextPixelWidth() > mHeaderTextbox->getRect().getWidth())
-	{
-		setToolTip(mHeaderTextbox->getText());
-	}
-	else
-	{
-		setToolTip(LLStringUtil::null);
-	}
 }
 
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::onMouseEnter(S32 x, S32 y, MASK mask)
@@ -366,11 +336,9 @@ LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
 	mHeader = LLUICtrlFactory::create<LLAccordionCtrlTabHeader>(headerParams);
 	addChild(mHeader, 1);
 
-	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLAccordionCtrlTab::selectOnFocusReceived, this));
-
-	if (!p.selection_enabled)
+	if (p.selection_enabled)
 	{
-		LLFocusableElement::setFocusLostCallback(boost::bind(&LLAccordionCtrlTab::deselectOnFocusLost, this));
+		LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLAccordionCtrlTab::selectOnFocusReceived, this));
 	}
 
 	reshape(100, 200,FALSE);
@@ -527,24 +495,6 @@ void LLAccordionCtrlTab::setTitle(const std::string& title, const std::string& h
 	}
 }
 
-void LLAccordionCtrlTab::setTitleFontStyle(std::string style)
-{
-	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-	if (header)
-	{
-		header->setTitleFontStyle(style);
-	}
-}
-
-void LLAccordionCtrlTab::setTitleColor(LLUIColor color)
-{
-	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
-	if (header)
-	{
-		header->setTitleColor(color);
-	}
-}
-
 boost::signals2::connection LLAccordionCtrlTab::setFocusReceivedCallback(const focus_signal_t::slot_type& cb)
 {
 	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
@@ -593,15 +543,6 @@ void LLAccordionCtrlTab::selectOnFocusReceived()
 {
 	if (getParent()) // A parent may not be set if tabs are added dynamically.
 		getParent()->notifyParent(LLSD().with("action", "select_current"));
-}
-
-void LLAccordionCtrlTab::deselectOnFocusLost()
-{
-	if(getParent()) // A parent may not be set if tabs are added dynamically.
-	{
-		getParent()->notifyParent(LLSD().with("action", "deselect_current"));
-	}
-
 }
 
 S32 LLAccordionCtrlTab::getHeaderHeight()
@@ -704,7 +645,7 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 				setRect(panel_rect);
 			}
 			
-			//LLAccordionCtrl should rearrange accordion tab if one of accordion change its size
+			//LLAccordionCtrl should rearrange accodion tab if one of accordion change its size
 			if (getParent()) // A parent may not be set if tabs are added dynamically.
 				getParent()->notifyParent(info);
 			return 1;
@@ -715,27 +656,6 @@ S32	LLAccordionCtrlTab::notifyParent(const LLSD& info)
 			return 1;
 		}
 	}
-	else if (info.has("scrollToShowRect"))
-	{
-		LLAccordionCtrl* parent = dynamic_cast<LLAccordionCtrl*>(getParent());
-		if (parent && parent->getFitParent())
-		{
-			//	EXT-8285 ('No attachments worn' text appears at the bottom of blank 'Attachments' accordion)
-			//	The problem was in passing message "scrollToShowRect" IN LLAccordionCtrlTab::notifyParent
-			//	FROM child LLScrollContainer TO parent LLAccordionCtrl with "it_parent" set to true.
-
-			//	It is wrong notification for parent accordion which leads to recursive call of adjustContainerPanel
-			//	As the result of recursive call of adjustContainerPanel we got LLAccordionCtrlTab
-			//	that reshaped and re-sized with different rectangles.
-
-			//	LLAccordionCtrl has own scrollContainer and LLAccordionCtrlTab has own scrollContainer
-			//	both should handle own scroll container's event.
-			//	So, if parent accordion "fit_parent" accordion tab should handle its scroll container events itself.
-
-			return 1;
-		}
-	}
-
 	return LLUICtrl::notifyParent(info);
 }
 
@@ -1044,21 +964,7 @@ BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		//inside tab header
 		//fix for EXT-6619
-		mHeader->handleToolTip(x, y, mask);
 		return TRUE;
 	}
 	return LLUICtrl::handleToolTip(x, y, mask);
 }
-BOOL LLAccordionCtrlTab::handleScrollWheel		( S32 x, S32 y, S32 clicks )
-{
-	if( LLUICtrl::handleScrollWheel(x,y,clicks))
-	{
-		return TRUE;
-	}
-	if( mScrollbar && mScrollbar->getVisible() && mScrollbar->handleScrollWheel( 0, 0, clicks ) )
-	{
-		return TRUE;
-	}
-	return FALSE;
-}
-

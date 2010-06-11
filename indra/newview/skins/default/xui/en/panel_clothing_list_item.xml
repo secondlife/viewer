@@ -37,8 +37,7 @@
      left="0"
      height="18"
      width="18"
-     tab_stop="false"
-     tool_tip="Remove from outfit" />
+     tab_stop="false" />
     <icon
      height="16"
      follows="top|left"
@@ -89,8 +88,7 @@
      left="0"
      height="23"
      width="23"
-     tab_stop="false"
-     tool_tip="You don't have permission to edit">
+     tab_stop="false">
         <icon 
          name="btn_lock1"
          layout="topleft"
@@ -121,8 +119,7 @@
          left="0"
          height="23"
          width="23"
-         tab_stop="false"
-         tool_tip="Edit this wearable"/>
+         tab_stop="false" />
       </panel>
     <icon
      follows="left|right|top"

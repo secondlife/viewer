@@ -2,25 +2,31 @@
  * @file llaccordionctrl.cpp
  * @brief Accordion panel  implementation
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 #include "linden_common.h"
@@ -62,9 +68,8 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mSelectedTab( NULL )
  , mTabComparator( NULL )
  , mNoVisibleTabsHelpText(NULL)
- , mNoVisibleTabsOrigString(params.no_visible_tabs_text.initial_value().asString())
 {
-	initNoTabsWidget(params.no_matched_tabs_text);
+	initNoTabsWidget(params.empty_accordion_text);
 
 	mSingleExpansion = params.single_expansion;
 	if(mFitParent && !mSingleExpansion)
@@ -347,7 +352,7 @@ void LLAccordionCtrl::addCollapsibleCtrl(LLView* view)
 	mAccordionTabs.push_back(accordion_tab);
 
 	accordion_tab->setDropDownStateChangedCallback( boost::bind(&LLAccordionCtrl::onCollapseCtrlCloseOpen, this, mAccordionTabs.size() - 1) );
-	arrange();	
+
 }
 
 void LLAccordionCtrl::removeCollapsibleCtrl(LLView* view)
@@ -368,19 +373,13 @@ void LLAccordionCtrl::removeCollapsibleCtrl(LLView* view)
 			break;
 		}
 	}
-
-	// if removed is selected - reset selection
-	if (mSelectedTab == view)
-	{
-		mSelectedTab = NULL;
-	}
 }
 
 void	LLAccordionCtrl::initNoTabsWidget(const LLTextBox::Params& tb_params)
 {
 	LLTextBox::Params tp = tb_params;
 	tp.rect(getLocalRect());
-	mNoMatchedTabsOrigString = tp.initial_value().asString();
+	mNoVisibleTabsOrigString = tp.initial_value().asString();
 	mNoVisibleTabsHelpText = LLUICtrlFactory::create<LLTextBox>(tp, this);
 }
 
@@ -524,8 +523,6 @@ void	LLAccordionCtrl::arrangeMultiple()
 
 void LLAccordionCtrl::arrange()
 {
-	updateNoTabsHelpTextVisibility();
-
 	if( mAccordionTabs.size() == 0)
 	{
 		//We do not arrange if we do not have what should be arranged
@@ -544,8 +541,6 @@ void LLAccordionCtrl::arrange()
 		
 		S32 panel_height = getRect().getHeight() - 2*BORDER_MARGIN;
 
-		if (accordion_tab->getFitParent())
-			panel_height = accordion_tab->getRect().getHeight();
 		ctrlSetLeftTopAndSize(accordion_tab,panel_rect.mLeft,panel_top,panel_width,panel_height);
 		
 		show_hide_scrollbar(getRect().getWidth(),getRect().getHeight());
@@ -759,17 +754,6 @@ S32	LLAccordionCtrl::notifyParent(const LLSD& info)
 			}
 			return 0;
 		}
-		else if(str_action == "deselect_current")
-		{
-			// Reset selection to the currently selected tab.
-			if (mSelectedTab)
-			{
-				mSelectedTab->setSelected(false);
-				mSelectedTab = NULL;
-				return 1;
-			}
-			return 0;
-		}
 	}
 	else if (info.has("scrollToShowRect"))
 	{
@@ -816,31 +800,6 @@ void	LLAccordionCtrl::reset		()
 		mScrollbar->setDocPos(0);
 }
 
-void LLAccordionCtrl::expandDefaultTab()
-{
-	if (mAccordionTabs.size() > 0)
-	{
-		LLAccordionCtrlTab* tab = mAccordionTabs.front();
-
-		if (!tab->getDisplayChildren())
-		{
-			tab->setDisplayChildren(true);
-		}
-
-		for (size_t i = 1; i < mAccordionTabs.size(); ++i)
-		{
-			tab = mAccordionTabs[i];
-
-			if (tab->getDisplayChildren())
-			{
-				tab->setDisplayChildren(false);
-			}
-		}
-
-		arrange();
-	}
-}
-
 void LLAccordionCtrl::sort()
 {
 	if (!mTabComparator)
@@ -857,28 +816,10 @@ void	LLAccordionCtrl::setFilterSubString(const std::string& filter_string)
 {
 	LLStringUtil::format_map_t args;
 	args["[SEARCH_TERM]"] = LLURI::escape(filter_string);
-	std::string text = filter_string.empty() ? mNoVisibleTabsOrigString : mNoMatchedTabsOrigString;
+	std::string text = mNoVisibleTabsOrigString;
 	LLStringUtil::format(text, args);
 
 	mNoVisibleTabsHelpText->setValue(text);
-}
-
-const LLAccordionCtrlTab* LLAccordionCtrl::getExpandedTab() const
-{
-	typedef std::vector<LLAccordionCtrlTab*>::const_iterator tabs_const_iterator;
-
-	const LLAccordionCtrlTab* result = 0;
-
-	for (tabs_const_iterator i = mAccordionTabs.begin(); i != mAccordionTabs.end(); ++i)
-	{
-		if ((*i)->isExpanded())
-		{
-			result = *i;
-			break;
-		}
-	}
-
-	return result;
 }
 
 S32 LLAccordionCtrl::calcExpandedTabHeight(S32 tab_index /* = 0 */, S32 available_height /* = 0 */)

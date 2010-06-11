@@ -31,7 +31,8 @@ float getDepth(vec2 pos_screen)
 
 void main() 
 {
-	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz*2.0-1.0;
+	vec3 norm = texture2DRect(normalMap, vary_fragcoord.xy).xyz;
+	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	float depth = getDepth(vary_fragcoord.xy);
 	
 	vec2 tc = vary_fragcoord.xy;
@@ -46,8 +47,12 @@ void main()
 	de = step(depth_cutoff, de);
 	
 	vec2 ne;
-	ne.x = dot(texture2DRect(normalMap, tc+vec2(-sc,-sc)).rgb*2.0-1.0, norm);
-	ne.y = dot(texture2DRect(normalMap, tc+vec2(sc,sc)).rgb*2.0-1.0, norm);
+	vec3 nexnorm = texture2DRect(normalMap, tc+vec2(-sc,-sc)).rgb;
+	nexnorm = vec3((nexnorm.xy-0.5)*2.0,nexnorm.z); // unpack norm
+	ne.x = dot(nexnorm, norm);
+	vec3 neynorm = texture2DRect(normalMap, tc+vec2(sc,sc)).rgb;
+	neynorm = vec3((neynorm.xy-0.5)*2.0,neynorm.z); // unpack norm
+	ne.y = dot(neynorm, norm);
 	
 	ne = 1.0-ne;
 	

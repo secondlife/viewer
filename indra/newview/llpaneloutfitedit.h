@@ -2,25 +2,31 @@
  * @file llpaneloutfitedit.h
  * @brief Displays outfit edit information in Side Tray.
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2004-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -36,13 +42,11 @@
 
 #include "llremoteparcelrequest.h"
 #include "llinventory.h"
-#include "llinventoryfunctions.h"
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
 
 class LLButton;
 class LLCOFWearables;
-class LLComboBox;
 class LLTextBox;
 class LLInventoryCategory;
 class LLOutfitObserver;
@@ -64,58 +68,20 @@ class LLPanelOutfitEdit : public LLPanel
 	LOG_CLASS(LLPanelOutfitEdit);
 public:
 	
-	// NOTE: initialize mFolderViewItemTypes at the index of any new enum you add in the LLPanelOutfitEdit() constructor
-	typedef enum e_folder_view_item_type
+	// NOTE: initialize mLookItemTypes at the index of any new enum you add in the LLPanelOutfitEdit() constructor
+	typedef enum e_look_item_type
 	{
-		FVIT_ALL = 0,
-		FVIT_WEARABLE, // clothing or shape
-		FVIT_ATTACHMENT,
-		NUM_FOLDER_VIEW_ITEM_TYPES
-	} EFolderViewItemType; 
+		LIT_ALL = 0,
+		LIT_WEARABLE, // clothing or shape
+		LIT_ATTACHMENT,
+		NUM_LOOK_ITEM_TYPES
+	} ELookItemType; 
 	
-	//should reflect order from LLWearableType::EType
-	typedef enum e_list_view_item_type
-	{
-		LVIT_ALL = 0,
-		LVIT_CLOTHING,
-		LVIT_BODYPART,
-		LVIT_ATTACHMENT,
-		LVIT_SHAPE,
-		LVIT_SKIN,
-		LVIT_HAIR,
-		LVIT_EYES,
-		LVIT_SHIRT,
-		LVIT_PANTS,
-		LVIT_SHOES,
-		LVIT_SOCKS,
-		LVIT_JACKET,
-		LVIT_GLOVES,
-		LVIT_UNDERSHIRT,
-		LVIT_UNDERPANTS,
-		LVIT_SKIRT,
-		LVIT_ALPHA,
-		LVIT_TATTOO,
-		NUM_LIST_VIEW_ITEM_TYPES
-	} EListViewItemType; 
-
 	struct LLLookItemType {
 		std::string displayName;
 		U64 inventoryMask;
 		LLLookItemType() : displayName("NONE"), inventoryMask(0) {}
 		LLLookItemType(std::string name, U64 mask) : displayName(name), inventoryMask(mask) {}
-	};
-
-	struct LLFilterItem {
-		std::string displayName;
-		LLInventoryCollectFunctor* collector;
-		LLFilterItem() : displayName("NONE"), collector(NULL) {}
-		LLFilterItem(std::string name, LLInventoryCollectFunctor* _collector) : displayName(name), collector(_collector) {}
-		~LLFilterItem() { delete collector; }
-
-	//the struct is not supposed to by copied, either way the destructor kills collector
-	//LLPointer is not used as it requires LLInventoryCollectFunctor to extend LLRefCount what it doesn't do
-	private:
-		LLFilterItem(const LLFilterItem& filter_item) {};
 	};
 	
 	LLPanelOutfitEdit();
@@ -128,38 +94,19 @@ public:
 
 	void toggleAddWearablesPanel();
 	void showAddWearablesPanel(bool show__add_wearables);
-
-	//following methods operate with "add wearables" panel
 	void showWearablesFilter();
-	void showWearablesListView();
-	void showWearablesFolderView();
+	void showFilteredWearablesPanel();
+	void showFilteredFolderWearablesPanel();
 
-	void updateFiltersVisibility();
-
-	void onFolderViewFilterCommitted(LLUICtrl* ctrl);
-	void onListViewFilterCommitted(LLUICtrl* ctrl);
+	void onTypeFilterChanged(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
-	void updatePlusButton();
-	void onPlusBtnClicked(void);
-
-	void onVisibilityChange(const LLSD &in_visible_chain);
-
-	void applyFolderViewFilter(EFolderViewItemType type);
-	void applyListViewFilter(EListViewItemType type);
-
-	/**
-	 * Filter items in views of Add Wearables Panel and show appropriate view depending on currently selected COF item(s)
-	 * No COF items selected - shows the folder view, reset filter
-	 * 1 COF item selected - shows the list view and filters wearables there by a wearable type of the selected item
-	 * More than 1 COF item selected - shows the list view and filters it by a type of the selected item (attachment or clothing)
-	 */
-	void filterWearablesBySelectedItem(void);
-
+	void onInventorySelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+	void onAddToOutfitClicked(void);
+	void onOutfitItemSelectionChange(void);
 	void onRemoveFromOutfitClicked(void);
 	void onEditWearableClicked(void);
 	void onAddWearableClicked(void);
-	void onReplaceMenuItemClicked(LLUUID selected_item_id);
-	void onShopButtonClicked();
+	void onReplaceBodyPartMenuItemClicked(LLUUID selected_item_id);
 
 	void displayCurrentOutfit();
 	void updateCurrentOutfitName();
@@ -176,8 +123,6 @@ public:
 	 */
 	bool switchPanels(LLPanel* switch_from_panel, LLPanel* switch_to_panel);
 
-	void resetAccordionState();
-
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									  EDragAndDropType cargo_type,
 									  void* cargo_data,
@@ -187,16 +132,8 @@ public:
 private:
 
 	void onGearButtonClick(LLUICtrl* clicked_button);
-	void onAddMoreButtonClicked();
-	void showFilteredWearablesListView(LLWearableType::EType type);
-	void onOutfitChanging(bool started);
-	void getSelectedItemsUUID(uuid_vec_t& uuid_list);
-	void getCurrentItemUUID(LLUUID& selected_id);
-	void onCOFChanged();
+	void showFilteredWearableItemsList(LLWearableType::EType type);
 
-	LLWearableType::EType getCOFWearablesSelectionType() const;
-	LLWearableType::EType getAddMorePanelSelectionType() const;
-	LLWearableType::EType getWearableTypeByItemUUID(const LLUUID& item_uuid) const;
 
 	LLTextBox*			mCurrentOutfitName;
 	LLTextBox*			mStatus;
@@ -207,27 +144,23 @@ private:
 	LLButton*			mEditWearableBtn;
 	LLButton*			mFolderViewBtn;
 	LLButton*			mListViewBtn;
-	LLButton*			mPlusBtn;
 	LLPanel*			mAddWearablesPanel;
-	
-	LLComboBox*			mFolderViewFilterCmbBox;
-	LLComboBox*			mListViewFilterCmbBox;
+
+	LLFindNonLinksByMask*  mWearableListMaskCollector;
+	LLFindWearablesOfType* mWearableListTypeCollector;
 
 	LLFilteredWearableListManager* 	mWearableListManager;
 	LLInventoryItemsList* 			mWearableItemsList;
-	LLPanel*						mWearablesListViewPanel;
+	LLPanel*						mWearableItemsPanel;
 
 	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
 
-	std::vector<LLLookItemType> mFolderViewItemTypes;
-	std::vector<LLFilterItem*> mListViewItemTypes;
+	std::vector<LLLookItemType> mLookItemTypes;
 
 	LLCOFWearables*		mCOFWearables;
 	LLMenuGL*			mGearMenu;
 	bool				mInitialized;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
-
-
 
 };
 

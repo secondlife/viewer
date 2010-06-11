@@ -503,17 +503,5 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
                 </button>
             </chiclet_notification>
         </layout_panel>
-      <icon
-         auto_resize="false"
-         color="0 0 0 0"
-         follows="left|right"
-         height="10"
-         image_name="spacer24.tga"
-         layout="topleft"
-         left="0"
-         min_width="4"
-         name="DUMMY2"
-         top="0"
-         width="8" />
     </layout_stack>
 </panel>

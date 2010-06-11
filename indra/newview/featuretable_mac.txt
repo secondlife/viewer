@@ -26,7 +26,7 @@ list all
 RenderAnisotropic				1	0
 RenderAvatarCloth				0	0
 RenderAvatarLODFactor			1	1.0
-RenderAvatarMaxVisible          1   12
+RenderAvatarMaxVisible          1   35
 RenderAvatarVP					1	0
 RenderCubeMap					1	1
 RenderDelayVBUpdate				1	0
@@ -59,7 +59,6 @@ RenderTextureMemoryMultiple		1	0.5
 Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 SkyUseClassicClouds			1	1
-WatchdogDisabled				1	1
 
 //
 // Low Graphics Settings
@@ -371,6 +370,7 @@ list ATI_Radeon_X1500
 Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_X1600 
 Disregard128DefaultDrawDistance	1	0
+RenderUseFBO 					0	0
 list ATI_Radeon_X1700 
 Disregard128DefaultDrawDistance	1	0
 list ATI_Mobility_Radeon_X1xxx

@@ -37,8 +37,7 @@
      left="0"
      height="18"
      width="18"
-     tab_stop="false"
-     tool_tip="Remove from outfit"/>
+     tab_stop="false" />
     <icon
      height="16"
      follows="top|left"

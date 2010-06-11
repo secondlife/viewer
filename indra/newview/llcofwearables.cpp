@@ -2,25 +2,31 @@
  * @file llcofwearables.cpp
  * @brief LLCOFWearables displayes wearables from the current outfit split into three lists (attachments, clothing and body parts)
  *
- * $LicenseInfo:firstyear=2010&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
+ * 
+ * Copyright (c) 2010, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -28,8 +34,6 @@
 
 #include "llcofwearables.h"
 
-#include "llaccordionctrl.h"
-#include "llaccordionctrltab.h"
 #include "llagentdata.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
@@ -54,85 +58,39 @@ static const LLWearableItemNameComparator WEARABLE_NAME_COMPARATOR;
 class CofContextMenu : public LLListContextMenu
 {
 protected:
-	CofContextMenu(LLCOFWearables* cof_wearables)
-	:	mCOFWearables(cof_wearables)
-	{
-		llassert(mCOFWearables);
-	}
-
-	void updateCreateWearableLabel(LLMenuGL* menu, const LLUUID& item_id)
+	static void updateCreateWearableLabel(LLMenuGL* menu, const LLUUID& item_id)
 	{
 		LLMenuItemGL* menu_item = menu->getChild<LLMenuItemGL>("create_new");
-		LLWearableType::EType w_type = getWearableType(item_id);
 
 		// Hide the "Create new <WEARABLE_TYPE>" if it's irrelevant.
-		if (w_type == LLWearableType::WT_NONE)
+		LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
+		if (!item || !item->isWearableType())
 		{
 			menu_item->setVisible(FALSE);
 			return;
 		}
 
 		// Set proper label for the "Create new <WEARABLE_TYPE>" menu item.
-		std::string new_label = LLTrans::getString("create_new_" + LLWearableType::getTypeName(w_type));
+		LLStringUtil::format_map_t args;
+		LLWearableType::EType w_type = item->getWearableType();
+		args["[WEARABLE_TYPE]"] = LLWearableType::getTypeDefaultNewName(w_type);
+		std::string new_label = LLTrans::getString("CreateNewWearable", args);
 		menu_item->setLabel(new_label);
 	}
 
-	void createNew(const LLUUID& item_id)
+	static void createNew(const LLUUID& item_id)
 	{
-		LLAgentWearables::createWearable(getWearableType(item_id), true);
+		LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
+		if (!item || !item->isWearableType()) return;
+
+		LLAgentWearables::createWearable(item->getWearableType(), true);
 	}
-
-	// Get wearable type of the given item.
-	//
-	// There is a special case: so-called "dummy items"
-	// (i.e. the ones that are there just to indicate that you're not wearing
-	// any wearables of the corresponding type. They are currently grayed out
-	// and suffixed with "not worn").
-	// Those items don't have an UUID, but they do have an associated wearable type.
-	// If the user has invoked context menu for such item,
-	// we ignore the passed item_id and retrieve wearable type from the item.
-	LLWearableType::EType getWearableType(const LLUUID& item_id)
-	{
-		if (!isDummyItem(item_id))
-		{
-			LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
-			if (item && item->isWearableType())
-			{
-				return item->getWearableType();
-			}
-		}
-		else if (mCOFWearables) // dummy item selected
-		{
-			LLPanelDummyClothingListItem* item;
-
-			item = dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem());
-			if (item)
-			{
-				return item->getWearableType();
-			}
-		}
-
-		return LLWearableType::WT_NONE;
-	}
-
-	static bool isDummyItem(const LLUUID& item_id)
-	{
-		return item_id.isNull();
-	}
-
-	LLCOFWearables* mCOFWearables;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class CofAttachmentContextMenu : public CofContextMenu
+class CofAttachmentContextMenu : public LLListContextMenu
 {
-public:
-	CofAttachmentContextMenu(LLCOFWearables* cof_wearables)
-	:	CofContextMenu(cof_wearables)
-	{
-	}
-
 protected:
 
 	/*virtual*/ LLContextMenu* createMenu()
@@ -150,28 +108,7 @@ protected:
 
 class CofClothingContextMenu : public CofContextMenu
 {
-public:
-	CofClothingContextMenu(LLCOFWearables* cof_wearables)
-	:	CofContextMenu(cof_wearables)
-	{
-	}
-
 protected:
-	static void replaceWearable(const LLUUID& item_id)
-	{
-		// *TODO: Most probable that accessing to LLPanelOutfitEdit instance should be:
-		// LLSideTray::getInstance()->getSidepanelAppearance()->getPanelOutfitEdit()
-		// without casting. Getter methods provides possibility to check and construct
-		// absent instance. Explicit relations between components avoids situations
-		// when we tries to construct instance with unsatisfied implicit input conditions.
-		LLPanelOutfitEdit	* panel_outfit_edit =
-						dynamic_cast<LLPanelOutfitEdit*> (LLSideTray::getInstance()->getPanel(
-								"panel_outfit_edit"));
-		if (panel_outfit_edit != NULL)
-		{
-			panel_outfit_edit->onReplaceMenuItemClicked(item_id);
-		}
-	}
 
 	/*virtual*/ LLContextMenu* createMenu()
 	{
@@ -181,9 +118,10 @@ protected:
 		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
 
 		registrar.add("Clothing.TakeOff", boost::bind(handleMultiple, take_off, mUUIDs));
-		registrar.add("Clothing.Replace", boost::bind(replaceWearable, selected_id));
+		registrar.add("Clothing.MoveUp", boost::bind(moveWearable, selected_id, false));
+		registrar.add("Clothing.MoveDown", boost::bind(moveWearable, selected_id, true));
 		registrar.add("Clothing.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
-		registrar.add("Clothing.Create", boost::bind(&CofClothingContextMenu::createNew, this, selected_id));
+		registrar.add("Clothing.Create", boost::bind(createNew, selected_id));
 
 		enable_registrar.add("Clothing.OnEnable", boost::bind(&CofClothingContextMenu::onEnable, this, _2));
 
@@ -201,20 +139,31 @@ protected:
 		std::string param = data.asString();
 		LLUUID selected_id = mUUIDs.back();
 
-		if ("take_off" == param)
+		if ("move_up" == param)
+		{
+			return gAgentWearables.canMoveWearable(selected_id, false);
+		}
+		else if ("move_down" == param)
+		{
+			return gAgentWearables.canMoveWearable(selected_id, true);
+		}
+		else if ("take_off" == param)
 		{
 			return get_is_item_worn(selected_id);
 		}
 		else if ("edit" == param)
 		{
-			return mUUIDs.size() == 1 && gAgentWearables.isWearableModifiable(selected_id);
+			return gAgentWearables.isWearableModifiable(selected_id);
 		}
-		else if ("replace" == param)
-		{
-			return get_is_item_worn(selected_id) && mUUIDs.size() == 1;
-		}
-
 		return true;
+	}
+
+	// We don't use LLAppearanceMgr::moveWearable() directly because
+	// the item may be invalidated between setting the callback and calling it.
+	static bool moveWearable(const LLUUID& item_id, bool closer_to_body)
+	{
+		LLViewerInventoryItem* item = gInventory.getItem(item_id);
+		return LLAppearanceMgr::instance().moveWearable(item, closer_to_body);
 	}
 };
 
@@ -222,13 +171,8 @@ protected:
 
 class CofBodyPartContextMenu : public CofContextMenu
 {
-public:
-	CofBodyPartContextMenu(LLCOFWearables* cof_wearables)
-	:	CofContextMenu(cof_wearables)
-	{
-	}
-
 protected:
+
 	/*virtual*/ LLContextMenu* createMenu()
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -238,9 +182,9 @@ protected:
 		// *HACK* need to pass pointer to LLPanelOutfitEdit instead of LLSideTray::getInstance()->getPanel().
 		// LLSideTray::getInstance()->getPanel() is rather slow variant
 		LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
-		registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceMenuItemClicked, panel_oe, selected_id));
+		registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceBodyPartMenuItemClicked, panel_oe, selected_id));
 		registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
-		registrar.add("BodyPart.Create", boost::bind(&CofBodyPartContextMenu::createNew, this, selected_id));
+		registrar.add("BodyPart.Create", boost::bind(createNew, selected_id));
 
 		enable_registrar.add("BodyPart.OnEnable", boost::bind(&CofBodyPartContextMenu::onEnable, this, _2));
 
@@ -260,7 +204,7 @@ protected:
 
 		if ("edit" == param)
 		{
-			return mUUIDs.size() == 1 && gAgentWearables.isWearableModifiable(selected_id);
+			return gAgentWearables.isWearableModifiable(selected_id);
 		}
 
 		return true;
@@ -273,17 +217,11 @@ LLCOFWearables::LLCOFWearables() : LLPanel(),
 	mAttachments(NULL),
 	mClothing(NULL),
 	mBodyParts(NULL),
-	mLastSelectedList(NULL),
-	mClothingTab(NULL),
-	mAttachmentsTab(NULL),
-	mBodyPartsTab(NULL),
-	mLastSelectedTab(NULL),
-	mAccordionCtrl(NULL),
-	mCOFVersion(-1)
+	mLastSelectedList(NULL)
 {
-	mClothingMenu = new CofClothingContextMenu(this);
-	mAttachmentMenu = new CofAttachmentContextMenu(this);
-	mBodyPartMenu = new CofBodyPartContextMenu(this);
+	mClothingMenu = new CofClothingContextMenu();
+	mAttachmentMenu = new CofAttachmentContextMenu();
+	mBodyPartMenu = new CofBodyPartContextMenu();
 };
 
 LLCOFWearables::~LLCOFWearables()
@@ -317,22 +255,6 @@ BOOL LLCOFWearables::postBuild()
 	mAttachments->setComparator(&WEARABLE_NAME_COMPARATOR);
 	mBodyParts->setComparator(&WEARABLE_NAME_COMPARATOR);
 
-
-	mClothingTab = getChild<LLAccordionCtrlTab>("tab_clothing");
-	mClothingTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
-
-	mAttachmentsTab = getChild<LLAccordionCtrlTab>("tab_attachments");
-	mAttachmentsTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
-
-	mBodyPartsTab = getChild<LLAccordionCtrlTab>("tab_body_parts");
-	mBodyPartsTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
-
-	mTab2AssetType[mClothingTab] = LLAssetType::AT_CLOTHING;
-	mTab2AssetType[mAttachmentsTab] = LLAssetType::AT_OBJECT;
-	mTab2AssetType[mBodyPartsTab] = LLAssetType::AT_BODYPART;
-
-	mAccordionCtrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
-
 	return LLPanel::postBuild();
 }
 
@@ -352,51 +274,8 @@ void LLCOFWearables::onSelectionChange(LLFlatListView* selected_list)
 	onCommit();
 }
 
-void LLCOFWearables::onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded)
-{
-	bool had_selected_items = mClothing->numSelected() || mAttachments->numSelected() || mBodyParts->numSelected();
-	mClothing->resetSelection(true);
-	mAttachments->resetSelection(true);
-	mBodyParts->resetSelection(true);
-
-	bool tab_selection_changed = false;
-	LLAccordionCtrlTab* tab = dynamic_cast<LLAccordionCtrlTab*>(ctrl);
-	if (tab && tab != mLastSelectedTab)
-	{
-		mLastSelectedTab = tab;
-		tab_selection_changed = true;
-	}
-
-	if (had_selected_items || tab_selection_changed)
-	{
-		//sending commit signal to indicate selection changes
-		onCommit();
-	}
-}
-
 void LLCOFWearables::refresh()
 {
-	const LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
-	if (cof_id.isNull())
-	{
-		llwarns << "COF ID cannot be NULL" << llendl;
-		return;
-	}
-
-	LLViewerInventoryCategory* catp = gInventory.getCategory(cof_id);
-	if (!catp)
-	{
-		llwarns << "COF category cannot be NULL" << llendl;
-		return;
-	}
-
-	// BAP - this check has to be removed because an item name change does not
-	// change cat version - ie, checking version is not a complete way
-	// of finding out whether anything has changed in this category.
-	//if (mCOFVersion == catp->getVersion()) return;
-
-	mCOFVersion = catp->getVersion();
-
 	typedef std::vector<LLSD> values_vector_t;
 	typedef std::map<LLFlatListView*, values_vector_t> selection_map_t;
 
@@ -412,7 +291,7 @@ void LLCOFWearables::refresh()
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t cof_items;
 
-	gInventory.collectDescendents(cof_id, cats, cof_items, LLInventoryModel::EXCLUDE_TRASH);
+	gInventory.collectDescendents(LLAppearanceMgr::getInstance()->getCOF(), cats, cof_items, LLInventoryModel::EXCLUDE_TRASH);
 
 	populateAttachmentsAndBodypartsLists(cof_items);
 
@@ -429,26 +308,14 @@ void LLCOFWearables::refresh()
 		 iter != iter_end; ++iter)
 	{
 		LLFlatListView* list = iter->first;
-		if (!list) continue;
-
-		//restoring selection should not fire commit callbacks
-		list->setCommitOnSelectionChange(false);
-
 		const values_vector_t& values = iter->second;
 		for (values_vector_t::const_iterator
 				 value_it = values.begin(),
 				 value_it_end = values.end();
 			 value_it != value_it_end; ++value_it)
 		{
-			// value_it may be null because of dummy items
-			// Dummy items have no ID
-			if(value_it->asUUID().notNull())
-			{
-				list->selectItemByValue(*value_it);
-			}
+			list->selectItemByValue(*value_it);
 		}
-
-		list->setCommitOnSelectionChange(true);
 	}
 }
 
@@ -520,7 +387,7 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
 	
 	//turning on gray separator line for the last item in the items group of the same wearable type
-	item_panel->setSeparatorVisible(last);
+	item_panel->childSetVisible("wearable_type_separator_icon", last);
 
 	return item_panel;
 }
@@ -632,55 +499,11 @@ LLPanel* LLCOFWearables::getSelectedItem()
 	return mLastSelectedList->getSelectedItem();
 }
 
-void LLCOFWearables::getSelectedItems(std::vector<LLPanel*>& selected_items) const
-{
-	if (mLastSelectedList)
-	{
-		mLastSelectedList->getSelectedItems(selected_items);
-	}
-}
-
 void LLCOFWearables::clear()
 {
 	mAttachments->clear();
 	mClothing->clear();
 	mBodyParts->clear();
-}
-
-LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
-{
-	typedef std::map<std::string, LLAssetType::EType> type_map_t;
-
-	static type_map_t type_map;
-
-	if (mAccordionCtrl != NULL)
-	{
-		const LLAccordionCtrlTab* expanded_tab = mAccordionCtrl->getExpandedTab();
-
-		return get_if_there(mTab2AssetType, expanded_tab, LLAssetType::AT_NONE);
-	}
-
-	return LLAssetType::AT_NONE;
-}
-
-LLAssetType::EType LLCOFWearables::getSelectedAccordionAssetType()
-{
-	if (mAccordionCtrl != NULL)
-	{
-		const LLAccordionCtrlTab* selected_tab = mAccordionCtrl->getSelectedTab();
-
-		return get_if_there(mTab2AssetType, selected_tab, LLAssetType::AT_NONE);
-	}
-
-	return LLAssetType::AT_NONE;
-}
-
-void LLCOFWearables::expandDefaultAccordionTab()
-{
-	if (mAccordionCtrl != NULL)
-	{
-		mAccordionCtrl->expandDefaultTab();
-	}
 }
 
 void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu)
@@ -690,20 +513,7 @@ void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContex
 		uuid_vec_t selected_uuids;
 		if(getSelectedUUIDs(selected_uuids))
 		{
-			bool show_menu = false;
-			for(uuid_vec_t::iterator it = selected_uuids.begin();it!=selected_uuids.end();++it)
-			{
-				if ((*it).notNull())
-				{
-					show_menu = true;
-					break;
-				}
-			}
-
-			if(show_menu)
-			{
-				menu->show(ctrl, selected_uuids, x, y);
-			}
+			menu->show(ctrl, selected_uuids, x, y);
 		}
 	}
 }

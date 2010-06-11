@@ -335,6 +335,7 @@
     </combo_box>
     <button
      left_pad="0"
+     image_disabled="ForwardArrow_Disabled"
      image_selected="ForwardArrow_Press"
      image_unselected="ForwardArrow_Off"
      layout="topleft"
@@ -823,7 +824,7 @@
              height="10"
              left="10"
              name="Name:"
-             top="5"
+             top="0"
              width="90">
                 Name:
             </text>
@@ -910,34 +911,29 @@
              width="75">
                 Group:
             </text>
+            <button
+			 follows="top|left"
+			 height="10"
+			 image_disabled="Activate_Checkmark"
+			 image_selected="Activate_Checkmark"
+			 image_unselected="Activate_Checkmark"
+			 image_color="White_50"
+			 layout="topleft"
+			 left_pad="0"
+			 top_delta="0"
+			 name="button set group"
+			 tab_stop="false"
+			 tool_tip="Choose a group to share this object's permissions"
+			 width="10" />
             <name_box
              follows="left|top"
              height="18"
              initial_value="Loading..."
              layout="topleft"
-             left_pad="23"
+             left_pad="5"
+             top_delta="-1"
              name="Group Name Proxy"
-             width="142" />
-            <button
-			 follows="top|left"
-			 height="23"
-			 image_overlay="Edit_Wrench"
-			 layout="topleft"
-			 left_pad="3"
-			 name="button set group"
-			 tab_stop="false"
-			 tool_tip="Choose a group to share this object's permissions"
-			 width="23" />
-            <check_box
-             height="19"
-             follows="left|top"
-             label="Share"
-             layout="topleft"
-             name="checkbox share with group"
-             tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
-             top_pad="10"
-             left="106"
-             width="87" />
+             width="150" />
             <button
              follows="top|left"
              height="23"
@@ -945,16 +941,26 @@
              label_selected="Deed"
              layout="topleft"
              name="button deed"
-             left_pad="3"
+             top_pad="0"
+             left="108"
              tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
              width="80" />
+            <check_box
+             height="19"
+             follows="left|top"
+             label="Share"
+             layout="topleft"
+             name="checkbox share with group"
+             tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
+             left_pad="3"
+             width="100" />
             <text
              type="string"
              length="1"
              follows="left|top"
              height="16"
              layout="topleft"
-             top_pad="10"
+             top_pad="15"
              left="10"
              name="label click action"
              width="98">
@@ -1006,7 +1012,7 @@
             follows="left|top"
             allow_text_entry="false"
             height="23"
-            initial_value="2"
+            intial_value="2"
             max_chars="20"
             mouse_opaque="true"
             name="sale type"
@@ -2170,6 +2176,8 @@ even though the user gets a free copy.
              width="60" />
             <color_swatch
              can_apply_immediately="true"
+	     bevel_style="none"
+	     border_style="line"
              color="0.5 0.5 0.5 1"
 	     border.border_thickness="0"
              follows="left|top"
@@ -2204,71 +2212,43 @@ even though the user gets a free copy.
              name="Light Intensity"
              top_pad="3"
              width="128" />
-          <spinner bottom_delta="0"
-                   decimal_digits="3"
-                   follows="left|top"
-                   height="16"
-                   increment="0.1"
-                   initial_value="0.5"
-                   label="FOV"
-                   label_width="55"
-                   left="144"
-                   max_val="3"
-                   min_val="0"
-                   mouse_opaque="true"
-                   name="Light FOV"
-                   width="120" />
-          <spinner follows="left|top"
-                   height="19"
-                   initial_value="5"
-                   label="Radius"
-                   label_width="70"
-                   layout="topleft"
-                   left="10"
-                   max_val="20"
-                   name="Light Radius"
-                   top_pad="3"
-                   width="128" />
-          <spinner bottom_delta="0"
-                   decimal_digits="3"
-                   follows="left|top"
-                   height="16"
-                   increment="0.5"
-                   initial_value="0.5"
-                   label="Focus"
-                   label_width="55"
-                   left="144"
-                   max_val="20"
-                   min_val="-20"
-                   mouse_opaque="true"
-                   name="Light Focus"
-                   width="120" />
-          <spinner follows="left|top"
-                   height="19"
-                   increment="0.25"
-                   initial_value="1"
-                   label="Falloff"
-                   label_width="70"
-                   layout="topleft"
-                   left="10"
-                   max_val="2"
-                   name="Light Falloff"
-                   top_pad="3"
-                   width="128" />
-          <spinner bottom_delta="0"
-                   decimal_digits="3"
-                   follows="left|top"
-                   height="16"
-                   increment="0.05"
-                   initial_value="1"
-                   label="Ambiance"
-                   label_width="55"
-                   left="144"
-                   max_val="1"
-                   min_val="0"
-                   mouse_opaque="true"
-                   name="Light Ambiance"
-                   width="120" />
+          <spinner bottom_delta="0" decimal_digits="3" follows="left|top" height="16"
+ increment="0.1" initial_val="0.5" label="FOV" label_width="55"
+ left="144" max_val="3" min_val="0" mouse_opaque="true"
+ name="Light FOV" width="120" />
+          <spinner
+             follows="left|top"
+             height="19"
+             initial_value="5"
+             label="Radius"
+             label_width="70"
+             layout="topleft"
+             left="10"
+             max_val="20"
+             name="Light Radius"
+             top_pad="3"
+             width="128" />
+          <spinner bottom_delta="0" decimal_digits="3" follows="left|top" height="16"
+        increment="0.5" initial_val="0.5" label="Focus" label_width="55"
+        left="144" max_val="20" min_val="-20" mouse_opaque="true"
+        name="Light Focus" width="120" />
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.25"
+             initial_value="1"
+             label="Falloff"
+             label_width="70"
+             layout="topleft"
+             left="10"
+             max_val="2"
+             name="Light Falloff"
+             top_pad="3"
+             width="128" />
+          <spinner bottom_delta="0" decimal_digits="3" follows="left|top" height="16"
+           increment="0.05" initial_val="1" label="Ambiance" label_width="55"
+           left="144" max_val="1" min_val="0" mouse_opaque="true"
+           name="Light Ambiance" width="120" />
         </panel>
          <panel
          border="false"
@@ -2293,7 +2273,6 @@ even though the user gets a free copy.
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
-             fallback_image="locked_image.j2c"
              follows="left|top"
              height="80"
              label="Texture"

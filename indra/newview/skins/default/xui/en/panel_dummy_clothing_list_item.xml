@@ -49,27 +49,16 @@
      top="4"
      value="..."
      width="359" />
-    <panel
-     name="btn_add_panel"
+    <button 
+     name="btn_add"
      layout="topleft"
      follows="top|right"
+     image_overlay="AddItem_Off"
      top="0"
      left="0"
      height="23"
-     width="26"
-     tab_stop="false">
-      <button 
-       name="btn_add"
-       layout="topleft"
-       follows="top|right"
-       image_overlay="AddItem_Off"
-       top="0"
-       left="0"
-       height="23"
-       width="23"
-       tab_stop="false"
-       tool_tip="Add more items of this type" />
-    </panel>
+     width="23"
+     tab_stop="false" />
     <icon
      follows="left|right|top"
      height="3"
