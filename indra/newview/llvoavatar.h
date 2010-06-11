@@ -405,7 +405,7 @@ private:
 	LLVector3	mImpostorOffset;
 	LLVector2	mImpostorDim;
 	BOOL		mNeedsAnimUpdate;
-	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
+	LLVector4a*	mImpostorExtents;
 	LLVector3	mImpostorAngle;
 	F32			mImpostorDistance;
 	F32			mImpostorPixelArea;
