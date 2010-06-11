@@ -45,10 +45,11 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 	ViewerFolderEntry(const std::string &new_category_name, // default name when creating a new category of this type
 					  const std::string &icon_name_open,	// name of the folder icon
 					  const std::string &icon_name_closed,
-					  BOOL is_quiet							// folder doesn't need a UI update when changed
+					  BOOL is_quiet,						// folder doesn't need a UI update when changed
+					  const std::string &dictionary_name = empty_string // no reverse lookup needed on non-ensembles, so in most cases just leave this blank
 		) 
 		:
-		LLDictionaryEntry(empty_string), // no reverse lookup needed on non-ensembles, so just leave this blank
+		LLDictionaryEntry(dictionary_name),
 		mNewCategoryName(new_category_name),
 		mIconNameOpen(icon_name_open),
 		mIconNameClosed(icon_name_closed),
@@ -65,8 +66,11 @@ struct ViewerFolderEntry : public LLDictionaryEntry
 		) 
 		:
 		LLDictionaryEntry(xui_name),
+		/* Just use default icons until we actually support ensembles
 		mIconNameOpen(icon_name),
 		mIconNameClosed(icon_name),
+		*/
+		mIconNameOpen("Inv_FolderOpen"), mIconNameClosed("Inv_FolderClosed"),
 		mNewCategoryName(new_category_name),
 		mIsQuiet(FALSE)
 	{
@@ -132,7 +136,7 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 	addEntry(LLFolderType::FT_MY_OUTFITS, 			new ViewerFolderEntry("My Outfits",				"Inv_SysOpen",			"Inv_SysClosed",		TRUE));
 	addEntry(LLFolderType::FT_INBOX, 				new ViewerFolderEntry("Inbox",					"Inv_SysOpen",			"Inv_SysClosed",		FALSE));
 		 
-	addEntry(LLFolderType::FT_NONE, 				new ViewerFolderEntry("New Folder",				"Inv_SysOpen",			"Inv_SysClosed",		FALSE));
+	addEntry(LLFolderType::FT_NONE, 				new ViewerFolderEntry("New Folder",				"Inv_FolderOpen",		"Inv_FolderClosed",		FALSE, "default"));
 }
 
 bool LLViewerFolderDictionary::initEnsemblesFromFile()
