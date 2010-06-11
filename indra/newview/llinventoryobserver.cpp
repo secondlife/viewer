@@ -62,13 +62,9 @@
 #include "llsdutil.h"
 #include <deque>
 
-// If the viewer gets a notification, your observer assumes
-// that that notification is for itself and then tries to process
-// the results.  The notification could be for something else (e.g.
-// you're fetching an item and a notification gets triggered because
-// you renamed some other item).  This counter is to specify how many
-// notification to wait for before giving up.
-static const U32 MAX_NUM_NOTIFICATIONS_TO_PROCESS = 127;
+const U32 LLInventoryFetchItemsObserver::MAX_NUM_ATTEMPTS_TO_PROCESS = 10;
+const F32 LLInventoryFetchItemsObserver::FETCH_TIMER_EXPIRY = 10.0f;
+
 
 LLInventoryObserver::LLInventoryObserver()
 {
@@ -149,7 +145,7 @@ void LLInventoryCompletionObserver::watchItem(const LLUUID& id)
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_id) :
 	LLInventoryFetchObserver(item_id),
 
-	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
+	mNumTries(MAX_NUM_ATTEMPTS_TO_PROCESS)
 {
 	mIDs.clear();
 	mIDs.push_back(item_id);
@@ -158,35 +154,47 @@ LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids) :
 	LLInventoryFetchObserver(item_ids),
 
-	mNumTries(MAX_NUM_NOTIFICATIONS_TO_PROCESS)
+	mNumTries(MAX_NUM_ATTEMPTS_TO_PROCESS)
 {
 }
 
 void LLInventoryFetchItemsObserver::changed(U32 mask)
 {
-	BOOL any_items_missing = FALSE;
-
 	// scan through the incomplete items and move or erase them as
 	// appropriate.
 	if (!mIncomplete.empty())
 	{
+		// if period of an attempt expired...
+		if (mFetchingPeriod.hasExpired())
+		{
+			// ...reset timer and reduce count of attempts
+			mFetchingPeriod.reset();
+			mFetchingPeriod.setTimerExpirySec(FETCH_TIMER_EXPIRY);
+
+			--mNumTries;
+
+			LL_INFOS("InventoryFetch") << "LLInventoryFetchItemsObserver: " << this << ", attempt(s) left: " << (S32)mNumTries << LL_ENDL;
+		}
+
+		// do we still have any attempts?
+		bool timeout_expired = mNumTries <= 0;
+
 		for (uuid_vec_t::iterator it = mIncomplete.begin(); it < mIncomplete.end(); )
 		{
 			const LLUUID& item_id = (*it);
 			LLViewerInventoryItem* item = gInventory.getItem(item_id);
 			if (!item)
 			{
-				any_items_missing = TRUE;
-				if (mNumTries > 0)
+				if (timeout_expired)
 				{
-					// Keep trying.
-					++it;
+					// Just concede that this item hasn't arrived in reasonable time and continue on.
+					LL_WARNS("InventoryFetch") << "Fetcher timed out when fetching inventory item UUID: " << item_id << LL_ENDL;
+					it = mIncomplete.erase(it);
 				}
 				else
 				{
-					// Just concede that this item hasn't arrived in reasonable time and continue on.
-					llwarns << "Fetcher timed out when fetching inventory item assetID:" << item_id << llendl;
-					it = mIncomplete.erase(it);
+					// Keep trying.
+					++it;
 				}
 				continue;
 			}
@@ -198,14 +206,10 @@ void LLInventoryFetchItemsObserver::changed(U32 mask)
 			}
 			++it;
 		}
-		if (any_items_missing)
-		{
-			mNumTries--;
-		}
 
 		if (mIncomplete.empty())
 		{
-			mNumTries = MAX_NUM_NOTIFICATIONS_TO_PROCESS;
+			mNumTries = MAX_NUM_ATTEMPTS_TO_PROCESS;
 			done();
 		}
 	}
@@ -315,6 +319,10 @@ void LLInventoryFetchItemsObserver::startFetch()
 		item_entry["item_id"] = (*it);
 		items_llsd.append(item_entry);
 	}
+
+	mFetchingPeriod.resetWithExpiry(FETCH_TIMER_EXPIRY);
+	mNumTries = MAX_NUM_ATTEMPTS_TO_PROCESS;
+
 	fetch_items_from_llsd(items_llsd);
 }
 

@@ -90,7 +90,7 @@
                  label="Speak"
                  label_selected="Speak"
                  name="speak_btn"
-                 pad_right="22"
+                 pad_right="20"
                  tab_stop="true"
                  use_ellipses="true" />
             </talk_button>

@@ -409,6 +409,13 @@ void LLAccordionCtrlTab::changeOpenClose(bool is_open)
 	}
 }
 
+void LLAccordionCtrlTab::handleVisibilityChange(BOOL new_visibility)
+{
+	LLUICtrl::handleVisibilityChange(new_visibility);
+
+	notifyParent(LLSD().with("child_visibility_change", new_visibility));
+}
+
 BOOL LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if(mCollapsible && mHeaderVisible && mCanOpenClose)
@@ -466,7 +473,7 @@ void LLAccordionCtrlTab::setAccordionView(LLView* panel)
 	addChild(panel,0);
 }
 
-std::string LLAccordionCtrlTab::getTitle()
+std::string LLAccordionCtrlTab::getTitle() const
 {
 	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
 	if (header)

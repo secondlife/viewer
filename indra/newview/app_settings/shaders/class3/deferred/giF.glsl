@@ -178,7 +178,8 @@ void main()
 	
 	float rad = gi_range*0.5;
 	
-	vec3 norm = texture2DRect(normalMap, pos_screen).xyz*2.0-1.0;
+	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
+	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	float dist = max(length(pos.xyz)-rad, 0.0);
 	
 	float da = clamp(1.0-dist/rad, 0.0, 1.0);

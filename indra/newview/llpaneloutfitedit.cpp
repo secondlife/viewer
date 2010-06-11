@@ -39,6 +39,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "lloutfitobserver.h"
 #include "llcofwearables.h"
 #include "llfilteredwearablelist.h"
 #include "llinventory.h"
@@ -143,100 +144,6 @@ private:
 	}
 };
 
-class LLCOFObserver : public LLInventoryObserver
-{
-public:
-	LLCOFObserver(LLPanelOutfitEdit *panel) : mPanel(panel), 
-		mCOFLastVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
-	{
-		gInventory.addObserver(this);
-	}
-
-	virtual ~LLCOFObserver()
-	{
-		if (gInventory.containsObserver(this))
-		{
-			gInventory.removeObserver(this);
-		}
-	}
-	
-	virtual void changed(U32 mask)
-	{
-		if (!gInventory.isInventoryUsable()) return;
-	
-		bool panel_updated = checkCOF();
-
-		if (!panel_updated)
-		{
-			checkBaseOutfit();
-		}
-	}
-
-protected:
-
-	/** Get a version of an inventory category specified by its UUID */
-	static S32 getCategoryVersion(const LLUUID& cat_id)
-	{
-		LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-		if (!cat) return LLViewerInventoryCategory::VERSION_UNKNOWN;
-
-		return cat->getVersion();
-	}
-
-	bool checkCOF()
-	{
-		LLUUID cof = LLAppearanceMgr::getInstance()->getCOF();
-		if (cof.isNull()) return false;
-
-		S32 cof_version = getCategoryVersion(cof);
-
-		if (cof_version == mCOFLastVersion) return false;
-		
-		mCOFLastVersion = cof_version;
-
-		mPanel->update();
-
-		return true;
-	}
-
-	void checkBaseOutfit()
-	{
-		LLUUID baseoutfit_id = LLAppearanceMgr::getInstance()->getBaseOutfitUUID();
-
-		if (baseoutfit_id == mBaseOutfitId)
-		{
-			if (baseoutfit_id.isNull()) return;
-
-			const S32 baseoutfit_ver = getCategoryVersion(baseoutfit_id);
-
-			if (baseoutfit_ver == mBaseOutfitLastVersion) return;
-		}
-		else
-		{
-			mBaseOutfitId = baseoutfit_id;
-			mPanel->updateCurrentOutfitName();
-
-			if (baseoutfit_id.isNull()) return;
-
-			mBaseOutfitLastVersion = getCategoryVersion(mBaseOutfitId);
-		}
-
-		mPanel->updateVerbs();
-	}
-	
-
-
-
-	LLPanelOutfitEdit *mPanel;
-
-	//last version number of a COF category
-	S32 mCOFLastVersion;
-
-	LLUUID  mBaseOutfitId;
-
-	S32 mBaseOutfitLastVersion;
-};
-
 class LLCOFDragAndDropObserver : public LLInventoryAddItemByAssetObserver
 {
 public:
@@ -277,7 +184,6 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mSearchFilter(NULL),
 	mCOFWearables(NULL),
 	mInventoryItemsPanel(NULL),
-	mCOFObserver(NULL),
 	mGearMenu(NULL),
 	mCOFDragAndDropObserver(NULL),
 	mInitialized(false),
@@ -288,7 +194,11 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
 	
-	mCOFObserver = new LLCOFObserver(this);
+
+	LLOutfitObserver& observer = LLOutfitObserver::instance();
+	observer.addBOFReplacedCallback(boost::bind(&LLPanelOutfitEdit::updateCurrentOutfitName, this));
+	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitEdit::updateVerbs, this));
+	observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitEdit::update, this));
 	
 	mLookItemTypes.reserve(NUM_LOOK_ITEM_TYPES);
 	for (U32 i = 0; i < NUM_LOOK_ITEM_TYPES; i++)
@@ -303,7 +213,6 @@ LLPanelOutfitEdit::~LLPanelOutfitEdit()
 {
 	delete mSavedFolderState;
 
-	delete mCOFObserver;
 	delete mCOFDragAndDropObserver;
 
 	delete mWearableListMaskCollector;
@@ -371,7 +280,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetAction(REVERT_BTN, boost::bind(&LLAppearanceMgr::wearBaseOutfit, LLAppearanceMgr::getInstance()));
 
 	mWearableListMaskCollector = new LLFindNonLinksByMask(ALL_ITEMS_MASK);
-	mWearableListTypeCollector = new LLFindWearablesOfType(LLWearableType::WT_NONE);
+	mWearableListTypeCollector = new LLFindActualWearablesOfType(LLWearableType::WT_NONE);
 
 	mWearableItemsPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLInventoryItemsList>("filtered_wearables_list");
@@ -756,9 +665,6 @@ void LLPanelOutfitEdit::updateCurrentOutfitName()
 //private
 void LLPanelOutfitEdit::updateVerbs()
 {
-	//*TODO implement better handling of COF dirtiness
-	LLAppearanceMgr::getInstance()->updateIsDirty();
-
 	bool outfit_is_dirty = LLAppearanceMgr::getInstance()->isOutfitDirty();
 	bool has_baseoutfit = LLAppearanceMgr::getInstance()->getBaseOutfitUUID().notNull();
 
