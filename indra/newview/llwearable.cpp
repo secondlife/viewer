@@ -705,7 +705,7 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 	}
 
 	gAgentAvatarp->updateVisualParams();
-	gAgentAvatarp->wearableUpdated(type, TRUE);
+	gAgentAvatarp->wearableUpdated(type, FALSE);
 
 //	if( upload_bake )
 //	{
