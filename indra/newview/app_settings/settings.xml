@@ -3534,6 +3534,28 @@
       <key>Value</key>
       <real>9.0</real>
     </map>
+    <key>ForceAssetFail</key>
+    <map>
+      <key>Comment</key>
+      <string>Force wearable fetches to fail for this asset type.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>255</integer>
+    </map>
+    <key>MaxWearableWaitTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Max seconds to wait for wearable assets to fetch.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>60.0</real>
+    </map>
     <key>ForceShowGrid</key>
     <map>
       <key>Comment</key>
