@@ -87,6 +87,7 @@ public:
 		Optional<bool>						show_item_link_overlays;
 		Optional<Filter>					filter;
 		Optional<std::string>               start_folder;
+		Optional<bool>						use_label_suffix;
 
 		Params()
 		:	sort_order_setting("sort_order_setting"),
@@ -94,7 +95,8 @@ public:
 			allow_multi_select("allow_multi_select", true),
 			show_item_link_overlays("show_item_link_overlays", false),
 			filter("filter"),
-			start_folder("start_folder")
+			start_folder("start_folder"),
+			use_label_suffix("use_label_suffix", true)
 		{}
 	};
 
@@ -103,14 +105,13 @@ public:
 	//--------------------------------------------------------------------
 protected:
 	LLInventoryPanel(const Params&);
+	void initFromParams(const Params&);
 	friend class LLUICtrlFactory;
 public:
 	virtual ~LLInventoryPanel();
 
 public:
 	LLInventoryModel* getModel() { return mInventory; }
-
-	BOOL postBuild();
 
 	// LLView methods
 	void draw();

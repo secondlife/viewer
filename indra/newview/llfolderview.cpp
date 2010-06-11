@@ -181,6 +181,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mRenameItem( NULL ),
 	mNeedsScroll( FALSE ),
 	mEnableScroll( true ),
+	mUseLabelSuffix(p.use_label_suffix),
 	mPinningSelectedItem(FALSE),
 	mNeedsAutoSelect( FALSE ),
 	mAutoSelectOverride(FALSE),
