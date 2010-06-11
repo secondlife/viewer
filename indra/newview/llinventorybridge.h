@@ -245,7 +245,7 @@ public:
 	virtual LLFolderType::EType getPreferredType() const;
 	virtual LLUIImagePtr getIcon() const;
 	virtual LLUIImagePtr getOpenIcon() const;
-	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type, BOOL is_link = FALSE);
+	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 
 	virtual BOOL renameItem(const std::string& new_name);
 
