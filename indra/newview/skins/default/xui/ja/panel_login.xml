@@ -9,9 +9,9 @@
 	<layout_stack name="login_widgets">
 		<layout_panel name="login">
 			<text name="username_text">
-				ユーザー名：
+				ユーザーネーム：
 			</text>
-			<line_editor label="ユーザー名" name="username_edit" tool_tip="[SECOND_LIFE] ユーザー名"/>
+			<line_editor label="ユーザーネーム" name="username_edit" tool_tip="[SECOND_LIFE] ユーザーネーム"/>
 			<text name="password_text">
 				パスワード：
 			</text>

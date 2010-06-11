@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<accordion
+ height="100"
+ name="accordion"
+ width="200">
+    <empty_accordion_text
+     follows="all"
+     height="100"
+     h_pad="10"
+     name="no_visible_items_msg"
+     v_pad="15"
+     width="200"
+     wrap="true "/>
+</accordion>

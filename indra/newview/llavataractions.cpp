@@ -656,6 +656,8 @@ void LLAvatarActions::shareWithAvatars()
 	LLFloaterAvatarPicker* picker =
 		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE);
 	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
+	picker->openFriendsTab();
+	LLNotificationsUtil::add("ShareNotification");
 }
 
 // static

@@ -116,6 +116,21 @@ protected:
 	/*virtual*/ void init();
 };
 
+/** Outfit list item for an attachment */
+class LLPanelAttachmentListItem : public LLPanelDeletableWearableListItem
+{
+	LOG_CLASS(LLPanelAttachmentListItem);
+public:
+	static LLPanelAttachmentListItem* create(LLViewerInventoryItem* item);
+	virtual ~LLPanelAttachmentListItem() {};
+
+	/** Set item title. Joint name is added to the title in parenthesis */
+	/*virtual*/ void setTitle(const std::string& title, const std::string& highlit_text);
+
+protected:
+	LLPanelAttachmentListItem(LLViewerInventoryItem* item) : LLPanelDeletableWearableListItem(item) {};
+};
+
 /**
  * @class LLPanelClothingListItem
  *
@@ -339,6 +354,12 @@ public:
 	/*virtual*/ void addNewItem(LLViewerInventoryItem* item, bool rearrange = true);
 
 	void updateList(const LLUUID& category_id);
+
+	/**
+	 * Update items that match UUIDs from changed_items_uuids
+	 * or links that point at such items.
+	 */
+	void updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids);
 
 protected:
 	friend class LLUICtrlFactory;

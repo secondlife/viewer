@@ -5,8 +5,8 @@
  border="false"
  height="600"
  follows="all"
- label="Outfit Edit"
  layout="topleft"
+ help_topic="edit_outfit"
  left="0"
  min_height="350"
  name="outfit_edit"
@@ -51,6 +51,7 @@
     <string name="Filter.All" value="All"/>
     <string name="Filter.Clothes/Body" value="Clothes/Body"/>
     <string name="Filter.Objects" value="Objects"/>
+    <string name="Filter.Custom" value="Custom filter"/>
 
 
     <button
@@ -85,7 +86,6 @@
      bevel_style="none"
      follows="top|left|right"
      height="40"
-     label="bottom_panel"
      layout="topleft"
      left="6"
      name="header_panel"
@@ -106,7 +106,6 @@
              bevel_style="none"
              follows="top|right"
              height="38"
-             label="bottom_panel"
              layout="topleft"
              left_pad="5"
              name="outfit_name_and_status"
@@ -160,7 +159,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
         <layout_panel
          layout="topleft"
          height="187"
-         label="IM Control Panel"
          min_height="100"
          name="outfit_wearables_panel"
          width="313"
@@ -183,7 +181,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                  bg_alpha_color="DkGray2"
                  layout="topleft"
                  height="154"
-                 label="add_button_and_combobox"
                  name="add_button_and_combobox"
                  width="311"
                  user_resize="false"
@@ -256,15 +253,14 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 		             background_image="TextField_Search_Off"
 		             enabled="true"
 		             follows="left|right|top"
-		             font="SansSerif"
-		             label="Filter"
+		             label="Filter Inventory Wearables"
 		             layout="topleft"
 		             left="5"
 		             width="290"
 		             height="25"
 		             name="look_item_filter"
+		             search_button_visible="true"
 		             text_color="black"
-		             text_pad_left="25"
 		             visible="true"/>
                     
                 </layout_panel>
@@ -344,7 +340,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
      bevel_style="none"
      follows="bottom|left|right"
      height="27"
-     label="bottom_panel"
      layout="topleft"
      left="5"
      name="no_add_wearables_button_bar"
@@ -379,7 +374,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
      bevel_style="none"
      follows="left|right|bottom"
      height="27"
-     label="add_wearables_button_bar"
      layout="topleft"
      left="5"
      name="add_wearables_button_bar"

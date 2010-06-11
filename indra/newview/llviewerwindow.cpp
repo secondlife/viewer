@@ -1591,6 +1591,9 @@ void LLViewerWindow::initBase()
 	gDebugView->init();
 	gToolTipView = getRootView()->getChild<LLToolTipView>("tooltip view");
 
+	// Initialize busy response message when logged in
+	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLFloaterPreference::initBusyResponse));
+
 	// Add the progress bar view (startup view), which overrides everything
 	mProgressView = getRootView()->getChild<LLProgressView>("progress_view");
 	setShowProgress(FALSE);

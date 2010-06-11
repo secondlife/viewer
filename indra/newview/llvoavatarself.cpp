@@ -975,12 +975,6 @@ void LLVOAvatarSelf::wearableUpdated( LLWearableType::EType type, BOOL upload_re
 		const LLVOAvatarDictionary::BakedEntry *baked_dict = baked_iter->second;
 		const LLVOAvatarDefines::EBakedTextureIndex index = baked_iter->first;
 
-		// if we're editing our appearance, ensure that we're not using baked textures
-		// The baked texture for alpha masks is set explicitly when you hit "save"
-		if (gAgentCamera.cameraCustomizeAvatar())
-		{
-			setNewBakedTexture(index,IMG_DEFAULT_AVATAR);
-		}
 		if (baked_dict)
 		{
 			for (LLVOAvatarDefines::wearables_vec_t::const_iterator type_iter = baked_dict->mWearables.begin();
@@ -2036,7 +2030,11 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 			F32 desired_pixels;
 			desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
 			imagep->setBoostLevel(getAvatarBoostLevel());
+
+			imagep->resetTextureStats();
+			imagep->setResetMaxVirtualSizeFlag(false) ;
 			imagep->addTextureStats( desired_pixels / texel_area_ratio );
+			imagep->setAdditionalDecodePriority(1.0f) ;
 			imagep->forceUpdateBindStats() ;
 			if (imagep->getDiscardLevel() < 0)
 			{

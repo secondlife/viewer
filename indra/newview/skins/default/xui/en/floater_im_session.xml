@@ -33,7 +33,6 @@
       name="panel_im_control_panel"
       layout="topleft"
       follows="left"
-      label="IM Control Panel"
       min_width="115" 
       auto_resize="false"
       user_resize="true" />

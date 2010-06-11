@@ -58,13 +58,19 @@ static const LLWearableItemNameComparator WEARABLE_NAME_COMPARATOR;
 class CofContextMenu : public LLListContextMenu
 {
 protected:
-	static void updateCreateWearableLabel(LLMenuGL* menu, const LLUUID& item_id)
+	CofContextMenu(LLCOFWearables* cof_wearables)
+	:	mCOFWearables(cof_wearables)
+	{
+		llassert(mCOFWearables);
+	}
+
+	void updateCreateWearableLabel(LLMenuGL* menu, const LLUUID& item_id)
 	{
 		LLMenuItemGL* menu_item = menu->getChild<LLMenuItemGL>("create_new");
+		LLWearableType::EType w_type = getWearableType(item_id);
 
 		// Hide the "Create new <WEARABLE_TYPE>" if it's irrelevant.
-		LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
-		if (!item || !item->isWearableType())
+		if (w_type == LLWearableType::WT_NONE)
 		{
 			menu_item->setVisible(FALSE);
 			return;
@@ -72,25 +78,67 @@ protected:
 
 		// Set proper label for the "Create new <WEARABLE_TYPE>" menu item.
 		LLStringUtil::format_map_t args;
-		LLWearableType::EType w_type = item->getWearableType();
 		args["[WEARABLE_TYPE]"] = LLWearableType::getTypeDefaultNewName(w_type);
 		std::string new_label = LLTrans::getString("CreateNewWearable", args);
 		menu_item->setLabel(new_label);
 	}
 
-	static void createNew(const LLUUID& item_id)
+	void createNew(const LLUUID& item_id)
 	{
-		LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
-		if (!item || !item->isWearableType()) return;
-
-		LLAgentWearables::createWearable(item->getWearableType(), true);
+		LLAgentWearables::createWearable(getWearableType(item_id), true);
 	}
+
+	// Get wearable type of the given item.
+	//
+	// There is a special case: so-called "dummy items"
+	// (i.e. the ones that are there just to indicate that you're not wearing
+	// any wearables of the corresponding type. They are currently grayed out
+	// and suffixed with "not worn").
+	// Those items don't have an UUID, but they do have an associated wearable type.
+	// If the user has invoked context menu for such item,
+	// we ignore the passed item_id and retrieve wearable type from the item.
+	LLWearableType::EType getWearableType(const LLUUID& item_id)
+	{
+		if (!isDummyItem(item_id))
+		{
+			LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
+			if (item && item->isWearableType())
+			{
+				return item->getWearableType();
+			}
+		}
+		else if (mCOFWearables) // dummy item selected
+		{
+			LLPanelDummyClothingListItem* item;
+
+			item = dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem());
+			if (item)
+			{
+				return item->getWearableType();
+			}
+		}
+
+		return LLWearableType::WT_NONE;
+	}
+
+	static bool isDummyItem(const LLUUID& item_id)
+	{
+		return item_id.isNull();
+	}
+
+	LLCOFWearables* mCOFWearables;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-class CofAttachmentContextMenu : public LLListContextMenu
+class CofAttachmentContextMenu : public CofContextMenu
 {
+public:
+	CofAttachmentContextMenu(LLCOFWearables* cof_wearables)
+	:	CofContextMenu(cof_wearables)
+	{
+	}
+
 protected:
 
 	/*virtual*/ LLContextMenu* createMenu()
@@ -108,8 +156,13 @@ protected:
 
 class CofClothingContextMenu : public CofContextMenu
 {
-protected:
+public:
+	CofClothingContextMenu(LLCOFWearables* cof_wearables)
+	:	CofContextMenu(cof_wearables)
+	{
+	}
 
+protected:
 	/*virtual*/ LLContextMenu* createMenu()
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -121,7 +174,7 @@ protected:
 		registrar.add("Clothing.MoveUp", boost::bind(moveWearable, selected_id, false));
 		registrar.add("Clothing.MoveDown", boost::bind(moveWearable, selected_id, true));
 		registrar.add("Clothing.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
-		registrar.add("Clothing.Create", boost::bind(createNew, selected_id));
+		registrar.add("Clothing.Create", boost::bind(&CofClothingContextMenu::createNew, this, selected_id));
 
 		enable_registrar.add("Clothing.OnEnable", boost::bind(&CofClothingContextMenu::onEnable, this, _2));
 
@@ -171,8 +224,13 @@ protected:
 
 class CofBodyPartContextMenu : public CofContextMenu
 {
-protected:
+public:
+	CofBodyPartContextMenu(LLCOFWearables* cof_wearables)
+	:	CofContextMenu(cof_wearables)
+	{
+	}
 
+protected:
 	/*virtual*/ LLContextMenu* createMenu()
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -184,7 +242,7 @@ protected:
 		LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
 		registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceBodyPartMenuItemClicked, panel_oe, selected_id));
 		registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
-		registrar.add("BodyPart.Create", boost::bind(createNew, selected_id));
+		registrar.add("BodyPart.Create", boost::bind(&CofBodyPartContextMenu::createNew, this, selected_id));
 
 		enable_registrar.add("BodyPart.OnEnable", boost::bind(&CofBodyPartContextMenu::onEnable, this, _2));
 
@@ -219,9 +277,9 @@ LLCOFWearables::LLCOFWearables() : LLPanel(),
 	mBodyParts(NULL),
 	mLastSelectedList(NULL)
 {
-	mClothingMenu = new CofClothingContextMenu();
-	mAttachmentMenu = new CofAttachmentContextMenu();
-	mBodyPartMenu = new CofBodyPartContextMenu();
+	mClothingMenu = new CofClothingContextMenu(this);
+	mAttachmentMenu = new CofAttachmentContextMenu(this);
+	mBodyPartMenu = new CofBodyPartContextMenu(this);
 };
 
 LLCOFWearables::~LLCOFWearables()
@@ -387,13 +445,7 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
 	
 	//turning on gray separator line for the last item in the items group of the same wearable type
-	if (last)
-	{
-		LLRect rect = item_panel->getRect();
-		item_panel->reshape(rect.getWidth(), rect.getHeight() +
-		item_panel->getChild<LLView>("wearable_type_separator_icon")->getRect().getHeight());
-		item_panel->childSetVisible("wearable_type_separator_icon", true);
-	}
+	item_panel->childSetVisible("wearable_type_separator_icon", last);
 
 	return item_panel;
 }
@@ -427,7 +479,7 @@ LLPanelDeletableWearableListItem* LLCOFWearables::buildAttachemntListItem(LLView
 	llassert(item);
 	if (!item) return NULL;
 
-	LLPanelDeletableWearableListItem* item_panel = LLPanelDeletableWearableListItem::create(item);
+	LLPanelAttachmentListItem* item_panel = LLPanelAttachmentListItem::create(item);
 	if (!item_panel) return NULL;
 
 	//setting callbacks

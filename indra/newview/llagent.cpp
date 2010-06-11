@@ -3589,7 +3589,7 @@ void LLAgent::sendAgentSetAppearance()
 			if (isAgentAvatarValid() && !gAgentAvatarp->isBakedTextureFinal((LLVOAvatarDefines::EBakedTextureIndex)baked_index))
 			{
 				generate_valid_hash = FALSE;
-				llinfos << "Not caching baked texture upload for " << baked_index << " due to being uploaded at low resolution." << llendl;
+				llinfos << "Not caching baked texture upload for " << (U32)baked_index << " due to being uploaded at low resolution." << llendl;
 			}
 
 			const LLUUID hash = gAgentWearables.computeBakedTextureHash((EBakedTextureIndex) baked_index, generate_valid_hash);

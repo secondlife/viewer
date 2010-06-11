@@ -2,7 +2,7 @@
 <panel
  background_visible="true"
  follows="all"
- height="570"
+ height="610"
  layout="topleft"
  left="0"
  min_height="350"
@@ -181,7 +181,7 @@
     <scroll_container
      color="DkGray2"
      follows="all"
-     height="532"
+     height="572"
      layout="topleft"
      left="9"
      name="place_scroll"
@@ -191,7 +191,7 @@
         <panel
          bg_alpha_color="DkGray2"
          follows="left|top|right"
-         height="540"
+         height="580"
          layout="topleft"
          left="0"
          min_height="300"
@@ -337,21 +337,22 @@
             <accordion
              fit_parent="true"
              follows="all"
-             height="223"
+             height="268"
              layout="topleft"
              single_expansion="true"
              left="0"
              name="advanced_info_accordion"
-             top_pad="10"
+             top_pad="5"
              width="313">
                 <accordion_tab
-                 height="170"
+                 fit_panel="false"
+                 height="175"
                  layout="topleft"
                  name="parcel_characteristics_tab"
                  title="Parcel">
                     <panel
                      follows="all"
-                     height="160"
+                     height="175"
                      layout="topleft"
                      left="0"
                      name="parcel_characteristics_panel"
@@ -548,8 +549,8 @@
                          name="about_land_btn"
                          right="-5"
                          tab_stop="false"
-                         top="138"
-                         width="90">
+                         top_pad="2"
+                         width="140">
                             <click_callback
                              function="Floater.Show"
                              parameter="about_land" />
@@ -558,7 +559,8 @@
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"
-                 height="150"
+                 fit_panel="false"
+                 height="125"
                  layout="topleft"
                  name="region_information_tab"
                  title="Region">
@@ -677,7 +679,8 @@
                          name="region_info_btn"
                          right="-5"
                          tab_stop="false"
-                         width="105">
+                         top_pad="2"
+                         width="180">
                             <click_callback
                              function="Floater.Show"
                              parameter="region_info" />
@@ -686,13 +689,14 @@
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"
-                 height="190"
+                 fit_panel="false"
+                 height="180"
                  layout="topleft"
                  name="estate_information_tab"
                  title="Estate">
                     <panel
                      follows="all"
-                     height="189"
+                     height="180"
                      layout="topleft"
                      left="0"
                      name="estate_information_panel"
@@ -775,13 +779,14 @@
                 </accordion_tab>
                 <accordion_tab
                  expanded="false"
-                 height="320"
+                 fit_panel="false"
+                 height="290"
                  layout="topleft"
                  name="sales_tab"
                  title="For Sale">
                     <panel
                      follows="all"
-                     height="300"
+                     height="290"
                      layout="topleft"
                      left="0"
                      name="sales_panel"

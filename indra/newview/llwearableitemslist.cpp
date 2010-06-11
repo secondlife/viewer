@@ -38,10 +38,10 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
-#include "llinventorymodel.h"
 #include "llmenugl.h" // for LLContextMenu
 #include "lltransutil.h"
 #include "llviewerattachmenu.h"
+#include "llvoavatarself.h"
 
 class LLFindOutfitItems : public LLInventoryCollectFunctor
 {
@@ -88,8 +88,6 @@ void LLPanelWearableListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item)
 : LLPanelInventoryListItemBase(item)
 {
-	// icons should not be shown for this type of items (EXT-7511)
-	mForceNoLinksOnIcons = true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -258,6 +256,31 @@ BOOL LLPanelDeletableWearableListItem::postBuild()
 }
 
 
+// static
+LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryItem* item)
+{
+	LLPanelAttachmentListItem* list_item = NULL;
+	if(item)
+	{
+		list_item = new LLPanelAttachmentListItem(item);
+		list_item->init();
+	}
+	return list_item;
+}
+
+void LLPanelAttachmentListItem::setTitle(const std::string& title, const std::string& highlit_text)
+{
+	std::string title_joint = title;
+
+	if (mItem && isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(mItem->getLinkedUUID()))
+	{
+		std::string joint = LLTrans::getString(gAgentAvatarp->getAttachedPointName(mItem->getLinkedUUID()));
+		title_joint = title + " (" + joint + ")";
+	}
+
+	LLPanelDeletableWearableListItem::setTitle(title_joint, highlit_text);
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -281,9 +304,9 @@ BOOL LLPanelDummyClothingListItem::postBuild()
 	setIconCtrl(icon);
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	addWidgetToRightSide("btn_add");
+	addWidgetToRightSide("btn_add_panel");
 
-	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, FALSE, mWearableType, FALSE));
+	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
 	updateItem();
 
 	// Make it look loke clothing item - reserve space for 'delete' button
@@ -482,6 +505,37 @@ void LLWearableItemsList::updateList(const LLUUID& category_id)
 		collector);
 
 	refreshList(item_array);
+}
+
+void LLWearableItemsList::updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids)
+{
+	typedef std::vector<LLPanel*> item_panel_list_t;
+
+	item_panel_list_t items;
+	getItems(items);
+
+	for (item_panel_list_t::iterator items_iter = items.begin();
+			items_iter != items.end();
+			++items_iter)
+	{
+		LLPanelInventoryListItemBase* item = dynamic_cast<LLPanelInventoryListItemBase*>(*items_iter);
+		if (!item) continue;
+
+		LLViewerInventoryItem* inv_item = item->getItem();
+		if (!inv_item) continue;
+
+		LLUUID linked_uuid = inv_item->getLinkedUUID();
+
+		for (LLInventoryModel::changed_items_t::const_iterator iter = changed_items_uuids.begin();
+				iter != changed_items_uuids.end();
+				++iter)
+		{
+			if (linked_uuid == *iter)
+			{
+				item->setNeedsRefresh(true);
+			}
+		}
+	}
 }
 
 void LLWearableItemsList::onRightClick(S32 x, S32 y)

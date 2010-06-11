@@ -38,11 +38,13 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llcommandhandler.h"
+#include "lleventtimer.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
+#include "lloutfitobserver.h"
 #include "llpaneloutfitsinventory.h"
 #include "llselectmgr.h"
 #include "llsidepanelappearance.h"
@@ -54,6 +56,34 @@
 #include "llwearablelist.h"
 
 char ORDER_NUMBER_SEPARATOR('@');
+
+class LLOutfitUnLockTimer: public LLEventTimer
+{
+public:
+	LLOutfitUnLockTimer(F32 period) : LLEventTimer(period)
+	{
+		// restart timer on BOF changed event
+		LLOutfitObserver::instance().addBOFChangedCallback(boost::bind(
+				&LLOutfitUnLockTimer::reset, this));
+		stop();
+	}
+
+	/*virtual*/
+	BOOL tick()
+	{
+		if(mEventTimer.hasExpired())
+		{
+			LLAppearanceMgr::instance().setOutfitLocked(false);
+		}
+		return FALSE;
+	}
+	void stop() { mEventTimer.stop(); }
+	void start() { mEventTimer.start(); }
+	void reset() { mEventTimer.reset(); }
+	BOOL getStarted() { return mEventTimer.getStarted(); }
+
+	LLTimer&  getEventTimer() { return mEventTimer;}
+};
 
 // support for secondlife:///app/appearance SLapps
 class LLAppearanceHandler : public LLCommandHandler
@@ -839,6 +869,27 @@ void LLAppearanceMgr::onOutfitRename(const LLSD& notification, const LLSD& respo
 		LLUUID cat_id = notification["payload"]["cat_id"].asUUID();
 		rename_category(&gInventory, cat_id, outfit_name);
 	}
+}
+
+void LLAppearanceMgr::setOutfitLocked(bool locked)
+{
+	if (mOutfitLocked == locked)
+	{
+		return;
+	}
+
+	mOutfitLocked = locked;
+	if (locked)
+	{
+		mUnlockOutfitTimer->reset();
+		mUnlockOutfitTimer->start();
+	}
+	else
+	{
+		mUnlockOutfitTimer->stop();
+	}
+
+	LLOutfitObserver::instance().notifyOutfitLockChanged();
 }
 
 void LLAppearanceMgr::addCategoryToCurrentOutfit(const LLUUID& cat_id)
@@ -1889,6 +1940,14 @@ void LLAppearanceMgr::onFirstFullyVisible()
 
 bool LLAppearanceMgr::updateBaseOutfit()
 {
+	if (isOutfitLocked())
+	{
+		// don't allow modify locked outfit
+		llassert(!isOutfitLocked());
+		return false;
+	}
+	setOutfitLocked(true);
+
 	const LLUUID base_outfit_id = getBaseOutfitUUID();
 	if (base_outfit_id.isNull()) return false;
 
@@ -2159,7 +2218,7 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 	bool result = false;
 	if (result = gAgentWearables.moveWearable(item, closer_to_body))
 	{
-		gAgentAvatarp->wearableUpdated(item->getWearableType(), TRUE);
+		gAgentAvatarp->wearableUpdated(item->getWearableType(), FALSE);
 	}
 
 	setOutfitDirty(true);
@@ -2217,6 +2276,14 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mAttachmentInvLinkEnabled(false),
 	mOutfitIsDirty(false)
 {
+	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
+
+	// unlock outfit on save operation completed
+	outfit_observer.addCOFSavedCallback(boost::bind(
+			&LLAppearanceMgr::setOutfitLocked, this, false));
+
+	mUnlockOutfitTimer.reset(new LLOutfitUnLockTimer(gSavedSettings.getS32(
+			"OutfitOperationsTimeout")));
 }
 
 LLAppearanceMgr::~LLAppearanceMgr()

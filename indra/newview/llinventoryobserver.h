@@ -110,6 +110,22 @@ public:
 	/*virtual*/ void changed(U32 mask);
 private:
 	S8 mNumTries; // Number of times changed() was called without success
+	LLFrameTimer mFetchingPeriod;
+
+	/**
+	 * If the viewer gets a notification, your observer assumes
+	 * that that notification is for itself and then tries to process
+	 * the results.  The notification could be for something else (e.g.
+	 * you're fetching an item and a notification gets triggered because
+	 * you renamed some other item).  This counter is to specify how many
+	 * periods of time to wait for before giving up.
+	 */
+	static const U32 MAX_NUM_ATTEMPTS_TO_PROCESS;
+
+	/**
+	 * Period of waiting a notification when requested items get added into inventory.
+	 */
+	static const F32 FETCH_TIMER_EXPIRY;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
