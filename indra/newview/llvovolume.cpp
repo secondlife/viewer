@@ -2659,18 +2659,20 @@ BOOL LLVOVolume::isSculpted() const
 
 BOOL LLVOVolume::isMesh() const
 {
+#if LL_MESH_ENABLED
 	if (isSculpted())
 	{
 		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 		U8 sculpt_type = sculpt_params->getSculptType();
-#if LL_MESH_ENABLED
+
 		if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
 			// mesh is a mesh
 		{
 			return TRUE;	
 		}
-#endif
 	}
+#endif
+
 
 	return FALSE;
 }
@@ -3427,6 +3429,7 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
 static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
+#if LL_MESH_ENABLED
 static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 {
 	LLVOAvatar* avatar = vobj->getAvatar();
@@ -3453,7 +3456,7 @@ static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 
 	return NULL;
 }
-		
+#endif		
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
