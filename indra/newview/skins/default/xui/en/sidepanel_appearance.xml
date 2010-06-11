@@ -144,7 +144,7 @@ width="333">
    left="5"
    min_height="410"
    name="panel_outfit_edit"
-   top="5"
+   top="2"
    visible="false" 
    width="320"/>
    <panel

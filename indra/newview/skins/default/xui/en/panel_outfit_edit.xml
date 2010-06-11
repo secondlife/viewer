@@ -64,14 +64,14 @@
      name="back_btn"
      left="5"
      tab_stop="false"
-     top="2"
+     top="1"
      width="30" />
     <text
      follows="top|right"
      font="SansSerifHugeBold"
      height="26"
      layout="topleft"
-     left_pad="20"
+     left_pad="10"
      name="title"
      text_color="LtGray"
      top="0"
