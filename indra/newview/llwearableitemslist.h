@@ -325,6 +325,10 @@ public:
 	 */
 	class ContextMenu : public LLListContextMenu, public LLSingleton<ContextMenu>
 	{
+	public:
+		ContextMenu();
+		/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
+
 	protected:
 		enum {
 			MASK_CLOTHING		= 0x01,
@@ -340,11 +344,13 @@ public:
 		static void setMenuItemEnabled(LLContextMenu* menu, const std::string& name, bool val);
 		static void updateMask(U32& mask, LLAssetType::EType at);
 		static void createNewWearable(const LLUUID& item_id);
+
+		LLWearableItemsList*	mParent;
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>
 	{
-		Optional<bool> use_internal_context_menu;
+		Optional<bool> standalone;
 
 		Params();
 	};
@@ -361,11 +367,15 @@ public:
 	 */
 	void updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids);
 
+	bool isStandalone() const { return mIsStandalone; }
+
 protected:
 	friend class LLUICtrlFactory;
 	LLWearableItemsList(const LLWearableItemsList::Params& p);
 
 	void onRightClick(S32 x, S32 y);
+
+	bool mIsStandalone;
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H
