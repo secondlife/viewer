@@ -2544,9 +2544,9 @@ void LLVolume::copyVolumeFaces(LLVolume* volume)
 
 S32	LLVolume::getNumFaces() const
 {
+#if LL_MESH_ENABLED
 	U8 sculpt_type = (mParams.getSculptType() & LL_SCULPT_TYPE_MASK);
 
-#if LL_MESH_ENABLED
 	if (sculpt_type == LL_SCULPT_TYPE_MESH)
 	{
 		return LL_SCULPT_MESH_MAX_FACES;
