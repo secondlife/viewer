@@ -2,25 +2,31 @@
  * @file llinventoryfunctions.cpp
  * @brief Implementation of the inventory view and associated stuff.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -46,7 +52,6 @@
 #include "llappearancemgr.h"
 #include "llappviewer.h"
 //#include "llfirstuse.h"
-#include "llfloaterinventory.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
 #include "llgesturemgr.h"
@@ -58,7 +63,6 @@
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
-#include "llpanelmaininventory.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
 #include "llpreviewnotecard.h"
@@ -70,7 +74,6 @@
 #include "llscrollcontainer.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
-#include "llsidepanelinventory.h"
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
 #include "lluictrlfactory.h"
@@ -239,59 +242,6 @@ BOOL get_is_item_worn(const LLUUID& id)
 	return FALSE;
 }
 
-BOOL get_can_item_be_worn(const LLUUID& id)
-{
-	const LLViewerInventoryItem* item = gInventory.getItem(id);
-	if (!item)
-		return FALSE;
-
-	if (LLAppearanceMgr::isLinkInCOF(item->getLinkedUUID()))
-	{
-		// an item having links in COF (i.e. a worn item)
-		return FALSE;
-	}
-
-	if (gInventory.isObjectDescendentOf(id, LLAppearanceMgr::instance().getCOF()))
-	{
-		// a non-link object in COF (should not normally happen)
-		return FALSE;
-	}
-	
-	switch(item->getType())
-	{
-		case LLAssetType::AT_OBJECT:
-		{
-			if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getLinkedUUID()))
-			{
-				// Already being worn
-				return FALSE;
-			}
-			else
-			{
-				// Not being worn yet.
-				return TRUE;
-			}
-			break;
-		}
-		case LLAssetType::AT_BODYPART:
-		case LLAssetType::AT_CLOTHING:
-			if(gAgentWearables.isWearingItem(item->getLinkedUUID()))
-			{
-				// Already being worn
-				return FALSE;
-			}
-			else
-			{
-				// Not being worn yet.
-				return TRUE;
-			}
-			break;
-		default:
-			break;
-	}
-	return FALSE;
-}
-
 BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
 {
 	if (!model)
@@ -329,9 +279,7 @@ BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
 
 BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
 {
-	// NOTE: This function doesn't check the folder's children.
-	// See LLFolderBridge::isItemRemovable for a function that does
-	// consider the children.
+	// This function doesn't check the folder's children.
 
 	if (!model)
 	{
@@ -345,27 +293,15 @@ BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
 
 	if (!isAgentAvatarValid()) return FALSE;
 
-	const LLInventoryCategory* category = model->getCategory(id);
+	LLInventoryCategory* category = model->getCategory(id);
 	if (!category)
 	{
 		return FALSE;
 	}
 
-	const LLFolderType::EType folder_type = category->getPreferredType();
-	
-	if (LLFolderType::lookupIsProtectedType(folder_type))
+	if (LLFolderType::lookupIsProtectedType(category->getPreferredType()))
 	{
 		return FALSE;
-	}
-
-	// Can't delete the outfit that is currently being worn.
-	if (folder_type == LLFolderType::FT_OUTFIT)
-	{
-		const LLViewerInventoryItem *base_outfit_link = LLAppearanceMgr::instance().getBaseOutfitLink();
-		if (base_outfit_link && (category == base_outfit_link->getLinkedCategory()))
-		{
-			return FALSE;
-		}
 	}
 
 	return TRUE;
@@ -388,11 +324,6 @@ BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
 	return FALSE;
 }
 
-void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id)
-{
-	LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD().with("id", item_uuid).with("object", object_id));
-}
-
 void show_item_profile(const LLUUID& item_uuid)
 {
 	LLUUID linked_uuid = gInventory.getLinkedItemID(item_uuid);
@@ -401,58 +332,9 @@ void show_item_profile(const LLUUID& item_uuid)
 
 void show_item_original(const LLUUID& item_uuid)
 {
-	//sidetray inventory panel
-	LLSidepanelInventory *sidepanel_inventory =
-		dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
-
-	bool reset_inventory_filter = !LLSideTray::getInstance()->isPanelActive("sidepanel_inventory");
-
 	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
-	if (!active_panel) 
-	{
-		//this may happen when there is no floatera and other panel is active in inventory tab
-
-		if	(sidepanel_inventory)
-		{
-			sidepanel_inventory->showInventoryPanel();
-		}
-	}
-	
-	active_panel = LLInventoryPanel::getActiveInventoryPanel();
-	if (!active_panel) 
-	{
-		return;
-	}
+	if (!active_panel) return;
 	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_NO);
-	
-	if(reset_inventory_filter)
-	{
-		//inventory floater
-		bool floater_inventory_visible = false;
-
-		LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
-		for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
-		{
-			LLFloaterInventory* floater_inventory = dynamic_cast<LLFloaterInventory*>(*iter);
-			if (floater_inventory)
-			{
-				LLPanelMainInventory* main_inventory = floater_inventory->getMainInventoryPanel();
-
-				main_inventory->onFilterEdit("");
-
-				if(floater_inventory->getVisible())
-				{
-					floater_inventory_visible = true;
-				}
-			}
-		}
-		if(sidepanel_inventory && !floater_inventory_visible)
-		{
-			LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
-
-			main_inventory->onFilterEdit("");
-		}
-	}
 }
 
 ///----------------------------------------------------------------------------
@@ -511,19 +393,6 @@ bool LLIsNotType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 		else return TRUE;
 	}
 	return TRUE;
-}
-
-bool LLIsOfAssetType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-{
-	if(mType == LLAssetType::AT_CATEGORY)
-	{
-		if(cat) return TRUE;
-	}
-	if(item)
-	{
-		if(item->getActualType() == mType) return TRUE;
-	}
-	return FALSE;
 }
 
 bool LLIsTypeWithPermissions::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
@@ -651,31 +520,6 @@ bool LLFindWearables::operator()(LLInventoryCategory* cat,
 	return FALSE;
 }
 
-LLFindWearablesEx::LLFindWearablesEx(bool is_worn, bool include_body_parts)
-:	mIsWorn(is_worn)
-,	mIncludeBodyParts(include_body_parts)
-{}
-
-bool LLFindWearablesEx::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-{
-	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
-	if (!vitem) return false;
-
-	// Skip non-wearables.
-	if (!vitem->isWearableType() && vitem->getType() != LLAssetType::AT_OBJECT)
-	{
-		return false;
-	}
-
-	// Skip body parts if requested.
-	if (!mIncludeBodyParts && vitem->getType() == LLAssetType::AT_BODYPART)
-	{
-		return false;
-	}
-
-	return (bool) get_is_item_worn(item->getUUID()) == mIsWorn;
-}
-
 bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
 	if (!item) return false;
@@ -694,6 +538,11 @@ bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem
 void LLFindWearablesOfType::setType(LLWearableType::EType type)
 {
 	mWearableType = type;
+}
+
+bool LLFindWorn::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	return item && get_is_item_worn(item->getUUID());
 }
 
 bool LLFindNonRemovableObjects::operator()(LLInventoryCategory* cat, LLInventoryItem* item)

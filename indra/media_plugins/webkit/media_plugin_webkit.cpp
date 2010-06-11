@@ -3,25 +3,30 @@
  * @brief Webkit plugin for LLMedia API plugin system
  *
  * @cond
- * $LicenseInfo:firstyear=2008&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2008&license=viewergpl$
+ *
+ * Copyright (c) 2008, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlife.com/developers/opensource/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlife.com/developers/opensource/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  * @endcond
  */
@@ -41,10 +46,6 @@
 // set to 1 if you're using the version of llqtwebkit that's QPixmap-ified
 #if LL_LINUX
 # define LL_QTWEBKIT_USES_PIXMAPS 0
-extern "C" {
-# include <glib.h>
-# include <glib-object.h>
-}
 #else
 # define LL_QTWEBKIT_USES_PIXMAPS 0
 #endif // LL_LINUX
@@ -59,7 +60,7 @@ extern "C" {
 #endif
 
 #if LL_WINDOWS
-	// *NOTE:Mani - This captures the module handle for the dll. This is used below
+	// *NOTE:Mani - This captures the module handle fo rthe dll. This is used below
 	// to get the path to this dll for webkit initialization.
 	// I don't know how/if this can be done with apr...
 	namespace {	HMODULE gModuleHandle;};
@@ -128,16 +129,6 @@ private:
 	//
 	void update(int milliseconds)
 	{
-#if LL_QTLINUX_DOESNT_HAVE_GLIB
-		// pump glib generously, as Linux browser plugins are on the
-		// glib main loop, even if the browser itself isn't - ugh
-		// This is NOT NEEDED if Qt itself was built with glib
-		// mainloop integration.
-		GMainContext *mainc = g_main_context_default();
-		while(g_main_context_iteration(mainc, FALSE));
-#endif // LL_QTLINUX_DOESNT_HAVE_GLIB
-
-		// pump qt
 		LLQtWebKit::getInstance()->pump( milliseconds );
 		
 		mVolumeCatcher.pump();
@@ -208,14 +199,6 @@ private:
 			return false;
 		}
 		std::string application_dir = std::string( cwd );
-
-#if LL_LINUX
-		// take care to initialize glib properly, because some
-		// versions of Qt don't, and we indirectly need it for (some
-		// versions of) Flash to not crash the browser.
-		if (!g_thread_supported ()) g_thread_init (NULL);
-		g_type_init();
-#endif
 
 #if LL_DARWIN
 		// When running under the Xcode debugger, there's a setting called "Break on Debugger()/DebugStr()" which defaults to being turned on.
@@ -314,8 +297,11 @@ private:
 		// append details to agent string
 		LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 
+		// TODO: Remove this ifdef when the Linux version of llqtwebkit gets updated with the new WOB constant.
+#if !LL_LINUX
 		// Set up window open behavior
 		LLQtWebKit::getInstance()->setWindowOpenBehavior(mBrowserWindowId, LLQtWebKit::WOB_SIMULATE_BLANK_HREF_CLICK);
+#endif
 		
 #if !LL_QTWEBKIT_USES_PIXMAPS
 		// don't flip bitmap

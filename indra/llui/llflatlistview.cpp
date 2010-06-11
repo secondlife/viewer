@@ -2,25 +2,31 @@
  * @file llflatlistview.cpp
  * @brief LLFlatListView base class and extension to support messages for several cases of an empty list.
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009-2010, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -44,21 +50,14 @@ LLFlatListView::Params::Params()
 	allow_select("allow_select"),
 	multi_select("multi_select"),
 	keep_one_selected("keep_one_selected"),
-	keep_selection_visible_on_reshape("keep_selection_visible_on_reshape",false),
 	no_items_text("no_items_text")
 {};
 
 void LLFlatListView::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
 {
-	S32 delta = height - getRect().getHeight();
 	LLScrollContainer::reshape(width, height, called_from_parent);
 	setItemsNoScrollWidth(width);
 	rearrangeItems();
-	
-	if(delta!= 0 && mKeepSelectionVisibleOnReshape)
-	{
-		ensureSelectedVisible();
-	}
 }
 
 const LLRect& LLFlatListView::getItemsRect() const
@@ -87,9 +86,6 @@ bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*
 		mItemsPanel->addChild(item);
 		break;
 	default:
-		LL_WARNS("") << "Unsupported position." << LL_ENDL;
-		delete new_pair;
-		return false;
 		break;
 	}
 	
@@ -154,7 +150,7 @@ bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, 
 }
 
 
-bool LLFlatListView::removeItem(LLPanel* item, bool rearrange)
+bool LLFlatListView::removeItem(LLPanel* item)
 {
 	if (!item) return false;
 	if (item->getParent() != mItemsPanel) return false;
@@ -162,22 +158,22 @@ bool LLFlatListView::removeItem(LLPanel* item, bool rearrange)
 	item_pair_t* item_pair = getItemPair(item);
 	if (!item_pair) return false;
 
-	return removeItemPair(item_pair, rearrange);
+	return removeItemPair(item_pair);
 }
 
-bool LLFlatListView::removeItemByValue(const LLSD& value, bool rearrange)
+bool LLFlatListView::removeItemByValue(const LLSD& value)
 {
 	if (value.isUndefined()) return false;
 	
 	item_pair_t* item_pair = getItemPair(value);
 	if (!item_pair) return false;
 
-	return removeItemPair(item_pair, rearrange);
+	return removeItemPair(item_pair);
 }
 
-bool LLFlatListView::removeItemByUUID(const LLUUID& uuid, bool rearrange)
+bool LLFlatListView::removeItemByUUID(const LLUUID& uuid)
 {
-	return removeItemByValue(LLSD(uuid), rearrange);
+	return removeItemByValue(LLSD(uuid));
 }
 
 LLPanel* LLFlatListView::getItemByValue(const LLSD& value) const
@@ -324,9 +320,6 @@ U32 LLFlatListView::size(const bool only_visible_items) const
 
 void LLFlatListView::clear()
 {
-	// This will clear mSelectedItemPairs, calling all appropriate callbacks.
-	resetSelection();
-	
 	// do not use LLView::deleteAllChildren to avoid removing nonvisible items. drag-n-drop for ex.
 	for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
 	{
@@ -335,6 +328,7 @@ void LLFlatListView::clear()
 		delete *it;
 	}
 	mItemPairs.clear();
+	mSelectedItemPairs.clear();
 
 	// also set items panel height to zero. Reshape it to allow reshaping of non-item children
 	LLRect rc = mItemsPanel->getRect();
@@ -386,7 +380,6 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
   , mPrevNotifyParentRect(LLRect())
   , mNoItemsCommentTextbox(NULL)
   , mIsConsecutiveSelection(false)
-  , mKeepSelectionVisibleOnReshape(p.keep_selection_visible_on_reshape)
 {
 	mBorderThickness = getBorderWidth();
 
@@ -969,12 +962,11 @@ bool LLFlatListView::isSelected(item_pair_t* item_pair) const
 	return std::find(mSelectedItemPairs.begin(), it_end, item_pair) != it_end;
 }
 
-bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
+bool LLFlatListView::removeItemPair(item_pair_t* item_pair)
 {
 	llassert(item_pair);
 
 	bool deleted = false;
-	bool selection_changed = false;
 	for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
 	{
 		item_pair_t* _item_pair = *it;
@@ -994,7 +986,6 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 		if (selected_item_pair == item_pair)
 		{
 			it = mSelectedItemPairs.erase(it);
-			selection_changed = true;
 			break;
 		}
 	}
@@ -1003,16 +994,8 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 	item_pair->first->die();
 	delete item_pair;
 
-	if (rearrange)
-	{
 	rearrangeItems();
 	notifyParentItemsRectChanged();
-	}
-
-	if (selection_changed && mCommitOnSelectionChange)
-	{
-		onCommit();
-	}
 
 	return true;
 }
@@ -1057,7 +1040,25 @@ void LLFlatListView::setNoItemsCommentVisible(bool visible) const
 {
 	if (mNoItemsCommentTextbox)
 	{
-		mSelectedItemsBorder->setVisible(!visible);
+		if (visible)
+		{
+/*
+// *NOTE: MA 2010-02-04
+// Deprecated after params of the comment text box were moved into widget (flat_list_view.xml)
+// can be removed later if nothing happened.
+			// We have to update child rect here because of issues with rect after reshaping while creating LLTextbox
+			// It is possible to have invalid LLRect if Flat List is in LLAccordionTab
+			LLRect comment_rect = getLocalRect();
+
+			// To see comment correctly (EXT - 3244) in mNoItemsCommentTextbox we must get border width
+			// of LLFlatListView (@see getBorderWidth()) and stretch mNoItemsCommentTextbox to this width
+			// But getBorderWidth() returns 0 if LLFlatListView not visible. So we have to get border width
+			// from 'scroll_border'
+			LLViewBorder* scroll_border = getChild<LLViewBorder>("scroll border");
+			comment_rect.stretch(-scroll_border->getBorderWidth());
+			mNoItemsCommentTextbox->setRect(comment_rect);
+*/
+		}
 		mNoItemsCommentTextbox->setVisible(visible);
 	}
 }
@@ -1087,10 +1088,7 @@ void LLFlatListView::getValues(std::vector<LLSD>& values) const
 // virtual
 void LLFlatListView::onFocusReceived()
 {
-	if (size())
-	{
 	mSelectedItemsBorder->setVisible(TRUE);
-	}
 	gEditMenuHandler = this;
 }
 // virtual
@@ -1220,8 +1218,6 @@ LLFlatListViewEx::LLFlatListViewEx(const Params& p)
 :	LLFlatListView(p)
 , mNoFilteredItemsMsg(p.no_filtered_items_msg)
 , mNoItemsMsg(p.no_items_msg)
-, mForceShowingUnmatchedItems(false)
-, mHasMatchedItems(false)
 {
 
 }
@@ -1244,16 +1240,6 @@ void LLFlatListViewEx::updateNoItemsMessage(const std::string& filter_string)
 		setNoItemsCommentText(mNoItemsMsg);
 	}
 
-}
-
-bool LLFlatListViewEx::getForceShowingUnmatchedItems()
-{
-	return mForceShowingUnmatchedItems;
-}
-
-void LLFlatListViewEx::setForceShowingUnmatchedItems(bool show)
-{
-	mForceShowingUnmatchedItems = show;
 }
 
 void LLFlatListViewEx::setFilterSubString(const std::string& filter_str)
@@ -1279,7 +1265,6 @@ void LLFlatListViewEx::filterItems()
 	item_panel_list_t items;
 	getItems(items);
 
-	mHasMatchedItems = false;
 	for (item_panel_list_t::iterator
 			 iter = items.begin(),
 			 iter_end = items.end();
@@ -1290,27 +1275,18 @@ void LLFlatListViewEx::filterItems()
 		// i.e. we don't hide items that don't support 'match_filter' action, separators etc.
 		if (0 == pItem->notify(action))
 		{
-			mHasMatchedItems = true;
 			pItem->setVisible(true);
 		}
 		else
 		{
 			// TODO: implement (re)storing of current selection.
-			if(!mForceShowingUnmatchedItems)
-			{
-				selectItem(pItem, false);
-			}
-			pItem->setVisible(mForceShowingUnmatchedItems);
+			selectItem(pItem, false);
+			pItem->setVisible(false);
 		}
 	}
 
 	sort();
 	notifyParentItemsRectChanged();
-}
-
-bool LLFlatListViewEx::hasMatchedItems()
-{
-	return mHasMatchedItems;
 }
 
 //EOF

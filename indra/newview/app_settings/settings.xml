@@ -1,6 +1,17 @@
 <?xml version="1.0" ?>
 <llsd>
 <map>
+	<key>CrashHostUrl</key>
+    <map>
+      <key>Comment</key>
+      <string>A URL pointing to a crash report handler; overrides cluster negotiation to locate crash handler.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
@@ -583,7 +594,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>180</integer>
+      <integer>120</integer>
     </map>
     <key>AvatarSex</key>
     <map>
@@ -11466,6 +11477,28 @@
     <map>
       <key>Comment</key>
       <string>Reflects landmarks panel sorting order.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>OutfitOperationsTimeout</key>
+    <map>
+      <key>Comment</key>
+      <string>Timeout for outfit related operations.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>180</integer>
+    </map>
+    <key>HeightUnits</key>
+    <map>
+      <key>Comment</key>
+      <string>Determines which metric units are used: 1(TRUE) for meter and 0(FALSE) for foot.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

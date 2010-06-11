@@ -2,25 +2,31 @@
  * @file LLIMMgr.cpp
  * @brief Container for Instant Messaging
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -1016,14 +1022,6 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 		}
 		else
 		{
-			// IM_SESSION_INVITE means that this is an Ad-hoc incoming chat
-			//		(it can be also Group chat but it is checked above)
-			// In this case mInitialTargetIDs contains Ad-hoc session ID and it should not be added
-			// to Recent People to prevent showing of an item with (???)(???). See EXT-8246.
-			// Concrete participants will be added into this list once they sent message in chat.
-			if (IM_SESSION_INVITE == dialog) return;
-
-			// implemented adding of all participants of an outgoing to Recent People List. See EXT-5694.
 			for(uuid_vec_t::iterator it = session->mInitialTargetIDs.begin();
 				it!=session->mInitialTargetIDs.end();++it)
 			{
@@ -1900,6 +1898,8 @@ BOOL LLIncomingCallDialog::postBuild()
 	
 	// check to see if this is an Avaline call
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
+	childSetVisible("Start IM", is_avatar); // no IM for avaline
+
 	if (caller_name == "anonymous")
 	{
 		caller_name = getString("anonymous");
@@ -1930,10 +1930,6 @@ BOOL LLIncomingCallDialog::postBuild()
 	{
 		mLifetimeTimer.stop();
 	}
-
-	//it's not possible to connect to existing Ad-Hoc/Group chat through incoming ad-hoc call
-	//and no IM for avaline
-	childSetVisible("Start IM", is_avatar && notify_box_type != "VoiceInviteAdHoc" && notify_box_type != "VoiceInviteGroup");
 
 	setCanDrag(FALSE);
 
@@ -2315,19 +2311,11 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 	}
 	else // going to IM session
 	{
-		message = LLTrans::getString(message_name + "-im");
-		message.setArgs(args);
 		if (hasSession(session_id))
 		{
+			message = LLTrans::getString(message_name + "-im");
+			message.setArgs(args);
 			gIMMgr->addMessage(session_id, LLUUID::null, SYSTEM_FROM, message.getString());
-		}
-		// log message to file
-		else
-		{
-			std::string session_name;
-			// since we select user to share item with - his name is already in cache
-			gCacheName->getFullName(args["user_id"], session_name);
-			LLIMModel::instance().logToFile(session_name, SYSTEM_FROM, LLUUID::null, message.getString());
 		}
 	}
 }

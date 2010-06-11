@@ -355,6 +355,12 @@ public:
 
 	void updateList(const LLUUID& category_id);
 
+	/**
+	 * Update items that match UUIDs from changed_items_uuids
+	 * or links that point at such items.
+	 */
+	void updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids);
+
 protected:
 	friend class LLUICtrlFactory;
 	LLWearableItemsList(const LLWearableItemsList::Params& p);

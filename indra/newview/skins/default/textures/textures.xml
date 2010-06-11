@@ -68,9 +68,9 @@ with the same filename but different name
 
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
 
-  <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
-  <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
-  <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
+  <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" />
+  <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" />
+  <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" />
 
   <texture name="Blank" file_name="Blank.png" preload="false" />
 
@@ -114,7 +114,7 @@ with the same filename but different name
   <texture name="DisclosureArrow_Opened_Off" file_name="widgets/DisclosureArrow_Opened_Off.png" preload="true" />
 
   <texture name="DownArrow" file_name="bottomtray/DownArrow.png" preload="false" />
-  <texture name="DownArrow_Off" file_name="icons/DownArrow_Off.png" preload="false" />
+  <texture name="DownArrow_Off" file_name="icons/DownArrow_off.png" preload="false" />
   <texture name="Dragbar" file_name="windows/Dragbar.png" preload="false" scale.left="35" scale.top="5" scale.right="29" scale.bottom="5" />
 
   <texture name="DropDown_Disabled" file_name="widgets/DropDown_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="99" scale.bottom="4" />
@@ -276,9 +276,9 @@ with the same filename but different name
   <texture name="Movement_Up_Off" file_name="bottomtray/Movement_Up_Off.png" preload="false" />
   <texture name="Movement_Up_On" file_name="bottomtray/Movement_Up_On.png" preload="false" />
 
+  <texture name="NavBar_BG_NoFav" file_name="navbar/NavBar_BG_NoFav.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
   <texture name="NavBar_BG" file_name="navbar/NavBar_BG.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
-  <texture name="NavBar_BG_NoFav_Bevel" file_name="navbar/NavBar_BG_NoFav_Bevel.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
-  <texture name="NavBar_BG_NoNav_Bevel" file_name="navbar/NavBar_BG_NoNav_Bevel.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
+
 
   <texture name="Notices_Unread" file_name="bottomtray/Notices_Unread.png" preload="true" />
 
@@ -579,10 +579,6 @@ with the same filename but different name
   <texture name="scrollbutton_left_in_blue.tga" file_name="widgets/ScrollArrow_Left_Over_Opaque.png" />
   <texture name="scrollbutton_right_out_blue.tga" file_name="widgets/ScrollArrow_Right_Opaque.png" />
   <texture name="scrollbutton_right_in_blue.tga" file_name="widgets/ScrollArrow_Right_Over_Opaque.png" />
-  <texture name="scrollbutton_up_out_blue.tga" file_name="widgets/ScrollArrow_Up_Opaque.png" />
-  <texture name="scrollbutton_up_in_blue.tga" file_name="widgets/ScrollArrow_Up_Over_Opaque.png" />
-  <texture name="scrollbutton_down_out_blue.tga" file_name="widgets/ScrollArrow_Down_Opaque.png" />
-  <texture name="scrollbutton_down_in_blue.tga" file_name="widgets/ScrollArrow_Down_Over_Opaque.png" />
 
   <texture name="up_arrow.tga" file_name="up_arrow.png" />
   <texture name="down_arrow.tga" file_name="down_arrow.png" />

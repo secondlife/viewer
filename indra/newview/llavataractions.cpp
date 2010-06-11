@@ -2,25 +2,31 @@
  * @file llavataractions.cpp
  * @brief Friend-related actions (add, remove, offer teleport, etc)
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewergpl$
+ * 
+ * Copyright (c) 2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -54,7 +60,6 @@
 #include "llimview.h"			// for gIMMgr
 #include "llmutelist.h"
 #include "llnotificationsutil.h"	// for LLNotificationsUtil
-#include "llpaneloutfitedit.h"
 #include "llrecentpeople.h"
 #include "llsidetray.h"
 #include "lltrans.h"
@@ -431,28 +436,12 @@ namespace action_give_inventory
 	typedef std::set<LLUUID> uuid_set_t;
 
 	/**
-	 * Returns a pointer to 'Add More' inventory panel of Edit Outfit SP.
-	 */
-	static LLInventoryPanel* get_outfit_editor_inventory_panel()
-	{
-		LLPanelOutfitEdit* panel_outfit_edit = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
-		if (NULL == panel_outfit_edit) return NULL;
-
-		LLInventoryPanel* inventory_panel = panel_outfit_edit->findChild<LLInventoryPanel>("folder_view");
-		return inventory_panel;
-	}
-
-	/**
 	 * Checks My Inventory visibility.
 	 */
 	static bool is_give_inventory_acceptable()
 	{
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (!active_panel)
-		{
-			active_panel = get_outfit_editor_inventory_panel();
-			if (!active_panel) return false;
-		}
+		if (NULL == active_panel) return false;
 
 		// check selection in the panel
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
@@ -544,10 +533,9 @@ namespace action_give_inventory
 		}
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (!active_panel)
+		if (NULL == active_panel)
 		{
-			active_panel = get_outfit_editor_inventory_panel();
-			if (!active_panel) return;
+			return;
 		}
 
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
@@ -562,10 +550,11 @@ namespace action_give_inventory
 		// iterate through avatars
 		for(S32 i = 0; i < count; ++i)
 		{
+			const std::string& avatar_name = LLShareInfo::instance().mAvatarNames[i];
 			const LLUUID& avatar_uuid = LLShareInfo::instance().mAvatarUuids[i];
 
-			// We souldn't open IM session, just calculate session ID for logging purpose. See EXT-6710
-			const LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, avatar_uuid);
+			// Start up IM before give the item
+			const LLUUID session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, avatar_uuid);
 
 			uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
 			const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
@@ -633,10 +622,9 @@ namespace action_give_inventory
 
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (!active_panel)
+		if (NULL == active_panel)
 		{
-			active_panel = get_outfit_editor_inventory_panel();
-			if (!active_panel) return;
+			return;
 		}
 
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();

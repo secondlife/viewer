@@ -2,25 +2,31 @@
  * @file llpanelavatar.cpp
  * @brief LLPanelAvatar and related class implementations
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2004&license=viewergpl$
+ * 
+ * Copyright (c) 2004-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -507,6 +513,12 @@ BOOL LLPanelAvatarProfile::postBuild()
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
+	LLTextureCtrl* pic = getChild<LLTextureCtrl>("2nd_life_pic");
+	pic->setFallbackImageName("default_profile_picture.j2c");
+
+	pic = getChild<LLTextureCtrl>("real_world_pic");
+	pic->setFallbackImageName("default_profile_picture.j2c");
+
 	LLVoiceClient::getInstance()->addObserver((LLVoiceClientStatusObserver*)this);
 
 	resetControls();
@@ -831,6 +843,9 @@ BOOL LLPanelMyProfile::postBuild()
 {
 	LLPanelAvatarProfile::postBuild();
 
+	mStatusCombobox = getChild<LLComboBox>("status_combo");
+
+	childSetCommitCallback("status_combo", boost::bind(&LLPanelMyProfile::onStatusChanged, this), NULL);
 	childSetCommitCallback("status_me_message_text", boost::bind(&LLPanelMyProfile::onStatusMessageChanged, this), NULL);
 
 	resetControls();
@@ -850,7 +865,28 @@ void LLPanelMyProfile::processProfileProperties(const LLAvatarData* avatar_data)
 
 	fillPartnerData(avatar_data);
 
+	fillStatusData(avatar_data);
+
 	fillAccountStatus(avatar_data);
+}
+
+void LLPanelMyProfile::fillStatusData(const LLAvatarData* avatar_data)
+{
+	std::string status;
+	if (gAgent.getAFK())
+	{
+		status = "away";
+	}
+	else if (gAgent.getBusy())
+	{
+		status = "busy";
+	}
+	else
+	{
+		status = "online";
+	}
+
+	mStatusCombobox->setValue(status);
 }
 
 void LLPanelMyProfile::resetControls()
@@ -863,6 +899,27 @@ void LLPanelMyProfile::resetControls()
 	childSetVisible("profile_me_buttons_panel", true);
 }
 
+void LLPanelMyProfile::onStatusChanged()
+{
+	LLSD::String status = mStatusCombobox->getValue().asString();
+
+	if ("online" == status)
+	{
+		gAgent.clearAFK();
+		gAgent.clearBusy();
+	}
+	else if ("away" == status)
+	{
+		gAgent.clearBusy();
+		gAgent.setAFK();
+	}
+	else if ("busy" == status)
+	{
+		gAgent.clearAFK();
+		gAgent.setBusy();
+		LLNotificationsUtil::add("BusyModeSet");
+	}
+}
 
 void LLPanelMyProfile::onStatusMessageChanged()
 {

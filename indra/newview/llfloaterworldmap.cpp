@@ -3,25 +3,31 @@
  * @author James Cook, Tom Yedwab
  * @brief LLFloaterWorldMap class implementation
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * 
+ * Copyright (c) 2003-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -50,7 +56,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "lllandmarklist.h"
-#include "llsearcheditor.h"
+#include "lllineeditor.h"
 #include "llnotificationsutil.h"
 #include "llregionhandle.h"
 #include "llscrolllistctrl.h"
@@ -200,7 +206,6 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 	mFactoryMap["objects_mapview"] = LLCallbackMap(createWorldMapView, NULL);
 	
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_world_map.xml", FALSE);
-	mCommitCallbackRegistrar.add("WMap.Coordinates",	boost::bind(&LLFloaterWorldMap::onCoordinatesCommit, this));
 	mCommitCallbackRegistrar.add("WMap.Location",		boost::bind(&LLFloaterWorldMap::onLocationCommit, this));
 	mCommitCallbackRegistrar.add("WMap.AvatarCombo",	boost::bind(&LLFloaterWorldMap::onAvatarComboCommit, this));
 	mCommitCallbackRegistrar.add("WMap.Landmark",		boost::bind(&LLFloaterWorldMap::onLandmarkComboCommit, this));
@@ -211,8 +216,6 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 	mCommitCallbackRegistrar.add("WMap.ShowAgent",		boost::bind(&LLFloaterWorldMap::onShowAgentBtn, this));		
 	mCommitCallbackRegistrar.add("WMap.Clear",			boost::bind(&LLFloaterWorldMap::onClearBtn, this));		
 	mCommitCallbackRegistrar.add("WMap.CopySLURL",		boost::bind(&LLFloaterWorldMap::onCopySLURL, this));
-
-	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterWorldMap::onChangeMaturity, this));
 }
 
 // static
@@ -226,20 +229,30 @@ BOOL LLFloaterWorldMap::postBuild()
 	mPanel = getChild<LLPanel>("objects_mapview");
 
 	LLComboBox *avatar_combo = getChild<LLComboBox>("friend combo");
-	avatar_combo->selectFirstItem();
-	avatar_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onAvatarComboPrearrange, this) );
-	avatar_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
+	if (avatar_combo)
+	{
+		avatar_combo->selectFirstItem();
+		avatar_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onAvatarComboPrearrange, this) );
+		avatar_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
+	}
 
-	LLSearchEditor *location_editor = getChild<LLSearchEditor>("location");
-	location_editor->setFocusChangedCallback(boost::bind(&LLFloaterWorldMap::onLocationFocusChanged, this, _1));
-	location_editor->setKeystrokeCallback( boost::bind(&LLFloaterWorldMap::onSearchTextEntry, this));
+	getChild<LLScrollListCtrl>("location")->setFocusChangedCallback(boost::bind(&LLFloaterWorldMap::onLocationFocusChanged, this, _1));
+
+	LLLineEditor *location_editor = getChild<LLLineEditor>("location");
+	if (location_editor)
+	{
+		location_editor->setKeystrokeCallback( boost::bind(&LLFloaterWorldMap::onSearchTextEntry, this, _1), NULL );
+	}
 	
 	getChild<LLScrollListCtrl>("search_results")->setDoubleClickCallback( boost::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));
 
 	LLComboBox *landmark_combo = getChild<LLComboBox>( "landmark combo");
-	landmark_combo->selectFirstItem();
-	landmark_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onLandmarkComboPrearrange, this) );
-	landmark_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
+	if (landmark_combo)
+	{
+		landmark_combo->selectFirstItem();
+		landmark_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onLandmarkComboPrearrange, this) );
+		landmark_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
+	}
 
 	mCurZoomVal = log(LLWorldMapView::sMapScale)/log(2.f);
 	childSetValue("zoom slider", LLWorldMapView::sMapScale);
@@ -247,8 +260,6 @@ BOOL LLFloaterWorldMap::postBuild()
 	setDefaultBtn(NULL);
 
 	mZoomTimer.stop();
-
-	onChangeMaturity();
 
 	return TRUE;
 }
@@ -331,6 +342,8 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
 	}
 }
 
+
+
 // static
 void LLFloaterWorldMap::reloadIcons(void*)
 {
@@ -375,6 +388,21 @@ void LLFloaterWorldMap::draw()
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	
+	// Hide/Show Mature Events controls
+	childSetVisible("events_mature_icon", gAgent.canAccessMature());
+	childSetVisible("events_mature_label", gAgent.canAccessMature());
+	childSetVisible("event_mature_chk", gAgent.canAccessMature());
+
+	childSetVisible("events_adult_icon", gAgent.canAccessMature());
+	childSetVisible("events_adult_label", gAgent.canAccessMature());
+	childSetVisible("event_adult_chk", gAgent.canAccessMature());
+	bool adult_enabled = gAgent.canAccessAdult();
+	if (!adult_enabled)
+	{
+		childSetValue("event_adult_chk", FALSE);
+	}
+	childSetEnabled("event_adult_chk", adult_enabled);
+
 	// On orientation island, users don't have a home location yet, so don't
 	// let them teleport "home".  It dumps them in an often-crowed welcome
 	// area (infohub) and they get confused. JC
@@ -462,8 +490,8 @@ void LLFloaterWorldMap::draw()
 	childSetEnabled("telehub_chk", enable);
 	childSetEnabled("land_for_sale_chk", enable);
 	childSetEnabled("event_chk", enable);
-	childSetEnabled("events_mature_chk", enable);
-	childSetEnabled("events_adult_chk", enable);
+	childSetEnabled("event_mature_chk", enable);
+	childSetEnabled("event_adult_chk", enable);
 	
 	LLFloater::draw();
 }
@@ -575,10 +603,6 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 		S32 world_y = S32(pos_global.mdV[1] / 256);
 		LLWorldMapMessage::getInstance()->sendMapBlockRequest(world_x, world_y, world_x, world_y, true);
 		setDefaultBtn("");
-
-		// clicked on a non-region - turn off coord display
-		enableTeleportCoordsDisplay( false );
-
 		return;
 	}
 	if (sim_info->isDown())
@@ -589,10 +613,6 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 		LLWorldMap::getInstance()->setTrackingInvalid();
 		LLTracker::stopTracking(NULL);
 		setDefaultBtn("");
-
-		// clicked on a down region - turn off coord display
-		enableTeleportCoordsDisplay( false );
-
 		return;
 	}
 
@@ -610,38 +630,7 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 	LLTracker::trackLocation(pos_global, full_name, tooltip);
 	LLWorldMap::getInstance()->cancelTracking();		// The floater is taking over the tracking
 
-	LLVector3d coord_pos = LLTracker::getTrackedPositionGlobal();
-	updateTeleportCoordsDisplay( coord_pos );
-
-	// we have a valid region - turn on coord display
-	enableTeleportCoordsDisplay( true );
-
 	setDefaultBtn("Teleport");
-}
-
-// enable/disable teleport destination coordinates 
-void LLFloaterWorldMap::enableTeleportCoordsDisplay( bool enabled )
-{
-	childSetEnabled("teleport_coordinate_x", enabled );
-	childSetEnabled("teleport_coordinate_y", enabled );
-	childSetEnabled("teleport_coordinate_z", enabled );
-}
-
-// update display of teleport destination coordinates - pos is in global coordinates
-void LLFloaterWorldMap::updateTeleportCoordsDisplay( const LLVector3d& pos )
-{
-	// if we're going to update their value, we should also enable them
-	enableTeleportCoordsDisplay( true );
-
-	// convert global specified position to a local one
-	F32 region_local_x = (F32)fmod( pos.mdV[VX], (F64)REGION_WIDTH_METERS );
-	F32 region_local_y = (F32)fmod( pos.mdV[VY], (F64)REGION_WIDTH_METERS );
-	F32 region_local_z = (F32)fmod( pos.mdV[VZ], (F64)REGION_WIDTH_METERS );
-
-	// write in the values
-	childSetValue("teleport_coordinate_x", region_local_x );
-	childSetValue("teleport_coordinate_y", region_local_y );
-	childSetValue("teleport_coordinate_z", region_local_z );
 }
 
 void LLFloaterWorldMap::updateLocation()
@@ -669,9 +658,6 @@ void LLFloaterWorldMap::updateLocation()
 
 				// Fill out the location field
 				childSetValue("location", agent_sim_name);
-
-				// update the coordinate display with location of avatar in region
-				updateTeleportCoordsDisplay( agentPos );
 
 				// Figure out where user is
 				// Set the current SLURL
@@ -702,10 +688,6 @@ void LLFloaterWorldMap::updateLocation()
 		}
 
 		childSetValue("location", sim_name);
-
-		// refresh coordinate display to reflect where user clicked.
-		LLVector3d coord_pos = LLTracker::getTrackedPositionGlobal();
-		updateTeleportCoordsDisplay( coord_pos );
 
 		// simNameFromPosGlobal can fail, so don't give the user an invalid SLURL
 		if ( gotSimName )
@@ -1021,7 +1003,7 @@ void LLFloaterWorldMap::onComboTextEntry()
 	LLTracker::clearFocus();
 }
 
-void LLFloaterWorldMap::onSearchTextEntry( )
+void LLFloaterWorldMap::onSearchTextEntry( LLLineEditor* ctrl )
 {
 	onComboTextEntry();
 	updateSearchEnabled();
@@ -1178,22 +1160,6 @@ void LLFloaterWorldMap::onLocationCommit()
 	}
 }
 
-void LLFloaterWorldMap::onCoordinatesCommit()
-{
-	if( mIsClosing )
-	{
-		return;
-	}
-
-	S32 x_coord = (S32)childGetValue("teleport_coordinate_x").asReal();
-	S32 y_coord = (S32)childGetValue("teleport_coordinate_y").asReal();
-	S32 z_coord = (S32)childGetValue("teleport_coordinate_z").asReal();
-
-	const std::string region_name = childGetValue("location").asString();
-
-	trackURL( region_name, x_coord, y_coord, z_coord );
-}
-
 void LLFloaterWorldMap::onClearBtn()
 {
 	mTrackedStatus = LLTracker::TRACKING_NOTHING;
@@ -1254,9 +1220,6 @@ void LLFloaterWorldMap::centerOnTarget(BOOL animate)
 	else if(LLWorldMap::getInstance()->isTracking())
 	{
 		pos_global = LLWorldMap::getInstance()->getTrackedPositionGlobal() - gAgentCamera.getCameraPositionGlobal();;
-
-
-
 	}
 	else
 	{
@@ -1526,28 +1489,4 @@ void LLFloaterWorldMap::onCommitSearchResult()
 	}
 
 	onShowTargetBtn();
-}
-
-void LLFloaterWorldMap::onChangeMaturity()
-{
-	bool can_access_mature = gAgent.canAccessMature();
-	bool can_access_adult = gAgent.canAccessAdult();
-
-	childSetVisible("events_mature_icon", can_access_mature);
-	childSetVisible("events_mature_label", can_access_mature);
-	childSetVisible("events_mature_chk", can_access_mature);
-
-	childSetVisible("events_adult_icon", can_access_adult);
-	childSetVisible("events_adult_label", can_access_adult);
-	childSetVisible("events_adult_chk", can_access_adult);
-
-	// disable mature / adult events.
-	if (!can_access_mature)
-	{
-		gSavedSettings.setBOOL("ShowMatureEvents", FALSE);
-	}
-	if (!can_access_adult)
-	{
-		gSavedSettings.setBOOL("ShowAdultEvents", FALSE);
-	}
 }

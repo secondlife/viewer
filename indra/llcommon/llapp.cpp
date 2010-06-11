@@ -2,35 +2,35 @@
  * @file llapp.cpp
  * @brief Implementation of the LLApp class.
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewergpl$
+ * 
+ * Copyright (c) 2003-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
 #include <cstdlib>
-
-#ifdef LL_DARWIN
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/sysctl.h>
-#endif
 
 #include "linden_common.h"
 #include "llapp.h"
@@ -306,42 +306,7 @@ void LLApp::setupErrorHandling()
 	setup_signals();
 	
 	// Add google breakpad exception handler configured for Darwin/Linux.
-	bool installHandler = true;
-#ifdef LL_DARWIN
-	// For the special case of Darwin, we do not want to install the handler if
-	// the process is being debugged as the app will exit with value ABRT (6) if
-	// we do.  Unfortunately, the code below which performs that test relies on
-	// the structure kinfo_proc which has been tagged by apple as an unstable
-	// API.  We disable this test for shipping versions to avoid conflicts with
-	// future releases of Darwin.  This test is really only needed for developers
-	// starting the app from a debugger anyway.
-	#ifndef LL_RELEASE_FOR_DOWNLOAD
-    int mib[4];
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_PROC;
-	mib[2] = KERN_PROC_PID;
-	mib[3] = getpid();
-	
-	struct kinfo_proc info;
-	memset(&info, 0, sizeof(info));
-	
-	size_t size = sizeof(info);
-	int result = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
-	if((result == 0) || (errno == ENOMEM))
-	{
-		// P_TRACED flag is set, so this process is being debugged; do not install
-		// the handler
-		if(info.kp_proc.p_flag & P_TRACED) installHandler = false;
-	}
-	else
-	{
-		// Failed to discover if the process is being debugged; default to
-		// installing the handler.
-		installHandler = true;
-	}
-	#endif
-#endif
-	if(installHandler && (mExceptionHandler == 0))
+	if(mExceptionHandler == 0)
 	{
 		std::string dumpPath = "/tmp/";
 		mExceptionHandler = new google_breakpad::ExceptionHandler(dumpPath, 0, &unix_post_minidump_callback, 0, true);
@@ -399,7 +364,7 @@ void LLApp::setError()
 
 void LLApp::setMiniDumpDir(const std::string &path)
 {
-	if(mExceptionHandler == 0) return;
+	llassert(mExceptionHandler);
 #ifdef LL_WINDOWS
 	wchar_t buffer[MAX_MINDUMP_PATH_LENGTH];
 	mbstowcs(buffer, path.c_str(), MAX_MINDUMP_PATH_LENGTH);
@@ -411,7 +376,7 @@ void LLApp::setMiniDumpDir(const std::string &path)
 
 void LLApp::writeMiniDump()
 {
-	if(mExceptionHandler == 0) return;
+	llassert(mExceptionHandler);
 	mExceptionHandler->WriteMinidump();
 }
 
@@ -857,13 +822,7 @@ bool unix_post_minidump_callback(const char *dump_dir,
 	
 	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
 	LLApp::runErrorHandler();
-	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	clear_signals();
-	return false;
-#else
 	return true;
-#endif
 }
 #endif // !WINDOWS
 
@@ -920,10 +879,6 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 		ms_sleep(10);
 	}
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	return false;
-#else
 	return true;
-#endif
 }
 #endif

@@ -2,25 +2,31 @@
  * @file llinventorymodel.cpp
  * @brief Implementation of the inventory model used to track agent inventory.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -286,30 +292,6 @@ void LLInventoryModel::getDirectDescendentsOf(const LLUUID& cat_id,
 {
 	categories = get_ptr_in_map(mParentChildCategoryTree, cat_id);
 	items = get_ptr_in_map(mParentChildItemTree, cat_id);
-}
-
-LLMD5 LLInventoryModel::hashDirectDescendentNames(const LLUUID& cat_id) const
-{
-	LLInventoryModel::cat_array_t* cat_array;
-	LLInventoryModel::item_array_t* item_array;
-	getDirectDescendentsOf(cat_id,cat_array,item_array);
-	LLMD5 item_name_hash;
-	if (!item_array)
-	{
-		item_name_hash.finalize();
-		return item_name_hash;
-	}
-	for (LLInventoryModel::item_array_t::const_iterator iter = item_array->begin();
-		 iter != item_array->end();
-		 iter++)
-	{
-		const LLViewerInventoryItem *item = (*iter);
-		if (!item)
-			continue;
-		item_name_hash.update(item->getName());
-	}
-	item_name_hash.finalize();
-	return item_name_hash;
 }
 
 // SJB: Added version to lock the arrays to catch potential logic bugs
@@ -1272,9 +1254,6 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 	//llinfos << "LLInventoryModel::addCategory()" << llendl;
 	if(category)
 	{
-		// try to localize default names first. See EXT-8319, EXT-7051.
-		category->localizeName();
-
 		// Insert category uniquely into the map
 		mCategoryMap[category->getUUID()] = category; // LLPointer will deref and delete the old one
 		//mInventory[category->getUUID()] = category;
@@ -1283,6 +1262,12 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 
 void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 {
+	/*
+	const LLViewerInventoryCategory* cat = gInventory.getCategory(item->getParentUUID()); // Seraph remove for 2.1
+	const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND"; // Seraph remove for 2.1
+	llinfos << "Added item [ name:" << item->getName() << " UUID:" << item->getUUID() << " type:" << item->getActualType() << " ] to folder [ name:" << cat_name << " uuid:" << item->getParentUUID() << " ]" << llendl; // Seraph remove for 2.1
+	*/
+
 	llassert(item);
 	if(item)
 	{
@@ -1681,17 +1666,6 @@ bool LLInventoryModel::loadSkeleton(
 			}
 		}
 
-		// Invalidate all categories that failed fetching descendents for whatever
-		// reason (e.g. one of the descendents was a broken link).
-		for (cat_set_t::iterator invalid_cat_it = invalid_categories.begin();
-			 invalid_cat_it != invalid_categories.end();
-			 invalid_cat_it++)
-		{
-			LLViewerInventoryCategory* cat = (*invalid_cat_it).get();
-			cat->setVersion(NO_VERSION);
-			llinfos << "Invalidating category name: " << cat->getName() << " UUID: " << cat->getUUID() << " due to invalid descendents cache" << llendl;
-		}
-
 		// At this point, we need to set the known descendents for each
 		// category which successfully cached so that we do not
 		// needlessly fetch descendents for categories which we have.
@@ -1712,6 +1686,17 @@ bool LLInventoryModel::loadSkeleton(
 					cat->setDescendentCount(0);
 				}
 			}
+		}
+
+		// Invalidate all categories that failed fetching descendents for whatever
+		// reason (e.g. one of the descendents was a broken link).
+		for (cat_set_t::iterator invalid_cat_it = invalid_categories.begin();
+			 invalid_cat_it != invalid_categories.end();
+			 invalid_cat_it++)
+		{
+			LLViewerInventoryCategory* cat = (*invalid_cat_it).get();
+			cat->setVersion(NO_VERSION);
+			llinfos << "Invalidating category name: " << cat->getName() << " UUID: " << cat->getUUID() << " due to invalid descendents cache" << llendl;
 		}
 
 		if(remove_inventory_file)
@@ -2468,9 +2453,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	}
 	LLUUID tid;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_TransactionID, tid);
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 	llinfos << "Bulk inventory: " << tid << llendl;
-#endif
 
 	update_map_t update;
 	cat_array_t folders;

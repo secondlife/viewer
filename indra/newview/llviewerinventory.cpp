@@ -2,25 +2,31 @@
  * @file llviewerinventory.cpp
  * @brief Implementation of the viewer side inventory objects.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewergpl$
+ * 
+ * Copyright (c) 2002-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -61,7 +67,7 @@
 #include "llsidepanelappearance.h"
 
 ///----------------------------------------------------------------------------
-/// Helper class to store special inventory item names and their localized values.
+/// Helper class to store special inventory item names 
 ///----------------------------------------------------------------------------
 class LLLocalizedInventoryItemsDictionary : public LLSingleton<LLLocalizedInventoryItemsDictionary>
 {
@@ -87,10 +93,8 @@ public:
 		mInventoryItemsDict["New Tattoo"]		= LLTrans::getString("New Tattoo");
 		mInventoryItemsDict["Invalid Wearable"] = LLTrans::getString("Invalid Wearable");
 
-		mInventoryItemsDict["New Gesture"]		= LLTrans::getString("New Gesture");
 		mInventoryItemsDict["New Script"]		= LLTrans::getString("New Script");
 		mInventoryItemsDict["New Folder"]		= LLTrans::getString("New Folder");
-		mInventoryItemsDict["New Note"]			= LLTrans::getString("New Note");
 		mInventoryItemsDict["Contents"]			= LLTrans::getString("Contents");
 
 		mInventoryItemsDict["Gesture"]			= LLTrans::getString("Gesture");
@@ -104,7 +108,7 @@ public:
 
 		//male
 		mInventoryItemsDict["Male - Excuse me"]			= LLTrans::getString("Male - Excuse me");
-		mInventoryItemsDict["Male  - Get lost"]			= LLTrans::getString("Male - Get lost"); // double space after Male. EXT-8319
+		mInventoryItemsDict["Male - Get lost"]			= LLTrans::getString("Male - Get lost");
 		mInventoryItemsDict["Male - Blow kiss"]			= LLTrans::getString("Male - Blow kiss");
 		mInventoryItemsDict["Male - Boo"]				= LLTrans::getString("Male - Boo");
 		mInventoryItemsDict["Male - Bored"]				= LLTrans::getString("Male - Bored");
@@ -116,46 +120,18 @@ public:
 		mInventoryItemsDict["Male - Wow"]				= LLTrans::getString("Male - Wow");
 
 		//female
-		mInventoryItemsDict["Female - Chuckle"]			= LLTrans::getString("Female - Chuckle");
-		mInventoryItemsDict["Female - Cry"]				= LLTrans::getString("Female - Cry");
-		mInventoryItemsDict["Female - Embarrassed"]		= LLTrans::getString("Female - Embarrassed");
 		mInventoryItemsDict["Female - Excuse me"]		= LLTrans::getString("Female - Excuse me");
-		mInventoryItemsDict["Female  - Get lost"]		= LLTrans::getString("Female - Get lost"); // double space after Female. EXT-8319
+		mInventoryItemsDict["Female - Get lost"]		= LLTrans::getString("Female - Get lost");
 		mInventoryItemsDict["Female - Blow kiss"]		= LLTrans::getString("Female - Blow kiss");
 		mInventoryItemsDict["Female - Boo"]				= LLTrans::getString("Female - Boo");
 		mInventoryItemsDict["Female - Bored"]			= LLTrans::getString("Female - Bored");
 		mInventoryItemsDict["Female - Hey"]				= LLTrans::getString("Female - Hey");
-		mInventoryItemsDict["Female - Hey baby"]		= LLTrans::getString("Female - Hey baby");
 		mInventoryItemsDict["Female - Laugh"]			= LLTrans::getString("Female - Laugh");
-		mInventoryItemsDict["Female - Looking good"]	= LLTrans::getString("Female - Looking good");
-		mInventoryItemsDict["Female - Over here"]		= LLTrans::getString("Female - Over here");
-		mInventoryItemsDict["Female - Please"]			= LLTrans::getString("Female - Please");
 		mInventoryItemsDict["Female - Repulsed"]		= LLTrans::getString("Female - Repulsed");
 		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
 		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
 		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
 		
-	}
-
-	/**
-	 * Finds passed name in dictionary and replaces it with found localized value.
-	 *
-	 * @param object_name - string to be localized.
-	 * @return true if passed name was found and localized, false otherwise.
-	 */
-	bool localizeInventoryObjectName(std::string& object_name)
-	{
-		LL_DEBUGS("InventoryLocalize") << "Searching for localization: " << object_name << LL_ENDL;
-
-		std::map<std::string, std::string>::const_iterator dictionary_iter = mInventoryItemsDict.find(object_name);
-
-		bool found = dictionary_iter != mInventoryItemsDict.end();
-		if(found)
-		{
-			object_name = dictionary_iter->second;
-			LL_DEBUGS("InventoryLocalize") << "Found, new name is: " << object_name << LL_ENDL;
-		}
-		return found;
 	}
 };
 
@@ -415,7 +391,16 @@ BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* bloc
 {
 	BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
 
-	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
+	std::string localized_str;
+
+	std::map<std::string, std::string>::const_iterator dictionary_iter;
+
+	dictionary_iter = LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.find(mName);
+
+	if(dictionary_iter != LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.end())
+	{
+		mName = dictionary_iter->second;
+	}
 
 	mIsComplete = TRUE;
 	return rv;
@@ -640,15 +625,7 @@ bool LLViewerInventoryCategory::fetch()
 		// AIS folks are aware of the issue and have a fix in process.
 		// see ticket for details.
 
-		std::string url;
-		if (gAgent.getRegion())
-		{
-			url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
-		}
-		else
-		{
-			llwarns << "agent region is null" << llendl;
-		}
+		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
 			LLInventoryModelBackgroundFetch::instance().start(mUUID, false);			
@@ -835,11 +812,6 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, folder_id);
 }
 
-void LLViewerInventoryCategory::localizeName()
-{
-	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
-}
-
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------
@@ -866,21 +838,6 @@ LLInventoryCallbackManager::~LLInventoryCallbackManager()
 	}
 	sInstance = NULL;
 }
-
-//static 
-void LLInventoryCallbackManager::destroyClass()
-{
-	if (sInstance)
-	{
-		for (callback_map_t::iterator it = sInstance->mMap.begin(), end_it = sInstance->mMap.end(); it != end_it; ++it)
-		{
-			// drop LLPointer reference to callback
-			it->second = NULL;
-		}
-		sInstance->mMap.clear();
-	}
-}
-
 
 U32 LLInventoryCallbackManager::registerCB(LLPointer<LLInventoryCallback> cb)
 {
@@ -930,7 +887,7 @@ void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 	gAgentWearables.editWearableIfRequested(inv_item);
 
 	// TODO: camera mode may not be changed if a debug setting is tweaked
-	if(gAgentCamera.cameraCustomizeAvatar())
+	if( gAgentCamera.cameraCustomizeAvatar() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
 		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
@@ -964,11 +921,6 @@ void RezAttachmentCallback::fire(const LLUUID& inv_item)
 void ActivateGestureCallback::fire(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
-		return;
-	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
-	if (!item)
-		return;
-	if (item->getType() != LLAssetType::AT_GESTURE)
 		return;
 
 	LLGestureMgr::instance().activateGesture(inv_item);
@@ -1167,14 +1119,6 @@ void move_inventory_item(
 
 void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src, U32 callback_id)
 {
-	if (NULL == src)
-	{
-		LL_WARNS("copy_inventory_from_notecard") << "Null pointer to item was passed for object_id "
-												 << object_id << " and notecard_inv_id "
-												 << notecard_inv_id << LL_ENDL;
-		return;
-	}
-
 	LLViewerRegion* viewer_region = NULL;
     LLViewerObject* vo = NULL;
 	if (object_id.notNull() && (vo = gObjectList.findObject(object_id)) != NULL)
@@ -1196,16 +1140,6 @@ void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecar
                                                  << LL_ENDL;
         return;
     }
-
-	// check capability to prevent a crash while LL_ERRS in LLCapabilityListener::capListener. See EXT-8459.
-	std::string url = viewer_region->getCapability("CopyInventoryFromNotecard");
-	if (url.empty())
-	{
-        LL_WARNS("copy_inventory_from_notecard") << "There is no 'CopyInventoryFromNotecard' capability"
-												 << " for region: " << viewer_region->getName()
-                                                 << LL_ENDL;
-		return;
-	}
 
     LLSD request, body;
     body["notecard-id"] = notecard_inv_id;

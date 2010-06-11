@@ -2,25 +2,31 @@
  * @file llfolderview.cpp
  * @brief Implementation of the folder view collection of classes.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * 
+ * Copyright (c) 2001-2009, Linden Research, Inc.
+ * 
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlifegrid.net/programs/open_source/licensing/gplv2
  * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at
+ * http://secondlifegrid.net/programs/open_source/licensing/flossexception
  * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
  * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
  */
 
@@ -81,10 +87,6 @@ const S32 MIN_ITEM_WIDTH_VISIBLE = LLFolderViewItem::ICON_WIDTH
 			+ LLFolderViewItem::TEXT_PAD 
 			+ /*first few characters*/ 40;
 const S32 MINIMUM_RENAMER_WIDTH = 80;
-
-// *TODO: move in params in xml if necessary. Requires modification of LLFolderView & LLInventoryPanel Params.
-const S32 STATUS_TEXT_HPAD = 6;
-const S32 STATUS_TEXT_VPAD = 8;
 
 enum {
 	SIGNAL_NO_KEYBOARD_FOCUS = 1,
@@ -179,7 +181,6 @@ LLFolderView::LLFolderView(const Params& p)
 	mRenameItem( NULL ),
 	mNeedsScroll( FALSE ),
 	mEnableScroll( true ),
-	mUseLabelSuffix(p.use_label_suffix),
 	mPinningSelectedItem(FALSE),
 	mNeedsAutoSelect( FALSE ),
 	mAutoSelectOverride(FALSE),
@@ -246,9 +247,6 @@ LLFolderView::LLFolderView(const Params& p)
 	text_p.visible(false);
 	text_p.allow_html(true);
 	text_p.wrap(true); // allow multiline text. See EXT-7564, EXT-7047
-	// set text padding the same as in People panel. EXT-7047, EXT-4837
-	text_p.h_pad(STATUS_TEXT_HPAD);
-	text_p.v_pad(STATUS_TEXT_VPAD);
 	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
 	mStatusTextBox->setFollowsLeft();
 	mStatusTextBox->setFollowsTop();
@@ -956,7 +954,7 @@ void LLFolderView::draw()
 		}
 		mStatusTextBox->setValue(mStatusText);
 		mStatusTextBox->setVisible( TRUE );
-		
+
 		// firstly reshape message textbox with current size. This is necessary to
 		// LLTextBox::getTextPixelHeight works properly
 		const LLRect local_rect = getLocalRect();
@@ -1189,7 +1187,7 @@ void LLFolderView::propertiesSelectedItems( void )
 
 void LLFolderView::changeType(LLInventoryModel *model, LLFolderType::EType new_folder_type)
 {
-	LLFolderBridge *folder_bridge = LLFolderBridge::sSelf.get();
+	LLFolderBridge *folder_bridge = LLFolderBridge::sSelf;
 
 	if (!folder_bridge) return;
 	LLViewerInventoryCategory *cat = folder_bridge->getCategory();
@@ -1862,24 +1860,18 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		LLView::child_list_t::const_iterator menu_itor;
 		for (menu_itor = list->begin(); menu_itor != list->end(); ++menu_itor)
 		{
-			(*menu_itor)->setVisible(FALSE);
-			(*menu_itor)->pushVisible(TRUE);
+			(*menu_itor)->setVisible(TRUE);
 			(*menu_itor)->setEnabled(TRUE);
 		}
 		
 		// Successively filter out invalid options
-
+		selected_items_t::iterator item_itor;
 		U32 flags = FIRST_SELECTED_ITEM;
-		for (selected_items_t::iterator item_itor = mSelectedItems.begin(); 
-			 item_itor != mSelectedItems.end(); 
-			 ++item_itor)
+		for (item_itor = mSelectedItems.begin(); item_itor != mSelectedItems.end(); ++item_itor)
 		{
-			LLFolderViewItem* selected_item = (*item_itor);
-			selected_item->buildContextMenu(*menu, flags);
+			(*item_itor)->buildContextMenu(*menu, flags);
 			flags = 0x0;
 		}
-	   
-		addNoOptions(menu);
 
 		menu->updateParent(LLMenuGL::sMenuContainer);
 		LLMenuGL::showPopup(this, menu, x, y);
@@ -1888,44 +1880,13 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 	}
 	else
 	{
-		if (menu && menu->getVisible())
+		if(menu && menu->getVisible())
 		{
 			menu->setVisible(FALSE);
 		}
 		setSelection(NULL, FALSE, TRUE);
 	}
 	return handled;
-}
-
-// Add "--no options--" if the menu is completely blank.
-BOOL LLFolderView::addNoOptions(LLMenuGL* menu) const
-{
-	const std::string nooptions_str = "--no options--";
-	LLView *nooptions_item = NULL;
-	
-	const LLView::child_list_t *list = menu->getChildList();
-	for (LLView::child_list_t::const_iterator itor = list->begin(); 
-		 itor != list->end(); 
-		 ++itor)
-	{
-		LLView *menu_item = (*itor);
-		if (menu_item->getVisible())
-		{
-			return FALSE;
-		}
-		std::string name = menu_item->getName();
-		if (menu_item->getName() == nooptions_str)
-		{
-			nooptions_item = menu_item;
-		}
-	}
-	if (nooptions_item)
-	{
-		nooptions_item->setVisible(TRUE);
-		nooptions_item->setEnabled(FALSE);
-		return TRUE;
-	}
-	return FALSE;
 }
 
 BOOL LLFolderView::handleHover( S32 x, S32 y, MASK mask )
