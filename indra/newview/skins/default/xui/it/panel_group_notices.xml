@@ -40,6 +40,7 @@ Massimo 200 per gruppo al giorno
 		<text name="string">
 			Trascina e rilascia qui l&apos;oggetto da allegare:
 		</text>
+		<button label="Inventario" name="open_inventory" tool_tip="Apri l&apos;inventario"/>
 		<button label="Rimuovi" label_selected="Rimuovi allegato" name="remove_attachment" tool_tip="Rimuovi allegato dal tuo avviso"/>
 		<button label="Invia" label_selected="Invia" name="send_notice"/>
 		<group_drop_target name="drop_target" tool_tip="Trascina un oggetto dall&apos;inventario ín questa casella per spedirlo con questo avviso. Devi avere i diritti per la copia e il trasferimento per poter allegare l&apos;oggetto."/>
