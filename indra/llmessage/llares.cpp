@@ -473,7 +473,7 @@ bool LLAres::process(U64 timeout)
 		ll_init_apr();
 	}
 
-	int socks[ARES_GETSOCK_MAXNUM];
+	ares_socket_t socks[ARES_GETSOCK_MAXNUM];
 	apr_pollfd_t aprFds[ARES_GETSOCK_MAXNUM];
 	apr_int32_t nsds = 0;	
 	int nactive = 0;
