@@ -82,6 +82,17 @@
              function="Floater.Toggle"
              parameter="gestures" />
         </menu_item_check>
+        <menu_item_check
+         label="My Voice"
+         name="ShowVoice"
+         visibility_control="VoiceMorphingEnabled">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="voice_effect" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="voice_effect" />
+        </menu_item_check>
         <menu
          label="My Status"
          name="Status"

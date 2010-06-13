@@ -67,9 +67,9 @@
 	<text name="RenderingCost" tool_tip="Mostra o cálculo do custo de renderização do objeto">
 		þ: [COUNT]
 	</text>
-	<check_box name="checkbox uniform"/>
-	<text name="checkbox uniform label">
-		Esticar ambos os lados
+	<check_box label="" name="checkbox uniform"/>
+	<text label="Esticar ambos lados" name="checkbox uniform label">
+		Esticar ambos lados
 	</text>
 	<check_box initial_value="true" label="Esticar texturas" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Mostrar na grade" name="checkbox snap to grid"/>

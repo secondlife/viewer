@@ -87,6 +87,9 @@ void LLFloaterBuyCurrencyHTML::navigateToFinalURL()
 	replace[ "[MSG]" ] = LLURI::escape( mMessage );
 	LLStringUtil::format( buy_currency_url, replace );
 
+	// write final URL to debug console
+	llinfos << "Buy currency HTML prased URL is " << buy_currency_url << llendl;
+
 	// kick off the navigation
 	mBrowser->navigateTo( buy_currency_url );
 }
@@ -98,6 +101,9 @@ void LLFloaterBuyCurrencyHTML::handleMediaEvent( LLPluginClassMedia* self, EMedi
 	// placeholder for now - just in case we want to catch media events
 	if ( LLPluginClassMediaOwner::MEDIA_EVENT_NAVIGATE_COMPLETE == event )
 	{
+		// update currency after we complete a navigation since there are many ways 
+		// this can result in a different L$ balance
+		LLStatusBar::sendMoneyBalanceRequest();
 	};
 }
 
@@ -105,6 +111,9 @@ void LLFloaterBuyCurrencyHTML::handleMediaEvent( LLPluginClassMedia* self, EMedi
 //
 void LLFloaterBuyCurrencyHTML::onClose( bool app_quitting )
 {
+	// update L$ balanace one more time
+	LLStatusBar::sendMoneyBalanceRequest();
+
 	destroy();
 }
 

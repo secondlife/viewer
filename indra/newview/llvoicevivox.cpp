@@ -60,6 +60,7 @@
 #include "llviewerparcelmgr.h"
 //#include "llfirstuse.h"
 #include "llspeakers.h"
+#include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 
@@ -67,14 +68,10 @@
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
 
+#include "stringize.h"
+
 // for base64 decoding
 #include "apr_base64.h"
-
-// for SHA1 hash
-#include "apr_sha1.h"
-
-// for MD5 hash
-#include "llmd5.h"
 
 #define USE_SESSION_GROUPS 0
 
@@ -100,14 +97,15 @@ const int MAX_LOGIN_RETRIES = 12;
 // blocked is VERY rare and it's better to sacrifice response time in this situation for the sake of stability.
 const int MAX_NORMAL_JOINING_SPATIAL_NUM = 50;
 
+// How often to check for expired voice fonts in seconds
+const F32 VOICE_FONT_EXPIRY_INTERVAL = 10.f;
+// Time of day at which Vivox expires voice font subscriptions.
+// Used to replace the time portion of received expiry timestamps.
+static const std::string VOICE_FONT_EXPIRY_TIME = "T05:00:00Z";
 
-static void setUUIDFromStringHash(LLUUID &uuid, const std::string &str)
-{
-	LLMD5 md5_uuid;
-	md5_uuid.update((const unsigned char*)str.data(), str.size());
-	md5_uuid.finalize();
-	md5_uuid.raw_digest(uuid.mData);
-}
+// Maximum length of capture buffer recordings in seconds.
+const F32 CAPTURE_BUFFER_MAX_TIME = 10.f;
+
 
 static int scale_mic_volume(float volume)
 {
@@ -325,6 +323,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mBuddyListMapPopulated(false),
 	mBlockRulesListReceived(false),
 	mAutoAcceptRulesListReceived(false),
+
 	mCaptureDeviceDirty(false),
 	mRenderDeviceDirty(false),
 	mSpatialCoordsDirty(false),
@@ -348,10 +347,17 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mVoiceEnabled(false),
 	mWriteInProgress(false),
 
-	mLipSyncEnabled(false)
+	mLipSyncEnabled(false),
 
+	mVoiceFontsReceived(false),
+	mVoiceFontsNew(false),
+	mVoiceFontListDirty(false),
 
-
+	mCaptureBufferMode(false),
+	mCaptureBufferRecording(false),
+	mCaptureBufferRecorded(false),
+	mCaptureBufferPlaying(false),
+	mPlayRequestCount(0)
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -396,19 +402,16 @@ void LLVivoxVoiceClient::init(LLPumpIO *pump)
 
 void LLVivoxVoiceClient::terminate()
 {
-
-//	leaveAudioSession();
-	logout();
-	// As of SDK version 4885, this should no longer be necessary.  It will linger after the socket close if it needs to.
-	// ms_sleep(2000);
-	connectorShutdown();
-	closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.
-	
-	// This will do unpleasant things on windows.
-//	killGateway();
-	
-
-
+	if(mConnected)
+	{
+		logout();
+		connectorShutdown();
+		closeSocket();		// Need to do this now -- bad things happen if the destructor does it later.	
+	}
+	else
+	{
+		killGateway();
+	}
 }
 
 const LLVoiceVersionInfo& LLVivoxVoiceClient::getVersion()
@@ -654,6 +657,11 @@ std::string LLVivoxVoiceClient::state2string(LLVivoxVoiceClient::state inState)
 		CASE(stateMicTuningStart);
 		CASE(stateMicTuningRunning);
 		CASE(stateMicTuningStop);
+		CASE(stateCaptureBufferPaused);
+		CASE(stateCaptureBufferRecStart);
+		CASE(stateCaptureBufferRecording);
+		CASE(stateCaptureBufferPlayStart);
+		CASE(stateCaptureBufferPlaying);
 		CASE(stateConnectorStart);
 		CASE(stateConnectorStarting);
 		CASE(stateConnectorStarted);
@@ -662,6 +670,8 @@ std::string LLVivoxVoiceClient::state2string(LLVivoxVoiceClient::state inState)
 		CASE(stateNeedsLogin);
 		CASE(stateLoggingIn);
 		CASE(stateLoggedIn);
+		CASE(stateVoiceFontsWait);
+		CASE(stateVoiceFontsReceived);
 		CASE(stateCreatingSessionGroup);
 		CASE(stateNoChannel);
 		CASE(stateJoiningSession);
@@ -775,8 +785,10 @@ void LLVivoxVoiceClient::stateMachine()
 			// Clean up and reset everything. 
 			closeSocket();
 			deleteAllSessions();
-			deleteAllBuddies();		
-			
+			deleteAllBuddies();
+			deleteAllVoiceFonts();
+			deleteVoiceFontTemplates();
+
 			mConnectorHandle.clear();
 			mAccountHandle.clear();
 			mAccountPassword.clear();
@@ -1126,8 +1138,97 @@ void LLVivoxVoiceClient::stateMachine()
 			
 		}
 		break;
-												
-		//MARK: stateConnectorStart
+
+		//MARK: stateCaptureBufferPaused
+		case stateCaptureBufferPaused:
+			if (!mCaptureBufferMode)
+			{
+				// Leaving capture mode.
+
+				mCaptureBufferRecording = false;
+				mCaptureBufferRecorded = false;
+				mCaptureBufferPlaying = false;
+
+				// Return to stateNoChannel to trigger reconnection to a channel.
+				setState(stateNoChannel);
+			}
+			else if (mCaptureBufferRecording)
+			{
+				setState(stateCaptureBufferRecStart);
+			}
+			else if (mCaptureBufferPlaying)
+			{
+				setState(stateCaptureBufferPlayStart);
+			}
+		break;
+
+		//MARK: stateCaptureBufferRecStart
+		case stateCaptureBufferRecStart:
+			captureBufferRecordStartSendMessage();
+
+			// Flag that something is recorded to allow playback.
+			mCaptureBufferRecorded = true;
+
+			// Start the timer, recording will be stopped when it expires.
+			mCaptureTimer.start();
+			mCaptureTimer.setTimerExpirySec(CAPTURE_BUFFER_MAX_TIME);
+
+			// Update UI, should really use a separate callback.
+			notifyVoiceFontObservers();
+
+			setState(stateCaptureBufferRecording);
+		break;
+
+		//MARK: stateCaptureBufferRecording
+		case stateCaptureBufferRecording:
+			if (!mCaptureBufferMode || !mCaptureBufferRecording ||
+				mCaptureBufferPlaying || mCaptureTimer.hasExpired())
+			{
+				// Stop recording
+				captureBufferRecordStopSendMessage();
+				mCaptureBufferRecording = false;
+
+				// Update UI, should really use a separate callback.
+				notifyVoiceFontObservers();
+
+				setState(stateCaptureBufferPaused);
+			}
+		break;
+
+		//MARK: stateCaptureBufferPlayStart
+		case stateCaptureBufferPlayStart:
+			captureBufferPlayStartSendMessage(mPreviewVoiceFont);
+
+			// Store the voice font being previewed, so that we know to restart if it changes.
+			mPreviewVoiceFontLast = mPreviewVoiceFont;
+
+			// Update UI, should really use a separate callback.
+			notifyVoiceFontObservers();
+
+			setState(stateCaptureBufferPlaying);
+		break;
+
+		//MARK: stateCaptureBufferPlaying
+		case stateCaptureBufferPlaying:
+			if (mCaptureBufferPlaying && mPreviewVoiceFont != mPreviewVoiceFontLast)
+			{
+				// If the preview voice font changes, restart playing with the new font.
+				setState(stateCaptureBufferPlayStart);
+			}
+			else if (!mCaptureBufferMode || !mCaptureBufferPlaying || mCaptureBufferRecording)
+			{
+				// Stop playing.
+				captureBufferPlayStopSendMessage();
+				mCaptureBufferPlaying = false;
+
+				// Update UI, should really use a separate callback.
+				notifyVoiceFontObservers();
+
+				setState(stateCaptureBufferPaused);
+			}
+		break;
+
+			//MARK: stateConnectorStart
 		case stateConnectorStart:
 			if(!mVoiceEnabled)
 			{
@@ -1222,6 +1323,18 @@ void LLVivoxVoiceClient::stateMachine()
 
 			notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
 
+			if (LLVoiceClient::instance().getVoiceEffectEnabled())
+			{
+				// Request the set of available voice fonts.
+				setState(stateVoiceFontsWait);
+				refreshVoiceEffectLists(true);
+			}
+			else
+			{
+				// If voice effects are disabled, pretend we've received them and carry on.
+				setState(stateVoiceFontsReceived);
+			}
+
 			// request the current set of block rules (we'll need them when updating the friends list)
 			accountListBlockRulesSendMessage();
 			
@@ -1253,12 +1366,25 @@ void LLVivoxVoiceClient::stateMachine()
 					writeString(stream.str());
 				}
 			}
+		break;
+
+		//MARK: stateVoiceFontsWait
+		case stateVoiceFontsWait:		// Await voice font list
+			// accountGetSessionFontsResponse() will transition from here to
+			// stateVoiceFontsReceived, to ensure we have the voice font list
+			// before attempting to create a session.
+		break;
 			
+		//MARK: stateVoiceFontsReceived
+		case stateVoiceFontsReceived:	// Voice font list received
+			// Set up the timer to check for expiring voice fonts
+			mVoiceFontExpiryTimer.start();
+			mVoiceFontExpiryTimer.setTimerExpirySec(VOICE_FONT_EXPIRY_INTERVAL);
+
 #if USE_SESSION_GROUPS			
 			// create the main session group
-			sessionGroupCreateSendMessage();
-			
 			setState(stateCreatingSessionGroup);
+			sessionGroupCreateSendMessage();
 #else
 			// Not using session groups -- skip the stateCreatingSessionGroup state.
 			setState(stateNoChannel);
@@ -1306,6 +1432,10 @@ void LLVivoxVoiceClient::stateMachine()
 				mTuningExitState = stateNoChannel;
 				setState(stateMicTuningStart);
 			}
+			else if(mCaptureBufferMode)
+			{
+				setState(stateCaptureBufferPaused);
+			}
 			else if(sessionNeedsRelog(mNextAudioSession))
 			{
 				requestRelog();
@@ -1316,6 +1446,7 @@ void LLVivoxVoiceClient::stateMachine()
 				sessionState *oldSession = mAudioSession;
 
 				mAudioSession = mNextAudioSession;
+				mAudioSessionChanged = true;
 				if(!mAudioSession->mReconnect)	
 				{
 					mNextAudioSession = NULL;
@@ -1478,6 +1609,13 @@ void LLVivoxVoiceClient::stateMachine()
 					enforceTether();
 				}
 				
+				// Do notifications for expiring Voice Fonts.
+				if (mVoiceFontExpiryTimer.hasExpired())
+				{
+					expireVoiceFonts();
+					mVoiceFontExpiryTimer.setTimerExpirySec(VOICE_FONT_EXPIRY_INTERVAL);
+				}
+
 				// Send an update only if the ptt or mute state has changed (which shouldn't be able to happen that often
 				// -- the user can only click so fast) or every 10hz, whichever is sooner.
 				// Sending for every volume update causes an excessive flood of messages whenever a volume slider is dragged.
@@ -1547,6 +1685,8 @@ void LLVivoxVoiceClient::stateMachine()
 			mAccountHandle.clear();
 			deleteAllSessions();
 			deleteAllBuddies();
+			deleteAllVoiceFonts();
+			deleteVoiceFontTemplates();
 
 			if(mVoiceEnabled && !mRelogRequested)
 			{
@@ -1627,15 +1767,15 @@ void LLVivoxVoiceClient::stateMachine()
 
 	}
 	
-	if(mAudioSession && mAudioSession->mParticipantsChanged)
-	{
-		mAudioSession->mParticipantsChanged = false;
-		mAudioSessionChanged = true;
-	}
-	
-	if(mAudioSessionChanged)
+	if (mAudioSessionChanged)
 	{
 		mAudioSessionChanged = false;
+		notifyParticipantObservers();
+		notifyVoiceFontObservers();
+	}
+	else if (mAudioSession && mAudioSession->mParticipantsChanged)
+	{
+		mAudioSession->mParticipantsChanged = false;
 		notifyParticipantObservers();
 	}
 }
@@ -1751,8 +1891,11 @@ void LLVivoxVoiceClient::sessionGroupCreateSendMessage()
 
 void LLVivoxVoiceClient::sessionCreateSendMessage(sessionState *session, bool startAudio, bool startText)
 {
-	LL_DEBUGS("Voice") << "requesting create: " << session->mSIPURI << LL_ENDL;
-	
+	LL_DEBUGS("Voice") << "Requesting create: " << session->mSIPURI << LL_ENDL;
+
+	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
+	LL_DEBUGS("Voice") << "With voice font: " << session->mVoiceFontID << " (" << font_index << ")" << LL_ENDL;
+
 	session->mCreateInProgress = true;
 	if(startAudio)
 	{
@@ -1776,10 +1919,11 @@ void LLVivoxVoiceClient::sessionCreateSendMessage(sessionState *session, bool st
 			<< "<Password>" << LLURI::escape(session->mHash, allowed_chars) << "</Password>"
 			<< "<PasswordHashAlgorithm>SHA1UserName</PasswordHashAlgorithm>";
 	}
-	
+
 	stream
 		<< "<ConnectAudio>" << (startAudio?"true":"false") << "</ConnectAudio>"
 		<< "<ConnectText>" << (startText?"true":"false") << "</ConnectText>"
+		<< "<VoiceFontID>" << font_index << "</VoiceFontID>"
 		<< "<Name>" << mChannelName << "</Name>"
 	<< "</Request>\n\n\n";
 	writeString(stream.str());
@@ -1787,8 +1931,11 @@ void LLVivoxVoiceClient::sessionCreateSendMessage(sessionState *session, bool st
 
 void LLVivoxVoiceClient::sessionGroupAddSessionSendMessage(sessionState *session, bool startAudio, bool startText)
 {
-	LL_DEBUGS("Voice") << "requesting create: " << session->mSIPURI << LL_ENDL;
-	
+	LL_DEBUGS("Voice") << "Requesting create: " << session->mSIPURI << LL_ENDL;
+
+	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
+	LL_DEBUGS("Voice") << "With voice font: " << session->mVoiceFontID << " (" << font_index << ")" << LL_ENDL;
+
 	session->mCreateInProgress = true;
 	if(startAudio)
 	{
@@ -1814,6 +1961,7 @@ void LLVivoxVoiceClient::sessionGroupAddSessionSendMessage(sessionState *session
 		<< "<Name>" << mChannelName << "</Name>"
 		<< "<ConnectAudio>" << (startAudio?"true":"false") << "</ConnectAudio>"
 		<< "<ConnectText>" << (startText?"true":"false") << "</ConnectText>"
+		<< "<VoiceFontID>" << font_index << "</VoiceFontID>"
 		<< "<Password>" << password << "</Password>"
 		<< "<PasswordHashAlgorithm>SHA1UserName</PasswordHashAlgorithm>"
 	<< "</Request>\n\n\n"
@@ -1824,7 +1972,10 @@ void LLVivoxVoiceClient::sessionGroupAddSessionSendMessage(sessionState *session
 
 void LLVivoxVoiceClient::sessionMediaConnectSendMessage(sessionState *session)
 {
-	LL_DEBUGS("Voice") << "connecting audio to session handle: " << session->mHandle << LL_ENDL;
+	LL_DEBUGS("Voice") << "Connecting audio to session handle: " << session->mHandle << LL_ENDL;
+
+	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
+	LL_DEBUGS("Voice") << "With voice font: " << session->mVoiceFontID << " (" << font_index << ")" << LL_ENDL;
 
 	session->mMediaConnectInProgress = true;
 	
@@ -1834,6 +1985,7 @@ void LLVivoxVoiceClient::sessionMediaConnectSendMessage(sessionState *session)
 	<< "<Request requestId=\"" << session->mHandle << "\" action=\"Session.MediaConnect.1\">"
 		<< "<SessionGroupHandle>" << session->mGroupHandle << "</SessionGroupHandle>"
 		<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
+		<< "<VoiceFontID>" << font_index << "</VoiceFontID>"
 		<< "<Media>Audio</Media>"
 	<< "</Request>\n\n\n";
 
@@ -3156,7 +3308,7 @@ void LLVivoxVoiceClient::sessionAddedEvent(
 			else
 			{
 				LL_INFOS("Voice") << "Could not generate caller id from uri, using hash of uri " << session->mSIPURI << LL_ENDL;
-				setUUIDFromStringHash(session->mCallerID, session->mSIPURI);
+				session->mCallerID.generate(session->mSIPURI);
 				session->mSynthesizedCallerID = true;
 				
 				// Can't look up the name in this case -- we have to extract it from the URI.
@@ -3431,6 +3583,26 @@ void LLVivoxVoiceClient::accountLoginStateChangeEvent(
 			//Used to be a commented out warning
 			LL_DEBUGS("Voice") << "unknown state: " << state << LL_ENDL;
 		break;
+	}
+}
+
+void LLVivoxVoiceClient::mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType)
+{
+	if (mediaCompletionType == "AuxBufferAudioCapture")
+	{
+		mCaptureBufferRecording = false;
+	}
+	else if (mediaCompletionType == "AuxBufferAudioRender")
+	{
+		// Ignore all but the last stop event
+		if (--mPlayRequestCount <= 0)
+		{
+			mCaptureBufferPlaying = false;
+		}
+	}
+	else
+	{
+		LL_DEBUGS("Voice") << "Unknown MediaCompletionType: " << mediaCompletionType << LL_ENDL;
 	}
 }
 
@@ -4142,8 +4314,8 @@ LLVivoxVoiceClient::participantState *LLVivoxVoiceClient::sessionState::addParti
 			else
 			{
 				// Create a UUID by hashing the URI, but do NOT set mAvatarIDValid.
-				// This tells code in LLVivoxVoiceClient that the ID will not be in the name cache.
-				setUUIDFromStringHash(result->mAvatarID, uri);
+				// This indicates that the ID will not be in the name cache.
+				result->mAvatarID.generate(uri);
 			}
 		}
 
@@ -4638,7 +4810,7 @@ BOOL LLVivoxVoiceClient::isOnlineSIP(const LLUUID &id)
 	return result;
 }
 
-bool LLVivoxVoiceClient::isVoiceWorking()
+bool LLVivoxVoiceClient::isVoiceWorking() const
 {
   //Added stateSessionTerminated state to avoid problems with call in parcels with disabled voice (EXT-4758)
   // Condition with joining spatial num was added to take into account possible problems with connection to voice
@@ -5660,7 +5832,12 @@ LLVivoxVoiceClient::sessionState *LLVivoxVoiceClient::addSession(const std::stri
 		result = new sessionState();
 		result->mSIPURI = uri;
 		result->mHandle = handle;
-		
+
+		if (LLVoiceClient::instance().getVoiceEffectEnabled())
+		{
+			result->mVoiceFontID = LLVoiceClient::instance().getVoiceEffectDefault();
+		}
+
 		mSessions.insert(result);
 
 		if(!result->mHandle.empty())
@@ -6085,8 +6262,8 @@ void LLVivoxVoiceClient::notifyParticipantObservers()
 		)
 	{
 		LLVoiceClientParticipantObserver* observer = *it;
-		observer->onChange();
-		// In case onChange() deleted an entry.
+		observer->onParticipantsChanged();
+		// In case onParticipantsChanged() deleted an entry.
 		it = mParticipantObservers.upper_bound(observer);
 	}
 }
@@ -6249,6 +6426,660 @@ void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string 
 	}
 }
 
+bool LLVivoxVoiceClient::setVoiceEffect(const LLUUID& id)
+{
+	if (!mAudioSession)
+	{
+		return false;
+	}
+
+	if (!id.isNull())
+	{
+		if (mVoiceFontMap.empty())
+		{
+			LL_DEBUGS("Voice") << "Voice fonts not available." << LL_ENDL;
+			return false;
+		}
+		else if (mVoiceFontMap.find(id) == mVoiceFontMap.end())
+		{
+			LL_DEBUGS("Voice") << "Invalid voice font " << id << LL_ENDL;
+			return false;
+		}
+	}
+
+	// *TODO: Check for expired fonts?
+	mAudioSession->mVoiceFontID = id;
+
+	// *TODO: Separate voice font defaults for spatial chat and IM?
+	gSavedPerAccountSettings.setString("VoiceEffectDefault", id.asString());
+
+	sessionSetVoiceFontSendMessage(mAudioSession);
+	notifyVoiceFontObservers();
+
+	return true;
+}
+
+const LLUUID LLVivoxVoiceClient::getVoiceEffect()
+{
+	return mAudioSession ? mAudioSession->mVoiceFontID : LLUUID::null;
+}
+
+LLSD LLVivoxVoiceClient::getVoiceEffectProperties(const LLUUID& id)
+{
+	LLSD sd;
+
+	voice_font_map_t::iterator iter = mVoiceFontMap.find(id);
+	if (iter != mVoiceFontMap.end())
+	{
+		sd["template_only"] = false;
+	}
+	else
+	{
+		// Voice effect is not in the voice font map, see if there is a template
+		iter = mVoiceFontTemplateMap.find(id);
+		if (iter == mVoiceFontTemplateMap.end())
+		{
+			LL_WARNS("Voice") << "Voice effect " << id << "not found." << LL_ENDL;
+			return sd;
+		}
+		sd["template_only"] = true;
+	}
+
+	voiceFontEntry *font = iter->second;
+	sd["name"] = font->mName;
+	sd["expiry_date"] = font->mExpirationDate;
+	sd["is_new"] = font->mIsNew;
+
+	return sd;
+}
+
+LLVivoxVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
+	mID(id),
+	mFontIndex(0),
+	mFontType(VOICE_FONT_TYPE_NONE),
+	mFontStatus(VOICE_FONT_STATUS_NONE),
+	mIsNew(false)
+{
+	mExpiryTimer.stop();
+	mExpiryWarningTimer.stop();
+}
+
+LLVivoxVoiceClient::voiceFontEntry::~voiceFontEntry()
+{
+}
+
+void LLVivoxVoiceClient::refreshVoiceEffectLists(bool clear_lists)
+{
+	if (clear_lists)
+	{
+		mVoiceFontsReceived = false;
+		deleteAllVoiceFonts();
+		deleteVoiceFontTemplates();
+	}
+
+	accountGetSessionFontsSendMessage();
+	accountGetTemplateFontsSendMessage();
+}
+
+const voice_effect_list_t& LLVivoxVoiceClient::getVoiceEffectList() const
+{
+	return mVoiceFontList;
+}
+
+const voice_effect_list_t& LLVivoxVoiceClient::getVoiceEffectTemplateList() const
+{
+	return mVoiceFontTemplateList;
+}
+
+void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
+								 const std::string &name,
+								 const std::string &description,
+								 const LLDate &expiration_date,
+								 bool has_expired,
+								 const S32 font_type,
+								 const S32 font_status,
+								 const bool template_font)
+{
+	// Vivox SessionFontIDs are not guaranteed to remain the same between
+	// sessions or grids so use a UUID for the name.
+
+	// If received name is not a UUID, fudge one by hashing the name and type.
+	LLUUID font_id;
+	if (LLUUID::validate(name))
+	{
+		font_id = LLUUID(name);
+	}
+	else
+	{
+		font_id.generate(STRINGIZE(font_type << ":" << name));
+	}
+
+	voiceFontEntry *font = NULL;
+
+	voice_font_map_t& font_map = template_font ? mVoiceFontTemplateMap : mVoiceFontMap;
+	voice_effect_list_t& font_list = template_font ? mVoiceFontTemplateList : mVoiceFontList;
+
+	// Check whether we've seen this font before.
+	voice_font_map_t::iterator iter = font_map.find(font_id);
+	bool new_font = (iter == font_map.end());
+
+	// Override the has_expired flag if we have passed the expiration_date as a double check.
+	if (expiration_date.secondsSinceEpoch() < (LLDate::now().secondsSinceEpoch() + VOICE_FONT_EXPIRY_INTERVAL))
+	{
+		has_expired = true;
+	}
+
+	if (has_expired)
+	{
+		LL_DEBUGS("Voice") << "Expired " << (template_font ? "Template " : "")
+		<< expiration_date.asString() << " " << font_id
+		<< " (" << font_index << ") " << name << LL_ENDL;
+
+		// Remove existing session fonts that have expired since we last saw them.
+		if (!new_font && !template_font)
+		{
+			deleteVoiceFont(font_id);
+		}
+		return;
+	}
+
+	if (new_font)
+	{
+		// If it is a new font create a new entry.
+		font = new voiceFontEntry(font_id);
+	}
+	else
+	{
+		// Not a new font, update the existing entry
+		font = iter->second;
+	}
+
+	if (font)
+	{
+		font->mFontIndex = font_index;
+		// Use the description for the human readable name if available, as the
+		// "name" may be a UUID.
+		font->mName = description.empty() ? name : description;
+		font->mFontType = font_type;
+		font->mFontStatus = font_status;
+
+		// If the font is new or the expiration date has changed the expiry timers need updating.
+		if (!template_font && (new_font || font->mExpirationDate != expiration_date))
+		{
+			font->mExpirationDate = expiration_date;
+
+			// Set the expiry timer to trigger a notification when the voice font can no longer be used.
+			font->mExpiryTimer.start();
+			font->mExpiryTimer.setExpiryAt(expiration_date.secondsSinceEpoch() - VOICE_FONT_EXPIRY_INTERVAL);
+
+			// Set the warning timer to some interval before actual expiry.
+			S32 warning_time = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
+			if (warning_time != 0)
+			{
+				font->mExpiryWarningTimer.start();
+				F64 expiry_time = (expiration_date.secondsSinceEpoch() - (F64)warning_time);
+				font->mExpiryWarningTimer.setExpiryAt(expiry_time - VOICE_FONT_EXPIRY_INTERVAL);
+			}
+			else
+			{
+				// Disable the warning timer.
+				font->mExpiryWarningTimer.stop();
+			}
+
+			 // Only flag new session fonts after the first time we have fetched the list.
+			if (mVoiceFontsReceived)
+			{
+				font->mIsNew = true;
+				mVoiceFontsNew = true;
+			}
+		}
+
+		LL_DEBUGS("Voice") << (template_font ? "Template " : "")
+			<< font->mExpirationDate.asString() << " " << font->mID
+			<< " (" << font->mFontIndex << ") " << name << LL_ENDL;
+
+		if (new_font)
+		{
+			font_map.insert(voice_font_map_t::value_type(font->mID, font));
+			font_list.insert(voice_effect_list_t::value_type(font->mName, font->mID));
+		}
+
+		mVoiceFontListDirty = true;
+
+		// Debugging stuff
+
+		if (font_type < VOICE_FONT_TYPE_NONE || font_type >= VOICE_FONT_TYPE_UNKNOWN)
+		{
+			LL_DEBUGS("Voice") << "Unknown voice font type: " << font_type << LL_ENDL;
+		}
+		if (font_status < VOICE_FONT_STATUS_NONE || font_status >= VOICE_FONT_STATUS_UNKNOWN)
+		{
+			LL_DEBUGS("Voice") << "Unknown voice font status: " << font_status << LL_ENDL;
+		}
+	}
+}
+
+void LLVivoxVoiceClient::expireVoiceFonts()
+{
+	// *TODO: If we are selling voice fonts in packs, there are probably
+	// going to be a number of fonts with the same expiration time, so would
+	// be more efficient to just keep a list of expiration times rather
+	// than checking each font individually.
+
+	bool have_expired = false;
+	bool will_expire = false;
+	bool expired_in_use = false;
+
+	LLUUID current_effect = LLVoiceClient::instance().getVoiceEffectDefault();
+
+	voice_font_map_t::iterator iter;
+	for (iter = mVoiceFontMap.begin(); iter != mVoiceFontMap.end(); ++iter)
+	{
+		voiceFontEntry* voice_font = iter->second;
+		LLFrameTimer& expiry_timer  = voice_font->mExpiryTimer;
+		LLFrameTimer& warning_timer = voice_font->mExpiryWarningTimer;
+
+		// Check for expired voice fonts
+		if (expiry_timer.getStarted() && expiry_timer.hasExpired())
+		{
+			// Check whether it is the active voice font
+			if (voice_font->mID == current_effect)
+			{
+				// Reset to no voice effect.
+				setVoiceEffect(LLUUID::null);
+				expired_in_use = true;
+			}
+
+			LL_DEBUGS("Voice") << "Voice Font " << voice_font->mName << " has expired." << LL_ENDL;
+			deleteVoiceFont(voice_font->mID);
+			have_expired = true;
+		}
+
+		// Check for voice fonts that will expire in less that the warning time
+		if (warning_timer.getStarted() && warning_timer.hasExpired())
+		{
+			LL_DEBUGS("Voice") << "Voice Font " << voice_font->mName << " will expire soon." << LL_ENDL;
+			will_expire = true;
+			warning_timer.stop();
+		}
+	}
+
+	LLSD args;
+	args["URL"] = LLTrans::getString("voice_morphing_url");
+
+	// Give a notification if any voice fonts have expired.
+	if (have_expired)
+	{
+		if (expired_in_use)
+		{
+			LLNotificationsUtil::add("VoiceEffectsExpiredInUse", args);
+		}
+		else
+		{
+			LLNotificationsUtil::add("VoiceEffectsExpired", args);
+		}
+
+		// Refresh voice font lists in the UI.
+		notifyVoiceFontObservers();
+	}
+
+	// Give a warning notification if any voice fonts are due to expire.
+	if (will_expire)
+	{
+		S32 seconds = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
+		args["INTERVAL"] = llformat("%d", seconds / SEC_PER_DAY);
+
+		LLNotificationsUtil::add("VoiceEffectsWillExpire", args);
+	}
+}
+
+void LLVivoxVoiceClient::deleteVoiceFont(const LLUUID& id)
+{
+	// Remove the entry from the voice font list.
+	voice_effect_list_t::iterator list_iter = mVoiceFontList.begin();
+	while (list_iter != mVoiceFontList.end())
+	{
+		if (list_iter->second == id)
+		{
+			LL_DEBUGS("Voice") << "Removing " << id << " from the voice font list." << LL_ENDL;
+			mVoiceFontList.erase(list_iter++);
+			mVoiceFontListDirty = true;
+		}
+		else
+		{
+			++list_iter;
+		}
+	}
+
+	// Find the entry in the voice font map and erase its data.
+	voice_font_map_t::iterator map_iter = mVoiceFontMap.find(id);
+	if (map_iter != mVoiceFontMap.end())
+	{
+		delete map_iter->second;
+	}
+
+	// Remove the entry from the voice font map.
+	mVoiceFontMap.erase(map_iter);
+}
+
+void LLVivoxVoiceClient::deleteAllVoiceFonts()
+{
+	mVoiceFontList.clear();
+
+	voice_font_map_t::iterator iter;
+	for (iter = mVoiceFontMap.begin(); iter != mVoiceFontMap.end(); ++iter)
+	{
+		delete iter->second;
+	}
+	mVoiceFontMap.clear();
+}
+
+void LLVivoxVoiceClient::deleteVoiceFontTemplates()
+{
+	mVoiceFontTemplateList.clear();
+
+	voice_font_map_t::iterator iter;
+	for (iter = mVoiceFontTemplateMap.begin(); iter != mVoiceFontTemplateMap.end(); ++iter)
+	{
+		delete iter->second;
+	}
+	mVoiceFontTemplateMap.clear();
+}
+
+S32 LLVivoxVoiceClient::getVoiceFontIndex(const LLUUID& id) const
+{
+	S32 result = 0;
+	if (!id.isNull())
+	{
+		voice_font_map_t::const_iterator it = mVoiceFontMap.find(id);
+		if (it != mVoiceFontMap.end())
+		{
+			result = it->second->mFontIndex;
+		}
+		else
+		{
+			LL_DEBUGS("Voice") << "Selected voice font " << id << " is not available." << LL_ENDL;
+		}
+	}
+	return result;
+}
+
+S32 LLVivoxVoiceClient::getVoiceFontTemplateIndex(const LLUUID& id) const
+{
+	S32 result = 0;
+	if (!id.isNull())
+	{
+		voice_font_map_t::const_iterator it = mVoiceFontTemplateMap.find(id);
+		if (it != mVoiceFontTemplateMap.end())
+		{
+			result = it->second->mFontIndex;
+		}
+		else
+		{
+			LL_DEBUGS("Voice") << "Selected voice font template " << id << " is not available." << LL_ENDL;
+		}
+	}
+	return result;
+}
+
+void LLVivoxVoiceClient::accountGetSessionFontsSendMessage()
+{
+	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Requesting voice font list." << LL_ENDL;
+
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.GetSessionFonts.1\">"
+		<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		writeString(stream.str());
+	}
+}
+
+void LLVivoxVoiceClient::accountGetTemplateFontsSendMessage()
+{
+	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Requesting voice font template list." << LL_ENDL;
+
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Account.GetTemplateFonts.1\">"
+		<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		writeString(stream.str());
+	}
+}
+
+void LLVivoxVoiceClient::sessionSetVoiceFontSendMessage(sessionState *session)
+{
+	S32 font_index = getVoiceFontIndex(session->mVoiceFontID);
+	LL_DEBUGS("Voice") << "Requesting voice font: " << session->mVoiceFontID << " (" << font_index << "), session handle: " << session->mHandle << LL_ENDL;
+
+	std::ostringstream stream;
+
+	stream
+	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Session.SetVoiceFont.1\">"
+	<< "<SessionHandle>" << session->mHandle << "</SessionHandle>"
+	<< "<SessionFontID>" << font_index << "</SessionFontID>"
+	<< "</Request>\n\n\n";
+
+	writeString(stream.str());
+}
+
+void LLVivoxVoiceClient::accountGetSessionFontsResponse(int statusCode, const std::string &statusString)
+{
+	// Voice font list entries were updated via addVoiceFont() during parsing.
+	if(getState() == stateVoiceFontsWait)
+	{
+		setState(stateVoiceFontsReceived);
+	}
+
+	notifyVoiceFontObservers();
+	mVoiceFontsReceived = true;
+}
+
+void LLVivoxVoiceClient::accountGetTemplateFontsResponse(int statusCode, const std::string &statusString)
+{
+	// Voice font list entries were updated via addVoiceFont() during parsing.
+	notifyVoiceFontObservers();
+}
+void LLVivoxVoiceClient::addObserver(LLVoiceEffectObserver* observer)
+{
+	mVoiceFontObservers.insert(observer);
+}
+
+void LLVivoxVoiceClient::removeObserver(LLVoiceEffectObserver* observer)
+{
+	mVoiceFontObservers.erase(observer);
+}
+
+void LLVivoxVoiceClient::notifyVoiceFontObservers()
+{
+	LL_DEBUGS("Voice") << "Notifying voice effect observers. Lists changed: " << mVoiceFontListDirty << LL_ENDL;
+
+	for (voice_font_observer_set_t::iterator it = mVoiceFontObservers.begin();
+		 it != mVoiceFontObservers.end();
+		 )
+	{
+		LLVoiceEffectObserver* observer = *it;
+		observer->onVoiceEffectChanged(mVoiceFontListDirty);
+		// In case onVoiceEffectChanged() deleted an entry.
+		it = mVoiceFontObservers.upper_bound(observer);
+	}
+	mVoiceFontListDirty = false;
+
+	// If new Voice Fonts have been added notify the user.
+	if (mVoiceFontsNew)
+	{
+		if(mVoiceFontsReceived)
+		{
+			LLNotificationsUtil::add("VoiceEffectsNew");
+		}
+		mVoiceFontsNew = false;
+	}
+}
+
+void LLVivoxVoiceClient::enablePreviewBuffer(bool enable)
+{
+	mCaptureBufferMode = enable;
+	if(mCaptureBufferMode && getState() >= stateNoChannel)
+	{
+		LL_DEBUGS("Voice") << "no channel" << LL_ENDL;
+		sessionTerminate();
+	}
+}
+
+void LLVivoxVoiceClient::recordPreviewBuffer()
+{
+	if (!mCaptureBufferMode)
+	{
+		LL_DEBUGS("Voice") << "Not in voice effect preview mode, cannot start recording." << LL_ENDL;
+		mCaptureBufferRecording = false;
+		return;
+	}
+
+	mCaptureBufferRecording = true;
+}
+
+void LLVivoxVoiceClient::playPreviewBuffer(const LLUUID& effect_id)
+{
+	if (!mCaptureBufferMode)
+	{
+		LL_DEBUGS("Voice") << "Not in voice effect preview mode, no buffer to play." << LL_ENDL;
+		mCaptureBufferRecording = false;
+		return;
+	}
+
+	if (!mCaptureBufferRecorded)
+	{
+		// Can't play until we have something recorded!
+		mCaptureBufferPlaying = false;
+		return;
+	}
+
+	mPreviewVoiceFont = effect_id;
+	mCaptureBufferPlaying = true;
+}
+
+void LLVivoxVoiceClient::stopPreviewBuffer()
+{
+	mCaptureBufferRecording = false;
+	mCaptureBufferPlaying = false;
+}
+
+bool LLVivoxVoiceClient::isPreviewRecording()
+{
+	return (mCaptureBufferMode && mCaptureBufferRecording);
+}
+
+bool LLVivoxVoiceClient::isPreviewPlaying()
+{
+	return (mCaptureBufferMode && mCaptureBufferPlaying);
+}
+
+void LLVivoxVoiceClient::captureBufferRecordStartSendMessage()
+{	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Starting audio capture to buffer." << LL_ENDL;
+
+		// Start capture
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.StartBufferCapture.1\">"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		// Unmute the mic
+		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
+			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<Value>false</Value>"
+		<< "</Request>\n\n\n";
+
+		// Dirty the PTT state so that it will get reset when we finishing previewing
+		mPTTDirty = true;
+
+		writeString(stream.str());
+	}
+}
+
+void LLVivoxVoiceClient::captureBufferRecordStopSendMessage()
+{
+	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Stopping audio capture to buffer." << LL_ENDL;
+
+		// Mute the mic. PTT state was dirtied at recording start, so will be reset when finished previewing.
+		stream << "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Connector.MuteLocalMic.1\">"
+			<< "<ConnectorHandle>" << mConnectorHandle << "</ConnectorHandle>"
+			<< "<Value>true</Value>"
+		<< "</Request>\n\n\n";
+
+		// Stop capture
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.CaptureAudioStop.1\">"
+			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		writeString(stream.str());
+	}
+}
+
+void LLVivoxVoiceClient::captureBufferPlayStartSendMessage(const LLUUID& voice_font_id)
+{
+	if(!mAccountHandle.empty())
+	{
+		// Track how may play requests are sent, so we know how many stop events to
+		// expect before play actually stops.
+		++mPlayRequestCount;
+
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Starting audio buffer playback." << LL_ENDL;
+
+		S32 font_index = getVoiceFontTemplateIndex(voice_font_id);
+		LL_DEBUGS("Voice") << "With voice font: " << voice_font_id << " (" << font_index << ")" << LL_ENDL;
+
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.PlayAudioBuffer.1\">"
+			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+			<< "<TemplateFontID>" << font_index << "</TemplateFontID>"
+			<< "<FontDelta />"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		writeString(stream.str());
+	}
+}
+
+void LLVivoxVoiceClient::captureBufferPlayStopSendMessage()
+{
+	if(!mAccountHandle.empty())
+	{
+		std::ostringstream stream;
+
+		LL_DEBUGS("Voice") << "Stopping audio buffer playback." << LL_ENDL;
+
+		stream
+		<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.RenderAudioStop.1\">"
+			<< "<AccountHandle>" << mAccountHandle << "</AccountHandle>"
+		<< "</Request>"
+		<< "\n\n\n";
+
+		writeString(stream.str());
+	}
+}
 
 LLVivoxProtocolParser::LLVivoxProtocolParser()
 {
@@ -6467,7 +7298,30 @@ void LLVivoxProtocolParser::StartTag(const char *tag, const char **attr)
 			{
 				LLVivoxVoiceClient::getInstance()->deleteAllAutoAcceptRules();
 			}
-			
+			else if (!stricmp("SessionFont", tag))
+			{
+				id = 0;
+				nameString.clear();
+				descriptionString.clear();
+				expirationDate = LLDate();
+				hasExpired = false;
+				fontType = 0;
+				fontStatus = 0;
+			}
+			else if (!stricmp("TemplateFont", tag))
+			{
+				id = 0;
+				nameString.clear();
+				descriptionString.clear();
+				expirationDate = LLDate();
+				hasExpired = false;
+				fontType = 0;
+				fontStatus = 0;
+			}
+			else if (!stricmp("MediaCompletionType", tag))
+			{
+				mediaCompletionType.clear();
+			}
 		}
 	}
 	responseDepth++;
@@ -6613,8 +7467,43 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 			subscriptionHandle = string;
 		else if (!stricmp("SubscriptionType", tag))
 			subscriptionType = string;
-		
-	
+		else if (!stricmp("SessionFont", tag))
+		{
+			LLVivoxVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDate, hasExpired, fontType, fontStatus, false);
+		}
+		else if (!stricmp("TemplateFont", tag))
+		{
+			LLVivoxVoiceClient::getInstance()->addVoiceFont(id, nameString, descriptionString, expirationDate, hasExpired, fontType, fontStatus, true);
+		}
+		else if (!stricmp("ID", tag))
+		{
+			id = strtol(string.c_str(), NULL, 10);
+		}
+		else if (!stricmp("Description", tag))
+		{
+			descriptionString = string;
+		}
+		else if (!stricmp("ExpirationDate", tag))
+		{
+			expirationDate = expiryTimeStampToLLDate(string);
+		}
+		else if (!stricmp("Expired", tag))
+		{
+			hasExpired = !stricmp(string.c_str(), "1");
+		}
+		else if (!stricmp("Type", tag))
+		{
+			fontType = strtol(string.c_str(), NULL, 10);
+		}
+		else if (!stricmp("Status", tag))
+		{
+			fontStatus = strtol(string.c_str(), NULL, 10);
+		}
+		else if (!stricmp("MediaCompletionType", tag))
+		{
+			mediaCompletionType = string;;
+		}
+
 		textBuffer.clear();
 		accumulateText= false;
 		
@@ -6639,6 +7528,21 @@ void LLVivoxProtocolParser::CharData(const char *buffer, int length)
 	 */
 	if (accumulateText)
 		textBuffer.append(buffer, length);
+}
+
+// --------------------------------------------------------------------------------
+
+LLDate LLVivoxProtocolParser::expiryTimeStampToLLDate(const std::string& vivox_ts)
+{
+	// *HACK: Vivox reports the time incorrectly. LLDate also only parses a
+	// subset of valid ISO 8601 dates (only handles Z, not offsets).
+	// So just use the date portion and fix the time here.
+	std::string time_stamp = vivox_ts.substr(0, 10);
+	time_stamp += VOICE_FONT_EXPIRY_TIME;
+
+	LL_DEBUGS("VivoxProtocolParser") << "Vivox timestamp " << vivox_ts << " modified to: " << time_stamp << LL_ENDL;
+
+	return LLDate(time_stamp);
 }
 
 // --------------------------------------------------------------------------------
@@ -6696,7 +7600,17 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 			 </Event>
 			 */
 			LLVivoxVoiceClient::getInstance()->mediaStreamUpdatedEvent(sessionHandle, sessionGroupHandle, statusCode, statusString, state, incoming);
-		}		
+		}
+		else if (!stricmp(eventTypeCstr, "MediaCompletionEvent"))
+		{
+			/*
+			<Event type="MediaCompletionEvent">
+			<SessionGroupHandle />
+			<MediaCompletionType>AuxBufferAudioCapture</MediaCompletionType>
+			</Event>
+			*/
+			LLVivoxVoiceClient::getInstance()->mediaCompletionEvent(sessionGroupHandle, mediaCompletionType);
+		}
 		else if (!stricmp(eventTypeCstr, "TextStreamUpdatedEvent"))
 		{
 			/*
@@ -6757,6 +7671,9 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		}
 		else if (!stricmp(eventTypeCstr, "AuxAudioPropertiesEvent"))
 		{
+			// These are really spammy in tuning mode
+			squelchDebugOutput = true;
+
 			LLVivoxVoiceClient::getInstance()->auxAudioPropertiesEvent(energy);
 		}
 		else if (!stricmp(eventTypeCstr, "BuddyPresenceEvent"))
@@ -6870,6 +7787,14 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		{
 			// We don't need to process these, but they're so spammy we don't want to log them.
 			squelchDebugOutput = true;
+		}
+		else if (!stricmp(actionCstr, "Account.GetSessionFonts.1"))
+		{
+			LLVivoxVoiceClient::getInstance()->accountGetSessionFontsResponse(statusCode, statusString);
+		}
+		else if (!stricmp(actionCstr, "Account.GetTemplateFonts.1"))
+		{
+			LLVivoxVoiceClient::getInstance()->accountGetTemplateFontsResponse(statusCode, statusString);
 		}
 		/*
 		 else if (!stricmp(actionCstr, "Account.ChannelGetList.1"))

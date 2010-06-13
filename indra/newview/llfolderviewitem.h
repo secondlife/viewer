@@ -97,6 +97,7 @@ public:
 	{
 		Optional<LLUIImage*>					icon;
 		Optional<LLUIImage*>					icon_open;  // used for folders
+		Optional<LLUIImage*>					icon_overlay;  // for links
 		Optional<LLFolderView*>					root;
 		Optional<LLFolderViewEventListener*>	listener;
 
@@ -147,6 +148,7 @@ protected:
 	LLUIImagePtr				mIcon;
 	std::string					mStatusText;
 	LLUIImagePtr				mIconOpen;
+	LLUIImagePtr				mIconOverlay;
 	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
 	S32							mItemHeight;

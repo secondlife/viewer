@@ -39,7 +39,6 @@
 #include "llflatlistview.h"
 
 class LLJoystickCameraRotate;
-class LLJoystickCameraZoom;
 class LLJoystickCameraTrack;
 class LLFloaterReg;
 class LLPanelCameraZoom;

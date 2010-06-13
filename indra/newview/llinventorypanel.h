@@ -84,6 +84,7 @@ public:
 		Optional<std::string>				sort_order_setting;
 		Optional<LLInventoryModel*>			inventory;
 		Optional<bool>						allow_multi_select;
+		Optional<bool>						show_item_link_overlays;
 		Optional<Filter>					filter;
 		Optional<std::string>               start_folder;
 
@@ -91,6 +92,7 @@ public:
 		:	sort_order_setting("sort_order_setting"),
 			inventory("", &gInventory),
 			allow_multi_select("allow_multi_select", true),
+			show_item_link_overlays("show_item_link_overlays", false),
 			filter("filter"),
 			start_folder("start_folder")
 		{}
@@ -177,6 +179,7 @@ protected:
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
 	BOOL 						mAllowMultiSelect;
+	BOOL 						mShowItemLinkOverlays; // Shows link graphic over inventory item icons
 
 	LLFolderView*				mFolderRoot;
 	LLScrollContainer*			mScroller;

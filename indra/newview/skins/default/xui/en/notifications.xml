@@ -2066,6 +2066,7 @@ Would you be my friend?
        name="Cancel"
        text="Cancel"/>
     </form>
+    <unique/>
   </notification>
 
   <notification
@@ -6004,6 +6005,50 @@ We are creating a voice channel for you. This may take up to one minute.
   </notification>
 
   <notification
+   icon="notify.tga"
+   name="VoiceEffectsExpired"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+One or more of your subscribed Voice Morphs has expired.
+[[URL] Click here] to renew your subscription.
+    <unique/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="VoiceEffectsExpiredInUse"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+The active Voice Morph has expired, your normal voice settings have been applied.
+[[URL] Click here] to renew your subscription.
+    <unique/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="VoiceEffectsWillExpire"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+One or more of your Voice Morphs will expire in less than [INTERVAL] days.
+[[URL] Click here] to renew your subscription.
+    <unique/>
+  </notification>
+		LLNotificationsUtil::add("VoiceEffectsNew");
+
+  <notification
+   icon="notify.tga"
+   name="VoiceEffectsNew"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+New Voice Morphs are available!
+    <unique/>
+  </notification>
+
+  <notification
    icon="notifytip.tga"
    name="Cannot enter parcel: not a group member"
    type="notifytip">
@@ -6163,7 +6208,7 @@ The button will be shown when there is enough space for it.
    icon="notifytip.tga"
    name="ShareNotification"
    type="notifytip">
-Drag items from inventory onto a person in the resident picker
+Select residents to share with.
   </notification>
   <notification
    icon="notifytip.tga"
@@ -6260,36 +6305,39 @@ Avatar '[NAME]' entered appearance mode.
 Avatar '[NAME]' left appearance mode.
   </notification>
 
-    <notification
+  <notification
    icon="alertmodal.tga"
    name="NoConnect"
    type="alertmodal">
-        We're having trouble connecting using [PROTOCOL] [HOSTID].
-        Please check your network and firewall setup.
-        <form name="form">
-            <button
-               default="true"
-               index="0"
-               name="OK"
-               text="OK"/>
-        </form>
-    </notification>
+We're having trouble connecting using [PROTOCOL] [HOSTID].
+Please check your network and firewall setup.
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+    </form>
+  </notification>
 
-    <notification
-          icon="alertmodal.tga"
-          name="NoVoiceConnect"
-          type="alertmodal">
-        We're having trouble connecting your voiceserver using [HOSTID].
-        Voice communications will not be available.
-        Please check your network and firewall setup.
-        <form name="form">
-            <button
-               default="true"
-               index="0"
-               name="OK"
-               text="OK"/>
-        </form>
-    </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="NoVoiceConnect"
+   type="alertmodal">
+We're having trouble connecting to your voice server:
+
+[HOSTID]
+
+Voice communications will not be available.
+Please check your network and firewall setup.
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+    </form>
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -6317,7 +6365,7 @@ Are you sure you want to leave this call?
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
-     <unique/>
+    <unique/>
   </notification>
 
   <notification
@@ -6334,7 +6382,7 @@ Mute everyone?
      name="okcancelignore"
      yestext="Ok"
      notext="Cancel"/>
-     <unique/>
+    <unique/>
   </notification>
 
   <global name="UnsupportedCPU">

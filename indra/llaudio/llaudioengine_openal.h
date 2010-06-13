@@ -57,23 +57,23 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
 		LLAudioBuffer* createBuffer();
 		LLAudioChannel* createChannel();
 
-		/*virtual*/ void initWind();
+		/*virtual*/ bool initWind();
 		/*virtual*/ void cleanupWind();
 		/*virtual*/ void updateWind(LLVector3 direction, F32 camera_altitude);
 
 	private:
 		void * windDSP(void *newbuffer, int length);
-	        typedef S16 WIND_SAMPLE_T;
-        	LLWindGen<WIND_SAMPLE_T> *mWindGen;
-        	S16 *mWindBuf;
-        	U32 mWindBufFreq;
-        	U32 mWindBufSamples;
-        	U32 mWindBufBytes;
-        	ALuint mWindSource;
-	        int mNumEmptyWindALBuffers;
+        typedef S16 WIND_SAMPLE_T;
+    	LLWindGen<WIND_SAMPLE_T> *mWindGen;
+    	S16 *mWindBuf;
+    	U32 mWindBufFreq;
+    	U32 mWindBufSamples;
+    	U32 mWindBufBytes;
+    	ALuint mWindSource;
+        int mNumEmptyWindALBuffers;
 
-        	static const int MAX_NUM_WIND_BUFFERS = 80;
-        	static const float WIND_BUFFER_SIZE_SEC = 0.05f; // 1/20th sec
+    	static const int MAX_NUM_WIND_BUFFERS = 80;
+    	static const float WIND_BUFFER_SIZE_SEC = 0.05f; // 1/20th sec
 };
 
 class LLAudioChannelOpenAL : public LLAudioChannel
