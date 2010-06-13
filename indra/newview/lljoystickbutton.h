@@ -183,44 +183,4 @@ public:
 	virtual void	onHeldDown();
 };
 
-
-// Zoom the camera in and out
-class LLJoystickCameraZoom
-:	public LLJoystick
-{
-public:
-	struct Params 
-	:	public LLInitParam::Block<Params, LLJoystick::Params>
-	{
-		Optional<LLUIImage*>	plus_image;
-		Optional<LLUIImage*>	minus_image;
-
-		Params()
-		: plus_image ("plus_image", NULL),
-		  minus_image ("minus_image", NULL)
-		{
-			held_down_delay.seconds(0.0);
-		}
-	};
-	LLJoystickCameraZoom(const Params&);
-
-	virtual void	setToggleState( BOOL top, BOOL bottom );
-
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual void	onHeldDown();
-	virtual void	draw();
-
-protected:
-	virtual void updateSlop();
-	F32				getOrbitRate();
-
-protected:
-	BOOL			mInTop;
-	BOOL			mInBottom;
-	LLUIImagePtr	mPlusInImage;
-	LLUIImagePtr	mMinusInImage;
-};
-
-
-
 #endif  // LL_LLJOYSTICKBUTTON_H

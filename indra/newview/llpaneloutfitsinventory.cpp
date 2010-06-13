@@ -169,6 +169,11 @@ private:
 	bool onEnable(LLSD::String param)
 	{
 		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.isNull()) // no selection or invalid outfit selected
+		{
+			return false;
+		}
+
 		bool is_worn = LLAppearanceMgr::instance().getBaseOutfitUUID() == selected_outfit_id;
 
 		if ("wear" == param)
@@ -209,6 +214,7 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	LLOutfitObserver& observer = LLOutfitObserver::instance();
 	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 	observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+	observer.addOutfitLockChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 }
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
@@ -522,7 +528,7 @@ void LLPanelOutfitsInventory::updateListCommands()
 {
 	bool trash_enabled = isActionEnabled("delete");
 	bool wear_enabled = isActionEnabled("wear");
-	bool make_outfit_enabled = isActionEnabled("make_outfit");
+	bool make_outfit_enabled = isActionEnabled("save_outfit");
 
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
@@ -554,10 +560,24 @@ void LLPanelOutfitsInventory::onTrashButtonClick()
 void LLPanelOutfitsInventory::onClipboardAction(const LLSD& userdata)
 {
 	std::string command_name = userdata.asString();
-	// TODO: add handling "My Outfits" tab.
 	if (isCOFPanelActive())
 	{
 		getActivePanel()->getRootFolder()->doToSelected(getActivePanel()->getModel(),command_name);
+	}
+	else // "My Outfits" tab active
+	{
+		if (command_name == "delete")
+		{
+			const LLUUID& selected_outfit_id = mMyOutfitsPanel->getSelectedOutfitUUID();
+			if (selected_outfit_id.notNull())
+			{
+				remove_category(&gInventory, selected_outfit_id);
+			}
+		}
+		else
+		{
+			llwarns << "Unrecognized action" << llendl;
+		}
 	}
 	updateListCommands();
 	updateVerbs();
@@ -613,7 +633,6 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	{
 		BOOL can_delete = FALSE;
 
-		// TODO: add handling "My Outfits" tab.
 		if (isCOFPanelActive())
 		{
 			LLFolderView* root = getActivePanel()->getRootFolder();
@@ -629,10 +648,15 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 					LLFolderViewItem *item = root->getItemByID(item_id);
 					can_delete &= item->getListener()->isItemRemovable();
 				}
-				return can_delete;
 			}
 		}
-		return FALSE;
+		else // "My Outfits" tab active
+		{
+			const LLUUID& selected_outfit = mMyOutfitsPanel->getSelectedOutfitUUID();
+			can_delete = LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit);
+		}
+
+		return can_delete;
 	}
 	if (command_name == "remove_link")
 	{
@@ -668,9 +692,12 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 			return FALSE;
 		}
 	}
-	if (command_name == "make_outfit")
+	if (command_name == "save_outfit")
 	{
-		return LLAppearanceMgr::getInstance()->isOutfitDirty();
+		bool outfit_locked = LLAppearanceMgr::getInstance()->isOutfitLocked();
+		bool outfit_dirty =LLAppearanceMgr::getInstance()->isOutfitDirty();
+		// allow save only if outfit isn't locked and is dirty
+		return !outfit_locked && outfit_dirty;
 	}
    
 	if (command_name == "edit" || 
@@ -726,6 +753,7 @@ void LLPanelOutfitsInventory::initTabPanels()
 	mCurrentOutfitPanel->setSelectCallback(boost::bind(&LLPanelOutfitsInventory::onTabSelectionChange, this, mCurrentOutfitPanel, _1, _2));
 
 	mMyOutfitsPanel = getChild<LLOutfitsList>(OUTFITS_TAB_NAME);
+	mMyOutfitsPanel->addSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
 	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
 	mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));

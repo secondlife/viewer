@@ -25,6 +25,7 @@ Aimee Trescothick
 	VWR-3903
 	VWR-4083
 	VWR-4106
+	VWR-5308
 	VWR-6348
 	VWR-6358
 	VWR-6360
@@ -252,6 +253,7 @@ Gigs Taggart
 	VWR-2491
 	VWR-2502
 	VWR-2331
+	VWR-5308
 	VWR-8781
 	VWR-8783
 Ginko Bayliss

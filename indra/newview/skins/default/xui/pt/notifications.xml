@@ -323,6 +323,9 @@ Você precisa de uma conta para entrar no [SECOND_LIFE]. Você gostaria de abrir
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Tentar novamente" yestext="Abrir conta"/>
 	</notification>
+	<notification name="InvalidCredentialFormat">
+		Digite o nome e sobrenome do seu avatar no campo Nome de usuário, depois faça o login novamente.
+	</notification>
 	<notification name="AddClassified">
 		Os anúncios serão publicados na seção &apos;Classificados&apos; das buscas e em [http://secondlife.com/community/classifieds secondlife.com] durante uma semana.
 Escreva seu anúncio e clique em &apos;Publicar...&apos; 
@@ -602,6 +605,11 @@ Esperada [VALIDS]
 	</notification>
 	<notification name="CannotEncodeFile">
 		Impossível codificar o arquivo: [FILE]
+	</notification>
+	<notification name="CorruptedProtectedDataStore">
+		Não foi possível fazer a leitura dos dados protegidos, redefinindo.
+   Isso pode ocorrer após mudanças na configuração da rede.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
 		Fonte do arquivo corrompida: [FILE]
@@ -962,6 +970,12 @@ em TODOS OS TERRENOS deste sim?
 
 Por favor, insira um valor maior.
 	</notification>
+	<notification name="ConfirmItemDeleteHasLinks">
+		Pelo menos um dos itens possui links que levam a ele.  Ao excluir o item, os links não funcionarão mais.   Por isso, recomendamos excluir os links primeiro.
+
+Tem certeza de que quer excluir estes items?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmObjectDeleteLock">
 		Pelo menos um dos itens que você selecionou está trancado.
 
@@ -1102,6 +1116,42 @@ Use as teclas de seta para andar.
 Pressione a tecla F1 para ajuda ou aprender mais sobre [SECOND_LIFE].
 Por favor, escolha se o seu avatar é feminino ou masculino. Você pode mudar de idéia depois.
 		<usetemplate name="okcancelbuttons" notext="Feminino" yestext="Masculino"/>
+	</notification>
+	<notification name="CantTeleportToGrid">
+		Não foi possível ir para [SLURL], que fica em outro grid ([GRID]) em relação ao grid atual, ([CURRENT_GRID]).  Feche o Visualizador e tente novamente.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GeneralCertificateError">
+		Falha de conexão com o servidor.
+[REASON]
+
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Válido de: [VALID_FROM]
+Válido até: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+Impressão digital SHA1: [MD5_DIGEST]
+Uso da chave: [KEYUSAGE]
+Uso estendido da chave: [EXTENDEDKEYUSAGE]
+Identificador chave de assunto: [SUBJECTKEYIDENTIFIER]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TrustCertificateError">
+		A autoridade de certificação deste servidor é desconhecida.
+
+Dados do certificado:
+SubjectName: [SUBJECT_NAME_STRING]
+IssuerName: [ISSUER_NAME_STRING]
+Válido de: [VALID_FROM]
+Válido até: [VALID_TO]
+MD5 Fingerprint: [SHA1_DIGEST]
+Impressão digital SHA1: [MD5_DIGEST]
+Uso da chave: [KEYUSAGE]
+Uso estendido da chave: [EXTENDEDKEYUSAGE]
+Identificador chave de assunto: [SUBJECTKEYIDENTIFIER]
+
+Confiar nesta autoridade?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Confiança"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] L$ [PRICE] Você não possui suficientes L$ para fazer isso.
@@ -1493,9 +1543,9 @@ Ir para o Banco de Conhecimento para maiores informações sobre Classificaçõe
 		Você não é permitido nesta região devido à sua Classificação de maturidade.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		Você não pode entrar nessa região devido à sua seleção de maturidade. 
+		Você não pode entrar nessa região devido à sua seleção de maturidade.
 
-Clique em &apos;Mudar preferência&apos; para aumentar o nível de maturidade e entrar nessa região.  De agora em diante você pode buscar e acessar conteúdo [REGIONMATURITY] .  Para modificar esta configuração, vá à Eu &gt; Preferências &gt; Geral.
+Clique em &apos;Mudar preferência&apos; para aumentar seu nível de maturidade e ganhar acesso imediato. Você então poderá fazer buscas e acessar conteúdo [REGIONMATURITY]. Para modificar o nível de maturidade, use o menu Eu &gt; Preferências &gt; Gerais.
 		<form name="form">
 			<button name="OK" text="Mudar preferência"/>
 			<button default="true" name="Cancel" text="Fechar"/>
@@ -2262,15 +2312,6 @@ Por favor, tente novamente em alguns instantes.
 			<button name="Mute" text="Bloquear"/>
 		</form>
 	</notification>
-	<notification name="ObjectGiveItemUnknownUser">
-		Um objeto chamado [OBJECTFROMNAME] de (residente desconhecido) lhe deu [OBJECTTYPE]:
-[ITEM_SLURL]
-		<form name="form">
-			<button name="Keep" text="Segure"/>
-			<button name="Discard" text="Descarte"/>
-			<button name="Mute" text="Bloquear"/>
-		</form>
-	</notification>
 	<notification name="UserGiveItem">
 		[NAME_SLURL] lhe deu [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -2583,8 +2624,52 @@ O botão será exibido quando houver espaço suficente.
 	<notification name="ShareNotification">
 		Arraste itens do inventário para uma pessoa no seletor de residentes
 	</notification>
+	<notification name="DeedToGroupFail">
+		Ocorreu uma falha durante a doação ao grupo.
+	</notification>
 	<notification name="AvatarRezNotification">
-		O avatar de &apos;[NAME]&apos; renderizou em [TIME] s.
+		( [EXISTENCE] segundos de vida )
+O avatar de &apos;[NAME]&apos; emergiu em [TIME] segundos.
+	</notification>
+	<notification name="AvatarRezSelfNotification">
+		( [EXISTENCE] segundos de vida )
+Você confeccionou seu look em [TIME] segundos.
+	</notification>
+	<notification name="AvatarRezCloudNotification">
+		( [EXISTENCE] segundos de vida )
+Avatar &apos;[NAME]&apos; transformou-se em nuvem.
+	</notification>
+	<notification name="AvatarRezArrivedNotification">
+		( [EXISTENCE] segundos de vida )
+Avatar &apos;[NAME]&apos; surgiu.
+	</notification>
+	<notification name="AvatarRezLeftCloudNotification">
+		( [EXISTENCE] segundos de vida )
+O avatar de &apos;[NAME]&apos; transformou-se em nuvem depois de [TIME] segundos.
+	</notification>
+	<notification name="AvatarRezEnteredAppearanceNotification">
+		( [EXISTENCE] segundos de vida )
+Avatar &apos;[NAME]&apos; entrou no modo aparência.
+	</notification>
+	<notification name="AvatarRezLeftAppearanceNotification">
+		( [EXISTENCE] segundos de vida )
+Avatar &apos;[NAME]&apos; sair do modo aparecer.
+	</notification>
+	<notification name="AvatarRezLeftNotification">
+		( [EXISTENCE] segundos de vida )
+Avatar &apos;[NAME]&apos; saiu totalmente carregado.
+	</notification>
+	<notification name="ConfirmLeaveCall">
+		Tem certeza de que quer sair desta ligação?
+		<usetemplate ignoretext="Confirmar antes de deixar ligação" name="okcancelignore" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="ConfirmMuteAll">
+		Você silenciou todos os participantes de uma ligação de grupo.
+Todos os demais residentes que entrarem na ligação mais tarde também serão silenciados, mesmo se você sair da ligação.
+
+
+Silenciar todos?
+		<usetemplate ignoretext="Confirmar antes de silenciar todos os participantes em ligações de grupo." name="okcancelignore" notext="OK" yestext="Cancelar"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- A velocidade da sua CPU não suporta os requisitos mínimos exigidos.

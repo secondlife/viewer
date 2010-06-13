@@ -182,9 +182,6 @@ protected:
 
 	LLViewerInventoryItem* mItem;
 
-	// force not showing link icon on item's icon
-	bool mForceNoLinksOnIcons;
-
 private:
 
 	/** reshape left side widgets

@@ -246,6 +246,7 @@ LLFolderView::LLFolderView(const Params& p)
 	text_p.font(font);
 	text_p.visible(false);
 	text_p.allow_html(true);
+	text_p.wrap(true); // allow multiline text. See EXT-7564, EXT-7047
 	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
 	mStatusTextBox->setFollowsLeft();
 	mStatusTextBox->setFollowsTop();
@@ -953,6 +954,23 @@ void LLFolderView::draw()
 		}
 		mStatusTextBox->setValue(mStatusText);
 		mStatusTextBox->setVisible( TRUE );
+
+		// firstly reshape message textbox with current size. This is necessary to
+		// LLTextBox::getTextPixelHeight works properly
+		const LLRect local_rect = getLocalRect();
+		mStatusTextBox->setShape(local_rect);
+
+		// get preferable text height...
+		S32 pixel_height = mStatusTextBox->getTextPixelHeight();
+		bool height_changed = local_rect.getHeight() != pixel_height;
+		if (height_changed)
+		{
+			// ... if it does not match current height, lets rearrange current view.
+			// This will indirectly call ::arrange and reshape of the status textbox.
+			// We should call this method to also notify parent about required rect.
+			// See EXT-7564, EXT-7047.
+			arrangeFromRoot();
+		}
 		
 	}
 
@@ -2310,7 +2328,7 @@ void LLFolderView::updateRenamerPosition()
 bool LLFolderView::selectFirstItem()
 {
 	for (folders_t::iterator iter = mFolders.begin();
-		 iter != mFolders.end();)
+		 iter != mFolders.end();++iter)
 	{
 		LLFolderViewFolder* folder = (*iter );
 		if (folder->getVisible())
@@ -2347,7 +2365,7 @@ bool LLFolderView::selectLastItem()
 		}
 	}
 	for (folders_t::reverse_iterator iter = mFolders.rbegin();
-		 iter != mFolders.rend();)
+		 iter != mFolders.rend();++iter)
 	{
 		LLFolderViewFolder* folder = (*iter);
 		if (folder->getVisible())

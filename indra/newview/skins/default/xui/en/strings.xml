@@ -3093,6 +3093,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		The session initialization is timed out
 	</string>
   
+  <string name="voice_morphing_url">http://secondlife.com/landing/voicemorphing</string>
+
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT]</string>
   <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>
@@ -3179,12 +3181,12 @@ Abuse Report</string>
 
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value=" "></string>
-  <string name="words_separator">, </string>
+  <string name="words_separator" value=", "/>
   
   <string name="server_is_down">
 	Despite our best efforts, something unexpected has gone wrong.
 
-	Please check secondlife.com/status to see if there is a known problem with the service.  
+	Please check status.secondlifegrid.net to see if there is a known problem with the service.  
         If you continue to experience problems, please check your network and firewall setup.
   </string>
 

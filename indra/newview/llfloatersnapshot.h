@@ -47,13 +47,6 @@ public:
 		SNAPSHOT_FORMAT_BMP
 	} ESnapshotFormat;
 
-	enum ESnapshotMode
-	{
-		SNAPSHOT_SHARE,
-		SNAPSHOT_SAVE,
-		SNAPSHOT_MAIN
-	};
-
 	LLFloaterSnapshot(const LLSD& key);
 	virtual ~LLFloaterSnapshot();
     
@@ -66,7 +59,7 @@ public:
 	
 	void setAsProfilePic(const LLUUID& image_id);
 	
-	bool updateButtons(ESnapshotMode mode);
+	bool updateButtons(const LLSD& mode);
 	
 	static S32  getUIWinHeightLong()  {return sUIWinHeightLong ;}
 	static S32  getUIWinHeightShort() {return sUIWinHeightShort ;}

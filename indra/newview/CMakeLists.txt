@@ -215,6 +215,7 @@ set(viewer_SOURCE_FILES
     llfloaterurldisplay.cpp
     llfloaterurlentry.cpp
     llfloatervoicedevicesettings.cpp
+    llfloatervoiceeffect.cpp
     llfloaterwater.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindlight.cpp
@@ -357,6 +358,7 @@ set(viewer_SOURCE_FILES
     llpanelprofileview.cpp
     llpanelteleporthistory.cpp
     llpaneltiptoast.cpp
+    llpanelvoiceeffect.cpp
     llpaneltopinfobar.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
@@ -737,6 +739,7 @@ set(viewer_HEADER_FILES
     llfloaterurldisplay.h
     llfloaterurlentry.h
     llfloatervoicedevicesettings.h
+    llfloatervoiceeffect.h
     llfloaterwater.h
     llfloaterwhitelistentry.h
     llfloaterwindlight.h
@@ -874,6 +877,7 @@ set(viewer_HEADER_FILES
     llpanelprofileview.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
+    llpanelvoiceeffect.h
     llpaneltopinfobar.h
     llpanelvolume.h
     llpanelvolumepulldown.h
@@ -1068,7 +1072,6 @@ set(viewer_HEADER_FILES
     llwearabletype.h
     llweb.h
     llwind.h
-    llwindebug.h
     llwlanimator.h
     llwldaycycle.h
     llwlparammanager.h
@@ -1142,12 +1145,10 @@ endif (LINUX)
 if (WINDOWS)
     list(APPEND viewer_SOURCE_FILES
          llappviewerwin32.cpp
-         llwindebug.cpp
          )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
-         llwindebug.h
          )
 
     # precompiled header configuration
@@ -1704,6 +1705,29 @@ if (LINUX)
     add_dependencies(package linux-updater-target)
     check_message_template(package)
   endif (NOT INSTALL)
+
+  add_custom_command(
+    OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched
+    COMMAND ${PYTHON_EXECUTABLE}
+    ARGS
+      ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      --arch=${ARCH}
+      --actions=copy
+      --artwork=${ARTWORK_DIR}
+      --build=${CMAKE_CURRENT_BINARY_DIR}
+      --buildtype=${CMAKE_BUILD_TYPE}
+      --configuration=${CMAKE_CFG_INTDIR}
+      --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
+      --grid=${GRID}
+      --source=${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS 
+      ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      ${COPY_INPUT_DEPENDENCIES}
+    COMMENT "Performing viewer_manifest copy"
+    )
+    
+  add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched) 
+  add_dependencies(copy_l_viewer_manifest "${VIEWER_BINARY_NAME}" linux-crash-logger-target linux-updater-target)
 endif (LINUX)
 
 if (DARWIN)
@@ -1738,12 +1762,11 @@ if (DARWIN)
     DEPENDS ${VIEWER_BINARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit)
+  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_webkit mac-updater mac-crash-logger)
 
   if (PACKAGE)
       add_custom_target(package ALL DEPENDS ${VIEWER_BINARY_NAME}) 
       check_message_template(package)
-      add_dependencies(package mac-updater mac-crash-logger)
 
       add_custom_command(
         TARGET package POST_BUILD
@@ -1790,6 +1813,45 @@ endif (DARWIN)
 if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
+
+if (PACKAGE)
+  if (WINDOWS)
+    set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
+    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-windows.tar.bz2")
+    set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
+    set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
+    set(VIEWER_COPY_MANIFEST copy_w_viewer_manifest)
+  endif (WINDOWS)
+  if (DARWIN)
+    set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
+    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-darwin.tar.bz2")
+    set(VIEWER_EXE_GLOBS "'Second Life' SLPlugin")
+    set(VIEWER_LIB_GLOB "*.dylib")
+  endif (DARWIN)
+  if (LINUX)
+    set(VIEWER_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/packaged")
+    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-linux.tar.bz2")
+    set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin SLPlugin")
+    set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
+    set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
+  endif (LINUX)
+
+  add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
+    COMMAND "${PYTHON_EXECUTABLE}"
+    ARGS
+      "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
+      "${VIEWER_DIST_DIR}"
+      "${VIEWER_EXE_GLOBS}"
+      "${VIEWER_LIB_GLOB}"
+      "${LIBS_PREBUILT_DIR}/${LL_ARCH_DIR}/bin/dump_syms"
+      "${VIEWER_SYMBOL_FILE}"
+    DEPENDS generate_breakpad_symbols.py
+    VERBATIM
+  )
+  add_custom_target(generate_breakpad_symbols ALL DEPENDS "${VIEWER_SYMBOL_FILE}")
+  add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
+  add_dependencies(package generate_breakpad_symbols)
+endif (PACKAGE)
 
 if (LL_TESTS)
   # To add a viewer unit test, just add the test .cpp file below

@@ -79,7 +79,15 @@ void LLPanelInventoryListItemBase::draw()
 void LLPanelInventoryListItemBase::updateItem()
 {
 	setIconImage(mIconImage);
-	setTitle(mItem->getName(), mHighlightedText);
+
+	std::string name = mItem->getName();
+
+	if (get_is_item_worn(mItem->getUUID()))
+	{
+		name += LLTrans::getString("worn");
+	}
+
+	setTitle(name, mHighlightedText);
 }
 
 void LLPanelInventoryListItemBase::addWidgetToLeftSide(const std::string& name, bool show_widget/* = true*/)
@@ -132,8 +140,7 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	BOOL show_links = mForceNoLinksOnIcons ? FALSE : mItem->getIsLinkType();
-	mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), show_links, mItem->getFlags(), FALSE);
+	mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
 
 	setNeedsRefresh(true);
 
@@ -199,7 +206,6 @@ LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem
 , mLeftWidgetsWidth(0)
 , mRightWidgetsWidth(0)
 , mNeedsRefresh(false)
-, mForceNoLinksOnIcons(false)
 {
 }
 

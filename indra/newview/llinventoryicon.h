@@ -86,15 +86,12 @@ public:
 
 	static const std::string& getIconName(LLAssetType::EType asset_type,
 										  LLInventoryType::EType inventory_type = LLInventoryType::IT_NONE,
-										  BOOL item_is_link = FALSE,
 										  U32 misc_flag = 0, // different meanings depending on item type
 										  BOOL item_is_multi = FALSE);
-	static const std::string& getIconName(EIconName idx, 
-										  BOOL item_is_link = FALSE);
+	static const std::string& getIconName(EIconName idx);
 
 	static LLUIImagePtr getIcon(LLAssetType::EType asset_type,
 								LLInventoryType::EType inventory_type = LLInventoryType::IT_NONE,
-								BOOL item_is_link = FALSE,
 								U32 misc_flag = 0, // different meanings depending on item type
 								BOOL item_is_multi = FALSE);
 	static LLUIImagePtr getIcon(EIconName idx);

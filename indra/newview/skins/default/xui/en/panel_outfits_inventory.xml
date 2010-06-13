@@ -30,6 +30,7 @@
            height="490"
            name="outfitslist_tab"
            background_visible="true"
+           help_topic="my_outfits_tab"
            follows="all"
            label="MY OUTFITS"
            layout="topleft"

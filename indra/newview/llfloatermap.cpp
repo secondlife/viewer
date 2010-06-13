@@ -54,7 +54,10 @@
 // Constants
 //
 const F32 MAP_MINOR_DIR_THRESHOLD = 0.08f;
-
+const S32 MAP_PADDING_LEFT = 0;
+const S32 MAP_PADDING_TOP = 2;
+const S32 MAP_PADDING_RIGHT = 2;
+const S32 MAP_PADDING_BOTTOM = 0;
 //
 // Member functions
 //
@@ -106,7 +109,8 @@ BOOL LLFloaterMap::postBuild()
 		mPopupMenu->setItemEnabled ("Stop Tracking", false);
 	}
 
-	stretchMiniMap(getRect().getWidth(),getRect().getHeight());
+	stretchMiniMap(getRect().getWidth() - MAP_PADDING_LEFT - MAP_PADDING_RIGHT
+		,getRect().getHeight() - MAP_PADDING_TOP - MAP_PADDING_BOTTOM);
 
 	updateMinorDirections();
 
@@ -238,7 +242,7 @@ void LLFloaterMap::stretchMiniMap(S32 width,S32 height)
 	if(mMap)
 	{
 		LLRect map_rect;
-		map_rect.setLeftTopAndSize( 0, getRect().getHeight(), width, height);
+		map_rect.setLeftTopAndSize( MAP_PADDING_LEFT, getRect().getHeight() - MAP_PADDING_TOP, width, height);
 		mMap->reshape( width, height, 1);
 		mMap->setRect(map_rect);
 	}
@@ -248,7 +252,8 @@ void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLFloater::reshape(width, height, called_from_parent);
 	
-	stretchMiniMap(width, height);
+	stretchMiniMap(width - MAP_PADDING_LEFT - MAP_PADDING_RIGHT
+		,height - MAP_PADDING_TOP - MAP_PADDING_BOTTOM);
 
 	updateMinorDirections();
 }

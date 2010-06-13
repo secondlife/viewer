@@ -61,6 +61,9 @@
 #include "llagentcamera.h"
 #include "llmorphview.h"
 
+#include "llcommandhandler.h"
+#include "lltextutil.h"
+
 // register panel with appropriate XML
 static LLRegisterPanelClassWrapper<LLPanelEditWearable> t_edit_wearable("panel_edit_wearable");
 
@@ -608,6 +611,36 @@ LLPanelEditWearable::~LLPanelEditWearable()
 
 }
 
+bool LLPanelEditWearable::changeHeightUnits(const LLSD& new_value)
+{
+	updateMetricLayout( new_value.asBoolean() );
+	updateTypeSpecificControls(LLWearableType::WT_SHAPE);
+	return true;
+}
+
+void LLPanelEditWearable::updateMetricLayout(BOOL new_value)
+{
+	LLUIString current_metric, replacment_metric;
+	current_metric = new_value ? mMeters : mFeet;
+	replacment_metric = new_value ? mFeet : mMeters;
+	mHeigthValue.setArg( "[METRIC1]", current_metric.getString() );
+	mReplacementMetricUrl.setArg( "[URL_METRIC2]", std::string("[secondlife:///app/metricsystem ") + replacment_metric.getString() + std::string("]"));
+}
+
+void LLPanelEditWearable::updateAvatarHeightLabel()
+{
+	mTxtAvatarHeight->setText(LLStringUtil::null);
+	LLStyle::Params param;
+	param.color = mAvatarHeigthLabelColor;
+	mTxtAvatarHeight->appendText(mHeigth, false, param);
+	param.color = mAvatarHeigthValueLabelColor;
+	mTxtAvatarHeight->appendText(mHeigthValue, false, param);
+	param.color = mAvatarHeigthLabelColor; // using mAvatarHeigthLabelColor for '/' separator
+	mTxtAvatarHeight->appendText(" / ", false, param);
+	mTxtAvatarHeight->appendText(this->mReplacementMetricUrl, false, param);
+}
+
+
 // virtual 
 BOOL LLPanelEditWearable::postBuild()
 {
@@ -699,6 +732,20 @@ BOOL LLPanelEditWearable::postBuild()
 		for_each_picker_ctrl_entry <LLColorSwatchCtrl> (getPanel(type), type, boost::bind(init_color_swatch_ctrl, this, _1, _2));
 		for_each_picker_ctrl_entry <LLTextureCtrl>     (getPanel(type), type, boost::bind(init_texture_ctrl, this, _1, _2));
 	}
+
+	// init all strings
+	mMeters		= mPanelShape->getString("meters");
+	mFeet		= mPanelShape->getString("feet");
+	mHeigth		= mPanelShape->getString("height") + " ";
+	mHeigthValue	= "[HEIGHT] [METRIC1]";
+	mReplacementMetricUrl	= "[URL_METRIC2]";
+
+	std::string color = mPanelShape->getString("heigth_label_color");
+	mAvatarHeigthLabelColor = LLUIColorTable::instance().getColor(color, LLColor4::green);
+	color = mPanelShape->getString("heigth_value_label_color");
+	mAvatarHeigthValueLabelColor = LLUIColorTable::instance().getColor(color, LLColor4::green);
+	gSavedSettings.getControl("HeightUnits")->getSignal()->connect(boost::bind(&LLPanelEditWearable::changeHeightUnits, this, _2));
+	updateMetricLayout(gSavedSettings.getBOOL("HeightUnits"));
 
 	return TRUE;
 }
@@ -1107,12 +1154,22 @@ void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type)
 
 void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
 {
+	const F32 ONE_METER = 1.0;
+	const F32 ONE_FOOT = 0.3048 * ONE_METER; // in meters
 	// Update controls specific to shape editing panel.
 	if (type == LLWearableType::WT_SHAPE)
 	{
 		// Update avatar height
-		std::string avatar_height_str = llformat("%.2f", gAgentAvatarp->mBodySize.mV[VZ]);
-		mTxtAvatarHeight->setTextArg("[HEIGHT]", avatar_height_str);
+		F32 new_size = gAgentAvatarp->mBodySize.mV[VZ];
+		if (gSavedSettings.getBOOL("HeightUnits") == FALSE)
+		{
+			// convert meters to feet
+			new_size = new_size / ONE_FOOT;
+		}
+
+		std::string avatar_height_str = llformat("%.2f", new_size);
+		mHeigthValue.setArg("[HEIGHT]", avatar_height_str);
+		updateAvatarHeightLabel();
 	}
 
 	if (LLWearableType::WT_ALPHA == type)
@@ -1380,5 +1437,22 @@ void LLPanelEditWearable::initPreviousAlphaTextureEntry(LLVOAvatarDefines::EText
 		mPreviousAlphaTexture[te] = lto->getID();
 	}
 }
+
+// handle secondlife:///app/metricsystem
+class LLMetricSystemHandler : public LLCommandHandler
+{
+public:
+	LLMetricSystemHandler() : LLCommandHandler("metricsystem", UNTRUSTED_THROTTLE) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		// change height units TRUE for meters and FALSE for feet
+		BOOL new_value = (gSavedSettings.getBOOL("HeightUnits") == FALSE) ? TRUE : FALSE;
+		gSavedSettings.setBOOL("HeightUnits", new_value);
+		return true;
+	}
+};
+
+LLMetricSystemHandler gMetricSystemHandler;
 
 // EOF
