@@ -108,7 +108,8 @@ LLAres::LLAres() :
     mInitSuccess(false),
     mListener(new LLAresListener(this))
 {
-	if (ares_init(&chan_) != ARES_SUCCESS)
+	if (ares_library_init( ARES_LIB_INIT_ALL ) != ARES_SUCCESS ||
+		ares_init(&chan_) != ARES_SUCCESS)
 	{
 		llwarns << "Could not succesfully initialize ares!" << llendl;
 		return;
@@ -120,6 +121,7 @@ LLAres::LLAres() :
 LLAres::~LLAres()
 {
 	ares_destroy(chan_);
+	ares_library_cleanup();
 }
 
 void LLAres::cancel()
