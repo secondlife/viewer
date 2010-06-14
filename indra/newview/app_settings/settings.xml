@@ -3556,17 +3556,6 @@
       <key>Value</key>
       <integer>255</integer>
     </map>
-    <key>MaxWearableWaitTime</key>
-    <map>
-      <key>Comment</key>
-      <string>Max seconds to wait for wearable assets to fetch.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>60.0</real>
-    </map>
     <key>ForceShowGrid</key>
     <map>
       <key>Comment</key>
@@ -4711,6 +4700,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>64.0</real>
+    </map>
+    <key>MaxWearableWaitTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Max seconds to wait for wearable assets to fetch.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>60.0</real>
     </map>
     <key>MeanCollisionBump</key>
     <map>

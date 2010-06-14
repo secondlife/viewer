@@ -265,6 +265,7 @@ public:
 	void setGestItems(const LLInventoryModel::item_array_t& items);
 	bool isValid();
 	void handleLateArrivals();
+	void resetTime(F32 timeout);
 	
 private:
 	found_list_t mFoundList;
@@ -351,8 +352,7 @@ bool LLWearableHoldingPattern::isFetchCompleted()
 
 bool LLWearableHoldingPattern::isTimedOut()
 {
-	F32 max_wait_time = gSavedSettings.getF32("MaxWearableWaitTime"); // give up if wearable fetches haven't completed in max_wait_time seconds.
-	return mWaitTime.getElapsedTimeF32() > max_wait_time; 
+	return mWaitTime.hasExpired();
 }
 
 void LLWearableHoldingPattern::checkMissingWearables()
@@ -395,7 +395,7 @@ void LLWearableHoldingPattern::checkMissingWearables()
 		}
 	}
 
-	mWaitTime.reset();
+	resetTime(60.0F);
 	if (!pollMissingWearables())
 	{
 		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollMissingWearables,this));
@@ -722,7 +722,7 @@ void LLWearableHoldingPattern::handleLateArrivals()
 		if (data.mWearable && data.mIsReplacement &&
 			replaced_types.find(data.mWearableType) != replaced_types.end())
 		{
-			LLAppearanceMgr::instance().removeCOFItemLinks(data.mItemID);
+			LLAppearanceMgr::instance().removeCOFItemLinks(data.mItemID,false);
 			std::list<LLFoundData>::iterator clobber_ator = iter;
 			++iter;
 			getFoundList().erase(clobber_ator);
@@ -738,6 +738,12 @@ void LLWearableHoldingPattern::handleLateArrivals()
 
 	// Update appearance based on mFoundList
 	LLAppearanceMgr::instance().updateAgentWearables(this, false);
+}
+
+void LLWearableHoldingPattern::resetTime(F32 timeout)
+{
+	mWaitTime.reset();
+	mWaitTime.setTimerExpirySec(timeout);
 }
 
 void LLWearableHoldingPattern::onWearableAssetFetch(LLWearable *wearable)
@@ -1522,7 +1528,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF()
 							  linked_item->isWearableType() ? linked_item->getWearableType() : LLWearableType::WT_INVALID
 				);
 
-			if (skip_type != LLWearableType::WT_INVALID && found.mWearableType == skip_type)
+			if (skip_type != LLWearableType::WT_INVALID && skip_type == found.mWearableType)
 			{
 				found.mAssetID.generate(); // Replace with new UUID, guaranteed not to exist in DB
 			}
@@ -1558,6 +1564,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF()
 
 	}
 
+	holder->resetTime(gSavedSettings.getF32("MaxWearableWaitTime"));
 	if (!holder->pollFetchCompletion())
 	{
 		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollFetchCompletion,holder));
