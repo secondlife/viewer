@@ -8,8 +8,8 @@
      name="wear_replace">
         <on_click
          function="Outfit.WearReplace" />
-        <on_enable
-         function="Outfit.OnEnable"
+        <on_visible
+         function="Outfit.OnVisible"
          parameter="wear_replace" />
     </menu_item_call>
     <menu_item_call
@@ -18,8 +18,8 @@
      name="wear_add">
         <on_click
          function="Outfit.WearAdd" />
-        <on_enable
-         function="Outfit.OnEnable"
+        <on_visible
+         function="Outfit.OnVisible"
          parameter="wear_add" />
     </menu_item_call>
     <menu_item_call
@@ -28,8 +28,8 @@
      name="take_off">
         <on_click
          function="Outfit.TakeOff" />
-        <on_enable
-         function="Outfit.OnEnable"
+        <on_visible
+         function="Outfit.OnVisible"
          parameter="take_off" />
     </menu_item_call>
     <menu_item_call
@@ -38,8 +38,8 @@
      name="edit">
         <on_click
          function="Outfit.Edit" />
-        <on_enable
-         function="Outfit.OnEnable"
+        <on_visible
+         function="Outfit.OnVisible"
          parameter="edit" />
     </menu_item_call>
     <menu_item_separator />
@@ -59,8 +59,8 @@
      name="delete">
         <on_click
          function="Outfit.Delete" />
-        <on_enable
-         function="Outfit.OnEnable"
+        <on_visible
+         function="Outfit.OnVisible"
          parameter="delete" />
     </menu_item_call>
 </context_menu>

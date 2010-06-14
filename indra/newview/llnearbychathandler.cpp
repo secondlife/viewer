@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llagentdata.h" // for gAgentID
 #include "llnearbychathandler.h"
 
 #include "llbottomtray.h"
@@ -367,6 +368,13 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg, const LLSD &args)
 	{
 		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
 			return;
+
+		// don't process debug messages from not owned objects, see EXT-7762
+		if (gAgentID != chat_msg.mOwnerID)
+		{
+			return;
+		}
+
 		if (gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)// show error in window //("ScriptErrorsAsChat"))
 		{
 

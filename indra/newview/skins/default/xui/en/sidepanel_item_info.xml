@@ -55,10 +55,10 @@
      font="SansSerifHugeBold"
      height="26"
      layout="topleft"
-     left_pad="10"
+     left_pad="3"
      name="title"
      text_color="LtGray"
-     top="0"
+     top="2"
      use_ellipses="true"
      value="Object Profile"
      width="275" />

@@ -271,6 +271,32 @@ public:
 //
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindByMask : public LLInventoryCollectFunctor
+{
+public:
+	LLFindByMask(U64 mask)
+		: mFilterMask(mask)
+	{}
+
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		if(item && (mFilterMask & (1LL << item->getInventoryType())) )
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+private:
+	U64 mFilterMask;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindNonLinksByMask
+//
+//
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLFindNonLinksByMask : public LLInventoryCollectFunctor
 {
 public:

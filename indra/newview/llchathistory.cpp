@@ -243,7 +243,7 @@ public:
 		gCacheName->get(mAvatarID, FALSE, boost::bind(&LLChatHistoryHeader::nameUpdatedCallback, this, _1, _2, _3, _4));
 
 		//*TODO overly defensive thing, source type should be maintained out there
-		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM)
+		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM && chat.mFromID.isNull())
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}

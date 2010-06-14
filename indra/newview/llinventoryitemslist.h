@@ -122,16 +122,16 @@ public:
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
 	/** Get the name of a corresponding inventory item */
-	const std::string& getItemName() const { return mItem->getName(); }
+	const std::string& getItemName() const;
 
 	/** Get the asset type of a corresponding inventory item */
-	LLAssetType::EType getType() const { return mItem->getType(); }
+	LLAssetType::EType getType() const;
 
 	/** Get the wearable type of a corresponding inventory item */
-	LLWearableType::EType getWearableType() const { return mItem->getWearableType(); }
+	LLWearableType::EType getWearableType() const;
 
 	/** Get the description of a corresponding inventory item */
-	const std::string& getDescription() const { return mItem->getDescription(); }
+	const std::string& getDescription() const;
 
 	/** Get the associated inventory item */
 	LLViewerInventoryItem* getItem() const { return mItem; }
@@ -152,7 +152,7 @@ protected:
 	/**
 	 * Called after inventory item was updated, update panel widgets to reflect inventory changes.
 	 */
-	virtual void updateItem();
+	virtual void updateItem(const std::string& name);
 
 	/** setter for mIconCtrl */
 	void setIconCtrl(LLIconCtrl* icon) { mIconCtrl = icon; }

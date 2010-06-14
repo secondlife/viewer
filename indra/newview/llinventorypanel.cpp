@@ -189,6 +189,8 @@ LLInventoryPanel::~LLInventoryPanel()
 		}
 	}
 
+	gIdleCallbacks.deleteFunction(onIdle, this);
+
 	// LLView destructor will take care of the sub-views.
 	mInventory->removeObserver(mInventoryObserver);
 	delete mInventoryObserver;

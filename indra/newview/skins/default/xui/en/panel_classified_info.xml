@@ -47,7 +47,7 @@
      layout="topleft"
      name="back_btn"
      picture_style="true"
-     left="9"
+     left="10"
      tab_stop="false"
      top="2"
      width="30" />
@@ -56,7 +56,7 @@
      font="SansSerifHugeBold"
      height="26"
      layout="topleft"
-     left_pad="10"
+     left_pad="4"
      name="title"
      text_color="LtGray"
      top="0"

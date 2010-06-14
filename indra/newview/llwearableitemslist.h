@@ -56,13 +56,13 @@ class LLPanelWearableListItem : public LLPanelInventoryListItemBase
 public:
 
 	/**
-	* Shows buttons when mouse is over
-	*/
+	 * Shows buttons when mouse is over
+	 */
 	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
 
 	/**
-	* Hides buttons when mouse is out
-	*/
+	 * Hides buttons when mouse is out
+	 */
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
 protected:
@@ -84,10 +84,15 @@ public:
 	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item);
 
 	/**
-	* Puts item on if it is not worn by agent
-	* otherwise takes it off on double click.
-	*/
+	 * Puts item on if it is not worn by agent
+	 * otherwise takes it off on double click.
+	 */
 	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+
+	/**
+	 * Updates item name and (worn) suffix.
+	 */
+	/*virtual*/ void updateItem(const std::string& name);
 
 protected:
 
@@ -198,7 +203,6 @@ class LLPanelDummyClothingListItem : public LLPanelWearableListItem
 public:
 	static LLPanelDummyClothingListItem* create(LLWearableType::EType w_type);
 
-	/*virtual*/ void updateItem();
 	/*virtual*/ BOOL postBuild();
 	LLWearableType::EType getWearableType() const;
 
@@ -325,6 +329,10 @@ public:
 	 */
 	class ContextMenu : public LLListContextMenu, public LLSingleton<ContextMenu>
 	{
+	public:
+		ContextMenu();
+		/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
+
 	protected:
 		enum {
 			MASK_CLOTHING		= 0x01,
@@ -340,11 +348,13 @@ public:
 		static void setMenuItemEnabled(LLContextMenu* menu, const std::string& name, bool val);
 		static void updateMask(U32& mask, LLAssetType::EType at);
 		static void createNewWearable(const LLUUID& item_id);
+
+		LLWearableItemsList*	mParent;
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>
 	{
-		Optional<bool> use_internal_context_menu;
+		Optional<bool> standalone;
 
 		Params();
 	};
@@ -361,11 +371,15 @@ public:
 	 */
 	void updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids);
 
+	bool isStandalone() const { return mIsStandalone; }
+
 protected:
 	friend class LLUICtrlFactory;
 	LLWearableItemsList(const LLWearableItemsList::Params& p);
 
 	void onRightClick(S32 x, S32 y);
+
+	bool mIsStandalone;
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H

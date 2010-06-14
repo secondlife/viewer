@@ -51,7 +51,8 @@
     <string name="Filter.All" value="All"/>
     <string name="Filter.Clothes/Body" value="Clothes/Body"/>
     <string name="Filter.Objects" value="Objects"/>
-    <string name="Filter.Custom" value="Custom filter"/>
+    <string name="Filter.Clothing" value="Clothing"/>
+    <string name="Filter.Bodyparts" value="Body parts"/>
 
 
     <button
@@ -64,14 +65,14 @@
      name="back_btn"
      left="5"
      tab_stop="false"
-     top="2"
+     top="1"
      width="30" />
     <text
      follows="top|right"
      font="SansSerifHugeBold"
      height="26"
      layout="topleft"
-     left_pad="20"
+     left_pad="10"
      name="title"
      text_color="LtGray"
      top="0"
@@ -211,6 +212,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                      left="2"
                      name="show_add_wearables_btn"
                      top_pad="2"
+                     tool_tip="Open/Close"
                      width="125" />
 
                     <combo_box
@@ -218,11 +220,20 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                      height="22"
                      layout="topleft"
                      left_pad="5"
-                     name="filter_wearables_combobox"
+                     name="list_view_filter_combobox"
                      top_delta="0"
                      visible="false"
                      width="152"/>
-
+                    <combo_box
+                     follows="left|right|bottom"
+                     height="22"
+                     layout="topleft"
+                     left_delta="0"
+                     name="folder_view_filter_combobox"
+                     top_delta="0"
+                     visible="false"
+                     width="152"/>
+                    
                     <button
                      follows="bottom|right"
                      height="22"
@@ -300,7 +311,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              layout="topleft"
              left="0"
              mouse_opaque="false"
-             name="inventory_items"
+             name="folder_view"
              top_pad="5"
              width="310"
              visible="false"/>
@@ -319,7 +330,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              visible="true">
                 <wearable_items_list
                  color="0.107 0.107 0.107 1"
-                 name="filtered_wearables_list"
+                 name="list_view"
                  allow_select="true"
                  layout="topleft"
                  follows="all"
@@ -483,6 +494,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          layout="topleft"
          name="revert_btn"
          top="0"
+         tool_tip="Revert to last saved version"
          width="147" />
     </panel>
 </panel>

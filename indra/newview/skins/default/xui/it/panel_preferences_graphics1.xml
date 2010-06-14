@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Grafica" name="Display panel">
-	<text name="UI Size:">
-		Dimensioni UI:
-	</text>
 	<text name="QualitySpeed">
 		Qualità e velocità:
 	</text>
@@ -52,6 +49,10 @@
 			m
 		</text>
 		<slider label="Conteggio massimo particelle:" name="MaxParticleCount"/>
+		<slider label="Distanza visual. max avatar:" name="MaxAvatarDrawDistance"/>
+		<text name="DrawDistanceMeterText3">
+			m
+		</text>
 		<slider label="Qualità in post-produzione:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Dettagli reticolo:
