@@ -216,13 +216,15 @@ struct LLFoundData
 				const LLUUID& asset_id,
 				const std::string& name,
 				const LLAssetType::EType& asset_type,
-				const LLWearableType::EType& wearable_type
+				const LLWearableType::EType& wearable_type,
+				const bool is_replacement = false
 		) :
 		mItemID(item_id),
 		mAssetID(asset_id),
 		mName(name),
 		mAssetType(asset_type),
 		mWearableType(wearable_type),
+		mIsReplacement(is_replacement),
 		mWearable( NULL ) {}
 	
 	LLUUID mItemID;
@@ -231,6 +233,7 @@ struct LLFoundData
 	LLAssetType::EType mAssetType;
 	LLWearableType::EType mWearableType;
 	LLWearable* mWearable;
+	bool mIsReplacement;
 };
 
 	
@@ -519,7 +522,8 @@ public:
 								  linked_item->getAssetUUID(),
 								  linked_item->getName(),
 								  linked_item->getType(),
-								  linked_item->isWearableType() ? linked_item->getWearableType() : LLWearableType::WT_INVALID
+								  linked_item->isWearableType() ? linked_item->getWearableType() : LLWearableType::WT_INVALID,
+								  true // is replacement
 					);
 				found.mWearable = mWearable;
 				mHolder->getFoundList().push_front(found);
@@ -678,6 +682,7 @@ void LLWearableHoldingPattern::handleLateArrivals()
 	llinfos << "Need to handle " << mLateArrivals.size() << " late arriving wearables" << llendl;
 
 	// Update mFoundList using late-arriving wearables.
+	std::set<LLWearableType::EType> replaced_types;
 	for (LLWearableHoldingPattern::found_list_t::iterator iter = getFoundList().begin();
 		 iter != getFoundList().end(); ++iter)
 	{
@@ -687,10 +692,15 @@ void LLWearableHoldingPattern::handleLateArrivals()
 			 ++wear_it)
 		{
 			LLWearable *wearable = *wear_it;
-			
+
 			if(wearable->getAssetID() == data.mAssetID)
 			{
 				data.mWearable = wearable;
+
+				replaced_types.insert(data.mWearableType);
+				
+				LLAppearanceMgr::instance().addCOFItemLink(data.mItemID,false);
+
 				// BAP failing this means inventory or asset server
 				// are corrupted in a way we don't handle.
 				llassert((data.mWearableType < LLWearableType::WT_COUNT) && (wearable->getType() == data.mWearableType));
@@ -699,7 +709,32 @@ void LLWearableHoldingPattern::handleLateArrivals()
 		}
 	}
 
-	// TODO: handle corresponding default wearable links?
+	// Remove COF links for any default wearables previously used to replace the late arrivals.
+	// All this pussyfooting around with a while loop and explicit
+	// iterator incrementing is to allow removing items from the list
+	// without clobbering the iterator we're using to navigate.
+	LLWearableHoldingPattern::found_list_t::iterator iter = getFoundList().begin();
+	while (iter != getFoundList().end())
+	{
+		LLFoundData& data = *iter;
+
+		// If an item of this type has recently shown up, removed the corresponding replacement wearable from COF.
+		if (data.mWearable && data.mIsReplacement &&
+			replaced_types.find(data.mWearableType) != replaced_types.end())
+		{
+			LLAppearanceMgr::instance().removeCOFItemLinks(data.mItemID);
+			std::list<LLFoundData>::iterator clobber_ator = iter;
+			++iter;
+			getFoundList().erase(clobber_ator);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+
+	// Clear contents of late arrivals.
+	mLateArrivals.clear();
 
 	// Update appearance based on mFoundList
 	LLAppearanceMgr::instance().updateAgentWearables(this, false);
