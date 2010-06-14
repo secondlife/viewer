@@ -2495,8 +2495,7 @@ void LLStartUp::saveInitialOutfit()
 	{
 		sWearablesLoadedCon.disconnect();
 	}
-
-	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit);
+	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit,false);
 }
 
 std::string& LLStartUp::getInitialOutfitName()
