@@ -135,6 +135,7 @@ BOOL LLImagePNG::encode(const LLImageRaw* raw_image, F32 encode_time)
 	if (! pngWrapper.writePng(raw_image, mTmpWriteBuffer))
 	{
 		setLastError(pngWrapper.getErrorMessage());
+		delete[] mTmpWriteBuffer;
 		return FALSE;
 	}
 
