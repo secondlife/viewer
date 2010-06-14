@@ -6,17 +6,47 @@
 	<string name="walk_back_tooltip">
 		Cammina indietro (premi freccia giù o S)
 	</string>
+	<string name="walk_left_tooltip">
+		Cammina a sinistra (premi Maiusc + freccia sinistra o A)
+	</string>
+	<string name="walk_right_tooltip">
+		Cammina a destra (premi Maiusc + freccia destra o D)
+	</string>
 	<string name="run_forward_tooltip">
 		Corri in avanti (premi freccia su o W)
 	</string>
 	<string name="run_back_tooltip">
 		Corri indietro (premi freccia giù o S)
 	</string>
+	<string name="run_left_tooltip">
+		Corri a sinistra (premi Maiusc + freccia sinistra o A)
+	</string>
+	<string name="run_right_tooltip">
+		Corri a destra (premi Maiusc + freccia destra o D)
+	</string>
 	<string name="fly_forward_tooltip">
 		Vola in avanti (premi freccia su o W)
 	</string>
 	<string name="fly_back_tooltip">
 		Vola indietro (premi freccia giù o S)
+	</string>
+	<string name="fly_left_tooltip">
+		Vola a sinistra (premi Maiusc + freccia sinistra o A)
+	</string>
+	<string name="fly_right_tooltip">
+		Vola a destra (premi Maiusc + freccia destra o D)
+	</string>
+	<string name="fly_up_tooltip">
+		Vola in alto (premi E)
+	</string>
+	<string name="fly_down_tooltip">
+		Vola in basso (premi C)
+	</string>
+	<string name="jump_tooltip">
+		Salta (premi E)
+	</string>
+	<string name="crouch_tooltip">
+		Accovacciarsi (premi C)
 	</string>
 	<string name="walk_title">
 		Cammina
@@ -28,10 +58,12 @@
 		Vola
 	</string>
 	<panel name="panel_actions">
+		<button label="" label_selected="" name="move up btn" tool_tip="Vola in alto (premi E)"/>
 		<button label="" label_selected="" name="turn left btn" tool_tip="Gira a sinistra (premi freccia sinistra o A)"/>
+		<joystick_slide name="move left btn" tool_tip="Cammina a sinistra (premi Maiusc + freccia sinistra o A)"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Vola in basso (premi C)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Gira a destra (premi freccia destra o D)"/>
-		<button label="" label_selected="" name="move up btn" tool_tip="Vola in alto, premi E"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Vola in basso, premi C"/>
+		<joystick_slide name="move right btn" tool_tip="Cammina a destra (premi Maiusc + freccia destra o D)"/>
 		<joystick_turn name="forward btn" tool_tip="Cammina in avanti (premi freccia su o W)"/>
 		<joystick_turn name="backward btn" tool_tip="Cammina indietro (premi freccia giù o S)"/>
 	</panel>

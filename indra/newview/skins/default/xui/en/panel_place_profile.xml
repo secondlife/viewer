@@ -160,7 +160,7 @@
      image_pressed="BackButton_Press"
      image_unselected="BackButton_Off"
      layout="topleft"
-     left="7"
+     left="8"
      name="back_btn"
      tool_tip="Back"
      tab_stop="false"
@@ -174,7 +174,7 @@
      left_pad="10"
      name="title"
      text_color="LtGray"
-     top="2"
+     top="4"
      use_ellipses="true"
      value="Place Profile"
      width="280" />

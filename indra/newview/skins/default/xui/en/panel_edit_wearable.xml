@@ -141,15 +141,16 @@ left="0"
      layout="topleft"
      name="back_btn"
      left="11"
-     top="7" />
+     top="3" />
 	<text
 	 follows="top|left"
 	 font="SansSerifHugeBold"
 	 height="22"
 	 layout="topleft"
-	 left_pad="15"
+	 left_pad="8"
 	 name="edit_wearable_title"
 	 text_color="white"
+   top="3" 
 	 value="Editing Shape"
 	 width="270" />
      <panel

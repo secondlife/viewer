@@ -326,6 +326,9 @@ Hai bisogno di un account per entrare in [SECOND_LIFE]. Ne vuoi creare uno adess
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Riprova" yestext="Crea un nuovo account"/>
 	</notification>
+	<notification name="InvalidCredentialFormat">
+		Immetti sia il nome che il cognome del tuo avatar nel campo del nome utente, quindi effettua l&apos;accesso.
+	</notification>
 	<notification name="AddClassified">
 		L&apos;inserzione comparirà nella sezione &apos;Annunci&apos; della Ricerca e su [http://secondlife.com/community/classifieds secondlife.com] per una settimana.
 Compila la tua inserzione, quindi clicca &apos;Pubblica...&apos; per aggiungerla all&apos;elenco degli annunci.
@@ -607,6 +610,11 @@ Attese [VALIDS]
 	</notification>
 	<notification name="CannotEncodeFile">
 		Impossibile codificare il file: [FILE]
+	</notification>
+	<notification name="CorruptedProtectedDataStore">
+		Poiché non è possibile leggere i dati protetti, ora verranno ripristinati.
+   Ciò può succedere alla modifica delle impostazioni di rete.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
 		File risorsa corrotto: [FILE]
@@ -968,6 +976,12 @@ su TUTTI I TERRENI di questa sim?
 
 Introduci un prezzo più alto.
 	</notification>
+	<notification name="ConfirmItemDeleteHasLinks">
+		Almeno uno degli oggetti selezionati è collegato tramite link ad altri oggetti.  Se elimini l&apos;oggetto, i relativi link non funzioneranno più.  Pertanto si consiglia vivamente di eliminare prima i link.
+
+Sei sicuro di volere eliminare gli oggetti?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmObjectDeleteLock">
 		Almeno uno degli elementi selezionati è bloccato.
 
@@ -1116,6 +1130,42 @@ Usa le frecce per muoverti.
 Premi F1 in qualunque momento per la guida o per apprendere altre cose di [SECOND_LIFE].
 Scegli un avatar maschile o femminile. Puoi sempre cambiare idea più tardi.
 		<usetemplate name="okcancelbuttons" notext="Femminile" yestext="Maschile"/>
+	</notification>
+	<notification name="CantTeleportToGrid">
+		Impossibile effettuare il teleport su [SLURL], in quanto si trova su una griglia ([GRID]) diversa da quella attuale ([CURRENT_GRID]).  Chiudi il viewer e prova nuovamente.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GeneralCertificateError">
+		Impossibile collegarsi al server.
+[REASON]
+
+Nome oggetto: [SUBJECT_NAME_STRING]
+Nome emittente: [ISSUER_NAME_STRING]
+Valido da: [VALID_FROM]
+Valido fino a: [VALID_TO]
+Impronta MD5: [SHA1_DIGEST]
+Impronta SHA1: [MD5_DIGEST]
+Uso chiave: [KEYUSAGE]
+Uso chiave estesa: [EXTENDEDKEYUSAGE]
+Identificatore chiave oggetto: [SUBJECTKEYIDENTIFIER]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TrustCertificateError">
+		Autorità di certificazione di questo server sconosciuta.
+
+Informazioni sul certificato:
+Nome oggetto: [SUBJECT_NAME_STRING]
+Nome emittente: [ISSUER_NAME_STRING]
+Valido da: [VALID_FROM]
+Valido fino a: [VALID_TO]
+Impronta MD5: [SHA1_DIGEST]
+Impronta SHA1: [MD5_DIGEST]
+Uso chiave: [KEYUSAGE]
+Uso chiave estesa: [EXTENDEDKEYUSAGE]
+Identificatore chiave oggetto: [SUBJECTKEYIDENTIFIER]
+
+Accettare questa autorità?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Accetta"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] [PRICE]L$ Non hai abbastanza L$ per farlo.
@@ -1512,7 +1562,7 @@ Vuoi andare alla Knowledge Base per ulteriori informazioni sulle categorie di ac
 	<notification name="RegionEntryAccessBlocked_Change">
 		Non ti è consentito entrare in quella regione a causa della tua categoria di accesso impostata nelle preferenze.
 
-Puoi cliccare su Cambia preferenze per modificare la categoria di accesso e quindi riuscire ad entrare. Da adesso potrai accedere ai contenuti [REGIONMATURITY] ed effettuare ricerche in questa categoria. Se in seguito tu volessi cambiare di nuovo le tue impostazioni, apri la finestra di dialogo da Io &gt; Preferenze &gt; Generale.
+Clicca su Cambia preferenze per modificare la categoria di accesso e potere entrare subito. Ciò ti consentirà di effettuare ricerche di contenuti di categoria [REGIONMATURITY]. Potrai modificare queste impostazioni in un secondo momento da Io &gt; Preferenze &gt; Generali.
 		<form name="form">
 			<button name="OK" text="Cambia preferenza"/>
 			<button default="true" name="Cancel" text="Chiudi"/>
@@ -2283,15 +2333,6 @@ Riprova tra qualche istante.
 			<button name="Mute" text="Blocca"/>
 		</form>
 	</notification>
-	<notification name="ObjectGiveItemUnknownUser">
-		Un oggetto chiamato [OBJECTFROMNAME] di proprietà di (residente sconosciuto) ti ha dato questo [OBJECTTYPE]:
-[ITEM_SLURL]
-		<form name="form">
-			<button name="Keep" text="Prendi"/>
-			<button name="Discard" text="Rifiuta"/>
-			<button name="Mute" text="Blocca"/>
-		</form>
-	</notification>
 	<notification name="UserGiveItem">
 		[NAME_SLURL] ti ha dato questo [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -2604,8 +2645,52 @@ Il pulsante verrà visualizzato quando lo spazio sarà sufficiente.
 	<notification name="ShareNotification">
 		Trascina articoli dell&apos;inventario su una persona nel selettore residenti
 	</notification>
+	<notification name="DeedToGroupFail">
+		Cessione al gruppo non riuscita.
+	</notification>
 	<notification name="AvatarRezNotification">
-		Avatar &apos;[NAME]&apos; rezzato in [TIME] secondi.
+		( presente da [EXISTENCE] secondi )
+Nuvola avatar &apos;[NAME]&apos; risolta in [TIME] secondi.
+	</notification>
+	<notification name="AvatarRezSelfNotification">
+		( presente da [EXISTENCE] secondi )
+Baking dei vestiti eseguito in [TIME] secondi.
+	</notification>
+	<notification name="AvatarRezCloudNotification">
+		( presente da [EXISTENCE] secondi )
+Avatar &apos;[NAME]&apos; trasformato in nuvola.
+	</notification>
+	<notification name="AvatarRezArrivedNotification">
+		( presente da [EXISTENCE] secondi )
+È comparso l&apos;avatar &apos;[NAME]&apos;.
+	</notification>
+	<notification name="AvatarRezLeftCloudNotification">
+		( presente da [EXISTENCE] secondi )
+Avatar &apos;[NAME]&apos; partito dopo [TIME] secondi sotto forma di nuvola.
+	</notification>
+	<notification name="AvatarRezEnteredAppearanceNotification">
+		( presente da [EXISTENCE] secondi )
+Avatar &apos;[NAME]&apos; è entrato nella modalità aspetto.
+	</notification>
+	<notification name="AvatarRezLeftAppearanceNotification">
+		( presente da [EXISTENCE] secondi )
+Avatar &apos;[NAME]&apos; ha lasciato la modalità aspetto.
+	</notification>
+	<notification name="AvatarRezLeftNotification">
+		( presente da [EXISTENCE] secondi )
+Avatar &apos;[NAME]&apos; è partito completamente caricato.
+	</notification>
+	<notification name="ConfirmLeaveCall">
+		Sei sicuro di volere uscire dalla chiamata?
+		<usetemplate ignoretext="Conferma prima di uscire dalla chiamata" name="okcancelignore" notext="No" yestext="Sì"/>
+	</notification>
+	<notification name="ConfirmMuteAll">
+		Hai scelto di disattivare l&apos;audio di tutti i partecipanti alla chiamata di gruppo.
+In questo modo verrà disattivato l&apos;audio anche di tutti i residenti che si
+uniscono alla chiamata in un secondo momento, anche dopo che tu ti fossi scollegato.
+
+Disattiva audio di tutti?
+		<usetemplate ignoretext="Conferma prima di disattivare l&apos;audio di tutti i partecipanti alla chiamata di gruppo" name="okcancelignore" notext="Ok" yestext="Annulla"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- La velocità della tua CPU non soddisfa i requisiti minimi.

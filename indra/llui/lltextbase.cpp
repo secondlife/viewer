@@ -2791,7 +2791,7 @@ bool LLImageTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width
 	height = llceil(mStyle->getFont()->getLineHeight());;
 
 	LLUIImagePtr image = mStyle->getImage();
-	if( image.notNull())
+	if( num_chars>0 && image.notNull())
 	{
 		width += image->getWidth() + IMAGE_HPAD;
 		height = llmax(height, image->getHeight() + IMAGE_HPAD );

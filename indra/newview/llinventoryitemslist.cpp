@@ -70,23 +70,19 @@ void LLPanelInventoryListItemBase::draw()
 {
 	if (getNeedsRefresh())
 	{
-		updateItem();
+		if (mItem)
+		{
+			updateItem(mItem->getName());
+		}
 		setNeedsRefresh(false);
 	}
 	LLPanel::draw();
 }
 
-void LLPanelInventoryListItemBase::updateItem()
+// virtual
+void LLPanelInventoryListItemBase::updateItem(const std::string& name)
 {
 	setIconImage(mIconImage);
-
-	std::string name = mItem->getName();
-
-	if (get_is_item_worn(mItem->getUUID()))
-	{
-		name += LLTrans::getString("worn");
-	}
-
 	setTitle(name, mHighlightedText);
 }
 
@@ -140,7 +136,11 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
+	if (mItem)
+	{
+		mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
+		updateItem(mItem->getName());
+	}
 
 	setNeedsRefresh(true);
 
@@ -169,6 +169,42 @@ void LLPanelInventoryListItemBase::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
+const std::string& LLPanelInventoryListItemBase::getItemName() const
+{
+	if (!mItem)
+	{
+		return LLStringUtil::null;
+	}
+	return mItem->getName();
+}
+
+LLAssetType::EType LLPanelInventoryListItemBase::getType() const
+{
+	if (!mItem)
+	{
+		return LLAssetType::AT_NONE;
+	}
+	return mItem->getType();
+}
+
+LLWearableType::EType LLPanelInventoryListItemBase::getWearableType() const
+{
+	if (!mItem)
+	{
+		return LLWearableType::WT_NONE;
+	}
+	return mItem->getWearableType();
+}
+
+const std::string& LLPanelInventoryListItemBase::getDescription() const
+{
+	if (!mItem)
+	{
+		return LLStringUtil::null;
+	}
+	return mItem->getDescription();
+}
+
 S32 LLPanelInventoryListItemBase::notify(const LLSD& info)
 {
 	S32 rv = 0;
@@ -176,7 +212,7 @@ S32 LLPanelInventoryListItemBase::notify(const LLSD& info)
 	{
 		mHighlightedText = info["match_filter"].asString();
 
-		std::string test(mItem->getName());
+		std::string test(mTitleCtrl->getText());
 		LLStringUtil::toUpper(test);
 
 		if(mHighlightedText.empty() || std::string::npos != test.find(mHighlightedText))

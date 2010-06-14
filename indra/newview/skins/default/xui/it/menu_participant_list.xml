@@ -14,8 +14,8 @@
 	<context_menu label="Opzioni moderatore  &gt;" name="Moderator Options">
 		<menu_item_check label="Consenti chat di testo" name="AllowTextChat"/>
 		<menu_item_call label="Disattiva audio di questo participante" name="ModerateVoiceMuteSelected"/>
-		<menu_item_call label="Disattiva audio di tutti gli altri" name="ModerateVoiceMuteOthers"/>
 		<menu_item_call label="Riattiva audio di questo participante" name="ModerateVoiceUnMuteSelected"/>
-		<menu_item_call label="Riattiva audio di tutti gli altri" name="ModerateVoiceUnMuteOthers"/>
+		<menu_item_call label="Disattiva audio di tutti" name="ModerateVoiceMute"/>
+		<menu_item_call label="Riattiva audio di tutti" name="ModerateVoiceUnmute"/>
 	</context_menu>
 </context_menu>

@@ -67,7 +67,8 @@
        left="0"
        height="23"
        width="23"
-       tab_stop="false" />
+       tab_stop="false"
+       tool_tip="Add more items of this type" />
     </panel>
     <icon
      follows="left|right|top"
