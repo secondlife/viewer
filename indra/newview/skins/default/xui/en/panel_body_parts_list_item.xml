@@ -57,7 +57,8 @@
      left="0"
      height="23"
      width="23"
-     tab_stop="false">
+     tab_stop="false"
+     tool_tip="You don't have permission to edit">
         <icon 
          name="btn_lock1"
          layout="topleft"
@@ -88,7 +89,8 @@
           left="0"
           height="23"
           width="23"
-          tab_stop="false" />
+          tab_stop="false"
+          tool_tip="Edit this shape"/>
       </panel>
     <icon
      follows="left|right|top"

@@ -513,7 +513,7 @@ void LLXMLRPCTransaction::Impl::setStatus(EStatus status,
 				// Usually this means that there's a problem with the login server,
 				// not with the client.  Direct user to status page.
 				mStatusMessage = LLTrans::getString("server_is_down");
-				mStatusURI = "http://secondlife.com/status/";
+				mStatusURI = "http://status.secondlifegrid.net/";
 		}
 	}
 }

@@ -38,7 +38,6 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
-#include "llinventorymodel.h"
 #include "llmenugl.h" // for LLContextMenu
 #include "lltransutil.h"
 #include "llviewerattachmenu.h"
@@ -125,6 +124,19 @@ BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 	}
 
 	return LLUICtrl::handleDoubleClick(x, y, mask);
+}
+
+// virtual
+void LLPanelWearableOutfitItem::updateItem(const std::string& name)
+{
+	std::string search_label = name;
+
+	if (mItem && get_is_item_worn(mItem->getUUID()))
+	{
+		search_label += LLTrans::getString("worn");
+	}
+
+	LLPanelInventoryListItemBase::updateItem(search_label);
 }
 
 LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item)
@@ -293,22 +305,16 @@ LLPanelDummyClothingListItem* LLPanelDummyClothingListItem::create(LLWearableTyp
 	return list_item;
 }
 
-void LLPanelDummyClothingListItem::updateItem()
-{
-	std::string title = wearableTypeToString(mWearableType);
-	setTitle(title, LLStringUtil::null);
-}
-
 BOOL LLPanelDummyClothingListItem::postBuild()
 {
 	LLIconCtrl* icon = getChild<LLIconCtrl>("item_icon");
 	setIconCtrl(icon);
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	addWidgetToRightSide("btn_add");
+	addWidgetToRightSide("btn_add_panel");
 
 	setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
-	updateItem();
+	updateItem(wearableTypeToString(mWearableType));
 
 	// Make it look loke clothing item - reserve space for 'delete' button
 	setLeftWidgetsWidth(icon->getRect().mLeft);
@@ -453,15 +459,17 @@ static const LLWearableItemTypeNameComparator WEARABLE_TYPE_NAME_COMPARATOR;
 static const LLDefaultChildRegistry::Register<LLWearableItemsList> r("wearable_items_list");
 
 LLWearableItemsList::Params::Params()
-:	use_internal_context_menu("use_internal_context_menu", true)
+:	standalone("standalone", true)
 {}
 
 LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 :	LLInventoryItemsList(p)
 {
 	setComparator(&WEARABLE_TYPE_NAME_COMPARATOR);
-	if (p.use_internal_context_menu)
+	mIsStandalone = p.standalone;
+	if (mIsStandalone)
 	{
+		// Use built-in context menu.
 		setRightMouseDownCallback(boost::bind(&LLWearableItemsList::onRightClick, this, _2, _3));
 	}
 }
@@ -508,6 +516,37 @@ void LLWearableItemsList::updateList(const LLUUID& category_id)
 	refreshList(item_array);
 }
 
+void LLWearableItemsList::updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids)
+{
+	typedef std::vector<LLPanel*> item_panel_list_t;
+
+	item_panel_list_t items;
+	getItems(items);
+
+	for (item_panel_list_t::iterator items_iter = items.begin();
+			items_iter != items.end();
+			++items_iter)
+	{
+		LLPanelInventoryListItemBase* item = dynamic_cast<LLPanelInventoryListItemBase*>(*items_iter);
+		if (!item) continue;
+
+		LLViewerInventoryItem* inv_item = item->getItem();
+		if (!inv_item) continue;
+
+		LLUUID linked_uuid = inv_item->getLinkedUUID();
+
+		for (LLInventoryModel::changed_items_t::const_iterator iter = changed_items_uuids.begin();
+				iter != changed_items_uuids.end();
+				++iter)
+		{
+			if (linked_uuid == *iter)
+			{
+				item->setNeedsRefresh(true);
+			}
+		}
+	}
+}
+
 void LLWearableItemsList::onRightClick(S32 x, S32 y)
 {
 	uuid_vec_t selected_uuids;
@@ -524,6 +563,18 @@ void LLWearableItemsList::onRightClick(S32 x, S32 y)
 //////////////////////////////////////////////////////////////////////////
 /// ContextMenu
 //////////////////////////////////////////////////////////////////////////
+
+LLWearableItemsList::ContextMenu::ContextMenu()
+:	mParent(NULL)
+{
+}
+
+void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y)
+{
+	mParent = dynamic_cast<LLWearableItemsList*>(spawning_view);
+	LLListContextMenu::show(spawning_view, uuids, x, y);
+	mParent = NULL; // to avoid dereferencing an invalid pointer
+}
 
 // virtual
 LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
@@ -612,17 +663,21 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 		}
 	} // for
 
+	bool standalone = mParent ? mParent->isStandalone() : false;
+
 	// *TODO: eliminate multiple traversals over the menu items
+	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0);
 	setMenuItemVisible(menu, "wear",				n_worn == 0);
-	setMenuItemVisible(menu, "edit",				mask & (MASK_CLOTHING|MASK_BODYPART) && n_items == 1);
-	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1);
+	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART));
+	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1 && n_items == 1);
 	setMenuItemVisible(menu, "create_new",			mask & (MASK_CLOTHING|MASK_BODYPART) && n_items == 1);
+	setMenuItemVisible(menu, "show_original",		!standalone);
 	setMenuItemEnabled(menu, "show_original",		n_items == 1 && n_links == n_items);
 	setMenuItemVisible(menu, "take_off",			mask == MASK_CLOTHING && n_worn == n_items);
 	setMenuItemVisible(menu, "detach",				mask == MASK_ATTACHMENT && n_worn == n_items);
 	setMenuItemVisible(menu, "take_off_or_detach",	mask == (MASK_ATTACHMENT|MASK_CLOTHING));
 	setMenuItemEnabled(menu, "take_off_or_detach",	n_worn == n_items);
-	setMenuItemVisible(menu, "object_profile",		mask & (MASK_ATTACHMENT|MASK_CLOTHING));
+	setMenuItemVisible(menu, "object_profile",		!standalone);
 	setMenuItemEnabled(menu, "object_profile",		n_items == 1);
 
 	// Populate or hide the "Attach to..." / "Attach to HUD..." submenus.

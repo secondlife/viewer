@@ -155,25 +155,6 @@ std::string getStartupStateFromLog(std::string& sllog)
 
 void LLCrashLogger::gatherFiles()
 {
-
-	/*
-	//TODO:This function needs to be reimplemented somewhere in here...
-	if(!previous_crash && is_crash_log)
-	{
-		// Make sure the file isn't too old.
-		double age = difftime(gLaunchTime, stat_data.st_mtimespec.tv_sec);
-		
-		//			llinfos << "age is " << age << llendl;
-		
-		if(age > 60.0)
-		{
-				// The file was last modified more than 60 seconds before the crash reporter was launched.  Assume it's stale.
-			llwarns << "File " << mFilename << " is too old!" << llendl;
-			return;
-		}
-	}
-	*/
-
 	updateApplication("Gathering logs...");
 
 	// Figure out the filename of the debug log
@@ -209,11 +190,9 @@ void LLCrashLogger::gatherFiles()
 		mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
 
-#if !LL_DARWIN
 	if(mCrashInPreviousExec)
-#else
-#endif
 	{
+		// Restarting after freeze.
 		// Replace the log file ext with .old, since the 
 		// instance that launched this process has overwritten
 		// SecondLife.log
@@ -225,7 +204,12 @@ void LLCrashLogger::gatherFiles()
 	gatherPlatformSpecificFiles();
 
 	//Use the debug log to reconstruct the URL to send the crash report to
-	if(mDebugLog.has("CurrentSimHost"))
+	if(mDebugLog.has("CrashHostUrl"))
+	{
+		// Crash log receiver has been manually configured.
+		mCrashHost = mDebugLog["CrashHostUrl"].asString();
+	}
+	else if(mDebugLog.has("CurrentSimHost"))
 	{
 		mCrashHost = "https://";
 		mCrashHost += mDebugLog["CurrentSimHost"].asString();
@@ -247,7 +231,6 @@ void LLCrashLogger::gatherFiles()
 
 	mCrashInfo["DebugLog"] = mDebugLog;
 	mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stats.log");
-	mFileMap["StackTrace"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
 	
 	updateApplication("Encoding files...");
 
@@ -272,8 +255,30 @@ void LLCrashLogger::gatherFiles()
 			trimSLLog(crash_info);
 		}
 
-		mCrashInfo[(*itr).first] = rawstr_to_utf8(crash_info);
+		mCrashInfo[(*itr).first] = LLStringFn::strip_invalid_xml(rawstr_to_utf8(crash_info));
 	}
+	
+	// Add minidump as binary.
+	std::string minidump_path = mDebugLog["MinidumpPath"];
+	if(minidump_path != "")
+	{
+		std::ifstream minidump_stream(minidump_path.c_str(), std::ios_base::in | std::ios_base::binary);
+		if(minidump_stream.is_open())
+		{
+			minidump_stream.seekg(0, std::ios::end);
+			size_t length = minidump_stream.tellg();
+			minidump_stream.seekg(0, std::ios::beg);
+			
+			LLSD::Binary data;
+			data.resize(length);
+			
+			minidump_stream.read(reinterpret_cast<char *>(&(data[0])),length);
+			minidump_stream.close();
+			
+			mCrashInfo["Minidump"] = data;
+		}
+	}
+	mCrashInfo["DebugLog"].erase("MinidumpPath");
 }
 
 LLSD LLCrashLogger::constructPostData()

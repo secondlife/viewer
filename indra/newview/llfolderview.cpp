@@ -88,6 +88,10 @@ const S32 MIN_ITEM_WIDTH_VISIBLE = LLFolderViewItem::ICON_WIDTH
 			+ /*first few characters*/ 40;
 const S32 MINIMUM_RENAMER_WIDTH = 80;
 
+// *TODO: move in params in xml if necessary. Requires modification of LLFolderView & LLInventoryPanel Params.
+const S32 STATUS_TEXT_HPAD = 6;
+const S32 STATUS_TEXT_VPAD = 8;
+
 enum {
 	SIGNAL_NO_KEYBOARD_FOCUS = 1,
 	SIGNAL_KEYBOARD_FOCUS = 2
@@ -246,6 +250,10 @@ LLFolderView::LLFolderView(const Params& p)
 	text_p.font(font);
 	text_p.visible(false);
 	text_p.allow_html(true);
+	text_p.wrap(true); // allow multiline text. See EXT-7564, EXT-7047
+	// set text padding the same as in People panel. EXT-7047, EXT-4837
+	text_p.h_pad(STATUS_TEXT_HPAD);
+	text_p.v_pad(STATUS_TEXT_VPAD);
 	mStatusTextBox = LLUICtrlFactory::create<LLTextBox> (text_p);
 	mStatusTextBox->setFollowsLeft();
 	mStatusTextBox->setFollowsTop();
@@ -953,6 +961,23 @@ void LLFolderView::draw()
 		}
 		mStatusTextBox->setValue(mStatusText);
 		mStatusTextBox->setVisible( TRUE );
+
+		// firstly reshape message textbox with current size. This is necessary to
+		// LLTextBox::getTextPixelHeight works properly
+		const LLRect local_rect = getLocalRect();
+		mStatusTextBox->setShape(local_rect);
+
+		// get preferable text height...
+		S32 pixel_height = mStatusTextBox->getTextPixelHeight();
+		bool height_changed = local_rect.getHeight() != pixel_height;
+		if (height_changed)
+		{
+			// ... if it does not match current height, lets rearrange current view.
+			// This will indirectly call ::arrange and reshape of the status textbox.
+			// We should call this method to also notify parent about required rect.
+			// See EXT-7564, EXT-7047.
+			arrangeFromRoot();
+		}
 		
 	}
 
@@ -2310,7 +2335,7 @@ void LLFolderView::updateRenamerPosition()
 bool LLFolderView::selectFirstItem()
 {
 	for (folders_t::iterator iter = mFolders.begin();
-		 iter != mFolders.end();)
+		 iter != mFolders.end();++iter)
 	{
 		LLFolderViewFolder* folder = (*iter );
 		if (folder->getVisible())
@@ -2347,7 +2372,7 @@ bool LLFolderView::selectLastItem()
 		}
 	}
 	for (folders_t::reverse_iterator iter = mFolders.rbegin();
-		 iter != mFolders.rend();)
+		 iter != mFolders.rend();++iter)
 	{
 		LLFolderViewFolder* folder = (*iter);
 		if (folder->getVisible())

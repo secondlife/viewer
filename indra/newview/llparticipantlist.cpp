@@ -52,6 +52,18 @@
 
 static const LLAvatarItemAgentOnTopComparator AGENT_ON_TOP_NAME_COMPARATOR;
 
+// helper function to update AvatarList Item's indicator in the voice participant list
+static void update_speaker_indicator(const LLAvatarList* const avatar_list, const LLUUID& avatar_uuid, bool is_muted)
+{
+	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(avatar_list->getItemByValue(avatar_uuid));
+	if (item)
+	{
+		LLOutputMonitorCtrl* indicator = item->getChild<LLOutputMonitorCtrl>("speaking_indicator");
+		indicator->setIsMuted(is_muted);
+	}
+}
+
+
 // See EXT-4301.
 /**
  * class LLAvalineUpdater - observe the list of voice participants in session and check
@@ -354,6 +366,20 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 				}
 			}
 		}
+
+		// update voice mute state of all items. See EXT-7235
+		LLSpeakerMgr::speaker_list_t speaker_list;
+
+		// Use also participants which are not in voice session now (the second arg is TRUE).
+		// They can already have mModeratorMutedVoice set from the previous voice session
+		// and LLSpeakerVoiceModerationEvent will not be sent when speaker manager is updated next time.
+		mSpeakerMgr->getSpeakerList(&speaker_list, TRUE);
+		for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+		{
+			const LLPointer<LLSpeaker>& speakerp = *it;
+
+			update_speaker_indicator(list, speakerp->mID, speakerp->mModeratorMutedVoice);
+		}
 	}
 }
 
@@ -506,12 +532,7 @@ bool LLParticipantList::onSpeakerMuteEvent(LLPointer<LLOldEvents::LLEvent> event
 	// update UI on confirmation of moderator mutes
 	if (event->getValue().asString() == "voice")
 	{
-		LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(mAvatarList->getItemByValue(speakerp->mID));
-		if (item)
-		{
-			LLOutputMonitorCtrl* indicator = item->getChild<LLOutputMonitorCtrl>("speaking_indicator");
-			indicator->setIsMuted(speakerp->mModeratorMutedVoice);
-		}
+		update_speaker_indicator(mAvatarList, speakerp->mID, speakerp->mModeratorMutedVoice);
 	}
 	return true;
 }

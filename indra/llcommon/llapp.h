@@ -66,6 +66,10 @@ public:
 };
 #endif
 
+namespace google_breakpad {
+	class ExceptionHandler; // See exception_handler.h
+}
+
 class LL_COMMON_API LLApp : public LLOptionInterface
 {
 	friend class LLErrorThread;
@@ -227,8 +231,20 @@ public:
 	void setupErrorHandling();
 
 	void setErrorHandler(LLAppErrorHandler handler);
-	void setSyncErrorHandler(LLAppErrorHandler handler);
+	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
 	//@}
+	
+	// the maximum length of the minidump filename returned by getMiniDumpFilename()
+	static const U32 MAX_MINDUMP_PATH_LENGTH = 256;
+
+	// change the directory where Breakpad minidump files are written to
+	void setMiniDumpDir(const std::string &path);
+
+	// Return the Google Breakpad minidump filename after a crash.
+	char *getMiniDumpFilename() { return minidump_path; }
+
+	// Write out a Google Breakpad minidump file.
+	void writeMiniDump();
 
 #if !LL_WINDOWS
 	//
@@ -286,15 +302,14 @@ protected:
 private:
 	void startErrorThread();
 	
-	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
-	static void runSyncErrorHandler(); // run IMMEDIATELY when we get an error, ran in the context of the faulting thread.
+	// Contains the filename of the minidump file after a crash.
+	char minidump_path[MAX_MINDUMP_PATH_LENGTH];
 
 	// *NOTE: On Windows, we need a routine to reset the structured
 	// exception handler when some evil driver has taken it over for
 	// their own purposes
 	typedef int(*signal_handler_func)(int signum);
 	static LLAppErrorHandler sErrorHandler;
-	static LLAppErrorHandler sSyncErrorHandler;
 
 	// Default application threads
 	LLErrorThread* mThreadErrorp;		// Waits for app to go to status ERROR, then runs the error callback
@@ -315,6 +330,8 @@ private:
 private:
 	// the static application instance if it was created.
 	static LLApp* sApplication;
+	
+	google_breakpad::ExceptionHandler * mExceptionHandler;
 
 
 #if !LL_WINDOWS

@@ -8,7 +8,6 @@
      height="100"
      h_pad="10"
      name="no_visible_items_msg"
-     value="There are no visible content here."
      v_pad="15"
      width="200"
      wrap="true "/>
