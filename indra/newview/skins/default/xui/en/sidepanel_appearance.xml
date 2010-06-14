@@ -92,6 +92,7 @@ width="333">
       layout="topleft"
       left="265"
       name="edit_outfit_btn"
+      tool_tip="Edit this outfit"
       top="7"
       width="30" />
       <loading_indicator
