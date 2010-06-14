@@ -211,6 +211,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                      left="2"
                      name="show_add_wearables_btn"
                      top_pad="2"
+                     tool_tip="Open/Close"
                      width="125" />
 
                     <combo_box
@@ -483,6 +484,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          layout="topleft"
          name="revert_btn"
          top="0"
+         tool_tip="Revert to last saved version"
          width="147" />
     </panel>
 </panel>
