@@ -968,3 +968,16 @@ BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 	}
 	return LLUICtrl::handleToolTip(x, y, mask);
 }
+BOOL LLAccordionCtrlTab::handleScrollWheel		( S32 x, S32 y, S32 clicks )
+{
+	if( LLUICtrl::handleScrollWheel(x,y,clicks))
+	{
+		return TRUE;
+	}
+	if( mScrollbar->getVisible() && mScrollbar->handleScrollWheel( 0, 0, clicks ) )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
