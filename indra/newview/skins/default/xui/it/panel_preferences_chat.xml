@@ -45,6 +45,7 @@
 	</text>
 	<check_box initial_value="true" label="Simula la battitura tasti quando scrivi" name="play_typing_animation"/>
 	<check_box label="Quando sono OFF-LINE, spediscimi gli IM in una e-mail" name="send_im_to_email"/>
+	<check_box label="Attiva IM in testo semplice e cronologia chat" name="plain_text_chat_history"/>
 	<text name="show_ims_in_label">
 		Mostra gli IM in:
 	</text>
