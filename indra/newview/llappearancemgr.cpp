@@ -644,6 +644,13 @@ const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
 		const LLViewerInventoryCategory *cat = item->getLinkedCategory();
 		if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
 		{
+			const LLUUID parent_id = cat->getParentUUID();
+			LLViewerInventoryCategory*  parent_cat =  gInventory.getCategory(parent_id);
+			// if base outfit moved to trash it means that we don't have base outfit
+			if (parent_cat != NULL && parent_cat->getPreferredType() == LLFolderType::FT_TRASH)
+			{
+				return NULL;
+			}
 			return item;
 		}
 	}
