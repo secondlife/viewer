@@ -2803,13 +2803,13 @@ S32	 LLImageTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 {
 	LLUIImagePtr image = mStyle->getImage();
 	S32 image_width = image->getWidth();
-	if(num_pixels>image_width + IMAGE_HPAD)
+	if(line_offset == 0 || num_pixels>image_width + IMAGE_HPAD)
 	{
 		return 1;
 	}
-
 	return 0;
 }
+
 F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 {
 	if ( (start >= 0) && (end <= mEnd - mStart))
