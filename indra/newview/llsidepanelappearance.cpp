@@ -352,12 +352,12 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 
 	if (visible)
 	{
-		mEditWearable->setWearable(wearable);
-		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
 		{
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
+		mEditWearable->setWearable(wearable);
+		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 	}
 	else
 	{
