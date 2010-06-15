@@ -782,7 +782,6 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 			fv->startRenamingSelectedItem();
 		}
 	}
-	// Seraph - Put determineFolderType in here for ensemble typing?
 }
 
 void LLInventoryPanel::doToSelected(const LLSD& userdata)

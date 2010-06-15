@@ -1283,8 +1283,9 @@ void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
 
 		const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_uuid);
 		const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND";
-
-		llinfos << "Linking Item [ name:" << item->getName() << " UUID:" << item->getUUID() << " ] to Category [ name:" << cat_name << " UUID:" << cat_uuid << " ] " << llendl; // Seraph remove for 2.1
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+		llinfos << "Linking Item [ name:" << item->getName() << " UUID:" << item->getUUID() << " ] to Category [ name:" << cat_name << " UUID:" << cat_uuid << " ] " << llendl;
+#endif
 	}
 }
 
@@ -1353,13 +1354,24 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 	llinfos << "creating LLUpdateAppearanceOnDestroy" << llendl;
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 
-	llinfos << "Linking body items" << llendl; // Seraph remove for 2.1
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	llinfos << "Linking body items" << llendl;
+#endif
 	linkAll(cof, body_items, link_waiter);
-	llinfos << "Linking wear items" << llendl; // Seraph remove for 2.1
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	llinfos << "Linking wear items" << llendl;
+#endif
 	linkAll(cof, wear_items, link_waiter);
-	llinfos << "Linking obj items" << llendl; // Seraph remove for 2.1
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	llinfos << "Linking obj items" << llendl;
+#endif
 	linkAll(cof, obj_items, link_waiter);
-	llinfos << "Linking gesture items" << llendl; // Seraph remove for 2.1
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	llinfos << "Linking gesture items" << llendl;
+#endif
 	linkAll(cof, gest_items, link_waiter);
 
 	// Add link to outfit if category is an outfit. 
