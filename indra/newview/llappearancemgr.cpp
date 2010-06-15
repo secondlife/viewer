@@ -1407,6 +1407,7 @@ void LLAppearanceMgr::getUserDescendents(const LLUUID& category,
 
 void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append)
 {
+	gAgentWearables.notifyLoadingStarted();
 	if(!category) return;
 
 	llinfos << "wearInventoryCategory( " << category->getName()
