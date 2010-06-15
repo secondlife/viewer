@@ -60,6 +60,7 @@
 #include "llviewercamera.h"
 #include "llselectmgr.h"
 #include "llresmgr.h"
+#include "llsdutil.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
@@ -656,6 +657,21 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
 
+class LLObjectCostResponder : public LLCurl::Responder
+{
+public:
+	void result(const LLSD& content)
+	{
+		for (LLSD::map_const_iterator iter = content.beginMap(); iter != content.endMap(); ++iter)
+		{
+			LLUUID object_id = LLUUID(iter->first);
+			F32 link_cost = iter->second["LinksetResourceCost"].asReal();
+			F32 prim_cost = iter->second["PrimResourceCost"].asReal();
+
+			gObjectList.updateObjectCost(object_id, prim_cost, link_cost);
+		}
+	}
+};
 
 void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 {
@@ -750,6 +766,43 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 		{
 			objectp = *kill_iter;
 			killObject(objectp);
+		}
+	}
+
+	//issue http request for stale object physics costs
+	if (!mStaleObjectCost.empty())
+	{
+		LLViewerRegion* regionp = gAgent.getRegion();
+
+		if (regionp)
+		{
+			std::string url = regionp->getCapability("GetObjectCost");
+
+			if (!url.empty())
+			{
+				LLSD id_list;
+				U32 idx = 0;
+				for (std::set<LLUUID>::iterator iter = mStaleObjectCost.begin(); iter != mStaleObjectCost.end(); ++iter)
+				{
+					if (mPendingObjectCost.find(*iter) == mPendingObjectCost.end())
+					{
+						mPendingObjectCost.insert(*iter);
+						id_list[idx++] = *iter;
+					}
+				}
+				mPendingObjectCost = mStaleObjectCost;
+				mStaleObjectCost.clear();
+
+				if (id_list.size() > 0)
+				{
+					LLHTTPClient::post(url, id_list, new LLObjectCostResponder());
+				}
+			}
+			else
+			{
+				mStaleObjectCost.clear();
+				mPendingObjectCost.clear();
+			}
 		}
 	}
 
@@ -1041,7 +1094,22 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 	}
 }
 
+void LLViewerObjectList::updateObjectCost(LLViewerObject* object)
+{
+	mStaleObjectCost.insert(object->getID());
+}
 
+void LLViewerObjectList::updateObjectCost(LLUUID object_id, F32 prim_cost, F32 link_cost)
+{
+	mPendingObjectCost.erase(object_id);
+
+	LLViewerObject* object = findObject(object_id);
+	if (object)
+	{
+		object->setObjectCost(prim_cost);
+		object->setLinksetCost(link_cost);
+	}
+}
 
 void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 {

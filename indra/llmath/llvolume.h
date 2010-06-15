@@ -41,7 +41,7 @@ class LLVolumeParams;
 class LLProfile;
 class LLPath;
 
-#define LL_MESH_ENABLED 0
+#define LL_MESH_ENABLED 1
 
 template <class T> class LLOctreeNode;
 
@@ -873,10 +873,10 @@ public:
 
 		struct ComparePosition
 		{
-			bool operator()(const LLVector4a& a, const LLVector4a& b) const;
+			bool operator()(const LLVector3& a, const LLVector3& b) const;
 		};
 
-		typedef std::map<LLVector4a, std::vector<VertexMapData>, VertexMapData::ComparePosition > PointMap;
+		typedef std::map<LLVector3, std::vector<VertexMapData>, VertexMapData::ComparePosition > PointMap;
 	};
 
 	void optimize(F32 angle_cutoff = 2.f);

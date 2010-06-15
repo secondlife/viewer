@@ -45,6 +45,7 @@
 #include "llviewerregion.h"
 #include "llcamera.h"
 #include "pipeline.h"
+#include "llmeshrepository.h"
 #include "llrender.h"
 #include "lloctree.h"
 #include "llvoavatar.h"
@@ -2331,6 +2332,14 @@ void pushVerts(LLFace* face, U32 mask)
 	}
 }
 
+void pushVerts(LLDrawable* drawable, U32 mask)
+{
+	for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+	{
+		pushVerts(drawable->getFace(i), mask);
+	}
+}
+
 void pushBufferVerts(LLVertexBuffer* buffer, U32 mask)
 {
 	if (buffer)
@@ -2756,6 +2765,79 @@ void renderNormals(LLDrawable* drawablep)
 	}
 }
 
+void renderPhysicsShape(LLDrawable* drawable)
+{
+	LLVOVolume* volume = drawable->getVOVolume();
+	if (volume)
+	{
+		F32 threshold = gSavedSettings.getF32("ObjectCostHighThreshold");
+		F32 cost = volume->getObjectCost();
+
+		LLColor4 low = gSavedSettings.getColor4("ObjectCostLowColor");
+		LLColor4 mid = gSavedSettings.getColor4("ObjectCostMidColor");
+		LLColor4 high = gSavedSettings.getColor4("ObjectCostHighColor");
+
+		F32 normalizedCost = 1.f - exp( -(cost / threshold) );
+
+		LLColor4 color;
+		if ( normalizedCost <= 0.5f )
+		{
+			color = lerp( low, mid, 2.f * normalizedCost );
+		}
+		else
+		{
+			color = lerp( mid, high, 2.f * ( normalizedCost - 0.5f ) );
+		}
+
+		U32 data_mask = LLVertexBuffer::MAP_VERTEX;
+
+		if (volume->isMesh())
+		{			
+			LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
+			const LLMeshDecomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
+			if (decomp)
+			{
+				gGL.pushMatrix();
+				glMultMatrixf((F32*) volume->getRelativeXform().mMatrix);
+				
+				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+				for (U32 i = 0; i < decomp->mHull.size(); ++i)
+				{		
+					LLVertexBuffer* buff = decomp->mMesh[i];
+
+					buff->setBuffer(data_mask);
+
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glColor3fv(color.mV);
+					buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+					{
+						LLGLEnable blend(GL_BLEND);
+						gGL.setSceneBlendType(LLRender::BT_ALPHA);
+						LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+						glColor4fv(color.mV);
+						buff->drawArrays(LLRender::TRIANGLES, 0, buff->getNumVerts());
+					}
+				}
+
+				gGL.popMatrix();
+
+				return;
+			}
+		}
+
+		//push faces
+		glColor3fv(color.mV);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		pushVerts(drawable, data_mask);
+		glColor4fv(color.mV);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		pushVerts(drawable, data_mask);
+	}
+}
+
 void renderTexturePriority(LLDrawable* drawable)
 {
 	for (int face=0; face<drawable->getNumFaces(); ++face)
@@ -3136,6 +3218,11 @@ public:
 				renderNormals(drawable);
 			}
 			
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
+			{
+				renderPhysicsShape(drawable);
+			}
+
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BUILD_QUEUE))
 			{
 				if (drawable->isState(LLDrawable::IN_REBUILD_Q2))
@@ -3342,7 +3429,8 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
 									  LLPipeline::RENDER_DEBUG_AGENT_TARGET |
 									  LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
-									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA)) 
+									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA |
+									  LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES)) 
 	{
 		return;
 	}

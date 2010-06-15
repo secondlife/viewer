@@ -6191,6 +6191,53 @@ S32 LLObjectSelection::getObjectCount(BOOL mesh_adjust)
 	return count;
 }
 
+F32 LLObjectSelection::getSelectedObjectCost()
+{
+	cleanupNodes();
+	F32 cost = 0.f;
+
+	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		
+		if (object)
+		{
+			cost += object->getObjectCost();
+		}
+	}
+
+	return cost;
+}
+
+F32 LLObjectSelection::getSelectedLinksetCost()
+{
+	cleanupNodes();
+	F32 cost = 0.f;
+
+	std::set<LLViewerObject*> me_roots;
+
+	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		
+		if (object)
+		{
+			LLViewerObject* root = static_cast<LLViewerObject*>(object->getRoot());
+			if (root)
+			{
+				if (me_roots.find(root) == me_roots.end())
+				{
+					me_roots.insert(root);
+					cost += root->getLinksetCost();
+				}
+			}
+		}
+	}
+
+	return cost;
+}
 
 //-----------------------------------------------------------------------------
 // getTECount()

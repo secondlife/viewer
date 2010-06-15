@@ -34,6 +34,7 @@
 #define LL_LLASSETUPLOADRESPONDER_H
 
 #include "llhttpclient.h"
+#include "llvolume.h" //for LL_MESH_ENABLED
 
 // Abstract class for supporting asset upload
 // via capabilities

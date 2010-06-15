@@ -1037,7 +1037,7 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	hit_obj->sendTEUpdate();
 }
 
-#if LL_MESH_EANBLED
+#if LL_MESH_ENABLED
 void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
 								 LLInventoryItem* item,
 								 LLToolDragAndDrop::ESource source,

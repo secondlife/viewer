@@ -5254,7 +5254,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 			
 		LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) src.mPositions, vert_size);
 		LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) src.mNormals, vert_size);
-		LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) src.mTexCoords, vert_size);
+		LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) src.mTexCoords, tc_size);
 
 
 		if (src.mBinormals)
@@ -5355,9 +5355,9 @@ bool LLVolumeFace::VertexMapData::operator==(const LLVolumeFace::VertexData& rhs
 		getNormal().equal3(rhs.getNormal());
 }
 
-bool LLVolumeFace::VertexMapData::ComparePosition::operator()(const LLVector4a& a, const LLVector4a& b) const
+bool LLVolumeFace::VertexMapData::ComparePosition::operator()(const LLVector3& a, const LLVector3& b) const
 {
-	return a.less3(b);			
+	return a < b;			
 }
 
 void LLVolumeFace::optimize(F32 angle_cutoff)
@@ -5375,7 +5375,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 		getVertexData(index, cv);
 		
 		BOOL found = FALSE;
-		VertexMapData::PointMap::iterator point_iter = point_map.find(cv.getPosition());
+		VertexMapData::PointMap::iterator point_iter = point_map.find(LLVector3(cv.getPosition().getF32()));
 		if (point_iter != point_map.end())
 		{ //duplicate point might exist
 			for (U32 j = 0; j < point_iter->second.size(); ++j)
@@ -5407,7 +5407,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 			}
 			else
 			{
-				point_map[d.getPosition()].push_back(d);
+				point_map[LLVector3(d.getPosition().getF32())].push_back(d);
 			}
 		}
 	}

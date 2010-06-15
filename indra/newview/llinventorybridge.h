@@ -40,6 +40,7 @@
 #include "llinventoryobserver.h"
 #include "llviewercontrol.h"
 #include "llwearable.h"
+#include "llvolume.h"  //for LL_MESH_ENABLED
 
 class LLInventoryPanel;
 class LLInventoryModel;

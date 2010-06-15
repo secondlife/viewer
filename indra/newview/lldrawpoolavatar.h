@@ -34,6 +34,7 @@
 #define LL_LLDRAWPOOLAVATAR_H
 
 #include "lldrawpool.h"
+#include "llvolume.h" // for LL_MESH_ENABLED
 
 class LLVOAvatar;
 class LLGLSLShader;

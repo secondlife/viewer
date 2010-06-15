@@ -4919,7 +4919,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <real>0</real>
+    <real>1</real>
   </map>
   <key>MigrateCacheDirectory</key>
     <map>
@@ -5584,6 +5584,66 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
+  <key>ObjectCostHighThreshold</key>
+  <map>
+    <key>Comment</key>
+    <string>Threshold at which object cost is considered high (displayed in red).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>50.0</real>
+  </map>
+  <key>ObjectCostLowColor</key>
+  <map>
+    <key>Comment</key>
+    <string>Color for object with a low object cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>0.0</real>
+      <real>0.5</real>
+      <real>1.0</real>
+      <real>0.5</real>
+    </array>
+  </map>
+  <key>ObjectCostMidColor</key>
+  <map>
+    <key>Comment</key>
+    <string>Color for object with a medium object cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>0.75</real>
+      <real>0.0</real>
+      <real>0.65</real>
+    </array>
+  </map>
+  <key>ObjectCostHighColor</key>
+  <map>
+    <key>Comment</key>
+    <string>Color for object a high object cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Color4</string>
+    <key>Value</key>
+    <array>
+      <real>1.0</real>
+      <real>0.0</real>
+      <real>0.0</real>
+      <real>0.75</real>
+    </array>
+  </map>
+  
     <key>ParcelMediaAutoPlayEnable</key>
     <map>
       <key>Comment</key>

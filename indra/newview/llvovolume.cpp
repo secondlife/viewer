@@ -1594,7 +1594,7 @@ void LLVOVolume::updateFaceSize(S32 idx)
 	LLFace* facep = mDrawable->getFace(idx);
 	if (idx >= getVolume()->getNumVolumeFaces())
 	{
-		facep->setSize(0,0);
+		facep->setSize(0,0, true);
 	}
 	else
 	{

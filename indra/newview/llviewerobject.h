@@ -334,6 +334,12 @@ public:
 	
 	virtual void setScale(const LLVector3 &scale, BOOL damped = FALSE);
 
+	void setObjectCost(F32 cost);
+	F32 getObjectCost();
+	void setLinksetCost(F32 cost);
+	F32 getLinksetCost();
+	
+
 	void sendShapeUpdate();
 
 	U8 getState()							{ return mState; }
@@ -668,6 +674,9 @@ protected:
 	U8				mState;	// legacy
 	LLViewerObjectMedia* mMedia;	// NULL if no media associated
 	U8 mClickAction;
+	F32 mObjectCost; //resource cost of this object or -1 if unknown
+	F32 mLinksetCost;
+	bool mCostStale;
 
 	static			U32			sNumZombieObjects;			// Objects which are dead, but not deleted
 
