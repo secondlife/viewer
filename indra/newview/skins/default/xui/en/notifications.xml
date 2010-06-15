@@ -5515,7 +5515,6 @@ Failed to find [TYPE] named [DESC] in database.
 
   <notification
    icon="notify.tga"
-   persist="true"
    name="InvalidWearable"
    persist="true"
    type="notify">
