@@ -106,24 +106,9 @@ LLPanelWearableOutfitItem* LLPanelWearableOutfitItem::create(LLViewerInventoryIt
 	return list_item;
 }
 
-BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item)
+: LLPanelInventoryListItemBase(item)
 {
-	LLViewerInventoryItem* item = getItem();
-	if (item)
-	{
-		LLUUID id = item->getUUID();
-
-		if (get_is_item_worn(id))
-		{
-			LLAppearanceMgr::getInstance()->removeItemFromAvatar(id);
-		}
-		else
-		{
-			LLAppearanceMgr::getInstance()->wearItemOnAvatar(id, true, false);
-		}
-	}
-
-	return LLUICtrl::handleDoubleClick(x, y, mask);
 }
 
 // virtual
@@ -137,11 +122,6 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name)
 	}
 
 	LLPanelInventoryListItemBase::updateItem(search_label);
-}
-
-LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item)
-: LLPanelInventoryListItemBase(item)
-{
 }
 
 //////////////////////////////////////////////////////////////////////////
