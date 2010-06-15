@@ -1776,29 +1776,22 @@ void LLViewerMediaImpl::loadURI()
 		llinfos << "Asking media source to load URI: " << uri << llendl;
 		
 		mMediaSource->loadURI( uri );
-
+		
+		// A non-zero mPreviousMediaTime means that either this media was previously unloaded by the priority code while playing/paused, 
+		// or a seek happened before the media loaded.  In either case, seek to the saved time.
+		if(mPreviousMediaTime != 0.0f)
+		{
+			seek(mPreviousMediaTime);
+		}
+			
 		if(mPreviousMediaState == MEDIA_PLAYING)
 		{
 			// This media was playing before this instance was unloaded.
-
-			if(mPreviousMediaTime != 0.0f)
-			{
-				// Seek back to where we left off, if possible.
-				seek(mPreviousMediaTime);
-			}
-			
 			start();
 		}
 		else if(mPreviousMediaState == MEDIA_PAUSED)
 		{
 			// This media was paused before this instance was unloaded.
-
-			if(mPreviousMediaTime != 0.0f)
-			{
-				// Seek back to where we left off, if possible.
-				seek(mPreviousMediaTime);
-			}
-			
 			pause();
 		}
 		else
@@ -1857,6 +1850,10 @@ void LLViewerMediaImpl::pause()
 	{
 		mMediaSource->pause();
 	}
+	else
+	{
+		mPreviousMediaState = MEDIA_PAUSED;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1866,6 +1863,10 @@ void LLViewerMediaImpl::start()
 	{
 		mMediaSource->start();
 	}
+	else
+	{
+		mPreviousMediaState = MEDIA_PLAYING;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1874,6 +1875,11 @@ void LLViewerMediaImpl::seek(F32 time)
 	if(mMediaSource)
 	{
 		mMediaSource->seek(time);
+	}
+	else
+	{
+		// Save the seek time to be set when the media is loaded.
+		mPreviousMediaTime = time;
 	}
 }
 
