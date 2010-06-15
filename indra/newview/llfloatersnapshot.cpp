@@ -91,6 +91,10 @@
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
+S32 LLFloaterSnapshot::sUIWinHeightLong = 526 ;
+S32 LLFloaterSnapshot::sUIWinHeightShort = LLFloaterSnapshot::sUIWinHeightLong - 230 ;
+S32 LLFloaterSnapshot::sUIWinWidth = 215 ;
+
 LLSnapshotFloaterView* gSnapshotFloaterView = NULL;
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
@@ -1168,6 +1172,9 @@ public:
 	}
 	static void onClickNewSnapshot(void* data);
 	static void onClickAutoSnap(LLUICtrl *ctrl, void* data);
+	//static void onClickAdvanceSnap(LLUICtrl *ctrl, void* data);
+	static void onClickLess(void* data) ;
+	static void onClickMore(void* data) ;
 	static void onClickUICheck(LLUICtrl *ctrl, void* data);
 	static void onClickHUDCheck(LLUICtrl *ctrl, void* data);
 	static void onClickKeepOpenCheck(LLUICtrl *ctrl, void* data);
@@ -1181,7 +1188,7 @@ public:
 	static void onCommitCustomResolution(LLUICtrl *ctrl, void* data);
 	static void onCommitSnapshot(LLFloaterSnapshot* view, LLSnapshotLivePreview::ESnapshotType type);
 	static void onCommitProfilePic(LLFloaterSnapshot* view);
-	static void showAdvanced(LLFloaterSnapshot* view, const bool visible);
+	static void onToggleAdvanced(LLUICtrl *ctrl, void* data);
 	static void resetSnapshotSizeOnUI(LLFloaterSnapshot *view, S32 width, S32 height) ;
 	static BOOL checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL isWidthChanged, S32 max_value);
 
@@ -1389,6 +1396,41 @@ void LLFloaterSnapshot::Impl::onClickAutoSnap(LLUICtrl *ctrl, void* data)
 	{
 		checkAutoSnapshot(getPreviewView(view));
 		updateControls(view);
+	}
+}
+
+void LLFloaterSnapshot::Impl::onClickMore(void* data)
+{
+	gSavedSettings.setBOOL( "AdvanceSnapshot", TRUE );
+	
+	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;		
+	if (view)
+	{
+		view->translate( 0, view->getUIWinHeightShort() - view->getUIWinHeightLong() );
+		view->reshape(view->getRect().getWidth(), view->getUIWinHeightLong());
+		updateControls(view) ;
+		updateLayout(view) ;
+		if(getPreviewView(view))
+		{
+			getPreviewView(view)->setThumbnailImageSize() ;
+		}
+	}
+}
+void LLFloaterSnapshot::Impl::onClickLess(void* data)
+{
+	gSavedSettings.setBOOL( "AdvanceSnapshot", FALSE );
+	
+	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;		
+	if (view)
+	{
+		view->translate( 0, view->getUIWinHeightLong() - view->getUIWinHeightShort() );
+		view->reshape(view->getRect().getWidth(), view->getUIWinHeightShort());
+		updateControls(view) ;
+		updateLayout(view) ;
+		if(getPreviewView(view))
+		{
+			getPreviewView(view)->setThumbnailImageSize() ;
+		}
 	}
 }
 
@@ -1649,28 +1691,30 @@ void LLFloaterSnapshot::Impl::onCommitLayerTypes(LLUICtrl* ctrl, void*data)
 }
 
 //static 
-void LLFloaterSnapshot::Impl::showAdvanced(LLFloaterSnapshot* view, const bool visible)
+void LLFloaterSnapshot::Impl::onToggleAdvanced(LLUICtrl* ctrl, void* data)
 {
+	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+
 	LLPanel* advanced_panel = view->getChild<LLPanel>("snapshot_advanced");
 
-	if (advanced_panel->getVisible() != visible)
+	if (advanced_panel->getVisible())
 	{
-		gSavedSettings.setBOOL("AdvanceSnapshot", visible);
+		advanced_panel->setVisible(false);
 
-		advanced_panel->setVisible(visible);
-		view->getChild<LLButton>("hide_advanced")->setVisible(visible);
-		view->getChild<LLButton>("show_advanced")->setVisible(!visible);
+		// shrink floater back to original size
+		view->reshape(view->getRect().getWidth() - advanced_panel->getRect().getWidth(), view->getRect().getHeight());
 
-		if (visible)
-		{
-			// stretch the floater so it can accommodate the advanced panel
-			view->reshape(view->getRect().getWidth() + advanced_panel->getRect().getWidth(), view->getRect().getHeight());
-		}
-		else
-		{
-			// shrink floater back to original size
-			view->reshape(view->getRect().getWidth() - advanced_panel->getRect().getWidth(), view->getRect().getHeight());
-		}
+		view->getChild<LLButton>("hide_advanced")->setVisible(false);
+		view->getChild<LLButton>("show_advanced")->setVisible(true);
+	}
+	else
+	{
+		advanced_panel->setVisible(true);
+		// stretch the floater so it can accommodate the advanced panel
+		view->reshape(view->getRect().getWidth() + advanced_panel->getRect().getWidth(), view->getRect().getHeight());
+
+		view->getChild<LLButton>("hide_advanced")->setVisible(true);
+		view->getChild<LLButton>("show_advanced")->setVisible(false);
 	}
 }
 
@@ -1958,11 +2002,6 @@ LLFloaterSnapshot::LLFloaterSnapshot(const LLSD& key)
 	  impl (*(new Impl))
 {
 	//Called from floater reg: LLUICtrlFactory::getInstance()->buildFloater(this, "floater_snapshot.xml", FALSE);
-
-	mCommitCallbackRegistrar.add("Snapshot.ShowButtons",  boost::bind(&LLFloaterSnapshot::updateButtons, this, _2));
-	mCommitCallbackRegistrar.add("Snapshot.ShowAdvanced", boost::bind(&Impl::showAdvanced, this, true));
-	mCommitCallbackRegistrar.add("Snapshot.HideAdvanced", boost::bind(&Impl::showAdvanced, this, false));
-	mCommitCallbackRegistrar.add("Snapshot.Refresh", boost::bind(&Impl::onClickNewSnapshot, this));
 }
 
 // Destroys the object
@@ -1984,14 +2023,27 @@ LLFloaterSnapshot::~LLFloaterSnapshot()
 
 BOOL LLFloaterSnapshot::postBuild()
 {
+
+	getChild<LLButton>("share")->setCommitCallback(boost::bind(&LLFloaterSnapshot::updateButtons, this, SNAPSHOT_SHARE));
+	getChild<LLButton>("save")->setCommitCallback(boost::bind(&LLFloaterSnapshot::updateButtons, this, SNAPSHOT_SAVE));
+	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterSnapshot::updateButtons, this, SNAPSHOT_MAIN));
+
 	getChild<LLButton>("share_to_web")->setCommitCallback(boost::bind(&Impl::onCommitSnapshot, this, LLSnapshotLivePreview::SNAPSHOT_WEB));
 	getChild<LLButton>("share_to_email")->setCommitCallback(boost::bind(&Impl::onCommitSnapshot, this, LLSnapshotLivePreview::SNAPSHOT_POSTCARD));
 	getChild<LLButton>("save_to_inventory")->setCommitCallback(boost::bind(&Impl::onCommitSnapshot, this, LLSnapshotLivePreview::SNAPSHOT_TEXTURE));
 	getChild<LLButton>("save_to_computer")->setCommitCallback(boost::bind(&Impl::onCommitSnapshot, this, LLSnapshotLivePreview::SNAPSHOT_LOCAL));
 	getChild<LLButton>("set_profile_pic")->setCommitCallback(boost::bind(&Impl::onCommitProfilePic, this));
 
+	childSetCommitCallback("show_advanced", Impl::onToggleAdvanced, this);
+	childSetCommitCallback("hide_advanced", Impl::onToggleAdvanced, this);
+
 	childSetCommitCallback("local_format_combo", Impl::onCommitSnapshotFormat, this);
 	
+	childSetAction("new_snapshot_btn", Impl::onClickNewSnapshot, this);
+
+	childSetAction("more_btn", Impl::onClickMore, this);
+	childSetAction("less_btn", Impl::onClickLess, this);
+
 	childSetCommitCallback("image_quality_slider", Impl::onCommitQuality, this);
 	childSetValue("image_quality_slider", gSavedSettings.getS32("SnapshotQuality"));
 
@@ -2043,13 +2095,12 @@ BOOL LLFloaterSnapshot::postBuild()
 	impl.mPreviewHandle = previewp->getHandle();
 	impl.updateControls(this);
 	impl.updateLayout(this);
-	impl.showAdvanced(this, gSavedSettings.getBOOL("AdvanceSnapshot"));
 
 	//save off the refresh button's rectangle so we can apply offsets with thumbnail resize 
 	mRefreshBtnRect = getChild<LLButton>("new_snapshot_btn")->getRect();
 
 	// make sure we share/hide the general buttons 
-	updateButtons(LLSD("main"));
+	updateButtons(SNAPSHOT_MAIN);
 	
 	return LLDockableFloater::postBuild();
 }
@@ -2139,20 +2190,19 @@ void LLFloaterSnapshot::update()
 	}
 }
 
-bool LLFloaterSnapshot::updateButtons(const LLSD& mode)
+bool LLFloaterSnapshot::updateButtons(ESnapshotMode mode)
 {
-	std::string button_mode = mode.asString();
+	childSetVisible("share", mode == SNAPSHOT_MAIN);
+	childSetVisible("save", mode == SNAPSHOT_MAIN);
+	childSetVisible("set_profile_pic", mode == SNAPSHOT_MAIN);
 
-	bool mode_main("main" == button_mode);
-	bool mode_share("share" == button_mode);
-	bool mode_save("save" == button_mode);
+//	childSetVisible("share_to_web", mode == SNAPSHOT_SHARE);
+	childSetVisible("share_to_email", mode == SNAPSHOT_SHARE);
 
-	// Default to a known state if mode is invalid.
-	if (!mode_main && !mode_share && !mode_save) mode_main = true;
+	childSetVisible("save_to_inventory", mode == SNAPSHOT_SAVE);
+	childSetVisible("save_to_computer", mode == SNAPSHOT_SAVE);
 
-	childSetVisible("panel_snapshot_main", mode_main);
-	childSetVisible("panel_snapshot_share", mode_share);
-	childSetVisible("panel_snapshot_save", mode_save);
+	childSetVisible("cancel", mode != SNAPSHOT_MAIN);	
 
 	return true;
 }
