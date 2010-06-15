@@ -51,7 +51,7 @@ public:
 	void setStride (S32 skipBytes)	{ mSkip = (skipBytes ? skipBytes : sizeof(Object));}
 
 	void skip(const U32 index)     { mBytep += mSkip*index;}
-
+	U32 getSkip() const			   { return mSkip; }
 	Object* get()                  { return mObjectp; }
 	Object* operator->()           { return mObjectp; }
 	Object& operator *()           { return *mObjectp; }

@@ -65,6 +65,17 @@ class LLFace
 {
 public:
 
+	LLFace(const LLFace& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLFace& operator=(const LLFace& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
 	enum EMasks
 	{
 		LIGHT			= 0x0001,
@@ -73,6 +84,7 @@ public:
 		HUD_RENDER		= 0x0008,
 		USE_FACE_COLOR	= 0x0010,
 		TEXTURE_ANIM	= 0x0020, 
+		RIGGED			= 0x0040,
 	};
 
 	static void initClass();
@@ -138,14 +150,15 @@ public:
 	void			unsetFaceColor(); // switch back to material color
 	const LLColor4&	getFaceColor() const { return mFaceColor; } 
 	const LLColor4& getRenderColor() const;
-	
 
 	//for volumes
 	void updateRebuildFlags();
+	bool canRenderAsMask(); // logic helper
 	BOOL getGeometryVolume(const LLVolume& volume,
 						const S32 &f,
 						const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
-						const U16 &index_offset);
+						const U16 &index_offset,
+						bool force_rebuild = false);
 
 	// For avatar
 	U16			 getGeometryAvatar(
@@ -164,7 +177,7 @@ public:
 	S32 getColors(LLStrider<LLColor4U> &colors);
 	S32 getIndices(LLStrider<U16> &indices);
 
-	void		setSize(const S32 numVertices, const S32 num_indices = 0);
+	void		setSize(S32 numVertices, S32 num_indices = 0, bool align = false);
 	
 	BOOL		genVolumeBBoxes(const LLVolume &volume, S32 f,
 								   const LLMatrix4& mat, const LLMatrix3& inv_trans_mat, BOOL global_volume = FALSE);
@@ -219,7 +232,9 @@ public:
 	
 	LLVector3		mCenterLocal;
 	LLVector3		mCenterAgent;
-	LLVector3		mExtents[2];
+	
+	LLVector4a*		mExtents;
+	
 	LLVector2		mTexExtents[2];
 	F32				mDistance;
 	LLPointer<LLVertexBuffer> mVertexBuffer;
@@ -232,6 +247,7 @@ public:
 private:
 	friend class LLGeometryManager;
 	friend class LLVolumeGeometryManager;
+	friend class LLDrawPoolAvatar;
 
 	U32			mState;
 	LLFacePool*	mDrawPoolp;
@@ -257,6 +273,8 @@ private:
 	S32			mTEOffset;
 
 	S32			mReferenceIndex;
+	std::vector<S32> mRiggedIndex;
+	 
 	F32			mVSize;
 	F32			mPixelArea;
 

@@ -133,6 +133,7 @@ public:
 		PASS_FULLBRIGHT_SHINY,
 		PASS_SHINY,
 		PASS_BUMP,
+		PASS_POST_BUMP,
 		PASS_GLOW,
 		PASS_ALPHA,
 		PASS_ALPHA_MASK,
@@ -186,8 +187,6 @@ public:
 	
 	virtual void resetDrawOrders();
 	void resetAll();
-
-	BOOL moveFace(LLFace *face, LLDrawPool *poolp, BOOL copy_data = FALSE);
 
 	void destroy();
 

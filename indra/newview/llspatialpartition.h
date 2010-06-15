@@ -45,7 +45,7 @@
 #include "lldrawpool.h"
 #include "llface.h"
 #include "llviewercamera.h"
-
+#include "llvector4a.h"
 #include <queue>
 
 #define SG_STATE_INHERIT_MASK (OCCLUDED)
@@ -57,11 +57,15 @@ class LLSpatialGroup;
 class LLTextureAtlas;
 class LLTextureAtlasSlot;
 
+S32 AABBSphereIntersect(const LLVector4a& min, const LLVector4a& max, const LLVector3 &origin, const F32 &rad);
+S32 AABBSphereIntersectR2(const LLVector4a& min, const LLVector4a& max, const LLVector3 &origin, const F32 &radius_squared);
+
 S32 AABBSphereIntersect(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &rad);
 S32 AABBSphereIntersectR2(const LLVector3& min, const LLVector3& max, const LLVector3 &origin, const F32 &radius_squared);
+void pushVerts(LLFace* face, U32 mask);
 
 // get index buffer for binary encoded axis vertex buffer given a box at center being viewed by given camera
-U8* get_box_fan_indices(LLCamera* camera, const LLVector3& center);
+U8* get_box_fan_indices(LLCamera* camera, const LLVector4a& center);
 
 class LLDrawInfo : public LLRefCount 
 {
@@ -69,11 +73,27 @@ protected:
 	~LLDrawInfo();	
 	
 public:
+
+	LLDrawInfo(const LLDrawInfo& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLDrawInfo& operator=(const LLDrawInfo& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
 	LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
 				LLViewerTexture* image, LLVertexBuffer* buffer, 
 				BOOL fullbright = FALSE, U8 bump = 0, BOOL particle = FALSE, F32 part_size = 0);
 	
 
+	void validate();
+
+	LLVector4a* mExtents;
+	
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLViewerTexture>     mTexture;
 	LLColor4U mGlowColor;
@@ -92,7 +112,6 @@ public:
 	LLSpatialGroup* mGroup;
 	LLFace* mFace; //associated face
 	F32 mDistance;
-	LLVector3 mExtents[2];
 	U32 mDrawMode;
 
 	struct CompareTexture
@@ -155,11 +174,24 @@ public:
 	};
 };
 
+LL_ALIGN_PREFIX(64)
 class LLSpatialGroup : public LLOctreeListener<LLDrawable>
 {
 	friend class LLSpatialPartition;
 	friend class LLOctreeStateCheck;
 public:
+
+	LLSpatialGroup(const LLSpatialGroup& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLSpatialGroup& operator=(const LLSpatialGroup& rhs)
+	{
+		llerrs << "Illegal operation!" << llendl;
+		return *this;
+	}
+
 	static U32 sNodeCount;
 	static BOOL sNoDelete; //deletion of spatial groups and draw info not allowed if TRUE
 
@@ -270,8 +302,8 @@ public:
 	BOOL isVisible() const;
 	BOOL isRecentlyVisible() const;
 	void setVisible();
-	void shift(const LLVector3 &offset);
-	BOOL boundObjects(BOOL empty, LLVector3& newMin, LLVector3& newMax);
+	void shift(const LLVector4a &offset);
+	BOOL boundObjects(BOOL empty, LLVector4a& newMin, LLVector4a& newMax);
 	void unbound();
 	BOOL rebound();
 	void buildOcclusion(); //rebuild mOcclusionVerts
@@ -319,6 +351,27 @@ public:
 	void addAtlas(LLTextureAtlas* atlasp, S8 recursive_level = 3) ;
 	void removeAtlas(LLTextureAtlas* atlasp, BOOL remove_group = TRUE, S8 recursive_level = 3) ;
 	void clearAtlasList() ;
+
+public:
+
+	typedef enum
+	{
+		BOUNDS = 0,
+		EXTENTS = 2,
+		OBJECT_BOUNDS = 4,
+		OBJECT_EXTENTS = 6,
+		VIEW_ANGLE = 8,
+		LAST_VIEW_ANGLE = 9,
+		V4_COUNT = 10
+	} eV4Index;
+
+	LLVector4a* mBounds; // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LLVector4a* mExtents; // extents (min, max) of this node and all its children
+	LLVector4a* mObjectExtents; // extents (min, max) of objects in this node
+	LLVector4a* mObjectBounds; // bounding box (center, size) of objects in this node
+	LLVector4a* mViewAngle;
+	LLVector4a* mLastUpdateViewAngle;
+		
 private:
 	U32                     mCurUpdatingTime ;
 	//do not make the below two to use LLPointer
@@ -346,14 +399,9 @@ public:
 	F32 mBuilt;
 	OctreeNode* mOctreeNode;
 	LLSpatialPartition* mSpatialPartition;
-	LLVector3 mBounds[2];
-	LLVector3 mExtents[2];
 	
-	LLVector3 mObjectExtents[2];
-	LLVector3 mObjectBounds[2];
-
 	LLPointer<LLVertexBuffer> mVertexBuffer;
-	F32*					mOcclusionVerts;
+	LLVector4a*				mOcclusionVerts;
 	GLuint					mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
 
 	U32 mBufferUsage;
@@ -364,13 +412,10 @@ public:
 	F32 mDepth;
 	F32 mLastUpdateDistance;
 	F32 mLastUpdateTime;
-			
-	LLVector3 mViewAngle;
-	LLVector3 mLastUpdateViewAngle;
 	
 	F32 mPixelArea;
 	F32 mRadius;
-};
+} LL_ALIGN_POSTFIX(64);
 
 class LLGeometryManager
 {
@@ -406,7 +451,7 @@ public:
 	
 	// If the drawable moves, move it here.
 	virtual void move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL immediate = FALSE);
-	virtual void shift(const LLVector3 &offset);
+	virtual void shift(const LLVector4a &offset);
 
 	virtual F32 calcDistance(LLSpatialGroup* group, LLCamera& camera);
 	virtual F32 calcPixelArea(LLSpatialGroup* group, LLCamera& camera);
@@ -464,7 +509,7 @@ public:
 	virtual void makeActive();
 	virtual void move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL immediate = FALSE);
 	virtual BOOL updateMove();
-	virtual void shiftPos(const LLVector3& vec);
+	virtual void shiftPos(const LLVector4a& vec);
 	virtual void cleanupReferences();
 	virtual LLSpatialPartition* asPartition()		{ return this; }
 	virtual LLSpatialBridge* asBridge()				{ return this; }
@@ -534,12 +579,19 @@ private:
 	U32					mRenderMapSize[LLRenderPass::NUM_RENDER_TYPES];
 
 	sg_list_t			mVisibleGroups;
+	sg_list_t::iterator mVisibleGroupsEnd;
 	sg_list_t			mAlphaGroups;
+	sg_list_t::iterator mAlphaGroupsEnd;
 	sg_list_t			mOcclusionGroups;
+	sg_list_t::iterator	mOcclusionGroupsEnd;
 	sg_list_t			mDrawableGroups;
+	sg_list_t::iterator mDrawableGroupsEnd;
 	drawable_list_t		mVisibleList;
+	drawable_list_t::iterator mVisibleListEnd;
 	bridge_list_t		mVisibleBridge;
+	bridge_list_t::iterator mVisibleBridgeEnd;
 	drawinfo_list_t		mRenderMap[LLRenderPass::NUM_RENDER_TYPES];
+	drawinfo_list_t::iterator mRenderMapEnd[LLRenderPass::NUM_RENDER_TYPES];
 };
 
 
@@ -606,14 +658,20 @@ public:
 //class for wrangling geometry out of volumes (implemented in LLVOVolume.cpp)
 class LLVolumeGeometryManager: public LLGeometryManager
 {
-public:
+ public:
+	typedef enum
+	{
+		NONE = 0,
+		BATCH_SORT,
+		DISTANCE_SORT
+	} eSortType;
+
 	virtual ~LLVolumeGeometryManager() { }
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
 	void genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
-
 };
 
 //spatial partition that uses volume geometry manager (implemented in LLVOVolume.cpp)
@@ -642,7 +700,7 @@ class LLHUDBridge : public LLVolumeBridge
 {
 public:
 	LLHUDBridge(LLDrawable* drawablep);
-	virtual void shiftPos(const LLVector3& vec);
+	virtual void shiftPos(const LLVector4a& vec);
 	virtual F32 calcPixelArea(LLSpatialGroup* group, LLCamera& camera);
 };
 
@@ -659,10 +717,8 @@ class LLHUDPartition : public LLBridgePartition
 {
 public:
 	LLHUDPartition();
-	virtual void shift(const LLVector3 &offset);
+	virtual void shift(const LLVector4a &offset);
 };
-
-void validate_draw_info(LLDrawInfo& params);
 
 extern const F32 SG_BOX_SIDE;
 extern const F32 SG_BOX_OFFSET;

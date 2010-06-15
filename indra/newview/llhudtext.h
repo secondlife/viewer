@@ -90,6 +90,7 @@ public:
 
 public:
 	void setStringUTF8(const std::string &utf8string);
+	std::string getString();
 	void setString(const LLWString &wstring);
 	void clearString();
 	void addLine(const std::string &text, const LLColor4& color, const LLFontGL::StyleFlags style = LLFontGL::NORMAL);

@@ -37,6 +37,7 @@
 #include "llmath.h"
 #include "llcoordframe.h"
 #include "llplane.h"
+#include "llvector4a.h"
 
 const F32 DEFAULT_FIELD_OF_VIEW 	= 60.f * DEG_TO_RAD;
 const F32 DEFAULT_ASPECT_RATIO 		= 640.f / 480.f;
@@ -79,6 +80,14 @@ class LLCamera
 : 	public LLCoordFrame
 {
 public:
+	
+	LLCamera(const LLCamera& rhs)
+	{
+		*this = rhs;
+	}
+
+	const LLCamera& operator=(const LLCamera& rhs);
+	
 	enum {
 		PLANE_LEFT = 0,
 		PLANE_RIGHT = 1,
@@ -129,13 +138,9 @@ private:
 	LLPlane mWorldPlanes[PLANE_NUM];
 	LLPlane mHorizPlanes[HORIZ_PLANE_NUM];
 
-	struct frustum_plane
-	{
-		frustum_plane() : mask(0) {}
-		LLPlane p;
-		U8 mask;
-	};
-	frustum_plane mAgentPlanes[7];  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
+	LLPlane* mAgentPlanes;  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
+	U8 mAgentPlaneBuffer[sizeof(LLPlane)*8];
+	U8 mPlaneMask[7];
 
 	U32 mPlaneCount;  //defaults to 6, if setUserClipPlane is called, uses user supplied clip plane in
 
@@ -143,12 +148,14 @@ private:
 public:
 	LLVector3 mAgentFrustum[8];  //8 corners of 6-plane frustum
 	F32	mFrustumCornerDist;		//distance to corner of frustum against far clip plane
-	LLPlane getAgentPlane(U32 idx) { return mAgentPlanes[idx].p; }
+	LLPlane& getAgentPlane(U32 idx) { return mAgentPlanes[idx]; }
 
 public:
 	LLCamera();
 	LLCamera(F32 vertical_fov_rads, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane);
-	virtual ~LLCamera(){} // no-op virtual destructor
+	virtual ~LLCamera();
+	
+	void alignPlanes();
 
 	void setUserClipPlane(LLPlane plane);
 	void disableUserClipPlane();
@@ -199,8 +206,8 @@ public:
 	S32 sphereInFrustum(const LLVector3 &center, const F32 radius) const;
 	S32 pointInFrustum(const LLVector3 &point) const { return sphereInFrustum(point, 0.0f); }
 	S32 sphereInFrustumFull(const LLVector3 &center, const F32 radius) const { return sphereInFrustum(center, radius); }
-	S32 AABBInFrustum(const LLVector3 &center, const LLVector3& radius);
-	S32 AABBInFrustumNoFarClip(const LLVector3 &center, const LLVector3& radius);
+	S32 AABBInFrustum(const LLVector4a& center, const LLVector4a& radius);
+	S32 AABBInFrustumNoFarClip(const LLVector4a& center, const LLVector4a& radius);
 
 	//does a quick 'n dirty sphere-sphere check
 	S32 sphereInFrustumQuick(const LLVector3 &sphere_center, const F32 radius); 
