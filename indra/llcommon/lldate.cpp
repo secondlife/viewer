@@ -248,27 +248,8 @@ bool LLDate::fromStream(std::istream& s)
 		s >> fractional;
 		seconds_since_epoch += fractional;
 	}
-
-	c = s.peek(); // check for offset
-	if (c == '+' || c == '-')
-	{
-		S32 offset_sign = (c == '+') ? 1 : -1;
-		S32 offset_hours = 0;
-		S32 offset_minutes = 0;
-		S32 offset_in_seconds = 0;
-
-		s >> offset_hours;
-
-		c = s.get(); // skip the colon a get the minutes if there are any
-		if (c == ':')
-		{		
-			s >> offset_minutes;
-		}
-		
-		offset_in_seconds =  (offset_hours * 60 + offset_sign * offset_minutes) * 60;
-		seconds_since_epoch -= offset_in_seconds;
-	}
-	else if (c != 'Z') { return false; } // skip the Z
+	c = s.get(); // skip the Z
+	if (c != 'Z') { return false; }
 
 	mSecondsSinceEpoch = seconds_since_epoch;
 	return true;
