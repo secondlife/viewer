@@ -43,6 +43,7 @@
 #include "llpermissions.h"
 #include "llwindow.h"
 #include "llviewerinventory.h"
+#include "llvolume.h" //for LL_MESH_ENABLED
 
 class LLToolDragAndDrop;
 class LLViewerRegion;
