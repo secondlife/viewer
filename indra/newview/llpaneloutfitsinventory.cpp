@@ -245,6 +245,7 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
 	gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
+	gAgentWearables.addLoadingStartedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoading, this));
 
 	LLOutfitObserver& observer = LLOutfitObserver::instance();
 	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
@@ -382,7 +383,6 @@ void LLPanelOutfitsInventory::onWearButtonClick()
 	if (!isCOFPanelActive())
 	{
 		mMyOutfitsPanel->performAction("replaceoutfit");
-		setWearablesLoading(true);
 	}
 	else
 	{
@@ -852,6 +852,11 @@ void LLPanelOutfitsInventory::setWearablesLoading(bool val)
 void LLPanelOutfitsInventory::onWearablesLoaded()
 {
 	setWearablesLoading(false);
+}
+
+void LLPanelOutfitsInventory::onWearablesLoading()
+{
+	setWearablesLoading(true);
 }
 
 // static

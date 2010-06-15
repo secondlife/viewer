@@ -1397,8 +1397,7 @@ Unable to encode file: [FILE]
    icon="alertmodal.tga"
    name="CorruptedProtectedDataStore"
    type="alertmodal">
-  We are unable to read your protected data so it is being reset.
-   This may happen when you change network setup.
+   We can't fill in your username and password.  This may happen when you change network setup
 
     <usetemplate
      name="okbutton"

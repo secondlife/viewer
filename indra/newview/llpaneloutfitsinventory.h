@@ -127,6 +127,7 @@ protected:
 	bool hasItemsSelected();
 	void setWearablesLoading(bool val);
 	void onWearablesLoaded();
+	void onWearablesLoading();
 private:
 	LLPanel*					mListCommands;
 	LLOutfitListGearMenu*		mGearMenu;

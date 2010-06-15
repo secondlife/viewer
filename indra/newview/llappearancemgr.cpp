@@ -644,6 +644,13 @@ const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
 		const LLViewerInventoryCategory *cat = item->getLinkedCategory();
 		if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
 		{
+			const LLUUID parent_id = cat->getParentUUID();
+			LLViewerInventoryCategory*  parent_cat =  gInventory.getCategory(parent_id);
+			// if base outfit moved to trash it means that we don't have base outfit
+			if (parent_cat != NULL && parent_cat->getPreferredType() == LLFolderType::FT_TRASH)
+			{
+				return NULL;
+			}
 			return item;
 		}
 	}
@@ -1400,6 +1407,7 @@ void LLAppearanceMgr::getUserDescendents(const LLUUID& category,
 
 void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append)
 {
+	gAgentWearables.notifyLoadingStarted();
 	if(!category) return;
 
 	llinfos << "wearInventoryCategory( " << category->getName()
@@ -1992,13 +2000,19 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id)
 class LLShowCreatedOutfit: public LLInventoryCallback
 {
 public:
-	LLShowCreatedOutfit(LLUUID& folder_id): mFolderID(folder_id)
+	LLShowCreatedOutfit(LLUUID& folder_id, bool show_panel = true): mFolderID(folder_id), mShowPanel(show_panel)
 	{}
 
 	virtual ~LLShowCreatedOutfit()
 	{
 		LLSD key;
-		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
+		
+		//EXT-7727. For new accounts LLShowCreatedOutfit is created during login process
+		// add may be processed after login process is finished
+		if (mShowPanel)
+		{
+			LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
+		}
 		LLPanelOutfitsInventory *outfit_panel =
 			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
 		if (outfit_panel)
@@ -2022,9 +2036,10 @@ public:
 
 private:
 	LLUUID mFolderID;
+	bool mShowPanel;
 };
 
-LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name)
+LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel)
 {
 	if (!isAgentAvatarValid()) return LLUUID::null;
 
@@ -2037,7 +2052,7 @@ LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name)
 
 	updateClothingOrderingInfo();
 
-	LLPointer<LLInventoryCallback> cb = new LLShowCreatedOutfit(folder_id);
+	LLPointer<LLInventoryCallback> cb = new LLShowCreatedOutfit(folder_id,show_panel);
 	shallowCopyCategoryContents(getCOF(),folder_id, cb);
 	createBaseOutfitLink(folder_id, cb);
 

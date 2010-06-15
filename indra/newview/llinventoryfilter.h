@@ -59,10 +59,11 @@ public:
 	enum EFilterType
 	{
 		FILTERTYPE_NONE = 0,
-		FILTERTYPE_OBJECT = 1,		// normal default search-by-object-type
-		FILTERTYPE_CATEGORY = 2,	// search by folder type
-		FILTERTYPE_UUID	= 4,		// find the object with UUID and any links to it
-		FILTERTYPE_DATE = 8			// search by date range
+		FILTERTYPE_OBJECT = 0x1 << 0,	// normal default search-by-object-type
+		FILTERTYPE_CATEGORY = 0x1 << 1,	// search by folder type
+		FILTERTYPE_UUID	= 0x1 << 2,		// find the object with UUID and any links to it
+		FILTERTYPE_DATE = 0x1 << 3,		// search by date range
+		FILTERTYPE_WEARABLE = 0x1 << 4	// search by wearable type
 	};
 
 	// REFACTOR: Change this to an enum.
@@ -81,6 +82,7 @@ public:
 	BOOL 				isFilterObjectTypesWith(LLInventoryType::EType t) const;
 	void 				setFilterCategoryTypes(U64 types);
 	void 				setFilterUUID(const LLUUID &object_id);
+	void				setFilterWearableTypes(U64 types);
 
 	void 				setFilterSubString(const std::string& string);
 	const std::string& 	getFilterSubString(BOOL trim = FALSE) const;
@@ -168,6 +170,7 @@ private:
 		U32 			mFilterTypes;
 
 		U64				mFilterObjectTypes; // For _OBJECT
+		U64				mFilterWearableTypes;
 		U64				mFilterCategoryTypes; // For _CATEGORY
 		LLUUID      	mFilterUUID; // for UUID
 
