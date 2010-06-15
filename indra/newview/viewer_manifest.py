@@ -561,7 +561,7 @@ class WindowsManifest(ViewerManifest):
 class DarwinManifest(ViewerManifest):
     def is_packaging_viewer(self):
         # darwin requires full app bundle packaging even for debugging.
-        return true
+        return True
 
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode script)
