@@ -33,7 +33,6 @@
 #ifndef LL_LLASSETUPLOADRESPONDER_H
 #define LL_LLASSETUPLOADRESPONDER_H
 
-#include "llassetstorage.h"
 #include "llhttpclient.h"
 
 // Abstract class for supporting asset upload
@@ -67,15 +66,10 @@ class LLNewAgentInventoryResponder : public LLAssetUploadResponder
 public:
 	LLNewAgentInventoryResponder(const LLSD& post_data,
 								const LLUUID& vfile_id,
-								LLAssetType::EType asset_type,
-								boost::function<void(const LLUUID& uuid)> callback = NULL);
-	LLNewAgentInventoryResponder(const LLSD& post_data, 
-								const std::string& file_name,
-								 LLAssetType::EType asset_type,
-								boost::function<void(const LLUUID& uuid)> callback = NULL);
+								LLAssetType::EType asset_type);
+	LLNewAgentInventoryResponder(const LLSD& post_data, const std::string& file_name,
+											   LLAssetType::EType asset_type);
 	virtual void uploadComplete(const LLSD& content);
-
-	boost::function<void(const LLUUID& uuid)> mCallback;
 };
 
 class LLBakedUploadData;
