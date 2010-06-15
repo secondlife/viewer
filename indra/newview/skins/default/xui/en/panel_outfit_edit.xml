@@ -375,7 +375,19 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          layout="topleft"
          left_pad="1"
          name="dummy_right_icon"
-         width="281" />
+         width="246" />
+        <button
+         follows="bottom|right"
+         height="25"
+         image_hover_unselected="Toolbar_Middle_Over"
+         image_overlay="AddItem_Off"
+         image_selected="Toolbar_Middle_Selected"
+         image_unselected="Toolbar_Middle_Off"
+         layout="topleft"
+         left_pad="0"
+         name="shop_btn"
+         top="1"
+         width="31" />
     </panel>
     
     
