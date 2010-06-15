@@ -90,17 +90,33 @@ protected:
 		registrar.add("Outfit.Delete", boost::bind(deleteOutfit, selected_id));
 
 		enable_registrar.add("Outfit.OnEnable", boost::bind(&OutfitContextMenu::onEnable, this, _2));
+		enable_registrar.add("Outfit.OnVisible", boost::bind(&OutfitContextMenu::onVisible, this, _2));
 
 		return createFromFile("menu_outfit_tab.xml");
 	}
 
-	bool onEnable(const LLSD& data)
+	bool onEnable(LLSD::String param)
 	{
-		std::string param = data.asString();
+		LLUUID outfit_cat_id = mUUIDs.back();
+
+		if ("rename" == param)
+		{
+			return get_is_category_renameable(&gInventory, outfit_cat_id);
+		}
+
+		return true;
+	}
+
+	bool onVisible(LLSD::String param)
+	{
 		LLUUID outfit_cat_id = mUUIDs.back();
 		bool is_worn = LLAppearanceMgr::instance().getBaseOutfitUUID() == outfit_cat_id;
 
-		if ("wear_replace" == param)
+		if ("edit" == param)
+		{
+			return is_worn;
+		}
+		else if ("wear_replace" == param)
 		{
 			return !is_worn;
 		}
@@ -111,14 +127,6 @@ protected:
 		else if ("take_off" == param)
 		{
 			return is_worn;
-		}
-		else if ("edit" == param)
-		{
-			return is_worn;
-		}
-		else if ("rename" == param)
-		{
-			return get_is_category_renameable(&gInventory, outfit_cat_id);
 		}
 		else if ("delete" == param)
 		{

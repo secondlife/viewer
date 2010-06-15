@@ -189,6 +189,8 @@ LLInventoryPanel::~LLInventoryPanel()
 		}
 	}
 
+	gIdleCallbacks.deleteFunction(onIdle, this);
+
 	// LLView destructor will take care of the sub-views.
 	mInventory->removeObserver(mInventoryObserver);
 	delete mInventoryObserver;
@@ -222,6 +224,11 @@ void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType 
 void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)
 {
 	getFilter()->setFilterPermissions(filter_perm_mask);
+}
+
+void LLInventoryPanel::setFilterWearableTypes(U64 types)
+{
+	getFilter()->setFilterWearableTypes(types);
 }
 
 void LLInventoryPanel::setFilterSubString(const std::string& string)

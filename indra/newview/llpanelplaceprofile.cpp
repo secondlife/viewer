@@ -84,7 +84,9 @@ LLPanelPlaceProfile::LLPanelPlaceProfile()
 
 // virtual
 LLPanelPlaceProfile::~LLPanelPlaceProfile()
-{}
+{
+	gIdleCallbacks.deleteFunction(&LLPanelPlaceProfile::updateYouAreHereBanner, this);
+}
 
 // virtual
 BOOL LLPanelPlaceProfile::postBuild()

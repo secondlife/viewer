@@ -19,6 +19,6 @@
      multi_select="true"
      name="wearable_items_list"
      translate="false"
-     use_internal_context_menu="false"
+     standalone="false"
     />
 </accordion_tab>

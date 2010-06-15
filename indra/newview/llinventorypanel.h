@@ -138,6 +138,7 @@ public:
 	U32 getFilterObjectTypes() const { return mFolderRoot->getFilterObjectTypes(); }
 	void setFilterPermMask(PermissionMask filter_perm_mask);
 	U32 getFilterPermMask() const { return mFolderRoot->getFilterPermissions(); }
+	void setFilterWearableTypes(U64 filter);
 	void setFilterSubString(const std::string& string);
 	const std::string getFilterSubString() { return mFolderRoot->getFilterSubString(); }
 	void setSinceLogoff(BOOL sl);

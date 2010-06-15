@@ -83,6 +83,7 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	mOpened(false)
 {
 	LLOutfitObserver& outfit_observer =  LLOutfitObserver::instance();
+	outfit_observer.addBOFReplacedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
 	outfit_observer.addBOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
 	outfit_observer.addCOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
 }
@@ -352,12 +353,12 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 
 	if (visible)
 	{
-		mEditWearable->setWearable(wearable);
-		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
 		{
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
+		mEditWearable->setWearable(wearable);
+		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 	}
 	else
 	{

@@ -35,6 +35,7 @@
 #include "lltextbox.h"
 
 #include "llagentcamera.h"
+#include "llappviewer.h"
 #include "llbottomtray.h"
 #include "llsidetray.h"
 #include "llviewerwindow.h"
@@ -272,7 +273,16 @@ BOOL LLSideTray::postBuild()
 		collapseSideBar();
 
 	setMouseOpaque(false);
+
+	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSideTray::handleLoginComplete, this));
+
 	return true;
+}
+
+void LLSideTray::handleLoginComplete()
+{
+	//reset tab to "home" tab if it was changesd during login process
+	selectTabByName("sidebar_home");
 }
 
 LLSideTrayTab* LLSideTray::getTab(const std::string& name)

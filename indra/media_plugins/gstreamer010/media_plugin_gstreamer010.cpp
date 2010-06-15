@@ -544,8 +544,12 @@ MediaPluginGStreamer010::pause()
 {
 	DEBUGMSG("pausing media...");
 	// todo: error-check this?
-	llgst_element_set_state(mPlaybin, GST_STATE_PAUSED);
-	return true;
+	if (mDoneInit && mPlaybin)
+	{
+		llgst_element_set_state(mPlaybin, GST_STATE_PAUSED);
+		return true;
+	}
+	return false;
 }
 
 bool
@@ -553,8 +557,12 @@ MediaPluginGStreamer010::stop()
 {
 	DEBUGMSG("stopping media...");
 	// todo: error-check this?
-	llgst_element_set_state(mPlaybin, GST_STATE_READY);
-	return true;
+	if (mDoneInit && mPlaybin)
+	{
+		llgst_element_set_state(mPlaybin, GST_STATE_READY);
+		return true;
+	}
+	return false;
 }
 
 bool
@@ -564,8 +572,12 @@ MediaPluginGStreamer010::play(double rate)
 
         DEBUGMSG("playing media... rate=%f", rate);
 	// todo: error-check this?
-	llgst_element_set_state(mPlaybin, GST_STATE_PLAYING);
-	return true;
+	if (mDoneInit && mPlaybin)
+	{
+		llgst_element_set_state(mPlaybin, GST_STATE_PLAYING);
+		return true;
+	}
+	return false;
 }
 
 bool
@@ -608,7 +620,7 @@ bool
 MediaPluginGStreamer010::getTimePos(double &sec_out)
 {
 	bool got_position = false;
-	if (mPlaybin)
+	if (mDoneInit && mPlaybin)
 	{
 		gint64 pos;
 		GstFormat timefmt = GST_FORMAT_TIME;
@@ -688,6 +700,7 @@ MediaPluginGStreamer010::load()
 					   this);
 	llgst_object_unref (bus);
 
+#if 0 // not quite stable/correct yet
 	// get a visualizer element (bonus feature!)
 	char* vis_name = getenv("LL_GST_VIS_NAME");
 	if (!vis_name ||
@@ -714,6 +727,7 @@ MediaPluginGStreamer010::load()
 			}
 		}
 	}
+#endif
 
 	if (NULL == getenv("LL_GSTREAMER_EXTERNAL")) {
 		// instantiate a custom video sink

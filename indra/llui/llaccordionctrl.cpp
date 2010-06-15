@@ -523,6 +523,8 @@ void	LLAccordionCtrl::arrangeMultiple()
 
 void LLAccordionCtrl::arrange()
 {
+	updateNoTabsHelpTextVisibility();
+
 	if( mAccordionTabs.size() == 0)
 	{
 		//We do not arrange if we do not have what should be arranged
@@ -818,7 +820,7 @@ void	LLAccordionCtrl::setFilterSubString(const std::string& filter_string)
 {
 	LLStringUtil::format_map_t args;
 	args["[SEARCH_TERM]"] = LLURI::escape(filter_string);
-	std::string text = mNoVisibleTabsOrigString;
+	std::string text = filter_string.empty() ? LLStringUtil::null : mNoVisibleTabsOrigString;
 	LLStringUtil::format(text, args);
 
 	mNoVisibleTabsHelpText->setValue(text);

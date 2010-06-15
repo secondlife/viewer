@@ -24,7 +24,7 @@
      image_unselected="BackButton_Off"
      layout="topleft"
      name="back"
-     left="9"
+     left="10"
      tab_stop="false"
      top="2"
      width="30" />
@@ -38,10 +38,10 @@
       font="SansSerifHugeBold"
       height="26"
       layout="topleft"
-      left_pad="10"
+      left_pad="5"
       name="user_name"
       text_color="LtGray"
-      top="0"
+      top="2"
       value="(Loading...)"
       use_ellipses="true"
       width="275" />
