@@ -988,7 +988,7 @@ void profile_pic_upload_callback(const LLUUID& uuid)
 void LLSnapshotLivePreview::confirmSavingTexture(bool set_as_profile_pic)
 {
 	LLSD args;
-	args["AMOUNT"] = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+	args["AMOUNT"] = "10"; // *TODO: there's currently no way to avoid hardcoding the upload price
 	LLNotificationsUtil::add("UploadConfirmation", args, LLSD(),
 			boost::bind(&LLSnapshotLivePreview::onSavingTextureConfirmed, this, _1, _2, set_as_profile_pic));
 }
