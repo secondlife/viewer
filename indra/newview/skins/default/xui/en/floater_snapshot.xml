@@ -62,7 +62,6 @@
    name="share_to_web" 
    top_delta="0" 
    left="10" 
-   visible="false"
    width="130"/>
   <button
    label="Save to My Inventory" 

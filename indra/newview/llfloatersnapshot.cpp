@@ -2196,7 +2196,7 @@ bool LLFloaterSnapshot::updateButtons(ESnapshotMode mode)
 	childSetVisible("save", mode == SNAPSHOT_MAIN);
 	childSetVisible("set_profile_pic", mode == SNAPSHOT_MAIN);
 
-//	childSetVisible("share_to_web", mode == SNAPSHOT_SHARE);
+	childSetVisible("share_to_web", mode == SNAPSHOT_SHARE);
 	childSetVisible("share_to_email", mode == SNAPSHOT_SHARE);
 
 	childSetVisible("save_to_inventory", mode == SNAPSHOT_SAVE);
