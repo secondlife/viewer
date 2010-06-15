@@ -110,7 +110,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	}
 }
 
-BOOL LLInventoryPanel::postBuild()
+void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_POST_BUILD);
 
@@ -128,6 +128,7 @@ BOOL LLInventoryPanel::postBuild()
 		p.rect = folder_rect;
 		p.parent_panel = this;
 		p.tool_tip = p.name;
+		p.use_label_suffix = params.use_label_suffix;
 		mFolderRoot = LLUICtrlFactory::create<LLFolderView>(p);
 		mFolderRoot->setAllowMultiSelect(mAllowMultiSelect);
 	}
@@ -174,8 +175,6 @@ BOOL LLInventoryPanel::postBuild()
 		setSortOrder(gSavedSettings.getU32(DEFAULT_SORT_ORDER));
 	}
 	mFolderRoot->setSortOrder(getFilter()->getSortOrder());
-
-	return TRUE;
 }
 
 LLInventoryPanel::~LLInventoryPanel()
