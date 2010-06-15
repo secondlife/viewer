@@ -263,7 +263,7 @@ public:
 	void eraseTypeToRecover(LLWearableType::EType type);
 	void setObjItems(const LLInventoryModel::item_array_t& items);
 	void setGestItems(const LLInventoryModel::item_array_t& items);
-	bool isValid();
+	bool isMostRecent();
 	void handleLateArrivals();
 	void resetTime(F32 timeout);
 	
@@ -279,7 +279,7 @@ private:
 	bool mFired;
 	typedef std::set<LLWearableHoldingPattern*> type_set_hp;
 	static type_set_hp sActiveHoldingPatterns;
-	bool mIsValid;
+	bool mIsMostRecent;
 	std::set<LLWearable*> mLateArrivals;
 	bool mIsAllComplete;
 };
@@ -289,7 +289,7 @@ LLWearableHoldingPattern::type_set_hp LLWearableHoldingPattern::sActiveHoldingPa
 LLWearableHoldingPattern::LLWearableHoldingPattern():
 	mResolved(0),
 	mFired(false),
-	mIsValid(true),
+	mIsMostRecent(true),
 	mIsAllComplete(false)
 {
 	if (sActiveHoldingPatterns.size()>0)
@@ -303,7 +303,7 @@ LLWearableHoldingPattern::LLWearableHoldingPattern():
 			 it != sActiveHoldingPatterns.end();
 			 ++it)
 		{
-			(*it)->mIsValid = false;
+			(*it)->mIsMostRecent = false;
 		}
 			 
 	}
@@ -315,9 +315,9 @@ LLWearableHoldingPattern::~LLWearableHoldingPattern()
 	sActiveHoldingPatterns.erase(this);
 }
 
-bool LLWearableHoldingPattern::isValid()
+bool LLWearableHoldingPattern::isMostRecent()
 {
-	return mIsValid;
+	return mIsMostRecent;
 }
 
 LLWearableHoldingPattern::found_list_t& LLWearableHoldingPattern::getFoundList()
@@ -357,7 +357,7 @@ bool LLWearableHoldingPattern::isTimedOut()
 
 void LLWearableHoldingPattern::checkMissingWearables()
 {
-	if (!isValid())
+	if (!isMostRecent())
 	{
 		llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
@@ -404,7 +404,7 @@ void LLWearableHoldingPattern::checkMissingWearables()
 
 void LLWearableHoldingPattern::onAllComplete()
 {
-	if (!isValid())
+	if (!isMostRecent())
 	{
 		llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
@@ -453,7 +453,7 @@ void LLWearableHoldingPattern::onAllComplete()
 
 void LLWearableHoldingPattern::onFetchCompletion()
 {
-	if (!isValid())
+	if (!isMostRecent())
 	{
 		llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
@@ -464,7 +464,7 @@ void LLWearableHoldingPattern::onFetchCompletion()
 // Runs as an idle callback until all wearables are fetched (or we time out).
 bool LLWearableHoldingPattern::pollFetchCompletion()
 {
-	if (!isValid())
+	if (!isMostRecent())
 	{
 		llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
@@ -501,7 +501,7 @@ public:
 	}
 	void fire(const LLUUID& item_id)
 	{
-		if (!mHolder->isValid())
+		if (!mHolder->isMostRecent())
 		{
 			llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 		}
@@ -555,7 +555,7 @@ public:
 	}
 	void fire(const LLUUID& item_id)
 	{
-		if (!mHolder->isValid())
+		if (!mHolder->isMostRecent())
 		{
 			llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 		}
@@ -585,7 +585,7 @@ private:
 
 void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type)
 {
-	if (!isValid())
+	if (!isMostRecent())
 	{
 		llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
@@ -634,7 +634,7 @@ void LLWearableHoldingPattern::clearCOFLinksForMissingWearables()
 
 bool LLWearableHoldingPattern::pollMissingWearables()
 {
-	if (!isValid())
+	if (!isMostRecent())
 	{
 		llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
@@ -670,7 +670,7 @@ void LLWearableHoldingPattern::handleLateArrivals()
 		// Nothing to process.
 		return;
 	}
-	if (!isValid())
+	if (!isMostRecent())
 	{
 		llwarns << "Late arrivals not handled - outfit change no longer valid" << llendl;
 	}
@@ -748,7 +748,7 @@ void LLWearableHoldingPattern::resetTime(F32 timeout)
 
 void LLWearableHoldingPattern::onWearableAssetFetch(LLWearable *wearable)
 {
-	if (!isValid())
+	if (!isMostRecent())
 	{
 		llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
