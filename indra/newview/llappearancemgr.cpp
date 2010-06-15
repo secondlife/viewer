@@ -201,7 +201,9 @@ void LLUpdateAppearanceOnDestroy::fire(const LLUUID& inv_item)
 {
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(inv_item);
 	const std::string item_name = item ? item->getName() : "ITEM NOT FOUND";
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	llinfos << "callback fired [ name:" << item_name << " UUID:" << inv_item << " count:" << mFireCount << " ] " << llendl;
+#endif
 	mFireCount++;
 }
 
