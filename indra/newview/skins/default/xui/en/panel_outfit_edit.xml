@@ -490,7 +490,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          follows="bottom|left|right"
          height="23"
          left_pad="12"
-         label="Revert"
+         label="Undo Changes"
          layout="topleft"
          name="revert_btn"
          top="0"
