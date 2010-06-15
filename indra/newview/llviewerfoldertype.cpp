@@ -110,8 +110,6 @@ protected:
 
 LLViewerFolderDictionary::LLViewerFolderDictionary()
 {
-	initEnsemblesFromFile();
-
 	//       													    	  NEW CATEGORY NAME         FOLDER OPEN             FOLDER CLOSED          QUIET?
 	//      												  		     |-------------------------|-----------------------|----------------------|-----------|
 	addEntry(LLFolderType::FT_TEXTURE, 				new ViewerFolderEntry("Textures",				"Inv_SysOpen",			"Inv_SysClosed",		FALSE));
@@ -137,6 +135,15 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 	addEntry(LLFolderType::FT_INBOX, 				new ViewerFolderEntry("Inbox",					"Inv_SysOpen",			"Inv_SysClosed",		FALSE));
 		 
 	addEntry(LLFolderType::FT_NONE, 				new ViewerFolderEntry("New Folder",				"Inv_FolderOpen",		"Inv_FolderClosed",		FALSE, "default"));
+
+#if SUPPORT_ENSEMBLES
+	initEnsemblesFromFile();
+#else
+	for (U32 type = (U32)LLFolderType::FT_ENSEMBLE_START; type <= (U32)LLFolderType::FT_ENSEMBLE_END; ++type)
+	{
+		addEntry((LLFolderType::EType)type, 		new ViewerFolderEntry("New Folder",				"Inv_FolderOpen",		"Inv_FolderClosed",		FALSE));
+	}	
+#endif
 }
 
 bool LLViewerFolderDictionary::initEnsemblesFromFile()
@@ -231,6 +238,15 @@ const std::string &LLViewerFolderType::lookupIconName(LLFolderType::EType folder
 		else
 			return entry->mIconNameClosed;
 	}
+	
+	// Error condition.  Return something so that we don't show a grey box in inventory view.
+	const ViewerFolderEntry *default_entry = LLViewerFolderDictionary::getInstance()->lookup(LLFolderType::FT_NONE);
+	if (default_entry)
+	{
+		return default_entry->mIconNameClosed;
+	}
+	
+	// Should not get here unless there's something corrupted with the FT_NONE entry.
 	return badLookup();
 }
 

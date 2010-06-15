@@ -2581,9 +2581,9 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			mItems.push_back(std::string("New Clothes"));
 			mItems.push_back(std::string("New Body Parts"));
 
-			// Changing folder types is just a debug feature; this is fairly unsupported
+#if SUPPORT_ENSEMBLES
+			// Changing folder types is an unfinished unsupported feature
 			// and can lead to unexpected behavior if enabled.
-#if !LL_RELEASE_FOR_DOWNLOAD
 			mItems.push_back(std::string("Change Type"));
 			const LLViewerInventoryCategory *cat = getCategory();
 			if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))

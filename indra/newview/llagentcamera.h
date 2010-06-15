@@ -39,6 +39,7 @@
 
 class LLPickInfo;
 class LLVOAvatarSelf;
+class LLControlVariable;
 
 //--------------------------------------------------------------------
 // Types
@@ -121,10 +122,10 @@ private:
 	ECameraPreset mCameraPreset; 
 
 	/** Initial camera offsets */
-	std::map<ECameraPreset, LLVector3> mCameraOffsetInitial;
+	std::map<ECameraPreset, LLPointer<LLControlVariable> > mCameraOffsetInitial;
 
 	/** Initial focus offsets */
-	std::map<ECameraPreset, LLVector3d> mFocusOffsetInitial;
+	std::map<ECameraPreset, LLPointer<LLControlVariable> > mFocusOffsetInitial;
 
 	//--------------------------------------------------------------------
 	// Position
