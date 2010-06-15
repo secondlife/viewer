@@ -49,6 +49,7 @@
 LLInventoryFilter::FilterOps::FilterOps() :
 	mFilterObjectTypes(0xffffffffffffffffULL),
 	mFilterCategoryTypes(0xffffffffffffffffULL),
+	mFilterWearableTypes(0xffffffffffffffffULL),
 	mMinDate(time_min()),
 	mMaxDate(time_max()),
 	mHoursAgo(0),
@@ -139,8 +140,6 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 			return FALSE;
 		}
 	}
-	//
-	////////////////////////////////////////////////////////////////////////////////
 	
 	
 	////////////////////////////////////////////////////////////////////////////////
@@ -164,8 +163,6 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 		if ((1LL << cat->getPreferredType() & mFilterOps.mFilterCategoryTypes) == U64(0))
 			return FALSE;
 	}
-	//
-	////////////////////////////////////////////////////////////////////////////////
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -178,8 +175,6 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 		if (object->getLinkedUUID() != mFilterOps.mFilterUUID)
 			return FALSE;
 	}
-	//
-	////////////////////////////////////////////////////////////////////////////////
 
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -201,8 +196,18 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 			listener->getCreationDate() > mFilterOps.mMaxDate)
 			return FALSE;
 	}
-	//
+
 	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_WEARABLE
+	// Pass if this item is a wearable of the appropriate type
+	if (filterTypes & FILTERTYPE_WEARABLE)
+	{
+		LLWearableType::EType type = listener->getWearableType();
+		if ((0x1LL << type & mFilterOps.mFilterWearableTypes) == 0)
+		{
+			return FALSE;
+		}
+	}
 
 	return TRUE;
 }
@@ -238,6 +243,8 @@ std::string::size_type LLInventoryFilter::getStringMatchOffset() const
 BOOL LLInventoryFilter::isNotDefault() const
 {
 	return mFilterOps.mFilterObjectTypes != mDefaultFilterOps.mFilterObjectTypes 
+		|| mFilterOps.mFilterCategoryTypes != mDefaultFilterOps.mFilterCategoryTypes 
+		|| mFilterOps.mFilterWearableTypes != mDefaultFilterOps.mFilterWearableTypes 
 		|| mFilterOps.mFilterTypes != FILTERTYPE_OBJECT
 		|| mFilterSubString.size() 
 		|| mFilterOps.mPermissions != mDefaultFilterOps.mPermissions
@@ -249,6 +256,8 @@ BOOL LLInventoryFilter::isNotDefault() const
 BOOL LLInventoryFilter::isActive() const
 {
 	return mFilterOps.mFilterObjectTypes != 0xffffffffffffffffULL
+		|| mFilterOps.mFilterCategoryTypes != 0xffffffffffffffffULL
+		|| mFilterOps.mFilterWearableTypes != 0xffffffffffffffffULL
 		|| mFilterOps.mFilterTypes != FILTERTYPE_OBJECT
 		|| mFilterSubString.size() 
 		|| mFilterOps.mPermissions != PERM_NONE 
@@ -322,7 +331,35 @@ void LLInventoryFilter::setFilterCategoryTypes(U64 types)
 			setModified(FILTER_MORE_RESTRICTIVE);
 		}
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_CATEGORY;
+	mFilterOps.mFilterTypes |= FILTERTYPE_OBJECT;
+}
+
+void LLInventoryFilter::setFilterWearableTypes(U64 types)
+{
+	if (mFilterOps.mFilterWearableTypes != types)
+	{
+		// keep current items only if no type bits getting turned off
+		BOOL fewer_bits_set = (mFilterOps.mFilterWearableTypes & ~types);
+		BOOL more_bits_set = (~mFilterOps.mFilterWearableTypes & types);
+
+		mFilterOps.mFilterWearableTypes = types;
+		if (more_bits_set && fewer_bits_set)
+		{
+			// neither less or more restrive, both simultaneously
+			// so we need to filter from scratch
+			setModified(FILTER_RESTART);
+		}
+		else if (more_bits_set)
+		{
+			// target is only one of all requested types so more type bits == less restrictive
+			setModified(FILTER_LESS_RESTRICTIVE);
+		}
+		else if (fewer_bits_set)
+		{
+			setModified(FILTER_MORE_RESTRICTIVE);
+		}
+	}
+	mFilterOps.mFilterTypes |= FILTERTYPE_WEARABLE;
 }
 
 void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)
