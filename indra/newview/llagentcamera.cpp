@@ -2312,12 +2312,6 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 		startCameraAnimation();
 	}
 
-	// Remove any pitch from the avatar
-	//LLVector3 at = gAgent.getFrameAgent().getAtAxis();
-	//at.mV[VZ] = 0.f;
-	//at.normalize();
-	//gAgent.resetAxes(at);
-
 	if (mCameraMode != CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
 		updateLastCamera();
@@ -2338,9 +2332,11 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 	if (isAgentAvatarValid())
 	{
 		if(avatar_animate)
-		{
-			// Remove any pitch from the avatar
-			LLVector3 at = gAgent.getFrameAgent().getAtAxis();
+		{	
+			// slamming the avatar's axis to the camera so that when the rotation
+			// completes it correctly points to the front of the avatar
+			// Remove any pitch or rotation from the avatar
+			LLVector3 at = LLViewerCamera::getInstance()->getAtAxis();
 			at.mV[VZ] = 0.f;
 			at.normalize();
 			gAgent.resetAxes(at);
@@ -2360,6 +2356,10 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 				mAnimationDuration = gSavedSettings.getF32("ZoomTime");
 			}
 		}
+
+		// this is what sets the avatar as the mFocusTargetGlobal
+		setFocusGlobal(LLVector3d::zero);
+		
 		gAgentAvatarp->updateMeshTextures();
 	}
 	else

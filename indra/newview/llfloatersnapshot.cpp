@@ -164,8 +164,6 @@ public:
 	void setSnapshotBufferType(LLViewerWindow::ESnapshotType type) { mSnapshotBufferType = type; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
 	LLFloaterPostcard* savePostcard();
-	void confirmSavingTexture(bool set_as_profile_pic = false);
-	bool onSavingTextureConfirmed(const LLSD& notification, const LLSD& response, bool set_as_profile_pic);
 	void saveTexture(bool set_as_profile_pic = false);
 	BOOL saveLocal();
 	void saveWeb(std::string url);
@@ -981,27 +979,6 @@ void profile_pic_upload_callback(const LLUUID& uuid)
 	floater->setAsProfilePic(uuid);
 }
 
-void LLSnapshotLivePreview::confirmSavingTexture(bool set_as_profile_pic)
-{
-	LLSD args;
-	args["AMOUNT"] = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-	LLNotificationsUtil::add("UploadConfirmation", args, LLSD(),
-			boost::bind(&LLSnapshotLivePreview::onSavingTextureConfirmed, this, _1, _2, set_as_profile_pic));
-}
-
-bool LLSnapshotLivePreview::onSavingTextureConfirmed(const LLSD& notification, const LLSD& response, bool set_as_profile_pic)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-
-	if (option == 0)
-	{
-		saveTexture(set_as_profile_pic);
-	}
-
-	return false;
-}
-
-
 void LLSnapshotLivePreview::saveTexture(bool set_as_profile_pic)
 {
 	// gen a new uuid for this asset
@@ -1180,6 +1157,9 @@ public:
 	static void onCommitSnapshotFormat(LLUICtrl* ctrl, void* data);
 	static void onCommitCustomResolution(LLUICtrl *ctrl, void* data);
 	static void onCommitSnapshot(LLFloaterSnapshot* view, LLSnapshotLivePreview::ESnapshotType type);
+	static void confirmSavingTexture(LLFloaterSnapshot* view, bool set_as_profile_pic = false);
+	static void onSavingTextureConfirmed(const LLSD& notification, const LLSD& response, LLFloaterSnapshot* view, bool set_as_profile_pic);
+	static void checkCloseOnKeep(LLFloaterSnapshot* view);
 	static void onCommitProfilePic(LLFloaterSnapshot* view);
 	static void showAdvanced(LLFloaterSnapshot* view, const BOOL visible);
 	static void resetSnapshotSizeOnUI(LLFloaterSnapshot *view, S32 width, S32 height) ;
@@ -1719,13 +1699,7 @@ public:
 
 void LLFloaterSnapshot::Impl::onCommitProfilePic(LLFloaterSnapshot* view)
 {
-	//first save to harddrive
-	LLSnapshotLivePreview* previewp = getPreviewView(view);
-	
-	if(previewp)
-	{
-		previewp->confirmSavingTexture(true);
-	}
+	confirmSavingTexture(view, true);
 }
 
 void LLFloaterSnapshot::Impl::onCommitSnapshot(LLFloaterSnapshot* view, LLSnapshotLivePreview::ESnapshotType type)
@@ -1739,14 +1713,17 @@ void LLFloaterSnapshot::Impl::onCommitSnapshot(LLFloaterSnapshot* view, LLSnapsh
 		if (type == LLSnapshotLivePreview::SNAPSHOT_WEB)
 		{
 			previewp->saveWeb(view->getString("share_to_web_url"));
+			checkCloseOnKeep(view);
 		}
 		else if (type == LLSnapshotLivePreview::SNAPSHOT_LOCAL)
 		{
 			previewp->saveLocal();
+			checkCloseOnKeep(view);
 		}
 		else if (type == LLSnapshotLivePreview::SNAPSHOT_TEXTURE)
 		{
-			previewp->confirmSavingTexture();
+			// uploads and then calls checkCloseOnKeep() on confirmation from user
+			confirmSavingTexture(view);
 		}
 		else if (type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD)
 		{
@@ -1759,16 +1736,40 @@ void LLFloaterSnapshot::Impl::onCommitSnapshot(LLFloaterSnapshot* view, LLSnapsh
 				gSnapshotFloaterView->addChild(floater);
 				view->addDependentFloater(floater, FALSE);
 			}
+			checkCloseOnKeep(view);
 		}
+	}
+}
 
-		if (gSavedSettings.getBOOL("CloseSnapshotOnKeep"))
-		{
-			view->closeFloater();
-		}
-		else
-		{
-			checkAutoSnapshot(previewp);
-		}
+void LLFloaterSnapshot::Impl::confirmSavingTexture(LLFloaterSnapshot* view, bool set_as_profile_pic)
+{
+	LLSD args;
+	args["AMOUNT"] = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+	LLNotificationsUtil::add("UploadConfirmation", args, LLSD(),
+							 boost::bind(&onSavingTextureConfirmed, _1, _2, view, set_as_profile_pic));
+}
+
+void LLFloaterSnapshot::Impl::onSavingTextureConfirmed(const LLSD& notification, const LLSD& response, LLFloaterSnapshot* view, bool set_as_profile_pic)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+	if (option == 0)
+	{
+		LLSnapshotLivePreview* previewp = getPreviewView(view);
+		previewp->saveTexture(set_as_profile_pic);
+		checkCloseOnKeep(view);
+	}
+}
+
+void LLFloaterSnapshot::Impl::checkCloseOnKeep(LLFloaterSnapshot* view)
+{
+	if (gSavedSettings.getBOOL("CloseSnapshotOnKeep"))
+	{
+		view->closeFloater();
+	}
+	else
+	{
+		checkAutoSnapshot(getPreviewView(view));
 	}
 }
 
