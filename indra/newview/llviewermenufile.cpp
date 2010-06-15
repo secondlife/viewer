@@ -1000,8 +1000,11 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 			S32 balance = gStatusBar->getBalance();
 			if (balance < expected_upload_cost)
 			{
+				LLStringUtil::format_map_t args;
+				args["NAME"] = name;
+				args["AMOUNT"] = llformat("%d", expected_upload_cost);
 				// insufficient funds, bail on this upload
-				LLFloaterBuyCurrency::buyCurrency(LLTrans::getString("uploading_costs"), expected_upload_cost);
+				LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("UploadingCosts", args), expected_upload_cost );
 				return;
 			}
 		}
