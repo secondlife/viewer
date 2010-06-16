@@ -179,6 +179,10 @@ protected:
 	/** Set item title - inventory item name usually */
 	virtual void setTitle(const std::string& title, const std::string& highlit_text);
 
+	/**
+	 * Show tool tip if item name text size > panel size
+	 */
+	virtual BOOL handleToolTip( S32 x, S32 y, MASK mask);
 
 	LLViewerInventoryItem* mItem;
 
