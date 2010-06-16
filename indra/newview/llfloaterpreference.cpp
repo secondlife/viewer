@@ -465,8 +465,6 @@ void LLFloaterPreference::apply()
 			gAgent.sendAgentUpdateUserInfo(new_im_via_email,mDirectoryVisibility);
 		}
 	}
-
-	//applyResolution();
 }
 
 void LLFloaterPreference::cancel()
@@ -1211,18 +1209,6 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 	{
 		text_box->setText(LLTrans::getString("GraphicsQualityHigh"));
 	}
-}
-
-void LLFloaterPreference::applyResolution()
-{
-	gGL.flush();
-		
-	gViewerWindow->requestResolutionUpdate();
-	
-	send_agent_update(TRUE);
-	
-	// Update enable/disable
-	refresh();
 }
 
 void LLFloaterPreference::onChangeMaturity()
