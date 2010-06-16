@@ -52,6 +52,7 @@
 #include "llappearancemgr.h"
 #include "llappviewer.h"
 //#include "llfirstuse.h"
+#include "llfloaterinventory.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
 #include "llgesturemgr.h"
@@ -63,6 +64,7 @@
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
+#include "llpanelmaininventory.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
 #include "llpreviewnotecard.h"
@@ -74,6 +76,7 @@
 #include "llscrollcontainer.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
+#include "llsidepanelinventory.h"
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
 #include "lluictrlfactory.h"
@@ -332,9 +335,38 @@ void show_item_profile(const LLUUID& item_uuid)
 
 void show_item_original(const LLUUID& item_uuid)
 {
+	bool reset_inventory_filter = !LLSideTray::getInstance()->isPanelActive("sidepanel_inventory");
+
 	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
 	if (!active_panel) return;
 	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_NO);
+	
+	if(reset_inventory_filter)
+	{
+		LLSidepanelInventory *sidepanel_inventory =
+			dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+		if(sidepanel_inventory)
+		{
+			LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+
+			main_inventory->onFilterEdit("");
+		}
+
+		//now for inventory floater
+
+		LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
+		for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
+		{
+			LLFloaterInventory* floater_inventory = dynamic_cast<LLFloaterInventory*>(*iter);
+			if (floater_inventory)
+			{
+				LLPanelMainInventory* main_inventory = floater_inventory->getMainInventoryPanel();
+
+				main_inventory->onFilterEdit("");
+			}
+		}
+
+	}
 }
 
 ///----------------------------------------------------------------------------

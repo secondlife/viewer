@@ -66,6 +66,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	LLInventoryPanel* getPanel();
+	LLPanelMainInventory* getMainInventoryPanel() { return mPanelMainInventory;}
 private:
 	LLPanelMainInventory* mPanelMainInventory;
 };

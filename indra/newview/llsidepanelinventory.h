@@ -51,6 +51,7 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	LLInventoryPanel* getActivePanel(); // Returns an active inventory panel, if any.
+	LLPanelMainInventory* getMainInventoryPanel() const { return mPanelMainInventory; }
 	BOOL isMainInventoryPanelActive() const;
 
 protected:
