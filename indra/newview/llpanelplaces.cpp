@@ -1038,7 +1038,7 @@ void LLPanelPlaces::showAddedLandmarkInfo(const uuid_vec_t& items)
 		 ++item_iter)
 	{
 		const LLUUID& item_id = (*item_iter);
-		if(!highlight_offered_item(item_id))
+		if(!highlight_offered_object(item_id))
 		{
 			continue;
 		}
