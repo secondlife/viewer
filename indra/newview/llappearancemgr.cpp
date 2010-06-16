@@ -652,7 +652,15 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 	if (done)
 	{
 		gAgentAvatarp->debugWearablesLoaded();
-		clearCOFLinksForMissingWearables();
+
+		// BAP - if we don't call clearCOFLinksForMissingWearables()
+		// here, we won't have to add the link back in later if the
+		// wearable arrives late.  This is to avoid corruption of
+		// wearable ordering info.  Also has the effect of making
+		// unworn item links visible in the COF under some
+		// circumstances.
+
+		//clearCOFLinksForMissingWearables();
 		onAllComplete();
 	}
 	return done;
@@ -698,8 +706,13 @@ void LLWearableHoldingPattern::handleLateArrivals()
 				data.mWearable = wearable;
 
 				replaced_types.insert(data.mWearableType);
-				
-				LLAppearanceMgr::instance().addCOFItemLink(data.mItemID,false);
+
+				// BAP - if we didn't call
+				// clearCOFLinksForMissingWearables() earlier, we
+				// don't need to restore the link here.  Fixes
+				// wearable ordering problems.
+
+				// LLAppearanceMgr::instance().addCOFItemLink(data.mItemID,false);
 
 				// BAP failing this means inventory or asset server
 				// are corrupted in a way we don't handle.
