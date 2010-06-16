@@ -144,7 +144,7 @@ Required height for dragbar (icon in spec) is 10, so resizebar height should be 
 It is calculated as border_size + 2*UIResizeBarOverlap
 -->
     <layout_stack
-     animate="false"
+     animate="true"
      border_size="8"
      clip="false"
      default_tab_group="2"
@@ -284,7 +284,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          bg_alpha_color="DkGray2"
          auto_resize="true"
          default_tab_group="3"
-         height="211"
+         height="450"
          min_height="210"
          name="add_wearables_panel"
          width="313"
@@ -307,7 +307,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              background_visible="false"
              border="false"
              follows="left|top|right|bottom"
-             height="203"
+             height="442"
              layout="topleft"
              left="0"
              mouse_opaque="false"
@@ -322,7 +322,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              layout="topleft"
              follows="left|top|right|bottom"
              border="false"
-             height="210"
+             height="449"
              left="0"
              mouse_opaque="false"
              width="310"
@@ -336,7 +336,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                  follows="all"
                  multi_select="true"
                  width="310"
-                 height="210"
+                 height="449"
                  left="0"
                  top="0"/>
             </panel>
