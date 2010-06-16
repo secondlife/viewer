@@ -1988,19 +1988,33 @@ BOOL LLVolume::generate()
 
 void LLVolumeFace::VertexData::init()
 {
-	mData = (LLVector4a*) ll_aligned_malloc_16(32);
+	if (!mData)
+	{
+		mData = (LLVector4a*) ll_aligned_malloc_16(32);
+	}
 }
 
 LLVolumeFace::VertexData::VertexData()
 {
+	mData = NULL;
 	init();
 }
 	
 LLVolumeFace::VertexData::VertexData(const VertexData& rhs)
 {
-	init();
-	LLVector4a::memcpyNonAliased16((F32*) mData, (F32*) rhs.mData, 8);
-	mTexCoord = rhs.mTexCoord;
+	mData = NULL;
+	*this = rhs;
+}
+
+const LLVolumeFace::VertexData& LLVolumeFace::VertexData::operator=(const LLVolumeFace::VertexData& rhs)
+{
+	if (this != &rhs)
+	{
+		init();
+		LLVector4a::memcpyNonAliased16((F32*) mData, (F32*) rhs.mData, 8);
+		mTexCoord = rhs.mTexCoord;
+	}
+	return *this;
 }
 
 LLVolumeFace::VertexData::~VertexData()
@@ -2041,34 +2055,29 @@ void LLVolumeFace::VertexData::setNormal(const LLVector4a& norm)
 
 bool LLVolumeFace::VertexData::operator<(const LLVolumeFace::VertexData& rhs)const
 {
-	const U8* l = (const U8*) this;
-	const U8* r = (const U8*) &rhs;
-
-	for (U32 i = 0; i < sizeof(VertexData); ++i)
+	if (mData[POSITION].notEqual3(rhs.getPosition()))
 	{
-		if (l[i] != r[i])
-		{
-			return r[i] < l[i];
-		}
+		return mData[POSITION].less3(rhs.getPosition());
 	}
-	
+
+	if (mData[NORMAL].notEqual3(rhs.getNormal()))
+	{
+		return mData[NORMAL].less3(rhs.getNormal());
+	}
+
+	if (mTexCoord != rhs.mTexCoord)
+	{
+		return mTexCoord < rhs.mTexCoord;
+	}
+
 	return false;
 }
 
 bool LLVolumeFace::VertexData::operator==(const LLVolumeFace::VertexData& rhs)const
 {
-	const U8* l = (const U8*) this;
-	const U8* r = (const U8*) &rhs;
-
-	for (U32 i = 0; i < sizeof(VertexData); ++i)
-	{
-		if (l[i] != r[i])
-		{
-			return false;
-		}
-	}
-	
-	return true;
+	return mData[POSITION].equal3(rhs.getPosition()) &&
+			mData[NORMAL].equal3(rhs.getNormal()) &&
+			mTexCoord == rhs.mTexCoord;
 }
 
 bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs, F32 angle_cutoff) const
@@ -6244,10 +6253,13 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	LLVector4a* new_pos = (LLVector4a*) ll_aligned_malloc_16(new_count*16);
 	LLVector4a* new_norm = (LLVector4a*) ll_aligned_malloc_16(new_count*16);
 	LLVector2* new_tc = (LLVector2*) ll_aligned_malloc_16((new_count*8+0xF) & ~0xF);
-
-	LLVector4a::memcpyNonAliased16((F32*) new_pos, (F32*) mPositions, new_count*4);
-	LLVector4a::memcpyNonAliased16((F32*) new_norm, (F32*) mNormals, new_count*4);
-	LLVector4a::memcpyNonAliased16((F32*) new_tc, (F32*) mTexCoords, new_count*2);
+	
+	if (mNumVertices > 0)
+	{
+		LLVector4a::memcpyNonAliased16((F32*) new_pos, (F32*) mPositions, mNumVertices*4);
+		LLVector4a::memcpyNonAliased16((F32*) new_norm, (F32*) mNormals, mNumVertices*4);
+		LLVector4a::memcpyNonAliased16((F32*) new_tc, (F32*) mTexCoords, mNumVertices*2);
+	}
 
 	ll_aligned_free_16(mPositions);
 	ll_aligned_free_16(mNormals);
@@ -6259,13 +6271,13 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 	mNumVertices = new_count;
 
-	LLVector4a* dst_pos = (LLVector4a*) mPositions+offset;
-	LLVector2* dst_tc = (LLVector2*) mTexCoords+offset;
-	LLVector4a* dst_norm = (LLVector4a*) mNormals+offset;
+	LLVector4a* dst_pos = mPositions+offset;
+	LLVector2* dst_tc = mTexCoords+offset;
+	LLVector4a* dst_norm = mNormals+offset;
 
-	LLVector4a* src_pos = (LLVector4a*) face.mPositions;
-	LLVector2* src_tc = (LLVector2*) face.mTexCoords;
-	LLVector4a* src_norm = (LLVector4a*) face.mNormals;
+	const LLVector4a* src_pos = face.mPositions;
+	const LLVector2* src_tc = face.mTexCoords;
+	const LLVector4a* src_norm = face.mNormals;
 
 	LLMatrix4a mat, norm_mat;
 	mat.loadu(mat_in);
@@ -6292,12 +6304,15 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 	new_count = mNumIndices + face.mNumIndices;
 	U16* new_indices = (U16*) ll_aligned_malloc_16((new_count*2+0xF) & ~0xF);
-	LLVector4a::memcpyNonAliased16((F32*) new_indices, (F32*) mIndices, new_count/2);
+	if (mNumIndices > 0)
+	{
+		LLVector4a::memcpyNonAliased16((F32*) new_indices, (F32*) mIndices, llmax(mNumIndices/2, 1));
+	}
+
 	ll_aligned_free_16(mIndices);
 	mIndices = new_indices;
+	U16* dst_idx = mIndices+mNumIndices;
 	mNumIndices = new_count;
-
-	U16* dst_idx = mIndices+offset;
 
 	for (U32 i = 0; i < face.mNumIndices; ++i)
 	{
