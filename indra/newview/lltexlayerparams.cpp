@@ -1,6 +1,6 @@
 /** 
  * @file lltexlayerparams.cpp
- * @brief SERAPH - ADD IN
+ * @brief Texture layer parameters
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 

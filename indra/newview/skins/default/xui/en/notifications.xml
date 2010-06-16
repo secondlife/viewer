@@ -4518,18 +4518,6 @@ Uploading in-world and web site snapshots...
   </notification>
 
   <notification
-   icon="alertmodal.tga"
-   name="UploadConfirmation"
-   type="alertmodal">
-Uploading costs L$[AMOUNT].
-Do you wish to proceed?
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="Upload"/>
-  </notification>
-
-  <notification
    icon="notify.tga"
    name="UploadPayment"
    persist="true"
@@ -5525,14 +5513,6 @@ Failed to find [TYPE] in database.
 Failed to find [TYPE] named [DESC] in database.
   </notification>
 
-  <notification
-   icon="notify.tga"
-   name="ShareToWebFailed"
-   persist="true"
-   type="notify">
-    Failed to upload image to web.
-  </notification>
-  
   <notification
    icon="notify.tga"
    name="InvalidWearable"

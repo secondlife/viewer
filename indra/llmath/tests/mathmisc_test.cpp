@@ -334,6 +334,8 @@ namespace tut
 	template<> template<>
 	void sphere_object::test<2>()
 	{
+		skip("See SNOW-620.  Neither the test nor the code being tested seem good.  Also sim-only.");
+
 		// test LLSphere::getBoundingSphere()
 		S32 number_of_tests = 100;
 		S32 number_of_spheres = 10;
