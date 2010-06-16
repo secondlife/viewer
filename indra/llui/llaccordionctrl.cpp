@@ -826,6 +826,24 @@ void	LLAccordionCtrl::setFilterSubString(const std::string& filter_string)
 	mNoVisibleTabsHelpText->setValue(text);
 }
 
+const LLAccordionCtrlTab* LLAccordionCtrl::getExpandedTab() const
+{
+	typedef std::vector<LLAccordionCtrlTab*>::const_iterator tabs_const_iterator;
+
+	const LLAccordionCtrlTab* result = 0;
+
+	for (tabs_const_iterator i = mAccordionTabs.begin(); i != mAccordionTabs.end(); ++i)
+	{
+		if ((*i)->isExpanded())
+		{
+			result = *i;
+			break;
+		}
+	}
+
+	return result;
+}
+
 S32 LLAccordionCtrl::calcExpandedTabHeight(S32 tab_index /* = 0 */, S32 available_height /* = 0 */)
 {
 	if(tab_index < 0)

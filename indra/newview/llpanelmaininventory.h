@@ -84,6 +84,7 @@ public:
 	
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb);
 
+	void onFilterEdit(const std::string& search_string );
 protected:
 	//
 	// Misc functions
@@ -98,7 +99,7 @@ protected:
 	void onClearSearch();
 	static void onFoldersByName(void *user_data);
 	static BOOL checkFoldersByName(void *user_data);
-	void onFilterEdit(const std::string& search_string );
+	
 	static BOOL incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward);
 	void onFilterSelected();
 

@@ -78,9 +78,12 @@ public:
 	bool getSelectedUUIDs(uuid_vec_t& selected_ids);
 
 	LLPanel* getSelectedItem();
+	void getSelectedItems(std::vector<LLPanel*>& selected_items) const;
 
 	void refresh();
 	void clear();
+
+	LLAssetType::EType getExpandedAccordionAssetType();
 
 	LLCOFCallbacks& getCOFCallbacks() { return mCOFCallbacks; }
 

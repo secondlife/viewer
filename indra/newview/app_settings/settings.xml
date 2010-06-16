@@ -4678,7 +4678,381 @@
       <string>String</string>
       <key>Value</key>
       <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
-    </map>    
+    </map>
+    <key>MarketplaceURL_objectFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Attachments Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/attachments</string>
+    </map>
+    <key>MarketplaceURL_objectMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Attachments Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/attachments</string>
+    </map>
+    <key>MarketplaceURL_clothingFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Clothing Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/clothing_female_avatar</string>
+    </map>
+    <key>MarketplaceURL_clothingMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Clothing Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/clothing_male_avatar</string>
+    </map>
+    <key>MarketplaceURL_bodypartFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Bodyparts Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+    </map>
+    <key>MarketplaceURL_bodypartMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Bodyparts Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+    </map>
+    <key>MarketplaceURL_glovesMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Gloves Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/gloves_both_women_and_men</string>
+    </map>
+    <key>MarketplaceURL_glovesFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Gloves Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/gloves_both_women_and_men</string>
+    </map>
+    <key>MarketplaceURL_jacketFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Jacket Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/jacket_womens</string>
+    </map>
+    <key>MarketplaceURL_jacketMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Jacket Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/jacket_mens</string>
+    </map>
+    <key>MarketplaceURL_shirtFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Shirt Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/shirt_womens</string>
+    </map>
+    <key>MarketplaceURL_shirtMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Shirt Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/shirt_mens</string>
+    </map>
+    <key>MarketplaceURL_undershirtFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Undershirt Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/undershirt_womens</string>
+    </map>
+    <key>MarketplaceURL_undershirtMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Undershirt Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/undershirt_mens</string>
+    </map>
+    <key>MarketplaceURL_skirtFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Skirt Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/skirts_women</string>
+    </map>
+    <key>MarketplaceURL_skirtMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Skirt Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/skirts_women</string>
+    </map>
+    <key>MarketplaceURL_pantsFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Pants Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/pants_women</string>
+    </map>
+    <key>MarketplaceURL_pantsMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Pants Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/pants_men</string>
+    </map>
+    <key>MarketplaceURL_underpantsFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Underwear Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/underwear_women</string>
+    </map>
+    <key>MarketplaceURL_underpantsMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Underwear Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/underwear_men</string>
+    </map>
+    <key>MarketplaceURL_shoesFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Shoes Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/shoes_women</string>
+    </map>
+    <key>MarketplaceURL_shoesMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Shoes Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/shoes_men</string>
+    </map>
+    <key>MarketplaceURL_socksFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Socks Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/socks_women</string>
+    </map>
+    <key>MarketplaceURL_socksMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Socks Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/socks_women</string>
+    </map>
+    <key>MarketplaceURL_tattooMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Tattoo Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/tattoo_both_women_and_men</string>
+    </map>
+    <key>MarketplaceURL_tattooFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Tattoo Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/tattoo_both_women_and_men</string>
+    </map>
+    <key>MarketplaceURL_hairFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Hair Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/womens_hair</string>
+    </map>
+    <key>MarketplaceURL_hairMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Hair Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/mens_hair</string>
+    </map>
+    <key>MarketplaceURL_eyesFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Eyes Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/womens_eyes</string>
+    </map>
+    <key>MarketplaceURL_eyesMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Eyes Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/mens_eyes</string>
+    </map>
+    <key>MarketplaceURL_shapeFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Shape Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/womens_shape</string>
+    </map>
+    <key>MarketplaceURL_shapeMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Shape Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/mens_shape</string>
+    </map>
+    <key>MarketplaceURL_skinFemale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Skin Female</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/womens_skin</string>
+    </map>
+    <key>MarketplaceURL_skinMale</key>
+    <map>
+      <key>Comment</key>
+      <string>URL to the Marketplace Skins Male</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://marketplace.secondlife.com/trampoline/viewer21/mens_skin</string>
+    </map>
     <key>MaxDragDistance</key>
     <map>
       <key>Comment</key>

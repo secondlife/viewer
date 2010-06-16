@@ -129,6 +129,13 @@ public:
 	 */
 	void	setFilterSubString(const std::string& filter_string);
 
+	/**
+	 * This method returns the first expanded accordion tab.
+	 * It is expected to be called for accordion which doesn't allow multiple
+	 * tabs to be expanded. Use with care.
+	 */
+	const LLAccordionCtrlTab* getExpandedTab() const;
+
 private:
 	void	initNoTabsWidget(const LLTextBox::Params& tb_params);
 	void	updateNoTabsHelpTextVisibility();
