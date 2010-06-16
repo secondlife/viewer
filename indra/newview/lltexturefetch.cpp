@@ -582,14 +582,21 @@ bool LLTextureFetchWorker::doWork(S32 param)
 {
 	LLMutexLock lock(&mWorkMutex);
 
-	if ((mFetcher->isQuitting() || mImagePriority < 1.0f || getFlags(LLWorkerClass::WCF_DELETE_REQUESTED)))
+	if ((mFetcher->isQuitting() || getFlags(LLWorkerClass::WCF_DELETE_REQUESTED)))
 	{
 		if (mState < DECODE_IMAGE)
 		{
 			return true; // abort
 		}
 	}
-	
+	if(mImagePriority < 1.0f)
+	{
+		if (mState == INIT || mState == LOAD_FROM_NETWORK || mState == LOAD_FROM_SIMULATOR)
+		{
+			return true; // abort
+		}
+	}
+
 	if (mFetcher->mDebugPause)
 	{
 		return false; // debug: don't do any work
