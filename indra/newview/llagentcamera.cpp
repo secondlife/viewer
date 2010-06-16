@@ -1644,7 +1644,7 @@ LLVector3d LLAgentCamera::calcThirdPersonFocusOffset()
 	}
 
 	focus_offset = convert_from_llsd<LLVector3d>(mFocusOffsetInitial[mCameraPreset]->get(), TYPE_VEC3D, "");
-	return focus_offset;
+	return focus_offset * agent_rot;
 }
 
 void LLAgentCamera::setupSitCamera()
