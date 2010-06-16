@@ -171,7 +171,7 @@ public:
 
 	virtual bool addChild(LLView* child, S32 tab_group);
 
-	bool isExpanded() { return mDisplayChildren; }
+	bool isExpanded() const { return mDisplayChildren; }
 
 	S32 getHeaderHeight();
 
