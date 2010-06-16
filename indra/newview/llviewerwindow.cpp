@@ -1118,28 +1118,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 		mActive = TRUE;
 		send_agent_resume();
 		gAgent.clearAFK();
-		if (mWindow->getFullscreen() && !mIgnoreActivate)
-		{
-			if (!LLApp::isExiting() )
-			{
-				if (LLStartUp::getStartupState() >= STATE_STARTED)
-				{
-					// if we're in world, show a progress bar to hide reloading of textures
-					llinfos << "Restoring GL during activate" << llendl;
-					restoreGL(LLTrans::getString("ProgressRestoring"));
-				}
-				else
-				{
-					// otherwise restore immediately
-					restoreGL();
-				}
-			}
-			else
-			{
-				llwarns << "Activating while quitting" << llendl;
-			}
-		}
-
+		
 		// Unmute audio
 		audio_update_volume();
 	}
@@ -1159,12 +1138,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 		}
 		
 		send_agent_pause();
-		
-		if (mWindow->getFullscreen() && !mIgnoreActivate)
-		{
-			llinfos << "Stopping GL during deactivation" << llendl;
-			stopGL();
-		}
+	
 		// Mute audio
 		audio_update_volume();
 	}
@@ -1331,12 +1305,10 @@ LLViewerWindow::LLViewerWindow(
 	const std::string& title, const std::string& name,
 	S32 x, S32 y,
 	S32 width, S32 height,
-	BOOL fullscreen, BOOL ignore_pixel_depth)
+	BOOL fullscreen, BOOL ignore_pixel_depth) // fullscreen is no longer used
 	:
 	mWindow(NULL),
 	mActive(TRUE),
-	mWantFullscreen(fullscreen),
-	mShowFullscreenProgress(FALSE),
 	mWindowRectRaw(0, height, width, 0),
 	mWindowRectScaled(0, height, width, 0),
 	mWorldViewRectRaw(0, height, width, 0),
@@ -1351,7 +1323,6 @@ LLViewerWindow::LLViewerWindow(
 	mIgnoreActivate( FALSE ),
 	mResDirty(false),
 	mStatesDirty(false),
-	mIsFullscreenChecked(false),
 	mCurrResolutionIndex(0),
     mViewerWindowListener(new LLViewerWindowListener(this)),
 	mProgressView(NULL)
@@ -1911,24 +1882,17 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 		sendShapeToSim();
 
-
-		// store the mode the user wants (even if not there yet)
-		gSavedSettings.setBOOL("FullScreen", mWantFullscreen);
-
 		// store new settings for the mode we are in, regardless
-		if (!mWindow->getFullscreen())
-		{
-			// Only save size if not maximized
-			BOOL maximized = mWindow->getMaximized();
-			gSavedSettings.setBOOL("WindowMaximized", maximized);
+		// Only save size if not maximized
+		BOOL maximized = mWindow->getMaximized();
+		gSavedSettings.setBOOL("WindowMaximized", maximized);
 
-			LLCoordScreen window_size;
-			if (!maximized
-				&& mWindow->getSize(&window_size))
-			{
-				gSavedSettings.setS32("WindowWidth", window_size.mX);
-				gSavedSettings.setS32("WindowHeight", window_size.mY);
-			}
+		LLCoordScreen window_size;
+		if (!maximized
+			&& mWindow->getSize(&window_size))
+		{
+			gSavedSettings.setS32("WindowWidth", window_size.mX);
+			gSavedSettings.setS32("WindowHeight", window_size.mY);
 		}
 
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
@@ -3806,18 +3770,7 @@ void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 		BORDERHEIGHT = size.mY- y;
 		LLCoordScreen new_size(new_width + BORDERWIDTH, 
 							   new_height + BORDERHEIGHT);
-		BOOL disable_sync = gSavedSettings.getBOOL("DisableVerticalSync");
-		if (gViewerWindow->mWindow->getFullscreen())
-		{
-			gViewerWindow->changeDisplaySettings(FALSE, 
-												new_size, 
-												disable_sync, 
-												TRUE);
-		}
-		else
-		{
-			gViewerWindow->mWindow->setSize(new_size);
-		}
+		gViewerWindow->mWindow->setSize(new_size);
 	}
 }
 
@@ -4603,51 +4556,12 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
 	LLFontGL::loadDefaultFonts();
 }
 
-void LLViewerWindow::toggleFullscreen(BOOL show_progress)
-{
-	if (mWindow)
-	{
-		mWantFullscreen = mWindow->getFullscreen() ? FALSE : TRUE;
-		mIsFullscreenChecked =  mWindow->getFullscreen() ? FALSE : TRUE;
-		mShowFullscreenProgress = show_progress;
-	}
-}
-
-void LLViewerWindow::getTargetWindow(BOOL& fullscreen, S32& width, S32& height) const
-{
-	fullscreen = mWantFullscreen;
-	
-	if (mWindow
-	&&  mWindow->getFullscreen() == mWantFullscreen)
-	{
-		width = getWindowWidthRaw();
-		height = getWindowHeightRaw();
-	}
-	else if (mWantFullscreen)
-	{
-		width = gSavedSettings.getS32("FullScreenWidth");
-		height = gSavedSettings.getS32("FullScreenHeight");
-	}
-	else
-	{
-		width = gSavedSettings.getS32("WindowWidth");
-		height = gSavedSettings.getS32("WindowHeight");
-	}
-}
-
 void LLViewerWindow::requestResolutionUpdate()
 {
 	mResDirty = true;
 }
 
-void LLViewerWindow::requestResolutionUpdate(bool fullscreen_checked)
-{
-	mResDirty = true;
-	mWantFullscreen = fullscreen_checked;
-	mIsFullscreenChecked = fullscreen_checked;
-}
-
-BOOL LLViewerWindow::checkSettings()
+void LLViewerWindow::checkSettings()
 {
 	if (mStatesDirty)
 	{
@@ -4659,70 +4573,9 @@ BOOL LLViewerWindow::checkSettings()
 	// We want to update the resolution AFTER the states getting refreshed not before.
 	if (mResDirty)
 	{
-		if (gSavedSettings.getBOOL("FullScreenAutoDetectAspectRatio"))
-		{
-			getWindow()->setNativeAspectRatio(0.f);
-		}
-		else
-		{
-			getWindow()->setNativeAspectRatio(gSavedSettings.getF32("FullScreenAspectRatio"));
-		}
-		
 		reshape(getWindowWidthRaw(), getWindowHeightRaw());
-
-		// force aspect ratio
-		if (mIsFullscreenChecked)
-		{
-			LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
-		}
-
 		mResDirty = false;
-	}
-		
-	BOOL is_fullscreen = mWindow->getFullscreen();
-	if(mWantFullscreen)
-	{
-		LLCoordScreen screen_size;
-		LLCoordScreen desired_screen_size(gSavedSettings.getS32("FullScreenWidth"),
-								   gSavedSettings.getS32("FullScreenHeight"));
-		getWindow()->getSize(&screen_size);
-		if(!is_fullscreen || 
-		    screen_size.mX != desired_screen_size.mX 
-			|| screen_size.mY != desired_screen_size.mY)
-		{
-			if (!LLStartUp::canGoFullscreen())
-			{
-				return FALSE;
-			}
-			
-			LLGLState::checkStates();
-			LLGLState::checkTextureChannels();
-			changeDisplaySettings(TRUE, 
-								  desired_screen_size,
-								  gSavedSettings.getBOOL("DisableVerticalSync"),
-								  mShowFullscreenProgress);
-
-			LLGLState::checkStates();
-			LLGLState::checkTextureChannels();
-			mStatesDirty = true;
-			return TRUE;
-		}
-	}
-	else
-	{
-		if(is_fullscreen)
-		{
-			// Changing to windowed mode.
-			changeDisplaySettings(FALSE, 
-								  LLCoordScreen(gSavedSettings.getS32("WindowWidth"),
-												gSavedSettings.getS32("WindowHeight")),
-								  TRUE,
-								  mShowFullscreenProgress);
-			mStatesDirty = true;
-			return TRUE;
-		}
-	}
-	return FALSE;
+	}	
 }
 
 void LLViewerWindow::restartDisplay(BOOL show_progress_bar)
@@ -4739,38 +4592,23 @@ void LLViewerWindow::restartDisplay(BOOL show_progress_bar)
 	}
 }
 
-BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, BOOL disable_vsync, BOOL show_progress_bar)
+BOOL LLViewerWindow::changeDisplaySettings(LLCoordScreen size, BOOL disable_vsync, BOOL show_progress_bar)
 {
 	BOOL was_maximized = gSavedSettings.getBOOL("WindowMaximized");
-	mWantFullscreen = fullscreen;
-	mShowFullscreenProgress = show_progress_bar;
-	gSavedSettings.setBOOL("FullScreen", mWantFullscreen);
 
 	//gResizeScreenTexture = TRUE;
 
-	BOOL old_fullscreen = mWindow->getFullscreen();
-	if (!old_fullscreen && fullscreen && !LLStartUp::canGoFullscreen())
-	{
-		// Not allowed to switch to fullscreen now, so exit early.
-		// *NOTE: This case should never be reached, but just-in-case.
-		return TRUE;
-	}
-
 	U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
 	U32 old_fsaa = mWindow->getFSAASamples();
-	// going from windowed to windowed
-	if (!old_fullscreen && !fullscreen)
+	// if not maximized, use the request size
+	if (!mWindow->getMaximized())
 	{
-		// if not maximized, use the request size
-		if (!mWindow->getMaximized())
-		{
-			mWindow->setSize(size);
-		}
+		mWindow->setSize(size);
+	}
 
-		if (fsaa == old_fsaa)
-		{
-			return TRUE;
-		}
+	if (fsaa == old_fsaa)
+	{
+		return TRUE;
 	}
 
 	// Close floaters that don't handle settings change
@@ -4787,23 +4625,15 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	LLCoordScreen old_size;
 	LLCoordScreen old_pos;
 	mWindow->getSize(&old_size);
-	BOOL got_position = mWindow->getPosition(&old_pos);
 
-	if (!old_fullscreen && fullscreen && got_position)
-	{
-		// switching from windowed to fullscreen, so save window position
-		gSavedSettings.setS32("WindowX", old_pos.mX);
-		gSavedSettings.setS32("WindowY", old_pos.mY);
-	}
-	
 	mWindow->setFSAASamples(fsaa);
 
-	result_first_try = mWindow->switchContext(fullscreen, size, disable_vsync);
+	result_first_try = mWindow->switchContext(false, size, disable_vsync);
 	if (!result_first_try)
 	{
 		// try to switch back
 		mWindow->setFSAASamples(old_fsaa);
-		result_second_try = mWindow->switchContext(old_fullscreen, old_size, disable_vsync);
+		result_second_try = mWindow->switchContext(false, old_size, disable_vsync);
 
 		if (!result_second_try)
 		{
@@ -4835,19 +4665,8 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 	}
 
 	BOOL success = result_first_try || result_second_try;
-	if (success)
-	{
-#if LL_WINDOWS
-		// Only trigger a reshape after switching to fullscreen; otherwise rely on the windows callback
-		// (otherwise size is wrong; this is the entire window size, reshape wants the visible window size)
-		if (fullscreen && result_first_try)
-#endif
-		{
-			reshape(size.mX, size.mY);
-		}
-	}
 
-	if (!mWindow->getFullscreen() && success)
+	if (success)
 	{
 		// maximize window if was maximized, else reposition
 		if (was_maximized)
@@ -4865,45 +4684,14 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 
 	mIgnoreActivate = FALSE;
 	gFocusMgr.setKeyboardFocus(keyboard_focus);
-	mWantFullscreen = mWindow->getFullscreen();
-	mShowFullscreenProgress = FALSE;
 	
 	return success;
 }
 
-
-F32 LLViewerWindow::getDisplayAspectRatio() const
-{
-	if (mWindow->getFullscreen())
-	{
-		if (gSavedSettings.getBOOL("FullScreenAutoDetectAspectRatio"))
-		{
-			return mWindow->getNativeAspectRatio();	
-		}
-		else
-		{
-			return gSavedSettings.getF32("FullScreenAspectRatio");
-		}
-	}
-	else
-	{
-		return mWindow->getNativeAspectRatio();
-	}
-}
-
-
 F32	LLViewerWindow::getWorldViewAspectRatio() const
 {
 	F32 world_aspect = (F32)mWorldViewRectRaw.getWidth() / (F32)mWorldViewRectRaw.getHeight();
-	//F32 window_aspect = (F32)mWindowRectRaw.getWidth() / (F32)mWindowRectRaw.getHeight();
-	if (mWindow->getFullscreen())
-	{
-		return world_aspect * mWindow->getPixelAspectRatio();
-	}
-	else
-	{
-		return world_aspect;
-	}
+	return world_aspect;
 }
 
 void LLViewerWindow::calcDisplayScale()
@@ -4911,26 +4699,12 @@ void LLViewerWindow::calcDisplayScale()
 	F32 ui_scale_factor = gSavedSettings.getF32("UIScaleFactor");
 	LLVector2 display_scale;
 	display_scale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
-	F32 height_normalization = gSavedSettings.getBOOL("UIAutoScale") ? ((F32)mWindowRectRaw.getHeight() / display_scale.mV[VY]) / 768.f : 1.f;
-	if(mWindow->getFullscreen())
-	{
-		display_scale *= (ui_scale_factor * height_normalization);
-	}
-	else
-	{
-		display_scale *= ui_scale_factor;
-	}
+	display_scale *= ui_scale_factor;
 
 	// limit minimum display scale
 	if (display_scale.mV[VX] < MIN_DISPLAY_SCALE || display_scale.mV[VY] < MIN_DISPLAY_SCALE)
 	{
 		display_scale *= MIN_DISPLAY_SCALE / llmin(display_scale.mV[VX], display_scale.mV[VY]);
-	}
-
-	if (mWindow->getFullscreen())
-	{
-		display_scale.mV[0] = llround(display_scale.mV[0], 2.0f/(F32) mWindowRectRaw.getWidth());
-		display_scale.mV[1] = llround(display_scale.mV[1], 2.0f/(F32) mWindowRectRaw.getHeight());
 	}
 	
 	if (display_scale != mDisplayScale)

@@ -466,7 +466,7 @@ void LLFloaterPreference::apply()
 		}
 	}
 
-	applyResolution();
+	//applyResolution();
 }
 
 void LLFloaterPreference::cancel()
@@ -1216,21 +1216,8 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 void LLFloaterPreference::applyResolution()
 {
 	gGL.flush();
-	
-	// Screen resolution
-	S32 num_resolutions;
-	LLWindow::LLWindowResolution* supported_resolutions = 
-	gViewerWindow->getWindow()->getSupportedResolutions(num_resolutions);
-	S32 resIndex = getChild<LLComboBox>("fullscreen combo")->getCurrentIndex();
-	if (resIndex == -1)
-	{
-		// use highest resolution if nothing selected
-		resIndex = num_resolutions - 1;
-	}
-	gSavedSettings.setS32("FullScreenWidth", supported_resolutions[resIndex].mWidth);
-	gSavedSettings.setS32("FullScreenHeight", supported_resolutions[resIndex].mHeight);
-	
-	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("FullScreen"));
+		
+	gViewerWindow->requestResolutionUpdate();
 	
 	send_agent_update(TRUE);
 	

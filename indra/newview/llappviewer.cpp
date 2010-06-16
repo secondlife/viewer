@@ -2366,16 +2366,9 @@ bool LLAppViewer::initWindow()
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 		
-	if (gSavedSettings.getBOOL("FullScreen"))
-	{
-		// request to go full screen... which will be delayed until login
-		gViewerWindow->toggleFullscreen(FALSE);
-	}
-	
 	if (gSavedSettings.getBOOL("WindowMaximized"))
 	{
 		gViewerWindow->mWindow->maximize();
-		gViewerWindow->getWindow()->setNativeAspectRatio(gSavedSettings.getF32("FullScreenAspectRatio"));
 	}
 
 	if (!gNoRender)
@@ -2449,11 +2442,10 @@ void LLAppViewer::cleanupSavedSettings()
 		}
 	}
 
-	// save window position if not fullscreen
+	// save window position if not maximized
 	// as we don't track it in callbacks
-	BOOL fullscreen = gViewerWindow->mWindow->getFullscreen();
 	BOOL maximized = gViewerWindow->mWindow->getMaximized();
-	if (!fullscreen && !maximized)
+	if (!maximized)
 	{
 		LLCoordScreen window_pos;
 

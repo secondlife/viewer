@@ -3788,17 +3788,6 @@ class LLViewMouselook : public view_listener_t
 	}
 };
 
-class LLViewFullscreen : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		// we no longer permit full screen mode EXT-6775
-		// gViewerWindow->toggleFullscreen(TRUE);
-		llwarns << "full screen mode no longer supported" << llendl;
-		return true;
-	}
-};
-
 class LLViewDefaultUISize : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -7783,7 +7772,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLZoomer(1.2f), "View.ZoomOut");
 	view_listener_t::addMenu(new LLZoomer(1/1.2f), "View.ZoomIn");
 	view_listener_t::addMenu(new LLZoomer(DEFAULT_FIELD_OF_VIEW, false), "View.ZoomDefault");
-	view_listener_t::addMenu(new LLViewFullscreen(), "View.Fullscreen");
 	view_listener_t::addMenu(new LLViewDefaultUISize(), "View.DefaultUISize");
 
 	view_listener_t::addMenu(new LLViewEnableMouselook(), "View.EnableMouselook");
