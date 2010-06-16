@@ -114,6 +114,7 @@ public:
 	virtual time_t getCreationDate() const;
 	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
+	virtual BOOL canOpenItem() const { return FALSE; }
 	virtual void closeItem() {}
 	virtual void previewItem();
 	virtual void selectItem() {}
@@ -677,7 +678,7 @@ void LLTaskInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			}
 		}
 	}
-	else
+	else if (canOpenItem())
 	{
 		items.push_back(std::string("Task Open"));
 		if (!isItemCopyable())
@@ -723,6 +724,7 @@ public:
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data);
+	virtual BOOL canOpenItem() const { return TRUE; }
 };
 
 LLTaskCategoryBridge::LLTaskCategoryBridge(
@@ -874,6 +876,7 @@ public:
 						const std::string& name) :
 		LLTaskInvFVBridge(panel, uuid, name) {}
 
+	virtual BOOL canOpenItem() const { return TRUE; }
 	virtual void openItem();
 };
 
@@ -900,6 +903,7 @@ public:
 					  const std::string& name) :
 		LLTaskInvFVBridge(panel, uuid, name) {}
 
+	virtual BOOL canOpenItem() const { return TRUE; }
 	virtual void openItem();
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
@@ -976,9 +980,8 @@ void LLTaskSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			}
 		}
 	}
-	else
+	else if (canOpenItem())
 	{
-		items.push_back(std::string("Task Open")); 
 		if (!isItemCopyable())
 		{
 			disabled_items.push_back(std::string("Task Open"));
@@ -1063,6 +1066,7 @@ public:
 					const std::string& name) :
 		LLTaskScriptBridge(panel, uuid, name) {}
 
+	virtual BOOL canOpenItem() const { return TRUE; }
 	virtual void openItem();
 	virtual BOOL removeItem();
 	//virtual void buildContextMenu(LLMenuGL& menu);
@@ -1124,6 +1128,7 @@ public:
 						 const std::string& name) :
 		LLTaskInvFVBridge(panel, uuid, name) {}
 
+	virtual BOOL canOpenItem() const { return TRUE; }
 	virtual void openItem();
 	virtual BOOL removeItem();
 };
@@ -1163,6 +1168,7 @@ public:
 						const std::string& name) :
 	LLTaskInvFVBridge(panel, uuid, name) {}
 
+	virtual BOOL canOpenItem() const { return TRUE; }
 	virtual void openItem();
 	virtual BOOL removeItem();
 };
@@ -1196,6 +1202,7 @@ public:
 						  const std::string& name) :
 		LLTaskInvFVBridge(panel, uuid, name) {}
 
+	virtual BOOL canOpenItem() const { return TRUE; }
 	virtual void openItem();
 	virtual BOOL removeItem();
 };
