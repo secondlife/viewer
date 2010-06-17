@@ -2426,7 +2426,7 @@ void LLViewerWindow::updateUI()
 	LLLayoutStack::updateClass();
 
 	// use full window for world view when not rendering UI
-	bool world_view_uses_full_window = !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+	bool world_view_uses_full_window = gAgentCamera.cameraMouselook() || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	updateWorldViewRect(world_view_uses_full_window);
 
 	LLView::sMouseHandlerMessage.clear();

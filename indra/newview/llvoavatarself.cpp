@@ -1267,8 +1267,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLTexLayerSet* layerset) 
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) const
 {
-	//const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
-	const U32 desired_tex_discard_level = 0; // SERAPH hack to not bake textures on lower discard levels.
+	const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
+	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels.
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
@@ -1299,8 +1299,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) cons
 
 BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 {
-	// const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
-	const U32 desired_tex_discard_level = 0; // SERAPH hack to not bake textures on lower discard levels
+	const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
+	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{

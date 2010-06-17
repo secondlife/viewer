@@ -595,7 +595,7 @@ LLVOAvatarSkeletonInfo* LLVOAvatar::sAvatarSkeletonInfo = NULL;
 LLVOAvatar::LLVOAvatarXmlInfo* LLVOAvatar::sAvatarXmlInfo = NULL;
 LLVOAvatarDictionary *LLVOAvatar::sAvatarDictionary = NULL;
 S32 LLVOAvatar::sFreezeCounter = 0;
-S32 LLVOAvatar::sMaxVisible = 50;
+U32 LLVOAvatar::sMaxVisible = 12;
 F32 LLVOAvatar::sRenderDistance = 256.f;
 S32	LLVOAvatar::sNumVisibleAvatars = 0;
 S32	LLVOAvatar::sNumLODChangesThisFrame = 0;
@@ -3173,23 +3173,23 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
-		else if (visible && mVisibilityRank <= LLVOAvatar::sMaxVisible * 0.25f)
+		else if (visible && mVisibilityRank <= LLVOAvatar::sMaxVisible)
 		{ //first 25% of max visible avatars are not impostored
 			mUpdatePeriod = 1;
 		}
-		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 0.75f)
-		{ //back 25% of max visible avatars are slow updating impostors
-			mUpdatePeriod = 8;
-		}
-		else if (visible && mVisibilityRank > (U32) LLVOAvatar::sMaxVisible)
+		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 4)
 		{ //background avatars are REALLY slow updating impostors
 			mUpdatePeriod = 16;
+		}
+		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 3)
+		{ //back 25% of max visible avatars are slow updating impostors
+			mUpdatePeriod = 8;
 		}
 		else if (visible && mImpostorPixelArea <= impostor_area)
 		{  // stuff in between gets an update period based on pixel area
 			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
 		}
-		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 0.25f)
+		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible)
 		{ // force nearby impostors in ultra crowded areas
 			mUpdatePeriod = 2;
 		}
@@ -3551,7 +3551,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 //							AUDIO_STEP_LO_SPEED, AUDIO_STEP_HI_SPEED,
 //							AUDIO_STEP_LO_GAIN, AUDIO_STEP_HI_GAIN );
 
-			const F32 STEP_VOLUME = 0.5f;
+			const F32 STEP_VOLUME = 0.3f;
 			const LLUUID& step_sound_id = getStepSound();
 
 			LLVector3d foot_pos_global = gAgent.getPosGlobalFromAgent(foot_pos_agent);

@@ -37,6 +37,7 @@
 #include "llinventorytype.h"
 #include "llpermissionsflags.h"
 #include "llpointer.h"
+#include "llwearabletype.h"
 
 
 class LLFolderViewItem;
@@ -89,6 +90,7 @@ public:
 	virtual BOOL hasChildren() const = 0;
 	virtual LLInventoryType::EType getInventoryType() const = 0;
 	virtual void performAction(LLInventoryModel* model, std::string action) = 0;
+	virtual LLWearableType::EType getWearableType() const = 0;
 	
 	// This method should be called when a drag begins. returns TRUE
 	// if the drag can begin, otherwise FALSE.

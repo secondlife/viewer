@@ -34,6 +34,8 @@
 
 #include "llcofwearables.h"
 
+#include "llaccordionctrl.h"
+#include "llaccordionctrltab.h"
 #include "llagentdata.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
@@ -557,11 +559,46 @@ LLPanel* LLCOFWearables::getSelectedItem()
 	return mLastSelectedList->getSelectedItem();
 }
 
+void LLCOFWearables::getSelectedItems(std::vector<LLPanel*>& selected_items) const
+{
+	if (mLastSelectedList)
+	{
+		mLastSelectedList->getSelectedItems(selected_items);
+	}
+}
+
 void LLCOFWearables::clear()
 {
 	mAttachments->clear();
 	mClothing->clear();
 	mBodyParts->clear();
+}
+
+LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
+{
+	typedef std::map<std::string, LLAssetType::EType> type_map_t;
+
+	static type_map_t type_map;
+	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
+
+	if (type_map.empty())
+	{
+		type_map["tab_clothing"] = LLAssetType::AT_CLOTHING;
+		type_map["tab_attachments"] = LLAssetType::AT_OBJECT;
+		type_map["tab_body_parts"] = LLAssetType::AT_BODYPART;
+	}
+
+	const LLAccordionCtrlTab* tab = accordion_ctrl->getExpandedTab();
+	LLAssetType::EType result = LLAssetType::AT_NONE;
+
+	if (tab)
+	{
+		type_map_t::iterator i = type_map.find(tab->getName());
+		llassert(i != type_map.end());
+		result = i->second;
+	}
+
+	return result;
 }
 
 void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu)

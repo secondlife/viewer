@@ -604,7 +604,7 @@ void LLPanelMainInventory::toggleFindOptions()
 		finder->openFloater();
 
 		LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-		if (parent_floater) // Seraph: Fix this, shouldn't be null even for sidepanel
+		if (parent_floater)
 			parent_floater->addDependentFloater(mFinderHandle);
 		// start background fetch of folders
 		LLInventoryModelBackgroundFetch::instance().start();

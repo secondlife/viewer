@@ -308,7 +308,16 @@ void LLInventoryFetchItemsObserver::startFetch()
 			// assume it's agent inventory.
 			owner_id = gAgent.getID();
 		}
-		
+
+		// Ignore categories since they're not items.  We
+		// could also just add this to mComplete but not sure what the
+		// side-effects would be, so ignoring to be safe.
+		LLViewerInventoryCategory* cat = gInventory.getCategory(*it);
+		if (cat)
+		{
+			continue;
+		}
+
 		// It's incomplete, so put it on the incomplete container, and
 		// pack this on the message.
 		mIncomplete.push_back(*it);
