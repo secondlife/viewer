@@ -3278,16 +3278,6 @@ void handle_buy_object(LLSaleInfo sale_info)
 		return;
 	}
 
-	S32 price = sale_info.getSalePrice();
-	
-	if (price > 0 && price > gStatusBar->getBalance())
-	{
-		LLStringUtil::format_map_t args;
-		args["AMOUNT"] = llformat("%d", price);
-		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_object_costs", args), price );
-		return;
-	}
-
 	LLFloaterBuy::show(sale_info);
 }
 
@@ -4553,6 +4543,16 @@ void handle_buy()
 	LLSaleInfo sale_info;
 	BOOL valid = LLSelectMgr::getInstance()->selectGetSaleInfo(sale_info);
 	if (!valid) return;
+
+	S32 price = sale_info.getSalePrice();
+	
+	if (price > 0 && price > gStatusBar->getBalance())
+	{
+		LLStringUtil::format_map_t args;
+		args["AMOUNT"] = llformat("%d", price);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_object_costs", args), price );
+		return;
+	}
 
 	if (sale_info.getSaleType() == LLSaleInfo::FS_CONTENTS)
 	{
