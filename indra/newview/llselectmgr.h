@@ -257,7 +257,6 @@ public:
 	LLObjectSelection();
 
 	void updateEffects();
-	void cleanupNodes();
 
 	BOOL isEmpty() const;
 
@@ -281,11 +280,6 @@ public:
 	template <typename T> bool getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res);
 	template <typename T> bool isMultipleTEValue(LLSelectedTEGetFunctor<T>* func, const T& ignore_value);
 	
-	void addNode(LLSelectNode *nodep);
-	void addNodeAtEnd(LLSelectNode *nodep);
-	void moveNodeToFront(LLSelectNode *nodep);
-	void removeNode(LLSelectNode *nodep);
-	void deleteAllNodes();			// Delete all nodes
 	S32 getNumNodes();
 	LLSelectNode* findNode(LLViewerObject* objectp);
 
@@ -311,6 +305,15 @@ public:
 	bool applyToNodes(LLSelectedNodeFunctor* func, bool firstonly = false);
 
 	ESelectType getSelectType() const { return mSelectType; }
+
+private:
+	void addNode(LLSelectNode *nodep);
+	void addNodeAtEnd(LLSelectNode *nodep);
+	void moveNodeToFront(LLSelectNode *nodep);
+	void removeNode(LLSelectNode *nodep);
+	void deleteAllNodes();
+	void cleanupNodes();
+
 
 private:
 	list_t mList;

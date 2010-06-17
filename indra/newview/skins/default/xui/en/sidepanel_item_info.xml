@@ -159,51 +159,49 @@
 		     name="LabelCreatorName"
 		     top_delta="6"
 		     width="140">
-	        Nicole Linden
-	     </text>
-	     <button
-			 follows="top|right"
-			 height="16"
-     image_selected="Inspector_I"
-     image_unselected="Inspector_I"
-			 layout="topleft"
-			 right="-5"
-			 name="BtnCreator"
-			 top_delta="-6"
-			 width="16" />
-	     <text
-			 type="string"
-			 length="1"
-			 follows="left|top"
-			 height="23"
-			 layout="topleft"
-			   left="5"
-			 name="LabelOwnerTitle"
-			   top_pad="10"
-			 width="78">
-			    Owner:
-	     </text>
-	     <avatar_icon
-			   follows="top|left"
-			   height="20"
-			   default_icon_name="Generic_Person"
-			   layout="topleft"
-			   left_pad="0"
-			   top_delta="-6"
-			   mouse_opaque="true"
-			   width="20" />
-	     <text
-			 type="string"
-			   follows="left|right|top"
-			   font="SansSerifSmall"
-			   height="15"
-			   layout="topleft"
-			   left_pad="5"
-			 name="LabelOwnerName"
-			 top_delta="6"
-			 width="140">
-			    Thrax Linden
-	     </text>
+      </text>
+      <button
+      follows="top|right"
+      height="16"
+    image_selected="Inspector_I"
+    image_unselected="Inspector_I"
+      layout="topleft"
+      right="-5"
+      name="BtnCreator"
+      top_delta="-6"
+      width="16" />
+      <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="23"
+      layout="topleft"
+        left="5"
+      name="LabelOwnerTitle"
+        top_pad="10"
+      width="78">
+        Owner:
+      </text>
+      <avatar_icon
+        follows="top|left"
+        height="20"
+        default_icon_name="Generic_Person"
+        layout="topleft"
+        left_pad="0"
+        top_delta="-6"
+        mouse_opaque="true"
+        width="20" />
+      <text
+      type="string"
+        follows="left|right|top"
+        font="SansSerifSmall"
+        height="15"
+        layout="topleft"
+        left_pad="5"
+      name="LabelOwnerName"
+      top_delta="6"
+      width="140">
+      </text>
 	     <button
 			 follows="top|right"
 			 height="16"
@@ -236,7 +234,6 @@ top_pad="10"
 			 name="LabelAcquiredDate"
 			 top_delta="0"
 			 width="222">
-			Wed May 24 12:50:46 2006
       </text>
 	 <panel
          border="false"
