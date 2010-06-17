@@ -166,6 +166,7 @@ struct LLAgentDumper
 
 LLAgentWearables::LLAgentWearables() :
 	mWearablesLoaded(FALSE)
+,	mCOFChangeInProgress(false)
 {
 }
 
@@ -1208,7 +1209,7 @@ void LLAgentWearables::createStandardWearablesAllDone()
 
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
-	mLoadedSignal();
+	notifyLoadingFinished();
 	
 	updateServer();
 
@@ -1460,7 +1461,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
-	mLoadedSignal();
+	notifyLoadingFinished();
 	queryWearableCache();
 	updateServer();
 
@@ -1945,7 +1946,7 @@ void LLAgentWearables::updateWearablesLoaded()
 	mWearablesLoaded = (itemUpdatePendingCount()==0);
 	if (mWearablesLoaded)
 	{
-		mLoadedSignal();
+		notifyLoadingFinished();
 	}
 }
 
@@ -2111,7 +2112,13 @@ boost::signals2::connection LLAgentWearables::addLoadedCallback(loaded_callback_
 
 void LLAgentWearables::notifyLoadingStarted()
 {
+	mCOFChangeInProgress = true;
 	mLoadingStartedSignal();
 }
 
+void LLAgentWearables::notifyLoadingFinished()
+{
+	mCOFChangeInProgress = false;
+	mLoadedSignal();
+}
 // EOF

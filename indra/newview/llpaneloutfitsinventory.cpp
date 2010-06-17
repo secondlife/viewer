@@ -224,7 +224,6 @@ private:
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),
 	mCurrentOutfitPanel(NULL),
-	mParent(NULL),
 	mGearMenu(NULL),
 	mInitialized(false)
 {
@@ -312,11 +311,6 @@ void LLPanelOutfitsInventory::updateVerbs()
 	{
 		updateListCommands();
 	}
-}
-
-void LLPanelOutfitsInventory::setParent(LLSidepanelAppearance* parent)
-{
-	mParent = parent;
 }
 
 // virtual
@@ -548,7 +542,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 void LLPanelOutfitsInventory::updateListCommands()
 {
 	bool trash_enabled = isActionEnabled("delete");
-	bool wear_enabled = isActionEnabled("wear");
+	bool wear_enabled =  !gAgentWearables.isCOFChangeInProgress() && isActionEnabled("wear");
 	bool wear_visible = !isCOFPanelActive();
 	bool make_outfit_enabled = isActionEnabled("save_outfit");
 
@@ -827,12 +821,6 @@ BOOL LLPanelOutfitsInventory::isCOFPanelActive() const
 void LLPanelOutfitsInventory::setWearablesLoading(bool val)
 {
 	mListCommands->childSetEnabled("wear_btn", !val);
-
-	llassert(mParent);
-	if (mParent)
-	{
-		mParent->setWearablesLoading(val);
-	}
 }
 
 void LLPanelOutfitsInventory::onWearablesLoaded()
