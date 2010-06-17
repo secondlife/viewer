@@ -138,7 +138,7 @@ protected:
 
 	static void onDonePreview(LLMultiGesture* gesture, void* data);
 
-protected:
+private:
 	// LLPreview contains mDescEditor
 	LLLineEditor*	mTriggerEditor;
 	LLTextBox*		mReplaceText;
@@ -171,4 +171,4 @@ protected:
 	BOOL mDirty;
 };
 
-#endif
+#endif // LL_LLPREVIEWGESTURE_H
