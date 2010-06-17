@@ -270,7 +270,7 @@
      layout="topleft"
      left_pad="8"
      name="animation_trigger_type"
-     top="360"
+     top="330"
      width="80">
         <radio_item
          height="16"
@@ -278,7 +278,7 @@
          layout="topleft"
          left="3"
          name="start"
-         top_delta="3"
+         top_delta="45"
          width="80" />
         <radio_item
          height="16"
@@ -286,7 +286,7 @@
          layout="topleft"
          left_delta="0"
          name="stop"
-         top_pad="10"
+         top_pad="3"
          width="80" />
     </radio_group>
     <check_box
