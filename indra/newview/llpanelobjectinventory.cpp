@@ -176,17 +176,7 @@ LLInventoryItem* LLTaskInvFVBridge::findItem() const
 
 void LLTaskInvFVBridge::showProperties()
 {
-	show_item_profile(mUUID);
-
-	// Disable old properties floater; this is replaced by the sidepanel.
-	/*
-	LLFloaterProperties* floater = LLFloaterReg::showTypedInstance<LLFloaterProperties>("properties", mUUID);
-	if (floater)
-	{
-		floater->setObjectID(mPanel->getTaskUUID());
-	}
-	*/
-	
+	show_task_item_profile(mUUID, mPanel->getTaskUUID());
 }
 
 struct LLBuyInvItemData

@@ -67,6 +67,8 @@ protected:
 	/*virtual*/ void save();
 	/*virtual*/ void updateVerbs();
 
+	void refreshAll(); // ignore current keyboard focus and update all fields
+
 	// statics
 	static void onClickClaim(void*);
 	static void onClickRelease(void*);
@@ -120,7 +122,7 @@ protected:
 	LLViewerObject*				getObject();
 private:
 	LLViewerObject*				mObject;
-	LLObjectSelectionHandle mObjectSelection;
+	LLObjectSelectionHandle		mObjectSelection;
 	static LLSidepanelTaskInfo* sActivePanel;
 };
 

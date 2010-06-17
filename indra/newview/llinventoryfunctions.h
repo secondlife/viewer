@@ -53,6 +53,7 @@ BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id);
 BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id);
 
 void show_item_profile(const LLUUID& item_uuid);
+void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id);
 
 void show_item_original(const LLUUID& item_uuid);
 
