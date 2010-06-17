@@ -291,7 +291,7 @@ void LLPanelInventoryListItemBase::setTitle(const std::string& title,
 											const std::string& highlit_text,
 											const LLStyle::Params& input_params)
 {
-	setToolTip(title);
+	mTitleCtrl->setToolTip(title);
 
 	LLTextUtil::textboxSetHighlightedVal(
 		mTitleCtrl,
@@ -302,12 +302,13 @@ void LLPanelInventoryListItemBase::setTitle(const std::string& title,
 
 BOOL LLPanelInventoryListItemBase::handleToolTip( S32 x, S32 y, MASK mask)
 {
-	LLTextBox* item_name = getChild<LLTextBox>("item_name");
-	if (item_name->getRect().getWidth() < item_name->getTextPixelWidth())
+	LLRect text_box_rect = mTitleCtrl->getRect();
+	if (text_box_rect.pointInRect(x, y) &&
+		mTitleCtrl->getTextPixelWidth() <= text_box_rect.getWidth())
 	{
-		return LLPanel::handleToolTip(x,y,mask);
+		return FALSE;
 	}
-	return FALSE;
+	return LLPanel::handleToolTip(x, y, mask);
 }
 
 void LLPanelInventoryListItemBase::reshapeLeftWidgets()
