@@ -648,16 +648,18 @@ void LLTeleportHistoryPanel::refresh()
 	LLDate tab_boundary_date =  LLDate::now();
 
 	LLFlatListView* curr_flat_view = NULL;
+	std::string filter_string = sFilterSubString;
+	LLStringUtil::toUpper(filter_string);
 
 	U32 added_items = 0;
 	while (mCurrentItem >= 0)
 	{
 		// Filtering
-		if (!sFilterSubString.empty())
+		if (!filter_string.empty())
 		{
 			std::string landmark_title(items[mCurrentItem].mTitle);
 			LLStringUtil::toUpper(landmark_title);
-			if( std::string::npos == landmark_title.find(sFilterSubString) )
+			if( std::string::npos == landmark_title.find(filter_string) )
 			{
 				mCurrentItem--;
 				continue;
@@ -706,7 +708,7 @@ void LLTeleportHistoryPanel::refresh()
 				.getFlatItemForPersistentItem(&mContextMenu,
 											  items[mCurrentItem],
 											  mCurrentItem,
-											  sFilterSubString);
+											  filter_string);
 			if ( !curr_flat_view->addItem(item, LLUUID::null, ADD_BOTTOM, false) )
 				llerrs << "Couldn't add flat item to teleport history." << llendl;
 			if (mLastSelectedItemIndex == mCurrentItem)
@@ -728,6 +730,8 @@ void LLTeleportHistoryPanel::refresh()
 			fv->notify(LLSD().with("rearrange", LLSD()));
 		}
 	}
+
+	mHistoryAccordion->setFilterSubString(sFilterSubString);
 
 	mHistoryAccordion->arrange();
 

@@ -2099,7 +2099,19 @@ void LLAgentWearables::populateMyOutfitsFolder(void)
 	}
 }
 
+boost::signals2::connection LLAgentWearables::addLoadingStartedCallback(loading_started_callback_t cb)
+{
+	return mLoadingStartedSignal.connect(cb);
+}
+
 boost::signals2::connection LLAgentWearables::addLoadedCallback(loaded_callback_t cb)
 {
 	return mLoadedSignal.connect(cb);
 }
+
+void LLAgentWearables::notifyLoadingStarted()
+{
+	mLoadingStartedSignal();
+}
+
+// EOF

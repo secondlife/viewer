@@ -166,10 +166,12 @@ public:
 	virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
 
 	virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
+	virtual BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
+
 
 	virtual bool addChild(LLView* child, S32 tab_group);
 
-	bool isExpanded() { return mDisplayChildren; }
+	bool isExpanded() const { return mDisplayChildren; }
 
 	S32 getHeaderHeight();
 

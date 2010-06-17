@@ -68,8 +68,9 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mSelectedTab( NULL )
  , mTabComparator( NULL )
  , mNoVisibleTabsHelpText(NULL)
+ , mNoVisibleTabsOrigString(params.no_visible_tabs_text.initial_value().asString())
 {
-	initNoTabsWidget(params.empty_accordion_text);
+	initNoTabsWidget(params.no_matched_tabs_text);
 
 	mSingleExpansion = params.single_expansion;
 	if(mFitParent && !mSingleExpansion)
@@ -379,7 +380,7 @@ void	LLAccordionCtrl::initNoTabsWidget(const LLTextBox::Params& tb_params)
 {
 	LLTextBox::Params tp = tb_params;
 	tp.rect(getLocalRect());
-	mNoVisibleTabsOrigString = tp.initial_value().asString();
+	mNoMatchedTabsOrigString = tp.initial_value().asString();
 	mNoVisibleTabsHelpText = LLUICtrlFactory::create<LLTextBox>(tp, this);
 }
 
@@ -820,10 +821,28 @@ void	LLAccordionCtrl::setFilterSubString(const std::string& filter_string)
 {
 	LLStringUtil::format_map_t args;
 	args["[SEARCH_TERM]"] = LLURI::escape(filter_string);
-	std::string text = filter_string.empty() ? LLStringUtil::null : mNoVisibleTabsOrigString;
+	std::string text = filter_string.empty() ? mNoVisibleTabsOrigString : mNoMatchedTabsOrigString;
 	LLStringUtil::format(text, args);
 
 	mNoVisibleTabsHelpText->setValue(text);
+}
+
+const LLAccordionCtrlTab* LLAccordionCtrl::getExpandedTab() const
+{
+	typedef std::vector<LLAccordionCtrlTab*>::const_iterator tabs_const_iterator;
+
+	const LLAccordionCtrlTab* result = 0;
+
+	for (tabs_const_iterator i = mAccordionTabs.begin(); i != mAccordionTabs.end(); ++i)
+	{
+		if ((*i)->isExpanded())
+		{
+			result = *i;
+			break;
+		}
+	}
+
+	return result;
 }
 
 S32 LLAccordionCtrl::calcExpandedTabHeight(S32 tab_index /* = 0 */, S32 available_height /* = 0 */)

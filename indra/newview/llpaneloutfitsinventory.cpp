@@ -86,7 +86,6 @@ public:
 
 		registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenu::onWear, this));
 		registrar.add("Gear.TakeOff", boost::bind(&LLOutfitListGearMenu::onTakeOff, this));
-		registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenu::onRename, this));
 		registrar.add("Gear.Delete", boost::bind(&LLOutfitListGearMenu::onDelete, this));
 		registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenu::onCreate, this, _2));
 
@@ -159,15 +158,6 @@ private:
 		}
 	}
 
-	void onRename()
-	{
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.notNull())
-		{
-			LLAppearanceMgr::instance().renameOutfit(selected_outfit_id);
-		}
-	}
-
 	void onDelete()
 	{
 		const LLUUID& selected_outfit_id = getSelectedOutfitID();
@@ -197,11 +187,7 @@ private:
 			return false;
 		}
 
-		if ("rename" == param)
-		{
-			return get_is_category_renameable(&gInventory, selected_outfit_id);
-		}
-		else if ("delete" == param)
+		if ("delete" == param)
 		{
 			return LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit_id);
 		}
@@ -245,6 +231,7 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
 	gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
+	gAgentWearables.addLoadingStartedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoading, this));
 
 	LLOutfitObserver& observer = LLOutfitObserver::instance();
 	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
@@ -382,7 +369,6 @@ void LLPanelOutfitsInventory::onWearButtonClick()
 	if (!isCOFPanelActive())
 	{
 		mMyOutfitsPanel->performAction("replaceoutfit");
-		setWearablesLoading(true);
 	}
 	else
 	{
@@ -852,6 +838,11 @@ void LLPanelOutfitsInventory::setWearablesLoading(bool val)
 void LLPanelOutfitsInventory::onWearablesLoaded()
 {
 	setWearablesLoading(false);
+}
+
+void LLPanelOutfitsInventory::onWearablesLoading()
+{
+	setWearablesLoading(true);
 }
 
 // static

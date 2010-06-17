@@ -47,6 +47,7 @@ public:
 	static const char* SLURL_SECONDLIFE_PATH;
 	static const char* SLURL_COM;
 	static const char* WWW_SLURL_COM;
+	static const char* SECONDLIFE_COM;
 	static const char* MAPS_SECONDLIFE_COM;
 	static const char* SLURL_X_GRID_LOCATION_INFO_SCHEME;
 	static LLSLURL START_LOCATION;

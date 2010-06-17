@@ -2581,9 +2581,9 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			mItems.push_back(std::string("New Clothes"));
 			mItems.push_back(std::string("New Body Parts"));
 
-			// Changing folder types is just a debug feature; this is fairly unsupported
+#if SUPPORT_ENSEMBLES
+			// Changing folder types is an unfinished unsupported feature
 			// and can lead to unexpected behavior if enabled.
-#if !LL_RELEASE_FOR_DOWNLOAD
 			mItems.push_back(std::string("Change Type"));
 			const LLViewerInventoryCategory *cat = getCategory();
 			if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
@@ -5184,12 +5184,12 @@ void LLRecentItemsFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 	menuentry_vec_t disabled_items, items = getMenuItems();
 
-	items.erase(std::find(items.begin(), items.end(), std::string("New Folder")));
-	items.erase(std::find(items.begin(), items.end(), std::string("New Script")));
-	items.erase(std::find(items.begin(), items.end(), std::string("New Note")));
-	items.erase(std::find(items.begin(), items.end(), std::string("New Gesture")));
-	items.erase(std::find(items.begin(), items.end(), std::string("New Clothes")));
-	items.erase(std::find(items.begin(), items.end(), std::string("New Body Parts")));
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Body Parts")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Clothes")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Note")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Gesture")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Script")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
 
 	hide_context_entries(menu, items, disabled_items);
 }

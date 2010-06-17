@@ -135,10 +135,10 @@ BOOL LLFloaterAbout::postBuild()
 
 	// Render the LLSD from getInfo() as a format_map_t
 	LLStringUtil::format_map_t args;
-	// For reasons I don't yet understand, [ReleaseNotes] is not part of the
-	// default substitution strings whereas [APP_NAME] is. But it works to
-	// simply copy it into these specific args.
+
+	// allow the "Release Notes" URL label to be localized
 	args["ReleaseNotes"] = LLTrans::getString("ReleaseNotes");
+
 	for (LLSD::map_const_iterator ii(info.beginMap()), iend(info.endMap());
 		 ii != iend; ++ii)
 	{
@@ -293,14 +293,14 @@ LLSD LLFloaterAbout::getInfo()
 
 static std::string get_viewer_release_notes_url()
 {
-	LLSD query;
-	query["channel"] = gSavedSettings.getString("VersionChannelName");
-	query["version"] = LLVersionInfo::getVersion();
-
-	std::ostringstream url;
-	url << LLTrans::getString("RELEASE_NOTES_BASE_URL") << LLURI::mapToQueryString(query);
-
-	return LLWeb::escapeURL(url.str());
+	// return a URL to the release notes for this viewer, such as:
+	// http://wiki.secondlife.com/wiki/Release_Notes/Second Life Beta Viewer/2.1.0
+	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
+	if (! LLStringUtil::endsWith(url, "/"))
+		url += "/";
+	url += gSavedSettings.getString("VersionChannelName") + "/";
+	url += LLVersionInfo::getShortVersion();
+	return LLWeb::escapeURL(url);
 }
 
 class LLFloaterAboutListener: public LLEventAPI

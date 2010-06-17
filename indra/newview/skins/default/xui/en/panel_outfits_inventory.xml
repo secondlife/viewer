@@ -48,6 +48,7 @@
            mouse_opaque="true"
            name="cof_tab"
            start_folder="Current Outfit"
+           use_label_suffix="true" 
            width="315" />
    </tab_container>
 	 <panel
@@ -83,18 +84,18 @@
       width="241"
         />
 
-     <dnd_button
-      follows="bottom|right"
-      height="25"
-      image_hover_unselected="Toolbar_Right_Over"
-      image_overlay="TrashItem_Off"
-      image_selected="Toolbar_Right_Selected"
-      image_unselected="Toolbar_Right_Off"
-      layout="topleft"
-      left_pad="1"
-      name="trash_btn"
+        <dnd_button
+         follows="bottom|right"
+         height="25"
+         image_hover_unselected="Toolbar_Right_Over"
+          image_overlay="TrashItem_Off"
+          image_selected="Toolbar_Right_Selected"
+          image_unselected="Toolbar_Right_Off"
+         layout="topleft"
+         left_pad="1"
+         name="trash_btn"
       tool_tip="Delete selected outfit"
-      width="31"/>
+         width="31"/>         
      <button
        follows="bottom|left"
        height="23"

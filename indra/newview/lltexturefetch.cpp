@@ -582,14 +582,26 @@ bool LLTextureFetchWorker::doWork(S32 param)
 {
 	LLMutexLock lock(&mWorkMutex);
 
-	if ((mFetcher->isQuitting() || mImagePriority < 1.0f || getFlags(LLWorkerClass::WCF_DELETE_REQUESTED)))
+	if ((mFetcher->isQuitting() || getFlags(LLWorkerClass::WCF_DELETE_REQUESTED)))
 	{
 		if (mState < DECODE_IMAGE)
 		{
 			return true; // abort
 		}
 	}
-	
+	if(mImagePriority < 1.0f)
+	{
+		if (mState == INIT || mState == LOAD_FROM_NETWORK || mState == LOAD_FROM_SIMULATOR)
+		{
+			return true; // abort
+		}
+	}
+	if(mState > CACHE_POST && !mCanUseNET && !mCanUseHTTP)
+	{
+		//nowhere to get data, abort.
+		return true ;
+	}
+
 	if (mFetcher->mDebugPause)
 	{
 		return false; // debug: don't do any work
@@ -777,7 +789,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			// don't return, fall through to next state
 		}
-		else if (mSentRequest == UNSENT)
+		else if (mSentRequest == UNSENT && mCanUseNET)
 		{
 			// Add this to the network queue and sit here.
 			// LLTextureFetch::update() will send off a request which will change our state
@@ -830,6 +842,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == SEND_HTTP_REQ)
 	{
+		if(mCanUseHTTP)
 		{
 			const S32 HTTP_QUEUE_MAX_SIZE = 8;
 			// *TODO: Integrate this with llviewerthrottle
@@ -894,6 +907,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				return true; // failed
 			}
 			// fall through
+		}
+		else //can not use http fetch.
+		{
+			return true ; //abort
 		}
 	}
 	

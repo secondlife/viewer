@@ -34,10 +34,9 @@
 #define LL_LLFLOATERSNAPSHOT_H
 
 #include "llfloater.h"
-#include "lltransientdockablefloater.h"
 
 
-class LLFloaterSnapshot : public LLTransientDockableFloater
+class LLFloaterSnapshot : public LLFloater
 {
 public:
 	typedef enum e_snapshot_format
@@ -57,10 +56,6 @@ public:
 	
 	static void update();
 	
-	void setAsProfilePic(const LLUUID& image_id);
-	
-	bool updateButtons(const LLSD& mode);
-	
 	static S32  getUIWinHeightLong()  {return sUIWinHeightLong ;}
 	static S32  getUIWinHeightShort() {return sUIWinHeightShort ;}
 	static S32  getUIWinWidth()       {return sUIWinWidth ;}
@@ -72,8 +67,6 @@ private:
 	static S32    sUIWinHeightLong ;
 	static S32    sUIWinHeightShort ;
 	static S32    sUIWinWidth ;
-
-	LLRect mRefreshBtnRect;
 };
 
 class LLSnapshotFloaterView : public LLFloaterView

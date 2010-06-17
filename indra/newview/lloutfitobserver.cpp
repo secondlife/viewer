@@ -56,12 +56,9 @@ void LLOutfitObserver::changed(U32 mask)
 	if (!gInventory.isInventoryUsable())
 		return;
 
-	bool COF_changed = checkCOF();
+	checkCOF();
 
-	if (!COF_changed)
-	{
-		checkBaseOutfit();
-	}
+	checkBaseOutfit();
 }
 
 // static

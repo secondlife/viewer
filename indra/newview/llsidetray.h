@@ -161,6 +161,8 @@ public:
 
 	commit_signal_t& getCollapseSignal() { return mCollapseSignal; }
 
+	void		handleLoginComplete();
+
 protected:
 	LLSideTrayTab* getTab		(const std::string& name);
 

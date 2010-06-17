@@ -12,6 +12,8 @@
      layout="topleft"
      left="12"
      name="min param text"
+     text_color="EmphasisColor"
+     font_shadow="hard"
      top="120"
      width="120" />
     <text
@@ -20,6 +22,8 @@
      layout="topleft"
      left="155"
      name="max param text"
+     text_color="EmphasisColor" 
+     font_shadow="hard"
      top_delta="0"
      width="120" />
     <text
