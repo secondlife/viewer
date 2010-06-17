@@ -44,7 +44,6 @@
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llnotificationsutil.h"
-#include "lloutfitobserver.h"
 #include "llsidetray.h"
 #include "lltransutil.h"
 #include "llviewermenu.h"
@@ -208,8 +207,10 @@ void LLOutfitsList::onOpen(const LLSD& /*info*/)
 		mCategoriesObserver->addCategory(outfits,
 			boost::bind(&LLOutfitsList::refreshList, this, outfits));
 
-		// Start observing changes in Current Outfit to update items worn state.
-		LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLOutfitsList::onCOFChanged, this));
+		const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+
+		// Start observing changes in Current Outfit category.
+		mCategoriesObserver->addCategory(cof, boost::bind(&LLOutfitsList::onCOFChanged, this));
 
 		// Fetch "My Outfits" contents and refresh the list to display
 		// initially fetched items. If not all items are fetched now

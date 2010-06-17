@@ -80,10 +80,11 @@ void LLPanelInventoryListItemBase::draw()
 }
 
 // virtual
-void LLPanelInventoryListItemBase::updateItem(const std::string& name)
+void LLPanelInventoryListItemBase::updateItem(const std::string& name,
+											  const LLStyle::Params& input_params)
 {
 	setIconImage(mIconImage);
-	setTitle(name, mHighlightedText);
+	setTitle(name, mHighlightedText, input_params);
 }
 
 void LLPanelInventoryListItemBase::addWidgetToLeftSide(const std::string& name, bool show_widget/* = true*/)
@@ -286,13 +287,15 @@ void LLPanelInventoryListItemBase::setIconImage(const LLUIImagePtr& image)
 	}
 }
 
-void LLPanelInventoryListItemBase::setTitle(const std::string& title, const std::string& highlit_text)
+void LLPanelInventoryListItemBase::setTitle(const std::string& title,
+											const std::string& highlit_text,
+											const LLStyle::Params& input_params)
 {
 	setToolTip(title);
 
 	LLTextUtil::textboxSetHighlightedVal(
 		mTitleCtrl,
-		LLStyle::Params(),
+		input_params,
 		title,
 		highlit_text);
 }

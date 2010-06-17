@@ -86,8 +86,8 @@ public:
 	/**
 	 * Updates item name and (worn) suffix.
 	 */
-	/*virtual*/ void updateItem(const std::string& name);
-
+	/*virtual*/ void updateItem(const std::string& name,
+								const LLStyle::Params& input_params = LLStyle::Params());
 
 protected:
 	LLPanelWearableOutfitItem(LLViewerInventoryItem* item);
@@ -124,7 +124,9 @@ public:
 	virtual ~LLPanelAttachmentListItem() {};
 
 	/** Set item title. Joint name is added to the title in parenthesis */
-	/*virtual*/ void setTitle(const std::string& title, const std::string& highlit_text);
+	/*virtual*/ void setTitle(const std::string& title,
+							  const std::string& highlit_text,
+							  const LLStyle::Params& input_params = LLStyle::Params());
 
 protected:
 	LLPanelAttachmentListItem(LLViewerInventoryItem* item) : LLPanelDeletableWearableListItem(item) {};
