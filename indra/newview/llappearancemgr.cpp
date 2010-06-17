@@ -923,6 +923,14 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 {
 	if (item_id_to_wear.isNull()) return false;
 
+	// *TODO: issue with multi-wearable should be fixed:
+	// in this case this method will be called N times - loading started for each item
+	// and than N times will be called - loading completed for each item.
+	// That means subscribers will be notified that loading is done after first item in a batch is worn.
+	// (loading indicator disappears for example before all selected items are worn)
+	// Have not fix this issue for 2.1 because of stability reason. EXT-7777.
+	gAgentWearables.notifyLoadingStarted();
+
 	LLViewerInventoryItem* item_to_wear = gInventory.getItem(item_id_to_wear);
 	if (!item_to_wear) return false;
 
