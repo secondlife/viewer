@@ -613,7 +613,7 @@ void LLOutfitsList::applyFilterToTab(
 	{
 		// hide tab if its title doesn't pass filter
 		// and it has no visible items
-		tab->setVisible(!list->empty());
+		tab->setVisible(list->size() > 0);
 
 		// remove title highlighting because it might
 		// have been previously highlighted by less restrictive filter
