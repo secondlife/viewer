@@ -88,6 +88,8 @@ BOOL LLSidepanelInventory::postBuild()
 		
 		mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
 		mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
+		LLTabContainer* tabs = mPanelMainInventory->getChild<LLTabContainer>("inventory filter tabs");
+		tabs->setCommitCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
 
 		/* 
 		   EXT-4846 : "Can we suppress the "Landmarks" and "My Favorites" folder since they have their own Task Panel?"

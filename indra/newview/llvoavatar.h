@@ -223,8 +223,8 @@ public:
 public:
 	static S32		sRenderName;
 	static BOOL		sRenderGroupTitles;
-	static S32		sMaxVisible;
-	static F32		sRenderDistance; //distance at which avatars will render (affected by control "RenderAvatarMaxVisible")
+	static U32		sMaxVisible; //(affected by control "RenderAvatarMaxVisible")
+	static F32		sRenderDistance; //distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
 	static BOOL		sUseImpostors; //use impostors for far away avatars
 	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
