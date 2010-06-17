@@ -168,8 +168,8 @@ U8* LLImageBase::allocateData(S32 size)
 		}
 		else
 		{
-		llerrs << "LLImageBase::allocateData: bad size: " << size << llendl;
-	}
+			llerrs << "LLImageBase::allocateData: bad size: " << size << llendl;
+		}
 	}
 	if (!mData || size != mDataSize)
 	{
@@ -267,10 +267,6 @@ LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 {
 	mMemType = LLMemType::MTYPE_IMAGERAW;
 	//llassert( S32(width) * S32(height) * S32(components) <= MAX_IMAGE_DATA_SIZE );
-	if(S32(width) * S32(height) * S32(components) > MAX_IMAGE_DATA_SIZE)
-	{
-		llwarns << "over size: width: " << (S32)width << " height: " << (S32)height << " components: " << (S32)components << llendl ;
-	}
 	allocateDataSize(width, height, components);
 	++sRawImageCount;
 }

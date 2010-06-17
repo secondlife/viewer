@@ -2207,7 +2207,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	//LLVertexBuffer::unbind();
 
 	grabReferences(result);
-	llpushcallstacks ;
 	for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
@@ -2225,7 +2224,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			}
 		}
 	}
-	llpushcallstacks ;
 	for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
@@ -2241,7 +2239,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 		}
 	}
 	
-	llpushcallstacks ;
 	if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
 	{
 		for (LLCullResult::bridge_list_t::iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
@@ -2268,12 +2265,13 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			}
 		}
 	}
-
+	llpushcallstacks ;	
 	{
 		LLFastTimer ftm(FTM_CLIENT_COPY);
 		LLVertexBuffer::clientCopy();
 	}
-
+	llpushcallstacks ;
+	
 	postSort(camera);
 	llpushcallstacks ;
 }
@@ -7117,7 +7115,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			skip_avatar_update = TRUE;
 		}
 
-		llpushcallstacks ;
 		if (!skip_avatar_update)
 		{
 			gAgentAvatarp->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
@@ -7216,7 +7213,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 										(1 << LLPipeline::RENDER_TYPE_WL_SKY));
 					static LLCullResult result;
 					updateCull(camera, result);
-					llpushcallstacks ;
 					stateSort(camera, result);
 					mRenderTypeMask = tmp & ((1 << LLPipeline::RENDER_TYPE_SKY) |
 										(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
@@ -7251,7 +7247,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					LLGLUserClipPlane clip_plane(plane, mat, projection);
 					LLGLDisable cull(GL_CULL_FACE);
 					updateCull(camera, ref_result, 1);
-					llpushcallstacks ;
 					stateSort(camera, ref_result);
 				}
 				
@@ -7308,7 +7303,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				LLGLUserClipPlane clip_plane(LLPlane(-pnorm, -(pd+pad)), mat, projection);
 				static LLCullResult result;
 				updateCull(camera, result, water_clip);
-				llpushcallstacks ;
 				stateSort(camera, result);
 
 				gGL.setColorMask(true, true);
@@ -7347,7 +7341,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		{
 			gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
 		}
-		llpushcallstacks ;
 	}
 }
 

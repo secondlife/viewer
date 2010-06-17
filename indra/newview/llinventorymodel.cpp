@@ -2447,7 +2447,9 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	}
 	LLUUID tid;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_TransactionID, tid);
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	llinfos << "Bulk inventory: " << tid << llendl;
+#endif
 
 	update_map_t update;
 	cat_array_t folders;

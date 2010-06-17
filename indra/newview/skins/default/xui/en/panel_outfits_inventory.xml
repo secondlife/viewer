@@ -48,7 +48,7 @@
            mouse_opaque="true"
            name="cof_tab"
            start_folder="Current Outfit"
-           use_label_suffix="false" 
+           use_label_suffix="true" 
            width="315" />
    </tab_container>
 	 <panel

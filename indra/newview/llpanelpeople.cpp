@@ -1450,7 +1450,7 @@ void LLPanelPeople::showFriendsAccordionsIfNeeded()
 		LLAccordionCtrl* accordion = getChild<LLAccordionCtrl>("friends_accordion");
 		accordion->arrange();
 
-		// *TODO: new empty_accordion_text attribute was implemented in accordion (EXT-7368).
+		// *TODO: new no_matched_tabs_text attribute was implemented in accordion (EXT-7368).
 		// this code should be refactored to use it
 		// keep help text in a synchronization with accordions visibility.
 		updateFriendListHelpText();

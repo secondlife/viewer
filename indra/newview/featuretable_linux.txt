@@ -26,7 +26,7 @@ list all
 RenderAnisotropic			1	0
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
-RenderAvatarMaxVisible      1   35
+RenderAvatarMaxVisible      1   12
 RenderAvatarVP				1	1
 RenderCubeMap				1	1
 RenderDelayVBUpdate			1	0

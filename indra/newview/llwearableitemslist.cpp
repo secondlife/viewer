@@ -647,6 +647,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
 	// *TODO: eliminate multiple traversals over the menu items
 	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0);
+	setMenuItemEnabled(menu, "wear_add",			n_items == 1 && canAddWearable(ids.front()));
 	setMenuItemVisible(menu, "wear",				n_worn == 0);
 	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART));
 	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1 && n_items == 1);
@@ -738,6 +739,25 @@ void LLWearableItemsList::ContextMenu::createNewWearable(const LLUUID& item_id)
 	if (!item || !item->isWearableType()) return;
 
 	LLAgentWearables::createWearable(item->getWearableType(), true);
+}
+
+// Can we wear another wearable of the given item's wearable type?
+// static
+bool LLWearableItemsList::ContextMenu::canAddWearable(const LLUUID& item_id)
+{
+	if (!gAgentWearables.areWearablesLoaded())
+	{
+		return false;
+	}
+
+	LLViewerInventoryItem* item = gInventory.getItem(item_id);
+	if (!item || item->getType() != LLAssetType::AT_CLOTHING)
+	{
+		return false;
+	}
+
+	U32 wearable_count = gAgentWearables.getWearableCount(item->getWearableType());
+	return wearable_count < LLAgentWearables::MAX_CLOTHING_PER_TYPE;
 }
 
 // EOF

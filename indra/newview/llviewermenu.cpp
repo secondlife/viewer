@@ -7209,7 +7209,7 @@ void handle_web_browser_test(const LLSD& param)
 	{
 		url = "about:blank";
 	}
-	LLWeb::loadURL(url);
+	LLWeb::loadURLInternal(url);
 }
 
 void handle_buy_currency_test(void*)

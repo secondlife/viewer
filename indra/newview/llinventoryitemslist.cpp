@@ -288,11 +288,23 @@ void LLPanelInventoryListItemBase::setIconImage(const LLUIImagePtr& image)
 
 void LLPanelInventoryListItemBase::setTitle(const std::string& title, const std::string& highlit_text)
 {
+	setToolTip(title);
+
 	LLTextUtil::textboxSetHighlightedVal(
 		mTitleCtrl,
 		LLStyle::Params(),
 		title,
 		highlit_text);
+}
+
+BOOL LLPanelInventoryListItemBase::handleToolTip( S32 x, S32 y, MASK mask)
+{
+	LLTextBox* item_name = getChild<LLTextBox>("item_name");
+	if (item_name->getRect().getWidth() < item_name->getTextPixelWidth())
+	{
+		return LLPanel::handleToolTip(x,y,mask);
+	}
+	return FALSE;
 }
 
 void LLPanelInventoryListItemBase::reshapeLeftWidgets()
