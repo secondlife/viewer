@@ -576,7 +576,9 @@ void LLCOFWearables::clear()
 
 LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 {
-	static std::map<std::string, LLAssetType::EType> type_map;
+	typedef std::map<std::string, LLAssetType::EType> type_map_t;
+
+	static type_map_t type_map;
 	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
 
 	if (type_map.empty())
@@ -587,14 +589,16 @@ LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 	}
 
 	const LLAccordionCtrlTab* tab = accordion_ctrl->getExpandedTab();
+	LLAssetType::EType result = LLAssetType::AT_NONE;
 
-	if (!tab)
+	if (tab)
 	{
-		llwarns << "No accordion is expanded" << llendl;
-		return LLAssetType::AT_NONE;
+		type_map_t::iterator i = type_map.find(tab->getName());
+		llassert(i != type_map.end());
+		result = i->second;
 	}
 
-	return type_map[tab->getName()];
+	return result;
 }
 
 void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu)

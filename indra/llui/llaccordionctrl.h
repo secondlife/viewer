@@ -78,12 +78,14 @@ public:
 								accordion tabs are responsible for scrolling their content.
 								*NOTE fit_parent works best when combined with single_expansion.
 								Accordion view should implement getRequiredRect() and provide valid height*/
-		Optional<LLTextBox::Params>	empty_accordion_text;
+		Optional<LLTextBox::Params>	no_matched_tabs_text;
+		Optional<LLTextBox::Params>	no_visible_tabs_text;
 
 		Params()
 			: single_expansion("single_expansion",false)
 			, fit_parent("fit_parent", false)
-			, empty_accordion_text("empty_accordion_text")
+			, no_matched_tabs_text("no_matched_tabs_text")
+			, no_visible_tabs_text("no_visible_tabs_text")
 		{};
 	};
 
@@ -180,6 +182,8 @@ private:
 	bool			mAutoScrolling;
 	F32				mAutoScrollRate;
 	LLTextBox*		mNoVisibleTabsHelpText;
+
+	std::string		mNoMatchedTabsOrigString;
 	std::string		mNoVisibleTabsOrigString;
 
 	LLAccordionCtrlTab*		mSelectedTab;

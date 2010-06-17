@@ -5,14 +5,16 @@
      background_visible="true"
      bg_alpha_color="DkGray">     
     <accordion
+     no_matched_tabs_text.value="Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search]."
+     no_visible_tabs_text.value="Teleport history is empty. Try [secondlife:///app/search/places/ Search]."
      follows="left|top|right|bottom"
      height="373"
      layout="topleft"
      left="3"
      top="0"
      name="history_accordion"
-   background_visible="true"
-   bg_alpha_color="DkGray2"
+     background_visible="true"
+     bg_alpha_color="DkGray2"
      width="307">
 	    <accordion_tab
          layout="topleft"

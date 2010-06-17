@@ -342,6 +342,7 @@ public:
 		static void setMenuItemEnabled(LLContextMenu* menu, const std::string& name, bool val);
 		static void updateMask(U32& mask, LLAssetType::EType at);
 		static void createNewWearable(const LLUUID& item_id);
+		static bool canAddWearable(const LLUUID& item_id);
 
 		LLWearableItemsList*	mParent;
 	};
