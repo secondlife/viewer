@@ -2375,6 +2375,8 @@ void asset_callback_nothing(LLVFS*, const LLUUID&, LLAssetType::EType, void*, S3
 const std::string COMMON_GESTURES_FOLDER = "Common Gestures";
 const std::string MALE_GESTURES_FOLDER = "Male Gestures";
 const std::string FEMALE_GESTURES_FOLDER = "Female Gestures";
+const std::string SPEECH_GESTURES_FOLDER = "Speech Gestures";
+const std::string OTHER_GESTURES_FOLDER = "Other Gestures";
 const S32 OPT_CLOSED_WINDOW = -1;
 const S32 OPT_MALE = 0;
 const S32 OPT_FEMALE = 1;
@@ -2403,7 +2405,6 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 	return false;
 }
 
-
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
@@ -2415,16 +2416,16 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
 	
 	S32 gender = 0;
-	std::string gestures;
+	std::string same_gender_gestures;
 	if (gender_name == "male")
 	{
 		gender = OPT_MALE;
-		gestures = MALE_GESTURES_FOLDER;
+		same_gender_gestures = MALE_GESTURES_FOLDER;
 	}
 	else
 	{
 		gender = OPT_FEMALE;
-		gestures = FEMALE_GESTURES_FOLDER;
+		same_gender_gestures = FEMALE_GESTURES_FOLDER;
 	}
 
 	// try to find the outfit - if not there, create some default
@@ -2448,35 +2449,42 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 
 	// Copy gestures
 	LLUUID dst_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
-	LLPointer<LLInventoryCallback> cb(NULL);
 	LLAppearanceMgr *app_mgr = &(LLAppearanceMgr::instance());
 
-	// - Copy gender-specific gestures.
-	LLUUID gestures_cat_id = findDescendentCategoryIDByName( 
-		gInventory.getLibraryRootFolderID(),
-		gestures);
-	if (gestures_cat_id.notNull())
-	{
-		callAfterCategoryFetch(gestures_cat_id,
-							   boost::bind(&LLAppearanceMgr::shallowCopyCategory,
-										   app_mgr,
-										   gestures_cat_id,
-										   dst_id,
-										   cb));
-	}
+	std::vector<std::string> gesture_folders_to_copy;
+	gesture_folders_to_copy.push_back(MALE_GESTURES_FOLDER);
+	gesture_folders_to_copy.push_back(FEMALE_GESTURES_FOLDER);
+	gesture_folders_to_copy.push_back(COMMON_GESTURES_FOLDER);
+	gesture_folders_to_copy.push_back(SPEECH_GESTURES_FOLDER);
+	gesture_folders_to_copy.push_back(OTHER_GESTURES_FOLDER);
 
-	// - Copy common gestures.
-	LLUUID common_gestures_cat_id = findDescendentCategoryIDByName( 
-		gInventory.getLibraryRootFolderID(),
-		COMMON_GESTURES_FOLDER);
-	if (common_gestures_cat_id.notNull())
+	for(std::vector<std::string>::iterator it = gesture_folders_to_copy.begin();
+		it != gesture_folders_to_copy.end();
+		++it)
 	{
-		callAfterCategoryFetch(common_gestures_cat_id,
-							   boost::bind(&LLAppearanceMgr::shallowCopyCategory,
-										   app_mgr,
-										   common_gestures_cat_id,
-										   dst_id,
-										   cb));
+		std::string& folder_name = *it;
+
+		LLPointer<LLInventoryCallback> cb(NULL);
+		if (folder_name == same_gender_gestures ||
+			folder_name == COMMON_GESTURES_FOLDER ||
+			folder_name == OTHER_GESTURES_FOLDER)
+		{
+			cb = new ActivateGestureCallback;
+		}
+
+		// - Copy gender-specific gestures.
+		LLUUID cat_id = findDescendentCategoryIDByName( 
+			gInventory.getLibraryRootFolderID(),
+			folder_name);
+		if (cat_id.notNull())
+		{
+			callAfterCategoryFetch(cat_id,
+								   boost::bind(&LLAppearanceMgr::shallowCopyCategory,
+											   app_mgr,
+											   cat_id,
+											   dst_id,
+											   cb));
+		}
 	}
 
 	// This is really misnamed -- it means we have started loading
