@@ -42,12 +42,12 @@ set(media_plugin_gstreamer010_HEADER_FILES
     llmediaimplgstreamertriviallogging.h
     )
 
-if (${CXX_VERSION_NUMBER} MATCHES "4[23].")
+if (${CXX_VERSION_NUMBER} MATCHES "4[23456789].")
     # Work around a bad interaction between broken gstreamer headers and
-    # g++ 4.3's increased strictness.
+    # g++ >= 4.2's increased strictness.
     set_source_files_properties(llmediaimplgstreamervidplug.cpp PROPERTIES
                                 COMPILE_FLAGS -Wno-write-strings)
-endif (${CXX_VERSION_NUMBER} MATCHES "4[23].")
+endif (${CXX_VERSION_NUMBER} MATCHES "4[23456789].")
 
 add_library(media_plugin_gstreamer010
     SHARED

@@ -126,13 +126,11 @@ public:
 	LLJoint*		mRightAnkleJoint;
 	LLPointer<LLJointState>	mPelvisState;
 	LLJoint*		mPelvisJoint;
-	LLVector3d		mLastLeftAnklePos;
-	LLVector3d		mLastRightAnklePos;
+	LLVector3d		mLastLeftFootGlobalPos;
+	LLVector3d		mLastRightFootGlobalPos;
 	F32				mLastTime;
-	F32				mAvgCorrection;
-	F32				mSpeedAdjust;
+	F32				mAdjustedSpeed;
 	F32				mAnimSpeed;
-	F32				mAvgSpeed;
 	F32				mRelativeDir;
 	LLVector3		mPelvisOffset;
 	F32				mAnkleOffset;

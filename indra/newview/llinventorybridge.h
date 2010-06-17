@@ -123,6 +123,7 @@ public:
 							EDragAndDropType cargo_type,
 							void* cargo_data) { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
+	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
 
 	//--------------------------------------------------------------------
 	// Convenience functions for adding various common menu options.
@@ -471,6 +472,7 @@ public:
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual std::string getLabelSuffix() const;
 	virtual BOOL renameItem(const std::string& new_name);
+	virtual LLWearableType::EType getWearableType() const { return mWearableType; }
 
 	static void		onWearOnAvatar( void* userdata );	// Access to wearOnAvatar() from menu
 	static BOOL		canWearOnAvatar( void* userdata );

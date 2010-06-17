@@ -347,7 +347,7 @@ void LLFloater::layoutDragHandle()
 	{
 		rect = getLocalRect();
 	}
-	mDragHandle->setRect(rect);
+	mDragHandle->setShape(rect);
 	updateTitleButtons();
 }
 

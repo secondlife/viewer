@@ -42,17 +42,12 @@
 // LLImagePNG
 // ---------------------------------------------------------------------------
 LLImagePNG::LLImagePNG()
-    : LLImageFormatted(IMG_CODEC_PNG),
-	  mTmpWriteBuffer(NULL)
+    : LLImageFormatted(IMG_CODEC_PNG)
 {
 }
 
 LLImagePNG::~LLImagePNG()
 {
-	if (mTmpWriteBuffer)
-	{
-		delete[] mTmpWriteBuffer;
-	}
 }
 
 // Virtual
@@ -123,28 +118,24 @@ BOOL LLImagePNG::encode(const LLImageRaw* raw_image, F32 encode_time)
 
 	// Temporary buffer to hold the encoded image. Note: the final image
 	// size should be much smaller due to compression.
-	if (mTmpWriteBuffer)
-	{
-		delete[] mTmpWriteBuffer;
-	}
 	U32 bufferSize = getWidth() * getHeight() * getComponents() + 1024;
-    U8* mTmpWriteBuffer = new U8[ bufferSize ];
+    U8* tmpWriteBuffer = new U8[ bufferSize ];
 
 	// Delegate actual encoding work to wrapper
 	LLPngWrapper pngWrapper;
-	if (! pngWrapper.writePng(raw_image, mTmpWriteBuffer))
+	if (! pngWrapper.writePng(raw_image, tmpWriteBuffer))
 	{
 		setLastError(pngWrapper.getErrorMessage());
-		delete[] mTmpWriteBuffer;
+		delete[] tmpWriteBuffer;
 		return FALSE;
 	}
 
 	// Resize internal buffer and copy from temp
 	U32 encodedSize = pngWrapper.getFinalSize();
 	allocateData(encodedSize);
-	memcpy(getData(), mTmpWriteBuffer, encodedSize);
+	memcpy(getData(), tmpWriteBuffer, encodedSize);
 
-	delete[] mTmpWriteBuffer;
+	delete[] tmpWriteBuffer;
 
 	return TRUE;
 }

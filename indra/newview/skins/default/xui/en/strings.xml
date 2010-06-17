@@ -136,7 +136,7 @@
 	<string name="RetrievingData">Retrieving...</string>
 
 	<string name="ReleaseNotes">Release Notes</string>
-	<string name="RELEASE_NOTES_BASE_URL">http://secondlife.com/app/releasenotes/</string>
+	<string name="RELEASE_NOTES_BASE_URL">http://wiki.secondlife.com/wiki/Release_Notes/</string>
 
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>

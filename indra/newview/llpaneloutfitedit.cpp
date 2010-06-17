@@ -72,6 +72,8 @@
 #include "lltoggleablemenu.h"
 #include "llwearablelist.h"
 #include "llwearableitemslist.h"
+#include "llwearabletype.h"
+#include "llweb.h"
 
 static LLRegisterPanelClassWrapper<LLPanelOutfitEdit> t_outfit_edit("panel_outfit_edit");
 
@@ -80,6 +82,65 @@ const U64 ATTACHMENT_MASK = (1LL << LLInventoryType::IT_ATTACHMENT) | (1LL << LL
 const U64 ALL_ITEMS_MASK = WEARABLE_MASK | ATTACHMENT_MASK;
 
 static const std::string REVERT_BTN("revert_btn");
+
+class LLShopURLDispatcher
+{
+public:
+	std::string resolveURL(LLWearableType::EType wearable_type, ESex sex);
+	std::string resolveURL(LLAssetType::EType asset_type, ESex sex);
+};
+
+std::string LLShopURLDispatcher::resolveURL(LLWearableType::EType wearable_type, ESex sex)
+{
+	const std::string prefix = "MarketplaceURL";
+	const std::string sex_str = (sex == SEX_MALE) ? "Male" : "Female";
+	const std::string type_str = LLWearableType::getTypeName(wearable_type);
+
+	std::string setting_name = prefix;
+
+	switch (wearable_type)
+	{
+	case LLWearableType::WT_ALPHA:
+	case LLWearableType::WT_NONE:
+	case LLWearableType::WT_INVALID:	// just in case, this shouldn't happen
+	case LLWearableType::WT_COUNT:		// just in case, this shouldn't happen
+		break;
+
+	default:
+		setting_name += '_';
+		setting_name += type_str;
+		setting_name += sex_str;
+		break;
+	}
+
+	return gSavedSettings.getString(setting_name);
+}
+
+std::string LLShopURLDispatcher::resolveURL(LLAssetType::EType asset_type, ESex sex)
+{
+	const std::string prefix = "MarketplaceURL";
+	const std::string sex_str = (sex == SEX_MALE) ? "Male" : "Female";
+	const std::string type_str = LLAssetType::lookup(asset_type);
+
+	std::string setting_name = prefix;
+
+	switch (asset_type)
+	{
+	case LLAssetType::AT_CLOTHING:
+	case LLAssetType::AT_OBJECT:
+	case LLAssetType::AT_BODYPART:
+		setting_name += '_';
+		setting_name += type_str;
+		setting_name += sex_str;
+		break;
+
+	// to suppress warnings
+	default:
+		break;
+	}
+
+	return gSavedSettings.getString(setting_name);
+}
 
 class LLPanelOutfitEditGearMenu
 {
@@ -262,6 +323,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
 	childSetCommitCallback("wearables_gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 	childSetCommitCallback("gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
+	childSetCommitCallback("shop_btn", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::filterWearablesBySelectedItem, this));
@@ -528,6 +590,46 @@ void LLPanelOutfitEdit::onReplaceBodyPartMenuItemClicked(LLUUID selected_item_id
 	{
 		showFilteredWearablesListView(item->getWearableType());
 	}
+}
+
+void LLPanelOutfitEdit::onShopButtonClicked()
+{
+	static LLShopURLDispatcher url_resolver;
+
+	std::string url;
+	std::vector<LLPanel*> selected_items;
+	mCOFWearables->getSelectedItems(selected_items);
+
+	ESex sex = gSavedSettings.getU32("AvatarSex") ? SEX_MALE : SEX_FEMALE;
+
+	if (selected_items.size() == 1)
+	{
+		LLWearableType::EType type = LLWearableType::WT_NONE;
+		LLPanel* item = selected_items.front();
+
+		// LLPanelDummyClothingListItem is lower then LLPanelInventoryListItemBase in hierarchy tree
+		if (LLPanelDummyClothingListItem* dummy_item = dynamic_cast<LLPanelDummyClothingListItem*>(item))
+		{
+			type = dummy_item->getWearableType();
+		}
+		else if (LLPanelInventoryListItemBase* real_item = dynamic_cast<LLPanelInventoryListItemBase*>(item))
+		{
+			type = real_item->getWearableType();
+		}
+
+		// WT_INVALID comes for attachments
+		if (type != LLWearableType::WT_INVALID)
+		{
+			url = url_resolver.resolveURL(type, sex);
+		}
+	}
+
+	if (url.empty())
+	{
+		url = url_resolver.resolveURL(mCOFWearables->getExpandedAccordionAssetType(), sex);
+	}
+
+	LLWeb::loadURLExternal(url);
 }
 
 void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)

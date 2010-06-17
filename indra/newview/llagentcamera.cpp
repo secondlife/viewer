@@ -207,13 +207,13 @@ void LLAgentCamera::init()
 	
 	mCameraPreset = (ECameraPreset) gSavedSettings.getU32("CameraPreset");
 
-	mCameraOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getVector3("CameraOffsetRearView");
-	mCameraOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getVector3("CameraOffsetFrontView");
-	mCameraOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getVector3("CameraOffsetGroupView");
+	mCameraOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getControl("CameraOffsetRearView");
+	mCameraOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getControl("CameraOffsetFrontView");
+	mCameraOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getControl("CameraOffsetGroupView");
 
-	mFocusOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getVector3d("FocusOffsetRearView");
-	mFocusOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getVector3d("FocusOffsetFrontView");
-	mFocusOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getVector3d("FocusOffsetGroupView");
+	mFocusOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getControl("FocusOffsetRearView");
+	mFocusOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getControl("FocusOffsetFrontView");
+	mFocusOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getControl("FocusOffsetGroupView");
 
 	mCameraCollidePlane.clearVec();
 	mCurrentCameraDistance = getCameraOffsetInitial().magVec() * gSavedSettings.getF32("CameraOffsetScale");
@@ -1643,8 +1643,8 @@ LLVector3d LLAgentCamera::calcThirdPersonFocusOffset()
 		agent_rot *= ((LLViewerObject*)(gAgentAvatarp->getParent()))->getRenderRotation();
 	}
 
-	focus_offset = mFocusOffsetInitial[mCameraPreset] * agent_rot;
-	return focus_offset;
+	focus_offset = convert_from_llsd<LLVector3d>(mFocusOffsetInitial[mCameraPreset]->get(), TYPE_VEC3D, "");
+	return focus_offset * agent_rot;
 }
 
 void LLAgentCamera::setupSitCamera()
@@ -1978,7 +1978,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 LLVector3 LLAgentCamera::getCameraOffsetInitial()
 {
-	return mCameraOffsetInitial[mCameraPreset];
+	return convert_from_llsd<LLVector3>(mCameraOffsetInitial[mCameraPreset]->get(), TYPE_VEC3, "");
 }
 
 
