@@ -1068,7 +1068,7 @@ void LLAppearanceMgr::takeOffOutfit(const LLUUID& cat_id)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLFindWorn collector;
+	LLFindWearablesEx collector(/*is_worn=*/ true, /*include_body_parts=*/ false);
 
 	gInventory.collectDescendentsIf(cat_id, cats, items, FALSE, collector);
 
@@ -1224,6 +1224,34 @@ bool LLAppearanceMgr::getCanRemoveOutfit(const LLUUID& outfit_cat_id)
 	return true;
 }
 
+// static
+bool LLAppearanceMgr::getCanRemoveFromCOF(const LLUUID& outfit_cat_id)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx is_worn(/*is_worn=*/ true, /*include_body_parts=*/ false);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		is_worn);
+	return items.size() > 0;
+}
+
+// static
+bool LLAppearanceMgr::getCanAddToCOF(const LLUUID& outfit_cat_id)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		not_worn);
+	return items.size() > 0;
+}
+
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
 {
 	LLInventoryModel::cat_array_t cats;
@@ -1338,9 +1366,12 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 
 	// - Body parts: always include COF contents as a fallback in case any
 	// required parts are missing.
+	// Preserve body parts from COF if appending.
 	LLInventoryModel::item_array_t body_items;
 	getDescendentsOfAssetType(cof, body_items, LLAssetType::AT_BODYPART, false);
 	getDescendentsOfAssetType(category, body_items, LLAssetType::AT_BODYPART, false);
+	if (append)
+		reverse(body_items.begin(), body_items.end());
 	// Reduce body items to max of one per type.
 	removeDuplicateItems(body_items);
 	filterWearableItems(body_items, 1);

@@ -102,6 +102,14 @@ protected:
 		{
 			return get_is_category_renameable(&gInventory, outfit_cat_id);
 		}
+		else if ("wear_add" == param)
+		{
+			return LLAppearanceMgr::getCanAddToCOF(outfit_cat_id);
+		}
+		else if ("take_off" == param)
+		{
+			return LLAppearanceMgr::getCanRemoveFromCOF(outfit_cat_id);
+		}
 
 		return true;
 	}
@@ -118,14 +126,6 @@ protected:
 		else if ("wear_replace" == param)
 		{
 			return !is_worn;
-		}
-		else if ("wear_add" == param)
-		{
-			return !is_worn;
-		}
-		else if ("take_off" == param)
-		{
-			return is_worn;
 		}
 		else if ("delete" == param)
 		{

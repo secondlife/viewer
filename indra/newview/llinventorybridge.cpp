@@ -2489,7 +2489,7 @@ void LLFolderBridge::folderOptionsMenu()
 			mItems.push_back(std::string("Wear As Ensemble"));
 		}
 		mItems.push_back(std::string("Remove From Outfit"));
-		if (!areAnyContentsWorn(model))
+		if (!LLAppearanceMgr::getCanRemoveFromCOF(mUUID))
 		{
 			disabled_items.push_back(std::string("Remove From Outfit"));
 		}
@@ -2512,19 +2512,6 @@ BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInv
 								LLInventoryModel::EXCLUDE_TRASH,
 								is_type);
 	return ((item_array.count() > 0) ? TRUE : FALSE );
-}
-
-BOOL LLFolderBridge::areAnyContentsWorn(LLInventoryModel* model) const
-{
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	LLFindWorn is_worn;
-	model->collectDescendentsIf(mUUID,
-								cat_array,
-								item_array,
-								LLInventoryModel::EXCLUDE_TRASH,
-								is_worn);
-	return (item_array.size() > 0);
 }
 
 // Flags unused

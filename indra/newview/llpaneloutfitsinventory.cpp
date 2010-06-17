@@ -191,6 +191,10 @@ private:
 		{
 			return LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit_id);
 		}
+		else if ("take_off" == param)
+		{
+			return LLAppearanceMgr::getCanRemoveFromCOF(selected_outfit_id);
+		}
 
 		return true;
 	}
@@ -208,10 +212,6 @@ private:
 		if ("wear" == param)
 		{
 			return !is_worn;
-		}
-		else if ("take_off" == param)
-		{
-			return is_worn;
 		}
 
 		return true;
