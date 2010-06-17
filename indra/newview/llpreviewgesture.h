@@ -34,7 +34,6 @@
 #define LL_LLPREVIEWGESTURE_H
 
 #include "llassettype.h"
-#include "llmultigesture.h"
 #include "llpreview.h"
 
 class LLMultiGesture;
@@ -45,7 +44,6 @@ class LLComboBox;
 class LLScrollListCtrl;
 class LLScrollListItem;
 class LLButton;
-class LLGestureStep;
 class LLRadioGroup;
 class LLVFS;
 
