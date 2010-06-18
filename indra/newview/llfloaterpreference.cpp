@@ -465,8 +465,6 @@ void LLFloaterPreference::apply()
 			gAgent.sendAgentUpdateUserInfo(new_im_via_email,mDirectoryVisibility);
 		}
 	}
-
-	applyResolution();
 }
 
 void LLFloaterPreference::cancel()
@@ -1211,31 +1209,6 @@ void LLFloaterPreference::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_b
 	{
 		text_box->setText(LLTrans::getString("GraphicsQualityHigh"));
 	}
-}
-
-void LLFloaterPreference::applyResolution()
-{
-	gGL.flush();
-	
-	// Screen resolution
-	S32 num_resolutions;
-	LLWindow::LLWindowResolution* supported_resolutions = 
-	gViewerWindow->getWindow()->getSupportedResolutions(num_resolutions);
-	S32 resIndex = getChild<LLComboBox>("fullscreen combo")->getCurrentIndex();
-	if (resIndex == -1)
-	{
-		// use highest resolution if nothing selected
-		resIndex = num_resolutions - 1;
-	}
-	gSavedSettings.setS32("FullScreenWidth", supported_resolutions[resIndex].mWidth);
-	gSavedSettings.setS32("FullScreenHeight", supported_resolutions[resIndex].mHeight);
-	
-	gViewerWindow->requestResolutionUpdate(gSavedSettings.getBOOL("FullScreen"));
-	
-	send_agent_update(TRUE);
-	
-	// Update enable/disable
-	refresh();
 }
 
 void LLFloaterPreference::onChangeMaturity()

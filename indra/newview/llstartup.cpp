@@ -2639,12 +2639,6 @@ void reset_login()
 
 //---------------------------------------------------------------------------
 
-
-bool LLStartUp::canGoFullscreen()
-{
-	return gStartupState >= STATE_WORLD_INIT;
-}
-
 // Initialize all plug-ins except the web browser (which was initialized
 // early, before the login screen). JC
 void LLStartUp::multimediaInit()

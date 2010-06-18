@@ -193,6 +193,9 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 		U32 x_world = (U32)(x_regions) * REGION_WIDTH_UNITS;
 		U32 y_world = (U32)(y_regions) * REGION_WIDTH_UNITS;
 
+		// name shouldn't be empty, see EXT-4568
+		llassert(!name.empty());
+
 		// Insert that region in the world map, if failure, flag it as a "null_sim"
 		if (!(LLWorldMap::getInstance()->insertRegion(x_world, y_world, name, image_id, (U32)accesscode, region_flags)))
 		{

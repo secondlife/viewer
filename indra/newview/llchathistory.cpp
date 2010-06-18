@@ -557,6 +557,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 {
 	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
 
+	if(mEditor)
+	{
+		mEditor->setPlainText(use_plain_text_chat_history);
+	}
+
 	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID() && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);

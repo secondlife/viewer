@@ -166,6 +166,7 @@ struct LLAgentDumper
 
 LLAgentWearables::LLAgentWearables() :
 	mWearablesLoaded(FALSE)
+,	mCOFChangeInProgress(false)
 {
 }
 
@@ -920,13 +921,18 @@ BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
 // static
 // ! BACKWARDS COMPATIBILITY ! When we stop supporting viewer1.23, we can assume
 // that viewers have a Current Outfit Folder and won't need this message, and thus
-// we can remove/ignore this whole function.
+// we can remove/ignore this whole function. EXCEPT gAgentWearables.notifyLoadingStarted
 void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data)
 {
 	// We should only receive this message a single time.  Ignore subsequent AgentWearablesUpdates
 	// that may result from AgentWearablesRequest having been sent more than once.
 	if (mInitialWearablesUpdateReceived)
 		return;
+
+	// notify subscribers that wearables started loading. See EXT-7777
+	// *TODO: find more proper place to not be called from deprecated method.
+	gAgentWearables.notifyLoadingStarted();
+
 	mInitialWearablesUpdateReceived = true;
 
 	LLUUID agent_id;
@@ -1208,7 +1214,7 @@ void LLAgentWearables::createStandardWearablesAllDone()
 
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
-	mLoadedSignal();
+	notifyLoadingFinished();
 	
 	updateServer();
 
@@ -1460,7 +1466,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
-	mLoadedSignal();
+	notifyLoadingFinished();
 	queryWearableCache();
 	updateServer();
 
@@ -1945,7 +1951,7 @@ void LLAgentWearables::updateWearablesLoaded()
 	mWearablesLoaded = (itemUpdatePendingCount()==0);
 	if (mWearablesLoaded)
 	{
-		mLoadedSignal();
+		notifyLoadingFinished();
 	}
 }
 
@@ -2111,7 +2117,13 @@ boost::signals2::connection LLAgentWearables::addLoadedCallback(loaded_callback_
 
 void LLAgentWearables::notifyLoadingStarted()
 {
+	mCOFChangeInProgress = true;
 	mLoadingStartedSignal();
 }
 
+void LLAgentWearables::notifyLoadingFinished()
+{
+	mCOFChangeInProgress = false;
+	mLoadedSignal();
+}
 // EOF

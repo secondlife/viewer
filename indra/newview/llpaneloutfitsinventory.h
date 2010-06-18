@@ -72,7 +72,6 @@ public:
 	// If a compatible listener type is selected, then return a pointer to that.
 	// Otherwise, return NULL.
 	LLFolderViewEventListener* getCorrectListenerForAction();
-	void setParent(LLSidepanelAppearance *parent);
 
 	LLFolderView* getRootFolder();
 	static LLSidepanelAppearance* getAppearanceSP();
@@ -84,7 +83,6 @@ protected:
 	bool getIsCorrectType(const LLFolderViewEventListener *listenerp) const;
 
 private:
-	LLSidepanelAppearance*  mParent;
 	LLSaveFolderState*		mSavedFolderState;
 	LLTabContainer*			mAppearanceTabs;
 	std::string 			mFilterSubString;

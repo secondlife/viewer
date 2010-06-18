@@ -138,6 +138,8 @@ public:
 	 */
 	const LLAccordionCtrlTab* getExpandedTab() const;
 
+	const LLAccordionCtrlTab* getSelectedTab() const { return mSelectedTab; }
+
 private:
 	void	initNoTabsWidget(const LLTextBox::Params& tb_params);
 	void	updateNoTabsHelpTextVisibility();

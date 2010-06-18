@@ -83,6 +83,9 @@ public:
 
 	void refreshList(const LLUUID& category_id);
 
+	// highlits currently worn outfit tab text and unhighlights previously worn
+	void highlightBaseOutfit();
+
 	void performAction(std::string action);
 
 	void setFilterSubString(const std::string& string);
@@ -90,6 +93,11 @@ public:
 	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
 
 	boost::signals2::connection addSelectionChangeCallback(selection_change_callback_t cb);
+
+	/**
+	 * Returns true if there is a selection inside currently selected outfit
+	 */
+	bool hasItemSelected();
 
 private:
 	/**
@@ -120,6 +128,18 @@ private:
 	void setSelectedOutfitUUID(const LLUUID& category_id);
 
 	/**
+	 * Removes the outfit from selection.
+	 */
+	void deselectOutfit(const LLUUID& category_id);
+
+	/**
+	 * Try restoring selection for a temporary hidden tab.
+	 *
+	 * A tab may be hidden if it doesn't match current filter.
+	 */
+	void restoreOutfitSelection(LLAccordionCtrlTab* tab, const LLUUID& category_id);
+
+	/**
 	 * Called upon list refresh event to update tab visibility depending on
 	 * the results of applying filter to the title and list items of the tab.
 	 */
@@ -129,6 +149,13 @@ private:
 	 * Highlights filtered items and hides tabs which haven't passed filter.
 	 */
 	void applyFilter(const std::string& new_filter_substring);
+
+	/**
+	 * Applies filter to the given tab
+	 *
+	 * @see applyFilter()
+	 */
+	void applyFilterToTab(const LLUUID& category_id, LLAccordionCtrlTab* tab, const std::string& filter_substring);
 
 	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
@@ -148,6 +175,8 @@ private:
 	wearables_lists_map_t			mSelectedListsMap;
 
 	LLUUID							mSelectedOutfitUUID;
+	// id of currently highlited outfit
+	LLUUID							mHighlightedOutfitUUID;
 	selection_change_signal_t		mSelectionChangeSignal;
 
 	std::string 					mFilterSubString;
@@ -159,6 +188,10 @@ private:
 	LLListContextMenu*			mOutfitMenu;
 
 	bool							mIsInitialized;
+	/**
+	 * True if there is a selection inside currently selected outfit
+	 */
+	bool							mItemSelected;
 };
 
 #endif //LL_LLOUTFITSLIST_H

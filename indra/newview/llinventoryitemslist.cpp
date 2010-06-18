@@ -80,10 +80,11 @@ void LLPanelInventoryListItemBase::draw()
 }
 
 // virtual
-void LLPanelInventoryListItemBase::updateItem(const std::string& name)
+void LLPanelInventoryListItemBase::updateItem(const std::string& name,
+											  const LLStyle::Params& input_params)
 {
 	setIconImage(mIconImage);
-	setTitle(name, mHighlightedText);
+	setTitle(name, mHighlightedText, input_params);
 }
 
 void LLPanelInventoryListItemBase::addWidgetToLeftSide(const std::string& name, bool show_widget/* = true*/)
@@ -286,25 +287,28 @@ void LLPanelInventoryListItemBase::setIconImage(const LLUIImagePtr& image)
 	}
 }
 
-void LLPanelInventoryListItemBase::setTitle(const std::string& title, const std::string& highlit_text)
+void LLPanelInventoryListItemBase::setTitle(const std::string& title,
+											const std::string& highlit_text,
+											const LLStyle::Params& input_params)
 {
-	setToolTip(title);
+	mTitleCtrl->setToolTip(title);
 
 	LLTextUtil::textboxSetHighlightedVal(
 		mTitleCtrl,
-		LLStyle::Params(),
+		input_params,
 		title,
 		highlit_text);
 }
 
 BOOL LLPanelInventoryListItemBase::handleToolTip( S32 x, S32 y, MASK mask)
 {
-	LLTextBox* item_name = getChild<LLTextBox>("item_name");
-	if (item_name->getRect().getWidth() < item_name->getTextPixelWidth())
+	LLRect text_box_rect = mTitleCtrl->getRect();
+	if (text_box_rect.pointInRect(x, y) &&
+		mTitleCtrl->getTextPixelWidth() <= text_box_rect.getWidth())
 	{
-		return LLPanel::handleToolTip(x,y,mask);
+		return FALSE;
 	}
-	return FALSE;
+	return LLPanel::handleToolTip(x, y, mask);
 }
 
 void LLPanelInventoryListItemBase::reshapeLeftWidgets()

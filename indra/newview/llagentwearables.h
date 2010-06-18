@@ -75,6 +75,7 @@ public:
 
 	BOOL			isWearableCopyable(LLWearableType::EType type, U32 index /*= 0*/) const;
 	BOOL			areWearablesLoaded() const;
+	bool			isCOFChangeInProgress() const { return mCOFChangeInProgress; }
 	void			updateWearablesLoaded();
 	void			checkWearablesLoaded() const;
 	bool			canMoveWearable(const LLUUID& item_id, bool closer_to_body);
@@ -233,6 +234,7 @@ public:
 	boost::signals2::connection				addLoadedCallback(loaded_callback_t cb);
 
 	void									notifyLoadingStarted();
+	void									notifyLoadingFinished();
 
 private:
 	loading_started_signal_t				mLoadingStartedSignal; // should be called before wearables are changed
@@ -249,6 +251,11 @@ private:
 	static BOOL		mInitialWearablesUpdateReceived;
 	BOOL			mWearablesLoaded;
 	std::set<LLUUID>	mItemsAwaitingWearableUpdate;
+
+	/**
+	 * True if agent's outfit is being changed now.
+	 */
+	BOOL			mCOFChangeInProgress;
 	
 	//--------------------------------------------------------------------------------
 	// Support classes
