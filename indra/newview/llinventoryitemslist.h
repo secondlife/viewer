@@ -152,7 +152,8 @@ protected:
 	/**
 	 * Called after inventory item was updated, update panel widgets to reflect inventory changes.
 	 */
-	virtual void updateItem(const std::string& name);
+	virtual void updateItem(const std::string& name,
+							const LLStyle::Params& input_params = LLStyle::Params());
 
 	/** setter for mIconCtrl */
 	void setIconCtrl(LLIconCtrl* icon) { mIconCtrl = icon; }
@@ -177,7 +178,9 @@ protected:
 	void setIconImage(const LLUIImagePtr& image);
 
 	/** Set item title - inventory item name usually */
-	virtual void setTitle(const std::string& title, const std::string& highlit_text);
+	virtual void setTitle(const std::string& title,
+						  const std::string& highlit_text,
+						  const LLStyle::Params& input_params = LLStyle::Params());
 
 	/**
 	 * Show tool tip if item name text size > panel size

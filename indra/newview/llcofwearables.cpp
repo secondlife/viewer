@@ -208,7 +208,7 @@ protected:
 		}
 		else if ("edit" == param)
 		{
-			return gAgentWearables.isWearableModifiable(selected_id);
+			return mUUIDs.size() == 1 && gAgentWearables.isWearableModifiable(selected_id);
 		}
 		return true;
 	}
@@ -264,7 +264,7 @@ protected:
 
 		if ("edit" == param)
 		{
-			return gAgentWearables.isWearableModifiable(selected_id);
+			return mUUIDs.size() == 1 && gAgentWearables.isWearableModifiable(selected_id);
 		}
 
 		return true;

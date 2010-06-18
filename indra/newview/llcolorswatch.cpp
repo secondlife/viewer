@@ -338,7 +338,11 @@ void LLColorSwatchCtrl::showPicker(BOOL take_focus)
 	if (!pickerp)
 	{
 		pickerp = new LLFloaterColorPicker(this, mCanApplyImmediately);
-		//gFloaterView->getParentFloater(this)->addDependentFloater(pickerp);
+		LLFloater* parent = gFloaterView->getParentFloater(this);
+		if (parent)
+		{
+			parent->addDependentFloater(pickerp);
+		}
 		mPickerHandle = pickerp->getHandle();
 	}
 
