@@ -7,10 +7,10 @@
 		</menu_item_call>
 		<menu_item_call label="L$ kaufen" name="Buy and Sell L$"/>
 		<menu_item_call label="Mein Profil" name="Profile"/>
-		<menu_item_call label="Mein Aussehen" name="Appearance"/>
 		<menu_item_check label="Mein Inventar" name="Inventory"/>
 		<menu_item_check label="Mein Inventar" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Meine Gesten" name="Gestures"/>
+		<menu_item_check label="Meine Stimme" name="ShowVoice"/>
 		<menu label="Mein Status" name="Status">
 			<menu_item_call label="Abwesend" name="Set Away"/>
 			<menu_item_call label="Beschäftigt" name="Set Busy"/>
@@ -70,6 +70,12 @@
 		<menu_item_call label="Verknüpfung" name="Link"/>
 		<menu_item_call label="Verknüpfung auflösen" name="Unlink"/>
 		<menu_item_check label="Verknüpfte Teile bearbeiten" name="Edit Linked Parts"/>
+		<menu label="Verknüpfte Teile auswählen" name="Select Linked Parts">
+			<menu_item_call label="Nächstes Teil auswählen" name="Select Next Part"/>
+			<menu_item_call label="Vorheriges Teil auswählen" name="Select Previous Part"/>
+			<menu_item_call label="Nächsten Teil mit einsschließen" name="Include Next Part"/>
+			<menu_item_call label="Vorherige Teile mit einschließen" name="Include Previous Part"/>
+		</menu>
 		<menu_item_call label="Fokus auf Auswahl" name="Focus on Selection"/>
 		<menu_item_call label="Auf Auswahl zoomen" name="Zoom to Selection"/>
 		<menu label="Objekt" name="Object">
@@ -100,11 +106,11 @@
 			<menu_item_call label="Auswahl für Raster verwenden" name="Use Selection for Grid"/>
 			<menu_item_call label="Rasteroptionen" name="Grid Options"/>
 		</menu>
-		<menu label="Verknüpfte Teile auswählen" name="Select Linked Parts">
-			<menu_item_call label="Nächstes Teil auswählen" name="Select Next Part"/>
-			<menu_item_call label="Vorheriges Teil auswählen" name="Select Previous Part"/>
-			<menu_item_call label="Nächsten Teil mit einsschließen" name="Include Next Part"/>
-			<menu_item_call label="Vorherige Teile mit einschließen" name="Include Previous Part"/>
+		<menu label="Hochladen" name="Upload">
+			<menu_item_call label="Bild ([COST] L$)..." name="Upload Image"/>
+			<menu_item_call label="Sound ([COST] L$)..." name="Upload Sound"/>
+			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
+			<menu_item_call label="Mehrfach-Upload ([COST] L$ pro Datei)..." name="Bulk Upload"/>
 		</menu>
 	</menu>
 	<menu label="Hilfe" name="Help">
@@ -189,7 +195,6 @@
 			<menu_item_call label="Hineinzoomen" name="Zoom In"/>
 			<menu_item_call label="Zoom-Standard" name="Zoom Default"/>
 			<menu_item_call label="Wegzoomen" name="Zoom Out"/>
-			<menu_item_call label="Vollbild" name="Toggle Fullscreen"/>
 		</menu>
 		<menu_item_call label="Debug-Einstellungen anzeigen" name="Debug Settings"/>
 		<menu_item_check label="Menü „Entwickler“ anzeigen" name="Debug Mode"/>
