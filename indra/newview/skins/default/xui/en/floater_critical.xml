@@ -6,6 +6,7 @@
  height="500"
  layout="topleft"
  name="modal container"
+ open_centered="true"
  width="600">
     <button
      height="20"
@@ -16,15 +17,6 @@
      name="Continue"
      top="465"
      width="100" />
-    <button
-     height="20"
-     label="Cancel"
-     label_selected="Cancel"
-     layout="topleft"
-     left_delta="-468"
-     name="Cancel"
-     top_delta="0"
-     width="100" />
     <text
      type="string"
      length="1"
@@ -32,9 +24,9 @@
      font="SansSerif"
      height="20"
      layout="topleft"
-     left_delta="4"
+     left="20"
      name="tos_heading"
-     top_delta="-450"
+     top="20"
      width="552">
         Please read the following message carefully.
     </text>
