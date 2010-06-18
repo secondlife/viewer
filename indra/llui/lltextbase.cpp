@@ -1616,7 +1616,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 					part = (S32)LLTextParser::MIDDLE;
 				}
 				std::string subtext=text.substr(0,start);
-				appendAndHighlightTextImpl(subtext, part, style_params); 
+				appendAndHighlightText(subtext, part, style_params); 
 			}
 
 			// output an optional icon before the Url
@@ -1637,11 +1637,11 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			// output the styled Url (unless we've been asked to suppress hyperlinking)
 			if (match.isLinkDisabled())
 			{
-				appendAndHighlightTextImpl(match.getLabel(), part, style_params);
+				appendAndHighlightText(match.getLabel(), part, style_params);
 			}
 			else
 			{
-				appendAndHighlightTextImpl(match.getLabel(), part, link_params);
+				appendAndHighlightText(match.getLabel(), part, link_params);
 
 				// set the tooltip for the Url label
 				if (! match.getTooltip().empty())
@@ -1669,11 +1669,11 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		if (part != (S32)LLTextParser::WHOLE) 
 			part=(S32)LLTextParser::END;
 		if (end < (S32)text.length()) 
-			appendAndHighlightTextImpl(text, part, style_params);		
+			appendAndHighlightText(text, part, style_params);		
 	}
 	else
 	{
-		appendAndHighlightTextImpl(new_text, part, style_params);
+		appendAndHighlightText(new_text, part, style_params);
 	}
 }
 
@@ -1684,23 +1684,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 
 	if(prepend_newline)
 		appendLineBreakSegment(input_params);
-	std::string::size_type start = 0;
-	std::string::size_type pos = new_text.find("\n",start);
-	
-	while(pos!=-1)
-	{
-		if(pos!=start)
-		{
-			std::string str = std::string(new_text,start,pos-start);
-			appendTextImpl(str,input_params);
-		}
-		appendLineBreakSegment(input_params);
-		start = pos+1;
-		pos = new_text.find("\n",start);
-	}
-
-	std::string str = std::string(new_text,start,new_text.length()-start);
-	appendTextImpl(str,input_params);
+	appendTextImpl(new_text,input_params);
 }
 
 void LLTextBase::needsReflow(S32 index)
@@ -1803,12 +1787,9 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 	}
 }
 
-void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepend_newline, S32 highlight_part, const LLStyle::Params& style_params)
+void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params)
 {
 	if (new_text.empty()) return; 
-
-	if(prepend_newline)
-		appendLineBreakSegment(style_params);
 
 	std::string::size_type start = 0;
 	std::string::size_type pos = new_text.find("\n",start);
