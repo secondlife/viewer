@@ -4496,6 +4496,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 						items.push_back(std::string("Wearable Wear"));
 						items.push_back(std::string("Wearable Add"));
 						disabled_items.push_back(std::string("Take Off"));
+						disabled_items.push_back(std::string("Wearable Edit"));
 					}
 					break;
 				default:

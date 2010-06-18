@@ -32,6 +32,12 @@
 
 #include <cstdlib>
 
+#ifdef LL_DARWIN
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/sysctl.h>
+#endif
+
 #include "linden_common.h"
 #include "llapp.h"
 
@@ -306,7 +312,42 @@ void LLApp::setupErrorHandling()
 	setup_signals();
 	
 	// Add google breakpad exception handler configured for Darwin/Linux.
-	if(mExceptionHandler == 0)
+	bool installHandler = true;
+#ifdef LL_DARWIN
+	// For the special case of Darwin, we do not want to install the handler if
+	// the process is being debugged as the app will exit with value ABRT (6) if
+	// we do.  Unfortunately, the code below which performs that test relies on
+	// the structure kinfo_proc which has been tagged by apple as an unstable
+	// API.  We disable this test for shipping versions to avoid conflicts with
+	// future releases of Darwin.  This test is really only needed for developers
+	// starting the app from a debugger anyway.
+	#ifndef LL_RELEASE_FOR_DOWNLOAD
+    int mib[4];
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_PID;
+	mib[3] = getpid();
+	
+	struct kinfo_proc info;
+	memset(&info, 0, sizeof(info));
+	
+	size_t size = sizeof(info);
+	int result = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
+	if((result == 0) || (errno == ENOMEM))
+	{
+		// P_TRACED flag is set, so this process is being debugged; do not install
+		// the handler
+		if(info.kp_proc.p_flag & P_TRACED) installHandler = false;
+	}
+	else
+	{
+		// Failed to discover if the process is being debugged; default to
+		// installing the handler.
+		installHandler = true;
+	}
+	#endif
+#endif
+	if(installHandler && (mExceptionHandler == 0))
 	{
 		std::string dumpPath = "/tmp/";
 		mExceptionHandler = new google_breakpad::ExceptionHandler(dumpPath, 0, &unix_post_minidump_callback, 0, true);
@@ -364,7 +405,7 @@ void LLApp::setError()
 
 void LLApp::setMiniDumpDir(const std::string &path)
 {
-	llassert(mExceptionHandler);
+	if(mExceptionHandler == 0) return;
 #ifdef LL_WINDOWS
 	wchar_t buffer[MAX_MINDUMP_PATH_LENGTH];
 	mbstowcs(buffer, path.c_str(), MAX_MINDUMP_PATH_LENGTH);
@@ -376,7 +417,7 @@ void LLApp::setMiniDumpDir(const std::string &path)
 
 void LLApp::writeMiniDump()
 {
-	llassert(mExceptionHandler);
+	if(mExceptionHandler == 0) return;
 	mExceptionHandler->WriteMinidump();
 }
 
