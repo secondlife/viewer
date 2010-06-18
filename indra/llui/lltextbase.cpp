@@ -152,6 +152,7 @@ LLTextBase::Params::Params()
 	bg_writeable_color("bg_writeable_color"),
 	bg_focus_color("bg_focus_color"),
 	allow_scroll("allow_scroll", true),
+	plain_text("plain_text",false),
 	track_end("track_end", false),
 	read_only("read_only", false),
 	v_pad("v_pad", 0),
@@ -200,6 +201,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mSelectionStart( 0 ),
 	mSelectionEnd( 0 ),
 	mIsSelecting( FALSE ),
+	mPlainText ( p.plain_text ),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
 	mParseHTML(p.allow_html),
@@ -1718,6 +1720,10 @@ void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 
 void LLTextBase::appendImageSegment(S32 highlight_part, const LLStyle::Params& style_params)
 {
+	if(getPlainText())
+	{
+		return;
+	}
 	segment_vec_t segments;
 	LLStyleConstSP sp(new LLStyle(style_params));
 	segments.push_back(new LLImageTextSegment(sp, getLength(),*this));

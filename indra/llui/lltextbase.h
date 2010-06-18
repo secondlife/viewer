@@ -86,6 +86,7 @@ public:
 								track_end,
 								read_only,
 								allow_scroll,
+								plain_text,
 								wrap,
 								use_ellipses,
 								allow_html,
@@ -176,6 +177,9 @@ public:
 
 	void					setReadOnly(bool read_only) { mReadOnly = read_only; }
 	bool					getReadOnly() { return mReadOnly; }
+
+	void					setPlainText(bool value) { mPlainText = value;}
+	bool					getPlainText() const { return mPlainText; }
 
 	// cursor manipulation
 	bool					setCursor(S32 row, S32 column);
@@ -366,6 +370,7 @@ protected:
 	bool						mReadOnly;
 	bool						mBGVisible;			// render background?
 	bool						mClipPartial;		// false if we show lines that are partially inside bounding rect
+	bool						mPlainText;			// didn't use Image or Icon segments
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
 
 	// support widgets
