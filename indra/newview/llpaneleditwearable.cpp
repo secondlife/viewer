@@ -652,7 +652,7 @@ BOOL LLPanelEditWearable::postBuild()
 	// handled at appearance panel level?
 	//mBtnBack->setClickedCallback(boost::bind(&LLPanelEditWearable::onBackButtonClicked, this));
 
-	mTextEditor = getChild<LLTextEditor>("description");
+	mNameEditor = getChild<LLLineEditor>("description");
 
 	mPanelTitle = getChild<LLTextBox>("edit_wearable_title");
 	mDescTitle = getChild<LLTextBox>("description_text");
@@ -758,7 +758,7 @@ BOOL LLPanelEditWearable::isDirty() const
 	if (mWearablePtr)
 	{
 		if (mWearablePtr->isDirty() ||
-			mWearablePtr->getName().compare(mTextEditor->getText()) != 0)
+			mWearablePtr->getName().compare(mNameEditor->getText()) != 0)
 		{
 			isDirty = TRUE;
 		}
@@ -796,7 +796,7 @@ void LLPanelEditWearable::onRevertButtonClicked(void* userdata)
 void LLPanelEditWearable::onSaveAsButtonClicked()
 {
 	LLSD args;
-	args["DESC"] = mTextEditor->getText();
+	args["DESC"] = mNameEditor->getText();
 
 	LLNotificationsUtil::add("SaveWearableAs", args, LLSD(), boost::bind(&LLPanelEditWearable::saveAsCallback, this, _1, _2));
 }
@@ -810,7 +810,7 @@ void LLPanelEditWearable::saveAsCallback(const LLSD& notification, const LLSD& r
 		LLStringUtil::trim(wearable_name);
 		if( !wearable_name.empty() )
 		{
-			mTextEditor->setText(wearable_name);
+			mNameEditor->setText(wearable_name);
 			saveChanges();
 		}
 	}
@@ -956,10 +956,10 @@ void LLPanelEditWearable::saveChanges()
 
 	U32 index = gAgentWearables.getWearableIndex(mWearablePtr);
 	
-	if (mWearablePtr->getName().compare(mTextEditor->getText()) != 0)
+	if (mWearablePtr->getName().compare(mNameEditor->getText()) != 0)
 	{
 		// the name of the wearable has changed, re-save wearable with new name
-		gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, mTextEditor->getText(), FALSE);
+		gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, mNameEditor->getText(), FALSE);
 	}
 	else
 	{
@@ -976,7 +976,7 @@ void LLPanelEditWearable::revertChanges()
 	}
 
 	mWearablePtr->revertValues();
-	mTextEditor->setText(mWearablePtr->getName());
+	mNameEditor->setText(mWearablePtr->getName());
 }
 
 void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
@@ -1018,7 +1018,7 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 		mDescTitle->setText(description_title);
 		
 		// set name
-		mTextEditor->setText(wearable->getName());
+		mNameEditor->setText(wearable->getName());
 
 		updatePanelPickerControls(type);
 		updateTypeSpecificControls(type);
