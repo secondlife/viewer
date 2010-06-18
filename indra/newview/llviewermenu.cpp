@@ -3278,16 +3278,6 @@ void handle_buy_object(LLSaleInfo sale_info)
 		return;
 	}
 
-	S32 price = sale_info.getSalePrice();
-	
-	if (price > 0 && price > gStatusBar->getBalance())
-	{
-		LLStringUtil::format_map_t args;
-		args["AMOUNT"] = llformat("%d", price);
-		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_object_costs", args), price );
-		return;
-	}
-
 	LLFloaterBuy::show(sale_info);
 }
 
@@ -3784,17 +3774,6 @@ class LLViewMouselook : public view_listener_t
 		{
 			gAgentCamera.changeCameraToDefault();
 		}
-		return true;
-	}
-};
-
-class LLViewFullscreen : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		// we no longer permit full screen mode EXT-6775
-		// gViewerWindow->toggleFullscreen(TRUE);
-		llwarns << "full screen mode no longer supported" << llendl;
 		return true;
 	}
 };
@@ -4553,6 +4532,16 @@ void handle_buy()
 	LLSaleInfo sale_info;
 	BOOL valid = LLSelectMgr::getInstance()->selectGetSaleInfo(sale_info);
 	if (!valid) return;
+
+	S32 price = sale_info.getSalePrice();
+	
+	if (price > 0 && price > gStatusBar->getBalance())
+	{
+		LLStringUtil::format_map_t args;
+		args["AMOUNT"] = llformat("%d", price);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_object_costs", args), price );
+		return;
+	}
 
 	if (sale_info.getSaleType() == LLSaleInfo::FS_CONTENTS)
 	{
@@ -7209,7 +7198,7 @@ void handle_web_browser_test(const LLSD& param)
 	{
 		url = "about:blank";
 	}
-	LLWeb::loadURL(url);
+	LLWeb::loadURLInternal(url);
 }
 
 void handle_buy_currency_test(void*)
@@ -7783,7 +7772,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLZoomer(1.2f), "View.ZoomOut");
 	view_listener_t::addMenu(new LLZoomer(1/1.2f), "View.ZoomIn");
 	view_listener_t::addMenu(new LLZoomer(DEFAULT_FIELD_OF_VIEW, false), "View.ZoomDefault");
-	view_listener_t::addMenu(new LLViewFullscreen(), "View.Fullscreen");
 	view_listener_t::addMenu(new LLViewDefaultUISize(), "View.DefaultUISize");
 
 	view_listener_t::addMenu(new LLViewEnableMouselook(), "View.EnableMouselook");

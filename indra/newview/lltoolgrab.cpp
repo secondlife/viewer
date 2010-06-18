@@ -886,28 +886,6 @@ void LLToolGrab::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
 // Not dragging.  Just showing affordances
 void LLToolGrab::handleHoverInactive(S32 x, S32 y, MASK mask)
 {
-	const F32 ROTATE_ANGLE_PER_SECOND = 40.f * DEG_TO_RAD;
-	const F32 rotate_angle = ROTATE_ANGLE_PER_SECOND / gFPSClamped;
-
-	// Look for cursor against the edge of the screen
-	// Only works in fullscreen
-	if (gSavedSettings.getBOOL("FullScreen"))
-	{
-		if (gAgentCamera.cameraThirdPerson() )
-		{
-			if (x == 0)
-			{
-				gAgent.yaw(rotate_angle);
-				//gAgent.setControlFlags(AGENT_CONTROL_YAW_POS);
-			}
-			else if (x == (gViewerWindow->getWorldViewWidthScaled() - 1) )
-			{
-				gAgent.yaw(-rotate_angle);
-				//gAgent.setControlFlags(AGENT_CONTROL_YAW_NEG);
-			}
-		}
-	}
-
 	// JC - TODO - change cursor based on gGrabBtnVertical, gGrabBtnSpin
 	lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolGrab (inactive-not over editable object)" << llendl;		
 	gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
