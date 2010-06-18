@@ -47,8 +47,8 @@
          width="263">
         <layout_panel
          follows="top|left|right"
-          user_resize="false" 
-         auto_resize="false" 
+         user_resize="false"
+         auto_resize="false"
          layout="topleft"
          height="20"
          name="my_panel">
@@ -123,7 +123,7 @@
           layout="topleft"
           left="2"
           top_pad="0"
-          height="132" 
+          height="132"
           name="callers_panel"
           user_resize="false" 
           width="280">

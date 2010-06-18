@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- legacy_header_height="18"
+ legacy_header_height="27"
  can_resize="true"
- height="420"
+ height="500"
  name="voice_effects"
  help_topic="voice_effects"
- title="PREVIEW VOICE MORPHING"
+ title="VOICE MORPHING"
  background_visible="true"
  follows="all"
  label="Places"
  layout="topleft"
- min_height="350"
- min_width="330"
- width="455">
+ min_height="360"
+ min_width="200"
+ width="300">
   <string name="no_voice_effect">
     (No Voice Morph)
   </string>
@@ -25,8 +25,22 @@
   <string name="new_voice_effect">
     (New!)
   </string>
+ <text
+   height="16"
+   word_wrap="true"
+   use_ellipses="true"
+   type="string"
+   follows="left|top|right"
+   layout="topleft"
+   font="SansSerifBold"
+   color="White"
+   left="10"
+   name="status_text"
+   right="-10"
+   top="27">To Preview
+   </text>
   <text
-   height="68"
+   height="23"
    word_wrap="true"
    use_ellipses="true"
    type="string"
@@ -34,22 +48,20 @@
    layout="topleft"
    left="10"
    name="status_text"
-   right="-10"
-   top="25">
-To preview any of the Voice Morphing effects, click the Record button to record a short snippet of voice, then click any Voice Morph in the list to hear how it will sound.
-
-To reconnect to Nearby Voice simply close this window.
+   right="-5"
+   top_pad="0">
+Record a sample, then click on a voice to hear how it will sound.
   </text>
   <button
    follows="left|top"
    height="23"
-   label="Record Sample"
+   label="Record"
    layout="topleft"
    left="10"
    name="record_btn"
    tool_tip="Record a sample of your voice."
    top_pad="5"
-   width="150">
+   width="100">
     <button.commit_callback
      function="VoiceEffect.Record" />
   </button>
@@ -61,22 +73,22 @@ To reconnect to Nearby Voice simply close this window.
    left_delta="0"
    name="record_stop_btn"
    top_delta="0"
-   width="150">
+   width="100">
     <button.commit_callback
      function="VoiceEffect.Stop" />
   </button>
   <text
-   height="18"
+   height="23"
    halign="right"
    use_ellipses="true"
    type="string"
    follows="left|top|right"
    layout="topleft"
    left_pad="10"
+   top_delta="10"
    name="voice_morphing_link"
-   right="-10"
-   top_delta="5">
-    [[URL] Get Voice Morphing]
+   right="-10">
+    [[URL] Subscribe Now]
   </text>
   <scroll_list
    bottom="-10"
@@ -88,14 +100,16 @@ To reconnect to Nearby Voice simply close this window.
    name="voice_effect_list"
    right="-10"
    tool_tip="Record a sample of your voice, then click an effect to preview."
-   top="128">
+   top="95">
     <scroll_list.columns
-     label="Voice Morph"
-     name="name" relative_width="0.41"/>
+     label="Voice Name"
+     name="name"
+     relative_width="0.60" />
     <scroll_list.columns
      dynamic_width="true"
      label="Expires"
      name="expires"
-	 relative_width="0.59" />
+     relative_width="0.30" />
   </scroll_list>
+
 </floater>
