@@ -33,9 +33,13 @@
 #ifndef LL_LLAGENTWEARABLES_H
 #define LL_LLAGENTWEARABLES_H
 
+// libraries
 #include "llmemory.h"
+#include "llui.h"
 #include "lluuid.h"
 #include "llinventory.h"
+
+// newview
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 #include "llvoavatardefines.h"
@@ -47,7 +51,7 @@ class LLInitialWearablesFetch;
 class LLViewerObject;
 class LLTexLayerTemplate;
 
-class LLAgentWearables
+class LLAgentWearables : public LLInitClass<LLAgentWearables>
 {
 	//--------------------------------------------------------------------
 	// Constructors / destructors / Initializers
@@ -61,6 +65,9 @@ public:
 	void			createStandardWearables(BOOL female); 
 	void			cleanup();
 	void			dump();
+
+	// LLInitClass interface
+	static void initClass();
 protected:
 	void			createStandardWearablesDone(S32 type, U32 index/* = 0*/);
 	void			createStandardWearablesAllDone();

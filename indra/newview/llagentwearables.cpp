@@ -47,6 +47,7 @@
 #include "llinventorypanel.h"
 #include "llmd5.h"
 #include "llnotificationsutil.h"
+#include "lloutfitobserver.h"
 #include "llpaneloutfitsinventory.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
@@ -177,6 +178,13 @@ LLAgentWearables::~LLAgentWearables()
 
 void LLAgentWearables::cleanup()
 {
+}
+
+// static
+void LLAgentWearables::initClass()
+{
+	// this can not be called from constructor because its instance is global and is created too early.
+	LLOutfitObserver::instance().addCOFSavedCallback(boost::bind(&LLAgentWearables::notifyLoadingFinished, &gAgentWearables));
 }
 
 void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
@@ -931,6 +939,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 
 	// notify subscribers that wearables started loading. See EXT-7777
 	// *TODO: find more proper place to not be called from deprecated method.
+	// Seems such place is found: LLInitialWearablesFetch::processContents()
 	gAgentWearables.notifyLoadingStarted();
 
 	mInitialWearablesUpdateReceived = true;
