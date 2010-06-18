@@ -35,6 +35,7 @@
 
 #include "llassettype.h"
 #include "llpreview.h"
+#include "llmultigesture.h"
 
 class LLMultiGesture;
 class LLLineEditor;
