@@ -7693,6 +7693,31 @@ void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 	LLMenuGL::showPopup(ctrl, show_navbar_context_menu, x, y);
 }
 
+void show_topinfobar_context_menu(LLView* ctrl, S32 x, S32 y)
+{
+	static LLMenuGL* show_topbarinfo_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_topinfobar.xml",
+			gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+
+	LLMenuItemGL* landmark_item = show_topbarinfo_context_menu->getChild<LLMenuItemGL>("Landmark");
+	if (!LLLandmarkActions::landmarkAlreadyExists())
+	{
+		landmark_item->setLabel(LLTrans::getString("AddLandmarkNavBarMenu"));
+	}
+	else
+	{
+		landmark_item->setLabel(LLTrans::getString("EditLandmarkNavBarMenu"));
+	}
+
+	if(gMenuHolder->hasVisibleMenu())
+	{
+		gMenuHolder->hideMenus();
+	}
+
+	show_topbarinfo_context_menu->buildDrawLabels();
+	show_topbarinfo_context_menu->updateParent(LLMenuGL::sMenuContainer);
+	LLMenuGL::showPopup(ctrl, show_topbarinfo_context_menu, x, y);
+}
+
 void initialize_edit_menu()
 {
 	view_listener_t::addMenu(new LLEditUndo(), "Edit.Undo");
