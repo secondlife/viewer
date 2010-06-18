@@ -738,6 +738,12 @@
 	<string name="land_type_unknown">
 		(sconosciuto)
 	</string>
+	<string name="Estate / Full Region">
+		Proprietà immobiliare / Regione completa
+	</string>
+	<string name="Mainland / Full Region">
+		Continente / Regione completa
+	</string>
 	<string name="all_files">
 		Tutti i file
 	</string>
@@ -881,6 +887,9 @@
 	</string>
 	<string name="NewWearable">
 		Nuovo [WEARABLE_ITEM]
+	</string>
+	<string name="CreateNewWearable">
+		Crea [WEARABLE_TYPE]
 	</string>
 	<string name="next">
 		Avanti
@@ -3454,6 +3463,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="session_initialization_timed_out_error">
 		Sessione di inizializzazione scaduta
 	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] ti ha inviato un pagamento di L$[AMOUNT].
 	</string>
@@ -3624,16 +3636,16 @@ Segnala abuso
 	<string name="Male - Wow">
 		Maschio - Accipicchia
 	</string>
-	<string name="FeMale - Excuse me">
+	<string name="Female - Excuse me">
 		Femmina - Chiedere scusa
 	</string>
-	<string name="FeMale - Get lost">
+	<string name="Female - Get lost">
 		Femmina - Levati dai piedi!
 	</string>
-	<string name="FeMale - Blow kiss">
+	<string name="Female - Blow kiss">
 		Femmina - Butta un bacio
 	</string>
-	<string name="FeMale - Boo">
+	<string name="Female - Boo">
 		Femmina - Bu
 	</string>
 	<string name="Female - Bored">
@@ -3665,5 +3677,33 @@ Segnala abuso
 	</string>
 	<string name="texture_load_dimensions_error">
 		Impossibile caricare immagini di dimensioni superiori a [WIDTH]*[HEIGHT]
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		Nonostante i nostri tentativi, si è verificato un errore imprevisto.
+
+	Consulta la pagina status.secondlifegrid.net per determinare se si sia verificato un problema noto con il servizio.  
+        Se il problema continua, ti consigliamo di controllare le tue impostazioni di rete e della firewall.
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		lunedì:martedì:mercoledì:giovedì:venerdì:sabato:domenica
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		lun:mar:mer:gio:ven:sab:dom
+	</string>
+	<string name="dateTimeMonthNames">
+		gennaio:febbraio:marzo:aprile:maggio:giugno:luglio:agosto:settembre:ottobre:novembre:dicembre
+	</string>
+	<string name="dateTimeMonthShortNames">
+		gen:feb:mar:apr:mag:giu:lug:ago:sett:ott:nov:dic
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		antemeridiane
+	</string>
+	<string name="dateTimePM">
+		pomeridiane
 	</string>
 </strings>

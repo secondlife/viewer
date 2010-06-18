@@ -81,6 +81,7 @@
 	<menu label="Attacca all&apos;HUD" name="Attach To HUD"/>
 	<menu_item_call label="Modifica" name="Wearable Edit"/>
 	<menu_item_call label="Indossa" name="Wearable Wear"/>
+	<menu_item_call label="Aggiungi" name="Wearable Add"/>
 	<menu_item_call label="Togli" name="Take Off"/>
 	<menu_item_call label="--nessuna opzione--" name="--no options--"/>
 </menu>
