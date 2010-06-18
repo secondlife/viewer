@@ -94,6 +94,11 @@ public:
 
 	boost::signals2::connection addSelectionChangeCallback(selection_change_callback_t cb);
 
+	/**
+	 * Returns true if there is a selection inside currently selected outfit
+	 */
+	bool hasItemSelected();
+
 private:
 	/**
 	 * Reads xml with accordion tab and Flat list from xml file.
@@ -183,6 +188,10 @@ private:
 	LLListContextMenu*			mOutfitMenu;
 
 	bool							mIsInitialized;
+	/**
+	 * True if there is a selection inside currently selected outfit
+	 */
+	bool							mItemSelected;
 };
 
 #endif //LL_LLOUTFITSLIST_H

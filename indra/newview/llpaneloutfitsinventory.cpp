@@ -661,7 +661,8 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		else // "My Outfits" tab active
 		{
 			const LLUUID& selected_outfit = mMyOutfitsPanel->getSelectedOutfitUUID();
-			can_delete = LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit);
+			// first condition prevents trash btn from enabling when items are selected inside outfit (EXT-7847)
+			can_delete = !mMyOutfitsPanel->hasItemSelected() && LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit);
 		}
 
 		return can_delete;

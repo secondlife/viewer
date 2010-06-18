@@ -161,6 +161,7 @@ LLOutfitsList::LLOutfitsList()
 	,	mAccordion(NULL)
 	,	mListCommands(NULL)
 	,	mIsInitialized(false)
+	,	mItemSelected(false)
 {
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
 
@@ -418,6 +419,11 @@ boost::signals2::connection LLOutfitsList::addSelectionChangeCallback(selection_
 	return mSelectionChangeSignal.connect(cb);
 }
 
+bool LLOutfitsList::hasItemSelected()
+{
+	return mItemSelected;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Private methods
 //////////////////////////////////////////////////////////////////////////
@@ -502,6 +508,8 @@ void LLOutfitsList::changeOutfitSelection(LLWearableItemsList* list, const LLUUI
 		// Clear current selection.
 		mSelectedListsMap.clear();
 	}
+
+	mItemSelected = list && (list->getSelectedItem() != NULL);
 
 	mSelectedListsMap.insert(wearables_lists_map_value_t(category_id, list));
 	setSelectedOutfitUUID(category_id);
