@@ -433,7 +433,6 @@ BOOL LLNearbyChatBar::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
 
-	// ALT-RETURN is reserved for windowed/fullscreen toggle
 	if( KEY_RETURN == key && mask == MASK_CONTROL)
 	{
 		// shout
