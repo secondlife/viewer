@@ -37,6 +37,7 @@
 #include "llrect.h"
 #include "lluictrl.h"
 #include "lluicolor.h"
+#include "llstyle.h"
 
 class LLUICtrlFactory;
 class LLUIImage;
@@ -119,6 +120,9 @@ public:
 
 	// Set text and highlight substring in LLAccordionCtrlTabHeader
 	void setTitle(const std::string& title, const std::string& hl = LLStringUtil::null);
+
+	// Set text font style in LLAccordionCtrlTabHeader
+	void setTitleFontStyle(std::string style);
 
 	boost::signals2::connection setFocusReceivedCallback(const focus_signal_t::slot_type& cb);
 	boost::signals2::connection setFocusLostCallback(const focus_signal_t::slot_type& cb);

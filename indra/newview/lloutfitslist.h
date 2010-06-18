@@ -83,6 +83,9 @@ public:
 
 	void refreshList(const LLUUID& category_id);
 
+	// highlits currently worn outfit tab text and unhighlights previously worn
+	void highlightBaseOutfit();
+
 	void performAction(std::string action);
 
 	void setFilterSubString(const std::string& string);
@@ -167,6 +170,8 @@ private:
 	wearables_lists_map_t			mSelectedListsMap;
 
 	LLUUID							mSelectedOutfitUUID;
+	// id of currently highlited outfit
+	LLUUID							mHighlightedOutfitUUID;
 	selection_change_signal_t		mSelectionChangeSignal;
 
 	std::string 					mFilterSubString;

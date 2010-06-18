@@ -44,6 +44,7 @@
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llnotificationsutil.h"
+#include "lloutfitobserver.h"
 #include "llsidetray.h"
 #include "lltransutil.h"
 #include "llviewermenu.h"
@@ -212,12 +213,16 @@ void LLOutfitsList::onOpen(const LLSD& /*info*/)
 		// Start observing changes in Current Outfit category.
 		mCategoriesObserver->addCategory(cof, boost::bind(&LLOutfitsList::onCOFChanged, this));
 
+		LLOutfitObserver::instance().addBOFChangedCallback(boost::bind(&LLOutfitsList::highlightBaseOutfit, this));
+		LLOutfitObserver::instance().addBOFReplacedCallback(boost::bind(&LLOutfitsList::highlightBaseOutfit, this));
+
 		// Fetch "My Outfits" contents and refresh the list to display
 		// initially fetched items. If not all items are fetched now
 		// the observer will refresh the list as soon as the new items
 		// arrive.
 		category->fetch();
 		refreshList(outfits);
+		highlightBaseOutfit();
 
 		mIsInitialized = true;
 	}
@@ -348,6 +353,25 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 	}
 
 	mAccordion->sort();
+}
+
+void LLOutfitsList::highlightBaseOutfit()
+{
+	// id of base outfit
+	LLUUID base_id = LLAppearanceMgr::getInstance()->getBaseOutfitUUID();
+	if (base_id != mHighlightedOutfitUUID)
+	{
+		if (mOutfitsMap[mHighlightedOutfitUUID])
+		{
+			mOutfitsMap[mHighlightedOutfitUUID]->setTitleFontStyle("NORMAL");
+		}
+
+		mHighlightedOutfitUUID = base_id;
+	}
+	if (mOutfitsMap[base_id])
+	{
+		mOutfitsMap[base_id]->setTitleFontStyle("BOLD");
+	}
 }
 
 void LLOutfitsList::onSelectionChange(LLUICtrl* ctrl)
