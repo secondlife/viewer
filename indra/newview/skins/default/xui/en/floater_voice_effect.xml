@@ -35,7 +35,7 @@
    font="SansSerifBold"
    color="White"
    left="10"
-   name="status_text"
+   name="preview_text"
    right="-10"
    top="27">To Preview
    </text>
