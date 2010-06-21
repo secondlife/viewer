@@ -452,6 +452,10 @@ void LLPanelOutfitEdit::showWearablesFilter()
 		mSearchFilter->clear();
 		onSearchEdit(LLStringUtil::null);
 	}
+	else
+	{
+		mSearchFilter->setFocus(TRUE);
+	}
 }
 
 void LLPanelOutfitEdit::showWearablesListView()
