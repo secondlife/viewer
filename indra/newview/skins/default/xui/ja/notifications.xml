@@ -497,8 +497,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		[REGION] では、地形の変更ができません。
 	</notification>
 	<notification name="CannotCopyWarning">
-		あなたはこのアイテムのコピーを許されていないので、人にあげると「持ち物」からなくなります。
-本当にこれを渡しますか？
+		あなたには[ITEMS]というアイテムをコピーする許可がありません。他の住人に提供すると、そのアイテムはあなたの「持ち物」から削除されます。本当にこれらのアイテムを譲りますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -974,6 +973,26 @@ L$ は返金されません。
 			</input>
 			<button name="Offer" text="OK"/>
 			<button name="Cancel" text="キャンセル"/>
+		</form>
+	</notification>
+	<notification label="着用物を保存" name="SaveWearableAs">
+		アイテムを別名で持ち物に保存：
+		<form name="form">
+			<input name="message">
+				[DESC]（新規）
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="取り消し"/>
+		</form>
+	</notification>
+	<notification label="アウトフィットの名前を変更する" name="RenameOutfit">
+		新しいアウトフィットの名前：
+		<form name="form">
+			<input name="new_name">
+				[NAME]
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="取り消し"/>
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
@@ -1602,9 +1621,9 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 		あなたのレーティング区分により、そのリージョン（地域）へは入ることができません。
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		あなたのレーティング区分設定に基づいて、そのリージョンへは入ることができません。
+		レーティング区分に関する設定により、その地域（リージョン）には立ち入れません。
 
-「設定を変更」をクリックしてレーティング区分の設定を変更すればすぐに入れます。 変更に伴って [REGIONMATURITY] コンテンツの検索やアクセスが可能になります。 あとで設定を変更したい場合は ミー &gt; 環境設定 &gt; 一般 からどうぞ。
+その地域に入るには、あなたのレーティング区分の設定を変更してください。変更すると、[REGIONMATURITY]のコンテンツの検索やアクセスが可能になります。変更内容を元に戻すには、ミー &gt; 環境設定 &gt; 一般を選択してください。
 		<form name="form">
 			<button name="OK" text="環境設定の変更"/>
 			<button default="true" name="Cancel" text="閉じる"/>
@@ -2634,6 +2653,18 @@ M キーを押して変更します。
 	<notification name="VoiceLoginRetry">
 		ボイスチャンネルを作成しています。1 分ほどかかります。
 	</notification>
+	<notification name="VoiceEffectsExpired">
+		ボイスモーフィング効果の1つまたは複数の有効期限が終了しました。期限を延長・更新するには[[URL]こちらをクリック]してください。
+	</notification>
+	<notification name="VoiceEffectsExpiredInUse">
+		ボイスモーフィング効果の有効期限が終了したため、あなたの通常のボイス設定が適用されました。期限を延長・更新するには[[URL]こちらをクリック]してください。
+	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		ボイスモーフィング効果の1つまたは複数の有効期限が[INTERVAL]日以内に終了します。期限を延長・更新するには[[URL]こちらをクリック]してください。
+	</notification>
+	<notification name="VoiceEffectsNew">
+		新しいボイスモーフィング効果が登場！
+	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		特定のグループメンバーのみこのエリアを訪問することができます。
 	</notification>
@@ -2700,18 +2731,36 @@ M キーを押して変更します。
 じゅうぶんなスペースができればボタンは表示されます。
 	</notification>
 	<notification name="ShareNotification">
-		住人選択画面に表示された人に「持ち物」からアイテムをドラッグしてください
+		共有する住人を選択します。
+	</notification>
+	<notification name="ShareItemsConfirmation">
+		次のアイテムを共有しますか：
+
+[ITEMS]
+
+次の住人と共有しますか：
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="ItemsShared">
+		アイテムが共有されました。
 	</notification>
 	<notification name="DeedToGroupFail">
 		グループへの譲渡に失敗しました。
 	</notification>
 	<notification name="AvatarRezNotification">
-		（ [EXISTENCE] 秒）
-アバター「 [NAME] 」が [TIME] 秒で出現します。
+		（作成後[EXISTENCE]秒経過）
+&apos;[NAME]&apos;というアバターは[TIME]秒後に姿を現わしました。
 	</notification>
-	<notification name="AvatarRezSelfNotification">
-		（ [EXISTENCE] 秒）
-[TIME] 秒でアウトフィットのベーキングが完了しました。
+	<notification name="AvatarRezSelfBakedDoneNotification">
+		（作成後[EXISTENCE]秒経過）
+アウトフィットのベークは[TIME]秒後に完了しました。
+	</notification>
+	<notification name="AvatarRezSelfBakedUpdateNotification">
+		（作成後[EXISTENCE]秒経過）
+容姿の更新は[TIME]秒後に送信されました。
+[STATUS]
 	</notification>
 	<notification name="AvatarRezCloudNotification">
 		（ [EXISTENCE] 秒）
@@ -2733,9 +2782,31 @@ M キーを押して変更します。
 		（ [EXISTENCE] 秒）
 アバター「 NAME 」が容姿編集モードを解除しました。
 	</notification>
+	<notification name="NoConnect">
+		[PROTOCOL] [HOSTID]を使って接続できません。
+お使いのネットワークやファイアウォールの設定を確認してください。
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
+	<notification name="NoVoiceConnect">
+		ボイスサーバーに接続できません：
+
+[HOSTID]
+
+ボイスチャットによるコミュニケーションが利用できません。
+お使いのネットワークやファイアウォールの設定を確認してください。
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
 	<notification name="AvatarRezLeftNotification">
 		（ [EXISTENCE] 秒）
 アバター「 NAME 」が完全に読み込まれました。
+	</notification>
+	<notification name="AvatarRezSelfBakeNotification">
+		（作成後[EXISTENCE]秒経過）
+&apos;[BODYREGION]&apos;の[RESOLUTION]のベークドテクスチャは[TIME]秒後にアップロードされました。
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		このコールから抜けますか？
@@ -2747,7 +2818,7 @@ M キーを押して変更します。
 ミュートされます。あなたがコールを終了しても他の参加者のミュート状態が続きます。
 
 全員をミュートしますか？
-		<usetemplate ignoretext="グループコールの参加者全員をミュートする前の確認" name="okcancelignore" notext="Ok" yestext="キャンセル"/>
+		<usetemplate ignoretext="グループコールの参加者全員をミュートする前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- あなたの CPU の速度は必須動作環境の条件を満たしていません。

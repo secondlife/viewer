@@ -470,9 +470,8 @@ La calidad gráfica puede ajustarse en Preferencias &gt; Gráficos.
 		En la región [REGION] no se permite modificar el terreno.
 	</notification>
 	<notification name="CannotCopyWarning">
-		No tienes permiso para copiar este ítem.
-Si lo das, lo perderás de tu inventario.
-¿Realmente quieres darlo?
+		No tienes permiso para copiar los elementos siguientes:
+[ITEMS] y, si los das, los perderás del inventario. ¿Seguro que quieres ofrecerlos?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -942,6 +941,26 @@ no tienes el permiso de comprar terreno para el grupo que tienes activado actual
 		<form name="form">
 			<input name="message">
 				[DESC] (nuevo)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Cancelar"/>
+		</form>
+	</notification>
+	<notification label="Guardar artículo" name="SaveWearableAs">
+		Guardar el ítem en mi inventario como:
+		<form name="form">
+			<input name="message">
+				[DESC] (nuevo)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Cancelar"/>
+		</form>
+	</notification>
+	<notification label="Renombrar el vestuario" name="RenameOutfit">
+		Nombre del nuevo vestuario:
+		<form name="form">
+			<input name="new_name">
+				[NAME]
 			</input>
 			<button name="Offer" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
@@ -1569,7 +1588,7 @@ Por favor, comprueba que tienes instalado el último visor, y dirígete a la Bas
 	<notification name="RegionEntryAccessBlocked_Change">
 		No estás autorizado en esta región por tus preferencias sobre el nivel de calificación.
 
-Pulsa &apos;Cambiar las preferencias&apos; para incrementar las preferencias del nivel de calificación y obtener acceso inmediato. Esto te permitirá buscar contenidos [REGIONMATURITY] y tener acceso a ellos. Si prefieres cambiar esta opción más adelante, puedes hacerlo desde Yo &gt; Preferencias &gt; General.
+Para entrar en la región que deseas, cambia tu preferencia de nivel de calificación. Esto te permitirá buscar contenidos [REGIONMATURITY] y tener acceso a ellos. Para deshacer los cambios, elige Yo &gt; Preferencias &gt; General.
 		<form name="form">
 			<button name="OK" text="Cambiar las preferencias"/>
 			<button default="true" name="Cancel" text="Cerrar"/>
@@ -2581,6 +2600,21 @@ Pulsa Aceptar o Rehusar para coger o no la llamada. Pulsa Ignorar para ignorar a
 	<notification name="VoiceLoginRetry">
 		Estamos creando un canal de voz para ti. Se puede tardar hasta un minuto.
 	</notification>
+	<notification name="VoiceEffectsExpired">
+		Una o más de las transformaciones de voz a las que estás suscrito han caducado.
+[Pulsa aquí [URL]] para renovar la suscripción.
+	</notification>
+	<notification name="VoiceEffectsExpiredInUse">
+		La transformación de voz activa ha caducado y se ha aplicado tu configuración de voz normal.
+[Pulsa aquí [URL]] para renovar la suscripción.
+	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		Una o más de tus transformaciones de voz caducarán en menos de [INTERVAL] días.
+[Pulsa aquí [URL]] para renovar la suscripción.
+	</notification>
+	<notification name="VoiceEffectsNew">
+		Están disponibles nuevas transformaciones de voz.
+	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		Sólo los miembros de un grupo determinado pueden visitar esta zona.
 	</notification>
@@ -2647,7 +2681,20 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 Se mostrará cuando haya suficiente espacio.
 	</notification>
 	<notification name="ShareNotification">
-		Arrastrar ítems desde el inventario hasta una persona en el perfil del residente.
+		Selecciona los residentes con quienes deseas compartir.
+	</notification>
+	<notification name="ShareItemsConfirmation">
+		¿Estás seguro de que quieres compartir los elementos siguientes?
+
+[ITEMS]
+
+Con los siguientes residentes:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ItemsShared">
+		Los elementos se han compartido correctamente.
 	</notification>
 	<notification name="DeedToGroupFail">
 		Error de transferencia a grupo.
@@ -2656,9 +2703,14 @@ Se mostrará cuando haya suficiente espacio.
 		( [EXISTENCE] segundos vivo)
 El avatar &apos;[NAME]&apos; tardó [TIME] segundos en dejar de aparecer como nube.
 	</notification>
-	<notification name="AvatarRezSelfNotification">
+	<notification name="AvatarRezSelfBakedDoneNotification">
 		( [EXISTENCE] segundos vivo)
 Has terminado de texturizar tu vestuario en [TIME] segundos.
+	</notification>
+	<notification name="AvatarRezSelfBakedUpdateNotification">
+		( [EXISTENCE] segundos vivo)
+Has enviado una actualización de tu apariencia después de [TIME] segundos.
+[STATUS]
 	</notification>
 	<notification name="AvatarRezCloudNotification">
 		( [EXISTENCE] segundos vivo)
@@ -2680,9 +2732,31 @@ El avatar &apos;[NAME]&apos; ya está en modo de edición de apariencia.
 		( [EXISTENCE] segundos vivo)
 El avatar &apos;[NAME]&apos; desactivó el modo de apariencia.
 	</notification>
+	<notification name="NoConnect">
+		Tenemos problemas de conexión con [PROTOCOL] [HOSTID].
+Comprueba la configuración de la red y del servidor de seguridad.
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
+	<notification name="NoVoiceConnect">
+		Tenemos problemas de conexión con tu servidor de voz:
+
+[HOSTID]
+
+No podrás establecer comunicaciones de voz.
+Comprueba la configuración de la red y del servidor de seguridad.
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
 	<notification name="AvatarRezLeftNotification">
 		( [EXISTENCE] segundos vivo)
 El avatar &apos;[NAME]&apos; ya estaba totalmente cargado al salir.
+	</notification>
+	<notification name="AvatarRezSelfBakeNotification">
+		( [EXISTENCE] segundos vivo)
+Has cargado una textura obtenida mediante bake de [RESOLUTION] para &apos;[BODYREGION]&apos; después de [TIME] segundos.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		¿Estás seguro de que deseas salir de esta multiconferencia?
@@ -2693,7 +2767,7 @@ El avatar &apos;[NAME]&apos; ya estaba totalmente cargado al salir.
 Si lo haces, todos los residentes que se unan posteriormente a la llamada también serán silenciados, incluso cuando abandones la conferencia.
 
 ¿Deseas silenciar a todos?
-		<usetemplate ignoretext="Confirma que deseas silenciar a todos los participantes en una multiconferencia." name="okcancelignore" notext="OK" yestext="Cancelar"/>
+		<usetemplate ignoretext="Confirma que deseas silenciar a todos los participantes en una multiconferencia." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- La velocidad de tu CPU no cumple los requerimientos mínimos.

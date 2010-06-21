@@ -5,12 +5,19 @@
 	</floater.string>
 	<button label="スナップショットを更新" name="new_snapshot_btn"/>
 	<line_editor label="説明" name="description"/>
-	<button label="共有" name="share"/>
-	<button label="Web で共有" name="share_to_web"/>
-	<button label="「持ち物」に保存" name="save_to_inventory"/>
-	<button label="保存" name="save"/>
-	<button label="スナップショットをメール" name="share_to_email"/>
-	<button label="コンピューターに保存" name="save_to_computer"/>
-	<button label="プロフィールに設定" name="set_profile_pic"/>
-	<button label="戻る" name="cancel"/>
+	<panel name="panel_snapshot_main">
+		<button label="共有" name="share"/>
+		<button label="保存" name="save"/>
+		<button label="プロフィールに設定" name="set_profile_pic"/>
+	</panel>
+	<panel name="panel_snapshot_share">
+		<button label="Web で共有" name="share_to_web"/>
+		<button label="スナップショットをメール" name="share_to_email"/>
+		<button label="戻る" name="cancel_share"/>
+	</panel>
+	<panel name="panel_snapshot_save">
+		<button label="「持ち物」に保存" name="save_to_inventory"/>
+		<button label="コンピューターに保存" name="save_to_computer"/>
+		<button label="戻る" name="cancel_save"/>
+	</panel>
 </floater>
