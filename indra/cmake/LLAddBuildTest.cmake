@@ -226,7 +226,6 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   ENDIF (test_exe_pos LESS 0)
 
   SET_TEST_PATH(LD_LIBRARY_PATH)
-
   LL_TEST_COMMAND(TEST_SCRIPT_CMD "${LD_LIBRARY_PATH}" ${test_command})
 
   if(TEST_DEBUG)
@@ -244,7 +243,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
 ENDFUNCTION(LL_ADD_INTEGRATION_TEST)
 
-MACRO(SET_TEST_LIST LISTVAR)
+MACRO(SET_TEST_PATH LISTVAR)
   IF(WINDOWS)
     # We typically build/package only Release variants of third-party
     # libraries, so append the Release staging dir in case the library being
@@ -259,20 +258,4 @@ MACRO(SET_TEST_LIST LISTVAR)
     # Linux uses a single staging directory anyway.
     set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} /usr/lib)
   ENDIF(WINDOWS)
-ENDMACRO(SET_TEST_LIST)
-
-MACRO(SET_TEST_PATH PATHVAR)
-  set_test_list(test_list)
-  IF(WINDOWS)
-    set(sep "\;")
-  ELSE(WINDOWS)
-    set(sep ":")
-  ENDIF(WINDOWS)
-  set(path "")
-  set(optsep "")
-  foreach(dir ${test_list})
-    set(path "${path}${optsep}${dir}")
-    set(optsep "${sep}")
-  endforeach(dir)
-  set(${PATHVAR} "${path}")
 ENDMACRO(SET_TEST_PATH)
