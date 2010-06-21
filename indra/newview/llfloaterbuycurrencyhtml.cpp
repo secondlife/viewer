@@ -91,7 +91,7 @@ void LLFloaterBuyCurrencyHTML::navigateToFinalURL()
 	llinfos << "Buy currency HTML prased URL is " << buy_currency_url << llendl;
 
 	// kick off the navigation
-	mBrowser->navigateTo( buy_currency_url );
+	mBrowser->navigateTo( buy_currency_url, "text/html" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

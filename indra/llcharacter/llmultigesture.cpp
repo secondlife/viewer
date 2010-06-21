@@ -498,6 +498,10 @@ std::vector<std::string> LLGestureStepWait::getLabel() const
 		strings.push_back("until animations are done");
 	//	label += "until animations are done";
 	}
+	else
+	{
+		strings.push_back("");
+	}
 
 	return strings;
 }

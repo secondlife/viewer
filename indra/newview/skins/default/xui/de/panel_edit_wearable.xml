@@ -72,7 +72,7 @@
 	<string name="jacket_desc_text">
 		Jacke:
 	</string>
-	<string name="skirt_skirt_desc_text">
+	<string name="skirt_desc_text">
 		Rock:
 	</string>
 	<string name="gloves_desc_text">
@@ -93,11 +93,6 @@
 	<text name="edit_wearable_title" value="Form bearbeiten"/>
 	<panel label="Hemd" name="wearable_type_panel">
 		<text name="description_text" value="Form:"/>
-	</panel>
-	<panel label="gear_buttom_panel" name="gear_buttom_panel">
-		<button name="friends_viewsort_btn" tool_tip="Optionen"/>
-		<button name="add_btn" tool_tip="TODO"/>
-		<button name="del_btn" tool_tip="TODO"/>
 	</panel>
 	<panel name="button_panel">
 		<button label="Speichern unter" name="save_as_button"/>
