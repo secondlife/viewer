@@ -62,8 +62,7 @@
 #include "llsdutil.h"
 #include <deque>
 
-const U32 LLInventoryFetchItemsObserver::MAX_NUM_ATTEMPTS_TO_PROCESS = 10;
-const F32 LLInventoryFetchItemsObserver::FETCH_TIMER_EXPIRY = 10.0f;
+const F32 LLInventoryFetchItemsObserver::FETCH_TIMER_EXPIRY = 60.0f;
 
 
 LLInventoryObserver::LLInventoryObserver()
@@ -143,52 +142,47 @@ void LLInventoryCompletionObserver::watchItem(const LLUUID& id)
 }
 
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const LLUUID& item_id) :
-	LLInventoryFetchObserver(item_id),
-
-	mNumTries(MAX_NUM_ATTEMPTS_TO_PROCESS)
+	LLInventoryFetchObserver(item_id)
 {
 	mIDs.clear();
 	mIDs.push_back(item_id);
 }
 
 LLInventoryFetchItemsObserver::LLInventoryFetchItemsObserver(const uuid_vec_t& item_ids) :
-	LLInventoryFetchObserver(item_ids),
-
-	mNumTries(MAX_NUM_ATTEMPTS_TO_PROCESS)
+	LLInventoryFetchObserver(item_ids)
 {
 }
 
 void LLInventoryFetchItemsObserver::changed(U32 mask)
 {
+	llinfos << this << " remaining incomplete " << mIncomplete.size()
+			<< " complete " << mComplete.size()
+			<< " wait period " << mFetchingPeriod.getRemainingTimeF32()
+			<< llendl;
+
 	// scan through the incomplete items and move or erase them as
 	// appropriate.
 	if (!mIncomplete.empty())
 	{
-		// if period of an attempt expired...
-		if (mFetchingPeriod.hasExpired())
-		{
-			// ...reset timer and reduce count of attempts
-			mFetchingPeriod.reset();
-			mFetchingPeriod.setTimerExpirySec(FETCH_TIMER_EXPIRY);
 
-			--mNumTries;
-
-			LL_INFOS("InventoryFetch") << "LLInventoryFetchItemsObserver: " << this << ", attempt(s) left: " << (S32)mNumTries << LL_ENDL;
-		}
-
-		// do we still have any attempts?
-		bool timeout_expired = mNumTries <= 0;
+		// Have we exceeded max wait time?
+		bool timeout_expired = mFetchingPeriod.hasExpired();
 
 		for (uuid_vec_t::iterator it = mIncomplete.begin(); it < mIncomplete.end(); )
 		{
 			const LLUUID& item_id = (*it);
 			LLViewerInventoryItem* item = gInventory.getItem(item_id);
-			if (!item)
+			if (item && item->isFinished())
+			{
+				mComplete.push_back(item_id);
+				it = mIncomplete.erase(it);
+			}
+			else
 			{
 				if (timeout_expired)
 				{
 					// Just concede that this item hasn't arrived in reasonable time and continue on.
-					LL_WARNS("InventoryFetch") << "Fetcher timed out when fetching inventory item UUID: " << item_id << LL_ENDL;
+					llwarns << "Fetcher timed out when fetching inventory item UUID: " << item_id << LL_ENDL;
 					it = mIncomplete.erase(it);
 				}
 				else
@@ -196,22 +190,16 @@ void LLInventoryFetchItemsObserver::changed(U32 mask)
 					// Keep trying.
 					++it;
 				}
-				continue;
 			}
-			if (item->isFinished())
-			{
-				mComplete.push_back(item_id);
-				it = mIncomplete.erase(it);
-				continue;
-			}
-			++it;
 		}
 
-		if (mIncomplete.empty())
-		{
-			mNumTries = MAX_NUM_ATTEMPTS_TO_PROCESS;
-			done();
-		}
+	}
+
+	if (mIncomplete.empty())
+	{
+		llinfos << this << " done at remaining incomplete "
+				<< mIncomplete.size() << " complete " << mComplete.size() << llendl;
+		done();
 	}
 	//llinfos << "LLInventoryFetchItemsObserver::changed() mComplete size " << mComplete.size() << llendl;
 	//llinfos << "LLInventoryFetchItemsObserver::changed() mIncomplete size " << mIncomplete.size() << llendl;
@@ -329,8 +317,8 @@ void LLInventoryFetchItemsObserver::startFetch()
 		items_llsd.append(item_entry);
 	}
 
-	mFetchingPeriod.resetWithExpiry(FETCH_TIMER_EXPIRY);
-	mNumTries = MAX_NUM_ATTEMPTS_TO_PROCESS;
+	mFetchingPeriod.reset();
+	mFetchingPeriod.setTimerExpirySec(FETCH_TIMER_EXPIRY);
 
 	fetch_items_from_llsd(items_llsd);
 }

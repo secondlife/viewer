@@ -1083,6 +1083,7 @@ void LLAppearanceMgr::shallowCopyCategory(const LLUUID& src_id, const LLUUID& ds
 		llwarns << "folder not found for src " << src_id.asString() << llendl;
 		return;
 	}
+	llinfos << "starting, src_id " << src_id << " name " << src_cat->getName() << " dst_id " << dst_id << llendl;
 	LLUUID parent_id = dst_id;
 	if(parent_id.isNull())
 	{
@@ -1103,6 +1104,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 	LLInventoryModel::cat_array_t* cats;
 	LLInventoryModel::item_array_t* items;
 	gInventory.getDirectDescendentsOf(src_id, cats, items);
+	llinfos << "copying " << items->count() << " items" << llendl;
 	for (LLInventoryModel::item_array_t::const_iterator iter = items->begin();
 		 iter != items->end();
 		 ++iter)
@@ -1142,6 +1144,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
 			case LLAssetType::AT_BODYPART:
 			case LLAssetType::AT_GESTURE:
 			{
+				llinfos << "copying inventory item " << item->getName() << llendl;
 				copy_inventory_item(gAgent.getID(),
 									item->getPermissions().getOwner(),
 									item->getUUID(),

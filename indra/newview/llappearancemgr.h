@@ -313,6 +313,9 @@ public:
 	}
 	virtual void done()
 	{
+		llinfos << this << " done with incomplete " << mIncomplete.size()
+				<< " complete " << mComplete.size() <<  " calling callable" << llendl;
+
 		gInventory.removeObserver(this);
 		doOnIdleOneTime(mCallable);
 		delete this;
@@ -355,6 +358,7 @@ public:
 			return;
 		}
 
+		llinfos << "stage1 got " << item_array.count() << " items, passing to stage2 " << llendl;
 		uuid_vec_t ids;
 		for(S32 i = 0; i < count; ++i)
 		{
