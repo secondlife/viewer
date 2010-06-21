@@ -2841,6 +2841,17 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
+	<key>FeatureManagerHTTPTable</key>
+      <map>
+        <key>Comment</key>
+        <string>Base directory for HTTP feature/gpu table fetches</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>http://viewer-settings.secondlife.com</string>
+    </map>
     <key>FPSLogFrequency</key>
     <map>
       <key>Comment</key>

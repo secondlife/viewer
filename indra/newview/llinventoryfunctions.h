@@ -338,6 +338,21 @@ public:
 							LLInventoryItem* item);
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindWearablesEx
+//
+// Collects wearables based on given criteria.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindWearablesEx : public LLInventoryCollectFunctor
+{
+public:
+	LLFindWearablesEx(bool is_worn, bool include_body_parts = true);
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+private:
+	bool mIncludeBodyParts;
+	bool mIsWorn;
+};
+
 //Inventory collect functor collecting wearables of a specific wearable type
 class LLFindWearablesOfType : public LLInventoryCollectFunctor
 {
@@ -362,15 +377,6 @@ public:
 		if (item && item->getIsLinkType()) return false;
 		return LLFindWearablesOfType::operator()(cat, item);
 	}
-};
-
-// Find worn items.
-class LLFindWorn : public LLInventoryCollectFunctor
-{
-public:
-	LLFindWorn() {}
-	virtual ~LLFindWorn() {}
-	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
 };
 
 // Collect non-removable folders and items.

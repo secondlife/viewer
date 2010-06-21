@@ -177,7 +177,13 @@ class LLUpdateDirtyState: public LLInventoryCallback
 {
 public:
 	LLUpdateDirtyState() {}
-	virtual ~LLUpdateDirtyState(){ LLAppearanceMgr::getInstance()->updateIsDirty(); }
+	virtual ~LLUpdateDirtyState()
+	{
+		if (LLAppearanceMgr::instanceExists())
+		{
+			LLAppearanceMgr::getInstance()->updateIsDirty();
+		}
+	}
 	virtual void fire(const LLUUID&) {}
 };
 
@@ -923,6 +929,14 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 {
 	if (item_id_to_wear.isNull()) return false;
 
+	// *TODO: issue with multi-wearable should be fixed:
+	// in this case this method will be called N times - loading started for each item
+	// and than N times will be called - loading completed for each item.
+	// That means subscribers will be notified that loading is done after first item in a batch is worn.
+	// (loading indicator disappears for example before all selected items are worn)
+	// Have not fix this issue for 2.1 because of stability reason. EXT-7777.
+	gAgentWearables.notifyLoadingStarted();
+
 	LLViewerInventoryItem* item_to_wear = gInventory.getItem(item_id_to_wear);
 	if (!item_to_wear) return false;
 
@@ -1060,7 +1074,7 @@ void LLAppearanceMgr::takeOffOutfit(const LLUUID& cat_id)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLFindWorn collector;
+	LLFindWearablesEx collector(/*is_worn=*/ true, /*include_body_parts=*/ false);
 
 	gInventory.collectDescendentsIf(cat_id, cats, items, FALSE, collector);
 
@@ -1216,6 +1230,34 @@ bool LLAppearanceMgr::getCanRemoveOutfit(const LLUUID& outfit_cat_id)
 	return true;
 }
 
+// static
+bool LLAppearanceMgr::getCanRemoveFromCOF(const LLUUID& outfit_cat_id)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx is_worn(/*is_worn=*/ true, /*include_body_parts=*/ false);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		is_worn);
+	return items.size() > 0;
+}
+
+// static
+bool LLAppearanceMgr::getCanAddToCOF(const LLUUID& outfit_cat_id)
+{
+	LLInventoryModel::cat_array_t cats;
+	LLInventoryModel::item_array_t items;
+	LLFindWearablesEx not_worn(/*is_worn=*/ false, /*include_body_parts=*/ false);
+	gInventory.collectDescendentsIf(outfit_cat_id,
+		cats,
+		items,
+		LLInventoryModel::EXCLUDE_TRASH,
+		not_worn);
+	return items.size() > 0;
+}
+
 void LLAppearanceMgr::purgeBaseOutfitLink(const LLUUID& category)
 {
 	LLInventoryModel::cat_array_t cats;
@@ -1330,9 +1372,12 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 
 	// - Body parts: always include COF contents as a fallback in case any
 	// required parts are missing.
+	// Preserve body parts from COF if appending.
 	LLInventoryModel::item_array_t body_items;
 	getDescendentsOfAssetType(cof, body_items, LLAssetType::AT_BODYPART, false);
 	getDescendentsOfAssetType(category, body_items, LLAssetType::AT_BODYPART, false);
+	if (append)
+		reverse(body_items.begin(), body_items.end());
 	// Reduce body items to max of one per type.
 	removeDuplicateItems(body_items);
 	filterWearableItems(body_items, 1);
@@ -2111,6 +2156,8 @@ bool LLAppearanceMgr::updateBaseOutfit()
 	}
 	setOutfitLocked(true);
 
+	gAgentWearables.notifyLoadingStarted();
+
 	const LLUUID base_outfit_id = getBaseOutfitUUID();
 	if (base_outfit_id.isNull()) return false;
 
@@ -2270,6 +2317,7 @@ public:
 		}
 
 		LLAppearanceMgr::getInstance()->updateIsDirty();
+		gAgentWearables.notifyLoadingFinished(); // New outfit is saved.
 		LLAppearanceMgr::getInstance()->updatePanelOutfitName("");
 	}
 
@@ -2284,6 +2332,8 @@ private:
 LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel)
 {
 	if (!isAgentAvatarValid()) return LLUUID::null;
+
+	gAgentWearables.notifyLoadingStarted();
 
 	// First, make a folder in the My Outfits directory.
 	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
@@ -2491,7 +2541,9 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 
 	   if (mAttachmentInvLinkEnabled)
 	   {
-		   LLAppearanceMgr::addCOFItemLink(item_id, false);  // Add COF link for item.
+		   // we have to pass do_update = true to call LLAppearanceMgr::updateAppearanceFromCOF.
+		   // it will trigger gAgentWariables.notifyLoadingFinished()
+		   LLAppearanceMgr::addCOFItemLink(item_id, true);  // Add COF link for item.
 	   }
 	   else
 	   {
@@ -2521,7 +2573,7 @@ void LLAppearanceMgr::linkRegisteredAttachments()
 		 ++it)
 	{
 		LLUUID item_id = *it;
-		addCOFItemLink(item_id, false);
+		addCOFItemLink(item_id, true);
 	}
 	mRegisteredAttachments.clear();
 }

@@ -106,11 +106,16 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 			}
 		}
 
+		std::string session_name = notification->getPayload()["SESSION_NAME"];
 		const std::string name = notification->getSubstitutions()["NAME"];
+		if (session_name.empty())
+		{
+			session_name = name;
+		}
 		LLUUID from_id = notification->getPayload()["from_id"];
 		if (LLHandlerUtil::canLogToIM(notification))
 		{
-			LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, name, name,
+			LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, session_name, name,
 					notification->getMessage(), from_id, from_id);
 		}
 

@@ -112,16 +112,19 @@ LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item
 }
 
 // virtual
-void LLPanelWearableOutfitItem::updateItem(const std::string& name)
+void LLPanelWearableOutfitItem::updateItem(const std::string& name,
+										   const LLStyle::Params& input_params)
 {
 	std::string search_label = name;
+	LLStyle::Params style_params = input_params;
 
 	if (mItem && get_is_item_worn(mItem->getUUID()))
 	{
 		search_label += LLTrans::getString("worn");
+		style_params.font.style("BOLD");
 	}
 
-	LLPanelInventoryListItemBase::updateItem(search_label);
+	LLPanelInventoryListItemBase::updateItem(search_label, style_params);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -261,7 +264,9 @@ LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryIt
 	return list_item;
 }
 
-void LLPanelAttachmentListItem::setTitle(const std::string& title, const std::string& highlit_text)
+void LLPanelAttachmentListItem::setTitle(const std::string& title,
+										 const std::string& highlit_text,
+										 const LLStyle::Params& input_params)
 {
 	std::string title_joint = title;
 
@@ -271,7 +276,7 @@ void LLPanelAttachmentListItem::setTitle(const std::string& title, const std::st
 		title_joint = title + " (" + joint + ")";
 	}
 
-	LLPanelDeletableWearableListItem::setTitle(title_joint, highlit_text);
+	LLPanelDeletableWearableListItem::setTitle(title_joint, highlit_text, input_params);
 }
 
 //////////////////////////////////////////////////////////////////////////

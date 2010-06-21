@@ -5,12 +5,19 @@
 	</floater.string>
 	<button label="Foto aktualisieren" name="new_snapshot_btn"/>
 	<line_editor label="Beschreibung" name="description"/>
-	<button label="Foto freigeben" name="share"/>
-	<button label="Ins Internet stellen" name="share_to_web"/>
-	<button label="Objekt in meinem Inventar speichern" name="save_to_inventory"/>
-	<button label="Foto speichern" name="save"/>
-	<button label="Foto per E-Mail senden" name="share_to_email"/>
-	<button label="Auf meinem Computer speichern" name="save_to_computer"/>
-	<button label="Als Profilbild festlegen" name="set_profile_pic"/>
-	<button label="Zurück" name="cancel"/>
+	<panel name="panel_snapshot_main">
+		<button label="Foto freigeben" name="share"/>
+		<button label="Foto speichern" name="save"/>
+		<button label="Als Profilbild festlegen" name="set_profile_pic"/>
+	</panel>
+	<panel name="panel_snapshot_share">
+		<button label="Ins Internet stellen" name="share_to_web"/>
+		<button label="Foto per E-Mail senden" name="share_to_email"/>
+		<button label="Zurück" name="cancel_share"/>
+	</panel>
+	<panel name="panel_snapshot_save">
+		<button label="Objekt in meinem Inventar speichern" name="save_to_inventory"/>
+		<button label="Auf meinem Computer speichern" name="save_to_computer"/>
+		<button label="Zurück" name="cancel_save"/>
+	</panel>
 </floater>
