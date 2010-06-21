@@ -1978,9 +1978,13 @@ bool LLVOVolume::hasMediaPermission(const LLMediaEntry* media_entry, MediaPermTy
     }
     
     // Group permissions
-    else if (0 != (media_perms & LLMediaEntry::PERM_GROUP) && permGroupOwner())
+    else if (0 != (media_perms & LLMediaEntry::PERM_GROUP))
     {
-        return true;
+		LLPermissions* obj_perm = LLSelectMgr::getInstance()->findObjectPermissions(this);
+		if (obj_perm && gAgent.isInGroup(obj_perm->getGroup()))
+		{
+			return true;
+		}
     }
     
     // Owner permissions

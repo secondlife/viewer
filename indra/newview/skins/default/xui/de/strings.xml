@@ -100,6 +100,12 @@
 	<string name="LoginDownloadingClothing">
 		Kleidung wird geladen...
 	</string>
+	<string name="CertExpired">
+		Das vom Grid ausgegebene Zertifikate ist abgelaufen.  Bitte überprüfen Sie Ihre Systemuhr oder kontaktieren Sie Ihren Grid-Administrator.
+	</string>
+	<string name="CertInvalidSignature">
+		Die Zertifikatsunterschrift des Gridservers konnte nicht bestätigt werden.  Bitte kontaktieren Sie Ihren Grid-Administrator.
+	</string>
 	<string name="LoginFailedNoNetwork">
 		Netzwerk Fehler: Eine Verbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.
 	</string>
@@ -735,6 +741,12 @@
 	<string name="land_type_unknown">
 		(unbekannt)
 	</string>
+	<string name="Estate / Full Region">
+		Grundstück / Vollständige Region
+	</string>
+	<string name="Mainland / Full Region">
+		Mainland / Vollständige Region
+	</string>
 	<string name="all_files">
 		Alle Dateien
 	</string>
@@ -842,6 +854,9 @@
 	</string>
 	<string name="NewWearable">
 		Neue/r/s [WEARABLE_ITEM]
+	</string>
+	<string name="CreateNewWearable">
+		[WEARABLE_TYPE] erstellen
 	</string>
 	<string name="next">
 		Weiter
@@ -3390,12 +3405,6 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="answered_call">
 		Ihr Anruf wurde entgegengenommen
 	</string>
-	<string name="started_call">
-		haben/hat einen Anruf initiiert
-	</string>
-	<string name="joined_call">
-		ist dem Gespräch beigetreten
-	</string>
 	<string name="ringing-im">
 		Verbindung wird hergestellt...
 	</string>
@@ -3485,6 +3494,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="session_initialization_timed_out_error">
 		Die Initialisierung der Sitzung ist fehlgeschlagen
+	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] hat Ihnen [AMOUNT] L$ bezahlt.
@@ -3605,6 +3617,18 @@ Missbrauchsbericht
 	<string name="Contents">
 		Inhalt
 	</string>
+	<string name="Female - Excuse me">
+		Weiblich - Räuspern
+	</string>
+	<string name="Female - Get lost">
+		Weiblich - Get lost
+	</string>
+	<string name="Female - Blow kiss">
+		Weiblich - Kusshand
+	</string>
+	<string name="Female - Boo">
+		Weiblich  - Buh
+	</string>
 	<string name="AvatarBirthDateFormat">
 		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
 	</string>
@@ -3613,5 +3637,33 @@ Missbrauchsbericht
 	</string>
 	<string name="texture_load_dimensions_error">
 		Bilder, die größer sind als [WIDTH]*[HEIGHT] können nicht geladen werden
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		Trotz all unserer Bemühungen ist ein unerwarteter Fehler aufgetreten.
+
+	Bitte überprüfen Sie status.secondlifegrid.net, um festzustellen, ob ein Problem besteht.  
+        Falls Sie weiterhin Problem haben, überprüfen Sie bitte Ihre Netzwerk- und Firewalleinstellungen.
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		Sonntag:Montag:Dienstag:Mittwoch:Donnerstag:Freitag:Samstag
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		So:Mo:Di:Mi:Do:Fr:Sa
+	</string>
+	<string name="dateTimeMonthNames">
+		Januar:Februar:März:April:Mai:Juni:Juli:August:September:Oktober:November:Dezember
+	</string>
+	<string name="dateTimeMonthShortNames">
+		Jan:Feb:Mär:Apr:Mai:Jun:Jul:Aug:Sep:Okt:Nov:Dez
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		Uhr
+	</string>
+	<string name="dateTimePM">
+		Uhr
 	</string>
 </strings>

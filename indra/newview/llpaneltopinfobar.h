@@ -95,6 +95,11 @@ private:
 	void onAgentParcelChange();
 
 	/**
+	 * Called when context menu item is clicked.
+	 */
+	void onContextMenuItemClicked(const LLSD::String& userdata);
+
+	/**
 	 * Called when user checks/unchecks Show Coordinates menu item.
 	 */
 	void onNavBarShowParcelPropertiesCtrlChanged();

@@ -191,6 +191,10 @@ private:
 		{
 			return LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit_id);
 		}
+		else if ("take_off" == param)
+		{
+			return LLAppearanceMgr::getCanRemoveFromCOF(selected_outfit_id);
+		}
 
 		return true;
 	}
@@ -209,10 +213,6 @@ private:
 		{
 			return !is_worn;
 		}
-		else if ("take_off" == param)
-		{
-			return is_worn;
-		}
 
 		return true;
 	}
@@ -224,7 +224,6 @@ private:
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),
 	mCurrentOutfitPanel(NULL),
-	mParent(NULL),
 	mGearMenu(NULL),
 	mInitialized(false)
 {
@@ -312,11 +311,6 @@ void LLPanelOutfitsInventory::updateVerbs()
 	{
 		updateListCommands();
 	}
-}
-
-void LLPanelOutfitsInventory::setParent(LLSidepanelAppearance* parent)
-{
-	mParent = parent;
 }
 
 // virtual
@@ -548,7 +542,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 void LLPanelOutfitsInventory::updateListCommands()
 {
 	bool trash_enabled = isActionEnabled("delete");
-	bool wear_enabled = isActionEnabled("wear");
+	bool wear_enabled =  !gAgentWearables.isCOFChangeInProgress() && isActionEnabled("wear");
 	bool wear_visible = !isCOFPanelActive();
 	bool make_outfit_enabled = isActionEnabled("save_outfit");
 
@@ -667,7 +661,8 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 		else // "My Outfits" tab active
 		{
 			const LLUUID& selected_outfit = mMyOutfitsPanel->getSelectedOutfitUUID();
-			can_delete = LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit);
+			// first condition prevents trash btn from enabling when items are selected inside outfit (EXT-7847)
+			can_delete = !mMyOutfitsPanel->hasItemSelected() && LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit);
 		}
 
 		return can_delete;
@@ -827,12 +822,6 @@ BOOL LLPanelOutfitsInventory::isCOFPanelActive() const
 void LLPanelOutfitsInventory::setWearablesLoading(bool val)
 {
 	mListCommands->childSetEnabled("wear_btn", !val);
-
-	llassert(mParent);
-	if (mParent)
-	{
-		mParent->setWearablesLoading(val);
-	}
 }
 
 void LLPanelOutfitsInventory::onWearablesLoaded()

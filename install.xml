@@ -981,23 +981,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>1417e04ca4bec1ed281c43d37b613845</string>
+            <string>becffca6bd8dcb239de284ea2a8b485b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6+cookies-darwin-20100519.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6+cookies-darwin-20100617.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>7a5e02d252b76ab41bdca58506fa4147</string>
+            <string>414d72dd59e3d83c96f0e1531360792e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100521.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100618.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>d682ed6232193b4eab3170657a54ebf9</string>
+            <string>df1bdd683128e060d60e435f65d8f7e8</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20100519.tar.bz2</uri>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.6-20100617.tar.bz2</uri>
           </map>
         </map>
       </map>

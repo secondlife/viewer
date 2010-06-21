@@ -9,35 +9,28 @@
 	<floater.string name="move_tooltip">
 		Muovi la telecamera su e giù e a sinistra e destra
 	</floater.string>
-	<floater.string name="orbit_mode_title">
-		Ruota visuale
+	<floater.string name="camera_modes_title">
+		Modalità della fotocamera
 	</floater.string>
 	<floater.string name="pan_mode_title">
-		Panoramica
+		Ruota visuale - Ingrandisci - Panoramica
 	</floater.string>
-	<floater.string name="avatar_view_mode_title">
-		Valori predefiniti
+	<floater.string name="presets_mode_title">
+		Visuali predefinite
 	</floater.string>
 	<floater.string name="free_mode_title">
 		Vedi oggetto
 	</floater.string>
 	<panel name="controls">
-		<joystick_track name="cam_track_stick" tool_tip="Sposta la visuale in su e in giù, a sinistra e a destra"/>
 		<panel name="zoom" tool_tip="Avvicina la telecamera nell&apos;inquadratura">
+			<joystick_rotate name="cam_rotate_stick" tool_tip="Ruota la visuale intorno al punto focale"/>
 			<slider_bar name="zoom_slider" tool_tip="Zoom verso il centro focale"/>
-		</panel>
-		<joystick_rotate name="cam_rotate_stick" tool_tip="Ruota la visuale intorno al punto focale"/>
-		<panel name="camera_presets">
-			<button name="rear_view" tool_tip="Visuale posteriore"/>
-			<button name="group_view" tool_tip="Visuale di gruppo"/>
-			<button name="front_view" tool_tip="Visuale frontale"/>
-			<button name="mouselook_view" tool_tip="Visuale soggettiva"/>
+			<joystick_track name="cam_track_stick" tool_tip="Sposta la visuale in su e in giù, a sinistra e a destra"/>
 		</panel>
 	</panel>
 	<panel name="buttons">
-		<button label="" name="orbit_btn" tool_tip="Ruota la visuale"/>
-		<button label="" name="pan_btn" tool_tip="Visuale panoramica"/>
-		<button label="" name="avatarview_btn" tool_tip="Valori predefiniti"/>
-		<button label="" name="freecamera_btn" tool_tip="Vedi oggetto"/>
+		<button label="" name="presets_btn" tool_tip="Visuali predefinite"/>
+		<button label="" name="pan_btn" tool_tip="Ruota visuale - Ingrandisci - Panoramica"/>
+		<button label="" name="avatarview_btn" tool_tip="Modalità della fotocamera"/>
 	</panel>
 </floater>

@@ -523,8 +523,14 @@ void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 		return;
 	}
 
-	LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem;
 	LLMessageSystem* msg = gMessageSystem;
+	if (!(msg->getMessageName() && (0 == strcmp(msg->getMessageName(), "UpdateCreateInventoryItem"))))
+	{
+		// this is not our message
+		return; // to prevent a crash. EXT-7921;
+	}
+
+	LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem;
 	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
 	for(S32 i = 0; i < num_blocks; ++i)
 	{

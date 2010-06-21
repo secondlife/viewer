@@ -458,7 +458,11 @@ bool toggle_agent_pause(const LLSD& newvalue)
 
 bool toggle_show_navigation_panel(const LLSD& newvalue)
 {
-	LLNavigationBar::getInstance()->showNavigationPanel(newvalue.asBoolean());
+	bool value = newvalue.asBoolean();
+
+	LLNavigationBar::getInstance()->showNavigationPanel(value);
+	gSavedSettings.setBOOL("ShowMiniLocationPanel", !value);
+
 	return true;
 }
 
@@ -470,7 +474,11 @@ bool toggle_show_favorites_panel(const LLSD& newvalue)
 
 bool toggle_show_mini_location_panel(const LLSD& newvalue)
 {
-	LLPanelTopInfoBar::getInstance()->setVisible(newvalue.asBoolean());
+	bool value = newvalue.asBoolean();
+
+	LLPanelTopInfoBar::getInstance()->setVisible(value);
+	gSavedSettings.setBOOL("ShowNavbarNavigationPanel", !value);
+
 	return true;
 }
 

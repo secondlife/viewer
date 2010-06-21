@@ -496,11 +496,11 @@ private:
 
 void fetch_table(std::string table)
 {
-	const std::string base       = "http://viewer-settings.s3.amazonaws.com/";
+	const std::string base       = gSavedSettings.getString("FeatureManagerHTTPTable");
 
 	const std::string filename   = llformat(table.c_str(), LLVersionInfo::getVersion().c_str());
 
-	const std::string url        = base + filename;
+	const std::string url        = base + "/" + filename;
 
 	const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
 

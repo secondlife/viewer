@@ -36,12 +36,16 @@
 
 #include "llagent.h"
 #include "llagentui.h"
+#include "llclipboard.h"
+#include "lllandmarkactions.h"
 #include "lllocationinputctrl.h"
 #include "llnotificationsutil.h"
 #include "llparcel.h"
 #include "llsidetray.h"
+#include "llslurl.h"
 #include "llstatusbar.h"
 #include "llviewercontrol.h"
+#include "llviewerinventory.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -65,6 +69,9 @@ private:
 
 LLPanelTopInfoBar::LLPanelTopInfoBar(): mParcelChangedObserver(0)
 {
+	LLUICtrl::CommitCallbackRegistry::currentRegistrar()
+			.add("TopInfoBar.Action", boost::bind(&LLPanelTopInfoBar::onContextMenuItemClicked, this, _2));
+
 	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_topinfo_bar.xml");
 }
 
@@ -120,7 +127,7 @@ void LLPanelTopInfoBar::handleLoginComplete()
 
 BOOL LLPanelTopInfoBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	show_navbar_context_menu(this, x, y);
+	show_topinfobar_context_menu(this, x, y);
 	return TRUE;
 }
 
@@ -385,6 +392,32 @@ void LLPanelTopInfoBar::onParcelIconClick(EParcelIcon icon)
 void LLPanelTopInfoBar::onAgentParcelChange()
 {
 	update();
+}
+
+void LLPanelTopInfoBar::onContextMenuItemClicked(const LLSD::String& item)
+{
+	if (item == "landmark")
+	{
+		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
+
+		if(landmark == NULL)
+		{
+			LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
+		}
+		else
+		{
+			LLSideTray::getInstance()->showPanel("panel_places",
+					LLSD().with("type", "landmark").with("id",landmark->getUUID()));
+		}
+	}
+	else if (item == "copy")
+	{
+		LLSLURL slurl;
+		LLAgentUI::buildSLURL(slurl, false);
+		LLUIString location_str(slurl.getSLURLString());
+
+		gClipboard.copyFromString(location_str);
+	}
 }
 
 void LLPanelTopInfoBar::onInfoButtonClicked()

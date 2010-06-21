@@ -225,15 +225,17 @@ left="0"
 			 tool_tip="Female"
 			 top="7"
 			 width="16" />
-		 <text_editor
-			 follows="all"
-			 height="23"
-			 left="10"
-			 layout="topleft"
-			 max_length="300"
-			 name="description"
-			 top_pad="3"
-			 width="290" />
+            <line_editor
+             follows="all"
+             height="23"
+             layout="topleft"
+             left="10"
+             max_length="300"
+             name="description"
+             prevalidate_callback="ascii"
+             text_color="black"
+             top_pad="3"
+             width="290" />
 	 </panel>
 	 <panel
 		 follows="all"

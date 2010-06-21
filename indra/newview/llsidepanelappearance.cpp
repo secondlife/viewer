@@ -86,6 +86,9 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	outfit_observer.addBOFReplacedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
 	outfit_observer.addBOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
 	outfit_observer.addCOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
+
+	gAgentWearables.addLoadingStartedCallback(boost::bind(&LLSidepanelAppearance::setWearablesLoading, this, true));
+	gAgentWearables.addLoadedCallback(boost::bind(&LLSidepanelAppearance::setWearablesLoading, this, false));
 }
 
 LLSidepanelAppearance::~LLSidepanelAppearance()
@@ -114,7 +117,6 @@ BOOL LLSidepanelAppearance::postBuild()
 	}
 
 	mPanelOutfitsInventory = dynamic_cast<LLPanelOutfitsInventory *>(getChild<LLPanel>("panel_outfits_inventory"));
-	mPanelOutfitsInventory->setParent(this);
 
 	mOutfitEdit = dynamic_cast<LLPanelOutfitEdit*>(getChild<LLPanel>("panel_outfit_edit"));
 	if (mOutfitEdit)
@@ -387,7 +389,9 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 				mCurrentLookName->setText(outfit_name);
 				return;
 		}
-		mCurrentLookName->setText(getString("No Outfit"));
+
+		std::string look_name = gAgentWearables.isCOFChangeInProgress() ? "" : getString("No Outfit");
+		mCurrentLookName->setText(look_name);
 		mOpenOutfitBtn->setEnabled(FALSE);
 	}
 	else

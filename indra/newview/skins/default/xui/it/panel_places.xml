@@ -5,12 +5,12 @@
 	<filter_editor label="Filtra i miei luoghi" name="Filter"/>
 	<panel name="button_panel">
 		<button label="Teleport" name="teleport_btn" tool_tip="Teleport alla zona selezionata"/>
-		<button label="Mappa" name="map_btn"/>
+		<button label="Mappa" name="map_btn" tool_tip="Mostra la zona corrispondente nella mappa del Mondo"/>
 		<button label="Modifica" name="edit_btn" tool_tip="Modifica le informazioni del punto di riferimento"/>
 		<button label="▼" name="overflow_btn" tool_tip="Mostra opzioni addizionali"/>
 		<button label="Salva" name="save_btn"/>
 		<button label="Annulla" name="cancel_btn"/>
 		<button label="Chiudi" name="close_btn"/>
-		<button label="Profilo" name="profile_btn"/>
+		<button label="Profilo" name="profile_btn" tool_tip="Mostra il profilo del luogo"/>
 	</panel>
 </panel>

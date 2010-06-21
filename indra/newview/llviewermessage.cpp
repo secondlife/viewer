@@ -1980,6 +1980,18 @@ static bool parse_lure_bucket(const std::string& bucket,
 	return true;
 }
 
+class LLPostponedIMSystemTipNotification: public LLPostponedNotification
+{
+protected:
+	/* virtual */
+	void modifyNotificationParams()
+	{
+		LLSD payload = mParams.payload;
+		payload["SESSION_NAME"] = mName;
+		mParams.payload = payload;
+	}
+};
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
 	if (gNoRender)
@@ -2050,14 +2062,19 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 	LLSD args;
 	LLSD payload;
+	LLNotification::Params params;
+
 	switch(dialog)
 	{
 	case IM_CONSOLE_AND_CHAT_HISTORY:
-	  	// *TODO: Translate
 		args["MESSAGE"] = message;
-		payload["SESSION_NAME"] = name;
+		args["NAME"] = name;
 		payload["from_id"] = from_id;
-		LLNotificationsUtil::add("IMSystemMessageTip",args, payload);
+
+		params.name = "IMSystemMessageTip";
+		params.substitutions = args;
+		params.payload = payload;
+	    LLPostponedNotification::add<LLPostponedIMSystemTipNotification>(params, from_id, false);
 		break;
 
 	case IM_NOTHING_SPECIAL: 
