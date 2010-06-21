@@ -116,7 +116,7 @@ protected:
 	void doSetState(const EState& state);
 	void setURI(std::string uri);
 
-	// there can be two directions ICOMING and OUTGOING
+	// there can be two directions INCOMING and OUTGOING
 	EDirection mCallDirection;
 
 	std::string	mURI;

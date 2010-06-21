@@ -111,9 +111,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>d9ce3ace9235249b7edf6f564de83395</string>
+            <string>cdb2f5c4a5a1f9ecd75bc1dbdd4db8e9</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.4.0-darwin-20080731b.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-darwin-20100606.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -132,9 +132,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>f5cf8d121b26f2e7944f7e63cdbff04d</string>
+            <string>4b84738eec2e21b0c096d53b79ee2681</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.6.0-windows-20091105.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/ares-1.7.1-windows-20100611a.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -233,9 +233,9 @@
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>1bece4ebdc5fc3818854bc3df14b511b</string>
+            <string>752e295ccb17f0dcb7c0167db3ad1e69</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.16.4a-darwin-20090304.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-darwin-20100606.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
@@ -254,9 +254,9 @@
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>78ccac8aaf8ea5bec482dfbcdbeb1651</string>
+            <string>b28856d3d02ee680353ae440561a6579</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.19.6-windows-20100414.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/curl-7.20.1-windows-20100611.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -580,6 +580,39 @@
             <string>32dba32ddd460a08e082898ebba6315c</string>
             <key>url</key>
             <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google-perftools-1.0-windows-20090406.tar.bz2</uri>
+          </map>
+        </map>
+      </map>
+      <key>google_breakpad</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2006, Google Inc.</string>
+        <key>description</key>
+        <string>An open-source multi-platform crash reporting system </string>
+        <key>license</key>
+        <string>bsd</string>
+        <key>packages</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>md5sum</key>
+            <string>ced4010b59f1a579caa7fe3c18512499</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-darwin-20100528a.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>29c3e7dad60bbf02c811786436d99523</string>
+            <key>url</key>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/google_breakpad-0.0.0-rev599-linux-20100521b.tar.bz2</uri>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>0859d47242990125f17eaab30bece2ff</string>
+            <key>url</key>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/google_breakpad-0.0.0-rev599-windows-20100524.tar.bz2</uri>
           </map>
         </map>
       </map>
@@ -948,23 +981,23 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>1417e04ca4bec1ed281c43d37b613845</string>
+            <string>becffca6bd8dcb239de284ea2a8b485b</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6+cookies-darwin-20100519.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-4.6+cookies-darwin-20100617.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>7a5e02d252b76ab41bdca58506fa4147</string>
+            <string>414d72dd59e3d83c96f0e1531360792e</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100521.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-linux-20100618.tar.bz2</uri>
           </map>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>1d9697fed57084eea7b3dc250e9c66f7</string>
+            <string>df1bdd683128e060d60e435f65d8f7e8</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/llqtwebkit-windows-qt4.6-20100525.tar.bz2</uri>
+            <uri>http://viewer-source-downloads.s3.amazonaws.com/install_pkgs/llqtwebkit-windows-qt4.6-20100617.tar.bz2</uri>
           </map>
         </map>
       </map>

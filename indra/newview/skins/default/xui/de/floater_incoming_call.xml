@@ -16,7 +16,13 @@
 		ist einem Voice-Konferenz-Chat beigetreten.
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		ist einem Voice-Chat mit der Gruppe [GROUP] beigetreten.
+		ist dem &apos;[GROUP]&apos; Voice-Kanal beigetreten.
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionGroup">
+		Möchten Sie [CURRENT_CHAT] verlassen und dem Gespräch mit &apos;[GROUP]&apos; beitreten?
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionDefault">
+		Möchten Sie [CURRENT_CHAT] verlassen und diesem Voice-Chat beitreten?
 	</floater.string>
 	<text name="question">
 		Möchten Sie [CURRENT_CHAT] verlassen und diesem Voice-Chat beitreten?

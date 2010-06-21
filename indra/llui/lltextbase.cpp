@@ -152,6 +152,7 @@ LLTextBase::Params::Params()
 	bg_writeable_color("bg_writeable_color"),
 	bg_focus_color("bg_focus_color"),
 	allow_scroll("allow_scroll", true),
+	plain_text("plain_text",false),
 	track_end("track_end", false),
 	read_only("read_only", false),
 	v_pad("v_pad", 0),
@@ -200,6 +201,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mSelectionStart( 0 ),
 	mSelectionEnd( 0 ),
 	mIsSelecting( FALSE ),
+	mPlainText ( p.plain_text ),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
 	mParseHTML(p.allow_html),
@@ -1101,7 +1103,7 @@ S32 LLTextBase::getLeftOffset(S32 width)
 	case LLFontGL::LEFT:
 		return mHPad;
 	case LLFontGL::HCENTER:
-		return mHPad + (mVisibleTextRect.getWidth() - width - mHPad) / 2;
+		return mHPad + llmax(0, (mVisibleTextRect.getWidth() - width - mHPad) / 2);
 	case LLFontGL::RIGHT:
 		return mVisibleTextRect.getWidth() - width;
 	default:
@@ -1207,11 +1209,6 @@ void LLTextBase::reflow()
 			// grow line height as necessary based on reported height of this segment
 			line_height = llmax(line_height, segment_height);
 			remaining_pixels -= segment_width;
-			if (remaining_pixels < 0)
-			{
-				// getNumChars() and getDimensions() should return consistent results
-				remaining_pixels = 0;
-			}
 
 			seg_offset += character_count;
 
@@ -1630,7 +1627,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 					part = (S32)LLTextParser::MIDDLE;
 				}
 				std::string subtext=text.substr(0,start);
-				appendAndHighlightTextImpl(subtext, part, style_params); 
+				appendAndHighlightText(subtext, part, style_params); 
 			}
 
 			// output an optional icon before the Url
@@ -1652,7 +1649,14 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			}
 
 			// output the styled Url
-			appendAndHighlightTextImpl(match.getLabel(), part, link_params);
+			// output the styled Url (unless we've been asked to suppress hyperlinking)
+			if (match.isLinkDisabled())
+			{
+				appendAndHighlightText(match.getLabel(), part, style_params);
+			}
+			else
+			{
+				appendAndHighlightText(match.getLabel(), part, link_params);
 
 			// set the tooltip for the Url label
 			if (! match.getTooltip().empty())
@@ -1680,11 +1684,11 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		if (part != (S32)LLTextParser::WHOLE) 
 			part=(S32)LLTextParser::END;
 		if (end < (S32)text.length()) 
-			appendAndHighlightTextImpl(text, part, style_params);		
+			appendAndHighlightText(text, part, style_params);		
 	}
 	else
 	{
-		appendAndHighlightTextImpl(new_text, part, style_params);
+		appendAndHighlightText(new_text, part, style_params);
 	}
 }
 
@@ -1695,23 +1699,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 
 	if(prepend_newline)
 		appendLineBreakSegment(input_params);
-	std::string::size_type start = 0;
-	std::string::size_type pos = new_text.find("\n",start);
-	
-	while(pos!=-1)
-	{
-		if(pos!=start)
-		{
-			std::string str = std::string(new_text,start,pos-start);
-			appendTextImpl(str,input_params);
-		}
-		appendLineBreakSegment(input_params);
-		start = pos+1;
-		pos = new_text.find("\n",start);
-	}
-
-	std::string str = std::string(new_text,start,new_text.length()-start);
-	appendTextImpl(str,input_params);
+	appendTextImpl(new_text,input_params);
 }
 
 void LLTextBase::needsReflow(S32 index)
@@ -1731,6 +1719,10 @@ void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 
 void LLTextBase::appendImageSegment(S32 highlight_part, const LLStyle::Params& style_params)
 {
+	if(getPlainText())
+	{
+		return;
+	}
 	segment_vec_t segments;
 	LLStyleConstSP sp(new LLStyle(style_params));
 	segments.push_back(new LLImageTextSegment(sp, getLength(),*this));
@@ -1810,12 +1802,9 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 	}
 }
 
-void LLTextBase::appendAndHighlightText(const std::string &new_text, bool prepend_newline, S32 highlight_part, const LLStyle::Params& style_params)
+void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params)
 {
 	if (new_text.empty()) return; 
-
-	if(prepend_newline)
-		appendLineBreakSegment(style_params);
 
 	std::string::size_type start = 0;
 	std::string::size_type pos = new_text.find("\n",start);
@@ -1917,7 +1906,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 {
 	// Figure out which line we're nearest to.
 	LLRect visible_region = getVisibleDocumentRect();
-
+	
 	// binary search for line that starts before local_y
 	line_list_t::const_iterator line_iter = std::lower_bound(mLineInfoList.begin(), mLineInfoList.end(), local_y - mVisibleTextRect.mBottom + visible_region.mBottom, compare_bottom());
 
@@ -1927,7 +1916,7 @@ S32 LLTextBase::getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round,
 	}
 	
 	S32 pos = getLength();
-	S32 start_x = mVisibleTextRect.mLeft + line_iter->mRect.mLeft;
+	S32 start_x = mVisibleTextRect.mLeft + line_iter->mRect.mLeft - visible_region.mLeft;
 
 	segment_set_t::iterator line_seg_iter;
 	S32 line_seg_offset;
@@ -2772,6 +2761,12 @@ void LLInlineViewSegment::linkToDocument(LLTextBase* editor)
 	editor->addDocumentChild(mView);
 }
 
+LLLineBreakTextSegment::LLLineBreakTextSegment(S32 pos):LLTextSegment(pos,pos+1)
+{
+	LLStyleSP s( new LLStyle(LLStyle::Params().visible(true)));
+
+	mFontHeight = llceil(s->getFont()->getLineHeight());
+}
 LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLTextSegment(pos,pos+1)
 {
 	mFontHeight = llceil(style->getFont()->getLineHeight());
@@ -2814,7 +2809,7 @@ bool LLImageTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width
 	height = llceil(mStyle->getFont()->getLineHeight());;
 
 	LLUIImagePtr image = mStyle->getImage();
-	if( image.notNull())
+	if( num_chars>0 && image.notNull())
 	{
 		width += image->getWidth() + IMAGE_HPAD;
 		height = llmax(height, image->getHeight() + IMAGE_HPAD );
@@ -2826,13 +2821,13 @@ S32	 LLImageTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 {
 	LLUIImagePtr image = mStyle->getImage();
 	S32 image_width = image->getWidth();
-	if(num_pixels>image_width + IMAGE_HPAD)
+	if(line_offset == 0 || num_pixels>image_width + IMAGE_HPAD)
 	{
 		return 1;
 	}
-
 	return 0;
 }
+
 F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
 {
 	if ( (start >= 0) && (end <= mEnd - mStart))

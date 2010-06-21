@@ -96,6 +96,7 @@ public:
 		Mandatory<LLPanel*>	    parent_panel;
 		Optional<LLUUID>        task_id;
 		Optional<std::string>   title;
+		Optional<bool>			use_label_suffix;
 	};
 	LLFolderView(const Params&);
 	virtual ~LLFolderView( void );
@@ -273,6 +274,7 @@ public:
 	virtual S32	notify(const LLSD& info) ;
 	void setEnableScroll(bool enable_scroll) { mEnableScroll = enable_scroll; }
 	
+	bool useLabelSuffix() { return mUseLabelSuffix; }
 private:
 	void updateRenamerPosition();
 
@@ -309,6 +311,7 @@ protected:
 	BOOL							mNeedsAutoSelect;
 	BOOL							mAutoSelectOverride;
 	BOOL							mNeedsAutoRename;
+	bool							mUseLabelSuffix;
 	
 	BOOL							mDebugFilters;
 	U32								mSortOrder;

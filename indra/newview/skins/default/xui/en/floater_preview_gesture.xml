@@ -39,28 +39,6 @@
      name="Title">
         Gesture: [NAME]
     </floater.string>
-  <text
-   type="string"
-   length="1"
-   follows="top|left"
-   font="SansSerifSmall"
-   height="10"
-   layout="topleft"
-   left="10"
-   name="name_text"
-   top="20"
-   font.style="BOLD"
-   width="100">
-    Name:
-  </text>
-  <line_editor
-   follows="left|top"
-   height="20"
-   layout="topleft"
-   left_delta="84"
-   name="name"
-   top_delta="-4"
-   width="180" />
     <text
      type="string"
      length="1"
@@ -70,7 +48,7 @@
      layout="topleft"
      left="10"
      name="desc_label"
-     top_pad="10"
+     top_pad="25"
      font.style="BOLD"
      width="100">
         Description:
@@ -79,10 +57,10 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="84"
+     left_delta="89"
      name="desc"
      top_delta="-4"
-     width="180" />
+     width="175" />
     <text
      type="string"
      length="1"
@@ -101,11 +79,11 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="84"
+     left_delta="89"
      max_length="31"
      name="trigger_editor"
      top_delta="-4"
-     width="180" />
+     width="175" />
     <text
      type="string"
      length="1"
@@ -125,12 +103,12 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="84"
+     left_delta="89"
      max_length="31"
      name="replace_editor"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"
      top_delta="-4"
-     width="180" />
+     width="175" />
     <text
      type="string"
      length="1"
@@ -149,7 +127,7 @@
      height="20"
      label="None"
      layout="topleft"
-     left_delta="84"
+     left_delta="89"
      name="modifier_combo"
      top_delta="-4"
      width="75" />
@@ -171,7 +149,7 @@
      left="10"
      font.style="BOLD"
      name="library_label"
-     top="135"
+     top_delta="25"
      width="100">
         Library:
     </text>
@@ -181,7 +159,7 @@
      layout="topleft"
      left="10"
      name="library_list"
-     top="150"
+     top_delta="15"
      width="180">
         <scroll_list.rows
          value="Animation" />
@@ -199,7 +177,7 @@
      layout="topleft"
      left_pad="10"
      name="add_btn"
-     top_delta="0"
+     top_delta="-1"
      width="70" />
     <text
      type="string"
@@ -230,7 +208,7 @@
      layout="topleft"
      left_pad="10"
      name="up_btn"
-     top_delta="0"
+     top_delta="-1"
      width="70" />
     <button
      follows="top|left"
@@ -256,23 +234,25 @@
      layout="topleft"
      left="15"
      name="options_text"
-     top="330"
-     width="205" />
+     top="315"
+     width="205">
+	 (options)
+	 </text>
     <combo_box
      follows="top|left"
      height="20"
      layout="topleft"
      left_delta="15"
      name="animation_list"
-     top="345"
-     width="100" />
+     top="330"
+     width="100"/>
     <combo_box
      follows="top|left"
      height="20"
      layout="topleft"
      left_delta="0"
      name="sound_list"
-     top_delta="0"
+     top="330"
      width="100" />
     <line_editor
      follows="top|left"
@@ -281,7 +261,7 @@
      left_delta="0"
      max_length="127"
      name="chat_editor"
-     top_delta="0"
+     top="330"
      width="100" />
     <radio_group
      draw_border="false"
@@ -290,7 +270,7 @@
      layout="topleft"
      left_pad="8"
      name="animation_trigger_type"
-     top_delta="0"
+     top="330"
      width="80">
         <radio_item
          height="16"
@@ -298,7 +278,7 @@
          layout="topleft"
          left="3"
          name="start"
-         top="-51"
+         top_delta="45"
          width="80" />
         <radio_item
          height="16"
@@ -306,7 +286,7 @@
          layout="topleft"
          left_delta="0"
          name="stop"
-         top_pad="10"
+         top_pad="3"
          width="80" />
     </radio_group>
     <check_box
@@ -314,14 +294,14 @@
      height="20"
      label="until animations are done"
      layout="topleft"
-     left="16"
+     left="28"
      name="wait_anim_check"
-     top="340"
+     top="330"
      width="100" />
     <check_box
      follows="top|left"
      height="20"
-     label="time in seconds"
+     label="time in seconds:"
      layout="topleft"
      left_delta="0"
      name="wait_time_check"
@@ -331,10 +311,10 @@
      follows="top|left"
      height="20"
      layout="topleft"
-     left_pad="5"
+     left_pad="10"
      max_length="15"
      name="wait_time_editor"
-     top_delta="0"
+     top_delta="1"
      width="50" />
     <text
      type="string"

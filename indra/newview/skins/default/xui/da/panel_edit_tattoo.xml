@@ -4,5 +4,6 @@
 		<texture_picker label="Hoved tatovering" name="Head Tattoo" tool_tip="Klik for at vælge et billede"/>
 		<texture_picker label="Øvre tatovering" name="Upper Tattoo" tool_tip="Klik for at vælge et billede"/>
 		<texture_picker label="Nedre tatovering" name="Lower Tattoo" tool_tip="Klik for at vælge et billede"/>
+		<color_swatch label="Farve/Nuance" name="Color/Tint" tool_tip="Klik for at åbne farvevælger"/>
 	</panel>
 </panel>

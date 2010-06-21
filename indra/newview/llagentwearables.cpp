@@ -47,6 +47,7 @@
 #include "llinventorypanel.h"
 #include "llmd5.h"
 #include "llnotificationsutil.h"
+#include "lloutfitobserver.h"
 #include "llpaneloutfitsinventory.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
@@ -63,6 +64,25 @@ LLAgentWearables gAgentWearables;
 BOOL LLAgentWearables::mInitialWearablesUpdateReceived = FALSE;
 
 using namespace LLVOAvatarDefines;
+
+///////////////////////////////////////////////////////////////////////////////
+
+// Callback to wear and start editing an item that has just been created.
+class LLWearAndEditCallback : public LLInventoryCallback
+{
+	void fire(const LLUUID& inv_item)
+	{
+		if (inv_item.isNull()) return;
+
+		// Request editing the item after it gets worn.
+		gAgentWearables.requestEditingWearable(inv_item);
+
+		// Wear it.
+		LLAppearanceMgr::instance().wearItemOnAvatar(inv_item);
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
 
 // HACK: For EXT-3923: Pants item shows in inventory with skin icon and messes with "current look"
 // Some db items are corrupted, have inventory flags = 0, implying wearable type = shape, even though
@@ -147,6 +167,7 @@ struct LLAgentDumper
 
 LLAgentWearables::LLAgentWearables() :
 	mWearablesLoaded(FALSE)
+,	mCOFChangeInProgress(false)
 {
 }
 
@@ -157,6 +178,14 @@ LLAgentWearables::~LLAgentWearables()
 
 void LLAgentWearables::cleanup()
 {
+}
+
+// static
+void LLAgentWearables::initClass()
+{
+	// this can not be called from constructor because its instance is global and is created too early.
+	// Subscribe to "COF is Saved" signal to notify observers about this (Loading indicator for ex.).
+	LLOutfitObserver::instance().addCOFSavedCallback(boost::bind(&LLAgentWearables::notifyLoadingFinished, &gAgentWearables));
 }
 
 void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
@@ -732,7 +761,7 @@ U32 LLAgentWearables::pushWearable(const LLWearableType::EType type, LLWearable 
 
 void LLAgentWearables::wearableUpdated(LLWearable *wearable)
 {
-	gAgentAvatarp->wearableUpdated(wearable->getType(), TRUE);
+	gAgentAvatarp->wearableUpdated(wearable->getType(), FALSE);
 	wearable->refreshName();
 	wearable->setLabelUpdated();
 
@@ -776,7 +805,7 @@ void LLAgentWearables::popWearable(const LLWearableType::EType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
-		gAgentAvatarp->wearableUpdated(wearable->getType(), TRUE);
+		gAgentAvatarp->wearableUpdated(wearable->getType(), FALSE);
 		wearable->setLabelUpdated();
 	}
 }
@@ -901,13 +930,19 @@ BOOL LLAgentWearables::isWearingItem(const LLUUID& item_id) const
 // static
 // ! BACKWARDS COMPATIBILITY ! When we stop supporting viewer1.23, we can assume
 // that viewers have a Current Outfit Folder and won't need this message, and thus
-// we can remove/ignore this whole function.
+// we can remove/ignore this whole function. EXCEPT gAgentWearables.notifyLoadingStarted
 void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data)
 {
 	// We should only receive this message a single time.  Ignore subsequent AgentWearablesUpdates
 	// that may result from AgentWearablesRequest having been sent more than once.
 	if (mInitialWearablesUpdateReceived)
 		return;
+
+	// notify subscribers that wearables started loading. See EXT-7777
+	// *TODO: find more proper place to not be called from deprecated method.
+	// Seems such place is found: LLInitialWearablesFetch::processContents()
+	gAgentWearables.notifyLoadingStarted();
+
 	mInitialWearablesUpdateReceived = true;
 
 	LLUUID agent_id;
@@ -1189,7 +1224,7 @@ void LLAgentWearables::createStandardWearablesAllDone()
 
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
-	mLoadedSignal();
+	notifyLoadingFinished();
 	
 	updateServer();
 
@@ -1441,7 +1476,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
-	mLoadedSignal();
+	notifyLoadingFinished();
 	queryWearableCache();
 	updateServer();
 
@@ -1638,10 +1673,6 @@ LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextur
 			{
 				LLUUID asset_id = wearable->getAssetID();
 				hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
-				if (!generate_valid_hash)
-				{
-					hash.update((const unsigned char*)asset_id.mData, UUID_BYTES);
-				}
 				hash_computed = true;
 			}
 		}
@@ -1649,6 +1680,15 @@ LLUUID LLAgentWearables::computeBakedTextureHash(LLVOAvatarDefines::EBakedTextur
 	if (hash_computed)
 	{
 		hash.update((const unsigned char*)baked_dict->mWearablesHashID.mData, UUID_BYTES);
+
+		// Add some garbage into the hash so that it becomes invalid.
+		if (!generate_valid_hash)
+		{
+			if (isAgentAvatarValid())
+			{
+				hash.update((const unsigned char*)gAgentAvatarp->getID().mData, UUID_BYTES);
+			}
+		}
 		hash.finalize();
 		hash.raw_digest(hash_id.mData);
 	}
@@ -1921,7 +1961,7 @@ void LLAgentWearables::updateWearablesLoaded()
 	mWearablesLoaded = (itemUpdatePendingCount()==0);
 	if (mWearablesLoaded)
 	{
-		mLoadedSignal();
+		notifyLoadingFinished();
 	}
 }
 
@@ -1982,10 +2022,12 @@ bool LLAgentWearables::moveWearable(const LLViewerInventoryItem* item, bool clos
 // static
 void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, const LLUUID& parent_id)
 {
+	if (type == LLWearableType::WT_INVALID || type == LLWearableType::WT_NONE) return;
+
 	LLWearable* wearable = LLWearableList::instance().createNewWearable(type);
 	LLAssetType::EType asset_type = wearable->getAssetType();
 	LLInventoryType::EType inv_type = LLInventoryType::IT_WEARABLE;
-	LLPointer<LLInventoryCallback> cb = wear ? new WearOnAvatarCallback : NULL;
+	LLPointer<LLInventoryCallback> cb = wear ? new LLWearAndEditCallback : NULL;
 	LLUUID folder_id;
 
 	if (parent_id.notNull())
@@ -2008,17 +2050,44 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 // static
 void LLAgentWearables::editWearable(const LLUUID& item_id)
 {
-	LLViewerInventoryItem* item;
-	LLWearable* wearable;
-
-	if ((item = gInventory.getLinkedItem(item_id)) &&
-		(wearable = gAgentWearables.getWearableFromAssetID(item->getAssetUUID())) &&
-		gAgentWearables.isWearableModifiable(item->getUUID()) &&
-		item->isFinished())
+	LLViewerInventoryItem* item = gInventory.getLinkedItem(item_id);
+	if (!item)
 	{
-		LLPanel* panel = LLSideTray::getInstance()->showPanel("panel_outfit_edit", LLSD());
-		// copied from LLPanelOutfitEdit::onEditWearableClicked()
-		LLSidepanelAppearance::editWearable(wearable, panel->getParent());
+		llwarns << "Failed to get linked item" << llendl;
+		return;
+	}
+
+	LLWearable* wearable = gAgentWearables.getWearableFromItemID(item_id);
+	if (!wearable)
+	{
+		llwarns << "Cannot get wearable" << llendl;
+		return;
+	}
+
+	if (!gAgentWearables.isWearableModifiable(item->getUUID()))
+	{
+		llwarns << "Cannot modify wearable" << llendl;
+		return;
+	}
+
+	LLPanel* panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
+	LLSidepanelAppearance::editWearable(wearable, panel);
+}
+
+// Request editing the item after it gets worn.
+void LLAgentWearables::requestEditingWearable(const LLUUID& item_id)
+{
+	mItemToEdit = gInventory.getLinkedItemID(item_id);
+}
+
+// Start editing the item if previously requested.
+void LLAgentWearables::editWearableIfRequested(const LLUUID& item_id)
+{
+	if (mItemToEdit.notNull() &&
+		mItemToEdit == gInventory.getLinkedItemID(item_id))
+	{
+		LLAgentWearables::editWearable(item_id);
+		mItemToEdit.setNull();
 	}
 }
 
@@ -2046,7 +2115,25 @@ void LLAgentWearables::populateMyOutfitsFolder(void)
 	}
 }
 
+boost::signals2::connection LLAgentWearables::addLoadingStartedCallback(loading_started_callback_t cb)
+{
+	return mLoadingStartedSignal.connect(cb);
+}
+
 boost::signals2::connection LLAgentWearables::addLoadedCallback(loaded_callback_t cb)
 {
 	return mLoadedSignal.connect(cb);
 }
+
+void LLAgentWearables::notifyLoadingStarted()
+{
+	mCOFChangeInProgress = true;
+	mLoadingStartedSignal();
+}
+
+void LLAgentWearables::notifyLoadingFinished()
+{
+	mCOFChangeInProgress = false;
+	mLoadedSignal();
+}
+// EOF

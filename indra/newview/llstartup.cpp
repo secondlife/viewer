@@ -200,7 +200,6 @@
 #include "llstartuplistener.h"
 
 #if LL_WINDOWS
-#include "llwindebug.h"
 #include "lldxhardware.h"
 #endif
 
@@ -781,9 +780,6 @@ bool idle_startup()
 		gViewerWindow->getWindow()->show();
 		display_startup();
 
-		//DEV-10530.  do cleanup.  remove at some later date.  jan-2009
-		LLFloaterPreference::cleanupBadSetting();
-
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
 		// first made visible.
 #ifdef _WIN32
@@ -1120,8 +1116,6 @@ bool idle_startup()
 				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
 				// create the default proximal channel
 				LLVoiceChannel::initClass();
-				// update the voice settings
-				LLVoiceClient::getInstance()->updateSettings();
 				LLGridManager::getInstance()->setFavorite(); 
 				LLStartUp::setStartupState( STATE_WORLD_INIT);
 			}
@@ -1294,6 +1288,10 @@ bool idle_startup()
 		gXferManager->registerCallbacks(gMessageSystem);
 
 		LLStartUp::initNameCache();
+
+		// update the voice settings *after* gCacheName initialization
+		// so that we can construct voice UI that relies on the name cache
+		LLVoiceClient::getInstance()->updateSettings();
 
 		//gCacheName is required for nearby chat history loading
 		//so I just moved nearby history loading a few states further
@@ -2488,8 +2486,7 @@ void LLStartUp::saveInitialOutfit()
 	{
 		sWearablesLoadedCon.disconnect();
 	}
-
-	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit);
+	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit,false);
 }
 
 std::string& LLStartUp::getInitialOutfitName()
@@ -2631,12 +2628,6 @@ void reset_login()
 }
 
 //---------------------------------------------------------------------------
-
-
-bool LLStartUp::canGoFullscreen()
-{
-	return gStartupState >= STATE_WORLD_INIT;
-}
 
 // Initialize all plug-ins except the web browser (which was initialized
 // early, before the login screen). JC

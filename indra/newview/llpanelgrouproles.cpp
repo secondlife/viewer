@@ -815,6 +815,8 @@ void LLPanelGroupRolesSubTab::setGroupID(const LLUUID& id)
 	if(mRoleDescription) mRoleDescription->clear();
 	if(mRoleTitle) mRoleTitle->clear();
 
+	mHasRoleChange = FALSE;
+
 	setFooterEnabled(FALSE);
 
 	LLPanelGroupSubTab::setGroupID(id);

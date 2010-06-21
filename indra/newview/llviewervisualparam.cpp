@@ -99,8 +99,6 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	node->getFastAttributeF32( camera_angle_string, mCamAngle );	// in degrees
 	static LLStdStringHandle camera_elevation_string = LLXmlTree::addAttributeString("camera_elevation");
 	node->getFastAttributeF32( camera_elevation_string, mCamElevation );
-	static LLStdStringHandle camera_target_string = LLXmlTree::addAttributeString("camera_target");
-	node->getFastAttributeString( camera_target_string, mCamTargetName );
 
 	mCamAngle += 180;
 

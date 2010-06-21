@@ -172,6 +172,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	params.tab_stop(false);
 	params.wrap(true);
 	params.follows.flags(FOLLOWS_LEFT | FOLLOWS_TOP);
+	params.allow_scroll(true);
 
 	LLTextBox * msg_box = LLUICtrlFactory::create<LLTextBox> (params);
 	// Compute max allowable height for the dialog text, so we can allocate
@@ -180,9 +181,16 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			gFloaterView->getRect().getHeight()
 			- LINE_HEIGHT			// title bar
 			- 3*VPAD - BTN_HEIGHT;
+	// reshape to calculate real text width and height
 	msg_box->reshape( MAX_ALLOWED_MSG_WIDTH, max_allowed_msg_height );
 	msg_box->setValue(msg);
-	msg_box->reshapeToFitText();
+
+	S32 pixel_width = msg_box->getTextPixelWidth();
+	S32 pixel_height = msg_box->getTextPixelHeight();
+
+	// We should use some space to prevent set textbox's scroller visible when it is unnecessary.
+	msg_box->reshape( llmin(MAX_ALLOWED_MSG_WIDTH,pixel_width + 2 * msg_box->getHPad() + HPAD),
+		llmin(max_allowed_msg_height,pixel_height + 2 * msg_box->getVPad())  ) ;
 
 	const LLRect& text_rect = msg_box->getRect();
 	S32 dialog_width = llmax( btn_total_width, text_rect.getWidth() ) + 2 * HPAD;
@@ -239,35 +247,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	msg_box->setRect( rect );
 	LLToastPanel::addChild(msg_box);
 
-	// Buttons	
-	S32 button_left = (LLToastPanel::getRect().getWidth() - btn_total_width) / 2;
-	
-	for( S32 i = 0; i < num_options; i++ )
-	{
-		LLRect button_rect;
-		
-		LLButton* btn = LLUICtrlFactory::getInstance()->createFromFile<LLButton>("alert_button.xml", this, LLPanel::child_registry_t::instance());
-		if(btn)
-		{
-			btn->setName(options[i].first);
-			btn->setRect(button_rect.setOriginAndSize( button_left, VPAD, button_width, BTN_HEIGHT ));
-			btn->setLabel(options[i].second);
-			btn->setFont(font);
-			
-			btn->setClickedCallback(boost::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
-
-			mButtonData[i].mButton = btn;
-
-			LLToastPanel::addChild(btn);
-
-			if( i == mDefaultOption )
-			{
-				btn->setFocus(TRUE);
-			}
-		}
-		button_left += button_width + BTN_HPAD;
-	}
-
 	// (Optional) Edit Box	
 	if (!edit_text_name.empty())
 	{
@@ -299,7 +278,61 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->setDrawAsterixes(is_password);
 
 			setEditTextArgs(notification->getSubstitutions());
+
+			mLineEditor->setFollowsLeft();
+			mLineEditor->setFollowsRight();
+
+			// find form text input field
+			LLSD form_text;
+			for (LLSD::array_const_iterator it = form_sd.beginArray(); it != form_sd.endArray(); ++it)
+			{
+				std::string type = (*it)["type"].asString();
+				if (type == "text")
+				{
+					form_text = (*it);
+				}
+			}
+
+			// if form text input field has width attribute
+			if (form_text.has("width"))
+			{
+				// adjust floater width to fit line editor
+				S32 editor_width = form_text["width"];
+				LLRect editor_rect =  mLineEditor->getRect();
+				U32 width_delta = editor_width  - editor_rect.getWidth();
+				LLRect toast_rect = getRect();
+				reshape(toast_rect.getWidth() +  width_delta, toast_rect.getHeight());
+			}
 		}
+	}
+
+	// Buttons
+	S32 button_left = (LLToastPanel::getRect().getWidth() - btn_total_width) / 2;
+
+	for( S32 i = 0; i < num_options; i++ )
+	{
+		LLRect button_rect;
+
+		LLButton* btn = LLUICtrlFactory::getInstance()->createFromFile<LLButton>("alert_button.xml", this, LLPanel::child_registry_t::instance());
+		if(btn)
+		{
+			btn->setName(options[i].first);
+			btn->setRect(button_rect.setOriginAndSize( button_left, VPAD, button_width, BTN_HEIGHT ));
+			btn->setLabel(options[i].second);
+			btn->setFont(font);
+
+			btn->setClickedCallback(boost::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
+
+			mButtonData[i].mButton = btn;
+
+			LLToastPanel::addChild(btn);
+
+			if( i == mDefaultOption )
+			{
+				btn->setFocus(TRUE);
+			}
+		}
+		button_left += button_width + BTN_HPAD;
 	}
 
 	std::string ignore_label;

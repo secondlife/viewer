@@ -123,6 +123,7 @@ public:
 							EDragAndDropType cargo_type,
 							void* cargo_data) { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
+	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
 
 	//--------------------------------------------------------------------
 	// Convenience functions for adding various common menu options.
@@ -245,7 +246,7 @@ public:
 	virtual LLFolderType::EType getPreferredType() const;
 	virtual LLUIImagePtr getIcon() const;
 	virtual LLUIImagePtr getOpenIcon() const;
-	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type, BOOL is_link = FALSE);
+	static LLUIImagePtr getIcon(LLFolderType::EType preferred_type);
 
 	virtual BOOL renameItem(const std::string& new_name);
 
@@ -294,7 +295,6 @@ protected:
 	static void createNewEyes(void* user_data);
 
 	BOOL checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& typeToCheck);
-	BOOL areAnyContentsWorn(LLInventoryModel* model) const;
 
 	void modifyOutfit(BOOL append);
 	void determineFolderType();
@@ -436,7 +436,6 @@ public:
 	virtual LLUIImagePtr	getIcon() const;
 	virtual void			performAction(LLInventoryModel* model, std::string action);
 	virtual void			openItem();
-	virtual LLFontGL::StyleFlags getLabelStyle() const;
 	virtual std::string getLabelSuffix() const;
 	virtual void			buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL renameItem(const std::string& new_name);
@@ -472,6 +471,7 @@ public:
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual std::string getLabelSuffix() const;
 	virtual BOOL renameItem(const std::string& new_name);
+	virtual LLWearableType::EType getWearableType() const { return mWearableType; }
 
 	static void		onWearOnAvatar( void* userdata );	// Access to wearOnAvatar() from menu
 	static BOOL		canWearOnAvatar( void* userdata );
@@ -591,8 +591,6 @@ public:
 		const LLUUID& uuid,
 		U32 flags = 0x00) const;
 };
-
-void wear_inventory_item_on_avatar(LLInventoryItem* item);
 
 void rez_attachment(LLViewerInventoryItem* item, 
 					LLViewerJointAttachment* attachment);

@@ -137,7 +137,7 @@
 	<string name="RetrievingData">Retrieving...</string>
 
 	<string name="ReleaseNotes">Release Notes</string>
-	<string name="RELEASE_NOTES_BASE_URL">http://secondlife.com/app/releasenotes/</string>
+	<string name="RELEASE_NOTES_BASE_URL">http://wiki.secondlife.com/wiki/Release_Notes/</string>
 
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>
@@ -3094,6 +3094,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		The session initialization is timed out
 	</string>
   
+  <string name="voice_morphing_url">http://secondlife.com/landing/voicemorphing</string>
+
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
   <string name="paid_you_ldollars_no_reason">[NAME] paid you L$[AMOUNT].</string>
@@ -3183,28 +3185,23 @@ Abuse Report</string>
 
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value=" "></string>
-  <string name="words_separator">, </string>
+  <string name="words_separator" value=", "/>
   
   <string name="server_is_down">
 	Despite our best efforts, something unexpected has gone wrong.
 
-	Please check secondlife.com/status to see if there is a known problem with the service.  
+	Please check status.secondlifegrid.net to see if there is a known problem with the service.  
         If you continue to experience problems, please check your network and firewall setup.
   </string>
 
   <!-- overriding datetime formating. 
-	leave emtpy in for current localization this is not needed 
-	list of values should be separated with ':'
-        example:
-	<string name="dateTimeWeekdaysShortNames">
-	Son:Mon:Tue:Wed:Thu:Fri:Sat
-	</string>  	
+	didn't translate if this is not needed for current localization 
   -->
-  <string name="dateTimeWeekdaysNames"></string>
-  <string name="dateTimeWeekdaysShortNames"></string>
-  <string name="dateTimeMonthNames"></string>
-  <string name="dateTimeMonthShortNames"></string>
-  <string name="dateTimeDayFormat"></string>
-  <string name="dateTimeAM"></string>
-  <string name="dateTimePM"></string>
+  <string name="dateTimeWeekdaysNames">Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday</string>
+  <string name="dateTimeWeekdaysShortNames">Sun:Mon:Tue:Wed:Thu:Fri:Sat</string>
+  <string name="dateTimeMonthNames">January:February:March:April:May:June:July:August:September:October:November:December</string>
+  <string name="dateTimeMonthShortNames">Jan:Feb:Mar:Apr:May:Jun:Jul:Aug:Sep:Oct:Nov:Dec</string>
+  <string name="dateTimeDayFormat">[MDAY]</string>
+  <string name="dateTimeAM">AM</string>
+  <string name="dateTimePM">PM</string>
   </strings>

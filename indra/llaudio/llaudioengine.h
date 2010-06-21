@@ -195,7 +195,7 @@ protected:
 	virtual LLAudioBuffer *createBuffer() = 0;
 	virtual LLAudioChannel *createChannel() = 0;
 
-	virtual void initWind() = 0;
+	virtual bool initWind() = 0;
 	virtual void cleanupWind() = 0;
 	virtual void setInternalGain(F32 gain) = 0;
 

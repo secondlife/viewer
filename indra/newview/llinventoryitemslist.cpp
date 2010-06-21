@@ -70,16 +70,21 @@ void LLPanelInventoryListItemBase::draw()
 {
 	if (getNeedsRefresh())
 	{
-		updateItem();
+		if (mItem)
+		{
+			updateItem(mItem->getName());
+		}
 		setNeedsRefresh(false);
 	}
 	LLPanel::draw();
 }
 
-void LLPanelInventoryListItemBase::updateItem()
+// virtual
+void LLPanelInventoryListItemBase::updateItem(const std::string& name,
+											  const LLStyle::Params& input_params)
 {
 	setIconImage(mIconImage);
-	setTitle(mItem->getName(), mHighlightedText);
+	setTitle(name, mHighlightedText, input_params);
 }
 
 void LLPanelInventoryListItemBase::addWidgetToLeftSide(const std::string& name, bool show_widget/* = true*/)
@@ -132,7 +137,11 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), mItem->getIsLinkType(), mItem->getFlags(), FALSE);
+	if (mItem)
+	{
+		mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
+		updateItem(mItem->getName());
+	}
 
 	setNeedsRefresh(true);
 
@@ -161,6 +170,42 @@ void LLPanelInventoryListItemBase::onMouseLeave(S32 x, S32 y, MASK mask)
 	LLPanel::onMouseLeave(x, y, mask);
 }
 
+const std::string& LLPanelInventoryListItemBase::getItemName() const
+{
+	if (!mItem)
+	{
+		return LLStringUtil::null;
+	}
+	return mItem->getName();
+}
+
+LLAssetType::EType LLPanelInventoryListItemBase::getType() const
+{
+	if (!mItem)
+	{
+		return LLAssetType::AT_NONE;
+	}
+	return mItem->getType();
+}
+
+LLWearableType::EType LLPanelInventoryListItemBase::getWearableType() const
+{
+	if (!mItem)
+	{
+		return LLWearableType::WT_NONE;
+	}
+	return mItem->getWearableType();
+}
+
+const std::string& LLPanelInventoryListItemBase::getDescription() const
+{
+	if (!mItem)
+	{
+		return LLStringUtil::null;
+	}
+	return mItem->getDescription();
+}
+
 S32 LLPanelInventoryListItemBase::notify(const LLSD& info)
 {
 	S32 rv = 0;
@@ -168,7 +213,7 @@ S32 LLPanelInventoryListItemBase::notify(const LLSD& info)
 	{
 		mHighlightedText = info["match_filter"].asString();
 
-		std::string test(mItem->getName());
+		std::string test(mTitleCtrl->getText());
 		LLStringUtil::toUpper(test);
 
 		if(mHighlightedText.empty() || std::string::npos != test.find(mHighlightedText))
@@ -242,13 +287,28 @@ void LLPanelInventoryListItemBase::setIconImage(const LLUIImagePtr& image)
 	}
 }
 
-void LLPanelInventoryListItemBase::setTitle(const std::string& title, const std::string& highlit_text)
+void LLPanelInventoryListItemBase::setTitle(const std::string& title,
+											const std::string& highlit_text,
+											const LLStyle::Params& input_params)
 {
+	mTitleCtrl->setToolTip(title);
+
 	LLTextUtil::textboxSetHighlightedVal(
 		mTitleCtrl,
-		LLStyle::Params(),
+		input_params,
 		title,
 		highlit_text);
+}
+
+BOOL LLPanelInventoryListItemBase::handleToolTip( S32 x, S32 y, MASK mask)
+{
+	LLRect text_box_rect = mTitleCtrl->getRect();
+	if (text_box_rect.pointInRect(x, y) &&
+		mTitleCtrl->getTextPixelWidth() <= text_box_rect.getWidth())
+	{
+		return FALSE;
+	}
+	return LLPanel::handleToolTip(x, y, mask);
 }
 
 void LLPanelInventoryListItemBase::reshapeLeftWidgets()

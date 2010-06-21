@@ -121,6 +121,7 @@ void LLInitialWearablesFetch::processContents()
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	if (wearable_array.count() > 0)
 	{
+		gAgentWearables.notifyLoadingStarted();
 		LLAppearanceMgr::instance().updateAppearanceFromCOF();
 	}
 	else

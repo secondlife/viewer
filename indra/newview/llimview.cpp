@@ -2358,11 +2358,19 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 	}
 	else // going to IM session
 	{
+		message = LLTrans::getString(message_name + "-im");
+		message.setArgs(args);
 		if (hasSession(session_id))
 		{
-			message = LLTrans::getString(message_name + "-im");
-			message.setArgs(args);
 			gIMMgr->addMessage(session_id, LLUUID::null, SYSTEM_FROM, message.getString());
+		}
+		// log message to file
+		else
+		{
+			std::string session_name;
+			// since we select user to share item with - his name is already in cache
+			gCacheName->getFullName(args["user_id"], session_name);
+			LLIMModel::instance().logToFile(session_name, SYSTEM_FROM, LLUUID::null, message.getString());
 		}
 	}
 }

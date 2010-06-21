@@ -67,9 +67,9 @@
 	<text name="RenderingCost" tool_tip="Mostra il costo di rendering calcolato per questo oggetto">
 		þ: [COUNT]
 	</text>
-	<check_box name="checkbox uniform"/>
-	<text name="checkbox uniform label">
-		Ridimens. simmetricamente
+	<check_box label="" name="checkbox uniform"/>
+	<text label="Allunga entrambi i lati" name="checkbox uniform label">
+		Allunga entrambi i lati
 	</text>
 	<check_box initial_value="true" label="Ridimensiona le texture" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Posiziona nella griglia" name="checkbox snap to grid"/>
@@ -445,8 +445,8 @@
 			<check_box label="Inverti" name="checkbox flip s"/>
 			<spinner label="Verticale (V)" name="TexScaleV"/>
 			<check_box label="Inverti" name="checkbox flip t"/>
-			<spinner label="Rotazione˚" name="TexRot" />
-			<spinner label="Ripetizioni / Metro" name="rptctrl" />
+			<spinner label="Rotazione˚" name="TexRot"/>
+			<spinner label="Ripetizioni / Metro" name="rptctrl"/>
 			<button label="Applica" label_selected="Applica" name="button apply"/>
 			<text name="tex offset">
 				Bilanciamento della texture

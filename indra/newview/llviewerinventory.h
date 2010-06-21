@@ -243,7 +243,13 @@ public:
 
 class WearOnAvatarCallback : public LLInventoryCallback
 {
+public:
+	WearOnAvatarCallback(bool do_replace = false) : mReplace(do_replace) {}
+	
 	void fire(const LLUUID& inv_item);
+
+protected:
+	bool mReplace;
 };
 
 class ModifiedCOFCallback : public LLInventoryCallback

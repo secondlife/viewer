@@ -12,10 +12,10 @@
          label="Show Navigation Bar"
          layout="topleft"
          name="ShowNavbarNavigationPanel">
-           <menu_item_check.on_click
+           <on_click
              function="ToggleControl"
              parameter="ShowNavbarNavigationPanel" /> 
-             <menu_item_check.on_check
+             <on_check
              function="CheckControl"
              parameter="ShowNavbarNavigationPanel" />
     </menu_item_check>
@@ -23,11 +23,22 @@
          label="Show Favorites Bar"
          layout="topleft"
          name="ShowNavbarFavoritesPanel">
-           <menu_item_check.on_click
+           <on_click
              function="ToggleControl"
              parameter="ShowNavbarFavoritesPanel" /> 
-             <menu_item_check.on_check
+             <on_check
              function="CheckControl"
              parameter="ShowNavbarFavoritesPanel" />
+    </menu_item_check>
+    <menu_item_check
+         label="Show Mini-Location Bar"
+         layout="topleft"
+         name="ShowMiniLocationPanel">
+           <on_click
+             function="ToggleControl"
+             parameter="ShowMiniLocationPanel" />
+             <on_check
+             function="CheckControl"
+             parameter="ShowMiniLocationPanel" />
     </menu_item_check>
 </menu>

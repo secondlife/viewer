@@ -53,6 +53,7 @@ BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id);
 BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id);
 
 void show_item_profile(const LLUUID& item_uuid);
+void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id);
 
 void show_item_original(const LLUUID& item_uuid);
 
@@ -271,6 +272,32 @@ public:
 //
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindByMask : public LLInventoryCollectFunctor
+{
+public:
+	LLFindByMask(U64 mask)
+		: mFilterMask(mask)
+	{}
+
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		if(item && (mFilterMask & (1LL << item->getInventoryType())) )
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+private:
+	U64 mFilterMask;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindNonLinksByMask
+//
+//
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLFindNonLinksByMask : public LLInventoryCollectFunctor
 {
 public:
@@ -311,6 +338,21 @@ public:
 							LLInventoryItem* item);
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFindWearablesEx
+//
+// Collects wearables based on given criteria.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLFindWearablesEx : public LLInventoryCollectFunctor
+{
+public:
+	LLFindWearablesEx(bool is_worn, bool include_body_parts = true);
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+private:
+	bool mIncludeBodyParts;
+	bool mIsWorn;
+};
+
 //Inventory collect functor collecting wearables of a specific wearable type
 class LLFindWearablesOfType : public LLInventoryCollectFunctor
 {
@@ -324,13 +366,17 @@ private:
 	LLWearableType::EType mWearableType;
 };
 
-// Find worn items.
-class LLFindWorn : public LLInventoryCollectFunctor
+/** Filter out wearables-links */
+class LLFindActualWearablesOfType : public LLFindWearablesOfType
 {
 public:
-	LLFindWorn() {}
-	virtual ~LLFindWorn() {}
-	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	LLFindActualWearablesOfType(LLWearableType::EType type) : LLFindWearablesOfType(type) {}
+	virtual ~LLFindActualWearablesOfType() {}
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		if (item && item->getIsLinkType()) return false;
+		return LLFindWearablesOfType::operator()(cat, item);
+	}
 };
 
 // Collect non-removable folders and items.

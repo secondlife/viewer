@@ -42,10 +42,12 @@
 class LLWearable;
 class LLWearableHoldingPattern;
 class LLInventoryCallback;
+class LLOutfitUnLockTimer;
 
 class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 {
 	friend class LLSingleton<LLAppearanceMgr>;
+	friend class LLOutfitUnLockTimer;
 	
 public:
 	typedef std::vector<LLInventoryModel::item_array_t> wearables_by_type_t;
@@ -72,6 +74,12 @@ public:
 
 	// Determine whether a given outfit can be removed.
 	bool getCanRemoveOutfit(const LLUUID& outfit_cat_id);
+
+	// Determine whether we're wearing any of the outfit contents (excluding body parts).
+	static bool getCanRemoveFromCOF(const LLUUID& outfit_cat_id);
+
+	// Determine whether we can add anything (but body parts) from the outfit contents to COF.
+	static bool getCanAddToCOF(const LLUUID& outfit_cat_id);
 
 	// Copy all items in a category.
 	void shallowCopyCategoryContents(const LLUUID& src_id, const LLUUID& dst_id,
@@ -149,7 +157,7 @@ public:
 	void removeItemFromAvatar(const LLUUID& item_id);
 
 
-	LLUUID makeNewOutfitLinks(const std::string& new_folder_name);
+	LLUUID makeNewOutfitLinks(const std::string& new_folder_name,bool show_panel = true);
 
 	bool moveWearable(LLViewerInventoryItem* item, bool closer_to_body);
 
@@ -161,6 +169,8 @@ public:
 	//Check ordering information on wearables stored in links' descriptions and update if it is invalid
 	// COF is processed if cat_id is not specified
 	void updateClothingOrderingInfo(LLUUID cat_id = LLUUID::null);
+
+	bool isOutfitLocked() { return mOutfitLocked; }
 
 protected:
 	LLAppearanceMgr();
@@ -186,9 +196,19 @@ private:
 
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
+	void setOutfitLocked(bool locked);
+
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
+
+	/**
+	 * Lock for blocking operations on outfit until server reply or timeout exceed
+	 * to avoid unsynchronized outfit state or performing duplicate operations.
+	 */
+	bool mOutfitLocked;
+
+	std::auto_ptr<LLOutfitUnLockTimer> mUnlockOutfitTimer;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Item-specific convenience functions 

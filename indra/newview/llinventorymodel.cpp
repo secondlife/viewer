@@ -35,6 +35,7 @@
 
 #include "llagent.h"
 #include "llagentwearables.h"
+#include "llappearancemgr.h"
 #include "llinventorypanel.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -720,9 +721,20 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 			// Valid UUID; set the item UUID and rename it
 			new_item->setCreator(id);
 			std::string avatar_name;
-			// Fetch the currect name
-			gCacheName->get(id, false,
-				boost::bind(&LLViewerInventoryItem::onCallingCardNameLookup, new_item.get(), _1, _2, _3));
+
+			if (gCacheName->getFullName(id, avatar_name))
+			{
+				new_item->rename(avatar_name);
+				mask |= LLInventoryObserver::LABEL;
+			}
+			else
+			{
+				// Fetch the current name
+				gCacheName->get(id, FALSE,
+					boost::bind(&LLViewerInventoryItem::onCallingCardNameLookup, new_item.get(),
+					_1, _2, _3));
+			}
+
 		}
 	}
 	else if (new_item->getType() == LLAssetType::AT_GESTURE)
@@ -1250,12 +1262,6 @@ void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 
 void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 {
-	/*
-	const LLViewerInventoryCategory* cat = gInventory.getCategory(item->getParentUUID()); // Seraph remove for 2.1
-	const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND"; // Seraph remove for 2.1
-	llinfos << "Added item [ name:" << item->getName() << " UUID:" << item->getUUID() << " type:" << item->getActualType() << " ] to folder [ name:" << cat_name << " uuid:" << item->getParentUUID() << " ]" << llendl; // Seraph remove for 2.1
-	*/
-
 	llassert(item);
 	if(item)
 	{
@@ -2441,7 +2447,9 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	}
 	LLUUID tid;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_TransactionID, tid);
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	llinfos << "Bulk inventory: " << tid << llendl;
+#endif
 
 	update_map_t update;
 	cat_array_t folders;
@@ -2562,7 +2570,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 		{
 			LLViewerInventoryItem* wearable_item;
 			wearable_item = gInventory.getItem(wearable_ids[i]);
-			wear_inventory_item_on_avatar(wearable_item);
+			LLAppearanceMgr::instance().wearItemOnAvatar(wearable_item->getUUID(), true, true);
 		}
 	}
 

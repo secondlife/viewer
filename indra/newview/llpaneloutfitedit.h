@@ -42,14 +42,16 @@
 
 #include "llremoteparcelrequest.h"
 #include "llinventory.h"
+#include "llinventoryfunctions.h"
 #include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
 
 class LLButton;
 class LLCOFWearables;
+class LLComboBox;
 class LLTextBox;
 class LLInventoryCategory;
-class LLCOFObserver;
+class LLOutfitObserver;
 class LLCOFDragAndDropObserver;
 class LLInventoryPanel;
 class LLSaveFolderState;
@@ -68,20 +70,58 @@ class LLPanelOutfitEdit : public LLPanel
 	LOG_CLASS(LLPanelOutfitEdit);
 public:
 	
-	// NOTE: initialize mLookItemTypes at the index of any new enum you add in the LLPanelOutfitEdit() constructor
-	typedef enum e_look_item_type
+	// NOTE: initialize mFolderViewItemTypes at the index of any new enum you add in the LLPanelOutfitEdit() constructor
+	typedef enum e_folder_view_item_type
 	{
-		LIT_ALL = 0,
-		LIT_WEARABLE, // clothing or shape
-		LIT_ATTACHMENT,
-		NUM_LOOK_ITEM_TYPES
-	} ELookItemType; 
+		FVIT_ALL = 0,
+		FVIT_WEARABLE, // clothing or shape
+		FVIT_ATTACHMENT,
+		NUM_FOLDER_VIEW_ITEM_TYPES
+	} EFolderViewItemType; 
 	
+	//should reflect order from LLWearableType::EType
+	typedef enum e_list_view_item_type
+	{
+		LVIT_ALL = 0,
+		LVIT_CLOTHING,
+		LVIT_BODYPART,
+		LVIT_ATTACHMENT,
+		LVIT_SHAPE,
+		LVIT_SKIN,
+		LVIT_HAIR,
+		LVIT_EYES,
+		LVIT_SHIRT,
+		LVIT_PANTS,
+		LVIT_SHOES,
+		LVIT_SOCKS,
+		LVIT_JACKET,
+		LVIT_GLOVES,
+		LVIT_UNDERSHIRT,
+		LVIT_UNDERPANTS,
+		LVIT_SKIRT,
+		LVIT_ALPHA,
+		LVIT_TATTOO,
+		NUM_LIST_VIEW_ITEM_TYPES
+	} EListViewItemType; 
+
 	struct LLLookItemType {
 		std::string displayName;
 		U64 inventoryMask;
 		LLLookItemType() : displayName("NONE"), inventoryMask(0) {}
 		LLLookItemType(std::string name, U64 mask) : displayName(name), inventoryMask(mask) {}
+	};
+
+	struct LLFilterItem {
+		std::string displayName;
+		LLInventoryCollectFunctor* collector;
+		LLFilterItem() : displayName("NONE"), collector(NULL) {}
+		LLFilterItem(std::string name, LLInventoryCollectFunctor* _collector) : displayName(name), collector(_collector) {}
+		~LLFilterItem() { delete collector; }
+
+	//the struct is not supposed to by copied, either way the destructor kills collector
+	//LLPointer is not used as it requires LLInventoryCollectFunctor to extend LLRefCount what it doesn't do
+	private:
+		LLFilterItem(const LLFilterItem& filter_item) {};
 	};
 	
 	LLPanelOutfitEdit();
@@ -94,19 +134,36 @@ public:
 
 	void toggleAddWearablesPanel();
 	void showAddWearablesPanel(bool show__add_wearables);
-	void showWearablesFilter();
-	void showFilteredWearablesPanel();
-	void showFilteredFolderWearablesPanel();
 
-	void onTypeFilterChanged(LLUICtrl* ctrl);
+	//following methods operate with "add wearables" panel
+	void showWearablesFilter();
+	void showWearablesListView();
+	void showWearablesFolderView();
+
+	void updateFiltersVisibility();
+
+	void onFolderViewFilterCommitted(LLUICtrl* ctrl);
+	void onListViewFilterCommitted(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
 	void onInventorySelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onAddToOutfitClicked(void);
-	void onOutfitItemSelectionChange(void);
+
+	void applyFolderViewFilter(EFolderViewItemType type);
+	void applyListViewFilter(EListViewItemType type);
+
+	/**
+	 * Filter items in views of Add Wearables Panel and show appropriate view depending on currently selected COF item(s)
+	 * No COF items selected - shows the folder view, reset filter
+	 * 1 COF item selected - shows the list view and filters wearables there by a wearable type of the selected item
+	 * More than 1 COF item selected - shows the list view and filters it by a type of the selected item (attachment or clothing)
+	 */
+	void filterWearablesBySelectedItem(void);
+
 	void onRemoveFromOutfitClicked(void);
 	void onEditWearableClicked(void);
 	void onAddWearableClicked(void);
 	void onReplaceBodyPartMenuItemClicked(LLUUID selected_item_id);
+	void onShopButtonClicked();
 
 	void displayCurrentOutfit();
 	void updateCurrentOutfitName();
@@ -132,7 +189,9 @@ public:
 private:
 
 	void onGearButtonClick(LLUICtrl* clicked_button);
-	void showFilteredWearableItemsList(LLWearableType::EType type);
+	void onAddMoreButtonClicked();
+	void showFilteredWearablesListView(LLWearableType::EType type);
+	void onOutfitChanging(bool started);
 
 
 	LLTextBox*			mCurrentOutfitName;
@@ -145,23 +204,25 @@ private:
 	LLButton*			mFolderViewBtn;
 	LLButton*			mListViewBtn;
 	LLPanel*			mAddWearablesPanel;
-
-	LLFindNonLinksByMask*  mWearableListMaskCollector;
-	LLFindWearablesOfType* mWearableListTypeCollector;
+	
+	LLComboBox*			mFolderViewFilterCmbBox;
+	LLComboBox*			mListViewFilterCmbBox;
 
 	LLFilteredWearableListManager* 	mWearableListManager;
 	LLInventoryItemsList* 			mWearableItemsList;
-	LLPanel*						mWearableItemsPanel;
+	LLPanel*						mWearablesListViewPanel;
 
-	LLCOFObserver*	mCOFObserver;
 	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
 
-	std::vector<LLLookItemType> mLookItemTypes;
+	std::vector<LLLookItemType> mFolderViewItemTypes;
+	std::vector<LLFilterItem*> mListViewItemTypes;
 
 	LLCOFWearables*		mCOFWearables;
 	LLMenuGL*			mGearMenu;
 	bool				mInitialized;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
+
+
 
 };
 

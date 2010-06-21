@@ -52,6 +52,7 @@
 #include "llappearancemgr.h"
 #include "llappviewer.h"
 //#include "llfirstuse.h"
+#include "llfloaterinventory.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
 #include "llgesturemgr.h"
@@ -63,6 +64,7 @@
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
+#include "llpanelmaininventory.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
 #include "llpreviewnotecard.h"
@@ -74,6 +76,7 @@
 #include "llscrollcontainer.h"
 #include "llselectmgr.h"
 #include "llsidetray.h"
+#include "llsidepanelinventory.h"
 #include "lltabcontainer.h"
 #include "lltooldraganddrop.h"
 #include "lluictrlfactory.h"
@@ -185,8 +188,6 @@ void remove_category(LLInventoryModel* model, const LLUUID& cat_id)
 		}
 	}
 
-	// go ahead and do the normal remove if no 'last calling
-	// cards' are being removed.
 	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
 	if (cat)
 	{
@@ -311,6 +312,11 @@ BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
 
 BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
 {
+	if (!model)
+	{
+		return FALSE;
+	}
+
 	LLViewerInventoryCategory* cat = model->getCategory(id);
 
 	if (cat && !LLFolderType::lookupIsProtectedType(cat->getPreferredType()) &&
@@ -321,6 +327,11 @@ BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
 	return FALSE;
 }
 
+void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id)
+{
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD().with("id", item_uuid).with("object", object_id));
+}
+
 void show_item_profile(const LLUUID& item_uuid)
 {
 	LLUUID linked_uuid = gInventory.getLinkedItemID(item_uuid);
@@ -329,9 +340,59 @@ void show_item_profile(const LLUUID& item_uuid)
 
 void show_item_original(const LLUUID& item_uuid)
 {
+	//sidetray inventory panel
+	LLSidepanelInventory *sidepanel_inventory =
+		dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+
+	bool reset_inventory_filter = !LLSideTray::getInstance()->isPanelActive("sidepanel_inventory");
+
 	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
-	if (!active_panel) return;
+	if (!active_panel) 
+	{
+		//this may happen when there is no floatera and other panel is active in inventory tab
+
+		if	(sidepanel_inventory)
+		{
+			sidepanel_inventory->showInventoryPanel();
+		}
+	}
+	
+	active_panel = LLInventoryPanel::getActiveInventoryPanel();
+	if (!active_panel) 
+	{
+		return;
+	}
 	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_NO);
+	
+	if(reset_inventory_filter)
+	{
+		//inventory floater
+		bool floater_inventory_visible = false;
+
+		LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
+		for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
+		{
+			LLFloaterInventory* floater_inventory = dynamic_cast<LLFloaterInventory*>(*iter);
+			if (floater_inventory)
+			{
+				LLPanelMainInventory* main_inventory = floater_inventory->getMainInventoryPanel();
+
+				main_inventory->onFilterEdit("");
+			}
+
+			if(floater_inventory->getVisible())
+			{
+				floater_inventory_visible = true;
+			}
+
+		}
+		if(sidepanel_inventory && !floater_inventory_visible)
+		{
+			LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+
+			main_inventory->onFilterEdit("");
+		}
+	}
 }
 
 ///----------------------------------------------------------------------------
@@ -517,6 +578,31 @@ bool LLFindWearables::operator()(LLInventoryCategory* cat,
 	return FALSE;
 }
 
+LLFindWearablesEx::LLFindWearablesEx(bool is_worn, bool include_body_parts)
+:	mIsWorn(is_worn)
+,	mIncludeBodyParts(include_body_parts)
+{}
+
+bool LLFindWearablesEx::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+	if (!vitem) return false;
+
+	// Skip non-wearables.
+	if (!vitem->isWearableType() && vitem->getType() != LLAssetType::AT_OBJECT)
+	{
+		return false;
+	}
+
+	// Skip body parts if requested.
+	if (!mIncludeBodyParts && vitem->getType() == LLAssetType::AT_BODYPART)
+	{
+		return false;
+	}
+
+	return (bool) get_is_item_worn(item->getUUID()) == mIsWorn;
+}
+
 bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
 	if (!item) return false;
@@ -535,11 +621,6 @@ bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem
 void LLFindWearablesOfType::setType(LLWearableType::EType type)
 {
 	mWearableType = type;
-}
-
-bool LLFindWorn::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-{
-	return item && get_is_item_worn(item->getUUID());
 }
 
 bool LLFindNonRemovableObjects::operator()(LLInventoryCategory* cat, LLInventoryItem* item)

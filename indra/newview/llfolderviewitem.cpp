@@ -96,6 +96,7 @@ void LLFolderViewItem::cleanupClass()
 LLFolderViewItem::Params::Params()
 :	icon(),
 	icon_open(),
+	icon_overlay(),
 	root(),
 	listener(),
 	folder_arrow_image("folder_arrow_image"),
@@ -133,6 +134,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mCreationDate(p.creation_date),
 	mIcon(p.icon),
 	mIconOpen(p.icon_open),
+	mIconOverlay(p.icon_overlay),
 	mListener(p.listener),
 	mHidden(false),
 	mShowLoadStatus(false)
@@ -287,8 +289,11 @@ void LLFolderViewItem::refreshFromListener()
 			mCreationDate = mListener->getCreationDate();
 			dirtyFilter();
 		}
-		mLabelStyle = mListener->getLabelStyle();
-		mLabelSuffix = mListener->getLabelSuffix();
+		if (mRoot->useLabelSuffix())
+		{
+			mLabelStyle = mListener->getLabelStyle();
+			mLabelSuffix = mListener->getLabelSuffix();
+		}
 	}
 }
 
@@ -617,6 +622,7 @@ const std::string& LLFolderViewItem::getSearchableLabel() const
 
 LLViewerInventoryItem * LLFolderViewItem::getInventoryItem(void)
 {
+	if (!getListener()) return NULL;
 	return gInventory.getItem(getListener()->getUUID());
 }
 
@@ -948,7 +954,8 @@ void LLFolderViewItem::draw()
 		mDragAndDropTarget = FALSE;
 	}
 
-	
+	const LLViewerInventoryItem *item = getInventoryItem();
+	const BOOL highlight_link = mIconOverlay && item && item->getIsLinkType();
 	//--------------------------------------------------------------------------------//
 	// Draw open icon
 	//
@@ -962,6 +969,10 @@ void LLFolderViewItem::draw()
  		mIcon->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
  	}
 
+	if (highlight_link)
+	{
+		mIconOverlay->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
+	}
 
 	//--------------------------------------------------------------------------------//
 	// Exit if no label to draw
@@ -972,8 +983,7 @@ void LLFolderViewItem::draw()
 	}
 
 	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
-	const LLViewerInventoryItem *item = getInventoryItem();
-	if (item && item->getIsLinkType()) color = sLinkColor;
+	if (highlight_link) color = sLinkColor;
 	if (in_library) color = sLibraryColor;
 
 	F32 right_x  = 0;

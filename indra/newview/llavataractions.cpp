@@ -543,11 +543,10 @@ namespace action_give_inventory
 		// iterate through avatars
 		for(S32 i = 0; i < count; ++i)
 		{
-			const std::string& avatar_name = LLShareInfo::instance().mAvatarNames[i].getLegacyName();
 			const LLUUID& avatar_uuid = LLShareInfo::instance().mAvatarUuids[i];
 
-			// Start up IM before give the item
-			const LLUUID session_id = gIMMgr->addSession(avatar_name, IM_NOTHING_SPECIAL, avatar_uuid);
+			// We souldn't open IM session, just calculate session ID for logging purpose. See EXT-6710
+			const LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, avatar_uuid);
 
 			uuid_set_t::const_iterator it = inventory_selected_uuids.begin();
 			const uuid_set_t::const_iterator it_end = inventory_selected_uuids.end();
@@ -648,6 +647,8 @@ void LLAvatarActions::shareWithAvatars()
 	LLFloaterAvatarPicker* picker =
 		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE);
 	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
+	picker->openFriendsTab();
+	LLNotificationsUtil::add("ShareNotification");
 }
 
 // static

@@ -975,12 +975,6 @@ void LLVOAvatarSelf::wearableUpdated( LLWearableType::EType type, BOOL upload_re
 		const LLVOAvatarDictionary::BakedEntry *baked_dict = baked_iter->second;
 		const LLVOAvatarDefines::EBakedTextureIndex index = baked_iter->first;
 
-		// if we're editing our appearance, ensure that we're not using baked textures
-		// The baked texture for alpha masks is set explicitly when you hit "save"
-		if (gAgentCamera.cameraCustomizeAvatar())
-		{
-			setNewBakedTexture(index,IMG_DEFAULT_AVATAR);
-		}
 		if (baked_dict)
 		{
 			for (LLVOAvatarDefines::wearables_vec_t::const_iterator type_iter = baked_dict->mWearables.begin();
@@ -1273,7 +1267,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLTexLayerSet* layerset) 
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) const
 {
-	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+	const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
+	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels.
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
@@ -1289,7 +1284,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) cons
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
-					if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(override_tex_discard_level))
+					if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(desired_tex_discard_level))
 					{
 						return FALSE;
 					}
@@ -1304,7 +1299,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLTexLayerSet* layerset) cons
 
 BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 {
-	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+	const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
+	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
@@ -1318,7 +1314,7 @@ BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 			const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 			for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 			{
-				if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(override_tex_discard_level))
+				if (getLocalDiscardLevel(*local_tex_iter, wearable_index) > (S32)(desired_tex_discard_level))
 				{
 					return FALSE;
 				}
@@ -1334,7 +1330,7 @@ BOOL LLVOAvatarSelf::isBakedTextureFinal(const LLVOAvatarDefines::EBakedTextureI
 	if (!layerset) return FALSE;
 	const LLTexLayerSetBuffer *layerset_buffer = layerset->getComposite();
 	if (!layerset_buffer) return FALSE;
-	return !layerset_buffer->uploadPending();
+	return !layerset_buffer->uploadNeeded();
 }
 
 BOOL LLVOAvatarSelf::isTextureDefined(LLVOAvatarDefines::ETextureIndex type, U32 index) const
@@ -1882,7 +1878,7 @@ const std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLTexLayer
 		if (layerset == mBakedTextureDatas[baked_index].mTexLayerSet)
 		{
 			const LLVOAvatarDictionary::BakedEntry *baked_dict = baked_iter->second;
-			text += llformat("[%d] '%s' ( ",baked_index, baked_dict->mName.c_str());
+			text += llformat("%d-%s ( ",baked_index, baked_dict->mName.c_str());
 			for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
 				 local_tex_iter != baked_dict->mLocalTextures.end();
 				 ++local_tex_iter)
@@ -1975,37 +1971,47 @@ BOOL LLVOAvatarSelf::canGrabBakedTexture(EBakedTextureIndex baked_index) const
 		 ++iter)
 	{
 		const ETextureIndex t_index = (*iter);
-		lldebugs << "Checking index " << (U32) t_index << llendl;
-		// MULTI-WEARABLE: old method. replace.
-		const LLUUID& texture_id = getTEImage( t_index )->getID();
-		if (texture_id != IMG_DEFAULT_AVATAR)
+		LLWearableType::EType wearable_type = LLVOAvatarDictionary::getTEWearableType(t_index);
+		U32 count = gAgentWearables.getWearableCount(wearable_type);
+		lldebugs << "Checking index " << (U32) t_index << " count: " << count << llendl;
+		
+		for (U32 wearable_index = 0; wearable_index < count; ++wearable_index)
 		{
-			// Search inventory for this texture.
-			LLViewerInventoryCategory::cat_array_t cats;
-			LLViewerInventoryItem::item_array_t items;
-			LLAssetIDMatches asset_id_matches(texture_id);
-			gInventory.collectDescendentsIf(LLUUID::null,
-											cats,
-											items,
-											LLInventoryModel::INCLUDE_TRASH,
-											asset_id_matches);
-
-			BOOL can_grab = FALSE;
-			lldebugs << "item count for asset " << texture_id << ": " << items.count() << llendl;
-			if (items.count())
+			LLWearable *wearable = gAgentWearables.getWearable(wearable_type, wearable_index);
+			if (wearable)
 			{
-				// search for full permissions version
-				for (S32 i = 0; i < items.count(); i++)
+				const LLLocalTextureObject *texture = wearable->getLocalTextureObject((S32)t_index);
+				const LLUUID& texture_id = texture->getID();
+				if (texture_id != IMG_DEFAULT_AVATAR)
 				{
-					LLViewerInventoryItem* itemp = items[i];
-                                        if (itemp->getIsFullPerm())
+					// Search inventory for this texture.
+					LLViewerInventoryCategory::cat_array_t cats;
+					LLViewerInventoryItem::item_array_t items;
+					LLAssetIDMatches asset_id_matches(texture_id);
+					gInventory.collectDescendentsIf(LLUUID::null,
+													cats,
+													items,
+													LLInventoryModel::INCLUDE_TRASH,
+													asset_id_matches);
+
+					BOOL can_grab = FALSE;
+					lldebugs << "item count for asset " << texture_id << ": " << items.count() << llendl;
+					if (items.count())
 					{
-						can_grab = TRUE;
-						break;
+						// search for full permissions version
+						for (S32 i = 0; i < items.count(); i++)
+						{
+							LLViewerInventoryItem* itemp = items[i];
+												if (itemp->getIsFullPerm())
+							{
+								can_grab = TRUE;
+								break;
+							}
+						}
 					}
+					if (!can_grab) return FALSE;
 				}
 			}
-			if (!can_grab) return FALSE;
 		}
 	}
 
@@ -2024,7 +2030,11 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 			F32 desired_pixels;
 			desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
 			imagep->setBoostLevel(getAvatarBoostLevel());
+
+			imagep->resetTextureStats();
+			imagep->setResetMaxVirtualSizeFlag(false) ;
 			imagep->addTextureStats( desired_pixels / texel_area_ratio );
+			imagep->setAdditionalDecodePriority(1.0f) ;
 			imagep->forceUpdateBindStats() ;
 			if (imagep->getDiscardLevel() < 0)
 			{

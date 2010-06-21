@@ -30,6 +30,7 @@
            height="490"
            name="outfitslist_tab"
            background_visible="true"
+           help_topic="my_outfits_tab"
            follows="all"
            label="MY OUTFITS"
            layout="topleft"
@@ -47,6 +48,7 @@
            mouse_opaque="true"
            name="cof_tab"
            start_folder="Current Outfit"
+           use_label_suffix="true" 
            width="315" />
    </tab_container>
 	 <panel
@@ -92,7 +94,7 @@
          layout="topleft"
          left_pad="1"
          name="trash_btn"
-         tool_tip="Remove selected item"
+      tool_tip="Delete selected outfit"
          width="31"/>         
      <button
        follows="bottom|left"

@@ -84,13 +84,12 @@ public:
 	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item);
 
 	/**
-	* Puts item on if it is not worn by agent
-	* otherwise takes it off on double click.
-	*/
-	/*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+	 * Updates item name and (worn) suffix.
+	 */
+	/*virtual*/ void updateItem(const std::string& name,
+								const LLStyle::Params& input_params = LLStyle::Params());
 
 protected:
-
 	LLPanelWearableOutfitItem(LLViewerInventoryItem* item);
 };
 
@@ -116,6 +115,23 @@ protected:
 	/*virtual*/ void init();
 };
 
+/** Outfit list item for an attachment */
+class LLPanelAttachmentListItem : public LLPanelDeletableWearableListItem
+{
+	LOG_CLASS(LLPanelAttachmentListItem);
+public:
+	static LLPanelAttachmentListItem* create(LLViewerInventoryItem* item);
+	virtual ~LLPanelAttachmentListItem() {};
+
+	/** Set item title. Joint name is added to the title in parenthesis */
+	/*virtual*/ void setTitle(const std::string& title,
+							  const std::string& highlit_text,
+							  const LLStyle::Params& input_params = LLStyle::Params());
+
+protected:
+	LLPanelAttachmentListItem(LLViewerInventoryItem* item) : LLPanelDeletableWearableListItem(item) {};
+};
+
 /**
  * @class LLPanelClothingListItem
  *
@@ -139,7 +155,7 @@ public:
 
 	inline void setShowMoveDownButton(bool show) { setShowWidget("btn_move_down", show); }
 	inline void setShowLockButton(bool show) { setShowWidget("btn_lock", show); }
-	inline void setShowEditButton(bool show) { setShowWidget("btn_edit", show); }
+	inline void setShowEditButton(bool show) { setShowWidget("btn_edit_panel", show); }
 
 
 protected:
@@ -164,7 +180,7 @@ public:
 	* Make button visible during mouse over event.
 	*/
 	inline void setShowLockButton(bool show) { setShowWidget("btn_lock", show); }
-	inline void setShowEditButton(bool show) { setShowWidget("btn_edit", show); }
+	inline void setShowEditButton(bool show) { setShowWidget("btn_edit_panel", show); }
 
 protected:
 	LLPanelBodyPartsListItem(LLViewerInventoryItem* item);
@@ -183,7 +199,6 @@ class LLPanelDummyClothingListItem : public LLPanelWearableListItem
 public:
 	static LLPanelDummyClothingListItem* create(LLWearableType::EType w_type);
 
-	/*virtual*/ void updateItem();
 	/*virtual*/ BOOL postBuild();
 	LLWearableType::EType getWearableType() const;
 
@@ -310,6 +325,10 @@ public:
 	 */
 	class ContextMenu : public LLListContextMenu, public LLSingleton<ContextMenu>
 	{
+	public:
+		ContextMenu();
+		/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
+
 	protected:
 		enum {
 			MASK_CLOTHING		= 0x01,
@@ -325,11 +344,14 @@ public:
 		static void setMenuItemEnabled(LLContextMenu* menu, const std::string& name, bool val);
 		static void updateMask(U32& mask, LLAssetType::EType at);
 		static void createNewWearable(const LLUUID& item_id);
+		static bool canAddWearable(const LLUUID& item_id);
+
+		LLWearableItemsList*	mParent;
 	};
 
 	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>
 	{
-		Optional<bool> use_internal_context_menu;
+		Optional<bool> standalone;
 
 		Params();
 	};
@@ -340,11 +362,21 @@ public:
 
 	void updateList(const LLUUID& category_id);
 
+	/**
+	 * Update items that match UUIDs from changed_items_uuids
+	 * or links that point at such items.
+	 */
+	void updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids);
+
+	bool isStandalone() const { return mIsStandalone; }
+
 protected:
 	friend class LLUICtrlFactory;
 	LLWearableItemsList(const LLWearableItemsList::Params& p);
 
 	void onRightClick(S32 x, S32 y);
+
+	bool mIsStandalone;
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H

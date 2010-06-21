@@ -6,17 +6,47 @@
 	<string name="walk_back_tooltip">
 		Andar para trás (flecha para baixo ou S)
 	</string>
+	<string name="walk_left_tooltip">
+		Andar para a esquerda (Shift + Seta esquerda ou A)
+	</string>
+	<string name="walk_right_tooltip">
+		Andar para a direita (Shift + Seta direita ou D)
+	</string>
 	<string name="run_forward_tooltip">
 		Correr para frente (flecha para cima ou W)
 	</string>
 	<string name="run_back_tooltip">
 		Correr para trás (flecha para baixo ou S)
 	</string>
+	<string name="run_left_tooltip">
+		Correr para a esquerda (Shift + Seta esquerda ou A)
+	</string>
+	<string name="run_right_tooltip">
+		Correr para a direita (Shift + Seta direita ou D)
+	</string>
 	<string name="fly_forward_tooltip">
 		Voar para frente (flecha para cima ou W)
 	</string>
 	<string name="fly_back_tooltip">
 		Voar para trás (flecha para baixo ou S)
+	</string>
+	<string name="fly_left_tooltip">
+		Voar para a esquerda (Shift + Seta esquerda ou A)
+	</string>
+	<string name="fly_right_tooltip">
+		Voar para a direita (Shift + Seta direita ou D)
+	</string>
+	<string name="fly_up_tooltip">
+		Voar para cima (tecla E)
+	</string>
+	<string name="fly_down_tooltip">
+		Voar para baixo (tecla C)
+	</string>
+	<string name="jump_tooltip">
+		Pular (tecla E)
+	</string>
+	<string name="crouch_tooltip">
+		Agachar (tecla C)
 	</string>
 	<string name="walk_title">
 		Andar
@@ -28,10 +58,12 @@
 		Voar
 	</string>
 	<panel name="panel_actions">
-		<button label="" label_selected="" name="turn left btn" tool_tip="Virar à esquerda (flecha ESQ ou A)"/>
-		<button label="" label_selected="" name="turn right btn" tool_tip="Virar à direita (flecha DIR ou D)"/>
 		<button label="" label_selected="" name="move up btn" tool_tip="Voar para cima (tecla E)"/>
+		<button label="" label_selected="" name="turn left btn" tool_tip="Virar à esquerda (flecha ESQ ou A)"/>
+		<joystick_slide name="move left btn" tool_tip="Andar para a esquerda (Shift + Seta esquerda ou A)"/>
 		<button label="" label_selected="" name="move down btn" tool_tip="Voar para baixo (tecla C)"/>
+		<button label="" label_selected="" name="turn right btn" tool_tip="Virar à direita (flecha DIR ou D)"/>
+		<joystick_slide name="move right btn" tool_tip="Andar para a direita (Shift + Seta direita ou D)"/>
 		<joystick_turn name="forward btn" tool_tip="Andar para frente (flecha para cima ou W)"/>
 		<joystick_turn name="backward btn" tool_tip="Andar para trás (flecha para baixo ou S)"/>
 	</panel>

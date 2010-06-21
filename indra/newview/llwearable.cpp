@@ -656,7 +656,7 @@ void LLWearable::writeToAvatar()
 				image_id = LLVOAvatarDictionary::getDefaultTextureImageID((ETextureIndex) te);
 			}
 			LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture( image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE );
-			// MULTI-WEARABLE: replace hard-coded 0
+			// MULTI-WEARABLE: assume index 0 will be used when writing to avatar. TODO: eliminate the need for this.
 			gAgentAvatarp->setLocalTextureTE(te, image, 0);
 		}
 	}
@@ -705,7 +705,7 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 	}
 
 	gAgentAvatarp->updateVisualParams();
-	gAgentAvatarp->wearableUpdated(type, TRUE);
+	gAgentAvatarp->wearableUpdated(type, FALSE);
 
 //	if( upload_bake )
 //	{

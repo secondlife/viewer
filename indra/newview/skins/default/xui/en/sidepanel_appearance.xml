@@ -92,6 +92,7 @@ width="333">
       layout="topleft"
       left="265"
       name="edit_outfit_btn"
+      tool_tip="Edit this outfit"
       top="7"
       width="30" />
       <loading_indicator
@@ -111,6 +112,7 @@ width="333">
    label="Filter Outfits"
    max_length="300"
    name="Filter"
+   search_button_visible="true"
    top_pad="10"
    width="303" />
    <panel
@@ -143,7 +145,7 @@ width="333">
    left="5"
    min_height="410"
    name="panel_outfit_edit"
-   top="5"
+   top="2"
    visible="false" 
    width="320"/>
    <panel

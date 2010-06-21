@@ -56,7 +56,7 @@ const S32 LLScrollingPanelParam::PARAM_HINT_HEIGHT = 128;
 S32 LLScrollingPanelParam::sUpdateDelayFrames = 0;
 
 LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_params,
-											  LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable )
+											  LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp )
 	: LLScrollingPanel( panel_params ),
 	  mParam(param),
 	  mAllowModify(allow_modify),
@@ -73,9 +73,9 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 	F32 min_weight = param->getMinWeight();
 	F32 max_weight = param->getMaxWeight();
 
-	mHintMin = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable,  min_weight);
+	mHintMin = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable,  min_weight, jointp);
 	pos_x = getChild<LLViewBorder>("right_border")->getRect().mLeft + left_border->getBorderWidth();
-	mHintMax = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable, max_weight );
+	mHintMax = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable, max_weight, jointp );
 	
 	mHintMin->setAllowsUpdates( FALSE );
 	mHintMax->setAllowsUpdates( FALSE );

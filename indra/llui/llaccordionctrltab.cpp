@@ -76,6 +76,8 @@ public:
 	std::string getTitle();
 	void	setTitle(const std::string& title, const std::string& hl);
 
+	void	setTitleFontStyle(std::string style);
+
 	void	setSelected(bool is_selected) { mIsSelected = is_selected; }
 
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
@@ -101,6 +103,9 @@ private:
 	LLPointer<LLUIImage> mImageHeaderOver;
 	LLPointer<LLUIImage> mImageHeaderPressed;
 	LLPointer<LLUIImage> mImageHeaderFocused;
+
+	// style saved when applying it in setTitleFontStyle
+	LLStyle::Params			mStyleParams;
 
 	LLUIColor mHeaderBGColor;
 
@@ -170,9 +175,20 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitle(const std::string& t
 	{
 		LLTextUtil::textboxSetHighlightedVal(
 			mHeaderTextbox,
-			LLStyle::Params(),
+			mStyleParams,
 			title,
 			hl);
+	}
+}
+
+void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleFontStyle(std::string style)
+{
+	if (mHeaderTextbox)
+	{
+		std::string text = mHeaderTextbox->getText();
+		mStyleParams.font(mHeaderTextbox->getDefaultFont());
+		mStyleParams.font.style(style);
+		mHeaderTextbox->setText(text, mStyleParams);
 	}
 }
 
@@ -409,6 +425,13 @@ void LLAccordionCtrlTab::changeOpenClose(bool is_open)
 	}
 }
 
+void LLAccordionCtrlTab::handleVisibilityChange(BOOL new_visibility)
+{
+	LLUICtrl::handleVisibilityChange(new_visibility);
+
+	notifyParent(LLSD().with("child_visibility_change", new_visibility));
+}
+
 BOOL LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if(mCollapsible && mHeaderVisible && mCanOpenClose)
@@ -466,7 +489,7 @@ void LLAccordionCtrlTab::setAccordionView(LLView* panel)
 	addChild(panel,0);
 }
 
-std::string LLAccordionCtrlTab::getTitle()
+std::string LLAccordionCtrlTab::getTitle() const
 {
 	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
 	if (header)
@@ -485,6 +508,15 @@ void LLAccordionCtrlTab::setTitle(const std::string& title, const std::string& h
 	if (header)
 	{
 		header->setTitle(title, hl);
+	}
+}
+
+void LLAccordionCtrlTab::setTitleFontStyle(std::string style)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		header->setTitleFontStyle(style);
 	}
 }
 
@@ -961,3 +993,16 @@ BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 	}
 	return LLUICtrl::handleToolTip(x, y, mask);
 }
+BOOL LLAccordionCtrlTab::handleScrollWheel		( S32 x, S32 y, S32 clicks )
+{
+	if( LLUICtrl::handleScrollWheel(x,y,clicks))
+	{
+		return TRUE;
+	}
+	if( mScrollbar && mScrollbar->getVisible() && mScrollbar->handleScrollWheel( 0, 0, clicks ) )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+

@@ -347,7 +347,7 @@ void LLFloater::layoutDragHandle()
 	{
 		rect = getLocalRect();
 	}
-	mDragHandle->setRect(rect);
+	mDragHandle->setShape(rect);
 	updateTitleButtons();
 }
 
@@ -809,6 +809,11 @@ void LLFloater::applyTitle()
 	else
 	{
 		mDragHandle->setTitle ( mTitle );
+	}
+
+	if (getHost())
+	{
+		getHost()->updateFloaterTitle(this);	
 	}
 }
 

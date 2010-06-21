@@ -80,6 +80,17 @@
              function="Floater.Toggle"
              parameter="gestures" />
         </menu_item_check>
+        <menu_item_check
+         label="My Voice"
+         name="ShowVoice"
+         visibility_control="VoiceMorphingEnabled">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="voice_effect" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="voice_effect" />
+        </menu_item_check>
         <menu
          label="My Status"
          name="Status"
@@ -916,7 +927,7 @@
         <menu_item_check
          label="Show Advanced Menu"
          name="Show Advanced Menu"
-         shortcut="control|alt|D">
+         shortcut="control|alt|shift|D">
           <on_check
            function="CheckControl"
            parameter="UseDebugMenus" />
@@ -1466,6 +1477,18 @@
                 <menu_item_call.on_click
                  function="View.DefaultUISize" />
             </menu_item_call>
+            <!-- This second, alternative shortcut for Show Advanced Menu is for backward compatibility.  The main shortcut has been changed so it's Linux-friendly, where the old shortcut is typically eaten by the window manager. -->
+            <menu_item_check
+               label="Show Advanced Menu - legacy shortcut"
+               name="Show Advanced Menu - legacy shortcut"
+               shortcut="control|alt|D">
+              <on_check
+		 function="CheckControl"
+		 parameter="UseDebugMenus" />
+              <on_click
+		 function="ToggleControl"
+		 parameter="UseDebugMenus" />
+            </menu_item_check>
             <menu_item_separator/>
             <menu_item_check
              label="Always Run"
@@ -1641,7 +1664,6 @@
              function="ToggleControl"
              parameter="QAMode" />
         </menu_item_check>
-    
     </menu>
     <menu
      create_jump_keys="true"

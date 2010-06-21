@@ -68,6 +68,8 @@ public:
 						   void *cargo_data, EAcceptance *accept,
 						   std::string& tooltip_msg);
 
+	void openFriendsTab();
+
 private:
 	void editKeystroke(class LLLineEditor* caller, void* user_data);
 

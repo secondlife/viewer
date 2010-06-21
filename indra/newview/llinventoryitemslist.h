@@ -122,16 +122,16 @@ public:
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
 	/** Get the name of a corresponding inventory item */
-	const std::string& getItemName() const { return mItem->getName(); }
+	const std::string& getItemName() const;
 
 	/** Get the asset type of a corresponding inventory item */
-	LLAssetType::EType getType() const { return mItem->getType(); }
+	LLAssetType::EType getType() const;
 
 	/** Get the wearable type of a corresponding inventory item */
-	LLWearableType::EType getWearableType() const { return mItem->getWearableType(); }
+	LLWearableType::EType getWearableType() const;
 
 	/** Get the description of a corresponding inventory item */
-	const std::string& getDescription() const { return mItem->getDescription(); }
+	const std::string& getDescription() const;
 
 	/** Get the associated inventory item */
 	LLViewerInventoryItem* getItem() const { return mItem; }
@@ -152,7 +152,8 @@ protected:
 	/**
 	 * Called after inventory item was updated, update panel widgets to reflect inventory changes.
 	 */
-	virtual void updateItem();
+	virtual void updateItem(const std::string& name,
+							const LLStyle::Params& input_params = LLStyle::Params());
 
 	/** setter for mIconCtrl */
 	void setIconCtrl(LLIconCtrl* icon) { mIconCtrl = icon; }
@@ -177,7 +178,16 @@ protected:
 	void setIconImage(const LLUIImagePtr& image);
 
 	/** Set item title - inventory item name usually */
-	void setTitle(const std::string& title, const std::string& highlit_text);
+	virtual void setTitle(const std::string& title,
+						  const std::string& highlit_text,
+						  const LLStyle::Params& input_params = LLStyle::Params());
+
+	/**
+	 * Show tool tip if item name text size > panel size
+	 */
+	virtual BOOL handleToolTip( S32 x, S32 y, MASK mask);
+
+	LLViewerInventoryItem* mItem;
 
 private:
 
@@ -193,7 +203,6 @@ private:
 	/** reshape remaining widgets */
 	void reshapeMiddleWidgets();
 
-	LLViewerInventoryItem* mItem;
 
 	LLIconCtrl*		mIconCtrl;
 	LLTextBox*		mTitleCtrl;

@@ -529,6 +529,19 @@ BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	return TRUE;
 }
 
+
+void LLFloaterAvatarPicker::openFriendsTab()
+{
+	LLTabContainer* tab_container = getChild<LLTabContainer>("ResidentChooserTabs");
+	if (tab_container == NULL)
+	{
+		llassert(tab_container != NULL);
+		return;
+	}
+
+	tab_container->selectTabByName("FriendsPanel");
+}
+
 // static 
 void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void**)
 {

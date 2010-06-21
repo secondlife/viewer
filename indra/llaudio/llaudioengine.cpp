@@ -548,12 +548,11 @@ void LLAudioEngine::enableWind(bool enable)
 {
 	if (enable && (!mEnableWind))
 	{
-		initWind();
-		mEnableWind = enable;
+		mEnableWind = initWind();
 	}
 	else if (mEnableWind && (!enable))
 	{
-		mEnableWind = enable;
+		mEnableWind = false;
 		cleanupWind();
 	}
 }

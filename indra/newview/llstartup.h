@@ -81,9 +81,6 @@ extern LLPointer<LLViewerTexture> gStartTexture;
 class LLStartUp
 {
 public:
-	static bool canGoFullscreen();
-		// returns true if we are far enough along in startup to allow
-		// going full screen
 
 	// Always use this to set gStartupState so changes are logged
 	static void setStartupState( EStartupState state );

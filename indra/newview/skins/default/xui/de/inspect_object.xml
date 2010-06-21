@@ -8,7 +8,7 @@
 		Von [CREATOR]
 	</string>
 	<string name="CreatorAndOwner">
-		von [CREATOR]
+		Von [CREATOR]
 Besitzer [OWNER]
 	</string>
 	<string name="Price">
@@ -23,16 +23,16 @@ Besitzer [OWNER]
 	<string name="Sit">
 		Sitzen
 	</string>
-	<text name="object_name" value="Wirklich langen Objektnamen als Test eingeben"/>
+	<text name="object_name" value="Test für ein Objektname der sehr lange ist und über zwei Zeilen geht."/>
 	<text name="object_creator">
 		von secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 Besitzer secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 	</text>
 	<text name="price_text">
-		300.000 L$
+		30.000 L$
 	</text>
 	<text name="object_description">
-		Dies ist eine wirklich lange Beschreibung für ein Objekt, mindestens 80 Zeichen lang oder jetzt schon 120 Zeichen. Niemand weiß es genau.
+		Dies ist eine wirklich lange Beschreibung für ein Objekt, mindestens 80 Zeichen lang oder jetzt schon mindestens 120 Zeichen lang und länger als der englische Originaltext. Niemand weiß es genau.
 	</text>
 	<text name="object_media_url">
 		http://www.superdupertest.com

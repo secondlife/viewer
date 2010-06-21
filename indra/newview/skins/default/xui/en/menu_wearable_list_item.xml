@@ -2,11 +2,18 @@
 <context_menu
  name="Outfit Wearable Context Menu">
     <menu_item_call
-     label="Wear"
+     label="Replace"
      layout="topleft"
      name="wear">
         <on_click
          function="Wearable.Wear" />
+    </menu_item_call>
+    <menu_item_call
+     label="Add"
+     layout="topleft"
+     name="wear_add">
+        <on_click
+         function="Wearable.Add" />
     </menu_item_call>
     <menu_item_call
      label="Take Off / Detach"
@@ -31,13 +38,6 @@
      layout="topleft"
      name="wearable_attach_to_hud" />
     <menu_item_call
-     label="Object Profile"
-     layout="topleft"
-     name="object_profile">
-        <on_click
-         function="Attachment.Profile" />
-    </menu_item_call>
-    <menu_item_call
      label="Take Off"
      layout="topleft"
      name="take_off">
@@ -50,6 +50,13 @@
      name="edit">
         <on_click
          function="Wearable.Edit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Object Profile"
+     layout="topleft"
+     name="object_profile">
+        <on_click
+         function="Attachment.Profile" />
     </menu_item_call>
     <menu_item_call
      label="Show Original"

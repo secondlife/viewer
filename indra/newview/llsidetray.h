@@ -159,6 +159,10 @@ public:
 	
 	void		updateSidetrayVisibility();
 
+	commit_signal_t& getCollapseSignal() { return mCollapseSignal; }
+
+	void		handleLoginComplete();
+
 protected:
 	LLSideTrayTab* getTab		(const std::string& name);
 
@@ -187,6 +191,8 @@ private:
 	child_vector_t					mTabs;
 	LLSideTrayTab*					mActiveTab;	
 	
+	commit_signal_t					mCollapseSignal;
+
 	LLButton*						mCollapseButton;
 	bool							mCollapsed;
 	

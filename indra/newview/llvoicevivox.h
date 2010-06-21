@@ -57,15 +57,9 @@ class LLVivoxVoiceClientMuteListObserver;
 class LLVivoxVoiceClientFriendsObserver;	
 
 
-class LLVivoxVoiceClientParticipantObserver
-{
-public:
-	virtual ~LLVivoxVoiceClientParticipantObserver() { }
-	virtual void onChange() = 0;
-};
-
-
-class LLVivoxVoiceClient: public LLSingleton<LLVivoxVoiceClient>, virtual public LLVoiceModuleInterface
+class LLVivoxVoiceClient :	public LLSingleton<LLVivoxVoiceClient>,
+							virtual public LLVoiceModuleInterface,
+							virtual public LLVoiceEffectInterface
 {
 	LOG_CLASS(LLVivoxVoiceClient);
 public:
@@ -84,7 +78,7 @@ public:
 	virtual void updateSettings(); // call after loading settings and whenever they change
 
 	// Returns true if vivox has successfully logged in and is not in error state	
-	virtual bool isVoiceWorking();
+	virtual bool isVoiceWorking() const;
 
 	/////////////////////
 	/// @name Tuning
@@ -232,15 +226,49 @@ public:
 	virtual void removeObserver(LLFriendObserver* observer);		
 	virtual void addObserver(LLVoiceClientParticipantObserver* observer);
 	virtual void removeObserver(LLVoiceClientParticipantObserver* observer);
-	
-	
-	
 	//@}
 	
 	virtual std::string sipURIFromID(const LLUUID &id);
 	//@}
 
-				
+	/// @name LLVoiceEffectInterface virtual implementations
+	///  @see LLVoiceEffectInterface
+	//@{
+
+	//////////////////////////
+	/// @name Accessors
+	//@{
+	virtual bool setVoiceEffect(const LLUUID& id);
+	virtual const LLUUID getVoiceEffect();
+	virtual LLSD getVoiceEffectProperties(const LLUUID& id);
+
+	virtual void refreshVoiceEffectLists(bool clear_lists);
+	virtual const voice_effect_list_t& getVoiceEffectList() const;
+	virtual const voice_effect_list_t& getVoiceEffectTemplateList() const;
+	//@}
+
+	//////////////////////////////
+	/// @name Status notification
+	//@{
+	virtual void addObserver(LLVoiceEffectObserver* observer);
+	virtual void removeObserver(LLVoiceEffectObserver* observer);
+	//@}
+
+	//////////////////////////////
+	/// @name Effect preview buffer
+	//@{
+	virtual void enablePreviewBuffer(bool enable);
+	virtual void recordPreviewBuffer();
+	virtual void playPreviewBuffer(const LLUUID& effect_id = LLUUID::null);
+	virtual void stopPreviewBuffer();
+
+	virtual bool isPreviewRecording();
+	virtual bool isPreviewPlaying();
+	//@}
+
+	//@}
+
+
 protected:
 	//////////////////////
 	// Vivox Specific definitions	
@@ -278,14 +306,13 @@ protected:
 		bool mIsSpeaking;
 		bool mIsModeratorMuted;
 		bool mOnMuteList;		// true if this avatar is on the user's mute list (and should be muted)
-	       bool mVolumeSet;		// true if incoming volume messages should not change the volume
+		bool mVolumeSet;		// true if incoming volume messages should not change the volume
 		bool mVolumeDirty;		// true if this participant needs a volume command sent (either mOnMuteList or mUserVolume has changed)
 		bool mAvatarIDValid;
 		bool mIsSelf;
 	};
 	
 	typedef std::map<const std::string, participantState*> participantMap;
-	
 	typedef std::map<const LLUUID, participantState*> participantUUIDMap;
 	
 	struct sessionState
@@ -332,14 +359,17 @@ protected:
 		bool		mIncoming;
 		bool		mVoiceEnabled;
 		bool		mReconnect;	// Whether we should try to reconnect to this session if it's dropped
-		// Set to true when the mute state of someone in the participant list changes.
+
+		// Set to true when the volume/mute state of someone in the participant list changes.
 		// The code will have to walk the list to find the changed participant(s).
 		bool		mVolumeDirty;
-	        bool		mMuteDirty;
-		
+		bool		mMuteDirty;
+
 		bool		mParticipantsChanged;
 		participantMap mParticipantsByURI;
 		participantUUIDMap mParticipantsByUUID;
+
+		LLUUID		mVoiceFontID;
 	};
 
 	// internal state for a simple state machine.  This is used to deal with the asynchronous nature of some of the messages.
@@ -356,6 +386,11 @@ protected:
 		stateMicTuningStart,
 		stateMicTuningRunning,		
 		stateMicTuningStop,
+		stateCaptureBufferPaused,
+		stateCaptureBufferRecStart,
+		stateCaptureBufferRecording,
+		stateCaptureBufferPlayStart,
+		stateCaptureBufferPlaying,
 		stateConnectorStart,		// connector needs to be started
 		stateConnectorStarting,		// waiting for connector handle
 		stateConnectorStarted,		// connector handle received
@@ -364,6 +399,8 @@ protected:
 		stateNeedsLogin,			// send login request
 		stateLoggingIn,				// waiting for account handle
 		stateLoggedIn,				// account handle received
+		stateVoiceFontsWait,		// Awaiting the list of voice fonts
+		stateVoiceFontsReceived,	// List of voice fonts received
 		stateCreatingSessionGroup,	// Creating the main session group
 		stateNoChannel,				// 
 		stateJoiningSession,		// waiting for session handle
@@ -436,8 +473,6 @@ protected:
 	void tuningCaptureStartSendMessage(int duration);
 	void tuningCaptureStopSendMessage();
 
-	bool inTuningStates();
-
 	//----------------------------------
 	// devices
 	void clearCaptureDevices();
@@ -464,6 +499,7 @@ protected:
 	void connectorShutdownResponse(int statusCode, std::string &statusString);
 
 	void accountLoginStateChangeEvent(std::string &accountHandle, int statusCode, std::string &statusString, int state);
+	void mediaCompletionEvent(std::string &sessionGroupHandle, std::string &mediaCompletionType);
 	void mediaStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, int statusCode, std::string &statusString, int state, bool incoming);
 	void textStreamUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, bool enabled, int state, bool incoming);
 	void sessionAddedEvent(std::string &uriString, std::string &alias, std::string &sessionHandle, std::string &sessionGroupHandle, bool isChannel, bool incoming, std::string &nameString, std::string &applicationString);
@@ -591,8 +627,8 @@ protected:
 	void deleteAllAutoAcceptRules(void);
 	void addAutoAcceptRule(const std::string &autoAcceptMask, const std::string &autoAddAsBuddy);
 	void accountListBlockRulesResponse(int statusCode, const std::string &statusString);						
-	void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);						
-	
+	void accountListAutoAcceptRulesResponse(int statusCode, const std::string &statusString);
+
 	/////////////////////////////
 	// session control messages
 
@@ -621,7 +657,21 @@ protected:
 	void lookupName(const LLUUID &id);
 	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 	void avatarNameResolved(const LLUUID &id, const std::string &name);
-		
+
+	/////////////////////////////
+	// Voice fonts
+
+	void addVoiceFont(const S32 id,
+					  const std::string &name,
+					  const std::string &description,
+					  const LLDate &expiration_date,
+					  bool  has_expired,
+					  const S32 font_type,
+					  const S32 font_status,
+					  const bool template_font = false);
+	void accountGetSessionFontsResponse(int statusCode, const std::string &statusString);
+	void accountGetTemplateFontsResponse(int statusCode, const std::string &statusString); 
+
 private:
 	LLVoiceVersionInfo mVoiceVersion;
 		
@@ -804,6 +854,88 @@ private:
 	typedef std::set<LLFriendObserver*> friend_observer_set_t;
 	friend_observer_set_t mFriendObservers;
 	void notifyFriendObservers();
+
+	// Voice Fonts
+
+	void expireVoiceFonts();
+	void deleteVoiceFont(const LLUUID& id);
+	void deleteAllVoiceFonts();
+	void deleteVoiceFontTemplates();
+
+	S32 getVoiceFontIndex(const LLUUID& id) const;
+	S32 getVoiceFontTemplateIndex(const LLUUID& id) const;
+
+	void accountGetSessionFontsSendMessage();
+	void accountGetTemplateFontsSendMessage();
+	void sessionSetVoiceFontSendMessage(sessionState *session);
+
+	void notifyVoiceFontObservers();
+
+	typedef enum e_voice_font_type
+	{
+		VOICE_FONT_TYPE_NONE = 0,
+		VOICE_FONT_TYPE_ROOT = 1,
+		VOICE_FONT_TYPE_USER = 2,
+		VOICE_FONT_TYPE_UNKNOWN
+	} EVoiceFontType;
+
+	typedef enum e_voice_font_status
+	{
+		VOICE_FONT_STATUS_NONE = 0,
+		VOICE_FONT_STATUS_FREE = 1,
+		VOICE_FONT_STATUS_NOT_FREE = 2,
+		VOICE_FONT_STATUS_UNKNOWN
+	} EVoiceFontStatus;
+
+	struct voiceFontEntry
+	{
+		voiceFontEntry(LLUUID& id);
+		~voiceFontEntry();
+
+		LLUUID		mID;
+		S32			mFontIndex;
+		std::string mName;
+		LLDate		mExpirationDate;
+		S32			mFontType;
+		S32			mFontStatus;
+		bool		mIsNew;
+
+		LLFrameTimer	mExpiryTimer;
+		LLFrameTimer	mExpiryWarningTimer;
+	};
+
+	bool mVoiceFontsReceived;
+	bool mVoiceFontsNew;
+	bool mVoiceFontListDirty;
+	voice_effect_list_t	mVoiceFontList;
+	voice_effect_list_t	mVoiceFontTemplateList;
+
+	typedef std::map<const LLUUID, voiceFontEntry*> voice_font_map_t;
+	voice_font_map_t	mVoiceFontMap;
+	voice_font_map_t	mVoiceFontTemplateMap;
+
+	typedef std::set<LLVoiceEffectObserver*> voice_font_observer_set_t;
+	voice_font_observer_set_t mVoiceFontObservers;
+
+	LLFrameTimer	mVoiceFontExpiryTimer;
+
+
+	// Audio capture buffer
+
+	void captureBufferRecordStartSendMessage();
+	void captureBufferRecordStopSendMessage();
+	void captureBufferPlayStartSendMessage(const LLUUID& voice_font_id = LLUUID::null);
+	void captureBufferPlayStopSendMessage();
+
+	bool mCaptureBufferMode;		// Disconnected from voice channels while using the capture buffer.
+	bool mCaptureBufferRecording;	// A voice sample is being captured.
+	bool mCaptureBufferRecorded;	// A voice sample is captured in the buffer ready to play.
+	bool mCaptureBufferPlaying;		// A voice sample is being played.
+
+	LLTimer	mCaptureTimer;
+	LLUUID mPreviewVoiceFont;
+	LLUUID mPreviewVoiceFontLast;
+	S32 mPlayRequestCount;
 };
 
 /** 
@@ -890,7 +1022,13 @@ protected:
 	int				numberOfAliases;
 	std::string		subscriptionHandle;
 	std::string		subscriptionType;
-	
+	S32				id;
+	std::string		descriptionString;
+	LLDate			expirationDate;
+	bool			hasExpired;
+	S32				fontType;
+	S32				fontStatus;
+	std::string		mediaCompletionType;
 	
 	// Members for processing text between tags
 	std::string		textBuffer;
@@ -907,11 +1045,9 @@ protected:
 	void			StartTag(const char *tag, const char **attr);
 	void			EndTag(const char *tag);
 	void			CharData(const char *buffer, int length);
-	
+	LLDate			expiryTimeStampToLLDate(const std::string& vivox_ts);
 };
 
 
 #endif //LL_VIVOX_VOICE_CLIENT_H
-
-
 

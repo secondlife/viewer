@@ -87,6 +87,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mSortOrderSetting(p.sort_order_setting),
 	mInventory(p.inventory),
 	mAllowMultiSelect(p.allow_multi_select),
+	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mViewsInitialized(false),
 	mStartFolderString(p.start_folder),	
 	mBuildDefaultHierarchy(true),
@@ -109,7 +110,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	}
 }
 
-BOOL LLInventoryPanel::postBuild()
+void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_POST_BUILD);
 
@@ -127,6 +128,7 @@ BOOL LLInventoryPanel::postBuild()
 		p.rect = folder_rect;
 		p.parent_panel = this;
 		p.tool_tip = p.name;
+		p.use_label_suffix = params.use_label_suffix;
 		mFolderRoot = LLUICtrlFactory::create<LLFolderView>(p);
 		mFolderRoot->setAllowMultiSelect(mAllowMultiSelect);
 	}
@@ -173,8 +175,6 @@ BOOL LLInventoryPanel::postBuild()
 		setSortOrder(gSavedSettings.getU32(DEFAULT_SORT_ORDER));
 	}
 	mFolderRoot->setSortOrder(getFilter()->getSortOrder());
-
-	return TRUE;
 }
 
 LLInventoryPanel::~LLInventoryPanel()
@@ -187,6 +187,8 @@ LLInventoryPanel::~LLInventoryPanel()
 			gSavedSettings.setU32(mSortOrderSetting, sort_order);
 		}
 	}
+
+	gIdleCallbacks.deleteFunction(onIdle, this);
 
 	// LLView destructor will take care of the sub-views.
 	mInventory->removeObserver(mInventoryObserver);
@@ -221,6 +223,11 @@ void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType 
 void LLInventoryPanel::setFilterPermMask(PermissionMask filter_perm_mask)
 {
 	getFilter()->setFilterPermissions(filter_perm_mask);
+}
+
+void LLInventoryPanel::setFilterWearableTypes(U64 types)
+{
+	getFilter()->setFilterWearableTypes(types);
 }
 
 void LLInventoryPanel::setFilterSubString(const std::string& string)
@@ -522,6 +529,10 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				params.name = new_listener->getDisplayName();
 				params.icon = new_listener->getIcon();
 				params.icon_open = new_listener->getOpenIcon();
+				if (mShowItemLinkOverlays) // if false, then links show up just like normal items
+				{
+					params.icon_overlay = LLUI::getUIImage("Inv_Link");
+				}
 				params.root = mFolderRoot;
 				params.listener = new_listener;
 				params.tool_tip = params.name;
@@ -560,6 +571,10 @@ void LLInventoryPanel::buildNewViews(const LLUUID& id)
 				params.name = new_listener->getDisplayName();
 				params.icon = new_listener->getIcon();
 				params.icon_open = new_listener->getOpenIcon();
+				if (mShowItemLinkOverlays) // if false, then links show up just like normal items
+				{
+					params.icon_overlay = LLUI::getUIImage("Inv_Link");
+				}
 				params.creation_date = new_listener->getCreationDate();
 				params.root = mFolderRoot;
 				params.listener = new_listener;
@@ -766,7 +781,6 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 			fv->startRenamingSelectedItem();
 		}
 	}
-	// Seraph - Put determineFolderType in here for ensemble typing?
 }
 
 void LLInventoryPanel::doToSelected(const LLSD& userdata)

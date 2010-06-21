@@ -1878,24 +1878,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearItem(
 				LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
 				return ACCEPT_NO;
 			}
-
-			if (mSource == SOURCE_LIBRARY)
-			{
-				// create item based on that one, and put it on if that
-				// was a success.
-				LLPointer<LLInventoryCallback> cb = new WearOnAvatarCallback();
-				copy_inventory_item(
-					gAgent.getID(),
-					item->getPermissions().getOwner(),
-					item->getUUID(),
-					LLUUID::null,
-					std::string(),
-					cb);
-			}
-			else
-			{
-				wear_inventory_item_on_avatar( item );
-			}
+			LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(),true, !(mask & MASK_CONTROL));
 		}
 		return ACCEPT_YES_MULTI;
 	}

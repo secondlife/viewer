@@ -3226,16 +3226,6 @@ void handle_buy_object(LLSaleInfo sale_info)
 		return;
 	}
 
-	S32 price = sale_info.getSalePrice();
-	
-	if (price > 0 && price > gStatusBar->getBalance())
-	{
-		LLStringUtil::format_map_t args;
-		args["AMOUNT"] = llformat("%d", price);
-		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_object_costs", args), price );
-		return;
-	}
-
 	LLFloaterBuy::show(sale_info);
 }
 
@@ -3728,17 +3718,6 @@ class LLViewMouselook : public view_listener_t
 		{
 			gAgentCamera.changeCameraToDefault();
 		}
-		return true;
-	}
-};
-
-class LLViewFullscreen : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		// we no longer permit full screen mode EXT-6775
-		// gViewerWindow->toggleFullscreen(TRUE);
-		llwarns << "full screen mode no longer supported" << llendl;
 		return true;
 	}
 };
@@ -4497,6 +4476,16 @@ void handle_buy()
 	LLSaleInfo sale_info;
 	BOOL valid = LLSelectMgr::getInstance()->selectGetSaleInfo(sale_info);
 	if (!valid) return;
+
+	S32 price = sale_info.getSalePrice();
+	
+	if (price > 0 && price > gStatusBar->getBalance())
+	{
+		LLStringUtil::format_map_t args;
+		args["AMOUNT"] = llformat("%d", price);
+		LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("this_object_costs", args), price );
+		return;
+	}
 
 	if (sale_info.getSaleType() == LLSaleInfo::FS_CONTENTS)
 	{
@@ -7153,7 +7142,7 @@ void handle_web_browser_test(const LLSD& param)
 	{
 		url = "about:blank";
 	}
-	LLWeb::loadURL(url);
+	LLWeb::loadURLInternal(url);
 }
 
 void handle_buy_currency_test(void*)
@@ -7439,10 +7428,13 @@ class LLEditTakeOff : public view_listener_t
 		else
 		{
 			LLWearableType::EType type = LLWearableType::typeNameToType(clothing);
-			if (type >= LLWearableType::WT_SHAPE && type < LLWearableType::WT_COUNT)
+			if (type >= LLWearableType::WT_SHAPE 
+				&& type < LLWearableType::WT_COUNT
+				&& (gAgentWearables.getWearableCount(type) > 0))
 			{
-				// MULTI-WEARABLES
-				LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(gAgentWearables.getWearableInventoryItem(type,0));
+				// MULTI-WEARABLES: assuming user wanted to remove top shirt.
+				U32 wearable_index = gAgentWearables.getWearableCount(type) - 1;
+				LLViewerInventoryItem *item = dynamic_cast<LLViewerInventoryItem*>(gAgentWearables.getWearableInventoryItem(type,wearable_index));
 				LLWearableBridge::removeItemFromAvatar(item);
 			}
 				
@@ -7655,6 +7647,31 @@ void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 	LLMenuGL::showPopup(ctrl, show_navbar_context_menu, x, y);
 }
 
+void show_topinfobar_context_menu(LLView* ctrl, S32 x, S32 y)
+{
+	static LLMenuGL* show_topbarinfo_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_topinfobar.xml",
+			gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+
+	LLMenuItemGL* landmark_item = show_topbarinfo_context_menu->getChild<LLMenuItemGL>("Landmark");
+	if (!LLLandmarkActions::landmarkAlreadyExists())
+	{
+		landmark_item->setLabel(LLTrans::getString("AddLandmarkNavBarMenu"));
+	}
+	else
+	{
+		landmark_item->setLabel(LLTrans::getString("EditLandmarkNavBarMenu"));
+	}
+
+	if(gMenuHolder->hasVisibleMenu())
+	{
+		gMenuHolder->hideMenus();
+	}
+
+	show_topbarinfo_context_menu->buildDrawLabels();
+	show_topbarinfo_context_menu->updateParent(LLMenuGL::sMenuContainer);
+	LLMenuGL::showPopup(ctrl, show_topbarinfo_context_menu, x, y);
+}
+
 void initialize_edit_menu()
 {
 	view_listener_t::addMenu(new LLEditUndo(), "Edit.Undo");
@@ -7734,7 +7751,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLZoomer(1.2f), "View.ZoomOut");
 	view_listener_t::addMenu(new LLZoomer(1/1.2f), "View.ZoomIn");
 	view_listener_t::addMenu(new LLZoomer(DEFAULT_FIELD_OF_VIEW, false), "View.ZoomDefault");
-	view_listener_t::addMenu(new LLViewFullscreen(), "View.Fullscreen");
 	view_listener_t::addMenu(new LLViewDefaultUISize(), "View.DefaultUISize");
 
 	view_listener_t::addMenu(new LLViewEnableMouselook(), "View.EnableMouselook");

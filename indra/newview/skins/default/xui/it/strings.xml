@@ -94,6 +94,24 @@
 	<string name="LoginDownloadingClothing">
 		Sto caricando i vestiti...
 	</string>
+	<string name="InvalidCertificate">
+		Il server ha inviato un certificato non valido o errato. Rivolgiti all&apos;amministratore della griglia.
+	</string>
+	<string name="CertInvalidHostname">
+		Per accedere al server è stato utilizzato un nome host non valido; controlla lo SLURL o il nome host della griglia.
+	</string>
+	<string name="CertExpired">
+		Il certificato inviato dalla griglia sembra essere scaduto.  Controlla l&apos;orologio del sistema o rivolgiti all&apos;amministratore della griglia.
+	</string>
+	<string name="CertKeyUsage">
+		Impossibile utilizzare per SSl il certificato inviato dal server.  Rivolgiti all&apos;amministratore della griglia.
+	</string>
+	<string name="CertBasicConstraints">
+		Nella catena dei certificati del server erano presenti troppi certificati.  Rivolgiti all&apos;amministratore della griglia.
+	</string>
+	<string name="CertInvalidSignature">
+		Impossibile verificare la firma del certificato inviato dal server della griglia.  Rivolgiti all&apos;amministratore della griglia.
+	</string>
 	<string name="LoginFailedNoNetwork">
 		Errore di rete: Non è stato possibile stabilire un collegamento, controlla la tua connessione.
 	</string>
@@ -720,6 +738,12 @@
 	<string name="land_type_unknown">
 		(sconosciuto)
 	</string>
+	<string name="Estate / Full Region">
+		Proprietà immobiliare / Regione completa
+	</string>
+	<string name="Mainland / Full Region">
+		Continente / Regione completa
+	</string>
 	<string name="all_files">
 		Tutti i file
 	</string>
@@ -825,8 +849,47 @@
 	<string name="invalid">
 		non valido
 	</string>
+	<string name="shirt_not_worn">
+		Camicia non indossata
+	</string>
+	<string name="pants_not_worn">
+		Pantaloni non indossati
+	</string>
+	<string name="shoes_not_worn">
+		Scarpe non indossate
+	</string>
+	<string name="socks_not_worn">
+		Calzini non indossati
+	</string>
+	<string name="jacket_not_worn">
+		Giacca non indossata
+	</string>
+	<string name="gloves_not_worn">
+		Guanti non indossati
+	</string>
+	<string name="undershirt_not_worn">
+		Maglietta intima non indossata
+	</string>
+	<string name="underpants_not_worn">
+		Slip non indossati
+	</string>
+	<string name="skirt_not_worn">
+		Gonna non indossata
+	</string>
+	<string name="alpha_not_worn">
+		Alpha non portato
+	</string>
+	<string name="tattoo_not_worn">
+		Tatuaggio non portato
+	</string>
+	<string name="invalid_not_worn">
+		non valido
+	</string>
 	<string name="NewWearable">
 		Nuovo [WEARABLE_ITEM]
+	</string>
+	<string name="CreateNewWearable">
+		Crea [WEARABLE_TYPE]
 	</string>
 	<string name="next">
 		Avanti
@@ -895,7 +958,10 @@
 		Premi ESC per tornare in visualizzazione normale
 	</string>
 	<string name="InventoryNoMatchingItems">
-		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/all Cerca].
+		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/all/[SEARCH_TERM] Cerca].
+	</string>
+	<string name="PlacesNoMatchingItems">
+		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/places/[SEARCH_TERM] Cerca].
 	</string>
 	<string name="FavoritesNoMatchingItems">
 		Trascina qui un punto di riferimento per aggiungerlo ai Preferiti.
@@ -925,6 +991,7 @@
 	<string name="Wave" value="Saluta con la mano"/>
 	<string name="HelloAvatar" value="Ciao, avatar!"/>
 	<string name="ViewAllGestures" value="Visualizza tutto &gt;&gt;"/>
+	<string name="GetMoreGestures" value="Altre &gt;&gt;"/>
 	<string name="Animations" value="Animazioni,"/>
 	<string name="Calling Cards" value="Biglietti da visita,"/>
 	<string name="Clothing" value="Vestiti,"/>
@@ -1537,16 +1604,19 @@
 		Il residente al quale hai inviato un messaggio è in modalità &apos;occupato&apos;, ovvero ha chiesto di non essere disturbato.  Il tuo messaggio comparirà nel suo pannello IM, dove potrà essere letto in un secondo momento.
 	</string>
 	<string name="MuteByName">
-		(in base al nome)
+		(In base al nome)
 	</string>
 	<string name="MuteAgent">
 		(Residente)
 	</string>
 	<string name="MuteObject">
-		(oggetto)
+		(Oggetto)
 	</string>
 	<string name="MuteGroup">
-		(gruppo)
+		(Gruppo)
+	</string>
+	<string name="MuteExternal">
+		(esterno)
 	</string>
 	<string name="RegionNoCovenant">
 		Non esiste alcun regolamento per questa proprietà.
@@ -3306,11 +3376,14 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="answered_call">
 		Risposto alla chiamata
 	</string>
-	<string name="started_call">
-		Chiamata vocale iniziata
+	<string name="you_started_call">
+		Hai iniziato una chiamata vocale
 	</string>
-	<string name="joined_call">
-		Si è collegato alla chiamata in voce
+	<string name="you_joined_call">
+		Ti sei collegato alla chiamata in voce
+	</string>
+	<string name="name_started_call">
+		[NAME] ha iniziato una chiamata vocale
 	</string>
 	<string name="ringing-im">
 		Collegamento alla chiamata vocale...
@@ -3389,6 +3462,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="session_initialization_timed_out_error">
 		Sessione di inizializzazione scaduta
+	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME] ti ha inviato un pagamento di L$[AMOUNT].
@@ -3509,6 +3585,90 @@ Segnala abuso
 	<string name="Contents">
 		Contenuto
 	</string>
+	<string name="Gesture">
+		Gesture
+	</string>
+	<string name="Male Gestures">
+		Gesture maschili
+	</string>
+	<string name="Female Gestures">
+		Gesture femminili
+	</string>
+	<string name="Other Gestures">
+		Altre gesture
+	</string>
+	<string name="Speech Gestures">
+		Gesture del parlato
+	</string>
+	<string name="Common Gestures">
+		Gesture comuni
+	</string>
+	<string name="Male - Excuse me">
+		Maschio - Chiedere scusa
+	</string>
+	<string name="Male - Get lost">
+		Maschio - Levati dai piedi!
+	</string>
+	<string name="Male - Blow kiss">
+		Maschio - Butta un bacio
+	</string>
+	<string name="Male - Boo">
+		Maschio - Bu
+	</string>
+	<string name="Male - Bored">
+		Maschio - Annoiato
+	</string>
+	<string name="Male - Hey">
+		Maschio - Ehi
+	</string>
+	<string name="Male - Laugh">
+		Maschio - Ridere
+	</string>
+	<string name="Male - Repulsed">
+		Maschio - Disgustato
+	</string>
+	<string name="Male - Shrug">
+		Maschio - Spallucce
+	</string>
+	<string name="Male - Stick tougue out">
+		Maschio - Tira fuori la lingua
+	</string>
+	<string name="Male - Wow">
+		Maschio - Accipicchia
+	</string>
+	<string name="Female - Excuse me">
+		Femmina - Chiedere scusa
+	</string>
+	<string name="Female - Get lost">
+		Femmina - Levati dai piedi!
+	</string>
+	<string name="Female - Blow kiss">
+		Femmina - Butta un bacio
+	</string>
+	<string name="Female - Boo">
+		Femmina - Bu
+	</string>
+	<string name="Female - Bored">
+		Femmina - Annoiata
+	</string>
+	<string name="Female - Hey">
+		Femmina - Ehi
+	</string>
+	<string name="Female - Laugh">
+		Femmina - Ridere
+	</string>
+	<string name="Female - Repulsed">
+		Femmina - Disgustata
+	</string>
+	<string name="Female - Shrug">
+		Femmina - Spallucce
+	</string>
+	<string name="Female - Stick tougue out">
+		Femmina - Tira fuori la lingua
+	</string>
+	<string name="Female - Wow">
+		Femmina - Accipicchia
+	</string>
 	<string name="AvatarBirthDateFormat">
 		[day,datetime,slt]/[mthnum,datetime,slt]/[year,datetime,slt]
 	</string>
@@ -3517,5 +3677,33 @@ Segnala abuso
 	</string>
 	<string name="texture_load_dimensions_error">
 		Impossibile caricare immagini di dimensioni superiori a [WIDTH]*[HEIGHT]
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		Nonostante i nostri tentativi, si è verificato un errore imprevisto.
+
+	Consulta la pagina status.secondlifegrid.net per determinare se si sia verificato un problema noto con il servizio.  
+        Se il problema continua, ti consigliamo di controllare le tue impostazioni di rete e della firewall.
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		lunedì:martedì:mercoledì:giovedì:venerdì:sabato:domenica
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		lun:mar:mer:gio:ven:sab:dom
+	</string>
+	<string name="dateTimeMonthNames">
+		gennaio:febbraio:marzo:aprile:maggio:giugno:luglio:agosto:settembre:ottobre:novembre:dicembre
+	</string>
+	<string name="dateTimeMonthShortNames">
+		gen:feb:mar:apr:mag:giu:lug:ago:sett:ott:nov:dic
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		antemeridiane
+	</string>
+	<string name="dateTimePM">
+		pomeridiane
 	</string>
 </strings>

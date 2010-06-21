@@ -256,7 +256,7 @@ public:
 		mSourceType = chat.mSourceType;
 
 		//*TODO overly defensive thing, source type should be maintained out there
-		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM)
+		if((chat.mFromID.isNull() && chat.mFromName.empty()) || chat.mFromName == SYSTEM_FROM && chat.mFromID.isNull())
 		{
 			mSourceType = CHAT_SOURCE_SYSTEM;
 		}
@@ -605,6 +605,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 {
 	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
 
+	if(mEditor)
+	{
+		mEditor->setPlainText(use_plain_text_chat_history);
+	}
+
 	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID() && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);
@@ -715,7 +720,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(style_params);
 				link_params.color.control = "HTMLLinkColor";
-				link_params.link_href = url;
+				link_params.link_href = LLURI::escape(url);
 				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>"  + delimiter,
 									false, link_params);
 			}

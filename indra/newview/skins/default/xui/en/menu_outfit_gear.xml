@@ -11,6 +11,9 @@
         <on_enable
          function="Gear.OnEnable"
          parameter="wear" />
+        <on_visible
+         function="Gear.OnVisible"
+         parameter="wear" />
     </menu_item_call>
     <menu_item_call
      label="Take Off - Remove from Current Outfit"
@@ -21,9 +24,12 @@
         <on_enable
          function="Gear.OnEnable"
          parameter="take_off" />
+        <on_visible
+         function="Gear.OnVisible"
+         parameter="take_off" />
     </menu_item_call>
 
-            <menu_item_separator />
+            <menu_item_separator name="sepatator1" />
             <!-- copied (with minor modifications) from menu_inventory_add.xml -->
             <!--  *TODO: generate dynamically? -->
             <menu
@@ -168,17 +174,7 @@
             </menu>
             <!-- copied from menu_inventory_add.xml -->
 
-    <menu_item_separator />
-    <menu_item_call
-     label="Rename"
-     layout="topleft"
-     name="rename">
-        <on_click
-         function="Gear.Rename" />
-        <on_enable
-         function="Gear.OnEnable"
-         parameter="rename" />
-    </menu_item_call>
+    <menu_item_separator name="sepatator2" />
     <menu_item_call
      label="Delete Outfit"
      layout="topleft"
@@ -187,6 +183,9 @@
          function="Gear.Delete" />
         <on_enable
          function="Gear.OnEnable"
+         parameter="delete" />
+        <on_visible
+         function="Gear.OnVisible"
          parameter="delete" />
     </menu_item_call>
 </menu>

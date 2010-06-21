@@ -42,6 +42,7 @@
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
 #include "llfoldervieweventlistener.h"
+#include "lloutfitobserver.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
 #include "llsidetray.h"
@@ -73,26 +74,6 @@ private:
 	LLSidepanelAppearance *mPanel;
 };
 
-class LLWatchForOutfitRenameObserver : public LLInventoryObserver
-{
-public:
-	LLWatchForOutfitRenameObserver(LLSidepanelAppearance *panel) :
-		mPanel(panel)
-	{}
-	virtual void changed(U32 mask);
-	
-private:
-	LLSidepanelAppearance *mPanel;
-};
-
-void LLWatchForOutfitRenameObserver::changed(U32 mask)
-{
-	if (mask & LABEL)
-	{
-		mPanel->refreshCurrentOutfitName();
-	}
-}
-
 LLSidepanelAppearance::LLSidepanelAppearance() :
 	LLPanel(),
 	mFilterSubString(LLStringUtil::null),
@@ -101,12 +82,17 @@ LLSidepanelAppearance::LLSidepanelAppearance() :
 	mCurrOutfitPanel(NULL),
 	mOpened(false)
 {
+	LLOutfitObserver& outfit_observer =  LLOutfitObserver::instance();
+	outfit_observer.addBOFReplacedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
+	outfit_observer.addBOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
+	outfit_observer.addCOFChangedCallback(boost::bind(&LLSidepanelAppearance::refreshCurrentOutfitName, this, ""));
+
+	gAgentWearables.addLoadingStartedCallback(boost::bind(&LLSidepanelAppearance::setWearablesLoading, this, true));
+	gAgentWearables.addLoadedCallback(boost::bind(&LLSidepanelAppearance::setWearablesLoading, this, false));
 }
 
 LLSidepanelAppearance::~LLSidepanelAppearance()
 {
-	gInventory.removeObserver(mOutfitRenameWatcher);
-	delete mOutfitRenameWatcher;
 }
 
 // virtual
@@ -131,7 +117,6 @@ BOOL LLSidepanelAppearance::postBuild()
 	}
 
 	mPanelOutfitsInventory = dynamic_cast<LLPanelOutfitsInventory *>(getChild<LLPanel>("panel_outfits_inventory"));
-	mPanelOutfitsInventory->setParent(this);
 
 	mOutfitEdit = dynamic_cast<LLPanelOutfitEdit*>(getChild<LLPanel>("panel_outfit_edit"));
 	if (mOutfitEdit)
@@ -160,8 +145,6 @@ BOOL LLSidepanelAppearance::postBuild()
 	
 	mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
-	mOutfitRenameWatcher = new LLWatchForOutfitRenameObserver(this);
-	gInventory.addObserver(mOutfitRenameWatcher);
 
 	setVisibleCallback(boost::bind(&LLSidepanelAppearance::onVisibilityChange,this,_2));
 
@@ -209,7 +192,7 @@ void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 	{
 		if ((mOutfitEdit && mOutfitEdit->getVisible()) || (mEditWearable && mEditWearable->getVisible()))
 		{
-			if (!gAgentCamera.cameraCustomizeAvatar())
+			if (!gAgentCamera.cameraCustomizeAvatar() && gSavedSettings.getBOOL("AppearanceCameraMovement"))
 			{
 				gAgentCamera.changeCameraToCustomizeAvatar();
 			}
@@ -217,9 +200,10 @@ void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 	}
 	else
 	{
-		if (gAgentCamera.cameraCustomizeAvatar())
+		if (gAgentCamera.cameraCustomizeAvatar() && gSavedSettings.getBOOL("AppearanceCameraMovement"))
 		{
 			gAgentCamera.changeCameraToDefault();
+			gAgentCamera.resetView();
 		}
 	}
 }
@@ -345,6 +329,7 @@ void LLSidepanelAppearance::toggleOutfitEditPanel(BOOL visible, BOOL disable_cam
 	else if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
 	{
 		gAgentCamera.changeCameraToDefault();
+		gAgentCamera.resetView();
 	}
 }
 
@@ -370,12 +355,12 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 
 	if (visible)
 	{
-		mEditWearable->setWearable(wearable);
-		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
 		{
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
+		mEditWearable->setWearable(wearable);
+		mEditWearable->onOpen(LLSD()); // currently no-op, just for consistency
 	}
 	else
 	{
@@ -384,6 +369,7 @@ void LLSidepanelAppearance::toggleWearableEditPanel(BOOL visible, LLWearable *we
 		if (!disable_camera_switch && gSavedSettings.getBOOL("AppearanceCameraMovement") )
 		{
 			gAgentCamera.changeCameraToDefault();
+			gAgentCamera.resetView();
 		}
 	}
 }
@@ -403,7 +389,9 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 				mCurrentLookName->setText(outfit_name);
 				return;
 		}
-		mCurrentLookName->setText(getString("No Outfit"));
+
+		std::string look_name = gAgentWearables.isCOFChangeInProgress() ? "" : getString("No Outfit");
+		mCurrentLookName->setText(look_name);
 		mOpenOutfitBtn->setEnabled(FALSE);
 	}
 	else

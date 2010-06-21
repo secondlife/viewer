@@ -388,7 +388,7 @@
        Busy mode response:
     </text>
     <text_editor
-     control_name="BusyModeResponse2"
+     control_name="BusyModeResponse"
       text_readonly_color="LabelDisabledColor"
       bg_writeable_color="LtGray"
       use_ellipses="false"

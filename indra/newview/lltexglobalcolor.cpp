@@ -1,6 +1,6 @@
 /** 
  * @file lltexlayerglobalcolor.cpp
- * @brief SERAPH - ADD IN
+ * @brief Color for texture layers.
  *
  * $LicenseInfo:firstyear=2008&license=viewergpl$
  * 

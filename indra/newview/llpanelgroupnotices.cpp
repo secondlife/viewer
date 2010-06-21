@@ -339,7 +339,6 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 	std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(),
 										inv_item->getInventoryType(),
 										inv_item->getFlags(),
-										inv_item->getIsLinkType(),
 										item_is_multi );
 
 	mCreateInventoryIcon->setValue(icon_name);

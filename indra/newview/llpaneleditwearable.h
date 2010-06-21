@@ -41,13 +41,14 @@
 
 class LLCheckBoxCtrl;
 class LLWearable;
-class LLTextEditor;
 class LLTextBox;
 class LLViewerInventoryItem;
 class LLViewerVisualParam;
 class LLVisualParamHint;
 class LLViewerJointMesh;
 class LLAccordionCtrlTab;
+class LLJoint;
+class LLLineEditor;
 
 class LLPanelEditWearable : public LLPanel
 {
@@ -72,17 +73,18 @@ public:
 
 	static void			onRevertButtonClicked(void* userdata);
 	void				onCommitSexChange();
+	void				onSaveAsButtonClicked();
+	void				saveAsCallback(const LLSD& notification, const LLSD& response);
 
 
 private:
 	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
 	void				showWearable(LLWearable* wearable, BOOL show);
-	void				initializePanel();
 	void				updateScrollingPanelUI();
 	LLPanel*			getPanel(LLWearableType::EType type);
 	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
-	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab);
+	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab, LLJoint* jointp);
 	// update bottom bar buttons ("Save", "Revert", etc)
 	void				updateVerbs();
 
@@ -102,6 +104,15 @@ private:
 	void initPreviousAlphaTextures();
 	void initPreviousAlphaTextureEntry(LLVOAvatarDefines::ETextureIndex te);
 
+	// callback for HeightUnits parameter.
+	bool changeHeightUnits(const LLSD& new_value);
+
+	// updates current metric and replacemet metric label text
+	void updateMetricLayout(BOOL new_value);
+
+	// updates avatar height label
+	void updateAvatarHeightLabel();
+
 	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
 	LLWearable *mWearablePtr;
 	LLViewerInventoryItem* mWearableItem;
@@ -115,9 +126,21 @@ private:
 	LLTextBox *mTxtAvatarHeight;
 
 
+	// localized and parametrized strings that used to build avatar_height_label
+	std::string mMeters;
+	std::string mFeet;
+	std::string mHeigth;
+	LLUIString  mHeigthValue;
+	LLUIString  mReplacementMetricUrl;
+
+	// color for mHeigth string
+	LLUIColor mAvatarHeigthLabelColor;
+	// color for mHeigthValue string
+	LLUIColor mAvatarHeigthValueLabelColor;
+
 	// This text editor reference will change each time we edit a new wearable - 
 	// it will be grabbed from the currently visible panel
-	LLTextEditor *mTextEditor;
+	LLLineEditor *mNameEditor;
 
 	// The following panels will be shown/hidden based on what wearable we're editing
 	// body parts
