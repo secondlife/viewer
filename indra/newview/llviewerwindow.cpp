@@ -4460,7 +4460,7 @@ void LLViewerWindow::restartDisplay(BOOL show_progress_bar)
 
 BOOL LLViewerWindow::changeDisplaySettings(LLCoordScreen size, BOOL disable_vsync, BOOL show_progress_bar)
 {
-	BOOL was_maximized = gSavedSettings.getBOOL("WindowMaximized");
+	//BOOL was_maximized = gSavedSettings.getBOOL("WindowMaximized");
 
 	//gResizeScreenTexture = TRUE;
 
@@ -4473,10 +4473,12 @@ BOOL LLViewerWindow::changeDisplaySettings(LLCoordScreen size, BOOL disable_vsyn
 		mWindow->setSize(size);
 	}
 
-		//if (fsaa == old_fsaa)
+	//if (fsaa == old_fsaa)
 	{
 		return TRUE;
 	}
+
+/*
 
 	// Close floaters that don't handle settings change
 	LLFloaterReg::hideInstance("snapshot");
@@ -4553,6 +4555,8 @@ BOOL LLViewerWindow::changeDisplaySettings(LLCoordScreen size, BOOL disable_vsyn
 	gFocusMgr.setKeyboardFocus(keyboard_focus);
 	
 	return success;
+
+	*/
 }
 
 F32	LLViewerWindow::getWorldViewAspectRatio() const
