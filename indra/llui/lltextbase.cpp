@@ -1649,15 +1649,8 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			}
 
 			// output the styled Url
-			// output the styled Url (unless we've been asked to suppress hyperlinking)
-			if (match.isLinkDisabled())
-			{
-				appendAndHighlightText(match.getLabel(), part, style_params);
-			}
-			else
-			{
-				appendAndHighlightText(match.getLabel(), part, link_params);
-
+			appendAndHighlightTextImpl(match.getLabel(), part, link_params);
+			
 			// set the tooltip for the Url label
 			if (! match.getTooltip().empty())
 			{
