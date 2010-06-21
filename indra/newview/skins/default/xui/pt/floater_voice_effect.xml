@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Lugares" name="voice_effects" title="CHECAR DISTORÇÃO DE VOZ">
+	<string name="no_voice_effect">
+		(Não distorcer voz)
+	</string>
+	<string name="active_voice_effect">
+		(Ativo)
+	</string>
+	<string name="unsubscribed_voice_effect">
+		(Cancelou)
+	</string>
+	<string name="new_voice_effect">
+		(Novo!)
+	</string>
+	<text name="status_text">
+		Para ouvir um efeito de Distorção de voz, clique no botão Gravar, grave alguns instantes de voz, depois clique em Distorcer voz na lista para ouvir o resultado.
+
+Para reconectar à Voz local, basta fechar esta janela.
+	</text>
+	<button label="Gravar amostra" name="record_btn" tool_tip="Grave uma amostra da sua voz."/>
+	<button label="Parar" name="record_stop_btn"/>
+	<text name="voice_morphing_link">
+		[[URL] Distorcer voz]
+	</text>
+	<scroll_list name="voice_effect_list" tool_tip="Grave sua voz por alguns instantes, depois clique num efeito para ouvir a distorção.">
+		<scroll_list.columns label="Distorcer voz" name="name"/>
+		<scroll_list.columns label="Vence em" name="expires"/>
+	</scroll_list>
+</floater>
