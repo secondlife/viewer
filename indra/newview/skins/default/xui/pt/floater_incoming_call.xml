@@ -16,7 +16,13 @@
 		entrou numa ligação de voz via conferência.
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		entrou numa ligação de bate-papo de voz com o grupo [GROUP].
+		chegou ao canal de voz do &apos;[GROUP]&apos;.
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionGroup">
+		Deseja sair do [CURRENT_CHAT] e entrar na ligação de &apos;[GROUP]&apos;?
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionDefault">
+		Sair do [CURRENT_CHAT] e entrar neste bate-papo de voz?
 	</floater.string>
 	<text name="question">
 		Sair do [CURRENT_CHAT] e entrar neste bate-papo?
