@@ -212,23 +212,16 @@ void LLToolBar::layoutButtons()
 	// this function may be called before postBuild(), in which case mResizeHandle won't have been set up yet.
 	if(mResizeHandle != NULL)
 	{
-		if(!gViewerWindow->getWindow()->getFullscreen())
-		{
-			// Only when running in windowed mode on the Mac, leave room for a resize widget on the right edge of the bar.
-			width -= RESIZE_HANDLE_WIDTH;
+		// Only when running in windowed mode on the Mac, leave room for a resize widget on the right edge of the bar.
+		width -= RESIZE_HANDLE_WIDTH;
 
-			LLRect r;
-			r.mLeft = width - pad;
-			r.mBottom = 0;
-			r.mRight = r.mLeft + RESIZE_HANDLE_WIDTH;
-			r.mTop = r.mBottom + RESIZE_HANDLE_HEIGHT;
-			mResizeHandle->setRect(r);
-			mResizeHandle->setVisible(TRUE);
-		}
-		else
-		{
-			mResizeHandle->setVisible(FALSE);
-		}
+		LLRect r;
+		r.mLeft = width - pad;
+		r.mBottom = 0;
+		r.mRight = r.mLeft + RESIZE_HANDLE_WIDTH;
+		r.mTop = r.mBottom + RESIZE_HANDLE_HEIGHT;
+		mResizeHandle->setRect(r);
+		mResizeHandle->setVisible(TRUE);
 	}
 #endif // LL_DARWIN
 }

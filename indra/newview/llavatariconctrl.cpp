@@ -244,7 +244,10 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 		LLIconCtrl::setValue(value);
 	}
 
-	gCacheName->get(mAvatarId, FALSE, boost::bind(&LLAvatarIconCtrl::nameUpdatedCallback, this, _1, _2, _3, _4));
+	if  (gCacheName)
+	{
+		gCacheName->get(mAvatarId, FALSE, boost::bind(&LLAvatarIconCtrl::nameUpdatedCallback, this, _1, _2, _3, _4));
+	}
 }
 
 bool LLAvatarIconCtrl::updateFromCache()

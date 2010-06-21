@@ -31,55 +31,31 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llpreviewgesture.h"
 
-#include <algorithm>
-
-// libraries
-#include "lldatapacker.h"
-#include "lldarray.h"
-#include "llstring.h"
-#include "lldir.h"
+#include "llagent.h"
+#include "llanimstatelabels.h"
+#include "llanimationstates.h"
+#include "llappviewer.h"			// gVFS
+#include "llassetuploadresponders.h"
+#include "llcheckboxctrl.h"
+#include "llcombobox.h"
+#include "lldelayedgestureerror.h"
 #include "llfloaterreg.h"
+#include "llgesturemgr.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llmultigesture.h"
 #include "llnotificationsutil.h"
-#include "llvfile.h"
-
-// newview
-#include "llagent.h"		// todo: remove
-#include "llanimationstates.h"
-#include "llassetuploadresponders.h"
-#include "llbutton.h"
-#include "llcheckboxctrl.h"
-#include "llcombobox.h"
-#include "lldelayedgestureerror.h"
-#include "llfloatergesture.h" // for some label constants
-#include "llgesturemgr.h"
-#include "llkeyboard.h"
-#include "lllineeditor.h"
 #include "llradiogroup.h"
-#include "llscrolllistctrl.h"
-#include "llscrolllistitem.h"
-#include "llscrolllistcell.h"
-#include "lltextbox.h"
-#include "lluictrlfactory.h"
-#include "llviewerinventory.h"
-#include "llviewerobject.h"
+#include "llresmgr.h"
+#include "lltrans.h"
+#include "llvfile.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
-#include "llviewerwindow.h"		// busycount
-#include "llvoavatarself.h"
-#include "llappviewer.h"			// gVFS
-#include "llanimstatelabels.h"
-#include "llresmgr.h"
-#include "lltrans.h"
-
 
 std::string NONE_LABEL;
 std::string SHIFT_LABEL;
@@ -832,7 +808,9 @@ void LLPreviewGesture::loadAsset()
 	const LLInventoryItem* item = getItem();
 	if (!item) 
 	{
-		mAssetStatus = PREVIEW_ASSET_ERROR;
+		// Don't set asset status here; we may not have set the item id yet
+		// (e.g. when this gets called initially)
+		//mAssetStatus = PREVIEW_ASSET_ERROR;
 		return;
 	}
 

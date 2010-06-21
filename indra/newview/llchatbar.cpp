@@ -149,7 +149,6 @@ BOOL LLChatBar::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
 
-	// ALT-RETURN is reserved for windowed/fullscreen toggle
 	if( KEY_RETURN == key )
 	{
 		if (mask == MASK_CONTROL)

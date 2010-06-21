@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Luoghi" name="voice_effects" title="ANTEPRIMA MANIPOLAZIONE VOCE">
+	<string name="no_voice_effect">
+		(Nessuna manipolazione voce)
+	</string>
+	<string name="active_voice_effect">
+		(Attivato)
+	</string>
+	<string name="unsubscribed_voice_effect">
+		(Iscrizione annullata)
+	</string>
+	<string name="new_voice_effect">
+		(Nuovo!)
+	</string>
+	<text name="status_text">
+		Per ascoltare un&apos;anteprima degli effetti di manipolazione della voce, clicca sul pulsante Registra per registrare un campione di voce, quindi fai clic su uno degli effetti per ascoltare il risultato.
+
+Per ricollegarti alla voce nei dintorni, chiudi la finestra.
+	</text>
+	<button label="Registra campione" name="record_btn" tool_tip="Registra un campione della tua voce."/>
+	<button label="Ferma" name="record_stop_btn"/>
+	<text name="voice_morphing_link">
+		[[URL] Ottieni manipolazione voce]
+	</text>
+	<scroll_list name="voice_effect_list" tool_tip="Registra un campione della tua voce, quindi fai clic su uno degli effetti per un&apos;anteprima del risultato.">
+		<scroll_list.columns label="Manipolazione voce" name="name"/>
+		<scroll_list.columns label="Scade il" name="expires"/>
+	</scroll_list>
+</floater>

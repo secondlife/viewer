@@ -36,7 +36,6 @@ Owner [OWNER]
      top="6"
      use_ellipses="true"
      word_wrap="true"
-     value="Test Object Name That Is actually two lines and Really Long"
      width="220" />
   <text
    follows="all"
@@ -74,7 +73,6 @@ L$30,000
    use_ellipses="true"
    width="220"
    word_wrap="true">
-This is a really long description for an object being as how it is at least 80 characters in length and so but maybe more like 120 at this point. Who knows, really?
   </text>
   <!-- Overlapping buttons for all default actions.  Show "Buy" if
   for sale, "Sit" if can sit, etc. -->

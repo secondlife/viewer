@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings
@@ -107,7 +107,7 @@
 		無効なホストネームがサーバーにアクセスしていました。SLURL かグリッドのホストネームをご確認ください。
 	</string>
 	<string name="CertExpired">
-		証明書の有効期限が切れています。  システムの時計を確認するかグリッド管理者にご連絡ください。
+		グリッドが返した証明書は有効期限が終了していると考えられます。お使いのシステムクロックを確認するか、グリッドの管理者にお問い合わせください。
 	</string>
 	<string name="CertKeyUsage">
 		SSL 証明書のエラーが発生しました。  グリッド管理者にご連絡ください。
@@ -116,7 +116,7 @@
 		サーバーの証明書チェーンに証明書が多すぎます。  グリッド管理者にご連絡ください。
 	</string>
 	<string name="CertInvalidSignature">
-		証明書署名を認証できませんでした。  グリッド管理者にご連絡ください。
+		グリッドサーバーが返した証明書の署名を認証できませんでした。グリッドの管理者にお問い合わせください。
 	</string>
 	<string name="LoginFailedNoNetwork">
 		ネットワークエラー： 接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
@@ -753,6 +753,12 @@
 	<string name="land_type_unknown">
 		（不明）
 	</string>
+	<string name="Estate / Full Region">
+		不動産 / フルリージョン
+	</string>
+	<string name="Mainland / Full Region">
+		メインランド / フルリージョン
+	</string>
 	<string name="all_files">
 		全てのファイル
 	</string>
@@ -896,6 +902,9 @@
 	</string>
 	<string name="NewWearable">
 		新しい [WEARABLE_ITEM]
+	</string>
+	<string name="CreateNewWearable">
+		[WEARABLE_TYPE]を作成
 	</string>
 	<string name="next">
 		次へ
@@ -3550,6 +3559,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="session_initialization_timed_out_error">
 		セッションの初期化がタイムアウトしました
 	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] は L$[AMOUNT] 支払いました
 	</string>
@@ -3720,17 +3732,17 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Male - Wow">
 		男性 - Wow
 	</string>
-	<string name="FeMale - Excuse me">
-		女性 - すみません
+	<string name="Female - Excuse me">
+		女性 – すみません
 	</string>
-	<string name="FeMale - Get lost">
-		女性 - Get lost
+	<string name="Female - Get lost">
+		女性 – あっち行ってよ
 	</string>
-	<string name="FeMale - Blow kiss">
+	<string name="Female - Blow kiss">
 		女性 - 投げキッス
 	</string>
-	<string name="FeMale - Boo">
-		女性 - Boo
+	<string name="Female - Boo">
+		女性 – ワッ！
 	</string>
 	<string name="Female - Bored">
 		女性 - 退屈
@@ -3761,5 +3773,33 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="texture_load_dimensions_error">
 		[WIDTH]*[HEIGHT] 以上の画像は読み込めません
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		大変申し訳ございませんが、予期せぬ問題が発生しました。
+
+	status.secondlifegrid.netで、サービスに関する既知の問題についてお調べください。
+        問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を確認してください。
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		日曜日:月曜日:火曜日:水曜日:木曜日:金曜日:土曜日
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		日:月:火:水:木:金:土
+	</string>
+	<string name="dateTimeMonthNames">
+		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
+	</string>
+	<string name="dateTimeMonthShortNames">
+		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		AM
+	</string>
+	<string name="dateTimePM">
+		PM
 	</string>
 </strings>

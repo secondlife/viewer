@@ -247,35 +247,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	msg_box->setRect( rect );
 	LLToastPanel::addChild(msg_box);
 
-	// Buttons	
-	S32 button_left = (LLToastPanel::getRect().getWidth() - btn_total_width) / 2;
-	
-	for( S32 i = 0; i < num_options; i++ )
-	{
-		LLRect button_rect;
-		
-		LLButton* btn = LLUICtrlFactory::getInstance()->createFromFile<LLButton>("alert_button.xml", this, LLPanel::child_registry_t::instance());
-		if(btn)
-		{
-			btn->setName(options[i].first);
-			btn->setRect(button_rect.setOriginAndSize( button_left, VPAD, button_width, BTN_HEIGHT ));
-			btn->setLabel(options[i].second);
-			btn->setFont(font);
-			
-			btn->setClickedCallback(boost::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
-
-			mButtonData[i].mButton = btn;
-
-			LLToastPanel::addChild(btn);
-
-			if( i == mDefaultOption )
-			{
-				btn->setFocus(TRUE);
-			}
-		}
-		button_left += button_width + BTN_HPAD;
-	}
-
 	// (Optional) Edit Box	
 	if (!edit_text_name.empty())
 	{
@@ -307,7 +278,61 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->setDrawAsterixes(is_password);
 
 			setEditTextArgs(notification->getSubstitutions());
+
+			mLineEditor->setFollowsLeft();
+			mLineEditor->setFollowsRight();
+
+			// find form text input field
+			LLSD form_text;
+			for (LLSD::array_const_iterator it = form_sd.beginArray(); it != form_sd.endArray(); ++it)
+			{
+				std::string type = (*it)["type"].asString();
+				if (type == "text")
+				{
+					form_text = (*it);
+				}
+			}
+
+			// if form text input field has width attribute
+			if (form_text.has("width"))
+			{
+				// adjust floater width to fit line editor
+				S32 editor_width = form_text["width"];
+				LLRect editor_rect =  mLineEditor->getRect();
+				U32 width_delta = editor_width  - editor_rect.getWidth();
+				LLRect toast_rect = getRect();
+				reshape(toast_rect.getWidth() +  width_delta, toast_rect.getHeight());
+			}
 		}
+	}
+
+	// Buttons
+	S32 button_left = (LLToastPanel::getRect().getWidth() - btn_total_width) / 2;
+
+	for( S32 i = 0; i < num_options; i++ )
+	{
+		LLRect button_rect;
+
+		LLButton* btn = LLUICtrlFactory::getInstance()->createFromFile<LLButton>("alert_button.xml", this, LLPanel::child_registry_t::instance());
+		if(btn)
+		{
+			btn->setName(options[i].first);
+			btn->setRect(button_rect.setOriginAndSize( button_left, VPAD, button_width, BTN_HEIGHT ));
+			btn->setLabel(options[i].second);
+			btn->setFont(font);
+
+			btn->setClickedCallback(boost::bind(&LLToastAlertPanel::onButtonPressed, this, _2, i));
+
+			mButtonData[i].mButton = btn;
+
+			LLToastPanel::addChild(btn);
+
+			if( i == mDefaultOption )
+			{
+				btn->setFocus(TRUE);
+			}
+		}
+		button_left += button_width + BTN_HPAD;
 	}
 
 	std::string ignore_label;

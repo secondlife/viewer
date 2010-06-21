@@ -33,9 +33,13 @@
 #ifndef LL_LLAGENTWEARABLES_H
 #define LL_LLAGENTWEARABLES_H
 
+// libraries
 #include "llmemory.h"
+#include "llui.h"
 #include "lluuid.h"
 #include "llinventory.h"
+
+// newview
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 #include "llvoavatardefines.h"
@@ -47,7 +51,7 @@ class LLInitialWearablesFetch;
 class LLViewerObject;
 class LLTexLayerTemplate;
 
-class LLAgentWearables
+class LLAgentWearables : public LLInitClass<LLAgentWearables>
 {
 	//--------------------------------------------------------------------
 	// Constructors / destructors / Initializers
@@ -61,6 +65,9 @@ public:
 	void			createStandardWearables(BOOL female); 
 	void			cleanup();
 	void			dump();
+
+	// LLInitClass interface
+	static void initClass();
 protected:
 	void			createStandardWearablesDone(S32 type, U32 index/* = 0*/);
 	void			createStandardWearablesAllDone();
@@ -75,6 +82,7 @@ public:
 
 	BOOL			isWearableCopyable(LLWearableType::EType type, U32 index /*= 0*/) const;
 	BOOL			areWearablesLoaded() const;
+	bool			isCOFChangeInProgress() const { return mCOFChangeInProgress; }
 	void			updateWearablesLoaded();
 	void			checkWearablesLoaded() const;
 	bool			canMoveWearable(const LLUUID& item_id, bool closer_to_body);
@@ -233,6 +241,7 @@ public:
 	boost::signals2::connection				addLoadedCallback(loaded_callback_t cb);
 
 	void									notifyLoadingStarted();
+	void									notifyLoadingFinished();
 
 private:
 	loading_started_signal_t				mLoadingStartedSignal; // should be called before wearables are changed
@@ -249,6 +258,11 @@ private:
 	static BOOL		mInitialWearablesUpdateReceived;
 	BOOL			mWearablesLoaded;
 	std::set<LLUUID>	mItemsAwaitingWearableUpdate;
+
+	/**
+	 * True if agent's outfit is being changed now.
+	 */
+	BOOL			mCOFChangeInProgress;
 	
 	//--------------------------------------------------------------------------------
 	// Support classes

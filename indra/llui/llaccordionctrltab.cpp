@@ -76,6 +76,8 @@ public:
 	std::string getTitle();
 	void	setTitle(const std::string& title, const std::string& hl);
 
+	void	setTitleFontStyle(std::string style);
+
 	void	setSelected(bool is_selected) { mIsSelected = is_selected; }
 
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
@@ -101,6 +103,9 @@ private:
 	LLPointer<LLUIImage> mImageHeaderOver;
 	LLPointer<LLUIImage> mImageHeaderPressed;
 	LLPointer<LLUIImage> mImageHeaderFocused;
+
+	// style saved when applying it in setTitleFontStyle
+	LLStyle::Params			mStyleParams;
 
 	LLUIColor mHeaderBGColor;
 
@@ -170,9 +175,20 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitle(const std::string& t
 	{
 		LLTextUtil::textboxSetHighlightedVal(
 			mHeaderTextbox,
-			LLStyle::Params(),
+			mStyleParams,
 			title,
 			hl);
+	}
+}
+
+void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleFontStyle(std::string style)
+{
+	if (mHeaderTextbox)
+	{
+		std::string text = mHeaderTextbox->getText();
+		mStyleParams.font(mHeaderTextbox->getDefaultFont());
+		mStyleParams.font.style(style);
+		mHeaderTextbox->setText(text, mStyleParams);
 	}
 }
 
@@ -492,6 +508,15 @@ void LLAccordionCtrlTab::setTitle(const std::string& title, const std::string& h
 	if (header)
 	{
 		header->setTitle(title, hl);
+	}
+}
+
+void LLAccordionCtrlTab::setTitleFontStyle(std::string style)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		header->setTitleFontStyle(style);
 	}
 }
 
