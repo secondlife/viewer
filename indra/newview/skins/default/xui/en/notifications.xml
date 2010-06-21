@@ -2098,7 +2098,7 @@ Would you be my friend?
    type="alertmodal">
     New outfit name:
     <form name="form">
-      <input name="new_name" type="text">
+      <input name="new_name" type="text" width="300">
         [NAME]
       </input>
       <button
@@ -6209,7 +6209,7 @@ With the following Residents:
    icon="notifytip.tga"
    name="ItemsShared"
    type="notifytip">
-Items are successfully shared.
+Items successfully shared.
   </notification>
   <notification
    icon="notifytip.tga"

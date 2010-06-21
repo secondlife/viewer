@@ -6,7 +6,7 @@
  name="panel_voice_effect"
  width="200">
   <string name="no_voice_effect">
-    No Voice Morph
+    Voice Morphing Off
   </string>
   <string name="preview_voice_effects">
     Preview Voice Morphing  ▶
@@ -19,11 +19,11 @@
    follows="left|top|right"
    height="23"
    name="voice_effect"
-   tool_tip="Select a Voice Morphing effect to change your voice."
+   tool_tip="Select a Voice Morph to change your voice"
    top_pad="0"
    width="200">
     <combo_box.item
-     label="No Voice Morph"
+     label="Voice Morphing Off"
      name="no_voice_effect"
 	 top_pad="0"
      value="0" />

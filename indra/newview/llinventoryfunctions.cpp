@@ -327,6 +327,11 @@ BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
 	return FALSE;
 }
 
+void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id)
+{
+	LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD().with("id", item_uuid).with("object", object_id));
+}
+
 void show_item_profile(const LLUUID& item_uuid)
 {
 	LLUUID linked_uuid = gInventory.getLinkedItemID(item_uuid);
@@ -573,6 +578,31 @@ bool LLFindWearables::operator()(LLInventoryCategory* cat,
 	return FALSE;
 }
 
+LLFindWearablesEx::LLFindWearablesEx(bool is_worn, bool include_body_parts)
+:	mIsWorn(is_worn)
+,	mIncludeBodyParts(include_body_parts)
+{}
+
+bool LLFindWearablesEx::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+	LLViewerInventoryItem *vitem = dynamic_cast<LLViewerInventoryItem*>(item);
+	if (!vitem) return false;
+
+	// Skip non-wearables.
+	if (!vitem->isWearableType() && vitem->getType() != LLAssetType::AT_OBJECT)
+	{
+		return false;
+	}
+
+	// Skip body parts if requested.
+	if (!mIncludeBodyParts && vitem->getType() == LLAssetType::AT_BODYPART)
+	{
+		return false;
+	}
+
+	return (bool) get_is_item_worn(item->getUUID()) == mIsWorn;
+}
+
 bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 {
 	if (!item) return false;
@@ -591,11 +621,6 @@ bool LLFindWearablesOfType::operator()(LLInventoryCategory* cat, LLInventoryItem
 void LLFindWearablesOfType::setType(LLWearableType::EType type)
 {
 	mWearableType = type;
-}
-
-bool LLFindWorn::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-{
-	return item && get_is_item_worn(item->getUUID());
 }
 
 bool LLFindNonRemovableObjects::operator()(LLInventoryCategory* cat, LLInventoryItem* item)

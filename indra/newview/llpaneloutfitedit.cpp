@@ -60,6 +60,7 @@
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
+#include "llloadingindicator.h"
 #include "llpaneloutfitsinventory.h"
 #include "lluiconstants.h"
 #include "llsaveoutfitcombobtn.h"
@@ -262,6 +263,9 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitEdit::updateVerbs, this));
 	observer.addOutfitLockChangedCallback(boost::bind(&LLPanelOutfitEdit::updateVerbs, this));
 	observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitEdit::update, this));
+
+	gAgentWearables.addLoadingStartedCallback(boost::bind(&LLPanelOutfitEdit::onOutfitChanging, this, true));
+	gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitEdit::onOutfitChanging, this, false));
 	
 	mFolderViewItemTypes.reserve(NUM_FOLDER_VIEW_ITEM_TYPES);
 	for (U32 i = 0; i < NUM_FOLDER_VIEW_ITEM_TYPES; i++)
@@ -902,6 +906,27 @@ void LLPanelOutfitEdit::showFilteredWearablesListView(LLWearableType::EType type
 	applyListViewFilter((EListViewItemType) (LVIT_SHAPE + type));
 }
 
+static void update_status_widget_rect(LLView * widget, S32 right_border)
+{
+	LLRect rect = widget->getRect();
+	rect.mRight = right_border;
 
+	widget->setShape(rect);
+}
+
+void LLPanelOutfitEdit::onOutfitChanging(bool started)
+{
+	static LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("edit_outfit_loading_indicator");
+	static LLView* status_panel = getChild<LLView>("outfit_name_and_status");
+	static S32 indicator_delta = status_panel->getRect().getWidth() - indicator->getRect().mLeft;
+
+	S32 delta = started ? indicator_delta : 0;
+	S32 right_border = status_panel->getRect().getWidth() - delta;
+
+	update_status_widget_rect(mCurrentOutfitName, right_border);
+	update_status_widget_rect(mStatus, right_border);
+
+	indicator->setVisible(started);
+}
 
 // EOF

@@ -1116,8 +1116,6 @@ bool idle_startup()
 				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
 				// create the default proximal channel
 				LLVoiceChannel::initClass();
-				// update the voice settings
-				LLVoiceClient::getInstance()->updateSettings();
 				LLGridManager::getInstance()->setFavorite(); 
 				LLStartUp::setStartupState( STATE_WORLD_INIT);
 			}
@@ -1299,6 +1297,10 @@ bool idle_startup()
 			// Load stored cache if possible
             LLAppViewer::instance()->loadNameCache();
 		}
+
+		// update the voice settings *after* gCacheName initialization
+		// so that we can construct voice UI that relies on the name cache
+		LLVoiceClient::getInstance()->updateSettings();
 
 		//gCacheName is required for nearby chat history loading
 		//so I just moved nearby history loading a few states further
@@ -2636,12 +2638,6 @@ void reset_login()
 }
 
 //---------------------------------------------------------------------------
-
-
-bool LLStartUp::canGoFullscreen()
-{
-	return gStartupState >= STATE_WORLD_INIT;
-}
 
 // Initialize all plug-ins except the web browser (which was initialized
 // early, before the login screen). JC

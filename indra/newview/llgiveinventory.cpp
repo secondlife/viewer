@@ -300,15 +300,15 @@ void LLGiveInventory::logInventoryOffer(const LLUUID& to_agent, const LLUUID &im
 	// compute id of possible IM session with agent that has "to_agent" id
 	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, to_agent);
 	// If this item was given by drag-and-drop into an IM panel, log this action in the IM panel chat.
+	LLSD args;
+	args["user_id"] = to_agent;
 	if (im_session_id.notNull())
 	{
-		LLSD args;
 		gIMMgr->addSystemMessage(im_session_id, "inventory_item_offered", args);
 	}
 	// If this item was given by drag-and-drop on avatar while IM panel was open, log this action in the IM panel chat.
 	else if (LLIMModel::getInstance()->findIMSession(session_id))
 	{
-		LLSD args;
 		gIMMgr->addSystemMessage(session_id, "inventory_item_offered", args);
 	}
 	// If this item was given by drag-and-drop on avatar while IM panel wasn't open, log this action to IM history.

@@ -143,10 +143,9 @@ void LLFloaterHardwareSettings::apply()
 		LLWindow* window = gViewerWindow->getWindow();
 		LLCoordScreen size;
 		window->getSize(&size);
-		gViewerWindow->changeDisplaySettings(window->getFullscreen(), 
-														size,
-														gSavedSettings.getBOOL("DisableVerticalSync"),
-														logged_in);
+		gViewerWindow->changeDisplaySettings(size,
+											gSavedSettings.getBOOL("DisableVerticalSync"),
+											logged_in);
 	}
 	else if (old_anisotropic != LLImageGL::sGlobalUseAnisotropic)
 	{

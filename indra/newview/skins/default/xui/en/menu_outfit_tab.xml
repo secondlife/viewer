@@ -18,6 +18,9 @@
      name="wear_add">
         <on_click
          function="Outfit.WearAdd" />
+        <on_enable
+         function="Outfit.OnEnable"
+         parameter="wear_add" />
         <on_visible
          function="Outfit.OnVisible"
          parameter="wear_add" />
@@ -28,6 +31,9 @@
      name="take_off">
         <on_click
          function="Outfit.TakeOff" />
+        <on_enable
+         function="Outfit.OnEnable"
+         parameter="take_off" />
         <on_visible
          function="Outfit.OnVisible"
          parameter="take_off" />
@@ -44,7 +50,7 @@
     </menu_item_call>
     <menu_item_separator />
     <menu_item_call
-     label="Rename"
+     label="Rename Outfit"
      layout="topleft"
      name="rename">
         <on_click

@@ -191,6 +191,7 @@ private:
 	void onGearButtonClick(LLUICtrl* clicked_button);
 	void onAddMoreButtonClicked();
 	void showFilteredWearablesListView(LLWearableType::EType type);
+	void onOutfitChanging(bool started);
 
 
 	LLTextBox*			mCurrentOutfitName;
