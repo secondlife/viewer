@@ -371,7 +371,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetAction("show_add_wearables_btn", boost::bind(&LLPanelOutfitEdit::onAddMoreButtonClicked, this));
 
-	childSetAction("add_to_outfit_btn", boost::bind(&LLPanelOutfitEdit::onAddToOutfitClicked, this));
+	childSetAction("plus_btn", boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 	
 	mEditWearableBtn = getChild<LLButton>("edit_wearable_btn");
 	mEditWearableBtn->setEnabled(FALSE);
@@ -557,7 +557,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 
 }
 
-void LLPanelOutfitEdit::onAddToOutfitClicked(void)
+void LLPanelOutfitEdit::onPlusBtnClicked(void)
 {
 	LLUUID selected_id;
 	if (mInventoryItemsPanel->getVisible())
@@ -577,7 +577,8 @@ void LLPanelOutfitEdit::onAddToOutfitClicked(void)
 
 	if (selected_id.isNull()) return;
 
-	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id);
+	//replacing instead of adding the item
+	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id, true, true);
 }
 
 void LLPanelOutfitEdit::onAddWearableClicked(void)

@@ -459,7 +459,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          label=""
          layout="topleft"
          left_pad="1"
-         name="add_to_outfit_btn"
+         name="plus_btn"
          top="1"
          width="31" />
         <icon
