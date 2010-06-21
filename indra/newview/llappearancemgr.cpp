@@ -177,7 +177,13 @@ class LLUpdateDirtyState: public LLInventoryCallback
 {
 public:
 	LLUpdateDirtyState() {}
-	virtual ~LLUpdateDirtyState(){ LLAppearanceMgr::getInstance()->updateIsDirty(); }
+	virtual ~LLUpdateDirtyState()
+	{
+		if (LLAppearanceMgr::instanceExists())
+		{
+			LLAppearanceMgr::getInstance()->updateIsDirty();
+		}
+	}
 	virtual void fire(const LLUUID&) {}
 };
 
@@ -2150,6 +2156,8 @@ bool LLAppearanceMgr::updateBaseOutfit()
 	}
 	setOutfitLocked(true);
 
+	gAgentWearables.notifyLoadingStarted();
+
 	const LLUUID base_outfit_id = getBaseOutfitUUID();
 	if (base_outfit_id.isNull()) return false;
 
@@ -2309,6 +2317,7 @@ public:
 		}
 
 		LLAppearanceMgr::getInstance()->updateIsDirty();
+		gAgentWearables.notifyLoadingFinished(); // New outfit is saved.
 		LLAppearanceMgr::getInstance()->updatePanelOutfitName("");
 	}
 
@@ -2323,6 +2332,8 @@ private:
 LLUUID LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, bool show_panel)
 {
 	if (!isAgentAvatarValid()) return LLUUID::null;
+
+	gAgentWearables.notifyLoadingStarted();
 
 	// First, make a folder in the My Outfits directory.
 	const LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
@@ -2530,7 +2541,9 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 
 	   if (mAttachmentInvLinkEnabled)
 	   {
-		   LLAppearanceMgr::addCOFItemLink(item_id, false);  // Add COF link for item.
+		   // we have to pass do_update = true to call LLAppearanceMgr::updateAppearanceFromCOF.
+		   // it will trigger gAgentWariables.notifyLoadingFinished()
+		   LLAppearanceMgr::addCOFItemLink(item_id, true);  // Add COF link for item.
 	   }
 	   else
 	   {
@@ -2560,7 +2573,7 @@ void LLAppearanceMgr::linkRegisteredAttachments()
 		 ++it)
 	{
 		LLUUID item_id = *it;
-		addCOFItemLink(item_id, false);
+		addCOFItemLink(item_id, true);
 	}
 	mRegisteredAttachments.clear();
 }

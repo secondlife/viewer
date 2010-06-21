@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ height="201"
+ layout="topleft"
+ left="100"
+ mouse_opaque="false"
+ name="menu_topinfobar"
+ top="624"
+ visible="false"
+ width="128">
+    <menu_item_check
+         label="Show Coordinates"
+         name="Show Coordinates">
+           <on_click
+             function="ToggleControl"
+             parameter="NavBarShowCoordinates" />
+             <on_check
+             function="CheckControl"
+             parameter="NavBarShowCoordinates" />
+    </menu_item_check>
+    <menu_item_check
+      label="Show Parcel Properties"
+      name="Show Parcel Properties">
+      <on_click
+        function="ToggleControl"
+        parameter="NavBarShowParcelProperties" />
+      <on_check
+        function="CheckControl"
+        parameter="NavBarShowParcelProperties" />
+    </menu_item_check>
+    <menu_item_separator
+     name="Separator" />
+    <!-- Label of 'Landmark' item is changing in runtime, 
+    see  AddLandmarkNavBarMenu/EditLandmarkNavBarMenu in strings.xml -->
+    <menu_item_call
+     label="Landmark"
+     name="Landmark">
+        <on_click
+         function="TopInfoBar.Action"
+         parameter="landmark" />
+    </menu_item_call>
+    <menu_item_separator
+     name="Separator" />
+    <menu_item_call
+     label="Copy"
+     name="Copy">
+        <on_click
+         function="TopInfoBar.Action"
+         parameter="copy" />
+    </menu_item_call>
+</menu>

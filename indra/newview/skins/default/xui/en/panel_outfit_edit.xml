@@ -106,7 +106,7 @@
             <panel
              bevel_style="none"
              follows="top|right"
-             height="38"
+             height="37"
              layout="topleft"
              left_pad="5"
              name="outfit_name_and_status"
@@ -122,18 +122,26 @@
                  top="2"
                  value="Now editing..."
                  use_ellipses="true"
-                 width="270" /> 
+                 width="245" /> 
                 <text
                  follows="bottom|left|right"
                  font="SansSerifLargeBold"
-                 height="26"
+                 height="18"
                  layout="topleft"
                  name="curr_outfit_name"
                  text_color="LtGray"
                  top_pad="2"
                  value="[Current Outfit]"
                  use_ellipses="true"
-                 width="270" /> 
+                 width="245" /> 
+                <loading_indicator
+                 follows="right|top"
+                 height="24"
+                 layout="topleft"
+                 right="-2"
+                 name="edit_outfit_loading_indicator"
+                 top="6"
+                 width="24" />
             </panel>
     </panel>
 

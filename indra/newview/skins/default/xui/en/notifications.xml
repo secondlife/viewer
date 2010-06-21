@@ -6209,7 +6209,7 @@ With the following Residents:
    icon="notifytip.tga"
    name="ItemsShared"
    type="notifytip">
-Items are successfully shared.
+Items successfully shared.
   </notification>
   <notification
    icon="notifytip.tga"
