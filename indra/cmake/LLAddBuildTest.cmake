@@ -141,17 +141,9 @@ INCLUDE(GoogleMock)
     IF(LL_TEST_VERBOSE)
       MESSAGE(STATUS "LL_ADD_PROJECT_UNIT_TESTS ${name} test_cmd  = ${TEST_CMD}")
     ENDIF(LL_TEST_VERBOSE)
-    
-    IF(WINDOWS)
-      set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
-    ELSEIF(DARWIN)
-      set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources:/usr/lib)
-    ELSE(WINDOWS)
-      set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}:/usr/lib)
-    ENDIF(WINDOWS)
 
-    LL_TEST_COMMAND("${LD_LIBRARY_PATH}" ${TEST_CMD})
-    SET(TEST_SCRIPT_CMD ${LL_TEST_COMMAND_value})
+    SET_TEST_PATH(LD_LIBRARY_PATH)
+    LL_TEST_COMMAND(TEST_SCRIPT_CMD "${LD_LIBRARY_PATH}" ${TEST_CMD})
     IF(LL_TEST_VERBOSE)
       MESSAGE(STATUS "LL_ADD_PROJECT_UNIT_TESTS ${name} test_script  = ${TEST_SCRIPT_CMD}")
     ENDIF(LL_TEST_VERBOSE)
@@ -233,16 +225,9 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     LIST(INSERT test_command test_exe_pos "${TEST_EXE}")
   ENDIF (test_exe_pos LESS 0)
 
-  IF(WINDOWS)
-    set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
-  ELSEIF(DARWIN)
-    set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources:/usr/lib)
-  ELSE(WINDOWS)
-    set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}:/usr/lib)
-  ENDIF(WINDOWS)
+  SET_TEST_PATH(LD_LIBRARY_PATH)
 
-  LL_TEST_COMMAND("${LD_LIBRARY_PATH}" ${test_command})
-  SET(TEST_SCRIPT_CMD ${LL_TEST_COMMAND_value})
+  LL_TEST_COMMAND(TEST_SCRIPT_CMD "${LD_LIBRARY_PATH}" ${test_command})
 
   if(TEST_DEBUG)
     message(STATUS "TEST_SCRIPT_CMD: ${TEST_SCRIPT_CMD}")
@@ -258,3 +243,36 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   # ADD_TEST(INTEGRATION_TEST_RUNNER_${testname} ${TEST_SCRIPT_CMD})
 
 ENDFUNCTION(LL_ADD_INTEGRATION_TEST)
+
+MACRO(SET_TEST_LIST LISTVAR)
+  IF(WINDOWS)
+    # We typically build/package only Release variants of third-party
+    # libraries, so append the Release staging dir in case the library being
+    # sought doesn't have a debug variant.
+    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR} ${SHARED_LIB_STAGING_DIR}/Release)
+  ELSEIF(DARWIN)
+    # We typically build/package only Release variants of third-party
+    # libraries, so append the Release staging dir in case the library being
+    # sought doesn't have a debug variant.
+    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources ${SHARED_LIB_STAGING_DIR}/Release/Resources /usr/lib)
+  ELSE(WINDOWS)
+    # Linux uses a single staging directory anyway.
+    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} /usr/lib)
+  ENDIF(WINDOWS)
+ENDMACRO(SET_TEST_LIST)
+
+MACRO(SET_TEST_PATH PATHVAR)
+  set_test_list(test_list)
+  IF(WINDOWS)
+    set(sep "\;")
+  ELSE(WINDOWS)
+    set(sep ":")
+  ENDIF(WINDOWS)
+  set(path "")
+  set(optsep "")
+  foreach(dir ${test_list})
+    set(path "${path}${optsep}${dir}")
+    set(optsep "${sep}")
+  endforeach(dir)
+  set(${PATHVAR} "${path}")
+ENDMACRO(SET_TEST_PATH)
