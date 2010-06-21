@@ -31,7 +31,7 @@ include_directories(
 
 set(test_SOURCE_FILES
     io.cpp
-#    llapp_tut.cpp						# Temporarily removed until thread issues can be solved
+#    llapp_tut.cpp                      # Temporarily removed until thread issues can be solved
     llblowfish_tut.cpp
     llbuffer_tut.cpp
     lldoubledispatch_tut.cpp
