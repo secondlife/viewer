@@ -176,6 +176,19 @@
 
     <menu_item_separator name="sepatator2" />
     <menu_item_call
+     label="Rename Outfit"
+     layout="topleft"
+     name="rename">
+        <on_click
+         function="Gear.Rename" />
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="rename" />
+        <on_visible
+         function="Gear.OnVisible"
+         parameter="rename" />
+    </menu_item_call>
+    <menu_item_call
      label="Delete Outfit"
      layout="topleft"
      name="delete_outfit">
