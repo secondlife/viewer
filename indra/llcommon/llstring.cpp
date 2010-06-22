@@ -998,7 +998,7 @@ void LLStringUtil::formatNumber(std::string& numStr, std::string decimals)
 		try
 		{
 			strStream.imbue(std::locale(sLocale.c_str()));
-		} catch (const std::exception &e)
+		} catch (const std::exception &)
 		{
 			LL_WARNS_ONCE("Locale") << "Cannot set locale to " << sLocale << LL_ENDL;
 		}
