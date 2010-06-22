@@ -38,7 +38,9 @@
 #include "llpanelappearancetab.h"
 
 class LLInventoryCategoriesObserver;
+class LLListContextMenu;
 class LLWearableItemsList;
+class LLWearingGearMenu;
 
 /**
  * @class LLPanelWearing
@@ -61,11 +63,17 @@ public:
 
 	/*virtual*/ bool isActionEnabled(const LLSD& userdata);
 
+	/*virtual*/ void showGearMenu(LLView* spawning_view);
+
 	boost::signals2::connection setSelectionChangeCallback(commit_callback_t cb);
 
 private:
+	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+
 	LLInventoryCategoriesObserver* 	mCategoriesObserver;
 	LLWearableItemsList* 			mCOFItemsList;
+	LLWearingGearMenu*				mGearMenu;
+	LLListContextMenu*				mContextMenu;
 
 	bool							mIsInitialized;
 };

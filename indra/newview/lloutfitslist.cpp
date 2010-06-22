@@ -70,7 +70,148 @@ bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LL
 
 //////////////////////////////////////////////////////////////////////////
 
-class OutfitContextMenu : public LLListContextMenu
+class LLOutfitListGearMenu
+{
+public:
+	LLOutfitListGearMenu(LLOutfitsList* olist)
+	:	mOutfitList(olist),
+		mMenu(NULL)
+	{
+		llassert_always(mOutfitList);
+
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+
+		registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenu::onWear, this));
+		registrar.add("Gear.TakeOff", boost::bind(&LLOutfitListGearMenu::onTakeOff, this));
+		registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenu::onRename, this));
+		registrar.add("Gear.Delete", boost::bind(&LLOutfitListGearMenu::onDelete, this));
+		registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenu::onCreate, this, _2));
+
+		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitsList::isActionEnabled, mOutfitList, _2));
+		enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenu::onVisible, this, _2));
+
+		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+			"menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+		llassert(mMenu);
+	}
+
+	void show(LLView* spawning_view)
+	{
+		if (!mMenu) return;
+
+		updateItemsVisibility();
+		mMenu->buildDrawLabels();
+		mMenu->updateParent(LLMenuGL::sMenuContainer);
+		S32 menu_x = 0;
+		S32 menu_y = spawning_view->getRect().getHeight() + mMenu->getRect().getHeight();
+		LLMenuGL::showPopup(spawning_view, mMenu, menu_x, menu_y);
+	}
+
+	void updateItemsVisibility()
+	{
+		if (!mMenu) return;
+
+		bool have_selection = getSelectedOutfitID().notNull();
+		mMenu->setItemVisible("sepatator1", have_selection);
+		mMenu->setItemVisible("sepatator2", have_selection);
+		mMenu->arrangeAndClear(); // update menu height
+	}
+
+private:
+	const LLUUID& getSelectedOutfitID()
+	{
+		return mOutfitList->getSelectedOutfitUUID();
+	}
+
+	LLViewerInventoryCategory* getSelectedOutfit()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.isNull())
+		{
+			return NULL;
+		}
+
+		LLViewerInventoryCategory* cat = gInventory.getCategory(selected_outfit_id);
+		return cat;
+	}
+
+	void onWear()
+	{
+		LLViewerInventoryCategory* selected_outfit = getSelectedOutfit();
+		if (selected_outfit)
+		{
+			LLAppearanceMgr::instance().wearInventoryCategory(
+				selected_outfit, /*copy=*/ FALSE, /*append=*/ FALSE);
+		}
+	}
+
+	void onTakeOff()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
+		}
+	}
+
+	void onRename()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			LLAppearanceMgr::instance().renameOutfit(selected_outfit_id);
+		}
+	}
+
+	void onDelete()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			remove_category(&gInventory, selected_outfit_id);
+		}
+	}
+
+	void onCreate(const LLSD& data)
+	{
+		LLWearableType::EType type = LLWearableType::typeNameToType(data.asString());
+		if (type == LLWearableType::WT_NONE)
+		{
+			llwarns << "Invalid wearable type" << llendl;
+			return;
+		}
+
+		LLAgentWearables::createWearable(type, true);
+	}
+
+	bool onVisible(LLSD::String param)
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.isNull()) // no selection or invalid outfit selected
+		{
+			return false;
+		}
+
+		// *TODO This condition leads to menu item behavior inconsistent with
+		// "Wear" button behavior and should be modified or removed.
+		bool is_worn = LLAppearanceMgr::instance().getBaseOutfitUUID() == selected_outfit_id;
+
+		if ("wear" == param)
+		{
+			return !is_worn;
+		}
+
+		return true;
+	}
+
+	LLOutfitsList*	mOutfitList;
+	LLMenuGL*		mMenu;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class LLOutfitContextMenu : public LLListContextMenu
 {
 protected:
 	/* virtual */ LLContextMenu* createMenu()
@@ -89,8 +230,8 @@ protected:
 		registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
 		registrar.add("Outfit.Delete", boost::bind(deleteOutfit, selected_id));
 
-		enable_registrar.add("Outfit.OnEnable", boost::bind(&OutfitContextMenu::onEnable, this, _2));
-		enable_registrar.add("Outfit.OnVisible", boost::bind(&OutfitContextMenu::onVisible, this, _2));
+		enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitContextMenu::onEnable, this, _2));
+		enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitContextMenu::onVisible, this, _2));
 
 		return createFromFile("menu_outfit_tab.xml");
 	}
@@ -170,11 +311,13 @@ LLOutfitsList::LLOutfitsList()
 {
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
 
-	mOutfitMenu = new OutfitContextMenu();
+	mGearMenu = new LLOutfitListGearMenu(this);
+	mOutfitMenu = new LLOutfitContextMenu();
 }
 
 LLOutfitsList::~LLOutfitsList()
 {
+	delete mGearMenu;
 	delete mOutfitMenu;
 
 	if (gInventory.containsObserver(mCategoriesObserver))
@@ -453,8 +596,11 @@ void LLOutfitsList::setFilterSubString(const std::string& string)
 	sFilterSubString = string;
 }
 
+// virtual
 bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 {
+	if (mSelectedOutfitUUID.isNull()) return false;
+
 	const std::string command_name = userdata.asString();
 	if (command_name == "delete")
 	{
@@ -473,13 +619,20 @@ bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 	}
 	if (command_name == "wear")
 	{
-		return mSelectedOutfitUUID.notNull();
+		return !gAgentWearables.isCOFChangeInProgress();
 	}
 	if (command_name == "take_off")
 	{
 		return LLAppearanceMgr::getInstance()->getBaseOutfitUUID() == mSelectedOutfitUUID;
 	}
 	return false;
+}
+
+// virtual
+void LLOutfitsList::showGearMenu(LLView* spawning_view)
+{
+	if (!mGearMenu) return;
+	mGearMenu->show(spawning_view);
 }
 
 boost::signals2::connection LLOutfitsList::setSelectionChangeCallback(selection_change_callback_t cb)
@@ -761,7 +914,7 @@ void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
 
 	uuid_vec_t selected_uuids;
 
-	// Collect seleted items from all selected lists.
+	// Collect selected items from all selected lists.
 	for (wearables_lists_map_t::iterator iter = mSelectedListsMap.begin();
 			iter != mSelectedListsMap.end();
 			++iter)

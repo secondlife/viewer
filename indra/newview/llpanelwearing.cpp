@@ -36,8 +36,64 @@
 #include "llappearancemgr.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
+#include "llsidetray.h"
+#include "llviewermenu.h"
 #include "llwearableitemslist.h"
 
+// Context menu and Gear menu helper.
+static void edit_outfit()
+{
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+class LLWearingGearMenu
+{
+public:
+	LLWearingGearMenu()
+	:	mMenu(NULL)
+	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+		registrar.add("Gear.Edit", boost::bind(&edit_outfit));
+
+		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
+			"menu_wearing_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+		llassert(mMenu);
+	}
+
+	void show(LLView* spawning_view)
+	{
+		if (!mMenu) return;
+
+		mMenu->buildDrawLabels();
+		mMenu->updateParent(LLMenuGL::sMenuContainer);
+		S32 menu_x = 0;
+		S32 menu_y = spawning_view->getRect().getHeight() + mMenu->getRect().getHeight();
+		LLMenuGL::showPopup(spawning_view, mMenu, menu_x, menu_y);
+	}
+
+private:
+	LLMenuGL*		mMenu;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class LLWearingContextMenu : public LLListContextMenu
+{
+protected:
+	/* virtual */ LLContextMenu* createMenu()
+	{
+		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+
+		registrar.add("Wearing.Edit", boost::bind(&edit_outfit));
+
+		return createFromFile("menu_wearing_tab.xml");
+	}
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 std::string LLPanelAppearanceTab::sFilterSubString = LLStringUtil::null;
 
@@ -49,10 +105,16 @@ LLPanelWearing::LLPanelWearing()
 	,	mIsInitialized(false)
 {
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
+
+	mGearMenu = new LLWearingGearMenu();
+	mContextMenu = new LLWearingContextMenu();
 }
 
 LLPanelWearing::~LLPanelWearing()
 {
+	delete mGearMenu;
+	delete mContextMenu;
+
 	if (gInventory.containsObserver(mCategoriesObserver))
 	{
 		gInventory.removeObserver(mCategoriesObserver);
@@ -63,6 +125,8 @@ LLPanelWearing::~LLPanelWearing()
 BOOL LLPanelWearing::postBuild()
 {
 	mCOFItemsList = getChild<LLWearableItemsList>("cof_items_list");
+	mCOFItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onWearableItemsListRightClick, this, _1, _2, _3));
+
 	return TRUE;
 }
 
@@ -106,6 +170,7 @@ void LLPanelWearing::setFilterSubString(const std::string& string)
 	mCOFItemsList->setFilterSubString(sFilterSubString);
 }
 
+// virtual
 bool LLPanelWearing::isActionEnabled(const LLSD& userdata)
 {
 	const std::string command_name = userdata.asString();
@@ -120,11 +185,30 @@ bool LLPanelWearing::isActionEnabled(const LLSD& userdata)
 	return false;
 }
 
+// virtual
+void LLPanelWearing::showGearMenu(LLView* spawning_view)
+{
+	if (!mGearMenu) return;
+	mGearMenu->show(spawning_view);
+}
+
 boost::signals2::connection LLPanelWearing::setSelectionChangeCallback(commit_callback_t cb)
 {
 	if (!mCOFItemsList) return boost::signals2::connection();
 
 	return mCOFItemsList->setCommitCallback(cb);
+}
+
+void LLPanelWearing::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
+{
+	LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(ctrl);
+	if (!list) return;
+
+	uuid_vec_t selected_uuids;
+
+	list->getSelectedUUIDs(selected_uuids);
+
+	mContextMenu->show(ctrl, selected_uuids, x, y);
 }
 
 // EOF

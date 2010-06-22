@@ -53,6 +53,7 @@
              left="1"
              multi_select="true"
              name="cof_items_list"
+             standalone="false"
              top="0"
              translate="false"
              width="310"

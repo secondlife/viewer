@@ -44,6 +44,8 @@ public:
 
 	virtual bool isActionEnabled(const LLSD& userdata) = 0;
 
+	virtual void showGearMenu(LLView* spawning_view) = 0;
+
 	static const std::string& getFilterSubString() { return sFilterSubString; }
 
 protected:

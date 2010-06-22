@@ -41,6 +41,7 @@
 
 class LLAccordionCtrlTab;
 class LLInventoryCategoriesObserver;
+class LLOutfitListGearMenu;
 class LLWearableItemsList;
 class LLListContextMenu;
 
@@ -97,6 +98,8 @@ public:
 	/*virtual*/ void setFilterSubString(const std::string& string);
 
 	/*virtual*/ bool isActionEnabled(const LLSD& userdata);
+
+	/*virtual*/ void showGearMenu(LLView* spawning_view);
 
 	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
 
@@ -196,6 +199,7 @@ private:
 	typedef outfits_map_t::value_type					outfits_map_value_t;
 	outfits_map_t					mOutfitsMap;
 
+	LLOutfitListGearMenu*			mGearMenu;
 	LLListContextMenu*				mOutfitMenu;
 
 	bool							mIsInitialized;

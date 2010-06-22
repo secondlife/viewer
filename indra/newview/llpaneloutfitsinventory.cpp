@@ -33,7 +33,6 @@
 
 #include "llpaneloutfitsinventory.h"
 
-#include "llmenugl.h"
 #include "llnotificationsutil.h"
 #include "lltabcontainer.h"
 
@@ -48,189 +47,16 @@
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "llviewerfoldertype.h"
-#include "llviewermenu.h"
 
 static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";
 static const std::string COF_TAB_NAME = "cof_tab";
 
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
-class LLPanelOutfitsInventory;
-class LLOutfitListGearMenu
-{
-public:
-	LLOutfitListGearMenu(LLOutfitsList* olist, LLPanelOutfitsInventory* parent_panel)
-	:	mOutfitList(olist),
-		mMyOutfitsPanel(parent_panel),
-		mMenu(NULL)
-	{
-		llassert_always(mOutfitList);
-
-		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-
-		registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenu::onWear, this));
-		registrar.add("Gear.TakeOff", boost::bind(&LLOutfitListGearMenu::onTakeOff, this));
-		registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenu::onRename, this));
-		registrar.add("Gear.Delete", boost::bind(&LLOutfitListGearMenu::onDelete, this));
-		registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenu::onCreate, this, _2));
-
-		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenu::onEnable, this, _2));
-		enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenu::onVisible, this, _2));
-
-		mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>(
-			"menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-		llassert(mMenu);
-	}
-
-	LLMenuGL* getMenu() { return mMenu; }
-
-	void show(LLView* spawning_view)
-	{
-		if (!mMenu) return;
-
-		updateItemsVisibility();
-		mMenu->buildDrawLabels();
-		mMenu->updateParent(LLMenuGL::sMenuContainer);
-		S32 menu_x = 0;
-		S32 menu_y = spawning_view->getRect().getHeight() + mMenu->getRect().getHeight();
-		LLMenuGL::showPopup(spawning_view, mMenu, menu_x, menu_y);
-	}
-
-	void updateItemsVisibility()
-	{
-		if (!mMenu) return;
-
-		bool have_selection = getSelectedOutfitID().notNull();
-		mMenu->setItemVisible("sepatator1", have_selection);
-		mMenu->setItemVisible("sepatator2", have_selection);
-		mMenu->arrangeAndClear(); // update menu height
-	}
-
-private:
-	const LLUUID& getSelectedOutfitID()
-	{
-		return mOutfitList->getSelectedOutfitUUID();
-	}
-
-	LLViewerInventoryCategory* getSelectedOutfit()
-	{
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.isNull())
-		{
-			return NULL;
-		}
-
-		LLViewerInventoryCategory* cat = gInventory.getCategory(selected_outfit_id);
-		return cat;
-	}
-
-	void onWear()
-	{
-		LLViewerInventoryCategory* selected_outfit = getSelectedOutfit();
-		if (selected_outfit)
-		{
-			LLAppearanceMgr::instance().wearInventoryCategory(
-				selected_outfit, /*copy=*/ FALSE, /*append=*/ FALSE);
-		}
-	}
-
-	void onTakeOff()
-	{
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.notNull())
-		{
-			LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
-		}
-	}
-
-	void onRename()
-	{
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.notNull())
-		{
-			LLAppearanceMgr::instance().renameOutfit(selected_outfit_id);
-		}
-	}
-
-	void onDelete()
-	{
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.notNull())
-		{
-			remove_category(&gInventory, selected_outfit_id);
-		}
-	}
-
-	void onCreate(const LLSD& data)
-	{
-		LLWearableType::EType type = LLWearableType::typeNameToType(data.asString());
-		if (type == LLWearableType::WT_NONE)
-		{
-			llwarns << "Invalid wearable type" << llendl;
-			return;
-		}
-
-		LLAgentWearables::createWearable(type, true);
-	}
-
-	bool onEnable(LLSD::String param)
-	{
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.isNull()) // no selection or invalid outfit selected
-		{
-			return false;
-		}
-
-		if ("rename" == param)
-		{
-			return get_is_category_renameable(&gInventory, selected_outfit_id);
-		}
-		else if ("delete" == param)
-		{
-			return LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit_id);
-		}
-		else if ("take_off" == param)
-		{
-			return LLAppearanceMgr::getCanRemoveFromCOF(selected_outfit_id);
-		}
-		else if ("wear" == param)
-		{
-			return mMyOutfitsPanel->isActionEnabled(param);
-		}
-
-
-		return true;
-	}
-
-	bool onVisible(LLSD::String param)
-	{
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.isNull()) // no selection or invalid outfit selected
-		{
-			return false;
-		}
-
-		bool is_worn = LLAppearanceMgr::instance().getBaseOutfitUUID() == selected_outfit_id;
-
-		if ("wear" == param)
-		{
-			return !is_worn;
-		}
-
-		return true;
-	}
-
-	LLOutfitsList*	mOutfitList;
-	LLMenuGL*		mMenu;
-	LLPanelOutfitsInventory* mMyOutfitsPanel;
-};
-
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),
 	mCurrentOutfitPanel(NULL),
 	mActivePanel(NULL),
-	mGearMenu(NULL),
 	mInitialized(false)
 {
 	gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
@@ -244,7 +70,6 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 {
-	delete mGearMenu;
 }
 
 // virtual
@@ -417,8 +242,6 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::showGearMenu, this));
 	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
-
-	mGearMenu = new LLOutfitListGearMenu(mMyOutfitsPanel, this);
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -428,9 +251,6 @@ void LLPanelOutfitsInventory::updateListCommands()
 	bool wear_visible = !isCOFPanelActive();
 	bool make_outfit_enabled = isActionEnabled("save_outfit");
 
-	// *TODO: Enable gear menu for Wearing tab.
-	childSetEnabled("options_gear_btn", wear_visible);
-
 	mListCommands->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
 	mListCommands->childSetVisible("wear_btn", wear_visible);
@@ -439,10 +259,10 @@ void LLPanelOutfitsInventory::updateListCommands()
 
 void LLPanelOutfitsInventory::showGearMenu()
 {
-	if (!mGearMenu) return;
+	if (!mActivePanel) return;
 
 	LLView* spawning_view = getChild<LLView>("options_gear_btn");
-	mGearMenu->show(spawning_view);
+	mActivePanel->showGearMenu(spawning_view);
 }
 
 void LLPanelOutfitsInventory::onTrashButtonClick()
@@ -456,8 +276,6 @@ void LLPanelOutfitsInventory::onTrashButtonClick()
 bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 {
 	return mActivePanel && mActivePanel->isActionEnabled(userdata);
-		if (gAgentWearables.isCOFChangeInProgress()) return FALSE;
-
 }
 // List Commands                                                                //
 //////////////////////////////////////////////////////////////////////////////////

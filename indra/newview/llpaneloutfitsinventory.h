@@ -88,9 +88,6 @@ private:
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// List Commands                                                                //
-public:
-	BOOL isActionEnabled(const LLSD& command_name);
-
 protected:
 	void initListCommandsHandlers();
 	void updateListCommands();
@@ -103,7 +100,6 @@ protected:
 	void onWearablesLoading();
 private:
 	LLPanel*					mListCommands;
-	LLOutfitListGearMenu*		mGearMenu;
 	LLMenuGL*					mMenuAdd;
 	// List Commands                                                                //
 	//////////////////////////////////////////////////////////////////////////////////
