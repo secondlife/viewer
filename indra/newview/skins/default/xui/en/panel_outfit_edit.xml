@@ -168,7 +168,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
         <layout_panel
          layout="topleft"
          height="187"
-         min_height="100"
+         min_height="155"
          name="outfit_wearables_panel"
          width="313"
          auto_resize="true"
@@ -293,7 +293,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          auto_resize="true"
          default_tab_group="3"
          height="450"
-         min_height="210"
+         min_height="53"
          name="add_wearables_panel"
          width="313"
          tab_group="2"
@@ -459,7 +459,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          label=""
          layout="topleft"
          left_pad="1"
-         name="add_to_outfit_btn"
+         name="plus_btn"
          top="1"
          width="31" />
         <icon

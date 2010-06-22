@@ -38,6 +38,7 @@
 
 // newview
 #include "llinventoryitemslist.h"
+#include "llinventorylistitem.h"
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llwearabletype.h"
@@ -87,7 +88,7 @@ public:
 	 * Updates item name and (worn) suffix.
 	 */
 	/*virtual*/ void updateItem(const std::string& name,
-								const LLStyle::Params& input_params = LLStyle::Params());
+								EItemState item_state = IS_DEFAULT);
 
 protected:
 	LLPanelWearableOutfitItem(LLViewerInventoryItem* item);
@@ -124,9 +125,8 @@ public:
 	virtual ~LLPanelAttachmentListItem() {};
 
 	/** Set item title. Joint name is added to the title in parenthesis */
-	/*virtual*/ void setTitle(const std::string& title,
-							  const std::string& highlit_text,
-							  const LLStyle::Params& input_params = LLStyle::Params());
+	/*virtual*/ void updateItem(const std::string& name,
+								EItemState item_state = IS_DEFAULT);
 
 protected:
 	LLPanelAttachmentListItem(LLViewerInventoryItem* item) : LLPanelDeletableWearableListItem(item) {};

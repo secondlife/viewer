@@ -13,7 +13,7 @@
 	</text>
 	<check_box label="制作・編集" name="edit_camera_movement" tool_tip="編集モードのオン・オフの切り替えに、自動カメラポジションを使います"/>
 	<check_box label="容姿" name="appearance_camera_movement" tool_tip="編集モードに入ったときに、自動カメラポジションを使います"/>
-	<check_box label="サイドバー" name="appearance_sidebar_positioning" tool_tip="サイドバーの切り替え時に自動カメラポジションを使います"/>
+	<check_box initial_value="true" label="サイドバー" name="appearance_sidebar_positioning" tool_tip="サイドバーの切り替え時に自動カメラポジションを使います"/>
 	<check_box label="一人称視点で表示する" name="first_person_avatar_visible"/>
 	<check_box label="常にキー操作で動くようにする" name="arrow_keys_move_avatar_check"/>
 	<check_box label="上矢印キー2度押し+長押しで走る" name="tap_tap_hold_to_run"/>

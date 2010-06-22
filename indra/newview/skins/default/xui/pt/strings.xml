@@ -104,7 +104,7 @@
 		A cadeia de certificados do servidor tinha certificados demais.  Por favor contate o administrador do Grid.
 	</string>
 	<string name="CertInvalidSignature">
-		A assinatura do certificado dado pelo servidor do Grid não pôde ser verificada.  Por favor contate o administrador do Grid.
+		A assinatura do certificado dado pelo servidor do Grid não pôde ser verificada.  Contate o administrador do seu Grid.
 	</string>
 	<string name="LoginFailedNoNetwork">
 		Erro de rede: Não foi possível estabelecer a conexão, verifique sua conexão de rede.
@@ -732,6 +732,12 @@
 	<string name="land_type_unknown">
 		(desconhecido)
 	</string>
+	<string name="Estate / Full Region">
+		Propriedadade / Região inteira:
+	</string>
+	<string name="Mainland / Full Region">
+		Continente / Região inteira:
+	</string>
 	<string name="all_files">
 		Todos os arquivos
 	</string>
@@ -875,6 +881,9 @@
 	</string>
 	<string name="NewWearable">
 		Novo [WEARABLE_ITEM]
+	</string>
+	<string name="CreateNewWearable">
+		Criar [WEARABLE_TYPE]
 	</string>
 	<string name="next">
 		Próximo
@@ -3447,6 +3456,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="session_initialization_timed_out_error">
 		A inicialização da sessão expirou
 	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] lhe pagou L$ [AMOUNT]
 	</string>
@@ -3617,17 +3629,17 @@ Denunciar abuso
 	<string name="Male - Wow">
 		Wow - masculino
 	</string>
-	<string name="FeMale - Excuse me">
-		Perdão - masc/fem
+	<string name="Female - Excuse me">
+		Perdão - fem
 	</string>
-	<string name="FeMale - Get lost">
+	<string name="Female - Get lost">
 		Deixe-me em paz - feminino
 	</string>
-	<string name="FeMale - Blow kiss">
-		Mandar beijo - masc/fem
+	<string name="Female - Blow kiss">
+		Mandar beijo - fem
 	</string>
-	<string name="FeMale - Boo">
-		Vaia - masc/fem
+	<string name="Female - Boo">
+		Vaia - fem
 	</string>
 	<string name="Female - Bored">
 		Maçante - feminino
@@ -3658,5 +3670,33 @@ Denunciar abuso
 	</string>
 	<string name="texture_load_dimensions_error">
 		A imagem excede o limite [WIDTH]*[HEIGHT]
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		Aconteceu algo inesperado, apesar de termos tentador impedir isso.
+
+	Cheque secondlifegrid.net para saber se foi detectado um problema com o serviço.   
+        Se o problema persisitr, cheque a configuração da sua rede e firewall.
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		Domingo:Segunda:Terça:Quarta:Quinta:Sexta:Sábado
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		Dom:Seg:Ter:Qua:Qui:Sex:Sab
+	</string>
+	<string name="dateTimeMonthNames">
+		Janeiro:Fevereiro:Março:Abril:Maio:Junho:Julho:Agosto:Setembro:Outubro:Novembro:Dezembro
+	</string>
+	<string name="dateTimeMonthShortNames">
+		Jan:Fev:Mar:Abr:Maio:Jun:Jul:Ago:Set:Out:Nov:Dez
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		AM
+	</string>
+	<string name="dateTimePM">
+		PM
 	</string>
 </strings>

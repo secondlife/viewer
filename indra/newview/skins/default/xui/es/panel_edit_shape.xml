@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_shape_panel">
-	<text name="avatar_height">
-		[HEIGHT] metros de alto
-	</text>
+	<string name="meters">
+		Metros
+	</string>
+	<string name="feet">
+		Pies
+	</string>
+	<string name="height">
+		Altura:
+	</string>
+	<text name="avatar_height"/>
 	<panel label="Camisa" name="accordion_panel">
 		<accordion name="wearable_accordion">
 			<accordion_tab name="shape_body_tab" title="Cuerpo"/>
