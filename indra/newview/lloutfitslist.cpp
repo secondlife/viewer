@@ -288,6 +288,9 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		// Setting tab focus callback to monitor currently selected outfit.
 		tab->setFocusReceivedCallback(boost::bind(&LLOutfitsList::changeOutfitSelection, this, list, cat_id));
 
+		// Setting callback to reset items selection inside outfit on accordion collapsing and expanding (EXT-7875)
+		tab->setDropDownStateChangedCallback(boost::bind(&LLOutfitsList::resetItemSelection, this, list, cat_id));
+
 		// Setting list commit callback to monitor currently selected wearable item.
 		list->setCommitCallback(boost::bind(&LLOutfitsList::onSelectionChange, this, _1));
 
@@ -484,6 +487,13 @@ void LLOutfitsList::updateOutfitTab(const LLUUID& category_id)
 			tab->setTitle(name);
 		}
 	}
+}
+
+void LLOutfitsList::resetItemSelection(LLWearableItemsList* list, const LLUUID& category_id)
+{
+	list->resetSelection();
+	mItemSelected = false;
+	setSelectedOutfitUUID(category_id);
 }
 
 void LLOutfitsList::changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
