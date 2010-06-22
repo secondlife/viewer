@@ -117,7 +117,7 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
 {
 	std::string search_label = name;
 
-	if (mItem && get_is_item_worn(mItem->getUUID()))
+	if (get_is_item_worn(mInventoryItemUUID))
 	{
 		search_label += LLTrans::getString("worn");
 		item_state = IS_WORN;
@@ -268,9 +268,10 @@ void LLPanelAttachmentListItem::updateItem(const std::string& name,
 {
 	std::string title_joint;
 
-	if (mItem && isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(mItem->getLinkedUUID()))
+	LLViewerInventoryItem* inv_item = getItem();
+	if (inv_item && isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(inv_item->getLinkedUUID()))
 	{
-		std::string joint = LLTrans::getString(gAgentAvatarp->getAttachedPointName(mItem->getLinkedUUID()));
+		std::string joint = LLTrans::getString(gAgentAvatarp->getAttachedPointName(inv_item->getLinkedUUID()));
 		title_joint = name + " (" + joint + ")";
 	}
 
@@ -501,6 +502,9 @@ void LLWearableItemsList::updateList(const LLUUID& category_id)
 
 void LLWearableItemsList::updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids)
 {
+	// nothing to update
+	if (changed_items_uuids.empty()) return;
+
 	typedef std::vector<LLPanel*> item_panel_list_t;
 
 	item_panel_list_t items;
@@ -525,6 +529,7 @@ void LLWearableItemsList::updateChangedItems(const LLInventoryModel::changed_ite
 			if (linked_uuid == *iter)
 			{
 				item->setNeedsRefresh(true);
+				break;
 			}
 		}
 	}

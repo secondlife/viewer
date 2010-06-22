@@ -147,7 +147,7 @@ public:
 	const std::string& getDescription() const;
 
 	/** Get the associated inventory item */
-	LLViewerInventoryItem* getItem() const { return mItem; }
+	LLViewerInventoryItem* getItem() const;
 
 	virtual ~LLPanelInventoryListItemBase(){}
 
@@ -200,7 +200,7 @@ protected:
 	 */
 	virtual BOOL handleToolTip( S32 x, S32 y, MASK mask);
 
-	LLViewerInventoryItem* mItem;
+	const LLUUID mInventoryItemUUID;
 
 private:
 

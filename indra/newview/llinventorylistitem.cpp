@@ -42,6 +42,7 @@
 #include "lltextutil.h"
 
 // newview
+#include "llinventorymodel.h"
 #include "llviewerinventory.h"
 
 static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelInventoryListItemBaseParams(&typeid(LLPanelInventoryListItemBase::Params), "inventory_list_item");
@@ -68,9 +69,10 @@ void LLPanelInventoryListItemBase::draw()
 {
 	if (getNeedsRefresh())
 	{
-		if (mItem)
+		LLViewerInventoryItem* inv_item = getItem();
+		if (inv_item)
 		{
-			updateItem(mItem->getName());
+			updateItem(inv_item->getName());
 		}
 		setNeedsRefresh(false);
 	}
@@ -135,10 +137,11 @@ BOOL LLPanelInventoryListItemBase::postBuild()
 	setIconCtrl(getChild<LLIconCtrl>("item_icon"));
 	setTitleCtrl(getChild<LLTextBox>("item_name"));
 
-	if (mItem)
+	LLViewerInventoryItem* inv_item = getItem();
+	if (inv_item)
 	{
-		mIconImage = LLInventoryIcon::getIcon(mItem->getType(), mItem->getInventoryType(), mItem->getFlags(), FALSE);
-		updateItem(mItem->getName());
+		mIconImage = LLInventoryIcon::getIcon(inv_item->getType(), inv_item->getInventoryType(), inv_item->getFlags(), FALSE);
+		updateItem(inv_item->getName());
 	}
 
 	setNeedsRefresh(true);
@@ -170,38 +173,47 @@ void LLPanelInventoryListItemBase::onMouseLeave(S32 x, S32 y, MASK mask)
 
 const std::string& LLPanelInventoryListItemBase::getItemName() const
 {
-	if (!mItem)
+	LLViewerInventoryItem* inv_item = getItem();
+	if (NULL == inv_item)
 	{
 		return LLStringUtil::null;
 	}
-	return mItem->getName();
+	return inv_item->getName();
 }
 
 LLAssetType::EType LLPanelInventoryListItemBase::getType() const
 {
-	if (!mItem)
+	LLViewerInventoryItem* inv_item = getItem();
+	if (NULL == inv_item)
 	{
 		return LLAssetType::AT_NONE;
 	}
-	return mItem->getType();
+	return inv_item->getType();
 }
 
 LLWearableType::EType LLPanelInventoryListItemBase::getWearableType() const
 {
-	if (!mItem)
+	LLViewerInventoryItem* inv_item = getItem();
+	if (NULL == inv_item)
 	{
 		return LLWearableType::WT_NONE;
 	}
-	return mItem->getWearableType();
+	return inv_item->getWearableType();
 }
 
 const std::string& LLPanelInventoryListItemBase::getDescription() const
 {
-	if (!mItem)
+	LLViewerInventoryItem* inv_item = getItem();
+	if (NULL == inv_item)
 	{
 		return LLStringUtil::null;
 	}
-	return mItem->getDescription();
+	return inv_item->getDescription();
+}
+
+LLViewerInventoryItem* LLPanelInventoryListItemBase::getItem() const
+{
+	return gInventory.getItem(mInventoryItemUUID);
 }
 
 S32 LLPanelInventoryListItemBase::notify(const LLSD& info)
@@ -234,7 +246,7 @@ S32 LLPanelInventoryListItemBase::notify(const LLSD& info)
 
 LLPanelInventoryListItemBase::LLPanelInventoryListItemBase(LLViewerInventoryItem* item)
 : LLPanel()
-, mItem(item)
+, mInventoryItemUUID(item ? item->getUUID() : LLUUID::null)
 , mIconCtrl(NULL)
 , mTitleCtrl(NULL)
 , mWidgetSpacing(WIDGET_SPACING)
