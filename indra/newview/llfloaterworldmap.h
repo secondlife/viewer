@@ -123,7 +123,7 @@ protected:
 	void		    onAvatarComboCommit();
 
 	void			onComboTextEntry( );
-	void			onSearchTextEntry( LLLineEditor* ctrl );
+	void			onSearchTextEntry( );
 
 	void			onClearBtn();
 	void			onClickTeleportBtn();

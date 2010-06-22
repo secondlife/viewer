@@ -184,8 +184,6 @@ BOOL LLStatusBar::postBuild()
 	mTextHealth = getChild<LLTextBox>("HealthText" );
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
-	getChild<LLUICtrl>("buycurrency")->setCommitCallback( 
-		boost::bind(&LLStatusBar::onClickBuyCurrency, this));
 	getChild<LLUICtrl>("buyL")->setCommitCallback(
 		boost::bind(&LLStatusBar::onClickBuyCurrency, this));
 

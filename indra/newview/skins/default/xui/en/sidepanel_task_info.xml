@@ -219,7 +219,6 @@
 			 left_pad="0"
 			 top_delta="0"
 			 name="button set group"
-			 picture_style="true"
 			 tab_stop="false"
 			 tool_tip="Choose a group to share this object's permissions"
 			 width="10" />

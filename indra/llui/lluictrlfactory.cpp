@@ -222,7 +222,7 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		floaterp->getCommitCallbackRegistrar().pushScope();
 		floaterp->getEnableCallbackRegistrar().pushScope();
 		
-		res = floaterp->initFloaterXML(root, floaterp->getParent(), output_node);
+		res = floaterp->initFloaterXML(root, floaterp->getParent(), filename, output_node);
 
 		floaterp->setXMLFilename(filename);
 		

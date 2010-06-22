@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-	 auto_tile="true"
 	 height="570"
 	 layout="topleft"
 	 name="item properties"
 	 help_topic="item_properties"
-	 save_rect="true"
 	 title="Object Profile"
 	 width="333">
 	<panel.string

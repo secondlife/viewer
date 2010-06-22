@@ -843,9 +843,6 @@ BOOL LLPanelMyProfile::postBuild()
 {
 	LLPanelAvatarProfile::postBuild();
 
-	mStatusCombobox = getChild<LLComboBox>("status_combo");
-
-	childSetCommitCallback("status_combo", boost::bind(&LLPanelMyProfile::onStatusChanged, this), NULL);
 	childSetCommitCallback("status_me_message_text", boost::bind(&LLPanelMyProfile::onStatusMessageChanged, this), NULL);
 
 	resetControls();
@@ -865,28 +862,7 @@ void LLPanelMyProfile::processProfileProperties(const LLAvatarData* avatar_data)
 
 	fillPartnerData(avatar_data);
 
-	fillStatusData(avatar_data);
-
 	fillAccountStatus(avatar_data);
-}
-
-void LLPanelMyProfile::fillStatusData(const LLAvatarData* avatar_data)
-{
-	std::string status;
-	if (gAgent.getAFK())
-	{
-		status = "away";
-	}
-	else if (gAgent.getBusy())
-	{
-		status = "busy";
-	}
-	else
-	{
-		status = "online";
-	}
-
-	mStatusCombobox->setValue(status);
 }
 
 void LLPanelMyProfile::resetControls()
@@ -899,27 +875,6 @@ void LLPanelMyProfile::resetControls()
 	childSetVisible("profile_me_buttons_panel", true);
 }
 
-void LLPanelMyProfile::onStatusChanged()
-{
-	LLSD::String status = mStatusCombobox->getValue().asString();
-
-	if ("online" == status)
-	{
-		gAgent.clearAFK();
-		gAgent.clearBusy();
-	}
-	else if ("away" == status)
-	{
-		gAgent.clearBusy();
-		gAgent.setAFK();
-	}
-	else if ("busy" == status)
-	{
-		gAgent.clearAFK();
-		gAgent.setBusy();
-		LLNotificationsUtil::add("BusyModeSet");
-	}
-}
 
 void LLPanelMyProfile::onStatusMessageChanged()
 {

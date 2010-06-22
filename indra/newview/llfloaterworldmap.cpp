@@ -56,7 +56,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "lllandmarklist.h"
-#include "lllineeditor.h"
+#include "llsearcheditor.h"
 #include "llnotificationsutil.h"
 #include "llregionhandle.h"
 #include "llscrolllistctrl.h"
@@ -229,30 +229,20 @@ BOOL LLFloaterWorldMap::postBuild()
 	mPanel = getChild<LLPanel>("objects_mapview");
 
 	LLComboBox *avatar_combo = getChild<LLComboBox>("friend combo");
-	if (avatar_combo)
-	{
-		avatar_combo->selectFirstItem();
-		avatar_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onAvatarComboPrearrange, this) );
-		avatar_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
-	}
+	avatar_combo->selectFirstItem();
+	avatar_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onAvatarComboPrearrange, this) );
+	avatar_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
 
-	getChild<LLScrollListCtrl>("location")->setFocusChangedCallback(boost::bind(&LLFloaterWorldMap::onLocationFocusChanged, this, _1));
-
-	LLLineEditor *location_editor = getChild<LLLineEditor>("location");
-	if (location_editor)
-	{
-		location_editor->setKeystrokeCallback( boost::bind(&LLFloaterWorldMap::onSearchTextEntry, this, _1), NULL );
-	}
+	LLSearchEditor *location_editor = getChild<LLSearchEditor>("location");
+	location_editor->setFocusChangedCallback(boost::bind(&LLFloaterWorldMap::onLocationFocusChanged, this, _1));
+	location_editor->setKeystrokeCallback( boost::bind(&LLFloaterWorldMap::onSearchTextEntry, this));
 	
 	getChild<LLScrollListCtrl>("search_results")->setDoubleClickCallback( boost::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));
 
 	LLComboBox *landmark_combo = getChild<LLComboBox>( "landmark combo");
-	if (landmark_combo)
-	{
-		landmark_combo->selectFirstItem();
-		landmark_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onLandmarkComboPrearrange, this) );
-		landmark_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
-	}
+	landmark_combo->selectFirstItem();
+	landmark_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onLandmarkComboPrearrange, this) );
+	landmark_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
 
 	mCurZoomVal = log(LLWorldMapView::sMapScale)/log(2.f);
 	childSetValue("zoom slider", LLWorldMapView::sMapScale);
@@ -1003,7 +993,7 @@ void LLFloaterWorldMap::onComboTextEntry()
 	LLTracker::clearFocus();
 }
 
-void LLFloaterWorldMap::onSearchTextEntry( LLLineEditor* ctrl )
+void LLFloaterWorldMap::onSearchTextEntry( )
 {
 	onComboTextEntry();
 	updateSearchEnabled();
