@@ -13,7 +13,7 @@
 	<string name="Filter.All" value="Todos"/>
 	<string name="Filter.Clothes/Body" value="Ropas/Cuerpo"/>
 	<string name="Filter.Objects" value="Objetos"/>
-	<button label="editar" name="edit_wearable_btn"/>
+	<string name="Filter.Custom" value="Filtro personalizado"/>
 	<text name="title" value="Editar el vestuario"/>
 	<panel label="bottom_panel" name="header_panel">
 		<panel label="bottom_panel" name="outfit_name_and_status">
@@ -23,20 +23,16 @@
 	</panel>
 	<layout_stack name="im_panels">
 		<layout_panel label="Panel de control de los MI" name="outfit_wearables_panel">
-			<panel label="bottom_panel" name="edit_panel"/>
-		</layout_panel>
-		<layout_panel name="add_wearables_panel">
-			<text name="add_to_outfit_label" value="Añadir a vestuario:"/>
 			<layout_stack name="filter_panels">
-				<layout_panel label="Panel de control de MI" name="filter_panel">
-					<filter_editor label="Filtrar" name="look_item_filter"/>
+				<layout_panel name="add_button_and_combobox">
+					<button label="Añadir más..." name="show_add_wearables_btn"/>
+				</layout_panel>
+				<layout_panel name="filter_panel">
+					<filter_editor label="Filtrar artículos del inventario" name="look_item_filter"/>
 				</layout_panel>
 			</layout_stack>
-			<panel label="add_wearables_button_bar" name="add_wearables_button_bar">
-				<button label="C" name="folder_view_btn"/>
-				<button label="L" name="list_view_btn"/>
-			</panel>
 		</layout_panel>
+		<layout_panel name="add_wearables_panel"/>
 	</layout_stack>
 	<panel name="save_revert_button_bar">
 		<button label="Guardar" name="save_btn"/>

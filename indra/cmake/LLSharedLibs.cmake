@@ -5,20 +5,21 @@ macro(ll_deploy_sharedlibs_command target_exe)
   get_filename_component(OUTPUT_PATH ${TARGET_LOCATION} PATH)
   
   if(DARWIN)
-	set(SEARCH_DIRS "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources")
+    SET_TEST_PATH(SEARCH_DIRS)
     get_target_property(IS_BUNDLE ${target_exe} MACOSX_BUNDLE)
     if(IS_BUNDLE)
-	  # If its a bundle the exe is not in the target location, this should find it.
+      # If its a bundle the exe is not in the target location, this should find it.
       get_filename_component(TARGET_FILE ${TARGET_LOCATION} NAME)
       set(OUTPUT_PATH ${TARGET_LOCATION}.app/Contents/MacOS)
       set(TARGET_LOCATION ${OUTPUT_PATH}/${TARGET_FILE})
-	  set(OUTPUT_PATH ${OUTPUT_PATH}/../Resources)
+      set(OUTPUT_PATH ${OUTPUT_PATH}/../Resources)
     endif(IS_BUNDLE)
   elseif(WINDOWS)
-    set(SEARCH_DIRS "${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}" "$ENV{SystemRoot}/system32")
+    SET_TEST_PATH(SEARCH_DIRS)
+    LIST(APPEND SEARCH_DIRS "$ENV{SystemRoot}/system32")
   elseif(LINUX)
-	set(SEARCH_DIRS "${SHARED_LIB_STAGING_DIR}")
-	set(OUTPUT_PATH ${OUTPUT_PATH}/lib)
+    SET_TEST_PATH(SEARCH_DIRS)
+    set(OUTPUT_PATH ${OUTPUT_PATH}/lib)
   endif(DARWIN)
 
   add_custom_command(
@@ -49,7 +50,7 @@ macro(ll_stage_sharedlib DSO_TARGET)
       else(DARWIN)
         set(SHARED_LIB_STAGING_DIR_CONFIG ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
       endif(DARWIN)
-	  
+
       # *TODO - maybe make this a symbolic link? -brad
       add_custom_command(
         TARGET ${DSO_TARGET} POST_BUILD

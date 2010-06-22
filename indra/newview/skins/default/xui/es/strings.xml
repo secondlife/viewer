@@ -95,7 +95,7 @@
 		El nombre de host utilizado para acceder al servidor no es válido. Comprueba tu SLURL o el nombre de host de la cuadrícula.
 	</string>
 	<string name="CertExpired">
-		Parece que el certificado que devolvió la cuadrícula está caducado. Comprueba el reloj del sistema o consulta al administrador de la cuadrícula.
+		Parece que el certificado que devolvió la cuadrícula está caducado.  Comprueba el reloj del sistema o consulta al administrador de la cuadrícula.
 	</string>
 	<string name="CertKeyUsage">
 		El certificado que devolvió el servidor no puede utilizarse para SSL. Ponte en contacto con el administrador de la cuadrícula.
@@ -732,6 +732,12 @@
 	<string name="land_type_unknown">
 		(desconocido)
 	</string>
+	<string name="Estate / Full Region">
+		Estado /Región completa
+	</string>
+	<string name="Mainland / Full Region">
+		Continente / Región completa
+	</string>
 	<string name="all_files">
 		Todos los archivos
 	</string>
@@ -875,6 +881,9 @@
 	</string>
 	<string name="NewWearable">
 		Nuevo [WEARABLE_ITEM]
+	</string>
+	<string name="CreateNewWearable">
+		Crear [WEARABLE_TYPE]
 	</string>
 	<string name="next">
 		Siguiente
@@ -3448,6 +3457,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="session_initialization_timed_out_error">
 		Se ha agotado el tiempo del inicio de sesión
 	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] te ha pagado [AMOUNT] L$
 	</string>
@@ -3618,16 +3630,16 @@ Denuncia de infracción
 	<string name="Male - Wow">
 		Varón - Admiración
 	</string>
-	<string name="FeMale - Excuse me">
+	<string name="Female - Excuse me">
 		Mujer - Disculpa
 	</string>
-	<string name="FeMale - Get lost">
+	<string name="Female - Get lost">
 		Mujer – Déjame en paz
 	</string>
-	<string name="FeMale - Blow kiss">
+	<string name="Female - Blow kiss">
 		Mujer - Lanzar un beso
 	</string>
-	<string name="FeMale - Boo">
+	<string name="Female - Boo">
 		Mujer - Abucheo
 	</string>
 	<string name="Female - Bored">
@@ -3659,5 +3671,33 @@ Denuncia de infracción
 	</string>
 	<string name="texture_load_dimensions_error">
 		No se puede subir imágenes mayores de [WIDTH]*[HEIGHT]
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		Parece que hay algún problema que ha escapado a nuestros controles.
+
+	Visita status.secondlifegrid.net para ver si hay alguna incidencia conocida que esté afectando al servicio.  
+        Si sigues teniendo problemas, comprueba la configuración de la red y del servidor de seguridad.
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		Domingo:Lunes:Martes:Miércoles:Jueves:Viernes:Sábado
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		Dom:Lun:Mar:Mié:Jue:Vie:Sáb
+	</string>
+	<string name="dateTimeMonthNames">
+		Enero:Febrero:Marzo:Abril:Mayo:Junio:Julio:Agosto:Septiembre:Octubre:Noviembre:Diciembre
+	</string>
+	<string name="dateTimeMonthShortNames">
+		Ene:Feb:Mar:Abr:May:Jun:Jul:Ago:Sep:Oct:Nov:Dic
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		AM
+	</string>
+	<string name="dateTimePM">
+		PM
 	</string>
 </strings>

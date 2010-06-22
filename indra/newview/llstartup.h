@@ -93,6 +93,8 @@ public:
 	// Load default fonts not already loaded at start screen
 	static void fontInit();
 
+	static void copyLibraryGestures(const std::string& same_gender_gestures);
+
 	// outfit_folder_name can be a folder anywhere in your inventory, 
 	// but the name must be a case-sensitive exact match.
 	// gender_name is either "male" or "female"

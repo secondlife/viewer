@@ -8,8 +8,8 @@
 		Por [CREATOR]
 	</string>
 	<string name="CreatorAndOwner">
-		por [CREATOR]
-propietario [OWNER]
+		Por [CREATOR]
+Propietario [OWNER]
 	</string>
 	<string name="Price">
 		[AMOUNT] L$
@@ -23,6 +23,13 @@ propietario [OWNER]
 	<string name="Sit">
 		Sentarme
 	</string>
+	<text name="object_name" value="Test Object Name That Is actually two lines and Really Long"/>
+	<text name="price_text">
+		30.000 L$
+	</text>
+	<text name="object_description">
+		This is a really long description for an object being as how it is at least 80 characters in length and so but maybe more like 120 at this point. Who knows, really?
+	</text>
 	<button label="Comprar" name="buy_btn"/>
 	<button label="Pagar" name="pay_btn"/>
 	<button label="Coger una copia" name="take_free_copy_btn"/>

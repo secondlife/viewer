@@ -139,6 +139,8 @@ void LLGestureMgr::activateGesture(const LLUUID& item_id)
 {
 	LLViewerInventoryItem* item = gInventory.getItem(item_id);
 	if (!item) return;
+	if (item->getType() != LLAssetType::AT_GESTURE)
+		return;
 
 	LLUUID asset_id = item->getAssetUUID();
 

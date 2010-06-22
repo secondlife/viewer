@@ -47,6 +47,7 @@
 
 extern "C" {
 #include <glib.h>
+#include <glib-object.h>
 
 #include <pulse/introspect.h>
 #include <pulse/context.h>
@@ -219,6 +220,10 @@ void VolumeCatcherImpl::init()
 	// we do this sort of thing a lot with practically identical logic...
 	mGotSyms = loadsyms("libpulse-mainloop-glib.so.0");
 	if (!mGotSyms) return;
+
+	// better make double-sure glib itself is initialized properly.
+	if (!g_thread_supported ()) g_thread_init (NULL);
+	g_type_init();
 
 	mMainloop = llpa_glib_mainloop_new(g_main_context_default());
 	if (mMainloop)

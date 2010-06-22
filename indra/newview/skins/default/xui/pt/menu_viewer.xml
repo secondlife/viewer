@@ -11,6 +11,7 @@
 		<menu_item_check label="Meu inventário" name="Inventory"/>
 		<menu_item_check label="Meu inventário" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Meus gestos" name="Gestures"/>
+		<menu_item_check label="Minha voz" name="ShowVoice"/>
 		<menu label="Meu status" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
@@ -70,6 +71,12 @@
 		<menu_item_call label="Link" name="Link"/>
 		<menu_item_call label="Desconectar links" name="Unlink"/>
 		<menu_item_check label="Edit Linked Parts" name="Edit Linked Parts"/>
+		<menu label="Selecionar partes conectadas" name="Select Linked Parts">
+			<menu_item_call label="Selecionar próxima parte" name="Select Next Part"/>
+			<menu_item_call label="Selecionar parte anterior" name="Select Previous Part"/>
+			<menu_item_call label="Incluir próxima parte" name="Include Next Part"/>
+			<menu_item_call label="Incluir parte anterior" name="Include Previous Part"/>
+		</menu>
 		<menu_item_call label="Enfocar seleção" name="Focus on Selection"/>
 		<menu_item_call label="Ampliar seleção" name="Zoom to Selection"/>
 		<menu label="Objeto:" name="Object">
@@ -100,11 +107,11 @@
 			<menu_item_call label="Usar seleção em grade" name="Use Selection for Grid"/>
 			<menu_item_call label="Opções de grade" name="Grid Options"/>
 		</menu>
-		<menu label="Selecionar partes conectadas" name="Select Linked Parts">
-			<menu_item_call label="Selecionar próxima parte" name="Select Next Part"/>
-			<menu_item_call label="Selecionar parte anterior" name="Select Previous Part"/>
-			<menu_item_call label="Incluir próxima parte" name="Include Next Part"/>
-			<menu_item_call label="Incluir parte anterior" name="Include Previous Part"/>
+		<menu label="Upload" name="Upload">
+			<menu_item_call label="Imagem (L$[COST])..." name="Upload Image"/>
+			<menu_item_call label="Som (L$[COST])..." name="Upload Sound"/>
+			<menu_item_call label="Animação (L$[COST])..." name="Upload Animation"/>
+			<menu_item_call label="Volume (L$[COST] por arquivo)..." name="Bulk Upload"/>
 		</menu>
 	</menu>
 	<menu label="Ajuda" name="Help">

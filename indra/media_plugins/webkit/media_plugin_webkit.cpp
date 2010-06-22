@@ -46,6 +46,10 @@
 // set to 1 if you're using the version of llqtwebkit that's QPixmap-ified
 #if LL_LINUX
 # define LL_QTWEBKIT_USES_PIXMAPS 0
+extern "C" {
+# include <glib.h>
+# include <glib-object.h>
+}
 #else
 # define LL_QTWEBKIT_USES_PIXMAPS 0
 #endif // LL_LINUX
@@ -60,7 +64,7 @@
 #endif
 
 #if LL_WINDOWS
-	// *NOTE:Mani - This captures the module handle fo rthe dll. This is used below
+	// *NOTE:Mani - This captures the module handle for the dll. This is used below
 	// to get the path to this dll for webkit initialization.
 	// I don't know how/if this can be done with apr...
 	namespace {	HMODULE gModuleHandle;};
@@ -129,6 +133,16 @@ private:
 	//
 	void update(int milliseconds)
 	{
+#if LL_QTLINUX_DOESNT_HAVE_GLIB
+		// pump glib generously, as Linux browser plugins are on the
+		// glib main loop, even if the browser itself isn't - ugh
+		// This is NOT NEEDED if Qt itself was built with glib
+		// mainloop integration.
+		GMainContext *mainc = g_main_context_default();
+		while(g_main_context_iteration(mainc, FALSE));
+#endif // LL_QTLINUX_DOESNT_HAVE_GLIB
+
+		// pump qt
 		LLQtWebKit::getInstance()->pump( milliseconds );
 		
 		mVolumeCatcher.pump();
@@ -199,6 +213,14 @@ private:
 			return false;
 		}
 		std::string application_dir = std::string( cwd );
+
+#if LL_LINUX
+		// take care to initialize glib properly, because some
+		// versions of Qt don't, and we indirectly need it for (some
+		// versions of) Flash to not crash the browser.
+		if (!g_thread_supported ()) g_thread_init (NULL);
+		g_type_init();
+#endif
 
 #if LL_DARWIN
 		// When running under the Xcode debugger, there's a setting called "Break on Debugger()/DebugStr()" which defaults to being turned on.
