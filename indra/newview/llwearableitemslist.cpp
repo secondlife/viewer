@@ -34,11 +34,11 @@
 #include "llwearableitemslist.h"
 
 #include "lliconctrl.h"
+#include "llmenugl.h" // for LLContextMenu
 
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
-#include "llmenugl.h" // for LLContextMenu
 #include "lltransutil.h"
 #include "llviewerattachmenu.h"
 #include "llvoavatarself.h"
@@ -113,18 +113,17 @@ LLPanelWearableOutfitItem::LLPanelWearableOutfitItem(LLViewerInventoryItem* item
 
 // virtual
 void LLPanelWearableOutfitItem::updateItem(const std::string& name,
-										   const LLStyle::Params& input_params)
+										   EItemState item_state)
 {
 	std::string search_label = name;
-	LLStyle::Params style_params = input_params;
 
-	if (mItem && get_is_item_worn(mItem->getUUID()))
+	if (get_is_item_worn(mInventoryItemUUID))
 	{
 		search_label += LLTrans::getString("worn");
-		style_params.font.style("BOLD");
+		item_state = IS_WORN;
 	}
 
-	LLPanelInventoryListItemBase::updateItem(search_label, style_params);
+	LLPanelInventoryListItemBase::updateItem(search_label, item_state);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -264,19 +263,19 @@ LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryIt
 	return list_item;
 }
 
-void LLPanelAttachmentListItem::setTitle(const std::string& title,
-										 const std::string& highlit_text,
-										 const LLStyle::Params& input_params)
+void LLPanelAttachmentListItem::updateItem(const std::string& name,
+										   EItemState item_state)
 {
-	std::string title_joint = title;
+	std::string title_joint;
 
-	if (mItem && isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(mItem->getLinkedUUID()))
+	LLViewerInventoryItem* inv_item = getItem();
+	if (inv_item && isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(inv_item->getLinkedUUID()))
 	{
-		std::string joint = LLTrans::getString(gAgentAvatarp->getAttachedPointName(mItem->getLinkedUUID()));
-		title_joint = title + " (" + joint + ")";
+		std::string joint = LLTrans::getString(gAgentAvatarp->getAttachedPointName(inv_item->getLinkedUUID()));
+		title_joint = name + " (" + joint + ")";
 	}
 
-	LLPanelDeletableWearableListItem::setTitle(title_joint, highlit_text, input_params);
+	LLPanelInventoryListItemBase::updateItem(title_joint, item_state);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -503,6 +502,9 @@ void LLWearableItemsList::updateList(const LLUUID& category_id)
 
 void LLWearableItemsList::updateChangedItems(const LLInventoryModel::changed_items_t& changed_items_uuids)
 {
+	// nothing to update
+	if (changed_items_uuids.empty()) return;
+
 	typedef std::vector<LLPanel*> item_panel_list_t;
 
 	item_panel_list_t items;
@@ -527,6 +529,7 @@ void LLWearableItemsList::updateChangedItems(const LLInventoryModel::changed_ite
 			if (linked_uuid == *iter)
 			{
 				item->setNeedsRefresh(true);
+				break;
 			}
 		}
 	}

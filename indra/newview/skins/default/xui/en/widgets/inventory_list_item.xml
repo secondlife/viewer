@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<inventory_list_item
+ height="0"
+ layout="topleft"
+ left="0"
+ name="inventory_list_item"
+ top="0"
+ width="0">
+  <!-- DEFAULT style for inventory list item -->
+  <default_style
+   font="SansSerifSmall"
+   font.style="NORMAL" />
+
+  <!-- style for inventory list item WORN on avatar -->
+  <worn_style
+   font="SansSerifSmall"
+   font.style="BOLD" />
+</inventory_list_item>
