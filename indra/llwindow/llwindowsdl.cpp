@@ -1617,7 +1617,7 @@ void LLWindowSDL::processMiscNativeEvents()
 	    pump_timer.setTimerExpirySec(1.0f / 15.0f);
 	    do {
 		     // Always do at least one non-blocking pump
-		    gtk_main_iteration_do(0);
+		    gtk_main_iteration_do(FALSE);
 	    } while (gtk_events_pending() &&
 		     !pump_timer.hasExpired());
 
