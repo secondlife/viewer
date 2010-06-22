@@ -284,4 +284,15 @@ void LLFloaterMap::handleStopTracking (const LLSD& userdata)
 		LLTracker::stopTracking ((void*)LLTracker::isTracking(NULL));
 	}
 }
-
+void	LLFloaterMap::setMinimized(BOOL b)
+{
+	LLFloater::setMinimized(b);
+	if(b)
+	{
+		setTitle(getString("mini_map_caption"));
+	}
+	else
+	{
+		setTitle("");
+	}
+}
