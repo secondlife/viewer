@@ -994,7 +994,7 @@ void LLStringUtil::formatNumber(std::string& numStr, std::string decimals)
 	convertToS32 (decimals, intDecimals);
 	if (!sLocale.empty())
 	{
-		// imbue() throws if the locale is unknown! (EXT-7926)
+		// std::locale() throws if the locale is unknown! (EXT-7926)
 		try
 		{
 			strStream.imbue(std::locale(sLocale.c_str()));
