@@ -46,6 +46,9 @@
 // set to 1 if you're using the version of llqtwebkit that's QPixmap-ified
 #if LL_LINUX
 # define LL_QTWEBKIT_USES_PIXMAPS 0
+extern "C" {
+# include <glib.h>
+}
 #else
 # define LL_QTWEBKIT_USES_PIXMAPS 0
 #endif // LL_LINUX
@@ -60,7 +63,7 @@
 #endif
 
 #if LL_WINDOWS
-	// *NOTE:Mani - This captures the module handle fo rthe dll. This is used below
+	// *NOTE:Mani - This captures the module handle for the dll. This is used below
 	// to get the path to this dll for webkit initialization.
 	// I don't know how/if this can be done with apr...
 	namespace {	HMODULE gModuleHandle;};
@@ -129,6 +132,16 @@ private:
 	//
 	void update(int milliseconds)
 	{
+#if LL_LINUX
+		// pump glib generously, as Linux browser plugins are on the
+		// glib main loop, even if the browser itself isn't - ugh
+		//*TODO: shouldn't this be transparent if Qt was compiled with
+		// glib mainloop integration?  investigate.
+		GMainContext *mainc = g_main_context_default();
+		while(g_main_context_iteration(mainc, FALSE));
+#endif // LL_LINUX
+
+		// pump qt
 		LLQtWebKit::getInstance()->pump( milliseconds );
 		
 		mVolumeCatcher.pump();
