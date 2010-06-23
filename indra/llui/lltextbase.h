@@ -196,6 +196,9 @@ public:
 
 	const LLFontGL*			getDefaultFont() const					{ return mDefaultFont; }
 
+	void					appendLineBreakSegment(const LLStyle::Params& style_params);
+	void					appendImageSegment(const LLStyle::Params& style_params);
+
 public:
 	// Fired when a URL link is clicked
 	commit_signal_t mURLClickSignal;
@@ -319,9 +322,6 @@ protected:
 	void							updateRects();
 	void							needsScroll() { mScrollNeeded = TRUE; }
 	void							replaceUrlLabel(const std::string &url, const std::string &label);
-
-	void							appendLineBreakSegment(const LLStyle::Params& style_params);
-	void							appendImageSegment(S32 highlight_part, const LLStyle::Params& style_params);
 	
 	void							appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params = LLStyle::Params());
 	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params);

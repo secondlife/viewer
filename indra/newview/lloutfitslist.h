@@ -123,6 +123,11 @@ private:
 	void changeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id);
 
 	/**
+	 *Resets items selection inside outfit
+	 */
+	void resetItemSelection(LLWearableItemsList* list, const LLUUID& category_id);
+
+	/**
 	 * Saves newly selected outfit ID.
 	 */
 	void setSelectedOutfitUUID(const LLUUID& category_id);

@@ -252,7 +252,8 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mInitialized(false),
 	mAddWearablesPanel(NULL),
 	mFolderViewFilterCmbBox(NULL),
-	mListViewFilterCmbBox(NULL)
+	mListViewFilterCmbBox(NULL),
+	mPlusBtn(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -343,9 +344,9 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mInventoryItemsPanel = getChild<LLInventoryPanel>("folder_view");
 	mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
 	mInventoryItemsPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
-	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
-	
+	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+
 	mCOFDragAndDropObserver = new LLCOFDragAndDropObserver(mInventoryItemsPanel->getModel());
 
 	mFolderViewFilterCmbBox = getChild<LLComboBox>("folder_view_filter_combobox");
@@ -371,7 +372,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetAction("show_add_wearables_btn", boost::bind(&LLPanelOutfitEdit::onAddMoreButtonClicked, this));
 
-	childSetAction("plus_btn", boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
+	mPlusBtn = getChild<LLButton>("plus_btn");
+	mPlusBtn->setClickedCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 	
 	mEditWearableBtn = getChild<LLButton>("edit_wearable_btn");
 	mEditWearableBtn->setEnabled(FALSE);
@@ -382,6 +384,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mWearablesListViewPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLInventoryItemsList>("list_view");
+	mWearableItemsList->setCommitOnSelectionChange(true);
+	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;
@@ -559,21 +563,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitEdit::onPlusBtnClicked(void)
 {
-	LLUUID selected_id;
-	if (mInventoryItemsPanel->getVisible())
-	{
-		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
-		if (!curr_item) return;
-
-		LLFolderViewEventListener* listenerp  = curr_item->getListener();
-		if (!listenerp) return;
-
-		selected_id = listenerp->getUUID();
-	}
-	else if (mWearablesListViewPanel->getVisible())
-	{
-		selected_id = mWearableItemsList->getSelectedUUID();
-	}
+	LLUUID selected_id = getSelectedItemUUID();
 
 	if (selected_id.isNull()) return;
 
@@ -658,22 +648,28 @@ void LLPanelOutfitEdit::onEditWearableClicked(void)
 	}
 }
 
-void LLPanelOutfitEdit::onInventorySelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
+void LLPanelOutfitEdit::onInventorySelectionChange()
 {
-	LLFolderViewItem* current_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
-	if (!current_item)
+	LLUUID item_uuid = getSelectedItemUUID();
+	if (item_uuid.isNull())
 	{
 		return;
 	}
 
-	LLViewerInventoryItem* item = current_item->getInventoryItem();
-	if (!item) return;
+	LLViewerInventoryItem* item(gInventory.getItem(item_uuid));
+	if (!item)
+	{
+		return;
+	}
 
 	switch (item->getType())
 	{
-	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_BODYPART:
+		mPlusBtn->setToolTip(getString("replace_body_part"));
+		break;
+	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_OBJECT:
+		mPlusBtn->setToolTip(LLStringUtil::null);
 	default:
 		break;
 	}
@@ -933,5 +929,27 @@ void LLPanelOutfitEdit::onOutfitChanging(bool started)
 
 	indicator->setVisible(started);
 }
+
+LLUUID LLPanelOutfitEdit::getSelectedItemUUID()
+{
+	LLUUID selected_id;
+	if (mInventoryItemsPanel->getVisible())
+	{
+		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
+		if (!curr_item) return selected_id;
+
+		LLFolderViewEventListener* listenerp  = curr_item->getListener();
+		if (!listenerp) return selected_id;
+
+		selected_id = listenerp->getUUID();
+	}
+	else if (mWearablesListViewPanel->getVisible())
+	{
+		selected_id = mWearableItemsList->getSelectedUUID();
+	}
+
+	return selected_id;
+}
+
 
 // EOF

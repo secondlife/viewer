@@ -55,6 +55,8 @@ public:
 	/*virtual*/ void	draw();
 	/*virtual*/ void	onFocusLost();
 	/*virtual*/ void	onFocusReceived();
+
+	/*virtual*/ void	setMinimized(BOOL b);
 	
 private:
 	void handleZoom(const LLSD& userdata);
