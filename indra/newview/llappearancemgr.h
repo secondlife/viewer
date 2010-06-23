@@ -360,6 +360,9 @@ public:
 					<< llendl;
 			//dec_busy_count();
 			gInventory.removeObserver(this);
+
+			// lets notify observers that loading is finished.
+			gAgentWearables.notifyLoadingFinished();
 			delete this;
 			return;
 		}
