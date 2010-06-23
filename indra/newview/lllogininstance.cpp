@@ -168,7 +168,9 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	char hashed_mac_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
 	LLMD5 hashed_mac;
 	unsigned char MACAddress[MAC_ADDRESS_BYTES];
-	LLUUID::getNodeID(MACAddress);	
+	if(LLUUID::getNodeID(MACAddress) == 0) {
+		llerrs << "Failed to get node id; cannot uniquely identify this machine." << llendl;
+	}
 	hashed_mac.update( MACAddress, MAC_ADDRESS_BYTES );
 	hashed_mac.finalize();
 	hashed_mac.hex_digest(hashed_mac_string);

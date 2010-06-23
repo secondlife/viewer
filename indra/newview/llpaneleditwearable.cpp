@@ -977,6 +977,7 @@ void LLPanelEditWearable::revertChanges()
 
 	mWearablePtr->revertValues();
 	mNameEditor->setText(mWearablePtr->getName());
+	updatePanelPickerControls(mWearablePtr->getType());
 }
 
 void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)

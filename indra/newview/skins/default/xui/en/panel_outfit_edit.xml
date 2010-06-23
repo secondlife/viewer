@@ -54,6 +54,9 @@
     <string name="Filter.Clothing" value="Clothing"/>
     <string name="Filter.Bodyparts" value="Body parts"/>
 
+    <string
+     name="replace_body_part"
+     value="Click to replace your existing shape"/>
 
     <button
      follows="top|left"

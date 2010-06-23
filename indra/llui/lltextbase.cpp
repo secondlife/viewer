@@ -1630,7 +1630,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 					// Text will be replaced during rendering with the icon,
 					// but string cannot be empty or the segment won't be
 					// added (or drawn).
-					appendImageSegment(part, icon);
+					appendImageSegment(icon);
 				}
 			}
 
@@ -1702,7 +1702,7 @@ void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 	insertStringNoUndo(getLength(), utf8str_to_wstring("\n"), &segments);
 }
 
-void LLTextBase::appendImageSegment(S32 highlight_part, const LLStyle::Params& style_params)
+void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
 {
 	if(getPlainText())
 	{

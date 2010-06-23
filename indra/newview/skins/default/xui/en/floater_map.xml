@@ -54,6 +54,9 @@
      name="ToolTipMsg">
         [AGENT][REGION](Double-click to open Map)
     </floater.string>
+    <floater.string name="mini_map_caption">
+	MINIMAP
+    </floater.string>
     <net_map
      bg_color="NetMapBackgroundColor"
      follows="top|left|bottom|right"
