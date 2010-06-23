@@ -12,7 +12,7 @@
      layout="topleft"
      left="12"
      name="min param text"
-     text_color="EmphasisColor"
+     text_color="White"
      font_shadow="hard"
      top="120"
      width="120" />
@@ -22,7 +22,7 @@
      layout="topleft"
      left="155"
      name="max param text"
-     text_color="EmphasisColor" 
+     text_color="White" 
      font_shadow="hard"
      top_delta="0"
      width="120" />
