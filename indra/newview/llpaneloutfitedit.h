@@ -145,7 +145,7 @@ public:
 	void onFolderViewFilterCommitted(LLUICtrl* ctrl);
 	void onListViewFilterCommitted(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
-	void onInventorySelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+	void onInventorySelectionChange();
 	void onPlusBtnClicked(void);
 
 	void applyFolderViewFilter(EFolderViewItemType type);
@@ -192,7 +192,7 @@ private:
 	void onAddMoreButtonClicked();
 	void showFilteredWearablesListView(LLWearableType::EType type);
 	void onOutfitChanging(bool started);
-
+	LLUUID getSelectedItemUUID();
 
 	LLTextBox*			mCurrentOutfitName;
 	LLTextBox*			mStatus;
@@ -203,6 +203,7 @@ private:
 	LLButton*			mEditWearableBtn;
 	LLButton*			mFolderViewBtn;
 	LLButton*			mListViewBtn;
+	LLButton*			mPlusBtn;
 	LLPanel*			mAddWearablesPanel;
 	
 	LLComboBox*			mFolderViewFilterCmbBox;

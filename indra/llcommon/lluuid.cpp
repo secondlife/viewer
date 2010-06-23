@@ -456,101 +456,53 @@ static void get_random_bytes(void *buf, int nbytes)
 }
 
 #if	LL_WINDOWS
-// Code	copied from	http://msdn.microsoft.com/en-us/library/aa365939(VS.85).aspx
-// This	code grabs the first hardware	address, rather	than the first interface.
-// Using a VPN can cause the first returned	interface	to be	changed.
 
-const	S32	MAC_ADDRESS_BYTES=6;
-
+typedef struct _ASTAT_
+{
+	ADAPTER_STATUS adapt;
+	NAME_BUFFER    NameBuff [30];
+}ASTAT, * PASTAT;
 
 // static
 S32	LLUUID::getNodeID(unsigned char	*node_id)
 {
+	ASTAT Adapter;
+	NCB Ncb;
+	UCHAR uRetCode;
+	LANA_ENUM   lenum;
+	int      i;
+	int retval = 0;
 
-	// Declare and initialize variables.
-	DWORD	dwSize = 0;
-	DWORD	dwRetVal = 0;
-	int	i;
+	memset( &Ncb, 0, sizeof(Ncb) );
+	Ncb.ncb_command = NCBENUM;
+	Ncb.ncb_buffer = (UCHAR *)&lenum;
+	Ncb.ncb_length = sizeof(lenum);
+	uRetCode = Netbios( &Ncb );
 
-/* variables used	for	GetIfTable and GetIfEntry	*/
-	MIB_IFTABLE	*pIfTable;
-	MIB_IFROW	*pIfRow;
-
-	// Allocate	memory for our pointers.
-	pIfTable = (MIB_IFTABLE	*) malloc(sizeof (MIB_IFTABLE));
-	if (pIfTable ==	NULL)	
+	for(i=0; i < lenum.length ;i++)
 	{
-			printf("Error allocating memory needed to call GetIfTable\n");
-			return 0;
-	}
+		memset( &Ncb, 0, sizeof(Ncb) );
+		Ncb.ncb_command = NCBRESET;
+		Ncb.ncb_lana_num = lenum.lana[i];
 
-	// Before	calling	GetIfEntry,	we call	GetIfTable to	make
-	// sure	there	are	entries	to get and retrieve	the	interface	index.
+		uRetCode = Netbios( &Ncb );
 
-	// Make	an initial call	to GetIfTable	to get the
-	// necessary size	into dwSize
-	if (GetIfTable(pIfTable, &dwSize,	0) ==	ERROR_INSUFFICIENT_BUFFER) {
-			free(pIfTable);
-			pIfTable = (MIB_IFTABLE	*) malloc(dwSize);
-			if (pIfTable ==	NULL)	
-			{
-					printf("Error	allocating memory\n");
-					return 0;
-			}
-	}
-	//	Make a second	call to	GetIfTable to	get	the	actual
-	// data	we want.
-	if ((dwRetVal = GetIfTable(pIfTable, &dwSize,	0))	== NO_ERROR) 
-	{
-		if (pIfTable->dwNumEntries > 0)	
+		memset( &Ncb, 0, sizeof (Ncb) );
+		Ncb.ncb_command = NCBASTAT;
+		Ncb.ncb_lana_num = lenum.lana[i];
+
+		strcpy( (char *)Ncb.ncb_callname,  "*              " );		/* Flawfinder: ignore */
+		Ncb.ncb_buffer = (unsigned char *)&Adapter;
+		Ncb.ncb_length = sizeof(Adapter);
+
+		uRetCode = Netbios( &Ncb );
+		if ( uRetCode == 0 )
 		{
-			pIfRow = (MIB_IFROW	*) malloc(sizeof (MIB_IFROW));
-			if (pIfRow ==	NULL)	
-			{
-					printf("Error allocating memory\n");
-					if (pIfTable != NULL)	
-					{
-						free(pIfTable);
-						pIfTable = NULL;
-					}
-					return 0;
-			}
-
-			int	limit	=	MAC_ADDRESS_BYTES;
-			memcpy(node_id,	"\0\0\0\0\0\0",	limit);	// zero	out	array	of bytes	 
-			for	(i = 0;	i < (int) pIfTable->dwNumEntries; i++) 
-			{
-				pIfRow->dwIndex	= pIfTable->table[i].dwIndex;
-				if ((dwRetVal = GetIfEntry(pIfRow)) == NO_ERROR) 
-				{
-					switch (pIfRow->dwType)	
-					{
-						case IF_TYPE_ETHERNET_CSMACD:
-						case IF_TYPE_IEEE80211:		 
-							 limit = min((int) pIfRow->dwPhysAddrLen, limit);
-							 if	(pIfRow->dwPhysAddrLen == 0)
-									 break;
-							 memcpy(node_id, (UCHAR *)&pIfRow->bPhysAddr[0], limit);		 //	just incase	the	PhysAddr is	not	the	expected MAC_Address size
-							 free(pIfTable);
-							 return 1;	//return first hardware	device found.	
-							break;
-
-						case IF_TYPE_OTHER:
-						case IF_TYPE_PPP:										 
-						case IF_TYPE_SOFTWARE_LOOPBACK:										 
-						case IF_TYPE_ISO88025_TOKENRING:										
-						case IF_TYPE_IEEE1394:																		
-						case IF_TYPE_ATM:										 
-						case IF_TYPE_TUNNEL:										
-								default:
-									break;
-					}
-				}
-			}
+			memcpy(node_id,Adapter.adapt.adapter_address,6);		/* Flawfinder: ignore */
+			retval = 1;
 		}
 	}
-	free(pIfTable);
-	return 0;
+	return retval;
 }
 
 #elif LL_DARWIN
