@@ -139,6 +139,7 @@ LLMenuItemGL::Params::Params()
 :	shortcut("shortcut"),
 	jump_key("jump_key", KEY_NONE),
 	use_mac_ctrl("use_mac_ctrl", false),
+	allow_key_repeat("allow_key_repeat", false),
 	rect("rect"),
 	left("left"),
 	top("top"),
@@ -160,7 +161,7 @@ LLMenuItemGL::Params::Params()
 LLMenuItemGL::LLMenuItemGL(const LLMenuItemGL::Params& p)
 :	LLUICtrl(p),
 	mJumpKey(p.jump_key),
-	mAllowKeyRepeat(FALSE),
+	mAllowKeyRepeat(p.allow_key_repeat),
 	mHighlight( FALSE ),
 	mGotHover( FALSE ),
 	mBriefItem( FALSE ),

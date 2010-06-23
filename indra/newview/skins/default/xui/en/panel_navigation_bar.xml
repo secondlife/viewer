@@ -113,10 +113,6 @@
 	<!--      top_delta="0" -->
 	<!--      width="168" /> -->
         <search_combo_box
-	     bevel_style="none"
-	     border_style="line"
-	     border.border_thickness="0"
-	     commit_on_focus_lost="false"
 	     follows="right|top"
 	     halign="right"
 	     height="23"

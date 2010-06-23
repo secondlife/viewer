@@ -5,7 +5,7 @@
   label_shadow="true"
   auto_resize="false"
   image_overlay_alignment="center"
-  use_ellipses="flse"
+  use_ellipses="false"
   pad_right="10"
   pad_left="10"
   is_toggle="false"

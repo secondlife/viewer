@@ -61,7 +61,8 @@ public:
 	{
 		Optional<std::string>	shortcut;
 		Optional<KEY>			jump_key;
-		Optional<bool>			use_mac_ctrl;
+		Optional<bool>			use_mac_ctrl,
+								allow_key_repeat;
 
 		Ignored					rect,
 								left,
