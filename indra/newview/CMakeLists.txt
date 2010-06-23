@@ -363,6 +363,7 @@ set(viewer_SOURCE_FILES
     llpaneltopinfobar.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
+    llpanelwearing.cpp
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
@@ -830,6 +831,7 @@ set(viewer_HEADER_FILES
     lloutfitslist.h
     lloutfitobserver.h
     lloutputmonitorctrl.h
+    llpanelappearancetab.h
     llpanelavatar.h
     llpanelavatartag.h
     llpanelblockedlist.h
@@ -883,6 +885,7 @@ set(viewer_HEADER_FILES
     llpaneltopinfobar.h
     llpanelvolume.h
     llpanelvolumepulldown.h
+    llpanelwearing.h
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h

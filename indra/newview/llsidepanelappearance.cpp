@@ -390,8 +390,8 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 				return;
 		}
 
-		std::string look_name = gAgentWearables.isCOFChangeInProgress() ? "" : getString("No Outfit");
-		mCurrentLookName->setText(look_name);
+		std::string string_name = gAgentWearables.isCOFChangeInProgress() ? "Changing outfits" : "No Outfit";
+		mCurrentLookName->setText(getString(string_name));
 		mOpenOutfitBtn->setEnabled(FALSE);
 	}
 	else
@@ -475,6 +475,12 @@ void LLSidepanelAppearance::setWearablesLoading(bool val)
 {
 	childSetVisible("wearables_loading_indicator", val);
 	childSetVisible("edit_outfit_btn", !val);
+
+	if (!val)
+	{
+		// refresh outfit name when COF is already changed.
+		refreshCurrentOutfitName();
+	}
 }
 
 void LLSidepanelAppearance::showDefaultSubpart()

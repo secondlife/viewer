@@ -1,6 +1,6 @@
 /** 
- * @file llpanelplacestab.h
- * @brief Tabs interface for Side Bar "Places" panel
+ * @file llpanelappearancetab.h
+ * @brief Tabs interface for Side Bar "My Appearance" panel
  *
  * $LicenseInfo:firstyear=2009&license=viewergpl$
  * 
@@ -34,28 +34,22 @@
 
 #include "llpanel.h"
 
-#include "llpanelappearance.h"
-
 class LLPanelAppearanceTab : public LLPanel
 {
 public:
-	LLPanelAppearanceTab(LLPanelAppearance *parent) : 
-		LLPanel(),
-		mParent(parent)
-	{}
+	LLPanelAppearanceTab() : LLPanel() {}
 	virtual ~LLPanelAppearanceTab() {}
 
-	virtual void onSearchEdit(const std::string& string) = 0;
-	virtual void updateVerbs() = 0;		// Updates buttons at the bottom of Appearance panel
-	virtual void onWear() = 0;
-	virtual void onEdit() = 0;
-	virtual void onNew() = 0;
+	virtual void setFilterSubString(const std::string& string) = 0;
 
-	bool isTabVisible(); // Check if parent TabContainer is visible.
+	virtual bool isActionEnabled(const LLSD& userdata) = 0;
 
+	virtual void showGearMenu(LLView* spawning_view) = 0;
+
+	static const std::string& getFilterSubString() { return sFilterSubString; }
 
 protected:
-	LLPanelAppearance*		mParent;
+	static std::string		sFilterSubString;
 };
 
 #endif //LL_LLPANELAPPEARANCETAB_H

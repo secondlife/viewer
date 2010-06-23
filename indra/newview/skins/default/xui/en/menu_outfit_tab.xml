@@ -8,6 +8,9 @@
      name="wear_replace">
         <on_click
          function="Outfit.WearReplace" />
+        <on_enable
+         function="Outfit.OnEnable"
+         parameter="wear_replace" />
         <on_visible
          function="Outfit.OnVisible"
          parameter="wear_replace" />

@@ -876,6 +876,7 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 
 				self->mDirty = FALSE;
 				self->refresh();
+				self->refreshFromItem(); // to update description and title
 			}
 			else
 			{
