@@ -72,8 +72,8 @@
 	<string name="jacket_desc_text">
 		Veste :
 	</string>
-	<string name="skirt_skirt_desc_text">
-		Jupe :
+	<string name="skirt_desc_text">
+		Jupe :
 	</string>
 	<string name="gloves_desc_text">
 		Gants :
@@ -99,11 +99,6 @@
 		</radio_group>
 		<icon name="male_icon" tool_tip="Homme"/>
 		<icon name="female_icon" tool_tip="Femme"/>
-	</panel>
-	<panel label="gear_buttom_panel" name="gear_buttom_panel">
-		<button name="friends_viewsort_btn" tool_tip="Options"/>
-		<button name="add_btn" tool_tip="TODO"/>
-		<button name="del_btn" tool_tip="TODO"/>
 	</panel>
 	<panel name="button_panel">
 		<button label="Enregistrer sous" name="save_as_button"/>
