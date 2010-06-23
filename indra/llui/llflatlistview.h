@@ -105,6 +105,9 @@ public:
 		/** don't allow to deselect all selected items (for mouse events on items only) */
 		Optional<bool> keep_one_selected;
 
+		/** try to keep selection visible after reshape */
+		Optional<bool> keep_selection_visible_on_reshape;
+
 		/** padding between items */
 		Optional<U32> item_pad; 
 
@@ -411,6 +414,8 @@ private:
 	bool mKeepOneItemSelected;
 
 	bool mIsConsecutiveSelection;
+
+	bool mKeepSelectionVisibleOnReshape;
 
 	/** All pairs of the list */
 	pairs_list_t mItemPairs;

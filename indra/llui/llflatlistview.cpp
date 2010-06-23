@@ -50,14 +50,21 @@ LLFlatListView::Params::Params()
 	allow_select("allow_select"),
 	multi_select("multi_select"),
 	keep_one_selected("keep_one_selected"),
+	keep_selection_visible_on_reshape("keep_selection_visible_on_reshape",false),
 	no_items_text("no_items_text")
 {};
 
 void LLFlatListView::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
 {
+	S32 delta = height - getRect().getHeight();
 	LLScrollContainer::reshape(width, height, called_from_parent);
 	setItemsNoScrollWidth(width);
 	rearrangeItems();
+	
+	if(delta!= 0 && mKeepSelectionVisibleOnReshape)
+	{
+		ensureSelectedVisible();
+	}
 }
 
 const LLRect& LLFlatListView::getItemsRect() const
@@ -380,6 +387,7 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
   , mPrevNotifyParentRect(LLRect())
   , mNoItemsCommentTextbox(NULL)
   , mIsConsecutiveSelection(false)
+  , mKeepSelectionVisibleOnReshape(p.keep_selection_visible_on_reshape)
 {
 	mBorderThickness = getBorderWidth();
 
