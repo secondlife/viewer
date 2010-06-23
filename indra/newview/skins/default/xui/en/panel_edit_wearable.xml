@@ -390,7 +390,7 @@
         <button
          follows="bottomleft"
          height="23"
-         label="Revert"
+         label="Undo Changes"
          layout="topleft"
          left_pad="7"
          name="revert_button"
