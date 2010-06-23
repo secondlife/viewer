@@ -72,11 +72,13 @@ static const std::string COF_TAB_NAME = "cof_tab";
 
 static LLRegisterPanelClassWrapper<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
+class LLPanelOutfitsInventory;
 class LLOutfitListGearMenu
 {
 public:
-	LLOutfitListGearMenu(LLOutfitsList* olist)
+	LLOutfitListGearMenu(LLOutfitsList* olist, LLPanelOutfitsInventory* parent_panel)
 	:	mOutfitList(olist),
+		mMyOutfitsPanel(parent_panel),
 		mMenu(NULL)
 	{
 		llassert_always(mOutfitList);
@@ -209,6 +211,11 @@ private:
 		{
 			return LLAppearanceMgr::getCanRemoveFromCOF(selected_outfit_id);
 		}
+		else if ("wear" == param)
+		{
+			return mMyOutfitsPanel->isActionEnabled(param);
+		}
+
 
 		return true;
 	}
@@ -233,6 +240,7 @@ private:
 
 	LLOutfitsList*	mOutfitList;
 	LLMenuGL*		mMenu;
+	LLPanelOutfitsInventory* mMyOutfitsPanel;
 };
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
@@ -550,13 +558,13 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 				   ,       _7 // EAcceptance* accept
 				   ));
 
-	mGearMenu = new LLOutfitListGearMenu(mMyOutfitsPanel);
+	mGearMenu = new LLOutfitListGearMenu(mMyOutfitsPanel, this);
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
 {
 	bool trash_enabled = isActionEnabled("delete");
-	bool wear_enabled =  !gAgentWearables.isCOFChangeInProgress() && isActionEnabled("wear");
+	bool wear_enabled =  isActionEnabled("wear");
 	bool wear_visible = !isCOFPanelActive();
 	bool make_outfit_enabled = isActionEnabled("save_outfit");
 
@@ -710,6 +718,8 @@ BOOL LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 	
 	if (command_name == "wear")
 	{
+		if (gAgentWearables.isCOFChangeInProgress()) return FALSE;
+
 		if (isCOFPanelActive())
 		{
 			return FALSE;

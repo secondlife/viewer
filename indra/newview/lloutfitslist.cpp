@@ -103,8 +103,13 @@ protected:
 		{
 			return get_is_category_renameable(&gInventory, outfit_cat_id);
 		}
+		else if ("wear_replace" == param)
+		{
+			return !gAgentWearables.isCOFChangeInProgress();
+		}
 		else if ("wear_add" == param)
 		{
+			if (gAgentWearables.isCOFChangeInProgress()) return false;
 			return LLAppearanceMgr::getCanAddToCOF(outfit_cat_id);
 		}
 		else if ("take_off" == param)

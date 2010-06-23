@@ -112,6 +112,9 @@ private:
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// List Commands                                                                //
+public:
+	BOOL isActionEnabled(const LLSD& command_name);
+
 protected:
 	void initListCommandsHandlers();
 	void updateListCommands();
@@ -119,7 +122,6 @@ protected:
 	void showGearMenu();
 	void onTrashButtonClick();
 	void onClipboardAction(const LLSD& userdata);
-	BOOL isActionEnabled(const LLSD& command_name);
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 	bool hasItemsSelected();

@@ -466,8 +466,3 @@ BOOL LLSpinCtrl::handleKeyHere(KEY key, MASK mask)
 	return FALSE;
 }
 
-BOOL LLSpinCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
-{
-	// just treat a double click as a second click
-	return handleMouseDown(x, y, mask);
-}
