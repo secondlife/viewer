@@ -3022,8 +3022,9 @@ void insert_maturity_into_textbox(LLTextBox* target_textbox, LLFloater* names_fl
 	std::string text_after_rating = str_to_parse.substr(maturity_pos + MATURITY.length());
 
 	target_textbox->setText(text_before_rating);
-	// any text may be here instead of "icon" except ""
-	target_textbox->appendText(std::string("icon"), false, style);
+
+	target_textbox->appendImageSegment(style);
+
 	target_textbox->appendText(LLViewerParcelMgr::getInstance()->getSelectionRegion()->getSimAccessString(), false);
 	target_textbox->appendText(text_after_rating, false);
 }

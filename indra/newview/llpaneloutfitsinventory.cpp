@@ -86,6 +86,7 @@ public:
 
 		registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenu::onWear, this));
 		registrar.add("Gear.TakeOff", boost::bind(&LLOutfitListGearMenu::onTakeOff, this));
+		registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenu::onRename, this));
 		registrar.add("Gear.Delete", boost::bind(&LLOutfitListGearMenu::onDelete, this));
 		registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenu::onCreate, this, _2));
 
@@ -158,6 +159,15 @@ private:
 		}
 	}
 
+	void onRename()
+	{
+		const LLUUID& selected_outfit_id = getSelectedOutfitID();
+		if (selected_outfit_id.notNull())
+		{
+			LLAppearanceMgr::instance().renameOutfit(selected_outfit_id);
+		}
+	}
+
 	void onDelete()
 	{
 		const LLUUID& selected_outfit_id = getSelectedOutfitID();
@@ -187,7 +197,11 @@ private:
 			return false;
 		}
 
-		if ("delete" == param)
+		if ("rename" == param)
+		{
+			return get_is_category_renameable(&gInventory, selected_outfit_id);
+		}
+		else if ("delete" == param)
 		{
 			return LLAppearanceMgr::instance().getCanRemoveOutfit(selected_outfit_id);
 		}

@@ -666,13 +666,13 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 					slurl = region_slurl.getLocationString();
 				      }
 				}
-				url += "&slurl=" + slurl;
+				url += "&slurl=" + LLURI::escape(slurl);
 
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(style_params);
 				link_params.color.control = "HTMLLinkColor";
-				link_params.link_href = LLURI::escape(url);
+				link_params.link_href = url;
 				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>"  + delimiter,
 									false, link_params);
 			}

@@ -49,6 +49,11 @@ void setupCocoa()
 	{
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 		
+		// The following prevents the Cocoa command line parser from trying to open 'unknown' arguements as documents.
+		// ie. running './secondlife -set Language fr' would cause a pop-up saying can't open document 'fr' 
+		// when init'ing the Cocoa App window.		
+		[[NSUserDefaults standardUserDefaults] setObject:@"NO" forKey:@"NSTreatUnknownArgumentsAsOpen"];
+		
 		// This is a bit of voodoo taken from the Apple sample code "CarbonCocoa_PictureCursor":
 		//   http://developer.apple.com/samplecode/CarbonCocoa_PictureCursor/index.html
 		
