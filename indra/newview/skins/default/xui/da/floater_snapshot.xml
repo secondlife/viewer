@@ -5,12 +5,19 @@
 	</floater.string>
 	<button label="Tag nyt foto" name="new_snapshot_btn"/>
 	<line_editor label="Beskrivelse" name="description"/>
-	<button label="Del foto" name="share"/>
-	<button label="Del på internettet" name="share_to_web"/>
-	<button label="Gem til beholdning" name="save_to_inventory"/>
-	<button label="Gem foto" name="save"/>
-	<button label="Email foto" name="share_to_email"/>
-	<button label="Gem på computer" name="save_to_computer"/>
-	<button label="Sæt som profil billede" name="set_profile_pic"/>
-	<button label="Tilbage" name="cancel"/>
+	<panel name="panel_snapshot_main">
+		<button label="Del foto" name="share"/>
+		<button label="Gem foto" name="save"/>
+		<button label="Sæt til profilbillede" name="set_profile_pic"/>
+	</panel>
+	<panel name="panel_snapshot_share">
+		<button label="Del på internettet" name="share_to_web"/>
+		<button label="E-mail foto" name="share_to_email"/>
+		<button label="Tilbage" name="cancel_share"/>
+	</panel>
+	<panel name="panel_snapshot_save">
+		<button label="Gem til min beholdning" name="save_to_inventory"/>
+		<button label="Gem til min computer" name="save_to_computer"/>
+		<button label="Tilbage" name="cancel_save"/>
+	</panel>
 </floater>
