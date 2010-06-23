@@ -470,6 +470,10 @@ public:
 	void setNoItemsMsg(const std::string& msg) { mNoItemsMsg = msg; }
 	void setNoFilteredItemsMsg(const std::string& msg) { mNoFilteredItemsMsg = msg; }
 
+	bool getForceShowingUnmatchedItems();
+
+	void setForceShowingUnmatchedItems(bool show);
+
 	/**
 	 * Sets up new filter string and filters the list.
 	 */
@@ -480,6 +484,11 @@ public:
 	 * Derived classes may want to overload rearrangeItems() to exclude repeated separators after filtration.
 	 */
 	void filterItems();
+
+	/**
+	 * Returns true if last call of filterItems() found at least one matching item
+	 */
+	bool wasLasFilterSuccessfull();
 
 protected:
 	LLFlatListViewEx(const Params& p);
@@ -496,6 +505,14 @@ private:
 	std::string mNoFilteredItemsMsg;
 	std::string mNoItemsMsg;
 	std::string	mFilterSubString;
+	/**
+	 * Show list items that don't match current filter
+	 */
+	bool mForceShowingUnmatchedItems;
+	/**
+	 * True if last call of filterItems() found at least one matching item
+	 */
+	bool mLastFilterSucceded;
 };
 
 #endif

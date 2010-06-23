@@ -439,6 +439,9 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		// Setting callback to reset items selection inside outfit on accordion collapsing and expanding (EXT-7875)
 		tab->setDropDownStateChangedCallback(boost::bind(&LLOutfitsList::resetItemSelection, this, list, cat_id));
 
+		// force showing list items that don't match current filter(EXT-7158)
+		list->setForceShowingUnmatchedItems(true);
+
 		// Setting list commit callback to monitor currently selected wearable item.
 		list->setCommitCallback(boost::bind(&LLOutfitsList::onSelectionChange, this, _1));
 
@@ -850,6 +853,8 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 			restoreOutfitSelection(tab, iter->first);
 		}
 	}
+
+	mAccordion->arrange();
 }
 
 void LLOutfitsList::applyFilterToTab(
@@ -873,7 +878,7 @@ void LLOutfitsList::applyFilterToTab(
 	{
 		// hide tab if its title doesn't pass filter
 		// and it has no visible items
-		tab->setVisible(list->size() > 0);
+		tab->setVisible(list->wasLasFilterSuccessfull());
 
 		// remove title highlighting because it might
 		// have been previously highlighted by less restrictive filter
