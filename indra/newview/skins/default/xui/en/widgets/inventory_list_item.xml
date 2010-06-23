@@ -15,5 +15,5 @@
   <worn_style
    font="SansSerifSmall"
    font.style="BOLD"
-   color="green" />
+   color="EmphasisColor" />
 </inventory_list_item>
