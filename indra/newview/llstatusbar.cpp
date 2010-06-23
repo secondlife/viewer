@@ -121,7 +121,6 @@ const U32 LLStatusBar::MAX_DATE_STRING_LENGTH = 2000;
 
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
-	mTextHealth(NULL),
 	mTextTime(NULL),
 	mSGBandwidth(NULL),
 	mSGPacketLoss(NULL),
@@ -181,7 +180,6 @@ BOOL LLStatusBar::postBuild()
 	// build date necessary data (must do after panel built)
 	setupDate();
 
-	mTextHealth = getChild<LLTextBox>("HealthText" );
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
 	getChild<LLUICtrl>("buyL")->setCommitCallback(
@@ -326,24 +324,12 @@ void LLStatusBar::refresh()
 			BOOL flash = S32(mHealthTimer->getElapsedSeconds() * ICON_FLASH_FREQUENCY) & 1;
 			childSetVisible("health", flash);
 		}
-		mTextHealth->setVisible(TRUE);
 
 		// Health
 		childGetRect( "health", buttonRect );
 		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
 		childSetRect("health", r);
 		x += buttonRect.getWidth();
-
-		const S32 health_width = S32( LLFontGL::getFontSansSerifSmall()->getWidth(std::string("100%")) );
-		r.set(x, y+TEXT_HEIGHT - 2, x+health_width, y);
-		mTextHealth->setRect(r);
-		x += health_width;
-	}
-	else
-	{
-		// invisible if region doesn't allow damage
-		childSetVisible("health", false);
-		mTextHealth->setVisible(FALSE);
 	}
 
 	mSGBandwidth->setVisible(net_stats_visible);
@@ -442,8 +428,6 @@ void LLStatusBar::sendMoneyBalanceRequest()
 void LLStatusBar::setHealth(S32 health)
 {
 	//llinfos << "Setting health to: " << buffer << llendl;
-	mTextHealth->setText(llformat("%d%%", health));
-
 	if( mHealth > health )
 	{
 		if (mHealth > (health + gSavedSettings.getF32("UISndHealthReductionThreshold")))

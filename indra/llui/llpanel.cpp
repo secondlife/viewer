@@ -508,16 +508,19 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 		if (xml_filename.empty())
 		{
 			node->getAttributeString("filename", xml_filename);
+			setXMLFilename(xml_filename);
 		}
 
 		if (!xml_filename.empty())
 		{
+			LLUICtrlFactory::instance().pushFileName(xml_filename);
+
 			LLFastTimer timer(FTM_EXTERNAL_PANEL_LOAD);
 			if (output_node)
 			{
 				//if we are exporting, we want to export the current xml
 				//not the referenced xml
-				LLXUIParser::instance().readXUI(node, params, xml_filename);
+				LLXUIParser::instance().readXUI(node, params, LLUICtrlFactory::getInstance()->getCurFileName());
 				Params output_params(params);
 				setupParamsForExport(output_params, parent);
 				output_node->setName(node->getName()->mString);
@@ -533,13 +536,13 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr outpu
 				return FALSE;
 			}
 
-			LLXUIParser::instance().readXUI(referenced_xml, params, xml_filename);
+			LLXUIParser::instance().readXUI(referenced_xml, params, LLUICtrlFactory::getInstance()->getCurFileName());
 
 			// add children using dimensions from referenced xml for consistent layout
 			setShape(params.rect);
 			LLUICtrlFactory::createChildren(this, referenced_xml, child_registry_t::instance());
 
-			setXMLFilename(xml_filename);
+			LLUICtrlFactory::instance().popFileName();
 		}
 
 		// ask LLUICtrlFactory for filename, since xml_filename might be empty
