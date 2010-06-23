@@ -184,7 +184,7 @@ private:
 public:
 	void			setCameraAnimating(BOOL b)			{ mCameraAnimating = b; }
 	BOOL			getCameraAnimating()				{ return mCameraAnimating; }
-	void			setAnimationDuration(F32 seconds) 	{ mAnimationDuration = seconds; }
+	void			setAnimationDuration(F32 seconds);
 	void			startCameraAnimation();
 	void			stopCameraAnimation();
 private:
@@ -225,7 +225,6 @@ private:
 	LLVector3		mFocusObjectOffset;
 	F32				mFocusDotRadius; 				// Meters
 	BOOL			mTrackFocusObject;
-	F32				mUIOffset;	
 	
 	//--------------------------------------------------------------------
 	// Lookat / Pointat

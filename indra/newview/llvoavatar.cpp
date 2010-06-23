@@ -3201,7 +3201,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
 	}
 
-	if (!visible)
+	if (!visible && !isSelf())
 	{
 		updateMotions(LLCharacter::HIDDEN_UPDATE);
 		return FALSE;
