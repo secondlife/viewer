@@ -608,7 +608,20 @@ void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContex
 		uuid_vec_t selected_uuids;
 		if(getSelectedUUIDs(selected_uuids))
 		{
-			menu->show(ctrl, selected_uuids, x, y);
+			bool show_menu = false;
+			for(uuid_vec_t::iterator it = selected_uuids.begin();it!=selected_uuids.end();++it)
+			{
+				if ((*it).notNull())
+				{
+					show_menu = true;
+					break;
+				}
+			}
+
+			if(show_menu)
+			{
+				menu->show(ctrl, selected_uuids, x, y);
+			}
 		}
 	}
 }
