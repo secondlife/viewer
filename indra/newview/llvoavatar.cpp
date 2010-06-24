@@ -2076,7 +2076,8 @@ void LLVOAvatar::computeBodySize()
 				 	ankle.mV[VZ] * knee_scale.mV[VZ] -
 				 	foot.mV[VZ] * ankle_scale.mV[VZ];
 
-	mBodySize.mV[VZ] = mPelvisToFoot +
+	LLVector3 new_body_size;
+	new_body_size.mV[VZ] = mPelvisToFoot +
 					   // the sqrt(2) correction below is an approximate
 					   // correction to get to the top of the head
 					   F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) + 
@@ -2086,8 +2087,17 @@ void LLVOAvatar::computeBodySize()
 					   torso.mV[VZ] * pelvis_scale.mV[VZ]; 
 
 	// TODO -- measure the real depth and width
-	mBodySize.mV[VX] = DEFAULT_AGENT_DEPTH;
-	mBodySize.mV[VY] = DEFAULT_AGENT_WIDTH;
+	new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;
+	new_body_size.mV[VY] = DEFAULT_AGENT_WIDTH;
+
+	if (new_body_size != mBodySize)
+	{
+		mBodySize = new_body_size;
+		if (isSelf())
+		{	// notify simulator of change in size
+			gAgent.sendAgentSetAppearance();
+		}
+	}
 
 /* debug spam
 	std::cout << "skull = " << skull << std::endl;				// adebug
