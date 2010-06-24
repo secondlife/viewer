@@ -1038,6 +1038,32 @@ anguage Infrstructure (CLI) international standard</string>
           </map>
         </map>
       </map>
+      <key>llconvexdecomposition</key>
+      <map>
+        <key>copyright</key>
+        <string>on file</string>
+        <key>description</key>
+        <string>Convex decomposition utility for mesh</string>
+        <key>license</key>
+        <string>havok</string>
+        <key>packages</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>md5sum</key>
+            <string>9b895f616dfb5ce9814d4e53417950a9</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-windows-20100622.tar.bz2</uri>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>md5sum</key>
+            <string>da4d464008fac288865f259873cafad2</string>
+            <key>url</key>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-linux-20100622.tar.bz2</uri>
+          </map>          
+        </map>
+      </map>
       <key>llqtwebkit</key>
       <map>
         <key>license</key>

@@ -16,7 +16,7 @@ include(FindOpenGL)
 include(LLAudio)
 include(LLCharacter)
 include(LLCommon)
-include(LLConvexDecompInter)
+include(LLConvexDecomposition)
 include(LLImage)
 include(LLImageJ2COJ)
 include(LLInventory)
@@ -50,7 +50,7 @@ include_directories(
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCONVEXDECOMPINTER_INCLUDE_DIRS}
+    ${LLCONVEXDECOMP_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
@@ -1682,7 +1682,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
-    ${LLCONVEXDECOMPINTER_LIBRARIES}
+    ${LLCONVEXDECOMP_LIBRARY}
     )
 
 build_version(viewer)
