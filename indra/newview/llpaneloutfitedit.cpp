@@ -387,6 +387,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearableItemsList = getChild<LLInventoryItemsList>("list_view");
 	mWearableItemsList->setCommitOnSelectionChange(true);
 	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+	mWearableItemsList->setDoubleClickCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;

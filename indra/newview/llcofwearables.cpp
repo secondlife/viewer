@@ -374,7 +374,12 @@ void LLCOFWearables::refresh()
 				 value_it_end = values.end();
 			 value_it != value_it_end; ++value_it)
 		{
-			list->selectItemByValue(*value_it);
+			// value_it may be null because of dummy items
+			// Dummy items have no ID
+			if(value_it->asUUID().notNull())
+			{
+				list->selectItemByValue(*value_it);
+			}
 		}
 	}
 }
