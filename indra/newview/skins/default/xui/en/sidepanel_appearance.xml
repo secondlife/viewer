@@ -21,6 +21,9 @@ width="333">
    <string
    name="Now Wearing"
    value="Now wearing..." />
+   <string
+   name="Changing outfits"
+   value="Changing outfits" />
    <panel
    background_opaque="true"
    background_visible="true"

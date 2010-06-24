@@ -8,8 +8,8 @@
 		Af [CREATOR]
 	</string>
 	<string name="CreatorAndOwner">
-		af [CREATOR]
-ejer [OWNER]
+		Af [CREATOR]
+Owner [OWNER]
 	</string>
 	<string name="Price">
 		L$[AMOUNT]
@@ -23,6 +23,13 @@ ejer [OWNER]
 	<string name="Sit">
 		Sid
 	</string>
+	<text name="object_name" value="Test objekt navn der reelt er to linier og meget lang"/>
+	<text name="price_text">
+		L$30,000
+	</text>
+	<text name="object_description">
+		Dette er en meget lang beskrivelse af et objekt udformet så den fylder mindst 80 karakterer i længden eller endda nærmere 120 på dette sted. Man kan aldrig vide....
+	</text>
 	<button label="Køb" name="buy_btn"/>
 	<button label="Betal" name="pay_btn"/>
 	<button label="Tag kopi" name="take_free_copy_btn"/>

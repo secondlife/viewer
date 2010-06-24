@@ -72,7 +72,7 @@
 	<string name="jacket_desc_text">
 		Jakke:
 	</string>
-	<string name="skirt_skirt_desc_text">
+	<string name="skirt_desc_text">
 		Nederdel:
 	</string>
 	<string name="gloves_desc_text">
@@ -99,11 +99,6 @@
 		</radio_group>
 		<icon name="male_icon" tool_tip="Mandlig"/>
 		<icon name="female_icon" tool_tip="Kvindelig"/>
-	</panel>
-	<panel label="gear_buttom_panel" name="gear_buttom_panel">
-		<button name="friends_viewsort_btn" tool_tip="Valg"/>
-		<button name="add_btn" tool_tip="TODO"/>
-		<button name="del_btn" tool_tip="TODO"/>
 	</panel>
 	<panel name="button_panel">
 		<button label="Gem som" name="save_as_button"/>

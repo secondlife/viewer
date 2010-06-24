@@ -95,7 +95,7 @@
 		Et ugyldig hostnavn blev brugt for at få adgang til serveren. Check venligst din SLURL eller navnet på hosten.
 	</string>
 	<string name="CertExpired">
-		Certifikat returneret fra nettet ser ud til at være udløbet.  Check venligst din systemtid eller kontakt administratoren af dette net.
+		Det certifikat der blev returneret ser ud til at være udløbet. Check venligst din systemtid på computeren.
 	</string>
 	<string name="CertKeyUsage">
 		Det certifikat der blev returneret af serveren kan ikke benyttes til SSL.  Kontakt venligst administrator af dette net.
@@ -104,7 +104,7 @@
 		For mange certifikater i serverens certifikat streng.  Kontakt venligst administrator af dette net.
 	</string>
 	<string name="CertInvalidSignature">
-		Certifikat signaturen returneret på dette net kan ikke bekræftes.  Kontakt venligst administrator af dette net.
+		Signaturen på certifkat der blev returneret af Second Life serveren kunne ikke bekræftes.
 	</string>
 	<string name="LoginFailedNoNetwork">
 		Netværksfejl: Kunne ikke etablere forbindelse, check venligst din netværksforbindelse.
@@ -729,6 +729,12 @@
 	<string name="land_type_unknown">
 		(ukendt)
 	</string>
+	<string name="Estate / Full Region">
+		Estate / Hel region
+	</string>
+	<string name="Mainland / Full Region">
+		Mainland / Hel region
+	</string>
 	<string name="all_files">
 		Alle filer
 	</string>
@@ -872,6 +878,9 @@
 	</string>
 	<string name="NewWearable">
 		Ny [WEARABLE_ITEM]
+	</string>
+	<string name="CreateNewWearable">
+		Opret [WEARABLE_TYPE]
 	</string>
 	<string name="next">
 		Næste
@@ -3445,6 +3454,9 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="session_initialization_timed_out_error">
 		Initialisering af session er &quot;timed out&quot;
 	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] betalte dig L$[AMOUNT]
 	</string>
@@ -3615,16 +3627,16 @@ Krænkelsesanmeldelse
 	<string name="Male - Wow">
 		Mand - Wow
 	</string>
-	<string name="FeMale - Excuse me">
+	<string name="Female - Excuse me">
 		Kvinde - Undskyld mig
 	</string>
-	<string name="FeMale - Get lost">
+	<string name="Female - Get lost">
 		Kvinde - Skrid!
 	</string>
-	<string name="FeMale - Blow kiss">
+	<string name="Female - Blow kiss">
 		Kvinde - Pust et kys
 	</string>
-	<string name="FeMale - Boo">
+	<string name="Female - Boo">
 		Kvinde - Boo
 	</string>
 	<string name="Female - Bored">
@@ -3656,5 +3668,33 @@ Krænkelsesanmeldelse
 	</string>
 	<string name="texture_load_dimensions_error">
 		Kan ikke hente billeder større end  [WIDTH]*[HEIGHT]
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		Desværre er noget gået galt.
+
+	Check venligst status.secondlifegrid.net for at se om der skulle være driftsproblemer.
+	Hvis du bliver ved med at have problemer, check venligst din firewall- og netværksopsætning.
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		Søndag:Mandag:Tirsdag:Onsdag:Torsdag:Fredag:Lørdag
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		Søn:Man:Tir:Ons:Tor:Fre:Lør
+	</string>
+	<string name="dateTimeMonthNames">
+		Januar:Februar:Marts:April:Maj:Juni:Juli:August:September:Oktober:November:December
+	</string>
+	<string name="dateTimeMonthShortNames">
+		Jan:Feb:Mar:Apr:Maj:Jun:Jul:Aug:Sep:Okt:Nov:Dec
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		AM
+	</string>
+	<string name="dateTimePM">
+		PM
 	</string>
 </strings>

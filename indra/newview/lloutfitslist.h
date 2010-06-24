@@ -37,11 +37,14 @@
 
 // newview
 #include "llinventorymodel.h"
-#include "llinventoryobserver.h"
+#include "llpanelappearancetab.h"
 
 class LLAccordionCtrlTab;
+class LLInventoryCategoriesObserver;
+class LLOutfitListGearMenu;
 class LLWearableItemsList;
 class LLListContextMenu;
+
 
 /**
  * @class LLOutfitTabNameComparator
@@ -66,9 +69,9 @@ public:
  * which displays each outfit in an accordion tab with a flat list
  * of items inside it.
  *
- * Starts fetching nevessary inventory content on first openning.
+ * Starts fetching necessary inventory content on first opening.
  */
-class LLOutfitsList : public LLPanel
+class LLOutfitsList : public LLPanelAppearanceTab
 {
 public:
 	typedef boost::function<void (const LLUUID&)> selection_change_callback_t;
@@ -88,11 +91,19 @@ public:
 
 	void performAction(std::string action);
 
-	void setFilterSubString(const std::string& string);
+	void removeSelected();
+
+	void setSelectedOutfitByUUID(const LLUUID& outfit_uuid);
+
+	/*virtual*/ void setFilterSubString(const std::string& string);
+
+	/*virtual*/ bool isActionEnabled(const LLSD& userdata);
+
+	/*virtual*/ void showGearMenu(LLView* spawning_view);
 
 	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
 
-	boost::signals2::connection addSelectionChangeCallback(selection_change_callback_t cb);
+	boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
 
 	/**
 	 * Returns true if there is a selection inside currently selected outfit
@@ -184,13 +195,12 @@ private:
 	LLUUID							mHighlightedOutfitUUID;
 	selection_change_signal_t		mSelectionChangeSignal;
 
-	std::string 					mFilterSubString;
-
 	typedef	std::map<LLUUID, LLAccordionCtrlTab*>		outfits_map_t;
 	typedef outfits_map_t::value_type					outfits_map_value_t;
 	outfits_map_t					mOutfitsMap;
 
-	LLListContextMenu*			mOutfitMenu;
+	LLOutfitListGearMenu*			mGearMenu;
+	LLListContextMenu*				mOutfitMenu;
 
 	bool							mIsInitialized;
 	/**

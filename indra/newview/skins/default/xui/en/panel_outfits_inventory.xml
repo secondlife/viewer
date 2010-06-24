@@ -34,22 +34,32 @@
            follows="all"
            label="MY OUTFITS"
            layout="topleft"
-           width="315" />
-         <inventory_panel
-           follows="all"
+           width="312" />
+         <panel
            background_visible="true"
-           background_opaque="true"
-           label="WEARING"
+           class="panel_wearing"
+           follows="all"
+           height="490"          
            help_topic="now_wearing_tab"
-          allow_multi_select="true"
-           border="false"
-           left="0"
-           top="0"
-           mouse_opaque="true"
+           label="WEARING"
+           layout="topleft"
            name="cof_tab"
-           start_folder="Current Outfit"
-           use_label_suffix="true" 
-           width="315" />
+           width="312">
+            <wearable_items_list
+             allow_select="true"
+             follows="all"
+             height="490"
+             keep_one_selected="true"
+             left="1"
+             multi_select="true"
+             name="cof_items_list"
+             standalone="false"
+             top="0"
+             translate="false"
+             width="310"
+             worn_indication_enabled="false"
+            />
+         </panel>
    </tab_container>
 	 <panel
        background_visible="true"
@@ -84,7 +94,7 @@
       width="241"
         />
 
-        <dnd_button
+        <button
          follows="bottom|right"
          height="25"
          image_hover_unselected="Toolbar_Right_Over"
