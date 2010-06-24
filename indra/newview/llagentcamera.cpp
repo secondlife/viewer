@@ -95,6 +95,8 @@ const F32 OBJECT_MIN_ZOOM = 0.02f;
 const F32 APPEARANCE_MIN_ZOOM = 0.39f;
 const F32 APPEARANCE_MAX_ZOOM = 8.f;
 
+const F32 CUSTOMIZE_AVATAR_CAMERA_DEFAULT_DIST = 3.5f;
+
 const F32 GROUND_TO_AIR_CAMERA_TRANSITION_TIME = 0.5f;
 const F32 GROUND_TO_AIR_CAMERA_TRANSITION_START_TIME = 0.5f;
 
@@ -2325,8 +2327,6 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 	{
 		if(avatar_animate)
 		{	
-			// slamming the avatar's axis to the camera so that when the rotation
-			// completes it correctly points to the front of the avatar
 			// Remove any pitch or rotation from the avatar
 			LLVector3 at = gAgent.getAtAxis();
 			at.mV[VZ] = 0.f;
@@ -2356,7 +2356,7 @@ void LLAgentCamera::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL came
 		LLVector3d camera_offset(agent_at * -1.0);
 		// push camera up and out from avatar
 		camera_offset.mdV[VZ] = 0.1f; 
-		camera_offset *= 3.5f;
+		camera_offset *= CUSTOMIZE_AVATAR_CAMERA_DEFAULT_DIST;
 		LLVector3d focus_target_global = gAgent.getPosGlobalFromAgent(focus_target);
 		setCameraPosAndFocusGlobal(focus_target_global + camera_offset, focus_target_global, gAgent.getID());
 		
@@ -2392,6 +2392,7 @@ void LLAgentCamera::setAnimationDuration(F32 duration)
 { 
 	if (mCameraAnimating)
 	{
+		// do not cut any existing camera animation short
 		F32 animation_left = llmax(0.f, mAnimationDuration - mAnimationTimer.getElapsedTimeF32());
 		mAnimationDuration = llmax(duration, animation_left);
 	}

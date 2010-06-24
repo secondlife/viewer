@@ -236,7 +236,6 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
 		gAgentCamera.setFocusOnAvatar(FALSE, FALSE);
 		
 		LLVector3d cam_pos = gAgentCamera.getCameraPositionGlobal();
-		cam_pos -= LLVector3d(LLViewerCamera::getInstance()->getLeftAxis() * gAgentCamera.calcCustomizeAvatarUIOffset( cam_pos ));
 
 		gAgentCamera.setCameraPosAndFocusGlobal( cam_pos, pick_info.mPosGlobal, pick_info.mObjectID);
 	}

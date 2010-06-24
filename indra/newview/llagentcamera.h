@@ -137,7 +137,6 @@ public:
 	F32				getCameraMinOffGround(); 		// Minimum height off ground for this mode, meters
 	void			setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
 	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
-	F32				calcCustomizeAvatarUIOffset(const LLVector3d& camera_pos_global);
 	F32				getCurrentCameraBuildOffset() 	{ return (F32)mCameraFocusOffset.length(); }
 	void			clearCameraLag() { mCameraLag.clearVec(); }
 private:
