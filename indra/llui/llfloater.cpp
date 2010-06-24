@@ -2754,10 +2754,10 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 
 LLFastTimer::DeclareTimer POST_BUILD("Floater Post Build");
 
-bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
+bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
 	Params params(LLUICtrlFactory::getDefaultParams<LLFloater>());
-	LLXUIParser::instance().readXUI(node, params); // *TODO: Error checking
+	LLXUIParser::instance().readXUI(node, params, filename); // *TODO: Error checking
 
 	if (output_node)
 	{

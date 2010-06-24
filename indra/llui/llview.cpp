@@ -111,6 +111,8 @@ LLView::Params::Params()
 	user_resize("user_resize"),
 	auto_resize("auto_resize"),
 	needs_translate("translate"),
+	min_width("min_width"),
+	max_width("max_width"),
 	xmlns("xmlns"),
 	xmlns_xsi("xmlns:xsi"),
 	xsi_schemaLocation("xsi:schemaLocation"),

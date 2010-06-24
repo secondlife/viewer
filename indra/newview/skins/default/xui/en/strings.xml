@@ -1812,7 +1812,8 @@ Clears (deletes) the media and all params from the given face.
 	<string name="skirt">Skirt</string>
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
-	<string name="invalid">invalid</string>
+  <string name="invalid">invalid</string>
+  <string name="none">none</string>
   
   <!-- Not Worn Wearable Types -->
 	<string name="shirt_not_worn">Shirt not worn</string>

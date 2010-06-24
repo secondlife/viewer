@@ -78,6 +78,7 @@ public:
 														// only on DnD or when OK is pressed in the picker
 		Optional<S32>			label_width;
 		Optional<LLUIColor>		border_color;
+		Optional<LLUIImage*>	fallback_image;
 		
 		Optional<LLTextBox::Params>	multiselect_text,
 									caption_text;
@@ -93,6 +94,7 @@ public:
 			no_commit_on_selection("no_commit_on_selection", false),
 		    label_width("label_width", -1),
 			border_color("border_color"),
+			fallback_image("fallback_image"),
 			multiselect_text("multiselect_text"),
 			caption_text("caption_text"),
 			border("border")
@@ -152,9 +154,6 @@ public:
 
 	const std::string&	getDefaultImageName() const					{ return mDefaultImageName; }
 
-	void			setFallbackImageName( const std::string& name ) { mFallbackImageName = name; }			
-	const std::string& 	getFallbackImageName() const { return mFallbackImageName; }	   
-
 	void			setCaption(const std::string& caption);
 	void			setCanApplyImmediately(BOOL b);
 
@@ -192,32 +191,32 @@ private:
 	BOOL doDrop(LLInventoryItem* item);
 
 private:
-	drag_n_drop_callback	 mDragCallback;
-	drag_n_drop_callback	 mDropCallback;
-	commit_callback_t		 mOnCancelCallback;
-	commit_callback_t		 mOnSelectCallback;
+	drag_n_drop_callback	 	mDragCallback;
+	drag_n_drop_callback	 	mDropCallback;
+	commit_callback_t		 	mOnCancelCallback;
+	commit_callback_t		 	mOnSelectCallback;
 	LLPointer<LLViewerFetchedTexture> mTexturep;
-	LLUIColor				 mBorderColor;
-	LLUUID					 mImageItemID;
-	LLUUID					 mImageAssetID;
-	LLUUID					 mDefaultImageAssetID;
-	std::string				 mFallbackImageName;
-	std::string				 mDefaultImageName;
-	LLHandle<LLFloater>			 mFloaterHandle;
-	LLTextBox*				 mTentativeLabel;
-	LLTextBox*				 mCaption;
-	std::string				 mLabel;
-	BOOL					 mAllowNoTexture; // If true, the user can select "none" as an option
-	PermissionMask			 mImmediateFilterPermMask;
-	PermissionMask			 mNonImmediateFilterPermMask;
-	BOOL					 mCanApplyImmediately;
-	BOOL					 mCommitOnSelection;
-	BOOL					 mNeedsRawImageData;
-	LLViewBorder*			 mBorder;
-	BOOL					 mValid;
-	BOOL					 mShowLoadingPlaceholder;
-	std::string				 mLoadingPlaceholderString;
-	S32						 mLabelWidth;
+	LLUIColor				 	mBorderColor;
+	LLUUID					 	mImageItemID;
+	LLUUID					 	mImageAssetID;
+	LLUUID					 	mDefaultImageAssetID;
+	LLUIImagePtr				mFallbackImage;
+	std::string					mDefaultImageName;
+	LLHandle<LLFloater>			mFloaterHandle;
+	LLTextBox*				 	mTentativeLabel;
+	LLTextBox*				 	mCaption;
+	std::string				 	mLabel;
+	BOOL					 	mAllowNoTexture; // If true, the user can select "none" as an option
+	PermissionMask			 	mImmediateFilterPermMask;
+	PermissionMask			 	mNonImmediateFilterPermMask;
+	BOOL					 	mCanApplyImmediately;
+	BOOL					 	mCommitOnSelection;
+	BOOL					 	mNeedsRawImageData;
+	LLViewBorder*			 	mBorder;
+	BOOL					 	mValid;
+	BOOL					 	mShowLoadingPlaceholder;
+	std::string				 	mLoadingPlaceholderString;
+	S32						 	mLabelWidth;
 };
 
 // XUI HACK: When floaters converted, switch this file to lltexturepicker.h/cpp
