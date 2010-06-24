@@ -5338,7 +5338,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
+    </map> 
     <key>MouseSun</key>
     <map>
       <key>Comment</key>
@@ -5350,7 +5350,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>MuteAmbient</key>
+    <key>MultipleAttachments</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow multiple objects to be attached to a single attachment point.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+   <key>MuteAmbient</key>
     <map>
       <key>Comment</key>
       <string>Ambient sound effects, such as wind noise, play at 0 volume</string>
