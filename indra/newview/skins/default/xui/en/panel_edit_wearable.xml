@@ -12,95 +12,125 @@
  top="0"
  width="333">
     <string
-     name="edit_shape_title"
-     value="Editing Shape" />
+     name="edit_shape_title">
+        Editing Shape
+    </string>
     <string
-     name="edit_skin_title"
-     value="Editing Skin" />
+     name="edit_skin_title">
+        Editing Skin
+    </string>
     <string
-     name="edit_hair_title"
-     value="Editing Hair" />
+     name="edit_hair_title">
+        Editing Hair
+    </string>
     <string
-     name="edit_eyes_title"
-     value="Editing Eyes" />
+     name="edit_eyes_title">
+        Editing Eyes
+    </string>
     <string
-     name="edit_shirt_title"
-     value="Editing Shirt" />
+     name="edit_shirt_title">
+        Editing Shirt
+    </string>
     <string
-     name="edit_pants_title"
-     value="Editing Pants" />
+     name="edit_pants_title">
+        Editing Pants
+    </string>
     <string
-     name="edit_shoes_title"
-     value="Editing Shoes" />
+     name="edit_shoes_title">
+        Editing Shoes
+    </string>
     <string
-     name="edit_socks_title"
-     value="Editing Socks" />
+     name="edit_socks_title">
+        Editing Socks
+    </string>
     <string
-     name="edit_jacket_title"
-     value="Editing Jacket" />
+     name="edit_jacket_title">
+        Editing Jacket
+    </string>
     <string
-     name="edit_skirt_title"
-     value="Editing Skirt" />
+     name="edit_skirt_title">
+        Editing Skirt
+    </string>
     <string
-     name="edit_gloves_title"
-     value="Editing Gloves" />
+     name="edit_gloves_title">
+        Editing Gloves
+    </string>
     <string
-     name="edit_undershirt_title"
-     value="Editing Undershirt" />
+     name="edit_undershirt_title">
+        Editing Undershirt
+    </string>
     <string
-     name="edit_underpants_title"
-     value="Editing Underpants" />
+     name="edit_underpants_title">
+        Editing Underpants
+    </string>
     <string
-     name="edit_alpha_title"
-     value="Editing Alpha Mask" />
+     name="edit_alpha_title">
+        Editing Alpha Mask
+    </string>
     <string
-     name="edit_tattoo_title"
-     value="Editing Tattoo" />
+     name="edit_tattoo_title">
+        Editing Tattoo
+    </string>
     <string
-     name="shape_desc_text"
-     value="Shape:" />
+     name="shape_desc_text">
+        Shape:
+    </string>
     <string
-     name="skin_desc_text"
-     value="Skin:" />
+     name="skin_desc_text">
+        Skin:
+    </string>
     <string
-     name="hair_desc_text"
-     value="Hair:" />
+     name="hair_desc_text">
+        Hair:
+    </string>
     <string
-     name="eyes_desc_text"
-     value="Eyes:" />
+     name="eyes_desc_text">
+        Eyes:
+    </string>
     <string
-     name="shirt_desc_text"
-     value="Shirt:" />
+     name="shirt_desc_text">
+        Shirt:
+    </string>
     <string
-     name="pants_desc_text"
-     value="Pants:" />
+     name="pants_desc_text">
+        Pants:
+    </string>
     <string
-     name="shoes_desc_text"
-     value="Shoes:" />
+     name="shoes_desc_text">
+        Shoes:
+    </string>
     <string
-     name="socks_desc_text"
-     value="Socks:" />
+    name="socks_desc_text">
+        Socks:
+    </string>
     <string
-     name="jacket_desc_text"
-     value="Jacket:" />
+     name="jacket_desc_text">
+        Jacket:
+    </string>
     <string
-     name="skirt_desc_text"
-     value="Skirt:" />
+     name="skirt_desc_text">
+        Skirt:
+    </string>
     <string
-     name="gloves_desc_text"
-     value="Gloves:" />
+    name="gloves_desc_text">
+        Gloves:
+    </string>
     <string
-     name="undershirt_desc_text"
-     value="Undershirt:" />
+     name="undershirt_desc_text">
+        Undershirt:
+    </string>
     <string
-     name="underpants_desc_text"
-     value="Underpants:" />
+     name="underpants_desc_text">
+        Underpants:
+    </string>
     <string
-     name="alpha_desc_text"
-     value="Alpha Mask:" />
+     name="alpha_desc_text">
+        Alpha Mask:
+    </string>
     <string
-     name="tattoo_desc_text"
-     value="Tattoo:" />
+     name="tattoo_desc_text">
+        Tattoo:
+    </string>
     <button
      follows="top|left"
      height="24"
