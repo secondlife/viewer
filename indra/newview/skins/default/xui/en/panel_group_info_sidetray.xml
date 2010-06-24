@@ -184,7 +184,6 @@ background_visible="true"
          top_pad="0"
    name="button_row"
    follows="bottom|left"
-   height="23"
    width="313">
    <button
     follows="bottom|left"
