@@ -45,7 +45,7 @@
 			</combo_box>
 			<button label="Sélectionner" name="sell_to_select_agent" width="100"/>
 			<text name="sell_objects_label">
-				3. Vendez-vous les objets avec ce terrain ?
+				3. Vendre les objets avec ce terrain ?
 			</text>
 			<text name="sell_objects_text">
 				Les objets transférables se trouvant sur la parcelle changeront de propriétaire.
