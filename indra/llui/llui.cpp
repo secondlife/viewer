@@ -1752,6 +1752,33 @@ std::string LLUI::getLanguage()
 	return language;
 }
 
+struct SubDir : public LLInitParam::Block<SubDir>
+{
+	Mandatory<std::string> value;
+
+	SubDir()
+	:	value("value")
+	{}
+};
+
+struct Directory : public LLInitParam::Block<Directory>
+{
+	Multiple<SubDir, AtLeast<1> > subdirs;
+
+	Directory()
+	:	subdirs("subdir")
+	{}
+};
+
+struct Paths : public LLInitParam::Block<Paths>
+{
+	Multiple<Directory, AtLeast<1> > directories;
+
+	Paths()
+	:	directories("directory")
+	{}
+};
+
 //static
 void LLUI::setupPaths()
 {
@@ -1759,21 +1786,36 @@ void LLUI::setupPaths()
 
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
+	Paths paths;
+	LLXUIParser::instance().readXUI(root, paths, filename);
+
 	sXUIPaths.clear();
 	
-	if (success)
+	if (success && paths.validateBlock())
 	{
 		LLStringUtil::format_map_t path_args;
 		path_args["[LANGUAGE]"] = LLUI::getLanguage();
 		
-		for (LLXMLNodePtr path = root->getFirstChild(); path.notNull(); path = path->getNextSibling())
+		for (LLInitParam::ParamIterator<Directory>::const_iterator it = paths.directories().begin(), 
+				end_it = paths.directories().end();
+			it != end_it;
+			++it)
 		{
-			std::string path_val_ui(path->getValue());
+			std::string path_val_ui;
+			for (LLInitParam::ParamIterator<SubDir>::const_iterator subdir_it = it->subdirs().begin(),
+					subdir_end_it = it->subdirs().end();
+				subdir_it != subdir_end_it;)
+			{
+				path_val_ui += subdir_it->value();
+				if (++subdir_it != subdir_end_it)
+					path_val_ui += gDirUtilp->getDirDelimiter();
+			}
 			LLStringUtil::format(path_val_ui, path_args);
 			if (std::find(sXUIPaths.begin(), sXUIPaths.end(), path_val_ui) == sXUIPaths.end())
 			{
 				sXUIPaths.push_back(path_val_ui);
 			}
+
 		}
 	}
 	else // parsing failed

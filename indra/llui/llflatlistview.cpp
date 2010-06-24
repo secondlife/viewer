@@ -1227,7 +1227,7 @@ LLFlatListViewEx::LLFlatListViewEx(const Params& p)
 , mNoFilteredItemsMsg(p.no_filtered_items_msg)
 , mNoItemsMsg(p.no_items_msg)
 , mForceShowingUnmatchedItems(false)
-, mLastFilterSucceded(false)
+, mHasMatchedItems(false)
 {
 
 }
@@ -1285,7 +1285,7 @@ void LLFlatListViewEx::filterItems()
 	item_panel_list_t items;
 	getItems(items);
 
-	mLastFilterSucceded = false;
+	mHasMatchedItems = false;
 	for (item_panel_list_t::iterator
 			 iter = items.begin(),
 			 iter_end = items.end();
@@ -1296,13 +1296,16 @@ void LLFlatListViewEx::filterItems()
 		// i.e. we don't hide items that don't support 'match_filter' action, separators etc.
 		if (0 == pItem->notify(action))
 		{
-			mLastFilterSucceded = true;
+			mHasMatchedItems = true;
 			pItem->setVisible(true);
 		}
 		else
 		{
 			// TODO: implement (re)storing of current selection.
-			selectItem(pItem, false);
+			if(!mForceShowingUnmatchedItems)
+			{
+				selectItem(pItem, false);
+			}
 			pItem->setVisible(mForceShowingUnmatchedItems);
 		}
 	}
@@ -1311,9 +1314,9 @@ void LLFlatListViewEx::filterItems()
 	notifyParentItemsRectChanged();
 }
 
-bool LLFlatListViewEx::wasLasFilterSuccessfull()
+bool LLFlatListViewEx::hasMatchedItems()
 {
-	return mLastFilterSucceded;
+	return mHasMatchedItems;
 }
 
 //EOF

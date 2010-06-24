@@ -104,8 +104,6 @@
   </tab_container>
   <layout_stack
    animate="false"
-   background_visible="true"
-   bevel_style="none"
    border_size="0"
    follows="left|right|bottom"
    height="25"

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-	 auto_tile="true"
 	 height="570"
 	 layout="topleft"
 	 name="object properties"
 	 help_topic="object_properties"
-	 save_rect="true"
 	 title="Object Profile"
 	 width="333">
 	 <panel.string
@@ -219,7 +217,6 @@
 			 left_pad="0"
 			 top_delta="0"
 			 name="button set group"
-			 picture_style="true"
 			 tab_stop="false"
 			 tool_tip="Choose a group to share this object's permissions"
 			 width="10" />

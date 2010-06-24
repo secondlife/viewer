@@ -387,6 +387,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearableItemsList = getChild<LLInventoryItemsList>("list_view");
 	mWearableItemsList->setCommitOnSelectionChange(true);
 	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+	mWearableItemsList->setDoubleClickCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;
@@ -404,6 +405,10 @@ void LLPanelOutfitEdit::onOpen(const LLSD& key)
 		displayCurrentOutfit();
 		mInitialized = true;
 	}
+
+	showAddWearablesPanel(false);
+	mWearableItemsList->resetSelection();
+	mInventoryItemsPanel->clearSelection();
 }
 
 void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
@@ -564,7 +569,8 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitEdit::onPlusBtnClicked(void)
 {
-	LLUUID selected_id = getSelectedItemUUID();
+	LLUUID selected_id;
+	getCurrentItemUUID(selected_id);
 
 	if (selected_id.isNull()) return;
 
@@ -651,30 +657,31 @@ void LLPanelOutfitEdit::onEditWearableClicked(void)
 
 void LLPanelOutfitEdit::onInventorySelectionChange()
 {
-	LLUUID item_uuid = getSelectedItemUUID();
-	if (item_uuid.isNull())
+	uuid_vec_t selected_items;
+	getSelectedItemsUUID(selected_items);
+	if (selected_items.empty())
 	{
 		return;
 	}
+	uuid_vec_t::iterator worn_item = std::find_if(selected_items.begin(), selected_items.end(), boost::bind(&get_is_item_worn, _1));
+	bool can_add = ( worn_item == selected_items.end() );
 
-	LLViewerInventoryItem* item(gInventory.getItem(item_uuid));
-	if (!item)
-	{
-		return;
-	}
+	mPlusBtn->setEnabled(can_add);
 
-	switch (item->getType())
+	LLViewerInventoryItem* first_item(gInventory.getItem(selected_items.front()));
+
+	if (can_add && 
+		first_item &&
+		selected_items.size() == 1 && 
+		first_item->getType() == LLAssetType::AT_BODYPART)
 	{
-	case LLAssetType::AT_BODYPART:
 		mPlusBtn->setToolTip(getString("replace_body_part"));
-		break;
-	case LLAssetType::AT_CLOTHING:
-	case LLAssetType::AT_OBJECT:
-		mPlusBtn->setToolTip(LLStringUtil::null);
-	default:
-		break;
 	}
-	
+	else
+	{
+		mPlusBtn->setToolTip(LLStringUtil::null);
+	}
+
 	/* Removing add to look inline button (not part of mvp for viewer 2)
 	LLRect btn_rect(current_item->getLocalRect().mRight - 50,
 					current_item->getLocalRect().mTop,
@@ -931,16 +938,15 @@ void LLPanelOutfitEdit::onOutfitChanging(bool started)
 	indicator->setVisible(started);
 }
 
-LLUUID LLPanelOutfitEdit::getSelectedItemUUID()
+void LLPanelOutfitEdit::getCurrentItemUUID(LLUUID& selected_id)
 {
-	LLUUID selected_id;
 	if (mInventoryItemsPanel->getVisible())
 	{
 		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
-		if (!curr_item) return selected_id;
+		if (!curr_item) return;
 
 		LLFolderViewEventListener* listenerp  = curr_item->getListener();
-		if (!listenerp) return selected_id;
+		if (!listenerp) return;
 
 		selected_id = listenerp->getUUID();
 	}
@@ -948,8 +954,27 @@ LLUUID LLPanelOutfitEdit::getSelectedItemUUID()
 	{
 		selected_id = mWearableItemsList->getSelectedUUID();
 	}
+}
 
-	return selected_id;
+
+void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
+{
+	if (mInventoryItemsPanel->getVisible())
+	{
+		std::set<LLUUID> item_set = mInventoryItemsPanel->getRootFolder()->getSelectionList();
+
+		std::for_each(item_set.begin(), item_set.end(), boost::bind( &uuid_vec_t::push_back, &uuid_list, _1));
+	}
+	else if (mWearablesListViewPanel->getVisible())
+	{
+		std::vector<LLSD> item_set;
+		mWearableItemsList->getSelectedValues(item_set);
+
+		std::for_each(item_set.begin(), item_set.end(), boost::bind( &uuid_vec_t::push_back, &uuid_list, boost::bind(&LLSD::asUUID, _1 )));
+
+	}
+
+//	return selected_id;
 }
 
 

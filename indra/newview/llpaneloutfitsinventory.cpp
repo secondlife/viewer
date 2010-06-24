@@ -169,7 +169,14 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitsInventory::onWearButtonClick()
 {
-	mMyOutfitsPanel->performAction("replaceoutfit");
+	if (mMyOutfitsPanel->hasItemSelected())
+	{
+		mMyOutfitsPanel->wearSelectedItems();
+	}
+	else
+	{
+		mMyOutfitsPanel->performAction("replaceoutfit");
+	}
 }
 
 bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD& response)

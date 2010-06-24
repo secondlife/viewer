@@ -46,7 +46,6 @@
      image_unselected="BackButton_Off"
      layout="topleft"
      name="back_btn"
-     picture_style="true"
      left="10"
      tab_stop="false"
      top="2"

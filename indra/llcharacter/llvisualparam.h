@@ -52,6 +52,7 @@ enum EVisualParamGroup
 {
 	VISUAL_PARAM_GROUP_TWEAKABLE,
 	VISUAL_PARAM_GROUP_ANIMATABLE,
+	VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT,
 	NUM_VISUAL_PARAM_GROUPS
 };
 
@@ -144,6 +145,7 @@ public:
 	F32						getCurrentWeight() const 	{ return mCurWeight; }
 	F32						getLastWeight() const	{ return mLastWeight; }
 	BOOL					isAnimating() const	{ return mIsAnimating; }
+	BOOL					isTweakable() const { return (getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)  || (getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT); }
 
 	LLVisualParam*			getNextParam()		{ return mNext; }
 	void					setNextParam( LLVisualParam *next );
