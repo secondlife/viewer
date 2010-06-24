@@ -16,7 +16,13 @@
 		har sluttet sig til stemme chat opkald med en konference chat.
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		deltager nu i Stemme chat opkald med denne gruppe [GROUP].
+		netop tilsuttet stemme kanal for &apos;[GROUP]&apos;.
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionGroup">
+		Ønsker du at forlade [CURRENT_CHAT] og tilsutte dig kald med &apos;[GROUP]&apos;?
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionDefault">
+		Ønsker du at forlade [CURRENT_CHAT] og tilslutte dig denne stemmechat?
 	</floater.string>
 	<text name="question">
 		Ønsker du at forlade [CURRENT_CHAT] og slutte dig til denne stemme chat?
