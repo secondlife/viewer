@@ -299,12 +299,12 @@ protected:
 private:
 	enum ETypeListOrder
 	{
-		TLO_ATTACHMENT	= 0x01,
-		TLO_CLOTHING	= 0x02,
+		TLO_CLOTHING	= 0x01,
+		TLO_ATTACHMENT	= 0x02,
 		TLO_BODYPART	= 0x04,
 		TLO_UNKNOWN		= 0x08,
 
-		TLO_NOT_CLOTHING = TLO_ATTACHMENT | TLO_BODYPART | TLO_UNKNOWN
+		TLO_SORTABLE_BY_NAME = TLO_ATTACHMENT | TLO_UNKNOWN
 	};
 
 	static LLWearableItemTypeNameComparator::ETypeListOrder getTypeListOrder(LLAssetType::EType item_type);

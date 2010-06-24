@@ -393,9 +393,9 @@ bool LLWearableItemTypeNameComparator::doCompare(const LLPanelInventoryListItemB
 		return item_type_order1 < item_type_order2;
 	}
 
-	if (item_type_order1 & TLO_NOT_CLOTHING)
+	if (item_type_order1 & TLO_SORTABLE_BY_NAME)
 	{
-		// If both items are of the same asset type except AT_CLOTHING
+		// If both items are of the same asset type except AT_CLOTHING and AT_BODYPART
 		// we can compare them by name.
 		return LLWearableItemNameComparator::doCompare(wearable_item1, wearable_item2);
 	}
