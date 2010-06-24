@@ -673,6 +673,8 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	setMenuItemEnabled(menu, "take_off_or_detach",	n_worn == n_items);
 	setMenuItemVisible(menu, "object_profile",		!standalone);
 	setMenuItemEnabled(menu, "object_profile",		n_items == 1);
+	setMenuItemVisible(menu, "--no options--", 		FALSE);
+	setMenuItemEnabled(menu, "--no options--",		FALSE);
 
 	// Populate or hide the "Attach to..." / "Attach to HUD..." submenus.
 	if (mask == MASK_ATTACHMENT && n_worn == 0)
@@ -688,6 +690,20 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	if (mask & MASK_UNKNOWN)
 	{
 		llwarns << "Non-wearable items passed." << llendl;
+	}
+
+	U32 num_visible_items = 0;
+	for (U32 menu_item_index = 0; menu_item_index < menu->getItemCount(); ++menu_item_index)
+	{
+		const LLMenuItemGL* menu_item = menu->getItem(menu_item_index);
+		if (menu_item && menu_item->getVisible())
+		{
+			num_visible_items++;
+		}
+	}
+	if (num_visible_items == 0)
+	{
+		setMenuItemVisible(menu, "--no options--", TRUE);
 	}
 }
 
