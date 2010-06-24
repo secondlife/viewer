@@ -2,12 +2,12 @@
 <panel label="Choses" name="objects panel">
 	<panel label="" name="sidepanel__inventory_panel">
 		<panel name="button_panel">
-			<button label="Profil" name="info_btn"/>
-			<button label="Partager" name="share_btn"/>
-			<button label="Acheter" name="shop_btn"/>
-			<button label="Porter" name="wear_btn"/>
+			<button label="Profil" name="info_btn" tool_tip="Afficher le profil de l&apos;objet"/>
+			<button label="Partager" name="share_btn" tool_tip="Partager un article de l&apos;inventaire"/>
+			<button label="Acheter" name="shop_btn" tool_tip="Accéder à la place du marché sur le Web"/>
+			<button label="Porter" name="wear_btn" tool_tip="Porter la tenue sélectionnée"/>
 			<button label="Jouer" name="play_btn"/>
-			<button label="Téléporter" name="teleport_btn"/>
+			<button label="Téléporter" name="teleport_btn" tool_tip="Me téléporter jusqu&apos;à la zone sélectionnée"/>
 		</panel>
 	</panel>
 </panel>

@@ -53,7 +53,6 @@ public:
 	};
 	LLMorphView(const LLMorphView::Params&);
 	
-	void		initialize();
 	void		shutdown();
 
 	// inherited methods
@@ -64,12 +63,13 @@ public:
 
 	void		setCameraOffset(const LLVector3d& camera_offset)	{mCameraOffset = camera_offset;}
 	void		setCameraTargetOffset(const LLVector3d& camera_target_offset) {mCameraTargetOffset = camera_target_offset;}
-	void		setCameraDistToDefault()					{ mCameraDist = -1.f; }
 
 	void		updateCamera();
 	void		setCameraDrivenByKeys( BOOL b );
 
 protected:
+	void		initialize();
+
 	LLJoint*	mCameraTargetJoint;
 	LLVector3d	mCameraOffset;
 	LLVector3d	mCameraTargetOffset;
@@ -81,9 +81,6 @@ protected:
 	// camera rotation
 	F32			mCameraPitch;
 	F32			mCameraYaw;
-
-	// camera zoom
-	F32			mCameraDist;
 
 	BOOL		mCameraDrivenByKeys;
 };

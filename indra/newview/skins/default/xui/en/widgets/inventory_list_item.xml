@@ -14,5 +14,6 @@
   <!-- style for inventory list item WORN on avatar -->
   <worn_style
    font="SansSerifSmall"
-   font.style="BOLD" />
+   font.style="BOLD"
+   color="EmphasisColor" />
 </inventory_list_item>

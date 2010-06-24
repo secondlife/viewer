@@ -34,10 +34,12 @@
 #define LL_LLAPPEARANCEMGR_H
 
 #include "llsingleton.h"
+
+#include "llagentwearables.h"
+#include "llcallbacklist.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llviewerinventory.h"
-#include "llcallbacklist.h"
 
 class LLWearable;
 class LLWearableHoldingPattern;
@@ -360,6 +362,9 @@ public:
 					<< llendl;
 			//dec_busy_count();
 			gInventory.removeObserver(this);
+
+			// lets notify observers that loading is finished.
+			gAgentWearables.notifyLoadingFinished();
 			delete this;
 			return;
 		}

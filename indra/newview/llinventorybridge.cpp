@@ -72,7 +72,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
-#include "llpaneloutfitsinventory.h"
 
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
 typedef std::list<two_uuids_t> two_uuids_list_t;
@@ -511,17 +510,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 {
 	const LLInventoryObject *obj = getInventoryObject();
 
-	bool is_sidepanel = isInOutfitsSidePanel();
-	if (is_sidepanel)
-	{
-		// Sidepanel includes restricted menu.
-		if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
-		{
-			items.push_back(std::string("Remove Link"));
-		}
-		return;
-	}
-
 	if (obj)
 	{
 		if (obj->getIsLinkType())
@@ -946,16 +934,6 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 		model->purgeObject(uuid);
 		model->notifyObservers();
 	}
-}
-
-BOOL LLInvFVBridge::isInOutfitsSidePanel() const
-{
-	LLInventoryPanel *my_panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
-	LLPanelOutfitsInventory *outfit_panel =
-		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-	if (!outfit_panel)
-		return FALSE;
-	return outfit_panel->isTabPanel(my_panel);
 }
 
 BOOL LLInvFVBridge::canShare() const
@@ -2430,17 +2408,8 @@ void LLFolderBridge::folderOptionsMenu()
 	const bool is_ensemble = (type == LLFolderType::FT_NONE ||
 							  LLFolderType::lookupIsEnsembleType(type));
 
-	// calling card related functionality for folders.
-
-	const bool is_sidepanel = isInOutfitsSidePanel();
-	if (is_sidepanel)
-	{
-		mItems.push_back("Rename");
-		addDeleteContextMenuOptions(mItems, disabled_items);
-	}
-
 	// Only enable calling-card related options for non-system folders.
-	if (!is_sidepanel && !is_system_folder)
+	if (!is_system_folder)
 	{
 		LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
 		if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
@@ -2469,10 +2438,7 @@ void LLFolderBridge::folderOptionsMenu()
 		checkFolderForContentsOfType(model, is_object) ||
 		checkFolderForContentsOfType(model, is_gesture) )
 	{
-		if (!is_sidepanel)
-		{
-			mItems.push_back(std::string("Folder Wearables Separator"));
-		}
+		mItems.push_back(std::string("Folder Wearables Separator"));
 
 		// Only enable add/replace outfit for non-system folders.
 		if (!is_system_folder)
@@ -3763,13 +3729,6 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		bool is_sidepanel = isInOutfitsSidePanel();
-
-		if (!is_sidepanel)
-		{
-			addOpenRightClickMenuOption(items);
-			items.push_back(std::string("Properties"));
-		}
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
@@ -4071,12 +4030,8 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		bool is_sidepanel = isInOutfitsSidePanel();
 
-		if (!is_sidepanel)
-		{
-			items.push_back(std::string("Properties"));
-		}
+		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
@@ -4431,24 +4386,17 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		bool is_sidepanel = isInOutfitsSidePanel();
 		
-		if (can_open && !is_sidepanel)
+		if (can_open)
 		{
 			addOpenRightClickMenuOption(items);
 		}
 
-		if (!is_sidepanel)
-		{
-			items.push_back(std::string("Properties"));
-		}
+		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
-		if (!is_sidepanel)
-		{
-			items.push_back(std::string("Wearable Separator"));
-		}
+		items.push_back(std::string("Wearable Separator"));
 
 		items.push_back(std::string("Wearable Edit"));
 

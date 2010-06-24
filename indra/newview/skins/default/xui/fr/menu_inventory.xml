@@ -81,6 +81,7 @@
 	<menu label="Attacher au HUD " name="Attach To HUD"/>
 	<menu_item_call label="Éditer" name="Wearable Edit"/>
 	<menu_item_call label="Porter" name="Wearable Wear"/>
+	<menu_item_call label="Ajouter" name="Wearable Add"/>
 	<menu_item_call label="Enlever" name="Take Off"/>
 	<menu_item_call label="--aucune option--" name="--no options--"/>
 </menu>

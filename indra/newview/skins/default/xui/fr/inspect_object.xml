@@ -8,8 +8,8 @@
 		Par [CREATOR]
 	</string>
 	<string name="CreatorAndOwner">
-		par [CREATOR]
-propriétaire [OWNER]
+		De [CREATOR]
+Propriétaire [OWNER]
 	</string>
 	<string name="Price">
 		[AMOUNT] L$
@@ -23,16 +23,16 @@ propriétaire [OWNER]
 	<string name="Sit">
 		M&apos;asseoir
 	</string>
-	<text name="object_name" value="Nom d&apos;objet de test vraiment très long"/>
+	<text name="object_name" value="Test Object Name That Is actually two lines and Really Long"/>
 	<text name="object_creator">
 		par secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 	</text>
 	<text name="price_text">
-		300 000 L$
+		30 000 L$
 	</text>
 	<text name="object_description">
-		Cette description d&apos;objet est vraiment très longue : elle compte au moins 80 caractères, voire plus de 120, vraiment très très longue. Who knows, really?
+		This is a really long description for an object being as how it is at least 80 characters in length and so but maybe more like 120 at this point. Who knows, really?
 	</text>
 	<text name="object_media_url">
 		http://www.superdupertest.com

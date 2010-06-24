@@ -9,6 +9,7 @@
 		<menu_item_check label="Beholdning" name="Inventory"/>
 		<menu_item_check label="Min beholdning" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mine bevægelser" name="Gestures"/>
+		<menu_item_check label="Min stemme" name="ShowVoice"/>
 		<menu label="Min status" name="Status">
 			<menu_item_call label="Væk" name="Set Away"/>
 			<menu_item_call label="Optaget" name="Set Busy"/>
@@ -68,6 +69,12 @@
 		<menu_item_call label="Sammenkæd" name="Link"/>
 		<menu_item_call label="Adskil" name="Unlink"/>
 		<menu_item_check label="Redigér sammekædede objekter" name="Edit Linked Parts"/>
+		<menu label="Vis lænkede dele" name="Select Linked Parts">
+			<menu_item_call label="Vælg næste del" name="Select Next Part"/>
+			<menu_item_call label="Vælg forrige del" name="Select Previous Part"/>
+			<menu_item_call label="Inkludér næste del" name="Include Next Part"/>
+			<menu_item_call label="Inkludér forrige del" name="Include Previous Part"/>
+		</menu>
 		<menu_item_call label="Fokusér på valgte" name="Focus on Selection"/>
 		<menu_item_call label="Zoom til valgte" name="Zoom to Selection"/>
 		<menu label="Objekt" name="Object">
@@ -98,11 +105,11 @@
 			<menu_item_call label="Benyt valgte som grundlag for gitter" name="Use Selection for Grid"/>
 			<menu_item_call label="Gitter indstillinger" name="Grid Options"/>
 		</menu>
-		<menu label="Vis lænkede dele" name="Select Linked Parts">
-			<menu_item_call label="Vælg næste del" name="Select Next Part"/>
-			<menu_item_call label="Vælg forrige del" name="Select Previous Part"/>
-			<menu_item_call label="Inkludér næste del" name="Include Next Part"/>
-			<menu_item_call label="Inkludér forrige del" name="Include Previous Part"/>
+		<menu label="Send" name="Upload">
+			<menu_item_call label="Billede (L$[COST])..." name="Upload Image"/>
+			<menu_item_call label="Lyd (L$[COST])..." name="Upload Sound"/>
+			<menu_item_call label="Animation (L$[COST])..." name="Upload Animation"/>
+			<menu_item_call label="Mange (L$[COST] pr. fil)..." name="Bulk Upload"/>
 		</menu>
 	</menu>
 	<menu label="Hjælp" name="Help">

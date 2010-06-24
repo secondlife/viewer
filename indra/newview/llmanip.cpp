@@ -435,12 +435,12 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 	S32 vertical_offset = window_center_y - VERTICAL_OFFSET;
 
 
-	glPushMatrix();
+	gGL.pushMatrix();
 	{
 		LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
 		gViewerWindow->setup2DRender();
 		const LLVector2& display_scale = gViewerWindow->getDisplayScale();
-		glScalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);
+		gGL.scalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);
 		gGL.color4f(0.f, 0.f, 0.f, 0.7f);
 
 		imagep->draw(
@@ -450,7 +450,7 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 			PAD * 2 + 10, 
 			LLColor4(0.f, 0.f, 0.f, 0.7f) );
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 
 	gViewerWindow->setup3DRender();
 

@@ -391,12 +391,12 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          follows="bottom|right"
          height="25"
          image_hover_unselected="Toolbar_Middle_Over"
-         image_overlay="AddItem_Off"
+         image_overlay="Shop"
          image_selected="Toolbar_Middle_Selected"
          image_unselected="Toolbar_Middle_Off"
          layout="topleft"
          left_pad="0"
-         name="shop_btn"
+         name="shop_btn_1"
          top="1"
          width="31" />
     </panel>
@@ -472,8 +472,20 @@ It is calculated as border_size + 2*UIResizeBarOverlap
          layout="topleft"
          left_pad="1"
          name="dummy_right_icon"
-         width="184" >
+         width="153" >
         </icon>
+        <button
+         follows="bottom|right"
+         height="25"
+         image_hover_unselected="Toolbar_Middle_Over"
+         image_overlay="Shop"
+         image_selected="Toolbar_Middle_Selected"
+         image_unselected="Toolbar_Middle_Off"
+         layout="topleft"
+         left_pad="0"
+         name="shop_btn_2"
+         top="1"
+         width="31" />
     </panel>
     
     <!-- SAVE AND REVERT BUTTONS -->
