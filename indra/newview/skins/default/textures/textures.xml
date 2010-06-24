@@ -68,9 +68,9 @@ with the same filename but different name
 
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
 
-  <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" />
-  <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" />
-  <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" />
+  <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
+  <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
+  <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
 
   <texture name="Blank" file_name="Blank.png" preload="false" />
 

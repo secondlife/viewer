@@ -374,7 +374,12 @@ void LLCOFWearables::refresh()
 				 value_it_end = values.end();
 			 value_it != value_it_end; ++value_it)
 		{
-			list->selectItemByValue(*value_it);
+			// value_it may be null because of dummy items
+			// Dummy items have no ID
+			if(value_it->asUUID().notNull())
+			{
+				list->selectItemByValue(*value_it);
+			}
 		}
 	}
 }
@@ -608,7 +613,20 @@ void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContex
 		uuid_vec_t selected_uuids;
 		if(getSelectedUUIDs(selected_uuids))
 		{
-			menu->show(ctrl, selected_uuids, x, y);
+			bool show_menu = false;
+			for(uuid_vec_t::iterator it = selected_uuids.begin();it!=selected_uuids.end();++it)
+			{
+				if ((*it).notNull())
+				{
+					show_menu = true;
+					break;
+				}
+			}
+
+			if(show_menu)
+			{
+				menu->show(ctrl, selected_uuids, x, y);
+			}
 		}
 	}
 }

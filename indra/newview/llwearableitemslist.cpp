@@ -393,9 +393,9 @@ bool LLWearableItemTypeNameComparator::doCompare(const LLPanelInventoryListItemB
 		return item_type_order1 < item_type_order2;
 	}
 
-	if (item_type_order1 & TLO_NOT_CLOTHING)
+	if (item_type_order1 & TLO_SORTABLE_BY_NAME)
 	{
-		// If both items are of the same asset type except AT_CLOTHING
+		// If both items are of the same asset type except AT_CLOTHING and AT_BODYPART
 		// we can compare them by name.
 		return LLWearableItemNameComparator::doCompare(wearable_item1, wearable_item2);
 	}
@@ -662,7 +662,8 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0);
 	setMenuItemEnabled(menu, "wear_add",			n_items == 1 && canAddWearable(ids.front()));
 	setMenuItemVisible(menu, "wear",				n_worn == 0);
-	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART) && n_worn == n_items);
+	//visible only when one item selected and this item is worn
+	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART) && n_worn == n_items && n_worn == 1);
 	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1 && n_items == 1);
 	setMenuItemVisible(menu, "create_new",			mask & (MASK_CLOTHING|MASK_BODYPART) && n_items == 1);
 	setMenuItemVisible(menu, "show_original",		!standalone);
