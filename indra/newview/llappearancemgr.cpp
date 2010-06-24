@@ -935,7 +935,9 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 	// That means subscribers will be notified that loading is done after first item in a batch is worn.
 	// (loading indicator disappears for example before all selected items are worn)
 	// Have not fix this issue for 2.1 because of stability reason. EXT-7777.
-	gAgentWearables.notifyLoadingStarted();
+
+	// Disabled for now because it is *not* acceptable to call updateAppearanceFromCOF() multiple times
+//	gAgentWearables.notifyLoadingStarted();
 
 	LLViewerInventoryItem* item_to_wear = gInventory.getItem(item_id_to_wear);
 	if (!item_to_wear) return false;
@@ -2540,7 +2542,8 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 	   {
 		   // we have to pass do_update = true to call LLAppearanceMgr::updateAppearanceFromCOF.
 		   // it will trigger gAgentWariables.notifyLoadingFinished()
-		   LLAppearanceMgr::addCOFItemLink(item_id, true);  // Add COF link for item.
+		   // But it is not acceptable solution. See EXT-7777
+		   LLAppearanceMgr::addCOFItemLink(item_id, false);  // Add COF link for item.
 	   }
 	   else
 	   {
@@ -2570,7 +2573,7 @@ void LLAppearanceMgr::linkRegisteredAttachments()
 		 ++it)
 	{
 		LLUUID item_id = *it;
-		addCOFItemLink(item_id, true);
+		addCOFItemLink(item_id, false);
 	}
 	mRegisteredAttachments.clear();
 }
