@@ -110,7 +110,6 @@ void LLPanelPlaceInfo::resetLocation()
 	mDescEditor->setText(loading);
 
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
-	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
 }
 
 //virtual

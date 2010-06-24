@@ -101,11 +101,9 @@ protected:
 protected:
 	S32				mComboMaterialItemCount;
 
-	LLTextBox*		mLabelMaterial;
 	LLComboBox*		mComboMaterial;
 	
 	// Per-object options
-	LLTextBox*		mLabelBaseType;
 	LLComboBox*		mComboBaseType;
 
 	LLTextBox*		mLabelCut;

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-	can_resize="true"
-	can_close="false"
  bg_opaque_image="Volume_Background" 
  bg_alpha_image="Volume_Background" 
   background_opaque="true"
@@ -58,7 +56,6 @@
 		top_delta="0"
 		left_pad="4"
 		height="22"
-		min_width="28"
 		width="28">
 	  <button.commit_callback
 		  function="MediaListCtrl.GoMediaPrefs" />

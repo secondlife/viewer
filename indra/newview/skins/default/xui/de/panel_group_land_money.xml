@@ -6,6 +6,9 @@
 	<panel.string name="cant_view_group_land_text">
 		Sie sind nicht berechtigt, Landeigentum der Gruppe anzuzeigen.
 	</panel.string>
+	<panel.string name="epmty_view_group_land_text">
+		Keine Einträge
+	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
 		Sie sind nicht berechtigt, die Finanzinformationen der Gruppe anzuzeigen.
 	</panel.string>

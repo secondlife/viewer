@@ -200,7 +200,8 @@
          width="310">
             <texture_picker
              enabled="false"
-         follows="left|top|right"
+             fallback_image="default_land_picture.j2c"
+             follows="left|top|right"
              height="197"
              layout="topleft"
              left="11"

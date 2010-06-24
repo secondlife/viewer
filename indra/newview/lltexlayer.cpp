@@ -341,7 +341,8 @@ BOOL LLTexLayerSetBuffer::isReadyToUpload() const
 {
 	if (!mNeedsUpload) return FALSE; // Don't need to upload if we haven't requested one.
 	if (!gAgentQueryManager.hasNoPendingQueries()) return FALSE; // Can't upload if there are pending queries.
-	
+	if (isAgentAvatarValid() && !gAgentAvatarp->isUsingBakedTextures()) return FALSE; // Don't upload if avatar is using composites.
+
 	// If we requested an upload and have the final LOD ready, then upload.
 	const BOOL can_highest_lod = mTexLayerSet->isLocalTextureDataFinal();
 	if (can_highest_lod) return TRUE;

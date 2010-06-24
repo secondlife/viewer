@@ -101,7 +101,9 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 
 	if (LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
 	{
+		LLUICtrlFactory::instance().pushFileName(filename);
 		LLXUIParser::instance().readXUI(root_node, block, filename);
+		LLUICtrlFactory::instance().popFileName();
 	}
 }
 
@@ -211,7 +213,7 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 	bool res = true;
 	
 	lldebugs << "Building floater " << filename << llendl;
-	mFileNames.push_back(gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), filename));
+	pushFileName(filename);
 	{
 		if (!floaterp->getFactoryMap().empty())
 		{
@@ -222,7 +224,7 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 		floaterp->getCommitCallbackRegistrar().pushScope();
 		floaterp->getEnableCallbackRegistrar().pushScope();
 		
-		res = floaterp->initFloaterXML(root, floaterp->getParent(), output_node);
+		res = floaterp->initFloaterXML(root, floaterp->getParent(), filename, output_node);
 
 		floaterp->setXMLFilename(filename);
 		
@@ -234,7 +236,7 @@ bool LLUICtrlFactory::buildFloater(LLFloater* floaterp, const std::string& filen
 			mFactoryStack.pop_front();
 		}
 	}
-	mFileNames.pop_back();
+	popFileName();
 	
 	return res;
 }
@@ -283,7 +285,7 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 
 	lldebugs << "Building panel " << filename << llendl;
 
-	mFileNames.push_back(gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), filename));
+	pushFileName(filename);
 	{
 		if (!panelp->getFactoryMap().empty())
 		{
@@ -306,7 +308,7 @@ BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const std::string& filename, L
 			mFactoryStack.pop_front();
 		}
 	}
-	mFileNames.pop_back();
+	popFileName();
 	return didPost;
 }
 
@@ -363,6 +365,23 @@ LLPanel* LLUICtrlFactory::createFactoryPanel(const std::string& name)
 	LLPanel::Params panel_p;
 	return create<LLPanel>(panel_p);
 }
+
+std::string LLUICtrlFactory::getCurFileName() 
+{ 
+	return mFileNames.empty() ? "" : gDirUtilp->getWorkingDir() + gDirUtilp->getDirDelimiter() + mFileNames.back(); 
+}
+
+
+void LLUICtrlFactory::pushFileName(const std::string& name) 
+{ 
+	mFileNames.push_back(gDirUtilp->findSkinnedFilename(LLUI::getSkinPath(), name)); 
+}
+
+void LLUICtrlFactory::popFileName() 
+{ 
+	mFileNames.pop_back(); 
+}
+
 
 //-----------------------------------------------------------------------------
 

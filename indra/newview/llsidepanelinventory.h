@@ -94,6 +94,7 @@ private:
 	LLButton*					mPlayBtn;
 	LLButton*					mTeleportBtn;
 	LLButton*					mOverflowBtn;
+	LLButton*					mShopBtn;
 
 };
 

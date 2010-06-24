@@ -2076,7 +2076,8 @@ void LLVOAvatar::computeBodySize()
 				 	ankle.mV[VZ] * knee_scale.mV[VZ] -
 				 	foot.mV[VZ] * ankle_scale.mV[VZ];
 
-	mBodySize.mV[VZ] = mPelvisToFoot +
+	LLVector3 new_body_size;
+	new_body_size.mV[VZ] = mPelvisToFoot +
 					   // the sqrt(2) correction below is an approximate
 					   // correction to get to the top of the head
 					   F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) + 
@@ -2086,8 +2087,17 @@ void LLVOAvatar::computeBodySize()
 					   torso.mV[VZ] * pelvis_scale.mV[VZ]; 
 
 	// TODO -- measure the real depth and width
-	mBodySize.mV[VX] = DEFAULT_AGENT_DEPTH;
-	mBodySize.mV[VY] = DEFAULT_AGENT_WIDTH;
+	new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;
+	new_body_size.mV[VY] = DEFAULT_AGENT_WIDTH;
+
+	if (new_body_size != mBodySize)
+	{
+		mBodySize = new_body_size;
+		if (isSelf())
+		{	// notify simulator of change in size
+			gAgent.sendAgentSetAppearance();
+		}
+	}
 
 /* debug spam
 	std::cout << "skull = " << skull << std::endl;				// adebug
@@ -2528,7 +2538,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 				 param;
 				 param = getNextVisualParam())
 			{
-				if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+				if (param->isTweakable())
 				{
 					param->stopAnimating(FALSE);
 				}
@@ -2551,7 +2561,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 					 param;
 					 param = getNextVisualParam())
 				{
-					if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+					if (param->isTweakable())
 					{
 						param->animate(morph_amt, FALSE);
 					}
@@ -6703,7 +6713,7 @@ bool LLVOAvatar::visualParamWeightsAreDefault()
 	     param;
 	     param = getNextVisualParam())
 	{
-		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+		if (param->isTweakable())
 		{
 			LLViewerVisualParam* vparam = dynamic_cast<LLViewerVisualParam*>(param);
 			llassert(vparam);
@@ -6813,7 +6823,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		{
 			for( S32 i = 0; i < num_blocks; i++ )
 			{
-				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) )
+				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 				{
 					param = getNextVisualParam();
 				}
@@ -6846,7 +6856,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			}
 		}
 
-		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE);
+		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_blocks != expected_tweakable_count)
 		{
 			llinfos << "Number of params in AvatarAppearance msg (" << num_blocks << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
@@ -7133,7 +7143,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 			if( (viewer_param->getWearableType() == type) && 
-				(viewer_param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE) )
+				(viewer_param->isTweakable() ) )
 			{
 				apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/>\n",
 								viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getWeight());

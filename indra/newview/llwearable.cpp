@@ -483,7 +483,7 @@ BOOL LLWearable::isOldVersion() const
 		param;
 		param = (LLViewerVisualParam*) gAgentAvatarp->getNextVisualParam() )
 	{
-		if( (param->getWearableType() == mType) && (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) )
+		if( (param->getWearableType() == mType) && (param->isTweakable() ) )
 		{
 			param_count++;
 			if( !is_in_map(mVisualParamIndexMap, param->getID() ) )
@@ -534,7 +534,7 @@ BOOL LLWearable::isDirty() const
 		param = (LLViewerVisualParam*) gAgentAvatarp->getNextVisualParam() )
 	{
 		if( (param->getWearableType() == mType) 
-			&& (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) 
+			&& (param->isTweakable() ) 
 			&& !param->getCrossWearable())
 		{
 			F32 current_weight = getVisualParamWeight(param->getID());
@@ -588,7 +588,7 @@ void LLWearable::setParamsToDefaults()
 
 	for( LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam() )
 	{
-		if( (((LLViewerVisualParam*)param)->getWearableType() == mType ) && (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) )
+		if( (((LLViewerVisualParam*)param)->getWearableType() == mType ) && (param->isTweakable() ) )
 		{
 			setVisualParamWeight(param->getID(),param->getDefaultWeight(), FALSE);
 		}
@@ -692,7 +692,7 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 	// Pull params
 	for( LLVisualParam* param = gAgentAvatarp->getFirstVisualParam(); param; param = gAgentAvatarp->getNextVisualParam() )
 	{
-		if( (((LLViewerVisualParam*)param)->getWearableType() == type) && (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE ) )
+		if( (((LLViewerVisualParam*)param)->getWearableType() == type) && (param->isTweakable() ) )
 		{
 			S32 param_id = param->getID();
 			gAgentAvatarp->setVisualParamWeight( param_id, param->getDefaultWeight(), upload_bake );

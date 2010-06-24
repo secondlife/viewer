@@ -9,6 +9,7 @@
 	<string name="height">
 		Höhe:
 	</string>
+	<text name="avatar_height"/>
 	<panel label="Hemd" name="accordion_panel">
 		<accordion name="wearable_accordion">
 			<accordion_tab name="shape_body_tab" title="Körper"/>
