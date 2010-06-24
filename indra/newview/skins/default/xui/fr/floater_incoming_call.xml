@@ -16,7 +16,13 @@
 		a rejoint un chat vocal avec conférence.
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		a rejoint un chat vocal avec le groupe [GROUP].
+		vient de rejoindre le canal vocal [GROUP].
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionGroup">
+		Voulez-vous quitter [CURRENT_CHAT] et rejoindre l&apos;appel avec [GROUP] ?
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionDefault">
+		Voulez-vous quitter [CURRENT_CHAT] et rejoindre ce chat vocal ?
 	</floater.string>
 	<text name="question">
 		Voulez-vous quitter [CURRENT_CHAT] et rejoindre ce chat vocal ?

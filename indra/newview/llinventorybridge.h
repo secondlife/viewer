@@ -74,7 +74,6 @@ public:
 									   U32 flags = 0x00);
 	virtual ~LLInvFVBridge() {}
 
-	BOOL isInOutfitsSidePanel() const; // allow context menus to be customized for side panel
 	BOOL canShare() const;
 
 	//--------------------------------------------------------------------

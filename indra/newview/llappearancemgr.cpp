@@ -45,7 +45,7 @@
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
-#include "llpaneloutfitsinventory.h"
+#include "lloutfitslist.h"
 #include "llselectmgr.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
@@ -935,7 +935,9 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 	// That means subscribers will be notified that loading is done after first item in a batch is worn.
 	// (loading indicator disappears for example before all selected items are worn)
 	// Have not fix this issue for 2.1 because of stability reason. EXT-7777.
-	gAgentWearables.notifyLoadingStarted();
+
+	// Disabled for now because it is *not* acceptable to call updateAppearanceFromCOF() multiple times
+//	gAgentWearables.notifyLoadingStarted();
 
 	LLViewerInventoryItem* item_to_wear = gInventory.getItem(item_id_to_wear);
 	if (!item_to_wear) return false;
@@ -1697,8 +1699,9 @@ void LLAppearanceMgr::getUserDescendents(const LLUUID& category,
 
 void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append)
 {
-	gAgentWearables.notifyLoadingStarted();
 	if(!category) return;
+
+	gAgentWearables.notifyLoadingStarted();
 
 	llinfos << "wearInventoryCategory( " << category->getName()
 			 << " )" << llendl;
@@ -2305,18 +2308,11 @@ public:
 		{
 			LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
 		}
-		LLPanelOutfitsInventory *outfit_panel =
-			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-		if (outfit_panel)
+		LLOutfitsList *outfits_list =
+			dynamic_cast<LLOutfitsList*>(LLSideTray::getInstance()->getPanel("outfitslist_tab"));
+		if (outfits_list)
 		{
-			outfit_panel->getRootFolder()->clearSelection();
-			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
-		}
-		
-		LLAccordionCtrlTab* tab_outfits = outfit_panel ? outfit_panel->findChild<LLAccordionCtrlTab>("tab_outfits") : 0;
-		if (tab_outfits && !tab_outfits->getDisplayChildren())
-		{
-			tab_outfits->changeOpenClose(tab_outfits->getDisplayChildren());
+			outfits_list->setSelectedOutfitByUUID(mFolderID);
 		}
 
 		LLAppearanceMgr::getInstance()->updateIsDirty();
@@ -2546,7 +2542,8 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 	   {
 		   // we have to pass do_update = true to call LLAppearanceMgr::updateAppearanceFromCOF.
 		   // it will trigger gAgentWariables.notifyLoadingFinished()
-		   LLAppearanceMgr::addCOFItemLink(item_id, true);  // Add COF link for item.
+		   // But it is not acceptable solution. See EXT-7777
+		   LLAppearanceMgr::addCOFItemLink(item_id, false);  // Add COF link for item.
 	   }
 	   else
 	   {
@@ -2576,7 +2573,7 @@ void LLAppearanceMgr::linkRegisteredAttachments()
 		 ++it)
 	{
 		LLUUID item_id = *it;
-		addCOFItemLink(item_id, true);
+		addCOFItemLink(item_id, false);
 	}
 	mRegisteredAttachments.clear();
 }

@@ -5,12 +5,19 @@
 	</floater.string>
 	<button label="Rafraîchir" name="new_snapshot_btn"/>
 	<line_editor label="Description" name="description"/>
-	<button label="Partager" name="share"/>
-	<button label="Partage Web" name="share_to_web"/>
-	<button label="Dans mon inventaire" name="save_to_inventory"/>
-	<button label="Enregistrer" name="save"/>
-	<button label="Envoi par e-mail" name="share_to_email"/>
-	<button label="Sur mon ordinateur" name="save_to_computer"/>
-	<button label="Image de profil" name="set_profile_pic"/>
-	<button label="Précédent" name="cancel"/>
+	<panel name="panel_snapshot_main">
+		<button label="Partager" name="share"/>
+		<button label="Enregistrer" name="save"/>
+		<button label="Image de profil" name="set_profile_pic"/>
+	</panel>
+	<panel name="panel_snapshot_share">
+		<button label="Partage Web" name="share_to_web"/>
+		<button label="Envoi par e-mail" name="share_to_email"/>
+		<button label="Précédent" name="cancel_share"/>
+	</panel>
+	<panel name="panel_snapshot_save">
+		<button label="Dans mon inventaire" name="save_to_inventory"/>
+		<button label="Sur mon ordinateur" name="save_to_computer"/>
+		<button label="Précédent" name="cancel_save"/>
+	</panel>
 </floater>
