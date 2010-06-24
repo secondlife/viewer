@@ -382,20 +382,20 @@ It is calculated as border_size + 2*UIResizeBarOverlap
         <icon
          follows="bottom|left|right"
          height="25"
-         image_name="Toolbar_Right_Off"
+         image_name="Toolbar_Middle_Off"
          layout="topleft"
          left_pad="1"
          name="dummy_right_icon"
-         width="246" />
+         width="250" />
         <button
          follows="bottom|right"
          height="25"
-         image_hover_unselected="Toolbar_Middle_Over"
+         image_hover_unselected="Toolbar_Right_Over"
          image_overlay="Shop"
-         image_selected="Toolbar_Middle_Selected"
-         image_unselected="Toolbar_Middle_Off"
+         image_selected="Toolbar_Right_Selected"
+         image_unselected="Toolbar_Right_Off"
          layout="topleft"
-         left_pad="0"
+         left_pad="1"
          name="shop_btn_1"
          top="1"
          width="31" />
@@ -468,21 +468,21 @@ It is calculated as border_size + 2*UIResizeBarOverlap
         <icon
          follows="bottom|left|right"
          height="25"
-         image_name="Toolbar_Right_Off"
+         image_name="Toolbar_Middle_Off"
          layout="topleft"
          left_pad="1"
          name="dummy_right_icon"
-         width="153" >
+         width="154" >
         </icon>
         <button
          follows="bottom|right"
          height="25"
-         image_hover_unselected="Toolbar_Middle_Over"
+         image_hover_unselected="Toolbar_Right_Over"
          image_overlay="Shop"
-         image_selected="Toolbar_Middle_Selected"
-         image_unselected="Toolbar_Middle_Off"
+         image_selected="Toolbar_Right_Selected"
+         image_unselected="Toolbar_Right_Off"
          layout="topleft"
-         left_pad="0"
+         left_pad="1"
          name="shop_btn_2"
          top="1"
          width="31" />
