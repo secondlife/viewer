@@ -960,6 +960,26 @@ void LLOutfitsList::onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const
 	}
 }
 
+void LLOutfitsList::wearSelectedItems()
+{
+	uuid_vec_t selected_uuids;
+	getSelectedItemsUUIDs(selected_uuids);
+
+	if(selected_uuids.empty())
+	{
+		return;
+	}
+
+	uuid_vec_t::const_iterator it;
+	// Wear items from all selected lists(if possible- add, else replace)
+	for (it = selected_uuids.begin(); it != selected_uuids.end()-1; ++it)
+	{
+		LLAppearanceMgr::getInstance()->wearItemOnAvatar(*it, false, false);
+	}
+	// call update only when wearing last item
+	LLAppearanceMgr::getInstance()->wearItemOnAvatar(*it, true, false);
+}
+
 void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
 {
 	LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(ctrl);

@@ -107,6 +107,9 @@ public:
 
 	boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
 
+	// Collects selected items from all selected lists and wears them(if possible- adds, else replaces)
+	void wearSelectedItems();
+
 	/**
 	 * Returns true if there is a selection inside currently selected outfit
 	 */
