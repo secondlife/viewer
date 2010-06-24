@@ -170,7 +170,9 @@ public:
 	// Returns 0 on success
 	S32 saveToXML(LLView* viewp, const std::string& filename);
 
-	std::string getCurFileName() { return mFileNames.empty() ? "" : mFileNames.back(); }
+	std::string getCurFileName();
+	void pushFileName(const std::string& name);
+	void popFileName();
 
 	static BOOL getAttributeColor(LLXMLNodePtr node, const std::string& name, LLColor4& color);
 
@@ -229,7 +231,7 @@ public:
 		T* widget = NULL;
 
 		std::string skinned_filename = findSkinnedFilename(filename);
-		getInstance()->mFileNames.push_back(skinned_filename);
+		instance().pushFileName(filename);
 		{
 			LLXMLNodePtr root_node;
 
@@ -263,7 +265,7 @@ public:
 			}
 		}
 fail:
-		getInstance()->mFileNames.pop_back();
+		instance().popFileName();
 		return widget;
 	}
 

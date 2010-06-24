@@ -224,8 +224,8 @@ void LLPanelNearByMedia::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLPanel::reshape(width, height, called_from_parent);
 
-	LLButton* more_less_btn = getChild<LLButton>("more_less_btn");
-	if (more_less_btn->getValue().asBoolean())
+	LLButton* more_btn = findChild<LLButton>("more_btn");
+	if (more_btn && more_btn->getValue().asBoolean())
 	{
 		mMoreRect = getRect();
 	}

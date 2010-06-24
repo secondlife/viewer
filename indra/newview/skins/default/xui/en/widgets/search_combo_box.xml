@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <search_combo_box
  allow_text_entry="true"
- list_position="BELOW"
+ list_position="below"
  show_text_as_tentative="false"
  dropdown_button_visible="false"
  max_chars="256"
  name="parent"
- allow_new_values="true"
- background_image="TextField_Search_Off"
- background_image_disabled="TextField_Search_Disabled"
- background_image_focused="TextField_Search_Active">
+ allow_new_values="true">
  <combo_editor
   name="child1"
   select_on_focus="true"
