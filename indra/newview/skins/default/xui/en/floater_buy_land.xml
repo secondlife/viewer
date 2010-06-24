@@ -380,6 +380,7 @@ supports [AMOUNT2] objects
      width="275" />
     <texture_picker
      enabled="false"
+     fallback_image="default_land_picture.j2c"
      follows="top|left"
      height="135"
      layout="topleft"

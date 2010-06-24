@@ -2298,6 +2298,7 @@ even though the user gets a free copy.
             <texture_picker
              can_apply_immediately="true"
              default_image_name="Default"
+             fallback_image="locked_image.j2c"
              follows="left|top"
              height="80"
              label="Texture"

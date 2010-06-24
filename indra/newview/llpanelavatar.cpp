@@ -513,12 +513,6 @@ BOOL LLPanelAvatarProfile::postBuild()
 
 	mProfileMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_profile_overflow.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
-	LLTextureCtrl* pic = getChild<LLTextureCtrl>("2nd_life_pic");
-	pic->setFallbackImageName("default_profile_picture.j2c");
-
-	pic = getChild<LLTextureCtrl>("real_world_pic");
-	pic->setFallbackImageName("default_profile_picture.j2c");
-
 	LLVoiceClient::getInstance()->addObserver((LLVoiceClientStatusObserver*)this);
 
 	resetControls();
