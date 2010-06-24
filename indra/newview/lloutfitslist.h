@@ -103,6 +103,8 @@ public:
 
 	const LLUUID& getSelectedOutfitUUID() const { return mSelectedOutfitUUID; }
 
+	void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
+
 	boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
 
 	/**
@@ -172,6 +174,11 @@ private:
 	 * @see applyFilter()
 	 */
 	void applyFilterToTab(const LLUUID& category_id, LLAccordionCtrlTab* tab, const std::string& filter_substring);
+
+	/**
+	 * Returns true if there are any worn items among currently selected, otherwise false.
+	 */
+	bool hasWornItemSelected();
 
 	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);

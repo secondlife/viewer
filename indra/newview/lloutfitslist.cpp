@@ -148,10 +148,27 @@ private:
 
 	void onTakeOff()
 	{
-		const LLUUID& selected_outfit_id = getSelectedOutfitID();
-		if (selected_outfit_id.notNull())
+		// Take off selected items if there are any
+		if (mOutfitList->hasItemSelected())
 		{
-			LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
+			uuid_vec_t selected_uuids;
+			mOutfitList->getSelectedItemsUUIDs(selected_uuids);
+
+			for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
+			{
+				if (get_is_item_worn(*it))
+				{
+					LLAppearanceMgr::instance().removeItemFromAvatar(*it);
+				}
+			}
+		}
+		else // or take off the whole selected outfit if no items specified.
+		{
+			const LLUUID& selected_outfit_id = getSelectedOutfitID();
+			if (selected_outfit_id.notNull())
+			{
+				LLAppearanceMgr::instance().takeOffOutfit(selected_outfit_id);
+			}
 		}
 	}
 
@@ -474,7 +491,7 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 	}
 
 	// Handle removed tabs.
-	for (uuid_vec_t::const_iterator iter=vremoved.begin(); iter != vremoved.end(); iter++)
+	for (uuid_vec_t::const_iterator iter=vremoved.begin(); iter != vremoved.end(); ++iter)
 	{
 		outfits_map_t::iterator outfits_iter = mOutfitsMap.find((*iter));
 		if (outfits_iter != mOutfitsMap.end())
@@ -626,7 +643,10 @@ bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 	}
 	if (command_name == "take_off")
 	{
-		return LLAppearanceMgr::getInstance()->getBaseOutfitUUID() == mSelectedOutfitUUID;
+		// Enable "Take Off" only if a worn item or base outfit is selected.
+		return ( !hasItemSelected()
+				 && LLAppearanceMgr::getInstance()->getBaseOutfitUUID() == mSelectedOutfitUUID )
+				|| hasWornItemSelected();
 	}
 	return false;
 }
@@ -636,6 +656,22 @@ void LLOutfitsList::showGearMenu(LLView* spawning_view)
 {
 	if (!mGearMenu) return;
 	mGearMenu->show(spawning_view);
+}
+
+void LLOutfitsList::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
+{
+	// Collect selected items from all selected lists.
+	for (wearables_lists_map_t::const_iterator iter = mSelectedListsMap.begin();
+			iter != mSelectedListsMap.end();
+			++iter)
+	{
+		uuid_vec_t uuids;
+		(*iter).second->getSelectedUUIDs(uuids);
+
+		S32 prev_size = selected_uuids.size();
+		selected_uuids.resize(prev_size + uuids.size());
+		std::copy(uuids.begin(), uuids.end(), selected_uuids.begin() + prev_size);
+	}
 }
 
 boost::signals2::connection LLOutfitsList::setSelectionChangeCallback(selection_change_callback_t cb)
@@ -894,6 +930,18 @@ void LLOutfitsList::applyFilterToTab(
 	}
 }
 
+bool LLOutfitsList::hasWornItemSelected()
+{
+	uuid_vec_t selected_uuids;
+	getSelectedItemsUUIDs(selected_uuids);
+
+	for (uuid_vec_t::const_iterator it=selected_uuids.begin(); it != selected_uuids.end(); ++it)
+	{
+		if (get_is_item_worn(*it)) return true;
+	}
+	return false;
+}
+
 void LLOutfitsList::onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id)
 {
 	LLAccordionCtrlTab* tab = dynamic_cast<LLAccordionCtrlTab*>(ctrl);
@@ -919,18 +967,7 @@ void LLOutfitsList::onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
 
 	uuid_vec_t selected_uuids;
 
-	// Collect selected items from all selected lists.
-	for (wearables_lists_map_t::iterator iter = mSelectedListsMap.begin();
-			iter != mSelectedListsMap.end();
-			++iter)
-	{
-		uuid_vec_t uuids;
-		(*iter).second->getSelectedUUIDs(uuids);
-
-		S32 prev_size = selected_uuids.size();
-		selected_uuids.resize(prev_size + uuids.size());
-		std::copy(uuids.begin(), uuids.end(), selected_uuids.begin() + prev_size);
-	}
+	getSelectedItemsUUIDs(selected_uuids);
 
 	LLWearableItemsList::ContextMenu::instance().show(list, selected_uuids, x, y);
 }
