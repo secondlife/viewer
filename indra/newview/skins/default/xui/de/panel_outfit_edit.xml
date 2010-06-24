@@ -2,6 +2,8 @@
 <!-- Side tray Outfit Edit panel -->
 <panel label="Outfit bearbeiten" name="outfit_edit">
 	<string name="No Outfit" value="Kein Outfit"/>
+	<string name="unsaved_changes" value="Ungespeicherte Änderungen"/>
+	<string name="now_editing" value="Wird bearbeitet"/>
 	<panel.string name="not_available">
 		k.A.
 	</panel.string>

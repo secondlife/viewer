@@ -6,17 +6,47 @@
 	<string name="walk_back_tooltip">
 		Rückwärts gehen (Nach-Unten-Pfeil oder S drücken)
 	</string>
+	<string name="walk_left_tooltip">
+		Nach links gehen (Umschalt + Links-Pfeil oder A drücken)
+	</string>
+	<string name="walk_right_tooltip">
+		Nach rechts gehen (Umschalt + Rechts-Pfeil oder D drücken)
+	</string>
 	<string name="run_forward_tooltip">
 		Vorwärts rennen (Nach-oben-Pfeil oder W drücken)
 	</string>
 	<string name="run_back_tooltip">
 		Rückwärts rennen (Nach-Unten-Pfeil oder S drücken)
 	</string>
+	<string name="run_left_tooltip">
+		Nach links drehen (Umschalt + Links-Pfeil oder A drücken)
+	</string>
+	<string name="run_right_tooltip">
+		Nach rechts rennen (Umschalt + Rechts-Pfeil oder D drücken)
+	</string>
 	<string name="fly_forward_tooltip">
 		Vorwärts fliegen (Nach-oben-Pfeil oder W drücken)
 	</string>
 	<string name="fly_back_tooltip">
 		Rückwärts fliegen (Nach-Unten-Pfeil oder S drücken)
+	</string>
+	<string name="fly_left_tooltip">
+		Nach links fliegen (Umschalt + Links-Pfeil oder A drücken)
+	</string>
+	<string name="fly_right_tooltip">
+		Nach rechts fliegen (Umschalt + Rechts-Pfeil oder D drücken)
+	</string>
+	<string name="fly_up_tooltip">
+		Nach oben fliegen, „E&quot; drücken
+	</string>
+	<string name="fly_down_tooltip">
+		Nach unten fliegen, „C&quot; drücken
+	</string>
+	<string name="jump_tooltip">
+		Hüpfen (E drücken)
+	</string>
+	<string name="crouch_tooltip">
+		Ducken (C drücken)
 	</string>
 	<string name="walk_title">
 		Gehen
@@ -28,10 +58,12 @@
 		Fliegen
 	</string>
 	<panel name="panel_actions">
-		<button label="" label_selected="" name="turn left btn" tool_tip="Nach links (Links-Pfeil oder A drücken)"/>
-		<button label="" label_selected="" name="turn right btn" tool_tip="Nach rechts (Rechts-Pfeil oder D drücken)"/>
 		<button label="" label_selected="" name="move up btn" tool_tip="Nach oben fliegen, „E&quot; drücken"/>
+		<button label="" label_selected="" name="turn left btn" tool_tip="Nach links (Links-Pfeil oder A drücken)"/>
+		<joystick_slide name="move left btn" tool_tip="Nach links gehen (Umschalt + Links-Pfeil oder A drücken)"/>
 		<button label="" label_selected="" name="move down btn" tool_tip="Nach unten fliegen, „C&quot; drücken"/>
+		<button label="" label_selected="" name="turn right btn" tool_tip="Nach rechts (Rechts-Pfeil oder D drücken)"/>
+		<joystick_slide name="move right btn" tool_tip="Nach rechts fliegen (Umschalt + Rechts-Pfeil oder D drücken)"/>
 		<joystick_turn name="forward btn" tool_tip="Vorwärts gehen (Nach-oben-Pfeil oder W drücken)"/>
 		<joystick_turn name="backward btn" tool_tip="Rückwärts gehen (Nach-Unten-Pfeil oder S drücken)"/>
 	</panel>
