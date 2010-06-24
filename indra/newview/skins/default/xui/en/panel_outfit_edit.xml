@@ -318,13 +318,13 @@ It is calculated as border_size + 2*UIResizeBarOverlap
              background_visible="false"
              border="false"
              follows="left|top|right|bottom"
-             height="442"
+             height="449"
              layout="topleft"
              left="0"
              mouse_opaque="false"
              name="folder_view"
-             top_pad="5"
-             width="310"
+             top_pad="0"
+             width="313"
              visible="false"/>
             <panel
              name="filtered_wearables_panel"
@@ -346,7 +346,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                  layout="topleft"
                  follows="all"
                  multi_select="true"
-                 width="310"
+                 width="313"
                  height="449"
                  left="0"
                  top="0"/>
