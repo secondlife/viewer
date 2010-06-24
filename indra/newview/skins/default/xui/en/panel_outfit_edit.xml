@@ -190,7 +190,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                 <layout_panel
                  auto_resize="true" 
                  background_visible="true"
-                 bg_alpha_color="DkGray2"
+                 bg_alpha_color="Black"
                  layout="topleft"
                  height="154"
                  name="add_button_and_combobox"
