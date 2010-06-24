@@ -488,7 +488,7 @@ public:
 	/**
 	 * Returns true if last call of filterItems() found at least one matching item
 	 */
-	bool wasLasFilterSuccessfull();
+	bool hasMatchedItems();
 
 protected:
 	LLFlatListViewEx(const Params& p);
@@ -512,7 +512,7 @@ private:
 	/**
 	 * True if last call of filterItems() found at least one matching item
 	 */
-	bool mLastFilterSucceded;
+	bool mHasMatchedItems;
 };
 
 #endif
