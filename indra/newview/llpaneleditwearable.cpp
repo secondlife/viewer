@@ -63,6 +63,7 @@
 
 #include "llcommandhandler.h"
 #include "lltextutil.h"
+#include "llappearancemgr.h"
 
 // register panel with appropriate XML
 static LLRegisterPanelClassWrapper<LLPanelEditWearable> t_edit_wearable("panel_edit_wearable");
@@ -959,6 +960,7 @@ void LLPanelEditWearable::saveChanges()
 	if (mWearablePtr->getName().compare(mNameEditor->getText()) != 0)
 	{
 		// the name of the wearable has changed, re-save wearable with new name
+		LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID(),false);
 		gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, mNameEditor->getText(), FALSE);
 	}
 	else
