@@ -200,9 +200,9 @@
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>d58ac1a8396ac983b67cc3e3541457e3</string>
+            <string>4db3d74e40d149eeec06f4d97a609bb1</string>
             <key>url</key>
-            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20100222a.tar.bz2</uri>
+            <uri>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/boost-1.39.0-linux-20100624.tar.bz2</uri>
           </map>
           <key>linux64</key>
           <map>
