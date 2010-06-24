@@ -11533,7 +11533,7 @@ render_pass="bump">
       
     <param
      id="1071"
-     group="0"
+     group="2"
      wearable="tattoo"
      edit_group="colorpicker"
      name="tattoo_red"
@@ -11566,7 +11566,7 @@ render_pass="bump">
 
     <param
      id="1072"
-     group="0"
+     group="2"
      wearable="tattoo"
      edit_group="colorpicker"
      name="tattoo_green"
@@ -11599,7 +11599,7 @@ render_pass="bump">
 
     <param
      id="1073"
-     group="0"
+     group="2"
      wearable="tattoo"
      edit_group="colorpicker"
      name="tattoo_blue"
