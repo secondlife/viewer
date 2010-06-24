@@ -1302,8 +1302,8 @@ void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std:
 	{
 		LLViewerVisualParam *param = (LLViewerVisualParam*) *iter;
 
-		if (param->getID() == -1
-			|| param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE 
+		if (param->getID() == -1 
+			|| !param->isTweakable()
 			|| param->getEditGroup() != edit_group 
 			|| !(param->getSex() & avatar_sex))
 		{

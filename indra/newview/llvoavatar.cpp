@@ -2528,7 +2528,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 				 param;
 				 param = getNextVisualParam())
 			{
-				if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+				if (param->isTweakable())
 				{
 					param->stopAnimating(FALSE);
 				}
@@ -2551,7 +2551,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 					 param;
 					 param = getNextVisualParam())
 				{
-					if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+					if (param->isTweakable())
 					{
 						param->animate(morph_amt, FALSE);
 					}
@@ -6703,7 +6703,7 @@ bool LLVOAvatar::visualParamWeightsAreDefault()
 	     param;
 	     param = getNextVisualParam())
 	{
-		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+		if (param->isTweakable())
 		{
 			LLViewerVisualParam* vparam = dynamic_cast<LLViewerVisualParam*>(param);
 			llassert(vparam);
@@ -6813,7 +6813,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		{
 			for( S32 i = 0; i < num_blocks; i++ )
 			{
-				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) )
+				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 				{
 					param = getNextVisualParam();
 				}
@@ -6846,7 +6846,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			}
 		}
 
-		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE);
+		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_blocks != expected_tweakable_count)
 		{
 			llinfos << "Number of params in AvatarAppearance msg (" << num_blocks << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
@@ -7133,7 +7133,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 			if( (viewer_param->getWearableType() == type) && 
-				(viewer_param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE) )
+				(viewer_param->isTweakable() ) )
 			{
 				apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/>\n",
 								viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getWeight());
