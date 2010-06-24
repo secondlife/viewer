@@ -7,6 +7,7 @@
 		</menu_item_call>
 		<menu_item_call label="L$ kaufen" name="Buy and Sell L$"/>
 		<menu_item_call label="Mein Profil" name="Profile"/>
+		<menu_item_call label="Outfit ändern" name="ChangeOutfit"/>
 		<menu_item_check label="Mein Inventar" name="Inventory"/>
 		<menu_item_check label="Mein Inventar" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Meine Gesten" name="Gestures"/>
@@ -169,6 +170,7 @@
 			<menu_item_check label="Flexible Objekte" name="Flexible Objects"/>
 		</menu>
 		<menu_item_check label="Mehrere Threads ausführen" name="Run Multiple Threads"/>
+		<menu_item_check label="Plugin Read Thread verwenden" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Gruppen-Cache löschen" name="ClearGroupCache"/>
 		<menu_item_check label="Weiche Mausbewegung" name="Mouse Smoothing"/>
 		<menu label="Tastaturkürzel" name="Shortcuts">

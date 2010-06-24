@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Outfits" name="appearance panel">
 	<string name="No Outfit" value="Kein Outfit"/>
+	<string name="Unsaved Changes" value="Ungespeicherte Änderungen"/>
+	<string name="Now Wearing" value="Aktuelles Outfit..."/>
 	<panel name="panel_currentlook">
-		<button label="Bearbeiten" name="editappearance_btn"/>
-		<text name="currentlook_title">
-			(nicht gespeichert)
+		<button label="B" name="editappearance_btn"/>
+		<button label="Ö" name="openoutfit_btn"/>
+		<text name="currentlook_status">
+			(Status)
 		</text>
 		<text name="currentlook_name">
 			MyOutfit With a really Long Name like MOOSE
 		</text>
 	</panel>
 	<filter_editor label="Outfits filtern" name="Filter"/>
-	<button label="Anziehen" name="wear_btn"/>
-	<button label="Neues Outfit" name="newlook_btn"/>
 </panel>
