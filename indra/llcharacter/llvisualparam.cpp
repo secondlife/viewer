@@ -261,7 +261,7 @@ void LLVisualParam::setAnimationTarget(F32 target_value, BOOL upload_bake)
 
 	if (mInfo)
 	{
-		if (getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+		if (isTweakable())
 		{
 			mTargetWeight = llclamp(target_value, mInfo->mMinWeight, mInfo->mMaxWeight);
 		}
@@ -305,7 +305,7 @@ void LLVisualParam::animate( F32 delta, BOOL upload_bake )
 //-----------------------------------------------------------------------------
 void LLVisualParam::stopAnimating(BOOL upload_bake)
 { 
-	if (mIsAnimating && getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+	if (mIsAnimating && isTweakable())
 	{
 		mIsAnimating = FALSE; 
 		setWeight(mTargetWeight, upload_bake);

@@ -240,21 +240,10 @@ protected:
 
 	/*virtual*/ void processProfileProperties(const LLAvatarData* avatar_data);
 
-	/**
-	 * Fills Avatar status data.
-	 */
-	virtual void fillStatusData(const LLAvatarData* avatar_data);
-
 	/*virtual*/ void resetControls();
 
 protected:
-
-	void onStatusChanged();
 	void onStatusMessageChanged();
-
-private:
-
-	LLComboBox* mStatusCombobox;
 };
 
 /**

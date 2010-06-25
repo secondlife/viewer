@@ -136,7 +136,8 @@
 	<string name="RetrievingData">Retrieving...</string>
 
 	<string name="ReleaseNotes">Release Notes</string>
-	<string name="RELEASE_NOTES_BASE_URL">http://wiki.secondlife.com/wiki/Release_Notes/</string>
+	<!-- Always mark translate="false" for strings that are nothing but URLs, as they don't need translation. -->
+	<string name="RELEASE_NOTES_BASE_URL" translate="false">http://wiki.secondlife.com/wiki/Release_Notes/</string>
 
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>
@@ -1812,7 +1813,8 @@ Clears (deletes) the media and all params from the given face.
 	<string name="skirt">Skirt</string>
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
-	<string name="invalid">invalid</string>
+  <string name="invalid">invalid</string>
+  <string name="none">none</string>
   
   <!-- Not Worn Wearable Types -->
 	<string name="shirt_not_worn">Shirt not worn</string>

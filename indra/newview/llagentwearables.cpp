@@ -804,7 +804,7 @@ void LLAgentWearables::popWearable(const LLWearableType::EType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
-		gAgentAvatarp->wearableUpdated(wearable->getType(), FALSE);
+		gAgentAvatarp->wearableUpdated(wearable->getType(), TRUE);
 		wearable->setLabelUpdated();
 	}
 }
@@ -1867,11 +1867,10 @@ void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_arra
 		msg->nextBlockFast(_PREHASH_ObjectData );
 		msg->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
 		msg->addUUIDFast(_PREHASH_OwnerID, item->getPermissions().getOwner());
-#if ENABLE_MULTIATTACHMENTS
-		msg->addU8Fast(_PREHASH_AttachmentPt, 0 | ATTACHMENT_ADD );
-#else
-		msg->addU8Fast(_PREHASH_AttachmentPt, 0 );	// Wear at the previous or default attachment point
-#endif
+		if (gSavedSettings.getBOOL("MultipleAttachments"))
+			msg->addU8Fast(_PREHASH_AttachmentPt, 0 | ATTACHMENT_ADD );
+		else
+			msg->addU8Fast(_PREHASH_AttachmentPt, 0 );	// Wear at the previous or default attachment point
 		pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
 		msg->addStringFast(_PREHASH_Name, item->getName());
 		msg->addStringFast(_PREHASH_Description, item->getDescription());

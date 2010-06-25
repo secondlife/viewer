@@ -9,12 +9,13 @@
    layout="topleft"
    left="0"
    top="0"
-   width="313">
+   width="312">
     <accordion
      background_visible="true"
      bg_alpha_color="DkGray2"
      bg_opaque_color="DkGray2"
      no_matched_tabs_text.value="Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search]."
+     no_matched_tabs_text.v_pad="10"
      no_visible_tabs_text.value="There are no any outfits. Try [secondlife:///app/search/all/ Search]."
      follows="all"
      height="400"

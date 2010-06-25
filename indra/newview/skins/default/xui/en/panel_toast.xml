@@ -31,8 +31,6 @@
  can_close="false"
  can_dock="false"
  border_visible = "false"
- border_drop_shadow_visible = "false"
- drop_shadow_visible = "false"
  border = "false"
 >
  <panel

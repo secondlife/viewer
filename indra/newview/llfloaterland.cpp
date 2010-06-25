@@ -1940,8 +1940,6 @@ BOOL LLPanelLandOptions::postBuild()
 	mLandingTypeCombo = getChild<LLComboBox>( "landing type");
 	childSetCommitCallback("landing type", onCommitAny, this);
 
-	getChild<LLTextureCtrl>("snapshot_ctrl")->setFallbackImageName("default_land_picture.j2c");
-
 	return TRUE;
 }
 

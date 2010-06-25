@@ -55,7 +55,6 @@ private:
 public:
 
 	/*virtual*/	BOOL	postBuild();
-	/*virtual*/ void	setEnabled(BOOL enabled);
 	/*virtual*/ void	setVisible(BOOL visible);
 	static F32	getYawRate(F32 time);
 	static void setFlyingMode(BOOL fly);

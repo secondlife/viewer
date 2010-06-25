@@ -2261,6 +2261,16 @@ void LLVOAvatarSelf::processRebakeAvatarTextures(LLMessageSystem* msg, void**)
 	}
 }
 
+BOOL LLVOAvatarSelf::isUsingBakedTextures() const
+{
+	// Composite textures are used during appearance mode.
+	if (gAgentCamera.cameraCustomizeAvatar())
+		return FALSE;
+
+	return TRUE;
+}
+
+
 void LLVOAvatarSelf::forceBakeAllTextures(bool slam_for_debug)
 {
 	llinfos << "TAT: forced full rebake. " << llendl;

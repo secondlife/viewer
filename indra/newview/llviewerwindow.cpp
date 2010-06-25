@@ -2329,7 +2329,9 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 
 	// Zoom the camera in and out behavior
 
-	if(top_ctrl == 0 && getWorldViewRectScaled().pointInRect(mCurrentMousePoint.mX, mCurrentMousePoint.mY) )
+	if(top_ctrl == 0 
+		&& getWorldViewRectScaled().pointInRect(mCurrentMousePoint.mX, mCurrentMousePoint.mY) 
+		&& gAgentCamera.isInitialized())
 		gAgentCamera.handleScrollWheel(clicks);
 
 	return;
