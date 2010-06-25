@@ -136,7 +136,8 @@
 	<string name="RetrievingData">Retrieving...</string>
 
 	<string name="ReleaseNotes">Release Notes</string>
-	<string name="RELEASE_NOTES_BASE_URL">http://wiki.secondlife.com/wiki/Release_Notes/</string>
+	<!-- Always mark translate="false" for strings that are nothing but URLs, as they don't need translation. -->
+	<string name="RELEASE_NOTES_BASE_URL" translate="false">http://wiki.secondlife.com/wiki/Release_Notes/</string>
 
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>
