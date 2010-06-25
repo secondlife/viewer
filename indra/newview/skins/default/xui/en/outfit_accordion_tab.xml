@@ -3,7 +3,7 @@
 <!-- All accordion tabs in the My Appearance/My Outfits panel will be created from this one at runtime-->
 <!-- Non of string values of controls below are visible to user. They are not need to be translated. -->
 <accordion_tab
- display_children="false"
+ expanded="false"
  follows="all"
  height="45"
  layout="topleft"

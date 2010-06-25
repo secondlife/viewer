@@ -68,9 +68,9 @@ with the same filename but different name
 
   <texture name="BackArrow_Off" file_name="icons/BackArrow_Off.png" preload="false" />
 
-  <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" />
-  <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" />
-  <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" />
+  <texture name="BackButton_Off" file_name="icons/back_arrow_off.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
+  <texture name="BackButton_Over" file_name="icons/back_arrow_over.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
+  <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
 
   <texture name="Blank" file_name="Blank.png" preload="false" />
 
@@ -579,6 +579,10 @@ with the same filename but different name
   <texture name="scrollbutton_left_in_blue.tga" file_name="widgets/ScrollArrow_Left_Over_Opaque.png" />
   <texture name="scrollbutton_right_out_blue.tga" file_name="widgets/ScrollArrow_Right_Opaque.png" />
   <texture name="scrollbutton_right_in_blue.tga" file_name="widgets/ScrollArrow_Right_Over_Opaque.png" />
+  <texture name="scrollbutton_up_out_blue.tga" file_name="widgets/ScrollArrow_Up_Opaque.png" />
+  <texture name="scrollbutton_up_in_blue.tga" file_name="widgets/ScrollArrow_Up_Over_Opaque.png" />
+  <texture name="scrollbutton_down_out_blue.tga" file_name="widgets/ScrollArrow_Down_Opaque.png" />
+  <texture name="scrollbutton_down_in_blue.tga" file_name="widgets/ScrollArrow_Down_Over_Opaque.png" />
 
   <texture name="up_arrow.tga" file_name="up_arrow.png" />
   <texture name="down_arrow.tga" file_name="down_arrow.png" />

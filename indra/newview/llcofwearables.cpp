@@ -165,6 +165,14 @@ public:
 	}
 
 protected:
+	static void replaceWearable()
+	{
+		static LLButton* show_add_wearables_btn =
+				LLSideTray::getInstance()->getChild<LLButton>("show_add_wearables_btn");
+
+		show_add_wearables_btn->onCommit();
+	}
+
 	/*virtual*/ LLContextMenu* createMenu()
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -173,8 +181,7 @@ protected:
 		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
 
 		registrar.add("Clothing.TakeOff", boost::bind(handleMultiple, take_off, mUUIDs));
-		registrar.add("Clothing.MoveUp", boost::bind(moveWearable, selected_id, false));
-		registrar.add("Clothing.MoveDown", boost::bind(moveWearable, selected_id, true));
+		registrar.add("Clothing.Replace", boost::bind(replaceWearable));
 		registrar.add("Clothing.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
 		registrar.add("Clothing.Create", boost::bind(&CofClothingContextMenu::createNew, this, selected_id));
 
@@ -194,15 +201,7 @@ protected:
 		std::string param = data.asString();
 		LLUUID selected_id = mUUIDs.back();
 
-		if ("move_up" == param)
-		{
-			return gAgentWearables.canMoveWearable(selected_id, false);
-		}
-		else if ("move_down" == param)
-		{
-			return gAgentWearables.canMoveWearable(selected_id, true);
-		}
-		else if ("take_off" == param)
+		if ("take_off" == param)
 		{
 			return get_is_item_worn(selected_id);
 		}
@@ -210,15 +209,12 @@ protected:
 		{
 			return mUUIDs.size() == 1 && gAgentWearables.isWearableModifiable(selected_id);
 		}
-		return true;
-	}
+		else if ("replace" == param)
+		{
+			return get_is_item_worn(selected_id) && mUUIDs.size() == 1;
+		}
 
-	// We don't use LLAppearanceMgr::moveWearable() directly because
-	// the item may be invalidated between setting the callback and calling it.
-	static bool moveWearable(const LLUUID& item_id, bool closer_to_body)
-	{
-		LLViewerInventoryItem* item = gInventory.getItem(item_id);
-		return LLAppearanceMgr::instance().moveWearable(item, closer_to_body);
+		return true;
 	}
 };
 
@@ -374,7 +370,12 @@ void LLCOFWearables::refresh()
 				 value_it_end = values.end();
 			 value_it != value_it_end; ++value_it)
 		{
-			list->selectItemByValue(*value_it);
+			// value_it may be null because of dummy items
+			// Dummy items have no ID
+			if(value_it->asUUID().notNull())
+			{
+				list->selectItemByValue(*value_it);
+			}
 		}
 	}
 }
@@ -608,7 +609,20 @@ void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContex
 		uuid_vec_t selected_uuids;
 		if(getSelectedUUIDs(selected_uuids))
 		{
-			menu->show(ctrl, selected_uuids, x, y);
+			bool show_menu = false;
+			for(uuid_vec_t::iterator it = selected_uuids.begin();it!=selected_uuids.end();++it)
+			{
+				if ((*it).notNull())
+				{
+					show_menu = true;
+					break;
+				}
+			}
+
+			if(show_menu)
+			{
+				menu->show(ctrl, selected_uuids, x, y);
+			}
 		}
 	}
 }

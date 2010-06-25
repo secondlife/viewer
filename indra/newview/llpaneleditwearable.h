@@ -120,6 +120,7 @@ private:
 	// these are constant no matter what wearable we're editing
 	LLButton *mBtnRevert;
 	LLButton *mBtnBack;
+	std::string mBackBtnLabel;
 
 	LLTextBox *mPanelTitle;
 	LLTextBox *mDescTitle;

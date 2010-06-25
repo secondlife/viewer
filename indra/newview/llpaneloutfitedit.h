@@ -192,7 +192,8 @@ private:
 	void onAddMoreButtonClicked();
 	void showFilteredWearablesListView(LLWearableType::EType type);
 	void onOutfitChanging(bool started);
-	LLUUID getSelectedItemUUID();
+	void getSelectedItemsUUID(uuid_vec_t& uuid_list);
+	void getCurrentItemUUID(LLUUID& selected_id);
 
 	LLTextBox*			mCurrentOutfitName;
 	LLTextBox*			mStatus;

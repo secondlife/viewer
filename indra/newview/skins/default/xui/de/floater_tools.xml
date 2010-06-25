@@ -67,8 +67,8 @@
 	<text name="RenderingCost" tool_tip="Zeigt die errechneten Wiedergabekosten für dieses Objekt">
 		þ: [COUNT]
 	</text>
-	<check_box name="checkbox uniform"/>
-	<text name="checkbox uniform label">
+	<check_box label="" name="checkbox uniform"/>
+	<text label="Beide Seiten dehnen" name="checkbox uniform label">
 		Beide Seiten dehnen
 	</text>
 	<check_box initial_value="true" label="Texturen dehnen" name="checkbox stretch textures"/>

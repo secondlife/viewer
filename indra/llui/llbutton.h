@@ -230,6 +230,8 @@ public:
 	
 	void			setFont(const LLFontGL *font)		
 		{ mGLFont = ( font ? font : LLFontGL::getFontSansSerif()); }
+	const LLFontGL* getFont() const { return mGLFont; }
+
 
 	S32				getLastDrawCharsCount() const { return mLastDrawCharsCount; }
 

@@ -763,7 +763,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	}
 		
 	// Sort the static instance list using our interest criteria
-	std::stable_sort(sViewerMediaImplList.begin(), sViewerMediaImplList.end(), priorityComparitor);
+	sViewerMediaImplList.sort(priorityComparitor);
 
 	// Go through the list again and adjust according to priority.
 	iter = sViewerMediaImplList.begin();

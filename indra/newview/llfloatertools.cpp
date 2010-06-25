@@ -235,7 +235,6 @@ BOOL	LLFloaterTools::postBuild()
 	childSetValue("checkbox uniform",(BOOL)gSavedSettings.getBOOL("ScaleUniform"));
 	mCheckStretchTexture	= getChild<LLCheckBoxCtrl>("checkbox stretch textures");
 	childSetValue("checkbox stretch textures",(BOOL)gSavedSettings.getBOOL("ScaleStretchTextures"));
-	mTextGridMode			= getChild<LLTextBox>("text ruler mode");
 	mComboGridMode			= getChild<LLComboBox>("combobox grid mode");
 	mCheckStretchUniformLabel = getChild<LLTextBox>("checkbox uniform label");
 
@@ -313,7 +312,6 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mCheckSnapToGrid(NULL),
 	mBtnGridOptions(NULL),
 	mTitleMedia(NULL),
-	mTextGridMode(NULL),
 	mComboGridMode(NULL),
 	mCheckStretchUniform(NULL),
 	mCheckStretchTexture(NULL),
@@ -625,8 +623,6 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 		mComboGridMode->setCurrentByIndex(index);
 	}
-	if (mTextGridMode) mTextGridMode->setVisible( edit_visible );
-
 	// Snap to grid disabled for grab tool - very confusing
 	if (mCheckSnapToGrid) mCheckSnapToGrid->setVisible( edit_visible /* || tool == LLToolGrab::getInstance() */ );
 	if (mBtnGridOptions) mBtnGridOptions->setVisible( edit_visible /* || tool == LLToolGrab::getInstance() */ );

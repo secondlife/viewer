@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  border_visible="false"
- border_drop_shadow_visible="false"
- drop_shadow_visible="false"
  border="false"
  bg_opaque_image="Window_Foreground" 
  bg_alpha_image="Window_Background" 
@@ -26,20 +24,20 @@
  save_visibility="true"
  single_instance="true"
  width="320">
-            <chat_history
-             allow_html="true"
-             bg_readonly_color="ChatHistoryBgColor"
-             bg_writeable_color="ChatHistoryBgColor"
-             follows="all"
-	     left="5"
-             top="20"
-             layout="topleft"
-	     height="275"
-             name="chat_history"
-             parse_highlights="true"
-             text_color="ChatHistoryTextColor"
-             text_readonly_color="ChatHistoryTextColor"
-             right_widget_pad="5"
-             left_widget_pad="0"
-             width="315" />
+  <chat_history
+    allow_html="true"
+    bg_readonly_color="ChatHistoryBgColor"
+    bg_writeable_color="ChatHistoryBgColor"
+    follows="all"
+    left="5"
+    top="20"
+    layout="topleft"
+    height="275"
+    name="chat_history"
+    parse_highlights="true"
+    text_color="ChatHistoryTextColor"
+    text_readonly_color="ChatHistoryTextColor"
+    right_widget_pad="5"
+    left_widget_pad="0"
+    width="315" />
 </floater>

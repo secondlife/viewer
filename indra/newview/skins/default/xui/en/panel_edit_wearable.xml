@@ -131,19 +131,25 @@
      name="tattoo_desc_text">
         Tattoo:
     </string>
-    <button
+    <!-- Default width of the button should be to show it without label.
+     Button will be extedned in code to show whole label when wearable is being changed.
+    -->
+    <labeled_back_button
      follows="top|left"
      height="24"
      image_hover_unselected="BackButton_Over"
      image_pressed="BackButton_Press"
      image_unselected="BackButton_Off"
      layout="topleft"
+     label="Save"
      left="11"
      name="back_btn"
+     pad_left="24"
+     tool_tip="Return to Edit Outfit"
      top="3"
      width="30" />
     <text
-     follows="top|left"
+     follows="top|left|right"
      font="SansSerifHugeBold"
      height="22"
      layout="topleft"
@@ -152,7 +158,8 @@
      text_color="white"
      top="3"
      value="Editing Shape"
-     width="270" />
+     use_ellipses="true"
+     width="274" />
     <panel
      background_opaque="true"
      background_visible="true"
