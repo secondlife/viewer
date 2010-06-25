@@ -55,7 +55,7 @@ public:
 private:
 	void onToastDestroy(LLToast * toast);
 
-private:
+	boost::signals2::scoped_connection mConnection;
 	LLPanel* mPanel;
 	LLScreenChannel* mScreenChannel;
 };
@@ -88,7 +88,7 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
 		llwarns << "Could not get requested toast  from screen channel." << llendl;
 		return;
 	}
-	toast->setOnToastDestroyedCallback(boost::bind(&LLInspectToast::onToastDestroy, this, _1));
+	mConnection = toast->setOnToastDestroyedCallback(boost::bind(&LLInspectToast::onToastDestroy, this, _1));
 
 	LLPanel * panel = toast->getPanel();
 	panel->setVisible(TRUE);
