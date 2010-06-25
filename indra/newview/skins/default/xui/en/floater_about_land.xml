@@ -1489,6 +1489,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="14"
              name="snapshot_ctrl"
+             fallback_image="default_land_picture.j2c" 
              tool_tip="Click to choose a picture"
              width="195" />
             <text

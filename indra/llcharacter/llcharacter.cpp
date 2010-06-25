@@ -381,7 +381,7 @@ void LLCharacter::clearVisualParamWeights()
 		param;
 		param = getNextVisualParam())
 	{
-		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+		if (param->isTweakable())
 		{
 			param->setWeight( param->getDefaultWeight(), FALSE );
 		}

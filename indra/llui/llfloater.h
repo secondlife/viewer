@@ -149,7 +149,7 @@ public:
 	static void setupParamsForExport(Params& p, LLView* parent);
 
 	void initFromParams(const LLFloater::Params& p);
-	bool initFloaterXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
+	bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);
 
 	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
 	/*virtual*/ BOOL canSnapTo(const LLView* other_view);

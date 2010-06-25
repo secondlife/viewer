@@ -3963,13 +3963,12 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 
 	payload["attachment_point"] = attach_pt;
 
-#if !ENABLE_MULTIATTACHMENTS
-	if (attachment && attachment->getNumObjects() > 0)
+	if (!gSavedSettings.getBOOL("MultipleAttachments") &&
+		(attachment && attachment->getNumObjects() > 0))
 	{
 		LLNotificationsUtil::add("ReplaceAttachment", LLSD(), payload, confirm_replace_attachment_rez);
 	}
 	else
-#endif
 	{
 		LLNotifications::instance().forceResponse(LLNotification::Params("ReplaceAttachment").payload(payload), 0/*YES*/);
 	}
@@ -3992,6 +3991,10 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 
 		if (itemp)
 		{
+			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
+			if (gSavedSettings.getBOOL("MultipleAttachments"))
+				attachment_pt |= ATTACHMENT_ADD;
+
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessageFast(_PREHASH_RezSingleAttachmentFromInv);
 			msg->nextBlockFast(_PREHASH_AgentData);
@@ -4000,10 +4003,6 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 			msg->nextBlockFast(_PREHASH_ObjectData);
 			msg->addUUIDFast(_PREHASH_ItemID, itemp->getUUID());
 			msg->addUUIDFast(_PREHASH_OwnerID, itemp->getPermissions().getOwner());
-			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
-#if ENABLE_MULTIATTACHMENTS
-			attachment_pt |= ATTACHMENT_ADD;
-#endif
 			msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
 			pack_permissions_slam(msg, itemp->getFlags(), itemp->getPermissions());
 			msg->addStringFast(_PREHASH_Name, itemp->getName());

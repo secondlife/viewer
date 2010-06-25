@@ -4,7 +4,7 @@
 		<panel name="button_panel">
 			<button label="Profil" name="info_btn" tool_tip="Objektprofil anzeigen"/>
 			<button label="Teilen" name="share_btn" tool_tip="Inventarobjekt teilen"/>
-			<button label="Shop" name="shop_btn" tool_tip="Marktplatz-Webseite öffnen"/>
+			<button label="Einkaufen" name="shop_btn" tool_tip="Marktplatz-Webseite öffnen"/>
 			<button label="Anziehen" name="wear_btn" tool_tip="Ausgewähltes Outfit tragen"/>
 			<button label="Wiedergeben" name="play_btn"/>
 			<button label="Teleportieren" name="teleport_btn" tool_tip="Zu ausgewähltem Standort teleportieren"/>
