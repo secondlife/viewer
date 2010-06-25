@@ -245,6 +245,47 @@ BOOL get_is_item_worn(const LLUUID& id)
 	return FALSE;
 }
 
+BOOL get_can_item_be_worn(const LLUUID& id)
+{
+	const LLViewerInventoryItem* item = gInventory.getItem(id);
+	if (!item)
+		return FALSE;
+	
+	switch(item->getType())
+	{
+		case LLAssetType::AT_OBJECT:
+		{
+			if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getLinkedUUID()))
+			{
+				// Already being worn
+				return FALSE;
+			}
+			else
+			{
+				// Not being worn yet.
+				return TRUE;
+			}
+			break;
+		}
+		case LLAssetType::AT_BODYPART:
+		case LLAssetType::AT_CLOTHING:
+			if(gAgentWearables.isWearingItem(item->getLinkedUUID()))
+			{
+				// Already being worn
+				return FALSE;
+			}
+			else
+			{
+				// Not being worn yet.
+				return TRUE;
+			}
+			break;
+		default:
+			break;
+	}
+	return FALSE;
+}
+
 BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
 {
 	if (!model)
