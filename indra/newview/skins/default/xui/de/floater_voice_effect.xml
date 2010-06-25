@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Orte" name="voice_effects" title="VOICE-MORPHING AUSPROBIEREN">
+<floater label="Orte" name="voice_effects" title="VOICE MORPHING">
 	<string name="no_voice_effect">
 		(Kein Voice-Morphing)
 	</string>
@@ -12,18 +12,19 @@
 	<string name="new_voice_effect">
 		(Neu!)
 	</string>
-	<text name="status_text">
-		Um die Voice-Morph-Effekte auszuprobieren, einfach auf die Schaltfläche „Aufnahme“ klicken und kurz ins Mikrofon sprechen. Klicken Sie dann auf einen beliebigen Effekt in der Liste, um zu hören, wie der Effekt Ihre Stimme verändert.
-
-Schließen Sie dieses Fenster, um wieder mit dem Voice-Chat in der Nähe verbunden zu werden.
+	<text name="preview_text">
+		Zur Vorschau
 	</text>
-	<button label="Aufnahme" name="record_btn" tool_tip="Nehmen Sie Ihre Stimme auf."/>
+	<text name="status_text">
+		Nehmen Sie Ihre Stimme auf, klicken Sie dann auf einen Effekt, um den Effekt auf Ihre Stimme anzuwenden.
+	</text>
+	<button label="Aufnehmen" name="record_btn" tool_tip="Nehmen Sie Ihre Stimme auf."/>
 	<button label="Stopp" name="record_stop_btn"/>
 	<text name="voice_morphing_link">
-		[[URL]Voice-Morphing abonnieren]
+		[[URL] Jetzt abonnieren]
 	</text>
 	<scroll_list name="voice_effect_list" tool_tip="Nehmen Sie Ihre Stimme auf und klicken Sie dann auf einen Effekt, um diesen auszuprobieren.">
-		<scroll_list.columns label="Voice-Morphing" name="name"/>
+		<scroll_list.columns label="Bezeichnung" name="name"/>
 		<scroll_list.columns label="Gültig bis" name="expires"/>
 	</scroll_list>
 </floater>
