@@ -1898,8 +1898,6 @@ BOOL LLIncomingCallDialog::postBuild()
 	
 	// check to see if this is an Avaline call
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
-	childSetVisible("Start IM", is_avatar); // no IM for avaline
-
 	if (caller_name == "anonymous")
 	{
 		caller_name = getString("anonymous");
@@ -1930,6 +1928,10 @@ BOOL LLIncomingCallDialog::postBuild()
 	{
 		mLifetimeTimer.stop();
 	}
+
+	//it's not possible to connect to existing Ad-Hoc chat through incoming ad-hoc call
+	//and no IM for avaline
+	childSetVisible("Start IM", is_avatar && notify_box_type != "VoiceInviteAdHoc");
 
 	setCanDrag(FALSE);
 
