@@ -63,6 +63,8 @@ LLFloaterScriptDebug::LLFloaterScriptDebug(const LLSD& key)
 	// avoid resizing of the window to match 
 	// the initial size of the tabbed-childs, whenever a tab is opened or closed
 	mAutoResize = FALSE;
+	// enabled autocous blocks controling focus via  LLFloaterReg::showInstance
+	setAutoFocus(FALSE);
 }
 
 LLFloaterScriptDebug::~LLFloaterScriptDebug()
@@ -93,7 +95,8 @@ LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 		return NULL;
 
 	LLFloater::setFloaterHost(host);
-	LLFloater* floaterp = LLFloaterReg::showInstance("script_debug_output", object_id);
+	// prevent stealing focus, see EXT-8040
+	LLFloater* floaterp = LLFloaterReg::showInstance("script_debug_output", object_id, FALSE);
 	LLFloater::setFloaterHost(NULL);
 
 	return floaterp;
@@ -145,6 +148,9 @@ LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLSD& object_id)
 	mObjectID(object_id.asUUID())
 {
 	//LLUICtrlFactory::getInstance()->buildFloater(this, "floater_script_debug_panel.xml");
+	
+	// enabled autocous blocks controling focus via  LLFloaterReg::showInstance
+	setAutoFocus(FALSE);
 }
 
 BOOL LLFloaterScriptDebugOutput::postBuild()
