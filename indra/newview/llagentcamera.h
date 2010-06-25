@@ -82,6 +82,7 @@ public:
 	void			init();
 	void			cleanup();
 	void		    setAvatarObject(LLVOAvatarSelf* avatar);
+	bool			isInitialized() { return mInitialized; }
 private:
 	bool			mInitialized;
 
