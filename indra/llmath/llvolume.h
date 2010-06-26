@@ -41,7 +41,7 @@ class LLVolumeParams;
 class LLProfile;
 class LLPath;
 
-#define LL_MESH_ENABLED 1
+#define LL_MESH_ENABLED 0
 
 template <class T> class LLOctreeNode;
 

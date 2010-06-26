@@ -34,6 +34,22 @@
 
 #include <stdlib.h>
 
+// A not necessarily efficient, but general, aligned malloc http://stackoverflow.com/questions/196329/osx-lacks-memalign
+inline void* ll_aligned_malloc( size_t size, int align )
+{
+	void* mem = malloc( size + (align - 1) + sizeof(void*) );
+	char* aligned = ((char*)mem) + sizeof(void*);
+	aligned += align - ((uintptr_t)aligned & (align - 1));
+	
+	((void**)aligned)[-1] = mem;
+	return aligned;
+}
+
+inline void ll_aligned_free( void* ptr )
+{
+	free( ((void**)ptr)[-1] );
+}
+
 inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
 #if defined(LL_WINDOWS)
@@ -65,7 +81,7 @@ inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed wi
 #if defined(LL_WINDOWS)
 	return _mm_malloc(size, 32);
 #elif defined(LL_DARWIN)
-# error implement me.
+	return ll_aligned_malloc( size, 32 );
 #else
 	void *rtn;
 	if (LL_LIKELY(0 == posix_memalign(&rtn, 32, size)))
@@ -80,7 +96,7 @@ inline void ll_aligned_free_32(void *p)
 #if defined(LL_WINDOWS)
 	_mm_free(p);
 #elif defined(LL_DARWIN)
-# error implement me.
+	ll_aligned_free( p );
 #else
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif

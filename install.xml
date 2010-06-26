@@ -1065,9 +1065,9 @@ anguage Infrstructure (CLI) international standard</string>
           <key>darwin</key>
           <map>
             <key>md5sum</key>
-            <string>01853c92592c9b969d2cdbc339738b98</string>
+            <string>b9fe5149a23cbc55a341867c2f6abb8e</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-darwin-20100624.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-darwin-20100626.tar.bz2</uri>
           </map>          
         </map>
       </map>

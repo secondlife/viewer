@@ -2791,6 +2791,7 @@ void renderPhysicsShape(LLDrawable* drawable)
 
 		U32 data_mask = LLVertexBuffer::MAP_VERTEX;
 
+#if LL_MESH_ENABLED
 		if (volume->isMesh())
 		{			
 			LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
@@ -2827,7 +2828,8 @@ void renderPhysicsShape(LLDrawable* drawable)
 				return;
 			}
 		}
-
+#endif //LL_MESH_ENABLED
+		
 		//push faces
 		glColor3fv(color.mV);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
