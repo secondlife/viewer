@@ -66,6 +66,7 @@ public:
 	void renameOutfit(const LLUUID& outfit_id);
 	void takeOffOutfit(const LLUUID& cat_id);
 	void addCategoryToCurrentOutfit(const LLUUID& cat_id);
+	void enforceItemCountLimits();
 
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
