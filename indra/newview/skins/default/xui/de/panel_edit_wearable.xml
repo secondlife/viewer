@@ -90,6 +90,7 @@
 	<string name="tattoo_desc_text">
 		Tätowierung:
 	</string>
+	<labeled_back_button label="Speichern" name="back_btn" tool_tip="Zurück zu Outfit bearbeiten"/>
 	<text name="edit_wearable_title" value="Form bearbeiten"/>
 	<panel label="Hemd" name="wearable_type_panel">
 		<text name="description_text" value="Form:"/>
@@ -102,6 +103,6 @@
 	</panel>
 	<panel name="button_panel">
 		<button label="Speichern unter" name="save_as_button"/>
-		<button label="Zurücksetzen" name="revert_button"/>
+		<button label="Änderungen rückgängig machen" name="revert_button"/>
 	</panel>
 </panel>

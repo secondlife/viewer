@@ -405,6 +405,8 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 //static
 void LLSidepanelAppearance::editWearable(LLWearable *wearable, LLView *data)
 {
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance");
+
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(data);
 	if (panel)
 	{
