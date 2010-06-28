@@ -3148,6 +3148,13 @@ bool process_login_success_response()
 		}
 	}
 
+	// Set the location of the snapshot sharing config endpoint
+	std::string snapshot_config_url = response["snapshot_config_url"];
+	if(!snapshot_config_url.empty())
+	{
+		gSavedSettings.setString("SnapshotConfigURL", snapshot_config_url);
+	}
+
 	// Start the process of fetching the OpenID session cookie for this user login
 	std::string openid_url = response["openid_url"];
 	if(!openid_url.empty())

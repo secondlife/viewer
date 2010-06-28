@@ -552,6 +552,7 @@ set(viewer_SOURCE_FILES
     llwearablelist.cpp
     llwearabletype.cpp
     llweb.cpp
+    llwebsharing.cpp
     llwind.cpp
     llwlanimator.cpp
     llwldaycycle.cpp
@@ -1076,6 +1077,7 @@ set(viewer_HEADER_FILES
     llwearablelist.h
     llwearabletype.h
     llweb.h
+    llwebsharing.h
     llwind.h
     llwlanimator.h
     llwldaycycle.h
