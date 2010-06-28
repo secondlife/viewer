@@ -294,6 +294,9 @@
 	<string name="ReleaseNotes">
 		Noter om version
 	</string>
+	<string name="RELEASE_NOTES_BASE_URL">
+		http://wiki.secondlife.com/wiki/Release_Notes/
+	</string>
 	<string name="LoadingData">
 		Henter...
 	</string>
@@ -839,6 +842,9 @@
 	</string>
 	<string name="invalid">
 		ugyldig
+	</string>
+	<string name="none">
+		ingen
 	</string>
 	<string name="shirt_not_worn">
 		Trøje - ikke på

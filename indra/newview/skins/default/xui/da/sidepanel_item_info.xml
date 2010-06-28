@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="Objekt profil">
+<panel name="item properties" title="Profil for genstand">
 	<panel.string name="unknown">
 		(ukendt)
 	</panel.string>
@@ -15,7 +15,7 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
-	<text name="title" value="Objekt profil"/>
+	<text name="title" value="Profil for genstand"/>
 	<text name="where" value="(Beholdning)"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
