@@ -1051,16 +1051,16 @@ anguage Infrstructure (CLI) international standard</string>
           <key>windows</key>
           <map>
             <key>md5sum</key>
-            <string>9b895f616dfb5ce9814d4e53417950a9</string>
+            <string>afd03c92ac261134237b648896c5e537</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-windows-20100622.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-windows-20100628.tar.bz2</uri>
           </map>
           <key>linux</key>
           <map>
             <key>md5sum</key>
-            <string>da4d464008fac288865f259873cafad2</string>
+            <string>3427b3c31ed66132b19e1f6679894c57</string>
             <key>url</key>
-            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-linux-20100622.tar.bz2</uri>
+            <uri>scp:install-packages.lindenlab.com:/local/www/install-packages/doc/llconvexdecomposition-0.1-linux-20100628.tar.bz2</uri>
           </map>
           <key>darwin</key>
           <map>
