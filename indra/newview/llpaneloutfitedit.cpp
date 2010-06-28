@@ -661,10 +661,13 @@ void LLPanelOutfitEdit::onInventorySelectionChange()
 	getSelectedItemsUUID(selected_items);
 	if (selected_items.empty())
 	{
+		mPlusBtn->setEnabled(false);
 		return;
 	}
-	uuid_vec_t::iterator worn_item = std::find_if(selected_items.begin(), selected_items.end(), boost::bind(&get_is_item_worn, _1));
-	bool can_add = ( worn_item == selected_items.end() );
+
+	// If any of the selected items are not wearable (due to already being worn OR being of the wrong type), disable the add button.
+	uuid_vec_t::iterator unwearable_item = std::find_if(selected_items.begin(), selected_items.end(), !boost::bind(& get_can_item_be_worn, _1));
+	bool can_add = ( unwearable_item == selected_items.end() );
 
 	mPlusBtn->setEnabled(can_add);
 

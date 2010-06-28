@@ -1,12 +1,13 @@
-/** 
- * @file llwindowmacosx-objc.mm
- * @brief Definition of functions shared between llwindowmacosx.cpp
- * and llwindowmacosx-objc.mm.
+/**
+ * @file slplugin-objc.mm
+ * @brief Objective-C++ file for use with the loader shell, so we can use a couple of Cocoa APIs.
  *
- * $LicenseInfo:firstyear=2006&license=viewergpl$
- * 
- * Copyright (c) 2006-2007, Linden Research, Inc.
- * 
+ * @cond
+ *
+ * $LicenseInfo:firstyear=2010&license=viewergpl$
+ *
+ * Copyright (c) 2010, Linden Research, Inc.
+ *
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
  * to you under the terms of the GNU General Public License, version 2.0
@@ -14,32 +15,29 @@
  * ("Other License"), formally executed by you and Linden Lab.  Terms of
  * the GPL can be found in doc/GPL-license.txt in this distribution, or
  * online at http://secondlife.com/developers/opensource/gplv2
- * 
+ *
  * There are special exceptions to the terms and conditions of the GPL as
  * it is applied to this Source Code. View the full text of the exception
  * in the file doc/FLOSS-exception.txt in this software distribution, or
  * online at http://secondlife.com/developers/opensource/flossexception
- * 
+ *
  * By copying, modifying or distributing this software, you acknowledge
  * that you have read and understood your obligations described above,
  * and agree to abide by those obligations.
- * 
+ *
  * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
  * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
  * COMPLETENESS OR PERFORMANCE.
  * $/LicenseInfo$
+ *
+ * @endcond
  */
+
 
 #include <AppKit/AppKit.h>
 
-/*
- * These functions are broken out into a separate file because the
- * objective-C typedef for 'BOOL' conflicts with the one in
- * llcommon/stdtypes.h.  This makes it impossible to use the standard
- * linden headers with any objective-C++ source.
- */
+#include "slplugin-objc.h"
 
-#include "llwindowmacosx-objc.h"
 
 void setupCocoa()
 {
@@ -47,7 +45,7 @@ void setupCocoa()
 	
 	if(!inited)
 	{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+		createAutoReleasePool();
 		
 		// The following prevents the Cocoa command line parser from trying to open 'unknown' arguements as documents.
 		// ie. running './secondlife -set Language fr' would cause a pop-up saying can't open document 'fr' 
@@ -62,64 +60,28 @@ void setupCocoa()
 
 		//	Must first call [[[NSWindow alloc] init] release] to get the NSWindow machinery set up so that NSCursor can use a window to cache the cursor image
 		[[[NSWindow alloc] init] release];
-
-		[pool release];
+		
+		deleteAutoReleasePool();
 		
 		inited = true;
 	}
 }
 
-CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY)
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+static NSAutoreleasePool *sPool = NULL;
 
-	// extra retain on the NSCursor since we want it to live for the lifetime of the app.
-	NSCursor *cursor =
-		[[[NSCursor alloc] 
-				initWithImage:
-					[[[NSImage alloc] initWithContentsOfFile:
-						[NSString stringWithFormat:@"%s", fullpath]
-					]autorelease] 
-				hotSpot:NSMakePoint(hotspotX, hotspotY)
-		]retain];	
-		
-	[pool release];
-	
-	return (CursorRef)cursor;
+void createAutoReleasePool()
+{
+	if(!sPool)
+	{
+		sPool = [[NSAutoreleasePool alloc] init];
+	}
 }
 
-// This is currently unused, since we want all our cursors to persist for the life of the app, but I've included it for completeness.
-OSErr releaseImageCursor(CursorRef ref)
+void deleteAutoReleasePool()
 {
-	if( ref != NULL )
+	if(sPool)
 	{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		NSCursor *cursor = (NSCursor*)ref;
-		[cursor release];
-		[pool release];
+		[sPool release];
+		sPool = NULL;
 	}
-	else
-	{
-		return paramErr;
-	}
-	
-	return noErr;
 }
-
-OSErr setImageCursor(CursorRef ref)
-{
-	if( ref != NULL )
-	{
-		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		NSCursor *cursor = (NSCursor*)ref;
-		[cursor set];
-		[pool release];
-	}
-	else
-	{
-		return paramErr;
-	}
-	
-	return noErr;
-}
-
