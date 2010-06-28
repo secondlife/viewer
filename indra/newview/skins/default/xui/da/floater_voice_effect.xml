@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="Steder" name="voice_effects" title="SE STEMME &quot;MORPH&quot;">
+<floater label="Steder" name="voice_effects" title="STEMME MORPH">
 	<string name="no_voice_effect">
 		(Ingen stemme &quot;morph&quot;)
 	</string>
@@ -12,18 +12,19 @@
 	<string name="new_voice_effect">
 		(Ny!)
 	</string>
-	<text name="status_text">
-		For at se stemme &quot;morph&quot; effekter, skal du klikke på &quot;optag&quot; kanppen for at optage en stump stemme, derefter klik på en stemme &quot;morph&quot; på listen for at høre hvordan det vil lyde.
-
-For at vende tilbage til lokal stemme-chat luk dette vindue.
+	<text name="preview_text">
+		For at se
 	</text>
-	<button label="Optage prøve" name="record_btn" tool_tip="Optag en stemmeprøve."/>
+	<text name="status_text">
+		Optag en prøve, klik derefter på en stemme for at høre hvordan det vil lyde.
+	</text>
+	<button label="Optag" name="record_btn" tool_tip="Optag en stemmeprøve."/>
 	<button label="Stop" name="record_stop_btn"/>
 	<text name="voice_morphing_link">
-		[[URL] Hent stemme &quot;morph&quot;]
+		[[URL] Abonnér nu]
 	</text>
 	<scroll_list name="voice_effect_list" tool_tip="Optag en prøve med din stemme og klik på en effekt for at teste.">
-		<scroll_list.columns label="Stemme &quot;morph&quot;" name="name"/>
+		<scroll_list.columns label="Stemme navn" name="name"/>
 		<scroll_list.columns label="Udløber" name="expires"/>
 	</scroll_list>
 </floater>

@@ -24,9 +24,6 @@
 	<floater.string name="Title">
 		Bevægelse: [NAME]
 	</floater.string>
-	<text name="name_text">
-		Navn:
-	</text>
 	<text name="desc_label">
 		Beskrivelse:
 	</text>
@@ -53,12 +50,15 @@
 	<button label="Op" name="up_btn"/>
 	<button label="Ned" name="down_btn"/>
 	<button label="Fjern" name="delete_btn"/>
+	<text name="options_text">
+		(valg)
+	</text>
 	<radio_group name="animation_trigger_type">
 		<radio_item label="Start" name="start"/>
 		<radio_item label="Stop" name="stop"/>
 	</radio_group>
 	<check_box label="Indtil animation er færdig" name="wait_anim_check"/>
-	<check_box label="tid i sekunder" name="wait_time_check"/>
+	<check_box label="tid i sekunder:" name="wait_time_check"/>
 	<text name="help_label">
 		Alle trin vil ske samtidigt, medmindre du tilføjer vente trin.
 	</text>
