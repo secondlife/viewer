@@ -144,18 +144,6 @@ BOOL LLFloaterMove::postBuild()
 	return TRUE;
 }
 
-// virtual
-void LLFloaterMove::setEnabled(BOOL enabled)
-{
-	//we need to enable/disable only buttons, EXT-1061.
-
-	// is called before postBuild() - use findChild here.
-	LLPanel *panel_actions = findChild<LLPanel>("panel_actions");
-	if (panel_actions) panel_actions->setEnabled(enabled);
-
-	showModeButtons(enabled);
-}
-
 // *NOTE: we assume that setVisible() is called on floater close.
 // virtual
 void LLFloaterMove::setVisible(BOOL visible)
@@ -406,7 +394,7 @@ void LLFloaterMove::initMovementMode()
 
 	if (isAgentAvatarValid())
 	{
-		setEnabled(!gAgentAvatarp->isSitting());
+		showModeButtons(!gAgentAvatarp->isSitting());
 	}
 }
 
@@ -476,8 +464,7 @@ void LLFloaterMove::sUpdateFlyingStatus()
 
 void LLFloaterMove::showModeButtons(BOOL bShow)
 {
-	// is called from setEnabled so can be called before postBuild(), check mModeActionsPanel agains to NULL
-	if (NULL == mModeActionsPanel || mModeActionsPanel->getVisible() == bShow)
+	if (mModeActionsPanel->getVisible() == bShow)
 		return;
 	mModeActionsPanel->setVisible(bShow);
 }
@@ -488,11 +475,13 @@ void LLFloaterMove::enableInstance(BOOL bEnable)
 	LLFloaterMove* instance = LLFloaterReg::findTypedInstance<LLFloaterMove>("moveview");
 	if (instance)
 	{
-		instance->setEnabled(bEnable);
-
 		if (gAgent.getFlying())
 		{
 			instance->showModeButtons(FALSE);
+		}
+		else
+		{
+			instance->showModeButtons(bEnable);
 		}
 	}
 }

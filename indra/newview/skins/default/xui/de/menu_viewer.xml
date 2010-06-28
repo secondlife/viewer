@@ -178,6 +178,7 @@
 			<menu_item_check label="Suchen" name="Search"/>
 			<menu_item_call label="Tasten freigeben" name="Release Keys"/>
 			<menu_item_call label="UI-Größe auf Standard setzen" name="Set UI Size to Default"/>
+			<menu_item_check label="Erweitert-Menü anzeigen - veraltetet" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Immer rennen" name="Always Run"/>
 			<menu_item_check label="Fliegen" name="Fly"/>
 			<menu_item_call label="Fenster schließen" name="Close Window"/>

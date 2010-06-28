@@ -46,6 +46,9 @@
 // Is this item or its baseitem is worn, attached, etc...
 BOOL get_is_item_worn(const LLUUID& id);
 
+// Could this item be worn (correct type + not already being worn)
+BOOL get_can_item_be_worn(const LLUUID& id);
+
 BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id);
 
 BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id);

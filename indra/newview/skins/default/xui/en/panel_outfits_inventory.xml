@@ -37,6 +37,7 @@
            width="312" />
          <panel
            background_visible="true"
+           bg_alpha_color="DkGray"
            class="panel_wearing"
            follows="all"
            height="490"          
@@ -50,13 +51,13 @@
              follows="all"
              height="490"
              keep_one_selected="true"
-             left="1"
+             left="3"
              multi_select="true"
              name="cof_items_list"
              standalone="false"
              top="0"
              translate="false"
-             width="310"
+             width="307"
              worn_indication_enabled="false"
             />
          </panel>
