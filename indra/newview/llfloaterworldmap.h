@@ -112,7 +112,7 @@ public:
 
 	// teleport to the tracked item, if there is one
 	void			teleport();
-
+	void			onChangeMaturity();
 protected:	
 	void			onGoHome();
 
