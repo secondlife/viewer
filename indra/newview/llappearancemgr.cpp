@@ -1598,18 +1598,44 @@ void LLAppearanceMgr::enforceItemCountLimits()
 	}
 }
 
+class BoolSetter
+{
+public:
+	BoolSetter(bool& var):
+		mVar(var)
+	{
+		mVar = true;
+	}
+	~BoolSetter()
+	{
+		mVar = false; 
+	}
+private:
+	bool& mVar;
+};
+
 void LLAppearanceMgr::updateAppearanceFromCOF()
 {
-	// update dirty flag to see if the state of the COF matches
-	// the saved outfit stored as a folder link
+	if (mIsInUpdateAppearanceFromCOF)
+	{
+		llwarns << "Called updateAppearanceFromCOF inside updateAppearanceFromCOF, skipping" << llendl;
+		return;
+	}
+
+	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
+
 	llinfos << "starting" << llendl;
 
 	//checking integrity of the COF in terms of ordering of wearables, 
 	//checking and updating links' descriptions of wearables in the COF (before analyzed for "dirty" state)
 	updateClothingOrderingInfo();
 
+	// Remove duplicate or excess wearables. Should normally be enforced at the UI level, but
+	// this should catch anything that gets through.
 	enforceItemCountLimits();
 	
+	// update dirty flag to see if the state of the COF matches
+	// the saved outfit stored as a folder link
 	updateIsDirty();
 
 	dumpCat(getCOF(),"COF, start");
@@ -2556,7 +2582,8 @@ void LLAppearanceMgr::dumpItemArray(const LLInventoryModel::item_array_t& items,
 
 LLAppearanceMgr::LLAppearanceMgr():
 	mAttachmentInvLinkEnabled(false),
-	mOutfitIsDirty(false)
+	mOutfitIsDirty(false),
+	mIsInUpdateAppearanceFromCOF(false)
 {
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
 

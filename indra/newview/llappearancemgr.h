@@ -204,6 +204,7 @@ private:
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
+	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
 
 	/**
 	 * Lock for blocking operations on outfit until server reply or timeout exceed
