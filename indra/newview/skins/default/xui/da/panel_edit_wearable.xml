@@ -90,6 +90,7 @@
 	<string name="tattoo_desc_text">
 		Tatovering:
 	</string>
+	<labeled_back_button label="Gem" name="back_btn" tool_tip="Tilbage til redigering"/>
 	<text name="edit_wearable_title" value="Redigerer kropsbygning"/>
 	<panel label="Trøje" name="wearable_type_panel">
 		<text name="description_text" value="Kropsbygning:"/>
@@ -102,6 +103,6 @@
 	</panel>
 	<panel name="button_panel">
 		<button label="Gem som" name="save_as_button"/>
-		<button label="Vend tilbage" name="revert_button"/>
+		<button label="Annullér ændringer" name="revert_button"/>
 	</panel>
 </panel>

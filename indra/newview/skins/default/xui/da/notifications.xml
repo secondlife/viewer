@@ -288,8 +288,7 @@ Gå til [_URL] for information om køb af L$?
 		Kunne ikke &apos;forstå&apos; filen: [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		Vi kan ikke læse dine beskyttede data så de nulstilles.
-   Dette kan ske hvis du ændrer din netværksopsætning.
+		Vi kan ikke udfylde dit brugernavn og password.  Dette kan ske hvis du ændrer netværksopsætning
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
