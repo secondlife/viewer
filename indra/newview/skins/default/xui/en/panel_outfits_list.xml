@@ -15,7 +15,7 @@
      bg_alpha_color="DkGray2"
      bg_opaque_color="DkGray2"
      no_matched_tabs_text.value="Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search]."
-     no_visible_tabs_text.value="You don't have any outfits yet. Try [secondlife:///app/search/all/ Search]."
+     no_visible_tabs_text.value="..."
      follows="all"
      height="400"
      layout="topleft"
