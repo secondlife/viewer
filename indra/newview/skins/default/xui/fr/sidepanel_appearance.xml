@@ -3,6 +3,7 @@
 	<string name="No Outfit" value="Aucune tenue"/>
 	<string name="Unsaved Changes" value="Modifications non enregistrées"/>
 	<string name="Now Wearing" value="Vous portez désormais..."/>
+	<string name="Changing outfits" value="Changement de tenue"/>
 	<panel name="panel_currentlook">
 		<button label="M" name="editappearance_btn"/>
 		<button label="O" name="openoutfit_btn"/>
@@ -12,6 +13,7 @@
 		<text name="currentlook_name">
 			Ma tenue avec un nom très long comme ORIGNAL
 		</text>
+		<button label="" name="edit_outfit_btn" tool_tip="Modifier cette tenue"/>
 	</panel>
 	<filter_editor label="Filtrer les tenues" name="Filter"/>
 </panel>
