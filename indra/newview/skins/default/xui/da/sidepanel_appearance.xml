@@ -3,12 +3,14 @@
 	<string name="No Outfit" value="Intet sæt"/>
 	<string name="Unsaved Changes" value="Ikke gemte ændringer"/>
 	<string name="Now Wearing" value="Bærer nu..."/>
+	<string name="Changing outfits" value="Skift sæt"/>
 	<panel name="panel_currentlook">
 		<button label="E" name="editappearance_btn"/>
 		<button label="O" name="openoutfit_btn"/>
 		<text name="currentlook_status">
 			(Status)
 		</text>
+		<button label="" name="edit_outfit_btn" tool_tip="Redigér dette sæt"/>
 	</panel>
 	<filter_editor label="Filtrér sæt" name="Filter"/>
 </panel>

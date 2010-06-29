@@ -50,10 +50,7 @@
 			m
 		</text>
 		<slider label="Maks. antal partikler:" name="MaxParticleCount"/>
-		<slider label="Maks. avatar optegningsafstand:" name="MaxAvatarDrawDistance"/>
-		<text name="DrawDistanceMeterText3">
-			m
-		</text>
+		<slider label="Maks. antal mini-avatarer:" name="MaxNumberAvatarDrawn"/>
 		<slider label="Efterbehandlingskvalitet:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Netmaske detaljer:

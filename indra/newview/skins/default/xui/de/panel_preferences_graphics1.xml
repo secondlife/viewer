@@ -49,10 +49,7 @@
 			m
 		</text>
 		<slider label="Max. Partikelzahl:" name="MaxParticleCount"/>
-		<slider label="Max. Avatarsichtweite:" name="MaxAvatarDrawDistance"/>
-		<text name="DrawDistanceMeterText3">
-			m
-		</text>
+		<slider label="Max. Anzahl an voll dargestellten Avataren:" name="MaxNumberAvatarDrawn"/>
 		<slider label="Post-Processing-Qualität:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Gitterdetails:

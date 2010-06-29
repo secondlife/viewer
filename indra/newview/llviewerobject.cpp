@@ -4928,6 +4928,11 @@ void LLViewerObject::setIncludeInSearch(bool include_in_search)
 
 void LLViewerObject::setRegion(LLViewerRegion *regionp)
 {
+	if (!regionp)
+	{
+		llwarns << "viewer object set region to NULL" << llendl;
+	}
+	
 	mLatestRecvPacketID = 0;
 	mRegionp = regionp;
 

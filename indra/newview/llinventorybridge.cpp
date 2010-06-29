@@ -452,13 +452,15 @@ void hide_context_entries(LLMenuGL& menu,
 	// if the first element is a separator, it will not be shown.
 	BOOL is_previous_entry_separator = TRUE;
 
-	LLView::child_list_t::const_iterator itor;
-	for (itor = list->begin(); itor != list->end(); ++itor)
+	for (LLView::child_list_t::const_iterator itor = list->begin(); 
+		 itor != list->end(); 
+		 ++itor)
 	{
-		std::string name = (*itor)->getName();
+		LLView *menu_item = (*itor);
+		std::string name = menu_item->getName();
 
 		// descend into split menus:
-		LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(*itor);
+		LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(menu_item);
 		if ((name == "More") && branchp)
 		{
 			hide_context_entries(*branchp->getBranch(), entries_to_show, disabled_entries);
@@ -479,7 +481,7 @@ void hide_context_entries(LLMenuGL& menu,
 		// between two separators).
 		if (found)
 		{
-			const BOOL is_entry_separator = (dynamic_cast<LLMenuItemSeparatorGL *>(*itor) != NULL);
+			const BOOL is_entry_separator = (dynamic_cast<LLMenuItemSeparatorGL *>(menu_item) != NULL);
 			if (is_entry_separator && is_previous_entry_separator)
 				found = false;
 			is_previous_entry_separator = is_entry_separator;
@@ -487,16 +489,23 @@ void hide_context_entries(LLMenuGL& menu,
 		
 		if (!found)
 		{
-			(*itor)->setVisible(FALSE);
+			if (!menu_item->getLastVisible())
+			{
+				menu_item->setVisible(FALSE);
+			}
+			menu_item->setEnabled(FALSE);
 		}
 		else
 		{
-			(*itor)->setVisible(TRUE);
+			menu_item->setVisible(TRUE);
+			// A bit of a hack so we can remember that some UI element explicitly set this to be visible
+			// so that some other UI element from multi-select doesn't later set this invisible.
+			menu_item->pushVisible(TRUE);
 			for (itor2 = disabled_entries.begin(); itor2 != disabled_entries.end(); ++itor2)
 			{
 				if (*itor2 == name)
 				{
-					(*itor)->setEnabled(FALSE);
+					menu_item->setEnabled(FALSE);
 				}
 			}
 		}
@@ -3730,6 +3739,9 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			disabled_items.push_back(std::string("Share"));
 		}
 
+		addOpenRightClickMenuOption(items);
+		items.push_back(std::string("Properties"));
+
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back(std::string("Gesture Separator"));
@@ -4379,7 +4391,6 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			can_open = FALSE;
 		}
-
 		items.push_back(std::string("Share"));
 		if (!canShare())
 		{
@@ -4389,6 +4400,11 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		if (can_open)
 		{
 			addOpenRightClickMenuOption(items);
+		}
+		else
+		{
+			disabled_items.push_back(std::string("Open"));
+			disabled_items.push_back(std::string("Open Original"));
 		}
 
 		items.push_back(std::string("Properties"));

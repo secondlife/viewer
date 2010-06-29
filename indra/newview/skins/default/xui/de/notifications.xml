@@ -622,8 +622,7 @@ Erwartet wurde [VALIDS]
 		Datei konnte nicht kodiert werden: [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		Ihre geschützten Daten konnten nicht gelesen werden, aus diesem Grund werden diese zurückgesetzt.
-   Dies kann passieren, wenn Sie die Netzwerkeinstellungen ändern.
+		Wir können Ihren Benutzernamen und Ihr Kennwort nicht automatisch ausfüllen.  Dies kann passieren, wenn Sie die Netzwerkeinstellungen ändern.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">

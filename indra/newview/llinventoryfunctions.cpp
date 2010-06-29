@@ -245,6 +245,47 @@ BOOL get_is_item_worn(const LLUUID& id)
 	return FALSE;
 }
 
+BOOL get_can_item_be_worn(const LLUUID& id)
+{
+	const LLViewerInventoryItem* item = gInventory.getItem(id);
+	if (!item)
+		return FALSE;
+	
+	switch(item->getType())
+	{
+		case LLAssetType::AT_OBJECT:
+		{
+			if (isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(item->getLinkedUUID()))
+			{
+				// Already being worn
+				return FALSE;
+			}
+			else
+			{
+				// Not being worn yet.
+				return TRUE;
+			}
+			break;
+		}
+		case LLAssetType::AT_BODYPART:
+		case LLAssetType::AT_CLOTHING:
+			if(gAgentWearables.isWearingItem(item->getLinkedUUID()))
+			{
+				// Already being worn
+				return FALSE;
+			}
+			else
+			{
+				// Not being worn yet.
+				return TRUE;
+			}
+			break;
+		default:
+			break;
+	}
+	return FALSE;
+}
+
 BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
 {
 	if (!model)
@@ -282,7 +323,9 @@ BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
 
 BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
 {
-	// This function doesn't check the folder's children.
+	// NOTE: This function doesn't check the folder's children.
+	// See LLFolderBridge::isItemRemovable for a function that does
+	// consider the children.
 
 	if (!model)
 	{
@@ -296,15 +339,27 @@ BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
 
 	if (!isAgentAvatarValid()) return FALSE;
 
-	LLInventoryCategory* category = model->getCategory(id);
+	const LLInventoryCategory* category = model->getCategory(id);
 	if (!category)
 	{
 		return FALSE;
 	}
 
-	if (LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+	const LLFolderType::EType folder_type = category->getPreferredType();
+	
+	if (LLFolderType::lookupIsProtectedType(folder_type))
 	{
 		return FALSE;
+	}
+
+	// Can't delete the outfit that is currently being worn.
+	if (folder_type == LLFolderType::FT_OUTFIT)
+	{
+		const LLViewerInventoryItem *base_outfit_link = LLAppearanceMgr::instance().getBaseOutfitLink();
+		if (base_outfit_link && (category == base_outfit_link->getLinkedCategory()))
+		{
+			return FALSE;
+		}
 	}
 
 	return TRUE;

@@ -44,6 +44,7 @@
 
 #if LL_DARWIN
 	#include <Carbon/Carbon.h>
+	#include "slplugin-objc.h"
 #endif
 
 #if LL_DARWIN || LL_LINUX
@@ -229,9 +230,18 @@ int main(int argc, char **argv)
 	signal(SIGSYS, &crash_handler);		// non-existent system call invoked
 #endif
 
+#if LL_DARWIN
+	setupCocoa();
+	createAutoReleasePool();
+#endif
+
 	LLPluginProcessChild *plugin = new LLPluginProcessChild();
 
 	plugin->init(port);
+
+#if LL_DARWIN
+		deleteAutoReleasePool();
+#endif
 
 	LLTimer timer;
 	timer.start();
@@ -260,6 +270,9 @@ int main(int argc, char **argv)
 #endif
 	while(!plugin->isDone())
 	{
+#if LL_DARWIN
+		createAutoReleasePool();
+#endif
 		timer.reset();
 		plugin->idle();
 #if LL_DARWIN
@@ -376,6 +389,10 @@ int main(int argc, char **argv)
 	// that do crash with a single call to the intercept
 	// exception handler such as QuickTime.
 	//checkExceptionHandler();
+#endif
+
+#if LL_DARWIN
+		deleteAutoReleasePool();
 #endif
 	}
 
