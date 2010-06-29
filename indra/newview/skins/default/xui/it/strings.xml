@@ -303,6 +303,9 @@
 	<string name="ReleaseNotes">
 		Note sulla versione
 	</string>
+	<string name="RELEASE_NOTES_BASE_URL">
+		http://wiki.secondlife.com/wiki/Release_Notes/
+	</string>
 	<string name="LoadingData">
 		In caricamento...
 	</string>
@@ -848,6 +851,9 @@
 	</string>
 	<string name="invalid">
 		non valido
+	</string>
+	<string name="none">
+		nessuno
 	</string>
 	<string name="shirt_not_worn">
 		Camicia non indossata
