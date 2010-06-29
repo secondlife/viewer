@@ -43,8 +43,8 @@
 #include "llremoteparcelrequest.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
-#include "llinventoryitemslist.h"
 #include "llinventorymodel.h"
+#include "llwearableitemslist.h"
 
 class LLButton;
 class LLCOFWearables;
@@ -211,7 +211,7 @@ private:
 	LLComboBox*			mListViewFilterCmbBox;
 
 	LLFilteredWearableListManager* 	mWearableListManager;
-	LLInventoryItemsList* 			mWearableItemsList;
+	LLWearableItemsList* 			mWearableItemsList;
 	LLPanel*						mWearablesListViewPanel;
 
 	LLCOFDragAndDropObserver* mCOFDragAndDropObserver;
@@ -221,6 +221,7 @@ private:
 
 	LLCOFWearables*		mCOFWearables;
 	LLMenuGL*			mGearMenu;
+	LLMenuGL*			mAddWearablesGearMenu;
 	bool				mInitialized;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
 
