@@ -64,6 +64,10 @@
 #include "llcommandlineparser.h"
 #include "lltrans.h"
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+#include "llwindebug.h"
+#endif
+
 // *FIX:Mani - This hack is to fix a linker issue with libndofdev.lib
 // The lib was compiled under VS2005 - in VS2003 we need to remap assert
 #ifdef LL_DEBUG
@@ -341,6 +345,10 @@ bool LLAppViewerWin32::init()
 	//
 	llinfos << "Turning off Windows error reporting." << llendl;
 	disableWinErrorReporting();
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLWinDebug::instance().init();
+#endif
 
 	return LLAppViewer::init();
 }

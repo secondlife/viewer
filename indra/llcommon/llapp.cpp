@@ -920,6 +920,10 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 		ms_sleep(10);
 	}
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	return false;
+#else
 	return true;
+#endif
 }
 #endif

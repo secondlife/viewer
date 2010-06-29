@@ -4133,7 +4133,7 @@ void LLAppViewer::forceErrorBreakpoint()
 void LLAppViewer::forceErrorBadMemoryAccess()
 {
     S32* crash = NULL;
-    *crash = 0xDEADBEEF;
+    *crash = 0xDEADBEEF;  
     return;
 }
 
