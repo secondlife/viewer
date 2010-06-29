@@ -223,7 +223,7 @@ ou divisé.
 				Facteur Bonus Objets : [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Utilisation des prims :
+				Utilisation des primitives :
 			</text>
 			<text left="214" name="objects_available" width="230">
 				[COUNT] sur [MAX] ([AVAILABLE] disponibles)

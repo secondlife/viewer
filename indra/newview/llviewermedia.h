@@ -84,7 +84,7 @@ public:
 	static const char* SHOW_MEDIA_WITHIN_PARCEL_SETTING;
 	static const char* SHOW_MEDIA_OUTSIDE_PARCEL_SETTING;
 	
-	typedef std::vector<LLViewerMediaImpl*> impl_list;
+	typedef std::list<LLViewerMediaImpl*> impl_list;
 	
 	typedef std::map<LLUUID, LLViewerMediaImpl*> impl_id_map;
 	

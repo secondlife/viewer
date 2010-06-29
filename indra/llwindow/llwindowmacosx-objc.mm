@@ -64,6 +64,8 @@ void setupCocoa()
 		[[[NSWindow alloc] init] release];
 
 		[pool release];
+		
+		inited = true;
 	}
 }
 

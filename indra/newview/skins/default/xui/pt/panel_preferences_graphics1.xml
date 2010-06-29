@@ -50,10 +50,7 @@ rápido
 			m
 		</text>
 		<slider label="Contador máx. de partículas:" name="MaxParticleCount"/>
-		<slider label="Distância máx. desenho avatar:" name="MaxAvatarDrawDistance"/>
-		<text name="DrawDistanceMeterText3">
-			m
-		</text>
+		<slider label="Máx. de avatares legítimos:" name="MaxNumberAvatarDrawn"/>
 		<slider label="Qualidade de Pós-processamento:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Detalhes de Malha:

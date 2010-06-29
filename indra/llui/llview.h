@@ -310,7 +310,8 @@ public:
 
 	void			pushVisible(BOOL visible)	{ mLastVisible = mVisible; setVisible(visible); }
 	void			popVisible()				{ setVisible(mLastVisible); }
-	
+	BOOL			getLastVisible()	const	{ return mLastVisible; }
+
 	LLHandle<LLView>	getHandle()				{ mHandle.bind(this); return mHandle; }
 
 	U32			getFollows() const				{ return mReshapeFlags; }

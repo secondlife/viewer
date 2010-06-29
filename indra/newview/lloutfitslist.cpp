@@ -88,6 +88,8 @@ public:
 		registrar.add("Gear.Delete", boost::bind(&LLOutfitListGearMenu::onDelete, this));
 		registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenu::onCreate, this, _2));
 
+		registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenu::onAdd, this));
+
 		enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitsList::isActionEnabled, mOutfitList, _2));
 		enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenu::onVisible, this, _2));
 
@@ -143,6 +145,16 @@ private:
 		{
 			LLAppearanceMgr::instance().wearInventoryCategory(
 				selected_outfit, /*copy=*/ FALSE, /*append=*/ FALSE);
+		}
+	}
+
+	void onAdd()
+	{
+		const LLUUID& selected_id = getSelectedOutfitID();
+
+		if (selected_id.notNull())
+		{
+			LLAppearanceMgr::getInstance()->addCategoryToCurrentOutfit(selected_id);
 		}
 	}
 
@@ -648,6 +660,17 @@ bool LLOutfitsList::isActionEnabled(const LLSD& userdata)
 				 && LLAppearanceMgr::getInstance()->getBaseOutfitUUID() == mSelectedOutfitUUID )
 				|| hasWornItemSelected();
 	}
+
+	if (command_name == "wear_add")
+	{
+		if (gAgentWearables.isCOFChangeInProgress())
+		{
+			return false;
+		}
+
+		return LLAppearanceMgr::getCanAddToCOF(mSelectedOutfitUUID);
+	}
+
 	return false;
 }
 
