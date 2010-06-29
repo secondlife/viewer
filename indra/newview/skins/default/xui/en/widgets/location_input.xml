@@ -7,7 +7,7 @@
                 icon_maturity_general="Parcel_PG_Light"
                 icon_maturity_adult="Parcel_R_Light"
                 icon_maturity_moderate="Parcel_M_Light"
-                maturity_help_topic="TODO"
+                maturity_help_topic="maturity_rating"
                 add_landmark_image_enabled="Favorite_Star_Active"
                 add_landmark_image_disabled="Favorite_Star_Off"
                 add_landmark_image_hover="Favorite_Star_Over"
