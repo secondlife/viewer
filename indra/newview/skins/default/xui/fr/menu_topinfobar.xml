@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_topinfobar">
+	<menu_item_check label="Afficher les coordonnées" name="Show Coordinates"/>
+	<menu_item_check label="Afficher les propriétés de la parcelle" name="Show Parcel Properties"/>
+	<menu_item_call label="Repère" name="Landmark"/>
+	<menu_item_call label="Copier" name="Copy"/>
+</menu>

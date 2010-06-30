@@ -13,7 +13,9 @@
 	<string name="Filter.All" value="Tutto"/>
 	<string name="Filter.Clothes/Body" value="Abiti/corpo"/>
 	<string name="Filter.Objects" value="Oggetti"/>
-	<string name="Filter.Custom" value="Filtro personalizzato"/>
+	<string name="Filter.Clothing" value="Vestiario"/>
+	<string name="Filter.Bodyparts" value="Parti del corpo"/>
+	<string name="replace_body_part" value="Fai clic per sostituire la forma corporea esistente"/>
 	<text name="title" value="Modifica vestiario"/>
 	<panel label="bottom_panel" name="header_panel">
 		<panel label="bottom_panel" name="outfit_name_and_status">
@@ -25,7 +27,7 @@
 		<layout_panel label="Pannello di controllo IM" name="outfit_wearables_panel">
 			<layout_stack name="filter_panels">
 				<layout_panel name="add_button_and_combobox">
-					<button label="Aggiungi altri..." name="show_add_wearables_btn"/>
+					<button label="Aggiungi altri..." name="show_add_wearables_btn" tool_tip="Apri/chiudi"/>
 				</layout_panel>
 				<layout_panel name="filter_panel">
 					<filter_editor label="Filtra capi da indossare dell&apos;inventario" name="look_item_filter"/>
@@ -36,6 +38,6 @@
 	</layout_stack>
 	<panel name="save_revert_button_bar">
 		<button label="Salva" name="save_btn"/>
-		<button label="Ripristina" name="revert_btn"/>
+		<button label="Annulla modifiche" name="revert_btn" tool_tip="Ripristina l&apos;ultima versione salvata"/>
 	</panel>
 </panel>

@@ -613,8 +613,7 @@ Attese [VALIDS]
 		Impossibile codificare il file: [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		Poiché non è possibile leggere i dati protetti, ora verranno ripristinati.
-   Ciò può succedere alla modifica delle impostazioni di rete.
+		Impossibile inserire nome utente e password.  Ciò può succedere alla modifica delle impostazioni di rete.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">

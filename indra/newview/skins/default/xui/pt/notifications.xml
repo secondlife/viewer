@@ -609,8 +609,7 @@ Esperada [VALIDS]
 		Impossível codificar o arquivo: [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		Não foi possível fazer a leitura dos dados protegidos, redefinindo.
-   Isso pode ocorrer após mudanças na configuração da rede.
+		Não podemos preencher seu nome e senha.   Isso pode ocorrer após mudanças na configuração da rede
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">

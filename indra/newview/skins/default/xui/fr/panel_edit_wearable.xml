@@ -90,6 +90,7 @@
 	<string name="tattoo_desc_text">
 		Tatouage :
 	</string>
+	<labeled_back_button label="Enregistrer" name="back_btn" tool_tip="Revenir à Modifier la tenue"/>
 	<text name="edit_wearable_title" value="Modification de la silhouette"/>
 	<panel label="Chemise" name="wearable_type_panel">
 		<text name="description_text" value="Silhouette :"/>
@@ -102,6 +103,6 @@
 	</panel>
 	<panel name="button_panel">
 		<button label="Enregistrer sous" name="save_as_button"/>
-		<button label="Rétablir" name="revert_button" width="130"/>
+		<button label="Annuler les modifications" name="revert_button" width="130"/>
 	</panel>
 </panel>

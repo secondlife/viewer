@@ -222,7 +222,7 @@ o suddivisa.
 				Fattore bonus degli oggetti della regione: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Uso dei Prim:
+				Uso delle primitive:
 			</text>
 			<text left="214" name="objects_available" width="230">
 				[COUNT] dei [MAX] ([AVAILABLE] dsponibili)

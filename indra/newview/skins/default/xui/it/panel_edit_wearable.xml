@@ -90,6 +90,7 @@
 	<string name="tattoo_desc_text">
 		Tatuaggio:
 	</string>
+	<labeled_back_button label="Salva" name="back_btn" tool_tip="Torna alla modifica del vestiario"/>
 	<text name="edit_wearable_title" value="Modifica della figura corporea"/>
 	<panel label="Camicia" name="wearable_type_panel">
 		<text name="description_text" value="Figura corporea:"/>
@@ -102,6 +103,6 @@
 	</panel>
 	<panel name="button_panel">
 		<button label="Salva con nome" name="save_as_button"/>
-		<button label="Ripristina" name="revert_button"/>
+		<button label="Annulla modifiche" name="revert_button"/>
 	</panel>
 </panel>
