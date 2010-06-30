@@ -33,6 +33,7 @@
 #ifndef LL_LLWINDEBUG_H
 #define LL_LLWINDEBUG_H
 
+#include <windows.h>
 #include "stdtypes.h"
 #include <dbghelp.h>
 
