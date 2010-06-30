@@ -55,6 +55,25 @@
 #include "llviewerregion.h"
 #include "llwearablelist.h"
 
+// RAII thingy to guarantee that a variable gets reset when the Setter
+// goes out of scope.  More general utility would be handy - TODO:
+// check boost.
+class BoolSetter
+{
+public:
+	BoolSetter(bool& var):
+		mVar(var)
+	{
+		mVar = true;
+	}
+	~BoolSetter()
+	{
+		mVar = false; 
+	}
+private:
+	bool& mVar;
+};
+
 char ORDER_NUMBER_SEPARATOR('@');
 
 class LLOutfitUnLockTimer: public LLEventTimer
@@ -1597,22 +1616,6 @@ void LLAppearanceMgr::enforceItemCountLimits()
 		gInventory.notifyObservers();
 	}
 }
-
-class BoolSetter
-{
-public:
-	BoolSetter(bool& var):
-		mVar(var)
-	{
-		mVar = true;
-	}
-	~BoolSetter()
-	{
-		mVar = false; 
-	}
-private:
-	bool& mVar;
-};
 
 void LLAppearanceMgr::updateAppearanceFromCOF()
 {
