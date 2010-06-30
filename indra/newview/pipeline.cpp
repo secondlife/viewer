@@ -362,6 +362,7 @@ void LLPipeline::init()
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
+	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 	sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
 	sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 
@@ -5366,6 +5367,7 @@ void LLPipeline::resetVertexBuffers()
 {
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
+	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)

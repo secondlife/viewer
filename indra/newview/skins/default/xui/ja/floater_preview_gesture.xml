@@ -24,9 +24,6 @@
 	<floater.string name="Title">
 		ジェスチャー： [NAME]
 	</floater.string>
-	<text name="name_text">
-		名前：
-	</text>
 	<text name="desc_label">
 		説明：
 	</text>
@@ -53,12 +50,15 @@
 	<button label="上" name="up_btn"/>
 	<button label="下" name="down_btn"/>
 	<button label="削除" name="delete_btn"/>
+	<text name="options_text">
+		（オプション）
+	</text>
 	<radio_group name="animation_trigger_type">
 		<radio_item label="開始" name="start"/>
 		<radio_item label="停止" name="stop"/>
 	</radio_group>
 	<check_box label="アニメーションが完了するまで" name="wait_anim_check"/>
-	<check_box label="秒表示の時間" name="wait_time_check"/>
+	<check_box label="時間（秒）：" name="wait_time_check"/>
 	<text name="help_label">
 		待機ステップを入れない限りは、すべてのステップが同時に起こります。
 	</text>

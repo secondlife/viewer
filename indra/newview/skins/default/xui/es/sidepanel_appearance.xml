@@ -3,12 +3,14 @@
 	<string name="No Outfit" value="No hay vestuario"/>
 	<string name="Unsaved Changes" value="Cambios sin guardar"/>
 	<string name="Now Wearing" value="Llevas puesto..."/>
+	<string name="Changing outfits" value="Cambiar de vestuario"/>
 	<panel name="panel_currentlook">
 		<button label="F" name="editappearance_btn"/>
 		<button label="O" name="openoutfit_btn"/>
 		<text name="currentlook_status">
 			(Estado)
 		</text>
+		<button label="" name="edit_outfit_btn" tool_tip="Editar este vestuario"/>
 	</panel>
 	<filter_editor label="Filtrar los vestuarios" name="Filter"/>
 </panel>

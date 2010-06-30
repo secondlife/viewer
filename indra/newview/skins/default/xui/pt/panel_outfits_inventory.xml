@@ -6,7 +6,7 @@
 	</tab_container>
 	<panel name="bottom_panel">
 		<button name="options_gear_btn" tool_tip="Mostrar opções adicionais"/>
-		<dnd_button name="trash_btn" tool_tip="Remover item selecionado"/>
+		<dnd_button name="trash_btn" tool_tip="Excluir look selecionado"/>
 		<button label="Salvar como" name="save_btn"/>
 		<button label="Vestir" name="wear_btn" tool_tip="Vestir look selecionado"/>
 	</panel>
