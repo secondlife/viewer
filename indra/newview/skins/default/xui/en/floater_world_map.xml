@@ -306,7 +306,7 @@
      initial_value="true"
      layout="topleft"
      left="135"
-     name="event_mature_chk"
+     name="events_mature_chk"
      top_pad="3"
      width="22" />
     <icon
@@ -328,7 +328,7 @@
      top_delta="2"
      left_pad="3"
      layout="topleft"
-     name="mature_label"
+     name="events_mature_label"
      width="66">
         Moderate
     </text>
@@ -339,7 +339,7 @@
      height="16"
      layout="topleft"
      left="135"
-     name="event_adult_chk"
+     name="events_adult_chk"
      top_pad="3"
      width="22" />
     <icon
@@ -361,7 +361,7 @@
      top_delta="2"
      left_pad="3"
      layout="topleft"
-     name="adult_label"
+     name="events_adult_label"
      width="66">
         Adult
     </text>
