@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="オブジェクトのプロフィール">
+<panel name="item properties" title="アイテムのプロフィール">
 	<panel.string name="unknown">
 		（不明）
 	</panel.string>
@@ -15,7 +15,7 @@
 	<panel.string name="acquiredDate">
 		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</panel.string>
-	<text name="title" value="オブジェクトのプロフィール"/>
+	<text name="title" value="アイテムのプロフィール"/>
 	<text name="where" value="（持ち物）"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">

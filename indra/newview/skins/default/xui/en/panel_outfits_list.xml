@@ -4,7 +4,7 @@
    bg_alpha_color="DkGray"
    border="false"
    follows="all"
-   height="400"
+   height="430"
    name="Outfits"
    layout="topleft"
    left="0"
@@ -23,6 +23,50 @@
      left="3"
      name="outfits_accordion"
      top="0"
-     width="307">
+     width="309">
     </accordion>
+    <panel
+     background_visible="true"
+	 follows="bottom|left|right"
+	 height="28"
+	 layout="topleft"
+	 left="4"
+	 top_pad="0"
+	 visible="true"
+	 name="bottom_panel"
+	 width="312">
+     <button
+       follows="bottom|left"
+       tool_tip="Show additional options"
+       height="25"
+       image_hover_unselected="Toolbar_Left_Over"
+       image_overlay="OptionsMenu_Off"
+       image_selected="Toolbar_Left_Selected"
+       image_unselected="Toolbar_Left_Off"
+       layout="topleft"
+       left="0"
+       name="options_gear_btn"
+       top="1"
+       width="31" />
+     <icon
+       follows="bottom|left|right"
+       height="25"
+       image_name="Toolbar_Middle_Off"
+       layout="topleft"
+       left_pad="1"
+       name="dummy_icon"
+       width="243"/>
+      <button
+       follows="bottom|right"
+       height="25"
+       image_hover_unselected="Toolbar_Right_Over"
+       image_overlay="TrashItem_Off"
+       image_selected="Toolbar_Right_Selected"
+       image_unselected="Toolbar_Right_Off"
+       layout="topleft"
+       left_pad="1"
+       name="trash_btn"
+       tool_tip="Delete selected outfit"
+       width="31"/>
+    </panel>
 </panel>
