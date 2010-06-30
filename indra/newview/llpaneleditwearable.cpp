@@ -948,7 +948,6 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
 		return;
 
 	bool is_modifiable = false;
-	bool is_complete   = false;
 	bool is_copyable   = false;
 
 	if(mWearableItem)
@@ -956,17 +955,16 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
 		const LLPermissions& perm = mWearableItem->getPermissions();
 		is_modifiable = perm.allowModifyBy(gAgent.getID(), gAgent.getGroupID());
 		is_copyable = perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID());
-		is_complete = mWearableItem->isFinished();
 	}
 
-	if (is_modifiable && is_complete)
+	if (is_modifiable)
 	{
 		// Update picker controls
 		for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, boost::bind(update_color_swatch_ctrl, this, _1, _2));
 		for_each_picker_ctrl_entry <LLTextureCtrl>     (panel, type, boost::bind(update_texture_ctrl, this, _1, _2));
 	}
 
-	if (!is_modifiable || !is_complete || !is_copyable)
+	if (!is_modifiable || !is_copyable)
 	{
 		// Disable controls
 		for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, boost::bind(set_enabled_color_swatch_ctrl, false, _1, _2));
@@ -1007,6 +1005,7 @@ void LLPanelEditWearable::revertChanges()
 	mWearablePtr->revertValues();
 	mNameEditor->setText(mWearablePtr->getName());
 	updatePanelPickerControls(mWearablePtr->getType());
+	gAgentAvatarp->wearableUpdated(mWearablePtr->getType(), FALSE);
 }
 
 void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)

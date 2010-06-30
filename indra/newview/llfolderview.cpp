@@ -1868,7 +1868,8 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		LLView::child_list_t::const_iterator menu_itor;
 		for (menu_itor = list->begin(); menu_itor != list->end(); ++menu_itor)
 		{
-			(*menu_itor)->setVisible(TRUE);
+			(*menu_itor)->setVisible(FALSE);
+			(*menu_itor)->pushVisible(TRUE);
 			(*menu_itor)->setEnabled(TRUE);
 		}
 		
