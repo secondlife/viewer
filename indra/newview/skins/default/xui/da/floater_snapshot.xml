@@ -1,23 +1,75 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="Foto">
+<floater name="Snapshot" title="SE FOTO">
 	<floater.string name="unknown">
 		ukendt
 	</floater.string>
+	<radio_group label="foto type" name="snapshot_type_radio">
+		<radio_item label="Email" name="postcard"/>
+		<radio_item label="Min beholdning (L$[AMOUNT])" name="texture"/>
+		<radio_item label="Gem til min computer" name="local"/>
+	</radio_group>
+	<text name="file_size_label">
+		[SIZE] KB
+	</text>
 	<button label="Tag nyt foto" name="new_snapshot_btn"/>
-	<line_editor label="Beskrivelse" name="description"/>
-	<panel name="panel_snapshot_main">
-		<button label="Del foto" name="share"/>
-		<button label="Gem foto" name="save"/>
-		<button label="Sæt til profilbillede" name="set_profile_pic"/>
-	</panel>
-	<panel name="panel_snapshot_share">
-		<button label="Del på internettet" name="share_to_web"/>
-		<button label="E-mail foto" name="share_to_email"/>
-		<button label="Tilbage" name="cancel_share"/>
-	</panel>
-	<panel name="panel_snapshot_save">
-		<button label="Gem til min beholdning" name="save_to_inventory"/>
-		<button label="Gem til min computer" name="save_to_computer"/>
-		<button label="Tilbage" name="cancel_save"/>
-	</panel>
+	<button label="Send" name="send_btn"/>
+	<button label="Gem (L$[AMOUNT])" name="upload_btn"/>
+	<flyout_button label="Gem" name="save_btn" tool_tip="Gem billede til en fil">
+		<flyout_button.item label="Gem" name="save_item"/>
+		<flyout_button.item label="Gem som..." name="saveas_item"/>
+	</flyout_button>
+	<button label="Mere" name="more_btn" tool_tip="Avancerede valg"/>
+	<button label="Mindre" name="less_btn" tool_tip="Avanceret opsætning"/>
+	<button label="Annullér" name="discard_btn"/>
+	<text name="type_label2">
+		Størrelse
+	</text>
+	<text name="format_label">
+		Format
+	</text>
+	<combo_box label="Opløsning" name="postcard_size_combo">
+		<combo_box.item label="Nuværende vindue" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="Brugerdefineret" name="Custom"/>
+	</combo_box>
+	<combo_box label="Opløsning" name="texture_size_combo">
+		<combo_box.item label="Nuværende vindue" name="CurrentWindow"/>
+		<combo_box.item label="Lille (128x128)" name="Small(128x128)"/>
+		<combo_box.item label="Medium (256x256)" name="Medium(256x256)"/>
+		<combo_box.item label="Stor (512x512)" name="Large(512x512)"/>
+		<combo_box.item label="Brugeropsat" name="Custom"/>
+	</combo_box>
+	<combo_box label="Opløsning" name="local_size_combo">
+		<combo_box.item label="Nuværende vindue" name="CurrentWindow"/>
+		<combo_box.item label="320x240" name="320x240"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="1280x1024" name="1280x1024"/>
+		<combo_box.item label="1600x1200" name="1600x1200"/>
+		<combo_box.item label="Brugeropsat" name="Custom"/>
+	</combo_box>
+	<combo_box label="Format" name="local_format_combo">
+		<combo_box.item label="PNG" name="PNG"/>
+		<combo_box.item label="JPEG" name="JPEG"/>
+		<combo_box.item label="BMP" name="BMP"/>
+	</combo_box>
+	<spinner label="Bredde" name="snapshot_width"/>
+	<spinner label="Højde" name="snapshot_height"/>
+	<check_box label="Fasthold proportioner" name="keep_aspect_check"/>
+	<slider label="Billedkvalitet" name="image_quality_slider"/>
+	<text name="layer_type_label">
+		Indfang:
+	</text>
+	<combo_box label="Billedlag" name="layer_types">
+		<combo_box.item label="Farver" name="Colors"/>
+		<combo_box.item label="Dybde" name="Depth"/>
+	</combo_box>
+	<check_box label="Snitflade" name="ui_check"/>
+	<check_box label="HUDs" name="hud_check"/>
+	<check_box label="Behold åben efter gem" name="keep_open_check"/>
+	<check_box label="Frys billede (fuld skærm)" name="freeze_frame_check"/>
+	<check_box label="Auto-optegn" name="auto_snapshot_check"/>
 </floater>

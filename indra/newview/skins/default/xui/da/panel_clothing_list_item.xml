@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="wearable_item">
+	<button name="btn_delete" tool_tip="Fjern fra sæt"/>
 	<text name="item_name" value="..."/>
+	<panel name="btn_lock" tool_tip="Du har ikke rettigheder til at redigere"/>
+	<panel name="btn_edit_panel">
+		<button name="btn_edit" tool_tip="Redigere denne ting der kan tages på"/>
+	</panel>
 </panel>
