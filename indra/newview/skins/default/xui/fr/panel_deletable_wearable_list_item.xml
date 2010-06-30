@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="deletable_wearable_item">
+	<button name="btn_delete" tool_tip="Enlever de la tenue"/>
 	<text name="item_name" value="..."/>
 </panel>

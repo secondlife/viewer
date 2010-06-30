@@ -262,6 +262,14 @@ void LLPanelOutfitsInventory::updateListCommands()
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
 	mListCommands->childSetVisible("wear_btn", wear_visible);
 	mSaveComboBtn->setMenuItemEnabled("save_outfit", make_outfit_enabled);
+	if (mMyOutfitsPanel->hasItemSelected())
+	{
+		mListCommands->childSetToolTip("wear_btn", getString("wear_items_tooltip"));
+	}
+	else
+	{
+		mListCommands->childSetToolTip("wear_btn", getString("wear_outfit_tooltip"));
+	}
 }
 
 void LLPanelOutfitsInventory::showGearMenu()

@@ -638,8 +638,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		次のファイルのエンコードができません： [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		保護されているデータを読みとることが出来ないためリセットされます。
-   ネットワーク設定を変更すると起こることがあります。
+		ユーザー名とパスワードを自動入力できません。これはネットワーク設定が変更された場合に起こります
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
