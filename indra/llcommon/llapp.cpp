@@ -863,7 +863,13 @@ bool unix_post_minidump_callback(const char *dump_dir,
 	
 	llinfos << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << llendl;
 	LLApp::runErrorHandler();
+	
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	clear_signals();
+	return false;
+#else
 	return true;
+#endif
 }
 #endif // !WINDOWS
 
