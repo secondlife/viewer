@@ -49,12 +49,15 @@
 #include "llfloater.h" //for gFloaterView
 #include "lliconctrl.h"//for OpenClose tab icon
 #include "llsidetraypanelcontainer.h"
+#include "llscreenchannel.h"
+#include "llchannelmanager.h"
 #include "llwindow.h"//for SetCursor
 #include "lltransientfloatermgr.h"
 
 //#include "llscrollcontainer.h"
 
 using namespace std;
+using namespace LLNotificationsUI;
 
 static LLRootViewRegistry::Register<LLSideTray>	t1("side_tray");
 static LLDefaultChildRegistry::Register<LLSideTrayTab>	t2("sidetray_tab");
@@ -276,6 +279,16 @@ BOOL LLSideTray::postBuild()
 
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSideTray::handleLoginComplete, this));
 
+	//EXT-8045
+	//connect all already created channels to reflect sidetray collapse/expand
+	std::vector<LLChannelManager::ChannelElem>& channels = LLChannelManager::getInstance()->getChannelList();
+	for(std::vector<LLChannelManager::ChannelElem>::iterator it = channels.begin();it!=channels.end();++it)
+	{
+		if ((*it).channel)
+		{
+			getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, (*it).channel, _2));
+		}
+	}
 	return true;
 }
 
