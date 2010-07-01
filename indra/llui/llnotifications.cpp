@@ -560,21 +560,6 @@ void LLNotification::setResponseFunctor(const LLNotificationResponderPtr& respon
 	mResponder = responder;
 }
 
-bool LLNotification::payloadContainsAll(const std::vector<std::string>& required_fields) const
-{
-	for(std::vector<std::string>::const_iterator required_fields_it = required_fields.begin(); 
-		required_fields_it != required_fields.end();
-		required_fields_it++)
-	{
-		std::string required_field_name = *required_fields_it;
-		if( ! getPayload().has(required_field_name))
-		{
-			return false; // a required field was not found
-		}
-	}
-	return true; // all required fields were found
-}
-
 bool LLNotification::isEquivalentTo(LLNotificationPtr that) const
 {
 	if (this->mTemplatep->mName != that->mTemplatep->mName) 
@@ -583,11 +568,22 @@ bool LLNotification::isEquivalentTo(LLNotificationPtr that) const
 	}
 	if (this->mTemplatep->mUnique)
 	{
+		const LLSD& these_substitutions = this->getSubstitutions();
+		const LLSD& those_substitutions = that->getSubstitutions();
+
 		// highlander bit sez there can only be one of these
-		return
-			this->payloadContainsAll(that->mTemplatep->mUniqueContext) &&
-			that->payloadContainsAll(this->mTemplatep->mUniqueContext);
+		for (std::vector<std::string>::const_iterator it = mTemplatep->mUniqueContext.begin(), end_it = mTemplatep->mUniqueContext.end();
+			it != end_it;
+			++it)
+		{
+			if (these_substitutions.get(*it).asString() != those_substitutions.get(*it).asString())
+			{
+				return false;
+			}
+		}
+		return true;
 	}
+
 	return false; 
 }
 
