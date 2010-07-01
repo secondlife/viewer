@@ -78,6 +78,8 @@ public:
 
 	void	setTitleFontStyle(std::string style);
 
+	void	setTitleColor(LLUIColor);
+
 	void	setSelected(bool is_selected) { mIsSelected = is_selected; }
 
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
@@ -192,6 +194,14 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleFontStyle(std::string
 	}
 }
 
+void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleColor(LLUIColor color)
+{
+	if(mHeaderTextbox)
+	{
+		mHeaderTextbox->setColor(color);
+	}
+}
+
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::draw()
 {
 	S32 width = getRect().getWidth();
@@ -249,6 +259,15 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::reshape(S32 width, S32 height
 	LLRect textboxRect(HEADER_TEXT_LEFT_OFFSET,(height+header_height)/2 ,width,(height-header_height)/2);
 	mHeaderTextbox->reshape(textboxRect.getWidth(), textboxRect.getHeight());
 	mHeaderTextbox->setRect(textboxRect);
+
+	if (mHeaderTextbox->getTextPixelWidth() > mHeaderTextbox->getRect().getWidth())
+	{
+		setToolTip(mHeaderTextbox->getText());
+	}
+	else
+	{
+		setToolTip(LLStringUtil::null);
+	}
 }
 
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::onMouseEnter(S32 x, S32 y, MASK mask)
@@ -517,6 +536,15 @@ void LLAccordionCtrlTab::setTitleFontStyle(std::string style)
 	if (header)
 	{
 		header->setTitleFontStyle(style);
+	}
+}
+
+void LLAccordionCtrlTab::setTitleColor(LLUIColor color)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		header->setTitleColor(color);
 	}
 }
 
@@ -989,6 +1017,7 @@ BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		//inside tab header
 		//fix for EXT-6619
+		mHeader->handleToolTip(x, y, mask);
 		return TRUE;
 	}
 	return LLUICtrl::handleToolTip(x, y, mask);

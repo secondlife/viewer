@@ -1632,8 +1632,8 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 					}
 				}
 				else
-				{
-					tex->setLoadedCallback(onLocalTextureLoaded, desired_discard, TRUE, FALSE, new LLAvatarTexData(getID(), type));
+				{					
+					tex->setLoadedCallback(onLocalTextureLoaded, desired_discard, TRUE, FALSE, new LLAvatarTexData(getID(), type), NULL, NULL);
 				}
 			}
 			tex->setMinDiscardLevel(desired_discard);
@@ -2032,7 +2032,7 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 			imagep->setBoostLevel(getAvatarBoostLevel());
 
 			imagep->resetTextureStats();
-			imagep->setResetMaxVirtualSizeFlag(false) ;
+			imagep->setMaxVirtualSizeResetInterval(16);
 			imagep->addTextureStats( desired_pixels / texel_area_ratio );
 			imagep->setAdditionalDecodePriority(1.0f) ;
 			imagep->forceUpdateBindStats() ;
