@@ -373,8 +373,9 @@ LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreator
 	LLUICtrlFactory::instance().registerWidget(&typeid(T), &typeid(typename T::Params), &LLUICtrlFactory::createDefaultWidget<T>, tag);
 	
 	// since registry_t depends on T, do this in line here
-	typedef typename T::child_registry_t registry_t;
-	LLChildRegistryRegistry::instance().defaultRegistrar().add(&typeid(T), registry_t::instance());
+	// TODO: uncomment this for schema generation
+	//typedef typename T::child_registry_t registry_t;
+	//LLChildRegistryRegistry::instance().defaultRegistrar().add(&typeid(T), registry_t::instance());
 }
 
 
