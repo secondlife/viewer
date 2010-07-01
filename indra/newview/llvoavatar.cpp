@@ -4228,21 +4228,21 @@ void LLVOAvatar::checkTextureLoading()
 	static const F32 MAX_INVISIBLE_WAITING_TIME = 30.f ; //seconds
 
 	BOOL pause = !isVisible() ;
+	if(!pause)
+	{
+		mInvisibleTimer.reset() ;
+	}
 	if(mLoadedCallbacksPaused == pause)
 	{
 		return ; 
 	}
 	
-	if(mCallbackTextureList.empty())
+	if(mCallbackTextureList.empty()) //when is self or no callbacks. Note: this list for self is always empty.
 	{
 		mLoadedCallbacksPaused = pause ;
 		return ; //nothing to check.
 	}
-
-	if(!pause)
-	{
-		mInvisibleTimer.reset() ;
-	}
+	
 	if(pause && mInvisibleTimer.getElapsedTimeF32() < MAX_INVISIBLE_WAITING_TIME)
 	{
 		return ;
@@ -4263,7 +4263,7 @@ void LLVOAvatar::checkTextureLoading()
 				static const F32 START_AREA = 100.f ;
 
 				tex->unpauseLoadedCallbacks(this) ;
-				tex->addTextureStats(START_AREA); //jump satrt the fetching again
+				tex->addTextureStats(START_AREA); //jump start the fetching again
 			}
 		}		
 	}			
@@ -4274,6 +4274,7 @@ void LLVOAvatar::checkTextureLoading()
 
 void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level)
 {
+	//if this function is not called for the last 512 frames, the texture pipeline will stop fetching this texture.
 	static const S32  MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 512 ; //frames	
 
 	imagep->resetTextureStats();

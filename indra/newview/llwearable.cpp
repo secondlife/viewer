@@ -106,7 +106,6 @@ LLWearable::LLWearable(const LLAssetID& asset_id) :
 
 LLWearable::~LLWearable()
 {
-	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList, this) ;
 }
 
 const std::string& LLWearable::getTypeLabel() const
@@ -446,7 +445,7 @@ BOOL LLWearable::importFile( LLFILE* file )
 		}
 
 		image->setBoostLevel(LLViewerTexture::BOOST_AVATAR_SELF) ;
-		image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te), this, &mCallbackTextureList);
+		image->setLoadedCallback(LLVOAvatarSelf::debugOnTimingLocalTexLoaded,0,TRUE,FALSE, new LLVOAvatarSelf::LLAvatarTexData(id, (LLVOAvatarDefines::ETextureIndex)te), NULL, NULL);
 
 		LLUUID textureid(text_buffer);
 		mTEMap[te] = new LLLocalTextureObject(image, textureid);
