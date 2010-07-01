@@ -293,6 +293,7 @@ public:
 
 	bool updateValue(const LLSD& old_value, const LLSD& new_value);
 
+	void scrollToShowFirstSelectedItem();
 
 	void selectFirstItem	();
 	void selectLastItem		();

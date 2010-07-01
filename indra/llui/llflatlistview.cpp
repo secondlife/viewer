@@ -776,6 +776,18 @@ bool LLFlatListView::selectItemPair(item_pair_t* item_pair, bool select)
 	return true;
 }
 
+void LLFlatListView::scrollToShowFirstSelectedItem()
+{
+	if (!mSelectedItemPairs.size())	return;
+
+	LLRect selected_rc = mSelectedItemPairs.front()->first->getRect();
+
+	if (selected_rc.isValid())
+	{
+		scrollToShowRect(selected_rc);
+	}
+}
+
 LLRect LLFlatListView::getLastSelectedItemRect()
 {
 	if (!mSelectedItemPairs.size())

@@ -140,6 +140,12 @@ public:
 	void showWearablesListView();
 	void showWearablesFolderView();
 
+	/**
+	 * Method preserves selection while switching between folder/list view modes
+	*/
+	void saveListSelection();
+
+	void updateWearablesPanelVerbButtons();
 	void updateFiltersVisibility();
 
 	void onFolderViewFilterCommitted(LLUICtrl* ctrl);

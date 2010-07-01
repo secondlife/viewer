@@ -42,6 +42,7 @@
 #include "lloutfitobserver.h"
 #include "llcofwearables.h"
 #include "llfilteredwearablelist.h"
+#include "llfolderviewitem.h"
 #include "llinventory.h"
 #include "llviewercontrol.h"
 #include "llui.h"
@@ -462,7 +463,9 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
 	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesFolderView, this), NULL);
+	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
+	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
 	childSetCommitCallback("wearables_gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 	childSetCommitCallback("gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
@@ -610,9 +613,7 @@ void LLPanelOutfitEdit::showWearablesListView()
 {
 	if(switchPanels(mInventoryItemsPanel, mWearablesListViewPanel))
 	{
-		mFolderViewBtn->setToggleState(FALSE);
-		mFolderViewBtn->setImageOverlay(getString("folder_view_off"), mFolderViewBtn->getImageOverlayHAlign());
-		mListViewBtn->setImageOverlay(getString("list_view_on"), mListViewBtn->getImageOverlayHAlign());
+		updateWearablesPanelVerbButtons();
 		updateFiltersVisibility();
 	}
 	mListViewBtn->setToggleState(TRUE);
@@ -622,9 +623,7 @@ void LLPanelOutfitEdit::showWearablesFolderView()
 {
 	if(switchPanels(mWearablesListViewPanel, mInventoryItemsPanel))
 	{
-		mListViewBtn->setToggleState(FALSE);
-		mListViewBtn->setImageOverlay(getString("list_view_off"), mListViewBtn->getImageOverlayHAlign());
-		mFolderViewBtn->setImageOverlay(getString("folder_view_on"), mFolderViewBtn->getImageOverlayHAlign());
+		updateWearablesPanelVerbButtons();
 		updateFiltersVisibility();
 	}
 	mFolderViewBtn->setToggleState(TRUE);
@@ -1136,6 +1135,67 @@ void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
 	}
 
 //	return selected_id;
+}
+
+void LLPanelOutfitEdit::updateWearablesPanelVerbButtons()
+{
+	if(mWearablesListViewPanel->getVisible())
+	{
+		mFolderViewBtn->setToggleState(FALSE);
+		mFolderViewBtn->setImageOverlay(getString("folder_view_off"), mFolderViewBtn->getImageOverlayHAlign());
+		mListViewBtn->setImageOverlay(getString("list_view_on"), mListViewBtn->getImageOverlayHAlign());
+	}
+	else if(mInventoryItemsPanel->getVisible())
+	{
+		mListViewBtn->setToggleState(FALSE);
+		mListViewBtn->setImageOverlay(getString("list_view_off"), mListViewBtn->getImageOverlayHAlign());
+		mFolderViewBtn->setImageOverlay(getString("folder_view_on"), mFolderViewBtn->getImageOverlayHAlign());
+	}
+}
+
+void LLPanelOutfitEdit::saveListSelection()
+{
+	if(mWearablesListViewPanel->getVisible())
+	{
+		std::set<LLUUID> selected_ids = mInventoryItemsPanel->getRootFolder()->getSelectionList();
+
+		if(!selected_ids.size()) return;
+
+		mWearableItemsList->resetSelection();
+
+		for (std::set<LLUUID>::const_iterator item_id = selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
+		{
+			mWearableItemsList->selectItemByUUID(*item_id, true);
+		}
+		mWearableItemsList->scrollToShowFirstSelectedItem();
+	}
+	else if(mInventoryItemsPanel->getVisible())
+	{
+		std::vector<LLUUID> selected_ids;
+		mWearableItemsList->getSelectedUUIDs(selected_ids);
+
+		if(!selected_ids.size()) return;
+
+		mInventoryItemsPanel->clearSelection();
+		LLFolderView* root = mInventoryItemsPanel->getRootFolder();
+
+		if(!root) return;
+
+		for(std::vector<LLUUID>::const_iterator item_id = selected_ids.begin(); item_id != selected_ids.end(); ++item_id)
+		{
+			LLFolderViewItem* item = root->getItemByID(*item_id);
+			if (!item) continue;
+
+			LLFolderViewFolder* parent = item->getParentFolder();
+			if(parent)
+			{
+				parent->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
+			}
+			mInventoryItemsPanel->getRootFolder()->changeSelection(item, TRUE);
+		}
+		mInventoryItemsPanel->getRootFolder()->scrollToShowSelection();
+	}
+
 }
 
 
