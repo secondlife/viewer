@@ -86,8 +86,6 @@ public:
 	
 	static BOOL	sUseStreamDraw;
 
-	static BOOL	sUseStreamDraw;
-
 	static void initClass(bool use_vbo);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
