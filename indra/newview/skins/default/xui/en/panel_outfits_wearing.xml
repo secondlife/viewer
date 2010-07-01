@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ bg_alpha_color="DkGray"
+ follows="all"
+ height="430"
+ layout="topleft"
+ left="0"
+ name="Wearing"
+ top="0"
+ width="312">
+    <wearable_items_list
+     follows="all"
+     height="400"
+     layout="topleft"
+     left="3"
+     multi_select="true"
+     name="cof_items_list"
+     standalone="false"
+     top="0"
+     width="309"
+     worn_indication_enabled="false" />
+    <panel
+     background_visible="true"
+     follows="bottom|left|right"
+     height="28"
+     layout="topleft"
+     left="4"
+     name="bottom_panel"
+     top_pad="0"
+     width="312">
+        <button
+         follows="bottom|left"
+         height="25"
+         image_hover_unselected="Toolbar_Left_Over"
+         image_overlay="OptionsMenu_Off"
+         image_selected="Toolbar_Left_Selected"
+         image_unselected="Toolbar_Left_Off"
+         layout="topleft"
+         left="0"
+         name="options_gear_btn"
+         tool_tip="Show additional options"
+         top="1"
+         width="31" />
+        <icon
+         follows="bottom|left|right"
+         height="25"
+         image_name="Toolbar_Right_Off"
+         layout="topleft"
+         left_pad="1"
+         name="dummy_icon"
+         width="274" />
+    </panel>
+</panel>

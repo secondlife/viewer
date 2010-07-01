@@ -3,12 +3,14 @@
 	<string name="No Outfit" value="Nenhum"/>
 	<string name="Unsaved Changes" value="Mudanças não salvas"/>
 	<string name="Now Wearing" value="Look atual..."/>
+	<string name="Changing outfits" value="Mudando de look"/>
 	<panel name="panel_currentlook">
 		<button label="E" name="editappearance_btn"/>
 		<button label="O" name="openoutfit_btn"/>
 		<text name="currentlook_status">
 			(Status)
 		</text>
+		<button label="" name="edit_outfit_btn" tool_tip="Editar este look"/>
 	</panel>
 	<filter_editor label="Filtrar looks" name="Filter"/>
 </panel>

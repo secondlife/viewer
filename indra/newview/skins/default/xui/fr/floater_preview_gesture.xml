@@ -24,9 +24,6 @@
 	<floater.string name="Title">
 		Geste : [NAME]
 	</floater.string>
-	<text name="name_text">
-		Nom :
-	</text>
 	<text name="desc_label">
 		Description :
 	</text>
@@ -53,12 +50,15 @@
 	<button label="Haut" name="up_btn"/>
 	<button label="Bas" name="down_btn"/>
 	<button label="Supprimer" name="delete_btn"/>
+	<text name="options_text">
+		(options)
+	</text>
 	<radio_group name="animation_trigger_type">
 		<radio_item label="Lancer" name="start"/>
 		<radio_item label="Arrêter" name="stop"/>
 	</radio_group>
 	<check_box label="jusqu&apos;à la fin des animations" name="wait_anim_check"/>
-	<check_box label="temps (sec)" name="wait_time_check"/>
+	<check_box label="temps (sec) :" name="wait_time_check"/>
 	<line_editor left_delta="130" name="wait_time_editor"/>
 	<text name="help_label">
 		Toutes les étapes ont lieu en même temps si vous n&apos;ajoutez pas d&apos;étapes d&apos;attente.

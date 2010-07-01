@@ -614,8 +614,7 @@ Podría ser [VALIDS]
 		No se puede codificar el archivo: [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		No se pueden leer los datos protegidos, por lo que se están restaurando.
-   Esto puede deberse a un cambio de configuración de la red.
+		No se pueden rellenar el nombre de usuario y la contraseña.  Esto puede deberse a un cambio de configuración de la red.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
