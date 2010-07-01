@@ -1657,6 +1657,9 @@ void LLAppearanceMgr::updateAppearanceFromCOF()
 	remove_non_link_items(obj_items);
 	remove_non_link_items(gest_items);
 
+	dumpItemArray(wear_items,"asset_dump: wear_item");
+	dumpItemArray(obj_items,"asset_dump: obj_item");
+
 	if(!wear_items.count())
 	{
 		LLNotificationsUtil::add("CouldNotPutOnOutfit");
@@ -2574,11 +2577,16 @@ void LLAppearanceMgr::dumpCat(const LLUUID& cat_id, const std::string& msg)
 void LLAppearanceMgr::dumpItemArray(const LLInventoryModel::item_array_t& items,
 										const std::string& msg)
 {
-	llinfos << msg << llendl;
 	for (S32 i=0; i<items.count(); i++)
 	{
 		LLViewerInventoryItem *item = items.get(i);
-		llinfos << i <<" " << item->getName() << llendl;
+		LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
+		LLUUID asset_id;
+		if (linked_item)
+		{
+			asset_id = linked_item->getAssetUUID();
+		}
+		llinfos << msg << " " << i <<" " << item->getName() << " " << asset_id.asString() << llendl;
 	}
 	llinfos << llendl;
 }
