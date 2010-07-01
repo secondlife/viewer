@@ -614,8 +614,7 @@ Assurez-vous que le fichier a l&apos;extension correcte.
 		Impossible d&apos;encoder le fichier : [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		Impossible de lire vos données protégées ; elles sont en cours de réinitialisation.
-   Cette situation peut se produire lorsque vous changez la configuration du réseau.
+		Impossible de renseigner votre nom d&apos;utilisateur et mot de passe.  Cette situation peut se produire lorsque vous changez la configuration du réseau.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">

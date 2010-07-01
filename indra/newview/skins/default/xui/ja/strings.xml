@@ -309,6 +309,9 @@
 	<string name="ReleaseNotes">
 		リリースノート
 	</string>
+	<string name="RELEASE_NOTES_BASE_URL">
+		http://wiki.secondlife.com/wiki/Release_Notes/
+	</string>
 	<string name="LoadingData">
 		ローディング...
 	</string>
@@ -863,6 +866,9 @@
 	</string>
 	<string name="invalid">
 		無効
+	</string>
+	<string name="none">
+		なし
 	</string>
 	<string name="shirt_not_worn">
 		シャツ未着用
