@@ -56,14 +56,20 @@ public:
 		FILTER_MORE_RESTRICTIVE		// if you didn't pass the previous filter, you definitely won't pass this one
 	};
 
-	enum EFilterType
-	{
+	enum EFilterType	{
 		FILTERTYPE_NONE = 0,
 		FILTERTYPE_OBJECT = 0x1 << 0,	// normal default search-by-object-type
 		FILTERTYPE_CATEGORY = 0x1 << 1,	// search by folder type
 		FILTERTYPE_UUID	= 0x1 << 2,		// find the object with UUID and any links to it
 		FILTERTYPE_DATE = 0x1 << 3,		// search by date range
 		FILTERTYPE_WEARABLE = 0x1 << 4	// search by wearable type
+	};
+
+	enum EFilterLink
+	{
+		FILTERLINK_INCLUDE_LINKS,	// show links too
+		FILTERLINK_EXCLUDE_LINKS,	// don't show links
+		FILTERLINK_ONLY_LINKS		// only show links
 	};
 
 	// REFACTOR: Change this to an enum.
@@ -100,8 +106,8 @@ public:
 	void 				setHoursAgo(U32 hours);
 	U32 				getHoursAgo() const;
 
-	void 				setIncludeLinks(BOOL include_links);
-	BOOL				getIncludeLinks() const;
+	void 				setFilterLinks(U64 filter_link);
+	U64					getFilterLinks() const;
 
 	// +-------------------------------------------------------------------+
 	// + Execution And Results
@@ -109,6 +115,8 @@ public:
 	BOOL 				check(const LLFolderViewItem* item);
 	BOOL 				checkAgainstFilterType(const LLFolderViewItem* item) const;
 	BOOL 				checkAgainstPermissions(const LLFolderViewItem* item) const;
+	BOOL 				checkAgainstFilterLinks(const LLFolderViewItem* item) const;
+
 	std::string::size_type getStringMatchOffset() const;
 
 	// +-------------------------------------------------------------------+
@@ -179,7 +187,7 @@ private:
 		U32				mHoursAgo;
 		EFolderShow		mShowFolderState;
 		PermissionMask	mPermissions;
-		BOOL			mIncludeLinks;
+		U64				mFilterLinks;
 	};
 
 	U32						mOrder;

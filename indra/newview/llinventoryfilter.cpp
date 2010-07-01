@@ -57,7 +57,7 @@ LLInventoryFilter::FilterOps::FilterOps() :
 	mPermissions(PERM_NONE),
 	mFilterTypes(FILTERTYPE_OBJECT),
 	mFilterUUID(LLUUID::null),
-	mIncludeLinks(TRUE)
+	mFilterLinks(FILTERLINK_INCLUDE_LINKS)
 {
 }
 
@@ -104,8 +104,10 @@ BOOL LLInventoryFilter::check(const LLFolderViewItem* item)
 
 	const BOOL passed_filtertype = checkAgainstFilterType(item);
 	const BOOL passed_permissions = checkAgainstPermissions(item);
+	const BOOL passed_filterlink = checkAgainstFilterLinks(item);
 	const BOOL passed = (passed_filtertype &&
-						 passed_permissions && 
+						 passed_permissions &&
+						 passed_filterlink &&
 						 (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos));
 
 	return passed;
@@ -229,6 +231,21 @@ BOOL LLInventoryFilter::checkAgainstPermissions(const LLFolderViewItem* item) co
 	return (perm & mFilterOps.mPermissions) == mFilterOps.mPermissions;
 }
 
+BOOL LLInventoryFilter::checkAgainstFilterLinks(const LLFolderViewItem* item) const
+{
+	const LLFolderViewEventListener* listener = item->getListener();
+	if (!listener) return FALSE;
+
+	const LLUUID object_id = listener->getUUID();
+	const LLInventoryObject *object = gInventory.getObject(object_id);
+	const BOOL is_link = object->getIsLinkType();
+	if (is_link && (mFilterOps.mFilterLinks == FILTERLINK_EXCLUDE_LINKS))
+		return FALSE;
+	if (!is_link && (mFilterOps.mFilterLinks == FILTERLINK_ONLY_LINKS))
+		return FALSE;
+	return TRUE;
+}
+
 const std::string& LLInventoryFilter::getFilterSubString(BOOL trim) const
 {
 	return mFilterSubString;
@@ -246,6 +263,7 @@ BOOL LLInventoryFilter::isNotDefault() const
 		|| mFilterOps.mFilterCategoryTypes != mDefaultFilterOps.mFilterCategoryTypes 
 		|| mFilterOps.mFilterWearableTypes != mDefaultFilterOps.mFilterWearableTypes 
 		|| mFilterOps.mFilterTypes != FILTERTYPE_OBJECT
+		|| mFilterOps.mFilterLinks != FILTERLINK_INCLUDE_LINKS
 		|| mFilterSubString.size() 
 		|| mFilterOps.mPermissions != mDefaultFilterOps.mPermissions
 		|| mFilterOps.mMinDate != mDefaultFilterOps.mMinDate 
@@ -259,6 +277,7 @@ BOOL LLInventoryFilter::isActive() const
 		|| mFilterOps.mFilterCategoryTypes != 0xffffffffffffffffULL
 		|| mFilterOps.mFilterWearableTypes != 0xffffffffffffffffULL
 		|| mFilterOps.mFilterTypes != FILTERTYPE_OBJECT
+		|| mFilterOps.mFilterLinks != FILTERLINK_INCLUDE_LINKS
 		|| mFilterSubString.size() 
 		|| mFilterOps.mPermissions != PERM_NONE 
 		|| mFilterOps.mMinDate != time_min()
@@ -410,6 +429,11 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 			mFilterOps.mFilterUUID == LLUUID::null;
 			setModified(FILTER_RESTART);
 		}
+
+		// Cancel out filter links once the search string is modified
+		{
+			mFilterOps.mFilterLinks = FILTERLINK_INCLUDE_LINKS;
+		}
 	}
 }
 
@@ -508,16 +532,17 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
 }
 
-void LLInventoryFilter::setIncludeLinks(BOOL include_links)
+void LLInventoryFilter::setFilterLinks(U64 filter_links)
 {
-	if (mFilterOps.mIncludeLinks != include_links)
+	if (mFilterOps.mFilterLinks != filter_links)
 	{
-		if (!mFilterOps.mIncludeLinks)
-			setModified(FILTER_LESS_RESTRICTIVE);
-		else
+		if (mFilterOps.mFilterLinks == FILTERLINK_EXCLUDE_LINKS ||
+			mFilterOps.mFilterLinks == FILTERLINK_ONLY_LINKS)
 			setModified(FILTER_MORE_RESTRICTIVE);
+		else
+			setModified(FILTER_LESS_RESTRICTIVE);
 	}
-	mFilterOps.mIncludeLinks = include_links;
+	mFilterOps.mFilterLinks = filter_links;
 }
 
 void LLInventoryFilter::setShowFolderState(EFolderShow state)
@@ -895,9 +920,9 @@ U32 LLInventoryFilter::getHoursAgo() const
 { 
 	return mFilterOps.mHoursAgo; 
 }
-BOOL LLInventoryFilter::getIncludeLinks() const
+U64 LLInventoryFilter::getFilterLinks() const
 {
-	return mFilterOps.mIncludeLinks;
+	return mFilterOps.mFilterLinks;
 }
 LLInventoryFilter::EFolderShow LLInventoryFilter::getShowFolderState() const
 { 
