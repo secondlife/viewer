@@ -47,6 +47,7 @@
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
 #include "llscriptfloater.h"
+#include "llsidetray.h"
 
 #include <algorithm>
 
@@ -58,6 +59,7 @@ bool LLScreenChannel::mWasStartUpToastShown = false;
 //////////////////////
 // LLScreenChannelBase
 //////////////////////
+
 LLScreenChannelBase::LLScreenChannelBase(const LLUUID& id) :
 												mToastAlignment(NA_BOTTOM)
 												,mCanStoreToasts(true)
@@ -68,6 +70,7 @@ LLScreenChannelBase::LLScreenChannelBase(const LLUUID& id) :
 {	
 	mID = id;
 	mWorldViewRectConnection = gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLScreenChannelBase::updatePositionAndSize, this, _1, _2));
+
 	setMouseOpaque( false );
 	setVisible(FALSE);
 }
@@ -86,11 +89,30 @@ bool  LLScreenChannelBase::isHovering()
 	return mHoveredToast->isHovered();
 }
 
+bool LLScreenChannelBase::resetPositionAndSize(const LLSD& newvalue)
+{
+	LLRect rc = gViewerWindow->getWorldViewRectScaled();
+	updatePositionAndSize(rc, rc);
+	return true;
+}
+
 void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
 {
-	S32 top_delta = old_world_rect.mTop - new_world_rect.mTop;
-	S32 right_delta = old_world_rect.mRight - new_world_rect.mRight;
+	/*
+	take sidetray into account - screenchannel should not overlap sidetray
+	*/
+	S32 world_rect_padding = 0;
+	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE
+		&& LLSideTray::instanceCreated	())
+	{
+		LLSideTray*	side_bar = LLSideTray::getInstance();
 
+		if (side_bar->getVisible() && !side_bar->getCollapsed())
+			world_rect_padding += side_bar->getRect().getWidth();
+	}
+
+
+	S32 top_delta = old_world_rect.mTop - new_world_rect.mTop;
 	LLRect this_rect = getRect();
 
 	this_rect.mTop -= top_delta;
@@ -99,11 +121,13 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 	case CA_LEFT :
 		break;
 	case CA_CENTRE :
-		this_rect.setCenterAndSize(new_world_rect.getWidth() / 2, new_world_rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
+		this_rect.setCenterAndSize( (new_world_rect.getWidth() - world_rect_padding) / 2, new_world_rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
 		break;
 	case CA_RIGHT :
-		this_rect.mLeft -= right_delta;
-		this_rect.mRight -= right_delta;
+		this_rect.setLeftTopAndSize(new_world_rect.mRight - world_rect_padding - this_rect.getWidth(),
+			this_rect.mTop,
+			this_rect.getWidth(),
+			this_rect.getHeight());
 	}
 	setRect(this_rect);
 	redrawToasts();
@@ -112,6 +136,12 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 
 void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 {
+	if(LLSideTray::instanceCreated())
+	{
+		LLSideTray*	side_bar = LLSideTray::getInstance();
+		side_bar->getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this, _2));
+	}
+
 	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
 	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
@@ -173,7 +203,20 @@ std::list<LLToast*> LLScreenChannel::findToasts(const Matcher& matcher)
 //--------------------------------------------------------------------------
 void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
 {
-	S32 right_delta = old_world_rect.mRight - new_world_rect.mRight;
+	/*
+	take sidetray into account - screenchannel should not overlap sidetray
+	*/
+	S32 world_rect_padding = 0;
+	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE 
+		&& LLSideTray::instanceCreated	())
+	{
+		LLSideTray*	side_bar = LLSideTray::getInstance();
+
+		if (side_bar->getVisible() && !side_bar->getCollapsed())
+			world_rect_padding += side_bar->getRect().getWidth();
+	}
+
+
 	LLRect this_rect = getRect();
 
 	switch(mChannelAlignment)
@@ -186,8 +229,10 @@ void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_wo
 		return;
 	case CA_RIGHT :
 		this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
-		this_rect.mLeft -= right_delta;
-		this_rect.mRight -= right_delta;
+		this_rect.setLeftTopAndSize(new_world_rect.mRight - world_rect_padding - this_rect.getWidth(),
+			this_rect.mTop,
+			this_rect.getWidth(),
+			this_rect.getHeight());
 	}
 	setRect(this_rect);
 	redrawToasts();

@@ -55,6 +55,25 @@
 #include "llviewerregion.h"
 #include "llwearablelist.h"
 
+// RAII thingy to guarantee that a variable gets reset when the Setter
+// goes out of scope.  More general utility would be handy - TODO:
+// check boost.
+class BoolSetter
+{
+public:
+	BoolSetter(bool& var):
+		mVar(var)
+	{
+		mVar = true;
+	}
+	~BoolSetter()
+	{
+		mVar = false; 
+	}
+private:
+	bool& mVar;
+};
+
 char ORDER_NUMBER_SEPARATOR('@');
 
 class LLOutfitUnLockTimer: public LLEventTimer
@@ -1537,16 +1556,89 @@ bool sort_by_description(const LLInventoryItem* item1, const LLInventoryItem* it
 	return item1->LLInventoryItem::getDescription() < item2->LLInventoryItem::getDescription();
 }
 
+void item_array_diff(LLInventoryModel::item_array_t& full_list,
+					 LLInventoryModel::item_array_t& keep_list,
+					 LLInventoryModel::item_array_t& kill_list)
+	
+{
+	for (LLInventoryModel::item_array_t::iterator it = full_list.begin();
+		 it != full_list.end();
+		 ++it)
+	{
+		LLViewerInventoryItem *item = *it;
+		if (keep_list.find(item) < 0) // Why on earth does LLDynamicArray need to redefine find()?
+		{
+			kill_list.push_back(item);
+		}
+	}
+}
+
+void LLAppearanceMgr::enforceItemCountLimits()
+{
+	S32 purge_count = 0;
+	
+	LLInventoryModel::item_array_t body_items;
+	getDescendentsOfAssetType(getCOF(), body_items, LLAssetType::AT_BODYPART, false);
+	LLInventoryModel::item_array_t curr_body_items = body_items;
+	removeDuplicateItems(body_items);
+	filterWearableItems(body_items, 1);
+	LLInventoryModel::item_array_t kill_body_items;
+	item_array_diff(curr_body_items,body_items,kill_body_items);
+	for (LLInventoryModel::item_array_t::iterator it = kill_body_items.begin();
+		 it != kill_body_items.end();
+		 ++it)
+	{
+		LLViewerInventoryItem *item = *it;
+		llinfos << "purging dup body part " << item->getName() << llendl;
+		gInventory.purgeObject(item->getUUID());
+		purge_count++;
+	}
+	
+	LLInventoryModel::item_array_t wear_items;
+	getDescendentsOfAssetType(getCOF(), wear_items, LLAssetType::AT_CLOTHING, false);
+	LLInventoryModel::item_array_t curr_wear_items = wear_items;
+	removeDuplicateItems(wear_items);
+	filterWearableItems(wear_items, LLAgentWearables::MAX_CLOTHING_PER_TYPE);
+	LLInventoryModel::item_array_t kill_wear_items;
+	item_array_diff(curr_wear_items,wear_items,kill_wear_items);
+	for (LLInventoryModel::item_array_t::iterator it = kill_wear_items.begin();
+		 it != kill_wear_items.end();
+		 ++it)
+	{
+		LLViewerInventoryItem *item = *it;
+		llinfos << "purging excess clothing item " << item->getName() << llendl;
+		gInventory.purgeObject(item->getUUID());
+		purge_count++;
+	}
+
+	if (purge_count>0)
+	{
+		gInventory.notifyObservers();
+	}
+}
+
 void LLAppearanceMgr::updateAppearanceFromCOF()
 {
+	if (mIsInUpdateAppearanceFromCOF)
+	{
+		llwarns << "Called updateAppearanceFromCOF inside updateAppearanceFromCOF, skipping" << llendl;
+		return;
+	}
+
+	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
+
+	llinfos << "starting" << llendl;
+
 	//checking integrity of the COF in terms of ordering of wearables, 
 	//checking and updating links' descriptions of wearables in the COF (before analyzed for "dirty" state)
 	updateClothingOrderingInfo();
 
+	// Remove duplicate or excess wearables. Should normally be enforced at the UI level, but
+	// this should catch anything that gets through.
+	enforceItemCountLimits();
+	
 	// update dirty flag to see if the state of the COF matches
 	// the saved outfit stored as a folder link
-	llinfos << "starting" << llendl;
-
 	updateIsDirty();
 
 	dumpCat(getCOF(),"COF, start");
@@ -2493,7 +2585,8 @@ void LLAppearanceMgr::dumpItemArray(const LLInventoryModel::item_array_t& items,
 
 LLAppearanceMgr::LLAppearanceMgr():
 	mAttachmentInvLinkEnabled(false),
-	mOutfitIsDirty(false)
+	mOutfitIsDirty(false),
+	mIsInUpdateAppearanceFromCOF(false)
 {
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
 

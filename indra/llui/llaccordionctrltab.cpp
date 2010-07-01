@@ -44,7 +44,7 @@ static const std::string DD_BUTTON_NAME = "dd_button";
 static const std::string DD_TEXTBOX_NAME = "dd_textbox";
 static const std::string DD_HEADER_NAME = "dd_header";
 
-static const S32 HEADER_HEIGHT = 20;
+static const S32 HEADER_HEIGHT = 23;
 static const S32 HEADER_IMAGE_LEFT_OFFSET = 5;
 static const S32 HEADER_TEXT_LEFT_OFFSET = 30;
 static const F32 AUTO_OPEN_TIME = 1.f;
@@ -77,6 +77,8 @@ public:
 	void	setTitle(const std::string& title, const std::string& hl);
 
 	void	setTitleFontStyle(std::string style);
+
+	void	setTitleColor(LLUIColor);
 
 	void	setSelected(bool is_selected) { mIsSelected = is_selected; }
 
@@ -189,6 +191,14 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleFontStyle(std::string
 		mStyleParams.font(mHeaderTextbox->getDefaultFont());
 		mStyleParams.font.style(style);
 		mHeaderTextbox->setText(text, mStyleParams);
+	}
+}
+
+void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleColor(LLUIColor color)
+{
+	if(mHeaderTextbox)
+	{
+		mHeaderTextbox->setColor(color);
 	}
 }
 
@@ -517,6 +527,15 @@ void LLAccordionCtrlTab::setTitleFontStyle(std::string style)
 	if (header)
 	{
 		header->setTitleFontStyle(style);
+	}
+}
+
+void LLAccordionCtrlTab::setTitleColor(LLUIColor color)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		header->setTitleColor(color);
 	}
 }
 

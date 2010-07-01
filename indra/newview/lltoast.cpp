@@ -112,6 +112,14 @@ LLToast::LLToast(const LLToast::Params& p)
 		mOnMouseEnterSignal.connect(p.on_mouse_enter());
 }
 
+void LLToast::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	// We shouldn't  use reshape from LLModalDialog since it changes toasts position.
+	// Toasts position should be controlled only by toast screen channel, see LLScreenChannelBase.
+	// see EXT-8044
+	LLFloater::reshape(width, height, called_from_parent);
+}
+
 //--------------------------------------------------------------------------
 BOOL LLToast::postBuild()
 {

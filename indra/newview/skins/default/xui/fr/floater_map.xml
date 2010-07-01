@@ -27,6 +27,9 @@
 	<floater.string name="ToolTipMsg">
 		[AGENT][REGION](Double-cliquez pour ouvrir la carte)
 	</floater.string>
+	<floater.string name="mini_map_caption">
+		MINI-CARTE
+	</floater.string>
 	<text label="N" name="floater_map_north" text="N">
 		N
 	</text>

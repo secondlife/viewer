@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="場所" name="voice_effects" title="ボイスモーフィングのプレビュー">
+<floater label="場所" name="voice_effects" title="ボイスモーフィング">
 	<string name="no_voice_effect">
 		（ボイスモーフィングなし）
 	</string>
@@ -12,18 +12,19 @@
 	<string name="new_voice_effect">
 		（新登場！）
 	</string>
-	<text name="status_text">
-		ボイスモーフィングをプレビューしてエフェクトを確かめるには、録音ボタンを押してご自分の声を少し録音してから、リストにあるボイスモーフィングを1つクリックします。
-
-このウインドウを閉じると、「近くのボイスチャット」に再接続されます。
+	<text name="preview_text">
+		プレビュー
 	</text>
-	<button label="声を録音" name="record_btn" tool_tip="あなたの声を録音します。"/>
+	<text name="status_text">
+		声をテスト録音してからボイスエフェクトを1つクリックして聞いてみます。
+	</text>
+	<button label="録音" name="record_btn" tool_tip="あなたの声を録音します。"/>
 	<button label="停止" name="record_stop_btn"/>
 	<text name="voice_morphing_link">
-		[[URL]ボイスモーフィングを取得]
+		[[URL] 今すぐ申し込む]
 	</text>
 	<scroll_list name="voice_effect_list" tool_tip="声を録音してボイスモーフィングを1つクリックすると、そのエフェクトをプレビューできます。">
-		<scroll_list.columns label="ボイスモーフィング" name="name"/>
+		<scroll_list.columns label="ボイス名" name="name"/>
 		<scroll_list.columns label="有効期限" name="expires"/>
 	</scroll_list>
 </floater>

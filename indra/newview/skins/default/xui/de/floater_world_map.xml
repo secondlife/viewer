@@ -39,12 +39,12 @@
 		<text name="pg_label">
 			Generell
 		</text>
-		<check_box label="Mature" name="event_mature_chk"/>
-		<text name="mature_label">
+		<check_box label="Mature" name="events_mature_chk"/>
+		<text name="events_mature_label">
 			Moderat
 		</text>
-		<check_box label="Adult" name="event_adult_chk"/>
-		<text name="adult_label">
+		<check_box label="Adult" name="events_adult_chk"/>
+		<text name="events_adult_label">
 			Adult
 		</text>
 	</panel>
