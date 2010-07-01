@@ -78,6 +78,8 @@ public:
 
 	void	setTitleFontStyle(std::string style);
 
+	void	setTitleColor(LLUIColor);
+
 	void	setSelected(bool is_selected) { mIsSelected = is_selected; }
 
 	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
@@ -189,6 +191,14 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleFontStyle(std::string
 		mStyleParams.font(mHeaderTextbox->getDefaultFont());
 		mStyleParams.font.style(style);
 		mHeaderTextbox->setText(text, mStyleParams);
+	}
+}
+
+void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::setTitleColor(LLUIColor color)
+{
+	if(mHeaderTextbox)
+	{
+		mHeaderTextbox->setColor(color);
 	}
 }
 
@@ -517,6 +527,15 @@ void LLAccordionCtrlTab::setTitleFontStyle(std::string style)
 	if (header)
 	{
 		header->setTitleFontStyle(style);
+	}
+}
+
+void LLAccordionCtrlTab::setTitleColor(LLUIColor color)
+{
+	LLAccordionCtrlTabHeader* header = findChild<LLAccordionCtrlTabHeader>(DD_HEADER_NAME);
+	if (header)
+	{
+		header->setTitleColor(color);
 	}
 }
 

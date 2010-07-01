@@ -400,8 +400,6 @@ private:
 
 	void cancel();
 
-	bool payloadContainsAll(const std::vector<std::string>& required_fields) const;
-
 public:
 
 	// constructor from a saved notification
