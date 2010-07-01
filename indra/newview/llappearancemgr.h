@@ -66,6 +66,7 @@ public:
 	void renameOutfit(const LLUUID& outfit_id);
 	void takeOffOutfit(const LLUUID& cat_id);
 	void addCategoryToCurrentOutfit(const LLUUID& cat_id);
+	void enforceItemCountLimits();
 
 	// Copy all items and the src category itself.
 	void shallowCopyCategory(const LLUUID& src_id, const LLUUID& dst_id,
@@ -203,6 +204,7 @@ private:
 	std::set<LLUUID> mRegisteredAttachments;
 	bool mAttachmentInvLinkEnabled;
 	bool mOutfitIsDirty;
+	bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
 
 	/**
 	 * Lock for blocking operations on outfit until server reply or timeout exceed
