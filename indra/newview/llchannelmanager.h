@@ -119,6 +119,7 @@ public:
 	 */
 	static LLNotificationsUI::LLScreenChannel* getNotificationScreenChannel();
 
+	std::vector<ChannelElem>& getChannelList() { return mChannelList;}
 private:
 
 	LLScreenChannel* createChannel(LLChannelManager::Params& p);
