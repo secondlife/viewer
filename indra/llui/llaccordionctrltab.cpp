@@ -249,6 +249,15 @@ void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::reshape(S32 width, S32 height
 	LLRect textboxRect(HEADER_TEXT_LEFT_OFFSET,(height+header_height)/2 ,width,(height-header_height)/2);
 	mHeaderTextbox->reshape(textboxRect.getWidth(), textboxRect.getHeight());
 	mHeaderTextbox->setRect(textboxRect);
+
+	if (mHeaderTextbox->getTextPixelWidth() > mHeaderTextbox->getRect().getWidth())
+	{
+		setToolTip(mHeaderTextbox->getText());
+	}
+	else
+	{
+		setToolTip(LLStringUtil::null);
+	}
 }
 
 void LLAccordionCtrlTab::LLAccordionCtrlTabHeader::onMouseEnter(S32 x, S32 y, MASK mask)
@@ -989,6 +998,7 @@ BOOL LLAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 	{
 		//inside tab header
 		//fix for EXT-6619
+		mHeader->handleToolTip(x, y, mask);
 		return TRUE;
 	}
 	return LLUICtrl::handleToolTip(x, y, mask);
