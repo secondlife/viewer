@@ -99,5 +99,7 @@ private:
 	S32 mLastWidth;
 	F32 mAspectRatio;
 	BOOL mUpdateDimensions;
+
+	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
 };
 #endif  // LL_LLPREVIEWTEXTURE_H

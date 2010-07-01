@@ -147,8 +147,9 @@ void LLStandardBumpmap::restoreGL()
 										LLViewerTexture::BOOST_NONE, 
 										LLViewerTexture::LOD_TEXTURE,
 										0, 
-										0);																								
-		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setLoadedCallback(LLBumpImageList::onSourceStandardLoaded, 0, TRUE, FALSE, NULL );
+										0);									
+		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
+		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setLoadedCallback(LLBumpImageList::onSourceStandardLoaded, 0, TRUE, FALSE, NULL, NULL, NULL );
 		LLStandardBumpmap::sStandardBumpmapCount++;
 	}
 
@@ -817,7 +818,7 @@ void LLBumpImageList::addTextureStats(U8 bump, const LLUUID& base_image_id, F32 
 	bump &= TEM_BUMP_MASK;
 	LLViewerFetchedTexture* bump_image = gStandardBumpmapList[bump].mImage;
 	if( bump_image )
-	{
+	{		
 		bump_image->addTextureStats(virtual_size);
 	}
 }
@@ -921,7 +922,8 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 			(*entries_list)[src_image->getID()]->setExplicitFormat(GL_ALPHA8, GL_ALPHA);			
 
 			// Note: this may create an LLImageGL immediately
-			src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()) );
+			src_image->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
+			src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()), NULL, NULL );
 			bump = (*entries_list)[src_image->getID()]; // In case callback was called immediately and replaced the image
 
 //			bump_total++;
