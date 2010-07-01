@@ -3937,15 +3937,33 @@ void LLSelectMgr::selectionUpdateCastShadows(BOOL cast_shadows)
 	getSelection()->applyToObjects(&func);	
 }
 
-struct LLSelectMgrApplyPhysicsShapeType : public LLSelectedObjectFunctor
+struct LLSelectMgrApplyPhysicsParam : public LLSelectedObjectFunctor
 {
-	LLSelectMgrApplyPhysicsShapeType(U8 value) : mValue(value) {}
-	U8 mValue;
+	LLSelectMgrApplyPhysicsParam(U8 type, F32 gravity, BOOL material_override,
+								 F32 friction, F32 density, F32 restitution) :
+		mType(type),
+		mGravity(gravity),
+		mMaterialOverride(material_override),
+		mFriction(friction),
+		mDensity(density),
+		mRestitution(restitution)
+	{}
+	U8 mType;
+	F32 mGravity;
+	BOOL mMaterialOverride;
+	F32 mFriction;
+	F32 mDensity;
+	F32 mRestitution;
 	virtual bool apply(LLViewerObject* object)
 	{
 		if ( object->permModify() ) 	// preemptive permissions check
 		{
-			object->setPhysicsShapeType( mValue );
+			object->setPhysicsShapeType( mType );
+			object->setPhysicsGravity(mGravity);
+			object->setPhysicsMaterialOverride(mMaterialOverride);
+			object->setPhysicsFriction(mFriction);
+			object->setPhysicsDensity(mDensity);
+			object->setPhysicsRestitution(mRestitution);
 			object->updateFlags();
 		}
 		return true;
@@ -3953,10 +3971,11 @@ struct LLSelectMgrApplyPhysicsShapeType : public LLSelectedObjectFunctor
 };
 
 
-void LLSelectMgr::selectionUpdatePhysicsShapeType(U8 type)
+void LLSelectMgr::selectionUpdatePhysicsParam(U8 type, F32 gravity, BOOL material_override,
+											  F32 friction, F32 density, F32 restitution)
 {
 	llwarns << "physics shape type ->" << (U32)type << llendl;
-	LLSelectMgrApplyPhysicsShapeType func(type);
+	LLSelectMgrApplyPhysicsParam func(type, gravity, material_override, friction, density, restitution);
 	getSelection()->applyToObjects(&func);	
 }
 

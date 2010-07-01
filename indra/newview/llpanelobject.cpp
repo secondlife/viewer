@@ -140,7 +140,28 @@ BOOL	LLPanelObject::postBuild()
 
 	// PhysicsShapeType combobox
 	mComboPhysicsShapeType = getChild<LLComboBox>("Physics Shape Type Combo Ctrl");
-	childSetCommitCallback("Physics Shape Type Combo Ctrl", onCommitPhysicsShapeType,this);
+	childSetCommitCallback("Physics Shape Type Combo Ctrl", onCommitPhysicsParam, this);
+
+	// PhysicsGravity
+	mSpinPhysicsGravity = getChild<LLSpinCtrl>("Physics Gravity");
+	childSetCommitCallback("Physics Gravity", onCommitPhysicsParam, this);
+
+	// PhysicsMaterialOverride
+	mCheckPhysicsMaterialOverride = getChild<LLCheckBoxCtrl>("Physics Material Override");
+	childSetCommitCallback("Physics Material Override", onCommitPhysicsParam, this);
+
+	// PhysicsFriction
+	mSpinPhysicsFriction = getChild<LLSpinCtrl>("Physics Friction");
+	childSetCommitCallback("Physics Friction", onCommitPhysicsParam, this);
+	
+	// PhysicsDensity
+	mSpinPhysicsDensity = getChild<LLSpinCtrl>("Physics Density");
+	childSetCommitCallback("Physics Density", onCommitPhysicsParam, this);
+
+	// PhysicsRestitution
+	mSpinPhysicsRestitution = getChild<LLSpinCtrl>("Physics Restitution");
+	childSetCommitCallback("Physics Restitution", onCommitPhysicsParam, this);
+
 	
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
@@ -324,7 +345,6 @@ LLPanelObject::LLPanelObject()
 	mIsPhysical(FALSE),
 	mIsTemporary(FALSE),
 	mIsPhantom(FALSE),
-	mPhysicsShapeType(0),
 	mCastShadows(TRUE),
 	mSelectedType(MI_BOX),
 	mSculptTextureRevert(LLUUID::null),
@@ -532,9 +552,23 @@ void LLPanelObject::getState( )
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
 
-	mPhysicsShapeType = objectp->getPhysicsShapeType();
-	mComboPhysicsShapeType->setCurrentByIndex(mPhysicsShapeType);
+	mComboPhysicsShapeType->setCurrentByIndex(objectp->getPhysicsShapeType());
 	mComboPhysicsShapeType->setEnabled(editable);
+	
+	mSpinPhysicsGravity->set(objectp->getPhysicsGravity());
+	mSpinPhysicsGravity->setEnabled(editable);
+
+	mCheckPhysicsMaterialOverride->set(objectp->getPhysicsMaterialOverride());
+	mCheckPhysicsMaterialOverride->setEnabled(editable);
+	
+	mSpinPhysicsFriction->set(objectp->getPhysicsFriction());
+	mSpinPhysicsFriction->setEnabled(editable);
+	
+	mSpinPhysicsDensity->set(objectp->getPhysicsDensity());
+	mSpinPhysicsDensity->setEnabled(editable);
+	
+	mSpinPhysicsRestitution->set(objectp->getPhysicsRestitution());
+	mSpinPhysicsRestitution->setEnabled(editable);
 
 #if 0 // 1.9.2
 	mCastShadows = root_objectp->flagCastShadows();
@@ -1251,20 +1285,17 @@ public:
 	U32 mID;
 };
 
-void LLPanelObject::sendPhysicsShapeType()
+void LLPanelObject::sendPhysicsParam()
 {
-	U8 value = (U8)mComboPhysicsShapeType->getCurrentIndex();
-	if (mPhysicsShapeType != value)
-	{
-		LLSelectMgr::getInstance()->selectionUpdatePhysicsShapeType(value);
-		mPhysicsShapeType = value;
-		
-		llinfos << "update physics shape type sent" << llendl;
-	}
-	else
-	{
-		llinfos << "update physics shape type not changed" << llendl;
-	}
+	U8 type = (U8)mComboPhysicsShapeType->getCurrentIndex();
+	F32 gravity = mSpinPhysicsGravity->get();
+	BOOL material_override = mCheckPhysicsMaterialOverride->get();
+	F32 friction = mSpinPhysicsFriction->get();
+	F32 density = mSpinPhysicsDensity->get();
+	F32 restitution = mSpinPhysicsRestitution->get();
+	
+	LLSelectMgr::getInstance()->selectionUpdatePhysicsParam(type, gravity, material_override,
+															friction, density, restitution);
 
 	std::string url = gAgent.getRegion()->getCapability("GetObjectCost");
 	LLSD body = LLSD::emptyArray();
@@ -1947,8 +1978,15 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
+	
 	mComboPhysicsShapeType->setCurrentByIndex(0);
 	mComboPhysicsShapeType->setEnabled(FALSE);
+	mSpinPhysicsGravity->setEnabled(FALSE);
+	mCheckPhysicsMaterialOverride->setEnabled(FALSE);
+	mSpinPhysicsFriction->setEnabled(FALSE);
+	mSpinPhysicsDensity->setEnabled(FALSE);
+	mSpinPhysicsRestitution->setEnabled(FALSE);
+							 
 #if 0 // 1.9.2
 	mCheckCastShadows->set(FALSE);
 	mCheckCastShadows->setEnabled( FALSE );
@@ -2044,10 +2082,10 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 }
 
 // static
-void LLPanelObject::onCommitPhysicsShapeType(LLUICtrl* ctrl, void* userdata )
+void LLPanelObject::onCommitPhysicsParam(LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
-	self->sendPhysicsShapeType();
+	self->sendPhysicsParam();
 }
 
 // static

@@ -2064,6 +2064,11 @@ version 2.0
     {
 		ExtraPhysics        Variable
 		{   PhysicsShapeType U8     }
+		{   PhysicsGravity   F32    }
+		{   PhysicsMaterialOverride BOOL }
+		{   PhysicsFriction  F32    }
+		{   PhysicsDensity   F32    }
+		{   PhysicsRestitution F32  }
 	}
 }
 
