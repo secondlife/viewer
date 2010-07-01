@@ -12,13 +12,21 @@
  min_width="240"
  width="320"
  border="false">
+   <panel.string
+     name="wear_outfit_tooltip">
+     Wear selected outfit
+   </panel.string>
+   <panel.string
+     name="wear_items_tooltip">
+     Wear selected items
+   </panel.string>
    <tab_container
      follows="all"
      height="539"
      layout="topleft"
      left="5"
      name="appearance_tabs"
-     tab_min_width="140"
+     tab_min_width="150"
      tab_height="30"
      tab_position="top"
      halign="center"
@@ -89,7 +97,6 @@
           layout="topleft"
           name="wear_btn"
           left_pad="3"
-          tool_tip="Wear selected outfit"
           width="152" />
    </panel>
 </panel>
