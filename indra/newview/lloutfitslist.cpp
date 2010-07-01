@@ -548,6 +548,7 @@ void LLOutfitsList::highlightBaseOutfit()
 		if (mOutfitsMap[mHighlightedOutfitUUID])
 		{
 			mOutfitsMap[mHighlightedOutfitUUID]->setTitleFontStyle("NORMAL");
+			mOutfitsMap[mHighlightedOutfitUUID]->setTitleColor(LLUIColorTable::instance().getColor("AccordionHeaderTextColor"));
 		}
 
 		mHighlightedOutfitUUID = base_id;
@@ -555,6 +556,7 @@ void LLOutfitsList::highlightBaseOutfit()
 	if (mOutfitsMap[base_id])
 	{
 		mOutfitsMap[base_id]->setTitleFontStyle("BOLD");
+		mOutfitsMap[base_id]->setTitleColor(LLUIColorTable::instance().getColor("SelectedOutfitTextColor"));
 	}
 }
 

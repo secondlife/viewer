@@ -1929,9 +1929,9 @@ BOOL LLIncomingCallDialog::postBuild()
 		mLifetimeTimer.stop();
 	}
 
-	//it's not possible to connect to existing Ad-Hoc chat through incoming ad-hoc call
+	//it's not possible to connect to existing Ad-Hoc/Group chat through incoming ad-hoc call
 	//and no IM for avaline
-	childSetVisible("Start IM", is_avatar && notify_box_type != "VoiceInviteAdHoc");
+	childSetVisible("Start IM", is_avatar && notify_box_type != "VoiceInviteAdHoc" && notify_box_type != "VoiceInviteGroup");
 
 	setCanDrag(FALSE);
 
