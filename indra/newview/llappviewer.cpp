@@ -1292,6 +1292,26 @@ bool LLAppViewer::cleanup()
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
 
+	if (LLFastTimerView::sAnalyzePerformance)
+	{
+		llinfos << "Analyzing performance" << llendl;
+		
+		if(LLFastTimer::sLog)
+		{
+			LLFastTimerView::doAnalysis(
+				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_baseline.slp"),
+				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp"),
+				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_report.csv"));
+		}
+		if(LLFastTimer::sMetricLog)
+		{
+			LLFastTimerView::doAnalysis(
+				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_baseline.slp"),
+				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric.slp"),
+				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_report.csv"));
+		}
+	}
+
 	// remove any old breakpad minidump files from the log directory
 	if (! isError())
 	{
@@ -1630,25 +1650,6 @@ bool LLAppViewer::cleanup()
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
 	
-	if (LLFastTimerView::sAnalyzePerformance)
-	{
-		llinfos << "Analyzing performance" << llendl;
-		
-		if(LLFastTimer::sLog)
-		{
-			LLFastTimerView::doAnalysis(
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_baseline.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "performance_report.csv"));
-		}
-		if(LLFastTimer::sMetricLog)
-		{
-			LLFastTimerView::doAnalysis(
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_baseline.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric.slp"),
-				gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "metric_report.csv"));
-		}
-	}
 	LLMetricPerformanceTester::cleanClass() ;
 
 	llinfos << "Cleaning up Media and Textures" << llendflush;
