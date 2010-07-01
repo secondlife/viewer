@@ -5,7 +5,6 @@
  height="200"
  layout="topleft"
  name="publish_classified"
- help_topic="price_for_listing"
  title="Publishing Classified"
  width="320">
     <text
@@ -29,8 +28,8 @@ Remember, Classified fees are non-refundable.
      halign="left"
      height="23"
      increment="1"
-     label_width="70"
-     label="Price for Ad: "
+     label_width="45"
+     label="Price: L$ "
      v_pad="10"
      layout="topleft"
      left="15"
@@ -41,27 +40,6 @@ Remember, Classified fees are non-refundable.
      top_pad="10"
      tool_tip="Price for listing."
      width="150" />
-    <text
-     follows="top|left"
-     font="SansSerif"
-     height="60"
-     layout="topleft"
-     left_pad="5"
-     top_delta="0"
-     word_wrap="true"
-     value="L$"
-     name="l$_text" />
-    <text
-     follows="top|right"
-     font="SansSerif"
-     height="20"
-     layout="topleft"
-     left="15"
-     name="more_info_text"
-     top_pad="-20"
-     width="300">
-More info (link to classified help)
-    </text>
     <button
      follows="top|left"
      height="22"

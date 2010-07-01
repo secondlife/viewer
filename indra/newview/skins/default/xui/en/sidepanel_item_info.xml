@@ -26,6 +26,14 @@
     	 name="acquiredDate">
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
+	<panel.string
+		 name="origin_inventory">
+        (Inventory)
+	</panel.string>
+	<panel.string
+		 name="origin_inworld">
+        (Inworld)
+	</panel.string>
 	<icon
      	 follows="top|right"
      	 height="18"
@@ -65,7 +73,7 @@
      height="13"
      layout="topleft"
      left="45"
-     name="where"
+     name="origin"
      text_color="LtGray_50"
      value="(Inventory)"
      width="150" />
