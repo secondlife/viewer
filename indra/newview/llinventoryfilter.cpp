@@ -234,11 +234,12 @@ BOOL LLInventoryFilter::checkAgainstPermissions(const LLFolderViewItem* item) co
 BOOL LLInventoryFilter::checkAgainstFilterLinks(const LLFolderViewItem* item) const
 {
 	const LLFolderViewEventListener* listener = item->getListener();
-	if (!listener) return FALSE;
+	if (!listener) return TRUE;
 
 	const LLUUID object_id = listener->getUUID();
 	const LLInventoryObject *object = gInventory.getObject(object_id);
-	if (!object) return FALSE;
+	if (!object) return TRUE;
+
 	const BOOL is_link = object->getIsLinkType();
 	if (is_link && (mFilterOps.mFilterLinks == FILTERLINK_EXCLUDE_LINKS))
 		return FALSE;
