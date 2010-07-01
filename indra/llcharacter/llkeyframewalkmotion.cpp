@@ -289,7 +289,8 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 		F32 foot_speed = speed - ((foot_slip_vector * avatar_movement_dir) / delta_time);
 
 		// multiply animation playback rate so that foot speed matches avatar speed
-		F32 desired_speed_multiplier = llclamp(speed / foot_speed, 0.f, ANIM_SPEED_MAX);
+		F32 min_speed_multiplier = clamp_rescale(speed, 0.f, 1.f, 0.f, 0.1f);
+		F32 desired_speed_multiplier = llclamp(speed / foot_speed, min_speed_multiplier, ANIM_SPEED_MAX);
 
 		// blend towards new speed adjustment value
 		F32 new_speed_adjust = lerp(mAdjustedSpeed, desired_speed_multiplier, LLCriticalDamp::getInterpolant(SPEED_ADJUST_TIME_CONSTANT));
