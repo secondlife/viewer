@@ -196,6 +196,15 @@ void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 			{
 				gAgentCamera.changeCameraToCustomizeAvatar();
 			}
+			if (mEditWearable && mEditWearable->getVisible())
+			{
+				LLWearable *wearable_ptr = mEditWearable->getWearable();
+				if (gAgentWearables.getWearableIndex(wearable_ptr) == LLAgentWearables::MAX_CLOTHING_PER_TYPE)
+				{
+					// we're no longer wearing the wearable we were last editing, switch back to outfit editor
+					showOutfitEditPanel();
+				}
+			}
 		}
 	}
 	else
