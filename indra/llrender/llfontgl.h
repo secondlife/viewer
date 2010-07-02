@@ -95,8 +95,24 @@ public:
 
 	BOOL loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, const S32 components, BOOL is_fallback);
 
-	S32 render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign = LEFT,  VAlign valign = BASELINE, U8 style = NORMAL,
-	           ShadowType shadow = NO_SHADOW, S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX, F32* right_x=NULL, BOOL use_ellipses = FALSE) const;
+	S32 render(const LLWString &text, S32 begin_offset, 
+				const LLRect& rect, 
+				const LLColor4 &color, 
+				HAlign halign = LEFT,  VAlign valign = BASELINE, 
+				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
+				S32 max_chars = S32_MAX,
+				F32* right_x=NULL, 
+				BOOL use_ellipses = FALSE) const;
+
+	S32 render(const LLWString &text, S32 begin_offset, 
+				F32 x, F32 y, 
+				const LLColor4 &color, 
+				HAlign halign = LEFT,  VAlign valign = BASELINE, 
+				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
+				S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX, 
+				F32* right_x=NULL, 
+				BOOL use_ellipses = FALSE) const;
+
 	S32 render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const;
 
 	// renderUTF8 does a conversion, so is slower!

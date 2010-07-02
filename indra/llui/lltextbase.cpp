@@ -193,6 +193,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mHPad(p.h_pad),
 	mVPad(p.v_pad),
 	mHAlign(p.font_halign),
+	mVAlign(p.font_valign),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
 	mClipPartial(p.clip_partial && !p.allow_scroll),
@@ -482,9 +483,9 @@ void LLTextBase::drawCursor()
 					text_color = mFgColor.get();
 					fontp = mDefaultFont;
 				}
-				fontp->render(text, mCursorPos, cursor_rect.mLeft, cursor_rect.mTop, 
+				fontp->render(text, mCursorPos, cursor_rect, 
 					LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
-					LLFontGL::LEFT, LLFontGL::TOP,
+					LLFontGL::LEFT, mVAlign,
 					LLFontGL::NORMAL,
 					LLFontGL::NO_SHADOW,
 					1);
@@ -2435,12 +2436,12 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = llmin( selection_start, seg_end );
 		S32 length =  end - start;
 		font->render(text, start, 
-			     rect.mLeft, rect.mTop, 
+			     rect, 
 			     color, 
-			     LLFontGL::LEFT, LLFontGL::TOP, 
+			     LLFontGL::LEFT, mEditor.mVAlign, 
 			     LLFontGL::NORMAL, 
 			     mStyle->getShadowType(), 
-			     length, rect.getWidth(), 
+			     length,
 			     &right_x, 
 			     mEditor.getUseEllipses());
 	}
@@ -2454,12 +2455,12 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 length = end - start;
 
 		font->render(text, start, 
-			     rect.mLeft, rect.mTop,
+			     rect,
 			     LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
-			     LLFontGL::LEFT, LLFontGL::TOP, 
+			     LLFontGL::LEFT, mEditor.mVAlign, 
 			     LLFontGL::NORMAL, 
 			     LLFontGL::NO_SHADOW, 
-			     length, rect.getWidth(), 
+			     length,
 			     &right_x, 
 			     mEditor.getUseEllipses());
 	}
@@ -2471,12 +2472,12 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = seg_end;
 		S32 length = end - start;
 		font->render(text, start, 
-			     rect.mLeft, rect.mTop, 
+			     rect, 
 			     color, 
-			     LLFontGL::LEFT, LLFontGL::TOP, 
+			     LLFontGL::LEFT, mEditor.mVAlign, 
 			     LLFontGL::NORMAL, 
 			     mStyle->getShadowType(), 
-			     length, rect.getWidth(), 
+			     length,
 			     &right_x, 
 			     mEditor.getUseEllipses());
 	}
