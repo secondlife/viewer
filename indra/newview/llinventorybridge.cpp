@@ -4055,13 +4055,13 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 			if( get_is_item_worn( mUUID ) )
 			{
-				items.push_back(std::string("Attach Separator"));
+				items.push_back(std::string("Wearable And Object Separator"));
 				items.push_back(std::string("Detach From Yourself"));
 			}
 			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder())
 			{
-				items.push_back(std::string("Attach Separator"));
-				items.push_back(std::string("Object Wear"));
+				items.push_back(std::string("Wearable And Object Separator"));
+				items.push_back(std::string("Wearable And Object Wear"));
 				items.push_back(std::string("Attach To"));
 				items.push_back(std::string("Attach To HUD"));
 				// commented out for DEV-32347
@@ -4069,7 +4069,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 				if (!gAgentAvatarp->canAttachMoreObjects())
 				{
-					disabled_items.push_back(std::string("Object Wear"));
+					disabled_items.push_back(std::string("Wearable And Object Wear"));
 					disabled_items.push_back(std::string("Attach To"));
 					disabled_items.push_back(std::string("Attach To HUD"));
 				}
@@ -4411,7 +4411,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
-		items.push_back(std::string("Wearable Separator"));
+		items.push_back(std::string("Wearable And Object Separator"));
 
 		items.push_back(std::string("Wearable Edit"));
 
@@ -4422,7 +4422,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		// Don't allow items to be worn if their baseobj is in the trash.
 		if (isLinkedObjectInTrash() || isLinkedObjectMissing() || isCOFFolder())
 		{
-			disabled_items.push_back(std::string("Wearable Wear"));
+			disabled_items.push_back(std::string("Wearable And Object Wear"));
 			disabled_items.push_back(std::string("Wearable Add"));
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}
@@ -4438,12 +4438,12 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				case LLAssetType::AT_BODYPART:
 					if (get_is_item_worn(item->getUUID()))
 					{
-						disabled_items.push_back(std::string("Wearable Wear"));
+						disabled_items.push_back(std::string("Wearable And Object Wear"));
 						disabled_items.push_back(std::string("Wearable Add"));
 					}
 					else
 					{
-						items.push_back(std::string("Wearable Wear"));
+						items.push_back(std::string("Wearable And Object Wear"));
 						items.push_back(std::string("Wearable Add"));
 						disabled_items.push_back(std::string("Take Off"));
 						disabled_items.push_back(std::string("Wearable Edit"));

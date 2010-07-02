@@ -97,7 +97,6 @@ static LLDefaultChildRegistry::Register<LLFlyoutButton> register_flyout_button("
 static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
 
 // register other widgets which otherwise may not be linked in
-static LLDefaultChildRegistry::Register<LLMenuButton> register_menu_button("menu_button");
 static LLDefaultChildRegistry::Register<LLLoadingIndicator> register_loading_indicator("loading_indicator");
 
 

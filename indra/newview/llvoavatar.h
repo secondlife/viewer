@@ -263,6 +263,8 @@ private:
 	S32				mFullyLoadedFrameCounter;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
+protected:
+	LLFrameTimer    mInvisibleTimer;
 	
 /**                    State
  **                                                                            **
@@ -499,7 +501,8 @@ protected:
 	};
 	typedef std::vector<BakedTextureData> 	bakedtexturedata_vec_t;
 	bakedtexturedata_vec_t 					mBakedTextureDatas;
-
+	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
+	BOOL mLoadedCallbacksPaused;
 	//--------------------------------------------------------------------
 	// Local Textures
 	//--------------------------------------------------------------------
@@ -519,7 +522,7 @@ private:
 	virtual const LLTextureEntry* getTexEntry(const U8 te_num) const;
 	virtual void setTexEntry(const U8 index, const LLTextureEntry &te);
 
-
+	void checkTextureLoading() ;
 	//--------------------------------------------------------------------
 	// Layers
 	//--------------------------------------------------------------------

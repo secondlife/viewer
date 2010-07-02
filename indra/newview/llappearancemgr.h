@@ -54,7 +54,7 @@ class LLAppearanceMgr: public LLSingleton<LLAppearanceMgr>
 public:
 	typedef std::vector<LLInventoryModel::item_array_t> wearables_by_type_t;
 
-	void updateAppearanceFromCOF();
+	void updateAppearanceFromCOF(bool update_base_outfit_ordering = false);
 	bool needToSaveCOF();
 	void updateCOF(const LLUUID& category, bool append = false);
 	void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
@@ -171,7 +171,7 @@ public:
 
 	//Check ordering information on wearables stored in links' descriptions and update if it is invalid
 	// COF is processed if cat_id is not specified
-	void updateClothingOrderingInfo(LLUUID cat_id = LLUUID::null);
+	void updateClothingOrderingInfo(LLUUID cat_id = LLUUID::null, bool update_base_outfit_ordering = false);
 
 	bool isOutfitLocked() { return mOutfitLocked; }
 
@@ -226,12 +226,13 @@ public:
 class LLUpdateAppearanceOnDestroy: public LLInventoryCallback
 {
 public:
-	LLUpdateAppearanceOnDestroy();
+	LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering = false);
 	virtual ~LLUpdateAppearanceOnDestroy();
 	/* virtual */ void fire(const LLUUID& inv_item);
 
 private:
 	U32 mFireCount;
+	bool mUpdateBaseOrder;
 };
 
 

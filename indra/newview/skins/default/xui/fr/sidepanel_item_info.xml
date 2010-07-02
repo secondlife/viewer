@@ -16,7 +16,7 @@
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
 	<text name="title" value="Profil de l&apos;article"/>
-	<text name="where" value="(inventaire)"/>
+	<text name="origin" value="(inventaire)"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
 			Nom :
