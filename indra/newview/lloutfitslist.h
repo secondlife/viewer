@@ -179,9 +179,9 @@ private:
 	void applyFilterToTab(const LLUUID& category_id, LLAccordionCtrlTab* tab, const std::string& filter_substring);
 
 	/**
-	 * Returns true if there are any worn items among currently selected, otherwise false.
+	 * Returns true if there are any items that can be taken off among currently selected, otherwise false.
 	 */
-	bool hasWornItemSelected();
+	bool canTakeOffSelected();
 
 	void onAccordionTabRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 	void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
