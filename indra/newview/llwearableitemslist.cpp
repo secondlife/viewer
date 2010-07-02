@@ -783,10 +783,7 @@ void LLWearableItemsList::ContextMenu::createNewWearable(const LLUUID& item_id)
 // static
 bool LLWearableItemsList::ContextMenu::canAddWearable(const LLUUID& item_id)
 {
-	if (!gAgentWearables.areWearablesLoaded())
-	{
-		return false;
-	}
+	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	LLViewerInventoryItem* item = gInventory.getItem(item_id);
 	if (!item || item->getType() != LLAssetType::AT_CLOTHING)

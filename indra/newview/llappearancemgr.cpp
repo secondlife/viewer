@@ -991,14 +991,8 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 			}
 		} 
 	case LLAssetType::AT_BODYPART:
-		// Don't wear anything until initial wearables are loaded, can
-		// destroy clothing items.
-		if (!gAgentWearables.areWearablesLoaded())
-		{
-			LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
-			return false;
-		}
-
+		// TODO: investigate wearables may not be loaded at this point EXT-8231
+		
 		// Remove the existing wearables of the same type.
 		// Remove existing body parts anyway because we must not be able to wear e.g. two skins.
 		if (item_to_wear->getType() == LLAssetType::AT_BODYPART)

@@ -4482,13 +4482,7 @@ void LLWearableBridge::onWearOnAvatar(void* user_data)
 
 void LLWearableBridge::wearOnAvatar()
 {
-	// Don't wear anything until initial wearables are loaded, can
-	// destroy clothing items.
-	if (!gAgentWearables.areWearablesLoaded())
-	{
-		LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
-		return;
-	}
+	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	LLViewerInventoryItem* item = getItem();
 	if(item)
@@ -4499,13 +4493,7 @@ void LLWearableBridge::wearOnAvatar()
 
 void LLWearableBridge::wearAddOnAvatar()
 {
-	// Don't wear anything until initial wearables are loaded, can
-	// destroy clothing items.
-	if (!gAgentWearables.areWearablesLoaded())
-	{
-		LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
-		return;
-	}
+	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	LLViewerInventoryItem* item = getItem();
 	if(item)
@@ -5063,13 +5051,7 @@ BOOL LLWearableBridgeAction::isAgentInventory() const
 
 void LLWearableBridgeAction::wearOnAvatar()
 {
-	// Don't wear anything until initial wearables are loaded, can
-	// destroy clothing items.
-	if (!gAgentWearables.areWearablesLoaded())
-	{
-		LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
-		return;
-	}
+	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	LLViewerInventoryItem* item = getItem();
 	if(item)
