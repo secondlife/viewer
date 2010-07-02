@@ -16,7 +16,7 @@
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
 	<text name="title" value="Profil Obiektu"/>
-	<text name="where" value="(Szafa)"/>
+	<text name="origin" value="(Szafa)"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
 			Nazwa:

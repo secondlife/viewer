@@ -4,9 +4,16 @@
     <menu_item_call
      label="Replace"
      layout="topleft"
-     name="wear">
+     name="wear_replace">
         <on_click
          function="Wearable.Wear" />
+    </menu_item_call>
+    <menu_item_call
+     label="Wear"
+     layout="topleft"
+     name="wear_wear">
+        <on_click
+         function="Wearable.Add" />
     </menu_item_call>
     <menu_item_call
      label="Add"

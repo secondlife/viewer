@@ -164,7 +164,7 @@ private:
 
 	te_map_t mTEMap;				// maps TE to LocalTextureObject
 	te_map_t mSavedTEMap;			// last saved version of TEMap
-	LLUUID				mItemID;  // ID of the inventory item in the agent's inventory
+	LLUUID				mItemID;  // ID of the inventory item in the agent's inventory	
 };
 
 #endif  // LL_LLWEARABLE_H

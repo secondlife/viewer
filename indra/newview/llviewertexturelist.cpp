@@ -1219,7 +1219,7 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 		delete [] data;
 		return;
 	}
-	image->getLastPacketTimer()->reset();
+	//image->getLastPacketTimer()->reset();
 	bool res = LLAppViewer::getTextureFetch()->receiveImageHeader(msg->getSender(), id, codec, packets, totalbytes, data_size, data);
 	if (!res)
 	{
@@ -1283,7 +1283,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 		delete [] data;
 		return;
 	}
-	image->getLastPacketTimer()->reset();
+	//image->getLastPacketTimer()->reset();
 	bool res = LLAppViewer::getTextureFetch()->receiveImagePacket(msg->getSender(), id, packet_num, data_size, data);
 	if (!res)
 	{
@@ -1406,7 +1406,7 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 	datap->mImageName = name;
 	datap->mImageScaleRegion = scale_rect;
 
-	imagep->setLoadedCallback(onUIImageLoaded, 0, FALSE, FALSE, datap);
+	imagep->setLoadedCallback(onUIImageLoaded, 0, FALSE, FALSE, datap, NULL, NULL);
 
 	return new_imagep;
 }

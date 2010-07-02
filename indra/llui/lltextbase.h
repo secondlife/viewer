@@ -357,6 +357,7 @@ protected:
 	S32							mHPad;				// padding on left of text
 	S32							mVPad;				// padding above text
 	LLFontGL::HAlign			mHAlign;
+	LLFontGL::VAlign			mVAlign;
 	F32							mLineSpacingMult;	// multiple of line height used as space for a single line of text (e.g. 1.5 to get 50% padding)
 	S32							mLineSpacingPixels;	// padding between lines
 	const LLFontGL*				mDefaultFont;		// font that is used when none specified
