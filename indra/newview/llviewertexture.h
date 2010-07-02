@@ -67,16 +67,31 @@ class LLVOVolume ;
 class LLLoadedCallbackEntry
 {
 public:
+	typedef std::set< LLUUID > source_callback_list_t;
+
+public:
 	LLLoadedCallbackEntry(loaded_callback_func cb,
 						  S32 discard_level,
 						  BOOL need_imageraw, // Needs image raw for the callback
-						  void* userdata );
+						  void* userdata,
+						  source_callback_list_t* src_callback_list,
+						  void* source,
+						  LLViewerFetchedTexture* target,
+						  BOOL pause);
+	~LLLoadedCallbackEntry();
+	void removeTexture(LLViewerFetchedTexture* tex) ;
 
 	loaded_callback_func	mCallback;
 	S32						mLastUsedDiscard;
 	S32						mDesiredDiscard;
 	BOOL					mNeedsImageRaw;
+	BOOL                    mPaused;
 	void*					mUserData;
+	source_callback_list_t* mSourceCallbackList;
+	void*                   mSource;
+	
+public:
+	static void cleanUpCallbackList(LLLoadedCallbackEntry::source_callback_list_t* callback_list, void* src) ;
 };
 
 class LLTextureBar;
@@ -103,22 +118,23 @@ public:
 	enum EBoostLevel
 	{
 		BOOST_NONE 			= 0,
-		BOOST_AVATAR_BAKED	= 1,
-		BOOST_AVATAR		= 2,
-		BOOST_CLOUDS		= 3,
-		BOOST_SCULPTED      = 4,
+		BOOST_AVATAR_BAKED	,
+		BOOST_AVATAR		,
+		BOOST_CLOUDS		,
+		BOOST_SCULPTED      ,
 		
 		BOOST_HIGH 			= 10,
-		BOOST_TERRAIN		= 11, // has to be high priority for minimap / low detail
-		BOOST_SELECTED		= 12,
-		BOOST_HUD			= 13,
-		BOOST_AVATAR_BAKED_SELF	= 14,
-		BOOST_ICON			= 15,
-		BOOST_UI			= 16,
-		BOOST_PREVIEW		= 17,
-		BOOST_MAP			= 18,
-		BOOST_MAP_VISIBLE	= 19,
-		BOOST_AVATAR_SELF	= 20, // needed for baking avatar
+		BOOST_BUMP          ,
+		BOOST_TERRAIN		, // has to be high priority for minimap / low detail
+		BOOST_SELECTED		,
+		BOOST_HUD			,
+		BOOST_AVATAR_BAKED_SELF	,
+		BOOST_ICON			,
+		BOOST_UI			,
+		BOOST_PREVIEW		,
+		BOOST_MAP			,
+		BOOST_MAP_VISIBLE	,
+		BOOST_AVATAR_SELF	, // needed for baking avatar
 		BOOST_MAX_LEVEL,
 
 		//other texture Categories
@@ -144,7 +160,6 @@ protected:
 
 public:	
 	static void initClass();
-	static void cleanupClass();
 	static void updateClass(const F32 velocity, const F32 angular_velocity) ;
 	
 	LLViewerTexture(BOOL usemipmaps = TRUE);
@@ -166,7 +181,8 @@ public:
 
 	void addTextureStats(F32 virtual_size, BOOL needs_gltexture = TRUE) const;
 	void resetTextureStats();	
-	void setResetMaxVirtualSizeFlag(bool flag) ;
+	void setMaxVirtualSizeResetInterval(S32 interval)const {mMaxVirtualSizeResetInterval = interval;}
+	void resetMaxVirtualSizeResetCounter()const {mMaxVirtualSizeResetCounter = mMaxVirtualSizeResetInterval;}
 
 	virtual F32  getMaxVirtualSize() ;
 
@@ -248,7 +264,7 @@ public:
 
 	/*virtual*/ void updateBindStatsForTester() ;
 protected:
-	void cleanup() ;
+	virtual void cleanup() ;
 	void init(bool firstinit) ;	
 	void reorganizeFaceList() ;
 	void reorganizeVolumeList() ;
@@ -264,10 +280,10 @@ protected:
 	S32 mFullHeight;
 	BOOL  mUseMipMaps ;
 	S8  mComponents;
-	bool mCanResetMaxVirtualSize;
-	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?
 	mutable S8  mNeedsGLTexture;
-	mutable BOOL mNeedsResetMaxVirtualSize ;
+	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?	
+	mutable S32  mMaxVirtualSizeResetCounter ;
+	mutable S32  mMaxVirtualSizeResetInterval;
 	mutable F32 mAdditionalDecodePriority;  // priority add to mDecodePriority.
 	LLFrameTimer mLastReferencedTimer;	
 
@@ -368,10 +384,13 @@ public:
 	// Set callbacks to get called when the image gets updated with higher 
 	// resolution versions.
 	void setLoadedCallback(loaded_callback_func cb,
-						   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux,
-						   void* userdata);
+						   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux, void* src,
+						   void* userdata, LLLoadedCallbackEntry::source_callback_list_t* src_callback_list, BOOL pause = FALSE);
 	bool hasCallbacks() { return mLoadedCallbackList.empty() ? false : true; }	
+	void pauseLoadedCallbacks(void* src);
+	void unpauseLoadedCallbacks(void* src);
 	bool doLoadedCallbacks();
+	void deleteCallbackEntry(void* src);
 
 	void addToCreateTexture();
 
@@ -449,7 +468,7 @@ public:
 	S32         getCachedRawImageLevel() const {return mCachedRawDiscardLevel;}
 	BOOL        isCachedRawImageReady() const {return mCachedRawImageReady ;}
 	BOOL        isRawImageValid()const { return mIsRawImageValid ; }	
-	void        forceToSaveRawImage(S32 desired_discard = 0) ;
+	void        forceToSaveRawImage(S32 desired_discard = 0, bool from_callback = false) ;
 	/*virtual*/ void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
 	void        destroySavedRawImage() ;
 	LLImageRaw* getSavedRawImage() ;
@@ -466,7 +485,7 @@ protected:
 
 private:
 	void init(bool firstinit) ;
-	void cleanup() ;
+	/*virtual*/ void cleanup() ;
 
 	void saveRawImage() ;
 	void setCachedRawImage() ;
@@ -515,6 +534,7 @@ protected:
 
 	typedef std::list<LLLoadedCallbackEntry*> callback_list_t;
 	S8              mLoadedCallbackDesiredDiscardLevel;
+	BOOL            mPauseLoadedCallBacks;
 	callback_list_t mLoadedCallbackList;
 
 	LLPointer<LLImageRaw> mRawImage;
@@ -638,7 +658,7 @@ private:
 
 public:
 	static void updateClass() ;
-	static void cleanup() ;	
+	static void cleanUpClass() ;	
 
 	static LLViewerMediaTexture* findMediaTexture(const LLUUID& media_id) ;
 	static void removeMediaImplFromTexture(const LLUUID& media_id) ;

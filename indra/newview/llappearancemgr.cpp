@@ -207,8 +207,9 @@ public:
 };
 
 
-LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy():
-	mFireCount(0)
+LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit_ordering):
+	mFireCount(0),
+	mUpdateBaseOrder(update_base_outfit_ordering)
 {
 }
 
@@ -218,7 +219,7 @@ LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 	
 	if (!LLApp::isExiting())
 	{
-		LLAppearanceMgr::instance().updateAppearanceFromCOF();
+		LLAppearanceMgr::instance().updateAppearanceFromCOF(mUpdateBaseOrder);
 	}
 }
 
@@ -1436,7 +1437,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 
 	// Create links to new COF contents.
 	llinfos << "creating LLUpdateAppearanceOnDestroy" << llendl;
-	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
+	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy(!append);
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	llinfos << "Linking body items" << llendl;
@@ -1617,7 +1618,7 @@ void LLAppearanceMgr::enforceItemCountLimits()
 	}
 }
 
-void LLAppearanceMgr::updateAppearanceFromCOF()
+void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 {
 	if (mIsInUpdateAppearanceFromCOF)
 	{
@@ -1631,7 +1632,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF()
 
 	//checking integrity of the COF in terms of ordering of wearables, 
 	//checking and updating links' descriptions of wearables in the COF (before analyzed for "dirty" state)
-	updateClothingOrderingInfo();
+	updateClothingOrderingInfo(LLUUID::null, update_base_outfit_ordering);
 
 	// Remove duplicate or excess wearables. Should normally be enforced at the UI level, but
 	// this should catch anything that gets through.
@@ -1656,6 +1657,9 @@ void LLAppearanceMgr::updateAppearanceFromCOF()
 	remove_non_link_items(wear_items);
 	remove_non_link_items(obj_items);
 	remove_non_link_items(gest_items);
+
+	dumpItemArray(wear_items,"asset_dump: wear_item");
+	dumpItemArray(obj_items,"asset_dump: obj_item");
 
 	if(!wear_items.count())
 	{
@@ -2336,11 +2340,19 @@ struct WearablesOrderComparator
 	U32 mControlSize;
 };
 
-void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id)
+void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id, bool update_base_outfit_ordering)
 {
 	if (cat_id.isNull())
 	{
 		cat_id = getCOF();
+		if (update_base_outfit_ordering)
+		{
+			const LLUUID base_outfit_id = getBaseOutfitUUID();
+			if (base_outfit_id.notNull())
+			{
+				updateClothingOrderingInfo(base_outfit_id,false);
+			}
+		}
 	}
 
 	// COF is processed if cat_id is not specified
@@ -2373,6 +2385,7 @@ void LLAppearanceMgr::updateClothingOrderingInfo(LLUUID cat_id)
 			item->setComplete(TRUE);
  			item->updateServer(FALSE);
 			gInventory.updateItem(item);
+			
 			inventory_changed = true;
 		}
 	}
@@ -2574,11 +2587,16 @@ void LLAppearanceMgr::dumpCat(const LLUUID& cat_id, const std::string& msg)
 void LLAppearanceMgr::dumpItemArray(const LLInventoryModel::item_array_t& items,
 										const std::string& msg)
 {
-	llinfos << msg << llendl;
 	for (S32 i=0; i<items.count(); i++)
 	{
 		LLViewerInventoryItem *item = items.get(i);
-		llinfos << i <<" " << item->getName() << llendl;
+		LLViewerInventoryItem *linked_item = item ? item->getLinkedItem() : NULL;
+		LLUUID asset_id;
+		if (linked_item)
+		{
+			asset_id = linked_item->getAssetUUID();
+		}
+		llinfos << msg << " " << i <<" " << item->getName() << " " << asset_id.asString() << llendl;
 	}
 	llinfos << llendl;
 }

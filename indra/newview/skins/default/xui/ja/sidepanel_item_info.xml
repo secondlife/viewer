@@ -16,7 +16,7 @@
 		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</panel.string>
 	<text name="title" value="アイテムのプロフィール"/>
-	<text name="where" value="（持ち物）"/>
+	<text name="origin" value="（持ち物）"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
 			名前：
