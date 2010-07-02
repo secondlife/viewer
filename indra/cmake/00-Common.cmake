@@ -74,6 +74,10 @@ if (WINDOWS)
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_definitions(/WX)
   endif (NOT VS_DISABLE_FATAL_WARNINGS)
+
+  # configure win32 API for windows XP+ compatibility
+  set(WINVER "0x0501" CACHE STRING "Win32 API Target version (see http://msdn.microsoft.com/en-us/library/aa383745%28v=VS.85%29.aspx)")
+  add_definitions("/DWINVER=${WINVER}" "/D_WIN32_WINNT=${WINVER}")
 endif (WINDOWS)
 
 

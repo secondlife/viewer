@@ -11404,9 +11404,9 @@
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>-1</integer>
     </map>
     <key>WaterEditPresets</key>
     <map>

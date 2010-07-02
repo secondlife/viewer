@@ -81,7 +81,7 @@
 #include "llvoicechannel.h"
 #include "llvoavatarself.h"
 #include "llsidetray.h"
-
+#include "llfeaturemanager.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -379,13 +379,7 @@ bool handleCrashSubmitBehaviorChanged(const LLSD& newvalue)
 	const S32 NEVER_SUBMIT_REPORT = 2;
 	if(cb == NEVER_SUBMIT_REPORT)
 	{
-// 		LLWatchdog::getInstance()->cleanup(); // SJB: cleaning up a running watchdog thread is unsafe
 		LLAppViewer::instance()->destroyMainloopTimeout();
-	}
-	else if(gSavedSettings.getBOOL("WatchdogEnabled") == TRUE)
-	{
-		// Don't re-enable the watchdog when we change the setting; this may get called before it's started
-// 		LLWatchdog::getInstance()->init();
 	}
 	return true;
 }
@@ -1689,14 +1683,6 @@ bool LLAppViewer::initThreads()
 	static const bool enable_threads = true;
 #endif
 
-	const S32 NEVER_SUBMIT_REPORT = 2;
-	bool use_watchdog = gSavedSettings.getBOOL("WatchdogEnabled");
-	bool send_reports = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING) != NEVER_SUBMIT_REPORT;
-	if(use_watchdog && send_reports)
-	{
-		LLWatchdog::getInstance()->init(watchdog_killer_callback);
-	}
-
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
 
@@ -1925,18 +1911,11 @@ bool LLAppViewer::initConfiguration()
 	}
 #endif
 
-	//*FIX:Mani - Set default to disabling watchdog mainloop 
-	// timeout for mac and linux. There is no call stack info 
-	// on these platform to help debug.
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
-	gSavedSettings.setBOOL("WatchdogEnabled", FALSE);
 	gSavedSettings.setBOOL("QAMode", TRUE );
+	gSavedSettings.setS32("WatchdogEnabled", 0);
 #endif
-
-#ifndef LL_WINDOWS
-	gSavedSettings.setBOOL("WatchdogEnabled", FALSE);
-#endif
-
+	
 	gCrashSettings.getControl(CRASH_BEHAVIOR_SETTING)->getSignal()->connect(boost::bind(&handleCrashSubmitBehaviorChanged, _2));	
 
 	// These are warnings that appear on the first experience of that condition.
@@ -2363,6 +2342,25 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
+
+	// Need to load feature table before cheking to start watchdog.
+	const S32 NEVER_SUBMIT_REPORT = 2;
+	bool use_watchdog = false;
+	int watchdog_enabled_setting = gSavedSettings.getS32("WatchdogEnabled");
+	if(watchdog_enabled_setting == -1){
+		use_watchdog = !LLFeatureManager::getInstance()->isFeatureAvailable("WatchdogDisabled");
+	}
+	else
+	{
+		// The user has explicitly set this setting; always use that value.
+		use_watchdog = bool(watchdog_enabled_setting);
+	}
+
+	bool send_reports = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING) != NEVER_SUBMIT_REPORT;
+	if(use_watchdog && send_reports)
+	{
+		LLWatchdog::getInstance()->init(watchdog_killer_callback);
+	}
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 		
@@ -4133,7 +4131,7 @@ void LLAppViewer::forceErrorBreakpoint()
 void LLAppViewer::forceErrorBadMemoryAccess()
 {
     S32* crash = NULL;
-    *crash = 0xDEADBEEF;
+    *crash = 0xDEADBEEF;  
     return;
 }
 

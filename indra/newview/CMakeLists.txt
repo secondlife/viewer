@@ -1150,10 +1150,12 @@ endif (LINUX)
 if (WINDOWS)
     list(APPEND viewer_SOURCE_FILES
          llappviewerwin32.cpp
+         llwindebug.cpp
          )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
+         llwindebug.h
          )
 
     # precompiled header configuration
