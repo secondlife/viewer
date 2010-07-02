@@ -40,6 +40,7 @@
 #include "llscrollcontainer.h"
 #include "llstl.h"
 #include "lltextparser.h"
+#include "lltextutil.h"
 #include "lltooltip.h"
 #include "lluictrl.h"
 #include "llurlaction.h"
@@ -1594,6 +1595,9 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		while ( LLUrlRegistry::instance().findUrl(text, match,
 		        boost::bind(&LLTextBase::replaceUrlLabel, this, _1, _2)) )
 		{
+			
+			LLTextUtil::processUrlMatch(&match,this);
+
 			start = match.getStart();
 			end = match.getEnd()+1;
 
@@ -1618,22 +1622,6 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 				std::string subtext=text.substr(0,start);
 				appendAndHighlightText(subtext, part, style_params); 
 			}
-
-			// output an optional icon before the Url
-			if (! match.getIcon().empty())
-			{
-				LLUIImagePtr image = LLUI::getUIImage(match.getIcon());
-				if (image)
-				{
-					LLStyle::Params icon;
-					icon.image = image;
-					// Text will be replaced during rendering with the icon,
-					// but string cannot be empty or the segment won't be
-					// added (or drawn).
-					appendImageSegment(icon);
-				}
-			}
-
 			// output the styled Url (unless we've been asked to suppress hyperlinking)
 			if (match.isLinkDisabled())
 			{
@@ -1715,7 +1703,14 @@ void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
 	insertStringNoUndo(getLength(), utf8str_to_wstring(" "), &segments);
 }
 
+void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo)
+{
+	segment_vec_t segments;
+	LLWString widget_wide_text = utf8str_to_wstring(text);
+	segments.push_back(new LLInlineViewSegment(params, getLength(), getLength() + widget_wide_text.size()));
 
+	insertStringNoUndo(getLength(), widget_wide_text, &segments);
+}
 
 void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params)
 {

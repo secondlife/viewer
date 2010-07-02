@@ -172,6 +172,7 @@ public:
 	LLUrlEntryAgent();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ std::string getTooltip(const std::string &string) const;
+	/*virtual*/ LLUUID	getID(const std::string &string) const;
 private:
 	void onAgentNameReceived(const LLUUID& id, const std::string& first,
 							 const std::string& last, BOOL is_group);
@@ -186,6 +187,7 @@ class LLUrlEntryGroup : public LLUrlEntryBase
 public:
 	LLUrlEntryGroup();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ LLUUID	getID(const std::string &string) const;
 private:
 	void onGroupNameReceived(const LLUUID& id, const std::string& first,
 							 const std::string& last, BOOL is_group);
