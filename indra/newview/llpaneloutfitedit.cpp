@@ -726,21 +726,33 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	bool more_than_one_selected = ids.size() > 1;
 	bool is_dummy_item = (ids.size() && dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem()));
 
-	//resetting selection if no item is selected or than one item is selected
-	if (nothing_selected || more_than_one_selected)
+	//expanded accordion tab determines filtering when no item is selected
+	if (nothing_selected)
 	{
-		if (nothing_selected)
+		showWearablesListView();
+
+		switch (mCOFWearables->getExpandedAccordionAssetType())
 		{
-			showWearablesFolderView();
-			applyFolderViewFilter(FVIT_ALL);
+		case LLAssetType::AT_OBJECT:
+			applyListViewFilter(LVIT_ATTACHMENT);
+			break;
+		case LLAssetType::AT_BODYPART:
+			applyListViewFilter(LVIT_BODYPART);
+			break;
+		case LLAssetType::AT_CLOTHING:
+		default: 
+			applyListViewFilter(LVIT_CLOTHING);
+			break;
 		}
 
-		if (more_than_one_selected)
-		{
-			showWearablesListView();
-			applyListViewFilter(LVIT_ALL);
-		}
+		return;
+	}
 
+	//resetting selection if more than one item is selected
+	if (more_than_one_selected)
+	{
+		showWearablesListView();
+		applyListViewFilter(LVIT_ALL);
 		return;
 	}
 
