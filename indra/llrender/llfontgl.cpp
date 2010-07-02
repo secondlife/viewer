@@ -132,7 +132,11 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect
 	case VCENTER:
 		y = rect.getCenterY();
 		break;
+	case BASELINE:
 	case BOTTOM:
+		y = rect.mBottom;
+		break;
+	default:
 		y = rect.mBottom;
 		break;
 	}
