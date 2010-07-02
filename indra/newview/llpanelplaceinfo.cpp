@@ -123,6 +123,7 @@ void LLPanelPlaceInfo::setParcelID(const LLUUID& parcel_id)
 void LLPanelPlaceInfo::setInfoType(EInfoType type)
 {
 	mTitle->setText(mCurrentTitle);
+	mTitle->setToolTip(mCurrentTitle);
 
 	mInfoType = type;
 }

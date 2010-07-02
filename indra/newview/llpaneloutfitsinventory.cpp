@@ -245,10 +245,10 @@ LLPanelOutfitsInventory* LLPanelOutfitsInventory::findInstance()
 void LLPanelOutfitsInventory::initListCommandsHandlers()
 {
 	mListCommands = getChild<LLPanel>("bottom_panel");
-
-	mListCommands->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::showGearMenu, this));
-	mListCommands->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
+	mMyOutfitsPanel->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::showGearMenu, this));
+	mMyOutfitsPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
+	mCurrentOutfitPanel->childSetAction("options_gear_btn", boost::bind(&LLPanelOutfitsInventory::showGearMenu, this));
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -258,10 +258,18 @@ void LLPanelOutfitsInventory::updateListCommands()
 	bool wear_visible = !isCOFPanelActive();
 	bool make_outfit_enabled = isActionEnabled("save_outfit");
 
-	mListCommands->childSetEnabled("trash_btn", trash_enabled);
+	mMyOutfitsPanel->childSetEnabled("trash_btn", trash_enabled);
 	mListCommands->childSetEnabled("wear_btn", wear_enabled);
 	mListCommands->childSetVisible("wear_btn", wear_visible);
 	mSaveComboBtn->setMenuItemEnabled("save_outfit", make_outfit_enabled);
+	if (mMyOutfitsPanel->hasItemSelected())
+	{
+		mListCommands->childSetToolTip("wear_btn", getString("wear_items_tooltip"));
+	}
+	else
+	{
+		mListCommands->childSetToolTip("wear_btn", getString("wear_outfit_tooltip"));
+	}
 }
 
 void LLPanelOutfitsInventory::showGearMenu()

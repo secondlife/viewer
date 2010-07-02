@@ -90,6 +90,7 @@
 	<string name="tattoo_desc_text">
 		タトゥ：
 	</string>
+	<labeled_back_button label="保存" name="back_btn" tool_tip="アウトフィットの編集に戻る"/>
 	<text name="edit_wearable_title" value="シェイプを編集中"/>
 	<panel label="シャツ" name="wearable_type_panel">
 		<text name="description_text" value="シェイプ："/>
@@ -102,6 +103,6 @@
 	</panel>
 	<panel name="button_panel">
 		<button label="別名で保存" name="save_as_button"/>
-		<button label="元に戻す" name="revert_button"/>
+		<button label="変更を元に戻す" name="revert_button"/>
 	</panel>
 </panel>

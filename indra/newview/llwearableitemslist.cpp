@@ -621,6 +621,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	U32 mask = 0;					// mask of selected items' types
 	U32 n_items = ids.size();		// number of selected items
 	U32 n_worn = 0;					// number of worn items among the selected ones
+	U32 n_already_worn = 0;			// number of items worn of same type as selected items
 	U32 n_links = 0;				// number of links among the selected items
 	U32 n_editable = 0;				// number of editable items among the selected ones
 
@@ -638,10 +639,11 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
 		updateMask(mask, item->getType());
 
-		bool is_link = item->getIsLinkType();
-		bool is_worn = get_is_item_worn(id);
-		bool is_editable = gAgentWearables.isWearableModifiable(id);
-
+		const LLWearableType::EType wearable_type = item->getWearableType();
+		const bool is_link = item->getIsLinkType();
+		const bool is_worn = get_is_item_worn(id);
+		const bool is_editable = gAgentWearables.isWearableModifiable(id);
+		const bool is_already_worn = gAgentWearables.selfHasWearable(wearable_type);
 		if (is_worn)
 		{
 			++n_worn;
@@ -654,14 +656,20 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 		{
 			++n_links;
 		}
+		if (is_already_worn)
+		{
+			++n_already_worn;
+		}
 	} // for
 
 	bool standalone = mParent ? mParent->isStandalone() : false;
 
 	// *TODO: eliminate multiple traversals over the menu items
-	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0);
-	setMenuItemEnabled(menu, "wear_add",			n_items == 1 && canAddWearable(ids.front()));
-	setMenuItemVisible(menu, "wear",				n_worn == 0);
+	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0);
+	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0);
+	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0 && n_already_worn != 0);
+	setMenuItemEnabled(menu, "wear_add",			n_items == 1 && canAddWearable(ids.front()) && n_already_worn != 0);
+	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0);
 	//visible only when one item selected and this item is worn
 	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART) && n_worn == n_items && n_worn == 1);
 	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1 && n_items == 1);

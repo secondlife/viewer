@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_voice_effect">
 	<string name="no_voice_effect">
-		Não distorcer voz
+		Distorção de voz desligada
 	</string>
 	<string name="preview_voice_effects">
 		Checar distorção de voz  ▶
@@ -10,6 +10,6 @@
 		Distorcer voz  ▶
 	</string>
 	<combo_box name="voice_effect" tool_tip="Selecione um efeito de distorção para mudar sua voz.">
-		<combo_box.item label="Não distorcer voz" name="no_voice_effect"/>
+		<combo_box.item label="Distorção de voz desligada" name="no_voice_effect"/>
 	</combo_box>
 </panel>

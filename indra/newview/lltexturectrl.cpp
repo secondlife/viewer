@@ -825,7 +825,7 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 		}
 	}
 
-	mInventoryPanel->setFilterSubString(upper_case_search_string);
+	mInventoryPanel->setFilterSubString(search_string);
 }
 
 void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
