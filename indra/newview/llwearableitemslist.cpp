@@ -269,13 +269,13 @@ LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryIt
 void LLPanelAttachmentListItem::updateItem(const std::string& name,
 										   EItemState item_state)
 {
-	std::string title_joint;
+	std::string title_joint = name;
 
 	LLViewerInventoryItem* inv_item = getItem();
 	if (inv_item && isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(inv_item->getLinkedUUID()))
 	{
 		std::string joint = LLTrans::getString(gAgentAvatarp->getAttachedPointName(inv_item->getLinkedUUID()));
-		title_joint = name + " (" + joint + ")";
+		title_joint =  title_joint + " (" + joint + ")";
 	}
 
 	LLPanelInventoryListItemBase::updateItem(title_joint, item_state);
