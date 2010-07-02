@@ -2617,11 +2617,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			gInventory.addObserver(fetch);
 		}
 	}
-	else
-	{
-		mItems.push_back(std::string("--no options--"));
-		mDisabledItems.push_back(std::string("--no options--"));
-	}
 
 	// Preemptively disable system folder removal if more than one item selected.
 	if ((flags & FIRST_SELECTED_ITEM) == 0)
@@ -2633,6 +2628,12 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	if (!canShare())
 	{
 		mDisabledItems.push_back(std::string("Share"));
+	}
+
+	if (mItems.empty())
+	{
+		mItems.push_back(std::string("--no options--"));
+		mDisabledItems.push_back(std::string("--no options--"));
 	}
 
 	hide_context_entries(menu, mItems, mDisabledItems);
