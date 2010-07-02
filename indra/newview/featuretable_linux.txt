@@ -57,6 +57,7 @@ Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
 SkyUseClassicClouds			1	1
+WatchdogDisabled				1	1
 
 //
 // Low Graphics Settings
