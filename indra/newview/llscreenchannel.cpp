@@ -136,8 +136,11 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 
 void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 {
-	LLSideTray*	side_bar = LLSideTray::getInstance();
-	side_bar->getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this, _2));
+	if(LLSideTray::instanceCreated())
+	{
+		LLSideTray*	side_bar = LLSideTray::getInstance();
+		side_bar->getCollapseSignal().connect(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this, _2));
+	}
 
 	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
 	S32 channel_bottom = gViewerWindow->getWorldViewRectScaled().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");

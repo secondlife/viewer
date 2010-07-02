@@ -61,7 +61,7 @@ width="333">
       top="0"
       width="32" />
       <text
-      font="SansSerifSmallBold"
+      font="SansSerifSmall"
       text_color="EmphasisColor"
       width="300"
       height="10"
@@ -89,15 +89,15 @@ width="333">
       </text>
       <button
       follows="left|top"
-      height="23"
+      height="28"
       image_overlay="Edit_Wrench"
       label=""
       layout="topleft"
       left="265"
       name="edit_outfit_btn"
       tool_tip="Edit this outfit"
-      top="7"
-      width="30" />
+      top="3"
+      width="28" />
       <loading_indicator
       follows="left|top"
       height="24"
