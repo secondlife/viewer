@@ -53,6 +53,8 @@
 #include "lltooldraganddrop.h"
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
+#include "llsidepanelinventory.h"
+#include "llsidetray.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -1156,6 +1158,12 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 			return TRUE;
 		}
 		return FALSE;
+	}
+
+	if (command_name == "share")
+	{
+		LLSidepanelInventory* parent = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+		return parent ? parent->canShare() : FALSE;
 	}
 
 	return TRUE;
