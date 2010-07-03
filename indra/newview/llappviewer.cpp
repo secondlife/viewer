@@ -82,6 +82,8 @@
 #include "llvoavatarself.h"
 #include "llsidetray.h"
 #include "llfeaturemanager.h"
+#include "llurlmatch.h"
+#include "lltextutil.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -192,6 +194,7 @@
 #include "llviewerthrottle.h"
 #include "llparcel.h"
 #include "llavatariconctrl.h"
+#include "llgroupiconctrl.h"
 
 // Include for security api initialization
 #include "llsecapi.h"
@@ -349,6 +352,45 @@ static void ui_audio_callback(const LLUUID& uuid)
 	{
 		gAudiop->triggerSound(uuid, gAgent.getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_UI);
 	}
+}
+
+bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
+{
+	if(!match || !base)
+		return false;
+
+	LLUUID match_id = match->getID();
+
+	LLIconCtrl* icon;
+
+	if(gAgent.isInGroup(match_id, TRUE))
+	{
+		LLGroupIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLGroupIconCtrl>();
+		icon_params.group_id = match_id;
+		icon_params.rect = LLRect(0, 16, 16, 0);
+		icon_params.visible = true;
+		icon = LLUICtrlFactory::instance().createWidget<LLGroupIconCtrl>(icon_params);
+	}
+	else
+	{
+		LLAvatarIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLAvatarIconCtrl>();
+		icon_params.avatar_id = match_id;
+		icon_params.rect = LLRect(0, 16, 16, 0);
+		icon_params.visible = true;
+		icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
+	}
+
+	LLInlineViewSegment::Params params;
+	params.force_newline = false;
+	params.view = icon;
+	params.left_pad = 4;
+	params.right_pad = 4;
+	params.top_pad = 2;
+	params.bottom_pad = 2;
+
+	base->appendWidget(params," ",false);
+	
+	return true;
 }
 
 void request_initial_instant_messages()
@@ -887,6 +929,7 @@ bool LLAppViewer::init()
 	}
 	
 	LLViewerMedia::initClass();
+	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
 
 	//EXT-7013 - On windows for some locale (Japanese) standard 
 	//datetime formatting functions didn't support some parameters such as "weekday".
