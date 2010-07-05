@@ -452,14 +452,22 @@ void LLUICtrlFactory::registerWidget(const std::type_info* widget_type, const st
 {
 	// associate parameter block type with template .xml file
 	std::string* existing_tag = LLWidgetNameRegistry::instance().getValue(param_block_type);
-	if (existing_tag != NULL && *existing_tag != tag)
+	if (existing_tag != NULL)
 	{
-		std::cerr << "Duplicate entry for T::Params, try creating empty param block in derived classes that inherit T::Params" << std::endl;
-		// forcing crash here
-		char* foo = 0;
-		*foo = 1;
+		if(*existing_tag != tag)
+		{
+			std::cerr << "Duplicate entry for T::Params, try creating empty param block in derived classes that inherit T::Params" << std::endl;
+			// forcing crash here
+			char* foo = 0;
+			*foo = 1;
+		}
+		else
+		{
+			// widget already registered
+			return;
+		}
 	}
-	LLWidgetNameRegistry ::instance().defaultRegistrar().add(param_block_type, tag);
+	LLWidgetNameRegistry::instance().defaultRegistrar().add(param_block_type, tag);
 	// associate widget type with factory function
 	LLDefaultWidgetRegistry::instance().defaultRegistrar().add(widget_type, creator_func);
 	//FIXME: comment this in when working on schema generation

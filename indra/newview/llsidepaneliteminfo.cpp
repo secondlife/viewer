@@ -323,6 +323,19 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetText("LabelOwnerName",getString("public"));
 	}
 	
+	////////////
+	// ORIGIN //
+	////////////
+
+	if (object)
+	{
+		childSetText("origin",getString("origin_inworld"));
+	}
+	else
+	{
+		childSetText("origin",getString("origin_inventory"));
+	}
+
 	//////////////////
 	// ACQUIRE DATE //
 	//////////////////
@@ -341,9 +354,9 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetText ("LabelAcquiredDate", timeStr);
 	}
 	
-	/////////////////////////////////////
-	// PERMISSIONS AND SALE ITEM HIDING
-	/////////////////////////////////////
+	//////////////////////////////////////
+	// PERMISSIONS AND SALE ITEM HIDING //
+	//////////////////////////////////////
 	
 	const std::string perm_and_sale_items[]={
 		"perms_inv",
