@@ -423,8 +423,9 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		mInventoryPanel->setAllowMultiSelect(FALSE);
 
-		// store this filter as the default one
-		mInventoryPanel->getRootFolder()->getFilter()->markDefault();
+		// Commented out to scroll to currently selected texture. See EXT-5403.
+		// // store this filter as the default one
+		// mInventoryPanel->getRootFolder()->getFilter()->markDefault();
 
 		// Commented out to stop opening all folders with textures
 		// mInventoryPanel->openDefaultFolderForType(LLFolderType::FT_TEXTURE);

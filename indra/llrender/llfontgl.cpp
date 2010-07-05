@@ -118,6 +118,32 @@ BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dp
 
 static LLFastTimer::DeclareTimer FTM_RENDER_FONTS("Fonts");
 
+S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
+					 ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_ellipses) const
+{
+	F32 x = rect.mLeft;
+	F32 y = 0.f;
+
+	switch(valign)
+	{
+	case TOP:
+		y = rect.mTop;
+		break;
+	case VCENTER:
+		y = rect.getCenterY();
+		break;
+	case BASELINE:
+	case BOTTOM:
+		y = rect.mBottom;
+		break;
+	default:
+		y = rect.mBottom;
+		break;
+	}
+	return render(wstr, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, rect.getWidth(), right_x, use_ellipses);
+}
+
+
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_ellipses) const
 {

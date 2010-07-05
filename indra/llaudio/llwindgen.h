@@ -52,7 +52,8 @@ public:
 		mY1(0.0f),
 		mCurrentGain(0.f),
 		mCurrentFreq(100.f),
-		mCurrentPanGainR(0.5f)
+		mCurrentPanGainR(0.5f),
+		mLastSample(0.f)
 	{
 		mSamplePeriod = (F32)mSubSamples / (F32)mInputSamplingRate;
 		mB2 = expf(-F_TWO_PI * mFilterBandWidth * mSamplePeriod);

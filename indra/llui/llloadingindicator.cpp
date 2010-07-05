@@ -41,7 +41,8 @@
 #include "lluictrlfactory.h"
 #include "lluiimage.h"
 
-static LLDefaultChildRegistry::Register<LLLoadingIndicator> r("loading_indicator");
+// registered in llui.cpp to avoid being left out by MS linker
+//static LLDefaultChildRegistry::Register<LLLoadingIndicator> r("loading_indicator");
 
 ///////////////////////////////////////////////////////////////////////////////
 // LLLoadingIndicator::Data class

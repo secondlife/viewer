@@ -52,14 +52,14 @@ width="333">
       visible="false" />
       <icon
       follows="top|left"
-      height="32"
-      image_name="TabIcon_Appearance_Off"
+      height="31"
+      image_name="Shirt_Large"
       name="outfit_icon"
       mouse_opaque="false"
       visible="true"
-      left="0"
+      left="1"
       top="0"
-      width="32" />
+      width="31" />
       <text
       font="SansSerifSmall"
       text_color="EmphasisColor"

@@ -606,7 +606,7 @@
     </menu_item_call>
     <menu_item_separator
      layout="topleft" 
-     name="Attach Separator"/>
+     name="Wearable And Object Separator"/>
     <menu_item_call
      label="Detach From Yourself"
      layout="topleft"
@@ -629,10 +629,10 @@
     <menu_item_call
      label="Wear"
      layout="topleft"
-     name="Object Wear">
+     name="Wearable And Object Wear">
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
-         parameter="attach" />
+         parameter="wear" />
     </menu_item_call>
     <menu
      label="Attach To"
@@ -642,9 +642,6 @@
      label="Attach To HUD"
      layout="topleft"
      name="Attach To HUD" />
-    <menu_item_separator
-     layout="topleft" 
-     name="Wearable Separator"/>
     <menu_item_call
      label="Edit"
      layout="topleft"
@@ -652,14 +649,6 @@
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="edit" />
-    </menu_item_call>
-    <menu_item_call
-     label="Wear"
-     layout="topleft"
-     name="Wearable Wear">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="wear" />
     </menu_item_call>
     <menu_item_call
      label="Add"

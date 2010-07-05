@@ -167,10 +167,18 @@ public:
 protected:
 	static void replaceWearable()
 	{
-		static LLButton* show_add_wearables_btn =
-				LLSideTray::getInstance()->getChild<LLButton>("show_add_wearables_btn");
-
-		show_add_wearables_btn->onCommit();
+		// *TODO: Most probable that accessing to LLPanelOutfitEdit instance should be:
+		// LLSideTray::getInstance()->getSidepanelAppearance()->getPanelOutfitEdit()
+		// without casting. Getter methods provides possibility to check and construct
+		// absent instance. Explicit relations between components avoids situations
+		// when we tries to construct instance with unsatisfied implicit input conditions.
+		LLPanelOutfitEdit	* panel_outfit_edit =
+						dynamic_cast<LLPanelOutfitEdit*> (LLSideTray::getInstance()->getPanel(
+								"panel_outfit_edit"));
+		if (panel_outfit_edit != NULL)
+		{
+			panel_outfit_edit->showAddWearablesPanel(true);
+		}
 	}
 
 	/*virtual*/ LLContextMenu* createMenu()

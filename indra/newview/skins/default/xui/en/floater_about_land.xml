@@ -191,9 +191,10 @@
              type="string"
              length="1"
              follows="left|top"
-             height="16"
+             height="20"
              layout="topleft"
              left_pad="2"
+             valign="center" 
              name="ContentRatingText"
              top_delta="0"
              width="250">
@@ -207,7 +208,7 @@
              layout="topleft"
              left="10"
              name="Owner:"
-             top_pad="5"
+             top_pad="1"
              width="100">
                 Owner:
             </text>
@@ -729,8 +730,10 @@ Leyla Linden               </text>
              height="16"
              layout="topleft"
              left_pad="10"
+             top_delta="-3" 
              mouse_opaque="false"
              name="region_maturity_text"
+             valign="center" 
              width="150">
                 Adult
             </text>
@@ -743,6 +746,7 @@ Leyla Linden               </text>
              left="10"
              mouse_opaque="false"
              name="resellable_lbl"
+             top_pad="9" 
              width="100">
                 Resale:
             </text>
@@ -1924,6 +1928,8 @@ Only large parcels can be listed in search.
              left_delta="0"
              name="public_access"
              top_pad="5"
+             label_text.valign="center"
+             label_text.v_pad="-7" 
              width="278" />
             <text
              type="string"
