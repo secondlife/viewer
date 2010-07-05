@@ -2590,7 +2590,7 @@ void LLAppearanceMgr::dumpItemArray(const LLInventoryModel::item_array_t& items,
 		{
 			asset_id = linked_item->getAssetUUID();
 		}
-		llinfos << msg << " " << i <<" " << item->getName() << " " << asset_id.asString() << llendl;
+		llinfos << msg << " " << i <<" " << (item ? item->getName() : "(nullitem)") << " " << asset_id.asString() << llendl;
 	}
 	llinfos << llendl;
 }
