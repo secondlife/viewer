@@ -199,7 +199,12 @@ void LLFloaterVoiceEffect::refreshEffectList()
 			if(sl_item)
 			{
 				LLFontGL::StyleFlags style = is_template_only ? LLFontGL::NORMAL : LLFontGL::BOLD;
-				dynamic_cast<LLScrollListText*>(sl_item->getColumn(0))->setFontStyle(style);
+				LLScrollListText slt = dynamic_cast<LLScrollListText*>(sl_item->getColumn(0));
+				llassert(slt);
+				if (slt)
+				{
+					slt->setFontStyle(style);
+				}
 			}
 		}
 	}
