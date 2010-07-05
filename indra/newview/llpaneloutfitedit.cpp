@@ -773,7 +773,7 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 		return;
 	}
 
-	if (one_selected && !is_dummy_item)
+	if (item && one_selected && !is_dummy_item)
 	{
 		if (item->isWearableType())
 		{
