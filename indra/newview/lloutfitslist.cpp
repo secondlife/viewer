@@ -453,6 +453,12 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		{
 			// Remove accordion tab if category could not be added to observer.
 			mAccordion->removeCollapsibleCtrl(tab);
+
+			// kill removed tab
+			if (tab != NULL)
+			{
+				tab->die();
+			}
 			continue;
 		}
 
@@ -523,6 +529,12 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 			// 4. Remove outfit tab from accordion.
 			mAccordion->removeCollapsibleCtrl(tab);
+
+			// kill removed tab
+			if (tab != NULL)
+			{
+				tab->die();
+			}
 		}
 	}
 
