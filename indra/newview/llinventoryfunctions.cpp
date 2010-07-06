@@ -433,13 +433,12 @@ void show_item_original(const LLUUID& item_uuid)
 				LLPanelMainInventory* main_inventory = floater_inventory->getMainInventoryPanel();
 
 				main_inventory->onFilterEdit("");
-			}
 
-			if(floater_inventory->getVisible())
-			{
-				floater_inventory_visible = true;
+				if(floater_inventory->getVisible())
+				{
+					floater_inventory_visible = true;
+				}
 			}
-
 		}
 		if(sidepanel_inventory && !floater_inventory_visible)
 		{
