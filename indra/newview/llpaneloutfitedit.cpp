@@ -731,12 +731,19 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	bool more_than_one_selected = ids.size() > 1;
 	bool is_dummy_item = (ids.size() && dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem()));
 
-	//expanded accordion tab determines filtering when no item is selected
+	//selected and expanded accordion tabs determine filtering when no item is selected
 	if (nothing_selected)
 	{
 		showWearablesListView();
 
-		switch (mCOFWearables->getExpandedAccordionAssetType())
+		//selected accordion tab is more priority than expanded tab when determining filtering
+		LLAssetType::EType type = mCOFWearables->getSelectedAccordionAssetType();
+		if (type == LLAssetType::AT_NONE)
+		{
+			type = mCOFWearables->getExpandedAccordionAssetType();
+		}
+
+		switch (type)
 		{
 		case LLAssetType::AT_OBJECT:
 			applyListViewFilter(LVIT_ATTACHMENT);
