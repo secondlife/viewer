@@ -547,6 +547,7 @@ void LLAgentWearables::setWearableName(const LLUUID& item_id, const std::string&
 			{
 				LLWearable* old_wearable = getWearable((LLWearableType::EType)i,j);
 				llassert(old_wearable);
+				if (!old_wearable) continue;
 
 				std::string old_name = old_wearable->getName();
 				old_wearable->setName(new_name);
