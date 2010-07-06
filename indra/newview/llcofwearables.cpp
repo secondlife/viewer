@@ -372,6 +372,11 @@ void LLCOFWearables::refresh()
 		 iter != iter_end; ++iter)
 	{
 		LLFlatListView* list = iter->first;
+		if (!list) continue;
+
+		//restoring selection should not fire commit callbacks
+		list->setCommitOnSelectionChange(false);
+
 		const values_vector_t& values = iter->second;
 		for (values_vector_t::const_iterator
 				 value_it = values.begin(),
@@ -385,6 +390,8 @@ void LLCOFWearables::refresh()
 				list->selectItemByValue(*value_it);
 			}
 		}
+
+		list->setCommitOnSelectionChange(true);
 	}
 }
 

@@ -95,6 +95,7 @@ private:
 	void onShareButtonClicked();
 	void onTeleportButtonClicked();
 	void onPayButtonClicked();
+	void onFocusReceived();
 
 	LLUUID mAvatarID;
 };

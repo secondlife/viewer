@@ -37,6 +37,8 @@ VertexShaderEnable	1	1
 RenderTextureMemoryMultiple		1	1.0
 UseOcclusion		1       1
 RenderCubeMap		1       1
+WatchdogDisabled				1	1
+
 
 //
 // Class 0 Hardware (Unknown or just old)
