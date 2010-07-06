@@ -331,6 +331,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 	childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 
+	setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChange, this));
+
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::filterWearablesBySelectedItem, this));
 
@@ -405,10 +407,6 @@ void LLPanelOutfitEdit::onOpen(const LLSD& key)
 		displayCurrentOutfit();
 		mInitialized = true;
 	}
-
-	showAddWearablesPanel(false);
-	mWearableItemsList->resetSelection();
-	mInventoryItemsPanel->clearSelection();
 }
 
 void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
@@ -576,6 +574,13 @@ void LLPanelOutfitEdit::onPlusBtnClicked(void)
 
 	//replacing instead of adding the item
 	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id, true, true);
+}
+
+void LLPanelOutfitEdit::onVisibilityChange()
+{
+	showAddWearablesPanel(false);
+	mWearableItemsList->resetSelection();
+	mInventoryItemsPanel->clearSelection();
 }
 
 void LLPanelOutfitEdit::onAddWearableClicked(void)
