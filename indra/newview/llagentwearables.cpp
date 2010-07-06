@@ -511,7 +511,11 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 void LLAgentWearables::revertWearable(const LLWearableType::EType type, const U32 index)
 {
 	LLWearable* wearable = getWearable(type, index);
-	wearable->revertValues();
+	llassert(wearable);
+	if (wearable)
+	{
+		wearable->revertValues();
+	}
 
 	gAgent.sendAgentSetAppearance();
 }
