@@ -762,7 +762,17 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	// Coordinates of objects on simulators are region-local.
 	U64 region_handle;
 	mesgsys->getU64Fast(_PREHASH_RegionData, _PREHASH_RegionHandle, region_handle);
-	mRegionp = LLWorld::getInstance()->getRegionFromHandle(region_handle);
+	
+	{
+		LLViewerRegion* regionp = LLWorld::getInstance()->getRegionFromHandle(region_handle);
+		if(regionp != mRegionp && regionp && mRegionp)
+		{
+			LLVector3 delta_pos =  mRegionp->getOriginAgent() - regionp->getOriginAgent();
+			setPosition(getPosition() + delta_pos) ; //update the region position immediately.		
+		}
+		mRegionp = regionp ;
+	}	
+	
 	if (!mRegionp)
 	{
 		U32 x, y;
