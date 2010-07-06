@@ -1619,84 +1619,70 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 											BOOL drop)
 {
-	// This should never happen, but if an inventory item is incorrectly parented,
-	// the UI will get confused and pass in a NULL.
-	if(!inv_cat) return FALSE;
 
 	LLInventoryModel* model = getInventoryModel();
-	if(!model) return FALSE;
 
+	if (!inv_cat) return FALSE; // shouldn't happen, but in case item is incorrectly parented in which case inv_cat will be NULL
+	if (!model) return FALSE;
 	if (!isAgentAvatarValid()) return FALSE;
+	if (!isAgentInventory()) return FALSE; // cannot drag categories into library
 
-	// cannot drag categories into library
-	if(!isAgentInventory())
-	{
-		return FALSE;
-	}
 
 	// check to make sure source is agent inventory, and is represented there.
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
-	BOOL is_agent_inventory = (model->getCategory(inv_cat->getUUID()) != NULL)
+	const BOOL is_agent_inventory = (model->getCategory(inv_cat->getUUID()) != NULL)
 		&& (LLToolDragAndDrop::SOURCE_AGENT == source);
 
 	BOOL accept = FALSE;
-	S32 i;
-	LLInventoryModel::cat_array_t	descendent_categories;
-	LLInventoryModel::item_array_t	descendent_items;
-	if(is_agent_inventory)
+	if (is_agent_inventory)
 	{
-		const LLUUID& cat_id = inv_cat->getUUID();
+		const LLUUID &cat_id = inv_cat->getUUID();
+		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
+		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		
+		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
+		const BOOL move_is_into_outfit = getCategory() && (getCategory()->getPreferredType() == LLFolderType::FT_OUTFIT);
+		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 
-		// Is the destination the trash?
-		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		BOOL move_is_into_trash = (mUUID == trash_id)
-			|| model->isObjectDescendentOf(mUUID, trash_id);
-		BOOL is_movable = (!LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()));
-		const LLUUID current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-		BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
-		BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
-		if (move_is_into_current_outfit || move_is_into_outfit)
-		{
-			// BAP - restrictions?
-			is_movable = true;
-		}
+		//--------------------------------------------------------------------------------
+		// Determine if folder can be moved.
+		//
 
+		BOOL is_movable = TRUE;
+		if (LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
+			is_movable = FALSE;
+		if (move_is_into_outfit)
+			is_movable = FALSE;
 		if (mUUID == gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE))
+			is_movable = FALSE;
+		LLInventoryModel::cat_array_t descendent_categories;
+		LLInventoryModel::item_array_t descendent_items;
+		gInventory.collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
+		for (S32 i=0; i < descendent_categories.count(); ++i)
 		{
-			is_movable = FALSE; // It's generally movable but not into Favorites folder. EXT-1604
-		}
-
-		if( is_movable )
-		{
-			gInventory.collectDescendents( cat_id, descendent_categories, descendent_items, FALSE );
-
-			for( i = 0; i < descendent_categories.count(); i++ )
+			LLInventoryCategory* category = descendent_categories[i];
+			if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
 			{
-				LLInventoryCategory* category = descendent_categories[i];
-				if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+				// Can't move "special folders" (e.g. Textures Folder).
+				is_movable = FALSE;
+				break;
+			}
+		}
+		if (move_is_into_trash)
+		{
+			for (S32 i=0; i < descendent_items.count(); ++i)
+			{
+				LLInventoryItem* item = descendent_items[i];
+				if (get_is_item_worn(item->getUUID()))
 				{
-					// ...can't move "special folders" like Textures
 					is_movable = FALSE;
-					break;
-				}
-			}
-
-			if( is_movable )
-			{
-				if( move_is_into_trash )
-				{
-					for( i = 0; i < descendent_items.count(); i++ )
-					{
-						LLInventoryItem* item = descendent_items[i];
-						if (get_is_item_worn(item->getUUID()))
-						{
-							is_movable = FALSE;
-							break; // It's generally movable, but not into the trash!
-						}
-					}
+					break; // It's generally movable, but not into the trash.
 				}
 			}
 		}
+
+		// 
+		//--------------------------------------------------------------------------------
 
 		accept = is_movable
 			&& (mUUID != cat_id)								// Can't move a folder into itself
@@ -1707,7 +1693,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			// Look for any gestures and deactivate them
 			if (move_is_into_trash)
 			{
-				for (i = 0; i < descendent_items.count(); i++)
+				for (S32 i=0; i < descendent_items.count(); i++)
 				{
 					LLInventoryItem* item = descendent_items[i];
 					if (item->getType() == LLAssetType::AT_GESTURE
@@ -2855,14 +2841,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 										BOOL drop)
 {
 	LLInventoryModel* model = getInventoryModel();
+
 	if(!model || !inv_item) return FALSE;
-
-	// cannot drag into library
-	if(!isAgentInventory())
-	{
-		return FALSE;
-	}
-
+	if(!isAgentInventory()) return FALSE; // cannot drag into library
 	if (!isAgentAvatarValid()) return FALSE;
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
@@ -2870,9 +2851,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	LLViewerObject* object = NULL;
 	if(LLToolDragAndDrop::SOURCE_AGENT == source)
 	{
-		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-		const LLUUID& favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
+		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE, false);
 
 		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
