@@ -511,7 +511,11 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 void LLAgentWearables::revertWearable(const LLWearableType::EType type, const U32 index)
 {
 	LLWearable* wearable = getWearable(type, index);
-	wearable->revertValues();
+	llassert(wearable);
+	if (wearable)
+	{
+		wearable->revertValues();
+	}
 
 	gAgent.sendAgentSetAppearance();
 }
@@ -543,6 +547,7 @@ void LLAgentWearables::setWearableName(const LLUUID& item_id, const std::string&
 			{
 				LLWearable* old_wearable = getWearable((LLWearableType::EType)i,j);
 				llassert(old_wearable);
+				if (!old_wearable) continue;
 
 				std::string old_name = old_wearable->getName();
 				old_wearable->setName(new_name);
@@ -1940,7 +1945,11 @@ void LLAgentWearables::animateAllWearableParams(F32 delta, BOOL upload_bake)
 		for (S32 count = 0; count < (S32)getWearableCount((LLWearableType::EType)type); ++count)
 		{
 			LLWearable *wearable = getWearable((LLWearableType::EType)type,count);
-			wearable->animateParams(delta, upload_bake);
+			llassert(wearable);
+			if (wearable)
+			{
+				wearable->animateParams(delta, upload_bake);
+			}
 		}
 	}
 }
