@@ -1944,7 +1944,11 @@ void LLAgentWearables::animateAllWearableParams(F32 delta, BOOL upload_bake)
 		for (S32 count = 0; count < (S32)getWearableCount((LLWearableType::EType)type); ++count)
 		{
 			LLWearable *wearable = getWearable((LLWearableType::EType)type,count);
-			wearable->animateParams(delta, upload_bake);
+			llassert(wearable);
+			if (wearable)
+			{
+				wearable->animateParams(delta, upload_bake);
+			}
 		}
 	}
 }
