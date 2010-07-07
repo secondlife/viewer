@@ -830,10 +830,14 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLWearable *wearable)
 		LLFoundData& data = *iter;
 		if(wearable->getAssetID() == data.mAssetID)
 		{
-			data.mWearable = wearable;
 			// Failing this means inventory or asset server are corrupted in a way we don't handle.
-			llassert((data.mWearableType < LLWearableType::WT_COUNT) && (wearable->getType() == data.mWearableType));
-			break;
+			if ((data.mWearableType >= LLWearableType::WT_COUNT) || (wearable->getType() != data.mWearableType))
+			{
+				llwarns << "recovered wearable but type invalid. inventory wearable type: " << data.mWearableType << " asset wearable type: " << wearable->getType() << llendl;
+				break;
+			}
+
+			data.mWearable = wearable;
 		}
 	}
 }
