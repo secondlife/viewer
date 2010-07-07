@@ -196,6 +196,15 @@ void LLSidepanelAppearance::onVisibilityChange(const LLSD &new_visibility)
 			{
 				gAgentCamera.changeCameraToCustomizeAvatar();
 			}
+			if (mEditWearable && mEditWearable->getVisible())
+			{
+				LLWearable *wearable_ptr = mEditWearable->getWearable();
+				if (gAgentWearables.getWearableIndex(wearable_ptr) == LLAgentWearables::MAX_CLOTHING_PER_TYPE)
+				{
+					// we're no longer wearing the wearable we were last editing, switch back to outfit editor
+					showOutfitEditPanel();
+				}
+			}
 		}
 	}
 	else
@@ -390,8 +399,8 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 				return;
 		}
 
-		std::string look_name = gAgentWearables.isCOFChangeInProgress() ? "" : getString("No Outfit");
-		mCurrentLookName->setText(look_name);
+		std::string string_name = gAgentWearables.isCOFChangeInProgress() ? "Changing outfits" : "No Outfit";
+		mCurrentLookName->setText(getString(string_name));
 		mOpenOutfitBtn->setEnabled(FALSE);
 	}
 	else
@@ -405,6 +414,8 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 //static
 void LLSidepanelAppearance::editWearable(LLWearable *wearable, LLView *data)
 {
+	LLSideTray::getInstance()->showPanel("sidepanel_appearance");
+
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(data);
 	if (panel)
 	{
@@ -475,6 +486,12 @@ void LLSidepanelAppearance::setWearablesLoading(bool val)
 {
 	childSetVisible("wearables_loading_indicator", val);
 	childSetVisible("edit_outfit_btn", !val);
+
+	if (!val)
+	{
+		// refresh outfit name when COF is already changed.
+		refreshCurrentOutfitName();
+	}
 }
 
 void LLSidepanelAppearance::showDefaultSubpart()

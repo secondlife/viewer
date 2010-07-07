@@ -131,7 +131,6 @@ BOOL LLSidepanelItemInfo::postBuild()
 	getChild<LLUICtrl>("CheckNextOwnerTransfer")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitPermissions, this));
 	// Mark for sale or not, and sale info
 	getChild<LLUICtrl>("CheckPurchase")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
-	getChild<LLUICtrl>("RadioSaleType")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleType, this));
 	// "Price" label for edit
 	getChild<LLUICtrl>("Edit Cost")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this));
 	refresh();
@@ -189,7 +188,6 @@ void LLSidepanelItemInfo::refresh()
 			"CheckNextOwnerCopy",
 			"CheckNextOwnerTransfer",
 			"CheckPurchase",
-			"RadioSaleType",
 			"Edit Cost"
 		};
 
@@ -327,6 +325,19 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetText("LabelOwnerName",getString("public"));
 	}
 	
+	////////////
+	// ORIGIN //
+	////////////
+
+	if (object)
+	{
+		childSetText("origin",getString("origin_inworld"));
+	}
+	else
+	{
+		childSetText("origin",getString("origin_inventory"));
+	}
+
 	//////////////////
 	// ACQUIRE DATE //
 	//////////////////
@@ -345,9 +356,9 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetText ("LabelAcquiredDate", timeStr);
 	}
 	
-	/////////////////////////////////////
-	// PERMISSIONS AND SALE ITEM HIDING
-	/////////////////////////////////////
+	//////////////////////////////////////
+	// PERMISSIONS AND SALE ITEM HIDING //
+	//////////////////////////////////////
 	
 	const std::string perm_and_sale_items[]={
 		"perms_inv",
@@ -366,7 +377,6 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		"CheckNextOwnerTransfer",
 		"CheckPurchase",
 		"SaleLabel",
-		"RadioSaleType",
 		"combobox sale copy",
 		"Edit Cost",
 		"TextPrice"
@@ -561,7 +571,6 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetEnabled("CheckNextOwnerCopy",(base_mask & PERM_COPY) && !cannot_restrict_permissions);
 		childSetEnabled("CheckNextOwnerTransfer",(next_owner_mask & PERM_COPY) && !cannot_restrict_permissions);
 
-		childSetEnabled("RadioSaleType",is_complete && is_for_sale);
 		childSetEnabled("TextPrice",is_complete && is_for_sale);
 		childSetEnabled("Edit Cost",is_complete && is_for_sale);
 	}
@@ -575,7 +584,6 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 		childSetEnabled("CheckNextOwnerCopy",FALSE);
 		childSetEnabled("CheckNextOwnerTransfer",FALSE);
 
-		childSetEnabled("RadioSaleType",FALSE);
 		childSetEnabled("TextPrice",FALSE);
 		childSetEnabled("Edit Cost",FALSE);
 	}
@@ -588,17 +596,14 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	childSetValue("CheckNextOwnerCopy",LLSD(BOOL(next_owner_mask & PERM_COPY)));
 	childSetValue("CheckNextOwnerTransfer",LLSD(BOOL(next_owner_mask & PERM_TRANSFER)));
 
-	LLRadioGroup* radioSaleType = getChild<LLRadioGroup>("RadioSaleType");
 	if (is_for_sale)
 	{
-		radioSaleType->setSelectedIndex((S32)sale_info.getSaleType() - 1);
 		S32 numerical_price;
 		numerical_price = sale_info.getSalePrice();
 		childSetText("Edit Cost",llformat("%d",numerical_price));
 	}
 	else
 	{
-		radioSaleType->setSelectedIndex(-1);
 		childSetText("Edit Cost",llformat("%d",0));
 	}
 }

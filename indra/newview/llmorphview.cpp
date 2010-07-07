@@ -75,7 +75,6 @@ LLMorphView::LLMorphView(const LLMorphView::Params& p)
 	mOldCameraNearClip( 0.f ),
 	mCameraPitch( 0.f ),
 	mCameraYaw( 0.f ),
-	mCameraDist( -1.f ),
 	mCameraDrivenByKeys( FALSE )
 {}
 
@@ -86,7 +85,6 @@ void	LLMorphView::initialize()
 {
 	mCameraPitch = 0.f;
 	mCameraYaw = 0.f;
-	mCameraDist = -1.f;
 
 	if (!isAgentAvatarValid() || gAgentAvatarp->isDead())
 	{

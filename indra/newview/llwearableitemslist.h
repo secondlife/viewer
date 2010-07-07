@@ -38,6 +38,7 @@
 
 // newview
 #include "llinventoryitemslist.h"
+#include "llinventorylistitem.h"
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llwearabletype.h"
@@ -81,16 +82,21 @@ class LLPanelWearableOutfitItem : public LLPanelInventoryListItemBase
 {
 	LOG_CLASS(LLPanelWearableOutfitItem);
 public:
-	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item);
+	static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item,
+											 bool worn_indication_enabled);
 
 	/**
 	 * Updates item name and (worn) suffix.
 	 */
 	/*virtual*/ void updateItem(const std::string& name,
-								const LLStyle::Params& input_params = LLStyle::Params());
+								EItemState item_state = IS_DEFAULT);
 
 protected:
-	LLPanelWearableOutfitItem(LLViewerInventoryItem* item);
+	LLPanelWearableOutfitItem(LLViewerInventoryItem* item,
+							  bool worn_indication_enabled);
+
+private:
+	bool	mWornIndicationEnabled;
 };
 
 class LLPanelDeletableWearableListItem : public LLPanelWearableListItem
@@ -124,9 +130,8 @@ public:
 	virtual ~LLPanelAttachmentListItem() {};
 
 	/** Set item title. Joint name is added to the title in parenthesis */
-	/*virtual*/ void setTitle(const std::string& title,
-							  const std::string& highlit_text,
-							  const LLStyle::Params& input_params = LLStyle::Params());
+	/*virtual*/ void updateItem(const std::string& name,
+								EItemState item_state = IS_DEFAULT);
 
 protected:
 	LLPanelAttachmentListItem(LLViewerInventoryItem* item) : LLPanelDeletableWearableListItem(item) {};
@@ -294,12 +299,12 @@ protected:
 private:
 	enum ETypeListOrder
 	{
-		TLO_ATTACHMENT	= 0x01,
-		TLO_CLOTHING	= 0x02,
+		TLO_CLOTHING	= 0x01,
+		TLO_ATTACHMENT	= 0x02,
 		TLO_BODYPART	= 0x04,
 		TLO_UNKNOWN		= 0x08,
 
-		TLO_NOT_CLOTHING = TLO_ATTACHMENT | TLO_BODYPART | TLO_UNKNOWN
+		TLO_SORTABLE_BY_NAME = TLO_ATTACHMENT | TLO_UNKNOWN
 	};
 
 	static LLWearableItemTypeNameComparator::ETypeListOrder getTypeListOrder(LLAssetType::EType item_type);
@@ -352,6 +357,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLInventoryItemsList::Params>
 	{
 		Optional<bool> standalone;
+		Optional<bool> worn_indication_enabled;
 
 		Params();
 	};
@@ -377,6 +383,7 @@ protected:
 	void onRightClick(S32 x, S32 y);
 
 	bool mIsStandalone;
+	bool mWornIndicationEnabled;
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H

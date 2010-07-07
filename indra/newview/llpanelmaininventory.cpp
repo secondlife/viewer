@@ -53,6 +53,8 @@
 #include "lltooldraganddrop.h"
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
+#include "llsidepanelinventory.h"
+#include "llsidetray.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -392,6 +394,7 @@ void LLPanelMainInventory::onClearSearch()
 	{
 		mActivePanel->setFilterSubString(LLStringUtil::null);
 		mActivePanel->setFilterTypes(0xffffffff);
+		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
 	}
 
 	if (finder)
@@ -1068,6 +1071,7 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 		mFilterEditor->setFocus(TRUE);
 		filter->setFilterUUID(item_id);
 		filter->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+		filter->setFilterLinks(LLInventoryFilter::FILTERLINK_ONLY_LINKS);
 	}
 }
 
@@ -1134,7 +1138,10 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 
 	if (command_name == "find_links")
 	{
-		LLFolderViewItem* current_item = getActivePanel()->getRootFolder()->getCurSelectedItem();
+		LLFolderView* root = getActivePanel()->getRootFolder();
+		std::set<LLUUID> selection_set = root->getSelectionList();
+		if (selection_set.size() != 1) return FALSE;
+		LLFolderViewItem* current_item = root->getCurSelectedItem();
 		if (!current_item) return FALSE;
 		const LLUUID& item_id = current_item->getListener()->getUUID();
 		const LLInventoryObject *obj = gInventory.getObject(item_id);
@@ -1156,6 +1163,12 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 			return TRUE;
 		}
 		return FALSE;
+	}
+
+	if (command_name == "share")
+	{
+		LLSidepanelInventory* parent = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+		return parent ? parent->canShare() : FALSE;
 	}
 
 	return TRUE;

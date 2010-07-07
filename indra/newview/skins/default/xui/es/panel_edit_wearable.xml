@@ -72,7 +72,7 @@
 	<string name="jacket_desc_text">
 		Chaqueta:
 	</string>
-	<string name="skirt_skirt_desc_text">
+	<string name="skirt_desc_text">
 		Falda:
 	</string>
 	<string name="gloves_desc_text">
@@ -90,6 +90,7 @@
 	<string name="tattoo_desc_text">
 		Tatuaje:
 	</string>
+	<labeled_back_button label="Guardar" name="back_btn" tool_tip="Regresar a Editar el vestuario"/>
 	<text name="edit_wearable_title" value="Modificando la anatomía"/>
 	<panel label="Camisa" name="wearable_type_panel">
 		<text name="description_text" value="Anatomía:"/>
@@ -100,13 +101,8 @@
 		<icon name="male_icon" tool_tip="Varón"/>
 		<icon name="female_icon" tool_tip="Mujer"/>
 	</panel>
-	<panel label="gear_buttom_panel" name="gear_buttom_panel">
-		<button name="friends_viewsort_btn" tool_tip="Opciones"/>
-		<button name="add_btn" tool_tip="TODO"/>
-		<button name="del_btn" tool_tip="TODO"/>
-	</panel>
 	<panel name="button_panel">
 		<button label="Guardar como" name="save_as_button"/>
-		<button label="Revertir" name="revert_button"/>
+		<button label="Deshacer los cambios" name="revert_button"/>
 	</panel>
 </panel>

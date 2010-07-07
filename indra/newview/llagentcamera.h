@@ -82,6 +82,7 @@ public:
 	void			init();
 	void			cleanup();
 	void		    setAvatarObject(LLVOAvatarSelf* avatar);
+	bool			isInitialized() { return mInitialized; }
 private:
 	bool			mInitialized;
 
@@ -93,7 +94,7 @@ public:
 	void			changeCameraToDefault();
 	void			changeCameraToMouselook(BOOL animate = TRUE);
 	void			changeCameraToThirdPerson(BOOL animate = TRUE);
-	void			changeCameraToCustomizeAvatar(BOOL avatar_animate = TRUE, BOOL camera_animate = TRUE); // Trigger transition animation
+	void			changeCameraToCustomizeAvatar(); // Trigger transition animation
 	void			changeCameraToFollow(BOOL animate = TRUE); 	// Ventrella
 	BOOL			cameraThirdPerson() const		{ return (mCameraMode == CAMERA_MODE_THIRD_PERSON && mLastCameraMode == CAMERA_MODE_THIRD_PERSON); }
 	BOOL			cameraMouselook() const			{ return (mCameraMode == CAMERA_MODE_MOUSELOOK && mLastCameraMode == CAMERA_MODE_MOUSELOOK); }
@@ -137,7 +138,6 @@ public:
 	F32				getCameraMinOffGround(); 		// Minimum height off ground for this mode, meters
 	void			setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
 	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
-	F32				calcCustomizeAvatarUIOffset(const LLVector3d& camera_pos_global);
 	F32				getCurrentCameraBuildOffset() 	{ return (F32)mCameraFocusOffset.length(); }
 	void			clearCameraLag() { mCameraLag.clearVec(); }
 private:
@@ -184,7 +184,7 @@ private:
 public:
 	void			setCameraAnimating(BOOL b)			{ mCameraAnimating = b; }
 	BOOL			getCameraAnimating()				{ return mCameraAnimating; }
-	void			setAnimationDuration(F32 seconds) 	{ mAnimationDuration = seconds; }
+	void			setAnimationDuration(F32 seconds);
 	void			startCameraAnimation();
 	void			stopCameraAnimation();
 private:
@@ -225,7 +225,6 @@ private:
 	LLVector3		mFocusObjectOffset;
 	F32				mFocusDotRadius; 				// Meters
 	BOOL			mTrackFocusObject;
-	F32				mUIOffset;	
 	
 	//--------------------------------------------------------------------
 	// Lookat / Pointat

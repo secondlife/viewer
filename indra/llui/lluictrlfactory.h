@@ -170,7 +170,9 @@ public:
 	// Returns 0 on success
 	S32 saveToXML(LLView* viewp, const std::string& filename);
 
-	std::string getCurFileName() { return mFileNames.empty() ? "" : mFileNames.back(); }
+	std::string getCurFileName();
+	void pushFileName(const std::string& name);
+	void popFileName();
 
 	static BOOL getAttributeColor(LLXMLNodePtr node, const std::string& name, LLColor4& color);
 
@@ -229,7 +231,7 @@ public:
 		T* widget = NULL;
 
 		std::string skinned_filename = findSkinnedFilename(filename);
-		getInstance()->mFileNames.push_back(skinned_filename);
+		instance().pushFileName(filename);
 		{
 			LLXMLNodePtr root_node;
 
@@ -263,7 +265,7 @@ public:
 			}
 		}
 fail:
-		getInstance()->mFileNames.pop_back();
+		instance().popFileName();
 		return widget;
 	}
 
@@ -371,8 +373,9 @@ LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreator
 	LLUICtrlFactory::instance().registerWidget(&typeid(T), &typeid(typename T::Params), &LLUICtrlFactory::createDefaultWidget<T>, tag);
 	
 	// since registry_t depends on T, do this in line here
-	typedef typename T::child_registry_t registry_t;
-	LLChildRegistryRegistry::instance().defaultRegistrar().add(&typeid(T), registry_t::instance());
+	// TODO: uncomment this for schema generation
+	//typedef typename T::child_registry_t registry_t;
+	//LLChildRegistryRegistry::instance().defaultRegistrar().add(&typeid(T), registry_t::instance());
 }
 
 

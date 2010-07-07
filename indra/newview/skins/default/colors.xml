@@ -97,6 +97,9 @@
   <!-- UI Definitions -->
 
     <color
+     name="AccordionHeaderTextColor"
+     reference="LtGray" />
+    <color
      name="AgentChatColor"
      reference="White" />
     <color
@@ -677,6 +680,9 @@
     <color
      name="ScrollbarTrackColor"
      reference="Black" />
+    <color
+     name="SelectedOutfitTextColor"
+     reference="EmphasisColor" />
     <color
      name="SilhouetteChildColor"
      value="0.13 0.42 0.77 1" />

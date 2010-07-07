@@ -73,7 +73,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llwearablelist.h"
-#include "llpaneloutfitsinventory.h"
 
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
 typedef std::list<two_uuids_t> two_uuids_list_t;
@@ -454,13 +453,15 @@ void hide_context_entries(LLMenuGL& menu,
 	// if the first element is a separator, it will not be shown.
 	BOOL is_previous_entry_separator = TRUE;
 
-	LLView::child_list_t::const_iterator itor;
-	for (itor = list->begin(); itor != list->end(); ++itor)
+	for (LLView::child_list_t::const_iterator itor = list->begin(); 
+		 itor != list->end(); 
+		 ++itor)
 	{
-		std::string name = (*itor)->getName();
+		LLView *menu_item = (*itor);
+		std::string name = menu_item->getName();
 
 		// descend into split menus:
-		LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(*itor);
+		LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(menu_item);
 		if ((name == "More") && branchp)
 		{
 			hide_context_entries(*branchp->getBranch(), entries_to_show, disabled_entries);
@@ -481,7 +482,7 @@ void hide_context_entries(LLMenuGL& menu,
 		// between two separators).
 		if (found)
 		{
-			const BOOL is_entry_separator = (dynamic_cast<LLMenuItemSeparatorGL *>(*itor) != NULL);
+			const BOOL is_entry_separator = (dynamic_cast<LLMenuItemSeparatorGL *>(menu_item) != NULL);
 			if (is_entry_separator && is_previous_entry_separator)
 				found = false;
 			is_previous_entry_separator = is_entry_separator;
@@ -489,16 +490,23 @@ void hide_context_entries(LLMenuGL& menu,
 		
 		if (!found)
 		{
-			(*itor)->setVisible(FALSE);
+			if (!menu_item->getLastVisible())
+			{
+				menu_item->setVisible(FALSE);
+			}
+			menu_item->setEnabled(FALSE);
 		}
 		else
 		{
-			(*itor)->setVisible(TRUE);
+			menu_item->setVisible(TRUE);
+			// A bit of a hack so we can remember that some UI element explicitly set this to be visible
+			// so that some other UI element from multi-select doesn't later set this invisible.
+			menu_item->pushVisible(TRUE);
 			for (itor2 = disabled_entries.begin(); itor2 != disabled_entries.end(); ++itor2)
 			{
 				if (*itor2 == name)
 				{
-					(*itor)->setEnabled(FALSE);
+					menu_item->setEnabled(FALSE);
 				}
 			}
 		}
@@ -511,17 +519,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 										menuentry_vec_t &disabled_items, U32 flags)
 {
 	const LLInventoryObject *obj = getInventoryObject();
-
-	bool is_sidepanel = isInOutfitsSidePanel();
-	if (is_sidepanel)
-	{
-		// Sidepanel includes restricted menu.
-		if (obj && obj->getIsLinkType() && !get_is_item_worn(mUUID))
-		{
-			items.push_back(std::string("Remove Link"));
-		}
-		return;
-	}
 
 	if (obj)
 	{
@@ -947,16 +944,6 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 		model->purgeObject(uuid);
 		model->notifyObservers();
 	}
-}
-
-BOOL LLInvFVBridge::isInOutfitsSidePanel() const
-{
-	LLInventoryPanel *my_panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
-	LLPanelOutfitsInventory *outfit_panel =
-		dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-	if (!outfit_panel)
-		return FALSE;
-	return outfit_panel->isTabPanel(my_panel);
 }
 
 BOOL LLInvFVBridge::canShare() const
@@ -2431,17 +2418,8 @@ void LLFolderBridge::folderOptionsMenu()
 	const bool is_ensemble = (type == LLFolderType::FT_NONE ||
 							  LLFolderType::lookupIsEnsembleType(type));
 
-	// calling card related functionality for folders.
-
-	const bool is_sidepanel = isInOutfitsSidePanel();
-	if (is_sidepanel)
-	{
-		mItems.push_back("Rename");
-		addDeleteContextMenuOptions(mItems, disabled_items);
-	}
-
 	// Only enable calling-card related options for non-system folders.
-	if (!is_sidepanel && !is_system_folder)
+	if (!is_system_folder)
 	{
 		LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
 		if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
@@ -2470,10 +2448,7 @@ void LLFolderBridge::folderOptionsMenu()
 		checkFolderForContentsOfType(model, is_object) ||
 		checkFolderForContentsOfType(model, is_gesture) )
 	{
-		if (!is_sidepanel)
-		{
-			mItems.push_back(std::string("Folder Wearables Separator"));
-		}
+		mItems.push_back(std::string("Folder Wearables Separator"));
 
 		// Only enable add/replace outfit for non-system folders.
 		if (!is_system_folder)
@@ -3771,13 +3746,9 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		bool is_sidepanel = isInOutfitsSidePanel();
 
-		if (!is_sidepanel)
-		{
-			addOpenRightClickMenuOption(items);
-			items.push_back(std::string("Properties"));
-		}
+		addOpenRightClickMenuOption(items);
+		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
@@ -4012,13 +3983,12 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 
 	payload["attachment_point"] = attach_pt;
 
-#if !ENABLE_MULTIATTACHMENTS
-	if (attachment && attachment->getNumObjects() > 0)
+	if (!gSavedSettings.getBOOL("MultipleAttachments") &&
+		(attachment && attachment->getNumObjects() > 0))
 	{
 		LLNotificationsUtil::add("ReplaceAttachment", LLSD(), payload, confirm_replace_attachment_rez);
 	}
 	else
-#endif
 	{
 		LLNotifications::instance().forceResponse(LLNotification::Params("ReplaceAttachment").payload(payload), 0/*YES*/);
 	}
@@ -4041,6 +4011,10 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 
 		if (itemp)
 		{
+			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
+			if (gSavedSettings.getBOOL("MultipleAttachments"))
+				attachment_pt |= ATTACHMENT_ADD;
+
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessageFast(_PREHASH_RezSingleAttachmentFromInv);
 			msg->nextBlockFast(_PREHASH_AgentData);
@@ -4049,10 +4023,6 @@ bool confirm_replace_attachment_rez(const LLSD& notification, const LLSD& respon
 			msg->nextBlockFast(_PREHASH_ObjectData);
 			msg->addUUIDFast(_PREHASH_ItemID, itemp->getUUID());
 			msg->addUUIDFast(_PREHASH_OwnerID, itemp->getPermissions().getOwner());
-			U8 attachment_pt = notification["payload"]["attachment_point"].asInteger();
-#if ENABLE_MULTIATTACHMENTS
-			attachment_pt |= ATTACHMENT_ADD;
-#endif
 			msg->addU8Fast(_PREHASH_AttachmentPt, attachment_pt);
 			pack_permissions_slam(msg, itemp->getFlags(), itemp->getPermissions());
 			msg->addStringFast(_PREHASH_Name, itemp->getName());
@@ -4079,12 +4049,8 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		bool is_sidepanel = isInOutfitsSidePanel();
 
-		if (!is_sidepanel)
-		{
-			items.push_back(std::string("Properties"));
-		}
+		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
@@ -4097,13 +4063,13 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 			if( get_is_item_worn( mUUID ) )
 			{
-				items.push_back(std::string("Attach Separator"));
+				items.push_back(std::string("Wearable And Object Separator"));
 				items.push_back(std::string("Detach From Yourself"));
 			}
 			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder())
 			{
-				items.push_back(std::string("Attach Separator"));
-				items.push_back(std::string("Object Wear"));
+				items.push_back(std::string("Wearable And Object Separator"));
+				items.push_back(std::string("Wearable And Object Wear"));
 				items.push_back(std::string("Attach To"));
 				items.push_back(std::string("Attach To HUD"));
 				// commented out for DEV-32347
@@ -4111,7 +4077,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 				if (!gAgentAvatarp->canAttachMoreObjects())
 				{
-					disabled_items.push_back(std::string("Object Wear"));
+					disabled_items.push_back(std::string("Wearable And Object Wear"));
 					disabled_items.push_back(std::string("Attach To"));
 					disabled_items.push_back(std::string("Attach To HUD"));
 				}
@@ -4433,30 +4399,27 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		{
 			can_open = FALSE;
 		}
-
 		items.push_back(std::string("Share"));
 		if (!canShare())
 		{
 			disabled_items.push_back(std::string("Share"));
 		}
-		bool is_sidepanel = isInOutfitsSidePanel();
 		
-		if (can_open && !is_sidepanel)
+		if (can_open)
 		{
 			addOpenRightClickMenuOption(items);
 		}
-
-		if (!is_sidepanel)
+		else
 		{
-			items.push_back(std::string("Properties"));
+			disabled_items.push_back(std::string("Open"));
+			disabled_items.push_back(std::string("Open Original"));
 		}
+
+		items.push_back(std::string("Properties"));
 
 		getClipboardEntries(true, items, disabled_items, flags);
 
-		if (!is_sidepanel)
-		{
-			items.push_back(std::string("Wearable Separator"));
-		}
+		items.push_back(std::string("Wearable And Object Separator"));
 
 		items.push_back(std::string("Wearable Edit"));
 
@@ -4467,7 +4430,7 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		// Don't allow items to be worn if their baseobj is in the trash.
 		if (isLinkedObjectInTrash() || isLinkedObjectMissing() || isCOFFolder())
 		{
-			disabled_items.push_back(std::string("Wearable Wear"));
+			disabled_items.push_back(std::string("Wearable And Object Wear"));
 			disabled_items.push_back(std::string("Wearable Add"));
 			disabled_items.push_back(std::string("Wearable Edit"));
 		}
@@ -4483,12 +4446,12 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 				case LLAssetType::AT_BODYPART:
 					if (get_is_item_worn(item->getUUID()))
 					{
-						disabled_items.push_back(std::string("Wearable Wear"));
+						disabled_items.push_back(std::string("Wearable And Object Wear"));
 						disabled_items.push_back(std::string("Wearable Add"));
 					}
 					else
 					{
-						items.push_back(std::string("Wearable Wear"));
+						items.push_back(std::string("Wearable And Object Wear"));
 						items.push_back(std::string("Wearable Add"));
 						disabled_items.push_back(std::string("Take Off"));
 						disabled_items.push_back(std::string("Wearable Edit"));
@@ -4527,13 +4490,7 @@ void LLWearableBridge::onWearOnAvatar(void* user_data)
 
 void LLWearableBridge::wearOnAvatar()
 {
-	// Don't wear anything until initial wearables are loaded, can
-	// destroy clothing items.
-	if (!gAgentWearables.areWearablesLoaded())
-	{
-		LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
-		return;
-	}
+	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	LLViewerInventoryItem* item = getItem();
 	if(item)
@@ -4544,13 +4501,7 @@ void LLWearableBridge::wearOnAvatar()
 
 void LLWearableBridge::wearAddOnAvatar()
 {
-	// Don't wear anything until initial wearables are loaded, can
-	// destroy clothing items.
-	if (!gAgentWearables.areWearablesLoaded())
-	{
-		LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
-		return;
-	}
+	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	LLViewerInventoryItem* item = getItem();
 	if(item)
@@ -5108,13 +5059,7 @@ BOOL LLWearableBridgeAction::isAgentInventory() const
 
 void LLWearableBridgeAction::wearOnAvatar()
 {
-	// Don't wear anything until initial wearables are loaded, can
-	// destroy clothing items.
-	if (!gAgentWearables.areWearablesLoaded())
-	{
-		LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
-		return;
-	}
+	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	LLViewerInventoryItem* item = getItem();
 	if(item)

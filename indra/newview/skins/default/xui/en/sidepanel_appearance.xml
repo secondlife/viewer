@@ -21,6 +21,9 @@ width="333">
    <string
    name="Now Wearing"
    value="Now wearing..." />
+   <string
+   name="Changing outfits"
+   value="Changing outfits" />
    <panel
    background_opaque="true"
    background_visible="true"
@@ -49,16 +52,16 @@ width="333">
       visible="false" />
       <icon
       follows="top|left"
-      height="32"
-      image_name="TabIcon_Appearance_Off"
+      height="31"
+      image_name="Shirt_Large"
       name="outfit_icon"
       mouse_opaque="false"
       visible="true"
-      left="0"
+      left="1"
       top="0"
-      width="32" />
+      width="31" />
       <text
-      font="SansSerifSmallBold"
+      font="SansSerifSmall"
       text_color="EmphasisColor"
       width="300"
       height="10"
@@ -86,15 +89,15 @@ width="333">
       </text>
       <button
       follows="left|top"
-      height="23"
+      height="28"
       image_overlay="Edit_Wrench"
       label=""
       layout="topleft"
       left="265"
       name="edit_outfit_btn"
       tool_tip="Edit this outfit"
-      top="7"
-      width="30" />
+      top="3"
+      width="28" />
       <loading_indicator
       follows="left|top"
       height="24"

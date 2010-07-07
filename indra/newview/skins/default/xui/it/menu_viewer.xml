@@ -177,6 +177,7 @@
 			<menu_item_check label="Cerca" name="Search"/>
 			<menu_item_call label="Rilascia tasti" name="Release Keys"/>
 			<menu_item_call label="Imposta dimensioni dell&apos;interfaccia sui valori predefiniti" name="Set UI Size to Default"/>
+			<menu_item_check label="Mostra menu Avanzato - tasti di scelta rapida esistenti" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Corri sempre" name="Always Run"/>
 			<menu_item_check label="Vola" name="Fly"/>
 			<menu_item_call label="Chiudi finestra" name="Close Window"/>

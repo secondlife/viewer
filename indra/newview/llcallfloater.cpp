@@ -477,7 +477,7 @@ void LLCallFloater::updateAgentModeratorState()
 	if(gAgent.isInGroup(mSpeakerManager->getSessionID()))
 	{
 		// This method can be called when LLVoiceChannel.mState == STATE_NO_CHANNEL_INFO
-		// in this case there are no any speakers yet.
+		// in this case there are not any speakers yet.
 		if (mSpeakerManager->findSpeaker(gAgentID))
 		{
 			// Agent is Moderator

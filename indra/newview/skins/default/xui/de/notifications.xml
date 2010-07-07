@@ -333,6 +333,9 @@ Sie benötigen ein Benutzerkonto, um [SECOND_LIFE] betreten zu können. Möchten
 		</url>
 		<usetemplate name="okcancelbuttons" notext="Erneut versuchen" yestext="Neues Benutzerkonto anlegen"/>
 	</notification>
+	<notification name="InvalidCredentialFormat">
+		Sie müssen den Vor- und Nachnamen Ihres Avatars in das Feld Benutzername eingeben, und sich dann erneut anmelden.
+	</notification>
 	<notification name="AddClassified">
 		Anzeigen werden im Suchverzeichnis im Abschnitt „Anzeigen&quot; und auf [http://secondlife.com/community/classifieds secondlife.com] für eine Woche angezeigt.
 Füllen Sie Ihre Anzeige aus und klicken Sie auf &apos;Veröffentlichen...&apos;, um sie zum Verzeichnis hinzuzufügen.
@@ -617,6 +620,10 @@ Erwartet wurde [VALIDS]
 	</notification>
 	<notification name="CannotEncodeFile">
 		Datei konnte nicht kodiert werden: [FILE]
+	</notification>
+	<notification name="CorruptedProtectedDataStore">
+		Wir können Ihren Benutzernamen und Ihr Kennwort nicht automatisch ausfüllen.  Dies kann passieren, wenn Sie die Netzwerkeinstellungen ändern.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
 		Ressourcendatei beschädigt: [FILE]
@@ -1003,6 +1010,12 @@ auf ALLEN LÄNDERN in diesem Sim LÖSCHEN?
 
 Geben sie einen höheren Betrag ein.
 	</notification>
+	<notification name="ConfirmItemDeleteHasLinks">
+		Mindestens eines Ihrer ausgewählten Objekte verfügt über verknüpfte Objekte.  Wenn Sie dieses Objekt löschen, funktionieren die Verknüpfungen nicht mehr.  Wir empfehlen Ihnen daher, diese Verknüpfungen zuerst zu löschen.
+
+Möchten Sie diese Objekte wirklich löschen?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
 	<notification name="ConfirmObjectDeleteLock">
 		Mindestens ein ausgewähltes Objekt ist gesperrt.
 
@@ -1152,6 +1165,42 @@ Drücken Sie F1 für Hilfe oder für weitere Informationen über [SECOND_LIFE].
 Bitte wählen Sie einen männlichen oder weiblichen Avatar.
 Sie können sich später noch umentscheiden.
 		<usetemplate name="okcancelbuttons" notext="Weiblich" yestext="Männlich"/>
+	</notification>
+	<notification name="CantTeleportToGrid">
+		Konnte nicht zu [SLURL] teleportieren, da dieser Standort sich auf einem anderen Grid ([GRID]) befindet. Sie befinden sich im Moment auf dem Grid ([CURRENT_GRID]).  Bitte schließen Sie Ihren Viewer und versuchen Sie es erneut.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="GeneralCertificateError">
+		Eine Verbindung zum Server konnte nicht hergestellt werden.
+[REASON]
+
+SubjektName: [SUBJECT_NAME_STRING]
+Herausgeber: [ISSUER_NAME_STRING]
+Gültig ab: [VALID_FROM]
+Gültig bis: [VALID_TO]
+MD5 Fingerabdruck: [SHA1_DIGEST]
+SHA1 Fingerabdruck: [MD5_DIGEST]
+Verwendung: [KEYUSAGE]
+Erweiterte Verwendung: [EXTENDEDKEYUSAGE]
+Identifikation: [SUBJECTKEYIDENTIFIER]
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="TrustCertificateError">
+		Die Zertifizierungsautorität für diesen Server ist unbekannt.
+
+Zertifikatsinformation:
+SubjektName: [SUBJECT_NAME_STRING]
+Herausgeber: [ISSUER_NAME_STRING]
+Gültig ab: [VALID_FROM]
+Gültig bis: [VALID_TO]
+MD5 Fingerabdruck: [SHA1_DIGEST]
+SHA1 Fingerabdruck: [MD5_DIGEST]
+Verwendung: [KEYUSAGE]
+Erweiterte Verwendung: [EXTENDEDKEYUSAGE]
+Identifikation: [SUBJECTKEYIDENTIFIER]
+
+Möchten Sie dieser Autorität vertrauen?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Vertrauen"/>
 	</notification>
 	<notification name="NotEnoughCurrency">
 		[NAME] [PRICE] L$  Sie haben nicht genügend L$, um diese Aktion auszuführen.
@@ -2660,6 +2709,9 @@ Für folgende Einwohner:
 	<notification name="ItemsShared">
 		Objekte wurden erfolgreich freigegeben.
 	</notification>
+	<notification name="DeedToGroupFail">
+		Übertragung an Gruppe ist fehlgeschlagen.
+	</notification>
 	<notification name="AvatarRezNotification">
 		(Seit [EXISTENCE] Sekunden inworld )
 Avatar &apos;[NAME]&apos; wurde in [TIME] Sekunden gerezzt.
@@ -2672,6 +2724,26 @@ Ihr Outfit wurde in [TIME] Sekunden gebacken.
 		(Seit [EXISTENCE] Sekunden inworld )
 Nach [TIME] Sekunden wurde eine Aktualisierung Ihres Aussehens gesendet.
 [STATUS]
+	</notification>
+	<notification name="AvatarRezCloudNotification">
+		(Seit [EXISTENCE] Sekunden inworld )
+Avatar &apos;[NAME]&apos; wird als Wolke angezeigt.
+	</notification>
+	<notification name="AvatarRezArrivedNotification">
+		(Seit [EXISTENCE] Sekunden inworld )
+Avatar &apos;[NAME]&apos; wird angezeigt.
+	</notification>
+	<notification name="AvatarRezLeftCloudNotification">
+		(Seit [EXISTENCE] Sekunden inworld )
+Avatar &apos;[NAME]&apos; hat nach [TIME] Sekunden als Wolke die Welt verlassen.
+	</notification>
+	<notification name="AvatarRezEnteredAppearanceNotification">
+		(Seit [EXISTENCE] Sekunden inworld )
+Avatar &apos;[NAME]&apos; befindet sich im Modus „Aussehen bearbeiten&quot;.
+	</notification>
+	<notification name="AvatarRezLeftAppearanceNotification">
+		(Seit [EXISTENCE] Sekunden inworld )
+Avatar &apos;[NAME]&apos; hat Modus „Aussehen bearbeiten&quot; verlassen.
 	</notification>
 	<notification name="NoConnect">
 		Es gibt Probleme mit der Verbindung mit [PROTOCOL] [HOSTID].
@@ -2691,12 +2763,25 @@ Bitte überprüfen Sie Ihr Netzwerk- und Firewall-Setup.
 			<button name="OK" text="OK"/>
 		</form>
 	</notification>
+	<notification name="AvatarRezLeftNotification">
+		(Seit [EXISTENCE] Sekunden inworld )
+Avatar &apos;[NAME]&apos; hat als vollständig gerezzter Avatar die Welt verlassen.
+	</notification>
 	<notification name="AvatarRezSelfBakeNotification">
 		(Seit [EXISTENCE] Sekunden inworld )
 Die [RESOLUTION]-gebakene Textur für &apos;[BODYREGION]&apos; wurde in [TIME] Sekunden hochgeladen.
 	</notification>
+	<notification name="ConfirmLeaveCall">
+		Möchten Sie dieses Gespräch wirklich verlassen ?
+		<usetemplate ignoretext="Bestätigen, bevor ich den Anruf verlasse." name="okcancelignore" notext="Nein" yestext="Ja"/>
+	</notification>
 	<notification name="ConfirmMuteAll">
-		<usetemplate ignoretext="Confirm before I mute all participants in a group call" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
+		Die von Ihnen ausgewählten Einstellungen werden alle Teilnehmer eines Gruppengespräches stummschalten.
+Dies bedeutet, dass alle Einwohner, die später dem Gespräch beitreten,
+auch dann stummgeschaltet werden, wenn Sie den Anruf verlassen haben.
+
+Alle stummschalten?
+		<usetemplate ignoretext="Bestätigen, bevor alle Teilnehmer in einem Gruppengespräch stummgeschaltet werden." name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- Ihre CPU-Geschwindigkeit entspricht nicht den Mindestanforderungen.

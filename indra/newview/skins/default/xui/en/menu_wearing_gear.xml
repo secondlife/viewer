@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<menu
+ layout="topleft"
+ visible="false"
+ name="Gear Wearing">
+    <menu_item_call
+     label="Edit Outfit"
+     layout="topleft"
+     name="edit">
+        <on_click
+         function="Gear.Edit" />
+    </menu_item_call>
+</menu>

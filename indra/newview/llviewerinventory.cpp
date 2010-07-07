@@ -922,6 +922,11 @@ void ActivateGestureCallback::fire(const LLUUID& inv_item)
 {
 	if (inv_item.isNull())
 		return;
+	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+	if (!item)
+		return;
+	if (item->getType() != LLAssetType::AT_GESTURE)
+		return;
 
 	LLGestureMgr::instance().activateGesture(inv_item);
 }

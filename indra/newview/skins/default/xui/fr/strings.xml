@@ -107,7 +107,7 @@
 		Nom d&apos;hôte non valide utilisé pour accéder au serveur. Vérifiez votre nom d&apos;hôte de grille ou SLURL.
 	</string>
 	<string name="CertExpired">
-		Il semble que le certificat renvoyé par la grille ait expiré. Vérifiez votre horloge système ou contactez l&apos;administrateur de la grille.
+		Il semble que le certificat renvoyé par la grille ait expiré.  Vérifiez votre horloge système ou contactez l&apos;administrateur de la grille.
 	</string>
 	<string name="CertKeyUsage">
 		Impossible d&apos;utiliser le certificat renvoyé par le serveur pour SSL. Contactez l&apos;administrateur de la grille.
@@ -116,7 +116,7 @@
 		Certificats trop nombreux dans la chaîne des certificats du serveur. Contactez l&apos;administrateur de la grille.
 	</string>
 	<string name="CertInvalidSignature">
-		Impossible de vérifier la signature de certificat renvoyée par le serveur de la grille. Contactez l&apos;administrateur de la grille.
+		Impossible de vérifier la signature de certificat renvoyée par le serveur de la grille.  Contactez l&apos;administrateur de la grille.
 	</string>
 	<string name="LoginFailedNoNetwork">
 		Erreur réseau : impossible d&apos;établir la connexion. Veuillez vérifier votre connexion réseau.
@@ -308,6 +308,9 @@
 	</string>
 	<string name="ReleaseNotes">
 		Notes de version
+	</string>
+	<string name="RELEASE_NOTES_BASE_URL">
+		http://wiki.secondlife.com/wiki/Release_Notes/
 	</string>
 	<string name="LoadingData">
 		Chargement...
@@ -753,6 +756,12 @@
 	<string name="land_type_unknown">
 		(inconnu)
 	</string>
+	<string name="Estate / Full Region">
+		Domaine / Région entière
+	</string>
+	<string name="Mainland / Full Region">
+		Continent / Région entière
+	</string>
 	<string name="all_files">
 		Tous fichiers
 	</string>
@@ -858,6 +867,9 @@
 	<string name="invalid">
 		non valide
 	</string>
+	<string name="none">
+		aucun
+	</string>
 	<string name="shirt_not_worn">
 		Chemise non portée
 	</string>
@@ -896,6 +908,9 @@
 	</string>
 	<string name="NewWearable">
 		Nouv. [WEARABLE_ITEM]
+	</string>
+	<string name="CreateNewWearable">
+		Créer [WEARABLE_TYPE]
 	</string>
 	<string name="next">
 		Suivant
@@ -1080,7 +1095,7 @@
 	<string name="InvFolder Gestures">
 		Gestes
 	</string>
-	<string name="InvFolder favorite">
+	<string name="InvFolder Favorite">
 		Favoris
 	</string>
 	<string name="InvFolder Current Outfit">
@@ -3550,6 +3565,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="session_initialization_timed_out_error">
 		Expiration du délai d&apos;initialisation de la session
 	</string>
+	<string name="voice_morphing_url">
+		http://secondlife.com/landing/voicemorphing
+	</string>
 	<string name="paid_you_ldollars">
 		[NAME] vous a payé [AMOUNT] L$
 	</string>
@@ -3720,16 +3738,16 @@ de l&apos;infraction signalée
 	<string name="Male - Wow">
 		Homme - Ouah !
 	</string>
-	<string name="FeMale - Excuse me">
+	<string name="Female - Excuse me">
 		Femme - Demander pardon
 	</string>
-	<string name="FeMale - Get lost">
+	<string name="Female - Get lost">
 		Femme - Dire d&apos;aller au diable
 	</string>
-	<string name="FeMale - Blow kiss">
+	<string name="Female - Blow kiss">
 		Femme - Envoyer un baiser
 	</string>
-	<string name="FeMale - Boo">
+	<string name="Female - Boo">
 		Femme - Hou !
 	</string>
 	<string name="Female - Bored">
@@ -3761,5 +3779,33 @@ de l&apos;infraction signalée
 	</string>
 	<string name="texture_load_dimensions_error">
 		Impossible de charger des images de taille supérieure à [WIDTH]*[HEIGHT]
+	</string>
+	<string name="words_separator" value=","/>
+	<string name="server_is_down">
+		Malgré nos efforts, une erreur inattendue s&apos;est produite.
+
+	Veuillez vous reporter à status.secondlifegrid.net afin de déterminer si un problème connu existe avec ce service.  
+        Si le problème persiste, vérifiez la configuration de votre réseau et de votre pare-feu.
+	</string>
+	<string name="dateTimeWeekdaysNames">
+		Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday
+	</string>
+	<string name="dateTimeWeekdaysShortNames">
+		Sun:Mon:Tue:Wed:Thu:Fri:Sat
+	</string>
+	<string name="dateTimeMonthNames">
+		January:February:March:April:May:June:July:August:September:October:November:December
+	</string>
+	<string name="dateTimeMonthShortNames">
+		Jan:Feb:Mar:Apr:May:Jun:Jul:Aug:Sep:Oct:Nov:Dec
+	</string>
+	<string name="dateTimeDayFormat">
+		[MDAY]
+	</string>
+	<string name="dateTimeAM">
+		AM
+	</string>
+	<string name="dateTimePM">
+		PM
 	</string>
 </strings>

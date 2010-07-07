@@ -8,8 +8,8 @@
 		制作者： [CREATOR]
 	</string>
 	<string name="CreatorAndOwner">
-		制作者： [CREATOR]
-所有者： [OWNER]
+		[CREATOR]によるチェック
+[OWNER]によるチェック
 	</string>
 	<string name="Price">
 		L$[AMOUNT]
@@ -23,16 +23,16 @@
 	<string name="Sit">
 		座る
 	</string>
-	<text name="object_name" value="Test Object Name That Is Really Long"/>
+	<text name="object_name" value="二行にわたる長いオブジェクト名をテスト"/>
 	<text name="object_creator">
 		by secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 	</text>
 	<text name="price_text">
-		L$300,000
+		L$30,000
 	</text>
 	<text name="object_description">
-		This is a really long description for an object being as how it is at least 80 characters in length and maybe more like 120 at this point. Who knows, really?
+		This is a really long description for an object being as how it is at least 80 characters in length and so but maybe more like 120 at this point. Who knows, really?
 	</text>
 	<text name="object_media_url">
 		http://www.superdupertest.com

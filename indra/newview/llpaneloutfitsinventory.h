@@ -34,20 +34,15 @@
 #define LL_LLPANELOUTFITSINVENTORY_H
 
 #include "llpanel.h"
-#include "llinventoryobserver.h"
 
-class LLFolderView;
-class LLFolderViewItem;
-class LLFolderViewEventListener;
-class LLInventoryPanel;
 class LLOutfitsList;
-class LLSaveFolderState;
-class LLButton;
+class LLOutfitListGearMenu;
+class LLPanelAppearanceTab;
+class LLPanelWearing;
 class LLMenuGL;
 class LLSidepanelAppearance;
 class LLTabContainer;
 class LLSaveOutfitComboBtn;
-class LLOutfitListGearMenu;
 
 class LLPanelOutfitsInventory : public LLPanel
 {
@@ -60,55 +55,36 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	
 	void onSearchEdit(const std::string& string);
-	void onAdd();
-	void onRemove();
-	void onEdit();
 	void onSave();
 	
 	bool onSaveCommit(const LLSD& notification, const LLSD& response);
 
-	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
-
-	// If a compatible listener type is selected, then return a pointer to that.
-	// Otherwise, return NULL.
-	LLFolderViewEventListener* getCorrectListenerForAction();
-
-	LLFolderView* getRootFolder();
 	static LLSidepanelAppearance* getAppearanceSP();
 
 	static LLPanelOutfitsInventory* findInstance();
 
 protected:
 	void updateVerbs();
-	bool getIsCorrectType(const LLFolderViewEventListener *listenerp) const;
 
 private:
-	LLSaveFolderState*		mSavedFolderState;
 	LLTabContainer*			mAppearanceTabs;
 	std::string 			mFilterSubString;
 	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
-public:
+
 	//////////////////////////////////////////////////////////////////////////////////
-	// tab panels
-	// TODO: change getActivePanel() to return the active tab instead of returning
-	// a pointer to "Wearing" inventory panel.
-	LLInventoryPanel* 		getActivePanel() { return mCurrentOutfitPanel; }
-
-	BOOL 					isTabPanel(LLInventoryPanel *panel) const;
-	BOOL 					isCOFPanelActive() const;
-
+	// tab panels                                                                   //
 protected:
 	void 					initTabPanels();
-	void 					onTabSelectionChange(LLInventoryPanel* tab_panel, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void 					onTabChange();
+	bool 					isCOFPanelActive() const;
 
 private:
+	LLPanelAppearanceTab*	mActivePanel;
 	LLOutfitsList*			mMyOutfitsPanel;
-	LLInventoryPanel*		mCurrentOutfitPanel;
+	LLPanelWearing*			mCurrentOutfitPanel;
 
-	// tab panels                                                               //
-	////////////////////////////////////////////////////////////////////////////////
-	
+	// tab panels                                                                   //
+	//////////////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// List Commands                                                                //
@@ -118,21 +94,16 @@ protected:
 	void onWearButtonClick();
 	void showGearMenu();
 	void onTrashButtonClick();
-	void onClipboardAction(const LLSD& userdata);
-	BOOL isActionEnabled(const LLSD& command_name);
-	void onCustomAction(const LLSD& command_name);
-	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
-	bool hasItemsSelected();
+	void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
+	bool isActionEnabled(const LLSD& userdata);
 	void setWearablesLoading(bool val);
 	void onWearablesLoaded();
 	void onWearablesLoading();
 private:
 	LLPanel*					mListCommands;
-	LLOutfitListGearMenu*		mGearMenu;
 	LLMenuGL*					mMenuAdd;
-	// List Commands                                                              //
-	////////////////////////////////////////////////////////////////////////////////
-	///
+	// List Commands                                                                //
+	//////////////////////////////////////////////////////////////////////////////////
 
 	bool mInitialized;
 };

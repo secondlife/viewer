@@ -111,7 +111,6 @@ void LLPanelPlaceInfo::resetLocation()
 	mDescEditor->setText(loading);
 
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
-	mSnapshotCtrl->setFallbackImageName("default_land_picture.j2c");
 }
 
 //virtual
@@ -125,6 +124,7 @@ void LLPanelPlaceInfo::setParcelID(const LLUUID& parcel_id)
 void LLPanelPlaceInfo::setInfoType(EInfoType type)
 {
 	mTitle->setText(mCurrentTitle);
+	mTitle->setToolTip(mCurrentTitle);
 
 	mInfoType = type;
 }

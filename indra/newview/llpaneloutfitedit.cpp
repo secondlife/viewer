@@ -252,7 +252,8 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
 	mInitialized(false),
 	mAddWearablesPanel(NULL),
 	mFolderViewFilterCmbBox(NULL),
-	mListViewFilterCmbBox(NULL)
+	mListViewFilterCmbBox(NULL),
+	mPlusBtn(NULL)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -327,7 +328,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
 	childSetCommitCallback("wearables_gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
 	childSetCommitCallback("gear_menu_btn", boost::bind(&LLPanelOutfitEdit::onGearButtonClick, this, _1), NULL);
-	childSetCommitCallback("shop_btn", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
+	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
+	childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::filterWearablesBySelectedItem, this));
@@ -343,9 +345,9 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mInventoryItemsPanel = getChild<LLInventoryPanel>("folder_view");
 	mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
 	mInventoryItemsPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
-	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this, _1, _2));
-	
+	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+
 	mCOFDragAndDropObserver = new LLCOFDragAndDropObserver(mInventoryItemsPanel->getModel());
 
 	mFolderViewFilterCmbBox = getChild<LLComboBox>("folder_view_filter_combobox");
@@ -371,7 +373,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	childSetAction("show_add_wearables_btn", boost::bind(&LLPanelOutfitEdit::onAddMoreButtonClicked, this));
 
-	childSetAction("add_to_outfit_btn", boost::bind(&LLPanelOutfitEdit::onAddToOutfitClicked, this));
+	mPlusBtn = getChild<LLButton>("plus_btn");
+	mPlusBtn->setClickedCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 	
 	mEditWearableBtn = getChild<LLButton>("edit_wearable_btn");
 	mEditWearableBtn->setEnabled(FALSE);
@@ -382,6 +385,9 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mWearablesListViewPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLInventoryItemsList>("list_view");
+	mWearableItemsList->setCommitOnSelectionChange(true);
+	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+	mWearableItemsList->setDoubleClickCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;
@@ -399,6 +405,10 @@ void LLPanelOutfitEdit::onOpen(const LLSD& key)
 		displayCurrentOutfit();
 		mInitialized = true;
 	}
+
+	showAddWearablesPanel(false);
+	mWearableItemsList->resetSelection();
+	mInventoryItemsPanel->clearSelection();
 }
 
 void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
@@ -451,6 +461,10 @@ void LLPanelOutfitEdit::showWearablesFilter()
 	{
 		mSearchFilter->clear();
 		onSearchEdit(LLStringUtil::null);
+	}
+	else
+	{
+		mSearchFilter->setFocus(TRUE);
 	}
 }
 
@@ -553,27 +567,15 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 
 }
 
-void LLPanelOutfitEdit::onAddToOutfitClicked(void)
+void LLPanelOutfitEdit::onPlusBtnClicked(void)
 {
 	LLUUID selected_id;
-	if (mInventoryItemsPanel->getVisible())
-	{
-		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
-		if (!curr_item) return;
-
-		LLFolderViewEventListener* listenerp  = curr_item->getListener();
-		if (!listenerp) return;
-
-		selected_id = listenerp->getUUID();
-	}
-	else if (mWearablesListViewPanel->getVisible())
-	{
-		selected_id = mWearableItemsList->getSelectedUUID();
-	}
+	getCurrentItemUUID(selected_id);
 
 	if (selected_id.isNull()) return;
 
-	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id);
+	//replacing instead of adding the item
+	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id, true, true);
 }
 
 void LLPanelOutfitEdit::onAddWearableClicked(void)
@@ -653,26 +655,36 @@ void LLPanelOutfitEdit::onEditWearableClicked(void)
 	}
 }
 
-void LLPanelOutfitEdit::onInventorySelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
+void LLPanelOutfitEdit::onInventorySelectionChange()
 {
-	LLFolderViewItem* current_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
-	if (!current_item)
+	uuid_vec_t selected_items;
+	getSelectedItemsUUID(selected_items);
+	if (selected_items.empty())
 	{
+		mPlusBtn->setEnabled(false);
 		return;
 	}
 
-	LLViewerInventoryItem* item = current_item->getInventoryItem();
-	if (!item) return;
+	// If any of the selected items are not wearable (due to already being worn OR being of the wrong type), disable the add button.
+	uuid_vec_t::iterator unwearable_item = std::find_if(selected_items.begin(), selected_items.end(), !boost::bind(& get_can_item_be_worn, _1));
+	bool can_add = ( unwearable_item == selected_items.end() );
 
-	switch (item->getType())
+	mPlusBtn->setEnabled(can_add);
+
+	LLViewerInventoryItem* first_item(gInventory.getItem(selected_items.front()));
+
+	if (can_add && 
+		first_item &&
+		selected_items.size() == 1 && 
+		first_item->getType() == LLAssetType::AT_BODYPART)
 	{
-	case LLAssetType::AT_CLOTHING:
-	case LLAssetType::AT_BODYPART:
-	case LLAssetType::AT_OBJECT:
-	default:
-		break;
+		mPlusBtn->setToolTip(getString("replace_body_part"));
 	}
-	
+	else
+	{
+		mPlusBtn->setToolTip(LLStringUtil::null);
+	}
+
 	/* Removing add to look inline button (not part of mvp for viewer 2)
 	LLRect btn_rect(current_item->getLocalRect().mRight - 50,
 					current_item->getLocalRect().mTop,
@@ -714,21 +726,33 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	bool more_than_one_selected = ids.size() > 1;
 	bool is_dummy_item = (ids.size() && dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem()));
 
-	//resetting selection if no item is selected or than one item is selected
-	if (nothing_selected || more_than_one_selected)
+	//expanded accordion tab determines filtering when no item is selected
+	if (nothing_selected)
 	{
-		if (nothing_selected)
+		showWearablesListView();
+
+		switch (mCOFWearables->getExpandedAccordionAssetType())
 		{
-			showWearablesFolderView();
-			applyFolderViewFilter(FVIT_ALL);
+		case LLAssetType::AT_OBJECT:
+			applyListViewFilter(LVIT_ATTACHMENT);
+			break;
+		case LLAssetType::AT_BODYPART:
+			applyListViewFilter(LVIT_BODYPART);
+			break;
+		case LLAssetType::AT_CLOTHING:
+		default: 
+			applyListViewFilter(LVIT_CLOTHING);
+			break;
 		}
 
-		if (more_than_one_selected)
-		{
-			showWearablesListView();
-			applyListViewFilter(LVIT_ALL);
-		}
+		return;
+	}
 
+	//resetting selection if more than one item is selected
+	if (more_than_one_selected)
+	{
+		showWearablesListView();
+		applyListViewFilter(LVIT_ALL);
 		return;
 	}
 
@@ -749,7 +773,7 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 		return;
 	}
 
-	if (one_selected && !is_dummy_item)
+	if (item && one_selected && !is_dummy_item)
 	{
 		if (item->isWearableType())
 		{
@@ -928,5 +952,45 @@ void LLPanelOutfitEdit::onOutfitChanging(bool started)
 
 	indicator->setVisible(started);
 }
+
+void LLPanelOutfitEdit::getCurrentItemUUID(LLUUID& selected_id)
+{
+	if (mInventoryItemsPanel->getVisible())
+	{
+		LLFolderViewItem* curr_item = mInventoryItemsPanel->getRootFolder()->getCurSelectedItem();
+		if (!curr_item) return;
+
+		LLFolderViewEventListener* listenerp  = curr_item->getListener();
+		if (!listenerp) return;
+
+		selected_id = listenerp->getUUID();
+	}
+	else if (mWearablesListViewPanel->getVisible())
+	{
+		selected_id = mWearableItemsList->getSelectedUUID();
+	}
+}
+
+
+void LLPanelOutfitEdit::getSelectedItemsUUID(uuid_vec_t& uuid_list)
+{
+	if (mInventoryItemsPanel->getVisible())
+	{
+		std::set<LLUUID> item_set = mInventoryItemsPanel->getRootFolder()->getSelectionList();
+
+		std::for_each(item_set.begin(), item_set.end(), boost::bind( &uuid_vec_t::push_back, &uuid_list, _1));
+	}
+	else if (mWearablesListViewPanel->getVisible())
+	{
+		std::vector<LLSD> item_set;
+		mWearableItemsList->getSelectedValues(item_set);
+
+		std::for_each(item_set.begin(), item_set.end(), boost::bind( &uuid_vec_t::push_back, &uuid_list, boost::bind(&LLSD::asUUID, _1 )));
+
+	}
+
+//	return selected_id;
+}
+
 
 // EOF

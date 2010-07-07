@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_voice_effect">
+	<string name="no_voice_effect">
+		Voice Morphing Off
+	</string>
+	<string name="preview_voice_effects">
+		Se stemme &quot;morph&quot;  ▶
+	</string>
+	<string name="get_voice_effects">
+		Hente stemme &quot;morph&quot;  ▶
+	</string>
+	<combo_box name="voice_effect" tool_tip="Vælg en stemme &quot;morph&quot; for at ændre din stemme">
+		<combo_box.item label="Stemme morph slukket" name="no_voice_effect"/>
+	</combo_box>
+</panel>

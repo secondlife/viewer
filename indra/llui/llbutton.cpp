@@ -1162,3 +1162,10 @@ void LLButton::resetMouseDownTimer()
 	mMouseDownTimer.stop();
 	mMouseDownTimer.reset();
 }
+
+
+BOOL LLButton::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	// just treat a double click as a second click
+	return handleMouseDown(x, y, mask);
+}

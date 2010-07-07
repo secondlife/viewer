@@ -11,6 +11,7 @@
 		<menu_item_check label="Mon inventaire" name="Inventory"/>
 		<menu_item_check label="Mon inventaire" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mes gestes" name="Gestures"/>
+		<menu_item_check label="Ma voix" name="ShowVoice"/>
 		<menu label="Mon statut" name="Status">
 			<menu_item_call label="Absent" name="Set Away"/>
 			<menu_item_call label="Occupé" name="Set Busy"/>
@@ -70,6 +71,12 @@
 		<menu_item_call label="Lien" name="Link"/>
 		<menu_item_call label="Annuler le lien" name="Unlink"/>
 		<menu_item_check label="Modifier les parties liées" name="Edit Linked Parts"/>
+		<menu label="Sélectionner les parties liées" name="Select Linked Parts">
+			<menu_item_call label="Sélectionner la partie suivante" name="Select Next Part"/>
+			<menu_item_call label="Sélectionner la partie précédente" name="Select Previous Part"/>
+			<menu_item_call label="Inclure la partie suivante" name="Include Next Part"/>
+			<menu_item_call label="Inclure la partie précédente" name="Include Previous Part"/>
+		</menu>
 		<menu_item_call label="Point central sur la sélection" name="Focus on Selection"/>
 		<menu_item_call label="Zoomer sur la sélection" name="Zoom to Selection"/>
 		<menu label="Objet" name="Object">
@@ -100,11 +107,11 @@
 			<menu_item_call label="Utiliser la sélection pour la grille" name="Use Selection for Grid"/>
 			<menu_item_call label="Options de la grille" name="Grid Options"/>
 		</menu>
-		<menu label="Sélectionner les parties liées" name="Select Linked Parts">
-			<menu_item_call label="Sélectionner la partie suivante" name="Select Next Part"/>
-			<menu_item_call label="Sélectionner la partie précédente" name="Select Previous Part"/>
-			<menu_item_call label="Inclure la partie suivante" name="Include Next Part"/>
-			<menu_item_call label="Inclure la partie précédente" name="Include Previous Part"/>
+		<menu label="Charger" name="Upload">
+			<menu_item_call label="Image ([COST] L$)..." name="Upload Image"/>
+			<menu_item_call label="Son ([COST] L$)..." name="Upload Sound"/>
+			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
+			<menu_item_call label="Lot ([COST] L$ par fichier)..." name="Bulk Upload"/>
 		</menu>
 	</menu>
 	<menu label="Aide" name="Help">
@@ -170,6 +177,7 @@
 			<menu_item_check label="Rechercher" name="Search"/>
 			<menu_item_call label="Relâcher les touches" name="Release Keys"/>
 			<menu_item_call label="Taille de l&apos;interface par défaut" name="Set UI Size to Default"/>
+			<menu_item_check label="Afficher le menu Avancé - raccourci existant" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Toujours courir" name="Always Run"/>
 			<menu_item_check label="Voler" name="Fly"/>
 			<menu_item_call label="Fermer la fenêtre" name="Close Window"/>

@@ -50,14 +50,21 @@ LLFlatListView::Params::Params()
 	allow_select("allow_select"),
 	multi_select("multi_select"),
 	keep_one_selected("keep_one_selected"),
+	keep_selection_visible_on_reshape("keep_selection_visible_on_reshape",false),
 	no_items_text("no_items_text")
 {};
 
 void LLFlatListView::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
 {
+	S32 delta = height - getRect().getHeight();
 	LLScrollContainer::reshape(width, height, called_from_parent);
 	setItemsNoScrollWidth(width);
 	rearrangeItems();
+	
+	if(delta!= 0 && mKeepSelectionVisibleOnReshape)
+	{
+		ensureSelectedVisible();
+	}
 }
 
 const LLRect& LLFlatListView::getItemsRect() const
@@ -380,6 +387,7 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
   , mPrevNotifyParentRect(LLRect())
   , mNoItemsCommentTextbox(NULL)
   , mIsConsecutiveSelection(false)
+  , mKeepSelectionVisibleOnReshape(p.keep_selection_visible_on_reshape)
 {
 	mBorderThickness = getBorderWidth();
 
@@ -1218,6 +1226,8 @@ LLFlatListViewEx::LLFlatListViewEx(const Params& p)
 :	LLFlatListView(p)
 , mNoFilteredItemsMsg(p.no_filtered_items_msg)
 , mNoItemsMsg(p.no_items_msg)
+, mForceShowingUnmatchedItems(false)
+, mHasMatchedItems(false)
 {
 
 }
@@ -1240,6 +1250,16 @@ void LLFlatListViewEx::updateNoItemsMessage(const std::string& filter_string)
 		setNoItemsCommentText(mNoItemsMsg);
 	}
 
+}
+
+bool LLFlatListViewEx::getForceShowingUnmatchedItems()
+{
+	return mForceShowingUnmatchedItems;
+}
+
+void LLFlatListViewEx::setForceShowingUnmatchedItems(bool show)
+{
+	mForceShowingUnmatchedItems = show;
 }
 
 void LLFlatListViewEx::setFilterSubString(const std::string& filter_str)
@@ -1265,6 +1285,7 @@ void LLFlatListViewEx::filterItems()
 	item_panel_list_t items;
 	getItems(items);
 
+	mHasMatchedItems = false;
 	for (item_panel_list_t::iterator
 			 iter = items.begin(),
 			 iter_end = items.end();
@@ -1275,18 +1296,27 @@ void LLFlatListViewEx::filterItems()
 		// i.e. we don't hide items that don't support 'match_filter' action, separators etc.
 		if (0 == pItem->notify(action))
 		{
+			mHasMatchedItems = true;
 			pItem->setVisible(true);
 		}
 		else
 		{
 			// TODO: implement (re)storing of current selection.
-			selectItem(pItem, false);
-			pItem->setVisible(false);
+			if(!mForceShowingUnmatchedItems)
+			{
+				selectItem(pItem, false);
+			}
+			pItem->setVisible(mForceShowingUnmatchedItems);
 		}
 	}
 
 	sort();
 	notifyParentItemsRectChanged();
+}
+
+bool LLFlatListViewEx::hasMatchedItems()
+{
+	return mHasMatchedItems;
 }
 
 //EOF

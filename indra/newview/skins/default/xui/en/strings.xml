@@ -137,7 +137,8 @@
 	<string name="RetrievingData">Retrieving...</string>
 
 	<string name="ReleaseNotes">Release Notes</string>
-	<string name="RELEASE_NOTES_BASE_URL">http://wiki.secondlife.com/wiki/Release_Notes/</string>
+	<!-- Always mark translate="false" for strings that are nothing but URLs, as they don't need translation. -->
+	<string name="RELEASE_NOTES_BASE_URL" translate="false">http://wiki.secondlife.com/wiki/Release_Notes/</string>
 
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>
@@ -1813,7 +1814,8 @@ Clears (deletes) the media and all params from the given face.
 	<string name="skirt">Skirt</string>
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
-	<string name="invalid">invalid</string>
+  <string name="invalid">invalid</string>
+  <string name="none">none</string>
   
   <!-- Not Worn Wearable Types -->
 	<string name="shirt_not_worn">Shirt not worn</string>
@@ -1938,7 +1940,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="InvFolder Uncompressed Sounds">Uncompressed Sounds</string>
 	<string name="InvFolder Animations">Animations</string>
 	<string name="InvFolder Gestures">Gestures</string>
-	<string name="InvFolder favorite">Favorites</string>
+	<string name="InvFolder Favorite">Favorites</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
 	<string name="InvFolder Accessories">Accessories</string>

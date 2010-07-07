@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-	 auto_tile="true"
 	 height="570"
 	 layout="topleft"
 	 name="item properties"
 	 help_topic="item_properties"
-	 save_rect="true"
-	 title="Object Profile"
+	 title="Item Profile"
 	 width="333">
 	<panel.string
 		 name="unknown">
@@ -27,6 +25,14 @@
 	<panel.string
     	 name="acquiredDate">
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</panel.string>
+	<panel.string
+		 name="origin_inventory">
+        (Inventory)
+	</panel.string>
+	<panel.string
+		 name="origin_inworld">
+        (Inworld)
 	</panel.string>
 	<icon
      	 follows="top|right"
@@ -60,14 +66,14 @@
      text_color="LtGray"
      top="2"
      use_ellipses="true"
-     value="Object Profile"
+     value="Item Profile"
      width="275" />
     	    <text
      follows="top|left"
      height="13"
      layout="topleft"
      left="45"
-     name="where"
+     name="origin"
      text_color="LtGray_50"
      value="(Inventory)"
      width="150" />

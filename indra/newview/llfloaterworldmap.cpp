@@ -56,7 +56,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "lllandmarklist.h"
-#include "lllineeditor.h"
+#include "llsearcheditor.h"
 #include "llnotificationsutil.h"
 #include "llregionhandle.h"
 #include "llscrolllistctrl.h"
@@ -216,6 +216,8 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 	mCommitCallbackRegistrar.add("WMap.ShowAgent",		boost::bind(&LLFloaterWorldMap::onShowAgentBtn, this));		
 	mCommitCallbackRegistrar.add("WMap.Clear",			boost::bind(&LLFloaterWorldMap::onClearBtn, this));		
 	mCommitCallbackRegistrar.add("WMap.CopySLURL",		boost::bind(&LLFloaterWorldMap::onCopySLURL, this));
+
+	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterWorldMap::onChangeMaturity, this));
 }
 
 // static
@@ -229,30 +231,20 @@ BOOL LLFloaterWorldMap::postBuild()
 	mPanel = getChild<LLPanel>("objects_mapview");
 
 	LLComboBox *avatar_combo = getChild<LLComboBox>("friend combo");
-	if (avatar_combo)
-	{
-		avatar_combo->selectFirstItem();
-		avatar_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onAvatarComboPrearrange, this) );
-		avatar_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
-	}
+	avatar_combo->selectFirstItem();
+	avatar_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onAvatarComboPrearrange, this) );
+	avatar_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
 
-	getChild<LLScrollListCtrl>("location")->setFocusChangedCallback(boost::bind(&LLFloaterWorldMap::onLocationFocusChanged, this, _1));
-
-	LLLineEditor *location_editor = getChild<LLLineEditor>("location");
-	if (location_editor)
-	{
-		location_editor->setKeystrokeCallback( boost::bind(&LLFloaterWorldMap::onSearchTextEntry, this, _1), NULL );
-	}
+	LLSearchEditor *location_editor = getChild<LLSearchEditor>("location");
+	location_editor->setFocusChangedCallback(boost::bind(&LLFloaterWorldMap::onLocationFocusChanged, this, _1));
+	location_editor->setKeystrokeCallback( boost::bind(&LLFloaterWorldMap::onSearchTextEntry, this));
 	
 	getChild<LLScrollListCtrl>("search_results")->setDoubleClickCallback( boost::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));
 
 	LLComboBox *landmark_combo = getChild<LLComboBox>( "landmark combo");
-	if (landmark_combo)
-	{
-		landmark_combo->selectFirstItem();
-		landmark_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onLandmarkComboPrearrange, this) );
-		landmark_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
-	}
+	landmark_combo->selectFirstItem();
+	landmark_combo->setPrearrangeCallback( boost::bind(&LLFloaterWorldMap::onLandmarkComboPrearrange, this) );
+	landmark_combo->setTextEntryCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
 
 	mCurZoomVal = log(LLWorldMapView::sMapScale)/log(2.f);
 	childSetValue("zoom slider", LLWorldMapView::sMapScale);
@@ -260,6 +252,8 @@ BOOL LLFloaterWorldMap::postBuild()
 	setDefaultBtn(NULL);
 
 	mZoomTimer.stop();
+
+	onChangeMaturity();
 
 	return TRUE;
 }
@@ -388,21 +382,6 @@ void LLFloaterWorldMap::draw()
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	
-	// Hide/Show Mature Events controls
-	childSetVisible("events_mature_icon", gAgent.canAccessMature());
-	childSetVisible("events_mature_label", gAgent.canAccessMature());
-	childSetVisible("event_mature_chk", gAgent.canAccessMature());
-
-	childSetVisible("events_adult_icon", gAgent.canAccessMature());
-	childSetVisible("events_adult_label", gAgent.canAccessMature());
-	childSetVisible("event_adult_chk", gAgent.canAccessMature());
-	bool adult_enabled = gAgent.canAccessAdult();
-	if (!adult_enabled)
-	{
-		childSetValue("event_adult_chk", FALSE);
-	}
-	childSetEnabled("event_adult_chk", adult_enabled);
-
 	// On orientation island, users don't have a home location yet, so don't
 	// let them teleport "home".  It dumps them in an often-crowed welcome
 	// area (infohub) and they get confused. JC
@@ -490,8 +469,8 @@ void LLFloaterWorldMap::draw()
 	childSetEnabled("telehub_chk", enable);
 	childSetEnabled("land_for_sale_chk", enable);
 	childSetEnabled("event_chk", enable);
-	childSetEnabled("event_mature_chk", enable);
-	childSetEnabled("event_adult_chk", enable);
+	childSetEnabled("events_mature_chk", enable);
+	childSetEnabled("events_adult_chk", enable);
 	
 	LLFloater::draw();
 }
@@ -1003,7 +982,7 @@ void LLFloaterWorldMap::onComboTextEntry()
 	LLTracker::clearFocus();
 }
 
-void LLFloaterWorldMap::onSearchTextEntry( LLLineEditor* ctrl )
+void LLFloaterWorldMap::onSearchTextEntry( )
 {
 	onComboTextEntry();
 	updateSearchEnabled();
@@ -1489,4 +1468,28 @@ void LLFloaterWorldMap::onCommitSearchResult()
 	}
 
 	onShowTargetBtn();
+}
+
+void LLFloaterWorldMap::onChangeMaturity()
+{
+	bool can_access_mature = gAgent.canAccessMature();
+	bool can_access_adult = gAgent.canAccessAdult();
+
+	childSetVisible("events_mature_icon", can_access_mature);
+	childSetVisible("events_mature_label", can_access_mature);
+	childSetVisible("events_mature_chk", can_access_mature);
+
+	childSetVisible("events_adult_icon", can_access_adult);
+	childSetVisible("events_adult_label", can_access_adult);
+	childSetVisible("events_adult_chk", can_access_adult);
+
+	// disable mature / adult events.
+	if (!can_access_mature)
+	{
+		gSavedSettings.setBOOL("ShowMatureEvents", FALSE);
+	}
+	if (!can_access_adult)
+	{
+		gSavedSettings.setBOOL("ShowAdultEvents", FALSE);
+	}
 }

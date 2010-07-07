@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="item properties" title="Perfil del objeto">
+<panel name="item properties" title="Perfil del elemento">
 	<panel.string name="unknown">
 		(desconocidas)
 	</panel.string>
@@ -15,8 +15,8 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local][day,datetime,local] [mth,datetime,local] [year,datetime,local][hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</panel.string>
-	<text name="title" value="Perfil del objeto"/>
-	<text name="where" value="(Inventario)"/>
+	<text name="title" value="Perfil del elemento"/>
+	<text name="origin" value="(Inventario)"/>
 	<panel label="">
 		<text name="LabelItemNameTitle">
 			Nombre:

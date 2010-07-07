@@ -28,8 +28,8 @@ Grafikkarten: [GRAPHICS_CARD]
 libcurl-Version: [LIBCURL_VERSION]
 J2C-Decoderversion: [J2C_VERSION]
 Audio-Treiberversion: [AUDIO_DRIVER_VERSION]
-Qt Webkit Version: [QT_WEBKIT_VERSION]
-Vivox-Version: [VIVOX_VERSION]
+Qt Webkit-Version: [QT_WEBKIT_VERSION]
+Voice-Serverversion: [VOICE_VERSION]
 	</floater.string>
 	<floater.string name="none">
 		(keiner)

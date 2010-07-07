@@ -605,10 +605,13 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 {
 	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
 
-	if(mEditor)
+	llassert(mEditor);
+	if (!mEditor)
 	{
-		mEditor->setPlainText(use_plain_text_chat_history);
+		return;
 	}
+
+	mEditor->setPlainText(use_plain_text_chat_history);
 
 	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID() && !chat.mFromName.empty())
 	{
@@ -714,13 +717,13 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 					slurl = region_slurl.getLocationString();
 				      }
 				}
-				url += "&slurl=" + slurl;
+				url += "&slurl=" + LLURI::escape(slurl);
 
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(style_params);
 				link_params.color.control = "HTMLLinkColor";
-				link_params.link_href = LLURI::escape(url);
+				link_params.link_href = url;
 				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>"  + delimiter,
 									false, link_params);
 			}
@@ -788,7 +791,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mIsLastMessageFromLog = message_from_log;
 	}
 
-   if (chat.mNotifId.notNull())
+	if (chat.mNotifId.notNull())
 	{
 		LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
 		if (notification != NULL)
@@ -880,6 +883,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		
 		mEditor->appendText(message, FALSE, style_params);
 	}
+
 	mEditor->blockUndo();
 
 	// automatically scroll to end when receiving chat from myself

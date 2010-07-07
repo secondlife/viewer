@@ -144,7 +144,6 @@ public:
 
 	LLCheckBoxCtrl*	mCheckSnapToGrid;
 	LLButton*		mBtnGridOptions;
-	LLTextBox*		mTextGridMode;
 	LLComboBox*		mComboGridMode;
 	LLCheckBoxCtrl*	mCheckStretchUniform;
 	LLCheckBoxCtrl*	mCheckStretchTexture;

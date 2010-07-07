@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Map" title="Minikarte">
+<floater name="Map" title="">
 	<floater.string name="mini_map_north">
 		N
 	</floater.string>
@@ -26,6 +26,9 @@
 	</floater.string>
 	<floater.string name="ToolTipMsg">
 		[AGENT][REGION](Karte mit Doppelklick öffnen)
+	</floater.string>
+	<floater.string name="mini_map_caption">
+		MINI-KARTE
 	</floater.string>
 	<text label="N" name="floater_map_north" text="N">
 		N

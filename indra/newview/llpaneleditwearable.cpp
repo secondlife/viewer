@@ -63,6 +63,7 @@
 
 #include "llcommandhandler.h"
 #include "lltextutil.h"
+#include "llappearancemgr.h"
 
 // register panel with appropriate XML
 static LLRegisterPanelClassWrapper<LLPanelEditWearable> t_edit_wearable("panel_edit_wearable");
@@ -382,6 +383,31 @@ LLEditWearableDictionary::PickerControlEntry::PickerControlEntry(ETextureIndex t
 {
 }
 
+/**
+ * Class to prevent hack in LLButton's constructor and use paddings declared in xml.
+ */
+class LLLabledBackButton : public LLButton
+{
+public:
+	struct Params : public LLInitParam::Block<Params, LLButton::Params>
+	{
+		Params() {}
+	};
+protected:
+	friend class LLUICtrlFactory;
+	LLLabledBackButton(const Params&);
+};
+
+static LLDefaultChildRegistry::Register<LLLabledBackButton> labeled_back_btn("labeled_back_button");
+
+LLLabledBackButton::LLLabledBackButton(const Params& params)
+: LLButton(params)
+{
+	// override hack in LLButton's constructor to use paddings have been set in xml
+	setLeftHPad(params.pad_left);
+	setRightHPad(params.pad_right);
+}
+
 // Helper functions.
 static const texture_vec_t null_texture_vec;
 
@@ -649,6 +675,8 @@ BOOL LLPanelEditWearable::postBuild()
 	mBtnRevert->setClickedCallback(boost::bind(&LLPanelEditWearable::onRevertButtonClicked, this));
 
 	mBtnBack = getChild<LLButton>("back_btn");
+	mBackBtnLabel = mBtnBack->getLabelUnselected();
+	mBtnBack->setLabel(LLStringUtil::null);
 	// handled at appearance panel level?
 	//mBtnBack->setClickedCallback(boost::bind(&LLPanelEditWearable::onBackButtonClicked, this));
 
@@ -920,7 +948,6 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
 		return;
 
 	bool is_modifiable = false;
-	bool is_complete   = false;
 	bool is_copyable   = false;
 
 	if(mWearableItem)
@@ -928,17 +955,16 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
 		const LLPermissions& perm = mWearableItem->getPermissions();
 		is_modifiable = perm.allowModifyBy(gAgent.getID(), gAgent.getGroupID());
 		is_copyable = perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID());
-		is_complete = mWearableItem->isFinished();
 	}
 
-	if (is_modifiable && is_complete)
+	if (is_modifiable)
 	{
 		// Update picker controls
 		for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, boost::bind(update_color_swatch_ctrl, this, _1, _2));
 		for_each_picker_ctrl_entry <LLTextureCtrl>     (panel, type, boost::bind(update_texture_ctrl, this, _1, _2));
 	}
 
-	if (!is_modifiable || !is_complete || !is_copyable)
+	if (!is_modifiable || !is_copyable)
 	{
 		// Disable controls
 		for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, boost::bind(set_enabled_color_swatch_ctrl, false, _1, _2));
@@ -959,6 +985,7 @@ void LLPanelEditWearable::saveChanges()
 	if (mWearablePtr->getName().compare(mNameEditor->getText()) != 0)
 	{
 		// the name of the wearable has changed, re-save wearable with new name
+		LLAppearanceMgr::instance().removeCOFItemLinks(mWearablePtr->getItemID(),false);
 		gAgentWearables.saveWearableAs(mWearablePtr->getType(), index, mNameEditor->getText(), FALSE);
 	}
 	else
@@ -977,6 +1004,8 @@ void LLPanelEditWearable::revertChanges()
 
 	mWearablePtr->revertValues();
 	mNameEditor->setText(mWearablePtr->getName());
+	updatePanelPickerControls(mWearablePtr->getType());
+	gAgentAvatarp->wearableUpdated(mWearablePtr->getType(), FALSE);
 }
 
 void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
@@ -1015,6 +1044,7 @@ void LLPanelEditWearable::showWearable(LLWearable* wearable, BOOL show)
 	if (show)
 	{
 		mPanelTitle->setText(title);
+		mPanelTitle->setToolTip(title);
 		mDescTitle->setText(description_title);
 		
 		// set name
@@ -1126,7 +1156,6 @@ void LLPanelEditWearable::changeCamera(U8 subpart)
 	}
 
 	// Update the camera
-	gMorphView->setCameraDistToDefault();
 	gMorphView->setCameraTargetJoint( gAgentAvatarp->getJoint( subpart_entry->mTargetJoint ) );
 	gMorphView->setCameraTargetOffset( subpart_entry->mTargetOffset );
 	gMorphView->setCameraOffset( subpart_entry->mCameraOffset );
@@ -1302,8 +1331,8 @@ void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std:
 	{
 		LLViewerVisualParam *param = (LLViewerVisualParam*) *iter;
 
-		if (param->getID() == -1
-			|| param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE 
+		if (param->getID() == -1 
+			|| !param->isTweakable()
 			|| param->getEditGroup() != edit_group 
 			|| !(param->getSex() & avatar_sex))
 		{
@@ -1357,6 +1386,28 @@ void LLPanelEditWearable::updateVerbs()
 		gSavedSettings.setU32("AvatarSex", (gAgentAvatarp->getSex() == SEX_MALE) );
 	}
 
+	// update back button and title according to dirty state.
+	static BOOL was_dirty = FALSE;
+	if (was_dirty != is_dirty) // to avoid redundant changes because this method is called from draw
+	{
+		static S32 label_width = mBtnBack->getFont()->getWidth(mBackBtnLabel);
+		const std::string& label = is_dirty ? mBackBtnLabel : LLStringUtil::null;
+		const S32 delta_width = is_dirty ? label_width : -label_width;
+
+		mBtnBack->setLabel(label);
+
+		// update rect according to label width
+		LLRect rect = mBtnBack->getRect();
+		rect.mRight += delta_width;
+		mBtnBack->setShape(rect);
+
+		// update title rect according to back button width
+		rect = mPanelTitle->getRect();
+		rect.mLeft += delta_width;
+		mPanelTitle->setShape(rect);
+
+		was_dirty = is_dirty;
+	}
 }
 
 void LLPanelEditWearable::configureAlphaCheckbox(LLVOAvatarDefines::ETextureIndex te, const std::string& name)

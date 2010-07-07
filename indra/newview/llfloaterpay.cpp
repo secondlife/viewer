@@ -142,6 +142,9 @@ LLFloaterPay::~LLFloaterPay()
 {
 	std::for_each(mCallbackData.begin(), mCallbackData.end(), DeletePointer());
 	// Name callbacks will be automatically disconnected since LLFloater is trackable
+	
+	// In case this floater is currently waiting for a reply.
+	gMessageSystem->setHandlerFuncFast(_PREHASH_PayPriceReply, 0, 0);
 }
 
 BOOL LLFloaterPay::postBuild()

@@ -172,6 +172,7 @@ public:
 	/*virtual*/ std::string getIcon(const std::string &url);
 	/*virtual*/ std::string getTooltip(const std::string &string) const;
 	/*virtual*/ LLStyle::Params getStyle() const;
+	/*virtual*/ LLUUID	getID(const std::string &string) const;
 protected:
 	/*virtual*/ void callObservers(const std::string &id, const std::string &label, const std::string& icon);
 private:
@@ -246,6 +247,7 @@ public:
 	LLUrlEntryGroup();
 	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
 	/*virtual*/ LLStyle::Params getStyle() const;
+	/*virtual*/ LLUUID	getID(const std::string &string) const;
 private:
 	void onGroupNameReceived(const LLUUID& id, const std::string& name, bool is_group);
 };

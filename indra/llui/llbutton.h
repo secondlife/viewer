@@ -152,6 +152,7 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
+	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual void	draw();
 	/*virtual*/ BOOL postBuild();
 
@@ -229,6 +230,8 @@ public:
 	
 	void			setFont(const LLFontGL *font)		
 		{ mGLFont = ( font ? font : LLFontGL::getFontSansSerif()); }
+	const LLFontGL* getFont() const { return mGLFont; }
+
 
 	S32				getLastDrawCharsCount() const { return mLastDrawCharsCount; }
 

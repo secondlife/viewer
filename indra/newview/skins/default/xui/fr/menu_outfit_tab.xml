@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Outfit">
+	<menu_item_call label="Porter - Remplacer la tenue actuelle" name="wear_replace"/>
+	<menu_item_call label="Porter - Ajouter à la tenue actuelle" name="wear_add"/>
+	<menu_item_call label="Enlever - Supprimer de la tenue actuelle" name="take_off"/>
+	<menu_item_call label="Modifier la tenue" name="edit"/>
+	<menu_item_call label="Renommer la tenue" name="rename"/>
+	<menu_item_call label="Supprimer la tenue" name="delete"/>
+</context_menu>

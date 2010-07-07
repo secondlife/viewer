@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_voice_effect">
+	<string name="no_voice_effect">
+		Effet de voix désactivé
+	</string>
+	<string name="preview_voice_effects">
+		Aperçu des effets de voix  ▶
+	</string>
+	<string name="get_voice_effects">
+		Obtenir un effet de voix  ▶
+	</string>
+	<combo_box name="voice_effect" tool_tip="Sélectionner un effet pour modifier le son de votre voix">
+		<combo_box.item label="Effet de voix désactivé" name="no_voice_effect"/>
+	</combo_box>
+</panel>

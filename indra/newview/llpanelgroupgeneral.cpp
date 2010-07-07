@@ -447,6 +447,8 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 
 	gAgent.setUserGroupFlags(mGroupID, receive_notices, list_in_profile);
 
+	resetDirty();
+
 	mChanged = FALSE;
 
 	return true;

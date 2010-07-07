@@ -469,7 +469,9 @@ Para aumentar a qualidade do vídeo, vá para Preferências &gt; Vídeo.
 		A região [REGION] não permite ser aplainada.
 	</notification>
 	<notification name="CannotCopyWarning">
-		Você não tem permissão para copiar este item e irá perdê-lo do seu inventário se entregá-lo a alguém. Quer realmente oferecer este item?
+		Você não tem autorização para copiar os itens abaixo:
+[ITENS]
+ao dá-los, você ficará sem eles no seu inventário. Deseja realmente dar estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -607,8 +609,7 @@ Esperada [VALIDS]
 		Impossível codificar o arquivo: [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		Não foi possível fazer a leitura dos dados protegidos, redefinindo.
-   Isso pode ocorrer após mudanças na configuração da rede.
+		Não podemos preencher seu nome e senha.   Isso pode ocorrer após mudanças na configuração da rede
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
@@ -931,6 +932,26 @@ Oferecer amizade para [NAME]?
 		<form name="form">
 			<input name="message">
 				[DESC] (novo)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Cancelar"/>
+		</form>
+	</notification>
+	<notification label="Salvar item de vestuário" name="SaveWearableAs">
+		Salvar item no meu inventário como:
+		<form name="form">
+			<input name="message">
+				[DESC] (novo)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Cancelar"/>
+		</form>
+	</notification>
+	<notification label="Renomear look" name="RenameOutfit">
+		Nome do novo look:
+		<form name="form">
+			<input name="new_name">
+				[NAME]
 			</input>
 			<button name="Offer" text="OK"/>
 			<button name="Cancel" text="Cancelar"/>
@@ -1545,7 +1566,7 @@ Ir para o Banco de Conhecimento para maiores informações sobre Classificaçõe
 	<notification name="RegionEntryAccessBlocked_Change">
 		Você não pode entrar nessa região devido à sua seleção de maturidade.
 
-Clique em &apos;Mudar preferência&apos; para aumentar seu nível de maturidade e ganhar acesso imediato. Você então poderá fazer buscas e acessar conteúdo [REGIONMATURITY]. Para modificar o nível de maturidade, use o menu Eu &gt; Preferências &gt; Gerais.
+Para entrar na região desejada, mude o nível de maturidade.  Você então poderá fazer buscas e acessar conteúdo [REGIONMATURITY]. Para desfazer qualquer mudança, vá para Eu &gt; Preferências &gt; Geral.
 		<form name="form">
 			<button name="OK" text="Mudar preferência"/>
 			<button default="true" name="Cancel" text="Fechar"/>
@@ -2556,6 +2577,21 @@ Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique 
 	<notification name="VoiceLoginRetry">
 		Estamos criando uma canal de voz para você. Isto pode levar até um minuto.
 	</notification>
+	<notification name="VoiceEffectsExpired">
+		Um ou mais serviços de distorção de voz que você assinou veceu.
+[[URL] Clique aqui] para renovar o serviço.
+	</notification>
+	<notification name="VoiceEffectsExpiredInUse">
+		A Distorção de voz ativa expirou. Suas configurações de voz padrão foram ativadas.
+[[URL] Clique aqui] para renovar o serviço.
+	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		Uma ou mais das suas distorções de voz tem vencimento em menos de [INTERVAL] dias.
+[[URL] Clique aqui] para renovar o serviço.
+	</notification>
+	<notification name="VoiceEffectsNew">
+		Novas Distorções de voz!
+	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		Só membros de um grupo podem acessar esta área.
 	</notification>
@@ -2622,7 +2658,20 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 O botão será exibido quando houver espaço suficente.
 	</notification>
 	<notification name="ShareNotification">
-		Arraste itens do inventário para uma pessoa no seletor de residentes
+		Selecione os residentes com quem compartilhar.
+	</notification>
+	<notification name="ShareItemsConfirmation">
+		Tem certeza de que quer compartilhar os items abaixo?
+
+[ITENS]
+
+Com os seguintes residentes:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ItemsShared">
+		Itens compartilhados.
 	</notification>
 	<notification name="DeedToGroupFail">
 		Ocorreu uma falha durante a doação ao grupo.
@@ -2631,9 +2680,14 @@ O botão será exibido quando houver espaço suficente.
 		( [EXISTENCE] segundos de vida )
 O avatar de &apos;[NAME]&apos; emergiu em [TIME] segundos.
 	</notification>
-	<notification name="AvatarRezSelfNotification">
+	<notification name="AvatarRezSelfBakedDoneNotification">
 		( [EXISTENCE] segundos de vida )
 Você confeccionou seu look em [TIME] segundos.
+	</notification>
+	<notification name="AvatarRezSelfBakedUpdateNotification">
+		( [EXISTENCE] segundos de vida )
+Você enviou uma atualização da sua aparência em [TIME] segundos.
+[STATUS]
 	</notification>
 	<notification name="AvatarRezCloudNotification">
 		( [EXISTENCE] segundos de vida )
@@ -2655,9 +2709,31 @@ Avatar &apos;[NAME]&apos; entrou no modo aparência.
 		( [EXISTENCE] segundos de vida )
 Avatar &apos;[NAME]&apos; sair do modo aparecer.
 	</notification>
+	<notification name="NoConnect">
+		Detectamos um problema de conexão com [PROTOCOL] [HOSTID].
+Verifique a configuração da sua rede e firewall.
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
+	<notification name="NoVoiceConnect">
+		Estamos tendo problemas de conexão com o seu servidor de voz:
+
+[HOSTID]
+
+Talvez não seja possível se comunicar via voz.
+Verifique a configuração da sua rede e firewall.
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
 	<notification name="AvatarRezLeftNotification">
 		( [EXISTENCE] segundos de vida )
 Avatar &apos;[NAME]&apos; saiu totalmente carregado.
+	</notification>
+	<notification name="AvatarRezSelfBakeNotification">
+		( [EXISTENCE] segundos de vida )
+Você carregou uma textura com [RESOLUTION] para o(a) &apos;[BODYREGION]&apos; em [TIME] segundos.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Tem certeza de que quer sair desta ligação?
@@ -2669,7 +2745,7 @@ Todos os demais residentes que entrarem na ligação mais tarde também serão s
 
 
 Silenciar todos?
-		<usetemplate ignoretext="Confirmar antes de silenciar todos os participantes em ligações de grupo." name="okcancelignore" notext="OK" yestext="Cancelar"/>
+		<usetemplate ignoretext="Confirmar antes de silenciar todos os participantes em ligações de grupo." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- A velocidade da sua CPU não suporta os requisitos mínimos exigidos.

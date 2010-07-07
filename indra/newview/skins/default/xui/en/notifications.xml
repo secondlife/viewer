@@ -817,6 +817,17 @@ Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 
   <notification
    icon="alertmodal.tga"
+   name="DeleteOutfits"
+   type="alertmodal">
+    Delete the selected outfit/s?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="PromptGoToEventsPage"
    type="alertmodal">
 Go to the [SECOND_LIFE] events web page?
@@ -4963,6 +4974,10 @@ If you want to view streaming media on parcels that support it you should go to 
    persist="true"
    type="notify">
 No Media Plugin was found to handle the "[MIME_TYPE]" mime type.  Media of this type will be unavailable.
+    <unique>
+      <context key="[MIME_TYPE]"/>
+    </unique>
+
   </notification>
   <notification
    icon="alertmodal.tga"

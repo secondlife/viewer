@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Lugares" name="voice_effects" title="TRANSFORMACIÓN DE VOZ">
+	<string name="no_voice_effect">
+		(Sin transformación de voz)
+	</string>
+	<string name="active_voice_effect">
+		(Activo)
+	</string>
+	<string name="unsubscribed_voice_effect">
+		(Suscripción cancelada)
+	</string>
+	<string name="new_voice_effect">
+		(¡Nuevo!)
+	</string>
+	<text name="preview_text">
+		Para probarla
+	</text>
+	<text name="status_text">
+		Graba una muestra y pulsa en una voz para escuchar cómo suena.
+	</text>
+	<button label="Grabar" name="record_btn" tool_tip="Graba una muestra de tu voz."/>
+	<button label="Parar" name="record_stop_btn"/>
+	<text name="voice_morphing_link">
+		[[URL] Suscríbete ahora]
+	</text>
+	<scroll_list name="voice_effect_list" tool_tip="Graba una muestra de tu voz y pulsa en un efecto para ver cómo suena.">
+		<scroll_list.columns label="Nombre de la voz" name="name"/>
+		<scroll_list.columns label="Caduca" name="expires"/>
+	</scroll_list>
+</floater>

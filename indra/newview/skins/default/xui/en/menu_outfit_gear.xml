@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <menu
  layout="topleft"
+ visible="false"
  name="Gear Outfit">
     <menu_item_call
      label="Wear - Replace Current Outfit"
@@ -14,6 +15,16 @@
         <on_visible
          function="Gear.OnVisible"
          parameter="wear" />
+    </menu_item_call>
+    <menu_item_call
+     label="Wear - Add to Current Outfit"
+     layout="topleft"
+     name="wear_add">
+        <on_click
+         function="Gear.WearAdd" />
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="wear_add" />
     </menu_item_call>
     <menu_item_call
      label="Take Off - Remove from Current Outfit"
@@ -175,6 +186,19 @@
             <!-- copied from menu_inventory_add.xml -->
 
     <menu_item_separator name="sepatator2" />
+    <menu_item_call
+     label="Rename Outfit"
+     layout="topleft"
+     name="rename">
+        <on_click
+         function="Gear.Rename" />
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="rename" />
+        <on_visible
+         function="Gear.OnVisible"
+         parameter="rename" />
+    </menu_item_call>
     <menu_item_call
      label="Delete Outfit"
      layout="topleft"

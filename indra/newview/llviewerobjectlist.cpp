@@ -894,10 +894,10 @@ void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 
 BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 {
-	// Don't ever kill gAgentAvatarp, just mark it as null region instead.
+	// Don't ever kill gAgentAvatarp, just force it to the agent's region
 	if (objectp == gAgentAvatarp)
 	{
-		objectp->setRegion(NULL);
+		objectp->setRegion(gAgent.getRegion());
 		return FALSE;
 	}
 

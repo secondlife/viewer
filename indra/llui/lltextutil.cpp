@@ -34,7 +34,9 @@
 
 #include "lluicolor.h"
 #include "lltextbox.h"
+#include "llurlmatch.h"
 
+boost::function<bool(LLUrlMatch*,LLTextBase*)>	LLTextUtil::TextHelpers::iconCallbackCreationFunction = 0;
 
 void LLTextUtil::textboxSetHighlightedVal(LLTextBox *txtbox, const LLStyle::Params& normal_style, const std::string& text, const std::string& hl)
 {
@@ -74,6 +76,38 @@ const std::string& LLTextUtil::formatPhoneNumber(const std::string& phone_str)
 	}
 
 	return formatted_phone_str;
+}
+
+bool LLTextUtil::processUrlMatch(LLUrlMatch* match,LLTextBase* text_base)
+{
+	if (match == 0 || text_base == 0)
+		return false;
+
+	if(match->getID() != LLUUID::null && TextHelpers::iconCallbackCreationFunction)
+	{
+		bool segment_created = TextHelpers::iconCallbackCreationFunction(match,text_base);
+		if(segment_created)
+			return true;
+	}
+
+	// output an optional icon before the Url
+	if (!match->getIcon().empty() )
+	{
+		LLUIImagePtr image = LLUI::getUIImage(match->getIcon());
+		if (image)
+		{
+			LLStyle::Params icon;
+			icon.image = image;
+			// Text will be replaced during rendering with the icon,
+			// but string cannot be empty or the segment won't be
+			// added (or drawn).
+			text_base->appendImageSegment(icon);
+
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 // EOF

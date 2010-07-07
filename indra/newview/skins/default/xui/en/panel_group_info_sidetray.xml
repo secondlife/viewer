@@ -96,6 +96,7 @@ background_visible="true"
        follows="all"
        layout="topleft"
        auto_resize="true"
+       height="513"
        width="313">
    <accordion
      left="0"
@@ -105,6 +106,7 @@ background_visible="true"
      follows="all"
      layout="topleft"
      name="groups_accordion"
+     height="513"
      width="313">
          <accordion_tab
             expanded="true"

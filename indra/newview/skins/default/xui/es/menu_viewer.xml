@@ -11,6 +11,7 @@
 		<menu_item_check label="Mi Inventario" name="Inventory"/>
 		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
 		<menu_item_check label="Mis gestos" name="Gestures"/>
+		<menu_item_check label="Mi voz" name="ShowVoice"/>
 		<menu label="Mi estado" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
@@ -70,6 +71,12 @@
 		<menu_item_call label="Enlazar" name="Link"/>
 		<menu_item_call label="Desenlazar" name="Unlink"/>
 		<menu_item_check label="Editar las partes enlazadas" name="Edit Linked Parts"/>
+		<menu label="Seleccionar las partes enlazadas" name="Select Linked Parts">
+			<menu_item_call label="Seleccionar la parte siguiente" name="Select Next Part"/>
+			<menu_item_call label="Seleccionar la parte previa" name="Select Previous Part"/>
+			<menu_item_call label="Incluir la parte siguiente" name="Include Next Part"/>
+			<menu_item_call label="Incluir la parte previa" name="Include Previous Part"/>
+		</menu>
 		<menu_item_call label="Visión en lo seleccionado" name="Focus on Selection"/>
 		<menu_item_call label="Zoom en lo seleccionado" name="Zoom to Selection"/>
 		<menu label="Objeto" name="Object">
@@ -100,11 +107,11 @@
 			<menu_item_call label="Usar lo seleccionado como cuadrícula" name="Use Selection for Grid"/>
 			<menu_item_call label="Opciones de la cuadrícula" name="Grid Options"/>
 		</menu>
-		<menu label="Seleccionar las partes enlazadas" name="Select Linked Parts">
-			<menu_item_call label="Seleccionar la parte siguiente" name="Select Next Part"/>
-			<menu_item_call label="Seleccionar la parte previa" name="Select Previous Part"/>
-			<menu_item_call label="Incluir la parte siguiente" name="Include Next Part"/>
-			<menu_item_call label="Incluir la parte previa" name="Include Previous Part"/>
+		<menu label="Subir" name="Upload">
+			<menu_item_call label="Imagen ([COST] L$)..." name="Upload Image"/>
+			<menu_item_call label="Sonido ([COST] L$)..." name="Upload Sound"/>
+			<menu_item_call label="Animación ([COST] L$)..." name="Upload Animation"/>
+			<menu_item_call label="Masivo ([COST] L$ por archivo)..." name="Bulk Upload"/>
 		</menu>
 	</menu>
 	<menu label="Ayuda" name="Help">
@@ -170,6 +177,7 @@
 			<menu_item_check label="Buscar" name="Search"/>
 			<menu_item_call label="Recuperar las teclas" name="Release Keys"/>
 			<menu_item_call label="Interfaz en el tamaño predeterminado" name="Set UI Size to Default"/>
+			<menu_item_check label="Mostrar el menú Avanzado - acceso directo antiguo" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_check label="Correr siempre" name="Always Run"/>
 			<menu_item_check label="Volar" name="Fly"/>
 			<menu_item_call label="Cerrar la ventana" name="Close Window"/>

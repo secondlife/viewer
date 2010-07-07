@@ -94,6 +94,8 @@ public:
 	static void fontInit();
 
 	static void initNameCache();
+	
+	static void copyLibraryGestures(const std::string& same_gender_gestures);
 
 	static void cleanupNameCache();
 

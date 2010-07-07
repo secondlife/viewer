@@ -148,6 +148,8 @@ public:
 		Ignored						user_resize,
 									auto_resize,
 									needs_translate,
+									min_width,
+									max_width,
 									xmlns,
 									xmlns_xsi,
 									xsi_schemaLocation,
@@ -308,7 +310,8 @@ public:
 
 	void			pushVisible(BOOL visible)	{ mLastVisible = mVisible; setVisible(visible); }
 	void			popVisible()				{ setVisible(mLastVisible); }
-	
+	BOOL			getLastVisible()	const	{ return mLastVisible; }
+
 	LLHandle<LLView>	getHandle()				{ mHandle.bind(this); return mHandle; }
 
 	U32			getFollows() const				{ return mReshapeFlags; }
@@ -634,7 +637,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 		// did we find *something* with that name?
 		if (child)
 		{
-			llwarns << "Found child named " << name << " but of wrong type " << typeid(*child).name() << ", expecting " << typeid(T*).name() << llendl;
+			llwarns << "Found child named \"" << name << "\" but of wrong type " << typeid(*child).name() << ", expecting " << typeid(T*).name() << llendl;
 		}
 		result = getDefaultWidget<T>(name);
 		if (!result)

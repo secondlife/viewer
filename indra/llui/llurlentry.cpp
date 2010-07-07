@@ -366,6 +366,11 @@ void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 	callObservers(id.asString(), label, mIcon);
 }
 
+LLUUID	LLUrlEntryAgent::getID(const std::string &string) const
+{
+	return LLUUID(getIDStringFromUrl(string));
+}
+
 std::string LLUrlEntryAgent::getTooltip(const std::string &string) const
 {
 	// return a tooltip corresponding to the URL type instead of the generic one
@@ -609,6 +614,8 @@ LLUrlEntryGroup::LLUrlEntryGroup()
 	mTooltip = LLTrans::getString("TooltipGroupUrl");
 }
 
+
+
 void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
 										  const std::string& name,
 										  bool is_group)
@@ -616,6 +623,12 @@ void LLUrlEntryGroup::onGroupNameReceived(const LLUUID& id,
 	// received the group name from the server - tell our observers
 	callObservers(id.asString(), name, mIcon);
 }
+
+LLUUID	LLUrlEntryGroup::getID(const std::string &string) const
+{
+	return LLUUID(getIDStringFromUrl(string));
+}
+
 
 std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {

@@ -58,6 +58,9 @@ public:
 	void showTaskInfoPanel();
 	void showInventoryPanel();
 
+	// checks can share selected item(s)
+	bool canShare();
+
 protected:
 	// Tracks highlighted (selected) item in inventory panel.
 	LLInventoryItem *getSelectedItem();
@@ -65,8 +68,6 @@ protected:
 	void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	// "wear", "teleport", etc.
 	void performActionOnSelection(const std::string &action);
-	bool canShare();
-
 	void updateVerbs();
 
 	//
@@ -94,6 +95,7 @@ private:
 	LLButton*					mPlayBtn;
 	LLButton*					mTeleportBtn;
 	LLButton*					mOverflowBtn;
+	LLButton*					mShopBtn;
 
 };
 

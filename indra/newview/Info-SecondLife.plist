@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
@@ -18,33 +18,33 @@
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-        <key>CFBundleDocumentTypes</key>
-        <array>
-                <dict>
-                        <key>CFBundleTypeExtensions</key>
-                        <array>
-                                <string>slurl</string>
-                        </array>
-                        <key>CFBundleTypeIconFile</key>
-                        <string>seconlife</string>
-                        <key>CFBundleTypeMIMETypes</key>
-                        <array>
-                                <string>application/x-grid-location-info</string>
-                        </array>
-                        <key>CFBundleTypeName</key>
-                        <string>Secondlife SLURL</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>slurl</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>seconlife</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/x-grid-location-info</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Secondlife SLURL</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
-			  <string>SLRL</string>
+				<string>SLRL</string>
 			</array>
-                        <key>CFBundleTypeRole</key>
-                        <string>Viewer</string>
-                        <key>LSTypeIsPackage</key>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSTypeIsPackage</key>
 			<true/>
-                        <key>NSDocumentClass</key>
-                        <string>SecondLifeSLURL</string>
-                </dict>
-        </array>
+			<key>NSDocumentClass</key>
+			<string>SecondLifeSLURL</string>
+		</dict>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

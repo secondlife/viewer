@@ -261,6 +261,7 @@ set(viewer_SOURCE_FILES
     llinventoryfunctions.cpp
     llinventoryicon.cpp
     llinventoryitemslist.cpp
+    llinventorylistitem.cpp
     llinventorymodel.cpp
     llinventorymodelbackgroundfetch.cpp
     llinventoryobserver.cpp
@@ -363,6 +364,7 @@ set(viewer_SOURCE_FILES
     llpaneltopinfobar.cpp
     llpanelvolume.cpp
     llpanelvolumepulldown.cpp
+    llpanelwearing.cpp
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
@@ -786,6 +788,7 @@ set(viewer_HEADER_FILES
     llinventoryfunctions.h
     llinventoryicon.h
     llinventoryitemslist.h
+    llinventorylistitem.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
@@ -831,6 +834,7 @@ set(viewer_HEADER_FILES
     lloutfitslist.h
     lloutfitobserver.h
     lloutputmonitorctrl.h
+    llpanelappearancetab.h
     llpanelavatar.h
     llpanelavatartag.h
     llpanelblockedlist.h
@@ -884,6 +888,7 @@ set(viewer_HEADER_FILES
     llpaneltopinfobar.h
     llpanelvolume.h
     llpanelvolumepulldown.h
+    llpanelwearing.h
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
@@ -1149,10 +1154,12 @@ endif (LINUX)
 if (WINDOWS)
     list(APPEND viewer_SOURCE_FILES
          llappviewerwin32.cpp
+         llwindebug.cpp
          )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
+         llwindebug.h
          )
 
     # precompiled header configuration

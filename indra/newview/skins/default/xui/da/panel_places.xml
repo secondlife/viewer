@@ -5,12 +5,12 @@
 	<filter_editor label="Filtrér mine steder" name="Filter"/>
 	<panel name="button_panel">
 		<button label="Teleportér" name="teleport_btn" tool_tip="Teleportér til det valgte område"/>
-		<button label="Kort" name="map_btn"/>
+		<button label="Kort" name="map_btn" tool_tip="Vis dette område på verdenskortet"/>
 		<button label="Redigér" name="edit_btn" tool_tip="Redigér landemærke information"/>
 		<button label="▼" name="overflow_btn" tool_tip="Vise flere valgmuligheder"/>
 		<button label="Gem" name="save_btn"/>
 		<button label="Annullér" name="cancel_btn"/>
 		<button label="Luk" name="close_btn"/>
-		<button label="Profil" name="profile_btn"/>
+		<button label="Profil" name="profile_btn" tool_tip="Vis profil for stedet"/>
 	</panel>
 </panel>

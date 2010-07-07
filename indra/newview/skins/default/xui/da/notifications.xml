@@ -268,6 +268,11 @@ Grafik kvaliteten sættes til &apos;lav&apos; for at undgå typiske problemer me
 Vi anbefaler at opdatere driverne til dit grafikkort.
 Grafik kvaliteten kan forbedres i indstillinger &gt; Grafik.
 	</notification>
+	<notification name="CannotCopyWarning">
+		Du har ikke rettigheder til at kopiere følgende genstande:
+[ITEMS]
+og du vil miste dem fra din beholdning hvis du forærer dem væk. Er du sikker på at du vil tilbyde disse genstande?
+	</notification>
 	<notification name="CannotGiveCategory">
 		Du har ikke tilladelse til at videreføre den valgte mappe.
 	</notification>
@@ -283,8 +288,7 @@ Gå til [_URL] for information om køb af L$?
 		Kunne ikke &apos;forstå&apos; filen: [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		Vi kan ikke læse dine beskyttede data så de nulstilles.
-   Dette kan ske hvis du ændrer din netværksopsætning.
+		Vi kan ikke udfylde dit brugernavn og password.  Dette kan ske hvis du ændrer netværksopsætning
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
@@ -407,6 +411,26 @@ Tilbyd venskab til [NAME]?
 		<form name="form">
 			<input name="message">
 				[DESC] (ny)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Annullér"/>
+		</form>
+	</notification>
+	<notification label="Gem" name="SaveWearableAs">
+		Gem genstand til beholdning som:
+		<form name="form">
+			<input name="message">
+				[DESC] (ny)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Annullér"/>
+		</form>
+	</notification>
+	<notification label="Omdøb sæt" name="RenameOutfit">
+		Nyt navn til sæt:
+		<form name="form">
+			<input name="new_name">
+				[NAME]
 			</input>
 			<button name="Offer" text="OK"/>
 			<button name="Cancel" text="Annullér"/>
@@ -677,9 +701,9 @@ Gå til &apos;Knowledge Base&apos; for mere information om indholdsratings.
 		Du har ikke adgang til denne region på grund af din valgte indholdsrating.
 	</notification>
 	<notification name="RegionEntryAccessBlocked_Change">
-		Du har ikke adgang til den region, da din indholdsrating ikke tillader dette.
+		Du har ikke adgang til denne region på grund af din opsætning af indholdsrating.
 
-Klik på &quot;Ændre præference&quot; for at forhøje din indholdsrating for direkte adgang nu. Ved at gøre dette vil du få lov til at søge og få adgang til [REGIONMATURITY] indhold. Hvis du ønsker at ændre denne opsætning senere, kan du gøre dette fra Mig &gt; Indstillinger &gt; Generelt.
+For at få adgang til den ønskede region skal du ændre din indholdsrating. Dette vil give dig ret til at søge og får tilgang til indhold af typen [REGIONMATURITY]. For at omgøre ændringer gå til Mig &gt; Indstillinger &gt; Generelt.
 		<form name="form">
 			<button name="OK" text="Ændre indstillinger"/>
 			<button name="Cancel" text="Luk"/>
@@ -1460,6 +1484,21 @@ Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik p
 	<notification name="VoiceLoginRetry">
 		Vi laver en stemmekanal til dig. Det kan tage op til et minut.
 	</notification>
+	<notification name="VoiceEffectsExpired">
+		En eller flere af dine stemme &quot;morphs&quot; er udløbet.
+[[URL] Click here] for at forny dit abbonnement.
+	</notification>
+	<notification name="VoiceEffectsExpiredInUse">
+		Den aktive stemme &quot;morph&quot; er udløbet og din normale stemme opsætning er genaktiveret.
+[[URL] Click here] for at forny dit abbonnement.
+	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		En eller flere af dine stemme &quot;morphs&quot; vil udløbe om mindre end [INTERVAL] dage.
+[[URL] Click here] for at forny dit abbonnement.
+	</notification>
+	<notification name="VoiceEffectsNew">
+		Nye stemme &quot;morphs&quot; er tilgængelige!
+	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		Kun medlemmer af en bestemt gruppe kan besøge dette område.
 	</notification>
@@ -1526,18 +1565,36 @@ De vil blive blokeret nogle få sekunder af sikkerhedsmæssige årsager.
 Knappen vil blive vist når der er nok plads til den.
 	</notification>
 	<notification name="ShareNotification">
-		Træk genstande fra beholdning til en person i beboer vælgeren
+		Vælg beboere at dele med.
+	</notification>
+	<notification name="ShareItemsConfirmation">
+		Er du sikker på at du vil dele følgende genstande:
+
+[ITEMS]
+
+Med følgende beboere:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Annullér" yestext="Ok"/>
+	</notification>
+	<notification name="ItemsShared">
+		Genstande er nu delt.
 	</notification>
 	<notification name="DeedToGroupFail">
 		Dedikering til gruppe fejlede.
 	</notification>
 	<notification name="AvatarRezNotification">
 		( [EXISTENCE] sekunder i live )
-Avatar &apos;[NAME]&apos; declouded in [TIME] seconds.
+Avatar &apos;[NAME]&apos; var ikke sky mere, efter [TIME] sekunder.
 	</notification>
-	<notification name="AvatarRezSelfNotification">
-		( [EXISTENCE] sekunder i live )
-Du afsluttede klargøring af dit sæt på [TIME] sekunder.
+	<notification name="AvatarRezSelfBakedDoneNotification">
+		( [EXISTENCE] seconds alive )
+Du blev færdig med at fremvise dit sæt efter [TIME] sekunder.
+	</notification>
+	<notification name="AvatarRezSelfBakedUpdateNotification">
+		( [EXISTENCE] seconds alive )
+Du sendte en opdatering af dit udseende efter [TIME] sekunder.
+[STATUS]
 	</notification>
 	<notification name="AvatarRezCloudNotification">
 		( [EXISTENCE] sekunder i live )
@@ -1559,9 +1616,31 @@ Avatar &apos;[NAME]&apos; skiftede til udseende modus.
 		( [EXISTENCE] sekunder i live )
 Avatar &apos;[NAME]&apos; har forladt udseende modus.
 	</notification>
+	<notification name="NoConnect">
+		Vi har problemer med at oprette forbindelse via [PROTOCOL] [HOSTID].
+Check venligst din netværks- og firewallsetup.
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
+	<notification name="NoVoiceConnect">
+		Vi har problemer med at oprette forbindelse til din stemme server:
+
+[HOSTID]
+
+Stemme kommunikation vil ikke være tilgængelig.
+Check venligst din netværks- og firewall setup.
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
 	<notification name="AvatarRezLeftNotification">
 		( [EXISTENCE] sekunder i live )
 Avatar &apos;[NAME]&apos; forsvandt helt &quot;uploaded&quot;.
+	</notification>
+	<notification name="AvatarRezSelfBakeNotification">
+		( [EXISTENCE] seconds alive )
+Du sendte en [RESOLUTION] tekstur til &apos;[BODYREGION]&apos; efter [TIME] sekunder.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Er du sikker på at du vil forlade dette opkald?
@@ -1574,7 +1653,7 @@ vil have lyden slukket - selv efter de har forladt kaldet.
 
 
 Sluk for alles lyd?
-		<usetemplate ignoretext="Bekræft før jeg slukker for alle deltageres lyd i gruppe-kald" name="okcancelignore" notext="OK" yestext="Annullér"/>
+		<usetemplate ignoretext="Bekræft før jeg slukker for alle deltageres lyd i gruppe-kald" name="okcancelignore" notext="Annullér" yestext="Ok"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Det ser ikke ud til at din hardware opfylder minimumskravene til [APP_NAME]. [APP_NAME] kræver et OpenGL grafikkort som understøter &apos;multitexture&apos;. Check eventuelt om du har de nyeste drivere for grafikkortet, og de nyeste service-packs og patches til dit operativsystem.

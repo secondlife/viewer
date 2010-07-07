@@ -1171,12 +1171,12 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		}
 
 		////////////////////////////////////////////////////////////////////////////////
-		// Highlight item if it's not in the trash, lost+found, or COF
+		// Highlight item
 		const BOOL auto_open = 
-			gSavedSettings.getBOOL("ShowInInventory") &&
-			(asset_type != LLAssetType::AT_CALLINGCARD) &&
-			!(item && item->getInventoryType() != LLInventoryType::IT_ATTACHMENT) &&
-			!from_name.empty();
+			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
+			!(asset_type == LLAssetType::AT_CALLINGCARD) && // don't open if it's a calling card
+			!(item && (item->getInventoryType() == LLInventoryType::IT_ATTACHMENT)) && // don't open if it's an item that's an attachment
+			!from_name.empty(); // don't open if it's not from anyone.
 		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 		if(active_panel)
 		{

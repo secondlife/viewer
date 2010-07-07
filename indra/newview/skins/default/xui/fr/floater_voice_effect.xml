@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Endroits" name="voice_effects" title="EFFET DE VOIX">
+	<string name="no_voice_effect">
+		(Aucun effet de voix)
+	</string>
+	<string name="active_voice_effect">
+		(Actif)
+	</string>
+	<string name="unsubscribed_voice_effect">
+		(Pas d&apos;abonnement)
+	</string>
+	<string name="new_voice_effect">
+		(Nouveau !)
+	</string>
+	<text name="preview_text">
+		Aperçu
+	</text>
+	<text name="status_text">
+		Enregistrez un extrait et cliquez sur un effet pour obtenir un aperçu.
+	</text>
+	<button label="Enregistrer" name="record_btn" tool_tip="Enregistrez un extrait de votre voix."/>
+	<button label="Arrêter" name="record_stop_btn"/>
+	<text name="voice_morphing_link">
+		[[URL] S&apos;abonner]
+	</text>
+	<scroll_list name="voice_effect_list" tool_tip="Enregistrez un extrait de votre voix, puis cliquez sur un effet pour obtenir un aperçu.">
+		<scroll_list.columns label="Nom de l&apos;effet" name="name"/>
+		<scroll_list.columns label="Date d&apos;expiration" name="expires"/>
+	</scroll_list>
+</floater>

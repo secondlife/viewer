@@ -667,6 +667,7 @@ void LLFloaterBuyLandUI::updateWebSiteInfo()
 	keywordArgs.appendString(
 		"secureSessionId",
 		gAgent.getSecureSessionID().asString());
+	keywordArgs.appendString("language", LLUI::getLanguage());
 	keywordArgs.appendInt("billableArea", mPreflightAskBillableArea);
 	keywordArgs.appendInt("currencyBuy", mPreflightAskCurrencyBuy);
 	

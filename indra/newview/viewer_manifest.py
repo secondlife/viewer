@@ -34,6 +34,7 @@ import sys
 import os.path
 import re
 import tarfile
+import time
 viewer_dir = os.path.dirname(__file__)
 # add llmanifest library to our path so we don't have to muck with PYTHONPATH
 sys.path.append(os.path.join(viewer_dir, '../lib/python/indra/util'))
@@ -737,55 +738,72 @@ class DarwinManifest(ViewerManifest):
 
         # mount the image and get the name of the mount point and device node
         hdi_output = self.run_command('hdiutil attach -private %r' % sparsename)
-        devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
-        volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
+        try:
+            devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
+            volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
 
-        # Copy everything in to the mounted .dmg
+            # Copy everything in to the mounted .dmg
 
-        if self.default_channel() and not self.default_grid():
-            app_name = "Second Life " + self.args['grid']
-        else:
-            app_name = channel_standin.strip()
+            if self.default_channel() and not self.default_grid():
+                app_name = "Second Life " + self.args['grid']
+            else:
+                app_name = channel_standin.strip()
 
-        # Hack:
-        # Because there is no easy way to coerce the Finder into positioning
-        # the app bundle in the same place with different app names, we are
-        # adding multiple .DS_Store files to svn. There is one for release,
-        # one for release candidate and one for first look. Any other channels
-        # will use the release .DS_Store, and will look broken.
-        # - Ambroff 2008-08-20
-        dmg_template = os.path.join(
-            'installers', 
-            'darwin',
-            '%s-dmg' % "".join(self.channel_unique().split()).lower())
+            # Hack:
+            # Because there is no easy way to coerce the Finder into positioning
+            # the app bundle in the same place with different app names, we are
+            # adding multiple .DS_Store files to svn. There is one for release,
+            # one for release candidate and one for first look. Any other channels
+            # will use the release .DS_Store, and will look broken.
+            # - Ambroff 2008-08-20
+            dmg_template = os.path.join(
+                'installers', 
+                'darwin',
+                '%s-dmg' % "".join(self.channel_unique().split()).lower())
 
-        if not os.path.exists (self.src_path_of(dmg_template)):
-            dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
+            if not os.path.exists (self.src_path_of(dmg_template)):
+                dmg_template = os.path.join ('installers', 'darwin', 'release-dmg')
 
-        for s,d in {self.get_dst_prefix():app_name + ".app",
-                    os.path.join(dmg_template, "_VolumeIcon.icns"): ".VolumeIcon.icns",
-                    os.path.join(dmg_template, "background.jpg"): "background.jpg",
-                    os.path.join(dmg_template, "_DS_Store"): ".DS_Store"}.items():
-            print "Copying to dmg", s, d
-            self.copy_action(self.src_path_of(s), os.path.join(volpath, d))
+            for s,d in {self.get_dst_prefix():app_name + ".app",
+                        os.path.join(dmg_template, "_VolumeIcon.icns"): ".VolumeIcon.icns",
+                        os.path.join(dmg_template, "background.jpg"): "background.jpg",
+                        os.path.join(dmg_template, "_DS_Store"): ".DS_Store"}.items():
+                print "Copying to dmg", s, d
+                self.copy_action(self.src_path_of(s), os.path.join(volpath, d))
 
-        # Hide the background image, DS_Store file, and volume icon file (set their "visible" bit)
-        for f in ".VolumeIcon.icns", "background.jpg", ".DS_Store":
-            self.run_command('SetFile -a V %r' % os.path.join(volpath, f))
+            # Hide the background image, DS_Store file, and volume icon file (set their "visible" bit)
+            for f in ".VolumeIcon.icns", "background.jpg", ".DS_Store":
+                pathname = os.path.join(volpath, f)
+                # We've observed mysterious "no such file" failures of the SetFile
+                # command, especially on the first file listed above -- yet
+                # subsequent inspection of the target directory confirms it's
+                # there. Timing problem with copy command? Try to handle.
+                for x in xrange(3):
+                    if os.path.exists(pathname):
+                        print "Confirmed existence: %r" % pathname
+                        break
+                    print "Waiting for %s copy command to complete (%s)..." % (f, x+1)
+                    sys.stdout.flush()
+                    time.sleep(1)
+                # If we fall out of the loop above without a successful break, oh
+                # well, possibly we've mistaken the nature of the problem. In any
+                # case, don't hang up the whole build looping indefinitely, let
+                # the original problem manifest by executing the desired command.
+                self.run_command('SetFile -a V %r' % pathname)
 
-        # Create the alias file (which is a resource file) from the .r
-        self.run_command('rez %r -o %r' %
-                         (self.src_path_of("installers/darwin/release-dmg/Applications-alias.r"),
-                          os.path.join(volpath, "Applications")))
+            # Create the alias file (which is a resource file) from the .r
+            self.run_command('rez %r -o %r' %
+                             (self.src_path_of("installers/darwin/release-dmg/Applications-alias.r"),
+                              os.path.join(volpath, "Applications")))
 
-        # Set the alias file's alias and custom icon bits
-        self.run_command('SetFile -a AC %r' % os.path.join(volpath, "Applications"))
+            # Set the alias file's alias and custom icon bits
+            self.run_command('SetFile -a AC %r' % os.path.join(volpath, "Applications"))
 
-        # Set the disk image root's custom icon bit
-        self.run_command('SetFile -a C %r' % volpath)
-
-        # Unmount the image
-        self.run_command('hdiutil detach -force %r' % devfile)
+            # Set the disk image root's custom icon bit
+            self.run_command('SetFile -a C %r' % volpath)
+        finally:
+            # Unmount the image even if exceptions from any of the above 
+            self.run_command('hdiutil detach -force %r' % devfile)
 
         print "Converting temp disk image to final disk image"
         self.run_command('hdiutil convert %(sparse)r -format UDZO -imagekey zlib-level=9 -o %(final)r' % {'sparse':sparsename, 'final':finalname})

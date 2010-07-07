@@ -48,7 +48,6 @@
 #include "llmd5.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
-#include "llpaneloutfitsinventory.h"
 #include "llsidepanelappearance.h"
 #include "llsidetray.h"
 #include "lltexlayer.h"
@@ -512,7 +511,11 @@ void LLAgentWearables::saveWearableAs(const LLWearableType::EType type,
 void LLAgentWearables::revertWearable(const LLWearableType::EType type, const U32 index)
 {
 	LLWearable* wearable = getWearable(type, index);
-	wearable->revertValues();
+	llassert(wearable);
+	if (wearable)
+	{
+		wearable->revertValues();
+	}
 
 	gAgent.sendAgentSetAppearance();
 }
@@ -544,6 +547,7 @@ void LLAgentWearables::setWearableName(const LLUUID& item_id, const std::string&
 			{
 				LLWearable* old_wearable = getWearable((LLWearableType::EType)i,j);
 				llassert(old_wearable);
+				if (!old_wearable) continue;
 
 				std::string old_name = old_wearable->getName();
 				old_wearable->setName(new_name);
@@ -805,7 +809,7 @@ void LLAgentWearables::popWearable(const LLWearableType::EType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
-		gAgentAvatarp->wearableUpdated(wearable->getType(), FALSE);
+		gAgentAvatarp->wearableUpdated(wearable->getType(), TRUE);
 		wearable->setLabelUpdated();
 	}
 }
@@ -1231,45 +1235,6 @@ void LLAgentWearables::createStandardWearablesAllDone()
 	// Treat this as the first texture entry message, if none received yet
 	gAgentAvatarp->onFirstTEMessageReceived();
 }
-
-
-class LLShowCreatedOutfit: public LLInventoryCallback
-{
-public:
-	LLShowCreatedOutfit(LLUUID& folder_id):
-		mFolderID(folder_id)
-	{
-	}
-
-	virtual ~LLShowCreatedOutfit()
-	{
-		LLSD key;
-		LLSideTray::getInstance()->showPanel("panel_outfits_inventory", key);
-		LLPanelOutfitsInventory *outfit_panel =
-			dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
-		// TODO: add handling "My Outfits" tab.
-		if (outfit_panel && outfit_panel->isCOFPanelActive())
-		{
-			outfit_panel->getRootFolder()->clearSelection();
-			outfit_panel->getRootFolder()->setSelectionByID(mFolderID, TRUE);
-		}
-		LLAccordionCtrlTab* tab_outfits = outfit_panel ? outfit_panel->findChild<LLAccordionCtrlTab>("tab_outfits") : 0;
-		if (tab_outfits && !tab_outfits->getDisplayChildren())
-		{
-			tab_outfits->changeOpenClose(tab_outfits->getDisplayChildren());
-		}
-
-		LLAppearanceMgr::instance().updateIsDirty();
-		LLAppearanceMgr::instance().updatePanelOutfitName("");
-	}
-	
-	virtual void fire(const LLUUID&)
-	{
-	}
-	
-private:
-	LLUUID mFolderID;
-};
 
 void LLAgentWearables::makeNewOutfitDone(S32 type, U32 index)
 {
@@ -1907,11 +1872,10 @@ void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_arra
 		msg->nextBlockFast(_PREHASH_ObjectData );
 		msg->addUUIDFast(_PREHASH_ItemID, item->getLinkedUUID());
 		msg->addUUIDFast(_PREHASH_OwnerID, item->getPermissions().getOwner());
-#if ENABLE_MULTIATTACHMENTS
-		msg->addU8Fast(_PREHASH_AttachmentPt, 0 | ATTACHMENT_ADD );
-#else
-		msg->addU8Fast(_PREHASH_AttachmentPt, 0 );	// Wear at the previous or default attachment point
-#endif
+		if (gSavedSettings.getBOOL("MultipleAttachments"))
+			msg->addU8Fast(_PREHASH_AttachmentPt, 0 | ATTACHMENT_ADD );
+		else
+			msg->addU8Fast(_PREHASH_AttachmentPt, 0 );	// Wear at the previous or default attachment point
 		pack_permissions_slam(msg, item->getFlags(), item->getPermissions());
 		msg->addStringFast(_PREHASH_Name, item->getName());
 		msg->addStringFast(_PREHASH_Description, item->getDescription());
@@ -1981,7 +1945,11 @@ void LLAgentWearables::animateAllWearableParams(F32 delta, BOOL upload_bake)
 		for (S32 count = 0; count < (S32)getWearableCount((LLWearableType::EType)type); ++count)
 		{
 			LLWearable *wearable = getWearable((LLWearableType::EType)type,count);
-			wearable->animateParams(delta, upload_bake);
+			llassert(wearable);
+			if (wearable)
+			{
+				wearable->animateParams(delta, upload_bake);
+			}
 		}
 	}
 }

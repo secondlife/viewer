@@ -112,7 +112,7 @@ public:
 
 	// teleport to the tracked item, if there is one
 	void			teleport();
-
+	void			onChangeMaturity();
 protected:	
 	void			onGoHome();
 
@@ -123,7 +123,7 @@ protected:
 	void		    onAvatarComboCommit();
 
 	void			onComboTextEntry( );
-	void			onSearchTextEntry( LLLineEditor* ctrl );
+	void			onSearchTextEntry( );
 
 	void			onClearBtn();
 	void			onClickTeleportBtn();

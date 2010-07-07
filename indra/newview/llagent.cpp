@@ -57,6 +57,7 @@
 #include "llnavigationbar.h" // to show/hide navigation bar when changing mouse look state
 #include "llnearbychatbar.h"
 #include "llnotificationsutil.h"
+#include "llpaneltopinfobar.h"
 #include "llparcel.h"
 #include "llrendersphere.h"
 #include "llsdutil.h"
@@ -1693,6 +1694,11 @@ void LLAgent::endAnimationUpdateUI()
 		LLNavigationBar::getInstance()->setVisible(TRUE);
 		gStatusBar->setVisibleForMouselook(true);
 
+		if (gSavedSettings.getBOOL("ShowMiniLocationPanel"))
+		{
+			LLPanelTopInfoBar::getInstance()->setVisible(TRUE);
+		}
+
 		LLBottomTray::getInstance()->onMouselookModeOut();
 
 		LLSideTray::getInstance()->getButtonsPanel()->setVisible(TRUE);
@@ -1790,6 +1796,8 @@ void LLAgent::endAnimationUpdateUI()
 		gMenuBarView->setVisible(FALSE);
 		LLNavigationBar::getInstance()->setVisible(FALSE);
 		gStatusBar->setVisibleForMouselook(false);
+
+		LLPanelTopInfoBar::getInstance()->setVisible(FALSE);
 
 		LLBottomTray::getInstance()->onMouselookModeIn();
 
@@ -3619,7 +3627,7 @@ void LLAgent::sendAgentSetAppearance()
 		 param;
 		 param = (LLViewerVisualParam*)gAgentAvatarp->getNextVisualParam())
 	{
-		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE) // do not transmit params of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		{
 			msg->nextBlockFast(_PREHASH_VisualParam );
 			

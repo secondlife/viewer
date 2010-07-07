@@ -165,6 +165,22 @@ public:
 	}
 
 protected:
+	static void replaceWearable()
+	{
+		// *TODO: Most probable that accessing to LLPanelOutfitEdit instance should be:
+		// LLSideTray::getInstance()->getSidepanelAppearance()->getPanelOutfitEdit()
+		// without casting. Getter methods provides possibility to check and construct
+		// absent instance. Explicit relations between components avoids situations
+		// when we tries to construct instance with unsatisfied implicit input conditions.
+		LLPanelOutfitEdit	* panel_outfit_edit =
+						dynamic_cast<LLPanelOutfitEdit*> (LLSideTray::getInstance()->getPanel(
+								"panel_outfit_edit"));
+		if (panel_outfit_edit != NULL)
+		{
+			panel_outfit_edit->showAddWearablesPanel(true);
+		}
+	}
+
 	/*virtual*/ LLContextMenu* createMenu()
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -173,8 +189,7 @@ protected:
 		functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
 
 		registrar.add("Clothing.TakeOff", boost::bind(handleMultiple, take_off, mUUIDs));
-		registrar.add("Clothing.MoveUp", boost::bind(moveWearable, selected_id, false));
-		registrar.add("Clothing.MoveDown", boost::bind(moveWearable, selected_id, true));
+		registrar.add("Clothing.Replace", boost::bind(replaceWearable));
 		registrar.add("Clothing.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
 		registrar.add("Clothing.Create", boost::bind(&CofClothingContextMenu::createNew, this, selected_id));
 
@@ -194,15 +209,7 @@ protected:
 		std::string param = data.asString();
 		LLUUID selected_id = mUUIDs.back();
 
-		if ("move_up" == param)
-		{
-			return gAgentWearables.canMoveWearable(selected_id, false);
-		}
-		else if ("move_down" == param)
-		{
-			return gAgentWearables.canMoveWearable(selected_id, true);
-		}
-		else if ("take_off" == param)
+		if ("take_off" == param)
 		{
 			return get_is_item_worn(selected_id);
 		}
@@ -210,15 +217,12 @@ protected:
 		{
 			return mUUIDs.size() == 1 && gAgentWearables.isWearableModifiable(selected_id);
 		}
-		return true;
-	}
+		else if ("replace" == param)
+		{
+			return get_is_item_worn(selected_id) && mUUIDs.size() == 1;
+		}
 
-	// We don't use LLAppearanceMgr::moveWearable() directly because
-	// the item may be invalidated between setting the callback and calling it.
-	static bool moveWearable(const LLUUID& item_id, bool closer_to_body)
-	{
-		LLViewerInventoryItem* item = gInventory.getItem(item_id);
-		return LLAppearanceMgr::instance().moveWearable(item, closer_to_body);
+		return true;
 	}
 };
 
@@ -368,14 +372,26 @@ void LLCOFWearables::refresh()
 		 iter != iter_end; ++iter)
 	{
 		LLFlatListView* list = iter->first;
+		if (!list) continue;
+
+		//restoring selection should not fire commit callbacks
+		list->setCommitOnSelectionChange(false);
+
 		const values_vector_t& values = iter->second;
 		for (values_vector_t::const_iterator
 				 value_it = values.begin(),
 				 value_it_end = values.end();
 			 value_it != value_it_end; ++value_it)
 		{
-			list->selectItemByValue(*value_it);
+			// value_it may be null because of dummy items
+			// Dummy items have no ID
+			if(value_it->asUUID().notNull())
+			{
+				list->selectItemByValue(*value_it);
+			}
 		}
+
+		list->setCommitOnSelectionChange(true);
 	}
 }
 
@@ -608,7 +624,20 @@ void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContex
 		uuid_vec_t selected_uuids;
 		if(getSelectedUUIDs(selected_uuids))
 		{
-			menu->show(ctrl, selected_uuids, x, y);
+			bool show_menu = false;
+			for(uuid_vec_t::iterator it = selected_uuids.begin();it!=selected_uuids.end();++it)
+			{
+				if ((*it).notNull())
+				{
+					show_menu = true;
+					break;
+				}
+			}
+
+			if(show_menu)
+			{
+				menu->show(ctrl, selected_uuids, x, y);
+			}
 		}
 	}
 }

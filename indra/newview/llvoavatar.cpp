@@ -684,7 +684,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFullyLoaded(FALSE),
 	mPreviousFullyLoaded(FALSE),
 	mFullyLoadedInitialized(FALSE),
-	mSupportsAlphaLayers(FALSE)
+	mSupportsAlphaLayers(FALSE),
+	mLoadedCallbacksPaused(FALSE)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
@@ -854,6 +855,7 @@ void LLVOAvatar::markDead()
 		sNumVisibleChatBubbles--;
 	}
 	mVoiceVisualizer->markDead();
+	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList, this) ;
 	LLViewerObject::markDead();
 }
 
@@ -2083,7 +2085,8 @@ void LLVOAvatar::computeBodySize()
 				 	ankle.mV[VZ] * knee_scale.mV[VZ] -
 				 	foot.mV[VZ] * ankle_scale.mV[VZ];
 
-	mBodySize.mV[VZ] = mPelvisToFoot +
+	LLVector3 new_body_size;
+	new_body_size.mV[VZ] = mPelvisToFoot +
 					   // the sqrt(2) correction below is an approximate
 					   // correction to get to the top of the head
 					   F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) + 
@@ -2093,8 +2096,17 @@ void LLVOAvatar::computeBodySize()
 					   torso.mV[VZ] * pelvis_scale.mV[VZ]; 
 
 	// TODO -- measure the real depth and width
-	mBodySize.mV[VX] = DEFAULT_AGENT_DEPTH;
-	mBodySize.mV[VY] = DEFAULT_AGENT_WIDTH;
+	new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;
+	new_body_size.mV[VY] = DEFAULT_AGENT_WIDTH;
+
+	if (new_body_size != mBodySize)
+	{
+		mBodySize = new_body_size;
+		if (isSelf())
+		{	// notify simulator of change in size
+			gAgent.sendAgentSetAppearance();
+		}
+	}
 
 /* debug spam
 	std::cout << "skull = " << skull << std::endl;				// adebug
@@ -2224,12 +2236,14 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	{
 		llinfos << "Warning!  Idle on dead avatar" << llendl;
 		return TRUE;
-	}
+	}	
 
  	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_AVATAR)))
 	{
 		return TRUE;
 	}
+
+	checkTextureLoading() ;
 	
 	// force immediate pixel area update on avatars using last frames data (before drawable or camera updates)
 	setPixelAreaAndAngle(gAgent);
@@ -2535,7 +2549,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 				 param;
 				 param = getNextVisualParam())
 			{
-				if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+				if (param->isTweakable())
 				{
 					param->stopAnimating(FALSE);
 				}
@@ -2558,7 +2572,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
 					 param;
 					 param = getNextVisualParam())
 				{
-					if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+					if (param->isTweakable())
 					{
 						param->animate(morph_amt, FALSE);
 					}
@@ -3342,7 +3356,10 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
 	}
 
-	if (!visible)
+	// don't early out for your own avatar, as we rely on your animations playing reliably
+	// for example, the "turn around" animation when entering customize avatar needs to trigger
+	// even when your avatar is offscreen
+	if (!visible && !isSelf())
 	{
 		updateMotions(LLCharacter::HIDDEN_UPDATE);
 		return FALSE;
@@ -4266,6 +4283,7 @@ void LLVOAvatar::updateTextures()
 	{
 		render_avatar = isVisible() && !mCulled;
 	}
+	checkTextureLoading() ;
 
 	std::vector<BOOL> layer_baked;
 	// GL NOT ACTIVE HERE - *TODO
@@ -4306,7 +4324,7 @@ void LLVOAvatar::updateTextures()
 				}
 			}
 		}
-		if (isIndexBakedTexture((ETextureIndex) texture_index))
+		if (isIndexBakedTexture((ETextureIndex) texture_index) && render_avatar)
 		{
 			const S32 boost_level = getAvatarBakedBoostLevel();
 			imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture_index,0), TRUE);
@@ -4322,7 +4340,7 @@ void LLVOAvatar::updateTextures()
 										 << " on host " << getRegion()->getHost() << llendl;
 			}
 
-			addBakedTextureStats( imagep, mPixelArea, texel_area_ratio, boost_level );
+			addBakedTextureStats( imagep, mPixelArea, texel_area_ratio, boost_level );			
 		}
 	}
 
@@ -4346,13 +4364,66 @@ void LLVOAvatar::addLocalTextureStats( ETextureIndex idx, LLViewerFetchedTexture
 }
 
 			    
+void LLVOAvatar::checkTextureLoading()
+{
+	static const F32 MAX_INVISIBLE_WAITING_TIME = 30.f ; //seconds
+
+	BOOL pause = !isVisible() ;
+	if(!pause)
+	{
+		mInvisibleTimer.reset() ;
+	}
+	if(mLoadedCallbacksPaused == pause)
+	{
+		return ; 
+	}
+	
+	if(mCallbackTextureList.empty()) //when is self or no callbacks. Note: this list for self is always empty.
+	{
+		mLoadedCallbacksPaused = pause ;
+		return ; //nothing to check.
+	}
+	
+	if(pause && mInvisibleTimer.getElapsedTimeF32() < MAX_INVISIBLE_WAITING_TIME)
+	{
+		return ;
+	}
+	
+	for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
+		iter != mCallbackTextureList.end(); ++iter)
+	{
+		LLViewerFetchedTexture* tex = gTextureList.findImage(*iter) ;
+		if(tex)
+		{
+			if(pause)//pause texture fetching.
+			{
+				tex->pauseLoadedCallbacks(this) ;
+			}
+			else//unpause
+			{
+				static const F32 START_AREA = 100.f ;
+
+				tex->unpauseLoadedCallbacks(this) ;
+				tex->addTextureStats(START_AREA); //jump start the fetching again
+			}
+		}		
+	}			
+	
+	mLoadedCallbacksPaused = pause ;
+	return ;
+}
+
 void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level)
 {
-	mMaxPixelArea = llmax(pixel_area, mMaxPixelArea);
-	mMinPixelArea = llmin(pixel_area, mMinPixelArea);
+	//if this function is not called for the last 512 frames, the texture pipeline will stop fetching this texture.
+	static const S32  MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 512 ; //frames	
+
 	imagep->resetTextureStats();
-	imagep->setResetMaxVirtualSizeFlag(false) ;
 	imagep->setCanUseHTTP(false) ; //turn off http fetching for baked textures.
+	imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL);
+
+	mMaxPixelArea = llmax(pixel_area, mMaxPixelArea);
+	mMinPixelArea = llmin(pixel_area, mMinPixelArea);	
 	imagep->addTextureStats(pixel_area / texel_area_ratio);
 	imagep->setBoostLevel(boost_level);
 	if(boost_level == LLViewerTexture::BOOST_AVATAR_BAKED_SELF)
@@ -6272,6 +6343,15 @@ void LLVOAvatar::updateMeshTextures()
 
 	const BOOL self_customizing = isSelf() && gAgentCamera.cameraCustomizeAvatar(); // During face edit mode, we don't use baked textures
 	const BOOL other_culled = !isSelf() && mCulled;
+	LLLoadedCallbackEntry::source_callback_list_t* src_callback_list = NULL ;
+	void* callback_src = NULL ;
+	BOOL paused = FALSE;
+	if(!isSelf())
+	{
+		callback_src = this ;
+		src_callback_list = &mCallbackTextureList ;
+		paused = mLoadedCallbacksPaused ;
+	}
 
 	std::vector<BOOL> is_layer_baked;
 	is_layer_baked.resize(mBakedTextureDatas.size(), false);
@@ -6342,10 +6422,12 @@ void LLVOAvatar::updateMeshTextures()
 			{
 				mBakedTextureDatas[i].mIsLoaded = FALSE;
 				if ( (baked_img->getID() != IMG_INVISIBLE) && ((i == BAKED_HEAD) || (i == BAKED_UPPER) || (i == BAKED_LOWER)) )
-				{
-					baked_img->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ));	
+				{			
+					baked_img->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ), 
+						callback_src, src_callback_list, paused);	
 				}
-				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ) );
+				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ), 
+					callback_src, src_callback_list, paused );
 			}
 		}
 		else if (mBakedTextureDatas[i].mTexLayerSet 
@@ -6805,6 +6887,16 @@ void LLVOAvatar::onFirstTEMessageReceived()
 	{
 		mFirstTEMessageReceived = TRUE;
 
+		LLLoadedCallbackEntry::source_callback_list_t* src_callback_list = NULL ;
+		void* callback_src = NULL ;
+		BOOL paused = FALSE ;
+		if(!isSelf())
+		{
+			callback_src = this ;
+			src_callback_list = &mCallbackTextureList ;
+			paused = mLoadedCallbacksPaused ;
+		}
+
 		for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 		{
 			const BOOL layer_baked = isTextureDefined(mBakedTextureDatas[i].mTextureIndex);
@@ -6818,9 +6910,11 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				// If we have more than one texture for the other baked layers, we'll want to call this for them too.
 				if ( (image->getID() != IMG_INVISIBLE) && ((i == BAKED_HEAD) || (i == BAKED_UPPER) || (i == BAKED_LOWER)) )
 				{
-					image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ));
+					image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ), 
+						callback_src, src_callback_list, paused);
 				}
-				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ) );
+				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
+					callback_src, src_callback_list, paused );
 			}
 		}
 
@@ -6841,7 +6935,7 @@ bool LLVOAvatar::visualParamWeightsAreDefault()
 	     param;
 	     param = getNextVisualParam())
 	{
-		if (param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE)
+		if (param->isTweakable())
 		{
 			LLViewerVisualParam* vparam = dynamic_cast<LLViewerVisualParam*>(param);
 			llassert(vparam);
@@ -6951,7 +7045,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		{
 			for( S32 i = 0; i < num_blocks; i++ )
 			{
-				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) )
+				while( param && (param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 				{
 					param = getNextVisualParam();
 				}
@@ -6984,7 +7078,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			}
 		}
 
-		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE);
+		const S32 expected_tweakable_count = getVisualParamCountInGroup(VISUAL_PARAM_GROUP_TWEAKABLE); // don't worry about VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
 		if (num_blocks != expected_tweakable_count)
 		{
 			llinfos << "Number of params in AvatarAppearance msg (" << num_blocks << ") does not match number of tweakable params in avatar xml file (" << expected_tweakable_count << ").  Processing what we can.  object: " << getID() << llendl;
@@ -7271,7 +7365,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 		{
 			LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 			if( (viewer_param->getWearableType() == type) && 
-				(viewer_param->getGroup() == VISUAL_PARAM_GROUP_TWEAKABLE) )
+				(viewer_param->isTweakable() ) )
 			{
 				apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" value=\"%.3f\"/>\n",
 								viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getWeight());

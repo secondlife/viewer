@@ -600,8 +600,6 @@ LLIMWellWindow::LLIMWellWindow(const LLSD& key)
 : LLSysWellWindow(key)
 {
 	LLIMMgr::getInstance()->addSessionObserver(this);
-	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLIMWellWindow::findIMChiclet, this, _1));
-	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLIMWellWindow::findObjectChiclet, this, _1));
 }
 
 LLIMWellWindow::~LLIMWellWindow()
@@ -619,6 +617,10 @@ BOOL LLIMWellWindow::postBuild()
 {
 	BOOL rv = LLSysWellWindow::postBuild();
 	setTitle(getString("title_im_well_window"));
+
+	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLIMWellWindow::findIMChiclet, this, _1));
+	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLIMWellWindow::findObjectChiclet, this, _1));
+
 	return rv;
 }
 
@@ -659,6 +661,8 @@ void LLIMWellWindow::sessionIDUpdated(const LLUUID& old_session_id, const LLUUID
 
 LLChiclet* LLIMWellWindow::findObjectChiclet(const LLUUID& notification_id)
 {
+	if (!mMessageList) return NULL;
+
 	LLChiclet* res = NULL;
 	ObjectRowPanel* panel = mMessageList->getTypedItemByValue<ObjectRowPanel>(notification_id);
 	if (panel != NULL)
@@ -673,6 +677,8 @@ LLChiclet* LLIMWellWindow::findObjectChiclet(const LLUUID& notification_id)
 // PRIVATE METHODS
 LLChiclet* LLIMWellWindow::findIMChiclet(const LLUUID& sessionId)
 {
+	if (!mMessageList) return NULL;
+
 	LLChiclet* res = NULL;
 	RowPanel* panel = mMessageList->getTypedItemByValue<RowPanel>(sessionId);
 	if (panel != NULL)

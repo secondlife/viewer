@@ -13,6 +13,7 @@ include(LLXML)
 include(LScript)
 include(Linking)
 include(Tut)
+include(LLAddBuildTest)
 
 include(GoogleMock)
 
@@ -30,7 +31,7 @@ include_directories(
 
 set(test_SOURCE_FILES
     io.cpp
-#    llapp_tut.cpp						# Temporarily removed until thread issues can be solved
+#    llapp_tut.cpp                      # Temporarily removed until thread issues can be solved
     llblowfish_tut.cpp
     llbuffer_tut.cpp
     lldoubledispatch_tut.cpp
@@ -117,19 +118,12 @@ endif (WINDOWS)
 
 get_target_property(TEST_EXE test LOCATION)
 
-IF(WINDOWS)
-  set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR})
-ELSEIF(DARWIN)
-  set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources:/usr/lib)
-ELSE(WINDOWS)
-  set(LD_LIBRARY_PATH ${SHARED_LIB_STAGING_DIR}:/usr/lib)
-ENDIF(WINDOWS)
-
-LL_TEST_COMMAND("${LD_LIBRARY_PATH}"
+SET_TEST_PATH(LD_LIBRARY_PATH)
+LL_TEST_COMMAND(command "${LD_LIBRARY_PATH}"
   "${TEST_EXE}" "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt" "--touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt")
 ADD_CUSTOM_COMMAND(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt
-  COMMAND ${LL_TEST_COMMAND_value}
+  COMMAND ${command}
   DEPENDS test
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "C++ unit tests"

@@ -81,7 +81,9 @@
 #include "llvoicechannel.h"
 #include "llvoavatarself.h"
 #include "llsidetray.h"
-
+#include "llfeaturemanager.h"
+#include "llurlmatch.h"
+#include "lltextutil.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -192,6 +194,7 @@
 #include "llviewerthrottle.h"
 #include "llparcel.h"
 #include "llavatariconctrl.h"
+#include "llgroupiconctrl.h"
 
 // Include for security api initialization
 #include "llsecapi.h"
@@ -351,6 +354,45 @@ static void ui_audio_callback(const LLUUID& uuid)
 	}
 }
 
+bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
+{
+	if(!match || !base)
+		return false;
+
+	LLUUID match_id = match->getID();
+
+	LLIconCtrl* icon;
+
+	if(gAgent.isInGroup(match_id, TRUE))
+	{
+		LLGroupIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLGroupIconCtrl>();
+		icon_params.group_id = match_id;
+		icon_params.rect = LLRect(0, 16, 16, 0);
+		icon_params.visible = true;
+		icon = LLUICtrlFactory::instance().createWidget<LLGroupIconCtrl>(icon_params);
+	}
+	else
+	{
+		LLAvatarIconCtrl::Params icon_params = LLUICtrlFactory::instance().getDefaultParams<LLAvatarIconCtrl>();
+		icon_params.avatar_id = match_id;
+		icon_params.rect = LLRect(0, 16, 16, 0);
+		icon_params.visible = true;
+		icon = LLUICtrlFactory::instance().createWidget<LLAvatarIconCtrl>(icon_params);
+	}
+
+	LLInlineViewSegment::Params params;
+	params.force_newline = false;
+	params.view = icon;
+	params.left_pad = 4;
+	params.right_pad = 4;
+	params.top_pad = 2;
+	params.bottom_pad = 2;
+
+	base->appendWidget(params," ",false);
+	
+	return true;
+}
+
 void request_initial_instant_messages()
 {
 	static BOOL requested = FALSE;
@@ -379,13 +421,7 @@ bool handleCrashSubmitBehaviorChanged(const LLSD& newvalue)
 	const S32 NEVER_SUBMIT_REPORT = 2;
 	if(cb == NEVER_SUBMIT_REPORT)
 	{
-// 		LLWatchdog::getInstance()->cleanup(); // SJB: cleaning up a running watchdog thread is unsafe
 		LLAppViewer::instance()->destroyMainloopTimeout();
-	}
-	else if(gSavedSettings.getBOOL("WatchdogEnabled") == TRUE)
-	{
-		// Don't re-enable the watchdog when we change the setting; this may get called before it's started
-// 		LLWatchdog::getInstance()->init();
 	}
 	return true;
 }
@@ -890,6 +926,7 @@ bool LLAppViewer::init()
 	}
 	
 	LLViewerMedia::initClass();
+	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
 
 	//EXT-7013 - On windows for some locale (Japanese) standard 
 	//datetime formatting functions didn't support some parameters such as "weekday".
@@ -1685,14 +1722,6 @@ bool LLAppViewer::initThreads()
 	static const bool enable_threads = true;
 #endif
 
-	const S32 NEVER_SUBMIT_REPORT = 2;
-	bool use_watchdog = gSavedSettings.getBOOL("WatchdogEnabled");
-	bool send_reports = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING) != NEVER_SUBMIT_REPORT;
-	if(use_watchdog && send_reports)
-	{
-		LLWatchdog::getInstance()->init(watchdog_killer_callback);
-	}
-
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
 
@@ -1921,18 +1950,11 @@ bool LLAppViewer::initConfiguration()
 	}
 #endif
 
-	//*FIX:Mani - Set default to disabling watchdog mainloop 
-	// timeout for mac and linux. There is no call stack info 
-	// on these platform to help debug.
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
-	gSavedSettings.setBOOL("WatchdogEnabled", FALSE);
 	gSavedSettings.setBOOL("QAMode", TRUE );
+	gSavedSettings.setS32("WatchdogEnabled", 0);
 #endif
-
-#ifndef LL_WINDOWS
-	gSavedSettings.setBOOL("WatchdogEnabled", FALSE);
-#endif
-
+	
 	gCrashSettings.getControl(CRASH_BEHAVIOR_SETTING)->getSignal()->connect(boost::bind(&handleCrashSubmitBehaviorChanged, _2));	
 
 	// These are warnings that appear on the first experience of that condition.
@@ -2359,6 +2381,25 @@ bool LLAppViewer::initWindow()
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
 		FALSE, ignorePixelDepth);
+
+	// Need to load feature table before cheking to start watchdog.
+	const S32 NEVER_SUBMIT_REPORT = 2;
+	bool use_watchdog = false;
+	int watchdog_enabled_setting = gSavedSettings.getS32("WatchdogEnabled");
+	if(watchdog_enabled_setting == -1){
+		use_watchdog = !LLFeatureManager::getInstance()->isFeatureAvailable("WatchdogDisabled");
+	}
+	else
+	{
+		// The user has explicitly set this setting; always use that value.
+		use_watchdog = bool(watchdog_enabled_setting);
+	}
+
+	bool send_reports = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING) != NEVER_SUBMIT_REPORT;
+	if(use_watchdog && send_reports)
+	{
+		LLWatchdog::getInstance()->init(watchdog_killer_callback);
+	}
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 		
@@ -4191,7 +4232,7 @@ void LLAppViewer::forceErrorBreakpoint()
 void LLAppViewer::forceErrorBadMemoryAccess()
 {
     S32* crash = NULL;
-    *crash = 0xDEADBEEF;
+    *crash = 0xDEADBEEF;  
     return;
 }
 

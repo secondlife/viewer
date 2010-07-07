@@ -40,6 +40,7 @@
 #include "llscrollcontainer.h"
 #include "llstl.h"
 #include "lltextparser.h"
+#include "lltextutil.h"
 #include "lltooltip.h"
 #include "lluictrl.h"
 #include "llurlaction.h"
@@ -193,6 +194,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mHPad(p.h_pad),
 	mVPad(p.v_pad),
 	mHAlign(p.font_halign),
+	mVAlign(p.font_valign),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
 	mClipPartial(p.clip_partial && !p.allow_scroll),
@@ -482,9 +484,9 @@ void LLTextBase::drawCursor()
 					text_color = mFgColor.get();
 					fontp = mDefaultFont;
 				}
-				fontp->render(text, mCursorPos, cursor_rect.mLeft, cursor_rect.mTop, 
+				fontp->render(text, mCursorPos, cursor_rect, 
 					LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
-					LLFontGL::LEFT, LLFontGL::TOP,
+					LLFontGL::LEFT, mVAlign,
 					LLFontGL::NORMAL,
 					LLFontGL::NO_SHADOW,
 					1);
@@ -1608,6 +1610,9 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		while ( LLUrlRegistry::instance().findUrl(text, match,
 		        boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3)) )
 		{
+			
+			LLTextUtil::processUrlMatch(&match,this);
+
 			start = match.getStart();
 			end = match.getEnd()+1;
 
@@ -1628,24 +1633,6 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 				}
 				std::string subtext=text.substr(0,start);
 				appendAndHighlightText(subtext, part, style_params); 
-			}
-
-			// output an optional icon before the Url
-			if (! match.getIcon().empty())
-			{
-				LLUIImagePtr image = image_from_icon_name( match.getIcon() );
-				if (image)
-				{
-					LLStyle::Params icon_params;
-					icon_params.image = image;
-					// must refer to our link so we can update the icon later
-					// after name/group data is looked up
-					icon_params.link_href = match.getUrl();
-					// Text will be replaced during rendering with the icon,
-					// but string cannot be empty or the segment won't be
-					// added (or drawn).
-					appendImageSegment(part, icon_params);
-				}
 			}
 
 			// output the styled Url
@@ -1710,7 +1697,7 @@ void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 	insertStringNoUndo(getLength(), utf8str_to_wstring("\n"), &segments);
 }
 
-void LLTextBase::appendImageSegment(S32 highlight_part, const LLStyle::Params& style_params)
+void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
 {
 	if(getPlainText())
 	{
@@ -1723,7 +1710,14 @@ void LLTextBase::appendImageSegment(S32 highlight_part, const LLStyle::Params& s
 	insertStringNoUndo(getLength(), utf8str_to_wstring(" "), &segments);
 }
 
+void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo)
+{
+	segment_vec_t segments;
+	LLWString widget_wide_text = utf8str_to_wstring(text);
+	segments.push_back(new LLInlineViewSegment(params, getLength(), getLength() + widget_wide_text.size()));
 
+	insertStringNoUndo(getLength(), widget_wide_text, &segments);
+}
 
 void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params)
 {
@@ -2459,12 +2453,12 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = llmin( selection_start, seg_end );
 		S32 length =  end - start;
 		font->render(text, start, 
-			     rect.mLeft, rect.mTop, 
+			     rect, 
 			     color, 
-			     LLFontGL::LEFT, LLFontGL::TOP, 
+			     LLFontGL::LEFT, mEditor.mVAlign, 
 			     LLFontGL::NORMAL, 
 			     mStyle->getShadowType(), 
-			     length, rect.getWidth(), 
+			     length,
 			     &right_x, 
 			     mEditor.getUseEllipses());
 	}
@@ -2478,12 +2472,12 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 length = end - start;
 
 		font->render(text, start, 
-			     rect.mLeft, rect.mTop,
+			     rect,
 			     LLColor4( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], 1.f ),
-			     LLFontGL::LEFT, LLFontGL::TOP, 
+			     LLFontGL::LEFT, mEditor.mVAlign, 
 			     LLFontGL::NORMAL, 
 			     LLFontGL::NO_SHADOW, 
-			     length, rect.getWidth(), 
+			     length,
 			     &right_x, 
 			     mEditor.getUseEllipses());
 	}
@@ -2495,12 +2489,12 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		S32 end = seg_end;
 		S32 length = end - start;
 		font->render(text, start, 
-			     rect.mLeft, rect.mTop, 
+			     rect, 
 			     color, 
-			     LLFontGL::LEFT, LLFontGL::TOP, 
+			     LLFontGL::LEFT, mEditor.mVAlign, 
 			     LLFontGL::NORMAL, 
 			     mStyle->getShadowType(), 
-			     length, rect.getWidth(), 
+			     length,
 			     &right_x, 
 			     mEditor.getUseEllipses());
 	}

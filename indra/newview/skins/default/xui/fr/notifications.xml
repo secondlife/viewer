@@ -474,7 +474,9 @@ La qualité des graphiques peut être augmentée à la section Préférences &gt
 		Le terraformage est interdit dans la région [REGION].
 	</notification>
 	<notification name="CannotCopyWarning">
-		Vous n&apos;êtes pas autorisé à copier cet objet et il disparaîtra de votre inventaire si vous le donnez. Souhaitez-vous vraiment offrir cet objet ?
+		Vous n&apos;êtes pas autorisé à copier les articles suivants :
+[ITEMS].
+Ceux-ci disparaîtront donc de votre inventaire si vous les donnez. Voulez-vous vraiment offrir ces articles ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -612,8 +614,7 @@ Assurez-vous que le fichier a l&apos;extension correcte.
 		Impossible d&apos;encoder le fichier : [FILE]
 	</notification>
 	<notification name="CorruptedProtectedDataStore">
-		Impossible de lire vos données protégées ; elles sont en cours de réinitialisation.
-   Cette situation peut se produire lorsque vous changez la configuration du réseau.
+		Impossible de renseigner votre nom d&apos;utilisateur et mot de passe.  Cette situation peut se produire lorsque vous changez la configuration du réseau.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CorruptResourceFile">
@@ -938,6 +939,26 @@ Proposer à [NAME] de devenir votre ami(e) ?
 		<form name="form">
 			<input name="message">
 				[DESC] (nouv.)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Annuler"/>
+		</form>
+	</notification>
+	<notification label="Enregistrer l&apos;article à porter" name="SaveWearableAs">
+		Enregistrer l&apos;article dans mon inventaire comme :
+		<form name="form">
+			<input name="message">
+				[DESC] (nouv.)
+			</input>
+			<button name="Offer" text="OK"/>
+			<button name="Cancel" text="Annuler"/>
+		</form>
+	</notification>
+	<notification label="Renommer la tenue" name="RenameOutfit">
+		Nouveau nom de la tenue :
+		<form name="form">
+			<input name="new_name">
+				[NAME]
 			</input>
 			<button name="Offer" text="OK"/>
 			<button name="Cancel" text="Annuler"/>
@@ -1555,7 +1576,7 @@ Souhaitez-vous en savoir plus sur les différentes catégories d&apos;accès ?
 	<notification name="RegionEntryAccessBlocked_Change">
 		La catégorie de contenu définie dans vos préférences ne vous permet pas de pénétrer dans cette région.
 
-Pour cela, cliquez sur Modifier les préférences afin de spécifier une catégorie plus élevée. Vous pourrez alors rechercher du contenu [REGIONMATURITY] et y accéder. Pour modifier ce paramètre ultérieurement, accédez à Moi &gt; Préférences &gt; Général, le moment voulu.
+Pour cela, vous devez modifier votre paramètre de catégorie de contenu. Vous pourrez alors rechercher du contenu [REGIONMATURITY] et y accéder. Pour annuler vos modifications, accédez à Moi &gt; Préférences &gt; Général.
 		<form name="form">
 			<button name="OK" text="Modifier les préférences"/>
 			<button default="true" name="Cancel" text="Fermer"/>
@@ -2573,6 +2594,21 @@ Pour y participer, cliquez sur Accepter. Sinon, cliquez sur Refuser. Pour ignore
 	<notification name="VoiceLoginRetry">
 		Nous sommes en train de créer un canal vocal pour vous. Veuillez patienter quelques instants.
 	</notification>
+	<notification name="VoiceEffectsExpired">
+		Au moins l&apos;un des effets de voix auxquels vous êtes abonné a expiré.
+[[URL] Cliquez ici] pour renouveler votre abonnement.
+	</notification>
+	<notification name="VoiceEffectsExpiredInUse">
+		L&apos;effet de voix actif a expiré. Vos paramètres de voix normaux ont été rétablis.
+[[URL] Cliquez ici] pour renouveler votre abonnement.
+	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		Au moins l&apos;un de vos effets de voix expirera dans moins de [INTERVAL] jours.
+[[URL] Cliquez ici] pour renouveler votre abonnement.
+	</notification>
+	<notification name="VoiceEffectsNew">
+		De nouveaux effets de voix sont disponibles !
+	</notification>
 	<notification name="Cannot enter parcel: not a group member">
 		Seuls les membres d&apos;un certain groupe peuvent visiter cette zone.
 	</notification>
@@ -2639,18 +2675,36 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 Le bouton sera affiché quand il y aura suffisamment de place.
 	</notification>
 	<notification name="ShareNotification">
-		Faire glisser des articles de l&apos;inventaire sur une personne dans le sélecteur de résident
+		Sélectionnez les résidents avec lesquels partager l&apos;élément.
+	</notification>
+	<notification name="ShareItemsConfirmation">
+		Voulez-vous vraiment partager les articles suivants :
+
+[ITEMS]
+
+avec les résidents suivants :
+
+[RESIDENTS] ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Ok"/>
+	</notification>
+	<notification name="ItemsShared">
+		Articles partagés.
 	</notification>
 	<notification name="DeedToGroupFail">
 		Échec de cession au groupe.
 	</notification>
 	<notification name="AvatarRezNotification">
 		([EXISTENCE] secondes d&apos;existence)
-Nuage de l&apos;avatar [NAME] disparu en [TIME] secondes.
+Nuage de l&apos;avatar [NAME] disparu au bout de [TIME] secondes.
 	</notification>
-	<notification name="AvatarRezSelfNotification">
+	<notification name="AvatarRezSelfBakedDoneNotification">
 		([EXISTENCE] secondes d&apos;existence)
-Vous avez terminé de figer votre tenue en [TIME] secondes.
+Tenue figée au bout de [TIME] secondes.
+	</notification>
+	<notification name="AvatarRezSelfBakedUpdateNotification">
+		([EXISTENCE] secondes d&apos;existence)
+Mise à jour de votre apparence transmise au bout de [TIME] secondes.
+[STATUS]
 	</notification>
 	<notification name="AvatarRezCloudNotification">
 		([EXISTENCE] secondes d&apos;existence)
@@ -2672,9 +2726,31 @@ L&apos;avatar [NAME] est entré en mode Apparence.
 		([EXISTENCE] secondes d&apos;existence)
 L&apos;avatar [NAME] a quitté le mode Apparence.
 	</notification>
+	<notification name="NoConnect">
+		Problèmes de connexion via [PROTOCOL] [HOSTID].
+Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
+	<notification name="NoVoiceConnect">
+		Problèmes de connexion à votre serveur vocal :
+
+[HOSTID]
+
+Aucune communication vocale n&apos;est disponible.
+Veuillez vérifier la configuration de votre réseau et de votre pare-feu.
+		<form name="form">
+			<button name="OK" text="OK"/>
+		</form>
+	</notification>
 	<notification name="AvatarRezLeftNotification">
 		([EXISTENCE] secondes d&apos;existence)
 Départ de l&apos;avatar [NAME] entièrement chargé.
+	</notification>
+	<notification name="AvatarRezSelfBakeNotification">
+		([EXISTENCE] secondes d&apos;existence)
+Texture figée de [RESOLUTION] chargée pour [BODYREGION] au bout de [TIME] secondes.
 	</notification>
 	<notification name="ConfirmLeaveCall">
 		Voulez-vous vraiment quitter cet appel ?
@@ -2686,7 +2762,7 @@ Les résidents rejoignant l&apos;appel ultérieurement seront également
 ignorés, même si vous quittez l&apos;appel.
 
 Ignorer les autres ?
-		<usetemplate ignoretext="Confirmer avant d&apos;ignorer les autres lors d&apos;un appel de groupe" name="okcancelignore" notext="Ok" yestext="Annuler"/>
+		<usetemplate ignoretext="Confirmer avant d&apos;ignorer les autres lors d&apos;un appel de groupe" name="okcancelignore" notext="Annuler" yestext="Ok"/>
 	</notification>
 	<global name="UnsupportedCPU">
 		- Votre processeur ne remplit pas les conditions minimum requises.
