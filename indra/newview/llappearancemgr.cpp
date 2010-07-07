@@ -989,16 +989,15 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 			{
 				removeCOFItemLinks(gAgentWearables.getWearableItemID(item_to_wear->getWearableType(), wearable_count-1), false);
 			}
+			addCOFItemLink(item_to_wear, do_update);
 		} 
+		break;
 	case LLAssetType::AT_BODYPART:
 		// TODO: investigate wearables may not be loaded at this point EXT-8231
 		
 		// Remove the existing wearables of the same type.
 		// Remove existing body parts anyway because we must not be able to wear e.g. two skins.
-		if (item_to_wear->getType() == LLAssetType::AT_BODYPART)
-		{
-			removeCOFLinksOfType(item_to_wear->getWearableType(), false);
-		}
+		removeCOFLinksOfType(item_to_wear->getWearableType(), false);
 
 		addCOFItemLink(item_to_wear, do_update);
 		break;
