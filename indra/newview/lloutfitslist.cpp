@@ -453,6 +453,12 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 		{
 			// Remove accordion tab if category could not be added to observer.
 			mAccordion->removeCollapsibleCtrl(tab);
+
+			// kill removed tab
+			if (tab != NULL)
+			{
+				tab->die();
+			}
 			continue;
 		}
 
@@ -523,6 +529,12 @@ void LLOutfitsList::refreshList(const LLUUID& category_id)
 
 			// 4. Remove outfit tab from accordion.
 			mAccordion->removeCollapsibleCtrl(tab);
+
+			// kill removed tab
+			if (tab != NULL)
+			{
+				tab->die();
+			}
 		}
 	}
 
@@ -889,18 +901,6 @@ void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
 		if (!new_filter_substring.empty())
 		{
 			applyFilterToTab(iter->first, tab, new_filter_substring);
-
-			if (tab->getVisible())
-			{
-				// Open tab if it has passed the filter.
-				tab->setDisplayChildren(true);
-			}
-			else
-			{
-				// Set force refresh flag to refresh not visible list
-				// when some changes occur in it.
-				list->setForceRefresh(true);
-			}
 		}
 		else
 		{
@@ -952,6 +952,18 @@ void LLOutfitsList::applyFilterToTab(
 	{
 		// Try restoring the tab selection.
 		restoreOutfitSelection(tab, category_id);
+	}
+
+	if (tab->getVisible())
+	{
+		// Open tab if it has passed the filter.
+		tab->setDisplayChildren(true);
+	}
+	else
+	{
+		// Set force refresh flag to refresh not visible list
+		// when some changes occur in it.
+		list->setForceRefresh(true);
 	}
 }
 
