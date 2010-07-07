@@ -374,6 +374,12 @@ void LLAccordionCtrl::removeCollapsibleCtrl(LLView* view)
 			break;
 		}
 	}
+
+	// if removed is selected - reset selection
+	if (mSelectedTab == view)
+	{
+		mSelectedTab = NULL;
+	}
 }
 
 void	LLAccordionCtrl::initNoTabsWidget(const LLTextBox::Params& tb_params)
