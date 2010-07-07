@@ -2310,6 +2310,7 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 				setAnimationDuration(turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP);
 			}
 
+			gAgentAvatarp->invalidateAll();
 			gAgentAvatarp->updateMeshTextures();
 		}
 	}

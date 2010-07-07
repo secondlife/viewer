@@ -776,7 +776,7 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 		{
 			// Navigation Panel must be shown. Favorites Panel is hidden.
 
-			S32 height = mDefaultNbRect.getHeight() - mDefaultFpRect.getHeight();
+			S32 height = mDefaultNbRect.getHeight() - mDefaultFpRect.getHeight() - FAVBAR_TOP_PADDING;
 			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), height);
 
 			reshape(nbRect.getWidth(), nbRect.getHeight());
@@ -790,8 +790,11 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 		{
 			// Navigation Panel must be hidden. Favorites Panel is visible.
 
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fbRect.getHeight());
-			fbRect.setLeftTopAndSize(fbRect.mLeft, fbRect.getHeight(), fbRect.getWidth(), fbRect.getHeight());
+			S32 fpHeight = mDefaultFpRect.getHeight() + FAVBAR_TOP_PADDING;
+			S32 fpTop = fpHeight - (mDefaultFpRect.getHeight() / 2) + 1;
+
+			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fpHeight);
+			fbRect.setLeftTopAndSize(fbRect.mLeft, fpTop, fbRect.getWidth(), mDefaultFpRect.getHeight());
 
 			// this is duplicated in 'else' section because it should be called BEFORE fb->reshape
 			reshape(nbRect.getWidth(), nbRect.getHeight());
@@ -813,8 +816,9 @@ void LLNavigationBar::showNavigationPanel(BOOL visible)
 		}
 	}
 
-	childSetVisible("bg_icon", fpVisible);
-	childSetVisible("bg_icon_no_fav", !fpVisible);
+	childSetVisible("bg_icon", visible && fpVisible);
+	childSetVisible("bg_icon_no_fav_bevel", visible && !fpVisible);
+	childSetVisible("bg_icon_no_nav_bevel", !visible && fpVisible);
 }
 
 void LLNavigationBar::showFavoritesPanel(BOOL visible)
@@ -833,7 +837,7 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 			// Favorites Panel must be shown. Navigation Panel is visible.
 
 			S32 fbHeight = fbRect.getHeight();
-			S32 newHeight = nbRect.getHeight() + fbHeight;
+			S32 newHeight = nbRect.getHeight() + fbHeight + FAVBAR_TOP_PADDING;
 
 			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), newHeight);
 			fbRect.setLeftTopAndSize(mDefaultFpRect.mLeft, mDefaultFpRect.mTop, fbRect.getWidth(), fbRect.getHeight());
@@ -842,9 +846,11 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 		{
 			// Favorites Panel must be shown. Navigation Panel is hidden.
 
-			S32 fpHeight = mDefaultFpRect.getHeight();
+			S32 fpHeight = mDefaultFpRect.getHeight() + FAVBAR_TOP_PADDING;
+			S32 fpTop = fpHeight - (mDefaultFpRect.getHeight() / 2) + 1;
+
 			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fpHeight);
-			fbRect.setLeftTopAndSize(fbRect.mLeft, fpHeight, fbRect.getWidth(), fpHeight);
+			fbRect.setLeftTopAndSize(fbRect.mLeft, fpTop, fbRect.getWidth(), mDefaultFpRect.getHeight());
 		}
 
 		reshape(nbRect.getWidth(), nbRect.getHeight());
@@ -861,7 +867,7 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 			// Favorites Panel must be hidden. Navigation Panel is visible.
 
 			S32 fbHeight = fbRect.getHeight();
-			S32 newHeight = nbRect.getHeight() - fbHeight;
+			S32 newHeight = nbRect.getHeight() - fbHeight - FAVBAR_TOP_PADDING;
 
 			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), newHeight);
 		}
@@ -877,8 +883,9 @@ void LLNavigationBar::showFavoritesPanel(BOOL visible)
 		getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
 	}
 
-	childSetVisible("bg_icon", visible);
-	childSetVisible("bg_icon_no_fav", !visible);
+	childSetVisible("bg_icon", npVisible && visible);
+	childSetVisible("bg_icon_no_fav_bevel", npVisible && !visible);
+	childSetVisible("bg_icon_no_nav_bevel", !npVisible && visible);
 
 	fb->setVisible(visible);
 }

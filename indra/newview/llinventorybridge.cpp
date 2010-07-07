@@ -1619,84 +1619,70 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 											BOOL drop)
 {
-	// This should never happen, but if an inventory item is incorrectly parented,
-	// the UI will get confused and pass in a NULL.
-	if(!inv_cat) return FALSE;
 
 	LLInventoryModel* model = getInventoryModel();
-	if(!model) return FALSE;
 
+	if (!inv_cat) return FALSE; // shouldn't happen, but in case item is incorrectly parented in which case inv_cat will be NULL
+	if (!model) return FALSE;
 	if (!isAgentAvatarValid()) return FALSE;
+	if (!isAgentInventory()) return FALSE; // cannot drag categories into library
 
-	// cannot drag categories into library
-	if(!isAgentInventory())
-	{
-		return FALSE;
-	}
 
 	// check to make sure source is agent inventory, and is represented there.
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
-	BOOL is_agent_inventory = (model->getCategory(inv_cat->getUUID()) != NULL)
+	const BOOL is_agent_inventory = (model->getCategory(inv_cat->getUUID()) != NULL)
 		&& (LLToolDragAndDrop::SOURCE_AGENT == source);
 
 	BOOL accept = FALSE;
-	S32 i;
-	LLInventoryModel::cat_array_t	descendent_categories;
-	LLInventoryModel::item_array_t	descendent_items;
-	if(is_agent_inventory)
+	if (is_agent_inventory)
 	{
-		const LLUUID& cat_id = inv_cat->getUUID();
+		const LLUUID &cat_id = inv_cat->getUUID();
+		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
+		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		
+		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
+		const BOOL move_is_into_outfit = getCategory() && (getCategory()->getPreferredType() == LLFolderType::FT_OUTFIT);
+		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 
-		// Is the destination the trash?
-		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		BOOL move_is_into_trash = (mUUID == trash_id)
-			|| model->isObjectDescendentOf(mUUID, trash_id);
-		BOOL is_movable = (!LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()));
-		const LLUUID current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-		BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
-		BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
-		if (move_is_into_current_outfit || move_is_into_outfit)
-		{
-			// BAP - restrictions?
-			is_movable = true;
-		}
+		//--------------------------------------------------------------------------------
+		// Determine if folder can be moved.
+		//
 
+		BOOL is_movable = TRUE;
+		if (LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
+			is_movable = FALSE;
+		if (move_is_into_outfit)
+			is_movable = FALSE;
 		if (mUUID == gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE))
+			is_movable = FALSE;
+		LLInventoryModel::cat_array_t descendent_categories;
+		LLInventoryModel::item_array_t descendent_items;
+		gInventory.collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
+		for (S32 i=0; i < descendent_categories.count(); ++i)
 		{
-			is_movable = FALSE; // It's generally movable but not into Favorites folder. EXT-1604
-		}
-
-		if( is_movable )
-		{
-			gInventory.collectDescendents( cat_id, descendent_categories, descendent_items, FALSE );
-
-			for( i = 0; i < descendent_categories.count(); i++ )
+			LLInventoryCategory* category = descendent_categories[i];
+			if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
 			{
-				LLInventoryCategory* category = descendent_categories[i];
-				if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+				// Can't move "special folders" (e.g. Textures Folder).
+				is_movable = FALSE;
+				break;
+			}
+		}
+		if (move_is_into_trash)
+		{
+			for (S32 i=0; i < descendent_items.count(); ++i)
+			{
+				LLInventoryItem* item = descendent_items[i];
+				if (get_is_item_worn(item->getUUID()))
 				{
-					// ...can't move "special folders" like Textures
 					is_movable = FALSE;
-					break;
-				}
-			}
-
-			if( is_movable )
-			{
-				if( move_is_into_trash )
-				{
-					for( i = 0; i < descendent_items.count(); i++ )
-					{
-						LLInventoryItem* item = descendent_items[i];
-						if (get_is_item_worn(item->getUUID()))
-						{
-							is_movable = FALSE;
-							break; // It's generally movable, but not into the trash!
-						}
-					}
+					break; // It's generally movable, but not into the trash.
 				}
 			}
 		}
+
+		// 
+		//--------------------------------------------------------------------------------
 
 		accept = is_movable
 			&& (mUUID != cat_id)								// Can't move a folder into itself
@@ -1707,7 +1693,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			// Look for any gestures and deactivate them
 			if (move_is_into_trash)
 			{
-				for (i = 0; i < descendent_items.count(); i++)
+				for (S32 i=0; i < descendent_items.count(); i++)
 				{
 					LLInventoryItem* item = descendent_items[i];
 					if (item->getType() == LLAssetType::AT_GESTURE
@@ -2617,11 +2603,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			gInventory.addObserver(fetch);
 		}
 	}
-	else
-	{
-		mItems.push_back(std::string("--no options--"));
-		mDisabledItems.push_back(std::string("--no options--"));
-	}
 
 	// Preemptively disable system folder removal if more than one item selected.
 	if ((flags & FIRST_SELECTED_ITEM) == 0)
@@ -2633,6 +2614,12 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	if (!canShare())
 	{
 		mDisabledItems.push_back(std::string("Share"));
+	}
+
+	if (mItems.empty())
+	{
+		mItems.push_back(std::string("--no options--"));
+		mDisabledItems.push_back(std::string("--no options--"));
 	}
 
 	hide_context_entries(menu, mItems, mDisabledItems);
@@ -2847,18 +2834,16 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 	return false;
 }
 
+// This is used both for testing whether an item can be dropped
+// into the folder, as well as performing the actual drop, depending
+// if drop == TRUE.
 BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 										BOOL drop)
 {
 	LLInventoryModel* model = getInventoryModel();
+
 	if(!model || !inv_item) return FALSE;
-
-	// cannot drag into library
-	if(!isAgentInventory())
-	{
-		return FALSE;
-	}
-
+	if(!isAgentInventory()) return FALSE; // cannot drag into library
 	if (!isAgentAvatarValid()) return FALSE;
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
@@ -2866,8 +2851,23 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	LLViewerObject* object = NULL;
 	if(LLToolDragAndDrop::SOURCE_AGENT == source)
 	{
+		const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
+		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE, false);
+
+		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
+		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
+		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+		const BOOL move_is_outof_current_outfit = LLAppearanceMgr::instance().getIsInCOF(inv_item->getUUID());
+		const BOOL folder_allows_reorder = (mUUID == favorites_id);
+
+		//--------------------------------------------------------------------------------
+		// Determine if item can be moved.
+		//
+
 		BOOL is_movable = TRUE;
-		switch( inv_item->getActualType() )
+
+		switch (inv_item->getActualType())
 		{
 			case LLAssetType::AT_CATEGORY:
 				is_movable = !LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)inv_item)->getPreferredType());
@@ -2875,41 +2875,50 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			default:
 				break;
 		}
-
-		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		const BOOL move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
-		const LLUUID current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
-		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
-		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
-		const BOOL move_is_outof_current_outfit = LLAppearanceMgr::instance().getIsInCOF(inv_item->getUUID());
-
 		// Can't explicitly drag things out of the COF.
 		if (move_is_outof_current_outfit)
 		{
 			is_movable = FALSE;
 		}
-		
-		if(is_movable && move_is_into_trash)
+		if (move_is_into_trash)
 		{
-			is_movable = inv_item->getIsLinkType() || !get_is_item_worn(inv_item->getUUID());
+			is_movable &= inv_item->getIsLinkType() || !get_is_item_worn(inv_item->getUUID());
 		}
-
-		if ( is_movable )
+		if (is_movable)
 		{
 			// Don't allow creating duplicates in the Calling Card/Friends
 			// subfolders, see bug EXT-1599. Check is item direct descendent
 			// of target folder and forbid item's movement if it so.
 			// Note: isItemDirectDescendentOfCategory checks if
 			// passed category is in the Calling Card/Friends folder
-			is_movable = ! LLFriendCardsManager::instance()
-				.isObjDirectDescendentOfCategory (inv_item, getCategory());
+			is_movable &= !LLFriendCardsManager::instance().isObjDirectDescendentOfCategory(inv_item, getCategory());
 		}
 
-		const LLUUID& favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-		const BOOL folder_allows_reorder = (mUUID == favorites_id);
-	   
-		// we can move item inside a folder only if this folder is Favorites. See EXT-719
-		accept = is_movable && ((mUUID != inv_item->getParentUUID()) || folder_allows_reorder);
+		// 
+		//--------------------------------------------------------------------------------
+		
+		//--------------------------------------------------------------------------------
+		// Determine if item can be moved & dropped
+		//
+
+		accept = TRUE;
+
+		if (!is_movable) 
+			accept = FALSE;
+		if ((mUUID == inv_item->getParentUUID()) && !folder_allows_reorder)
+			accept = FALSE;
+		if (move_is_into_current_outfit || move_is_into_outfit)
+		{
+			if ((inv_item->getInventoryType() != LLInventoryType::IT_WEARABLE) &&
+				(inv_item->getInventoryType() != LLInventoryType::IT_GESTURE) &&
+				(inv_item->getInventoryType() != LLInventoryType::IT_OBJECT))
+				accept = FALSE;
+		}
+		if (move_is_into_current_outfit && get_is_item_worn(inv_item->getUUID()))
+		{
+			accept = FALSE;
+		}
+
 		if(accept && drop)
 		{
 			if (inv_item->getType() == LLAssetType::AT_GESTURE
@@ -2917,10 +2926,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 				LLGestureMgr::instance().deactivateGesture(inv_item->getUUID());
 			}
-			// If an item is being dragged between windows, unselect
-			// everything in the active window so that we don't follow
-			// the selection to its new location (which is very
-			// annoying).
+			// If an item is being dragged between windows, unselect everything in the active window 
+			// so that we don't follow the selection to its new location (which is very annoying).
 			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
 			if (active_panel)
 			{
@@ -2931,7 +2938,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				}
 			}
 
-			// if dragging from/into favorites folder only reorder items
+			//--------------------------------------------------------------------------------
+			// Destination folder logic
+			// 
+
+			// REORDER
+			// (only reorder the item)
 			if ((mUUID == inv_item->getParentUUID()) && folder_allows_reorder)
 			{
 				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
@@ -2943,7 +2955,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 					gInventory.rearrangeFavoriteLandmarks(srcItemId, destItemId);
 				}
 			}
-			else if (favorites_id == mUUID) // if target is the favorites folder we use copy
+
+			// FAVORITES folder
+			// (copy the item)
+			else if (favorites_id == mUUID)
 			{
 				// use callback to rearrange favorite landmarks after adding
 				// to have new one placed before target (on which it was dropped). See EXT-4312.
@@ -2963,38 +2978,50 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 					std::string(),
 					cb);
 			}
+			// CURRENT OUTFIT or OUTFIT folder
+			// (link the item)
 			else if (move_is_into_current_outfit || move_is_into_outfit)
 			{
-				// BAP - should skip if dup.
-				if (move_is_into_current_outfit)
+				if ((inv_item->getInventoryType() == LLInventoryType::IT_WEARABLE) || 
+					(inv_item->getInventoryType() == LLInventoryType::IT_GESTURE) || 
+					(inv_item->getInventoryType() == LLInventoryType::IT_OBJECT))
 				{
-					LLAppearanceMgr::instance().addCOFItemLink(inv_item);
-				}
-				else
-				{
-					LLPointer<LLInventoryCallback> cb = NULL;
-					link_inventory_item(
-						gAgent.getID(),
-						inv_item->getLinkedUUID(),
-						mUUID,
-						inv_item->getName(),
-						inv_item->getDescription(),
-						LLAssetType::AT_LINK,
-						cb);
+					// BAP - should skip if dup.
+					if (move_is_into_current_outfit)
+					{
+						LLAppearanceMgr::instance().addCOFItemLink(inv_item);
+					}
+					else
+					{
+						LLPointer<LLInventoryCallback> cb = NULL;
+						link_inventory_item(
+							gAgent.getID(),
+							inv_item->getLinkedUUID(),
+							mUUID,
+							inv_item->getName(),
+							inv_item->getDescription(),
+							LLAssetType::AT_LINK,
+							cb);
+					}
 				}
 			}
+			// NORMAL or TRASH folder
+			// (move the item, restamp if into trash)
 			else
 			{
-				// restamp if the move is into the trash.
 				LLInvFVBridge::changeItemParent(
 					model,
 					(LLViewerInventoryItem*)inv_item,
 					mUUID,
 					move_is_into_trash);
 			}
+
+			// 
+			//--------------------------------------------------------------------------------
+
 		}
 	}
-	else if(LLToolDragAndDrop::SOURCE_WORLD == source)
+	else if (LLToolDragAndDrop::SOURCE_WORLD == source)
 	{
 		// Make sure the object exists. If we allowed dragging from
 		// anonymous objects, it would be possible to bypass
@@ -3012,7 +3039,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		BOOL is_move = FALSE;
 		if((perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID())
 			&& perm.allowTransferTo(gAgent.getID())))
-//		   || gAgent.isGodlike())
+			// || gAgent.isGodlike())
 
 		{
 			accept = TRUE;

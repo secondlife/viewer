@@ -22,14 +22,25 @@
 	 width="600"/>
 	<icon
 	 follows="all"
-	 image_name="NavBar_BG_NoFav"
+	 image_name="NavBar_BG_NoFav_Bevel"
 	 mouse_opaque="false"
-	 name="bg_icon_no_fav"
+	 name="bg_icon_no_fav_bevel"
 	 scale_image="true"
 	 visible="false"
 	 left="0"
 	 top="0"
-	 height="50"
+	 height="60"
+	 width="600"/>
+	<icon
+	 follows="all"
+	 image_name="NavBar_BG_NoNav_Bevel"
+	 mouse_opaque="false"
+	 name="bg_icon_no_nav_bevel"
+	 scale_image="true"
+	 visible="false"
+	 left="0"
+	 top="0"
+	 height="60"
 	 width="600"/>
 	<panel
 	 background_visible="false"

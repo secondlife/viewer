@@ -148,6 +148,8 @@ public:
 	void onInventorySelectionChange();
 	void onPlusBtnClicked(void);
 
+	void onVisibilityChange();
+
 	void applyFolderViewFilter(EFolderViewItemType type);
 	void applyListViewFilter(EListViewItemType type);
 
