@@ -99,7 +99,7 @@ public:
 	const LLUUID getBaseOutfitUUID();
 
 	// Wear/attach an item (from a user's inventory) on the agent
-	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true, bool replace = false);
+	bool wearItemOnAvatar(const LLUUID& item_to_wear, bool do_update = true, bool replace = false, LLPointer<LLInventoryCallback> cb = NULL);
 
 	// Update the displayed outfit name in UI.
 	void updatePanelOutfitName(const std::string& name);
@@ -124,8 +124,8 @@ public:
 				 LLPointer<LLInventoryCallback> cb);
 
 	// Add COF link to individual item.
-	void addCOFItemLink(const LLUUID& item_id, bool do_update = true);
-	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true);
+	void addCOFItemLink(const LLUUID& item_id, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL);
+	void addCOFItemLink(const LLInventoryItem *item, bool do_update = true, LLPointer<LLInventoryCallback> cb = NULL);
 
 	// Remove COF entries
 	void removeCOFItemLinks(const LLUUID& item_id, bool do_update = true);

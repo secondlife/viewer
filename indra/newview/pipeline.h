@@ -584,7 +584,7 @@ protected:
 	//
 	LLDrawable::drawable_list_t 	mBuildQ1; // priority
 	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
-	LLSpatialGroup::sg_list_t		mGroupQ1; //priority
+	LLSpatialGroup::sg_vector_t		mGroupQ1; //priority
 	LLSpatialGroup::sg_vector_t		mGroupQ2; // non-priority
 
 	LLViewerObject::vobj_list_t		mCreateQ;

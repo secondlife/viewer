@@ -951,7 +951,7 @@ const LLUUID LLAppearanceMgr::getBaseOutfitUUID()
 	return outfit_cat->getUUID();
 }
 
-bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_update, bool replace)
+bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_update, bool replace, LLPointer<LLInventoryCallback> cb)
 {
 	if (item_id_to_wear.isNull()) return false;
 
@@ -1005,7 +1005,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 		// Remove existing body parts anyway because we must not be able to wear e.g. two skins.
 		removeCOFLinksOfType(item_to_wear->getWearableType(), false);
 
-		addCOFItemLink(item_to_wear, do_update);
+		addCOFItemLink(item_to_wear, do_update, cb);
 		break;
 	case LLAssetType::AT_OBJECT:
 		rez_attachment(item_to_wear, NULL);
@@ -1959,9 +1959,10 @@ bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventor
 class LLDeferredCOFLinkObserver: public LLInventoryObserver
 {
 public:
-	LLDeferredCOFLinkObserver(const LLUUID& item_id, bool do_update):
+	LLDeferredCOFLinkObserver(const LLUUID& item_id, bool do_update, LLPointer<LLInventoryCallback> cb = NULL):
 		mItemID(item_id),
-		mDoUpdate(do_update)
+		mDoUpdate(do_update),
+		mCallback(cb)
 	{
 	}
 
@@ -1975,7 +1976,7 @@ public:
 		if (item)
 		{
 			gInventory.removeObserver(this);
-			LLAppearanceMgr::instance().addCOFItemLink(item,mDoUpdate);
+			LLAppearanceMgr::instance().addCOFItemLink(item,mDoUpdate,mCallback);
 			delete this;
 		}
 	}
@@ -1983,26 +1984,27 @@ public:
 private:
 	const LLUUID mItemID;
 	bool mDoUpdate;
+	LLPointer<LLInventoryCallback> mCallback;
 };
 
 
 // BAP - note that this runs asynchronously if the item is not already loaded from inventory.
 // Dangerous if caller assumes link will exist after calling the function.
-void LLAppearanceMgr::addCOFItemLink(const LLUUID &item_id, bool do_update )
+void LLAppearanceMgr::addCOFItemLink(const LLUUID &item_id, bool do_update, LLPointer<LLInventoryCallback> cb)
 {
 	const LLInventoryItem *item = gInventory.getItem(item_id);
 	if (!item)
 	{
-		LLDeferredCOFLinkObserver *observer = new LLDeferredCOFLinkObserver(item_id, do_update);
+		LLDeferredCOFLinkObserver *observer = new LLDeferredCOFLinkObserver(item_id, do_update, cb);
 		gInventory.addObserver(observer);
 	}
 	else
 	{
-		addCOFItemLink(item, do_update);
+		addCOFItemLink(item, do_update, cb);
 	}
 }
 
-void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update )
+void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update, LLPointer<LLInventoryCallback> cb)
 {		
 	const LLViewerInventoryItem *vitem = dynamic_cast<const LLViewerInventoryItem*>(item);
 	if (!vitem)
@@ -2063,7 +2065,10 @@ void LLAppearanceMgr::addCOFItemLink(const LLInventoryItem *item, bool do_update
 	}
 	else
 	{
-		LLPointer<LLInventoryCallback> cb = do_update ? new ModifiedCOFCallback : 0;
+		if(do_update && cb.isNull())
+		{
+			cb = new ModifiedCOFCallback;
+		}
 		const std::string description = vitem->getIsLinkType() ? vitem->getDescription() : "";
 		link_inventory_item( gAgent.getID(),
 							 vitem->getLinkedUUID(),

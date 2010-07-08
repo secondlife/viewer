@@ -1794,7 +1794,7 @@ void LLPipeline::rebuildPriorityGroups()
 	assertInitialized();
 
 	// Iterate through all drawables on the priority build queue,
-	for (LLSpatialGroup::sg_list_t::iterator iter = mGroupQ1.begin();
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
 		 iter != mGroupQ1.end(); ++iter)
 	{
 		LLSpatialGroup* group = *iter;
