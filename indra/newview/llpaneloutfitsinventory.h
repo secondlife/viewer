@@ -94,6 +94,7 @@ protected:
 	void onWearButtonClick();
 	void showGearMenu();
 	void onTrashButtonClick();
+	void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
 	bool isActionEnabled(const LLSD& userdata);
 	void setWearablesLoading(bool val);
 	void onWearablesLoaded();

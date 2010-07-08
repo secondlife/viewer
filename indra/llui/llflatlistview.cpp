@@ -1079,6 +1079,7 @@ void LLFlatListView::setNoItemsCommentVisible(bool visible) const
 			mNoItemsCommentTextbox->setRect(comment_rect);
 */
 		}
+		mSelectedItemsBorder->setVisible(FALSE);
 		mNoItemsCommentTextbox->setVisible(visible);
 	}
 }
@@ -1108,7 +1109,10 @@ void LLFlatListView::getValues(std::vector<LLSD>& values) const
 // virtual
 void LLFlatListView::onFocusReceived()
 {
-	mSelectedItemsBorder->setVisible(TRUE);
+	if (size())
+	{
+		mSelectedItemsBorder->setVisible(TRUE);
+	}
 	gEditMenuHandler = this;
 }
 // virtual

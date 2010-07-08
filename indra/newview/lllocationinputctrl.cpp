@@ -231,7 +231,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	params.rect(text_entry_rect);
 	params.default_text(LLStringUtil::null);
 	params.max_length_bytes(p.max_chars);
-	params.keystroke_callback(boost::bind(&LLComboBox::onTextEntry, this, _1));
+	params.keystroke_callback(boost::bind(&LLLocationInputCtrl::onTextEntry, this, _1));
 	params.commit_on_focus_lost(false);
 	params.follows.flags(FOLLOWS_ALL);
 	mTextEntry = LLUICtrlFactory::create<LLURLLineEditor>(params);
@@ -484,13 +484,16 @@ void LLLocationInputCtrl::onTextEntry(LLLineEditor* line_editor)
 	KEY key = gKeyboard->currentKey();
 	MASK mask = gKeyboard->currentMask(TRUE);
 
+	// Typing? (moving cursor should not affect showing the list)
+	bool typing = mask != MASK_CONTROL && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END;
+	bool pasting = mask == MASK_CONTROL && key == 'V';
+
 	if (line_editor->getText().empty())
 	{
 		prearrangeList(); // resets filter
 		hideList();
 	}
-	// Typing? (moving cursor should not affect showing the list)
-	else if (mask != MASK_CONTROL && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
+	else if (typing || pasting)
 	{
 		prearrangeList(line_editor->getText());
 		if (mList->getItemCount() != 0)
@@ -966,7 +969,12 @@ void LLLocationInputCtrl::focusTextEntry()
 	// if the "select_on_focus" parameter is true it places the cursor
 	// at the beginning (after selecting text), thus screwing up updateSelection().
 	if (mTextEntry)
+	{
 		gFocusMgr.setKeyboardFocus(mTextEntry);
+
+		// Enable the text entry to handle accelerator keys (EXT-8104).
+		LLEditMenuHandler::gEditMenuHandler = mTextEntry;
+	}
 }
 
 void LLLocationInputCtrl::enableAddLandmarkButton(bool val)

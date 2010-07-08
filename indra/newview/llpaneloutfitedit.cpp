@@ -471,6 +471,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 	childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
 
+	setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChange, this));
+
 	mCOFWearables = getChild<LLCOFWearables>("cof_wearables_list");
 	mCOFWearables->setCommitCallback(boost::bind(&LLPanelOutfitEdit::filterWearablesBySelectedItem, this));
 
@@ -546,10 +548,6 @@ void LLPanelOutfitEdit::onOpen(const LLSD& key)
 		displayCurrentOutfit();
 		mInitialized = true;
 	}
-
-	showAddWearablesPanel(false);
-	mWearableItemsList->resetSelection();
-	mInventoryItemsPanel->clearSelection();
 }
 
 void LLPanelOutfitEdit::moveWearable(bool closer_to_body)
@@ -715,6 +713,13 @@ void LLPanelOutfitEdit::onPlusBtnClicked(void)
 	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id, true, true);
 }
 
+void LLPanelOutfitEdit::onVisibilityChange()
+{
+	showAddWearablesPanel(false);
+	mWearableItemsList->resetSelection();
+	mInventoryItemsPanel->clearSelection();
+}
+
 void LLPanelOutfitEdit::onAddWearableClicked(void)
 {
 	LLPanelDummyClothingListItem* item = dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem());
@@ -863,21 +868,40 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 	bool more_than_one_selected = ids.size() > 1;
 	bool is_dummy_item = (ids.size() && dynamic_cast<LLPanelDummyClothingListItem*>(mCOFWearables->getSelectedItem()));
 
-	//resetting selection if no item is selected or than one item is selected
-	if (nothing_selected || more_than_one_selected)
+	//selected and expanded accordion tabs determine filtering when no item is selected
+	if (nothing_selected)
 	{
-		if (nothing_selected)
+		showWearablesListView();
+
+		//selected accordion tab is more priority than expanded tab when determining filtering
+		LLAssetType::EType type = mCOFWearables->getSelectedAccordionAssetType();
+		if (type == LLAssetType::AT_NONE)
 		{
-			showWearablesFolderView();
-			applyFolderViewFilter(FVIT_ALL);
+			type = mCOFWearables->getExpandedAccordionAssetType();
 		}
 
-		if (more_than_one_selected)
+		switch (type)
 		{
-			showWearablesListView();
-			applyListViewFilter(LVIT_ALL);
+		case LLAssetType::AT_OBJECT:
+			applyListViewFilter(LVIT_ATTACHMENT);
+			break;
+		case LLAssetType::AT_BODYPART:
+			applyListViewFilter(LVIT_BODYPART);
+			break;
+		case LLAssetType::AT_CLOTHING:
+		default: 
+			applyListViewFilter(LVIT_CLOTHING);
+			break;
 		}
 
+		return;
+	}
+
+	//resetting selection if more than one item is selected
+	if (more_than_one_selected)
+	{
+		showWearablesListView();
+		applyListViewFilter(LVIT_ALL);
 		return;
 	}
 
@@ -898,7 +922,7 @@ void LLPanelOutfitEdit::filterWearablesBySelectedItem(void)
 		return;
 	}
 
-	if (one_selected && !is_dummy_item)
+	if (item && one_selected && !is_dummy_item)
 	{
 		if (item->isWearableType())
 		{
@@ -1070,6 +1094,9 @@ void LLPanelOutfitEdit::showFilteredWearablesListView(LLWearableType::EType type
 {
 	showAddWearablesPanel(true);
 	showWearablesListView();
+
+	// Reset mWearableItemsList position to top. See EXT-8180.
+	mWearableItemsList->goToTop();
 
 	//e_list_view_item_type implicitly contains LLWearableType::EType starting from LVIT_SHAPE
 	applyListViewFilter((EListViewItemType) (LVIT_SHAPE + type));

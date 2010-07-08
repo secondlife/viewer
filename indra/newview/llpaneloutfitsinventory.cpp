@@ -282,10 +282,17 @@ void LLPanelOutfitsInventory::showGearMenu()
 
 void LLPanelOutfitsInventory::onTrashButtonClick()
 {
-	mMyOutfitsPanel->removeSelected();
+	LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), boost::bind(&LLPanelOutfitsInventory::onOutfitsRemovalConfirmation, this, _1, _2));
+}
 
- 	updateListCommands();
- 	updateVerbs();
+void LLPanelOutfitsInventory::onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return; // canceled
+
+	mMyOutfitsPanel->removeSelected();
+	updateListCommands();
+	updateVerbs();
 }
 
 bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)

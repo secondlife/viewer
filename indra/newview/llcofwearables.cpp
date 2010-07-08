@@ -281,7 +281,11 @@ LLCOFWearables::LLCOFWearables() : LLPanel(),
 	mAttachments(NULL),
 	mClothing(NULL),
 	mBodyParts(NULL),
-	mLastSelectedList(NULL)
+	mLastSelectedList(NULL),
+	mClothingTab(NULL),
+	mAttachmentsTab(NULL),
+	mBodyPartsTab(NULL),
+	mLastSelectedTab(NULL)
 {
 	mClothingMenu = new CofClothingContextMenu(this);
 	mAttachmentMenu = new CofAttachmentContextMenu(this);
@@ -319,6 +323,16 @@ BOOL LLCOFWearables::postBuild()
 	mAttachments->setComparator(&WEARABLE_NAME_COMPARATOR);
 	mBodyParts->setComparator(&WEARABLE_NAME_COMPARATOR);
 
+
+	mClothingTab = getChild<LLAccordionCtrlTab>("tab_clothing");
+	mClothingTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+
+	mAttachmentsTab = getChild<LLAccordionCtrlTab>("tab_attachments");
+	mAttachmentsTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+
+	mBodyPartsTab = getChild<LLAccordionCtrlTab>("tab_body_parts");
+	mBodyPartsTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+
 	return LLPanel::postBuild();
 }
 
@@ -336,6 +350,28 @@ void LLCOFWearables::onSelectionChange(LLFlatListView* selected_list)
 	}
 
 	onCommit();
+}
+
+void LLCOFWearables::onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded)
+{
+	bool had_selected_items = mClothing->numSelected() || mAttachments->numSelected() || mBodyParts->numSelected();
+	mClothing->resetSelection(true);
+	mAttachments->resetSelection(true);
+	mBodyParts->resetSelection(true);
+
+	bool tab_selection_changed = false;
+	LLAccordionCtrlTab* tab = dynamic_cast<LLAccordionCtrlTab*>(ctrl);
+	if (tab && tab != mLastSelectedTab)
+	{
+		mLastSelectedTab = tab;
+		tab_selection_changed = true;
+	}
+
+	if (had_selected_items || tab_selection_changed)
+	{
+		//sending commit signal to indicate selection changes
+		onCommit();
+	}
 }
 
 void LLCOFWearables::refresh()
@@ -372,6 +408,11 @@ void LLCOFWearables::refresh()
 		 iter != iter_end; ++iter)
 	{
 		LLFlatListView* list = iter->first;
+		if (!list) continue;
+
+		//restoring selection should not fire commit callbacks
+		list->setCommitOnSelectionChange(false);
+
 		const values_vector_t& values = iter->second;
 		for (values_vector_t::const_iterator
 				 value_it = values.begin(),
@@ -385,6 +426,8 @@ void LLCOFWearables::refresh()
 				list->selectItemByValue(*value_it);
 			}
 		}
+
+		list->setCommitOnSelectionChange(true);
 	}
 }
 
@@ -608,6 +651,30 @@ LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 	}
 
 	return result;
+}
+
+LLAssetType::EType LLCOFWearables::getSelectedAccordionAssetType()
+{
+	//*TODO share the code with ::getExpandedAccordionAssetType(...)
+	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
+	const LLAccordionCtrlTab* selected_tab = accordion_ctrl->getSelectedTab();
+	
+	if (selected_tab == mClothingTab)
+	{
+		return LLAssetType::AT_CLOTHING;
+	} 
+	else if (selected_tab == mAttachmentsTab)
+	{
+		return LLAssetType::AT_OBJECT;
+	}
+	else if (selected_tab == mBodyPartsTab)
+	{
+		return LLAssetType::AT_BODYPART;
+	}
+	else
+	{
+		return LLAssetType::AT_NONE;
+	}
 }
 
 void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu)

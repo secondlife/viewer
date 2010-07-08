@@ -817,6 +817,17 @@ Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
 
   <notification
    icon="alertmodal.tga"
+   name="DeleteOutfits"
+   type="alertmodal">
+    Delete the selected outfit/s?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="PromptGoToEventsPage"
    type="alertmodal">
 Go to the [SECOND_LIFE] events web page?

@@ -59,6 +59,7 @@ SkyUseClassicClouds			1	1
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
+WatchdogDisabled				1	1
 
 //
 // Low Graphics Settings
@@ -169,7 +170,6 @@ RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 
-
 //
 // Class Unknown Hardware (unknown)
 //
@@ -226,7 +226,7 @@ RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 
-
+//
 // "Default" setups for safe, low, medium, high
 //
 list safe
@@ -243,7 +243,6 @@ WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
-
 
 //
 // CPU based feature masks

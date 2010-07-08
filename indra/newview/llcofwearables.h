@@ -40,6 +40,7 @@
 #include "llappearancemgr.h"
 #include "llinventorymodel.h"
 
+class LLAccordionCtrlTab;
 class LLListContextMenu;
 class LLPanelClothingListItem;
 class LLPanelBodyPartsListItem;
@@ -84,6 +85,7 @@ public:
 	void clear();
 
 	LLAssetType::EType getExpandedAccordionAssetType();
+	LLAssetType::EType getSelectedAccordionAssetType();
 
 	LLCOFCallbacks& getCOFCallbacks() { return mCOFCallbacks; }
 
@@ -94,6 +96,7 @@ protected:
 	
 	void addClothingTypesDummies(const LLAppearanceMgr::wearables_by_type_t& clothing_by_type);
 	void onSelectionChange(LLFlatListView* selected_list);
+	void onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded);
 
 	LLPanelClothingListItem* buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last);
 	LLPanelBodyPartsListItem* buildBodypartListItem(LLViewerInventoryItem* item);
@@ -106,6 +109,12 @@ protected:
 	LLFlatListView* mBodyParts;
 
 	LLFlatListView* mLastSelectedList;
+
+	LLAccordionCtrlTab* mClothingTab;
+	LLAccordionCtrlTab* mAttachmentsTab;
+	LLAccordionCtrlTab* mBodyPartsTab;
+
+	LLAccordionCtrlTab* mLastSelectedTab;
 
 	LLCOFCallbacks mCOFCallbacks;
 
