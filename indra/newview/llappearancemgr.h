@@ -175,6 +175,8 @@ public:
 
 	bool isOutfitLocked() { return mOutfitLocked; }
 
+	bool isInUpdateAppearanceFromCOF() { return mIsInUpdateAppearanceFromCOF; }
+
 protected:
 	LLAppearanceMgr();
 	~LLAppearanceMgr();
