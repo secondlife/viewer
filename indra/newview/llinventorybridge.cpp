@@ -444,7 +444,8 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 
 void hide_context_entries(LLMenuGL& menu, 
 						  const menuentry_vec_t &entries_to_show,
-						  const menuentry_vec_t &disabled_entries)
+						  const menuentry_vec_t &disabled_entries,
+						  BOOL append) // If append is TRUE, then new enabled entries 
 {
 	const LLView::child_list_t *list = menu.getChildList();
 
@@ -501,6 +502,10 @@ void hide_context_entries(LLMenuGL& menu,
 			// A bit of a hack so we can remember that some UI element explicitly set this to be visible
 			// so that some other UI element from multi-select doesn't later set this invisible.
 			menu_item->pushVisible(TRUE);
+			if (append)
+			{
+				menu_item->setEnabled(TRUE);
+			}
 			for (itor2 = disabled_entries.begin(); itor2 != disabled_entries.end(); ++itor2)
 			{
 				if (*itor2 == name)
@@ -2397,6 +2402,11 @@ void LLFolderBridge::folderOptionsMenu()
 	const LLInventoryCategory* category = model->getCategory(mUUID);
 	if(!category) return;
 
+	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	if (trash_id == mUUID) return;
+	if (isItemInTrash()) return;
+	if (!isAgentInventory()) return;
+
 	LLFolderType::EType type = category->getPreferredType();
 	const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
 	// BAP change once we're no longer treating regular categories as ensembles.
@@ -2456,7 +2466,7 @@ void LLFolderBridge::folderOptionsMenu()
 		}
 		mItems.push_back(std::string("Outfit Separator"));
 	}
-	hide_context_entries(*mMenu, mItems, disabled_items);
+	hide_context_entries(*mMenu, mItems, disabled_items, TRUE);
 
 	// Reposition the menu, in case we're adding items to an existing menu.
 	mMenu->needsArrange();
@@ -2580,28 +2590,6 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		mMenu = &menu;
 		sSelf = this;
-
-
-		uuid_vec_t folders;
-		LLViewerInventoryCategory* category = (LLViewerInventoryCategory*)model->getCategory(mUUID);
-		if (category)
-		{
-			folders.push_back(category->getUUID());
-		}
-		LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(folders, FALSE);
-		fetch->startFetch();
-		inc_busy_count();
-		if(fetch->isFinished())
-		{
-			// everything is already here - call done.
-			fetch->done();
-		}
-		else
-		{
-			// it's all on it's way - add an observer, and the inventory
-			// will call done for us when everything is here.
-			gInventory.addObserver(fetch);
-		}
 	}
 
 	// Preemptively disable system folder removal if more than one item selected.
@@ -2623,6 +2611,27 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 
 	hide_context_entries(menu, mItems, mDisabledItems);
+
+	// Add menu items that are dependent on the contents of the folder.
+	uuid_vec_t folders;
+	LLViewerInventoryCategory* category = (LLViewerInventoryCategory*)model->getCategory(mUUID);
+	if (category)
+	{
+		folders.push_back(category->getUUID());
+	}
+	LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(folders, FALSE);
+	fetch->startFetch();
+	inc_busy_count();
+	if(fetch->isFinished())
+	{
+		// everything is already here - call done.
+		fetch->done();
+	}
+	else
+	{
+		// it's all on its way - add an observer, and the inventory will call done for us when everything is here.
+		gInventory.addObserver(fetch);
+	}
 }
 
 BOOL LLFolderBridge::hasChildren() const
