@@ -2502,12 +2502,7 @@ void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 	// since sever don't sends message _PREHASH_KillObject in that case.
 	// Also we can't check is link was successfully removed from COF since in case
 	// deleting attachment link removing performs asynchronously in process_kill_object callback.
-	LLViewerInventoryItem* item =  gInventory.getItem(id_to_remove);
-	if (item != NULL)
-	{
-		gInventory.purgeObject(id_to_remove);
-		gInventory.notifyObservers();
-	}
+	removeCOFItemLinks(id_to_remove,false);
 }
 
 bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_body)
