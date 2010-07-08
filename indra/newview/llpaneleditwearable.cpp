@@ -963,8 +963,7 @@ void LLPanelEditWearable::updatePanelPickerControls(LLWearableType::EType type)
 		for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, boost::bind(update_color_swatch_ctrl, this, _1, _2));
 		for_each_picker_ctrl_entry <LLTextureCtrl>     (panel, type, boost::bind(update_texture_ctrl, this, _1, _2));
 	}
-
-	if (!is_modifiable || !is_copyable)
+	else
 	{
 		// Disable controls
 		for_each_picker_ctrl_entry <LLColorSwatchCtrl> (panel, type, boost::bind(set_enabled_color_swatch_ctrl, false, _1, _2));
