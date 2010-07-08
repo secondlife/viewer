@@ -2054,7 +2054,7 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 				    mContentsCount)
 				{
 					gInventory.removeObserver(this);
-					LLAppearanceMgr::instance().wearInventoryCategory(category, FALSE, TRUE);
+					LLAppearanceMgr::instance().wearInventoryCategory(category, FALSE, FALSE);
 					delete this;
 				}
 			}
