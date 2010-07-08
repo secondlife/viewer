@@ -1,4 +1,4 @@
-version 21
+version 22
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -60,6 +60,7 @@ RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WatchdogDisabled				1	1
+RenderUseStreamVBO			1	1
 
 //
 // Low Graphics Settings
@@ -445,6 +446,10 @@ list ATIOldDriver
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 
+// ATI cards generally perform better when not using VBOs for streaming data
+
+list ATI
+RenderUseStreamVBO			1	0
 
 /// Tweaked NVIDIA
 

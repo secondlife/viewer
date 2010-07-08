@@ -765,12 +765,19 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	
 	{
 		LLViewerRegion* regionp = LLWorld::getInstance()->getRegionFromHandle(region_handle);
-		if(regionp != mRegionp && regionp && mRegionp)
+		if(regionp != mRegionp && regionp && mRegionp)//region cross
 		{
+			//this is the redundant position and region update, but it is necessary in case the viewer misses the following 
+			//position and region update messages from sim.
+			//this redundant update should not cause any problems.
 			LLVector3 delta_pos =  mRegionp->getOriginAgent() - regionp->getOriginAgent();
-			setPosition(getPosition() + delta_pos) ; //update the region position immediately.		
+			setPositionParent(getPosition() + delta_pos); //update to the new region position immediately.
+			setRegion(regionp) ; //change the region.
 		}
-		mRegionp = regionp ;
+		else
+		{
+			mRegionp = regionp ;
+		}
 	}	
 	
 	if (!mRegionp)

@@ -2065,6 +2065,7 @@ void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 
 	// Menus should not remain open on switching to mouselook...
 	LLMenuGL::sMenuContainer->hideMenus();
+	LLUI::clearPopups();
 
 	// unpause avatar animation
 	gAgent.unpauseAnimation();
