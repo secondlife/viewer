@@ -1830,9 +1830,26 @@ Clears (deletes) the media and all params from the given face.
 	<string name="tattoo_not_worn">Tattoo not worn</string>
 	<string name="invalid_not_worn">invalid</string>
 
+	<!-- Create new wearable of the specified type -->
+	<string name="create_new_shape">Create new shape</string>
+	<string name="create_new_skin">Create new skin</string>
+	<string name="create_new_hair">Create new hair</string>
+	<string name="create_new_eyes">Create new eyes</string>
+	<string name="create_new_shirt">Create new shirt</string>
+	<string name="create_new_pants">Create new pants</string>
+	<string name="create_new_shoes">Create new shoes</string>
+	<string name="create_new_socks">Create new socks</string>
+	<string name="create_new_jacket">Create new jacket</string>
+	<string name="create_new_gloves">Create new gloves</string>
+	<string name="create_new_undershirt">Create new undershirt</string>
+	<string name="create_new_underpants">Create new underpants</string>
+	<string name="create_new_skirt">Create new skirt</string>
+	<string name="create_new_alpha">Create new alpha</string>
+	<string name="create_new_tattoo">Create new tattoo</string>
+	<string name="create_new_invalid">invalid</string>
+
   <!-- Wearable List-->
   <string name="NewWearable">New [WEARABLE_ITEM]</string>
-  <string name="CreateNewWearable">Create [WEARABLE_TYPE]</string>
   
 	<!-- LLGroupNotify -->
 	<!-- used in the construction of a Group Notice blue dialog box, buttons, tooltip etc. Seems to be no longer utilized by code in Viewer 2.0 -->

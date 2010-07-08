@@ -725,10 +725,8 @@ void LLWearableItemsList::ContextMenu::updateItemsLabels(LLContextMenu* menu)
 	LLViewerInventoryItem* item = gInventory.getLinkedItem(mUUIDs.back());
 	if (!item || !item->isWearableType()) return;
 
-	LLStringUtil::format_map_t args;
 	LLWearableType::EType w_type = item->getWearableType();
-	args["[WEARABLE_TYPE]"] = LLWearableType::getTypeDefaultNewName(w_type);
-	std::string new_label = LLTrans::getString("CreateNewWearable", args);
+	std::string new_label = LLTrans::getString("create_new_" + LLWearableType::getTypeName(w_type));
 
 	LLMenuItemGL* menu_item = menu->getChild<LLMenuItemGL>("create_new");
 	menu_item->setLabel(new_label);
