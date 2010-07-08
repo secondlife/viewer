@@ -2495,6 +2495,19 @@ void LLAppearanceMgr::removeItemFromAvatar(const LLUUID& id_to_remove)
 		}
 	default: break;
 	}
+
+	// *HACK: Force to remove garbage from COF.
+	// Unworn links or objects can't be processed by existed removing functionality
+	// since it is not designed for such cases. As example attachment object can't be removed
+	// since sever don't sends message _PREHASH_KillObject in that case.
+	// Also we can't check is link was successfully removed from COF since in case
+	// deleting attachment link removing performs asynchronously in process_kill_object callback.
+	LLViewerInventoryItem* item =  gInventory.getItem(id_to_remove);
+	if (item != NULL)
+	{
+		gInventory.purgeObject(id_to_remove);
+		gInventory.notifyObservers();
+	}
 }
 
 bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_body)

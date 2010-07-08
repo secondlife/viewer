@@ -1792,6 +1792,7 @@ void LLPanelClassifiedEdit::onOpen(const LLSD& key)
 
 	enableVerbs(is_new);
 	enableEditing(is_new);
+	showEditing(!is_new);
 	resetDirty();
 	setInfoLoaded(false);
 }
@@ -2009,6 +2010,12 @@ void LLPanelClassifiedEdit::enableEditing(bool enable)
 	childSetEnabled("content_type", enable);
 	childSetEnabled("price_for_listing", enable);
 	childSetEnabled("auto_renew", enable);
+}
+
+void LLPanelClassifiedEdit::showEditing(bool show)
+{
+	childSetVisible("price_for_listing_label", show);
+	childSetVisible("price_for_listing", show);
 }
 
 std::string LLPanelClassifiedEdit::makeClassifiedName()

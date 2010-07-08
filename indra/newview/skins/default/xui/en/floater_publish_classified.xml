@@ -25,10 +25,11 @@ Remember, Classified fees are non-refundable.
     <spinner
      decimal_digits="0"
      follows="left|top"
+     font="SansSerif"
      halign="left"
      height="23"
      increment="1"
-     label_width="45"
+     label_width="50"
      label="Price: L$ "
      v_pad="10"
      layout="topleft"
