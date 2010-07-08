@@ -1005,6 +1005,7 @@ void LLPanelEditWearable::revertChanges()
 	mWearablePtr->revertValues();
 	mNameEditor->setText(mWearablePtr->getName());
 	updatePanelPickerControls(mWearablePtr->getType());
+	updateTypeSpecificControls(mWearablePtr->getType());
 	gAgentAvatarp->wearableUpdated(mWearablePtr->getType(), FALSE);
 }
 

@@ -823,7 +823,7 @@
              height="10"
              left="10"
              name="Name:"
-             top="0"
+             top="5"
              width="90">
                 Name:
             </text>

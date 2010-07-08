@@ -1871,13 +1871,8 @@ EAcceptance LLToolDragAndDrop::dad3dWearItem(
 
 		if (drop)
 		{
-			// Don't wear anything until initial wearables are loaded, can
-			// destroy clothing items.
-			if (!gAgentWearables.areWearablesLoaded()) 
-			{
-				LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
-				return ACCEPT_NO;
-			}
+			// TODO: investigate wearables may not be loaded at this point EXT-8231
+
 			LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(),true, !(mask & MASK_CONTROL));
 		}
 		return ACCEPT_YES_MULTI;
@@ -1949,13 +1944,7 @@ EAcceptance LLToolDragAndDrop::dad3dWearCategory(
 
 	if (drop)
 	{
-		// Don't wear anything until initial wearables are loaded, can
-		// destroy clothing items.
-		if (!gAgentWearables.areWearablesLoaded()) 
-		{
-			LLNotificationsUtil::add("CanNotChangeAppearanceUntilLoaded");
-			return ACCEPT_NO;
-		}
+		// TODO: investigate wearables may not be loaded at this point EXT-8231
 	}
 
 	if (mSource == SOURCE_AGENT)

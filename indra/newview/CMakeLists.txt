@@ -1152,10 +1152,12 @@ endif (LINUX)
 if (WINDOWS)
     list(APPEND viewer_SOURCE_FILES
          llappviewerwin32.cpp
+         llwindebug.cpp
          )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
+         llwindebug.h
          )
 
     # precompiled header configuration
@@ -1320,8 +1322,6 @@ set(viewer_APPSETTINGS_FILES
     ${CMAKE_SOURCE_DIR}/../etc/message.xml
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
     )
-
-use_prebuilt_binary(artwork-common)
 
 source_group("App Settings" FILES ${viewer_APPSETTINGS_FILES})
 

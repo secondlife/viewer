@@ -269,13 +269,13 @@ LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryIt
 void LLPanelAttachmentListItem::updateItem(const std::string& name,
 										   EItemState item_state)
 {
-	std::string title_joint;
+	std::string title_joint = name;
 
 	LLViewerInventoryItem* inv_item = getItem();
 	if (inv_item && isAgentAvatarValid() && gAgentAvatarp->isWearingAttachment(inv_item->getLinkedUUID()))
 	{
 		std::string joint = LLTrans::getString(gAgentAvatarp->getAttachedPointName(inv_item->getLinkedUUID()));
-		title_joint = name + " (" + joint + ")";
+		title_joint =  title_joint + " (" + joint + ")";
 	}
 
 	LLPanelInventoryListItemBase::updateItem(title_joint, item_state);
@@ -825,10 +825,7 @@ void LLWearableItemsList::ContextMenu::createNewWearable(const LLUUID& item_id)
 // static
 bool LLWearableItemsList::ContextMenu::canAddWearable(const LLUUID& item_id)
 {
-	if (!gAgentWearables.areWearablesLoaded())
-	{
-		return false;
-	}
+	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
 	LLViewerInventoryItem* item = gInventory.getItem(item_id);
 	if (!item || item->getType() != LLAssetType::AT_CLOTHING)
