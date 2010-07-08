@@ -403,7 +403,10 @@ void LLWearableHoldingPattern::checkMissingWearables()
 
 	for (S32 type = 0; type < LLWearableType::WT_COUNT; ++type)
 	{
-		llinfos << "type " << type << " requested " << requested_by_type[type] << " found " << found_by_type[type] << llendl;
+		if (requested_by_type[type] > found_by_type[type])
+		{
+			llwarns << "got fewer wearables than requested, type " << type << ": requested " << requested_by_type[type] << ", found " << found_by_type[type] << llendl;
+		}
 		if (found_by_type[type] > 0)
 			continue;
 		if (
@@ -670,12 +673,15 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 	bool timed_out = isTimedOut();
 	bool missing_completed = isMissingCompleted();
 	bool done = timed_out || missing_completed;
-	
-	llinfos << "polling missing wearables, waiting for items " << mTypesToRecover.size()
-			<< " links " << mTypesToLink.size()
-			<< " wearables, timed out " << timed_out
-			<< " elapsed " << mWaitTime.getElapsedTimeF32()
-			<< " done " << done << llendl;
+
+	if (!done)
+	{
+		llinfos << "polling missing wearables, waiting for items " << mTypesToRecover.size()
+				<< " links " << mTypesToLink.size()
+				<< " wearables, timed out " << timed_out
+				<< " elapsed " << mWaitTime.getElapsedTimeF32()
+				<< " done " << done << llendl;
+	}
 
 	if (done)
 	{
@@ -795,12 +801,8 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLWearable *wearable)
 	}
 	
 	mResolved += 1;  // just counting callbacks, not successes.
-	llinfos << "onWearableAssetFetch, resolved count " << mResolved << " of requested " << getFoundList().size() << llendl;
-	if (wearable)
-	{
-		llinfos << "wearable found, type " << wearable->getType() << " asset " << wearable->getAssetID() << llendl;
-	}
-	else
+	llinfos << "resolved " << mResolved << "/" << getFoundList().size() << llendl;
+	if (!wearable)
 	{
 		llwarns << "no wearable found" << llendl;
 	}
@@ -830,10 +832,14 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLWearable *wearable)
 		LLFoundData& data = *iter;
 		if(wearable->getAssetID() == data.mAssetID)
 		{
-			data.mWearable = wearable;
 			// Failing this means inventory or asset server are corrupted in a way we don't handle.
-			llassert((data.mWearableType < LLWearableType::WT_COUNT) && (wearable->getType() == data.mWearableType));
-			break;
+			if ((data.mWearableType >= LLWearableType::WT_COUNT) || (wearable->getType() != data.mWearableType))
+			{
+				llwarns << "recovered wearable but type invalid. inventory wearable type: " << data.mWearableType << " asset wearable type: " << wearable->getType() << llendl;
+				break;
+			}
+
+			data.mWearable = wearable;
 		}
 	}
 }
@@ -1635,7 +1641,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	// the saved outfit stored as a folder link
 	updateIsDirty();
 
-	dumpCat(getCOF(),"COF, start");
+	//dumpCat(getCOF(),"COF, start");
 
 	bool follow_folder_links = true;
 	LLUUID current_outfit_id = getCOF();
@@ -1718,7 +1724,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	{
 		LLFoundData& found = *it;
 
-		llinfos << "waiting for onWearableAssetFetch callback, asset " << found.mAssetID.asString() << llendl;
+		lldebugs << "waiting for onWearableAssetFetch callback, asset " << found.mAssetID.asString() << llendl;
 
 		// Fetch the wearables about to be worn.
 		LLWearableList::instance().getAsset(found.mAssetID,
