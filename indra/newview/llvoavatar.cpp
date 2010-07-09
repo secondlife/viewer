@@ -2097,8 +2097,10 @@ void LLVOAvatar::computeBodySize()
 	if (new_body_size != mBodySize)
 	{
 		mBodySize = new_body_size;
-		if (isSelf())
+
+		if (isSelf() && !LLAppearanceMgr::instance().isInUpdateAppearanceFromCOF())
 		{	// notify simulator of change in size
+			// but not if we are in the middle of updating appearance
 			gAgent.sendAgentSetAppearance();
 		}
 	}
@@ -5566,6 +5568,7 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 	if (!attachment)
 	{
 		llwarns << "Object attachment point invalid: " << attachmentID << llendl;
+		attachment = get_if_there(mAttachmentPoints, 1, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
 	}
 
 	return attachment;

@@ -576,8 +576,8 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 	const uuid_vec_t& ids = mUUIDs;		// selected items IDs
 	LLUUID selected_id = ids.front();	// ID of the first selected item
 
-	functor_t wear = boost::bind(&LLAppearanceMgr::wearItemOnAvatar, LLAppearanceMgr::getInstance(), _1, true, true);
-	functor_t add = boost::bind(&LLAppearanceMgr::wearItemOnAvatar, LLAppearanceMgr::getInstance(), _1, true, false);
+	functor_t wear = boost::bind(&LLAppearanceMgr::wearItemOnAvatar, LLAppearanceMgr::getInstance(), _1, true, true, LLPointer<LLInventoryCallback>(NULL));
+	functor_t add = boost::bind(&LLAppearanceMgr::wearItemOnAvatar, LLAppearanceMgr::getInstance(), _1, true, false, LLPointer<LLInventoryCallback>(NULL));
 	functor_t take_off = boost::bind(&LLAppearanceMgr::removeItemFromAvatar, LLAppearanceMgr::getInstance(), _1);
 
 	// Register handlers common for all wearable types.
@@ -725,10 +725,8 @@ void LLWearableItemsList::ContextMenu::updateItemsLabels(LLContextMenu* menu)
 	LLViewerInventoryItem* item = gInventory.getLinkedItem(mUUIDs.back());
 	if (!item || !item->isWearableType()) return;
 
-	LLStringUtil::format_map_t args;
 	LLWearableType::EType w_type = item->getWearableType();
-	args["[WEARABLE_TYPE]"] = LLWearableType::getTypeDefaultNewName(w_type);
-	std::string new_label = LLTrans::getString("CreateNewWearable", args);
+	std::string new_label = LLTrans::getString("create_new_" + LLWearableType::getTypeName(w_type));
 
 	LLMenuItemGL* menu_item = menu->getChild<LLMenuItemGL>("create_new");
 	menu_item->setLabel(new_label);

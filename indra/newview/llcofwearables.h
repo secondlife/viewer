@@ -116,6 +116,8 @@ protected:
 
 	LLAccordionCtrlTab* mLastSelectedTab;
 
+	std::map<const LLAccordionCtrlTab*, LLAssetType::EType> mTab2AssetType;
+
 	LLCOFCallbacks mCOFCallbacks;
 
 	LLListContextMenu* mClothingMenu;

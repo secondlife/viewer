@@ -60,6 +60,7 @@
 #include "llimview.h"			// for gIMMgr
 #include "llmutelist.h"
 #include "llnotificationsutil.h"	// for LLNotificationsUtil
+#include "llpaneloutfitedit.h"
 #include "llrecentpeople.h"
 #include "llsidetray.h"
 #include "lltrans.h"
@@ -436,12 +437,28 @@ namespace action_give_inventory
 	typedef std::set<LLUUID> uuid_set_t;
 
 	/**
+	 * Returns a pointer to 'Add More' inventory panel of Edit Outfit SP.
+	 */
+	static LLInventoryPanel* get_outfit_editor_inventory_panel()
+	{
+		LLPanelOutfitEdit* panel_outfit_edit = dynamic_cast<LLPanelOutfitEdit*>(LLSideTray::getInstance()->getPanel("panel_outfit_edit"));
+		if (NULL == panel_outfit_edit) return NULL;
+
+		LLInventoryPanel* inventory_panel = panel_outfit_edit->findChild<LLInventoryPanel>("folder_view");
+		return inventory_panel;
+	}
+
+	/**
 	 * Checks My Inventory visibility.
 	 */
 	static bool is_give_inventory_acceptable()
 	{
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (NULL == active_panel) return false;
+		if (!active_panel)
+		{
+			active_panel = get_outfit_editor_inventory_panel();
+			if (!active_panel) return false;
+		}
 
 		// check selection in the panel
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();
@@ -621,9 +638,10 @@ namespace action_give_inventory
 
 
 		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-		if (NULL == active_panel)
+		if (!active_panel)
 		{
-			return;
+			active_panel = get_outfit_editor_inventory_panel();
+			if (!active_panel) return;
 		}
 
 		const uuid_set_t inventory_selected_uuids = active_panel->getRootFolder()->getSelectionList();

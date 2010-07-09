@@ -79,9 +79,7 @@ protected:
 		}
 
 		// Set proper label for the "Create new <WEARABLE_TYPE>" menu item.
-		LLStringUtil::format_map_t args;
-		args["[WEARABLE_TYPE]"] = LLTrans::getString(LLWearableType::getTypeDefaultNewName(w_type));
-		std::string new_label = LLTrans::getString("CreateNewWearable", args);
+		std::string new_label = LLTrans::getString("create_new_" + LLWearableType::getTypeName(w_type));
 		menu_item->setLabel(new_label);
 	}
 
@@ -332,6 +330,10 @@ BOOL LLCOFWearables::postBuild()
 
 	mBodyPartsTab = getChild<LLAccordionCtrlTab>("tab_body_parts");
 	mBodyPartsTab->setDropDownStateChangedCallback(boost::bind(&LLCOFWearables::onAccordionTabStateChanged, this, _1, _2));
+
+	mTab2AssetType[mClothingTab] = LLAssetType::AT_CLOTHING;
+	mTab2AssetType[mAttachmentsTab] = LLAssetType::AT_OBJECT;
+	mTab2AssetType[mBodyPartsTab] = LLAssetType::AT_BODYPART;
 
 	return LLPanel::postBuild();
 }
@@ -632,49 +634,17 @@ LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 
 	static type_map_t type_map;
 	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
+	const LLAccordionCtrlTab* expanded_tab = accordion_ctrl->getExpandedTab();
 
-	if (type_map.empty())
-	{
-		type_map["tab_clothing"] = LLAssetType::AT_CLOTHING;
-		type_map["tab_attachments"] = LLAssetType::AT_OBJECT;
-		type_map["tab_body_parts"] = LLAssetType::AT_BODYPART;
-	}
-
-	const LLAccordionCtrlTab* tab = accordion_ctrl->getExpandedTab();
-	LLAssetType::EType result = LLAssetType::AT_NONE;
-
-	if (tab)
-	{
-		type_map_t::iterator i = type_map.find(tab->getName());
-		llassert(i != type_map.end());
-		result = i->second;
-	}
-
-	return result;
+	return get_if_there(mTab2AssetType, expanded_tab, LLAssetType::AT_NONE);
 }
 
 LLAssetType::EType LLCOFWearables::getSelectedAccordionAssetType()
 {
-	//*TODO share the code with ::getExpandedAccordionAssetType(...)
 	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
 	const LLAccordionCtrlTab* selected_tab = accordion_ctrl->getSelectedTab();
-	
-	if (selected_tab == mClothingTab)
-	{
-		return LLAssetType::AT_CLOTHING;
-	} 
-	else if (selected_tab == mAttachmentsTab)
-	{
-		return LLAssetType::AT_OBJECT;
-	}
-	else if (selected_tab == mBodyPartsTab)
-	{
-		return LLAssetType::AT_BODYPART;
-	}
-	else
-	{
-		return LLAssetType::AT_NONE;
-	}
+
+	return get_if_there(mTab2AssetType, selected_tab, LLAssetType::AT_NONE);
 }
 
 void LLCOFWearables::onListRightClick(LLUICtrl* ctrl, S32 x, S32 y, LLListContextMenu* menu)
