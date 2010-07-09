@@ -283,7 +283,8 @@ LLCOFWearables::LLCOFWearables() : LLPanel(),
 	mClothingTab(NULL),
 	mAttachmentsTab(NULL),
 	mBodyPartsTab(NULL),
-	mLastSelectedTab(NULL)
+	mLastSelectedTab(NULL),
+	mCOFVersion(-1)
 {
 	mClothingMenu = new CofClothingContextMenu(this);
 	mAttachmentMenu = new CofAttachmentContextMenu(this);
@@ -378,6 +379,23 @@ void LLCOFWearables::onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expa
 
 void LLCOFWearables::refresh()
 {
+	const LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
+	if (cof_id.isNull())
+	{
+		llwarns << "COF ID cannot be NULL" << llendl;
+		return;
+	}
+
+	LLViewerInventoryCategory* catp = gInventory.getCategory(cof_id);
+	if (!catp)
+	{
+		llwarns << "COF category cannot be NULL" << llendl;
+		return;
+	}
+
+	if (mCOFVersion == catp->getVersion()) return;
+	mCOFVersion = catp->getVersion();
+
 	typedef std::vector<LLSD> values_vector_t;
 	typedef std::map<LLFlatListView*, values_vector_t> selection_map_t;
 
@@ -393,7 +411,7 @@ void LLCOFWearables::refresh()
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t cof_items;
 
-	gInventory.collectDescendents(LLAppearanceMgr::getInstance()->getCOF(), cats, cof_items, LLInventoryModel::EXCLUDE_TRASH);
+	gInventory.collectDescendents(cof_id, cats, cof_items, LLInventoryModel::EXCLUDE_TRASH);
 
 	populateAttachmentsAndBodypartsLists(cof_items);
 
