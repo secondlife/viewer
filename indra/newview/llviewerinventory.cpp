@@ -625,7 +625,15 @@ bool LLViewerInventoryCategory::fetch()
 		// AIS folks are aware of the issue and have a fix in process.
 		// see ticket for details.
 
-		std::string url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
+		std::string url;
+		if (gAgent.getRegion())
+		{
+			url = gAgent.getRegion()->getCapability("WebFetchInventoryDescendents");
+		}
+		else
+		{
+			llwarns << "agent region is null" << llendl;
+		}
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
 			LLInventoryModelBackgroundFetch::instance().start(mUUID, false);			

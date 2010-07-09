@@ -236,7 +236,7 @@
 		Pulsa para ejecutar el comando secondlife://
 	</string>
 	<string name="CurrentURL" value="URL actual: [CurrentURL]"/>
-	<string name="TooltipPrice" value="[PRICE] L$"/>
+	<string name="TooltipPrice" value="[AMOUNT]L$: "/>
 	<string name="SLurlLabelTeleport">
 		Teleportarse a
 	</string>

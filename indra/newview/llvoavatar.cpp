@@ -2095,8 +2095,10 @@ void LLVOAvatar::computeBodySize()
 	if (new_body_size != mBodySize)
 	{
 		mBodySize = new_body_size;
-		if (isSelf())
+
+		if (isSelf() && !LLAppearanceMgr::instance().isInUpdateAppearanceFromCOF())
 		{	// notify simulator of change in size
+			// but not if we are in the middle of updating appearance
 			gAgent.sendAgentSetAppearance();
 		}
 	}

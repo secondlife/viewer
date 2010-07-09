@@ -67,7 +67,7 @@
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
 	<string name="TestingDisconnect">Testing viewer disconnect</string>
 
-	<!-- Tooltip, lltooltipview.cpp -->
+	<!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
 	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
@@ -83,6 +83,7 @@
 	<string name="TooltipFlagNoScripts">No Scripts</string>
 	<string name="TooltipLand">Land:</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
+	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
@@ -103,8 +104,6 @@
 	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />	
-  <string name="TooltipPrice" value=" L$[PRICE]-" />
-  
 
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleport to</string>
@@ -1830,9 +1829,26 @@ Clears (deletes) the media and all params from the given face.
 	<string name="tattoo_not_worn">Tattoo not worn</string>
 	<string name="invalid_not_worn">invalid</string>
 
+	<!-- Create new wearable of the specified type -->
+	<string name="create_new_shape">Create new shape</string>
+	<string name="create_new_skin">Create new skin</string>
+	<string name="create_new_hair">Create new hair</string>
+	<string name="create_new_eyes">Create new eyes</string>
+	<string name="create_new_shirt">Create new shirt</string>
+	<string name="create_new_pants">Create new pants</string>
+	<string name="create_new_shoes">Create new shoes</string>
+	<string name="create_new_socks">Create new socks</string>
+	<string name="create_new_jacket">Create new jacket</string>
+	<string name="create_new_gloves">Create new gloves</string>
+	<string name="create_new_undershirt">Create new undershirt</string>
+	<string name="create_new_underpants">Create new underpants</string>
+	<string name="create_new_skirt">Create new skirt</string>
+	<string name="create_new_alpha">Create new alpha</string>
+	<string name="create_new_tattoo">Create new tattoo</string>
+	<string name="create_new_invalid">invalid</string>
+
   <!-- Wearable List-->
   <string name="NewWearable">New [WEARABLE_ITEM]</string>
-  <string name="CreateNewWearable">Create [WEARABLE_TYPE]</string>
   
 	<!-- LLGroupNotify -->
 	<!-- used in the construction of a Group Notice blue dialog box, buttons, tooltip etc. Seems to be no longer utilized by code in Viewer 2.0 -->
@@ -2172,11 +2188,16 @@ Clears (deletes) the media and all params from the given face.
 	<string name="PanelDirEventsDateText">[mthnum,datetime,slt]/[day,datetime,slt]</string>
 
 	<!-- panel contents -->
+	<string name="PanelContentsTooltip">Content of object</string>
 	<string name="PanelContentsNewScript">New Script</string>
 	<string name="PanelContentsTooltip">Content of object</string>
 
   <!-- panel preferences general -->
   <string name="BusyModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
+
+	<!-- Outfits Panel -->
+	<string name="NoOutfits">You don't have any outfits yet. Try [secondlife:///app/search/all/ Search]</string>
+	<string name="NoOutfitsTabsMatched">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
 
 	<!-- Mute -->
 	<string name="MuteByName">(By name)</string>
