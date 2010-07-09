@@ -297,9 +297,9 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mFolderViewItemTypes[FVIT_ATTACHMENT] = LLLookItemType(getString("Filter.Objects"), ATTACHMENT_MASK);
 
 	//order is important, see EListViewItemType for order information
-	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.All"), new LLFindByMask(ALL_ITEMS_MASK)));
-	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.Clothing"), new LLIsType(LLAssetType::AT_CLOTHING)));
-	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.Bodyparts"), new LLIsType(LLAssetType::AT_BODYPART)));
+	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.All"), new LLFindNonLinksByMask(ALL_ITEMS_MASK)));
+	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.Clothing"), new LLIsTypeActual(LLAssetType::AT_CLOTHING)));
+	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.Bodyparts"), new LLIsTypeActual(LLAssetType::AT_BODYPART)));
 	mListViewItemTypes.push_back(new LLFilterItem(getString("Filter.Objects"), new LLFindByMask(ATTACHMENT_MASK)));;
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("shape"), new LLFindActualWearablesOfType(LLWearableType::WT_SHAPE)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("skin"), new LLFindActualWearablesOfType(LLWearableType::WT_SKIN)));
