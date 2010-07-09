@@ -248,7 +248,7 @@
 		Anklicken, um Befehl secondlife:// auszuführen
 	</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]"/>
-	<string name="TooltipPrice" value="[PRICE] L$"/>
+	<string name="TooltipPrice" value="[AMOUNT]L$: "/>
 	<string name="SLurlLabelTeleport">
 		Teleportieren nach
 	</string>

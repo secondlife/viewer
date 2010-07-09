@@ -1174,12 +1174,11 @@ void LLGestureMgr::notifyObservers()
 {
 	lldebugs << "LLGestureMgr::notifyObservers" << llendl;
 
-	std::vector<LLGestureManagerObserver*> observers = mObservers;
-
-	std::vector<LLGestureManagerObserver*>::iterator it;
-	for (it = observers.begin(); it != observers.end(); ++it)
+	for(std::vector<LLGestureManagerObserver*>::iterator iter = mObservers.begin(); 
+		iter != mObservers.end(); 
+		++iter)
 	{
-		LLGestureManagerObserver* observer = *it;
+		LLGestureManagerObserver* observer = (*iter);
 		observer->changed();
 	}
 }
