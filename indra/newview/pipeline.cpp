@@ -2279,7 +2279,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			}
 		}
 	}
-	llpushcallstacks ;
 	{
 		LLFastTimer ftm(FTM_STATESORT_DRAWABLE);
 		for (LLCullResult::drawable_list_t::iterator iter = sCull->beginVisibleList();
@@ -2292,15 +2291,12 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			}
 		}
 	}
-	llpushcallstacks ;	
 	{
 		LLFastTimer ftm(FTM_CLIENT_COPY);
 		LLVertexBuffer::clientCopy();
 	}
-	llpushcallstacks ;
 	
-	postSort(camera);
-	llpushcallstacks ;
+	postSort(camera);	
 }
 
 void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
@@ -2570,6 +2566,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
 	assertInitialized();
 
+	llpushcallstacks ;
 	//rebuild drawable geometry
 	for (LLCullResult::sg_list_t::iterator i = sCull->beginDrawableGroups(); i != sCull->endDrawableGroups(); ++i)
 	{
@@ -2580,7 +2577,7 @@ void LLPipeline::postSort(LLCamera& camera)
 			group->rebuildGeom();
 		}
 	}
-
+	llpushcallstacks ;
 	//rebuild groups
 	sCull->assertDrawMapsEmpty();
 
@@ -2600,6 +2597,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
 
 	rebuildPriorityGroups();
+	llpushcallstacks ;
 
 	const S32 bin_count = 1024*8;
 		
@@ -2701,7 +2699,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
 		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 	}
-	
+	llpushcallstacks ;
 	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
 	if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender)
 	{
@@ -2749,7 +2747,7 @@ void LLPipeline::postSort(LLCamera& camera)
 			forAllVisibleDrawables(renderSoundHighlights);
 		}
 	}
-
+	llpushcallstacks ;
 	// If managing your telehub, draw beacons at telehub and currently selected spawnpoint.
 	if (LLFloaterTelehub::renderBeacons())
 	{
@@ -2779,6 +2777,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 
 	//LLSpatialGroup::sNoDelete = FALSE;
+	llpushcallstacks ;
 }
 
 

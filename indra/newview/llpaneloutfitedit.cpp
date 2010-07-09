@@ -204,7 +204,7 @@ private:
 
 			LLMenuItemCallGL::Params p;
 			p.name = type_name;
-			p.label = LLWearableType::getTypeDefaultNewName(type);
+			p.label = LLTrans::getString(LLWearableType::getTypeDefaultNewName(type));
 			p.on_click.function_name = "Wearable.Create";
 			p.on_click.parameter = LLSD(type_name);
 

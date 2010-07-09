@@ -261,6 +261,34 @@
          name="auto_renew"
          top_pad="15"
          width="250" />
+        <text
+         follows="left|top"
+         height="10"
+         layout="topleft"
+         left="10"
+         name="price_for_listing_label"
+         text_color="white"
+         top_pad="15"
+         value="Price for listing:"
+         width="250" />
+        <spinner
+         decimal_digits="0"
+         follows="left|top"
+         halign="left"
+         height="23"
+         increment="1"
+         label_width="20"
+         label="L$"
+         v_pad="10"
+         layout="topleft"
+         left="10"
+         value="50"
+         min_val="50"
+         max_val="99999"
+         name="price_for_listing"
+         top_pad="5"
+         tool_tip="Price for listing."
+         width="105" />
      </panel>
     </scroll_container>
     <panel
