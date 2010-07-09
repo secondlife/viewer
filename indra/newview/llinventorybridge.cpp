@@ -2989,7 +2989,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 					// BAP - should skip if dup.
 					if (move_is_into_current_outfit)
 					{
-						LLAppearanceMgr::instance().addCOFItemLink(inv_item);
+						LLAppearanceMgr::instance().wearItemOnAvatar(inv_item->getUUID(), true, true);
 					}
 					else
 					{

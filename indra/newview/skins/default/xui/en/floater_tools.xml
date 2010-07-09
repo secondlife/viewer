@@ -910,40 +910,24 @@
              width="75">
                 Group:
             </text>
-            <button
-			 follows="top|left"
-			 height="10"
-			 image_disabled="Activate_Checkmark"
-			 image_selected="Activate_Checkmark"
-			 image_unselected="Activate_Checkmark"
-			 image_color="White_50"
-			 layout="topleft"
-			 left_pad="0"
-			 top_delta="0"
-			 name="button set group"
-			 tab_stop="false"
-			 tool_tip="Choose a group to share this object's permissions"
-			 width="10" />
             <name_box
              follows="left|top"
              height="18"
              initial_value="Loading..."
              layout="topleft"
-             left_pad="5"
-             top_delta="-1"
+             left_pad="23"
              name="Group Name Proxy"
-             width="150" />
+             width="142" />
             <button
-             follows="top|left"
-             height="23"
-             label="Deed"
-             label_selected="Deed"
-             layout="topleft"
-             name="button deed"
-             top_pad="0"
-             left="108"
-             tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
-             width="80" />
+			 follows="top|left"
+			 height="23"
+			 image_overlay="Edit_Wrench"
+			 layout="topleft"
+			 left_pad="3"
+			 name="button set group"
+			 tab_stop="false"
+			 tool_tip="Choose a group to share this object's permissions"
+			 width="23" />
             <check_box
              height="19"
              follows="left|top"
@@ -951,15 +935,26 @@
              layout="topleft"
              name="checkbox share with group"
              tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
+             top_pad="10"
+             left="106"
+             width="87" />
+            <button
+             follows="top|left"
+             height="23"
+             label="Deed"
+             label_selected="Deed"
+             layout="topleft"
+             name="button deed"
              left_pad="3"
-             width="100" />
+             tool_tip="Deeding gives this item away with next owner permissions. Group shared objects can be deeded by a group officer."
+             width="80" />
             <text
              type="string"
              length="1"
              follows="left|top"
              height="16"
              layout="topleft"
-             top_pad="15"
+             top_pad="10"
              left="10"
              name="label click action"
              width="98">
