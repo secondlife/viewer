@@ -80,7 +80,7 @@ protected:
 
 		// Set proper label for the "Create new <WEARABLE_TYPE>" menu item.
 		LLStringUtil::format_map_t args;
-		args["[WEARABLE_TYPE]"] = LLWearableType::getTypeDefaultNewName(w_type);
+		args["[WEARABLE_TYPE]"] = LLTrans::getString(LLWearableType::getTypeDefaultNewName(w_type));
 		std::string new_label = LLTrans::getString("CreateNewWearable", args);
 		menu_item->setLabel(new_label);
 	}

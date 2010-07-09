@@ -416,6 +416,8 @@ protected:
 
 	void enableEditing(bool enable);
 
+	void showEditing(bool show);
+
 	std::string makeClassifiedName();
 
 	void setPriceForListing(S32 price);
