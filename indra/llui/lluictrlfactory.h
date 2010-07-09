@@ -182,7 +182,7 @@ public:
 	void popFactoryFunctions();
 
 	template<typename T>
-	static T* createWidget(typename T::Params& params, LLView* parent = NULL)
+	static T* createWidget(typename const T::Params& params, LLView* parent = NULL)
 	{
 		T* widget = NULL;
 

@@ -675,7 +675,7 @@ BOOL LLUICtrl::getIsChrome() const
 class CompareByDefaultTabGroup: public LLCompareByTabOrder
 {
 public:
-	CompareByDefaultTabGroup(LLView::child_tab_order_t order, S32 default_tab_group):
+	CompareByDefaultTabGroup(const LLView::child_tab_order_t& order, S32 default_tab_group):
 			LLCompareByTabOrder(order),
 			mDefaultTabGroup(default_tab_group) {}
 private:
@@ -699,13 +699,16 @@ class LLUICtrl::DefaultTabGroupFirstSorter : public LLQuerySorter, public LLSing
 {
 public:
 	/*virtual*/ void operator() (LLView * parent, viewList_t &children) const
-	{
+	{	
 		children.sort(CompareByDefaultTabGroup(parent->getCtrlOrder(), parent->getDefaultTabGroup()));
 	}
 };
 
+LLFastTimer::DeclareTimer FTM_FOCUS_FIRST_ITEM("Focus First Item");
+
 BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 {
+	LLFastTimer _(FTM_FOCUS_FIRST_ITEM);
 	// try to select default tab group child
 	LLCtrlQuery query = getTabOrderQuery();
 	// sort things such that the default tab group is at the front

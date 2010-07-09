@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <inventory_list_item
- height="0"
- layout="topleft"
- left="0"
- name="inventory_list_item"
- top="0"
- width="0">
+  follows="top|right|left"
+  height="20"
+  name="inventory_item"
+  tab_stop="false" 
+  hover_image="ListItem_Over" 
+  selected_name="ListItem_Select"
+  separator_image="Wearables_Divider" 
+  width="380">
   <!-- DEFAULT style for inventory list item -->
   <default_style
    font="SansSerifSmall"
@@ -16,4 +18,25 @@
    font="SansSerifSmall"
    font.style="BOLD"
    color="EmphasisColor" />
+  <item_icon
+    height="16"
+    follows="top|left"
+    image_name="Inv_Object"
+    layout="topleft"
+    left="0"
+    name="item_icon"
+    top="0"
+    width="16" />
+  <item_name
+    follows="left|right"
+    height="20"
+    layout="topleft"
+    left="21"
+    allow_html="false"
+    use_ellipses="true"
+    name="item_name"
+    text_color="white"
+    top="4"
+    value="..."
+    width="359" />
 </inventory_list_item>
