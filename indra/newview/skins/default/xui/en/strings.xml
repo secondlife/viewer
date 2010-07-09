@@ -67,7 +67,7 @@
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
 	<string name="TestingDisconnect">Testing viewer disconnect</string>
 
-	<!-- Tooltip, lltooltipview.cpp -->
+	<!-- Tooltip -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
 	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
@@ -83,6 +83,7 @@
 	<string name="TooltipFlagNoScripts">No Scripts</string>
 	<string name="TooltipLand">Land:</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
+	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
@@ -103,8 +104,6 @@
 	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
 	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />	
-  <string name="TooltipPrice" value=" L$[PRICE]-" />
-  
 
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleport to</string>

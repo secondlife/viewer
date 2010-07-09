@@ -53,6 +53,7 @@
 #include "llmediaentry.h"
 #include "llmenugl.h"
 #include "llmutelist.h"
+#include "llresmgr.h"  // getMonetaryString
 #include "llselectmgr.h"
 #include "lltoolfocus.h"
 #include "lltoolgrab.h"
@@ -808,7 +809,8 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 	if (hover_parcel && hover_parcel->getParcelFlag(PF_FOR_SALE))
 	{
 		LLStringUtil::format_map_t args;
-		args["[AMOUNT]"] = llformat("%d", hover_parcel->getSalePrice());
+		S32 price = hover_parcel->getSalePrice();
+		args["[AMOUNT]"] = LLResMgr::getInstance()->getMonetaryString(price);
 		line = LLTrans::getString("TooltipForSaleL$", args);
 		tooltip_msg.append(line);
 		tooltip_msg.push_back('\n');
@@ -906,13 +908,14 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			 || !existing_inspector->getVisible()
 			 || existing_inspector->getKey()["object_id"].asUUID() != hover_object->getID()))
 		{
-						
+
 			// Add price to tooltip for items on sale
 			bool for_sale = for_sale_selection(nodep);
 			if(for_sale)
 			{
 				LLStringUtil::format_map_t args;
-				args["[PRICE]"] = llformat ("%d", nodep->mSaleInfo.getSalePrice());
+				S32 price = nodep->mSaleInfo.getSalePrice();
+				args["[AMOUNT]"] = LLResMgr::getInstance()->getMonetaryString(price);
 				tooltip_msg.append(LLTrans::getString("TooltipPrice", args) );
 			}
 
