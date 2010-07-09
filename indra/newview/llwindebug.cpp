@@ -129,7 +129,7 @@ void  LLWinDebug::init()
 		s_first_run = false;
 
 		// Add this exeption hanlder to save windows style minidump.
-		AddVectoredExceptionHandler(0, &vectoredHandler);
+		//AddVectoredExceptionHandler(0, &vectoredHandler);
 	}
 }
 
