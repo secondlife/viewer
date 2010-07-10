@@ -271,9 +271,7 @@ public:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLFindNonLinksByMask
-//
-//
+// Class LLFindByMask
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLFindByMask : public LLInventoryCollectFunctor
 {
@@ -379,6 +377,19 @@ public:
 	{
 		if (item && item->getIsLinkType()) return false;
 		return LLFindWearablesOfType::operator()(cat, item);
+	}
+};
+
+/* Filters out items of a particular asset type */
+class LLIsTypeActual : public LLIsType
+{
+public:
+	LLIsTypeActual(LLAssetType::EType type) : LLIsType(type) {}
+	virtual ~LLIsTypeActual() {}
+	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+	{
+		if (item && item->getIsLinkType()) return false;
+		return LLIsType::operator()(cat, item);
 	}
 };
 
