@@ -138,36 +138,42 @@ void LLWinDebug::init()
 
 void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const std::string& filename)
 {
-	if(f_mdwp == NULL || gDirUtilp == NULL)
+	// Temporary fix to switch out the code that writes the DMP file.
+	// Fix coming that doesn't write a mini dump file for regular C++ exceptions.
+	const bool enable_write_dump_file = false;
+	if ( enable_write_dump_file )
 	{
-		return;
-	}
-	else
-	{
-		std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, filename);
-
-		HANDLE hFile = CreateFileA(dump_path.c_str(),
-									GENERIC_WRITE,
-									FILE_SHARE_WRITE,
-									NULL,
-									CREATE_ALWAYS,
-									FILE_ATTRIBUTE_NORMAL,
-									NULL);
-
-		if (hFile != INVALID_HANDLE_VALUE)
+		if(f_mdwp == NULL || gDirUtilp == NULL)
 		{
-			// Write the dump, ignoring the return value
-			f_mdwp(GetCurrentProcess(),
-					GetCurrentProcessId(),
-					hFile,
-					type,
-					ExInfop,
-					NULL,
-					NULL);
-
-			CloseHandle(hFile);
+			return;
 		}
+		else
+		{
+			std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, filename);
 
+			HANDLE hFile = CreateFileA(dump_path.c_str(),
+										GENERIC_WRITE,
+										FILE_SHARE_WRITE,
+										NULL,
+										CREATE_ALWAYS,
+										FILE_ATTRIBUTE_NORMAL,
+										NULL);
+
+			if (hFile != INVALID_HANDLE_VALUE)
+			{
+				// Write the dump, ignoring the return value
+				f_mdwp(GetCurrentProcess(),
+						GetCurrentProcessId(),
+						hFile,
+						type,
+						ExInfop,
+						NULL,
+						NULL);
+
+				CloseHandle(hFile);
+			}
+
+		}
 	}
 }
 
