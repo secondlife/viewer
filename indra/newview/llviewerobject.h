@@ -469,7 +469,6 @@ public:
 
 	inline U8       getPhysicsShapeType() const     { return mPhysicsShapeType; }
 	inline F32      getPhysicsGravity() const       { return mPhysicsGravity; }
-	inline BOOL     getPhysicsMaterialOverride() const { return mPhysicsMaterialOverride; }
 	inline F32      getPhysicsFriction() const      { return mPhysicsFriction; }
 	inline F32      getPhysicsDensity() const       { return mPhysicsDensity; }
 	inline F32      getPhysicsRestitution() const   { return mPhysicsRestitution; }
@@ -491,7 +490,6 @@ public:
 	BOOL setFlags(U32 flag, BOOL state);
 	void setPhysicsShapeType(U8 type);
 	void setPhysicsGravity(F32 gravity);
-	void setPhysicsMaterialOverride(BOOL material_override);
 	void setPhysicsFriction(F32 friction);
 	void setPhysicsDensity(F32 density);
 	void setPhysicsRestitution(F32 restitution);
@@ -577,7 +575,6 @@ public:
 	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
 	U8              mPhysicsShapeType;
 	F32             mPhysicsGravity;
-	BOOL            mPhysicsMaterialOverride;
 	F32             mPhysicsFriction;
 	F32             mPhysicsDensity;
 	F32             mPhysicsRestitution;

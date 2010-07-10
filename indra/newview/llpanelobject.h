@@ -171,7 +171,6 @@ protected:
 
 	LLComboBox*     mComboPhysicsShapeType;
 	LLSpinCtrl*     mSpinPhysicsGravity;
-	LLCheckBoxCtrl* mCheckPhysicsMaterialOverride;
 	LLSpinCtrl*     mSpinPhysicsFriction;
 	LLSpinCtrl*     mSpinPhysicsDensity;
 	LLSpinCtrl*     mSpinPhysicsRestitution;

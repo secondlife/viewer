@@ -202,7 +202,6 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mFlags(0),
 	mPhysicsShapeType(0),
 	mPhysicsGravity(0),
-	mPhysicsMaterialOverride(FALSE),
 	mPhysicsFriction(0),
 	mPhysicsDensity(0),
 	mPhysicsRestitution(0),
@@ -5027,11 +5026,10 @@ void LLViewerObject::updateFlags()
 	gMessageSystem->addBOOL("CastsShadows", flagCastShadows() );
 	gMessageSystem->nextBlock("ExtraPhysics");
 	gMessageSystem->addU8("PhysicsShapeType", getPhysicsShapeType() );
-	gMessageSystem->addF32("PhysicsGravity", getPhysicsGravity() );
-	gMessageSystem->addBOOL("PhysicsMaterialOverride", getPhysicsMaterialOverride() );
-	gMessageSystem->addF32("PhysicsFriction", getPhysicsFriction() );
-	gMessageSystem->addF32("PhysicsDensity", getPhysicsDensity() );
-	gMessageSystem->addF32("PhysicsRestitution", getPhysicsRestitution() );
+	gMessageSystem->addF32("Density", getPhysicsDensity() );
+	gMessageSystem->addF32("Friction", getPhysicsFriction() );
+	gMessageSystem->addF32("Restitution", getPhysicsRestitution() );
+	gMessageSystem->addF32("GravityMultiplier", getPhysicsGravity() );
 	gMessageSystem->sendReliable( regionp->getHost() );
 
 	if (getPhysicsShapeType() != 0)
@@ -5077,11 +5075,6 @@ void LLViewerObject::setPhysicsShapeType(U8 type)
 void LLViewerObject::setPhysicsGravity(F32 gravity)
 {
 	mPhysicsGravity = gravity;
-}
-
-void LLViewerObject::setPhysicsMaterialOverride(BOOL material_override)
-{
-	mPhysicsMaterialOverride = material_override;
 }
 
 void LLViewerObject::setPhysicsFriction(F32 friction)
@@ -5362,15 +5355,13 @@ public:
 			{
 				// The LLSD message builder doesn't know how to handle U8, so we need to send as S8 and cast
 				U8 type = (U8)curr_object_data["PhysicsShapeType"].asInteger();
-				F32 gravity = (F32)curr_object_data["PhysicsGravity"].asReal();
-				BOOL material_override = curr_object_data["PhysicsMaterialOverride"].asBoolean();
-				F32 friction = (F32)curr_object_data["PhysicsFriction"].asReal();
-				F32 density = (F32)curr_object_data["PhysicsDensity"].asReal();
-				F32 restitution = (F32)curr_object_data["PhysicsRestitution"].asReal();
+				F32 density = (F32)curr_object_data["Density"].asReal();
+				F32 friction = (F32)curr_object_data["Friction"].asReal();
+				F32 restitution = (F32)curr_object_data["Restitution"].asReal();
+				F32 gravity = (F32)curr_object_data["GravityMultiplier"].asReal();
 
 				node->getObject()->setPhysicsShapeType(type);
 				node->getObject()->setPhysicsGravity(gravity);
-				node->getObject()->setPhysicsMaterialOverride(material_override);
 				node->getObject()->setPhysicsFriction(friction);
 				node->getObject()->setPhysicsDensity(density);
 				node->getObject()->setPhysicsRestitution(restitution);

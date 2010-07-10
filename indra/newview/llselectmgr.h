@@ -485,8 +485,8 @@ public:
 	void saveSelectedObjectTextures();
 
 	void selectionUpdatePhysics(BOOL use_physics);
-	void selectionUpdatePhysicsParam(U8 type, F32 gravity, BOOL material_override,
-									 F32 friction, F32 density, F32 restitution);
+	void selectionUpdatePhysicsParam(U8 type, F32 gravity, F32 friction, 
+										F32 density, F32 restitution);
 	void selectionUpdateTemporary(BOOL is_temporary);
 	void selectionUpdatePhantom(BOOL is_ghost);
 	void selectionUpdateCastShadows(BOOL cast_shadows);

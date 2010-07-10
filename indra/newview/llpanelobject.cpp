@@ -146,10 +146,6 @@ BOOL	LLPanelObject::postBuild()
 	mSpinPhysicsGravity = getChild<LLSpinCtrl>("Physics Gravity");
 	childSetCommitCallback("Physics Gravity", onCommitPhysicsParam, this);
 
-	// PhysicsMaterialOverride
-	mCheckPhysicsMaterialOverride = getChild<LLCheckBoxCtrl>("Physics Material Override");
-	childSetCommitCallback("Physics Material Override", onCommitPhysicsParam, this);
-
 	// PhysicsFriction
 	mSpinPhysicsFriction = getChild<LLSpinCtrl>("Physics Friction");
 	childSetCommitCallback("Physics Friction", onCommitPhysicsParam, this);
@@ -558,9 +554,6 @@ void LLPanelObject::getState( )
 	mSpinPhysicsGravity->set(objectp->getPhysicsGravity());
 	mSpinPhysicsGravity->setEnabled(editable);
 
-	mCheckPhysicsMaterialOverride->set(objectp->getPhysicsMaterialOverride());
-	mCheckPhysicsMaterialOverride->setEnabled(editable);
-	
 	mSpinPhysicsFriction->set(objectp->getPhysicsFriction());
 	mSpinPhysicsFriction->setEnabled(editable);
 	
@@ -1289,13 +1282,12 @@ void LLPanelObject::sendPhysicsParam()
 {
 	U8 type = (U8)mComboPhysicsShapeType->getCurrentIndex();
 	F32 gravity = mSpinPhysicsGravity->get();
-	BOOL material_override = mCheckPhysicsMaterialOverride->get();
 	F32 friction = mSpinPhysicsFriction->get();
 	F32 density = mSpinPhysicsDensity->get();
 	F32 restitution = mSpinPhysicsRestitution->get();
 	
-	LLSelectMgr::getInstance()->selectionUpdatePhysicsParam(type, gravity, material_override,
-															friction, density, restitution);
+	LLSelectMgr::getInstance()->selectionUpdatePhysicsParam(type, gravity, friction, 
+																density, restitution);
 
 	std::string url = gAgent.getRegion()->getCapability("GetObjectCost");
 	LLSD body = LLSD::emptyArray();
@@ -1982,7 +1974,6 @@ void LLPanelObject::clearCtrls()
 	mComboPhysicsShapeType->setCurrentByIndex(0);
 	mComboPhysicsShapeType->setEnabled(FALSE);
 	mSpinPhysicsGravity->setEnabled(FALSE);
-	mCheckPhysicsMaterialOverride->setEnabled(FALSE);
 	mSpinPhysicsFriction->setEnabled(FALSE);
 	mSpinPhysicsDensity->setEnabled(FALSE);
 	mSpinPhysicsRestitution->setEnabled(FALSE);
