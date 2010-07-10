@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<bodyparts_list_item
+ follows="top|right|left"
+ height="23"
+ layout="topleft"
+ left="0"
+ name="wearable_item"
+ bottom="0"
+ width="380">
+  <item_icon
+   height="16"
+   follows="top|left"
+   image_name="Inv_Object"
+   layout="topleft"
+   left="0"
+   name="item_icon"
+   top="2"
+   width="16" />
+  <item_name
+   follows="left|right"
+   height="16"
+   layout="topleft"
+   left="21"
+   allow_html="false"
+   use_ellipses="true"
+   name="item_name"
+   text_color="white"
+   top="5"
+   value="..."
+   width="359" />
+  <lock_panel
+   background_visible="false"
+   name="btn_lock"
+   layout="topleft"
+   follows="top|right"
+   top="0"
+   left="0"
+   height="23"
+   width="23"
+   tab_stop="false"
+   tool_tip="You don't have permission to edit"/>
+  <lock_icon
+   name="btn_lock1"
+   layout="topleft"
+   follows="top|right"
+   image_name="Locked_Icon"
+   top="2"
+   left="5"
+   height="13"
+   width="9"
+   tab_stop="false" />
+  <edit_panel
+   background_visible="false"
+   name="btn_edit_panel"
+   layout="topleft"
+   follows="top|right"
+   top="1"
+   left="17"
+   height="23"
+   width="26"
+   tab_stop="false"/>
+  <edit_btn
+   name="btn_edit"
+   layout="topleft"
+   follows="top|right"
+   image_overlay="Edit_Wrench"
+   top="0"
+   left="0"
+   height="23"
+   width="23"
+   tab_stop="false"
+   tool_tip="Edit this shape"/>
+</bodyparts_list_item>
