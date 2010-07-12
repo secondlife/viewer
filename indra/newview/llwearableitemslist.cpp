@@ -765,8 +765,8 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	bool standalone = mParent ? mParent->isStandalone() : false;
 
 	// *TODO: eliminate multiple traversals over the menu items
-	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0);
-	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0);
+	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
+	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
 	setMenuItemVisible(menu, "wear_add",			mask == MASK_CLOTHING && n_worn == 0 && n_already_worn != 0);
 	setMenuItemEnabled(menu, "wear_add",			n_items == 1 && canAddWearable(ids.front()) && n_already_worn != 0);
 	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0);
