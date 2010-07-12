@@ -327,6 +327,9 @@ U32 LLFlatListView::size(const bool only_visible_items) const
 
 void LLFlatListView::clear()
 {
+	// This will clear mSelectedItemPairs, calling all appropriate callbacks.
+	resetSelection();
+	
 	// do not use LLView::deleteAllChildren to avoid removing nonvisible items. drag-n-drop for ex.
 	for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
 	{
@@ -335,7 +338,6 @@ void LLFlatListView::clear()
 		delete *it;
 	}
 	mItemPairs.clear();
-	mSelectedItemPairs.clear();
 
 	// also set items panel height to zero. Reshape it to allow reshaping of non-item children
 	LLRect rc = mItemsPanel->getRect();
@@ -975,6 +977,7 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 	llassert(item_pair);
 
 	bool deleted = false;
+	bool selection_changed = false;
 	for (pairs_iterator_t it = mItemPairs.begin(); it != mItemPairs.end(); ++it)
 	{
 		item_pair_t* _item_pair = *it;
@@ -994,6 +997,7 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 		if (selected_item_pair == item_pair)
 		{
 			it = mSelectedItemPairs.erase(it);
+			selection_changed = true;
 			break;
 		}
 	}
@@ -1006,6 +1010,11 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 	{
 	rearrangeItems();
 	notifyParentItemsRectChanged();
+	}
+
+	if (selection_changed && mCommitOnSelectionChange)
+	{
+		onCommit();
 	}
 
 	return true;
