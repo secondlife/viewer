@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="top|right|left"
+ height="23"
+ layout="topleft"
+ left="0"
+ name="wearable_item"
+ top="0"
+ width="380">
+    <icon
+     follows="top|right|left"
+     height="22"
+     image_name="ListItem_Over"
+     layout="topleft"
+     left="0"
+     name="hovered_icon"
+     top="1"
+     visible="false"
+     width="380" />
+    <icon
+     height="22"
+     follows="top|right|left"
+     image_name="ListItem_Select"
+     layout="topleft"
+     left="0"
+     name="selected_icon"
+     top="1"
+     visible="false"
+     width="380" />
+    <icon
+     height="16"
+     follows="top|left"
+     image_name="Inv_Object"
+     layout="topleft"
+     left="0"
+     name="item_icon"
+     top="2"
+     width="16" />
+    <text
+     follows="left|right"
+     height="16"
+     layout="topleft"
+     left_pad="5"
+     allow_html="false"
+     use_ellipses="true"
+     name="item_name"
+     text_color="white"
+     top="5"
+     value="..."
+     width="359" />
+    <panel
+     background_visible="false"
+     name="btn_lock"
+     layout="topleft"
+     follows="top|right"
+     top="0"
+     left="0"
+     height="23"
+     width="23"
+     tab_stop="false"
+     tool_tip="You don't have permission to edit">
+        <icon 
+         name="btn_lock1"
+         layout="topleft"
+         follows="top|right"
+         image_name="Locked_Icon"
+         top="2"
+         left="5"
+         height="13"
+         width="9"
+         tab_stop="false" />
+    </panel>
+    <panel
+     background_visible="false"
+     name="btn_edit_panel"
+     layout="topleft"
+     follows="top|right"
+     top="1"
+     left_pad="3"
+     height="23"
+     width="26"
+     tab_stop="false">
+         <button 
+          name="btn_edit"
+          layout="topleft"
+          follows="top|right"
+          image_overlay="Edit_Wrench"
+          top="0"
+          left="0"
+          height="23"
+          width="23"
+          tab_stop="false"
+          tool_tip="Edit this shape"/>
+      </panel>
+    <icon
+     follows="left|right|top"
+     height="3"
+     image_name="Wearables_Divider"
+     layout="bottomleft"
+     left="0"
+     name="wearable_type_separator_icon"
+     top="0"
+     visible="true"
+     width="380"/>
+</panel>
