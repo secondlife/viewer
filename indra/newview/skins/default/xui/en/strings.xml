@@ -2188,6 +2188,7 @@ Clears (deletes) the media and all params from the given face.
 	<string name="PanelDirEventsDateText">[mthnum,datetime,slt]/[day,datetime,slt]</string>
 
 	<!-- panel contents -->
+	<string name="PanelContentsTooltip">Content of object</string>
 	<string name="PanelContentsNewScript">New Script</string>	
 
   <!-- panel preferences general -->
