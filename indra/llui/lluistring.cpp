@@ -135,9 +135,16 @@ void LLUIString::updateResult() const
 	mResult = mOrig;
 	
 	// get the defailt args + local args
-	LLStringUtil::format_map_t combined_args = LLTrans::getDefaultArgs();
-	combined_args.insert(mArgs.begin(), mArgs.end());
-	LLStringUtil::format(mResult, combined_args);
+	if (mArgs.empty())
+	{
+		LLStringUtil::format(mResult, LLTrans::getDefaultArgs());
+	}
+	else
+	{
+		LLStringUtil::format_map_t combined_args = LLTrans::getDefaultArgs();
+		combined_args.insert(mArgs.begin(), mArgs.end());
+		LLStringUtil::format(mResult, combined_args);
+	}
 }
 
 void LLUIString::updateWResult() const

@@ -39,5 +39,5 @@
 	<button label="Téléporter un résident chez lui…" name="kick_btn"/>
 	<button label="Téléporter tous les résidents chez eux…" name="kick_all_btn"/>
 	<button label="Envoyer un message à la région..." name="im_btn"/>
-	<button label="Gérer le Téléhub..." name="manage_telehub_btn"/>
+	<button label="Gérer le téléhub..." name="manage_telehub_btn"/>
 </panel>
