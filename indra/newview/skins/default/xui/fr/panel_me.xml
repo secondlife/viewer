@@ -2,6 +2,6 @@
 <panel label="Mon profil" name="panel_me">
 	<tab_container name="tabs">
 		<panel label="MON PROFIL" name="panel_profile"/>
-		<panel label="MES PRÉFÉRENCES" name="panel_picks"/>
+		<panel label="MES FAVORIS" name="panel_picks"/>
 	</tab_container>
 </panel>

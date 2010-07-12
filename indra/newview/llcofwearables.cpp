@@ -519,7 +519,7 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 	item_panel->childSetAction("btn_edit", mCOFCallbacks.mEditWearable);
 	
 	//turning on gray separator line for the last item in the items group of the same wearable type
-	item_panel->childSetVisible("wearable_type_separator_icon", last);
+	item_panel->setSeparatorVisible(last);
 
 	return item_panel;
 }
@@ -655,10 +655,10 @@ LLAssetType::EType LLCOFWearables::getExpandedAccordionAssetType()
 	const LLAccordionCtrlTab* expanded_tab = accordion_ctrl->getExpandedTab();
 
 	return get_if_there(mTab2AssetType, expanded_tab, LLAssetType::AT_NONE);
-}
+	}
 
 LLAssetType::EType LLCOFWearables::getSelectedAccordionAssetType()
-{
+	{
 	static LLAccordionCtrl* accordion_ctrl = getChild<LLAccordionCtrl>("cof_wearables_accordion");
 	const LLAccordionCtrlTab* selected_tab = accordion_ctrl->getSelectedTab();
 

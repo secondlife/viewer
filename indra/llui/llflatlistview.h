@@ -117,6 +117,9 @@ public:
 		Params();
 	};
 	
+	// disable traversal when finding widget to hand focus off to
+	/*virtual*/ BOOL canFocusChildren() const { return FALSE; }
+
 	/**
 	 * Connects callback to signal called when Return key is pressed.
 	 */
@@ -149,19 +152,19 @@ public:
 	 * Remove specified item
 	 * @return true if the item was removed, false otherwise 
 	 */
-	virtual bool removeItem(LLPanel* item);
+	virtual bool removeItem(LLPanel* item, bool rearrange = true);
 
 	/** 
 	 * Remove an item specified by value
 	 * @return true if the item was removed, false otherwise 
 	 */
-	virtual bool removeItemByValue(const LLSD& value);
+	virtual bool removeItemByValue(const LLSD& value, bool rearrange = true);
 
 	/** 
 	 * Remove an item specified by uuid
 	 * @return true if the item was removed, false otherwise 
 	 */
-	virtual bool removeItemByUUID(const LLUUID& uuid);
+	virtual bool removeItemByUUID(const LLUUID& uuid, bool rearrange = true);
 
 	/** 
 	 * Get an item by value 
@@ -349,7 +352,7 @@ protected:
 
 	virtual bool isSelected(item_pair_t* item_pair) const;
 
-	virtual bool removeItemPair(item_pair_t* item_pair);
+	virtual bool removeItemPair(item_pair_t* item_pair, bool rearrange);
 
 	/**
 	 * Notify parent about changed size of internal controls with "size_changes" action

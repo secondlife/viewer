@@ -603,8 +603,12 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 									  void* user_data = NULL);
 
 // Utility function to hide all entries except those in the list
+// Can be called multiple times on the same menu (e.g. if multiple items
+// are selected).  If "append" is false, then only common enabled items
+// are set as enabled.
 void hide_context_entries(LLMenuGL& menu, 
 						  const menuentry_vec_t &entries_to_show, 
-						  const menuentry_vec_t &disabled_entries);
+						  const menuentry_vec_t &disabled_entries,
+						  BOOL append = FALSE);
 
 #endif // LL_LLINVENTORYBRIDGE_H

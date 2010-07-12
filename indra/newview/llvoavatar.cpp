@@ -5725,6 +5725,7 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 	if (!attachment)
 	{
 		llwarns << "Object attachment point invalid: " << attachmentID << llendl;
+		attachment = get_if_there(mAttachmentPoints, 1, (LLViewerJointAttachment*)NULL); // Arbitrary using 1 (chest)
 	}
 
 	return attachment;

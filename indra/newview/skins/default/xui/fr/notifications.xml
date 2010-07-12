@@ -168,7 +168,7 @@ Ajouter ce pouvoir à « [ROLE_NAME] » ?
 	<notification name="AttachmentDrop">
 		Vous êtes sur le point d&apos;abandonner l&apos;élément joint.
 Voulez-vous vraiment continuer ?
-		<usetemplate ignoretext="Confirmez avant d&apos;abandonner les éléments joints." name="okcancelignore" notext="Non" yestext="Oui"/>
+		<usetemplate ignoretext="Confirmer avant d&apos;abandonner les éléments joints" name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="JoinGroupCanAfford">
 		Rejoindre ce groupe coûte [COST] L$.

@@ -95,8 +95,8 @@ viewList_t LLViewQuery::run(LLView* view) const
 		if (pre.first)
 		{
 			post = runFilters(view, filtered_children, mPostFilters);
+			}
 		}
-	}
 
 	if(pre.first && post.first) 
 	{
@@ -119,12 +119,12 @@ void LLViewQuery::filterChildren(LLView * view, viewList_t & filtered_children) 
 		(*mSorterp)(view, views); // sort the children per the sorter
 	}
 	for(LLView::child_list_iter_t iter = views.begin();
-			iter != views.end();
-			iter++)
-		{
-			viewList_t indiv_children = this->run(*iter);
-			filtered_children.insert(filtered_children.end(), indiv_children.begin(), indiv_children.end());
-		}
+		iter != views.end();
+		iter++)
+	{
+		viewList_t indiv_children = this->run(*iter);
+		filtered_children.splice(filtered_children.end(), indiv_children);
+	}
 }
 
 filterResult_t LLViewQuery::runFilters(LLView * view, const viewList_t children, const filterList_t filters) const
