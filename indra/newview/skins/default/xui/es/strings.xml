@@ -1588,20 +1588,29 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD: abajo der.
 	</string>
+	<string name="Bad attachment point">
+		Punto de colocación no válido
+	</string>
 	<string name="CursorPos">
 		Línea [LINE], Columna [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
 		[COUNT] resultados
 	</string>
-	<string name="PanelContentsNewScript">
-		Script nuevo
-	</string>
 	<string name="PanelContentsTooltip">
 		Contenido del objeto
 	</string>
+	<string name="PanelContentsNewScript">
+		Script nuevo
+	</string>
 	<string name="BusyModeResponseDefault">
 		El Residente al que has enviado un mensaje ha solicitado que no se le moleste porque está en modo ocupado.    Podrá ver tu mensaje más adelante, ya que éste aparecerá en su panel de MI.
+	</string>
+	<string name="NoOutfits">
+		Todavía no tienes vestuario. Intenta con [secondlife:///app/search/all/ Buscar]
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		¿No encuentras lo que buscas? Intenta con [secondlife:///app/search/all/[SEARCH_TERM] Buscar].
 	</string>
 	<string name="MuteByName">
 		(Por el nombre)
