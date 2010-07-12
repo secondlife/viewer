@@ -5,7 +5,7 @@
         
 Lembre-se, o pagamento do anúncio não é reembolsável
 	</text>
-	<spinner label="Preço do anúncio:" name="price_for_listing" tool_tip="Preço do anúncio." value="50"/>
+	<spinner label="Preço: L$" name="price_for_listing" tool_tip="Preço do anúncio." value="50"/>
 	<text name="l$_text" value="L$"/>
 	<text name="more_info_text">
 		Mais informações (link para ajuda com anúncios)
