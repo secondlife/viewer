@@ -34,6 +34,7 @@
 
 #include "llnotifications.h"
 #include "llpanelonlinestatus.h"
+#include "llviewercontrol.h" // for gSavedSettings
 
 LLPanelOnlineStatus::LLPanelOnlineStatus(
 		const LLNotificationPtr& notification) :
@@ -54,7 +55,7 @@ LLPanelOnlineStatus::LLPanelOnlineStatus(
 				notification, notification->getResponseTemplate()));
 	}
 
-	// set line max count to 3 in case of a very long name
-	snapToMessageHeight(getChild<LLTextBox> ("message"), 3);
+	S32 max_line_count =  gSavedSettings.getS32("TipToastMessageLineCount");
+	snapToMessageHeight(getChild<LLTextBox> ("message"), max_line_count);
 
 }
