@@ -5245,6 +5245,10 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 	mNumS = src.mNumS;
 	mNumT = src.mNumT;
 
+	mExtents[0] = src.mExtents[0];
+	mExtents[1] = src.mExtents[1];
+	*mCenter = *src.mCenter;
+
 	mNumVertices = 0;
 	mNumIndices = 0;
 
@@ -5297,7 +5301,6 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 		LLVector4a::memcpyNonAliased16((F32*) mIndices, (F32*) src.mIndices, idx_size);
 	}
 	
-
 	//delete 
 	return *this;
 }
@@ -5535,88 +5538,100 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 	S32 offset = 0;
 	if (mTypeMask & TOP_MASK)
+	{
 		offset = (max_t-1) * max_s;
+	}
 	else
+	{
 		offset = mBeginS;
-
-	VertexData	corners[4];
-	VertexData baseVert;
-	for(int t = 0; t < 4; t++){
-		corners[t].getPosition().load3( mesh[offset + (grid_size*t)].mPos.mV);
-		corners[t].mTexCoord.mV[0] = profile[grid_size*t].mV[0]+0.5f;
-		corners[t].mTexCoord.mV[1] = 0.5f - profile[grid_size*t].mV[1];
 	}
 
 	{
-		LLVector4a lhs;
-		lhs.setSub(corners[1].getPosition(), corners[0].getPosition());
-		LLVector4a rhs;
-		rhs.setSub(corners[2].getPosition(), corners[1].getPosition());
-		baseVert.getNormal().setCross3(lhs, rhs); 
-		baseVert.getNormal().normalize3fast();
-	}
+		VertexData	corners[4];
+		VertexData baseVert;
+		for(S32 t = 0; t < 4; t++)
+		{
+			corners[t].getPosition().load3( mesh[offset + (grid_size*t)].mPos.mV);
+			corners[t].mTexCoord.mV[0] = profile[grid_size*t].mV[0]+0.5f;
+			corners[t].mTexCoord.mV[1] = 0.5f - profile[grid_size*t].mV[1];
+		}
 
-	if(!(mTypeMask & TOP_MASK)){
-		baseVert.getNormal().mul(-1.0f);
-	}else{
-		//Swap the UVs on the U(X) axis for top face
-		LLVector2 swap;
-		swap = corners[0].mTexCoord;
-		corners[0].mTexCoord=corners[3].mTexCoord;
-		corners[3].mTexCoord=swap;
-		swap = corners[1].mTexCoord;
-		corners[1].mTexCoord=corners[2].mTexCoord;
-		corners[2].mTexCoord=swap;
-	}
+		{
+			LLVector4a lhs;
+			lhs.setSub(corners[1].getPosition(), corners[0].getPosition());
+			LLVector4a rhs;
+			rhs.setSub(corners[2].getPosition(), corners[1].getPosition());
+			baseVert.getNormal().setCross3(lhs, rhs); 
+			baseVert.getNormal().normalize3fast();
+		}
 
-	LLVector4a binormal;
-	
-	calc_binormal_from_triangle( binormal,
-		corners[0].getPosition(), corners[0].mTexCoord,
-		corners[1].getPosition(), corners[1].mTexCoord,
-		corners[2].getPosition(), corners[2].mTexCoord);
-	
-	binormal.normalize3fast();
+		if(!(mTypeMask & TOP_MASK))
+		{
+			baseVert.getNormal().mul(-1.0f);
+		}
+		else
+		{
+			//Swap the UVs on the U(X) axis for top face
+			LLVector2 swap;
+			swap = corners[0].mTexCoord;
+			corners[0].mTexCoord=corners[3].mTexCoord;
+			corners[3].mTexCoord=swap;
+			swap = corners[1].mTexCoord;
+			corners[1].mTexCoord=corners[2].mTexCoord;
+			corners[2].mTexCoord=swap;
+		}
 
-	S32 size = (grid_size+1)*(grid_size+1);
-	resizeVertices(size);
-	allocateBinormals(size);
+		LLVector4a binormal;
+		
+		calc_binormal_from_triangle( binormal,
+			corners[0].getPosition(), corners[0].mTexCoord,
+			corners[1].getPosition(), corners[1].mTexCoord,
+			corners[2].getPosition(), corners[2].mTexCoord);
+		
+		binormal.normalize3fast();
 
-	LLVector4a* pos = (LLVector4a*) mPositions;
-	LLVector4a* norm = (LLVector4a*) mNormals;
-	LLVector4a* binorm = (LLVector4a*) mBinormals;
-	LLVector2* tc = (LLVector2*) mTexCoords;
+		S32 size = (grid_size+1)*(grid_size+1);
+		resizeVertices(size);
+		allocateBinormals(size);
 
-	for(int gx = 0;gx<grid_size+1;gx++){
-		for(int gy = 0;gy<grid_size+1;gy++){
-			VertexData newVert;
-			LerpPlanarVertex(
-				corners[0],
-				corners[1],
-				corners[3],
-				newVert,
-				(F32)gx/(F32)grid_size,
-				(F32)gy/(F32)grid_size);
+		LLVector4a* pos = (LLVector4a*) mPositions;
+		LLVector4a* norm = (LLVector4a*) mNormals;
+		LLVector4a* binorm = (LLVector4a*) mBinormals;
+		LLVector2* tc = (LLVector2*) mTexCoords;
 
-			*pos++ = newVert.getPosition();
-			*norm++ = baseVert.getNormal();
-			*tc++ = newVert.mTexCoord;
-			*binorm++ = binormal;
-
-			if (gx == 0 && gy == 0)
+		for(int gx = 0;gx<grid_size+1;gx++)
+		{
+			for(int gy = 0;gy<grid_size+1;gy++)
 			{
-				min = max = newVert.getPosition();
-			}
-			else
-			{
-				min.setMin(newVert.getPosition());
-				max.setMax(newVert.getPosition());
+				VertexData newVert;
+				LerpPlanarVertex(
+					corners[0],
+					corners[1],
+					corners[3],
+					newVert,
+					(F32)gx/(F32)grid_size,
+					(F32)gy/(F32)grid_size);
+
+				*pos++ = newVert.getPosition();
+				*norm++ = baseVert.getNormal();
+				*tc++ = newVert.mTexCoord;
+				*binorm++ = binormal;
+
+				if (gx == 0 && gy == 0)
+				{
+					min = max = newVert.getPosition();
+				}
+				else
+				{
+					min.setMin(newVert.getPosition());
+					max.setMax(newVert.getPosition());
+				}
 			}
 		}
-	}
 	
-	mCenter->setAdd(min, max);
-	mCenter->mul(0.5f); 
+		mCenter->setAdd(min, max);
+		mCenter->mul(0.5f); 
+	}
 
 	if (!partial_build)
 	{
@@ -6249,73 +6264,96 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 		llerrs << "Cannot append face -- 16-bit overflow will occur." << llendl;
 	}
 	
-	
+	if (face.mNumVertices == 0)
+	{
+		llerrs << "Cannot append empty face." << llendl;
+	}
+
+	//allocate new buffer space
 	LLVector4a* new_pos = (LLVector4a*) ll_aligned_malloc_16(new_count*16);
 	LLVector4a* new_norm = (LLVector4a*) ll_aligned_malloc_16(new_count*16);
 	LLVector2* new_tc = (LLVector2*) ll_aligned_malloc_16((new_count*8+0xF) & ~0xF);
 	
+
 	if (mNumVertices > 0)
-	{
+	{ //copy old buffers
 		LLVector4a::memcpyNonAliased16((F32*) new_pos, (F32*) mPositions, mNumVertices*4);
 		LLVector4a::memcpyNonAliased16((F32*) new_norm, (F32*) mNormals, mNumVertices*4);
 		LLVector4a::memcpyNonAliased16((F32*) new_tc, (F32*) mTexCoords, mNumVertices*2);
 	}
 
+	//free old buffer space
 	ll_aligned_free_16(mPositions);
 	ll_aligned_free_16(mNormals);
 	ll_aligned_free_16(mTexCoords);
 
+	//point to new buffers
 	mPositions = new_pos;
 	mNormals = new_norm;
 	mTexCoords = new_tc;
 
 	mNumVertices = new_count;
 
+	//get destination address of appended face
 	LLVector4a* dst_pos = mPositions+offset;
 	LLVector2* dst_tc = mTexCoords+offset;
 	LLVector4a* dst_norm = mNormals+offset;
 
+	//get source addresses of appended face
 	const LLVector4a* src_pos = face.mPositions;
 	const LLVector2* src_tc = face.mTexCoords;
 	const LLVector4a* src_norm = face.mNormals;
 
+	//load aligned matrices
 	LLMatrix4a mat, norm_mat;
 	mat.loadu(mat_in);
 	norm_mat.loadu(norm_mat_in);
 
 	for (U32 i = 0; i < face.mNumVertices; ++i)
 	{
+		//transform appended face position and store
 		mat.affineTransform(src_pos[i], dst_pos[i]);
+
+		//transform appended face normal and store
 		norm_mat.rotate(src_norm[i], dst_norm[i]);
 		dst_norm[i].normalize3fast();
 
+		//copy appended face texture coordinate
 		dst_tc[i] = src_tc[i];
 
 		if (offset == 0 && i == 0)
-		{
+		{ //initialize bounding box
 			mExtents[0] = mExtents[1] = dst_pos[i];
 		}
 		else
 		{
+			//stretch bounding box
 			update_min_max(mExtents[0], mExtents[1], dst_pos[i]);
 		}
 	}
 
 
 	new_count = mNumIndices + face.mNumIndices;
+
+	//allocate new index buffer
 	U16* new_indices = (U16*) ll_aligned_malloc_16((new_count*2+0xF) & ~0xF);
 	if (mNumIndices > 0)
-	{
-		LLVector4a::memcpyNonAliased16((F32*) new_indices, (F32*) mIndices, llmax(mNumIndices/2, 1));
+	{ //copy old index buffer
+		LLVector4a::memcpyNonAliased16((F32*) new_indices, (F32*) mIndices, llmax(mNumIndices/2, 4));
 	}
 
+	//free old index buffer
 	ll_aligned_free_16(mIndices);
+
+	//point to new index buffer
 	mIndices = new_indices;
+
+	//get destination address into new index buffer
 	U16* dst_idx = mIndices+mNumIndices;
 	mNumIndices = new_count;
 
 	for (U32 i = 0; i < face.mNumIndices; ++i)
-	{
+	{ //copy indices, offsetting by old vertex count
 		dst_idx[i] = face.mIndices[i]+offset;
 	}
 }
