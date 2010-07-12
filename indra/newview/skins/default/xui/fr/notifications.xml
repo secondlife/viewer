@@ -1346,7 +1346,7 @@ Télécharger vers le dossier Applications ?
 	</notification>
 	<notification name="WebLaunchQAWiki">
 		Consultez le Wiki sur l&apos;Assurance Qualité de [SECOND_LIFE].
-		<usetemplate ignoretext="Lancer mon navigateur web pour consulter la page Wiki sur l&apos;Assurance Qualité." name="okcancelignore" notext="Annuler" yestext="OK"/>
+		<usetemplate ignoretext="Lancer mon navigateur web pour consulter la page Wiki sur l&apos;Assurance Qualité" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchPublicIssue">
 		Pour signaler des bugs et autres problèmes, utilisez le JIRA de [SECOND_LIFE].
@@ -2645,7 +2645,7 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		Êtes-vous certain de vouloir fermer tous les IM ?
-		<usetemplate ignoretext="Confirmer avant de fermer tous les IM." name="okcancelignore" notext="Annuler" yestext="OK"/>
+		<usetemplate ignoretext="Confirmer avant de fermer tous les IM" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		L&apos;élément joint a été sauvegardé.
