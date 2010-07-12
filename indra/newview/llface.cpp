@@ -1583,7 +1583,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 	if (rebuild_weights && vf.mWeights)
 	{
-		LLVector4a::memcpyNonAliased16((F32*) weights, (F32*) vf.mWeights, num_vertices/4);
+		LLVector4a::memcpyNonAliased16((F32*) weights, (F32*) vf.mWeights, num_vertices*4);
 	}
 
 	if (rebuild_color)

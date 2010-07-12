@@ -1249,10 +1249,10 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLFace* face, const LLMeshSk
 	{
 		face->setGeomIndex(0);
 		face->setIndicesIndex(0);
-		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices);
+		face->setSize(vol_face.mNumVertices, vol_face.mNumIndices, true);
 
 		face->mVertexBuffer = new LLVertexBuffer(data_mask, 0);
-		face->mVertexBuffer->allocateBuffer(vol_face.mNumVertices, vol_face.mNumIndices, true);
+		face->mVertexBuffer->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), true);
 
 		U16 offset = 0;
 		

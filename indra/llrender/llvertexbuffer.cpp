@@ -267,7 +267,7 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 	if (start >= (U32) mRequestedNumVerts ||
 	    end >= (U32) mRequestedNumVerts)
 	{
-		llerrs << "Bad vertex buffer draw range: [" << start << ", " << end << "]" << llendl;
+		llerrs << "Bad vertex buffer draw range: [" << start << ", " << end << "] vs " << mRequestedNumVerts << llendl;
 	}
 
 	llassert(mRequestedNumIndices >= 0);
