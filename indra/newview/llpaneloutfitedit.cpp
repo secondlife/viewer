@@ -704,13 +704,20 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitEdit::onPlusBtnClicked(void)
 {
-	LLUUID selected_id;
-	getCurrentItemUUID(selected_id);
+	uuid_vec_t selected_items;
+	getSelectedItemsUUID(selected_items);
 
-	if (selected_id.isNull()) return;
-
-	//replacing instead of adding the item
-	LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id, true, true);
+	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
+	
+	for(uuid_vec_t::iterator iter = selected_items.begin(); iter != selected_items.end(); iter++)
+	{
+		LLUUID selected_id = *iter;
+		if (!selected_id.isNull())
+		{
+			//replacing instead of adding the item
+			LLAppearanceMgr::getInstance()->wearItemOnAvatar(selected_id, false, true, link_waiter);
+		}
+	}
 }
 
 void LLPanelOutfitEdit::onVisibilityChange()
