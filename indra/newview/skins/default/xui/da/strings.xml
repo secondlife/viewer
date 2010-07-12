@@ -233,7 +233,7 @@
 		Klik for at starte secondlife:// kommando
 	</string>
 	<string name="CurrentURL" value=" Nuværende URL: [CurrentURL]"/>
-	<string name="TooltipPrice" value="L$[PRICE]-"/>
+	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 	<string name="SLurlLabelTeleport">
 		Teleportér til
 	</string>

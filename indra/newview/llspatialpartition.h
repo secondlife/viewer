@@ -164,8 +164,6 @@ public:
 	static BOOL sNoDelete; //deletion of spatial groups and draw info not allowed if TRUE
 
 	typedef std::vector<LLPointer<LLSpatialGroup> > sg_vector_t;
-	typedef std::set<LLPointer<LLSpatialGroup> > sg_set_t;
-	typedef std::list<LLPointer<LLSpatialGroup> > sg_list_t;
 	typedef std::vector<LLPointer<LLSpatialBridge> > bridge_list_t;
 	typedef std::vector<LLPointer<LLDrawInfo> > drawmap_elem_t; 
 	typedef std::map<U32, drawmap_elem_t > draw_map_t;	

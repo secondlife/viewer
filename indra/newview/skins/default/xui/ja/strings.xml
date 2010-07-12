@@ -248,7 +248,7 @@
 		クリックして secondlife:// コマンドを出します
 	</string>
 	<string name="CurrentURL" value=" 現在の URL： [CurrentURL]"/>
-	<string name="TooltipPrice" value="L$[PRICE]-"/>
+	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 	<string name="SLurlLabelTeleport">
 		テレポート
 	</string>

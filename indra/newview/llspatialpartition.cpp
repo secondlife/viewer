@@ -300,6 +300,7 @@ LLSpatialGroup::~LLSpatialGroup()
 	}
 
 	delete [] mOcclusionVerts;
+	mOcclusionVerts = NULL;
 
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	clearDrawMap();
