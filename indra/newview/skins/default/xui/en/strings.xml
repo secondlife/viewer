@@ -1956,6 +1956,9 @@ Clears (deletes) the media and all params from the given face.
 	<string name="InvFolder Animations">Animations</string>
 	<string name="InvFolder Gestures">Gestures</string>
 	<string name="InvFolder Favorite">Favorites</string>
+  <!-- historically default name of the Favorites folder can start from either "f" or "F" letter.
+  We should localize both of them with the same value -->
+	<string name="InvFolder favorite">Favorites</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
 	<string name="InvFolder Accessories">Accessories</string>
