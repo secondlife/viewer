@@ -6,6 +6,9 @@
 	<panel.string name="cant_view_group_land_text">
 		Nie masz pozwolenia na oglądanie Posiadłości Grupy.
 	</panel.string>
+	<panel.string name="epmty_view_group_land_text">
+		Brak wstępu
+	</panel.string>
 	<panel.string name="cant_view_group_accounting_text">
 		Nie masz dostępu do konta, finansów Grupy.
 	</panel.string>

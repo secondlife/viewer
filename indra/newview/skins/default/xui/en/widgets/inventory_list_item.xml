@@ -4,8 +4,8 @@
   height="20"
   name="inventory_item"
   tab_stop="false" 
-  hover_image="ListItem_Over" 
-  selected_name="ListItem_Select"
+  hover_image="ListItem_Over"
+  selected_image="ListItem_Select"
   separator_image="Wearables_Divider" 
   width="380">
   <!-- DEFAULT style for inventory list item -->
