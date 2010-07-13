@@ -37,7 +37,7 @@
 		Venda mista
 	</panel.string>
 	<text name="title" value="Perfil do objeto"/>
-	<text name="where" value="(inworld)"/>
+	<text name="where" value="(Inworld)"/>
 	<panel label="" name="properties_panel">
 		<text name="Name:">
 			Nome:

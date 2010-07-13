@@ -1588,20 +1588,29 @@
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
 		HUD direito inferior
 	</string>
+	<string name="Bad attachment point">
+		Ponto de encaixe inválido
+	</string>
 	<string name="CursorPos">
 		Linha [LINE], Coluna [COLUMN]
 	</string>
 	<string name="PanelDirCountFound">
 		[COUNT] encontrado
 	</string>
-	<string name="PanelContentsNewScript">
-		Novo Script
-	</string>
 	<string name="PanelContentsTooltip">
 		Conteúdo do objeto
 	</string>
+	<string name="PanelContentsNewScript">
+		Novo Script
+	</string>
 	<string name="BusyModeResponseDefault">
 		O residente para o qual escreveu está no modo &apos;ocupado&apos;, ou seja, ele prefere não receber nada no momento. Sua mensagem será exibida como uma MI mais tarde.
+	</string>
+	<string name="NoOutfits">
+		Você ainda não tem nenhum look. Tente fazer uma [secondlife:///app/search/groups Busca].
+	</string>
+	<string name="NoOutfitsTabsMatched">
+		Não encontrou o que procura? Tente buscar no [secondlife:///app/search/people/[SEARCH_TERM] Search].
 	</string>
 	<string name="MuteByName">
 		(por nome)

@@ -230,15 +230,15 @@ LLSideTrayTab*  LLSideTrayTab::createInstance	()
 
 LLSideTray::Params::Params()
 :	collapsed("collapsed",false),
-	tab_btn_image_normal("tab_btn_image","sidebar_tab_left.tga"),
-	tab_btn_image_selected("tab_btn_image_selected","button_enabled_selected_32x128.tga"),
+	tab_btn_image_normal("tab_btn_image",LLUI::getUIImage("sidebar_tab_left.tga")),
+	tab_btn_image_selected("tab_btn_image_selected",LLUI::getUIImage("button_enabled_selected_32x128.tga")),
 	default_button_width("tab_btn_width",32),
 	default_button_height("tab_btn_height",32),
 	default_button_margin("tab_btn_margin",0)
 {}
 
 //virtual 
-LLSideTray::LLSideTray(Params& params)
+LLSideTray::LLSideTray(const Params& params)
 	   : LLPanel(params)
 	    ,mActiveTab(0)
 		,mCollapsed(false)
@@ -373,10 +373,10 @@ LLButton* LLSideTray::createButton	(const std::string& name,const std::string& i
 	bparams.follows.flags (FOLLOWS_LEFT | FOLLOWS_TOP);
 	bparams.rect (rect);
 	bparams.tab_stop(false);
-	bparams.image_unselected.name(sidetray_params.tab_btn_image_normal);
-	bparams.image_selected.name(sidetray_params.tab_btn_image_selected);
-	bparams.image_disabled.name(sidetray_params.tab_btn_image_normal);
-	bparams.image_disabled_selected.name(sidetray_params.tab_btn_image_selected);
+	bparams.image_unselected(sidetray_params.tab_btn_image_normal);
+	bparams.image_selected(sidetray_params.tab_btn_image_selected);
+	bparams.image_disabled(sidetray_params.tab_btn_image_normal);
+	bparams.image_disabled_selected(sidetray_params.tab_btn_image_selected);
 
 	LLButton* button = LLUICtrlFactory::create<LLButton> (bparams);
 	button->setLabel(name);

@@ -5,11 +5,12 @@
 	<filter_editor label="Filtruj Moje Miejsca" name="Filter"/>
 	<panel name="button_panel">
 		<button label="Teleportuj" name="teleport_btn" tool_tip="Teleportuj do wybranego miejsca"/>
-		<button label="Mapa" name="map_btn"/>
+		<button label="Mapa" name="map_btn" tool_tip="Pokaż miejsce na Mapie Świata"/>
 		<button label="Edytuj" name="edit_btn" tool_tip="Edytuj informacje landmarka"/>
 		<button label="▼" name="overflow_btn" tool_tip="Pokaż opcje dodatkowe"/>
-		<button label="Zamknij" name="close_btn"/>
-		<button label="Anuluj" name="cancel_btn"/>
 		<button label="Zapisz" name="save_btn"/>
+		<button label="Anuluj" name="cancel_btn"/>
+		<button label="Zamknij" name="close_btn"/>
+		<button label="Profil" name="profile_btn" tool_tip="Pokaż opis miejsca"/>
 	</panel>
 </panel>
