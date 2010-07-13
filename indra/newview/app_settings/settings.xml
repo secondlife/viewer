@@ -4666,7 +4666,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+      <string>http://marketplace.secondlife.com/</string>
     </map>
     <key>MarketplaceURL_objectFemale</key>
     <map>
@@ -4721,7 +4721,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+      <string>http://marketplace.secondlife.com</string>
     </map>
     <key>MarketplaceURL_bodypartMale</key>
     <map>
@@ -4732,7 +4732,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://www.xstreetsl.com/modules.php?name=Marketplace</string>
+      <string>http://marketplace.secondlife.com/</string>
     </map>
     <key>MarketplaceURL_glovesMale</key>
     <map>

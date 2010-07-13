@@ -198,6 +198,10 @@ private:
 	void getCurrentItemUUID(LLUUID& selected_id);
 	void onCOFChanged();
 
+	LLWearableType::EType getCOFWearablesSelectionType() const;
+	LLWearableType::EType getAddMorePanelSelectionType() const;
+	LLWearableType::EType getWearableTypeByItemUUID(const LLUUID& item_uuid) const;
+
 	LLTextBox*			mCurrentOutfitName;
 	LLTextBox*			mStatus;
 	LLInventoryPanel*	mInventoryItemsPanel;

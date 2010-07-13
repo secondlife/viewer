@@ -71,6 +71,7 @@
 #include "llsdutil.h"
 #include "llsidepanelappearance.h"
 #include "lltoggleablemenu.h"
+#include "llvoavatarself.h"
 #include "llwearablelist.h"
 #include "llwearableitemslist.h"
 #include "llwearabletype.h"
@@ -622,15 +623,52 @@ void LLPanelOutfitEdit::onShopButtonClicked()
 {
 	static LLShopURLDispatcher url_resolver;
 
+	// will contain the resultant URL
 	std::string url;
-	std::vector<LLPanel*> selected_items;
-	mCOFWearables->getSelectedItems(selected_items);
 
-	ESex sex = gSavedSettings.getU32("AvatarSex") ? SEX_MALE : SEX_FEMALE;
+	if (isAgentAvatarValid())
+	{
+		// try to get wearable type from 'Add More' panel first (EXT-7639)
+		LLWearableType::EType type = getAddMorePanelSelectionType();
+
+		if (type == LLWearableType::WT_NONE)
+		{
+			type = getCOFWearablesSelectionType();
+		}
+
+		ESex sex = gAgentAvatarp->getSex();
+
+		// WT_INVALID comes for attachments
+		if (type != LLWearableType::WT_INVALID && type != LLWearableType::WT_NONE)
+		{
+			url = url_resolver.resolveURL(type, sex);
+		}
+
+		if (url.empty())
+		{
+			url = url_resolver.resolveURL(mCOFWearables->getExpandedAccordionAssetType(), sex);
+		}
+	}
+	else
+	{
+		llwarns << "Agent avatar is invalid" << llendl;
+
+		// the second argument is not important in this case: generic market place will be opened
+		url = url_resolver.resolveURL(LLWearableType::WT_NONE, SEX_FEMALE);
+	}
+
+	LLWeb::loadURLExternal(url);
+}
+
+LLWearableType::EType LLPanelOutfitEdit::getCOFWearablesSelectionType() const
+{
+	std::vector<LLPanel*> selected_items;
+	LLWearableType::EType type = LLWearableType::WT_NONE;
+
+	mCOFWearables->getSelectedItems(selected_items);
 
 	if (selected_items.size() == 1)
 	{
-		LLWearableType::EType type = LLWearableType::WT_NONE;
 		LLPanel* item = selected_items.front();
 
 		// LLPanelDummyClothingListItem is lower then LLPanelInventoryListItemBase in hierarchy tree
@@ -642,20 +680,45 @@ void LLPanelOutfitEdit::onShopButtonClicked()
 		{
 			type = real_item->getWearableType();
 		}
+	}
 
-		// WT_INVALID comes for attachments
-		if (type != LLWearableType::WT_INVALID)
+	return type;
+}
+
+LLWearableType::EType LLPanelOutfitEdit::getAddMorePanelSelectionType() const
+{
+	LLWearableType::EType type = LLWearableType::WT_NONE;
+
+	if (mAddWearablesPanel != NULL && mAddWearablesPanel->getVisible())
+	{
+		if (mInventoryItemsPanel != NULL && mInventoryItemsPanel->getVisible())
 		{
-			url = url_resolver.resolveURL(type, sex);
+			std::set<LLUUID> selected_uuids = mInventoryItemsPanel->getRootFolder()->getSelectionList();
+
+			if (selected_uuids.size() == 1)
+			{
+				type = getWearableTypeByItemUUID(*(selected_uuids.begin()));
+			}
+		}
+		else if (mWearableItemsList != NULL && mWearableItemsList->getVisible())
+		{
+			std::vector<LLUUID> selected_uuids;
+			mWearableItemsList->getSelectedUUIDs(selected_uuids);
+
+			if (selected_uuids.size() == 1)
+			{
+				type = getWearableTypeByItemUUID(selected_uuids.front());
+			}
 		}
 	}
 
-	if (url.empty())
-	{
-		url = url_resolver.resolveURL(mCOFWearables->getExpandedAccordionAssetType(), sex);
-	}
+	return type;
+}
 
-	LLWeb::loadURLExternal(url);
+LLWearableType::EType LLPanelOutfitEdit::getWearableTypeByItemUUID(const LLUUID& item_uuid) const
+{
+	LLViewerInventoryItem* item = gInventory.getLinkedItem(item_uuid);
+	return (item != NULL) ? item->getWearableType() : LLWearableType::WT_NONE;
 }
 
 void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
