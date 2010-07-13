@@ -5369,7 +5369,17 @@ bool LLVolumeFace::VertexMapData::operator==(const LLVolumeFace::VertexData& rhs
 
 bool LLVolumeFace::VertexMapData::ComparePosition::operator()(const LLVector3& a, const LLVector3& b) const
 {
-	return a < b;			
+	if (a.mV[0] != b.mV[0])
+	{
+		return a.mV[0] < b.mV[0];
+	}
+	
+	if (a.mV[1] != b.mV[1])
+	{
+		return a.mV[1] < b.mV[1];
+	}
+	
+	return a.mV[2] < b.mV[2];			
 }
 
 void LLVolumeFace::optimize(F32 angle_cutoff)
@@ -6145,12 +6155,13 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 {
 	S32 new_verts = mNumVertices+1;
 	S32 new_size = new_verts*16;
-	
+	S32 old_size = mNumVertices*16;
+
 	//positions
 	LLVector4a* dst = (LLVector4a*) ll_aligned_malloc_16(new_size);
 	if (mPositions)
 	{
-		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mPositions, new_size/4);
+		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mPositions, old_size/4);
 		ll_aligned_free_16(mPositions);
 	}
 	mPositions = dst;
@@ -6159,22 +6170,25 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 	dst = (LLVector4a*) ll_aligned_malloc_16(new_size);
 	if (mNormals)
 	{
-		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mNormals, new_size/4);
+		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mNormals, old_size/4);
 		ll_aligned_free_16(mNormals);
 	}
 	mNormals = dst;
 
 	//tex coords
 	new_size = ((new_verts*8)+0xF) & ~0xF;
+	old_size = ((mNumVertices*8)+0xF) & ~0xF;
 
+	dst = (LLVector4a*) ll_aligned_malloc_16(new_size);
 	{
 		LLVector2* dst = (LLVector2*) ll_aligned_malloc_16(new_size);
 		if (mTexCoords)
 		{
-			LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mTexCoords, new_size/4);
+			LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mTexCoords, old_size/4);
 			ll_aligned_free_16(mTexCoords);
 		}
 	}
+	mTexCoords = (LLVector2*) dst;
 
 	//just clear binormals
 	ll_aligned_free_16(mBinormals);
@@ -6223,12 +6237,15 @@ void LLVolumeFace::pushIndex(const U16& idx)
 	S32 new_count = mNumIndices + 1;
 	S32 new_size = ((new_count*2)+0xF) & ~0xF;
 
-	S32 old_size = (mNumIndices+0xF) & ~0xF;
+	S32 old_size = ((mNumIndices*2)+0xF) & ~0xF;
 	if (new_size != old_size)
 	{
 		U16* dst = (U16*) ll_aligned_malloc_16(new_size);
-		LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mIndices, new_size/4);
-		ll_aligned_free_16(mIndices);
+		if (mIndices)
+		{
+			LLVector4a::memcpyNonAliased16((F32*) dst, (F32*) mIndices, old_size/4);
+			ll_aligned_free_16(mIndices);
+		}
 		mIndices = dst;
 	}
 	
@@ -6339,7 +6356,8 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 	U16* new_indices = (U16*) ll_aligned_malloc_16((new_count*2+0xF) & ~0xF);
 	if (mNumIndices > 0)
 	{ //copy old index buffer
-		LLVector4a::memcpyNonAliased16((F32*) new_indices, (F32*) mIndices, llmax(mNumIndices/2, 4));
+		S32 old_size = (mNumIndices*2+0xF) & ~0xF;
+		LLVector4a::memcpyNonAliased16((F32*) new_indices, (F32*) mIndices, old_size/4);
 	}
 
 	//free old index buffer
