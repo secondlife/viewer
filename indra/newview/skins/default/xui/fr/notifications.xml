@@ -168,7 +168,7 @@ Ajouter ce pouvoir à « [ROLE_NAME] » ?
 	<notification name="AttachmentDrop">
 		Vous êtes sur le point d&apos;abandonner l&apos;élément joint.
 Voulez-vous vraiment continuer ?
-		<usetemplate ignoretext="Confirmez avant d&apos;abandonner les éléments joints." name="okcancelignore" notext="Non" yestext="Oui"/>
+		<usetemplate ignoretext="Confirmer avant d&apos;abandonner les éléments joints" name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
 	<notification name="JoinGroupCanAfford">
 		Rejoindre ce groupe coûte [COST] L$.
@@ -355,6 +355,10 @@ Voulez-vous vraiment continuer ?
 	</notification>
 	<notification name="DeleteAvatarPick">
 		Supprimer la sélection &lt;nolink&gt;[PICK]&lt;/nolink&gt; ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="DeleteOutfits">
+		Supprimer la ou les tenues sélectionnées ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="PromptGoToEventsPage">
@@ -1346,7 +1350,7 @@ Télécharger vers le dossier Applications ?
 	</notification>
 	<notification name="WebLaunchQAWiki">
 		Consultez le Wiki sur l&apos;Assurance Qualité de [SECOND_LIFE].
-		<usetemplate ignoretext="Lancer mon navigateur web pour consulter la page Wiki sur l&apos;Assurance Qualité." name="okcancelignore" notext="Annuler" yestext="OK"/>
+		<usetemplate ignoretext="Lancer mon navigateur web pour consulter la page Wiki sur l&apos;Assurance Qualité" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchPublicIssue">
 		Pour signaler des bugs et autres problèmes, utilisez le JIRA de [SECOND_LIFE].
@@ -2032,11 +2036,6 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 		Importation de photos SL et Web en cours...
 (prend environ 5 minutes.)
 	</notification>
-	<notification name="UploadConfirmation">
-		Le chargement coûte [AMOUNT] L$.
-Continuer ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Charger"/>
-	</notification>
 	<notification name="UploadPayment">
 		Le chargement a coûté [AMOUNT] L$.
 	</notification>
@@ -2460,9 +2459,6 @@ Venant de l&apos;objet : [OBJECTNAME], appartenant à : [NAME]?
 	<notification name="FailedToFindWearable">
 		La recherche du [TYPE] nommé(e) [DESC] dans la base de données a échoué.
 	</notification>
-	<notification name="ShareToWebFailed">
-		Échec de chargement de l&apos;image sur le Web.
-	</notification>
 	<notification name="InvalidWearable">
 		L&apos;objet que vous essayez de porter utilise une fonctionnalité que le client ne peut lire. Pour porter cet objet, veuillez télécharger une mise à jour de [APP_NAME].
 	</notification>
@@ -2645,7 +2641,7 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	</notification>
 	<notification name="ConfirmCloseAll">
 		Êtes-vous certain de vouloir fermer tous les IM ?
-		<usetemplate ignoretext="Confirmer avant de fermer tous les IM." name="okcancelignore" notext="Annuler" yestext="OK"/>
+		<usetemplate ignoretext="Confirmer avant de fermer tous les IM" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="AttachmentSaved">
 		L&apos;élément joint a été sauvegardé.

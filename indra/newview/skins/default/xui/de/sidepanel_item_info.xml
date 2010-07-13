@@ -15,6 +15,12 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
+	<panel.string name="origin_inventory">
+		(Inventar)
+	</panel.string>
+	<panel.string name="origin_inworld">
+		(Inworld)
+	</panel.string>
 	<text name="title" value="Objektprofil"/>
 	<text name="origin" value="(Inventar)"/>
 	<panel label="">
@@ -27,23 +33,17 @@
 		<text name="LabelCreatorTitle">
 			Ersteller:
 		</text>
-		<text name="LabelCreatorName">
-			Nicole Linden
-		</text>
+		<text name="LabelCreatorName"/>
 		<button label="Profil" name="BtnCreator"/>
 		<text name="LabelOwnerTitle">
 			Eigentümer:
 		</text>
-		<text name="LabelOwnerName">
-			Thrax Linden
-		</text>
+		<text name="LabelOwnerName"/>
 		<button label="Profil" name="BtnOwner"/>
 		<text name="LabelAcquiredTitle">
 			Erworben:
 		</text>
-		<text name="LabelAcquiredDate">
-			Mittwoch, 24. Mai 2006, 12:50:46
-		</text>
+		<text name="LabelAcquiredDate"/>
 		<panel name="perms_inv">
 			<text name="perm_modify">
 				Sie können:

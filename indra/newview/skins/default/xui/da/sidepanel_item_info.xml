@@ -15,6 +15,12 @@
 	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
+	<panel.string name="origin_inventory">
+		(Beholdning)
+	</panel.string>
+	<panel.string name="origin_inworld">
+		(I Second Life)
+	</panel.string>
 	<text name="title" value="Profil for genstand"/>
 	<text name="origin" value="(Beholdning)"/>
 	<panel label="">
@@ -35,9 +41,7 @@
 		<text name="LabelAcquiredTitle">
 			Erhvervet:
 		</text>
-		<text name="LabelAcquiredDate">
-			Ons Maj 24 12:50:46 2006
-		</text>
+		<text name="LabelAcquiredDate"/>
 		<panel name="perms_inv">
 			<text name="perm_modify">
 				Du kan:

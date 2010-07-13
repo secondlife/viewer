@@ -138,9 +138,12 @@ void LLInventoryItemsList::idle(void* user_data)
 	}
 }
 
+LLFastTimer::DeclareTimer FTM_INVENTORY_ITEMS_REFRESH("Inventory List Refresh");
+
 void LLInventoryItemsList::refresh()
 {
-	static const unsigned ADD_LIMIT = 50;
+	LLFastTimer _(FTM_INVENTORY_ITEMS_REFRESH);
+	static const unsigned ADD_LIMIT = 20;
 
 	uuid_vec_t added_items;
 	uuid_vec_t removed_items;
@@ -171,7 +174,8 @@ void LLInventoryItemsList::refresh()
 	it = removed_items.begin();
 	for( ; removed_items.end() != it; ++it)
 	{
-		removeItemByUUID(*it);
+		// don't filter items right away
+		removeItemByUUID(*it, false);
 	}
 
 	// Filter, rearrange and notify parent about shape changes

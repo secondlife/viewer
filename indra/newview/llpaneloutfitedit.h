@@ -154,7 +154,7 @@ public:
 	void onInventorySelectionChange();
 	void onPlusBtnClicked(void);
 
-	void onVisibilityChange();
+	void onVisibilityChange(const LLSD &in_visible_chain);
 
 	void applyFolderViewFilter(EFolderViewItemType type);
 	void applyListViewFilter(EListViewItemType type);
@@ -202,6 +202,7 @@ private:
 	void onOutfitChanging(bool started);
 	void getSelectedItemsUUID(uuid_vec_t& uuid_list);
 	void getCurrentItemUUID(LLUUID& selected_id);
+	void onCOFChanged();
 
 	LLTextBox*			mCurrentOutfitName;
 	LLTextBox*			mStatus;
