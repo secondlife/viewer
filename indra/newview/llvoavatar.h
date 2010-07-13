@@ -1048,5 +1048,6 @@ protected: // Shared with LLVOAvatarSelf
  *******************************************************************************/
 
 }; // LLVOAvatar
+extern const F32  SELF_ADDITIONAL_PRI;
 
 #endif // LL_VO_AVATAR_H

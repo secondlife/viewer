@@ -4272,10 +4272,12 @@ void LLVOAvatar::checkTextureLoading()
 	return ;
 }
 
+const F32  SELF_ADDITIONAL_PRI = 0.75f ;
+const F32  ADDITIONAL_PRI = 0.5f;
 void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level)
 {
 	//if this function is not called for the last 512 frames, the texture pipeline will stop fetching this texture.
-	static const S32  MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 512 ; //frames	
+	static const S32  MAX_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 512 ; //frames		
 
 	imagep->resetTextureStats();
 	imagep->setCanUseHTTP(false) ; //turn off http fetching for baked textures.
@@ -4285,9 +4287,14 @@ void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel
 	mMinPixelArea = llmin(pixel_area, mMinPixelArea);	
 	imagep->addTextureStats(pixel_area / texel_area_ratio);
 	imagep->setBoostLevel(boost_level);
-	if(boost_level == LLViewerTexture::BOOST_AVATAR_BAKED_SELF)
+	
+	if(boost_level != LLViewerTexture::BOOST_AVATAR_BAKED_SELF)
 	{
-		imagep->setAdditionalDecodePriority(1.0f) ;
+		imagep->setAdditionalDecodePriority(ADDITIONAL_PRI) ;
+	}
+	else
+	{
+		imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
 	}
 }
 
