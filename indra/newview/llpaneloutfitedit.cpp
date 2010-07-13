@@ -442,6 +442,9 @@ void LLPanelOutfitEdit::showAddWearablesPanel(bool show_add_wearables)
 		mListViewFilterCmbBox->setVisible(false);
 
 		showWearablesFilter();
+
+		// Reset mWearableItemsList position to top. See EXT-8180.
+		mWearableItemsList->goToTop();
 	}
 
 	//switching button bars
@@ -949,9 +952,6 @@ void LLPanelOutfitEdit::showFilteredWearablesListView(LLWearableType::EType type
 {
 	showAddWearablesPanel(true);
 	showWearablesListView();
-
-	// Reset mWearableItemsList position to top. See EXT-8180.
-	mWearableItemsList->goToTop();
 
 	//e_list_view_item_type implicitly contains LLWearableType::EType starting from LVIT_SHAPE
 	applyListViewFilter((EListViewItemType) (LVIT_SHAPE + type));
