@@ -3187,29 +3187,26 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
-		else if (visible && mVisibilityRank <= LLVOAvatar::sMaxVisible)
+		else if (mVisibilityRank <= LLVOAvatar::sMaxVisible)
 		{ //first 25% of max visible avatars are not impostored
 			mUpdatePeriod = 1;
 		}
-		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 4)
+		else if (mVisibilityRank > LLVOAvatar::sMaxVisible * 4)
 		{ //background avatars are REALLY slow updating impostors
 			mUpdatePeriod = 16;
 		}
-		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible * 3)
+		else if (mVisibilityRank > LLVOAvatar::sMaxVisible * 3)
 		{ //back 25% of max visible avatars are slow updating impostors
 			mUpdatePeriod = 8;
 		}
-		else if (visible && mImpostorPixelArea <= impostor_area)
+		else if (mImpostorPixelArea <= impostor_area)
 		{  // stuff in between gets an update period based on pixel area
 			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
 		}
-		else if (visible && mVisibilityRank > LLVOAvatar::sMaxVisible)
-		{ // force nearby impostors in ultra crowded areas
-			mUpdatePeriod = 2;
-		}
 		else
-		{ // not impostored
-			mUpdatePeriod = 1;
+		{
+			//nearby avatars, update the impostors more frequently.
+			mUpdatePeriod = 4;
 		}
 
 		visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
@@ -7304,7 +7301,7 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 	std::sort(LLCharacter::sInstances.begin(), LLCharacter::sInstances.end(), CompareScreenAreaGreater());
 	
 	// Update the avatars that have changed status
-	U32 rank = 0;
+	U32 rank = 2; //1 is reserved for self. 
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -7328,7 +7325,7 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 
 		if (inst->isSelf())
 		{
-			inst->setVisibilityRank(0);
+			inst->setVisibilityRank(1);
 		}
 		else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
 		{
