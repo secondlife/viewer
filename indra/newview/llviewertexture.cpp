@@ -495,6 +495,7 @@ LLViewerTexture::LLViewerTexture(const U32 width, const U32 height, const U8 com
 	mFullHeight = height ;
 	mUseMipMaps = usemipmaps ;
 	mComponents = components ;
+	setTexelsPerImage();
 
 	mID.generate();
 	sImageCount++;
@@ -522,6 +523,7 @@ void LLViewerTexture::init(bool firstinit)
 
 	mFullWidth = 0;
 	mFullHeight = 0;
+	mTexelsPerImage = 0 ;
 	mUseMipMaps = FALSE ;
 	mComponents = 0 ;
 
@@ -530,7 +532,7 @@ void LLViewerTexture::init(bool firstinit)
 	mMaxVirtualSize = 0.f;
 	mNeedsGLTexture = FALSE ;
 	mMaxVirtualSizeResetInterval = 1;
-	mMaxVirtualSizeResetCounter = 1 ;
+	mMaxVirtualSizeResetCounter = mMaxVirtualSizeResetInterval ;
 	mAdditionalDecodePriority = 0.f ;	
 	mParcelMedia = NULL ;
 	mNumFaces = 0 ;
@@ -838,7 +840,8 @@ BOOL LLViewerTexture::createGLTexture(S32 discard_level, const LLImageRaw* image
 	{
 		mFullWidth = mGLTexturep->getCurrentWidth() ;
 		mFullHeight = mGLTexturep->getCurrentHeight() ; 
-		mComponents = mGLTexturep->getComponents() ;		
+		mComponents = mGLTexturep->getComponents() ;	
+		setTexelsPerImage();
 	}
 
 	return ret ;
@@ -1056,9 +1059,16 @@ void LLViewerTexture::destroyGLTexture()
 	}	
 }
 
+void LLViewerTexture::setTexelsPerImage()
+{
+	S32 fullwidth = llmin(mFullWidth,(S32)MAX_IMAGE_SIZE_DEFAULT);
+	S32 fullheight = llmin(mFullHeight,(S32)MAX_IMAGE_SIZE_DEFAULT);
+	mTexelsPerImage = (F32)fullwidth * fullheight;
+}
+
 BOOL LLViewerTexture::isLargeImage()
 {
-	return mFullWidth * mFullHeight > LLViewerTexture::sMinLargeImageSize ;
+	return  (S32)mTexelsPerImage > LLViewerTexture::sMinLargeImageSize ;
 }
 
 //virtual 
@@ -1415,6 +1425,7 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 			
 			mFullWidth = mRawImage->getWidth();
 			mFullHeight = mRawImage->getHeight();
+			setTexelsPerImage();
 		}
 		else
 		{
@@ -1619,11 +1630,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	{
 		// priority range = 100,000 - 500,000
 		S32 desired_discard = mDesiredDiscardLevel;
-		if (getDontDiscard())
-		{
-			desired_discard -= 2;
-		}
-		else if (!isJustBound() && mCachedRawImageReady)
+		if (!isJustBound() && mCachedRawImageReady)
 		{
 			if(mBoostLevel < BOOST_HIGH)
 			{
@@ -1639,7 +1646,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 
 		S32 ddiscard = cur_discard - desired_discard;
 		ddiscard = llclamp(ddiscard, -1, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
-		priority = (ddiscard + 1) * PRIORITY_DELTA_DISCARD_LEVEL_FACTOR;
+		priority = (ddiscard + 1) * PRIORITY_DELTA_DISCARD_LEVEL_FACTOR;		
 	}
 
 	// Priority Formula:
@@ -1647,19 +1654,51 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	// [10,000,000] + [1,000,000-9,000,000]  + [100,000-500,000]   + [1-20,000]  + [0-999]
 	if (priority > 0.0f)
 	{
+		bool large_enough = mCachedRawImageReady && ((S32)mTexelsPerImage > sMinLargeImageSize) ;
+		if(large_enough)
+		{
+			//Note: 
+			//to give small, low-priority textures some chance to be fetched, 
+			//cut the priority in half if the texture size is larger than 256 * 256 and has a 64*64 ready.
+			priority *= 0.5f ; 
+		}
+
 		pixel_priority = llclamp(pixel_priority, 0.0f, MAX_PRIORITY_PIXEL); 
 
 		priority += pixel_priority + PRIORITY_BOOST_LEVEL_FACTOR * mBoostLevel;
 
 		if ( mBoostLevel > BOOST_HIGH)
 		{
-			priority += PRIORITY_BOOST_HIGH_FACTOR;
+			if(mBoostLevel > BOOST_SUPER_HIGH)
+			{
+				//for very important textures, always grant the highest priority.
+				priority += PRIORITY_BOOST_HIGH_FACTOR;
+			}
+			else if(mCachedRawImageReady)
+			{
+				//Note: 
+				//to give small, low-priority textures some chance to be fetched, 
+				//if high priority texture has a 64*64 ready, lower its fetching priority.
+				setAdditionalDecodePriority(0.5f) ;
+			}
+			else
+			{
+				priority += PRIORITY_BOOST_HIGH_FACTOR;
+			}
 		}		
 
 		if(mAdditionalDecodePriority > 0.0f)
 		{
 			// priority range += 1,000,000.f-9,000,000.f
-			priority += PRIORITY_ADDITIONAL_FACTOR * (1.0 + mAdditionalDecodePriority * MAX_ADDITIONAL_LEVEL_FOR_PRIORITY);
+			F32 additional = PRIORITY_ADDITIONAL_FACTOR * (1.0 + mAdditionalDecodePriority * MAX_ADDITIONAL_LEVEL_FOR_PRIORITY);
+			if(large_enough)
+			{
+				//Note: 
+				//to give small, low-priority textures some chance to be fetched, 
+				//cut the additional priority to a quarter if the texture size is larger than 256 * 256 and has a 64*64 ready.
+				additional *= 0.25f ;
+			}
+			priority += additional;
 		}
 	}
 	return priority;
@@ -1700,11 +1739,6 @@ void LLViewerFetchedTexture::updateVirtualSize()
 	if(!mMaxVirtualSizeResetCounter)
 	{
 		addTextureStats(0.f, FALSE) ;//reset
-	}
-
-	if(mForceToSaveRawImage)
-	{
-		setAdditionalDecodePriority(0.75f) ; //boost the fetching priority
 	}
 
 	for(U32 i = 0 ; i < mNumFaces ; i++)
@@ -1819,6 +1853,7 @@ bool LLViewerFetchedTexture::updateFetch()
 			{
 				mFullWidth = mRawImage->getWidth() << mRawDiscardLevel;
 				mFullHeight = mRawImage->getHeight() << mRawDiscardLevel;
+				setTexelsPerImage();
 
 				if(mFullWidth > MAX_IMAGE_SIZE || mFullHeight > MAX_IMAGE_SIZE)
 				{ 
@@ -2886,10 +2921,6 @@ void LLViewerLODTexture::processTextureStats()
 	{
 		//static const F64 log_2 = log(2.0);
 		static const F64 log_4 = log(4.0);
-
-		S32 fullwidth = llmin(mFullWidth,(S32)MAX_IMAGE_SIZE_DEFAULT);
-		S32 fullheight = llmin(mFullHeight,(S32)MAX_IMAGE_SIZE_DEFAULT);
-		mTexelsPerImage = (F32)fullwidth * fullheight;
 
 		F32 discard_level = 0.f;
 
