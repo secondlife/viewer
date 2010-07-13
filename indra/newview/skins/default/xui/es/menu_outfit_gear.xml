@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Gear Outfit">
 	<menu_item_call label="Ponerme - Reemplazar el vestuario actual" name="wear"/>
+	<menu_item_call label="Ponerme - Añadir al vestuario actual" name="wear_add"/>
 	<menu_item_call label="Quitarme - Quitar del vestuario actual" name="take_off"/>
 	<menu label="Ropas nuevas" name="New Clothes">
 		<menu_item_call label="Camisa nueva" name="New Shirt"/>

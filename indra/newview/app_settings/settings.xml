@@ -11924,5 +11924,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>TipToastMessageLineCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Max line count of text message on tip toast.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
 </map>
 </llsd>

@@ -44,7 +44,7 @@
 	</text>
 	<check_box label="Copier" name="everyone_copy"/>
 	<text name="NextOwnerLabel">
-		Le prochain propriétaire :
+		Prochain propr. :
 	</text>
 	<check_box label="Modifier" name="next_owner_modify"/>
 	<check_box label="Copier" name="next_owner_copy"/>

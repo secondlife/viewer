@@ -5,7 +5,7 @@
         
 Rappel : les frais liés aux annonces passées ne sont pas remboursables.
 	</text>
-	<spinner label="Coût de l&apos;annonce :" name="price_for_listing" tool_tip="Coût de l’annonce." value="50"/>
+	<spinner label="Prix : L$" name="price_for_listing" tool_tip="Coût de l’annonce." value="50"/>
 	<text name="l$_text" value="L$"/>
 	<text name="more_info_text">
 		En savoir plus (lien vers l&apos;aide sur les annonces)

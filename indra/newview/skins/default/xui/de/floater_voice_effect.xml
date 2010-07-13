@@ -16,7 +16,7 @@
 		Zur Vorschau
 	</text>
 	<text name="status_text">
-		Nehmen Sie Ihre Stimme auf, klicken Sie dann auf einen Effekt, um den Effekt auf Ihre Stimme anzuwenden.
+		Stimme aufnehmen und auf einen Effekt klicken, um diesen auf Ihre Stimme anzuwenden.
 	</text>
 	<button label="Aufnehmen" name="record_btn" tool_tip="Nehmen Sie Ihre Stimme auf."/>
 	<button label="Stopp" name="record_stop_btn"/>

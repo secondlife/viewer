@@ -15,6 +15,12 @@
 	<panel.string name="acquiredDate">
 		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</panel.string>
+	<panel.string name="origin_inventory">
+		（持ち物）
+	</panel.string>
+	<panel.string name="origin_inworld">
+		（インワールド）
+	</panel.string>
 	<text name="title" value="アイテムのプロフィール"/>
 	<text name="origin" value="（持ち物）"/>
 	<panel label="">
@@ -27,23 +33,17 @@
 		<text name="LabelCreatorTitle">
 			制作者：
 		</text>
-		<text name="LabelCreatorName">
-			Nicole Linden
-		</text>
+		<text name="LabelCreatorName"/>
 		<button label="プロフィール" name="BtnCreator"/>
 		<text name="LabelOwnerTitle">
 			所有者：
 		</text>
-		<text name="LabelOwnerName">
-			Thrax Linden
-		</text>
+		<text name="LabelOwnerName"/>
 		<button label="プロフィール" name="BtnOwner"/>
 		<text name="LabelAcquiredTitle">
 			取得：
 		</text>
-		<text name="LabelAcquiredDate">
-			Wed May 24 12:50:46 2006
-		</text>
+		<text name="LabelAcquiredDate"/>
 		<panel name="perms_inv">
 			<text name="perm_modify">
 				あなたができること：

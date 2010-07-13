@@ -265,6 +265,7 @@ public:
 	void setAllowSelection(bool can_select) { mAllowSelection = can_select; }
 
 	/** Sets flag whether onCommit should be fired if selection was changed */
+	// FIXME: this should really be a separate signal, since "Commit" implies explicit user action, and selection changes can happen more indirectly.
 	void setCommitOnSelectionChange(bool b)		{ mCommitOnSelectionChange = b; }
 
 	/** Get number of selected items in the list */
