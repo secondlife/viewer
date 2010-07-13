@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="wearable_item">
+	<button name="btn_delete" tool_tip="Usuń ze stroju"/>
+	<text name="item_name" value="..."/>
+	<panel name="btn_lock" tool_tip="Nie masz pozwolenia na edycję"/>
+	<panel name="btn_edit_panel">
+		<button name="btn_edit" tool_tip="Edytuj część stroju"/>
+	</panel>
+</panel>

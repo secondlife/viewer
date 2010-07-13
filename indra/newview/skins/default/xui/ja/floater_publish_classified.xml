@@ -5,7 +5,7 @@
         
 クラシファイド広告は返金できませんのでご了承ください。
 	</text>
-	<spinner label="広告費：" name="price_for_listing" tool_tip="掲載価格" value="50"/>
+	<spinner label="価格：L$" name="price_for_listing" tool_tip="掲載価格" value="50"/>
 	<text name="l$_text" value="L$"/>
 	<text name="more_info_text">
 		詳しい情報（クラシファイドヘルプへのリンク）

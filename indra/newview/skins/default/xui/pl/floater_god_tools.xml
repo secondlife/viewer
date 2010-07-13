@@ -2,12 +2,11 @@
 <floater name="godtools floater" title="BOSKIE NARZĘDZIA">
 	<tab_container name="GodTools Tabs">
 		<panel label="Grid" name="grid">
-			<button label="Wyrzuć wszystkich Rezydentów" label_selected="Wyrzuć wszystkich Rezydentów" name="Kick all users" width="205"/>
 			<button label="Wyrównaj widoczność buforu mapy Regionu" label_selected="Wyrównaj widoczność buforu mapy Regionu" name="Flush This Region&apos;s Map Visibility Caches" width="285"/>
 		</panel>
 		<panel label="Region" name="region">
-			<text name="Sim Name:" width="100">
-				Nazwa Symulatora:
+			<text name="Region Name:">
+				Nazwa Regionu:
 			</text>
 			<line_editor left="115" name="region name" width="178"/>
 			<check_box label="Wstęp" name="check prelude" tool_tip="Set this to make the region a prelude"/>
@@ -53,8 +52,8 @@
 			<button label="Automatyczne zapisanie" label_selected="Automatyczne zapisanie" left="156" name="Autosave now" tool_tip="Save gzipped state to autosave directory" width="150"/>
 		</panel>
 		<panel label="Obiekty" name="objects">
-			<text name="Sim Name:" width="105">
-				Nazwa Symulatora:
+			<text name="Region Name:">
+				Nazwa Regionu:
 			</text>
 			<text left_delta="110" name="region name">
 				Welsh
