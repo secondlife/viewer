@@ -348,8 +348,8 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mInventoryItemsPanel = getChild<LLInventoryPanel>("folder_view");
 	mInventoryItemsPanel->setFilterTypes(ALL_ITEMS_MASK);
 	mInventoryItemsPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
-	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+	mInventoryItemsPanel->setSelectCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
+	mInventoryItemsPanel->getRootFolder()->setReshapeCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
 
 	mCOFDragAndDropObserver = new LLCOFDragAndDropObserver(mInventoryItemsPanel->getModel());
 
@@ -389,7 +389,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearablesListViewPanel = getChild<LLPanel>("filtered_wearables_panel");
 	mWearableItemsList = getChild<LLInventoryItemsList>("list_view");
 	mWearableItemsList->setCommitOnSelectionChange(true);
-	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onInventorySelectionChange, this));
+	mWearableItemsList->setCommitCallback(boost::bind(&LLPanelOutfitEdit::updatePlusButton, this));
 	mWearableItemsList->setDoubleClickCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
@@ -738,7 +738,7 @@ void LLPanelOutfitEdit::onEditWearableClicked(void)
 	}
 }
 
-void LLPanelOutfitEdit::onInventorySelectionChange()
+void LLPanelOutfitEdit::updatePlusButton()
 {
 	uuid_vec_t selected_items;
 	getSelectedItemsUUID(selected_items);
@@ -981,6 +981,9 @@ void LLPanelOutfitEdit::updateVerbs()
 	mStatus->setText(outfit_is_dirty ? getString("unsaved_changes") : getString("now_editing"));
 
 	updateCurrentOutfitName();
+
+	//updating state of "Wear Item" button previously known as "Plus" button
+	updatePlusButton();
 }
 
 bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch_to_panel)

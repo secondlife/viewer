@@ -145,7 +145,7 @@ public:
 	void onFolderViewFilterCommitted(LLUICtrl* ctrl);
 	void onListViewFilterCommitted(LLUICtrl* ctrl);
 	void onSearchEdit(const std::string& string);
-	void onInventorySelectionChange();
+	void updatePlusButton();
 	void onPlusBtnClicked(void);
 
 	void onVisibilityChange(const LLSD &in_visible_chain);
