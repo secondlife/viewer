@@ -995,7 +995,7 @@ bool LLAppearanceMgr::wearItemOnAvatar(const LLUUID& item_id_to_wear, bool do_up
 			{
 				removeCOFItemLinks(gAgentWearables.getWearableItemID(item_to_wear->getWearableType(), wearable_count-1), false);
 			}
-			addCOFItemLink(item_to_wear, do_update);
+			addCOFItemLink(item_to_wear, do_update, cb);
 		} 
 		break;
 	case LLAssetType::AT_BODYPART:
